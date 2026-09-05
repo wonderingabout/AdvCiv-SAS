@@ -248,6 +248,11 @@ static bool SAS_isSettlerEarlyFoundValueFloorActive(CvPlayerAI const& kPlayer, i
 static int SAS_getSettlerBuildMinFoundValue(CvPlayerAI const& kPlayer, bool bDanger)
 {
 	int iMinFoundValue = SAS_getDangerAdjustedMinFoundValue(kPlayer, bDanger);
+	// <!-- custom: Treat the second city separately from later filler expansion. A one-city empire can use normal AdvCiv valuation by default, or an optional lighter floor, while the stricter early/midgame floor can begin at city 2+.
+	// Great Plains logs showed one-city AIs otherwise losing a viable expansion window and then never training their first Settler. (ChatGPT-5.6-Sol) -->
+	static const int iFirstExpansionFloor = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_SETTLER_FIRST_EXPANSION_MIN_FOUND_VALUE"));
+	if (kPlayer.getNumCities() == 1 && iFirstExpansionFloor > 0)
+		iMinFoundValue = std::max(iMinFoundValue, iFirstExpansionFloor);
 	int iSettlerFloor = 0;
 	int iSettlerFloorMinCities = 0;
 	int iSettlerFloorMaxEra = 0;
@@ -295,6 +300,30 @@ static bool SAS_isSettlerBuildWorthwhile(CvCityAI const& kCity, int& iAreaBestFo
 static bool SAS_isSettlerProductionCandidate(UnitTypes eUnit, UnitAITypes eUnitAI)
 {
 	return (eUnitAI == UNITAI_SETTLE || (eUnit != NO_UNIT && GC.getInfo(eUnit).getDefaultUnitAIType() == UNITAI_SETTLE));
+}
+
+// <!-- custom: Keep Settler-escort production coordination on the same healthy-defender count used by the SAS attachment safety rule.
+// Count healthy local defenders of any UnitAI because the movement-side escort pool can borrow suitable non-CITY_DEFENSE defenders too. See KI#179.2 and KI#179.3. (ChatGPT-5.6-Sol) -->
+static void SAS_countLocalSettlerEscortState(CvPlot const& kPlot, PlayerTypes eOwner, int& iUnguardedSettlers, int& iHealthyDefenders)
+{
+	iUnguardedSettlers = 0;
+	iHealthyDefenders = 0;
+	for (CLLNode<IDInfo> const* pUnitNode = kPlot.headUnitNode(); pUnitNode != NULL; pUnitNode = kPlot.nextUnitNode(pUnitNode))
+	{
+		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+		if (pLoopUnit == NULL || pLoopUnit->getOwner() != eOwner)
+			continue;
+		if (pLoopUnit->canDefend(&kPlot) && pLoopUnit->getDamage() <= 25)
+			iHealthyDefenders++;
+		if (pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE && (pLoopUnit->getGroup() == NULL || !pLoopUnit->getGroup()->canDefend()))
+			iUnguardedSettlers++;
+	}
+}
+
+static bool SAS_hasExistingSettlerEscortShortage(CvPlot const& kPlot, PlayerTypes eOwner, int iMinHealthyDefendersLeft, int& iUnguardedSettlers, int& iHealthyDefenders)
+{
+	SAS_countLocalSettlerEscortState(kPlot, eOwner, iUnguardedSettlers, iHealthyDefenders);
+	return (iUnguardedSettlers > 0 && iHealthyDefenders <= iMinHealthyDefendersLeft);
 }
 
 
@@ -1812,19 +1841,30 @@ void CvCityAI::AI_chooseProduction()
 
 	//minimal defense.
 	//if (iPlotCityDefenderCount <= iPlotSettlerCount)
-	if (!bUnitExempt && iPlotSettlerCount > 0 && iPlotCityDefenderCount <= iPlotSettlerCount)
+	// <!-- custom: Match production to the SAS city-escort attachment safety rule.
+	// Logs showed completed Settlers waiting 15-20+ turns with two healthy defenders: movement correctly refused to take one because two must remain, while this older production check saw 2 defenders > 1 Settler and built no missing escort.
+	// Count only unguarded local Settlers for the SAS shortage and request one more defender without weakening the movement-side safety rule. See KI#179.2. (ChatGPT-5.6-Sol) -->
+	static const bool bSASSettlerEscortCoordinationOptimize = GC.getDefineBOOL("SAS_AI_CHOOSE_PRODUCTION_SETTLER_ESCORT_COORDINATION_OPTIMIZE");
+	static const int iSASSettlerEscortMinHealthyDefendersLeft = std::max(0, GC.getDefineINT("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT"));
+	int iPlotUnguardedSettlerCount = 0;
+	int iPlotHealthyDefenderCount = 0;
+	bool const bSASExistingSettlerEscortShortage = (bSASSettlerEscortCoordinationOptimize && iPlotSettlerCount > 0 &&
+		SAS_hasExistingSettlerEscortShortage(kPlot, getOwner(), iSASSettlerEscortMinHealthyDefendersLeft, iPlotUnguardedSettlerCount, iPlotHealthyDefenderCount));
+	if (!bUnitExempt && iPlotSettlerCount > 0 && (iPlotCityDefenderCount <= iPlotSettlerCount || bSASExistingSettlerEscortShortage))
 	{
-		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S needs escort for existing settler", sCityName);
+		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2 || gSettlerLogLevel >= 2))
+			logBBAI("      EXISTING_SETTLER_ESCORT_PRODUCTION turn=%d player=%d %S city=%S result=NEED_ESCORT plotSettlers=%d unguardedSettlers=%d cityDefenders=%d healthyDefenders=%d minHealthyLeft=%d sasShortage=%d",
+				kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, iPlotSettlerCount, iPlotUnguardedSettlerCount, iPlotCityDefenderCount, iPlotHealthyDefenderCount, iSASSettlerEscortMinHealthyDefendersLeft, bSASExistingSettlerEscortShortage);
 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
 		{
 			// BBAI TODO: Does this work right after settler is built???
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses escort existing settler 1 defense", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2 || gSettlerLogLevel >= 2)) logBBAI("      City %S uses escort existing settler 1 defense", sCityName);
 			return;
 		}
 
 		if (AI_chooseUnit(UNITAI_ATTACK))
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses escort existing settler 1 attack", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2 || gSettlerLogLevel >= 2)) logBBAI("      City %S uses escort existing settler 1 attack", sCityName);
 			return;
 		}
 	}
@@ -2640,13 +2680,23 @@ void CvCityAI::AI_chooseProduction()
 	bool bSettlerGateDanger = false;
 	bool bSettlerGateDefenseMode = false;
 	bool bSettlerGateOffenseMode = false;
+	bool bSettlerGateSoftGrowthRule = false;
+	bool bSettlerGateGrowthSoon = false;
+	// <!-- custom: Keep this context flag in the wider AI_chooseProduction scope because it is computed in the early Settler gate and intentionally reused later by the escort-preparation branch. Declaring it inside the earlier block leaves it out of scope at the later reuse and does not compile with the Civ4 MSVC 2003 toolchain. See KI#179.3 and KI#181.2. (ChatGPT-5.6-Sol) -->
+	bool bFirstTrainedSettlerContext = false;
+	int iSettlerGateFoodDifference = 0;
+	int iSettlerGateFoodTurnsLeft = -1;
+	int iSettlerGatePreferredMinPopulation = -1;
+	int iSettlerGateGrowthWaitMaxTurns = -1;
 
 	if (!bMinor && !bBarbarian)
 	{
 		// <!-- custom: add bNoSettler checks here rather than hardcoded in bestUnitAI with the old bNoGrow logic of base advciv +/- civ4 code, hopefully cleaner and we can contorl it better as well -->
-		//int const iFoodDifference = foodDifference(true, true);
-		bool const bStagnant = (!isFoodProduction() && foodDifference() <= 0);
+		int const iFoodDifference = foodDifference();
+		bool const bStagnant = (!isFoodProduction() && iFoodDifference <= 0);
 		bSettlerGateStagnant = bStagnant;
+		iSettlerGateFoodDifference = iFoodDifference;
+		iSettlerGateFoodTurnsLeft = getFoodTurnsLeft();
 
 		// CvArea* pWaterArea = waterArea(true);
 
@@ -2703,22 +2753,39 @@ void CvCityAI::AI_chooseProduction()
 		const bool bFreeSettlerEarlyWindow = (kGame.getElapsedGameTurns() < iFreeTurns);
 		bSettlerGateFreeWindow = bFreeSettlerEarlyWindow;
 
-		// <!-- custom: only capital can produce settler as of now, but in case we change it, safer to put these at common tree/logic (i.e. with non capital cities too); note: it is intended that this applies regardless of free window, as even in first 75 or so turns (see below for updated value if any), we want to grow first still before producing settlers, see below for reasons, that include more efficient food is production due to higher pop, as well as stronger military or such so less barbarian captures than with a bunch of 1 size cities thinly/weakly guarded at turn 50-75 then recaptured at turn 75-100 by a rival :( So take a bit slower growth for higher efifciency and see below for details -->
-		if (iCityPopulation <= 4)
+		// <!-- custom: The old AdvCiv-SAS low-population Settler gate treated any positive growth as a reason to wait, even +1 food with many turns until the next citizen.
+		// Great Plains logs showed that this can lose a good second-city site and then strand a one-city AI behind the stricter site floor.
+		// For the first trained Settler only, use a soft preferred population: wait for growth only when the next citizen is actually close.
+		// The old hard first-Settler path is removed after same-save Great Plains A/B testing; established empires keep the separate conservative low-population rule below. (ChatGPT-5.6-Sol) -->
+		static const int iSASFirstSettlerPreferredMinPopulation = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_PREFERRED_MIN_POPULATION"));
+		static const int iSASFirstSettlerGrowthWaitMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_GROWTH_WAIT_MAX_TURNS_NORMAL_GAMESPEED"));
+		int const iSASFirstSettlerGrowthWaitMaxTurns = (iSASFirstSettlerGrowthWaitMaxTurnsNormal * GC.getInfo(kGame.getGameSpeedType()).getGrowthPercent() + 99) / 100;
+		// <!-- custom: Use completed Settlers rather than AI_totalUnitAIs here because that total includes units currently being trained.
+		// Otherwise the soft rule would turn itself off on the turn after the first Settler starts and could recreate production churn. (ChatGPT-5.6-Sol) -->
+		bFirstTrainedSettlerContext = (isCapital() && iNumCities == 1 && kPlayer.AI_getNumAIUnits(UNITAI_SETTLE) == 0);
+		bool const bFirstSettlerGrowthSoon = (!bStagnant && iSettlerGateFoodTurnsLeft > 0 && iSASFirstSettlerGrowthWaitMaxTurns > 0 && iSettlerGateFoodTurnsLeft <= iSASFirstSettlerGrowthWaitMaxTurns);
+		bSettlerGateSoftGrowthRule = bFirstTrainedSettlerContext;
+		bSettlerGateGrowthSoon = bFirstSettlerGrowthSoon;
+		iSettlerGatePreferredMinPopulation = iSASFirstSettlerPreferredMinPopulation;
+		iSettlerGateGrowthWaitMaxTurns = iSASFirstSettlerGrowthWaitMaxTurns;
+		if (bFirstTrainedSettlerContext)
 		{
-			// <!-- custom: keep growing as in same old code that was now deleted, i start to understand maybe how they felt writing it, but it was way too permissive or and inaccurate or ineffective or not enough i think, i hope AI is more competitive with this one but there could be a better way ofc but i hope this is not too bad and better than previous one too i think as well but.. open to feedback xd, in this code at least not that i would necessarily reply though if i may say but open about being wrong or mistaken... (t.l.d.r don't contact me but i can be wrong xd) -->
-			if (!bStagnant)
+			if (iSASFirstSettlerPreferredMinPopulation > 0 && iCityPopulation < iSASFirstSettlerPreferredMinPopulation && bFirstSettlerGrowthSoon)
+				bNoSettler = true;
+			else if (bStagnant && iCityPopulation <= 2 && !bHasMinimumAreaWorkers)
 			{
 				bNoSettler = true;
+				bWorkerReplacesSettler = true;
 			}
-			// <!-- custom: small city stagnant (and not food is production that would alter the calculation to 0 or some other value), build a worker rather (but be careful of the chain loop endless worker though) -->
-			else 
+		}
+		else if (iCityPopulation <= 4)
+		{
+			if (!bStagnant)
+				bNoSettler = true;
+			else if (iCityPopulation <= 2 && !bHasMinimumAreaWorkers)
 			{
-				if (iCityPopulation <= 2 && !bHasMinimumAreaWorkers)
-				{
-					bNoSettler = true;
-					bWorkerReplacesSettler = true;
-				}
+				bNoSettler = true;
+				bWorkerReplacesSettler = true;
 			}
 		}
 
@@ -2756,6 +2823,20 @@ void CvCityAI::AI_chooseProduction()
 				}
 			}
 		}
+	}
+
+	if (gSettlerLogLevel >= 2 && isCapital() && iNumCities == 1 && iNumSettlers == 0)
+	{
+		int iEarlyFloor = 0;
+		int iEarlyFloorMinCities = 0;
+		int iEarlyFloorMaxEra = 0;
+		bool const bEarlyFloorActive = SAS_isSettlerEarlyFoundValueFloorActive(kPlayer, iEarlyFloor, iEarlyFloorMinCities, iEarlyFloorMaxEra);
+		static const int iFirstExpansionFloor = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_SETTLER_FIRST_EXPANSION_MIN_FOUND_VALUE"));
+		int const iNormalMinFound = SAS_getDangerAdjustedMinFoundValue(kPlayer, bDanger);
+		bool const bFoundValuePass = (iAreaBestFoundValue > iSettlerBuildMinFoundValue || iWaterAreaBestFoundValue > iSettlerBuildMinFoundValue);
+		logBBAI("      FIRST_SETTLER_SITE_GATE turn=%d player=%d %S city=%S result=%s areaSites=%d areaBest=%d waterSites=%d waterBest=%d normalMinFound=%d firstExpansionFloor=%d earlyFloorActive=%d earlyFloor=%d earlyFloorMinCities=%d earlyFloorMaxEra=%d settlerBuildMin=%d",
+				GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (bFoundValuePass ? "PASS" : "REJECT_FOUND_VALUE"), iNumAreaCitySites, iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue,
+				iNormalMinFound, iFirstExpansionFloor, bEarlyFloorActive, iEarlyFloor, iEarlyFloorMinCities, iEarlyFloorMaxEra, iSettlerBuildMinFoundValue);
 	}
 
 	if (!(bDefenseWar && iWarSuccessRating < -50))
@@ -2815,12 +2896,50 @@ void CvCityAI::AI_chooseProduction()
 				// <advc.031b> Store the result for "build settler 2"
 				iSettlerPriority = AI_calculateSettlerPriority(iNumAreaCitySites,
 						iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue);
-				// <!-- custom: first-settler stalls are hard to diagnose from the normal BBAI "build settler 1" success log. Log the gate state for one-city capitals before the choice, so replaying a save shows whether danger, financial trouble, defense/offense mode, site value, or the pop/growth gate blocked first expansion. This helped show that Bibracte's outer first-settler gate was open while the lower concrete-unit gate still rejected Settler; and ingame fixed the issue of building first settler at t90 on normal game speed (now has city 2 at t~40-50 and 3 cities at t100 instead of only 1). (GPT-5.5 + GPT-5.5-Thinking) -->
+				// <!-- custom: first-settler stalls are hard to diagnose from the normal BBAI "build settler 1" success log. Log the gate state for one-city capitals before the choice, so replaying a save shows whether danger, financial trouble, defense/offense mode, site value, or the pop/growth gate blocked first expansion.
+				// This helped show that Bibracte's outer first-settler gate was open while the lower concrete-unit gate still rejected Settler; and ingame fixed the issue of building first settler at t90 on normal game speed (now has city 2 at t~40-50 and 3 cities at t100 instead of only 1). (GPT-5.5 + GPT-5.5-Thinking) -->
 				if (gSettlerLogLevel >= 2 && isCapital() && iNumCities == 1 && iNumSettlers == 0)
 				{
-					logBBAI("      SETTLER_BUILD_DECISION turn=%d player=%d %S city=%S cityId=%d source=first_settler_gate result=CHECK pop=%d freeWindow=%d stagnant=%d danger=%d financial=%d defenseMode=%d offenseMode=%d noSettler=%d workerReplaces=%d areaSites=%d areaBest=%d waterSites=%d waterBest=%d minFound=%d settlerBuildMin=%d settlers=%d/%d priority=%d plotSettlers=%d",
-							GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), iCityPopulation, bSettlerGateFreeWindow, bSettlerGateStagnant, bSettlerGateDanger, bFinancialTrouble, bSettlerGateDefenseMode, bSettlerGateOffenseMode, bNoSettler, bWorkerReplacesSettler, iNumAreaCitySites, iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iMinFoundValue, iSettlerBuildMinFoundValue, iNumSettlers, iMaxSettlers, iSettlerPriority, iPlotSettlerCount);
+					logBBAI("      SETTLER_BUILD_DECISION turn=%d player=%d %S city=%S cityId=%d source=first_settler_gate result=CHECK pop=%d freeWindow=%d stagnant=%d foodDiff=%d foodTurnsLeft=%d softGrowthRule=%d preferredMinPop=%d growthWaitMaxTurns=%d growthSoon=%d danger=%d financial=%d defenseMode=%d offenseMode=%d noSettler=%d workerReplaces=%d areaSites=%d areaBest=%d waterSites=%d waterBest=%d minFound=%d settlerBuildMin=%d settlers=%d/%d priority=%d plotSettlers=%d",
+							GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), iCityPopulation, bSettlerGateFreeWindow, bSettlerGateStagnant,
+							iSettlerGateFoodDifference, iSettlerGateFoodTurnsLeft, bSettlerGateSoftGrowthRule, iSettlerGatePreferredMinPopulation, iSettlerGateGrowthWaitMaxTurns, bSettlerGateGrowthSoon,
+							bSettlerGateDanger, bFinancialTrouble, bSettlerGateDefenseMode, bSettlerGateOffenseMode, bNoSettler, bWorkerReplacesSettler, iNumAreaCitySites, iAreaBestFoundValue, iNumWaterAreaCitySites,
+							iWaterAreaBestFoundValue, iMinFoundValue, iSettlerBuildMinFoundValue, iNumSettlers, iMaxSettlers, iSettlerPriority, iPlotSettlerCount);
 				}
+				// <!-- custom: If the first Settler is otherwise ready to be trained, opportunistically prepare the spare escort capacity that KI#179's movement rule will require.
+				// Do this only when the best city defender can finish quickly: the first unconditional version eliminated post-completion parking but made two weak-production capitals postpone their first trained Settler until about T90-T97.
+				// Slow defenders therefore fall back to normal Settler-first sequencing plus KI#179.2's post-completion escort repair. See KI#179.3. (ChatGPT-5.6-Sol) -->
+				if (!isBarbarian() && !bNoSettler && bSASSettlerEscortCoordinationOptimize && bFirstTrainedSettlerContext)
+				{
+					int iUnguardedSettlers = 0;
+					int iHealthyDefenders = 0;
+					SAS_countLocalSettlerEscortState(kPlot, getOwner(), iUnguardedSettlers, iHealthyDefenders);
+					if (iHealthyDefenders <= iSASSettlerEscortMinHealthyDefendersLeft)
+					{
+						static const int iSASFirstSettlerEscortPreparationMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_ESCORT_PREPARATION_MAX_TURNS_NORMAL_GAMESPEED"));
+						int const iSASFirstSettlerEscortPreparationMaxTurns = (iSASFirstSettlerEscortPreparationMaxTurnsNormal <= 0 ? 0 : std::max(1, (iSASFirstSettlerEscortPreparationMaxTurnsNormal * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() + 50) / 100));
+						UnitTypes const eBestEscortPreparationUnit = (iSASFirstSettlerEscortPreparationMaxTurns > 0 ? AI_bestUnitAI(UNITAI_CITY_DEFENSE) : NO_UNIT);
+						int const iEscortPreparationTurns = (eBestEscortPreparationUnit == NO_UNIT ? -1 : getProductionTurnsLeft(eBestEscortPreparationUnit, 0));
+						bool const bEscortPreparationQuickEnough = (eBestEscortPreparationUnit != NO_UNIT && iEscortPreparationTurns >= 0 && iEscortPreparationTurns <= iSASFirstSettlerEscortPreparationMaxTurns);
+						if (gSettlerLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)
+							logBBAI("      FIRST_SETTLER_ESCORT_PREPARATION turn=%d player=%d %S city=%S cityId=%d result=%s healthyDefenders=%d minHealthyLeft=%d bestDefender=%s defenderTurns=%d maxTurns=%d areaBest=%d waterBest=%d settlerBuildMin=%d",
+								kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(),
+								(bEscortPreparationQuickEnough ? "NEED_QUICK_DEFENDER" : "SKIP_SLOW_DEFENDER"),
+								iHealthyDefenders, iSASSettlerEscortMinHealthyDefendersLeft,
+								(eBestEscortPreparationUnit == NO_UNIT ? "-" : GC.getInfo(eBestEscortPreparationUnit).getType()),
+								iEscortPreparationTurns, iSASFirstSettlerEscortPreparationMaxTurns, iAreaBestFoundValue, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue);
+						if (bEscortPreparationQuickEnough && AI_chooseUnit(UNITAI_CITY_DEFENSE))
+						{
+							if (gSettlerLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)
+								logBBAI("      FIRST_SETTLER_ESCORT_PREPARATION turn=%d player=%d %S city=%S cityId=%d result=CHOSEN_CITY_DEFENSE healthyDefenders=%d minHealthyLeft=%d bestDefender=%s defenderTurns=%d maxTurns=%d",
+									kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(),
+									iHealthyDefenders, iSASSettlerEscortMinHealthyDefendersLeft, GC.getInfo(eBestEscortPreparationUnit).getType(),
+									iEscortPreparationTurns, iSASFirstSettlerEscortPreparationMaxTurns);
+							return;
+						}
+					}
+				}
+
 				// <!-- custom: add a no barbarian check and also add our no settler check as well too here cleanly, as first parameter for computational efficiency-->
 				if (!isBarbarian() && !bNoSettler && AI_chooseUnit(UNITAI_SETTLE, //bLandWar ? 50 : -1))
 				// // </advc.031b>
@@ -2829,13 +2948,22 @@ void CvCityAI::AI_chooseProduction()
 					iSettlerPriority * (bLandWar ? 1 : 2)))
 				{
 					if (gSettlerLogLevel >= 2) logBBAI("      SETTLER_BUILD_DECISION turn=%d player=%d %S city=%S cityId=%d source=build_settler_1 result=CHOSEN areaBest=%d waterBest=%d minFound=%d settlerBuildMin=%d settlers=%d/%d priority=%d plotSettlers=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), iAreaBestFoundValue, iWaterAreaBestFoundValue, iMinFoundValue, iSettlerBuildMinFoundValue, iNumSettlers, iMaxSettlers, iSettlerPriority, iPlotSettlerCount);
-					if (kPlayer.getNumMilitaryUnits() <= iNumCities + 1)
+					// <!-- custom: Base AdvCiv 1.14 can replace a successfully chosen Settler with one more quick defender whenever military units <= cities + 1.
+					// For the first trained Settler, the newer AdvCiv-SAS escort coordination above has already made the more precise healthy-defender + bounded-build-time decision; letting the inherited fallback run again can defeat SKIP_SLOW_DEFENDER and recreate very late second cities.
+					// Keep the inherited fallback for later Settlers and when SAS coordination is disabled. See KI#179.3. (ChatGPT-5.6-Sol) -->
+					bool const bSASFirstSettlerOwnsQuickDefenseGate = (bSASSettlerEscortCoordinationOptimize && bFirstTrainedSettlerContext);
+					if (!bSASFirstSettlerOwnsQuickDefenseGate && kPlayer.getNumMilitaryUnits() <= iNumCities + 1)
 					{
 						if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
 						{
 							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses build settler 1 extra quick defense", sCityName);
 							return;
 						}
+					}
+					else if (gSettlerLogLevel >= 2 && bSASFirstSettlerOwnsQuickDefenseGate)
+					{
+						logBBAI("      FIRST_SETTLER_EXTRA_QUICK_DEFENSE turn=%d player=%d %S city=%S cityId=%d result=BYPASS_INHERITED_ADVCIV_GATE militaryUnits=%d cities=%d",
+							kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), kPlayer.getNumMilitaryUnits(), iNumCities);
 					}
 					return;
 				}
@@ -13720,10 +13848,29 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						const int iPlotCityDefenders = getPlot().plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwner());
 						const int iMinCityDefenders = AI_minDefenders();
 						const int iMilitaryUnits = kPlayer.getNumMilitaryUnits();
-						const bool bMinimumCityDefenseNeed = (bCityDefenseRequest && iPlotCityDefenders < iMinCityDefenders + iPlotSettlers);
+						// <!-- custom: Explicit Settler-escort preparation/repair requests must survive this lower anti-excess-defender optimizer.
+						// KI#179.2 showed that a correctly requested defender could otherwise be replaced with offensive siege; KI#179.3 extends the same preservation to the defender intentionally prepared before the first Settler is trained. (ChatGPT-5.6-Sol) -->
+						static const bool bSASSettlerEscortCoordinationOptimize = GC.getDefineBOOL("SAS_AI_CHOOSE_PRODUCTION_SETTLER_ESCORT_COORDINATION_OPTIMIZE");
+						static const int iSASSettlerEscortMinHealthyDefendersLeft = std::max(0, GC.getDefineINT("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT"));
+						int iPlotUnguardedSettlers = 0;
+						int iPlotHealthyDefenders = 0;
+						if (bCityDefenseRequest && bSASSettlerEscortCoordinationOptimize)
+							SAS_countLocalSettlerEscortState(getPlot(), getOwner(), iPlotUnguardedSettlers, iPlotHealthyDefenders);
+						bool const bSASExistingSettlerEscortShortage = (bCityDefenseRequest && bSASSettlerEscortCoordinationOptimize && iPlotSettlers > 0 && iPlotUnguardedSettlers > 0 && iPlotHealthyDefenders <= iSASSettlerEscortMinHealthyDefendersLeft);
+						static const int iSASFirstSettlerEscortPreparationMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_ESCORT_PREPARATION_MAX_TURNS_NORMAL_GAMESPEED"));
+						int const iSASFirstSettlerEscortPreparationMaxTurns = (iSASFirstSettlerEscortPreparationMaxTurnsNormal <= 0 ? 0 : std::max(1, (iSASFirstSettlerEscortPreparationMaxTurnsNormal * iTrainPct + 50) / 100));
+						int const iSASRequestedDefenderTurns = (bCityDefenseRequest && eChangedUnit != NO_UNIT ? getProductionTurnsLeft(eChangedUnit, 0) : -1);
+						bool const bSASFirstSettlerEscortPreparationNeed = (bCityDefenseRequest && bSASSettlerEscortCoordinationOptimize && isCapital() && iNumCities == 1 &&
+							iPlotSettlers <= 0 && kPlayer.AI_getNumAIUnits(UNITAI_SETTLE) == 0 && iPlotHealthyDefenders <= iSASSettlerEscortMinHealthyDefendersLeft &&
+							iSASFirstSettlerEscortPreparationMaxTurns > 0 && iSASRequestedDefenderTurns >= 0 && iSASRequestedDefenderTurns <= iSASFirstSettlerEscortPreparationMaxTurns);
+						const bool bMinimumCityDefenseNeed = (bCityDefenseRequest && (iPlotCityDefenders < iMinCityDefenders + iPlotSettlers || bSASExistingSettlerEscortShortage || bSASFirstSettlerEscortPreparationNeed));
 						const bool bEmpireMilitaryThin = (bCityDefenseRequest && iMilitaryUnits <= iNumCities + 1);
 						const bool bStrictDefenderActuallyExcess = (!bMinimumCityDefenseNeed && !bEmpireMilitaryThin);
-						if (bLogDetailedMilitaryProduction && !bStrictDefenderActuallyExcess) logBBAI("MILITARY_PRODUCTION_STRICT_DEFENDER_GATE turn=%d player=%d %S city=%S cityId=%d requestedUnit=%s requestedAI=%s result=PRESERVE_DEFENDER cityDefenseRequest=%d minimumCityDefenseNeed=%d empireMilitaryThin=%d plotCityDefenders=%d minCityDefenders=%d plotSettlers=%d militaryUnits=%d cities=%d", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), GC.getInfo(eChangedUnit).getType(), GC.getInfo(eChangedUnitAI).getType(), bCityDefenseRequest, bMinimumCityDefenseNeed, bEmpireMilitaryThin, iPlotCityDefenders, iMinCityDefenders, iPlotSettlers, iMilitaryUnits, iNumCities);
+						if (bLogDetailedMilitaryProduction && !bStrictDefenderActuallyExcess) logBBAI("MILITARY_PRODUCTION_STRICT_DEFENDER_GATE turn=%d player=%d %S city=%S cityId=%d requestedUnit=%s requestedAI=%s result=PRESERVE_DEFENDER cityDefenseRequest=%d minimumCityDefenseNeed=%d settlerEscortShortage=%d firstSettlerEscortPreparationNeed=%d requestedDefenderTurns=%d escortPreparationMaxTurns=%d empireMilitaryThin=%d plotCityDefenders=%d minCityDefenders=%d plotSettlers=%d unguardedSettlers=%d healthyDefenders=%d minHealthyLeft=%d militaryUnits=%d cities=%d",
+							kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), GC.getInfo(eChangedUnit).getType(), GC.getInfo(eChangedUnitAI).getType(),
+							bCityDefenseRequest, bMinimumCityDefenseNeed, bSASExistingSettlerEscortShortage, bSASFirstSettlerEscortPreparationNeed,
+							iSASRequestedDefenderTurns, iSASFirstSettlerEscortPreparationMaxTurns, bEmpireMilitaryThin, iPlotCityDefenders, iMinCityDefenders, iPlotSettlers,
+							iPlotUnguardedSettlers, iPlotHealthyDefenders, iSASSettlerEscortMinHealthyDefendersLeft, iMilitaryUnits, iNumCities);
 
 						// 2) Don’t starve defenders if there’s immediate danger
 						// <!-- custom: update: the unitai swap to unitai_counter is not working anymore ingame it seems, so make it less strict to see if solves -->

@@ -228,8 +228,11 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#177 - (Fixed) Multiple base AdvCiv/K-Mod Barbarian city-placement issues could produce poor captured city sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-177)\
 [KI#178 - (Fixed/Improved) City-site bonus valuation used broad trade-style `AI_bonusVal` instead of settlement-specific long-term value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-178)\
 [KI#179 - (Fixed/Improved) AdvCiv-SAS early-settler anti-parking override could let post-capital Settlers found exposed cities without escorts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-179)\
+[KI#179.2 - (Fixed/Improved) AdvCiv-SAS guarded-Settler regression: stronger escort safety outgrew inherited AdvCiv production assumptions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-179.2)\
+[KI#179.3 - (Fixed/Improved) AdvCiv-SAS first-Settler escort sequencing could over-delay expansion through overlapping inherited and SAS safety gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-179.3)\
 [KI#180 - (Fixed/Improved) AI Settlers could settle a merely valid current plot (e.g., after nearby Barbarian city spawn made remaining space smaller and poorer) even when a clearly better reachable city site existed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-180)\
 [KI#181 - (Fixed/Improved) AI could train early/midgame Settlers for weak remaining sites after good expansion was gone (e.g., Paris's settler for snow/filler sites example)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-181)\
+[KI#181.2 - (Improved) AdvCiv-SAS first-trained-Settler safeguards could over-delay or suppress the second city on constrained starts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-181.2)\
 [KI#182 - (Fixed/Improved) UWAI war-target selection could fall through to farther targets even when a closer weak/disliked land target was available](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-182)\
 [KI#183 - (Fixed) AdvCiv-SAS faraway-war Risk hard reject could make mediocre wars look extremely good by penalizing the peace scenario](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-183)\
 [KI#184 - (Fixed/Improved) Multiple UWAI victory-denial issues could let imminent Space winners survive: no war before fixing this (regardless of whether AI was very strong militarily like in the Ramesses run or very weak like in the Lincoln run), then even after the initial fix wars were still too-late, too-short, or too-low-impact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-184)\
@@ -7832,6 +7835,94 @@ This intentionally makes some expansion more conservative. Some Settlers can sti
 
 Fixed/improved with the help of ChatGPT-5.5, GPT-5.5 and GPT-5.6-Sol (on ChatGPT Codex) thanks.
 
+<a id="ki-179.2"></a>
+
+## KI#179.2 - (Fixed/Improved) AdvCiv-SAS guarded-Settler regression: stronger escort safety outgrew inherited AdvCiv production assumptions
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1uj11o8e_y16r0UgzRAPSFS_ZH91WjYCA?usp=sharing).
+
+KI#179 deliberately made post-capital expansion safer after earlier AdvCiv-SAS anti-parking logic could send unescorted Settlers into exposed territory. The movement-side rule can borrow a healthy defender from a city only when doing so leaves at least `SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT` healthy defenders behind; the current default is 2. That safety remains intentional because earlier autoplay testing showed that thinly defended new cities could be captured or razed by stronger Barbarians and rivals.
+
+A later Great Plains investigation exposed a coordination regression created by that stronger SAS rule. Base AdvCiv 1.14 already has an "existing Settler needs escort" production check based on `iPlotCityDefenderCount <= iPlotSettlerCount`. That inherited check predates the stronger SAS attachment policy. The ancestry matters: the inherited AdvCiv rule is not itself classified as a base-AdvCiv bug here; the regression is that AdvCiv-SAS strengthened movement safety without initially updating every production-side assumption that depended on the older escort model. With one unguarded Settler and two healthy defenders, movement correctly refuses to borrow either defender because only one would remain, while the inherited production test sees `2 > 1` and does not explicitly request the missing third defender.
+
+The clearest original case was Huge Great Plains Hannibal in `BBAI_20260904T184916Z_new6.log` / `SASGameRecord_20260904T184916Z_new6.log`. His first Settler completed on turn 82 and then repeatedly logged `WAIT_CITY_NO_SPARE_ESCORT_FOR_EXPOSED_SITE` through turn 100 despite viable sites only two or three path turns away. Carthage had two healthy Longbowman-class escort candidates, but neither could detach while leaving the configured two healthy defenders behind.
+
+The first fix taught city production to recognize that completed-Settler shortage and explicitly request `UNITAI_CITY_DEFENSE`. Its first exact `new6` replay proved the detector but exposed a second layer: the lower AdvCiv-SAS anti-excess-defender optimizer could silently replace that requested Longbowman with an offensive Catapult/Trebuchet and still return success. The caller therefore believed it had supplied the escort even though the final queued unit did not satisfy the need.
+
+The revised fix uses the same healthy-defender/unguarded-Settler state at both layers. `AI_chooseProduction` requests the missing defender, and the lower strict-defender gate treats the explicit Settler-escort shortage as a true minimum-defense need rather than an excess-defender candidate for offensive substitution. The movement-side safety value itself is unchanged.
+
+The September 5 full six-save replay with this revised layer strongly confirms the substitution bug is fixed. Across all six BBAI logs there were **383** `MILITARY_PRODUCTION_STRICT_DEFENDER_GATE` preservation events with `settlerEscortShortage=1`; all **383/383** corresponding concrete unit pushes retained the requested defender and UnitAI (`changedUnit=0`, `changedAI=0`). The previous Catapult/Trebuchet substitution did not recur.
+
+This layer is therefore considered fixed/improved. The same replay also exposed a distinct sequencing inefficiency: after the softer KI#181.2 first-Settler policy, some Settlers are now trained before the capital has enough healthy defenders to detach an escort, so production can correctly build the missing defender only **after** the Settler is already parked. That follow-up is tracked separately as KI#179.3 rather than weakening the safety rule here.
+
+Fixed/improved with the help of ChatGPT-5.6-Sol, thanks.
+
+<a id="ki-179.3"></a>
+
+## KI#179.3 - (Fixed/Improved) AdvCiv-SAS first-Settler escort sequencing could over-delay expansion through overlapping inherited and SAS safety gates
+
+Screenshots/files for this issue: same google drive folder link as KI#179.2.
+
+KI#179.2 fixed the post-completion coordination bug: when a completed unguarded Settler is waiting because the city cannot spare an escort, production now requests and preserves the missing defender. The richer max-level Settler/Found logs then exposed a sequencing inefficiency after KI#181.2 deliberately made first expansion less conservative: a first Settler can complete before its capital has the three healthy defenders currently needed to send one escort while leaving two behind, so the Settler freezes capital food/growth and may wait many turns while the city produces military that was already predictably needed.
+
+The v2 six-save replay quantified that problem. Among first trained Settlers that founded the next city by turn 100, median completion-to-founding delay was about **10 turns**, compared with about **6 turns in the original baseline**. Delays of at least 15 turns rose from **13 baseline cases to 43 v2 cases**, with repeated `WAIT_CITY_NO_SPARE_ESCORT_FOR_EXPOSED_SITE` streaks. Despite that parking, v2 improved actual expansion timing: the median next-city founding turn moved from about **45.5 baseline to 43**, and surviving AI players with no completed trained Settler fell from **7 to 0**.
+
+The first KI#179.3 candidate therefore prepared all required detachable escort capacity **before** the first trained Settler whenever the normal site/growth/strategy gates wanted expansion. This kept the configured two-defenders-left safety unchanged and moved necessary defender production before the food-production Settler.
+
+That unconditional preparation worked extremely well on the narrow parking metric. In the next six exact replays:
+
+- median first-Settler completion-to-next-founding delay fell to **5 turns**;
+- only **4** completed first Settlers took at least 15 turns to found the next city, versus 43 in v2 and 13 baseline;
+- there were **zero** `WAIT_CITY_NO_SPARE_ESCORT_FOR_EXPOSED_SITE` lines across the entire BBAI batch;
+- median next-city founding turn remained about **43**, preserving v2's improvement over the ~45.5 baseline;
+- one-city survivors fell further to **12**, versus 14 in v2 and 17 baseline.
+
+However, the unconditional version also exposed an opposite tail: it can make a poor-production one-city capital spend too long building the full home-defense-plus-detachable-escort package **before it even starts the Settler**. Two surviving AIs reached turn 100 without a completed trained Settler, whereas v2 had zero:
+
+- SAS24 run 2 Isabella/Madrid repeatedly entered first-Settler escort preparation from turn 41 with only one healthy defender. On a very weak production base it completed an Archer on turn 41 and a Longbowman on turn 59, later diverted production through another Longbowman/Catapult sequence, and did not finally start the Settler until turn 97.
+- Huge run 6 Hannibal/Carthage showed the same mechanism: first-Settler preparation began around turn 40 with one healthy defender, additional defenders took many turns, and the Settler did not begin until turn 90.
+
+These are not returns of the KI#181.2 found-value/growth lockout: both empires had viable expansion demand and eventually selected a Settler once the pre-escort requirement was satisfied. They show that "always prepare the entire escort first" can merely move too much waiting from after Settler completion to before Settler production.
+
+The safety data gives no reason to weaken the escort requirement itself or to restore the old hard first-Settler gate. Across the same six maps, total city razes were **15** under the unconditional preparation candidate versus **16 baseline**; Barbarian city captures were **16 versus 17 baseline**. v2 happened to produce only 11 razes, but the trajectories diverge after changed decisions and the unconditional candidate still does not show aggregate safety worse than the original behavior.
+
+The revised candidate therefore made pre-Settler preparation **opportunistic and bounded**:
+
+```xml
+SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_ESCORT_PREPARATION_MAX_TURNS_NORMAL_GAMESPEED = 5
+```
+
+When the first Settler is otherwise ready and the capital lacks detachable escort capacity, the AI looks at its best `UNITAI_CITY_DEFENSE` unit. If that defender can finish within about 5 Normal-speed-equivalent train turns (scaled by game-speed `TrainPercent`), it is prepared first. If it would take longer, the new branch logs `SKIP_SLOW_DEFENDER` and intends to proceed with the Settler, leaving KI#179.2's post-completion repair to supply the slow escort later if still needed.
+
+The September 5 v4 six-save replay showed that this bound was directionally useful but also exposed one final overlapping inherited rule. Across 134 first-Settler/next-city pairs, median completion-to-founding delay was about **8 turns** and **33** cases took at least 15 turns: better than v2's ~10-turn median / 43 long delays, but worse than unconditional v3's 5-turn median / 4 long delays. Median next-city founding turn was about **45**, close to the ~45.5 original baseline and slower than v2/v3's ~43. Two surviving AIs again had no completed trained Settler by turn 100: SAS24 run 2 Isabella and Huge run 6 Hannibal.
+
+Max BBAI logging showed that these two cases were **not** failures of the new 5-turn bound. Madrid logged `SKIP_SLOW_DEFENDER` on turns 41 and 46, successfully selected and pushed `UNIT_SETTLER`, yet immediately afterward queued Archer/Longbowman production. Huge Carthage did the same on turns 40, 46, 59 and 71. The culprit is an inherited Base AdvCiv 1.14 block immediately after successful Settler selection:
+
+```cpp
+if (kPlayer.getNumMilitaryUnits() <= kPlayer.getNumCities() + 1)
+	AI_chooseUnit(UNITAI_CITY_DEFENSE);
+```
+
+That rule was reasonable in its original context and is **not classified here as a base-AdvCiv bug**. The AdvCiv-SAS regression is the overlap: KI#181.2 and KI#179.2/.3 now perform a more precise first-Settler decision using actual healthy defenders, the configured leave-behind safety requirement and bounded defender build time, but the inherited coarse total-military fallback can still run afterward and silently undo that decision. In other words, v4 could explicitly decide "this defender is too slow; build the Settler first" and then the inherited AdvCiv block would immediately decide "military count is low; build a defender instead."
+
+The final integration candidate therefore gives the newer SAS coordination ownership of this one gate **only for the first trained Settler while coordination is enabled**. If the bounded preparation branch already chose a quick defender, it returned before Settler selection as before. If it logged `SKIP_SLOW_DEFENDER` and successfully chose the Settler, the inherited `military units <= cities + 1` extra-defense fallback is bypassed. For later Settlers, or when `SAS_AI_CHOOSE_PRODUCTION_SETTLER_ESCORT_COORDINATION_OPTIMIZE = 0`, Base AdvCiv's inherited fallback remains unchanged.
+
+This is deliberately narrower than deleting the inherited safeguard globally. It removes only the duplicate first-Settler authority after SAS has already made a more informative safety decision. The movement-side requirement to leave the configured healthy defenders behind remains unchanged, and KI#179.2's completed-Settler repair remains active.
+
+The same v4 replay remained reassuring on safety despite the visible amount of city churn: **8 total city razes** were recorded across the six logs through turn 100 in this exact batch, and the two remaining no-completed-Settler cases were peaceful production-ordering tails rather than examples of reckless Settlers being destroyed. Earlier baseline/v2/v3 comparisons likewise did not show a systematic increase in Barbarian captures/razes from the softer first-expansion policy; trajectories diverge after changed decisions, so these counts are supporting rather than controlled causal evidence.
+
+The final v5 integration was replayed across all six exact Great Plains saves (`Logs(20260905-093942).zip`). It removed the remaining production-lockout tail: **all 130 surviving AI players completed at least one trained Settler by turn 100**, compared with 7 no-completion cases in the original baseline and 2 in v4. The two direct v4 failures improved materially: SAS24 run 2 Isabella completed her Settler on turn 75 instead of still having none at turn 100, and Huge run 6 Hannibal completed his on turn 67 instead of still having none at turn 100.
+
+The final policy is intentionally a balance rather than an attempt to minimize the completion-to-founding delay statistic by itself. Across 128 first-Settler/next-city pairs, the median next-city founding turn was **44**, earlier than the original baseline median of **47**. The median first trained Settler completion moved from turn **39 baseline to 34**, and average AI city count at turn 100 rose only moderately from about **2.79 to 2.96**. Completion-to-next-founding delay was about **11 turns** with 42 cases at 15+ turns because slow-defense capitals now genuinely train the Settler first and may wait safely for KI#179.2's mandatory escort repair; v3's much lower 5-turn median achieved that narrower metric partly by making weak capitals delay the Settler itself. Actual expansion timing is therefore the more useful outcome here.
+
+Eight AI players were at one city on turn 100 in the final replay. SASGameRecord showed that **6 of those 8 had already founded additional cities and later lost them**. The remaining two were the weak-production Isabella and Hannibal cases above: both had completed trained Settlers, so neither was a return of the original production deadlock. Isabella still had only two combat units and a parked Settler at turn 100; Hannibal had built three combat units and his Settler was already **2 plots away from Carthage**, i.e. the safer escort process was progressing rather than structurally stuck.
+
+The safety sanity check is also reassuring rather than showing a cost hidden by faster expansion. Across the final six logs there were **7 city razes** and **7 Barbarian city captures** through turn 100, compared with **16 razes** and **17 Barbarian captures** in the original baseline. The game trajectories naturally diverge after changed production decisions, so these are supporting rather than controlled causal statistics, but there is no aggregate evidence that the rework recreated the old unsafe-expansion/Barbarian-raze problem.
+
+The final design therefore keeps the current default 5-turn bounded pre-escort preparation, the two-healthy-defenders-left movement safety, post-completion mandatory escort repair, and the narrow first-trained-Settler bypass of Base AdvCiv's inherited coarse extra-defense gate. The known pathological production overlap is fixed; genuinely weak one-city starts can still expand slowly because the safety requirement is deliberately not discarded.
+
+Fixed/improved with the help of ChatGPT-5.6-Sol, thanks.
+
 <a id="ki-180"></a>
 
 ## KI#180 - (Fixed/Improved) AI Settlers could settle a merely valid current plot (e.g., after nearby Barbarian city spawn made remaining space smaller and poorer) even when a clearly better reachable city site existed
@@ -7890,7 +7981,7 @@ SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES
 SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MAX_ERA
 ```
 
-With the current defaults, every trained early/midgame Settler after the starting capital exists must have a sufficiently valuable site. The rule is deliberately an AI build-choice gate, not a `canTrain` rule: Settlers remain legal for humans, scripts, existing queues, existing Settlers, and late opportunistic expansion.
+With the original KI#181 defaults, every trained early/midgame Settler after the starting capital existed had to have a sufficiently valuable site. The rule is deliberately an AI build-choice gate, not a `canTrain` rule: Settlers remain legal for humans, scripts, existing queues, existing Settlers, and late opportunistic expansion. KI#181.2 later investigates whether applying the full floor to the first trained Settler was too strict.
 
 Implementation notes:
 
@@ -7906,6 +7997,80 @@ Retesting with `SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES=1` i
 A separate stale-Settler problem can still happen when a valid site exists when the Settler is created but later disappears or becomes invalid/reachable value 0. That is not fully solved by this production floor and should be treated as a distinct stale-Settler cleanup issue if it remains important.
 
 Fixed/improved with the help of ChatGPT-5.5 thanks.
+
+<a id="ki-181.2"></a>
+
+## KI#181.2 - (Improved) AdvCiv-SAS first-trained-Settler safeguards could over-delay or suppress the second city on constrained starts
+
+Screenshots/files for this issue: same google drive folder link as KI#179.2.
+
+The Huge Great Plains autoplay noted under KI#670 had an unusually uneven turn-100 expansion distribution: three of 16 AIs still had only one city and another five had only two while the leaders had five or six. That observation came from save-file 614 / `SASGameRecord_20260830T141713Z_new1.log`. The older record was less detailed than current SASGameRecord, but it already showed that "one city at turn 100" was not one single problem: Justinian completed a Settler around turn 51 and did not found Thessalonica until turn 101; Suleiman had still never completed a trained Settler by turn 130 and only produced one much later; Darius had actually expanded to multiple cities and then lost them to Rome. Low city count by itself is therefore not the bug being tracked here.
+
+Further Great Plains rolls reproduced the more specific suspicious case: peaceful, economically functional one-city AIs with large amounts of revealed unowned land and no completed trained Settler. Mansa Musa, Pacal, Frederick and Zara Yaqob each showed this on different generated Great Plains maps. The same leaders could expand normally on other Great Plains rolls, so the evidence does not imply a fixed leader-personality defect; it points toward map/site geometry interacting with the production gates.
+
+The September 4 diagnostic suite added five `WORLDSIZE_SAS24` Great Plains runs plus one Huge sanity run with the expanded SASGameRecord fields and maximum Settler/Found BBAI logging (`Logs(20260904-185034).zip`). Among the 118 surviving players represented at turn 100 across the five SAS24 runs, seven had completed no trained Settler. All seven started within eight plots of a map boundary: 7 of 52 starts at boundary distance <=8 versus 0 of 66 starts farther than eight plots. This correlation is not proof that map edges themselves cause the failure, but it is a strong clue that constrained geometry and disappearing/competing city sites amplify the existing SAS gates. Nearest-rival distances varied substantially, so simple crowding does not explain every case.
+
+Hammurabi in `BBAI_20260904T184227Z_new3.log` gives the clearest direct look at the old low-population rule. Babylon repeatedly had a valid same-area site valued at 2231, above both the normal found threshold of 550 and the full SAS early floor of 2000:
+
+```text
+turn=24 pop=3 ... areaBest=2231 minFound=550 settlerBuildMin=2000 ... noSettler=1
+turn=26 pop=4 ... areaBest=2231 minFound=550 settlerBuildMin=2000 ... noSettler=1
+turn=29 pop=4 ... areaBest=2231 minFound=550 settlerBuildMin=2000 ... noSettler=1
+turn=35 pop=4 ... areaBest=2231 minFound=550 settlerBuildMin=2000 ... noSettler=1
+```
+
+The specific hard gate being exercised here is AdvCiv-SAS logic, not Base AdvCiv 1.14 behavior. The old SAS rule treated any non-stagnant city at population 4 or below as a reason to postpone Settler production, regardless of whether the next citizen was one turn away or many turns away. Base AdvCiv 1.14 instead proceeds from a viable found-value check into Settler priority/selection and does not contain this `pop <= 4 && !stagnant` veto in the corresponding production block.
+
+That binary use of `!bStagnant` is too coarse for first expansion. A capital at +1 food that needs 15-20 turns to grow is technically "growing" just like a capital one turn from its next citizen, but the strategic opportunity cost is very different. Waiting several turns for imminent population can improve Settler production efficiency and local defense; waiting many turns can lose the only strong nearby site to another civilization or to changing culture/site evaluation. Once that good site disappears, the separate KI#181 floor can make the problem self-reinforcing.
+
+KI#181 originally set `SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE=2000` with `SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES=1`. That successfully stopped France from training weak later filler Settlers: the original evidence involved France with two to four cities and remaining sites around 1341-1823. The new evidence shows that applying the same full 2000 floor while the empire has **only its capital** can be too strict. A mediocre city #3 or #5 can reasonably be skipped because it costs growth, maintenance, escort capacity and military tempo; a merely adequate city #2 is strategically different because it creates a second production/economic center and prevents the empire from becoming permanently boxed into a one-city position.
+
+The candidate rework therefore separates "establish the second city" from "avoid weak later filler":
+
+```xml
+SAS_AI_CHOOSE_UNIT_SETTLER_FIRST_EXPANSION_MIN_FOUND_VALUE = 0
+SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE = 2000
+SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES = 2
+```
+
+With these candidate defaults, a one-city empire uses normal AdvCiv found-value logic for its first trained Settler; an optional lighter first-expansion floor can be raised later (for example 1200-1500) if normal valuation proves too permissive. Once the empire already has two cities, the established KI#181 full 2000 floor applies to training the next Settler, preserving the anti-filler purpose that the original Paris tests validated.
+
+The rework also replaces the old AdvCiv-SAS "any positive growth below population 5 means wait" policy with a soft, tunable first-Settler preference:
+
+```xml
+SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_PREFERRED_MIN_POPULATION = 5
+SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_GROWTH_WAIT_MAX_TURNS_NORMAL_GAMESPEED = 5
+```
+
+The intended rule is not "rush every second city immediately." Below the preferred population, the AI can still finish a citizen that is genuinely close; the wait window scales with game-speed growth percent. If growth is slow or stagnant, a worthwhile second-city opportunity is allowed sooner. This is especially relevant to low-food/tundra capitals where the old binary rule could postpone expansion for a long time despite having little productive alternative. Existing danger, war, financial, worker and other production safeguards remain independent; no generic "strongest player" or power-rank exemption is being added.
+
+The first same-save A/B strongly supported removing the old hard first-Settler path rather than keeping it as a permanent compatibility mode. `Logs(20260905-063343).zip` replayed the same five SAS24 Great Plains starts used by the September 4 diagnostic suite. At turn 100, surviving AI players with **zero completed trained Settlers fell from 7 to 0**, while one-city AIs fell from **14 to 4**. The average city count changed only from about **2.80 to 2.90**, and the distribution mostly shifted pathological one-city starts into two-city starts rather than pushing everyone toward four or five cities. Among 107 matched AIs that completed a trained Settler in both versions, the median first completion moved only about **7 turns earlier**.
+
+The formerly strongest examples improved directly: Hammurabi in SAS24 `new3` went from no completed trained Settler by turn 100 to completing one on turn 39 and founding Akkad on turn 45; Hannibal on the same map completed one on turn 60 and founded Utica on turn 72; Tokugawa in `new4` completed one on turn 34 and founded Osaka on turn 47. Some remaining one-city outcomes were not production lockouts: Huayna Capac founded Tiwanaku on turn 57 and lost it to Barbarians on turn 85, while Isabella in `new5` founded Barcelona on turn 60 and lost it to Barbarians on turn 67 before training another Settler on turn 89.
+
+That last point is an important safety check rather than a reason to restore the old gate. Across the five exact SAS24 replays, Barbarian city captures through turn 100 did **not** increase overall (13 baseline versus 10 with the candidate). The runs naturally diverge once decisions change, so that count is not a controlled combat proof, but it gives no sign that the faster first expansion broadly recreated the old "thin cities become Barbarian food" failure. The full 2000 floor still starts from city 2 onward, and the normal danger/war/worker safeguards remain in place.
+
+The richer SASGameRecord also exposed another related but not-yet-fixed production-continuity case. Hannibal in the SAS24 `new3` run had an excellent `areaBest=4489`, reached population 5 on turn 38, and BBAI repeatedly selected a Settler successfully. SASGameRecord later showed the partially built Settler parked at `53/92` production for 15 turns by turn 80, 25 turns by turn 90, and 35 turns by turn 100 while Carthage produced other units/buildings. A temporary military interruption can be rational; the unresolved question is why a one-city empire never resumes a more-than-half-finished Settler after the emergency changes. This should not receive a separate force-resume rule yet: relaxing the first-expansion valuation may naturally make the existing queue selectable again. If the same parked-hammer pattern survives the A/B, it should become a separate follow-up rather than being hidden inside a broad first-Settler force rule.
+
+The second full six-save replay with the corrected escort-substitution layer strengthened the first-expansion conclusion. By turn 100, **every surviving AI across all six maps had completed at least one trained Settler**. Fourteen AIs were still at one city, but SASGameRecord showed that **11 of those 14 had already founded additional cities and then lost them**; only three had never successfully established city #2, and all three had already trained a Settler. On the five SAS24 maps alone, 10 of 12 one-city AIs had already lost a founded city. In other words, the original "healthy empire never even trains its first Settler" failure remained eliminated; the remaining one-city outcomes were overwhelmingly war/Barbarian losses or later movement/escort timing rather than a return of the old production lockout.
+
+Hammurabi's formerly pathological SAS24 `new3` start again completed his first Settler on turn 39 and founded Akkad on turn 45. A slower Hammurabi case in `new5` no longer resembles the old found-value/growth failure: he completed the Settler on turn 55, then max BBAI logging explicitly showed several turns of `WAIT_CITY_NO_SPARE_ESCORT_FOR_EXPOSED_SITE`, followed briefly by retreat/danger behavior from a nearby Barbarian Chariot, an escort attachment on turn 68, and Akkad on turn 74.
+
+The broader safety outcome also gives no reason to restore the old hard first-Settler gate. Across all six exact maps, total city razes through the checked window fell from **16 baseline to 11** in the revised run; Barbarian razes fell from **13 to 8**, while Barbarian city captures were **17 in both baseline and revised runs**. The trajectories diverge after changed decisions, so these are supporting rather than controlled causal statistics, but the aggregate does not show the softer first expansion creating more razed-city churn than the old policy.
+
+The main remaining interaction is now tracked as KI#179.3: because first Settlers are intentionally trained sooner, some complete before the capital has the spare healthy defender capacity required by the safer escort rule. That is a production-ordering issue to solve by preparing the required defender first, not evidence that the second-city valuation/growth rework should be rolled back.
+
+The next unconditional escort-preparation replay briefly produced **2** surviving AIs without a completed trained Settler by turn 100, but max logging showed a different cause: KI#179.3 was making weak-production capitals build the full spare-escort package before they were allowed to start the Settler. The median next-city founding turn still held at about 43 and one-city survivors fell to 12. This is therefore tracked as an escort-ordering overcorrection under KI#179.3, not a return of the old found-value/growth production lockout documented here.
+
+The following bounded-preparation v4 replay still had **2** such tails, but max logging again ruled out a return of this KI's found-value/growth lockout: both Madrid and Carthage explicitly passed the first-Settler gate and successfully selected `UNIT_SETTLER`. An inherited Base AdvCiv 1.14 "extra quick defense" fallback then replaced the chosen Settler because total military count was low. KI#179.3 now owns that final overlapping gate for the first trained Settler when the newer SAS coordination is enabled.
+
+The final v5 six-save replay closes the original production question especially cleanly. **All 130 surviving AIs completed at least one trained Settler by turn 100**, versus seven no-completion cases in the original baseline. Median first trained Settler completion moved from turn **39 to 34**, median next-city founding moved from about **47 to 44**, and average AI city count at turn 100 rose only from about **2.79 to 2.96**, so the change improved the pathological low-expansion tail without turning the whole field into indiscriminate Settler spam. Of the eight final one-city AIs, six had already founded and lost extra cities; the remaining two had trained Settlers and were limited by the separate KI#179.2/.3 escort-safety process rather than the old found-value/growth suppression.
+
+The candidate logging closes another diagnostic blind spot. Previously, when the full SAS found-value floor rejected the site **before** the old first-Settler logging block was entered, the absence of a row could only be inferred. `FIRST_SETTLER_SITE_GATE` now records normal minimum found value, optional first-expansion floor, full early floor, city-count/era activation state, and final build threshold even on a found-value rejection. The first-Settler decision row also records food difference, turns to growth, preferred population, scaled wait limit and whether growth was considered near enough to justify waiting. Together with SASGameRecord's start-density, expansion, population and production-pipeline/parked fields, this should make the next replay substantially more conclusive than save-file 614 was.
+
+The repeated same-save A/Bs validate the rework strongly enough to retire the obsolete hard first-Settler fallback. The current defaults (`preferred population = 5`, `growth wait = 5 Normal-speed turns`, and no extra second-city floor beyond normal AdvCiv valuation) corrected the observed pathological one-city production tail without broadly shifting average city counts or increasing aggregate razing. Broader/longer games can still be watched as normal balance maintenance, while the escort-sequencing interaction is resolved under KI#179.3 and the half-built-Settler continuity observation remains only a possible separate future follow-up if it reproduces independently.
+
+Investigated and improved with the help of ChatGPT-5.6-Sol, thanks.
 
 <a id="ki-182"></a>
 

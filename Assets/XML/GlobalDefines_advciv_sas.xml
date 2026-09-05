@@ -1455,6 +1455,16 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
+	<!-- custom: Coordinate first-Settler production with the AdvCiv-SAS attachment safety rule. Before training the first Settler, opportunistically prepare the spare healthy defender only when the best defender can finish within the max-turn bound below; slow-production capitals proceed with the Settler and use the post-completion repair instead. While enabled, this precise first-Settler decision also owns the inherited AdvCiv 1.14 "extra quick defense" gate so that the older coarse military-unit-count fallback cannot silently undo SKIP_SLOW_DEFENDER. Completed unguarded Settlers still request/preserve the missing defender regardless of the pre-build bound. This never lowers movement-side safety. 1 enables coordination; 0 restores the older/inherited production sequencing. See KI#179.2 and KI#179.3. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SETTLER_ESCORT_COORDINATION_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum Normal-speed-equivalent turns worth spending on a city defender before the first trained Settler. The value scales with game-speed TrainPercent. Default 5 means a cheap/near-finished defender may be prepared first so the Settler can leave promptly, but a weak-production capital will not postpone expansion for a defender needing e.g. 15-20 turns; it trains the Settler and falls back to the post-completion escort repair. Set to 0 to disable only the pre-Settler preparation while keeping completed-Settler repair active. See KI#179.3. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_ESCORT_PREPARATION_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
 	<!-- custom: When a Settler is already standing on a foundable city site, do not immediately found if another reachable city site is clearly better by raw found value. Save-file 450 BBAI testing showed Zulu city 3 founding weak tundra-heavy Nobamba at (10,47): the original target area had become much poorer and smaller after a nearby Barbarian city spawned, and the found-value logger already saw a much better reachable site. This prevents that direct-found valid-tile trap without chasing tiny differences. Set either threshold very high to effectively disable that part of the check. See KI#180 for info about a related fix too. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF</DefineName>
@@ -1482,16 +1492,31 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS_UNSCALED_GAMESPEED</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
+	<!-- custom: Preferred capital population before the first trained Settler. This is intentionally soft, not an absolute minimum: below this population the AI waits only when the next growth is within the max-turn window below; if growth is slow or stagnant, a worthwhile second-city site can be taken sooner. Default 5 preserves the old preferred population without its all-or-nothing waiting behavior. Set to 0 to disable the population preference. See KI#181.2. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_PREFERRED_MIN_POPULATION</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum normal-speed turns to the next population growth that justify delaying the first trained Settler while below the preferred population. The value scales with game-speed growth percent. E.g. 5 waits for a citizen due within about 5 Normal-speed turns, but does not hold a good Settler opportunity for +1-food growth that is still 15-20 turns away. Set to 0 to never wait for growth before the first trained Settler. See KI#181.2. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_GROWTH_WAIT_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- custom: Optional minimum found value for the second city specifically, before the general early/midgame floor below begins. 0 (default) uses normal AdvCiv minimum-found-value logic, which is the first A/B test for one-city lockouts; raise this (e.g. 1200-1500) if that proves too willing to accept genuinely weak second-city sites without restoring the full AdvCiv-SAS 2000 filler-city floor. See KI#181.2. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_FIRST_EXPANSION_MIN_FOUND_VALUE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: Optional AI production floor for trained early/midgame Settlers. Weak Settlers are costly while empires are still small because they pause growth/production, tie up escorts, raise maintenance, and can weaken military tempo before the new city repays the investment. If only poor sites remain, a compact AI may be better off growing, defending, or attacking than forcing a far, slow filler city.
 	Later empires have more cities, production, trade/building/bonus support, and can better absorb added maintenance or slow growth; lower-value filler/resource/denial/colony cities can therefore become worthwhile again, so this floor can stop applying by era. This is an AI build-choice gate only, not a canTrain rule: existing Settlers, humans, scripts, and late opportunistic settling remain legal. Set value to 0 to defer to normal AdvCiv minimum found-value logic. (ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE</DefineName>
 		<iDefineIntVal>2000</iDefineIntVal>
 	</Define>
-	<!-- custom: City-count threshold before the early/midgame Settler found-value floor applies. The starting Settler is unaffected; the default applies the floor to every trained early/midgame Settler after the capital exists, so a one-city AI does not spend on a very poor second city merely to avoid being cramped. A compact AI with only weak expansion sites may have a better chance by growing, defending, or attempting a military breakout than by spending limited tempo on a weak second city. Raise this value to leave more early expansion to normal AdvCiv valuation. (ChatGPT-5.5) -->
+	<!-- custom: City-count threshold before the full early/midgame Settler found-value floor applies. Default 2 leaves the crucial second city to normal AdvCiv valuation (plus the optional first-expansion floor above), then applies the stricter 2000 floor from city 2 onward to avoid weak filler expansion. Great Plains logs showed several one-city AIs with ample free land never training a Settler when the full floor started at city 1. Lower to 1 for the old stricter behavior; raise further to leave more early expansion to normal valuation. See KI#181.2. (ChatGPT-5.5 + ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: Highest player era index where the early/midgame Settler found-value floor applies; default 2 corresponds to Medieval in the normal Civ4 era order, so Renaissance+ expansion returns to normal AdvCiv valuation. Set to -1 to ignore era and keep the floor active whenever the city-count threshold is met. (ChatGPT-5.5) -->
 	<Define>
