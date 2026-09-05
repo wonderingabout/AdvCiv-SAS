@@ -2,14 +2,17 @@
 #include "SASGameRecordLog.h"
 #include "CvGame.h" // <!-- custom: Needed for game-record turn, game-state, victory, RNG, and map-classification context rows. (GPT-5.5) -->
 #include "CvPlayer.h" // <!-- custom: Needed directly for active-player civilization/handicap context in this smaller AdvCiv 1.14 port slice; do not rely on later SASGameRecord headers to complete CvPlayer transitively. (ChatGPT-5.6-Sol) -->
+#include "CvTeam.h" // <!-- custom: Needed directly for finalized initial-team state and technology grouping in this smaller AdvCiv 1.14 port slice; GET_TEAM is defined by CvTeam.h. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Organization.h" // <!-- custom: Needed for religion/corporation type names in game-record action rows. (GPT-5.5) -->
 #include "CvInfo_Civics.h" // <!-- custom: Needed for policy/civic names in game-record advisor rows. (ChatGPT-5.5) -->
 #include "CvInfo_Civilization.h" // <!-- custom: Needed to attribute player-wide extra happiness/health to traits instead of leaving effects from loaded-mod rules under an opaque `extra` label. (GPT-5.6-Sol) -->
+#include "CvInfo_Tech.h" // <!-- custom: Needed for stable technology type names and XML trade-capability source mapping. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Symbol.h" // <!-- custom: Needed to log actual assigned player-color and primary-color context; CvGlobals only forward-declares their info classes. (GPT-5.6-Sol) -->
 #include "CvGameCoreUtils.h" // <!-- custom: Needed for shared machine-readable diagnostic quoting/list helpers used by SASGameRecord. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
 #include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
 #include <algorithm>
+#include <vector> // <!-- custom: Used for grouped finalized initial-team technology payloads. (ChatGPT-5.6-Sol) -->
 #include <time.h>
 
 static int getClampedSASGameRecordLogLevel(char const* szDefineName)
@@ -112,10 +115,36 @@ static void rollSASGameRecordLog(const char* szContext)
 	}
 }
 
+static void appendSASGameRecordType(CvString& szTypes, char const* szType)
+{
+	if (!szTypes.empty()) szTypes += ",";
+	szTypes += szType;
+}
+
 static void logSASGameRecordLogSettings()
 {
 	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d",
 			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled());
+}
+
+// <!-- custom: Compact finalized team rows preserve which technologies each team owns and which diplomacy capabilities are active, but replacing setup-time TECH_ACQUIRED spam otherwise loses which technology grants each capability.
+// Record the loaded XML mapping once for the whole session instead of repeating the same effect fields for every initial team-tech pair. (GPT-5.6-Sol) -->
+static void logSASGameRecordTechCapabilitySources()
+{
+	CvString szMapTrading, szTechTrading, szGoldTrading, szOpenBordersTrading, szDefensivePactTrading, szPermanentAllianceTrading, szVassalStateTrading;
+	FOR_EACH_ENUM(Tech)
+	{
+		CvTechInfo const& kTech = GC.getInfo(eLoopTech);
+		if (kTech.isMapTrading()) appendSASGameRecordType(szMapTrading, kTech.getType());
+		if (kTech.isTechTrading()) appendSASGameRecordType(szTechTrading, kTech.getType());
+		if (kTech.isGoldTrading()) appendSASGameRecordType(szGoldTrading, kTech.getType());
+		if (kTech.isOpenBordersTrading()) appendSASGameRecordType(szOpenBordersTrading, kTech.getType());
+		if (kTech.isDefensivePactTrading()) appendSASGameRecordType(szDefensivePactTrading, kTech.getType());
+		if (kTech.isPermanentAllianceTrading()) appendSASGameRecordType(szPermanentAllianceTrading, kTech.getType());
+		if (kTech.isVassalStateTrading()) appendSASGameRecordType(szVassalStateTrading, kTech.getType());
+	}
+	logSASGameRecord("GAME_RECORD_TECH_CAPABILITY_SOURCES mapTrading=%s techTrading=%s goldTrading=%s openBordersTrading=%s defensivePactTrading=%s permanentAllianceTrading=%s vassalStateTrading=%s source=LOADED_XML",
+			getSASDiagnosticOrDash(szMapTrading).GetCString(), getSASDiagnosticOrDash(szTechTrading).GetCString(), getSASDiagnosticOrDash(szGoldTrading).GetCString(), getSASDiagnosticOrDash(szOpenBordersTrading).GetCString(), getSASDiagnosticOrDash(szDefensivePactTrading).GetCString(), getSASDiagnosticOrDash(szPermanentAllianceTrading).GetCString(), getSASDiagnosticOrDash(szVassalStateTrading).GetCString());
 }
 
 // <!-- custom: Record every stored map-script option, including hidden values. Keep numeric values durable so setup can be reconstructed without relying on localized descriptions or a currently available Python map script. (ChatGPT-5.6-Sol) -->
@@ -208,6 +237,56 @@ static void logSASGameRecordInitialPlayerIdentities()
 	}
 }
 
+struct SASGameRecordInitialTechGroup
+{
+	CvString szTechFields;
+	CvString szTeams;
+	int iTeams;
+};
+
+// <!-- custom: Successful new-game initialization is best described by its authoritative result, not by the order in which Civ4 happened to call meet/declareWar/setHasTech/startTrade while constructing that result.
+// Group identical technology sets so a late-era start does not repeat the same long payload for every team; the explicit team lists keep arbitrary scenarios and mixed/modded setups exact. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static void logSASGameRecordFinalizedInitialTeamsAndTechs(int& iTeamStateRows, int& iTechRows)
+{
+	iTeamStateRows = 0;
+	iTechRows = 0;
+	std::vector<SASGameRecordInitialTechGroup> aTechGroups;
+	for (int iI = 0; iI < MAX_TEAMS; iI++)
+	{
+		TeamTypes const eTeam = (TeamTypes)iI;
+		if (!GET_TEAM(eTeam).isEverAlive())
+			continue;
+		logSASGameRecord("GAME_RECORD_INITIAL_TEAM_STATE %s", getSASInitialTeamStateFields(eTeam).GetCString());
+		CvString const szTechFields = getSASInitialTeamTechLevelFields(eTeam);
+		SASGameRecordInitialTechGroup* pGroup = NULL;
+		for (size_t iGroup = 0; iGroup < aTechGroups.size(); iGroup++)
+		{
+			if (aTechGroups[iGroup].szTechFields == szTechFields)
+			{
+				pGroup = &aTechGroups[iGroup];
+				break;
+			}
+		}
+		if (pGroup == NULL)
+		{
+			SASGameRecordInitialTechGroup kGroup;
+			kGroup.szTechFields = szTechFields;
+			kGroup.iTeams = 0;
+			aTechGroups.push_back(kGroup);
+			pGroup = &aTechGroups.back();
+		}
+		appendSASDiagnosticIntListValue(pGroup->szTeams, eTeam);
+		pGroup->iTeams++;
+		iTeamStateRows++;
+	}
+	for (size_t iGroup = 0; iGroup < aTechGroups.size(); iGroup++)
+	{
+		SASGameRecordInitialTechGroup const& kGroup = aTechGroups[iGroup];
+		logSASGameRecord("GAME_RECORD_INITIAL_TEAM_TECHS teams=%s teamCount=%d %s", kGroup.szTeams.GetCString(), kGroup.iTeams, kGroup.szTechFields.GetCString());
+		iTechRows++;
+	}
+}
+
 // <!-- custom: Use "row" wording for generic SAS game-record row prefixes because Civ4 also has EventInfo/random events. Keep GAME_RECORD_ACTION only for chronological gameplay action rows. (GPT-5.5) -->
 static void logSASGameRecordGameState(const char* szRowType)
 {
@@ -284,12 +363,21 @@ void startSASGameRecordLogForNewGame()
 	CvString const szLogName = getSASGameRecordLogName();
 	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString());
 	logSASGameRecordLogSettings();
+	logSASGameRecordTechCapabilitySources();
 }
 
 void logSASGameRecordNewGameStarted()
 {
 	logSASGameRecordGameState("GAME_RECORD_NEW_GAME_STARTED");
 	logSASGameRecordInitialPlayerIdentities();
+	if (getSASGameRecordLogLevel() >= 2)
+	{
+		int iTeamStateRows = 0;
+		int iTechRows = 0;
+		// <!-- custom: Current AdvCiv-SAS also seeds later team/contact deltas and records surviving setup deals at this finalized-state boundary; those coherent recorder pieces are ported separately rather than introducing partial state/deal plumbing here. (ChatGPT-5.6-Sol) -->
+		logSASGameRecordFinalizedInitialTeamsAndTechs(iTeamStateRows, iTechRows);
+		logSASGameRecord("GAME_RECORD_INITIAL_STATE_SUMMARY teamStateRows=%d techGroupRows=%d techTeamsCovered=%d source=FINALIZED_STATE", iTeamStateRows, iTechRows, iTeamStateRows);
+	}
 }
 
 void startSASGameRecordLogForLoadedSave()
@@ -297,6 +385,7 @@ void startSASGameRecordLogForLoadedSave()
 	rollSASGameRecordLog("load");
 	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
 	logSASGameRecordLogSettings();
+	logSASGameRecordTechCapabilitySources();
 	logSASGameRecordInitialPlayerIdentities();
 }
 

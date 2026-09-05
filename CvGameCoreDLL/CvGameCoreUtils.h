@@ -20,6 +20,14 @@ CvString getSASDiagnosticQuoted(char const* szValue);
 CvWString getSASDiagnosticQuoted(wchar const* szValue);
 // <!-- custom: Serialize an empty diagnostic list/value as "-" while preserving nonempty text unchanged. (ChatGPT-5.6-Sol) -->
 CvString getSASDiagnosticOrDash(CvString const& szValue);
+// <!-- custom: Append one integer to a comma-separated diagnostic list without duplicating list plumbing across logs. (ChatGPT-5.6-Sol) -->
+void appendSASDiagnosticIntListValue(CvString& szList, int iValue);
+// <!-- custom: Serialize authoritative finalized membership, identity, relations and trading capabilities for one initial team. (ChatGPT-5.6-Sol) -->
+CvString getSASInitialTeamStateFields(TeamTypes eTeam);
+// <!-- custom: Serialize exact finalized initial tech ownership/levels, handling ordinary and repeat technologies through their distinct Civ4 storage. (ChatGPT-5.6-Sol) -->
+CvString getSASInitialTeamTechFields(TeamTypes eTeam);
+// <!-- custom: Return the same exact technology payload without a team identifier so diagnostic callers can group teams with identical finalized technology sets. (GPT-5.6-Sol) -->
+CvString getSASInitialTeamTechLevelFields(TeamTypes eTeam);
 
 /*	advc:
  +	All functions dealing with arithmetics moved to ArithmeticUtils.h

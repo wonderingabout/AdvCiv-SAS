@@ -6,6 +6,7 @@
 #include "CityPlotIterator.h"
 #include "BBAILog.h" // advc.007
 #include "CvInfo_GameOption.h"
+#include "CvInfo_Tech.h" // <!-- custom: Shared initial-team diagnostics use stable technology type names and repeat-tech metadata. (ChatGPT-5.6-Sol) -->
 
 // <!-- custom: Shared machine-readable quoting for diagnostic free-text values.
 // Keep narrow/wide escaping identical so BBAI, SASGameRecord and future shared diagnostic rows cannot drift.
@@ -55,6 +56,83 @@ CvWString getSASDiagnosticQuoted(wchar const* szValue)
 CvString getSASDiagnosticOrDash(CvString const& szValue)
 {
 	return szValue.empty() ? CvString("-") : szValue;
+}
+
+
+// <!-- custom: Build comma-separated integer relation/member lists once for shared BBAI/SASGameRecord finalized-initial-state rows. (ChatGPT-5.6-Sol) -->
+void appendSASDiagnosticIntListValue(CvString& szList, int iValue)
+{
+	CvString szItem;
+	szItem.Format(szList.empty() ? "%d" : ",%d", iValue);
+	szList += szItem;
+}
+
+CvString getSASInitialTeamStateFields(TeamTypes eTeam)
+{
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	CvString szMembers, szAliveMembers, szMet, szWars, szOpenBorders, szDefensivePacts, szForcePeace, szPermanentWarPeace, szVassals;
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)iI;
+		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+		if (!kPlayer.isEverAlive() || kPlayer.getTeam() != eTeam)
+			continue;
+		appendSASDiagnosticIntListValue(szMembers, ePlayer);
+		if (kPlayer.isAlive())
+			appendSASDiagnosticIntListValue(szAliveMembers, ePlayer);
+	}
+	for (int iI = 0; iI < MAX_TEAMS; iI++)
+	{
+		TeamTypes const eOther = (TeamTypes)iI;
+		if (eOther == eTeam || !GET_TEAM(eOther).isEverAlive())
+			continue;
+		if (kTeam.isHasMet(eOther)) appendSASDiagnosticIntListValue(szMet, eOther);
+		if (kTeam.isAtWar(eOther)) appendSASDiagnosticIntListValue(szWars, eOther);
+		if (kTeam.isOpenBorders(eOther)) appendSASDiagnosticIntListValue(szOpenBorders, eOther);
+		if (kTeam.isDefensivePact(eOther)) appendSASDiagnosticIntListValue(szDefensivePacts, eOther);
+		if (kTeam.isForcePeace(eOther)) appendSASDiagnosticIntListValue(szForcePeace, eOther);
+		if (kTeam.isPermanentWarPeace(eOther)) appendSASDiagnosticIntListValue(szPermanentWarPeace, eOther);
+		if (GET_TEAM(eOther).isVassal(eTeam)) appendSASDiagnosticIntListValue(szVassals, eOther);
+	}
+	TeamTypes const eMaster = (kTeam.isAVassal() ? kTeam.getMasterTeam() : NO_TEAM);
+	CvString szFields;
+	szFields.Format("team=%d members=%s aliveMembers=%s alive=%d major=%d minor=%d barbarian=%d cities=%d population=%d land=%d metTeams=%s wars=%s openBorders=%s defensivePacts=%s forcePeace=%s permanentWarPeace=%s vassals=%s master=%d capitulated=%d mapTrading=%d techTrading=%d goldTrading=%d openBordersTrading=%d defensivePactTrading=%d permanentAllianceTrading=%d vassalStateTrading=%d",
+			eTeam, getSASDiagnosticOrDash(szMembers).GetCString(), getSASDiagnosticOrDash(szAliveMembers).GetCString(), kTeam.isAlive(), kTeam.isMajorCiv(), kTeam.isMinorCiv(), kTeam.isBarbarian(), kTeam.getNumCities(), kTeam.getTotalPopulation(), kTeam.getTotalLand(),
+			getSASDiagnosticOrDash(szMet).GetCString(), getSASDiagnosticOrDash(szWars).GetCString(), getSASDiagnosticOrDash(szOpenBorders).GetCString(), getSASDiagnosticOrDash(szDefensivePacts).GetCString(), getSASDiagnosticOrDash(szForcePeace).GetCString(), getSASDiagnosticOrDash(szPermanentWarPeace).GetCString(), getSASDiagnosticOrDash(szVassals).GetCString(), eMaster, kTeam.isCapitulated(),
+			kTeam.isMapTrading(), kTeam.isTechTrading(), kTeam.isGoldTrading(), kTeam.isOpenBordersTrading(), kTeam.isDefensivePactTrading(), kTeam.isPermanentAllianceTrading(), kTeam.isVassalStateTrading());
+	return szFields;
+}
+
+CvString getSASInitialTeamTechLevelFields(TeamTypes eTeam)
+{
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	CvString szTechs;
+	int iTechTypes = 0;
+	int iTechLevels = 0;
+	FOR_EACH_ENUM(Tech)
+	{
+		CvTechInfo const& kTech = GC.getInfo(eLoopTech);
+		// <!-- custom: Ordinary technologies live in m_abHasTech, whereas repeat technologies increment m_aiTechCount without setting that bit.
+		// Normalize both storage forms into one exact TYPE:level list. (ChatGPT-5.6-Sol) -->
+		int const iCount = (kTech.isRepeat() ? kTeam.getTechCount(eLoopTech) : (kTeam.isHasTech(eLoopTech) ? 1 : 0));
+		if (iCount <= 0)
+			continue;
+		CvString szItem;
+		szItem.Format(szTechs.empty() ? "%s:%d" : ",%s:%d", kTech.getType(), iCount);
+		szTechs += szItem;
+		iTechTypes++;
+		iTechLevels += iCount;
+	}
+	CvString szFields;
+	szFields.Format("techTypeCount=%d totalTechLevels=%d techLevels=%s", iTechTypes, iTechLevels, getSASDiagnosticOrDash(szTechs).GetCString());
+	return szFields;
+}
+
+CvString getSASInitialTeamTechFields(TeamTypes eTeam)
+{
+	CvString szFields;
+	szFields.Format("team=%d %s", eTeam, getSASInitialTeamTechLevelFields(eTeam).GetCString());
+	return szFields;
 }
 
 // advc.035:
