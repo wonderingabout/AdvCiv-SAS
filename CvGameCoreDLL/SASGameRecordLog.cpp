@@ -2,7 +2,8 @@
 #include "SASGameRecordLog.h"
 #include "CvGame.h" // <!-- custom: Needed for game-record turn, game-state, victory, RNG, and map-classification context rows. (GPT-5.5) -->
 #include "CvPlayer.h" // <!-- custom: Needed directly for active-player civilization/handicap context in this smaller AdvCiv 1.14 port slice; do not rely on later SASGameRecord headers to complete CvPlayer transitively. (ChatGPT-5.6-Sol) -->
-#include "CvPlayerAI.h" // <!-- custom: Needed for the mature periodic espionage strategy/deployment snapshot; this is diagnostic-only and does not alter AI state. (ChatGPT-5.6-Sol) -->
+#include "CvPlayerAI.h" // <!-- custom: Needed for attitude/glance values in game-record advisor rows. (ChatGPT-5.5) -->
+#include "CvTeamAI.h" // <!-- custom: Needed for team-level worst-enemy state in game-record diplomacy-status rows. (ChatGPT-5.5) -->
 #include "CvCity.h" // <!-- custom: Needed to count player-city religions and corporations in periodic policy snapshots. (ChatGPT-5.6-Sol) -->
 #include "CvPlot.h" // <!-- custom: Needed to classify Spy deployment and stationary mission preparation in periodic espionage snapshots. (ChatGPT-5.6-Sol) -->
 #include "CvTeam.h" // <!-- custom: Needed directly for finalized initial-team state and technology grouping in this smaller AdvCiv 1.14 port slice; GET_TEAM is defined by CvTeam.h. (ChatGPT-5.6-Sol) -->
@@ -11,6 +12,7 @@
 #include "CvInfo_Civics.h" // <!-- custom: Needed for policy/civic names in game-record advisor rows. (ChatGPT-5.5) -->
 #include "CvInfo_Civilization.h" // <!-- custom: Needed to attribute player-wide extra happiness/health to traits instead of leaving effects from loaded-mod rules under an opaque `extra` label. (GPT-5.6-Sol) -->
 #include "CvInfo_Tech.h" // <!-- custom: Needed for stable technology type names and XML trade-capability source mapping. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Terrain.h" // <!-- custom: Needed for terrain/feature/bonus type names in game-record context rows. (ChatGPT-5.5) -->
 #include "CvInfo_Misc.h" // <!-- custom: Needed directly for era type names in periodic team technology summaries; base AdvCiv only forward-declares CvEraInfo through CvGlobals. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Symbol.h" // <!-- custom: Needed to log actual assigned player-color and primary-color context; CvGlobals only forward-declares their info classes. (GPT-5.6-Sol) -->
 #include "CvGameCoreUtils.h" // <!-- custom: Needed for shared machine-readable diagnostic quoting/list helpers used by SASGameRecord. (ChatGPT-5.6-Sol) -->
@@ -104,6 +106,17 @@ struct SASGameRecordPlayerPrevious
 	int iEspionagePercent;
 	int iTeamEP;
 	int iUnspentEP;
+	int iDemoScore;
+	int iDemoPopulation;
+	int iDemoLand;
+	int iDemoFood;
+	int iDemoProduction;
+	int iDemoCommerce;
+	int iDemoResearch;
+	int iDemoCulture;
+	int iDemoEspionage;
+	int iDemoGoldRate;
+	int iDemoPower;
 };
 
 static SASGameRecordPlayerPrevious g_akSASGameRecordPlayerPrevious[MAX_PLAYERS];
@@ -712,6 +725,151 @@ static CvString getSASGameRecordCommerceFlexible(CvPlayer const& kPlayer)
 	return getSASDiagnosticOrDash(szList);
 }
 
+static void logSASGameRecordDemographics(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvGame const& kGame = GC.getGame();
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	SASGameRecordPlayerPrevious& kPrevious = g_akSASGameRecordPlayerPrevious[ePlayer];
+	const int iScore = kPlayer.calculateScore();
+	const int iPopulation = kPlayer.getTotalPopulation();
+	const int iLand = kPlayer.getTotalLand();
+	const int iFood = kPlayer.calculateTotalYield(YIELD_FOOD);
+	const int iProduction = kPlayer.calculateTotalYield(YIELD_PRODUCTION);
+	const int iCommerce = kPlayer.calculateTotalYield(YIELD_COMMERCE);
+	const int iResearch = kPlayer.getCommerceRate(COMMERCE_RESEARCH);
+	const int iCulture = kPlayer.getCommerceRate(COMMERCE_CULTURE);
+	const int iEspionage = kPlayer.getCommerceRate(COMMERCE_ESPIONAGE);
+	const int iGoldRate = kPlayer.calculateGoldRate();
+	const int iPower = kPlayer.getPower();
+	logSASGameRecord("GAME_RECORD_DEMOGRAPHICS turn=%d player=%d rank=%d score=%d population=%d land=%d food=%d production=%d commerce=%d research=%d culture=%d espionage=%d goldRate=%d power=%d",
+			iGameTurn, ePlayer, kGame.getPlayerRank(ePlayer) + 1, iScore, iPopulation, iLand, iFood, iProduction, iCommerce, iResearch, iCulture, iEspionage, iGoldRate, iPower);
+	logSASGameRecord("GAME_RECORD_DEMOGRAPHICS_DELTAS turn=%d player=%d deltaValid=%d scoreDelta=%+d populationDelta=%+d landDelta=%+d foodDelta=%+d productionDelta=%+d commerceDelta=%+d researchDelta=%+d cultureDelta=%+d espionageDelta=%+d goldRateDelta=%+d powerDelta=%+d",
+			iGameTurn, ePlayer, kPrevious.bValid,
+			getSASGameRecordDelta(kPrevious.bValid, iScore, kPrevious.iDemoScore), getSASGameRecordDelta(kPrevious.bValid, iPopulation, kPrevious.iDemoPopulation), getSASGameRecordDelta(kPrevious.bValid, iLand, kPrevious.iDemoLand),
+			getSASGameRecordDelta(kPrevious.bValid, iFood, kPrevious.iDemoFood), getSASGameRecordDelta(kPrevious.bValid, iProduction, kPrevious.iDemoProduction), getSASGameRecordDelta(kPrevious.bValid, iCommerce, kPrevious.iDemoCommerce),
+			getSASGameRecordDelta(kPrevious.bValid, iResearch, kPrevious.iDemoResearch), getSASGameRecordDelta(kPrevious.bValid, iCulture, kPrevious.iDemoCulture), getSASGameRecordDelta(kPrevious.bValid, iEspionage, kPrevious.iDemoEspionage),
+			getSASGameRecordDelta(kPrevious.bValid, iGoldRate, kPrevious.iDemoGoldRate), getSASGameRecordDelta(kPrevious.bValid, iPower, kPrevious.iDemoPower));
+	kPrevious.iDemoScore = iScore;
+	kPrevious.iDemoPopulation = iPopulation;
+	kPrevious.iDemoLand = iLand;
+	kPrevious.iDemoFood = iFood;
+	kPrevious.iDemoProduction = iProduction;
+	kPrevious.iDemoCommerce = iCommerce;
+	kPrevious.iDemoResearch = iResearch;
+	kPrevious.iDemoCulture = iCulture;
+	kPrevious.iDemoEspionage = iEspionage;
+	kPrevious.iDemoGoldRate = iGoldRate;
+	kPrevious.iDemoPower = iPower;
+}
+
+static void logSASGameRecordAttitudes(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	CvString szToward;
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
+		if (eLoopPlayer == ePlayer || !GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isBarbarian())
+			continue;
+		if (!GET_TEAM(kPlayer.getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
+			continue;
+		const int iValue = kPlayer.AI_getAttitudeVal(eLoopPlayer);
+		CvString szItem;
+		szItem.Format(szToward.empty() ? "%d:%+d" : ",%d:%+d", eLoopPlayer, iValue);
+		szToward += szItem;
+	}
+	logSASGameRecord("GAME_RECORD_ATTITUDES turn=%d player=%d towardValues=%s", iGameTurn, ePlayer, getSASDiagnosticOrDash(szToward).GetCString());
+}
+
+static void logSASGameRecordDiplomaticMemories(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const eTowardPlayer = (PlayerTypes)iI;
+		if (eTowardPlayer == ePlayer || !GET_PLAYER(eTowardPlayer).isAlive() || GET_PLAYER(eTowardPlayer).isBarbarian() || !kTeam.isHasMet(GET_PLAYER(eTowardPlayer).getTeam()))
+			continue;
+		CvString szMemories;
+		int iMemoryAttitude = 0;
+		for (int iJ = 0; iJ < NUM_MEMORY_TYPES; iJ++)
+		{
+			MemoryTypes const eMemory = (MemoryTypes)iJ;
+			int const iCount = kPlayer.AI_getMemoryCount(eTowardPlayer, eMemory);
+			if (iCount <= 0)
+				continue;
+			int const iAttitude = kPlayer.AI_getMemoryAttitude(eTowardPlayer, eMemory);
+			iMemoryAttitude += iAttitude;
+			CvString szItem;
+			szItem.Format(szMemories.empty() ? "%s=%d/%+d" : ",%s=%d/%+d", getSASMemoryType(eMemory), iCount, iAttitude);
+			szMemories += szItem;
+		}
+		if (!szMemories.empty())
+		{
+			// <!-- custom: Level-3 memory rows explain why the existing attitude value changed. Each item is MEMORY_TYPE=count/attitudeContribution; periodic snapshots avoid logging every routine memory decay. (GPT-5.6-Sol) -->
+			logSASGameRecord("GAME_RECORD_DIPLO_MEMORIES turn=%d player=%d toward=%d attitudeValue=%+d memoryAttitude=%+d memories=%s", iGameTurn, ePlayer, eTowardPlayer, kPlayer.AI_getAttitudeVal(eTowardPlayer), iMemoryAttitude, szMemories.GetCString());
+		}
+	}
+}
+
+static void logSASGameRecordDiploStatus(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	const TeamTypes eWorstEnemy = kTeam.AI().AI_getWorstEnemy();
+	CvString szWorstEnemyPlayers;
+	CvString szWorstEnemyOfTeams;
+	CvString szAtWar;
+	CvString szOpenBorders;
+	CvString szDefensivePacts;
+	CvString szForcePeace;
+	CvString szCanContact;
+	CvString szCanContactWilling;
+	CvString szWontTalkTo;
+	CvString szWontTalkFrom;
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		TeamTypes eLoopTeam = (TeamTypes)iI;
+		if (eLoopTeam == kPlayer.getTeam() || !GET_TEAM(eLoopTeam).isAlive() || GET_TEAM(eLoopTeam).isBarbarian())
+			continue;
+		if (!kTeam.isHasMet(eLoopTeam))
+			continue;
+		if (kTeam.isAtWar(eLoopTeam))
+			appendSASDiagnosticIntListValue(szAtWar, eLoopTeam);
+		if (kTeam.isOpenBorders(eLoopTeam))
+			appendSASDiagnosticIntListValue(szOpenBorders, eLoopTeam);
+		if (kTeam.isDefensivePact(eLoopTeam))
+			appendSASDiagnosticIntListValue(szDefensivePacts, eLoopTeam);
+		if (kTeam.isForcePeace(eLoopTeam))
+			appendSASDiagnosticIntListValue(szForcePeace, eLoopTeam);
+		if (GET_TEAM(eLoopTeam).AI().AI_getWorstEnemy() == kPlayer.getTeam())
+			appendSASDiagnosticIntListValue(szWorstEnemyOfTeams, eLoopTeam);
+	}
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
+		if (eLoopPlayer == ePlayer || !GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isBarbarian())
+			continue;
+		if (!kTeam.isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
+			continue;
+		if (GET_PLAYER(eLoopPlayer).getTeam() == eWorstEnemy)
+			appendSASDiagnosticIntListValue(szWorstEnemyPlayers, eLoopPlayer);
+		if (kPlayer.canContact(eLoopPlayer, false))
+			appendSASDiagnosticIntListValue(szCanContact, eLoopPlayer);
+		if (kPlayer.canContact(eLoopPlayer, true))
+			appendSASDiagnosticIntListValue(szCanContactWilling, eLoopPlayer);
+		if (!kPlayer.AI_isWillingToTalk(eLoopPlayer))
+			appendSASDiagnosticIntListValue(szWontTalkTo, eLoopPlayer);
+		if (!GET_PLAYER(eLoopPlayer).AI_isWillingToTalk(ePlayer))
+			appendSASDiagnosticIntListValue(szWontTalkFrom, eLoopPlayer);
+	}
+	logSASGameRecord("GAME_RECORD_DIPLO_STATUS turn=%d player=%d team=%d worstEnemyTeam=%d worstEnemyPlayers=%s worstEnemyOfTeams=%s atWar=%s openBorders=%s defensivePacts=%s forcePeace=%s canContact=%s canContactWilling=%s wontTalkTo=%s wontTalkFrom=%s",
+			iGameTurn, ePlayer, kPlayer.getTeam(), eWorstEnemy,
+			getSASDiagnosticOrDash(szWorstEnemyPlayers).GetCString(), getSASDiagnosticOrDash(szWorstEnemyOfTeams).GetCString(),
+			getSASDiagnosticOrDash(szAtWar).GetCString(), getSASDiagnosticOrDash(szOpenBorders).GetCString(), getSASDiagnosticOrDash(szDefensivePacts).GetCString(), getSASDiagnosticOrDash(szForcePeace).GetCString(),
+			getSASDiagnosticOrDash(szCanContact).GetCString(), getSASDiagnosticOrDash(szCanContactWilling).GetCString(), getSASDiagnosticOrDash(szWontTalkTo).GetCString(), getSASDiagnosticOrDash(szWontTalkFrom).GetCString());
+}
+
 static void logSASGameRecordEconomy(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
@@ -731,6 +889,7 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
 	bool const bLogPlayerDetails = (getSASGameRecordLogLevel() >= 2);
+	bool const bLogPlayerVerboseDetails = (getSASGameRecordLogLevel() >= 3);
 	TechTypes const eResearch = kPlayer.getCurrentResearch();
 	int const iScore = kPlayer.calculateScore();
 	int const iCities = kPlayer.getNumCities();
@@ -778,6 +937,10 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 		logSASGameRecordPolicies(ePlayer, iGameTurn);
 		logSASGameRecordEconomy(ePlayer, iGameTurn);
 		logSASGameRecordEspionage(ePlayer, iGameTurn);
+		logSASGameRecordDemographics(ePlayer, iGameTurn);
+		logSASGameRecordAttitudes(ePlayer, iGameTurn);
+		if (bLogPlayerVerboseDetails) logSASGameRecordDiplomaticMemories(ePlayer, iGameTurn);
+		logSASGameRecordDiploStatus(ePlayer, iGameTurn);
 	}
 	kPrevious.bValid = true;
 	kPrevious.iScore = iScore;
@@ -873,6 +1036,16 @@ static void logSASGameRecordPlayerSetup(PlayerTypes ePlayer)
 			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), kPlayer.isEverAlive(), bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kInitCore.getSlotStatus(ePlayer), bCivLeaderChoiceKnown, bCivLeaderChoiceKnown ? kInitCore.wasCivRandomlyChosen(ePlayer) : -1, bCivLeaderChoiceKnown ? kInitCore.wasLeaderRandomlyChosen(ePlayer) : -1,
 			getSASDiagnosticQuoted(kPlayer.getName(0)).GetCString(), szCivType, getSASDiagnosticQuoted(kPlayer.getCivilizationDescription(0)).GetCString(), getSASDiagnosticQuoted(kPlayer.getCivilizationShortDescription(0)).GetCString(), szLeaderType, getSASDiagnosticQuoted(szLeaderName).GetCString(),
 			szPlayerColor, szPrimaryColor, iPrimaryRed, iPrimaryGreen, iPrimaryBlue, getSASDiagnosticOrDash(szTraits).GetCString(), getSASGameRecordCivicType(kPlayer.getFavoriteCivic()), getSASGameRecordReligionType(kPlayer.getFavoriteReligion()), kPlayer.getHandicapType() == NO_HANDICAP ? "-" : GC.getInfo(kPlayer.getHandicapType()).getType());
+}
+
+static void logSASGameRecordAttitudeLegend()
+{
+	const int iFuriousMax = GC.getDefineINT(CvGlobals::RELATIONS_THRESH_FURIOUS);
+	const int iAnnoyedMax = GC.getDefineINT(CvGlobals::RELATIONS_THRESH_ANNOYED);
+	const int iPleasedMin = GC.getDefineINT(CvGlobals::RELATIONS_THRESH_PLEASED);
+	const int iFriendlyMin = GC.getDefineINT(CvGlobals::RELATIONS_THRESH_FRIENDLY);
+	logSASGameRecord("GAME_RECORD_ATTITUDE_LEGEND valueFrom=AI_getAttitudeVal furious=<=%d annoyed=%d..%d cautious=%d..%d pleased=%d..%d friendly=>=%d",
+			iFuriousMax, iFuriousMax + 1, iAnnoyedMax, iAnnoyedMax + 1, iPleasedMin - 1, iPleasedMin, iFriendlyMin - 1, iFriendlyMin);
 }
 
 // <!-- custom: Team-state rows identify numeric members exactly, but placing readable player/civilization identities only after hundreds of geography and text-map rows made the initial team and technology records needlessly hard to interpret.
@@ -1055,6 +1228,7 @@ void startSASGameRecordLogForNewGame()
 	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString());
 	logSASGameRecordLogSettings();
 	logSASGameRecordTechCapabilitySources();
+	logSASGameRecordAttitudeLegend();
 }
 
 void logSASGameRecordNewGameStarted()
@@ -1079,6 +1253,7 @@ void startSASGameRecordLogForLoadedSave()
 	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
 	logSASGameRecordLogSettings();
 	logSASGameRecordTechCapabilitySources();
+	logSASGameRecordAttitudeLegend();
 	logSASGameRecordInitialPlayerIdentities();
 	// <!-- custom: Level-2+ new games already emitted authoritative INITIAL_TEAM_STATE metTeams and seeded the contact baseline.
 	// Loaded saves have no finalized initial-team block in this session, so retain explicit setup contact rows for them. (ChatGPT-5.6-Sol) -->
