@@ -7,6 +7,7 @@
 #include "CvInfo_Civics.h" // <!-- custom: Needed for policy/civic names in game-record advisor rows. (ChatGPT-5.5) -->
 #include "CvInfo_Civilization.h" // <!-- custom: Needed to attribute player-wide extra happiness/health to traits instead of leaving effects from loaded-mod rules under an opaque `extra` label. (GPT-5.6-Sol) -->
 #include "CvInfo_Tech.h" // <!-- custom: Needed for stable technology type names and XML trade-capability source mapping. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Misc.h" // <!-- custom: Needed directly for era type names in periodic team technology summaries; base AdvCiv only forward-declares CvEraInfo through CvGlobals. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Symbol.h" // <!-- custom: Needed to log actual assigned player-color and primary-color context; CvGlobals only forward-declares their info classes. (GPT-5.6-Sol) -->
 #include "CvGameCoreUtils.h" // <!-- custom: Needed for shared machine-readable diagnostic quoting/list helpers used by SASGameRecord. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
@@ -53,6 +54,35 @@ int getSASGameRecordTurnInterval()
 static CvString g_szSASGameRecordLogTimestamp;
 static int g_iSASGameRecordLogSequence = 0;
 static CvString g_szSASGameRecordLogContext;
+
+// <!-- custom: Keep only the team fields already consumed by this first periodic snapshot slice. Later player/global snapshot ports can extend their own recorder-local baselines independently. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordTeamPrevious
+{
+	bool bValid;
+	bool bContactsValid;
+	int iTechs;
+	int iLand;
+	int iLandPctX100;
+	int iPopulation;
+	int iPopPctX100;
+	int iMetTeams;
+};
+
+static SASGameRecordTeamPrevious g_akSASGameRecordTeamPrevious[MAX_TEAMS];
+
+static int getSASGameRecordDelta(bool bValid, int iCurrent, int iPrevious)
+{
+	return bValid ? iCurrent - iPrevious : 0;
+}
+
+static void resetSASGameRecordTeamPrevious()
+{
+	for (int iI = 0; iI < MAX_TEAMS; iI++)
+	{
+		g_akSASGameRecordTeamPrevious[iI].bValid = false;
+		g_akSASGameRecordTeamPrevious[iI].bContactsValid = false;
+	}
+}
 
 static CvString createSASGameRecordUtcTimestamp()
 {
@@ -170,6 +200,153 @@ static const char* getSASGameRecordCivicType(CivicTypes eCivic)
 	return (eCivic == NO_CIVIC ? "-" : GC.getInfo(eCivic).getType());
 }
 
+static const char* getSASGameRecordEraType(EraTypes eEra)
+{
+	return (eEra == NO_ERA ? "-" : GC.getInfo(eEra).getType());
+}
+
+static void appendSASGameRecordTypeCount(CvString& szList, const char* szType, int iCount)
+{
+	if (iCount <= 0)
+		return;
+	CvString szItem;
+	szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", szType, iCount);
+	szList += szItem;
+}
+
+static CvString getSASGameRecordTeamMembers(TeamTypes eTeam)
+{
+	CvString szList;
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
+		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == eTeam)
+			appendSASDiagnosticIntListValue(szList, eLoopPlayer);
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+static CvString getSASGameRecordWarTeams(TeamTypes eTeam)
+{
+	CvString szList;
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		TeamTypes eLoopTeam = (TeamTypes)iI;
+		if (eLoopTeam != eTeam && GET_TEAM(eLoopTeam).isAlive() && kTeam.isAtWar(eLoopTeam))
+			appendSASDiagnosticIntListValue(szList, eLoopTeam);
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+static CvString getSASGameRecordVassalTeams(TeamTypes eTeam)
+{
+	CvString szList;
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		TeamTypes eLoopTeam = (TeamTypes)iI;
+		if (eLoopTeam != eTeam && GET_TEAM(eLoopTeam).isAlive() && GET_TEAM(eLoopTeam).isVassal(eTeam))
+			appendSASDiagnosticIntListValue(szList, eLoopTeam);
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+static CvString getSASGameRecordMetTeams(TeamTypes eTeam)
+{
+	CvString szMetTeams;
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		TeamTypes eLoopTeam = (TeamTypes)iI;
+		if (eLoopTeam == eTeam || !GET_TEAM(eLoopTeam).isAlive() || GET_TEAM(eLoopTeam).isBarbarian())
+			continue;
+		if (GET_TEAM(eTeam).isHasMet(eLoopTeam))
+			appendSASDiagnosticIntListValue(szMetTeams, eLoopTeam);
+	}
+	return getSASDiagnosticOrDash(szMetTeams);
+}
+
+static int getSASGameRecordMetTeamCount(TeamTypes eTeam)
+{
+	int iCount = 0;
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		TeamTypes eLoopTeam = (TeamTypes)iI;
+		if (eLoopTeam != eTeam && GET_TEAM(eLoopTeam).isAlive() && !GET_TEAM(eLoopTeam).isBarbarian() && GET_TEAM(eTeam).isHasMet(eLoopTeam))
+			iCount++;
+	}
+	return iCount;
+}
+
+static void logSASGameRecordTeamContacts(TeamTypes eTeam, int iGameTurn, const char* szReason)
+{
+	SASGameRecordTeamPrevious& kPrevious = g_akSASGameRecordTeamPrevious[eTeam];
+	const int iMetTeams = getSASGameRecordMetTeamCount(eTeam);
+	logSASGameRecord("GAME_RECORD_CONTACTS turn=%d reason=%s team=%d deltaValid=%d metCount=%d metCountDelta=%+d metTeams=%s",
+			iGameTurn, szReason, eTeam, kPrevious.bContactsValid, iMetTeams, getSASGameRecordDelta(kPrevious.bContactsValid, iMetTeams, kPrevious.iMetTeams), getSASGameRecordMetTeams(eTeam).GetCString());
+	kPrevious.bContactsValid = true;
+	kPrevious.iMetTeams = iMetTeams;
+}
+
+static CvString getSASGameRecordTechEraCounts(TeamTypes eTeam)
+{
+	std::vector<int> aiEras(GC.getNumEraInfos(), 0);
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	FOR_EACH_ENUM(Tech)
+	{
+		if (!kTeam.isHasTech(eLoopTech))
+			continue;
+		EraTypes eEra = GC.getInfo(eLoopTech).getEra();
+		if (eEra != NO_ERA)
+			aiEras[eEra]++;
+	}
+	CvString szList;
+	for (int iI = 0; iI < GC.getNumEraInfos(); iI++)
+		appendSASGameRecordTypeCount(szList, getSASGameRecordEraType((EraTypes)iI), aiEras[iI]);
+	return getSASDiagnosticOrDash(szList);
+}
+
+static void seedSASGameRecordTeamPreviousFromCurrentState(TeamTypes eTeam)
+{
+	CvGame const& kGame = GC.getGame();
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	SASGameRecordTeamPrevious& kPrevious = g_akSASGameRecordTeamPrevious[eTeam];
+	int const iLand = kTeam.getTotalLand();
+	int const iPopulation = kTeam.getTotalPopulation();
+	kPrevious.bValid = true;
+	kPrevious.iTechs = kTeam.getTechCount();
+	kPrevious.iLand = iLand;
+	kPrevious.iLandPctX100 = (10000 * iLand) / std::max(1, GC.getMap().getLandPlots());
+	kPrevious.iPopulation = iPopulation;
+	kPrevious.iPopPctX100 = (10000 * iPopulation) / std::max(1, kGame.getTotalPopulation());
+	kPrevious.bContactsValid = true;
+	kPrevious.iMetTeams = getSASGameRecordMetTeamCount(eTeam);
+}
+
+static void logSASGameRecordTeamSnapshot(TeamTypes eTeam, int iGameTurn)
+{
+	CvGame const& kGame = GC.getGame();
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	bool const bLogTeamDetails = (getSASGameRecordLogLevel() >= 2);
+	const int iLandPlots = std::max(1, GC.getMap().getLandPlots());
+	const int iGamePopulation = std::max(1, kGame.getTotalPopulation());
+	const int iTechs = kTeam.getTechCount();
+	const int iLand = kTeam.getTotalLand();
+	const int iLandPctX100 = (10000 * iLand) / iLandPlots;
+	const int iPopulation = kTeam.getTotalPopulation();
+	const int iPopPctX100 = (10000 * iPopulation) / iGamePopulation;
+	SASGameRecordTeamPrevious& kPrevious = g_akSASGameRecordTeamPrevious[eTeam];
+	TeamTypes const eMaster = (kTeam.isAVassal() ? kTeam.getMasterTeam() : NO_TEAM);
+	logSASGameRecord("GAME_RECORD_TEAM turn=%d team=%d members=%s alive=%d deltaValid=%d techs=%d techsDelta=%+d techEraCounts=%s techTrading=%d goldTrading=%d land=%d landDelta=%+d landPctX100=%d landPctX100Delta=%+d pop=%d popDelta=%+d popPctX100=%d popPctX100Delta=%+d wars=%s vassals=%s master=%d",
+			iGameTurn, eTeam, getSASGameRecordTeamMembers(eTeam).GetCString(), kTeam.isAlive(), kPrevious.bValid,
+			iTechs, getSASGameRecordDelta(kPrevious.bValid, iTechs, kPrevious.iTechs), getSASGameRecordTechEraCounts(eTeam).GetCString(), kTeam.isTechTrading(), kTeam.isGoldTrading(),
+			iLand, getSASGameRecordDelta(kPrevious.bValid, iLand, kPrevious.iLand), iLandPctX100, getSASGameRecordDelta(kPrevious.bValid, iLandPctX100, kPrevious.iLandPctX100),
+			iPopulation, getSASGameRecordDelta(kPrevious.bValid, iPopulation, kPrevious.iPopulation), iPopPctX100, getSASGameRecordDelta(kPrevious.bValid, iPopPctX100, kPrevious.iPopPctX100),
+			getSASGameRecordWarTeams(eTeam).GetCString(), getSASGameRecordVassalTeams(eTeam).GetCString(), eMaster);
+	if (bLogTeamDetails) logSASGameRecordTeamContacts(eTeam, iGameTurn, "snapshot");
+	seedSASGameRecordTeamPreviousFromCurrentState(eTeam);
+}
+
 static void logSASGameRecordPlayerSetup(PlayerTypes ePlayer)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
@@ -245,6 +422,7 @@ struct SASGameRecordInitialTechGroup
 };
 
 // <!-- custom: Successful new-game initialization is best described by its authoritative result, not by the order in which Civ4 happened to call meet/declareWar/setHasTech/startTrade while constructing that result.
+// Seed periodic team/contact deltas from this same finalized baseline.
 // Group identical technology sets so a late-era start does not repeat the same long payload for every team; the explicit team lists keep arbitrary scenarios and mixed/modded setups exact.
 // Record surviving initial deals from the same finalized boundary, collapsing only the deterministic Advanced-Start-shaped reciprocal peace matrix already represented by forcePeace team state. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 static void logSASGameRecordFinalizedInitialState(int& iTeamStateRows, int& iTechRows, int& iDeals)
@@ -279,6 +457,7 @@ static void logSASGameRecordFinalizedInitialState(int& iTeamStateRows, int& iTec
 		}
 		appendSASDiagnosticIntListValue(pGroup->szTeams, eTeam);
 		pGroup->iTeams++;
+		seedSASGameRecordTeamPreviousFromCurrentState(eTeam);
 		iTeamStateRows++;
 	}
 	for (size_t iGroup = 0; iGroup < aTechGroups.size(); iGroup++)
@@ -367,9 +546,29 @@ void logSASGameRecord(TCHAR* format, ... )
 	gDLL->logMsg(szLogName.GetCString(), szLine.c_str(), false, false);
 }
 
+static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
+{
+	CvGame const& kGame = GC.getGame();
+	logSASGameRecord("GAME_RECORD_TURN_BEGIN turn=%d reason=%s elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d",
+			iGameTurn, szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.getNumCities(), kGame.getTotalPopulation());
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		TeamTypes eLoopTeam = (TeamTypes)iI;
+		if (GET_TEAM(eLoopTeam).isAlive() && !GET_TEAM(eLoopTeam).isBarbarian())
+			logSASGameRecordTeamSnapshot(eLoopTeam, iGameTurn);
+	}
+	logSASGameRecord("GAME_RECORD_TURN_END turn=%d reason=%s", iGameTurn, szReason);
+}
+
+void logSASGameRecordTurn(int iGameTurn)
+{
+	logSASGameRecordSnapshot(iGameTurn, "interval");
+}
+
 void startSASGameRecordLogForNewGame()
 {
 	rollSASGameRecordLog("new");
+	resetSASGameRecordTeamPrevious();
 	CvString const szLogName = getSASGameRecordLogName();
 	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString());
 	logSASGameRecordLogSettings();
@@ -385,7 +584,6 @@ void logSASGameRecordNewGameStarted()
 		int iTeamStateRows = 0;
 		int iTechRows = 0;
 		int iDeals = 0;
-		// <!-- custom: Current AdvCiv-SAS also seeds later team/contact deltas from this finalized-state boundary; that recorder-state plumbing remains deferred until the first delta snapshots are ported. (ChatGPT-5.6-Sol) -->
 		logSASGameRecordFinalizedInitialState(iTeamStateRows, iTechRows, iDeals);
 		logSASGameRecord("GAME_RECORD_INITIAL_STATE_SUMMARY teamStateRows=%d techGroupRows=%d techTeamsCovered=%d %s source=FINALIZED_STATE", iTeamStateRows, iTechRows, iTeamStateRows, getSASInitialDealSummaryFields(true, iDeals).GetCString());
 	}
@@ -394,9 +592,21 @@ void logSASGameRecordNewGameStarted()
 void startSASGameRecordLogForLoadedSave()
 {
 	rollSASGameRecordLog("load");
+	resetSASGameRecordTeamPrevious();
 	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
 	logSASGameRecordLogSettings();
 	logSASGameRecordTechCapabilitySources();
 	logSASGameRecordInitialPlayerIdentities();
+	// <!-- custom: Level-2+ new games already emitted authoritative INITIAL_TEAM_STATE metTeams and seeded the contact baseline.
+	// Loaded saves have no finalized initial-team block in this session, so retain explicit setup contact rows for them. (ChatGPT-5.6-Sol) -->
+	if (getSASGameRecordLogLevel() >= 2)
+	{
+		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+		{
+			TeamTypes eLoopTeam = (TeamTypes)iI;
+			if (GET_TEAM(eLoopTeam).isAlive() && !GET_TEAM(eLoopTeam).isBarbarian())
+				logSASGameRecordTeamContacts(eLoopTeam, GC.getGame().getGameTurn(), "setup");
+		}
+	}
 }
 

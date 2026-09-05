@@ -105,6 +105,8 @@ void CvEventReporter::beginGameTurn(int iGameTurn)
 void CvEventReporter::endGameTurn(int iGameTurn)
 {
 	m_kPythonEventMgr.reportEndGameTurn(iGameTurn);
+	// <!-- custom: Periodic game-record snapshots are separate from normal BBAI diagnostics and mainly serve autoplay comparison / external review. (ChatGPT-5.5) -->
+	if (isSASGameRecordLogEnabled() && iGameTurn > 0 && (iGameTurn % getSASGameRecordTurnInterval()) == 0) logSASGameRecordTurn(iGameTurn);
 }
 
 void CvEventReporter::beginPlayerTurn(int iGameTurn, PlayerTypes ePlayer)

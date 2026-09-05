@@ -10,6 +10,7 @@ int getSASGameRecordTurnInterval();
 void startSASGameRecordLogForNewGame();
 void logSASGameRecordNewGameStarted();
 void startSASGameRecordLogForLoadedSave();
+void logSASGameRecordTurn(int iGameTurn);
 void logSASGameRecord(TCHAR* format, ... );
 
 #endif // SAS_GAME_RECORD_LOG_H
