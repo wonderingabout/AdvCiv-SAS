@@ -13,6 +13,7 @@
 #include "CvInfo_Civilization.h" // <!-- custom: Needed to attribute player-wide extra happiness/health to traits instead of leaving effects from loaded-mod rules under an opaque `extra` label. (GPT-5.6-Sol) -->
 #include "CvInfo_Tech.h" // <!-- custom: Needed for stable technology type names and XML trade-capability source mapping. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Terrain.h" // <!-- custom: Needed for terrain/feature/bonus type names in game-record context rows. (ChatGPT-5.5) -->
+#include "CvInfo_Unit.h" // <!-- custom: Needed to classify unit composition and city production in game-record rows. (ChatGPT-5.5) -->
 #include "CvInfo_Misc.h" // <!-- custom: Needed directly for era type names in periodic team technology summaries; base AdvCiv only forward-declares CvEraInfo through CvGlobals. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Symbol.h" // <!-- custom: Needed to log actual assigned player-color and primary-color context; CvGlobals only forward-declares their info classes. (GPT-5.6-Sol) -->
 #include "CvGameCoreUtils.h" // <!-- custom: Needed for shared machine-readable diagnostic quoting/list helpers used by SASGameRecord. (ChatGPT-5.6-Sol) -->
@@ -117,6 +118,15 @@ struct SASGameRecordPlayerPrevious
 	int iDemoEspionage;
 	int iDemoGoldRate;
 	int iDemoPower;
+	int iUnitTotal;
+	int iUnitMilitary;
+	int iUnitWorkers;
+	int iUnitSettlers;
+	int iUnitFieldArmy;
+	int iUnitCityDefenders;
+	int iUnitEnemyUnitsInTerritory;
+	int iUnitTotalExperience;
+	int iUnitPromotionReady;
 };
 
 static SASGameRecordPlayerPrevious g_akSASGameRecordPlayerPrevious[MAX_PLAYERS];
@@ -277,6 +287,26 @@ static const char* getSASGameRecordBonusType(BonusTypes eBonus)
 	return (eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType());
 }
 
+static const char* getSASGameRecordUnitType(UnitTypes eUnit)
+{
+	return (eUnit == NO_UNIT ? "-" : GC.getInfo(eUnit).getType());
+}
+
+static const char* getSASGameRecordUnitAIType(UnitAITypes eUnitAI)
+{
+	return (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType());
+}
+
+static const char* getSASGameRecordUnitCombatType(UnitCombatTypes eUnitCombat)
+{
+	return (eUnitCombat == NO_UNITCOMBAT ? "-" : GC.getInfo(eUnitCombat).getType());
+}
+
+static const char* getSASGameRecordPromotionType(PromotionTypes ePromotion)
+{
+	return (ePromotion == NO_PROMOTION ? "-" : GC.getInfo(ePromotion).getType());
+}
+
 static void appendSASGameRecordTypeCount(CvString& szList, const char* szType, int iCount)
 {
 	if (iCount <= 0)
@@ -284,6 +314,18 @@ static void appendSASGameRecordTypeCount(CvString& szList, const char* szType, i
 	CvString szItem;
 	szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", szType, iCount);
 	szList += szItem;
+}
+
+static void appendSASGameRecordValue(CvString& szList, const char* szName, int iValue)
+{
+	CvString szItem;
+	szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", szName, iValue);
+	szList += szItem;
+}
+
+static int getSASGameRecordPercentX100(int iValue, int iTotal)
+{
+	return (iTotal <= 0 ? -1 : (10000 * iValue) / iTotal);
 }
 
 static void appendSASGameRecordSignedValue(CvString& szList, const char* szName, int iValue)
@@ -433,6 +475,17 @@ static bool isSASGameRecordMilitaryUnit(CvUnit const& kUnit)
 	// <!-- custom: A failed NO_UNIT creation left an unplaced/reset object in the owner container, and the end-turn snapshot crashed while reading its combat state. Unplaced units are not part of military posture; short-circuit before unit-info-backed checks. See KI#524.6. (GPT-5.6-Sol) -->
 	CvPlot const* pPlot = kUnit.plot();
 	return pPlot != NULL && (kUnit.canDefend(pPlot) || kUnit.baseCombatStr() > 0 || kUnit.airBaseCombatStr() > 0);
+}
+
+static bool isSASGameRecordWorkerUnit(CvUnit const& kUnit)
+{
+	UnitAITypes eUnitAI = kUnit.AI_getUnitAIType();
+	return eUnitAI == UNITAI_WORKER || eUnitAI == UNITAI_WORKER_SEA || kUnit.workRate(true) > 0;
+}
+
+static bool isSASGameRecordSettlerUnit(CvUnit const& kUnit)
+{
+	return kUnit.AI_getUnitAIType() == UNITAI_SETTLE || kUnit.isFound();
 }
 
 static CvString getSASGameRecordCivicList(CvPlayer const& kPlayer)
@@ -883,6 +936,256 @@ static void logSASGameRecordEconomy(PlayerTypes ePlayer, int iGameTurn)
 			iGameTurn, ePlayer, kPlayer.getGold(), kPlayer.calculateGoldRate(), kPlayer.calculateTotalYield(YIELD_COMMERCE), getSASGameRecordCommercePercents(kPlayer).GetCString(), getSASGameRecordCommerceRates(kPlayer).GetCString(), getSASGameRecordCommerceFlexible(kPlayer).GetCString(), getSASGameRecordTechType(eResearch), iResearchProgress, iResearchCost, kPlayer.calculateResearchRate(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(), eResearch == NO_TECH ? -1 : kPlayer.getResearchTurnsLeft(eResearch, true));
 }
 
+static void logSASGameRecordUnitPosture(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	TeamTypes eTeam = kPlayer.getTeam();
+	SASGameRecordPlayerPrevious& kPrevious = g_akSASGameRecordPlayerPrevious[ePlayer];
+	// <!-- custom: Promotion-detail work is level 3 only. Cache the immutable detail gate once instead of querying it for every unit and every promotion container. (ChatGPT-5.6-Sol) -->
+	bool const bLogPromotionDetails = (gGameRecordLogLevel >= 3);
+	int iTotal = 0;
+	int iMilitary = 0;
+	int iLandMilitary = 0;
+	int iSeaMilitary = 0;
+	int iAirMilitary = 0;
+	int iAttackAir = 0;
+	int iDefenseAir = 0;
+	int iCarrierAir = 0;
+	int iMissileAir = 0;
+	int iICBM = 0;
+	int iCarrierSea = 0;
+	int iMissileCarrierSea = 0;
+	int iAirCargo = 0;
+	int iCarrierAirCargo = 0;
+	int iMissileCargo = 0;
+	int iNukes = 0;
+	int iBlockadingUnits = 0;
+	int iUnitCombatTotal = 0;
+	int iWorkers = 0;
+	int iSettlers = 0;
+	int iRecon = 0;
+	int iCityDefenders = 0;
+	int iFieldArmy = 0;
+	int iOwnTerritory = 0;
+	int iEnemyTerritory = 0;
+	int iNeutralTerritory = 0;
+	int iUnitsInCities = 0;
+	int iEnemyUnitsInTerritory = 0;
+	int iTotalExperience = 0;
+	int iMaxExperience = 0;
+	int iPromotionReady = 0;
+	int iLevel2Plus = 0;
+	int iLevel4Plus = 0;
+	int iLevel6Plus = 0;
+	// <!-- custom: Military-only quality complements all-unit totals. Keep health in percentX100 (10000 = full health) so averages remain precise without floating-point logging.
+	// Promotion-instance scans remain level 3 only. (ChatGPT-5.6-Sol) -->
+	int iMilitaryExperience = 0;
+	int iMaxMilitaryExperience = 0;
+	int iMilitaryLevelTotal = 0;
+	int iMaxMilitaryLevel = 0;
+	int iMilitaryPromotionReady = 0;
+	int iGreatGeneralLedMilitary = 0;
+	int iMilitaryXmlProductionCost = 0;
+	int iMilitaryProductionNeeded = 0;
+	int iMilitaryCostedUnits = 0;
+	int iWoundedMilitary = 0;
+	int iMilitaryHealthMeasured = 0;
+	int iMilitaryHealthX100Total = 0;
+	int iMinMilitaryHealthX100 = -1;
+	int iMaxMilitaryHealthX100 = -1;
+	int iMilitaryHealthFull = 0;
+	int iMilitaryHealthHigh = 0;
+	int iMilitaryHealthMedium = 0;
+	int iMilitaryHealthLow = 0;
+	int iPromotionInstances = (bLogPromotionDetails ? 0 : -1);
+	int iMilitaryPromotionInstances = (bLogPromotionDetails ? 0 : -1);
+	std::vector<int> aiUnitTypes(GC.getNumUnitInfos(), 0);
+	std::vector<int> aiUnitAI(NUM_UNITAI_TYPES, 0);
+	std::vector<int> aiUnitCombat(GC.getNumUnitCombatInfos(), 0);
+	std::vector<int> aiPromotions(bLogPromotionDetails ? GC.getNumPromotionInfos() : 0, 0);
+	std::vector<int> aiMilitaryPromotions(bLogPromotionDetails ? GC.getNumPromotionInfos() : 0, 0);
+	int iLoop = 0;
+	for (CvUnit const* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+	{
+		iTotal++;
+		if (pLoopUnit->getUnitType() != NO_UNIT)
+			aiUnitTypes[pLoopUnit->getUnitType()]++;
+		const int iExperience = pLoopUnit->getExperience();
+		iTotalExperience += iExperience;
+		iMaxExperience = std::max(iMaxExperience, iExperience);
+		if (pLoopUnit->isPromotionReady())
+			iPromotionReady++;
+		if (pLoopUnit->getLevel() >= 2)
+			iLevel2Plus++;
+		if (pLoopUnit->getLevel() >= 4)
+			iLevel4Plus++;
+		if (pLoopUnit->getLevel() >= 6)
+			iLevel6Plus++;
+		CvPlot const* pPlot = pLoopUnit->plot();
+		const bool bMilitary = isSASGameRecordMilitaryUnit(*pLoopUnit);
+		if (bMilitary)
+		{
+			iMilitary++;
+			iMilitaryExperience += iExperience;
+			iMaxMilitaryExperience = std::max(iMaxMilitaryExperience, iExperience);
+			iMilitaryLevelTotal += pLoopUnit->getLevel();
+			iMaxMilitaryLevel = std::max(iMaxMilitaryLevel, pLoopUnit->getLevel());
+			if (pLoopUnit->isPromotionReady()) iMilitaryPromotionReady++;
+			if (pLoopUnit->getLeaderUnitType() != NO_UNIT) iGreatGeneralLedMilitary++;
+			int const iXmlCost = (pLoopUnit->getUnitType() == NO_UNIT ? -1 : GC.getInfo(pLoopUnit->getUnitType()).getProductionCost());
+			if (iXmlCost > 0)
+			{
+				iMilitaryCostedUnits++;
+				iMilitaryXmlProductionCost += iXmlCost;
+				iMilitaryProductionNeeded += kPlayer.getProductionNeeded(pLoopUnit->getUnitType());
+			}
+			if (pLoopUnit->getDamage() > 0) iWoundedMilitary++;
+			int const iMaxHP = pLoopUnit->maxHitPoints();
+			if (iMaxHP > 0)
+			{
+				iMilitaryHealthMeasured++;
+				int const iHealthX100 = (10000 * pLoopUnit->currHitPoints()) / iMaxHP;
+				iMilitaryHealthX100Total += iHealthX100;
+				iMinMilitaryHealthX100 = (iMinMilitaryHealthX100 < 0 ? iHealthX100 : std::min(iMinMilitaryHealthX100, iHealthX100));
+				iMaxMilitaryHealthX100 = std::max(iMaxMilitaryHealthX100, iHealthX100);
+				if (iHealthX100 >= 10000) iMilitaryHealthFull++;
+				else if (iHealthX100 > 6600) iMilitaryHealthHigh++;
+				else if (iHealthX100 > 3300) iMilitaryHealthMedium++;
+				else iMilitaryHealthLow++;
+			}
+			if (pLoopUnit->getDomainType() == DOMAIN_SEA)
+				iSeaMilitary++;
+			else if (pLoopUnit->getDomainType() == DOMAIN_AIR)
+				iAirMilitary++;
+			else iLandMilitary++;
+			if (pPlot != NULL && pPlot->isCity() && pLoopUnit->canDefend(pPlot))
+				iCityDefenders++;
+			else iFieldArmy++;
+		}
+		UnitAITypes eUnitAI = pLoopUnit->AI_getUnitAIType();
+		if (eUnitAI >= 0 && eUnitAI < NUM_UNITAI_TYPES)
+		{
+			aiUnitAI[eUnitAI]++;
+			if (eUnitAI == UNITAI_ATTACK_AIR) iAttackAir++;
+			else if (eUnitAI == UNITAI_DEFENSE_AIR) iDefenseAir++;
+			else if (eUnitAI == UNITAI_CARRIER_AIR) iCarrierAir++;
+			else if (eUnitAI == UNITAI_MISSILE_AIR) iMissileAir++;
+			else if (eUnitAI == UNITAI_ICBM) iICBM++;
+			else if (eUnitAI == UNITAI_CARRIER_SEA) iCarrierSea++;
+			else if (eUnitAI == UNITAI_MISSILE_CARRIER_SEA) iMissileCarrierSea++;
+		}
+		if (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->isCargo())
+		{
+			iAirCargo++;
+			if (eUnitAI == UNITAI_CARRIER_AIR) iCarrierAirCargo++;
+			else if (eUnitAI == UNITAI_MISSILE_AIR) iMissileCargo++;
+		}
+		if (pLoopUnit->isNuke()) iNukes++;
+		if (pLoopUnit->isBlockading()) iBlockadingUnits++;
+		UnitCombatTypes eUnitCombat = pLoopUnit->getUnitCombatType();
+		if (eUnitCombat != NO_UNITCOMBAT)
+		{
+			aiUnitCombat[eUnitCombat]++;
+			iUnitCombatTotal++;
+		}
+		if (bLogPromotionDetails)
+		{
+			FOR_EACH_ENUM(Promotion)
+			{
+				if (pLoopUnit->isHasPromotion(eLoopPromotion))
+				{
+					aiPromotions[eLoopPromotion]++;
+					iPromotionInstances++;
+					if (bMilitary)
+					{
+						aiMilitaryPromotions[eLoopPromotion]++;
+						iMilitaryPromotionInstances++;
+					}
+				}
+			}
+		}
+		if (isSASGameRecordWorkerUnit(*pLoopUnit))
+			iWorkers++;
+		if (isSASGameRecordSettlerUnit(*pLoopUnit))
+			iSettlers++;
+		if (eUnitAI == UNITAI_EXPLORE || eUnitAI == UNITAI_EXPLORE_SEA)
+			iRecon++;
+		if (pPlot != NULL)
+		{
+			if (pPlot->isCity())
+				iUnitsInCities++;
+			if (pPlot->getOwner() == ePlayer)
+				iOwnTerritory++;
+			else if (pPlot->getTeam() != NO_TEAM && GET_TEAM(eTeam).isAtWar(pPlot->getTeam()))
+				iEnemyTerritory++;
+			else iNeutralTerritory++;
+		}
+	}
+	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayer;
+		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if (!kLoopPlayer.isAlive() || kLoopPlayer.getTeam() == eTeam || !GET_TEAM(eTeam).isAtWar(kLoopPlayer.getTeam()))
+			continue;
+		int iEnemyLoop = 0;
+		for (CvUnit const* pLoopUnit = kLoopPlayer.firstUnit(&iEnemyLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iEnemyLoop))
+		{
+			CvPlot const* pPlot = pLoopUnit->plot();
+			if (pPlot != NULL && pPlot->getOwner() == ePlayer)
+				iEnemyUnitsInTerritory++;
+		}
+	}
+	CvString szUnitTypes;
+	CvString szUnitAI;
+	CvString szUnitCombat;
+	CvString szUnitCombatPercentX100;
+	CvString szPromotions;
+	CvString szMilitaryPromotions;
+	// <!-- custom: UnitAI and combat class are useful but too coarse for game-record review: a Galley and Galleon can share naval transport roles, and a Camel Archer and Dragoon can sit in similar mounted/combat buckets despite very different strength and era impact.
+	// Include actual unit-type counts so LLM/autoplay review can see army and navy quality without per-unit spam. (GPT-5.5) -->
+	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+		appendSASGameRecordTypeCount(szUnitTypes, getSASGameRecordUnitType((UnitTypes)iI), aiUnitTypes[iI]);
+	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
+		appendSASGameRecordTypeCount(szUnitAI, getSASGameRecordUnitAIType((UnitAITypes)iI), aiUnitAI[iI]);
+	for (int iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
+	{
+		appendSASGameRecordTypeCount(szUnitCombat, getSASGameRecordUnitCombatType((UnitCombatTypes)iI), aiUnitCombat[iI]);
+		if (aiUnitCombat[iI] > 0)
+			appendSASGameRecordValue(szUnitCombatPercentX100, getSASGameRecordUnitCombatType((UnitCombatTypes)iI), getSASGameRecordPercentX100(aiUnitCombat[iI], iUnitCombatTotal));
+	}
+	if (bLogPromotionDetails)
+	{
+		FOR_EACH_ENUM(Promotion)
+		{
+			appendSASGameRecordTypeCount(szPromotions, getSASGameRecordPromotionType(eLoopPromotion), aiPromotions[eLoopPromotion]);
+			appendSASGameRecordTypeCount(szMilitaryPromotions, getSASGameRecordPromotionType(eLoopPromotion), aiMilitaryPromotions[eLoopPromotion]);
+		}
+	}
+	// <!-- custom: Keep late-game air/missile/nuclear posture and current naval-blockade count on the existing unit row rather than adding repetitive snapshot rows.
+	// Exact blockade unit/range history remains event-driven. UnitAI-specific counts make carrier filling and missile/nuke inventories directly visible. (GPT-5.6 + ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_UNIT_POSTURE turn=%d player=%d total=%d military=%d landMilitary=%d seaMilitary=%d airMilitary=%d attackAir=%d defenseAir=%d carrierAir=%d missileAir=%d icbm=%d carrierSea=%d missileCarrierSea=%d airCargo=%d carrierAirCargo=%d missileCargo=%d nukes=%d blockadingUnits=%d workers=%d settlers=%d recon=%d cityDefenders=%d fieldArmy=%d ownTerritory=%d enemyTerritory=%d neutralTerritory=%d unitsInCities=%d enemyUnitsInTerritory=%d totalXP=%d avgXpX100=%d maxXP=%d promotionReady=%d level2Plus=%d level4Plus=%d level6Plus=%d promotionInstances=%d militaryXP=%d avgMilitaryXpX100=%d maxMilitaryXP=%d avgMilitaryLevelX100=%d maxMilitaryLevel=%d militaryPromotionReady=%d greatGeneralLedMilitary=%d militaryCostedUnits=%d militaryXmlProductionCost=%d militaryProductionNeeded=%d woundedMilitary=%d militaryHealthMeasured=%d avgMilitaryHealthX100=%d minMilitaryHealthX100=%d maxMilitaryHealthX100=%d militaryHealthFull=%d militaryHealthHigh=%d militaryHealthMedium=%d militaryHealthLow=%d militaryPromotionInstances=%d",
+			iGameTurn, ePlayer, iTotal, iMilitary, iLandMilitary, iSeaMilitary, iAirMilitary, iAttackAir, iDefenseAir, iCarrierAir, iMissileAir, iICBM, iCarrierSea, iMissileCarrierSea, iAirCargo, iCarrierAirCargo, iMissileCargo, iNukes, iBlockadingUnits, iWorkers, iSettlers, iRecon, iCityDefenders, iFieldArmy, iOwnTerritory, iEnemyTerritory, iNeutralTerritory, iUnitsInCities, iEnemyUnitsInTerritory, iTotalExperience, iTotal == 0 ? 0 : (100 * iTotalExperience) / iTotal, iMaxExperience, iPromotionReady, iLevel2Plus, iLevel4Plus, iLevel6Plus, iPromotionInstances,
+			iMilitaryExperience, iMilitary == 0 ? 0 : (100 * iMilitaryExperience) / iMilitary, iMaxMilitaryExperience, iMilitary == 0 ? 0 : (100 * iMilitaryLevelTotal) / iMilitary, iMaxMilitaryLevel, iMilitaryPromotionReady, iGreatGeneralLedMilitary, iMilitaryCostedUnits, iMilitaryXmlProductionCost, iMilitaryProductionNeeded, iWoundedMilitary, iMilitaryHealthMeasured, iMilitaryHealthMeasured == 0 ? -1 : iMilitaryHealthX100Total / iMilitaryHealthMeasured, iMinMilitaryHealthX100, iMaxMilitaryHealthX100, iMilitaryHealthFull, iMilitaryHealthHigh, iMilitaryHealthMedium, iMilitaryHealthLow, iMilitaryPromotionInstances);
+	logSASGameRecord("GAME_RECORD_UNIT_POSTURE_DELTAS turn=%d player=%d deltaValid=%d totalDelta=%+d militaryDelta=%+d workersDelta=%+d settlersDelta=%+d fieldArmyDelta=%+d cityDefendersDelta=%+d enemyUnitsInTerritoryDelta=%+d totalXPDelta=%+d promotionReadyDelta=%+d",
+			iGameTurn, ePlayer, kPrevious.bValid, getSASGameRecordDelta(kPrevious.bValid, iTotal, kPrevious.iUnitTotal), getSASGameRecordDelta(kPrevious.bValid, iMilitary, kPrevious.iUnitMilitary), getSASGameRecordDelta(kPrevious.bValid, iWorkers, kPrevious.iUnitWorkers), getSASGameRecordDelta(kPrevious.bValid, iSettlers, kPrevious.iUnitSettlers), getSASGameRecordDelta(kPrevious.bValid, iFieldArmy, kPrevious.iUnitFieldArmy), getSASGameRecordDelta(kPrevious.bValid, iCityDefenders, kPrevious.iUnitCityDefenders), getSASGameRecordDelta(kPrevious.bValid, iEnemyUnitsInTerritory, kPrevious.iUnitEnemyUnitsInTerritory), getSASGameRecordDelta(kPrevious.bValid, iTotalExperience, kPrevious.iUnitTotalExperience), getSASGameRecordDelta(kPrevious.bValid, iPromotionReady, kPrevious.iUnitPromotionReady));
+	kPrevious.iUnitTotal = iTotal;
+	kPrevious.iUnitMilitary = iMilitary;
+	kPrevious.iUnitWorkers = iWorkers;
+	kPrevious.iUnitSettlers = iSettlers;
+	kPrevious.iUnitFieldArmy = iFieldArmy;
+	kPrevious.iUnitCityDefenders = iCityDefenders;
+	kPrevious.iUnitEnemyUnitsInTerritory = iEnemyUnitsInTerritory;
+	kPrevious.iUnitTotalExperience = iTotalExperience;
+	kPrevious.iUnitPromotionReady = iPromotionReady;
+	// <!-- custom: Record UnitCombat shares alongside the raw counts already collected so army mix (e.g. siege-heavy vs. siege-light) is immediately comparable without LLM/manual summing.
+	// PercentX100 uses only units with a real UnitCombat as the denominator, excluding Workers, Great People and other non-combat-class units. (GPT-5.6) -->
+	logSASGameRecord("GAME_RECORD_UNIT_COMPOSITION turn=%d player=%d unitTypes=%s unitAI=%s unitCombatTotal=%d unitCombat=%s unitCombatPercentX100=%s",
+		iGameTurn, ePlayer, getSASDiagnosticOrDash(szUnitTypes).GetCString(), getSASDiagnosticOrDash(szUnitAI).GetCString(), iUnitCombatTotal, getSASDiagnosticOrDash(szUnitCombat).GetCString(), getSASDiagnosticOrDash(szUnitCombatPercentX100).GetCString());
+	if (bLogPromotionDetails) logSASGameRecord("GAME_RECORD_UNIT_PROMOTIONS turn=%d player=%d promotions=%s militaryPromotions=%s",
+		iGameTurn, ePlayer, getSASDiagnosticOrDash(szPromotions).GetCString(), getSASDiagnosticOrDash(szMilitaryPromotions).GetCString());
+}
+
+
 static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvGame const& kGame = GC.getGame();
@@ -941,6 +1244,7 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 		logSASGameRecordAttitudes(ePlayer, iGameTurn);
 		if (bLogPlayerVerboseDetails) logSASGameRecordDiplomaticMemories(ePlayer, iGameTurn);
 		logSASGameRecordDiploStatus(ePlayer, iGameTurn);
+		logSASGameRecordUnitPosture(ePlayer, iGameTurn);
 	}
 	kPrevious.bValid = true;
 	kPrevious.iScore = iScore;
