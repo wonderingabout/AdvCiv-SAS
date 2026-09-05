@@ -3,6 +3,7 @@
 #include "CvGame.h" // <!-- custom: Needed for game-record turn, game-state, victory, RNG, and map-classification context rows. (GPT-5.5) -->
 #include "CvPlayer.h" // <!-- custom: Needed directly for active-player civilization/handicap context in this smaller AdvCiv 1.14 port slice; do not rely on later SASGameRecord headers to complete CvPlayer transitively. (ChatGPT-5.6-Sol) -->
 #include "CvTeam.h" // <!-- custom: Needed directly for finalized initial-team state and technology grouping in this smaller AdvCiv 1.14 port slice; GET_TEAM is defined by CvTeam.h. (ChatGPT-5.6-Sol) -->
+#include "CvUnit.h" // <!-- custom: Needed for the mature SASGameRecord distinction between actual combat-capable units and Civ4's separate bMilitarySupport counter in periodic player snapshots. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Organization.h" // <!-- custom: Needed for religion/corporation type names in game-record action rows. (GPT-5.5) -->
 #include "CvInfo_Civics.h" // <!-- custom: Needed for policy/civic names in game-record advisor rows. (ChatGPT-5.5) -->
 #include "CvInfo_Civilization.h" // <!-- custom: Needed to attribute player-wide extra happiness/health to traits instead of leaving effects from loaded-mod rules under an opaque `extra` label. (GPT-5.6-Sol) -->
@@ -70,6 +71,32 @@ struct SASGameRecordTeamPrevious
 
 static SASGameRecordTeamPrevious g_akSASGameRecordTeamPrevious[MAX_TEAMS];
 
+// <!-- custom: Keep the portable high-level player fields first. More specialized bonus, espionage, unit-posture, worker, territory and city baselines are added with the corresponding snapshot rows rather than existing as unused state. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordPlayerPrevious
+{
+	bool bValid;
+	int iScore;
+	int iCities;
+	int iPopulation;
+	int iLand;
+	int iUnits;
+	int iCombatUnits;
+	int iMilitarySupportUnits;
+	int iPower;
+	int iGold;
+	int iGoldRate;
+	int iResearchRate;
+	int iHistoryScore;
+	int iHistoryEconomy;
+	int iHistoryIndustry;
+	int iHistoryAgriculture;
+	int iHistoryPower;
+	int iHistoryCulture;
+	int iHistoryEspionage;
+};
+
+static SASGameRecordPlayerPrevious g_akSASGameRecordPlayerPrevious[MAX_PLAYERS];
+
 static int getSASGameRecordDelta(bool bValid, int iCurrent, int iPrevious)
 {
 	return bValid ? iCurrent - iPrevious : 0;
@@ -82,6 +109,12 @@ static void resetSASGameRecordTeamPrevious()
 		g_akSASGameRecordTeamPrevious[iI].bValid = false;
 		g_akSASGameRecordTeamPrevious[iI].bContactsValid = false;
 	}
+}
+
+static void resetSASGameRecordPlayerPrevious()
+{
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+		g_akSASGameRecordPlayerPrevious[iI].bValid = false;
 }
 
 static CvString createSASGameRecordUtcTimestamp()
@@ -203,6 +236,11 @@ static const char* getSASGameRecordCivicType(CivicTypes eCivic)
 static const char* getSASGameRecordEraType(EraTypes eEra)
 {
 	return (eEra == NO_ERA ? "-" : GC.getInfo(eEra).getType());
+}
+
+static const char* getSASGameRecordTechType(TechTypes eTech)
+{
+	return (eTech == NO_TECH ? "-" : GC.getInfo(eTech).getType());
 }
 
 static void appendSASGameRecordTypeCount(CvString& szList, const char* szType, int iCount)
@@ -345,6 +383,131 @@ static void logSASGameRecordTeamSnapshot(TeamTypes eTeam, int iGameTurn)
 			getSASGameRecordWarTeams(eTeam).GetCString(), getSASGameRecordVassalTeams(eTeam).GetCString(), eMaster);
 	if (bLogTeamDetails) logSASGameRecordTeamContacts(eTeam, iGameTurn, "snapshot");
 	seedSASGameRecordTeamPreviousFromCurrentState(eTeam);
+}
+
+static bool isSASGameRecordMilitaryUnit(CvUnit const& kUnit)
+{
+	// <!-- custom: A failed NO_UNIT creation left an unplaced/reset object in the owner container, and the end-turn snapshot crashed while reading its combat state. Unplaced units are not part of military posture; short-circuit before unit-info-backed checks. See KI#524.6. (GPT-5.6-Sol) -->
+	CvPlot const* pPlot = kUnit.plot();
+	return pPlot != NULL && (kUnit.canDefend(pPlot) || kUnit.baseCombatStr() > 0 || kUnit.airBaseCombatStr() > 0);
+}
+
+static CvString getSASGameRecordCommercePercents(CvPlayer const& kPlayer)
+{
+	CvString szList;
+	FOR_EACH_ENUM(Commerce)
+	{
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", GC.getInfo(eLoopCommerce).getType(), kPlayer.getCommercePercent(eLoopCommerce));
+		szList += szItem;
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+static CvString getSASGameRecordCommerceRates(CvPlayer const& kPlayer)
+{
+	CvString szList;
+	FOR_EACH_ENUM(Commerce)
+	{
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", GC.getInfo(eLoopCommerce).getType(), kPlayer.getCommerceRate(eLoopCommerce));
+		szList += szItem;
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+static CvString getSASGameRecordCommerceFlexible(CvPlayer const& kPlayer)
+{
+	CvString szList;
+	FOR_EACH_ENUM(Commerce)
+	{
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", GC.getInfo(eLoopCommerce).getType(), kPlayer.isCommerceFlexible(eLoopCommerce));
+		szList += szItem;
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+static void logSASGameRecordEconomy(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	TechTypes eResearch = kPlayer.getCurrentResearch();
+	int const iResearchProgress = (eResearch == NO_TECH ? -1 : kTeam.getResearchProgress(eResearch));
+	int const iResearchCost = (eResearch == NO_TECH ? -1 : kTeam.getResearchCost(eResearch));
+	// <!-- custom: currentResearch=- does not mean that science is lost: CvPlayer::doResearch stores the nominal research rate as overflow until another technology can be selected.
+	// Exact shared progress/cost makes partially researched technologies visible at ordinary snapshots instead of only when completion or redirection happens. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_ECONOMY turn=%d player=%d gold=%d goldRate=%d totalCommerce=%d sliders=%s commerceTypeRates=%s flexible=%s currentResearch=%s currentResearchTeamProgress=%d currentResearchCost=%d researchRate=%d researchOverflow=%d noResearchAvailable=%d researchTurns=%d",
+			iGameTurn, ePlayer, kPlayer.getGold(), kPlayer.calculateGoldRate(), kPlayer.calculateTotalYield(YIELD_COMMERCE), getSASGameRecordCommercePercents(kPlayer).GetCString(), getSASGameRecordCommerceRates(kPlayer).GetCString(), getSASGameRecordCommerceFlexible(kPlayer).GetCString(), getSASGameRecordTechType(eResearch), iResearchProgress, iResearchCost, kPlayer.calculateResearchRate(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(), eResearch == NO_TECH ? -1 : kPlayer.getResearchTurnsLeft(eResearch, true));
+}
+
+static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvGame const& kGame = GC.getGame();
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	TechTypes const eResearch = kPlayer.getCurrentResearch();
+	int const iScore = kPlayer.calculateScore();
+	int const iCities = kPlayer.getNumCities();
+	int const iPopulation = kPlayer.getTotalPopulation();
+	int const iLand = kPlayer.getTotalLand();
+	int const iUnits = kPlayer.getNumUnits();
+	int const iMilitarySupportUnits = kPlayer.getNumMilitaryUnits();
+	// <!-- custom: CvPlayer::getNumMilitaryUnits counts XML bMilitarySupport, which can fall sharply when an army upgrades into combat units that intentionally do not pay military support. Count actual combat-capable units with the same predicate used by GAME_RECORD_UNIT_POSTURE, and keep the raw Civ4 counter separately. This scan runs only when a GameRecord player snapshot is already being generated. (ChatGPT-5.6-Sol) -->
+	int iCombatUnits = 0;
+	int iCombatLoop = 0;
+	for (CvUnit const* pLoopUnit = kPlayer.firstUnit(&iCombatLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iCombatLoop))
+	{
+		if (isSASGameRecordMilitaryUnit(*pLoopUnit)) ++iCombatUnits;
+	}
+	int const iPower = kPlayer.getPower();
+	int const iGold = kPlayer.getGold();
+	int const iGoldRate = kPlayer.calculateGoldRate();
+	// <!-- custom: Keep nominal science visible when no target is selected because that science becomes stored research overflow rather than disappearing. (GPT-5.6-Sol) -->
+	int const iResearchRate = kPlayer.calculateResearchRate(eResearch);
+	int const iResearchTurns = (eResearch == NO_TECH ? -1 : kPlayer.getResearchTurnsLeft(eResearch, true));
+	int const iHistoryScore = kPlayer.getHistorySafe(PLAYER_HISTORY_SCORE, iGameTurn);
+	int const iHistoryEconomy = kPlayer.getHistorySafe(PLAYER_HISTORY_ECONOMY, iGameTurn);
+	int const iHistoryIndustry = kPlayer.getHistorySafe(PLAYER_HISTORY_INDUSTRY, iGameTurn);
+	int const iHistoryAgriculture = kPlayer.getHistorySafe(PLAYER_HISTORY_AGRICULTURE, iGameTurn);
+	int const iHistoryPower = kPlayer.getHistorySafe(PLAYER_HISTORY_POWER, iGameTurn);
+	int const iHistoryCulture = kPlayer.getHistorySafe(PLAYER_HISTORY_CULTURE, iGameTurn);
+	int const iHistoryEspionage = kPlayer.getHistorySafe(PLAYER_HISTORY_ESPIONAGE, iGameTurn);
+	SASGameRecordPlayerPrevious& kPrevious = g_akSASGameRecordPlayerPrevious[ePlayer];
+	char const* szCiv = (kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType());
+	char const* szLeader = (kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType());
+	bool const bCurrentlyHumanControlled = kPlayer.isHuman();
+	bool const bAutoplayControlled = kPlayer.isHumanDisabled();
+	bool const bHumanSlot = (bCurrentlyHumanControlled || bAutoplayControlled);
+	// <!-- custom: Current AdvCiv-SAS also exposes recorder-observed golden-age/anarchy lifetime counters in this row. Their action hooks have not been ported yet, so this slice records authoritative current timers only rather than emitting misleading zero-valued session counters. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_PLAYER turn=%d player=%d team=%d civ=%s leader=%s isHuman=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d rank=%d deltaValid=%d score=%d scoreDelta=%+d cities=%d citiesDelta=%+d pop=%d popDelta=%+d land=%d landDelta=%+d units=%d unitsDelta=%+d combatUnits=%d combatUnitsDelta=%+d militarySupportUnits=%d militarySupportUnitsDelta=%+d power=%d powerDelta=%+d gold=%d goldDelta=%+d gpt=%d gptDelta=%+d researchRate=%d researchRateDelta=%+d researchPercent=%d currentResearch=%s researchOverflow=%d noResearchAvailable=%d researchTurns=%d era=%s stateReligion=%s techScorePercent=%d combatXP=%d greatPeopleCreated=%d greatGeneralsCreated=%d greatGeneralThreshold=%d goldenAgeTurns=%d anarchyTurns=%d revolutionTimer=%d conversionTimer=%d wars=%s",
+			iGameTurn, ePlayer, kPlayer.getTeam(), szCiv, szLeader, bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kGame.getPlayerRank(ePlayer) + 1, kPrevious.bValid,
+			iScore, getSASGameRecordDelta(kPrevious.bValid, iScore, kPrevious.iScore), iCities, getSASGameRecordDelta(kPrevious.bValid, iCities, kPrevious.iCities), iPopulation, getSASGameRecordDelta(kPrevious.bValid, iPopulation, kPrevious.iPopulation), iLand, getSASGameRecordDelta(kPrevious.bValid, iLand, kPrevious.iLand),
+			iUnits, getSASGameRecordDelta(kPrevious.bValid, iUnits, kPrevious.iUnits), iCombatUnits, getSASGameRecordDelta(kPrevious.bValid, iCombatUnits, kPrevious.iCombatUnits), iMilitarySupportUnits, getSASGameRecordDelta(kPrevious.bValid, iMilitarySupportUnits, kPrevious.iMilitarySupportUnits), iPower, getSASGameRecordDelta(kPrevious.bValid, iPower, kPrevious.iPower), iGold, getSASGameRecordDelta(kPrevious.bValid, iGold, kPrevious.iGold), iGoldRate, getSASGameRecordDelta(kPrevious.bValid, iGoldRate, kPrevious.iGoldRate),
+			iResearchRate, getSASGameRecordDelta(kPrevious.bValid, iResearchRate, kPrevious.iResearchRate), kPlayer.getCommercePercent(COMMERCE_RESEARCH), getSASGameRecordTechType(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(), iResearchTurns, getSASGameRecordEraType(kPlayer.getCurrentEra()), getSASGameRecordReligionType(kPlayer.getStateReligion()), kTeam.getBestKnownTechScorePercent(), kPlayer.getCombatExperience(), kPlayer.getGreatPeopleCreated(), kPlayer.getGreatGeneralsCreated(), kPlayer.greatPeopleThreshold(true), kPlayer.getGoldenAgeTurns(), kPlayer.getAnarchyTurns(), kPlayer.getRevolutionTimer(), kPlayer.getConversionTimer(), getSASGameRecordWarTeams(kPlayer.getTeam()).GetCString());
+	logSASGameRecord("GAME_RECORD_PLAYER_HISTORY turn=%d player=%d deltaValid=%d historyScore=%d historyScoreDelta=%+d historyEconomy=%d historyEconomyDelta=%+d historyIndustry=%d historyIndustryDelta=%+d historyAgriculture=%d historyAgricultureDelta=%+d historyPower=%d historyPowerDelta=%+d historyCulture=%d historyCultureDelta=%+d historyEspionage=%d historyEspionageDelta=%+d",
+			iGameTurn, ePlayer, kPrevious.bValid, iHistoryScore, getSASGameRecordDelta(kPrevious.bValid, iHistoryScore, kPrevious.iHistoryScore), iHistoryEconomy, getSASGameRecordDelta(kPrevious.bValid, iHistoryEconomy, kPrevious.iHistoryEconomy), iHistoryIndustry, getSASGameRecordDelta(kPrevious.bValid, iHistoryIndustry, kPrevious.iHistoryIndustry), iHistoryAgriculture, getSASGameRecordDelta(kPrevious.bValid, iHistoryAgriculture, kPrevious.iHistoryAgriculture), iHistoryPower, getSASGameRecordDelta(kPrevious.bValid, iHistoryPower, kPrevious.iHistoryPower), iHistoryCulture, getSASGameRecordDelta(kPrevious.bValid, iHistoryCulture, kPrevious.iHistoryCulture), iHistoryEspionage, getSASGameRecordDelta(kPrevious.bValid, iHistoryEspionage, kPrevious.iHistoryEspionage));
+	if (getSASGameRecordLogLevel() >= 2)
+		logSASGameRecordEconomy(ePlayer, iGameTurn);
+	kPrevious.bValid = true;
+	kPrevious.iScore = iScore;
+	kPrevious.iCities = iCities;
+	kPrevious.iPopulation = iPopulation;
+	kPrevious.iLand = iLand;
+	kPrevious.iUnits = iUnits;
+	kPrevious.iCombatUnits = iCombatUnits;
+	kPrevious.iMilitarySupportUnits = iMilitarySupportUnits;
+	kPrevious.iPower = iPower;
+	kPrevious.iGold = iGold;
+	kPrevious.iGoldRate = iGoldRate;
+	kPrevious.iResearchRate = iResearchRate;
+	kPrevious.iHistoryScore = iHistoryScore;
+	kPrevious.iHistoryEconomy = iHistoryEconomy;
+	kPrevious.iHistoryIndustry = iHistoryIndustry;
+	kPrevious.iHistoryAgriculture = iHistoryAgriculture;
+	kPrevious.iHistoryPower = iHistoryPower;
+	kPrevious.iHistoryCulture = iHistoryCulture;
+	kPrevious.iHistoryEspionage = iHistoryEspionage;
 }
 
 static void logSASGameRecordPlayerSetup(PlayerTypes ePlayer)
@@ -557,6 +720,12 @@ static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
 		if (GET_TEAM(eLoopTeam).isAlive() && !GET_TEAM(eLoopTeam).isBarbarian())
 			logSASGameRecordTeamSnapshot(eLoopTeam, iGameTurn);
 	}
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
+		if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isBarbarian())
+			logSASGameRecordPlayerSnapshot(eLoopPlayer, iGameTurn);
+	}
 	logSASGameRecord("GAME_RECORD_TURN_END turn=%d reason=%s", iGameTurn, szReason);
 }
 
@@ -569,6 +738,7 @@ void startSASGameRecordLogForNewGame()
 {
 	rollSASGameRecordLog("new");
 	resetSASGameRecordTeamPrevious();
+	resetSASGameRecordPlayerPrevious();
 	CvString const szLogName = getSASGameRecordLogName();
 	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString());
 	logSASGameRecordLogSettings();
@@ -593,6 +763,7 @@ void startSASGameRecordLogForLoadedSave()
 {
 	rollSASGameRecordLog("load");
 	resetSASGameRecordTeamPrevious();
+	resetSASGameRecordPlayerPrevious();
 	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
 	logSASGameRecordLogSettings();
 	logSASGameRecordTechCapabilitySources();
