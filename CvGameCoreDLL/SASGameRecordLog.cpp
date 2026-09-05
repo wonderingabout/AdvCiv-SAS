@@ -1,5 +1,6 @@
 #include "CvGameCoreDLL.h"
 #include "SASGameRecordLog.h"
+#include "CvGame.h" // <!-- custom: Needed for game-record turn, game-state, victory, RNG, and map-classification context rows. (GPT-5.5) -->
 #include <algorithm>
 #include <time.h>
 
@@ -38,7 +39,10 @@ int getSASGameRecordTurnInterval()
 	return iInterval;
 }
 
-// <!-- custom: Commit 1 keeps the recorder deliberately dormant and self-contained on base AdvCiv 1.14. The mature AdvCiv-SAS session/log-name helpers are transplanted in later lifecycle commits; this small UTC helper only gives the dormant core a valid standalone filename implementation in the meantime. (ChatGPT-5.6-Sol) -->
+static CvString g_szSASGameRecordLogTimestamp;
+static int g_iSASGameRecordLogSequence = 0;
+static CvString g_szSASGameRecordLogContext;
+
 static CvString createSASGameRecordUtcTimestamp()
 {
 	time_t kNow;
@@ -50,10 +54,11 @@ static CvString createSASGameRecordUtcTimestamp()
 	return CvString("unknown_time");
 }
 
-static CvString const& getSASGameRecordLogTimestamp()
+static CvString getSASGameRecordLogTimestamp()
 {
-	static const CvString szTimestamp = createSASGameRecordUtcTimestamp();
-	return szTimestamp;
+	if (g_szSASGameRecordLogTimestamp.empty())
+		g_szSASGameRecordLogTimestamp = createSASGameRecordUtcTimestamp();
+	return g_szSASGameRecordLogTimestamp;
 }
 
 static bool isSASGameRecordTimestampedFilenameEnabled()
@@ -62,14 +67,56 @@ static bool isSASGameRecordTimestampedFilenameEnabled()
 	return bUseTimestampedFilename;
 }
 
-// <!-- custom: Temporary dormant-core naming shim for commit 1; later lifecycle wiring replaces it with the mature shared diagnostic filename/context path from AdvCiv-SAS. (ChatGPT-5.6-Sol) -->
 static CvString getSASGameRecordLogName()
 {
-	if (!isSASGameRecordTimestampedFilenameEnabled())
-		return CvString("SASGameRecord.log");
-	CvString szName;
-	szName.Format("SASGameRecord_%s.log", getSASGameRecordLogTimestamp().GetCString());
-	return szName;
+	CvString szLogName;
+	if (GC.getGame().isNetworkMultiPlayer())
+	{
+		if (isSASGameRecordTimestampedFilenameEnabled())
+		{
+			if (!g_szSASGameRecordLogContext.empty())
+				szLogName.Format("SASGameRecord%d_%s_%s.log", (int)GC.getGame().getActivePlayer(), getSASGameRecordLogTimestamp().GetCString(), g_szSASGameRecordLogContext.GetCString());
+			else szLogName.Format("SASGameRecord%d_%s.log", (int)GC.getGame().getActivePlayer(), getSASGameRecordLogTimestamp().GetCString());
+		}
+		else szLogName.Format("SASGameRecord%d.log", (int)GC.getGame().getActivePlayer());
+	}
+	else
+	{
+		if (isSASGameRecordTimestampedFilenameEnabled())
+		{
+			if (!g_szSASGameRecordLogContext.empty())
+				szLogName.Format("SASGameRecord_%s_%s.log", getSASGameRecordLogTimestamp().GetCString(), g_szSASGameRecordLogContext.GetCString());
+			else szLogName.Format("SASGameRecord_%s.log", getSASGameRecordLogTimestamp().GetCString());
+		}
+		else szLogName = "SASGameRecord.log";
+	}
+	return szLogName;
+}
+
+static void rollSASGameRecordLog(const char* szContext)
+{
+	g_szSASGameRecordLogTimestamp = createSASGameRecordUtcTimestamp();
+	g_szSASGameRecordLogContext.clear();
+	if (isSASGameRecordTimestampedFilenameEnabled())
+	{
+		g_iSASGameRecordLogSequence++;
+		g_szSASGameRecordLogContext.Format("%s%d", szContext, g_iSASGameRecordLogSequence);
+	}
+}
+
+static void logSASGameRecordLogSettings()
+{
+	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d",
+			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled());
+}
+
+static void logSASGameRecordLifecycleState(char const* szRowType)
+{
+	CvGame& kGame = GC.getGame();
+	CvString const szLogName = getSASGameRecordLogName();
+	logSASGameRecord("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d activePlayer=%d playersAlive=%d playersEverAlive=%d humans=%d",
+			szRowType, getSASGameRecordLogTimestamp().GetCString(), szLogName.GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(),
+			kGame.getActivePlayer(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
 }
 
 void logSASGameRecord(TCHAR* format, ... )
@@ -92,3 +139,24 @@ void logSASGameRecord(TCHAR* format, ... )
 	CvString const szLogName = getSASGameRecordLogName();
 	gDLL->logMsg(szLogName.GetCString(), szLine.c_str(), false, false);
 }
+
+void startSASGameRecordLogForNewGame()
+{
+	rollSASGameRecordLog("new");
+	CvString const szLogName = getSASGameRecordLogName();
+	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), szLogName.GetCString());
+	logSASGameRecordLogSettings();
+}
+
+void logSASGameRecordNewGameStarted()
+{
+	logSASGameRecordLifecycleState("GAME_RECORD_NEW_GAME_STARTED");
+}
+
+void startSASGameRecordLogForLoadedSave()
+{
+	rollSASGameRecordLog("load");
+	logSASGameRecordLifecycleState("GAME_RECORD_SAVE_LOADED");
+	logSASGameRecordLogSettings();
+}
+

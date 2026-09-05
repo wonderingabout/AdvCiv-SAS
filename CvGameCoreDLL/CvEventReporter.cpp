@@ -3,6 +3,7 @@
 #include "CvGame.h"
 #include "CvPlayer.h"
 #include "CvDLLPythonIFaceBase.h" // advc
+#include "SASGameRecordLog.h" // <!-- custom: Structured run-summary action rows are separate from BBAI diagnostics. (GPT-5.5) -->
 
 //
 // static, singleton accessor
@@ -87,6 +88,7 @@ void CvEventReporter::unInit()
 
 void CvEventReporter::gameStart()
 {
+	if (isSASGameRecordLogEnabled()) logSASGameRecordNewGameStarted();
 	m_kPythonEventMgr.reportGameStart();
 }
 
