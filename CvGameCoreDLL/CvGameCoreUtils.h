@@ -14,6 +14,13 @@ class CvRandom;
 class FAStarNode;
 class FAStar;
 
+// <!-- custom: Quote/escape narrow diagnostic free text; NULL becomes the unquoted missing token "-". (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticQuoted(char const* szValue);
+// <!-- custom: Wide-string counterpart of getSASDiagnosticQuoted with identical escaping and missing-value semantics. (ChatGPT-5.6-Sol) -->
+CvWString getSASDiagnosticQuoted(wchar const* szValue);
+// <!-- custom: Serialize an empty diagnostic list/value as "-" while preserving nonempty text unchanged. (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticOrDash(CvString const& szValue);
+
 /*	advc:
  +	All functions dealing with arithmetics moved to ArithmeticUtils.h
 	except getSign (now in CvPlot.cpp) and any functions involving randomness.

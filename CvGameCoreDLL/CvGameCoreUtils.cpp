@@ -7,6 +7,56 @@
 #include "BBAILog.h" // advc.007
 #include "CvInfo_GameOption.h"
 
+// <!-- custom: Shared machine-readable quoting for diagnostic free-text values.
+// Keep narrow/wide escaping identical so BBAI, SASGameRecord and future shared diagnostic rows cannot drift.
+// NULL is represented as the unquoted missing-value token "-" rather than as an empty string. (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticQuoted(char const* szValue)
+{
+	if (szValue == NULL)
+		return CvString("-");
+	CvString szQuoted = "\"";
+	for (char const* p = szValue; *p != '\0'; p++)
+	{
+		switch (*p)
+		{
+		case '\\': szQuoted += "\\\\"; break;
+		case '\"': szQuoted += "\\\""; break;
+		case '\r': szQuoted += "\\r"; break;
+		case '\n': szQuoted += "\\n"; break;
+		case '\t': szQuoted += "\\t"; break;
+		default: szQuoted += *p; break;
+		}
+	}
+	szQuoted += "\"";
+	return szQuoted;
+}
+
+CvWString getSASDiagnosticQuoted(wchar const* szValue)
+{
+	if (szValue == NULL)
+		return CvWString(L"-");
+	CvWString szQuoted = L"\"";
+	for (wchar const* p = szValue; *p != L'\0'; p++)
+	{
+		switch (*p)
+		{
+		case L'\\': szQuoted += L"\\\\"; break;
+		case L'\"': szQuoted += L"\\\""; break;
+		case L'\r': szQuoted += L"\\r"; break;
+		case L'\n': szQuoted += L"\\n"; break;
+		case L'\t': szQuoted += L"\\t"; break;
+		default: szQuoted += *p; break;
+		}
+	}
+	szQuoted += L"\"";
+	return szQuoted;
+}
+
+CvString getSASDiagnosticOrDash(CvString const& szValue)
+{
+	return szValue.empty() ? CvString("-") : szValue;
+}
+
 // advc.035:
 void contestedPlots(std::vector<CvPlot*>& r, TeamTypes t1, TeamTypes t2)
 {

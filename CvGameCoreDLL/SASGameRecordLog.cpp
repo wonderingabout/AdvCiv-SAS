@@ -2,6 +2,11 @@
 #include "SASGameRecordLog.h"
 #include "CvGame.h" // <!-- custom: Needed for game-record turn, game-state, victory, RNG, and map-classification context rows. (GPT-5.5) -->
 #include "CvPlayer.h" // <!-- custom: Needed directly for active-player civilization/handicap context in this smaller AdvCiv 1.14 port slice; do not rely on later SASGameRecord headers to complete CvPlayer transitively. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Organization.h" // <!-- custom: Needed for religion/corporation type names in game-record action rows. (GPT-5.5) -->
+#include "CvInfo_Civics.h" // <!-- custom: Needed for policy/civic names in game-record advisor rows. (ChatGPT-5.5) -->
+#include "CvInfo_Civilization.h" // <!-- custom: Needed to attribute player-wide extra happiness/health to traits instead of leaving effects from loaded-mod rules under an opaque `extra` label. (GPT-5.6-Sol) -->
+#include "CvInfo_Symbol.h" // <!-- custom: Needed to log actual assigned player-color and primary-color context; CvGlobals only forward-declares their info classes. (GPT-5.6-Sol) -->
+#include "CvGameCoreUtils.h" // <!-- custom: Needed for shared machine-readable diagnostic quoting/list helpers used by SASGameRecord. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
 #include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
 #include <algorithm>
@@ -113,55 +118,6 @@ static void logSASGameRecordLogSettings()
 			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled());
 }
 
-// <!-- custom: Quote free-text game-record values so simple key=value parsers do not split names such as "New York" or "De Gaulle" on spaces. Keep XML enum/type tags unquoted. Escape quotes, backslashes, and line separators so one log row remains one parseable row. (GPT-5.5) -->
-static CvString getSASGameRecordQuoted(char const* szValue)
-{
-	if (szValue == NULL)
-		return "-";
-	CvString szQuoted = "\"";
-	for (int iI = 0; szValue[iI] != '\0'; iI++)
-	{
-		const char c = szValue[iI];
-		if (c == '\\')
-			szQuoted += "\\\\";
-		else if (c == '"')
-			szQuoted += "\\\"";
-		else if (c == '\n')
-			szQuoted += "\\n";
-		else if (c == '\r')
-			szQuoted += "\\r";
-		else if (c == '\t')
-			szQuoted += "\\t";
-		else szQuoted += c;
-	}
-	szQuoted += "\"";
-	return szQuoted;
-}
-
-static CvWString getSASGameRecordQuoted(wchar const* szValue)
-{
-	if (szValue == NULL)
-		return L"-";
-	CvWString szQuoted = L"\"";
-	for (int iI = 0; szValue[iI] != L'\0'; iI++)
-	{
-		const wchar c = szValue[iI];
-		if (c == L'\\')
-			szQuoted += L"\\\\";
-		else if (c == L'"')
-			szQuoted += L"\\\"";
-		else if (c == L'\n')
-			szQuoted += L"\\n";
-		else if (c == L'\r')
-			szQuoted += L"\\r";
-		else if (c == L'\t')
-			szQuoted += L"\\t";
-		else szQuoted += c;
-	}
-	szQuoted += L"\"";
-	return szQuoted;
-}
-
 // <!-- custom: Record every stored map-script option, including hidden values. Keep numeric values durable so setup can be reconstructed without relying on localized descriptions or a currently available Python map script. (ChatGPT-5.6-Sol) -->
 static void logSASGameRecordMapOptions(CvInitCore const& kInitCore)
 {
@@ -172,6 +128,83 @@ static void logSASGameRecordMapOptions(CvInitCore const& kInitCore)
 	{
 		const bool bHidden = (iOption >= iNumOptions - iNumHiddenOptions);
 		logSASGameRecord("GAME_RECORD_MAP_OPTION index=%d hidden=%d value=%d", iOption, bHidden, kInitCore.getCustomMapOption(iOption));
+	}
+}
+
+static const char* getSASGameRecordReligionType(ReligionTypes eReligion)
+{
+	return (eReligion == NO_RELIGION ? "-" : GC.getInfo(eReligion).getType());
+}
+
+static const char* getSASGameRecordCivicType(CivicTypes eCivic)
+{
+	return (eCivic == NO_CIVIC ? "-" : GC.getInfo(eCivic).getType());
+}
+
+static void logSASGameRecordPlayerSetup(PlayerTypes ePlayer)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	CvInitCore const& kInitCore = GC.getInitCore();
+	const char* szCivType = (kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType());
+	const char* szLeaderType = (kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType());
+	const wchar* szLeaderName = (kPlayer.getLeaderType() == NO_LEADER ? L"-" : GC.getInfo(kPlayer.getLeaderType()).getDescription());
+	// <!-- custom: During AI Auto Play, isHuman becomes false for the original human slot while isHumanDisabled becomes true. Record both states explicitly so setup/load rows do not make the same player appear ambiguously human in one place and AI-controlled in another. (GPT-5.6-Sol) -->
+	const bool bCurrentlyHumanControlled = kPlayer.isHuman();
+	const bool bAutoplayControlled = kPlayer.isHumanDisabled();
+	const bool bHumanSlot = (bCurrentlyHumanControlled || bAutoplayControlled);
+	PlayerColorTypes const ePlayerColor = kPlayer.getPlayerColor();
+	char const* szPlayerColor = "-";
+	char const* szPrimaryColor = "-";
+	int iPrimaryRed = -1;
+	int iPrimaryGreen = -1;
+	int iPrimaryBlue = -1;
+	if (ePlayerColor != NO_PLAYERCOLOR)
+	{
+		CvPlayerColorInfo const& kPlayerColor = GC.getInfo(ePlayerColor);
+		ColorTypes const ePrimaryColor = kPlayerColor.getColorTypePrimary();
+		szPlayerColor = kPlayerColor.getType();
+		if (ePrimaryColor != NO_COLOR)
+		{
+			NiColorA const& kPrimaryColor = GC.getInfo(ePrimaryColor).getColor();
+			szPrimaryColor = GC.getInfo(ePrimaryColor).getType();
+			iPrimaryRed = (int)(255 * kPrimaryColor.r);
+			iPrimaryGreen = (int)(255 * kPrimaryColor.g);
+			iPrimaryBlue = (int)(255 * kPrimaryColor.b);
+		}
+	}
+	CvString szTraits;
+	FOR_EACH_ENUM(Trait)
+	{
+		if (!kPlayer.hasTrait(eLoopTrait))
+			continue;
+		if (!szTraits.empty())
+			szTraits += ",";
+		szTraits += GC.getInfo(eLoopTrait).getType();
+	}
+	// <!-- custom: Leader traits and favorites are fixed but materially explain AI behavior and economic results.
+	// Record them once per setup/load rather than repeating them in periodic player or policy snapshots. (GPT-5.6-Sol) -->
+	// <!-- custom: Log the assigned PlayerColor rather than the civilization default because Civ4 can reassign duplicates.
+	// The primary ColorInfo and RGB values help connect text records to maps and screenshots without requiring the source XML. (GPT-5.6-Sol) -->
+	// <!-- custom: CvInitCore preserves whether civilization and leader were assigned through Random.
+	// Older/imported saves can lack that provenance, so keep unknown distinct from a verified manual choice. (ChatGPT-5.6-Sol) -->
+	bool const bCivLeaderChoiceKnown = kInitCore.isCivLeaderSetupKnown();
+	logSASGameRecord("GAME_RECORD_PLAYER_SETUP turn=%d player=%d team=%d alive=%d everAlive=%d human=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d slotStatus=%d civLeaderChoiceKnown=%d civChosenRandomly=%d leaderChosenRandomly=%d playerName=%S civType=%s civName=%S civShortName=%S leaderType=%s leaderName=%S playerColor=%s primaryColor=%s primaryColorRGB=%d,%d,%d traits=%s favoriteCivic=%s favoriteReligion=%s handicap=%s",
+			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), kPlayer.isEverAlive(), bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kInitCore.getSlotStatus(ePlayer), bCivLeaderChoiceKnown, bCivLeaderChoiceKnown ? kInitCore.wasCivRandomlyChosen(ePlayer) : -1, bCivLeaderChoiceKnown ? kInitCore.wasLeaderRandomlyChosen(ePlayer) : -1,
+			getSASDiagnosticQuoted(kPlayer.getName(0)).GetCString(), szCivType, getSASDiagnosticQuoted(kPlayer.getCivilizationDescription(0)).GetCString(), getSASDiagnosticQuoted(kPlayer.getCivilizationShortDescription(0)).GetCString(), szLeaderType, getSASDiagnosticQuoted(szLeaderName).GetCString(),
+			szPlayerColor, szPrimaryColor, iPrimaryRed, iPrimaryGreen, iPrimaryBlue, getSASDiagnosticOrDash(szTraits).GetCString(), getSASGameRecordCivicType(kPlayer.getFavoriteCivic()), getSASGameRecordReligionType(kPlayer.getFavoriteReligion()), kPlayer.getHandicapType() == NO_HANDICAP ? "-" : GC.getInfo(kPlayer.getHandicapType()).getType());
+}
+
+// <!-- custom: Team-state rows identify numeric members exactly, but placing readable player/civilization identities only after hundreds of geography and text-map rows made the initial team and technology records needlessly hard to interpret.
+// Emit fixed slot bounds and player identities before team relations; later map legends can still reference the same PLAYER_SETUP rows without repeating them. (GPT-5.6-Sol) -->
+static void logSASGameRecordInitialPlayerIdentities()
+{
+	logSASGameRecord("GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=%d MAX_PLAYERS=%d BARBARIAN_PLAYER=%d MAX_CIV_TEAMS=%d MAX_TEAMS=%d BARBARIAN_TEAM=%d NO_PLAYER=%d NO_TEAM=%d", MAX_CIV_PLAYERS, MAX_PLAYERS, BARBARIAN_PLAYER, MAX_CIV_TEAMS, MAX_TEAMS, BARBARIAN_TEAM, NO_PLAYER, NO_TEAM);
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
+		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if (kLoopPlayer.isEverAlive() && !kLoopPlayer.isBarbarian())
+			logSASGameRecordPlayerSetup(eLoopPlayer);
 	}
 }
 
@@ -215,11 +248,11 @@ static void logSASGameRecordGameState(const char* szRowType)
 		szVictories = "-";
 	const CvString szLogName = getSASGameRecordLogName();
 	logSASGameRecord("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
-			szRowType, getSASGameRecordLogTimestamp().GetCString(), getSASGameRecordQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+			szRowType, getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
 	// <!-- custom: Enabled victories and their fixed turn/score limits determine which later victory-progress and AI-strategy rows are relevant. Record this compact setup context instead of requiring external XML or save inspection. (GPT-5.6-Sol) -->
 	// <!-- custom: AdvCiv-SAS also records its own cached land-heavy/naval-heavy map classifications here. Base AdvCiv 1.14 has no equivalent generic cache, so this upstream port intentionally leaves those SAS-specific fields out rather than recreating mod policy inside the recorder. (ChatGPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_GAME_SETTINGS mapScript=%S map=%dx%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s maxTurns=%d targetScore=%d victories=%s options=%s",
-			getSASGameRecordQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), szVictories.GetCString(), szGameOptions.GetCString());
+			getSASDiagnosticQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), szVictories.GetCString(), szGameOptions.GetCString());
 	logSASGameRecordMapOptions(kInitCore);
 	logSASGameRecord("GAME_RECORD_GAME_RNG mapRandState=%u syncRandState=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed());
 }
@@ -249,13 +282,14 @@ void startSASGameRecordLogForNewGame()
 {
 	rollSASGameRecordLog("new");
 	CvString const szLogName = getSASGameRecordLogName();
-	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), getSASGameRecordQuoted(szLogName.GetCString()).GetCString());
+	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString());
 	logSASGameRecordLogSettings();
 }
 
 void logSASGameRecordNewGameStarted()
 {
 	logSASGameRecordGameState("GAME_RECORD_NEW_GAME_STARTED");
+	logSASGameRecordInitialPlayerIdentities();
 }
 
 void startSASGameRecordLogForLoadedSave()
@@ -263,5 +297,6 @@ void startSASGameRecordLogForLoadedSave()
 	rollSASGameRecordLog("load");
 	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
 	logSASGameRecordLogSettings();
+	logSASGameRecordInitialPlayerIdentities();
 }
 
