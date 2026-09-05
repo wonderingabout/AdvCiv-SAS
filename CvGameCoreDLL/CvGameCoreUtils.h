@@ -9,6 +9,9 @@ class CvCityAI; // advc.003u
 class CvUnit;
 class CvUnitAI; // advc.003u
 class CvSelectionGroup;
+class CvDeal;
+struct TradeData;
+template <class tVARTYPE> class CLinkList;
 class CvString;
 class CvRandom;
 class FAStarNode;
@@ -20,6 +23,8 @@ CvString getSASDiagnosticQuoted(char const* szValue);
 CvWString getSASDiagnosticQuoted(wchar const* szValue);
 // <!-- custom: Serialize an empty diagnostic list/value as "-" while preserving nonempty text unchanged. (ChatGPT-5.6-Sol) -->
 CvString getSASDiagnosticOrDash(CvString const& szValue);
+// <!-- custom: Stable decimal serialization for generic diagnostic payloads that do not have an XML type name. (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticIntText(int iValue);
 // <!-- custom: Append one integer to a comma-separated diagnostic list without duplicating list plumbing across logs. (ChatGPT-5.6-Sol) -->
 void appendSASDiagnosticIntListValue(CvString& szList, int iValue);
 // <!-- custom: Serialize authoritative finalized membership, identity, relations and trading capabilities for one initial team. (ChatGPT-5.6-Sol) -->
@@ -28,6 +33,18 @@ CvString getSASInitialTeamStateFields(TeamTypes eTeam);
 CvString getSASInitialTeamTechFields(TeamTypes eTeam);
 // <!-- custom: Return the same exact technology payload without a team identifier so diagnostic callers can group teams with identical finalized technology sets. (GPT-5.6-Sol) -->
 CvString getSASInitialTeamTechLevelFields(TeamTypes eTeam);
+// <!-- custom: Serialize a team ID as TEAM_n, or "-" for NO_TEAM, for shared diagnostic payloads. (ChatGPT-5.6-Sol) -->
+CvString getSASTeamDiagnosticText(TeamTypes eTeam);
+// <!-- custom: Serialize the data payload of one diplomacy trade item using stable type/team/city identifiers where available. (ChatGPT-5.6-Sol) -->
+CvString getSASTradeDataText(TradeData const& kItem, PlayerTypes eFromPlayer);
+// <!-- custom: Serialize a complete diplomacy trade list as comma-separated TYPE:data entries, or "-" when empty. (ChatGPT-5.6-Sol) -->
+CvString getSASTradeListText(CLinkList<TradeData> const& kList, PlayerTypes eFromPlayer);
+// <!-- custom: Serialize one surviving finalized initial deal, including players/teams, age/cancel timing and both exact trade lists. (ChatGPT-5.6-Sol) -->
+CvString getSASInitialDealStateFields(CvDeal const& kDeal);
+// <!-- custom: Recognize only the simple reciprocal peace-deal shape that is safe to collapse in ordinary non-scenario Advanced Start. (ChatGPT-5.6-Sol) -->
+bool isSASCollapsibleAdvancedStartPeaceDeal(CvDeal const& kDeal);
+// <!-- custom: Summarize finalized starting deals, including collapsed Advanced Start peace counts/cancel windows and exact detail-row count. (ChatGPT-5.6-Sol) -->
+CvString getSASInitialDealSummaryFields(bool bDealDetailEnabled, int iLoggedDealRows);
 
 /*	advc:
  +	All functions dealing with arithmetics moved to ArithmeticUtils.h
@@ -134,6 +151,7 @@ namespace hotkeyDescr
 }
 
 bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);												// Exposed to Python
+char const* getSASTradeItemType(TradeableItems eItem); // <!-- custom: Shared raw enum-token text for TradeableItems because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
 //isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam); // advc: Use CvTeamAI::AI_mayAttack instead
 
 int estimateCollateralWeight(const CvPlot* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenseTeam = NO_TEAM); // K-Mod

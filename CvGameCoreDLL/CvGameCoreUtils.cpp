@@ -3,10 +3,15 @@
 #include "CoreAI.h"
 #include "CvUnitAI.h"
 #include "CvSelectionGroupAI.h"
+#include "CvDeal.h" // <!-- custom: Shared finalized-initial-state diagnostics include surviving starting deals. (ChatGPT-5.6-Sol) -->
+#include "CvCity.h" // <!-- custom: Resolve city trade items in shared diagnostic trade-list text. (ChatGPT-5.6-Sol) -->
 #include "CityPlotIterator.h"
 #include "BBAILog.h" // advc.007
 #include "CvInfo_GameOption.h"
-#include "CvInfo_Tech.h" // <!-- custom: Shared initial-team diagnostics use stable technology type names and repeat-tech metadata. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Tech.h" // <!-- custom: Shared initial-team/deal diagnostics use stable technology type names. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Terrain.h" // <!-- custom: Shared trade serialization resolves CvBonusInfo type names; CvGlobals only forward-declares the info class. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Civics.h" // <!-- custom: Shared trade serialization resolves CvCivicInfo type names; CvGlobals only forward-declares the info class. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Organization.h" // <!-- custom: Shared diagnostic trade-list text resolves religion trade items. (ChatGPT-5.6-Sol) -->
 
 // <!-- custom: Shared machine-readable quoting for diagnostic free-text values.
 // Keep narrow/wide escaping identical so BBAI, SASGameRecord and future shared diagnostic rows cannot drift.
@@ -132,6 +137,172 @@ CvString getSASInitialTeamTechFields(TeamTypes eTeam)
 {
 	CvString szFields;
 	szFields.Format("team=%d %s", eTeam, getSASInitialTeamTechLevelFields(eTeam).GetCString());
+	return szFields;
+}
+
+
+CvString getSASTeamDiagnosticText(TeamTypes eTeam)
+{
+	if (eTeam == NO_TEAM)
+		return CvString("-");
+	CvString szValue;
+	szValue.Format("TEAM_%d", eTeam);
+	return szValue;
+}
+
+char const* getSASTradeItemType(TradeableItems eItem)
+{
+	switch (eItem)
+	{
+	case NO_TRADE_ITEM: return "-";
+	case TRADE_GOLD: return "TRADE_GOLD";
+	case TRADE_GOLD_PER_TURN: return "TRADE_GOLD_PER_TURN";
+	case TRADE_MAPS: return "TRADE_MAPS";
+	case TRADE_VASSAL: return "TRADE_VASSAL";
+	case TRADE_SURRENDER: return "TRADE_SURRENDER";
+	case TRADE_OPEN_BORDERS: return "TRADE_OPEN_BORDERS";
+	case TRADE_DEFENSIVE_PACT: return "TRADE_DEFENSIVE_PACT";
+	case TRADE_PERMANENT_ALLIANCE: return "TRADE_PERMANENT_ALLIANCE";
+	case TRADE_PEACE_TREATY: return "TRADE_PEACE_TREATY";
+	case TRADE_TECHNOLOGIES: return "TRADE_TECHNOLOGIES";
+	case TRADE_RESOURCES: return "TRADE_RESOURCES";
+	case TRADE_CITIES: return "TRADE_CITIES";
+	case TRADE_PEACE: return "TRADE_PEACE";
+	case TRADE_WAR: return "TRADE_WAR";
+	case TRADE_EMBARGO: return "TRADE_EMBARGO";
+	case TRADE_CIVIC: return "TRADE_CIVIC";
+	case TRADE_RELIGION: return "TRADE_RELIGION";
+	case TRADE_DISENGAGE: return "TRADE_DISENGAGE";
+	default: return "UNKNOWN_TRADE_ITEM";
+	}
+}
+
+CvString getSASDiagnosticIntText(int iValue)
+{
+	CvString szValue;
+	szValue.Format("%d", iValue);
+	return szValue;
+}
+
+CvString getSASTradeDataText(TradeData const& kItem, PlayerTypes eFromPlayer)
+{
+	switch (kItem.m_eItemType)
+	{
+	case TRADE_GOLD:
+	case TRADE_GOLD_PER_TURN:
+		return getSASDiagnosticIntText(kItem.m_iData);
+	case TRADE_TECHNOLOGIES:
+		if (kItem.m_iData >= 0 && kItem.m_iData < GC.getNumTechInfos())
+			return CvString(GC.getInfo((TechTypes)kItem.m_iData).getType());
+		break;
+	case TRADE_RESOURCES:
+		if (kItem.m_iData >= 0 && kItem.m_iData < GC.getNumBonusInfos())
+			return CvString(GC.getInfo((BonusTypes)kItem.m_iData).getType());
+		break;
+	case TRADE_CITIES:
+	{
+		CvString szValue;
+		CvCity* pCity = GET_PLAYER(eFromPlayer).getCity(kItem.m_iData);
+		szValue.Format("cityId=%d", pCity == NULL ? kItem.m_iData : pCity->getID());
+		return szValue;
+	}
+	case TRADE_PEACE:
+	case TRADE_WAR:
+	case TRADE_EMBARGO:
+		return getSASTeamDiagnosticText((TeamTypes)kItem.m_iData);
+	case TRADE_CIVIC:
+		if (kItem.m_iData >= 0 && kItem.m_iData < GC.getNumCivicInfos())
+			return CvString(GC.getInfo((CivicTypes)kItem.m_iData).getType());
+		break;
+	case TRADE_RELIGION:
+		if (kItem.m_iData >= 0 && kItem.m_iData < GC.getNumReligionInfos())
+			return CvString(GC.getInfo((ReligionTypes)kItem.m_iData).getType());
+		break;
+	default:
+		return CvString("-");
+	}
+	return getSASDiagnosticIntText(kItem.m_iData);
+}
+
+CvString getSASTradeListText(CLinkList<TradeData> const& kList, PlayerTypes eFromPlayer)
+{
+	CvString szList;
+	FOR_EACH_TRADE_ITEM(kList)
+	{
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%s:%s" : ",%s:%s", getSASTradeItemType(pItem->m_eItemType), getSASTradeDataText(*pItem, eFromPlayer).GetCString());
+		szList += szItem;
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+// <!-- custom: Ordinary non-scenario Advanced Start creates one reciprocal peace-treaty deal for every eligible player pair.
+// Their effective team relation is already exact in INITIAL_TEAM_STATE forcePeace; recognize this deterministic Advanced-Start-shaped form so callers can collapse it instead of emitting O(players^2) deal rows.
+// The final CvDeal object cannot prove which code path created an otherwise identical deal, so the diagnostic names describe the collapse rather than claiming exact origin; arbitrary scenario/WB deals are never collapsed. (ChatGPT-5.6-Sol) -->
+bool isSASCollapsibleAdvancedStartPeaceDeal(CvDeal const& kDeal)
+{
+	CvGame const& kGame = GC.getGame();
+	if (kGame.isScenario() || !kGame.isOption(GAMEOPTION_ADVANCED_START) || kGame.isOption(GAMEOPTION_SPAH))
+		return false;
+	if (kDeal.getLengthFirst() != 1 || kDeal.getLengthSecond() != 1)
+		return false;
+	bool bFirstPeaceTreaty = false;
+	{
+		CLinkList<TradeData> const& kList = kDeal.getFirstList();
+		FOR_EACH_TRADE_ITEM(kList)
+			bFirstPeaceTreaty = (pItem->m_eItemType == TRADE_PEACE_TREATY);
+	}
+	bool bSecondPeaceTreaty = false;
+	{
+		CLinkList<TradeData> const& kList = kDeal.getSecondList();
+		FOR_EACH_TRADE_ITEM(kList)
+			bSecondPeaceTreaty = (pItem->m_eItemType == TRADE_PEACE_TREATY);
+	}
+	if (!bFirstPeaceTreaty || !bSecondPeaceTreaty)
+		return false;
+	PlayerTypes const eFirst = kDeal.getFirstPlayer();
+	PlayerTypes const eSecond = kDeal.getSecondPlayer();
+	return (eFirst != NO_PLAYER && eSecond != NO_PLAYER && GET_PLAYER(eFirst).isMajorCiv() && GET_PLAYER(eSecond).isMajorCiv());
+}
+
+CvString getSASInitialDealSummaryFields(bool bDealDetailEnabled, int iLoggedDealRows)
+{
+	if (!bDealDetailEnabled)
+		return CvString("dealDetailEnabled=0 initialDeals=-1 loggedDealRows=0 collapsedAdvancedStartPeaceDeals=-1 collapsedAdvancedStartPeaceCancelTurnsMin=-1 collapsedAdvancedStartPeaceCancelTurnsMax=-1");
+	int iInitialDeals = 0;
+	int iCollapsedAdvancedStartPeaceDeals = 0;
+	int iCollapsedAdvancedStartPeaceCancelTurnsMin = -1;
+	int iCollapsedAdvancedStartPeaceCancelTurnsMax = -1;
+	int iLoop = 0;
+	for (CvDeal const* pDeal = GC.getGame().firstDeal(&iLoop); pDeal != NULL; pDeal = GC.getGame().nextDeal(&iLoop))
+	{
+		iInitialDeals++;
+		if (!isSASCollapsibleAdvancedStartPeaceDeal(*pDeal))
+			continue;
+		iCollapsedAdvancedStartPeaceDeals++;
+		int const iFirstTurns = pDeal->turnsToCancel(pDeal->getFirstPlayer());
+		int const iSecondTurns = pDeal->turnsToCancel(pDeal->getSecondPlayer());
+		int const iDealMin = std::min(iFirstTurns, iSecondTurns);
+		int const iDealMax = std::max(iFirstTurns, iSecondTurns);
+		if (iCollapsedAdvancedStartPeaceCancelTurnsMin < 0 || iDealMin < iCollapsedAdvancedStartPeaceCancelTurnsMin) iCollapsedAdvancedStartPeaceCancelTurnsMin = iDealMin;
+		if (iDealMax > iCollapsedAdvancedStartPeaceCancelTurnsMax) iCollapsedAdvancedStartPeaceCancelTurnsMax = iDealMax;
+	}
+	FAssertMsg(iLoggedDealRows == iInitialDeals - iCollapsedAdvancedStartPeaceDeals, "Initial-deal normalization row count mismatch");
+	CvString szFields;
+	szFields.Format("dealDetailEnabled=1 initialDeals=%d loggedDealRows=%d collapsedAdvancedStartPeaceDeals=%d collapsedAdvancedStartPeaceCancelTurnsMin=%d collapsedAdvancedStartPeaceCancelTurnsMax=%d", iInitialDeals, iLoggedDealRows, iCollapsedAdvancedStartPeaceDeals, iCollapsedAdvancedStartPeaceCancelTurnsMin, iCollapsedAdvancedStartPeaceCancelTurnsMax);
+	return szFields;
+}
+
+CvString getSASInitialDealStateFields(CvDeal const& kDeal)
+{
+	PlayerTypes const eFirst = kDeal.getFirstPlayer();
+	PlayerTypes const eSecond = kDeal.getSecondPlayer();
+	TeamTypes const eFirstTeam = (eFirst == NO_PLAYER ? NO_TEAM : GET_PLAYER(eFirst).getTeam());
+	TeamTypes const eSecondTeam = (eSecond == NO_PLAYER ? NO_TEAM : GET_PLAYER(eSecond).getTeam());
+	CvString szFields;
+	szFields.Format("dealId=%d initialTurn=%d age=%d firstPlayer=%d firstTeam=%d secondPlayer=%d secondTeam=%d peaceDeal=%d vassalDeal=%d disengage=%d firstTurnsToCancel=%d secondTurnsToCancel=%d firstGives=%s secondGives=%s",
+			kDeal.getID(), kDeal.getInitialGameTurn(), kDeal.getAge(), eFirst, eFirstTeam, eSecond, eSecondTeam, kDeal.isPeaceDeal(), kDeal.isVassalDeal(), kDeal.isDisengage(), kDeal.turnsToCancel(eFirst), kDeal.turnsToCancel(eSecond),
+			getSASTradeListText(kDeal.getFirstList(), eFirst).GetCString(), getSASTradeListText(kDeal.getSecondList(), eSecond).GetCString());
 	return szFields;
 }
 

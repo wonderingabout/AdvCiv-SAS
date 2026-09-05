@@ -245,11 +245,13 @@ struct SASGameRecordInitialTechGroup
 };
 
 // <!-- custom: Successful new-game initialization is best described by its authoritative result, not by the order in which Civ4 happened to call meet/declareWar/setHasTech/startTrade while constructing that result.
-// Group identical technology sets so a late-era start does not repeat the same long payload for every team; the explicit team lists keep arbitrary scenarios and mixed/modded setups exact. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-static void logSASGameRecordFinalizedInitialTeamsAndTechs(int& iTeamStateRows, int& iTechRows)
+// Group identical technology sets so a late-era start does not repeat the same long payload for every team; the explicit team lists keep arbitrary scenarios and mixed/modded setups exact.
+// Record surviving initial deals from the same finalized boundary, collapsing only the deterministic Advanced-Start-shaped reciprocal peace matrix already represented by forcePeace team state. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static void logSASGameRecordFinalizedInitialState(int& iTeamStateRows, int& iTechRows, int& iDeals)
 {
 	iTeamStateRows = 0;
 	iTechRows = 0;
+	iDeals = 0;
 	std::vector<SASGameRecordInitialTechGroup> aTechGroups;
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
 	{
@@ -284,6 +286,14 @@ static void logSASGameRecordFinalizedInitialTeamsAndTechs(int& iTeamStateRows, i
 		SASGameRecordInitialTechGroup const& kGroup = aTechGroups[iGroup];
 		logSASGameRecord("GAME_RECORD_INITIAL_TEAM_TECHS teams=%s teamCount=%d %s", kGroup.szTeams.GetCString(), kGroup.iTeams, kGroup.szTechFields.GetCString());
 		iTechRows++;
+	}
+	int iLoop = 0;
+	for (CvDeal const* pDeal = GC.getGame().firstDeal(&iLoop); pDeal != NULL; pDeal = GC.getGame().nextDeal(&iLoop))
+	{
+		if (isSASCollapsibleAdvancedStartPeaceDeal(*pDeal))
+			continue;
+		logSASGameRecord("GAME_RECORD_INITIAL_DEAL %s", getSASInitialDealStateFields(*pDeal).GetCString());
+		iDeals++;
 	}
 }
 
@@ -374,9 +384,10 @@ void logSASGameRecordNewGameStarted()
 	{
 		int iTeamStateRows = 0;
 		int iTechRows = 0;
-		// <!-- custom: Current AdvCiv-SAS also seeds later team/contact deltas and records surviving setup deals at this finalized-state boundary; those coherent recorder pieces are ported separately rather than introducing partial state/deal plumbing here. (ChatGPT-5.6-Sol) -->
-		logSASGameRecordFinalizedInitialTeamsAndTechs(iTeamStateRows, iTechRows);
-		logSASGameRecord("GAME_RECORD_INITIAL_STATE_SUMMARY teamStateRows=%d techGroupRows=%d techTeamsCovered=%d source=FINALIZED_STATE", iTeamStateRows, iTechRows, iTeamStateRows);
+		int iDeals = 0;
+		// <!-- custom: Current AdvCiv-SAS also seeds later team/contact deltas from this finalized-state boundary; that recorder-state plumbing remains deferred until the first delta snapshots are ported. (ChatGPT-5.6-Sol) -->
+		logSASGameRecordFinalizedInitialState(iTeamStateRows, iTechRows, iDeals);
+		logSASGameRecord("GAME_RECORD_INITIAL_STATE_SUMMARY teamStateRows=%d techGroupRows=%d techTeamsCovered=%d %s source=FINALIZED_STATE", iTeamStateRows, iTechRows, iTeamStateRows, getSASInitialDealSummaryFields(true, iDeals).GetCString());
 	}
 }
 
