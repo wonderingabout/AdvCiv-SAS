@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in AdvCiv-SAS' root README.md)
+-->
+<!-- custom: Turn-valued SAS integer defines state game-speed semantics in the name: TURN(S)_NORMAL_GAMESPEED means the XML value is expressed at Normal speed and must be scaled in code; TURN(S)_UNSCALED_GAMESPEED means literal game/path turns intentionally stay unchanged across speeds. Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
+<!-- custom: Long_Comments_XML.txt #131, #195 -->
+<Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+
+
+	<!-- custom: Dedicated structured SASGameRecord report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review. This is independent from the classic SAS_BBAI_LOG_ENABLE diagnostic master switch and writes to SASGameRecord_*.log, so it can produce compact GAME_RECORD_* rows without broad AI-decision spam. Unlike BBAI diagnostics, this currently has no separate master switch because the record has only one log-level define: 0 disables it, higher values enable more detail (note: in the log, fields ending in X100 are percentages multiplied by 100, e.g. 150 means 1.50%). (ChatGPT-5.5 + GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_GAME_RECORD_LOG_LEVEL</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: Interval in game turns for periodic game-record snapshots. Major chronicle actions such as techs, wars, city captures and Great People still log when they happen at game-record level 2+. Set this to 1 for an every-turn account, 5 or 10 for compact autoplay records, or higher for broad long-game trends. Clamped to at least 1 in SASGameRecordLog.cpp. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: If game-record reporting is enabled, write each new game and loaded save to a new UTC-timestamped SASGameRecord_*.log file instead of repeatedly appending to SASGameRecord.log. This is separate from BBAI timestamped filenames so compact run reports can be used without BBAI diagnostic spam. Set to 0 to preserve fixed-name log behavior. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+</Civ4Defines>

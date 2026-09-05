@@ -194,6 +194,9 @@ bool CvXMLLoadUtility::SetGlobalDefines()
 		return false;
 	if(!ReadGlobalDefines("xml\\GlobalDefines_advc.xml", cache))
 		return false; // </advc.009>
+	// <!-- custom: Keep SAS-specific configuration in its own file so later recorder defines can be transplanted with their original comments without mixing them into base AdvCiv configuration. (ChatGPT-5.6-Sol) -->
+	if(!ReadGlobalDefines("xml\\GlobalDefines_advciv_sas.xml", cache))
+		return false; // </advc.009>
 
 	// BETTER_BTS_AI_MOD, XML Options, 02/21/10, jdog5000: START
 	ReadGlobalDefines("xml\\BBAI_Game_Options_GlobalDefines.xml", cache);
