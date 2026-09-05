@@ -5,6 +5,8 @@
 #include "CvPlayerAI.h" // <!-- custom: Needed for attitude/glance values in game-record advisor rows. (ChatGPT-5.5) -->
 #include "CvTeamAI.h" // <!-- custom: Needed for team-level worst-enemy state in game-record diplomacy-status rows. (ChatGPT-5.5) -->
 #include "CvCity.h" // <!-- custom: Needed to count player-city religions and corporations in periodic policy snapshots. (ChatGPT-5.6-Sol) -->
+#include "CvCityAI.h" // <!-- custom: Needed only to read the existing Avoid Growth AI emphasis flag in city snapshots/aggregates; CvCity.h only forward-declares CvCityAI. This is a compile-time type dependency and does not alter AI state or gameplay. (ChatGPT-5.6-Sol) -->
+#include "CityPlotIterator.h" // <!-- custom: Needed by compact game-record worked-plot composition rows. (ChatGPT-5.5) -->
 #include "CvPlot.h" // <!-- custom: Needed to classify Spy deployment and stationary mission preparation in periodic espionage snapshots. (ChatGPT-5.6-Sol) -->
 #include "CvTeam.h" // <!-- custom: Needed directly for finalized initial-team state and technology grouping in this smaller AdvCiv 1.14 port slice; GET_TEAM is defined by CvTeam.h. (ChatGPT-5.6-Sol) -->
 #include "CvUnit.h" // <!-- custom: Needed for the mature SASGameRecord distinction between actual combat-capable units and Civ4's separate bMilitarySupport counter in periodic player snapshots. (ChatGPT-5.6-Sol) -->
@@ -13,6 +15,7 @@
 #include "CvInfo_Civilization.h" // <!-- custom: Needed to attribute player-wide extra happiness/health to traits instead of leaving effects from loaded-mod rules under an opaque `extra` label. (GPT-5.6-Sol) -->
 #include "CvInfo_Tech.h" // <!-- custom: Needed for stable technology type names and XML trade-capability source mapping. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Terrain.h" // <!-- custom: Needed for terrain/feature/bonus type names in game-record context rows. (ChatGPT-5.5) -->
+#include "CvInfo_Building.h" // <!-- custom: Needed to classify city production and wonders in game-record city aggregate rows. (ChatGPT-5.5) -->
 #include "CvInfo_Unit.h" // <!-- custom: Needed to classify unit composition and city production in game-record rows. (ChatGPT-5.5) -->
 #include "CvInfo_Misc.h" // <!-- custom: Needed directly for era type names in periodic team technology summaries; base AdvCiv only forward-declares CvEraInfo through CvGlobals. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Symbol.h" // <!-- custom: Needed to log actual assigned player-color and primary-color context; CvGlobals only forward-declares their info classes. (GPT-5.6-Sol) -->
@@ -127,6 +130,19 @@ struct SASGameRecordPlayerPrevious
 	int iUnitEnemyUnitsInTerritory;
 	int iUnitTotalExperience;
 	int iUnitPromotionReady;
+	int iCityCount;
+	int iCityConnectedToCapital;
+	int iCityFoodSurplus;
+	int iCityHappySurplus;
+	int iCityHealthSurplus;
+	int iCityFood;
+	int iCityProduction;
+	int iCityCommerce;
+	int iCityTradeRoutes;
+	int iCityTradeCommerce;
+	int iCitySpecialists;
+	int iCityFreeSpecialists;
+	int iCityGarrison;
 };
 
 static SASGameRecordPlayerPrevious g_akSASGameRecordPlayerPrevious[MAX_PLAYERS];
@@ -314,6 +330,194 @@ static void appendSASGameRecordTypeCount(CvString& szList, const char* szType, i
 	CvString szItem;
 	szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", szType, iCount);
 	szList += szItem;
+}
+
+
+// <!-- custom: Aggregate worked-plot snapshots share the compact landscape composition structure used by the mature AdvCiv-SAS city/map diagnostics. This first city slice ports only citizen allocation and player-level city aggregates; the much larger level-3 per-city detail rows follow separately. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordPlotComposition
+{
+	int iPlots;
+	int iLand;
+	int iWater;
+	int iHills;
+	int iPeaks;
+	int iRiverSide;
+	int iFreshWater;
+	int iCoastal;
+	int iImproved;
+	int iUnimprovedLand;
+	int iRoaded;
+	int iBonusImproved;
+	int iBonusUnimproved;
+	int iWorked;
+	int iWorkedImproved;
+	int iWorkedUnimproved;
+	int iNatureFood;
+	int iNatureProduction;
+	int iNatureCommerce;
+	int iCurrentFood;
+	int iCurrentProduction;
+	int iCurrentCommerce;
+	std::vector<int> aiTerrains;
+	std::vector<int> aiFeatures;
+	std::vector<int> aiBonuses;
+	std::vector<int> aiImprovements;
+	std::vector<int> aiRoutes;
+
+	SASGameRecordPlotComposition() : iPlots(0), iLand(0), iWater(0), iHills(0), iPeaks(0), iRiverSide(0), iFreshWater(0), iCoastal(0), iImproved(0), iUnimprovedLand(0), iRoaded(0), iBonusImproved(0), iBonusUnimproved(0), iWorked(0), iWorkedImproved(0), iWorkedUnimproved(0), iNatureFood(0), iNatureProduction(0), iNatureCommerce(0), iCurrentFood(0), iCurrentProduction(0), iCurrentCommerce(0), aiTerrains(GC.getNumTerrainInfos(), 0), aiFeatures(GC.getNumFeatureInfos(), 0), aiBonuses(GC.getNumBonusInfos(), 0), aiImprovements(GC.getNumImprovementInfos(), 0), aiRoutes(GC.getNumRouteInfos(), 0) {}
+};
+
+static const char* getSASGameRecordTerrainType(TerrainTypes eTerrain)
+{
+	return (eTerrain == NO_TERRAIN ? "-" : GC.getInfo(eTerrain).getType());
+}
+
+static const char* getSASGameRecordFeatureType(FeatureTypes eFeature)
+{
+	return (eFeature == NO_FEATURE ? "-" : GC.getInfo(eFeature).getType());
+}
+
+static const char* getSASGameRecordImprovementType(ImprovementTypes eImprovement)
+{
+	return (eImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eImprovement).getType());
+}
+
+static const char* getSASGameRecordRouteType(RouteTypes eRoute)
+{
+	return (eRoute == NO_ROUTE ? "-" : GC.getInfo(eRoute).getType());
+}
+
+static CvWString getSASGameRecordQuotedCityName(CvCity const* pCity)
+{
+	return pCity == NULL ? L"-" : getSASDiagnosticQuoted(pCity->getName().GetCString());
+}
+
+static void addSASGameRecordPlotComposition(SASGameRecordPlotComposition& kComposition, CvPlot const& kPlot, TeamTypes eTeam)
+{
+	kComposition.iPlots++;
+	if (kPlot.isWater())
+		kComposition.iWater++;
+	else kComposition.iLand++;
+	if (kPlot.isHills()) kComposition.iHills++;
+	if (kPlot.isPeak()) kComposition.iPeaks++;
+	if (kPlot.isRiverSide()) kComposition.iRiverSide++;
+	if (kPlot.isFreshWater()) kComposition.iFreshWater++;
+	if (kPlot.isCoastalLand()) kComposition.iCoastal++;
+	if (kPlot.getTerrainType() != NO_TERRAIN) kComposition.aiTerrains[kPlot.getTerrainType()]++;
+	if (kPlot.getFeatureType() != NO_FEATURE) kComposition.aiFeatures[kPlot.getFeatureType()]++;
+	ImprovementTypes const eImprovement = kPlot.getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT)
+	{
+		kComposition.iImproved++;
+		kComposition.aiImprovements[eImprovement]++;
+	}
+	else if (!kPlot.isWater()) kComposition.iUnimprovedLand++;
+	RouteTypes const eRoute = kPlot.getRouteType();
+	if (eRoute != NO_ROUTE)
+	{
+		kComposition.iRoaded++;
+		kComposition.aiRoutes[eRoute]++;
+	}
+	BonusTypes const eBonus = kPlot.getBonusType(eTeam);
+	if (eBonus != NO_BONUS)
+	{
+		kComposition.aiBonuses[eBonus]++;
+		if (eImprovement != NO_IMPROVEMENT) kComposition.iBonusImproved++;
+		else kComposition.iBonusUnimproved++;
+	}
+	if (kPlot.isBeingWorked())
+	{
+		kComposition.iWorked++;
+		if (eImprovement != NO_IMPROVEMENT) kComposition.iWorkedImproved++;
+		else kComposition.iWorkedUnimproved++;
+	}
+	kComposition.iNatureFood += kPlot.calculateBestNatureYield(YIELD_FOOD, eTeam);
+	kComposition.iNatureProduction += kPlot.calculateBestNatureYield(YIELD_PRODUCTION, eTeam);
+	kComposition.iNatureCommerce += kPlot.calculateBestNatureYield(YIELD_COMMERCE, eTeam);
+	kComposition.iCurrentFood += kPlot.calculateYield(YIELD_FOOD);
+	kComposition.iCurrentProduction += kPlot.calculateYield(YIELD_PRODUCTION);
+	kComposition.iCurrentCommerce += kPlot.calculateYield(YIELD_COMMERCE);
+}
+
+static SASGameRecordPlotComposition getSASGameRecordWorkedPlotComposition(CvCity const& kCity)
+{
+	SASGameRecordPlotComposition kComposition;
+	TeamTypes const eTeam = GET_PLAYER(kCity.getOwner()).getTeam();
+	// <!-- custom: Exclude the city center from worked-plot allocation records because it is always worked and would blur comparisons of citizen plot choices and improvement coverage between benchmark runs. (GPT-5.5) -->
+	for (WorkingPlotIter it(kCity, false); it.hasNext(); ++it)
+		addSASGameRecordPlotComposition(kComposition, *it, eTeam);
+	return kComposition;
+}
+
+static void addSASGameRecordPlotComposition(SASGameRecordPlotComposition& kTarget, SASGameRecordPlotComposition const& kSource)
+{
+	kTarget.iPlots += kSource.iPlots;
+	kTarget.iLand += kSource.iLand;
+	kTarget.iWater += kSource.iWater;
+	kTarget.iHills += kSource.iHills;
+	kTarget.iPeaks += kSource.iPeaks;
+	kTarget.iRiverSide += kSource.iRiverSide;
+	kTarget.iFreshWater += kSource.iFreshWater;
+	kTarget.iCoastal += kSource.iCoastal;
+	kTarget.iImproved += kSource.iImproved;
+	kTarget.iUnimprovedLand += kSource.iUnimprovedLand;
+	kTarget.iRoaded += kSource.iRoaded;
+	kTarget.iBonusImproved += kSource.iBonusImproved;
+	kTarget.iBonusUnimproved += kSource.iBonusUnimproved;
+	kTarget.iWorked += kSource.iWorked;
+	kTarget.iWorkedImproved += kSource.iWorkedImproved;
+	kTarget.iWorkedUnimproved += kSource.iWorkedUnimproved;
+	kTarget.iNatureFood += kSource.iNatureFood;
+	kTarget.iNatureProduction += kSource.iNatureProduction;
+	kTarget.iNatureCommerce += kSource.iNatureCommerce;
+	kTarget.iCurrentFood += kSource.iCurrentFood;
+	kTarget.iCurrentProduction += kSource.iCurrentProduction;
+	kTarget.iCurrentCommerce += kSource.iCurrentCommerce;
+	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++) kTarget.aiTerrains[iI] += kSource.aiTerrains[iI];
+	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++) kTarget.aiFeatures[iI] += kSource.aiFeatures[iI];
+	for (int iI = 0; iI < GC.getNumBonusInfos(); iI++) kTarget.aiBonuses[iI] += kSource.aiBonuses[iI];
+	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++) kTarget.aiImprovements[iI] += kSource.aiImprovements[iI];
+	for (int iI = 0; iI < GC.getNumRouteInfos(); iI++) kTarget.aiRoutes[iI] += kSource.aiRoutes[iI];
+}
+
+static void getSASGameRecordPlotCompositionTypes(SASGameRecordPlotComposition const& kComposition, CvString& szTerrains, CvString& szFeatures, CvString& szBonuses, CvString& szImprovements, CvString& szRoutes)
+{
+	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++) appendSASGameRecordTypeCount(szTerrains, getSASGameRecordTerrainType((TerrainTypes)iI), kComposition.aiTerrains[iI]);
+	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++) appendSASGameRecordTypeCount(szFeatures, getSASGameRecordFeatureType((FeatureTypes)iI), kComposition.aiFeatures[iI]);
+	for (int iI = 0; iI < GC.getNumBonusInfos(); iI++) appendSASGameRecordTypeCount(szBonuses, getSASGameRecordBonusType((BonusTypes)iI), kComposition.aiBonuses[iI]);
+	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++) appendSASGameRecordTypeCount(szImprovements, getSASGameRecordImprovementType((ImprovementTypes)iI), kComposition.aiImprovements[iI]);
+	for (int iI = 0; iI < GC.getNumRouteInfos(); iI++) appendSASGameRecordTypeCount(szRoutes, getSASGameRecordRouteType((RouteTypes)iI), kComposition.aiRoutes[iI]);
+}
+
+// <!-- custom: These unit classifiers are defined later with the unit-posture helpers; declare them here because the city aggregate slice now reuses them earlier in this translation unit. MSVC 2003 requires the declaration before first use. (ChatGPT-5.6-Sol) -->
+static bool isSASGameRecordMilitaryUnit(CvUnit const& kUnit);
+static bool isSASGameRecordWorkerUnit(CvUnit const& kUnit);
+static bool isSASGameRecordSettlerUnit(CvUnit const& kUnit);
+
+struct SASGameRecordCityPlotUnitCounts
+{
+	int iUnits;
+	int iMilitaryUnits;
+	int iCivilianUnits;
+	int iDefenders;
+	int iSettlers;
+	int iWorkers;
+	SASGameRecordCityPlotUnitCounts() : iUnits(0), iMilitaryUnits(0), iCivilianUnits(0), iDefenders(0), iSettlers(0), iWorkers(0) {}
+};
+
+static void collectSASGameRecordCityPlotUnitCounts(CvPlot const& kPlot, PlayerTypes ePlayer, SASGameRecordCityPlotUnitCounts& kCounts)
+{
+	for (CLLNode<IDInfo> const* pUnitNode = kPlot.headUnitNode(); pUnitNode != NULL; pUnitNode = kPlot.nextUnitNode(pUnitNode))
+	{
+		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+		if (pLoopUnit == NULL || pLoopUnit->getOwner() != ePlayer) continue;
+		kCounts.iUnits++;
+		if (isSASGameRecordMilitaryUnit(*pLoopUnit)) kCounts.iMilitaryUnits++;
+		else kCounts.iCivilianUnits++;
+		if (pLoopUnit->canDefend(&kPlot)) kCounts.iDefenders++;
+		if (isSASGameRecordSettlerUnit(*pLoopUnit)) kCounts.iSettlers++;
+		if (isSASGameRecordWorkerUnit(*pLoopUnit)) kCounts.iWorkers++;
+	}
 }
 
 static void appendSASGameRecordValue(CvString& szList, const char* szName, int iValue)
@@ -1186,6 +1390,114 @@ static void logSASGameRecordUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 }
 
 
+static void logSASGameRecordWorkedPlots(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	SASGameRecordPlotComposition kComposition;
+	int iLoop = 0;
+	for (CvCity const* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		addSASGameRecordPlotComposition(kComposition, getSASGameRecordWorkedPlotComposition(*pLoopCity));
+	CvString szTerrains, szFeatures, szBonuses, szImprovements, szRoutes;
+	getSASGameRecordPlotCompositionTypes(kComposition, szTerrains, szFeatures, szBonuses, szImprovements, szRoutes);
+	logSASGameRecord("GAME_RECORD_WORKED_PLOTS turn=%d player=%d cities=%d worked=%d improved=%d unimproved=%d land=%d water=%d hills=%d riverSide=%d freshWater=%d bonusImproved=%d bonusUnimproved=%d currentFood=%d currentProd=%d currentCommerce=%d natureFood=%d natureProd=%d natureCommerce=%d terrains=%s features=%s bonuses=%s improvements=%s routes=%s",
+		iGameTurn, ePlayer, kPlayer.getNumCities(), kComposition.iWorked, kComposition.iWorkedImproved, kComposition.iWorkedUnimproved, kComposition.iLand, kComposition.iWater,
+		kComposition.iHills, kComposition.iRiverSide, kComposition.iFreshWater, kComposition.iBonusImproved, kComposition.iBonusUnimproved,
+		kComposition.iCurrentFood, kComposition.iCurrentProduction, kComposition.iCurrentCommerce, kComposition.iNatureFood, kComposition.iNatureProduction, kComposition.iNatureCommerce,
+		getSASDiagnosticOrDash(szTerrains).GetCString(), getSASDiagnosticOrDash(szFeatures).GetCString(), getSASDiagnosticOrDash(szBonuses).GetCString(), getSASDiagnosticOrDash(szImprovements).GetCString(), getSASDiagnosticOrDash(szRoutes).GetCString());
+}
+
+static void logSASGameRecordCities(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	SASGameRecordPlayerPrevious& kPrevious = g_akSASGameRecordPlayerPrevious[ePlayer];
+	int iCities = 0, iTotalFoodSurplus = 0, iTotalHappySurplus = 0, iTotalHealthSurplus = 0;
+	int iTotalFoodYield = 0, iTotalProductionYield = 0, iTotalCommerceYield = 0, iTotalFoodStored = 0, iTotalFoodKept = 0, iTotalMaintenanceTimes100 = 0;
+	int iTotalTradeRoutes = 0, iDomesticTradeRoutes = 0, iForeignTradeRoutes = 0, iTradeFood = 0, iTradeProduction = 0, iTradeCommerce = 0;
+	int iConnectedToCapital = 0, iUnhappyCities = 0, iUnhealthyCities = 0, iStarvingCities = 0, iOccupiedCities = 0, iAvoidGrowthCities = 0;
+	int iCitiesProducingUnits = 0, iCitiesProducingMilitary = 0, iCitiesProducingWorkers = 0, iCitiesProducingSettlers = 0, iCitiesProducingBuildings = 0, iCitiesProducingWonders = 0, iCitiesProducingProjects = 0, iCitiesProducingProcesses = 0;
+	int iSpecialists = 0, iFreeSpecialists = 0, iGarrison = 0, iCityUnits = 0, iMilitaryUnitsInCities = 0, iCivilianUnitsInCities = 0, iDefendersInCities = 0, iSettlersInCities = 0, iWorkersInCities = 0;
+	int iBestGPTurns = 1000000;
+	CvCity const* pNextGPCity = NULL;
+	CvCity const* pCapital = kPlayer.getCapital();
+	int iLoop = 0;
+	for (CvCity const* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+	{
+		iCities++;
+		int const iFoodSurplus = pLoopCity->foodDifference();
+		int const iHappySurplus = pLoopCity->happyLevel() - pLoopCity->unhappyLevel();
+		int const iHealthSurplus = pLoopCity->goodHealth() - pLoopCity->badHealth();
+		iTotalFoodSurplus += iFoodSurplus; iTotalHappySurplus += iHappySurplus; iTotalHealthSurplus += iHealthSurplus;
+		iTotalFoodYield += pLoopCity->getYieldRate(YIELD_FOOD); iTotalProductionYield += pLoopCity->getYieldRate(YIELD_PRODUCTION); iTotalCommerceYield += pLoopCity->getYieldRate(YIELD_COMMERCE);
+		iTotalFoodStored += pLoopCity->getFood(); iTotalFoodKept += pLoopCity->getFoodKept(); iTotalMaintenanceTimes100 += pLoopCity->getMaintenanceTimes100();
+		int const iCityTradeRoutes = pLoopCity->getTradeRoutes();
+		iTotalTradeRoutes += iCityTradeRoutes; iTradeFood += pLoopCity->getTradeYield(YIELD_FOOD); iTradeProduction += pLoopCity->getTradeYield(YIELD_PRODUCTION); iTradeCommerce += pLoopCity->getTradeYield(YIELD_COMMERCE);
+		for (int iTrade = 0; iTrade < iCityTradeRoutes; iTrade++)
+		{
+			CvCity const* pTradeCity = pLoopCity->getTradeCity(iTrade);
+			if (pTradeCity == NULL) continue;
+			if (pTradeCity->getOwner() == ePlayer) iDomesticTradeRoutes++; else iForeignTradeRoutes++;
+		}
+		if (pLoopCity->isConnectedToCapital()) iConnectedToCapital++;
+		if (iHappySurplus < 0) iUnhappyCities++;
+		if (iHealthSurplus < 0) iUnhealthyCities++;
+		if (iFoodSurplus < 0) iStarvingCities++;
+		if (pLoopCity->isOccupation()) iOccupiedCities++;
+		if (pLoopCity->AI().AI_isEmphasizeAvoidGrowth()) iAvoidGrowthCities++;
+		iSpecialists += pLoopCity->getSpecialistPopulation();
+		iFreeSpecialists += pLoopCity->totalFreeSpecialists();
+		iGarrison += pLoopCity->plot()->getNumDefenders(ePlayer);
+		SASGameRecordCityPlotUnitCounts kCityUnits;
+		collectSASGameRecordCityPlotUnitCounts(pLoopCity->getPlot(), ePlayer, kCityUnits);
+		iCityUnits += kCityUnits.iUnits; iMilitaryUnitsInCities += kCityUnits.iMilitaryUnits; iCivilianUnitsInCities += kCityUnits.iCivilianUnits; iDefendersInCities += kCityUnits.iDefenders; iSettlersInCities += kCityUnits.iSettlers; iWorkersInCities += kCityUnits.iWorkers;
+		int const iGPTurns = pLoopCity->GPTurnsLeft();
+		if (iGPTurns >= 0 && iGPTurns < iBestGPTurns) { iBestGPTurns = iGPTurns; pNextGPCity = pLoopCity; }
+		UnitTypes const eProductionUnit = pLoopCity->getProductionUnit();
+		BuildingTypes const eProductionBuilding = pLoopCity->getProductionBuilding();
+		if (eProductionUnit != NO_UNIT)
+		{
+			iCitiesProducingUnits++;
+			UnitAITypes const eUnitAI = GC.getInfo(eProductionUnit).getDefaultUnitAIType();
+			if (GC.getInfo(eProductionUnit).isMilitaryProduction()) iCitiesProducingMilitary++;
+			if (eUnitAI == UNITAI_WORKER || eUnitAI == UNITAI_WORKER_SEA) iCitiesProducingWorkers++;
+			if (eUnitAI == UNITAI_SETTLE) iCitiesProducingSettlers++;
+		}
+		else if (eProductionBuilding != NO_BUILDING)
+		{
+			iCitiesProducingBuildings++;
+			if (GC.getInfo(eProductionBuilding).isLimited()) iCitiesProducingWonders++;
+		}
+		else if (pLoopCity->getProductionProject() != NO_PROJECT) iCitiesProducingProjects++;
+		else if (pLoopCity->getProductionProcess() != NO_PROCESS) iCitiesProducingProcesses++;
+	}
+	logSASGameRecord("GAME_RECORD_CITIES turn=%d player=%d cities=%d capitalId=%d capital=%S connectedToCapital=%d totalFoodSurplus=%d totalHappySurplus=%d totalHealthSurplus=%d totalFood=%d totalProd=%d totalCommerce=%d totalFoodStored=%d totalFoodKept=%d totalMaintenanceTimes100=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d unhappyCities=%d unhealthyCities=%d starvingCities=%d occupiedCities=%d avoidGrowthCities=%d specialists=%d freeSpecialists=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d settlers=%d workers=%d nextGPCityId=%d nextGPCity=%S nextGPTurns=%d nextGPRate=%d nextGPProgress=%d citiesProducingUnits=%d citiesProducingMilitary=%d citiesProducingWorkers=%d citiesProducingSettlers=%d citiesProducingBuildings=%d citiesProducingWonders=%d citiesProducingProjects=%d citiesProducingProcesses=%d",
+		iGameTurn, ePlayer, iCities, pCapital == NULL ? -1 : pCapital->getID(), getSASGameRecordQuotedCityName(pCapital).GetCString(), iConnectedToCapital,
+		iTotalFoodSurplus, iTotalHappySurplus, iTotalHealthSurplus, iTotalFoodYield, iTotalProductionYield, iTotalCommerceYield, iTotalFoodStored, iTotalFoodKept, iTotalMaintenanceTimes100,
+		iTotalTradeRoutes, iDomesticTradeRoutes, iForeignTradeRoutes, iTradeFood, iTradeProduction, iTradeCommerce, iUnhappyCities, iUnhealthyCities, iStarvingCities, iOccupiedCities, iAvoidGrowthCities, iSpecialists, iFreeSpecialists,
+		iGarrison, iCityUnits, iMilitaryUnitsInCities, iCivilianUnitsInCities, iDefendersInCities, iSettlersInCities, iWorkersInCities,
+		pNextGPCity == NULL ? -1 : pNextGPCity->getID(), getSASGameRecordQuotedCityName(pNextGPCity).GetCString(), pNextGPCity == NULL ? -1 : iBestGPTurns, pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleRate(), pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleProgress(),
+		iCitiesProducingUnits, iCitiesProducingMilitary, iCitiesProducingWorkers, iCitiesProducingSettlers, iCitiesProducingBuildings, iCitiesProducingWonders, iCitiesProducingProjects, iCitiesProducingProcesses);
+	logSASGameRecord("GAME_RECORD_CITIES_DELTAS turn=%d player=%d deltaValid=%d citiesDelta=%+d connectedToCapitalDelta=%+d totalFoodSurplusDelta=%+d totalHappySurplusDelta=%+d totalHealthSurplusDelta=%+d totalFoodDelta=%+d totalProdDelta=%+d totalCommerceDelta=%+d tradeRoutesDelta=%+d tradeCommerceDelta=%+d specialistsDelta=%+d freeSpecialistsDelta=%+d garrisonDelta=%+d",
+		iGameTurn, ePlayer, kPrevious.bValid,
+		getSASGameRecordDelta(kPrevious.bValid, iCities, kPrevious.iCityCount), getSASGameRecordDelta(kPrevious.bValid, iConnectedToCapital, kPrevious.iCityConnectedToCapital), getSASGameRecordDelta(kPrevious.bValid, iTotalFoodSurplus, kPrevious.iCityFoodSurplus),
+		getSASGameRecordDelta(kPrevious.bValid, iTotalHappySurplus, kPrevious.iCityHappySurplus), getSASGameRecordDelta(kPrevious.bValid, iTotalHealthSurplus, kPrevious.iCityHealthSurplus), getSASGameRecordDelta(kPrevious.bValid, iTotalFoodYield, kPrevious.iCityFood),
+		getSASGameRecordDelta(kPrevious.bValid, iTotalProductionYield, kPrevious.iCityProduction), getSASGameRecordDelta(kPrevious.bValid, iTotalCommerceYield, kPrevious.iCityCommerce), getSASGameRecordDelta(kPrevious.bValid, iTotalTradeRoutes, kPrevious.iCityTradeRoutes),
+		getSASGameRecordDelta(kPrevious.bValid, iTradeCommerce, kPrevious.iCityTradeCommerce), getSASGameRecordDelta(kPrevious.bValid, iSpecialists, kPrevious.iCitySpecialists), getSASGameRecordDelta(kPrevious.bValid, iFreeSpecialists, kPrevious.iCityFreeSpecialists), getSASGameRecordDelta(kPrevious.bValid, iGarrison, kPrevious.iCityGarrison));
+	kPrevious.iCityCount = iCities;
+	kPrevious.iCityConnectedToCapital = iConnectedToCapital;
+	kPrevious.iCityFoodSurplus = iTotalFoodSurplus;
+	kPrevious.iCityHappySurplus = iTotalHappySurplus;
+	kPrevious.iCityHealthSurplus = iTotalHealthSurplus;
+	kPrevious.iCityFood = iTotalFoodYield;
+	kPrevious.iCityProduction = iTotalProductionYield;
+	kPrevious.iCityCommerce = iTotalCommerceYield;
+	kPrevious.iCityTradeRoutes = iTotalTradeRoutes;
+	kPrevious.iCityTradeCommerce = iTradeCommerce;
+	kPrevious.iCitySpecialists = iSpecialists;
+	kPrevious.iCityFreeSpecialists = iFreeSpecialists;
+	kPrevious.iCityGarrison = iGarrison;
+}
+
+
 static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvGame const& kGame = GC.getGame();
@@ -1245,6 +1557,9 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 		if (bLogPlayerVerboseDetails) logSASGameRecordDiplomaticMemories(ePlayer, iGameTurn);
 		logSASGameRecordDiploStatus(ePlayer, iGameTurn);
 		logSASGameRecordUnitPosture(ePlayer, iGameTurn);
+		logSASGameRecordCities(ePlayer, iGameTurn);
+		logSASGameRecordWorkedPlots(ePlayer, iGameTurn);
+		// <!-- custom: Mature AdvCiv-SAS also emits level-3 city-by-city economic, happiness/health, building, trade-partner and garrison detail here. Keep this first city port independently testable by landing the aggregate/worked-plot layer first; the verbose per-city rows follow in the next city slice. (ChatGPT-5.6-Sol) -->
 	}
 	kPrevious.bValid = true;
 	kPrevious.iScore = iScore;
