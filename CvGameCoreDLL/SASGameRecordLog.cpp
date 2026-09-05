@@ -8,6 +8,8 @@
 #include "CvCityAI.h" // <!-- custom: Needed only to read the existing Avoid Growth AI emphasis flag in city snapshots/aggregates; CvCity.h only forward-declares CvCityAI. This is a compile-time type dependency and does not alter AI state or gameplay. (ChatGPT-5.6-Sol) -->
 #include "CityPlotIterator.h" // <!-- custom: Needed by compact game-record worked-plot composition rows. (ChatGPT-5.5) -->
 #include "CvPlot.h" // <!-- custom: Needed to classify Spy deployment and stationary mission preparation in periodic espionage snapshots. (ChatGPT-5.6-Sol) -->
+#include "CvPlotGroup.h" // <!-- custom: Needed to identify connected city networks in game-record city rows. (ChatGPT-5.5) -->
+#include "CvArea.h" // <!-- custom: Needed for area-wide city happiness/health detail rows. (ChatGPT-5.5) -->
 #include "CvTeam.h" // <!-- custom: Needed directly for finalized initial-team state and technology grouping in this smaller AdvCiv 1.14 port slice; GET_TEAM is defined by CvTeam.h. (ChatGPT-5.6-Sol) -->
 #include "CvUnit.h" // <!-- custom: Needed for the mature SASGameRecord distinction between actual combat-capable units and Civ4's separate bMilitarySupport counter in periodic player snapshots. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Organization.h" // <!-- custom: Needed for religion/corporation type names in game-record action rows. (GPT-5.5) -->
@@ -16,6 +18,7 @@
 #include "CvInfo_Tech.h" // <!-- custom: Needed for stable technology type names and XML trade-capability source mapping. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Terrain.h" // <!-- custom: Needed for terrain/feature/bonus type names in game-record context rows. (ChatGPT-5.5) -->
 #include "CvInfo_Building.h" // <!-- custom: Needed to classify city production and wonders in game-record city aggregate rows. (ChatGPT-5.5) -->
+#include "CvInfo_City.h" // <!-- custom: Needed for specialist and process type names in game-record city rows. (ChatGPT-5.5) -->
 #include "CvInfo_Unit.h" // <!-- custom: Needed to classify unit composition and city production in game-record rows. (ChatGPT-5.5) -->
 #include "CvInfo_Misc.h" // <!-- custom: Needed directly for era type names in periodic team technology summaries; base AdvCiv only forward-declares CvEraInfo through CvGlobals. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Symbol.h" // <!-- custom: Needed to log actual assigned player-color and primary-color context; CvGlobals only forward-declares their info classes. (GPT-5.6-Sol) -->
@@ -23,6 +26,7 @@
 #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
 #include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
 #include <algorithm>
+#include <utility> // <!-- custom: Needed for Great Person odds pairs in game-record city rows. (ChatGPT-5.5) -->
 #include <vector> // <!-- custom: Used for grouped finalized initial-team technology payloads. (ChatGPT-5.6-Sol) -->
 #include <time.h>
 
@@ -323,6 +327,31 @@ static const char* getSASGameRecordPromotionType(PromotionTypes ePromotion)
 	return (ePromotion == NO_PROMOTION ? "-" : GC.getInfo(ePromotion).getType());
 }
 
+static const char* getSASGameRecordSpecialistType(SpecialistTypes eSpecialist)
+{
+	return (eSpecialist == NO_SPECIALIST ? "-" : GC.getInfo(eSpecialist).getType());
+}
+
+static const char* getSASGameRecordBuildingType(BuildingTypes eBuilding)
+{
+	return (eBuilding == NO_BUILDING ? "-" : GC.getInfo(eBuilding).getType());
+}
+
+static const char* getSASGameRecordProjectType(ProjectTypes eProject)
+{
+	return (eProject == NO_PROJECT ? "-" : GC.getInfo(eProject).getType());
+}
+
+static const char* getSASGameRecordProcessType(ProcessTypes eProcess)
+{
+	return (eProcess == NO_PROCESS ? "-" : GC.getInfo(eProcess).getType());
+}
+
+static const char* getSASGameRecordCommerceType(CommerceTypes eCommerce)
+{
+	return (eCommerce == NO_COMMERCE ? "-" : GC.getInfo(eCommerce).getType());
+}
+
 static void appendSASGameRecordTypeCount(CvString& szList, const char* szType, int iCount)
 {
 	if (iCount <= 0)
@@ -332,8 +361,17 @@ static void appendSASGameRecordTypeCount(CvString& szList, const char* szType, i
 	szList += szItem;
 }
 
+static void appendSASGameRecordPositiveValue(CvString& szList, const char* szName, int iValue)
+{
+	if (iValue <= 0)
+		return;
+	CvString szItem;
+	szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", szName, iValue);
+	szList += szItem;
+}
 
-// <!-- custom: Aggregate worked-plot snapshots share the compact landscape composition structure used by the mature AdvCiv-SAS city/map diagnostics. This first city slice ports only citizen allocation and player-level city aggregates; the much larger level-3 per-city detail rows follow separately. (ChatGPT-5.6-Sol) -->
+
+// <!-- custom: Aggregate worked-plot snapshots share the compact landscape composition structure used by the mature AdvCiv-SAS city/map diagnostics; level-3 per-city detail rows reuse the same composition instead of rescanning their worked plots independently. (ChatGPT-5.6-Sol) -->
 struct SASGameRecordPlotComposition
 {
 	int iPlots;
@@ -500,9 +538,12 @@ struct SASGameRecordCityPlotUnitCounts
 	int iMilitaryUnits;
 	int iCivilianUnits;
 	int iDefenders;
+	int iHealthyDefenders;
+	int iWoundedDefenders;
 	int iSettlers;
 	int iWorkers;
-	SASGameRecordCityPlotUnitCounts() : iUnits(0), iMilitaryUnits(0), iCivilianUnits(0), iDefenders(0), iSettlers(0), iWorkers(0) {}
+	int iAttackers;
+	SASGameRecordCityPlotUnitCounts() : iUnits(0), iMilitaryUnits(0), iCivilianUnits(0), iDefenders(0), iHealthyDefenders(0), iWoundedDefenders(0), iSettlers(0), iWorkers(0), iAttackers(0) {}
 };
 
 static void collectSASGameRecordCityPlotUnitCounts(CvPlot const& kPlot, PlayerTypes ePlayer, SASGameRecordCityPlotUnitCounts& kCounts)
@@ -514,9 +555,15 @@ static void collectSASGameRecordCityPlotUnitCounts(CvPlot const& kPlot, PlayerTy
 		kCounts.iUnits++;
 		if (isSASGameRecordMilitaryUnit(*pLoopUnit)) kCounts.iMilitaryUnits++;
 		else kCounts.iCivilianUnits++;
-		if (pLoopUnit->canDefend(&kPlot)) kCounts.iDefenders++;
+		if (pLoopUnit->canDefend(&kPlot))
+		{
+			kCounts.iDefenders++;
+			if (pLoopUnit->getDamage() <= 25) kCounts.iHealthyDefenders++;
+			else kCounts.iWoundedDefenders++;
+		}
 		if (isSASGameRecordSettlerUnit(*pLoopUnit)) kCounts.iSettlers++;
 		if (isSASGameRecordWorkerUnit(*pLoopUnit)) kCounts.iWorkers++;
+		if (pLoopUnit->canAttack()) kCounts.iAttackers++;
 	}
 }
 
@@ -1390,6 +1437,316 @@ static void logSASGameRecordUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 }
 
 
+static CvString getSASGameRecordCitySpecialists(CvCity const& kCity, bool bFree)
+{
+	CvString szList;
+	FOR_EACH_ENUM(Specialist)
+	{
+		const int iCount = (bFree ? kCity.getFreeSpecialistCount(eLoopSpecialist) : kCity.getSpecialistCount(eLoopSpecialist));
+		appendSASGameRecordTypeCount(szList, getSASGameRecordSpecialistType(eLoopSpecialist), iCount);
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+static CvString getSASGameRecordCityGPOdds(CvCity const& kCity)
+{
+	CvString szList;
+	std::vector<std::pair<UnitTypes,int> > aeiProjection;
+	kCity.GPProjection(aeiProjection);
+	for (size_t iI = 0; iI < aeiProjection.size(); iI++)
+		appendSASGameRecordTypeCount(szList, getSASGameRecordUnitType(aeiProjection[iI].first), aeiProjection[iI].second);
+	return getSASDiagnosticOrDash(szList);
+}
+
+static CvString getSASGameRecordCityHappySources(CvCity const& kCity)
+{
+	CvString szList;
+	CvPlayer const& kOwner = GET_PLAYER(kCity.getOwner());
+	appendSASGameRecordPositiveValue(szList, "largestCity", std::max(0, kCity.getLargestCityHappiness()));
+	appendSASGameRecordPositiveValue(szList, "military", std::max(0, kCity.getMilitaryHappiness()));
+	appendSASGameRecordPositiveValue(szList, "stateReligion", std::max(0, kCity.getCurrentStateReligionHappiness()));
+	appendSASGameRecordPositiveValue(szList, "building", std::max(0, kCity.getBuildingGoodHappiness()));
+	appendSASGameRecordPositiveValue(szList, "extraBuilding", std::max(0, kCity.getExtraBuildingGoodHappiness()));
+	appendSASGameRecordPositiveValue(szList, "surrounding", std::max(0, kCity.getSurroundingGoodHappiness()));
+	appendSASGameRecordPositiveValue(szList, "bonus", std::max(0, kCity.getBonusGoodHappiness()));
+	appendSASGameRecordPositiveValue(szList, "religion", std::max(0, kCity.getReligionGoodHappiness()));
+	appendSASGameRecordPositiveValue(szList, "commerce", std::max(0, kCity.getCommerceHappiness()));
+	appendSASGameRecordPositiveValue(szList, "areaBuilding", std::max(0, kCity.getArea().getBuildingHappiness(kCity.getOwner())));
+	appendSASGameRecordPositiveValue(szList, "playerBuilding", std::max(0, kOwner.getBuildingHappiness()));
+	appendSASGameRecordPositiveValue(szList, "extra", std::max(0, kCity.getExtraHappiness() + kOwner.getExtraHappiness()));
+	appendSASGameRecordPositiveValue(szList, "handicap", std::max(0, GC.getInfo(kCity.getHandicapType()).getHappyBonus()));
+	appendSASGameRecordPositiveValue(szList, "vassal", std::max(0, kCity.getVassalHappiness()));
+	appendSASGameRecordPositiveValue(szList, "temporary", kCity.getHappinessTimer() > 0 ? GC.getDefineINT("TEMP_HAPPY") : 0);
+	return getSASDiagnosticOrDash(szList);
+}
+
+static CvString getSASGameRecordCityFlatUnhappySources(CvCity const& kCity)
+{
+	CvString szList;
+	CvPlayer const& kOwner = GET_PLAYER(kCity.getOwner());
+	appendSASGameRecordPositiveValue(szList, "largestCity", -std::min(0, kCity.getLargestCityHappiness()));
+	appendSASGameRecordPositiveValue(szList, "military", -std::min(0, kCity.getMilitaryHappiness()));
+	appendSASGameRecordPositiveValue(szList, "stateReligion", -std::min(0, kCity.getCurrentStateReligionHappiness()));
+	appendSASGameRecordPositiveValue(szList, "building", -std::min(0, kCity.getBuildingBadHappiness()));
+	appendSASGameRecordPositiveValue(szList, "extraBuilding", -std::min(0, kCity.getExtraBuildingBadHappiness()));
+	appendSASGameRecordPositiveValue(szList, "surrounding", -std::min(0, kCity.getSurroundingBadHappiness()));
+	appendSASGameRecordPositiveValue(szList, "bonus", -std::min(0, kCity.getBonusBadHappiness()));
+	appendSASGameRecordPositiveValue(szList, "religion", -std::min(0, kCity.getReligionBadHappiness()));
+	appendSASGameRecordPositiveValue(szList, "commerce", -std::min(0, kCity.getCommerceHappiness()));
+	appendSASGameRecordPositiveValue(szList, "areaBuilding", -std::min(0, kCity.getArea().getBuildingHappiness(kCity.getOwner())));
+	appendSASGameRecordPositiveValue(szList, "playerBuilding", -std::min(0, kOwner.getBuildingHappiness()));
+	appendSASGameRecordPositiveValue(szList, "extra", -std::min(0, kCity.getExtraHappiness() + kOwner.getExtraHappiness()));
+	appendSASGameRecordPositiveValue(szList, "handicap", -std::min(0, GC.getInfo(kCity.getHandicapType()).getHappyBonus()));
+	appendSASGameRecordPositiveValue(szList, "vassal", std::max(0, kCity.getVassalUnhappiness()));
+	appendSASGameRecordPositiveValue(szList, "espionage", std::max(0, kCity.getEspionageHappinessCounter()));
+	return getSASDiagnosticOrDash(szList);
+}
+
+static CvString getSASGameRecordCityAngerPercentSources(CvCity const& kCity)
+{
+	CvString szList;
+	CvPlayer const& kOwner = GET_PLAYER(kCity.getOwner());
+	int iCivicAnger = 0;
+	FOR_EACH_ENUM(Civic)
+		iCivicAnger += kOwner.getCivicPercentAnger(eLoopCivic);
+	appendSASGameRecordPositiveValue(szList, "overcrowding", kCity.getOvercrowdingPercentAnger());
+	appendSASGameRecordPositiveValue(szList, "noMilitary", kCity.getNoMilitaryPercentAnger());
+	appendSASGameRecordPositiveValue(szList, "culture", kCity.getCulturePercentAnger());
+	appendSASGameRecordPositiveValue(szList, "religion", kCity.getReligionPercentAnger());
+	appendSASGameRecordPositiveValue(szList, "hurry", kCity.getHurryPercentAnger());
+	appendSASGameRecordPositiveValue(szList, "conscript", kCity.getConscriptPercentAnger());
+	appendSASGameRecordPositiveValue(szList, "defyResolution", kCity.getDefyResolutionPercentAnger());
+	appendSASGameRecordPositiveValue(szList, "warWeariness", kCity.getWarWearinessPercentAnger());
+	appendSASGameRecordPositiveValue(szList, "globalWarming", std::max(0, kOwner.getGwPercentAnger() * 10));
+	appendSASGameRecordPositiveValue(szList, "civics", iCivicAnger);
+	return getSASDiagnosticOrDash(szList);
+}
+
+static CvString getSASGameRecordCityHealthySources(CvCity const& kCity)
+{
+	CvString szList;
+	CvPlayer const& kOwner = GET_PLAYER(kCity.getOwner());
+	appendSASGameRecordPositiveValue(szList, "freshWater", std::max(0, kCity.getFreshWaterGoodHealth()));
+	appendSASGameRecordPositiveValue(szList, "surrounding", std::max(0, kCity.getSurroundingGoodHealth()));
+	appendSASGameRecordPositiveValue(szList, "power", std::max(0, kCity.getPowerGoodHealth()));
+	appendSASGameRecordPositiveValue(szList, "bonus", std::max(0, kCity.getBonusGoodHealth()));
+	appendSASGameRecordPositiveValue(szList, "building", std::max(0, kCity.totalGoodBuildingHealth()));
+	appendSASGameRecordPositiveValue(szList, "extra", std::max(0, kCity.getExtraHealth() + kOwner.getExtraHealth()));
+	appendSASGameRecordPositiveValue(szList, "handicap", std::max(0, GC.getInfo(kCity.getHandicapType()).getHealthBonus()));
+	return getSASDiagnosticOrDash(szList);
+}
+
+static CvString getSASGameRecordCityUnhealthySources(CvCity const& kCity)
+{
+	CvString szList;
+	CvPlayer const& kOwner = GET_PLAYER(kCity.getOwner());
+	appendSASGameRecordPositiveValue(szList, "population", kCity.unhealthyPopulation());
+	appendSASGameRecordPositiveValue(szList, "espionage", std::max(0, kCity.getEspionageHealthCounter()));
+	appendSASGameRecordPositiveValue(szList, "freshWater", -std::min(0, kCity.getFreshWaterBadHealth()));
+	appendSASGameRecordPositiveValue(szList, "surrounding", -std::min(0, kCity.getSurroundingBadHealth()));
+	appendSASGameRecordPositiveValue(szList, "power", -std::min(0, kCity.getPowerBadHealth()));
+	appendSASGameRecordPositiveValue(szList, "bonus", -std::min(0, kCity.getBonusBadHealth()));
+	appendSASGameRecordPositiveValue(szList, "building", -std::min(0, kCity.totalBadBuildingHealth()));
+	appendSASGameRecordPositiveValue(szList, "extra", -std::min(0, kCity.getExtraHealth() + kOwner.getExtraHealth()));
+	appendSASGameRecordPositiveValue(szList, "handicap", -std::min(0, GC.getInfo(kCity.getHandicapType()).getHealthBonus()));
+	return getSASDiagnosticOrDash(szList);
+}
+
+static const char* getSASGameRecordCityProductionKind(CvCity const& kCity)
+{
+	if (kCity.getProductionUnit() != NO_UNIT)
+		return "UNIT";
+	if (kCity.getProductionBuilding() != NO_BUILDING)
+		return GC.getInfo(kCity.getProductionBuilding()).isLimited() ? "WONDER" : "BUILDING";
+	if (kCity.getProductionProject() != NO_PROJECT)
+		return "PROJECT";
+	if (kCity.getProductionProcess() != NO_PROCESS)
+		return "PROCESS";
+	return "-";
+}
+
+static const char* getSASGameRecordCityProductionType(CvCity const& kCity)
+{
+	if (kCity.getProductionUnit() != NO_UNIT)
+		return getSASGameRecordUnitType(kCity.getProductionUnit());
+	if (kCity.getProductionBuilding() != NO_BUILDING)
+		return getSASGameRecordBuildingType(kCity.getProductionBuilding());
+	if (kCity.getProductionProject() != NO_PROJECT)
+		return getSASGameRecordProjectType(kCity.getProductionProject());
+	if (kCity.getProductionProcess() != NO_PROCESS)
+		return getSASGameRecordProcessType(kCity.getProductionProcess());
+	return "-";
+}
+
+// <!-- custom: A PROCESS production name identifies Wealth/Research/Culture but not its actual gain.
+// Record the exact production-to-commerce contribution in hundredths, matching CvCity::updateCommerce without rounding away fractional output. (GPT-5.6-Sol) -->
+static CvString getSASGameRecordCityProductionConversion(CvCity const& kCity)
+{
+	CvString szConversion;
+	// <!-- custom: CvCity::updateCommerce suppresses both ordinary commerce and production-to-commerce conversion during disorder. Preserve the selected process elsewhere on the city row, but do not report output the city is not receiving. See KI#381. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (kCity.getProductionProcess() == NO_PROCESS || kCity.isDisorder())
+		return "-";
+	for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+	{
+		CommerceTypes const eCommerce = (CommerceTypes)iI;
+		int const iRateX100 = kCity.getYieldRate(YIELD_PRODUCTION) * kCity.getProductionToCommerceModifier(eCommerce);
+		if (iRateX100 > 0)
+			appendSASGameRecordValue(szConversion, getSASGameRecordCommerceType(eCommerce), iRateX100);
+	}
+	return getSASDiagnosticOrDash(szConversion);
+}
+
+// <!-- custom: CvCity uses MAX_INT when no finite production amount or ETA exists, including processes, empty queues and zero production during disorder.
+// Emit the GameRecord's ordinary unavailable-value sentinel instead of presenting 2147483647 as a real statistic. See KI#380. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static int getSASGameRecordCityProductionTurns(CvCity const& kCity)
+{
+	int const iTurns = kCity.getProductionTurnsLeft();
+	return iTurns == MAX_INT ? -1 : iTurns;
+}
+
+// <!-- custom: Apply the same unavailable-value contract to production cost because processes and empty queues have no finite amount needed. See KI#380. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static int getSASGameRecordCityProductionNeeded(CvCity const& kCity)
+{
+	int const iNeeded = kCity.getProductionNeeded();
+	return iNeeded == MAX_INT ? -1 : iNeeded;
+}
+
+static CvString getSASGameRecordCityTradePartners(CvCity const& kCity)
+{
+	CvString szList;
+	for (int iI = 0; iI < kCity.getTradeRoutes(); iI++)
+	{
+		CvCity const* pTradeCity = kCity.getTradeCity(iI);
+		if (pTradeCity == NULL)
+			continue;
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%d:%d:%S" : ",%d:%d:%S", pTradeCity->getOwner(), pTradeCity->getID(), pTradeCity->getName().GetCString());
+		szList += szItem;
+	}
+	return szList.empty() ? "-" : getSASDiagnosticQuoted(szList.GetCString());
+}
+
+static CvString getSASGameRecordCityReligionList(CvCity const& kCity, bool bHolyOnly)
+{
+	CvString szResult;
+	FOR_EACH_ENUM(Religion)
+	{
+		if ((bHolyOnly && !kCity.isHolyCity(eLoopReligion)) || (!bHolyOnly && !kCity.isHasReligion(eLoopReligion)))
+			continue;
+		CvString szItem;
+		szItem.Format(szResult.empty() ? "%s" : ",%s", getSASGameRecordReligionType(eLoopReligion));
+		szResult += szItem;
+	}
+	return getSASDiagnosticOrDash(szResult);
+}
+
+static CvString getSASGameRecordCityCorporationList(CvCity const& kCity, bool bHeadquartersOnly)
+{
+	CvString szResult;
+	FOR_EACH_ENUM(Corporation)
+	{
+		if ((bHeadquartersOnly && !kCity.isHeadquarters(eLoopCorporation)) || (!bHeadquartersOnly && !kCity.isHasCorporation(eLoopCorporation)))
+			continue;
+		CvString szItem;
+		szItem.Format(szResult.empty() ? "%s" : ",%s", getSASGameRecordCorporationType(eLoopCorporation));
+		szResult += szItem;
+	}
+	return getSASDiagnosticOrDash(szResult);
+}
+
+// <!-- custom: Building-completion actions alone cannot reconstruct buildings inherited through conquest, granted for free, or already present when a log begins. At detail level, snapshot the exact owned buildings and compact regular/national/team/world-wonder totals for each city. (GPT-5.6-Sol) -->
+static CvString getSASGameRecordCityBuildings(CvCity const& kCity, int& iTotal, int& iRegular, int& iNationalWonders, int& iTeamWonders, int& iWorldWonders)
+{
+	CvString szBuildings;
+	iTotal = iRegular = iNationalWonders = iTeamWonders = iWorldWonders = 0;
+	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+	{
+		BuildingTypes const eBuilding = (BuildingTypes)iI;
+		int const iCount = kCity.getNumBuilding(eBuilding);
+		if (iCount <= 0)
+			continue;
+		iTotal += iCount;
+		CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+		if (kBuilding.isWorldWonder())
+			iWorldWonders += iCount;
+		else if (kBuilding.isTeamWonder())
+			iTeamWonders += iCount;
+		else if (kBuilding.isNationalWonder())
+			iNationalWonders += iCount;
+		else iRegular += iCount;
+		CvString szItem;
+		szItem.Format(szBuildings.empty() ? "%s:%d" : ",%s:%d", getSASGameRecordBuildingType(eBuilding), iCount);
+		szBuildings += szItem;
+	}
+	return getSASDiagnosticOrDash(szBuildings);
+}
+
+// <!-- custom: Private level-3-only helper; logSASGameRecordCities owns the single detail-level gate so this function does not repeat it for each city/subrow.
+// Consequently the detailed trade-partner row below intentionally has no local `gGameRecordLogLevel >= 3` check; adding it back would only duplicate the caller gate once per city/subrow. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordCityDetail(CvCity const& kCity, int iGameTurn)
+{
+	CvPlotGroup const* pPlotGroup = kCity.plotGroup(kCity.getOwner());
+	int const iTradeRoutes = kCity.getTradeRoutes();
+	int iDomesticTradeRoutes = 0;
+	int iForeignTradeRoutes = 0;
+	for (int iI = 0; iI < iTradeRoutes; iI++)
+	{
+		CvCity const* pTradeCity = kCity.getTradeCity(iI);
+		if (pTradeCity == NULL)
+			continue;
+		if (pTradeCity->getOwner() == kCity.getOwner())
+			iDomesticTradeRoutes++;
+		else iForeignTradeRoutes++;
+	}
+	CvPlayer const& kOwner = GET_PLAYER(kCity.getOwner());
+	const SASGameRecordPlotComposition kWorkedPlots = getSASGameRecordWorkedPlotComposition(kCity);
+	SASGameRecordCityPlotUnitCounts kCityUnits;
+	collectSASGameRecordCityPlotUnitCounts(kCity.getPlot(), kCity.getOwner(), kCityUnits);
+	// <!-- custom: Keep the periodic city row self-contained enough to explain growth/starvation and current economic/cultural status without creating more per-turn rows.
+	// Stored food/granary state, occupation/culture/maintenance and commerce-type output are cheap current-state getters; religion/corporation lists are small loaded-XML scans already used by city-removal provenance. (ChatGPT-5.6-Sol) -->
+	CultureLevelTypes const eCultureLevel = kCity.getCultureLevel();
+	PlayerTypes const eHighestCulturePlayer = kCity.findHighestCulture();
+	// <!-- custom: City-level commerce output/modifiers make each city's contribution to player-level gold/research/culture/espionage measurable; espionage defense remains a separate defensive modifier. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Air-unit occupancy/capacity on the existing city row makes poor basing or saturated airbases visible without adding a separate late-game row. Cargo aircraft are intentionally excluded by CvPlot::countNumAirUnits, matching actual base-capacity use. (GPT-5.6) -->
+	// <!-- custom: City defense snapshots expose both the current post-bombard defense modifier and its undamaged ceiling. DefenseDamage/MAX_CITY_DEFENSE_DAMAGE preserves the underlying bombardment state, while bombarded shows whether the city has already been hit this turn. This lets broad game records be paired with the level-3 tactical bombardment actions below. (GPT-5.6) -->
+	logSASGameRecord("GAME_RECORD_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d originalOwner=%d capital=%d foundedTurn=%d acquiredTurn=%d pop=%d highestPop=%d foodStored=%d foodKept=%d growthThreshold=%d maxFoodKeptPercent=%d avoidGrowth=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d maintenanceTimes100=%d maintenanceModifier=%d occupationTurns=%d disorder=%d ownerCultureTimes100=%d cultureLevel=%s cultureLevelId=%d nextCultureThreshold=%d cultureUpdateTurns=%d ownerCulturePercent=%d highestCulturePlayer=%d highestCulturePercent=%d religions=%s holyReligions=%s corporations=%s headquarters=%s goldRate=%d researchRate=%d cultureRate=%d espionageRate=%d goldRateModifier=%d researchRateModifier=%d cultureRateModifier=%d espionageRateModifier=%d espionageDefenseModifier=%d defenseModifier=%d totalDefense=%d defenseDamage=%d defenseDamageMax=%d bombarded=%d airUnits=%d airCapacity=%d airSpaceAvailable=%d worked=%d workedImproved=%d workedUnimproved=%d workedFood=%d workedProd=%d workedCommerce=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d settlers=%d workers=%d attackers=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionUsesFood=%d productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d productionConversionX100=%s specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
+			iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(),
+			kCity.getOriginalOwner(), kCity.isCapital(), kCity.getGameTurnFounded(), kCity.getGameTurnAcquired(), kCity.getPopulation(), kCity.getHighestPopulation(),
+			kCity.getFood(), kCity.getFoodKept(), kCity.growthThreshold(), kCity.getMaxFoodKeptPercent(), kCity.AI().AI_isEmphasizeAvoidGrowth() ? 1 : 0,
+			kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(),
+			kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kCity.getMaintenanceTimes100(), kCity.getMaintenanceModifier(),
+			kCity.getOccupationTimer(), kCity.isDisorder() ? 1 : 0, kCity.getCultureTimes100(kCity.getOwner()), eCultureLevel == NO_CULTURELEVEL ? "-" : GC.getInfo(eCultureLevel).getType(), eCultureLevel,
+			kCity.getCultureThreshold(), kCity.getCultureUpdateTimer(), kCity.calculateCulturePercent(kCity.getOwner()), eHighestCulturePlayer, eHighestCulturePlayer == NO_PLAYER ? 0 : kCity.calculateCulturePercent(eHighestCulturePlayer),
+			getSASGameRecordCityReligionList(kCity, false).GetCString(), getSASGameRecordCityReligionList(kCity, true).GetCString(), getSASGameRecordCityCorporationList(kCity, false).GetCString(), getSASGameRecordCityCorporationList(kCity, true).GetCString(),
+			kCity.getCommerceRate(COMMERCE_GOLD), kCity.getCommerceRate(COMMERCE_RESEARCH), kCity.getCommerceRate(COMMERCE_CULTURE), kCity.getCommerceRate(COMMERCE_ESPIONAGE),
+			kCity.getTotalCommerceRateModifier(COMMERCE_GOLD), kCity.getTotalCommerceRateModifier(COMMERCE_RESEARCH), kCity.getTotalCommerceRateModifier(COMMERCE_CULTURE), kCity.getTotalCommerceRateModifier(COMMERCE_ESPIONAGE), kCity.getEspionageDefenseModifier(),
+			kCity.getDefenseModifier(false), kCity.getTotalDefense(false), kCity.getDefenseDamage(), GC.getMAX_CITY_DEFENSE_DAMAGE(), kCity.isBombarded(),
+			kCity.getPlot().countNumAirUnits(kCity.getTeam()), kCity.getAirUnitCapacity(kCity.getTeam()), kCity.getPlot().airUnitSpaceAvailable(kCity.getTeam()),
+			kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved, kWorkedPlots.iCurrentFood, kWorkedPlots.iCurrentProduction, kWorkedPlots.iCurrentCommerce, kCity.plot()->getNumDefenders(kCity.getOwner()), kCityUnits.iUnits, kCityUnits.iMilitaryUnits, kCityUnits.iCivilianUnits, kCityUnits.iDefenders, kCityUnits.iHealthyDefenders, kCityUnits.iWoundedDefenders, kCityUnits.iSettlers, kCityUnits.iWorkers, kCityUnits.iAttackers,
+			kCity.isConnectedToCapital(), pPlotGroup == NULL ? -1 : pPlotGroup->getID(), iTradeRoutes, iDomesticTradeRoutes, iForeignTradeRoutes, kCity.getTradeYield(YIELD_FOOD), kCity.getTradeYield(YIELD_PRODUCTION), kCity.getTradeYield(YIELD_COMMERCE),
+			getSASGameRecordCityProductionKind(kCity), getSASGameRecordCityProductionType(kCity), kCity.isFoodProduction() ? 1 : 0, getSASGameRecordCityProductionTurns(kCity), kCity.getProduction(), getSASGameRecordCityProductionNeeded(kCity), kCity.getOverflowProduction(), kCity.getFeatureProduction(),
+			getSASGameRecordCityProductionConversion(kCity).GetCString(), getSASGameRecordCitySpecialists(kCity, false).GetCString(), getSASGameRecordCitySpecialists(kCity, true).GetCString(),
+			kCity.getGreatPeopleProgress(), kOwner.greatPeopleThreshold(false), kCity.getGreatPeopleRate(), kCity.GPTurnsLeft(), getSASGameRecordCityGPOdds(kCity).GetCString());
+	// <!-- custom: Source lists show the magnitude/origin of temporary happiness effects.
+	// Retain their existing turn counters too so snapshots say how long whipping, drafting, defiance, temporary happiness and espionage unhappiness remain without logging per-turn timer decrements. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_CITY_HAPPINESS turn=%d player=%d cityId=%d happy=%d unhappy=%d surplus=%d hurryAngerTurns=%d conscriptAngerTurns=%d defyResolutionAngerTurns=%d temporaryHappinessTurns=%d espionageUnhappinessTurns=%d happySources=%s flatUnhappySources=%s angerPercentSources=%s",
+			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.happyLevel(), kCity.unhappyLevel(), kCity.happyLevel() - kCity.unhappyLevel(),
+			kCity.getHurryAngerTimer(), kCity.getConscriptAngerTimer(), kCity.getDefyResolutionAngerTimer(), kCity.getHappinessTimer(), kCity.getEspionageHappinessCounter(),
+			getSASGameRecordCityHappySources(kCity).GetCString(), getSASGameRecordCityFlatUnhappySources(kCity).GetCString(), getSASGameRecordCityAngerPercentSources(kCity).GetCString());
+	// <!-- custom: Espionage unhealth is itself a decrementing duration counter, so preserve its remaining turns next to the existing unhealthy-source magnitude rather than emitting a row whenever the counter ticks down. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_CITY_HEALTH turn=%d player=%d cityId=%d goodHealth=%d badHealth=%d surplus=%d powered=%d dirtyPower=%d areaCleanPower=%d powerGoodHealth=%d powerBadHealth=%d espionageUnhealthTurns=%d healthySources=%s unhealthySources=%s",
+			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.goodHealth(), kCity.badHealth(), kCity.goodHealth() - kCity.badHealth(),
+			kCity.isPower(), kCity.isDirtyPower(), kCity.isAreaCleanPower(), kCity.getPowerGoodHealth(), kCity.getPowerBadHealth(), kCity.getEspionageHealthCounter(),
+			getSASGameRecordCityHealthySources(kCity).GetCString(), getSASGameRecordCityUnhealthySources(kCity).GetCString());
+	int iBuildings, iRegularBuildings, iNationalWonders, iTeamWonders, iWorldWonders;
+	CvString const szBuildings = getSASGameRecordCityBuildings(kCity, iBuildings, iRegularBuildings, iNationalWonders, iTeamWonders, iWorldWonders);
+	logSASGameRecord("GAME_RECORD_CITY_BUILDINGS turn=%d player=%d cityId=%d total=%d regular=%d nationalWonders=%d teamWonders=%d worldWonders=%d buildings=%s",
+		iGameTurn, kCity.getOwner(), kCity.getID(), iBuildings, iRegularBuildings, iNationalWonders, iTeamWonders, iWorldWonders, szBuildings.GetCString());
+	logSASGameRecord("GAME_RECORD_CITY_TRADE_PARTNERS turn=%d player=%d cityId=%d partners=%s",
+		iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameRecordCityTradePartners(kCity).GetCString());
+	// <!-- custom: Current AdvCiv-SAS additionally emits GAME_RECORD_CITY_UNIT_COMPOSITION for city garrisons with at least six military units. That row depends on selection-group/MissionAI diagnostics not yet ported here; defer it with those helpers instead of locally reimplementing their state. (ChatGPT-5.6-Sol) -->
+}
+
 static void logSASGameRecordWorkedPlots(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
@@ -1410,6 +1767,7 @@ static void logSASGameRecordCities(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	SASGameRecordPlayerPrevious& kPrevious = g_akSASGameRecordPlayerPrevious[ePlayer];
+	bool const bLogCityDetails = (gGameRecordLogLevel >= 3);
 	int iCities = 0, iTotalFoodSurplus = 0, iTotalHappySurplus = 0, iTotalHealthSurplus = 0;
 	int iTotalFoodYield = 0, iTotalProductionYield = 0, iTotalCommerceYield = 0, iTotalFoodStored = 0, iTotalFoodKept = 0, iTotalMaintenanceTimes100 = 0;
 	int iTotalTradeRoutes = 0, iDomesticTradeRoutes = 0, iForeignTradeRoutes = 0, iTradeFood = 0, iTradeProduction = 0, iTradeCommerce = 0;
@@ -1468,6 +1826,7 @@ static void logSASGameRecordCities(PlayerTypes ePlayer, int iGameTurn)
 		}
 		else if (pLoopCity->getProductionProject() != NO_PROJECT) iCitiesProducingProjects++;
 		else if (pLoopCity->getProductionProcess() != NO_PROCESS) iCitiesProducingProcesses++;
+		if (bLogCityDetails) logSASGameRecordCityDetail(*pLoopCity, iGameTurn);
 	}
 	logSASGameRecord("GAME_RECORD_CITIES turn=%d player=%d cities=%d capitalId=%d capital=%S connectedToCapital=%d totalFoodSurplus=%d totalHappySurplus=%d totalHealthSurplus=%d totalFood=%d totalProd=%d totalCommerce=%d totalFoodStored=%d totalFoodKept=%d totalMaintenanceTimes100=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d unhappyCities=%d unhealthyCities=%d starvingCities=%d occupiedCities=%d avoidGrowthCities=%d specialists=%d freeSpecialists=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d settlers=%d workers=%d nextGPCityId=%d nextGPCity=%S nextGPTurns=%d nextGPRate=%d nextGPProgress=%d citiesProducingUnits=%d citiesProducingMilitary=%d citiesProducingWorkers=%d citiesProducingSettlers=%d citiesProducingBuildings=%d citiesProducingWonders=%d citiesProducingProjects=%d citiesProducingProcesses=%d",
 		iGameTurn, ePlayer, iCities, pCapital == NULL ? -1 : pCapital->getID(), getSASGameRecordQuotedCityName(pCapital).GetCString(), iConnectedToCapital,
