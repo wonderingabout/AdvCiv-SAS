@@ -74,9 +74,9 @@ DEFAULT_COMPRESSION_LEVEL = 6
 DEFAULT_COMMIT_DIFF_COUNT = -1  # -1 = all commits reachable from current HEAD; 0 = disabled; N = newest N reachable commits
 COMMIT_DIFF_CACHE_FORMAT_VERSION = 2
 COMMIT_DIFF_CACHE_DIR_NAME = "advciv_sas_light_source_commit_diffs"
-# <!-- custom: Keep one canonical greppable history corpus shared by GitHub/clones/Codex and the light-source ZIP.
-# Exclude it from rendered Git patches and ordinary tree selection; the ZIP injects the freshly generated version at this same path and then refreshes the tracked local copy after a successful full-history archive. (GPT-5.6-Sol) -->
-TRACKED_COMMIT_DIFF_DIR = "LLM_Helpers/context/commit_diffs"
+# <!-- custom: Keep one canonical greppable history-context path for local agents and light-source ZIPs without duplicating Git history in tracked files.
+# Exclude it from rendered Git patches and ordinary tree selection; the ZIP injects the freshly generated version at this same path and can refresh the Git-ignored local copy after a successful full-history archive. (GPT-5.6-Sol) -->
+COMMIT_DIFF_CONTEXT_DIR = "LLM_Helpers/context/commit_diffs"
 # <!-- custom: Include current map references and resumable source analyses in the light ZIP, but do not duplicate their imported/generated history inside generated historical patches. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 MAP_REFERENCE_DIR = "LLM_Helpers/context/mapscript_refs"
 SOURCE_ANALYSIS_DIR = "_1_AdvCiv-SAS/Docs/Source_Analysis"
@@ -88,7 +88,7 @@ LEGACY_COMMIT_DIFF_EXCLUDED_PATHS = (
     f"{SOURCE_ANALYSIS_DIR}/**",
 )
 COMMIT_DIFF_EXCLUDED_PATHS = (
-    f"{TRACKED_COMMIT_DIFF_DIR}/**",
+    f"{COMMIT_DIFF_CONTEXT_DIR}/**",
     f"{MAP_REFERENCE_DIR}/**",
     *LEGACY_COMMIT_DIFF_EXCLUDED_PATHS,
 )
@@ -127,7 +127,7 @@ GENERATED_STAGED_DIFF_NAME = f"{GENERATED_CONTEXT_DIR}/staged_changes_no_eol.dif
 GENERATED_UNSTAGED_DIFF_NAME = f"{GENERATED_CONTEXT_DIR}/unstaged_changes_no_eol.diff"
 GENERATED_INCREMENTAL_GIT_LOG_NAME = f"{GENERATED_CONTEXT_DIR}/git_log_since_tracked_advciv_sas_log.txt"
 # <!-- custom: Generate commit history freshly for the archive at its canonical shared repository path rather than duplicating it under _SNAPSHOT_CONTEXT. (GPT-5.6-Sol) -->
-GENERATED_COMMIT_DIFF_DIR = TRACKED_COMMIT_DIFF_DIR
+GENERATED_COMMIT_DIFF_DIR = COMMIT_DIFF_CONTEXT_DIR
 GENERATED_COMMIT_DIFF_INDEX_NAME = f"{GENERATED_COMMIT_DIFF_DIR}/INDEX.txt"
 GENERATED_PATH_HISTORY_INDEX_NAME = f"{GENERATED_COMMIT_DIFF_DIR}/PATH_HISTORY_INDEX.txt"
 # Keep fetched-but-unmerged base AdvCiv release history separate from current-HEAD ancestry so
@@ -161,7 +161,7 @@ SKIP_DIR_NAMES = {".git", "__pycache__"}
 
 # Skip whole folders that are included through a parent folder but do not help compact LLM/code-agent review.
 # Civ4 cursor assets are visual/binary UI files and are usually noise for source/debugging tasks.
-SKIP_REL_DIRS = {"assets/res/cursors", TRACKED_COMMIT_DIFF_DIR.lower()}
+SKIP_REL_DIRS = {"assets/res/cursors", COMMIT_DIFF_CONTEXT_DIR.lower()}
 
 # Skip generated/binary payloads that are too heavy or not useful for compact ChatGPT/code-agent source review.
 # FPK art packs and DLL binaries should be shared separately only when specifically needed.
@@ -241,7 +241,7 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_COMMIT_DIFF_COUNT,
         metavar="N",
         help=(
-            f"Committed diffs to expose under {TRACKED_COMMIT_DIFF_DIR}. "
+            f"Generated committed diffs to expose under {COMMIT_DIFF_CONTEXT_DIR}. "
             "Default: -1 = every commit reachable from the current HEAD (including K-Mod, pre-SAS AdvCiv and AdvCiv-SAS branch history); "
             "0 disables; positive N keeps only the newest N reachable commits. Rendered commits are cached "
             "locally by immutable Git SHA, so normal reruns only generate new commits."
@@ -251,7 +251,7 @@ def parse_args() -> argparse.Namespace:
         "--no-sync-context",
         action="store_true",
         help=(
-            f"Do not refresh the canonical tracked {TRACKED_COMMIT_DIFF_DIR} directory after a successful full-history archive. "
+            f"Do not refresh the canonical Git-ignored local {COMMIT_DIFF_CONTEXT_DIR} directory after a successful full-history archive. "
             "Dry runs, disabled history, and positive/truncated commit counts never refresh it."
         ),
     )
@@ -710,7 +710,7 @@ def build_git_ignored_paths_tree(repo_root: Path) -> str:
     return "\n".join(lines) + "\n"
 
 def commit_diff_pathspec_args() -> list[str]:
-    """Return Git pathspecs that keep generated tracked-history mirrors out of review/history diffs."""
+    """Return Git pathspecs that keep generated history context out of review/history diffs."""
     return [".", *(f":(exclude,top){path}" for path in COMMIT_DIFF_EXCLUDED_PATHS)]
 
 
@@ -984,13 +984,13 @@ def commit_diff_cache_dir(repo_root: Path) -> tuple[Path | None, str | None]:
     return git_dir / COMMIT_DIFF_CACHE_DIR_NAME / f"v{COMMIT_DIFF_CACHE_FORMAT_VERSION}_{commit_diff_cache_policy_key()}", None
 
 
-def tracked_commit_diff_candidates(repo_root: Path) -> dict[str, list[Path]]:
-    """Index valid-looking tracked mirror files by short SHA so a fresh clone can reuse them as a read-only cache."""
-    tracked_dir = repo_root / TRACKED_COMMIT_DIFF_DIR
+def local_commit_diff_candidates(repo_root: Path) -> dict[str, list[Path]]:
+    """Index valid-looking local generated mirror files by short SHA so a populated working copy can reuse them as a read-only cache."""
+    local_dir = repo_root / COMMIT_DIFF_CONTEXT_DIR
     candidates: dict[str, list[Path]] = {}
-    if not tracked_dir.is_dir():
+    if not local_dir.is_dir():
         return candidates
-    for path in tracked_dir.glob("*.diff"):
+    for path in local_dir.glob("*.diff"):
         match = re.search(r"_([0-9a-fA-F]{10})\.diff$", path.name)
         if match:
             candidates.setdefault(match.group(1).lower(), []).append(path)
@@ -1540,7 +1540,7 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
             cache_writable = False
 
     generated: dict[str, bytes | Path] = {}
-    tracked_candidates = tracked_commit_diff_candidates(repo_root)
+    local_candidates = local_commit_diff_candidates(repo_root)
     index_lines = [
         "# Reachable commit diff index",
         "# Generated automatically by LLM_Helpers/make_light_source_zip.py.",
@@ -1552,7 +1552,7 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
         f"# Recent AdvCiv-SAS messages not yet in the tracked SAS log: {GENERATED_INCREMENTAL_GIT_LOG_NAME}.",
         "# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.",
         "# Files are named <segment>_<practical-count>_<short-sha>.diff; coverage is full, partial, summary-only, or unknown.",
-        f"# Self-recursion guard: {TRACKED_COMMIT_DIFF_DIR}/ is excluded from these historical patches because it is only a generated tracked mirror of this same data.",
+        f"# Self-recursion guard: {COMMIT_DIFF_CONTEXT_DIR}/ is excluded from these historical patches because it is only a generated local mirror of this same data.",
         "# Columns: segment<TAB>practical-count<TAB>short-sha<TAB>coverage<TAB>title-preview",
     ]
     if segment_warnings:
@@ -1576,10 +1576,10 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
             cache_migrations += int(cache_migrated)
             reused += 1
         else:
-            # <!-- custom: A tracked mirror can seed a fresh clone with validated history immediately; keep the private cache for new/unsynced SHAs. (ChatGPT-5.6-Sol) -->
+            # <!-- custom: A populated local mirror can reuse validated history immediately; keep the private cache for new/unsynced SHAs. (ChatGPT-5.6-Sol) -->
             mirror_path = None
             mirror_info = None
-            for candidate in tracked_candidates.get(full_hash[:10].lower(), []):
+            for candidate in local_candidates.get(full_hash[:10].lower(), []):
                 candidate_info = cached_commit_info(candidate, full_hash)
                 if candidate_info is not None:
                     mirror_path = candidate
@@ -1632,7 +1632,7 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
     segment_note = ",".join(f"{key}:{segment_counts[key]}" for key in ("SASBranch", "AdvCivPreSAS", "KMod", "Other") if key in segment_counts)
     if segment_warnings:
         segment_note += f"; segment warnings={len(segment_warnings)}"
-    summary = f"commit diffs: {len(commits)} included ({segment_note}), {reused} private-cache hit(s), {mirror_reused} tracked-mirror hit(s), {rendered} rendered, {in_memory} not cached; versions={version_mode}; cache={cache_note}{migration_note}{prune_note}"
+    summary = f"commit diffs: {len(commits)} included ({segment_note}), {reused} private-cache hit(s), {mirror_reused} local-mirror hit(s), {rendered} rendered, {in_memory} not cached; versions={version_mode}; cache={cache_note}{migration_note}{prune_note}"
     return generated, summary
 
 
@@ -1658,10 +1658,10 @@ def build_snapshot_context_readme() -> str:
         "  every generated/build file beneath them.\n\n"
         "staged_changes_no_eol.diff\n"
         "  Raw staged diff (HEAD -> index), with end-of-line whitespace/CR-only noise ignored. Changes to the generated\n"
-        f"  history context at {TRACKED_COMMIT_DIFF_DIR}/ are omitted here so hundreds of MB of patch text do not recur;\n"
-        "  git_repository_state.txt still reports its tracked status. An empty file means no other staged changes.\n\n"
+        f"  history context at {COMMIT_DIFF_CONTEXT_DIR}/ are omitted here so hundreds of MB of patch text do not recur;\n"
+        "  git_ignored_paths_tree.txt can still show that the local generated context directory exists. An empty file means no other staged changes.\n\n"
         "unstaged_changes_no_eol.diff\n"
-        "  Raw unstaged diff (index -> working tree), with the same EOL-noise and tracked-history-mirror exclusions.\n"
+        "  Raw unstaged diff (index -> working tree), with the same EOL-noise and generated-history-context exclusions.\n"
         "  An empty file means there were no other unstaged tracked changes.\n\n"
         "git_log_since_tracked_advciv_sas_log.txt\n"
         f"  Commit messages after the newest commit already recorded in {TRACKED_ADVCIV_SAS_GIT_LOG}\n"
@@ -1669,7 +1669,7 @@ def build_snapshot_context_readme() -> str:
         "  AdvCiv-SAS Git log (newest -> oldest), this generated gap is ordered oldest -> newest,\n"
         "  so snapshot HEAD appears at the bottom. Together with the tracked K-Mod, AdvCiv and\n"
         "  AdvCiv-SAS anonymized Git logs, these are the canonical full commit messages for history review.\n"
-        f"\n../{TRACKED_COMMIT_DIFF_DIR}/INDEX.txt + <segment>_<practical-count>_<short-sha>.diff\n"
+        f"\n../{COMMIT_DIFF_CONTEXT_DIR}/INDEX.txt + <segment>_<practical-count>_<short-sha>.diff\n"
         "  Filtered first-parent textual diffs for every selected commit reachable from current HEAD by default,\n"
         "  spanning K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history. The last segment includes SAS work plus\n"
         "  later upstream AdvCiv commits merged/imported after SAS began. Unrelated/unmerged branch refs are not\n"
@@ -1677,12 +1677,12 @@ def build_snapshot_context_readme() -> str:
         "  keep a short title, change summary and useful patches, while full messages/metadata redirect to the tracked\n"
         "  anonymized Git logs above (or the generated recent SAS gap). This avoids duplicating long commit messages.\n"
         "  Known generated/log/binary or exceptionally huge historical payloads are summarized instead of embedded.\n"
-        f"  This canonical context lives at {TRACKED_COMMIT_DIFF_DIR}/ for GitHub, clones and code agents, and the light ZIP\n"
+        f"  This canonical generated context lives at {COMMIT_DIFF_CONTEXT_DIR}/ locally for code agents, and the light ZIP\n"
         "  injects a freshly generated copy at that same path rather than duplicating it under _SNAPSHOT_CONTEXT. Normal\n"
-        "  full-history ZIP creation refreshes the local tracked directory after the archive succeeds. The directory is\n"
+        "  full-history ZIP creation refreshes the Git-ignored local directory after the archive succeeds. The directory is\n"
         "  excluded from its generated patches and ordinary tree selection, preventing recursive history-of-history growth.\n"
         "  Practical commit counts can repeat on divergent/merged history; the full Git SHA is always canonical.\n"
-        f"\n../{TRACKED_COMMIT_DIFF_DIR}/PATH_HISTORY_INDEX.txt\n"
+        f"\n../{COMMIT_DIFF_CONTEXT_DIR}/PATH_HISTORY_INDEX.txt\n"
         "  Compact reverse navigation from a historical repository path to the commits whose generated first-parent\n"
         "  diffs touched it. Use it to narrow investigation before opening the matching commit diff files.\n"
         "\npending_upstream/INDEX.txt + GIT_LOG.txt + PATH_HISTORY_INDEX.txt + UPSTREAM_REFS.txt + <sequence>_<short-sha>.diff\n"
@@ -1691,14 +1691,14 @@ def build_snapshot_context_readme() -> str:
         "  unioned/deduplicated by SHA; the highest detected version is only a presentation target, so divergent older\n"
         "  release lines cannot silently lose unique commits. Topic/experimental refs are listed in UPSTREAM_REFS.txt but\n"
         "  are not treated as releases merely because they are newer; --upstream-ref can explicitly select unusual naming\n"
-        f"  or special maintenance lines. These commits are deliberately NOT mixed into {TRACKED_COMMIT_DIFF_DIR}/ because they are not\n"
+        f"  or special maintenance lines. These commits are deliberately NOT mixed into {COMMIT_DIFF_CONTEXT_DIR}/ because they are not\n"
         "  current-HEAD ancestry. Remote refs can be stale until `git fetch upstream --prune`; use --fetch-upstream when\n"
         "  archive creation should explicitly refresh upstream first (normal generation remains network-free).\n"
         "\nHistory cache/privacy\n"
         "  Generated history follows the existing anonymized Git-log email policy and also redacts email-shaped strings\n"
         "  embedded in historical patch text. Reuse checks the private immutable-SHA cache inside Git metadata first, then\n"
-        f"  the tracked {TRACKED_COMMIT_DIFF_DIR}/ mirror as a read-only secondary cache, so fresh clones do not rerender\n"
-        "  already-tracked history. Git renders only missing/new entries; amend/force-push/reset needs no arbitrary last-N refresh.\n"
+        f"  the local generated {COMMIT_DIFF_CONTEXT_DIR}/ mirror as a read-only secondary cache when present, so populated working copies do not rerender\n"
+        "  already-generated history. Git renders only missing/new entries; amend/force-push/reset needs no arbitrary last-N refresh.\n"
         "  Use --commit-diff-count 0 to disable, or a positive N to include only the newest N reachable commits.\n"
     )
 
@@ -1917,24 +1917,24 @@ def main() -> int:
     count = write_zip(zip_path, repo_root, files, args.compression_level, generated_context)
     zip_duration_ms = int((perf_counter() - zip_start_time) * 1000)
 
-    # <!-- custom: A normal full-history archive and local/GitHub/Codex context should expose the same generated ancestry.
-	# Reuse the already-built results after the ZIP succeeds; dry-run, disabled/truncated history and --no-sync-context never mutate the tracked context. (GPT-5.6-Sol) -->
+    # <!-- custom: A normal full-history archive and local/code-agent context should expose the same generated ancestry.
+	# Reuse the already-built results after the ZIP succeeds; dry-run, disabled/truncated history and --no-sync-context never mutate the Git-ignored local context. (GPT-5.6-Sol) -->
     refresh_duration_ms = 0
     if args.commit_diff_count == DEFAULT_COMMIT_DIFF_COUNT and not args.no_sync_context:
         refresh_start_time = perf_counter()
-        refresh_result = refresh_commit_diffs.refresh_commit_diff_context(repo_root, generated_context, TRACKED_COMMIT_DIFF_DIR)
+        refresh_result = refresh_commit_diffs.refresh_commit_diff_context(repo_root, generated_context, COMMIT_DIFF_CONTEXT_DIR)
         refresh_duration_ms = int((perf_counter() - refresh_start_time) * 1000)
-        print(f"Context:   refreshed {TRACKED_COMMIT_DIFF_DIR} ({refresh_commit_diffs.format_refresh_summary(refresh_result)})")
+        print(f"Context:   refreshed {COMMIT_DIFF_CONTEXT_DIR} ({refresh_commit_diffs.format_refresh_summary(refresh_result)})")
     elif args.no_sync_context:
-        print("Context:   tracked commit-diff refresh disabled by --no-sync-context")
+        print("Context:   local commit-diff refresh disabled by --no-sync-context")
     else:
-        print("Context:   tracked commit-diff refresh skipped for disabled/truncated history")
+        print("Context:   local commit-diff refresh skipped for disabled/truncated history")
 
     total_duration_ms = int((perf_counter() - total_start_time) * 1000)
     print(f"Wrote:     {count} file(s)")
     print(f"ZIP size:  {zip_path.stat().st_size:,} bytes")
     if not args.no_duration:
-        print(f"Duration:  {total_duration_ms:,} ms total ({context_duration_ms:,} ms generated context; {zip_duration_ms:,} ms ZIP write; {refresh_duration_ms:,} ms tracked-context refresh)")
+        print(f"Duration:  {total_duration_ms:,} ms total ({context_duration_ms:,} ms generated context; {zip_duration_ms:,} ms ZIP write; {refresh_duration_ms:,} ms local-context refresh)")
     return 0
 
 

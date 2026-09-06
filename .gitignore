@@ -32,6 +32,9 @@ __pycache__
 /Assets/CvGameCoreDLL_do.dll
 /Assets/CvGameCoreDLL_r.dll
 /LLM_Helpers/outputs/
+# <!-- custom: Commit-diff archaeology context is generated locally from Git ancestry and injected into light-source ZIPs; do not duplicate Git history by tracking the generated corpus itself. The permanent 6164-6402 rewrite map remains tracked separately under LLM_Helpers/context/. (GPT-5.6-Sol) -->
+# <!-- custom: also Codex has them locally, while ChatGPT or such also has them in the bundled light-source ZIP, so no need to pollute git history with heavy and change prone git diff files; keep locally ignored instead only. -->
+/LLM_Helpers/context/commit_diffs/
 # <!-- custom: current commit's changelog/notes are temporary local scratch, useful for cumulative change writing or LLM assistance but not repository history. Reusable release changelog examples are tracked instead and can be export-ignored through .gitattributes. (ChatGPT-5.6-Sol) -->
 # <!-- custom: keep _old and _new versions rather than only one, this way a chatgpt handoff can compare (e.g. with vs code) changes without overwriting them, because the files are untracked and thus have no protection. -->
 /changes_old.md

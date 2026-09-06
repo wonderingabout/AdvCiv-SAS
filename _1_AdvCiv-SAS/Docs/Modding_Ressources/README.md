@@ -213,7 +213,7 @@ git fetch origin
 # choose names
 TAG=6200
 NEWNAME="AdvCiv-SAS $TAG"
-NEWSHA=0f2004eafc0455342f0e9d45240a83cc37fa24c2
+NEWSHA=9887bed3ce4addb2a03d5c21deba3f63a2b32852
 
 OLDNAME="AdvCiv-SAS 6020"
 OLDSHA=feddabdf89f022dcf6412aab0cab414a54b4610c
@@ -243,7 +243,7 @@ Note: although redundant, we as of now keep in code comment the version where it
 
 ```shell
 # 1. Set your commit hashes here
-NEWSHA=0f2004eafc0455342f0e9d45240a83cc37fa24c2 # new (included), e.g. AdvCiv-SAS 6200
+NEWSHA=9887bed3ce4addb2a03d5c21deba3f63a2b32852 # new (included), e.g. AdvCiv-SAS 6200
 OLDSHA=feddabdf89f022dcf6412aab0cab414a54b4610c # old (excluded, which is fine since was part of last batch as the former NEWSHA), e.g. AdvCiv-SAS 6020
 
 # 2. Run the command (uses the variables above)

@@ -193,7 +193,7 @@ QUEUE (current .cpp files, longest -> shortest)
 
 INITIAL C010 SOURCE IDENTITY
 Branch: main
-HEAD: df985a491633723d20a33b5bb17bfae346090c2b
+HEAD: 5286fc13797d9abc5cef6655b0977f48016f9494
 Practical commit count: 6225
 Base comparison: local AdvCiv 1.14 source archive
 
@@ -205,14 +205,14 @@ New current defect roots established by this file-oriented pass: 23 (provisional
 Existing known defect roots materially broadened/reopened: 8 (KI#312, KI#21, KI#213, KI#48, KI#306, KI#70, KI#74, KI#11)
 
 LOCAL RECONCILIATION AFTER C010-WIP7 IMPORT
-- The original audit baseline above remains the source identity for ChatGPT-5.6-Sol's cumulative checkpoint. GPT-5.6-Sol reconciled the imported WIP7 against current local HEAD 4dd9bd3ff after the F001-F031 repair track and the reopened KI#48.3/KI#70/KI#74 CvCityAI batch.
+- The original audit baseline above remains the source identity for ChatGPT-5.6-Sol's cumulative checkpoint. GPT-5.6-Sol reconciled the imported WIP7 against current local HEAD f0d50e744 after the F001-F031 repair track and the reopened KI#48.3/KI#70/KI#74 CvCityAI batch.
 - The new findings F001-F004 and F012-F031 have been independently promoted and fixed as KI#330-KI#352 except F012/KI#333 and F015/KI#336, which remain pending. The reopened F007/KI#48.3, F009/KI#70 and F010/KI#74 roots are now fixed too. F032-F047 remain provisional while CvTeamAI.cpp is open.
-- WIP7 was generated from the older df985a491 snapshot and therefore repeatedly embeds superseded WIP layers and recovery cursors. This is intentional loss-prevention evidence rather than the desired durable presentation; finalized C011 should consolidate the open-file work into one current section.
+- WIP7 was generated from the older 5286fc137 snapshot and therefore repeatedly embeds superseded WIP layers and recovery cursors. This is intentional loss-prevention evidence rather than the desired durable presentation; finalized C011 should consolidate the open-file work into one current section.
 - WIP7 again imported the previously rejected F024/F026/F027 ancestry changes: local Civ4CE BtS contains the same End Score helper reset/outer reuse, successful-Python-found-value omission and host-team air-capacity argument. The independently promoted BtS ancestry for KI#345, KI#347 and KI#348 remains authoritative.
 - Reconciliation also restores the seven-finding F017-F022/F024 count and the open-file cursor to file 010. The new F045-F047 findings survive an initial current-tree structural check but remain provisional pending independent promotion. (GPT-5.6-Sol)
 
 LOCAL RECONCILIATION AFTER C010-WIP22 IMPORT
-- ChatGPT-5.6-Sol's cumulative WIP13-WIP22 handoff was generated from practical 6239 / HEAD 80cb8f4be. Current local HEAD is practical 6243 / c6f1f31d3 after independently reviewed repairs through KI#363; current source and reviewed Known Issues remain authoritative.
+- ChatGPT-5.6-Sol's cumulative WIP13-WIP22 handoff was generated from practical 6239 / HEAD cdbf743dc. Current local HEAD is practical 6243 / 6512cf098 after independently reviewed repairs through KI#363; current source and reviewed Known Issues remain authoritative.
 - F032-F042 have been promoted and fixed as KI#353-KI#363. The WIP20 root normalization is accepted: F043, F044 and F046 are manifestations of F037's single practical-1842 `AI_preDeclareWar` population substitution, not independent roots. Current work completes their compiled and runtime-smoke-tested common repair under KI#358; provisional KI#364, KI#365 and KI#367 remain reserved merged aliases rather than reviewed KI entries.
 - WIP22 adds explicit method-inventory coverage and strengthens F042/F048-F052 without introducing F053 or changing the normalized root set. F045/KI#366, broadened F047/KI#368, F048/KI#369, F049/KI#370 and F050-F052/KI#371-KI#373 remain pending independent current-tree review. WIP22 is still an open-file recovery checkpoint, not durable C011 completion; its embedded older authority blocks and superseded intermediate wording remain evidence only. (GPT-5.6-Sol)
 
@@ -2329,7 +2329,7 @@ STATUS
   `_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt`, not from the older standalone WIP7 file.
 - Repository snapshot reconciled here:
   - Branch: main
-  - HEAD: 80cb8f4be721decb8bd82f744078160cabdd2460
+  - HEAD: cdbf743dc6205df661a65e2b34cd8e09c8a90600
   - Practical commit count: 6239
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
@@ -2457,7 +2457,7 @@ STATUS
 - Cumulative recovery checkpoint extending reconciled C010-WIP8.
 - Authoritative repository snapshot remains:
   - branch main
-  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - HEAD cdbf743dc6205df661a65e2b34cd8e09c8a90600
   - practical 6239
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
@@ -2608,7 +2608,7 @@ STATUS
 - Cumulative recovery checkpoint extending reconciled C010-WIP9.
 - Authoritative repository snapshot remains:
   - branch main
-  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - HEAD cdbf743dc6205df661a65e2b34cd8e09c8a90600
   - practical 6239
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
@@ -2744,7 +2744,7 @@ STATUS
 - Cumulative recovery checkpoint extending reconciled C010-WIP10.
 - Authoritative repository snapshot:
   - branch main
-  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - HEAD cdbf743dc6205df661a65e2b34cd8e09c8a90600
   - practical 6239
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
@@ -2895,7 +2895,7 @@ STATUS
 - Cumulative recovery checkpoint extending reconciled C010-WIP11.
 - Authoritative repository snapshot:
   - branch main
-  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - HEAD cdbf743dc6205df661a65e2b34cd8e09c8a90600
   - practical 6239
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
@@ -3099,7 +3099,7 @@ STATUS
 - Cumulative recovery checkpoint extending reconciled C010-WIP12.
 - Authoritative repository snapshot:
   - branch main
-  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - HEAD cdbf743dc6205df661a65e2b34cd8e09c8a90600
   - practical 6239
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
@@ -3268,7 +3268,7 @@ STATUS
 - Cumulative recovery checkpoint extending reconciled C010-WIP13.
 - Authoritative repository snapshot:
   - branch main
-  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - HEAD cdbf743dc6205df661a65e2b34cd8e09c8a90600
   - practical 6239
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
@@ -3423,7 +3423,7 @@ STATUS
 - Cumulative recovery checkpoint extending reconciled C010-WIP14.
 - Authoritative repository snapshot:
   - branch main
-  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - HEAD cdbf743dc6205df661a65e2b34cd8e09c8a90600
   - practical 6239
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
@@ -3606,7 +3606,7 @@ WORKING CHECKPOINT C010-WIP16 - CvTeamAI.cpp STILL OPEN
 STATUS
 - Cumulative recovery checkpoint extending reconciled C010-WIP15.
 - Authoritative source snapshot remains practical 6239:
-  HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  HEAD cdbf743dc6205df661a65e2b34cd8e09c8a90600
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
 - Confirmed/provisional roots remain F032-F050 / provisional KI#353-KI#371.
@@ -3760,7 +3760,7 @@ STATUS
 - Cumulative recovery checkpoint extending reconciled C010-WIP16.
 - Authoritative repository snapshot remains:
   - branch main
-  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - HEAD cdbf743dc6205df661a65e2b34cd8e09c8a90600
   - practical 6239
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
@@ -3882,7 +3882,7 @@ WORKING CHECKPOINT C010-WIP18 - CvTeamAI.cpp STILL OPEN
 STATUS
 - Cumulative recovery checkpoint extending reconciled C010-WIP17.
 - Authoritative source snapshot remains practical 6239:
-  HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  HEAD cdbf743dc6205df661a65e2b34cd8e09c8a90600
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
 - Confirmed/provisional roots remain F032-F050 / provisional KI#353-KI#371.
@@ -4014,7 +4014,7 @@ WORKING CHECKPOINT C010-WIP19 - CvTeamAI.cpp STILL OPEN
 STATUS
 - Cumulative recovery checkpoint extending reconciled C010-WIP18.
 - Authoritative source snapshot remains practical 6239:
-  HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  HEAD cdbf743dc6205df661a65e2b34cd8e09c8a90600
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
 - Confirmed/provisional roots now extend through F052 / provisional KI#373.
@@ -4203,7 +4203,7 @@ WORKING CHECKPOINT C010-WIP20 - ROOT-NORMALIZED, CvTeamAI.cpp STILL OPEN
 STATUS
 - Cumulative recovery checkpoint extending reconciled C010-WIP19.
 - Authoritative source snapshot remains practical 6239:
-  HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  HEAD cdbf743dc6205df661a65e2b34cd8e09c8a90600
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
 - Root normalization performed before durable C011:
@@ -4370,7 +4370,7 @@ WORKING CHECKPOINT C010-WIP21 - ROOT-NORMALIZED, CvTeamAI.cpp STILL OPEN
 STATUS
 - Cumulative recovery checkpoint extending root-normalized C010-WIP20.
 - Authoritative source snapshot remains practical 6239:
-  HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  HEAD cdbf743dc6205df661a65e2b34cd8e09c8a90600
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
 - Independent surviving roots remain the 18-root normalized set:
@@ -4516,7 +4516,7 @@ WORKING CHECKPOINT C010-WIP22 - ROOT-NORMALIZED, CvTeamAI.cpp STILL OPEN
 STATUS
 - Cumulative recovery checkpoint extending root-normalized C010-WIP21.
 - Authoritative source snapshot remains practical 6239:
-  HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  HEAD cdbf743dc6205df661a65e2b34cd8e09c8a90600
 - Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
 - File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
 - Independent surviving roots remain the 18-root normalized set:
@@ -4742,7 +4742,7 @@ CURRENT SOURCE AUTHORITY
 - Authoritative AdvCiv-SAS light-source snapshot for this closure:
   branch main
   practical 6244
-  HEAD 9f56202d8b2f8e61dccf739f9e490fa8d69edc5e
+  HEAD acf6f3baea1fb700645fcb5133e130b4e61e2316
 - `CvTeamAI.cpp` current length: 6,916 lines.
 - Local comparison material used only: current AdvCiv-SAS light source, AdvCiv 1.14 archive, Civ4CE source, and bundled local commit-diff history. No web lookup was needed.
 - Commits practical 6240-6244 between the WIP22 cursor and this closure were reread. Their CvTeamAI-family changes are the reviewed KI#353-KI#363 repairs plus the KI#358 alias reconciliation; no unrelated intervening change invalidates the remaining roots.
@@ -4918,7 +4918,7 @@ ANCESTRY / CURRENT-TREE FINAL DISPOSITION
 NEXT RECOVERY CURSOR AFTER DURABLE C011
 1. Treat file 010 `CvTeamAI.cpp` as COMPLETE for audit coverage.
 2. If the user/Codex wants implementation review first, promote/reject/merge F045 and F047-F052 individually before editing the repository; their repair hazards and negative controls are recorded above.
-3. Otherwise continue the longest-file queue at file 011 `CvGameCoreDLL/SASGameRecordLog.cpp` (6,343 lines), using practical 6244 / HEAD 9f56202d8b as the current source identity unless a newer light-source ZIP is supplied.
+3. Otherwise continue the longest-file queue at file 011 `CvGameCoreDLL/SASGameRecordLog.cpp` (6,343 lines), using practical 6244 / HEAD acf6f3baea as the current source identity unless a newer light-source ZIP is supplied.
 4. Keep F053 as the next unused stable audit finding number.
 
 END DURABLE CHECKPOINT C011
@@ -4930,7 +4930,7 @@ C011-WIP01 — FILE 011 OPEN: SASGameRecordLog.cpp — FIRST DURABLE CHECKPOINT
 SOURCE BASELINE
 ---------------
 Authoritative working tree supplied by user:
-  AdvCiv-SAS practical 6244 / HEAD 9f56202d8b2f8e61dccf739f9e490fa8d69edc5e
+  AdvCiv-SAS practical 6244 / HEAD acf6f3baea1fb700645fcb5133e130b4e61e2316
 Primary file:
   CvGameCoreDLL/SASGameRecordLog.cpp (6343 lines)
 Comparison material available locally:
@@ -5162,7 +5162,7 @@ C011-WIP02 -- FILE 011 SASGameRecordLog.cpp CONTINUATION CHECKPOINT
 
 STATUS
 ------
-Source baseline remains practical 6244 / HEAD 9f56202d8b... from the supplied
+Source baseline remains practical 6244 / HEAD acf6f3baea... from the supplied
 AdvCiv-SAS_light_source_20260824T132346.zip.
 
 File 011 remains OPEN. Durable completed-file count remains 10/169.
@@ -5461,7 +5461,7 @@ C011-WIP03 -- FILE 011 SASGameRecordLog.cpp LATE-CLOSURE CHECKPOINT
 
 STATUS
 ------
-Source baseline remains practical 6244 / HEAD 9f56202d8b... from the supplied
+Source baseline remains practical 6244 / HEAD acf6f3baea... from the supplied
 AdvCiv-SAS_light_source_20260824T132346.zip.
 
 File 011 remains OPEN while the final adversarial closure pass finishes.
@@ -5720,7 +5720,7 @@ C012 -- FILE 011 SASGameRecordLog.cpp DURABLE CLOSURE
 STATUS
 ------
 Source audited: practical 6244 / HEAD
-9f56202d8b2f8e61dccf739f9e490fa8d69edc5e from the supplied
+acf6f3baea1fb700645fcb5133e130b4e61e2316 from the supplied
 AdvCiv-SAS_light_source_20260824T132346.zip.
 
 FILE 011 IS NOW COMPLETE for the current file-oriented audit.
@@ -6072,7 +6072,7 @@ No repository source was modified.
 
 ===============================================================================
 C012-WIP01 -- FILE 012 IN PROGRESS: CvGameCoreDLL/CvDLLWidgetData.cpp
-Source baseline: practical 6244 / HEAD 9f56202d8b...
+Source baseline: practical 6244 / HEAD acf6f3baea...
 File size: 6,326 lines
 Durable completed files entering this pass: 11 / 169
 Next root entering this pass: F062
@@ -6187,7 +6187,7 @@ Continue with:
 ================================================================================
 C012-WIP02 — file 012 CvGameCoreDLL/CvDLLWidgetData.cpp — INCOMPLETE CHECKPOINT
 ================================================================================
-Baseline: AdvCiv-SAS practical 6244 / HEAD 9f56202d8b...
+Baseline: AdvCiv-SAS practical 6244 / HEAD acf6f3baea...
 Durable completion remains 11/169 files. This file remains OPEN.
 This checkpoint extends C012-WIP01; no source files were modified.
 
@@ -6286,7 +6286,7 @@ Keep CvDLLWidgetData.cpp open until those closure gates are complete.
 ================================================================================
 C012-WIP03 — file 012 CvGameCoreDLL/CvDLLWidgetData.cpp — INCOMPLETE CHECKPOINT
 ================================================================================
-Baseline: AdvCiv-SAS practical 6244 / HEAD 9f56202d8b...
+Baseline: AdvCiv-SAS practical 6244 / HEAD acf6f3baea...
 Durable completion remains 11/169 files. This file remains OPEN.
 This checkpoint extends C012-WIP02; no source files were modified.
 
@@ -6375,7 +6375,7 @@ F062-F066, check Known-Issue collisions, and only then decide durable C013.
 C012-WIP04 — file 012 CvGameCoreDLL/CvDLLWidgetData.cpp — INCOMPLETE CHECKPOINT
 ================================================================================
 Baseline synchronized to new light source: AdvCiv-SAS practical 6250 /
-HEAD 2ac3faa2f6cb45cee0d417728410d325c32668ea.
+HEAD f0ee784b6444e9a0ebedb67722fa4b89f9e29314.
 Durable completion remains 11/169 files. This file remains OPEN.
 This checkpoint corrects WIP03 after discovering the overloaded GET_TEAM
 contract and reconciles the open audit against the user's newer source tree.
@@ -6460,7 +6460,7 @@ no new root without caller/type-contract evidence.
 C012-WIP05 — file 012 CvGameCoreDLL/CvDLLWidgetData.cpp — INCOMPLETE CHECKPOINT
 ================================================================================
 Baseline: AdvCiv-SAS practical 6250 / HEAD
-2ac3faa2f6cb45cee0d417728410d325c32668ea.
+f0ee784b6444e9a0ebedb67722fa4b89f9e29314.
 Durable completion remains 11/169 files. This file remains OPEN.
 No repository source files were modified by this audit.
 
@@ -6587,7 +6587,7 @@ source before deciding WIP vs durable C013.
 C012-WIP06 — file 012 CvGameCoreDLL/CvDLLWidgetData.cpp — INCOMPLETE CHECKPOINT
 ================================================================================
 Baseline remains AdvCiv-SAS practical 6250 / HEAD
-2ac3faa2f6cb45cee0d417728410d325c32668ea.
+f0ee784b6444e9a0ebedb67722fa4b89f9e29314.
 Durable completion remains 11/169 files. This file remains OPEN.
 No repository source files were modified by this audit.
 
@@ -6700,7 +6700,7 @@ roots before durable C013.
 ================================================================================
 C012-WIP07 — file 012 CvGameCoreDLL/CvDLLWidgetData.cpp — INCOMPLETE CHECKPOINT
 ================================================================================
-Baseline: AdvCiv-SAS practical 6250 / HEAD 2ac3faa2f6cb45cee0d417728410d325c32668ea.
+Baseline: AdvCiv-SAS practical 6250 / HEAD f0ee784b6444e9a0ebedb67722fa4b89f9e29314.
 Durable completion remains 11/169 files. This file remains OPEN.
 No repository source files were modified by this audit.
 
@@ -6808,7 +6808,7 @@ state closure. Re-challenge F062-F069 before durable C013.
 ================================================================================
 C012-WIP08 — FILE 012 CvDLLWidgetData.cpp — SAFETY CHECKPOINT
 Baseline synchronized to AdvCiv-SAS practical 6250 / HEAD
-2ac3faa2f6cb45cee0d417728410d325c32668ea.
+f0ee784b6444e9a0ebedb67722fa4b89f9e29314.
 Status: INCOMPLETE. Durable completion remains 11/169. No source modified.
 ================================================================================
 
@@ -6932,7 +6932,7 @@ ADDITIONAL CLOSURE / NEGATIVE-CONTROL RESULTS SINCE WIP07
 EXACT RECOVERY CURSOR
 - Durable completion: 11/169.
 - File 012 CvDLLWidgetData.cpp remains OPEN.
-- Baseline: practical 6250 / HEAD 2ac3faa2f6cb45cee0d417728410d325c32668ea.
+- Baseline: practical 6250 / HEAD f0ee784b6444e9a0ebedb67722fa4b89f9e29314.
 - Live normalized roots: F062-F070; former KI#387 retracted.
 - Next root number: F071 UNUSED.
 - Continue: finish hidden-scoreboard-expansion caller enumeration; compare remaining
@@ -6946,7 +6946,7 @@ EXACT RECOVERY CURSOR
 
 ================================================================================
 C012-WIP09 — file 012 CvDLLWidgetData.cpp — INCOMPLETE SAFETY CHECKPOINT
-Baseline: AdvCiv-SAS practical 6250 / HEAD 2ac3faa2f6cb45cee0d417728410d325c32668ea
+Baseline: AdvCiv-SAS practical 6250 / HEAD f0ee784b6444e9a0ebedb67722fa4b89f9e29314
 Durable completion remains 11/169. File 012 remains OPEN. No source modified.
 Prior cumulative prefix: C012-WIP08 preserved byte-for-byte.
 
@@ -7079,7 +7079,7 @@ C013 vs another WIP.
 
 ================================================================================
 C012-WIP10 — file 012 CvDLLWidgetData.cpp — INCOMPLETE SAFETY CHECKPOINT
-Baseline: AdvCiv-SAS practical 6250 / HEAD 2ac3faa2f6cb45cee0d417728410d325c32668ea
+Baseline: AdvCiv-SAS practical 6250 / HEAD f0ee784b6444e9a0ebedb67722fa4b89f9e29314
 Durable completion remains 11/169. File 012 remains OPEN. No source modified.
 Prior cumulative prefix: C012-WIP09 preserved byte-for-byte.
 
@@ -7167,7 +7167,7 @@ F062-F072, and decide durable C013 vs another WIP.
 
 ================================================================================
 C012-WIP14 RECONSTRUCTED CONTINUATION — file 012 CvDLLWidgetData.cpp — OPEN
-Authoritative current source: AdvCiv-SAS practical 6250 / HEAD 2ac3faa2f6cb45cee0d417728410d325c32668ea
+Authoritative current source: AdvCiv-SAS practical 6250 / HEAD f0ee784b6444e9a0ebedb67722fa4b89f9e29314
 Reconstruction note: the attached C012-WIP10 artifact above is preserved exactly as the physical prefix. The original WIP11-WIP13 files were not re-uploaded into this new chat; their deltas below are reconstructed from the preserved previous-thread transcript and rechecked against the current practical-6250 source where relevant. This avoids pretending byte-for-byte possession of artifacts that are no longer mounted while preserving the audit state faithfully. No source files modified.
 
 RECOVERED WIP11 DELTA
@@ -7284,7 +7284,7 @@ CURRENT-TREE RECONCILIATION OF WIP14 DELTA
 ================================================================================
 C012-WIP15 — file 012 CvDLLWidgetData.cpp — RESUMED CLOSURE CHECKPOINT
 Authoritative source snapshot: user-supplied AdvCiv-SAS_light_source_20260825T074323.zip
-Current reconciled source HEAD recorded by snapshot: 1b85d21477b2ba03435540cb41e457b73aa444ef
+Current reconciled source HEAD recorded by snapshot: 8eae1ddf6c0d2f6346d0184bec5e6a009edb4fb0
 Durable completion remains 11/169. File 012 remains OPEN. No source modified.
 This checkpoint appends to the current reconciled album, whose WIP14 reconstruction
 already contains F076 / provisional KI#398. True next finding slot is F077.
@@ -7395,7 +7395,7 @@ widget closure -> final adversarial reread F062-F076 -> decide C013 vs WIP16.
 ================================================================================
 C012-WIP16 — file 012 CvDLLWidgetData.cpp — CROSS-FILE LEAD ROOT CHECKPOINT
 Authoritative source snapshot unchanged: AdvCiv-SAS_light_source_20260825T074323.zip
-Current snapshot HEAD: 1b85d21477b2ba03435540cb41e457b73aa444ef
+Current snapshot HEAD: 8eae1ddf6c0d2f6346d0184bec5e6a009edb4fb0
 Durable completion remains 11/169. File 012 remains OPEN. No source modified.
 Prior C012-WIP15 prefix preserved byte-for-byte.
 
@@ -7470,9 +7470,9 @@ root rather than rediscovered/double-counted there.
 
 PARALLEL WIP15 RECONCILIATION
 Two parallel threads produced different checkpoints named WIP15. The separately
-downloaded C012-WIP15_RECONSTRUCTED used practical 6250 / HEAD 2ac3faa2... and
+downloaded C012-WIP15_RECONSTRUCTED used practical 6250 / HEAD f0ee784b... and
 preserved the older WIP14 reconstruction as its prefix. The WIP15 embedded in
-this WIP16 used the later reconciled 20260825T074323 snapshot / HEAD 1b85d214...
+this WIP16 used the later reconciled 20260825T074323 snapshot / HEAD 8eae1ddf...
 and retained intervening current-tree reconciliation, including the KI#311 /
 KI#387 accessor cross-reference. Therefore WIP16's statement that its WIP15
 prefix was preserved byte-for-byte refers to the WIP15 produced in the same
@@ -7534,7 +7534,7 @@ Authoritative audit/implementation synchronization source:
 AdvCiv-SAS_light_source_20260825T085034.zip.
 
 Repository snapshot HEAD:
-ad022a3fc9f270fdcb77b9a5cc872e30eb1e4643 (practical 6252).
+7aaf0b6aa9fc0a5d7e7ff5a4d21490e6ce94b1df (practical 6252).
 
 The authoritative working tree also contains the then-staged KI#388-KI#390
 implementation batch. Those staged changes are part of the source actually
@@ -8136,7 +8136,7 @@ C013-WIP02 -- CvTeam.cpp continued closure checkpoint
 
 AUTHORITATIVE SOURCE
 --------------------
-2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD ad022a3f... plus
+2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD 7aaf0b6a... plus
 its bundled/reconciled audit album and staged KI#388-KI#390 implementation.
 
 This checkpoint is append-only relative to C013-WIP01. No repository source was
@@ -8330,7 +8330,7 @@ C013-WIP03 -- CvTeam.cpp false-transition / Advanced Start checkpoint
 
 AUTHORITATIVE SOURCE
 --------------------
-2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD ad022a3f... plus
+2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD 7aaf0b6a... plus
 its bundled/reconciled audit album and staged KI#388-KI#390 implementation.
 
 This checkpoint is append-only relative to C013-WIP02. No repository source was
@@ -8484,7 +8484,7 @@ C013-WIP04 -- CvTeam.cpp Barbarian-contact / early-source checkpoint
 
 AUTHORITATIVE SOURCE
 --------------------
-2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD ad022a3f... plus
+2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD 7aaf0b6a... plus
 its bundled/reconciled audit album and staged KI#388-KI#390 implementation.
 
 This checkpoint is append-only relative to C013-WIP03. No repository source was
@@ -8620,7 +8620,7 @@ C013-WIP05 -- CvTeam.cpp Permanent-Alliance espionage self-target checkpoint
 
 AUTHORITATIVE SOURCE
 --------------------
-2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD ad022a3f... plus
+2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD 7aaf0b6a... plus
 its bundled/reconciled audit album and staged KI#388-KI#390 implementation.
 
 This checkpoint is append-only relative to C013-WIP04. No repository source was
@@ -8763,7 +8763,7 @@ C013-WIP06 -- CvTeam.cpp Advanced-Start dependency + hasSeen merge checkpoint
 
 AUTHORITATIVE SOURCE
 --------------------
-2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD ad022a3f... plus
+2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD 7aaf0b6a... plus
 its bundled/reconciled audit album and staged KI#388-KI#390 implementation.
 
 This checkpoint appends to the user-received C013-WIP05 artifact. No repository
@@ -8990,7 +8990,7 @@ C013-WIP07 -- CvTeam.cpp audit continuation
 ===============================================================================
 
 Authoritative source remains the 2026-08-25 08:50 light-source snapshot,
-practical 6252 / HEAD ad022a3f... plus its bundled/reconciled audit album and
+practical 6252 / HEAD 7aaf0b6a... plus its bundled/reconciled audit album and
 staged KI#388-KI#390 implementation.
 
 This checkpoint appends directly to the user-received C013-WIP06 artifact. No
@@ -9105,7 +9105,7 @@ C013-WIP08 -- CvTeam.cpp audit continuation
 ===============================================================================
 
 Authoritative source remains the 2026-08-25 08:50 light-source snapshot,
-practical 6252 / HEAD ad022a3f... plus its bundled/reconciled audit album and
+practical 6252 / HEAD 7aaf0b6a... plus its bundled/reconciled audit album and
 staged KI#388-KI#390 implementation.
 
 This checkpoint appends directly to C013-WIP07. No repository source was
@@ -9229,7 +9229,7 @@ C013-WIP09 -- CvTeam.cpp audit continuation
 ===============================================================================
 
 Authoritative source remains the 2026-08-25 08:50 light-source snapshot,
-practical 6252 / HEAD ad022a3f... plus its bundled/reconciled audit album and
+practical 6252 / HEAD 7aaf0b6a... plus its bundled/reconciled audit album and
 staged KI#388-KI#390 implementation.
 
 This checkpoint appends directly to C013-WIP08. No repository source was
@@ -13352,7 +13352,7 @@ C015. No repository source files were modified.
 
 LOCAL RECONCILIATION AFTER C014-WIP11 IMPORT
 --------------------------------------------
-- ChatGPT-5.6-Sol's green-only C014-WIP02 through C014-WIP11 append continues the open `WarUtilityAspect.cpp` audit from an earlier light-source handoff. Current local authority is practical 6261 / HEAD 9262c8f3bc after the independently reviewed KI#400-KI#405 and KI#424-KI#426 repair commits; current source and reviewed Known Issues remain authoritative.
+- ChatGPT-5.6-Sol's green-only C014-WIP02 through C014-WIP11 append continues the open `WarUtilityAspect.cpp` audit from an earlier light-source handoff. Current local authority is practical 6261 / HEAD 58563781c3 after the independently reviewed KI#400-KI#405 and KI#424-KI#426 repair commits; current source and reviewed Known Issues remain authoritative.
 - F101-F103 / KI#424-KI#426 are already fixed, documented, compiled and exercised by ordinary and multi-member-team autoplays in current source. Their incoming audit text remains useful discovery evidence rather than a statement that those defects are still pending.
 - WIP11 correctly retracts F113 / provisional KI#436 after tracing the `GET_TEAM(PlayerTypes)` overload through `TEAMID`, matching the existing KI#311/KI#387 false-positive controls. Preserve WIP05-WIP10's superseded hypothesis only as evidence against rediscovery; do not implement it.
 - F096 / KI#418 remains pending and is credibly broadened by the new living-participant normalizers in `WarUtilityAspect.cpp`; no separate root was created for those manifestations.
@@ -13371,7 +13371,7 @@ FOLLOW-UP REJECTION OF C013 F084-F085
 C014-WIP12 CONTINUATION -- RECONCILED CURRENT SOURCE + F120/F121
 ===============================================================================
 
-RECONCILIATION AGAINST CURRENT SAS HEAD 4ba8e58230 / PRACTICAL 6263
+RECONCILIATION AGAINST CURRENT SAS HEAD 403929fe27 / PRACTICAL 6263
 -----------------------------------------------------------------
 This continuation was performed from the fresh AdvCiv-SAS light-source snapshot
 20260825T195953 rather than from the older WIP11 source copy.
@@ -13550,7 +13550,7 @@ WIP12 CURRENT CURSOR
 COMPLETED FILES: 13 / 169
 FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
 PHYSICAL CHECKPOINT: C014-WIP12
-CURRENT SOURCE BASE: practical 6263 / HEAD 4ba8e58230
+CURRENT SOURCE BASE: practical 6263 / HEAD 403929fe27
 ALREADY FIXED IN CURRENT SOURCE: F101-F103 / KI#424-KI#426
 LIVE/PROVISIONAL FILE-014 ROOTS: F104-F112, F114-F121
 RETRACTED: former F101/KI#423; F113/KI#436
@@ -13569,7 +13569,7 @@ C014-WIP13 CONTINUATION -- F122 DURABLE + F096 LOATHING BROADENING
 STATUS: WIP / append-only continuation of authoritative reconciled C014-WIP12.
 COMPLETED FILES: 13 / 169.
 CURRENT FILE: 014 CvGameCoreDLL/WarUtilityAspect.cpp OPEN.
-SOURCE SNAPSHOT: AdvCiv-SAS practical 6263 / HEAD 4ba8e58230b1795449b97f56dc35d55030661b12.
+SOURCE SNAPSHOT: AdvCiv-SAS practical 6263 / HEAD 403929fe273f0bce131fc6bfd2ea15d57f688e6c.
 NEXT UNUSED ROOT AFTER THIS CHECKPOINT: F123.
 NO REPOSITORY SOURCE FILES MODIFIED.
 
@@ -13741,7 +13741,7 @@ C014-WIP14 APPEND -- F123 Bellicosity + F124 ThirdParty team-partition findings
 AUTHORITY / CONTINUATION
 ------------------------
 This append continues directly from the physically verified C014-WIP13 built
-from the user's reconciled practical-6263 / HEAD 4ba8e58230b1795449b97f56dc35d55030661b12
+from the user's reconciled practical-6263 / HEAD 403929fe273f0bce131fc6bfd2ea15d57f688e6c
 snapshot. F123 and F124 were re-proved against that current SAS source and Base
 AdvCiv 1.14 before promotion. The prior GET_TEAM(PlayerTypes) false-positive
 family F113/KI#436 remains retracted and is not reused here.
@@ -13972,7 +13972,7 @@ C014-WIP15 CONTINUATION -- DRAMATICARC + DISTRACTION TEAM-WAR GATES
 CHECKPOINT BASIS
 ----------------
 - This append continues the exact current-tree C014-WIP14 checkpoint from
-  practical 6263 / HEAD 4ba8e58230b1795449b97f56dc35d55030661b12.
+  practical 6263 / HEAD 403929fe273f0bce131fc6bfd2ea15d57f688e6c.
 - Current SAS source, local Base AdvCiv 1.14 and the reconciled album were
   rechecked locally. Civ4CE still supplies no UWAI/WarUtilityAspect comparison
   surface for these roots.
@@ -14247,7 +14247,7 @@ C014-WIP16 CONTINUATION -- GLOBAL VICTORY CAPS + TEAM-KEYED HIRED-HAND OBLIGATIO
 CHECKPOINT BASIS
 ----------------
 - This append continues the exact C014-WIP15 current-tree checkpoint at practical
-  6263 / HEAD 4ba8e58230b1795449b97f56dc35d55030661b12.
+  6263 / HEAD 403929fe273f0bce131fc6bfd2ea15d57f688e6c.
 - Current SAS and local Base AdvCiv 1.14 were compared directly. The relevant
   MilitaryVictory and HiredHand implementations are inherited unchanged.
 - F113/KI#436 remains retracted; neither finding below uses that false diagnosis.
@@ -14492,7 +14492,7 @@ team-keyed state), then re-challenge F101-F128 before any file-closure decision.
 
 LOCAL RECONCILIATION AFTER C014-WIP16 IMPORT
 --------------------------------------------
-- ChatGPT-5.6-Sol's C014-WIP12 through C014-WIP16 append is compatible with current authority at HEAD 4ba8e5823 plus the staged KI#414/KI#418 Tech Share repairs. Its occasional double blank lines are preserved as received because this is an append-only evidence record, not normalized source code.
+- ChatGPT-5.6-Sol's C014-WIP12 through C014-WIP16 append is compatible with current authority at HEAD 403929fe2 plus the staged KI#414/KI#418 Tech Share repairs. Its occasional double blank lines are preserved as received because this is an append-only evidence record, not normalized source code.
 - F096 / KI#418 is now fixed in the staged current source by counting each qualifying team's living members. WIP13's broader living-participant analysis remains useful corroboration rather than a separate pending root.
 - F120-F128 / provisional KI#443-KI#451 are collision-free against the current reviewed Known Issues ledger, but remain provisional because `WarUtilityAspect.cpp` is still open and WIP16 explicitly requires a final adversarial reread before file closure. No current-source implementation is promoted from them yet. (GPT-5.6-Sol)
 
@@ -16032,7 +16032,7 @@ C015 closure. No repository source files were modified.
 
 LOCAL RECONCILIATION AFTER C014-WIP24 IMPORT
 
-- ChatGPT-5.6-Sol's C014-WIP17 through C014-WIP24 append is compatible with current authority at HEAD b10972a97 plus the staged KI#416/KI#417 repairs. The received append remains verbatim as evidence.
+- ChatGPT-5.6-Sol's C014-WIP17 through C014-WIP24 append is compatible with current authority at HEAD 007ac4a3d plus the staged KI#416/KI#417 repairs. The received append remains verbatim as evidence.
 - F094 / KI#416 and F095 / KI#417 are now fixed in the staged current source. Their repairs restore dead-teammate technology state and exclude the attacker's master/vassal bloc from target defensive power; the new WarUtility findings do not supersede either repair.
 - F129-F136 / provisional KI#452-KI#459 are collision-free against the current reviewed Known Issues ledger, but remain provisional while `WarUtilityAspect.cpp` is open. No implementation is promoted from WIP17-WIP24 in this reconciliation. (GPT-5.6-Sol)
 
@@ -16779,7 +16779,7 @@ C015 closure. No repository source files were modified.
 
 LOCAL RECONCILIATION AFTER C014-WIP28 IMPORT
 
-- ChatGPT-5.6-Sol's C014-WIP25 through C014-WIP28 append is compatible with current authority at HEAD d8498752b plus the staged KI#420/KI#421 repairs. The received append remains verbatim as evidence.
+- ChatGPT-5.6-Sol's C014-WIP25 through C014-WIP28 append is compatible with current authority at HEAD a95f6eec8 plus the staged KI#420/KI#421 repairs. The received append remains verbatim as evidence.
 - F098 / KI#420 and F099 / KI#421 are now fixed in the staged current source. Their repairs restore symmetric exact Permanent-Alliance history and statefully retire absorbed-team stolen-visibility relations; the new `WarUtilityAspect.cpp` findings do not supersede either repair.
 - F137-F139 / provisional KI#460-KI#462 are collision-free against the current reviewed Known Issues ledger. WIP28 broadens F122/KI#445, F124/KI#447 and F127/KI#450 without allocating another root. All remain provisional while `WarUtilityAspect.cpp` is open; no implementation is promoted from WIP25-WIP28 in this reconciliation. (GPT-5.6-Sol)
 
@@ -16794,7 +16794,7 @@ This continuation rebases the open file-014 audit onto the user's fresh
 AdvCiv-SAS light-source snapshot `20260825T231107`:
 
     branch: main
-    HEAD: 52e0f9c06718fb444208840cf5cea7b7723267e0
+    HEAD: fe0e4abbe4ef49a910bff90d7db2f02143855c53
     practical commit count: 6267
 
 The repository-side audit album has already reconciled C014-WIP25 through
@@ -16971,7 +16971,7 @@ CURRENT CURSOR
 COMPLETED FILES: 13 / 169
 FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
 PHYSICAL CHECKPOINT: C014-WIP29
-CURRENT SOURCE: practical 6267 / HEAD 52e0f9c06718fb444208840cf5cea7b7723267e0
+CURRENT SOURCE: practical 6267 / HEAD fe0e4abbe4ef49a910bff90d7db2f02143855c53
 NEW ROOT IN THIS APPEND: F140 / provisional KI#463
 NEXT UNUSED ROOT: F141
 
@@ -17200,7 +17200,7 @@ CURRENT CURSOR
 COMPLETED FILES: 13 / 169
 FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
 PHYSICAL CHECKPOINT: C014-WIP30
-CURRENT SOURCE: practical 6267 / HEAD 52e0f9c06718fb444208840cf5cea7b7723267e0
+CURRENT SOURCE: practical 6267 / HEAD fe0e4abbe4ef49a910bff90d7db2f02143855c53
 NEW ROOT IN THIS APPEND: F141 / provisional KI#464
 NEXT UNUSED ROOT: F142
 
@@ -17213,7 +17213,7 @@ repository source files were modified.
 
 LOCAL RECONCILIATION AFTER C014-WIP30 IMPORT
 
-- ChatGPT-5.6-Sol's C014-WIP29 through C014-WIP30 append is compatible with current authority at HEAD 3a42d6bd7 plus the reviewed KI#430/KI#431 worktree repairs. The received append remains verbatim as evidence despite identifying its older practical-6267 / HEAD 52e0f9c06 source baseline.
+- ChatGPT-5.6-Sol's C014-WIP29 through C014-WIP30 append is compatible with current authority at HEAD 98142d25a plus the reviewed KI#430/KI#431 worktree repairs. The received append remains verbatim as evidence despite identifying its older practical-6267 / HEAD fe0e4abbe source baseline.
 - F104-F106 / KI#427-KI#429 are fixed at current HEAD. F107-F108 / KI#430-KI#431 are fixed in the reviewed worktree: PreEmptiveWar now constructs matching team/vassal city snapshots, and UlteriorMotives supplies the missing UWAI-report vararg. The new findings do not supersede these repairs.
 - F140-F141 / provisional KI#463-KI#464 are collision-free against the current reviewed Known Issues ledger and remain provisional while `WarUtilityAspect.cpp` is open. No implementation is promoted from WIP29-WIP30 in this reconciliation. (GPT-5.6-Sol)
 
@@ -17226,7 +17226,7 @@ RECONCILIATION / SCOPE
 ----------------------
 This continuation remains grounded in the reconciled practical-6267 tree:
 
-    HEAD 52e0f9c06718fb444208840cf5cea7b7723267e0
+    HEAD fe0e4abbe4ef49a910bff90d7db2f02143855c53
 
 `WarUtilityAspect.cpp` is still byte-for-byte identical to the earlier source
 underlying WIP28-WIP30. Current source and the reviewed Known-Issues ledger remain
@@ -17501,7 +17501,7 @@ CURRENT CURSOR
 COMPLETED FILES: 13 / 169
 FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
 PHYSICAL CHECKPOINT: C014-WIP31
-CURRENT SOURCE: practical 6267 / HEAD 52e0f9c06718fb444208840cf5cea7b7723267e0
+CURRENT SOURCE: practical 6267 / HEAD fe0e4abbe4ef49a910bff90d7db2f02143855c53
 NEW ROOT IN THIS APPEND: F142 / provisional KI#465
 NEXT UNUSED ROOT: F143
 
@@ -17523,7 +17523,7 @@ This closure pass remains grounded in the fresh reconciled AdvCiv-SAS light-
 source snapshot supplied after C014-WIP28:
 
     practical commit count: 6267
-    HEAD: 52e0f9c06718fb444208840cf5cea7b7723267e0
+    HEAD: fe0e4abbe4ef49a910bff90d7db2f02143855c53
 
 Current WarUtilityAspect.cpp is byte-for-byte the same current file used for the
 WIP29-WIP31 investigation. The reviewed Known Issues ledger is authoritative for
@@ -18025,7 +18025,7 @@ C015 DURABLE CHECKPOINT -- FILE 014 CLOSED / FILE 015 QUEUED
 SOURCE IDENTITY AT CLOSURE
 --------------------------
 Branch: main
-HEAD: 52e0f9c06718fb444208840cf5cea7b7723267e0
+HEAD: fe0e4abbe4ef49a910bff90d7db2f02143855c53
 Practical commit count: 6267
 Base comparison: local AdvCiv 1.14 source archive
 Current .cpp queue: 169 files, sorted by current line count longest -> shortest
@@ -18157,7 +18157,7 @@ Current source authority remains the user's reconciled 2026-08-25T23:11 light-so
 snapshot:
 
 - Branch: main
-- HEAD: 52e0f9c06718fb444208840cf5cea7b7723267e0
+- HEAD: fe0e4abbe4ef49a910bff90d7db2f02143855c53
 - Practical commit count: 6267
 - Base comparison: local AdvCiv 1.14 source archive
 - Civ4CE BtS/Warlords/vanilla source is locally available for ancestry/cross-controls.
@@ -18555,7 +18555,7 @@ No repository source files were modified.
 
 LOCAL RECONCILIATION AFTER C015-WIP03 IMPORT
 
-- ChatGPT-5.6-Sol's C014-WIP31/WIP32, durable C015 checkpoint and C015-WIP01 through WIP03 append remains verbatim as evidence. It is compatible with current authority at HEAD df46c1a09 plus the reviewed KI#434/KI#435 worktree repairs, despite using the older practical-6267 / HEAD 52e0f9c06 source baseline.
+- ChatGPT-5.6-Sol's C014-WIP31/WIP32, durable C015 checkpoint and C015-WIP01 through WIP03 append remains verbatim as evidence. It is compatible with current authority at HEAD 619d87112 plus the reviewed KI#434/KI#435 worktree repairs, despite using the older practical-6267 / HEAD fe0e4abbe source baseline.
 - The durable closure's retraction of F113 / provisional KI#436 is accepted: `GET_TEAM(PlayerTypes)` deliberately resolves through `TEAMID`, matching the existing KI#311/KI#387 and AGENTS control. The reviewed KI#434 code/documentation has been corrected not to repeat the superseded WIP05 hypothesis; its independent old-owner AP-membership defect remains fixed.
 - F104-F108 / KI#427-KI#431 are fixed at current HEAD. F111-F112 / KI#434-KI#435 are fixed in the reviewed worktree. F109-F110 / provisional KI#432-KI#433 remain pending independent review; the C014 closure inventory does not itself promote an implementation.
 - F142 / provisional KI#465 and the new file-015 F143-F144 / provisional KI#466-KI#467 are collision-free against the current reviewed Known Issues ledger and remain provisional. `WarUtilityAspect.cpp` is durably closed as an audit surface, while `CvSelectionGroup.cpp` remains open at C015-WIP03. No implementation is promoted from the imported append in this reconciliation. (GPT-5.6-Sol)
@@ -18710,7 +18710,7 @@ C015-WIP05 APPEND -- CvSelectionGroup.cpp cargo/lifetime controls + Spy wake roo
 CURRENT CURSOR / SOURCE AUTHORITY
 ---------------------------------
 - Current source remains reconciled AdvCiv-SAS practical 6267 / HEAD
-  52e0f9c06718fb444208840cf5cea7b7723267e0.
+  fe0e4abbe4ef49a910bff90d7db2f02143855c53.
 - FILE 015 remains CvGameCoreDLL/CvSelectionGroup.cpp -- OPEN.
 - WIP04 remains authoritative through F145 / provisional KI#468.
 - This append establishes F146 / provisional KI#469 and records several
@@ -18985,7 +18985,7 @@ path/build/serialization and remaining inherited surface. No repository source f
 
 LOCAL RECONCILIATION AFTER C015-WIP06 IMPORT
 
-- ChatGPT-5.6-Sol's C015-WIP04 through WIP06 append remains verbatim as evidence. It is compatible with current authority at HEAD df46c1a09 plus the reviewed KI#434/KI#435 worktree repairs, despite using the older practical-6267 / HEAD 52e0f9c06 source baseline.
+- ChatGPT-5.6-Sol's C015-WIP04 through WIP06 append remains verbatim as evidence. It is compatible with current authority at HEAD 619d87112 plus the reviewed KI#434/KI#435 worktree repairs, despite using the older practical-6267 / HEAD fe0e4abbe source baseline.
 - F111-F112 / KI#434-KI#435 are fixed in the reviewed worktree, compiled and exercised by a full Huge multi-team autoplay through turn 500. The new `CvSelectionGroup.cpp` findings do not supersede those repairs; the prior WIP03 reconciliation and F113/provisional KI#436 retraction remain authoritative.
 - F145-F147 / provisional KI#468-KI#470 are collision-free against the current reviewed Known Issues ledger. They remain provisional while file 015 is open at C015-WIP06; no implementation is promoted from this imported append. (GPT-5.6-Sol)
 
@@ -19003,13 +19003,13 @@ LOCAL RECONCILIATION AFTER KI#433 REVIEW
 C015-WIP07 CONTINUATION -- CURRENT PRACTICAL 6270 RECONCILIATION + F148
 ===============================================================================
 
-RECONCILIATION AGAINST CURRENT SAS HEAD 5e2c3ee299 / PRACTICAL 6270
+RECONCILIATION AGAINST CURRENT SAS HEAD 94e2d279e8 / PRACTICAL 6270
 -------------------------------------------------------------------
 - This continuation switches the active source base to the fresh
   AdvCiv-SAS_light_source_20260826T082633 snapshot supplied after the user and
   Codex reconciled C015-WIP06 into the repository album.
 - Current repository identity is main / HEAD
-  5e2c3ee29931b1fd800b495a6746b7787ea41c09 / practical commit count 6270.
+  94e2d279e8e473896374d06a9a55cbd57fb9b89b / practical commit count 6270.
 - The reviewed Known Issues ledger now contains independently repaired
   KI#434-KI#435; those repairs do not alter CvSelectionGroup.cpp.
 - The imported album keeps F143-F147 / provisional KI#466-KI#470 as provisional
@@ -19828,7 +19828,7 @@ C015-WIP13 APPEND -- F153 cross-transport cargo group wrongly boarded as a whole
 SOURCE RECONCILIATION AT THIS CONTINUATION
 -----------------------------------------
 - Current uploaded AdvCiv-SAS light source is practical 6272 / HEAD
-  202064cbf9db8a00ce0df4c0f36f8bc9027271cf. CvSelectionGroup.cpp remains
+  038724dba92df55c2b5268de4341f72ab2ac47c2. CvSelectionGroup.cpp remains
   4,722 lines and is unchanged by the unrelated reviewed worktree edits.
 - Base AdvCiv 1.14 and Civ4CE are used locally for ancestry/control comparison.
 - C015-WIP12 remains an exact byte prefix of this checkpoint. No repository
@@ -20772,7 +20772,7 @@ C016 DURABLE CHECKPOINT -- FILE 015 CLOSED / FILE 016 QUEUED
 SOURCE IDENTITY AT CLOSURE
 --------------------------
 Branch: main
-HEAD: a70aa8b82f3882778f796887303851ca860f89bc
+HEAD: 74a53043ed15c4e896fb99c4fe912d01593bdfc2
 Practical commit count: 6274
 Base comparison: local AdvCiv 1.14 source archive
 Additional ancestry: local Civ4CE Vanilla / Warlords / BtS source archive
@@ -20965,7 +20965,7 @@ C016-WIP01 INTERIM CHECKPOINT -- FILE 016 CitySiteEvaluator.cpp OPEN
 SOURCE IDENTITY
 ---------------
 Branch: main
-HEAD: a70aa8b82f3882778f796887303851ca860f89bc
+HEAD: 74a53043ed15c4e896fb99c4fe912d01593bdfc2
 Practical commit count: 6274
 Current file: CvGameCoreDLL/CitySiteEvaluator.cpp -- 4,595 lines
 Current file SHA-256:
@@ -25135,7 +25135,7 @@ iterates again after the cargo transition.
 The conflicting SAS safeguard arrived much later in commit
 1798ac76f438e0c42602efb5e09819192efc06b2 (practical 5093), whose no-progress
 predicate initially observed only head geometry/moves and mission-queue length.
-KI#319, fixed in commit 47ddc58905f42ffb8724b436c976ccf33c6f572d (practical 6211),
+KI#319, fixed in commit d0ff436c1dc604225935d2b64951124f5c679923 (practical 6211),
 correctly expanded that predicate with head identity and UnitAI role after a different
 legitimate state transition exposed the same design weakness. Cargo progress remains
 unobserved, so F199 is a second concrete incomplete-predicate case in the same
@@ -28549,7 +28549,7 @@ Reconciliation source:
 
 Repository state captured by that ZIP:
     branch: main
-    HEAD: 6d1edf2784210a5b1fb9a17d88ff8ea80c274d92
+    HEAD: 61e14a5a947574a86bab81ad012addfa7097cc8d
     practical commit count: 6292
     origin/main ahead/behind: 0 / 0
 
@@ -32197,7 +32197,7 @@ ANCESTRY
     second condition is what made the current WorldBuilder reproduction crash before
     KI#475.3.
 
-    SAS practical commit 6283 / 5b2c6d1a63 (KI#475.3) correctly adds
+    SAS practical commit 6283 / 150aff570a (KI#475.3) correctly adds
     initRevivedPlayerInGame before processNewPlayerInGame, restoring the owner and branch
     objects. It converts the inherited crash/uninitialized-object failure into a safe
     but still incomplete zero-inventory state. F225 therefore extends rather than
@@ -92435,7 +92435,7 @@ C031-WIP139 — QUEUE 003 CvGameTextMgr.cpp CONTINUATION — F436 CONFIRMED
 Continuation basis
 ------------------
 Resumed from C031-WIP138 / F436 unused on current light-source snapshot practical
-6351 / HEAD 0a2f58842d57230932629d197f27afcc7cdfa06f. The first continuation pass
+6351 / HEAD 9068ad28635d8be44965efadf9bce1738e1b412d. The first continuation pass
 finished the subject-vs-active-player / observer-vs-subject scan and then ranked
 low-mention stateful helpers. The observer/subject family did not establish a
 new root: the active-player references in espionage, war-trade, relations and
@@ -92635,7 +92635,7 @@ C031-WIP140 — QUEUE 003 CONTINUATION FROM WIP139
 CURRENT SOURCE IDENTITY
 -----------------------
 Current SAS branch: main
-Current SAS HEAD: 0a2f58842d57230932629d197f27afcc7cdfa06f
+Current SAS HEAD: 9068ad28635d8be44965efadf9bce1738e1b412d
 Current practical/commit count: 6351
 Primary current file: CvGameCoreDLL/CvGameTextMgr.cpp
 Comparison trees: local AdvCiv 1.14, K-Mod 1.46, Civ4CE/BtS reconstruction
@@ -92735,7 +92735,7 @@ C031-WIP141 — QUEUE 003 CONTINUATION FROM WIP140
 CURRENT SOURCE IDENTITY
 -----------------------
 Current SAS branch: main
-Current SAS HEAD: 0a2f58842d57230932629d197f27afcc7cdfa06f
+Current SAS HEAD: 9068ad28635d8be44965efadf9bce1738e1b412d
 Current practical/commit count: 6351
 Primary current file: CvGameCoreDLL/CvGameTextMgr.cpp
 Comparison trees: local AdvCiv 1.14, K-Mod 1.46, Civ4CE/BtS reconstruction
@@ -123797,7 +123797,7 @@ repair surface.
 
 AUTHORITATIVE DECLARED CONTRACT
 -------------------------------
-Practical 6389 / commit `18564d5fce01007260d5b21224be4ef8768b11ce`, titled for
+Practical 6389 / commit `679d3f6b96e2c7e7eae819e002aac7de7ca3cc1e`, titled for
 KI#197.11, introduced the secured land/naval split. The accompanying XML does not
 describe a separate quota for every ocean. It explicitly defines the secured naval
 curve as a minimum share of EMPIRE production:

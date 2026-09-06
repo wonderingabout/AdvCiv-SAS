@@ -926,7 +926,7 @@ For offline source/history review (notably with external LLMs), [LLM_Helpers REA
 
 Note: during development with LLMs, as of now, we do not necessarily generate compact light-source ZIP at each prompt: for example, we may use a command like `git diff --staged --ignore-space-at-eol > "uncommitted_staged_changes_no_eol_$(date +%Y%m%dT%H%M%S).diff"` to give the LLM the difference (staged e.g. using VS Code's UI) since a light-source ZIP, for example during an intermediate implementation/review step, saving on upload costs/time.
 
-The same canonical [`LLM_Helpers/context/commit_diffs/`](/LLM_Helpers/context/commit_diffs/) corpus is available to GitHub/clones/Codex and refreshed locally after successful normal full-history ZIP creation.
+The same canonical `LLM_Helpers/context/commit_diffs/` history context is generated locally for Codex/code agents and injected into light-source ZIPs; Git history remains authoritative and the generated mirror is intentionally not tracked.
 
 The tracked-file manifest also records exact current byte sizes, including for tracked binaries intentionally omitted from the light ZIP. A separate `pending_upstream/` snapshot section exposes fetched but not-yet-merged base AdvCiv release history: exact `MERGE_HEAD` while merging, otherwise a SHA-deduplicated union of locally fetched release-like refs, with topic/experimental refs kept separate and explicit-ref overrides available if upstream naming changes. Use `--fetch-upstream` when ZIP generation should first run `git fetch upstream --prune`; normal generation remains network-free. This makes upstream-change and merge-conflict review possible from the ZIP alone without misrepresenting pending commits as current source ancestry.
 
@@ -958,7 +958,7 @@ git.exe -C "...\Mods\AdvCiv-SAS" status --short --untracked-files=no
 So the answers map almost directly to:
 
 ```bash
-show ... %H       -> f829a71d7a06...
+show ... %H       -> 5234f5012d74...
 show ... %cI      -> 2026-08-31T13:54:54+02:00
 abbrev-ref        -> main
 rev-list --count  -> 6356
@@ -991,7 +991,7 @@ We create one permanent tag on a commit whose practical version we already know,
 
 ```txt
 SAS_VERSION_ANCHOR_6356
-    -> f829a71d7a...
+    -> 5234f5012d...
 ```
 
 Then [SASModVersion.txt](/Assets/SASModVersion.txt) contains an archive placeholder using Git's `%(describe:...)` formatter. Git supports that formatter, including restricting the matching tag pattern to our `SAS_VERSION_ANCHOR_*` tags ([Git](https://git-scm.com/docs/pretty-formats)).
@@ -1034,7 +1034,7 @@ For example, following AdvCiv-SAS changes, BBAI head of a log looks like this:
 ```log
 BBAI_NEW_GAME_INITIALIZING processUtc=20260831T052433Z utc=20260831T052450Z logFile=BBAI_20260831T052450Z_new1.log
 BBAI_MOD_CONTEXT displayName="AdvCiv-SAS" folderName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
-BBAI_SOURCE_CONTEXT version="6356" commit="f829a71d7a06f9a3d3d9e1fa0aa0d3b8b775b440" shortCommit="f829a71d7a" branch="main" commitDate="2026-08-31T13:54:54+02:00" metadataSource="git" dirty=1 dirtyTrackedCount=19 dirtyFiles="[ M] .gitattributes; [ M] .github/workflows/README.md; [ M] .github/workflows/build.yml; [ M] Assets/CvGameCoreDLL.dll; [ M] Assets/Python/Contrib/CvModName.py; [ M] Assets/XML/GlobalDefines_advciv_sas.xml; [ M] CvGameCoreDLL/BBAILog.cpp; [ M] CvGameCoreDLL/CvGameCoreUtils.cpp; [ M] CvGameCoreDLL/CvGameCoreUtils.h; [ M] CvGameCoreDLL/CyGlobalContext.cpp; [ M] CvGameCoreDLL/CyGlobalContext.h; [ M] CvGameCoreDLL/CyGlobalContextInterface2.cpp; [ M] CvGameCoreDLL/ModName.cpp; [ M] CvGameCoreDLL/ModName.h; [ M] CvGameCoreDLL/SASGameRecordLog.cpp; [ M] README.md; [ M] _1_AdvCiv-SAS/Docs/Modding_Ressources/README_Release_Process.md; [ M] _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md; [M ] _1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt"
+BBAI_SOURCE_CONTEXT version="6356" commit="5234f5012d745b96fd83b8bf60d3031de69c2a01" shortCommit="5234f5012d" branch="main" commitDate="2026-08-31T13:54:54+02:00" metadataSource="git" dirty=1 dirtyTrackedCount=19 dirtyFiles="[ M] .gitattributes; [ M] .github/workflows/README.md; [ M] .github/workflows/build.yml; [ M] Assets/CvGameCoreDLL.dll; [ M] Assets/Python/Contrib/CvModName.py; [ M] Assets/XML/GlobalDefines_advciv_sas.xml; [ M] CvGameCoreDLL/BBAILog.cpp; [ M] CvGameCoreDLL/CvGameCoreUtils.cpp; [ M] CvGameCoreDLL/CvGameCoreUtils.h; [ M] CvGameCoreDLL/CyGlobalContext.cpp; [ M] CvGameCoreDLL/CyGlobalContext.h; [ M] CvGameCoreDLL/CyGlobalContextInterface2.cpp; [ M] CvGameCoreDLL/ModName.cpp; [ M] CvGameCoreDLL/ModName.h; [ M] CvGameCoreDLL/SASGameRecordLog.cpp; [ M] README.md; [ M] _1_AdvCiv-SAS/Docs/Modding_Ressources/README_Release_Process.md; [ M] _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md; [M ] _1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt"
 BBAI_DLL_CONTEXT build=Debug-opt moduleFound=1 fileReadable=1 fileSizeBytes=13004800 dllFingerprint=FNV1A64:EBDFF2A3D2968D25 dllLastWriteUtc=20260831T052417.443Z peTimestampRaw=1788153848 peTimestampUtc=20260831T052408Z fassertEnabled=0 debugDefine=0 ndebugDefine=1
 BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=3 SAS_BBAI_TEAM_LOG_LEVEL=3 SAS_BBAI_WAR_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=0 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=100
 BBAI_NEW_GAME_STARTED processUtc=20260831T052433Z utc=20260831T052450Z logFile=BBAI_20260831T052450Z_new1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ETHIOPIA activeHandicap=HANDICAP_MONARCH playersDefined=16 playersAlive=16 playersEverAlive=16 humans=1
@@ -1073,7 +1073,7 @@ For example, `SASGameRecord_*.log` starts with the lifecycle marker, shared prov
 ```log
 GAME_RECORD_NEW_GAME_INITIALIZING processUtc=20260831T142646Z utc=20260831T142703Z logFile="SASGameRecord_20260831T142703Z_new1.log" sessionWallMilliseconds=0
 GAME_RECORD_MOD_CONTEXT displayName="AdvCiv-SAS" folderName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
-GAME_RECORD_SOURCE_CONTEXT version="6357" commit="f565ff750581003e2baf3888d4f1ed50150a814d" shortCommit="f565ff7505" branch="main" commitDate="2026-08-31T15:37:01+02:00" metadataSource="git" dirty=1 dirtyTrackedCount=12 dirtyFiles="[ M] Assets/CvGameCoreDLL.dll; [ M] Assets/XML/GlobalDefines_advciv_sas.xml; [M ] CvGameCoreDLL/CvEventReporter.cpp; [M ] CvGameCoreDLL/CvGame.cpp; [M ] CvGameCoreDLL/CvGame.h; [M ] CvGameCoreDLL/CyGame.cpp; [M ] CvGameCoreDLL/CyGame.h; [M ] CvGameCoreDLL/CyGameInterface.cpp; [M ] CvGameCoreDLL/SASGameRecordLog.cpp; [M ] README.md; [M ] _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md; [ M] _1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt"
+GAME_RECORD_SOURCE_CONTEXT version="6357" commit="3a8b85dab7557eff3b135533bdfec269d3a27cbd" shortCommit="3a8b85dab7" branch="main" commitDate="2026-08-31T15:37:01+02:00" metadataSource="git" dirty=1 dirtyTrackedCount=12 dirtyFiles="[ M] Assets/CvGameCoreDLL.dll; [ M] Assets/XML/GlobalDefines_advciv_sas.xml; [M ] CvGameCoreDLL/CvEventReporter.cpp; [M ] CvGameCoreDLL/CvGame.cpp; [M ] CvGameCoreDLL/CvGame.h; [M ] CvGameCoreDLL/CyGame.cpp; [M ] CvGameCoreDLL/CyGame.h; [M ] CvGameCoreDLL/CyGameInterface.cpp; [M ] CvGameCoreDLL/SASGameRecordLog.cpp; [M ] README.md; [M ] _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md; [ M] _1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt"
 GAME_RECORD_DLL_CONTEXT build=Release moduleFound=1 fileReadable=1 fileSizeBytes=7426048 dllFingerprint=FNV1A64:FEC2083182573080 dllLastWriteUtc=20260831T142545.517Z peTimestampRaw=1788186345 peTimestampUtc=20260831T142545Z fassertEnabled=0 debugDefine=0 ndebugDefine=1
 GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=3 SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=10 SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH=160 SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT=120 SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL=2 SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_TERRAIN_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_RIVER_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_BONUS_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_FEATURE_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE=1 SAS_GAME_RECORD_TRADE_MARKET_ENABLE=1 SAS_GAME_RECORD_TRADE_MARKET_BONUS_GPT_QUOTES_ENABLE=1 SAS_GAME_RECORD_TRADE_MARKET_AI_TECH_VALUES_ENABLE=1 SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=1 SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=2
 GAME_RECORD_TECH_CAPABILITY_SOURCES mapTrading=TECH_PAPER techTrading=TECH_WRITING goldTrading=TECH_CURRENCY openBordersTrading=TECH_WRITING defensivePactTrading=TECH_MILITARY_TRADITION permanentAllianceTrading=TECH_GAME_THEORY vassalStateTrading=TECH_PHILOSOPHY source=LOADED_XML
@@ -1089,7 +1089,7 @@ GAME_RECORD_DISPLAY_CONTEXT systemContextLevel=2 resolution=1920x1080 graphicsIn
 GAME_RECORD_RUNTIME_CONTEXT systemContextLevel=2 win32Runtime=NATIVE_WINDOWS pointerBits=32 logicalProcessors=-1 totalPhysicalMemoryMB=-1
 GAME_RECORD_GAME_RNG mapRandState=2577982547 syncRandState=1731845674
 GAME_RECORD_SAVE_VERSION_HISTORY entries=1
-GAME_RECORD_SAVE_VERSION_HISTORY_ENTRY index=0 role=CREATION turn=0 version="6357" commit="f565ff750581003e2baf3888d4f1ed50150a814d" dirty=1
+GAME_RECORD_SAVE_VERSION_HISTORY_ENTRY index=0 role=CREATION turn=0 version="6357" commit="3a8b85dab7557eff3b135533bdfec269d3a27cbd" dirty=1
 GAME_RECORD_ACTION turn=0 type=AUTOPLAY_STARTED oldTurnsLeft=0 newTurnsLeft=101 activePlayer=0 changePlayerStatus=1 requestId=1 requestedTurns=101 completedTurns=0 elapsedGameTurns=0 sessionWallMilliseconds=12819 autoplayWallMilliseconds=0 startTurn=0 startElapsed=0 startPlayer=0 activePlayerChanges=0 totalActivePlayerChanges=0 endCause=-
 GAME_RECORD_TURN_BEGIN turn=10 reason=interval elapsed=10 year=-18000 playersAlive=16 teamsAlive=16 totalCities=16 totalPopulation=16 utc=20260831T142720.628Z sessionWallMilliseconds=17094 snapshotIntervalWallMilliseconds=17094 performanceMetricsEnabled=1 processForegroundAtSnapshot=0 processWindowMinimizedAtSnapshot=0 processWorkingSetKB=554280 processPeakWorkingSetKB=557092 processPagefileUsageKB=495704 systemMemoryLoadPercent=50 processAvailableVirtualMB=2478
 GAME_RECORD_TURN_END turn=10 reason=interval sessionWallMilliseconds=17102 snapshotWallMilliseconds=8

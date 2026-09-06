@@ -52,15 +52,9 @@
 /_1_AdvCiv-SAS/Docs/Source_Analysis/    export-ignore
 /_1_AdvCiv-SAS/Docs/Source_Analysis/**  export-ignore
 
-# <!-- custom: Keep shared greppable history/map-reference context in Git for GitHub/clones/Codex/LLM development, but never ship it in player archives.
-# Historical *.diff payloads are generated reference data, so suppress ordinary Git textual diff/whitespace treatment and GitHub language statistics for them. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+# <!-- custom: Keep tracked development-context metadata, rewrite archaeology, and imported references out of player archives; generated commit_diffs are Git-ignored separately. (GPT-5.6-Sol) -->
 /LLM_Helpers/context/                    export-ignore
 /LLM_Helpers/context/**                  export-ignore
-/LLM_Helpers/context/commit_diffs/        export-ignore
-/LLM_Helpers/context/commit_diffs/**      export-ignore linguist-vendored
-/LLM_Helpers/context/commit_diffs/*.diff -diff
-# <!-- custom: Retain the former-path diff rule so the one-time tracked corpus relocation is not rendered as hundreds of megabytes of deleted patch text. (GPT-5.6-Sol) -->
-/LLM_Helpers/commit_diffs/*.diff -diff
 
 # <!-- custom: Keep greppable downloaded map-script originals in Git and the dedicated light-source ZIP for inherited-bug archaeology, but exclude this non-runtime third-party corpus from player/GitHub Download ZIP archives.
 # Suppress ordinary diffs/language statistics for the verbatim upstream files while leaving the local README reviewable. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
