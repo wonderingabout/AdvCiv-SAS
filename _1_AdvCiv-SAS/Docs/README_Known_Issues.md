@@ -92,6 +92,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#53.2.2 - (Seemingly greatly enhanced) AI overproducing defenders early on, especially longbowmen but not only, replaced with an early produce more versatile units especially civ-specific ones when defended enough (at least in theory) in CvCityAI::AI_chooseUnit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.2.2)\
 [KI#53.3 - (Reopened/Broadened after major SAS improvement) A concrete siege veto can suppress a legal same-role alternative](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.3)\
 [KI#53.4 - (Tremendously Improved) AI overbuilding very cheap combat units (ancient macemen only being an issue as of now) in the early game, sometimes even at turn 100, which is inefficient and easy to overshoot, as they are cheap and accumulate quickly, but are not too effective especially as soon as we get archer units, now limited, especially even more so after as of now turn 50 where they should be especially useless; much better military compositions and better growth as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.4)\
+[KI#53.5 - (Greatly Improved) Peaceful dominant AIs can keep producing fresh land military after their primary landmass is already heavily saturated](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.5)\
 [KI#54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-54)\
 [55 to 60 -](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#55-to-60--)\
 
@@ -3619,11 +3620,106 @@ Update 2: now the anti excess very cheap units is also included in `CvCity::doTu
 
 Update 3: code now disabled now that we as of now have the unit `ObsoleteTech` field. Other parts of the documentation may also now be stale and not mentioned to be as such.
 
+<a id="ki-53.5"></a>
+
+## KI#53.5 - (Greatly Improved) Peaceful dominant AIs can keep producing fresh land military after their primary landmass is already heavily saturated
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1NPMoDWKuLfWk68P-NAWSuoQ6KLLBw5Di?usp=sharing).
+
+This follow-up broadens the earlier KI#53 military-overproduction family from specific naval, defender, siege and very-cheap-unit cases to a more general strategic question: once an AI is peacefully and overwhelmingly secure on its primary landmass, ordinary production branches can still keep requesting fresh land combat units even when the existing army is already extremely large.
+
+The motivating late-game autoplay evidence repeatedly showed Ethiopia at or near rank 1 with roughly 13-14 cities and about 150-220 combat units, often while still at peace. This was not just one `AI_chooseProduction` branch. SAS already had several useful branch-specific controls, including secured land/naval production-capacity floors, total-power adjustments to `AI_buildUnitProb`, role caps, and spending checks, but many separate production branches can ultimately request a unit. Treating one Future-era ATTACK/ATTACK_CITY floor as the entire problem would therefore risk fixing only one producer while other callers continued the same excessive stock growth.
+
+### Central-gate design
+
+The investigation therefore moved to the concrete `CvCityAI::AI_chooseUnit(UnitTypes, UnitAITypes)` overload, immediately before its ordinary `pushOrder(ORDER_TRAIN, ...)`. Most normal AI unit-production callers eventually funnel through this overload after the final unit and UnitAI substitutions have been resolved, and SAS already uses this area for central unit-production safety/optimization rules. The emergency `CvCity::doTurn` no-production fallback and human production governor deliberately remain separate.
+
+The candidate is intentionally a saturation brake, not a general military nerf. It only considers a **fresh land combat unit** and currently leaves naval/air units to their existing central caps because their sufficiency depends much more strongly on water topology, transport capacity and projection needs.
+
+Before suppressing a fresh land combat unit, all of the following must hold:
+
+- the AI is a master rather than a vassal;
+- it is at peace and has no current war plan;
+- the city is locally safe and already has its needed defenders;
+- the city is on the AI's primary landmass and that area is `AREAAI_NEUTRAL`;
+- no DAGGER, CRUSH, TURTLE, ALERT or FINAL_WAR strategy is active;
+- no Military victory stage 2+ push is active;
+- the primary landmass has at least the configured minimum number of AI cities;
+- the existing-or-training main land military stock on **this landmass** is already above a deliberately large era-scaled units-per-city threshold;
+- no more than the configured number of independent rival master-team blocs still owns cities on this landmass;
+- **every independent rival bloc still present on this landmass has been met**;
+- our master-team bloc has the configured local power lead over the combined known independent rival blocs that still own cities on this landmass, unless no independent local rival remains.
+
+The explicit unknown-local-rival check is important for early eras. An AI that appears dominant only because it has not met another civilization on the same continent is not allowed to treat the landmass as secured. This is intentionally conservative even if an unmet civilization is probably far away: until contact establishes enough information, ordinary military production remains untouched.
+
+The stock threshold is landmass-local too. A giant army on a secondary continent does not justify suppressing troops on the primary landmass, and an oversized navy does not count as evidence that the land army is sufficient.
+
+With the current XML values, the ordinary units-per-city threshold is 4/5/6/7/8/9/10 from Ancient through Future. Aggressive AI adds +2, so the motivating Aggressive-AI Future case must already have **12 relevant land military units per city on the primary landmass** before the power comparison can even matter.
+
+### Fix1: global-rival power comparison
+
+The first central-gate prototype required our master bloc to have at least 125% of the strongest known free rival bloc's power anywhere in the world.
+
+Two dry-run controls produced zero would-rejects. Two enabled runs produced 10 and 54 actual rejects, all for Ethiopia, all in the Future era and only during peaceful/dominant windows. Representative fix1 rejects occurred with about 14.0-15.8 relevant primary-landmass military units per city, no war, no war plan, no local danger and adequate city defenders. The power ratio was around 125-136%.
+
+This was useful evidence that the central choke point and the safety exclusions were selective rather than becoming a broad military nerf. However, the global-rival comparison was strategically mismatched to the decision being made: a stronger rival on another continent can justify naval, air or transport/projection capacity, but does not necessarily justify another large batch of land units sitting on an already-secured home continent.
+
+The first enabled runs still allowed very large stock growth, and the controls could fail to identify locally dominant empires merely because an unrelated overseas superpower was stronger globally. That led to fix2 rather than simply raising or lowering the stock threshold.
+
+### Fix2: primary-landmass rival power
+
+Fix2 keeps the same central gate and safety exclusions but compares against the **combined known independent rival master-team blocs that still own cities on the current primary landmass**. Vassals in one master bloc count together and a bloc is counted only once.
+
+The current default allows at most one independent local rival bloc. In that common case, the configured 125% requirement means our master bloc must have a clear 25% power lead over that remaining local bloc. If the XML limit is raised to permit several independent local blocs, their power is summed, making the comparison substantially more conservative. If no independent local rival remains, the power condition is satisfied only after all of the separate peace, safety, huge-stock and knowledge gates have already passed.
+
+The strongest known global rival remains logged as diagnostic context but no longer blocks a land-saturation decision by itself.
+
+The 125% value should not be interpreted in isolation. Raising it to 150%, 200% or 250% would make the optimization **more conservative** and allow substantially more militarization before the brake can activate. The current candidate deliberately combines the modest 25% local power lead with the much stronger stock requirement and the many safety exclusions above. In the Aggressive-AI Future test, the gate cannot activate below 12 relevant units per primary-landmass city regardless of power.
+
+### Fix2 2+2 validation and naval-heavy cross-check
+
+A further two control plus two candidate runs were performed on Huge `Archipelago`, which is classified `navalHeavy=1`. This was useful additional evidence because the new rule controls only saturated **land** production while existing naval logic remains active.
+
+The four SASGameRecord runs ended as follows:
+
+- control 1: Ethiopia won Space on turn 361;
+- control 2: Rome won Space on turn 400;
+- fix2 candidate 1: Ethiopia won Space on turn 358;
+- fix2 candidate 2: Ethiopia won Space on turn 351.
+
+Winner identity is not an acceptance criterion, but these outcomes are useful negative evidence that the central land brake did not cripple a dominant AI on a naval-heavy map.
+
+The candidate runs also demonstrate an important dynamic safety property already encoded by the gate. In candidate run 1 Ethiopia entered `WARPLAN_PREPARING_TOTAL` on turn 317 and actual war on turn 330; in candidate run 2 it entered `WARPLAN_PREPARING_TOTAL` on turn 324 and was at war by turns 335-336. Because any war plan or active war makes the saturation gate ineligible, the peaceful brake automatically disengages before those conflicts instead of continuing to suppress military production.
+
+Aggregate combat-unit totals are not sufficient to measure the gate because the runs diverge strategically and can enter different war plans. For example, one candidate trajectory still had about 196 combat units on turn 330, while another had 203; the intended question is whether specific **fresh land-unit requests during a genuinely peaceful saturated state** are centrally rejected, not whether all later military totals monotonically fall.
+
+The corresponding BBAI logs later completed the direct validation. Both fix2 controls recorded **0 would-rejects**. Candidate run 1 recorded **51 actual rejects**, all Ethiopia, from turns 295-316; every one was Future-era, peaceful, locally safe, adequately defended, outside any military-victory/strategy push, with zero unknown local rivals and roughly 14.00-14.81 relevant land military units per primary-landmass city. Ethiopia's local power advantage was 530-571% even though its global advantage over the strongest known overseas rival was only 121-128%. Candidate run 2 recorded **68 actual rejects**: 66 Ethiopia plus 2 China, again all Future-era and with every safety exclusion clear. Ethiopia had roughly 13.63-15.54 relevant units per primary-landmass city and 308-412% local power. The two Chinese rejects are especially useful evidence for fix2: China had 13.44 relevant units per city and **190% local power**, but only **62% of the strongest global rival's power**, so fix1's global comparison would have kept producing land units solely because Ethiopia was stronger elsewhere in the world.
+
+The war-plan boundary was also exact in both enabled runs. Candidate run 1 rejected fresh land units through turn 316 and Ethiopia adopted its war plan on turn 317; candidate run 2 rejected through turn 323 and the next war plan began on turn 324. No rejection occurred with `atWar=1`, `anyWarPlan=1`, `danger=1`, `underDefended=1`, an unknown local rival, a military-victory push, a military-strategy push, or a vassal owner. This directly confirms that the central brake switches off when real military preparation begins rather than preventing the AI from responding to a new war or denial opportunity.
+
+A separate one-control/one-enabled confirmation then revisited the same map/sync seed as the older SASGameRecord example that had originally drawn attention to Isabella's heavy militarization, this time on the current Custom Continents trajectory. The old Spanish domination/saturation state did **not** recur, and Spain therefore logged **0** dry-run or actual saturation rejections in both runs.
+
+The control did identify one independent textbook candidate instead: Scandinavia at Birka on turn 338 had 182 relevant land military units across 16 primary-landmass cities (11.37 per city versus an Industrial/Aggressive-AI threshold of 11), 472% of its remaining local rival bloc's power, no war plan, no danger and adequate defense.
+
+The enabled replay diverged and produced no actual rejection. Because the historical trajectories were no longer equivalent, this is not treated as an outcome A/B; it is useful selectivity/generalization evidence that the gate stays inactive for a leader when the motivating saturated state is absent and can identify the same state in another civilization instead.
+
+### Final status
+
+The central `AI_chooseUnit` architecture, landmass-local stock, unknown-local-rival safety and fix2 local-power model are retained as the final behavior. Direct level-3 BBAI validation found no false-positive strategic state in the tested runs: the gate fired only for already enormous, peaceful, locally dominant primary-landmass armies and stopped immediately when a war plan appeared.
+
+The configured 125% local-power threshold is intentionally only one safety layer rather than the main saturation test. In the final candidate rows Ethiopia was already 308-571% of its remaining local rival bloc's power, while China was 190%; raising the threshold from 125% to 150% would therefore have changed none of the observed rejects, and 200% would only have spared China's two requests. Requiring 200-250% by default would mostly delay economic relief after the AI has already passed the much stronger era-scaled stock threshold (12 relevant units per city in the tested Aggressive-AI Future case).
+
+The default one-independent-rival limit also makes this difficult to trigger on a crowded/Pangaea landmass. Two or more independent local master-team blocs block saturation entirely; every unmet local bloc also blocks it; and any war plan, active war, local danger, under-defense, military strategy or military-victory push restores normal unit production. This preserves room for dogpiles, multi-front threats, Space/culture-victory denial and conquest preparation. Naval and air saturation remain separate questions because their useful stock depends much more on water topology and projection requirements.
+
+KI#53.5 is therefore considered greatly improved/validated for the current land-production scope. Future evidence can still refine the era stock or power thresholds, and naval saturation can be investigated independently rather than broadening this central land rule without evidence.
+
+Investigated/improved with the help of ChatGPT-5.6-Sol thanks.
+
 <a id="ki-54"></a>
 
 ## KI#54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller
 
-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1gYU7NrXpJNc5p6hbqOsCxnOmCy_7VTDf?usp=sharing)
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1gYU7NrXpJNc5p6hbqOsCxnOmCy_7VTDf?usp=sharing).
 
 As can be seen in existing screenshots between 3073 and 3089, AI would settle an extremely bad spot on a camel desert tile which is bad on itself already but which is on top of it fully surrounded by desert, the absolutely worst site. But in the early game AI would not consider this site as among its best (no colored circle at that plot for any player so i assume it means this), only later on, at turn 51 (not at turn 50)
 

@@ -2778,6 +2778,41 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_CHOOSE_UNIT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Central pre-push safety net for fresh land combat units when an AI master is peacefully and clearly over-militarized. The concrete AI_chooseUnit overload is the normal common endpoint for unit-production callers, so this can suppress excess regardless of which higher branch requested the unit without duplicating the rule across AI_chooseProduction. Naval/air units remain under their existing central caps because their sufficiency depends more strongly on water topology, transport capacity and projection needs. On crowded/Pangaea landmasses, multiple independent local rival blocs keep this brake off by default, while any war or war plan immediately restores normal land-unit production. Level-3 military-production logging records the same conditions for validation. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Do not apply the peaceful land-military saturation gate to tiny primary land areas. The code compares this threshold with the AI city count on the current primary landmass, not distant colonies; this is a stockpile brake for an established local position, not an early minimum-defense rule. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_MIN_CITIES</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: Base number of existing-or-training main land military UnitAIs required per city on this primary land area before the peaceful saturation gate can reject another fresh land combat unit. The code adds the per-era value below and the Aggressive AI extra when applicable; armies on other landmasses do not count toward this stock threshold. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_BASE_UNITS_PER_CITY</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: Additional main land military units per city required for each current era index. With base 4, this gives 4/5/6/7/8/9/10 before the Aggressive AI adjustment from Ancient through Future, making saturation possible in every era but increasingly conservative as armies naturally grow. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_UNITS_PER_CITY_PER_ERA</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Extra main land military units per city required before the saturation gate can activate under the Aggressive AI game option. This preserves the option's intended higher military posture while still allowing truly extreme stockpiles to stop growing forever. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_AGGRESSIVE_AI_EXTRA_UNITS_PER_CITY</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum power of our master-team bloc, as a percentage of the combined known independent rival master-team blocs that still own cities on this primary land area, before the peaceful saturation gate can reject a fresh land combat unit. 125 requires a clear 25% local-continent lead; when no independent rival bloc remains on the landmass, this power condition is already satisfied once the separate very-large-stock and peace/safety gates pass. A stronger overseas rival does not by itself require still more home-continent land units and is instead relevant to naval/air/projection decisions. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_MIN_LOCAL_RIVAL_POWER_ADVANTAGE_PERCENT</DefineName>
+		<iDefineIntVal>125</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum number of independent rival master-team blocs allowed to still own cities in this city's land area when the peaceful saturation gate activates. The count includes unmet local blocs, and the code separately requires zero such unknown blocs, so an incompletely contacted landmass cannot be treated as secured merely because known-rival power looks favorable. Vassals in the same master bloc count together. The default 1 also keeps this optimization naturally inactive on crowded/Pangaea landmasses with two or more independent local blocs, preserving room for dogpiles and multi-front threats until the strategic situation is genuinely consolidated. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_MAX_INDEPENDENT_RIVAL_TEAMS_IN_AREA</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: set this to enable advciv-sas anti excess siege code (via one of the AI_ChooseUnit functions). 1 to enabled (recommended), 0 to disabled (disables it entirely, if you want to selectively disable some features, consider tweaking one or a few of the sub configure options below instead); Long_Comments_XML.txt #167 -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES</DefineName>

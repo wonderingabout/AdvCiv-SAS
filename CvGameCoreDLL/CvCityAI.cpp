@@ -273,12 +273,17 @@ static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pW
 static bool SAS_isOffensiveProductionAI(UnitAITypes eUnitAI) { return (eUnitAI == UNITAI_ATTACK || eUnitAI == UNITAI_ATTACK_CITY); }
 static bool SAS_isNavalOffensiveProductionAI(UnitAITypes eUnitAI) { return (eUnitAI == UNITAI_ASSAULT_SEA || eUnitAI == UNITAI_ESCORT_SEA || eUnitAI == UNITAI_ATTACK_SEA); }
 
-// <!-- custom: Count independent local master-team blocs; teammates and master/vassal partners do not justify a forced land-offense floor against each other. Barbarians are handled by the caller. (ChatGPT-5.6-Sol) -->
-static int SAS_countIndependentRivalTeamsInArea(CvPlayerAI const& kPlayer, CvArea const& kArea, int& iIndependentRivalCities)
+// <!-- custom: Count independent local master-team blocs for production-capacity and peaceful-saturation decisions; teammates and master/vassal partners are one bloc.
+// Optional outputs also expose unmet local blocs and the combined/highest power of known independent local blocs without counting a master bloc twice. Barbarians are handled by callers separately. (ChatGPT-5.6-Sol) -->
+static int SAS_countIndependentRivalTeamsInArea(CvPlayerAI const& kPlayer, CvArea const& kArea, int& iIndependentRivalCities, int* piUnknownIndependentRivalTeams = NULL, int* piCombinedKnownIndependentRivalBlocPower = NULL, int* piHighestKnownIndependentRivalBlocPower = NULL)
 {
 	iIndependentRivalCities = 0;
+	if (piUnknownIndependentRivalTeams != NULL) *piUnknownIndependentRivalTeams = 0;
+	if (piCombinedKnownIndependentRivalBlocPower != NULL) *piCombinedKnownIndependentRivalBlocPower = 0;
+	if (piHighestKnownIndependentRivalBlocPower != NULL) *piHighestKnownIndependentRivalBlocPower = 0;
 	bool abCountedMasterTeams[MAX_TEAMS] = { false };
 	TeamTypes const eOurMasterTeam = kPlayer.getMasterTeam();
+	CvTeam const& kOurTeam = GET_TEAM(kPlayer.getTeam());
 	int iIndependentRivalTeams = 0;
 	for (PlayerIter<MAJOR_CIV> itOther; itOther.hasNext(); ++itOther)
 	{
@@ -291,8 +296,33 @@ static int SAS_countIndependentRivalTeamsInArea(CvPlayerAI const& kPlayer, CvAre
 		if (iMasterIndex < 0 || iMasterIndex >= MAX_TEAMS || abCountedMasterTeams[iMasterIndex]) continue;
 		abCountedMasterTeams[iMasterIndex] = true;
 		iIndependentRivalTeams++;
+		if (!kOurTeam.isHasMet(eOtherMasterTeam))
+		{
+			if (piUnknownIndependentRivalTeams != NULL) (*piUnknownIndependentRivalTeams)++;
+			continue;
+		}
+		int const iRivalBlocPower = GET_TEAM(eOtherMasterTeam).getPower(true);
+		if (piCombinedKnownIndependentRivalBlocPower != NULL) *piCombinedKnownIndependentRivalBlocPower += iRivalBlocPower;
+		if (piHighestKnownIndependentRivalBlocPower != NULL) *piHighestKnownIndependentRivalBlocPower = std::max(*piHighestKnownIndependentRivalBlocPower, iRivalBlocPower);
 	}
 	return iIndependentRivalTeams;
+}
+
+// <!-- custom: Shared stock/power helpers for the central peaceful land-military saturation gate in concrete AI_chooseUnit.
+// Keep the stock land-area-local and role-based so an oversized navy or an army stranded on another landmass cannot suppress needed troops here; AI_totalAreaUnitAIs includes units already being trained. (ChatGPT-5.6-Sol) -->
+static int SAS_getMainLandMilitaryStock(CvPlayerAI const& kPlayer, CvArea const& kArea)
+{
+	return kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK_CITY) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK_CITY_LEMMING) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_COUNTER) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_CITY_DEFENSE) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_CITY_SPECIAL) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_CITY_COUNTER) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_RESERVE) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_COLLATERAL) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_PILLAGE) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_PARADROP);
+}
+
+// <!-- custom: Global strongest-known-rival power is retained only as diagnostic context for the peaceful land-military saturation gate.
+// The actual land gate compares against known independent rival blocs that still own cities on this landmass; an overseas superpower should motivate projection/naval capacity rather than endless additional home-continent land stock. (ChatGPT-5.6-Sol) -->
+static int SAS_getHighestKnownFreeRivalBlocPower(CvPlayerAI const& kPlayer)
+{
+	int iHighestRivalPower = 0;
+	for (TeamAIIter<FREE_MAJOR_CIV,OTHER_KNOWN_TO> itRival(kPlayer.getTeam()); itRival.hasNext(); ++itRival)
+		iHighestRivalPower = std::max(iHighestRivalPower, itRival->getPower(true));
+	return iHighestRivalPower;
 }
 
 // <!-- custom: Rank naval-floor roles for the relevant water area; the CvCityAI member caller performs the protected AI_chooseUnit call. AI_totalWaterAreaUnitAIs includes ships at sea, in ports and queued there. (ChatGPT-5.6-Sol) -->
@@ -15030,9 +15060,104 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 		if (eChangedUnit != NO_UNIT && eChangedUnitAI != NO_UNITAI)
 		{
+			CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+			// <!-- custom: Central peaceful land-military saturation gate immediately before ordinary AI unit production. Every normal AI_chooseUnit caller reaches this concrete overload after the final unit/UnitAI substitutions, so one guard can suppress discretionary excess regardless of which higher production branch requested it.
+			// The emergency CvCity::doTurn no-production fallback deliberately remains separate.
+			// Only fresh combat land units are considered: finish invested units, preserve under-defended/local-danger cities, wars and war plans, alert/dagger/crush/turtle/final-war strategies, serious military-victory pushes, vassals, and non-primary areas.
+			// A peaceful master must also have a very large era-scaled main land army on this landmass, know every independent rival bloc still present there, have no more than the XML local rival-bloc limit, and hold a clear power lead over the combined known independent rival blocs that still own cities on this landmass (or have no independent local rival left).
+			// This is intentionally difficult to trigger on a crowded/Pangaea landmass: with the default local-rival limit, two or more independent local blocs keep the brake off, and any actual war or war plan immediately restores normal military production.
+			// This preserves readiness for dogpiles, Space/culture-victory denial and ordinary conquest preparation.
+			// A stronger overseas rival does not by itself justify endlessly adding home-continent land units; it remains visible in diagnostics for naval/projection analysis. Level-3 military-production logging can evaluate the same rule while the behavior toggle is off for dry-run controls. (ChatGPT-5.6-Sol) -->
+			static const bool bSASPeacefulLandMilitarySaturationOptimize = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_OPTIMIZE");
+			bool const bEvaluatePeacefulLandMilitarySaturation = (bSASPeacefulLandMilitarySaturationOptimize || bLogDetailedMilitaryProduction);
+			if (bEvaluatePeacefulLandMilitarySaturation)
+			{
+				CvUnitInfo const& kChangedUnitInfo = GC.getInfo(eChangedUnit);
+				bool const bFreshLandCombatCandidate = (kChangedUnitInfo.getDomainType() == DOMAIN_LAND && kChangedUnitInfo.getCombat() > 0 && getUnitProduction(eChangedUnit) <= 0);
+				if (bFreshLandCombatCandidate)
+				{
+					CvTeamAI const& kOwnerTeam = GET_TEAM(kOwner.getTeam());
+					static const int iMinCities = std::max(1, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_MIN_CITIES"));
+					static const int iBaseUnitsPerCity = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_BASE_UNITS_PER_CITY"));
+					static const int iUnitsPerCityPerEra = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_UNITS_PER_CITY_PER_ERA"));
+					static const int iAggressiveAIExtraUnitsPerCity = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_AGGRESSIVE_AI_EXTRA_UNITS_PER_CITY"));
+					static const int iMinPowerAdvantagePercent = std::max(100, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_MIN_LOCAL_RIVAL_POWER_ADVANTAGE_PERCENT"));
+					static const int iMaxIndependentRivalTeamsInArea = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_MAX_INDEPENDENT_RIVAL_TEAMS_IN_AREA"));
+					int const iTotalCities = kOwner.getNumCities();
+					int const iAreaCities = getArea().getCitiesPerPlayer(getOwner());
+					int const iCurrentEra = std::max(0, (int)kOwner.getCurrentEra());
+					int const iMinLandUnitsPerCity = iBaseUnitsPerCity + iUnitsPerCityPerEra * iCurrentEra + (GC.getGame().isOption(GAMEOPTION_AGGRESSIVE_AI) ? iAggressiveAIExtraUnitsPerCity : 0);
+					bool const bAtWar = (kOwnerTeam.getNumWars() > 0);
+					bool const bAnyWarPlan = kOwnerTeam.AI_isAnyWarPlan();
+					bool const bPrimaryArea = kOwner.AI_isPrimaryArea(getArea());
+					bool const bAreaNeutral = (getArea().getAreaAIType(getTeam()) == AREAAI_NEUTRAL);
+					bool const bMilitaryVictoryPush = kOwner.AI_atVictoryStage(AI_VICTORY_MILITARY2 | AI_VICTORY_MILITARY3 | AI_VICTORY_MILITARY4);
+					bool const bMilitaryStrategyPush = (kOwner.AI_isDoStrategy(AI_STRATEGY_DAGGER) || kOwner.AI_isDoStrategy(AI_STRATEGY_CRUSH) || kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE) || kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT1) || kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT2) || kOwner.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR));
+					bool const bVassal = kOwner.isAVassal();
+					bool const bBasicEligible = (iAreaCities >= iMinCities && !bVassal && !bAtWar && !bAnyWarPlan && bPrimaryArea && bAreaNeutral && !bMilitaryVictoryPush && !bMilitaryStrategyPush);
+
+					bool bDanger = false;
+					int iCityDefenders = -1;
+					int iNeededDefenders = -1;
+					bool bUnderDefended = false;
+					if (bLogDetailedMilitaryProduction || bBasicEligible)
+					{
+						bDanger = AI_isDanger();
+						iCityDefenders = getPlot().getNumDefenders(getOwner());
+						iNeededDefenders = AI_neededDefenders();
+						bUnderDefended = (iCityDefenders < iNeededDefenders);
+					}
+					bool const bLocallySafeEligible = (bBasicEligible && !bDanger && !bUnderDefended);
+
+					int iMainLandMilitaryStock = -1;
+					int iMainLandMilitaryPerCityX100 = -1;
+					int iIndependentRivalCitiesInArea = -1;
+					int iIndependentRivalTeamsInArea = -1;
+					int iUnknownIndependentRivalTeamsInArea = -1;
+					int iCombinedKnownLocalRivalBlocPower = -1;
+					int iHighestKnownLocalRivalBlocPower = -1;
+					int iHighestKnownGlobalRivalBlocPower = -1;
+					int iOurBlocPower = -1;
+					int iLocalPowerAdvantagePercent = -1;
+					int iGlobalPowerAdvantagePercent = -1;
+					if (bLogDetailedMilitaryProduction || bLocallySafeEligible)
+					{
+						iMainLandMilitaryStock = SAS_getMainLandMilitaryStock(kOwner, getArea());
+						iMainLandMilitaryPerCityX100 = (100 * iMainLandMilitaryStock) / std::max(1, iAreaCities);
+						iIndependentRivalCitiesInArea = 0;
+						iUnknownIndependentRivalTeamsInArea = 0;
+						iCombinedKnownLocalRivalBlocPower = 0;
+						iHighestKnownLocalRivalBlocPower = 0;
+						iIndependentRivalTeamsInArea = SAS_countIndependentRivalTeamsInArea(kOwner, getArea(), iIndependentRivalCitiesInArea, &iUnknownIndependentRivalTeamsInArea, &iCombinedKnownLocalRivalBlocPower, &iHighestKnownLocalRivalBlocPower);
+						iHighestKnownGlobalRivalBlocPower = SAS_getHighestKnownFreeRivalBlocPower(kOwner);
+						iOurBlocPower = kOwnerTeam.getPower(true);
+						iLocalPowerAdvantagePercent = (iCombinedKnownLocalRivalBlocPower <= 0 ? -1 : (100 * iOurBlocPower) / iCombinedKnownLocalRivalBlocPower);
+						iGlobalPowerAdvantagePercent = (iHighestKnownGlobalRivalBlocPower <= 0 ? -1 : (100 * iOurBlocPower) / iHighestKnownGlobalRivalBlocPower);
+					}
+					bool const bLocalPowerAdvantage = (iIndependentRivalTeamsInArea == 0 || iCombinedKnownLocalRivalBlocPower <= 0 || iLocalPowerAdvantagePercent >= iMinPowerAdvantagePercent);
+					bool const bWouldReject = (bLocallySafeEligible && iIndependentRivalTeamsInArea <= iMaxIndependentRivalTeamsInArea && iUnknownIndependentRivalTeamsInArea == 0 && iMainLandMilitaryPerCityX100 >= 100 * iMinLandUnitsPerCity && bLocalPowerAdvantage);
+
+					if (bLogDetailedMilitaryProduction)
+					{
+						int const iUnitSpending = kOwner.AI_unitCostPerMil();
+						int const iMaxUnitSpending = kOwner.AI_maxUnitCostPerMil(&getArea());
+						logBBAI("MILITARY_PRODUCTION_SATURATION_GATE turn=%d player=%d %S city=%S cityId=%d enabled=%d wouldReject=%d actualReject=%d unit=%s unitAI=%s era=%d totalCities=%d areaCities=%d area=%d mainLandStock=%d mainLandPerCityX100=%d minLandPerCity=%d ourBlocPower=%d combinedKnownLocalRivalBlocPower=%d highestKnownLocalRivalBlocPower=%d localPowerAdvantagePercent=%d minLocalPowerAdvantagePercent=%d highestKnownGlobalRivalBlocPower=%d globalPowerAdvantagePercent=%d independentRivalTeamsInArea=%d unknownIndependentRivalTeamsInArea=%d independentRivalCitiesInArea=%d maxIndependentRivalTeamsInArea=%d primaryArea=%d areaAI=%d atWar=%d anyWarPlan=%d danger=%d defenders=%d neededDefenders=%d underDefended=%d militaryVictoryPush=%d militaryStrategyPush=%d vassal=%d unitSpending=%d maxUnitSpending=%d spendingGap=%d",
+							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+							bSASPeacefulLandMilitarySaturationOptimize, bWouldReject, bSASPeacefulLandMilitarySaturationOptimize && bWouldReject, GC.getInfo(eChangedUnit).getType(), GC.getInfo(eChangedUnitAI).getType(),
+							iCurrentEra, iTotalCities, iAreaCities, getArea().getID(), iMainLandMilitaryStock, iMainLandMilitaryPerCityX100, iMinLandUnitsPerCity, iOurBlocPower, iCombinedKnownLocalRivalBlocPower, iHighestKnownLocalRivalBlocPower, iLocalPowerAdvantagePercent, iMinPowerAdvantagePercent, iHighestKnownGlobalRivalBlocPower, iGlobalPowerAdvantagePercent, iIndependentRivalTeamsInArea,
+							iUnknownIndependentRivalTeamsInArea, iIndependentRivalCitiesInArea, iMaxIndependentRivalTeamsInArea, bPrimaryArea, getArea().getAreaAIType(getTeam()),
+							bAtWar, bAnyWarPlan, bDanger, iCityDefenders, iNeededDefenders, bUnderDefended, bMilitaryVictoryPush, bMilitaryStrategyPush, bVassal, iUnitSpending, iMaxUnitSpending, iMaxUnitSpending - iUnitSpending);
+					}
+					if (bSASPeacefulLandMilitarySaturationOptimize && bWouldReject)
+					{
+						if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "PEACEFUL_LAND_MILITARY_SATURATION", "mainLandPerCityX100", iMainLandMilitaryPerCityX100, "localPowerAdvantagePercent", iLocalPowerAdvantagePercent);
+						return false;
+					}
+				}
+			}
+
 			// <!-- custom: Central area-usefulness gate immediately before AI unit production. This covers every ordinary AI_chooseUnit path after substitutions have resolved the final UnitAI, independently of the optional SAS unit-optimization block.
 			// Free/scripted units and the human production governor remain separate. See KI#192. (GPT-5.6-Sol) -->
-			CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 			if (eChangedUnitAI == UNITAI_EXPLORE)
 			{
 				// <!-- custom: A land Explorer cannot benefit a tiny or fully explored landmass. (GPT-5.6-Sol) -->
