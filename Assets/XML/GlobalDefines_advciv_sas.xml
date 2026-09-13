@@ -1637,6 +1637,11 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: Dedicated building-production diagnostics for comparing useful infrastructure opportunities with actual production choices, including the cheap-needed-infrastructure efficiency gate. Level 2 records the best general building opportunity and the final production target; level 3 also records health, happiness, maintenance, food, production, gold, and research-focused building candidates plus representative land-military unit costs. Diagnostic-only and adds no RNG calls. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: New dedicated citizen-assignment diagnostics following the shared log-level classification above. Level 3 notably compares final worked/unworked jobs contextually and also reports simple 3F + 2H + 1C raw-yield disagreements, without enabling broad city logs. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_BBAI_CITIZEN_LOG_LEVEL</DefineName>
@@ -2812,6 +2817,31 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_MAX_INDEPENDENT_RIVAL_TEAMS_IN_AREA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Central efficiency brake for fresh discretionary land-combat units when a safe peaceful primary-area city has genuinely needed non-limited infrastructure that can finish no slower than the unit and empire military spending is already clearly above its normal allowance. This complements KI#53.5: saturation handles huge army stock, while this rule asks whether one more offensive unit is a worse marginal purchase than cheap health/happiness/maintenance infrastructure. It only vetoes the unit and lets the existing AI_chooseProduction search continue; it does not force a particular building. See KI#197.12. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum city-specific construction time of a qualifying needed building as a percentage of the exact fresh discretionary land-combat unit being considered. 100 means the building must finish in the same number of turns or faster. Turn comparison is preferred to nominal XML hammer cost because trait/resource/building modifiers can make infrastructure much cheaper in practice. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MAX_BUILDING_TO_UNIT_PRODUCTION_TIME_PERCENT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: Require current unit spending to exceed the central AI_maxUnitCostPerMil estimate by at least this many points before cheap infrastructure may veto another discretionary offensive land unit. 15 deliberately matches the common K-Mod/SAS +15 military-production tolerance, so under-strength or merely normally-funded armies remain untouched. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MIN_UNIT_SPENDING_OVER_MAX</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum current city maintenance, in hundredths of gold per turn, before an actual maintenance-reducing building can qualify for the cheap-needed-infrastructure gate. 300 = 3.00 gold/turn. Health and happiness use direct local deficits instead and do not use this threshold. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MIN_CITY_MAINTENANCE_TIMES100</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum focused AI_buildingValue required for a maintenance-reducing building to qualify. This avoids using a low-value Courthouse-like building merely because it is cheap; health/happiness candidates instead require an actual local deficit. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MIN_MAINTENANCE_BUILDING_VALUE</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<!-- custom: set this to enable advciv-sas anti excess siege code (via one of the AI_ChooseUnit functions). 1 to enabled (recommended), 0 to disabled (disables it entirely, if you want to selectively disable some features, consider tweaking one or a few of the sub configure options below instead); Long_Comments_XML.txt #167 -->
 	<Define>
