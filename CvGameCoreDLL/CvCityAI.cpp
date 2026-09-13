@@ -15,6 +15,13 @@
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 #include "SASGameRecordLog.h" // <!-- custom: Level-2+ AI production-churn history brackets AI_chooseProduction without adding recorder schema to its decision branches. (ChatGPT-5.6-Sol) -->
 
+// <!-- custom: The current one-copy non-spaceship Project set is Manhattan (global), Internet (global), SDI (team), and Apollo (team). Keep this predicate narrow so multi-copy spaceship scheduling stays under its dedicated continuity policy. (ChatGPT-5.6-Sol) -->
+static bool SAS_isOneCopyNonSpaceshipProject(ProjectTypes eProject)
+{
+	CvProjectInfo const& kProject = GC.getInfo(eProject);
+	return (!kProject.isSpaceship() && (kProject.getMaxGlobalInstances() == 1 || kProject.getMaxTeamInstances() == 1));
+}
+
 // <!-- custom: Targeted RAII trace for the Rome-style failure where invested spaceship production is reevaluated and parked. The constructor arms only for an AI city currently producing a spaceship project.
 // The destructor reports the authoritative final head target across every early return in AI_chooseProduction. This is diagnostic-only and adds no RNG calls. (ChatGPT-5.6-Sol) -->
 class SASSpaceProductionReevaluationLogScope
@@ -92,6 +99,92 @@ public:
 		if (iNewTurnsLeft == MAX_INT)
 			iNewTurnsLeft = -1;
 		logBBAI("SPACE_PRODUCTION_TARGET_RESULT turn=%d player=%d city=%S cityId=%d oldProject=%s action=SWITCH oldStored=%d oldNeeded=%d oldTurnsLeft=%d newKind=%s newTarget=%s newStored=%d newNeeded=%d newTurnsLeft=%d",
+			GC.getGame().getGameTurn(), m_pCity->getOwner(), m_pCity->getName().GetCString(), m_pCity->getID(), GC.getInfo(m_eOldProject).getType(),
+			m_iOldStored, m_iOldNeeded, m_iOldTurnsLeft, szNewKind, szNewTarget, iNewStored, iNewNeeded, iNewTurnsLeft);
+	}
+
+private:
+	CvCityAI const* m_pCity;
+	ProjectTypes m_eOldProject;
+	int m_iOldStored;
+	int m_iOldNeeded;
+	int m_iOldTurnsLeft;
+};
+
+// <!-- custom: Targeted RAII trace for one-copy non-spaceship Project churn. The old France benchmark accumulated 2071 invalidated Manhattan production plus 3188 invalidated Apollo production because successive cities parked the same one-copy Project before another copy eventually completed. This scope is diagnostic-only and adds no RNG calls. (ChatGPT-5.6-Sol) -->
+class SASLimitedProjectProductionReevaluationLogScope
+{
+public:
+	SASLimitedProjectProductionReevaluationLogScope(CvCityAI const& kCity, bool bEnabled) : m_pCity(NULL), m_eOldProject(NO_PROJECT), m_iOldStored(0), m_iOldNeeded(0), m_iOldTurnsLeft(-1)
+	{
+		if (!bEnabled || kCity.isHuman() || kCity.isBarbarian())
+			return;
+		ProjectTypes const eProject = kCity.getProductionProject();
+		if (eProject == NO_PROJECT || !SAS_isOneCopyNonSpaceshipProject(eProject))
+			return;
+		m_pCity = &kCity;
+		m_eOldProject = eProject;
+		m_iOldStored = kCity.getProjectProduction(eProject);
+		m_iOldNeeded = kCity.getProductionNeeded(eProject);
+		m_iOldTurnsLeft = kCity.getProductionTurnsLeft(eProject, 0);
+		if (m_iOldTurnsLeft == MAX_INT)
+			m_iOldTurnsLeft = -1;
+
+		CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+		CvTeamAI const& kTeam = GET_TEAM(kPlayer.getTeam());
+		CvProjectInfo const& kProject = GC.getInfo(eProject);
+		logBBAI("LIMITED_PROJECT_REEVALUATE turn=%d player=%d %S city=%S cityId=%d project=%s stored=%d needed=%d completionPercent=%d turnsLeft=%d chooseDirty=%d danger=%d projectValue=%d teamCount=%d teamMaking=%d maxGlobal=%d maxTeam=%d",
+			GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kProject.getType(),
+			m_iOldStored, m_iOldNeeded, 100 * m_iOldStored / std::max(1, m_iOldNeeded), m_iOldTurnsLeft, kCity.isChooseProductionDirty(), kCity.AI_isDanger(), kCity.AI_projectValue(eProject),
+			kTeam.getProjectCount(eProject), kTeam.getProjectMaking(eProject), kProject.getMaxGlobalInstances(), kProject.getMaxTeamInstances());
+	}
+
+	~SASLimitedProjectProductionReevaluationLogScope()
+	{
+		if (m_pCity == NULL)
+			return;
+		ProjectTypes const eNewProject = m_pCity->getProductionProject();
+		if (eNewProject == m_eOldProject)
+		{
+			if (gLimitedProjectProductionLogLevel >= 3)
+				logBBAI("LIMITED_PROJECT_TARGET_RESULT turn=%d player=%d city=%S cityId=%d oldProject=%s action=KEEP newKind=PROJECT newTarget=%s stored=%d needed=%d turnsLeft=%d",
+					GC.getGame().getGameTurn(), m_pCity->getOwner(), m_pCity->getName().GetCString(), m_pCity->getID(), GC.getInfo(m_eOldProject).getType(), GC.getInfo(eNewProject).getType(),
+					m_pCity->getProjectProduction(eNewProject), m_pCity->getProductionNeeded(eNewProject), m_pCity->getProductionTurnsLeft(eNewProject, 0));
+			return;
+		}
+
+		char const* szNewKind = "-";
+		char const* szNewTarget = "-";
+		UnitTypes const eNewUnit = m_pCity->getProductionUnit();
+		BuildingTypes const eNewBuilding = m_pCity->getProductionBuilding();
+		if (eNewProject != NO_PROJECT)
+		{
+			szNewKind = "PROJECT";
+			szNewTarget = GC.getInfo(eNewProject).getType();
+		}
+		else if (eNewUnit != NO_UNIT)
+		{
+			szNewKind = "UNIT";
+			szNewTarget = GC.getInfo(eNewUnit).getType();
+		}
+		else if (eNewBuilding != NO_BUILDING)
+		{
+			szNewKind = "BUILDING";
+			szNewTarget = GC.getInfo(eNewBuilding).getType();
+		}
+		else if (m_pCity->isProductionProcess())
+		{
+			szNewKind = "PROCESS";
+			ProcessTypes const eProcess = m_pCity->getProductionProcess();
+			if (eProcess != NO_PROCESS)
+				szNewTarget = GC.getInfo(eProcess).getType();
+		}
+		int const iNewStored = (m_pCity->isProduction() ? m_pCity->getProduction() : 0);
+		int const iNewNeeded = (m_pCity->isProduction() ? m_pCity->getProductionNeeded() : 0);
+		int iNewTurnsLeft = (m_pCity->isProduction() ? m_pCity->getProductionTurnsLeft() : -1);
+		if (iNewTurnsLeft == MAX_INT)
+			iNewTurnsLeft = -1;
+		logBBAI("LIMITED_PROJECT_TARGET_RESULT turn=%d player=%d city=%S cityId=%d oldProject=%s action=SWITCH oldStored=%d oldNeeded=%d oldTurnsLeft=%d newKind=%s newTarget=%s newStored=%d newNeeded=%d newTurnsLeft=%d",
 			GC.getGame().getGameTurn(), m_pCity->getOwner(), m_pCity->getName().GetCString(), m_pCity->getID(), GC.getInfo(m_eOldProject).getType(),
 			m_iOldStored, m_iOldNeeded, m_iOldTurnsLeft, szNewKind, szNewTarget, iNewStored, iNewNeeded, iNewTurnsLeft);
 	}
@@ -1332,6 +1425,7 @@ void CvCityAI::AI_chooseProduction()
 	// Only civilization AI cities at SASGameRecord level 2+ capture state; ordinary completion -> fresh next selection is suppressed as non-churn. (ChatGPT-5.6-Sol) -->
 	SASGameRecordAIProductionChoiceScope kSASGameRecordProductionChoiceScope(*this, gGameRecordLogLevel >= 2 && !isHuman() && !isBarbarian());
 	SASSpaceProductionReevaluationLogScope kSASSpaceProductionReevaluationLogScope(*this, gSpaceProductionLogLevel >= 2);
+	SASLimitedProjectProductionReevaluationLogScope kSASLimitedProjectProductionReevaluationLogScope(*this, gLimitedProjectProductionLogLevel >= 2);
 	bool bWasFoodProduction = isFoodProduction();
 	bool bDanger = AI_isDanger();
 
@@ -1402,6 +1496,37 @@ void CvCityAI::AI_chooseProduction()
 							iCurrentStored, iCurrentNeeded, iCurrentCompletionPercent, iCurrentTurns, iContinuityMaxTurns,
 							iSASSpace3MinimumComponentContinuityHeavyMinPercent, iHeavyInvestmentMaxTurns, szContinuityGate,
 							iMinimumRequired, iCurrentCount, iMinimumCopiesStillNeeded, iContinuityRank, kTeam.getProjectMaking(eCurrentProject));
+				}
+			}
+			// <!-- custom: One-copy non-spaceship Projects can otherwise hop between cities whenever ordinary AI_chooseProduction reevaluation parks the active copy: getProjectMaking then falls back to 0, another city may start the same Project, and parked copies are invalidated when one copy finally completes.
+			// The practical-6411 France benchmark lost 2071 stored production across three parked Manhattan copies and 3188 across four parked Apollo copies (5259 total).
+			// Preserve a still-valued, safe active copy only when it is genuinely near-term or already substantially invested with a reasonable remaining time.
+			// Current testing settled on <=10 Normal-speed-equivalent turns, or >=40% complete with <=20 turns; low-progress assignments, immediate danger and nonpositive project value remain free to reevaluate.
+			// This intentionally covers only Manhattan, Internet, SDI and Apollo; spaceship components keep their separate minimum-component policy above. See KI#174.2. (ChatGPT-5.6-Sol) -->
+			static const bool bSASOneCopyProjectContinuity = GC.getDefineBOOL("SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_OPTIMIZE");
+			static const int iSASOneCopyProjectContinuityMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_MAX_TURNS_NORMAL_GAMESPEED"));
+			static const int iSASOneCopyProjectContinuityHeavyMinPercent = range(GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_HEAVY_INVESTMENT_MIN_COMPLETION_PERCENT"), 0, 100);
+			static const int iSASOneCopyProjectContinuityHeavyMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_HEAVY_INVESTMENT_MAX_TURNS_NORMAL_GAMESPEED"));
+			ProjectTypes const eCurrentLimitedProject = getProductionProject();
+			if (bSASOneCopyProjectContinuity && !bDanger && eCurrentLimitedProject != NO_PROJECT && SAS_isOneCopyNonSpaceshipProject(eCurrentLimitedProject) && canCreate(eCurrentLimitedProject, true))
+			{
+				int const iCurrentStored = getProjectProduction(eCurrentLimitedProject);
+				int const iCurrentNeeded = getProductionNeeded(eCurrentLimitedProject);
+				int const iCurrentTurns = getProductionTurnsLeft(eCurrentLimitedProject, 0);
+				int const iCreatePercent = GC.getInfo(kGame.getGameSpeedType()).getCreatePercent();
+				int const iNearTermMaxTurns = (iSASOneCopyProjectContinuityMaxTurnsNormal <= 0 ? 0 : std::max(1, (iSASOneCopyProjectContinuityMaxTurnsNormal * iCreatePercent + 99) / 100));
+				int const iHeavyMaxTurns = (iSASOneCopyProjectContinuityHeavyMaxTurnsNormal <= 0 ? 0 : std::max(1, (iSASOneCopyProjectContinuityHeavyMaxTurnsNormal * iCreatePercent + 99) / 100));
+				int const iCompletionPercent = 100 * iCurrentStored / std::max(1, iCurrentNeeded);
+				bool const bNearTerm = (iCurrentStored > 0 && iCurrentTurns > 0 && iNearTermMaxTurns > 0 && iCurrentTurns <= iNearTermMaxTurns);
+				bool const bHeavyInvestment = (!bNearTerm && iCurrentStored > 0 && iCurrentTurns > 0 && iHeavyMaxTurns > 0 && iCurrentTurns <= iHeavyMaxTurns && iCompletionPercent >= iSASOneCopyProjectContinuityHeavyMinPercent);
+				int const iCurrentProjectValue = AI_projectValue(eCurrentLimitedProject);
+				if ((bNearTerm || bHeavyInvestment) && iCurrentProjectValue > 0)
+				{
+					if (gLimitedProjectProductionLogLevel >= 2)
+						logBBAI("LIMITED_PROJECT_CONTINUITY turn=%d player=%d %S city=%S cityId=%d project=%s stored=%d needed=%d completionPercent=%d turnsLeft=%d nearTermMaxTurns=%d heavyMinCompletionPercent=%d heavyMaxTurns=%d continuityGate=%s projectValue=%d reason=one_copy_project",
+							kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), GC.getInfo(eCurrentLimitedProject).getType(),
+							iCurrentStored, iCurrentNeeded, iCompletionPercent, iCurrentTurns, iNearTermMaxTurns, iSASOneCopyProjectContinuityHeavyMinPercent, iHeavyMaxTurns, (bNearTerm ? "near_term" : "heavy_investment"), iCurrentProjectValue);
+					return;
 				}
 			}
 			//if we are killing our growth to train this, then finish it.
@@ -1531,6 +1656,14 @@ void CvCityAI::AI_chooseProduction()
 					return;
 				}
 			}
+		}
+		if (gLimitedProjectProductionLogLevel >= 2)
+		{
+			ProjectTypes const eProductionProject = getProductionProject();
+			if (eProductionProject != NO_PROJECT && SAS_isOneCopyNonSpaceshipProject(eProductionProject))
+				logBBAI("LIMITED_PROJECT_RELEASE turn=%d player=%d %S city=%S cityId=%d project=%s stored=%d needed=%d turnsLeft=%d danger=%d projectValue=%d reason=ordinary_AI_chooseProduction_reevaluation",
+					kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), GC.getInfo(eProductionProject).getType(),
+					getProjectProduction(eProductionProject), getProductionNeeded(eProductionProject), getProductionTurnsLeft(eProductionProject, 0), bDanger, AI_projectValue(eProductionProject));
 		}
 		if (gSpaceProductionLogLevel >= 2)
 		{
@@ -9974,12 +10107,17 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 	FOR_EACH_ENUM2(Project, eProject)
 	{
 		CvProjectInfo const& kProject = GC.getInfo(eProject);
+		bool const bLogLimitedProject = (gLimitedProjectProductionLogLevel >= 3 && SAS_isOneCopyNonSpaceshipProject(eProject));
 		if (!canCreate(eProject))
 		{
 			if (gSpaceProductionLogLevel >= 3 && kProject.isSpaceship())
 				logBBAI("SPACE_PROJECT_CANDIDATE turn=%d player=%d %S city=%S cityId=%d project=%s result=SKIP reason=cannot_create productionRank=%d teamCount=%d teamMaking=%d maxTeam=%d stored=%d",
 					kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), kProject.getType(), iProductionRank,
 					kTeam.getProjectCount(eProject), kTeam.getProjectMaking(eProject), kProject.getMaxTeamInstances(), getProjectProduction(eProject));
+			if (bLogLimitedProject)
+				logBBAI("LIMITED_PROJECT_CANDIDATE turn=%d player=%d %S city=%S cityId=%d project=%s result=SKIP reason=cannot_create productionRank=%d teamCount=%d teamMaking=%d maxGlobal=%d maxTeam=%d stored=%d",
+					kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), kProject.getType(), iProductionRank,
+					kTeam.getProjectCount(eProject), kTeam.getProjectMaking(eProject), kProject.getMaxGlobalInstances(), kProject.getMaxTeamInstances(), getProjectProduction(eProject));
 			continue; // can't build it. skip to the next project.
 		}
 
@@ -9989,6 +10127,9 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 		{
 			if (gSpaceProductionLogLevel >= 3 && kProject.isSpaceship())
 				logBBAI("SPACE_PROJECT_CANDIDATE turn=%d player=%d %S city=%S cityId=%d project=%s result=SKIP reason=no_finite_turns productionRank=%d stored=%d",
+					kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), kProject.getType(), iProductionRank, getProjectProduction(eProject));
+			if (bLogLimitedProject)
+				logBBAI("LIMITED_PROJECT_CANDIDATE turn=%d player=%d %S city=%S cityId=%d project=%s result=SKIP reason=no_finite_turns productionRank=%d stored=%d",
 					kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), kProject.getType(), iProductionRank, getProjectProduction(eProject));
 			continue;
 		} // </advc.004x>
@@ -10006,6 +10147,9 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 			// not fast enough to risk blocking our more productive cities from building it.
 			if (gSpaceProductionLogLevel >= 3 && kProject.isSpaceship())
 				logBBAI("SPACE_PROJECT_CANDIDATE turn=%d player=%d %S city=%S cityId=%d project=%s result=SKIP reason=slow_low_production_rank productionRank=%d cities=%d turnsLeft=%d relativeTurns=%d stored=%d",
+					kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), kProject.getType(), iProductionRank, kOwner.getNumCities(), iTurnsLeft, iRelativeTurns, getProjectProduction(eProject));
+			if (bLogLimitedProject)
+				logBBAI("LIMITED_PROJECT_CANDIDATE turn=%d player=%d %S city=%S cityId=%d project=%s result=SKIP reason=slow_low_production_rank productionRank=%d cities=%d turnsLeft=%d relativeTurns=%d stored=%d",
 					kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), kProject.getType(), iProductionRank, kOwner.getNumCities(), iTurnsLeft, iRelativeTurns, getProjectProduction(eProject));
 			continue;
 		}
@@ -10030,6 +10174,9 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 		{
 			if (gSpaceProductionLogLevel >= 3 && kProject.isSpaceship())
 				logBBAI("SPACE_PROJECT_CANDIDATE turn=%d player=%d %S city=%S cityId=%d project=%s result=SKIP reason=nonpositive_value productionRank=%d turnsLeft=%d relativeTurns=%d value=%d stored=%d",
+					kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), kProject.getType(), iProductionRank, iTurnsLeft, iRelativeTurns, iValue, getProjectProduction(eProject));
+			if (bLogLimitedProject)
+				logBBAI("LIMITED_PROJECT_CANDIDATE turn=%d player=%d %S city=%S cityId=%d project=%s result=SKIP reason=nonpositive_value productionRank=%d turnsLeft=%d relativeTurns=%d value=%d stored=%d",
 					kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), kProject.getType(), iProductionRank, iTurnsLeft, iRelativeTurns, iValue, getProjectProduction(eProject));
 			continue; // the project is worthless. Skip it.
 		}
@@ -10115,6 +10262,11 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 				iValue /= iRelativeTurns + 5;
 			}
 		}
+		if (bLogLimitedProject)
+			logBBAI("LIMITED_PROJECT_CANDIDATE turn=%d player=%d %S city=%S cityId=%d project=%s result=VALUE productionRank=%d turnsLeft=%d relativeTurns=%d stored=%d teamCount=%d teamMaking=%d maxGlobal=%d maxTeam=%d goodFit=%d finalValue=%d currentBest=%s currentBestValue=%d",
+				kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), kProject.getType(), iProductionRank, iTurnsLeft, iRelativeTurns, getProjectProduction(eProject),
+				kTeam.getProjectCount(eProject), kTeam.getProjectMaking(eProject), kProject.getMaxGlobalInstances(), kProject.getMaxTeamInstances(), bGoodFit, iValue,
+				(eBestProject == NO_PROJECT ? "-" : GC.getInfo(eBestProject).getType()), iBestValue);
 		if (gSpaceProductionLogLevel >= 3 && kProject.isSpaceship())
 		{
 			VictoryTypes const eSpaceVictory = kProject.getVictoryPrereq();
@@ -10131,6 +10283,10 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 			eBestProject = eProject;
 		}
 	}
+	if (gLimitedProjectProductionLogLevel >= 2 && eBestProject != NO_PROJECT && SAS_isOneCopyNonSpaceshipProject(eBestProject))
+		logBBAI("LIMITED_PROJECT_BEST turn=%d player=%d %S city=%S cityId=%d productionRank=%d project=%s value=%d currentProject=%s currentStored=%d",
+			kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), iProductionRank, GC.getInfo(eBestProject).getType(), iBestValue,
+			(getProductionProject() == NO_PROJECT ? "-" : GC.getInfo(getProductionProject()).getType()), (getProductionProject() == NO_PROJECT ? 0 : getProjectProduction(getProductionProject())));
 	if (gSpaceProductionLogLevel >= 2 && kOwner.AI_atVictoryStage(AI_VICTORY_SPACE2))
 	{
 		logBBAI("SPACE_PROJECT_BEST turn=%d player=%d %S city=%S cityId=%d productionRank=%d project=%s value=%d currentProject=%s currentStored=%d",

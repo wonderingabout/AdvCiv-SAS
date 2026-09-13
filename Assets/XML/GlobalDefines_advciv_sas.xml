@@ -1632,6 +1632,11 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_BBAI_SPACE_PRODUCTION_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: Dedicated one-copy non-spaceship Project diagnostics for Manhattan, Internet, SDI and Apollo. Level 2 records reevaluation/release/final-target transitions plus selected limited projects; level 3 also records candidate legality, production rank/fit, stored production, team-making counts and final candidate value. Diagnostic-only and no RNG calls. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: New dedicated citizen-assignment diagnostics following the shared log-level classification above. Level 3 notably compares final worked/unworked jobs contextually and also reports simple 3F + 2H + 1C raw-yield disagreements, without enabling broad city logs. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_BBAI_CITIZEN_LOG_LEVEL</DefineName>
@@ -2709,6 +2714,28 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 
+
+
+	<!-- custom: Preserve sensible progress on one-copy non-spaceship Projects (Manhattan, Internet, SDI and Apollo) instead of letting ordinary Base AdvCiv/K-Mod AI_chooseProduction reevaluation repeatedly park the active copy and scatter stored production across successive cities. A safe city keeps a still-positively-valued active copy only when it is genuinely near completion or already substantially invested with a reasonable remaining time; danger, zero/negative strategic value, and low-progress assignments remain free to reevaluate. 1 enables the optimization; 0 restores inherited Project reevaluation. See KI#174.2. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Near-term maximum in Normal-speed-equivalent Project turns for one-copy Project continuity, scaled by CreatePercent. Default 10 came from present-source control/candidate testing: 20 turns would suppress too many ordinary low-progress switches, while 10 consistently protects the clearest almost-finished cases. 0 disables only this near-term gate. See KI#174.2. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum completion percentage for the heavier-investment one-copy Project continuity fallback. Default 40 follows the enabled-run evidence: 50% still allowed a safe positive-value Apollo at 650/1504 production (43%, 14 turns) to hop to another city and later lose all 650 stored hammers, while rechecking the two accidental controls showed that 40% would have intercepted only one additional release per full run. This fallback also requires the separate maximum remaining time below and positive current AI_projectValue. See KI#174.2. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_HEAVY_INVESTMENT_MIN_COMPLETION_PERCENT</DefineName>
+		<iDefineIntVal>40</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum remaining Normal-speed-equivalent Project turns for the heavier-investment one-copy Project continuity fallback, scaled by CreatePercent. Default 20 combines with the 40% threshold above to protect substantial committed production without broadly locking fresh or slow assignments. 0 disables this fallback. See KI#174.2. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_HEAVY_INVESTMENT_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
 
 
 	<!-- custom: Keep an already-invested minimum-required spaceship component in production from SPACE3 onward when the city is not in immediate danger and the component is either near-term or already heavily invested with a still-reasonable remaining time. Ordinary Base AdvCiv/K-Mod city reevaluation can otherwise park launch-gating projects for unrelated production after substantial investment. When several cities simultaneously build the same component, the DLL ranks eligible copies by remaining turns, stored production, then stable city identity and protects only as many as the still-missing minimum launch requirement; optional duplicates remain fully flexible. 1 enables the optimization; 0 restores inherited project reevaluation. See KI#184.3. (ChatGPT-5.6-Sol) -->
