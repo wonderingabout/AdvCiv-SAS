@@ -86,7 +86,11 @@ def _getInitialSeedTokens():
 	# The mask was removed because these C++ getters already return unsigned int values, so it was redundant. Python 2's trailing 'L' long-literal syntax also prevents modern Ruff/Pylance Python-3 parsers from parsing the file. (ChatGPT-5.6-Sol) -->
 	uiMapSeed = game.getInitialMapRandSeed()
 	uiSyncSeed = game.getInitialSyncRandSeed()
-	return ("M%08X" % uiMapSeed, "S%08X" % uiSyncSeed)
+	# <!-- custom: Our earlier SAS Fast Save filenames formatted seeds as eight hexadecimal digits for compactness; Civ4 does not require that filename format.
+	# Searching the example record's decimal seed 41500016 could not find its save because the filename contained 02793D70 instead.
+	# Write plain decimal seeds, map then sync, so the same number can be copied directly from the record into a filename search.
+	# Omit the old M/S prefixes because they made the new decimal format look encoded and used two extra filename characters. (GPT-6) -->
+	return ("%d" % uiMapSeed, "%d" % uiSyncSeed)
 
 def _getWorldSizeToken():
 	map = gc.getMap()
@@ -102,9 +106,21 @@ def _getMapScriptToken():
 		szMapScript = CvUtil.convertToStr(map.getMapScriptName())
 	except:
 		szMapScript = str(map.getMapScriptName())
-	# <!-- custom: Keep the map script greppable and able to disambiguate reuse of the same map seed, but place it after turn/reason information so those more important fields are less likely to be clipped in Civ4's narrow save UI. Strip path/extension noise, then sanitize/cap unusual custom script names for Windows path safety. (ChatGPT-5.6-Sol) -->
+	# <!-- custom: Keep the map script greppable and able to disambiguate reuse of the same map seed, but place it after the leader, turn and world size so map identity is visible before lower-priority save metadata is clipped in Civ4's narrow save UI.
+	# Strip path/extension noise, then sanitize/cap unusual custom script names for Windows path safety. (ChatGPT-5.6-Sol) -->
 	szMapScript = os.path.splitext(os.path.basename(szMapScript))[0]
 	return _safeToken(szMapScript, "", 24)
+
+def _getLeaderToken(iLeader):
+	# <!-- custom: Cutting compound names mid-word produced awkward labels such as JULIUS_CAE. Keep complete underscore-separated name chunks within the cap; truncate only when the first chunk itself is too long. (GPT-6) -->
+	iMaxLen = 10
+	szName = _safeToken(gc.getLeaderHeadInfo(iLeader).getType(), "LEADER_", 0)
+	if len(szName) <= iMaxLen:
+		return szName
+	iBoundary = szName.rfind("_", 0, iMaxLen + 1)
+	if iBoundary > 0:
+		return szName[:iBoundary]
+	return szName[:iMaxLen]
 
 def _getInitialLeaderToken():
 	game = gc.getGame()
@@ -118,7 +134,9 @@ def _getInitialLeaderToken():
 		return "PLAYER%d" % iPlayer
 	# <!-- custom: Use the original player's stable XML leader type (e.g. LEADER_GANDHI -> GANDHI), never a user-entered player name such as "PC".
 	# AdvCiv serializes the initial active player, so this token continues to identify the original test/game even if unattended autoplay later hands control to another player after defeat. (ChatGPT-5.6-Sol) -->
-	return _safeToken(gc.getLeaderHeadInfo(iLeader).getType(), "LEADER_", 24)
+	# <!-- custom: Long leader names use space needed to recognize the turn and map in Civ4's narrow save list.
+	# Keep complete sanitized name chunks within a length cap for both original and winning leaders. Preserve internal underscores so compound names remain recognizable instead of being reduced to their first word; spaces and punctuation become underscores through the shared sanitizer. These abbreviations are display labels, not unique identities. (GPT-6) -->
+	return _getLeaderToken(iLeader)
 
 def _getGameSpeedToken():
 	game = gc.getGame()
@@ -135,9 +153,12 @@ def _getVictoryTokens():
 	if iWinner < 0 or iVictory < 0:
 		return None
 
-	szVictory = _safeToken(gc.getVictoryInfo(iVictory).getType(), "VICTORY_", 20)
+	szVictoryType = _safeToken(gc.getVictoryInfo(iVictory).getType(), "VICTORY_", 20)
+	# <!-- custom: Long victory labels such as SPACE_RACE consume the narrow save list's visible filename space.
+	# Use short recognizable standard labels so more of the winner remains visible; retain custom victory names when no abbreviation is defined. (GPT-6) -->
+	szVictory = {"SPACE_RACE": "SPACE", "DOMINATION": "DOM", "CONQUEST": "CONQ", "CULTURAL": "CULT", "DIPLOMATIC": "DIPLO"}.get(szVictoryType, szVictoryType)
 	# <!-- custom: The original player leader is already shown before the turn in every Fast Save. If that player's team won, the victory type alone is enough and avoids duplicating the same leader in the narrow save UI.
-	# If another team won, append that winning team's XML leader so a filename such as GANDHI_..._CULTURAL_BOUDICA shows both the original player and the actual winner at a glance. (ChatGPT-5.6-Sol) -->
+	# If another team won, append that winning team's XML leader so a filename such as GANDHI_..._CULT_BOUDICA shows both the original player and the actual winner at a glance. (ChatGPT-5.6-Sol) -->
 	iInitialPlayer = game.getInitialActivePlayer()
 	if iInitialPlayer >= 0 and gc.getPlayer(iInitialPlayer).getTeam() == iWinner:
 		return (szVictory,)
@@ -147,18 +168,23 @@ def _getVictoryTokens():
 		szLeader = "TEAM%d" % iWinner
 	else:
 		iLeader = gc.getPlayer(iLeaderPlayer).getLeaderType()
-		szLeader = _safeToken(gc.getLeaderHeadInfo(iLeader).getType(), "LEADER_", 24)
+		szLeader = _getLeaderToken(iLeader)
 	return (szVictory, szLeader)
 
 def _buildBaseName(szReason):
 	game = gc.getGame()
 	szMapSeed, szSyncSeed = _getInitialSeedTokens()
 	szUTC = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
-	# <!-- custom: Optimize the narrow save UI for human scanning: original XML leader -> zero-padded turn -> game speed -> reason/victory -> world size -> map script -> map seed -> sync seed -> UTC timestamp.
-	# Put immediately meaningful information before opaque seed metadata so it remains visible when Civ4 clips long filenames.
-	# This gives up alphabetical grouping by map seed, but saves are normally sorted by file time and advanced tools can still filter the complete filename by either seed.
-	# The UTC timestamp stays last as uniqueness metadata because Civ4's save dialog and file browsers already expose and sort by file date separately. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	return "%s_T%04d_%s_%s_%s_%s_%s_%s_%s" % (_getInitialLeaderToken(), game.getGameTurn(), _getGameSpeedToken(), szReason, _getWorldSizeToken(), _getMapScriptToken(), szMapSeed, szSyncSeed, szUTC)
+	# <!-- custom: Our earlier SAS layout put speed and START/STOP before the map, while long leader names consumed more of Civ4's narrow save list.
+	# Show the abbreviated leader, turn and map first, then victory/winner; move speed and seed metadata later and START/STOP/END to the tail.
+	# Shorter display labels and reordered fields address UI readability while decimal seeds address direct record-to-save searching.
+	# UTC and the existing collision suffix distinguish individual saves. (ChatGPT-5.6-Sol + GPT-5.6-Sol + GPT-6) -->
+	szBase = "%s_T%04d_%s_%s" % (_getInitialLeaderToken(), game.getGameTurn(), _getWorldSizeToken(), _getMapScriptToken())
+	szMetadata = "%s_%s_%s_%s" % (_getGameSpeedToken(), szMapSeed, szSyncSeed, szUTC)
+	if szReason in ("START", "STOP", "END"):
+		return "%s_%s_%s" % (szBase, szMetadata, szReason)
+	return "%s_%s_%s" % (szBase, szReason, szMetadata)
+
 
 def _save(szReason):
 	game = gc.getGame()
