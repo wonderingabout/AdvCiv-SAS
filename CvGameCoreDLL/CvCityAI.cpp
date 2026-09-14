@@ -1505,7 +1505,7 @@ static int SAS_getRepresentativeLandMilitaryProductionCost(CvCityAI const& kCity
 // <!-- custom: Find a genuinely needed, non-limited infrastructure alternative that this city can finish no slower than the concrete discretionary land-combat unit currently being considered.
 // This is intentionally based on city-specific production turns rather than XML hammer cost so trait/resource/building modifiers count correctly.
 // Health and happiness candidates require an actual local deficit; maintenance candidates must really reduce maintenance, require meaningful city maintenance/value, and are therefore not just any generally useful building returned under a maintenance focus.
-// Async/const building evaluation adds no RNG calls and avoids mutating ordinary AI value caches. See KI#197.12. (ChatGPT-5.6-Sol) -->
+// Const-cache building evaluation plus explicitly disabled AI_bestBuildingThreshold randomization adds no RNG calls and avoids mutating ordinary AI value caches. See KI#197.12. (ChatGPT-5.6-Sol) -->
 static BuildingTypes SAS_findCheapNeededInfrastructureForUnit(CvCityAI const& kCity, UnitTypes eUnit, int iMaxBuildingToUnitProductionTimePercent, int iMinMaintenanceTimes100, int iMinMaintenanceBuildingValue, int& iBestFocusFlags, int& iBestValue, int& iBestBuildingTurns, int& iUnitTurns)
 {
 	iBestFocusFlags = 0;
@@ -1527,7 +1527,7 @@ static BuildingTypes SAS_findCheapNeededInfrastructureForUnit(CvCityAI const& kC
 		if (iFocusFlags == BUILDINGFOCUS_MAINTENANCE && kCity.getMaintenanceTimes100() < iMinMaintenanceTimes100)
 			continue;
 
-		BuildingTypes const eCandidate = kCity.AI_bestBuildingThreshold(iFocusFlags, 0, 0, true);
+		BuildingTypes const eCandidate = kCity.AI_bestBuildingThreshold(iFocusFlags, 0, 0, true, NO_ADVISOR, false);
 		if (eCandidate == NO_BUILDING)
 			continue;
 		CvBuildingInfo const& kBuilding = GC.getInfo(eCandidate);
@@ -1561,26 +1561,81 @@ static BuildingTypes SAS_findCheapNeededInfrastructureForUnit(CvCityAI const& kC
 	return eBestBuilding;
 }
 
+// <!-- custom: Find a cheap high-return economic infrastructure alternative for a fresh discretionary land-combat unit.
+// Unlike the hard health/happiness/maintenance gate above, these FOOD/PRODUCTION/GOLD/RESEARCH opportunities have no binary local deficit. Require the focused AI value to exceed both an absolute floor and the same building's ordinary value by a meaningful amount, so the focus itself is adding real strategic value rather than merely relabeling a generally useful building.
+// The deterministic AI_bestBuildingThreshold path deliberately disables its normal random tie-break/selection multiplier. A behavioral veto must not depend on ASyncRand (non-synchronized RNG), and using synchronized RNG here would perturb unrelated game decisions even when the same unit ultimately remains allowed.
+// This helper still does not force the building; it only provides a conservative reason to decline one more over-budget offensive unit and let normal AI_chooseProduction continue. (ChatGPT-5.6-Sol) -->
+static BuildingTypes SAS_findCheapHighReturnInfrastructureForUnit(CvCityAI const& kCity, UnitTypes eUnit, int iMaxBuildingToUnitProductionTimePercent, int iMinFocusedBuildingValue, int iMinFocusValueGain, int& iBestFocusFlags, int& iBestFocusedValue, int& iBestBaseValue, int& iBestFocusValueGain, int& iBestBuildingTurns, int& iUnitTurns)
+{
+	iBestFocusFlags = 0;
+	iBestFocusedValue = 0;
+	iBestBaseValue = 0;
+	iBestFocusValueGain = 0;
+	iBestBuildingTurns = -1;
+	iUnitTurns = kCity.getProductionTurnsLeft(eUnit, 0);
+	if (eUnit == NO_UNIT || iUnitTurns <= 0 || iUnitTurns >= MAX_INT || iMaxBuildingToUnitProductionTimePercent <= 0)
+		return NO_BUILDING;
+
+	BuildingTypes eBestBuilding = NO_BUILDING;
+	int const aiFocusFlags[] = { BUILDINGFOCUS_FOOD, BUILDINGFOCUS_PRODUCTION, BUILDINGFOCUS_GOLD, BUILDINGFOCUS_RESEARCH };
+	for (int i = 0; i < 4; i++)
+	{
+		int const iFocusFlags = aiFocusFlags[i];
+		BuildingTypes const eCandidate = kCity.AI_bestBuildingThreshold(iFocusFlags, 0, 0, true, NO_ADVISOR, false);
+		if (eCandidate == NO_BUILDING)
+			continue;
+		CvBuildingInfo const& kBuilding = GC.getInfo(eCandidate);
+		if (kBuilding.isLimited())
+			continue;
+
+		int const iFocusedValue = kCity.AI_buildingValue(eCandidate, iFocusFlags, 0, true);
+		int const iBaseValue = kCity.AI_buildingValue(eCandidate, 0, 0, true);
+		int const iFocusValueGain = iFocusedValue - iBaseValue;
+		if (iFocusedValue < iMinFocusedBuildingValue || iFocusValueGain < iMinFocusValueGain)
+			continue;
+
+		int const iBuildingTurns = kCity.getProductionTurnsLeft(eCandidate, 0);
+		if (iBuildingTurns <= 0 || iBuildingTurns >= MAX_INT ||
+			100 * iBuildingTurns > iMaxBuildingToUnitProductionTimePercent * iUnitTurns)
+		{
+			continue;
+		}
+		if (eBestBuilding == NO_BUILDING || iBuildingTurns < iBestBuildingTurns ||
+			(iBuildingTurns == iBestBuildingTurns && iFocusValueGain > iBestFocusValueGain) ||
+			(iBuildingTurns == iBestBuildingTurns && iFocusValueGain == iBestFocusValueGain && iFocusedValue > iBestFocusedValue))
+		{
+			eBestBuilding = eCandidate;
+			iBestFocusFlags = iFocusFlags;
+			iBestFocusedValue = iFocusedValue;
+			iBestBaseValue = iBaseValue;
+			iBestFocusValueGain = iFocusValueGain;
+			iBestBuildingTurns = iBuildingTurns;
+		}
+	}
+	return eBestBuilding;
+}
+
 // <!-- custom: Level-3 building diagnostics inspect focused alternatives without changing production.
-// Async/const evaluation keeps the diagnostic scans out of mutable AI caches and adds no RNG calls. (ChatGPT-5.6-Sol) -->
+// Const-cache evaluation keeps the diagnostic scans out of mutable AI caches; AI_bestBuildingThreshold randomization is explicitly disabled so diagnostics add no RNG calls. (ChatGPT-5.6-Sol) -->
 static void SAS_logBuildingProductionFocusCandidate(CvCityAI const& kCity, int iFocusFlags, char const* szFocus)
 {
-	BuildingTypes const eBuilding = kCity.AI_bestBuildingThreshold(iFocusFlags, 0, 0, true);
+	BuildingTypes const eBuilding = kCity.AI_bestBuildingThreshold(iFocusFlags, 0, 0, true, NO_ADVISOR, false);
 	if (eBuilding == NO_BUILDING)
 	{
-		logBBAI("BUILDING_PRODUCTION_FOCUS turn=%d player=%d %S city=%S cityId=%d focus=%s building=- value=0 stored=0 needed=0 remaining=0 turnsLeft=-1 limited=0 worldWonder=0 nationalWonder=0",
+		logBBAI("BUILDING_PRODUCTION_FOCUS turn=%d player=%d %S city=%S cityId=%d focus=%s building=- value=0 baseValue=0 focusValueGain=0 stored=0 needed=0 remaining=0 turnsLeft=-1 limited=0 worldWonder=0 nationalWonder=0",
 			GC.getGame().getGameTurn(), kCity.getOwner(), GET_PLAYER(kCity.getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), szFocus);
 		return;
 	}
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+	int const iFocusedValue = kCity.AI_buildingValue(eBuilding, iFocusFlags, 0, true);
+	int const iBaseValue = kCity.AI_buildingValue(eBuilding, 0, 0, true);
 	int const iStored = kCity.getBuildingProduction(eBuilding);
 	int const iNeeded = kCity.getProductionNeeded(eBuilding);
 	int iTurnsLeft = kCity.getProductionTurnsLeft(eBuilding, 0);
 	if (iTurnsLeft == MAX_INT) iTurnsLeft = -1;
-	logBBAI("BUILDING_PRODUCTION_FOCUS turn=%d player=%d %S city=%S cityId=%d focus=%s building=%s value=%d stored=%d needed=%d remaining=%d turnsLeft=%d limited=%d worldWonder=%d nationalWonder=%d",
+	logBBAI("BUILDING_PRODUCTION_FOCUS turn=%d player=%d %S city=%S cityId=%d focus=%s building=%s value=%d baseValue=%d focusValueGain=%d stored=%d needed=%d remaining=%d turnsLeft=%d limited=%d worldWonder=%d nationalWonder=%d",
 		GC.getGame().getGameTurn(), kCity.getOwner(), GET_PLAYER(kCity.getOwner()).getCivilizationDescription(0),
-		kCity.getName().GetCString(), kCity.getID(), szFocus,
-		kBuilding.getType(), kCity.AI_buildingValue(eBuilding, iFocusFlags, 0, true),
+		kCity.getName().GetCString(), kCity.getID(), szFocus, kBuilding.getType(), iFocusedValue, iBaseValue, iFocusedValue - iBaseValue,
 		iStored, iNeeded, std::max(0, iNeeded - iStored), iTurnsLeft, kBuilding.isLimited(),
 		kBuilding.isWorldWonder(), kBuilding.isNationalWonder());
 }
@@ -6194,7 +6249,9 @@ BuildingTypes CvCityAI::AI_bestBuilding(int iFocusFlags, int iMaxTurns, bool bAs
 	return AI_bestBuildingThreshold(iFocusFlags, iMaxTurns, /*iMinThreshold*/ 0, bAsync, eIgnoreAdvisor);
 }
 
-BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns, int iMinThreshold, bool bAsync, AdvisorTypes eIgnoreAdvisor) const
+// <!-- custom: bRandomize=true retains AI_bestBuildingThreshold's inherited random wonder bonus and final value multiplier.
+// Deterministic callers pass false so logging and production vetoes neither depend on non-synchronized ASyncRand nor perturb the synchronized game RNG stream. See KI#197.13. (ChatGPT-5.6-Sol) -->
+BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns, int iMinThreshold, bool bAsync, AdvisorTypes eIgnoreAdvisor, bool bRandomize) const
 {
 	PROFILE_FUNC(); // advc.opt
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
@@ -6383,7 +6440,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 				// Minimal, correct fix (skip the roll when disabled)
 				// Treat <= 0 as “don’t roll / don’t do opportunistic wonder":
 				const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
-				if (iWC > 0) // only roll if the range is positive
+				if (bRandomize && iWC > 0) // only roll if requested and the range is positive
 				{
 					int iTempValue;
 					if (bAsync)
@@ -6401,16 +6458,19 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 			}
 		}
 
-		if (bAsync)
+		if (bRandomize)
 		{
-			iValue *= (GC.getASyncRand().get(25, "AI Best Building ASYNC") + 100);
-			iValue /= 100;
-		}
-		else
-		{
-			iValue *= 100 + syncRand().get(25, "AI Best Building",
-					eLoopClass, m_iID); // advc.007
-			iValue /= 100;
+			if (bAsync)
+			{
+				iValue *= (GC.getASyncRand().get(25, "AI Best Building ASYNC") + 100);
+				iValue /= 100;
+			}
+			else
+			{
+				iValue *= 100 + syncRand().get(25, "AI Best Building",
+						eLoopClass, m_iID); // advc.007
+				iValue /= 100;
+			}
 		}
 
 		//iValue += getBuildingProduction(eLoopBuilding);
@@ -15397,16 +15457,15 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				}
 			}
 
-			// <!-- custom: Cheap-needed-infrastructure gate for fresh discretionary land combat units.
-			// KI#197.12 controls found hundreds of safe peaceful cases where a city with an immediate health/happiness problem or a worthwhile maintenance reducer chose another offensive unit even though that building would finish as fast or faster and empire military spending was already above its normal allowance.
-			// Keep this as one concrete AI_chooseUnit veto so all ordinary upstream military-production callers inherit the same efficiency rule without duplicating building checks across AI_chooseProduction.
-			// It does not directly push a building: rejecting this discretionary unit lets the existing production search continue normally, so Workers/Settlers, defenders, projects, processes and the ordinary building logic retain their own priorities.
-			// Preserve invested units, defenders/counters, war or war preparation, military strategy/victory pushes, local danger, under-defended cities, Settler escort production, vassals and secondary landmasses.
-			// The +15 spending margin matches the common SAS/K-Mod tolerance before we treat another offensive unit as clearly discretionary.
-			// City-specific production-turn comparison automatically accounts for trait/resource/building production modifiers. (ChatGPT-5.6-Sol) -->
+			// <!-- custom: Cheap-infrastructure efficiency gates for fresh discretionary land combat units.
+			// KI#197.12 first handles hard local needs: immediate health/happiness deficits or worthwhile maintenance reduction may veto another over-budget offensive unit when that building is no slower than the unit.
+			// The softer follow-up covers FOOD/PRODUCTION/GOLD/RESEARCH infrastructure, where there is no binary deficit. It is deliberately stricter: the building must be materially faster than the unit, have substantial focused value, and gain meaningful value specifically from that focus compared with the same building's ordinary value.
+			// Both gates only veto this one fresh unit and let normal AI_chooseProduction continue; they never force a building. Preserve invested units, defenders/counters, war or war preparation, military strategy/victory pushes, local danger, under-defended cities, Settler escort production, vassals and secondary landmasses.
+			// City-specific production-turn comparison accounts for trait/resource/building production modifiers. Deterministic building scans deliberately disable AI_bestBuildingThreshold randomization so a behavioral veto neither depends on non-synchronized ASyncRand nor perturbs synchronized RNG. (ChatGPT-5.6-Sol) -->
 			static const bool bSASCheapNeededInfrastructureOptimize = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_OPTIMIZE");
-			bool const bEvaluateCheapNeededInfrastructure = (bSASCheapNeededInfrastructureOptimize || gBuildingProductionLogLevel >= 2);
-			if (bEvaluateCheapNeededInfrastructure)
+			static const bool bSASCheapHighReturnInfrastructureOptimize = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_OPTIMIZE");
+			bool const bEvaluateCheapInfrastructure = (bSASCheapNeededInfrastructureOptimize || bSASCheapHighReturnInfrastructureOptimize || gBuildingProductionLogLevel >= 2);
+			if (bEvaluateCheapInfrastructure)
 			{
 				CvUnitInfo const& kChangedUnitInfo = GC.getInfo(eChangedUnit);
 				bool const bDiscretionaryLandCombatAI = (eChangedUnitAI == UNITAI_ATTACK || eChangedUnitAI == UNITAI_ATTACK_CITY ||
@@ -15417,10 +15476,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				if (bFreshDiscretionaryLandCombat)
 				{
 					CvTeamAI const& kOwnerTeam = GET_TEAM(kOwner.getTeam());
-					static const int iMaxBuildingToUnitProductionTimePercent = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MAX_BUILDING_TO_UNIT_PRODUCTION_TIME_PERCENT"));
-					static const int iMinUnitSpendingOverMax = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MIN_UNIT_SPENDING_OVER_MAX"));
+					static const int iNeededMaxBuildingToUnitProductionTimePercent = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MAX_BUILDING_TO_UNIT_PRODUCTION_TIME_PERCENT"));
+					static const int iNeededMinUnitSpendingOverMax = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MIN_UNIT_SPENDING_OVER_MAX"));
 					static const int iMinMaintenanceTimes100 = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MIN_CITY_MAINTENANCE_TIMES100"));
 					static const int iMinMaintenanceBuildingValue = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MIN_MAINTENANCE_BUILDING_VALUE"));
+					static const int iHighReturnMaxBuildingToUnitProductionTimePercent = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MAX_BUILDING_TO_UNIT_PRODUCTION_TIME_PERCENT"));
+					static const int iHighReturnMinUnitSpendingOverMax = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_UNIT_SPENDING_OVER_MAX"));
+					static const int iHighReturnMinFocusedBuildingValue = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_FOCUSED_BUILDING_VALUE"));
+					static const int iHighReturnMinFocusValueGain = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_FOCUS_VALUE_GAIN"));
 					int const iUnitSpending = kOwner.AI_unitCostPerMil();
 					int const iMaxUnitSpending = kOwner.AI_maxUnitCostPerMil(&getArea());
 					bool const bAtWar = (kOwnerTeam.getNumWars() > 0);
@@ -15433,49 +15496,91 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT2) || kOwner.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR));
 					bool const bVassal = kOwner.isAVassal();
 					bool const bSettlerEscortContext = (getPlot().plotCount(PUF_isUnitAIType, UNITAI_SETTLE, -1, getOwner()) > 0);
-					bool const bBasicEligible = (!bAtWar && !bAnyWarPlan && bPrimaryArea && bAreaNeutral && !bMilitaryVictoryPush &&
-						!bMilitaryStrategyPush && !bVassal && !bSettlerEscortContext && iUnitSpending >= iMaxUnitSpending + iMinUnitSpendingOverMax);
+					bool const bCommonStrategicEligible = (!bAtWar && !bAnyWarPlan && bPrimaryArea && bAreaNeutral && !bMilitaryVictoryPush &&
+						!bMilitaryStrategyPush && !bVassal && !bSettlerEscortContext);
+					bool const bNeededBasicEligible = (bCommonStrategicEligible && iUnitSpending >= iMaxUnitSpending + iNeededMinUnitSpendingOverMax);
+					bool const bHighReturnBasicEligible = (bCommonStrategicEligible && iUnitSpending >= iMaxUnitSpending + iHighReturnMinUnitSpendingOverMax);
 					bool bDanger = false;
 					int iCityDefenders = -1;
 					int iNeededDefenders = -1;
 					bool bUnderDefended = false;
-					if (gBuildingProductionLogLevel >= 2 || bBasicEligible)
+					if (gBuildingProductionLogLevel >= 2 || bNeededBasicEligible || bHighReturnBasicEligible)
 					{
 						bDanger = AI_isDanger();
 						iCityDefenders = getPlot().getNumDefenders(getOwner());
 						iNeededDefenders = AI_neededDefenders();
 						bUnderDefended = (iCityDefenders < iNeededDefenders);
 					}
-					int iFocusFlags = 0;
-					int iBuildingValue = 0;
-					int iBuildingTurns = -1;
-					int iUnitTurns = -1;
+
+					// Hard local need: same-turn-or-faster health, happiness or maintenance infrastructure.
+					int iNeededFocusFlags = 0;
+					int iNeededBuildingValue = 0;
+					int iNeededBuildingTurns = -1;
+					int iNeededUnitTurns = -1;
 					BuildingTypes eNeededBuilding = NO_BUILDING;
-					if (bBasicEligible && !bDanger && !bUnderDefended)
+					if (bNeededBasicEligible && !bDanger && !bUnderDefended)
 					{
-						eNeededBuilding = SAS_findCheapNeededInfrastructureForUnit(*this, eChangedUnit, iMaxBuildingToUnitProductionTimePercent,
-							iMinMaintenanceTimes100, iMinMaintenanceBuildingValue, iFocusFlags, iBuildingValue, iBuildingTurns, iUnitTurns);
+						eNeededBuilding = SAS_findCheapNeededInfrastructureForUnit(*this, eChangedUnit, iNeededMaxBuildingToUnitProductionTimePercent,
+							iMinMaintenanceTimes100, iMinMaintenanceBuildingValue, iNeededFocusFlags, iNeededBuildingValue, iNeededBuildingTurns, iNeededUnitTurns);
 					}
-					bool const bWouldReject = (eNeededBuilding != NO_BUILDING);
+					bool const bNeededWouldReject = (eNeededBuilding != NO_BUILDING);
 					if (gBuildingProductionLogLevel >= 2)
 					{
-						char const* szFocus = (iFocusFlags == BUILDINGFOCUS_HEALTHY ? "HEALTH" :
-							iFocusFlags == BUILDINGFOCUS_HAPPY ? "HAPPINESS" :
-							iFocusFlags == BUILDINGFOCUS_MAINTENANCE ? "MAINTENANCE" : "-");
+						char const* szFocus = (iNeededFocusFlags == BUILDINGFOCUS_HEALTHY ? "HEALTH" :
+							iNeededFocusFlags == BUILDINGFOCUS_HAPPY ? "HAPPINESS" :
+							iNeededFocusFlags == BUILDINGFOCUS_MAINTENANCE ? "MAINTENANCE" : "-");
 						logBBAI("BUILDING_PRODUCTION_CHEAP_NEED_GATE turn=%d player=%d %S city=%S cityId=%d enabled=%d wouldReject=%d actualReject=%d unit=%s unitAI=%s unitTurns=%d unitSpending=%d maxUnitSpending=%d spendingGap=%d minSpendingOverMax=%d building=%s focus=%s buildingValue=%d buildingTurns=%d buildingToUnitTurnsPercent=%d maxBuildingToUnitProductionTimePercent=%d happySurplus=%d healthSurplus=%d maintenanceTimes100=%d minMaintenanceTimes100=%d minMaintenanceValue=%d primaryArea=%d areaAI=%d atWar=%d anyWarPlan=%d danger=%d defenders=%d neededDefenders=%d underDefended=%d settlerEscortContext=%d militaryVictoryPush=%d militaryStrategyPush=%d vassal=%d",
 							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
-							bSASCheapNeededInfrastructureOptimize, bWouldReject, bSASCheapNeededInfrastructureOptimize && bWouldReject,
-							GC.getInfo(eChangedUnit).getType(), GC.getInfo(eChangedUnitAI).getType(), iUnitTurns, iUnitSpending, iMaxUnitSpending,
-							iMaxUnitSpending - iUnitSpending, iMinUnitSpendingOverMax,
-							(eNeededBuilding == NO_BUILDING ? "-" : GC.getInfo(eNeededBuilding).getType()), szFocus, iBuildingValue, iBuildingTurns,
-							(iUnitTurns <= 0 || iBuildingTurns < 0 ? -1 : (100 * iBuildingTurns) / iUnitTurns), iMaxBuildingToUnitProductionTimePercent,
+							bSASCheapNeededInfrastructureOptimize, bNeededWouldReject, bSASCheapNeededInfrastructureOptimize && bNeededWouldReject,
+							GC.getInfo(eChangedUnit).getType(), GC.getInfo(eChangedUnitAI).getType(), iNeededUnitTurns, iUnitSpending, iMaxUnitSpending,
+							iMaxUnitSpending - iUnitSpending, iNeededMinUnitSpendingOverMax,
+							(eNeededBuilding == NO_BUILDING ? "-" : GC.getInfo(eNeededBuilding).getType()), szFocus, iNeededBuildingValue, iNeededBuildingTurns,
+							(iNeededUnitTurns <= 0 || iNeededBuildingTurns < 0 ? -1 : (100 * iNeededBuildingTurns) / iNeededUnitTurns), iNeededMaxBuildingToUnitProductionTimePercent,
 							happyLevel() - unhappyLevel(), goodHealth() - badHealth(), getMaintenanceTimes100(), iMinMaintenanceTimes100, iMinMaintenanceBuildingValue,
 							bPrimaryArea, getArea().getAreaAIType(getTeam()), bAtWar, bAnyWarPlan, bDanger, iCityDefenders, iNeededDefenders, bUnderDefended,
 							bSettlerEscortContext, bMilitaryVictoryPush, bMilitaryStrategyPush, bVassal);
 					}
-					if (bSASCheapNeededInfrastructureOptimize && bWouldReject)
+					if (bSASCheapNeededInfrastructureOptimize && bNeededWouldReject)
 					{
-						if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "CHEAP_NEEDED_INFRASTRUCTURE", "buildingTurns", iBuildingTurns, "unitTurns", iUnitTurns);
+						if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "CHEAP_NEEDED_INFRASTRUCTURE", "buildingTurns", iNeededBuildingTurns, "unitTurns", iNeededUnitTurns);
+						return false;
+					}
+
+					// Softer economic opportunity: require a materially faster building plus a real focus-specific value gain.
+					int iHighReturnFocusFlags = 0;
+					int iHighReturnFocusedValue = 0;
+					int iHighReturnBaseValue = 0;
+					int iHighReturnFocusValueGain = 0;
+					int iHighReturnBuildingTurns = -1;
+					int iHighReturnUnitTurns = -1;
+					BuildingTypes eHighReturnBuilding = NO_BUILDING;
+					if (bHighReturnBasicEligible && !bDanger && !bUnderDefended)
+					{
+						eHighReturnBuilding = SAS_findCheapHighReturnInfrastructureForUnit(*this, eChangedUnit, iHighReturnMaxBuildingToUnitProductionTimePercent,
+							iHighReturnMinFocusedBuildingValue, iHighReturnMinFocusValueGain, iHighReturnFocusFlags, iHighReturnFocusedValue,
+							iHighReturnBaseValue, iHighReturnFocusValueGain, iHighReturnBuildingTurns, iHighReturnUnitTurns);
+					}
+					bool const bHighReturnWouldReject = (eHighReturnBuilding != NO_BUILDING);
+					if (gBuildingProductionLogLevel >= 2)
+					{
+						char const* szFocus = (iHighReturnFocusFlags == BUILDINGFOCUS_FOOD ? "FOOD" :
+							iHighReturnFocusFlags == BUILDINGFOCUS_PRODUCTION ? "PRODUCTION" :
+							iHighReturnFocusFlags == BUILDINGFOCUS_GOLD ? "GOLD" :
+							iHighReturnFocusFlags == BUILDINGFOCUS_RESEARCH ? "RESEARCH" : "-");
+						logBBAI("BUILDING_PRODUCTION_CHEAP_HIGH_RETURN_GATE turn=%d player=%d %S city=%S cityId=%d enabled=%d wouldReject=%d actualReject=%d unit=%s unitAI=%s unitTurns=%d unitSpending=%d maxUnitSpending=%d spendingOverMax=%d minSpendingOverMax=%d building=%s focus=%s focusedValue=%d baseValue=%d focusValueGain=%d minFocusedValue=%d minFocusValueGain=%d buildingTurns=%d buildingToUnitTurnsPercent=%d maxBuildingToUnitProductionTimePercent=%d primaryArea=%d areaAI=%d atWar=%d anyWarPlan=%d danger=%d defenders=%d neededDefenders=%d underDefended=%d settlerEscortContext=%d militaryVictoryPush=%d militaryStrategyPush=%d vassal=%d",
+							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+							bSASCheapHighReturnInfrastructureOptimize, bHighReturnWouldReject, bSASCheapHighReturnInfrastructureOptimize && bHighReturnWouldReject,
+							GC.getInfo(eChangedUnit).getType(), GC.getInfo(eChangedUnitAI).getType(), iHighReturnUnitTurns, iUnitSpending, iMaxUnitSpending,
+							iUnitSpending - iMaxUnitSpending, iHighReturnMinUnitSpendingOverMax,
+							(eHighReturnBuilding == NO_BUILDING ? "-" : GC.getInfo(eHighReturnBuilding).getType()), szFocus, iHighReturnFocusedValue, iHighReturnBaseValue,
+							iHighReturnFocusValueGain, iHighReturnMinFocusedBuildingValue, iHighReturnMinFocusValueGain, iHighReturnBuildingTurns,
+							(iHighReturnUnitTurns <= 0 || iHighReturnBuildingTurns < 0 ? -1 : (100 * iHighReturnBuildingTurns) / iHighReturnUnitTurns), iHighReturnMaxBuildingToUnitProductionTimePercent,
+							bPrimaryArea, getArea().getAreaAIType(getTeam()), bAtWar, bAnyWarPlan, bDanger, iCityDefenders, iNeededDefenders, bUnderDefended,
+							bSettlerEscortContext, bMilitaryVictoryPush, bMilitaryStrategyPush, bVassal);
+					}
+					if (bSASCheapHighReturnInfrastructureOptimize && bHighReturnWouldReject)
+					{
+						if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "CHEAP_HIGH_RETURN_INFRASTRUCTURE", "buildingTurns", iHighReturnBuildingTurns, "unitTurns", iHighReturnUnitTurns);
 						return false;
 					}
 				}

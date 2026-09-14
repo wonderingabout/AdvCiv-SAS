@@ -1637,7 +1637,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Dedicated building-production diagnostics for comparing useful infrastructure opportunities with actual production choices, including the cheap-needed-infrastructure efficiency gate. Level 2 records the best general building opportunity and the final production target; level 3 also records health, happiness, maintenance, food, production, gold, and research-focused building candidates plus representative land-military unit costs. Diagnostic-only and adds no RNG calls. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Dedicated building-production diagnostics for comparing useful infrastructure opportunities with actual production choices, including the hard-needed and high-return cheap-infrastructure efficiency gates. Level 2 records the best general building opportunity and the final production target; level 3 also records health, happiness, maintenance, food, production, gold, and research-focused building candidates plus representative land-military unit costs. Diagnostic-only and adds no RNG calls. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -2843,6 +2843,32 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MIN_MAINTENANCE_BUILDING_VALUE</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
+	<!-- custom: Follow-up efficiency brake for fresh discretionary land-combat units when a safe peaceful primary-area city has cheap high-return FOOD/PRODUCTION/GOLD/RESEARCH infrastructure. Unlike the hard health/happiness/maintenance rule above, these categories have no binary deficit, so this gate additionally requires a meaningful focus-specific AI value gain and a stricter production-time advantage. It only vetoes the unit and lets normal AI_chooseProduction continue; it does not force a building. Validated on Huge naval-heavy Archipelago and land-heavy Custom Continents controls/candidates; enabled by default. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum city-specific construction time of a qualifying FOOD/PRODUCTION/GOLD/RESEARCH building as a percentage of the exact fresh discretionary land-combat unit being considered. 75 means the building must finish in at most three quarters of the unit's production time. This is deliberately stricter than the 100% hard-need rule because these economic opportunities do not represent an immediate local deficit. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MAX_BUILDING_TO_UNIT_PRODUCTION_TIME_PERCENT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<!-- custom: Require current unit spending to exceed AI_maxUnitCostPerMil by at least this many points before a cheap high-return economic building may veto another discretionary offensive land unit. 15 matches the validated hard-needed-infrastructure gate and the common SAS/K-Mod military-production tolerance. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_UNIT_SPENDING_OVER_MAX</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum focused AI_buildingValue for a FOOD/PRODUCTION/GOLD/RESEARCH candidate. 50 filters out minor opportunities before the separate focus-value-gain test asks whether that economic focus materially strengthens the case for this exact building. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_FOCUSED_BUILDING_VALUE</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum increase in AI_buildingValue when evaluating the candidate under its FOOD/PRODUCTION/GOLD/RESEARCH focus instead of ordinary zero-focus evaluation. 20 prevents a broadly useful building from qualifying merely because it happened to win a focused scan; the focus itself must add meaningful strategic value. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_FOCUS_VALUE_GAIN</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+
 	<!-- custom: set this to enable advciv-sas anti excess siege code (via one of the AI_ChooseUnit functions). 1 to enabled (recommended), 0 to disabled (disables it entirely, if you want to selectively disable some features, consider tweaking one or a few of the sub configure options below instead); Long_Comments_XML.txt #167 -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES</DefineName>
