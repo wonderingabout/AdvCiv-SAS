@@ -42,6 +42,9 @@ public:
 	int getSourceDirtyState() const;
 	int getSourceDirtyFileCount() const;
 	char const* getSourceDirtyFiles() const;
+	// <!-- custom: Fingerprint tracked gameplay code/rules/scripts relative to HEAD so logs can distinguish different runtime-relevant edits without hashing docs, LLM helpers, or the separately fingerprinted loaded DLL. (ChatGPT-5.6-Sol) -->
+	__int64 getSourceCodeRulesDiffBytes() const;
+	char const* getSourceCodeRulesDiffFingerprint() const;
 
 private:
 	// <!-- custom: Internal source/version resolver helpers; resolution is lazy and reset only if update() changes the loaded mod path. (ChatGPT-5.6-Sol) -->
@@ -57,12 +60,14 @@ private:
 	mutable bool m_bSourceDetailsResolved;
 	mutable int m_iSourceDirtyState;
 	mutable int m_iSourceDirtyFileCount;
+	mutable __int64 m_iSourceCodeRulesDiffBytes;
 	mutable CvString m_sVersion;
 	mutable CvString m_sCommitHash;
 	mutable CvString m_sBranch;
 	mutable CvString m_sCommitDate;
 	mutable CvString m_sSourceMetadataType;
 	mutable CvString m_sSourceDirtyFiles;
+	mutable CvString m_sSourceCodeRulesDiffFingerprint;
 };
 
 #endif

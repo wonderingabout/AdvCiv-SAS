@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=75 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=76 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,24 +40,33 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
+### Revision 76 - SAS practical 6461
+
+- **Date:** 2026-09-14
+- **Change:** Strengthened runtime provenance with a compact tracked code/rules/scripts diff fingerprint and byte count in `GAME_RECORD_SOURCE_CONTEXT`, scoped to `CvGameCoreDLL`, `Assets/Config`, `Assets/Python`, `Assets/XML`, and `PrivateMaps`. This distinguishes different edits to the same runtime-relevant dirty paths and, together with the independent exact-byte loaded-DLL fingerprint, makes stale/unrebuilt DLL mistakes directly visible without hashing docs/LLM helpers or adding per-file timestamp noise.
+
 ### Revision 75 - SAS practical 6460
 
 - **Date:** 2026-09-14
+- **Git commit:** `40b3580cfa826150dfdb659452ec9f9fcf85cbd3`
 - **Change:** Added compact periodic naval-assault posture covering assault lift/capacity/loading, current open-ocean capability, fleet-group loading/base-location/mission/support state and exact transported unit composition; also recorded the SAS UWAI naval-logistics deployment gameplay toggle in the canonical war-AI settings row.
 
 ### Revision 74 - SAS practical 6455
 
 - **Date:** 2026-09-14
+- **Git commit:** `320e73215cf08fa5b5af9fb4231c612a7cebf8f8`
 - **Change:** Added one compact all-city `CITY_PRODUCTION_NO_TARGET` outcome at control-path-aware turn boundaries. Manual human cities are sampled before end-turn production processing, while AI-controlled and production-automated cities are sampled afterward; disorder is suppressed, and detailed legality/chooser-path evidence is kept in the dedicated BBAI category.
 
 ### Revision 73 - SAS practical 6446
 
 - **Date:** 2026-09-12
+- **Git commit:** `f8329120b31aad17a867ff5d1a679b474640108e`
 - **Change:** Canonicalized invalid `TEAM_MET` first-contact coordinate pairs as `-1,-1` instead of serializing values that are undefined when their validity flags are false; ordinary valid coordinates and gameplay behavior are unchanged.
 
 ### Revision 72 - SAS practical 6443
 
 - **Date:** 2026-09-10
+- **Git commit:** `8ee577a98bdb2b362b20c3fbe68cdcd52c8521b4`
 - **Change:** Added exact level-3 plot-ownership transition history with conservative immediate mechanism/source provenance, expanded causal transactions across city founding/culture expansion/flips, war/peace, vassalage and direct Python/WorldBuilder ownership chains, and extended CORE plot fingerprints with contested second-owner/forced-unowned state.
 
 ### Revision 71 - SAS practical 6442

@@ -240,6 +240,23 @@ namespace
 		return true;
 	}
 
+	// <!-- custom: Hash the tracked gameplay code/rules/script diff relative to HEAD. This intentionally scopes out docs/LLM helpers and the compiled DLL (fingerprinted separately), while covering CvGameCoreDLL sources plus Config/Python/XML/PrivateMaps inputs. (ChatGPT-5.6-Sol) -->
+	CvString fingerprintTrackedCodeRulesDiff(CvString const& diff)
+	{
+		unsigned __int64 uiHash = ((unsigned __int64)0xCBF29CE4 << 32) | 0x84222325;
+		unsigned __int64 const uiPrime = ((unsigned __int64)0x00000100 << 32) | 0x000001B3;
+		// <!-- custom: Visual C++ 2003 reported C2666 for CvString::operator[] with a size_t index because CvString exposes an int subscript plus a const char* conversion.
+		// Use int to select the member overload unambiguously. (GPT-5.6-Sol) -->
+		for (int i = 0; i < (int)diff.length(); i++)
+		{
+			uiHash ^= (unsigned char)diff[i];
+			uiHash *= uiPrime;
+		}
+		CvString fingerprint;
+		fingerprint.Format("FNV1A64:%016I64X", uiHash);
+		return fingerprint;
+	}
+
 	// <!-- custom: Read the tiny export-subst marker used when no live Git worktree ships with the mod.
 	// Exact SHA validates the marker; the optional anchor describe string reconstructs the practical numeric version. (ChatGPT-5.6-Sol) -->
 	bool readExportedSourceMetadata(CvString const& modPath, CvString& version, CvString& commitHash, CvString& commitDate)
@@ -290,12 +307,14 @@ void ModName::resetSourceDetails()
 	m_bSourceDetailsResolved = false;
 	m_iSourceDirtyState = -1;
 	m_iSourceDirtyFileCount = -1;
+	m_iSourceCodeRulesDiffBytes = -1;
 	m_sVersion.clear();
 	m_sCommitHash.clear();
 	m_sBranch.clear();
 	m_sCommitDate.clear();
 	m_sSourceMetadataType = "unknown";
 	m_sSourceDirtyFiles.clear();
+	m_sSourceCodeRulesDiffFingerprint = "-";
 }
 
 void ModName::update(char const* szFullPath, char const* szPathInRoot)
@@ -356,12 +375,14 @@ void ModName::resolveSourceDetails() const
 	m_bSourceDetailsResolved = true;
 	m_iSourceDirtyState = -1;
 	m_iSourceDirtyFileCount = -1;
+	m_iSourceCodeRulesDiffBytes = -1;
 	m_sVersion.clear();
 	m_sCommitHash.clear();
 	m_sBranch.clear();
 	m_sCommitDate.clear();
 	m_sSourceMetadataType = "unknown";
 	m_sSourceDirtyFiles.clear();
+	m_sSourceCodeRulesDiffFingerprint = "-";
 
 	CvString const modPath = getAbsoluteModPath();
 	if (modPath.empty())
@@ -417,6 +438,14 @@ void ModName::resolveSourceDetails() const
 	{
 		m_sSourceDirtyFiles = summarizeTrackedSourceStatus(status, m_iSourceDirtyFileCount);
 		m_iSourceDirtyState = (m_iSourceDirtyFileCount > 0 ? 1 : 0);
+		// <!-- custom: Fingerprint only tracked code/rules/scripts that can affect the mod/runtime: C++ build inputs plus Config/Python/XML/PrivateMaps.
+		// git diff HEAD includes staged and unstaged working-tree content; untracked files are deliberately not claimed here, and the loaded DLL has its own exact-byte fingerprint. (ChatGPT-5.6-Sol) -->
+		CvString diff;
+		if (runHiddenSourceCommand(sourceGitCommand(modPath, "diff --binary --full-index --no-ext-diff --no-textconv --no-renames --no-color HEAD -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML PrivateMaps"), diff))
+		{
+			m_iSourceCodeRulesDiffBytes = (__int64)diff.length();
+			m_sSourceCodeRulesDiffFingerprint = fingerprintTrackedCodeRulesDiff(diff);
+		}
 	}
 	m_sSourceMetadataType = (bShallow ? "gitShallow" : (bFullHistory ? "git" : "gitHistoryUnknown"));
 }
@@ -469,4 +498,17 @@ char const* ModName::getSourceDirtyFiles() const
 {
 	resolveSourceDetails();
 	return m_sSourceDirtyFiles.c_str();
+}
+
+// <!-- custom: Fingerprint tracked gameplay code/rules/scripts relative to HEAD so logs can distinguish different runtime-relevant edits without hashing docs, LLM helpers, or the separately fingerprinted loaded DLL. (ChatGPT-5.6-Sol) -->
+__int64 ModName::getSourceCodeRulesDiffBytes() const
+{
+	resolveSourceDetails();
+	return m_iSourceCodeRulesDiffBytes;
+}
+
+char const* ModName::getSourceCodeRulesDiffFingerprint() const
+{
+	resolveSourceDetails();
+	return m_sSourceCodeRulesDiffFingerprint.c_str();
 }

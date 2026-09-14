@@ -144,9 +144,14 @@ CvString getSASSourceContextFields()
 	CvString const szCommitDate = getSASDiagnosticQuoted(kMod.getCommitDate());
 	CvString const szMetadataSource = getSASDiagnosticQuoted(kMod.getSourceMetadataType());
 	CvString const szDirtyFiles = getSASDiagnosticQuoted(kMod.getSourceDirtyFiles());
+	CvString const szCodeRulesDiffFingerprint = getSASDiagnosticQuoted(kMod.getSourceCodeRulesDiffFingerprint());
 	CvString szContext;
-	szContext.Format("version=%s commit=%s shortCommit=%s branch=%s commitDate=%s metadataSource=%s dirty=%d dirtyTrackedCount=%d dirtyFiles=%s",
-			szVersion.GetCString(), szCommit.GetCString(), szShortCommit.GetCString(), szBranch.GetCString(), szCommitDate.GetCString(), szMetadataSource.GetCString(), kMod.getSourceDirtyState(), kMod.getSourceDirtyFileCount(), szDirtyFiles.GetCString());
+	szContext.Format("version=%s commit=%s shortCommit=%s branch=%s commitDate=%s metadataSource=%s dirty=%d dirtyTrackedCount=%d trackedCodeRulesDiffBytes=%I64d trackedCodeRulesDiffFingerprint=%s dirtyFiles=%s",
+			szVersion.GetCString(), szCommit.GetCString(), szShortCommit.GetCString(),
+			szBranch.GetCString(), szCommitDate.GetCString(), szMetadataSource.GetCString(),
+			kMod.getSourceDirtyState(), kMod.getSourceDirtyFileCount(),
+			kMod.getSourceCodeRulesDiffBytes(), szCodeRulesDiffFingerprint.GetCString(),
+			szDirtyFiles.GetCString());
 	return szContext;
 }
 
