@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=74 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=75 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -39,6 +39,11 @@ The history below counts commits that changed the recorder implementation itself
 Because this numbering is reconstructed after the fact, the descriptions are concise summaries of the canonical commit diffs/messages rather than claims that these revision numbers were emitted by historical builds.
 
 ## History (latest first)
+
+### Revision 75 - SAS practical 6460
+
+- **Date:** 2026-09-14
+- **Change:** Added compact periodic naval-assault posture covering assault lift/capacity/loading, current open-ocean capability, fleet-group loading/base-location/mission/support state and exact transported unit composition; also recorded the SAS UWAI naval-logistics deployment gameplay toggle in the canonical war-AI settings row.
 
 ### Revision 74 - SAS practical 6455
 

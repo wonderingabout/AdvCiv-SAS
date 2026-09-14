@@ -1528,7 +1528,7 @@ static void logSASGameRecordMapOptions(CvInitCore const& kInitCore)
 }
 
 // <!-- custom: GAMEOPTION_AGGRESSIVE_AI is repurposed while AdvCiv selects UWAI versus legacy K-Mod logic.
-// Record the resolved mode plus only the three defines that can change that interpretation. (ChatGPT-5.6-Sol) -->
+// Record the resolved mode, the three defines that can change that interpretation, and SAS gameplay toggles that materially change UWAI behavior under the same source/settings context. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 static void logSASGameRecordWarAISettings(CvGame const& kGame)
 {
 	const bool bUWAI = getUWAI().isEnabled();
@@ -1539,9 +1539,10 @@ static void logSASGameRecordWarAISettings(CvGame const& kGame)
 	const int iUseKModAINonAggressive = GC.getDefineINT("USE_KMOD_AI_NONAGGRESSIVE");
 	const int iDisableUWAI = GC.getDefineINT("DISABLE_UWAI");
 	const int iUWAIInBackground = GC.getDefineINT("UWAI_IN_BACKGROUND");
-	logSASGameRecord("GAME_RECORD_WAR_AI_SETTINGS warPeaceAI=%s uwaiMode=%s engineAggressiveAI=%d USE_KMOD_AI_NONAGGRESSIVE=%d DISABLE_UWAI=%d UWAI_IN_BACKGROUND=%d",
+	const int iNavalLogisticsDeploymentOptimize = GC.getDefineBOOL("SAS_UWAI_INVASION_GRAPH_NAVAL_LOGISTICS_DEPLOYMENT_OPTIMIZE");
+	logSASGameRecord("GAME_RECORD_WAR_AI_SETTINGS warPeaceAI=%s uwaiMode=%s engineAggressiveAI=%d USE_KMOD_AI_NONAGGRESSIVE=%d DISABLE_UWAI=%d UWAI_IN_BACKGROUND=%d SAS_UWAI_INVASION_GRAPH_NAVAL_LOGISTICS_DEPLOYMENT_OPTIMIZE=%d",
 			bUWAI ? "UWAI" : "KMOD_LEGACY", szUWAIMode, kGame.isOption(GAMEOPTION_AGGRESSIVE_AI),
-			iUseKModAINonAggressive, iDisableUWAI, iUWAIInBackground);
+			iUseKModAINonAggressive, iDisableUWAI, iUWAIInBackground, iNavalLogisticsDeploymentOptimize);
 }
 
 // <!-- custom: Use "row" wording for generic SASGameRecord row prefixes because Civ4 also has EventInfo/random events. Keep GAME_RECORD_ACTION only for chronological gameplay action rows. (GPT-5.5) -->
@@ -6476,6 +6477,25 @@ static bool isSASGameRecordUnitThreatened(CvUnit const& kUnit)
 	return pPlot != NULL && pPlot->isVisibleEnemyUnit(kUnit.getOwner());
 }
 
+// <!-- custom: A raw UNITAI_ASSAULT_SEA count does not show whether an empire can actually project troops across ordinary ocean.
+// Test only the unit's persistent terrain rule plus the owning team's current passable tech; deliberately ignore the own-cultural-border exception so "open ocean" means lift that can leave local coastal waters.
+// No pathfinding or target search is performed. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static bool isSASGameRecordOpenOceanSeaUnit(CvUnit const& kUnit)
+{
+	if (kUnit.getDomainType() != DOMAIN_SEA || kUnit.getUnitType() == NO_UNIT)
+		return false;
+	if (kUnit.canMoveAllTerrain())
+		return true;
+	static TerrainTypes const eOcean = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_OCEAN");
+	FAssert(eOcean != NO_TERRAIN);
+	if (eOcean == NO_TERRAIN)
+		return false;
+	if (!kUnit.getTerrainImpassable(eOcean))
+		return true;
+	TechTypes const ePassableTech = GC.getInfo(kUnit.getUnitType()).getTerrainPassableTech(eOcean);
+	return ePassableTech != NO_TECH && GET_TEAM(kUnit.getTeam()).isHasTech(ePassableTech);
+}
+
 static void logSASGameRecordUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
@@ -6544,6 +6564,24 @@ static void logSASGameRecordUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 	std::vector<int> aiUnitCombat(GC.getNumUnitCombatInfos(), 0);
 	std::vector<int> aiPromotions(bLogPromotionDetails ? GC.getNumPromotionInfos() : 0, 0);
 	std::vector<int> aiMilitaryPromotions(bLogPromotionDetails ? GC.getNumPromotionInfos() : 0, 0);
+	// <!-- custom: Reuse this already-required unit census to preserve the broad state between "owns assault transports" and "successfully projects an army overseas."
+	// Individual lift/cargo counters are collected here; assault-group state is classified once per group below. Keep per-target UWAI/InvasionGraph reasoning in BBAI rather than duplicating it into SASGameRecord. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int iAssaultTransports = 0;
+	int iCargoCapacity = 0;
+	int iLoadedCargo = 0;
+	int iOpenOceanTransports = 0;
+	int iOpenOceanCapacity = 0;
+	int iOpenOceanLoadedCargo = 0;
+	int iTransportsEmpty = 0;
+	int iTransportsPartial = 0;
+	int iTransportsFull = 0;
+	int iDamagedTransports = 0;
+	int iLoadedCargoCanAttack = 0;
+	int iLoadedCargoCannotAttack = 0;
+	std::vector<int> aiAssaultTransportTypes(GC.getNumUnitInfos(), 0);
+	std::vector<int> aiAssaultCargoTypes(GC.getNumUnitInfos(), 0);
+	std::vector<int> aiAssaultCargoAI(NUM_UNITAI_TYPES, 0);
+	std::vector<CvUnit*> apAssaultCargoUnits;
 	int iLoop = 0;
 	for (CvUnit const* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 	{
@@ -6614,6 +6652,38 @@ static void logSASGameRecordUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 			else if (eUnitAI == UNITAI_CARRIER_SEA) iCarrierSea++;
 			else if (eUnitAI == UNITAI_MISSILE_CARRIER_SEA) iMissileCarrierSea++;
 		}
+		if (eUnitAI == UNITAI_ASSAULT_SEA && pLoopUnit->cargoSpace() > 0)
+		{
+			iAssaultTransports++;
+			iCargoCapacity += pLoopUnit->cargoSpace();
+			iLoadedCargo += pLoopUnit->getCargo();
+			if (pLoopUnit->getCargo() <= 0) iTransportsEmpty++;
+			else if (pLoopUnit->getCargo() >= pLoopUnit->cargoSpace()) iTransportsFull++;
+			else iTransportsPartial++;
+			if (pLoopUnit->getUnitType() != NO_UNIT)
+				aiAssaultTransportTypes[pLoopUnit->getUnitType()]++;
+			apAssaultCargoUnits.clear();
+			pLoopUnit->getCargoUnits(apAssaultCargoUnits);
+			for (uint iCargo = 0; iCargo < apAssaultCargoUnits.size(); iCargo++)
+			{
+				CvUnit const& kCargo = *apAssaultCargoUnits[iCargo];
+				if (kCargo.canAttack()) iLoadedCargoCanAttack++;
+				else iLoadedCargoCannotAttack++;
+				if (kCargo.getUnitType() != NO_UNIT)
+					aiAssaultCargoTypes[kCargo.getUnitType()]++;
+				UnitAITypes const eCargoUnitAI = kCargo.AI_getUnitAIType();
+				if (eCargoUnitAI >= 0 && eCargoUnitAI < NUM_UNITAI_TYPES)
+					aiAssaultCargoAI[eCargoUnitAI]++;
+			}
+			if (pLoopUnit->getDamage() > 0)
+				iDamagedTransports++;
+			if (isSASGameRecordOpenOceanSeaUnit(*pLoopUnit))
+			{
+				iOpenOceanTransports++;
+				iOpenOceanCapacity += pLoopUnit->cargoSpace();
+				iOpenOceanLoadedCargo += pLoopUnit->getCargo();
+			}
+		}
 		if (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->isCargo())
 		{
 			iAirCargo++;
@@ -6675,6 +6745,76 @@ static void logSASGameRecordUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 				iEnemyUnitsInTerritory++;
 		}
 	}
+	int iAssaultGroups = 0;
+	int iGroupsEmpty = 0;
+	int iGroupsPartial = 0;
+	int iGroupsFull = 0;
+	int iGroupsAtBase = 0;
+	int iGroupsEmptyAtBase = 0;
+	int iGroupsEmptyNoMissionAIAtBase = 0;
+	int iGroupsLoadedAwayFromBase = 0;
+	int iGroupsNoMissionAI = 0;
+	int iGroupsAssault = 0;
+	int iGroupsPickup = 0;
+	int iGroupsReinforce = 0;
+	int iGroupsOtherMissionAI = 0;
+	int iGroupsMissionQueueNonempty = 0;
+	int iGroupsHealing = 0;
+	int iOpenOceanGroups = 0;
+	int iGroupsWithSeaCombatSupport = 0;
+	int iGroupedSeaCombatSupportUnits = 0;
+	int iGroupLoop = 0;
+	for (CvSelectionGroup const* pLoopGroup = kPlayer.firstSelectionGroup(&iGroupLoop); pLoopGroup != NULL; pLoopGroup = kPlayer.nextSelectionGroup(&iGroupLoop))
+	{
+		int iGroupAssaultCapacity = 0;
+		int iGroupAssaultCargo = 0;
+		int iGroupSeaCombatSupport = 0;
+		bool bOpenOceanGroup = true;
+		FOR_EACH_UNIT_IN(pGroupUnit, *pLoopGroup)
+		{
+			if (pGroupUnit->getDomainType() != DOMAIN_SEA || !isSASGameRecordOpenOceanSeaUnit(*pGroupUnit))
+				bOpenOceanGroup = false;
+			if (pGroupUnit->AI_getUnitAIType() == UNITAI_ASSAULT_SEA && pGroupUnit->cargoSpace() > 0)
+			{
+				iGroupAssaultCapacity += pGroupUnit->cargoSpace();
+				iGroupAssaultCargo += pGroupUnit->getCargo();
+			}
+			else if (pGroupUnit->getDomainType() == DOMAIN_SEA && isSASGameRecordMilitaryUnit(*pGroupUnit))
+				iGroupSeaCombatSupport++;
+		}
+		if (iGroupAssaultCapacity <= 0)
+			continue;
+		iAssaultGroups++;
+		if (iGroupAssaultCargo <= 0) iGroupsEmpty++;
+		else if (iGroupAssaultCargo >= iGroupAssaultCapacity) iGroupsFull++;
+		else iGroupsPartial++;
+		CvPlot const* pGroupPlot = pLoopGroup->plot();
+		// <!-- custom: Match the transport AI's own "in port" concept rather than city tiles only.
+		// CvTeam::isBase also recognizes peacefully usable foreign cities and ActsAsCity improvements (e.g. forts), which take the same AI_assaultSeaMove branch. (ChatGPT-5.6-Sol) -->
+		bool const bAtBase = (pGroupPlot != NULL && GET_TEAM(eTeam).isBase(*pGroupPlot));
+		if (bAtBase)
+		{
+			iGroupsAtBase++;
+			if (iGroupAssaultCargo <= 0) iGroupsEmptyAtBase++;
+		}
+		else if (iGroupAssaultCargo > 0) iGroupsLoadedAwayFromBase++;
+		MissionAITypes const eMissionAI = pLoopGroup->AI().AI_getMissionAIType();
+		if (eMissionAI == NO_MISSIONAI) iGroupsNoMissionAI++;
+		else if (eMissionAI == MISSIONAI_ASSAULT) iGroupsAssault++;
+		else if (eMissionAI == MISSIONAI_PICKUP) iGroupsPickup++;
+		else if (eMissionAI == MISSIONAI_REINFORCE) iGroupsReinforce++;
+		else iGroupsOtherMissionAI++;
+		if (bAtBase && iGroupAssaultCargo <= 0 && eMissionAI == NO_MISSIONAI)
+			iGroupsEmptyNoMissionAIAtBase++;
+		if (pLoopGroup->getLengthMissionQueue() > 0) iGroupsMissionQueueNonempty++;
+		if (pLoopGroup->getActivityType() == ACTIVITY_HEAL) iGroupsHealing++;
+		if (bOpenOceanGroup) iOpenOceanGroups++;
+		if (iGroupSeaCombatSupport > 0)
+		{
+			iGroupsWithSeaCombatSupport++;
+			iGroupedSeaCombatSupportUnits += iGroupSeaCombatSupport;
+		}
+	}
 	CvString szUnitTypes;
 	CvString szUnitAI;
 	CvString szUnitCombat;
@@ -6693,6 +6833,16 @@ static void logSASGameRecordUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 		if (aiUnitCombat[iI] > 0)
 			appendSASGameRecordValue(szUnitCombatPercentX100, getSASGameRecordUnitCombatType((UnitCombatTypes)iI), getSASGameRecordPercentX100(aiUnitCombat[iI], iUnitCombatTotal));
 	}
+	CvString szAssaultTransportTypes;
+	CvString szAssaultCargoTypes;
+	CvString szAssaultCargoAI;
+	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+	{
+		appendSASGameRecordTypeCount(szAssaultTransportTypes, getSASGameRecordUnitType((UnitTypes)iI), aiAssaultTransportTypes[iI]);
+		appendSASGameRecordTypeCount(szAssaultCargoTypes, getSASGameRecordUnitType((UnitTypes)iI), aiAssaultCargoTypes[iI]);
+	}
+	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
+		appendSASGameRecordTypeCount(szAssaultCargoAI, getSASGameRecordUnitAIType((UnitAITypes)iI), aiAssaultCargoAI[iI]);
 	if (bLogPromotionDetails)
 	{
 		FOR_EACH_ENUM(Promotion)
@@ -6721,6 +6871,18 @@ static void logSASGameRecordUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 	// PercentX100 uses only units with a real UnitCombat as the denominator, excluding Workers, Great People and other non-combat-class units. (GPT-5.6) -->
 	logSASGameRecord("GAME_RECORD_UNIT_COMPOSITION turn=%d player=%d unitTypes=%s unitAI=%s unitCombatTotal=%d unitCombat=%s unitCombatPercentX100=%s",
 		iGameTurn, ePlayer, getSASDiagnosticOrDash(szUnitTypes).GetCString(), getSASDiagnosticOrDash(szUnitAI).GetCString(), iUnitCombatTotal, getSASDiagnosticOrDash(szUnitCombat).GetCString(), getSASDiagnosticOrDash(szUnitCombatPercentX100).GetCString());
+	// <!-- custom: One compact periodic naval-projection row preserves whether completed assault lift is usable and actually being loaded/mobilized without copying per-target UWAI/InvasionGraph diagnostics into SASGameRecord.
+	// Capacity/cargo use only real UNITAI_ASSAULT_SEA transports, groups are counted once regardless of their head unit, openOceanGroups require every sea member in the current group to cross ordinary ocean, and existing empire-wide UnitAI/war-plan rows remain authoritative rather than being duplicated here.
+	// MISSIONAI_LOAD_ASSAULT belongs to land cargo groups seeking a transport, not to the assault-sea group itself; transport-side pickup readiness is represented by groupsPickup instead. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	FAssert(iAssaultTransports == iTransportsEmpty + iTransportsPartial + iTransportsFull);
+	FAssert(iLoadedCargo == iLoadedCargoCanAttack + iLoadedCargoCannotAttack);
+	FAssert(iAssaultGroups == iGroupsEmpty + iGroupsPartial + iGroupsFull);
+	FAssert(iAssaultGroups == iGroupsNoMissionAI + iGroupsAssault + iGroupsPickup + iGroupsReinforce + iGroupsOtherMissionAI);
+	logSASGameRecord("GAME_RECORD_NAVAL_ASSAULT_POSTURE turn=%d player=%d assaultTransports=%d assaultTransportsTraining=%d cargoCapacity=%d loadedCargo=%d cargoUtilizationPercentX100=%d openOceanTransports=%d openOceanCapacity=%d openOceanLoadedCargo=%d openOceanGroups=%d transportsEmpty=%d transportsPartial=%d transportsFull=%d damagedTransports=%d assaultGroups=%d groupsEmpty=%d groupsPartial=%d groupsFull=%d groupsAtBase=%d groupsEmptyAtBase=%d groupsEmptyNoMissionAIAtBase=%d groupsLoadedAwayFromBase=%d groupsNoMissionAI=%d groupsAssault=%d groupsPickup=%d groupsReinforce=%d groupsOtherMissionAI=%d groupsMissionQueueNonempty=%d groupsHealing=%d groupsWithSeaCombatSupport=%d groupedSeaCombatSupportUnits=%d loadedCargoCanAttack=%d loadedCargoCannotAttack=%d transportUnitTypes=%s cargoUnitTypes=%s cargoUnitAI=%s",
+		iGameTurn, ePlayer, iAssaultTransports, GET_PLAYER(ePlayer).AI_getNumTrainAIUnits(UNITAI_ASSAULT_SEA), iCargoCapacity, iLoadedCargo, getSASGameRecordPercentX100(iLoadedCargo, iCargoCapacity),
+		iOpenOceanTransports, iOpenOceanCapacity, iOpenOceanLoadedCargo, iOpenOceanGroups, iTransportsEmpty, iTransportsPartial, iTransportsFull, iDamagedTransports, iAssaultGroups, iGroupsEmpty, iGroupsPartial, iGroupsFull, iGroupsAtBase, iGroupsEmptyAtBase, iGroupsEmptyNoMissionAIAtBase, iGroupsLoadedAwayFromBase,
+		iGroupsNoMissionAI, iGroupsAssault, iGroupsPickup, iGroupsReinforce, iGroupsOtherMissionAI, iGroupsMissionQueueNonempty, iGroupsHealing, iGroupsWithSeaCombatSupport, iGroupedSeaCombatSupportUnits, iLoadedCargoCanAttack, iLoadedCargoCannotAttack,
+		getSASDiagnosticOrDash(szAssaultTransportTypes).GetCString(), getSASDiagnosticOrDash(szAssaultCargoTypes).GetCString(), getSASDiagnosticOrDash(szAssaultCargoAI).GetCString());
 	if (bLogPromotionDetails) logSASGameRecord("GAME_RECORD_UNIT_PROMOTIONS turn=%d player=%d promotions=%s militaryPromotions=%s",
 		iGameTurn, ePlayer, getSASDiagnosticOrDash(szPromotions).GetCString(), getSASDiagnosticOrDash(szMilitaryPromotions).GetCString());
 }
