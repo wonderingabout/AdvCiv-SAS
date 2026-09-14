@@ -83,6 +83,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or always build first logic depending on building type or such; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48)\
 [KI#48.2 - (Greatly Enhanced and Fixed) Kish city of gilgamesh AI building a theatre instead of a hindu temple despite having unhappy citizens (and health room to grow otherwise), and theatre not giving any reliable happiness (almost anything else would have been much better), fixed by fixed by correcting the happiness building formula in our pre-check in CvCityAI::AI_buildingValue, and in particular replacing the too broad and unreliable CvCity::getAdditionalHappinessByBuilding with our own AI_strictAdditionalHappy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.2)\
 [KI#48.3 - (Fixed AdvCiv-SAS bug) Building prefilter double-counted unhealthy food loss](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.3)\
+[KI#48.4 - (Fixed AdvCiv-SAS performance-optimization crash) Corporation HQ valuation used an exhausted commerce-loop index](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.4)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
@@ -3141,11 +3142,23 @@ After compiling the three-fix CvCityAI batch, a full Release autoplay completed 
 
 This is an AdvCiv-SAS practical-4950 regression, not inherited behavior. Found through the completed CvCityAI current-tree pass in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, then compile/runtime-smoke-tested with the help of wonderingabout, thanks.
 
+<a id="ki-48.4"></a>
+
+## KI#48.4 - (Fixed AdvCiv-SAS performance-optimization crash) Corporation HQ valuation used an exhausted commerce-loop index
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1W0rGODbCnfc6VmSv6RRn4JvKthY9OilA?usp=sharing).
+
+A turn-250 full-memory crash dump with matching private symbols failed in `CvCity::findCommerceRateRank` during `CvPlayerAI::AI_updateGreatPersonWeights` -> `CvCityAI::AI_buildingValue`. The call received commerce value 4, equal to `NUM_COMMERCE_TYPES` and therefore one past every valid commerce index, causing an invalid array read.
+
+AdvCiv-SAS practical 5086 moved `findCommerceRateRank(eLoopCommerce)` immediately before the corporation-headquarters commerce loop as a performance optimization. At that location, `eLoopCommerce` survived from an earlier completed `FOR_EACH_ENUM(Commerce)` loop and held its terminal sentinel rather than a valid commerce type. The Base AdvCiv implementation correctly performs the rank lookup inside the later loop for its current commerce type.
+
+The fix restores that lookup to the positive headquarters-commerce branch inside the valid loop. This also avoids calculating ranks for commerce types that contribute no headquarters value, while preserving the original corporation valuation formula. The exact dump path and invalid index are resolved by the source correction; the crash did not recur later in the same testing sequence, and a dedicated rebuilt-DLL reproduction was not needed for this rare path. Diagnosed and fixed with the help of GPT-5.6-Sol, thanks.
+
 <a id="ki-49"></a>
 
 ## KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders
 
-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1t-sHkDPig9ycq_PC7AHMdw1kQ-z3oG--?usp=sharing)
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1t-sHkDPig9ycq_PC7AHMdw1kQ-z3oG--?usp=sharing).
 
 This is one issue i noticed recently but most likely present in base advciv +/- civ4 maybe as well, of having new cities not defended enough, for example having 4+ defenders/units (regardless of unitai or anything) yet only 1 unit in city B, despite capital city being able to pump units fast, and the risk of the new city being destroyed by barbarians early, defeating the purpose.
 

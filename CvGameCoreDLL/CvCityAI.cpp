@@ -10027,8 +10027,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							kBuilding.getGlobalCorporationCommerce());
 					if (iExpectedSpread > 0)
 					{
-						// <!-- custom: note: be careful, this is from another loop so increment variable name and redefine it as a new variable -->
-						const int iLoopCommerceRateRank2 = findCommerceRateRank(eLoopCommerce);
+						// <!-- custom: A prior SAS optimization evaluated the exhausted commerce-loop variable here as NUM_COMMERCE_TYPES, causing an invalid array read in findCommerceRateRank while valuing a corporation-founding Great Person building.
+						// The matching turn-250 dump contains this exact invalid index; keep the lookup inside this loop where eLoopCommerce is valid. See KI#48.4. (GPT-5.6-Sol) -->
 						FOR_EACH_ENUM(Commerce)
 						{
 							int iHqValue = 4 * GC.getInfo(
@@ -10047,7 +10047,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							if (iHqValue > 0)
 							{
 								iHqValue *= 3*iNumCities
-										- iLoopCommerceRateRank2
+										- findCommerceRateRank(eLoopCommerce)
 										- getNumNationalWonders() / 2;
 								iHqValue /= 2*iNumCities;
 							}
