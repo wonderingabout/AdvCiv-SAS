@@ -1171,7 +1171,9 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1065 - (Provisional Pending inherited Custom Continents regeneration defect) One-Per-Team producer and consumer cross different team thresholds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1065)\
 [KI#1066 - (Provisional Pending UI AdvCiv-SAS font-migration regression) Great Person fitting measures a different font than it renders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1066)\
 [KI#1067 - (Provisional Pending UI AdvCiv-SAS Domestic Advisor repair regression) Debug-selected Free Colony availability executes for the active player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067)\
-[KI#1068 - (Provisional Pending audit cursor) Chronological repair-history pass remains active](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1068)\
+[KI#1068 - (Provisional Pending AdvCiv-SAS Sevopedia repair regression) EventTrigger corporation-era inference ignores HQ-building technology gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1068)\
+[KI#1069 - (Provisional Pending UI AdvCiv-SAS World Advisor repair regression) Territory reveals live ownership changes under fog](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1069)\
+[KI#1070 - (Provisional Pending audit cursor) Mechanical denominator and modulo scan remains active](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1070)\
 
 <a id="ki-1"></a>
 
@@ -19062,8 +19064,28 @@ Found as F746/provisional KI#1067 during ChatGPT-5.6-Sol's C031-WIP864 repair-si
 
 <a id="ki-1068"></a>
 
-## KI#1068 - (Provisional Pending audit cursor) Chronological repair-history pass remains active
+## KI#1068 - (Provisional Pending AdvCiv-SAS Sevopedia repair regression) EventTrigger corporation-era inference ignores HQ-building technology gates
 
-All 169 current `.cpp` files remain complete. Reserved for F747 after the chronological repair-history audit reached C031-WIP866 with F734-F746 promoted as KI#1055-KI#1067; practical 6176 covering KI#225 is next.
+KI#225 repaired several indirect EventTrigger-era thresholds, but its corporation branch still reads each corporation's direct `TechPrereq`. All seven shipped corporations set that field to `NONE`; their actual availability is gated by the technology prerequisites of the building that founds their headquarters. Consequently, Great Depression, Corporate Expansion and Hostile Takeover are grouped under `Any era` even though no corporation can be founded before the Industrial era.
 
-Reconciled from ChatGPT-5.6-Sol's C031-WIP866 continuation cursor with the help of GPT-5.6-Sol, thanks.
+This is an incomplete AdvCiv-SAS KI#225 repair, not an inherited corporation rule. Pending reusing the existing `SAS_getCorporationAvailabilityEra` helper for listed and all-corporation threshold vectors while preserving KI#225's correct Nth-earliest threshold semantics.
+
+Found as F747/provisional KI#1068 during ChatGPT-5.6-Sol's C031-WIP867 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-1069"></a>
+
+## KI#1069 - (Provisional Pending UI AdvCiv-SAS World Advisor repair regression) Territory reveals live ownership changes under fog
+
+KI#224 correctly separates the selected World Advisor subject from the real human map observer and uses observer-relative revealed data for resources, improvements and routes. Its Territory collector nevertheless decides membership with live `pPlot.getOwner()`. A previously revealed border plot whose ownership changes while under fog is therefore immediately added to or removed from the selected civilization's territory totals even though the observer's remembered owner has not changed.
+
+The inherited map API already supplies the required remembered-owner state; this is an omitted dimension of the AdvCiv-SAS KI#224 repair. Pending admitting plots through `getRevealedOwner(iObserverTeam, bDebug)` while retaining the existing reveal guard and observer-relative detail reads.
+
+Found as F748/provisional KI#1069 during ChatGPT-5.6-Sol's C031-WIP868 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-1070"></a>
+
+## KI#1070 - (Provisional Pending audit cursor) Mechanical denominator and modulo scan remains active
+
+All 169 current `.cpp` files and the chronological repair-history, comparative-control and empty-container tranches remain complete. Reserved for F749 after the audit reached C031-WIP891 with F747-F748 promoted as KI#1068-KI#1069; the systematic current-SAS denominator/modulo scan is next.
+
+Reconciled from ChatGPT-5.6-Sol's C031-WIP891 continuation cursor with the help of GPT-5.6-Sol, thanks.

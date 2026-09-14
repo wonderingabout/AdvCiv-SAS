@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 169 / 169
 Files open: 0 / 169
 Last completed file: ordinary queue 169 CvGameCoreDLL/_precompile.cpp (5 queued / 5 current physical lines) - CLOSED AT C031-WIP676 / NO NEW FINDING; F708 UNUSED
-Current open file: none - all 169 queued .cpp files COMPLETE at C031-WIP676; post-pass chronological repair-history audit ACTIVE at C031-WIP866 / F708-F746 confirmed / F747 unused
-Latest confirmed audit findings: F650-F678, F680-F746 / KI#972-KI#1067, plus F679 reopening KI#300. F708-F713 were promoted by the post-169-file reconciliation: F708 resolves the wrapped-iterator seam explicitly carried from Queue022/Queue025 to Queue167; F709 resolves the deliberately parked advc.106b Turn-Log NO_TECH counting heuristic after the substantive primary gameplay/state pass completed; F710 promotes the separately parked SAS Stalin Renaissance peace-intro audio-reference typo after full XML/audio/player-call-chain proof; F711 promotes the previously deferred SPaH hidden-randomization disclosure flag that is serialized/displayed but never set true; F712 promotes the deferred third-party resource-alert multiset duplicate-message root when identical deal multiplicity changes by more than one between observer checks; F713 promotes the inherited malformed CvMap initialization memory-log printf conversion that executes on every map init. F714-F746 were promoted by the subsequent chronological repair-history audit. Exact historical ranges, duplicate reconciliations, retractions, reopened findings and unused IDs remain authoritative in the durable checkpoints below.
-Next new root ID: F747 unused / provisional KI#1068 next
+Current open file: none - all 169 queued .cpp files COMPLETE at C031-WIP676; post-pass mechanical invariant audit ACTIVE at C031-WIP891 / F708-F748 confirmed / F749 unused
+Latest confirmed audit findings: F650-F678, F680-F748 / KI#972-KI#1069, plus F679 reopening KI#300. F708-F713 were promoted by the post-169-file reconciliation: F708 resolves the wrapped-iterator seam explicitly carried from Queue022/Queue025 to Queue167; F709 resolves the deliberately parked advc.106b Turn-Log NO_TECH counting heuristic after the substantive primary gameplay/state pass completed; F710 promotes the separately parked SAS Stalin Renaissance peace-intro audio-reference typo after full XML/audio/player-call-chain proof; F711 promotes the previously deferred SPaH hidden-randomization disclosure flag that is serialized/displayed but never set true; F712 promotes the deferred third-party resource-alert multiset duplicate-message root when identical deal multiplicity changes by more than one between observer checks; F713 promotes the inherited malformed CvMap initialization memory-log printf conversion that executes on every map init. F714-F748 were promoted by the subsequent chronological repair-history and mechanical-invariant audits. Exact historical ranges, duplicate reconciliations, retractions, reopened findings and unused IDs remain authoritative in the durable checkpoints below.
+Next new root ID: F749 unused / provisional KI#1070 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -207364,4 +207364,1562 @@ Post-primary F708-F746 remain confirmed.
 F747 / provisional KI#1068: UNUSED.
 ===============================================================================
 END C031-WIP866
+===============================================================================
+
+
+================================================================================
+C031-WIP867 chronology checkpoint - practical 6176 / KI#225
+================================================================================
+
+Status: practical 6176 CLOSED after EventTrigger indirect-era threshold review.
+Post-primary findings F708-F747 remain confirmed.
+F748 / provisional KI#1069 is UNUSED.
+No repository source files modified.
+
+F747 / KI#1068 - EventTrigger corporation-era inference ignores SAS HQ-building tech gates
+------------------------------------------------------------------------------------------
+Classification: current AdvCiv-SAS incomplete KI#225 repair / Sevopedia grouping correctness.
+
+KI#225 correctly repaired several indirect EventTrigger-era families by matching the DLL's
+threshold semantics instead of maxing every listed alternative. The corporation branch, however,
+still derives each corporation era from:
+
+  gc.getCorporationInfo(iCorporation).getTechPrereq()
+
+and does the same for the all-corporations threshold.
+
+That is not the corporation availability contract in current AdvCiv-SAS. All seven corporation
+rows in CIV4CorporationInfo.xml currently have `<TechPrereq>NONE</TechPrereq>`. Corporations are
+instead gated by their HQ/founding building (`<FoundsCorporation>`), whose own PrereqTech/TechTypes
+provide the real technology boundary. The same Sevopedia grouping module already documents this
+and implements `SAS_getCorporationAvailabilityEra(iCorporation, iNumBuildingAndTechs)` specifically
+to resolve the founding building and reuse the building-availability helper.
+
+Current founding-building availability eras are:
+- CORPORATION_1: Industrial (Theory of Evolution + Corporation)
+- CORPORATION_2: Modern (Marine Technology + Corporation)
+- CORPORATION_3: Industrial (Combustion + Corporation)
+- CORPORATION_4: Modern (Radio + Corporation)
+- CORPORATION_5: Industrial (Electricity + Corporation)
+- CORPORATION_6: Industrial (Assembly Line + Corporation)
+- CORPORATION_7: Industrial (Corporation)
+
+So the sorted all-corporation threshold is five Industrial + two Modern entries. The live XML has
+three EventTriggers with positive `iNumCorporations`, all with an empty CorporationsRequired list
+and no competing direct/indirect technology gate:
+
+1. EVENTTRIGGER_GREAT_DEPRESSION: `iNumCorporations = 2`
+   DLL player-trigger semantics count distinct corporation types present in the player's empire.
+   The second-earliest current corporation is still Industrial, so the earliest feasible era is
+   Industrial.
+2. EVENTTRIGGER_CORPORATE_EXPANSION: `iNumCorporations = 1`
+   Earliest feasible era is Industrial.
+3. EVENTTRIGGER_HOSTILE_TAKEOVER: `iNumCorporations = 1`
+   Earliest feasible era is Industrial.
+
+Current `_SAS_getEventTriggerEarliestEraAndSource`, however, converts every direct corporation
+TechPrereq NONE to era -1. `_SAS_getThresholdEra` therefore contributes no corporation era, and
+these otherwise ungated triggers fall into the Sevopedia `Any era` bucket even though they cannot
+exist before Industrial corporation founding becomes possible.
+
+This is not merely latent/config robustness: all three affected trigger families are current XML,
+and no equal-or-later independent gate masks the error. Whole-album search found no prior finding
+owning EventTrigger corporation availability / Great Depression era grouping.
+
+Surgical direction (not applied here): in the EventTrigger corporation branch, use the existing
+`SAS_getCorporationAvailabilityEra(iCorporation, gc.getNUM_BUILDING_AND_TECH_PREREQS())` (or a
+cached equivalent) for both listed and all-corporation era vectors instead of direct
+CvCorporationInfo TechPrereq. Preserve KI#225's existing threshold semantics: player-level empty
+lists require the Nth-earliest distinct corporation; pick-city listed corporations combine the
+city count gate with any-one-listed-type semantics.
+
+PRACTICAL 6176 / KI#225 OTHER REPAIR DIMENSIONS
+-----------------------------------------------
+The initially suspected pick-city building threshold issue is rejected. `CvCity::canTrigger`
+requires `getBuildingCount() >= iNumBuildings`, then, when a BuildingsRequired list exists,
+requires that the city contain any one listed building class; it does not require
+`iNumBuildings` distinct listed classes. Therefore KI#225's threshold-1 treatment for the listed
+building alternatives matches the DLL contract.
+
+The corresponding unit/religion threshold repairs remain coherent under the same current-source
+check. F747 concerns only corporation availability-era resolution, not KI#225's threshold-family
+rewrite in general.
+
+CHRONOLOGY HANDOFF
+------------------
+Practical 6176 is closed with F747/KI#1068 confirmed.
+Next unused finding slot: F748 / provisional KI#1069.
+Next chronology cursor: practical 6175 / KI#224.
+
+================================================================================
+C031-WIP868 chronology checkpoint - practical 6175 / KI#224
+================================================================================
+
+Status: practical 6175 CLOSED after World Advisor observer/revealed-state revalidation.
+Post-primary findings F708-F748 remain confirmed.
+F749 / provisional KI#1070 is UNUSED.
+No repository source files modified.
+
+F748 / KI#1069 - KI#224 World Advisor Territory still filters live ownership under fog
+--------------------------------------------------------------------------------------
+Classification: current AdvCiv-SAS incomplete KI#224 repair / advisor map-information leak.
+
+KI#224 correctly separated the World Advisor's selected SUBJECT from the real human map OBSERVER
+outside Debug mode, and repaired BFC/Territory plot reveal, bonus, improvement and route reads to
+use the observer team and revealed-state APIs. The Territory collector, however, still admits
+plots with:
+
+  pPlot.getOwner() == self.iActivePlayer
+
+before counting the selected player's territory.
+
+Live ownership is not the observer's remembered ownership contract in Civ4. `CvPlot` stores
+`m_aiRevealedOwner[TeamTypes]`, exposes `getRevealedOwner(eTeam, bDebug)` to Python, and on
+`CvPlot::setOwner` calls `updateRevealedOwner` for alive teams. That update changes the remembered
+owner only when `plotThatRevealsOwner(eTeam)` finds the plot itself or an adjacent witness currently
+visible. Thus a revealed-but-fogged border tile can intentionally retain its old revealed owner
+while the live owner changes.
+
+Deterministic consequence in the supported vassal perspective:
+1. active human/master A has previously revealed a plot on selected vassal B's border;
+2. the plot goes back under fog for A;
+3. culture/ownership changes unseen, either away from B or newly to B;
+4. A's `getRevealedOwner` remains the old owner until current visibility witnesses the change;
+5. World Advisor Territory nevertheless uses raw `getOwner()` and immediately removes/adds that
+   plot from B's territory counts.
+
+The leak can therefore reveal hidden border changes through Total/terrain/feature/resource/
+improvement territory counts even though KI#224 correctly protects the individual bonus,
+improvement and route identities once a plot is admitted.
+
+This is not the same as the initially challenged raw FeatureType use. Civ4 has no per-team
+revealed-feature snapshot; feature symbols are deliberately visible/updated on any revealed plot
+(`updateFeatureSymbolVisibility` keys off `isRevealed`), so current feature state matches the
+engine's own revealed-map presentation. Ownership is explicitly different because Civ4 does
+maintain remembered owner state.
+
+Whole-album dedup found existing KI#224, KI#232 and KI#335 perspective/privacy roots, but no prior
+root for World Advisor Territory's raw owner membership test. F748 is therefore kept separate as
+an omitted revealed-state dimension of the KI#224 repair.
+
+Surgical direction (not applied here): in `collectTerritoryData`, replace the raw owner membership
+predicate with
+
+  pPlot.getRevealedOwner(iObserverTeam, bDebug) == self.iActivePlayer
+
+while retaining the existing reveal guard and observer-relative bonus/improvement/route reads.
+Debug keeps live ownership through the wrapper's bDebug behavior.
+
+PRACTICAL 6175 / KI#224 ORIGINAL REPAIR
+---------------------------------------
+The original repair remains valid: outside Debug, `getMapObserverTeam()` correctly keeps the real
+active human as observer while vassal selection changes only the advisor subject. BFC and
+Territory bonus/improvement/route calls use observer-relative APIs. No surviving direct
+`self.iActiveTeam` fog/resource read was found.
+
+CHRONOLOGY HANDOFF
+------------------
+Practical 6175 is closed with F748/KI#1069 confirmed.
+Next unused finding slot: F749 / provisional KI#1070.
+Next chronology cursor: practical 6174 / KI#223, KI#226, KI#227 (plus KI#214 composition).
+
+================================================================================
+C031-WIP869 chronology checkpoint - practical 6174 / KI#223, KI#226, KI#227
+================================================================================
+
+Status: practical 6174 CLOSED after UI/data-contract revalidation.
+Post-primary findings F708-F748 remain confirmed.
+F749 / provisional KI#1070 remains UNUSED.
+No repository source files modified.
+
+PRACTICAL 6174 / KI#223 - Domestic Advisor Founded numeric sorting
+------------------------------------------------------------------
+Verdict: CLEAN after adversarial recheck.
+
+The repaired cell now derives `CyGame().getTurnYear(getGameTurnFounded())` and inserts it through
+the project's numeric `setTableIntLabel` wrapper. This removes the old localized BC/AD lexical
+ordering while preserving the actual signed game-year ordering used by the existing World Advisor
+convention. No parallel textual sort key survives in the same table.
+
+PRACTICAL 6174 / KI#226 - Event pillage fields mislabeled as gold
+-----------------------------------------------------------------
+Verdict: CLEAN after runtime-semantics recheck.
+
+Both `CvCity::applyEvent` and `CvPlayer::applyEvent` use MinPillage/MaxPillage to roll how many
+eligible improvements to destroy. Native `CvGameTextMgr` likewise formats these fields as pillage
+counts. Current Sevopedia therefore correctly labels them `Improvements Pillaged`, omits the gold
+commerce glyph, and collapses equal min/max to one count. The fact that a roll can be bounded by
+available eligible plots is inherent to the event effect, not evidence that the XML fields are
+currency or a different unit.
+
+PRACTICAL 6174 / KI#227 - Vote trade-route reward duplicated as requirement
+---------------------------------------------------------------------------
+Verdict: CLEAN after processVote/eligibility review.
+
+`CvVoteInfo::getTradeRoutes()` is consumed by `CvGame::processVote` through global
+`changeTradeRoutes(...)` when a resolution is applied/removed. Resolution eligibility does not
+require that many pre-existing trade routes. Retaining the signed All-Cities Trade Routes line in
+Effects while removing the Requirements duplicate therefore matches the actual vote contract.
+
+No later whole-album finding reopens KI#223/KI#226/KI#227.
+
+CHRONOLOGY HANDOFF
+------------------
+Practical 6174 is closed clean.
+F749 / provisional KI#1070 remains unused.
+Next chronology cursor: practical 6173 / KI#214.
+
+================================================================================
+C031-WIP870 chronology checkpoint - practical 6173 / KI#214
+================================================================================
+
+Status: practical 6173 CLOSED after irrigation-search state/dominance review.
+Post-primary findings F708-F748 remain confirmed.
+F749 / provisional KI#1070 remains UNUSED.
+No repository source files modified.
+
+PRACTICAL 6173 / KI#214 - irrigation-chain constrained shortest-path state
+-------------------------------------------------------------------------
+Verdict: CLEAN after adversarial algorithm recheck.
+
+KI#214 replaced one best cost per plot with one best cost per `(plot, steps)` because route length
+is independently capped: a cheaper but longer arrival at one plot must not prune a costlier shorter
+arrival that can still reach irrigation inside the remaining step budget. Current source retains
+that bounded state space (`numPlots * (iMaxPlots + 1)`) and generation stamps.
+
+The separate `iOverwritePenalty` field does not require another state dimension. For any fixed
+step count, current accumulated search cost is exactly the route overwrite penalty plus the fixed
+350-per-extra-step term. Therefore, within one `(plot, steps)` state, minimizing cost also minimizes
+overwrite penalty. Different step counts remain separate states, which is the dimension KI#214
+needed to preserve.
+
+Priority-queue stale-node rejection indexes the same `(plot,steps)` slot that was updated on push;
+queued steps cannot exceed iMaxPlots; generation rollover clears stamps; old static storage is
+ignored by the next generation even if map/max-route dimensions change. No predecessor state is
+required because the helper intentionally returns the first source-side Farm that can be built now
+and reruns after each completed connector.
+
+Later independent worker/CvUnitAI audits in the album explicitly rechecked this helper and retained
+KI#214's `(plot,steps)` model; no current route-state sibling is already open.
+
+CHRONOLOGY HANDOFF
+------------------
+Practical 6173 is closed clean.
+F749 / provisional KI#1070 remains unused.
+Next chronology cursor: practical 6172 / KI#221-KI#222.
+
+================================================================================
+C031-WIP871 chronology checkpoint - practical 6172 / KI#221-KI#222
+================================================================================
+
+Status: practical 6172 CLOSED after Battle-History event-order/association review.
+Post-primary findings F708-F748 remain confirmed.
+F749 / provisional KI#1070 remains UNUSED.
+No repository source files modified.
+
+PRACTICAL 6172 / KI#221 - city-capture battle attribution
+---------------------------------------------------------
+Verdict: CLEAN after adversarial recheck.
+
+The current matcher requires same global turn, winner/new-owner and loser/previous-owner direction,
+exact captured-city coordinates and a lethal (non-retreat) battle. Defended city acquisition
+follows the final combat/move into that city plot, so newest-first identifies the battle that
+actually cleared the entry. An ordinary undefended conquest has no such preceding lethal row at
+that plot and therefore no longer relabels an unrelated same-turn battle elsewhere.
+
+PRACTICAL 6172 / KI#222 - captured-civilian battle attribution
+--------------------------------------------------------------
+Verdict: CLEAN after adversarial recheck.
+
+Current capturable Workers/Settlers do not fight; matching their old unit type to the defeated
+escort was therefore fundamentally wrong. The repaired event uses the newly created captured
+unit's exact plot and matches the newest same-turn lethal battle at that plot with the correct
+capturing-player/old-owner direction. `unitCaptured` is emitted during the move/capture sequence
+that follows clearing the plot, so the event ordering makes that newest row the enabling battle.
+Several civilians captured by the same entry intentionally patch/accumulate on the same battle row.
+
+Later Battle-History findings KI#334/KI#335 concern information visibility/persistence rather than
+capture-row association and do not reopen these predicates.
+
+CHRONOLOGY HANDOFF
+------------------
+Practical 6172 is closed clean.
+F749 / provisional KI#1070 remains unused.
+Next chronology cursor: practical 6171 / KI#218-KI#220.
+
+================================================================================
+C031-WIP872 chronology checkpoint - practical 6171 / KI#218-KI#220
+================================================================================
+
+Status: practical 6171 CLOSED after map-rasterization and Military-Summary executor review.
+Post-primary findings F708-F748 remain confirmed.
+F749 / provisional KI#1070 remains UNUSED.
+No repository source files modified.
+
+PRACTICAL 6171 / KI#218 - PerfectMongoose meteor boundary pairing
+-----------------------------------------------------------------
+Verdict: CLEAN after adversarial recheck.
+
+`castMeteorUponTheEarth` depends on same-y circle boundary points retaining the opposite-side
+insertion pairing before its stable y sort and pairwise row rasterization. The old identity-based
+set removed that order without actually coordinate-deduplicating CirclePoint objects. Current
+`getCirclePoints` restores the ordered list/append contract, while `getFilledCirclePoints` remains
+the separate helper for callers needing filled/unique geometry. No sibling caller still converts
+the meteor boundary list through an unordered set.
+
+PRACTICAL 6171 / KI#219 - Military Summary anarchy support waiver
+-----------------------------------------------------------------
+Verdict: CLEAN after engine-wrapper recheck.
+
+The detailed DLL breakdown overloads intentionally calculate free/paid populations and formula
+subtotals regardless of anarchy. Their public `calculateUnitCost(...)` and
+`calculateUnitSupply(...)` wrappers return zero immediately while `isAnarchy()`. The Summary now
+retains the informative population/rate operands but zeros regular/military/extra/raw Unit Cost,
+base/raw Supply and their inflated displayed totals during anarchy, with an explicit Anarchy label.
+This matches what gameplay actually charges.
+
+PRACTICAL 6171 / KI#220 - zero-gold Great-General upgrade observations
+----------------------------------------------------------------------
+Verdict: CLEAN after upgradePrice recheck.
+
+`CvUnit::upgradePrice` can validly return zero after the unit's upgrade discount (including a 100%
+leader/Great-General discount) and clamps ordinary results at zero. The Summary's candidate search
+uses `-1` only as its no-candidate sentinel, so accepting/appending every `iPrice >= 0` correctly
+includes free upgrades in min/average/max/total statistics. No invalid-target branch was found
+where zero carries a different meaning.
+
+CHRONOLOGY HANDOFF
+------------------
+Practical 6171 is closed clean.
+F749 / provisional KI#1070 remains unused.
+Next chronology cursor: practical 6170 / KI#215-KI#217.
+
+===============================================================================
+C031-WIP873 APPEND -- practical 6170 / KI#215-KI#217 adversarial closure
+===============================================================================
+
+Chronology cursor reviewed
+--------------------------
+Practical 6170 / 79410b2dba (local diff: SASBranch_6170_642bcd97e0.diff),
+rechecking current composed source rather than only the historical patch.
+
+Verdict
+-------
+CLEAN CURRENT COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+KI#215 -- no-site Settler transport cleanup
+--------------------------------------------
+CONFIRMED FIXED.
+- Current AI_settleMove calls this Settler's passenger-side `unload()` rather than
+  `getTransportUnit()->unloadAll()` after a >20-turn no-valid-site condition.
+- `CvUnit::unload()` first calls this unit's `canUnload()`, then detaches only this
+  unit through `setTransportUnit(NULL)`.
+- The old transport-side `unloadAll()` applies the same per-passenger `canUnload()`
+  check once the transport itself is in an unload-all-valid location, but then
+  detaches EVERY unloadable cargo unit. The repaired passenger call therefore
+  preserves the intended legality while fixing the ownership/scope defect.
+- If the Settler cannot unload (e.g. invalid revealed domain), it remains attached;
+  the immediately-following `getTransportUnit() == NULL` condition stays false, so
+  the no-site scrap is deliberately deferred rather than deleting cargo at sea.
+- On successful unloading, only this Settler is detached; unrelated Settlers,
+  Workers or military cargo remain aboard.
+- `setTransportUnit(NULL)` awakens the unloaded unit/group as normal. No group-wide
+  cargo mutation survives this path.
+- Later explicit `AI_scrapSettlerWithNoValidSite` hardening is a separate cleanup
+  contract and composes with KI#215 rather than reopening it.
+
+KI#216 -- duplicate Work Boat demand water area
+-----------------------------------------------
+CONFIRMED FIXED.
+- Current `AI_neededSeaWorkers()` obtains the primary pointer through
+  `waterArea(true)` and counts that area once.
+- It then obtains `secondWaterArea()` and adds that demand only when the pointer is
+  non-null AND differs from the primary pointer.
+- This exactly closes the inherited geometry where impassable Ice can make
+  `waterArea(true)` and `secondWaterArea()` resolve to the same accessible sea.
+- Availability-side accounting already uses the same pointer-identity dedup.
+  Demand and availability therefore now agree in the collision case while two
+  genuinely distinct accessible seas remain separately counted.
+- Later Work Boat / Barbarian-demand work does not remove or bypass this guard.
+
+KI#217 -- mixed-role attack-stack immediate-upgrade counting
+------------------------------------------------------------
+CONFIRMED FIXED for its documented root.
+- Current `SAS_getBestUpgradeForLog(CvUnit const&)` derives
+  `kUnit.AI().AI_getUnitAIType()` from EACH iterated stack member.
+- Both the behavioral `iCanUpgradeNowUnits` count and its matching diagnostic cost
+  pass call that one-argument helper; the attack-stack head role is no longer
+  reused for heterogeneous members.
+- This matches `CvUnitAI::AI_upgrade`, which likewise values candidates with the
+  individual unit's own UnitAI.
+- The caller subsequently applies real `canUpgrade(eBestUpgradeForLog)`, including
+  current readiness, gold and SAS economic upgrade gates.
+
+Adversarial control: deterministic 90-percent estimate
+------------------------------------------------------
+- The helper intentionally uses a deterministic `90 * AI_unitValue(candidate)`
+  estimate whereas `AI_upgrade()` uses a synchronized 80..100 random factor.
+- Therefore it is an estimate rather than an exact prediction of the next random
+  upgrade roll. This was challenged because `iCanUpgradeNowUnits` is behavioral.
+- Archaeology shows that deterministic 90% estimate is the original KI#156 design;
+  practical 6170 / KI#217 explicitly changes ONLY member-role ownership and says
+  the deterministic estimate is preserved.
+- Current `canUpgrade` is still applied after a candidate is selected, so this is
+  not the KI#217 wrong-member-identity defect.
+- No hard correctness invariant was established that the ready-attack bypass must
+  reproduce one future synchronized random roll exactly; classifying that policy
+  approximation as a new bug would overstate the evidence. It remains a tuning /
+  naming precision edge, not F749.
+
+Dedup / controls
+----------------
+- Distinct from F151/KI#474 (same-type human upgrade action-cache representative).
+- Distinct from KI#188.x upgrade-city routing and KI#160 upgrade-budget caps.
+- Earlier whole-file CvUnitAI audit already found no surviving current root in the
+  KI#215/KI#216/KI#217 paths; this chronology pass re-established the detailed
+  action contracts rather than relying on that prior verdict.
+
+Authoritative state after this checkpoint
+-----------------------------------------
+Primary queue: 169 / 169 COMPLETE.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+Next chronology cursor: practical 6169.
+No repository gameplay/XML/Python/C++ source file modified by this audit.
+
+===============================================================================
+C031-WIP874 APPEND -- practical 6169 / KI#212 adversarial closure
+===============================================================================
+
+Practical 6169 / 56162f50f5 reviewed against current CvUnit::maxCombatStr,
+CombatDetails declaration/export, Python consumers, and ancestry.
+
+Verdict: CLEAN CURRENT COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+KI#212 -- AI Barbarian attacker CombatDetails side field
+-------------------------------------------------------
+CONFIRMED FIXED.
+- Current defender-is-Barbarian AI-handicap branch writes
+  `iAIBarbarianCombatModifierTB` (This/defender is Barbarian).
+- Current attacker-is-Barbarian AI-handicap branch writes
+  `iAIBarbarianCombatModifierAB` (Attacker is Barbarian).
+- A repository-wide assignment sweep finds exactly those two assignments for the
+  AI Barbarian fields; no second copy/paste survivor writes AB/TB on the wrong side.
+- Both fields remain separately declared in CombatDetails, separately exported in
+  CyStructsInterface1.cpp, and separately consumed by CvUtil.py.
+- The built-in combat message intentionally uses the same text key/sign handling
+  for both, so visible logging remains equivalent while the exposed data contract
+  is now semantically correct.
+- Strength arithmetic uses iExtraModifier directly before the CombatDetails write;
+  therefore the repair remains reporting/API-only as documented and introduces no
+  combat-odds/RNG/balance change.
+
+Dedup/control:
+- KI#211 is the adjacent but independent terrain-attack strength-estimation bug;
+  it is the next chronology cursor and is not conflated with this reporting field.
+
+Authoritative state after this checkpoint:
+Primary queue 169/169 COMPLETE; F708-F748 confirmed; F749/KI#1070 UNUSED.
+Next chronology cursor: practical 6168 / KI#211.
+No repository gameplay/XML/Python/C++ source modified.
+
+===============================================================================
+C031-WIP875 APPEND -- practical 6168 / KI#211 adversarial closure
+===============================================================================
+
+Practical 6168 / b4221a1bc7 reviewed against current CvUnit::maxCombatStr's
+known-attacker and unknown-defender/effective-strength modes.
+
+Verdict: CLEAN CURRENT COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+KI#211 -- terrain attack sign in unknown-defender attacker strength
+-------------------------------------------------------------------
+CONFIRMED FIXED.
+- `bAttackingUnknownDefender` temporarily treats `this` as the attacker and builds
+  attacker-side plot modifiers in `iTempModifier` with the normal defender-side
+  signs (e.g. attack bonuses enter as negative terms).
+- At the end of the attacker block, unknown-defender mode reverses the complete
+  subtotal with `iModifier -= iTempModifier`.
+- City attack, Barbarian city attack, hills attack, feature attack, river attack,
+  amphibious penalty and kamikaze already use that reversible subtotal.
+- Terrain attack now does as well. Before KI#211 it alone wrote its negative term
+  directly into `iModifier`, escaping the final reversal and turning a positive
+  terrain attack bonus into an effective-strength penalty.
+- A direct sibling sweep of this block finds no remaining attacker plot modifier
+  that should be reversed but still bypasses `iTempModifier`.
+- Known-defender semantics remain unchanged because that mode adds the subtotal
+  normally (`iModifier += iTempModifier`).
+- CombatDetails reporting continues to receive the conventional signed component;
+  only the aggregate path used by the unknown-defender estimate changed.
+
+Current AI consumers of effective/unknown-defender strength therefore receive the
+intended terrain contribution; no second sign-asymmetry root established.
+
+Authoritative state:
+Primary queue 169/169 COMPLETE; F708-F748 confirmed; F749/KI#1070 UNUSED.
+Next chronology cursor: practical 6167 / KI#210.
+No repository gameplay/XML/Python/C++ source modified.
+
+===============================================================================
+C031-WIP876 APPEND -- practical 6167 / KI#210 adversarial lifecycle closure
+===============================================================================
+
+Practical 6167 / fcccb4f5e7 reviewed against doVoteSelection, initDiplomacy,
+CvTeam::meet/makeHasMet, and midgame CvPlayer::initInGame colony creation.
+
+Verdict: CLEAN CURRENT REPAIR. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+KI#210 -- vote-selection self pair
+----------------------------------
+CONFIRMED SAFE/CORRECT, with a lifecycle nuance that refines the historical wording.
+
+Game-start control:
+- `CvGame::initDiplomacy()` deliberately executes `team.meet(teamID,false)` for
+  every team, so ordinary initialized teams have `isHasMet(self)==true`.
+- Therefore the practical-2502 full inner TeamIter self-pair was normally blocked
+  by the later `if (!itTeam1->isHasMet(itTeam2))` even before KI#210. On ordinary
+  game-start teams the lost self-exclusion was behaviorally inert.
+
+Midgame-created-team reachability:
+- A colony/new player can instead be created through `CvPlayer::initInGame` after
+  game initialization.
+- When this initializes a genuinely fresh team it calls `CvTeam::init`, resetting
+  relation arrays, but does NOT reproduce `initDiplomacy`'s `meet(self,false)`.
+- Such a team can later participate in a vote source after inheriting tech/state and
+  receiving cities. Its own `isHasMet(self)` can therefore still be false.
+- Without KI#210, the practical-2502 self pair could reach `meet(self,true)` in that
+  supported lifecycle. `makeHasMet` sets the self relation and fires the Python
+  firstContact event before its later `eOther == getID()` return guard.
+- KI#210's explicit `team2 == team1` skip prevents that synthetic self first-contact
+  and restores the original pre-refactor pair-enumeration invariant directly at the
+  caller.
+
+Adjacent robustness note (not promoted):
+- Fresh midgame teams not receiving the normal game-start self-contact bit is itself
+  an asymmetry. A repository/album check did not establish an independent concrete
+  gameplay failure for the ordinary singleton-colony case once self vote contact is
+  excluded. Many relation consumers explicitly compare different teams, and later
+  team-merger paths have their own state migration.
+- Keep this as lifecycle robustness debt rather than F749 unless a concrete consumer
+  that requires a fresh singleton team's self HasMet state is proved.
+
+The current repair is thus harmless for ordinary initialized teams and meaningful for
+midgame-created teams; no caller elsewhere in vote selection bypasses the self guard.
+
+Authoritative state:
+Primary queue 169/169 COMPLETE; F708-F748 confirmed; F749/KI#1070 UNUSED.
+Next chronology cursor: practical 6166 / KI#209.
+No repository gameplay/XML/Python/C++ source modified.
+
+===============================================================================
+C031-WIP877 APPEND -- practicals 6166-6164 / KI#209-KI#207 adversarial closure
+===============================================================================
+
+Practicals reviewed:
+- 6166 / 61c686a4c6 / KI#209 -- CvInitCore::reassignPlayer random-leader provenance.
+- 6165 / 6b2c738295 / KI#208 -- CvTeamAI::AI_updateWorstEnemy sticky recompute flag.
+- 6164 / d3b1b89822 / KI#207 -- CvTeam::getRandomMemberAlive filtered random index.
+
+Verdict: CLEAN CURRENT COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+KI#209 -- independent random civ / random leader state
+-----------------------------------------------------
+CONFIRMED FIXED.
+- `reassignPlayer` saves the target slot's `m_abCivChosenRandomly` and
+  `m_abLeaderChosenRandomly` into separate temporaries.
+- Copying old->new likewise copies the two independent arrays separately.
+- Restoring target->old writes `bRandomCiv` and `bRandomLeader` back to their matching
+  arrays; the inherited copy/paste read from the civ flag is gone.
+- A direct save/copy/restore comparison found no second random-provenance cross-wire.
+- Later setup archaeology already uses current KI#209 as a positive control: the
+  remaining True-Starts fixed-leader override root is independent precisely because
+  these provenance flags now survive reassignment correctly.
+
+KI#208 -- worst-enemy trade-memory recomputation request
+-------------------------------------------------------
+CONFIRMED FIXED.
+- The tentative `eBestTeam` is selected before the enemy-trade-memory decay loop.
+- If the loop changes that team's stored enemy grant/trade values, its attitude/
+  enmity can change and the tentative winner must be recomputed.
+- Current code sets `bUpdateWorstEnemyAgain = true` and never lets later unrelated
+  teams overwrite it back to false.
+- Other teams whose values are decayed only become less resentful; modifying them
+  cannot create a stronger replacement candidate that independently requires this
+  second pass. The trigger therefore has the correct narrow ownership.
+- The recursive call uses `AI_updateWorstEnemy(false)`, so memory is not decayed a
+  second time.
+- Existing F045 remains separate: it concerns incumbent-vs-candidate eligibility in
+  `AI_updateWorstEnemy`, not this sticky recalculation flag.
+
+KI#207 -- eligible-member random selection
+------------------------------------------
+CONFIRMED FIXED.
+- `MemberIter` is `PlayerIter<ALIVE,MEMBER_OF>`; its traversal population is living
+  members of the requested team.
+- Non-human selection counts `getAliveCount()` and traverses that exact population.
+- Human-team selection counts `PlayerIter<HUMAN,MEMBER_OF>` and applies the same
+  `isHuman()` filter to the MemberIter traversal. If the team is not human, the
+  helper intentionally disables the human-only request first.
+- `SyncRandNum(iValid)` returns a 0-based index; current `iValidIndex++ == iIndex`
+  maps exactly onto the filtered population and makes the last eligible member
+  reachable. It no longer uses `nextIndex()`, which counted underlying iterator
+  positions/ineligible members and introduced the inherited bias/exclusion.
+- Current callers request members only from live war/diplomacy teams, so the helper's
+  pre-existing zero-population assumption is unchanged and separately audited.
+
+Authoritative state after this checkpoint
+-----------------------------------------
+Primary queue: 169 / 169 COMPLETE.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+Next chronology cursor: practical 6163 / KI#206.
+No repository gameplay/XML/Python/C++ source file modified by this audit.
+
+===============================================================================
+C031-WIP878 APPEND -- practical 6163 / KI#206 adversarial closure
+===============================================================================
+
+Practical 6163 / 179e5e1f3e reviewed against current CvPlayerAI::AI_eventValue,
+current Event XML, game-speed ConstructPercent data, and later deep event-value audit
+findings.
+
+Verdict: CLEAN CURRENT COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+KI#206 -- direct random-event BuildingChange production-cost normalization
+--------------------------------------------------------------------------
+CONFIRMED FIXED.
+- The direct BuildingChange valuation maps the BuildingClass to this civilization's
+  BuildingType and starts from its production cost.
+- Positive production cost is doubled as the inherited rough commerce-value heuristic;
+  special `-1` cost retains the inherited fixed shrine-style estimate.
+- Current code then multiplies by the active game speed's `ConstructPercent` and,
+  crucially, divides by 100. This now has the same percentage normalization structure
+  as the two analogous direct-unit event valuation paths (`TrainPercent / 100`).
+- `kEvent.getBuildingChange()` is applied only after normalization, so positive
+  creation and negative destruction use the same correctly scaled magnitude with the
+  intended sign.
+- Current shipped game-speed ConstructPercent values range from 33 through 400; the
+  old omission therefore was a literal 100x unit error at every speed, not a Normal-
+  speed-only coincidence.
+- Current Event XML includes live negative BuildingChange choices (e.g. Forge loss),
+  so both sign directions are meaningful under the repaired formula.
+
+Dedup / current composition
+---------------------------
+- Later deep `AI_eventValue` auditing found independent event-valuation roots, notably
+  dropped non-city BuildingExtraYield/BuildingExtraCommerce value. The album already
+  records those as separate roots and explicitly excludes them from KI#206.
+- No second direct BuildingChange ConstructPercent multiplication without `/100`
+  survives in the current AI-event valuation path.
+
+Chronology boundary
+-------------------
+- Practical 6162 is the merge of upstream AdvCiv 1.14 into the SAS line. It introduces
+  no independent post-merge repair to adjudicate here.
+- The post-SAS archaeology-fix chronology from practical 6282 down through 6163 has
+  therefore reached its upstream-merge boundary.
+- Next systematic chronology cursor is the newest AdvCivPreSAS history practical,
+  practical 4343, continuing backward through the underlying AdvCiv ancestry.
+
+Authoritative state after this checkpoint
+-----------------------------------------
+Primary queue: 169 / 169 COMPLETE.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+Next chronology cursor: AdvCivPreSAS practical 4343.
+No repository gameplay/XML/Python/C++ source file modified by this audit.
+
+===============================================================================
+C031-WIP879 APPEND -- chronology-boundary correction + next comparative lane
+===============================================================================
+
+CORRECTION TO WIP878 CURSOR
+---------------------------
+WIP878 tentatively named AdvCivPreSAS practical 4343 as the next systematic cursor.
+That would duplicate already-completed work and is therefore superseded here.
+
+Authoritative repository evidence:
+- `_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt` records
+  `Systematic historical commits reviewed: 4,343 / 4,343`.
+- AdvCivPreSAS practicals 4343 -> 1250 are COMPLETE.
+- K-Mod practicals 1249 -> 1 are COMPLETE.
+- The separate AdvCiv-SAS runtime-source phase is also COMPLETE at 1,292 / 1,292
+  source-touching SHAs.
+- The practical-6282 -> practical-6163 pass just completed by this album was a
+  distinct post-primary REPAIR-SIDE adversarial chronology over the resulting SAS
+  fix commits, not the original historical discovery sweep.
+
+Therefore:
+- Do NOT restart the historical sweep at practical 4343.
+- Post-primary repair-side chronology is now complete through its 6162 merge
+  boundary.
+
+NEXT LANE -- CIV4CE / VANILLA-LINEAGE DIFFERENTIAL CONTROL
+----------------------------------------------------------
+The same authoritative archaeology tracker explicitly notes that the supplied
+`Civ4CE-main` checkout was discovered only AFTER the systematic AdvCiv/K-Mod/SAS
+sweeps were complete and therefore did not certify those historical findings.
+
+Use Civ4CE now as a new supporting comparison source rather than as ancestry proof:
+1. compare concrete executable C++ semantics/fixes in Civ4CE's BtS DLL tree against
+   current SAS/Base AdvCiv/K-Mod;
+2. prioritize differences that look like correctness, lifetime, bounds, ownership,
+   arithmetic, visibility or state-transition repairs rather than design choices;
+3. for every candidate, prove a supported current SAS path and whole-album dedup
+   before consuming a finding number;
+4. do not report a Civ4CE difference merely because the implementations differ;
+   current SAS behavior remains authoritative.
+
+This lane makes direct use of the additional local source material the user supplied
+without repeating the completed current-file or commit-history sweeps.
+
+Authoritative state after this checkpoint
+-----------------------------------------
+Primary current-source queue: 169 / 169 COMPLETE.
+Historical commit-oriented sweeps: COMPLETE.
+Post-primary SAS repair-side chronology: COMPLETE through practical 6163 / merge 6162.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+Next cursor: Civ4CE differential control -- establish source/file inventory and begin
+with high-signal DLL semantic differences, proving each against current SAS.
+No repository gameplay/XML/Python/C++ source file modified by this audit.
+
+
+===============================================================================
+C031-WIP880 APPEND -- Civ4CE/Taurus comparative control tranche 1
+===============================================================================
+
+Scope
+-----
+New post-chronology comparison lane using the user-supplied Civ4CE and Taurus SDKs as
+supporting controls. This tranche reviewed the highest-signal UOP/Taurus state-
+transition fixes around team/player/game command plumbing rather than broad AI design
+differences.
+
+Verdict: CLEAN CURRENT COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+1. UOP potential-enemy forced-peace protection -> current CvTeamAI::AI_mayAttack
+-------------------------------------------------------------------------------
+CONFIRMED PRESERVED/SUPERSEDED CORRECTLY.
+- Taurus/UOP changed global `isPotentialEnemy` so an undeclared sneak-attack target is
+  considered attackable only when `canDeclareWar` also permits the declaration; this
+  prevented invasion movement during forced peace followed by unit bumping.
+- AdvCiv replaced that global strategic helper with `CvTeamAI::AI_mayAttack`.
+- Current `AI_mayAttack(eDefender)`:
+  * returns true immediately for actual war;
+  * canonicalizes a vassal defender to its master for the war-plan lookup;
+  * requires an imminent war plan;
+  * rejects `isForcePeace(eDefenderMaster)` and `isForcePeace(eDefender)` before
+    reporting the target attackable.
+- The source retains the original UOP bugfix comment and explicitly explains why it
+  can avoid the broader `canEventuallyDeclareWar` call: an impossible war plan has to
+  be abandoned elsewhere.
+- Current plot/unit wrappers establish a real defender team and the full CvTeamAI
+  audit has already saturated `AI_mayAttack` caller semantics. No missing UOP guard
+  survives here.
+
+2. UOP CvPlayer::removeBuildingClass count semantics
+---------------------------------------------------
+CONFIRMED PRESERVED.
+- Taurus/UOP fixes Firaxis `setNumRealBuilding(eBuilding,0)`, which destroyed all real
+  copies in the selected city, to decrement exactly one copy.
+- Current SAS maps the civilization's building class to BuildingType, finds the first
+  city with a positive real count, and executes
+  `setNumRealBuilding(eBuilding, getNumRealBuilding(eBuilding) - 1)` before breaking.
+- This is exactly the UOP invariant and remains Python-exposed through the normal
+  player wrapper.
+
+3. UOP CvPlayer::canDoCivics(NO_CIVIC) MP crash guard
+-----------------------------------------------------
+CONFIRMED PRESERVED.
+- Current SAS returns true for `eCivic == NO_CIVIC` before any `CvCivicInfo` lookup,
+  matching the UOP simultaneous-turn MP crash fix.
+- Later force-civic, Python override, tech/civic-option and no-slavery gates operate
+  only on real civic IDs. No earlier dereference was reintroduced.
+
+4. Permanent-Alliance tech-progress / no-tech-brokering UOP block
+-----------------------------------------------------------------
+CONFIRMED INTENTIONALLY SUPERSEDED, not a missing fix.
+- Taurus/UOP avoided copying overflow progress for already-known techs and cleared
+  NoTradeTech when the absorbed teammate had independently researched a tech.
+- Current AdvCiv/K-Mod PA merge is structurally different:
+  * research progress is transferred only when NEITHER constituent already has the
+    tech;
+  * incomplete progress is normalized proportionally across differing team research
+    costs;
+  * the old UOP NoTradeTech merge code is retained as commented archaeology because
+    K-Mod/AdvCiv applies no-brokering state when techs are shared in `shareItems`.
+- The just-completed repair-side PA chronology adversarially audited tech, project,
+  contact, counter and revival migration in current composition. No Taurus-only
+  correctness obligation is missing here.
+
+5. Barbarian passive-research rounding UOP fix
+----------------------------------------------
+CONFIRMED SUPERSEDED MORE STRONGLY.
+- Taurus/UOP changes the old nested integer truncation into one fraction and clamps a
+  positive research award to at least one beaker.
+- Current `CvTeam::doBarbarianResearch` uses `scaled` arithmetic, per-tech Barbarian
+  modifiers, game-speed/start-era-aware base cost, a minimum of one, and an explicit
+  no-overflow upper clamp. The original truncation root is therefore absent.
+
+6. Water-city Python callback semantics
+---------------------------------------
+CONFIRMED PRESERVED after refactor.
+- Taurus/UOP fixed the callback so a water plot remains invalid unless
+  `canFoundCitiesOnWater` explicitly authorizes it.
+- AdvCiv moved the logic into `CvPlot::canEverFound`; current code checks `isWater()`
+  first, calls `canFoundWaterCity`, returns true only on explicit approval, otherwise
+  false. The UOP comment remains in source.
+
+7. Simultaneous-team-turn activation break
+------------------------------------------
+CONFIRMED PRESERVED.
+- Current `CvGame` breaks only after the first ALIVE team is found and activated,
+  matching the UOP fix rather than breaking after slot 0 regardless of liveness.
+
+8. Recycled-player names/colors and upgrade-all pointer lifetime
+---------------------------------------------------------------
+CONFIRMED PRESERVED.
+- Current add-player/recycled-slot logic retains the UOP identity cleanup / color
+  collision semantics (with later AdvCiv/SAS initialization work layered above it).
+- Current `CvNetDoCommand` stores the UnitType before iterating an Alt+all command,
+  so deleting/upgrading the original unit cannot invalidate the comparison pointer.
+
+Comparative-lane policy / next cursor
+-------------------------------------
+- Civ4CE remains useful as vanilla-lineage behavior, but its final DLL is close enough
+  to the BtS/K-Mod ancestry that raw differences mostly reflect K-Mod/AdvCiv redesign.
+- Taurus's explicit UOP markers provide the higher-signal finite checklist.
+- Next tranche: labeled Taurus/UOP `CvCity` and `CvUnit` mechanics, prioritizing
+  ownership/lifetime, movement/combat, build completion, cargo, visibility and
+  arithmetic fixes. Each candidate must still be proved against CURRENT SAS and whole-
+  album dedup before consuming F749.
+
+Authoritative state
+-------------------
+Primary current-source queue: 169 / 169 COMPLETE.
+Historical commit-oriented sweeps: COMPLETE.
+Post-primary SAS repair-side chronology: COMPLETE.
+Civ4CE/Taurus comparative lane: tranche 1 COMPLETE.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+No repository gameplay/XML/Python/C++ source file modified by this audit.
+
+
+===============================================================================
+C031-WIP881 APPEND -- Civ4CE/Taurus comparative control tranche 2A
+CvCity/CvUnit mechanics -- high-signal first pass
+===============================================================================
+
+Verdict: CLEAN CURRENT DATA/COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+Scope
+-----
+Reviewed the first high-signal Taurus/UOP CvCity/CvUnit/CvPlot/CvSelectionGroup
+mechanics markers against current SAS, focusing on lifetime, cargo ownership, combat
+context, building-count state and direct improvement-yield semantics.
+
+Preserved/superseded UOP fixes
+------------------------------
+- `CvUnit::canLoadOnto` (renamed from canLoadUnit) still rejects loading a cargo unit
+  onto its current transport, preserving the UOP anti-recursive-cargo invariant. It
+  also rejects transports that are themselves cargo and retains normal cargo-space,
+  team, hidden-nationality and movement checks.
+- `CvUnit::maxCombatStr` still guards attacker-side plot modifiers behind both
+  `pAttacker != NULL` and `pAttackedPlot != NULL`, preserving the UOP null-plot fix.
+  The later KI#211 sign audit independently saturated the unknown-defender modifier
+  block and found no surviving sibling.
+- `CvCity::kill` still clears dead-city trade routes before detaching the plot and
+  still restores deterministic river-required features (e.g. floodplains) under the
+  current SAS define policy.
+- `CvPlayer::removeBuildingClass` remains a one-copy decrement and the building
+  completion path uses the building class's configured extra-player-instance count,
+  preserving both related UOP count semantics.
+- `CvCity::setBuildingHappyChange` and `setBuildingHealthChange` retain the UOP rule
+  that stored class deltas affect city aggregates only while the civilization's
+  corresponding building is active; positive and negative old/new contributions are
+  removed/reapplied with the proper good/bad accumulator.
+- K-Mod's iterative `CvSelectionGroup::continueMission` rewrite supersedes the old UOP
+  human MOVE_TO queue workaround; current mission completion/activation logic has
+  since received much deeper SAS queue-state auditing and KI fixes.
+
+Taurus UOP `calculateImprovementYieldChange` clamp -- REJECTED AS CURRENT FINDING
+-------------------------------------------------------------------------------
+Taurus/UOP clamps the improvement's standalone delta so it cannot reduce the plot
+below its current nature yield. K-Mod deliberately removed that local clamp and current
+SAS inherits the raw-delta API, while `calculateYield()` clamps the final total to >=0.
+
+Why this is NOT F749 in current SAS:
+- current XML contains only one negative base improvement yield: Workshop `-1 food`;
+- Workshop requires at least 1 natural food through `PrereqNatureYields`, so its raw
+  negative delta cannot exceed the plot's available nature food;
+- current tech/civic/route improvement-yield data does not introduce a stronger
+  negative improvement delta that can violate the final-yield floor;
+- therefore direct current AI/evaluator callers cannot presently observe an impossible
+  over-negative improvement delta from shipped data.
+
+Keep this as a mod-extension/API robustness difference: if future XML permits a more
+negative improvement delta than the underlying nature yield, callers that consume
+`calculateImprovementYieldChange` directly could rank an unrealizable negative value
+while actual `calculateYield` floors at zero. That is not a supported current defect.
+
+Next comparative cursor
+-----------------------
+Continue the remaining labeled Taurus/UOP mechanics markers in:
+- CvUnit combat/movement/range-strike/heal/pillage/spread paths;
+- CvPlot improvement/feature lifecycle;
+- any CvCity production/culture state marker not already subsumed above.
+Prioritize markers whose original correctness invariant is no longer visibly retained
+in current source, and prove current reachability/data before consuming F749.
+
+Authoritative state
+-------------------
+Primary source, historical and repair-side chronology sweeps: COMPLETE.
+Civ4CE/Taurus comparative lane: tranche 1 + tranche 2A COMPLETE.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+No repository gameplay/XML/Python/C++ source modified.
+
+
+===============================================================================
+C031-WIP882 APPEND -- Civ4CE/Taurus comparative control tranche 2B
+remaining CvUnit/CvPlot mechanics
+===============================================================================
+
+Verdict: CLEAN CURRENT COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+Confirmed retained/superseded invariants
+----------------------------------------
+- `CvUnit::canMoveInto` still evaluates terrain impassability independently from
+  feature impassability. The UOP fix that removed the old mutually-exclusive `else`
+  structure is preserved, with later AdvCiv own-border/loading refinements layered on
+  top.
+- The UOP consistency rule for post-attack movement remains incorporated in current
+  `canMoveInto`: spent attacks block movement into a visible defended attack target,
+  while defenseless capture movement and delayed-next-turn path checks retain the later
+  K-Mod/AdvCiv exceptions.
+- `CvUnit::canPillage` still rejects cargo units explicitly.
+- `CvUnit::canAirDefend` still rejects cargo ground interceptors; current code also
+  uses the observer-safe/revealed valid-domain predicate.
+- LunarMongoose FeatureDamageFix remains active: `healTurns` subtracts feature turn
+  damage and returns MAX_INT when net healing is nonpositive; `canHeal` rejects that
+  state rather than offering a useless heal mission.
+- `CvUnit::maxCombatStr` retains the UOP attacker-plot NULL guard; current unknown-
+  defender handling and KI#211 terrain-sign correction compose with it.
+- Range strike retains all three UOP correctness points reviewed here: target-plot
+  visibility is required, execution validates from the attacker's real current plot,
+  and the legacy defender-group mission-timer write remains removed because of OOS/
+  animation-lifetime concerns.
+- The religion-spread Python veto remains moved below inexpensive native rejection
+  tests; this is an efficiency-only UOP marker and current SAS's Python-caller wrapper
+  preserves the same result semantics.
+- Natural feature disappearance/growth and improvement bonus discovery retain game-
+  speed scaling under current `CvPlot` refactors. The exact helper names/scaled value
+  source differ from Taurus but the per-turn probability invariant is preserved.
+- Dead-city trade-route cleanup, floodplain restoration, active-world-wonder counting,
+  building-instance completion and building happy/health updates are retained or
+  structurally superseded by current CvCity code; no original UOP invariant was found
+  missing.
+
+Rejected differential watch retained from WIP881
+------------------------------------------------
+The K-Mod removal of Taurus/UOP's local negative-improvement-yield clamp remains an
+intentional raw-delta API difference. Current shipped SAS XML cannot produce an
+improvement delta more negative than the underlying natural yield, so no supported
+current mis-ranking is proved. Keep as extension robustness only.
+
+Next comparative cursor
+-----------------------
+Move to explicit Taurus/UOP AI correctness markers in CvPlayerAI / CvCityAI / CvUnitAI
+and compare them against current K-Mod/AdvCiv/SAS rewrites. Prioritize small bugfix
+invariants (wrong variable, missing legality gate, bad population, stale pointer,
+arithmetic/bounds) rather than broad AI preference differences.
+
+Authoritative state
+-------------------
+Primary source, historical and repair-side chronology sweeps: COMPLETE.
+Civ4CE/Taurus comparative lane: state tranche + mechanics tranches COMPLETE.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+No repository gameplay/XML/Python/C++ source modified.
+
+
+===============================================================================
+C031-WIP883 APPEND -- Civ4CE/Taurus comparative control tranche 3A
+CvPlayerAI high-signal UOP bugfix sample
+===============================================================================
+
+Verdict: CLEAN CURRENT COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+Reviewed high-signal Taurus/UOP AI corrections against current rewritten K-Mod/AdvCiv/SAS
+code, prioritizing tiny correctness invariants rather than strategic preference changes.
+
+Confirmed preserved/superseded examples
+---------------------------------------
+- Settler founding claim-threshold scaling retains the missing `/100` correction in the
+  current CitySiteEvaluator-era implementation rather than using the old raw-percent
+  magnitude.
+- Target-city valuation now uses the stronger current `AI_cityWonderVal` / active-world-
+  wonder helpers; the UOP omission of wonder value is not present.
+- `AI_unitValue` retains the null-area guard before area corporation counts, preventing
+  the Taurus/UOP mod-only crash case.
+- Missionary culture-victory valuation uses nested Culture1 -> Culture2 -> Culture3
+  stages, preserving the UOP copy/paste correction.
+- Executive valuation no longer contains the assignment-in-condition typo (`=` versus
+  `==`) from the Firaxis path; current corporation-spread valuation is substantially
+  rewritten.
+- `AI_civicValue(NO_CIVIC)` keeps the early crash-safe return and later civic scoring has
+  received much deeper SAS auditing/fixes.
+- `AI_getMinFoundValue` retains the UOP expense-sign correction:
+  `calculateInflatedCosts() + max(0,-getGoldPerTurn())`, then layers K-Mod/AdvCiv
+  available-income and corporation-maintenance adjustments above it.
+- Espionage malicious-action attitude boundary retains the intended threshold semantics
+  rather than the old `<50` equivalence mistake.
+- Strategy detection restricts mobile anti-air/artillery capability to land units; sea
+  or air units with movement/interception/bombard stats do not satisfy those land-blitz
+  flags merely because they are mobile.
+- AI diplomacy's tribute-demand gating retains the UOP principle that an already chosen
+  pending war must not be accidentally blocked by accepted tribute/forced peace.
+
+No sampled UOP invariant above is missing in current SAS, and no whole-album-unowned
+current bug was proved.
+
+Next comparative cursor
+-----------------------
+Finish labeled Taurus CvCityAI/CvUnitAI correctness markers (wrong accumulator/variable,
+hurry/defender calculations, best-build state, settler/assault/paradrop/missionary
+transport legality), then review any remaining small CvPlayerAI markers not already
+subsumed by later full-file findings.
+
+Authoritative state
+-------------------
+Primary source, historical and repair-side chronology sweeps: COMPLETE.
+Civ4CE/Taurus comparative lane: tranches 1, 2A, 2B, 3A COMPLETE.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+No repository gameplay/XML/Python/C++ source modified.
+
+
+===============================================================================
+C031-WIP884 APPEND -- Civ4CE/Taurus comparative control tranche 3B
+CvCityAI/CvUnitAI labeled correctness markers
+===============================================================================
+
+Verdict: CLEAN CURRENT COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+Representative UOP invariants re-proved in current rewritten AI
+---------------------------------------------------------------
+CvCityAI:
+- Worker-production shortfall checks compare existing workers AGAINST needed workers in
+  the correct direction; current SAS later refactors strengthen the ratio but do not
+  revive the original reversed comparison.
+- Building-specialist marginal value applies low-food / already-runnable penalties to
+  the local `iTempValue`, not the function-wide accumulated value.
+- Newly acquired-city defender logic has the original duplicate-condition/control-flow
+  error removed; current K-Mod/AdvCiv defender logic is substantially rewritten.
+- Financial weighting uses the corrected expense sign (`+ max(0,-GPT)`) where that
+  inherited calculation survives; newer paths use player-level available-income helpers.
+- Gold-hurry logic rejects nonpositive `hurryGold` before using it as a payback-cost
+  numerator.
+- Culture-pressure ownership tests use the city owner rather than a city-ID/player-ID
+  cross-type comparison.
+- Crush-strategy threat adjustment scales the current rival's temporary/civ factor,
+  not the whole accumulated city-threat value.
+
+CvUnitAI:
+- Settler site scoring still requires a reachable safe-territory path (with later SAS
+  search-range/quality refinements), preserving the UOP fix that stopped unreachable
+  same-area sites from dominating.
+- Assault Sea post-separation retreat checks the unit's UnitAI, not UnitType, and waits
+  until the remaining group can all move before retreating.
+- Paradrop bonus value uses a revealed/nonobsolete target bonus and preserves a positive
+  tactical floor rather than letting ordinary resources become zero/negative targets.
+- Special sea missionary/executive transport scoring doubles the local corporation/
+  missionary candidate value for a one-turn path rather than accidentally doubling the
+  unrelated outer accumulator.
+
+Cross-control / dedup
+---------------------
+Many of these functions were rewritten far beyond Taurus by K-Mod and then audited in
+current SAS for worker, production, threat, transport and city-site bugs. No Taurus
+marker exposed a current unowned sibling after those later fixes.
+
+Next comparative cursor
+-----------------------
+Finish the remaining Taurus/UOP non-AI utility/info/serialization markers (CvInfos,
+Python bindings, network/message/setup and any small game-core helper not already
+covered), then assess whether the comparative checklist has yielded any unreviewed
+high-signal semantics before closing or extending the lane.
+
+Authoritative state
+-------------------
+Primary source, historical and repair-side chronology sweeps: COMPLETE.
+Civ4CE/Taurus comparative lane: state/mechanics/AI tranches through 3B COMPLETE.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+No repository gameplay/XML/Python/C++ source modified.
+
+
+===============================================================================
+C031-WIP885 APPEND -- Civ4CE/Taurus comparative control tranche 4
+CvInfos / bindings / setup / message / utility + text-help labeled UOP markers
+===============================================================================
+
+Verdict: CLEAN CURRENT COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+Bindings / popup / network-message controls
+--------------------------------------------
+- CyInfoInterface1 still exports CvUnitInfo::isOnlyDefensive.
+- CyInfoInterface2 binds CvImprovementInfo::getHappiness to the actual happiness getter,
+  not the old erroneous defense-modifier getter.
+- CvDLLWidgetData retains the Free-Tech popup/command state guard: a free-tech widget
+  action is rejected unless the active player is currently choosing a free tech, and
+  the state is cleared only on a legitimate choice.
+- CvDLLButtonPopup retains the UOP liberation fixes: the liberation-player local is
+  distinct and a city is not offered for liberation to a player currently at war with
+  the popup owner.
+- CvMessageData's Upgrade-All command snapshots the original unit type before iterating
+  player units, so deleting/upgrading the selected unit cannot invalidate the type test.
+
+Game/setup state controls
+-------------------------
+- Simultaneous-team-turn activation still breaks only after finding and activating the
+  first ALIVE team; dead team slots do not terminate the search.
+- addPlayer/recycled colony slots still clear stale custom leader/civilization names when
+  the new identity differs, and an existing player does not invalidate its own default
+  player color.
+- The old CvGameCoreUtils potential-enemy forced-peace fix remains semantically covered
+  by current CvTeamAI::AI_mayAttack (verified in WIP880).
+
+CvGameTextMgr / UI bugfix controls
+----------------------------------
+Current help generation preserves the labeled UOP correctness fixes:
+- negative civic military-unit, largest-city, building happiness/health and analogous
+  building/improvement happiness values display absolute magnitudes with the correct
+  unhappy/unhealthy glyph rather than a signed number plus negative glyph;
+- non-state-religion civic happiness uses the corrected state-religion branch and passes
+  the required numeric/symbol parameters;
+- building spy-exposure text is conditional on positive espionage defense;
+- commerce-happiness-per-level text uses an absolute divisor;
+- FeatureDamageFix distinguishes turn damage from healing in feature help and preserves
+  the plot-hover negative-damage/healing presentation;
+- GameFontFix still omits the erroneous extra symbol increment that broke exact 49/74
+  bonus-resource counts.
+
+CvInfos efficiency-marker disposition
+--------------------------------------
+The Taurus CvInfos markers in this tranche (`m_bAnySpecialistYieldChange` and
+`m_bAnyBonusYieldModifier`) are efficiency flags, not independent gameplay semantics.
+AdvCiv later replaced the raw 2-D arrays/booleans with typed sparse/enum-map storage;
+current help code iterates the actual non-default specialist/bonus yield maps. Their
+removal therefore does not reopen a correctness bug.
+
+Comparative-lane status
+-----------------------
+All explicit labeled Taurus/UOP marker families sampled across state transitions,
+mechanics, CvPlayerAI/CvCityAI/CvUnitAI, text/UI, bindings, network commands and setup
+have now either been re-proved in current SAS or identified as intentional later
+K-Mod/AdvCiv redesigns. The one notable API divergence found during this lane -- raw
+unclamped calculateImprovementYieldChange -- is not reachable as an over-negative
+improvement delta in current shipped XML and remains extension robustness only.
+
+No current whole-album-unowned defect was proved in this tranche.
+
+Next comparative cursor
+-----------------------
+Broaden beyond explicit UOP labels: triage small executable Civ4CE/Taurus-vs-current-SAS
+semantic differences (guards, bounds, ownership, iterator populations, arithmetic and
+state transitions) that are not already marked by UOP comments. Exclude broad AI/design
+changes. Every candidate still requires a supported current-SAS reproduction and whole-
+album dedup before consuming F749.
+
+Authoritative state
+-------------------
+Primary source, historical and repair-side chronology sweeps: COMPLETE.
+Civ4CE/Taurus explicit-UOP comparative marker tranches: COMPLETE.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+No repository gameplay/XML/Python/C++ source modified.
+
+
+===============================================================================
+C031-WIP886 APPEND -- broader comparative lane: Python binding contract differential
+===============================================================================
+
+Verdict: CLEAN CURRENT COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+Method
+------
+Extracted Boost.Python `.def("pythonName", &CppClass::member)` bindings from current
+SAS, Taurus and Civ4CE, then compared same-name mappings. Reference disagreements were
+also used as controls for known UOP binding repairs. Finally stripped comments and
+checked each current exposed Boost.Python class for duplicate live Python names mapped
+to different C++ members.
+
+Results
+-------
+No current SAS regression was found. Several differences instead demonstrate deliberate
+AdvCiv/SAS API cleanup or correction of reference-tree copy/paste bindings:
+- `getReligionRequired` now binds CvEventTriggerInfo::getReligionRequired; both older
+  reference trees bind that Python name to getBonusRequired.
+- `isPickOtherPlayerCity` now binds the matching predicate rather than isPickCity.
+- `getProjectProductionModifier` now calls the project-specific city getter rather than
+  generic getProductionModifier.
+- the old duplicated recon/paradrop copy-paste registrations are gone; `canRecon` and
+  `canReconAt` map only to recon methods, with paradrop exposed under its own names.
+- `getGeneralProductionTurnsLeft` preserves the old Python API name while binding the
+  single surviving equivalent production-turns method after AdvCiv removed redundancy.
+- default unit/building Python names preserve compatibility while the C++ getters were
+  type-safely renamed from *Index to getDefaultUnit/getDefaultBuilding.
+
+Taurus-vs-Civ4CE binding differences line up with known UOP fixes: Taurus adds the
+correct CvImprovementInfo::getHappiness and CvUnitInfo::isOnlyDefensive exposure (plus
+an added player health binding); current SAS contains those corrected surfaces.
+
+A live-class duplicate-name scan (comments stripped, Boost.Python classes separated)
+found no Python method name bound to two different C++ members within one current class.
+The apparent old `getHappiness -> getDefenseModifier` registration remains only as a
+comment beside the corrected binding.
+
+Next comparative cursor
+-----------------------
+Switch to another finite, high-signal cross-source contract: Python-event / network /
+serialization argument and state-transition surfaces, prioritizing same event/message
+names whose payloads or ownership differ between Civ4CE/Taurus and current SAS. Avoid
+broad strategic/game-design differences; require current reachable proof + album dedup.
+
+Authoritative state
+-------------------
+Primary source, historical and repair-side chronology sweeps: COMPLETE.
+Civ4CE/Taurus explicit-UOP comparative markers: COMPLETE.
+Reference-assisted Python binding differential: COMPLETE.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+No repository gameplay/XML/Python/C++ source modified.
+
+
+===============================================================================
+C031-WIP887 APPEND -- broader comparative lane: Python-event/network-message contracts
+===============================================================================
+
+Verdict: CLEAN CURRENT COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+Python event reporter differential
+----------------------------------
+Parsed the 74 event-reporting functions shared by current SAS, Taurus and Civ4CE.
+- Shared event payload arity and ordering match across all three trees.
+- SAS differences in event argument expressions are type-safe enum values where the old
+  trees explicitly cast the same values to int; no PlayerTypes/TeamTypes swap or field
+  reorder was found.
+- postEvent retains the expected six common debug/modifier flags; SAS intentionally
+  treats Debug mode as cheat-enabled for its final boolean as well.
+
+Current network-message read/write symmetry
+-------------------------------------------
+Parsed all current CvMessageData subclasses with PutInBuffer/SetFromBuffer.
+- 28/28 message classes have matching serialized field sequences in the same order.
+- No class has a local write/read field-count or ordering skew.
+
+Reference-schema differences
+----------------------------
+The shared classes whose SAS schemas differ from Civ4CE/Taurus are deliberate protocol
+redesigns rather than dropped fields:
+- CvNetPushOrder: K-Mod explicit save/pop/queue-position semantics replace BtS
+  Alt/Shift/Ctrl queue encoding.
+- CvNetPushMission: typed MovementFlags plus the AdvCiv modified-mission boolean are
+  serialized and consumed symmetrically.
+- CvNetUpdateCivics: AdvCiv typed CivicMap serializes itself instead of a raw looped
+  fixed array.
+- CvNetFPTest and CvNetCivLeaderSetup are explicit AdvCiv-added message classes; the
+  latter transports the full civ/leader random-choice provenance maps used by setup.
+
+No old shared payload field vanished without a corresponding semantic rewrite, and no
+current Python/network whole-album-unowned defect was proved.
+
+Next comparative cursor
+-----------------------
+Reference-assisted Cy* wrapper null-guard differential: identify shared wrapper methods
+where Civ4CE/Taurus protect managed NULL objects but current SAS appears not to, then
+prove/reject each candidate against AdvCiv's wrapper macros and actual Python callers.
+This is especially relevant because managed CyCity/CyPlot NULL wrappers have produced
+real findings elsewhere in the album.
+
+Authoritative state
+-------------------
+Primary source, historical and repair-side chronology sweeps: COMPLETE.
+Civ4CE/Taurus explicit-UOP markers, binding differential, and Python-event/network
+contract differential: COMPLETE.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+No repository gameplay/XML/Python/C++ source modified.
+
+
+===============================================================================
+C031-WIP888 APPEND -- broader comparative lane: Cy* managed-NULL guard differential
+===============================================================================
+
+Verdict: CLEAN CURRENT COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+Method
+------
+Compared shared CyUnit/CyCity/CyPlot/CyPlayer/CyTeam/CyArea/CySelectionGroup/CyDeal
+wrapper methods across Civ4CE, Taurus and current SAS, prioritizing methods where both
+reference trees visibly guard the wrapper/native pointer but current code initially
+appeared not to.
+
+Results
+-------
+The small candidate set was false-positive/stronger-current behavior:
+- CyCity::isConnectedTo and CyPlot::isConnectedTo now validate the owning wrapper, the
+  argument CyCity wrapper, and its native CvCity pointer before dereference.
+- CyPlot::isEnemyCity validates both CyUnit wrapper and native CvUnit pointer.
+- CyPlot::movementCost validates the target plot, unit wrapper/native unit, and source
+  plot wrapper/native plot.
+The older reference implementations generally guarded only the owning wrapper and could
+still dereference a managed-null argument wrapper.
+
+Queue-object ownership control
+------------------------------
+CyCity::getOrderFromQueue and CySelectionGroup::getMissionFromQueue also illustrate a
+stronger current contract: under the already-confirmed KI#480 repair they copy internal
+OrderData/MissionData nodes into independent heap-owned objects, making the existing
+Boost.Python owning policy truthful. The reference trees return internal queue storage.
+
+No shared wrapper method with a reference-backed managed-NULL guard was proved to have
+lost equivalent protection in current SAS.
+
+Next comparative cursor
+-----------------------
+Systematically audit Boost.Python return-ownership policy, especially every current
+`manage_new_object` binding and pointer-return wrapper. Verify that each returned pointer
+is genuinely heap-owned (or otherwise compatible with the policy) rather than borrowed
+engine/internal storage. Dedup against KI#480 and prior Cy* findings before consuming
+F749.
+
+Authoritative state
+-------------------
+Primary source, historical and repair-side chronology sweeps: COMPLETE.
+Civ4CE/Taurus marker/binding/event-network/wrapper-guard comparative tranches: COMPLETE.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+No repository gameplay/XML/Python/C++ source modified.
+
+
+===============================================================================
+C031-WIP889 APPEND -- Boost.Python owning-return policy audit
+===============================================================================
+
+Verdict: CLEAN CURRENT COMPOSITION. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+Scope / method
+--------------
+Enumerated every current Boost.Python method binding using
+`return_value_policy<manage_new_object>` and mapped the bound C++ method to its concrete
+implementation. Also checked the utility free functions registered with the same owning
+policy.
+
+Results
+-------
+- 54 method bindings under manage_new_object all return genuinely fresh heap objects or
+  wrappers from their current implementation.
+- The six utility object-return helpers checked (plot direction/cardinal/XY/city and
+  IDInfo city/unit lookup) explicitly allocate new CyPlot/CyCity/CyUnit wrappers.
+- CyCity::getOrderFromQueue and CySelectionGroup::getMissionFromQueue now allocate
+  independent OrderData/MissionData copies under the already-confirmed KI#480 repair;
+  they no longer expose internal queue nodes through an owning policy.
+- Ordinary CyCity/CyPlot/CyUnit/CyArea/CySelectionGroup/CyDeal/CyReplayInfo returns use
+  the expected `new CyX(nativePointer)` wrapper pattern; native engine storage itself is
+  not transferred to Python.
+
+No borrowed/internal pointer is currently exposed as Python-owned storage through a
+manage_new_object binding.
+
+Next comparative cursor
+-----------------------
+Audit the complementary ownership direction: object/pointer-returning Python bindings
+that do NOT use an owning return policy. Look for implementations that allocate `new`
+and therefore leak/mis-own, or for reference policies whose returned storage can expire
+before Python. Dedup against KI#480 and prior wrapper lifetime findings.
+
+Authoritative state
+-------------------
+Primary source, historical and repair-side chronology sweeps: COMPLETE.
+Civ4CE/Taurus comparative marker, binding, event/network, NULL-wrapper and owning-return
+policy tranches: COMPLETE.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+No repository gameplay/XML/Python/C++ source modified.
+
+
+===============================================================================
+C031-WIP890 APPEND -- complementary borrowed/reference return-policy audit
+===============================================================================
+
+Verdict: NO NEW ROOT. Strong dedup control.
+F749 / provisional KI#1070 remains UNUSED.
+
+Systematic result
+-----------------
+Enumerated current `reference_existing_object` bindings and checked implementations for
+fresh heap allocation versus borrowed/static storage.
+
+Two structural fresh-allocation/reference-policy cases surfaced:
+1. CyGame::getNextUnitInCycle -> `new CyUnit(...)` while the binding uses
+   reference_existing_object.
+   This is NOT new: whole-album dedup identifies it as already-confirmed F688, including
+   the shipped Main Interface callers and the per-call wrapper leak proof.
+2. CyArea::getTargetCity -> `new CyCity(...)` under reference_existing_object.
+   This too was already examined by the primary wrapper audit. A complete shipped-Python
+   census found zero callers; all current target-city consumers use native
+   CvArea::AI_getTargetCity. It therefore remains documented latent/API robustness rather
+   than a current gameplay finding.
+
+All remaining borrowed-policy bindings match their storage lifetime:
+- CyMap::sPlot/sPlotByIndex and cysPlot* helpers return deliberate static wrappers;
+- CyGlobalContext returns persistent singleton/wrapper/info storage;
+- ArtFileMgr/info getters return globally owned info records;
+- EventTriggeredData and deal trade-list accessors return live engine-owned storage.
+No other fresh `new` object is registered as borrowed.
+
+This tranche independently re-proved F688 and the prior getTargetCity latent note but did
+not consume F749.
+
+Next investigation lane
+-----------------------
+The supplied Civ4CE/Taurus explicit marker, binding, event/network and wrapper-lifetime
+surfaces are now substantially saturated. Pivot to current-SAS mechanical invariant
+scans using small, finite static patterns: unsafe empty-container indexing, signed shift/
+overflow, array/buffer bound mismatches, divide/modulo denominators, enum-domain mixups,
+and nested-loop wrong-variable patterns. Every hit still requires supported reachability,
+semantic proof and whole-album dedup before numbering.
+
+Authoritative state
+-------------------
+Primary source, historical and repair-side chronology sweeps: COMPLETE.
+Civ4CE/Taurus comparative surfaces through wrapper ownership/lifetime: SATURATED for the
+high-signal contracts reviewed here.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+No repository gameplay/XML/Python/C++ source modified.
+
+
+===============================================================================
+C031-WIP891 APPEND -- current-SAS mechanical invariant scan: empty-container indexing
+===============================================================================
+
+Verdict: CLEAN CURRENT COMPOSITION / STRONG DEDUP CONTROL. No new root consumed.
+F749 / provisional KI#1070 remains UNUSED.
+
+Scope / method
+--------------
+Systematically enumerated current top-level DLL `vec[0]`, `.front()` and `.back()` uses, then
+triaged the dynamic-container cases for a supported zero/empty path. Fixed arrays, strings and
+statically sized engine buffers were separated from std::vector/list/queue cases. Every surviving
+candidate was checked against surrounding guards, producer/consumer population and whole-album
+ownership rather than treating a debug FAssert as a release guard.
+
+Previously open WIP890 cases closed
+-----------------------------------
+- SASGameRecordLog.cpp: all three material `.back()` candidates immediately follow their own
+  `push_back` in the same branch (`g_aSASGameRecordWars`, plot-change groups and initial-tech
+  groups). Palette `[0]` uses are fixed-size vectors constructed to the corresponding XML/info
+  counts before parsing/legend use.
+- CvInfo_Unit/CvInfo_Building Pass3: `m_aszExtraXMLforPass3[0]` is preceded by an executed
+  `size() < 1` return guard. The XML read path always pushes the one deferred DefaultUnit /
+  DefaultBuilding / VoteSource Civic string before Pass3.
+- CvSelectionGroup temporary vectors: `apUnitsLeftBehind[0]` and `aAwake[0]` are explicitly under
+  `!empty()`. The `apCanMove[0]` split path is entered only under `canAnyMove()`, whose exact
+  implementation returns true iff at least one member has `canMove()`; that same predicate fills
+  `apCanMove` immediately before indexing.
+- CvTeam queued-war fronts: all six queues have one producer (`queueWar`) that pushes one field to
+  every queue together and one consumer (`triggerWars`) that pops every queue together. No other
+  mutation site exists, so testing `attacking_queue.empty()` is sufficient for all six fronts.
+- RiseFall `chapters[0]`: initialization clamps chapter count to living civs, rejects
+  `maxChapters < 1`, then unconditionally pushes the final RFChapter before any chapter-zero use.
+
+Additional dynamic-container controls
+-------------------------------------
+- CvUnit failed missionary spread: the ranked-religion vector is nonempty on every legal spread
+  attempt. `canSpread` requires the city not already to have the attempted religion; the ranking
+  loop nevertheless always includes that attempted religion as a candidate unless the city is its
+  Holy City. `CvGame::setHolyCity` always adds the holy religion to the city, so that excluded
+  state contradicts `canSpread`'s prerequisite. Hence `partial_sort(begin,begin+1,end)` and `[0]`
+  have at least one candidate on a legal call.
+- UWAIAgent war-enemy `[0]` uses return before indexing when their vectors are empty. UWAICache's
+  pairwise-duration `[0]` is preceded by an empty return; the land-only companion is under
+  `!empty()`.
+- CombatOdds position zero initializes its vector itself when empty before every later `[0]` use.
+- CvGame SAS version-history `.back()` is under `!empty()`.
+- CvGameTextMgr owner-unit `[0]` is used only when the selected owner bucket has size exactly 1;
+  Font-symbol `.back()` calls all follow an immediately preceding row `push_back`.
+- InvasionGraph `kCycle[0]` is called only after `simulateComponent` constructs a detected cycle,
+  rejects size 1 and invokes `breakCycle` only when nonempty; the algorithmic cycle contract is
+  therefore >=2.
+- CvPlayerAI culture countdown `[0]` uses are under `iVictoryCities > 0 && getNumCities() >=
+  iVictoryCities`, after one countdown value is pushed per city. Tech-path front/back uses occur
+  only after `tech_paths.empty()` returns; each created path pushes its endpoint before any use.
+  Deal queues use `.front()` only inside a while condition requiring both queues nonempty.
+- PlayerHistory vector serialization has explicit `iSize > 0` guards.
+- Unit/Building/Tech prerequisite-vector stream `[0]` calls are all under positive serialized/count
+  guards.
+- CvArtInfoFeature's failure fallback to first FeatureArtPiece is safe for current shipped data:
+  every one of the eight FeatureVariety entries in CIV4ArtDefines_Feature.xml contains at least one
+  FeatureArtPiece (minimum 1; normal tiling varieties contain 15). Empty-art XML remains extension
+  robustness, not a current-data bug.
+- `stats::*` vector helpers contain only FAssert preconditions internally, so their current callers
+  were rechecked rather than trusted. The already-confirmed F687/SPaH takeover path remains the
+  known reachable empty-distribution violation. Other sampled/current uses build at least one item
+  or have explicit empty guards (UWAI distances/peace counters, building-count medians, True Starts,
+  StartingPositionIteration, espionage target medians, etc.). No second whole-album-unowned empty
+  `stats` caller was proved.
+
+Known/deduplicated formal issues retained
+-----------------------------------------
+- CvMap replay texture serialization / pointer return can form `&m_replayTexture[0]` for an empty
+  vector. This was already documented by the primary audit as formal C++ UB with no demonstrated
+  supported-MSVC gameplay failure; no new root is consumed here.
+- CvPlayerAI `m_aeBestTechs[0]` zero-length serialization has the same already-documented formal
+  portability/hardening status.
+- Existing F687 remains the consequential empty-vector finding in this family.
+
+Next mechanical cursor
+----------------------
+Systematic denominator/modulo scan in current SAS: enumerate integer/fixed-point division and `%`
+uses where the divisor is not a compile-time nonzero constant; prioritize values derived from
+container sizes/counts, XML/configuration, game populations and dynamically computed differences.
+Require a supported zero path plus actual execution consequence and whole-album dedup before
+consuming F749. Treat already-guarded `std::max(1, ...)`, scaled constructors with protected
+population, and assertion-only preconditions separately.
+
+Authoritative state
+-------------------
+Primary source, historical and repair-side chronology sweeps: COMPLETE.
+Civ4CE/Taurus high-signal comparative surfaces: SATURATED for the reviewed contracts.
+Current-SAS empty-container mechanical invariant tranche: COMPLETE.
+Post-primary confirmed roots: F708-F748.
+F749 / provisional KI#1070: UNUSED.
+No repository gameplay/XML/Python/C++ source modified.
+
+PHYSICAL CHECKPOINT: C031-WIP891.
+Primary 169/169 C++ files: COMPLETE.
+Post-primary F708-F748 remain confirmed.
+F749 / provisional KI#1070: UNUSED.
+===============================================================================
+END C031-WIP891
 ===============================================================================
