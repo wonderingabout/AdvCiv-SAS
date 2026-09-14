@@ -1564,7 +1564,7 @@ static BuildingTypes SAS_findCheapNeededInfrastructureForUnit(CvCityAI const& kC
 // <!-- custom: Find a cheap high-return economic infrastructure alternative for a fresh discretionary land-combat unit.
 // Unlike the hard health/happiness/maintenance gate above, these FOOD/PRODUCTION/GOLD/RESEARCH opportunities have no binary local deficit. Require the focused AI value to exceed both an absolute floor and the same building's ordinary value by a meaningful amount, so the focus itself is adding real strategic value rather than merely relabeling a generally useful building.
 // The deterministic AI_bestBuildingThreshold path deliberately disables its normal random tie-break/selection multiplier. A behavioral veto must not depend on ASyncRand (non-synchronized RNG), and using synchronized RNG here would perturb unrelated game decisions even when the same unit ultimately remains allowed.
-// This helper still does not force the building; it only provides a conservative reason to decline one more over-budget offensive unit and let normal AI_chooseProduction continue. (ChatGPT-5.6-Sol) -->
+// This helper still does not force the building; it only provides a conservative reason to decline one more over-budget offensive unit and let normal AI_chooseProduction continue. See KI#197.13. (ChatGPT-5.6-Sol) -->
 static BuildingTypes SAS_findCheapHighReturnInfrastructureForUnit(CvCityAI const& kCity, UnitTypes eUnit, int iMaxBuildingToUnitProductionTimePercent, int iMinFocusedBuildingValue, int iMinFocusValueGain, int& iBestFocusFlags, int& iBestFocusedValue, int& iBestBaseValue, int& iBestFocusValueGain, int& iBestBuildingTurns, int& iUnitTurns)
 {
 	iBestFocusFlags = 0;
@@ -15368,7 +15368,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			// A peaceful master must also have a very large era-scaled main land army on this landmass, know every independent rival bloc still present there, have no more than the XML local rival-bloc limit, and hold a clear power lead over the combined known independent rival blocs that still own cities on this landmass (or have no independent local rival left).
 			// This is intentionally difficult to trigger on a crowded/Pangaea landmass: with the default local-rival limit, two or more independent local blocs keep the brake off, and any actual war or war plan immediately restores normal military production.
 			// This preserves readiness for dogpiles, Space/culture-victory denial and ordinary conquest preparation.
-			// A stronger overseas rival does not by itself justify endlessly adding home-continent land units; it remains visible in diagnostics for naval/projection analysis. Level-3 military-production logging can evaluate the same rule while the behavior toggle is off for dry-run controls. (ChatGPT-5.6-Sol) -->
+			// A stronger overseas rival does not by itself justify endlessly adding home-continent land units; it remains visible in diagnostics for naval/projection analysis. Level-3 military-production logging can evaluate the same rule while the behavior toggle is off for dry-run controls. See KI#53.5. (ChatGPT-5.6-Sol) -->
 			static const bool bSASPeacefulLandMilitarySaturationOptimize = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_OPTIMIZE");
 			bool const bEvaluatePeacefulLandMilitarySaturation = (bSASPeacefulLandMilitarySaturationOptimize || bLogDetailedMilitaryProduction);
 			if (bEvaluatePeacefulLandMilitarySaturation)
@@ -15458,10 +15458,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			}
 
 			// <!-- custom: Cheap-infrastructure efficiency gates for fresh discretionary land combat units.
-			// KI#197.12 first handles hard local needs: immediate health/happiness deficits or worthwhile maintenance reduction may veto another over-budget offensive unit when that building is no slower than the unit.
+			// The first gate handles hard local needs: immediate health/happiness deficits or worthwhile maintenance reduction may veto another over-budget offensive unit when that building is no slower than the unit.
 			// The softer follow-up covers FOOD/PRODUCTION/GOLD/RESEARCH infrastructure, where there is no binary deficit. It is deliberately stricter: the building must be materially faster than the unit, have substantial focused value, and gain meaningful value specifically from that focus compared with the same building's ordinary value.
 			// Both gates only veto this one fresh unit and let normal AI_chooseProduction continue; they never force a building. Preserve invested units, defenders/counters, war or war preparation, military strategy/victory pushes, local danger, under-defended cities, Settler escort production, vassals and secondary landmasses.
-			// City-specific production-turn comparison accounts for trait/resource/building production modifiers. Deterministic building scans deliberately disable AI_bestBuildingThreshold randomization so a behavioral veto neither depends on non-synchronized ASyncRand nor perturbs synchronized RNG. (ChatGPT-5.6-Sol) -->
+			// City-specific production-turn comparison accounts for trait/resource/building production modifiers. Deterministic building scans deliberately disable AI_bestBuildingThreshold randomization so a behavioral veto neither depends on non-synchronized ASyncRand nor perturbs synchronized RNG. See KI#197.12 and KI#197.13. (ChatGPT-5.6-Sol) -->
 			static const bool bSASCheapNeededInfrastructureOptimize = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_OPTIMIZE");
 			static const bool bSASCheapHighReturnInfrastructureOptimize = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_OPTIMIZE");
 			bool const bEvaluateCheapInfrastructure = (bSASCheapNeededInfrastructureOptimize || bSASCheapHighReturnInfrastructureOptimize || gBuildingProductionLogLevel >= 2);

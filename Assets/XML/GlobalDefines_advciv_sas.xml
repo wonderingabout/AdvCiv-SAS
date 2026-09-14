@@ -2783,37 +2783,37 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_CHOOSE_UNIT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Central pre-push safety net for fresh land combat units when an AI master is peacefully and clearly over-militarized. The concrete AI_chooseUnit overload is the normal common endpoint for unit-production callers, so this can suppress excess regardless of which higher branch requested the unit without duplicating the rule across AI_chooseProduction. Naval/air units remain under their existing central caps because their sufficiency depends more strongly on water topology, transport capacity and projection needs. On crowded/Pangaea landmasses, multiple independent local rival blocs keep this brake off by default, while any war or war plan immediately restores normal land-unit production. Level-3 military-production logging records the same conditions for validation. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Central pre-push safety net for fresh land combat units when an AI master is peacefully and clearly over-militarized. The concrete AI_chooseUnit overload is the normal common endpoint for unit-production callers, so this can suppress excess regardless of which higher branch requested the unit without duplicating the rule across AI_chooseProduction. Naval/air units remain under their existing central caps because their sufficiency depends more strongly on water topology, transport capacity and projection needs. On crowded/Pangaea landmasses, multiple independent local rival blocs keep this brake off by default, while any war or war plan immediately restores normal land-unit production. Level-3 military-production logging records the same conditions for validation. See KI#53.5. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Do not apply the peaceful land-military saturation gate to tiny primary land areas. The code compares this threshold with the AI city count on the current primary landmass, not distant colonies; this is a stockpile brake for an established local position, not an early minimum-defense rule. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Do not apply the peaceful land-military saturation gate to tiny primary land areas. The code compares this threshold with the AI city count on the current primary landmass, not distant colonies; this is a stockpile brake for an established local position, not an early minimum-defense rule. See KI#53.5. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_MIN_CITIES</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
-	<!-- custom: Base number of existing-or-training main land military UnitAIs required per city on this primary land area before the peaceful saturation gate can reject another fresh land combat unit. The code adds the per-era value below and the Aggressive AI extra when applicable; armies on other landmasses do not count toward this stock threshold. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Base number of existing-or-training main land military UnitAIs required per city on this primary land area before the peaceful saturation gate can reject another fresh land combat unit. The code adds the per-era value below and the Aggressive AI extra when applicable; armies on other landmasses do not count toward this stock threshold. See KI#53.5. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_BASE_UNITS_PER_CITY</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
-	<!-- custom: Additional main land military units per city required for each current era index. With base 4, this gives 4/5/6/7/8/9/10 before the Aggressive AI adjustment from Ancient through Future, making saturation possible in every era but increasingly conservative as armies naturally grow. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Additional main land military units per city required for each current era index. With base 4, this gives 4/5/6/7/8/9/10 before the Aggressive AI adjustment from Ancient through Future, making saturation possible in every era but increasingly conservative as armies naturally grow. See KI#53.5. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_UNITS_PER_CITY_PER_ERA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Extra main land military units per city required before the saturation gate can activate under the Aggressive AI game option. This preserves the option's intended higher military posture while still allowing truly extreme stockpiles to stop growing forever. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Extra main land military units per city required before the saturation gate can activate under the Aggressive AI game option. This preserves the option's intended higher military posture while still allowing truly extreme stockpiles to stop growing forever. See KI#53.5. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_AGGRESSIVE_AI_EXTRA_UNITS_PER_CITY</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
-	<!-- custom: Minimum power of our master-team bloc, as a percentage of the combined known independent rival master-team blocs that still own cities on this primary land area, before the peaceful saturation gate can reject a fresh land combat unit. 125 requires a clear 25% local-continent lead; when no independent rival bloc remains on the landmass, this power condition is already satisfied once the separate very-large-stock and peace/safety gates pass. A stronger overseas rival does not by itself require still more home-continent land units and is instead relevant to naval/air/projection decisions. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Minimum power of our master-team bloc, as a percentage of the combined known independent rival master-team blocs that still own cities on this primary land area, before the peaceful saturation gate can reject a fresh land combat unit. 125 requires a clear 25% local-continent lead; when no independent rival bloc remains on the landmass, this power condition is already satisfied once the separate very-large-stock and peace/safety gates pass. A stronger overseas rival does not by itself require still more home-continent land units and is instead relevant to naval/air/projection decisions. See KI#53.5. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_MIN_LOCAL_RIVAL_POWER_ADVANTAGE_PERCENT</DefineName>
 		<iDefineIntVal>125</iDefineIntVal>
 	</Define>
-	<!-- custom: Maximum number of independent rival master-team blocs allowed to still own cities in this city's land area when the peaceful saturation gate activates. The count includes unmet local blocs, and the code separately requires zero such unknown blocs, so an incompletely contacted landmass cannot be treated as secured merely because known-rival power looks favorable. Vassals in the same master bloc count together. The default 1 also keeps this optimization naturally inactive on crowded/Pangaea landmasses with two or more independent local blocs, preserving room for dogpiles and multi-front threats until the strategic situation is genuinely consolidated. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Maximum number of independent rival master-team blocs allowed to still own cities in this city's land area when the peaceful saturation gate activates. The count includes unmet local blocs, and the code separately requires zero such unknown blocs, so an incompletely contacted landmass cannot be treated as secured merely because known-rival power looks favorable. Vassals in the same master bloc count together. The default 1 also keeps this optimization naturally inactive on crowded/Pangaea landmasses with two or more independent local blocs, preserving room for dogpiles and multi-front threats until the strategic situation is genuinely consolidated. See KI#53.5. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_MAX_INDEPENDENT_RIVAL_TEAMS_IN_AREA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -2823,47 +2823,47 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Maximum city-specific construction time of a qualifying needed building as a percentage of the exact fresh discretionary land-combat unit being considered. 100 means the building must finish in the same number of turns or faster. Turn comparison is preferred to nominal XML hammer cost because trait/resource/building modifiers can make infrastructure much cheaper in practice. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Maximum city-specific construction time of a qualifying needed building as a percentage of the exact fresh discretionary land-combat unit being considered. 100 means the building must finish in the same number of turns or faster. Turn comparison is preferred to nominal XML hammer cost because trait/resource/building modifiers can make infrastructure much cheaper in practice. See KI#197.12. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MAX_BUILDING_TO_UNIT_PRODUCTION_TIME_PERCENT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
-	<!-- custom: Require current unit spending to exceed the central AI_maxUnitCostPerMil estimate by at least this many points before cheap infrastructure may veto another discretionary offensive land unit. 15 deliberately matches the common K-Mod/SAS +15 military-production tolerance, so under-strength or merely normally-funded armies remain untouched. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Require current unit spending to exceed the central AI_maxUnitCostPerMil estimate by at least this many points before cheap infrastructure may veto another discretionary offensive land unit. 15 deliberately matches the common K-Mod/SAS +15 military-production tolerance, so under-strength or merely normally-funded armies remain untouched. See KI#197.12. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MIN_UNIT_SPENDING_OVER_MAX</DefineName>
 		<iDefineIntVal>15</iDefineIntVal>
 	</Define>
-	<!-- custom: Minimum current city maintenance, in hundredths of gold per turn, before an actual maintenance-reducing building can qualify for the cheap-needed-infrastructure gate. 300 = 3.00 gold/turn. Health and happiness use direct local deficits instead and do not use this threshold. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Minimum current city maintenance, in hundredths of gold per turn, before an actual maintenance-reducing building can qualify for the cheap-needed-infrastructure gate. 300 = 3.00 gold/turn. Health and happiness use direct local deficits instead and do not use this threshold. See KI#197.12. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MIN_CITY_MAINTENANCE_TIMES100</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
-	<!-- custom: Minimum focused AI_buildingValue required for a maintenance-reducing building to qualify. This avoids using a low-value Courthouse-like building merely because it is cheap; health/happiness candidates instead require an actual local deficit. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Minimum focused AI_buildingValue required for a maintenance-reducing building to qualify. This avoids using a low-value Courthouse-like building merely because it is cheap; health/happiness candidates instead require an actual local deficit. See KI#197.12. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MIN_MAINTENANCE_BUILDING_VALUE</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
-	<!-- custom: Follow-up efficiency brake for fresh discretionary land-combat units when a safe peaceful primary-area city has cheap high-return FOOD/PRODUCTION/GOLD/RESEARCH infrastructure. Unlike the hard health/happiness/maintenance rule above, these categories have no binary deficit, so this gate additionally requires a meaningful focus-specific AI value gain and a stricter production-time advantage. It only vetoes the unit and lets normal AI_chooseProduction continue; it does not force a building. Validated on Huge naval-heavy Archipelago and land-heavy Custom Continents controls/candidates; enabled by default. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Follow-up efficiency brake for fresh discretionary land-combat units when a safe peaceful primary-area city has cheap high-return FOOD/PRODUCTION/GOLD/RESEARCH infrastructure. Unlike the hard health/happiness/maintenance rule above, these categories have no binary deficit, so this gate additionally requires a meaningful focus-specific AI value gain and a stricter production-time advantage. It only vetoes the unit and lets normal AI_chooseProduction continue; it does not force a building. Validated on Huge naval-heavy Archipelago and land-heavy Custom Continents controls/candidates; enabled by default. See KI#197.13. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Maximum city-specific construction time of a qualifying FOOD/PRODUCTION/GOLD/RESEARCH building as a percentage of the exact fresh discretionary land-combat unit being considered. 75 means the building must finish in at most three quarters of the unit's production time. This is deliberately stricter than the 100% hard-need rule because these economic opportunities do not represent an immediate local deficit. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Maximum city-specific construction time of a qualifying FOOD/PRODUCTION/GOLD/RESEARCH building as a percentage of the exact fresh discretionary land-combat unit being considered. 75 means the building must finish in at most three quarters of the unit's production time. This is deliberately stricter than the 100% hard-need rule because these economic opportunities do not represent an immediate local deficit. See KI#197.13. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MAX_BUILDING_TO_UNIT_PRODUCTION_TIME_PERCENT</DefineName>
 		<iDefineIntVal>75</iDefineIntVal>
 	</Define>
-	<!-- custom: Require current unit spending to exceed AI_maxUnitCostPerMil by at least this many points before a cheap high-return economic building may veto another discretionary offensive land unit. 15 matches the validated hard-needed-infrastructure gate and the common SAS/K-Mod military-production tolerance. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Require current unit spending to exceed AI_maxUnitCostPerMil by at least this many points before a cheap high-return economic building may veto another discretionary offensive land unit. 15 matches the validated hard-needed-infrastructure gate and the common SAS/K-Mod military-production tolerance. See KI#197.13. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_UNIT_SPENDING_OVER_MAX</DefineName>
 		<iDefineIntVal>15</iDefineIntVal>
 	</Define>
-	<!-- custom: Minimum focused AI_buildingValue for a FOOD/PRODUCTION/GOLD/RESEARCH candidate. 50 filters out minor opportunities before the separate focus-value-gain test asks whether that economic focus materially strengthens the case for this exact building. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Minimum focused AI_buildingValue for a FOOD/PRODUCTION/GOLD/RESEARCH candidate. 50 filters out minor opportunities before the separate focus-value-gain test asks whether that economic focus materially strengthens the case for this exact building. See KI#197.13. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_FOCUSED_BUILDING_VALUE</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
-	<!-- custom: Minimum increase in AI_buildingValue when evaluating the candidate under its FOOD/PRODUCTION/GOLD/RESEARCH focus instead of ordinary zero-focus evaluation. 20 prevents a broadly useful building from qualifying merely because it happened to win a focused scan; the focus itself must add meaningful strategic value. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Minimum increase in AI_buildingValue when evaluating the candidate under its FOOD/PRODUCTION/GOLD/RESEARCH focus instead of ordinary zero-focus evaluation. 20 prevents a broadly useful building from qualifying merely because it happened to win a focused scan; the focus itself must add meaningful strategic value. See KI#197.13. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_FOCUS_VALUE_GAIN</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
