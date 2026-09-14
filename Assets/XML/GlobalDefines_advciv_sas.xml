@@ -3986,6 +3986,11 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: When evaluating the agent team's own naval invasion, let demonstrated surviving assault lift partially offset UWAI's inherited AI-only multi-area deployment penalty. The inherited human model already adds 25 percentage points because humans can gather armies across landmasses better; this optimization grants the AI up to that same bonus, scaled by the simulated landing ratio, only after its fleet wins the landing battle. Set to 0 to restore Base AdvCiv area weighting. See KI#53.6. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_UWAI_INVASION_GRAPH_NAVAL_LOGISTICS_DEPLOYMENT_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: Minimum severity required to abandon a war preparation whose utility has become negative. UWAI instead treated this severity as a new random cancellation chance every review, so even mildly negative plans were eventually canceled without circumstances changing. 100 keeps preparing unless the old personality- and game-speed-adjusted formula reaches its maximum; lower values abandon questionable plans sooner. Save-file 452 diagnostics showed 38 checks at 100 severity compared with 69 cancellations caused by repeated rolls. See KI#189. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_UWAI_PREPARATION_ABANDON_MIN_SEVERITY_PERCENT</DefineName>

@@ -758,7 +758,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		TEAMID(kDefender.m_ePlayer) == kEvalParams.getTarget() && !kSASAgentTeam.isAtWar(kSASTargetTeam.getID()) &&
 		kSASTargetTeam.getDefensivePower(kSASAgentTeam.getID()) <= kSASAgentTeam.getPower(true) && m_military[LOGISTICS]->power() > 0);
 	scaled rSASFleetPow = 0, rSASDefFleetPow = 0, rSASCargoCap = 0, rSASSurvivingCargo = 0, rSASArmySize = 0;
-	scaled rSASLandingRatio = 1;
+	scaled rNavalLandingRatio = 1;
+	scaled rSASNavalAreaBonus = 0;
 	bool bSASFleetWin = true;
 	bool bCanBombard = false;
 	bool bCanBombardFromSea = false;
@@ -1128,7 +1129,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 				{
 					scaled rLandingRatio = rCargoSize / rArmySize;
 					rLandingRatio.decreaseTo(1);
-					rSASLandingRatio = rLandingRatio;
+					rNavalLandingRatio = rLandingRatio;
 					rArmyPow *= rLandingRatio;
 					rCavPow *= rLandingRatio;
 					m_kReport.log("Power of landing party: %d", rArmyPow.uround());
@@ -1227,6 +1228,20 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 					different areas. */
 				if (GET_PLAYER(m_ePlayer).isHuman())
 					rAreaWeightAtt += fixp(0.25);
+				// <!-- custom: KI#53.6 Equal Islands diagnostics found that, after a successful naval landing with enough surviving cargo for essentially the full modeled army, this inherited multi-area proxy was still cutting the AI attacker's available Army to typically about 75% (and sometimes near 55%) before deployment-distance penalties.
+				// In 2,056 failed scheduled city attacks from otherwise favorable naval evaluations, the median landing ratio was 100% while the median area weight was 75%; a rounded-log sensitivity check found that the inherited human-style +25 percentage-point allowance, scaled by actual surviving lift, would reverse about 44% of those simulated city defeats.
+				// Apply only to the evaluating team and scale the allowance by the simulated landing ratio, so weak lift still preserves most of the inherited caution. (ChatGPT-5.6-Sol) -->
+				else if (TEAMID(m_ePlayer) == TEAMID(m_eAgent))
+				{
+					static const bool bSASNavalLogisticsDeploymentOptimize = GC.getDefineBOOL("SAS_UWAI_INVASION_GRAPH_NAVAL_LOGISTICS_DEPLOYMENT_OPTIMIZE");
+					if (bSASNavalLogisticsDeploymentOptimize)
+					{
+						scaled const rOldAreaWeight = rAreaWeightAtt;
+						rAreaWeightAtt += fixp(0.25) * rNavalLandingRatio;
+						rAreaWeightAtt.decreaseTo(1);
+						rSASNavalAreaBonus = rAreaWeightAtt - rOldAreaWeight;
+					}
+				}
 				rAreaWeightAtt.clamp(fixp(0.5), 1);
 			}
 			if (rAreaWeightAtt < 1)
@@ -1627,11 +1642,11 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 	}
 	if (bSASLogNavalInvasionStep && rArmyPortionDefender > 0)
 	{
-		logBBAI("WAR_NAVAL_INVASION_STEP turn=%d agentTeam=%d targetTeam=%d total=%d prepTurns=%d stage=CITY_ATTACK targetCityX=%d targetCityY=%d cacheDistance=%d targetValue=%d fleetWin=%d armyPortionAttackerPercent=%d armyPortionDefenderPercent=%d attackerArmyRawPower=%d defenderArmyPower=%d attackerFleetPower=%d defenderFleetPower=%d cargoCapacity=%d survivingCargo=%d armySize=%d landingRatioPercent=%d deploymentDistance=%d attackerDeploymentPercent=%d attackerAreaWeightPercent=%d defenderAreaWeightPercent=%d localGarrisonPower=%d ralliedGarrisonPower=%d mobileDefenderPower=%d mobileDefenderPortionPercent=%d canBombard=%d canSoften=%d bombardTurns=%d besiegerPower=%d cityDefenderPower=%d powerRatioPercent=%d duration=%d success=%d",
+		logBBAI("WAR_NAVAL_INVASION_STEP turn=%d agentTeam=%d targetTeam=%d total=%d prepTurns=%d stage=CITY_ATTACK targetCityX=%d targetCityY=%d cacheDistance=%d targetValue=%d fleetWin=%d armyPortionAttackerPercent=%d armyPortionDefenderPercent=%d attackerArmyRawPower=%d defenderArmyPower=%d attackerFleetPower=%d defenderFleetPower=%d cargoCapacity=%d survivingCargo=%d armySize=%d landingRatioPercent=%d navalAreaBonusPercent=%d deploymentDistance=%d attackerDeploymentPercent=%d attackerAreaWeightPercent=%d defenderAreaWeightPercent=%d localGarrisonPower=%d ralliedGarrisonPower=%d mobileDefenderPower=%d mobileDefenderPortionPercent=%d canBombard=%d canSoften=%d bombardTurns=%d besiegerPower=%d cityDefenderPower=%d powerRatioPercent=%d duration=%d success=%d",
 			GC.getGame().getGameTurn(), TEAMID(m_eAgent), kEvalParams.getTarget(), kEvalParams.isTotal(), kEvalParams.getPreparationTime(),
 			pCity->getX(), pCity->getY(), pCacheCity->getDistance(), pCacheCity->getTargetValue(), bSASFleetWin, rArmyPortionAttacker.getPercent(), rArmyPortionDefender.getPercent(),
 			rArmyPowRaw.uround(), rDefArmyPow.uround(), rSASFleetPow.uround(), rSASDefFleetPow.uround(), rSASCargoCap.uround(), rSASSurvivingCargo.uround(),
-			rSASArmySize.uround(), rSASLandingRatio.getPercent(), rDeploymentDistAttacker.uround(), rAttDeploymentMod.getPercent(), rAreaWeightAtt.getPercent(), rAreaWeightDef.getPercent(),
+			rSASArmySize.uround(), rNavalLandingRatio.getPercent(), rSASNavalAreaBonus.getPercent(), rDeploymentDistAttacker.uround(), rAttDeploymentMod.getPercent(), rAreaWeightAtt.getPercent(), rAreaWeightDef.getPercent(),
 			rLocalGarrisonPow.uround(), rRalliedGarrisonPow.uround(), rDefendingArmyPow.uround(), rDefArmyPortion.getPercent(), bCanBombard, bCanSoften, iBombTurns,
 			rArmyPowModified.uround(), rDefenderPow.uround(), rPowRatio.getPercent(), kStep.getDuration(), kStep.isAttackerSuccessful());
 	}
