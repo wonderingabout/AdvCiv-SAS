@@ -19,6 +19,7 @@ int getSASBBAIPlayerLogLevel();
 int getSASBBAITeamLogLevel();
 int getSASBBAIWarLogLevel();
 int getSASBBAICityLogLevel();
+int getSASBBAIProductionNoTargetLogLevel();
 int getSASBBAIMilitaryProductionLogLevel();
 int getSASBBAISpaceProductionLogLevel();
 int getSASBBAILimitedProjectProductionLogLevel();
@@ -39,13 +40,13 @@ int getSASBBAIScoreLogInterval();
 void startSASBBAILogForNewGame(); // <!-- custom: Roll to a new timestamped BBAI diagnostic file before new-game map generation can log. (GPT-5.5 + GPT-5.5) -->
 void logSASBBAINewGameStarted(); // <!-- custom: Log complete new-game identification after map and player initialization. (GPT-5.5) -->
 void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded save after its complete game state is read. (GPT-5.5) -->
-
 #define gLogBBAI isSASBBAILogEnabled() // advc.007: So that BBAI logging can be checked in FAssert
 #define gPlayerLogLevel getSASBBAIPlayerLogLevel()
 #define gScoreLogInterval getSASBBAIScoreLogInterval() // advc.007: was hardcoded to 25 in CvPlayer::onTurnLogging
 #define gTeamLogLevel getSASBBAITeamLogLevel()
 #define gWarLogLevel getSASBBAIWarLogLevel() // <!-- custom: Separate war-plan and war-target diagnostics from broad TEAM logging. (GPT-5.5) -->
 #define gCityLogLevel getSASBBAICityLogLevel()
+#define gProductionNoTargetLogLevel getSASBBAIProductionNoTargetLogLevel() // <!-- custom: Dedicated all-city no-production boundary and AI chooser-path diagnostics without broad CITY or military-production logging. See KI#51. (GPT-5.6-Sol) -->
 #define gMilitaryProductionLogLevel getSASBBAIMilitaryProductionLogLevel() // <!-- custom: Dedicated AI city military-production diagnostics without enabling broad CITY logging. (ChatGPT-5.6-Sol) -->
 #define gSpaceProductionLogLevel getSASBBAISpaceProductionLogLevel() // <!-- custom: Dedicated spaceship-project valuation, selection, and production-switch diagnostics without broad PLAYER/CITY logging. (ChatGPT-5.6-Sol) -->
 #define gLimitedProjectProductionLogLevel getSASBBAILimitedProjectProductionLogLevel() // <!-- custom: Dedicated one-copy non-spaceship Project continuity/selection diagnostics without broad PLAYER/CITY logging. (ChatGPT-5.6-Sol) -->

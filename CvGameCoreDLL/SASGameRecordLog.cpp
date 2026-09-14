@@ -7294,6 +7294,19 @@ static void noteSASGameRecordAIProductionTargetChangedCity(SASGameRecordPlayerFl
 	kFlow.aAIProductionTargetChangesByCity.push_back(std::make_pair(iCityId, 1));
 }
 
+// <!-- custom: SASGameRecord reports the broad all-city outcome at the control-path-aware turn boundary, while dedicated BBAI diagnostics explain exact chooser paths and legal-target context.
+// Manual human cities are sampled before end-turn city processing so a normal newly completed item awaiting its popup is not misclassified.
+// AI-controlled and production-automated cities are sampled afterward so their chooser and emergency-building rules get their opportunity first. The sole caller prevalidates the log level, city state and eligible civilization player. See KI#51. (GPT-5.6-Sol) -->
+void logSASGameRecordCityProductionNoTarget(CvCity const& kCity, char const* szPhase)
+{
+	PlayerTypes const ePlayer = kCity.getOwner();
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_PRODUCTION_NO_TARGET player=%d cityId=%d city=%S phase=%s human=%d humanDisabled=%d productionAutomated=%d chooseProductionDirty=%d gameState=%d population=%d rawProduction=%d overflowProduction=%d anarchyTurns=%d occupation=%d occupationTimer=%d",
+		GC.getGame().getGameTurn(), ePlayer, kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), szPhase,
+		kPlayer.isHuman(), kPlayer.isHumanDisabled(), kCity.isProductionAutomated(), kCity.isChooseProductionDirty(), (int)GC.getGame().getGameState(), kCity.getPopulation(),
+		kCity.getCurrentProductionDifference(false, false, true), kCity.getOverflowProduction(), kPlayer.getAnarchyTurns(), kCity.isOccupation(), kCity.getOccupationTimer());
+}
+
 // <!-- custom: Cold enabled path for the header-inline RAII wrapper. Keeping capture/finalization out of the header avoids expanding every CvCityAI includer while the disabled level-0/1 path remains tiny. (ChatGPT-5.6-Sol) -->
 void SASGameRecordAIProductionChoiceScope::begin(CvCity const& kCity)
 {

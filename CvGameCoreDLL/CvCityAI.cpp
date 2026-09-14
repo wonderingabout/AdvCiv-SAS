@@ -1982,7 +1982,14 @@ void CvCityAI::AI_chooseProduction()
 	}
 	//if (kPlayer.isAnarchy())
 	if (isDisorder()) // K-Mod
+	{
+		// <!-- custom: Controls showed every raw empty -> empty chooser call in two broad runs returned here: 364/364 were expected disorder, while the true function end was never reached without a target.
+		// Keep a dedicated level-3 microscope marker so future sniping can distinguish expected resistance/anarchy from an abnormal final fall-through; no extra evaluation or RNG is performed. See KI#51. (ChatGPT-5.6-Sol) -->
+		if (!isBarbarian() && gProductionNoTargetLogLevel >= 3)
+			logBBAI("PRODUCTION_NO_TARGET_CHOOSER turn=%d player=%d %S city=%S cityId=%d reason=EXPECTED_DISORDER human=%d occupation=%d occupationTimer=%d",
+				kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), isHuman(), isOccupation(), getOccupationTimer());
 		return;
+	}
 
 	// only clear the dirty bit if we actually do a check, multiple items might be queued
 	setChooseProductionDirty(false);
@@ -5205,6 +5212,45 @@ void CvCityAI::AI_chooseProduction()
 		pushOrder(ORDER_MAINTAIN, eBestProcess);
 		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose process by default", sCityName);
 		return;
+	}
+
+	// <!-- custom: A non-disorder city reaching the true end with no target is the abnormal KI#51 condition worth deep debugging.
+	// The fallback-off controls reached this marker zero times; keep the full dedicated level-3 context as the BBAI microscope if it ever reappears.
+	// Legal-target scans run only on this abnormal path. Diagnostic only; no RNG calls. See KI#51. (ChatGPT-5.6-Sol) -->
+	if (!isBarbarian() && gProductionNoTargetLogLevel >= 3)
+	{
+		// <!-- custom: These four level-3 scans are intentionally duplicated at the broad player/city turn boundary. Both sites are cold; keeping the simple counters local avoids a cross-file diagnostic API with no hot-path or gameplay benefit. See KI#51. (GPT-5.6-Sol) -->
+		int iLegalUnits = 0;
+		for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+		{
+			if (canTrain((UnitTypes)iI))
+				iLegalUnits++;
+		}
+		int iLegalBuildings = 0;
+		for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+		{
+			if (canConstruct((BuildingTypes)iI))
+				iLegalBuildings++;
+		}
+		int iLegalProjects = 0;
+		for (int iI = 0; iI < GC.getNumProjectInfos(); iI++)
+		{
+			if (canCreate((ProjectTypes)iI))
+				iLegalProjects++;
+		}
+		int iLegalProcesses = 0;
+		for (int iI = 0; iI < GC.getNumProcessInfos(); iI++)
+		{
+			if (canMaintain((ProcessTypes)iI))
+				iLegalProcesses++;
+		}
+		logBBAI("PRODUCTION_NO_TARGET_CHOOSER turn=%d player=%d %S city=%S cityId=%d reason=FINAL_FALLTHROUGH bestBuilding=%s buildingValue=%d bestProject=%s projectValue=%d bestProcess=%s legalUnits=%d legalBuildings=%d legalProjects=%d legalProcesses=%d rawProduction=%d overflowProduction=%d unitSpending=%d maxPlus15=%d buildUnitProb=%d financialTrouble=%d danger=%d landWar=%d primaryArea=%d chooseUnitIntent=%d",
+			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(),
+			(eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()), iBestBuildingValue,
+			(eBestProject == NO_PROJECT ? "-" : GC.getInfo(eBestProject).getType()), iProjectValue,
+			(eBestProcess == NO_PROCESS ? "-" : GC.getInfo(eBestProcess).getType()), iLegalUnits, iLegalBuildings, iLegalProjects, iLegalProcesses,
+			getCurrentProductionDifference(false, false, true), getOverflowProduction(), iUnitSpending, iMaxUnitSpending + 15, iBuildUnitProb,
+			bFinancialTrouble, bDanger, bLandWar, bPrimaryArea, bChooseUnit);
 	}
 }
 
@@ -14710,8 +14756,8 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 									UnitTypes eBestCandidateUnit = NO_UNIT;
 									UnitAITypes eBestCandidateUnitAI = NO_UNITAI;
 
-									// same era cap you use elsewhere
-									static const int iMaxHammerPerEra = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_MAX_HAMMER_PER_ERA");
+									// <!-- custom: Keep this replacement search bounded by a dedicated era-scaled unit-cost cap; it no longer borrows the removed CvCity::doTurn no-production fallback define. See KI#51. (ChatGPT-5.6-Sol) -->
+									static const int iMaxHammerPerEra = GC.getDefineINT("SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_REPLACEMENT_MAX_UNIT_HAMMER_COST_PER_ERA");
 									const int iMaxCost = iMaxHammerPerEra * (iCurrentEra + 1);
 
 									const bool bAllowSiege = (!bEnoughSiegeAlready && !bNoNewSiegeRightNow);
@@ -15363,12 +15409,13 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		{
 			CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 			// <!-- custom: Central peaceful land-military saturation gate immediately before ordinary AI unit production. Every normal AI_chooseUnit caller reaches this concrete overload after the final unit/UnitAI substitutions, so one guard can suppress discretionary excess regardless of which higher production branch requested it.
-			// The emergency CvCity::doTurn no-production fallback deliberately remains separate.
+			// The former CvCity::doTurn no-production fallback was removed after KI#51 controls showed only intentional disorder returns; this central gate now remains the sole relevant peaceful land-military saturation check for normal unit choices.
 			// Only fresh combat land units are considered: finish invested units, preserve under-defended/local-danger cities, wars and war plans, alert/dagger/crush/turtle/final-war strategies, serious military-victory pushes, vassals, and non-primary areas.
 			// A peaceful master must also have a very large era-scaled main land army on this landmass, know every independent rival bloc still present there, have no more than the XML local rival-bloc limit, and hold a clear power lead over the combined known independent rival blocs that still own cities on this landmass (or have no independent local rival left).
 			// This is intentionally difficult to trigger on a crowded/Pangaea landmass: with the default local-rival limit, two or more independent local blocs keep the brake off, and any actual war or war plan immediately restores normal military production.
 			// This preserves readiness for dogpiles, Space/culture-victory denial and ordinary conquest preparation.
-			// A stronger overseas rival does not by itself justify endlessly adding home-continent land units; it remains visible in diagnostics for naval/projection analysis. Level-3 military-production logging can evaluate the same rule while the behavior toggle is off for dry-run controls. See KI#53.5. (ChatGPT-5.6-Sol) -->
+			// A stronger overseas rival does not by itself justify endlessly adding home-continent land units; it remains visible in diagnostics for naval/projection analysis.
+			// Level-3 military-production logging can evaluate the same rule while the behavior toggle is off for dry-run controls. See KI#53.5. See also KI#51. (ChatGPT-5.6-Sol) -->
 			static const bool bSASPeacefulLandMilitarySaturationOptimize = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_OPTIMIZE");
 			bool const bEvaluatePeacefulLandMilitarySaturation = (bSASPeacefulLandMilitarySaturationOptimize || bLogDetailedMilitaryProduction);
 			if (bEvaluatePeacefulLandMilitarySaturation)

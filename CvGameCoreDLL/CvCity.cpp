@@ -698,9 +698,9 @@ void CvCity::doTurn()
 
 	// <!-- custom: forcing buildings in chooseproduction is sometimes ignored or slow to fire in autoplay, put it here in doturn for max effectiveness and reliability -->
 	const bool bHuman = isHuman();
-	// <!-- custom: Keep no-production fallback diagnostics behind the dedicated military-production category; level 2 records outcomes, while level 3 adds the detailed fallback gates and candidate context. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Keep these forced emergency-building diagnostics behind the dedicated military-production category.
+	// The old KI#51 no-production fallback that shared this area was removed after fallback-off controls reproduced only intentional disorder returns. See KI#51. (ChatGPT-5.6-Sol) -->
 	bool const bLogMilitaryProduction = (!bHuman && !isBarbarian() && gMilitaryProductionLogLevel >= 2);
-	bool const bLogDetailedMilitaryProduction = (!bHuman && !isBarbarian() && gMilitaryProductionLogLevel >= 3);
 
 	bool const bDanger = AI().AI_isDanger();	// method lives on CvCityAI
 	// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate -->
@@ -757,7 +757,7 @@ void CvCity::doTurn()
 	// --- end SAS rule ---
 
 	// --- SAS: classify "mostly water inner ring" hammer-poor cities ---
-	// treat cities with very few inner-ring land tiles (non-water, non-peak) as hammer-poor, low-invasion-risk islands / peninsulas. These are usually bad places for Walls/Castles and for hard-forced fallback units; we may want to focus them on economy instead.
+	// treat cities with very few inner-ring land tiles (non-water, non-peak) as hammer-poor, low-invasion-risk islands / peninsulas. These are usually bad places for forced Walls/Castles; we may want to focus them on economy instead.
 	static const int iSAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY = GC.getDefineINT("SAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY"); // e.g. 2
 
 	int iInnerRingNonWaterNonPeak = 0;
@@ -780,7 +780,7 @@ void CvCity::doTurn()
 	// true if inner BFC (8 tiles) has <= threshold non-water, non-peak tiles.
 	// Example with XML = 2:
 	// 	- 0–2 land tiles → mostly-water hammer-poor city
-	// 	- 3+ land tiles  → normal city, allow defense/fallback logic
+	// 	- 3+ land tiles  → normal city, allow the ordinary emergency-defense classification
 	const bool bInnerRingMostlyWaterNonPeak = (iSAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY >= 0 && iInnerRingNonWaterNonPeak <= iSAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY);
 	// --- end SAS inner-ring classification ---
 
@@ -892,242 +892,14 @@ void CvCity::doTurn()
 		if (bLogMilitaryProduction && bEmergencyBuilding)
 		{
 			BuildingTypes const eEmergencyBuilding = getProductionBuilding();
-			logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=PRE_FALLBACK result=EMERGENCY_BUILDING_FORCED building=%s danger=%d atWar=%d enemyPowerPercent=%d mostlyWater=%d",
+			logBBAI("MILITARY_PRODUCTION_DOTURN_EMERGENCY_BUILDING turn=%d player=%d %S city=%S cityId=%d result=FORCED building=%s danger=%d atWar=%d enemyPowerPercent=%d mostlyWater=%d",
 				kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
 				(eEmergencyBuilding == NO_BUILDING ? "-" : GC.getInfo(eEmergencyBuilding).getType()), bDanger, bAtWar, iEnemyPowerPercent, bInnerRingMostlyWaterNonPeak);
 		}
 
-		// <!-- custom: we had an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been something else back then as it was at end game and affected the human player too (i.e. me at the time xd) (or maybe not something else?) vs early game now in advciv-sas. In all cases, this was crippling, now worked around reliably and successfully as belowwith the help of chatgpt 5, check if accurate -->
-		// --- BEGIN: hard safety net for AI production ---
-		// <!-- custom: we now successfully always avoid the no production, and other cities don't fall back to our fall back if they have a valid production -->
-		// <!-- custom: note: chatgpt 5 recommends adding !isDisorder() / !isOccupation() to quote it xd, as for me i didn't add them for simplicity and as long as works and for reliability in case these cause other issues or not or yes or etc, but if you or me or such notice issues consider adding one or both of these -->
-		if (!bEmergencyBuilding)
-		{
-			// <!-- custom: previous issue was: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 -->
-			//const bool bNeedFallback = !isProduction();
-			const bool bQueueEmpty = (getOrderQueueLength() == 0);
-			const bool bHeadInvalid = (!bQueueEmpty && !canContinueProduction(getOrderData(0)));
-			// <!-- custom: A Process is valid production, not a no-production state. The normal AI can deliberately choose one after its military-spending gate rejects another unit; treating that Process as fallback-needed immediately replaced it with a forced military unit and bypassed the spending limit. Keep this hard safety net limited to genuinely empty or invalid queues. (ChatGPT-5.6-Sol) -->
-			const bool bNeedFallback = (bQueueEmpty || bHeadInvalid);
-
-			if (bNeedFallback)
-			{
-				static const bool bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE");
-				static const bool bSAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE = GC.getDefineBOOL("SAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE");
-
-				if (bLogDetailedMilitaryProduction)
-				{
-					logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=CONTEXT queueEmpty=%d headInvalid=%d emergencyBuilding=%d forceUnitEnabled=%d waterBuildingEnabled=%d mostlyWater=%d innerRingLand=%d era=%d baseProd=%d danger=%d atWar=%d enemyPowerPercent=%d enemyStrong=%d enemyWeak=%d",
-						kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
-						bQueueEmpty, bHeadInvalid, bEmergencyBuilding, bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE, bSAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE,
-						bInnerRingMostlyWaterNonPeak, iInnerRingNonWaterNonPeak, iCurrentEra, getBaseYieldRate(YIELD_PRODUCTION), bDanger, bAtWar, iEnemyPowerPercent, bEnemyStrong, bEnemyWeakNotZero);
-				}
-
-				// <!-- custom: Water-heavy cities should prefer their configured economic buildings, but all three can be unavailable or already built. If none is queued, continue into the same safe unit fallback as other empty AI cities instead of ending the turn without production. See KI#310. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-				if (!bEmergencyBuilding && bSAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE && bInnerRingMostlyWaterNonPeak)
-				{
-					if (SASTryEmergencyBuilding(eWaterFoodBuildingClass))
-						bEmergencyBuilding = true;
-
-					static const BuildingClassTypes eWaterHammerBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_WATER_HAMMER_BUILDING_BUILDINGCLASS_FULL_NAME"));
-					if (!bEmergencyBuilding && SASTryEmergencyBuilding(eWaterHammerBuildingClass))
-						bEmergencyBuilding = true;
-
-					static const BuildingClassTypes eWaterGoldBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_WATER_GOLD_BUILDING_BUILDINGCLASS_FULL_NAME"));
-					if (!bEmergencyBuilding && SASTryEmergencyBuilding(eWaterGoldBuildingClass))
-						bEmergencyBuilding = true;
-
-					if (bLogMilitaryProduction)
-					{
-						BuildingTypes const eWaterFallbackBuilding = getProductionBuilding();
-						logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=RESULT result=%s building=%s",
-							kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
-							(bEmergencyBuilding ? "WATER_BUILDING_PUSHED" : "WATER_BUILDING_NONE_CONTINUE"), (eWaterFallbackBuilding == NO_BUILDING ? "-" : GC.getInfo(eWaterFallbackBuilding).getType()));
-					}
-				}
-
-				if (!bEmergencyBuilding && bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE)
-				{
-					// <!-- custom: as of now eras are (see xml for details or updated version -->
-					// 18,5: 			<Type>ERA_ANCIENT</Type>
-					// 79,5: 			<Type>ERA_CLASSICAL</Type>
-					// 154,5: 			<Type>ERA_MEDIEVAL</Type>
-					// 237,5: 			<Type>ERA_RENAISSANCE</Type>
-					// 320,5: 			<Type>ERA_INDUSTRIAL</Type>
-					// 401,5: 			<Type>ERA_MODERN</Type>
-					// 477,5: 			<Type>ERA_FUTURE</Type>
-					// <!-- custom: note: this pattern of xml lookup and comparison for era types seems safe as it is used in Civ4 Reimagined mod but check to be sure -->
-					// cache once; uses hidden-assert overload if available in your DLL
-					// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-					static const EraTypes eERA_RENAISSANCE  = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
-
-					// <!-- custom: added as recommended by chatgpt 5; as of now untested assert -->
-					FAssertMsg((eERA_RENAISSANCE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
-
-					const bool bRenaissancePlus    = (eCurrentEra >= eERA_RENAISSANCE);
-
-					static const int iMaxHammerPerEra = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_MAX_HAMMER_PER_ERA");
-					// <!-- custom: note: i assume first era starts at 0 and code seems to run fine as such, but check to be sure as this is just a guess of mine -->
-					const int iMaxCost = iMaxHammerPerEra * (iCurrentEra + 1);  // Era 0→50, 1→100, ... 6→350
-
-					static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
-
-					// <!-- custom: it seems we need to cast to CvPlayerAI (i don't know much about these so check if accurate, but chatgpt 5 recommended this after i asked it about the compile error we had before adding it, but check if accurate) (with .AI() it seems if i understood it correctly but check if accurate or to be sure) as as of now this function is in CvPlayerAI not CvPlayer, we also seem to do .AI() in other parts of this CvCity.cpp so maybe fine as such but check if accurate or to be sure. As for us this fixes our compile error that it was not a member of a class so left as such as well but check if accurate or to be sure -->
-					const int iSiegesAllNonTrebuchetsLike = kOwner.AI().AI_countUnitsByCombatNoTrebuchetsLike(eUnitCombatSiege);
-					const int iSiegesAllTrebuchetsLike = kOwner.AI().AI_countTrebuchetsLike();
-
-					static const bool bSAS_OffenseDefaultUnitAIsOnly = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OFFENSE_DEFAULT_UNITAIS_ONLY");
-					static const bool bSAS_DefenseDefaultUnitAIsOnly = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_DEFENSE_DEFAULT_UNITAIS_ONLY");
-
-					// <!-- custom: untested but recommended to add by chatgpt 5 which i think is good too (if i were to use them xd but check if accurate too) -->
-					// Defines priority sanity (optional but recommended)
-					// If someone sets both “offense only" and “defense only", your if/else if currently makes offense win silently. Add a guard once near the defines:
-					FAssertMsg(!(bSAS_OffenseDefaultUnitAIsOnly && bSAS_DefenseDefaultUnitAIsOnly),
-								"Both OFFENSE_ONLY and DEFENSE_ONLY are set; OFFENSE_ONLY will take precedence.");
-
-					static const bool bNoExcessTrebuchetsLike = GC.getDefineBOOL("SAS_NO_EXCESS_TREBUCHETS_LIKE");
-
-					// Situation read
-					// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate -->
-					// change to:
-					bool const bWarPlan = kOwner.AI().AI_isFocusWar();   // method lives on CvPlayerAI
-					// <!-- custom: see/readcode comment at CvCityAI::AI_chooseUnit corresponding code / variables' initialization for details -->
-
-					static const int iPRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD");
-					int iCapNonTrebuchetsLikeSiegesAll = iPRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD;
-
-					static const int iPRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD");
-					int iCapTrebsPreRenaissance = iPRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD;
-
-					static const int iPRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT");
-
-					// <!-- custom: compute everything once cleanly before the loop to avoid multi counting inside the loop; and as chatgpt 5 confirms after asking it; check if accurate-->
-					if (!bRenaissancePlus)
-					{
-						static const int iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER = GC.getDefineINT("SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER");
-
-						const bool bHaveAnyKeyEarlyStrategicBonuses = kOwner.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
-
-						// relax both caps when we have no metals/horses/etc.
-						if (!bHaveAnyKeyEarlyStrategicBonuses)
-						{
-							iCapNonTrebuchetsLikeSiegesAll += (iCapNonTrebuchetsLikeSiegesAll * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
-
-							iCapTrebsPreRenaissance += (iCapTrebsPreRenaissance * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
-						}
-
-						// <!-- custom: simplified version of the AI_ChooseUnit code -->
-						// regardless of bonuses, fewer trebs if there’s no war plan
-						if (!bWarPlan)
-						{
-							iCapTrebsPreRenaissance = (iCapTrebsPreRenaissance * iPRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT) / 100;
-						}
-					}
-
-					// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure, and if -> else if -> else is preferable anyway for clarity or performance as well) -->
-					// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think) -->
-					bool const bLandHeavyMapname = kGame.isLandHeavyMapnameCached();
-					bool bNavalHeavyMapname = false;
-					if (!bLandHeavyMapname)
-					{
-						bNavalHeavyMapname = kGame.isNavalHeavyMapnameCached();
-					}
-
-					const bool bRestrictSiegeByEra = !bRenaissancePlus;
-					const bool bAllowTrebuchetsLike = (!bRestrictSiegeByEra || !bNoExcessTrebuchetsLike) ?
-							true : (!bEnemyStrong && !bDanger);
-					const int iCapNonTrebuchetsLikeEffective = bRestrictSiegeByEra ? iCapNonTrebuchetsLikeSiegesAll : MAX_INT;
-					const int iCapTrebsEffective = (bRestrictSiegeByEra && bNoExcessTrebuchetsLike) ?
-							iCapTrebsPreRenaissance : MAX_INT;
-
-					if (bLogDetailedMilitaryProduction)
-					{
-						logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=UNIT_GATE maxCost=%d offenseOnly=%d defenseOnly=%d warPlan=%d landHeavy=%d navalHeavy=%d renaissancePlus=%d restrictSiege=%d allowTrebuchetsLike=%d nonTrebSieges=%d capNonTrebs=%d trebSieges=%d capTrebs=%d",
-							kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
-							iMaxCost, bSAS_OffenseDefaultUnitAIsOnly, bSAS_DefenseDefaultUnitAIsOnly, bWarPlan, bLandHeavyMapname, bNavalHeavyMapname, bRenaissancePlus, bRestrictSiegeByEra, bAllowTrebuchetsLike,
-							iSiegesAllNonTrebuchetsLike, iCapNonTrebuchetsLikeEffective, iSiegesAllTrebuchetsLike, iCapTrebsEffective);
-					}
-
-					// <!-- custom: attempt offense only units or defense only units first, and if fails overall units, and if fails cheapest units -->
-					// Final pick: primary bucket first; if none, secondary; else global backups
-					UnitTypes ePick = NO_UNIT;
-					UnitAITypes ePickAI = NO_UNITAI;
-					const bool bHaveAnyFallbackUnit = AI().SAS_AI_findBestFallbackUnit(
-							ePick,
-							ePickAI,
-							bSAS_OffenseDefaultUnitAIsOnly,
-							bSAS_DefenseDefaultUnitAIsOnly,
-							iMaxCost,
-							/*bAllowSiege=*/true,
-							bAllowTrebuchetsLike,
-							iCapNonTrebuchetsLikeEffective,
-							iCapTrebsEffective,
-							iSiegesAllNonTrebuchetsLike,
-							iSiegesAllTrebuchetsLike,
-							NO_UNIT,
-							/*bAllowOverallFallback=*/true,
-							/*bAllowCheapestFallback=*/true);
-
-					if (bLogMilitaryProduction)
-					{
-						logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=UNIT_SELECTION haveUnit=%d unit=%s unitAI=%s maxCost=%d",
-							kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), bHaveAnyFallbackUnit,
-							(ePick == NO_UNIT ? "-" : GC.getInfo(ePick).getType()), (ePickAI == NO_UNITAI ? "-" : GC.getInfo(ePickAI).getType()), iMaxCost);
-					}
-
-					if (bHaveAnyFallbackUnit)
-					{
-						// <!-- custom: This emergency no-production fallback bypasses CvCityAI::AI_chooseUnit(UnitTypes, UnitAITypes) and directly queues a unit. It must therefore remain restricted to safe fallback military choices, or any future civilian/Settler fallback added here must call the same AI Settler production veto before pushOrder. Otherwise weak Settlers could bypass the central AI_chooseUnit gate. (ChatGPT-5.5) -->
-						FAssertMsg(ePickAI != UNITAI_SETTLE, "No-production fallback must not bypass the AI Settler production gate.");
-						if (ePickAI != UNITAI_SETTLE)
-						{
-							// only if something unusable is there
-							const bool bReplaceHead = (!bQueueEmpty);
-							// and Python maps bAppend → iPosition via:
-							// bAppend == true → iPosition = -1 (append)
-							// bAppend == false → iPosition = 0 (insert at head)
-							// So in C++ you should comment the arg as /*iPosition=*/..., not /*bAppend=*/....
-							//
-							// make it the head so it starts immediately next turn
-							pushOrder(ORDER_TRAIN,
-									ePick,
-									ePickAI,
-									/*bSave=*/false,
-									/*bPop=*/bReplaceHead,
-									/*iPosition=*/0,
-									/*bForce=*/false);
-
-							// critical: stop the chooser from clearing this emergency order next turn
-							setChooseProductionDirty(false);
-							if (bLogMilitaryProduction)
-							{
-								logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=RESULT result=UNIT_PUSHED unit=%s unitAI=%s replaceHead=%d",
-									kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
-									GC.getInfo(ePick).getType(), GC.getInfo(ePickAI).getType(), bReplaceHead);
-							}
-						}
-						else if (bLogMilitaryProduction)
-						{
-							logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=RESULT result=REJECT_SETTLER_FALLBACK unit=%s unitAI=%s",
-								kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
-								(ePick == NO_UNIT ? "-" : GC.getInfo(ePick).getType()), (ePickAI == NO_UNITAI ? "-" : GC.getInfo(ePickAI).getType()));
-						}
-					}
-					else if (bLogMilitaryProduction)
-					{
-						logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=RESULT result=NO_ELIGIBLE_UNIT",
-							kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID());
-					}
-				}
-				else if (!bEmergencyBuilding && bLogMilitaryProduction)
-				{
-					logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=RESULT result=NO_FALLBACK_BRANCH forceUnitEnabled=%d waterBuildingEnabled=%d mostlyWater=%d",
-						kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
-						bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE, bSAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE, bInnerRingMostlyWaterNonPeak);
-				}
-			}
-		}
-		// --- END: safety net ---
+		// <!-- custom: Cleanup of old SAS code: the former post-doProduction water-building/unit safety net was removed after two broad fallback-off controls produced 364 empty -> empty AI_chooseProduction calls and every one was an intentional isDisorder() return (260 occupation/resistance, 104 other disorder), with zero genuine final chooser fall-throughs.
+		// Keeping a second production policy here could preselect arbitrary post-disorder production and duplicate AI_chooseProduction/AI_chooseUnit rules.
+		// Future abnormal non-disorder no-target outcomes are recorded at the appropriate all-city turn boundary, with exact AI chooser paths left to dedicated BBAI diagnostics. See KI#51. (ChatGPT-5.6-Sol) -->
 	}
 
 	doDecay();

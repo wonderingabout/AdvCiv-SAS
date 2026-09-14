@@ -1622,7 +1622,12 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_BBAI_CITY_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Dedicated AI military-production diagnostics. Level 2 notably reuses the existing AI_chooseProduction branch-choice messages without requiring broad CITY logging; level 3 notably adds structured production context and major military/nonmilitary gates, including spending, generic rolls, unit/fallback selection, and no-production fallback decisions. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Dedicated all-city no-production diagnostics without enabling broad CITY or military-production logging. Level 2 records a city that reaches its appropriate player/city turn boundary without a target outside disorder; level 3 adds legal-target and strategic context plus expected-disorder versus abnormal final AI chooser paths. Diagnostic-only and no RNG calls. See KI#51. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_BBAI_PRODUCTION_NO_TARGET_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Dedicated AI military-production diagnostics. Level 2 notably reuses the existing AI_chooseProduction branch-choice messages without requiring broad CITY logging; level 3 notably adds structured production context and major military/nonmilitary gates, including spending, generic rolls, unit selection, and forced emergency-building decisions. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -2880,7 +2885,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: general toggle for trebuchet-like units (any siege unit that has as of now >= 50% city attack modifier is guessed to be weak in other areas and so to be a trebuchet for us). -->
-	<!-- custom: note: now shared with no production fallback code hence the different name prefix in this case i mean -->
 	<Define>
 		<DefineName>SAS_NO_EXCESS_TREBUCHETS_LIKE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -2931,48 +2935,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 
 
 
-	<!-- custom: Long_Comments_XML.txt #208 -->
+	<!-- custom: Maximum unit hammer cost per era step for the strict-defender replacement search in CvCityAI::AI_chooseUnit. 50 means era index 0 -> 50, 1 -> 100, ... 6 -> 350. This used to share the removed CvCity::doTurn no-production fallback cap; keep the still-live replacement policy independently named now that KI#51 retires that fallback. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<!-- custom: safety value, recommended to not change this except increasing it if you have very expensive units you want to build -->
-	<!-- custom: note: i assume first era starts at 0 and code seems to run fine as such, but check to be sure as this is just a guess of mine -->
-	<!-- Era 0→50, 1→100, ... 6→350 -->
-	<Define>
-		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_MAX_HAMMER_PER_ERA</DefineName>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_REPLACEMENT_MAX_UNIT_HAMMER_COST_PER_ERA</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
-	</Define>
-
-
-
-	<!-- custom: Long_Comments_XML.txt #215 -->
-	<Define>
-		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OFFENSE_DEFAULT_UNITAIS_ONLY</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<!-- custom: set to only allow defense default unitais as fallback (as of now UNITAI_CITY_DEFENSE, UNITAI_CITY_COUNTER, UNITAI_CITY_SPECIAL, UNITAI_RESERVE), check code for updated version if any change since then); untested (if they can be produced, else we allow all land military preferred ones (i.e. both offense and defense ones as of now)) -->
-	<Define>
-		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_DEFENSE_DEFAULT_UNITAIS_ONLY</DefineName>
-		<iDefineIntVal>0</iDefineIntVal>
-	</Define>
-
-
-
-	<!-- custom: do not build too much non-trebuchets like siege units early (i.e. pre-renaissance/cannons), but keep enough as they can help us rush an enemy especially if we have no bonus and only longbows as an alternative; Long_Comments_XML.txt #165 -->
-	<Define>
-		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD</DefineName>
-		<iDefineIntVal>4</iDefineIntVal>
-	</Define>
-	<!-- custom: Long_Comments_XML.txt #214 -->
-	<Define>
-		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD</DefineName>
-		<iDefineIntVal>3</iDefineIntVal>
-	</Define>
-	<!-- custom: percent of the above threshold if !bWarPlan (i.e. if no war plan more or less guessedly of me), rather than forbidding all, allow some but less, e.g. 50% of that value max -->
-	<Define>
-		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT</DefineName>
-		<iDefineIntVal>67</iDefineIntVal>
 	</Define>
 
 
@@ -3776,11 +3742,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_WATER_HAMMER_BUILDING_BUILDINGCLASS_FULL_NAME</DefineName>
 		<DefineTextVal>BUILDINGCLASS_PORT</DefineTextVal>
 	</Define>
-	<!-- custom: similarly, XML name of the water gold building class, adjust based on your xml names/assets (e.g. if it's no longer the lighthouse class in your mod) -->
-	<Define>
-		<DefineName>SAS_WATER_GOLD_BUILDING_BUILDINGCLASS_FULL_NAME</DefineName>
-		<DefineTextVal>BUILDINGCLASS_LIGHTHOUSE</DefineTextVal>
-	</Define>
 
 
 
@@ -3816,12 +3777,12 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 
 
 	<!-- custom: update: the harbor is more likely to be useful than walls for a coastal city, plus a harbor would help us build our walls or such faster anyway, so risk weaker defenses to make sure we get the very important harbor first rather; Long_Comments_XML.txt #173 -->
-	<!-- classify "mostly water inner ring" cities in CvCity::doTurn. If the 8 inner BFC tiles (excluding the city) have <= this many non-water, non-peak tiles, we treat the city as hammer-poor, low-risk island/peninsula for emergency rules (Walls/Castle, fallback units, and optionally Harbor). Example: 2 means 0, 1, or 2 land tiles. -->
+	<!-- classify "mostly water inner ring" cities in CvCity::doTurn. If the 8 inner BFC tiles (excluding the city) have <= this many non-water, non-peak tiles, we treat the city as hammer-poor, low-risk island/peninsula for emergency economic/defense rules (notably Harbor/Port and Walls/Castle). Example: 2 means 0, 1, or 2 land tiles. -->
 	<Define>
 		<DefineName>SAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
-	<!-- custom: e.g. if city has 4 base hammers (base production before any modifier is applied) and we are at era 1 (era_classical.), then if city has less than 5 * 1 + 2 = 7 base hammers at classical, it will be considered a low hammer city and won't do any emergency defense building (as of now walls, castle) nor emergency unit (too low hammers or possibly isolated (generally these low hammer cities are watery or something) city to be useful, bet on economy rather) -->
+	<!-- custom: e.g. if city has 4 base hammers (base production before any modifier is applied) and we are at era 1 (era_classical.), then if city has less than 5 * 1 + 2 = 7 base hammers at classical, it will be considered a low hammer city and won't do the emergency defense-building override (as of now Walls/Castle); these low-hammer or watery cities are usually better left to economic development instead. -->
 	<Define>
 		<DefineName>SAS_DO_TURN_LOW_BASE_HAMMERS_BASE_THRESHOLD</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
@@ -3867,11 +3828,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 
 
 
-	<!-- custom: lean more on economy, in particular on hammer for these watery cities that may benefit more from these buildings as fallback buildings if we have a no production (rather than a unit or such) -->
-	<Define>
-		<DefineName>SAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
 
 
 

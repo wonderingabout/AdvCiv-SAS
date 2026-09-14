@@ -3089,6 +3089,8 @@ See Sevopedia or XML for value. For example if iAIObjective is 10, and multiplie
 	<!-- custom: else as of now no restriction, facilitate cannons+ as we have a bit too few generally and they are strong enough to be considered for both defense and offense especially if we have nothing better like pikes and no muskets yet -->
 	<!-- custom: note: unit not counted in candidates if higher or equal than this value (also this doesn't count trebuchet like units in total as of now), so that we guarantee minimum catapults as much as possible as of now. E.g. if value is 4, max we allow is 3
 
+update: since then no production code has been deleted after deeper investigation, see KI#51.
+
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #166 -----
 
@@ -3395,6 +3397,8 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 <!-- custom: we had an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been something else back then as it was at end game and affected the human player too vs early game now in advciv-sas. In all cases, this was crippling, now worked around reliably and successfully as below with the help of chatgpt 5 -->
 	<!-- custom: see code comment at SAS_CAN_SCRAP_OPTIMIZE -->
 
+update: since then no production code has been deleted after deeper investigation, see KI#51.
+
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #209 -----
 
@@ -3437,10 +3441,14 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 
 <!-- custom: a bit more lenient with this one since it is strict cap (not an extra cap) and we added guards so that hopefully they are not produced if enemy is strong or such. We shouldn't restrict them too much if they are the only viable offense path, but producing more than a few they are highly likely to become ununsed, so use a low threshold. Not using this, AIs would produce tons of trebuchets (like 17-19 at turn 200 which was highly detrimental) via the no production fallback part of the code -->
 
+update: since then no production code has been deleted after deeper investigation, see KI#51.
+
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #215 -----
 
 <!-- custom: set to only allow offense default unitais as fallback (as of now UNITAI_COUNTER, UNITAI_ATTACK, UNITAI_ATTACK_CITY, check code for updated version if any change since then); untested but may for example reduce early longbow spam in favour of more offense units (if they can be produced, else we allow all land military preferred ones (i.e. both offense and defense ones as of now)): it is a trade off though as we'd have (in theory, as of now untested) less defensive units then -->
+
+update: since then no production code has been deleted after deeper investigation, see KI#51.
 
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #216 -----

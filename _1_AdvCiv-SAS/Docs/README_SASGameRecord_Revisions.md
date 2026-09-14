@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=72 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=74 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -39,6 +39,11 @@ The history below counts commits that changed the recorder implementation itself
 Because this numbering is reconstructed after the fact, the descriptions are concise summaries of the canonical commit diffs/messages rather than claims that these revision numbers were emitted by historical builds.
 
 ## History (latest first)
+
+### Revision 74 - SAS practical 6455
+
+- **Date:** 2026-09-14
+- **Change:** Added one compact all-city `CITY_PRODUCTION_NO_TARGET` outcome at control-path-aware turn boundaries. Manual human cities are sampled before end-turn production processing, while AI-controlled and production-automated cities are sampled afterward; disorder is suppressed, and detailed legality/chooser-path evidence is kept in the dedicated BBAI category.
 
 ### Revision 73 - SAS practical 6446
 

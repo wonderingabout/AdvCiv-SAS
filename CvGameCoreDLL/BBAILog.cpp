@@ -23,7 +23,7 @@ static int getClampedSASBBAILogLevel(char const* szDefineName)
 bool isSASBBAILogEnabled()
 {
 	static const bool bEnabled = (isSASBBAILogMasterEnabled() &&
-		(getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAIWarLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAIMilitaryProductionLogLevel() > 0 || getSASBBAISpaceProductionLogLevel() > 0 || getSASBBAILimitedProjectProductionLogLevel() > 0 || getSASBBAIBuildingProductionLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 ||
+		(getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAIWarLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAIProductionNoTargetLogLevel() > 0 || getSASBBAIMilitaryProductionLogLevel() > 0 || getSASBBAISpaceProductionLogLevel() > 0 || getSASBBAILimitedProjectProductionLogLevel() > 0 || getSASBBAIBuildingProductionLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 ||
 		getSASBBAIUnitLogLevel() > 0 || getSASBBAIOverseasTransportLogLevel() > 0 || getSASBBAIGreatGeneralLogLevel() > 0 || getSASBBAISettlerLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 ||
 		getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
 	return bEnabled;
@@ -57,6 +57,13 @@ int getSASBBAIWarLogLevel()
 int getSASBBAICityLogLevel()
 {
 	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_CITY_LOG_LEVEL") : 0);
+	return iLevel;
+}
+
+// <!-- custom: Dedicated no-production diagnostics cover the all-city turn-boundary state and the exact AI chooser exits without enabling broad CITY or military-production logging. See KI#51. (GPT-5.6-Sol) -->
+int getSASBBAIProductionNoTargetLogLevel()
+{
+	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_PRODUCTION_NO_TARGET_LOG_LEVEL") : 0);
 	return iLevel;
 }
 
@@ -258,8 +265,8 @@ static void logSASBBAIProvenanceContext()
 // <!-- custom: Record the effective BBAI diagnostic profile in each new/load file so test runs with different category levels are not compared as if they contained the same diagnostics. (GPT-5.5) -->
 static void logSASBBAILogSettings()
 {
-	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_WAR_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_SPACE_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=%d SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d",
-			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAIWarLogLevel(), getSASBBAICityLogLevel(), getSASBBAIMilitaryProductionLogLevel(), getSASBBAISpaceProductionLogLevel(), getSASBBAILimitedProjectProductionLogLevel(), getSASBBAIBuildingProductionLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAIOverseasTransportLogLevel(), getSASBBAIGreatGeneralLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
+	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_WAR_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_PRODUCTION_NO_TARGET_LOG_LEVEL=%d SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_SPACE_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=%d SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d",
+			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAIWarLogLevel(), getSASBBAICityLogLevel(), getSASBBAIProductionNoTargetLogLevel(), getSASBBAIMilitaryProductionLogLevel(), getSASBBAISpaceProductionLogLevel(), getSASBBAILimitedProjectProductionLogLevel(), getSASBBAIBuildingProductionLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAIOverseasTransportLogLevel(), getSASBBAIGreatGeneralLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
 }
 
 // <!-- custom: Replace setup-time tech/diplomacy construction chatter with one authoritative finalized state shared with SASGameRecord.

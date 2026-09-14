@@ -27,6 +27,59 @@
 
 namespace
 {
+	// <!-- custom: At the appropriate player/city turn boundary, SASGameRecord keeps one compact all-city no-target outcome while the dedicated BBAI category adds legality and strategic context only for an actual anomaly.
+	// This helper performs no RNG calls; level-3 candidate scans are cold because ordinary production and disorder return before them. See KI#51. (GPT-5.6-Sol) -->
+	void logSASProductionNoTargetBoundary(CvCity const& kCity, char const* szPhase)
+	{
+		if (kCity.isProduction() || kCity.isDisorder())
+			return;
+		PlayerTypes const ePlayer = kCity.getOwner();
+		CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+		if (gGameRecordLogLevel >= 2) logSASGameRecordCityProductionNoTarget(kCity, szPhase);
+		if (gProductionNoTargetLogLevel >= 2)
+		{
+			int iLegalUnits = -1;
+			int iLegalBuildings = -1;
+			int iLegalProjects = -1;
+			int iLegalProcesses = -1;
+			if (gProductionNoTargetLogLevel >= 3)
+			{
+				// <!-- custom: These four level-3 scans are intentionally duplicated at AI_chooseProduction's abnormal final fall-through.
+				// Both sites are cold; keeping the simple counters local avoids a cross-file diagnostic API with no hot-path or gameplay benefit. See KI#51. (GPT-5.6-Sol) -->
+				iLegalUnits = 0;
+				for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+				{
+					if (kCity.canTrain((UnitTypes)iI))
+						iLegalUnits++;
+				}
+				iLegalBuildings = 0;
+				for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+				{
+					if (kCity.canConstruct((BuildingTypes)iI))
+						iLegalBuildings++;
+				}
+				iLegalProjects = 0;
+				for (int iI = 0; iI < GC.getNumProjectInfos(); iI++)
+				{
+					if (kCity.canCreate((ProjectTypes)iI))
+						iLegalProjects++;
+				}
+				iLegalProcesses = 0;
+				for (int iI = 0; iI < GC.getNumProcessInfos(); iI++)
+				{
+					if (kCity.canMaintain((ProcessTypes)iI))
+						iLegalProcesses++;
+				}
+			}
+			CvCityAI const& kCityAI = kCity.AI();
+			logBBAI("PRODUCTION_NO_TARGET_BOUNDARY turn=%d player=%d %S city=%S cityId=%d phase=%s human=%d humanDisabled=%d productionAutomated=%d chooseProductionDirty=%d gameState=%d population=%d rawProduction=%d overflowProduction=%d legalUnits=%d legalBuildings=%d legalProjects=%d legalProcesses=%d danger=%d focusWar=%d areaAI=%d primaryArea=%d financialTrouble=%d anarchyTurns=%d occupation=%d occupationTimer=%d happySurplus=%d healthSurplus=%d foodDifference=%d",
+				GC.getGame().getGameTurn(), ePlayer, kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), szPhase,
+				kPlayer.isHuman(), kPlayer.isHumanDisabled(), kCity.isProductionAutomated(), kCity.isChooseProductionDirty(), (int)GC.getGame().getGameState(), kCity.getPopulation(),
+				kCity.getCurrentProductionDifference(false, false, true), kCity.getOverflowProduction(), iLegalUnits, iLegalBuildings, iLegalProjects, iLegalProcesses,
+				kCityAI.AI_isDanger(), kPlayer.AI_isFocusWar(), (int)kCity.getArea().getAreaAIType(kCity.getTeam()), kPlayer.AI_isPrimaryArea(kCity.getArea()), kPlayer.AI_isFinancialTrouble(),
+				kPlayer.getAnarchyTurns(), kCity.isOccupation(), kCity.getOccupationTimer(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.foodDifference());
+		}
+	}
 
 
 	CvString getSASGameRecordDiploCityText(PlayerTypes ePlayer, int iCityId)
@@ -3044,8 +3097,18 @@ void CvPlayer::doTurn()
 	doResearch();
 	doEspionagePoints();
 
+	// <!-- custom: Manual human cities are sampled before end-turn production processing, after the player had the opportunity to choose; sampling afterward would misclassify a normal item completed during doProduction while its new popup awaits input.
+	// AI-controlled and production-automated cities are sampled afterward so their chooser and emergency-building logic get their opportunity first.
+	// Both phases feed one broad SASGameRecord outcome and one dedicated BBAI diagnostic without duplicate same-city rows. See KI#51. (GPT-5.6-Sol) -->
+	bool const bLogProductionNoTargetBoundary = (!isBarbarian() && (gGameRecordLogLevel >= 2 || gProductionNoTargetLogLevel >= 2));
+	bool const bLogManualHumanProduction = (bLogProductionNoTargetBoundary && isHuman() && !isHumanDisabled());
 	FOR_EACH_CITY_VAR(pLoopCity, *this)
+	{
+		bool const bManualHumanProduction = (bLogManualHumanProduction && !pLoopCity->isProductionAutomated());
+		if (bManualHumanProduction) logSASProductionNoTargetBoundary(*pLoopCity, "PLAYER_TURN_INPUT_END");
 		pLoopCity->doTurn();
+		if (bLogProductionNoTargetBoundary && !bManualHumanProduction) logSASProductionNoTargetBoundary(*pLoopCity, "CITY_TURN_END");
+	}
 
 	if (getGoldenAgeTurns() > 0)
 		changeGoldenAgeTurns(-1);
