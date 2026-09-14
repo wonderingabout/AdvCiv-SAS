@@ -1731,8 +1731,7 @@ void CvInitCore::reRandomizeCivsAndLeaders()
 		delivered until CvGame takes over the setup procedure. */
 	if (getOption(GAMEOPTION_LEAD_ANY_CIV))
 		return;
-	int const iPER_EXTRA_LEADER_CIV_SELECTION_WEIGHT = GC.getDefineINT(
-			"PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT");
+	int const iPER_EXTRA_LEADER_CIV_SELECTION_WEIGHT = GC.getDefineINT("PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT");
 	if (iPER_EXTRA_LEADER_CIV_SELECTION_WEIGHT == 0) // BtS behavior
 		return;
 	FOR_EACH_ENUM2(Civilization, eCiv)

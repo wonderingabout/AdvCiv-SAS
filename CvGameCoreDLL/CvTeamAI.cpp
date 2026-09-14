@@ -1011,8 +1011,7 @@ void CvTeamAI::AI_preDeclareWar(TeamTypes eTarget, WarPlanTypes eWarPlan, bool b
 				// Raise it to 8 (or what XML says)
 				int iMemory = kObserver.AI_getMemoryCount(kOurMember.getID(),
 						MEMORY_MADE_DEMAND_RECENT);
-				static int const iWAR_DESPITE_TRIBUTE_MEMORY = GC.getDefineINT(
-						"WAR_DESPITE_TRIBUTE_MEMORY");
+				static int const iWAR_DESPITE_TRIBUTE_MEMORY = GC.getDefineINT("WAR_DESPITE_TRIBUTE_MEMORY");
 				int iDelta = std::max(iMemory, iWAR_DESPITE_TRIBUTE_MEMORY) - iMemory;
 				kObserver.AI_changeMemoryCount(kOurMember.getID(),
 						MEMORY_MADE_DEMAND_RECENT, iDelta);

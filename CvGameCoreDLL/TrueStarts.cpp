@@ -938,8 +938,7 @@ void TrueStarts::changeCivs()
 		EagerEnumMap<CivilizationTypes,int> aeiLeaderCounts;
 		for (size_t i = 0; i < m_validAICivs.size(); i++)
 			aeiLeaderCounts.add(m_validAICivs[i].first, 1);
-		scaled rExtraWeight = per100(GC.getDefineINT(
-				"PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT"));
+		scaled rExtraWeight = per100(GC.getDefineINT("PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT"));
 		/*	Players might actually set this to 1, but such a high bias
 			is not going to work well.
 			(Negative weight might work out OK, doesn't have to be supported.) */

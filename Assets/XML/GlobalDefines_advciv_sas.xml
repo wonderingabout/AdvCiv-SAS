@@ -71,7 +71,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 
 
 
-	<!-- custom: launch guard int define checked at startup/load/Sevopedia entry to detect bad launch context quickly. (GPT-5.3-Codex) -->
+	<!-- custom: launch guard int define checked at startup/load/Sevopedia entry to detect bad launch context quickly. See KI#38.4 (GPT-5.3-Codex + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_LAUNCH_GUARD_TEST_INT</DefineName>
 		<iDefineIntVal>137531</iDefineIntVal>
@@ -1612,7 +1612,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_BBAI_TEAM_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Dedicated war-plan and war-target diagnostics, separated from TEAM so UWAI notably target choice, target power per city and armies committed elsewhere, ranked-candidate rolls, preparation review/cancellation causes and severity, target switches, direct-war adoption, declaration context, and peace-review/negotiation causes can be inspected without broad team/diplomacy logging. (GPT-5.5 + GPT-5.6-Sol) -->
+	<!-- custom: Dedicated war-plan and war-target diagnostics, separated from TEAM so UWAI notably target choice, target power per city and armies committed elsewhere, ranked-candidate rolls, preparation review/cancellation causes and severity, target switches, direct-war adoption, declaration context, peace-review/negotiation causes, and level-3 nearby-overseas war-vs-peace aspect breakdowns can be inspected without broad team/diplomacy logging. (GPT-5.5 + GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_BBAI_WAR_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -3981,7 +3981,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_DISTANCE_ADVANTAGE</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
-	<!-- custom: With SAS_BBAI_WAR_LOG_LEVEL >= 3, log WAR_UTILITY_HIGH final rows and WAR_UTILITY_SCENARIO_HIGH component rows when UWAI war utility reaches this absolute value. Use this to diagnose saturated drive values before tuning UWAI behavior; 0 disables the extra high-utility breakdown. (GPT-5.5) -->
+	<!-- custom: With SAS_BBAI_WAR_LOG_LEVEL >= 3, log WAR_UTILITY_HIGH final rows and WAR_UTILITY_SCENARIO_HIGH component rows when UWAI war utility reaches this absolute value. Use this to diagnose saturated drive values before tuning UWAI behavior; 0 disables the extra high-utility breakdown. Unlike fixed filters for one targeted diagnostic, this remains tunable because there is no universal "high" utility cutoff, the threshold can greatly change log volume, and 0 independently disables the generic breakdown. (GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>

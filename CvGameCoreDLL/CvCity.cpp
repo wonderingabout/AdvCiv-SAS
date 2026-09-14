@@ -471,8 +471,7 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 	{
 		if (abEspionageVisibility[it->getID()])
 		{
-			kPlot.changeAdjacentSight(it->getID(), GC.getDefineINT(
-					CvGlobals::PLOT_VISIBILITY_RANGE), false, NULL, false);
+			kPlot.changeAdjacentSight(it->getID(), GC.getDefineINT(CvGlobals::PLOT_VISIBILITY_RANGE), false, NULL, false);
 		}
 	}
 
@@ -3914,8 +3913,7 @@ int CvCity::getOvercrowdingPercentAnger(int iExtra) const
 
 int CvCity::getNoMilitaryPercentAnger() const
 {	// <advc.500b>
-	static bool const bDEMAND_BETTER_PROTECTION = GC.getDefineBOOL(
-			"DEMAND_BETTER_PROTECTION");
+	static bool const bDEMAND_BETTER_PROTECTION = GC.getDefineBOOL("DEMAND_BETTER_PROTECTION");
 	if (!bDEMAND_BETTER_PROTECTION) // </advc.500b>
 	{
 		int iAnger = 0;
@@ -3927,8 +3925,7 @@ int CvCity::getNoMilitaryPercentAnger() const
 		return iAnger;
 	}
 	// <advc.500b>
-	static scaled const rPOP_PERCENT = per100(GC.getDefineINT(
-			"DEMAND_BETTER_PROTECTION_POP_PERCENT"));
+	static scaled const rPOP_PERCENT = per100(GC.getDefineINT("DEMAND_BETTER_PROTECTION_POP_PERCENT"));
 	scaled rTargetGarrStr = getPopulation() * rPOP_PERCENT;
 	scaled rActualGarrStr = defensiveGarrison(rTargetGarrStr);
 	if (rActualGarrStr >= rTargetGarrStr)
@@ -6136,8 +6133,7 @@ int CvCity::getAdditionalHealthByBuilding(BuildingTypes eBuilding, int& iGood, i
 			// adding dirty power
 			if (kBuilding.isDirtyPower())
 			{
-				addGoodOrBad(GC.getDefineINT(
-						CvGlobals::DIRTY_POWER_HEALTH_CHANGE), iGood, iBad);
+				addGoodOrBad(GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE), iGood, iBad);
 			}
 		}
 		/*	advc.001h: Count change from dirty to clean only if we
@@ -6147,8 +6143,7 @@ int CvCity::getAdditionalHealthByBuilding(BuildingTypes eBuilding, int& iGood, i
 			// replacing dirty power with clean power
 			if (isDirtyPower() && !kBuilding.isDirtyPower())
 			{
-				subtractGoodOrBad(GC.getDefineINT(
-						CvGlobals::DIRTY_POWER_HEALTH_CHANGE), iGood, iBad);
+				subtractGoodOrBad(GC.getDefineINT(CvGlobals::DIRTY_POWER_HEALTH_CHANGE), iGood, iBad);
 			}
 		}
 	}
@@ -13632,8 +13627,7 @@ scaled CvCity::defensiveGarrison(scaled rStopCountingAt) const // Param importan
 	scaled r = 0;
 	CvPlayer const& kOwner = GET_PLAYER(getOwner());
 	// ("Obsolete" isn't really the right term for units)
-	static scaled const rOUTDATED_PERCENT = per100(GC.getDefineINT(
-			"DEMAND_BETTER_PROTECTION_OBSOLETE_PERCENT"));
+	static scaled const rOUTDATED_PERCENT = per100(GC.getDefineINT("DEMAND_BETTER_PROTECTION_OBSOLETE_PERCENT"));
 	CvCity const* pCapital = kOwner.getCapital();
 	if (pCapital == this)
 		pCapital = NULL;

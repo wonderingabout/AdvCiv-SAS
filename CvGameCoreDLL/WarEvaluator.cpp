@@ -3,10 +3,13 @@
 #include "UWAIAgent.h"
 #include "WarUtilityAspect.h"
 #include "MilitaryAnalyst.h"
+#include "UWAICache.h" // <!-- custom: Naval-opportunity simulation diagnostics inspect the same cached military branches consumed by UWAI; no behavior change. See KI#53.6. (ChatGPT-5.6-Sol) -->
 #include "UWAIReport.h"
 #include "WarEvalParameters.h"
 #include "CoreAI.h"
 #include "CvInfo_GameOption.h"
+#include "CvCity.h" // <!-- custom: Nearby-overseas WAR diagnostics compare exact nearest city distance without changing UWAI behavior. See KI#53.6. (ChatGPT-5.6-Sol) -->
+#include "CvMap.h" // <!-- custom: Required for the wrap-aware plotDistance used by the nearby-overseas WAR diagnostic. See KI#53.6. (GPT-5.6-Sol) -->
 #include "BBAILog.h" // <!-- custom: Threshold-gated SAS war diagnostics log huge UWAI utility by aspect so high target-drive values can be traced without enabling the separate UWAI report. (GPT-5.5) -->
 #include "CvGameCoreUtils.h"
 
@@ -33,6 +36,185 @@ namespace
 	WarEvalParamID aiLastCallParams[iCACHE_SZ];
 	int aiLastCallResult[iCACHE_SZ];
 	int iLastIndex;
+
+	// <!-- custom: Keep the naval-opportunity drill intentionally narrower than ordinary WAR level-3 logging: only a true-overseas target within the fixed investigation distance, no stronger than the fixed power threshold, and for which the agent already owns assault transports.
+	// The diagnostic never changes utility or consumes RNG. See KI#53.6. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int getSASBBAINavalOpportunityNearestCityDistance(TeamTypes eFrom, TeamTypes eTo)
+	{
+		int iBestDistance = MAX_INT;
+		for (MemberAIIter itFrom(eFrom); itFrom.hasNext(); ++itFrom)
+		{
+			FOR_EACH_CITY(pFromCity, *itFrom)
+			{
+				for (MemberAIIter itTo(eTo); itTo.hasNext(); ++itTo)
+				{
+					FOR_EACH_CITY(pToCity, *itTo)
+					{
+						iBestDistance = std::min(iBestDistance, plotDistance(pFromCity->getX(), pFromCity->getY(), pToCity->getX(), pToCity->getY()));
+					}
+				}
+			}
+		}
+		return (iBestDistance == MAX_INT ? -1 : iBestDistance);
+	}
+
+	int getSASBBAITeamUnitAICount(TeamTypes eTeam, UnitAITypes eUnitAI)
+	{
+		int iCount = 0;
+		for (MemberAIIter itMember(eTeam); itMember.hasNext(); ++itMember)
+			iCount += itMember->AI_totalUnitAIs(eUnitAI);
+		return iCount;
+	}
+
+	int getSASBBAITeamBranchPower(TeamTypes eTeam, MilitaryBranchTypes eBranch)
+	{
+		int iPower = 0;
+		for (MemberAIIter itMember(eTeam); itMember.hasNext(); ++itMember)
+		{
+			MilitaryBranch const* pBranch = itMember->uwai().getCache().getPowerValues()[eBranch];
+			if (pBranch != NULL)
+				iPower += pBranch->power().round();
+		}
+		return iPower;
+	}
+
+	int getSASBBAITeamSimulatedLostPower(MilitaryAnalyst const& kAnalysis, TeamTypes eTeam, MilitaryBranchTypes eBranch)
+	{
+		scaled rPower;
+		for (MemberIter itMember(eTeam); itMember.hasNext(); ++itMember)
+			rPower += kAnalysis.lostPower(itMember->getID(), eBranch);
+		return rPower.round();
+	}
+
+	int getSASBBAITeamSimulatedGainedPower(MilitaryAnalyst const& kAnalysis, TeamTypes eTeam, MilitaryBranchTypes eBranch)
+	{
+		scaled rPower;
+		for (MemberIter itMember(eTeam); itMember.hasNext(); ++itMember)
+			rPower += kAnalysis.gainedPower(itMember->getID(), eBranch);
+		return rPower.round();
+	}
+
+	int getSASBBAITeamSimulatedMilitaryProduction(MilitaryAnalyst const& kAnalysis, TeamTypes eTeam)
+	{
+		scaled rProduction;
+		for (MemberIter itMember(eTeam); itMember.hasNext(); ++itMember)
+			rProduction += kAnalysis.militaryProduction(itMember->getID());
+		return rProduction.round();
+	}
+
+	int getSASBBAIConquestsFromTeam(MilitaryAnalyst const& kAnalysis, PlayerTypes eConqueror, TeamTypes eVictimTeam)
+	{
+		int iCount = 0;
+		CitySet const& kConquests = kAnalysis.conqueredCities(eConqueror);
+		for (CitySetIter itCity = kConquests.begin(); itCity != kConquests.end(); ++itCity)
+		{
+			for (MemberIter itVictim(eVictimTeam); itVictim.hasNext(); ++itVictim)
+			{
+				if (kAnalysis.lostCities(itVictim->getID()).count(*itCity) > 0)
+				{
+					iCount++;
+					break;
+				}
+			}
+		}
+		return iCount;
+	}
+
+	int getSASBBAITeamConquestsFromPlayer(MilitaryAnalyst const& kAnalysis, TeamTypes eConquerorTeam, PlayerTypes eVictim)
+	{
+		int iCount = 0;
+		CitySet const& kVictimLosses = kAnalysis.lostCities(eVictim);
+		for (MemberIter itConqueror(eConquerorTeam); itConqueror.hasNext(); ++itConqueror)
+		{
+			CitySet const& kConquests = kAnalysis.conqueredCities(itConqueror->getID());
+			for (CitySetIter itCity = kConquests.begin(); itCity != kConquests.end(); ++itCity)
+			{
+				if (kVictimLosses.count(*itCity) > 0)
+					iCount++;
+			}
+		}
+		return iCount;
+	}
+
+	int getSASBBAITeamSimulatedCityLosses(MilitaryAnalyst const& kAnalysis, TeamTypes eTeam)
+	{
+		int iCount = 0;
+		for (MemberIter itMember(eTeam); itMember.hasNext(); ++itMember)
+			iCount += kAnalysis.lostCities(itMember->getID()).size();
+		return iCount;
+	}
+
+	void logSASBBAINavalOpportunitySimulation(WarEvalParameters const& kParams, MilitaryAnalyst const& kAnalysis, PlayerTypes eAgentPlayer)
+	{
+		TeamTypes const eAgentTeam = kParams.getAgent();
+		TeamTypes const eTargetTeam = kParams.getTarget();
+		logBBAI("WAR_NAVAL_SIMULATION turn=%d agentTeam=%d targetTeam=%d agentPlayer=%d total=%d prepTurns=%d simTurns=%d ourConquestsFromTarget=%d targetConquestsFromUs=%d ourCityLosses=%d targetCityLosses=%d targetCapitulates=%d ourArmyPower=%d ourFleetPower=%d ourLogisticsPower=%d targetArmyPower=%d targetFleetPower=%d targetLogisticsPower=%d ourArmyLost=%d ourFleetLost=%d ourLogisticsLost=%d targetArmyLost=%d targetFleetLost=%d targetLogisticsLost=%d ourArmyGained=%d ourFleetGained=%d ourLogisticsGained=%d targetArmyGained=%d targetFleetGained=%d targetLogisticsGained=%d ourMilitaryProduction=%d targetMilitaryProduction=%d",
+			GC.getGame().getGameTurn(), eAgentTeam, eTargetTeam, eAgentPlayer, kParams.isTotal(), kParams.getPreparationTime(), kAnalysis.turnsSimulated(),
+			getSASBBAIConquestsFromTeam(kAnalysis, eAgentPlayer, eTargetTeam), getSASBBAITeamConquestsFromPlayer(kAnalysis, eTargetTeam, eAgentPlayer),
+			(int)kAnalysis.lostCities(eAgentPlayer).size(), getSASBBAITeamSimulatedCityLosses(kAnalysis, eTargetTeam), kAnalysis.getCapitulationsAccepted(eAgentTeam).count(eTargetTeam) > 0,
+			getSASBBAITeamBranchPower(eAgentTeam, ARMY), getSASBBAITeamBranchPower(eAgentTeam, FLEET), getSASBBAITeamBranchPower(eAgentTeam, LOGISTICS),
+			getSASBBAITeamBranchPower(eTargetTeam, ARMY), getSASBBAITeamBranchPower(eTargetTeam, FLEET), getSASBBAITeamBranchPower(eTargetTeam, LOGISTICS),
+			getSASBBAITeamSimulatedLostPower(kAnalysis, eAgentTeam, ARMY), getSASBBAITeamSimulatedLostPower(kAnalysis, eAgentTeam, FLEET), getSASBBAITeamSimulatedLostPower(kAnalysis, eAgentTeam, LOGISTICS),
+			getSASBBAITeamSimulatedLostPower(kAnalysis, eTargetTeam, ARMY), getSASBBAITeamSimulatedLostPower(kAnalysis, eTargetTeam, FLEET), getSASBBAITeamSimulatedLostPower(kAnalysis, eTargetTeam, LOGISTICS),
+			getSASBBAITeamSimulatedGainedPower(kAnalysis, eAgentTeam, ARMY), getSASBBAITeamSimulatedGainedPower(kAnalysis, eAgentTeam, FLEET), getSASBBAITeamSimulatedGainedPower(kAnalysis, eAgentTeam, LOGISTICS),
+			getSASBBAITeamSimulatedGainedPower(kAnalysis, eTargetTeam, ARMY), getSASBBAITeamSimulatedGainedPower(kAnalysis, eTargetTeam, FLEET), getSASBBAITeamSimulatedGainedPower(kAnalysis, eTargetTeam, LOGISTICS),
+			getSASBBAITeamSimulatedMilitaryProduction(kAnalysis, eAgentTeam), getSASBBAITeamSimulatedMilitaryProduction(kAnalysis, eTargetTeam));
+	}
+
+	bool isSASBBAINavalOpportunityCandidate(WarEvalParameters const& kParams, CvTeamAI const& kAgent, CvTeamAI const& kTarget, bool bNaval, int& iNearestCityDistance)
+	{
+		if (!bNaval || kParams.isConsideringPeace() || kAgent.isAtWar(kTarget.getID()) || kParams.getSponsor() != NO_PLAYER || kAgent.AI_isLandTarget(kTarget.getID()))
+			return false;
+		const int iMaxTargetPowerPercent = 100;
+		const int iMaxNearestCityDistance = 15;
+		if (getSASBBAITeamUnitAICount(kAgent.getID(), UNITAI_ASSAULT_SEA) <= 0)
+			return false;
+		int const iTargetPowerPercent = (100 * kTarget.getDefensivePower(kAgent.getID())) / std::max(1, kAgent.getPower(true));
+		if (iTargetPowerPercent > iMaxTargetPowerPercent)
+			return false;
+		iNearestCityDistance = getSASBBAINavalOpportunityNearestCityDistance(kAgent.getID(), kTarget.getID());
+		return (iNearestCityDistance >= 0 && iNearestCityDistance <= iMaxNearestCityDistance);
+	}
+
+	bool hasSASBBAIHardRejectAspect(std::vector<int> const& aiUtilities)
+	{
+		for (size_t i = 0; i < aiUtilities.size(); i++)
+		{
+			if (aiUtilities[i] <= -100000)
+				return true;
+		}
+		return false;
+	}
+
+	void appendSASBBAIWarAspectUtilities(std::ostringstream& kOut, std::vector<CvString> const& asNames, std::vector<int> const& aiUtilities)
+	{
+		bool bFirst = true;
+		for (size_t i = 0; i < aiUtilities.size(); i++)
+		{
+			if (aiUtilities[i] == 0)
+				continue;
+			if (!bFirst)
+				kOut << ",";
+			kOut << asNames[i].GetCString() << ":" << aiUtilities[i];
+			bFirst = false;
+		}
+	}
+
+	void logSASBBAINavalOpportunity(WarEvalParameters const& kParams, CvTeamAI const& kAgent, CvTeamAI const& kTarget, WarPlanTypes eWarPlan, int iPreparationTime, int iNearestCityDistance, int iWarScenarioUtility, int iPeaceScenarioUtility, int iFinalUtility, std::vector<CvString> const& asWarAspectNames, std::vector<int> const& aiWarAspectUtilities, std::vector<CvString> const& asPeaceAspectNames, std::vector<int> const& aiPeaceAspectUtilities)
+	{
+		std::ostringstream warComponents;
+		std::ostringstream peaceComponents;
+		appendSASBBAIWarAspectUtilities(warComponents, asWarAspectNames, aiWarAspectUtilities);
+		appendSASBBAIWarAspectUtilities(peaceComponents, asPeaceAspectNames, aiPeaceAspectUtilities);
+		int const iOurPower = std::max(1, kAgent.getPower(true));
+		int const iTargetPower = kTarget.getDefensivePower(kAgent.getID());
+		logBBAI("WAR_NAVAL_OPPORTUNITY turn=%d agentTeam=%d targetTeam=%d warPlan=%s finalUtility=%d warScenarioUtility=%d peaceScenarioUtility=%d prepTurns=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d ourPower=%d targetPower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d assaultTransports=%d attackUnits=%d attackCityUnits=%d warComponents=\"%s\" peaceComponents=\"%s\"",
+			GC.getGame().getGameTurn(), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), iFinalUtility, iWarScenarioUtility, iPeaceScenarioUtility, iPreparationTime,
+			kAgent.AI_getAttitude(kTarget.getID()), kAgent.AI_getAttitudeVal(kTarget.getID()), kAgent.AI_teamCloseness(kTarget.getID()), iNearestCityDistance,
+			iOurPower, iTargetPower, (100 * iTargetPower) / iOurPower, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true),
+			getSASBBAITeamUnitAICount(kAgent.getID(), UNITAI_ASSAULT_SEA), getSASBBAITeamUnitAICount(kAgent.getID(), UNITAI_ATTACK), getSASBBAITeamUnitAICount(kAgent.getID(), UNITAI_ATTACK_CITY),
+			warComponents.str().c_str(), peaceComponents.str().c_str());
+	}
 
 	int getSASHighWarUtilityLogThreshold()
 	{
@@ -134,7 +316,7 @@ WarEvaluator::WarEvaluator(WarEvalParameters& kWarEvalParams, bool bUseCache)
 :	m_kParams(kWarEvalParams), m_kReport(m_kParams.getReport()),
 	m_kAgent(GET_TEAM(m_kParams.getAgent())),
 	m_kTarget(GET_TEAM(m_kParams.getTarget())),
-	m_bPeaceScenario(false), m_bUseCache(bUseCache), m_bSASLogSuspiciousPeace(false)
+	m_bPeaceScenario(false), m_bUseCache(bUseCache), m_bSASLogSuspiciousPeace(false), m_bSASLogNavalOpportunity(false), m_iSASNavalOpportunityNearestCityDistance(-1)
 {
 	static bool bInitCache = true;
 	if (bInitCache)
@@ -329,6 +511,18 @@ int WarEvaluator::evaluate(WarPlanTypes eWarPlan, bool bNaval, int iPreparationT
 {
 	PROFILE_FUNC(); // All war evaluation goes through here
 	m_bPeaceScenario = (eWarPlan == NO_WARPLAN); // Should only happen in recursive call
+	// <!-- custom: Only the outer WAR evaluation selects and clears a naval-opportunity diagnostic candidate.
+	// Its recursive PEACE evaluation below must retain that state so the two scenario decompositions can be emitted together. See KI#53.6. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (!m_bPeaceScenario)
+	{
+		m_iSASNavalOpportunityNearestCityDistance = -1;
+		m_bSASLogNavalOpportunity = (gWarLogLevel >= 3 && isSASBBAINavalOpportunityCandidate(m_kParams, m_kAgent, m_kTarget, bNaval, m_iSASNavalOpportunityNearestCityDistance));
+		if (m_bSASLogNavalOpportunity)
+		{
+			m_asSASNavalOpportunityPeaceAspectNames.clear();
+			m_aiSASNavalOpportunityPeaceAspectUtilities.clear();
+		}
+	}
 	m_kParams.setNaval(bNaval);
 	/*  The original cause of war (dogpile, attacked etc.) has no bearing
 		on war utility. */
@@ -363,9 +557,10 @@ int WarEvaluator::evaluate(WarPlanTypes eWarPlan, bool bNaval, int iPreparationT
 	for (MemberIter itMember(m_kAgent.getID()); itMember.hasNext(); ++itMember)
 		evaluate(itMember->getID(), apAspects);
 	bool const bSASHighUtilityLog = (gWarLogLevel >= 3 && getSASHighWarUtilityLogThreshold() > 0);
-	// <!-- custom: Save-file 452 showed Mali seeking peace immediately after capturing two Maya cities despite leading heavily in cities, power and war success. For similarly dominant wars, retain each utility aspect for both scenarios so a sudden reversal can be traced without enabling broad level-3 UWAI spam. (GPT-5.6-Sol) -->
+	// <!-- custom: Save-file 452 showed Mali seeking peace immediately after capturing two Maya cities despite leading heavily in cities, power and war success.
+	// For similarly dominant wars, retain each utility aspect for both scenarios so a sudden reversal can be traced without enabling broad level-3 UWAI spam. (GPT-5.6-Sol) -->
 	bool const bSASSuspiciousPeaceLog = (m_bSASLogSuspiciousPeace && isSASSuspiciousPeaceLead(m_kParams));
-	bool const bSASAspectLog = (bSASHighUtilityLog || bSASSuspiciousPeaceLog);
+	bool const bSASAspectLog = (bSASHighUtilityLog || bSASSuspiciousPeaceLog || m_bSASLogNavalOpportunity);
 	std::vector<CvString> asAspectNames;
 	std::vector<int> aiAspectUtilities;
 	int iU = 0;
@@ -383,6 +578,13 @@ int WarEvaluator::evaluate(WarPlanTypes eWarPlan, bool bNaval, int iPreparationT
 		delete apAspects[i];
 	}
 	m_kReport.log("Bottom line: %d\n", iU);
+	// <!-- custom: Preserve the recursive PEACE scenario's aspect decomposition in members.
+	// After recursion returns, the outer WAR call still has its local aspect vectors and emits both in one row. See KI#53.6. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (m_bPeaceScenario && m_bSASLogNavalOpportunity)
+	{
+		m_asSASNavalOpportunityPeaceAspectNames = asAspectNames;
+		m_aiSASNavalOpportunityPeaceAspectUtilities = aiAspectUtilities;
+	}
 	if (bSASSuspiciousPeaceLog)
 		logSASBBAISuspiciousPeaceScenario(m_kParams, eWarPlan, bNaval, iPreparationTime, m_bPeaceScenario ? "PEACE" : "WAR", iU, asAspectNames, aiAspectUtilities);
 	if (bSASHighUtilityLog && isSASHighWarUtility(iU))
@@ -397,6 +599,13 @@ int WarEvaluator::evaluate(WarPlanTypes eWarPlan, bool bNaval, int iPreparationT
 			logSASBBAISuspiciousPeaceFinal(m_kParams, eWarPlan, bNaval, iPreparationTime, iWarScenarioUtility, iPeaceScenarioUtility, iU);
 		if (bSASHighUtilityLog && isSASHighWarUtility(iU))
 			logSASBBAIHighWarUtilityFinal(m_kParams, eWarPlan, bNaval, iPreparationTime, iWarScenarioUtility, iPeaceScenarioUtility, iU);
+		// <!-- custom: WAR_TARGET_HARD_REJECT already explains the deliberate ~-100000 contact/lift veto.
+		// Keep the naval-opportunity row for ordinary UWAI valuation only so the focused log is not dominated by duplicate hard rejects. See KI#53.6. (ChatGPT-5.6-Sol) -->
+		if (m_bSASLogNavalOpportunity && !hasSASBBAIHardRejectAspect(aiAspectUtilities))
+		{
+			logSASBBAINavalOpportunity(m_kParams, m_kAgent, m_kTarget, eWarPlan, iPreparationTime, m_iSASNavalOpportunityNearestCityDistance, iWarScenarioUtility, iPeaceScenarioUtility, iU,
+				asAspectNames, aiAspectUtilities, m_asSASNavalOpportunityPeaceAspectNames, m_aiSASNavalOpportunityPeaceAspectUtilities);
+		}
 		// Restore params (changed by recursive call)
 		m_kParams.setNaval(bNaval);
 		m_kParams.setTotal(eWarPlan == WARPLAN_TOTAL ||
@@ -468,8 +677,18 @@ void WarEvaluator::evaluate(PlayerTypes eAgentPlayer, vector<WarUtilityAspect*>&
 	m_kReport.log("\nh4.\nComputing utility of %s\n",
 			m_kReport.leaderName(eAgentPlayer, 16));
 	int iU = 0;
+	// <!-- custom: The first KI#53.6 aspect run showed that many strong/near island candidates had no GreedForAssets at all, meaning MilitaryAnalyst predicted no city gain from the target.
+	// Log the underlying naval simulation only for ordinary (non-hard-rejected) opportunity candidates so we can distinguish Army, Fleet, Logistics, and projected-conquest failures before changing behavior. (ChatGPT-5.6-Sol) -->
+	bool bSASNavalOpportunityHardReject = false;
 	for (size_t i = 0; i < kAspects.size(); i++)
-		iU += kAspects[i]->evaluate(militaryAnalyst);
+	{
+		int const iDelta = kAspects[i]->evaluate(militaryAnalyst);
+		iU += iDelta;
+		if (iDelta <= -100000)
+			bSASNavalOpportunityHardReject = true;
+	}
+	if (m_bSASLogNavalOpportunity && !m_bPeaceScenario && !bSASNavalOpportunityHardReject)
+		logSASBBAINavalOpportunitySimulation(m_kParams, militaryAnalyst, eAgentPlayer);
 	m_kReport.log("--\nTotal utility for %s: %d",
 			m_kReport.leaderName(eAgentPlayer, 16), iU);
 }

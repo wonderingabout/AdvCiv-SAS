@@ -287,8 +287,7 @@ void TestScaledNum()
 				rCost *= fixp(1.05);
 				rCost *= per100(GC.getInfo((GameSpeedTypes)0).getResearchPercent());
 				rCost *= per100(GC.getInfo((EraTypes)0).getResearchPercent());
-				rCost *= per100((GC.getDefineINT(
-						CvGlobals::TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER) + 100));
+				rCost *= per100((GC.getDefineINT(CvGlobals::TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER) + 100));
 				int iCost = rCost.roundToMultiple(5);
 				rCost = range(iCost, 10, 2000);
 			}
@@ -312,8 +311,7 @@ void TestScaledNum()
 				dCost *= 1.05;
 				dCost *= GC.getInfo((GameSpeedTypes)0).getResearchPercent() / 100.;
 				dCost *= GC.getInfo((EraTypes)0).getResearchPercent() / 100.;
-				dCost *= (GC.getDefineINT(
-						CvGlobals::TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER) + 100) / 100.;
+				dCost *= (GC.getDefineINT(CvGlobals::TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER) + 100) / 100.;
 				int iCost = fmath::round(dCost) % 5;
 				dCost = range(iCost, 10, 2000);
 			}
@@ -337,8 +335,7 @@ void TestScaledNum()
 				fCost *= 1.05f;
 				fCost *= GC.getInfo((GameSpeedTypes)0).getResearchPercent() / 100.f;
 				fCost *= GC.getInfo((EraTypes)0).getResearchPercent() / 100.f;
-				fCost *= (GC.getDefineINT(
-						CvGlobals::TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER) + 100) / 100.f;
+				fCost *= (GC.getDefineINT(CvGlobals::TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER) + 100) / 100.f;
 				int iCost = fmath::round(fCost) % 5;
 				fCost = range(iCost, 10, 2000);
 			}

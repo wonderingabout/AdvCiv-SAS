@@ -7582,8 +7582,7 @@ void CvUnitAI::AI_attackCityMove()
 			{
 				/*	Consider getting into a better position for attack.
 					only if we don't already have overwhelming force */
-				if (!bSpaceCapitalMustAttackNow && iComparePostBombard < GC.getDefineINT(
-					CvGlobals::BBAI_SKIP_BOMBARD_BASE_STACK_RATIO) &&
+				if (!bSpaceCapitalMustAttackNow && iComparePostBombard < GC.getDefineINT(CvGlobals::BBAI_SKIP_BOMBARD_BASE_STACK_RATIO) &&
 					(iComparePostBombard < iAttackRatioSkipBombard ||
 					2 * pTargetCity->getDefenseDamage() < GC.getMAX_CITY_DEFENSE_DAMAGE() ||
 					getPlot().isRiverCrossing(directionXY(getPlot(), pTargetCity->getPlot()))))

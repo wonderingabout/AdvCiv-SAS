@@ -4,6 +4,7 @@
 #include "ArmamentForecast.h"
 #include "MilitaryAnalyst.h"
 #include "WarEvalParameters.h"
+#include "BBAILog.h" // <!-- custom: Level-3 WAR diagnostics trace why apparently feasible overseas invasions fail inside InvasionGraph. See KI#53.6. (ChatGPT-5.6-Sol) -->
 #include "CoreAI.h"
 #include "CvCity.h"
 #include "CvPlot.h"
@@ -17,8 +18,7 @@ namespace
 {
 	__inline scaled powerCorrect(scaled rMultiplier)
 	{
-		static scaled const rPOWER_ORRECTION = per100(GC.getDefineINT(
-				CvGlobals::POWER_CORRECTION));
+		static scaled const rPOWER_ORRECTION = per100(GC.getDefineINT(CvGlobals::POWER_CORRECTION));
 		return rMultiplier.pow(rPOWER_ORRECTION);
 	}
 }
@@ -634,7 +634,21 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 	PROFILE_FUNC();
 	UWAICache::City const* const pCacheCity = (bClashOnly ? NULL : targetCity());
 	if (pCacheCity == NULL && !bClashOnly)
+	{
+		// <!-- custom: A missing target city ends the simulated invasion before Fleet, Logistics or city-combat strength can matter.
+		// Log this rare terminal state for the evaluated agent/target pair so KI#53.6 can distinguish reachability/target-selection failures from pessimistic combat simulation. (ChatGPT-5.6-Sol) -->
+		WarEvalParameters const& kEvalParams = m_kOuter.m_kMA.evaluationParams();
+		CvTeamAI const& kAgentTeam = GET_TEAM(TEAMID(m_eAgent));
+		CvTeamAI const& kTargetTeam = GET_TEAM(kEvalParams.getTarget());
+		if (gWarLogLevel >= 3 && !m_kOuter.m_bPeaceScenario && m_ePlayer == m_eAgent && m_pPrimaryTarget != NULL &&
+			TEAMID(m_pPrimaryTarget->m_ePlayer) == kEvalParams.getTarget() && !kAgentTeam.isAtWar(kTargetTeam.getID()) &&
+			kTargetTeam.getDefensivePower(kAgentTeam.getID()) <= kAgentTeam.getPower(true) && m_military[LOGISTICS]->power() > 0)
+		{
+			logBBAI("WAR_NAVAL_INVASION_STEP turn=%d agentTeam=%d targetTeam=%d total=%d prepTurns=%d stage=NO_TARGET_CITY",
+				GC.getGame().getGameTurn(), TEAMID(m_eAgent), kEvalParams.getTarget(), kEvalParams.isTotal(), kEvalParams.getPreparationTime());
+		}
 		return NULL;
+	}
 	CvCity const* const pCity = (pCacheCity == NULL ? NULL : &pCacheCity->city());
 	Node& kDefender = *m_pPrimaryTarget;
 	int const iDefCities = GET_PLAYER(kDefender.m_ePlayer).getNumCities();
@@ -734,6 +748,18 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		else FErrorMsg("Shouldn't clash when not mutually reachable");
 	}
 	else bNaval = !canReachByLand(pCacheCity->getID(), false);
+	WarEvalParameters const& kEvalParams = m_kOuter.m_kMA.evaluationParams();
+	// <!-- custom: Keep the step-level naval diagnostic to a plausible weaker overseas target that the agent is not already fighting and for which Logistics exists.
+	// The actual cached deployment distance is logged rather than used as another filter, so a bad distance estimate cannot hide the failure we're trying to diagnose.
+	// Only the real defended city-attack step is logged below; zero-defense priority probes are intentionally skipped. See KI#53.6. (ChatGPT-5.6-Sol) -->
+	CvTeamAI const& kSASAgentTeam = GET_TEAM(TEAMID(m_eAgent));
+	CvTeamAI const& kSASTargetTeam = GET_TEAM(kEvalParams.getTarget());
+	bool const bSASLogNavalInvasionStep = (gWarLogLevel >= 3 && !m_kOuter.m_bPeaceScenario && m_ePlayer == m_eAgent && !bClashOnly && bNaval &&
+		TEAMID(kDefender.m_ePlayer) == kEvalParams.getTarget() && !kSASAgentTeam.isAtWar(kSASTargetTeam.getID()) &&
+		kSASTargetTeam.getDefensivePower(kSASAgentTeam.getID()) <= kSASAgentTeam.getPower(true) && m_military[LOGISTICS]->power() > 0);
+	scaled rSASFleetPow = 0, rSASDefFleetPow = 0, rSASCargoCap = 0, rSASSurvivingCargo = 0, rSASArmySize = 0;
+	scaled rSASLandingRatio = 1;
+	bool bSASFleetWin = true;
 	bool bCanBombard = false;
 	bool bCanBombardFromSea = false;
 	bool bCanSoften = false;
@@ -1021,6 +1047,9 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		// Reduced b/c not all transports are available for military purposes
 		scaled rCargoCap = fixp(0.73) *
 				(m_military[LOGISTICS]->power() - m_arLostPower[LOGISTICS]);
+		rSASFleetPow = rFleetPow;
+		rSASDefFleetPow = rDefFleetPow;
+		rSASCargoCap = rCargoCap;
 		scaled rLogisticsPortion = 0;
 		/*	Fixme: This logistics portion is way too small; rCargoCap counts
 			cargo space, whereas rFleetPow is a power rating (strength^1.7).
@@ -1054,6 +1083,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 				rFleetPowMult /= fixp(1.25);
 		}
 		bool const bAttWin = (rFleetPow > 1 && rFleetPowMult * rFleetPow > rDefFleetPow);
+		bSASFleetWin = bAttWin;
 		std::pair<scaled,scaled> rrLossesWL = clashLossesWinnerLoser(
 				rFleetPow, rDefFleetPow, false, true);
 		scaled rLossesAtt, rLossesDef;
@@ -1067,6 +1097,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		/*	Tend to underestimate the head count b/c of outdated
 			units with power lower than typical. Hence the extra 20%. */
 		scaled rArmySize = fixp(1.2) * rArmyPow / rTypicalArmyUnitPow;
+		rSASArmySize = rArmySize;
 		if (bAttWin)
 		{
 			rLossesAtt = rrLossesWL.first / rConfAtt;
@@ -1090,12 +1121,14 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 				scaled rCargoSize = rCargoCap - rLogisticsLosses;
 				rCargoSize.increaseTo(0);
 				rCargoSize *= rRepeatTripFactor;
+				rSASSurvivingCargo = rCargoSize;
 				m_kReport.log("Naval landing succeeds with %d surviving cargo",
 						rCargoSize.round());
 				if (rArmySize > 0)
 				{
 					scaled rLandingRatio = rCargoSize / rArmySize;
 					rLandingRatio.decreaseTo(1);
+					rSASLandingRatio = rLandingRatio;
 					rArmyPow *= rLandingRatio;
 					rCavPow *= rLandingRatio;
 					m_kReport.log("Power of landing party: %d", rArmyPow.uround());
@@ -1124,6 +1157,13 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			}
 			kStep.setSuccess(false);
 			kStep.setDuration(iDeployTurns + (bSneakAttack ? 0 : 2));
+			if (bSASLogNavalInvasionStep && rArmyPortionDefender > 0)
+			{
+				logBBAI("WAR_NAVAL_INVASION_STEP turn=%d agentTeam=%d targetTeam=%d total=%d prepTurns=%d stage=LANDING_REPELLED targetCityX=%d targetCityY=%d cacheDistance=%d targetValue=%d armyPortionAttackerPercent=%d armyPortionDefenderPercent=%d attackerArmyPower=%d defenderArmyPower=%d attackerFleetPower=%d defenderFleetPower=%d cargoCapacity=%d armySize=%d duration=%d",
+					GC.getGame().getGameTurn(), TEAMID(m_eAgent), kEvalParams.getTarget(), kEvalParams.isTotal(), kEvalParams.getPreparationTime(),
+					pCity->getX(), pCity->getY(), pCacheCity->getDistance(), pCacheCity->getTargetValue(), rArmyPortionAttacker.getPercent(), rArmyPortionDefender.getPercent(),
+					rArmyPowRaw.uround(), rDefArmyPow.uround(), rSASFleetPow.uround(), rSASDefFleetPow.uround(), rSASCargoCap.uround(), rSASArmySize.uround(), kStep.getDuration());
+			}
 			return &kStep;
 		}
 		if (rLossesAtt > 0 || rLossesDef > 0)
@@ -1585,6 +1625,16 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			kStep.reducePower(m_ePlayer, CAVALRY, rLossesAttArmy * rCavPow / rArmyPow);
 		kStep.setSuccess(false);
 	}
+	if (bSASLogNavalInvasionStep && rArmyPortionDefender > 0)
+	{
+		logBBAI("WAR_NAVAL_INVASION_STEP turn=%d agentTeam=%d targetTeam=%d total=%d prepTurns=%d stage=CITY_ATTACK targetCityX=%d targetCityY=%d cacheDistance=%d targetValue=%d fleetWin=%d armyPortionAttackerPercent=%d armyPortionDefenderPercent=%d attackerArmyRawPower=%d defenderArmyPower=%d attackerFleetPower=%d defenderFleetPower=%d cargoCapacity=%d survivingCargo=%d armySize=%d landingRatioPercent=%d deploymentDistance=%d attackerDeploymentPercent=%d attackerAreaWeightPercent=%d defenderAreaWeightPercent=%d localGarrisonPower=%d ralliedGarrisonPower=%d mobileDefenderPower=%d mobileDefenderPortionPercent=%d canBombard=%d canSoften=%d bombardTurns=%d besiegerPower=%d cityDefenderPower=%d powerRatioPercent=%d duration=%d success=%d",
+			GC.getGame().getGameTurn(), TEAMID(m_eAgent), kEvalParams.getTarget(), kEvalParams.isTotal(), kEvalParams.getPreparationTime(),
+			pCity->getX(), pCity->getY(), pCacheCity->getDistance(), pCacheCity->getTargetValue(), bSASFleetWin, rArmyPortionAttacker.getPercent(), rArmyPortionDefender.getPercent(),
+			rArmyPowRaw.uround(), rDefArmyPow.uround(), rSASFleetPow.uround(), rSASDefFleetPow.uround(), rSASCargoCap.uround(), rSASSurvivingCargo.uround(),
+			rSASArmySize.uround(), rSASLandingRatio.getPercent(), rDeploymentDistAttacker.uround(), rAttDeploymentMod.getPercent(), rAreaWeightAtt.getPercent(), rAreaWeightDef.getPercent(),
+			rLocalGarrisonPow.uround(), rRalliedGarrisonPow.uround(), rDefendingArmyPow.uround(), rDefArmyPortion.getPercent(), bCanBombard, bCanSoften, iBombTurns,
+			rArmyPowModified.uround(), rDefenderPow.uround(), rPowRatio.getPercent(), kStep.getDuration(), kStep.isAttackerSuccessful());
+	}
 	return &kStep;
 }
 
@@ -2005,13 +2055,25 @@ void InvasionGraph::Node::resolveLosses()
 				m_rDistractionByConquest),
 				1 - (rInvaderDistractionMult * kInvader.m_rDistractionByDefense));
 		int iActualDuration = kNextStep.getDuration();
+		bool const bStepFitsHorizon = (iTimeLimit < 0 || aiTurnsSimulated[eNextInvader] + iActualDuration <= iTimeLimit);
+		// <!-- custom: A plausible naval city attack can be predicted successfully yet still contribute no conquest if its duration falls outside MilitaryAnalyst's horizon.
+		// Record the scheduler decision separately from WAR_NAVAL_INVASION_STEP so KI#53.6 can distinguish combat pessimism from timing exclusion. (ChatGPT-5.6-Sol) -->
+		UWAICache::City const* const pSASStepCity = kNextStep.getCity();
+		WarEvalParameters const& kSASEvalParams = m_kOuter.m_kMA.evaluationParams();
+		CvTeamAI const& kSASAgentTeam = GET_TEAM(TEAMID(m_eAgent));
+		CvTeamAI const& kSASTargetTeam = GET_TEAM(kSASEvalParams.getTarget());
+		if (gWarLogLevel >= 3 && !m_kOuter.m_bPeaceScenario && eNextInvader == m_eAgent && pSASStepCity != NULL &&
+			TEAMID(m_ePlayer) == kSASEvalParams.getTarget() && !kSASAgentTeam.isAtWar(kSASTargetTeam.getID()) &&
+			kSASTargetTeam.getDefensivePower(kSASAgentTeam.getID()) <= kSASAgentTeam.getPower(true) &&
+			!kInvader.canReachByLand(pSASStepCity->getID(), false) && kInvader.m_military[LOGISTICS]->power() > 0)
+		{
+			logBBAI("WAR_NAVAL_INVASION_SCHEDULE turn=%d agentTeam=%d targetTeam=%d total=%d prepTurns=%d targetCityX=%d targetCityY=%d cacheDistance=%d duration=%d turnsAlready=%d timeLimit=%d fitsHorizon=%d success=%d threatPercent=%d",
+				GC.getGame().getGameTurn(), TEAMID(m_eAgent), kSASEvalParams.getTarget(), kSASEvalParams.isTotal(), kSASEvalParams.getPreparationTime(),
+				pSASStepCity->city().getX(), pSASStepCity->city().getY(), pSASStepCity->getDistance(), iActualDuration, aiTurnsSimulated[eNextInvader], iTimeLimit,
+				bStepFitsHorizon, kNextStep.isAttackerSuccessful(), kNextStep.getThreat().getPercent());
+		}
 		// Don't apply step if it would exceed the time limit
-		if (iTimeLimit < 0 || aiTurnsSimulated[eNextInvader] + iActualDuration
-			/*	Per-node time limit. Not sure if really needed. Would have to
-				toggle isTargeting and unset m_pPrimaryTarget as well in the
-				else branch (instead of breaking). */
-			//+ (*m_kOuter.m_nodeMap)[eNextInvader].m_iWarTurnsSimulated
-			<= iTimeLimit)
+		if (bStepFitsHorizon)
 		{
 			applyStep(kNextStep);
 			/*	If attack fails, the attacker doesn't get another step. However,

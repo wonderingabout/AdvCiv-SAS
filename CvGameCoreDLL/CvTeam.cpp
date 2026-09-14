@@ -2417,8 +2417,7 @@ int CvTeam::getResearchCost(TechTypes eTech, bool bFreeBarbarianResearch, bool b
 		player handicap adjustment */
 	if (kGame.isOption(GAMEOPTION_RISE_FALL))
 	{
-		rCost *= 1 - per100(GC.getDefineINT(
-				CvGlobals::RF_PLAYER_HANDICAP_ADJUSTMENT) * 3);
+		rCost *= 1 - per100(GC.getDefineINT(CvGlobals::RF_PLAYER_HANDICAP_ADJUSTMENT) * 3);
 	} // </advc.708>
 	if (bTeamSizeModifiers) // K-Mod
 	{

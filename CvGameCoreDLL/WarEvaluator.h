@@ -52,6 +52,12 @@ private:
 	bool m_bPeaceScenario;
 	bool m_bUseCache;
 	bool m_bSASLogSuspiciousPeace;
+	// <!-- custom: Level-3 WAR diagnostics retain the peace-scenario aspect split only while evaluating a nearby, weaker, transport-capable overseas target.
+	// This lets one compact row explain why a plausible island war was rejected without enabling AdvCiv's broad periodic UWAI report. See KI#53.6. (ChatGPT-5.6-Sol) -->
+	bool m_bSASLogNavalOpportunity;
+	int m_iSASNavalOpportunityNearestCityDistance;
+	std::vector<CvString> m_asSASNavalOpportunityPeaceAspectNames;
+	std::vector<int> m_aiSASNavalOpportunityPeaceAspectUtilities;
 
 	bool atTotalWarWithTarget() const;
 	void gatherCivsAndTeams();

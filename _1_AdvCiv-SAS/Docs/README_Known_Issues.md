@@ -69,6 +69,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#38 - (No idea why) Compile sometimes fails then succeeds with same source](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38)\
 [KI#38.2 - (Weird DLL XML errors at launch, solved by recompiling) The exact same DLL (cosmic ray 2? Or something else maybe or whatever)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.2)\
 [KI#38.3 - (Improved) Parallel Debug-opt compilation used excessive CPU for a small time saving](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.3)\
+[KI#38.4 - (Fixed XML launch failure; confirmed the previous SAS define sentinel/guard is validated) UTF-8 BOM prevented SAS GlobalDefines from loading](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.4)\
 [KI#39 - (Seemingly fixed/enhanced) AI workers move sooner between cities that need improvements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-39)\
 [KI#40 - (Seemingly fixed/addressed) Plot allocation improvement 2: high happiness → favour food tiles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-40)\
 [KI#41 - (Seemingly fixed) Tremendously improved AI worker mobility/flexibility/reliability](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-41)\
@@ -94,6 +95,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#53.3 - (Reopened/Broadened after major SAS improvement) A concrete siege veto can suppress a legal same-role alternative](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.3)\
 [KI#53.4 - (Tremendously Improved) AI overbuilding very cheap combat units (ancient macemen only being an issue as of now) in the early game, sometimes even at turn 100, which is inefficient and easy to overshoot, as they are cheap and accumulate quickly, but are not too effective especially as soon as we get archer units, now limited, especially even more so after as of now turn 50 where they should be especially useless; much better military compositions and better growth as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.4)\
 [KI#53.5 - (Greatly Improved) Peaceful dominant AIs can keep producing fresh land military after their primary landmass is already heavily saturated](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.5)\
+[KI#53.6 - (Investigating) Strong island AIs can retain large armies and assault fleets while UWAI declines plausible nearby overseas wars](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.6)\
 [KI#54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-54)\
 [55 to 60 -](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#55-to-60--)\
 
@@ -2513,6 +2515,18 @@ Time Elapsed 00:01:52.51
 
 CPU utilization was not separately measured as well, but unlike the old parallel Debug-opt build, no full-speed CPU-fan noise was heard; only minor fan noise occurred around the library-creation/linking stage, comparable to Release. Civ4 ran normally with the resulting DLL and autoplay started successfully.
 
+<a id="ki-38.4"></a>
+
+## KI#38.4 - (Fixed XML launch failure; confirmed the previous SAS define sentinel/guard is validated) UTF-8 BOM prevented SAS GlobalDefines from loading
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1GyOraSF59dYsKQ14K8wmC4WOvA_aj1X-?usp=sharing).
+
+After a pasted XML change (from ChatGPT-5.6-Sol), `GlobalDefines_advciv_sas.xml` began with the three-byte UTF-8 byte-order mark `EF BB BF` before `<?xml version="1.0"?>`. Civ4's old XML parser treated those bytes as top-level content, reported an invalid document at line 1, character 1 with the visible source prefix `ï»¿<?xml`, and then reported that loading `xml\GlobalDefines_advciv_sas.xml` had failed.
+
+Because the whole file was rejected, its SAS sentinel definitions were absent and `SAS_LAUNCH_GUARD_TEST_INT` resolved to `0` instead of the expected `137531`. The launch guard then raised its intended visible fail-fast error from both `BugEventManager.preGameStart` and `CvEventInterface.onLoad`. This empirically confirms that the sentinels detect a real SAS GlobalDefines load failure rather than allowing the game to continue silently with default/missing values; the two dialogs reflect two guarded lifecycle entry points encountering the same failed configuration.
+
+Removing only the UTF-8 BOM restored the required direct `<?xml` prefix without changing any define values. The file then passed ordinary XML parsing and the repository launch-guard sentinel check. This was an accidental file-encoding/configuration failure rather than a DLL or gameplay defect, and no DLL rebuild is needed. Fixed and documented with the help of GPT-5.6-Sol, thanks.
+
 <a id="ki-39"></a>
 
 ## KI#39 - (Seemingly fixed or enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it
@@ -3734,6 +3748,16 @@ The control did identify one independent textbook candidate instead: Scandinavia
 
 The enabled replay diverged and produced no actual rejection. Because the historical trajectories were no longer equivalent, this is not treated as an outcome A/B; it is useful selectivity/generalization evidence that the gate stays inactive for a leader when the motivating saturated state is absent and can identify the same state in another civilization instead.
 
+### Naval-extension follow-up: keep KI#53.5 land-local
+
+A later follow-up explicitly tested the concern that this landmass-local brake might make island starts too passive by treating a conquered/safe home island as "finished" even when weaker nearby islands remain realistic invasion targets. Two naval-heavy runs were inspected with WAR, military-production, overseas-transport and SASGameRecord diagnostics: the familiar Huge Archipelago trajectory and a 24-civilization `Equal_Islands_V2_beta` stress test where every starting civilization begins on its own inhabited island and meaningful conquest therefore becomes overseas once the required navigation technology arrives.
+
+The hypothesis was not supported by the current KI#53.5 gate. The familiar Archipelago run recorded 3,181 `MILITARY_PRODUCTION_SATURATION_GATE` evaluations and Equal Islands recorded 3,923, but **neither run produced a single `wouldReject=1` or `actualReject=1`**. The dominant blocker was the deliberately high era-scaled land-stock threshold itself. On Equal Islands, Benin could already have roughly 64 land military units across six core-island cities, no local rival, no war plan and military spending hundreds above its normal allowance, yet still sit just below the Aggressive-AI stock threshold and remain free to train more land units. Broadening KI#53.5 to count nearby overseas rivals would therefore have changed none of the observed decisions and could instead encourage still larger armies that the naval strategy was not yet using.
+
+The same run exposed a stronger follow-up question. Around turn 186 Benin already had assault transports, a large offensive army and roughly 387 power versus nearby Japan's 323 (about 83%), with nearest cities around 13 tiles apart, yet UWAI still valued limited/total naval war at roughly -22/-27 and did not prepare the attack. Across 43,876 distinct Equal Islands assault-transport group-turn states, aggregate cargo use was only about 30%; about 61% of groups were empty, 94% were in port and 78% had no mission. Even during some war-plan windows, many transports remained empty/in port, and `AI_assaultSeaMove` reported `no_pickup_found` 19,680 times. These transport figures are diagnostic leads rather than proof of a loading bug because individual units can legitimately fail mission, defender, reservation or path filters.
+
+The conclusion is therefore deliberately **not** to broaden KI#53.5. Its validated purpose remains preventing extreme peaceful land overproduction only after a primary landmass is already exceptionally saturated. Naval competitiveness is tracked separately in [KI#53.6](#ki-53.6): first determine why apparently credible overseas wars receive low strategic utility, then investigate transport execution only if the war plan itself is sound.
+
 ### Final status
 
 The central `AI_chooseUnit` architecture, landmass-local stock, unknown-local-rival safety and fix2 local-power model are retained as the final behavior. Direct level-3 BBAI validation found no false-positive strategic state in the tested runs: the gate fired only for already enormous, peaceful, locally dominant primary-landmass armies and stopped immediately when a war plan appeared.
@@ -3745,6 +3769,38 @@ The default one-independent-rival limit also makes this difficult to trigger on 
 KI#53.5 is therefore considered greatly improved/validated for the current land-production scope. Future evidence can still refine the era stock or power thresholds, and naval saturation can be investigated independently rather than broadening this central land rule without evidence.
 
 Investigated/improved with the help of ChatGPT-5.6-Sol thanks.
+
+<a id="ki-53.6"></a>
+
+## KI#53.6 - (Investigating) Strong island AIs can retain large armies and assault fleets while UWAI declines plausible nearby overseas wars
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1T0DiJtUhfW-kSWxkDgdbyEOMDtORXzKK?usp=sharing).
+
+This investigation follows the naval-extension cross-check in [KI#53.5](#ki-53.5). The current evidence does **not** show KI#53.5 suppressing useful island warfare: across the familiar Archipelago and Equal Islands runs its saturation gate never reached a would-reject state. Instead, Equal Islands supplied repeated cases where an AI already had substantial land forces and assault-transport capacity but still assigned negative UWAI utility to nearby, weaker overseas rivals.
+
+A representative case is Benin around turn 186. It had roughly 387 power to Japan's 323, about 48 military units to Japan's 34, nearest cities around 13 tiles apart, several assault transports and no current war plan. UWAI correctly classified both limited and total war as naval, but still evaluated them at approximately -22 and -27. By the late game Benin could retain a much larger army and transport fleet without a war plan. This suggests that simply allowing or encouraging still more land production would attack the wrong layer: if the strategic planner does not consider a credible target worth invading, additional units can become another idle stockpile rather than a stronger naval AI.
+
+The first question is therefore **war selection/valuation**, followed separately by **execution**. A weak/near target can still be rationally unattractive because of effort, risk, diplomacy, expected asset value, distraction from other wars, overextension or personality. Conversely, one of these components may systematically over-penalize true island conquest. Existing `WAR_TARGET_EVAL` rows expose the final utility, power, distance and naval classification but not enough of the underlying war-versus-peace utility decomposition to distinguish those explanations.
+
+### Targeted naval-opportunity diagnostic
+
+Level-3 WAR diagnostics now add `WAR_NAVAL_OPPORTUNITY` for a deliberately narrow class of candidates only: the target is a true non-land/overseas target, is no stronger than the fixed 100% defensive-power investigation threshold, is within a fixed nearest-city distance of 15 tiles, and the agent already owns at least one `UNITAI_ASSAULT_SEA` transport. These diagnostic-only filters remain internal rather than becoming player XML settings.
+
+For each qualifying limited/total naval evaluation, one compact row records the final war-minus-peace utility, raw war-scenario utility, raw peace-scenario utility, preparation time, attitude/closeness/distance, team power/cities/wars, assault-transport and ATTACK/ATTACK_CITY counts, plus the complete nonzero `WarUtilityAspect` split for both the war and peace scenarios. This reuses the real `WarEvaluator` calculation, adds no RNG and does not change UWAI behavior. It is intentionally more focused than enabling AdvCiv's broad periodic UWAI report on every team in a 24-civilization autoplay.
+
+The first Equal Islands aspect run narrowed the problem substantially. It produced 17,032 `WAR_NAVAL_OPPORTUNITY` rows; 1,955 were not ordinary valuation failures at all but the existing SAS contact/lift hard reject surfacing as roughly `RISK=-100000`, so later diagnostics suppress that duplicate row and leave `WAR_TARGET_HARD_REJECT` to explain those cases. Among the remaining ordinary evaluations, deduplicating limited/total/preparation variants by turn and team pair left 6,889 candidate pair-turns. In a deliberately favorable subset (target power at most 80% of ours, no current agent war and at least three assault transports), only 390 of 1,999 pair-turns had positive final utility.
+
+The decisive split was expected conquest benefit rather than unusually large `Effort` or ordinary `Risk`. Of those 1,999 favorable pair-turns, 1,274 contained a positive `GREED_FOR_ASSETS` component and 389 were positive overall; **725 had no `GREED_FOR_ASSETS` at all and only one was positive overall**. `GreedForAssets` returns immediately when its conquest-asset score is nonpositive; the main case is `MilitaryAnalyst` predicting no cities conquered from that rival (auto-razed/zero-value projected captures can also contribute no asset score). This points below the high-level utility weights to the military simulation itself and makes projected captures worth logging directly. Benin-to-Japan is especially clean: from turns 220 through 406 there were 394 ordinary qualifying evaluations, zero with `GREED_FOR_ASSETS` and zero with positive utility (best about -15), even as Benin grew from roughly 9 to 20 assault transports and from 19 to 47 ATTACK/ATTACK_CITY units while Japan fell as low as about 78% of Benin's power.
+
+The next diagnostic therefore records the underlying `MilitaryAnalyst` result for the same opportunity candidates: projected city conquests/losses and capitulation, simulation horizon, current Army/Fleet/Logistics branch power, simulated branch losses/gains, and military build-up. It is still diagnostics-only. The question is now whether apparently strong island attackers actually fail the simulation because their Fleet/Logistics cannot support the landing, or whether those branches also look strong and the `InvasionGraph` naval conquest model is rejecting attacks for a deeper reason. Only after that should behavior change.
+
+That simulation run confirmed that `GreedForAssets` is mostly a downstream symptom rather than the primary defect. Across 15,077 ordinary `WAR_NAVAL_OPPORTUNITY` / `WAR_NAVAL_SIMULATION` evaluations, `MilitaryAnalyst` predicted at least one conquest from the target in 4,343 cases; the presence of positive `GREED_FOR_ASSETS` tracked those projected conquests almost exactly. Strong-looking cases with no Greed therefore generally failed lower in `InvasionGraph`, not because the high-level aspect weights independently discarded valuable captured cities.
+
+The next Equal Islands run instrumented the actual naval invasion steps and scheduler. In a deliberately favorable subset (target at most 80% of our power, no current agent war and at least three assault transports), 1,821 of 4,178 unique evaluation variants still projected zero target conquests. Of those 1,821, 1,465 had scheduled naval steps that all failed, 294 never scheduled a naval step and 62 had a successful in-horizon step without a target conquest after the wider graph interaction. **No zero-conquest evaluation was explained by a successful scheduled attack merely falling outside the MilitaryAnalyst horizon.** Among 2,188 failed scheduled steps, 2,056 (about 94%) were city attacks rather than naval landings; only about 6% were landing-repelled cases. The main bottleneck is therefore usually the modeled city battle after the fleet has already delivered its army, not insufficient cargo or a too-short simulation horizon.
+
+Those failed scheduled city attacks are also systematically close enough to expose one inherited naval-deployment assumption. Their median simulated landing ratio was 100%, but the AI attacker was then separately reduced to a median 75% by the multi-area city-distribution proxy and to about 83% by deployment distance before attacking; the modeled defender meanwhile commonly rallied roughly 63-75% of its mobile Army in addition to local/rallied garrisons. Median final attacker/defender power ratio was only about 73%. A post-hoc sensitivity check using the rounded diagnostic values found that granting the AI the inherited human-style +25 percentage-point naval area allowance, **scaled by the actual surviving landing ratio**, would turn roughly 903 of those 2,056 failed scheduled city attacks (about 44%) into modeled wins. This does not prove all such wars should be launched, but it identifies the area-deployment proxy as the largest concrete sensitivity found so far; landing capacity itself was usually not the limiting factor.
+
+Investigated with the help of ChatGPT-5.6-Sol, thanks.
 
 <a id="ki-54"></a>
 

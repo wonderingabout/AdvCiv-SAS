@@ -3199,14 +3199,10 @@ int CvGame::getScoreComponent(int iRawScore, int iInitial, int iMax, int iMultip
 	if (getEstimateEndTurn() <= 0)
 		return 0;
 
-	static scaled const rSCORE_FREE_PERCENT = per100(GC.getDefineINT(
-			"SCORE_FREE_PERCENT"));
-	static scaled const rSCORE_VICTORY_PERCENT = per100(GC.getDefineINT(
-			"SCORE_VICTORY_PERCENT"));
-	static scaled const rSCORE_HANDICAP_PERCENT_OFFSET = per100(GC.getDefineINT(
-			"SCORE_HANDICAP_PERCENT_OFFSET"));
-	static scaled const rSCORE_HANDICAP_PERCENT_PER = per100(GC.getDefineINT(
-			"SCORE_HANDICAP_PERCENT_PER"));
+	static scaled const rSCORE_FREE_PERCENT = per100(GC.getDefineINT("SCORE_FREE_PERCENT"));
+	static scaled const rSCORE_VICTORY_PERCENT = per100(GC.getDefineINT("SCORE_VICTORY_PERCENT"));
+	static scaled const rSCORE_HANDICAP_PERCENT_OFFSET = per100(GC.getDefineINT("SCORE_HANDICAP_PERCENT_OFFSET"));
+	static scaled const rSCORE_HANDICAP_PERCENT_PER = per100(GC.getDefineINT("SCORE_HANDICAP_PERCENT_PER"));
 
 	scaled rMax = iMax;
 	if (bFinal && bVictory) // Not synchronized; floating point math is fine here.
@@ -7827,8 +7823,7 @@ int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned, i
 	/*	Make sure that there's enough unowned land where the Barbarians
 		could plausibly gather. */
 	rTarget.decreaseTo(scaled(iUnowned, 6));
-	static scaled const rAdjustment = 1 + per100(GC.getDefineINT(
-			"BARB_ACTIVITY_ADJUSTMENT"));
+	static scaled const rAdjustment = 1 + per100(GC.getDefineINT("BARB_ACTIVITY_ADJUSTMENT"));
 	rTarget *= rAdjustment;
 
 	scaled r = rTarget - iUnitsPresent;
@@ -8221,14 +8216,12 @@ scaled CvGame::barbarianPeakLandRatio() const
 	scaled r;
 	if (isOption(GAMEOPTION_RAGING_BARBARIANS))
 	{
-		static scaled const rRagingRatio = per100(GC.getDefineINT(
-				"BARB_RAGE_PEAK_PERCENT"));
+		static scaled const rRagingRatio = per100(GC.getDefineINT("BARB_RAGE_PEAK_PERCENT"));
 		r = rRagingRatio;
 	}
 	else
 	{
-		static scaled const rNormalRatio = per100(GC.getDefineINT(
-				"BARB_PEAK_PERCENT"));
+		static scaled const rNormalRatio = per100(GC.getDefineINT("BARB_PEAK_PERCENT"));
 		r = rNormalRatio;
 	}
 	r.clamp(0, 1);
@@ -10824,8 +10817,7 @@ void CvGame::doVoteSelection()
 				changeSecretaryGeneralTimer(eVS, -1);
 			else
 			{
-				setSecretaryGeneralTimer(eVS, GC.getDefineINT(
-						"DIPLO_VOTE_SECRETARY_GENERAL_INTERVAL"));
+				setSecretaryGeneralTimer(eVS, GC.getDefineINT("DIPLO_VOTE_SECRETARY_GENERAL_INTERVAL"));
 				FOR_EACH_ENUM(Vote)
 				{
 					CvVoteInfo const& kLoopVote = GC.getInfo(eLoopVote);
