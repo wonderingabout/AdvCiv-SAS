@@ -110,6 +110,21 @@ static unsigned __int64 g_uiSASGameRecordActiveTransaction = 0;
 static CvString g_szSASGameRecordActiveTransactionKind;
 static SASGameRecordPlotOwnerChangeCause g_eSASGameRecordPlotOwnerChangeCause = SAS_PLOT_OWNER_CAUSE_NONE;
 static void flushSASGameRecordPendingCityBombard();
+static bool g_bSASGameRecordFlushingCityBombard = false;
+
+// <!-- custom: Level-3 reproducibility telemetry observes the two authoritative CvGame RNG streams without changing CvRandom's serialized 8-byte layout.
+// RandLog intentionally remains the raw per-roll diagnostic; these trackers instead retain compact checkpoint-interval/session counts plus two order-sensitive FNV-1a fingerprints.
+// Session fingerprints stay 64-bit; interval fingerprints deliberately use 32-bit FNV because every checkpoint also carries interval start/end state and counters plus both independent fingerprints. This halves duplicated 64-bit multiply work in Civ4's 32-bit hot RNG path while retaining a strong interval-local diagnostic signal.
+// The stream fingerprint hashes the ordered abstract RNG operations needed to reproduce returned values: ROLL(requested upper bound) plus effective SEED_SET(new state) operations; a redundant same-state assignment is retained only in call provenance because it cannot alter any random value.
+// With the same session-start state and CvRandom algorithm, it therefore remains useful across source builds even when logging labels move, and still stays meaningful if benchmark/Python code deliberately reseeds an authoritative stream mid-session.
+// The richer call fingerprint additionally hashes a compact stable digest/length of the optional message, data1/data2 and EXE-wrapper origin for rolls, plus old/new state and reset-vs-reseed origin for seed sets. Each detailed operation is first reduced with cheap 32-bit FNV, then fed into the 64-bit session accumulator and native 32-bit interval accumulator, avoiding duplicated emulated 64-bit multiplies on Civ4's 32-bit build.
+// Messages often contain CALL_LOC_STR source locations, so exact call-fingerprint comparison is intentionally strongest for runs using the same DLL/source build; states, counts and stream fingerprints remain independently useful across builds.
+// As with the existing DLL FNV identifier, these are diagnostic divergence fingerprints rather than cryptographic proofs; independent seed/state/counter fields remain visible beside them.
+// NULL-message calls are important: CvRandom shuffles and some iterator randomization advance synchronized state while intentionally producing no RandLog row.
+// Async RNG is deliberately non-lockstep and can vary with client/UI activity (even though a few local human-interaction paths can use its result); local CvRandom helpers likewise do not advance CvGame's two authoritative streams.
+// Ignore both by pointer identity so this fingerprint answers synchronized/map-stream reproducibility rather than conflating independent randomness with it.
+// Python/third-party RNGs that do not advance these CvRandom objects, clocks and other external nondeterminism are likewise outside this layer; matching checkpoints are strong authoritative-RNG evidence, not a proof that all mutable game state is identical. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool g_bSASGameRecordRngTrackingActive = false;
 
 struct SASGameRecordRngTracker
 {
@@ -167,6 +182,12 @@ struct SASGameRecordRngTracker
 	unsigned __int64 uiSessionCallFingerprint;
 	unsigned int uiIntervalCallFingerprint;
 };
+
+static SASGameRecordRngTracker g_kSASGameRecordMapRng;
+static SASGameRecordRngTracker g_kSASGameRecordSyncRng;
+// <!-- custom: Cache the two authoritative object addresses at session initialization so the level-3 hot path needs only pointer comparisons, not GC/CvGame lookups, for every RNG advance. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static CvRandom const* g_pSASGameRecordMapRng = NULL;
+static CvRandom const* g_pSASGameRecordSyncRng = NULL;
 
 static void updateSASGameRecordFNV1AByte(unsigned __int64& uiHash, unsigned char ucValue)
 {
@@ -913,6 +934,111 @@ static unsigned int getSASGameRecordRandomSeedSetCallSignature(unsigned int uiOl
 	return uiHash;
 }
 
+// <!-- custom: CvRandom callers already pre-gate on active level-3 tracking. Returning NULL here is a separate stream-identity filter that rejects async and temporary/local RNG objects while retaining only CvGame's authoritative map and synchronized streams. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static SASGameRecordRngTracker* getSASGameRecordRngTracker(CvRandom const* pRandom)
+{
+	if (pRandom == g_pSASGameRecordMapRng)
+		return &g_kSASGameRecordMapRng;
+	if (pRandom == g_pSASGameRecordSyncRng)
+		return &g_kSASGameRecordSyncRng;
+	return NULL;
+}
+
+static void clearSASGameRecordRngTracking()
+{
+	g_bSASGameRecordRngTrackingActive = false;
+	g_pSASGameRecordMapRng = NULL;
+	g_pSASGameRecordSyncRng = NULL;
+	g_kSASGameRecordMapRng.clear();
+	g_kSASGameRecordSyncRng.clear();
+}
+
+void initializeSASGameRecordRngTracking()
+{
+	clearSASGameRecordRngTracking();
+	if (gGameRecordLogLevel < 3)
+		return;
+	CvGame& kGame = GC.getGame();
+	g_pSASGameRecordMapRng = &kGame.getMapRand();
+	g_pSASGameRecordSyncRng = &kGame.getSorenRand();
+	g_kSASGameRecordMapRng.initialize(kGame.getMapRand().getSeed());
+	g_kSASGameRecordSyncRng.initialize(kGame.getSorenRand().getSeed());
+	g_bSASGameRecordRngTrackingActive = true;
+}
+
+void noteSASGameRecordExternalRandomCall(CvRandom const* pRandom)
+{
+	SASGameRecordRngTracker* pTracker = getSASGameRecordRngTracker(pRandom);
+	if (pTracker == NULL || !pTracker->bInitialized)
+		return;
+	// <!-- custom: getExternal immediately calls get/getInt after this marker; retain EXE origin in both counters and that next call's fingerprint. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	pTracker->bNextCallExternal = true;
+}
+
+void noteSASGameRecordRandomCall(CvRandom const* pRandom, unsigned short usRange, TCHAR const* szLog, int iData1, int iData2)
+{
+	SASGameRecordRngTracker* pTracker = getSASGameRecordRngTracker(pRandom);
+	if (pTracker == NULL || !pTracker->bInitialized)
+		return;
+	bool const bExternal = pTracker->bNextCallExternal;
+	pTracker->bNextCallExternal = false;
+	// <!-- custom: Hash the abstract stream operation directly, avoiding a nested signature. The requested range is intrinsically 16-bit, so hash exactly those two bytes rather than doing redundant work on two guaranteed-zero bytes.
+	// Keep cumulative/session hashes 64-bit, but use native 32-bit FNV for interval copies; checkpoint state/counters plus both hashes make that cheaper signal sufficiently strong for interval-local diagnosis. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	updateSASGameRecordFNV1AByte(pTracker->uiSessionStreamFingerprint, 0x52);
+	updateSASGameRecordFNV1AUInt16(pTracker->uiSessionStreamFingerprint, usRange);
+	updateSASGameRecordFNV1A32Byte(pTracker->uiIntervalStreamFingerprint, 0x52);
+	updateSASGameRecordFNV1A32UInt16(pTracker->uiIntervalStreamFingerprint, usRange);
+	unsigned int const uiCallSignature = getSASGameRecordRandomCallSignature(usRange, szLog, iData1, iData2, bExternal);
+	updateSASGameRecordFNV1AUInt32(pTracker->uiSessionCallFingerprint, uiCallSignature);
+	updateSASGameRecordFNV1A32UInt32(pTracker->uiIntervalCallFingerprint, uiCallSignature);
+	pTracker->uiSessionCalls++;
+	pTracker->uiIntervalCalls++;
+	if (szLog == NULL)
+	{
+		pTracker->uiSessionNullMessageCalls++;
+		pTracker->uiIntervalNullMessageCalls++;
+	}
+	if (bExternal)
+	{
+		pTracker->uiSessionExternalCalls++;
+		pTracker->uiIntervalExternalCalls++;
+	}
+	// <!-- custom: A low-level range <=1 still advances the seed despite yielding no entropy (the ordinary public range-0 wrapper returns before reaching here, so this is normally range 1). CvRandom::shuffle deliberately reaches range 1 on its final iteration.
+	// Count rather than "optimizing" such calls away because their seed consumption is part of Civ4's synchronized RNG sequence and shifts every later result. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (usRange <= 1)
+	{
+		pTracker->uiSessionDeterministicRangeCalls++;
+		pTracker->uiIntervalDeterministicRangeCalls++;
+	}
+}
+
+void noteSASGameRecordRandomSeedSet(CvRandom const* pRandom, unsigned int uiOldState, unsigned int uiNewState, bool bReseed)
+{
+	SASGameRecordRngTracker* pTracker = getSASGameRecordRngTracker(pRandom);
+	if (pTracker == NULL || !pTracker->bInitialized)
+		return;
+	pTracker->bNextCallExternal = false; // <!-- custom: A seed replacement cannot inherit a pending EXE-roll classification. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: A seed replacement is part of the authoritative RNG operation stream even though it consumes no roll. This is rare (notably benchmark Python can call CyRandom.init mid-session), so retain an explicit row too.
+	// Hash it into the value-stream fingerprint only when it actually changes state: redundantly assigning the current seed changes call provenance but not any present/future random values, so it belongs only in the richer call fingerprint/counters below. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (uiOldState != uiNewState)
+	{
+		updateSASGameRecordFNV1AByte(pTracker->uiSessionStreamFingerprint, 0x53);
+		updateSASGameRecordFNV1AUInt32(pTracker->uiSessionStreamFingerprint, uiNewState);
+		updateSASGameRecordFNV1A32Byte(pTracker->uiIntervalStreamFingerprint, 0x53);
+		updateSASGameRecordFNV1A32UInt32(pTracker->uiIntervalStreamFingerprint, uiNewState);
+	}
+	unsigned int const uiCallSignature = getSASGameRecordRandomSeedSetCallSignature(uiOldState, uiNewState, bReseed);
+	updateSASGameRecordFNV1AUInt32(pTracker->uiSessionCallFingerprint, uiCallSignature);
+	updateSASGameRecordFNV1A32UInt32(pTracker->uiIntervalCallFingerprint, uiCallSignature);
+	pTracker->uiSessionSeedSets++;
+	pTracker->uiIntervalSeedSets++;
+	char const* szStream = (pTracker == &g_kSASGameRecordMapRng ? "MAP" : "SYNC");
+	// <!-- custom: Position the rare replacement precisely within both the current checkpoint interval and recorder session. This lets external tooling reconstruct seed progression around a mid-turn benchmark/Python reseed without per-roll SASGameRecord rows. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_RNG_SEED_SET turn=%d stream=%s operation=%s oldState=%u newState=%u intervalCalls=%I64u sessionCalls=%I64u intervalSeedSets=%I64u sessionSeedSets=%I64u",
+		GC.getGame().getGameTurn(), szStream, bReseed ? "RESEED" : "RESET_OR_INIT", uiOldState, uiNewState, pTracker->uiIntervalCalls,
+		pTracker->uiSessionCalls, pTracker->uiIntervalSeedSets, pTracker->uiSessionSeedSets);
+}
+
 // <!-- custom: Fixed checkpoint boundaries are an enum rather than caller-written strings, preventing silent spelling drift in rows consumed by cross-run comparison tooling. Convert that recorder-owned vocabulary to its stable schema text in one place. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 static char const* getSASGameRecordRngCheckpointReason(SASGameRecordRngCheckpointReason eReason)
 {
@@ -932,6 +1058,31 @@ static char const* getSASGameRecordRngCheckpointReason(SASGameRecordRngCheckpoin
 	FAssertMsg(false, "Unknown SASGameRecord RNG checkpoint reason");
 	return "UNKNOWN";
 }
+
+void logSASGameRecordRngCheckpoint(int iGameTurn, SASGameRecordRngCheckpointReason eReason)
+{
+	if (!g_bSASGameRecordRngTrackingActive)
+		return;
+	// Flush the recorder's synthetic bombard sequence before sampling/resetting the RNG interval so any future logging-side code cannot accidentally fall between the captured state and interval reset.
+	flushSASGameRecordPendingCityBombard();
+	CvGame& kGame = GC.getGame();
+	SASGameRecordRngTracker& kMap = g_kSASGameRecordMapRng;
+	SASGameRecordRngTracker& kSync = g_kSASGameRecordSyncRng;
+	unsigned int const uiMapState = kGame.getMapRand().getSeed();
+	unsigned int const uiSyncState = kGame.getSorenRand().getSeed();
+	// Snapshot the completed interval, then establish the next interval before writing the row. If present or future logging code unexpectedly consumes authoritative RNG, that consumption is therefore retained in the new interval instead of being counted and then erased by a post-log reset.
+	SASGameRecordRngTracker const kMapCompleted = kMap;
+	SASGameRecordRngTracker const kSyncCompleted = kSync;
+	kMap.resetInterval(uiMapState);
+	kSync.resetInterval(uiSyncState);
+	logSASGameRecord("GAME_RECORD_RNG_CHECKPOINT turn=%d reason=%s rngFingerprintSchema=1 mapSessionStartState=%u mapIntervalStartState=%u mapState=%u mapIntervalCalls=%I64u mapSessionCalls=%I64u mapIntervalNullMessageCalls=%I64u mapSessionNullMessageCalls=%I64u mapIntervalExternalCalls=%I64u mapSessionExternalCalls=%I64u mapIntervalDeterministicRangeCalls=%I64u mapSessionDeterministicRangeCalls=%I64u mapIntervalSeedSets=%I64u mapSessionSeedSets=%I64u mapIntervalStreamFingerprint=FNV1A32:%08X mapSessionStreamFingerprint=FNV1A64:%016I64X mapIntervalCallFingerprint=FNV1A32:%08X mapSessionCallFingerprint=FNV1A64:%016I64X syncSessionStartState=%u syncIntervalStartState=%u syncState=%u syncIntervalCalls=%I64u syncSessionCalls=%I64u syncIntervalNullMessageCalls=%I64u syncSessionNullMessageCalls=%I64u syncIntervalExternalCalls=%I64u syncSessionExternalCalls=%I64u syncIntervalDeterministicRangeCalls=%I64u syncSessionDeterministicRangeCalls=%I64u syncIntervalSeedSets=%I64u syncSessionSeedSets=%I64u syncIntervalStreamFingerprint=FNV1A32:%08X syncSessionStreamFingerprint=FNV1A64:%016I64X syncIntervalCallFingerprint=FNV1A32:%08X syncSessionCallFingerprint=FNV1A64:%016I64X",
+			iGameTurn, getSASGameRecordRngCheckpointReason(eReason),
+			kMapCompleted.uiSessionStartState, kMapCompleted.uiIntervalStartState, uiMapState, kMapCompleted.uiIntervalCalls, kMapCompleted.uiSessionCalls, kMapCompleted.uiIntervalNullMessageCalls, kMapCompleted.uiSessionNullMessageCalls, kMapCompleted.uiIntervalExternalCalls, kMapCompleted.uiSessionExternalCalls, kMapCompleted.uiIntervalDeterministicRangeCalls, kMapCompleted.uiSessionDeterministicRangeCalls, kMapCompleted.uiIntervalSeedSets, kMapCompleted.uiSessionSeedSets, kMapCompleted.uiIntervalStreamFingerprint, kMapCompleted.uiSessionStreamFingerprint, kMapCompleted.uiIntervalCallFingerprint, kMapCompleted.uiSessionCallFingerprint,
+			kSyncCompleted.uiSessionStartState, kSyncCompleted.uiIntervalStartState, uiSyncState, kSyncCompleted.uiIntervalCalls, kSyncCompleted.uiSessionCalls, kSyncCompleted.uiIntervalNullMessageCalls, kSyncCompleted.uiSessionNullMessageCalls, kSyncCompleted.uiIntervalExternalCalls, kSyncCompleted.uiSessionExternalCalls, kSyncCompleted.uiIntervalDeterministicRangeCalls, kSyncCompleted.uiSessionDeterministicRangeCalls, kSyncCompleted.uiIntervalSeedSets, kSyncCompleted.uiSessionSeedSets, kSyncCompleted.uiIntervalStreamFingerprint, kSyncCompleted.uiSessionStreamFingerprint, kSyncCompleted.uiIntervalCallFingerprint, kSyncCompleted.uiSessionCallFingerprint);
+	// <!-- custom: Reuse the exact same lifecycle boundary/reason for semantic CORE gameplay state, so RNG-equal/state-different runs expose deterministic divergence without another family of distant call sites. (ChatGPT-5.6-Sol) -->
+	logSASGameRecordStateCheckpoint(iGameTurn, getSASGameRecordRngCheckpointReason(eReason));
+}
+
 
 static CvString createSASGameRecordUtcTimestamp()
 {
@@ -1032,6 +1183,52 @@ static void appendSASGameRecordType(CvString& szTypes, char const* szType)
 	szTypes += szType;
 }
 
+void logSASGameRecord(TCHAR* format, ... )
+{
+	static const bool bEnabled = isSASGameRecordLogEnabled();
+	if (!bEnabled)
+		return;
+	// <!-- custom: CITY_BOMBARD buffers only consecutive equivalent actions. Flush before the next ordinary row so compact synthesis cannot hide battle/action ordering. (ChatGPT-5.6-Sol) -->
+	if (!g_bSASGameRecordFlushingCityBombard)
+		flushSASGameRecordPendingCityBombard();
+
+	va_list args;
+	va_start(args, format);
+	std::string szLine;
+	// <!-- custom: KI#161.2's explicit terminator stopped MSVC 7.1 truncation from leaving unsafe unterminated output, but the fixed 2048-byte buffer still silently discarded long structured rows such as late-game building, unit-type and promotion inventories.
+	// Reuse CvString's grow-and-retry formatter so the complete machine-readable row reaches the log; abort the row if even that bounded formatter fails. See KI#375. (ChatGPT-5.5 + GPT-5.5; ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bFormatted = CvString::formatv(szLine, format, args);
+	va_end(args);
+	FAssertMsg(bFormatted, "SASGameRecord row formatting failed");
+	if (!bFormatted)
+		return;
+
+	// <!-- custom: Capture transaction membership before emission. `seq` is deliberately assigned only at emission, but `tx` describes the operation active when the observation was produced. (ChatGPT-5.6-Sol) -->
+	if (g_uiSASGameRecordActiveTransaction != 0 && isSASGameRecordStructuredRow(szLine))
+	{
+		CvString szTransaction;
+		szTransaction.Format(" tx=%I64u", g_uiSASGameRecordActiveTransaction);
+		insertSASGameRecordFieldAfterRowType(szLine, szTransaction.GetCString());
+	}
+	emitSASGameRecordLine(getSASGameRecordLogName(), szLine);
+}
+
+// <!-- custom: The first enabled scope owns a new session-local transaction; nested scopes join it so one synchronous causal chain stays one `tx`.
+// BEGIN/END rows make transaction kind and completeness explicit, while every structured row emitted inside the scope receives the same tx field automatically. (ChatGPT-5.6-Sol) -->
+void SASGameRecordTransactionScope::begin(char const* szKind)
+{
+	if (g_uiSASGameRecordActiveTransaction != 0)
+		return;
+	// <!-- custom: Flush an older synthetic bombard before arming the new transaction.
+	// logSASGameRecord itself flushes bombard rows, but doing that after tx activation would falsely attach the previous operation to this scope. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (!g_bSASGameRecordFlushingCityBombard)
+		flushSASGameRecordPendingCityBombard();
+	g_uiSASGameRecordActiveTransaction = ++g_uiSASGameRecordNextTransaction;
+	g_szSASGameRecordActiveTransactionKind = szKind;
+	m_bOwnsTransaction = true;
+	logSASGameRecord("GAME_RECORD_TRANSACTION_BEGIN turn=%d kind=%s", GC.getGame().getGameTurn(), szKind);
+}
+
 void SASGameRecordTransactionScope::end()
 {
 	FAssert(g_uiSASGameRecordActiveTransaction != 0);
@@ -1053,6 +1250,14 @@ void SASGameRecordPlotOwnerChangeCauseScope::end()
 {
 	FAssert(g_eSASGameRecordPlotOwnerChangeCause != SAS_PLOT_OWNER_CAUSE_NONE);
 	g_eSASGameRecordPlotOwnerChangeCause = m_ePreviousCause;
+}
+
+void prepareSASGameRecordPlotOwnerChange()
+{
+	// <!-- custom: Any pending synthetic CITY_BOMBARD happened before the ownership mutation.
+	// Flush it before CvPlot changes owner so its delayed row cannot observe half-mutated state or appear after the exact border transition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (!g_bSASGameRecordFlushingCityBombard)
+		flushSASGameRecordPendingCityBombard();
 }
 
 // <!-- custom: Free-text escaping is shared with other diagnostic logs in CvGameCoreUtils; keep only this city-specific missing-value wrapper local. (ChatGPT-5.6-Sol) -->
@@ -1151,7 +1356,15 @@ static void logSASGameRecordTechCapabilitySources()
 			getSASDiagnosticOrDash(szMapTrading).GetCString(), getSASDiagnosticOrDash(szTechTrading).GetCString(), getSASDiagnosticOrDash(szGoldTrading).GetCString(), getSASDiagnosticOrDash(szOpenBordersTrading).GetCString(), getSASDiagnosticOrDash(szDefensivePactTrading).GetCString(), getSASDiagnosticOrDash(szPermanentAllianceTrading).GetCString(), getSASDiagnosticOrDash(szVassalStateTrading).GetCString());
 }
 
-
+// <!-- custom: Game-record helpers keep output compact, stable, and machine-readable. They intentionally use XML type names instead of localized text where possible, so external tools can diff and parse autoplay runs reliably. The static state below is tiny and is only reset/updated through game-record call sites when the XML log level enables this feature; dynamic XML logging cannot be compiled out cleanly without losing normal runtime XML tuning. (ChatGPT-5.5) -->
+static int g_aiSASGameRecordBattleWins[MAX_PLAYERS];
+static int g_aiSASGameRecordBattleLosses[MAX_PLAYERS];
+static int g_aiSASGameRecordCityBattleWins[MAX_PLAYERS];
+static int g_aiSASGameRecordCityBattleLosses[MAX_PLAYERS];
+static int g_aiSASGameRecordTotalBattleWins[MAX_PLAYERS];
+static int g_aiSASGameRecordTotalBattleLosses[MAX_PLAYERS];
+static int g_aiSASGameRecordTotalCityBattleWins[MAX_PLAYERS];
+static int g_aiSASGameRecordTotalCityBattleLosses[MAX_PLAYERS];
 
 // <!-- custom: Ordinary win/loss counts do not describe withdrawals, combat-limit attacks or how surprising binary outcomes were.
 // Keep compact interval and recorder-session aggregates using Civ4's exact pre-combat odds; no individual level-2 battle rows are added. (ChatGPT-5.6-Sol) -->
@@ -1187,6 +1400,8 @@ struct SASGameRecordBattleQuality
 		return (iWithdrawals > 0 || iEnemyWithdrawals > 0 || iCombatLimitAttacks > 0 || iCombatLimitDefenses > 0 || iLuckEligibleBattles > 0);
 	}
 };
+static SASGameRecordBattleQuality g_akSASGameRecordBattleQuality[MAX_PLAYERS];
+static SASGameRecordBattleQuality g_akSASGameRecordTotalBattleQuality[MAX_PLAYERS];
 
 // <!-- custom: Session totals complement current-unit XP snapshots: veteran deaths, upgrades and captures no longer erase evidence of XP generated, promotion decisions made or veteran quality exchanged in combat.
 // Promotion-type detail stays interval-only to avoid repeating a growing lifetime list. (ChatGPT-5.6-Sol) -->
@@ -1214,6 +1429,7 @@ struct SASGameRecordMilitaryQualityTotals
 		iOwnExperienceLost = 0;
 	}
 };
+static SASGameRecordMilitaryQualityTotals g_akSASGameRecordMilitaryQualityTotals[MAX_PLAYERS];
 
 struct SASGameRecordCombatPending
 {
@@ -1246,6 +1462,11 @@ struct SASGameRecordBlockadeContext
 	std::vector<std::pair<PlayerTypes,int> > aPlunderedCities;
 };
 static std::vector<SASGameRecordBlockadeContext> g_aSASGameRecordBlockades;
+
+// <!-- custom: These counters reset whenever a new GameRecord log session begins, including after loading a save.
+// Name them as logged observations rather than misleading lifetime totals. See KI#379. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static int g_aiSASGameRecordLoggedGoldenAgeTurns[MAX_PLAYERS];
+static int g_aiSASGameRecordLoggedAnarchyTurns[MAX_PLAYERS];
 // <!-- custom: Observe each player's finalized research target once per player turn.
 // This recorder-local state detects real incomplete-tech redirections without instrumenting every queue-mutating gameplay path or inventing a cause that the observation cannot prove.
 // Repeat-tech counts distinguish a completed repeat from a true redirect. (ChatGPT-5.6-Sol) -->
@@ -1257,6 +1478,7 @@ struct SASGameRecordResearchPrevious
 	int iTechCount;
 	ResearchTargetChangeCause ePendingCause;
 };
+static SASGameRecordResearchPrevious g_akSASGameRecordResearchPrevious[MAX_PLAYERS];
 // <!-- custom: CvPlayer::doResearch knows the exact split between this turn's modified research and previously stored unmodified overflow before both are combined into team progress.
 // Retain that tiny level-2-only application context until an actual same-turn completion consumes it; this keeps RESEARCH_COMPLETED exact without widening generic gameplay research APIs for logging. (ChatGPT-5.6-Sol) -->
 struct SASGameRecordResearchApplication
@@ -1268,6 +1490,7 @@ struct SASGameRecordResearchApplication
 	int iIncomingOverflowUnmodified;
 	int iIncomingOverflowModified;
 };
+static SASGameRecordResearchApplication g_akSASGameRecordResearchApplication[MAX_PLAYERS];
 // <!-- custom: City lifecycle counters are session-local foundations for the later mature GAME_RECORD_STATISTICS row. Raze context uses a tiny LIFO stack because Python callbacks can theoretically trigger nested synchronous gameplay before the outer raze finalizes. (ChatGPT-5.6-Sol) -->
 struct SASGameRecordCityRazeContext
 {
@@ -1297,6 +1520,26 @@ struct SASGameRecordCityRazeContext
 	CvString szLandPopVictoryProgressBefore;
 };
 static std::vector<SASGameRecordCityRazeContext> g_aSASGameRecordCityRazeContexts;
+static int g_aiSASGameRecordCitiesAcquired[MAX_PLAYERS];
+static int g_aiSASGameRecordCitiesLost[MAX_PLAYERS];
+static int g_aiSASGameRecordCitiesConquered[MAX_PLAYERS];
+static int g_aiSASGameRecordCitiesLostByConquest[MAX_PLAYERS];
+static int g_aiSASGameRecordCitiesTradedIn[MAX_PLAYERS];
+static int g_aiSASGameRecordCitiesTradedOut[MAX_PLAYERS];
+// <!-- custom: Recorder-local autoplay state makes each start/end row self-contained and counts active-player transfers without adding savegame fields. AI Auto Play is stopped when a save is loaded, so resetting this state with each log session matches the actual automation boundary. See KI#203. (GPT-5.6-Sol) -->
+static int g_iSASGameRecordAutoPlayRequestId = 0;
+static int g_iSASGameRecordAutoPlayRequestedTurns = 0;
+static int g_iSASGameRecordAutoPlayStartTurn = -1;
+static int g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
+static PlayerTypes g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
+static int g_iSASGameRecordAutoPlayPlayerChanges = 0;
+static int g_iSASGameRecordTotalActivePlayerChanges = 0;
+static int g_iSASGameRecordLastFullSnapshotTurn = -1;
+// <!-- custom: Battle counters reset at actual snapshot boundaries, which need not match the configured periodic interval after loading or a victory flush. Track their real inclusive start like the newer flow buckets. See KI#378. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static int g_iSASGameRecordBattleStartTurn = 0;
+static int g_iSASGameRecordProductionFlowStartTurn = 0;
+static int g_iSASGameRecordMilitaryFlowStartTurn = 0;
+static int g_iSASGameRecordCityPopulationFlowStartTurn = 0;
 
 // <!-- custom: Recorder-only production categories are shared by the interval transition matrix and exact target-change formatting.
 // Keep the enum beside the flow state so its size is available before any serializer uses it. (ChatGPT-5.6-Sol) -->
@@ -1464,11 +1707,15 @@ struct SASGameRecordPlayerFlow
 	}
 };
 
+static SASGameRecordPlayerFlow g_akSASGameRecordPlayerFlow[MAX_PLAYERS];
+
 struct SASGameRecordPlotChangeGroup
 {
 	CvString szCategory;
 	std::vector<std::pair<int,int> > aCoordinates;
 };
+
+static int g_iSASGameRecordPendingPlotTurn = -1;
 
 // <!-- custom: Keep the city-bombard member named szMode. During the 6385 city-raze logging work it was accidentally renamed to szRazeMode while the existing bombard code still referenced szMode, causing MSVC C2039 compile errors.
 // The separate city-raze context intentionally owns szRazeMode instead. (ChatGPT-5.6-Sol) -->
@@ -1496,8 +1743,12 @@ struct SASGameRecordCityBombardPending
 	std::vector<std::pair<CvString,int> > aUnitAIs;
 	SASGameRecordCityBombardPending() : bValid(false), iTurn(-1), ePlayer(NO_PLAYER), eTargetPlayer(NO_PLAYER), iCityId(-1), iX(-1), iY(-1), iActions(0), iBombardRateTotal(0), iIgnoreBuildingDefenseActions(0), iDefenseModifierBefore(-1), iDefenseModifierAfter(-1), iTotalDefense(-1), iDefenseDamageBefore(-1), iDefenseDamageAfter(-1), iDefenseDamageMax(-1) {}
 };
+
+static SASGameRecordCityBombardPending g_kSASGameRecordPendingCityBombard;
 static std::vector<SASGameRecordPlotChangeGroup> g_aSASGameRecordPlotChanges;
 static std::vector<std::pair<int,int> > g_aaSASGameRecordRevealedPlots[MAX_TEAMS];
+static TeamTypes g_eSASGameRecordFullMapRevelationTeam = NO_TEAM;
+static int g_iSASGameRecordFullMapRevealedBefore = 0;
 
 // <!-- custom: Keep the portable high-level player fields first. More specialized bonus, espionage, unit-posture, worker, territory and city baselines are added with the corresponding snapshot rows rather than existing as unused state. (ChatGPT-5.6-Sol) -->
 struct SASGameRecordPlayerPrevious
@@ -1662,302 +1913,10 @@ struct SASGameRecordTerritoryDevelopment
 	int iBFCDryFarms;
 	SASGameRecordTerritoryDevelopment() : aiImprovedBonuses(GC.getNumBonusInfos(), 0), aiUnimprovedBonuses(GC.getNumBonusInfos(), 0), iBFCPlots(0), iSuburbPlots(0), iDevelopmentLand(0), iDevelopmentWater(0), iImprovedLand(0), iImprovedWater(0), iBFCDevelopmentLand(0), iBFCImprovedLand(0), iSuburbDevelopmentLand(0), iSuburbImprovedLand(0), iFarms(0), iIrrigatedFarms(0), iDryFarms(0), iBonusFarms(0), iIrrigatedBonusFarms(0), iDryBonusFarms(0), iBFCFarms(0), iBFCIrrigatedFarms(0), iBFCDryFarms(0) {}
 };
+
+static SASGameRecordPlayerPrevious g_akSASGameRecordPlayerPrevious[MAX_PLAYERS];
 static SASGameRecordTeamPrevious g_akSASGameRecordTeamPrevious[MAX_TEAMS];
-static SASGameRecordGlobalPrevious g_kSASGameRecordGlobalPrevious;static void resetSASGameRecordGlobalPrevious()
-{
-	g_kSASGameRecordGlobalPrevious.bValid = false;
-}
-
-
-static int g_iSASGameRecordLastFullSnapshotTurn = -1;
-// <!-- custom: AI Auto Play/control telemetry is recorder-session state only. Keep Base AdvCiv 1.14's autoplay API and gameplay untouched while retaining one request identity and active-player-change counts for each logged run. (ChatGPT-5.6-Sol) -->
-static int g_iSASGameRecordAutoPlayRequestId = 0;
-static int g_iSASGameRecordAutoPlayRequestedTurns = 0;
-static int g_iSASGameRecordAutoPlayStartTurn = -1;
-static int g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
-static PlayerTypes g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
-static int g_iSASGameRecordAutoPlayPlayerChanges = 0;
-static int g_iSASGameRecordTotalActivePlayerChanges = 0;static void resetSASGameRecordControlState()
-{
-	g_iSASGameRecordAutoPlayRequestId = 0;
-	g_iSASGameRecordAutoPlayRequestedTurns = 0;
-	g_iSASGameRecordAutoPlayStartTurn = -1;
-	g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
-	g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
-	g_iSASGameRecordAutoPlayPlayerChanges = 0;
-	g_iSASGameRecordTotalActivePlayerChanges = 0;
-}
-
-
-
-static SASGameRecordPlayerPrevious g_akSASGameRecordPlayerPrevious[MAX_PLAYERS];static void resetSASGameRecordPlayerPrevious()
-{
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
-		g_akSASGameRecordPlayerPrevious[iI].bValid = false;
-}
-
-
-static SASGameRecordResearchPrevious g_akSASGameRecordResearchPrevious[MAX_PLAYERS];
-static SASGameRecordResearchApplication g_akSASGameRecordResearchApplication[MAX_PLAYERS];static void resetSASGameRecordResearchState()
-{
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		g_akSASGameRecordResearchPrevious[iI].bValid = false;
-		g_akSASGameRecordResearchPrevious[iI].ePendingCause = RESEARCH_TARGET_CHANGE_UNKNOWN;
-		g_akSASGameRecordResearchApplication[iI].bValid = false;
-	}
-}
-
-
-static int g_aiSASGameRecordCitiesAcquired[MAX_PLAYERS];
-static int g_aiSASGameRecordCitiesLost[MAX_PLAYERS];
-static int g_aiSASGameRecordCitiesConquered[MAX_PLAYERS];
-static int g_aiSASGameRecordCitiesLostByConquest[MAX_PLAYERS];
-static int g_aiSASGameRecordCitiesTradedIn[MAX_PLAYERS];
-static int g_aiSASGameRecordCitiesTradedOut[MAX_PLAYERS];
-
-// <!-- custom: These counters reset whenever a new GameRecord log session begins, including after loading a save.
-// Name them as logged observations rather than misleading lifetime totals. See KI#379. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-static int g_aiSASGameRecordLoggedGoldenAgeTurns[MAX_PLAYERS];
-static int g_aiSASGameRecordLoggedAnarchyTurns[MAX_PLAYERS];static void resetSASGameRecordPlayerDurationState()
-{
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		g_aiSASGameRecordLoggedGoldenAgeTurns[iI] = 0;
-		g_aiSASGameRecordLoggedAnarchyTurns[iI] = 0;
-	}
-}
-
-// <!-- custom: Game-record helpers keep output compact, stable, and machine-readable. They intentionally use XML type names instead of localized text where possible, so external tools can diff and parse autoplay runs reliably. The static state below is tiny and is only reset/updated through game-record call sites when the XML log level enables this feature; dynamic XML logging cannot be compiled out cleanly without losing normal runtime XML tuning. (ChatGPT-5.5) -->
-static int g_aiSASGameRecordBattleWins[MAX_PLAYERS];
-static int g_aiSASGameRecordBattleLosses[MAX_PLAYERS];
-static int g_aiSASGameRecordCityBattleWins[MAX_PLAYERS];
-static int g_aiSASGameRecordCityBattleLosses[MAX_PLAYERS];
-static int g_aiSASGameRecordTotalBattleWins[MAX_PLAYERS];
-static int g_aiSASGameRecordTotalBattleLosses[MAX_PLAYERS];
-static int g_aiSASGameRecordTotalCityBattleWins[MAX_PLAYERS];
-static int g_aiSASGameRecordTotalCityBattleLosses[MAX_PLAYERS];
-static SASGameRecordBattleQuality g_akSASGameRecordBattleQuality[MAX_PLAYERS];
-static SASGameRecordBattleQuality g_akSASGameRecordTotalBattleQuality[MAX_PLAYERS];
-// <!-- custom: Battle counters reset at actual snapshot boundaries, which need not match the configured periodic interval after loading or a victory flush. Track their real inclusive start like the newer flow buckets. See KI#378. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-static int g_iSASGameRecordBattleStartTurn = 0;
-
-static SASGameRecordPlayerFlow g_akSASGameRecordPlayerFlow[MAX_PLAYERS];
-static int g_iSASGameRecordProductionFlowStartTurn = 0;
-static int g_iSASGameRecordMilitaryFlowStartTurn = 0;
-static int g_iSASGameRecordCityPopulationFlowStartTurn = 0;
-static SASGameRecordMilitaryQualityTotals g_akSASGameRecordMilitaryQualityTotals[MAX_PLAYERS];
-
-static SASGameRecordCityBombardPending g_kSASGameRecordPendingCityBombard;
-static bool g_bSASGameRecordFlushingCityBombard = false;
-
-// <!-- custom: Level-3 reproducibility telemetry observes the two authoritative CvGame RNG streams without changing CvRandom's serialized 8-byte layout.
-// RandLog intentionally remains the raw per-roll diagnostic; these trackers instead retain compact checkpoint-interval/session counts plus two order-sensitive FNV-1a fingerprints.
-// Session fingerprints stay 64-bit; interval fingerprints deliberately use 32-bit FNV because every checkpoint also carries interval start/end state and counters plus both independent fingerprints. This halves duplicated 64-bit multiply work in Civ4's 32-bit hot RNG path while retaining a strong interval-local diagnostic signal.
-// The stream fingerprint hashes the ordered abstract RNG operations needed to reproduce returned values: ROLL(requested upper bound) plus effective SEED_SET(new state) operations; a redundant same-state assignment is retained only in call provenance because it cannot alter any random value.
-// With the same session-start state and CvRandom algorithm, it therefore remains useful across source builds even when logging labels move, and still stays meaningful if benchmark/Python code deliberately reseeds an authoritative stream mid-session.
-// The richer call fingerprint additionally hashes a compact stable digest/length of the optional message, data1/data2 and EXE-wrapper origin for rolls, plus old/new state and reset-vs-reseed origin for seed sets. Each detailed operation is first reduced with cheap 32-bit FNV, then fed into the 64-bit session accumulator and native 32-bit interval accumulator, avoiding duplicated emulated 64-bit multiplies on Civ4's 32-bit build.
-// Messages often contain CALL_LOC_STR source locations, so exact call-fingerprint comparison is intentionally strongest for runs using the same DLL/source build; states, counts and stream fingerprints remain independently useful across builds.
-// As with the existing DLL FNV identifier, these are diagnostic divergence fingerprints rather than cryptographic proofs; independent seed/state/counter fields remain visible beside them.
-// NULL-message calls are important: CvRandom shuffles and some iterator randomization advance synchronized state while intentionally producing no RandLog row.
-// Async RNG is deliberately non-lockstep and can vary with client/UI activity (even though a few local human-interaction paths can use its result); local CvRandom helpers likewise do not advance CvGame's two authoritative streams.
-// Ignore both by pointer identity so this fingerprint answers synchronized/map-stream reproducibility rather than conflating independent randomness with it.
-// Python/third-party RNGs that do not advance these CvRandom objects, clocks and other external nondeterminism are likewise outside this layer; matching checkpoints are strong authoritative-RNG evidence, not a proof that all mutable game state is identical. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-bool g_bSASGameRecordRngTrackingActive = false;
-
-static SASGameRecordRngTracker g_kSASGameRecordMapRng;
-static SASGameRecordRngTracker g_kSASGameRecordSyncRng;
-// <!-- custom: Cache the two authoritative object addresses at session initialization so the level-3 hot path needs only pointer comparisons, not GC/CvGame lookups, for every RNG advance. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-static CvRandom const* g_pSASGameRecordMapRng = NULL;
-static CvRandom const* g_pSASGameRecordSyncRng = NULL;// <!-- custom: CvRandom callers already pre-gate on active level-3 tracking. Returning NULL here is a separate stream-identity filter that rejects async and temporary/local RNG objects while retaining only CvGame's authoritative map and synchronized streams. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-static SASGameRecordRngTracker* getSASGameRecordRngTracker(CvRandom const* pRandom)
-{
-	if (pRandom == g_pSASGameRecordMapRng)
-		return &g_kSASGameRecordMapRng;
-	if (pRandom == g_pSASGameRecordSyncRng)
-		return &g_kSASGameRecordSyncRng;
-	return NULL;
-}
-
-static void clearSASGameRecordRngTracking()
-{
-	g_bSASGameRecordRngTrackingActive = false;
-	g_pSASGameRecordMapRng = NULL;
-	g_pSASGameRecordSyncRng = NULL;
-	g_kSASGameRecordMapRng.clear();
-	g_kSASGameRecordSyncRng.clear();
-}
-
-void initializeSASGameRecordRngTracking()
-{
-	clearSASGameRecordRngTracking();
-	if (gGameRecordLogLevel < 3)
-		return;
-	CvGame& kGame = GC.getGame();
-	g_pSASGameRecordMapRng = &kGame.getMapRand();
-	g_pSASGameRecordSyncRng = &kGame.getSorenRand();
-	g_kSASGameRecordMapRng.initialize(kGame.getMapRand().getSeed());
-	g_kSASGameRecordSyncRng.initialize(kGame.getSorenRand().getSeed());
-	g_bSASGameRecordRngTrackingActive = true;
-}
-
-void noteSASGameRecordExternalRandomCall(CvRandom const* pRandom)
-{
-	SASGameRecordRngTracker* pTracker = getSASGameRecordRngTracker(pRandom);
-	if (pTracker == NULL || !pTracker->bInitialized)
-		return;
-	// <!-- custom: getExternal immediately calls get/getInt after this marker; retain EXE origin in both counters and that next call's fingerprint. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	pTracker->bNextCallExternal = true;
-}
-
-void noteSASGameRecordRandomCall(CvRandom const* pRandom, unsigned short usRange, TCHAR const* szLog, int iData1, int iData2)
-{
-	SASGameRecordRngTracker* pTracker = getSASGameRecordRngTracker(pRandom);
-	if (pTracker == NULL || !pTracker->bInitialized)
-		return;
-	bool const bExternal = pTracker->bNextCallExternal;
-	pTracker->bNextCallExternal = false;
-	// <!-- custom: Hash the abstract stream operation directly, avoiding a nested signature. The requested range is intrinsically 16-bit, so hash exactly those two bytes rather than doing redundant work on two guaranteed-zero bytes.
-	// Keep cumulative/session hashes 64-bit, but use native 32-bit FNV for interval copies; checkpoint state/counters plus both hashes make that cheaper signal sufficiently strong for interval-local diagnosis. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	updateSASGameRecordFNV1AByte(pTracker->uiSessionStreamFingerprint, 0x52);
-	updateSASGameRecordFNV1AUInt16(pTracker->uiSessionStreamFingerprint, usRange);
-	updateSASGameRecordFNV1A32Byte(pTracker->uiIntervalStreamFingerprint, 0x52);
-	updateSASGameRecordFNV1A32UInt16(pTracker->uiIntervalStreamFingerprint, usRange);
-	unsigned int const uiCallSignature = getSASGameRecordRandomCallSignature(usRange, szLog, iData1, iData2, bExternal);
-	updateSASGameRecordFNV1AUInt32(pTracker->uiSessionCallFingerprint, uiCallSignature);
-	updateSASGameRecordFNV1A32UInt32(pTracker->uiIntervalCallFingerprint, uiCallSignature);
-	pTracker->uiSessionCalls++;
-	pTracker->uiIntervalCalls++;
-	if (szLog == NULL)
-	{
-		pTracker->uiSessionNullMessageCalls++;
-		pTracker->uiIntervalNullMessageCalls++;
-	}
-	if (bExternal)
-	{
-		pTracker->uiSessionExternalCalls++;
-		pTracker->uiIntervalExternalCalls++;
-	}
-	// <!-- custom: A low-level range <=1 still advances the seed despite yielding no entropy (the ordinary public range-0 wrapper returns before reaching here, so this is normally range 1). CvRandom::shuffle deliberately reaches range 1 on its final iteration.
-	// Count rather than "optimizing" such calls away because their seed consumption is part of Civ4's synchronized RNG sequence and shifts every later result. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	if (usRange <= 1)
-	{
-		pTracker->uiSessionDeterministicRangeCalls++;
-		pTracker->uiIntervalDeterministicRangeCalls++;
-	}
-}
-
-void noteSASGameRecordRandomSeedSet(CvRandom const* pRandom, unsigned int uiOldState, unsigned int uiNewState, bool bReseed)
-{
-	SASGameRecordRngTracker* pTracker = getSASGameRecordRngTracker(pRandom);
-	if (pTracker == NULL || !pTracker->bInitialized)
-		return;
-	pTracker->bNextCallExternal = false; // <!-- custom: A seed replacement cannot inherit a pending EXE-roll classification. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	// <!-- custom: A seed replacement is part of the authoritative RNG operation stream even though it consumes no roll. This is rare (notably benchmark Python can call CyRandom.init mid-session), so retain an explicit row too.
-	// Hash it into the value-stream fingerprint only when it actually changes state: redundantly assigning the current seed changes call provenance but not any present/future random values, so it belongs only in the richer call fingerprint/counters below. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	if (uiOldState != uiNewState)
-	{
-		updateSASGameRecordFNV1AByte(pTracker->uiSessionStreamFingerprint, 0x53);
-		updateSASGameRecordFNV1AUInt32(pTracker->uiSessionStreamFingerprint, uiNewState);
-		updateSASGameRecordFNV1A32Byte(pTracker->uiIntervalStreamFingerprint, 0x53);
-		updateSASGameRecordFNV1A32UInt32(pTracker->uiIntervalStreamFingerprint, uiNewState);
-	}
-	unsigned int const uiCallSignature = getSASGameRecordRandomSeedSetCallSignature(uiOldState, uiNewState, bReseed);
-	updateSASGameRecordFNV1AUInt32(pTracker->uiSessionCallFingerprint, uiCallSignature);
-	updateSASGameRecordFNV1A32UInt32(pTracker->uiIntervalCallFingerprint, uiCallSignature);
-	pTracker->uiSessionSeedSets++;
-	pTracker->uiIntervalSeedSets++;
-	char const* szStream = (pTracker == &g_kSASGameRecordMapRng ? "MAP" : "SYNC");
-	// <!-- custom: Position the rare replacement precisely within both the current checkpoint interval and recorder session. This lets external tooling reconstruct seed progression around a mid-turn benchmark/Python reseed without per-roll SASGameRecord rows. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_RNG_SEED_SET turn=%d stream=%s operation=%s oldState=%u newState=%u intervalCalls=%I64u sessionCalls=%I64u intervalSeedSets=%I64u sessionSeedSets=%I64u",
-		GC.getGame().getGameTurn(), szStream, bReseed ? "RESEED" : "RESET_OR_INIT", uiOldState, uiNewState, pTracker->uiIntervalCalls,
-		pTracker->uiSessionCalls, pTracker->uiIntervalSeedSets, pTracker->uiSessionSeedSets);
-}
-
-void logSASGameRecordRngCheckpoint(int iGameTurn, SASGameRecordRngCheckpointReason eReason)
-{
-	if (!g_bSASGameRecordRngTrackingActive)
-		return;
-	// Flush the recorder's synthetic bombard sequence before sampling/resetting the RNG interval so any future logging-side code cannot accidentally fall between the captured state and interval reset.
-	flushSASGameRecordPendingCityBombard();
-	CvGame& kGame = GC.getGame();
-	SASGameRecordRngTracker& kMap = g_kSASGameRecordMapRng;
-	SASGameRecordRngTracker& kSync = g_kSASGameRecordSyncRng;
-	unsigned int const uiMapState = kGame.getMapRand().getSeed();
-	unsigned int const uiSyncState = kGame.getSorenRand().getSeed();
-	// Snapshot the completed interval, then establish the next interval before writing the row. If present or future logging code unexpectedly consumes authoritative RNG, that consumption is therefore retained in the new interval instead of being counted and then erased by a post-log reset.
-	SASGameRecordRngTracker const kMapCompleted = kMap;
-	SASGameRecordRngTracker const kSyncCompleted = kSync;
-	kMap.resetInterval(uiMapState);
-	kSync.resetInterval(uiSyncState);
-	logSASGameRecord("GAME_RECORD_RNG_CHECKPOINT turn=%d reason=%s rngFingerprintSchema=1 mapSessionStartState=%u mapIntervalStartState=%u mapState=%u mapIntervalCalls=%I64u mapSessionCalls=%I64u mapIntervalNullMessageCalls=%I64u mapSessionNullMessageCalls=%I64u mapIntervalExternalCalls=%I64u mapSessionExternalCalls=%I64u mapIntervalDeterministicRangeCalls=%I64u mapSessionDeterministicRangeCalls=%I64u mapIntervalSeedSets=%I64u mapSessionSeedSets=%I64u mapIntervalStreamFingerprint=FNV1A32:%08X mapSessionStreamFingerprint=FNV1A64:%016I64X mapIntervalCallFingerprint=FNV1A32:%08X mapSessionCallFingerprint=FNV1A64:%016I64X syncSessionStartState=%u syncIntervalStartState=%u syncState=%u syncIntervalCalls=%I64u syncSessionCalls=%I64u syncIntervalNullMessageCalls=%I64u syncSessionNullMessageCalls=%I64u syncIntervalExternalCalls=%I64u syncSessionExternalCalls=%I64u syncIntervalDeterministicRangeCalls=%I64u syncSessionDeterministicRangeCalls=%I64u syncIntervalSeedSets=%I64u syncSessionSeedSets=%I64u syncIntervalStreamFingerprint=FNV1A32:%08X syncSessionStreamFingerprint=FNV1A64:%016I64X syncIntervalCallFingerprint=FNV1A32:%08X syncSessionCallFingerprint=FNV1A64:%016I64X",
-			iGameTurn, getSASGameRecordRngCheckpointReason(eReason),
-			kMapCompleted.uiSessionStartState, kMapCompleted.uiIntervalStartState, uiMapState, kMapCompleted.uiIntervalCalls, kMapCompleted.uiSessionCalls, kMapCompleted.uiIntervalNullMessageCalls, kMapCompleted.uiSessionNullMessageCalls, kMapCompleted.uiIntervalExternalCalls, kMapCompleted.uiSessionExternalCalls, kMapCompleted.uiIntervalDeterministicRangeCalls, kMapCompleted.uiSessionDeterministicRangeCalls, kMapCompleted.uiIntervalSeedSets, kMapCompleted.uiSessionSeedSets, kMapCompleted.uiIntervalStreamFingerprint, kMapCompleted.uiSessionStreamFingerprint, kMapCompleted.uiIntervalCallFingerprint, kMapCompleted.uiSessionCallFingerprint,
-			kSyncCompleted.uiSessionStartState, kSyncCompleted.uiIntervalStartState, uiSyncState, kSyncCompleted.uiIntervalCalls, kSyncCompleted.uiSessionCalls, kSyncCompleted.uiIntervalNullMessageCalls, kSyncCompleted.uiSessionNullMessageCalls, kSyncCompleted.uiIntervalExternalCalls, kSyncCompleted.uiSessionExternalCalls, kSyncCompleted.uiIntervalDeterministicRangeCalls, kSyncCompleted.uiSessionDeterministicRangeCalls, kSyncCompleted.uiIntervalSeedSets, kSyncCompleted.uiSessionSeedSets, kSyncCompleted.uiIntervalStreamFingerprint, kSyncCompleted.uiSessionStreamFingerprint, kSyncCompleted.uiIntervalCallFingerprint, kSyncCompleted.uiSessionCallFingerprint);
-	// <!-- custom: Reuse the exact same lifecycle boundary/reason for semantic CORE gameplay state, so RNG-equal/state-different runs expose deterministic divergence without another family of distant call sites. (ChatGPT-5.6-Sol) -->
-	logSASGameRecordStateCheckpoint(iGameTurn, getSASGameRecordRngCheckpointReason(eReason));
-}
-
-
-void logSASGameRecord(TCHAR* format, ... )
-{
-	static const bool bEnabled = isSASGameRecordLogEnabled();
-	if (!bEnabled)
-		return;
-	// <!-- custom: CITY_BOMBARD buffers only consecutive equivalent actions. Flush before the next ordinary row so compact synthesis cannot hide battle/action ordering. (ChatGPT-5.6-Sol) -->
-	if (!g_bSASGameRecordFlushingCityBombard)
-		flushSASGameRecordPendingCityBombard();
-
-	va_list args;
-	va_start(args, format);
-	std::string szLine;
-	// <!-- custom: KI#161.2's explicit terminator stopped MSVC 7.1 truncation from leaving unsafe unterminated output, but the fixed 2048-byte buffer still silently discarded long structured rows such as late-game building, unit-type and promotion inventories.
-	// Reuse CvString's grow-and-retry formatter so the complete machine-readable row reaches the log; abort the row if even that bounded formatter fails. See KI#375. (ChatGPT-5.5 + GPT-5.5; ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	bool const bFormatted = CvString::formatv(szLine, format, args);
-	va_end(args);
-	FAssertMsg(bFormatted, "SASGameRecord row formatting failed");
-	if (!bFormatted)
-		return;
-
-	// <!-- custom: Capture transaction membership before emission. `seq` is deliberately assigned only at emission, but `tx` describes the operation active when the observation was produced. (ChatGPT-5.6-Sol) -->
-	if (g_uiSASGameRecordActiveTransaction != 0 && isSASGameRecordStructuredRow(szLine))
-	{
-		CvString szTransaction;
-		szTransaction.Format(" tx=%I64u", g_uiSASGameRecordActiveTransaction);
-		insertSASGameRecordFieldAfterRowType(szLine, szTransaction.GetCString());
-	}
-	emitSASGameRecordLine(getSASGameRecordLogName(), szLine);
-}
-
-// <!-- custom: The first enabled scope owns a new session-local transaction; nested scopes join it so one synchronous causal chain stays one `tx`.
-// BEGIN/END rows make transaction kind and completeness explicit, while every structured row emitted inside the scope receives the same tx field automatically. (ChatGPT-5.6-Sol) -->
-void SASGameRecordTransactionScope::begin(char const* szKind)
-{
-	if (g_uiSASGameRecordActiveTransaction != 0)
-		return;
-	// <!-- custom: Flush an older synthetic bombard before arming the new transaction.
-	// logSASGameRecord itself flushes bombard rows, but doing that after tx activation would falsely attach the previous operation to this scope. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	if (!g_bSASGameRecordFlushingCityBombard)
-		flushSASGameRecordPendingCityBombard();
-	g_uiSASGameRecordActiveTransaction = ++g_uiSASGameRecordNextTransaction;
-	g_szSASGameRecordActiveTransactionKind = szKind;
-	m_bOwnsTransaction = true;
-	logSASGameRecord("GAME_RECORD_TRANSACTION_BEGIN turn=%d kind=%s", GC.getGame().getGameTurn(), szKind);
-}
-
-void prepareSASGameRecordPlotOwnerChange()
-{
-	// <!-- custom: Any pending synthetic CITY_BOMBARD happened before the ownership mutation.
-	// Flush it before CvPlot changes owner so its delayed row cannot observe half-mutated state or appear after the exact border transition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	if (!g_bSASGameRecordFlushingCityBombard)
-		flushSASGameRecordPendingCityBombard();
-}
-
-
-
-static int g_iSASGameRecordPendingPlotTurn = -1;
-static TeamTypes g_eSASGameRecordFullMapRevelationTeam = NO_TEAM;
-static int g_iSASGameRecordFullMapRevealedBefore = 0;
+static SASGameRecordGlobalPrevious g_kSASGameRecordGlobalPrevious;
 
 // <!-- custom: A team-pair war is a natural historical unit that action rows otherwise force external tools to reconstruct across many turns.
 // Keep this transient and recorder-local: loaded saves start an explicitly partial observation, while declarations in the current log retain their exact start/cause.
@@ -2125,6 +2084,52 @@ static void reconcileSASGameRecordWars()
 static int getSASGameRecordDelta(bool bValid, int iCurrent, int iPrevious)
 {
 	return bValid ? iCurrent - iPrevious : 0;
+}
+
+static void resetSASGameRecordGlobalPrevious()
+{
+	g_kSASGameRecordGlobalPrevious.bValid = false;
+}
+
+
+static void resetSASGameRecordControlState()
+{
+	g_iSASGameRecordAutoPlayRequestId = 0;
+	g_iSASGameRecordAutoPlayRequestedTurns = 0;
+	g_iSASGameRecordAutoPlayStartTurn = -1;
+	g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
+	g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
+	g_iSASGameRecordAutoPlayPlayerChanges = 0;
+	g_iSASGameRecordTotalActivePlayerChanges = 0;
+}
+
+
+
+static void resetSASGameRecordPlayerPrevious()
+{
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+		g_akSASGameRecordPlayerPrevious[iI].bValid = false;
+}
+
+
+static void resetSASGameRecordResearchState()
+{
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		g_akSASGameRecordResearchPrevious[iI].bValid = false;
+		g_akSASGameRecordResearchPrevious[iI].ePendingCause = RESEARCH_TARGET_CHANGE_UNKNOWN;
+		g_akSASGameRecordResearchApplication[iI].bValid = false;
+	}
+}
+
+
+static void resetSASGameRecordPlayerDurationState()
+{
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		g_aiSASGameRecordLoggedGoldenAgeTurns[iI] = 0;
+		g_aiSASGameRecordLoggedAnarchyTurns[iI] = 0;
+	}
 }
 
 static void resetSASGameRecordTeamPrevious()
@@ -3132,9 +3137,7 @@ void startSASGameRecordLogForNewGame()
 	logSASGameRecordAttitudeLegend();
 }
 
-// <!-- custom: These unit classifiers are defined later with the unit-posture helpers; declare them here because the city aggregate slice now reuses them earlier in this translation unit. MSVC 2003 requires the declaration before first use. (ChatGPT-5.6-Sol) -->
-static bool isSASGameRecordMilitaryUnit(CvUnit const& kUnit);
-static bool isSASGameRecordWorkerUnit(CvUnit const& kUnit);static void seedSASGameRecordTeamPreviousFromCurrentState(TeamTypes eTeam)
+static void seedSASGameRecordTeamPreviousFromCurrentState(TeamTypes eTeam)
 {
 	CvGame const& kGame = GC.getGame();
 	CvTeam const& kTeam = GET_TEAM(eTeam);
@@ -3159,14 +3162,15 @@ struct SASGameRecordInitialTechGroup
 };
 
 // <!-- custom: Successful new-game initialization is best described by its authoritative result, not by the order in which Civ4 happened to call meet/declareWar/setHasTech/startTrade while constructing that result.
-// Seed periodic team/contact deltas from this same finalized baseline.
-// Group identical technology sets so a late-era start does not repeat the same long payload for every team; the explicit team lists keep arbitrary scenarios and mixed/modded setups exact.
-// Record surviving initial deals from the same finalized boundary, collapsing only the deterministic Advanced-Start-shaped reciprocal peace matrix already represented by forcePeace team state. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+// Share the field semantics with BBAI and seed recorder deltas from the same finalized baseline.
+// Group identical technology sets so a late-era start does not repeat the same long payload for every team; the explicit team lists keep arbitrary scenarios and mixed/modded setups exact. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 static void logSASGameRecordFinalizedInitialState(int& iTeamStateRows, int& iTechRows, int& iDeals)
 {
 	iTeamStateRows = 0;
 	iTechRows = 0;
 	iDeals = 0;
+	// <!-- custom: Caller contract: logSASGameRecordNewGameStarted invokes this helper only at level 2+.
+	// Keeping the gate outside prevents redundant checks and makes any future caller responsible for avoiding log-only setup work. (ChatGPT-5.6-Sol) -->
 	std::vector<SASGameRecordInitialTechGroup> aTechGroups;
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
 	{
@@ -3340,6 +3344,73 @@ static int getSASGameRecordMaxAIProductionTargetChangesOneCity(SASGameRecordPlay
 	return iMax;
 }
 
+// <!-- custom: Production-resolution flow now also preserves strategic AI head-target churn separately from real mechanical production loss. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordProductionFlowBuckets(int iGameTurn)
+{
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)iI;
+		SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[iI];
+		if (!kFlow.hasProduction())
+			continue;
+		CvString szUnitTypes, szConscriptedUnitTypes, szBuildingTypes, szProjectTypes;
+		FOR_EACH_ENUM(Unit)
+		{
+			appendSASGameRecordTypeCount(szUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiUnitTypes[eLoopUnit]);
+			appendSASGameRecordTypeCount(szConscriptedUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiConscriptedUnitTypes[eLoopUnit]);
+		}
+		FOR_EACH_ENUM(Building) appendSASGameRecordTypeCount(szBuildingTypes, getSASGameRecordBuildingType(eLoopBuilding), kFlow.aiBuildingTypes[eLoopBuilding]);
+		FOR_EACH_ENUM(Project) appendSASGameRecordTypeCount(szProjectTypes, getSASGameRecordProjectType(eLoopProject), kFlow.aiProjectTypes[eLoopProject]);
+		logSASGameRecord("GAME_RECORD_PRODUCTION_FLOW turn=%d range=%d-%d player=%d unitsProduced=%d unitProductionNeeded=%d unitTypes=%s unitsConscripted=%d conscriptProductionNeeded=%d conscriptedUnitTypes=%s buildingsCompleted=%d buildingProductionNeeded=%d buildingTypes=%s projectsCompleted=%d projectProductionNeeded=%d projectTypes=%s overflowActions=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d failedInvestedProduction=%d failGold=%d aiTargetSwitches=%d aiTargetClears=%d aiInvestedTargetChanges=%d aiProductionParked=%d aiTargetResumes=%d aiProductionResumed=%d aiTargetChangedCities=%d aiMaxTargetChangesOneCity=%d aiTargetTransitions=%s productionDecayActions=%d productionDecayLost=%d productionInvalidatedActions=%d productionInvalidatedLost=%d productionUpgradeTransfers=%d productionUpgradeTransferred=%d productionUpgradeOverwriteActions=%d productionUpgradeOverwritten=%d",
+			iGameTurn, g_iSASGameRecordProductionFlowStartTurn, iGameTurn, ePlayer, kFlow.iUnitsCompleted, kFlow.iUnitProductionNeeded, getSASDiagnosticOrDash(szUnitTypes).GetCString(), kFlow.iUnitsConscripted, kFlow.iConscriptProductionNeeded, getSASDiagnosticOrDash(szConscriptedUnitTypes).GetCString(),
+			kFlow.iBuildingsCompleted, kFlow.iBuildingProductionNeeded, getSASDiagnosticOrDash(szBuildingTypes).GetCString(), kFlow.iProjectsCompleted, kFlow.iProjectProductionNeeded, getSASDiagnosticOrDash(szProjectTypes).GetCString(),
+			kFlow.iOverflowActions, kFlow.iRawModifiedOverflow, kFlow.iUnmodifiedOverflow, kFlow.iKeptOverflow, kFlow.iLostProduction, kFlow.iUnusedOverflowCapacity, kFlow.iOverflowGold, kFlow.iFailedInvestedProduction, kFlow.iFailGold,
+			kFlow.iAIProductionTargetSwitches, kFlow.iAIProductionTargetClears, kFlow.iAIProductionInvestedTargetChanges, kFlow.iAIProductionParked, kFlow.iAIProductionTargetResumes, kFlow.iAIProductionResumed, (int)kFlow.aAIProductionTargetChangesByCity.size(), getSASGameRecordMaxAIProductionTargetChangesOneCity(kFlow), getSASGameRecordAIProductionTransitions(kFlow).GetCString(),
+			kFlow.iProductionDecayActions, kFlow.iProductionDecayLost, kFlow.iProductionInvalidatedActions, kFlow.iProductionInvalidatedLost, kFlow.iProductionUpgradeTransfers, kFlow.iProductionUpgradeTransferred, kFlow.iProductionUpgradeOverwriteActions, kFlow.iProductionUpgradeOverwritten);
+	}
+	g_iSASGameRecordProductionFlowStartTurn = iGameTurn + 1;
+}
+
+// <!-- custom: Natural growth/starvation is a separate factual flow from production and military accounting. Log it before the shared military-flow reset consumes the player-flow bucket. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordCityPopulationFlowBuckets(int iGameTurn)
+{
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)iI;
+		SASGameRecordPlayerFlow const& kFlow = g_akSASGameRecordPlayerFlow[iI];
+		if (!kFlow.hasCityPopulationFlow())
+			continue;
+		logSASGameRecord("GAME_RECORD_CITY_POPULATION_FLOW turn=%d range=%d-%d player=%d growthEvents=%d populationGained=%d growthPreventedEvents=%d foodDiscardedByAvoidGrowth=%d starvationEvents=%d populationLost=%d netNaturalPopulationChange=%+d",
+			iGameTurn, g_iSASGameRecordCityPopulationFlowStartTurn, iGameTurn, ePlayer, kFlow.iCityGrowthEvents, kFlow.iPopulationGainedFromGrowth, kFlow.iCityGrowthPreventedEvents, kFlow.iFoodDiscardedByAvoidGrowth,
+			kFlow.iCityStarvationEvents, kFlow.iPopulationLostToStarvation, kFlow.iPopulationGainedFromGrowth - kFlow.iPopulationLostToStarvation);
+	}
+	g_iSASGameRecordCityPopulationFlowStartTurn = iGameTurn + 1;
+}
+
+// <!-- custom: Military-flow rows reuse the mature SAS schema; production/population fields are logged immediately beforehand and all families share the same per-snapshot reset below. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordMilitaryFlowBuckets(int iGameTurn)
+{
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)iI;
+		SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[iI];
+		if (kFlow.hasMilitary())
+		{
+			CvString szPromotionChoices;
+			FOR_EACH_ENUM(Promotion)
+				appendSASGameRecordTypeCount(szPromotionChoices, getSASGameRecordPromotionType(eLoopPromotion), kFlow.aiPromotionChoices[eLoopPromotion]);
+			logSASGameRecord("GAME_RECORD_MILITARY_FLOW turn=%d range=%d-%d player=%d combatWins=%d combatLosses=%d cityPlotWins=%d cityPlotLosses=%d enemyProductionNeededDestroyed=%d ownProductionNeededLost=%d enemyXpDestroyed=%d ownXpLost=%d xpGained=%d combatXpGained=%d nonCombatXpGained=%d xpPreventedByCap=%d xpLostAdjustments=%d promotionsChosen=%d leaderPromotionApplications=%d promotionChoices=%s upgrades=%d upgradeGold=%d scrapped=%d scrappedProductionNeeded=%d captured=%d capturedProductionNeeded=%d",
+				iGameTurn, g_iSASGameRecordMilitaryFlowStartTurn, iGameTurn, ePlayer, kFlow.iCombatWins, kFlow.iCombatLosses, kFlow.iCityPlotWins, kFlow.iCityPlotLosses, kFlow.iEnemyProductionNeededDestroyed, kFlow.iOwnProductionNeededLost, kFlow.iEnemyExperienceDestroyed, kFlow.iOwnExperienceLost,
+				kFlow.iExperienceGained, kFlow.iCombatExperienceGained, kFlow.iNonCombatExperienceGained, kFlow.iExperiencePreventedByCap, kFlow.iExperienceLostAdjustments, kFlow.iPromotionsChosen, kFlow.iLeaderPromotionApplications, getSASDiagnosticOrDash(szPromotionChoices).GetCString(),
+				kFlow.iUpgrades, kFlow.iUpgradeGold, kFlow.iScrapped, kFlow.iScrappedProductionNeeded, kFlow.iCaptured, kFlow.iCapturedProductionNeeded);
+		}
+		kFlow.reset();
+	}
+	for (int iI = MAX_CIV_PLAYERS; iI < MAX_PLAYERS; iI++)
+		g_akSASGameRecordPlayerFlow[iI].reset();
+	g_iSASGameRecordMilitaryFlowStartTurn = iGameTurn + 1;
+}
+
 // <!-- custom: Project completion rows did not show whether a project-based victory had its minimum/full component set or an active launch countdown. Build one compact shared state for periodic progress and the explicit launch action. (GPT-5.6-Sol) -->
 static bool getSASGameRecordVictoryProjectState(TeamTypes eTeam, VictoryTypes eVictory, int& iPartsBuilt, int& iPartsMinimum, int& iPartsMaximum, bool& bMinimumComplete, CvString& szProjectParts)
 {
@@ -3379,33 +3450,6 @@ typedef std::pair<int, CvCity const*> SASGameRecordCultureCity;
 static bool compareSASGameRecordCultureCities(SASGameRecordCultureCity const& kFirst, SASGameRecordCultureCity const& kSecond)
 {
 	return kFirst.first > kSecond.first;
-}
-
-// <!-- custom: Production-resolution flow now also preserves strategic AI head-target churn separately from real mechanical production loss. (ChatGPT-5.6-Sol) -->
-static void logSASGameRecordProductionFlowBuckets(int iGameTurn)
-{
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes const ePlayer = (PlayerTypes)iI;
-		SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[iI];
-		if (!kFlow.hasProduction())
-			continue;
-		CvString szUnitTypes, szConscriptedUnitTypes, szBuildingTypes, szProjectTypes;
-		FOR_EACH_ENUM(Unit)
-		{
-			appendSASGameRecordTypeCount(szUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiUnitTypes[eLoopUnit]);
-			appendSASGameRecordTypeCount(szConscriptedUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiConscriptedUnitTypes[eLoopUnit]);
-		}
-		FOR_EACH_ENUM(Building) appendSASGameRecordTypeCount(szBuildingTypes, getSASGameRecordBuildingType(eLoopBuilding), kFlow.aiBuildingTypes[eLoopBuilding]);
-		FOR_EACH_ENUM(Project) appendSASGameRecordTypeCount(szProjectTypes, getSASGameRecordProjectType(eLoopProject), kFlow.aiProjectTypes[eLoopProject]);
-		logSASGameRecord("GAME_RECORD_PRODUCTION_FLOW turn=%d range=%d-%d player=%d unitsProduced=%d unitProductionNeeded=%d unitTypes=%s unitsConscripted=%d conscriptProductionNeeded=%d conscriptedUnitTypes=%s buildingsCompleted=%d buildingProductionNeeded=%d buildingTypes=%s projectsCompleted=%d projectProductionNeeded=%d projectTypes=%s overflowActions=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d failedInvestedProduction=%d failGold=%d aiTargetSwitches=%d aiTargetClears=%d aiInvestedTargetChanges=%d aiProductionParked=%d aiTargetResumes=%d aiProductionResumed=%d aiTargetChangedCities=%d aiMaxTargetChangesOneCity=%d aiTargetTransitions=%s productionDecayActions=%d productionDecayLost=%d productionInvalidatedActions=%d productionInvalidatedLost=%d productionUpgradeTransfers=%d productionUpgradeTransferred=%d productionUpgradeOverwriteActions=%d productionUpgradeOverwritten=%d",
-			iGameTurn, g_iSASGameRecordProductionFlowStartTurn, iGameTurn, ePlayer, kFlow.iUnitsCompleted, kFlow.iUnitProductionNeeded, getSASDiagnosticOrDash(szUnitTypes).GetCString(), kFlow.iUnitsConscripted, kFlow.iConscriptProductionNeeded, getSASDiagnosticOrDash(szConscriptedUnitTypes).GetCString(),
-			kFlow.iBuildingsCompleted, kFlow.iBuildingProductionNeeded, getSASDiagnosticOrDash(szBuildingTypes).GetCString(), kFlow.iProjectsCompleted, kFlow.iProjectProductionNeeded, getSASDiagnosticOrDash(szProjectTypes).GetCString(),
-			kFlow.iOverflowActions, kFlow.iRawModifiedOverflow, kFlow.iUnmodifiedOverflow, kFlow.iKeptOverflow, kFlow.iLostProduction, kFlow.iUnusedOverflowCapacity, kFlow.iOverflowGold, kFlow.iFailedInvestedProduction, kFlow.iFailGold,
-			kFlow.iAIProductionTargetSwitches, kFlow.iAIProductionTargetClears, kFlow.iAIProductionInvestedTargetChanges, kFlow.iAIProductionParked, kFlow.iAIProductionTargetResumes, kFlow.iAIProductionResumed, (int)kFlow.aAIProductionTargetChangesByCity.size(), getSASGameRecordMaxAIProductionTargetChangesOneCity(kFlow), getSASGameRecordAIProductionTransitions(kFlow).GetCString(),
-			kFlow.iProductionDecayActions, kFlow.iProductionDecayLost, kFlow.iProductionInvalidatedActions, kFlow.iProductionInvalidatedLost, kFlow.iProductionUpgradeTransfers, kFlow.iProductionUpgradeTransferred, kFlow.iProductionUpgradeOverwriteActions, kFlow.iProductionUpgradeOverwritten);
-	}
-	g_iSASGameRecordProductionFlowStartTurn = iGameTurn + 1;
 }
 
 static CvString getSASGameRecordCultureVictoryCities(TeamTypes eTeam, int iRequired, int iThreshold, int& iComplete)
@@ -3487,22 +3531,6 @@ static CvString getSASGameRecordPlayerCityCorporations(CvPlayer const& kPlayer)
 	FOR_EACH_ENUM(Corporation)
 		appendSASGameRecordTypeCount(szList, getSASGameRecordCorporationType(eLoopCorporation), aiCounts[eLoopCorporation]);
 	return getSASDiagnosticOrDash(szList);
-}
-
-// <!-- custom: Natural growth/starvation is a separate factual flow from production and military accounting. Log it before the shared military-flow reset consumes the player-flow bucket. (ChatGPT-5.6-Sol) -->
-static void logSASGameRecordCityPopulationFlowBuckets(int iGameTurn)
-{
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes const ePlayer = (PlayerTypes)iI;
-		SASGameRecordPlayerFlow const& kFlow = g_akSASGameRecordPlayerFlow[iI];
-		if (!kFlow.hasCityPopulationFlow())
-			continue;
-		logSASGameRecord("GAME_RECORD_CITY_POPULATION_FLOW turn=%d range=%d-%d player=%d growthEvents=%d populationGained=%d growthPreventedEvents=%d foodDiscardedByAvoidGrowth=%d starvationEvents=%d populationLost=%d netNaturalPopulationChange=%+d",
-			iGameTurn, g_iSASGameRecordCityPopulationFlowStartTurn, iGameTurn, ePlayer, kFlow.iCityGrowthEvents, kFlow.iPopulationGainedFromGrowth, kFlow.iCityGrowthPreventedEvents, kFlow.iFoodDiscardedByAvoidGrowth,
-			kFlow.iCityStarvationEvents, kFlow.iPopulationLostToStarvation, kFlow.iPopulationGainedFromGrowth - kFlow.iPopulationLostToStarvation);
-	}
-	g_iSASGameRecordCityPopulationFlowStartTurn = iGameTurn + 1;
 }
 
 // <!-- custom: City health/happiness rows previously combined player-wide modifiers under `extra`, hiding whether a loaded-mod rule caused a demographic change; for example, AdvCiv-SAS's TECH_DEPOPULATION currently applies negative health and happiness.
@@ -3592,8 +3620,7 @@ static void logSASGameRecordPolicies(PlayerTypes ePlayer, int iGameTurn)
 			kPlayer.getExtraHealth(), kPlayer.getExtraHappiness(), getSASDiagnosticOrDash(szExtraHealthSources).GetCString(), getSASDiagnosticOrDash(szExtraHappinessSources).GetCString());
 }
 
-
-static bool isSASGameRecordSettlerUnit(CvUnit const& kUnit);static void logSASGameRecordEspionage(PlayerTypes ePlayer, int iGameTurn)
+static void logSASGameRecordEspionage(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
@@ -3694,30 +3721,6 @@ static bool isSASGameRecordSettlerUnit(CvUnit const& kUnit);static void logSASGa
 	kPrevious.iEspionagePercent = iEspionagePercent;
 	kPrevious.iTeamEP = iTeamEP;
 	kPrevious.iUnspentEP = iUnspentEP;
-}
-
-// <!-- custom: Military-flow rows reuse the mature SAS schema; production/population fields are logged immediately beforehand and all families share the same per-snapshot reset below. (ChatGPT-5.6-Sol) -->
-static void logSASGameRecordMilitaryFlowBuckets(int iGameTurn)
-{
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes const ePlayer = (PlayerTypes)iI;
-		SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[iI];
-		if (kFlow.hasMilitary())
-		{
-			CvString szPromotionChoices;
-			FOR_EACH_ENUM(Promotion)
-				appendSASGameRecordTypeCount(szPromotionChoices, getSASGameRecordPromotionType(eLoopPromotion), kFlow.aiPromotionChoices[eLoopPromotion]);
-			logSASGameRecord("GAME_RECORD_MILITARY_FLOW turn=%d range=%d-%d player=%d combatWins=%d combatLosses=%d cityPlotWins=%d cityPlotLosses=%d enemyProductionNeededDestroyed=%d ownProductionNeededLost=%d enemyXpDestroyed=%d ownXpLost=%d xpGained=%d combatXpGained=%d nonCombatXpGained=%d xpPreventedByCap=%d xpLostAdjustments=%d promotionsChosen=%d leaderPromotionApplications=%d promotionChoices=%s upgrades=%d upgradeGold=%d scrapped=%d scrappedProductionNeeded=%d captured=%d capturedProductionNeeded=%d",
-				iGameTurn, g_iSASGameRecordMilitaryFlowStartTurn, iGameTurn, ePlayer, kFlow.iCombatWins, kFlow.iCombatLosses, kFlow.iCityPlotWins, kFlow.iCityPlotLosses, kFlow.iEnemyProductionNeededDestroyed, kFlow.iOwnProductionNeededLost, kFlow.iEnemyExperienceDestroyed, kFlow.iOwnExperienceLost,
-				kFlow.iExperienceGained, kFlow.iCombatExperienceGained, kFlow.iNonCombatExperienceGained, kFlow.iExperiencePreventedByCap, kFlow.iExperienceLostAdjustments, kFlow.iPromotionsChosen, kFlow.iLeaderPromotionApplications, getSASDiagnosticOrDash(szPromotionChoices).GetCString(),
-				kFlow.iUpgrades, kFlow.iUpgradeGold, kFlow.iScrapped, kFlow.iScrappedProductionNeeded, kFlow.iCaptured, kFlow.iCapturedProductionNeeded);
-		}
-		kFlow.reset();
-	}
-	for (int iI = MAX_CIV_PLAYERS; iI < MAX_PLAYERS; iI++)
-		g_akSASGameRecordPlayerFlow[iI].reset();
-	g_iSASGameRecordMilitaryFlowStartTurn = iGameTurn + 1;
 }
 
 static CvString getSASGameRecordCommercePercents(CvPlayer const& kPlayer)
@@ -4483,22 +4486,7 @@ static bool isSASGameRecordMilitaryUnit(CvUnit const& kUnit)
 	return pPlot != NULL && (kUnit.canDefend(pPlot) || kUnit.baseCombatStr() > 0 || kUnit.airBaseCombatStr() > 0);
 }
 
-
-
-struct SASGameRecordCityPlotUnitCounts
-{
-	int iUnits;
-	int iMilitaryUnits;
-	int iCivilianUnits;
-	int iDefenders;
-	int iHealthyDefenders;
-	int iWoundedDefenders;
-	int iSettlers;
-	int iWorkers;
-	int iAttackers;
-	CvUnit const* pFirstSettler;
-	SASGameRecordCityPlotUnitCounts() : iUnits(0), iMilitaryUnits(0), iCivilianUnits(0), iDefenders(0), iHealthyDefenders(0), iWoundedDefenders(0), iSettlers(0), iWorkers(0), iAttackers(0), pFirstSettler(NULL) {}
-};static bool isSASGameRecordWorkerUnit(CvUnit const& kUnit)
+static bool isSASGameRecordWorkerUnit(CvUnit const& kUnit)
 {
 	UnitAITypes eUnitAI = kUnit.AI_getUnitAIType();
 	return eUnitAI == UNITAI_WORKER || eUnitAI == UNITAI_WORKER_SEA || kUnit.workRate(true) > 0;
@@ -5518,7 +5506,9 @@ static void noteSASGameRecordAIProductionTargetChangedCity(SASGameRecordPlayerFl
 	kFlow.aAIProductionTargetChangesByCity.push_back(std::make_pair(iCityId, 1));
 }
 
-// <!-- custom: Compact all-city production-boundary outcome. Manual human cities are sampled before end-turn city processing; AI-controlled and automated cities are sampled after their chooser opportunity. The caller prevalidates log level, non-Barbarian ownership, no production target and non-disorder state. (ChatGPT-5.6-Sol) -->
+// <!-- custom: SASGameRecord reports the broad all-city outcome at the control-path-aware turn boundary, while dedicated BBAI diagnostics explain exact chooser paths and legal-target context.
+// Manual human cities are sampled before end-turn city processing so a normal newly completed item awaiting its popup is not misclassified.
+// AI-controlled and production-automated cities are sampled afterward so their chooser and emergency-building rules get their opportunity first. The sole caller prevalidates the log level, city state and eligible civilization player. See KI#51. (GPT-5.6-Sol) -->
 void logSASGameRecordCityProductionNoTarget(CvCity const& kCity, char const* szPhase)
 {
 	PlayerTypes const ePlayer = kCity.getOwner();
@@ -5527,33 +5517,6 @@ void logSASGameRecordCityProductionNoTarget(CvCity const& kCity, char const* szP
 		GC.getGame().getGameTurn(), ePlayer, kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), szPhase,
 		kPlayer.isHuman(), kPlayer.isHumanDisabled(), kCity.isProductionAutomated(), kCity.isChooseProductionDirty(), (int)GC.getGame().getGameState(), kCity.getPopulation(),
 		kCity.getCurrentProductionDifference(false, false, true), kCity.getOverflowProduction(), kPlayer.getAnarchyTurns(), kCity.isOccupation(), kCity.getOccupationTimer());
-}
-
-
-
-static void collectSASGameRecordCityPlotUnitCounts(CvPlot const& kPlot, PlayerTypes ePlayer, SASGameRecordCityPlotUnitCounts& kCounts)
-{
-	for (CLLNode<IDInfo> const* pUnitNode = kPlot.headUnitNode(); pUnitNode != NULL; pUnitNode = kPlot.nextUnitNode(pUnitNode))
-	{
-		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
-		if (pLoopUnit == NULL || pLoopUnit->getOwner() != ePlayer) continue;
-		kCounts.iUnits++;
-		if (isSASGameRecordMilitaryUnit(*pLoopUnit)) kCounts.iMilitaryUnits++;
-		else kCounts.iCivilianUnits++;
-		if (pLoopUnit->canDefend(&kPlot))
-		{
-			kCounts.iDefenders++;
-			if (pLoopUnit->getDamage() <= 25) kCounts.iHealthyDefenders++;
-			else kCounts.iWoundedDefenders++;
-		}
-		if (isSASGameRecordSettlerUnit(*pLoopUnit))
-		{
-			kCounts.iSettlers++;
-			if (kCounts.pFirstSettler == NULL) kCounts.pFirstSettler = pLoopUnit;
-		}
-		if (isSASGameRecordWorkerUnit(*pLoopUnit)) kCounts.iWorkers++;
-		if (pLoopUnit->canAttack()) kCounts.iAttackers++;
-	}
 }
 
 // <!-- custom: Cold enabled path for the header-inline RAII wrapper. Keeping capture/finalization out of the header avoids expanding every CvCityAI includer while the disabled level-0/1 path remains tiny. (ChatGPT-5.6-Sol) -->
@@ -5839,6 +5802,44 @@ static CvString getSASGameRecordCityTradePartners(CvCity const& kCity)
 		szList += szItem;
 	}
 	return szList.empty() ? "-" : getSASDiagnosticQuoted(szList.GetCString());
+}
+
+struct SASGameRecordCityPlotUnitCounts
+{
+	int iUnits;
+	int iMilitaryUnits;
+	int iCivilianUnits;
+	int iDefenders;
+	int iHealthyDefenders;
+	int iWoundedDefenders;
+	int iSettlers;
+	int iWorkers;
+	int iAttackers;
+	CvUnit const* pFirstSettler;
+	SASGameRecordCityPlotUnitCounts() : iUnits(0), iMilitaryUnits(0), iCivilianUnits(0), iDefenders(0), iHealthyDefenders(0), iWoundedDefenders(0), iSettlers(0), iWorkers(0), iAttackers(0), pFirstSettler(NULL) {}
+};static void collectSASGameRecordCityPlotUnitCounts(CvPlot const& kPlot, PlayerTypes ePlayer, SASGameRecordCityPlotUnitCounts& kCounts)
+{
+	for (CLLNode<IDInfo> const* pUnitNode = kPlot.headUnitNode(); pUnitNode != NULL; pUnitNode = kPlot.nextUnitNode(pUnitNode))
+	{
+		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+		if (pLoopUnit == NULL || pLoopUnit->getOwner() != ePlayer) continue;
+		kCounts.iUnits++;
+		if (isSASGameRecordMilitaryUnit(*pLoopUnit)) kCounts.iMilitaryUnits++;
+		else kCounts.iCivilianUnits++;
+		if (pLoopUnit->canDefend(&kPlot))
+		{
+			kCounts.iDefenders++;
+			if (pLoopUnit->getDamage() <= 25) kCounts.iHealthyDefenders++;
+			else kCounts.iWoundedDefenders++;
+		}
+		if (isSASGameRecordSettlerUnit(*pLoopUnit))
+		{
+			kCounts.iSettlers++;
+			if (kCounts.pFirstSettler == NULL) kCounts.pFirstSettler = pLoopUnit;
+		}
+		if (isSASGameRecordWorkerUnit(*pLoopUnit)) kCounts.iWorkers++;
+		if (pLoopUnit->canAttack()) kCounts.iAttackers++;
+	}
 }
 
 static void logSASGameRecordWorkedPlots(PlayerTypes ePlayer, int iGameTurn)
@@ -6719,10 +6720,8 @@ void logSASGameRecordRandomEventExpired(CvPlayer const& kPlayer, EventTypes eEve
 			kTargets.iUnitId, kTargets.iUnitExists, kTargets.szUnit, kTargets.iUnitCanApply, kTargets.iPlotX, kTargets.iPlotY, kTargets.iPlotExists, kTargets.iPlotOwner, getSASGameRecordReligionType(kTargets.eReligion), getSASGameRecordCorporationType(kTargets.eCorporation), getSASGameRecordBuildingType(kTargets.eBuilding), kTargets.iBuildingPresentInCity);
 }
 
-// <!-- custom: Delayed AdditionalEvent outcomes are actual scheduled lifecycle state, unlike speculative candidate/chance evaluation.
-// Record the due turn only after the existing chance roll and earliest-countdown merge have resolved. (ChatGPT-5.6-Sol) -->
-// <!-- custom: Record the realized random-event pillage transaction after the existing city/empire destruction loop.
-// The configured XML endpoints and actual rolled attempts are both retained so Base AdvCiv 1.14's existing max-exclusive roll can be observed rather than silently repaired in this telemetry port. (GPT-5.6-Sol) -->
+// <!-- custom: KI#736 is already repaired in gameplay: both pillage scopes roll MinPillage..MaxPillage inclusively.
+// Log the realized attempt/destruction counts only after the existing loops, proving endpoint reachability while keeping exact plot destruction in canonical GAME_RECORD_PLOT_CHANGE rows. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void logSASGameRecordRandomEventPillageResult(char const* szScope, PlayerTypes ePlayer, PlayerTypes eAffectedPlayer, int iCityId, int iTriggeredId, EventTypes eEvent, int iMinPillage, int iMaxPillage, int iAttempts, int iDestroyed)
 {
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_PILLAGE_RESULT turn=%d scope=%s player=%d affectedPlayer=%d cityId=%d triggeredId=%d event=%s minPillage=%d maxPillage=%d attempts=%d destroyed=%d failedAttempts=%d",
@@ -6737,7 +6736,6 @@ void logSASGameRecordRandomEventCountdownScheduled(CvPlayer const& kPlayer, Even
 			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventType(eSourceEvent), getSASGameRecordEventType(eFollowupEvent), iRequestedDueTurn, iPreviousDueTurn, iScheduledDueTurn, iScheduledDueTurn - GC.getGame().getGameTurn());
 }
 
-// <!-- custom: Keep exact research-overflow arithmetic separate from TECH_ACQUIRED because only ordinary research completion has meaningful progress/overflow conversion. The threshold caller supplies its exact arithmetic while recorder-local same-turn application context supplies the fresh-research/carried-overflow split without widening generic research APIs. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
 {
 	if (pCity == NULL || pUnit == NULL)
@@ -6765,6 +6763,25 @@ void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, boo
 			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), bConscripted ? "CONSCRIPT" : "PRODUCTION", iProductionNeeded,
 			iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
 	}
+}
+
+void logSASGameRecordResearchCompleted(TechTypes eTech, TeamTypes eTeam, PlayerTypes ePlayer, int iProgressBefore, int iProgressBeforePostCompletionAdjustment, int iResearchModifier, int iUnmodifiedOverflow)
+{
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	int const iResearchCost = kTeam.getResearchCost(eTech);
+	int const iProgressAdded = iProgressBeforePostCompletionAdjustment - iProgressBefore;
+	int const iRawModifiedOverflow = std::max(0, iProgressBeforePostCompletionAdjustment - iResearchCost);
+	SASGameRecordResearchApplication& kApplication = g_akSASGameRecordResearchApplication[ePlayer];
+	bool const bApplicationKnown = (kApplication.bValid && kApplication.iGameTurn == GC.getGame().getGameTurn() && kApplication.eTech == eTech);
+	int const iModifiedResearchRate = (bApplicationKnown ? kApplication.iModifiedResearchRate : -1);
+	int const iIncomingOverflowUnmodified = (bApplicationKnown ? kApplication.iIncomingOverflowUnmodified : -1);
+	int const iIncomingOverflowModified = (bApplicationKnown ? kApplication.iIncomingOverflowModified : -1);
+	// <!-- custom: Preserve mature SASGameRecord field names for schema compatibility. `teamProgressBeforeClamp` is the progress immediately before AdvCiv's post-completion adjustment; this logging-only 1.14 port intentionally does not import mature SAS's separate KI#404 gameplay correction, so `teamStoredProgressAfter` reports the actual unmodified AdvCiv 1.14 result. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RESEARCH_COMPLETED player=%d team=%d tech=%s researchCost=%d teamProgressBefore=%d applicationBreakdownKnown=%d modifiedResearchRateApplied=%d incomingOverflowUnmodified=%d incomingOverflowModifiedApplied=%d modifiedProgressAdded=%d teamProgressBeforeClamp=%d researchModifier=%d rawModifiedOverflow=%d outgoingOverflowUnmodified=%d playerOverflowAfter=%d teamStoredProgressAfter=%d",
+			GC.getGame().getGameTurn(), ePlayer, eTeam, getSASGameRecordTechType(eTech), iResearchCost, iProgressBefore, bApplicationKnown ? 1 : 0,
+			iModifiedResearchRate, iIncomingOverflowUnmodified, iIncomingOverflowModified, iProgressAdded, iProgressBeforePostCompletionAdjustment, iResearchModifier, iRawModifiedOverflow, iUnmodifiedOverflow,
+			GET_PLAYER(ePlayer).getOverflowResearch(), kTeam.getResearchProgress(eTech));
+	kApplication.bValid = false;
 }
 
 // <!-- custom: Added eCause to write the acquisition source supplied by gameplay code instead of inferring it from ambiguous announcement/first-discovery flags. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
@@ -8560,9 +8577,9 @@ void logSASGameRecordActivePlayerChanged(PlayerTypes eOldPlayer, PlayerTypes eNe
 			GC.getGame().getGameTurn(), eOldPlayer, eNewPlayer, bDuringAutoPlay, GC.getGame().getAIAutoPlay(), bDuringAutoPlay ? g_iSASGameRecordAutoPlayRequestId : -1, bDuringAutoPlay ? g_iSASGameRecordAutoPlayPlayerChanges : 0, g_iSASGameRecordTotalActivePlayerChanges);
 }
 
-// <!-- custom: Record Great Person birth and realized consumption/death outcomes so rare units can be followed from creation to their actual use without logging AI candidate values. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordGreatPersonBorn(CvUnit const* pUnit, PlayerTypes ePlayer, CvCity const* pCity)
 {
+	// <!-- custom: Keep the newborn unit ID and exact spawn plot so one Great Person, especially a Great General, can be followed directly from birth through BBAI decisions to join/construct/attach/death rows instead of correlating only by player and turn. (ChatGPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_BORN player=%d cityId=%d city=%S unitId=%d unit=%s x=%d y=%d combatXP=%d greatPeopleCreated=%d greatGeneralsCreated=%d greatGeneralThreshold=%d",
 			GC.getGame().getGameTurn(), ePlayer, pCity == NULL ? -1 : pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(),
 			pUnit == NULL ? -1 : pUnit->getID(), pUnit == NULL ? "-" : getSASGameRecordUnitType(pUnit->getUnitType()),
@@ -8922,25 +8939,6 @@ void logSASGameRecordNukeUnitEffect(CvUnit const* pNukeUnit, CvUnit const* pAffe
 			pAffectedUnit->getOwner(), pAffectedUnit->getTeam(), pAffectedUnit->getID(), getSASGameRecordUnitType(pAffectedUnit->getUnitType()), getSASGameRecordUnitAIType(pAffectedUnit->AI_getUnitAIType()),
 			pPlot->getX(), pPlot->getY(), iDamageBefore, iDamageAfter, iDamageDelta, bKilled, szCause, pAffectedUnit->isCargo(),
 			pTransport == NULL ? NO_PLAYER : pTransport->getOwner(), pTransport == NULL ? -1 : pTransport->getID());
-}
-
-void logSASGameRecordResearchCompleted(TechTypes eTech, TeamTypes eTeam, PlayerTypes ePlayer, int iProgressBefore, int iProgressBeforePostCompletionAdjustment, int iResearchModifier, int iUnmodifiedOverflow)
-{
-	CvTeam const& kTeam = GET_TEAM(eTeam);
-	int const iResearchCost = kTeam.getResearchCost(eTech);
-	int const iProgressAdded = iProgressBeforePostCompletionAdjustment - iProgressBefore;
-	int const iRawModifiedOverflow = std::max(0, iProgressBeforePostCompletionAdjustment - iResearchCost);
-	SASGameRecordResearchApplication& kApplication = g_akSASGameRecordResearchApplication[ePlayer];
-	bool const bApplicationKnown = (kApplication.bValid && kApplication.iGameTurn == GC.getGame().getGameTurn() && kApplication.eTech == eTech);
-	int const iModifiedResearchRate = (bApplicationKnown ? kApplication.iModifiedResearchRate : -1);
-	int const iIncomingOverflowUnmodified = (bApplicationKnown ? kApplication.iIncomingOverflowUnmodified : -1);
-	int const iIncomingOverflowModified = (bApplicationKnown ? kApplication.iIncomingOverflowModified : -1);
-	// <!-- custom: Preserve mature SASGameRecord field names for schema compatibility. `teamProgressBeforeClamp` is the progress immediately before AdvCiv's post-completion adjustment; this logging-only 1.14 port intentionally does not import mature SAS's separate KI#404 gameplay correction, so `teamStoredProgressAfter` reports the actual unmodified AdvCiv 1.14 result. (ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RESEARCH_COMPLETED player=%d team=%d tech=%s researchCost=%d teamProgressBefore=%d applicationBreakdownKnown=%d modifiedResearchRateApplied=%d incomingOverflowUnmodified=%d incomingOverflowModifiedApplied=%d modifiedProgressAdded=%d teamProgressBeforeClamp=%d researchModifier=%d rawModifiedOverflow=%d outgoingOverflowUnmodified=%d playerOverflowAfter=%d teamStoredProgressAfter=%d",
-			GC.getGame().getGameTurn(), ePlayer, eTeam, getSASGameRecordTechType(eTech), iResearchCost, iProgressBefore, bApplicationKnown ? 1 : 0,
-			iModifiedResearchRate, iIncomingOverflowUnmodified, iIncomingOverflowModified, iProgressAdded, iProgressBeforePostCompletionAdjustment, iResearchModifier, iRawModifiedOverflow, iUnmodifiedOverflow,
-			GET_PLAYER(ePlayer).getOverflowResearch(), kTeam.getResearchProgress(eTech));
-	kApplication.bValid = false;
 }
 
 // <!-- custom: Only ordinary civilization-vs-civilization battles with no attacker withdrawal chance and a lethal combat limit form a true binary win/loss sample.
