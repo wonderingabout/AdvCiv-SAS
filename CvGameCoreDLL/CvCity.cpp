@@ -176,6 +176,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
 	updateCultureLevel(false);
 
 	CvPlot& kPlot = getPlot();
+	// <!-- custom: Extend the core Batch-74 map-history backbone to city creation: snapshot the city plot before founding mutates feature/improvement/route state, then record only the realized before/after result. (ChatGPT-5.6-Sol) -->
+	bool const bLogCityPlotChange = (gGameRecordLogLevel >= 2);
+	SASGameRecordPlotState kOldCityPlotState;
+	if (bLogCityPlotChange) kOldCityPlotState = SASGameRecordPlotState(kPlot);
 	{
 		int const iFreeCityPlotCulture = GC.getDefineINT("FREE_CITY_CULTURE");
 		if (kPlot.getCulture(getOwner()) < iFreeCityPlotCulture)
@@ -205,6 +209,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
 
 	kPlot.setImprovementType(NO_IMPROVEMENT);
 	kPlot.updateCityRoute(false);
+	if (bLogCityPlotChange) recordSASGameRecordPlotChange(kPlot, kOldCityPlotState, "cityPlotChanges", "CITY_FOUNDED", true);
 
 	for (TeamIter<ALIVE> it; it.hasNext(); ++it)
 	{
@@ -371,6 +376,10 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 		}
 	} // </advc.001>
 
+	// <!-- custom: City removal can replace the city improvement with ruins and restore a natural feature; retain the exact realized map mutation without changing city-loss mechanics. (ChatGPT-5.6-Sol) -->
+	bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+	SASGameRecordPlotState kOldPlotState;
+	if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(kPlot);
 	kPlot.setPlotCity(NULL);
 	kPlot.setRuinsName(getName()); // advc.005c
 
@@ -431,6 +440,7 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 		}
 	} // </advc.106>
 	kPlot.setImprovementType(GC.getRUINS_IMPROVEMENT());
+	if (bLogPlotChange) recordSASGameRecordPlotChange(kPlot, kOldPlotState, "cityPlotChanges", "CITY_REMOVED", true);
 	CvEventReporter::getInstance().cityLost(this);
 	// <!-- custom: resetVictoryProgress runs only after this city object is deleted. Preserve any active launch/countdown and the old-capital identity before that state disappears. (ChatGPT-5.6-Sol) -->
 	if (bCapital && gGameRecordLogLevel >= 2) logSASGameRecordVictoryProgressResetForCapital(this);
@@ -12633,7 +12643,11 @@ void CvCity::applyEvent(EventTypes eEvent,
 								"AS2D_PILLAGED", MESSAGE_TYPE_INFO,
 								GC.getInfo(pPlot->getImprovementType()).getButton(),
 								GC.getColorType("RED"));
+						bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+						SASGameRecordPlotState kOldPlotState;
+						if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(*pPlot);
 						pPlot->setImprovementType(NO_IMPROVEMENT);
+						if (bLogPlotChange) recordSASGameRecordPlotChange(*pPlot, kOldPlotState, "randomEvents", "RANDOM_EVENT", true);
 						iNumPillaged++;
 						break;
 					}

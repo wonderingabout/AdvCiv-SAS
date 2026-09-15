@@ -835,8 +835,9 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 	std::vector<std::vector<NukeEffect> > aaUnitKilled(MAX_PLAYERS);
 	std::vector<NukeEffect> aBuildingDestroyed;
 	std::vector<NukeEffect> aCitizensKilled;
-	// <!-- custom: Reuse this existing explosion pass for compact nuke effect totals. Per-city consequences use level 2; exact affected-unit identities/damage use level 3. Keep both inert unless an actual unit-launched bomb is being recorded. (ChatGPT-5.6-Sol) -->
-	bool const bLogSASNukeEffects = (bBomb && pNukeUnit != NULL && gGameRecordLogLevel >= 2);
+	// <!-- custom: Reuse this existing explosion pass for compact nuke effect totals and Batch-74 map history; no diagnostic-only second scan is needed. (ChatGPT-5.6-Sol) -->
+	bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+	bool const bLogSASNukeEffects = (bBomb && pNukeUnit != NULL && bLogPlotChange);
 	bool const bLogSASNukeUnitEffects = (bLogSASNukeEffects && gGameRecordLogLevel >= 3);
 	int iSASFalloutPlots = 0;
 	int iSASPopulationKilled = 0;
@@ -844,6 +845,8 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 	for (SquareIter it(*this, iRange); it.hasNext(); ++it)
 	{
 		CvPlot& p = *it;
+		SASGameRecordPlotState kOldPlotState;
+		if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(p);
 
 		// (if we remove roads, don't remove them on the city... XXX)
 
@@ -872,6 +875,7 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 						if (bLogSASNukeEffects && p.getFeatureType() != (FeatureTypes)GC.getDefineINT("NUKE_FEATURE"))
 							iSASFalloutPlots++;
 						p.setFeatureType((FeatureTypes)GC.getDefineINT("NUKE_FEATURE"));
+						if (bLogPlotChange) recordSASGameRecordPlotChange(p, kOldPlotState, "nuclearDamage", "NUCLEAR_FALLOUT", true);
 					}
 				}
 			}

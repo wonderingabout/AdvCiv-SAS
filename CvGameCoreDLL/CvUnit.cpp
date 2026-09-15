@@ -3049,7 +3049,11 @@ void CvUnit::move(CvPlot& kPlot, bool bShow, /* advc.163: */ bool bJump, bool bG
 		if (!szFeature.IsEmpty())
 		{
 			FeatureTypes eNewFeature = (FeatureTypes)GC.getInfoTypeForString(szFeature);
+			bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+			SASGameRecordPlotState kOldPlotState;
+			if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(kPlot);
 			kPlot.setFeatureType(eNewFeature);
+			if (bLogPlotChange) recordSASGameRecordPlotChange(kPlot, kOldPlotState, "unitTriggeredFeatureChanges", "UNIT_TRIGGERED_FEATURE_CHANGE", true);
 		}
 		// spawn birds if trees present - JW
 		if (isActiveOwned() && !kPlot.isOwned() &&
@@ -4580,6 +4584,10 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
 				to the probability display in CvGameTextMgr::getAirBombPlotHelp */
 			if (SyncRandNum(airBombCurrRate()) >= SyncRandNum(iDefense))
 			{
+				// <!-- custom: Snapshot only successful air-bomb attempts; failed attempts already have their existing action telemetry but do not mutate the map. (ChatGPT-5.6-Sol) -->
+				bool const bLogPlotChange = (bLogAirBombDetails || gGameRecordLogLevel >= 2);
+				SASGameRecordPlotState kOldPlotState;
+				if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(kTarget);
 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_IMP",
 						getNameKey(), szStructure);
 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_PILLAGE",
@@ -4606,6 +4614,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
 					kTarget.setImprovementType(GC.getInfo(kTarget.getImprovementType()).
 							getImprovementPillage());
 				}
+				if (bLogPlotChange) recordSASGameRecordPlotChange(kTarget, kOldPlotState, "airBombing", "AIR_BOMBING", true);
 				if (bLogAirBombDetails) logSASGameRecordAirBombPlot(this, &kTarget, szGameRecordTargetKind, szGameRecordTarget, true);
 			}
 			else
@@ -4882,6 +4891,8 @@ bool CvUnit::pillage(/* advc.111: */ bool bForceImprovement)
 	// <!-- custom: A successful pillage can replace an improvement with another improvement or remove a route, and the gold transfer happens inside the existing pillage helper.
 	// Capture only the cheap pre-action facts needed to attribute the completed outcome; no logging-only work is done below level 2. (ChatGPT-5.6-Sol) -->
 	bool const bLogGameRecordPillage = (gGameRecordLogLevel >= 2);
+	SASGameRecordPlotState kOldPlotState;
+	if (bLogGameRecordPillage) kOldPlotState = SASGameRecordPlotState(kPlot);
 	BonusTypes const eOldBonus = bLogGameRecordPillage ? kPlot.getBonusType() : NO_BONUS;
 	PlayerTypes const ePillageVictim = bLogGameRecordPillage ? kPlot.getOwner() : NO_PLAYER;
 	int const iPillagerGoldBefore = bLogGameRecordPillage ? GET_PLAYER(getOwner()).getGold() : 0;
@@ -4908,6 +4919,7 @@ bool CvUnit::pillage(/* advc.111: */ bool bForceImprovement)
 	{
 		if (bLogGameRecordPillage)
 		{
+			recordSASGameRecordPlotChange(kPlot, kOldPlotState, "pillaging", "PILLAGE", true);
 			logSASGameRecordPillage(this, eOldImprovement, eOldRoute, eOldBonus, ePillageVictim,
 					GET_PLAYER(getOwner()).getGold() - iPillagerGoldBefore);
 		}
@@ -6239,6 +6251,8 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 		}
 
 		CvPlot* const pMissionPlot = plot();
+		SASGameRecordPlotState kOldPlotState;
+		if (bLogEspionageMission) kOldPlotState = SASGameRecordPlotState(*pMissionPlot);
 		int iMissionCost = -1;
 		int iEPBefore = -1;
 		int iEffectValue = -1;
@@ -6295,6 +6309,7 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 		{
 			if (bLogEspionageMission)
 			{
+				recordSASGameRecordPlotChange(*pMissionPlot, kOldPlotState, "espionage", "ESPIONAGE", true);
 				logSASGameRecordEspionageMission(this, eMission, eTargetPlayer, pMissionPlot, iData, iMissionCost, iEPBefore,
 						GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(TEAMID(eTargetPlayer)), eTargetImprovement, eTargetRoute, eTargetUnit, iEffectValue, szEffectKind);
 			}

@@ -16506,7 +16506,11 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 						gDLL->UI().addMessage(getID(), false, -1, szBuffer, *pPlot, "AS2D_PILLAGED",
 								MESSAGE_TYPE_INFO, GC.getInfo(pPlot->getImprovementType()).getButton(),
 								GC.getColorType("RED"));
+						bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+						SASGameRecordPlotState kOldPlotState;
+						if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(*pPlot);
 						pPlot->setImprovementType(NO_IMPROVEMENT);
+						if (bLogPlotChange) recordSASGameRecordPlotChange(*pPlot, kOldPlotState, "randomEvents", "RANDOM_EVENT", true);
 						iDone++;
 						break;
 					}

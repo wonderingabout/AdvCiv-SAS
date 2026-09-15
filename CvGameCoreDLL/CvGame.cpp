@@ -6276,6 +6276,9 @@ void CvGame::doGlobalWarming()
 {
 	PROFILE_FUNC();
 
+	// <!-- custom: Reuse the already-selected global-warming plot and existing mutation path for exact map history; no extra map scan or gameplay calculation is added. (ChatGPT-5.6-Sol) -->
+	bool const bLogMapHistory = (gGameRecordLogLevel >= 2);
+
 	// Calculate change in GW index
 	int iGlobalWarmingValue = calculateGlobalPollution();
 	int iGlobalWarmingDefense = calculateGwSustainabilityThreshold(); // Natural global defence
@@ -6353,6 +6356,8 @@ void CvGame::doGlobalWarming()
 		TerrainTypes const eTerrain = pPlot->getTerrainType();
 		FeatureTypes const eFeature = pPlot->getFeatureType();
 		ImprovementTypes const eImprov = pPlot->getImprovementType();
+		SASGameRecordPlotState kOldPlotState;
+		if (bLogMapHistory) kOldPlotState = SASGameRecordPlotState(*pPlot);
 		// Just for the announcements
 		PreGWPlot preGWPlot(pPlot, eTerrain, eFeature, eImprov);
 		bool bProtectFeature = false;
@@ -6456,6 +6461,7 @@ void CvGame::doGlobalWarming()
 				FAssert(!bProtectFeature);
 			}
 			aChangedPlots.push_back(preGWPlot);
+			if (bLogMapHistory) recordSASGameRecordPlotChange(*pPlot, kOldPlotState, "globalWarming", "GLOBAL_WARMING", true);
 			// Do the announcements in a separate loop
 			// </advc.055>
 			changeGwEventTally(1);
