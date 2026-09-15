@@ -464,6 +464,8 @@ void CvPlot::updateCulture(bool bBumpUnits, bool bUpdatePlotGroups)
 				" should imply eSecondOwner!=NO_PLAYER");
 		}
 	}
+	// <!-- custom: Ordinary ownership recomputation supplies the immediate CULTURE_UPDATE mechanism; any outer transaction still identifies the broader cause. (ChatGPT-5.6-Sol) -->
+	SASGameRecordPlotOwnerChangeCauseScope kSASCultureOwnerCause(SAS_PLOT_OWNER_CAUSE_CULTURE_UPDATE, gGameRecordLogLevel >= 3 && GC.getGame().isFinalInitialized() && eCulturalOwner != getOwner());
 	setOwner(eCulturalOwner, // </advc.035>
 			bBumpUnits, bUpdatePlotGroups);
 }
@@ -4147,6 +4149,11 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
 	GC.getGame().addReplayMessage(*this, REPLAY_MESSAGE_PLOT_OWNER_CHANGE, eNewValue);
 
 	CvCity* pOldCity = getPlotCity();
+	// <!-- custom: Direct non-city assignment is the authoritative ownership mutation point. City transfers recurse through acquireCity/initCity and return here after the old city has been removed. (ChatGPT-5.6-Sol) -->
+	bool const bLogSASPlotOwnerChange = (gGameRecordLogLevel >= 3 && GC.getGame().isFinalInitialized() && pOldCity == NULL);
+	int const iSASOwnershipDurationBefore = (bLogSASPlotOwnerChange ? getOwnershipDuration() : 0);
+	bool const bSASOwnershipScoreBefore = (bLogSASPlotOwnerChange && isOwnershipScore());
+	if (bLogSASPlotOwnerChange) prepareSASGameRecordPlotOwnerChange();
 	if (pOldCity != NULL)  // advc: Removed some assertions and NULL/NO_... checks in this block
 	{
 		/*  advc.101: Include pre-revolt owner in messages (sometimes not easy
@@ -4267,6 +4274,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
 
 		m_eOwner = eNewValue;
 		updateTeam(); // advc.opt
+		if (bLogSASPlotOwnerChange) logSASGameRecordPlotOwnerChanged(*this, eOldOwner, eNewValue, iSASOwnershipDurationBefore, bSASOwnershipScoreBefore);
 
 		setWorkingCityOverride(NULL);
 		updateWorkingCity();

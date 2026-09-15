@@ -1053,6 +1053,8 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
 			TEAMID(eSponsor) != eTarget)); // </advc.100>
 	if (isAtWar(eTarget))
 		return;
+	// <!-- custom: Declaration can synchronously flip contested borders and trigger linked wars; nested declarations join this root transaction. (ChatGPT-5.6-Sol) -->
+	SASGameRecordTransactionScope kSASWarDeclarationTransaction("WAR_DECLARATION", gGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized());
 	if (gTeamLogLevel >= 1) logBBAI("  Team %d (%S) declares war on team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget); // BETTER_BTS_AI_MOD (10/02/09, jdog5000): AI logging
 	CvTeam& kTarget = GET_TEAM(eTarget);
 	std::vector<CvPlayer*> kMembers; // advc: of either team
@@ -1256,6 +1258,8 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
 	FAssert(eTarget != getID());
 	if (!isAtWar(eTarget))
 		return;
+	// <!-- custom: Peace can restore contested-border ownership and propagate to dependent teams; keep the synchronous state transition under one root tx. (ChatGPT-5.6-Sol) -->
+	SASGameRecordTransactionScope kSASPeaceTransaction("PEACE", gGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized());
 	CvTeam& kTarget = GET_TEAM(eTarget);
 	std::vector<CvPlayer*> kMembers; // advc: of either team
 	for (MemberIter it(getID()); it.hasNext(); ++it)
@@ -3105,6 +3109,8 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
 	}
 	std::vector<CvPlot*> flipPlots;
 	::contestedPlots(flipPlots, getID(), eIndex);
+	// <!-- custom: Contested-border flips have a proven immediate mechanism distinct for war and peace beneath any broader transaction. (ChatGPT-5.6-Sol) -->
+	SASGameRecordPlotOwnerChangeCauseScope kSASWarPeaceBorderCause(bNewValue ? SAS_PLOT_OWNER_CAUSE_WAR_BORDER : SAS_PLOT_OWNER_CAUSE_PEACE_BORDER, gGameRecordLogLevel >= 3 && GC.getGame().isFinalInitialized() && !flipPlots.empty());
 	for (size_t i = 0; i < flipPlots.size(); i++)
 	{
 		CvPlot& p = *flipPlots[i];
@@ -3332,6 +3338,8 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 		isCapitulated()==bCapitulated here. */
 	if (isVassal(eMaster) == bNewValue)
 		return; // <advc>
+	// <!-- custom: Vassalage can recalculate culture ownership and align war/peace relationships; nested ownership causes retain the immediate mechanism. (ChatGPT-5.6-Sol) -->
+	SASGameRecordTransactionScope kSASVassalageTransaction("VASSALAGE", gGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized());
 	for (MemberIter it(getID()); it.hasNext(); ++it)
 		it->updateCitySight(false, false);
 

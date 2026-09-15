@@ -1563,6 +1563,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 	FAssert(!bForFree || bTrade);
 	// <!-- custom: Bracket the complete synchronous city-transfer operation so old-city removal, recreated-city state, CITY_ACQUIRED/context rows and an immediate AI/auto raze remain one causal chain. Nested transaction scopes deliberately self-join. (ChatGPT-5.6-Sol) -->
 	SASGameRecordTransactionScope kSASCityAcquisitionTransaction("CITY_ACQUISITION", gGameRecordLogLevel >= 2);
+	// <!-- custom: The recreated city tile's direct owner assignment has the narrower CITY_ACQUISITION mechanism; nested culture recomputation may temporarily override it. (ChatGPT-5.6-Sol) -->
+	SASGameRecordPlotOwnerChangeCauseScope kSASCityAcquisitionOwnerCause(SAS_PLOT_OWNER_CAUSE_CITY_ACQUISITION, gGameRecordLogLevel >= 3 && GC.getGame().isFinalInitialized());
 	CvPlot& kCityPlot = *pOldCity->plot();
 	// Kill ICBMs
 	//CLinkList<IDInfo> oldUnits; ... // advc: Deleted; unnecessary.
@@ -5210,6 +5212,10 @@ void CvPlayer::found(int iX, int iY)
 {
 	if (!canFound(iX, iY))
 		return;
+	// <!-- custom: Founding can assign the city tile and adjacent culture synchronously; keep the operation under one tx while the setter chain records its immediate owner mechanism. (ChatGPT-5.6-Sol) -->
+	bool const bLogSASCityFounding = (gGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized());
+	SASGameRecordTransactionScope kSASCityFoundingTransaction("CITY_FOUNDING", bLogSASCityFounding);
+	SASGameRecordPlotOwnerChangeCauseScope kSASCityFoundingOwnerCause(SAS_PLOT_OWNER_CAUSE_CITY_FOUNDING, gGameRecordLogLevel >= 3 && bLogSASCityFounding);
 	// <advc.031c>
 	if (gFoundLogLevel > 0 && !isHuman() &&
 		// (advc.108 forces founding in place in scenarios)

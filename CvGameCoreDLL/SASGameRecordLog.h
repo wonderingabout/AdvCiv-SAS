@@ -147,6 +147,39 @@ struct SASGameRecordPlotState
 	int aiExtraYield[NUM_YIELD_TYPES];
 };
 
+// <!-- custom: Exact level-3 plot-owner transitions carry an explicit immediate mechanism instead of guessing provenance from the final setter. `tx` remains the outer causal operation; nested cause scopes temporarily override the immediate mechanism and restore it on exit. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordPlotOwnerChangeCause
+{
+	SAS_PLOT_OWNER_CAUSE_NONE,
+	SAS_PLOT_OWNER_CAUSE_CITY_FOUNDING,
+	SAS_PLOT_OWNER_CAUSE_CITY_ACQUISITION,
+	SAS_PLOT_OWNER_CAUSE_CULTURE_UPDATE,
+	SAS_PLOT_OWNER_CAUSE_WAR_BORDER,
+	SAS_PLOT_OWNER_CAUSE_PEACE_BORDER,
+	SAS_PLOT_OWNER_CAUSE_WORLDBUILDER,
+	SAS_PLOT_OWNER_CAUSE_PYTHON_EXTERNAL
+};
+class SASGameRecordPlotOwnerChangeCauseScope
+{
+public:
+	SASGameRecordPlotOwnerChangeCauseScope(SASGameRecordPlotOwnerChangeCause eCause, bool bEnabled) : m_bActive(false), m_ePreviousCause(SAS_PLOT_OWNER_CAUSE_NONE)
+	{
+		if (bEnabled) begin(eCause);
+	}
+	~SASGameRecordPlotOwnerChangeCauseScope()
+	{
+		if (m_bActive) end();
+	}
+private:
+	void begin(SASGameRecordPlotOwnerChangeCause eCause);
+	void end();
+	bool m_bActive;
+	SASGameRecordPlotOwnerChangeCause m_ePreviousCause;
+};
+// <!-- custom: Flush older delayed recorder output before CvPlot mutates ownership, then emit the exact transition at the authoritative assignment. (ChatGPT-5.6-Sol) -->
+void prepareSASGameRecordPlotOwnerChange();
+void logSASGameRecordPlotOwnerChanged(CvPlot const& kPlot, PlayerTypes eOldOwner, PlayerTypes eNewOwner, int iOwnershipDurationBefore, bool bOwnershipScoreBefore);
+
 // <!-- custom: Session-local transaction IDs tie together structured rows emitted synchronously by one consequential gameplay operation after filtering or buffering has separated them from raw call order. Nested scopes deliberately join an active outer transaction instead of creating parent/child IDs. (ChatGPT-5.6-Sol) -->
 class SASGameRecordTransactionScope
 {
