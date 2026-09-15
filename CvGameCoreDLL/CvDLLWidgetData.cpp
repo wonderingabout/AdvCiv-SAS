@@ -3716,112 +3716,18 @@ void CvDLLWidgetData::parseScoreboardCheatText(CvWidgetDataStruct &widgetDataStr
 	szBuffer.append(szTempBuffer);
 	// Victory strategies
 	szTempBuffer.clear();
-	/*  <advc.007> Reordered and "else" added so that only the highest stage is
-		displayed. */
-	if (kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE4))
-	{
-		szTempBuffer.Format(L"Culture4, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE3))
-	{
-		szTempBuffer.Format(L"Culture3, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE2))
-	{
-		szTempBuffer.Format(L"Culture2, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE1))
-	{
-		szTempBuffer.Format(L"Culture1, ");
-		szBuffer.append(szTempBuffer);
-	}
-
-	if (kPlayer.AI_atVictoryStage(AI_VICTORY_SPACE4))
-	{
-		szTempBuffer.Format(L"Space4, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_SPACE3))
-	{
-		szTempBuffer.Format(L"Space3, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_SPACE2))
-	{
-		szTempBuffer.Format(L"Space2, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_SPACE1))
-	{
-		szTempBuffer.Format(L"Space1, ");
-		szBuffer.append(szTempBuffer);
-	}
-
-	if (kPlayer.AI_atVictoryStage(AI_VICTORY_CONQUEST4))
-	{
-		szTempBuffer.Format(L"Conq4, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_CONQUEST3))
-	{
-		szTempBuffer.Format(L"Conq3, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_CONQUEST2))
-	{
-		szTempBuffer.Format(L"Conq2, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_CONQUEST1))
-	{
-		szTempBuffer.Format(L"Conq1, ");
-		szBuffer.append(szTempBuffer);
-	}
-
-	if (kPlayer.AI_atVictoryStage(AI_VICTORY_DOMINATION4))
-	{
-		szTempBuffer.Format(L"Dom4, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_DOMINATION3))
-	{
-		szTempBuffer.Format(L"Dom3, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_DOMINATION2))
-	{
-		szTempBuffer.Format(L"Dom2, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_DOMINATION1))
-	{
-		szTempBuffer.Format(L"Dom1, ");
-		szBuffer.append(szTempBuffer);
-	}
-
-	if (kPlayer.AI_atVictoryStage(AI_VICTORY_DIPLOMACY4))
-	{
-		szTempBuffer.Format(L"Diplo4, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_DIPLOMACY3))
-	{
-		szTempBuffer.Format(L"Diplo3, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_DIPLOMACY2))
-	{
-		szTempBuffer.Format(L"Diplo2, ");
-		szBuffer.append(szTempBuffer);
-	}
-	else if (kPlayer.AI_atVictoryStage(AI_VICTORY_DIPLOMACY1))
-	{
-		szTempBuffer.Format(L"Diplo1, ");
-		szBuffer.append(szTempBuffer);
-	} // </advc.007>
+	// <!-- custom: Shared 0..4 helpers preserve AdvCiv's highest-stage-only display without five repeated 4-to-1 ladders. (GPT-5.6-Sol) -->
+	AIVictoryStage const eVictoryStageHash = kPlayer.AI_getVictoryStageHash();
+	int const iCultureStage = getSASCultureVictoryStageLevel(eVictoryStageHash);
+	int const iSpaceStage = getSASSpaceVictoryStageLevel(eVictoryStageHash);
+	int const iConquestStage = getSASConquestVictoryStageLevel(eVictoryStageHash);
+	int const iDominationStage = getSASDominationVictoryStageLevel(eVictoryStageHash);
+	int const iDiplomacyStage = getSASDiplomacyVictoryStageLevel(eVictoryStageHash);
+	if (iCultureStage > 0) szBuffer.append(CvWString::format(L"Culture%d, ", iCultureStage));
+	if (iSpaceStage > 0) szBuffer.append(CvWString::format(L"Space%d, ", iSpaceStage));
+	if (iConquestStage > 0) szBuffer.append(CvWString::format(L"Conq%d, ", iConquestStage));
+	if (iDominationStage > 0) szBuffer.append(CvWString::format(L"Dom%d, ", iDominationStage));
+	if (iDiplomacyStage > 0) szBuffer.append(CvWString::format(L"Diplo%d, ", iDiplomacyStage));
 	szBuffer.append(NEWLINE);
 	// Strategies (advc: Moved below victory stages)
 	szTempBuffer.clear();

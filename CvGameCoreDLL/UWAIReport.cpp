@@ -140,18 +140,8 @@ char const* UWAIReport::warPlanName(WarPlanTypes eWarPlan) const
 {
 	if (m_iMuted > 0)
 		return "";
-	switch (eWarPlan)
-	{
-	case NO_WARPLAN: return "none";
-	case WARPLAN_ATTACKED_RECENT: return "attacked recent";
-	case WARPLAN_ATTACKED: return "attacked";
-	case WARPLAN_PREPARING_LIMITED: return "preparing limited";
-	case WARPLAN_PREPARING_TOTAL: return "preparing total";
-	case WARPLAN_LIMITED: return "limited";
-	case WARPLAN_TOTAL: return "total";
-	case WARPLAN_DOGPILE: return "dogpile";
-	default: return "unrecognized";
-	}
+	// <!-- custom: Reuse the shared exact enum-token names instead of maintaining a second WarPlanTypes mapping with different prose labels. This keeps UWAI reports consistent and greppable alongside BBAI and SASGameRecord diagnostics. (GPT-5.6-Sol) -->
+	return getSASWarPlanType(eWarPlan);
 }
 #endif
 
