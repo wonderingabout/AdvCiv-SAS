@@ -147,6 +147,24 @@ struct SASGameRecordPlotState
 	int aiExtraYield[NUM_YIELD_TYPES];
 };
 
+// <!-- custom: Session-local transaction IDs tie together structured rows emitted synchronously by one consequential gameplay operation after filtering or buffering has separated them from raw call order. Nested scopes deliberately join an active outer transaction instead of creating parent/child IDs. (ChatGPT-5.6-Sol) -->
+class SASGameRecordTransactionScope
+{
+public:
+	SASGameRecordTransactionScope(char const* szKind, bool bEnabled) : m_bOwnsTransaction(false)
+	{
+		if (bEnabled) begin(szKind);
+	}
+	~SASGameRecordTransactionScope()
+	{
+		if (m_bOwnsTransaction) end();
+	}
+private:
+	void begin(char const* szKind);
+	void end();
+	bool m_bOwnsTransaction;
+};
+
 // <!-- custom: Fog-created Barbarian units bypass ordinary production/completion history; preserve exact realized spawn cause/location at level 3. Goody-hut hostile spawns use the same detailed unit row. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause);
 void logSASGameRecordGoodyReceived(PlayerTypes ePlayer, CvPlot const* pPlot, CvUnit const* pTriggerUnit, GoodyTypes eGoody, SASGameRecordGoodyResult const& kResult);

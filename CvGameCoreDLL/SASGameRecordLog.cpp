@@ -98,6 +98,11 @@ static bool isSASGameRecordTradeMarketAITechValuesEnabled()
 static CvString g_szSASGameRecordLogTimestamp;
 static int g_iSASGameRecordLogSequence = 0;
 static CvString g_szSASGameRecordLogContext;
+// <!-- custom: Structured row sequence and transaction IDs are recorder/session-local only; they never enter gameplay or save state. `seq` is assigned only at actual emission, while `tx` is captured while formatting inside the active synchronous operation. (ChatGPT-5.6-Sol) -->
+static unsigned __int64 g_uiSASGameRecordSemanticSequence = 0;
+static unsigned __int64 g_uiSASGameRecordNextTransaction = 0;
+static unsigned __int64 g_uiSASGameRecordActiveTransaction = 0;
+static CvString g_szSASGameRecordActiveTransactionKind;
 
 // <!-- custom: Keep only the team fields already consumed by this first periodic snapshot slice. Later player/global snapshot ports can extend their own recorder-local baselines independently. (ChatGPT-5.6-Sol) -->
 struct SASGameRecordTeamPrevious
@@ -915,6 +920,11 @@ static CvString getSASGameRecordLogName()
 
 static void rollSASGameRecordLog(const char* szContext)
 {
+	// <!-- custom: `seq` and `tx` identities are local to one timestamped record session; a new/load file starts a fresh causal namespace. (ChatGPT-5.6-Sol) -->
+	g_uiSASGameRecordSemanticSequence = 0;
+	g_uiSASGameRecordNextTransaction = 0;
+	g_uiSASGameRecordActiveTransaction = 0;
+	g_szSASGameRecordActiveTransactionKind.clear();
 	g_szSASGameRecordLogTimestamp = createSASGameRecordUtcTimestamp();
 	g_szSASGameRecordLogContext.clear();
 	if (isSASGameRecordTimestampedFilenameEnabled())
@@ -4501,6 +4511,31 @@ static void logSASGameRecordGameState(const char* szRowType)
 	logSASGameRecord("GAME_RECORD_GAME_RNG mapRandState=%u syncRandState=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed());
 }
 
+static bool isSASGameRecordStructuredRow(std::string const& szLine)
+{
+	return (szLine.find("GAME_RECORD_") == 0);
+}
+
+static void insertSASGameRecordFieldAfterRowType(std::string& szLine, char const* szField)
+{
+	if (!isSASGameRecordStructuredRow(szLine))
+		return;
+	size_t const iTypeEnd = szLine.find(' ');
+	szLine.insert(iTypeEnd == std::string::npos ? szLine.length() : iTypeEnd, szField);
+}
+
+static void emitSASGameRecordLine(CvString const& szLogName, std::string szLine)
+{
+	// <!-- custom: Sequence only machine-readable GAME_RECORD_* rows. Any plain diagnostic drawing/text remains untouched. (ChatGPT-5.6-Sol) -->
+	if (isSASGameRecordStructuredRow(szLine))
+	{
+		CvString szSequence;
+		szSequence.Format(" seq=%I64u", ++g_uiSASGameRecordSemanticSequence);
+		insertSASGameRecordFieldAfterRowType(szLine, szSequence.GetCString());
+	}
+	gDLL->logMsg(szLogName.GetCString(), szLine.c_str(), false, false);
+}
+
 void logSASGameRecord(TCHAR* format, ... )
 {
 	static const bool bEnabled = isSASGameRecordLogEnabled();
@@ -4521,8 +4556,36 @@ void logSASGameRecord(TCHAR* format, ... )
 	if (!bFormatted)
 		return;
 
-	CvString const szLogName = getSASGameRecordLogName();
-	gDLL->logMsg(szLogName.GetCString(), szLine.c_str(), false, false);
+	// <!-- custom: Capture transaction membership before emission. `seq` is deliberately assigned only at emission, but `tx` describes the operation active when the observation was produced. (ChatGPT-5.6-Sol) -->
+	if (g_uiSASGameRecordActiveTransaction != 0 && isSASGameRecordStructuredRow(szLine))
+	{
+		CvString szTransaction;
+		szTransaction.Format(" tx=%I64u", g_uiSASGameRecordActiveTransaction);
+		insertSASGameRecordFieldAfterRowType(szLine, szTransaction.GetCString());
+	}
+	emitSASGameRecordLine(getSASGameRecordLogName(), szLine);
+}
+
+// <!-- custom: The first enabled scope owns a new session-local transaction; nested scopes join it so one synchronous causal chain stays one `tx`. BEGIN/END rows make the transaction kind and completeness explicit. (ChatGPT-5.6-Sol) -->
+void SASGameRecordTransactionScope::begin(char const* szKind)
+{
+	if (g_uiSASGameRecordActiveTransaction != 0)
+		return;
+	// <!-- custom: Flush an older synthetic bombard before arming the new transaction; otherwise that delayed row would be falsely attached to this operation. (ChatGPT-5.6-Sol) -->
+	if (!g_bSASGameRecordFlushingCityBombard)
+		flushSASGameRecordPendingCityBombard();
+	g_uiSASGameRecordActiveTransaction = ++g_uiSASGameRecordNextTransaction;
+	g_szSASGameRecordActiveTransactionKind = szKind;
+	m_bOwnsTransaction = true;
+	logSASGameRecord("GAME_RECORD_TRANSACTION_BEGIN turn=%d kind=%s", GC.getGame().getGameTurn(), szKind);
+}
+
+void SASGameRecordTransactionScope::end()
+{
+	FAssert(g_uiSASGameRecordActiveTransaction != 0);
+	logSASGameRecord("GAME_RECORD_TRANSACTION_END turn=%d kind=%s", GC.getGame().getGameTurn(), g_szSASGameRecordActiveTransactionKind.GetCString());
+	g_uiSASGameRecordActiveTransaction = 0;
+	g_szSASGameRecordActiveTransactionKind.clear();
 }
 
 static void logSASGameRecordBattleBuckets(int iGameTurn)
