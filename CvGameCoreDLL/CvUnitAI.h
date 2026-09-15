@@ -277,6 +277,8 @@ protected:
 	int AI_tradeMissionValue(CvPlot*& pBestPlot, int iThreshold = 0); // K-Mod
 	bool AI_doTradeMission(CvPlot* pTradePlot); // K-Mod
 	int AI_greatWorkValue(CvPlot*& pBestPlot, int iThreshold = 0); // K-Mod
+	// <!-- custom: KI#154.2 diagnostic: find the reachable Great Work that saves the most projected Culture-victory turns; ordinary Great Work valuation and action scoring remain unchanged. See KI#154.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int AI_greatWorkVictoryTimingValue(CvCity const*& pBestCity, int& iBestPathTurns, int& iBestTurnsSaved);
 	bool AI_doGreatWork(CvPlot* pCulturePlot); // K-Mod
 	bool AI_infiltrate();
 	bool AI_reconSpy(int iRange);

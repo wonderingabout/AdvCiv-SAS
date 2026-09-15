@@ -867,7 +867,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
 
 ## Culture
 
-- **Great Artist rebalance:** culture bomb strength reduced (**700 → 500 per era**), but long-term culture output increased (**12 → 18 culture/turn**). This strengthens long-term culture play while toning down early spikes.
+- **Great Artist rebalance:** culture bomb strength reduced (Requires AdvCiv-SAS 6462+) (**700 → 550 per era**), but long-term culture output increased (**12 → 14 culture/turn**). This strengthens long-term culture play while toning down early spikes.
 
 ## Religions
 

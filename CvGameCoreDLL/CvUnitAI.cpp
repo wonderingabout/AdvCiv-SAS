@@ -459,6 +459,66 @@ static void logSASCultureGreatArtistDecision(char const* szAction, CvUnitAI cons
 			(eSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSpecialist).getType()), (eBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBuilding).getType()), (eCorporation == NO_CORPORATION ? "NONE" : GC.getInfo(eCorporation).getType()), (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()));
 }
 
+// <!-- custom: KI#154.2 compares Great Artist actions by their projected effect on the empire's Culture-victory bottleneck, using the same maximum-affordable culture-slider estimate as CvPlayerAI::AI_updateCommerceWeights.
+// Action delay is measured from the current turn; culture accrued while the Artist travels is retained before applying a Great Work or settled-specialist rate.
+// Diagnostic helper only; no RNG calls and no action scoring changes. See KI#154.2. (ChatGPT-5.6-Sol) -->
+static int SAS_projectGreatArtistCultureVictoryCountdown(CvPlayerAI const& kOwner, CvCity const* pActionCity, int iActionDelay, int iGreatWorkCulture, SpecialistTypes eSettledSpecialist, int* piActionCityCountdown = NULL, int* piSettledCulturePerTurn = NULL)
+{
+	if (piActionCityCountdown != NULL)
+		*piActionCityCountdown = -1;
+	if (piSettledCulturePerTurn != NULL)
+		*piSettledCulturePerTurn = 0;
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.culturalVictoryValid())
+		return -1;
+	int const iVictoryCities = kGame.culturalVictoryNumCultureCities();
+	if (iVictoryCities <= 0 || kOwner.getNumCities() < iVictoryCities)
+		return -1;
+	int const iLegendaryCulture = kGame.getCultureThreshold(CvCultureLevelInfo::finalCultureLevel());
+	int const iGoldCommercePercent = kOwner.AI_estimateBreakEvenGoldPercent();
+	int const iProjectedCulturePercent = std::max(0, 100 - iGoldCommercePercent);
+	int const iCulturePercentChange = 100 - iGoldCommercePercent - kOwner.getCommercePercent(COMMERCE_CULTURE);
+	iActionDelay = std::max(0, iActionDelay);
+	std::vector<int> aiCountdowns;
+	aiCountdowns.reserve(kOwner.getNumCities());
+	FOR_EACH_CITY(pLoopCity, kOwner)
+	{
+		int iCultureRate = pLoopCity->getCommerceRate(COMMERCE_CULTURE);
+		iCultureRate += iCulturePercentChange * pLoopCity->getYieldRate(YIELD_COMMERCE) *
+				pLoopCity->getTotalCommerceRateModifier(COMMERCE_CULTURE) / 10000;
+		iCultureRate = std::max(1, iCultureRate);
+		int iSettledCulturePerTurn = 0;
+		if (pLoopCity == pActionCity && eSettledSpecialist != NO_SPECIALIST)
+		{
+			iSettledCulturePerTurn += kOwner.specialistCommerce(eSettledSpecialist, COMMERCE_CULTURE) *
+				pLoopCity->getTotalCommerceRateModifier(COMMERCE_CULTURE) / 100;
+			iSettledCulturePerTurn += kOwner.specialistYield(eSettledSpecialist, YIELD_COMMERCE) *
+				iProjectedCulturePercent * pLoopCity->getTotalCommerceRateModifier(COMMERCE_CULTURE) / 10000;
+			if (piSettledCulturePerTurn != NULL)
+				*piSettledCulturePerTurn = iSettledCulturePerTurn;
+		}
+		int iRemainingCulture = std::max(0, iLegendaryCulture - pLoopCity->getCulture(kOwner.getID()));
+		int iCountdown = 0;
+		if (iRemainingCulture > 0)
+		{
+			if (iActionDelay > 0 && iRemainingCulture <= iCultureRate * iActionDelay)
+				iCountdown = intdiv::uceil(iRemainingCulture, iCultureRate);
+			else
+			{
+				iRemainingCulture = std::max(0, iRemainingCulture - iCultureRate * iActionDelay);
+				if (pLoopCity == pActionCity)
+					iRemainingCulture = std::max(0, iRemainingCulture - std::max(0, iGreatWorkCulture));
+				iCountdown = iActionDelay + intdiv::uceil(iRemainingCulture, std::max(1, iCultureRate + iSettledCulturePerTurn));
+			}
+		}
+		if (pLoopCity == pActionCity && piActionCityCountdown != NULL)
+			*piActionCityCountdown = iCountdown;
+		aiCountdowns.push_back(iCountdown);
+	}
+	std::sort(aiCountdowns.begin(), aiCountdowns.end());
+	return std::max(0, aiCountdowns[iVictoryCities - 1]);
+}
+
 // <!-- custom: First-settler movement needs starting-capital weights, but AI_foundValue(..., true) also enables the all-seeing map-generation mode. Keep the weights while disabling omniscience so fogged BFC plots remain neutral; optionally collect a compact breakdown only from guarded level-3 diagnostics. (GPT-5.5) -->
 static int SAS_evaluateFirstCityFoundValue(CvPlayerAI const& kOwner, CvPlot const& kCityPlot, CvString* pszBreakdown = NULL)
 {
@@ -9979,6 +10039,47 @@ void CvUnitAI::AI_greatPersonMove()
 	// Great works (culture bomb)
 	CvPlot* pBestCulturePlot;
 	int iCultureValue = AI_greatWorkValue(pBestCulturePlot, (rDiscoverValue / 2).round());
+	// <!-- custom: KI#154.2: compare Great Work against permanent Great Artist settlement by projected turns saved to the empire's Culture-victory bottleneck.
+	// Observe from Culture 1 onward so the unstable pre-commitment window and decisive late Culture stages can both be studied, but deliberately do not alter inherited Great Person action scoring or targets.
+	// Pre-gate the extra city/path scan behind level-3 culture diagnostics. See KI#154.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iCultureStage = (AI_getUnitAIType() == UNITAI_GREAT_ARTIST ? getSASCultureVictoryStageLevel(kOwner.AI_getVictoryStageHash()) : 0);
+	if (gCultureLogLevel >= 3 && iCultureStage >= 1)
+	{
+		bool const bSettleCandidate = (eBestSlowMissionAI == MISSIONAI_JOIN_CITY && eBestSpecialist != NO_SPECIALIST && pBestCity != NULL &&
+			getUnitInfo().getGreatPeoples(eBestSpecialist));
+		CvCity const* pVictoryCultureCity = NULL;
+		int iVictoryCulturePathTurns = MAX_INT;
+		int iGreatWorkTurnsSaved = 0;
+		int const iVictoryTimingCultureValue = AI_greatWorkVictoryTimingValue(pVictoryCultureCity, iVictoryCulturePathTurns, iGreatWorkTurnsSaved);
+		int const iCurrentVictoryCountdown = SAS_projectGreatArtistCultureVictoryCountdown(kOwner, NULL, 0, 0, NO_SPECIALIST);
+		int iGreatWorkVictoryCountdown = -1;
+		int iGreatWorkCityCountdown = -1;
+		int iGreatWorkCulture = 0;
+		if (pVictoryCultureCity != NULL && iVictoryCulturePathTurns != MAX_INT)
+		{
+			iGreatWorkCulture = getGreatWorkCulture(pVictoryCultureCity->plot());
+			iGreatWorkVictoryCountdown = SAS_projectGreatArtistCultureVictoryCountdown(kOwner, pVictoryCultureCity, std::max(0, iVictoryCulturePathTurns - 1), iGreatWorkCulture, NO_SPECIALIST, &iGreatWorkCityCountdown);
+		}
+		int iSettleVictoryCountdown = -1;
+		int iSettleCityCountdown = -1;
+		int iSettledCulturePerTurn = 0;
+		int iSettleTurnsSaved = 0;
+		if (bSettleCandidate && iBestPathTurns != MAX_INT)
+		{
+			iSettleVictoryCountdown = SAS_projectGreatArtistCultureVictoryCountdown(kOwner, pBestCity, std::max(0, iBestPathTurns - 1), 0, eBestSpecialist, &iSettleCityCountdown, &iSettledCulturePerTurn);
+			if (iCurrentVictoryCountdown >= 0 && iSettleVictoryCountdown >= 0)
+				iSettleTurnsSaved = std::max(0, iCurrentVictoryCountdown - iSettleVictoryCountdown);
+		}
+		bool const bWouldPreferGreatWork = (bSettleCandidate && pVictoryCultureCity != NULL && iGreatWorkTurnsSaved > iSettleTurnsSaved);
+		logBBAI("CULTURE_GREAT_ARTIST_VICTORY_TIMING turn=%d player=%d %S unitId=%d stage=%d settleCandidate=%d currentVictoryCountdown=%d greatWorkCity=%S greatWorkCityId=%d greatWorkRank=%d greatWorkPathTurns=%d greatWorkCulture=%d greatWorkCityCountdown=%d greatWorkVictoryCountdown=%d greatWorkTurnsSaved=%d greatWorkRawValue=%d settleCity=%S settleCityId=%d settleRank=%d settlePathTurns=%d settledCulturePerTurn=%d settleCityCountdown=%d settleVictoryCountdown=%d settleTurnsSaved=%d timingMarginTurns=%d slowValue=%d greatWorkActionValue=%d wouldPreferGreatWork=%d",
+			kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iCultureStage, bSettleCandidate, iCurrentVictoryCountdown,
+			(pVictoryCultureCity == NULL ? L"-" : pVictoryCultureCity->getName().GetCString()), (pVictoryCultureCity == NULL ? -1 : pVictoryCultureCity->getID()),
+			(pVictoryCultureCity == NULL ? 0 : pVictoryCultureCity->AI().AI_getCultureVictoryRank()), (iVictoryCulturePathTurns == MAX_INT ? -1 : iVictoryCulturePathTurns),
+			iGreatWorkCulture, iGreatWorkCityCountdown, iGreatWorkVictoryCountdown, iGreatWorkTurnsSaved, iVictoryTimingCultureValue,
+			(pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), (pBestCity == NULL ? -1 : pBestCity->getID()),
+			(pBestCity == NULL ? 0 : pBestCity->AI().AI_getCultureVictoryRank()), (iBestPathTurns == MAX_INT ? -1 : iBestPathTurns),
+			iSettledCulturePerTurn, iSettleCityCountdown, iSettleVictoryCountdown, iSettleTurnsSaved, iGreatWorkTurnsSaved - iSettleTurnsSaved, iSlowValue, iCultureValue, bWouldPreferGreatWork);
+	}
 	if (pBestCulturePlot != 0)
 	{
 		missions.push_back(std::pair<int, int>(iCultureValue, GP_CULTURE));
@@ -26636,6 +26737,49 @@ int CvUnitAI::AI_greatWorkValue(CvPlot*& pBestPlot, int iThreshold)
 		}
 	}
 
+	return iBestValue;
+}
+
+// <!-- custom: KI#154.2: ordinary AI_greatWorkValue scores a culture burst through steady-state commerce weight and explicitly does not estimate turns to Legendary.
+// During Culture 1+ diagnostics, independently find the safe reachable Great Work that most reduces the projected empire Culture-victory bottleneck; ties retain the inherited culture-value/path preference.
+// This helper does not alter action scoring or mission targets. See KI#154.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int CvUnitAI::AI_greatWorkVictoryTimingValue(CvCity const*& pBestCity, int& iBestPathTurns, int& iBestTurnsSaved)
+{
+	pBestCity = NULL;
+	iBestPathTurns = MAX_INT;
+	iBestTurnsSaved = 0;
+	if (getUnitInfo().getGreatWorkCulture() == 0)
+		return 0;
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	if (getSASCultureVictoryStageLevel(kOwner.AI_getVictoryStageHash()) < 1)
+		return 0;
+	int const iCurrentVictoryCountdown = SAS_projectGreatArtistCultureVictoryCountdown(kOwner, NULL, 0, 0, NO_SPECIALIST);
+	if (iCurrentVictoryCountdown < 0)
+		return 0;
+	int iBestValue = 0;
+	FOR_EACH_CITYAI(pLoopCity, kOwner)
+	{
+		if (!AI_canEnterByLand(pLoopCity->getArea()) || !pLoopCity->AI_isSafe() || !canGreatWork(pLoopCity->plot()))
+			continue;
+		int iPathTurns;
+		if (!generatePath(pLoopCity->getPlot(), MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns))
+			continue;
+		int const iGreatWorkCulture = getGreatWorkCulture(pLoopCity->plot());
+		int const iVictoryCountdown = SAS_projectGreatArtistCultureVictoryCountdown(kOwner, pLoopCity, std::max(0, iPathTurns - 1), iGreatWorkCulture, NO_SPECIALIST);
+		int const iTurnsSaved = std::max(0, iCurrentVictoryCountdown - iVictoryCountdown);
+		if (iTurnsSaved <= 0)
+			continue;
+		int const iValue = iGreatWorkCulture * kOwner.AI_commerceWeight(COMMERCE_CULTURE, pLoopCity) / 100;
+		bool const bBetterTie = (iTurnsSaved == iBestTurnsSaved && (iBestPathTurns == MAX_INT ||
+			iValue * (4 + iBestPathTurns) > iBestValue * (4 + iPathTurns)));
+		if (iTurnsSaved > iBestTurnsSaved || bBetterTie)
+		{
+			iBestTurnsSaved = iTurnsSaved;
+			iBestValue = iValue;
+			iBestPathTurns = iPathTurns;
+			pBestCity = pLoopCity;
+		}
+	}
 	return iBestValue;
 }
 

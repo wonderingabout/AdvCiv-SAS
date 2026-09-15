@@ -25992,10 +25992,9 @@
 			<iHurryMultiplier>0</iHurryMultiplier>
 			<iBaseTrade>0</iBaseTrade>
 			<iTradeMultiplier>0</iTradeMultiplier>
-			<!-- custom: increase/buff longterm great artist value for cultural victory path or make it worse more, nerf cultural bomb as well, was 700 -->
-			<!-- advc.251: Was 4000 in BtS, 800 in K-Mod and counted per era,
-				 starting at 0. Starting at 1 in AdvCiv. -->
-			<iGreatWorkCulture>500</iGreatWorkCulture>
+			<!-- advc.251: Was 4000 in BtS, 800 in K-Mod and counted per era, starting at 0. Starting at 1 in AdvCiv. -->
+			<!-- custom: Rebalance Great Artist long-term settlement against immediate Great Work value; Great Work was 700 in Base AdvCiv 1.14 and 500 in the previous AdvCiv-SAS balance. (ChatGPT-5.6-Sol) -->
+			<iGreatWorkCulture>550</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
 			<FeatureImpassables/>

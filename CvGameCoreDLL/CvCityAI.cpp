@@ -10917,6 +10917,7 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
 		this is going to be very arbitrary...
 		-- and it will be based on the original BtS code! */
 	int const iValueBeforeSpace = iValue;
+	int const iSpaceVictoryStage = getSASSpaceVictoryStageLevel(kOwner.AI_getVictoryStageHash());
 	int iSpaceValue = 0;
 
 	// a project which enables other projects... i.e. the Apollo Program
@@ -10926,7 +10927,7 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
 				GC.getInfo(eLoopProject).getProjectsNeeded(eProject)
 				- kTeam.getProjectCount(eProject)); 
 	}
-	if (kOwner.AI_atVictoryStage(AI_VICTORY_SPACE1))
+	if (iSpaceVictoryStage >= 1)
 	{
 		// a boost to compound with the other boosts lower down.
 		iSpaceValue = (3 * iSpaceValue) / 2;
@@ -10945,20 +10946,17 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
 		iSpaceValue += std::max(0,
 				kProject.getVictoryMinThreshold(eLoopVictory)
 				- kTeam.getProjectCount(eProject)) *
-				(kOwner.AI_atVictoryStage(AI_VICTORY_SPACE4) ? 60 : 30);
+				(iSpaceVictoryStage >= 4 ? 60 : 30);
 		iSpaceValue += kProject.getSuccessRate();
 		iSpaceValue += kProject.getVictoryDelayPercent() /
 				(4 * perVictoryVal.second);
 	}
 
 	int const iSpaceValueBeforeStage = iSpaceValue;
-	if (kOwner.AI_atVictoryStage(AI_VICTORY_SPACE4))
-		iSpaceValue *= 4;
-	else if (kOwner.AI_atVictoryStage(AI_VICTORY_SPACE3))
-		iSpaceValue *= 3;
-	else if (kOwner.AI_atVictoryStage(AI_VICTORY_SPACE2))
-		iSpaceValue *= 2;
-	else if (!kOwner.AI_atVictoryStage(AI_VICTORY_SPACE1) && kOwner.AI_atVictoryStage4())
+	// <!-- custom: The shared Space-stage level directly supplies the inherited Space2/3/4 multiplier. (GPT-5.6-Sol) -->
+	if (iSpaceVictoryStage >= 2)
+		iSpaceValue *= iSpaceVictoryStage;
+	else if (iSpaceVictoryStage == 0 && kOwner.AI_atVictoryStage4())
 		iSpaceValue = (2 * iSpaceValue) / 3;
 	int const iSpaceValueAfterStage = iSpaceValue;
 
