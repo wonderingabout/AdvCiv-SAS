@@ -1206,7 +1206,8 @@ struct SASGameRecordCityPlotUnitCounts
 	int iSettlers;
 	int iWorkers;
 	int iAttackers;
-	SASGameRecordCityPlotUnitCounts() : iUnits(0), iMilitaryUnits(0), iCivilianUnits(0), iDefenders(0), iHealthyDefenders(0), iWoundedDefenders(0), iSettlers(0), iWorkers(0), iAttackers(0) {}
+	CvUnit const* pFirstSettler;
+	SASGameRecordCityPlotUnitCounts() : iUnits(0), iMilitaryUnits(0), iCivilianUnits(0), iDefenders(0), iHealthyDefenders(0), iWoundedDefenders(0), iSettlers(0), iWorkers(0), iAttackers(0), pFirstSettler(NULL) {}
 };
 
 static void collectSASGameRecordCityPlotUnitCounts(CvPlot const& kPlot, PlayerTypes ePlayer, SASGameRecordCityPlotUnitCounts& kCounts)
@@ -1224,10 +1225,58 @@ static void collectSASGameRecordCityPlotUnitCounts(CvPlot const& kPlot, PlayerTy
 			if (pLoopUnit->getDamage() <= 25) kCounts.iHealthyDefenders++;
 			else kCounts.iWoundedDefenders++;
 		}
-		if (isSASGameRecordSettlerUnit(*pLoopUnit)) kCounts.iSettlers++;
+		if (isSASGameRecordSettlerUnit(*pLoopUnit))
+		{
+			kCounts.iSettlers++;
+			if (kCounts.pFirstSettler == NULL) kCounts.pFirstSettler = pLoopUnit;
+		}
 		if (isSASGameRecordWorkerUnit(*pLoopUnit)) kCounts.iWorkers++;
 		if (pLoopUnit->canAttack()) kCounts.iAttackers++;
 	}
+}
+
+// <!-- custom: Preserve Settler-stack combat context at the actual battle target. A defeated attacker still occupies its origin at combat-result time, so using the losing unit's plot would falsely treat failed attacks launched from a Settler stack as attacks against that stack. See KI#377. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static bool logSASGameRecordSettlerCombatForPlot(CvUnit const* pWinner, CvUnit const* pLoser, CvPlot const* pPlot, PlayerTypes eSettlerOwner, bool bLoserWasSettler, bool bWinnerWasSettler)
+{
+	if (pWinner == NULL || pLoser == NULL || pPlot == NULL || eSettlerOwner == NO_PLAYER)
+		return false;
+	SASGameRecordCityPlotUnitCounts kCounts;
+	collectSASGameRecordCityPlotUnitCounts(*pPlot, eSettlerOwner, kCounts);
+	if (kCounts.iSettlers <= 0 && !bLoserWasSettler && !bWinnerWasSettler)
+		return false;
+	CvUnit const* pSettler = (bLoserWasSettler ? pLoser : (bWinnerWasSettler ? pWinner : kCounts.pFirstSettler));
+	CvSelectionGroup const* pSettlerGroup = (pSettler == NULL ? NULL : pSettler->getGroup());
+	int iGroupUnits = 0;
+	int iGroupDefenders = 0;
+	int iGroupSettlers = 0;
+	if (pSettlerGroup != NULL)
+	{
+		FOR_EACH_UNIT_IN(pLoopUnit, *pSettlerGroup)
+		{
+			iGroupUnits++;
+			if (isSASGameRecordSettlerUnit(*pLoopUnit)) iGroupSettlers++;
+			if (pLoopUnit->canDefend(pLoopUnit->plot())) iGroupDefenders++;
+		}
+	}
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=SETTLER_GROUP_ATTACKED settlerOwner=%d settlerId=%d settlerUnit=%s x=%d y=%d cityPlot=%d winnerPlayer=%d winnerUnitId=%d winnerUnit=%s winnerAI=%s winnerBaseStr=%d winnerDamage=%d loserPlayer=%d loserUnitId=%d loserUnit=%s loserAI=%s loserBaseStr=%d loserDamage=%d loserWasSettler=%d winnerWasSettler=%d ownerUnitsOnPlot=%d militaryUnitsOnPlot=%d civilianUnitsOnPlot=%d settlersOnPlot=%d defendersOnPlot=%d healthyDefendersOnPlot=%d workersOnPlot=%d settlerGroupId=%d settlerGroupUnits=%d settlerGroupSettlers=%d settlerGroupDefenders=%d",
+			GC.getGame().getGameTurn(), eSettlerOwner, (pSettler == NULL ? -1 : pSettler->getID()), (pSettler == NULL ? "-" : getSASGameRecordUnitType(pSettler->getUnitType())), pPlot->getX(), pPlot->getY(), pPlot->isCity(),
+			pWinner->getOwner(), pWinner->getID(), getSASGameRecordUnitType(pWinner->getUnitType()), getSASGameRecordUnitAIType(pWinner->AI_getUnitAIType()), pWinner->baseCombatStr(), pWinner->getDamage(),
+			pLoser->getOwner(), pLoser->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), getSASGameRecordUnitAIType(pLoser->AI_getUnitAIType()), pLoser->baseCombatStr(), pLoser->getDamage(),
+			bLoserWasSettler, bWinnerWasSettler, kCounts.iUnits, kCounts.iMilitaryUnits, kCounts.iCivilianUnits, kCounts.iSettlers, kCounts.iDefenders, kCounts.iHealthyDefenders, kCounts.iWorkers,
+			(pSettlerGroup == NULL ? -1 : pSettlerGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders);
+	return true;
+}
+
+static void logSASGameRecordSettlerCombatIfNeeded(CvUnit const* pWinner, CvUnit const* pLoser, CvPlot const* pBattlePlot)
+{
+	if (pWinner == NULL || pLoser == NULL || pBattlePlot == NULL)
+		return;
+	bool const bLoserWasSettler = isSASGameRecordSettlerUnit(*pLoser);
+	bool const bWinnerWasSettler = isSASGameRecordSettlerUnit(*pWinner);
+	if (bLoserWasSettler && logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pLoser->getOwner(), true, bWinnerWasSettler)) return;
+	if (bWinnerWasSettler && logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pWinner->getOwner(), bLoserWasSettler, true)) return;
+	if (logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pLoser->getOwner(), false, false)) return;
+	logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pWinner->getOwner(), false, false);
 }
 
 static void appendSASGameRecordValue(CvString& szList, const char* szName, int iValue)
@@ -5187,6 +5236,8 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser, C
 {
 	if (pWinner == NULL || pLoser == NULL || pBattlePlot == NULL)
 		return;
+	// <!-- custom: Capture Settler-stack exposure before combat-result aggregation; CvEventReporter already supplies the authoritative battle target and level-2 caller gate. (GPT-5.6-Sol) -->
+	logSASGameRecordSettlerCombatIfNeeded(pWinner, pLoser, pBattlePlot);
 	PlayerTypes const eWinner = pWinner->getOwner();
 	PlayerTypes const eLoser = pLoser->getOwner();
 	bool const bCityPlot = pBattlePlot->isCity();
@@ -5234,6 +5285,13 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser, C
 			g_aiSASGameRecordTotalCityBattleLosses[eLoser]++;
 			kLoserFlow.iCityPlotLosses++;
 		}
+	}
+	// <!-- custom: GREAT_GENERAL_ATTACHED records the attachment transaction; preserve the matching host-unit combat death so an attached Great General can be followed through its final outcome. (GPT-5.6-Sol) -->
+	if (pLoser->getLeaderUnitType() != NO_UNIT)
+	{
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_GENERAL_UNIT_DIED player=%d unitId=%d unit=%s attachedGreatGeneral=%s winnerPlayer=%d winnerUnitId=%d winnerUnit=%s x=%d y=%d",
+			GC.getGame().getGameTurn(), eLoser, pLoser->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), getSASGameRecordUnitType(pLoser->getLeaderUnitType()),
+			eWinner, pWinner->getID(), getSASGameRecordUnitType(pWinner->getUnitType()), pBattlePlot->getX(), pBattlePlot->getY());
 	}
 	logSASGameRecordGreatPersonDied(pLoser, eWinner, "COMBAT", pBattlePlot);
 	if (!bLogExactBattle)
