@@ -25,6 +25,7 @@
 #include "CvReplayInfo.h" // advc.106n
 #include "BarbarianWeightMap.h" // advc.304
 #include "CvDLLIniParserIFaceBase.h"
+#include "SASGameRecordLog.h" // <!-- custom: Finalize old GameRecord state before map deserialization replaces the authoritative map. (ChatGPT-5.6-Sol) -->
 #include <boost/algorithm/string.hpp> // advc.108b
 
 
@@ -1226,6 +1227,8 @@ void CvMap::invalidateBorderDangerCache(TeamTypes eTeam)
 // read object from a stream. used during load
 void CvMap::read(FDataStreamBase* pStream)
 {
+	// <!-- custom: A quickload can replace the map while its GameRecord still has buffered observations. Finalize them against the old map before this read resets it; the helper is duplicate-safe if CvGame::reset already finalized the session. (ChatGPT-5.6-Sol) -->
+	if (isSASGameRecordLogEnabled()) finalizeSASGameRecordLogSession();
 	uint uiFlag=0;
 	pStream->Read(&uiFlag);
 

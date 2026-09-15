@@ -13,6 +13,33 @@ int getSASGameRecordTurnInterval();
 void startSASGameRecordLogForNewGame();
 void logSASGameRecordNewGameStarted();
 void startSASGameRecordLogForLoadedSave();
+
+// <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it; level-3 RNG tracking also emits its final authoritative checkpoint here. (ChatGPT-5.6-Sol) -->
+void finalizeSASGameRecordLogSession();
+
+class CvRandom;
+// <!-- custom: Level-3 RNG divergence tracking observes every advance of the authoritative game map/synchronized RNGs, including calls with NULL RandLog messages.
+// Async randomness and local/temporary CvRandom helpers are intentionally excluded. Tracking state is recorder-local only and never serialized into CvRandom or savegames. (GPT-5.6-Sol) -->
+extern bool g_bSASGameRecordRngTrackingActive;
+// <!-- custom: Keep lifecycle checkpoint reasons in a recorder-owned enum so call sites cannot silently drift in spelling and downstream comparison can rely on one stable vocabulary. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordRngCheckpointReason
+{
+	SAS_RNG_CHECKPOINT_NEW_GAME_INITIALIZED,
+	SAS_RNG_CHECKPOINT_MAP_REGENERATION_BEGIN,
+	SAS_RNG_CHECKPOINT_MAP_REGENERATION_END,
+	SAS_RNG_CHECKPOINT_AUTOPLAY_BEGIN,
+	SAS_RNG_CHECKPOINT_AUTOPLAY_END,
+	SAS_RNG_CHECKPOINT_END_GAME_TURN,
+	SAS_RNG_CHECKPOINT_VICTORY,
+	SAS_RNG_CHECKPOINT_GAME_END,
+	SAS_RNG_CHECKPOINT_SAVE_LOADED,
+	SAS_RNG_CHECKPOINT_SESSION_FINALIZE
+};
+void initializeSASGameRecordRngTracking();
+void noteSASGameRecordRandomCall(CvRandom const* pRandom, unsigned short usRange, TCHAR const* szLog, int iData1, int iData2);
+void noteSASGameRecordExternalRandomCall(CvRandom const* pRandom);
+void noteSASGameRecordRandomSeedSet(CvRandom const* pRandom, unsigned int uiOldState, unsigned int uiNewState, bool bReseed);
+void logSASGameRecordRngCheckpoint(int iGameTurn, SASGameRecordRngCheckpointReason eReason);
 void logSASGameRecordTurn(int iGameTurn);
 struct SASGameRecordPlotState;
 // <!-- custom: Plot changes and permanent team map revelation are buffered into compact coordinate lists and flushed once per turn; detailed before/after rows are reserved for non-routine causes. (GPT-5.6-Sol) -->

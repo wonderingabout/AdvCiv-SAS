@@ -1,0 +1,4 @@
+A: SASGameRecord_20260915T162634Z_load1.log (155 RNG checkpoints, 0 state checkpoints, revision <unknown>, valid)
+B: SASGameRecord_20260915T162808Z_load2.log (155 RNG checkpoints, 0 state checkpoints, revision <unknown>, valid)
+RNG checkpoints are identical.
+State checkpoint comparison unavailable: both records need GAME_RECORD_STATE_CHECKPOINT rows.
