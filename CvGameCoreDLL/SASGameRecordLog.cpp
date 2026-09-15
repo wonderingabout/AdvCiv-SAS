@@ -5,43 +5,43 @@
 #include "SASGameRecordLog.h"
 #include "CvGame.h" // <!-- custom: Needed for game-record turn, game-state, victory, RNG, and map-classification context rows. (GPT-5.5) -->
 #include "CvDeal.h" // <!-- custom: Needed directly for canonical state-checkpoint deal identities and persisted trade-item lists; do not rely on CvGame headers to complete CvDeal transitively. (ChatGPT-5.6-Sol) -->
-#include "CvPlayer.h" // <!-- custom: Needed directly for active-player civilization/handicap context in this smaller AdvCiv 1.14 port slice; do not rely on later SASGameRecord headers to complete CvPlayer transitively. (ChatGPT-5.6-Sol) -->
-#include "CvPlayerAI.h" // <!-- custom: Needed for attitude/glance values in game-record advisor rows. (ChatGPT-5.5) -->
-#include "AgentIterator.h" // <!-- custom: Needed directly for MemberIter in compact team-aware research-redirection context; do not rely on unrelated gameplay headers to provide the iterator transitively. (ChatGPT-5.6-Sol) -->
-#include "CvTeamAI.h" // <!-- custom: Needed for team-level worst-enemy state in game-record diplomacy-status rows. (ChatGPT-5.5) -->
-#include "CvCity.h" // <!-- custom: Needed to count player-city religions and corporations in periodic policy snapshots. (ChatGPT-5.6-Sol) -->
+#include "CvCity.h" // <!-- custom: Needed by game-record city action/BFC rows; SASGameRecordLog.h only forward-declares CvCity. (GPT-5.5) -->
 #include "CvCityAI.h" // <!-- custom: Needed only to read the existing Avoid Growth AI emphasis flag in city snapshots/aggregates; CvCity.h only forward-declares CvCityAI. This is a compile-time type dependency and does not alter AI state or gameplay. (ChatGPT-5.6-Sol) -->
-#include "CityPlotIterator.h" // <!-- custom: Needed by compact game-record worked-plot composition rows. (ChatGPT-5.5) -->
-#include "CvPlot.h" // <!-- custom: Needed to classify Spy deployment and stationary mission preparation in periodic espionage snapshots. (ChatGPT-5.6-Sol) -->
-#include "CvPlotGroup.h" // <!-- custom: Needed to identify connected city networks in game-record city rows. (ChatGPT-5.5) -->
-#include "CvArea.h" // <!-- custom: Needed for area-wide city happiness/health detail rows. (ChatGPT-5.5) -->
-#include "CvTeam.h" // <!-- custom: Needed directly for finalized initial-team state and technology grouping in this smaller AdvCiv 1.14 port slice; GET_TEAM is defined by CvTeam.h. (ChatGPT-5.6-Sol) -->
-#include "CvUnit.h" // <!-- custom: Needed for the mature SASGameRecord distinction between actual combat-capable units and Civ4's separate bMilitarySupport counter in periodic player snapshots. (ChatGPT-5.6-Sol) -->
-#include "CvUnitAI.h" // <!-- custom: Needed directly for semantic unit-state fingerprints; CvUnit.h does not provide the full CvUnitAI interface. (ChatGPT-5.6-Sol) -->
+#include "CvUnit.h" // <!-- custom: Needed by game-record battle rows; SASGameRecordLog.h only forward-declares CvUnit. (GPT-5.5) -->
 #include "CombatOdds.h" // <!-- custom: Needed only for exact pre-combat odds on real level-2+ battle outcomes; AI candidate valuation remains untouched. (ChatGPT-5.6-Sol) -->
-#include "CvSelectionGroup.h" // <!-- custom: Needed to inspect worker/settler mission queues in game-record rows. (ChatGPT-5.5) -->
-#include "CvSelectionGroupAI.h" // <!-- custom: Needed directly for semantic group mission/AI-state fingerprints; CvSelectionGroup.h only supplies the base group interface. (ChatGPT-5.6-Sol) -->
-#include "CvInfo_Organization.h" // <!-- custom: Needed for religion/corporation type names in game-record action rows. (GPT-5.5) -->
+#include "CvUnitAI.h" // <!-- custom: Needed to inspect the head unit of large city groups and its UnitAI role; the base unit header only forward-declares CvUnitAI. (GPT-5.6-Sol) -->
+#include "CityPlotIterator.h" // <!-- custom: Needed by compact game-record BFC composition rows. (ChatGPT-5.5) -->
+#include "CvPlot.h" // <!-- custom: Needed by game-record BFC and unit posture rows. (ChatGPT-5.5) -->
+#include "CvInfo_Build.h" // <!-- custom: Needed for worker build-type names and build target classification in game-record rows. (ChatGPT-5.5) -->
+#include "CvInfo_Command.h" // <!-- custom: Needed for mission-type names in worker/settler game-record rows. (ChatGPT-5.5) -->
+#include "CvInfo_Building.h" // <!-- custom: Needed to classify city production in game-record city rows. (ChatGPT-5.5) -->
+#include "CvInfo_Tech.h" // <!-- custom: Needed for stable technology type names and XML trade-capability source mapping. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Terrain.h" // <!-- custom: Needed for terrain/feature/bonus type names in game-record context rows. (ChatGPT-5.5) -->
+#include "CvInfo_Organization.h" // <!-- custom: Needed for religion/corporation type names in game-record action rows. (ChatGPT-5.5) -->
+#include "CvInfo_Unit.h" // <!-- custom: Needed to classify unit composition and city production in game-record rows. (ChatGPT-5.5) -->
+#include "CvInfo_Symbol.h" // <!-- custom: Needed for commerce-slider type names plus assigned player-color/primary-color context; CvGlobals only forward-declares the relevant info classes. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+#include "CvInfo_City.h" // <!-- custom: Needed for specialist and process type names in game-record city rows. (ChatGPT-5.5) -->
 #include "CvInfo_Civics.h" // <!-- custom: Needed for policy/civic names in game-record advisor rows. (ChatGPT-5.5) -->
 #include "CvInfo_Civilization.h" // <!-- custom: Needed to attribute player-wide extra happiness/health to traits instead of leaving effects from loaded-mod rules under an opaque `extra` label. (GPT-5.6-Sol) -->
 #include "CvCivilization.h" // <!-- custom: Needed to resolve civilization-specific BuildingClass types in realized random-event building/city result rows; CvPlayer/CvCity only forward-declare the runtime CvCivilization wrapper. This is a compile-time dependency only. (ChatGPT-5.6-Sol) -->
-#include "CvInfo_Tech.h" // <!-- custom: Needed for stable technology type names and XML trade-capability source mapping. (ChatGPT-5.6-Sol) -->
-#include "CvInfo_Terrain.h" // <!-- custom: Needed for terrain/feature/bonus type names in game-record context rows. (ChatGPT-5.5) -->
-#include "CvInfo_Build.h" // <!-- custom: Needed for worker build-type names and build target classification in game-record rows. (ChatGPT-5.5) -->
-#include "CvInfo_Command.h" // <!-- custom: Needed for mission-type names in worker/settler game-record rows. (ChatGPT-5.5) -->
-#include "CvInfo_Building.h" // <!-- custom: Needed to classify city production and wonders in game-record city aggregate rows. (ChatGPT-5.5) -->
-#include "CvInfo_City.h" // <!-- custom: Needed for specialist and process type names in game-record city rows. (ChatGPT-5.5) -->
-#include "CvInfo_Unit.h" // <!-- custom: Needed to classify unit composition and city production in game-record rows. (ChatGPT-5.5) -->
-#include "CvInfo_Misc.h" // <!-- custom: Needed directly for era type names in periodic team technology summaries; base AdvCiv only forward-declares CvEraInfo through CvGlobals. (ChatGPT-5.6-Sol) -->
-#include "CvInfo_Symbol.h" // <!-- custom: Needed to log actual assigned player-color and primary-color context; CvGlobals only forward-declares their info classes. (GPT-5.6-Sol) -->
-#include "CvGameCoreUtils.h" // <!-- custom: Needed for shared machine-readable diagnostic quoting/list helpers used by SASGameRecord. (ChatGPT-5.6-Sol) -->
-#include "CvStatistics.h" // <!-- custom: Needed for persistent player-record statistics in game-record benchmark rows. (GPT-5.5) -->
 #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
+#include "CvInfo_Misc.h" // <!-- custom: Needed directly for era type names in periodic team technology summaries; base AdvCiv only forward-declares CvEraInfo through CvGlobals. (ChatGPT-5.6-Sol) -->
 #include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
-#include <algorithm>
-#include <utility> // <!-- custom: Needed for Great Person odds pairs in game-record city rows. (ChatGPT-5.5) -->
-#include <vector> // <!-- custom: Used for grouped finalized initial-team technology payloads. (ChatGPT-5.6-Sol) -->
+#include "CvSelectionGroup.h" // <!-- custom: Needed to inspect worker/settler mission queues in game-record rows. (ChatGPT-5.5) -->
+#include "CvSelectionGroupAI.h" // <!-- custom: Needed for large city-group mission targets and MissionAI state; the base group header only forward-declares CvSelectionGroupAI. (GPT-5.6-Sol) -->
+#include "CvPlotGroup.h" // <!-- custom: Needed to identify connected city networks in game-record city rows. (ChatGPT-5.5) -->
+#include "CvArea.h" // <!-- custom: Needed for area-wide city happiness/health detail rows. (ChatGPT-5.5) -->
+#include "CvPlayer.h" // <!-- custom: Needed directly for active-player civilization/handicap context in this smaller AdvCiv 1.14 port slice; do not rely on later SASGameRecord headers to complete CvPlayer transitively. (ChatGPT-5.6-Sol) -->
+#include "CvPlayerAI.h" // <!-- custom: Needed for attitude/glance values in game-record advisor rows. (ChatGPT-5.5) -->
+#include "AgentIterator.h" // <!-- custom: Needed directly for MemberIter in compact team-aware research-redirection context; do not rely on unrelated gameplay headers to provide the iterator transitively. (ChatGPT-5.6-Sol) -->
+#include "CvTeam.h" // <!-- custom: Needed directly for finalized initial-team state and technology grouping in this smaller AdvCiv 1.14 port slice; GET_TEAM is defined by CvTeam.h. (ChatGPT-5.6-Sol) -->
+#include "CvTeamAI.h" // <!-- custom: Needed for team-level worst-enemy state in game-record diplomacy-status rows. (ChatGPT-5.5) -->
+#include "CvStatistics.h" // <!-- custom: Needed for persistent player-record statistics in game-record benchmark rows. (GPT-5.5) -->
+#include "CvGameCoreUtils.h" // <!-- custom: Needed for shared machine-readable diagnostic quoting/list helpers used by SASGameRecord. (ChatGPT-5.6-Sol) -->
 #include <time.h>
+#include <algorithm> // <!-- custom: Needed to deduplicate buffered plot-change/map-revelation coordinates within each turn. (GPT-5.6-Sol) -->
+#include <utility> // <!-- custom: Needed for Great Person odds pairs in game-record city rows. (ChatGPT-5.5) -->
+#include <vector> // <!-- custom: Used for compact dynamic buckets in game-record known-area, BFC development, advisor, tech-era, worker/settler, and unit-composition rows. (ChatGPT-5.5) -->
 
 static int getClampedSASGameRecordLogLevel(char const* szDefineName)
 {
@@ -55,10 +55,10 @@ static int getClampedSASGameRecordLogLevel(char const* szDefineName)
 
 // <!-- custom: Dedicated structured game-record log for autoplay comparison, general game analysis, and external LLM review.
 // This is independent from SAS_BBAI_LOG_ENABLE because it is a run-report artifact rather than classic AI-decision diagnostics, and writes to SASGameRecord_*.log when enabled.
-// Use ACTION rows rather than EVENT rows to avoid confusion with Civ4 random events.
+// Use ACTION rows rather than generic EVENT rows to avoid confusion with Civ4 random events; dedicated GAME_RECORD_RANDOM_EVENT_* rows are reserved specifically for actual EventTrigger/EventInfo lifecycle boundaries.
 // Keep the recorder portable across Civ4 mods by enumerating loaded XML and using generic field meanings instead of hardcoding AdvCiv-SAS types or copying the full XML.
 // Mod-specific rules can still be named in comments as concrete examples: TECH_DEPOPULATION currently applies negative player-wide health and happiness in AdvCiv-SAS, but the recorder attributes health/happiness from every loaded trait, civic and technology dynamically.
-// The record describes the current format; do not add schema-version maintenance unless independently evolving consumers later require it. (ChatGPT-5.5 + GPT-5.5 + GPT-5.6-Sol) -->
+// The record describes the current format; do not add schema-version maintenance unless independently evolving consumers later require it. (ChatGPT-5.5 + GPT-5.5 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 int getSASGameRecordLogLevel()
 {
 	static const int iLevel = getClampedSASGameRecordLogLevel("SAS_GAME_RECORD_LOG_LEVEL");
@@ -69,13 +69,6 @@ bool isSASGameRecordLogEnabled()
 {
 	static const bool bEnabled = (getSASGameRecordLogLevel() > 0);
 	return bEnabled;
-}
-
-int getSASGameRecordTurnInterval()
-{
-	// <!-- custom: Separate snapshot frequency from detail level. Level 0 disables the game-record rows; the interval is still clamped so modulo callers are safe. (ChatGPT-5.5) -->
-	static const int iInterval = std::max(1, GC.getDefineINT("SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED"));
-	return iInterval;
 }
 
 // <!-- custom: Foreign-Advisor market snapshots are intentionally level-3-only and can be disabled independently because enumerating target-specific resource/technology offerability and denial reasons is more expensive than ordinary factual player snapshots.
@@ -98,515 +91,25 @@ static bool isSASGameRecordTradeMarketAITechValuesEnabled()
 	return bEnabled;
 }
 
+int getSASGameRecordTurnInterval()
+{
+	// <!-- custom: Separate snapshot frequency from detail level. Level 0 disables the game-record rows; the interval is still clamped so modulo callers are safe. (ChatGPT-5.5) -->
+	static const int iInterval = std::max(1, GC.getDefineINT("SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED"));
+	return iInterval;
+}
+
 static CvString g_szSASGameRecordLogTimestamp;
 static int g_iSASGameRecordLogSequence = 0;
 static CvString g_szSASGameRecordLogContext;
-// <!-- custom: Structured row sequence and transaction IDs are recorder/session-local only; they never enter gameplay or save state. `seq` is assigned only at actual emission, while `tx` is captured while formatting inside the active synchronous operation. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Structured row sequence and transaction IDs are recorder/session-local only; they never enter gameplay or save state.
+// `seq` is assigned only when a GAME_RECORD_* row is actually emitted, so buffered initialization actions receive their canonical chronology at flush time rather than when first formatted.
+// `tx` is attached when a row is formatted inside an active causal scope, so delayed emission cannot accidentally inherit a later unrelated transaction. Raw pipe-framed ASCII-map drawing rows intentionally remain undecorated. (ChatGPT-5.6-Sol) -->
 static unsigned __int64 g_uiSASGameRecordSemanticSequence = 0;
 static unsigned __int64 g_uiSASGameRecordNextTransaction = 0;
 static unsigned __int64 g_uiSASGameRecordActiveTransaction = 0;
 static CvString g_szSASGameRecordActiveTransactionKind;
 static SASGameRecordPlotOwnerChangeCause g_eSASGameRecordPlotOwnerChangeCause = SAS_PLOT_OWNER_CAUSE_NONE;
-
-// <!-- custom: Keep only the team fields already consumed by this first periodic snapshot slice. Later player/global snapshot ports can extend their own recorder-local baselines independently. (ChatGPT-5.6-Sol) -->
-struct SASGameRecordTeamPrevious
-{
-	bool bValid;
-	bool bContactsValid;
-	int iTechs;
-	int iLand;
-	int iLandPctX100;
-	int iPopulation;
-	int iPopPctX100;
-	int iMetTeams;
-};
-
-static SASGameRecordTeamPrevious g_akSASGameRecordTeamPrevious[MAX_TEAMS];
-
-struct SASGameRecordGlobalPrevious
-{
-	bool bValid;
-	int iGlobalWarmingIndex;
-	int iGlobalWarmingChances;
-	int iOwnedLand;
-	int iUnownedLand;
-};
-
-static SASGameRecordGlobalPrevious g_kSASGameRecordGlobalPrevious;
-// <!-- custom: Victory forces an immediate full snapshot; remember its turn so the ordinary interval hook cannot duplicate the same large snapshot later that turn. Recorder-local only and reset with each log session. (ChatGPT-5.6-Sol) -->
-static int g_iSASGameRecordLastFullSnapshotTurn = -1;
-// <!-- custom: AI Auto Play/control telemetry is recorder-session state only. Keep Base AdvCiv 1.14's autoplay API and gameplay untouched while retaining one request identity and active-player-change counts for each logged run. (ChatGPT-5.6-Sol) -->
-static int g_iSASGameRecordAutoPlayRequestId = 0;
-static int g_iSASGameRecordAutoPlayRequestedTurns = 0;
-static int g_iSASGameRecordAutoPlayStartTurn = -1;
-static int g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
-static PlayerTypes g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
-static int g_iSASGameRecordAutoPlayPlayerChanges = 0;
-static int g_iSASGameRecordTotalActivePlayerChanges = 0;
-
-// <!-- custom: Keep the portable high-level player fields first. More specialized bonus, espionage, unit-posture, worker, territory and city baselines are added with the corresponding snapshot rows rather than existing as unused state. (ChatGPT-5.6-Sol) -->
-struct SASGameRecordPlayerPrevious
-{
-	bool bValid;
-	int iScore;
-	int iCities;
-	int iPopulation;
-	int iLand;
-	int iUnits;
-	int iCombatUnits;
-	int iMilitarySupportUnits;
-	int iPower;
-	int iGold;
-	int iGoldRate;
-	int iResearchRate;
-	int iBonusTypes;
-	int iBonusInstances;
-	int iBonusImports;
-	int iBonusExports;
-	int iHistoryScore;
-	int iHistoryEconomy;
-	int iHistoryIndustry;
-	int iHistoryAgriculture;
-	int iHistoryPower;
-	int iHistoryCulture;
-	int iHistoryEspionage;
-	int iEspionageRate;
-	int iEspionagePercent;
-	int iTeamEP;
-	int iUnspentEP;
-	int iDemoScore;
-	int iDemoPopulation;
-	int iDemoLand;
-	int iDemoFood;
-	int iDemoProduction;
-	int iDemoCommerce;
-	int iDemoResearch;
-	int iDemoCulture;
-	int iDemoEspionage;
-	int iDemoGoldRate;
-	int iDemoPower;
-	int iUnitTotal;
-	int iUnitMilitary;
-	int iUnitWorkers;
-	int iUnitSettlers;
-	int iUnitFieldArmy;
-	int iUnitCityDefenders;
-	int iUnitEnemyUnitsInTerritory;
-	int iUnitTotalExperience;
-	int iUnitPromotionReady;
-	int iWorkerWorkers;
-	int iWorkerBuilding;
-	int iWorkerIdle;
-	int iWorkerMoving;
-	int iWorkerWaiting;
-	int iWorkerThreatened;
-	int iTerritoryImprovedLand;
-	int iTerritoryImprovedWater;
-	int iTerritoryRoaded;
-	int iTerritoryFarms;
-	int iTerritoryIrrigatedFarms;
-	int iTerritoryDryFarms;
-	int iSettlerSettlers;
-	int iSettlerFoundMission;
-	int iSettlerMoving;
-	int iSettlerIdle;
-	int iSettlerWaiting;
-	int iSettlerThreatened;
-	int iCityCount;
-	int iCityConnectedToCapital;
-	int iCityFoodSurplus;
-	int iCityHappySurplus;
-	int iCityHealthSurplus;
-	int iCityFood;
-	int iCityProduction;
-	int iCityCommerce;
-	int iCityTradeRoutes;
-	int iCityTradeCommerce;
-	int iCitySpecialists;
-	int iCityFreeSpecialists;
-	int iCityGarrison;
-};
-
-static SASGameRecordPlayerPrevious g_akSASGameRecordPlayerPrevious[MAX_PLAYERS];
-
-// <!-- custom: Observe each player's finalized research target once per player turn. This recorder-local state detects real incomplete-tech redirections without instrumenting every queue-mutating gameplay path or inventing a cause that the observation cannot prove. Repeat-tech counts distinguish a completed repeat from a true redirect. (ChatGPT-5.6-Sol) -->
-struct SASGameRecordResearchPrevious
-{
-	bool bValid;
-	TeamTypes eTeam;
-	TechTypes eTech;
-	int iTechCount;
-	ResearchTargetChangeCause ePendingCause;
-};
-static SASGameRecordResearchPrevious g_akSASGameRecordResearchPrevious[MAX_PLAYERS];
-
-// <!-- custom: CvPlayer::doResearch knows the exact split between this turn's modified research and previously stored unmodified overflow before both are combined into team progress. Retain that tiny level-2-only application context until an actual same-turn completion consumes it; this keeps RESEARCH_COMPLETED exact without widening generic gameplay research APIs for logging. (ChatGPT-5.6-Sol) -->
-struct SASGameRecordResearchApplication
-{
-	bool bValid;
-	int iGameTurn;
-	TechTypes eTech;
-	int iModifiedResearchRate;
-	int iIncomingOverflowUnmodified;
-	int iIncomingOverflowModified;
-};
-static SASGameRecordResearchApplication g_akSASGameRecordResearchApplication[MAX_PLAYERS];
-// <!-- custom: City lifecycle counters are session-local foundations for the later mature GAME_RECORD_STATISTICS row. Raze context uses a tiny LIFO stack because Python callbacks can theoretically trigger nested synchronous gameplay before the outer raze finalizes. (ChatGPT-5.6-Sol) -->
-struct SASGameRecordCityRazeContext
-{
-	PlayerTypes eRazer;
-	TeamTypes eRazerTeam;
-	PlayerTypes ePreviousOwner;
-	TeamTypes ePreviousTeam;
-	PlayerTypes eOriginalOwner;
-	TeamTypes eOriginalTeam;
-	int iGameTurn;
-	int iCityId;
-	CvWString szCityName;
-	int iX, iY, iArea;
-	CvString szRazeMode;
-	int iPopulation, iHighestPopulation, iFoundedTurn, iAcquiredTurn, iOccupationTurns;
-	int iRazerCulturePercent, iPreviousCulturePercent;
-	PlayerTypes eHighestCulturePlayer;
-	int iHighestCulturePercent, iMaintenanceTimes100, iConnectedToCapital;
-	int iCapitalDistance, iCapitalSameArea, iNearestRazerCityDistance, iSameAreaRazerCitiesOther;
-	int iNearestPreviousOwnerCityDistance, iSameAreaPreviousOwnerCities;
-	int iBuildings, iRegularBuildings, iNationalWonders, iTeamWonders, iWorldWonders;
-	CvString szBuildings, szReligions, szHolyReligions, szCorporations, szHeadquarters;
-	int iPlayerCitiesBefore, iPlayerLandBefore, iPlayerPopulationBefore;
-	int iTeamCitiesBefore, iTeamLandBefore, iTeamPopulationBefore, iWorldPopulationBefore;
-	int iLandPctX100Before, iPopPctX100Before;
-	int iAIMaxVictoryStage, iAIConquestStage, iAIDominationStage;
-	CvString szLandPopVictoryProgressBefore;
-};
-static std::vector<SASGameRecordCityRazeContext> g_aSASGameRecordCityRazeContexts;
-static int g_aiSASGameRecordCitiesAcquired[MAX_PLAYERS];
-static int g_aiSASGameRecordCitiesLost[MAX_PLAYERS];
-static int g_aiSASGameRecordCitiesConquered[MAX_PLAYERS];
-static int g_aiSASGameRecordCitiesLostByConquest[MAX_PLAYERS];
-static int g_aiSASGameRecordCitiesTradedIn[MAX_PLAYERS];
-static int g_aiSASGameRecordCitiesTradedOut[MAX_PLAYERS];
-
-// <!-- custom: Golden Age/anarchy duration observations are log-session-local rather than persisted lifetime totals. Keep that scope explicit in field names so loaded-save logs remain truthful. (ChatGPT-5.6-Sol) -->
-static int g_aiSASGameRecordLoggedGoldenAgeTurns[MAX_PLAYERS];
-static int g_aiSASGameRecordLoggedAnarchyTurns[MAX_PLAYERS];
-
-// <!-- custom: Exact battle rows now feed compact interval/session aggregates too. Keep ordinary win/loss counts separate from withdrawals, combat-limit attacks and binary-outcome luck so level 2 can summarize combat without level-3 per-battle spam. (ChatGPT-5.6-Sol) -->
-static int g_aiSASGameRecordBattleWins[MAX_PLAYERS];
-static int g_aiSASGameRecordBattleLosses[MAX_PLAYERS];
-static int g_aiSASGameRecordCityBattleWins[MAX_PLAYERS];
-static int g_aiSASGameRecordCityBattleLosses[MAX_PLAYERS];
-static int g_aiSASGameRecordTotalBattleWins[MAX_PLAYERS];
-static int g_aiSASGameRecordTotalBattleLosses[MAX_PLAYERS];
-static int g_aiSASGameRecordTotalCityBattleWins[MAX_PLAYERS];
-static int g_aiSASGameRecordTotalCityBattleLosses[MAX_PLAYERS];
-
-struct SASGameRecordBattleQuality
-{
-	int iWithdrawals;
-	int iEnemyWithdrawals;
-	int iCombatLimitAttacks;
-	int iCombatLimitDefenses;
-	int iLuckEligibleBattles;
-	int iLuckEligibleWins;
-	int iExpectedWinsX1000;
-	int iUpsetWins;
-	int iUpsetLosses;
-	int iLowestOddsWinPermille;
-	int iHighestOddsLossPermille;
-	void reset()
-	{
-		iWithdrawals = 0;
-		iEnemyWithdrawals = 0;
-		iCombatLimitAttacks = 0;
-		iCombatLimitDefenses = 0;
-		iLuckEligibleBattles = 0;
-		iLuckEligibleWins = 0;
-		iExpectedWinsX1000 = 0;
-		iUpsetWins = 0;
-		iUpsetLosses = 0;
-		iLowestOddsWinPermille = -1;
-		iHighestOddsLossPermille = -1;
-	}
-	bool hasAny() const
-	{
-		return (iWithdrawals > 0 || iEnemyWithdrawals > 0 || iCombatLimitAttacks > 0 || iCombatLimitDefenses > 0 || iLuckEligibleBattles > 0);
-	}
-};
-static SASGameRecordBattleQuality g_akSASGameRecordBattleQuality[MAX_PLAYERS];
-static SASGameRecordBattleQuality g_akSASGameRecordTotalBattleQuality[MAX_PLAYERS];
-static int g_iSASGameRecordBattleStartTurn = 0;
-
-// <!-- custom: Recorder-only production categories are shared by the interval transition matrix and exact target-change formatting. Keep this independent from gameplay enums. (ChatGPT-5.6-Sol) -->
-enum SASGameRecordProductionKindIndex
-{
-	SAS_PRODUCTION_UNIT = 0,
-	SAS_PRODUCTION_BUILDING,
-	SAS_PRODUCTION_WONDER,
-	SAS_PRODUCTION_PROJECT,
-	SAS_PRODUCTION_PROCESS,
-	NUM_SAS_PRODUCTION_KINDS
-};
-
-// <!-- custom: Incremental upstream port of mature SASGameRecordPlayerFlow now covers factual production resolution, AI production-target churn, and military quality; natural city-population flow remains a later independent slice. (ChatGPT-5.6-Sol) -->
-struct SASGameRecordPlayerFlow
-{
-	int iUnitsCompleted;
-	int iUnitsConscripted;
-	int iUnitProductionNeeded;
-	int iConscriptProductionNeeded;
-	int iBuildingsCompleted;
-	int iBuildingProductionNeeded;
-	int iProjectsCompleted;
-	int iProjectProductionNeeded;
-	int iOverflowActions;
-	int iRawModifiedOverflow;
-	int iUnmodifiedOverflow;
-	int iKeptOverflow;
-	int iLostProduction;
-	int iUnusedOverflowCapacity;
-	int iOverflowGold;
-	int iFailedInvestedProduction;
-	int iFailGold;
-	// <!-- custom: Natural city population flow is compacted into interval totals at level 2; level 3 additionally keeps exact city transitions.
-	// Hurries, conscription, events, conquest/razing and other non-growth population changes retain their own provenance-specific boundaries rather than being mixed into these counters. (ChatGPT-5.6-Sol) -->
-	int iCityGrowthEvents;
-	int iPopulationGainedFromGrowth;
-	int iCityGrowthPreventedEvents;
-	int iFoodDiscardedByAvoidGrowth;
-	int iCityStarvationEvents;
-	int iPopulationLostToStarvation;
-	// <!-- custom: Distinguish strategic AI target switching from actual mechanical production loss. Stored production is parked/resumed, not counted as wasted. (ChatGPT-5.6-Sol) -->
-	int iAIProductionTargetSwitches;
-	int iAIProductionTargetClears;
-	int iAIProductionInvestedTargetChanges;
-	int iAIProductionParked;
-	int iAIProductionTargetResumes;
-	int iAIProductionResumed;
-	int aiAIProductionTransitions[NUM_SAS_PRODUCTION_KINDS * NUM_SAS_PRODUCTION_KINDS];
-	std::vector<std::pair<int,int> > aAIProductionTargetChangesByCity;
-	int iProductionDecayActions;
-	int iProductionDecayLost;
-	int iProductionInvalidatedActions;
-	int iProductionInvalidatedLost;
-	int iProductionUpgradeTransfers;
-	int iProductionUpgradeTransferred;
-	int iProductionUpgradeOverwriteActions;
-	int iProductionUpgradeOverwritten;
-	int iUpgrades;
-	int iUpgradeGold;
-	int iScrapped;
-	int iScrappedProductionNeeded;
-	int iCaptured;
-	int iCapturedProductionNeeded;
-	int iCombatWins;
-	int iCombatLosses;
-	int iCityPlotWins;
-	int iCityPlotLosses;
-	int iEnemyProductionNeededDestroyed;
-	int iOwnProductionNeededLost;
-	int iExperienceGained;
-	int iCombatExperienceGained;
-	int iNonCombatExperienceGained;
-	int iExperiencePreventedByCap;
-	int iExperienceLostAdjustments;
-	int iPromotionsChosen;
-	int iLeaderPromotionApplications;
-	int iEnemyExperienceDestroyed;
-	int iOwnExperienceLost;
-	std::vector<int> aiUnitTypes;
-	std::vector<int> aiConscriptedUnitTypes;
-	std::vector<int> aiBuildingTypes;
-	std::vector<int> aiProjectTypes;
-	std::vector<int> aiPromotionChoices;
-	void reset()
-	{
-		iUnitsCompleted = 0;
-		iUnitsConscripted = 0;
-		iUnitProductionNeeded = 0;
-		iConscriptProductionNeeded = 0;
-		iBuildingsCompleted = 0;
-		iBuildingProductionNeeded = 0;
-		iProjectsCompleted = 0;
-		iProjectProductionNeeded = 0;
-		iOverflowActions = 0;
-		iRawModifiedOverflow = 0;
-		iUnmodifiedOverflow = 0;
-		iKeptOverflow = 0;
-		iLostProduction = 0;
-		iUnusedOverflowCapacity = 0;
-		iOverflowGold = 0;
-		iFailedInvestedProduction = 0;
-		iFailGold = 0;
-		iCityGrowthEvents = 0;
-		iPopulationGainedFromGrowth = 0;
-		iCityGrowthPreventedEvents = 0;
-		iFoodDiscardedByAvoidGrowth = 0;
-		iCityStarvationEvents = 0;
-		iPopulationLostToStarvation = 0;
-		iAIProductionTargetSwitches = 0;
-		iAIProductionTargetClears = 0;
-		iAIProductionInvestedTargetChanges = 0;
-		iAIProductionParked = 0;
-		iAIProductionTargetResumes = 0;
-		iAIProductionResumed = 0;
-		for (int iI = 0; iI < NUM_SAS_PRODUCTION_KINDS * NUM_SAS_PRODUCTION_KINDS; iI++) aiAIProductionTransitions[iI] = 0;
-		aAIProductionTargetChangesByCity.clear();
-		iProductionDecayActions = 0;
-		iProductionDecayLost = 0;
-		iProductionInvalidatedActions = 0;
-		iProductionInvalidatedLost = 0;
-		iProductionUpgradeTransfers = 0;
-		iProductionUpgradeTransferred = 0;
-		iProductionUpgradeOverwriteActions = 0;
-		iProductionUpgradeOverwritten = 0;
-		iUpgrades = 0;
-		iUpgradeGold = 0;
-		iScrapped = 0;
-		iScrappedProductionNeeded = 0;
-		iCaptured = 0;
-		iCapturedProductionNeeded = 0;
-		iCombatWins = 0;
-		iCombatLosses = 0;
-		iCityPlotWins = 0;
-		iCityPlotLosses = 0;
-		iEnemyProductionNeededDestroyed = 0;
-		iOwnProductionNeededLost = 0;
-		iExperienceGained = 0;
-		iCombatExperienceGained = 0;
-		iNonCombatExperienceGained = 0;
-		iExperiencePreventedByCap = 0;
-		iExperienceLostAdjustments = 0;
-		iPromotionsChosen = 0;
-		iLeaderPromotionApplications = 0;
-		iEnemyExperienceDestroyed = 0;
-		iOwnExperienceLost = 0;
-		aiUnitTypes.assign(GC.getNumUnitInfos(), 0);
-		aiConscriptedUnitTypes.assign(GC.getNumUnitInfos(), 0);
-		aiBuildingTypes.assign(GC.getNumBuildingInfos(), 0);
-		aiProjectTypes.assign(GC.getNumProjectInfos(), 0);
-		aiPromotionChoices.assign(GC.getNumPromotionInfos(), 0);
-	}
-	bool hasProduction() const
-	{
-		return (iUnitsCompleted > 0 || iUnitsConscripted > 0 || iBuildingsCompleted > 0 || iProjectsCompleted > 0 || iOverflowActions > 0 || iFailedInvestedProduction > 0 || iFailGold > 0 ||
-			iAIProductionTargetSwitches > 0 || iAIProductionTargetClears > 0 || iAIProductionTargetResumes > 0 || iProductionDecayActions > 0 || iProductionInvalidatedActions > 0 || iProductionUpgradeTransfers > 0 || iProductionUpgradeOverwritten > 0);
-	}
-	bool hasMilitary() const
-	{
-		return (iUpgrades > 0 || iScrapped > 0 || iCaptured > 0 || iCombatWins > 0 || iCombatLosses > 0 || iExperienceGained > 0 || iExperiencePreventedByCap > 0 || iExperienceLostAdjustments > 0 || iPromotionsChosen > 0 || iLeaderPromotionApplications > 0 || iEnemyExperienceDestroyed > 0 || iOwnExperienceLost > 0);
-	}
-	bool hasCityPopulationFlow() const
-	{
-		return (iCityGrowthEvents > 0 || iCityGrowthPreventedEvents > 0 || iCityStarvationEvents > 0);
-	}
-};
-static SASGameRecordPlayerFlow g_akSASGameRecordPlayerFlow[MAX_PLAYERS];
-static int g_iSASGameRecordProductionFlowStartTurn = 0;
-static int g_iSASGameRecordMilitaryFlowStartTurn = 0;
-static int g_iSASGameRecordCityPopulationFlowStartTurn = 0;
-
-// <!-- custom: Session totals complement current-unit XP snapshots: veteran deaths, upgrades and captures no longer erase evidence of XP generated, promotion decisions made or veteran quality exchanged in combat.
-// Promotion-type detail stays interval-only to avoid repeating a growing lifetime list. (ChatGPT-5.6-Sol) -->
-struct SASGameRecordMilitaryQualityTotals
-{
-	int iExperienceGained;
-	int iCombatExperienceGained;
-	int iNonCombatExperienceGained;
-	int iExperiencePreventedByCap;
-	int iExperienceLostAdjustments;
-	int iPromotionsChosen;
-	int iLeaderPromotionApplications;
-	int iEnemyExperienceDestroyed;
-	int iOwnExperienceLost;
-	void reset()
-	{
-		iExperienceGained = 0;
-		iCombatExperienceGained = 0;
-		iNonCombatExperienceGained = 0;
-		iExperiencePreventedByCap = 0;
-		iExperienceLostAdjustments = 0;
-		iPromotionsChosen = 0;
-		iLeaderPromotionApplications = 0;
-		iEnemyExperienceDestroyed = 0;
-		iOwnExperienceLost = 0;
-	}
-};
-static SASGameRecordMilitaryQualityTotals g_akSASGameRecordMilitaryQualityTotals[MAX_PLAYERS];
-
-struct SASGameRecordCombatPending
-{
-	PlayerTypes eAttacker, eDefender;
-	int iAttackerUnitId, iDefenderUnitId;
-	int iX, iY;
-	int iAttackerCombatOddsPermille;
-	bool bLuckEligible;
-};
-static std::vector<SASGameRecordCombatPending> g_aSASGameRecordCombatPending;
-
-// <!-- custom: Naval blockades persist across turns but the save only stores the current blockading flag.
-// Keep recorder-local start context so an end row can report observed duration and accumulated plunder; loaded mid-blockade sessions gracefully fall back to startKnown=0. (ChatGPT-5.6-Sol) -->
-struct SASGameRecordBlockadeContext
-{
-	PlayerTypes ePlayer;
-	int iUnitId;
-	int iStartTurn;
-	int iStartElapsedTurn;
-	int iStartX;
-	int iStartY;
-	int iRangePlots;
-	int iAffectedTeams;
-	int iAffectedCities;
-	CvString szRangePlots;
-	CvString szAffectedTeams;
-	CvString szAffectedCities;
-	int iPlunderEvents;
-	int iGoldPlundered;
-	std::vector<std::pair<PlayerTypes,int> > aPlunderedCities;
-};
-static std::vector<SASGameRecordBlockadeContext> g_aSASGameRecordBlockades;
-
-// <!-- custom: Consecutive siege/naval/air bombard actions against the same city are recorder-local synthetic history. Buffer only the compact factual fields needed to merge adjacent equivalent actions; no gameplay/save state is added. (ChatGPT-5.6-Sol) -->
-struct SASGameRecordCityBombardPending
-{
-	bool bValid;
-	int iTurn;
-	CvString szMode;
-	PlayerTypes ePlayer;
-	PlayerTypes eTargetPlayer;
-	int iCityId;
-	CvWString szCity;
-	int iX;
-	int iY;
-	int iActions;
-	int iBombardRateTotal;
-	int iIgnoreBuildingDefenseActions;
-	int iDefenseModifierBefore;
-	int iDefenseModifierAfter;
-	int iTotalDefense;
-	int iDefenseDamageBefore;
-	int iDefenseDamageAfter;
-	int iDefenseDamageMax;
-	std::vector<std::pair<CvString,int> > aUnitTypes;
-	std::vector<std::pair<CvString,int> > aUnitAIs;
-	SASGameRecordCityBombardPending() : bValid(false), iTurn(-1), ePlayer(NO_PLAYER), eTargetPlayer(NO_PLAYER), iCityId(-1), iX(-1), iY(-1), iActions(0), iBombardRateTotal(0), iIgnoreBuildingDefenseActions(0), iDefenseModifierBefore(-1), iDefenseModifierAfter(-1), iTotalDefense(-1), iDefenseDamageBefore(-1), iDefenseDamageAfter(-1), iDefenseDamageMax(-1) {}
-};
-static SASGameRecordCityBombardPending g_kSASGameRecordPendingCityBombard;
-static bool g_bSASGameRecordFlushingCityBombard = false;
 static void flushSASGameRecordPendingCityBombard();
-
-// <!-- custom: Level-3 reproducibility telemetry observes the two authoritative CvGame RNG streams without changing CvRandom's serialized 8-byte layout.
-// RandLog intentionally remains the raw per-roll diagnostic; these trackers instead retain compact checkpoint-interval/session counts plus two order-sensitive FNV-1a fingerprints.
-// Session fingerprints stay 64-bit; interval fingerprints deliberately use 32-bit FNV because every checkpoint also carries interval start/end state and counters plus both independent fingerprints. This halves duplicated 64-bit multiply work in Civ4's 32-bit hot RNG path while retaining a strong interval-local diagnostic signal.
-// The stream fingerprint hashes the ordered abstract RNG operations needed to reproduce returned values: ROLL(requested upper bound) plus effective SEED_SET(new state) operations; a redundant same-state assignment is retained only in call provenance because it cannot alter any random value.
-// With the same session-start state and CvRandom algorithm, it therefore remains useful across source builds even when logging labels move, and still stays meaningful if benchmark/Python code deliberately reseeds an authoritative stream mid-session.
-// The richer call fingerprint additionally hashes a compact stable digest/length of the optional message, data1/data2 and EXE-wrapper origin for rolls, plus old/new state and reset-vs-reseed origin for seed sets. Each detailed operation is first reduced with cheap 32-bit FNV, then fed into the 64-bit session accumulator and native 32-bit interval accumulator, avoiding duplicated emulated 64-bit multiplies on Civ4's 32-bit build.
-// Messages often contain CALL_LOC_STR source locations, so exact call-fingerprint comparison is intentionally strongest for runs using the same DLL/source build; states, counts and stream fingerprints remain independently useful across builds.
-// As with the existing DLL FNV identifier, these are diagnostic divergence fingerprints rather than cryptographic proofs; independent seed/state/counter fields remain visible beside them.
-// NULL-message calls are important: CvRandom shuffles and some iterator randomization advance synchronized state while intentionally producing no RandLog row.
-// Async RNG is deliberately non-lockstep and can vary with client/UI activity (even though a few local human-interaction paths can use its result); local CvRandom helpers likewise do not advance CvGame's two authoritative streams.
-// Ignore both by pointer identity so this fingerprint answers synchronized/map-stream reproducibility rather than conflating independent randomness with it. Python/third-party RNGs that do not advance these CvRandom objects, clocks and other external nondeterminism are likewise outside this layer; matching checkpoints are strong authoritative-RNG evidence, not a proof that all mutable game state is identical. (GPT-5.6-Sol) -->
-bool g_bSASGameRecordRngTrackingActive = false;
 
 struct SASGameRecordRngTracker
 {
@@ -665,12 +168,6 @@ struct SASGameRecordRngTracker
 	unsigned int uiIntervalCallFingerprint;
 };
 
-static SASGameRecordRngTracker g_kSASGameRecordMapRng;
-static SASGameRecordRngTracker g_kSASGameRecordSyncRng;
-// <!-- custom: Cache the two authoritative object addresses at session initialization so the level-3 hot path needs only pointer comparisons, not GC/CvGame lookups, for every RNG advance. (GPT-5.6-Sol) -->
-static CvRandom const* g_pSASGameRecordMapRng = NULL;
-static CvRandom const* g_pSASGameRecordSyncRng = NULL;
-
 static void updateSASGameRecordFNV1AByte(unsigned __int64& uiHash, unsigned char ucValue)
 {
 	static unsigned __int64 const uiPrime = ((unsigned __int64)0x00000100 << 32) | 0x000001B3;
@@ -713,7 +210,7 @@ static void updateSASGameRecordFNV1A32UInt32(unsigned int& uiHash, unsigned int 
 // Serialized/AI-visible bookkeeping such as power/assets/maintenance is intentionally retained: divergence in such cached gameplay values can itself change later AI/economic behavior even when the underlying units/buildings still match.
 // Deliberately omit very large per-plot-per-player culture/reveal arrays, per-build plot work-progress matrices and inactive per-city production inventories from this turn-by-turn CORE coverage; exact unit/group missions, city culture/buildings/current production, plot ownership/physical state, team/player state and ordinary SASGameRecord history still provide strong divergence sensitivity without turning each turn boundary into a full save/snapshot scan.
 // Each object's fields are first reduced with a cheap native 32-bit ordered mix, then that fixed-width signature enters a 64-bit FNV-1a component hash. This keeps the 32-bit Civ4 hot-turn cost far below hashing every scalar with emulated 64-bit multiplication.
-// Compare hashes only between matching recorder builds because the exact field recipe is implementation-specific. These are diagnostic fingerprints rather than cryptographic proofs or savegame-equivalence guarantees. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+// The recordRevision identifies the exact recipe. These are diagnostic fingerprints rather than cryptographic proofs or savegame-equivalence guarantees. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 struct SASGameRecordStateFingerprints
 {
 	SASGameRecordStateFingerprints()
@@ -1364,7 +861,8 @@ static unsigned int getSASGameRecordRandomMessageHash(TCHAR const* szLog, unsign
 	uiLength = 0;
 	if (szLog == NULL)
 		return uiHash;
-	// Source-location labels can be long and RNG calls are hot. Reduce the message with cheap 32-bit FNV first instead of doing an emulated 64-bit multiply for every character on Civ4's 32-bit build.
+	// <!-- custom: Source-location labels can be long and RNG calls are hot.
+	// Reduce the message with cheap 32-bit FNV first instead of doing an emulated 64-bit multiply for every character on Civ4's 32-bit build. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (sizeof(TCHAR) == 1)
 	{
 		for (TCHAR const* pChar = szLog; *pChar != 0; pChar++, uiLength++)
@@ -1384,9 +882,10 @@ static unsigned int getSASGameRecordRandomMessageHash(TCHAR const* szLog, unsign
 
 static unsigned int getSASGameRecordRandomCallSignature(unsigned short usRange, TCHAR const* szLog, int iData1, int iData2, bool bExternal)
 {
-	// Collapse each detailed call context with cheap 32-bit FNV first; feed that token into the 64-bit session fingerprint and native 32-bit interval fingerprint. This keeps detailed provenance without duplicating the expensive 64-bit accumulator on Civ4's 32-bit build.
+	// <!-- custom: Collapse each detailed call context with cheap 32-bit FNV first; feed that token into the 64-bit session fingerprint and native 32-bit interval fingerprint.
+	// This keeps detailed provenance without duplicating the expensive 64-bit accumulator on Civ4's 32-bit build. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	unsigned int uiHash = 2166136261u;
-	updateSASGameRecordFNV1A32Byte(uiHash, 0xA7); // detailed ROLL boundary/version marker
+	updateSASGameRecordFNV1A32Byte(uiHash, 0xA7); // <!-- custom: Detailed ROLL boundary/version marker. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	updateSASGameRecordFNV1A32UInt16(uiHash, usRange);
 	updateSASGameRecordFNV1A32UInt32(uiHash, (unsigned int)iData1);
 	updateSASGameRecordFNV1A32UInt32(uiHash, (unsigned int)iData2);
@@ -1407,13 +906,870 @@ static unsigned int getSASGameRecordRandomCallSignature(unsigned short usRange, 
 static unsigned int getSASGameRecordRandomSeedSetCallSignature(unsigned int uiOldState, unsigned int uiNewState, bool bReseed)
 {
 	unsigned int uiHash = 2166136261u;
-	updateSASGameRecordFNV1A32Byte(uiHash, 0xA8); // detailed SEED_SET boundary/version marker
+	updateSASGameRecordFNV1A32Byte(uiHash, 0xA8); // <!-- custom: Detailed SEED_SET boundary/version marker. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	updateSASGameRecordFNV1A32UInt32(uiHash, uiOldState);
 	updateSASGameRecordFNV1A32UInt32(uiHash, uiNewState);
 	updateSASGameRecordFNV1A32Byte(uiHash, bReseed ? 1 : 0);
 	return uiHash;
 }
 
+// <!-- custom: Fixed checkpoint boundaries are an enum rather than caller-written strings, preventing silent spelling drift in rows consumed by cross-run comparison tooling. Convert that recorder-owned vocabulary to its stable schema text in one place. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static char const* getSASGameRecordRngCheckpointReason(SASGameRecordRngCheckpointReason eReason)
+{
+	switch (eReason)
+	{
+	case SAS_RNG_CHECKPOINT_NEW_GAME_INITIALIZED: return "NEW_GAME_INITIALIZED";
+	case SAS_RNG_CHECKPOINT_MAP_REGENERATION_BEGIN: return "MAP_REGENERATION_BEGIN";
+	case SAS_RNG_CHECKPOINT_MAP_REGENERATION_END: return "MAP_REGENERATION_END";
+	case SAS_RNG_CHECKPOINT_AUTOPLAY_BEGIN: return "AUTOPLAY_BEGIN";
+	case SAS_RNG_CHECKPOINT_AUTOPLAY_END: return "AUTOPLAY_END";
+	case SAS_RNG_CHECKPOINT_END_GAME_TURN: return "END_GAME_TURN";
+	case SAS_RNG_CHECKPOINT_VICTORY: return "VICTORY";
+	case SAS_RNG_CHECKPOINT_GAME_END: return "GAME_END";
+	case SAS_RNG_CHECKPOINT_SAVE_LOADED: return "SAVE_LOADED";
+	case SAS_RNG_CHECKPOINT_SESSION_FINALIZE: return "SESSION_FINALIZE";
+	}
+	FAssertMsg(false, "Unknown SASGameRecord RNG checkpoint reason");
+	return "UNKNOWN";
+}
+
+static CvString createSASGameRecordUtcTimestamp()
+{
+	time_t kNow;
+	time(&kNow);
+	char szBuffer[32];
+	struct tm* pUtcTime = gmtime(&kNow);
+	if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
+		return CvString(szBuffer);
+	return CvString("unknown_time");
+}
+
+static CvString getSASGameRecordLogTimestamp()
+{
+	if (g_szSASGameRecordLogTimestamp.empty())
+		g_szSASGameRecordLogTimestamp = createSASGameRecordUtcTimestamp();
+	return g_szSASGameRecordLogTimestamp;
+}
+
+static bool isSASGameRecordTimestampedFilenameEnabled()
+{
+	static const bool bUseTimestampedFilename = (GC.getDefineINT("SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME") > 0);
+	return bUseTimestampedFilename;
+}
+
+static CvString getSASGameRecordLogName()
+{
+	CvString szLogName;
+	if (GC.getGame().isNetworkMultiPlayer())
+	{
+		if (isSASGameRecordTimestampedFilenameEnabled())
+		{
+			if (!g_szSASGameRecordLogContext.empty())
+				szLogName.Format("SASGameRecord%d_%s_%s.log", (int)GC.getGame().getActivePlayer(), getSASGameRecordLogTimestamp().GetCString(), g_szSASGameRecordLogContext.GetCString());
+			else szLogName.Format("SASGameRecord%d_%s.log", (int)GC.getGame().getActivePlayer(), getSASGameRecordLogTimestamp().GetCString());
+		}
+		else szLogName.Format("SASGameRecord%d.log", (int)GC.getGame().getActivePlayer());
+	}
+	else
+	{
+		if (isSASGameRecordTimestampedFilenameEnabled())
+		{
+			if (!g_szSASGameRecordLogContext.empty())
+				szLogName.Format("SASGameRecord_%s_%s.log", getSASGameRecordLogTimestamp().GetCString(), g_szSASGameRecordLogContext.GetCString());
+			else szLogName.Format("SASGameRecord_%s.log", getSASGameRecordLogTimestamp().GetCString());
+		}
+		else szLogName = "SASGameRecord.log";
+	}
+	return szLogName;
+}
+
+static void rollSASGameRecordLog(const char* szContext)
+{
+	// <!-- custom: `seq` and `tx` identities are local to one timestamped record session; a new/load file starts a fresh causal namespace. (ChatGPT-5.6-Sol) -->
+	g_uiSASGameRecordSemanticSequence = 0;
+	g_uiSASGameRecordNextTransaction = 0;
+	g_uiSASGameRecordActiveTransaction = 0;
+	g_szSASGameRecordActiveTransactionKind.clear();
+	g_eSASGameRecordPlotOwnerChangeCause = SAS_PLOT_OWNER_CAUSE_NONE;
+	g_szSASGameRecordLogTimestamp = createSASGameRecordUtcTimestamp();
+	g_szSASGameRecordLogContext.clear();
+	if (isSASGameRecordTimestampedFilenameEnabled())
+	{
+		g_iSASGameRecordLogSequence++;
+		g_szSASGameRecordLogContext.Format("%s%d", szContext, g_iSASGameRecordLogSequence);
+	}
+}
+
+static bool isSASGameRecordStructuredRow(std::string const& szLine)
+{
+	return (szLine.find("GAME_RECORD_") == 0);
+}
+
+static void insertSASGameRecordFieldAfterRowType(std::string& szLine, char const* szField)
+{
+	if (!isSASGameRecordStructuredRow(szLine))
+		return;
+	size_t const iTypeEnd = szLine.find(' ');
+	szLine.insert(iTypeEnd == std::string::npos ? szLine.length() : iTypeEnd, szField);
+}
+
+static void emitSASGameRecordLine(CvString const& szLogName, std::string szLine)
+{
+	// <!-- custom: Sequence only machine-readable GAME_RECORD_* rows.
+	// Pipe-framed ASCII-map drawing lines remain uninterrupted pictures between their sequenced BEGIN/END metadata rows. (ChatGPT-5.6-Sol) -->
+	if (isSASGameRecordStructuredRow(szLine))
+	{
+		CvString szSequence;
+		szSequence.Format(" seq=%I64u", ++g_uiSASGameRecordSemanticSequence);
+		insertSASGameRecordFieldAfterRowType(szLine, szSequence.GetCString());
+	}
+	gDLL->logMsg(szLogName.GetCString(), szLine.c_str(), false, false);
+}
+
+static void appendSASGameRecordType(CvString& szTypes, char const* szType)
+{
+	if (!szTypes.empty()) szTypes += ",";
+	szTypes += szType;
+}
+
+void SASGameRecordTransactionScope::end()
+{
+	FAssert(g_uiSASGameRecordActiveTransaction != 0);
+	logSASGameRecord("GAME_RECORD_TRANSACTION_END turn=%d kind=%s", GC.getGame().getGameTurn(), g_szSASGameRecordActiveTransactionKind.GetCString());
+	g_uiSASGameRecordActiveTransaction = 0;
+	g_szSASGameRecordActiveTransactionKind.clear();
+}
+
+// <!-- custom: Nest immediate owner-change causes independently from the root transaction, temporarily overriding the outer mechanism and restoring it after the narrower setter chain returns. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void SASGameRecordPlotOwnerChangeCauseScope::begin(SASGameRecordPlotOwnerChangeCause eCause)
+{
+	FAssert(eCause != SAS_PLOT_OWNER_CAUSE_NONE);
+	m_ePreviousCause = g_eSASGameRecordPlotOwnerChangeCause;
+	g_eSASGameRecordPlotOwnerChangeCause = eCause;
+	m_bActive = true;
+}
+
+void SASGameRecordPlotOwnerChangeCauseScope::end()
+{
+	FAssert(g_eSASGameRecordPlotOwnerChangeCause != SAS_PLOT_OWNER_CAUSE_NONE);
+	g_eSASGameRecordPlotOwnerChangeCause = m_ePreviousCause;
+}
+
+// <!-- custom: Free-text escaping is shared with other diagnostic logs in CvGameCoreUtils; keep only this city-specific missing-value wrapper local. (ChatGPT-5.6-Sol) -->
+static CvWString getSASGameRecordQuotedCityName(CvCity const* pCity)
+{
+	return pCity == NULL ? L"-" : getSASDiagnosticQuoted(pCity->getName().GetCString());
+}
+
+// <!-- custom: Record every stored map-script option, including hidden values. Keep numeric values durable so setup can be reconstructed without relying on localized descriptions or a currently available Python map script. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordMapOptions(CvInitCore const& kInitCore)
+{
+	const int iNumOptions = kInitCore.getNumCustomMapOptions();
+	const int iNumHiddenOptions = std::min(iNumOptions, std::max(0, kInitCore.getNumHiddenCustomMapOptions()));
+	logSASGameRecord("GAME_RECORD_MAP_OPTIONS count=%d hidden=%d", iNumOptions, iNumHiddenOptions);
+	for (int iOption = 0; iOption < iNumOptions; iOption++)
+	{
+		const bool bHidden = (iOption >= iNumOptions - iNumHiddenOptions);
+		logSASGameRecord("GAME_RECORD_MAP_OPTION index=%d hidden=%d value=%d", iOption, bHidden, kInitCore.getCustomMapOption(iOption));
+	}
+}
+
+// <!-- custom: Use "row" wording for generic SAS game-record row prefixes because Civ4 also has EventInfo/random events. Keep GAME_RECORD_ACTION only for chronological gameplay action rows. (GPT-5.5) -->
+static void logSASGameRecordGameState(const char* szRowType)
+{
+	CvGame& kGame = GC.getGame();
+	CvInitCore const& kInitCore = GC.getInitCore();
+	const PlayerTypes eActivePlayer = kGame.getActivePlayer();
+	const char* szActiveCivilization = "-";
+	const char* szActiveHandicap = "-";
+	if (eActivePlayer != NO_PLAYER)
+	{
+		CvPlayer const& kActivePlayer = GET_PLAYER(eActivePlayer);
+		if (kActivePlayer.getCivilizationType() != NO_CIVILIZATION)
+			szActiveCivilization = GC.getInfo(kActivePlayer.getCivilizationType()).getType();
+		if (kActivePlayer.getHandicapType() != NO_HANDICAP)
+			szActiveHandicap = GC.getInfo(kActivePlayer.getHandicapType()).getType();
+	}
+	CvString szGameOptions;
+	FOR_EACH_ENUM(GameOption)
+	{
+		if (!kGame.isOption(eLoopGameOption))
+			continue;
+		if (!szGameOptions.empty())
+			szGameOptions += ",";
+		szGameOptions += GC.getInfo(eLoopGameOption).getType();
+	}
+	if (szGameOptions.empty())
+		szGameOptions = "-";
+	CvString szVictories;
+	FOR_EACH_ENUM(Victory)
+	{
+		if (!kGame.isVictoryValid(eLoopVictory))
+			continue;
+		if (!szVictories.empty())
+			szVictories += ",";
+		szVictories += GC.getInfo(eLoopVictory).getType();
+	}
+	if (szVictories.empty())
+		szVictories = "-";
+	const CvString szLogName = getSASGameRecordLogName();
+	logSASGameRecord("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
+			szRowType, getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+	// <!-- custom: Enabled victories and their fixed turn/score limits determine which later victory-progress and AI-strategy rows are relevant. Record this compact setup context instead of requiring external XML or save inspection. (GPT-5.6-Sol) -->
+	// <!-- custom: AdvCiv-SAS also records its own cached land-heavy/naval-heavy map classifications here. Base AdvCiv 1.14 has no equivalent generic cache, so this upstream port intentionally leaves those SAS-specific fields out rather than recreating mod policy inside the recorder. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_GAME_SETTINGS mapScript=%S map=%dx%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s maxTurns=%d targetScore=%d victories=%s options=%s",
+			getSASDiagnosticQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), szVictories.GetCString(), szGameOptions.GetCString());
+	logSASGameRecordMapOptions(kInitCore);
+	// <!-- custom: Keep the game's persisted initial seeds beside the current post-initialization/load RNG states. Level-3 checkpoints add session-local consumption counts/fingerprints; this compact baseline remains useful at every enabled level. (GPT-5.6-Sol) -->
+	std::pair<uint,uint> const kInitialRandSeed = kGame.getInitialRandSeed();
+	logSASGameRecord("GAME_RECORD_GAME_RNG mapRandState=%u syncRandState=%u initialMapRandSeed=%u initialSyncRandSeed=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed(), kInitialRandSeed.first, kInitialRandSeed.second);
+}
+
+static void logSASGameRecordLogSettings()
+{
+	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_GAME_RECORD_TRADE_MARKET_ENABLE=%d SAS_GAME_RECORD_TRADE_MARKET_BONUS_GPT_QUOTES_ENABLE=%d SAS_GAME_RECORD_TRADE_MARKET_AI_TECH_VALUES_ENABLE=%d",
+			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled(), isSASGameRecordTradeMarketEnabled(), isSASGameRecordTradeMarketBonusGPTQuotesEnabled(), isSASGameRecordTradeMarketAITechValuesEnabled());
+}
+
+// <!-- custom: Compact finalized team rows preserve which technologies each team owns and which diplomacy capabilities are active, but replacing setup-time TECH_ACQUIRED spam otherwise loses which technology grants each capability.
+// Record the loaded XML mapping once for the whole session instead of repeating the same effect fields for every initial team-tech pair. (GPT-5.6-Sol) -->
+static void logSASGameRecordTechCapabilitySources()
+{
+	CvString szMapTrading, szTechTrading, szGoldTrading, szOpenBordersTrading, szDefensivePactTrading, szPermanentAllianceTrading, szVassalStateTrading;
+	FOR_EACH_ENUM(Tech)
+	{
+		CvTechInfo const& kTech = GC.getInfo(eLoopTech);
+		if (kTech.isMapTrading()) appendSASGameRecordType(szMapTrading, kTech.getType());
+		if (kTech.isTechTrading()) appendSASGameRecordType(szTechTrading, kTech.getType());
+		if (kTech.isGoldTrading()) appendSASGameRecordType(szGoldTrading, kTech.getType());
+		if (kTech.isOpenBordersTrading()) appendSASGameRecordType(szOpenBordersTrading, kTech.getType());
+		if (kTech.isDefensivePactTrading()) appendSASGameRecordType(szDefensivePactTrading, kTech.getType());
+		if (kTech.isPermanentAllianceTrading()) appendSASGameRecordType(szPermanentAllianceTrading, kTech.getType());
+		if (kTech.isVassalStateTrading()) appendSASGameRecordType(szVassalStateTrading, kTech.getType());
+	}
+	logSASGameRecord("GAME_RECORD_TECH_CAPABILITY_SOURCES mapTrading=%s techTrading=%s goldTrading=%s openBordersTrading=%s defensivePactTrading=%s permanentAllianceTrading=%s vassalStateTrading=%s source=LOADED_XML",
+			getSASDiagnosticOrDash(szMapTrading).GetCString(), getSASDiagnosticOrDash(szTechTrading).GetCString(), getSASDiagnosticOrDash(szGoldTrading).GetCString(), getSASDiagnosticOrDash(szOpenBordersTrading).GetCString(), getSASDiagnosticOrDash(szDefensivePactTrading).GetCString(), getSASDiagnosticOrDash(szPermanentAllianceTrading).GetCString(), getSASDiagnosticOrDash(szVassalStateTrading).GetCString());
+}
+
+
+
+// <!-- custom: Ordinary win/loss counts do not describe withdrawals, combat-limit attacks or how surprising binary outcomes were.
+// Keep compact interval and recorder-session aggregates using Civ4's exact pre-combat odds; no individual level-2 battle rows are added. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordBattleQuality
+{
+	int iWithdrawals;
+	int iEnemyWithdrawals;
+	int iCombatLimitAttacks;
+	int iCombatLimitDefenses;
+	int iLuckEligibleBattles;
+	int iLuckEligibleWins;
+	int iExpectedWinsX1000;
+	int iUpsetWins;
+	int iUpsetLosses;
+	int iLowestOddsWinPermille;
+	int iHighestOddsLossPermille;
+	void reset()
+	{
+		iWithdrawals = 0;
+		iEnemyWithdrawals = 0;
+		iCombatLimitAttacks = 0;
+		iCombatLimitDefenses = 0;
+		iLuckEligibleBattles = 0;
+		iLuckEligibleWins = 0;
+		iExpectedWinsX1000 = 0;
+		iUpsetWins = 0;
+		iUpsetLosses = 0;
+		iLowestOddsWinPermille = -1;
+		iHighestOddsLossPermille = -1;
+	}
+	bool hasAny() const
+	{
+		return (iWithdrawals > 0 || iEnemyWithdrawals > 0 || iCombatLimitAttacks > 0 || iCombatLimitDefenses > 0 || iLuckEligibleBattles > 0);
+	}
+};
+
+// <!-- custom: Session totals complement current-unit XP snapshots: veteran deaths, upgrades and captures no longer erase evidence of XP generated, promotion decisions made or veteran quality exchanged in combat.
+// Promotion-type detail stays interval-only to avoid repeating a growing lifetime list. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordMilitaryQualityTotals
+{
+	int iExperienceGained;
+	int iCombatExperienceGained;
+	int iNonCombatExperienceGained;
+	int iExperiencePreventedByCap;
+	int iExperienceLostAdjustments;
+	int iPromotionsChosen;
+	int iLeaderPromotionApplications;
+	int iEnemyExperienceDestroyed;
+	int iOwnExperienceLost;
+	void reset()
+	{
+		iExperienceGained = 0;
+		iCombatExperienceGained = 0;
+		iNonCombatExperienceGained = 0;
+		iExperiencePreventedByCap = 0;
+		iExperienceLostAdjustments = 0;
+		iPromotionsChosen = 0;
+		iLeaderPromotionApplications = 0;
+		iEnemyExperienceDestroyed = 0;
+		iOwnExperienceLost = 0;
+	}
+};
+
+struct SASGameRecordCombatPending
+{
+	PlayerTypes eAttacker, eDefender;
+	int iAttackerUnitId, iDefenderUnitId;
+	int iX, iY;
+	int iAttackerCombatOddsPermille;
+	bool bLuckEligible;
+};
+static std::vector<SASGameRecordCombatPending> g_aSASGameRecordCombatPending;
+
+// <!-- custom: Naval blockades persist across turns but CivUnit stores only the current boolean state, not when the present blockade began.
+// Keep tiny recorder-local start context so one rare end row can report observed duration and accumulated plunder without adding savegame fields or per-turn blockade spam. Mid-save sessions gracefully fall back to startKnown=0. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordBlockadeContext
+{
+	PlayerTypes ePlayer;
+	int iUnitId;
+	int iStartTurn;
+	int iStartElapsedTurn;
+	int iStartX;
+	int iStartY;
+	int iRangePlots;
+	int iAffectedTeams;
+	int iAffectedCities;
+	CvString szRangePlots;
+	CvString szAffectedTeams;
+	CvString szAffectedCities;
+	int iPlunderEvents;
+	int iGoldPlundered;
+	std::vector<std::pair<PlayerTypes,int> > aPlunderedCities;
+};
+static std::vector<SASGameRecordBlockadeContext> g_aSASGameRecordBlockades;
+// <!-- custom: Observe each player's finalized research target once per player turn.
+// This recorder-local state detects real incomplete-tech redirections without instrumenting every queue-mutating gameplay path or inventing a cause that the observation cannot prove.
+// Repeat-tech counts distinguish a completed repeat from a true redirect. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordResearchPrevious
+{
+	bool bValid;
+	TeamTypes eTeam;
+	TechTypes eTech;
+	int iTechCount;
+	ResearchTargetChangeCause ePendingCause;
+};
+// <!-- custom: CvPlayer::doResearch knows the exact split between this turn's modified research and previously stored unmodified overflow before both are combined into team progress.
+// Retain that tiny level-2-only application context until an actual same-turn completion consumes it; this keeps RESEARCH_COMPLETED exact without widening generic gameplay research APIs for logging. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordResearchApplication
+{
+	bool bValid;
+	int iGameTurn;
+	TechTypes eTech;
+	int iModifiedResearchRate;
+	int iIncomingOverflowUnmodified;
+	int iIncomingOverflowModified;
+};
+// <!-- custom: City lifecycle counters are session-local foundations for the later mature GAME_RECORD_STATISTICS row. Raze context uses a tiny LIFO stack because Python callbacks can theoretically trigger nested synchronous gameplay before the outer raze finalizes. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordCityRazeContext
+{
+	PlayerTypes eRazer;
+	TeamTypes eRazerTeam;
+	PlayerTypes ePreviousOwner;
+	TeamTypes ePreviousTeam;
+	PlayerTypes eOriginalOwner;
+	TeamTypes eOriginalTeam;
+	int iGameTurn;
+	int iCityId;
+	CvWString szCityName;
+	int iX, iY, iArea;
+	CvString szRazeMode;
+	int iPopulation, iHighestPopulation, iFoundedTurn, iAcquiredTurn, iOccupationTurns;
+	int iRazerCulturePercent, iPreviousCulturePercent;
+	PlayerTypes eHighestCulturePlayer;
+	int iHighestCulturePercent, iMaintenanceTimes100, iConnectedToCapital;
+	int iCapitalDistance, iCapitalSameArea, iNearestRazerCityDistance, iSameAreaRazerCitiesOther;
+	int iNearestPreviousOwnerCityDistance, iSameAreaPreviousOwnerCities;
+	int iBuildings, iRegularBuildings, iNationalWonders, iTeamWonders, iWorldWonders;
+	CvString szBuildings, szReligions, szHolyReligions, szCorporations, szHeadquarters;
+	int iPlayerCitiesBefore, iPlayerLandBefore, iPlayerPopulationBefore;
+	int iTeamCitiesBefore, iTeamLandBefore, iTeamPopulationBefore, iWorldPopulationBefore;
+	int iLandPctX100Before, iPopPctX100Before;
+	int iAIMaxVictoryStage, iAIConquestStage, iAIDominationStage;
+	CvString szLandPopVictoryProgressBefore;
+};
+static std::vector<SASGameRecordCityRazeContext> g_aSASGameRecordCityRazeContexts;
+
+// <!-- custom: Recorder-only production categories are shared by the interval transition matrix and exact target-change formatting.
+// Keep the enum beside the flow state so its size is available before any serializer uses it. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordProductionKindIndex
+{
+	SAS_PRODUCTION_UNIT = 0,
+	SAS_PRODUCTION_BUILDING,
+	SAS_PRODUCTION_WONDER,
+	SAS_PRODUCTION_PROJECT,
+	SAS_PRODUCTION_PROCESS,
+	NUM_SAS_PRODUCTION_KINDS
+};
+
+// <!-- custom: Incremental upstream port of mature SASGameRecordPlayerFlow now covers factual production resolution, AI production-target churn, and military quality; natural city-population flow remains a later independent slice. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordPlayerFlow
+{
+	int iUnitsCompleted;
+	int iUnitsConscripted;
+	int iUnitProductionNeeded;
+	int iConscriptProductionNeeded;
+	int iBuildingsCompleted;
+	int iBuildingProductionNeeded;
+	int iProjectsCompleted;
+	int iProjectProductionNeeded;
+	int iOverflowActions;
+	int iRawModifiedOverflow;
+	int iUnmodifiedOverflow;
+	int iKeptOverflow;
+	int iLostProduction;
+	int iUnusedOverflowCapacity;
+	int iOverflowGold;
+	int iFailedInvestedProduction;
+	int iFailGold;
+	// <!-- custom: Natural city population flow is compacted into interval totals at level 2; level 3 additionally keeps exact city transitions.
+	// Hurries, conscription, events, conquest/razing and other non-growth population changes retain their own provenance-specific boundaries rather than being mixed into these counters. (ChatGPT-5.6-Sol) -->
+	int iCityGrowthEvents;
+	int iPopulationGainedFromGrowth;
+	int iCityGrowthPreventedEvents;
+	int iFoodDiscardedByAvoidGrowth;
+	int iCityStarvationEvents;
+	int iPopulationLostToStarvation;
+	// <!-- custom: Distinguish strategic AI target switching from actual mechanical production loss. Stored production is parked/resumed, not counted as wasted. (ChatGPT-5.6-Sol) -->
+	int iAIProductionTargetSwitches;
+	int iAIProductionTargetClears;
+	int iAIProductionInvestedTargetChanges;
+	int iAIProductionParked;
+	int iAIProductionTargetResumes;
+	int iAIProductionResumed;
+	int aiAIProductionTransitions[NUM_SAS_PRODUCTION_KINDS * NUM_SAS_PRODUCTION_KINDS];
+	std::vector<std::pair<int,int> > aAIProductionTargetChangesByCity;
+	int iProductionDecayActions;
+	int iProductionDecayLost;
+	int iProductionInvalidatedActions;
+	int iProductionInvalidatedLost;
+	int iProductionUpgradeTransfers;
+	int iProductionUpgradeTransferred;
+	int iProductionUpgradeOverwriteActions;
+	int iProductionUpgradeOverwritten;
+	int iUpgrades;
+	int iUpgradeGold;
+	int iScrapped;
+	int iScrappedProductionNeeded;
+	int iCaptured;
+	int iCapturedProductionNeeded;
+	int iCombatWins;
+	int iCombatLosses;
+	int iCityPlotWins;
+	int iCityPlotLosses;
+	int iEnemyProductionNeededDestroyed;
+	int iOwnProductionNeededLost;
+	int iExperienceGained;
+	int iCombatExperienceGained;
+	int iNonCombatExperienceGained;
+	int iExperiencePreventedByCap;
+	int iExperienceLostAdjustments;
+	int iPromotionsChosen;
+	int iLeaderPromotionApplications;
+	int iEnemyExperienceDestroyed;
+	int iOwnExperienceLost;
+	std::vector<int> aiUnitTypes;
+	std::vector<int> aiConscriptedUnitTypes;
+	std::vector<int> aiBuildingTypes;
+	std::vector<int> aiProjectTypes;
+	std::vector<int> aiPromotionChoices;
+	void reset()
+	{
+		iUnitsCompleted = 0;
+		iUnitsConscripted = 0;
+		iUnitProductionNeeded = 0;
+		iConscriptProductionNeeded = 0;
+		iBuildingsCompleted = 0;
+		iBuildingProductionNeeded = 0;
+		iProjectsCompleted = 0;
+		iProjectProductionNeeded = 0;
+		iOverflowActions = 0;
+		iRawModifiedOverflow = 0;
+		iUnmodifiedOverflow = 0;
+		iKeptOverflow = 0;
+		iLostProduction = 0;
+		iUnusedOverflowCapacity = 0;
+		iOverflowGold = 0;
+		iFailedInvestedProduction = 0;
+		iFailGold = 0;
+		iCityGrowthEvents = 0;
+		iPopulationGainedFromGrowth = 0;
+		iCityGrowthPreventedEvents = 0;
+		iFoodDiscardedByAvoidGrowth = 0;
+		iCityStarvationEvents = 0;
+		iPopulationLostToStarvation = 0;
+		iAIProductionTargetSwitches = 0;
+		iAIProductionTargetClears = 0;
+		iAIProductionInvestedTargetChanges = 0;
+		iAIProductionParked = 0;
+		iAIProductionTargetResumes = 0;
+		iAIProductionResumed = 0;
+		for (int iI = 0; iI < NUM_SAS_PRODUCTION_KINDS * NUM_SAS_PRODUCTION_KINDS; iI++) aiAIProductionTransitions[iI] = 0;
+		aAIProductionTargetChangesByCity.clear();
+		iProductionDecayActions = 0;
+		iProductionDecayLost = 0;
+		iProductionInvalidatedActions = 0;
+		iProductionInvalidatedLost = 0;
+		iProductionUpgradeTransfers = 0;
+		iProductionUpgradeTransferred = 0;
+		iProductionUpgradeOverwriteActions = 0;
+		iProductionUpgradeOverwritten = 0;
+		iUpgrades = 0;
+		iUpgradeGold = 0;
+		iScrapped = 0;
+		iScrappedProductionNeeded = 0;
+		iCaptured = 0;
+		iCapturedProductionNeeded = 0;
+		iCombatWins = 0;
+		iCombatLosses = 0;
+		iCityPlotWins = 0;
+		iCityPlotLosses = 0;
+		iEnemyProductionNeededDestroyed = 0;
+		iOwnProductionNeededLost = 0;
+		iExperienceGained = 0;
+		iCombatExperienceGained = 0;
+		iNonCombatExperienceGained = 0;
+		iExperiencePreventedByCap = 0;
+		iExperienceLostAdjustments = 0;
+		iPromotionsChosen = 0;
+		iLeaderPromotionApplications = 0;
+		iEnemyExperienceDestroyed = 0;
+		iOwnExperienceLost = 0;
+		aiUnitTypes.assign(GC.getNumUnitInfos(), 0);
+		aiConscriptedUnitTypes.assign(GC.getNumUnitInfos(), 0);
+		aiBuildingTypes.assign(GC.getNumBuildingInfos(), 0);
+		aiProjectTypes.assign(GC.getNumProjectInfos(), 0);
+		aiPromotionChoices.assign(GC.getNumPromotionInfos(), 0);
+	}
+	bool hasProduction() const
+	{
+		return (iUnitsCompleted > 0 || iUnitsConscripted > 0 || iBuildingsCompleted > 0 || iProjectsCompleted > 0 || iOverflowActions > 0 || iFailedInvestedProduction > 0 || iFailGold > 0 ||
+			iAIProductionTargetSwitches > 0 || iAIProductionTargetClears > 0 || iAIProductionTargetResumes > 0 || iProductionDecayActions > 0 || iProductionInvalidatedActions > 0 || iProductionUpgradeTransfers > 0 || iProductionUpgradeOverwritten > 0);
+	}
+	bool hasMilitary() const
+	{
+		return (iUpgrades > 0 || iScrapped > 0 || iCaptured > 0 || iCombatWins > 0 || iCombatLosses > 0 || iExperienceGained > 0 || iExperiencePreventedByCap > 0 || iExperienceLostAdjustments > 0 || iPromotionsChosen > 0 || iLeaderPromotionApplications > 0 || iEnemyExperienceDestroyed > 0 || iOwnExperienceLost > 0);
+	}
+	bool hasCityPopulationFlow() const
+	{
+		return (iCityGrowthEvents > 0 || iCityGrowthPreventedEvents > 0 || iCityStarvationEvents > 0);
+	}
+};
+
+struct SASGameRecordPlotChangeGroup
+{
+	CvString szCategory;
+	std::vector<std::pair<int,int> > aCoordinates;
+};
+
+// <!-- custom: Keep the city-bombard member named szMode. During the 6385 city-raze logging work it was accidentally renamed to szRazeMode while the existing bombard code still referenced szMode, causing MSVC C2039 compile errors.
+// The separate city-raze context intentionally owns szRazeMode instead. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordCityBombardPending
+{
+	bool bValid;
+	int iTurn;
+	CvString szMode;
+	PlayerTypes ePlayer;
+	PlayerTypes eTargetPlayer;
+	int iCityId;
+	CvWString szCity;
+	int iX;
+	int iY;
+	int iActions;
+	int iBombardRateTotal;
+	int iIgnoreBuildingDefenseActions;
+	int iDefenseModifierBefore;
+	int iDefenseModifierAfter;
+	int iTotalDefense;
+	int iDefenseDamageBefore;
+	int iDefenseDamageAfter;
+	int iDefenseDamageMax;
+	std::vector<std::pair<CvString,int> > aUnitTypes;
+	std::vector<std::pair<CvString,int> > aUnitAIs;
+	SASGameRecordCityBombardPending() : bValid(false), iTurn(-1), ePlayer(NO_PLAYER), eTargetPlayer(NO_PLAYER), iCityId(-1), iX(-1), iY(-1), iActions(0), iBombardRateTotal(0), iIgnoreBuildingDefenseActions(0), iDefenseModifierBefore(-1), iDefenseModifierAfter(-1), iTotalDefense(-1), iDefenseDamageBefore(-1), iDefenseDamageAfter(-1), iDefenseDamageMax(-1) {}
+};
+static std::vector<SASGameRecordPlotChangeGroup> g_aSASGameRecordPlotChanges;
+static std::vector<std::pair<int,int> > g_aaSASGameRecordRevealedPlots[MAX_TEAMS];
+
+// <!-- custom: Keep the portable high-level player fields first. More specialized bonus, espionage, unit-posture, worker, territory and city baselines are added with the corresponding snapshot rows rather than existing as unused state. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordPlayerPrevious
+{
+	bool bValid;
+	int iScore;
+	int iCities;
+	int iPopulation;
+	int iLand;
+	int iUnits;
+	int iCombatUnits;
+	int iMilitarySupportUnits;
+	int iPower;
+	int iGold;
+	int iGoldRate;
+	int iResearchRate;
+	int iBonusTypes;
+	int iBonusInstances;
+	int iBonusImports;
+	int iBonusExports;
+	int iHistoryScore;
+	int iHistoryEconomy;
+	int iHistoryIndustry;
+	int iHistoryAgriculture;
+	int iHistoryPower;
+	int iHistoryCulture;
+	int iHistoryEspionage;
+	int iEspionageRate;
+	int iEspionagePercent;
+	int iTeamEP;
+	int iUnspentEP;
+	int iDemoScore;
+	int iDemoPopulation;
+	int iDemoLand;
+	int iDemoFood;
+	int iDemoProduction;
+	int iDemoCommerce;
+	int iDemoResearch;
+	int iDemoCulture;
+	int iDemoEspionage;
+	int iDemoGoldRate;
+	int iDemoPower;
+	int iUnitTotal;
+	int iUnitMilitary;
+	int iUnitWorkers;
+	int iUnitSettlers;
+	int iUnitFieldArmy;
+	int iUnitCityDefenders;
+	int iUnitEnemyUnitsInTerritory;
+	int iUnitTotalExperience;
+	int iUnitPromotionReady;
+	int iWorkerWorkers;
+	int iWorkerBuilding;
+	int iWorkerIdle;
+	int iWorkerMoving;
+	int iWorkerWaiting;
+	int iWorkerThreatened;
+	int iTerritoryImprovedLand;
+	int iTerritoryImprovedWater;
+	int iTerritoryRoaded;
+	int iTerritoryFarms;
+	int iTerritoryIrrigatedFarms;
+	int iTerritoryDryFarms;
+	int iSettlerSettlers;
+	int iSettlerFoundMission;
+	int iSettlerMoving;
+	int iSettlerIdle;
+	int iSettlerWaiting;
+	int iSettlerThreatened;
+	int iCityCount;
+	int iCityConnectedToCapital;
+	int iCityFoodSurplus;
+	int iCityHappySurplus;
+	int iCityHealthSurplus;
+	int iCityFood;
+	int iCityProduction;
+	int iCityCommerce;
+	int iCityTradeRoutes;
+	int iCityTradeCommerce;
+	int iCitySpecialists;
+	int iCityFreeSpecialists;
+	int iCityGarrison;
+};
+
+struct SASGameRecordTeamPrevious
+{
+	bool bValid;
+	bool bContactsValid;
+	int iTechs;
+	int iLand;
+	int iLandPctX100;
+	int iPopulation;
+	int iPopPctX100;
+	int iMetTeams;
+};
+
+struct SASGameRecordGlobalPrevious
+{
+	bool bValid;
+	int iGlobalWarmingIndex;
+	int iGlobalWarmingChances;
+	int iOwnedLand;
+	int iUnownedLand;
+};
+
+struct SASGameRecordPlotComposition
+{
+	int iPlots;
+	int iLand;
+	int iWater;
+	int iHills;
+	int iPeaks;
+	int iRiverSide;
+	int iFreshWater;
+	int iCoastal;
+	int iImproved;
+	int iUnimprovedLand;
+	int iRoaded;
+	int iBonusImproved;
+	int iBonusUnimproved;
+	int iWorked;
+	int iWorkedImproved;
+	int iWorkedUnimproved;
+	int iNatureFood;
+	int iNatureProduction;
+	int iNatureCommerce;
+	int iCurrentFood;
+	int iCurrentProduction;
+	int iCurrentCommerce;
+	std::vector<int> aiTerrains;
+	std::vector<int> aiFeatures;
+	std::vector<int> aiBonuses;
+	std::vector<int> aiImprovements;
+	std::vector<int> aiRoutes;
+
+	SASGameRecordPlotComposition() : iPlots(0), iLand(0), iWater(0), iHills(0), iPeaks(0), iRiverSide(0), iFreshWater(0), iCoastal(0), iImproved(0), iUnimprovedLand(0), iRoaded(0), iBonusImproved(0), iBonusUnimproved(0), iWorked(0), iWorkedImproved(0), iWorkedUnimproved(0), iNatureFood(0), iNatureProduction(0), iNatureCommerce(0), iCurrentFood(0), iCurrentProduction(0), iCurrentCommerce(0), aiTerrains(GC.getNumTerrainInfos(), 0), aiFeatures(GC.getNumFeatureInfos(), 0), aiBonuses(GC.getNumBonusInfos(), 0), aiImprovements(GC.getNumImprovementInfos(), 0), aiRoutes(GC.getNumRouteInfos(), 0) {}
+};
+
+struct SASGameRecordTerritoryDevelopment
+{
+	SASGameRecordPlotComposition kOwned;
+	std::vector<int> aiImprovedBonuses;
+	std::vector<int> aiUnimprovedBonuses;
+	int iBFCPlots;
+	int iSuburbPlots;
+	int iDevelopmentLand;
+	int iDevelopmentWater;
+	int iImprovedLand;
+	int iImprovedWater;
+	int iBFCDevelopmentLand;
+	int iBFCImprovedLand;
+	int iSuburbDevelopmentLand;
+	int iSuburbImprovedLand;
+	int iFarms;
+	int iIrrigatedFarms;
+	int iDryFarms;
+	int iBonusFarms;
+	int iIrrigatedBonusFarms;
+	int iDryBonusFarms;
+	int iBFCFarms;
+	int iBFCIrrigatedFarms;
+	int iBFCDryFarms;
+	SASGameRecordTerritoryDevelopment() : aiImprovedBonuses(GC.getNumBonusInfos(), 0), aiUnimprovedBonuses(GC.getNumBonusInfos(), 0), iBFCPlots(0), iSuburbPlots(0), iDevelopmentLand(0), iDevelopmentWater(0), iImprovedLand(0), iImprovedWater(0), iBFCDevelopmentLand(0), iBFCImprovedLand(0), iSuburbDevelopmentLand(0), iSuburbImprovedLand(0), iFarms(0), iIrrigatedFarms(0), iDryFarms(0), iBonusFarms(0), iIrrigatedBonusFarms(0), iDryBonusFarms(0), iBFCFarms(0), iBFCIrrigatedFarms(0), iBFCDryFarms(0) {}
+};
+static SASGameRecordTeamPrevious g_akSASGameRecordTeamPrevious[MAX_TEAMS];
+static SASGameRecordGlobalPrevious g_kSASGameRecordGlobalPrevious;static void resetSASGameRecordGlobalPrevious()
+{
+	g_kSASGameRecordGlobalPrevious.bValid = false;
+}
+
+
+static int g_iSASGameRecordLastFullSnapshotTurn = -1;
+// <!-- custom: AI Auto Play/control telemetry is recorder-session state only. Keep Base AdvCiv 1.14's autoplay API and gameplay untouched while retaining one request identity and active-player-change counts for each logged run. (ChatGPT-5.6-Sol) -->
+static int g_iSASGameRecordAutoPlayRequestId = 0;
+static int g_iSASGameRecordAutoPlayRequestedTurns = 0;
+static int g_iSASGameRecordAutoPlayStartTurn = -1;
+static int g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
+static PlayerTypes g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
+static int g_iSASGameRecordAutoPlayPlayerChanges = 0;
+static int g_iSASGameRecordTotalActivePlayerChanges = 0;static void resetSASGameRecordControlState()
+{
+	g_iSASGameRecordAutoPlayRequestId = 0;
+	g_iSASGameRecordAutoPlayRequestedTurns = 0;
+	g_iSASGameRecordAutoPlayStartTurn = -1;
+	g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
+	g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
+	g_iSASGameRecordAutoPlayPlayerChanges = 0;
+	g_iSASGameRecordTotalActivePlayerChanges = 0;
+}
+
+
+
+static SASGameRecordPlayerPrevious g_akSASGameRecordPlayerPrevious[MAX_PLAYERS];static void resetSASGameRecordPlayerPrevious()
+{
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+		g_akSASGameRecordPlayerPrevious[iI].bValid = false;
+}
+
+
+static SASGameRecordResearchPrevious g_akSASGameRecordResearchPrevious[MAX_PLAYERS];
+static SASGameRecordResearchApplication g_akSASGameRecordResearchApplication[MAX_PLAYERS];static void resetSASGameRecordResearchState()
+{
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		g_akSASGameRecordResearchPrevious[iI].bValid = false;
+		g_akSASGameRecordResearchPrevious[iI].ePendingCause = RESEARCH_TARGET_CHANGE_UNKNOWN;
+		g_akSASGameRecordResearchApplication[iI].bValid = false;
+	}
+}
+
+
+static int g_aiSASGameRecordCitiesAcquired[MAX_PLAYERS];
+static int g_aiSASGameRecordCitiesLost[MAX_PLAYERS];
+static int g_aiSASGameRecordCitiesConquered[MAX_PLAYERS];
+static int g_aiSASGameRecordCitiesLostByConquest[MAX_PLAYERS];
+static int g_aiSASGameRecordCitiesTradedIn[MAX_PLAYERS];
+static int g_aiSASGameRecordCitiesTradedOut[MAX_PLAYERS];
+
+// <!-- custom: These counters reset whenever a new GameRecord log session begins, including after loading a save.
+// Name them as logged observations rather than misleading lifetime totals. See KI#379. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static int g_aiSASGameRecordLoggedGoldenAgeTurns[MAX_PLAYERS];
+static int g_aiSASGameRecordLoggedAnarchyTurns[MAX_PLAYERS];static void resetSASGameRecordPlayerDurationState()
+{
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		g_aiSASGameRecordLoggedGoldenAgeTurns[iI] = 0;
+		g_aiSASGameRecordLoggedAnarchyTurns[iI] = 0;
+	}
+}
+
+// <!-- custom: Game-record helpers keep output compact, stable, and machine-readable. They intentionally use XML type names instead of localized text where possible, so external tools can diff and parse autoplay runs reliably. The static state below is tiny and is only reset/updated through game-record call sites when the XML log level enables this feature; dynamic XML logging cannot be compiled out cleanly without losing normal runtime XML tuning. (ChatGPT-5.5) -->
+static int g_aiSASGameRecordBattleWins[MAX_PLAYERS];
+static int g_aiSASGameRecordBattleLosses[MAX_PLAYERS];
+static int g_aiSASGameRecordCityBattleWins[MAX_PLAYERS];
+static int g_aiSASGameRecordCityBattleLosses[MAX_PLAYERS];
+static int g_aiSASGameRecordTotalBattleWins[MAX_PLAYERS];
+static int g_aiSASGameRecordTotalBattleLosses[MAX_PLAYERS];
+static int g_aiSASGameRecordTotalCityBattleWins[MAX_PLAYERS];
+static int g_aiSASGameRecordTotalCityBattleLosses[MAX_PLAYERS];
+static SASGameRecordBattleQuality g_akSASGameRecordBattleQuality[MAX_PLAYERS];
+static SASGameRecordBattleQuality g_akSASGameRecordTotalBattleQuality[MAX_PLAYERS];
+// <!-- custom: Battle counters reset at actual snapshot boundaries, which need not match the configured periodic interval after loading or a victory flush. Track their real inclusive start like the newer flow buckets. See KI#378. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static int g_iSASGameRecordBattleStartTurn = 0;
+
+static SASGameRecordPlayerFlow g_akSASGameRecordPlayerFlow[MAX_PLAYERS];
+static int g_iSASGameRecordProductionFlowStartTurn = 0;
+static int g_iSASGameRecordMilitaryFlowStartTurn = 0;
+static int g_iSASGameRecordCityPopulationFlowStartTurn = 0;
+static SASGameRecordMilitaryQualityTotals g_akSASGameRecordMilitaryQualityTotals[MAX_PLAYERS];
+
+static SASGameRecordCityBombardPending g_kSASGameRecordPendingCityBombard;
+static bool g_bSASGameRecordFlushingCityBombard = false;
+
+// <!-- custom: Level-3 reproducibility telemetry observes the two authoritative CvGame RNG streams without changing CvRandom's serialized 8-byte layout.
+// RandLog intentionally remains the raw per-roll diagnostic; these trackers instead retain compact checkpoint-interval/session counts plus two order-sensitive FNV-1a fingerprints.
+// Session fingerprints stay 64-bit; interval fingerprints deliberately use 32-bit FNV because every checkpoint also carries interval start/end state and counters plus both independent fingerprints. This halves duplicated 64-bit multiply work in Civ4's 32-bit hot RNG path while retaining a strong interval-local diagnostic signal.
+// The stream fingerprint hashes the ordered abstract RNG operations needed to reproduce returned values: ROLL(requested upper bound) plus effective SEED_SET(new state) operations; a redundant same-state assignment is retained only in call provenance because it cannot alter any random value.
+// With the same session-start state and CvRandom algorithm, it therefore remains useful across source builds even when logging labels move, and still stays meaningful if benchmark/Python code deliberately reseeds an authoritative stream mid-session.
+// The richer call fingerprint additionally hashes a compact stable digest/length of the optional message, data1/data2 and EXE-wrapper origin for rolls, plus old/new state and reset-vs-reseed origin for seed sets. Each detailed operation is first reduced with cheap 32-bit FNV, then fed into the 64-bit session accumulator and native 32-bit interval accumulator, avoiding duplicated emulated 64-bit multiplies on Civ4's 32-bit build.
+// Messages often contain CALL_LOC_STR source locations, so exact call-fingerprint comparison is intentionally strongest for runs using the same DLL/source build; states, counts and stream fingerprints remain independently useful across builds.
+// As with the existing DLL FNV identifier, these are diagnostic divergence fingerprints rather than cryptographic proofs; independent seed/state/counter fields remain visible beside them.
+// NULL-message calls are important: CvRandom shuffles and some iterator randomization advance synchronized state while intentionally producing no RandLog row.
+// Async RNG is deliberately non-lockstep and can vary with client/UI activity (even though a few local human-interaction paths can use its result); local CvRandom helpers likewise do not advance CvGame's two authoritative streams.
+// Ignore both by pointer identity so this fingerprint answers synchronized/map-stream reproducibility rather than conflating independent randomness with it.
+// Python/third-party RNGs that do not advance these CvRandom objects, clocks and other external nondeterminism are likewise outside this layer; matching checkpoints are strong authoritative-RNG evidence, not a proof that all mutable game state is identical. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool g_bSASGameRecordRngTrackingActive = false;
+
+static SASGameRecordRngTracker g_kSASGameRecordMapRng;
+static SASGameRecordRngTracker g_kSASGameRecordSyncRng;
+// <!-- custom: Cache the two authoritative object addresses at session initialization so the level-3 hot path needs only pointer comparisons, not GC/CvGame lookups, for every RNG advance. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static CvRandom const* g_pSASGameRecordMapRng = NULL;
+static CvRandom const* g_pSASGameRecordSyncRng = NULL;// <!-- custom: CvRandom callers already pre-gate on active level-3 tracking. Returning NULL here is a separate stream-identity filter that rejects async and temporary/local RNG objects while retaining only CvGame's authoritative map and synchronized streams. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 static SASGameRecordRngTracker* getSASGameRecordRngTracker(CvRandom const* pRandom)
 {
 	if (pRandom == g_pSASGameRecordMapRng)
@@ -1450,7 +1806,7 @@ void noteSASGameRecordExternalRandomCall(CvRandom const* pRandom)
 	SASGameRecordRngTracker* pTracker = getSASGameRecordRngTracker(pRandom);
 	if (pTracker == NULL || !pTracker->bInitialized)
 		return;
-	// getExternal immediately calls get/getInt after this marker; retain EXE origin in both counters and that next call's fingerprint.
+	// <!-- custom: getExternal immediately calls get/getInt after this marker; retain EXE origin in both counters and that next call's fingerprint. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	pTracker->bNextCallExternal = true;
 }
 
@@ -1461,8 +1817,8 @@ void noteSASGameRecordRandomCall(CvRandom const* pRandom, unsigned short usRange
 		return;
 	bool const bExternal = pTracker->bNextCallExternal;
 	pTracker->bNextCallExternal = false;
-	// Stream fingerprint: hash the abstract operation directly, avoiding a nested signature. The requested range is intrinsically 16-bit, so hash exactly those two bytes rather than doing redundant work on two guaranteed-zero bytes.
-	// Keep cumulative/session hashes 64-bit, but use native 32-bit FNV for the interval copies; checkpoint state/counters plus both interval hashes make that substantially cheaper signal sufficiently strong for interval-local diagnosis.
+	// <!-- custom: Hash the abstract stream operation directly, avoiding a nested signature. The requested range is intrinsically 16-bit, so hash exactly those two bytes rather than doing redundant work on two guaranteed-zero bytes.
+	// Keep cumulative/session hashes 64-bit, but use native 32-bit FNV for interval copies; checkpoint state/counters plus both hashes make that cheaper signal sufficiently strong for interval-local diagnosis. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	updateSASGameRecordFNV1AByte(pTracker->uiSessionStreamFingerprint, 0x52);
 	updateSASGameRecordFNV1AUInt16(pTracker->uiSessionStreamFingerprint, usRange);
 	updateSASGameRecordFNV1A32Byte(pTracker->uiIntervalStreamFingerprint, 0x52);
@@ -1482,7 +1838,8 @@ void noteSASGameRecordRandomCall(CvRandom const* pRandom, unsigned short usRange
 		pTracker->uiSessionExternalCalls++;
 		pTracker->uiIntervalExternalCalls++;
 	}
-	// A low-level range <=1 still advances the seed despite yielding no entropy (the ordinary public range-0 wrapper returns before reaching here, so this is normally range 1). CvRandom::shuffle deliberately reaches range 1 on its final iteration; count rather than "optimizing" such calls away because their seed consumption is part of Civ4's synchronized RNG sequence and shifts every later result.
+	// <!-- custom: A low-level range <=1 still advances the seed despite yielding no entropy (the ordinary public range-0 wrapper returns before reaching here, so this is normally range 1). CvRandom::shuffle deliberately reaches range 1 on its final iteration.
+	// Count rather than "optimizing" such calls away because their seed consumption is part of Civ4's synchronized RNG sequence and shifts every later result. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (usRange <= 1)
 	{
 		pTracker->uiSessionDeterministicRangeCalls++;
@@ -1495,9 +1852,9 @@ void noteSASGameRecordRandomSeedSet(CvRandom const* pRandom, unsigned int uiOldS
 	SASGameRecordRngTracker* pTracker = getSASGameRecordRngTracker(pRandom);
 	if (pTracker == NULL || !pTracker->bInitialized)
 		return;
-	pTracker->bNextCallExternal = false; // A seed replacement cannot inherit a pending EXE-roll classification.
-	// A seed replacement is part of the authoritative RNG operation stream even though it consumes no roll. This is rare (notably benchmark Python can call CyRandom.init mid-session), so retain an explicit row too.
-	// Hash it into the value-stream fingerprint only when it actually changes state: redundantly assigning the current seed changes call provenance but not any present/future random values, so it belongs only in the richer call fingerprint/counters below.
+	pTracker->bNextCallExternal = false; // <!-- custom: A seed replacement cannot inherit a pending EXE-roll classification. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: A seed replacement is part of the authoritative RNG operation stream even though it consumes no roll. This is rare (notably benchmark Python can call CyRandom.init mid-session), so retain an explicit row too.
+	// Hash it into the value-stream fingerprint only when it actually changes state: redundantly assigning the current seed changes call provenance but not any present/future random values, so it belongs only in the richer call fingerprint/counters below. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (uiOldState != uiNewState)
 	{
 		updateSASGameRecordFNV1AByte(pTracker->uiSessionStreamFingerprint, 0x53);
@@ -1511,27 +1868,10 @@ void noteSASGameRecordRandomSeedSet(CvRandom const* pRandom, unsigned int uiOldS
 	pTracker->uiSessionSeedSets++;
 	pTracker->uiIntervalSeedSets++;
 	char const* szStream = (pTracker == &g_kSASGameRecordMapRng ? "MAP" : "SYNC");
-	// Position the rare replacement precisely within both the current checkpoint interval and the recorder session. This lets external tooling reconstruct seed progression around a mid-turn benchmark/Python reseed without needing per-roll SASGameRecord rows.
-	logSASGameRecord("GAME_RECORD_RNG_SEED_SET turn=%d stream=%s operation=%s oldState=%u newState=%u intervalCalls=%I64u sessionCalls=%I64u intervalSeedSets=%I64u sessionSeedSets=%I64u", GC.getGame().getGameTurn(), szStream, bReseed ? "RESEED" : "RESET_OR_INIT", uiOldState, uiNewState, pTracker->uiIntervalCalls, pTracker->uiSessionCalls, pTracker->uiIntervalSeedSets, pTracker->uiSessionSeedSets);
-}
-
-static char const* getSASGameRecordRngCheckpointReason(SASGameRecordRngCheckpointReason eReason)
-{
-	switch (eReason)
-	{
-	case SAS_RNG_CHECKPOINT_NEW_GAME_INITIALIZED: return "NEW_GAME_INITIALIZED";
-	case SAS_RNG_CHECKPOINT_MAP_REGENERATION_BEGIN: return "MAP_REGENERATION_BEGIN";
-	case SAS_RNG_CHECKPOINT_MAP_REGENERATION_END: return "MAP_REGENERATION_END";
-	case SAS_RNG_CHECKPOINT_AUTOPLAY_BEGIN: return "AUTOPLAY_BEGIN";
-	case SAS_RNG_CHECKPOINT_AUTOPLAY_END: return "AUTOPLAY_END";
-	case SAS_RNG_CHECKPOINT_END_GAME_TURN: return "END_GAME_TURN";
-	case SAS_RNG_CHECKPOINT_VICTORY: return "VICTORY";
-	case SAS_RNG_CHECKPOINT_GAME_END: return "GAME_END";
-	case SAS_RNG_CHECKPOINT_SAVE_LOADED: return "SAVE_LOADED";
-	case SAS_RNG_CHECKPOINT_SESSION_FINALIZE: return "SESSION_FINALIZE";
-	}
-	FAssertMsg(false, "Unknown SASGameRecord RNG checkpoint reason");
-	return "UNKNOWN";
+	// <!-- custom: Position the rare replacement precisely within both the current checkpoint interval and recorder session. This lets external tooling reconstruct seed progression around a mid-turn benchmark/Python reseed without per-roll SASGameRecord rows. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_RNG_SEED_SET turn=%d stream=%s operation=%s oldState=%u newState=%u intervalCalls=%I64u sessionCalls=%I64u intervalSeedSets=%I64u sessionSeedSets=%I64u",
+		GC.getGame().getGameTurn(), szStream, bReseed ? "RESEED" : "RESET_OR_INIT", uiOldState, uiNewState, pTracker->uiIntervalCalls,
+		pTracker->uiSessionCalls, pTracker->uiIntervalSeedSets, pTracker->uiSessionSeedSets);
 }
 
 void logSASGameRecordRngCheckpoint(int iGameTurn, SASGameRecordRngCheckpointReason eReason)
@@ -1559,18 +1899,69 @@ void logSASGameRecordRngCheckpoint(int iGameTurn, SASGameRecordRngCheckpointReas
 }
 
 
-struct SASGameRecordPlotChangeGroup
+void logSASGameRecord(TCHAR* format, ... )
 {
-	CvString szCategory;
-	std::vector<std::pair<int,int> > aCoordinates;
-};
+	static const bool bEnabled = isSASGameRecordLogEnabled();
+	if (!bEnabled)
+		return;
+	// <!-- custom: CITY_BOMBARD buffers only consecutive equivalent actions. Flush before the next ordinary row so compact synthesis cannot hide battle/action ordering. (ChatGPT-5.6-Sol) -->
+	if (!g_bSASGameRecordFlushingCityBombard)
+		flushSASGameRecordPendingCityBombard();
+
+	va_list args;
+	va_start(args, format);
+	std::string szLine;
+	// <!-- custom: KI#161.2's explicit terminator stopped MSVC 7.1 truncation from leaving unsafe unterminated output, but the fixed 2048-byte buffer still silently discarded long structured rows such as late-game building, unit-type and promotion inventories.
+	// Reuse CvString's grow-and-retry formatter so the complete machine-readable row reaches the log; abort the row if even that bounded formatter fails. See KI#375. (ChatGPT-5.5 + GPT-5.5; ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bFormatted = CvString::formatv(szLine, format, args);
+	va_end(args);
+	FAssertMsg(bFormatted, "SASGameRecord row formatting failed");
+	if (!bFormatted)
+		return;
+
+	// <!-- custom: Capture transaction membership before emission. `seq` is deliberately assigned only at emission, but `tx` describes the operation active when the observation was produced. (ChatGPT-5.6-Sol) -->
+	if (g_uiSASGameRecordActiveTransaction != 0 && isSASGameRecordStructuredRow(szLine))
+	{
+		CvString szTransaction;
+		szTransaction.Format(" tx=%I64u", g_uiSASGameRecordActiveTransaction);
+		insertSASGameRecordFieldAfterRowType(szLine, szTransaction.GetCString());
+	}
+	emitSASGameRecordLine(getSASGameRecordLogName(), szLine);
+}
+
+// <!-- custom: The first enabled scope owns a new session-local transaction; nested scopes join it so one synchronous causal chain stays one `tx`.
+// BEGIN/END rows make transaction kind and completeness explicit, while every structured row emitted inside the scope receives the same tx field automatically. (ChatGPT-5.6-Sol) -->
+void SASGameRecordTransactionScope::begin(char const* szKind)
+{
+	if (g_uiSASGameRecordActiveTransaction != 0)
+		return;
+	// <!-- custom: Flush an older synthetic bombard before arming the new transaction.
+	// logSASGameRecord itself flushes bombard rows, but doing that after tx activation would falsely attach the previous operation to this scope. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (!g_bSASGameRecordFlushingCityBombard)
+		flushSASGameRecordPendingCityBombard();
+	g_uiSASGameRecordActiveTransaction = ++g_uiSASGameRecordNextTransaction;
+	g_szSASGameRecordActiveTransactionKind = szKind;
+	m_bOwnsTransaction = true;
+	logSASGameRecord("GAME_RECORD_TRANSACTION_BEGIN turn=%d kind=%s", GC.getGame().getGameTurn(), szKind);
+}
+
+void prepareSASGameRecordPlotOwnerChange()
+{
+	// <!-- custom: Any pending synthetic CITY_BOMBARD happened before the ownership mutation.
+	// Flush it before CvPlot changes owner so its delayed row cannot observe half-mutated state or appear after the exact border transition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (!g_bSASGameRecordFlushingCityBombard)
+		flushSASGameRecordPendingCityBombard();
+}
+
+
+
 static int g_iSASGameRecordPendingPlotTurn = -1;
-static std::vector<SASGameRecordPlotChangeGroup> g_aSASGameRecordPlotChanges;
-static std::vector<std::pair<int,int> > g_aaSASGameRecordRevealedPlots[MAX_TEAMS];
 static TeamTypes g_eSASGameRecordFullMapRevelationTeam = NO_TEAM;
 static int g_iSASGameRecordFullMapRevealedBefore = 0;
 
-// <!-- custom: Aggregate each observed team-pair war across battle, conquest and peace boundaries so the record can summarize territorial and military outcomes without changing war logic. (GPT-5.6-Sol) -->
+// <!-- custom: A team-pair war is a natural historical unit that action rows otherwise force external tools to reconstruct across many turns.
+// Keep this transient and recorder-local: loaded saves start an explicitly partial observation, while declarations in the current log retain their exact start/cause.
+// Battles and conquered cities are attributed only to the two teams directly involved, so simultaneous wars do not contaminate one another. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
 struct SASGameRecordWarSummary
 {
 	TeamTypes eTeamA;
@@ -1604,6 +1995,7 @@ struct SASGameRecordWarSummary
 			iUnitsDestroyedByA(0), iUnitsDestroyedByB(0), iProductionDestroyedByA(0), iProductionDestroyedByB(0), iCityPlotWinsA(0), iCityPlotWinsB(0),
 			iCitiesCapturedByA(0), iCitiesCapturedByB(0), iPopulationCapturedByA(0), iPopulationCapturedByB(0), iLastOngoingSummaryTurn(-1) {}
 };
+
 static std::vector<SASGameRecordWarSummary> g_aSASGameRecordWars;
 
 static bool getSASGameRecordWarPair(TeamTypes eFirst, TeamTypes eSecond, TeamTypes& eTeamA, TeamTypes& eTeamB)
@@ -1638,6 +2030,7 @@ static void refreshSASGameRecordWarSuccess(SASGameRecordWarSummary& kWar)
 	kWar.iWarSuccessB = GET_TEAM(kWar.eTeamB).AI_getWarSuccess(kWar.eTeamA).round();
 }
 
+// <!-- custom: Release builds remove FAssert expressions entirely. Calling getSASGameRecordWarPair only from an assertion left both normalized teams at NO_TEAM and reproducibly crashed turn-110 reconciliation; validate in executed code and return NULL instead. (GPT-5.6-Sol) -->
 static SASGameRecordWarSummary* addSASGameRecordWar(TeamTypes eFirst, TeamTypes eSecond, bool bStartKnown, TeamTypes eDeclarer, TeamTypes eTarget, WarPlanTypes eWarPlan, char const* szStartCause, bool bPrimary)
 {
 	TeamTypes eTeamA;
@@ -1691,10 +2084,12 @@ static void logSASGameRecordWarSummary(SASGameRecordWarSummary& kWar, char const
 	int const iElapsedTurns = (kWar.bStartKnown ? iSummaryTurn - kWar.iStartTurn : -1);
 	int const iObservedTurns = iSummaryTurn - kWar.iObservedStartTurn;
 	logSASGameRecord("GAME_RECORD_WAR_SUMMARY turn=%d status=%s trigger=%s teamA=%d teamB=%d startKnown=%d startTurn=%d observedStartTurn=%d endTurn=%d elapsedTurns=%d observedTurns=%d declarerTeam=%d targetTeam=%d startCause=%s initialWarPlan=%s primary=%d endCause=%s brokerTeam=%d reparations=%d warSuccessObservedStartA=%d warSuccessObservedStartB=%d warSuccessEndA=%d warSuccessEndB=%d warSuccessObservedGainA=%+d warSuccessObservedGainB=%+d unitsDestroyedByA=%d unitsDestroyedByB=%d unitProductionCostDestroyedByA=%d unitProductionCostDestroyedByB=%d cityPlotWinsA=%d cityPlotWinsB=%d citiesCapturedByA=%d citiesCapturedByB=%d populationCapturedByA=%d populationCapturedByB=%d",
-			iSummaryTurn, szStatus, szTrigger, kWar.eTeamA, kWar.eTeamB, kWar.bStartKnown, kWar.iStartTurn, kWar.iObservedStartTurn, bEnded ? iSummaryTurn : -1, iElapsedTurns, iObservedTurns,
+			iSummaryTurn, szStatus, szTrigger, kWar.eTeamA, kWar.eTeamB,
+			kWar.bStartKnown, kWar.iStartTurn, kWar.iObservedStartTurn, bEnded ? iSummaryTurn : -1, iElapsedTurns, iObservedTurns,
 			kWar.eDeclarer, kWar.eTarget, kWar.szStartCause.GetCString(), getSASWarPlanType(kWar.eInitialWarPlan), kWar.bPrimary,
 			szEndCause, eBroker, bReparations, kWar.iWarSuccessStartA, kWar.iWarSuccessStartB, kWar.iWarSuccessA, kWar.iWarSuccessB, kWar.iWarSuccessA - kWar.iWarSuccessStartA, kWar.iWarSuccessB - kWar.iWarSuccessStartB,
-			kWar.iUnitsDestroyedByA, kWar.iUnitsDestroyedByB, kWar.iProductionDestroyedByA, kWar.iProductionDestroyedByB, kWar.iCityPlotWinsA, kWar.iCityPlotWinsB, kWar.iCitiesCapturedByA, kWar.iCitiesCapturedByB, kWar.iPopulationCapturedByA, kWar.iPopulationCapturedByB);
+			kWar.iUnitsDestroyedByA, kWar.iUnitsDestroyedByB, kWar.iProductionDestroyedByA, kWar.iProductionDestroyedByB, kWar.iCityPlotWinsA, kWar.iCityPlotWinsB,
+			kWar.iCitiesCapturedByA, kWar.iCitiesCapturedByB, kWar.iPopulationCapturedByA, kWar.iPopulationCapturedByB);
 }
 
 static void logSASGameRecordOngoingWarSummaries(char const* szReason)
@@ -1796,187 +2191,95 @@ static void resetSASGameRecordMilitaryFlowState()
 	g_iSASGameRecordCityPopulationFlowStartTurn = GC.getGame().getGameTurn();
 }
 
-static void resetSASGameRecordGlobalPrevious()
+// <!-- custom: Team snapshots intentionally list living members, but CvTeam::addTeam reassigns every player slot on the absorbed team.
+// Keep a separate exact helper for that rare structural boundary. (ChatGPT-5.6-Sol) -->
+static CvString getSASGameRecordTeamAssignedPlayers(TeamTypes eTeam, int& iCount)
 {
-	g_kSASGameRecordGlobalPrevious.bValid = false;
-}
-
-static void resetSASGameRecordPlayerPrevious()
-{
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
-		g_akSASGameRecordPlayerPrevious[iI].bValid = false;
-}
-
-static void resetSASGameRecordPlayerDurationState()
-{
+	iCount = 0;
+	CvString szList;
 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		g_aiSASGameRecordLoggedGoldenAgeTurns[iI] = 0;
-		g_aiSASGameRecordLoggedAnarchyTurns[iI] = 0;
+		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
+		if (GET_PLAYER(eLoopPlayer).getTeam() != eTeam)
+			continue;
+		appendSASDiagnosticIntListValue(szList, eLoopPlayer);
+		iCount++;
 	}
+	return getSASDiagnosticOrDash(szList);
 }
 
-static void resetSASGameRecordResearchState()
+static CvString getSASGameRecordTeamMembers(TeamTypes eTeam)
 {
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	CvString szList;
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
-		g_akSASGameRecordResearchPrevious[iI].bValid = false;
-		g_akSASGameRecordResearchPrevious[iI].ePendingCause = RESEARCH_TARGET_CHANGE_UNKNOWN;
-		g_akSASGameRecordResearchApplication[iI].bValid = false;
+		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
+		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == eTeam)
+			appendSASDiagnosticIntListValue(szList, eLoopPlayer);
 	}
+	return getSASDiagnosticOrDash(szList);
 }
 
-static void resetSASGameRecordControlState()
+static CvString getSASGameRecordWarTeams(TeamTypes eTeam)
 {
-	g_iSASGameRecordAutoPlayRequestId = 0;
-	g_iSASGameRecordAutoPlayRequestedTurns = 0;
-	g_iSASGameRecordAutoPlayStartTurn = -1;
-	g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
-	g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
-	g_iSASGameRecordAutoPlayPlayerChanges = 0;
-	g_iSASGameRecordTotalActivePlayerChanges = 0;
-}
-
-static CvString createSASGameRecordUtcTimestamp()
-{
-	time_t kNow;
-	time(&kNow);
-	char szBuffer[32];
-	struct tm* pUtcTime = gmtime(&kNow);
-	if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
-		return CvString(szBuffer);
-	return CvString("unknown_time");
-}
-
-static CvString getSASGameRecordLogTimestamp()
-{
-	if (g_szSASGameRecordLogTimestamp.empty())
-		g_szSASGameRecordLogTimestamp = createSASGameRecordUtcTimestamp();
-	return g_szSASGameRecordLogTimestamp;
-}
-
-static bool isSASGameRecordTimestampedFilenameEnabled()
-{
-	static const bool bUseTimestampedFilename = (GC.getDefineINT("SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME") > 0);
-	return bUseTimestampedFilename;
-}
-
-static CvString getSASGameRecordLogName()
-{
-	CvString szLogName;
-	if (GC.getGame().isNetworkMultiPlayer())
+	CvString szList;
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 	{
-		if (isSASGameRecordTimestampedFilenameEnabled())
-		{
-			if (!g_szSASGameRecordLogContext.empty())
-				szLogName.Format("SASGameRecord%d_%s_%s.log", (int)GC.getGame().getActivePlayer(), getSASGameRecordLogTimestamp().GetCString(), g_szSASGameRecordLogContext.GetCString());
-			else szLogName.Format("SASGameRecord%d_%s.log", (int)GC.getGame().getActivePlayer(), getSASGameRecordLogTimestamp().GetCString());
-		}
-		else szLogName.Format("SASGameRecord%d.log", (int)GC.getGame().getActivePlayer());
+		TeamTypes eLoopTeam = (TeamTypes)iI;
+		if (eLoopTeam != eTeam && GET_TEAM(eLoopTeam).isAlive() && kTeam.isAtWar(eLoopTeam))
+			appendSASDiagnosticIntListValue(szList, eLoopTeam);
 	}
-	else
+	return getSASDiagnosticOrDash(szList);
+}
+
+static CvString getSASGameRecordVassalTeams(TeamTypes eTeam)
+{
+	CvString szList;
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 	{
-		if (isSASGameRecordTimestampedFilenameEnabled())
-		{
-			if (!g_szSASGameRecordLogContext.empty())
-				szLogName.Format("SASGameRecord_%s_%s.log", getSASGameRecordLogTimestamp().GetCString(), g_szSASGameRecordLogContext.GetCString());
-			else szLogName.Format("SASGameRecord_%s.log", getSASGameRecordLogTimestamp().GetCString());
-		}
-		else szLogName = "SASGameRecord.log";
+		TeamTypes eLoopTeam = (TeamTypes)iI;
+		if (eLoopTeam != eTeam && GET_TEAM(eLoopTeam).isAlive() && GET_TEAM(eLoopTeam).isVassal(eTeam))
+			appendSASDiagnosticIntListValue(szList, eLoopTeam);
 	}
-	return szLogName;
+	return getSASDiagnosticOrDash(szList);
 }
 
-static void rollSASGameRecordLog(const char* szContext)
+static CvString getSASGameRecordMetTeams(TeamTypes eTeam)
 {
-	// <!-- custom: `seq` and `tx` identities are local to one timestamped record session; a new/load file starts a fresh causal namespace. (ChatGPT-5.6-Sol) -->
-	g_uiSASGameRecordSemanticSequence = 0;
-	g_uiSASGameRecordNextTransaction = 0;
-	g_uiSASGameRecordActiveTransaction = 0;
-	g_szSASGameRecordActiveTransactionKind.clear();
-	g_eSASGameRecordPlotOwnerChangeCause = SAS_PLOT_OWNER_CAUSE_NONE;
-	g_szSASGameRecordLogTimestamp = createSASGameRecordUtcTimestamp();
-	g_szSASGameRecordLogContext.clear();
-	if (isSASGameRecordTimestampedFilenameEnabled())
+	CvString szMetTeams;
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 	{
-		g_iSASGameRecordLogSequence++;
-		g_szSASGameRecordLogContext.Format("%s%d", szContext, g_iSASGameRecordLogSequence);
+		TeamTypes eLoopTeam = (TeamTypes)iI;
+		if (eLoopTeam == eTeam || !GET_TEAM(eLoopTeam).isAlive() || GET_TEAM(eLoopTeam).isBarbarian())
+			continue;
+		if (GET_TEAM(eTeam).isHasMet(eLoopTeam))
+			appendSASDiagnosticIntListValue(szMetTeams, eLoopTeam);
 	}
+	return getSASDiagnosticOrDash(szMetTeams);
 }
 
-static void appendSASGameRecordType(CvString& szTypes, char const* szType)
+static int getSASGameRecordMetTeamCount(TeamTypes eTeam)
 {
-	if (!szTypes.empty()) szTypes += ",";
-	szTypes += szType;
-}
-
-static void logSASGameRecordLogSettings()
-{
-	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_GAME_RECORD_TRADE_MARKET_ENABLE=%d SAS_GAME_RECORD_TRADE_MARKET_BONUS_GPT_QUOTES_ENABLE=%d SAS_GAME_RECORD_TRADE_MARKET_AI_TECH_VALUES_ENABLE=%d",
-			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled(), isSASGameRecordTradeMarketEnabled(), isSASGameRecordTradeMarketBonusGPTQuotesEnabled(), isSASGameRecordTradeMarketAITechValuesEnabled());
-}
-
-// <!-- custom: Compact finalized team rows preserve which technologies each team owns and which diplomacy capabilities are active, but replacing setup-time TECH_ACQUIRED spam otherwise loses which technology grants each capability.
-// Record the loaded XML mapping once for the whole session instead of repeating the same effect fields for every initial team-tech pair. (GPT-5.6-Sol) -->
-static void logSASGameRecordTechCapabilitySources()
-{
-	CvString szMapTrading, szTechTrading, szGoldTrading, szOpenBordersTrading, szDefensivePactTrading, szPermanentAllianceTrading, szVassalStateTrading;
-	FOR_EACH_ENUM(Tech)
+	int iCount = 0;
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 	{
-		CvTechInfo const& kTech = GC.getInfo(eLoopTech);
-		if (kTech.isMapTrading()) appendSASGameRecordType(szMapTrading, kTech.getType());
-		if (kTech.isTechTrading()) appendSASGameRecordType(szTechTrading, kTech.getType());
-		if (kTech.isGoldTrading()) appendSASGameRecordType(szGoldTrading, kTech.getType());
-		if (kTech.isOpenBordersTrading()) appendSASGameRecordType(szOpenBordersTrading, kTech.getType());
-		if (kTech.isDefensivePactTrading()) appendSASGameRecordType(szDefensivePactTrading, kTech.getType());
-		if (kTech.isPermanentAllianceTrading()) appendSASGameRecordType(szPermanentAllianceTrading, kTech.getType());
-		if (kTech.isVassalStateTrading()) appendSASGameRecordType(szVassalStateTrading, kTech.getType());
+		TeamTypes eLoopTeam = (TeamTypes)iI;
+		if (eLoopTeam != eTeam && GET_TEAM(eLoopTeam).isAlive() && !GET_TEAM(eLoopTeam).isBarbarian() && GET_TEAM(eTeam).isHasMet(eLoopTeam))
+			iCount++;
 	}
-	logSASGameRecord("GAME_RECORD_TECH_CAPABILITY_SOURCES mapTrading=%s techTrading=%s goldTrading=%s openBordersTrading=%s defensivePactTrading=%s permanentAllianceTrading=%s vassalStateTrading=%s source=LOADED_XML",
-			getSASDiagnosticOrDash(szMapTrading).GetCString(), getSASDiagnosticOrDash(szTechTrading).GetCString(), getSASDiagnosticOrDash(szGoldTrading).GetCString(), getSASDiagnosticOrDash(szOpenBordersTrading).GetCString(), getSASDiagnosticOrDash(szDefensivePactTrading).GetCString(), getSASDiagnosticOrDash(szPermanentAllianceTrading).GetCString(), getSASDiagnosticOrDash(szVassalStateTrading).GetCString());
+	return iCount;
 }
 
-// <!-- custom: Record every stored map-script option, including hidden values. Keep numeric values durable so setup can be reconstructed without relying on localized descriptions or a currently available Python map script. (ChatGPT-5.6-Sol) -->
-static void logSASGameRecordMapOptions(CvInitCore const& kInitCore)
+static void logSASGameRecordTeamContacts(TeamTypes eTeam, int iGameTurn, const char* szReason)
 {
-	const int iNumOptions = kInitCore.getNumCustomMapOptions();
-	const int iNumHiddenOptions = std::min(iNumOptions, std::max(0, kInitCore.getNumHiddenCustomMapOptions()));
-	logSASGameRecord("GAME_RECORD_MAP_OPTIONS count=%d hidden=%d", iNumOptions, iNumHiddenOptions);
-	for (int iOption = 0; iOption < iNumOptions; iOption++)
-	{
-		const bool bHidden = (iOption >= iNumOptions - iNumHiddenOptions);
-		logSASGameRecord("GAME_RECORD_MAP_OPTION index=%d hidden=%d value=%d", iOption, bHidden, kInitCore.getCustomMapOption(iOption));
-	}
-}
-
-static const char* getSASGameRecordReligionType(ReligionTypes eReligion)
-{
-	return (eReligion == NO_RELIGION ? "-" : GC.getInfo(eReligion).getType());
-}
-
-static const char* getSASGameRecordCorporationType(CorporationTypes eCorporation)
-{
-	return (eCorporation == NO_CORPORATION ? "-" : GC.getInfo(eCorporation).getType());
-}
-
-static const char* getSASGameRecordCivicType(CivicTypes eCivic)
-{
-	return (eCivic == NO_CIVIC ? "-" : GC.getInfo(eCivic).getType());
-}
-
-static const char* getSASGameRecordVoteSourceType(VoteSourceTypes eVoteSource)
-{
-	return (eVoteSource == NO_VOTESOURCE ? "-" : GC.getInfo(eVoteSource).getType());
-}
-
-static const char* getSASGameRecordVoteType(VoteTypes eVote)
-{
-	return (eVote == NO_VOTE ? "-" : GC.getInfo(eVote).getType());
-}
-
-static const char* getSASGameRecordEraType(EraTypes eEra)
-{
-	return (eEra == NO_ERA ? "-" : GC.getInfo(eEra).getType());
+	SASGameRecordTeamPrevious& kPrevious = g_akSASGameRecordTeamPrevious[eTeam];
+	const int iMetTeams = getSASGameRecordMetTeamCount(eTeam);
+	logSASGameRecord("GAME_RECORD_CONTACTS turn=%d reason=%s team=%d deltaValid=%d metCount=%d metCountDelta=%+d metTeams=%s",
+			iGameTurn, szReason, eTeam, kPrevious.bContactsValid, iMetTeams, getSASGameRecordDelta(kPrevious.bContactsValid, iMetTeams, kPrevious.iMetTeams), getSASGameRecordMetTeams(eTeam).GetCString());
+	kPrevious.bContactsValid = true;
+	kPrevious.iMetTeams = iMetTeams;
 }
 
 static const char* getSASGameRecordTechType(TechTypes eTech)
@@ -1999,14 +2302,333 @@ static const char* getSASGameRecordGoodyType(GoodyTypes eGoody)
 	return (eGoody == NO_GOODY ? "-" : GC.getInfo(eGoody).getType());
 }
 
-static const char* getSASGameRecordBonusType(BonusTypes eBonus)
+static const char* getSASGameRecordReligionType(ReligionTypes eReligion)
 {
-	return (eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType());
+	return (eReligion == NO_RELIGION ? "-" : GC.getInfo(eReligion).getType());
+}
+
+static const char* getSASGameRecordCorporationType(CorporationTypes eCorporation)
+{
+	return (eCorporation == NO_CORPORATION ? "-" : GC.getInfo(eCorporation).getType());
+}
+
+static const char* getSASGameRecordBuildingType(BuildingTypes eBuilding)
+{
+	return (eBuilding == NO_BUILDING ? "-" : GC.getInfo(eBuilding).getType());
+}
+
+static const char* getSASGameRecordProjectType(ProjectTypes eProject)
+{
+	return (eProject == NO_PROJECT ? "-" : GC.getInfo(eProject).getType());
 }
 
 static const char* getSASGameRecordUnitType(UnitTypes eUnit)
 {
 	return (eUnit == NO_UNIT ? "-" : GC.getInfo(eUnit).getType());
+}
+
+static const char* getSASGameRecordBonusType(BonusTypes eBonus)
+{
+	return (eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType());
+}
+
+static const char* getSASGameRecordTerrainType(TerrainTypes eTerrain)
+{
+	return (eTerrain == NO_TERRAIN ? "-" : GC.getInfo(eTerrain).getType());
+}
+
+static const char* getSASGameRecordFeatureType(FeatureTypes eFeature)
+{
+	return (eFeature == NO_FEATURE ? "-" : GC.getInfo(eFeature).getType());
+}
+
+static const char* getSASGameRecordImprovementType(ImprovementTypes eImprovement)
+{
+	return (eImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eImprovement).getType());
+}
+
+static const char* getSASGameRecordRouteType(RouteTypes eRoute)
+{
+	return (eRoute == NO_ROUTE ? "-" : GC.getInfo(eRoute).getType());
+}
+
+static char const* getSASGameRecordPlotOwnerChangeCause()
+{
+	switch (g_eSASGameRecordPlotOwnerChangeCause)
+	{
+	case SAS_PLOT_OWNER_CAUSE_CITY_FOUNDING: return "CITY_FOUNDING";
+	case SAS_PLOT_OWNER_CAUSE_CITY_ACQUISITION: return "CITY_ACQUISITION";
+	case SAS_PLOT_OWNER_CAUSE_CULTURE_UPDATE: return "CULTURE_UPDATE";
+	case SAS_PLOT_OWNER_CAUSE_WAR_BORDER: return "WAR_BORDER";
+	case SAS_PLOT_OWNER_CAUSE_PEACE_BORDER: return "PEACE_BORDER";
+	case SAS_PLOT_OWNER_CAUSE_WORLDBUILDER: return "WORLDBUILDER";
+	case SAS_PLOT_OWNER_CAUSE_PYTHON_EXTERNAL: return "PYTHON_EXTERNAL";
+	case SAS_PLOT_OWNER_CAUSE_NONE: break;
+	}
+	// <!-- custom: Root transaction identity is deliberately not reused as immediate mechanism provenance.
+	// If no setter path proved a mechanism, say UNKNOWN so missing coverage stays visible instead of being masked by tx. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	return "UNKNOWN";
+}
+
+void logSASGameRecordPlotOwnerChanged(CvPlot const& kPlot, PlayerTypes eOldOwner, PlayerTypes eNewOwner, int iOwnershipDurationBefore, bool bOwnershipScoreBefore)
+{
+	FAssertMsg(g_eSASGameRecordPlotOwnerChangeCause != SAS_PLOT_OWNER_CAUSE_NONE, "Every current direct CvPlot::setOwner path should supply immediate SASGameRecord ownership provenance");
+	TeamTypes const eOldTeam = (eOldOwner == NO_PLAYER ? NO_TEAM : GET_PLAYER(eOldOwner).getTeam());
+	TeamTypes const eNewTeam = (eNewOwner == NO_PLAYER ? NO_TEAM : GET_PLAYER(eNewOwner).getTeam());
+	int const iOldCulture = (eOldOwner == NO_PLAYER ? 0 : kPlot.getCulture(eOldOwner));
+	int const iNewCulture = (eNewOwner == NO_PLAYER ? 0 : kPlot.getCulture(eNewOwner));
+	int const iOldCulturePercent = (eOldOwner == NO_PLAYER ? 0 : kPlot.calculateCulturePercent(eOldOwner));
+	int const iNewCulturePercent = (eNewOwner == NO_PLAYER ? 0 : kPlot.calculateCulturePercent(eNewOwner));
+	PlayerTypes const eHighestCulturePlayer = kPlot.findHighestCulturePlayer();
+	int const iHighestCulturePercent = (eHighestCulturePlayer == NO_PLAYER ? 0 : kPlot.calculateCulturePercent(eHighestCulturePlayer));
+	// <!-- custom: Log only exact realized ownership transitions at the authoritative setter.
+	// Culture pressure plus second-owner/strategic-tile context explains many flips without duplicating periodic political maps or every per-player plot-culture value. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_PLOT_OWNER_CHANGED turn=%d x=%d y=%d area=%d cause=%s oldOwner=%d oldTeam=%d newOwner=%d newTeam=%d secondOwner=%d water=%d ownershipDurationBefore=%d ownershipScoreBefore=%d forceUnownedTurns=%d oldOwnerCulture=%d oldOwnerCulturePercent=%d newOwnerCulture=%d newOwnerCulturePercent=%d highestCulturePlayer=%d highestCulturePercent=%d bonus=%s improvement=%s route=%s",
+		GC.getGame().getGameTurn(), kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), getSASGameRecordPlotOwnerChangeCause(),
+		eOldOwner, eOldTeam, eNewOwner, eNewTeam, kPlot.getSecondOwner(), kPlot.isWater(), iOwnershipDurationBefore, bOwnershipScoreBefore, kPlot.getForceUnownedTimer(),
+		iOldCulture, iOldCulturePercent, iNewCulture, iNewCulturePercent, eHighestCulturePlayer, iHighestCulturePercent,
+		getSASGameRecordBonusType(kPlot.getBonusType()), getSASGameRecordImprovementType(kPlot.getImprovementType()), getSASGameRecordRouteType(kPlot.getRouteType()));
+}
+
+SASGameRecordGoodyResult::SASGameRecordGoodyResult() :
+	bFollowupOutcome(false), bUpgradeRoll(false), bUpgradeApplied(false), bAdditionalOutcomeAttempted(false),
+	iGold(0), iNewlyRevealedPlots(0), iExperienceGained(0), iDamageHealed(0), eTech(NO_TECH), iTechRewardValue(0),
+	iTechProgressBefore(-1), iTechProgressAfter(-1), iTechCost(-1), bTechCompleted(false), iFreePromotionsGranted(0)
+{}
+
+SASGameRecordPlotState::SASGameRecordPlotState() : eTerrain(NO_TERRAIN), eFeature(NO_FEATURE), eBonus(NO_BONUS), eImprovement(NO_IMPROVEMENT), eRoute(NO_ROUTE)
+{
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		aiExtraYield[iI] = 0;
+}
+
+SASGameRecordPlotState::SASGameRecordPlotState(CvPlot const& kPlot) : eTerrain(kPlot.getTerrainType()), eFeature(kPlot.getFeatureType()), eBonus(kPlot.getBonusType()), eImprovement(kPlot.getImprovementType()), eRoute(kPlot.getRouteType())
+{
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		aiExtraYield[iI] = GC.getMap().getPlotExtraYield(kPlot, (YieldTypes)iI);
+}
+
+static bool isSASGameRecordPlotStateChanged(SASGameRecordPlotState const& kOldState, CvPlot const& kPlot)
+{
+	if (kOldState.eTerrain != kPlot.getTerrainType() || kOldState.eFeature != kPlot.getFeatureType() || kOldState.eBonus != kPlot.getBonusType() || kOldState.eImprovement != kPlot.getImprovementType() || kOldState.eRoute != kPlot.getRouteType())
+		return true;
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		if (kOldState.aiExtraYield[iI] != GC.getMap().getPlotExtraYield(kPlot, (YieldTypes)iI))
+			return true;
+	}
+	return false;
+}
+
+static void addSASGameRecordCoordinate(std::vector<std::pair<int,int> >& aCoordinates, CvPlot const& kPlot)
+{
+	std::pair<int,int> const kCoordinate(kPlot.getX(), kPlot.getY());
+	if (std::find(aCoordinates.begin(), aCoordinates.end(), kCoordinate) == aCoordinates.end())
+		aCoordinates.push_back(kCoordinate);
+}
+
+static void appendSASGameRecordCoordinateChunks(std::vector<CvString>& aszChunks, CvString& szChunk, char const* szCategory, std::vector<std::pair<int,int> > const& aCoordinates)
+{
+	for (size_t iI = 0; iI < aCoordinates.size(); iI++)
+	{
+		CvString szItem;
+		if (iI == 0)
+			szItem.Format("%s%s=(%d,%d)", szChunk.empty() ? "" : " ", szCategory, aCoordinates[iI].first, aCoordinates[iI].second);
+		else szItem.Format(",(%d,%d)", aCoordinates[iI].first, aCoordinates[iI].second);
+		if (!szChunk.empty() && szChunk.length() + szItem.length() > 1500)
+		{
+			aszChunks.push_back(szChunk);
+			szChunk.clear();
+			szItem.Format("%s=(%d,%d)", szCategory, aCoordinates[iI].first, aCoordinates[iI].second);
+		}
+		szChunk += szItem;
+	}
+}
+
+static int getSASGameRecordRevealedPlotCount(TeamTypes eTeam)
+{
+	int iRevealed = 0;
+	int iLoop = 0;
+	for (CvArea const* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
+		iRevealed += pLoopArea->getNumRevealedTiles(eTeam);
+	return iRevealed;
+}
+
+void beginSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech)
+{
+	FAssert(g_eSASGameRecordFullMapRevelationTeam == NO_TEAM);
+	FAssert(eTeam >= 0 && eTeam < MAX_CIV_TEAMS);
+	FAssert(eTech != NO_TECH);
+	g_eSASGameRecordFullMapRevelationTeam = eTeam;
+	g_iSASGameRecordFullMapRevealedBefore = getSASGameRecordRevealedPlotCount(eTeam);
+}
+
+void endSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech)
+{
+	FAssert(g_eSASGameRecordFullMapRevelationTeam == eTeam);
+	int const iRevealed = getSASGameRecordRevealedPlotCount(eTeam);
+	int const iNewlyRevealed = iRevealed - g_iSASGameRecordFullMapRevealedBefore;
+	int const iRevealedPctX100 = (10000 * iRevealed) / std::max(1, (int)GC.getMap().numPlots());
+	logSASGameRecord("GAME_RECORD_MAP_REVELATION turn=%d team=%d cause=MAP_VISIBLE_TECH tech=%s revealMode=FULL_MAP newlyRevealedCount=%d revealedPlots=%d revealedPctX100=%d", GC.getGame().getGameTurn(), eTeam, getSASGameRecordTechType(eTech), iNewlyRevealed, iRevealed, iRevealedPctX100);
+	g_eSASGameRecordFullMapRevelationTeam = NO_TEAM;
+	g_iSASGameRecordFullMapRevealedBefore = 0;
+}
+
+void flushSASGameRecordTurnChanges(int iGameTurn)
+{
+	flushSASGameRecordPendingCityBombard();
+	if (g_iSASGameRecordPendingPlotTurn < 0)
+		return;
+	FAssert(iGameTurn == g_iSASGameRecordPendingPlotTurn);
+	std::vector<CvString> aszPlotChunks;
+	CvString szPlotChunk;
+	for (size_t iI = 0; iI < g_aSASGameRecordPlotChanges.size(); iI++)
+		appendSASGameRecordCoordinateChunks(aszPlotChunks, szPlotChunk, g_aSASGameRecordPlotChanges[iI].szCategory.GetCString(), g_aSASGameRecordPlotChanges[iI].aCoordinates);
+	if (!szPlotChunk.empty())
+		aszPlotChunks.push_back(szPlotChunk);
+	for (size_t iI = 0; iI < aszPlotChunks.size(); iI++)
+		logSASGameRecord("GAME_RECORD_PLOT_CHANGES turn=%d part=%d parts=%d changes=%s", iGameTurn, (int)iI + 1, (int)aszPlotChunks.size(), aszPlotChunks[iI].GetCString());
+
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		std::vector<std::pair<int,int> > const& aCoordinates = g_aaSASGameRecordRevealedPlots[iI];
+		if (aCoordinates.empty())
+			continue;
+		std::vector<CvString> aszRevelationChunks;
+		CvString szRevelationChunk;
+		appendSASGameRecordCoordinateChunks(aszRevelationChunks, szRevelationChunk, "newlyRevealed", aCoordinates);
+		if (!szRevelationChunk.empty())
+			aszRevelationChunks.push_back(szRevelationChunk);
+		int const iRevealedPctX100 = (10000 * getSASGameRecordRevealedPlotCount((TeamTypes)iI)) / std::max(1, (int)GC.getMap().numPlots());
+		for (size_t iJ = 0; iJ < aszRevelationChunks.size(); iJ++)
+			logSASGameRecord("GAME_RECORD_MAP_REVELATION turn=%d team=%d cause=INCREMENTAL revealMode=COORDINATES newlyRevealedCount=%d part=%d parts=%d revealedPctX100=%d %s",
+				iGameTurn, iI, (int)aCoordinates.size(), (int)iJ + 1, (int)aszRevelationChunks.size(), iRevealedPctX100, aszRevelationChunks[iJ].GetCString());
+	}
+	g_iSASGameRecordPendingPlotTurn = -1;
+	g_aSASGameRecordPlotChanges.clear();
+	for (int iI = 0; iI < MAX_TEAMS; iI++)
+		g_aaSASGameRecordRevealedPlots[iI].clear();
+}
+
+// <!-- custom: Session rollover previously reset pending city-bombard, plot-change and incremental-revelation observations without writing them. Flush while the old game/map still supply the matching turn and revelation totals, then preserve the last level-3 authoritative RNG state before the session disappears. (ChatGPT-5.6-Sol) -->
+void finalizeSASGameRecordLogSession()
+{
+	if (g_iSASGameRecordPendingPlotTurn >= 0)
+		flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
+	else flushSASGameRecordPendingCityBombard();
+	if (g_bSASGameRecordRngTrackingActive)
+		logSASGameRecordRngCheckpoint(GC.getGame().getGameTurn(), SAS_RNG_CHECKPOINT_SESSION_FINALIZE);
+	clearSASGameRecordRngTracking();
+}
+
+static void prepareSASGameRecordTurnChanges()
+{
+	int const iGameTurn = GC.getGame().getGameTurn();
+	if (g_iSASGameRecordPendingPlotTurn >= 0 && g_iSASGameRecordPendingPlotTurn != iGameTurn)
+		flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
+	if (g_iSASGameRecordPendingPlotTurn < 0)
+		g_iSASGameRecordPendingPlotTurn = iGameTurn;
+}
+
+static void bufferSASGameRecordPlotChangeCoordinate(CvPlot const& kPlot, char const* szCategory)
+{
+	prepareSASGameRecordTurnChanges();
+	SASGameRecordPlotChangeGroup* pGroup = NULL;
+	for (size_t iI = 0; iI < g_aSASGameRecordPlotChanges.size(); iI++)
+	{
+		if (g_aSASGameRecordPlotChanges[iI].szCategory == szCategory)
+		{
+			pGroup = &g_aSASGameRecordPlotChanges[iI];
+			break;
+		}
+	}
+	if (pGroup == NULL)
+	{
+		SASGameRecordPlotChangeGroup kGroup;
+		kGroup.szCategory = szCategory;
+		g_aSASGameRecordPlotChanges.push_back(kGroup);
+		pGroup = &g_aSASGameRecordPlotChanges.back();
+	}
+	addSASGameRecordCoordinate(pGroup->aCoordinates, kPlot);
+}
+
+void recordSASGameRecordPlotChange(CvPlot const& kPlot, SASGameRecordPlotState const& kOldState, char const* szCategory, char const* szCause, bool bDetailed)
+{
+	if (GC.getGame().getElapsedGameTurns() <= 0 || !isSASGameRecordPlotStateChanged(kOldState, kPlot))
+		return;
+	bufferSASGameRecordPlotChangeCoordinate(kPlot, szCategory);
+	if (!bDetailed)
+		return;
+	logSASGameRecord("GAME_RECORD_PLOT_CHANGE turn=%d cause=%s category=%s x=%d y=%d owner=%d terrainOld=%s terrainNew=%s featureOld=%s featureNew=%s bonusOld=%s bonusNew=%s improvementOld=%s improvementNew=%s routeOld=%s routeNew=%s extraFoodOld=%d extraFoodNew=%d extraProductionOld=%d extraProductionNew=%d extraCommerceOld=%d extraCommerceNew=%d",
+		GC.getGame().getGameTurn(), szCause, szCategory, kPlot.getX(), kPlot.getY(), kPlot.getOwner(),
+		getSASGameRecordTerrainType(kOldState.eTerrain), getSASGameRecordTerrainType(kPlot.getTerrainType()),
+		getSASGameRecordFeatureType(kOldState.eFeature), getSASGameRecordFeatureType(kPlot.getFeatureType()),
+		getSASGameRecordBonusType(kOldState.eBonus), getSASGameRecordBonusType(kPlot.getBonusType()),
+		getSASGameRecordImprovementType(kOldState.eImprovement), getSASGameRecordImprovementType(kPlot.getImprovementType()),
+		getSASGameRecordRouteType(kOldState.eRoute), getSASGameRecordRouteType(kPlot.getRouteType()),
+		kOldState.aiExtraYield[YIELD_FOOD], GC.getMap().getPlotExtraYield(kPlot, YIELD_FOOD),
+		kOldState.aiExtraYield[YIELD_PRODUCTION], GC.getMap().getPlotExtraYield(kPlot, YIELD_PRODUCTION),
+		kOldState.aiExtraYield[YIELD_COMMERCE], GC.getMap().getPlotExtraYield(kPlot, YIELD_COMMERCE));
+}
+
+void logSASGameRecordRiverEdgeChanged(CvPlot const& kPlot, bool bOldSouthBoundary, bool bOldEastBoundary)
+{
+	bool const bNewSouthBoundary = kPlot.isNOfRiver();
+	bool const bNewEastBoundary = kPlot.isWOfRiver();
+	if (bOldSouthBoundary == bNewSouthBoundary && bOldEastBoundary == bNewEastBoundary) return;
+	bufferSASGameRecordPlotChangeCoordinate(kPlot, "riverChanges");
+	logSASGameRecord("GAME_RECORD_RIVER_EDGE_CHANGE turn=%d x=%d y=%d owner=%d southBoundaryOld=%d southBoundaryNew=%d eastBoundaryOld=%d eastBoundaryNew=%d",
+			GC.getGame().getGameTurn(), kPlot.getX(), kPlot.getY(), kPlot.getOwner(), bOldSouthBoundary, bNewSouthBoundary, bOldEastBoundary, bNewEastBoundary);
+}
+
+void recordSASGameRecordPlotRevealed(CvPlot const& kPlot, TeamTypes eTeam)
+{
+	if (GC.getGame().getElapsedGameTurns() <= 0 || eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return;
+	if (eTeam == g_eSASGameRecordFullMapRevelationTeam)
+		return;
+	prepareSASGameRecordTurnChanges();
+	// <!-- custom: setRevealed calls this only on false-to-true transitions, so the same team cannot add this plot twice without first losing permanent revelation; append directly instead of repeatedly searching a potentially large map-trade list. (GPT-5.6-Sol) -->
+	g_aaSASGameRecordRevealedPlots[eTeam].push_back(std::make_pair(kPlot.getX(), kPlot.getY()));
+}
+
+void logSASGameRecordBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, BonusTypes eNewBonus)
+{
+	if (pPlot == NULL || eOldBonus == eNewBonus)
+		return;
+	SASGameRecordPlotState kOldState(*pPlot);
+	kOldState.eBonus = eOldBonus;
+	recordSASGameRecordPlotChange(*pPlot, kOldState, "resourceChanges", "RESOURCE_CHANGE", false);
+	char const* szAction = (eOldBonus == NO_BONUS ? "appeared" : (eNewBonus == NO_BONUS ? "disappeared" : "changed"));
+	CvCity const* pWorkingCity = pPlot->getWorkingCity();
+	CvCity const* pPlotCity = pPlot->getPlotCity();
+	logSASGameRecord("GAME_RECORD_BONUS_CHANGE turn=%d elapsed=%d action=%s x=%d y=%d area=%d owner=%d oldBonus=%s newBonus=%s terrain=%s feature=%s improvement=%s route=%s water=%d hills=%d peak=%d riverSide=%d cityRadius=%d workingCity=%S workingCityId=%d plotCity=%S plotCityId=%d",
+		GC.getGame().getGameTurn(), GC.getGame().getElapsedGameTurns(), szAction, pPlot->getX(), pPlot->getY(), pPlot->getArea().getID(), pPlot->getOwner(),
+		getSASGameRecordBonusType(eOldBonus), getSASGameRecordBonusType(eNewBonus), getSASGameRecordTerrainType(pPlot->getTerrainType()),
+		getSASGameRecordFeatureType(pPlot->getFeatureType()), getSASGameRecordImprovementType(pPlot->getImprovementType()),
+		getSASGameRecordRouteType(pPlot->getRouteType()), pPlot->isWater(), pPlot->isHills(), pPlot->isPeak(), pPlot->isRiverSide(), pPlot->isCityRadius(),
+		getSASGameRecordQuotedCityName(pWorkingCity).GetCString(), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()),
+		getSASGameRecordQuotedCityName(pPlotCity).GetCString(), (pPlotCity == NULL ? -1 : pPlotCity->getID()));
+}
+
+static const char* getSASGameRecordCommerceType(CommerceTypes eCommerce)
+{
+	return (eCommerce == NO_COMMERCE ? "-" : GC.getInfo(eCommerce).getType());
+}
+
+static const char* getSASGameRecordBuildType(BuildTypes eBuild)
+{
+	return (eBuild == NO_BUILD ? "-" : GC.getInfo(eBuild).getType());
+}
+
+static const char* getSASGameRecordMissionType(MissionTypes eMission)
+{
+	return (eMission == NO_MISSION ? "-" : GC.getInfo(eMission).getType());
+}
+
+static const char* getSASGameRecordEspionageMissionType(EspionageMissionTypes eMission)
+{
+	return (eMission == NO_ESPIONAGEMISSION ? "-" : GC.getInfo(eMission).getType());
 }
 
 static const char* getSASGameRecordUnitAIType(UnitAITypes eUnitAI)
@@ -2029,39 +2651,29 @@ static const char* getSASGameRecordSpecialistType(SpecialistTypes eSpecialist)
 	return (eSpecialist == NO_SPECIALIST ? "-" : GC.getInfo(eSpecialist).getType());
 }
 
-static const char* getSASGameRecordBuildingType(BuildingTypes eBuilding)
-{
-	return (eBuilding == NO_BUILDING ? "-" : GC.getInfo(eBuilding).getType());
-}
-
-static const char* getSASGameRecordProjectType(ProjectTypes eProject)
-{
-	return (eProject == NO_PROJECT ? "-" : GC.getInfo(eProject).getType());
-}
-
 static const char* getSASGameRecordProcessType(ProcessTypes eProcess)
 {
 	return (eProcess == NO_PROCESS ? "-" : GC.getInfo(eProcess).getType());
 }
 
-static const char* getSASGameRecordCommerceType(CommerceTypes eCommerce)
+static const char* getSASGameRecordCivicType(CivicTypes eCivic)
 {
-	return (eCommerce == NO_COMMERCE ? "-" : GC.getInfo(eCommerce).getType());
+	return (eCivic == NO_CIVIC ? "-" : GC.getInfo(eCivic).getType());
 }
 
-static const char* getSASGameRecordBuildType(BuildTypes eBuild)
+static const char* getSASGameRecordVoteSourceType(VoteSourceTypes eVoteSource)
 {
-	return (eBuild == NO_BUILD ? "-" : GC.getInfo(eBuild).getType());
+	return (eVoteSource == NO_VOTESOURCE ? "-" : GC.getInfo(eVoteSource).getType());
 }
 
-static const char* getSASGameRecordMissionType(MissionTypes eMission)
+static const char* getSASGameRecordVoteType(VoteTypes eVote)
 {
-	return (eMission == NO_MISSION ? "-" : GC.getInfo(eMission).getType());
+	return (eVote == NO_VOTE ? "-" : GC.getInfo(eVote).getType());
 }
 
-static const char* getSASGameRecordEspionageMissionType(EspionageMissionTypes eMission)
+static const char* getSASGameRecordEraType(EraTypes eEra)
 {
-	return (eMission == NO_ESPIONAGEMISSION ? "-" : GC.getInfo(eMission).getType());
+	return (eEra == NO_ERA ? "-" : GC.getInfo(eEra).getType());
 }
 
 static void appendSASGameRecordTypeCount(CvString& szList, const char* szType, int iCount)
@@ -2115,129 +2727,20 @@ static void appendSASGameRecordPositiveValue(CvString& szList, const char* szNam
 	szList += szItem;
 }
 
-
-// <!-- custom: Aggregate worked-plot snapshots share the compact landscape composition structure used by the mature AdvCiv-SAS city/map diagnostics; level-3 per-city detail rows reuse the same composition instead of rescanning their worked plots independently. (ChatGPT-5.6-Sol) -->
-struct SASGameRecordPlotComposition
+static void appendSASGameRecordValue(CvString& szList, const char* szName, int iValue)
 {
-	int iPlots;
-	int iLand;
-	int iWater;
-	int iHills;
-	int iPeaks;
-	int iRiverSide;
-	int iFreshWater;
-	int iCoastal;
-	int iImproved;
-	int iUnimprovedLand;
-	int iRoaded;
-	int iBonusImproved;
-	int iBonusUnimproved;
-	int iWorked;
-	int iWorkedImproved;
-	int iWorkedUnimproved;
-	int iNatureFood;
-	int iNatureProduction;
-	int iNatureCommerce;
-	int iCurrentFood;
-	int iCurrentProduction;
-	int iCurrentCommerce;
-	std::vector<int> aiTerrains;
-	std::vector<int> aiFeatures;
-	std::vector<int> aiBonuses;
-	std::vector<int> aiImprovements;
-	std::vector<int> aiRoutes;
-
-	SASGameRecordPlotComposition() : iPlots(0), iLand(0), iWater(0), iHills(0), iPeaks(0), iRiverSide(0), iFreshWater(0), iCoastal(0), iImproved(0), iUnimprovedLand(0), iRoaded(0), iBonusImproved(0), iBonusUnimproved(0), iWorked(0), iWorkedImproved(0), iWorkedUnimproved(0), iNatureFood(0), iNatureProduction(0), iNatureCommerce(0), iCurrentFood(0), iCurrentProduction(0), iCurrentCommerce(0), aiTerrains(GC.getNumTerrainInfos(), 0), aiFeatures(GC.getNumFeatureInfos(), 0), aiBonuses(GC.getNumBonusInfos(), 0), aiImprovements(GC.getNumImprovementInfos(), 0), aiRoutes(GC.getNumRouteInfos(), 0) {}
-};
-
-
-struct SASGameRecordTerritoryDevelopment
-{
-	SASGameRecordPlotComposition kOwned;
-	std::vector<int> aiImprovedBonuses;
-	std::vector<int> aiUnimprovedBonuses;
-	int iBFCPlots;
-	int iSuburbPlots;
-	int iDevelopmentLand;
-	int iDevelopmentWater;
-	int iImprovedLand;
-	int iImprovedWater;
-	int iBFCDevelopmentLand;
-	int iBFCImprovedLand;
-	int iSuburbDevelopmentLand;
-	int iSuburbImprovedLand;
-	int iFarms;
-	int iIrrigatedFarms;
-	int iDryFarms;
-	int iBonusFarms;
-	int iIrrigatedBonusFarms;
-	int iDryBonusFarms;
-	int iBFCFarms;
-	int iBFCIrrigatedFarms;
-	int iBFCDryFarms;
-	SASGameRecordTerritoryDevelopment() : aiImprovedBonuses(GC.getNumBonusInfos(), 0), aiUnimprovedBonuses(GC.getNumBonusInfos(), 0), iBFCPlots(0), iSuburbPlots(0), iDevelopmentLand(0), iDevelopmentWater(0), iImprovedLand(0), iImprovedWater(0), iBFCDevelopmentLand(0), iBFCImprovedLand(0), iSuburbDevelopmentLand(0), iSuburbImprovedLand(0), iFarms(0), iIrrigatedFarms(0), iDryFarms(0), iBonusFarms(0), iIrrigatedBonusFarms(0), iDryBonusFarms(0), iBFCFarms(0), iBFCIrrigatedFarms(0), iBFCDryFarms(0) {}
-};
-
-
-static const char* getSASGameRecordTerrainType(TerrainTypes eTerrain)
-{
-	return (eTerrain == NO_TERRAIN ? "-" : GC.getInfo(eTerrain).getType());
+	CvString szItem;
+	szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", szName, iValue);
+	szList += szItem;
 }
 
-static const char* getSASGameRecordFeatureType(FeatureTypes eFeature)
+static void appendSASGameRecordSignedValue(CvString& szList, const char* szName, int iValue)
 {
-	return (eFeature == NO_FEATURE ? "-" : GC.getInfo(eFeature).getType());
-}
-
-static const char* getSASGameRecordImprovementType(ImprovementTypes eImprovement)
-{
-	return (eImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eImprovement).getType());
-}
-
-static const char* getSASGameRecordRouteType(RouteTypes eRoute)
-{
-	return (eRoute == NO_ROUTE ? "-" : GC.getInfo(eRoute).getType());
-}
-
-static char const* getSASGameRecordPlotOwnerChangeCause()
-{
-	switch (g_eSASGameRecordPlotOwnerChangeCause)
-	{
-	case SAS_PLOT_OWNER_CAUSE_CITY_FOUNDING: return "CITY_FOUNDING";
-	case SAS_PLOT_OWNER_CAUSE_CITY_ACQUISITION: return "CITY_ACQUISITION";
-	case SAS_PLOT_OWNER_CAUSE_CULTURE_UPDATE: return "CULTURE_UPDATE";
-	case SAS_PLOT_OWNER_CAUSE_WAR_BORDER: return "WAR_BORDER";
-	case SAS_PLOT_OWNER_CAUSE_PEACE_BORDER: return "PEACE_BORDER";
-	case SAS_PLOT_OWNER_CAUSE_WORLDBUILDER: return "WORLDBUILDER";
-	case SAS_PLOT_OWNER_CAUSE_PYTHON_EXTERNAL: return "PYTHON_EXTERNAL";
-	case SAS_PLOT_OWNER_CAUSE_NONE: break;
-	}
-	// <!-- custom: Root transaction identity is deliberately not reused as immediate mechanism provenance; missing setter coverage stays visible as UNKNOWN. (ChatGPT-5.6-Sol) -->
-	return "UNKNOWN";
-}
-
-void logSASGameRecordPlotOwnerChanged(CvPlot const& kPlot, PlayerTypes eOldOwner, PlayerTypes eNewOwner, int iOwnershipDurationBefore, bool bOwnershipScoreBefore)
-{
-	FAssertMsg(g_eSASGameRecordPlotOwnerChangeCause != SAS_PLOT_OWNER_CAUSE_NONE, "Every current direct CvPlot::setOwner path should supply immediate SASGameRecord ownership provenance");
-	TeamTypes const eOldTeam = (eOldOwner == NO_PLAYER ? NO_TEAM : GET_PLAYER(eOldOwner).getTeam());
-	TeamTypes const eNewTeam = (eNewOwner == NO_PLAYER ? NO_TEAM : GET_PLAYER(eNewOwner).getTeam());
-	int const iOldCulture = (eOldOwner == NO_PLAYER ? 0 : kPlot.getCulture(eOldOwner));
-	int const iNewCulture = (eNewOwner == NO_PLAYER ? 0 : kPlot.getCulture(eNewOwner));
-	int const iOldCulturePercent = (eOldOwner == NO_PLAYER ? 0 : kPlot.calculateCulturePercent(eOldOwner));
-	int const iNewCulturePercent = (eNewOwner == NO_PLAYER ? 0 : kPlot.calculateCulturePercent(eNewOwner));
-	PlayerTypes const eHighestCulturePlayer = kPlot.findHighestCulturePlayer();
-	int const iHighestCulturePercent = (eHighestCulturePlayer == NO_PLAYER ? 0 : kPlot.calculateCulturePercent(eHighestCulturePlayer));
-	// <!-- custom: Preserve only realized ownership transitions at the authoritative setter. Culture pressure, second-owner state and strategic tile context explain most flips without duplicating every per-player plot-culture value. (ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_PLOT_OWNER_CHANGED turn=%d x=%d y=%d area=%d cause=%s oldOwner=%d oldTeam=%d newOwner=%d newTeam=%d secondOwner=%d water=%d ownershipDurationBefore=%d ownershipScoreBefore=%d forceUnownedTurns=%d oldOwnerCulture=%d oldOwnerCulturePercent=%d newOwnerCulture=%d newOwnerCulturePercent=%d highestCulturePlayer=%d highestCulturePercent=%d bonus=%s improvement=%s route=%s",
-		GC.getGame().getGameTurn(), kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), getSASGameRecordPlotOwnerChangeCause(),
-		eOldOwner, eOldTeam, eNewOwner, eNewTeam, kPlot.getSecondOwner(), kPlot.isWater(), iOwnershipDurationBefore, bOwnershipScoreBefore, kPlot.getForceUnownedTimer(),
-		iOldCulture, iOldCulturePercent, iNewCulture, iNewCulturePercent, eHighestCulturePlayer, iHighestCulturePercent,
-		getSASGameRecordBonusType(kPlot.getBonusType()), getSASGameRecordImprovementType(kPlot.getImprovementType()), getSASGameRecordRouteType(kPlot.getRouteType()));
-}
-
-static CvWString getSASGameRecordQuotedCityName(CvCity const* pCity)
-{
-	return pCity == NULL ? L"-" : getSASDiagnosticQuoted(pCity->getName().GetCString());
+	if (iValue == 0)
+		return;
+	CvString szItem;
+	szItem.Format(szList.empty() ? "%s:%+d" : ",%s:%+d", szName, iValue);
+	szList += szItem;
 }
 
 static void addSASGameRecordPlotComposition(SASGameRecordPlotComposition& kComposition, CvPlot const& kPlot, TeamTypes eTeam)
@@ -2287,194 +2790,10 @@ static void addSASGameRecordPlotComposition(SASGameRecordPlotComposition& kCompo
 	kComposition.iCurrentCommerce += kPlot.calculateYield(YIELD_COMMERCE);
 }
 
-static SASGameRecordPlotComposition getSASGameRecordWorkedPlotComposition(CvCity const& kCity)
-{
-	SASGameRecordPlotComposition kComposition;
-	TeamTypes const eTeam = GET_PLAYER(kCity.getOwner()).getTeam();
-	// <!-- custom: Exclude the city center from worked-plot allocation records because it is always worked and would blur comparisons of citizen plot choices and improvement coverage between benchmark runs. (GPT-5.5) -->
-	for (WorkingPlotIter it(kCity, false); it.hasNext(); ++it)
-		addSASGameRecordPlotComposition(kComposition, *it, eTeam);
-	return kComposition;
-}
-
-static void addSASGameRecordPlotComposition(SASGameRecordPlotComposition& kTarget, SASGameRecordPlotComposition const& kSource)
-{
-	kTarget.iPlots += kSource.iPlots;
-	kTarget.iLand += kSource.iLand;
-	kTarget.iWater += kSource.iWater;
-	kTarget.iHills += kSource.iHills;
-	kTarget.iPeaks += kSource.iPeaks;
-	kTarget.iRiverSide += kSource.iRiverSide;
-	kTarget.iFreshWater += kSource.iFreshWater;
-	kTarget.iCoastal += kSource.iCoastal;
-	kTarget.iImproved += kSource.iImproved;
-	kTarget.iUnimprovedLand += kSource.iUnimprovedLand;
-	kTarget.iRoaded += kSource.iRoaded;
-	kTarget.iBonusImproved += kSource.iBonusImproved;
-	kTarget.iBonusUnimproved += kSource.iBonusUnimproved;
-	kTarget.iWorked += kSource.iWorked;
-	kTarget.iWorkedImproved += kSource.iWorkedImproved;
-	kTarget.iWorkedUnimproved += kSource.iWorkedUnimproved;
-	kTarget.iNatureFood += kSource.iNatureFood;
-	kTarget.iNatureProduction += kSource.iNatureProduction;
-	kTarget.iNatureCommerce += kSource.iNatureCommerce;
-	kTarget.iCurrentFood += kSource.iCurrentFood;
-	kTarget.iCurrentProduction += kSource.iCurrentProduction;
-	kTarget.iCurrentCommerce += kSource.iCurrentCommerce;
-	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++) kTarget.aiTerrains[iI] += kSource.aiTerrains[iI];
-	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++) kTarget.aiFeatures[iI] += kSource.aiFeatures[iI];
-	for (int iI = 0; iI < GC.getNumBonusInfos(); iI++) kTarget.aiBonuses[iI] += kSource.aiBonuses[iI];
-	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++) kTarget.aiImprovements[iI] += kSource.aiImprovements[iI];
-	for (int iI = 0; iI < GC.getNumRouteInfos(); iI++) kTarget.aiRoutes[iI] += kSource.aiRoutes[iI];
-}
-
-static void getSASGameRecordImprovementRouteTypes(SASGameRecordPlotComposition const& kComposition, CvString& szImprovements, CvString& szRoutes)
-{
-	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
-		appendSASGameRecordTypeCount(szImprovements, getSASGameRecordImprovementType((ImprovementTypes)iI), kComposition.aiImprovements[iI]);
-	for (int iI = 0; iI < GC.getNumRouteInfos(); iI++)
-		appendSASGameRecordTypeCount(szRoutes, getSASGameRecordRouteType((RouteTypes)iI), kComposition.aiRoutes[iI]);
-}
-
-static void getSASGameRecordLandscapeTypes(SASGameRecordPlotComposition const& kComposition, CvString& szTerrains, CvString& szFeatures, CvString& szBonuses)
-{
-	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
-		appendSASGameRecordTypeCount(szTerrains, getSASGameRecordTerrainType((TerrainTypes)iI), kComposition.aiTerrains[iI]);
-	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
-		appendSASGameRecordTypeCount(szFeatures, getSASGameRecordFeatureType((FeatureTypes)iI), kComposition.aiFeatures[iI]);
-	for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
-		appendSASGameRecordTypeCount(szBonuses, getSASGameRecordBonusType((BonusTypes)iI), kComposition.aiBonuses[iI]);
-}
-
-static void getSASGameRecordPlotCompositionTypes(SASGameRecordPlotComposition const& kComposition, CvString& szTerrains, CvString& szFeatures, CvString& szBonuses, CvString& szImprovements, CvString& szRoutes)
-{
-	getSASGameRecordLandscapeTypes(kComposition, szTerrains, szFeatures, szBonuses);
-	getSASGameRecordImprovementRouteTypes(kComposition, szImprovements, szRoutes);
-}
-
-static void logSASGameRecordCityBFC(CvCity const& kCity, const char* szReason)
-{
-	CvString szTerrains, szFeatures, szBonuses, szImprovements, szRoutes;
-	SASGameRecordPlotComposition kComposition;
-	int iOwned = 0;
-	TeamTypes const eTeam = GET_PLAYER(kCity.getOwner()).getTeam();
-	for (CityPlotIter it(kCity); it.hasNext(); ++it)
-	{
-		CvPlot const& kPlot = *it;
-		if (kPlot.getOwner() == kCity.getOwner())
-			iOwned++;
-		addSASGameRecordPlotComposition(kComposition, kPlot, eTeam);
-	}
-	getSASGameRecordPlotCompositionTypes(kComposition, szTerrains, szFeatures, szBonuses, szImprovements, szRoutes);
-	logSASGameRecord("GAME_RECORD_CITY_BFC turn=%d reason=%s player=%d cityId=%d city=%S x=%d y=%d plots=%d owned=%d land=%d water=%d hills=%d peaks=%d riverSide=%d freshWater=%d coastal=%d improved=%d unimprovedLand=%d roaded=%d bonusImproved=%d bonusUnimproved=%d worked=%d workedImproved=%d workedUnimproved=%d natureFood=%d natureProd=%d natureCommerce=%d currentFood=%d currentProd=%d currentCommerce=%d terrains=%s features=%s bonuses=%s improvements=%s routes=%s",
-			GC.getGame().getGameTurn(), szReason, kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(),
-			kComposition.iPlots, iOwned, kComposition.iLand, kComposition.iWater, kComposition.iHills, kComposition.iPeaks, kComposition.iRiverSide,
-			kComposition.iFreshWater, kComposition.iCoastal, kComposition.iImproved, kComposition.iUnimprovedLand, kComposition.iRoaded, kComposition.iBonusImproved, kComposition.iBonusUnimproved,
-			kComposition.iWorked, kComposition.iWorkedImproved, kComposition.iWorkedUnimproved, kComposition.iNatureFood, kComposition.iNatureProduction, kComposition.iNatureCommerce, kComposition.iCurrentFood,
-			kComposition.iCurrentProduction, kComposition.iCurrentCommerce, getSASDiagnosticOrDash(szTerrains).GetCString(), getSASDiagnosticOrDash(szFeatures).GetCString(), getSASDiagnosticOrDash(szBonuses).GetCString(), getSASDiagnosticOrDash(szImprovements).GetCString(), getSASDiagnosticOrDash(szRoutes).GetCString());
-}
-
-// <!-- custom: These unit classifiers are defined later with the unit-posture helpers; declare them here because the city aggregate slice now reuses them earlier in this translation unit. MSVC 2003 requires the declaration before first use. (ChatGPT-5.6-Sol) -->
-static bool isSASGameRecordMilitaryUnit(CvUnit const& kUnit);
-static bool isSASGameRecordWorkerUnit(CvUnit const& kUnit);
-static bool isSASGameRecordSettlerUnit(CvUnit const& kUnit);
-
-struct SASGameRecordCityPlotUnitCounts
-{
-	int iUnits;
-	int iMilitaryUnits;
-	int iCivilianUnits;
-	int iDefenders;
-	int iHealthyDefenders;
-	int iWoundedDefenders;
-	int iSettlers;
-	int iWorkers;
-	int iAttackers;
-	CvUnit const* pFirstSettler;
-	SASGameRecordCityPlotUnitCounts() : iUnits(0), iMilitaryUnits(0), iCivilianUnits(0), iDefenders(0), iHealthyDefenders(0), iWoundedDefenders(0), iSettlers(0), iWorkers(0), iAttackers(0), pFirstSettler(NULL) {}
-};
-
-static void collectSASGameRecordCityPlotUnitCounts(CvPlot const& kPlot, PlayerTypes ePlayer, SASGameRecordCityPlotUnitCounts& kCounts)
-{
-	for (CLLNode<IDInfo> const* pUnitNode = kPlot.headUnitNode(); pUnitNode != NULL; pUnitNode = kPlot.nextUnitNode(pUnitNode))
-	{
-		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
-		if (pLoopUnit == NULL || pLoopUnit->getOwner() != ePlayer) continue;
-		kCounts.iUnits++;
-		if (isSASGameRecordMilitaryUnit(*pLoopUnit)) kCounts.iMilitaryUnits++;
-		else kCounts.iCivilianUnits++;
-		if (pLoopUnit->canDefend(&kPlot))
-		{
-			kCounts.iDefenders++;
-			if (pLoopUnit->getDamage() <= 25) kCounts.iHealthyDefenders++;
-			else kCounts.iWoundedDefenders++;
-		}
-		if (isSASGameRecordSettlerUnit(*pLoopUnit))
-		{
-			kCounts.iSettlers++;
-			if (kCounts.pFirstSettler == NULL) kCounts.pFirstSettler = pLoopUnit;
-		}
-		if (isSASGameRecordWorkerUnit(*pLoopUnit)) kCounts.iWorkers++;
-		if (pLoopUnit->canAttack()) kCounts.iAttackers++;
-	}
-}
-
-// <!-- custom: Preserve Settler-stack combat context at the actual battle target. A defeated attacker still occupies its origin at combat-result time, so using the losing unit's plot would falsely treat failed attacks launched from a Settler stack as attacks against that stack. See KI#377. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-static bool logSASGameRecordSettlerCombatForPlot(CvUnit const* pWinner, CvUnit const* pLoser, CvPlot const* pPlot, PlayerTypes eSettlerOwner, bool bLoserWasSettler, bool bWinnerWasSettler)
-{
-	if (pWinner == NULL || pLoser == NULL || pPlot == NULL || eSettlerOwner == NO_PLAYER)
-		return false;
-	SASGameRecordCityPlotUnitCounts kCounts;
-	collectSASGameRecordCityPlotUnitCounts(*pPlot, eSettlerOwner, kCounts);
-	if (kCounts.iSettlers <= 0 && !bLoserWasSettler && !bWinnerWasSettler)
-		return false;
-	CvUnit const* pSettler = (bLoserWasSettler ? pLoser : (bWinnerWasSettler ? pWinner : kCounts.pFirstSettler));
-	CvSelectionGroup const* pSettlerGroup = (pSettler == NULL ? NULL : pSettler->getGroup());
-	int iGroupUnits = 0;
-	int iGroupDefenders = 0;
-	int iGroupSettlers = 0;
-	if (pSettlerGroup != NULL)
-	{
-		FOR_EACH_UNIT_IN(pLoopUnit, *pSettlerGroup)
-		{
-			iGroupUnits++;
-			if (isSASGameRecordSettlerUnit(*pLoopUnit)) iGroupSettlers++;
-			if (pLoopUnit->canDefend(pLoopUnit->plot())) iGroupDefenders++;
-		}
-	}
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=SETTLER_GROUP_ATTACKED settlerOwner=%d settlerId=%d settlerUnit=%s x=%d y=%d cityPlot=%d winnerPlayer=%d winnerUnitId=%d winnerUnit=%s winnerAI=%s winnerBaseStr=%d winnerDamage=%d loserPlayer=%d loserUnitId=%d loserUnit=%s loserAI=%s loserBaseStr=%d loserDamage=%d loserWasSettler=%d winnerWasSettler=%d ownerUnitsOnPlot=%d militaryUnitsOnPlot=%d civilianUnitsOnPlot=%d settlersOnPlot=%d defendersOnPlot=%d healthyDefendersOnPlot=%d workersOnPlot=%d settlerGroupId=%d settlerGroupUnits=%d settlerGroupSettlers=%d settlerGroupDefenders=%d",
-			GC.getGame().getGameTurn(), eSettlerOwner, (pSettler == NULL ? -1 : pSettler->getID()), (pSettler == NULL ? "-" : getSASGameRecordUnitType(pSettler->getUnitType())), pPlot->getX(), pPlot->getY(), pPlot->isCity(),
-			pWinner->getOwner(), pWinner->getID(), getSASGameRecordUnitType(pWinner->getUnitType()), getSASGameRecordUnitAIType(pWinner->AI_getUnitAIType()), pWinner->baseCombatStr(), pWinner->getDamage(),
-			pLoser->getOwner(), pLoser->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), getSASGameRecordUnitAIType(pLoser->AI_getUnitAIType()), pLoser->baseCombatStr(), pLoser->getDamage(),
-			bLoserWasSettler, bWinnerWasSettler, kCounts.iUnits, kCounts.iMilitaryUnits, kCounts.iCivilianUnits, kCounts.iSettlers, kCounts.iDefenders, kCounts.iHealthyDefenders, kCounts.iWorkers,
-			(pSettlerGroup == NULL ? -1 : pSettlerGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders);
-	return true;
-}
-
-static void logSASGameRecordSettlerCombatIfNeeded(CvUnit const* pWinner, CvUnit const* pLoser, CvPlot const* pBattlePlot)
-{
-	if (pWinner == NULL || pLoser == NULL || pBattlePlot == NULL)
-		return;
-	bool const bLoserWasSettler = isSASGameRecordSettlerUnit(*pLoser);
-	bool const bWinnerWasSettler = isSASGameRecordSettlerUnit(*pWinner);
-	if (bLoserWasSettler && logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pLoser->getOwner(), true, bWinnerWasSettler)) return;
-	if (bWinnerWasSettler && logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pWinner->getOwner(), bLoserWasSettler, true)) return;
-	if (logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pLoser->getOwner(), false, false)) return;
-	logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pWinner->getOwner(), false, false);
-}
-
-static void appendSASGameRecordValue(CvString& szList, const char* szName, int iValue)
-{
-	CvString szItem;
-	szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", szName, iValue);
-	szList += szItem;
-}
-
 static int getSASGameRecordPercentX100(int iValue, int iTotal)
 {
 	return (iTotal <= 0 ? -1 : (10000 * iValue) / iTotal);
 }
-
 
 // <!-- custom: Add lightweight owned-territory counts to the map scan already used by the expansion record, rather than scanning every plot again or calculating unused plot yields. BFC means the plot is assigned to one of this player's cities; development land excludes city centers and peaks because Workers cannot add ordinary improvements there. (GPT-5.6-Sol) -->
 static void addSASGameRecordTerritoryDevelopment(SASGameRecordTerritoryDevelopment& kDevelopment, CvPlot const& kPlot, PlayerTypes ePlayer, TeamTypes eTeam, ImprovementTypes eFarm)
@@ -2570,6 +2889,24 @@ static void addSASGameRecordTerritoryDevelopment(SASGameRecordTerritoryDevelopme
 	}
 }
 
+static void getSASGameRecordImprovementRouteTypes(SASGameRecordPlotComposition const& kComposition, CvString& szImprovements, CvString& szRoutes)
+{
+	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+		appendSASGameRecordTypeCount(szImprovements, getSASGameRecordImprovementType((ImprovementTypes)iI), kComposition.aiImprovements[iI]);
+	for (int iI = 0; iI < GC.getNumRouteInfos(); iI++)
+		appendSASGameRecordTypeCount(szRoutes, getSASGameRecordRouteType((RouteTypes)iI), kComposition.aiRoutes[iI]);
+}
+
+static void getSASGameRecordLandscapeTypes(SASGameRecordPlotComposition const& kComposition, CvString& szTerrains, CvString& szFeatures, CvString& szBonuses)
+{
+	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+		appendSASGameRecordTypeCount(szTerrains, getSASGameRecordTerrainType((TerrainTypes)iI), kComposition.aiTerrains[iI]);
+	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+		appendSASGameRecordTypeCount(szFeatures, getSASGameRecordFeatureType((FeatureTypes)iI), kComposition.aiFeatures[iI]);
+	for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
+		appendSASGameRecordTypeCount(szBonuses, getSASGameRecordBonusType((BonusTypes)iI), kComposition.aiBonuses[iI]);
+}
+
 static void logSASGameRecordTerritoryDevelopment(PlayerTypes ePlayer, int iGameTurn, SASGameRecordTerritoryDevelopment const& kDevelopment)
 {
 	SASGameRecordPlotComposition const& kOwned = kDevelopment.kOwned;
@@ -2612,104 +2949,79 @@ static void logSASGameRecordTerritoryDevelopment(PlayerTypes ePlayer, int iGameT
 	kPrevious.iTerritoryIrrigatedFarms = kDevelopment.iIrrigatedFarms;
 	kPrevious.iTerritoryDryFarms = kDevelopment.iDryFarms;
 }
-static void appendSASGameRecordSignedValue(CvString& szList, const char* szName, int iValue)
+
+static void getSASGameRecordPlotCompositionTypes(SASGameRecordPlotComposition const& kComposition, CvString& szTerrains, CvString& szFeatures, CvString& szBonuses, CvString& szImprovements, CvString& szRoutes)
 {
-	if (iValue == 0)
-		return;
-	CvString szItem;
-	szItem.Format(szList.empty() ? "%s:%+d" : ",%s:%+d", szName, iValue);
-	szList += szItem;
+	getSASGameRecordLandscapeTypes(kComposition, szTerrains, szFeatures, szBonuses);
+	getSASGameRecordImprovementRouteTypes(kComposition, szImprovements, szRoutes);
 }
 
-// <!-- custom: Team snapshots intentionally list living members, but CvTeam::addTeam reassigns every player slot on the absorbed team.
-// Keep a separate exact helper for that rare structural boundary. (ChatGPT-5.6-Sol) -->
-static CvString getSASGameRecordTeamAssignedPlayers(TeamTypes eTeam, int& iCount)
+static void logSASGameRecordCityBFC(CvCity const& kCity, const char* szReason)
 {
-	iCount = 0;
-	CvString szList;
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	CvString szTerrains, szFeatures, szBonuses, szImprovements, szRoutes;
+	SASGameRecordPlotComposition kComposition;
+	int iOwned = 0;
+	TeamTypes const eTeam = GET_PLAYER(kCity.getOwner()).getTeam();
+	for (CityPlotIter it(kCity); it.hasNext(); ++it)
 	{
-		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
-		if (GET_PLAYER(eLoopPlayer).getTeam() != eTeam)
-			continue;
-		appendSASDiagnosticIntListValue(szList, eLoopPlayer);
-		iCount++;
+		CvPlot const& kPlot = *it;
+		if (kPlot.getOwner() == kCity.getOwner())
+			iOwned++;
+		addSASGameRecordPlotComposition(kComposition, kPlot, eTeam);
 	}
-	return getSASDiagnosticOrDash(szList);
+	getSASGameRecordPlotCompositionTypes(kComposition, szTerrains, szFeatures, szBonuses, szImprovements, szRoutes);
+	logSASGameRecord("GAME_RECORD_CITY_BFC turn=%d reason=%s player=%d cityId=%d city=%S x=%d y=%d plots=%d owned=%d land=%d water=%d hills=%d peaks=%d riverSide=%d freshWater=%d coastal=%d improved=%d unimprovedLand=%d roaded=%d bonusImproved=%d bonusUnimproved=%d worked=%d workedImproved=%d workedUnimproved=%d natureFood=%d natureProd=%d natureCommerce=%d currentFood=%d currentProd=%d currentCommerce=%d terrains=%s features=%s bonuses=%s improvements=%s routes=%s",
+			GC.getGame().getGameTurn(), szReason, kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(),
+			kComposition.iPlots, iOwned, kComposition.iLand, kComposition.iWater, kComposition.iHills, kComposition.iPeaks, kComposition.iRiverSide,
+			kComposition.iFreshWater, kComposition.iCoastal, kComposition.iImproved, kComposition.iUnimprovedLand, kComposition.iRoaded, kComposition.iBonusImproved, kComposition.iBonusUnimproved,
+			kComposition.iWorked, kComposition.iWorkedImproved, kComposition.iWorkedUnimproved, kComposition.iNatureFood, kComposition.iNatureProduction, kComposition.iNatureCommerce, kComposition.iCurrentFood,
+			kComposition.iCurrentProduction, kComposition.iCurrentCommerce, getSASDiagnosticOrDash(szTerrains).GetCString(), getSASDiagnosticOrDash(szFeatures).GetCString(), getSASDiagnosticOrDash(szBonuses).GetCString(), getSASDiagnosticOrDash(szImprovements).GetCString(), getSASDiagnosticOrDash(szRoutes).GetCString());
 }
 
-static CvString getSASGameRecordTeamMembers(TeamTypes eTeam)
+static SASGameRecordPlotComposition getSASGameRecordWorkedPlotComposition(CvCity const& kCity)
 {
-	CvString szList;
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
-		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-		if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == eTeam)
-			appendSASDiagnosticIntListValue(szList, eLoopPlayer);
-	}
-	return getSASDiagnosticOrDash(szList);
+	SASGameRecordPlotComposition kComposition;
+	TeamTypes const eTeam = GET_PLAYER(kCity.getOwner()).getTeam();
+	// <!-- custom: Exclude the city center from worked-plot allocation records because it is always worked and would blur comparisons of citizen plot choices and improvement coverage between benchmark runs. (GPT-5.5) -->
+	for (WorkingPlotIter it(kCity, false); it.hasNext(); ++it)
+		addSASGameRecordPlotComposition(kComposition, *it, eTeam);
+	return kComposition;
 }
 
-static CvString getSASGameRecordWarTeams(TeamTypes eTeam)
+static void addSASGameRecordPlotComposition(SASGameRecordPlotComposition& kTarget, SASGameRecordPlotComposition const& kSource)
 {
-	CvString szList;
-	CvTeam const& kTeam = GET_TEAM(eTeam);
-	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
-	{
-		TeamTypes eLoopTeam = (TeamTypes)iI;
-		if (eLoopTeam != eTeam && GET_TEAM(eLoopTeam).isAlive() && kTeam.isAtWar(eLoopTeam))
-			appendSASDiagnosticIntListValue(szList, eLoopTeam);
-	}
-	return getSASDiagnosticOrDash(szList);
-}
-
-static CvString getSASGameRecordVassalTeams(TeamTypes eTeam)
-{
-	CvString szList;
-	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
-	{
-		TeamTypes eLoopTeam = (TeamTypes)iI;
-		if (eLoopTeam != eTeam && GET_TEAM(eLoopTeam).isAlive() && GET_TEAM(eLoopTeam).isVassal(eTeam))
-			appendSASDiagnosticIntListValue(szList, eLoopTeam);
-	}
-	return getSASDiagnosticOrDash(szList);
-}
-
-static CvString getSASGameRecordMetTeams(TeamTypes eTeam)
-{
-	CvString szMetTeams;
-	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
-	{
-		TeamTypes eLoopTeam = (TeamTypes)iI;
-		if (eLoopTeam == eTeam || !GET_TEAM(eLoopTeam).isAlive() || GET_TEAM(eLoopTeam).isBarbarian())
-			continue;
-		if (GET_TEAM(eTeam).isHasMet(eLoopTeam))
-			appendSASDiagnosticIntListValue(szMetTeams, eLoopTeam);
-	}
-	return getSASDiagnosticOrDash(szMetTeams);
-}
-
-static int getSASGameRecordMetTeamCount(TeamTypes eTeam)
-{
-	int iCount = 0;
-	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
-	{
-		TeamTypes eLoopTeam = (TeamTypes)iI;
-		if (eLoopTeam != eTeam && GET_TEAM(eLoopTeam).isAlive() && !GET_TEAM(eLoopTeam).isBarbarian() && GET_TEAM(eTeam).isHasMet(eLoopTeam))
-			iCount++;
-	}
-	return iCount;
-}
-
-static void logSASGameRecordTeamContacts(TeamTypes eTeam, int iGameTurn, const char* szReason)
-{
-	SASGameRecordTeamPrevious& kPrevious = g_akSASGameRecordTeamPrevious[eTeam];
-	const int iMetTeams = getSASGameRecordMetTeamCount(eTeam);
-	logSASGameRecord("GAME_RECORD_CONTACTS turn=%d reason=%s team=%d deltaValid=%d metCount=%d metCountDelta=%+d metTeams=%s",
-			iGameTurn, szReason, eTeam, kPrevious.bContactsValid, iMetTeams, getSASGameRecordDelta(kPrevious.bContactsValid, iMetTeams, kPrevious.iMetTeams), getSASGameRecordMetTeams(eTeam).GetCString());
-	kPrevious.bContactsValid = true;
-	kPrevious.iMetTeams = iMetTeams;
+	kTarget.iPlots += kSource.iPlots;
+	kTarget.iLand += kSource.iLand;
+	kTarget.iWater += kSource.iWater;
+	kTarget.iHills += kSource.iHills;
+	kTarget.iPeaks += kSource.iPeaks;
+	kTarget.iRiverSide += kSource.iRiverSide;
+	kTarget.iFreshWater += kSource.iFreshWater;
+	kTarget.iCoastal += kSource.iCoastal;
+	kTarget.iImproved += kSource.iImproved;
+	kTarget.iUnimprovedLand += kSource.iUnimprovedLand;
+	kTarget.iRoaded += kSource.iRoaded;
+	kTarget.iBonusImproved += kSource.iBonusImproved;
+	kTarget.iBonusUnimproved += kSource.iBonusUnimproved;
+	kTarget.iWorked += kSource.iWorked;
+	kTarget.iWorkedImproved += kSource.iWorkedImproved;
+	kTarget.iWorkedUnimproved += kSource.iWorkedUnimproved;
+	kTarget.iNatureFood += kSource.iNatureFood;
+	kTarget.iNatureProduction += kSource.iNatureProduction;
+	kTarget.iNatureCommerce += kSource.iNatureCommerce;
+	kTarget.iCurrentFood += kSource.iCurrentFood;
+	kTarget.iCurrentProduction += kSource.iCurrentProduction;
+	kTarget.iCurrentCommerce += kSource.iCurrentCommerce;
+	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+		kTarget.aiTerrains[iI] += kSource.aiTerrains[iI];
+	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+		kTarget.aiFeatures[iI] += kSource.aiFeatures[iI];
+	for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
+		kTarget.aiBonuses[iI] += kSource.aiBonuses[iI];
+	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+		kTarget.aiImprovements[iI] += kSource.aiImprovements[iI];
+	for (int iI = 0; iI < GC.getNumRouteInfos(); iI++)
+		kTarget.aiRoutes[iI] += kSource.aiRoutes[iI];
 }
 
 static CvString getSASGameRecordTechEraCounts(TeamTypes eTeam)
@@ -2730,7 +3042,98 @@ static CvString getSASGameRecordTechEraCounts(TeamTypes eTeam)
 	return getSASDiagnosticOrDash(szList);
 }
 
-static void seedSASGameRecordTeamPreviousFromCurrentState(TeamTypes eTeam)
+static void logSASGameRecordPlayerSetup(PlayerTypes ePlayer)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	CvInitCore const& kInitCore = GC.getInitCore();
+	const char* szCivType = (kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType());
+	const char* szLeaderType = (kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType());
+	const wchar* szLeaderName = (kPlayer.getLeaderType() == NO_LEADER ? L"-" : GC.getInfo(kPlayer.getLeaderType()).getDescription());
+	// <!-- custom: During AI Auto Play, isHuman becomes false for the original human slot while isHumanDisabled becomes true. Record both states explicitly so setup/load rows do not make the same player appear ambiguously human in one place and AI-controlled in another. (GPT-5.6-Sol) -->
+	const bool bCurrentlyHumanControlled = kPlayer.isHuman();
+	const bool bAutoplayControlled = kPlayer.isHumanDisabled();
+	const bool bHumanSlot = (bCurrentlyHumanControlled || bAutoplayControlled);
+	PlayerColorTypes const ePlayerColor = kPlayer.getPlayerColor();
+	char const* szPlayerColor = "-";
+	char const* szPrimaryColor = "-";
+	int iPrimaryRed = -1;
+	int iPrimaryGreen = -1;
+	int iPrimaryBlue = -1;
+	if (ePlayerColor != NO_PLAYERCOLOR)
+	{
+		CvPlayerColorInfo const& kPlayerColor = GC.getInfo(ePlayerColor);
+		ColorTypes const ePrimaryColor = kPlayerColor.getColorTypePrimary();
+		szPlayerColor = kPlayerColor.getType();
+		if (ePrimaryColor != NO_COLOR)
+		{
+			NiColorA const& kPrimaryColor = GC.getInfo(ePrimaryColor).getColor();
+			szPrimaryColor = GC.getInfo(ePrimaryColor).getType();
+			iPrimaryRed = (int)(255 * kPrimaryColor.r);
+			iPrimaryGreen = (int)(255 * kPrimaryColor.g);
+			iPrimaryBlue = (int)(255 * kPrimaryColor.b);
+		}
+	}
+	CvString szTraits;
+	FOR_EACH_ENUM(Trait)
+	{
+		if (!kPlayer.hasTrait(eLoopTrait))
+			continue;
+		if (!szTraits.empty())
+			szTraits += ",";
+		szTraits += GC.getInfo(eLoopTrait).getType();
+	}
+	// <!-- custom: Leader traits and favorites are fixed but materially explain AI behavior and economic results.
+	// Record them once per setup/load rather than repeating them in periodic player or policy snapshots. (GPT-5.6-Sol) -->
+	// <!-- custom: Log the assigned PlayerColor rather than the civilization default because Civ4 can reassign duplicates.
+	// The primary ColorInfo and RGB values help connect text records to maps and screenshots without requiring the source XML. (GPT-5.6-Sol) -->
+	// <!-- custom: CvInitCore preserves whether civilization and leader were assigned through Random.
+	// Older/imported saves can lack that provenance, so keep unknown distinct from a verified manual choice. (ChatGPT-5.6-Sol) -->
+	bool const bCivLeaderChoiceKnown = kInitCore.isCivLeaderSetupKnown();
+	logSASGameRecord("GAME_RECORD_PLAYER_SETUP turn=%d player=%d team=%d alive=%d everAlive=%d human=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d slotStatus=%d civLeaderChoiceKnown=%d civChosenRandomly=%d leaderChosenRandomly=%d playerName=%S civType=%s civName=%S civShortName=%S leaderType=%s leaderName=%S playerColor=%s primaryColor=%s primaryColorRGB=%d,%d,%d traits=%s favoriteCivic=%s favoriteReligion=%s handicap=%s",
+			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), kPlayer.isEverAlive(), bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kInitCore.getSlotStatus(ePlayer), bCivLeaderChoiceKnown, bCivLeaderChoiceKnown ? kInitCore.wasCivRandomlyChosen(ePlayer) : -1, bCivLeaderChoiceKnown ? kInitCore.wasLeaderRandomlyChosen(ePlayer) : -1,
+			getSASDiagnosticQuoted(kPlayer.getName(0)).GetCString(), szCivType, getSASDiagnosticQuoted(kPlayer.getCivilizationDescription(0)).GetCString(), getSASDiagnosticQuoted(kPlayer.getCivilizationShortDescription(0)).GetCString(), szLeaderType, getSASDiagnosticQuoted(szLeaderName).GetCString(),
+			szPlayerColor, szPrimaryColor, iPrimaryRed, iPrimaryGreen, iPrimaryBlue, getSASDiagnosticOrDash(szTraits).GetCString(), getSASGameRecordCivicType(kPlayer.getFavoriteCivic()), getSASGameRecordReligionType(kPlayer.getFavoriteReligion()), kPlayer.getHandicapType() == NO_HANDICAP ? "-" : GC.getInfo(kPlayer.getHandicapType()).getType());
+}
+
+static void logSASGameRecordAttitudeLegend()
+{
+	const int iFuriousMax = GC.getDefineINT(CvGlobals::RELATIONS_THRESH_FURIOUS);
+	const int iAnnoyedMax = GC.getDefineINT(CvGlobals::RELATIONS_THRESH_ANNOYED);
+	const int iPleasedMin = GC.getDefineINT(CvGlobals::RELATIONS_THRESH_PLEASED);
+	const int iFriendlyMin = GC.getDefineINT(CvGlobals::RELATIONS_THRESH_FRIENDLY);
+	logSASGameRecord("GAME_RECORD_ATTITUDE_LEGEND valueFrom=AI_getAttitudeVal furious=<=%d annoyed=%d..%d cautious=%d..%d pleased=%d..%d friendly=>=%d",
+			iFuriousMax, iFuriousMax + 1, iAnnoyedMax, iAnnoyedMax + 1, iPleasedMin - 1, iPleasedMin, iFriendlyMin - 1, iFriendlyMin);
+}
+
+void startSASGameRecordLogForNewGame()
+{
+	// <!-- custom: Preserve delayed city-bombard and per-turn map-history rows from the previous session before switching log filenames. (ChatGPT-5.6-Sol) -->
+	if (g_iSASGameRecordPendingPlotTurn >= 0) flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
+	else flushSASGameRecordPendingCityBombard();
+	rollSASGameRecordLog("new");
+	resetSASGameRecordTeamPrevious();
+	resetSASGameRecordPlayerPrevious();
+	resetSASGameRecordPlayerDurationState();
+	resetSASGameRecordGlobalPrevious();
+	resetSASGameRecordResearchState();
+	resetSASGameRecordControlState();
+	resetSASGameRecordCityLifecycleState();
+	resetSASGameRecordCombatState();
+	resetSASGameRecordBlockadeState();
+	resetSASGameRecordMilitaryFlowState();
+	resetSASGameRecordCityBombardState();
+	g_aSASGameRecordWars.clear();
+	g_iSASGameRecordLastFullSnapshotTurn = -1;
+	CvString const szLogName = getSASGameRecordLogName();
+	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString());
+	logSASGameRecordLogSettings();
+	logSASGameRecordTechCapabilitySources();
+	logSASGameRecordAttitudeLegend();
+}
+
+// <!-- custom: These unit classifiers are defined later with the unit-posture helpers; declare them here because the city aggregate slice now reuses them earlier in this translation unit. MSVC 2003 requires the declaration before first use. (ChatGPT-5.6-Sol) -->
+static bool isSASGameRecordMilitaryUnit(CvUnit const& kUnit);
+static bool isSASGameRecordWorkerUnit(CvUnit const& kUnit);static void seedSASGameRecordTeamPreviousFromCurrentState(TeamTypes eTeam)
 {
 	CvGame const& kGame = GC.getGame();
 	CvTeam const& kTeam = GET_TEAM(eTeam);
@@ -2747,7 +3150,196 @@ static void seedSASGameRecordTeamPreviousFromCurrentState(TeamTypes eTeam)
 	kPrevious.iMetTeams = getSASGameRecordMetTeamCount(eTeam);
 }
 
-// <!-- custom: Project completion rows alone do not show whether a project-based victory has its minimum/full component set or an active launch countdown. Build one compact shared state for periodic progress and later explicit launch actions. (GPT-5.6-Sol) -->
+struct SASGameRecordInitialTechGroup
+{
+	CvString szTechFields;
+	CvString szTeams;
+	int iTeams;
+};
+
+// <!-- custom: Successful new-game initialization is best described by its authoritative result, not by the order in which Civ4 happened to call meet/declareWar/setHasTech/startTrade while constructing that result.
+// Seed periodic team/contact deltas from this same finalized baseline.
+// Group identical technology sets so a late-era start does not repeat the same long payload for every team; the explicit team lists keep arbitrary scenarios and mixed/modded setups exact.
+// Record surviving initial deals from the same finalized boundary, collapsing only the deterministic Advanced-Start-shaped reciprocal peace matrix already represented by forcePeace team state. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static void logSASGameRecordFinalizedInitialState(int& iTeamStateRows, int& iTechRows, int& iDeals)
+{
+	iTeamStateRows = 0;
+	iTechRows = 0;
+	iDeals = 0;
+	std::vector<SASGameRecordInitialTechGroup> aTechGroups;
+	for (int iI = 0; iI < MAX_TEAMS; iI++)
+	{
+		TeamTypes const eTeam = (TeamTypes)iI;
+		if (!GET_TEAM(eTeam).isEverAlive())
+			continue;
+		logSASGameRecord("GAME_RECORD_INITIAL_TEAM_STATE %s", getSASInitialTeamStateFields(eTeam).GetCString());
+		CvString const szTechFields = getSASInitialTeamTechLevelFields(eTeam);
+		SASGameRecordInitialTechGroup* pGroup = NULL;
+		for (size_t iGroup = 0; iGroup < aTechGroups.size(); iGroup++)
+		{
+			if (aTechGroups[iGroup].szTechFields == szTechFields)
+			{
+				pGroup = &aTechGroups[iGroup];
+				break;
+			}
+		}
+		if (pGroup == NULL)
+		{
+			SASGameRecordInitialTechGroup kGroup;
+			kGroup.szTechFields = szTechFields;
+			kGroup.iTeams = 0;
+			aTechGroups.push_back(kGroup);
+			pGroup = &aTechGroups.back();
+		}
+		appendSASDiagnosticIntListValue(pGroup->szTeams, eTeam);
+		pGroup->iTeams++;
+		seedSASGameRecordTeamPreviousFromCurrentState(eTeam);
+		iTeamStateRows++;
+	}
+	for (size_t iGroup = 0; iGroup < aTechGroups.size(); iGroup++)
+	{
+		SASGameRecordInitialTechGroup const& kGroup = aTechGroups[iGroup];
+		logSASGameRecord("GAME_RECORD_INITIAL_TEAM_TECHS teams=%s teamCount=%d %s", kGroup.szTeams.GetCString(), kGroup.iTeams, kGroup.szTechFields.GetCString());
+		iTechRows++;
+	}
+	int iLoop = 0;
+	for (CvDeal const* pDeal = GC.getGame().firstDeal(&iLoop); pDeal != NULL; pDeal = GC.getGame().nextDeal(&iLoop))
+	{
+		if (isSASCollapsibleAdvancedStartPeaceDeal(*pDeal))
+			continue;
+		logSASGameRecord("GAME_RECORD_INITIAL_DEAL %s", getSASInitialDealStateFields(*pDeal).GetCString());
+		iDeals++;
+	}
+}
+
+// <!-- custom: Team-state rows identify numeric members exactly, but placing readable player/civilization identities only after hundreds of geography and text-map rows made the initial team and technology records needlessly hard to interpret.
+// Emit fixed slot bounds and player identities before team relations; later map legends can still reference the same PLAYER_SETUP rows without repeating them. (GPT-5.6-Sol) -->
+static void logSASGameRecordInitialPlayerIdentities()
+{
+	logSASGameRecord("GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=%d MAX_PLAYERS=%d BARBARIAN_PLAYER=%d MAX_CIV_TEAMS=%d MAX_TEAMS=%d BARBARIAN_TEAM=%d NO_PLAYER=%d NO_TEAM=%d", MAX_CIV_PLAYERS, MAX_PLAYERS, BARBARIAN_PLAYER, MAX_CIV_TEAMS, MAX_TEAMS, BARBARIAN_TEAM, NO_PLAYER, NO_TEAM);
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
+		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if (kLoopPlayer.isEverAlive() && !kLoopPlayer.isBarbarian())
+			logSASGameRecordPlayerSetup(eLoopPlayer);
+	}
+}
+
+void logSASGameRecordNewGameStarted()
+{
+	logSASGameRecordGameState("GAME_RECORD_NEW_GAME_STARTED");
+	logSASGameRecordInitialPlayerIdentities();
+	if (getSASGameRecordLogLevel() >= 2)
+	{
+		int iTeamStateRows = 0;
+		int iTechRows = 0;
+		int iDeals = 0;
+		logSASGameRecordFinalizedInitialState(iTeamStateRows, iTechRows, iDeals);
+		logSASGameRecord("GAME_RECORD_INITIAL_STATE_SUMMARY teamStateRows=%d techGroupRows=%d techTeamsCovered=%d %s source=FINALIZED_STATE", iTeamStateRows, iTechRows, iTeamStateRows, getSASInitialDealSummaryFields(true, iDeals).GetCString());
+	}
+}
+
+void startSASGameRecordLogForLoadedSave()
+{
+	// <!-- custom: Preserve any final pending bombard/map-history rows in the previous session before rolling to the loaded-save log. (ChatGPT-5.6-Sol) -->
+	if (g_iSASGameRecordPendingPlotTurn >= 0) flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
+	else flushSASGameRecordPendingCityBombard();
+	rollSASGameRecordLog("load");
+	// <!-- custom: Loaded RNG state already exists when onAllGameDataRead starts this new recorder session, so use it directly as the level-3 baseline. Session counters intentionally restart at each timestamped load log. GAMEOPTION_NEW_RANDOM_SEED is likewise applied during deserialization while old-session tracking is already finalized; its resulting seed is intentionally the new session baseline rather than a cross-session SEED_SET operation. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 3) initializeSASGameRecordRngTracking();
+	resetSASGameRecordTeamPrevious();
+	resetSASGameRecordPlayerPrevious();
+	resetSASGameRecordPlayerDurationState();
+	resetSASGameRecordGlobalPrevious();
+	resetSASGameRecordResearchState();
+	resetSASGameRecordControlState();
+	resetSASGameRecordCityLifecycleState();
+	resetSASGameRecordCombatState();
+	resetSASGameRecordBlockadeState();
+	resetSASGameRecordMilitaryFlowState();
+	resetSASGameRecordCityBombardState();
+	g_aSASGameRecordWars.clear();
+	initializeSASGameRecordWarsFromLoadedSave();
+	g_iSASGameRecordLastFullSnapshotTurn = -1;
+	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
+	logSASGameRecordLogSettings();
+	logSASGameRecordTechCapabilitySources();
+	logSASGameRecordAttitudeLegend();
+	logSASGameRecordInitialPlayerIdentities();
+	// <!-- custom: Level-2+ new games already emitted authoritative INITIAL_TEAM_STATE metTeams and seeded the contact baseline.
+	// Loaded saves have no finalized initial-team block in this session, so retain explicit setup contact rows for them. (ChatGPT-5.6-Sol) -->
+	if (getSASGameRecordLogLevel() >= 2)
+	{
+		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+		{
+			TeamTypes eLoopTeam = (TeamTypes)iI;
+			if (GET_TEAM(eLoopTeam).isAlive() && !GET_TEAM(eLoopTeam).isBarbarian())
+				logSASGameRecordTeamContacts(eLoopTeam, GC.getGame().getGameTurn(), "setup");
+		}
+	}
+}
+
+static void logSASGameRecordMapBonusTotals(int iGameTurn)
+{
+	CvString szBonuses;
+	FOR_EACH_ENUM(Bonus)
+		appendSASGameRecordTypeCount(szBonuses, getSASGameRecordBonusType(eLoopBonus), GC.getMap().getNumBonuses(eLoopBonus));
+	logSASGameRecord("GAME_RECORD_MAP_BONUSES turn=%d total=%s", iGameTurn, getSASDiagnosticOrDash(szBonuses).GetCString());
+}
+
+static void logSASGameRecordBattleBuckets(int iGameTurn)
+{
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
+		SASGameRecordBattleQuality& kQuality = g_akSASGameRecordBattleQuality[iI];
+		if (g_aiSASGameRecordBattleWins[iI] != 0 || g_aiSASGameRecordBattleLosses[iI] != 0 || g_aiSASGameRecordCityBattleWins[iI] != 0 || g_aiSASGameRecordCityBattleLosses[iI] != 0 || kQuality.hasAny())
+		{
+			// <!-- custom: Expected wins sum the exact own pre-combat odds for the same binary battles counted by luckEligibleWins. Withdrawals and combat-limit outcomes stay separate rather than distorting observed-vs-expected luck. (ChatGPT-5.6-Sol) -->
+			logSASGameRecord("GAME_RECORD_BATTLE_SUMMARY turn=%d range=%d-%d player=%d wins=%d losses=%d cityPlotWins=%d cityPlotLosses=%d withdrawals=%d enemyWithdrawals=%d combatLimitAttacks=%d combatLimitDefenses=%d luckEligibleBattles=%d luckEligibleWins=%d expectedWinsX1000=%d luckDeltaX1000=%+d upsetWins=%d upsetLosses=%d lowestOddsWinPermille=%d highestOddsLossPermille=%d",
+				iGameTurn, g_iSASGameRecordBattleStartTurn, iGameTurn, eLoopPlayer, g_aiSASGameRecordBattleWins[iI], g_aiSASGameRecordBattleLosses[iI], g_aiSASGameRecordCityBattleWins[iI], g_aiSASGameRecordCityBattleLosses[iI],
+				kQuality.iWithdrawals, kQuality.iEnemyWithdrawals, kQuality.iCombatLimitAttacks, kQuality.iCombatLimitDefenses, kQuality.iLuckEligibleBattles, kQuality.iLuckEligibleWins, kQuality.iExpectedWinsX1000, 1000 * kQuality.iLuckEligibleWins - kQuality.iExpectedWinsX1000,
+				kQuality.iUpsetWins, kQuality.iUpsetLosses, kQuality.iLowestOddsWinPermille, kQuality.iHighestOddsLossPermille);
+		}
+		g_aiSASGameRecordBattleWins[iI] = 0;
+		g_aiSASGameRecordBattleLosses[iI] = 0;
+		g_aiSASGameRecordCityBattleWins[iI] = 0;
+		g_aiSASGameRecordCityBattleLosses[iI] = 0;
+		kQuality.reset();
+	}
+	// <!-- custom: Advance from the actual reset boundary so turn-0 combat and mid-interval load/session boundaries retain truthful ranges. (ChatGPT-5.6-Sol) -->
+	g_iSASGameRecordBattleStartTurn = iGameTurn + 1;
+}
+
+static CvString getSASGameRecordAIProductionTransitions(SASGameRecordPlayerFlow const& kFlow)
+{
+	CvString szTransitions;
+	static char const* const aszKinds[NUM_SAS_PRODUCTION_KINDS] = {"UNIT", "BUILDING", "WONDER", "PROJECT", "PROCESS"};
+	for (int iOld = 0; iOld < NUM_SAS_PRODUCTION_KINDS; iOld++)
+	{
+		for (int iNew = 0; iNew < NUM_SAS_PRODUCTION_KINDS; iNew++)
+		{
+			int const iCount = kFlow.aiAIProductionTransitions[iOld * NUM_SAS_PRODUCTION_KINDS + iNew];
+			if (iCount <= 0)
+				continue;
+			CvString szItem;
+			szItem.Format(szTransitions.empty() ? "%s>%s:%d" : ",%s>%s:%d", aszKinds[iOld], aszKinds[iNew], iCount);
+			szTransitions += szItem;
+		}
+	}
+	return getSASDiagnosticOrDash(szTransitions);
+}
+
+static int getSASGameRecordMaxAIProductionTargetChangesOneCity(SASGameRecordPlayerFlow const& kFlow)
+{
+	int iMax = 0;
+	for (size_t iI = 0; iI < kFlow.aAIProductionTargetChangesByCity.size(); iI++)
+		iMax = std::max(iMax, kFlow.aAIProductionTargetChangesByCity[iI].second);
+	return iMax;
+}
+
+// <!-- custom: Project completion rows did not show whether a project-based victory had its minimum/full component set or an active launch countdown. Build one compact shared state for periodic progress and the explicit launch action. (GPT-5.6-Sol) -->
 static bool getSASGameRecordVictoryProjectState(TeamTypes eTeam, VictoryTypes eVictory, int& iPartsBuilt, int& iPartsMinimum, int& iPartsMaximum, bool& bMinimumComplete, CvString& szProjectParts)
 {
 	iPartsBuilt = 0;
@@ -2788,6 +3380,33 @@ static bool compareSASGameRecordCultureCities(SASGameRecordCultureCity const& kF
 	return kFirst.first > kSecond.first;
 }
 
+// <!-- custom: Production-resolution flow now also preserves strategic AI head-target churn separately from real mechanical production loss. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordProductionFlowBuckets(int iGameTurn)
+{
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)iI;
+		SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[iI];
+		if (!kFlow.hasProduction())
+			continue;
+		CvString szUnitTypes, szConscriptedUnitTypes, szBuildingTypes, szProjectTypes;
+		FOR_EACH_ENUM(Unit)
+		{
+			appendSASGameRecordTypeCount(szUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiUnitTypes[eLoopUnit]);
+			appendSASGameRecordTypeCount(szConscriptedUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiConscriptedUnitTypes[eLoopUnit]);
+		}
+		FOR_EACH_ENUM(Building) appendSASGameRecordTypeCount(szBuildingTypes, getSASGameRecordBuildingType(eLoopBuilding), kFlow.aiBuildingTypes[eLoopBuilding]);
+		FOR_EACH_ENUM(Project) appendSASGameRecordTypeCount(szProjectTypes, getSASGameRecordProjectType(eLoopProject), kFlow.aiProjectTypes[eLoopProject]);
+		logSASGameRecord("GAME_RECORD_PRODUCTION_FLOW turn=%d range=%d-%d player=%d unitsProduced=%d unitProductionNeeded=%d unitTypes=%s unitsConscripted=%d conscriptProductionNeeded=%d conscriptedUnitTypes=%s buildingsCompleted=%d buildingProductionNeeded=%d buildingTypes=%s projectsCompleted=%d projectProductionNeeded=%d projectTypes=%s overflowActions=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d failedInvestedProduction=%d failGold=%d aiTargetSwitches=%d aiTargetClears=%d aiInvestedTargetChanges=%d aiProductionParked=%d aiTargetResumes=%d aiProductionResumed=%d aiTargetChangedCities=%d aiMaxTargetChangesOneCity=%d aiTargetTransitions=%s productionDecayActions=%d productionDecayLost=%d productionInvalidatedActions=%d productionInvalidatedLost=%d productionUpgradeTransfers=%d productionUpgradeTransferred=%d productionUpgradeOverwriteActions=%d productionUpgradeOverwritten=%d",
+			iGameTurn, g_iSASGameRecordProductionFlowStartTurn, iGameTurn, ePlayer, kFlow.iUnitsCompleted, kFlow.iUnitProductionNeeded, getSASDiagnosticOrDash(szUnitTypes).GetCString(), kFlow.iUnitsConscripted, kFlow.iConscriptProductionNeeded, getSASDiagnosticOrDash(szConscriptedUnitTypes).GetCString(),
+			kFlow.iBuildingsCompleted, kFlow.iBuildingProductionNeeded, getSASDiagnosticOrDash(szBuildingTypes).GetCString(), kFlow.iProjectsCompleted, kFlow.iProjectProductionNeeded, getSASDiagnosticOrDash(szProjectTypes).GetCString(),
+			kFlow.iOverflowActions, kFlow.iRawModifiedOverflow, kFlow.iUnmodifiedOverflow, kFlow.iKeptOverflow, kFlow.iLostProduction, kFlow.iUnusedOverflowCapacity, kFlow.iOverflowGold, kFlow.iFailedInvestedProduction, kFlow.iFailGold,
+			kFlow.iAIProductionTargetSwitches, kFlow.iAIProductionTargetClears, kFlow.iAIProductionInvestedTargetChanges, kFlow.iAIProductionParked, kFlow.iAIProductionTargetResumes, kFlow.iAIProductionResumed, (int)kFlow.aAIProductionTargetChangesByCity.size(), getSASGameRecordMaxAIProductionTargetChangesOneCity(kFlow), getSASGameRecordAIProductionTransitions(kFlow).GetCString(),
+			kFlow.iProductionDecayActions, kFlow.iProductionDecayLost, kFlow.iProductionInvalidatedActions, kFlow.iProductionInvalidatedLost, kFlow.iProductionUpgradeTransfers, kFlow.iProductionUpgradeTransferred, kFlow.iProductionUpgradeOverwriteActions, kFlow.iProductionUpgradeOverwritten);
+	}
+	g_iSASGameRecordProductionFlowStartTurn = iGameTurn + 1;
+}
+
 static CvString getSASGameRecordCultureVictoryCities(TeamTypes eTeam, int iRequired, int iThreshold, int& iComplete)
 {
 	std::vector<SASGameRecordCultureCity> aCities;
@@ -2818,160 +3437,6 @@ static CvString getSASGameRecordCultureVictoryCities(TeamTypes eTeam, int iRequi
 	return getSASDiagnosticOrDash(szCities);
 }
 
-static void logSASGameRecordTeamProjects(TeamTypes eTeam, int iGameTurn)
-{
-	CvString szProjects;
-	FOR_EACH_ENUM(Project)
-		appendSASGameRecordTypeCount(szProjects, getSASGameRecordProjectType(eLoopProject), GET_TEAM(eTeam).getProjectCount(eLoopProject));
-	if (!szProjects.empty())
-		logSASGameRecord("GAME_RECORD_TEAM_PROJECTS turn=%d team=%d projects=%s", iGameTurn, eTeam, szProjects.GetCString());
-}
-
-static void logSASGameRecordTeamSnapshot(TeamTypes eTeam, int iGameTurn)
-{
-	CvGame const& kGame = GC.getGame();
-	CvTeam const& kTeam = GET_TEAM(eTeam);
-	bool const bLogTeamDetails = (getSASGameRecordLogLevel() >= 2);
-	const int iLandPlots = std::max(1, GC.getMap().getLandPlots());
-	const int iGamePopulation = std::max(1, kGame.getTotalPopulation());
-	const int iTechs = kTeam.getTechCount();
-	const int iLand = kTeam.getTotalLand();
-	const int iLandPctX100 = (10000 * iLand) / iLandPlots;
-	const int iPopulation = kTeam.getTotalPopulation();
-	const int iPopPctX100 = (10000 * iPopulation) / iGamePopulation;
-	SASGameRecordTeamPrevious& kPrevious = g_akSASGameRecordTeamPrevious[eTeam];
-	TeamTypes const eMaster = (kTeam.isAVassal() ? kTeam.getMasterTeam() : NO_TEAM);
-	logSASGameRecord("GAME_RECORD_TEAM turn=%d team=%d members=%s alive=%d deltaValid=%d techs=%d techsDelta=%+d techEraCounts=%s techTrading=%d goldTrading=%d land=%d landDelta=%+d landPctX100=%d landPctX100Delta=%+d pop=%d popDelta=%+d popPctX100=%d popPctX100Delta=%+d wars=%s vassals=%s master=%d",
-			iGameTurn, eTeam, getSASGameRecordTeamMembers(eTeam).GetCString(), kTeam.isAlive(), kPrevious.bValid,
-			iTechs, getSASGameRecordDelta(kPrevious.bValid, iTechs, kPrevious.iTechs), getSASGameRecordTechEraCounts(eTeam).GetCString(), kTeam.isTechTrading(), kTeam.isGoldTrading(),
-			iLand, getSASGameRecordDelta(kPrevious.bValid, iLand, kPrevious.iLand), iLandPctX100, getSASGameRecordDelta(kPrevious.bValid, iLandPctX100, kPrevious.iLandPctX100),
-			iPopulation, getSASGameRecordDelta(kPrevious.bValid, iPopulation, kPrevious.iPopulation), iPopPctX100, getSASGameRecordDelta(kPrevious.bValid, iPopPctX100, kPrevious.iPopPctX100),
-			getSASGameRecordWarTeams(eTeam).GetCString(), getSASGameRecordVassalTeams(eTeam).GetCString(), eMaster);
-	if (bLogTeamDetails) logSASGameRecordTeamContacts(eTeam, iGameTurn, "snapshot");
-	seedSASGameRecordTeamPreviousFromCurrentState(eTeam);
-
-	VictoryTypes eScoreVictory = NO_VICTORY;
-	VictoryTypes eTimeVictory = NO_VICTORY;
-	VictoryTypes eConquestVictory = NO_VICTORY;
-	VictoryTypes eCultureVictory = NO_VICTORY;
-	VictoryTypes eDiplomaticVictory = NO_VICTORY;
-	int iCultureCitiesRequired = 0;
-	int iCultureThreshold = 0;
-	FOR_EACH_ENUM(Victory)
-	{
-		if (!kGame.isVictoryValid(eLoopVictory))
-			continue;
-		CvVictoryInfo const& kVictory = GC.getInfo(eLoopVictory);
-		if (kVictory.isTargetScore()) eScoreVictory = eLoopVictory;
-		if (kVictory.isEndScore()) eTimeVictory = eLoopVictory;
-		if (kVictory.isConquest()) eConquestVictory = eLoopVictory;
-		if (kVictory.isDiploVote()) eDiplomaticVictory = eLoopVictory;
-		if (kVictory.getCityCulture() != NO_CULTURELEVEL && kVictory.getNumCultureCities() > 0)
-		{
-			eCultureVictory = eLoopVictory;
-			iCultureCitiesRequired = kVictory.getNumCultureCities();
-			iCultureThreshold = kGame.getCultureThreshold((CultureLevelTypes)kVictory.getCityCulture());
-		}
-	}
-	CvString szConquestRivals;
-	int iConquestRivalCities = 0;
-	if (eConquestVictory != NO_VICTORY)
-	{
-		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
-		{
-			TeamTypes const eRival = (TeamTypes)iI;
-			CvTeam const& kRival = GET_TEAM(eRival);
-			if (eRival == eTeam || !kRival.isAlive() || kRival.isBarbarian() || kRival.isVassal(eTeam) || kRival.getNumCities() <= 0)
-				continue;
-			appendSASDiagnosticIntListValue(szConquestRivals, eRival);
-			iConquestRivalCities += kRival.getNumCities();
-		}
-	}
-	int iBestRivalScore = -1;
-	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
-	{
-		TeamTypes const eRival = (TeamTypes)iI;
-		if (eRival != eTeam && GET_TEAM(eRival).isAlive() && !GET_TEAM(eRival).isBarbarian())
-			iBestRivalScore = std::max(iBestRivalScore, kGame.getTeamScore(eRival));
-	}
-	int const iTeamScore = kGame.getTeamScore(eTeam);
-	int const iTurnsRemaining = (kGame.getMaxTurns() <= 0 ? -1 : std::max(0, kGame.getMaxTurns() - kGame.getElapsedGameTurns()));
-	int iCultureCitiesComplete = 0;
-	CvString szCultureCities;
-	if (eCultureVictory == NO_VICTORY) szCultureCities = "-";
-	else szCultureCities = getSASGameRecordCultureVictoryCities(eTeam, iCultureCitiesRequired, iCultureThreshold, iCultureCitiesComplete);
-	// <!-- custom: Domination and Space already have detailed per-victory rows, and diplomatic vote-source rows can later contain exact vote thresholds.
-	// Add one compact general row per team rather than one new row per missing victory, so Score/Time, Conquest, and Cultural progress become explicit without multiplying snapshot noise.
-	// Culture lists only the required number of leading cities. The vote-source companion rows remain a later periodic/global slice in this incremental 1.14 port. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_VICTORY_PROGRESS_GENERAL turn=%d team=%d scoreVictory=%s timeVictory=%s conquestVictory=%s culturalVictory=%s diplomaticVictory=%s teamScore=%d bestRivalScore=%d scoreLead=%+d targetScore=%d turnsRemaining=%d conquestRivals=%s conquestRivalCities=%d cultureCitiesComplete=%d cultureCitiesRequired=%d cultureThreshold=%d cultureCities=%s",
-			iGameTurn, eTeam, getSASGameRecordVictoryType(eScoreVictory), getSASGameRecordVictoryType(eTimeVictory), getSASGameRecordVictoryType(eConquestVictory), getSASGameRecordVictoryType(eCultureVictory), getSASGameRecordVictoryType(eDiplomaticVictory),
-			iTeamScore, iBestRivalScore, iBestRivalScore < 0 ? iTeamScore : iTeamScore - iBestRivalScore, kGame.getTargetScore(), iTurnsRemaining, getSASDiagnosticOrDash(szConquestRivals).GetCString(), iConquestRivalCities,
-			iCultureCitiesComplete, iCultureCitiesRequired, iCultureThreshold, szCultureCities.GetCString());
-
-	FOR_EACH_ENUM(Victory)
-	{
-		if (!kGame.isVictoryValid(eLoopVictory))
-			continue;
-		const int iLandNeed = kGame.getAdjustedLandPercent(eLoopVictory);
-		const int iPopNeed = kGame.getAdjustedPopulationPercent(eLoopVictory);
-		int iPartsBuilt = 0;
-		int iPartsMinimum = 0;
-		int iPartsMaximum = 0;
-		bool bMinimumComplete = false;
-		CvString szProjectParts;
-		bool const bProjectVictory = getSASGameRecordVictoryProjectState(eTeam, eLoopVictory, iPartsBuilt, iPartsMinimum, iPartsMaximum, bMinimumComplete, szProjectParts);
-		if (iLandNeed > 0 || iPopNeed > 0 || bProjectVictory)
-		{
-			int const iCountdown = kTeam.getVictoryCountdown(eLoopVictory);
-			int const iTravelTurns = (bProjectVictory && bMinimumComplete ? kTeam.getVictoryDelay(eLoopVictory) : -1);
-			logSASGameRecord("GAME_RECORD_VICTORY_PROGRESS turn=%d team=%d victory=%s landPctX100=%d landNeed=%d popPctX100=%d popNeed=%d projectVictory=%d launched=%d countdown=%d arrivalTurn=%d canLaunch=%d launchSuccessPercent=%d travelTurns=%d partsBuilt=%d partsMinimum=%d partsMaximum=%d projectParts=%s",
-				iGameTurn, eTeam, GC.getInfo(eLoopVictory).getType(), iLandPctX100, iLandNeed, iPopPctX100, iPopNeed, bProjectVictory, bProjectVictory && iCountdown >= 0, iCountdown, iCountdown < 0 ? -1 : iGameTurn + iCountdown, bProjectVictory && kTeam.canLaunch(eLoopVictory), bProjectVictory ? kTeam.getLaunchSuccessRate(eLoopVictory) : -1, iTravelTurns, iPartsBuilt, iPartsMinimum, iPartsMaximum, bProjectVictory ? szProjectParts.GetCString() : "-");
-		}
-	}
-	if (bLogTeamDetails) logSASGameRecordTeamProjects(eTeam, iGameTurn);
-}
-
-static bool isSASGameRecordMilitaryUnit(CvUnit const& kUnit)
-{
-	// <!-- custom: A failed NO_UNIT creation left an unplaced/reset object in the owner container, and the end-turn snapshot crashed while reading its combat state. Unplaced units are not part of military posture; short-circuit before unit-info-backed checks. See KI#524.6. (GPT-5.6-Sol) -->
-	CvPlot const* pPlot = kUnit.plot();
-	return pPlot != NULL && (kUnit.canDefend(pPlot) || kUnit.baseCombatStr() > 0 || kUnit.airBaseCombatStr() > 0);
-}
-
-static bool isSASGameRecordWorkerUnit(CvUnit const& kUnit)
-{
-	UnitAITypes eUnitAI = kUnit.AI_getUnitAIType();
-	return eUnitAI == UNITAI_WORKER || eUnitAI == UNITAI_WORKER_SEA || kUnit.workRate(true) > 0;
-}
-
-static bool isSASGameRecordSettlerUnit(CvUnit const& kUnit)
-{
-	return kUnit.AI_getUnitAIType() == UNITAI_SETTLE || kUnit.isFound();
-}
-
-static MissionTypes getSASGameRecordUnitMissionType(CvUnit const& kUnit)
-{
-	CvSelectionGroup const* pGroup = kUnit.getGroup();
-	return pGroup == NULL ? NO_MISSION : pGroup->getMissionType(0);
-}
-
-static int getSASGameRecordBuildTurnsLeft(CvUnit const& kUnit, BuildTypes eBuild)
-{
-	return eBuild == NO_BUILD ? -1 : kUnit.getPlot().getBuildTurnsLeft(eBuild, kUnit.getOwner(), 0, 0);
-}
-
-static bool isSASGameRecordUnitGuarded(CvUnit const& kUnit)
-{
-	CvPlot const* pPlot = kUnit.plot();
-	return pPlot != NULL && pPlot->getNumDefenders(kUnit.getOwner()) > 0;
-}
-
-static bool isSASGameRecordUnitThreatened(CvUnit const& kUnit)
-{
-	CvPlot const* pPlot = kUnit.plot();
-	return pPlot != NULL && pPlot->isVisibleEnemyUnit(kUnit.getOwner());
-}
-
 static CvString getSASGameRecordCivicList(CvPlayer const& kPlayer)
 {
 	CvString szList;
@@ -2986,7 +3451,6 @@ static CvString getSASGameRecordCivicList(CvPlayer const& kPlayer)
 	}
 	return getSASDiagnosticOrDash(szList);
 }
-
 
 static CvString getSASGameRecordPlayerCityReligions(CvPlayer const& kPlayer)
 {
@@ -3006,7 +3470,6 @@ static CvString getSASGameRecordPlayerCityReligions(CvPlayer const& kPlayer)
 	return getSASDiagnosticOrDash(szList);
 }
 
-
 static CvString getSASGameRecordPlayerCityCorporations(CvPlayer const& kPlayer)
 {
 	std::vector<int> aiCounts(GC.getNumCorporationInfos(), 0);
@@ -3025,7 +3488,24 @@ static CvString getSASGameRecordPlayerCityCorporations(CvPlayer const& kPlayer)
 	return getSASDiagnosticOrDash(szList);
 }
 
+// <!-- custom: Natural growth/starvation is a separate factual flow from production and military accounting. Log it before the shared military-flow reset consumes the player-flow bucket. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordCityPopulationFlowBuckets(int iGameTurn)
+{
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)iI;
+		SASGameRecordPlayerFlow const& kFlow = g_akSASGameRecordPlayerFlow[iI];
+		if (!kFlow.hasCityPopulationFlow())
+			continue;
+		logSASGameRecord("GAME_RECORD_CITY_POPULATION_FLOW turn=%d range=%d-%d player=%d growthEvents=%d populationGained=%d growthPreventedEvents=%d foodDiscardedByAvoidGrowth=%d starvationEvents=%d populationLost=%d netNaturalPopulationChange=%+d",
+			iGameTurn, g_iSASGameRecordCityPopulationFlowStartTurn, iGameTurn, ePlayer, kFlow.iCityGrowthEvents, kFlow.iPopulationGainedFromGrowth, kFlow.iCityGrowthPreventedEvents, kFlow.iFoodDiscardedByAvoidGrowth,
+			kFlow.iCityStarvationEvents, kFlow.iPopulationLostToStarvation, kFlow.iPopulationGainedFromGrowth - kFlow.iPopulationLostToStarvation);
+	}
+	g_iSASGameRecordCityPopulationFlowStartTurn = iGameTurn + 1;
+}
 
+// <!-- custom: City health/happiness rows previously combined player-wide modifiers under `extra`, hiding whether a loaded-mod rule caused a demographic change; for example, AdvCiv-SAS's TECH_DEPOPULATION currently applies negative health and happiness.
+// Reconstruct all currently defined trait, civic and technology contributions once per player snapshot; preserve any event or other DLL adjustment as OTHER. (GPT-5.6-Sol) -->
 static void getSASGameRecordPlayerExtraSources(CvPlayer const& kPlayer, CvString& szHealthSources, CvString& szHappinessSources)
 {
 	int iKnownHealth = 0;
@@ -3065,7 +3545,6 @@ static void getSASGameRecordPlayerExtraSources(CvPlayer const& kPlayer, CvString
 	appendSASGameRecordSignedValue(szHealthSources, "OTHER", kPlayer.getExtraHealth() - iKnownHealth);
 	appendSASGameRecordSignedValue(szHappinessSources, "OTHER", kPlayer.getExtraHappiness() - iKnownHappiness);
 }
-
 
 // <!-- custom: Objective victory progress does not show which route currently guides AI strategy. Record the compact 0..4 route stages once per AI snapshot so city production and war choices can be interpreted without enabling detailed BBAI decisions. (GPT-5.6-Sol) -->
 static void logSASGameRecordAIVictoryStages(PlayerTypes ePlayer, int iGameTurn)
@@ -3113,24 +3592,7 @@ static void logSASGameRecordPolicies(PlayerTypes ePlayer, int iGameTurn)
 }
 
 
-static void logSASGameRecordStatistics(PlayerTypes ePlayer, int iGameTurn)
-{
-	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	CvPlayerRecord const* pRecord = kPlayer.getPlayerRecord();
-	const int iCitiesBuilt = (pRecord == NULL ? 0 : pRecord->getNumCitiesBuilt());
-	const int iCitiesRazed = (pRecord == NULL ? 0 : pRecord->getNumCitiesRazed());
-	// <!-- custom: Built/razed are persistent CyStatistics player-record values used by the Statistics tab.
-	// Acquired/lost and all `logged*` military values are recorder-session observations, reset on load; keeping them local avoids save-format churn while exposing cumulative quality generation and combat luck alongside ordinary wins/losses. (GPT-5.5 + ChatGPT-5.6-Sol) -->
-	SASGameRecordMilitaryQualityTotals const& kMilitary = g_akSASGameRecordMilitaryQualityTotals[ePlayer];
-	SASGameRecordBattleQuality const& kBattleQuality = g_akSASGameRecordTotalBattleQuality[ePlayer];
-	logSASGameRecord("GAME_RECORD_STATISTICS turn=%d player=%d currentCities=%d persistentCitiesBuilt=%d persistentCitiesRazed=%d loggedCitiesAcquired=%d loggedCitiesLost=%d loggedCitiesConquered=%d loggedCitiesLostByConquest=%d loggedCitiesTradedIn=%d loggedCitiesTradedOut=%d loggedCityNet=%+d loggedBattleWins=%d loggedBattleLosses=%d loggedCityBattleWins=%d loggedCityBattleLosses=%d loggedBattleNet=%+d loggedWithdrawals=%d loggedEnemyWithdrawals=%d loggedCombatLimitAttacks=%d loggedCombatLimitDefenses=%d loggedLuckEligibleBattles=%d loggedLuckEligibleWins=%d loggedExpectedWinsX1000=%d loggedLuckDeltaX1000=%+d loggedUpsetWins=%d loggedUpsetLosses=%d loggedLowestOddsWinPermille=%d loggedHighestOddsLossPermille=%d loggedXpGained=%d loggedCombatXpGained=%d loggedNonCombatXpGained=%d loggedXpPreventedByCap=%d loggedXpLostAdjustments=%d loggedPromotionsChosen=%d loggedLeaderPromotionApplications=%d loggedEnemyXpDestroyed=%d loggedOwnXpLost=%d",
-			iGameTurn, ePlayer, kPlayer.getNumCities(), iCitiesBuilt, iCitiesRazed, g_aiSASGameRecordCitiesAcquired[ePlayer], g_aiSASGameRecordCitiesLost[ePlayer], g_aiSASGameRecordCitiesConquered[ePlayer], g_aiSASGameRecordCitiesLostByConquest[ePlayer], g_aiSASGameRecordCitiesTradedIn[ePlayer], g_aiSASGameRecordCitiesTradedOut[ePlayer], g_aiSASGameRecordCitiesAcquired[ePlayer] - g_aiSASGameRecordCitiesLost[ePlayer],
-			g_aiSASGameRecordTotalBattleWins[ePlayer], g_aiSASGameRecordTotalBattleLosses[ePlayer], g_aiSASGameRecordTotalCityBattleWins[ePlayer], g_aiSASGameRecordTotalCityBattleLosses[ePlayer], g_aiSASGameRecordTotalBattleWins[ePlayer] - g_aiSASGameRecordTotalBattleLosses[ePlayer],
-			kBattleQuality.iWithdrawals, kBattleQuality.iEnemyWithdrawals, kBattleQuality.iCombatLimitAttacks, kBattleQuality.iCombatLimitDefenses, kBattleQuality.iLuckEligibleBattles, kBattleQuality.iLuckEligibleWins, kBattleQuality.iExpectedWinsX1000, 1000 * kBattleQuality.iLuckEligibleWins - kBattleQuality.iExpectedWinsX1000, kBattleQuality.iUpsetWins, kBattleQuality.iUpsetLosses, kBattleQuality.iLowestOddsWinPermille, kBattleQuality.iHighestOddsLossPermille,
-			kMilitary.iExperienceGained, kMilitary.iCombatExperienceGained, kMilitary.iNonCombatExperienceGained, kMilitary.iExperiencePreventedByCap, kMilitary.iExperienceLostAdjustments, kMilitary.iPromotionsChosen, kMilitary.iLeaderPromotionApplications, kMilitary.iEnemyExperienceDestroyed, kMilitary.iOwnExperienceLost);
-}
-
-static void logSASGameRecordEspionage(PlayerTypes ePlayer, int iGameTurn)
+static bool isSASGameRecordSettlerUnit(CvUnit const& kUnit);static void logSASGameRecordEspionage(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
@@ -3233,6 +3695,304 @@ static void logSASGameRecordEspionage(PlayerTypes ePlayer, int iGameTurn)
 	kPrevious.iUnspentEP = iUnspentEP;
 }
 
+// <!-- custom: Military-flow rows reuse the mature SAS schema; production/population fields are logged immediately beforehand and all families share the same per-snapshot reset below. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordMilitaryFlowBuckets(int iGameTurn)
+{
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)iI;
+		SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[iI];
+		if (kFlow.hasMilitary())
+		{
+			CvString szPromotionChoices;
+			FOR_EACH_ENUM(Promotion)
+				appendSASGameRecordTypeCount(szPromotionChoices, getSASGameRecordPromotionType(eLoopPromotion), kFlow.aiPromotionChoices[eLoopPromotion]);
+			logSASGameRecord("GAME_RECORD_MILITARY_FLOW turn=%d range=%d-%d player=%d combatWins=%d combatLosses=%d cityPlotWins=%d cityPlotLosses=%d enemyProductionNeededDestroyed=%d ownProductionNeededLost=%d enemyXpDestroyed=%d ownXpLost=%d xpGained=%d combatXpGained=%d nonCombatXpGained=%d xpPreventedByCap=%d xpLostAdjustments=%d promotionsChosen=%d leaderPromotionApplications=%d promotionChoices=%s upgrades=%d upgradeGold=%d scrapped=%d scrappedProductionNeeded=%d captured=%d capturedProductionNeeded=%d",
+				iGameTurn, g_iSASGameRecordMilitaryFlowStartTurn, iGameTurn, ePlayer, kFlow.iCombatWins, kFlow.iCombatLosses, kFlow.iCityPlotWins, kFlow.iCityPlotLosses, kFlow.iEnemyProductionNeededDestroyed, kFlow.iOwnProductionNeededLost, kFlow.iEnemyExperienceDestroyed, kFlow.iOwnExperienceLost,
+				kFlow.iExperienceGained, kFlow.iCombatExperienceGained, kFlow.iNonCombatExperienceGained, kFlow.iExperiencePreventedByCap, kFlow.iExperienceLostAdjustments, kFlow.iPromotionsChosen, kFlow.iLeaderPromotionApplications, getSASDiagnosticOrDash(szPromotionChoices).GetCString(),
+				kFlow.iUpgrades, kFlow.iUpgradeGold, kFlow.iScrapped, kFlow.iScrappedProductionNeeded, kFlow.iCaptured, kFlow.iCapturedProductionNeeded);
+		}
+		kFlow.reset();
+	}
+	for (int iI = MAX_CIV_PLAYERS; iI < MAX_PLAYERS; iI++)
+		g_akSASGameRecordPlayerFlow[iI].reset();
+	g_iSASGameRecordMilitaryFlowStartTurn = iGameTurn + 1;
+}
+
+static CvString getSASGameRecordCommercePercents(CvPlayer const& kPlayer)
+{
+	CvString szList;
+	FOR_EACH_ENUM(Commerce)
+	{
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", GC.getInfo(eLoopCommerce).getType(), kPlayer.getCommercePercent(eLoopCommerce));
+		szList += szItem;
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+static CvString getSASGameRecordCommerceRates(CvPlayer const& kPlayer)
+{
+	CvString szList;
+	FOR_EACH_ENUM(Commerce)
+	{
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", GC.getInfo(eLoopCommerce).getType(), kPlayer.getCommerceRate(eLoopCommerce));
+		szList += szItem;
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+static CvString getSASGameRecordCommerceFlexible(CvPlayer const& kPlayer)
+{
+	CvString szList;
+	FOR_EACH_ENUM(Commerce)
+	{
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", GC.getInfo(eLoopCommerce).getType(), kPlayer.isCommerceFlexible(eLoopCommerce));
+		szList += szItem;
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+static void logSASGameRecordEconomy(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	TechTypes eResearch = kPlayer.getCurrentResearch();
+	int const iResearchProgress = (eResearch == NO_TECH ? -1 : kTeam.getResearchProgress(eResearch));
+	int const iResearchCost = (eResearch == NO_TECH ? -1 : kTeam.getResearchCost(eResearch));
+	// <!-- custom: currentResearch=- does not mean that science is lost: CvPlayer::doResearch stores the nominal research rate as overflow until another technology can be selected.
+	// Exact shared progress/cost makes partially researched technologies visible at ordinary snapshots instead of only when completion or redirection happens. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_ECONOMY turn=%d player=%d gold=%d goldRate=%d totalCommerce=%d sliders=%s commerceTypeRates=%s flexible=%s currentResearch=%s currentResearchTeamProgress=%d currentResearchCost=%d researchRate=%d researchOverflow=%d noResearchAvailable=%d researchTurns=%d",
+			iGameTurn, ePlayer, kPlayer.getGold(), kPlayer.calculateGoldRate(), kPlayer.calculateTotalYield(YIELD_COMMERCE), getSASGameRecordCommercePercents(kPlayer).GetCString(), getSASGameRecordCommerceRates(kPlayer).GetCString(), getSASGameRecordCommerceFlexible(kPlayer).GetCString(), getSASGameRecordTechType(eResearch), iResearchProgress, iResearchCost, kPlayer.calculateResearchRate(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(), eResearch == NO_TECH ? -1 : kPlayer.getResearchTurnsLeft(eResearch, true));
+}
+
+static void logSASGameRecordStatistics(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	CvPlayerRecord const* pRecord = kPlayer.getPlayerRecord();
+	const int iCitiesBuilt = (pRecord == NULL ? 0 : pRecord->getNumCitiesBuilt());
+	const int iCitiesRazed = (pRecord == NULL ? 0 : pRecord->getNumCitiesRazed());
+	// <!-- custom: Built/razed are persistent CyStatistics player-record values used by the Statistics tab.
+	// Acquired/lost and all `logged*` military values are recorder-session observations, reset on load; keeping them local avoids save-format churn while exposing cumulative quality generation and combat luck alongside ordinary wins/losses. (GPT-5.5 + ChatGPT-5.6-Sol) -->
+	SASGameRecordMilitaryQualityTotals const& kMilitary = g_akSASGameRecordMilitaryQualityTotals[ePlayer];
+	SASGameRecordBattleQuality const& kBattleQuality = g_akSASGameRecordTotalBattleQuality[ePlayer];
+	logSASGameRecord("GAME_RECORD_STATISTICS turn=%d player=%d currentCities=%d persistentCitiesBuilt=%d persistentCitiesRazed=%d loggedCitiesAcquired=%d loggedCitiesLost=%d loggedCitiesConquered=%d loggedCitiesLostByConquest=%d loggedCitiesTradedIn=%d loggedCitiesTradedOut=%d loggedCityNet=%+d loggedBattleWins=%d loggedBattleLosses=%d loggedCityBattleWins=%d loggedCityBattleLosses=%d loggedBattleNet=%+d loggedWithdrawals=%d loggedEnemyWithdrawals=%d loggedCombatLimitAttacks=%d loggedCombatLimitDefenses=%d loggedLuckEligibleBattles=%d loggedLuckEligibleWins=%d loggedExpectedWinsX1000=%d loggedLuckDeltaX1000=%+d loggedUpsetWins=%d loggedUpsetLosses=%d loggedLowestOddsWinPermille=%d loggedHighestOddsLossPermille=%d loggedXpGained=%d loggedCombatXpGained=%d loggedNonCombatXpGained=%d loggedXpPreventedByCap=%d loggedXpLostAdjustments=%d loggedPromotionsChosen=%d loggedLeaderPromotionApplications=%d loggedEnemyXpDestroyed=%d loggedOwnXpLost=%d",
+			iGameTurn, ePlayer, kPlayer.getNumCities(), iCitiesBuilt, iCitiesRazed, g_aiSASGameRecordCitiesAcquired[ePlayer], g_aiSASGameRecordCitiesLost[ePlayer], g_aiSASGameRecordCitiesConquered[ePlayer], g_aiSASGameRecordCitiesLostByConquest[ePlayer], g_aiSASGameRecordCitiesTradedIn[ePlayer], g_aiSASGameRecordCitiesTradedOut[ePlayer], g_aiSASGameRecordCitiesAcquired[ePlayer] - g_aiSASGameRecordCitiesLost[ePlayer],
+			g_aiSASGameRecordTotalBattleWins[ePlayer], g_aiSASGameRecordTotalBattleLosses[ePlayer], g_aiSASGameRecordTotalCityBattleWins[ePlayer], g_aiSASGameRecordTotalCityBattleLosses[ePlayer], g_aiSASGameRecordTotalBattleWins[ePlayer] - g_aiSASGameRecordTotalBattleLosses[ePlayer],
+			kBattleQuality.iWithdrawals, kBattleQuality.iEnemyWithdrawals, kBattleQuality.iCombatLimitAttacks, kBattleQuality.iCombatLimitDefenses, kBattleQuality.iLuckEligibleBattles, kBattleQuality.iLuckEligibleWins, kBattleQuality.iExpectedWinsX1000, 1000 * kBattleQuality.iLuckEligibleWins - kBattleQuality.iExpectedWinsX1000, kBattleQuality.iUpsetWins, kBattleQuality.iUpsetLosses, kBattleQuality.iLowestOddsWinPermille, kBattleQuality.iHighestOddsLossPermille,
+			kMilitary.iExperienceGained, kMilitary.iCombatExperienceGained, kMilitary.iNonCombatExperienceGained, kMilitary.iExperiencePreventedByCap, kMilitary.iExperienceLostAdjustments, kMilitary.iPromotionsChosen, kMilitary.iLeaderPromotionApplications, kMilitary.iEnemyExperienceDestroyed, kMilitary.iOwnExperienceLost);
+}
+
+static CvString getSASGameRecordEliminatedPlayers()
+{
+	CvString szList;
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
+		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if (kLoopPlayer.isEverAlive() && !kLoopPlayer.isAlive() && !kLoopPlayer.isBarbarian())
+			appendSASDiagnosticIntListValue(szList, eLoopPlayer);
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+static PlayerTypes getSASGameRecordTopScorePlayer()
+{
+	PlayerTypes eBestPlayer = NO_PLAYER;
+	int iBestScore = MIN_INT;
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
+		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian())
+			continue;
+		int const iScore = kLoopPlayer.calculateScore();
+		if (eBestPlayer == NO_PLAYER || iScore > iBestScore)
+		{
+			eBestPlayer = eLoopPlayer;
+			iBestScore = iScore;
+		}
+	}
+	return eBestPlayer;
+}
+
+static PlayerTypes getSASGameRecordTopPowerPlayer()
+{
+	PlayerTypes eBestPlayer = NO_PLAYER;
+	int iBestPower = MIN_INT;
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
+		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian())
+			continue;
+		int const iPower = kLoopPlayer.getPower();
+		if (eBestPlayer == NO_PLAYER || iPower > iBestPower)
+		{
+			eBestPlayer = eLoopPlayer;
+			iBestPower = iPower;
+		}
+	}
+	return eBestPlayer;
+}
+
+void logSASGameRecordRunStatus(char const* szReason)
+{
+	// <!-- custom: CvGame::getNumHumanPlayers is not const in the Civ4 SDK headers, so this local game reference cannot be const. (GPT-5.5) -->
+	CvGame& kGame = GC.getGame();
+	PlayerTypes const eTopScorePlayer = getSASGameRecordTopScorePlayer();
+	PlayerTypes const eTopPowerPlayer = getSASGameRecordTopPowerPlayer();
+	// <!-- custom: Compact run-status row gives autoplay/LLM review a single parse-friendly checkpoint for who is alive, eliminated, leading by score, and leading by power. Victory already has its own action row; this row also works for ordinary stopped autoplays where no victory event fires. (GPT-5.5) -->
+	logSASGameRecord("GAME_RECORD_RUN_STATUS turn=%d reason=%s elapsed=%d year=%d winnerTeam=%d victory=%s playersAlive=%d teamsAlive=%d playersEverAlive=%d humans=%d eliminatedPlayers=%s topScorePlayer=%d topScore=%d topPowerPlayer=%d topPower=%d totalCities=%d totalPopulation=%d",
+			kGame.getGameTurn(), szReason == NULL ? "-" : szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.getWinner(), kGame.getVictory() == NO_VICTORY ? "-" : GC.getInfo(kGame.getVictory()).getType(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers(), getSASGameRecordEliminatedPlayers().GetCString(), eTopScorePlayer, eTopScorePlayer == NO_PLAYER ? 0 : GET_PLAYER(eTopScorePlayer).calculateScore(), eTopPowerPlayer, eTopPowerPlayer == NO_PLAYER ? 0 : GET_PLAYER(eTopPowerPlayer).getPower(), kGame.getNumCities(), kGame.getTotalPopulation());
+}
+
+static void logSASGameRecordDemographics(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvGame const& kGame = GC.getGame();
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	SASGameRecordPlayerPrevious& kPrevious = g_akSASGameRecordPlayerPrevious[ePlayer];
+	const int iScore = kPlayer.calculateScore();
+	const int iPopulation = kPlayer.getTotalPopulation();
+	const int iLand = kPlayer.getTotalLand();
+	const int iFood = kPlayer.calculateTotalYield(YIELD_FOOD);
+	const int iProduction = kPlayer.calculateTotalYield(YIELD_PRODUCTION);
+	const int iCommerce = kPlayer.calculateTotalYield(YIELD_COMMERCE);
+	const int iResearch = kPlayer.getCommerceRate(COMMERCE_RESEARCH);
+	const int iCulture = kPlayer.getCommerceRate(COMMERCE_CULTURE);
+	const int iEspionage = kPlayer.getCommerceRate(COMMERCE_ESPIONAGE);
+	const int iGoldRate = kPlayer.calculateGoldRate();
+	const int iPower = kPlayer.getPower();
+	logSASGameRecord("GAME_RECORD_DEMOGRAPHICS turn=%d player=%d rank=%d score=%d population=%d land=%d food=%d production=%d commerce=%d research=%d culture=%d espionage=%d goldRate=%d power=%d",
+			iGameTurn, ePlayer, kGame.getPlayerRank(ePlayer) + 1, iScore, iPopulation, iLand, iFood, iProduction, iCommerce, iResearch, iCulture, iEspionage, iGoldRate, iPower);
+	logSASGameRecord("GAME_RECORD_DEMOGRAPHICS_DELTAS turn=%d player=%d deltaValid=%d scoreDelta=%+d populationDelta=%+d landDelta=%+d foodDelta=%+d productionDelta=%+d commerceDelta=%+d researchDelta=%+d cultureDelta=%+d espionageDelta=%+d goldRateDelta=%+d powerDelta=%+d",
+			iGameTurn, ePlayer, kPrevious.bValid,
+			getSASGameRecordDelta(kPrevious.bValid, iScore, kPrevious.iDemoScore), getSASGameRecordDelta(kPrevious.bValid, iPopulation, kPrevious.iDemoPopulation), getSASGameRecordDelta(kPrevious.bValid, iLand, kPrevious.iDemoLand),
+			getSASGameRecordDelta(kPrevious.bValid, iFood, kPrevious.iDemoFood), getSASGameRecordDelta(kPrevious.bValid, iProduction, kPrevious.iDemoProduction), getSASGameRecordDelta(kPrevious.bValid, iCommerce, kPrevious.iDemoCommerce),
+			getSASGameRecordDelta(kPrevious.bValid, iResearch, kPrevious.iDemoResearch), getSASGameRecordDelta(kPrevious.bValid, iCulture, kPrevious.iDemoCulture), getSASGameRecordDelta(kPrevious.bValid, iEspionage, kPrevious.iDemoEspionage),
+			getSASGameRecordDelta(kPrevious.bValid, iGoldRate, kPrevious.iDemoGoldRate), getSASGameRecordDelta(kPrevious.bValid, iPower, kPrevious.iDemoPower));
+	kPrevious.iDemoScore = iScore;
+	kPrevious.iDemoPopulation = iPopulation;
+	kPrevious.iDemoLand = iLand;
+	kPrevious.iDemoFood = iFood;
+	kPrevious.iDemoProduction = iProduction;
+	kPrevious.iDemoCommerce = iCommerce;
+	kPrevious.iDemoResearch = iResearch;
+	kPrevious.iDemoCulture = iCulture;
+	kPrevious.iDemoEspionage = iEspionage;
+	kPrevious.iDemoGoldRate = iGoldRate;
+	kPrevious.iDemoPower = iPower;
+}
+
+static void logSASGameRecordAttitudes(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	CvString szToward;
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
+		if (eLoopPlayer == ePlayer || !GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isBarbarian())
+			continue;
+		if (!GET_TEAM(kPlayer.getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
+			continue;
+		const int iValue = kPlayer.AI_getAttitudeVal(eLoopPlayer);
+		CvString szItem;
+		szItem.Format(szToward.empty() ? "%d:%+d" : ",%d:%+d", eLoopPlayer, iValue);
+		szToward += szItem;
+	}
+	logSASGameRecord("GAME_RECORD_ATTITUDES turn=%d player=%d towardValues=%s", iGameTurn, ePlayer, getSASDiagnosticOrDash(szToward).GetCString());
+}
+
+static void logSASGameRecordDiplomaticMemories(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const eTowardPlayer = (PlayerTypes)iI;
+		if (eTowardPlayer == ePlayer || !GET_PLAYER(eTowardPlayer).isAlive() || GET_PLAYER(eTowardPlayer).isBarbarian() || !kTeam.isHasMet(GET_PLAYER(eTowardPlayer).getTeam()))
+			continue;
+		CvString szMemories;
+		int iMemoryAttitude = 0;
+		for (int iJ = 0; iJ < NUM_MEMORY_TYPES; iJ++)
+		{
+			MemoryTypes const eMemory = (MemoryTypes)iJ;
+			int const iCount = kPlayer.AI_getMemoryCount(eTowardPlayer, eMemory);
+			if (iCount <= 0)
+				continue;
+			int const iAttitude = kPlayer.AI_getMemoryAttitude(eTowardPlayer, eMemory);
+			iMemoryAttitude += iAttitude;
+			CvString szItem;
+			szItem.Format(szMemories.empty() ? "%s=%d/%+d" : ",%s=%d/%+d", getSASMemoryType(eMemory), iCount, iAttitude);
+			szMemories += szItem;
+		}
+		if (!szMemories.empty())
+		{
+			// <!-- custom: Level-3 memory rows explain why the existing attitude value changed. Each item is MEMORY_TYPE=count/attitudeContribution; periodic snapshots avoid logging every routine memory decay. (GPT-5.6-Sol) -->
+			logSASGameRecord("GAME_RECORD_DIPLO_MEMORIES turn=%d player=%d toward=%d attitudeValue=%+d memoryAttitude=%+d memories=%s", iGameTurn, ePlayer, eTowardPlayer, kPlayer.AI_getAttitudeVal(eTowardPlayer), iMemoryAttitude, szMemories.GetCString());
+		}
+	}
+}
+
+static void logSASGameRecordDiploStatus(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	const TeamTypes eWorstEnemy = kTeam.AI().AI_getWorstEnemy();
+	CvString szWorstEnemyPlayers;
+	CvString szWorstEnemyOfTeams;
+	CvString szAtWar;
+	CvString szOpenBorders;
+	CvString szDefensivePacts;
+	CvString szForcePeace;
+	CvString szCanContact;
+	CvString szCanContactWilling;
+	CvString szWontTalkTo;
+	CvString szWontTalkFrom;
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		TeamTypes eLoopTeam = (TeamTypes)iI;
+		if (eLoopTeam == kPlayer.getTeam() || !GET_TEAM(eLoopTeam).isAlive() || GET_TEAM(eLoopTeam).isBarbarian())
+			continue;
+		if (!kTeam.isHasMet(eLoopTeam))
+			continue;
+		if (kTeam.isAtWar(eLoopTeam))
+			appendSASDiagnosticIntListValue(szAtWar, eLoopTeam);
+		if (kTeam.isOpenBorders(eLoopTeam))
+			appendSASDiagnosticIntListValue(szOpenBorders, eLoopTeam);
+		if (kTeam.isDefensivePact(eLoopTeam))
+			appendSASDiagnosticIntListValue(szDefensivePacts, eLoopTeam);
+		if (kTeam.isForcePeace(eLoopTeam))
+			appendSASDiagnosticIntListValue(szForcePeace, eLoopTeam);
+		if (GET_TEAM(eLoopTeam).AI().AI_getWorstEnemy() == kPlayer.getTeam())
+			appendSASDiagnosticIntListValue(szWorstEnemyOfTeams, eLoopTeam);
+	}
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
+		if (eLoopPlayer == ePlayer || !GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isBarbarian())
+			continue;
+		if (!kTeam.isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
+			continue;
+		if (GET_PLAYER(eLoopPlayer).getTeam() == eWorstEnemy)
+			appendSASDiagnosticIntListValue(szWorstEnemyPlayers, eLoopPlayer);
+		if (kPlayer.canContact(eLoopPlayer, false))
+			appendSASDiagnosticIntListValue(szCanContact, eLoopPlayer);
+		if (kPlayer.canContact(eLoopPlayer, true))
+			appendSASDiagnosticIntListValue(szCanContactWilling, eLoopPlayer);
+		if (!kPlayer.AI_isWillingToTalk(eLoopPlayer))
+			appendSASDiagnosticIntListValue(szWontTalkTo, eLoopPlayer);
+		if (!GET_PLAYER(eLoopPlayer).AI_isWillingToTalk(ePlayer))
+			appendSASDiagnosticIntListValue(szWontTalkFrom, eLoopPlayer);
+	}
+	logSASGameRecord("GAME_RECORD_DIPLO_STATUS turn=%d player=%d team=%d worstEnemyTeam=%d worstEnemyPlayers=%s worstEnemyOfTeams=%s atWar=%s openBorders=%s defensivePacts=%s forcePeace=%s canContact=%s canContactWilling=%s wontTalkTo=%s wontTalkFrom=%s",
+			iGameTurn, ePlayer, kPlayer.getTeam(), eWorstEnemy,
+			getSASDiagnosticOrDash(szWorstEnemyPlayers).GetCString(), getSASDiagnosticOrDash(szWorstEnemyOfTeams).GetCString(),
+			getSASDiagnosticOrDash(szAtWar).GetCString(), getSASDiagnosticOrDash(szOpenBorders).GetCString(), getSASDiagnosticOrDash(szDefensivePacts).GetCString(), getSASDiagnosticOrDash(szForcePeace).GetCString(),
+			getSASDiagnosticOrDash(szCanContact).GetCString(), getSASDiagnosticOrDash(szCanContactWilling).GetCString(), getSASDiagnosticOrDash(szWontTalkTo).GetCString(), getSASDiagnosticOrDash(szWontTalkFrom).GetCString());
+}
 
 // <!-- custom: Pairwise trade-market rows primarily mirror resolved information available through the active player's Foreign Advisor/diplomacy interface rather than speculative AI candidate reasoning.
 // `NO_TALK` is kept separate from DenialTypes. Optional bonus GPT quotes and AI_techTradeVal fields add compact resolved valuation context under independent gates; they remain const observations and never submit an offer or alter trade state.
@@ -3465,14 +4225,6 @@ static void logSASGameRecordTradeMarket(int iGameTurn)
 	}
 }
 
-static void logSASGameRecordMapBonusTotals(int iGameTurn)
-{
-	CvString szBonuses;
-	FOR_EACH_ENUM(Bonus)
-		appendSASGameRecordTypeCount(szBonuses, getSASGameRecordBonusType(eLoopBonus), GC.getMap().getNumBonuses(eLoopBonus));
-	logSASGameRecord("GAME_RECORD_MAP_BONUSES turn=%d total=%s", iGameTurn, getSASDiagnosticOrDash(szBonuses).GetCString());
-}
-
 static void logSASGameRecordEnvironment(int iGameTurn)
 {
 	CvMap const& kMap = GC.getMap();
@@ -3568,6 +4320,118 @@ static void logSASGameRecordVoteSources(int iGameTurn)
 	}
 }
 
+static void logSASGameRecordTeamProjects(TeamTypes eTeam, int iGameTurn)
+{
+	CvString szProjects;
+	FOR_EACH_ENUM(Project)
+		appendSASGameRecordTypeCount(szProjects, getSASGameRecordProjectType(eLoopProject), GET_TEAM(eTeam).getProjectCount(eLoopProject));
+	if (!szProjects.empty())
+		logSASGameRecord("GAME_RECORD_TEAM_PROJECTS turn=%d team=%d projects=%s", iGameTurn, eTeam, szProjects.GetCString());
+}
+
+static void logSASGameRecordTeamSnapshot(TeamTypes eTeam, int iGameTurn)
+{
+	CvGame const& kGame = GC.getGame();
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	bool const bLogTeamDetails = (getSASGameRecordLogLevel() >= 2);
+	const int iLandPlots = std::max(1, GC.getMap().getLandPlots());
+	const int iGamePopulation = std::max(1, kGame.getTotalPopulation());
+	const int iTechs = kTeam.getTechCount();
+	const int iLand = kTeam.getTotalLand();
+	const int iLandPctX100 = (10000 * iLand) / iLandPlots;
+	const int iPopulation = kTeam.getTotalPopulation();
+	const int iPopPctX100 = (10000 * iPopulation) / iGamePopulation;
+	SASGameRecordTeamPrevious& kPrevious = g_akSASGameRecordTeamPrevious[eTeam];
+	TeamTypes const eMaster = (kTeam.isAVassal() ? kTeam.getMasterTeam() : NO_TEAM);
+	logSASGameRecord("GAME_RECORD_TEAM turn=%d team=%d members=%s alive=%d deltaValid=%d techs=%d techsDelta=%+d techEraCounts=%s techTrading=%d goldTrading=%d land=%d landDelta=%+d landPctX100=%d landPctX100Delta=%+d pop=%d popDelta=%+d popPctX100=%d popPctX100Delta=%+d wars=%s vassals=%s master=%d",
+			iGameTurn, eTeam, getSASGameRecordTeamMembers(eTeam).GetCString(), kTeam.isAlive(), kPrevious.bValid,
+			iTechs, getSASGameRecordDelta(kPrevious.bValid, iTechs, kPrevious.iTechs), getSASGameRecordTechEraCounts(eTeam).GetCString(), kTeam.isTechTrading(), kTeam.isGoldTrading(),
+			iLand, getSASGameRecordDelta(kPrevious.bValid, iLand, kPrevious.iLand), iLandPctX100, getSASGameRecordDelta(kPrevious.bValid, iLandPctX100, kPrevious.iLandPctX100),
+			iPopulation, getSASGameRecordDelta(kPrevious.bValid, iPopulation, kPrevious.iPopulation), iPopPctX100, getSASGameRecordDelta(kPrevious.bValid, iPopPctX100, kPrevious.iPopPctX100),
+			getSASGameRecordWarTeams(eTeam).GetCString(), getSASGameRecordVassalTeams(eTeam).GetCString(), eMaster);
+	if (bLogTeamDetails) logSASGameRecordTeamContacts(eTeam, iGameTurn, "snapshot");
+	seedSASGameRecordTeamPreviousFromCurrentState(eTeam);
+
+	VictoryTypes eScoreVictory = NO_VICTORY;
+	VictoryTypes eTimeVictory = NO_VICTORY;
+	VictoryTypes eConquestVictory = NO_VICTORY;
+	VictoryTypes eCultureVictory = NO_VICTORY;
+	VictoryTypes eDiplomaticVictory = NO_VICTORY;
+	int iCultureCitiesRequired = 0;
+	int iCultureThreshold = 0;
+	FOR_EACH_ENUM(Victory)
+	{
+		if (!kGame.isVictoryValid(eLoopVictory))
+			continue;
+		CvVictoryInfo const& kVictory = GC.getInfo(eLoopVictory);
+		if (kVictory.isTargetScore()) eScoreVictory = eLoopVictory;
+		if (kVictory.isEndScore()) eTimeVictory = eLoopVictory;
+		if (kVictory.isConquest()) eConquestVictory = eLoopVictory;
+		if (kVictory.isDiploVote()) eDiplomaticVictory = eLoopVictory;
+		if (kVictory.getCityCulture() != NO_CULTURELEVEL && kVictory.getNumCultureCities() > 0)
+		{
+			eCultureVictory = eLoopVictory;
+			iCultureCitiesRequired = kVictory.getNumCultureCities();
+			iCultureThreshold = kGame.getCultureThreshold((CultureLevelTypes)kVictory.getCityCulture());
+		}
+	}
+	CvString szConquestRivals;
+	int iConquestRivalCities = 0;
+	if (eConquestVictory != NO_VICTORY)
+	{
+		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+		{
+			TeamTypes const eRival = (TeamTypes)iI;
+			CvTeam const& kRival = GET_TEAM(eRival);
+			if (eRival == eTeam || !kRival.isAlive() || kRival.isBarbarian() || kRival.isVassal(eTeam) || kRival.getNumCities() <= 0)
+				continue;
+			appendSASDiagnosticIntListValue(szConquestRivals, eRival);
+			iConquestRivalCities += kRival.getNumCities();
+		}
+	}
+	int iBestRivalScore = -1;
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		TeamTypes const eRival = (TeamTypes)iI;
+		if (eRival != eTeam && GET_TEAM(eRival).isAlive() && !GET_TEAM(eRival).isBarbarian())
+			iBestRivalScore = std::max(iBestRivalScore, kGame.getTeamScore(eRival));
+	}
+	int const iTeamScore = kGame.getTeamScore(eTeam);
+	int const iTurnsRemaining = (kGame.getMaxTurns() <= 0 ? -1 : std::max(0, kGame.getMaxTurns() - kGame.getElapsedGameTurns()));
+	int iCultureCitiesComplete = 0;
+	CvString szCultureCities;
+	if (eCultureVictory == NO_VICTORY) szCultureCities = "-";
+	else szCultureCities = getSASGameRecordCultureVictoryCities(eTeam, iCultureCitiesRequired, iCultureThreshold, iCultureCitiesComplete);
+	// <!-- custom: Domination and Space already have detailed per-victory rows, and diplomatic vote-source rows can later contain exact vote thresholds.
+	// Add one compact general row per team rather than one new row per missing victory, so Score/Time, Conquest, and Cultural progress become explicit without multiplying snapshot noise.
+	// Culture lists only the required number of leading cities. The vote-source companion rows remain a later periodic/global slice in this incremental 1.14 port. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_VICTORY_PROGRESS_GENERAL turn=%d team=%d scoreVictory=%s timeVictory=%s conquestVictory=%s culturalVictory=%s diplomaticVictory=%s teamScore=%d bestRivalScore=%d scoreLead=%+d targetScore=%d turnsRemaining=%d conquestRivals=%s conquestRivalCities=%d cultureCitiesComplete=%d cultureCitiesRequired=%d cultureThreshold=%d cultureCities=%s",
+			iGameTurn, eTeam, getSASGameRecordVictoryType(eScoreVictory), getSASGameRecordVictoryType(eTimeVictory), getSASGameRecordVictoryType(eConquestVictory), getSASGameRecordVictoryType(eCultureVictory), getSASGameRecordVictoryType(eDiplomaticVictory),
+			iTeamScore, iBestRivalScore, iBestRivalScore < 0 ? iTeamScore : iTeamScore - iBestRivalScore, kGame.getTargetScore(), iTurnsRemaining, getSASDiagnosticOrDash(szConquestRivals).GetCString(), iConquestRivalCities,
+			iCultureCitiesComplete, iCultureCitiesRequired, iCultureThreshold, szCultureCities.GetCString());
+
+	FOR_EACH_ENUM(Victory)
+	{
+		if (!kGame.isVictoryValid(eLoopVictory))
+			continue;
+		const int iLandNeed = kGame.getAdjustedLandPercent(eLoopVictory);
+		const int iPopNeed = kGame.getAdjustedPopulationPercent(eLoopVictory);
+		int iPartsBuilt = 0;
+		int iPartsMinimum = 0;
+		int iPartsMaximum = 0;
+		bool bMinimumComplete = false;
+		CvString szProjectParts;
+		bool const bProjectVictory = getSASGameRecordVictoryProjectState(eTeam, eLoopVictory, iPartsBuilt, iPartsMinimum, iPartsMaximum, bMinimumComplete, szProjectParts);
+		if (iLandNeed > 0 || iPopNeed > 0 || bProjectVictory)
+		{
+			int const iCountdown = kTeam.getVictoryCountdown(eLoopVictory);
+			int const iTravelTurns = (bProjectVictory && bMinimumComplete ? kTeam.getVictoryDelay(eLoopVictory) : -1);
+			logSASGameRecord("GAME_RECORD_VICTORY_PROGRESS turn=%d team=%d victory=%s landPctX100=%d landNeed=%d popPctX100=%d popNeed=%d projectVictory=%d launched=%d countdown=%d arrivalTurn=%d canLaunch=%d launchSuccessPercent=%d travelTurns=%d partsBuilt=%d partsMinimum=%d partsMaximum=%d projectParts=%s",
+				iGameTurn, eTeam, GC.getInfo(eLoopVictory).getType(), iLandPctX100, iLandNeed, iPopPctX100, iPopNeed, bProjectVictory, bProjectVictory && iCountdown >= 0, iCountdown, iCountdown < 0 ? -1 : iGameTurn + iCountdown, bProjectVictory && kTeam.canLaunch(eLoopVictory), bProjectVictory ? kTeam.getLaunchSuccessRate(eLoopVictory) : -1, iTravelTurns, iPartsBuilt, iPartsMinimum, iPartsMaximum, bProjectVictory ? szProjectParts.GetCString() : "-");
+		}
+	}
+	if (bLogTeamDetails) logSASGameRecordTeamProjects(eTeam, iGameTurn);
+}
 
 static void logSASGameRecordPlayerBonuses(PlayerTypes ePlayer, int iGameTurn, SASGameRecordPlayerPrevious const& kPrevious)
 {
@@ -3611,348 +4475,60 @@ static void logSASGameRecordPlayerBonuses(PlayerTypes ePlayer, int iGameTurn, SA
 	logSASGameRecord("GAME_RECORD_BONUSES_IMPORT_EXPORT turn=%d player=%d imported=%s exported=%s", iGameTurn, ePlayer, getSASDiagnosticOrDash(szImports).GetCString(), getSASDiagnosticOrDash(szExports).GetCString());
 }
 
-
-static CvString getSASGameRecordCommercePercents(CvPlayer const& kPlayer)
+static bool isSASGameRecordMilitaryUnit(CvUnit const& kUnit)
 {
-	CvString szList;
-	FOR_EACH_ENUM(Commerce)
-	{
-		CvString szItem;
-		szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", GC.getInfo(eLoopCommerce).getType(), kPlayer.getCommercePercent(eLoopCommerce));
-		szList += szItem;
-	}
-	return getSASDiagnosticOrDash(szList);
+	// <!-- custom: A failed NO_UNIT creation left an unplaced/reset object in the owner container, and the end-turn snapshot crashed while reading its combat state. Unplaced units are not part of military posture; short-circuit before unit-info-backed checks. See KI#524.6. (GPT-5.6-Sol) -->
+	CvPlot const* pPlot = kUnit.plot();
+	return pPlot != NULL && (kUnit.canDefend(pPlot) || kUnit.baseCombatStr() > 0 || kUnit.airBaseCombatStr() > 0);
 }
 
-static CvString getSASGameRecordCommerceRates(CvPlayer const& kPlayer)
+
+
+struct SASGameRecordCityPlotUnitCounts
 {
-	CvString szList;
-	FOR_EACH_ENUM(Commerce)
-	{
-		CvString szItem;
-		szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", GC.getInfo(eLoopCommerce).getType(), kPlayer.getCommerceRate(eLoopCommerce));
-		szList += szItem;
-	}
-	return getSASDiagnosticOrDash(szList);
+	int iUnits;
+	int iMilitaryUnits;
+	int iCivilianUnits;
+	int iDefenders;
+	int iHealthyDefenders;
+	int iWoundedDefenders;
+	int iSettlers;
+	int iWorkers;
+	int iAttackers;
+	CvUnit const* pFirstSettler;
+	SASGameRecordCityPlotUnitCounts() : iUnits(0), iMilitaryUnits(0), iCivilianUnits(0), iDefenders(0), iHealthyDefenders(0), iWoundedDefenders(0), iSettlers(0), iWorkers(0), iAttackers(0), pFirstSettler(NULL) {}
+};static bool isSASGameRecordWorkerUnit(CvUnit const& kUnit)
+{
+	UnitAITypes eUnitAI = kUnit.AI_getUnitAIType();
+	return eUnitAI == UNITAI_WORKER || eUnitAI == UNITAI_WORKER_SEA || kUnit.workRate(true) > 0;
 }
 
-static CvString getSASGameRecordCommerceFlexible(CvPlayer const& kPlayer)
+static bool isSASGameRecordSettlerUnit(CvUnit const& kUnit)
 {
-	CvString szList;
-	FOR_EACH_ENUM(Commerce)
-	{
-		CvString szItem;
-		szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", GC.getInfo(eLoopCommerce).getType(), kPlayer.isCommerceFlexible(eLoopCommerce));
-		szList += szItem;
-	}
-	return getSASDiagnosticOrDash(szList);
+	return kUnit.AI_getUnitAIType() == UNITAI_SETTLE || kUnit.isFound();
 }
 
-static void logSASGameRecordDemographics(PlayerTypes ePlayer, int iGameTurn)
+static MissionTypes getSASGameRecordUnitMissionType(CvUnit const& kUnit)
 {
-	CvGame const& kGame = GC.getGame();
-	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	SASGameRecordPlayerPrevious& kPrevious = g_akSASGameRecordPlayerPrevious[ePlayer];
-	const int iScore = kPlayer.calculateScore();
-	const int iPopulation = kPlayer.getTotalPopulation();
-	const int iLand = kPlayer.getTotalLand();
-	const int iFood = kPlayer.calculateTotalYield(YIELD_FOOD);
-	const int iProduction = kPlayer.calculateTotalYield(YIELD_PRODUCTION);
-	const int iCommerce = kPlayer.calculateTotalYield(YIELD_COMMERCE);
-	const int iResearch = kPlayer.getCommerceRate(COMMERCE_RESEARCH);
-	const int iCulture = kPlayer.getCommerceRate(COMMERCE_CULTURE);
-	const int iEspionage = kPlayer.getCommerceRate(COMMERCE_ESPIONAGE);
-	const int iGoldRate = kPlayer.calculateGoldRate();
-	const int iPower = kPlayer.getPower();
-	logSASGameRecord("GAME_RECORD_DEMOGRAPHICS turn=%d player=%d rank=%d score=%d population=%d land=%d food=%d production=%d commerce=%d research=%d culture=%d espionage=%d goldRate=%d power=%d",
-			iGameTurn, ePlayer, kGame.getPlayerRank(ePlayer) + 1, iScore, iPopulation, iLand, iFood, iProduction, iCommerce, iResearch, iCulture, iEspionage, iGoldRate, iPower);
-	logSASGameRecord("GAME_RECORD_DEMOGRAPHICS_DELTAS turn=%d player=%d deltaValid=%d scoreDelta=%+d populationDelta=%+d landDelta=%+d foodDelta=%+d productionDelta=%+d commerceDelta=%+d researchDelta=%+d cultureDelta=%+d espionageDelta=%+d goldRateDelta=%+d powerDelta=%+d",
-			iGameTurn, ePlayer, kPrevious.bValid,
-			getSASGameRecordDelta(kPrevious.bValid, iScore, kPrevious.iDemoScore), getSASGameRecordDelta(kPrevious.bValid, iPopulation, kPrevious.iDemoPopulation), getSASGameRecordDelta(kPrevious.bValid, iLand, kPrevious.iDemoLand),
-			getSASGameRecordDelta(kPrevious.bValid, iFood, kPrevious.iDemoFood), getSASGameRecordDelta(kPrevious.bValid, iProduction, kPrevious.iDemoProduction), getSASGameRecordDelta(kPrevious.bValid, iCommerce, kPrevious.iDemoCommerce),
-			getSASGameRecordDelta(kPrevious.bValid, iResearch, kPrevious.iDemoResearch), getSASGameRecordDelta(kPrevious.bValid, iCulture, kPrevious.iDemoCulture), getSASGameRecordDelta(kPrevious.bValid, iEspionage, kPrevious.iDemoEspionage),
-			getSASGameRecordDelta(kPrevious.bValid, iGoldRate, kPrevious.iDemoGoldRate), getSASGameRecordDelta(kPrevious.bValid, iPower, kPrevious.iDemoPower));
-	kPrevious.iDemoScore = iScore;
-	kPrevious.iDemoPopulation = iPopulation;
-	kPrevious.iDemoLand = iLand;
-	kPrevious.iDemoFood = iFood;
-	kPrevious.iDemoProduction = iProduction;
-	kPrevious.iDemoCommerce = iCommerce;
-	kPrevious.iDemoResearch = iResearch;
-	kPrevious.iDemoCulture = iCulture;
-	kPrevious.iDemoEspionage = iEspionage;
-	kPrevious.iDemoGoldRate = iGoldRate;
-	kPrevious.iDemoPower = iPower;
+	CvSelectionGroup const* pGroup = kUnit.getGroup();
+	return pGroup == NULL ? NO_MISSION : pGroup->getMissionType(0);
 }
 
-static void logSASGameRecordAttitudes(PlayerTypes ePlayer, int iGameTurn)
+static int getSASGameRecordBuildTurnsLeft(CvUnit const& kUnit, BuildTypes eBuild)
 {
-	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
-	CvString szToward;
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
-		if (eLoopPlayer == ePlayer || !GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isBarbarian())
-			continue;
-		if (!GET_TEAM(kPlayer.getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
-			continue;
-		const int iValue = kPlayer.AI_getAttitudeVal(eLoopPlayer);
-		CvString szItem;
-		szItem.Format(szToward.empty() ? "%d:%+d" : ",%d:%+d", eLoopPlayer, iValue);
-		szToward += szItem;
-	}
-	logSASGameRecord("GAME_RECORD_ATTITUDES turn=%d player=%d towardValues=%s", iGameTurn, ePlayer, getSASDiagnosticOrDash(szToward).GetCString());
+	return eBuild == NO_BUILD ? -1 : kUnit.getPlot().getBuildTurnsLeft(eBuild, kUnit.getOwner(), 0, 0);
 }
 
-static void logSASGameRecordDiplomaticMemories(PlayerTypes ePlayer, int iGameTurn)
+static bool isSASGameRecordUnitGuarded(CvUnit const& kUnit)
 {
-	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
-	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes const eTowardPlayer = (PlayerTypes)iI;
-		if (eTowardPlayer == ePlayer || !GET_PLAYER(eTowardPlayer).isAlive() || GET_PLAYER(eTowardPlayer).isBarbarian() || !kTeam.isHasMet(GET_PLAYER(eTowardPlayer).getTeam()))
-			continue;
-		CvString szMemories;
-		int iMemoryAttitude = 0;
-		for (int iJ = 0; iJ < NUM_MEMORY_TYPES; iJ++)
-		{
-			MemoryTypes const eMemory = (MemoryTypes)iJ;
-			int const iCount = kPlayer.AI_getMemoryCount(eTowardPlayer, eMemory);
-			if (iCount <= 0)
-				continue;
-			int const iAttitude = kPlayer.AI_getMemoryAttitude(eTowardPlayer, eMemory);
-			iMemoryAttitude += iAttitude;
-			CvString szItem;
-			szItem.Format(szMemories.empty() ? "%s=%d/%+d" : ",%s=%d/%+d", getSASMemoryType(eMemory), iCount, iAttitude);
-			szMemories += szItem;
-		}
-		if (!szMemories.empty())
-		{
-			// <!-- custom: Level-3 memory rows explain why the existing attitude value changed. Each item is MEMORY_TYPE=count/attitudeContribution; periodic snapshots avoid logging every routine memory decay. (GPT-5.6-Sol) -->
-			logSASGameRecord("GAME_RECORD_DIPLO_MEMORIES turn=%d player=%d toward=%d attitudeValue=%+d memoryAttitude=%+d memories=%s", iGameTurn, ePlayer, eTowardPlayer, kPlayer.AI_getAttitudeVal(eTowardPlayer), iMemoryAttitude, szMemories.GetCString());
-		}
-	}
+	CvPlot const* pPlot = kUnit.plot();
+	return pPlot != NULL && pPlot->getNumDefenders(kUnit.getOwner()) > 0;
 }
 
-static void logSASGameRecordDiploStatus(PlayerTypes ePlayer, int iGameTurn)
+static bool isSASGameRecordUnitThreatened(CvUnit const& kUnit)
 {
-	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
-	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
-	const TeamTypes eWorstEnemy = kTeam.AI().AI_getWorstEnemy();
-	CvString szWorstEnemyPlayers;
-	CvString szWorstEnemyOfTeams;
-	CvString szAtWar;
-	CvString szOpenBorders;
-	CvString szDefensivePacts;
-	CvString szForcePeace;
-	CvString szCanContact;
-	CvString szCanContactWilling;
-	CvString szWontTalkTo;
-	CvString szWontTalkFrom;
-	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
-	{
-		TeamTypes eLoopTeam = (TeamTypes)iI;
-		if (eLoopTeam == kPlayer.getTeam() || !GET_TEAM(eLoopTeam).isAlive() || GET_TEAM(eLoopTeam).isBarbarian())
-			continue;
-		if (!kTeam.isHasMet(eLoopTeam))
-			continue;
-		if (kTeam.isAtWar(eLoopTeam))
-			appendSASDiagnosticIntListValue(szAtWar, eLoopTeam);
-		if (kTeam.isOpenBorders(eLoopTeam))
-			appendSASDiagnosticIntListValue(szOpenBorders, eLoopTeam);
-		if (kTeam.isDefensivePact(eLoopTeam))
-			appendSASDiagnosticIntListValue(szDefensivePacts, eLoopTeam);
-		if (kTeam.isForcePeace(eLoopTeam))
-			appendSASDiagnosticIntListValue(szForcePeace, eLoopTeam);
-		if (GET_TEAM(eLoopTeam).AI().AI_getWorstEnemy() == kPlayer.getTeam())
-			appendSASDiagnosticIntListValue(szWorstEnemyOfTeams, eLoopTeam);
-	}
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
-		if (eLoopPlayer == ePlayer || !GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isBarbarian())
-			continue;
-		if (!kTeam.isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
-			continue;
-		if (GET_PLAYER(eLoopPlayer).getTeam() == eWorstEnemy)
-			appendSASDiagnosticIntListValue(szWorstEnemyPlayers, eLoopPlayer);
-		if (kPlayer.canContact(eLoopPlayer, false))
-			appendSASDiagnosticIntListValue(szCanContact, eLoopPlayer);
-		if (kPlayer.canContact(eLoopPlayer, true))
-			appendSASDiagnosticIntListValue(szCanContactWilling, eLoopPlayer);
-		if (!kPlayer.AI_isWillingToTalk(eLoopPlayer))
-			appendSASDiagnosticIntListValue(szWontTalkTo, eLoopPlayer);
-		if (!GET_PLAYER(eLoopPlayer).AI_isWillingToTalk(ePlayer))
-			appendSASDiagnosticIntListValue(szWontTalkFrom, eLoopPlayer);
-	}
-	logSASGameRecord("GAME_RECORD_DIPLO_STATUS turn=%d player=%d team=%d worstEnemyTeam=%d worstEnemyPlayers=%s worstEnemyOfTeams=%s atWar=%s openBorders=%s defensivePacts=%s forcePeace=%s canContact=%s canContactWilling=%s wontTalkTo=%s wontTalkFrom=%s",
-			iGameTurn, ePlayer, kPlayer.getTeam(), eWorstEnemy,
-			getSASDiagnosticOrDash(szWorstEnemyPlayers).GetCString(), getSASDiagnosticOrDash(szWorstEnemyOfTeams).GetCString(),
-			getSASDiagnosticOrDash(szAtWar).GetCString(), getSASDiagnosticOrDash(szOpenBorders).GetCString(), getSASDiagnosticOrDash(szDefensivePacts).GetCString(), getSASDiagnosticOrDash(szForcePeace).GetCString(),
-			getSASDiagnosticOrDash(szCanContact).GetCString(), getSASDiagnosticOrDash(szCanContactWilling).GetCString(), getSASDiagnosticOrDash(szWontTalkTo).GetCString(), getSASDiagnosticOrDash(szWontTalkFrom).GetCString());
-}
-
-static void logSASGameRecordEconomy(PlayerTypes ePlayer, int iGameTurn)
-{
-	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
-	TechTypes eResearch = kPlayer.getCurrentResearch();
-	int const iResearchProgress = (eResearch == NO_TECH ? -1 : kTeam.getResearchProgress(eResearch));
-	int const iResearchCost = (eResearch == NO_TECH ? -1 : kTeam.getResearchCost(eResearch));
-	// <!-- custom: currentResearch=- does not mean that science is lost: CvPlayer::doResearch stores the nominal research rate as overflow until another technology can be selected.
-	// Exact shared progress/cost makes partially researched technologies visible at ordinary snapshots instead of only when completion or redirection happens. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_ECONOMY turn=%d player=%d gold=%d goldRate=%d totalCommerce=%d sliders=%s commerceTypeRates=%s flexible=%s currentResearch=%s currentResearchTeamProgress=%d currentResearchCost=%d researchRate=%d researchOverflow=%d noResearchAvailable=%d researchTurns=%d",
-			iGameTurn, ePlayer, kPlayer.getGold(), kPlayer.calculateGoldRate(), kPlayer.calculateTotalYield(YIELD_COMMERCE), getSASGameRecordCommercePercents(kPlayer).GetCString(), getSASGameRecordCommerceRates(kPlayer).GetCString(), getSASGameRecordCommerceFlexible(kPlayer).GetCString(), getSASGameRecordTechType(eResearch), iResearchProgress, iResearchCost, kPlayer.calculateResearchRate(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(), eResearch == NO_TECH ? -1 : kPlayer.getResearchTurnsLeft(eResearch, true));
-}
-
-// <!-- custom: Production-pipeline aggregation is declared here because the helper that normalizes unavailable current-production cost is defined a little later with the other city-output helpers. (ChatGPT-5.6-Sol) -->
-static int getSASGameRecordCityProductionNeeded(CvCity const& kCity);
-
-// <!-- custom: Current city rows show only the active target, so repeated AI switches can leave a strategically important bank of partial production invisible.
-// At periodic level-2 snapshots, enumerate stored non-current unit/building/project production once per city and summarize fragmentation; level 3 adds the exact parked inventory, where each unit/building @ value is the engine's accumulated inactive-turn counter (it pauses rather than resets when production resumes).
-// Cheap isAnyProductionProgress guards skip each loaded-XML scan when that city has no stored production of the corresponding kind.
-// Food-produced units such as Settlers/Workers use the same per-unit production bank, so split them as a useful subset rather than invent a separate parked-food quantity.
-// AI unit/building production is not labeled "lost" because inherited K-Mod/AdvCiv CvCity::doDecay only reduces it for human cities. (ChatGPT-5.6-Sol) -->
-static void logSASGameRecordProductionPipeline(PlayerTypes ePlayer, int iGameTurn)
-{
-	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	bool const bLogParkedDetails = (gGameRecordLogLevel >= 3);
-	int iActiveFiniteItems = 0;
-	int iActiveStored = 0;
-	int iActiveNeeded = 0;
-	int iActiveProcesses = 0;
-	int iActiveFoodProductionUnits = 0;
-	int iActiveFoodProductionUnitStored = 0;
-	int iParkedItems = 0;
-	int iParkedStored = 0;
-	int iParkedNeeded = 0;
-	int iParkedUnitItems = 0;
-	int iParkedUnitStored = 0;
-	int iParkedFoodProductionUnitItems = 0;
-	int iParkedFoodProductionUnitStored = 0;
-	int iParkedBuildingItems = 0;
-	int iParkedBuildingStored = 0;
-	int iParkedWonderItems = 0;
-	int iParkedWonderStored = 0;
-	int iParkedProjectItems = 0;
-	int iParkedProjectStored = 0;
-	int iCitiesWithParked = 0;
-	int iMaxParkedItemsOneCity = 0;
-	int iMaxParkedStoredOneCity = 0;
-	int iParkedHalfComplete = 0;
-	int iParkedThreeQuarterComplete = 0;
-	int iInactivityCounterItems = 0;
-	int iAccumulatedInactiveTurnsTotal = 0;
-	int iMaxAccumulatedInactiveTurns = 0;
-	CvString szParked;
-	int iCityLoop = 0;
-	for (CvCity const* pCity = kPlayer.firstCity(&iCityLoop); pCity != NULL; pCity = kPlayer.nextCity(&iCityLoop))
-	{
-		UnitTypes const eCurrentUnit = pCity->getProductionUnit();
-		BuildingTypes const eCurrentBuilding = pCity->getProductionBuilding();
-		ProjectTypes const eCurrentProject = pCity->getProductionProject();
-		ProcessTypes const eCurrentProcess = pCity->getProductionProcess();
-		if (eCurrentUnit != NO_UNIT || eCurrentBuilding != NO_BUILDING || eCurrentProject != NO_PROJECT)
-		{
-			iActiveFiniteItems++;
-			iActiveStored += pCity->getProduction();
-			iActiveNeeded += getSASGameRecordCityProductionNeeded(*pCity);
-			if (eCurrentUnit != NO_UNIT && pCity->isFoodProduction(eCurrentUnit))
-			{
-				iActiveFoodProductionUnits++;
-				iActiveFoodProductionUnitStored += pCity->getUnitProduction(eCurrentUnit);
-			}
-		}
-		else if (eCurrentProcess != NO_PROCESS) iActiveProcesses++;
-		int iCityParkedItems = 0;
-		int iCityParkedStored = 0;
-		if (pCity->isAnyProductionProgress(ORDER_TRAIN))
-		{
-			FOR_EACH_ENUM(Unit)
-			{
-				int const iStored = pCity->getUnitProduction(eLoopUnit);
-				if (iStored <= 0 || eLoopUnit == eCurrentUnit)
-					continue;
-				int const iNeeded = pCity->getProductionNeeded(eLoopUnit);
-				int const iInactiveTurns = pCity->getUnitProductionTime(eLoopUnit);
-				iParkedItems++; iParkedStored += iStored; iParkedNeeded += iNeeded;
-				iParkedUnitItems++; iParkedUnitStored += iStored;
-				if (pCity->isFoodProduction(eLoopUnit))
-				{
-					iParkedFoodProductionUnitItems++;
-					iParkedFoodProductionUnitStored += iStored;
-				}
-				iCityParkedItems++; iCityParkedStored += iStored;
-				if (iNeeded > 0 && 2 * iStored >= iNeeded) iParkedHalfComplete++;
-				if (iNeeded > 0 && 4 * iStored >= 3 * iNeeded) iParkedThreeQuarterComplete++;
-				iInactivityCounterItems++; iAccumulatedInactiveTurnsTotal += iInactiveTurns; iMaxAccumulatedInactiveTurns = std::max(iMaxAccumulatedInactiveTurns, iInactiveTurns);
-				if (bLogParkedDetails)
-				{
-					CvString szItem;
-					szItem.Format(szParked.empty() ? "%d:UNIT:%s:%d/%d@%d" : ",%d:UNIT:%s:%d/%d@%d", pCity->getID(), getSASGameRecordUnitType(eLoopUnit), iStored, iNeeded, iInactiveTurns);
-					szParked += szItem;
-				}
-			}
-		}
-		if (pCity->isAnyProductionProgress(ORDER_CONSTRUCT))
-		{
-			FOR_EACH_ENUM(Building)
-			{
-				int const iStored = pCity->getBuildingProduction(eLoopBuilding);
-				if (iStored <= 0 || eLoopBuilding == eCurrentBuilding)
-					continue;
-				int const iNeeded = pCity->getProductionNeeded(eLoopBuilding);
-				int const iInactiveTurns = pCity->getBuildingProductionTime(eLoopBuilding);
-				bool const bWonder = GC.getInfo(eLoopBuilding).isLimited();
-				iParkedItems++; iParkedStored += iStored; iParkedNeeded += iNeeded;
-				if (bWonder) { iParkedWonderItems++; iParkedWonderStored += iStored; }
-				else { iParkedBuildingItems++; iParkedBuildingStored += iStored; }
-				iCityParkedItems++; iCityParkedStored += iStored;
-				if (iNeeded > 0 && 2 * iStored >= iNeeded) iParkedHalfComplete++;
-				if (iNeeded > 0 && 4 * iStored >= 3 * iNeeded) iParkedThreeQuarterComplete++;
-				iInactivityCounterItems++; iAccumulatedInactiveTurnsTotal += iInactiveTurns; iMaxAccumulatedInactiveTurns = std::max(iMaxAccumulatedInactiveTurns, iInactiveTurns);
-				if (bLogParkedDetails)
-				{
-					CvString szItem;
-					szItem.Format(szParked.empty() ? "%d:%s:%s:%d/%d@%d" : ",%d:%s:%s:%d/%d@%d", pCity->getID(), bWonder ? "WONDER" : "BUILDING", getSASGameRecordBuildingType(eLoopBuilding), iStored, iNeeded, iInactiveTurns);
-					szParked += szItem;
-				}
-			}
-		}
-		if (pCity->isAnyProductionProgress(ORDER_CREATE))
-		{
-			FOR_EACH_ENUM(Project)
-			{
-				int const iStored = pCity->getProjectProduction(eLoopProject);
-				if (iStored <= 0 || eLoopProject == eCurrentProject)
-					continue;
-				int const iNeeded = pCity->getProductionNeeded(eLoopProject);
-				iParkedItems++; iParkedStored += iStored; iParkedNeeded += iNeeded;
-				iParkedProjectItems++; iParkedProjectStored += iStored;
-				iCityParkedItems++; iCityParkedStored += iStored;
-				if (iNeeded > 0 && 2 * iStored >= iNeeded) iParkedHalfComplete++;
-				if (iNeeded > 0 && 4 * iStored >= 3 * iNeeded) iParkedThreeQuarterComplete++;
-				if (bLogParkedDetails)
-				{
-					CvString szItem;
-					szItem.Format(szParked.empty() ? "%d:PROJECT:%s:%d/%d@-" : ",%d:PROJECT:%s:%d/%d@-", pCity->getID(), getSASGameRecordProjectType(eLoopProject), iStored, iNeeded);
-					szParked += szItem;
-				}
-			}
-		}
-		if (iCityParkedItems > 0)
-		{
-			iCitiesWithParked++;
-			iMaxParkedItemsOneCity = std::max(iMaxParkedItemsOneCity, iCityParkedItems);
-			iMaxParkedStoredOneCity = std::max(iMaxParkedStoredOneCity, iCityParkedStored);
-		}
-	}
-	logSASGameRecord("GAME_RECORD_PRODUCTION_PIPELINE turn=%d player=%d activeFiniteItems=%d activeStored=%d activeNeeded=%d activeProcesses=%d activeFoodProductionUnits=%d activeFoodProductionUnitStored=%d parkedItems=%d parkedStored=%d parkedNeeded=%d citiesWithParked=%d maxParkedItemsOneCity=%d maxParkedStoredOneCity=%d parkedHalfComplete=%d parkedThreeQuarterComplete=%d parkedUnitItems=%d parkedUnitStored=%d parkedFoodProductionUnitItems=%d parkedFoodProductionUnitStored=%d parkedBuildingItems=%d parkedBuildingStored=%d parkedWonderItems=%d parkedWonderStored=%d parkedProjectItems=%d parkedProjectStored=%d inactivityCounterItems=%d accumulatedInactiveTurnsTotal=%d maxAccumulatedInactiveTurns=%d",
-		iGameTurn, ePlayer, iActiveFiniteItems, iActiveStored, iActiveNeeded, iActiveProcesses, iActiveFoodProductionUnits, iActiveFoodProductionUnitStored, iParkedItems, iParkedStored, iParkedNeeded, iCitiesWithParked, iMaxParkedItemsOneCity, iMaxParkedStoredOneCity, iParkedHalfComplete, iParkedThreeQuarterComplete,
-		iParkedUnitItems, iParkedUnitStored, iParkedFoodProductionUnitItems, iParkedFoodProductionUnitStored, iParkedBuildingItems, iParkedBuildingStored, iParkedWonderItems, iParkedWonderStored, iParkedProjectItems, iParkedProjectStored, iInactivityCounterItems, iAccumulatedInactiveTurnsTotal, iMaxAccumulatedInactiveTurns);
-	if (bLogParkedDetails && !szParked.empty())
-		logSASGameRecord("GAME_RECORD_PRODUCTION_PARKED turn=%d player=%d items=%s", iGameTurn, ePlayer, szParked.GetCString());
+	CvPlot const* pPlot = kUnit.plot();
+	return pPlot != NULL && pPlot->isVisibleEnemyUnit(kUnit.getOwner());
 }
 
 // <!-- custom: A raw UNITAI_ASSAULT_SEA count does not show whether an empire can actually project troops across ordinary ocean.
@@ -4820,6 +5396,47 @@ static CvString getSASGameRecordCityUnhealthySources(CvCity const& kCity)
 	return getSASDiagnosticOrDash(szList);
 }
 
+static const char* getSASGameRecordCityProductionKind(CvCity const& kCity)
+{
+	if (kCity.getProductionUnit() != NO_UNIT)
+		return "UNIT";
+	if (kCity.getProductionBuilding() != NO_BUILDING)
+		return GC.getInfo(kCity.getProductionBuilding()).isLimited() ? "WONDER" : "BUILDING";
+	if (kCity.getProductionProject() != NO_PROJECT)
+		return "PROJECT";
+	if (kCity.getProductionProcess() != NO_PROCESS)
+		return "PROCESS";
+	return "-";
+}
+
+static const char* getSASGameRecordCityProductionType(CvCity const& kCity)
+{
+	if (kCity.getProductionUnit() != NO_UNIT)
+		return getSASGameRecordUnitType(kCity.getProductionUnit());
+	if (kCity.getProductionBuilding() != NO_BUILDING)
+		return getSASGameRecordBuildingType(kCity.getProductionBuilding());
+	if (kCity.getProductionProject() != NO_PROJECT)
+		return getSASGameRecordProjectType(kCity.getProductionProject());
+	if (kCity.getProductionProcess() != NO_PROCESS)
+		return getSASGameRecordProcessType(kCity.getProductionProcess());
+	return "-";
+}
+
+// <!-- custom: Production churn is about the active head target, not every queued order mutation.
+// Keep a compact recorder-only representation that survives AI_chooseProduction clearing/rebuilding its queue and distinguishes Wonders from ordinary buildings. (ChatGPT-5.6-Sol) -->
+static int getSASGameRecordProductionKindIndex(OrderTypes eOrder, int iData1)
+{
+	switch (eOrder)
+	{
+	case ORDER_TRAIN: return SAS_PRODUCTION_UNIT;
+	case ORDER_CONSTRUCT:
+		return (iData1 >= 0 && iData1 < GC.getNumBuildingInfos() && GC.getInfo((BuildingTypes)iData1).isLimited() ? SAS_PRODUCTION_WONDER : SAS_PRODUCTION_BUILDING);
+	case ORDER_CREATE: return SAS_PRODUCTION_PROJECT;
+	case ORDER_MAINTAIN: return SAS_PRODUCTION_PROCESS;
+	default: return -1;
+	}
+}
+
 static const char* getSASGameRecordProductionKind(OrderTypes eOrder, int iData1)
 {
 	switch (eOrder)
@@ -4844,20 +5461,6 @@ static const char* getSASGameRecordProductionType(OrderTypes eOrder, int iData1)
 	}
 }
 
-// <!-- custom: Production churn is about the active head target, not every queued-order mutation. This compact recorder-only index also distinguishes Wonders from ordinary buildings. (ChatGPT-5.6-Sol) -->
-static int getSASGameRecordProductionKindIndex(OrderTypes eOrder, int iData1)
-{
-	switch (eOrder)
-	{
-	case ORDER_TRAIN: return SAS_PRODUCTION_UNIT;
-	case ORDER_CONSTRUCT:
-		return (iData1 >= 0 && iData1 < GC.getNumBuildingInfos() && GC.getInfo((BuildingTypes)iData1).isLimited() ? SAS_PRODUCTION_WONDER : SAS_PRODUCTION_BUILDING);
-	case ORDER_CREATE: return SAS_PRODUCTION_PROJECT;
-	case ORDER_MAINTAIN: return SAS_PRODUCTION_PROCESS;
-	default: return -1;
-	}
-}
-
 static void captureSASGameRecordProductionTarget(CvCity const& kCity, OrderTypes& eOrder, int& iData1, int& iStored, int& iNeeded, int& iTurnsLeft, int& iAccumulatedInactiveTurns)
 {
 	OrderData const kOrder = kCity.getOrderData(0);
@@ -4873,21 +5476,24 @@ static void captureSASGameRecordProductionTarget(CvCity const& kCity, OrderTypes
 		iStored = kCity.getUnitProduction((UnitTypes)iData1);
 		iNeeded = kCity.getProductionNeeded((UnitTypes)iData1);
 		iTurnsLeft = kCity.getProductionTurnsLeft();
-		if (iTurnsLeft == MAX_INT) iTurnsLeft = -1;
+		if (iTurnsLeft == MAX_INT)
+			iTurnsLeft = -1;
 		iAccumulatedInactiveTurns = kCity.getUnitProductionTime((UnitTypes)iData1);
 		break;
 	case ORDER_CONSTRUCT:
 		iStored = kCity.getBuildingProduction((BuildingTypes)iData1);
 		iNeeded = kCity.getProductionNeeded((BuildingTypes)iData1);
 		iTurnsLeft = kCity.getProductionTurnsLeft();
-		if (iTurnsLeft == MAX_INT) iTurnsLeft = -1;
+		if (iTurnsLeft == MAX_INT)
+			iTurnsLeft = -1;
 		iAccumulatedInactiveTurns = kCity.getBuildingProductionTime((BuildingTypes)iData1);
 		break;
 	case ORDER_CREATE:
 		iStored = kCity.getProjectProduction((ProjectTypes)iData1);
 		iNeeded = kCity.getProductionNeeded((ProjectTypes)iData1);
 		iTurnsLeft = kCity.getProductionTurnsLeft();
-		if (iTurnsLeft == MAX_INT) iTurnsLeft = -1;
+		if (iTurnsLeft == MAX_INT)
+			iTurnsLeft = -1;
 		break;
 	case ORDER_MAINTAIN:
 		break;
@@ -4911,12 +5517,52 @@ static void noteSASGameRecordAIProductionTargetChangedCity(SASGameRecordPlayerFl
 	kFlow.aAIProductionTargetChangesByCity.push_back(std::make_pair(iCityId, 1));
 }
 
+// <!-- custom: Compact all-city production-boundary outcome. Manual human cities are sampled before end-turn city processing; AI-controlled and automated cities are sampled after their chooser opportunity. The caller prevalidates log level, non-Barbarian ownership, no production target and non-disorder state. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordCityProductionNoTarget(CvCity const& kCity, char const* szPhase)
+{
+	PlayerTypes const ePlayer = kCity.getOwner();
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_PRODUCTION_NO_TARGET player=%d cityId=%d city=%S phase=%s human=%d humanDisabled=%d productionAutomated=%d chooseProductionDirty=%d gameState=%d population=%d rawProduction=%d overflowProduction=%d anarchyTurns=%d occupation=%d occupationTimer=%d",
+		GC.getGame().getGameTurn(), ePlayer, kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), szPhase,
+		kPlayer.isHuman(), kPlayer.isHumanDisabled(), kCity.isProductionAutomated(), kCity.isChooseProductionDirty(), (int)GC.getGame().getGameState(), kCity.getPopulation(),
+		kCity.getCurrentProductionDifference(false, false, true), kCity.getOverflowProduction(), kPlayer.getAnarchyTurns(), kCity.isOccupation(), kCity.getOccupationTimer());
+}
+
+
+
+static void collectSASGameRecordCityPlotUnitCounts(CvPlot const& kPlot, PlayerTypes ePlayer, SASGameRecordCityPlotUnitCounts& kCounts)
+{
+	for (CLLNode<IDInfo> const* pUnitNode = kPlot.headUnitNode(); pUnitNode != NULL; pUnitNode = kPlot.nextUnitNode(pUnitNode))
+	{
+		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+		if (pLoopUnit == NULL || pLoopUnit->getOwner() != ePlayer) continue;
+		kCounts.iUnits++;
+		if (isSASGameRecordMilitaryUnit(*pLoopUnit)) kCounts.iMilitaryUnits++;
+		else kCounts.iCivilianUnits++;
+		if (pLoopUnit->canDefend(&kPlot))
+		{
+			kCounts.iDefenders++;
+			if (pLoopUnit->getDamage() <= 25) kCounts.iHealthyDefenders++;
+			else kCounts.iWoundedDefenders++;
+		}
+		if (isSASGameRecordSettlerUnit(*pLoopUnit))
+		{
+			kCounts.iSettlers++;
+			if (kCounts.pFirstSettler == NULL) kCounts.pFirstSettler = pLoopUnit;
+		}
+		if (isSASGameRecordWorkerUnit(*pLoopUnit)) kCounts.iWorkers++;
+		if (pLoopUnit->canAttack()) kCounts.iAttackers++;
+	}
+}
+
+// <!-- custom: Cold enabled path for the header-inline RAII wrapper. Keeping capture/finalization out of the header avoids expanding every CvCityAI includer while the disabled level-0/1 path remains tiny. (ChatGPT-5.6-Sol) -->
 void SASGameRecordAIProductionChoiceScope::begin(CvCity const& kCity)
 {
 	m_pCity = &kCity;
 	captureSASGameRecordProductionTarget(kCity, m_eOldOrder, m_iOldData1, m_iOldStored, m_iOldNeeded, m_iOldTurnsLeft, m_iOldAccumulatedInactiveTurns);
 }
 
+// <!-- custom: Called only when begin() armed m_pCity; the inline destructor retains the null guard, so this function can assume a valid enabled scope and perform the level-2+ final comparison directly. (ChatGPT-5.6-Sol) -->
 void SASGameRecordAIProductionChoiceScope::end()
 {
 	OrderTypes eNewOrder = NO_ORDER;
@@ -4941,7 +5587,8 @@ void SASGameRecordAIProductionChoiceScope::end()
 	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
 	if (bOldTarget)
 	{
-		if (bNewTarget) kFlow.iAIProductionTargetSwitches++;
+		if (bNewTarget)
+			kFlow.iAIProductionTargetSwitches++;
 		else kFlow.iAIProductionTargetClears++;
 		if (m_iOldStored > 0)
 		{
@@ -4969,30 +5616,180 @@ void SASGameRecordAIProductionChoiceScope::end()
 	}
 }
 
-static const char* getSASGameRecordCityProductionKind(CvCity const& kCity)
+// <!-- custom: Production-pipeline aggregation is declared here because the helper that normalizes unavailable current-production cost is defined a little later with the other city-output helpers. (ChatGPT-5.6-Sol) -->
+static int getSASGameRecordCityProductionNeeded(CvCity const& kCity);
+
+// <!-- custom: Current city rows show only the active target, so repeated AI switches can leave a strategically important bank of partial production invisible.
+// At periodic level-2 snapshots, enumerate stored non-current unit/building/project production once per city and summarize fragmentation; level 3 adds the exact parked inventory, where each unit/building @ value is the engine's accumulated inactive-turn counter (it pauses rather than resets when production resumes).
+// Cheap isAnyProductionProgress guards skip each loaded-XML scan when that city has no stored production of the corresponding kind.
+// Food-produced units such as Settlers/Workers use the same per-unit production bank, so split them as a useful subset rather than invent a separate parked-food quantity.
+// AI unit/building production is not labeled "lost" because inherited K-Mod/AdvCiv CvCity::doDecay only reduces it for human cities. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordProductionPipeline(PlayerTypes ePlayer, int iGameTurn)
 {
-	if (kCity.getProductionUnit() != NO_UNIT)
-		return "UNIT";
-	if (kCity.getProductionBuilding() != NO_BUILDING)
-		return GC.getInfo(kCity.getProductionBuilding()).isLimited() ? "WONDER" : "BUILDING";
-	if (kCity.getProductionProject() != NO_PROJECT)
-		return "PROJECT";
-	if (kCity.getProductionProcess() != NO_PROCESS)
-		return "PROCESS";
-	return "-";
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	bool const bLogParkedDetails = (gGameRecordLogLevel >= 3);
+	int iActiveFiniteItems = 0;
+	int iActiveStored = 0;
+	int iActiveNeeded = 0;
+	int iActiveProcesses = 0;
+	int iActiveFoodProductionUnits = 0;
+	int iActiveFoodProductionUnitStored = 0;
+	int iParkedItems = 0;
+	int iParkedStored = 0;
+	int iParkedNeeded = 0;
+	int iParkedUnitItems = 0;
+	int iParkedUnitStored = 0;
+	int iParkedFoodProductionUnitItems = 0;
+	int iParkedFoodProductionUnitStored = 0;
+	int iParkedBuildingItems = 0;
+	int iParkedBuildingStored = 0;
+	int iParkedWonderItems = 0;
+	int iParkedWonderStored = 0;
+	int iParkedProjectItems = 0;
+	int iParkedProjectStored = 0;
+	int iCitiesWithParked = 0;
+	int iMaxParkedItemsOneCity = 0;
+	int iMaxParkedStoredOneCity = 0;
+	int iParkedHalfComplete = 0;
+	int iParkedThreeQuarterComplete = 0;
+	int iInactivityCounterItems = 0;
+	int iAccumulatedInactiveTurnsTotal = 0;
+	int iMaxAccumulatedInactiveTurns = 0;
+	CvString szParked;
+	int iCityLoop = 0;
+	for (CvCity const* pCity = kPlayer.firstCity(&iCityLoop); pCity != NULL; pCity = kPlayer.nextCity(&iCityLoop))
+	{
+		UnitTypes const eCurrentUnit = pCity->getProductionUnit();
+		BuildingTypes const eCurrentBuilding = pCity->getProductionBuilding();
+		ProjectTypes const eCurrentProject = pCity->getProductionProject();
+		ProcessTypes const eCurrentProcess = pCity->getProductionProcess();
+		if (eCurrentUnit != NO_UNIT || eCurrentBuilding != NO_BUILDING || eCurrentProject != NO_PROJECT)
+		{
+			iActiveFiniteItems++;
+			iActiveStored += pCity->getProduction();
+			iActiveNeeded += getSASGameRecordCityProductionNeeded(*pCity);
+			if (eCurrentUnit != NO_UNIT && pCity->isFoodProduction(eCurrentUnit))
+			{
+				iActiveFoodProductionUnits++;
+				iActiveFoodProductionUnitStored += pCity->getUnitProduction(eCurrentUnit);
+			}
+		}
+		else if (eCurrentProcess != NO_PROCESS) iActiveProcesses++;
+		int iCityParkedItems = 0;
+		int iCityParkedStored = 0;
+		if (pCity->isAnyProductionProgress(ORDER_TRAIN))
+		{
+			FOR_EACH_ENUM(Unit)
+			{
+				int const iStored = pCity->getUnitProduction(eLoopUnit);
+				if (iStored <= 0 || eLoopUnit == eCurrentUnit)
+					continue;
+				int const iNeeded = pCity->getProductionNeeded(eLoopUnit);
+				int const iInactiveTurns = pCity->getUnitProductionTime(eLoopUnit);
+				iParkedItems++; iParkedStored += iStored; iParkedNeeded += iNeeded;
+				iParkedUnitItems++; iParkedUnitStored += iStored;
+				if (pCity->isFoodProduction(eLoopUnit))
+				{
+					iParkedFoodProductionUnitItems++;
+					iParkedFoodProductionUnitStored += iStored;
+				}
+				iCityParkedItems++; iCityParkedStored += iStored;
+				if (iNeeded > 0 && 2 * iStored >= iNeeded) iParkedHalfComplete++;
+				if (iNeeded > 0 && 4 * iStored >= 3 * iNeeded) iParkedThreeQuarterComplete++;
+				iInactivityCounterItems++; iAccumulatedInactiveTurnsTotal += iInactiveTurns; iMaxAccumulatedInactiveTurns = std::max(iMaxAccumulatedInactiveTurns, iInactiveTurns);
+				if (bLogParkedDetails)
+				{
+					CvString szItem;
+					szItem.Format(szParked.empty() ? "%d:UNIT:%s:%d/%d@%d" : ",%d:UNIT:%s:%d/%d@%d", pCity->getID(), getSASGameRecordUnitType(eLoopUnit), iStored, iNeeded, iInactiveTurns);
+					szParked += szItem;
+				}
+			}
+		}
+		if (pCity->isAnyProductionProgress(ORDER_CONSTRUCT))
+		{
+			FOR_EACH_ENUM(Building)
+			{
+				int const iStored = pCity->getBuildingProduction(eLoopBuilding);
+				if (iStored <= 0 || eLoopBuilding == eCurrentBuilding)
+					continue;
+				int const iNeeded = pCity->getProductionNeeded(eLoopBuilding);
+				int const iInactiveTurns = pCity->getBuildingProductionTime(eLoopBuilding);
+				bool const bWonder = GC.getInfo(eLoopBuilding).isLimited();
+				iParkedItems++; iParkedStored += iStored; iParkedNeeded += iNeeded;
+				if (bWonder) { iParkedWonderItems++; iParkedWonderStored += iStored; }
+				else { iParkedBuildingItems++; iParkedBuildingStored += iStored; }
+				iCityParkedItems++; iCityParkedStored += iStored;
+				if (iNeeded > 0 && 2 * iStored >= iNeeded) iParkedHalfComplete++;
+				if (iNeeded > 0 && 4 * iStored >= 3 * iNeeded) iParkedThreeQuarterComplete++;
+				iInactivityCounterItems++; iAccumulatedInactiveTurnsTotal += iInactiveTurns; iMaxAccumulatedInactiveTurns = std::max(iMaxAccumulatedInactiveTurns, iInactiveTurns);
+				if (bLogParkedDetails)
+				{
+					CvString szItem;
+					szItem.Format(szParked.empty() ? "%d:%s:%s:%d/%d@%d" : ",%d:%s:%s:%d/%d@%d", pCity->getID(), bWonder ? "WONDER" : "BUILDING", getSASGameRecordBuildingType(eLoopBuilding), iStored, iNeeded, iInactiveTurns);
+					szParked += szItem;
+				}
+			}
+		}
+		if (pCity->isAnyProductionProgress(ORDER_CREATE))
+		{
+			FOR_EACH_ENUM(Project)
+			{
+				int const iStored = pCity->getProjectProduction(eLoopProject);
+				if (iStored <= 0 || eLoopProject == eCurrentProject)
+					continue;
+				int const iNeeded = pCity->getProductionNeeded(eLoopProject);
+				iParkedItems++; iParkedStored += iStored; iParkedNeeded += iNeeded;
+				iParkedProjectItems++; iParkedProjectStored += iStored;
+				iCityParkedItems++; iCityParkedStored += iStored;
+				if (iNeeded > 0 && 2 * iStored >= iNeeded) iParkedHalfComplete++;
+				if (iNeeded > 0 && 4 * iStored >= 3 * iNeeded) iParkedThreeQuarterComplete++;
+				if (bLogParkedDetails)
+				{
+					CvString szItem;
+					szItem.Format(szParked.empty() ? "%d:PROJECT:%s:%d/%d@-" : ",%d:PROJECT:%s:%d/%d@-", pCity->getID(), getSASGameRecordProjectType(eLoopProject), iStored, iNeeded);
+					szParked += szItem;
+				}
+			}
+		}
+		if (iCityParkedItems > 0)
+		{
+			iCitiesWithParked++;
+			iMaxParkedItemsOneCity = std::max(iMaxParkedItemsOneCity, iCityParkedItems);
+			iMaxParkedStoredOneCity = std::max(iMaxParkedStoredOneCity, iCityParkedStored);
+		}
+	}
+	logSASGameRecord("GAME_RECORD_PRODUCTION_PIPELINE turn=%d player=%d activeFiniteItems=%d activeStored=%d activeNeeded=%d activeProcesses=%d activeFoodProductionUnits=%d activeFoodProductionUnitStored=%d parkedItems=%d parkedStored=%d parkedNeeded=%d citiesWithParked=%d maxParkedItemsOneCity=%d maxParkedStoredOneCity=%d parkedHalfComplete=%d parkedThreeQuarterComplete=%d parkedUnitItems=%d parkedUnitStored=%d parkedFoodProductionUnitItems=%d parkedFoodProductionUnitStored=%d parkedBuildingItems=%d parkedBuildingStored=%d parkedWonderItems=%d parkedWonderStored=%d parkedProjectItems=%d parkedProjectStored=%d inactivityCounterItems=%d accumulatedInactiveTurnsTotal=%d maxAccumulatedInactiveTurns=%d",
+		iGameTurn, ePlayer, iActiveFiniteItems, iActiveStored, iActiveNeeded, iActiveProcesses, iActiveFoodProductionUnits, iActiveFoodProductionUnitStored, iParkedItems, iParkedStored, iParkedNeeded, iCitiesWithParked, iMaxParkedItemsOneCity, iMaxParkedStoredOneCity, iParkedHalfComplete, iParkedThreeQuarterComplete,
+		iParkedUnitItems, iParkedUnitStored, iParkedFoodProductionUnitItems, iParkedFoodProductionUnitStored, iParkedBuildingItems, iParkedBuildingStored, iParkedWonderItems, iParkedWonderStored, iParkedProjectItems, iParkedProjectStored, iInactivityCounterItems, iAccumulatedInactiveTurnsTotal, iMaxAccumulatedInactiveTurns);
+	if (bLogParkedDetails && !szParked.empty())
+		logSASGameRecord("GAME_RECORD_PRODUCTION_PARKED turn=%d player=%d items=%s", iGameTurn, ePlayer, szParked.GetCString());
 }
 
-static const char* getSASGameRecordCityProductionType(CvCity const& kCity)
+// <!-- custom: Building-completion actions alone cannot reconstruct buildings inherited through conquest, granted for free, or already present when a log begins. At detail level, snapshot the exact owned buildings and compact regular/national/team/world-wonder totals for each city. (GPT-5.6-Sol) -->
+static CvString getSASGameRecordCityBuildings(CvCity const& kCity, int& iTotal, int& iRegular, int& iNationalWonders, int& iTeamWonders, int& iWorldWonders)
 {
-	if (kCity.getProductionUnit() != NO_UNIT)
-		return getSASGameRecordUnitType(kCity.getProductionUnit());
-	if (kCity.getProductionBuilding() != NO_BUILDING)
-		return getSASGameRecordBuildingType(kCity.getProductionBuilding());
-	if (kCity.getProductionProject() != NO_PROJECT)
-		return getSASGameRecordProjectType(kCity.getProductionProject());
-	if (kCity.getProductionProcess() != NO_PROCESS)
-		return getSASGameRecordProcessType(kCity.getProductionProcess());
-	return "-";
+	CvString szBuildings;
+	iTotal = iRegular = iNationalWonders = iTeamWonders = iWorldWonders = 0;
+	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+	{
+		BuildingTypes const eBuilding = (BuildingTypes)iI;
+		int const iCount = kCity.getNumBuilding(eBuilding);
+		if (iCount <= 0)
+			continue;
+		iTotal += iCount;
+		CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+		if (kBuilding.isWorldWonder())
+			iWorldWonders += iCount;
+		else if (kBuilding.isTeamWonder())
+			iTeamWonders += iCount;
+		else if (kBuilding.isNationalWonder())
+			iNationalWonders += iCount;
+		else iRegular += iCount;
+		CvString szItem;
+		szItem.Format(szBuildings.empty() ? "%s:%d" : ",%s:%d", getSASGameRecordBuildingType(eBuilding), iCount);
+		szBuildings += szItem;
+	}
+	return getSASDiagnosticOrDash(szBuildings);
 }
 
 // <!-- custom: A PROCESS production name identifies Wealth/Research/Culture but not its actual gain.
@@ -5043,127 +5840,6 @@ static CvString getSASGameRecordCityTradePartners(CvCity const& kCity)
 	return szList.empty() ? "-" : getSASDiagnosticQuoted(szList.GetCString());
 }
 
-static CvString getSASGameRecordCityReligionList(CvCity const& kCity, bool bHolyOnly)
-{
-	CvString szResult;
-	FOR_EACH_ENUM(Religion)
-	{
-		if ((bHolyOnly && !kCity.isHolyCity(eLoopReligion)) || (!bHolyOnly && !kCity.isHasReligion(eLoopReligion)))
-			continue;
-		CvString szItem;
-		szItem.Format(szResult.empty() ? "%s" : ",%s", getSASGameRecordReligionType(eLoopReligion));
-		szResult += szItem;
-	}
-	return getSASDiagnosticOrDash(szResult);
-}
-
-static CvString getSASGameRecordCityCorporationList(CvCity const& kCity, bool bHeadquartersOnly)
-{
-	CvString szResult;
-	FOR_EACH_ENUM(Corporation)
-	{
-		if ((bHeadquartersOnly && !kCity.isHeadquarters(eLoopCorporation)) || (!bHeadquartersOnly && !kCity.isHasCorporation(eLoopCorporation)))
-			continue;
-		CvString szItem;
-		szItem.Format(szResult.empty() ? "%s" : ",%s", getSASGameRecordCorporationType(eLoopCorporation));
-		szResult += szItem;
-	}
-	return getSASDiagnosticOrDash(szResult);
-}
-
-// <!-- custom: Building-completion actions alone cannot reconstruct buildings inherited through conquest, granted for free, or already present when a log begins. At detail level, snapshot the exact owned buildings and compact regular/national/team/world-wonder totals for each city. (GPT-5.6-Sol) -->
-static CvString getSASGameRecordCityBuildings(CvCity const& kCity, int& iTotal, int& iRegular, int& iNationalWonders, int& iTeamWonders, int& iWorldWonders)
-{
-	CvString szBuildings;
-	iTotal = iRegular = iNationalWonders = iTeamWonders = iWorldWonders = 0;
-	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
-	{
-		BuildingTypes const eBuilding = (BuildingTypes)iI;
-		int const iCount = kCity.getNumBuilding(eBuilding);
-		if (iCount <= 0)
-			continue;
-		iTotal += iCount;
-		CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
-		if (kBuilding.isWorldWonder())
-			iWorldWonders += iCount;
-		else if (kBuilding.isTeamWonder())
-			iTeamWonders += iCount;
-		else if (kBuilding.isNationalWonder())
-			iNationalWonders += iCount;
-		else iRegular += iCount;
-		CvString szItem;
-		szItem.Format(szBuildings.empty() ? "%s:%d" : ",%s:%d", getSASGameRecordBuildingType(eBuilding), iCount);
-		szBuildings += szItem;
-	}
-	return getSASDiagnosticOrDash(szBuildings);
-}
-
-// <!-- custom: Private level-3-only helper; logSASGameRecordCities owns the single detail-level gate so this function does not repeat it for each city/subrow.
-// Consequently the detailed trade-partner row below intentionally has no local `gGameRecordLogLevel >= 3` check; adding it back would only duplicate the caller gate once per city/subrow. (ChatGPT-5.6-Sol) -->
-static void logSASGameRecordCityDetail(CvCity const& kCity, int iGameTurn)
-{
-	CvPlotGroup const* pPlotGroup = kCity.plotGroup(kCity.getOwner());
-	int const iTradeRoutes = kCity.getTradeRoutes();
-	int iDomesticTradeRoutes = 0;
-	int iForeignTradeRoutes = 0;
-	for (int iI = 0; iI < iTradeRoutes; iI++)
-	{
-		CvCity const* pTradeCity = kCity.getTradeCity(iI);
-		if (pTradeCity == NULL)
-			continue;
-		if (pTradeCity->getOwner() == kCity.getOwner())
-			iDomesticTradeRoutes++;
-		else iForeignTradeRoutes++;
-	}
-	CvPlayer const& kOwner = GET_PLAYER(kCity.getOwner());
-	const SASGameRecordPlotComposition kWorkedPlots = getSASGameRecordWorkedPlotComposition(kCity);
-	SASGameRecordCityPlotUnitCounts kCityUnits;
-	collectSASGameRecordCityPlotUnitCounts(kCity.getPlot(), kCity.getOwner(), kCityUnits);
-	// <!-- custom: Keep the periodic city row self-contained enough to explain growth/starvation and current economic/cultural status without creating more per-turn rows.
-	// Stored food/granary state, occupation/culture/maintenance and commerce-type output are cheap current-state getters; religion/corporation lists are small loaded-XML scans already used by city-removal provenance. (ChatGPT-5.6-Sol) -->
-	CultureLevelTypes const eCultureLevel = kCity.getCultureLevel();
-	PlayerTypes const eHighestCulturePlayer = kCity.findHighestCulture();
-	// <!-- custom: City-level commerce output/modifiers make each city's contribution to player-level gold/research/culture/espionage measurable; espionage defense remains a separate defensive modifier. (ChatGPT-5.6-Sol) -->
-	// <!-- custom: Air-unit occupancy/capacity on the existing city row makes poor basing or saturated airbases visible without adding a separate late-game row. Cargo aircraft are intentionally excluded by CvPlot::countNumAirUnits, matching actual base-capacity use. (GPT-5.6) -->
-	// <!-- custom: City defense snapshots expose both the current post-bombard defense modifier and its undamaged ceiling. DefenseDamage/MAX_CITY_DEFENSE_DAMAGE preserves the underlying bombardment state, while bombarded shows whether the city has already been hit this turn. This lets broad game records be paired with the level-3 tactical bombardment actions below. (GPT-5.6) -->
-	logSASGameRecord("GAME_RECORD_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d originalOwner=%d capital=%d foundedTurn=%d acquiredTurn=%d pop=%d highestPop=%d foodStored=%d foodKept=%d growthThreshold=%d maxFoodKeptPercent=%d avoidGrowth=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d maintenanceTimes100=%d maintenanceModifier=%d occupationTurns=%d disorder=%d ownerCultureTimes100=%d cultureLevel=%s cultureLevelId=%d nextCultureThreshold=%d cultureUpdateTurns=%d ownerCulturePercent=%d highestCulturePlayer=%d highestCulturePercent=%d religions=%s holyReligions=%s corporations=%s headquarters=%s goldRate=%d researchRate=%d cultureRate=%d espionageRate=%d goldRateModifier=%d researchRateModifier=%d cultureRateModifier=%d espionageRateModifier=%d espionageDefenseModifier=%d defenseModifier=%d totalDefense=%d defenseDamage=%d defenseDamageMax=%d bombarded=%d airUnits=%d airCapacity=%d airSpaceAvailable=%d worked=%d workedImproved=%d workedUnimproved=%d workedFood=%d workedProd=%d workedCommerce=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d settlers=%d workers=%d attackers=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionUsesFood=%d productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d productionConversionX100=%s specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
-			iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(),
-			kCity.getOriginalOwner(), kCity.isCapital(), kCity.getGameTurnFounded(), kCity.getGameTurnAcquired(), kCity.getPopulation(), kCity.getHighestPopulation(),
-			kCity.getFood(), kCity.getFoodKept(), kCity.growthThreshold(), kCity.getMaxFoodKeptPercent(), kCity.AI().AI_isEmphasizeAvoidGrowth() ? 1 : 0,
-			kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(),
-			kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kCity.getMaintenanceTimes100(), kCity.getMaintenanceModifier(),
-			kCity.getOccupationTimer(), kCity.isDisorder() ? 1 : 0, kCity.getCultureTimes100(kCity.getOwner()), eCultureLevel == NO_CULTURELEVEL ? "-" : GC.getInfo(eCultureLevel).getType(), eCultureLevel,
-			kCity.getCultureThreshold(), kCity.getCultureUpdateTimer(), kCity.calculateCulturePercent(kCity.getOwner()), eHighestCulturePlayer, eHighestCulturePlayer == NO_PLAYER ? 0 : kCity.calculateCulturePercent(eHighestCulturePlayer),
-			getSASGameRecordCityReligionList(kCity, false).GetCString(), getSASGameRecordCityReligionList(kCity, true).GetCString(), getSASGameRecordCityCorporationList(kCity, false).GetCString(), getSASGameRecordCityCorporationList(kCity, true).GetCString(),
-			kCity.getCommerceRate(COMMERCE_GOLD), kCity.getCommerceRate(COMMERCE_RESEARCH), kCity.getCommerceRate(COMMERCE_CULTURE), kCity.getCommerceRate(COMMERCE_ESPIONAGE),
-			kCity.getTotalCommerceRateModifier(COMMERCE_GOLD), kCity.getTotalCommerceRateModifier(COMMERCE_RESEARCH), kCity.getTotalCommerceRateModifier(COMMERCE_CULTURE), kCity.getTotalCommerceRateModifier(COMMERCE_ESPIONAGE), kCity.getEspionageDefenseModifier(),
-			kCity.getDefenseModifier(false), kCity.getTotalDefense(false), kCity.getDefenseDamage(), GC.getMAX_CITY_DEFENSE_DAMAGE(), kCity.isBombarded(),
-			kCity.getPlot().countNumAirUnits(kCity.getTeam()), kCity.getAirUnitCapacity(kCity.getTeam()), kCity.getPlot().airUnitSpaceAvailable(kCity.getTeam()),
-			kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved, kWorkedPlots.iCurrentFood, kWorkedPlots.iCurrentProduction, kWorkedPlots.iCurrentCommerce, kCity.plot()->getNumDefenders(kCity.getOwner()), kCityUnits.iUnits, kCityUnits.iMilitaryUnits, kCityUnits.iCivilianUnits, kCityUnits.iDefenders, kCityUnits.iHealthyDefenders, kCityUnits.iWoundedDefenders, kCityUnits.iSettlers, kCityUnits.iWorkers, kCityUnits.iAttackers,
-			kCity.isConnectedToCapital(), pPlotGroup == NULL ? -1 : pPlotGroup->getID(), iTradeRoutes, iDomesticTradeRoutes, iForeignTradeRoutes, kCity.getTradeYield(YIELD_FOOD), kCity.getTradeYield(YIELD_PRODUCTION), kCity.getTradeYield(YIELD_COMMERCE),
-			getSASGameRecordCityProductionKind(kCity), getSASGameRecordCityProductionType(kCity), kCity.isFoodProduction() ? 1 : 0, getSASGameRecordCityProductionTurns(kCity), kCity.getProduction(), getSASGameRecordCityProductionNeeded(kCity), kCity.getOverflowProduction(), kCity.getFeatureProduction(),
-			getSASGameRecordCityProductionConversion(kCity).GetCString(), getSASGameRecordCitySpecialists(kCity, false).GetCString(), getSASGameRecordCitySpecialists(kCity, true).GetCString(),
-			kCity.getGreatPeopleProgress(), kOwner.greatPeopleThreshold(false), kCity.getGreatPeopleRate(), kCity.GPTurnsLeft(), getSASGameRecordCityGPOdds(kCity).GetCString());
-	// <!-- custom: Source lists show the magnitude/origin of temporary happiness effects.
-	// Retain their existing turn counters too so snapshots say how long whipping, drafting, defiance, temporary happiness and espionage unhappiness remain without logging per-turn timer decrements. (ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_CITY_HAPPINESS turn=%d player=%d cityId=%d happy=%d unhappy=%d surplus=%d hurryAngerTurns=%d conscriptAngerTurns=%d defyResolutionAngerTurns=%d temporaryHappinessTurns=%d espionageUnhappinessTurns=%d happySources=%s flatUnhappySources=%s angerPercentSources=%s",
-			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.happyLevel(), kCity.unhappyLevel(), kCity.happyLevel() - kCity.unhappyLevel(),
-			kCity.getHurryAngerTimer(), kCity.getConscriptAngerTimer(), kCity.getDefyResolutionAngerTimer(), kCity.getHappinessTimer(), kCity.getEspionageHappinessCounter(),
-			getSASGameRecordCityHappySources(kCity).GetCString(), getSASGameRecordCityFlatUnhappySources(kCity).GetCString(), getSASGameRecordCityAngerPercentSources(kCity).GetCString());
-	// <!-- custom: Espionage unhealth is itself a decrementing duration counter, so preserve its remaining turns next to the existing unhealthy-source magnitude rather than emitting a row whenever the counter ticks down. (ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_CITY_HEALTH turn=%d player=%d cityId=%d goodHealth=%d badHealth=%d surplus=%d powered=%d dirtyPower=%d areaCleanPower=%d powerGoodHealth=%d powerBadHealth=%d espionageUnhealthTurns=%d healthySources=%s unhealthySources=%s",
-			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.goodHealth(), kCity.badHealth(), kCity.goodHealth() - kCity.badHealth(),
-			kCity.isPower(), kCity.isDirtyPower(), kCity.isAreaCleanPower(), kCity.getPowerGoodHealth(), kCity.getPowerBadHealth(), kCity.getEspionageHealthCounter(),
-			getSASGameRecordCityHealthySources(kCity).GetCString(), getSASGameRecordCityUnhealthySources(kCity).GetCString());
-	int iBuildings, iRegularBuildings, iNationalWonders, iTeamWonders, iWorldWonders;
-	CvString const szBuildings = getSASGameRecordCityBuildings(kCity, iBuildings, iRegularBuildings, iNationalWonders, iTeamWonders, iWorldWonders);
-	logSASGameRecord("GAME_RECORD_CITY_BUILDINGS turn=%d player=%d cityId=%d total=%d regular=%d nationalWonders=%d teamWonders=%d worldWonders=%d buildings=%s",
-		iGameTurn, kCity.getOwner(), kCity.getID(), iBuildings, iRegularBuildings, iNationalWonders, iTeamWonders, iWorldWonders, szBuildings.GetCString());
-	logSASGameRecord("GAME_RECORD_CITY_TRADE_PARTNERS turn=%d player=%d cityId=%d partners=%s",
-		iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameRecordCityTradePartners(kCity).GetCString());
-	// <!-- custom: Current AdvCiv-SAS additionally emits GAME_RECORD_CITY_UNIT_COMPOSITION for city garrisons with at least six military units. That row depends on selection-group/MissionAI diagnostics not yet ported here; defer it with those helpers instead of locally reimplementing their state. (ChatGPT-5.6-Sol) -->
-}
-
 static void logSASGameRecordWorkedPlots(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
@@ -5179,100 +5855,6 @@ static void logSASGameRecordWorkedPlots(PlayerTypes ePlayer, int iGameTurn)
 		kComposition.iCurrentFood, kComposition.iCurrentProduction, kComposition.iCurrentCommerce, kComposition.iNatureFood, kComposition.iNatureProduction, kComposition.iNatureCommerce,
 		getSASDiagnosticOrDash(szTerrains).GetCString(), getSASDiagnosticOrDash(szFeatures).GetCString(), getSASDiagnosticOrDash(szBonuses).GetCString(), getSASDiagnosticOrDash(szImprovements).GetCString(), getSASDiagnosticOrDash(szRoutes).GetCString());
 }
-
-static void logSASGameRecordCities(PlayerTypes ePlayer, int iGameTurn)
-{
-	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	SASGameRecordPlayerPrevious& kPrevious = g_akSASGameRecordPlayerPrevious[ePlayer];
-	bool const bLogCityDetails = (gGameRecordLogLevel >= 3);
-	int iCities = 0, iTotalFoodSurplus = 0, iTotalHappySurplus = 0, iTotalHealthSurplus = 0;
-	int iTotalFoodYield = 0, iTotalProductionYield = 0, iTotalCommerceYield = 0, iTotalFoodStored = 0, iTotalFoodKept = 0, iTotalMaintenanceTimes100 = 0;
-	int iTotalTradeRoutes = 0, iDomesticTradeRoutes = 0, iForeignTradeRoutes = 0, iTradeFood = 0, iTradeProduction = 0, iTradeCommerce = 0;
-	int iConnectedToCapital = 0, iUnhappyCities = 0, iUnhealthyCities = 0, iStarvingCities = 0, iOccupiedCities = 0, iAvoidGrowthCities = 0;
-	int iCitiesProducingUnits = 0, iCitiesProducingMilitary = 0, iCitiesProducingWorkers = 0, iCitiesProducingSettlers = 0, iCitiesProducingBuildings = 0, iCitiesProducingWonders = 0, iCitiesProducingProjects = 0, iCitiesProducingProcesses = 0;
-	int iSpecialists = 0, iFreeSpecialists = 0, iGarrison = 0, iCityUnits = 0, iMilitaryUnitsInCities = 0, iCivilianUnitsInCities = 0, iDefendersInCities = 0, iSettlersInCities = 0, iWorkersInCities = 0;
-	int iBestGPTurns = 1000000;
-	CvCity const* pNextGPCity = NULL;
-	CvCity const* pCapital = kPlayer.getCapital();
-	int iLoop = 0;
-	for (CvCity const* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-	{
-		iCities++;
-		int const iFoodSurplus = pLoopCity->foodDifference();
-		int const iHappySurplus = pLoopCity->happyLevel() - pLoopCity->unhappyLevel();
-		int const iHealthSurplus = pLoopCity->goodHealth() - pLoopCity->badHealth();
-		iTotalFoodSurplus += iFoodSurplus; iTotalHappySurplus += iHappySurplus; iTotalHealthSurplus += iHealthSurplus;
-		iTotalFoodYield += pLoopCity->getYieldRate(YIELD_FOOD); iTotalProductionYield += pLoopCity->getYieldRate(YIELD_PRODUCTION); iTotalCommerceYield += pLoopCity->getYieldRate(YIELD_COMMERCE);
-		iTotalFoodStored += pLoopCity->getFood(); iTotalFoodKept += pLoopCity->getFoodKept(); iTotalMaintenanceTimes100 += pLoopCity->getMaintenanceTimes100();
-		int const iCityTradeRoutes = pLoopCity->getTradeRoutes();
-		iTotalTradeRoutes += iCityTradeRoutes; iTradeFood += pLoopCity->getTradeYield(YIELD_FOOD); iTradeProduction += pLoopCity->getTradeYield(YIELD_PRODUCTION); iTradeCommerce += pLoopCity->getTradeYield(YIELD_COMMERCE);
-		for (int iTrade = 0; iTrade < iCityTradeRoutes; iTrade++)
-		{
-			CvCity const* pTradeCity = pLoopCity->getTradeCity(iTrade);
-			if (pTradeCity == NULL) continue;
-			if (pTradeCity->getOwner() == ePlayer) iDomesticTradeRoutes++; else iForeignTradeRoutes++;
-		}
-		if (pLoopCity->isConnectedToCapital()) iConnectedToCapital++;
-		if (iHappySurplus < 0) iUnhappyCities++;
-		if (iHealthSurplus < 0) iUnhealthyCities++;
-		if (iFoodSurplus < 0) iStarvingCities++;
-		if (pLoopCity->isOccupation()) iOccupiedCities++;
-		if (pLoopCity->AI().AI_isEmphasizeAvoidGrowth()) iAvoidGrowthCities++;
-		iSpecialists += pLoopCity->getSpecialistPopulation();
-		iFreeSpecialists += pLoopCity->totalFreeSpecialists();
-		iGarrison += pLoopCity->plot()->getNumDefenders(ePlayer);
-		SASGameRecordCityPlotUnitCounts kCityUnits;
-		collectSASGameRecordCityPlotUnitCounts(pLoopCity->getPlot(), ePlayer, kCityUnits);
-		iCityUnits += kCityUnits.iUnits; iMilitaryUnitsInCities += kCityUnits.iMilitaryUnits; iCivilianUnitsInCities += kCityUnits.iCivilianUnits; iDefendersInCities += kCityUnits.iDefenders; iSettlersInCities += kCityUnits.iSettlers; iWorkersInCities += kCityUnits.iWorkers;
-		int const iGPTurns = pLoopCity->GPTurnsLeft();
-		if (iGPTurns >= 0 && iGPTurns < iBestGPTurns) { iBestGPTurns = iGPTurns; pNextGPCity = pLoopCity; }
-		UnitTypes const eProductionUnit = pLoopCity->getProductionUnit();
-		BuildingTypes const eProductionBuilding = pLoopCity->getProductionBuilding();
-		if (eProductionUnit != NO_UNIT)
-		{
-			iCitiesProducingUnits++;
-			UnitAITypes const eUnitAI = GC.getInfo(eProductionUnit).getDefaultUnitAIType();
-			if (GC.getInfo(eProductionUnit).isMilitaryProduction()) iCitiesProducingMilitary++;
-			if (eUnitAI == UNITAI_WORKER || eUnitAI == UNITAI_WORKER_SEA) iCitiesProducingWorkers++;
-			if (eUnitAI == UNITAI_SETTLE) iCitiesProducingSettlers++;
-		}
-		else if (eProductionBuilding != NO_BUILDING)
-		{
-			iCitiesProducingBuildings++;
-			if (GC.getInfo(eProductionBuilding).isLimited()) iCitiesProducingWonders++;
-		}
-		else if (pLoopCity->getProductionProject() != NO_PROJECT) iCitiesProducingProjects++;
-		else if (pLoopCity->getProductionProcess() != NO_PROCESS) iCitiesProducingProcesses++;
-		if (bLogCityDetails) logSASGameRecordCityDetail(*pLoopCity, iGameTurn);
-	}
-	logSASGameRecord("GAME_RECORD_CITIES turn=%d player=%d cities=%d capitalId=%d capital=%S connectedToCapital=%d totalFoodSurplus=%d totalHappySurplus=%d totalHealthSurplus=%d totalFood=%d totalProd=%d totalCommerce=%d totalFoodStored=%d totalFoodKept=%d totalMaintenanceTimes100=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d unhappyCities=%d unhealthyCities=%d starvingCities=%d occupiedCities=%d avoidGrowthCities=%d specialists=%d freeSpecialists=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d settlers=%d workers=%d nextGPCityId=%d nextGPCity=%S nextGPTurns=%d nextGPRate=%d nextGPProgress=%d citiesProducingUnits=%d citiesProducingMilitary=%d citiesProducingWorkers=%d citiesProducingSettlers=%d citiesProducingBuildings=%d citiesProducingWonders=%d citiesProducingProjects=%d citiesProducingProcesses=%d",
-		iGameTurn, ePlayer, iCities, pCapital == NULL ? -1 : pCapital->getID(), getSASGameRecordQuotedCityName(pCapital).GetCString(), iConnectedToCapital,
-		iTotalFoodSurplus, iTotalHappySurplus, iTotalHealthSurplus, iTotalFoodYield, iTotalProductionYield, iTotalCommerceYield, iTotalFoodStored, iTotalFoodKept, iTotalMaintenanceTimes100,
-		iTotalTradeRoutes, iDomesticTradeRoutes, iForeignTradeRoutes, iTradeFood, iTradeProduction, iTradeCommerce, iUnhappyCities, iUnhealthyCities, iStarvingCities, iOccupiedCities, iAvoidGrowthCities, iSpecialists, iFreeSpecialists,
-		iGarrison, iCityUnits, iMilitaryUnitsInCities, iCivilianUnitsInCities, iDefendersInCities, iSettlersInCities, iWorkersInCities,
-		pNextGPCity == NULL ? -1 : pNextGPCity->getID(), getSASGameRecordQuotedCityName(pNextGPCity).GetCString(), pNextGPCity == NULL ? -1 : iBestGPTurns, pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleRate(), pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleProgress(),
-		iCitiesProducingUnits, iCitiesProducingMilitary, iCitiesProducingWorkers, iCitiesProducingSettlers, iCitiesProducingBuildings, iCitiesProducingWonders, iCitiesProducingProjects, iCitiesProducingProcesses);
-	logSASGameRecord("GAME_RECORD_CITIES_DELTAS turn=%d player=%d deltaValid=%d citiesDelta=%+d connectedToCapitalDelta=%+d totalFoodSurplusDelta=%+d totalHappySurplusDelta=%+d totalHealthSurplusDelta=%+d totalFoodDelta=%+d totalProdDelta=%+d totalCommerceDelta=%+d tradeRoutesDelta=%+d tradeCommerceDelta=%+d specialistsDelta=%+d freeSpecialistsDelta=%+d garrisonDelta=%+d",
-		iGameTurn, ePlayer, kPrevious.bValid,
-		getSASGameRecordDelta(kPrevious.bValid, iCities, kPrevious.iCityCount), getSASGameRecordDelta(kPrevious.bValid, iConnectedToCapital, kPrevious.iCityConnectedToCapital), getSASGameRecordDelta(kPrevious.bValid, iTotalFoodSurplus, kPrevious.iCityFoodSurplus),
-		getSASGameRecordDelta(kPrevious.bValid, iTotalHappySurplus, kPrevious.iCityHappySurplus), getSASGameRecordDelta(kPrevious.bValid, iTotalHealthSurplus, kPrevious.iCityHealthSurplus), getSASGameRecordDelta(kPrevious.bValid, iTotalFoodYield, kPrevious.iCityFood),
-		getSASGameRecordDelta(kPrevious.bValid, iTotalProductionYield, kPrevious.iCityProduction), getSASGameRecordDelta(kPrevious.bValid, iTotalCommerceYield, kPrevious.iCityCommerce), getSASGameRecordDelta(kPrevious.bValid, iTotalTradeRoutes, kPrevious.iCityTradeRoutes),
-		getSASGameRecordDelta(kPrevious.bValid, iTradeCommerce, kPrevious.iCityTradeCommerce), getSASGameRecordDelta(kPrevious.bValid, iSpecialists, kPrevious.iCitySpecialists), getSASGameRecordDelta(kPrevious.bValid, iFreeSpecialists, kPrevious.iCityFreeSpecialists), getSASGameRecordDelta(kPrevious.bValid, iGarrison, kPrevious.iCityGarrison));
-	kPrevious.iCityCount = iCities;
-	kPrevious.iCityConnectedToCapital = iConnectedToCapital;
-	kPrevious.iCityFoodSurplus = iTotalFoodSurplus;
-	kPrevious.iCityHappySurplus = iTotalHappySurplus;
-	kPrevious.iCityHealthSurplus = iTotalHealthSurplus;
-	kPrevious.iCityFood = iTotalFoodYield;
-	kPrevious.iCityProduction = iTotalProductionYield;
-	kPrevious.iCityCommerce = iTotalCommerceYield;
-	kPrevious.iCityTradeRoutes = iTotalTradeRoutes;
-	kPrevious.iCityTradeCommerce = iTradeCommerce;
-	kPrevious.iCitySpecialists = iSpecialists;
-	kPrevious.iCityFreeSpecialists = iFreeSpecialists;
-	kPrevious.iCityGarrison = iGarrison;
-}
-
 
 // <!-- custom: Ordinary civilization snapshots intentionally omit the Barbarian player because diplomacy, economy and victory-strategy rows do not meaningfully apply. Preserve the strategically useful Barbarian pressure instead through one compact summary, concise city rows, and level-3 unit positions. (GPT-5.6-Sol) -->
 static void logSASGameRecordBarbarians(int iGameTurn)
@@ -5370,637 +5952,8 @@ static void logSASGameRecordBarbarians(int iGameTurn)
 		logSASGameRecord("GAME_RECORD_BARBARIAN_POSITIONS turn=%d part=%d parts=%d units=%s", iGameTurn, (int)iI + 1, (int)aszPositionChunks.size(), aszPositionChunks[iI].GetCString());
 }
 
-static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
-{
-	CvGame const& kGame = GC.getGame();
-	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
-	bool const bLogPlayerDetails = (getSASGameRecordLogLevel() >= 2);
-	bool const bLogPlayerVerboseDetails = (getSASGameRecordLogLevel() >= 3);
-	TechTypes const eResearch = kPlayer.getCurrentResearch();
-	int const iScore = kPlayer.calculateScore();
-	int const iCities = kPlayer.getNumCities();
-	int const iPopulation = kPlayer.getTotalPopulation();
-	int const iLand = kPlayer.getTotalLand();
-	int const iUnits = kPlayer.getNumUnits();
-	int const iMilitarySupportUnits = kPlayer.getNumMilitaryUnits();
-	// <!-- custom: CvPlayer::getNumMilitaryUnits counts XML bMilitarySupport, which can fall sharply when an army upgrades into combat units that intentionally do not pay military support. Count actual combat-capable units with the same predicate used by GAME_RECORD_UNIT_POSTURE, and keep the raw Civ4 counter separately. This scan runs only when a GameRecord player snapshot is already being generated. (ChatGPT-5.6-Sol) -->
-	int iCombatUnits = 0;
-	int iCombatLoop = 0;
-	for (CvUnit const* pLoopUnit = kPlayer.firstUnit(&iCombatLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iCombatLoop))
-	{
-		if (isSASGameRecordMilitaryUnit(*pLoopUnit)) ++iCombatUnits;
-	}
-	int const iPower = kPlayer.getPower();
-	int const iGold = kPlayer.getGold();
-	int const iGoldRate = kPlayer.calculateGoldRate();
-	// <!-- custom: Keep nominal science visible when no target is selected because that science becomes stored research overflow rather than disappearing. (GPT-5.6-Sol) -->
-	int const iResearchRate = kPlayer.calculateResearchRate(eResearch);
-	int const iResearchTurns = (eResearch == NO_TECH ? -1 : kPlayer.getResearchTurnsLeft(eResearch, true));
-	int const iHistoryScore = kPlayer.getHistorySafe(PLAYER_HISTORY_SCORE, iGameTurn);
-	int const iHistoryEconomy = kPlayer.getHistorySafe(PLAYER_HISTORY_ECONOMY, iGameTurn);
-	int const iHistoryIndustry = kPlayer.getHistorySafe(PLAYER_HISTORY_INDUSTRY, iGameTurn);
-	int const iHistoryAgriculture = kPlayer.getHistorySafe(PLAYER_HISTORY_AGRICULTURE, iGameTurn);
-	int const iHistoryPower = kPlayer.getHistorySafe(PLAYER_HISTORY_POWER, iGameTurn);
-	int const iHistoryCulture = kPlayer.getHistorySafe(PLAYER_HISTORY_CULTURE, iGameTurn);
-	int const iHistoryEspionage = kPlayer.getHistorySafe(PLAYER_HISTORY_ESPIONAGE, iGameTurn);
-	SASGameRecordPlayerPrevious& kPrevious = g_akSASGameRecordPlayerPrevious[ePlayer];
-	char const* szCiv = (kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType());
-	char const* szLeader = (kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType());
-	bool const bCurrentlyHumanControlled = kPlayer.isHuman();
-	bool const bAutoplayControlled = kPlayer.isHumanDisabled();
-	bool const bHumanSlot = (bCurrentlyHumanControlled || bAutoplayControlled);
-	// <!-- custom: Keep current remaining Golden Age/anarchy timers separate from recorder-session observed duration counters; the logged counters reset whenever a new GameRecord session begins. (ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_PLAYER turn=%d player=%d team=%d civ=%s leader=%s isHuman=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d rank=%d deltaValid=%d score=%d scoreDelta=%+d cities=%d citiesDelta=%+d pop=%d popDelta=%+d land=%d landDelta=%+d units=%d unitsDelta=%+d combatUnits=%d combatUnitsDelta=%+d militarySupportUnits=%d militarySupportUnitsDelta=%+d power=%d powerDelta=%+d gold=%d goldDelta=%+d gpt=%d gptDelta=%+d researchRate=%d researchRateDelta=%+d researchPercent=%d currentResearch=%s researchOverflow=%d noResearchAvailable=%d researchTurns=%d era=%s stateReligion=%s techScorePercent=%d combatXP=%d greatPeopleCreated=%d greatGeneralsCreated=%d greatGeneralThreshold=%d goldenAgeTurns=%d loggedGoldenAgeTurns=%d anarchyTurns=%d loggedAnarchyTurns=%d revolutionTimer=%d conversionTimer=%d wars=%s",
-			iGameTurn, ePlayer, kPlayer.getTeam(), szCiv, szLeader, bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kGame.getPlayerRank(ePlayer) + 1, kPrevious.bValid,
-			iScore, getSASGameRecordDelta(kPrevious.bValid, iScore, kPrevious.iScore), iCities, getSASGameRecordDelta(kPrevious.bValid, iCities, kPrevious.iCities), iPopulation, getSASGameRecordDelta(kPrevious.bValid, iPopulation, kPrevious.iPopulation), iLand, getSASGameRecordDelta(kPrevious.bValid, iLand, kPrevious.iLand),
-			iUnits, getSASGameRecordDelta(kPrevious.bValid, iUnits, kPrevious.iUnits), iCombatUnits, getSASGameRecordDelta(kPrevious.bValid, iCombatUnits, kPrevious.iCombatUnits), iMilitarySupportUnits, getSASGameRecordDelta(kPrevious.bValid, iMilitarySupportUnits, kPrevious.iMilitarySupportUnits), iPower, getSASGameRecordDelta(kPrevious.bValid, iPower, kPrevious.iPower), iGold, getSASGameRecordDelta(kPrevious.bValid, iGold, kPrevious.iGold), iGoldRate, getSASGameRecordDelta(kPrevious.bValid, iGoldRate, kPrevious.iGoldRate),
-			iResearchRate, getSASGameRecordDelta(kPrevious.bValid, iResearchRate, kPrevious.iResearchRate), kPlayer.getCommercePercent(COMMERCE_RESEARCH), getSASGameRecordTechType(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(), iResearchTurns, getSASGameRecordEraType(kPlayer.getCurrentEra()), getSASGameRecordReligionType(kPlayer.getStateReligion()), kTeam.getBestKnownTechScorePercent(), kPlayer.getCombatExperience(), kPlayer.getGreatPeopleCreated(), kPlayer.getGreatGeneralsCreated(), kPlayer.greatPeopleThreshold(true), kPlayer.getGoldenAgeTurns(), g_aiSASGameRecordLoggedGoldenAgeTurns[ePlayer], kPlayer.getAnarchyTurns(), g_aiSASGameRecordLoggedAnarchyTurns[ePlayer], kPlayer.getRevolutionTimer(), kPlayer.getConversionTimer(), getSASGameRecordWarTeams(kPlayer.getTeam()).GetCString());
-	logSASGameRecord("GAME_RECORD_PLAYER_HISTORY turn=%d player=%d deltaValid=%d historyScore=%d historyScoreDelta=%+d historyEconomy=%d historyEconomyDelta=%+d historyIndustry=%d historyIndustryDelta=%+d historyAgriculture=%d historyAgricultureDelta=%+d historyPower=%d historyPowerDelta=%+d historyCulture=%d historyCultureDelta=%+d historyEspionage=%d historyEspionageDelta=%+d",
-			iGameTurn, ePlayer, kPrevious.bValid, iHistoryScore, getSASGameRecordDelta(kPrevious.bValid, iHistoryScore, kPrevious.iHistoryScore), iHistoryEconomy, getSASGameRecordDelta(kPrevious.bValid, iHistoryEconomy, kPrevious.iHistoryEconomy), iHistoryIndustry, getSASGameRecordDelta(kPrevious.bValid, iHistoryIndustry, kPrevious.iHistoryIndustry), iHistoryAgriculture, getSASGameRecordDelta(kPrevious.bValid, iHistoryAgriculture, kPrevious.iHistoryAgriculture), iHistoryPower, getSASGameRecordDelta(kPrevious.bValid, iHistoryPower, kPrevious.iHistoryPower), iHistoryCulture, getSASGameRecordDelta(kPrevious.bValid, iHistoryCulture, kPrevious.iHistoryCulture), iHistoryEspionage, getSASGameRecordDelta(kPrevious.bValid, iHistoryEspionage, kPrevious.iHistoryEspionage));
-	// <!-- custom: The environment row shows world pollution, but not which player produced it or whether buildings, bonuses, dirty power, or population caused it. Keep these city scans behind record level 2, and derive the total from the four components rather than scanning a fifth time. (GPT-5.6-Sol) -->
-	if (bLogPlayerDetails)
-	{
-		int const iBuildingPollution = kPlayer.calculatePollution(CvPlayer::POLLUTION_BUILDINGS);
-		int const iBonusPollution = kPlayer.calculatePollution(CvPlayer::POLLUTION_BONUSES);
-		int const iPowerPollution = kPlayer.calculatePollution(CvPlayer::POLLUTION_POWER);
-		int const iPopulationPollution = kPlayer.calculatePollution(CvPlayer::POLLUTION_POPULATION);
-		logSASGameRecord("GAME_RECORD_POLLUTION turn=%d player=%d total=%d buildings=%d bonuses=%d power=%d population=%d", iGameTurn, ePlayer, iBuildingPollution + iBonusPollution + iPowerPollution + iPopulationPollution, iBuildingPollution, iBonusPollution, iPowerPollution, iPopulationPollution);
-	}
-	if (bLogPlayerDetails)
-	{
-		logSASGameRecordPlayerBonuses(ePlayer, iGameTurn, kPrevious);
-		logSASGameRecordAIVictoryStages(ePlayer, iGameTurn);
-		logSASGameRecordAIMilitaryProduction(ePlayer, iGameTurn);
-		logSASGameRecordPolicies(ePlayer, iGameTurn);
-		logSASGameRecordEconomy(ePlayer, iGameTurn);
-		logSASGameRecordProductionPipeline(ePlayer, iGameTurn);
-		logSASGameRecordStatistics(ePlayer, iGameTurn);
-		logSASGameRecordEspionage(ePlayer, iGameTurn);
-		logSASGameRecordDemographics(ePlayer, iGameTurn);
-		logSASGameRecordAttitudes(ePlayer, iGameTurn);
-		if (bLogPlayerVerboseDetails) logSASGameRecordDiplomaticMemories(ePlayer, iGameTurn);
-		logSASGameRecordDiploStatus(ePlayer, iGameTurn);
-		logSASGameRecordUnitPosture(ePlayer, iGameTurn);
-		logSASGameRecordWorkers(ePlayer, iGameTurn);
-		logSASGameRecordExpansion(ePlayer, iGameTurn);
-		logSASGameRecordSettlers(ePlayer, iGameTurn);
-		logSASGameRecordCities(ePlayer, iGameTurn);
-		logSASGameRecordWorkedPlots(ePlayer, iGameTurn);
-	}
-	kPrevious.bValid = true;
-	kPrevious.iScore = iScore;
-	kPrevious.iCities = iCities;
-	kPrevious.iPopulation = iPopulation;
-	kPrevious.iLand = iLand;
-	kPrevious.iUnits = iUnits;
-	kPrevious.iCombatUnits = iCombatUnits;
-	kPrevious.iMilitarySupportUnits = iMilitarySupportUnits;
-	kPrevious.iPower = iPower;
-	kPrevious.iGold = iGold;
-	kPrevious.iGoldRate = iGoldRate;
-	kPrevious.iResearchRate = iResearchRate;
-	if (bLogPlayerDetails)
-	{
-		int iBonusTypes = 0;
-		int iBonusInstances = 0;
-		int iBonusImports = 0;
-		int iBonusExports = 0;
-		FOR_EACH_ENUM(Bonus)
-		{
-			const int iAvailable = kPlayer.getNumAvailableBonuses(eLoopBonus);
-			if (iAvailable > 0)
-			{
-				iBonusTypes++;
-				iBonusInstances += iAvailable;
-			}
-			iBonusImports += kPlayer.getBonusImport(eLoopBonus);
-			iBonusExports += kPlayer.getBonusExport(eLoopBonus);
-		}
-		kPrevious.iBonusTypes = iBonusTypes;
-		kPrevious.iBonusInstances = iBonusInstances;
-		kPrevious.iBonusImports = iBonusImports;
-		kPrevious.iBonusExports = iBonusExports;
-	}
-	kPrevious.iHistoryScore = iHistoryScore;
-	kPrevious.iHistoryEconomy = iHistoryEconomy;
-	kPrevious.iHistoryIndustry = iHistoryIndustry;
-	kPrevious.iHistoryAgriculture = iHistoryAgriculture;
-	kPrevious.iHistoryPower = iHistoryPower;
-	kPrevious.iHistoryCulture = iHistoryCulture;
-	kPrevious.iHistoryEspionage = iHistoryEspionage;
-}
-
-static void logSASGameRecordPlayerSetup(PlayerTypes ePlayer)
-{
-	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	CvInitCore const& kInitCore = GC.getInitCore();
-	const char* szCivType = (kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType());
-	const char* szLeaderType = (kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType());
-	const wchar* szLeaderName = (kPlayer.getLeaderType() == NO_LEADER ? L"-" : GC.getInfo(kPlayer.getLeaderType()).getDescription());
-	// <!-- custom: During AI Auto Play, isHuman becomes false for the original human slot while isHumanDisabled becomes true. Record both states explicitly so setup/load rows do not make the same player appear ambiguously human in one place and AI-controlled in another. (GPT-5.6-Sol) -->
-	const bool bCurrentlyHumanControlled = kPlayer.isHuman();
-	const bool bAutoplayControlled = kPlayer.isHumanDisabled();
-	const bool bHumanSlot = (bCurrentlyHumanControlled || bAutoplayControlled);
-	PlayerColorTypes const ePlayerColor = kPlayer.getPlayerColor();
-	char const* szPlayerColor = "-";
-	char const* szPrimaryColor = "-";
-	int iPrimaryRed = -1;
-	int iPrimaryGreen = -1;
-	int iPrimaryBlue = -1;
-	if (ePlayerColor != NO_PLAYERCOLOR)
-	{
-		CvPlayerColorInfo const& kPlayerColor = GC.getInfo(ePlayerColor);
-		ColorTypes const ePrimaryColor = kPlayerColor.getColorTypePrimary();
-		szPlayerColor = kPlayerColor.getType();
-		if (ePrimaryColor != NO_COLOR)
-		{
-			NiColorA const& kPrimaryColor = GC.getInfo(ePrimaryColor).getColor();
-			szPrimaryColor = GC.getInfo(ePrimaryColor).getType();
-			iPrimaryRed = (int)(255 * kPrimaryColor.r);
-			iPrimaryGreen = (int)(255 * kPrimaryColor.g);
-			iPrimaryBlue = (int)(255 * kPrimaryColor.b);
-		}
-	}
-	CvString szTraits;
-	FOR_EACH_ENUM(Trait)
-	{
-		if (!kPlayer.hasTrait(eLoopTrait))
-			continue;
-		if (!szTraits.empty())
-			szTraits += ",";
-		szTraits += GC.getInfo(eLoopTrait).getType();
-	}
-	// <!-- custom: Leader traits and favorites are fixed but materially explain AI behavior and economic results.
-	// Record them once per setup/load rather than repeating them in periodic player or policy snapshots. (GPT-5.6-Sol) -->
-	// <!-- custom: Log the assigned PlayerColor rather than the civilization default because Civ4 can reassign duplicates.
-	// The primary ColorInfo and RGB values help connect text records to maps and screenshots without requiring the source XML. (GPT-5.6-Sol) -->
-	// <!-- custom: CvInitCore preserves whether civilization and leader were assigned through Random.
-	// Older/imported saves can lack that provenance, so keep unknown distinct from a verified manual choice. (ChatGPT-5.6-Sol) -->
-	bool const bCivLeaderChoiceKnown = kInitCore.isCivLeaderSetupKnown();
-	logSASGameRecord("GAME_RECORD_PLAYER_SETUP turn=%d player=%d team=%d alive=%d everAlive=%d human=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d slotStatus=%d civLeaderChoiceKnown=%d civChosenRandomly=%d leaderChosenRandomly=%d playerName=%S civType=%s civName=%S civShortName=%S leaderType=%s leaderName=%S playerColor=%s primaryColor=%s primaryColorRGB=%d,%d,%d traits=%s favoriteCivic=%s favoriteReligion=%s handicap=%s",
-			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), kPlayer.isEverAlive(), bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kInitCore.getSlotStatus(ePlayer), bCivLeaderChoiceKnown, bCivLeaderChoiceKnown ? kInitCore.wasCivRandomlyChosen(ePlayer) : -1, bCivLeaderChoiceKnown ? kInitCore.wasLeaderRandomlyChosen(ePlayer) : -1,
-			getSASDiagnosticQuoted(kPlayer.getName(0)).GetCString(), szCivType, getSASDiagnosticQuoted(kPlayer.getCivilizationDescription(0)).GetCString(), getSASDiagnosticQuoted(kPlayer.getCivilizationShortDescription(0)).GetCString(), szLeaderType, getSASDiagnosticQuoted(szLeaderName).GetCString(),
-			szPlayerColor, szPrimaryColor, iPrimaryRed, iPrimaryGreen, iPrimaryBlue, getSASDiagnosticOrDash(szTraits).GetCString(), getSASGameRecordCivicType(kPlayer.getFavoriteCivic()), getSASGameRecordReligionType(kPlayer.getFavoriteReligion()), kPlayer.getHandicapType() == NO_HANDICAP ? "-" : GC.getInfo(kPlayer.getHandicapType()).getType());
-}
-
-static void logSASGameRecordAttitudeLegend()
-{
-	const int iFuriousMax = GC.getDefineINT(CvGlobals::RELATIONS_THRESH_FURIOUS);
-	const int iAnnoyedMax = GC.getDefineINT(CvGlobals::RELATIONS_THRESH_ANNOYED);
-	const int iPleasedMin = GC.getDefineINT(CvGlobals::RELATIONS_THRESH_PLEASED);
-	const int iFriendlyMin = GC.getDefineINT(CvGlobals::RELATIONS_THRESH_FRIENDLY);
-	logSASGameRecord("GAME_RECORD_ATTITUDE_LEGEND valueFrom=AI_getAttitudeVal furious=<=%d annoyed=%d..%d cautious=%d..%d pleased=%d..%d friendly=>=%d",
-			iFuriousMax, iFuriousMax + 1, iAnnoyedMax, iAnnoyedMax + 1, iPleasedMin - 1, iPleasedMin, iFriendlyMin - 1, iFriendlyMin);
-}
-
-// <!-- custom: Team-state rows identify numeric members exactly, but placing readable player/civilization identities only after hundreds of geography and text-map rows made the initial team and technology records needlessly hard to interpret.
-// Emit fixed slot bounds and player identities before team relations; later map legends can still reference the same PLAYER_SETUP rows without repeating them. (GPT-5.6-Sol) -->
-static void logSASGameRecordInitialPlayerIdentities()
-{
-	logSASGameRecord("GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=%d MAX_PLAYERS=%d BARBARIAN_PLAYER=%d MAX_CIV_TEAMS=%d MAX_TEAMS=%d BARBARIAN_TEAM=%d NO_PLAYER=%d NO_TEAM=%d", MAX_CIV_PLAYERS, MAX_PLAYERS, BARBARIAN_PLAYER, MAX_CIV_TEAMS, MAX_TEAMS, BARBARIAN_TEAM, NO_PLAYER, NO_TEAM);
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
-		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-		if (kLoopPlayer.isEverAlive() && !kLoopPlayer.isBarbarian())
-			logSASGameRecordPlayerSetup(eLoopPlayer);
-	}
-}
-
-struct SASGameRecordInitialTechGroup
-{
-	CvString szTechFields;
-	CvString szTeams;
-	int iTeams;
-};
-
-// <!-- custom: Successful new-game initialization is best described by its authoritative result, not by the order in which Civ4 happened to call meet/declareWar/setHasTech/startTrade while constructing that result.
-// Seed periodic team/contact deltas from this same finalized baseline.
-// Group identical technology sets so a late-era start does not repeat the same long payload for every team; the explicit team lists keep arbitrary scenarios and mixed/modded setups exact.
-// Record surviving initial deals from the same finalized boundary, collapsing only the deterministic Advanced-Start-shaped reciprocal peace matrix already represented by forcePeace team state. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-static void logSASGameRecordFinalizedInitialState(int& iTeamStateRows, int& iTechRows, int& iDeals)
-{
-	iTeamStateRows = 0;
-	iTechRows = 0;
-	iDeals = 0;
-	std::vector<SASGameRecordInitialTechGroup> aTechGroups;
-	for (int iI = 0; iI < MAX_TEAMS; iI++)
-	{
-		TeamTypes const eTeam = (TeamTypes)iI;
-		if (!GET_TEAM(eTeam).isEverAlive())
-			continue;
-		logSASGameRecord("GAME_RECORD_INITIAL_TEAM_STATE %s", getSASInitialTeamStateFields(eTeam).GetCString());
-		CvString const szTechFields = getSASInitialTeamTechLevelFields(eTeam);
-		SASGameRecordInitialTechGroup* pGroup = NULL;
-		for (size_t iGroup = 0; iGroup < aTechGroups.size(); iGroup++)
-		{
-			if (aTechGroups[iGroup].szTechFields == szTechFields)
-			{
-				pGroup = &aTechGroups[iGroup];
-				break;
-			}
-		}
-		if (pGroup == NULL)
-		{
-			SASGameRecordInitialTechGroup kGroup;
-			kGroup.szTechFields = szTechFields;
-			kGroup.iTeams = 0;
-			aTechGroups.push_back(kGroup);
-			pGroup = &aTechGroups.back();
-		}
-		appendSASDiagnosticIntListValue(pGroup->szTeams, eTeam);
-		pGroup->iTeams++;
-		seedSASGameRecordTeamPreviousFromCurrentState(eTeam);
-		iTeamStateRows++;
-	}
-	for (size_t iGroup = 0; iGroup < aTechGroups.size(); iGroup++)
-	{
-		SASGameRecordInitialTechGroup const& kGroup = aTechGroups[iGroup];
-		logSASGameRecord("GAME_RECORD_INITIAL_TEAM_TECHS teams=%s teamCount=%d %s", kGroup.szTeams.GetCString(), kGroup.iTeams, kGroup.szTechFields.GetCString());
-		iTechRows++;
-	}
-	int iLoop = 0;
-	for (CvDeal const* pDeal = GC.getGame().firstDeal(&iLoop); pDeal != NULL; pDeal = GC.getGame().nextDeal(&iLoop))
-	{
-		if (isSASCollapsibleAdvancedStartPeaceDeal(*pDeal))
-			continue;
-		logSASGameRecord("GAME_RECORD_INITIAL_DEAL %s", getSASInitialDealStateFields(*pDeal).GetCString());
-		iDeals++;
-	}
-}
-
-// <!-- custom: Use "row" wording for generic SAS game-record row prefixes because Civ4 also has EventInfo/random events. Keep GAME_RECORD_ACTION only for chronological gameplay action rows. (GPT-5.5) -->
-static void logSASGameRecordGameState(const char* szRowType)
-{
-	CvGame& kGame = GC.getGame();
-	CvInitCore const& kInitCore = GC.getInitCore();
-	const PlayerTypes eActivePlayer = kGame.getActivePlayer();
-	const char* szActiveCivilization = "-";
-	const char* szActiveHandicap = "-";
-	if (eActivePlayer != NO_PLAYER)
-	{
-		CvPlayer const& kActivePlayer = GET_PLAYER(eActivePlayer);
-		if (kActivePlayer.getCivilizationType() != NO_CIVILIZATION)
-			szActiveCivilization = GC.getInfo(kActivePlayer.getCivilizationType()).getType();
-		if (kActivePlayer.getHandicapType() != NO_HANDICAP)
-			szActiveHandicap = GC.getInfo(kActivePlayer.getHandicapType()).getType();
-	}
-	CvString szGameOptions;
-	FOR_EACH_ENUM(GameOption)
-	{
-		if (!kGame.isOption(eLoopGameOption))
-			continue;
-		if (!szGameOptions.empty())
-			szGameOptions += ",";
-		szGameOptions += GC.getInfo(eLoopGameOption).getType();
-	}
-	if (szGameOptions.empty())
-		szGameOptions = "-";
-	CvString szVictories;
-	FOR_EACH_ENUM(Victory)
-	{
-		if (!kGame.isVictoryValid(eLoopVictory))
-			continue;
-		if (!szVictories.empty())
-			szVictories += ",";
-		szVictories += GC.getInfo(eLoopVictory).getType();
-	}
-	if (szVictories.empty())
-		szVictories = "-";
-	const CvString szLogName = getSASGameRecordLogName();
-	logSASGameRecord("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
-			szRowType, getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
-	// <!-- custom: Enabled victories and their fixed turn/score limits determine which later victory-progress and AI-strategy rows are relevant. Record this compact setup context instead of requiring external XML or save inspection. (GPT-5.6-Sol) -->
-	// <!-- custom: AdvCiv-SAS also records its own cached land-heavy/naval-heavy map classifications here. Base AdvCiv 1.14 has no equivalent generic cache, so this upstream port intentionally leaves those SAS-specific fields out rather than recreating mod policy inside the recorder. (ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_GAME_SETTINGS mapScript=%S map=%dx%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s maxTurns=%d targetScore=%d victories=%s options=%s",
-			getSASDiagnosticQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), szVictories.GetCString(), szGameOptions.GetCString());
-	logSASGameRecordMapOptions(kInitCore);
-	// <!-- custom: Keep the game's persisted initial seeds beside the current post-initialization/load RNG states. Level-3 checkpoints add session-local consumption counts/fingerprints; this compact baseline remains useful at every enabled level. (GPT-5.6-Sol) -->
-	std::pair<uint,uint> const kInitialRandSeed = kGame.getInitialRandSeed();
-	logSASGameRecord("GAME_RECORD_GAME_RNG mapRandState=%u syncRandState=%u initialMapRandSeed=%u initialSyncRandSeed=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed(), kInitialRandSeed.first, kInitialRandSeed.second);
-}
-
-static bool isSASGameRecordStructuredRow(std::string const& szLine)
-{
-	return (szLine.find("GAME_RECORD_") == 0);
-}
-
-static void insertSASGameRecordFieldAfterRowType(std::string& szLine, char const* szField)
-{
-	if (!isSASGameRecordStructuredRow(szLine))
-		return;
-	size_t const iTypeEnd = szLine.find(' ');
-	szLine.insert(iTypeEnd == std::string::npos ? szLine.length() : iTypeEnd, szField);
-}
-
-static void emitSASGameRecordLine(CvString const& szLogName, std::string szLine)
-{
-	// <!-- custom: Sequence only machine-readable GAME_RECORD_* rows. Any plain diagnostic drawing/text remains untouched. (ChatGPT-5.6-Sol) -->
-	if (isSASGameRecordStructuredRow(szLine))
-	{
-		CvString szSequence;
-		szSequence.Format(" seq=%I64u", ++g_uiSASGameRecordSemanticSequence);
-		insertSASGameRecordFieldAfterRowType(szLine, szSequence.GetCString());
-	}
-	gDLL->logMsg(szLogName.GetCString(), szLine.c_str(), false, false);
-}
-
-void logSASGameRecord(TCHAR* format, ... )
-{
-	static const bool bEnabled = isSASGameRecordLogEnabled();
-	if (!bEnabled)
-		return;
-	// <!-- custom: CITY_BOMBARD buffers only consecutive equivalent actions. Flush before the next ordinary row so compact synthesis cannot hide battle/action ordering. (ChatGPT-5.6-Sol) -->
-	if (!g_bSASGameRecordFlushingCityBombard)
-		flushSASGameRecordPendingCityBombard();
-
-	va_list args;
-	va_start(args, format);
-	std::string szLine;
-	// <!-- custom: KI#161.2's explicit terminator stopped MSVC 7.1 truncation from leaving unsafe unterminated output, but the fixed 2048-byte buffer still silently discarded long structured rows such as late-game building, unit-type and promotion inventories.
-	// Reuse CvString's grow-and-retry formatter so the complete machine-readable row reaches the log; abort the row if even that bounded formatter fails. See KI#375. (ChatGPT-5.5 + GPT-5.5; ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	bool const bFormatted = CvString::formatv(szLine, format, args);
-	va_end(args);
-	FAssertMsg(bFormatted, "SASGameRecord row formatting failed");
-	if (!bFormatted)
-		return;
-
-	// <!-- custom: Capture transaction membership before emission. `seq` is deliberately assigned only at emission, but `tx` describes the operation active when the observation was produced. (ChatGPT-5.6-Sol) -->
-	if (g_uiSASGameRecordActiveTransaction != 0 && isSASGameRecordStructuredRow(szLine))
-	{
-		CvString szTransaction;
-		szTransaction.Format(" tx=%I64u", g_uiSASGameRecordActiveTransaction);
-		insertSASGameRecordFieldAfterRowType(szLine, szTransaction.GetCString());
-	}
-	emitSASGameRecordLine(getSASGameRecordLogName(), szLine);
-}
-
-// <!-- custom: The first enabled scope owns a new session-local transaction; nested scopes join it so one synchronous causal chain stays one `tx`. BEGIN/END rows make the transaction kind and completeness explicit. (ChatGPT-5.6-Sol) -->
-void SASGameRecordTransactionScope::begin(char const* szKind)
-{
-	if (g_uiSASGameRecordActiveTransaction != 0)
-		return;
-	// <!-- custom: Flush an older synthetic bombard before arming the new transaction; otherwise that delayed row would be falsely attached to this operation. (ChatGPT-5.6-Sol) -->
-	if (!g_bSASGameRecordFlushingCityBombard)
-		flushSASGameRecordPendingCityBombard();
-	g_uiSASGameRecordActiveTransaction = ++g_uiSASGameRecordNextTransaction;
-	g_szSASGameRecordActiveTransactionKind = szKind;
-	m_bOwnsTransaction = true;
-	logSASGameRecord("GAME_RECORD_TRANSACTION_BEGIN turn=%d kind=%s", GC.getGame().getGameTurn(), szKind);
-}
-
-void SASGameRecordTransactionScope::end()
-{
-	FAssert(g_uiSASGameRecordActiveTransaction != 0);
-	logSASGameRecord("GAME_RECORD_TRANSACTION_END turn=%d kind=%s", GC.getGame().getGameTurn(), g_szSASGameRecordActiveTransactionKind.GetCString());
-	g_uiSASGameRecordActiveTransaction = 0;
-	g_szSASGameRecordActiveTransactionKind.clear();
-}
-
-// <!-- custom: Nest immediate owner-change mechanisms independently from the root transaction and restore the previous mechanism when the narrower setter chain returns. (ChatGPT-5.6-Sol) -->
-void SASGameRecordPlotOwnerChangeCauseScope::begin(SASGameRecordPlotOwnerChangeCause eCause)
-{
-	FAssert(eCause != SAS_PLOT_OWNER_CAUSE_NONE);
-	m_ePreviousCause = g_eSASGameRecordPlotOwnerChangeCause;
-	g_eSASGameRecordPlotOwnerChangeCause = eCause;
-	m_bActive = true;
-}
-
-void SASGameRecordPlotOwnerChangeCauseScope::end()
-{
-	FAssert(g_eSASGameRecordPlotOwnerChangeCause != SAS_PLOT_OWNER_CAUSE_NONE);
-	g_eSASGameRecordPlotOwnerChangeCause = m_ePreviousCause;
-}
-
-void prepareSASGameRecordPlotOwnerChange()
-{
-	// <!-- custom: Any pending synthetic CITY_BOMBARD happened before the ownership mutation; flush it first so delayed output cannot cross the exact border transition. (ChatGPT-5.6-Sol) -->
-	if (!g_bSASGameRecordFlushingCityBombard)
-		flushSASGameRecordPendingCityBombard();
-}
-
-static void logSASGameRecordBattleBuckets(int iGameTurn)
-{
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
-		SASGameRecordBattleQuality& kQuality = g_akSASGameRecordBattleQuality[iI];
-		if (g_aiSASGameRecordBattleWins[iI] != 0 || g_aiSASGameRecordBattleLosses[iI] != 0 || g_aiSASGameRecordCityBattleWins[iI] != 0 || g_aiSASGameRecordCityBattleLosses[iI] != 0 || kQuality.hasAny())
-		{
-			// <!-- custom: Expected wins sum the exact own pre-combat odds for the same binary battles counted by luckEligibleWins. Withdrawals and combat-limit outcomes stay separate rather than distorting observed-vs-expected luck. (ChatGPT-5.6-Sol) -->
-			logSASGameRecord("GAME_RECORD_BATTLE_SUMMARY turn=%d range=%d-%d player=%d wins=%d losses=%d cityPlotWins=%d cityPlotLosses=%d withdrawals=%d enemyWithdrawals=%d combatLimitAttacks=%d combatLimitDefenses=%d luckEligibleBattles=%d luckEligibleWins=%d expectedWinsX1000=%d luckDeltaX1000=%+d upsetWins=%d upsetLosses=%d lowestOddsWinPermille=%d highestOddsLossPermille=%d",
-				iGameTurn, g_iSASGameRecordBattleStartTurn, iGameTurn, eLoopPlayer, g_aiSASGameRecordBattleWins[iI], g_aiSASGameRecordBattleLosses[iI], g_aiSASGameRecordCityBattleWins[iI], g_aiSASGameRecordCityBattleLosses[iI],
-				kQuality.iWithdrawals, kQuality.iEnemyWithdrawals, kQuality.iCombatLimitAttacks, kQuality.iCombatLimitDefenses, kQuality.iLuckEligibleBattles, kQuality.iLuckEligibleWins, kQuality.iExpectedWinsX1000, 1000 * kQuality.iLuckEligibleWins - kQuality.iExpectedWinsX1000,
-				kQuality.iUpsetWins, kQuality.iUpsetLosses, kQuality.iLowestOddsWinPermille, kQuality.iHighestOddsLossPermille);
-		}
-		g_aiSASGameRecordBattleWins[iI] = 0;
-		g_aiSASGameRecordBattleLosses[iI] = 0;
-		g_aiSASGameRecordCityBattleWins[iI] = 0;
-		g_aiSASGameRecordCityBattleLosses[iI] = 0;
-		kQuality.reset();
-	}
-	// <!-- custom: Advance from the actual reset boundary so turn-0 combat and mid-interval load/session boundaries retain truthful ranges. (ChatGPT-5.6-Sol) -->
-	g_iSASGameRecordBattleStartTurn = iGameTurn + 1;
-}
-
-static CvString getSASGameRecordAIProductionTransitions(SASGameRecordPlayerFlow const& kFlow)
-{
-	CvString szTransitions;
-	static char const* const aszKinds[NUM_SAS_PRODUCTION_KINDS] = {"UNIT", "BUILDING", "WONDER", "PROJECT", "PROCESS"};
-	for (int iOld = 0; iOld < NUM_SAS_PRODUCTION_KINDS; iOld++)
-	{
-		for (int iNew = 0; iNew < NUM_SAS_PRODUCTION_KINDS; iNew++)
-		{
-			int const iCount = kFlow.aiAIProductionTransitions[iOld * NUM_SAS_PRODUCTION_KINDS + iNew];
-			if (iCount <= 0) continue;
-			CvString szItem;
-			szItem.Format(szTransitions.empty() ? "%s>%s:%d" : ",%s>%s:%d", aszKinds[iOld], aszKinds[iNew], iCount);
-			szTransitions += szItem;
-		}
-	}
-	return getSASDiagnosticOrDash(szTransitions);
-}
-
-static int getSASGameRecordMaxAIProductionTargetChangesOneCity(SASGameRecordPlayerFlow const& kFlow)
-{
-	int iMax = 0;
-	for (size_t iI = 0; iI < kFlow.aAIProductionTargetChangesByCity.size(); iI++)
-		iMax = std::max(iMax, kFlow.aAIProductionTargetChangesByCity[iI].second);
-	return iMax;
-}
-
-// <!-- custom: Production-resolution flow now also preserves strategic AI head-target churn separately from real mechanical production loss. (ChatGPT-5.6-Sol) -->
-static void logSASGameRecordProductionFlowBuckets(int iGameTurn)
-{
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes const ePlayer = (PlayerTypes)iI;
-		SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[iI];
-		if (!kFlow.hasProduction())
-			continue;
-		CvString szUnitTypes, szConscriptedUnitTypes, szBuildingTypes, szProjectTypes;
-		FOR_EACH_ENUM(Unit)
-		{
-			appendSASGameRecordTypeCount(szUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiUnitTypes[eLoopUnit]);
-			appendSASGameRecordTypeCount(szConscriptedUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiConscriptedUnitTypes[eLoopUnit]);
-		}
-		FOR_EACH_ENUM(Building) appendSASGameRecordTypeCount(szBuildingTypes, getSASGameRecordBuildingType(eLoopBuilding), kFlow.aiBuildingTypes[eLoopBuilding]);
-		FOR_EACH_ENUM(Project) appendSASGameRecordTypeCount(szProjectTypes, getSASGameRecordProjectType(eLoopProject), kFlow.aiProjectTypes[eLoopProject]);
-		logSASGameRecord("GAME_RECORD_PRODUCTION_FLOW turn=%d range=%d-%d player=%d unitsProduced=%d unitProductionNeeded=%d unitTypes=%s unitsConscripted=%d conscriptProductionNeeded=%d conscriptedUnitTypes=%s buildingsCompleted=%d buildingProductionNeeded=%d buildingTypes=%s projectsCompleted=%d projectProductionNeeded=%d projectTypes=%s overflowActions=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d failedInvestedProduction=%d failGold=%d aiTargetSwitches=%d aiTargetClears=%d aiInvestedTargetChanges=%d aiProductionParked=%d aiTargetResumes=%d aiProductionResumed=%d aiTargetChangedCities=%d aiMaxTargetChangesOneCity=%d aiTargetTransitions=%s productionDecayActions=%d productionDecayLost=%d productionInvalidatedActions=%d productionInvalidatedLost=%d productionUpgradeTransfers=%d productionUpgradeTransferred=%d productionUpgradeOverwriteActions=%d productionUpgradeOverwritten=%d",
-			iGameTurn, g_iSASGameRecordProductionFlowStartTurn, iGameTurn, ePlayer, kFlow.iUnitsCompleted, kFlow.iUnitProductionNeeded, getSASDiagnosticOrDash(szUnitTypes).GetCString(), kFlow.iUnitsConscripted, kFlow.iConscriptProductionNeeded, getSASDiagnosticOrDash(szConscriptedUnitTypes).GetCString(),
-			kFlow.iBuildingsCompleted, kFlow.iBuildingProductionNeeded, getSASDiagnosticOrDash(szBuildingTypes).GetCString(), kFlow.iProjectsCompleted, kFlow.iProjectProductionNeeded, getSASDiagnosticOrDash(szProjectTypes).GetCString(),
-			kFlow.iOverflowActions, kFlow.iRawModifiedOverflow, kFlow.iUnmodifiedOverflow, kFlow.iKeptOverflow, kFlow.iLostProduction, kFlow.iUnusedOverflowCapacity, kFlow.iOverflowGold, kFlow.iFailedInvestedProduction, kFlow.iFailGold,
-			kFlow.iAIProductionTargetSwitches, kFlow.iAIProductionTargetClears, kFlow.iAIProductionInvestedTargetChanges, kFlow.iAIProductionParked, kFlow.iAIProductionTargetResumes, kFlow.iAIProductionResumed, (int)kFlow.aAIProductionTargetChangesByCity.size(), getSASGameRecordMaxAIProductionTargetChangesOneCity(kFlow), getSASGameRecordAIProductionTransitions(kFlow).GetCString(),
-			kFlow.iProductionDecayActions, kFlow.iProductionDecayLost, kFlow.iProductionInvalidatedActions, kFlow.iProductionInvalidatedLost, kFlow.iProductionUpgradeTransfers, kFlow.iProductionUpgradeTransferred, kFlow.iProductionUpgradeOverwriteActions, kFlow.iProductionUpgradeOverwritten);
-	}
-	g_iSASGameRecordProductionFlowStartTurn = iGameTurn + 1;
-}
-
-// <!-- custom: Natural growth/starvation is a separate factual flow from production and military accounting. Log it before the shared military-flow reset consumes the player-flow bucket. (ChatGPT-5.6-Sol) -->
-static void logSASGameRecordCityPopulationFlowBuckets(int iGameTurn)
-{
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes const ePlayer = (PlayerTypes)iI;
-		SASGameRecordPlayerFlow const& kFlow = g_akSASGameRecordPlayerFlow[iI];
-		if (!kFlow.hasCityPopulationFlow())
-			continue;
-		logSASGameRecord("GAME_RECORD_CITY_POPULATION_FLOW turn=%d range=%d-%d player=%d growthEvents=%d populationGained=%d growthPreventedEvents=%d foodDiscardedByAvoidGrowth=%d starvationEvents=%d populationLost=%d netNaturalPopulationChange=%+d",
-			iGameTurn, g_iSASGameRecordCityPopulationFlowStartTurn, iGameTurn, ePlayer, kFlow.iCityGrowthEvents, kFlow.iPopulationGainedFromGrowth, kFlow.iCityGrowthPreventedEvents, kFlow.iFoodDiscardedByAvoidGrowth,
-			kFlow.iCityStarvationEvents, kFlow.iPopulationLostToStarvation, kFlow.iPopulationGainedFromGrowth - kFlow.iPopulationLostToStarvation);
-	}
-	g_iSASGameRecordCityPopulationFlowStartTurn = iGameTurn + 1;
-}
-
-// <!-- custom: Military-flow rows reuse the mature SAS schema; production/population fields are logged immediately beforehand and all families share the same per-snapshot reset below. (ChatGPT-5.6-Sol) -->
-static void logSASGameRecordMilitaryFlowBuckets(int iGameTurn)
-{
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes const ePlayer = (PlayerTypes)iI;
-		SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[iI];
-		if (kFlow.hasMilitary())
-		{
-			CvString szPromotionChoices;
-			FOR_EACH_ENUM(Promotion)
-				appendSASGameRecordTypeCount(szPromotionChoices, getSASGameRecordPromotionType(eLoopPromotion), kFlow.aiPromotionChoices[eLoopPromotion]);
-			logSASGameRecord("GAME_RECORD_MILITARY_FLOW turn=%d range=%d-%d player=%d combatWins=%d combatLosses=%d cityPlotWins=%d cityPlotLosses=%d enemyProductionNeededDestroyed=%d ownProductionNeededLost=%d enemyXpDestroyed=%d ownXpLost=%d xpGained=%d combatXpGained=%d nonCombatXpGained=%d xpPreventedByCap=%d xpLostAdjustments=%d promotionsChosen=%d leaderPromotionApplications=%d promotionChoices=%s upgrades=%d upgradeGold=%d scrapped=%d scrappedProductionNeeded=%d captured=%d capturedProductionNeeded=%d",
-				iGameTurn, g_iSASGameRecordMilitaryFlowStartTurn, iGameTurn, ePlayer, kFlow.iCombatWins, kFlow.iCombatLosses, kFlow.iCityPlotWins, kFlow.iCityPlotLosses, kFlow.iEnemyProductionNeededDestroyed, kFlow.iOwnProductionNeededLost, kFlow.iEnemyExperienceDestroyed, kFlow.iOwnExperienceLost,
-				kFlow.iExperienceGained, kFlow.iCombatExperienceGained, kFlow.iNonCombatExperienceGained, kFlow.iExperiencePreventedByCap, kFlow.iExperienceLostAdjustments, kFlow.iPromotionsChosen, kFlow.iLeaderPromotionApplications, getSASDiagnosticOrDash(szPromotionChoices).GetCString(),
-				kFlow.iUpgrades, kFlow.iUpgradeGold, kFlow.iScrapped, kFlow.iScrappedProductionNeeded, kFlow.iCaptured, kFlow.iCapturedProductionNeeded);
-		}
-		kFlow.reset();
-	}
-	for (int iI = MAX_CIV_PLAYERS; iI < MAX_PLAYERS; iI++)
-		g_akSASGameRecordPlayerFlow[iI].reset();
-	g_iSASGameRecordMilitaryFlowStartTurn = iGameTurn + 1;
-}
-
-static CvString getSASGameRecordEliminatedPlayers()
-{
-	CvString szList;
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
-		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-		if (kLoopPlayer.isEverAlive() && !kLoopPlayer.isAlive() && !kLoopPlayer.isBarbarian())
-			appendSASDiagnosticIntListValue(szList, eLoopPlayer);
-	}
-	return getSASDiagnosticOrDash(szList);
-}
-
-static PlayerTypes getSASGameRecordTopScorePlayer()
-{
-	PlayerTypes eBestPlayer = NO_PLAYER;
-	int iBestScore = MIN_INT;
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
-		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-		if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian())
-			continue;
-		int const iScore = kLoopPlayer.calculateScore();
-		if (eBestPlayer == NO_PLAYER || iScore > iBestScore)
-		{
-			eBestPlayer = eLoopPlayer;
-			iBestScore = iScore;
-		}
-	}
-	return eBestPlayer;
-}
-
-static PlayerTypes getSASGameRecordTopPowerPlayer()
-{
-	PlayerTypes eBestPlayer = NO_PLAYER;
-	int iBestPower = MIN_INT;
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
-		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-		if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian())
-			continue;
-		int const iPower = kLoopPlayer.getPower();
-		if (eBestPlayer == NO_PLAYER || iPower > iBestPower)
-		{
-			eBestPlayer = eLoopPlayer;
-			iBestPower = iPower;
-		}
-	}
-	return eBestPlayer;
-}
-
-void logSASGameRecordRunStatus(char const* szReason)
-{
-	// <!-- custom: CvGame::getNumHumanPlayers is not const in the Civ4 SDK headers, so this local game reference cannot be const. (GPT-5.5) -->
-	CvGame& kGame = GC.getGame();
-	PlayerTypes const eTopScorePlayer = getSASGameRecordTopScorePlayer();
-	PlayerTypes const eTopPowerPlayer = getSASGameRecordTopPowerPlayer();
-	// <!-- custom: One compact checkpoint states who remains, who has been eliminated and who currently leads; this also works for ordinary non-victory autoplay snapshots. (GPT-5.5 + ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_RUN_STATUS turn=%d reason=%s elapsed=%d year=%d winnerTeam=%d victory=%s playersAlive=%d teamsAlive=%d playersEverAlive=%d humans=%d eliminatedPlayers=%s topScorePlayer=%d topScore=%d topPowerPlayer=%d topPower=%d totalCities=%d totalPopulation=%d",
-			kGame.getGameTurn(), szReason == NULL ? "-" : szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.getWinner(), kGame.getVictory() == NO_VICTORY ? "-" : GC.getInfo(kGame.getVictory()).getType(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers(), getSASGameRecordEliminatedPlayers().GetCString(), eTopScorePlayer, eTopScorePlayer == NO_PLAYER ? 0 : GET_PLAYER(eTopScorePlayer).calculateScore(), eTopPowerPlayer, eTopPowerPlayer == NO_PLAYER ? 0 : GET_PLAYER(eTopPowerPlayer).getPower(), kGame.getNumCities(), kGame.getTotalPopulation());
-}
-
-static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
-{
-	CvGame const& kGame = GC.getGame();
-	if (gGameRecordLogLevel >= 2) reconcileSASGameRecordWars();
-	logSASGameRecord("GAME_RECORD_TURN_BEGIN turn=%d reason=%s elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d",
-			iGameTurn, szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.getNumCities(), kGame.getTotalPopulation());
-	logSASGameRecordRunStatus(szReason);
-	if (gGameRecordLogLevel >= 2)
-	{
-		logSASGameRecordMapBonusTotals(iGameTurn);
-		logSASGameRecordEnvironment(iGameTurn);
-		logSASGameRecordVoteSources(iGameTurn);
-	}
-	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
-	{
-		TeamTypes eLoopTeam = (TeamTypes)iI;
-		if (GET_TEAM(eLoopTeam).isAlive() && !GET_TEAM(eLoopTeam).isBarbarian())
-			logSASGameRecordTeamSnapshot(eLoopTeam, iGameTurn);
-	}
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
-		if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isBarbarian())
-			logSASGameRecordPlayerSnapshot(eLoopPlayer, iGameTurn);
-	}
-	// <!-- custom: Reproduce the active player's resolved Foreign Advisor market only at level 3 and only when its independent switch is enabled; lower detail levels and disabled-market runs skip the entire pair/item scan. (ChatGPT-5.6-Sol) -->
-	if (gGameRecordLogLevel >= 3 && isSASGameRecordTradeMarketEnabled()) logSASGameRecordTradeMarket(iGameTurn);
-	if (gGameRecordLogLevel >= 2)
-	{
-		logSASGameRecordBarbarians(iGameTurn);
-		logSASGameRecordBattleBuckets(iGameTurn);
-		logSASGameRecordProductionFlowBuckets(iGameTurn);
-		logSASGameRecordCityPopulationFlowBuckets(iGameTurn);
-		logSASGameRecordMilitaryFlowBuckets(iGameTurn);
-	}
-	logSASGameRecord("GAME_RECORD_TURN_END turn=%d reason=%s", iGameTurn, szReason);
-	g_iSASGameRecordLastFullSnapshotTurn = iGameTurn;
-}
-
-// <!-- custom: High-level queue-mutating paths call this only at SASGameRecord level 2+. Keep the latest authoritative cause until the player's next finalized research-target observation. If it produces no invested-tech redirection, the observer discards it rather than emitting a standalone/noisy action. (ChatGPT-5.6-Sol) -->
+// <!-- custom: High-level queue-mutating paths call this only at SASGameRecord level 2+. Keep the latest authoritative cause until the player's next finalized research-target observation.
+// If it produces no invested-tech redirection, the observer discards it rather than emitting a standalone/noisy action. (ChatGPT-5.6-Sol) -->
 void noteSASGameRecordResearchTargetChangeCause(PlayerTypes ePlayer, ResearchTargetChangeCause eCause)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
@@ -6008,7 +5961,8 @@ void noteSASGameRecordResearchTargetChangeCause(PlayerTypes ePlayer, ResearchTar
 	g_akSASGameRecordResearchPrevious[ePlayer].ePendingCause = eCause;
 }
 
-// <!-- custom: Called only from the level-2-gated ordinary research-application path, using values gameplay already computes. Store the same-turn split so a completion row can distinguish fresh research from carried overflow without logging every non-completing research turn. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Called only from the level-2-gated ordinary research-application path, using values gameplay already computes.
+// Store the same-turn split so a completion row can distinguish fresh research from carried overflow without logging every non-completing research turn. (ChatGPT-5.6-Sol) -->
 void noteSASGameRecordResearchApplication(PlayerTypes ePlayer, TechTypes eTech, int iModifiedResearchRate, int iIncomingOverflowUnmodified, int iIncomingOverflowModified)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
@@ -6074,834 +6028,56 @@ void updateSASGameRecordPlayerTurnState(PlayerTypes ePlayer)
 	kPrevious.ePendingCause = RESEARCH_TARGET_CHANGE_UNKNOWN;
 }
 
-// <!-- custom: Keep exact research-overflow arithmetic separate from TECH_ACQUIRED because only ordinary research completion has meaningful progress/overflow conversion. The threshold caller supplies its exact arithmetic while recorder-local same-turn application context supplies the fresh-research/carried-overflow split without widening generic research APIs. (ChatGPT-5.6-Sol) -->
-void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
+// <!-- custom: Preserve Settler-stack combat context at the actual battle target. A defeated attacker still occupies its origin at combat-result time, so using the losing unit's plot would falsely treat failed attacks launched from a Settler stack as attacks against that stack. See KI#377. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static bool logSASGameRecordSettlerCombatForPlot(CvUnit const* pWinner, CvUnit const* pLoser, CvPlot const* pPlot, PlayerTypes eSettlerOwner, bool bLoserWasSettler, bool bWinnerWasSettler)
 {
-	if (pCity == NULL || pUnit == NULL)
-		return;
-	PlayerTypes const ePlayer = pUnit->getOwner();
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
-		return;
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
-	int const iProductionNeeded = GET_PLAYER(ePlayer).getProductionNeeded(pUnit->getUnitType());
-	if (bConscripted)
-	{
-		kFlow.iUnitsConscripted++;
-		kFlow.iConscriptProductionNeeded += iProductionNeeded;
-		kFlow.aiConscriptedUnitTypes[pUnit->getUnitType()]++;
-	}
-	else
-	{
-		kFlow.iUnitsCompleted++;
-		kFlow.iUnitProductionNeeded += iProductionNeeded;
-		kFlow.aiUnitTypes[pUnit->getUnitType()]++;
-	}
-	if (gGameRecordLogLevel >= 3)
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_COMPLETED player=%d cityId=%d city=%S unitId=%d unit=%s unitAI=%s source=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
-			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), bConscripted ? "CONSCRIPT" : "PRODUCTION", iProductionNeeded,
-			iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
-}
-
-void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, BuildingTypes eBuilding, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
-{
-	if (pCity == NULL || eBuilding == NO_BUILDING)
-		return;
-	PlayerTypes const ePlayer = pCity->getOwner();
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
-		return;
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
-	int const iProductionNeeded = GET_PLAYER(ePlayer).getProductionNeeded(eBuilding);
-	kFlow.iBuildingsCompleted++;
-	kFlow.iBuildingProductionNeeded += iProductionNeeded;
-	kFlow.aiBuildingTypes[eBuilding]++;
-	if (gGameRecordLogLevel >= 3)
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BUILDING_COMPLETED player=%d cityId=%d city=%S building=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
-			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding), iProductionNeeded, iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
-}
-
-void logSASGameRecordBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding)
-{
-	if (pCity == NULL || eBuilding == NO_BUILDING || !GC.getInfo(eBuilding).isLimited())
-		return;
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=WONDER_BUILT player=%d cityId=%d city=%S building=%s", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding));
-}
-
-void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
-{
-	if (pCity == NULL || eProject == NO_PROJECT)
-		return;
-	PlayerTypes const ePlayer = pCity->getOwner();
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
-		return;
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
-	int const iProductionNeeded = GET_PLAYER(ePlayer).getProductionNeeded(eProject);
-	kFlow.iProjectsCompleted++;
-	kFlow.iProjectProductionNeeded += iProductionNeeded;
-	kFlow.aiProjectTypes[eProject]++;
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PROJECT_BUILT player=%d cityId=%d city=%S project=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
-		GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProjectType(eProject), iProductionNeeded, iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
-}
-
-void logSASGameRecordProductionOverflow(CvCity const* pCity, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedCapacity, int iGold)
-{
-	if (pCity == NULL)
-		return;
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
-	kFlow.iOverflowActions++;
-	kFlow.iRawModifiedOverflow += iRawModifiedOverflow;
-	kFlow.iUnmodifiedOverflow += iUnmodifiedOverflow;
-	kFlow.iKeptOverflow += iKeptOverflow;
-	kFlow.iLostProduction += iLostProduction;
-	kFlow.iUnusedOverflowCapacity += iUnusedCapacity;
-	kFlow.iOverflowGold += iGold;
-	if (gGameRecordLogLevel == 2 && !pCity->isProductionProject() && (pCity->isBarbarian() || iLostProduction > 0 || iGold > 0))
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_OVERFLOW player=%d cityId=%d city=%S productionKind=%s production=%s rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d gold=%d",
-			GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordCityProductionKind(*pCity), getSASGameRecordCityProductionType(*pCity), iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedCapacity, iGold);
-}
-
-void logSASGameRecordProductionFailed(CvCity const* pCity, int iOrderData, bool bProject, int iInvestedProduction, int iGold)
-{
-	if (pCity == NULL) return;
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
-	kFlow.iFailedInvestedProduction += iInvestedProduction;
-	kFlow.iFailGold += iGold;
-	char const* szProduction = (bProject ? getSASGameRecordProjectType((ProjectTypes)iOrderData) : getSASGameRecordBuildingType((BuildingTypes)iOrderData));
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_FAILED_TO_GOLD player=%d cityId=%d city=%S productionKind=%s production=%s investedProduction=%d gold=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), bProject ? "PROJECT" : "BUILDING", szProduction, iInvestedProduction, iGold);
-}
-
-void logSASGameRecordProductionDecay(CvCity const* pCity, OrderTypes eOrder, int iData1, int iBefore, int iAfter, int iInactiveTurns)
-{
-	if (pCity == NULL || iAfter >= iBefore) return;
-	int const iLost = iBefore - iAfter;
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
-	kFlow.iProductionDecayActions++;
-	kFlow.iProductionDecayLost += iLost;
-	if (gGameRecordLogLevel >= 3)
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_DECAY player=%d cityId=%d city=%S productionKind=%s production=%s storedBefore=%d storedAfter=%d lost=%d accumulatedInactiveTurns=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProductionKind(eOrder, iData1), getSASGameRecordProductionType(eOrder, iData1), iBefore, iAfter, iLost, iInactiveTurns);
-}
-
-void logSASGameRecordProductionInvalidated(CvCity const* pCity, OrderTypes eOrder, int iData1, int iStoredLost, bool bActiveTarget, bool bQueued)
-{
-	if (pCity == NULL || iStoredLost <= 0) return;
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
-	kFlow.iProductionInvalidatedActions++;
-	kFlow.iProductionInvalidatedLost += iStoredLost;
-	char const* szReason = (eOrder == ORDER_TRAIN ? "MAXED_UNIT_CLASS" : (eOrder == ORDER_CONSTRUCT ? "MAXED_BUILDING_CLASS" : (eOrder == ORDER_CREATE ? "MAXED_PROJECT" : "UNKNOWN")));
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_INVALIDATED player=%d cityId=%d city=%S productionKind=%s production=%s reason=%s storedLost=%d activeTarget=%d queued=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProductionKind(eOrder, iData1), getSASGameRecordProductionType(eOrder, iData1), szReason, iStoredLost, bActiveTarget ? 1 : 0, bQueued ? 1 : 0);
-}
-
-void logSASGameRecordProductionUpgraded(CvCity const* pCity, UnitTypes eOldUnit, UnitTypes eNewUnit, int iProductionTransferred, int iDestinationProductionBefore)
-{
-	if (pCity == NULL || (iProductionTransferred <= 0 && iDestinationProductionBefore <= 0)) return;
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
-	if (iProductionTransferred > 0)
-	{
-		kFlow.iProductionUpgradeTransfers++;
-		kFlow.iProductionUpgradeTransferred += iProductionTransferred;
-	}
-	if (iDestinationProductionBefore > 0) kFlow.iProductionUpgradeOverwriteActions++;
-	kFlow.iProductionUpgradeOverwritten += std::max(0, iDestinationProductionBefore);
-	if (gGameRecordLogLevel >= 3 || iDestinationProductionBefore > 0)
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_UPGRADED player=%d cityId=%d city=%S oldUnit=%s newUnit=%s productionTransferred=%d newProductionBefore=%d newProductionAfter=%d overwrittenDestinationProduction=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordUnitType(eOldUnit), getSASGameRecordUnitType(eNewUnit), iProductionTransferred, iDestinationProductionBefore, iProductionTransferred, std::max(0, iDestinationProductionBefore));
-}
-
-// <!-- custom: Compact all-city production-boundary outcome. Manual human cities are sampled before end-turn city processing; AI-controlled and automated cities are sampled after their chooser opportunity. The caller prevalidates log level, non-Barbarian ownership, no production target and non-disorder state. (ChatGPT-5.6-Sol) -->
-void logSASGameRecordCityProductionNoTarget(CvCity const& kCity, char const* szPhase)
-{
-	PlayerTypes const ePlayer = kCity.getOwner();
-	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_PRODUCTION_NO_TARGET player=%d cityId=%d city=%S phase=%s human=%d humanDisabled=%d productionAutomated=%d chooseProductionDirty=%d gameState=%d population=%d rawProduction=%d overflowProduction=%d anarchyTurns=%d occupation=%d occupationTimer=%d",
-		GC.getGame().getGameTurn(), ePlayer, kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), szPhase,
-		kPlayer.isHuman(), kPlayer.isHumanDisabled(), kCity.isProductionAutomated(), kCity.isChooseProductionDirty(), (int)GC.getGame().getGameState(), kCity.getPopulation(),
-		kCity.getCurrentProductionDifference(false, false, true), kCity.getOverflowProduction(), kPlayer.getAnarchyTurns(), kCity.isOccupation(), kCity.getOccupationTimer());
-}
-
-// <!-- custom: Level-3 tactical outcomes preserve exact city-defense reduction, air-strike damage, interception combat and air-bombed plot targets without repeating gameplay calculations or guessing interrupted mission provenance. (GPT-5.6 + ChatGPT-5.6-Sol) -->
-void logSASGameRecordCityBombard(CvUnit const* pUnit, CvCity const* pCity, char const* szMode, int iBombardRate, bool bIgnoreBuildingDefense, int iDefenseModifierBefore, int iDefenseDamageBefore)
-{
-	if (pUnit == NULL || pCity == NULL)
-		return;
-	const int iGameTurn = GC.getGame().getGameTurn();
-	const int iDefenseModifierAfter = pCity->getDefenseModifier(false);
-	const int iDefenseDamageAfter = pCity->getDefenseDamage();
-	// <!-- custom: Merge only truly adjacent same-turn actions against the same city/mode/attacking player whose defense state continues exactly from the previous action. Any unrelated GameRecord row flushes the sequence through the generic writer. (ChatGPT-5.6-Sol) -->
-	const bool bContinueSequence = (g_kSASGameRecordPendingCityBombard.bValid && g_kSASGameRecordPendingCityBombard.iTurn == iGameTurn && g_kSASGameRecordPendingCityBombard.szMode == szMode && g_kSASGameRecordPendingCityBombard.ePlayer == pUnit->getOwner() && g_kSASGameRecordPendingCityBombard.eTargetPlayer == pCity->getOwner() && g_kSASGameRecordPendingCityBombard.iCityId == pCity->getID() && g_kSASGameRecordPendingCityBombard.iDefenseModifierAfter == iDefenseModifierBefore && g_kSASGameRecordPendingCityBombard.iDefenseDamageAfter == iDefenseDamageBefore);
-	if (!bContinueSequence)
-	{
-		flushSASGameRecordPendingCityBombard();
-		g_kSASGameRecordPendingCityBombard.bValid = true;
-		g_kSASGameRecordPendingCityBombard.iTurn = iGameTurn;
-		g_kSASGameRecordPendingCityBombard.szMode = szMode;
-		g_kSASGameRecordPendingCityBombard.ePlayer = pUnit->getOwner();
-		g_kSASGameRecordPendingCityBombard.eTargetPlayer = pCity->getOwner();
-		g_kSASGameRecordPendingCityBombard.iCityId = pCity->getID();
-		g_kSASGameRecordPendingCityBombard.szCity = getSASGameRecordQuotedCityName(pCity);
-		g_kSASGameRecordPendingCityBombard.iX = pCity->getX();
-		g_kSASGameRecordPendingCityBombard.iY = pCity->getY();
-		g_kSASGameRecordPendingCityBombard.iDefenseModifierBefore = iDefenseModifierBefore;
-		g_kSASGameRecordPendingCityBombard.iDefenseDamageBefore = iDefenseDamageBefore;
-	}
-	g_kSASGameRecordPendingCityBombard.iActions++;
-	g_kSASGameRecordPendingCityBombard.iBombardRateTotal += iBombardRate;
-	if (bIgnoreBuildingDefense) g_kSASGameRecordPendingCityBombard.iIgnoreBuildingDefenseActions++;
-	g_kSASGameRecordPendingCityBombard.iDefenseModifierAfter = iDefenseModifierAfter;
-	g_kSASGameRecordPendingCityBombard.iTotalDefense = pCity->getTotalDefense(false);
-	g_kSASGameRecordPendingCityBombard.iDefenseDamageAfter = iDefenseDamageAfter;
-	g_kSASGameRecordPendingCityBombard.iDefenseDamageMax = GC.getMAX_CITY_DEFENSE_DAMAGE();
-	addSASGameRecordCityBombardTypeCount(g_kSASGameRecordPendingCityBombard.aUnitTypes, getSASGameRecordUnitType(pUnit->getUnitType()));
-	addSASGameRecordCityBombardTypeCount(g_kSASGameRecordPendingCityBombard.aUnitAIs, getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()));
-}
-
-void logSASGameRecordAirStrike(CvUnit const* pUnit, CvUnit const* pDefender, int iDefenderDamageBefore, int iDefenderDamageAfter)
-{
-	if (pUnit == NULL || pDefender == NULL)
-		return;
-	CvPlot const* pTargetPlot = pDefender->plot();
-	CvCity const* pCity = (pTargetPlot == NULL ? NULL : pTargetPlot->getPlotCity());
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AIR_STRIKE player=%d unitId=%d unit=%s unitAI=%s fromX=%d fromY=%d targetPlayer=%d targetUnitId=%d targetUnit=%s targetUnitAI=%s x=%d y=%d cityPlot=%d cityId=%d city=%S attackerAirBaseStr=%d defenderBaseStr=%d defenderDamageBefore=%d defenderDamageAfter=%d damageDealt=%d airCombatLimit=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pDefender->getOwner(), pDefender->getID(), getSASGameRecordUnitType(pDefender->getUnitType()), getSASGameRecordUnitAIType(pDefender->AI_getUnitAIType()), pTargetPlot == NULL ? -1 : pTargetPlot->getX(), pTargetPlot == NULL ? -1 : pTargetPlot->getY(), pCity != NULL, pCity == NULL ? -1 : pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->airBaseCombatStr(), pDefender->baseCombatStr(), iDefenderDamageBefore, iDefenderDamageAfter, std::max(0, iDefenderDamageAfter - iDefenderDamageBefore), pUnit->airCombatLimit());
-}
-
-void logSASGameRecordAirInterception(CvUnit const* pAttacker, CvUnit const* pInterceptor, CvPlot const* pTargetPlot, int iAttackerDamageTaken, int iInterceptorDamageTaken)
-{
-	if (pAttacker == NULL || pInterceptor == NULL || pTargetPlot == NULL)
-		return;
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AIR_INTERCEPTION attackerPlayer=%d attackerUnitId=%d attackerUnit=%s attackerUnitAI=%s interceptorPlayer=%d interceptorUnitId=%d interceptorUnit=%s interceptorUnitAI=%s x=%d y=%d attackerDamageTaken=%d interceptorDamageTaken=%d attackerDead=%d interceptorDead=%d attackerIsAir=%d",
-			GC.getGame().getGameTurn(), pAttacker->getOwner(), pAttacker->getID(), getSASGameRecordUnitType(pAttacker->getUnitType()), getSASGameRecordUnitAIType(pAttacker->AI_getUnitAIType()), pInterceptor->getOwner(), pInterceptor->getID(), getSASGameRecordUnitType(pInterceptor->getUnitType()), getSASGameRecordUnitAIType(pInterceptor->AI_getUnitAIType()), pTargetPlot->getX(), pTargetPlot->getY(), iAttackerDamageTaken, iInterceptorDamageTaken, pAttacker->isDead(), pInterceptor->isDead(), pAttacker->getDomainType() == DOMAIN_AIR);
-}
-
-void logSASGameRecordAirBombPlot(CvUnit const* pUnit, CvPlot const* pTargetPlot, char const* szTargetKind, char const* szTarget, bool bSuccess)
-{
-	if (pUnit == NULL || pTargetPlot == NULL)
-		return;
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AIR_BOMB_PLOT player=%d unitId=%d unit=%s unitAI=%s fromX=%d fromY=%d targetOwner=%d x=%d y=%d targetKind=%s target=%s success=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pTargetPlot->getOwner(), pTargetPlot->getX(), pTargetPlot->getY(), szTargetKind, szTarget, bSuccess);
-}
-
-// <!-- custom: Record the launch after its interception roll while the nuke unit and pre-detonation target still exist. CvUnit::nuke passes its already-computed affected-team flags, so this helper only formats them. (ChatGPT-5.6-Sol) -->
-void logSASGameRecordNukeLaunched(CvUnit const* pUnit, CvPlot const* pTargetPlot, bool const* pabAffectedTeams, bool bIntercepted, TeamTypes eBestInterceptorTeam, int iInterceptionChance)
-{
-	if (pUnit == NULL || pTargetPlot == NULL || pabAffectedTeams == NULL)
-		return;
-	CvString szAffectedTeams;
-	for (int iTeam = 0; iTeam < MAX_TEAMS; iTeam++)
-	{
-		if (pabAffectedTeams[iTeam])
-			appendSASDiagnosticIntListValue(szAffectedTeams, iTeam);
-	}
-	CvCity const* pTargetCity = pTargetPlot->getPlotCity();
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=NUKE_LAUNCHED player=%d team=%d unitId=%d unit=%s x=%d y=%d plotOwner=%d plotTeam=%d targetCityId=%d targetCity=%S targetCityOwner=%d targetCityTeam=%d targetCityPopulation=%d affectedTeams=%s intercepted=%d bestInterceptorTeam=%d interceptionChance=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pTargetPlot->getX(), pTargetPlot->getY(), pTargetPlot->getOwner(), pTargetPlot->getTeam(),
-			pTargetCity == NULL ? -1 : pTargetCity->getID(), getSASGameRecordQuotedCityName(pTargetCity).GetCString(), pTargetCity == NULL ? NO_PLAYER : pTargetCity->getOwner(), pTargetCity == NULL ? NO_TEAM : pTargetCity->getTeam(), pTargetCity == NULL ? -1 : pTargetCity->getPopulation(), getSASDiagnosticOrDash(szAffectedTeams).GetCString(), bIntercepted, eBestInterceptorTeam, iInterceptionChance);
-}
-
-// <!-- custom: CvPlot::nukeExplosion already gathers the realized post-random consequences for player messages. Reuse those counters plus the small exact fallout/population totals collected in the same pass; no diagnostic-only second scan is added. (ChatGPT-5.6-Sol) -->
-void logSASGameRecordNukeEffects(CvUnit const* pUnit, CvPlot const* pTargetPlot, int iFalloutPlotsCreated, int iImprovementsDestroyed, int iFeaturesDestroyed, int iUnitsDamaged, int iUnitsKilled, int iBuildingsDestroyed, int iCitiesAffected, int iPopulationKilled)
-{
-	if (pUnit == NULL || pTargetPlot == NULL)
-		return;
-	CvCity const* pTargetCity = pTargetPlot->getPlotCity();
-	logSASGameRecord("GAME_RECORD_NUKE_EFFECTS turn=%d player=%d team=%d unitId=%d unit=%s x=%d y=%d targetCityId=%d targetCity=%S targetCityOwner=%d targetCityTeam=%d targetCityPopulationAfter=%d falloutPlotsCreated=%d improvementsDestroyed=%d featuresDestroyed=%d unitsDamaged=%d unitsKilled=%d buildingsDestroyed=%d citiesAffected=%d populationKilled=%d nukesExplodedAfter=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pTargetPlot->getX(), pTargetPlot->getY(),
-			pTargetCity == NULL ? -1 : pTargetCity->getID(), getSASGameRecordQuotedCityName(pTargetCity).GetCString(), pTargetCity == NULL ? NO_PLAYER : pTargetCity->getOwner(), pTargetCity == NULL ? NO_TEAM : pTargetCity->getTeam(), pTargetCity == NULL ? -1 : pTargetCity->getPopulation(),
-			iFalloutPlotsCreated, iImprovementsDestroyed, iFeaturesDestroyed, iUnitsDamaged, iUnitsKilled, iBuildingsDestroyed, iCitiesAffected, iPopulationKilled, GC.getGame().getNukesExploded());
-}
-
-// <!-- custom: Preserve each city caught in an actual unit-launched blast, including defended cities whose realized loss happens to be zero. Building identities come directly from the existing destruction loop. (ChatGPT-5.6-Sol) -->
-void logSASGameRecordNukeCityEffect(CvUnit const* pNukeUnit, CvCity const* pCity, int iPopulationBefore, int iNukeModifier, std::vector<BuildingTypes> const& aeBuildingsDestroyed)
-{
-	if (pNukeUnit == NULL || pCity == NULL)
-		return;
-	CvString szBuildingsDestroyed;
-	for (size_t i = 0; i < aeBuildingsDestroyed.size(); i++)
-		appendSASGameRecordType(szBuildingsDestroyed, getSASGameRecordBuildingType(aeBuildingsDestroyed[i]));
-	int const iPopulationAfter = pCity->getPopulation();
-	logSASGameRecord("GAME_RECORD_NUKE_CITY_EFFECT turn=%d player=%d team=%d nukeUnitId=%d nukeUnit=%s affectedPlayer=%d affectedTeam=%d cityId=%d city=%S x=%d y=%d nukeModifier=%d populationBefore=%d populationAfter=%d populationKilled=%d buildingsDestroyedCount=%d buildingsDestroyed=%s",
-			GC.getGame().getGameTurn(), pNukeUnit->getOwner(), pNukeUnit->getTeam(), pNukeUnit->getID(), getSASGameRecordUnitType(pNukeUnit->getUnitType()),
-			pCity->getOwner(), pCity->getTeam(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), iNukeModifier,
-			iPopulationBefore, iPopulationAfter, std::max(0, iPopulationBefore - iPopulationAfter), (int)aeBuildingsDestroyed.size(), getSASDiagnosticOrDash(szBuildingsDestroyed).GetCString());
-}
-
-// <!-- custom: Level-3 nuke unit rows retain tactical identity before the existing damage/kill operation can remove the object. Indirect cargo/noncombat deaths use damageAfter=-1 rather than inventing a gameplay damage value. (ChatGPT-5.6-Sol) -->
-void logSASGameRecordNukeUnitEffect(CvUnit const* pNukeUnit, CvUnit const* pAffectedUnit, CvPlot const* pPlot, int iDamageBefore, int iDamageAfter, bool bKilled, char const* szCause)
-{
-	if (pNukeUnit == NULL || pAffectedUnit == NULL || pPlot == NULL)
-		return;
-	CvUnit const* pTransport = pAffectedUnit->getTransportUnit();
-	int const iDamageDelta = (iDamageBefore >= 0 && iDamageAfter >= 0 ? iDamageAfter - iDamageBefore : -1);
-	logSASGameRecord("GAME_RECORD_NUKE_UNIT_EFFECT turn=%d player=%d team=%d nukeUnitId=%d nukeUnit=%s affectedPlayer=%d affectedTeam=%d unitId=%d unit=%s unitAI=%s x=%d y=%d damageBefore=%d damageAfter=%d damageDelta=%d killed=%d cause=%s cargo=%d transportPlayer=%d transportId=%d",
-			GC.getGame().getGameTurn(), pNukeUnit->getOwner(), pNukeUnit->getTeam(), pNukeUnit->getID(), getSASGameRecordUnitType(pNukeUnit->getUnitType()),
-			pAffectedUnit->getOwner(), pAffectedUnit->getTeam(), pAffectedUnit->getID(), getSASGameRecordUnitType(pAffectedUnit->getUnitType()), getSASGameRecordUnitAIType(pAffectedUnit->AI_getUnitAIType()),
-			pPlot->getX(), pPlot->getY(), iDamageBefore, iDamageAfter, iDamageDelta, bKilled, szCause, pAffectedUnit->isCargo(), pTransport == NULL ? NO_PLAYER : pTransport->getOwner(), pTransport == NULL ? -1 : pTransport->getID());
-}
-
-void logSASGameRecordResearchCompleted(TechTypes eTech, TeamTypes eTeam, PlayerTypes ePlayer, int iProgressBefore, int iProgressBeforePostCompletionAdjustment, int iResearchModifier, int iUnmodifiedOverflow)
-{
-	CvTeam const& kTeam = GET_TEAM(eTeam);
-	int const iResearchCost = kTeam.getResearchCost(eTech);
-	int const iProgressAdded = iProgressBeforePostCompletionAdjustment - iProgressBefore;
-	int const iRawModifiedOverflow = std::max(0, iProgressBeforePostCompletionAdjustment - iResearchCost);
-	SASGameRecordResearchApplication& kApplication = g_akSASGameRecordResearchApplication[ePlayer];
-	bool const bApplicationKnown = (kApplication.bValid && kApplication.iGameTurn == GC.getGame().getGameTurn() && kApplication.eTech == eTech);
-	int const iModifiedResearchRate = (bApplicationKnown ? kApplication.iModifiedResearchRate : -1);
-	int const iIncomingOverflowUnmodified = (bApplicationKnown ? kApplication.iIncomingOverflowUnmodified : -1);
-	int const iIncomingOverflowModified = (bApplicationKnown ? kApplication.iIncomingOverflowModified : -1);
-	// <!-- custom: Preserve mature SASGameRecord field names for schema compatibility. `teamProgressBeforeClamp` is the progress immediately before AdvCiv's post-completion adjustment; this logging-only 1.14 port intentionally does not import mature SAS's separate KI#404 gameplay correction, so `teamStoredProgressAfter` reports the actual unmodified AdvCiv 1.14 result. (ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RESEARCH_COMPLETED player=%d team=%d tech=%s researchCost=%d teamProgressBefore=%d applicationBreakdownKnown=%d modifiedResearchRateApplied=%d incomingOverflowUnmodified=%d incomingOverflowModifiedApplied=%d modifiedProgressAdded=%d teamProgressBeforeClamp=%d researchModifier=%d rawModifiedOverflow=%d outgoingOverflowUnmodified=%d playerOverflowAfter=%d teamStoredProgressAfter=%d",
-			GC.getGame().getGameTurn(), ePlayer, eTeam, getSASGameRecordTechType(eTech), iResearchCost, iProgressBefore, bApplicationKnown ? 1 : 0,
-			iModifiedResearchRate, iIncomingOverflowUnmodified, iIncomingOverflowModified, iProgressAdded, iProgressBeforePostCompletionAdjustment, iResearchModifier, iRawModifiedOverflow, iUnmodifiedOverflow,
-			GET_PLAYER(ePlayer).getOverflowResearch(), kTeam.getResearchProgress(eTech));
-	kApplication.bValid = false;
-}
-
-// <!-- custom: Write the acquisition source supplied by gameplay code instead of inferring it from ambiguous announcement/first-discovery flags. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
-void logSASGameRecordTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer, TechAcquisitionCause eCause)
-{
-	CvTechInfo const& kTech = GC.getInfo(eType);
-	// <!-- custom: The acquisition turn already gives the exact chronology. Mark technologies that enable tech or gold trading, while team snapshots state whether each capability is currently available. (GPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=TECH_ACQUIRED player=%d team=%d tech=%s source=%s enablesTechTrading=%d enablesGoldTrading=%d", GC.getGame().getGameTurn(), ePlayer, eTeam, getSASGameRecordTechType(eType), getSASTechAcquisitionCause(eCause), kTech.isTechTrading(), kTech.isGoldTrading());
-}
-
-void logSASGameRecordCityBuilt(CvCity const* pCity)
-{
-	if (pCity == NULL)
-		return;
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_BUILT player=%d cityId=%d city=%S x=%d y=%d pop=%d",
-			GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation());
-	logSASGameRecordCityBFC(*pCity, "built");
-}
-
-// <!-- custom: Land/population victory thresholds can change with world state, so serialize every enabled victory that actually uses either criterion rather than assuming one XML victory name. Percent fields are multiplied by 100. (ChatGPT-5.6-Sol) -->
-static CvString getSASGameRecordLandPopulationVictoryProgress(TeamTypes eTeam)
-{
-	CvGame const& kGame = GC.getGame();
-	CvTeam const& kTeam = GET_TEAM(eTeam);
-	int const iLandPlots = std::max(1, GC.getMap().getLandPlots());
-	int const iWorldPopulation = std::max(1, kGame.getTotalPopulation());
-	int const iLandPctX100 = (10000 * kTeam.getTotalLand()) / iLandPlots;
-	int const iPopPctX100 = (10000 * kTeam.getTotalPopulation()) / iWorldPopulation;
-	CvString szResult;
-	FOR_EACH_ENUM(Victory)
-	{
-		if (!kGame.isVictoryValid(eLoopVictory))
-			continue;
-		int const iLandNeed = kGame.getAdjustedLandPercent(eLoopVictory);
-		int const iPopNeed = kGame.getAdjustedPopulationPercent(eLoopVictory);
-		if (iLandNeed <= 0 && iPopNeed <= 0)
-			continue;
-		bool const bLandMet = (iLandNeed <= 0 || 100 * kTeam.getTotalLand() >= GC.getMap().getLandPlots() * iLandNeed);
-		bool const bPopMet = (iPopNeed <= 0 || 100 * kTeam.getTotalPopulation() >= kGame.getTotalPopulation() * iPopNeed);
-		CvString szItem;
-		szItem.Format(szResult.empty() ? "%s:L%d/%d:P%d/%d:M%d" : ";%s:L%d/%d:P%d/%d:M%d",
-				GC.getInfo(eLoopVictory).getType(), iLandNeed <= 0 ? -1 : iLandPctX100, iLandNeed <= 0 ? -1 : 100 * iLandNeed,
-				iPopNeed <= 0 ? -1 : iPopPctX100, iPopNeed <= 0 ? -1 : 100 * iPopNeed, bLandMet && bPopMet);
-		szResult += szItem;
-	}
-	return getSASDiagnosticOrDash(szResult);
-}
-
-static void getSASGameRecordRazeCityDistances(CvCity const& kCity, PlayerTypes eRazer, PlayerTypes ePreviousOwner, int& iCapitalDistance, int& iCapitalSameArea, int& iNearestRazerCityDistance, int& iSameAreaRazerCitiesOther, int& iNearestPreviousOwnerCityDistance, int& iSameAreaPreviousOwnerCities)
-{
-	CvPlayer const& kRazer = GET_PLAYER(eRazer);
-	CvCity const* pCapital = kRazer.getCapitalCity();
-	iCapitalDistance = (pCapital == NULL ? -1 : plotDistance(kCity.getX(), kCity.getY(), pCapital->getX(), pCapital->getY()));
-	iCapitalSameArea = (pCapital == NULL ? -1 : pCapital->getArea().getID() == kCity.getArea().getID());
-	iNearestRazerCityDistance = -1;
-	iSameAreaRazerCitiesOther = 0;
-	int iLoop = 0;
-	for (CvCity const* pLoopCity = kRazer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kRazer.nextCity(&iLoop))
-	{
-		if (pLoopCity->getID() == kCity.getID())
-			continue;
-		int const iDistance = plotDistance(kCity.getX(), kCity.getY(), pLoopCity->getX(), pLoopCity->getY());
-		if (iNearestRazerCityDistance < 0 || iDistance < iNearestRazerCityDistance)
-			iNearestRazerCityDistance = iDistance;
-		if (pLoopCity->getArea().getID() == kCity.getArea().getID())
-			iSameAreaRazerCitiesOther++;
-	}
-	iNearestPreviousOwnerCityDistance = -1;
-	iSameAreaPreviousOwnerCities = 0;
-	if (ePreviousOwner >= 0 && ePreviousOwner < MAX_PLAYERS)
-	{
-		CvPlayer const& kPreviousOwner = GET_PLAYER(ePreviousOwner);
-		iLoop = 0;
-		for (CvCity const* pLoopCity = kPreviousOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPreviousOwner.nextCity(&iLoop))
-		{
-			int const iDistance = plotDistance(kCity.getX(), kCity.getY(), pLoopCity->getX(), pLoopCity->getY());
-			if (iNearestPreviousOwnerCityDistance < 0 || iDistance < iNearestPreviousOwnerCityDistance)
-				iNearestPreviousOwnerCityDistance = iDistance;
-			if (pLoopCity->getArea().getID() == kCity.getArea().getID())
-				iSameAreaPreviousOwnerCities++;
-		}
-	}
-}
-
-void beginSASGameRecordCityRaze(CvCity const* pCity, PlayerTypes ePlayer)
-{
-	if (pCity == NULL || ePlayer < 0 || ePlayer >= MAX_PLAYERS)
-		return;
-	CvPlayerAI const& kRazer = GET_PLAYER(ePlayer);
-	SASGameRecordCityRazeContext kContext;
-	kContext.eRazer = ePlayer;
-	kContext.eRazerTeam = kRazer.getTeam();
-	kContext.ePreviousOwner = pCity->getPreviousOwner();
-	kContext.ePreviousTeam = (kContext.ePreviousOwner >= 0 && kContext.ePreviousOwner < MAX_PLAYERS ? GET_PLAYER(kContext.ePreviousOwner).getTeam() : NO_TEAM);
-	kContext.eOriginalOwner = pCity->getOriginalOwner();
-	kContext.eOriginalTeam = (kContext.eOriginalOwner >= 0 && kContext.eOriginalOwner < MAX_PLAYERS ? GET_PLAYER(kContext.eOriginalOwner).getTeam() : NO_TEAM);
-	kContext.iGameTurn = GC.getGame().getGameTurn();
-	kContext.iCityId = pCity->getID();
-	kContext.szCityName = getSASGameRecordQuotedCityName(pCity);
-	kContext.iX = pCity->getX(); kContext.iY = pCity->getY(); kContext.iArea = pCity->getArea().getID();
-	kContext.szRazeMode = (pCity->isAutoRaze() ? "AUTO_RAZE" : (kRazer.isHuman() ? "HUMAN" : "AI"));
-	kContext.iPopulation = pCity->getPopulation();
-	kContext.iHighestPopulation = pCity->getHighestPopulation();
-	kContext.iFoundedTurn = pCity->getGameTurnFounded();
-	kContext.iAcquiredTurn = pCity->getGameTurnAcquired();
-	kContext.iOccupationTurns = pCity->getOccupationTimer();
-	kContext.iRazerCulturePercent = pCity->calculateTeamCulturePercent(kContext.eRazerTeam);
-	kContext.iPreviousCulturePercent = (kContext.ePreviousTeam == NO_TEAM ? -1 : pCity->calculateTeamCulturePercent(kContext.ePreviousTeam));
-	kContext.eHighestCulturePlayer = pCity->findHighestCulture();
-	kContext.iHighestCulturePercent = (kContext.eHighestCulturePlayer == NO_PLAYER ? -1 : pCity->calculateCulturePercent(kContext.eHighestCulturePlayer));
-	kContext.iMaintenanceTimes100 = pCity->getMaintenanceTimes100();
-	kContext.iConnectedToCapital = pCity->isConnectedToCapital();
-	getSASGameRecordRazeCityDistances(*pCity, ePlayer, kContext.ePreviousOwner, kContext.iCapitalDistance, kContext.iCapitalSameArea, kContext.iNearestRazerCityDistance, kContext.iSameAreaRazerCitiesOther, kContext.iNearestPreviousOwnerCityDistance, kContext.iSameAreaPreviousOwnerCities);
-	kContext.szBuildings = getSASGameRecordCityBuildings(*pCity, kContext.iBuildings, kContext.iRegularBuildings, kContext.iNationalWonders, kContext.iTeamWonders, kContext.iWorldWonders);
-	kContext.szReligions = getSASGameRecordCityReligionList(*pCity, false);
-	kContext.szHolyReligions = getSASGameRecordCityReligionList(*pCity, true);
-	kContext.szCorporations = getSASGameRecordCityCorporationList(*pCity, false);
-	kContext.szHeadquarters = getSASGameRecordCityCorporationList(*pCity, true);
-	kContext.iPlayerCitiesBefore = kRazer.getNumCities(); kContext.iPlayerLandBefore = kRazer.getTotalLand(); kContext.iPlayerPopulationBefore = kRazer.getTotalPopulation();
-	kContext.iTeamCitiesBefore = GET_TEAM(kContext.eRazerTeam).getNumCities(); kContext.iTeamLandBefore = GET_TEAM(kContext.eRazerTeam).getTotalLand(); kContext.iTeamPopulationBefore = GET_TEAM(kContext.eRazerTeam).getTotalPopulation();
-	kContext.iWorldPopulationBefore = GC.getGame().getTotalPopulation();
-	kContext.iLandPctX100Before = (10000 * kContext.iTeamLandBefore) / std::max(1, GC.getMap().getLandPlots());
-	kContext.iPopPctX100Before = (10000 * kContext.iTeamPopulationBefore) / std::max(1, GC.getGame().getTotalPopulation());
-	if (kRazer.isHuman() && !kRazer.isHumanDisabled())
-	{
-		kContext.iAIMaxVictoryStage = kContext.iAIConquestStage = kContext.iAIDominationStage = -1;
-	}
-	else
-	{
-		AIVictoryStage const eStages = kRazer.AI_getVictoryStageHash();
-		kContext.iAIConquestStage = getSASConquestVictoryStageLevel(eStages);
-		kContext.iAIDominationStage = getSASDominationVictoryStageLevel(eStages);
-		kContext.iAIMaxVictoryStage = std::max(getSASCultureVictoryStageLevel(eStages), std::max(getSASSpaceVictoryStageLevel(eStages), std::max(kContext.iAIConquestStage, std::max(kContext.iAIDominationStage, getSASDiplomacyVictoryStageLevel(eStages)))));
-	}
-	kContext.szLandPopVictoryProgressBefore = getSASGameRecordLandPopulationVictoryProgress(kContext.eRazerTeam);
-	g_aSASGameRecordCityRazeContexts.push_back(kContext);
-}
-
-void endSASGameRecordCityRaze(PlayerTypes ePlayer)
-{
-	if (g_aSASGameRecordCityRazeContexts.empty())
-		return;
-	int const iContext = (int)g_aSASGameRecordCityRazeContexts.size() - 1;
-	if (g_aSASGameRecordCityRazeContexts[iContext].eRazer != ePlayer)
-		return;
-	SASGameRecordCityRazeContext const kContext = g_aSASGameRecordCityRazeContexts[iContext];
-	g_aSASGameRecordCityRazeContexts.pop_back();
-	CvPlayer const& kRazer = GET_PLAYER(ePlayer);
-	CvTeam const& kTeam = GET_TEAM(kContext.eRazerTeam);
-	int const iPlayerCitiesAfter = kRazer.getNumCities(), iPlayerLandAfter = kRazer.getTotalLand(), iPlayerPopulationAfter = kRazer.getTotalPopulation();
-	int const iTeamCitiesAfter = kTeam.getNumCities(), iTeamLandAfter = kTeam.getTotalLand(), iTeamPopulationAfter = kTeam.getTotalPopulation();
-	int const iWorldPopulationAfter = GC.getGame().getTotalPopulation();
-	int const iLandPctX100After = (10000 * iTeamLandAfter) / std::max(1, GC.getMap().getLandPlots());
-	int const iPopPctX100After = (10000 * iTeamPopulationAfter) / std::max(1, iWorldPopulationAfter);
-	CvString const szVictoryProgressAfter = getSASGameRecordLandPopulationVictoryProgress(kContext.eRazerTeam);
-	CvPlot const& kRazedPlot = GC.getMap().getPlot(kContext.iX, kContext.iY);
-	PlayerTypes const eCityPlotOwnerAfter = kRazedPlot.getOwner();
-	TeamTypes const eCityPlotTeamAfter = kRazedPlot.getTeam();
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_RAZED razer=%d razerTeam=%d razeMode=%s previousOwner=%d previousTeam=%d originalOwner=%d originalTeam=%d cityId=%d city=%S x=%d y=%d area=%d pop=%d highestPop=%d foundedTurn=%d cityAge=%d acquiredTurn=%d turnsHeld=%d occupationTurns=%d razerCulturePercent=%d previousCulturePercent=%d highestCulturePlayer=%d highestCulturePercent=%d connectedToCapital=%d capitalDistance=%d capitalSameArea=%d nearestRazerCityDistance=%d sameAreaRazerCitiesOther=%d nearestPreviousOwnerCityDistance=%d sameAreaPreviousOwnerCities=%d maintenanceTimes100=%d buildings=%d regularBuildings=%d nationalWonders=%d teamWonders=%d worldWonders=%d buildingTypes=%s religions=%s holyReligions=%s corporations=%s headquarters=%s cityPlotOwnerAfter=%d cityPlotTeamAfter=%d playerCitiesBefore=%d playerCitiesAfter=%d playerLandBefore=%d playerLandAfter=%d playerLandDelta=%+d playerPopBefore=%d playerPopAfter=%d playerPopDelta=%+d teamCitiesBefore=%d teamCitiesAfter=%d teamLandBefore=%d teamLandAfter=%d teamLandDelta=%+d landPctX100Before=%d landPctX100After=%d landPctX100Delta=%+d teamPopBefore=%d teamPopAfter=%d teamPopDelta=%+d worldPopBefore=%d worldPopAfter=%d popPctX100Before=%d popPctX100After=%d popPctX100Delta=%+d aiMaxVictoryStage=%d aiConquestStage=%d aiDominationStage=%d landPopVictoryProgressBefore=%s landPopVictoryProgressAfter=%s",
-			kContext.iGameTurn, kContext.eRazer, kContext.eRazerTeam, kContext.szRazeMode.GetCString(), kContext.ePreviousOwner, kContext.ePreviousTeam, kContext.eOriginalOwner, kContext.eOriginalTeam,
-			kContext.iCityId, kContext.szCityName.GetCString(), kContext.iX, kContext.iY, kContext.iArea, kContext.iPopulation, kContext.iHighestPopulation, kContext.iFoundedTurn, kContext.iFoundedTurn < 0 ? -1 : kContext.iGameTurn - kContext.iFoundedTurn,
-			kContext.iAcquiredTurn, kContext.iAcquiredTurn < 0 ? -1 : kContext.iGameTurn - kContext.iAcquiredTurn, kContext.iOccupationTurns, kContext.iRazerCulturePercent, kContext.iPreviousCulturePercent, kContext.eHighestCulturePlayer, kContext.iHighestCulturePercent,
-			kContext.iConnectedToCapital, kContext.iCapitalDistance, kContext.iCapitalSameArea, kContext.iNearestRazerCityDistance, kContext.iSameAreaRazerCitiesOther, kContext.iNearestPreviousOwnerCityDistance, kContext.iSameAreaPreviousOwnerCities,
-			kContext.iMaintenanceTimes100, kContext.iBuildings, kContext.iRegularBuildings, kContext.iNationalWonders, kContext.iTeamWonders, kContext.iWorldWonders, kContext.szBuildings.GetCString(), kContext.szReligions.GetCString(), kContext.szHolyReligions.GetCString(), kContext.szCorporations.GetCString(), kContext.szHeadquarters.GetCString(), eCityPlotOwnerAfter, eCityPlotTeamAfter,
-			kContext.iPlayerCitiesBefore, iPlayerCitiesAfter, kContext.iPlayerLandBefore, iPlayerLandAfter, iPlayerLandAfter - kContext.iPlayerLandBefore, kContext.iPlayerPopulationBefore, iPlayerPopulationAfter, iPlayerPopulationAfter - kContext.iPlayerPopulationBefore, kContext.iTeamCitiesBefore, iTeamCitiesAfter, kContext.iTeamLandBefore, iTeamLandAfter, iTeamLandAfter - kContext.iTeamLandBefore, kContext.iLandPctX100Before, iLandPctX100After, iLandPctX100After - kContext.iLandPctX100Before,
-			kContext.iTeamPopulationBefore, iTeamPopulationAfter, iTeamPopulationAfter - kContext.iTeamPopulationBefore, kContext.iWorldPopulationBefore, iWorldPopulationAfter, kContext.iPopPctX100Before, iPopPctX100After, iPopPctX100After - kContext.iPopPctX100Before,
-			kContext.iAIMaxVictoryStage, kContext.iAIConquestStage, kContext.iAIDominationStage, kContext.szLandPopVictoryProgressBefore.GetCString(), szVictoryProgressAfter.GetCString());
-}
-
-void logSASGameRecordCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner, CvCity const* pCity, bool bConquest, bool bTrade)
-{
-	if (pCity == NULL)
-		return;
-	if (eNewOwner >= 0 && eNewOwner < MAX_PLAYERS)
-	{
-		g_aiSASGameRecordCitiesAcquired[eNewOwner]++;
-		if (bConquest) g_aiSASGameRecordCitiesConquered[eNewOwner]++;
-		if (bTrade) g_aiSASGameRecordCitiesTradedIn[eNewOwner]++;
-	}
-	if (eOldOwner >= 0 && eOldOwner < MAX_PLAYERS)
-	{
-		g_aiSASGameRecordCitiesLost[eOldOwner]++;
-		if (bConquest) g_aiSASGameRecordCitiesLostByConquest[eOldOwner]++;
-		if (bTrade) g_aiSASGameRecordCitiesTradedOut[eOldOwner]++;
-	}
-	// <!-- custom: Attribute conquest results to the active team-pair war so the final summary separates territorial results from battle losses and abstract war success. (GPT-5.6-Sol) -->
-	if (bConquest && eOldOwner >= 0 && eOldOwner < MAX_PLAYERS && eNewOwner >= 0 && eNewOwner < MAX_PLAYERS)
-	{
-		TeamTypes const eOldTeam = GET_PLAYER(eOldOwner).getTeam();
-		TeamTypes const eNewTeam = GET_PLAYER(eNewOwner).getTeam();
-		SASGameRecordWarSummary* pWar = findSASGameRecordWar(eOldTeam, eNewTeam);
-		if (pWar != NULL)
-		{
-			if (eNewTeam == pWar->eTeamA)
-			{
-				pWar->iCitiesCapturedByA++;
-				pWar->iPopulationCapturedByA += pCity->getPopulation();
-			}
-			else
-			{
-				pWar->iCitiesCapturedByB++;
-				pWar->iPopulationCapturedByB += pCity->getPopulation();
-			}
-			refreshSASGameRecordWarSuccess(*pWar);
-		}
-	}
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_ACQUIRED oldOwner=%d newOwner=%d cityId=%d city=%S x=%d y=%d pop=%d conquest=%d trade=%d",
-			GC.getGame().getGameTurn(), eOldOwner, eNewOwner, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation(), bConquest, bTrade);
-	logSASGameRecordCityBFC(*pCity, "acquired");
-}
-
-// <!-- custom: Only ordinary civilization-vs-civilization battles with no attacker withdrawal chance and a lethal combat limit form a true binary win/loss sample.
-// Siege/combat-limit fights, withdrawals and Barbarian free-win rules are recorded separately rather than contaminating expected-vs-observed luck. (ChatGPT-5.6-Sol) -->
-static bool isSASGameRecordLuckEligible(CvUnit const& kAttacker, CvUnit const& kDefender)
-{
-	PlayerTypes const eAttacker = kAttacker.getOwner();
-	PlayerTypes const eDefender = kDefender.getOwner();
-	return (eAttacker >= 0 && eAttacker < MAX_CIV_PLAYERS && eDefender >= 0 && eDefender < MAX_CIV_PLAYERS && !kAttacker.isBarbarian() && !kDefender.isBarbarian() && kAttacker.withdrawalProbability() <= 0 && kAttacker.combatLimit() >= kDefender.maxHitPoints());
-}
-
-static bool popSASGameRecordCombatPending(CvUnit const* pUnitA, CvUnit const* pUnitB, CvPlot const* pBattlePlot, SASGameRecordCombatPending& kResult)
-{
-	if (pUnitA == NULL || pUnitB == NULL || pBattlePlot == NULL)
+	if (pWinner == NULL || pLoser == NULL || pPlot == NULL || eSettlerOwner == NO_PLAYER)
 		return false;
-	for (int iI = (int)g_aSASGameRecordCombatPending.size() - 1; iI >= 0; iI--)
+	SASGameRecordCityPlotUnitCounts kCounts;
+	collectSASGameRecordCityPlotUnitCounts(*pPlot, eSettlerOwner, kCounts);
+	if (kCounts.iSettlers <= 0 && !bLoserWasSettler && !bWinnerWasSettler)
+		return false;
+	CvUnit const* pSettler = (bLoserWasSettler ? pLoser : (bWinnerWasSettler ? pWinner : kCounts.pFirstSettler));
+	CvSelectionGroup const* pSettlerGroup = (pSettler == NULL ? NULL : pSettler->getGroup());
+	int iGroupUnits = 0;
+	int iGroupDefenders = 0;
+	int iGroupSettlers = 0;
+	if (pSettlerGroup != NULL)
 	{
-		SASGameRecordCombatPending const& kPending = g_aSASGameRecordCombatPending[iI];
-		bool const bSameUnits =
-				((pUnitA->getOwner() == kPending.eAttacker && pUnitA->getID() == kPending.iAttackerUnitId &&
-				  pUnitB->getOwner() == kPending.eDefender && pUnitB->getID() == kPending.iDefenderUnitId) ||
-				 (pUnitB->getOwner() == kPending.eAttacker && pUnitB->getID() == kPending.iAttackerUnitId &&
-				  pUnitA->getOwner() == kPending.eDefender && pUnitA->getID() == kPending.iDefenderUnitId));
-		if (!bSameUnits || pBattlePlot->getX() != kPending.iX || pBattlePlot->getY() != kPending.iY)
-			continue;
-		kResult = kPending;
-		g_aSASGameRecordCombatPending.erase(g_aSASGameRecordCombatPending.begin() + iI);
-		return true;
-	}
-	return false;
-}
-
-void noteSASGameRecordCombatStarted(CvUnit const* pAttacker, CvUnit const* pDefender, CvPlot const* pBattlePlot)
-{
-	if (pAttacker == NULL || pDefender == NULL || pBattlePlot == NULL)
-		return;
-	bool const bLuckEligible = isSASGameRecordLuckEligible(*pAttacker, *pDefender);
-	bool const bLogExactBattle = (gGameRecordLogLevel >= 3);
-	bool const bCaptureCombatContext = (bLogExactBattle || bLuckEligible);
-	// <!-- custom: Level 2 captures transient context only for exact-odds battle-quality statistics; level 3 additionally preserves attacker identity for every exact battle row. (ChatGPT-5.6-Sol) -->
-	if (!bCaptureCombatContext)
-		return;
-	SASGameRecordCombatPending kPending;
-	kPending.eAttacker = pAttacker->getOwner();
-	kPending.eDefender = pDefender->getOwner();
-	kPending.iAttackerUnitId = pAttacker->getID();
-	kPending.iDefenderUnitId = pDefender->getID();
-	kPending.iX = pBattlePlot->getX();
-	kPending.iY = pBattlePlot->getY();
-	kPending.bLuckEligible = bLuckEligible;
-	bool const bCivilizationBattle = (pAttacker->getOwner() >= 0 && pAttacker->getOwner() < MAX_CIV_PLAYERS && pDefender->getOwner() >= 0 && pDefender->getOwner() < MAX_CIV_PLAYERS && !pAttacker->isBarbarian() && !pDefender->isBarbarian());
-	kPending.iAttackerCombatOddsPermille = ((bLuckEligible || (bLogExactBattle && bCivilizationBattle)) ? calculateCombatOdds(*pAttacker, *pDefender) : -1);
-	g_aSASGameRecordCombatPending.push_back(kPending);
-}
-
-static void recordSASGameRecordBattleLuck(PlayerTypes ePlayer, int iOwnOddsPermille, bool bWon)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS || iOwnOddsPermille < 0 || iOwnOddsPermille > 1000)
-		return;
-	SASGameRecordBattleQuality* apQuality[2] = { &g_akSASGameRecordBattleQuality[ePlayer], &g_akSASGameRecordTotalBattleQuality[ePlayer] };
-	for (int iI = 0; iI < 2; iI++)
-	{
-		SASGameRecordBattleQuality& kQuality = *apQuality[iI];
-		kQuality.iLuckEligibleBattles++;
-		kQuality.iExpectedWinsX1000 += iOwnOddsPermille;
-		if (bWon)
+		FOR_EACH_UNIT_IN(pLoopUnit, *pSettlerGroup)
 		{
-			kQuality.iLuckEligibleWins++;
-			if (iOwnOddsPermille < 500) kQuality.iUpsetWins++;
-			if (kQuality.iLowestOddsWinPermille < 0 || iOwnOddsPermille < kQuality.iLowestOddsWinPermille) kQuality.iLowestOddsWinPermille = iOwnOddsPermille;
-		}
-		else
-		{
-			if (iOwnOddsPermille > 500) kQuality.iUpsetLosses++;
-			if (iOwnOddsPermille > kQuality.iHighestOddsLossPermille) kQuality.iHighestOddsLossPermille = iOwnOddsPermille;
+			iGroupUnits++;
+			if (isSASGameRecordSettlerUnit(*pLoopUnit)) iGroupSettlers++;
+			if (pLoopUnit->canDefend(pLoopUnit->plot())) iGroupDefenders++;
 		}
 	}
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=SETTLER_GROUP_ATTACKED settlerOwner=%d settlerId=%d settlerUnit=%s x=%d y=%d cityPlot=%d winnerPlayer=%d winnerUnitId=%d winnerUnit=%s winnerAI=%s winnerBaseStr=%d winnerDamage=%d loserPlayer=%d loserUnitId=%d loserUnit=%s loserAI=%s loserBaseStr=%d loserDamage=%d loserWasSettler=%d winnerWasSettler=%d ownerUnitsOnPlot=%d militaryUnitsOnPlot=%d civilianUnitsOnPlot=%d settlersOnPlot=%d defendersOnPlot=%d healthyDefendersOnPlot=%d workersOnPlot=%d settlerGroupId=%d settlerGroupUnits=%d settlerGroupSettlers=%d settlerGroupDefenders=%d",
+			GC.getGame().getGameTurn(), eSettlerOwner, (pSettler == NULL ? -1 : pSettler->getID()), (pSettler == NULL ? "-" : getSASGameRecordUnitType(pSettler->getUnitType())), pPlot->getX(), pPlot->getY(), pPlot->isCity(),
+			pWinner->getOwner(), pWinner->getID(), getSASGameRecordUnitType(pWinner->getUnitType()), getSASGameRecordUnitAIType(pWinner->AI_getUnitAIType()), pWinner->baseCombatStr(), pWinner->getDamage(),
+			pLoser->getOwner(), pLoser->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), getSASGameRecordUnitAIType(pLoser->AI_getUnitAIType()), pLoser->baseCombatStr(), pLoser->getDamage(),
+			bLoserWasSettler, bWinnerWasSettler, kCounts.iUnits, kCounts.iMilitaryUnits, kCounts.iCivilianUnits, kCounts.iSettlers, kCounts.iDefenders, kCounts.iHealthyDefenders, kCounts.iWorkers,
+			(pSettlerGroup == NULL ? -1 : pSettlerGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders);
+	return true;
 }
 
-void logSASGameRecordNonlethalCombat(CvUnit const* pAttacker, CvUnit const* pDefender, CvPlot const* pBattlePlot, bool bCombatLimitReached)
-{
-	if (pAttacker == NULL || pDefender == NULL || pBattlePlot == NULL)
-		return;
-	PlayerTypes const eAttacker = pAttacker->getOwner();
-	PlayerTypes const eDefender = pDefender->getOwner();
-	if (eAttacker >= 0 && eAttacker < MAX_CIV_PLAYERS)
-	{
-		SASGameRecordBattleQuality* apQuality[2] = { &g_akSASGameRecordBattleQuality[eAttacker], &g_akSASGameRecordTotalBattleQuality[eAttacker] };
-		for (int iI = 0; iI < 2; iI++)
-		{
-			if (bCombatLimitReached) apQuality[iI]->iCombatLimitAttacks++;
-			else apQuality[iI]->iWithdrawals++;
-		}
-	}
-	if (eDefender >= 0 && eDefender < MAX_CIV_PLAYERS)
-	{
-		SASGameRecordBattleQuality* apQuality[2] = { &g_akSASGameRecordBattleQuality[eDefender], &g_akSASGameRecordTotalBattleQuality[eDefender] };
-		for (int iI = 0; iI < 2; iI++)
-		{
-			if (bCombatLimitReached) apQuality[iI]->iCombatLimitDefenses++;
-			else apQuality[iI]->iEnemyWithdrawals++;
-		}
-	}
-	SASGameRecordCombatPending kPending;
-	bool const bPending = popSASGameRecordCombatPending(pAttacker, pDefender, pBattlePlot, kPending);
-	if (gGameRecordLogLevel >= 3)
-	{
-		logSASGameRecord("GAME_RECORD_BATTLE_NONLETHAL turn=%d attacker=%d defender=%d attackerUnit=%s attackerUnitId=%d defenderUnit=%s defenderUnitId=%d reason=%s x=%d y=%d cityPlot=%d attackerBaseStr=%d defenderBaseStr=%d attackerDamage=%d defenderDamage=%d attackerCombatLimit=%d attackerWithdrawal=%d attackerCombatOddsPermille=%d attackerXP=%d attackerLevel=%d defenderXP=%d defenderLevel=%d",
-			GC.getGame().getGameTurn(), eAttacker, eDefender, getSASGameRecordUnitType(pAttacker->getUnitType()), pAttacker->getID(),
-			getSASGameRecordUnitType(pDefender->getUnitType()), pDefender->getID(), bCombatLimitReached ? "COMBAT_LIMIT" : "WITHDRAWAL",
-			pBattlePlot->getX(), pBattlePlot->getY(), pBattlePlot->isCity(), pAttacker->baseCombatStr(), pDefender->baseCombatStr(), pAttacker->getDamage(), pDefender->getDamage(), pAttacker->combatLimit(), pAttacker->withdrawalProbability(),
-			bPending ? kPending.iAttackerCombatOddsPermille : -1, pAttacker->getExperience(), pAttacker->getLevel(), pDefender->getExperience(), pDefender->getLevel());
-	}
-}
-
-void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser, CvPlot const* pBattlePlot)
+// <!-- custom: Add the actual battle target for Settler-group context. Using the losing unit's plot falsely treated a failed attack launched from a Settler stack as an attack against that stack. See KI#377. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static void logSASGameRecordSettlerCombatIfNeeded(CvUnit const* pWinner, CvUnit const* pLoser, CvPlot const* pBattlePlot)
 {
 	if (pWinner == NULL || pLoser == NULL || pBattlePlot == NULL)
 		return;
-	// <!-- custom: Capture Settler-stack exposure before combat-result aggregation; CvEventReporter already supplies the authoritative battle target and level-2 caller gate. (GPT-5.6-Sol) -->
-	logSASGameRecordSettlerCombatIfNeeded(pWinner, pLoser, pBattlePlot);
-	PlayerTypes const eWinner = pWinner->getOwner();
-	PlayerTypes const eLoser = pLoser->getOwner();
-	bool const bCityPlot = pBattlePlot->isCity();
-	bool const bLogExactBattle = (gGameRecordLogLevel >= 3);
-	SASGameRecordCombatPending kPending;
-	bool const bPending = popSASGameRecordCombatPending(pWinner, pLoser, pBattlePlot, kPending);
-	if (bPending && kPending.bLuckEligible && kPending.iAttackerCombatOddsPermille >= 0)
-	{
-		bool const bAttackerWon = (eWinner == kPending.eAttacker && pWinner->getID() == kPending.iAttackerUnitId);
-		recordSASGameRecordBattleLuck(kPending.eAttacker, kPending.iAttackerCombatOddsPermille, bAttackerWon);
-		recordSASGameRecordBattleLuck(kPending.eDefender, 1000 - kPending.iAttackerCombatOddsPermille, !bAttackerWon);
-	}
-	int const iLoserProductionNeeded = (eLoser >= 0 && eLoser < MAX_PLAYERS ? GET_PLAYER(eLoser).getProductionNeeded(pLoser->getUnitType()) : 0);
-	if (eWinner >= 0 && eWinner < MAX_PLAYERS)
-	{
-		g_aiSASGameRecordBattleWins[eWinner]++;
-		g_aiSASGameRecordTotalBattleWins[eWinner]++;
-		SASGameRecordPlayerFlow& kWinnerFlow = g_akSASGameRecordPlayerFlow[eWinner];
-		kWinnerFlow.iCombatWins++;
-		if (eLoser >= 0 && eLoser < MAX_PLAYERS)
-		{
-			kWinnerFlow.iEnemyProductionNeededDestroyed += iLoserProductionNeeded;
-			kWinnerFlow.iEnemyExperienceDestroyed += pLoser->getExperience();
-			g_akSASGameRecordMilitaryQualityTotals[eWinner].iEnemyExperienceDestroyed += pLoser->getExperience();
-		}
-		if (bCityPlot)
-		{
-			g_aiSASGameRecordCityBattleWins[eWinner]++;
-			g_aiSASGameRecordTotalCityBattleWins[eWinner]++;
-			kWinnerFlow.iCityPlotWins++;
-		}
-	}
-	if (eLoser >= 0 && eLoser < MAX_PLAYERS)
-	{
-		g_aiSASGameRecordBattleLosses[eLoser]++;
-		g_aiSASGameRecordTotalBattleLosses[eLoser]++;
-		SASGameRecordPlayerFlow& kLoserFlow = g_akSASGameRecordPlayerFlow[eLoser];
-		kLoserFlow.iCombatLosses++;
-		kLoserFlow.iOwnProductionNeededLost += iLoserProductionNeeded;
-		kLoserFlow.iOwnExperienceLost += pLoser->getExperience();
-		g_akSASGameRecordMilitaryQualityTotals[eLoser].iOwnExperienceLost += pLoser->getExperience();
-		if (bCityPlot)
-		{
-			g_aiSASGameRecordCityBattleLosses[eLoser]++;
-			g_aiSASGameRecordTotalCityBattleLosses[eLoser]++;
-			kLoserFlow.iCityPlotLosses++;
-		}
-	}
-	// <!-- custom: Keep battle aggregates scoped to the active war between the combatants' teams; Barbarian/third-party losses cannot leak into another simultaneous war. (GPT-5.6-Sol) -->
-	if (eWinner >= 0 && eWinner < MAX_PLAYERS && eLoser >= 0 && eLoser < MAX_PLAYERS)
-	{
-		TeamTypes const eWinnerTeam = GET_PLAYER(eWinner).getTeam();
-		TeamTypes const eLoserTeam = GET_PLAYER(eLoser).getTeam();
-		SASGameRecordWarSummary* pWar = findSASGameRecordWar(eWinnerTeam, eLoserTeam);
-		if (pWar != NULL)
-		{
-			if (eWinnerTeam == pWar->eTeamA)
-			{
-				pWar->iUnitsDestroyedByA++;
-				pWar->iProductionDestroyedByA += iLoserProductionNeeded;
-				if (bCityPlot) pWar->iCityPlotWinsA++;
-			}
-			else
-			{
-				pWar->iUnitsDestroyedByB++;
-				pWar->iProductionDestroyedByB += iLoserProductionNeeded;
-				if (bCityPlot) pWar->iCityPlotWinsB++;
-			}
-			refreshSASGameRecordWarSuccess(*pWar);
-		}
-	}
-	// <!-- custom: GREAT_GENERAL_ATTACHED records the attachment transaction; preserve the matching host-unit combat death so an attached Great General can be followed through its final outcome. (GPT-5.6-Sol) -->
-	if (pLoser->getLeaderUnitType() != NO_UNIT)
-	{
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_GENERAL_UNIT_DIED player=%d unitId=%d unit=%s attachedGreatGeneral=%s winnerPlayer=%d winnerUnitId=%d winnerUnit=%s x=%d y=%d",
-			GC.getGame().getGameTurn(), eLoser, pLoser->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), getSASGameRecordUnitType(pLoser->getLeaderUnitType()),
-			eWinner, pWinner->getID(), getSASGameRecordUnitType(pWinner->getUnitType()), pBattlePlot->getX(), pBattlePlot->getY());
-	}
-	logSASGameRecordGreatPersonDied(pLoser, eWinner, "COMBAT", pBattlePlot);
-	if (!bLogExactBattle)
+	bool const bLoserWasSettler = isSASGameRecordSettlerUnit(*pLoser);
+	bool const bWinnerWasSettler = isSASGameRecordSettlerUnit(*pWinner);
+	if (bLoserWasSettler && logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pLoser->getOwner(), true, bWinnerWasSettler))
 		return;
-	int const iWinnerOddsPermille = (!bPending || kPending.iAttackerCombatOddsPermille < 0 ? -1 :
-		(eWinner == kPending.eAttacker && pWinner->getID() == kPending.iAttackerUnitId ? kPending.iAttackerCombatOddsPermille : 1000 - kPending.iAttackerCombatOddsPermille));
-	if (eWinner == BARBARIAN_PLAYER || eLoser == BARBARIAN_PLAYER)
-	{
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BARBARIAN_COMBAT winnerPlayer=%d winnerUnitId=%d winnerUnit=%s winnerAI=%s winnerDamage=%d loserPlayer=%d loserUnitId=%d loserUnit=%s loserAI=%s loserDamage=%d x=%d y=%d cityPlot=%d",
-			GC.getGame().getGameTurn(), eWinner, pWinner->getID(), getSASGameRecordUnitType(pWinner->getUnitType()), getSASGameRecordUnitAIType(pWinner->AI_getUnitAIType()), pWinner->getDamage(),
-			eLoser, pLoser->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), getSASGameRecordUnitAIType(pLoser->AI_getUnitAIType()), pLoser->getDamage(), pBattlePlot->getX(), pBattlePlot->getY(), bCityPlot);
-	}
-	logSASGameRecord("GAME_RECORD_BATTLE turn=%d winner=%d loser=%d winnerUnit=%s winnerUnitId=%d loserUnit=%s loserUnitId=%d attacker=%d attackerUnitId=%d attackerCombatOddsPermille=%d winnerCombatOddsPermille=%d x=%d y=%d cityPlot=%d winnerBaseStr=%d loserBaseStr=%d winnerDamage=%d loserDamage=%d winnerXP=%d winnerLevel=%d loserXP=%d loserLevel=%d winnerLeaderUnit=%s loserLeaderUnit=%s",
-		GC.getGame().getGameTurn(), eWinner, eLoser, getSASGameRecordUnitType(pWinner->getUnitType()), pWinner->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), pLoser->getID(),
-		bPending ? kPending.eAttacker : NO_PLAYER, bPending ? kPending.iAttackerUnitId : -1, bPending ? kPending.iAttackerCombatOddsPermille : -1, iWinnerOddsPermille,
-		pBattlePlot->getX(), pBattlePlot->getY(), bCityPlot, pWinner->baseCombatStr(), pLoser->baseCombatStr(), pWinner->getDamage(), pLoser->getDamage(),
-		pWinner->getExperience(), pWinner->getLevel(), pLoser->getExperience(), pLoser->getLevel(), getSASGameRecordUnitType(pWinner->getLeaderUnitType()), getSASGameRecordUnitType(pLoser->getLeaderUnitType()));
+	if (bWinnerWasSettler && logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pWinner->getOwner(), bLoserWasSettler, true))
+		return;
+	if (logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pLoser->getOwner(), false, false))
+		return;
+	logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pWinner->getOwner(), false, false);
 }
 
-void logSASGameRecordExperienceChange(CvUnit const* pUnit, int iAdjustedChange, int iActualChange, bool bFromCombat)
-{
-	if (pUnit == NULL)
-		return;
-	PlayerTypes const ePlayer = pUnit->getOwner();
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
-		return;
-	int const iGained = std::max(0, iActualChange);
-	int const iLostAdjustment = std::max(0, -iActualChange);
-	int const iPreventedByCap = (iAdjustedChange > 0 ? std::max(0, iAdjustedChange - iGained) : 0);
-	if (iGained <= 0 && iLostAdjustment <= 0 && iPreventedByCap <= 0)
-		return;
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
-	kFlow.iExperienceGained += iGained;
-	if (bFromCombat) kFlow.iCombatExperienceGained += iGained;
-	else kFlow.iNonCombatExperienceGained += iGained;
-	kFlow.iExperiencePreventedByCap += iPreventedByCap;
-	kFlow.iExperienceLostAdjustments += iLostAdjustment;
-	SASGameRecordMilitaryQualityTotals& kTotal = g_akSASGameRecordMilitaryQualityTotals[ePlayer];
-	kTotal.iExperienceGained += iGained;
-	if (bFromCombat) kTotal.iCombatExperienceGained += iGained;
-	else kTotal.iNonCombatExperienceGained += iGained;
-	kTotal.iExperiencePreventedByCap += iPreventedByCap;
-	kTotal.iExperienceLostAdjustments += iLostAdjustment;
-}
-
-void logSASGameRecordUnitPromoted(CvUnit const* pUnit, PromotionTypes ePromotion)
-{
-	if (pUnit == NULL || ePromotion == NO_PROMOTION)
-		return;
-	PlayerTypes const ePlayer = pUnit->getOwner();
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
-		return;
-	bool const bLeaderPromotion = GC.getInfo(ePromotion).isLeader();
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
-	SASGameRecordMilitaryQualityTotals& kTotal = g_akSASGameRecordMilitaryQualityTotals[ePlayer];
-	if (bLeaderPromotion)
-	{
-		kFlow.iLeaderPromotionApplications++;
-		kTotal.iLeaderPromotionApplications++;
-		return; // <!-- custom: GREAT_GENERAL_ATTACHED already provides the exact level-2 action with both source and target units. (ChatGPT-5.6-Sol) -->
-	}
-	kFlow.iPromotionsChosen++;
-	kTotal.iPromotionsChosen++;
-	int const iPromotion = (int)ePromotion;
-	if (iPromotion >= 0 && iPromotion < (int)kFlow.aiPromotionChoices.size())
-		kFlow.aiPromotionChoices[iPromotion]++;
-	if (gGameRecordLogLevel >= 3)
-	{
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_PROMOTED player=%d unitId=%d unit=%s unitAI=%s promotion=%s x=%d y=%d xp=%d level=%d",
-			GC.getGame().getGameTurn(), ePlayer, pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
-			getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), getSASGameRecordPromotionType(ePromotion),
-			pUnit->getX(), pUnit->getY(), pUnit->getExperience(), pUnit->getLevel());
-	}
-}
-
-void logSASGameRecordGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit const* pTargetUnit, PromotionTypes ePromotion)
-{
-	if (pGreatGeneral == NULL || pTargetUnit == NULL)
-		return;
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_GENERAL_ATTACHED player=%d generalUnitId=%d generalUnit=%s targetUnitId=%d targetUnit=%s targetUnitAI=%s x=%d y=%d promotion=%s targetXP=%d targetLevel=%d",
-		GC.getGame().getGameTurn(), pGreatGeneral->getOwner(), pGreatGeneral->getID(), getSASGameRecordUnitType(pGreatGeneral->getUnitType()),
-		pTargetUnit->getID(), getSASGameRecordUnitType(pTargetUnit->getUnitType()), getSASGameRecordUnitAIType(pTargetUnit->AI_getUnitAIType()),
-		pTargetUnit->getX(), pTargetUnit->getY(), ePromotion == NO_PROMOTION ? "-" : GC.getInfo(ePromotion).getType(),
-		pTargetUnit->getExperience(), pTargetUnit->getLevel());
-}
-
-void logSASGameRecordUnitScrapped(CvUnit const* pUnit)
-{
-	if (pUnit == NULL)
-		return;
-	PlayerTypes const ePlayer = pUnit->getOwner();
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
-		return;
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
-	kFlow.iScrapped++;
-	kFlow.iScrappedProductionNeeded += GET_PLAYER(ePlayer).getProductionNeeded(pUnit->getUnitType());
-	if (gGameRecordLogLevel >= 3)
-	{
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_SCRAPPED player=%d unitId=%d unit=%s unitAI=%s x=%d y=%d damage=%d xp=%d level=%d age=%d cargo=%d cargoSpace=%d",
-			GC.getGame().getGameTurn(), ePlayer, pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
-			pUnit->getX(), pUnit->getY(), pUnit->getDamage(), pUnit->getExperience(), pUnit->getLevel(), GC.getGame().getGameTurn() - pUnit->getGameTurnCreated(),
-			pUnit->getCargo(), pUnit->cargoSpace());
-	}
-}
-
-void logSASGameRecordUnitUpgraded(CvUnit const* pOldUnit, CvUnit const* pNewUnit, int iCost)
-{
-	if (pOldUnit == NULL || pNewUnit == NULL)
-		return;
-	PlayerTypes const ePlayer = pNewUnit->getOwner();
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
-		return;
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
-	kFlow.iUpgrades++;
-	kFlow.iUpgradeGold += iCost;
-	if (gGameRecordLogLevel >= 3)
-	{
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_UPGRADED player=%d oldUnitId=%d newUnitId=%d fromUnit=%s toUnit=%s unitAI=%s x=%d y=%d cost=%d oldXP=%d newXP=%d oldLevel=%d newLevel=%d",
-			GC.getGame().getGameTurn(), ePlayer, pOldUnit->getID(), pNewUnit->getID(), getSASGameRecordUnitType(pOldUnit->getUnitType()),
-			getSASGameRecordUnitType(pNewUnit->getUnitType()), getSASGameRecordUnitAIType(pNewUnit->AI_getUnitAIType()),
-			pNewUnit->getX(), pNewUnit->getY(), iCost, pOldUnit->getExperience(), pNewUnit->getExperience(),
-			pOldUnit->getLevel(), pNewUnit->getLevel());
-	}
-}
-
-void logSASGameRecordUnitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit const* pNewUnit)
-{
-	if (pNewUnit == NULL)
-		return;
-	PlayerTypes const eNewOwner = pNewUnit->getOwner();
-	if (eNewOwner < 0 || eNewOwner >= MAX_PLAYERS)
-		return;
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[eNewOwner];
-	kFlow.iCaptured++;
-	kFlow.iCapturedProductionNeeded += GET_PLAYER(eNewOwner).getProductionNeeded(pNewUnit->getUnitType());
-	// <!-- custom: Upstream AdvCiv 1.14 has no mature-SAS unitCaptured Python event. Log directly at the successful initUnit boundary so this telemetry port stays factual without expanding the Python event API merely for recorder plumbing. (ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_CAPTURED oldOwner=%d newOwner=%d oldUnit=%s newUnitId=%d newUnit=%s newUnitAI=%s x=%d y=%d",
-		GC.getGame().getGameTurn(), eOldOwner, eNewOwner, getSASGameRecordUnitType(eOldUnitType), pNewUnit->getID(),
-		getSASGameRecordUnitType(pNewUnit->getUnitType()), getSASGameRecordUnitAIType(pNewUnit->AI_getUnitAIType()),
-		pNewUnit->getX(), pNewUnit->getY());
-}
-
-// <!-- custom: Ordinary unit-completion hooks do not see animals and other Barbarian units created directly from fog. Record those explicit spawn sites without instrumenting every unrelated CvPlayer::initUnit caller. (ChatGPT-5.6-Sol) -->
+// <!-- custom: GAME_RECORD_ACTION is narrower than a generic row: it records chronological gameplay happenings such as techs, city ownership, war state, Great People, unit upgrades, and victory. Do not rename this to GAME_RECORD_ROW; "row" is too generic because every log line is already a row. This keeps the row type useful without using "event", which can be confused with Civ4 EventInfo/random events. (GPT-5.5) -->
+// <!-- custom: Ordinary unit-completion hooks do not see animals and other Barbarian units created directly from fog. Record those explicit spawn sites without instrumenting every unrelated CvPlayer::initUnit caller. (GPT-5.6-Sol) -->
 void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause)
 {
 	if (pUnit == NULL || pUnit->getOwner() != BARBARIAN_PLAYER)
@@ -6911,230 +6087,6 @@ void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause)
 			GC.getGame().getGameTurn(), szCause, pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
 			pUnit->getX(), pUnit->getY(), pPlot == NULL ? -1 : pPlot->getArea().getID(), pUnit->isCargo(), pUnit->getTransportUnit() == NULL ? -1 : pUnit->getTransportUnit()->getID());
 }
-
-SASGameRecordPlotState::SASGameRecordPlotState() : eTerrain(NO_TERRAIN), eFeature(NO_FEATURE), eBonus(NO_BONUS), eImprovement(NO_IMPROVEMENT), eRoute(NO_ROUTE)
-{
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		aiExtraYield[iI] = 0;
-}
-
-SASGameRecordPlotState::SASGameRecordPlotState(CvPlot const& kPlot) : eTerrain(kPlot.getTerrainType()), eFeature(kPlot.getFeatureType()), eBonus(kPlot.getBonusType()), eImprovement(kPlot.getImprovementType()), eRoute(kPlot.getRouteType())
-{
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		aiExtraYield[iI] = GC.getMap().getPlotExtraYield(kPlot, (YieldTypes)iI);
-}
-
-static bool isSASGameRecordPlotStateChanged(SASGameRecordPlotState const& kOldState, CvPlot const& kPlot)
-{
-	if (kOldState.eTerrain != kPlot.getTerrainType() || kOldState.eFeature != kPlot.getFeatureType() ||
-		kOldState.eBonus != kPlot.getBonusType() || kOldState.eImprovement != kPlot.getImprovementType() ||
-		kOldState.eRoute != kPlot.getRouteType())
-		return true;
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		if (kOldState.aiExtraYield[iI] != GC.getMap().getPlotExtraYield(kPlot, (YieldTypes)iI))
-			return true;
-	}
-	return false;
-}
-
-static void addSASGameRecordCoordinate(std::vector<std::pair<int,int> >& aCoordinates, CvPlot const& kPlot)
-{
-	std::pair<int,int> const kCoordinate(kPlot.getX(), kPlot.getY());
-	if (std::find(aCoordinates.begin(), aCoordinates.end(), kCoordinate) == aCoordinates.end())
-		aCoordinates.push_back(kCoordinate);
-}
-
-static void appendSASGameRecordCoordinateChunks(std::vector<CvString>& aszChunks, CvString& szChunk, char const* szCategory, std::vector<std::pair<int,int> > const& aCoordinates)
-{
-	for (size_t iI = 0; iI < aCoordinates.size(); iI++)
-	{
-		CvString szItem;
-		if (iI == 0)
-			szItem.Format("%s%s=(%d,%d)", szChunk.empty() ? "" : " ", szCategory, aCoordinates[iI].first, aCoordinates[iI].second);
-		else szItem.Format(",(%d,%d)", aCoordinates[iI].first, aCoordinates[iI].second);
-		if (!szChunk.empty() && szChunk.length() + szItem.length() > 1500)
-		{
-			aszChunks.push_back(szChunk);
-			szChunk.clear();
-			szItem.Format("%s=(%d,%d)", szCategory, aCoordinates[iI].first, aCoordinates[iI].second);
-		}
-		szChunk += szItem;
-	}
-}
-
-static int getSASGameRecordRevealedPlotCount(TeamTypes eTeam)
-{
-	int iRevealed = 0;
-	int iLoop = 0;
-	for (CvArea const* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
-		iRevealed += pLoopArea->getNumRevealedTiles(eTeam);
-	return iRevealed;
-}
-
-void beginSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech)
-{
-	FAssert(g_eSASGameRecordFullMapRevelationTeam == NO_TEAM);
-	FAssert(eTeam >= 0 && eTeam < MAX_CIV_TEAMS);
-	FAssert(eTech != NO_TECH);
-	g_eSASGameRecordFullMapRevelationTeam = eTeam;
-	g_iSASGameRecordFullMapRevealedBefore = getSASGameRecordRevealedPlotCount(eTeam);
-}
-
-void endSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech)
-{
-	FAssert(g_eSASGameRecordFullMapRevelationTeam == eTeam);
-	int const iRevealed = getSASGameRecordRevealedPlotCount(eTeam);
-	int const iNewlyRevealed = iRevealed - g_iSASGameRecordFullMapRevealedBefore;
-	int const iRevealedPctX100 = (10000 * iRevealed) / std::max(1, (int)GC.getMap().numPlots());
-	logSASGameRecord("GAME_RECORD_MAP_REVELATION turn=%d team=%d cause=MAP_VISIBLE_TECH tech=%s revealMode=FULL_MAP newlyRevealedCount=%d revealedPlots=%d revealedPctX100=%d",
-		GC.getGame().getGameTurn(), eTeam, getSASGameRecordTechType(eTech), iNewlyRevealed, iRevealed, iRevealedPctX100);
-	g_eSASGameRecordFullMapRevelationTeam = NO_TEAM;
-	g_iSASGameRecordFullMapRevealedBefore = 0;
-}
-
-static void prepareSASGameRecordTurnChanges()
-{
-	int const iGameTurn = GC.getGame().getGameTurn();
-	if (g_iSASGameRecordPendingPlotTurn >= 0 && g_iSASGameRecordPendingPlotTurn != iGameTurn)
-		flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
-	if (g_iSASGameRecordPendingPlotTurn < 0)
-		g_iSASGameRecordPendingPlotTurn = iGameTurn;
-}
-
-static void bufferSASGameRecordPlotChangeCoordinate(CvPlot const& kPlot, char const* szCategory)
-{
-	prepareSASGameRecordTurnChanges();
-	SASGameRecordPlotChangeGroup* pGroup = NULL;
-	for (size_t iI = 0; iI < g_aSASGameRecordPlotChanges.size(); iI++)
-	{
-		if (g_aSASGameRecordPlotChanges[iI].szCategory == szCategory)
-		{
-			pGroup = &g_aSASGameRecordPlotChanges[iI];
-			break;
-		}
-	}
-	if (pGroup == NULL)
-	{
-		SASGameRecordPlotChangeGroup kGroup;
-		kGroup.szCategory = szCategory;
-		g_aSASGameRecordPlotChanges.push_back(kGroup);
-		pGroup = &g_aSASGameRecordPlotChanges.back();
-	}
-	addSASGameRecordCoordinate(pGroup->aCoordinates, kPlot);
-}
-
-void flushSASGameRecordTurnChanges(int iGameTurn)
-{
-	flushSASGameRecordPendingCityBombard();
-	if (g_iSASGameRecordPendingPlotTurn < 0)
-		return;
-	FAssert(iGameTurn == g_iSASGameRecordPendingPlotTurn);
-	std::vector<CvString> aszPlotChunks;
-	CvString szPlotChunk;
-	for (size_t iI = 0; iI < g_aSASGameRecordPlotChanges.size(); iI++)
-		appendSASGameRecordCoordinateChunks(aszPlotChunks, szPlotChunk, g_aSASGameRecordPlotChanges[iI].szCategory.GetCString(), g_aSASGameRecordPlotChanges[iI].aCoordinates);
-	if (!szPlotChunk.empty())
-		aszPlotChunks.push_back(szPlotChunk);
-	for (size_t iI = 0; iI < aszPlotChunks.size(); iI++)
-		logSASGameRecord("GAME_RECORD_PLOT_CHANGES turn=%d part=%d parts=%d changes=%s", iGameTurn, (int)iI + 1, (int)aszPlotChunks.size(), aszPlotChunks[iI].GetCString());
-
-	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
-	{
-		std::vector<std::pair<int,int> > const& aCoordinates = g_aaSASGameRecordRevealedPlots[iI];
-		if (aCoordinates.empty())
-			continue;
-		std::vector<CvString> aszRevelationChunks;
-		CvString szRevelationChunk;
-		appendSASGameRecordCoordinateChunks(aszRevelationChunks, szRevelationChunk, "newlyRevealed", aCoordinates);
-		if (!szRevelationChunk.empty())
-			aszRevelationChunks.push_back(szRevelationChunk);
-		int const iRevealedPctX100 = (10000 * getSASGameRecordRevealedPlotCount((TeamTypes)iI)) / std::max(1, (int)GC.getMap().numPlots());
-		for (size_t iJ = 0; iJ < aszRevelationChunks.size(); iJ++)
-			logSASGameRecord("GAME_RECORD_MAP_REVELATION turn=%d team=%d cause=INCREMENTAL revealMode=COORDINATES newlyRevealedCount=%d part=%d parts=%d revealedPctX100=%d %s",
-				iGameTurn, iI, (int)aCoordinates.size(), (int)iJ + 1, (int)aszRevelationChunks.size(), iRevealedPctX100, aszRevelationChunks[iJ].GetCString());
-	}
-	g_iSASGameRecordPendingPlotTurn = -1;
-	g_aSASGameRecordPlotChanges.clear();
-	for (int iI = 0; iI < MAX_TEAMS; iI++)
-		g_aaSASGameRecordRevealedPlots[iI].clear();
-}
-
-// <!-- custom: Session rollover previously reset pending city-bombard, plot-change and incremental-revelation observations without writing them. Flush while the old game/map still supply the matching turn and revelation totals, then preserve the last level-3 authoritative RNG state before the session disappears. (ChatGPT-5.6-Sol) -->
-void finalizeSASGameRecordLogSession()
-{
-	if (g_iSASGameRecordPendingPlotTurn >= 0)
-		flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
-	else flushSASGameRecordPendingCityBombard();
-	if (g_bSASGameRecordRngTrackingActive)
-		logSASGameRecordRngCheckpoint(GC.getGame().getGameTurn(), SAS_RNG_CHECKPOINT_SESSION_FINALIZE);
-	clearSASGameRecordRngTracking();
-}
-
-void recordSASGameRecordPlotChange(CvPlot const& kPlot, SASGameRecordPlotState const& kOldState, char const* szCategory, char const* szCause, bool bDetailed)
-{
-	if (GC.getGame().getElapsedGameTurns() <= 0 || !isSASGameRecordPlotStateChanged(kOldState, kPlot))
-		return;
-	bufferSASGameRecordPlotChangeCoordinate(kPlot, szCategory);
-	if (!bDetailed)
-		return;
-	logSASGameRecord("GAME_RECORD_PLOT_CHANGE turn=%d cause=%s category=%s x=%d y=%d owner=%d terrainOld=%s terrainNew=%s featureOld=%s featureNew=%s bonusOld=%s bonusNew=%s improvementOld=%s improvementNew=%s routeOld=%s routeNew=%s extraFoodOld=%d extraFoodNew=%d extraProductionOld=%d extraProductionNew=%d extraCommerceOld=%d extraCommerceNew=%d",
-		GC.getGame().getGameTurn(), szCause, szCategory, kPlot.getX(), kPlot.getY(), kPlot.getOwner(),
-		getSASGameRecordTerrainType(kOldState.eTerrain), getSASGameRecordTerrainType(kPlot.getTerrainType()),
-		getSASGameRecordFeatureType(kOldState.eFeature), getSASGameRecordFeatureType(kPlot.getFeatureType()),
-		getSASGameRecordBonusType(kOldState.eBonus), getSASGameRecordBonusType(kPlot.getBonusType()),
-		getSASGameRecordImprovementType(kOldState.eImprovement), getSASGameRecordImprovementType(kPlot.getImprovementType()),
-		getSASGameRecordRouteType(kOldState.eRoute), getSASGameRecordRouteType(kPlot.getRouteType()),
-		kOldState.aiExtraYield[YIELD_FOOD], GC.getMap().getPlotExtraYield(kPlot, YIELD_FOOD),
-		kOldState.aiExtraYield[YIELD_PRODUCTION], GC.getMap().getPlotExtraYield(kPlot, YIELD_PRODUCTION),
-		kOldState.aiExtraYield[YIELD_COMMERCE], GC.getMap().getPlotExtraYield(kPlot, YIELD_COMMERCE));
-}
-
-void logSASGameRecordRiverEdgeChanged(CvPlot const& kPlot, bool bOldSouthBoundary, bool bOldEastBoundary)
-{
-	bool const bNewSouthBoundary = kPlot.isNOfRiver();
-	bool const bNewEastBoundary = kPlot.isWOfRiver();
-	if (bOldSouthBoundary == bNewSouthBoundary && bOldEastBoundary == bNewEastBoundary)
-		return;
-	bufferSASGameRecordPlotChangeCoordinate(kPlot, "riverChanges");
-	logSASGameRecord("GAME_RECORD_RIVER_EDGE_CHANGE turn=%d x=%d y=%d owner=%d southBoundaryOld=%d southBoundaryNew=%d eastBoundaryOld=%d eastBoundaryNew=%d",
-		GC.getGame().getGameTurn(), kPlot.getX(), kPlot.getY(), kPlot.getOwner(), bOldSouthBoundary, bNewSouthBoundary, bOldEastBoundary, bNewEastBoundary);
-}
-
-void recordSASGameRecordPlotRevealed(CvPlot const& kPlot, TeamTypes eTeam)
-{
-	if (GC.getGame().getElapsedGameTurns() <= 0 || eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
-		return;
-	if (eTeam == g_eSASGameRecordFullMapRevelationTeam)
-		return;
-	prepareSASGameRecordTurnChanges();
-	g_aaSASGameRecordRevealedPlots[eTeam].push_back(std::make_pair(kPlot.getX(), kPlot.getY()));
-}
-
-void logSASGameRecordBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, BonusTypes eNewBonus)
-{
-	if (pPlot == NULL || eOldBonus == eNewBonus)
-		return;
-	SASGameRecordPlotState kOldState(*pPlot);
-	kOldState.eBonus = eOldBonus;
-	recordSASGameRecordPlotChange(*pPlot, kOldState, "resourceChanges", "RESOURCE_CHANGE", false);
-	char const* szAction = (eOldBonus == NO_BONUS ? "appeared" : (eNewBonus == NO_BONUS ? "disappeared" : "changed"));
-	CvCity const* pWorkingCity = pPlot->getWorkingCity();
-	CvCity const* pPlotCity = pPlot->getPlotCity();
-	logSASGameRecord("GAME_RECORD_BONUS_CHANGE turn=%d elapsed=%d action=%s x=%d y=%d area=%d owner=%d oldBonus=%s newBonus=%s terrain=%s feature=%s improvement=%s route=%s water=%d hills=%d peak=%d riverSide=%d cityRadius=%d workingCity=%S workingCityId=%d plotCity=%S plotCityId=%d",
-		GC.getGame().getGameTurn(), GC.getGame().getElapsedGameTurns(), szAction, pPlot->getX(), pPlot->getY(), pPlot->getArea().getID(), pPlot->getOwner(),
-		getSASGameRecordBonusType(eOldBonus), getSASGameRecordBonusType(eNewBonus), getSASGameRecordTerrainType(pPlot->getTerrainType()),
-		getSASGameRecordFeatureType(pPlot->getFeatureType()), getSASGameRecordImprovementType(pPlot->getImprovementType()),
-		getSASGameRecordRouteType(pPlot->getRouteType()), pPlot->isWater(), pPlot->isHills(), pPlot->isPeak(), pPlot->isRiverSide(), pPlot->isCityRadius(),
-		getSASGameRecordQuotedCityName(pWorkingCity).GetCString(), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()),
-		getSASGameRecordQuotedCityName(pPlotCity).GetCString(), (pPlotCity == NULL ? -1 : pPlotCity->getID()));
-}
-
-SASGameRecordGoodyResult::SASGameRecordGoodyResult() :
-	bFollowupOutcome(false), bUpgradeRoll(false), bUpgradeApplied(false), bAdditionalOutcomeAttempted(false),
-	iGold(0), iNewlyRevealedPlots(0), iExperienceGained(0), iDamageHealed(0), eTech(NO_TECH), iTechRewardValue(0),
-	iTechProgressBefore(-1), iTechProgressAfter(-1), iTechCost(-1), bTechCompleted(false), iFreePromotionsGranted(0)
-{}
 
 static CvString getSASGameRecordGoodyUnits(std::vector<CvUnit const*> const& apUnits, bool bIncludePromotions)
 {
@@ -7166,7 +6118,7 @@ static CvString getSASGameRecordGoodyUnits(std::vector<CvUnit const*> const& apU
 }
 
 // <!-- custom: Log the resolved goody result rather than only the XML label. AdvCiv goodies can randomize gold/research, reveal a variable map area, upgrade free units, spawn variable hostile units, or roll a same-sign follow-up outcome.
-// Generic TECH_ACQUIRED remains complementary chronology; this rare level-2 row ties downstream effects back to the hut that caused them. (ChatGPT-5.6-Sol) -->
+// Generic TECH_ACQUIRED and map-revelation rows remain complementary chronology; this rare level-2 row ties those downstream effects back to the hut that caused them. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordGoodyReceived(PlayerTypes ePlayer, CvPlot const* pPlot, CvUnit const* pTriggerUnit, GoodyTypes eGoody, SASGameRecordGoodyResult const& kResult)
 {
 	if (pPlot == NULL || ePlayer < 0 || ePlayer >= MAX_PLAYERS || eGoody == NO_GOODY)
@@ -7180,7 +6132,8 @@ void logSASGameRecordGoodyReceived(PlayerTypes ePlayer, CvPlot const* pPlot, CvU
 			(int)kResult.apFreeUnits.size(), kResult.iFreePromotionsGranted, getSASGameRecordGoodyUnits(kResult.apFreeUnits, true).GetCString(), (int)kResult.apBarbarianUnits.size(), getSASGameRecordGoodyUnits(kResult.apBarbarianUnits, false).GetCString());
 }
 
-// <!-- custom: A hut can exhaust NUM_DO_GOODY_ATTEMPTS without finding an eligible result. Preserve that rare factual no-outcome boundary, including failed AdvCiv follow-up rolls. (ChatGPT-5.6-Sol) -->
+// <!-- custom: A hut can exhaust NUM_DO_GOODY_ATTEMPTS without finding an eligible result.
+// Preserve that rare factual no-outcome boundary so native DLL-resolved hut removals remain explainable, including failed AdvCiv follow-up rolls. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordGoodyNoOutcome(PlayerTypes ePlayer, CvPlot const* pPlot, CvUnit const* pTriggerUnit, GoodyTypes eTaboo, int iAttempts)
 {
 	if (pPlot == NULL || ePlayer < 0 || ePlayer >= MAX_PLAYERS)
@@ -7189,7 +6142,6 @@ void logSASGameRecordGoodyNoOutcome(PlayerTypes ePlayer, CvPlot const* pPlot, Cv
 			GC.getGame().getGameTurn(), ePlayer, GET_PLAYER(ePlayer).getTeam(), pPlot->getX(), pPlot->getY(), pPlot->getArea().getID(),
 			pTriggerUnit == NULL ? -1 : pTriggerUnit->getID(), pTriggerUnit == NULL ? "-" : getSASGameRecordUnitType(pTriggerUnit->getUnitType()), eTaboo != NO_GOODY, getSASGameRecordGoodyType(eTaboo), iAttempts);
 }
-
 
 // <!-- custom: Random-event lifecycle rows summarize only broad EventInfo effect families and gameplay-relevant Python hooks, not speculative candidate weights or AI values. Callers pre-gate this diagnostic work at level 2+. (ChatGPT-5.6-Sol) -->
 static bool hasSASGameRecordRandomEventUnitLocalEffect(CvEventInfo const& kEvent)
@@ -7285,10 +6237,16 @@ static CvString getSASGameRecordRandomEventEffects(CvEventInfo const& kEvent)
 
 static char const* getSASGameRecordRandomEventNormalSelectionMode(CvEventTriggerInfo const& kTrigger)
 {
+	// <!-- custom: Mirror CvPlayer::doEvents/getEventTriggerWeight semantics exactly. Weight -1 is auto-fired whenever eligible.
+	// Values below -1 are excluded from the ordinary weighted/forced loop and are reserved for direct/special firing (e.g. the -2 Partisans trigger), while weight 0 can only reach the delivery boundary through a direct/special caller.
+	// The row describes normal engine selection semantics, not an unverifiable claim about this instance's actual caller. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int const iWeight = kTrigger.getProbability();
-	if (iWeight == -1) return "FORCED_WHEN_ELIGIBLE";
-	if (iWeight < -1) return "DIRECT_OR_SPECIAL_ONLY";
-	if (iWeight == 0) return "ZERO_WEIGHT_DIRECT_ONLY";
+	if (iWeight == -1)
+		return "FORCED_WHEN_ELIGIBLE";
+	if (iWeight < -1)
+		return "DIRECT_OR_SPECIAL_ONLY";
+	if (iWeight == 0)
+		return "ZERO_WEIGHT_DIRECT_ONLY";
 	return "WEIGHTED_RANDOM";
 }
 
@@ -7396,7 +6354,8 @@ struct SASGameRecordRandomEventTargets
 static char const* getSASGameRecordRandomEventApplyPath(CvPlayer const& kPlayer, EventTypes eEvent, int iTriggeredId, bool bUpdateTrigger, int& iCountdownDueTurn)
 {
 	iCountdownDueTurn = -1;
-	if (!bUpdateTrigger) return "ADDITIONAL_IMMEDIATE";
+	if (!bUpdateTrigger)
+		return "ADDITIONAL_IMMEDIATE";
 	EventTriggeredData const* pCountdown = kPlayer.getEventCountdown(eEvent);
 	if (pCountdown != NULL && pCountdown->m_iId == iTriggeredId && GC.getGame().getGameTurn() >= pCountdown->m_iTurn)
 	{
@@ -7406,6 +6365,8 @@ static char const* getSASGameRecordRandomEventApplyPath(CvPlayer const& kPlayer,
 	return "PRIMARY_REPLY_OR_DIRECT";
 }
 
+// <!-- custom: Record only a trigger instance that has actually reached CvPlayer::trigger after target construction/Python trigger mutation and weighted selection.
+// Candidate getEventTriggerWeight/initTriggeredData searches remain intentionally absent; the row describes the concrete stored instance that will be delivered to a human popup or immediately resolved by AI. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void logSASGameRecordRandomEventTriggered(CvPlayer const& kPlayer, EventTriggeredData const& kTriggeredData, char const* szDeliveryPath)
 {
 	CvEventTriggerInfo const& kTrigger = GC.getInfo(kTriggeredData.m_eTrigger);
@@ -7418,6 +6379,8 @@ void logSASGameRecordRandomEventTriggered(CvPlayer const& kPlayer, EventTriggere
 			getSASGameRecordReligionType(kTargets.eReligion), getSASGameRecordCorporationType(kTargets.eCorporation), getSASGameRecordBuildingType(kTargets.eBuilding), kTargets.iBuildingPresentInCity);
 }
 
+// <!-- custom: An AI can reach the real trigger-delivery boundary yet find no currently legal EventInfo after its normal canDoEvent/AI_eventValue search.
+// Record only that final NO_EVENT resolution, never the candidate values/search itself, so a delivered trigger cannot silently disappear from lifecycle history. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void logSASGameRecordRandomEventNoSelection(CvPlayer const& kPlayer, EventTriggeredData const& kTriggeredData, char const* szResolution)
 {
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_NO_SELECTION turn=%d player=%d team=%d triggeredId=%d trigger=%s resolution=%s triggerTurn=%d ageTurns=%d",
@@ -7449,7 +6412,7 @@ void logSASGameRecordRandomEventApply(CvPlayer const& kPlayer, EventTypes eEvent
 
 
 // <!-- custom: EventInfo gold can come from fixed/random gold or a dynamically selected technology-cost percentage.
-// Reuse the exact already-computed cost endpoints/result from CvPlayer::applyEvent so logging captures the realized treasury transaction without additional RNG, tech selection, or event-cost calculation. (ChatGPT-5.6-Sol) -->
+// Reuse the exact already-computed cost endpoints/result from CvPlayer::applyEvent so logging captures the realized treasury transaction without additional RNG, tech selection, or event-cost calculation. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void logSASGameRecordRandomEventGoldResult(CvPlayer const& kPlayer, EventTypes eEvent, int iTriggeredId, int iRangeLow, int iRangeHigh, int iPlayerGoldDelta, PlayerTypes eOtherPlayer, bool bGoldToPlayer)
 {
 	int const iOtherGoldDelta = (bGoldToPlayer && eOtherPlayer != NO_PLAYER ? -iPlayerGoldDelta : 0);
@@ -7459,15 +6422,13 @@ void logSASGameRecordRandomEventGoldResult(CvPlayer const& kPlayer, EventTypes e
 
 // <!-- custom: A random EventInfo can dynamically choose a research target and apply only partial progress.
 // Record the already-selected tech and actual signed beaker result after gameplay applies it; TECH_ACQUIRED remains canonical if the event completes the technology.
-// No extra tech search or RNG is performed for logging. (ChatGPT-5.6-Sol) -->
+// No extra tech search or RNG is performed for logging. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void logSASGameRecordRandomEventTechResult(CvPlayer const& kPlayer, EventTypes eEvent, int iTriggeredId, TechTypes eTech, int iTechPercent, int iResearchBefore, int iBeakersApplied, int iResearchAfter, int iTechCost, int iCompleted)
 {
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_TECH_RESULT turn=%d player=%d team=%d triggeredId=%d event=%s tech=%s techPercent=%d researchBefore=%d beakersApplied=%d researchAfter=%d techCost=%d completed=%d",
 			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventType(eEvent), getSASGameRecordTechType(eTech), iTechPercent, iResearchBefore, iBeakersApplied, iResearchAfter, iTechCost, iCompleted);
 }
 
-// <!-- custom: Successful ClearEventChance rolls are durable EventInfo lifecycle changes, not candidate diagnostics.
-// Record only the realized clear transaction after the existing player/team/global reset loop has run, including how many scoped occurrences actually existed and were cleared. (ChatGPT-5.6-Sol) -->
 SASGameRecordRandomEventCityState::SASGameRecordRandomEventCityState() :
 		iPopulation(-1), iFood(-1), iFoodYield(-1), iProductionYield(-1), iCommerceYield(-1),
 		iGoldRate(-1), iResearchRate(-1), iCultureRate(-1), iEspionageRate(-1), iOwnerCultureTimes100(-1),
@@ -7500,7 +6461,8 @@ SASGameRecordRandomEventCityState::SASGameRecordRandomEventCityState(CvCity cons
 	}
 }
 
-// <!-- custom: Keep deterministic EventInfo city consequences compact and realized: record before/after state only when something actually changed. Include immediate yield/commerce output so transient city consequences do not disappear before the next periodic snapshot. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Keep deterministic EventInfo city consequences compact and realized: record before/after state only when something actually changed.
+// Include immediate yield/commerce output so building modifiers do not disappear until a later periodic snapshot; plot pillage, free units, gold and tech retain their specialized result rows. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordRandomEventCityResult(PlayerTypes ePlayer, PlayerTypes eAffectedPlayer, int iTriggeredId, EventTypes eEvent, char const* szScope, CvCity const& kCity, SASGameRecordRandomEventCityState const& kBefore, SASGameRecordRandomEventCityState const& kAfter)
 {
 	bool const bChanged = (kBefore.iPopulation != kAfter.iPopulation || kBefore.iFood != kAfter.iFood ||
@@ -7734,6 +6696,8 @@ void logSASGameRecordRandomEventFreeUnitsResult(PlayerTypes ePlayer, PlayerTypes
 			pSpawnCity == NULL ? -1 : pSpawnCity->getID(), pSpawnCity == NULL ? INVALID_PLOT_COORD : pSpawnCity->getX(), pSpawnCity == NULL ? INVALID_PLOT_COORD : pSpawnCity->getY());
 }
 
+// <!-- custom: Successful ClearEventChance rolls are durable EventInfo lifecycle changes, not candidate diagnostics.
+// Record only the realized clear transaction after the existing player/team/global reset loop has run, including how many scoped occurrences actually existed and were cleared. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void logSASGameRecordRandomEventOccurrenceCleared(CvPlayer const& kPlayer, EventTypes eSourceEvent, EventTypes eClearedEvent, int iTriggeredId, int iClearChance, char const* szScope, TeamTypes eScopeTeam, int iScopePlayerSlots, int iScopeEverAlivePlayers, int iClearedOccurrences)
 {
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_OCCURRENCE_CLEARED turn=%d player=%d team=%d triggeredId=%d sourceEvent=%s clearedEvent=%s clearChance=%d scope=%s scopeTeam=%d scopePlayerSlots=%d scopeEverAlivePlayers=%d clearedOccurrences=%d",
@@ -7741,7 +6705,8 @@ void logSASGameRecordRandomEventOccurrenceCleared(CvPlayer const& kPlayer, Event
 			iClearChance, szScope, eScopeTeam, iScopePlayerSlots, iScopeEverAlivePlayers, iClearedOccurrences);
 }
 
-// <!-- custom: checkExpireEvent can end a previously applied quest/event turns after its original trigger. Record the exact existing branch that caused meaningful expiry plus stored-target validity; routine NON_QUEST_TIMEOUT housekeeping is intentionally suppressed by the caller. (ChatGPT-5.6-Sol) -->
+// <!-- custom: checkExpireEvent can end a previously applied quest/event turns after its original trigger.
+// Record the exact existing branch that caused meaningful expiry plus the post-removal stored-target validity; routine NON_QUEST_TIMEOUT housekeeping is intentionally suppressed by the caller. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void logSASGameRecordRandomEventExpired(CvPlayer const& kPlayer, EventTypes eEvent, EventTriggeredData const& kTriggeredData, char const* szReason)
 {
 	CvEventInfo const& kEvent = GC.getInfo(eEvent);
@@ -7763,10 +6728,606 @@ void logSASGameRecordRandomEventPillageResult(char const* szScope, PlayerTypes e
 			GC.getGame().getGameTurn(), szScope, ePlayer, eAffectedPlayer, iCityId, iTriggeredId, getSASGameRecordEventType(eEvent), iMinPillage, iMaxPillage, iAttempts, iDestroyed, std::max(0, iAttempts - iDestroyed));
 }
 
+// <!-- custom: Delayed AdditionalEvent outcomes are actual scheduled lifecycle state, unlike speculative candidate/chance evaluation.
+// Record the due turn only after the existing chance roll and earliest-countdown merge have resolved. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void logSASGameRecordRandomEventCountdownScheduled(CvPlayer const& kPlayer, EventTypes eSourceEvent, EventTypes eFollowupEvent, int iTriggeredId, int iRequestedDueTurn, int iPreviousDueTurn, int iScheduledDueTurn)
 {
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_COUNTDOWN_SCHEDULED turn=%d player=%d team=%d triggeredId=%d sourceEvent=%s followupEvent=%s requestedDueTurn=%d previousDueTurn=%d scheduledDueTurn=%d delayTurns=%d",
 			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventType(eSourceEvent), getSASGameRecordEventType(eFollowupEvent), iRequestedDueTurn, iPreviousDueTurn, iScheduledDueTurn, iScheduledDueTurn - GC.getGame().getGameTurn());
+}
+
+// <!-- custom: Keep exact research-overflow arithmetic separate from TECH_ACQUIRED because only ordinary research completion has meaningful progress/overflow conversion. The threshold caller supplies its exact arithmetic while recorder-local same-turn application context supplies the fresh-research/carried-overflow split without widening generic research APIs. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
+{
+	if (pCity == NULL || pUnit == NULL)
+		return;
+	PlayerTypes const ePlayer = pUnit->getOwner();
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
+	int const iProductionNeeded = GET_PLAYER(ePlayer).getProductionNeeded(pUnit->getUnitType());
+	if (bConscripted)
+	{
+		kFlow.iUnitsConscripted++;
+		kFlow.iConscriptProductionNeeded += iProductionNeeded;
+		kFlow.aiConscriptedUnitTypes[pUnit->getUnitType()]++;
+	}
+	else
+	{
+		kFlow.iUnitsCompleted++;
+		kFlow.iUnitProductionNeeded += iProductionNeeded;
+		kFlow.aiUnitTypes[pUnit->getUnitType()]++;
+	}
+	if (gGameRecordLogLevel >= 3)
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_COMPLETED player=%d cityId=%d city=%S unitId=%d unit=%s unitAI=%s source=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
+			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), bConscripted ? "CONSCRIPT" : "PRODUCTION", iProductionNeeded,
+			iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
+}
+
+// <!-- custom: Added eCause to write the acquisition source supplied by gameplay code instead of inferring it from ambiguous announcement/first-discovery flags. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+void logSASGameRecordTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer, TechAcquisitionCause eCause)
+{
+	CvTechInfo const& kTech = GC.getInfo(eType);
+	// <!-- custom: The acquisition turn already gives the exact chronology. Mark technologies that enable tech or gold trading, while team snapshots state whether each capability is currently available. (GPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=TECH_ACQUIRED player=%d team=%d tech=%s source=%s enablesTechTrading=%d enablesGoldTrading=%d", GC.getGame().getGameTurn(), ePlayer, eTeam, getSASGameRecordTechType(eType), getSASTechAcquisitionCause(eCause), kTech.isTechTrading(), kTech.isGoldTrading());
+}
+
+void logSASGameRecordCityBuilt(CvCity const* pCity)
+{
+	if (pCity == NULL)
+		return;
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_BUILT player=%d cityId=%d city=%S x=%d y=%d pop=%d",
+			GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation());
+	logSASGameRecordCityBFC(*pCity, "built");
+}
+
+// <!-- custom: Land/population victory thresholds can change with world state, so serialize every enabled victory that actually uses either criterion rather than assuming one XML name such as VICTORY_DOMINATION.
+// L/P values are current/required percentages multiplied by 100; M is whether all applicable land/population criteria are met at this exact boundary. (ChatGPT-5.6-Sol) -->
+static CvString getSASGameRecordLandPopulationVictoryProgress(TeamTypes eTeam)
+{
+	CvGame const& kGame = GC.getGame();
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	int const iLandPlots = std::max(1, GC.getMap().getLandPlots());
+	int const iWorldPopulation = std::max(1, kGame.getTotalPopulation());
+	int const iLandPctX100 = (10000 * kTeam.getTotalLand()) / iLandPlots;
+	int const iPopPctX100 = (10000 * kTeam.getTotalPopulation()) / iWorldPopulation;
+	CvString szResult;
+	FOR_EACH_ENUM(Victory)
+	{
+		if (!kGame.isVictoryValid(eLoopVictory))
+			continue;
+		int const iLandNeed = kGame.getAdjustedLandPercent(eLoopVictory);
+		int const iPopNeed = kGame.getAdjustedPopulationPercent(eLoopVictory);
+		if (iLandNeed <= 0 && iPopNeed <= 0)
+			continue;
+		bool const bLandMet = (iLandNeed <= 0 || 100 * kTeam.getTotalLand() >= GC.getMap().getLandPlots() * iLandNeed);
+		bool const bPopMet = (iPopNeed <= 0 || 100 * kTeam.getTotalPopulation() >= kGame.getTotalPopulation() * iPopNeed);
+		CvString szItem;
+		szItem.Format(szResult.empty() ? "%s:L%d/%d:P%d/%d:M%d" : ";%s:L%d/%d:P%d/%d:M%d",
+				GC.getInfo(eLoopVictory).getType(), iLandNeed <= 0 ? -1 : iLandPctX100, iLandNeed <= 0 ? -1 : 100 * iLandNeed,
+				iPopNeed <= 0 ? -1 : iPopPctX100, iPopNeed <= 0 ? -1 : 100 * iPopNeed, bLandMet && bPopMet);
+		szResult += szItem;
+	}
+	return getSASDiagnosticOrDash(szResult);
+}
+
+static CvString getSASGameRecordCityReligionList(CvCity const& kCity, bool bHolyOnly)
+{
+	CvString szResult;
+	FOR_EACH_ENUM(Religion)
+	{
+		if ((bHolyOnly && !kCity.isHolyCity(eLoopReligion)) || (!bHolyOnly && !kCity.isHasReligion(eLoopReligion)))
+			continue;
+		CvString szItem;
+		szItem.Format(szResult.empty() ? "%s" : ",%s", getSASGameRecordReligionType(eLoopReligion));
+		szResult += szItem;
+	}
+	return getSASDiagnosticOrDash(szResult);
+}
+
+static CvString getSASGameRecordCityCorporationList(CvCity const& kCity, bool bHeadquartersOnly)
+{
+	CvString szResult;
+	FOR_EACH_ENUM(Corporation)
+	{
+		if ((bHeadquartersOnly && !kCity.isHeadquarters(eLoopCorporation)) || (!bHeadquartersOnly && !kCity.isHasCorporation(eLoopCorporation)))
+			continue;
+		CvString szItem;
+		szItem.Format(szResult.empty() ? "%s" : ",%s", getSASGameRecordCorporationType(eLoopCorporation));
+		szResult += szItem;
+	}
+	return getSASDiagnosticOrDash(szResult);
+}
+
+// <!-- custom: Private level-3-only helper; logSASGameRecordCities owns the single detail-level gate so this function does not repeat it for each city/subrow.
+// Consequently the detailed trade-partner row below intentionally has no local `gGameRecordLogLevel >= 3` check; adding it back would only duplicate the caller gate once per city/subrow. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordCityDetail(CvCity const& kCity, int iGameTurn)
+{
+	CvPlotGroup const* pPlotGroup = kCity.plotGroup(kCity.getOwner());
+	int const iTradeRoutes = kCity.getTradeRoutes();
+	int iDomesticTradeRoutes = 0;
+	int iForeignTradeRoutes = 0;
+	for (int iI = 0; iI < iTradeRoutes; iI++)
+	{
+		CvCity const* pTradeCity = kCity.getTradeCity(iI);
+		if (pTradeCity == NULL)
+			continue;
+		if (pTradeCity->getOwner() == kCity.getOwner())
+			iDomesticTradeRoutes++;
+		else iForeignTradeRoutes++;
+	}
+	CvPlayer const& kOwner = GET_PLAYER(kCity.getOwner());
+	const SASGameRecordPlotComposition kWorkedPlots = getSASGameRecordWorkedPlotComposition(kCity);
+	SASGameRecordCityPlotUnitCounts kCityUnits;
+	collectSASGameRecordCityPlotUnitCounts(kCity.getPlot(), kCity.getOwner(), kCityUnits);
+	// <!-- custom: Keep the periodic city row self-contained enough to explain growth/starvation and current economic/cultural status without creating more per-turn rows.
+	// Stored food/granary state, occupation/culture/maintenance and commerce-type output are cheap current-state getters; religion/corporation lists are small loaded-XML scans already used by city-removal provenance. (ChatGPT-5.6-Sol) -->
+	CultureLevelTypes const eCultureLevel = kCity.getCultureLevel();
+	PlayerTypes const eHighestCulturePlayer = kCity.findHighestCulture();
+	// <!-- custom: City-level commerce output/modifiers make each city's contribution to player-level gold/research/culture/espionage measurable; espionage defense remains a separate defensive modifier. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Air-unit occupancy/capacity on the existing city row makes poor basing or saturated airbases visible without adding a separate late-game row. Cargo aircraft are intentionally excluded by CvPlot::countNumAirUnits, matching actual base-capacity use. (GPT-5.6) -->
+	// <!-- custom: City defense snapshots expose both the current post-bombard defense modifier and its undamaged ceiling. DefenseDamage/MAX_CITY_DEFENSE_DAMAGE preserves the underlying bombardment state, while bombarded shows whether the city has already been hit this turn. This lets broad game records be paired with the level-3 tactical bombardment actions below. (GPT-5.6) -->
+	logSASGameRecord("GAME_RECORD_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d originalOwner=%d capital=%d foundedTurn=%d acquiredTurn=%d pop=%d highestPop=%d foodStored=%d foodKept=%d growthThreshold=%d maxFoodKeptPercent=%d avoidGrowth=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d maintenanceTimes100=%d maintenanceModifier=%d occupationTurns=%d disorder=%d ownerCultureTimes100=%d cultureLevel=%s cultureLevelId=%d nextCultureThreshold=%d cultureUpdateTurns=%d ownerCulturePercent=%d highestCulturePlayer=%d highestCulturePercent=%d religions=%s holyReligions=%s corporations=%s headquarters=%s goldRate=%d researchRate=%d cultureRate=%d espionageRate=%d goldRateModifier=%d researchRateModifier=%d cultureRateModifier=%d espionageRateModifier=%d espionageDefenseModifier=%d defenseModifier=%d totalDefense=%d defenseDamage=%d defenseDamageMax=%d bombarded=%d airUnits=%d airCapacity=%d airSpaceAvailable=%d worked=%d workedImproved=%d workedUnimproved=%d workedFood=%d workedProd=%d workedCommerce=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d settlers=%d workers=%d attackers=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionUsesFood=%d productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d productionConversionX100=%s specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
+			iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(),
+			kCity.getOriginalOwner(), kCity.isCapital(), kCity.getGameTurnFounded(), kCity.getGameTurnAcquired(), kCity.getPopulation(), kCity.getHighestPopulation(),
+			kCity.getFood(), kCity.getFoodKept(), kCity.growthThreshold(), kCity.getMaxFoodKeptPercent(), kCity.AI().AI_isEmphasizeAvoidGrowth() ? 1 : 0,
+			kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(),
+			kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kCity.getMaintenanceTimes100(), kCity.getMaintenanceModifier(),
+			kCity.getOccupationTimer(), kCity.isDisorder() ? 1 : 0, kCity.getCultureTimes100(kCity.getOwner()), eCultureLevel == NO_CULTURELEVEL ? "-" : GC.getInfo(eCultureLevel).getType(), eCultureLevel,
+			kCity.getCultureThreshold(), kCity.getCultureUpdateTimer(), kCity.calculateCulturePercent(kCity.getOwner()), eHighestCulturePlayer, eHighestCulturePlayer == NO_PLAYER ? 0 : kCity.calculateCulturePercent(eHighestCulturePlayer),
+			getSASGameRecordCityReligionList(kCity, false).GetCString(), getSASGameRecordCityReligionList(kCity, true).GetCString(), getSASGameRecordCityCorporationList(kCity, false).GetCString(), getSASGameRecordCityCorporationList(kCity, true).GetCString(),
+			kCity.getCommerceRate(COMMERCE_GOLD), kCity.getCommerceRate(COMMERCE_RESEARCH), kCity.getCommerceRate(COMMERCE_CULTURE), kCity.getCommerceRate(COMMERCE_ESPIONAGE),
+			kCity.getTotalCommerceRateModifier(COMMERCE_GOLD), kCity.getTotalCommerceRateModifier(COMMERCE_RESEARCH), kCity.getTotalCommerceRateModifier(COMMERCE_CULTURE), kCity.getTotalCommerceRateModifier(COMMERCE_ESPIONAGE), kCity.getEspionageDefenseModifier(),
+			kCity.getDefenseModifier(false), kCity.getTotalDefense(false), kCity.getDefenseDamage(), GC.getMAX_CITY_DEFENSE_DAMAGE(), kCity.isBombarded(),
+			kCity.getPlot().countNumAirUnits(kCity.getTeam()), kCity.getAirUnitCapacity(kCity.getTeam()), kCity.getPlot().airUnitSpaceAvailable(kCity.getTeam()),
+			kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved, kWorkedPlots.iCurrentFood, kWorkedPlots.iCurrentProduction, kWorkedPlots.iCurrentCommerce, kCity.plot()->getNumDefenders(kCity.getOwner()), kCityUnits.iUnits, kCityUnits.iMilitaryUnits, kCityUnits.iCivilianUnits, kCityUnits.iDefenders, kCityUnits.iHealthyDefenders, kCityUnits.iWoundedDefenders, kCityUnits.iSettlers, kCityUnits.iWorkers, kCityUnits.iAttackers,
+			kCity.isConnectedToCapital(), pPlotGroup == NULL ? -1 : pPlotGroup->getID(), iTradeRoutes, iDomesticTradeRoutes, iForeignTradeRoutes, kCity.getTradeYield(YIELD_FOOD), kCity.getTradeYield(YIELD_PRODUCTION), kCity.getTradeYield(YIELD_COMMERCE),
+			getSASGameRecordCityProductionKind(kCity), getSASGameRecordCityProductionType(kCity), kCity.isFoodProduction() ? 1 : 0, getSASGameRecordCityProductionTurns(kCity), kCity.getProduction(), getSASGameRecordCityProductionNeeded(kCity), kCity.getOverflowProduction(), kCity.getFeatureProduction(),
+			getSASGameRecordCityProductionConversion(kCity).GetCString(), getSASGameRecordCitySpecialists(kCity, false).GetCString(), getSASGameRecordCitySpecialists(kCity, true).GetCString(),
+			kCity.getGreatPeopleProgress(), kOwner.greatPeopleThreshold(false), kCity.getGreatPeopleRate(), kCity.GPTurnsLeft(), getSASGameRecordCityGPOdds(kCity).GetCString());
+	// <!-- custom: Source lists show the magnitude/origin of temporary happiness effects.
+	// Retain their existing turn counters too so snapshots say how long whipping, drafting, defiance, temporary happiness and espionage unhappiness remain without logging per-turn timer decrements. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_CITY_HAPPINESS turn=%d player=%d cityId=%d happy=%d unhappy=%d surplus=%d hurryAngerTurns=%d conscriptAngerTurns=%d defyResolutionAngerTurns=%d temporaryHappinessTurns=%d espionageUnhappinessTurns=%d happySources=%s flatUnhappySources=%s angerPercentSources=%s",
+			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.happyLevel(), kCity.unhappyLevel(), kCity.happyLevel() - kCity.unhappyLevel(),
+			kCity.getHurryAngerTimer(), kCity.getConscriptAngerTimer(), kCity.getDefyResolutionAngerTimer(), kCity.getHappinessTimer(), kCity.getEspionageHappinessCounter(),
+			getSASGameRecordCityHappySources(kCity).GetCString(), getSASGameRecordCityFlatUnhappySources(kCity).GetCString(), getSASGameRecordCityAngerPercentSources(kCity).GetCString());
+	// <!-- custom: Espionage unhealth is itself a decrementing duration counter, so preserve its remaining turns next to the existing unhealthy-source magnitude rather than emitting a row whenever the counter ticks down. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_CITY_HEALTH turn=%d player=%d cityId=%d goodHealth=%d badHealth=%d surplus=%d powered=%d dirtyPower=%d areaCleanPower=%d powerGoodHealth=%d powerBadHealth=%d espionageUnhealthTurns=%d healthySources=%s unhealthySources=%s",
+			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.goodHealth(), kCity.badHealth(), kCity.goodHealth() - kCity.badHealth(),
+			kCity.isPower(), kCity.isDirtyPower(), kCity.isAreaCleanPower(), kCity.getPowerGoodHealth(), kCity.getPowerBadHealth(), kCity.getEspionageHealthCounter(),
+			getSASGameRecordCityHealthySources(kCity).GetCString(), getSASGameRecordCityUnhealthySources(kCity).GetCString());
+	int iBuildings, iRegularBuildings, iNationalWonders, iTeamWonders, iWorldWonders;
+	CvString const szBuildings = getSASGameRecordCityBuildings(kCity, iBuildings, iRegularBuildings, iNationalWonders, iTeamWonders, iWorldWonders);
+	logSASGameRecord("GAME_RECORD_CITY_BUILDINGS turn=%d player=%d cityId=%d total=%d regular=%d nationalWonders=%d teamWonders=%d worldWonders=%d buildings=%s",
+		iGameTurn, kCity.getOwner(), kCity.getID(), iBuildings, iRegularBuildings, iNationalWonders, iTeamWonders, iWorldWonders, szBuildings.GetCString());
+	logSASGameRecord("GAME_RECORD_CITY_TRADE_PARTNERS turn=%d player=%d cityId=%d partners=%s",
+		iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameRecordCityTradePartners(kCity).GetCString());
+	// <!-- custom: Current AdvCiv-SAS additionally emits GAME_RECORD_CITY_UNIT_COMPOSITION for city garrisons with at least six military units. That row depends on selection-group/MissionAI diagnostics not yet ported here; defer it with those helpers instead of locally reimplementing their state. (ChatGPT-5.6-Sol) -->
+}
+
+static void logSASGameRecordCities(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	SASGameRecordPlayerPrevious& kPrevious = g_akSASGameRecordPlayerPrevious[ePlayer];
+	bool const bLogCityDetails = (gGameRecordLogLevel >= 3);
+	int iCities = 0, iTotalFoodSurplus = 0, iTotalHappySurplus = 0, iTotalHealthSurplus = 0;
+	int iTotalFoodYield = 0, iTotalProductionYield = 0, iTotalCommerceYield = 0, iTotalFoodStored = 0, iTotalFoodKept = 0, iTotalMaintenanceTimes100 = 0;
+	int iTotalTradeRoutes = 0, iDomesticTradeRoutes = 0, iForeignTradeRoutes = 0, iTradeFood = 0, iTradeProduction = 0, iTradeCommerce = 0;
+	int iConnectedToCapital = 0, iUnhappyCities = 0, iUnhealthyCities = 0, iStarvingCities = 0, iOccupiedCities = 0, iAvoidGrowthCities = 0;
+	int iCitiesProducingUnits = 0, iCitiesProducingMilitary = 0, iCitiesProducingWorkers = 0, iCitiesProducingSettlers = 0, iCitiesProducingBuildings = 0, iCitiesProducingWonders = 0, iCitiesProducingProjects = 0, iCitiesProducingProcesses = 0;
+	int iSpecialists = 0, iFreeSpecialists = 0, iGarrison = 0, iCityUnits = 0, iMilitaryUnitsInCities = 0, iCivilianUnitsInCities = 0, iDefendersInCities = 0, iSettlersInCities = 0, iWorkersInCities = 0;
+	int iBestGPTurns = 1000000;
+	CvCity const* pNextGPCity = NULL;
+	CvCity const* pCapital = kPlayer.getCapital();
+	int iLoop = 0;
+	for (CvCity const* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+	{
+		iCities++;
+		int const iFoodSurplus = pLoopCity->foodDifference();
+		int const iHappySurplus = pLoopCity->happyLevel() - pLoopCity->unhappyLevel();
+		int const iHealthSurplus = pLoopCity->goodHealth() - pLoopCity->badHealth();
+		iTotalFoodSurplus += iFoodSurplus; iTotalHappySurplus += iHappySurplus; iTotalHealthSurplus += iHealthSurplus;
+		iTotalFoodYield += pLoopCity->getYieldRate(YIELD_FOOD); iTotalProductionYield += pLoopCity->getYieldRate(YIELD_PRODUCTION); iTotalCommerceYield += pLoopCity->getYieldRate(YIELD_COMMERCE);
+		iTotalFoodStored += pLoopCity->getFood(); iTotalFoodKept += pLoopCity->getFoodKept(); iTotalMaintenanceTimes100 += pLoopCity->getMaintenanceTimes100();
+		int const iCityTradeRoutes = pLoopCity->getTradeRoutes();
+		iTotalTradeRoutes += iCityTradeRoutes; iTradeFood += pLoopCity->getTradeYield(YIELD_FOOD); iTradeProduction += pLoopCity->getTradeYield(YIELD_PRODUCTION); iTradeCommerce += pLoopCity->getTradeYield(YIELD_COMMERCE);
+		for (int iTrade = 0; iTrade < iCityTradeRoutes; iTrade++)
+		{
+			CvCity const* pTradeCity = pLoopCity->getTradeCity(iTrade);
+			if (pTradeCity == NULL) continue;
+			if (pTradeCity->getOwner() == ePlayer) iDomesticTradeRoutes++; else iForeignTradeRoutes++;
+		}
+		if (pLoopCity->isConnectedToCapital()) iConnectedToCapital++;
+		if (iHappySurplus < 0) iUnhappyCities++;
+		if (iHealthSurplus < 0) iUnhealthyCities++;
+		if (iFoodSurplus < 0) iStarvingCities++;
+		if (pLoopCity->isOccupation()) iOccupiedCities++;
+		if (pLoopCity->AI().AI_isEmphasizeAvoidGrowth()) iAvoidGrowthCities++;
+		iSpecialists += pLoopCity->getSpecialistPopulation();
+		iFreeSpecialists += pLoopCity->totalFreeSpecialists();
+		iGarrison += pLoopCity->plot()->getNumDefenders(ePlayer);
+		SASGameRecordCityPlotUnitCounts kCityUnits;
+		collectSASGameRecordCityPlotUnitCounts(pLoopCity->getPlot(), ePlayer, kCityUnits);
+		iCityUnits += kCityUnits.iUnits; iMilitaryUnitsInCities += kCityUnits.iMilitaryUnits; iCivilianUnitsInCities += kCityUnits.iCivilianUnits; iDefendersInCities += kCityUnits.iDefenders; iSettlersInCities += kCityUnits.iSettlers; iWorkersInCities += kCityUnits.iWorkers;
+		int const iGPTurns = pLoopCity->GPTurnsLeft();
+		if (iGPTurns >= 0 && iGPTurns < iBestGPTurns) { iBestGPTurns = iGPTurns; pNextGPCity = pLoopCity; }
+		UnitTypes const eProductionUnit = pLoopCity->getProductionUnit();
+		BuildingTypes const eProductionBuilding = pLoopCity->getProductionBuilding();
+		if (eProductionUnit != NO_UNIT)
+		{
+			iCitiesProducingUnits++;
+			UnitAITypes const eUnitAI = GC.getInfo(eProductionUnit).getDefaultUnitAIType();
+			if (GC.getInfo(eProductionUnit).isMilitaryProduction()) iCitiesProducingMilitary++;
+			if (eUnitAI == UNITAI_WORKER || eUnitAI == UNITAI_WORKER_SEA) iCitiesProducingWorkers++;
+			if (eUnitAI == UNITAI_SETTLE) iCitiesProducingSettlers++;
+		}
+		else if (eProductionBuilding != NO_BUILDING)
+		{
+			iCitiesProducingBuildings++;
+			if (GC.getInfo(eProductionBuilding).isLimited()) iCitiesProducingWonders++;
+		}
+		else if (pLoopCity->getProductionProject() != NO_PROJECT) iCitiesProducingProjects++;
+		else if (pLoopCity->getProductionProcess() != NO_PROCESS) iCitiesProducingProcesses++;
+		if (bLogCityDetails) logSASGameRecordCityDetail(*pLoopCity, iGameTurn);
+	}
+	logSASGameRecord("GAME_RECORD_CITIES turn=%d player=%d cities=%d capitalId=%d capital=%S connectedToCapital=%d totalFoodSurplus=%d totalHappySurplus=%d totalHealthSurplus=%d totalFood=%d totalProd=%d totalCommerce=%d totalFoodStored=%d totalFoodKept=%d totalMaintenanceTimes100=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d unhappyCities=%d unhealthyCities=%d starvingCities=%d occupiedCities=%d avoidGrowthCities=%d specialists=%d freeSpecialists=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d settlers=%d workers=%d nextGPCityId=%d nextGPCity=%S nextGPTurns=%d nextGPRate=%d nextGPProgress=%d citiesProducingUnits=%d citiesProducingMilitary=%d citiesProducingWorkers=%d citiesProducingSettlers=%d citiesProducingBuildings=%d citiesProducingWonders=%d citiesProducingProjects=%d citiesProducingProcesses=%d",
+		iGameTurn, ePlayer, iCities, pCapital == NULL ? -1 : pCapital->getID(), getSASGameRecordQuotedCityName(pCapital).GetCString(), iConnectedToCapital,
+		iTotalFoodSurplus, iTotalHappySurplus, iTotalHealthSurplus, iTotalFoodYield, iTotalProductionYield, iTotalCommerceYield, iTotalFoodStored, iTotalFoodKept, iTotalMaintenanceTimes100,
+		iTotalTradeRoutes, iDomesticTradeRoutes, iForeignTradeRoutes, iTradeFood, iTradeProduction, iTradeCommerce, iUnhappyCities, iUnhealthyCities, iStarvingCities, iOccupiedCities, iAvoidGrowthCities, iSpecialists, iFreeSpecialists,
+		iGarrison, iCityUnits, iMilitaryUnitsInCities, iCivilianUnitsInCities, iDefendersInCities, iSettlersInCities, iWorkersInCities,
+		pNextGPCity == NULL ? -1 : pNextGPCity->getID(), getSASGameRecordQuotedCityName(pNextGPCity).GetCString(), pNextGPCity == NULL ? -1 : iBestGPTurns, pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleRate(), pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleProgress(),
+		iCitiesProducingUnits, iCitiesProducingMilitary, iCitiesProducingWorkers, iCitiesProducingSettlers, iCitiesProducingBuildings, iCitiesProducingWonders, iCitiesProducingProjects, iCitiesProducingProcesses);
+	logSASGameRecord("GAME_RECORD_CITIES_DELTAS turn=%d player=%d deltaValid=%d citiesDelta=%+d connectedToCapitalDelta=%+d totalFoodSurplusDelta=%+d totalHappySurplusDelta=%+d totalHealthSurplusDelta=%+d totalFoodDelta=%+d totalProdDelta=%+d totalCommerceDelta=%+d tradeRoutesDelta=%+d tradeCommerceDelta=%+d specialistsDelta=%+d freeSpecialistsDelta=%+d garrisonDelta=%+d",
+		iGameTurn, ePlayer, kPrevious.bValid,
+		getSASGameRecordDelta(kPrevious.bValid, iCities, kPrevious.iCityCount), getSASGameRecordDelta(kPrevious.bValid, iConnectedToCapital, kPrevious.iCityConnectedToCapital), getSASGameRecordDelta(kPrevious.bValid, iTotalFoodSurplus, kPrevious.iCityFoodSurplus),
+		getSASGameRecordDelta(kPrevious.bValid, iTotalHappySurplus, kPrevious.iCityHappySurplus), getSASGameRecordDelta(kPrevious.bValid, iTotalHealthSurplus, kPrevious.iCityHealthSurplus), getSASGameRecordDelta(kPrevious.bValid, iTotalFoodYield, kPrevious.iCityFood),
+		getSASGameRecordDelta(kPrevious.bValid, iTotalProductionYield, kPrevious.iCityProduction), getSASGameRecordDelta(kPrevious.bValid, iTotalCommerceYield, kPrevious.iCityCommerce), getSASGameRecordDelta(kPrevious.bValid, iTotalTradeRoutes, kPrevious.iCityTradeRoutes),
+		getSASGameRecordDelta(kPrevious.bValid, iTradeCommerce, kPrevious.iCityTradeCommerce), getSASGameRecordDelta(kPrevious.bValid, iSpecialists, kPrevious.iCitySpecialists), getSASGameRecordDelta(kPrevious.bValid, iFreeSpecialists, kPrevious.iCityFreeSpecialists), getSASGameRecordDelta(kPrevious.bValid, iGarrison, kPrevious.iCityGarrison));
+	kPrevious.iCityCount = iCities;
+	kPrevious.iCityConnectedToCapital = iConnectedToCapital;
+	kPrevious.iCityFoodSurplus = iTotalFoodSurplus;
+	kPrevious.iCityHappySurplus = iTotalHappySurplus;
+	kPrevious.iCityHealthSurplus = iTotalHealthSurplus;
+	kPrevious.iCityFood = iTotalFoodYield;
+	kPrevious.iCityProduction = iTotalProductionYield;
+	kPrevious.iCityCommerce = iTotalCommerceYield;
+	kPrevious.iCityTradeRoutes = iTotalTradeRoutes;
+	kPrevious.iCityTradeCommerce = iTradeCommerce;
+	kPrevious.iCitySpecialists = iSpecialists;
+	kPrevious.iCityFreeSpecialists = iFreeSpecialists;
+	kPrevious.iCityGarrison = iGarrison;
+}
+
+
+static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvGame const& kGame = GC.getGame();
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	bool const bLogPlayerDetails = (getSASGameRecordLogLevel() >= 2);
+	bool const bLogPlayerVerboseDetails = (getSASGameRecordLogLevel() >= 3);
+	TechTypes const eResearch = kPlayer.getCurrentResearch();
+	int const iScore = kPlayer.calculateScore();
+	int const iCities = kPlayer.getNumCities();
+	int const iPopulation = kPlayer.getTotalPopulation();
+	int const iLand = kPlayer.getTotalLand();
+	int const iUnits = kPlayer.getNumUnits();
+	int const iMilitarySupportUnits = kPlayer.getNumMilitaryUnits();
+	// <!-- custom: CvPlayer::getNumMilitaryUnits counts XML bMilitarySupport, which can fall sharply when an army upgrades into combat units that intentionally do not pay military support. Count actual combat-capable units with the same predicate used by GAME_RECORD_UNIT_POSTURE, and keep the raw Civ4 counter separately. This scan runs only when a GameRecord player snapshot is already being generated. (ChatGPT-5.6-Sol) -->
+	int iCombatUnits = 0;
+	int iCombatLoop = 0;
+	for (CvUnit const* pLoopUnit = kPlayer.firstUnit(&iCombatLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iCombatLoop))
+	{
+		if (isSASGameRecordMilitaryUnit(*pLoopUnit)) ++iCombatUnits;
+	}
+	int const iPower = kPlayer.getPower();
+	int const iGold = kPlayer.getGold();
+	int const iGoldRate = kPlayer.calculateGoldRate();
+	// <!-- custom: Keep nominal science visible when no target is selected because that science becomes stored research overflow rather than disappearing. (GPT-5.6-Sol) -->
+	int const iResearchRate = kPlayer.calculateResearchRate(eResearch);
+	int const iResearchTurns = (eResearch == NO_TECH ? -1 : kPlayer.getResearchTurnsLeft(eResearch, true));
+	int const iHistoryScore = kPlayer.getHistorySafe(PLAYER_HISTORY_SCORE, iGameTurn);
+	int const iHistoryEconomy = kPlayer.getHistorySafe(PLAYER_HISTORY_ECONOMY, iGameTurn);
+	int const iHistoryIndustry = kPlayer.getHistorySafe(PLAYER_HISTORY_INDUSTRY, iGameTurn);
+	int const iHistoryAgriculture = kPlayer.getHistorySafe(PLAYER_HISTORY_AGRICULTURE, iGameTurn);
+	int const iHistoryPower = kPlayer.getHistorySafe(PLAYER_HISTORY_POWER, iGameTurn);
+	int const iHistoryCulture = kPlayer.getHistorySafe(PLAYER_HISTORY_CULTURE, iGameTurn);
+	int const iHistoryEspionage = kPlayer.getHistorySafe(PLAYER_HISTORY_ESPIONAGE, iGameTurn);
+	SASGameRecordPlayerPrevious& kPrevious = g_akSASGameRecordPlayerPrevious[ePlayer];
+	char const* szCiv = (kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType());
+	char const* szLeader = (kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType());
+	bool const bCurrentlyHumanControlled = kPlayer.isHuman();
+	bool const bAutoplayControlled = kPlayer.isHumanDisabled();
+	bool const bHumanSlot = (bCurrentlyHumanControlled || bAutoplayControlled);
+	// <!-- custom: Keep current remaining Golden Age/anarchy timers separate from recorder-session observed duration counters; the logged counters reset whenever a new GameRecord session begins. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_PLAYER turn=%d player=%d team=%d civ=%s leader=%s isHuman=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d rank=%d deltaValid=%d score=%d scoreDelta=%+d cities=%d citiesDelta=%+d pop=%d popDelta=%+d land=%d landDelta=%+d units=%d unitsDelta=%+d combatUnits=%d combatUnitsDelta=%+d militarySupportUnits=%d militarySupportUnitsDelta=%+d power=%d powerDelta=%+d gold=%d goldDelta=%+d gpt=%d gptDelta=%+d researchRate=%d researchRateDelta=%+d researchPercent=%d currentResearch=%s researchOverflow=%d noResearchAvailable=%d researchTurns=%d era=%s stateReligion=%s techScorePercent=%d combatXP=%d greatPeopleCreated=%d greatGeneralsCreated=%d greatGeneralThreshold=%d goldenAgeTurns=%d loggedGoldenAgeTurns=%d anarchyTurns=%d loggedAnarchyTurns=%d revolutionTimer=%d conversionTimer=%d wars=%s",
+			iGameTurn, ePlayer, kPlayer.getTeam(), szCiv, szLeader, bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kGame.getPlayerRank(ePlayer) + 1, kPrevious.bValid,
+			iScore, getSASGameRecordDelta(kPrevious.bValid, iScore, kPrevious.iScore), iCities, getSASGameRecordDelta(kPrevious.bValid, iCities, kPrevious.iCities), iPopulation, getSASGameRecordDelta(kPrevious.bValid, iPopulation, kPrevious.iPopulation), iLand, getSASGameRecordDelta(kPrevious.bValid, iLand, kPrevious.iLand),
+			iUnits, getSASGameRecordDelta(kPrevious.bValid, iUnits, kPrevious.iUnits), iCombatUnits, getSASGameRecordDelta(kPrevious.bValid, iCombatUnits, kPrevious.iCombatUnits), iMilitarySupportUnits, getSASGameRecordDelta(kPrevious.bValid, iMilitarySupportUnits, kPrevious.iMilitarySupportUnits), iPower, getSASGameRecordDelta(kPrevious.bValid, iPower, kPrevious.iPower), iGold, getSASGameRecordDelta(kPrevious.bValid, iGold, kPrevious.iGold), iGoldRate, getSASGameRecordDelta(kPrevious.bValid, iGoldRate, kPrevious.iGoldRate),
+			iResearchRate, getSASGameRecordDelta(kPrevious.bValid, iResearchRate, kPrevious.iResearchRate), kPlayer.getCommercePercent(COMMERCE_RESEARCH), getSASGameRecordTechType(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(), iResearchTurns, getSASGameRecordEraType(kPlayer.getCurrentEra()), getSASGameRecordReligionType(kPlayer.getStateReligion()), kTeam.getBestKnownTechScorePercent(), kPlayer.getCombatExperience(), kPlayer.getGreatPeopleCreated(), kPlayer.getGreatGeneralsCreated(), kPlayer.greatPeopleThreshold(true), kPlayer.getGoldenAgeTurns(), g_aiSASGameRecordLoggedGoldenAgeTurns[ePlayer], kPlayer.getAnarchyTurns(), g_aiSASGameRecordLoggedAnarchyTurns[ePlayer], kPlayer.getRevolutionTimer(), kPlayer.getConversionTimer(), getSASGameRecordWarTeams(kPlayer.getTeam()).GetCString());
+	logSASGameRecord("GAME_RECORD_PLAYER_HISTORY turn=%d player=%d deltaValid=%d historyScore=%d historyScoreDelta=%+d historyEconomy=%d historyEconomyDelta=%+d historyIndustry=%d historyIndustryDelta=%+d historyAgriculture=%d historyAgricultureDelta=%+d historyPower=%d historyPowerDelta=%+d historyCulture=%d historyCultureDelta=%+d historyEspionage=%d historyEspionageDelta=%+d",
+			iGameTurn, ePlayer, kPrevious.bValid, iHistoryScore, getSASGameRecordDelta(kPrevious.bValid, iHistoryScore, kPrevious.iHistoryScore), iHistoryEconomy, getSASGameRecordDelta(kPrevious.bValid, iHistoryEconomy, kPrevious.iHistoryEconomy), iHistoryIndustry, getSASGameRecordDelta(kPrevious.bValid, iHistoryIndustry, kPrevious.iHistoryIndustry), iHistoryAgriculture, getSASGameRecordDelta(kPrevious.bValid, iHistoryAgriculture, kPrevious.iHistoryAgriculture), iHistoryPower, getSASGameRecordDelta(kPrevious.bValid, iHistoryPower, kPrevious.iHistoryPower), iHistoryCulture, getSASGameRecordDelta(kPrevious.bValid, iHistoryCulture, kPrevious.iHistoryCulture), iHistoryEspionage, getSASGameRecordDelta(kPrevious.bValid, iHistoryEspionage, kPrevious.iHistoryEspionage));
+	// <!-- custom: The environment row shows world pollution, but not which player produced it or whether buildings, bonuses, dirty power, or population caused it. Keep these city scans behind record level 2, and derive the total from the four components rather than scanning a fifth time. (GPT-5.6-Sol) -->
+	if (bLogPlayerDetails)
+	{
+		int const iBuildingPollution = kPlayer.calculatePollution(CvPlayer::POLLUTION_BUILDINGS);
+		int const iBonusPollution = kPlayer.calculatePollution(CvPlayer::POLLUTION_BONUSES);
+		int const iPowerPollution = kPlayer.calculatePollution(CvPlayer::POLLUTION_POWER);
+		int const iPopulationPollution = kPlayer.calculatePollution(CvPlayer::POLLUTION_POPULATION);
+		logSASGameRecord("GAME_RECORD_POLLUTION turn=%d player=%d total=%d buildings=%d bonuses=%d power=%d population=%d", iGameTurn, ePlayer, iBuildingPollution + iBonusPollution + iPowerPollution + iPopulationPollution, iBuildingPollution, iBonusPollution, iPowerPollution, iPopulationPollution);
+	}
+	if (bLogPlayerDetails)
+	{
+		logSASGameRecordPlayerBonuses(ePlayer, iGameTurn, kPrevious);
+		logSASGameRecordAIVictoryStages(ePlayer, iGameTurn);
+		logSASGameRecordAIMilitaryProduction(ePlayer, iGameTurn);
+		logSASGameRecordPolicies(ePlayer, iGameTurn);
+		logSASGameRecordEconomy(ePlayer, iGameTurn);
+		logSASGameRecordProductionPipeline(ePlayer, iGameTurn);
+		logSASGameRecordStatistics(ePlayer, iGameTurn);
+		logSASGameRecordEspionage(ePlayer, iGameTurn);
+		logSASGameRecordDemographics(ePlayer, iGameTurn);
+		logSASGameRecordAttitudes(ePlayer, iGameTurn);
+		if (bLogPlayerVerboseDetails) logSASGameRecordDiplomaticMemories(ePlayer, iGameTurn);
+		logSASGameRecordDiploStatus(ePlayer, iGameTurn);
+		logSASGameRecordUnitPosture(ePlayer, iGameTurn);
+		logSASGameRecordWorkers(ePlayer, iGameTurn);
+		logSASGameRecordExpansion(ePlayer, iGameTurn);
+		logSASGameRecordSettlers(ePlayer, iGameTurn);
+		logSASGameRecordCities(ePlayer, iGameTurn);
+		logSASGameRecordWorkedPlots(ePlayer, iGameTurn);
+	}
+	kPrevious.bValid = true;
+	kPrevious.iScore = iScore;
+	kPrevious.iCities = iCities;
+	kPrevious.iPopulation = iPopulation;
+	kPrevious.iLand = iLand;
+	kPrevious.iUnits = iUnits;
+	kPrevious.iCombatUnits = iCombatUnits;
+	kPrevious.iMilitarySupportUnits = iMilitarySupportUnits;
+	kPrevious.iPower = iPower;
+	kPrevious.iGold = iGold;
+	kPrevious.iGoldRate = iGoldRate;
+	kPrevious.iResearchRate = iResearchRate;
+	if (bLogPlayerDetails)
+	{
+		int iBonusTypes = 0;
+		int iBonusInstances = 0;
+		int iBonusImports = 0;
+		int iBonusExports = 0;
+		FOR_EACH_ENUM(Bonus)
+		{
+			const int iAvailable = kPlayer.getNumAvailableBonuses(eLoopBonus);
+			if (iAvailable > 0)
+			{
+				iBonusTypes++;
+				iBonusInstances += iAvailable;
+			}
+			iBonusImports += kPlayer.getBonusImport(eLoopBonus);
+			iBonusExports += kPlayer.getBonusExport(eLoopBonus);
+		}
+		kPrevious.iBonusTypes = iBonusTypes;
+		kPrevious.iBonusInstances = iBonusInstances;
+		kPrevious.iBonusImports = iBonusImports;
+		kPrevious.iBonusExports = iBonusExports;
+	}
+	kPrevious.iHistoryScore = iHistoryScore;
+	kPrevious.iHistoryEconomy = iHistoryEconomy;
+	kPrevious.iHistoryIndustry = iHistoryIndustry;
+	kPrevious.iHistoryAgriculture = iHistoryAgriculture;
+	kPrevious.iHistoryPower = iHistoryPower;
+	kPrevious.iHistoryCulture = iHistoryCulture;
+	kPrevious.iHistoryEspionage = iHistoryEspionage;
+}
+
+static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
+{
+	CvGame const& kGame = GC.getGame();
+	if (gGameRecordLogLevel >= 2) reconcileSASGameRecordWars();
+	logSASGameRecord("GAME_RECORD_TURN_BEGIN turn=%d reason=%s elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d",
+			iGameTurn, szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.getNumCities(), kGame.getTotalPopulation());
+	logSASGameRecordRunStatus(szReason);
+	if (gGameRecordLogLevel >= 2)
+	{
+		logSASGameRecordMapBonusTotals(iGameTurn);
+		logSASGameRecordEnvironment(iGameTurn);
+		logSASGameRecordVoteSources(iGameTurn);
+	}
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		TeamTypes eLoopTeam = (TeamTypes)iI;
+		if (GET_TEAM(eLoopTeam).isAlive() && !GET_TEAM(eLoopTeam).isBarbarian())
+			logSASGameRecordTeamSnapshot(eLoopTeam, iGameTurn);
+	}
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
+		if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isBarbarian())
+			logSASGameRecordPlayerSnapshot(eLoopPlayer, iGameTurn);
+	}
+	// <!-- custom: Reproduce the active player's resolved Foreign Advisor market only at level 3 and only when its independent switch is enabled; lower detail levels and disabled-market runs skip the entire pair/item scan. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 3 && isSASGameRecordTradeMarketEnabled()) logSASGameRecordTradeMarket(iGameTurn);
+	if (gGameRecordLogLevel >= 2)
+	{
+		logSASGameRecordBarbarians(iGameTurn);
+		logSASGameRecordBattleBuckets(iGameTurn);
+		logSASGameRecordProductionFlowBuckets(iGameTurn);
+		logSASGameRecordCityPopulationFlowBuckets(iGameTurn);
+		logSASGameRecordMilitaryFlowBuckets(iGameTurn);
+	}
+	logSASGameRecord("GAME_RECORD_TURN_END turn=%d reason=%s", iGameTurn, szReason);
+	g_iSASGameRecordLastFullSnapshotTurn = iGameTurn;
+}
+
+void logSASGameRecordTurn(int iGameTurn)
+{
+	// <!-- custom: Victory now forces a full snapshot immediately. If it occurs on an ordinary snapshot turn, do not repeat the same large snapshot again at end-of-turn. (GPT-5.6-Sol) -->
+	if (g_iSASGameRecordLastFullSnapshotTurn == iGameTurn)
+		return;
+	logSASGameRecordSnapshot(iGameTurn, "interval");
+}
+
+static void getSASGameRecordRazeCityDistances(CvCity const& kCity, PlayerTypes eRazer, PlayerTypes ePreviousOwner, int& iCapitalDistance, int& iCapitalSameArea, int& iNearestRazerCityDistance, int& iSameAreaRazerCitiesOther, int& iNearestPreviousOwnerCityDistance, int& iSameAreaPreviousOwnerCities)
+{
+	CvPlayer const& kRazer = GET_PLAYER(eRazer);
+	CvCity const* pCapital = kRazer.getCapitalCity();
+	iCapitalDistance = (pCapital == NULL ? -1 : plotDistance(kCity.getX(), kCity.getY(), pCapital->getX(), pCapital->getY()));
+	iCapitalSameArea = (pCapital == NULL ? -1 : pCapital->getArea().getID() == kCity.getArea().getID());
+	iNearestRazerCityDistance = -1;
+	iSameAreaRazerCitiesOther = 0;
+	int iLoop = 0;
+	for (CvCity const* pLoopCity = kRazer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kRazer.nextCity(&iLoop))
+	{
+		if (pLoopCity->getID() == kCity.getID())
+			continue;
+		int const iDistance = plotDistance(kCity.getX(), kCity.getY(), pLoopCity->getX(), pLoopCity->getY());
+		if (iNearestRazerCityDistance < 0 || iDistance < iNearestRazerCityDistance)
+			iNearestRazerCityDistance = iDistance;
+		if (pLoopCity->getArea().getID() == kCity.getArea().getID())
+			iSameAreaRazerCitiesOther++;
+	}
+	iNearestPreviousOwnerCityDistance = -1;
+	iSameAreaPreviousOwnerCities = 0;
+	if (ePreviousOwner >= 0 && ePreviousOwner < MAX_PLAYERS)
+	{
+		CvPlayer const& kPreviousOwner = GET_PLAYER(ePreviousOwner);
+		iLoop = 0;
+		for (CvCity const* pLoopCity = kPreviousOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPreviousOwner.nextCity(&iLoop))
+		{
+			int const iDistance = plotDistance(kCity.getX(), kCity.getY(), pLoopCity->getX(), pLoopCity->getY());
+			if (iNearestPreviousOwnerCityDistance < 0 || iDistance < iNearestPreviousOwnerCityDistance)
+				iNearestPreviousOwnerCityDistance = iDistance;
+			if (pLoopCity->getArea().getID() == kCity.getArea().getID())
+				iSameAreaPreviousOwnerCities++;
+		}
+	}
+}
+
+void beginSASGameRecordCityRaze(CvCity const* pCity, PlayerTypes ePlayer)
+{
+	if (pCity == NULL || ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	CvPlayerAI const& kRazer = GET_PLAYER(ePlayer);
+	SASGameRecordCityRazeContext kContext;
+	kContext.eRazer = ePlayer;
+	kContext.eRazerTeam = kRazer.getTeam();
+	kContext.ePreviousOwner = pCity->getPreviousOwner();
+	kContext.ePreviousTeam = (kContext.ePreviousOwner >= 0 && kContext.ePreviousOwner < MAX_PLAYERS ? GET_PLAYER(kContext.ePreviousOwner).getTeam() : NO_TEAM);
+	kContext.eOriginalOwner = pCity->getOriginalOwner();
+	kContext.eOriginalTeam = (kContext.eOriginalOwner >= 0 && kContext.eOriginalOwner < MAX_PLAYERS ? GET_PLAYER(kContext.eOriginalOwner).getTeam() : NO_TEAM);
+	kContext.iGameTurn = GC.getGame().getGameTurn();
+	kContext.iCityId = pCity->getID();
+	kContext.szCityName = getSASGameRecordQuotedCityName(pCity);
+	kContext.iX = pCity->getX(); kContext.iY = pCity->getY(); kContext.iArea = pCity->getArea().getID();
+	kContext.szRazeMode = (pCity->isAutoRaze() ? "AUTO_RAZE" : (kRazer.isHuman() ? "HUMAN" : "AI"));
+	kContext.iPopulation = pCity->getPopulation();
+	kContext.iHighestPopulation = pCity->getHighestPopulation();
+	kContext.iFoundedTurn = pCity->getGameTurnFounded();
+	kContext.iAcquiredTurn = pCity->getGameTurnAcquired();
+	kContext.iOccupationTurns = pCity->getOccupationTimer();
+	kContext.iRazerCulturePercent = pCity->calculateTeamCulturePercent(kContext.eRazerTeam);
+	kContext.iPreviousCulturePercent = (kContext.ePreviousTeam == NO_TEAM ? -1 : pCity->calculateTeamCulturePercent(kContext.ePreviousTeam));
+	kContext.eHighestCulturePlayer = pCity->findHighestCulture();
+	kContext.iHighestCulturePercent = (kContext.eHighestCulturePlayer == NO_PLAYER ? -1 : pCity->calculateCulturePercent(kContext.eHighestCulturePlayer));
+	kContext.iMaintenanceTimes100 = pCity->getMaintenanceTimes100();
+	kContext.iConnectedToCapital = pCity->isConnectedToCapital();
+	getSASGameRecordRazeCityDistances(*pCity, ePlayer, kContext.ePreviousOwner, kContext.iCapitalDistance, kContext.iCapitalSameArea, kContext.iNearestRazerCityDistance, kContext.iSameAreaRazerCitiesOther, kContext.iNearestPreviousOwnerCityDistance, kContext.iSameAreaPreviousOwnerCities);
+	kContext.szBuildings = getSASGameRecordCityBuildings(*pCity, kContext.iBuildings, kContext.iRegularBuildings, kContext.iNationalWonders, kContext.iTeamWonders, kContext.iWorldWonders);
+	kContext.szReligions = getSASGameRecordCityReligionList(*pCity, false);
+	kContext.szHolyReligions = getSASGameRecordCityReligionList(*pCity, true);
+	kContext.szCorporations = getSASGameRecordCityCorporationList(*pCity, false);
+	kContext.szHeadquarters = getSASGameRecordCityCorporationList(*pCity, true);
+	kContext.iPlayerCitiesBefore = kRazer.getNumCities(); kContext.iPlayerLandBefore = kRazer.getTotalLand(); kContext.iPlayerPopulationBefore = kRazer.getTotalPopulation();
+	kContext.iTeamCitiesBefore = GET_TEAM(kContext.eRazerTeam).getNumCities(); kContext.iTeamLandBefore = GET_TEAM(kContext.eRazerTeam).getTotalLand(); kContext.iTeamPopulationBefore = GET_TEAM(kContext.eRazerTeam).getTotalPopulation();
+	kContext.iWorldPopulationBefore = GC.getGame().getTotalPopulation();
+	kContext.iLandPctX100Before = (10000 * kContext.iTeamLandBefore) / std::max(1, GC.getMap().getLandPlots());
+	kContext.iPopPctX100Before = (10000 * kContext.iTeamPopulationBefore) / std::max(1, GC.getGame().getTotalPopulation());
+	if (kRazer.isHuman() && !kRazer.isHumanDisabled())
+	{
+		kContext.iAIMaxVictoryStage = kContext.iAIConquestStage = kContext.iAIDominationStage = -1;
+	}
+	else
+	{
+		AIVictoryStage const eStages = kRazer.AI_getVictoryStageHash();
+		kContext.iAIConquestStage = getSASConquestVictoryStageLevel(eStages);
+		kContext.iAIDominationStage = getSASDominationVictoryStageLevel(eStages);
+		kContext.iAIMaxVictoryStage = std::max(getSASCultureVictoryStageLevel(eStages), std::max(getSASSpaceVictoryStageLevel(eStages), std::max(kContext.iAIConquestStage, std::max(kContext.iAIDominationStage, getSASDiplomacyVictoryStageLevel(eStages)))));
+	}
+	kContext.szLandPopVictoryProgressBefore = getSASGameRecordLandPopulationVictoryProgress(kContext.eRazerTeam);
+	g_aSASGameRecordCityRazeContexts.push_back(kContext);
+}
+
+void endSASGameRecordCityRaze(PlayerTypes ePlayer)
+{
+	if (g_aSASGameRecordCityRazeContexts.empty())
+		return;
+	int const iContext = (int)g_aSASGameRecordCityRazeContexts.size() - 1;
+	if (g_aSASGameRecordCityRazeContexts[iContext].eRazer != ePlayer)
+		return;
+	SASGameRecordCityRazeContext const kContext = g_aSASGameRecordCityRazeContexts[iContext];
+	g_aSASGameRecordCityRazeContexts.pop_back();
+	CvPlayer const& kRazer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kContext.eRazerTeam);
+	int const iPlayerCitiesAfter = kRazer.getNumCities(), iPlayerLandAfter = kRazer.getTotalLand(), iPlayerPopulationAfter = kRazer.getTotalPopulation();
+	int const iTeamCitiesAfter = kTeam.getNumCities(), iTeamLandAfter = kTeam.getTotalLand(), iTeamPopulationAfter = kTeam.getTotalPopulation();
+	int const iWorldPopulationAfter = GC.getGame().getTotalPopulation();
+	int const iLandPctX100After = (10000 * iTeamLandAfter) / std::max(1, GC.getMap().getLandPlots());
+	int const iPopPctX100After = (10000 * iTeamPopulationAfter) / std::max(1, iWorldPopulationAfter);
+	CvString const szVictoryProgressAfter = getSASGameRecordLandPopulationVictoryProgress(kContext.eRazerTeam);
+	CvPlot const& kRazedPlot = GC.getMap().getPlot(kContext.iX, kContext.iY);
+	PlayerTypes const eCityPlotOwnerAfter = kRazedPlot.getOwner();
+	TeamTypes const eCityPlotTeamAfter = kRazedPlot.getTeam();
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_RAZED razer=%d razerTeam=%d razeMode=%s previousOwner=%d previousTeam=%d originalOwner=%d originalTeam=%d cityId=%d city=%S x=%d y=%d area=%d pop=%d highestPop=%d foundedTurn=%d cityAge=%d acquiredTurn=%d turnsHeld=%d occupationTurns=%d razerCulturePercent=%d previousCulturePercent=%d highestCulturePlayer=%d highestCulturePercent=%d connectedToCapital=%d capitalDistance=%d capitalSameArea=%d nearestRazerCityDistance=%d sameAreaRazerCitiesOther=%d nearestPreviousOwnerCityDistance=%d sameAreaPreviousOwnerCities=%d maintenanceTimes100=%d buildings=%d regularBuildings=%d nationalWonders=%d teamWonders=%d worldWonders=%d buildingTypes=%s religions=%s holyReligions=%s corporations=%s headquarters=%s cityPlotOwnerAfter=%d cityPlotTeamAfter=%d playerCitiesBefore=%d playerCitiesAfter=%d playerLandBefore=%d playerLandAfter=%d playerLandDelta=%+d playerPopBefore=%d playerPopAfter=%d playerPopDelta=%+d teamCitiesBefore=%d teamCitiesAfter=%d teamLandBefore=%d teamLandAfter=%d teamLandDelta=%+d landPctX100Before=%d landPctX100After=%d landPctX100Delta=%+d teamPopBefore=%d teamPopAfter=%d teamPopDelta=%+d worldPopBefore=%d worldPopAfter=%d popPctX100Before=%d popPctX100After=%d popPctX100Delta=%+d aiMaxVictoryStage=%d aiConquestStage=%d aiDominationStage=%d landPopVictoryProgressBefore=%s landPopVictoryProgressAfter=%s",
+			kContext.iGameTurn, kContext.eRazer, kContext.eRazerTeam, kContext.szRazeMode.GetCString(), kContext.ePreviousOwner, kContext.ePreviousTeam, kContext.eOriginalOwner, kContext.eOriginalTeam,
+			kContext.iCityId, kContext.szCityName.GetCString(), kContext.iX, kContext.iY, kContext.iArea, kContext.iPopulation, kContext.iHighestPopulation, kContext.iFoundedTurn, kContext.iFoundedTurn < 0 ? -1 : kContext.iGameTurn - kContext.iFoundedTurn,
+			kContext.iAcquiredTurn, kContext.iAcquiredTurn < 0 ? -1 : kContext.iGameTurn - kContext.iAcquiredTurn, kContext.iOccupationTurns, kContext.iRazerCulturePercent, kContext.iPreviousCulturePercent, kContext.eHighestCulturePlayer, kContext.iHighestCulturePercent,
+			kContext.iConnectedToCapital, kContext.iCapitalDistance, kContext.iCapitalSameArea, kContext.iNearestRazerCityDistance, kContext.iSameAreaRazerCitiesOther, kContext.iNearestPreviousOwnerCityDistance, kContext.iSameAreaPreviousOwnerCities,
+			kContext.iMaintenanceTimes100, kContext.iBuildings, kContext.iRegularBuildings, kContext.iNationalWonders, kContext.iTeamWonders, kContext.iWorldWonders, kContext.szBuildings.GetCString(), kContext.szReligions.GetCString(), kContext.szHolyReligions.GetCString(), kContext.szCorporations.GetCString(), kContext.szHeadquarters.GetCString(), eCityPlotOwnerAfter, eCityPlotTeamAfter,
+			kContext.iPlayerCitiesBefore, iPlayerCitiesAfter, kContext.iPlayerLandBefore, iPlayerLandAfter, iPlayerLandAfter - kContext.iPlayerLandBefore, kContext.iPlayerPopulationBefore, iPlayerPopulationAfter, iPlayerPopulationAfter - kContext.iPlayerPopulationBefore, kContext.iTeamCitiesBefore, iTeamCitiesAfter, kContext.iTeamLandBefore, iTeamLandAfter, iTeamLandAfter - kContext.iTeamLandBefore, kContext.iLandPctX100Before, iLandPctX100After, iLandPctX100After - kContext.iLandPctX100Before,
+			kContext.iTeamPopulationBefore, iTeamPopulationAfter, iTeamPopulationAfter - kContext.iTeamPopulationBefore, kContext.iWorldPopulationBefore, iWorldPopulationAfter, kContext.iPopPctX100Before, iPopPctX100After, iPopPctX100After - kContext.iPopPctX100Before,
+			kContext.iAIMaxVictoryStage, kContext.iAIConquestStage, kContext.iAIDominationStage, kContext.szLandPopVictoryProgressBefore.GetCString(), szVictoryProgressAfter.GetCString());
+}
+
+void logSASGameRecordCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner, CvCity const* pCity, bool bConquest, bool bTrade)
+{
+	if (pCity == NULL)
+		return;
+	if (eNewOwner >= 0 && eNewOwner < MAX_PLAYERS)
+	{
+		g_aiSASGameRecordCitiesAcquired[eNewOwner]++;
+		if (bConquest) g_aiSASGameRecordCitiesConquered[eNewOwner]++;
+		if (bTrade) g_aiSASGameRecordCitiesTradedIn[eNewOwner]++;
+	}
+	if (eOldOwner >= 0 && eOldOwner < MAX_PLAYERS)
+	{
+		g_aiSASGameRecordCitiesLost[eOldOwner]++;
+		if (bConquest) g_aiSASGameRecordCitiesLostByConquest[eOldOwner]++;
+		if (bTrade) g_aiSASGameRecordCitiesTradedOut[eOldOwner]++;
+	}
+	// <!-- custom: Attribute conquest results to the active team-pair war so the final summary separates territorial results from battle losses and abstract war success. (GPT-5.6-Sol) -->
+	if (bConquest && eOldOwner >= 0 && eOldOwner < MAX_PLAYERS && eNewOwner >= 0 && eNewOwner < MAX_PLAYERS)
+	{
+		TeamTypes const eOldTeam = GET_PLAYER(eOldOwner).getTeam();
+		TeamTypes const eNewTeam = GET_PLAYER(eNewOwner).getTeam();
+		SASGameRecordWarSummary* pWar = findSASGameRecordWar(eOldTeam, eNewTeam);
+		if (pWar != NULL)
+		{
+			if (eNewTeam == pWar->eTeamA)
+			{
+				pWar->iCitiesCapturedByA++;
+				pWar->iPopulationCapturedByA += pCity->getPopulation();
+			}
+			else
+			{
+				pWar->iCitiesCapturedByB++;
+				pWar->iPopulationCapturedByB += pCity->getPopulation();
+			}
+			refreshSASGameRecordWarSuccess(*pWar);
+		}
+	}
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_ACQUIRED oldOwner=%d newOwner=%d cityId=%d city=%S x=%d y=%d pop=%d conquest=%d trade=%d",
+			GC.getGame().getGameTurn(), eOldOwner, eNewOwner, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation(), bConquest, bTrade);
+	logSASGameRecordCityBFC(*pCity, "acquired");
 }
 
 // <!-- custom: Per-war aggregate accounting and the final all-purpose statistics row remain deferred until the remaining combat/city/unit action families are complete. (ChatGPT-5.6-Sol) -->
@@ -7822,288 +7383,38 @@ void logSASGameRecordWarPlanChanged(TeamTypes eTeam, TeamTypes eTarget, WarPlanT
 	if (eTeam < 0 || eTeam >= MAX_TEAMS || eTarget < 0 || eTarget >= MAX_TEAMS)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=WAR_PLAN_CHANGED team=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s bWar=%d atWar=%d oldStateCounter=%d ourWars=%d targetWars=%d",
-			GC.getGame().getGameTurn(), eTeam, eTarget, getSASWarPlanType(eOldWarPlan), getSASWarPlanType(eNewWarPlan),
-			bWar, GET_TEAM(eTeam).isAtWar(eTarget), iOldStateCounter, GET_TEAM(eTeam).getNumWars(true, true), GET_TEAM(eTarget).getNumWars(true, true));
+		GC.getGame().getGameTurn(), eTeam, eTarget, getSASWarPlanType(eOldWarPlan), getSASWarPlanType(eNewWarPlan), bWar, GET_TEAM(eTeam).isAtWar(eTarget), iOldStateCounter, GET_TEAM(eTeam).getNumWars(true, true), GET_TEAM(eTarget).getNumWars(true, true));
 }
 
-
-// <!-- custom: Unit gifting recreates the unit for its receiver before the EventReporter boundary.
-// Preserve the realized giver->receiver transfer and the recreated unit's state without logging AI valuation or offer reasoning. (ChatGPT-5.6-Sol) -->
-void logSASGameRecordUnitGifted(CvUnit const* pUnit, PlayerTypes eGiftingPlayer, CvPlot const* pPlotLocation)
+// <!-- custom: CvTeam::addTeam is the authoritative team-merge boundary. Log both pre-merge member lists while the absorbed team still owns its players.
+// Periodic team snapshots can then describe the resulting state without forcing a consumer to infer the exact merge turn. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordTeamMerged(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam)
 {
-	if (pUnit == NULL || eGiftingPlayer < 0 || eGiftingPlayer >= MAX_PLAYERS)
+	if (eSurvivingTeam < 0 || eSurvivingTeam >= MAX_TEAMS || eAbsorbedTeam < 0 || eAbsorbedTeam >= MAX_TEAMS || eSurvivingTeam == eAbsorbedTeam)
 		return;
-	PlayerTypes const eReceiver = pUnit->getOwner();
-	TeamTypes const eGiverTeam = GET_PLAYER(eGiftingPlayer).getTeam();
-	TeamTypes const eReceiverTeam = (eReceiver == NO_PLAYER ? NO_TEAM : GET_PLAYER(eReceiver).getTeam());
-	CvPlot const* pPlot = (pPlotLocation == NULL ? pUnit->plot() : pPlotLocation);
-	int iPromotions = 0;
-	FOR_EACH_ENUM(Promotion)
-	{
-		if (pUnit->isHasPromotion(eLoopPromotion))
-			iPromotions++;
-	}
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_GIFTED giverPlayer=%d giverTeam=%d receiverPlayer=%d receiverTeam=%d unitId=%d unit=%s unitAI=%s x=%d y=%d area=%d experience=%d level=%d promotions=%d damage=%d productionNeeded=%d canCombat=%d cargo=%d transportId=%d",
-			GC.getGame().getGameTurn(), eGiftingPlayer, eGiverTeam, eReceiver, eReceiverTeam, pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
-			pPlot == NULL ? -1 : pPlot->getX(), pPlot == NULL ? -1 : pPlot->getY(), pPlot == NULL ? -1 : pPlot->getArea().getID(), pUnit->getExperience(), pUnit->getLevel(), iPromotions, pUnit->getDamage(),
-			eReceiver == NO_PLAYER ? -1 : GET_PLAYER(eReceiver).getProductionNeeded(pUnit->getUnitType()), pUnit->canCombat() ? 1 : 0, pUnit->isCargo() ? 1 : 0, pUnit->getTransportUnit() == NULL ? -1 : pUnit->getTransportUnit()->getID());
+	int iSurvivingPlayerCount = 0;
+	int iAbsorbedPlayerCount = 0;
+	CvString const szSurvivingPlayers = getSASGameRecordTeamAssignedPlayers(eSurvivingTeam, iSurvivingPlayerCount);
+	CvString const szAbsorbedPlayers = getSASGameRecordTeamAssignedPlayers(eAbsorbedTeam, iAbsorbedPlayerCount);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=TEAM_MERGED survivingTeam=%d absorbedTeam=%d survivingPlayersBefore=%s absorbedPlayers=%s survivingPlayerCountBefore=%d absorbedPlayerCount=%d resultingPlayerCount=%d",
+			GC.getGame().getGameTurn(), eSurvivingTeam, eAbsorbedTeam, szSurvivingPlayers.GetCString(),
+			szAbsorbedPlayers.GetCString(), iSurvivingPlayerCount, iAbsorbedPlayerCount, iSurvivingPlayerCount + iAbsorbedPlayerCount);
 }
 
-// <!-- custom: Circumnavigation is a one-time global history boundary with a permanent naval-movement effect.
-// Record the winning team and exact before/after team modifier after the existing map-revelation test succeeds. (ChatGPT-5.6-Sol) -->
-void logSASGameRecordCircumnavigated(TeamTypes eTeam, int iFreeSeaMoves, bool bBonusApplied, int iSeaExtraMovesBefore, int iSeaExtraMovesAfter)
+void logSASGameRecordTeamMet(TeamTypes eTeam, TeamTypes eOtherTeam, bool bNewDiplo, int iX1, int iY1, int iX2, int iY2, CvPlot const* pTeamContactPlot, CvPlot const* pOtherContactPlot)
 {
-	if (eTeam == NO_TEAM)
-		return;
-	CvMap const& kMap = GC.getMap();
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CIRCUMNAVIGATION_COMPLETED team=%d members=%s wrapX=%d wrapY=%d freeSeaMoves=%d bonusApplied=%d seaExtraMovesBefore=%d seaExtraMovesAfter=%d",
-			GC.getGame().getGameTurn(), eTeam, getSASGameRecordTeamMembers(eTeam).GetCString(), kMap.isWrapX() ? 1 : 0, kMap.isWrapY() ? 1 : 0,
-			iFreeSeaMoves, bBonusApplied ? 1 : 0, iSeaExtraMovesBefore, iSeaExtraMovesAfter);
-}
-
-// <!-- custom: Natural growth/starvation can occur entirely between periodic city snapshots. Level 2 keeps compact interval totals; level 3 additionally preserves exact city/food/granary transitions. (ChatGPT-5.6-Sol) -->
-void logSASGameRecordCityGrowthPrevented(CvCity const* pCity, int iFoodDiscarded)
-{
-	if (pCity == NULL)
-		return;
-	PlayerTypes const ePlayer = pCity->getOwner();
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS)
-		return;
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
-	kFlow.iCityGrowthPreventedEvents++;
-	kFlow.iFoodDiscardedByAvoidGrowth += std::max(0, iFoodDiscarded);
-}
-
-void logSASGameRecordCityPopulationChanged(CvCity const* pCity, bool bGrowth, int iPopulationBefore, int iFoodDifference, int iFoodBefore, int iFoodAfterDifference, int iFoodKeptBefore, int iFoodKeptBeforePopulationChange, int iGrowthThresholdBefore)
-{
-	if (pCity == NULL)
-		return;
-	PlayerTypes const ePlayer = pCity->getOwner();
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS)
-		return;
-	int const iPopulationAfter = pCity->getPopulation();
-	int const iPopulationDelta = iPopulationAfter - iPopulationBefore;
-	if ((bGrowth && iPopulationDelta <= 0) || (!bGrowth && iPopulationDelta >= 0))
-		return;
-	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
-	if (bGrowth)
-	{
-		kFlow.iCityGrowthEvents++;
-		kFlow.iPopulationGainedFromGrowth += iPopulationDelta;
-	}
-	else
-	{
-		kFlow.iCityStarvationEvents++;
-		kFlow.iPopulationLostToStarvation += -iPopulationDelta;
-	}
-	if (gGameRecordLogLevel >= 3)
-	{
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_POPULATION_CHANGED cause=%s player=%d cityId=%d city=%S x=%d y=%d populationBefore=%d populationAfter=%d populationDelta=%+d foodDifference=%+d foodBefore=%d foodAfterDifference=%d foodAfter=%d foodKeptBefore=%d foodKeptBeforePopulationChange=%d foodKeptAfter=%d growthThresholdBefore=%d growthThresholdAfter=%d maxFoodKeptPercent=%d",
-			GC.getGame().getGameTurn(), bGrowth ? "GROWTH" : "STARVATION", ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(),
-			iPopulationBefore, iPopulationAfter, iPopulationDelta, iFoodDifference, iFoodBefore, iFoodAfterDifference, pCity->getFood(), iFoodKeptBefore, iFoodKeptBeforePopulationChange, pCity->getFoodKept(),
-			iGrowthThresholdBefore, pCity->growthThreshold(), pCity->getMaxFoodKeptPercent());
-	}
-}
-
-void logSASGameRecordCityCultureExpanded(CvCity const* pCity)
-{
-	if (pCity == NULL || pCity->getCultureLevel() == NO_CULTURELEVEL)
-		return;
-	CultureLevelTypes const eCultureLevel = pCity->getCultureLevel();
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_CULTURE_EXPANDED player=%d cityId=%d city=%S x=%d y=%d cultureLevel=%s cultureLevelId=%d ownerCultureTimes100=%d nextCultureThreshold=%d defenseModifier=%d totalDefense=%d",
-		GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(),
-		GC.getInfo(eCultureLevel).getType(), eCultureLevel, pCity->getCultureTimes100(pCity->getOwner()), pCity->getCultureThreshold(), pCity->getDefenseModifier(false), pCity->getTotalDefense(false));
-}
-
-void logSASGameRecordCityHurry(CvCity const* pCity, HurryTypes eHurry, int iProductionBefore, int iProductionAdded, int iGoldCost, int iPopulationCost, int iHurryAngerAdded, int iGoldBefore, int iPopulationBefore, int iHurryAngerBefore)
-{
-	if (pCity == NULL || eHurry == NO_HURRY)
-		return;
-	PlayerTypes const ePlayer = pCity->getOwner();
-	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_HURRIED player=%d cityId=%d city=%S x=%d y=%d hurry=%s targetKind=%s target=%s productionBefore=%d productionNeeded=%d productionAdded=%d productionAfter=%d goldCost=%d goldBefore=%d goldAfter=%d populationCost=%d populationBefore=%d populationAfter=%d hurryAngerAdded=%d hurryAngerBefore=%d hurryAngerAfter=%d",
-			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), GC.getInfo(eHurry).getType(),
-			getSASGameRecordCityProductionKind(*pCity), getSASGameRecordCityProductionType(*pCity), iProductionBefore, getSASGameRecordCityProductionNeeded(*pCity), iProductionAdded, pCity->getProduction(),
-			iGoldCost, iGoldBefore, kPlayer.getGold(), iPopulationCost, iPopulationBefore, pCity->getPopulation(), iHurryAngerAdded, iHurryAngerBefore, pCity->getHurryAngerTimer());
-}
-
-void logSASGameRecordPillage(CvUnit const* pUnit, ImprovementTypes eOldImprovement, RouteTypes eOldRoute, BonusTypes eOldBonus, PlayerTypes eVictimPlayer, int iGoldGained)
-{
-	if (pUnit == NULL)
-		return;
-	CvPlot const& kPlot = pUnit->getPlot();
-	CvCity const* pWorkingCity = kPlot.getWorkingCity();
-	char const* szStructure = (eOldRoute != kPlot.getRouteType() ? "ROUTE" :
-			(eOldImprovement != kPlot.getImprovementType() ? "IMPROVEMENT" : "-"));
-	TeamTypes const eVictimTeam = (eVictimPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eVictimPlayer).getTeam());
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_PILLAGE player=%d team=%d unitId=%d unit=%s unitAI=%s x=%d y=%d victimPlayer=%d victimTeam=%d structure=%s improvementOld=%s improvementNew=%s routeOld=%s routeNew=%s bonus=%s workingCityId=%d workingCity=%S goldGained=%d hiddenNationality=%d alwaysHostile=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
-			kPlot.getX(), kPlot.getY(), eVictimPlayer, eVictimTeam, szStructure,
-			getSASGameRecordImprovementType(eOldImprovement), getSASGameRecordImprovementType(kPlot.getImprovementType()),
-			getSASGameRecordRouteType(eOldRoute), getSASGameRecordRouteType(kPlot.getRouteType()), getSASGameRecordBonusType(eOldBonus),
-			pWorkingCity == NULL ? -1 : pWorkingCity->getID(), getSASGameRecordQuotedCityName(pWorkingCity).GetCString(), iGoldGained,
-			pUnit->getUnitInfo().isHiddenNationality() ? 1 : 0, pUnit->isAlwaysHostile(kPlot) ? 1 : 0);
-}
-
-static int getSASGameRecordBlockadeContextIndex(PlayerTypes ePlayer, int iUnitId)
-{
-	for (size_t iI = 0; iI < g_aSASGameRecordBlockades.size(); iI++)
-	{
-		if (g_aSASGameRecordBlockades[iI].ePlayer == ePlayer && g_aSASGameRecordBlockades[iI].iUnitId == iUnitId)
-			return (int)iI;
-	}
-	return -1;
-}
-
-static bool hasSASGameRecordCityReference(std::vector<std::pair<PlayerTypes,int> > const& aCities, PlayerTypes ePlayer, int iCityId)
-{
-	for (size_t iI = 0; iI < aCities.size(); iI++)
-	{
-		if (aCities[iI].first == ePlayer && aCities[iI].second == iCityId)
-			return true;
-	}
-	return false;
-}
-
-static void captureSASGameRecordBlockadeContext(CvUnit const& kUnit, SASGameRecordBlockadeContext& kContext, bool bCheckCanPlunder)
-{
-	kContext.ePlayer = kUnit.getOwner();
-	kContext.iUnitId = kUnit.getID();
-	kContext.iStartTurn = GC.getGame().getGameTurn();
-	kContext.iStartElapsedTurn = GC.getGame().getElapsedGameTurns();
-	kContext.iStartX = kUnit.getX();
-	kContext.iStartY = kUnit.getY();
-	kContext.iRangePlots = 0;
-	kContext.iAffectedTeams = 0;
-	kContext.iAffectedCities = 0;
-	kContext.szRangePlots.clear();
-	kContext.szAffectedTeams.clear();
-	kContext.szAffectedCities.clear();
-	kContext.iPlunderEvents = 0;
-	kContext.iGoldPlundered = 0;
-	kContext.aPlunderedCities.clear();
-
-	std::vector<CvPlot*> apRange;
-	// <!-- custom: START mirrors updatePlunder's legal range exactly. A fallback END may use the physical range with legality disabled because the unit can end precisely after becoming unable to plunder. (ChatGPT-5.6-Sol) -->
-	kUnit.blockadeRange(apRange, 0, bCheckCanPlunder);
-	kContext.iRangePlots = (int)apRange.size();
-	for (size_t iI = 0; iI < apRange.size(); iI++)
-	{
-		CvString szItem;
-		szItem.Format(kContext.szRangePlots.empty() ? "%d,%d" : ";%d,%d", apRange[iI]->getX(), apRange[iI]->getY());
-		kContext.szRangePlots += szItem;
-	}
-
-	bool abAffectedTeams[MAX_TEAMS];
-	for (int iTeam = 0; iTeam < MAX_TEAMS; iTeam++)
-		abAffectedTeams[iTeam] = false;
-	// <!-- custom: Mirror CvUnit::updatePlunder's team admission test so the logged scope describes teams this unit actually blockades, including hidden-nationality behavior. (ChatGPT-5.6-Sol) -->
-	for (TeamIter<ALIVE,KNOWN_POTENTIAL_ENEMY_OF> it(kUnit.getTeam()); it.hasNext(); ++it)
-	{
-		CvTeam const& kTeam = *it;
-		if (!kUnit.isEnemy(kTeam.getID()))
-			continue;
-		abAffectedTeams[kTeam.getID()] = true;
-		CvString szItem;
-		szItem.Format(kContext.szAffectedTeams.empty() ? "%d" : ",%d", kTeam.getID());
-		kContext.szAffectedTeams += szItem;
-		kContext.iAffectedTeams++;
-	}
-
-	std::vector<std::pair<PlayerTypes,int> > aCities;
-	for (size_t iI = 0; iI < apRange.size(); iI++)
-	{
-		FOR_EACH_ADJ_PLOT(*apRange[iI])
-		{
-			CvCity const* pCity = pAdj->getPlotCity();
-			if (pCity == NULL || pCity->getTeam() < 0 || pCity->getTeam() >= MAX_TEAMS || !abAffectedTeams[pCity->getTeam()] ||
-				hasSASGameRecordCityReference(aCities, pCity->getOwner(), pCity->getID()))
-			{
-				continue;
-			}
-			aCities.push_back(std::make_pair(pCity->getOwner(), pCity->getID()));
-			CvString szItem;
-			szItem.Format(kContext.szAffectedCities.empty() ? "P%d:C%d@%d,%d" : ";P%d:C%d@%d,%d",
-					pCity->getOwner(), pCity->getID(), pCity->getX(), pCity->getY());
-			kContext.szAffectedCities += szItem;
-		}
-	}
-	kContext.iAffectedCities = (int)aCities.size();
-}
-
-void logSASGameRecordBlockadeChanged(CvUnit const* pUnit, bool bStarting)
-{
-	if (pUnit == NULL)
-		return;
-	int const iExisting = getSASGameRecordBlockadeContextIndex(pUnit->getOwner(), pUnit->getID());
-	if (bStarting)
-	{
-		if (iExisting >= 0)
-			g_aSASGameRecordBlockades.erase(g_aSASGameRecordBlockades.begin() + iExisting);
-		SASGameRecordBlockadeContext kContext;
-		captureSASGameRecordBlockadeContext(*pUnit, kContext, true);
-		g_aSASGameRecordBlockades.push_back(kContext);
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=NAVAL_BLOCKADE_STARTED player=%d team=%d unitId=%d unit=%s unitAI=%s x=%d y=%d rangePlots=%d plots=%s affectedTeams=%d teams=%s affectedCities=%d cities=%s canPlunder=%d hiddenNationality=%d alwaysHostile=%d",
-				GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
-				pUnit->getX(), pUnit->getY(), kContext.iRangePlots, kContext.szRangePlots.empty() ? "-" : kContext.szRangePlots.GetCString(),
-				kContext.iAffectedTeams, kContext.szAffectedTeams.empty() ? "-" : kContext.szAffectedTeams.GetCString(),
-				kContext.iAffectedCities, kContext.szAffectedCities.empty() ? "-" : kContext.szAffectedCities.GetCString(),
-				pUnit->canPlunder(pUnit->getPlot()) ? 1 : 0, pUnit->getUnitInfo().isHiddenNationality() ? 1 : 0, pUnit->isAlwaysHostile(pUnit->getPlot()) ? 1 : 0);
-		return;
-	}
-
-	SASGameRecordBlockadeContext kContext;
-	bool const bStartKnown = (iExisting >= 0);
-	if (bStartKnown)
-		kContext = g_aSASGameRecordBlockades[iExisting];
-	else
-	{
-		captureSASGameRecordBlockadeContext(*pUnit, kContext, false);
-		kContext.iStartTurn = -1;
-		kContext.iStartElapsedTurn = -1;
-		kContext.iStartX = -1;
-		kContext.iStartY = -1;
-	}
-	int const iDurationTurns = (bStartKnown ? GC.getGame().getGameTurn() - kContext.iStartTurn : -1);
-	int const iDurationElapsedTurns = (bStartKnown ? GC.getGame().getElapsedGameTurns() - kContext.iStartElapsedTurn : -1);
-	SASGameRecordBlockadeContext kEndContext;
-	captureSASGameRecordBlockadeContext(*pUnit, kEndContext, false);
-	bool const bScopeChanged = (bStartKnown &&
-			(kContext.szAffectedTeams != kEndContext.szAffectedTeams || kContext.szAffectedCities != kEndContext.szAffectedCities));
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=NAVAL_BLOCKADE_ENDED player=%d team=%d unitId=%d unit=%s unitAI=%s startKnown=%d rangeSource=%s startTurn=%d startX=%d startY=%d endX=%d endY=%d durationTurns=%d durationElapsedTurns=%d rangePlots=%d plots=%s affectedTeams=%d teams=%s affectedCities=%d cities=%s endAffectedTeams=%d endTeams=%s endAffectedCities=%d endCities=%s scopeChanged=%d plunderEvents=%d goldPlundered=%d uniquePlunderedCities=%d canPlunderAtEnd=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
-			bStartKnown ? 1 : 0, bStartKnown ? "START" : "END_FALLBACK", kContext.iStartTurn, kContext.iStartX, kContext.iStartY, pUnit->getX(), pUnit->getY(), iDurationTurns, iDurationElapsedTurns,
-			kContext.iRangePlots, kContext.szRangePlots.empty() ? "-" : kContext.szRangePlots.GetCString(),
-			kContext.iAffectedTeams, kContext.szAffectedTeams.empty() ? "-" : kContext.szAffectedTeams.GetCString(),
-			kContext.iAffectedCities, kContext.szAffectedCities.empty() ? "-" : kContext.szAffectedCities.GetCString(),
-			kEndContext.iAffectedTeams, kEndContext.szAffectedTeams.empty() ? "-" : kEndContext.szAffectedTeams.GetCString(),
-			kEndContext.iAffectedCities, kEndContext.szAffectedCities.empty() ? "-" : kEndContext.szAffectedCities.GetCString(), bScopeChanged ? 1 : 0,
-			kContext.iPlunderEvents, kContext.iGoldPlundered, (int)kContext.aPlunderedCities.size(), pUnit->canPlunder(pUnit->getPlot()) ? 1 : 0);
-	if (iExisting >= 0)
-		g_aSASGameRecordBlockades.erase(g_aSASGameRecordBlockades.begin() + iExisting);
-}
-
-void logSASGameRecordBlockadePlunder(CvUnit const* pUnit, CvCity const* pCity, int iGold, int iTradeRoutes, int iProfitPerRoute)
-{
-	if (pUnit == NULL || pCity == NULL || iGold <= 0)
-		return;
-	int const iContext = getSASGameRecordBlockadeContextIndex(pUnit->getOwner(), pUnit->getID());
-	int iStartTurn = -1;
-	int iAgeTurns = -1;
-	if (iContext >= 0)
-	{
-		SASGameRecordBlockadeContext& kContext = g_aSASGameRecordBlockades[iContext];
-		kContext.iPlunderEvents++;
-		kContext.iGoldPlundered += iGold;
-		if (!hasSASGameRecordCityReference(kContext.aPlunderedCities, pCity->getOwner(), pCity->getID()))
-			kContext.aPlunderedCities.push_back(std::make_pair(pCity->getOwner(), pCity->getID()));
-		iStartTurn = kContext.iStartTurn;
-		iAgeTurns = GC.getGame().getGameTurn() - kContext.iStartTurn;
-	}
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=NAVAL_BLOCKADE_PLUNDER player=%d team=%d unitId=%d unit=%s unitAI=%s unitX=%d unitY=%d victimPlayer=%d victimTeam=%d cityId=%d city=%S cityX=%d cityY=%d gold=%d tradeRoutes=%d profitPerRoute=%d blockadeStartKnown=%d blockadeStartTurn=%d blockadeAgeTurns=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
-			pUnit->getX(), pUnit->getY(), pCity->getOwner(), pCity->getTeam(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(),
-			iGold, iTradeRoutes, iProfitPerRoute, iContext >= 0 ? 1 : 0, iStartTurn, iAgeTurns);
+	bool const bMeetDataPlot1Valid = (iX1 >= 0 && iY1 >= 0 && iX1 < GC.getMap().getGridWidth() && iY1 < GC.getMap().getGridHeight());
+	bool const bMeetDataPlot2Valid = (iX2 >= 0 && iY2 >= 0 && iX2 < GC.getMap().getGridWidth() && iY2 < GC.getMap().getGridHeight());
+	// <!-- custom: FirstContactData may leave coordinates meaningless when the corresponding validity test fails.
+	// Preserve the validity flag, but serialize invalid pairs canonically as -1,-1 instead of leaking uninitialized values into the log. (ChatGPT-5.6-Sol) -->
+	int const iLoggedX1 = (bMeetDataPlot1Valid ? iX1 : -1);
+	int const iLoggedY1 = (bMeetDataPlot1Valid ? iY1 : -1);
+	int const iLoggedX2 = (bMeetDataPlot2Valid ? iX2 : -1);
+	int const iLoggedY2 = (bMeetDataPlot2Valid ? iY2 : -1);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=TEAM_MET team=%d otherTeam=%d bNewDiplo=%d teamMembers=%s otherMembers=%s meetDataPlot1=%d,%d meetDataPlot1Valid=%d meetDataPlot2=%d,%d meetDataPlot2Valid=%d teamContactPlot=%d,%d otherTeamContactPlot=%d,%d",
+			GC.getGame().getGameTurn(), eTeam, eOtherTeam, bNewDiplo, getSASGameRecordTeamMembers(eTeam).GetCString(), getSASGameRecordTeamMembers(eOtherTeam).GetCString(), iLoggedX1, iLoggedY1, bMeetDataPlot1Valid, iLoggedX2, iLoggedY2, bMeetDataPlot2Valid,
+			pTeamContactPlot == NULL ? -1 : pTeamContactPlot->getX(), pTeamContactPlot == NULL ? -1 : pTeamContactPlot->getY(),
+			pOtherContactPlot == NULL ? -1 : pOtherContactPlot->getX(), pOtherContactPlot == NULL ? -1 : pOtherContactPlot->getY());
 }
 
 void logSASGameRecordPlayerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iAmount)
@@ -8111,6 +7422,7 @@ void logSASGameRecordPlayerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPla
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GOLD_TRADE from=%d to=%d amount=%d", GC.getGame().getGameTurn(), eFromPlayer, eToPlayer, iAmount);
 }
 
+// <!-- custom: Recorder policy, not diplomacy AI: identify the DiploEvent values whose generic pre-event row is replaced by a richer post-resolution state-delta row. Keep the taxonomy with the recorder schema instead of teaching CvPlayer gameplay code how SASGameRecord groups events. (ChatGPT-5.6-Sol) -->
 bool isSASGameRecordResolvedDiploInteraction(DiploEventTypes eDiploEvent)
 {
 	switch (eDiploEvent)
@@ -8152,6 +7464,7 @@ void captureSASGameRecordDiploRelationState(PlayerTypes eActor, PlayerTypes eOth
 	kState.bAtWar = GET_TEAM(kActor.getTeam()).isAtWar(kOther.getTeam());
 }
 
+// <!-- custom: These semantic labels are SASGameRecord schema, not reusable gameplay enums. Keep the private mapping beside the row formatter; CvGameCoreUtils retains only generic raw enum-token helpers such as getSASDiploEventType. (ChatGPT-5.6-Sol) -->
 static char const* getSASGameRecordDiploInteractionType(DiploEventTypes eDiploEvent)
 {
 	switch (eDiploEvent)
@@ -8321,6 +7634,7 @@ void logSASGameRecordAIToHumanOfferRejected(PlayerTypes eProposer, PlayerTypes e
 			GC.getGame().getGameTurn(), eProposer, eResponder, getSASTradeListText(kProposerGives, eProposer).GetCString(), getSASTradeListText(kResponderGives, eResponder).GetCString(),
 			kProposer.AI_getAttitudeVal(eResponder), kResponder.AI_getAttitudeVal(eProposer), GET_TEAM(kProposer.getTeam()).isAtWar(kResponder.getTeam()) ? 1 : 0);
 }
+
 
 // <!-- custom: Vote helpers below are recorder schema, not gameplay abstractions: they translate native vote enums/flags into stable factual history tokens while leaving AI valuation in BBAI. (ChatGPT-5.6-Sol) -->
 static CvString getSASGameRecordPlayerVoteChoice(PlayerVoteTypes eChoice)
@@ -8537,18 +7851,283 @@ void logSASGameRecordVoteResult(VoteTriggeredData const* pVoteTriggered, bool bT
 			eTargetPlayer, eTargetTeam, pVoteTriggered->kVoteOption.iCityId, getSASGameRecordQuotedCityName(pTargetCity).GetCString(), pTargetCity == NULL ? -1 : pTargetCity->getX(), pTargetCity == NULL ? -1 : pTargetCity->getY(), eOtherPlayer, eOtherTeam);
 }
 
-// <!-- custom: Religion/corporation founding and realized city membership changes are authoritative EventReporter boundaries.
-// Missionary/Executive attempt rows complement them from the deeper CvUnit boundary with consumed-unit outcome context. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer)
 {
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RELIGION_FOUNDED player=%d religion=%s",
-			GC.getGame().getGameTurn(), ePlayer, getSASGameRecordReligionType(eReligion));
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RELIGION_FOUNDED player=%d religion=%s", GC.getGame().getGameTurn(), ePlayer, getSASGameRecordReligionType(eReligion));
 }
 
 void logSASGameRecordCorporationFounded(CorporationTypes eCorporation, PlayerTypes ePlayer)
 {
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CORPORATION_FOUNDED player=%d corporation=%s",
-			GC.getGame().getGameTurn(), ePlayer, getSASGameRecordCorporationType(eCorporation));
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CORPORATION_FOUNDED player=%d corporation=%s", GC.getGame().getGameTurn(), ePlayer, getSASGameRecordCorporationType(eCorporation));
+}
+
+void logSASGameRecordCityGrowthPrevented(CvCity const* pCity, int iFoodDiscarded)
+{
+	if (pCity == NULL)
+		return;
+	PlayerTypes const ePlayer = pCity->getOwner();
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS)
+		return;
+	// <!-- custom: Avoid Growth can repeatedly cap a city at its threshold and discard excess food.
+	// Keep only interval totals so AI growth suppression is measurable without one action row per capped city turn. (ChatGPT-5.6-Sol) -->
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
+	kFlow.iCityGrowthPreventedEvents++;
+	kFlow.iFoodDiscardedByAvoidGrowth += std::max(0, iFoodDiscarded);
+}
+
+void logSASGameRecordCityPopulationChanged(CvCity const* pCity, bool bGrowth, int iPopulationBefore, int iFoodDifference, int iFoodBefore, int iFoodAfterDifference, int iFoodKeptBefore, int iFoodKeptBeforePopulationChange, int iGrowthThresholdBefore)
+{
+	if (pCity == NULL)
+		return;
+	PlayerTypes const ePlayer = pCity->getOwner();
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS)
+		return;
+	int const iPopulationAfter = pCity->getPopulation();
+	int const iPopulationDelta = iPopulationAfter - iPopulationBefore;
+	if ((bGrowth && iPopulationDelta <= 0) || (!bGrowth && iPopulationDelta >= 0))
+		return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
+	if (bGrowth)
+	{
+		kFlow.iCityGrowthEvents++;
+		kFlow.iPopulationGainedFromGrowth += iPopulationDelta;
+	}
+	else
+	{
+		kFlow.iCityStarvationEvents++;
+		kFlow.iPopulationLostToStarvation += -iPopulationDelta;
+	}
+	// <!-- custom: Level 2 keeps only interval natural-population totals; level 3 preserves the exact city transition and the food/granary states immediately before and after CvCity::doGrowth resolves it.
+	// This hook is observation-only and is called after the existing population/food mutations, before Python's successful-growth event can add unrelated side effects. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 3)
+	{
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_POPULATION_CHANGED cause=%s player=%d cityId=%d city=%S x=%d y=%d populationBefore=%d populationAfter=%d populationDelta=%+d foodDifference=%+d foodBefore=%d foodAfterDifference=%d foodAfter=%d foodKeptBefore=%d foodKeptBeforePopulationChange=%d foodKeptAfter=%d growthThresholdBefore=%d growthThresholdAfter=%d maxFoodKeptPercent=%d",
+			GC.getGame().getGameTurn(), bGrowth ? "GROWTH" : "STARVATION", ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(),
+			iPopulationBefore, iPopulationAfter, iPopulationDelta, iFoodDifference, iFoodBefore, iFoodAfterDifference, pCity->getFood(), iFoodKeptBefore, iFoodKeptBeforePopulationChange, pCity->getFoodKept(),
+			iGrowthThresholdBefore, pCity->growthThreshold(), pCity->getMaxFoodKeptPercent());
+	}
+}
+
+void logSASGameRecordCityCultureExpanded(CvCity const* pCity)
+{
+	if (pCity == NULL || pCity->getCultureLevel() == NO_CULTURELEVEL)
+		return;
+	CultureLevelTypes const eCultureLevel = pCity->getCultureLevel();
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_CULTURE_EXPANDED player=%d cityId=%d city=%S x=%d y=%d cultureLevel=%s cultureLevelId=%d ownerCultureTimes100=%d nextCultureThreshold=%d defenseModifier=%d totalDefense=%d",
+		GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(),
+		GC.getInfo(eCultureLevel).getType(), eCultureLevel, pCity->getCultureTimes100(pCity->getOwner()), pCity->getCultureThreshold(), pCity->getDefenseModifier(false), pCity->getTotalDefense(false));
+}
+
+void logSASGameRecordCityHurry(CvCity const* pCity, HurryTypes eHurry, int iProductionBefore, int iProductionAdded, int iGoldCost, int iPopulationCost, int iHurryAngerAdded, int iGoldBefore, int iPopulationBefore, int iHurryAngerBefore)
+{
+	if (pCity == NULL || eHurry == NO_HURRY)
+		return;
+	PlayerTypes const ePlayer = pCity->getOwner();
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_HURRIED player=%d cityId=%d city=%S x=%d y=%d hurry=%s targetKind=%s target=%s productionBefore=%d productionNeeded=%d productionAdded=%d productionAfter=%d goldCost=%d goldBefore=%d goldAfter=%d populationCost=%d populationBefore=%d populationAfter=%d hurryAngerAdded=%d hurryAngerBefore=%d hurryAngerAfter=%d",
+			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), GC.getInfo(eHurry).getType(),
+			getSASGameRecordCityProductionKind(*pCity), getSASGameRecordCityProductionType(*pCity), iProductionBefore, getSASGameRecordCityProductionNeeded(*pCity), iProductionAdded, pCity->getProduction(),
+			iGoldCost, iGoldBefore, kPlayer.getGold(), iPopulationCost, iPopulationBefore, pCity->getPopulation(), iHurryAngerAdded, iHurryAngerBefore, pCity->getHurryAngerTimer());
+}
+
+void logSASGameRecordPillage(CvUnit const* pUnit, ImprovementTypes eOldImprovement, RouteTypes eOldRoute, BonusTypes eOldBonus, PlayerTypes eVictimPlayer, int iGoldGained)
+{
+	if (pUnit == NULL)
+		return;
+	CvPlot const& kPlot = pUnit->getPlot();
+	CvCity const* pWorkingCity = kPlot.getWorkingCity();
+	char const* szStructure = (eOldRoute != kPlot.getRouteType() ? "ROUTE" :
+			(eOldImprovement != kPlot.getImprovementType() ? "IMPROVEMENT" : "-"));
+	TeamTypes const eVictimTeam = (eVictimPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eVictimPlayer).getTeam());
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_PILLAGE player=%d team=%d unitId=%d unit=%s unitAI=%s x=%d y=%d victimPlayer=%d victimTeam=%d structure=%s improvementOld=%s improvementNew=%s routeOld=%s routeNew=%s bonus=%s workingCityId=%d workingCity=%S goldGained=%d hiddenNationality=%d alwaysHostile=%d",
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+			kPlot.getX(), kPlot.getY(), eVictimPlayer, eVictimTeam, szStructure,
+			getSASGameRecordImprovementType(eOldImprovement), getSASGameRecordImprovementType(kPlot.getImprovementType()),
+			getSASGameRecordRouteType(eOldRoute), getSASGameRecordRouteType(kPlot.getRouteType()), getSASGameRecordBonusType(eOldBonus),
+			pWorkingCity == NULL ? -1 : pWorkingCity->getID(), getSASGameRecordQuotedCityName(pWorkingCity).GetCString(), iGoldGained,
+			pUnit->getUnitInfo().isHiddenNationality() ? 1 : 0, pUnit->isAlwaysHostile(kPlot) ? 1 : 0);
+}
+
+static int getSASGameRecordBlockadeContextIndex(PlayerTypes ePlayer, int iUnitId)
+{
+	for (size_t iI = 0; iI < g_aSASGameRecordBlockades.size(); iI++)
+	{
+		if (g_aSASGameRecordBlockades[iI].ePlayer == ePlayer && g_aSASGameRecordBlockades[iI].iUnitId == iUnitId)
+			return (int)iI;
+	}
+	return -1;
+}
+
+static bool hasSASGameRecordCityReference(std::vector<std::pair<PlayerTypes,int> > const& aCities, PlayerTypes ePlayer, int iCityId)
+{
+	for (size_t iI = 0; iI < aCities.size(); iI++)
+	{
+		if (aCities[iI].first == ePlayer && aCities[iI].second == iCityId)
+			return true;
+	}
+	return false;
+}
+
+static void captureSASGameRecordBlockadeContext(CvUnit const& kUnit, SASGameRecordBlockadeContext& kContext, bool bCheckCanPlunder)
+{
+	kContext.ePlayer = kUnit.getOwner();
+	kContext.iUnitId = kUnit.getID();
+	kContext.iStartTurn = GC.getGame().getGameTurn();
+	kContext.iStartElapsedTurn = GC.getGame().getElapsedGameTurns();
+	kContext.iStartX = kUnit.getX();
+	kContext.iStartY = kUnit.getY();
+	kContext.iRangePlots = 0;
+	kContext.iAffectedTeams = 0;
+	kContext.iAffectedCities = 0;
+	kContext.szRangePlots.clear();
+	kContext.szAffectedTeams.clear();
+	kContext.szAffectedCities.clear();
+	kContext.iPlunderEvents = 0;
+	kContext.iGoldPlundered = 0;
+	kContext.aPlunderedCities.clear();
+
+	std::vector<CvPlot*> apRange;
+	// <!-- custom: START mirrors updatePlunder's legal range exactly.
+	// A fallback END without recorder start context can request the physical range with legality disabled because the unit may be ending precisely after becoming unable to plunder. (ChatGPT-5.6-Sol) -->
+	kUnit.blockadeRange(apRange, 0, bCheckCanPlunder);
+	kContext.iRangePlots = (int)apRange.size();
+	for (size_t iI = 0; iI < apRange.size(); iI++)
+	{
+		CvString szItem;
+		szItem.Format(kContext.szRangePlots.empty() ? "%d,%d" : ";%d,%d", apRange[iI]->getX(), apRange[iI]->getY());
+		kContext.szRangePlots += szItem;
+	}
+
+	bool abAffectedTeams[MAX_TEAMS];
+	for (int iTeam = 0; iTeam < MAX_TEAMS; iTeam++)
+		abAffectedTeams[iTeam] = false;
+	// <!-- custom: Mirror CvUnit::updatePlunder's exact team iterator/admission test so the logged team/city set describes teams this unit actually contributes blockade counts against, including hidden-nationality behavior. (ChatGPT-5.6-Sol) -->
+	for (TeamIter<ALIVE,KNOWN_POTENTIAL_ENEMY_OF> it(kUnit.getTeam()); it.hasNext(); ++it)
+	{
+		CvTeam const& kTeam = *it;
+		if (!kUnit.isEnemy(kTeam.getID()))
+			continue;
+		abAffectedTeams[kTeam.getID()] = true;
+		CvString szItem;
+		szItem.Format(kContext.szAffectedTeams.empty() ? "%d" : ",%d", kTeam.getID());
+		kContext.szAffectedTeams += szItem;
+		kContext.iAffectedTeams++;
+	}
+
+	std::vector<std::pair<PlayerTypes,int> > aCities;
+	for (size_t iI = 0; iI < apRange.size(); iI++)
+	{
+		FOR_EACH_ADJ_PLOT(*apRange[iI])
+		{
+			CvCity const* pCity = pAdj->getPlotCity();
+			if (pCity == NULL || pCity->getTeam() < 0 || pCity->getTeam() >= MAX_TEAMS || !abAffectedTeams[pCity->getTeam()] ||
+				hasSASGameRecordCityReference(aCities, pCity->getOwner(), pCity->getID()))
+			{
+				continue;
+			}
+			aCities.push_back(std::make_pair(pCity->getOwner(), pCity->getID()));
+			CvString szItem;
+			szItem.Format(kContext.szAffectedCities.empty() ? "P%d:C%d@%d,%d" : ";P%d:C%d@%d,%d",
+					pCity->getOwner(), pCity->getID(), pCity->getX(), pCity->getY());
+			kContext.szAffectedCities += szItem;
+		}
+	}
+	kContext.iAffectedCities = (int)aCities.size();
+}
+
+void logSASGameRecordBlockadeChanged(CvUnit const* pUnit, bool bStarting)
+{
+	if (pUnit == NULL)
+		return;
+	int const iExisting = getSASGameRecordBlockadeContextIndex(pUnit->getOwner(), pUnit->getID());
+	if (bStarting)
+	{
+		if (iExisting >= 0)
+			g_aSASGameRecordBlockades.erase(g_aSASGameRecordBlockades.begin() + iExisting);
+		SASGameRecordBlockadeContext kContext;
+		captureSASGameRecordBlockadeContext(*pUnit, kContext, true);
+		g_aSASGameRecordBlockades.push_back(kContext);
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=NAVAL_BLOCKADE_STARTED player=%d team=%d unitId=%d unit=%s unitAI=%s x=%d y=%d rangePlots=%d plots=%s affectedTeams=%d teams=%s affectedCities=%d cities=%s canPlunder=%d hiddenNationality=%d alwaysHostile=%d",
+				GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+				pUnit->getX(), pUnit->getY(), kContext.iRangePlots, kContext.szRangePlots.empty() ? "-" : kContext.szRangePlots.GetCString(),
+				kContext.iAffectedTeams, kContext.szAffectedTeams.empty() ? "-" : kContext.szAffectedTeams.GetCString(),
+				kContext.iAffectedCities, kContext.szAffectedCities.empty() ? "-" : kContext.szAffectedCities.GetCString(),
+				pUnit->canPlunder(pUnit->getPlot()) ? 1 : 0, pUnit->getUnitInfo().isHiddenNationality() ? 1 : 0, pUnit->isAlwaysHostile(pUnit->getPlot()) ? 1 : 0);
+		return;
+	}
+
+	SASGameRecordBlockadeContext kContext;
+	bool const bStartKnown = (iExisting >= 0);
+	if (bStartKnown)
+		kContext = g_aSASGameRecordBlockades[iExisting];
+	else
+	{
+		captureSASGameRecordBlockadeContext(*pUnit, kContext, false);
+		kContext.iStartTurn = -1;
+		kContext.iStartElapsedTurn = -1;
+		kContext.iStartX = -1;
+		kContext.iStartY = -1;
+	}
+	int const iDurationTurns = (bStartKnown ? GC.getGame().getGameTurn() - kContext.iStartTurn : -1);
+	int const iDurationElapsedTurns = (bStartKnown ? GC.getGame().getElapsedGameTurns() - kContext.iStartElapsedTurn : -1);
+	SASGameRecordBlockadeContext kEndContext;
+	captureSASGameRecordBlockadeContext(*pUnit, kEndContext, false);
+	bool const bScopeChanged = (bStartKnown &&
+			(kContext.szAffectedTeams != kEndContext.szAffectedTeams || kContext.szAffectedCities != kEndContext.szAffectedCities));
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=NAVAL_BLOCKADE_ENDED player=%d team=%d unitId=%d unit=%s unitAI=%s startKnown=%d rangeSource=%s startTurn=%d startX=%d startY=%d endX=%d endY=%d durationTurns=%d durationElapsedTurns=%d rangePlots=%d plots=%s affectedTeams=%d teams=%s affectedCities=%d cities=%s endAffectedTeams=%d endTeams=%s endAffectedCities=%d endCities=%s scopeChanged=%d plunderEvents=%d goldPlundered=%d uniquePlunderedCities=%d canPlunderAtEnd=%d",
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+			bStartKnown ? 1 : 0, bStartKnown ? "START" : "END_FALLBACK", kContext.iStartTurn, kContext.iStartX, kContext.iStartY, pUnit->getX(), pUnit->getY(), iDurationTurns, iDurationElapsedTurns,
+			kContext.iRangePlots, kContext.szRangePlots.empty() ? "-" : kContext.szRangePlots.GetCString(),
+			kContext.iAffectedTeams, kContext.szAffectedTeams.empty() ? "-" : kContext.szAffectedTeams.GetCString(),
+			kContext.iAffectedCities, kContext.szAffectedCities.empty() ? "-" : kContext.szAffectedCities.GetCString(),
+			kEndContext.iAffectedTeams, kEndContext.szAffectedTeams.empty() ? "-" : kEndContext.szAffectedTeams.GetCString(),
+			kEndContext.iAffectedCities, kEndContext.szAffectedCities.empty() ? "-" : kEndContext.szAffectedCities.GetCString(), bScopeChanged ? 1 : 0,
+			kContext.iPlunderEvents, kContext.iGoldPlundered, (int)kContext.aPlunderedCities.size(), pUnit->canPlunder(pUnit->getPlot()) ? 1 : 0);
+	if (iExisting >= 0)
+		g_aSASGameRecordBlockades.erase(g_aSASGameRecordBlockades.begin() + iExisting);
+}
+
+void logSASGameRecordBlockadePlunder(CvUnit const* pUnit, CvCity const* pCity, int iGold, int iTradeRoutes, int iProfitPerRoute)
+{
+	if (pUnit == NULL || pCity == NULL || iGold <= 0)
+		return;
+	int const iContext = getSASGameRecordBlockadeContextIndex(pUnit->getOwner(), pUnit->getID());
+	int iStartTurn = -1;
+	int iAgeTurns = -1;
+	if (iContext >= 0)
+	{
+		SASGameRecordBlockadeContext& kContext = g_aSASGameRecordBlockades[iContext];
+		kContext.iPlunderEvents++;
+		kContext.iGoldPlundered += iGold;
+		if (!hasSASGameRecordCityReference(kContext.aPlunderedCities, pCity->getOwner(), pCity->getID()))
+			kContext.aPlunderedCities.push_back(std::make_pair(pCity->getOwner(), pCity->getID()));
+		iStartTurn = kContext.iStartTurn;
+		iAgeTurns = GC.getGame().getGameTurn() - kContext.iStartTurn;
+	}
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=NAVAL_BLOCKADE_PLUNDER player=%d team=%d unitId=%d unit=%s unitAI=%s unitX=%d unitY=%d victimPlayer=%d victimTeam=%d cityId=%d city=%S cityX=%d cityY=%d gold=%d tradeRoutes=%d profitPerRoute=%d blockadeStartKnown=%d blockadeStartTurn=%d blockadeAgeTurns=%d",
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+			pUnit->getX(), pUnit->getY(), pCity->getOwner(), pCity->getTeam(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(),
+			iGold, iTradeRoutes, iProfitPerRoute, iContext >= 0 ? 1 : 0, iStartTurn, iAgeTurns);
+}
+
+void logSASGameRecordUnitGifted(CvUnit const* pUnit, PlayerTypes eGiftingPlayer, CvPlot const* pPlotLocation)
+{
+	if (pUnit == NULL || eGiftingPlayer < 0 || eGiftingPlayer >= MAX_PLAYERS)
+		return;
+	PlayerTypes const eReceiver = pUnit->getOwner();
+	TeamTypes const eGiverTeam = GET_PLAYER(eGiftingPlayer).getTeam();
+	TeamTypes const eReceiverTeam = (eReceiver == NO_PLAYER ? NO_TEAM : GET_PLAYER(eReceiver).getTeam());
+	CvPlot const* pPlot = (pPlotLocation == NULL ? pUnit->plot() : pPlotLocation);
+	int iPromotions = 0;
+	FOR_EACH_ENUM(Promotion)
+	{
+		if (pUnit->isHasPromotion(eLoopPromotion))
+			iPromotions++;
+	}
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_GIFTED giverPlayer=%d giverTeam=%d receiverPlayer=%d receiverTeam=%d unitId=%d unit=%s unitAI=%s x=%d y=%d area=%d experience=%d level=%d promotions=%d damage=%d productionNeeded=%d canCombat=%d cargo=%d transportId=%d",
+			GC.getGame().getGameTurn(), eGiftingPlayer, eGiverTeam, eReceiver, eReceiverTeam, pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+			pPlot == NULL ? -1 : pPlot->getX(), pPlot == NULL ? -1 : pPlot->getY(), pPlot == NULL ? -1 : pPlot->getArea().getID(), pUnit->getExperience(), pUnit->getLevel(), iPromotions, pUnit->getDamage(),
+			eReceiver == NO_PLAYER ? -1 : GET_PLAYER(eReceiver).getProductionNeeded(pUnit->getUnitType()), pUnit->canCombat() ? 1 : 0, pUnit->isCargo() ? 1 : 0, pUnit->getTransportUnit() == NULL ? -1 : pUnit->getTransportUnit()->getID());
 }
 
 void logSASGameRecordReligionChanged(ReligionTypes eReligion, PlayerTypes ePlayer, CvCity const* pCity, bool bAdded)
@@ -8598,6 +8177,16 @@ void logSASGameRecordCorporationSpreadAttempt(CvUnit const* pUnit, CorporationTy
 			iSpreadChance, bSuccess ? "SPREAD" : "FAILED", iGoldCost, iGoldBefore, kPlayer.getGold(), pCity->getCorporationCount());
 }
 
+void logSASGameRecordCircumnavigated(TeamTypes eTeam, int iFreeSeaMoves, bool bBonusApplied, int iSeaExtraMovesBefore, int iSeaExtraMovesAfter)
+{
+	if (eTeam == NO_TEAM)
+		return;
+	CvMap const& kMap = GC.getMap();
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CIRCUMNAVIGATION_COMPLETED team=%d members=%s wrapX=%d wrapY=%d freeSeaMoves=%d bonusApplied=%d seaExtraMovesBefore=%d seaExtraMovesAfter=%d",
+			GC.getGame().getGameTurn(), eTeam, getSASGameRecordTeamMembers(eTeam).GetCString(), kMap.isWrapX() ? 1 : 0, kMap.isWrapY() ? 1 : 0,
+			iFreeSeaMoves, bBonusApplied ? 1 : 0, iSeaExtraMovesBefore, iSeaExtraMovesAfter);
+}
+
 // <!-- custom: Financial strikes are rare but can begin, force unit disbands and end entirely between periodic snapshots.
 // Record each realized strike turn from values already produced by CvPlayer::doGold. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordFinancialStrikeTurn(PlayerTypes ePlayer, int iGoldBefore, int iCalculatedGoldRate, int iGoldAfterClamp, int iCumulativeStrikeTurns, int iUnitsBeforeDisband, int iUnitsAfterDisband)
@@ -8608,7 +8197,8 @@ void logSASGameRecordFinancialStrikeTurn(PlayerTypes ePlayer, int iGoldBefore, i
 			iUnitsBeforeDisband, iUnitsAfterDisband, std::max(0, iUnitsBeforeDisband - iUnitsAfterDisband));
 }
 
-// <!-- custom: Exact Golden Age/anarchy lifecycle actions complement periodic remaining-turn snapshots. Logged duration fields are explicitly session-local and reset whenever a new GameRecord log begins. (ChatGPT-5.6-Sol) -->
+
+// <!-- custom: Keep Golden Age/anarchy action rows consistent with the player snapshot by labeling recorder-local observations as logged turns. See KI#379. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void logSASGameRecordGoldenAge(PlayerTypes ePlayer, bool bStart)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
@@ -8639,15 +8229,13 @@ void logSASGameRecordAnarchy(PlayerTypes ePlayer, bool bStart)
 			g_aiSASGameRecordLoggedAnarchyTurns[ePlayer], kPlayer.getGoldenAgeTurns(), g_aiSASGameRecordLoggedGoldenAgeTurns[ePlayer], kPlayer.getRevolutionTimer(), kPlayer.getConversionTimer());
 }
 
-
-// <!-- custom: Policy/religion action history complements periodic policy snapshots with the exact post-initialization transition turn and preserves civic-driven effective state-religion changes separately from the player's remembered last-state-religion choice. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordCivicChanged(PlayerTypes ePlayer, CivicOptionTypes eCivicOption, CivicTypes eOldCivic, CivicTypes eNewCivic, ReligionTypes eOldEffectiveStateReligion, ReligionTypes eNewEffectiveStateReligion)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS || eCivicOption == NO_CIVICOPTION)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CIVIC_CHANGED player=%d civicOption=%s oldCivic=%s newCivic=%s oldEffectiveStateReligion=%s newEffectiveStateReligion=%s anarchyTurns=%d",
-			GC.getGame().getGameTurn(), ePlayer, GC.getInfo(eCivicOption).getType(), getSASGameRecordCivicType(eOldCivic), getSASGameRecordCivicType(eNewCivic),
-			getSASGameRecordReligionType(eOldEffectiveStateReligion), getSASGameRecordReligionType(eNewEffectiveStateReligion), GET_PLAYER(ePlayer).getAnarchyTurns());
+		GC.getGame().getGameTurn(), ePlayer, GC.getInfo(eCivicOption).getType(), getSASGameRecordCivicType(eOldCivic), getSASGameRecordCivicType(eNewCivic),
+		getSASGameRecordReligionType(eOldEffectiveStateReligion), getSASGameRecordReligionType(eNewEffectiveStateReligion), GET_PLAYER(ePlayer).getAnarchyTurns());
 }
 
 void logSASGameRecordLastStateReligionChanged(PlayerTypes ePlayer, ReligionTypes eOldReligion, ReligionTypes eNewReligion)
@@ -8657,11 +8245,298 @@ void logSASGameRecordLastStateReligionChanged(PlayerTypes ePlayer, ReligionTypes
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	ReligionTypes const eOldEffectiveReligion = (kPlayer.isStateReligion() ? eOldReligion : NO_RELIGION);
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=LAST_STATE_RELIGION_CHANGED player=%d oldLastStateReligion=%s newLastStateReligion=%s oldEffectiveStateReligion=%s newEffectiveStateReligion=%s anarchyTurns=%d",
-			GC.getGame().getGameTurn(), ePlayer, getSASGameRecordReligionType(eOldReligion), getSASGameRecordReligionType(eNewReligion), getSASGameRecordReligionType(eOldEffectiveReligion),
-			getSASGameRecordReligionType(kPlayer.getStateReligion()), kPlayer.getAnarchyTurns());
+		GC.getGame().getGameTurn(), ePlayer, getSASGameRecordReligionType(eOldReligion), getSASGameRecordReligionType(eNewReligion), getSASGameRecordReligionType(eOldEffectiveReligion),
+		getSASGameRecordReligionType(kPlayer.getStateReligion()), kPlayer.getAnarchyTurns());
 }
 
+void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, BuildingTypes eBuilding, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
+{
+	if (pCity == NULL || eBuilding == NO_BUILDING)
+		return;
+	PlayerTypes const ePlayer = pCity->getOwner();
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
+	int const iProductionNeeded = GET_PLAYER(ePlayer).getProductionNeeded(eBuilding);
+	kFlow.iBuildingsCompleted++;
+	kFlow.iBuildingProductionNeeded += iProductionNeeded;
+	kFlow.aiBuildingTypes[eBuilding]++;
+	if (gGameRecordLogLevel >= 3)
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BUILDING_COMPLETED player=%d cityId=%d city=%S building=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
+			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding), iProductionNeeded, iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
+}
 
+void logSASGameRecordBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding)
+{
+	if (pCity == NULL || eBuilding == NO_BUILDING || !GC.getInfo(eBuilding).isLimited())
+		return;
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=WONDER_BUILT player=%d cityId=%d city=%S building=%s", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding));
+}
+
+void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
+{
+	if (pCity == NULL || eProject == NO_PROJECT)
+		return;
+	PlayerTypes const ePlayer = pCity->getOwner();
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
+	int const iProductionNeeded = GET_PLAYER(ePlayer).getProductionNeeded(eProject);
+	kFlow.iProjectsCompleted++;
+	kFlow.iProjectProductionNeeded += iProductionNeeded;
+	kFlow.aiProjectTypes[eProject]++;
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PROJECT_BUILT player=%d cityId=%d city=%S project=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
+		GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProjectType(eProject), iProductionNeeded, iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
+}
+
+void logSASGameRecordProductionOverflow(CvCity const* pCity, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedCapacity, int iGold)
+{
+	if (pCity == NULL)
+		return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
+	kFlow.iOverflowActions++;
+	kFlow.iRawModifiedOverflow += iRawModifiedOverflow;
+	kFlow.iUnmodifiedOverflow += iUnmodifiedOverflow;
+	kFlow.iKeptOverflow += iKeptOverflow;
+	kFlow.iLostProduction += iLostProduction;
+	kFlow.iUnusedOverflowCapacity += iUnusedCapacity;
+	kFlow.iOverflowGold += iGold;
+	// <!-- custom: Level 3 already carries these exact values on the corresponding production-completion row, so avoid a duplicate action.
+	// At level 2, PROJECT_BUILT already owns its exact overflow. Otherwise keep strategically exceptional loss/gold and every Barbarian overflow because ordinary unit/building completion rows and Barbarian production-flow summaries are unavailable there. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel == 2 && !pCity->isProductionProject() && (pCity->isBarbarian() || iLostProduction > 0 || iGold > 0))
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_OVERFLOW player=%d cityId=%d city=%S productionKind=%s production=%s rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d gold=%d",
+				GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordCityProductionKind(*pCity), getSASGameRecordCityProductionType(*pCity), iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedCapacity, iGold);
+}
+
+void logSASGameRecordProductionFailed(CvCity const* pCity, int iOrderData, bool bProject, int iInvestedProduction, int iGold)
+{
+	if (pCity == NULL) return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
+	kFlow.iFailedInvestedProduction += iInvestedProduction;
+	kFlow.iFailGold += iGold;
+	char const* szProduction = (bProject ? getSASGameRecordProjectType((ProjectTypes)iOrderData) : getSASGameRecordBuildingType((BuildingTypes)iOrderData));
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_FAILED_TO_GOLD player=%d cityId=%d city=%S productionKind=%s production=%s investedProduction=%d gold=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), bProject ? "PROJECT" : "BUILDING", szProduction, iInvestedProduction, iGold);
+}
+
+void logSASGameRecordProductionDecay(CvCity const* pCity, OrderTypes eOrder, int iData1, int iBefore, int iAfter, int iInactiveTurns)
+{
+	if (pCity == NULL || iAfter >= iBefore) return;
+	int const iLost = iBefore - iAfter;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
+	kFlow.iProductionDecayActions++;
+	kFlow.iProductionDecayLost += iLost;
+	if (gGameRecordLogLevel >= 3)
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_DECAY player=%d cityId=%d city=%S productionKind=%s production=%s storedBefore=%d storedAfter=%d lost=%d accumulatedInactiveTurns=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProductionKind(eOrder, iData1), getSASGameRecordProductionType(eOrder, iData1), iBefore, iAfter, iLost, iInactiveTurns);
+}
+
+void logSASGameRecordProductionInvalidated(CvCity const* pCity, OrderTypes eOrder, int iData1, int iStoredLost, bool bActiveTarget, bool bQueued)
+{
+	if (pCity == NULL || iStoredLost <= 0)
+		return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
+	kFlow.iProductionInvalidatedActions++;
+	kFlow.iProductionInvalidatedLost += iStoredLost;
+	char const* szReason = (eOrder == ORDER_TRAIN ? "MAXED_UNIT_CLASS" : (eOrder == ORDER_CONSTRUCT ? "MAXED_BUILDING_CLASS" : (eOrder == ORDER_CREATE ? "MAXED_PROJECT" : "UNKNOWN")));
+	// <!-- custom: This is actual stored production erased by inherited maxed-class/project cleanup, not strategic target switching.
+	// Emit the rare loss at level 2 so parked production cannot disappear between snapshots without provenance. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_INVALIDATED player=%d cityId=%d city=%S productionKind=%s production=%s reason=%s storedLost=%d activeTarget=%d queued=%d",
+		GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProductionKind(eOrder, iData1), getSASGameRecordProductionType(eOrder, iData1), szReason, iStoredLost, bActiveTarget ? 1 : 0, bQueued ? 1 : 0);
+}
+
+void logSASGameRecordProductionUpgraded(CvCity const* pCity, UnitTypes eOldUnit, UnitTypes eNewUnit, int iProductionTransferred, int iDestinationProductionBefore)
+{
+	if (pCity == NULL || (iProductionTransferred <= 0 && iDestinationProductionBefore <= 0)) return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
+	if (iProductionTransferred > 0)
+	{
+		kFlow.iProductionUpgradeTransfers++;
+		kFlow.iProductionUpgradeTransferred += iProductionTransferred;
+	}
+	if (iDestinationProductionBefore > 0) kFlow.iProductionUpgradeOverwriteActions++;
+	kFlow.iProductionUpgradeOverwritten += std::max(0, iDestinationProductionBefore);
+	if (gGameRecordLogLevel >= 3 || iDestinationProductionBefore > 0)
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_UPGRADED player=%d cityId=%d city=%S oldUnit=%s newUnit=%s productionTransferred=%d newProductionBefore=%d newProductionAfter=%d overwrittenDestinationProduction=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordUnitType(eOldUnit), getSASGameRecordUnitType(eNewUnit), iProductionTransferred, iDestinationProductionBefore, iProductionTransferred, std::max(0, iDestinationProductionBefore));
+}
+
+void logSASGameRecordVictoryLaunched(PlayerTypes ePlayer, VictoryTypes eVictory)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS || eVictory == NO_VICTORY)
+		return;
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	int iPartsBuilt = 0;
+	int iPartsMinimum = 0;
+	int iPartsMaximum = 0;
+	bool bMinimumComplete = false;
+	CvString szProjectParts;
+	bool const bProjectVictory = getSASGameRecordVictoryProjectState(kPlayer.getTeam(), eVictory, iPartsBuilt, iPartsMinimum, iPartsMaximum, bMinimumComplete, szProjectParts);
+	int const iCountdown = kTeam.getVictoryCountdown(eVictory);
+	// <!-- custom: Project-completion rows alone do not reveal when a spaceship actually launches. Preserve the authoritative countdown/arrival state immediately after CvPlayer::launch sets it. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=SPACESHIP_LAUNCHED player=%d team=%d victory=%s countdown=%d arrivalTurn=%d travelTurns=%d launchSuccessPercent=%d partsBuilt=%d partsMinimum=%d partsMaximum=%d projectParts=%s",
+			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), getSASGameRecordVictoryType(eVictory),
+			iCountdown, iCountdown < 0 ? -1 : GC.getGame().getGameTurn() + iCountdown,
+			bProjectVictory && bMinimumComplete ? kTeam.getVictoryDelay(eVictory) : -1,
+			kTeam.getLaunchSuccessRate(eVictory), iPartsBuilt, iPartsMinimum, iPartsMaximum, bProjectVictory ? szProjectParts.GetCString() : "-");
+}
+
+static void logSASGameRecordVictoryProgressRemoved(TeamTypes eTeam, VictoryTypes eVictory, char const* szAction, char const* szCause, int iLaunchSuccessPercent, CvCity const* pCapital)
+{
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	int iPartsBuilt = 0;
+	int iPartsMinimum = 0;
+	int iPartsMaximum = 0;
+	bool bMinimumComplete = false;
+	CvString szProjectParts;
+	bool const bProjectVictory = getSASGameRecordVictoryProjectState(eTeam, eVictory, iPartsBuilt, iPartsMinimum, iPartsMaximum, bMinimumComplete, szProjectParts);
+	int const iCountdown = kTeam.getVictoryCountdown(eVictory);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s team=%d victory=%s cause=%s countdown=%d arrivalTurn=%d launchSuccessPercent=%d capitalPlayer=%d capitalCityId=%d capital=%S capitalX=%d capitalY=%d projectVictory=%d partsBuilt=%d partsMinimum=%d partsMaximum=%d projectParts=%s",
+			GC.getGame().getGameTurn(), szAction, eTeam, getSASGameRecordVictoryType(eVictory), szCause, iCountdown, iCountdown < 0 ? -1 : GC.getGame().getGameTurn() + iCountdown,
+			iLaunchSuccessPercent, pCapital == NULL ? NO_PLAYER : pCapital->getOwner(), pCapital == NULL ? -1 : pCapital->getID(),
+			getSASGameRecordQuotedCityName(pCapital).GetCString(), pCapital == NULL ? -1 : pCapital->getX(), pCapital == NULL ? -1 : pCapital->getY(),
+			bProjectVictory, iPartsBuilt, iPartsMinimum, iPartsMaximum, bProjectVictory ? szProjectParts.GetCString() : "-");
+}
+
+void logSASGameRecordVictoryProgressResetForCapital(CvCity const* pCapital)
+{
+	if (pCapital == NULL || GC.getGame().getGameState() != GAMESTATE_ON)
+		return;
+	TeamTypes const eTeam = pCapital->getTeam();
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	FOR_EACH_ENUM(Victory)
+	{
+		if (kTeam.getVictoryCountdown(eLoopVictory) >= 0)
+			logSASGameRecordVictoryProgressRemoved(eTeam, eLoopVictory, "VICTORY_PROGRESS_RESET", "CAPITAL_LOST", kTeam.getLaunchSuccessRate(eLoopVictory), pCapital);
+	}
+}
+
+void logSASGameRecordSpaceshipFailed(TeamTypes eTeam, VictoryTypes eVictory, int iLaunchSuccessPercent)
+{
+	if (eTeam == NO_TEAM || eVictory == NO_VICTORY)
+		return;
+	// <!-- custom: A failed arrival roll previously erased the countdown and spaceship projects without an explicit event. Preserve the losing launch state immediately before resetVictoryProgress removes it. (GPT-5.6-Sol) -->
+	logSASGameRecordVictoryProgressRemoved(eTeam, eVictory, "SPACESHIP_FAILED", "LAUNCH_ROLL_FAILED", iLaunchSuccessPercent, NULL);
+}
+
+void logSASGameRecordVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal)
+{
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s master=%d vassal=%d", GC.getGame().getGameTurn(), bVassal ? "VASSALAGE_STARTED" : "VASSALAGE_ENDED", eMaster, eVassal);
+}
+
+void logSASGameRecordVictory(TeamTypes eWinner, VictoryTypes eVictory)
+{
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=VICTORY team=%d victory=%s",
+			GC.getGame().getGameTurn(), eWinner, getSASGameRecordVictoryType(eVictory));
+	// <!-- custom: Preserve final raw and normalized score for every civilization at the authoritative victory callback, not only the selected ReplayInfo player. (ChatGPT-5.6-Sol) -->
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)iI;
+		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+		if (!kPlayer.isEverAlive())
+			continue;
+		bool const bWinner = (kPlayer.getTeam() == eWinner);
+		logSASGameRecord("GAME_RECORD_FINAL_SCORE turn=%d player=%d team=%d alive=%d winner=%d score=%d normalizedScore=%d",
+				GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), bWinner, kPlayer.calculateScore(), kPlayer.calculateScore(true, bWinner));
+	}
+	// <!-- custom: Victory is also a natural boundary for wars that remain active at game end. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2)
+	{
+		reconcileSASGameRecordWars();
+		logSASGameRecordOngoingWarSummaries("VICTORY");
+	}
+	// <!-- custom: Victory can occur between configured snapshot intervals. Force one exact final state now; logSASGameRecordTurn suppresses a duplicate if this was already an interval turn. (ChatGPT-5.6-Sol) -->
+	logSASGameRecordSnapshot(GC.getGame().getGameTurn(), "victory");
+}
+
+void logSASGameRecordPlayerEliminated(PlayerTypes ePlayer)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PLAYER_ELIMINATED player=%d team=%d civ=%s leader=%s cities=%d units=%d score=%d power=%d playersAlive=%d teamsAlive=%d eliminatedPlayers=%s",
+			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType(), kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType(),
+			kPlayer.getNumCities(), kPlayer.getNumUnits(), kPlayer.calculateScore(), kPlayer.getPower(), GC.getGame().countCivPlayersAlive(), GC.getGame().countCivTeamsAlive(), getSASGameRecordEliminatedPlayers().GetCString());
+	logSASGameRecordRunStatus("playerEliminated");
+}
+
+void logSASGameRecordPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s player=%d team=%d civ=%s leader=%s cities=%d units=%d score=%d power=%d playersAlive=%d teamsAlive=%d playersEverAlive=%d",
+			GC.getGame().getGameTurn(), bRevived ? "PLAYER_REVIVED" : "PLAYER_APPEARED", ePlayer, kPlayer.getTeam(), kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType(), kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType(),
+			kPlayer.getNumCities(), kPlayer.getNumUnits(), kPlayer.calculateScore(), kPlayer.getPower(), GC.getGame().countCivPlayersAlive(), GC.getGame().countCivTeamsAlive(), GC.getGame().countCivPlayersEverAlive());
+	logSASGameRecordRunStatus(bRevived ? "playerRevived" : "playerAppeared");
+}
+
+void logSASGameRecordDebugModeChanged(bool bOldDebugMode, bool bNewDebugMode)
+{
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DEBUG_MODE_CHANGED old=%d new=%d activePlayer=%d autoplayTurnsLeft=%d",
+			GC.getGame().getGameTurn(), bOldDebugMode, bNewDebugMode, GC.getGame().getActivePlayer(), GC.getGame().getAIAutoPlay());
+}
+
+// <!-- custom: Base AdvCiv 1.14 has no explicit autoplay-end-cause plumbing. Record only facts available at its authoritative counter mutation instead of changing signatures merely for telemetry. Scheduled completion is identifiable from the existing no-player-status countdown transition; other endings remain conservatively labelled from current authoritative state. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus)
+{
+	if (iOldValue == iNewValue)
+		return;
+	CvGame const& kGame = GC.getGame();
+	bool const bStarted = (iOldValue <= 0 && iNewValue > 0);
+	bool const bEnded = (iOldValue > 0 && iNewValue <= 0);
+	char const* szAction = (bStarted ? "AUTOPLAY_STARTED" : (bEnded ? "AUTOPLAY_ENDED" : "AUTOPLAY_CHANGED"));
+	PlayerTypes const eActivePlayer = kGame.getActivePlayer();
+	if (bStarted)
+	{
+		g_iSASGameRecordAutoPlayRequestId++;
+		g_iSASGameRecordAutoPlayRequestedTurns = iNewValue;
+		g_iSASGameRecordAutoPlayStartTurn = kGame.getGameTurn();
+		g_iSASGameRecordAutoPlayStartElapsedTurn = kGame.getElapsedGameTurns();
+		g_eSASGameRecordAutoPlayStartPlayer = eActivePlayer;
+		g_iSASGameRecordAutoPlayPlayerChanges = 0;
+	}
+	char const* szEndCause = "-";
+	if (bEnded)
+	{
+		if (!bChangePlayerStatus && iOldValue == 1)
+			szEndCause = "SCHEDULED";
+		else if (kGame.getWinner() != NO_TEAM)
+			szEndCause = "VICTORY";
+		else if (eActivePlayer != NO_PLAYER && !GET_PLAYER(eActivePlayer).isAlive())
+			szEndCause = "ACTIVE_PLAYER_DEFEATED";
+		else szEndCause = "OTHER_OR_INTERRUPTED";
+	}
+	int const iCompletedTurns = (!bEnded || g_iSASGameRecordAutoPlayRequestedTurns <= 0 ? 0 :
+			(!bChangePlayerStatus && iOldValue == 1 ? g_iSASGameRecordAutoPlayRequestedTurns : std::max(0, g_iSASGameRecordAutoPlayRequestedTurns - iOldValue)));
+	int const iElapsedGameTurns = (g_iSASGameRecordAutoPlayStartElapsedTurn < 0 ? 0 : std::max(0, kGame.getElapsedGameTurns() - g_iSASGameRecordAutoPlayStartElapsedTurn));
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s oldTurnsLeft=%d newTurnsLeft=%d activePlayer=%d changePlayerStatus=%d requestId=%d requestedTurns=%d completedTurns=%d elapsedGameTurns=%d startTurn=%d startElapsed=%d startPlayer=%d activePlayerChanges=%d totalActivePlayerChanges=%d endCause=%s",
+			kGame.getGameTurn(), szAction, iOldValue, iNewValue, eActivePlayer, bChangePlayerStatus, g_iSASGameRecordAutoPlayRequestId, g_iSASGameRecordAutoPlayRequestedTurns, iCompletedTurns, iElapsedGameTurns,
+			g_iSASGameRecordAutoPlayStartTurn, g_iSASGameRecordAutoPlayStartElapsedTurn, g_eSASGameRecordAutoPlayStartPlayer, g_iSASGameRecordAutoPlayPlayerChanges, g_iSASGameRecordTotalActivePlayerChanges, szEndCause);
+	// <!-- custom: Treat only actual autoplay start/end as rare level-3 RNG boundaries, not ordinary countdown changes. This isolates the benchmark/autoplay random-consumption window even when it begins or ends partway through a turn. (GPT-5.6-Sol) -->
+	if (g_bSASGameRecordRngTrackingActive && (bStarted || bEnded)) logSASGameRecordRngCheckpoint(kGame.getGameTurn(), bStarted ? SAS_RNG_CHECKPOINT_AUTOPLAY_BEGIN : SAS_RNG_CHECKPOINT_AUTOPLAY_END);
+	// <!-- custom: Autoplay completion is a useful history boundary even while the game and its wars continue. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2 && bEnded)
+	{
+		reconcileSASGameRecordWars();
+		logSASGameRecordOngoingWarSummaries("AUTOPLAY_ENDED");
+	}
+	if (bEnded)
+	{
+		g_iSASGameRecordAutoPlayRequestedTurns = 0;
+		g_iSASGameRecordAutoPlayStartTurn = -1;
+		g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
+		g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
+		g_iSASGameRecordAutoPlayPlayerChanges = 0;
+	}
+}
+
+void logSASGameRecordActivePlayerChanged(PlayerTypes eOldPlayer, PlayerTypes eNewPlayer)
+{
+	g_iSASGameRecordTotalActivePlayerChanges++;
+	bool const bDuringAutoPlay = (GC.getGame().getAIAutoPlay() > 0 && g_iSASGameRecordAutoPlayRequestedTurns > 0);
+	if (bDuringAutoPlay) g_iSASGameRecordAutoPlayPlayerChanges++;
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=ACTIVE_PLAYER_CHANGED oldPlayer=%d newPlayer=%d autoplayActive=%d autoplayTurnsLeft=%d requestId=%d activePlayerChanges=%d totalActivePlayerChanges=%d",
+			GC.getGame().getGameTurn(), eOldPlayer, eNewPlayer, bDuringAutoPlay, GC.getGame().getAIAutoPlay(), bDuringAutoPlay ? g_iSASGameRecordAutoPlayRequestId : -1, bDuringAutoPlay ? g_iSASGameRecordAutoPlayPlayerChanges : 0, g_iSASGameRecordTotalActivePlayerChanges);
+}
 
 // <!-- custom: Record Great Person birth and realized consumption/death outcomes so rare units can be followed from creation to their actual use without logging AI candidate values. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordGreatPersonBorn(CvUnit const* pUnit, PlayerTypes ePlayer, CvCity const* pCity)
@@ -8683,13 +8558,13 @@ void logSASGameRecordGreatPersonJoined(CvUnit const* pUnit, CvCity const* pCity,
 			getSASGameRecordQuotedCityName(pCity).GetCString(), GC.getInfo(eSpecialist).getType(), pCity->getFreeSpecialistCount(eSpecialist));
 }
 
+// <!-- custom: Great Person births and city joining were already recorded, but other completed Great Person missions disappeared from the record when the unit was consumed. Record the rare completed outcome and its concrete gain without logging AI candidate values or reasoning. (GPT-5.6-Sol) -->
 void logSASGameRecordGreatPersonConstructed(CvUnit const* pUnit, CvCity const* pCity, BuildingTypes eBuilding)
 {
 	if (pUnit == NULL || pCity == NULL || eBuilding == NO_BUILDING)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_USED use=CONSTRUCT_BUILDING player=%d unitId=%d unit=%s cityId=%d city=%S building=%s",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getID(),
-			getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding));
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding));
 }
 
 void logSASGameRecordGreatPersonDiscovered(CvUnit const* pUnit, TechTypes eTech, int iResearch)
@@ -8697,8 +8572,7 @@ void logSASGameRecordGreatPersonDiscovered(CvUnit const* pUnit, TechTypes eTech,
 	if (pUnit == NULL || eTech == NO_TECH)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_USED use=DISCOVER_TECH player=%d unitId=%d unit=%s x=%d y=%d tech=%s research=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pUnit->getX(), pUnit->getY(),
-			getSASGameRecordTechType(eTech), iResearch);
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pUnit->getX(), pUnit->getY(), getSASGameRecordTechType(eTech), iResearch);
 }
 
 void logSASGameRecordGreatPersonHurried(CvUnit const* pUnit, CvCity const* pCity, BuildingTypes eBuilding, int iProduction)
@@ -8706,8 +8580,7 @@ void logSASGameRecordGreatPersonHurried(CvUnit const* pUnit, CvCity const* pCity
 	if (pUnit == NULL || pCity == NULL || eBuilding == NO_BUILDING)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_USED use=HURRY_BUILDING player=%d unitId=%d unit=%s cityId=%d city=%S building=%s production=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getID(),
-			getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding), iProduction);
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding), iProduction);
 }
 
 void logSASGameRecordGreatPersonTradeMission(CvUnit const* pUnit, CvCity const* pCity, int iGold)
@@ -8715,8 +8588,7 @@ void logSASGameRecordGreatPersonTradeMission(CvUnit const* pUnit, CvCity const* 
 	if (pUnit == NULL || pCity == NULL)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_USED use=TRADE_MISSION player=%d unitId=%d unit=%s targetPlayer=%d cityId=%d city=%S gold=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getOwner(), pCity->getID(),
-			getSASGameRecordQuotedCityName(pCity).GetCString(), iGold);
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), iGold);
 }
 
 void logSASGameRecordGreatPersonGreatWork(CvUnit const* pUnit, CvCity const* pCity, int iCulture)
@@ -8724,8 +8596,7 @@ void logSASGameRecordGreatPersonGreatWork(CvUnit const* pUnit, CvCity const* pCi
 	if (pUnit == NULL || pCity == NULL)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_USED use=GREAT_WORK player=%d unitId=%d unit=%s cityId=%d city=%S culture=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getID(),
-			getSASGameRecordQuotedCityName(pCity).GetCString(), iCulture);
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), iCulture);
 }
 
 void logSASGameRecordGreatPersonInfiltrated(CvUnit const* pUnit, CvCity const* pCity, int iEspionage)
@@ -8733,8 +8604,7 @@ void logSASGameRecordGreatPersonInfiltrated(CvUnit const* pUnit, CvCity const* p
 	if (pUnit == NULL || pCity == NULL)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_USED use=INFILTRATE player=%d unitId=%d unit=%s targetPlayer=%d targetTeam=%d cityId=%d city=%S espionage=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getOwner(), pCity->getTeam(),
-			pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), iEspionage);
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getOwner(), pCity->getTeam(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), iEspionage);
 }
 
 void logSASGameRecordGreatPersonGoldenAgeConsumed(CvUnit const* pUnit)
@@ -8756,7 +8626,7 @@ void logSASGameRecordGreatPersonDied(CvUnit const* pUnit, PlayerTypes eResponsib
 }
 
 
-// <!-- custom: Completed espionage and mission-phase interceptions share one decoder so the same mission/data and pre-mission destructible-target context produce identical readable target tokens. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Completed espionage and mission-phase interceptions share one decoder so the same eMission/iExtraData and pre-mission destructible-target context always produce identical readable target tokens. (ChatGPT-5.6-Sol) -->
 static void getSASGameRecordEspionageTarget(EspionageMissionTypes eMission, int iExtraData, ImprovementTypes eTargetImprovement, RouteTypes eTargetRoute, UnitTypes eTargetUnit, char const*& szTargetKind, char const*& szTargetType)
 {
 	szTargetKind = "-";
@@ -8839,304 +8709,489 @@ void logSASGameRecordSpyIntercepted(CvUnit const* pUnit, PlayerTypes eTargetPlay
 			iModifier, iInterceptChanceX100, pUnit->getFortifyTurns());
 }
 
-// <!-- custom: CvTeam::addTeam is the authoritative team-merge boundary. Log both pre-merge player assignments while the absorbed team still owns its slots.
-// Periodic team snapshots can then describe the resulting state without forcing a consumer to infer the exact merge turn. (ChatGPT-5.6-Sol) -->
-void logSASGameRecordTeamMerged(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam)
+void logSASGameRecordGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit const* pTargetUnit, PromotionTypes ePromotion)
 {
-	if (eSurvivingTeam < 0 || eSurvivingTeam >= MAX_TEAMS || eAbsorbedTeam < 0 || eAbsorbedTeam >= MAX_TEAMS || eSurvivingTeam == eAbsorbedTeam)
+	if (pGreatGeneral == NULL || pTargetUnit == NULL)
 		return;
-	int iSurvivingPlayerCount = 0;
-	int iAbsorbedPlayerCount = 0;
-	CvString const szSurvivingPlayers = getSASGameRecordTeamAssignedPlayers(eSurvivingTeam, iSurvivingPlayerCount);
-	CvString const szAbsorbedPlayers = getSASGameRecordTeamAssignedPlayers(eAbsorbedTeam, iAbsorbedPlayerCount);
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=TEAM_MERGED survivingTeam=%d absorbedTeam=%d survivingPlayersBefore=%s absorbedPlayers=%s survivingPlayerCountBefore=%d absorbedPlayerCount=%d resultingPlayerCount=%d",
-			GC.getGame().getGameTurn(), eSurvivingTeam, eAbsorbedTeam, szSurvivingPlayers.GetCString(),
-			szAbsorbedPlayers.GetCString(), iSurvivingPlayerCount, iAbsorbedPlayerCount, iSurvivingPlayerCount + iAbsorbedPlayerCount);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_GENERAL_ATTACHED player=%d generalUnitId=%d generalUnit=%s targetUnitId=%d targetUnit=%s targetUnitAI=%s x=%d y=%d promotion=%s targetXP=%d targetLevel=%d",
+			GC.getGame().getGameTurn(), pGreatGeneral->getOwner(), pGreatGeneral->getID(), getSASGameRecordUnitType(pGreatGeneral->getUnitType()),
+			pTargetUnit->getID(), getSASGameRecordUnitType(pTargetUnit->getUnitType()), getSASGameRecordUnitAIType(pTargetUnit->AI_getUnitAIType()),
+			pTargetUnit->getX(), pTargetUnit->getY(), ePromotion == NO_PROMOTION ? "-" : GC.getInfo(ePromotion).getType(),
+			pTargetUnit->getExperience(), pTargetUnit->getLevel());
 }
 
-void logSASGameRecordTeamMet(TeamTypes eTeam, TeamTypes eOtherTeam, bool bNewDiplo, int iX1, int iY1, int iX2, int iY2, CvPlot const* pTeamContactPlot, CvPlot const* pOtherContactPlot)
-{
-	bool const bMeetDataPlot1Valid = (iX1 >= 0 && iY1 >= 0 && iX1 < GC.getMap().getGridWidth() && iY1 < GC.getMap().getGridHeight());
-	bool const bMeetDataPlot2Valid = (iX2 >= 0 && iY2 >= 0 && iX2 < GC.getMap().getGridWidth() && iY2 < GC.getMap().getGridHeight());
-	// <!-- custom: FirstContactData may leave coordinates meaningless when the corresponding validity test fails.
-	// Preserve the validity flag, but serialize invalid pairs canonically as -1,-1 instead of leaking uninitialized values into the log. (ChatGPT-5.6-Sol) -->
-	int const iLoggedX1 = (bMeetDataPlot1Valid ? iX1 : -1);
-	int const iLoggedY1 = (bMeetDataPlot1Valid ? iY1 : -1);
-	int const iLoggedX2 = (bMeetDataPlot2Valid ? iX2 : -1);
-	int const iLoggedY2 = (bMeetDataPlot2Valid ? iY2 : -1);
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=TEAM_MET team=%d otherTeam=%d bNewDiplo=%d teamMembers=%s otherMembers=%s meetDataPlot1=%d,%d meetDataPlot1Valid=%d meetDataPlot2=%d,%d meetDataPlot2Valid=%d teamContactPlot=%d,%d otherTeamContactPlot=%d,%d",
-			GC.getGame().getGameTurn(), eTeam, eOtherTeam, bNewDiplo, getSASGameRecordTeamMembers(eTeam).GetCString(), getSASGameRecordTeamMembers(eOtherTeam).GetCString(), iLoggedX1, iLoggedY1, bMeetDataPlot1Valid, iLoggedX2, iLoggedY2, bMeetDataPlot2Valid,
-			pTeamContactPlot == NULL ? -1 : pTeamContactPlot->getX(), pTeamContactPlot == NULL ? -1 : pTeamContactPlot->getY(),
-			pOtherContactPlot == NULL ? -1 : pOtherContactPlot->getX(), pOtherContactPlot == NULL ? -1 : pOtherContactPlot->getY());
-}
 
-void logSASGameRecordVictoryLaunched(PlayerTypes ePlayer, VictoryTypes eVictory)
+void logSASGameRecordUnitScrapped(CvUnit const* pUnit)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS || eVictory == NO_VICTORY)
+	if (pUnit == NULL)
 		return;
-	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
-	int iPartsBuilt = 0;
-	int iPartsMinimum = 0;
-	int iPartsMaximum = 0;
-	bool bMinimumComplete = false;
-	CvString szProjectParts;
-	bool const bProjectVictory = getSASGameRecordVictoryProjectState(kPlayer.getTeam(), eVictory, iPartsBuilt, iPartsMinimum, iPartsMaximum, bMinimumComplete, szProjectParts);
-	int const iCountdown = kTeam.getVictoryCountdown(eVictory);
-	// <!-- custom: Project-completion rows alone do not reveal when a spaceship actually launches. Preserve the authoritative countdown/arrival state immediately after CvPlayer::launch sets it. (ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=SPACESHIP_LAUNCHED player=%d team=%d victory=%s countdown=%d arrivalTurn=%d travelTurns=%d launchSuccessPercent=%d partsBuilt=%d partsMinimum=%d partsMaximum=%d projectParts=%s",
-			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), getSASGameRecordVictoryType(eVictory),
-			iCountdown, iCountdown < 0 ? -1 : GC.getGame().getGameTurn() + iCountdown,
-			bProjectVictory && bMinimumComplete ? kTeam.getVictoryDelay(eVictory) : -1,
-			kTeam.getLaunchSuccessRate(eVictory), iPartsBuilt, iPartsMinimum, iPartsMaximum, bProjectVictory ? szProjectParts.GetCString() : "-");
-}
-
-static void logSASGameRecordVictoryProgressRemoved(TeamTypes eTeam, VictoryTypes eVictory, char const* szAction, char const* szCause, int iLaunchSuccessPercent, CvCity const* pCapital)
-{
-	CvTeam const& kTeam = GET_TEAM(eTeam);
-	int iPartsBuilt = 0;
-	int iPartsMinimum = 0;
-	int iPartsMaximum = 0;
-	bool bMinimumComplete = false;
-	CvString szProjectParts;
-	bool const bProjectVictory = getSASGameRecordVictoryProjectState(eTeam, eVictory, iPartsBuilt, iPartsMinimum, iPartsMaximum, bMinimumComplete, szProjectParts);
-	int const iCountdown = kTeam.getVictoryCountdown(eVictory);
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s team=%d victory=%s cause=%s countdown=%d arrivalTurn=%d launchSuccessPercent=%d capitalPlayer=%d capitalCityId=%d capital=%S capitalX=%d capitalY=%d projectVictory=%d partsBuilt=%d partsMinimum=%d partsMaximum=%d projectParts=%s",
-			GC.getGame().getGameTurn(), szAction, eTeam, getSASGameRecordVictoryType(eVictory), szCause, iCountdown,
-			iCountdown < 0 ? -1 : GC.getGame().getGameTurn() + iCountdown, iLaunchSuccessPercent,
-			pCapital == NULL ? NO_PLAYER : pCapital->getOwner(), pCapital == NULL ? -1 : pCapital->getID(),
-			getSASGameRecordQuotedCityName(pCapital).GetCString(), pCapital == NULL ? -1 : pCapital->getX(), pCapital == NULL ? -1 : pCapital->getY(),
-			bProjectVictory, iPartsBuilt, iPartsMinimum, iPartsMaximum, bProjectVictory ? szProjectParts.GetCString() : "-");
-}
-
-void logSASGameRecordVictoryProgressResetForCapital(CvCity const* pCapital)
-{
-	if (pCapital == NULL || GC.getGame().getGameState() != GAMESTATE_ON)
+	PlayerTypes const ePlayer = pUnit->getOwner();
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
 		return;
-	TeamTypes const eTeam = pCapital->getTeam();
-	CvTeam const& kTeam = GET_TEAM(eTeam);
-	FOR_EACH_ENUM(Victory)
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
+	kFlow.iScrapped++;
+	kFlow.iScrappedProductionNeeded += GET_PLAYER(ePlayer).getProductionNeeded(pUnit->getUnitType());
+	if (gGameRecordLogLevel >= 3)
 	{
-		if (kTeam.getVictoryCountdown(eLoopVictory) >= 0)
-			logSASGameRecordVictoryProgressRemoved(eTeam, eLoopVictory, "VICTORY_PROGRESS_RESET", "CAPITAL_LOST", kTeam.getLaunchSuccessRate(eLoopVictory), pCapital);
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_SCRAPPED player=%d unitId=%d unit=%s unitAI=%s x=%d y=%d damage=%d xp=%d level=%d age=%d cargo=%d cargoSpace=%d",
+			GC.getGame().getGameTurn(), ePlayer, pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+			pUnit->getX(), pUnit->getY(), pUnit->getDamage(), pUnit->getExperience(), pUnit->getLevel(), GC.getGame().getGameTurn() - pUnit->getGameTurnCreated(),
+			pUnit->getCargo(), pUnit->cargoSpace());
 	}
 }
 
-void logSASGameRecordSpaceshipFailed(TeamTypes eTeam, VictoryTypes eVictory, int iLaunchSuccessPercent)
+void logSASGameRecordUnitUpgraded(CvUnit const* pOldUnit, CvUnit const* pNewUnit, int iCost)
 {
-	if (eTeam == NO_TEAM || eVictory == NO_VICTORY)
+	if (pOldUnit == NULL || pNewUnit == NULL)
 		return;
-	// <!-- custom: A failed arrival roll resets the active countdown/projects immediately afterward; retain the exact losing launch state first. (ChatGPT-5.6-Sol) -->
-	logSASGameRecordVictoryProgressRemoved(eTeam, eVictory, "SPACESHIP_FAILED", "LAUNCH_ROLL_FAILED", iLaunchSuccessPercent, NULL);
+	PlayerTypes const ePlayer = pNewUnit->getOwner();
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
+	kFlow.iUpgrades++;
+	kFlow.iUpgradeGold += iCost;
+	if (gGameRecordLogLevel >= 3)
+	{
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_UPGRADED player=%d oldUnitId=%d newUnitId=%d fromUnit=%s toUnit=%s unitAI=%s x=%d y=%d cost=%d oldXP=%d newXP=%d oldLevel=%d newLevel=%d",
+			GC.getGame().getGameTurn(), ePlayer, pOldUnit->getID(), pNewUnit->getID(), getSASGameRecordUnitType(pOldUnit->getUnitType()),
+			getSASGameRecordUnitType(pNewUnit->getUnitType()), getSASGameRecordUnitAIType(pNewUnit->AI_getUnitAIType()),
+			pNewUnit->getX(), pNewUnit->getY(), iCost, pOldUnit->getExperience(), pNewUnit->getExperience(),
+			pOldUnit->getLevel(), pNewUnit->getLevel());
+	}
 }
 
-void logSASGameRecordVictory(TeamTypes eWinner, VictoryTypes eVictory)
+void logSASGameRecordUnitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit const* pNewUnit)
 {
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=VICTORY team=%d victory=%s",
-			GC.getGame().getGameTurn(), eWinner, getSASGameRecordVictoryType(eVictory));
-	// <!-- custom: Preserve final raw and normalized score for every civilization at the authoritative victory callback, not only the selected ReplayInfo player. (ChatGPT-5.6-Sol) -->
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	if (pNewUnit == NULL)
+		return;
+	PlayerTypes const eNewOwner = pNewUnit->getOwner();
+	if (eNewOwner < 0 || eNewOwner >= MAX_PLAYERS)
+		return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[eNewOwner];
+	kFlow.iCaptured++;
+	kFlow.iCapturedProductionNeeded += GET_PLAYER(eNewOwner).getProductionNeeded(pNewUnit->getUnitType());
+	// <!-- custom: Upstream AdvCiv 1.14 has no mature-SAS unitCaptured Python event. Log directly at the successful initUnit boundary so this telemetry port stays factual without expanding the Python event API merely for recorder plumbing. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_CAPTURED oldOwner=%d newOwner=%d oldUnit=%s newUnitId=%d newUnit=%s newUnitAI=%s x=%d y=%d",
+		GC.getGame().getGameTurn(), eOldOwner, eNewOwner, getSASGameRecordUnitType(eOldUnitType), pNewUnit->getID(),
+		getSASGameRecordUnitType(pNewUnit->getUnitType()), getSASGameRecordUnitAIType(pNewUnit->AI_getUnitAIType()),
+		pNewUnit->getX(), pNewUnit->getY());
+}
+
+// <!-- custom: Level-3 tactical outcomes preserve exact city-defense reduction, air-strike damage, interception combat and air-bombed plot targets without repeating gameplay calculations or guessing interrupted mission provenance. (GPT-5.6 + ChatGPT-5.6-Sol) -->
+void logSASGameRecordCityBombard(CvUnit const* pUnit, CvCity const* pCity, char const* szMode, int iBombardRate, bool bIgnoreBuildingDefense, int iDefenseModifierBefore, int iDefenseDamageBefore)
+{
+	if (pUnit == NULL || pCity == NULL)
+		return;
+	const int iGameTurn = GC.getGame().getGameTurn();
+	const int iDefenseModifierAfter = pCity->getDefenseModifier(false);
+	const int iDefenseDamageAfter = pCity->getDefenseDamage();
+	// <!-- custom: Merge only truly adjacent same-turn actions against the same city/mode/attacking player whose defense state continues exactly from the previous action. Any unrelated GameRecord row flushes the sequence through the generic writer. (ChatGPT-5.6-Sol) -->
+	const bool bContinueSequence = (g_kSASGameRecordPendingCityBombard.bValid && g_kSASGameRecordPendingCityBombard.iTurn == iGameTurn && g_kSASGameRecordPendingCityBombard.szMode == szMode && g_kSASGameRecordPendingCityBombard.ePlayer == pUnit->getOwner() && g_kSASGameRecordPendingCityBombard.eTargetPlayer == pCity->getOwner() && g_kSASGameRecordPendingCityBombard.iCityId == pCity->getID() && g_kSASGameRecordPendingCityBombard.iDefenseModifierAfter == iDefenseModifierBefore && g_kSASGameRecordPendingCityBombard.iDefenseDamageAfter == iDefenseDamageBefore);
+	if (!bContinueSequence)
 	{
-		PlayerTypes const ePlayer = (PlayerTypes)iI;
-		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-		if (!kPlayer.isEverAlive())
+		flushSASGameRecordPendingCityBombard();
+		g_kSASGameRecordPendingCityBombard.bValid = true;
+		g_kSASGameRecordPendingCityBombard.iTurn = iGameTurn;
+		g_kSASGameRecordPendingCityBombard.szMode = szMode;
+		g_kSASGameRecordPendingCityBombard.ePlayer = pUnit->getOwner();
+		g_kSASGameRecordPendingCityBombard.eTargetPlayer = pCity->getOwner();
+		g_kSASGameRecordPendingCityBombard.iCityId = pCity->getID();
+		g_kSASGameRecordPendingCityBombard.szCity = getSASGameRecordQuotedCityName(pCity);
+		g_kSASGameRecordPendingCityBombard.iX = pCity->getX();
+		g_kSASGameRecordPendingCityBombard.iY = pCity->getY();
+		g_kSASGameRecordPendingCityBombard.iDefenseModifierBefore = iDefenseModifierBefore;
+		g_kSASGameRecordPendingCityBombard.iDefenseDamageBefore = iDefenseDamageBefore;
+	}
+	g_kSASGameRecordPendingCityBombard.iActions++;
+	g_kSASGameRecordPendingCityBombard.iBombardRateTotal += iBombardRate;
+	if (bIgnoreBuildingDefense) g_kSASGameRecordPendingCityBombard.iIgnoreBuildingDefenseActions++;
+	g_kSASGameRecordPendingCityBombard.iDefenseModifierAfter = iDefenseModifierAfter;
+	g_kSASGameRecordPendingCityBombard.iTotalDefense = pCity->getTotalDefense(false);
+	g_kSASGameRecordPendingCityBombard.iDefenseDamageAfter = iDefenseDamageAfter;
+	g_kSASGameRecordPendingCityBombard.iDefenseDamageMax = GC.getMAX_CITY_DEFENSE_DAMAGE();
+	addSASGameRecordCityBombardTypeCount(g_kSASGameRecordPendingCityBombard.aUnitTypes, getSASGameRecordUnitType(pUnit->getUnitType()));
+	addSASGameRecordCityBombardTypeCount(g_kSASGameRecordPendingCityBombard.aUnitAIs, getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()));
+}
+
+void logSASGameRecordAirStrike(CvUnit const* pUnit, CvUnit const* pDefender, int iDefenderDamageBefore, int iDefenderDamageAfter)
+{
+	if (pUnit == NULL || pDefender == NULL)
+		return;
+	CvPlot const* pTargetPlot = pDefender->plot();
+	CvCity const* pCity = (pTargetPlot == NULL ? NULL : pTargetPlot->getPlotCity());
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AIR_STRIKE player=%d unitId=%d unit=%s unitAI=%s fromX=%d fromY=%d targetPlayer=%d targetUnitId=%d targetUnit=%s targetUnitAI=%s x=%d y=%d cityPlot=%d cityId=%d city=%S attackerAirBaseStr=%d defenderBaseStr=%d defenderDamageBefore=%d defenderDamageAfter=%d damageDealt=%d airCombatLimit=%d",
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pDefender->getOwner(), pDefender->getID(), getSASGameRecordUnitType(pDefender->getUnitType()), getSASGameRecordUnitAIType(pDefender->AI_getUnitAIType()), pTargetPlot == NULL ? -1 : pTargetPlot->getX(), pTargetPlot == NULL ? -1 : pTargetPlot->getY(), pCity != NULL, pCity == NULL ? -1 : pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->airBaseCombatStr(), pDefender->baseCombatStr(), iDefenderDamageBefore, iDefenderDamageAfter, std::max(0, iDefenderDamageAfter - iDefenderDamageBefore), pUnit->airCombatLimit());
+}
+
+void logSASGameRecordAirInterception(CvUnit const* pAttacker, CvUnit const* pInterceptor, CvPlot const* pTargetPlot, int iAttackerDamageTaken, int iInterceptorDamageTaken)
+{
+	if (pAttacker == NULL || pInterceptor == NULL || pTargetPlot == NULL)
+		return;
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AIR_INTERCEPTION attackerPlayer=%d attackerUnitId=%d attackerUnit=%s attackerUnitAI=%s interceptorPlayer=%d interceptorUnitId=%d interceptorUnit=%s interceptorUnitAI=%s x=%d y=%d attackerDamageTaken=%d interceptorDamageTaken=%d attackerDead=%d interceptorDead=%d attackerIsAir=%d",
+			GC.getGame().getGameTurn(), pAttacker->getOwner(), pAttacker->getID(), getSASGameRecordUnitType(pAttacker->getUnitType()), getSASGameRecordUnitAIType(pAttacker->AI_getUnitAIType()), pInterceptor->getOwner(), pInterceptor->getID(), getSASGameRecordUnitType(pInterceptor->getUnitType()), getSASGameRecordUnitAIType(pInterceptor->AI_getUnitAIType()), pTargetPlot->getX(), pTargetPlot->getY(), iAttackerDamageTaken, iInterceptorDamageTaken, pAttacker->isDead(), pInterceptor->isDead(), pAttacker->getDomainType() == DOMAIN_AIR);
+}
+
+void logSASGameRecordAirBombPlot(CvUnit const* pUnit, CvPlot const* pTargetPlot, char const* szTargetKind, char const* szTarget, bool bSuccess)
+{
+	if (pUnit == NULL || pTargetPlot == NULL)
+		return;
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AIR_BOMB_PLOT player=%d unitId=%d unit=%s unitAI=%s fromX=%d fromY=%d targetOwner=%d x=%d y=%d targetKind=%s target=%s success=%d",
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pTargetPlot->getOwner(), pTargetPlot->getX(), pTargetPlot->getY(), szTargetKind, szTarget, bSuccess);
+}
+
+// <!-- custom: Record the launch after its interception roll while the nuke unit and pre-detonation target still exist.
+// CvUnit::nuke passes its already-computed affected-team flags, so this helper only formats them. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordNukeLaunched(CvUnit const* pUnit, CvPlot const* pTargetPlot, bool const* pabAffectedTeams, bool bIntercepted, TeamTypes eBestInterceptorTeam, int iInterceptionChance)
+{
+	if (pUnit == NULL || pTargetPlot == NULL || pabAffectedTeams == NULL)
+		return;
+	CvString szAffectedTeams;
+	for (int iTeam = 0; iTeam < MAX_TEAMS; iTeam++)
+	{
+		if (pabAffectedTeams[iTeam])
+			appendSASDiagnosticIntListValue(szAffectedTeams, iTeam);
+	}
+	CvCity const* pTargetCity = pTargetPlot->getPlotCity();
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=NUKE_LAUNCHED player=%d team=%d unitId=%d unit=%s x=%d y=%d plotOwner=%d plotTeam=%d targetCityId=%d targetCity=%S targetCityOwner=%d targetCityTeam=%d targetCityPopulation=%d affectedTeams=%s intercepted=%d bestInterceptorTeam=%d interceptionChance=%d",
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pTargetPlot->getX(), pTargetPlot->getY(), pTargetPlot->getOwner(), pTargetPlot->getTeam(),
+			pTargetCity == NULL ? -1 : pTargetCity->getID(), getSASGameRecordQuotedCityName(pTargetCity).GetCString(), pTargetCity == NULL ? NO_PLAYER : pTargetCity->getOwner(), pTargetCity == NULL ? NO_TEAM : pTargetCity->getTeam(), pTargetCity == NULL ? -1 : pTargetCity->getPopulation(), getSASDiagnosticOrDash(szAffectedTeams).GetCString(), bIntercepted, eBestInterceptorTeam, iInterceptionChance);
+}
+
+// <!-- custom: CvPlot::nukeExplosion already accumulates the real post-random damage effects for player messages. Reuse only those counters here, plus exact fallout/citizen totals gathered in the same loop, so the recorder adds no second map/unit scan. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordNukeEffects(CvUnit const* pUnit, CvPlot const* pTargetPlot, int iFalloutPlotsCreated, int iImprovementsDestroyed, int iFeaturesDestroyed, int iUnitsDamaged, int iUnitsKilled, int iBuildingsDestroyed, int iCitiesAffected, int iPopulationKilled)
+{
+	if (pUnit == NULL || pTargetPlot == NULL)
+		return;
+	CvCity const* pTargetCity = pTargetPlot->getPlotCity();
+	logSASGameRecord("GAME_RECORD_NUKE_EFFECTS turn=%d player=%d team=%d unitId=%d unit=%s x=%d y=%d targetCityId=%d targetCity=%S targetCityOwner=%d targetCityTeam=%d targetCityPopulationAfter=%d falloutPlotsCreated=%d improvementsDestroyed=%d featuresDestroyed=%d unitsDamaged=%d unitsKilled=%d buildingsDestroyed=%d citiesAffected=%d populationKilled=%d nukesExplodedAfter=%d",
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pTargetPlot->getX(), pTargetPlot->getY(),
+			pTargetCity == NULL ? -1 : pTargetCity->getID(), getSASGameRecordQuotedCityName(pTargetCity).GetCString(), pTargetCity == NULL ? NO_PLAYER : pTargetCity->getOwner(), pTargetCity == NULL ? NO_TEAM : pTargetCity->getTeam(), pTargetCity == NULL ? -1 : pTargetCity->getPopulation(),
+			iFalloutPlotsCreated, iImprovementsDestroyed, iFeaturesDestroyed, iUnitsDamaged, iUnitsKilled, iBuildingsDestroyed, iCitiesAffected, iPopulationKilled, GC.getGame().getNukesExploded());
+}
+
+
+// <!-- custom: Preserve each city caught in an actual unit-launched blast, including cases where defenses reduce realized losses to zero.
+// The building list is assembled only from buildings the existing destruction loop actually removed; no city/building rescan or RNG is added. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordNukeCityEffect(CvUnit const* pNukeUnit, CvCity const* pCity, int iPopulationBefore, int iNukeModifier, std::vector<BuildingTypes> const& aeBuildingsDestroyed)
+{
+	if (pNukeUnit == NULL || pCity == NULL)
+		return;
+	CvString szBuildingsDestroyed;
+	for (size_t i = 0; i < aeBuildingsDestroyed.size(); i++)
+		appendSASGameRecordType(szBuildingsDestroyed, getSASGameRecordBuildingType(aeBuildingsDestroyed[i]));
+	int const iPopulationAfter = pCity->getPopulation();
+	logSASGameRecord("GAME_RECORD_NUKE_CITY_EFFECT turn=%d player=%d team=%d nukeUnitId=%d nukeUnit=%s affectedPlayer=%d affectedTeam=%d cityId=%d city=%S x=%d y=%d nukeModifier=%d populationBefore=%d populationAfter=%d populationKilled=%d buildingsDestroyedCount=%d buildingsDestroyed=%s",
+			GC.getGame().getGameTurn(), pNukeUnit->getOwner(), pNukeUnit->getTeam(), pNukeUnit->getID(), getSASGameRecordUnitType(pNukeUnit->getUnitType()),
+			pCity->getOwner(), pCity->getTeam(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), iNukeModifier,
+			iPopulationBefore, iPopulationAfter, std::max(0, iPopulationBefore - iPopulationAfter), (int)aeBuildingsDestroyed.size(),
+			getSASDiagnosticOrDash(szBuildingsDestroyed).GetCString());
+}
+
+// <!-- custom: Level-3 nuke unit rows retain tactical identity before the existing damage/kill operation can remove the object.
+// Direct combat damage records exact before/after damage; indirect cargo and noncombat death use damageAfter=-1 rather than inventing a damage value that gameplay never assigned. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordNukeUnitEffect(CvUnit const* pNukeUnit, CvUnit const* pAffectedUnit, CvPlot const* pPlot, int iDamageBefore, int iDamageAfter, bool bKilled, char const* szCause)
+{
+	if (pNukeUnit == NULL || pAffectedUnit == NULL || pPlot == NULL)
+		return;
+	CvUnit const* pTransport = pAffectedUnit->getTransportUnit();
+	int const iDamageDelta = (iDamageBefore >= 0 && iDamageAfter >= 0 ? iDamageAfter - iDamageBefore : -1);
+	logSASGameRecord("GAME_RECORD_NUKE_UNIT_EFFECT turn=%d player=%d team=%d nukeUnitId=%d nukeUnit=%s affectedPlayer=%d affectedTeam=%d unitId=%d unit=%s unitAI=%s x=%d y=%d damageBefore=%d damageAfter=%d damageDelta=%d killed=%d cause=%s cargo=%d transportPlayer=%d transportId=%d",
+			GC.getGame().getGameTurn(), pNukeUnit->getOwner(), pNukeUnit->getTeam(), pNukeUnit->getID(), getSASGameRecordUnitType(pNukeUnit->getUnitType()),
+			pAffectedUnit->getOwner(), pAffectedUnit->getTeam(), pAffectedUnit->getID(), getSASGameRecordUnitType(pAffectedUnit->getUnitType()), getSASGameRecordUnitAIType(pAffectedUnit->AI_getUnitAIType()),
+			pPlot->getX(), pPlot->getY(), iDamageBefore, iDamageAfter, iDamageDelta, bKilled, szCause, pAffectedUnit->isCargo(),
+			pTransport == NULL ? NO_PLAYER : pTransport->getOwner(), pTransport == NULL ? -1 : pTransport->getID());
+}
+
+void logSASGameRecordResearchCompleted(TechTypes eTech, TeamTypes eTeam, PlayerTypes ePlayer, int iProgressBefore, int iProgressBeforePostCompletionAdjustment, int iResearchModifier, int iUnmodifiedOverflow)
+{
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	int const iResearchCost = kTeam.getResearchCost(eTech);
+	int const iProgressAdded = iProgressBeforePostCompletionAdjustment - iProgressBefore;
+	int const iRawModifiedOverflow = std::max(0, iProgressBeforePostCompletionAdjustment - iResearchCost);
+	SASGameRecordResearchApplication& kApplication = g_akSASGameRecordResearchApplication[ePlayer];
+	bool const bApplicationKnown = (kApplication.bValid && kApplication.iGameTurn == GC.getGame().getGameTurn() && kApplication.eTech == eTech);
+	int const iModifiedResearchRate = (bApplicationKnown ? kApplication.iModifiedResearchRate : -1);
+	int const iIncomingOverflowUnmodified = (bApplicationKnown ? kApplication.iIncomingOverflowUnmodified : -1);
+	int const iIncomingOverflowModified = (bApplicationKnown ? kApplication.iIncomingOverflowModified : -1);
+	// <!-- custom: Preserve mature SASGameRecord field names for schema compatibility. `teamProgressBeforeClamp` is the progress immediately before AdvCiv's post-completion adjustment; this logging-only 1.14 port intentionally does not import mature SAS's separate KI#404 gameplay correction, so `teamStoredProgressAfter` reports the actual unmodified AdvCiv 1.14 result. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RESEARCH_COMPLETED player=%d team=%d tech=%s researchCost=%d teamProgressBefore=%d applicationBreakdownKnown=%d modifiedResearchRateApplied=%d incomingOverflowUnmodified=%d incomingOverflowModifiedApplied=%d modifiedProgressAdded=%d teamProgressBeforeClamp=%d researchModifier=%d rawModifiedOverflow=%d outgoingOverflowUnmodified=%d playerOverflowAfter=%d teamStoredProgressAfter=%d",
+			GC.getGame().getGameTurn(), ePlayer, eTeam, getSASGameRecordTechType(eTech), iResearchCost, iProgressBefore, bApplicationKnown ? 1 : 0,
+			iModifiedResearchRate, iIncomingOverflowUnmodified, iIncomingOverflowModified, iProgressAdded, iProgressBeforePostCompletionAdjustment, iResearchModifier, iRawModifiedOverflow, iUnmodifiedOverflow,
+			GET_PLAYER(ePlayer).getOverflowResearch(), kTeam.getResearchProgress(eTech));
+	kApplication.bValid = false;
+}
+
+// <!-- custom: Only ordinary civilization-vs-civilization battles with no attacker withdrawal chance and a lethal combat limit form a true binary win/loss sample.
+// Siege/combat-limit fights, withdrawals and Barbarian free-win rules are recorded separately rather than contaminating expected-vs-observed luck. (ChatGPT-5.6-Sol) -->
+static bool isSASGameRecordLuckEligible(CvUnit const& kAttacker, CvUnit const& kDefender)
+{
+	PlayerTypes const eAttacker = kAttacker.getOwner();
+	PlayerTypes const eDefender = kDefender.getOwner();
+	return (eAttacker >= 0 && eAttacker < MAX_CIV_PLAYERS && eDefender >= 0 && eDefender < MAX_CIV_PLAYERS && !kAttacker.isBarbarian() && !kDefender.isBarbarian() && kAttacker.withdrawalProbability() <= 0 && kAttacker.combatLimit() >= kDefender.maxHitPoints());
+}
+
+static bool popSASGameRecordCombatPending(CvUnit const* pUnitA, CvUnit const* pUnitB, CvPlot const* pBattlePlot, SASGameRecordCombatPending& kResult)
+{
+	if (pUnitA == NULL || pUnitB == NULL || pBattlePlot == NULL)
+		return false;
+	for (int iI = (int)g_aSASGameRecordCombatPending.size() - 1; iI >= 0; iI--)
+	{
+		SASGameRecordCombatPending const& kPending = g_aSASGameRecordCombatPending[iI];
+		bool const bSameUnits =
+				((pUnitA->getOwner() == kPending.eAttacker && pUnitA->getID() == kPending.iAttackerUnitId &&
+				  pUnitB->getOwner() == kPending.eDefender && pUnitB->getID() == kPending.iDefenderUnitId) ||
+				 (pUnitB->getOwner() == kPending.eAttacker && pUnitB->getID() == kPending.iAttackerUnitId &&
+				  pUnitA->getOwner() == kPending.eDefender && pUnitA->getID() == kPending.iDefenderUnitId));
+		if (!bSameUnits || pBattlePlot->getX() != kPending.iX || pBattlePlot->getY() != kPending.iY)
 			continue;
-		bool const bWinner = (kPlayer.getTeam() == eWinner);
-		logSASGameRecord("GAME_RECORD_FINAL_SCORE turn=%d player=%d team=%d alive=%d winner=%d score=%d normalizedScore=%d",
-				GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), bWinner, kPlayer.calculateScore(), kPlayer.calculateScore(true, bWinner));
+		kResult = kPending;
+		g_aSASGameRecordCombatPending.erase(g_aSASGameRecordCombatPending.begin() + iI);
+		return true;
 	}
-	// <!-- custom: Victory is also a natural boundary for wars that remain active at game end. (GPT-5.6-Sol) -->
-	if (gGameRecordLogLevel >= 2)
-	{
-		reconcileSASGameRecordWars();
-		logSASGameRecordOngoingWarSummaries("VICTORY");
-	}
-	// <!-- custom: Victory can occur between configured snapshot intervals. Force one exact final state now; logSASGameRecordTurn suppresses a duplicate if this was already an interval turn. (ChatGPT-5.6-Sol) -->
-	logSASGameRecordSnapshot(GC.getGame().getGameTurn(), "victory");
+	return false;
 }
 
-void logSASGameRecordPlayerEliminated(PlayerTypes ePlayer)
+void noteSASGameRecordCombatStarted(CvUnit const* pAttacker, CvUnit const* pDefender, CvPlot const* pBattlePlot)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+	if (pAttacker == NULL || pDefender == NULL || pBattlePlot == NULL)
 		return;
-	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PLAYER_ELIMINATED player=%d team=%d civ=%s leader=%s cities=%d units=%d score=%d power=%d playersAlive=%d teamsAlive=%d eliminatedPlayers=%s",
-			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType(), kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType(),
-			kPlayer.getNumCities(), kPlayer.getNumUnits(), kPlayer.calculateScore(), kPlayer.getPower(), GC.getGame().countCivPlayersAlive(), GC.getGame().countCivTeamsAlive(), getSASGameRecordEliminatedPlayers().GetCString());
-	logSASGameRecordRunStatus("playerEliminated");
-}
-
-void logSASGameRecordPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+	bool const bLuckEligible = isSASGameRecordLuckEligible(*pAttacker, *pDefender);
+	bool const bLogExactBattle = (gGameRecordLogLevel >= 3);
+	bool const bCaptureCombatContext = (bLogExactBattle || bLuckEligible);
+	// <!-- custom: Level 2 needs transient context only for the exact-odds statistical sample.
+	// Level 3 also keeps attacker identity for every exact battle row, including Barbarian fights whose special free-win semantics intentionally leave odds unknown here.
+	// Name the positive requirement explicitly, then early-return to keep the expensive capture path unnested. (ChatGPT-5.6-Sol) -->
+	if (!bCaptureCombatContext)
 		return;
-	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s player=%d team=%d civ=%s leader=%s cities=%d units=%d score=%d power=%d playersAlive=%d teamsAlive=%d playersEverAlive=%d",
-			GC.getGame().getGameTurn(), bRevived ? "PLAYER_REVIVED" : "PLAYER_APPEARED", ePlayer, kPlayer.getTeam(), kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType(), kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType(),
-			kPlayer.getNumCities(), kPlayer.getNumUnits(), kPlayer.calculateScore(), kPlayer.getPower(), GC.getGame().countCivPlayersAlive(), GC.getGame().countCivTeamsAlive(), GC.getGame().countCivPlayersEverAlive());
-	logSASGameRecordRunStatus(bRevived ? "playerRevived" : "playerAppeared");
+	SASGameRecordCombatPending kPending;
+	kPending.eAttacker = pAttacker->getOwner();
+	kPending.eDefender = pDefender->getOwner();
+	kPending.iAttackerUnitId = pAttacker->getID();
+	kPending.iDefenderUnitId = pDefender->getID();
+	kPending.iX = pBattlePlot->getX();
+	kPending.iY = pBattlePlot->getY();
+	kPending.bLuckEligible = bLuckEligible;
+	bool const bCivilizationBattle = (pAttacker->getOwner() >= 0 && pAttacker->getOwner() < MAX_CIV_PLAYERS && pDefender->getOwner() >= 0 && pDefender->getOwner() < MAX_CIV_PLAYERS && !pAttacker->isBarbarian() && !pDefender->isBarbarian());
+	kPending.iAttackerCombatOddsPermille = ((bLuckEligible || (bLogExactBattle && bCivilizationBattle)) ? calculateCombatOdds(*pAttacker, *pDefender) : -1);
+	g_aSASGameRecordCombatPending.push_back(kPending);
 }
 
-// <!-- custom: Base AdvCiv 1.14 has no explicit autoplay-end-cause plumbing. Record only facts available at its authoritative counter mutation instead of changing signatures merely for telemetry. Scheduled completion is identifiable from the existing no-player-status countdown transition; other endings remain conservatively labelled from current authoritative state. (ChatGPT-5.6-Sol) -->
-void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus)
+static void recordSASGameRecordBattleLuck(PlayerTypes ePlayer, int iOwnOddsPermille, bool bWon)
 {
-	if (iOldValue == iNewValue)
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS || iOwnOddsPermille < 0 || iOwnOddsPermille > 1000)
 		return;
-	CvGame const& kGame = GC.getGame();
-	bool const bStarted = (iOldValue <= 0 && iNewValue > 0);
-	bool const bEnded = (iOldValue > 0 && iNewValue <= 0);
-	char const* szAction = (bStarted ? "AUTOPLAY_STARTED" : (bEnded ? "AUTOPLAY_ENDED" : "AUTOPLAY_CHANGED"));
-	PlayerTypes const eActivePlayer = kGame.getActivePlayer();
-	if (bStarted)
+	SASGameRecordBattleQuality* apQuality[2] = { &g_akSASGameRecordBattleQuality[ePlayer], &g_akSASGameRecordTotalBattleQuality[ePlayer] };
+	for (int iI = 0; iI < 2; iI++)
 	{
-		g_iSASGameRecordAutoPlayRequestId++;
-		g_iSASGameRecordAutoPlayRequestedTurns = iNewValue;
-		g_iSASGameRecordAutoPlayStartTurn = kGame.getGameTurn();
-		g_iSASGameRecordAutoPlayStartElapsedTurn = kGame.getElapsedGameTurns();
-		g_eSASGameRecordAutoPlayStartPlayer = eActivePlayer;
-		g_iSASGameRecordAutoPlayPlayerChanges = 0;
-	}
-	char const* szEndCause = "-";
-	if (bEnded)
-	{
-		if (!bChangePlayerStatus && iOldValue == 1)
-			szEndCause = "SCHEDULED";
-		else if (kGame.getWinner() != NO_TEAM)
-			szEndCause = "VICTORY";
-		else if (eActivePlayer != NO_PLAYER && !GET_PLAYER(eActivePlayer).isAlive())
-			szEndCause = "ACTIVE_PLAYER_DEFEATED";
-		else szEndCause = "OTHER_OR_INTERRUPTED";
-	}
-	int const iCompletedTurns = (!bEnded || g_iSASGameRecordAutoPlayRequestedTurns <= 0 ? 0 :
-			(!bChangePlayerStatus && iOldValue == 1 ? g_iSASGameRecordAutoPlayRequestedTurns : std::max(0, g_iSASGameRecordAutoPlayRequestedTurns - iOldValue)));
-	int const iElapsedGameTurns = (g_iSASGameRecordAutoPlayStartElapsedTurn < 0 ? 0 : std::max(0, kGame.getElapsedGameTurns() - g_iSASGameRecordAutoPlayStartElapsedTurn));
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s oldTurnsLeft=%d newTurnsLeft=%d activePlayer=%d changePlayerStatus=%d requestId=%d requestedTurns=%d completedTurns=%d elapsedGameTurns=%d startTurn=%d startElapsed=%d startPlayer=%d activePlayerChanges=%d totalActivePlayerChanges=%d endCause=%s",
-			kGame.getGameTurn(), szAction, iOldValue, iNewValue, eActivePlayer, bChangePlayerStatus, g_iSASGameRecordAutoPlayRequestId, g_iSASGameRecordAutoPlayRequestedTurns, iCompletedTurns, iElapsedGameTurns,
-			g_iSASGameRecordAutoPlayStartTurn, g_iSASGameRecordAutoPlayStartElapsedTurn, g_eSASGameRecordAutoPlayStartPlayer, g_iSASGameRecordAutoPlayPlayerChanges, g_iSASGameRecordTotalActivePlayerChanges, szEndCause);
-	// <!-- custom: Treat only actual autoplay start/end as rare level-3 RNG boundaries, not ordinary countdown changes. This isolates the benchmark/autoplay random-consumption window even when it begins or ends partway through a turn. (GPT-5.6-Sol) -->
-	if (g_bSASGameRecordRngTrackingActive && (bStarted || bEnded)) logSASGameRecordRngCheckpoint(kGame.getGameTurn(), bStarted ? SAS_RNG_CHECKPOINT_AUTOPLAY_BEGIN : SAS_RNG_CHECKPOINT_AUTOPLAY_END);
-	// <!-- custom: Autoplay completion is a useful history boundary even while the game and its wars continue. (GPT-5.6-Sol) -->
-	if (gGameRecordLogLevel >= 2 && bEnded)
-	{
-		reconcileSASGameRecordWars();
-		logSASGameRecordOngoingWarSummaries("AUTOPLAY_ENDED");
-	}
-	if (bEnded)
-	{
-		g_iSASGameRecordAutoPlayRequestedTurns = 0;
-		g_iSASGameRecordAutoPlayStartTurn = -1;
-		g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
-		g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
-		g_iSASGameRecordAutoPlayPlayerChanges = 0;
-	}
-}
-
-void logSASGameRecordActivePlayerChanged(PlayerTypes eOldPlayer, PlayerTypes eNewPlayer)
-{
-	g_iSASGameRecordTotalActivePlayerChanges++;
-	bool const bDuringAutoPlay = (GC.getGame().getAIAutoPlay() > 0 && g_iSASGameRecordAutoPlayRequestedTurns > 0);
-	if (bDuringAutoPlay)
-		g_iSASGameRecordAutoPlayPlayerChanges++;
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=ACTIVE_PLAYER_CHANGED oldPlayer=%d newPlayer=%d autoplayActive=%d autoplayTurnsLeft=%d requestId=%d activePlayerChanges=%d totalActivePlayerChanges=%d",
-			GC.getGame().getGameTurn(), eOldPlayer, eNewPlayer, bDuringAutoPlay, GC.getGame().getAIAutoPlay(), bDuringAutoPlay ? g_iSASGameRecordAutoPlayRequestId : -1,
-			bDuringAutoPlay ? g_iSASGameRecordAutoPlayPlayerChanges : 0, g_iSASGameRecordTotalActivePlayerChanges);
-}
-
-void logSASGameRecordDebugModeChanged(bool bOldDebugMode, bool bNewDebugMode)
-{
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DEBUG_MODE_CHANGED old=%d new=%d activePlayer=%d autoplayTurnsLeft=%d",
-			GC.getGame().getGameTurn(), bOldDebugMode, bNewDebugMode, GC.getGame().getActivePlayer(), GC.getGame().getAIAutoPlay());
-}
-
-void logSASGameRecordVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal)
-{
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s master=%d vassal=%d", GC.getGame().getGameTurn(), bVassal ? "VASSALAGE_STARTED" : "VASSALAGE_ENDED", eMaster, eVassal);
-}
-void logSASGameRecordTurn(int iGameTurn)
-{
-	// <!-- custom: A victory can force the final full snapshot before the ordinary end-turn interval hook. Do not emit the same turn twice. (ChatGPT-5.6-Sol) -->
-	if (g_iSASGameRecordLastFullSnapshotTurn == iGameTurn)
-		return;
-	logSASGameRecordSnapshot(iGameTurn, "interval");
-}
-
-void startSASGameRecordLogForNewGame()
-{
-	// <!-- custom: Preserve delayed city-bombard and per-turn map-history rows from the previous session before switching log filenames. (ChatGPT-5.6-Sol) -->
-	if (g_iSASGameRecordPendingPlotTurn >= 0) flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
-	else flushSASGameRecordPendingCityBombard();
-	rollSASGameRecordLog("new");
-	resetSASGameRecordTeamPrevious();
-	resetSASGameRecordPlayerPrevious();
-	resetSASGameRecordPlayerDurationState();
-	resetSASGameRecordGlobalPrevious();
-	resetSASGameRecordResearchState();
-	resetSASGameRecordControlState();
-	resetSASGameRecordCityLifecycleState();
-	resetSASGameRecordCombatState();
-	resetSASGameRecordBlockadeState();
-	resetSASGameRecordMilitaryFlowState();
-	resetSASGameRecordCityBombardState();
-	g_aSASGameRecordWars.clear();
-	g_iSASGameRecordLastFullSnapshotTurn = -1;
-	CvString const szLogName = getSASGameRecordLogName();
-	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString());
-	logSASGameRecordLogSettings();
-	logSASGameRecordTechCapabilitySources();
-	logSASGameRecordAttitudeLegend();
-}
-
-void logSASGameRecordNewGameStarted()
-{
-	logSASGameRecordGameState("GAME_RECORD_NEW_GAME_STARTED");
-	logSASGameRecordInitialPlayerIdentities();
-	if (getSASGameRecordLogLevel() >= 2)
-	{
-		int iTeamStateRows = 0;
-		int iTechRows = 0;
-		int iDeals = 0;
-		logSASGameRecordFinalizedInitialState(iTeamStateRows, iTechRows, iDeals);
-		logSASGameRecord("GAME_RECORD_INITIAL_STATE_SUMMARY teamStateRows=%d techGroupRows=%d techTeamsCovered=%d %s source=FINALIZED_STATE", iTeamStateRows, iTechRows, iTeamStateRows, getSASInitialDealSummaryFields(true, iDeals).GetCString());
-	}
-}
-
-void startSASGameRecordLogForLoadedSave()
-{
-	// <!-- custom: Preserve any final pending bombard/map-history rows in the previous session before rolling to the loaded-save log. (ChatGPT-5.6-Sol) -->
-	if (g_iSASGameRecordPendingPlotTurn >= 0) flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
-	else flushSASGameRecordPendingCityBombard();
-	rollSASGameRecordLog("load");
-	// <!-- custom: Loaded RNG state already exists when onAllGameDataRead starts this new recorder session, so use it directly as the level-3 baseline. Session counters intentionally restart at each timestamped load log. GAMEOPTION_NEW_RANDOM_SEED is likewise applied during deserialization while old-session tracking is already finalized; its resulting seed is intentionally the new session baseline rather than a cross-session SEED_SET operation. (GPT-5.6-Sol) -->
-	if (gGameRecordLogLevel >= 3) initializeSASGameRecordRngTracking();
-	resetSASGameRecordTeamPrevious();
-	resetSASGameRecordPlayerPrevious();
-	resetSASGameRecordPlayerDurationState();
-	resetSASGameRecordGlobalPrevious();
-	resetSASGameRecordResearchState();
-	resetSASGameRecordControlState();
-	resetSASGameRecordCityLifecycleState();
-	resetSASGameRecordCombatState();
-	resetSASGameRecordBlockadeState();
-	resetSASGameRecordMilitaryFlowState();
-	resetSASGameRecordCityBombardState();
-	g_aSASGameRecordWars.clear();
-	initializeSASGameRecordWarsFromLoadedSave();
-	g_iSASGameRecordLastFullSnapshotTurn = -1;
-	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
-	logSASGameRecordLogSettings();
-	logSASGameRecordTechCapabilitySources();
-	logSASGameRecordAttitudeLegend();
-	logSASGameRecordInitialPlayerIdentities();
-	// <!-- custom: Level-2+ new games already emitted authoritative INITIAL_TEAM_STATE metTeams and seeded the contact baseline.
-	// Loaded saves have no finalized initial-team block in this session, so retain explicit setup contact rows for them. (ChatGPT-5.6-Sol) -->
-	if (getSASGameRecordLogLevel() >= 2)
-	{
-		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+		SASGameRecordBattleQuality& kQuality = *apQuality[iI];
+		kQuality.iLuckEligibleBattles++;
+		kQuality.iExpectedWinsX1000 += iOwnOddsPermille;
+		if (bWon)
 		{
-			TeamTypes eLoopTeam = (TeamTypes)iI;
-			if (GET_TEAM(eLoopTeam).isAlive() && !GET_TEAM(eLoopTeam).isBarbarian())
-				logSASGameRecordTeamContacts(eLoopTeam, GC.getGame().getGameTurn(), "setup");
+			kQuality.iLuckEligibleWins++;
+			if (iOwnOddsPermille < 500) kQuality.iUpsetWins++;
+			if (kQuality.iLowestOddsWinPermille < 0 || iOwnOddsPermille < kQuality.iLowestOddsWinPermille) kQuality.iLowestOddsWinPermille = iOwnOddsPermille;
+		}
+		else
+		{
+			if (iOwnOddsPermille > 500) kQuality.iUpsetLosses++;
+			if (iOwnOddsPermille > kQuality.iHighestOddsLossPermille) kQuality.iHighestOddsLossPermille = iOwnOddsPermille;
 		}
 	}
+}
+
+void logSASGameRecordNonlethalCombat(CvUnit const* pAttacker, CvUnit const* pDefender, CvPlot const* pBattlePlot, bool bCombatLimitReached)
+{
+	if (pAttacker == NULL || pDefender == NULL || pBattlePlot == NULL)
+		return;
+	PlayerTypes const eAttacker = pAttacker->getOwner();
+	PlayerTypes const eDefender = pDefender->getOwner();
+	if (eAttacker >= 0 && eAttacker < MAX_CIV_PLAYERS)
+	{
+		SASGameRecordBattleQuality* apQuality[2] = { &g_akSASGameRecordBattleQuality[eAttacker], &g_akSASGameRecordTotalBattleQuality[eAttacker] };
+		for (int iI = 0; iI < 2; iI++)
+		{
+			if (bCombatLimitReached) apQuality[iI]->iCombatLimitAttacks++;
+			else apQuality[iI]->iWithdrawals++;
+		}
+	}
+	if (eDefender >= 0 && eDefender < MAX_CIV_PLAYERS)
+	{
+		SASGameRecordBattleQuality* apQuality[2] = { &g_akSASGameRecordBattleQuality[eDefender], &g_akSASGameRecordTotalBattleQuality[eDefender] };
+		for (int iI = 0; iI < 2; iI++)
+		{
+			if (bCombatLimitReached) apQuality[iI]->iCombatLimitDefenses++;
+			else apQuality[iI]->iEnemyWithdrawals++;
+		}
+	}
+	SASGameRecordCombatPending kPending;
+	bool const bPending = popSASGameRecordCombatPending(pAttacker, pDefender, pBattlePlot, kPending);
+	if (gGameRecordLogLevel >= 3)
+	{
+		logSASGameRecord("GAME_RECORD_BATTLE_NONLETHAL turn=%d attacker=%d defender=%d attackerUnit=%s attackerUnitId=%d defenderUnit=%s defenderUnitId=%d reason=%s x=%d y=%d cityPlot=%d attackerBaseStr=%d defenderBaseStr=%d attackerDamage=%d defenderDamage=%d attackerCombatLimit=%d attackerWithdrawal=%d attackerCombatOddsPermille=%d attackerXP=%d attackerLevel=%d defenderXP=%d defenderLevel=%d",
+			GC.getGame().getGameTurn(), eAttacker, eDefender, getSASGameRecordUnitType(pAttacker->getUnitType()), pAttacker->getID(),
+			getSASGameRecordUnitType(pDefender->getUnitType()), pDefender->getID(), bCombatLimitReached ? "COMBAT_LIMIT" : "WITHDRAWAL",
+			pBattlePlot->getX(), pBattlePlot->getY(), pBattlePlot->isCity(),
+			pAttacker->baseCombatStr(), pDefender->baseCombatStr(), pAttacker->getDamage(), pDefender->getDamage(), pAttacker->combatLimit(), pAttacker->withdrawalProbability(),
+			bPending ? kPending.iAttackerCombatOddsPermille : -1, pAttacker->getExperience(), pAttacker->getLevel(), pDefender->getExperience(), pDefender->getLevel());
+	}
+}
+
+void logSASGameRecordExperienceChange(CvUnit const* pUnit, int iAdjustedChange, int iActualChange, bool bFromCombat)
+{
+	if (pUnit == NULL)
+		return;
+	PlayerTypes const ePlayer = pUnit->getOwner();
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	int const iGained = std::max(0, iActualChange);
+	int const iLostAdjustment = std::max(0, -iActualChange);
+	int const iPreventedByCap = (iAdjustedChange > 0 ? std::max(0, iAdjustedChange - iGained) : 0);
+	if (iGained <= 0 && iLostAdjustment <= 0 && iPreventedByCap <= 0)
+		return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
+	kFlow.iExperienceGained += iGained;
+	if (bFromCombat) kFlow.iCombatExperienceGained += iGained;
+	else kFlow.iNonCombatExperienceGained += iGained;
+	kFlow.iExperiencePreventedByCap += iPreventedByCap;
+	kFlow.iExperienceLostAdjustments += iLostAdjustment;
+	SASGameRecordMilitaryQualityTotals& kTotal = g_akSASGameRecordMilitaryQualityTotals[ePlayer];
+	kTotal.iExperienceGained += iGained;
+	if (bFromCombat) kTotal.iCombatExperienceGained += iGained;
+	else kTotal.iNonCombatExperienceGained += iGained;
+	kTotal.iExperiencePreventedByCap += iPreventedByCap;
+	kTotal.iExperienceLostAdjustments += iLostAdjustment;
+}
+
+void logSASGameRecordUnitPromoted(CvUnit const* pUnit, PromotionTypes ePromotion)
+{
+	if (pUnit == NULL || ePromotion == NO_PROMOTION)
+		return;
+	PlayerTypes const ePlayer = pUnit->getOwner();
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	bool const bLeaderPromotion = GC.getInfo(ePromotion).isLeader();
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
+	SASGameRecordMilitaryQualityTotals& kTotal = g_akSASGameRecordMilitaryQualityTotals[ePlayer];
+	if (bLeaderPromotion)
+	{
+		kFlow.iLeaderPromotionApplications++;
+		kTotal.iLeaderPromotionApplications++;
+		return; // <!-- custom: GREAT_GENERAL_ATTACHED already provides the exact level-2 action with both source and target units. (ChatGPT-5.6-Sol) -->
+	}
+	kFlow.iPromotionsChosen++;
+	kTotal.iPromotionsChosen++;
+	int const iPromotion = (int)ePromotion;
+	if (iPromotion >= 0 && iPromotion < (int)kFlow.aiPromotionChoices.size())
+		kFlow.aiPromotionChoices[iPromotion]++;
+	if (gGameRecordLogLevel >= 3)
+	{
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_PROMOTED player=%d unitId=%d unit=%s unitAI=%s promotion=%s x=%d y=%d xp=%d level=%d",
+			GC.getGame().getGameTurn(), ePlayer, pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
+			getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), getSASGameRecordPromotionType(ePromotion),
+			pUnit->getX(), pUnit->getY(), pUnit->getExperience(), pUnit->getLevel());
+	}
+}
+
+void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser, CvPlot const* pBattlePlot)
+{
+	if (pWinner == NULL || pLoser == NULL || pBattlePlot == NULL)
+		return;
+	// <!-- custom: Capture Settler-stack exposure before combat-result aggregation; CvEventReporter already supplies the authoritative battle target and level-2 caller gate. (GPT-5.6-Sol) -->
+	logSASGameRecordSettlerCombatIfNeeded(pWinner, pLoser, pBattlePlot);
+	PlayerTypes const eWinner = pWinner->getOwner();
+	PlayerTypes const eLoser = pLoser->getOwner();
+	bool const bCityPlot = pBattlePlot->isCity();
+	bool const bLogExactBattle = (gGameRecordLogLevel >= 3);
+	SASGameRecordCombatPending kPending;
+	bool const bPending = popSASGameRecordCombatPending(pWinner, pLoser, pBattlePlot, kPending);
+	if (bPending && kPending.bLuckEligible && kPending.iAttackerCombatOddsPermille >= 0)
+	{
+		bool const bAttackerWon = (eWinner == kPending.eAttacker && pWinner->getID() == kPending.iAttackerUnitId);
+		recordSASGameRecordBattleLuck(kPending.eAttacker, kPending.iAttackerCombatOddsPermille, bAttackerWon);
+		recordSASGameRecordBattleLuck(kPending.eDefender, 1000 - kPending.iAttackerCombatOddsPermille, !bAttackerWon);
+	}
+	int const iLoserProductionNeeded = (eLoser >= 0 && eLoser < MAX_PLAYERS ? GET_PLAYER(eLoser).getProductionNeeded(pLoser->getUnitType()) : 0);
+	if (eWinner >= 0 && eWinner < MAX_PLAYERS)
+	{
+		g_aiSASGameRecordBattleWins[eWinner]++;
+		g_aiSASGameRecordTotalBattleWins[eWinner]++;
+		SASGameRecordPlayerFlow& kWinnerFlow = g_akSASGameRecordPlayerFlow[eWinner];
+		kWinnerFlow.iCombatWins++;
+		if (eLoser >= 0 && eLoser < MAX_PLAYERS)
+		{
+			kWinnerFlow.iEnemyProductionNeededDestroyed += iLoserProductionNeeded;
+			kWinnerFlow.iEnemyExperienceDestroyed += pLoser->getExperience();
+			g_akSASGameRecordMilitaryQualityTotals[eWinner].iEnemyExperienceDestroyed += pLoser->getExperience();
+		}
+		if (bCityPlot)
+		{
+			g_aiSASGameRecordCityBattleWins[eWinner]++;
+			g_aiSASGameRecordTotalCityBattleWins[eWinner]++;
+			kWinnerFlow.iCityPlotWins++;
+		}
+	}
+	if (eLoser >= 0 && eLoser < MAX_PLAYERS)
+	{
+		g_aiSASGameRecordBattleLosses[eLoser]++;
+		g_aiSASGameRecordTotalBattleLosses[eLoser]++;
+		SASGameRecordPlayerFlow& kLoserFlow = g_akSASGameRecordPlayerFlow[eLoser];
+		kLoserFlow.iCombatLosses++;
+		kLoserFlow.iOwnProductionNeededLost += iLoserProductionNeeded;
+		kLoserFlow.iOwnExperienceLost += pLoser->getExperience();
+		g_akSASGameRecordMilitaryQualityTotals[eLoser].iOwnExperienceLost += pLoser->getExperience();
+		if (bCityPlot)
+		{
+			g_aiSASGameRecordCityBattleLosses[eLoser]++;
+			g_aiSASGameRecordTotalCityBattleLosses[eLoser]++;
+			kLoserFlow.iCityPlotLosses++;
+		}
+	}
+	// <!-- custom: Keep battle aggregates scoped to the active war between the combatants' teams; Barbarian/third-party losses cannot leak into another simultaneous war. (GPT-5.6-Sol) -->
+	if (eWinner >= 0 && eWinner < MAX_PLAYERS && eLoser >= 0 && eLoser < MAX_PLAYERS)
+	{
+		TeamTypes const eWinnerTeam = GET_PLAYER(eWinner).getTeam();
+		TeamTypes const eLoserTeam = GET_PLAYER(eLoser).getTeam();
+		SASGameRecordWarSummary* pWar = findSASGameRecordWar(eWinnerTeam, eLoserTeam);
+		if (pWar != NULL)
+		{
+			if (eWinnerTeam == pWar->eTeamA)
+			{
+				pWar->iUnitsDestroyedByA++;
+				pWar->iProductionDestroyedByA += iLoserProductionNeeded;
+				if (bCityPlot) pWar->iCityPlotWinsA++;
+			}
+			else
+			{
+				pWar->iUnitsDestroyedByB++;
+				pWar->iProductionDestroyedByB += iLoserProductionNeeded;
+				if (bCityPlot) pWar->iCityPlotWinsB++;
+			}
+			refreshSASGameRecordWarSuccess(*pWar);
+		}
+	}
+	// <!-- custom: GREAT_GENERAL_ATTACHED records the attachment transaction; preserve the matching host-unit combat death so an attached Great General can be followed through its final outcome. (GPT-5.6-Sol) -->
+	if (pLoser->getLeaderUnitType() != NO_UNIT)
+	{
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_GENERAL_UNIT_DIED player=%d unitId=%d unit=%s attachedGreatGeneral=%s winnerPlayer=%d winnerUnitId=%d winnerUnit=%s x=%d y=%d",
+			GC.getGame().getGameTurn(), eLoser, pLoser->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), getSASGameRecordUnitType(pLoser->getLeaderUnitType()),
+			eWinner, pWinner->getID(), getSASGameRecordUnitType(pWinner->getUnitType()), pBattlePlot->getX(), pBattlePlot->getY());
+	}
+	logSASGameRecordGreatPersonDied(pLoser, eWinner, "COMBAT", pBattlePlot);
+	if (!bLogExactBattle)
+		return;
+	int const iWinnerOddsPermille = (!bPending || kPending.iAttackerCombatOddsPermille < 0 ? -1 :
+		(eWinner == kPending.eAttacker && pWinner->getID() == kPending.iAttackerUnitId ? kPending.iAttackerCombatOddsPermille : 1000 - kPending.iAttackerCombatOddsPermille));
+	if (eWinner == BARBARIAN_PLAYER || eLoser == BARBARIAN_PLAYER)
+	{
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BARBARIAN_COMBAT winnerPlayer=%d winnerUnitId=%d winnerUnit=%s winnerAI=%s winnerDamage=%d loserPlayer=%d loserUnitId=%d loserUnit=%s loserAI=%s loserDamage=%d x=%d y=%d cityPlot=%d",
+			GC.getGame().getGameTurn(), eWinner, pWinner->getID(), getSASGameRecordUnitType(pWinner->getUnitType()), getSASGameRecordUnitAIType(pWinner->AI_getUnitAIType()), pWinner->getDamage(),
+			eLoser, pLoser->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), getSASGameRecordUnitAIType(pLoser->AI_getUnitAIType()), pLoser->getDamage(), pBattlePlot->getX(), pBattlePlot->getY(), bCityPlot);
+	}
+	logSASGameRecord("GAME_RECORD_BATTLE turn=%d winner=%d loser=%d winnerUnit=%s winnerUnitId=%d loserUnit=%s loserUnitId=%d attacker=%d attackerUnitId=%d attackerCombatOddsPermille=%d winnerCombatOddsPermille=%d x=%d y=%d cityPlot=%d winnerBaseStr=%d loserBaseStr=%d winnerDamage=%d loserDamage=%d winnerXP=%d winnerLevel=%d loserXP=%d loserLevel=%d winnerLeaderUnit=%s loserLeaderUnit=%s",
+		GC.getGame().getGameTurn(), eWinner, eLoser, getSASGameRecordUnitType(pWinner->getUnitType()), pWinner->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), pLoser->getID(),
+		bPending ? kPending.eAttacker : NO_PLAYER, bPending ? kPending.iAttackerUnitId : -1, bPending ? kPending.iAttackerCombatOddsPermille : -1, iWinnerOddsPermille,
+		pBattlePlot->getX(), pBattlePlot->getY(), bCityPlot, pWinner->baseCombatStr(), pLoser->baseCombatStr(), pWinner->getDamage(), pLoser->getDamage(),
+		pWinner->getExperience(), pWinner->getLevel(), pLoser->getExperience(), pLoser->getLevel(), getSASGameRecordUnitType(pWinner->getLeaderUnitType()), getSASGameRecordUnitType(pLoser->getLeaderUnitType()));
 }
 
