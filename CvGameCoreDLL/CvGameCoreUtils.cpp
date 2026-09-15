@@ -8,6 +8,7 @@
 #include "CityPlotIterator.h"
 #include "BBAILog.h" // advc.007
 #include "CvInfo_GameOption.h"
+#include "CvInfo_Building.h" // <!-- custom: Shared factual spaceship-part diagnostics need CvProjectInfo::isSpaceship; this is a compile-time dependency only. (GPT-5.6-Sol) -->
 #include "CvInfo_Tech.h" // <!-- custom: Shared initial-team/deal diagnostics use stable technology type names. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Terrain.h" // <!-- custom: Shared trade serialization resolves CvBonusInfo type names; CvGlobals only forward-declares the info class. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Civics.h" // <!-- custom: Shared trade serialization resolves CvCivicInfo type names; CvGlobals only forward-declares the info class. (ChatGPT-5.6-Sol) -->
@@ -323,6 +324,51 @@ int getSASTeamMaxVictoryStage(TeamTypes eTeam)
 		iMaxVictoryStage = std::max(iMaxVictoryStage, iMemberMaxVictoryStage);
 	}
 	return iMaxVictoryStage;
+}
+
+// <!-- custom: Team-level Space stage is factual victory context for GameRecord and later diagnostics; keep it beside the shared highest-stage helper rather than re-deriving member bitfields at call sites. (GPT-5.6-Sol) -->
+int getSASTeamSpaceVictoryStage(TeamTypes eTeam)
+{
+	int iMaxSpaceStage = 0;
+	for (MemberAIIter it(eTeam); it.hasNext(); ++it)
+		iMaxSpaceStage = std::max(iMaxSpaceStage, getSASSpaceVictoryStageLevel(it->AI_getVictoryStageHash()));
+	return iMaxSpaceStage;
+}
+
+// <!-- custom: Shared factual spaceship completion avoids duplicate project scans in GameRecord/diagnostics without importing any AI victory-denial policy. (GPT-5.6-Sol) -->
+int getSASTeamSpaceshipPartsBuilt(TeamTypes eTeam)
+{
+	int iPartsBuilt = 0;
+	CvTeamAI const& kTeam = GET_TEAM(eTeam);
+	for (int iProject = 0; iProject < GC.getNumProjectInfos(); iProject++)
+	{
+		CvProjectInfo const& kProject = GC.getInfo((ProjectTypes)iProject);
+		if (kProject.isSpaceship())
+			iPartsBuilt += kTeam.getProjectCount((ProjectTypes)iProject);
+	}
+	return iPartsBuilt;
+}
+
+int getSASSpaceshipPartsRequired()
+{
+	static int iPartsRequired = -1;
+	if (iPartsRequired < 0)
+	{
+		iPartsRequired = 0;
+		for (int iProject = 0; iProject < GC.getNumProjectInfos(); iProject++)
+		{
+			CvProjectInfo const& kProject = GC.getInfo((ProjectTypes)iProject);
+			if (kProject.isSpaceship())
+				iPartsRequired += std::max(0, kProject.getMaxTeamInstances());
+		}
+	}
+	return iPartsRequired;
+}
+
+int getSASTeamSpaceshipPartsPercent(TeamTypes eTeam)
+{
+	int const iPartsRequired = getSASSpaceshipPartsRequired();
+	return (iPartsRequired <= 0 ? 0 : getSASTeamSpaceshipPartsBuilt(eTeam) * 100 / iPartsRequired);
 }
 
 char const* getSASTradeItemType(TradeableItems eItem)

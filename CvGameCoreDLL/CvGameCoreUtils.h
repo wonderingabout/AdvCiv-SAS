@@ -165,6 +165,10 @@ int getSASConquestVictoryStageLevel(AIVictoryStage eVictoryStageHash);
 int getSASDominationVictoryStageLevel(AIVictoryStage eVictoryStageHash);
 int getSASDiplomacyVictoryStageLevel(AIVictoryStage eVictoryStageHash);
 int getSASTeamMaxVictoryStage(TeamTypes eTeam); // <!-- custom: Shared team-level wrapper for victory-denial logs and rules that need the highest current victory stage among team members. (GPT-5.5) -->
+int getSASTeamSpaceVictoryStage(TeamTypes eTeam); // <!-- custom: Shared team-level Space victory-stage helper for factual victory diagnostics without repeating member bitfield scans. (GPT-5.6-Sol) -->
+int getSASTeamSpaceshipPartsBuilt(TeamTypes eTeam); // <!-- custom: Shared factual spaceship-parts count for GameRecord/diagnostics; no victory-denial policy is encoded here. (GPT-5.6-Sol) -->
+int getSASSpaceshipPartsRequired();
+int getSASTeamSpaceshipPartsPercent(TeamTypes eTeam);
 char const* getSASTradeItemType(TradeableItems eItem); // <!-- custom: Shared raw enum-token text for TradeableItems because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
 //isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam); // advc: Use CvTeamAI::AI_mayAttack instead
 

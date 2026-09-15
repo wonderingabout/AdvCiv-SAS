@@ -6022,12 +6022,19 @@ void logSASGameRecordWarStarted(TeamTypes eDeclarer, TeamTypes eTarget, WarPlanT
 		return;
 	CvTeam const& kDeclarer = GET_TEAM(eDeclarer);
 	CvTeam const& kTarget = GET_TEAM(eTarget);
+	CvTeamAI const& kTargetAI = GET_TEAM(eTarget);
 	char const* szCause = (bRandomEvent ? "RANDOM_EVENT" : (eSponsor != NO_PLAYER ? "SPONSORED_WAR" : getSASWarDeclarationCause(eCause)));
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=WAR_STARTED declarerTeam=%d targetTeam=%d cause=%s primary=%d newDiplo=%d warPlan=%s sponsorPlayer=%d sponsorTeam=%d randomEvent=%d declarerMaster=%d targetMaster=%d declarerWarsAfter=%d targetWarsAfter=%d",
+	// <!-- custom: Preserve exact target victory progress at declaration time. These are factual shared-helper values only; mature SAS's newer victory-denial policy threshold is deliberately not imported into this telemetry port. (GPT-5.6-Sol) -->
+	int const iTargetMaxVictoryStage = getSASTeamMaxVictoryStage(eTarget);
+	int const iTargetSpaceVictoryStage = getSASTeamSpaceVictoryStage(eTarget);
+	int const iTargetSpaceshipParts = getSASTeamSpaceshipPartsBuilt(eTarget);
+	int const iTargetSpaceshipPartsPercent = getSASTeamSpaceshipPartsPercent(eTarget);
+	int const iTargetVictoryCountdown = kTargetAI.AI_getLowestVictoryCountdown();
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=WAR_STARTED declarerTeam=%d targetTeam=%d cause=%s primary=%d newDiplo=%d warPlan=%s sponsorPlayer=%d sponsorTeam=%d randomEvent=%d declarerMaster=%d targetMaster=%d declarerWarsAfter=%d targetWarsAfter=%d targetMaxVictoryStage=%d targetSpaceVictoryStage=%d targetSpaceshipParts=%d targetSpaceshipPartsPercent=%d targetVictoryCountdown=%d",
 			GC.getGame().getGameTurn(), eDeclarer, eTarget, szCause, bPrimaryDoW, bNewDiplo, getSASWarPlanType(eWarPlan),
 			eSponsor, eSponsor == NO_PLAYER ? NO_TEAM : GET_PLAYER(eSponsor).getTeam(), bRandomEvent,
 			kDeclarer.isAVassal() ? kDeclarer.getMasterTeam() : NO_TEAM, kTarget.isAVassal() ? kTarget.getMasterTeam() : NO_TEAM,
-			kDeclarer.getNumWars(false), kTarget.getNumWars(false));
+			kDeclarer.getNumWars(false), kTarget.getNumWars(false), iTargetMaxVictoryStage, iTargetSpaceVictoryStage, iTargetSpaceshipParts, iTargetSpaceshipPartsPercent, iTargetVictoryCountdown);
 }
 
 void logSASGameRecordWarEnded(TeamTypes eTeam, TeamTypes eOtherTeam, int iTeamAWarSuccess, int iTeamBWarSuccess, bool bCapitulate, TeamTypes eBroker, bool bRandomEvent, bool bReparations)
