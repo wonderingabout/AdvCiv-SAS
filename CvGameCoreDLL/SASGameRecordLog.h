@@ -14,6 +14,17 @@ void startSASGameRecordLogForNewGame();
 void logSASGameRecordNewGameStarted();
 void startSASGameRecordLogForLoadedSave();
 void logSASGameRecordTurn(int iGameTurn);
+struct SASGameRecordPlotState;
+// <!-- custom: Plot changes and permanent team map revelation are buffered into compact coordinate lists and flushed once per turn; detailed before/after rows are reserved for non-routine causes. (GPT-5.6-Sol) -->
+void flushSASGameRecordTurnChanges(int iGameTurn);
+void recordSASGameRecordPlotChange(CvPlot const& kPlot, SASGameRecordPlotState const& kOldState, char const* szCategory, char const* szCause, bool bDetailed);
+// <!-- custom: Directional river edits are rare and independent from ordinary plot-state actions, so record them separately instead of adding unused river fields to every detailed plot-change row. Callers gate this helper before computing logging-only arguments. (GPT-5.6-Sol) -->
+void logSASGameRecordRiverEdgeChanged(CvPlot const& kPlot, bool bOldSouthBoundary, bool bOldEastBoundary);
+void recordSASGameRecordPlotRevealed(CvPlot const& kPlot, TeamTypes eTeam);
+// <!-- custom: Map-visible technologies reveal every plot through thousands of ordinary setRevealed calls. Bracket that bulk operation so the record writes one exact full-map row instead of redundant coordinate chunks. (GPT-5.6-Sol) -->
+void beginSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech);
+void endSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech);
+void logSASGameRecordBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, BonusTypes eNewBonus);
 // <!-- custom: High-level research-plan mutations can tag a shared ResearchTargetChangeCause for the recorder; the later player-turn observer emits it only if an invested incomplete-tech redirection actually materializes. (ChatGPT-5.6-Sol) -->
 void noteSASGameRecordResearchTargetChangeCause(PlayerTypes ePlayer, ResearchTargetChangeCause eCause);
 // <!-- custom: Preserve the exact fresh-research/carried-overflow split only for level-2 ordinary research application; the recorder consumes it if that same call completes the technology. (ChatGPT-5.6-Sol) -->
@@ -122,6 +133,20 @@ struct SASGameRecordGoodyResult
 	std::vector<CvUnit const*> apFreeUnits;
 	std::vector<CvUnit const*> apBarbarianUnits;
 };
+// <!-- custom: Capture a plot before a logical action so one combined record can describe terrain, feature, resource, improvement, route and permanent event-yield changes.
+// The default constructor initializes safe NO_* enum and zero yield values without map lookups, letting caller-gated hooks avoid capture work when game-record logging is disabled. (GPT-5.6-Sol) -->
+struct SASGameRecordPlotState
+{
+	SASGameRecordPlotState();
+	explicit SASGameRecordPlotState(CvPlot const& kPlot);
+	TerrainTypes eTerrain;
+	FeatureTypes eFeature;
+	BonusTypes eBonus;
+	ImprovementTypes eImprovement;
+	RouteTypes eRoute;
+	int aiExtraYield[NUM_YIELD_TYPES];
+};
+
 // <!-- custom: Fog-created Barbarian units bypass ordinary production/completion history; preserve exact realized spawn cause/location at level 3. Goody-hut hostile spawns use the same detailed unit row. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause);
 void logSASGameRecordGoodyReceived(PlayerTypes ePlayer, CvPlot const* pPlot, CvUnit const* pTriggerUnit, GoodyTypes eGoody, SASGameRecordGoodyResult const& kResult);

@@ -4500,7 +4500,12 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 		}
 
 		if (kTech.isMapVisible())
+		{
+			bool const bLogFullMapRevelation = (gGameRecordLogLevel >= 2 && getID() < MAX_CIV_TEAMS && kGame.getElapsedGameTurns() > 0);
+			if (bLogFullMapRevelation) beginSASGameRecordFullMapRevelation(getID(), eTech);
 			GC.getMap().setRevealedPlots(getID(), true, true);
+			if (bLogFullMapRevelation) endSASGameRecordFullMapRevelation(getID(), eTech);
+		}
 
 		FOR_EACH_ENUM(SpecialBuilding)
 		{

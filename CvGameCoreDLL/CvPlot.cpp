@@ -426,7 +426,11 @@ void CvPlot::doImprovement()
 		if (getUpgradeProgress() >= GC.getGame().
 			getImprovementUpgradeTime(getImprovementType()) * 100)
 		{
+			bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+			SASGameRecordPlotState kOldState;
+			if (bLogPlotChange) kOldState = SASGameRecordPlotState(*this);
 			setImprovementType(eImprovementUpgrade);
+			if (bLogPlotChange) recordSASGameRecordPlotChange(*this, kOldState, "improvementUpgrades", "IMPROVEMENT_UPGRADE", true);
 		}
 	}
 }
@@ -3196,7 +3200,11 @@ void CvPlot::removeGoody()
 	// <advc>
 	if (!isGoody())
 		return; // </advc>
+	bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+	SASGameRecordPlotState kOldState;
+	if (bLogPlotChange) kOldState = SASGameRecordPlotState(*this);
 	setImprovementType(NO_IMPROVEMENT);
+	if (bLogPlotChange) recordSASGameRecordPlotChange(*this, kOldState, "goodyHutsRemoved", "GOODY_HUT_REMOVED", true);
 	/*	<advc.001> This works around an issue w/ Debug mode: The EXE does (apparently)
 		not update the layout of plots unrevealed to the active player (AP).
 		So when a rival of the AP enters a goody hut previously revealed to the AP
@@ -3883,6 +3891,9 @@ void CvPlot::setNOfRiver(bool bNewValue, CardinalDirectionTypes eRiverDir)
 {
 	if (isNOfRiver() == bNewValue && eRiverDir == m_eRiverWEDirection)
 		return; // advc
+	bool const bOldSouthBoundary = isNOfRiver();
+	bool const bLogRiverChange = (gGameRecordLogLevel >= 2 && GC.getGame().getElapsedGameTurns() > 0 && bOldSouthBoundary != bNewValue);
+	bool const bOldEastBoundary = (bLogRiverChange ? isWOfRiver() : false);
 
 	if (isNOfRiver() != bNewValue)
 	{
@@ -3910,6 +3921,7 @@ void CvPlot::setNOfRiver(bool bNewValue, CardinalDirectionTypes eRiverDir)
 	m_eRiverWEDirection = eRiverDir;
 
 	updateRiverSymbol(true, true);
+	if (bLogRiverChange) logSASGameRecordRiverEdgeChanged(*this, bOldSouthBoundary, bOldEastBoundary);
 }
 
 
@@ -3923,6 +3935,9 @@ void CvPlot::setWOfRiver(bool bNewValue, CardinalDirectionTypes eRiverDir)
 {
 	if (isWOfRiver() == bNewValue && eRiverDir == m_eRiverNSDirection)
 		return; // advc
+	bool const bOldEastBoundary = isWOfRiver();
+	bool const bLogRiverChange = (gGameRecordLogLevel >= 2 && GC.getGame().getElapsedGameTurns() > 0 && bOldEastBoundary != bNewValue);
+	bool const bOldSouthBoundary = (bLogRiverChange ? isNOfRiver() : false);
 
 	if (isWOfRiver() != bNewValue)
 	{
@@ -3945,6 +3960,7 @@ void CvPlot::setWOfRiver(bool bNewValue, CardinalDirectionTypes eRiverDir)
 	m_eRiverNSDirection = eRiverDir;
 
 	updateRiverSymbol(true, true);
+	if (bLogRiverChange) logSASGameRecordRiverEdgeChanged(*this, bOldSouthBoundary, bOldEastBoundary);
 }
 
 
@@ -4739,7 +4755,8 @@ BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam,
 
 void CvPlot::setBonusType(BonusTypes eNewValue)
 {
-	if(getBonusType() == eNewValue)
+	BonusTypes const eOldBonus = getBonusType();
+	if(eOldBonus == eNewValue)
 		return;
 
 	if (getBonusType() != NO_BONUS)
@@ -4766,6 +4783,8 @@ void CvPlot::setBonusType(BonusTypes eNewValue)
 	updateYield();
 	setLayoutDirty(true);
 	gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true);
+	if (gGameRecordLogLevel >= 2 && GC.getGame().getElapsedGameTurns() > 0)
+		logSASGameRecordBonusChanged(this, eOldBonus, eNewValue);
 }
 
 
@@ -6232,6 +6251,7 @@ void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly,
 	}
 	if (bOldValue != bNewValue) // </advc.124>
 	{
+		if (bNewValue && gGameRecordLogLevel >= 2) recordSASGameRecordPlotRevealed(*this, eTeam);
 		if (eTeam == getActiveTeam())
 		{
 			updateSymbols();
@@ -6394,6 +6414,9 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange,
 
 	m_aiBuildProgress.set(eBuild, 0);
 	CvBuildInfo const& kBuild = GC.getInfo(eBuild);
+	bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+	SASGameRecordPlotState kOldState;
+	if (bLogPlotChange) kOldState = SASGameRecordPlotState(*this);
 
 	if (kBuild.getImprovement() != NO_IMPROVEMENT)
 		setImprovementType(kBuild.getImprovement());
@@ -6422,6 +6445,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange,
 
 		setFeatureType(NO_FEATURE);
 	}
+	if (bLogPlotChange) recordSASGameRecordPlotChange(*this, kOldState, "workerBuilds", "WORKER_BUILD", false);
 
 	return true;
 }
@@ -6941,7 +6965,13 @@ void CvPlot::doFeature()
 			// UNOFFICIAL_PATCH, Gamespeed scaling, 03/04/10, jdog5000
 			int iRoll = 100 * GC.getGame().getSpeedPercent();
 			if (SyncRandNum(iRoll) < iProbability) // UNOFFICIAL_PATCH: END
+			{
+				bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+				SASGameRecordPlotState kOldState;
+				if (bLogPlotChange) kOldState = SASGameRecordPlotState(*this);
 				setFeatureType(NO_FEATURE);
+				if (bLogPlotChange) recordSASGameRecordPlotChange(*this, kOldState, "naturalFeatureChanges", "FEATURE_DISAPPEARANCE", true);
+			}
 		}
 	}
 	else if (!isUnit() && !isImproved())
@@ -6986,7 +7016,11 @@ void CvPlot::doFeature()
 					getX(), getY()) < iProbability) // advc.007: Log coordinates
 				// UNOFFICIAL_PATCH: END
 				{
+					bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+					SASGameRecordPlotState kOldState;
+					if (bLogPlotChange) kOldState = SASGameRecordPlotState(*this);
 					setFeatureType(eLoopFeature);
+					if (bLogPlotChange) recordSASGameRecordPlotChange(*this, kOldState, "naturalFeatureChanges", "FEATURE_GROWTH", true);
 					CvCity* pCity = GC.getMap().findCity(getX(), getY(), getOwner(), NO_TEAM, false);
 					if (pCity != NULL &&
 						/*	advc.106: K-Mod had added an isVisible check,
@@ -8021,6 +8055,9 @@ bool CvPlot::canApplyEvent(EventTypes eEvent) const
 void CvPlot::applyEvent(EventTypes eEvent)
 {
 	CvEventInfo& kEvent = GC.getInfo(eEvent);
+	bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+	SASGameRecordPlotState kOldState;
+	if (bLogPlotChange) kOldState = SASGameRecordPlotState(*this);
 	if (kEvent.getFeatureChange() > 0)
 	{
 		if (NO_FEATURE != kEvent.getFeature())
@@ -8059,6 +8096,7 @@ void CvPlot::applyEvent(EventTypes eEvent)
 		if (iChange != 0)
 			GC.getMap().setPlotExtraYield(*this, eLoopYield, iChange);
 	}
+	if (bLogPlotChange) recordSASGameRecordPlotChange(*this, kOldState, "randomEvents", "RANDOM_EVENT", true);
 }
 
 

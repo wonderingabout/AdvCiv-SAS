@@ -585,6 +585,17 @@ struct SASGameRecordCityBombardPending
 static SASGameRecordCityBombardPending g_kSASGameRecordPendingCityBombard;
 static bool g_bSASGameRecordFlushingCityBombard = false;
 
+struct SASGameRecordPlotChangeGroup
+{
+	CvString szCategory;
+	std::vector<std::pair<int,int> > aCoordinates;
+};
+static int g_iSASGameRecordPendingPlotTurn = -1;
+static std::vector<SASGameRecordPlotChangeGroup> g_aSASGameRecordPlotChanges;
+static std::vector<std::pair<int,int> > g_aaSASGameRecordRevealedPlots[MAX_TEAMS];
+static TeamTypes g_eSASGameRecordFullMapRevelationTeam = NO_TEAM;
+static int g_iSASGameRecordFullMapRevealedBefore = 0;
+
 // <!-- custom: Aggregate each observed team-pair war across battle, conquest and peace boundaries so the record can summarize territorial and military outcomes without changing war logic. (GPT-5.6-Sol) -->
 struct SASGameRecordWarSummary
 {
@@ -5646,6 +5657,213 @@ void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause)
 			pUnit->getX(), pUnit->getY(), pPlot == NULL ? -1 : pPlot->getArea().getID(), pUnit->isCargo(), pUnit->getTransportUnit() == NULL ? -1 : pUnit->getTransportUnit()->getID());
 }
 
+SASGameRecordPlotState::SASGameRecordPlotState() : eTerrain(NO_TERRAIN), eFeature(NO_FEATURE), eBonus(NO_BONUS), eImprovement(NO_IMPROVEMENT), eRoute(NO_ROUTE)
+{
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		aiExtraYield[iI] = 0;
+}
+
+SASGameRecordPlotState::SASGameRecordPlotState(CvPlot const& kPlot) : eTerrain(kPlot.getTerrainType()), eFeature(kPlot.getFeatureType()), eBonus(kPlot.getBonusType()), eImprovement(kPlot.getImprovementType()), eRoute(kPlot.getRouteType())
+{
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		aiExtraYield[iI] = GC.getMap().getPlotExtraYield(kPlot, (YieldTypes)iI);
+}
+
+static bool isSASGameRecordPlotStateChanged(SASGameRecordPlotState const& kOldState, CvPlot const& kPlot)
+{
+	if (kOldState.eTerrain != kPlot.getTerrainType() || kOldState.eFeature != kPlot.getFeatureType() ||
+		kOldState.eBonus != kPlot.getBonusType() || kOldState.eImprovement != kPlot.getImprovementType() ||
+		kOldState.eRoute != kPlot.getRouteType())
+		return true;
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		if (kOldState.aiExtraYield[iI] != GC.getMap().getPlotExtraYield(kPlot, (YieldTypes)iI))
+			return true;
+	}
+	return false;
+}
+
+static void addSASGameRecordCoordinate(std::vector<std::pair<int,int> >& aCoordinates, CvPlot const& kPlot)
+{
+	std::pair<int,int> const kCoordinate(kPlot.getX(), kPlot.getY());
+	if (std::find(aCoordinates.begin(), aCoordinates.end(), kCoordinate) == aCoordinates.end())
+		aCoordinates.push_back(kCoordinate);
+}
+
+static void appendSASGameRecordCoordinateChunks(std::vector<CvString>& aszChunks, CvString& szChunk, char const* szCategory, std::vector<std::pair<int,int> > const& aCoordinates)
+{
+	for (size_t iI = 0; iI < aCoordinates.size(); iI++)
+	{
+		CvString szItem;
+		if (iI == 0)
+			szItem.Format("%s%s=(%d,%d)", szChunk.empty() ? "" : " ", szCategory, aCoordinates[iI].first, aCoordinates[iI].second);
+		else szItem.Format(",(%d,%d)", aCoordinates[iI].first, aCoordinates[iI].second);
+		if (!szChunk.empty() && szChunk.length() + szItem.length() > 1500)
+		{
+			aszChunks.push_back(szChunk);
+			szChunk.clear();
+			szItem.Format("%s=(%d,%d)", szCategory, aCoordinates[iI].first, aCoordinates[iI].second);
+		}
+		szChunk += szItem;
+	}
+}
+
+static int getSASGameRecordRevealedPlotCount(TeamTypes eTeam)
+{
+	int iRevealed = 0;
+	int iLoop = 0;
+	for (CvArea const* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
+		iRevealed += pLoopArea->getNumRevealedTiles(eTeam);
+	return iRevealed;
+}
+
+void beginSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech)
+{
+	FAssert(g_eSASGameRecordFullMapRevelationTeam == NO_TEAM);
+	FAssert(eTeam >= 0 && eTeam < MAX_CIV_TEAMS);
+	FAssert(eTech != NO_TECH);
+	g_eSASGameRecordFullMapRevelationTeam = eTeam;
+	g_iSASGameRecordFullMapRevealedBefore = getSASGameRecordRevealedPlotCount(eTeam);
+}
+
+void endSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech)
+{
+	FAssert(g_eSASGameRecordFullMapRevelationTeam == eTeam);
+	int const iRevealed = getSASGameRecordRevealedPlotCount(eTeam);
+	int const iNewlyRevealed = iRevealed - g_iSASGameRecordFullMapRevealedBefore;
+	int const iRevealedPctX100 = (10000 * iRevealed) / std::max(1, (int)GC.getMap().numPlots());
+	logSASGameRecord("GAME_RECORD_MAP_REVELATION turn=%d team=%d cause=MAP_VISIBLE_TECH tech=%s revealMode=FULL_MAP newlyRevealedCount=%d revealedPlots=%d revealedPctX100=%d",
+		GC.getGame().getGameTurn(), eTeam, getSASGameRecordTechType(eTech), iNewlyRevealed, iRevealed, iRevealedPctX100);
+	g_eSASGameRecordFullMapRevelationTeam = NO_TEAM;
+	g_iSASGameRecordFullMapRevealedBefore = 0;
+}
+
+static void prepareSASGameRecordTurnChanges()
+{
+	int const iGameTurn = GC.getGame().getGameTurn();
+	if (g_iSASGameRecordPendingPlotTurn >= 0 && g_iSASGameRecordPendingPlotTurn != iGameTurn)
+		flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
+	if (g_iSASGameRecordPendingPlotTurn < 0)
+		g_iSASGameRecordPendingPlotTurn = iGameTurn;
+}
+
+static void bufferSASGameRecordPlotChangeCoordinate(CvPlot const& kPlot, char const* szCategory)
+{
+	prepareSASGameRecordTurnChanges();
+	SASGameRecordPlotChangeGroup* pGroup = NULL;
+	for (size_t iI = 0; iI < g_aSASGameRecordPlotChanges.size(); iI++)
+	{
+		if (g_aSASGameRecordPlotChanges[iI].szCategory == szCategory)
+		{
+			pGroup = &g_aSASGameRecordPlotChanges[iI];
+			break;
+		}
+	}
+	if (pGroup == NULL)
+	{
+		SASGameRecordPlotChangeGroup kGroup;
+		kGroup.szCategory = szCategory;
+		g_aSASGameRecordPlotChanges.push_back(kGroup);
+		pGroup = &g_aSASGameRecordPlotChanges.back();
+	}
+	addSASGameRecordCoordinate(pGroup->aCoordinates, kPlot);
+}
+
+void flushSASGameRecordTurnChanges(int iGameTurn)
+{
+	flushSASGameRecordPendingCityBombard();
+	if (g_iSASGameRecordPendingPlotTurn < 0)
+		return;
+	FAssert(iGameTurn == g_iSASGameRecordPendingPlotTurn);
+	std::vector<CvString> aszPlotChunks;
+	CvString szPlotChunk;
+	for (size_t iI = 0; iI < g_aSASGameRecordPlotChanges.size(); iI++)
+		appendSASGameRecordCoordinateChunks(aszPlotChunks, szPlotChunk, g_aSASGameRecordPlotChanges[iI].szCategory.GetCString(), g_aSASGameRecordPlotChanges[iI].aCoordinates);
+	if (!szPlotChunk.empty())
+		aszPlotChunks.push_back(szPlotChunk);
+	for (size_t iI = 0; iI < aszPlotChunks.size(); iI++)
+		logSASGameRecord("GAME_RECORD_PLOT_CHANGES turn=%d part=%d parts=%d changes=%s", iGameTurn, (int)iI + 1, (int)aszPlotChunks.size(), aszPlotChunks[iI].GetCString());
+
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		std::vector<std::pair<int,int> > const& aCoordinates = g_aaSASGameRecordRevealedPlots[iI];
+		if (aCoordinates.empty())
+			continue;
+		std::vector<CvString> aszRevelationChunks;
+		CvString szRevelationChunk;
+		appendSASGameRecordCoordinateChunks(aszRevelationChunks, szRevelationChunk, "newlyRevealed", aCoordinates);
+		if (!szRevelationChunk.empty())
+			aszRevelationChunks.push_back(szRevelationChunk);
+		int const iRevealedPctX100 = (10000 * getSASGameRecordRevealedPlotCount((TeamTypes)iI)) / std::max(1, (int)GC.getMap().numPlots());
+		for (size_t iJ = 0; iJ < aszRevelationChunks.size(); iJ++)
+			logSASGameRecord("GAME_RECORD_MAP_REVELATION turn=%d team=%d cause=INCREMENTAL revealMode=COORDINATES newlyRevealedCount=%d part=%d parts=%d revealedPctX100=%d %s",
+				iGameTurn, iI, (int)aCoordinates.size(), (int)iJ + 1, (int)aszRevelationChunks.size(), iRevealedPctX100, aszRevelationChunks[iJ].GetCString());
+	}
+	g_iSASGameRecordPendingPlotTurn = -1;
+	g_aSASGameRecordPlotChanges.clear();
+	for (int iI = 0; iI < MAX_TEAMS; iI++)
+		g_aaSASGameRecordRevealedPlots[iI].clear();
+}
+
+void recordSASGameRecordPlotChange(CvPlot const& kPlot, SASGameRecordPlotState const& kOldState, char const* szCategory, char const* szCause, bool bDetailed)
+{
+	if (GC.getGame().getElapsedGameTurns() <= 0 || !isSASGameRecordPlotStateChanged(kOldState, kPlot))
+		return;
+	bufferSASGameRecordPlotChangeCoordinate(kPlot, szCategory);
+	if (!bDetailed)
+		return;
+	logSASGameRecord("GAME_RECORD_PLOT_CHANGE turn=%d cause=%s category=%s x=%d y=%d owner=%d terrainOld=%s terrainNew=%s featureOld=%s featureNew=%s bonusOld=%s bonusNew=%s improvementOld=%s improvementNew=%s routeOld=%s routeNew=%s extraFoodOld=%d extraFoodNew=%d extraProductionOld=%d extraProductionNew=%d extraCommerceOld=%d extraCommerceNew=%d",
+		GC.getGame().getGameTurn(), szCause, szCategory, kPlot.getX(), kPlot.getY(), kPlot.getOwner(),
+		getSASGameRecordTerrainType(kOldState.eTerrain), getSASGameRecordTerrainType(kPlot.getTerrainType()),
+		getSASGameRecordFeatureType(kOldState.eFeature), getSASGameRecordFeatureType(kPlot.getFeatureType()),
+		getSASGameRecordBonusType(kOldState.eBonus), getSASGameRecordBonusType(kPlot.getBonusType()),
+		getSASGameRecordImprovementType(kOldState.eImprovement), getSASGameRecordImprovementType(kPlot.getImprovementType()),
+		getSASGameRecordRouteType(kOldState.eRoute), getSASGameRecordRouteType(kPlot.getRouteType()),
+		kOldState.aiExtraYield[YIELD_FOOD], GC.getMap().getPlotExtraYield(kPlot, YIELD_FOOD),
+		kOldState.aiExtraYield[YIELD_PRODUCTION], GC.getMap().getPlotExtraYield(kPlot, YIELD_PRODUCTION),
+		kOldState.aiExtraYield[YIELD_COMMERCE], GC.getMap().getPlotExtraYield(kPlot, YIELD_COMMERCE));
+}
+
+void logSASGameRecordRiverEdgeChanged(CvPlot const& kPlot, bool bOldSouthBoundary, bool bOldEastBoundary)
+{
+	bool const bNewSouthBoundary = kPlot.isNOfRiver();
+	bool const bNewEastBoundary = kPlot.isWOfRiver();
+	if (bOldSouthBoundary == bNewSouthBoundary && bOldEastBoundary == bNewEastBoundary)
+		return;
+	bufferSASGameRecordPlotChangeCoordinate(kPlot, "riverChanges");
+	logSASGameRecord("GAME_RECORD_RIVER_EDGE_CHANGE turn=%d x=%d y=%d owner=%d southBoundaryOld=%d southBoundaryNew=%d eastBoundaryOld=%d eastBoundaryNew=%d",
+		GC.getGame().getGameTurn(), kPlot.getX(), kPlot.getY(), kPlot.getOwner(), bOldSouthBoundary, bNewSouthBoundary, bOldEastBoundary, bNewEastBoundary);
+}
+
+void recordSASGameRecordPlotRevealed(CvPlot const& kPlot, TeamTypes eTeam)
+{
+	if (GC.getGame().getElapsedGameTurns() <= 0 || eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return;
+	if (eTeam == g_eSASGameRecordFullMapRevelationTeam)
+		return;
+	prepareSASGameRecordTurnChanges();
+	g_aaSASGameRecordRevealedPlots[eTeam].push_back(std::make_pair(kPlot.getX(), kPlot.getY()));
+}
+
+void logSASGameRecordBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, BonusTypes eNewBonus)
+{
+	if (pPlot == NULL || eOldBonus == eNewBonus)
+		return;
+	SASGameRecordPlotState kOldState(*pPlot);
+	kOldState.eBonus = eOldBonus;
+	recordSASGameRecordPlotChange(*pPlot, kOldState, "resourceChanges", "RESOURCE_CHANGE", false);
+	char const* szAction = (eOldBonus == NO_BONUS ? "appeared" : (eNewBonus == NO_BONUS ? "disappeared" : "changed"));
+	CvCity const* pWorkingCity = pPlot->getWorkingCity();
+	CvCity const* pPlotCity = pPlot->getPlotCity();
+	logSASGameRecord("GAME_RECORD_BONUS_CHANGE turn=%d elapsed=%d action=%s x=%d y=%d area=%d owner=%d oldBonus=%s newBonus=%s terrain=%s feature=%s improvement=%s route=%s water=%d hills=%d peak=%d riverSide=%d cityRadius=%d workingCity=%S workingCityId=%d plotCity=%S plotCityId=%d",
+		GC.getGame().getGameTurn(), GC.getGame().getElapsedGameTurns(), szAction, pPlot->getX(), pPlot->getY(), pPlot->getArea().getID(), pPlot->getOwner(),
+		getSASGameRecordBonusType(eOldBonus), getSASGameRecordBonusType(eNewBonus), getSASGameRecordTerrainType(pPlot->getTerrainType()),
+		getSASGameRecordFeatureType(pPlot->getFeatureType()), getSASGameRecordImprovementType(pPlot->getImprovementType()),
+		getSASGameRecordRouteType(pPlot->getRouteType()), pPlot->isWater(), pPlot->isHills(), pPlot->isPeak(), pPlot->isRiverSide(), pPlot->isCityRadius(),
+		getSASGameRecordQuotedCityName(pWorkingCity).GetCString(), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()),
+		getSASGameRecordQuotedCityName(pPlotCity).GetCString(), (pPlotCity == NULL ? -1 : pPlotCity->getID()));
+}
+
 SASGameRecordGoodyResult::SASGameRecordGoodyResult() :
 	bFollowupOutcome(false), bUpgradeRoll(false), bUpgradeApplied(false), bAdditionalOutcomeAttempted(false),
 	iGold(0), iNewlyRevealedPlots(0), iExperienceGained(0), iDamageHealed(0), eTech(NO_TECH), iTechRewardValue(0),
@@ -7576,8 +7794,9 @@ void logSASGameRecordTurn(int iGameTurn)
 
 void startSASGameRecordLogForNewGame()
 {
-	// <!-- custom: A previous session can end immediately after a bombard sequence; flush its self-contained pending row before switching log filenames. (ChatGPT-5.6-Sol) -->
-	flushSASGameRecordPendingCityBombard();
+	// <!-- custom: Preserve delayed city-bombard and per-turn map-history rows from the previous session before switching log filenames. (ChatGPT-5.6-Sol) -->
+	if (g_iSASGameRecordPendingPlotTurn >= 0) flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
+	else flushSASGameRecordPendingCityBombard();
 	rollSASGameRecordLog("new");
 	resetSASGameRecordTeamPrevious();
 	resetSASGameRecordPlayerPrevious();
@@ -7615,8 +7834,9 @@ void logSASGameRecordNewGameStarted()
 
 void startSASGameRecordLogForLoadedSave()
 {
-	// <!-- custom: Preserve any final pending bombard row in the previous session before rolling to the loaded-save log. (ChatGPT-5.6-Sol) -->
-	flushSASGameRecordPendingCityBombard();
+	// <!-- custom: Preserve any final pending bombard/map-history rows in the previous session before rolling to the loaded-save log. (ChatGPT-5.6-Sol) -->
+	if (g_iSASGameRecordPendingPlotTurn >= 0) flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
+	else flushSASGameRecordPendingCityBombard();
 	rollSASGameRecordLog("load");
 	resetSASGameRecordTeamPrevious();
 	resetSASGameRecordPlayerPrevious();
