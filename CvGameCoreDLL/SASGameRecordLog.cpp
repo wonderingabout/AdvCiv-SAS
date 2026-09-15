@@ -585,6 +585,163 @@ struct SASGameRecordCityBombardPending
 static SASGameRecordCityBombardPending g_kSASGameRecordPendingCityBombard;
 static bool g_bSASGameRecordFlushingCityBombard = false;
 
+// <!-- custom: Aggregate each observed team-pair war across battle, conquest and peace boundaries so the record can summarize territorial and military outcomes without changing war logic. (GPT-5.6-Sol) -->
+struct SASGameRecordWarSummary
+{
+	TeamTypes eTeamA;
+	TeamTypes eTeamB;
+	TeamTypes eDeclarer;
+	TeamTypes eTarget;
+	WarPlanTypes eInitialWarPlan;
+	CvString szStartCause;
+	bool bStartKnown;
+	bool bPrimary;
+	int iStartTurn;
+	int iObservedStartTurn;
+	int iWarSuccessStartA;
+	int iWarSuccessStartB;
+	int iWarSuccessA;
+	int iWarSuccessB;
+	int iUnitsDestroyedByA;
+	int iUnitsDestroyedByB;
+	int iProductionDestroyedByA;
+	int iProductionDestroyedByB;
+	int iCityPlotWinsA;
+	int iCityPlotWinsB;
+	int iCitiesCapturedByA;
+	int iCitiesCapturedByB;
+	int iPopulationCapturedByA;
+	int iPopulationCapturedByB;
+	int iLastOngoingSummaryTurn;
+
+	SASGameRecordWarSummary() : eTeamA(NO_TEAM), eTeamB(NO_TEAM), eDeclarer(NO_TEAM), eTarget(NO_TEAM), eInitialWarPlan(NO_WARPLAN), bStartKnown(false), bPrimary(false),
+			iStartTurn(-1), iObservedStartTurn(-1), iWarSuccessStartA(0), iWarSuccessStartB(0), iWarSuccessA(0), iWarSuccessB(0),
+			iUnitsDestroyedByA(0), iUnitsDestroyedByB(0), iProductionDestroyedByA(0), iProductionDestroyedByB(0), iCityPlotWinsA(0), iCityPlotWinsB(0),
+			iCitiesCapturedByA(0), iCitiesCapturedByB(0), iPopulationCapturedByA(0), iPopulationCapturedByB(0), iLastOngoingSummaryTurn(-1) {}
+};
+static std::vector<SASGameRecordWarSummary> g_aSASGameRecordWars;
+
+static bool getSASGameRecordWarPair(TeamTypes eFirst, TeamTypes eSecond, TeamTypes& eTeamA, TeamTypes& eTeamB)
+{
+	if (eFirst < 0 || eFirst >= MAX_CIV_TEAMS || eSecond < 0 || eSecond >= MAX_CIV_TEAMS || eFirst == eSecond)
+		return false;
+	eTeamA = (eFirst < eSecond ? eFirst : eSecond);
+	eTeamB = (eFirst < eSecond ? eSecond : eFirst);
+	return true;
+}
+
+static SASGameRecordWarSummary* findSASGameRecordWar(TeamTypes eFirst, TeamTypes eSecond)
+{
+	TeamTypes eTeamA;
+	TeamTypes eTeamB;
+	if (!getSASGameRecordWarPair(eFirst, eSecond, eTeamA, eTeamB))
+		return NULL;
+	for (size_t iI = 0; iI < g_aSASGameRecordWars.size(); iI++)
+	{
+		SASGameRecordWarSummary& kWar = g_aSASGameRecordWars[iI];
+		if (kWar.eTeamA == eTeamA && kWar.eTeamB == eTeamB)
+			return &kWar;
+	}
+	return NULL;
+}
+
+static void refreshSASGameRecordWarSuccess(SASGameRecordWarSummary& kWar)
+{
+	if (kWar.eTeamA < 0 || kWar.eTeamB < 0)
+		return;
+	kWar.iWarSuccessA = GET_TEAM(kWar.eTeamA).AI_getWarSuccess(kWar.eTeamB).round();
+	kWar.iWarSuccessB = GET_TEAM(kWar.eTeamB).AI_getWarSuccess(kWar.eTeamA).round();
+}
+
+static SASGameRecordWarSummary* addSASGameRecordWar(TeamTypes eFirst, TeamTypes eSecond, bool bStartKnown, TeamTypes eDeclarer, TeamTypes eTarget, WarPlanTypes eWarPlan, char const* szStartCause, bool bPrimary)
+{
+	TeamTypes eTeamA;
+	TeamTypes eTeamB;
+	if (!getSASGameRecordWarPair(eFirst, eSecond, eTeamA, eTeamB))
+		return NULL;
+	SASGameRecordWarSummary* pExisting = findSASGameRecordWar(eTeamA, eTeamB);
+	if (pExisting != NULL)
+		return pExisting;
+	g_aSASGameRecordWars.push_back(SASGameRecordWarSummary());
+	SASGameRecordWarSummary& kWar = g_aSASGameRecordWars.back();
+	kWar.eTeamA = eTeamA;
+	kWar.eTeamB = eTeamB;
+	kWar.eDeclarer = eDeclarer;
+	kWar.eTarget = eTarget;
+	kWar.eInitialWarPlan = eWarPlan;
+	kWar.szStartCause = szStartCause;
+	kWar.bStartKnown = bStartKnown;
+	kWar.bPrimary = bPrimary;
+	kWar.iStartTurn = (bStartKnown ? GC.getGame().getGameTurn() : -1);
+	kWar.iObservedStartTurn = GC.getGame().getGameTurn();
+	refreshSASGameRecordWarSuccess(kWar);
+	kWar.iWarSuccessStartA = kWar.iWarSuccessA;
+	kWar.iWarSuccessStartB = kWar.iWarSuccessB;
+	return &kWar;
+}
+
+static void initializeSASGameRecordWarsFromLoadedSave()
+{
+	for (int iA = 0; iA < MAX_CIV_TEAMS; iA++)
+	{
+		TeamTypes const eTeamA = (TeamTypes)iA;
+		if (!GET_TEAM(eTeamA).isAlive())
+			continue;
+		for (int iB = iA + 1; iB < MAX_CIV_TEAMS; iB++)
+		{
+			TeamTypes const eTeamB = (TeamTypes)iB;
+			if (GET_TEAM(eTeamB).isAlive() && GET_TEAM(eTeamA).isAtWar(eTeamB))
+				addSASGameRecordWar(eTeamA, eTeamB, false, NO_TEAM, NO_TEAM, NO_WARPLAN, "PREEXISTING_ON_LOAD", false);
+		}
+	}
+}
+
+static void logSASGameRecordWarSummary(SASGameRecordWarSummary& kWar, char const* szStatus, char const* szTrigger, int iSummaryTurn, int iWarSuccessA, int iWarSuccessB, bool bCapitulate, TeamTypes eBroker, bool bRandomEvent, bool bReparations)
+{
+	kWar.iWarSuccessA = iWarSuccessA;
+	kWar.iWarSuccessB = iWarSuccessB;
+	bool const bEnded = (strcmp(szStatus, "ENDED") == 0);
+	bool const bStateReconciliation = (strcmp(szTrigger, "STATE_RECONCILIATION") == 0);
+	char const* szEndCause = (!bEnded ? "-" : (bStateReconciliation ? "STATE_CHANGE" : (bCapitulate ? "CAPITULATION" : (bRandomEvent ? "RANDOM_EVENT" : (eBroker != NO_TEAM ? "BROKERED_PEACE" : "PEACE")))));
+	int const iElapsedTurns = (kWar.bStartKnown ? iSummaryTurn - kWar.iStartTurn : -1);
+	int const iObservedTurns = iSummaryTurn - kWar.iObservedStartTurn;
+	logSASGameRecord("GAME_RECORD_WAR_SUMMARY turn=%d status=%s trigger=%s teamA=%d teamB=%d startKnown=%d startTurn=%d observedStartTurn=%d endTurn=%d elapsedTurns=%d observedTurns=%d declarerTeam=%d targetTeam=%d startCause=%s initialWarPlan=%s primary=%d endCause=%s brokerTeam=%d reparations=%d warSuccessObservedStartA=%d warSuccessObservedStartB=%d warSuccessEndA=%d warSuccessEndB=%d warSuccessObservedGainA=%+d warSuccessObservedGainB=%+d unitsDestroyedByA=%d unitsDestroyedByB=%d unitProductionCostDestroyedByA=%d unitProductionCostDestroyedByB=%d cityPlotWinsA=%d cityPlotWinsB=%d citiesCapturedByA=%d citiesCapturedByB=%d populationCapturedByA=%d populationCapturedByB=%d",
+			iSummaryTurn, szStatus, szTrigger, kWar.eTeamA, kWar.eTeamB, kWar.bStartKnown, kWar.iStartTurn, kWar.iObservedStartTurn, bEnded ? iSummaryTurn : -1, iElapsedTurns, iObservedTurns,
+			kWar.eDeclarer, kWar.eTarget, kWar.szStartCause.GetCString(), getSASWarPlanType(kWar.eInitialWarPlan), kWar.bPrimary,
+			szEndCause, eBroker, bReparations, kWar.iWarSuccessStartA, kWar.iWarSuccessStartB, kWar.iWarSuccessA, kWar.iWarSuccessB, kWar.iWarSuccessA - kWar.iWarSuccessStartA, kWar.iWarSuccessB - kWar.iWarSuccessStartB,
+			kWar.iUnitsDestroyedByA, kWar.iUnitsDestroyedByB, kWar.iProductionDestroyedByA, kWar.iProductionDestroyedByB, kWar.iCityPlotWinsA, kWar.iCityPlotWinsB, kWar.iCitiesCapturedByA, kWar.iCitiesCapturedByB, kWar.iPopulationCapturedByA, kWar.iPopulationCapturedByB);
+}
+
+static void logSASGameRecordOngoingWarSummaries(char const* szReason)
+{
+	int const iGameTurn = GC.getGame().getGameTurn();
+	for (size_t iI = 0; iI < g_aSASGameRecordWars.size(); iI++)
+	{
+		SASGameRecordWarSummary& kWar = g_aSASGameRecordWars[iI];
+		if (kWar.iLastOngoingSummaryTurn == iGameTurn)
+			continue;
+		refreshSASGameRecordWarSuccess(kWar);
+		logSASGameRecordWarSummary(kWar, "ONGOING", szReason, iGameTurn, kWar.iWarSuccessA, kWar.iWarSuccessB, false, NO_TEAM, false, false);
+		kWar.iLastOngoingSummaryTurn = iGameTurn;
+	}
+}
+
+static void reconcileSASGameRecordWars()
+{
+	for (size_t iI = 0; iI < g_aSASGameRecordWars.size();)
+	{
+		SASGameRecordWarSummary& kWar = g_aSASGameRecordWars[iI];
+		if (GET_TEAM(kWar.eTeamA).isAtWar(kWar.eTeamB))
+		{
+			iI++;
+			continue;
+		}
+		refreshSASGameRecordWarSuccess(kWar);
+		logSASGameRecordWarSummary(kWar, "ENDED", "STATE_RECONCILIATION", GC.getGame().getGameTurn(), kWar.iWarSuccessA, kWar.iWarSuccessB, false, NO_TEAM, false, false);
+		g_aSASGameRecordWars.erase(g_aSASGameRecordWars.begin() + iI);
+	}
+}
+
 static int getSASGameRecordDelta(bool bValid, int iCurrent, int iPrevious)
 {
 	return bValid ? iCurrent - iPrevious : 0;
@@ -4541,6 +4698,7 @@ void logSASGameRecordRunStatus(char const* szReason)
 static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
 {
 	CvGame const& kGame = GC.getGame();
+	if (gGameRecordLogLevel >= 2) reconcileSASGameRecordWars();
 	logSASGameRecord("GAME_RECORD_TURN_BEGIN turn=%d reason=%s elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d",
 			iGameTurn, szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.getNumCities(), kGame.getTotalPopulation());
 	logSASGameRecordRunStatus(szReason);
@@ -5113,7 +5271,27 @@ void logSASGameRecordCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner, 
 		if (bConquest) g_aiSASGameRecordCitiesLostByConquest[eOldOwner]++;
 		if (bTrade) g_aiSASGameRecordCitiesTradedOut[eOldOwner]++;
 	}
-	// <!-- custom: Mature AdvCiv-SAS also attributes conquest population/city counts to its per-war accumulator here. That accumulator remains deferred with battle hooks in this incremental port; keep the authoritative CITY_ACQUIRED action complete without emitting a partial WAR_SUMMARY. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Attribute conquest results to the active team-pair war so the final summary separates territorial results from battle losses and abstract war success. (GPT-5.6-Sol) -->
+	if (bConquest && eOldOwner >= 0 && eOldOwner < MAX_PLAYERS && eNewOwner >= 0 && eNewOwner < MAX_PLAYERS)
+	{
+		TeamTypes const eOldTeam = GET_PLAYER(eOldOwner).getTeam();
+		TeamTypes const eNewTeam = GET_PLAYER(eNewOwner).getTeam();
+		SASGameRecordWarSummary* pWar = findSASGameRecordWar(eOldTeam, eNewTeam);
+		if (pWar != NULL)
+		{
+			if (eNewTeam == pWar->eTeamA)
+			{
+				pWar->iCitiesCapturedByA++;
+				pWar->iPopulationCapturedByA += pCity->getPopulation();
+			}
+			else
+			{
+				pWar->iCitiesCapturedByB++;
+				pWar->iPopulationCapturedByB += pCity->getPopulation();
+			}
+			refreshSASGameRecordWarSuccess(*pWar);
+		}
+	}
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_ACQUIRED oldOwner=%d newOwner=%d cityId=%d city=%S x=%d y=%d pop=%d conquest=%d trade=%d",
 			GC.getGame().getGameTurn(), eOldOwner, eNewOwner, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation(), bConquest, bTrade);
 	logSASGameRecordCityBFC(*pCity, "acquired");
@@ -5284,6 +5462,29 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser, C
 			g_aiSASGameRecordCityBattleLosses[eLoser]++;
 			g_aiSASGameRecordTotalCityBattleLosses[eLoser]++;
 			kLoserFlow.iCityPlotLosses++;
+		}
+	}
+	// <!-- custom: Keep battle aggregates scoped to the active war between the combatants' teams; Barbarian/third-party losses cannot leak into another simultaneous war. (GPT-5.6-Sol) -->
+	if (eWinner >= 0 && eWinner < MAX_PLAYERS && eLoser >= 0 && eLoser < MAX_PLAYERS)
+	{
+		TeamTypes const eWinnerTeam = GET_PLAYER(eWinner).getTeam();
+		TeamTypes const eLoserTeam = GET_PLAYER(eLoser).getTeam();
+		SASGameRecordWarSummary* pWar = findSASGameRecordWar(eWinnerTeam, eLoserTeam);
+		if (pWar != NULL)
+		{
+			if (eWinnerTeam == pWar->eTeamA)
+			{
+				pWar->iUnitsDestroyedByA++;
+				pWar->iProductionDestroyedByA += iLoserProductionNeeded;
+				if (bCityPlot) pWar->iCityPlotWinsA++;
+			}
+			else
+			{
+				pWar->iUnitsDestroyedByB++;
+				pWar->iProductionDestroyedByB += iLoserProductionNeeded;
+				if (bCityPlot) pWar->iCityPlotWinsB++;
+			}
+			refreshSASGameRecordWarSuccess(*pWar);
 		}
 	}
 	// <!-- custom: GREAT_GENERAL_ATTACHED records the attachment transaction; preserve the matching host-unit combat death so an attached Great General can be followed through its final outcome. (GPT-5.6-Sol) -->
@@ -6093,6 +6294,7 @@ void logSASGameRecordWarStarted(TeamTypes eDeclarer, TeamTypes eTarget, WarPlanT
 	CvTeam const& kTarget = GET_TEAM(eTarget);
 	CvTeamAI const& kTargetAI = GET_TEAM(eTarget);
 	char const* szCause = (bRandomEvent ? "RANDOM_EVENT" : (eSponsor != NO_PLAYER ? "SPONSORED_WAR" : getSASWarDeclarationCause(eCause)));
+	addSASGameRecordWar(eDeclarer, eTarget, true, eDeclarer, eTarget, eWarPlan, szCause, bPrimaryDoW);
 	// <!-- custom: Preserve exact target victory progress at declaration time. These are factual shared-helper values only; mature SAS's newer victory-denial policy threshold is deliberately not imported into this telemetry port. (GPT-5.6-Sol) -->
 	int const iTargetMaxVictoryStage = getSASTeamMaxVictoryStage(eTarget);
 	int const iTargetSpaceVictoryStage = getSASTeamSpaceVictoryStage(eTarget);
@@ -6113,6 +6315,22 @@ void logSASGameRecordWarEnded(TeamTypes eTeam, TeamTypes eOtherTeam, int iTeamAW
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=WAR_ENDED teamA=%d teamB=%d teamAWarsAfter=%d teamBWarsAfter=%d capitulation=%d brokerTeam=%d randomEvent=%d reparations=%d teamAWarSuccess=%d teamBWarSuccess=%d",
 			GC.getGame().getGameTurn(), eTeam, eOtherTeam, GET_TEAM(eTeam).getNumWars(false), GET_TEAM(eOtherTeam).getNumWars(false),
 			bCapitulate, eBroker, bRandomEvent, bReparations, iTeamAWarSuccess, iTeamBWarSuccess);
+	SASGameRecordWarSummary* pWar = findSASGameRecordWar(eTeam, eOtherTeam);
+	if (pWar == NULL)
+		pWar = addSASGameRecordWar(eTeam, eOtherTeam, false, NO_TEAM, NO_TEAM, NO_WARPLAN, "UNOBSERVED_START", false);
+	if (pWar == NULL)
+		return;
+	int const iWarSuccessA = (eTeam == pWar->eTeamA ? iTeamAWarSuccess : iTeamBWarSuccess);
+	int const iWarSuccessB = (eTeam == pWar->eTeamA ? iTeamBWarSuccess : iTeamAWarSuccess);
+	logSASGameRecordWarSummary(*pWar, "ENDED", "MAKE_PEACE", GC.getGame().getGameTurn(), iWarSuccessA, iWarSuccessB, bCapitulate, eBroker, bRandomEvent, bReparations);
+	for (size_t iI = 0; iI < g_aSASGameRecordWars.size(); iI++)
+	{
+		if (&g_aSASGameRecordWars[iI] == pWar)
+		{
+			g_aSASGameRecordWars.erase(g_aSASGameRecordWars.begin() + iI);
+			break;
+		}
+	}
 }
 
 void logSASGameRecordWarPlanChanged(TeamTypes eTeam, TeamTypes eTarget, WarPlanTypes eOldWarPlan, WarPlanTypes eNewWarPlan, bool bWar, int iOldStateCounter)
@@ -7243,6 +7461,12 @@ void logSASGameRecordVictory(TeamTypes eWinner, VictoryTypes eVictory)
 		logSASGameRecord("GAME_RECORD_FINAL_SCORE turn=%d player=%d team=%d alive=%d winner=%d score=%d normalizedScore=%d",
 				GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), bWinner, kPlayer.calculateScore(), kPlayer.calculateScore(true, bWinner));
 	}
+	// <!-- custom: Victory is also a natural boundary for wars that remain active at game end. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2)
+	{
+		reconcileSASGameRecordWars();
+		logSASGameRecordOngoingWarSummaries("VICTORY");
+	}
 	// <!-- custom: Victory can occur between configured snapshot intervals. Force one exact final state now; logSASGameRecordTurn suppresses a duplicate if this was already an interval turn. (ChatGPT-5.6-Sol) -->
 	logSASGameRecordSnapshot(GC.getGame().getGameTurn(), "victory");
 }
@@ -7305,6 +7529,12 @@ void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangeP
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s oldTurnsLeft=%d newTurnsLeft=%d activePlayer=%d changePlayerStatus=%d requestId=%d requestedTurns=%d completedTurns=%d elapsedGameTurns=%d startTurn=%d startElapsed=%d startPlayer=%d activePlayerChanges=%d totalActivePlayerChanges=%d endCause=%s",
 			kGame.getGameTurn(), szAction, iOldValue, iNewValue, eActivePlayer, bChangePlayerStatus, g_iSASGameRecordAutoPlayRequestId, g_iSASGameRecordAutoPlayRequestedTurns, iCompletedTurns, iElapsedGameTurns,
 			g_iSASGameRecordAutoPlayStartTurn, g_iSASGameRecordAutoPlayStartElapsedTurn, g_eSASGameRecordAutoPlayStartPlayer, g_iSASGameRecordAutoPlayPlayerChanges, g_iSASGameRecordTotalActivePlayerChanges, szEndCause);
+	// <!-- custom: Autoplay completion is a useful history boundary even while the game and its wars continue. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2 && bEnded)
+	{
+		reconcileSASGameRecordWars();
+		logSASGameRecordOngoingWarSummaries("AUTOPLAY_ENDED");
+	}
 	if (bEnded)
 	{
 		g_iSASGameRecordAutoPlayRequestedTurns = 0;
@@ -7360,6 +7590,7 @@ void startSASGameRecordLogForNewGame()
 	resetSASGameRecordBlockadeState();
 	resetSASGameRecordMilitaryFlowState();
 	resetSASGameRecordCityBombardState();
+	g_aSASGameRecordWars.clear();
 	g_iSASGameRecordLastFullSnapshotTurn = -1;
 	CvString const szLogName = getSASGameRecordLogName();
 	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString());
@@ -7398,6 +7629,8 @@ void startSASGameRecordLogForLoadedSave()
 	resetSASGameRecordBlockadeState();
 	resetSASGameRecordMilitaryFlowState();
 	resetSASGameRecordCityBombardState();
+	g_aSASGameRecordWars.clear();
+	initializeSASGameRecordWarsFromLoadedSave();
 	g_iSASGameRecordLastFullSnapshotTurn = -1;
 	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
 	logSASGameRecordLogSettings();
