@@ -2557,18 +2557,19 @@ void recordSASGameRecordPlotChange(CvPlot const& kPlot, SASGameRecordPlotState c
 	if (GC.getGame().getElapsedGameTurns() <= 0 || !isSASGameRecordPlotStateChanged(kOldState, kPlot))
 		return;
 	bufferSASGameRecordPlotChangeCoordinate(kPlot, szCategory);
-	if (!bDetailed)
-		return;
-	logSASGameRecord("GAME_RECORD_PLOT_CHANGE turn=%d cause=%s category=%s x=%d y=%d owner=%d terrainOld=%s terrainNew=%s featureOld=%s featureNew=%s bonusOld=%s bonusNew=%s improvementOld=%s improvementNew=%s routeOld=%s routeNew=%s extraFoodOld=%d extraFoodNew=%d extraProductionOld=%d extraProductionNew=%d extraCommerceOld=%d extraCommerceNew=%d",
-		GC.getGame().getGameTurn(), szCause, szCategory, kPlot.getX(), kPlot.getY(), kPlot.getOwner(),
-		getSASGameRecordTerrainType(kOldState.eTerrain), getSASGameRecordTerrainType(kPlot.getTerrainType()),
-		getSASGameRecordFeatureType(kOldState.eFeature), getSASGameRecordFeatureType(kPlot.getFeatureType()),
-		getSASGameRecordBonusType(kOldState.eBonus), getSASGameRecordBonusType(kPlot.getBonusType()),
-		getSASGameRecordImprovementType(kOldState.eImprovement), getSASGameRecordImprovementType(kPlot.getImprovementType()),
-		getSASGameRecordRouteType(kOldState.eRoute), getSASGameRecordRouteType(kPlot.getRouteType()),
-		kOldState.aiExtraYield[YIELD_FOOD], GC.getMap().getPlotExtraYield(kPlot, YIELD_FOOD),
-		kOldState.aiExtraYield[YIELD_PRODUCTION], GC.getMap().getPlotExtraYield(kPlot, YIELD_PRODUCTION),
-		kOldState.aiExtraYield[YIELD_COMMERCE], GC.getMap().getPlotExtraYield(kPlot, YIELD_COMMERCE));
+	if (bDetailed)
+	{
+		logSASGameRecord("GAME_RECORD_PLOT_CHANGE turn=%d cause=%s category=%s x=%d y=%d owner=%d terrainOld=%s terrainNew=%s featureOld=%s featureNew=%s bonusOld=%s bonusNew=%s improvementOld=%s improvementNew=%s routeOld=%s routeNew=%s extraFoodOld=%d extraFoodNew=%d extraProductionOld=%d extraProductionNew=%d extraCommerceOld=%d extraCommerceNew=%d",
+				GC.getGame().getGameTurn(), szCause, szCategory, kPlot.getX(), kPlot.getY(), kPlot.getOwner(),
+				getSASGameRecordTerrainType(kOldState.eTerrain), getSASGameRecordTerrainType(kPlot.getTerrainType()),
+				getSASGameRecordFeatureType(kOldState.eFeature), getSASGameRecordFeatureType(kPlot.getFeatureType()),
+				getSASGameRecordBonusType(kOldState.eBonus), getSASGameRecordBonusType(kPlot.getBonusType()),
+				getSASGameRecordImprovementType(kOldState.eImprovement), getSASGameRecordImprovementType(kPlot.getImprovementType()),
+				getSASGameRecordRouteType(kOldState.eRoute), getSASGameRecordRouteType(kPlot.getRouteType()),
+				kOldState.aiExtraYield[YIELD_FOOD], GC.getMap().getPlotExtraYield(kPlot, YIELD_FOOD),
+				kOldState.aiExtraYield[YIELD_PRODUCTION], GC.getMap().getPlotExtraYield(kPlot, YIELD_PRODUCTION),
+				kOldState.aiExtraYield[YIELD_COMMERCE], GC.getMap().getPlotExtraYield(kPlot, YIELD_COMMERCE));
+	}
 }
 
 void logSASGameRecordRiverEdgeChanged(CvPlot const& kPlot, bool bOldSouthBoundary, bool bOldEastBoundary)
@@ -6759,9 +6760,11 @@ void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, boo
 		kFlow.aiUnitTypes[pUnit->getUnitType()]++;
 	}
 	if (gGameRecordLogLevel >= 3)
+	{
 		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_COMPLETED player=%d cityId=%d city=%S unitId=%d unit=%s unitAI=%s source=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
 			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), bConscripted ? "CONSCRIPT" : "PRODUCTION", iProductionNeeded,
 			iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
+	}
 }
 
 // <!-- custom: Added eCause to write the acquisition source supplied by gameplay code instead of inferring it from ambiguous announcement/first-discovery flags. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
@@ -7218,7 +7221,9 @@ void beginSASGameRecordCityRaze(CvCity const* pCity, PlayerTypes ePlayer)
 	kContext.iGameTurn = GC.getGame().getGameTurn();
 	kContext.iCityId = pCity->getID();
 	kContext.szCityName = getSASGameRecordQuotedCityName(pCity);
-	kContext.iX = pCity->getX(); kContext.iY = pCity->getY(); kContext.iArea = pCity->getArea().getID();
+	kContext.iX = pCity->getX();
+	kContext.iY = pCity->getY();
+	kContext.iArea = pCity->getArea().getID();
 	kContext.szRazeMode = (pCity->isAutoRaze() ? "AUTO_RAZE" : (kRazer.isHuman() ? "HUMAN" : "AI"));
 	kContext.iPopulation = pCity->getPopulation();
 	kContext.iHighestPopulation = pCity->getHighestPopulation();
@@ -7237,14 +7242,20 @@ void beginSASGameRecordCityRaze(CvCity const* pCity, PlayerTypes ePlayer)
 	kContext.szHolyReligions = getSASGameRecordCityReligionList(*pCity, true);
 	kContext.szCorporations = getSASGameRecordCityCorporationList(*pCity, false);
 	kContext.szHeadquarters = getSASGameRecordCityCorporationList(*pCity, true);
-	kContext.iPlayerCitiesBefore = kRazer.getNumCities(); kContext.iPlayerLandBefore = kRazer.getTotalLand(); kContext.iPlayerPopulationBefore = kRazer.getTotalPopulation();
-	kContext.iTeamCitiesBefore = GET_TEAM(kContext.eRazerTeam).getNumCities(); kContext.iTeamLandBefore = GET_TEAM(kContext.eRazerTeam).getTotalLand(); kContext.iTeamPopulationBefore = GET_TEAM(kContext.eRazerTeam).getTotalPopulation();
+	kContext.iPlayerCitiesBefore = kRazer.getNumCities();
+	kContext.iPlayerLandBefore = kRazer.getTotalLand();
+	kContext.iPlayerPopulationBefore = kRazer.getTotalPopulation();
+	kContext.iTeamCitiesBefore = GET_TEAM(kContext.eRazerTeam).getNumCities();
+	kContext.iTeamLandBefore = GET_TEAM(kContext.eRazerTeam).getTotalLand();
+	kContext.iTeamPopulationBefore = GET_TEAM(kContext.eRazerTeam).getTotalPopulation();
 	kContext.iWorldPopulationBefore = GC.getGame().getTotalPopulation();
 	kContext.iLandPctX100Before = (10000 * kContext.iTeamLandBefore) / std::max(1, GC.getMap().getLandPlots());
 	kContext.iPopPctX100Before = (10000 * kContext.iTeamPopulationBefore) / std::max(1, GC.getGame().getTotalPopulation());
 	if (kRazer.isHuman() && !kRazer.isHumanDisabled())
 	{
-		kContext.iAIMaxVictoryStage = kContext.iAIConquestStage = kContext.iAIDominationStage = -1;
+		kContext.iAIMaxVictoryStage = -1;
+		kContext.iAIConquestStage = -1;
+		kContext.iAIDominationStage = -1;
 	}
 	else
 	{
@@ -8320,13 +8331,17 @@ void logSASGameRecordProductionFailed(CvCity const* pCity, int iOrderData, bool 
 
 void logSASGameRecordProductionDecay(CvCity const* pCity, OrderTypes eOrder, int iData1, int iBefore, int iAfter, int iInactiveTurns)
 {
-	if (pCity == NULL || iAfter >= iBefore) return;
+	if (pCity == NULL || iAfter >= iBefore)
+		return;
 	int const iLost = iBefore - iAfter;
 	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
 	kFlow.iProductionDecayActions++;
 	kFlow.iProductionDecayLost += iLost;
 	if (gGameRecordLogLevel >= 3)
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_DECAY player=%d cityId=%d city=%S productionKind=%s production=%s storedBefore=%d storedAfter=%d lost=%d accumulatedInactiveTurns=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProductionKind(eOrder, iData1), getSASGameRecordProductionType(eOrder, iData1), iBefore, iAfter, iLost, iInactiveTurns);
+	{
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_DECAY player=%d cityId=%d city=%S productionKind=%s production=%s storedBefore=%d storedAfter=%d lost=%d accumulatedInactiveTurns=%d",
+			GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProductionKind(eOrder, iData1), getSASGameRecordProductionType(eOrder, iData1), iBefore, iAfter, iLost, iInactiveTurns);
+	}
 }
 
 void logSASGameRecordProductionInvalidated(CvCity const* pCity, OrderTypes eOrder, int iData1, int iStoredLost, bool bActiveTarget, bool bQueued)
@@ -8345,17 +8360,24 @@ void logSASGameRecordProductionInvalidated(CvCity const* pCity, OrderTypes eOrde
 
 void logSASGameRecordProductionUpgraded(CvCity const* pCity, UnitTypes eOldUnit, UnitTypes eNewUnit, int iProductionTransferred, int iDestinationProductionBefore)
 {
-	if (pCity == NULL || (iProductionTransferred <= 0 && iDestinationProductionBefore <= 0)) return;
+	if (pCity == NULL || (iProductionTransferred <= 0 && iDestinationProductionBefore <= 0))
+		return;
 	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
 	if (iProductionTransferred > 0)
 	{
 		kFlow.iProductionUpgradeTransfers++;
 		kFlow.iProductionUpgradeTransferred += iProductionTransferred;
 	}
-	if (iDestinationProductionBefore > 0) kFlow.iProductionUpgradeOverwriteActions++;
+	// <!-- custom: CvCity::upgradeProduction assigns rather than adds at the destination.
+	// Any pre-existing destination production is therefore overwritten; preserve that separately as a possible mechanical loss instead of misclassifying it as target churn. (ChatGPT-5.6-Sol) -->
+	if (iDestinationProductionBefore > 0)
+		kFlow.iProductionUpgradeOverwriteActions++;
 	kFlow.iProductionUpgradeOverwritten += std::max(0, iDestinationProductionBefore);
 	if (gGameRecordLogLevel >= 3 || iDestinationProductionBefore > 0)
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_UPGRADED player=%d cityId=%d city=%S oldUnit=%s newUnit=%s productionTransferred=%d newProductionBefore=%d newProductionAfter=%d overwrittenDestinationProduction=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordUnitType(eOldUnit), getSASGameRecordUnitType(eNewUnit), iProductionTransferred, iDestinationProductionBefore, iProductionTransferred, std::max(0, iDestinationProductionBefore));
+	{
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_UPGRADED player=%d cityId=%d city=%S oldUnit=%s newUnit=%s productionTransferred=%d newProductionBefore=%d newProductionAfter=%d overwrittenDestinationProduction=%d",
+			GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordUnitType(eOldUnit), getSASGameRecordUnitType(eNewUnit), iProductionTransferred, iDestinationProductionBefore, iProductionTransferred, std::max(0, iDestinationProductionBefore));
+	}
 }
 
 void logSASGameRecordVictoryLaunched(PlayerTypes ePlayer, VictoryTypes eVictory)
