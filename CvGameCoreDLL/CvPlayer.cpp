@@ -27,6 +27,13 @@
 namespace
 {
 
+	// <!-- custom: Record the rare state where a non-Barbarian city reaches its control-path-aware turn boundary with no production target despite having had the appropriate human/AI chooser opportunity. Manual human cities are sampled before city turn processing so a just-completed item awaiting player input is not misclassified; AI-controlled and automated cities are sampled afterward. This helper performs no gameplay work or RNG. (ChatGPT-5.6-Sol) -->
+	void logSASProductionNoTargetBoundary(CvCity const& kCity, char const* szPhase)
+	{
+		if (kCity.isProduction() || kCity.isDisorder() || gGameRecordLogLevel < 2)
+			return;
+		logSASGameRecordCityProductionNoTarget(kCity, szPhase);
+	}
 
 	CvString getSASGameRecordDiploCityText(PlayerTypes ePlayer, int iCityId)
 	{
@@ -2925,8 +2932,18 @@ void CvPlayer::doTurn()
 	doResearch();
 	doEspionagePoints();
 
+	// <!-- custom: Sample manual human cities before end-turn production processing, after the player had the opportunity to choose; sampling afterward could misclassify a normal completed item whose next-production popup awaits input. AI-controlled and production-automated cities are sampled afterward so their chooser and emergency logic get their opportunity first. (ChatGPT-5.6-Sol) -->
+	bool const bLogProductionNoTargetBoundary = (!isBarbarian() && gGameRecordLogLevel >= 2);
+	bool const bLogManualHumanProduction = (bLogProductionNoTargetBoundary && isHuman() && !isHumanDisabled());
 	FOR_EACH_CITY_VAR(pLoopCity, *this)
+	{
+		bool const bManualHumanProduction = (bLogManualHumanProduction && !pLoopCity->isProductionAutomated());
+		if (bManualHumanProduction)
+			logSASProductionNoTargetBoundary(*pLoopCity, "PLAYER_TURN_INPUT_END");
 		pLoopCity->doTurn();
+		if (bLogProductionNoTargetBoundary && !bManualHumanProduction)
+			logSASProductionNoTargetBoundary(*pLoopCity, "CITY_TURN_END");
+	}
 
 	if (getGoldenAgeTurns() > 0)
 		changeGoldenAgeTurns(-1);

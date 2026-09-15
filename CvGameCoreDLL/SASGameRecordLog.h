@@ -77,6 +77,8 @@ void logSASGameRecordProductionFailed(CvCity const* pCity, int iOrderData, bool 
 void logSASGameRecordProductionDecay(CvCity const* pCity, OrderTypes eOrder, int iData1, int iBefore, int iAfter, int iInactiveTurns);
 void logSASGameRecordProductionInvalidated(CvCity const* pCity, OrderTypes eOrder, int iData1, int iStoredLost, bool bActiveTarget, bool bQueued);
 void logSASGameRecordProductionUpgraded(CvCity const* pCity, UnitTypes eOldUnit, UnitTypes eNewUnit, int iProductionTransferred, int iDestinationProductionBefore);
+// <!-- custom: Level-2 production-boundary diagnostic records the rare realized state where an eligible non-disorder city has no production target after the relevant chooser/input opportunity. Caller pre-gates civilization/player context. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordCityProductionNoTarget(CvCity const& kCity, char const* szPhase);
 // <!-- custom: Compact military-quality flow records XP generation/caps, promotion choices and unit lifecycle changes at level 2+, with exact common actions retained at level 3 where useful. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordExperienceChange(CvUnit const* pUnit, int iAdjustedChange, int iActualChange, bool bFromCombat);
 void logSASGameRecordUnitPromoted(CvUnit const* pUnit, PromotionTypes ePromotion);

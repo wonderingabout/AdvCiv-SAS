@@ -4732,6 +4732,17 @@ void logSASGameRecordProductionUpgraded(CvCity const* pCity, UnitTypes eOldUnit,
 		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_UPGRADED player=%d cityId=%d city=%S oldUnit=%s newUnit=%s productionTransferred=%d newProductionBefore=%d newProductionAfter=%d overwrittenDestinationProduction=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordUnitType(eOldUnit), getSASGameRecordUnitType(eNewUnit), iProductionTransferred, iDestinationProductionBefore, iProductionTransferred, std::max(0, iDestinationProductionBefore));
 }
 
+// <!-- custom: Compact all-city production-boundary outcome. Manual human cities are sampled before end-turn city processing; AI-controlled and automated cities are sampled after their chooser opportunity. The caller prevalidates log level, non-Barbarian ownership, no production target and non-disorder state. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordCityProductionNoTarget(CvCity const& kCity, char const* szPhase)
+{
+	PlayerTypes const ePlayer = kCity.getOwner();
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_PRODUCTION_NO_TARGET player=%d cityId=%d city=%S phase=%s human=%d humanDisabled=%d productionAutomated=%d chooseProductionDirty=%d gameState=%d population=%d rawProduction=%d overflowProduction=%d anarchyTurns=%d occupation=%d occupationTimer=%d",
+		GC.getGame().getGameTurn(), ePlayer, kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), szPhase,
+		kPlayer.isHuman(), kPlayer.isHumanDisabled(), kCity.isProductionAutomated(), kCity.isChooseProductionDirty(), (int)GC.getGame().getGameState(), kCity.getPopulation(),
+		kCity.getCurrentProductionDifference(false, false, true), kCity.getOverflowProduction(), kPlayer.getAnarchyTurns(), kCity.isOccupation(), kCity.getOccupationTimer());
+}
+
 // <!-- custom: Level-3 tactical outcomes preserve exact city-defense reduction, air-strike damage, interception combat and air-bombed plot targets without repeating gameplay calculations or guessing interrupted mission provenance. (GPT-5.6 + ChatGPT-5.6-Sol) -->
 void logSASGameRecordCityBombard(CvUnit const* pUnit, CvCity const* pCity, char const* szMode, int iBombardRate, bool bIgnoreBuildingDefense, int iDefenseModifierBefore, int iDefenseDamageBefore)
 {
