@@ -4,6 +4,7 @@
 #include "CvGameAI.h"
 #include "CvSelectionGroupAI.h"
 #include "CvUnitAI.h" // (for CvUnitAI -> CvUnit up-casts)
+#include "SASGameRecordLog.h" // <!-- custom: Record only authoritative EXE trade-submission/counterproposal boundaries; speculative AI valuation remains unlogged. (ChatGPT-5.6-Sol) -->
 
 /*  advc.003u: New file for dummy/ adapter implementations of AI_... functions
 	that shouldn't have been made virtual, but need to be preserved for the EXE.
@@ -101,12 +102,26 @@ int CvPlayer::AI_dealValExternal(PlayerTypes ePlayer, CLinkList<TradeData>* pLis
 }
 // Called from the EXE ("would you accept this deal?")
 bool CvPlayer::AI_considerOfferExternal(PlayerTypes ePlayer, CLinkList<TradeData>* pTheirList, CLinkList<TradeData>* pOurList, int iChange) {
-	return AI().AI_considerOffer(ePlayer, *pTheirList, *pOurList, iChange); // advc: The list params are now references
+	bool const bLogSASGameRecord = (gGameRecordLogLevel >= 2);
+	SASGameRecordDiploRelationState kSASBefore;
+	if (bLogSASGameRecord) captureSASGameRecordDiploRelationState(getID(), ePlayer, kSASBefore);
+	bool const bAccepted = AI().AI_considerOffer(ePlayer, *pTheirList, *pOurList, iChange); // advc: The list params are now references
+	// <!-- custom: This external wrapper is the real submitted offer boundary. Keep relation capture and exact trade-list serialization behind the SASGameRecord level gate; internal speculative AI_considerOffer calls are untouched. (ChatGPT-5.6-Sol) -->
+	if (bLogSASGameRecord)
+	{
+		SASGameRecordDiploRelationState kSASAfter;
+		captureSASGameRecordDiploRelationState(getID(), ePlayer, kSASAfter);
+		logSASGameRecordDiploOfferEvaluated(ePlayer, getID(), *pTheirList, *pOurList, iChange, bAccepted, kSASBefore, kSASAfter);
+	}
+	return bAccepted;
 }
 // Called from the EXE ("what would make this deal work?")
 bool CvPlayer::AI_counterProposeExternal(PlayerTypes ePlayer, CLinkList<TradeData>* pTheirList, CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirInventory, CLinkList<TradeData>* pOurInventory, CLinkList<TradeData>* pTheirCounter, CLinkList<TradeData>* pOurCounter) {
 	pTheirCounter->clear(); pOurCounter->clear(); // Moved out of the DLL-internal function
-	return AI().AI_counterPropose(ePlayer, *pTheirList, *pOurList, *pTheirInventory, *pOurInventory, *pTheirCounter, *pOurCounter);
+	bool const bProposed = AI().AI_counterPropose(ePlayer, *pTheirList, *pOurList, *pTheirInventory, *pOurInventory, *pTheirCounter, *pOurCounter);
+	// <!-- custom: Counterproposal generation can be internally complex, but this EXE wrapper exposes the one resolved package shown to the human. Avoid logging any candidate-loop valuation work. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordDiploCounterProposal(ePlayer, getID(), *pTheirList, *pOurList, *pTheirCounter, *pOurCounter, bProposed);
+	return bProposed;
 }
 int CvPlayer::AI_bonusValExternal(BonusTypes eBonus, int iChange) { reportCall;
 	return AI().AI_bonusVal(eBonus, iChange);

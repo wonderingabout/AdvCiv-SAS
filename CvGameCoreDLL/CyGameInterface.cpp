@@ -84,6 +84,8 @@ void CyGamePythonInterface()
 		.def("getTurnYear", &CyGame::getTurnYear, "int (iGameTurn) - turn Time")
 		.def("getGameTurnYear", &CyGame::getGameTurnYear)
 		.def("getElapsedGameTurns", &CyGame::getElapsedGameTurns, "int () - Elapsed turns thus far")
+		// <!-- custom: Internal BUG diplomacy bridge; captures only resolved AI->human ordinary offers rejected at the UI boundary. (ChatGPT-5.6-Sol) -->
+		.def("logSASGameRecordRejectedAIOffer", &CyGame::logSASGameRecordRejectedAIOffer)
 		.def("getMaxTurns", &CyGame::getMaxTurns)
 		.def("setMaxTurns", &CyGame::setMaxTurns)
 		.def("changeMaxTurns", &CyGame::changeMaxTurns)

@@ -34,6 +34,16 @@ MAX_TRADE_DATA = 50  # avoid an infinite loop
 gc = CyGlobalContext()
 diplo = CyDiplomacy()
 
+# <!-- custom: Lazy-cache the SASGameRecord level because BUG diplomacy can be imported during Python startup before XML GlobalDefines are safely loaded; an eager module-level getDefineINT can cache an incorrect startup value.
+# Resolve only on first use and then reuse the integer so level 0/1 users avoid repeated Python->DLL define lookups as well as all rejected-offer bridge work. (ChatGPT-5.6-Sol) -->
+_SAS_GAME_RECORD_LOG_LEVEL = None
+
+def _getSASGameRecordLogLevel():
+	global _SAS_GAME_RECORD_LOG_LEVEL
+	if _SAS_GAME_RECORD_LOG_LEVEL is None:
+		_SAS_GAME_RECORD_LOG_LEVEL = gc.getDefineINT("SAS_GAME_RECORD_LOG_LEVEL")
+	return _SAS_GAME_RECORD_LOG_LEVEL
+
 # comment-type -> ( event-type , trade-type )
 g_eventsByCommentType = {}
 g_eventManager = None
@@ -477,6 +487,14 @@ def onEmbargoRejected(argsList):
 			PlayerUtil.getPlayer(eDemandPlayer).getName(), 
 			PlayerUtil.getPlayer(eVictim).getName())
 
+
+def _getSASGameRecordRawTradeItems(trades):
+	# <!-- custom: Flatten only the raw TradeData identity needed by the DLL bridge; do not reuse localized BUG formatting as machine-readable SASGameRecord data. (ChatGPT-5.6-Sol) -->
+	items = []
+	for trade in trades:
+		items.append(int(trade.ItemType))
+		items.append(trade.iData)
+	return items
 
 ## Proposed Trade Functions
 
