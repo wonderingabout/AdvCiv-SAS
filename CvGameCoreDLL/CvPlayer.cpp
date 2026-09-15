@@ -17050,14 +17050,30 @@ void CvPlayer::doEvents()
 	if (isBarbarian() || isMinorCiv())
 		return;
 
+	bool const bLogRandomEventExpiry = (gGameRecordLogLevel >= 2);
 	{ // advc: scope for iterator
 		CvEventMap::iterator it = m_mapEventsOccured.begin();
 		while (it != m_mapEventsOccured.end())
 		{
-			if (checkExpireEvent(it->first, it->second))
+			char const* szExpireReason = NULL;
+			if (checkExpireEvent(it->first, it->second, bLogRandomEventExpiry ? &szExpireReason : NULL))
 			{
-				expireEvent(it->first, it->second, true);
-				it = m_mapEventsOccured.erase(it);
+				if (bLogRandomEventExpiry)
+				{
+					// <!-- custom: Keep a logging-only copy so the expiry row is emitted after the durable occurrence has actually been erased, without changing expireEvent/checkExpireEvent semantics. (ChatGPT-5.6-Sol) -->
+					EventTypes const eExpiredEvent = it->first;
+					EventTriggeredData const kExpiredData = it->second;
+					expireEvent(eExpiredEvent, it->second, true);
+					it = m_mapEventsOccured.erase(it);
+					// <!-- custom: Routine non-quest occurrences age out as housekeeping; keep those low-information timeouts silent while narrating quests and exceptional expiry causes. (ChatGPT-5.6-Sol) -->
+					if (szExpireReason == NULL || strcmp(szExpireReason, "NON_QUEST_TIMEOUT") != 0)
+						logSASGameRecordRandomEventExpired(*this, eExpiredEvent, kExpiredData, szExpireReason == NULL ? "UNKNOWN" : szExpireReason);
+				}
+				else
+				{
+					expireEvent(it->first, it->second, true);
+					it = m_mapEventsOccured.erase(it);
+				}
 			}
 			else
 			{
@@ -17217,16 +17233,25 @@ void CvPlayer::expireEvent(EventTypes eEvent,
 	}
 }
 
+// <!-- custom: Add an optional diagnostics-only reason output while preserving the original Boolean result and branch order. Ordinary gameplay callers use the NULL default. (ChatGPT-5.6-Sol) -->
 bool CvPlayer::checkExpireEvent(EventTypes eEvent,
-	EventTriggeredData const& kTriggeredData) const
+	EventTriggeredData const& kTriggeredData, char const** ppszReason) const
 {
+	if (ppszReason != NULL) *ppszReason = "NOT_EXPIRED";
 	if (GC.getPythonCaller()->checkExpireEvent(eEvent, kTriggeredData))
+	{
+		if (ppszReason != NULL) *ppszReason = "PYTHON_EXPIRE_CHECK";
 		return true;
+	}
 
 	CvEventInfo& kEvent = GC.getInfo(eEvent);
 
 	if (!kEvent.isQuest())
-		return (GC.getGame().getGameTurn() - kTriggeredData.m_iTurn > 2);
+	{
+		bool const bExpired = (GC.getGame().getGameTurn() - kTriggeredData.m_iTurn > 2);
+		if (bExpired && ppszReason != NULL) *ppszReason = "NON_QUEST_TIMEOUT";
+		return bExpired;
+	}
 
 	CvEventTriggerInfo& kTrigger = GC.getInfo(kTriggeredData.m_eTrigger);
 	FAssert(kTriggeredData.m_ePlayer != NO_PLAYER);
@@ -17235,31 +17260,41 @@ bool CvPlayer::checkExpireEvent(EventTypes eEvent,
 	if (kTrigger.isStateReligion() & kTrigger.isPickReligion() &&
 		kPlayer.getStateReligion() != kTriggeredData.m_eReligion)
 	{
+		if (ppszReason != NULL) *ppszReason = "STATE_RELIGION_CHANGED";
 		return true;
 	}
 	if (kTrigger.getCivic() != NO_CIVIC &&
 		!kPlayer.isCivic((CivicTypes)kTrigger.getCivic()))
 	{
+		if (ppszReason != NULL) *ppszReason = "CIVIC_CHANGED";
 		return true;
 	}
 	if (kTriggeredData.m_iCityId != -1 &&
 			kPlayer.getCity(kTriggeredData.m_iCityId) == NULL)
+	{
+		if (ppszReason != NULL) *ppszReason = "CITY_MISSING";
 		return true;
+	}
 
 	if (kTriggeredData.m_iUnitId != -1 &&
-		kPlayer.getUnit(kTriggeredData.m_iUnitId) == NULL)
+			kPlayer.getUnit(kTriggeredData.m_iUnitId) == NULL)
 	{
+		if (ppszReason != NULL) *ppszReason = "UNIT_MISSING";
 		return true;
 	}
 	if (kTriggeredData.m_eOtherPlayer != NO_PLAYER)
 	{
 		if (!GET_PLAYER(kTriggeredData.m_eOtherPlayer).isAlive())
+		{
+			if (ppszReason != NULL) *ppszReason = "OTHER_PLAYER_DEAD";
 			return true;
+		}
 
 		if (kTriggeredData.m_iOtherPlayerCityId != -1 &&
 			GET_PLAYER(kTriggeredData.m_eOtherPlayer).
 			getCity(kTriggeredData.m_iOtherPlayerCityId) == NULL)
 		{
+			if (ppszReason != NULL) *ppszReason = "OTHER_CITY_MISSING";
 			return true;
 		}
 	}
@@ -17269,13 +17304,15 @@ bool CvPlayer::checkExpireEvent(EventTypes eEvent,
 		for (int i = 0; i < kTrigger.getNumObsoleteTechs(); i++)
 		{
 			if (GET_TEAM(getTeam()).isHasTech((TechTypes)kTrigger.getObsoleteTech(i)))
+			{
+				if (ppszReason != NULL) *ppszReason = "OBSOLETE_TECH";
 				return true;
+			}
 		}
 	}
 
 	return false;
 }
-
 
 void CvPlayer::trigger(EventTriggerTypes eTrigger)
 {

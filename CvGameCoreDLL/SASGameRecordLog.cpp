@@ -5987,6 +5987,18 @@ void logSASGameRecordRandomEventOccurrenceCleared(CvPlayer const& kPlayer, Event
 			iClearChance, szScope, eScopeTeam, iScopePlayerSlots, iScopeEverAlivePlayers, iClearedOccurrences);
 }
 
+// <!-- custom: checkExpireEvent can end a previously applied quest/event turns after its original trigger. Record the exact existing branch that caused meaningful expiry plus stored-target validity; routine NON_QUEST_TIMEOUT housekeeping is intentionally suppressed by the caller. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordRandomEventExpired(CvPlayer const& kPlayer, EventTypes eEvent, EventTriggeredData const& kTriggeredData, char const* szReason)
+{
+	CvEventInfo const& kEvent = GC.getInfo(eEvent);
+	CvEventTriggerInfo const& kTrigger = GC.getInfo(kTriggeredData.m_eTrigger);
+	SASGameRecordRandomEventTargets const kTargets(kPlayer, &kTriggeredData, eEvent);
+	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_EXPIRED turn=%d player=%d team=%d triggeredId=%d trigger=%s event=%s reason=%s quest=%d triggerTurn=%d ageTurns=%d prereqEvents=%s prereqEventCity=%d cityId=%d cityExists=%d otherPlayer=%d otherPlayerAlive=%d otherCityId=%d otherCityExists=%d unitId=%d unitExists=%d unit=%s unitCanApply=%d plot=%d,%d plotExists=%d plotOwner=%d religion=%s corporation=%s building=%s buildingPresentInCity=%d",
+			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), kTriggeredData.m_iId, getSASGameRecordEventTriggerType(kTriggeredData.m_eTrigger), getSASGameRecordEventType(eEvent), szReason, kEvent.isQuest(), kTriggeredData.m_iTurn, GC.getGame().getGameTurn() - kTriggeredData.m_iTurn,
+			getSASGameRecordRandomEventTriggerPrereqs(kTrigger).GetCString(), kTrigger.isPrereqEventCity(), kTargets.iCityId, kTargets.iCityExists, kTargets.eOtherPlayer, kTargets.iOtherPlayerAlive, kTargets.iOtherCityId, kTargets.iOtherCityExists,
+			kTargets.iUnitId, kTargets.iUnitExists, kTargets.szUnit, kTargets.iUnitCanApply, kTargets.iPlotX, kTargets.iPlotY, kTargets.iPlotExists, kTargets.iPlotOwner, getSASGameRecordReligionType(kTargets.eReligion), getSASGameRecordCorporationType(kTargets.eCorporation), getSASGameRecordBuildingType(kTargets.eBuilding), kTargets.iBuildingPresentInCity);
+}
+
 // <!-- custom: Delayed AdditionalEvent outcomes are actual scheduled lifecycle state, unlike speculative candidate/chance evaluation.
 // Record the due turn only after the existing chance roll and earliest-countdown merge have resolved. (ChatGPT-5.6-Sol) -->
 // <!-- custom: Record the realized random-event pillage transaction after the existing city/empire destruction loop.

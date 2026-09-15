@@ -1730,7 +1730,8 @@ protected:  // <advc.210>
 			bool bCheckPoints = true) const; // advc.085
 	// advc.120f:
 	void announceEspionageToThirdParties(EspionageMissionTypes eMission, PlayerTypes eTarget);
-	bool checkExpireEvent(EventTypes eEvent, const EventTriggeredData& kTriggeredData) const;
+	// <!-- custom: Optional diagnostics-only reason preserves existing expiry semantics/order while letting SASGameRecord narrate the exact lifecycle cause. (ChatGPT-5.6-Sol) -->
+	bool checkExpireEvent(EventTypes eEvent, const EventTriggeredData& kTriggeredData, char const** ppszReason = NULL) const;
 	void expireEvent(EventTypes eEvent, const EventTriggeredData& kTriggeredData, bool bFail);
 	bool isValidTriggerReligion(const CvEventTriggerInfo& kTrigger, CvCity const* pCity,
 			ReligionTypes eReligion) const;
