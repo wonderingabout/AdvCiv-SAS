@@ -100,6 +100,10 @@ CvWString getSASCompactSourceVersion(char const* szVersion, char const* szCommit
 CvWString getSASRuntimeDisplayNameAndVersion();
 // <!-- custom: Serialize exact loaded-DLL build/binary provenance shared by diagnostic log headers. (ChatGPT-5.6-Sol) -->
 CvString getSASDllContextFields();
+// <!-- custom: Serialize exact Civ4 executable binary provenance independently from source/mod identity. (ChatGPT-5.6-Sol) -->
+CvString getSASExeContextFields();
+// <!-- custom: Serialize privacy-tiered installation provenance: low-detail distribution hints at level 2 and exact EXE/mod paths only at explicitly selected level 3. (ChatGPT-5.6-Sol) -->
+CvString getSASInstallContextFields(int iSystemContextLevel);
 // <!-- custom: Quote/escape narrow diagnostic free text; NULL becomes the unquoted missing token "-". (ChatGPT-5.6-Sol) -->
 CvString getSASDiagnosticQuoted(char const* szValue);
 // <!-- custom: Wide-string counterpart of getSASDiagnosticQuoted with identical escaping and missing-value semantics. (ChatGPT-5.6-Sol) -->

@@ -1211,12 +1211,256 @@ static int getSASGameRecordProcessWindowMinimized()
 	return kState.bFound ? (kState.bMinimized ? 1 : 0) : -1;
 }
 
-// <!-- custom: Native Win32 and Wine/Proton expose the same DLL APIs, but the distinction helps qualify performance results.
-// Wine does not reliably expose whether its host is Linux or macOS, so do not guess beyond the compatibility layer. (GPT-5.6-Sol) -->
+// <!-- custom: Native Win32 and Wine/Proton expose the same DLL APIs, but the distinction helps qualify support/performance results.
+// Wine does not reliably expose whether its host is Linux or macOS, so do not guess beyond the compatibility layer. Preserve its own version string when available. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+static FARPROC getSASGameRecordWineVersionProc()
+{
+	static HMODULE const hNtdll = GetModuleHandleA("ntdll.dll");
+	static FARPROC const pWineVersion = (hNtdll == NULL ? NULL : GetProcAddress(hNtdll, "wine_get_version"));
+	return pWineVersion;
+}
+
 static char const* getSASGameRecordWin32Runtime()
 {
+	return (getSASGameRecordWineVersionProc() == NULL ? "NATIVE_WINDOWS" : "WINE_OR_PROTON");
+}
+
+static CvString getSASGameRecordWineVersion()
+{
+	FARPROC const pProc = getSASGameRecordWineVersionProc();
+	if (pProc == NULL)
+		return CvString("-");
+	typedef char const* (__cdecl* WineGetVersionFunction)();
+	char const* const szVersion = ((WineGetVersionFunction)pProc)();
+	return (szVersion == NULL || szVersion[0] == '\0' ? CvString("-") : CvString(szVersion));
+}
+
+struct SASGameRecordWindowsVersion
+{
+	SASGameRecordWindowsVersion() : iMajor(-1), iMinor(-1), iBuild(-1), iUpdateRevision(-1), iServicePackMajor(-1), iServicePackMinor(-1), szDisplayVersion("-") {}
+	int iMajor;
+	int iMinor;
+	int iBuild;
+	int iUpdateRevision;
+	int iServicePackMajor;
+	int iServicePackMinor;
+	CvString szDisplayVersion;
+};
+
+struct SASGameRecordRegistryFunctions
+{
+	typedef LONG (WINAPI* RegOpenKeyExAFunction)(HKEY, LPCSTR, DWORD, REGSAM, PHKEY);
+	typedef LONG (WINAPI* RegQueryValueExAFunction)(HKEY, LPCSTR, LPDWORD, LPDWORD, LPBYTE, LPDWORD);
+	typedef LONG (WINAPI* RegCloseKeyFunction)(HKEY);
+	SASGameRecordRegistryFunctions() : hAdvapi(LoadLibraryA("advapi32.dll")), pOpen(NULL), pQuery(NULL), pClose(NULL)
+	{
+		if (hAdvapi != NULL)
+		{
+			pOpen = (RegOpenKeyExAFunction)GetProcAddress(hAdvapi, "RegOpenKeyExA");
+			pQuery = (RegQueryValueExAFunction)GetProcAddress(hAdvapi, "RegQueryValueExA");
+			pClose = (RegCloseKeyFunction)GetProcAddress(hAdvapi, "RegCloseKey");
+		}
+	}
+	HMODULE hAdvapi;
+	RegOpenKeyExAFunction pOpen;
+	RegQueryValueExAFunction pQuery;
+	RegCloseKeyFunction pClose;
+};
+
+static SASGameRecordRegistryFunctions const& getSASGameRecordRegistryFunctions()
+{
+	static SASGameRecordRegistryFunctions const kFunctions;
+	return kFunctions;
+}
+
+static bool openSASGameRecordWindowsVersionKey(HKEY& hKey)
+{
+	SASGameRecordRegistryFunctions const& kRegistry = getSASGameRecordRegistryFunctions();
+	if (kRegistry.pOpen == NULL)
+		return false;
+	// <!-- custom: Prefer the native registry view even though Civ4 is a 32-bit process.
+	// 0x0100 is KEY_WOW64_64KEY; use a literal so the old Civ4 SDK headers need not define it, then fall back for 32-bit Windows/Wine. (ChatGPT-5.6-Sol) -->
+	if (kRegistry.pOpen(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", 0, KEY_QUERY_VALUE | 0x0100, &hKey) == ERROR_SUCCESS)
+		return true;
+	return (kRegistry.pOpen(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS);
+}
+
+static bool readSASGameRecordRegistryDword(HKEY hKey, char const* szName, int& iValue)
+{
+	SASGameRecordRegistryFunctions const& kRegistry = getSASGameRecordRegistryFunctions();
+	if (kRegistry.pQuery == NULL)
+		return false;
+	DWORD uiType = 0;
+	DWORD uiValue = 0;
+	DWORD uiSize = sizeof(uiValue);
+	if (kRegistry.pQuery(hKey, szName, NULL, &uiType, (BYTE*)&uiValue, &uiSize) != ERROR_SUCCESS || uiType != REG_DWORD || uiSize != sizeof(uiValue))
+		return false;
+	iValue = (int)uiValue;
+	return true;
+}
+
+static bool readSASGameRecordRegistryString(HKEY hKey, char const* szName, CvString& szValue)
+{
+	SASGameRecordRegistryFunctions const& kRegistry = getSASGameRecordRegistryFunctions();
+	if (kRegistry.pQuery == NULL)
+		return false;
+	DWORD uiType = 0;
+	char szBuffer[128];
+	DWORD uiSize = sizeof(szBuffer);
+	if (kRegistry.pQuery(hKey, szName, NULL, &uiType, (BYTE*)szBuffer, &uiSize) != ERROR_SUCCESS || (uiType != REG_SZ && uiType != REG_EXPAND_SZ) || uiSize == 0)
+		return false;
+	szBuffer[sizeof(szBuffer) - 1] = '\0';
+	szValue = szBuffer;
+	return !szValue.empty();
+}
+
+// <!-- custom: Level-3 hardware context keeps only a coarse CPU vendor family, never the processor model/brand string.
+// Read Windows' VendorIdentifier once and discard the raw value after classification; nativeArch remains available at level 2 even when hardware identity is disabled. (ChatGPT-5.6-Sol) -->
+static char const* getSASGameRecordProcessorVendor()
+{
+	static CvString szVendorFamily;
+	static bool bInitialized = false;
+	if (bInitialized)
+		return szVendorFamily.GetCString();
+	bInitialized = true;
+	szVendorFamily = "UNKNOWN";
+	SASGameRecordRegistryFunctions const& kRegistry = getSASGameRecordRegistryFunctions();
+	if (kRegistry.pOpen == NULL)
+		return szVendorFamily.GetCString();
+	HKEY hKey = NULL;
+	if (kRegistry.pOpen(HKEY_LOCAL_MACHINE, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS)
+		return szVendorFamily.GetCString();
+	CvString szVendor;
+	if (readSASGameRecordRegistryString(hKey, "VendorIdentifier", szVendor))
+	{
+		char const* const szRaw = szVendor.GetCString();
+		if (strstr(szRaw, "GenuineIntel") != NULL || strstr(szRaw, "Intel") != NULL) szVendorFamily = "INTEL";
+		else if (strstr(szRaw, "AuthenticAMD") != NULL || strstr(szRaw, "AMD") != NULL) szVendorFamily = "AMD";
+		else if (strstr(szRaw, "Qualcomm") != NULL || strstr(szRaw, "QUALCOMM") != NULL || strstr(szRaw, "QCOM") != NULL) szVendorFamily = "QUALCOMM";
+		else if (strstr(szRaw, "Apple") != NULL || strstr(szRaw, "APPLE") != NULL) szVendorFamily = "APPLE";
+		else if (strstr(szRaw, "ARM") != NULL || strstr(szRaw, "Arm") != NULL) szVendorFamily = "ARM";
+		else if (strstr(szRaw, "Centaur") != NULL || strstr(szRaw, "VIA") != NULL) szVendorFamily = "VIA";
+		else if (strstr(szRaw, "Hygon") != NULL || strstr(szRaw, "HYGON") != NULL) szVendorFamily = "HYGON";
+		else if (strstr(szRaw, "Microsoft") != NULL || strstr(szRaw, "MICROSOFT") != NULL) szVendorFamily = "MICROSOFT";
+		else szVendorFamily = "OTHER";
+	}
+	if (kRegistry.pClose != NULL)
+		kRegistry.pClose(hKey);
+	return szVendorFamily.GetCString();
+}
+
+static SASGameRecordWindowsVersion const& getSASGameRecordWindowsVersion()
+{
+	static SASGameRecordWindowsVersion kVersion;
+	static bool bInitialized = false;
+	if (bInitialized)
+		return kVersion;
+	bInitialized = true;
+
+	// <!-- custom: GetVersionEx can be manifest/version-lied on modern Windows.
+	// Resolve RtlGetVersion dynamically so archived logs retain the raw major/minor/build actually exposed by NT without adding a link dependency. (ChatGPT-5.6-Sol) -->
 	HMODULE const hNtdll = GetModuleHandleA("ntdll.dll");
-	return (hNtdll != NULL && GetProcAddress(hNtdll, "wine_get_version") != NULL ? "WINE_OR_PROTON" : "NATIVE_WINDOWS");
+	if (hNtdll != NULL)
+	{
+		typedef LONG (WINAPI* RtlGetVersionFunction)(OSVERSIONINFOW*);
+		RtlGetVersionFunction const pRtlGetVersion = (RtlGetVersionFunction)GetProcAddress(hNtdll, "RtlGetVersion");
+		if (pRtlGetVersion != NULL)
+		{
+			OSVERSIONINFOEXW kVersionInfo;
+			ZeroMemory(&kVersionInfo, sizeof(kVersionInfo));
+			kVersionInfo.dwOSVersionInfoSize = sizeof(kVersionInfo);
+			if (pRtlGetVersion((OSVERSIONINFOW*)&kVersionInfo) == 0)
+			{
+				kVersion.iMajor = (int)kVersionInfo.dwMajorVersion;
+				kVersion.iMinor = (int)kVersionInfo.dwMinorVersion;
+				kVersion.iBuild = (int)kVersionInfo.dwBuildNumber;
+				kVersion.iServicePackMajor = (int)kVersionInfo.wServicePackMajor;
+				kVersion.iServicePackMinor = (int)kVersionInfo.wServicePackMinor;
+			}
+		}
+	}
+
+	HKEY hKey = NULL;
+	if (openSASGameRecordWindowsVersionKey(hKey))
+	{
+		readSASGameRecordRegistryDword(hKey, "UBR", kVersion.iUpdateRevision);
+		if (!readSASGameRecordRegistryString(hKey, "DisplayVersion", kVersion.szDisplayVersion))
+			readSASGameRecordRegistryString(hKey, "ReleaseId", kVersion.szDisplayVersion);
+		SASGameRecordRegistryFunctions const& kRegistry = getSASGameRecordRegistryFunctions();
+		if (kRegistry.pClose != NULL)
+			kRegistry.pClose(hKey);
+	}
+	return kVersion;
+}
+
+static char const* getSASGameRecordArchitectureName(WORD uiArchitecture)
+{
+	switch (uiArchitecture)
+	{
+	case 0: return "X86";
+	case 5: return "ARM";
+	case 6: return "IA64";
+	case 9: return "X64";
+	case 12: return "ARM64";
+	default: return "OTHER";
+	}
+}
+
+static void getSASGameRecordNativeSystemInfo(SYSTEM_INFO& kSystemInfo)
+{
+	typedef VOID (WINAPI* GetNativeSystemInfoFunction)(LPSYSTEM_INFO);
+	HMODULE const hKernel32 = GetModuleHandleA("kernel32.dll");
+	GetNativeSystemInfoFunction const pGetNativeSystemInfo = (hKernel32 == NULL ? NULL : (GetNativeSystemInfoFunction)GetProcAddress(hKernel32, "GetNativeSystemInfo"));
+	if (pGetNativeSystemInfo != NULL)
+		pGetNativeSystemInfo(&kSystemInfo);
+	else GetSystemInfo(&kSystemInfo);
+}
+
+static int getSASGameRecordWow64State()
+{
+	typedef BOOL (WINAPI* IsWow64ProcessFunction)(HANDLE, PBOOL);
+	HMODULE const hKernel32 = GetModuleHandleA("kernel32.dll");
+	IsWow64ProcessFunction const pIsWow64Process = (hKernel32 == NULL ? NULL : (IsWow64ProcessFunction)GetProcAddress(hKernel32, "IsWow64Process"));
+	if (pIsWow64Process == NULL)
+		return -1;
+	BOOL bWow64 = FALSE;
+	return (pIsWow64Process(GetCurrentProcess(), &bWow64) ? (bWow64 ? 1 : 0) : -1);
+}
+
+static char const* classifySASGameRecordDisplayVendor(DISPLAY_DEVICEA const& kDevice)
+{
+	char const* const szId = kDevice.DeviceID;
+	char const* const szName = kDevice.DeviceString;
+	if (strstr(szId, "VEN_8086") != NULL || strstr(szName, "Intel") != NULL || strstr(szName, "INTEL") != NULL) return "INTEL";
+	if (strstr(szId, "VEN_10DE") != NULL || strstr(szName, "NVIDIA") != NULL) return "NVIDIA";
+	if (strstr(szId, "VEN_1002") != NULL || strstr(szName, "AMD") != NULL || strstr(szName, "ATI") != NULL) return "AMD";
+	if (strstr(szId, "VEN_1414") != NULL || strstr(szName, "Microsoft") != NULL) return "MICROSOFT";
+	if (strstr(szId, "VEN_15AD") != NULL || strstr(szName, "VMware") != NULL) return "VMWARE";
+	if (strstr(szId, "VEN_80EE") != NULL || strstr(szName, "VirtualBox") != NULL) return "VIRTUALBOX";
+	if (strstr(szId, "VEN_1AF4") != NULL || strstr(szName, "Virtio") != NULL || strstr(szName, "virtio") != NULL) return "VIRTIO";
+	return NULL;
+}
+
+static CvString getSASGameRecordDisplayVendors()
+{
+	CvString szVendors;
+	for (DWORD iDevice = 0; ; iDevice++)
+	{
+		DISPLAY_DEVICEA kDevice;
+		ZeroMemory(&kDevice, sizeof(kDevice));
+		kDevice.cb = sizeof(kDevice);
+		if (!EnumDisplayDevicesA(NULL, iDevice, &kDevice, 0))
+			break;
+		char const* const szVendor = classifySASGameRecordDisplayVendor(kDevice);
+		if (szVendor == NULL)
+			continue;
+		if (strstr(szVendors.GetCString(), szVendor) != NULL)
+			continue;
+		if (!szVendors.empty())
+			szVendors += ",";
+		szVendors += szVendor;
+	}
+	return (szVendors.empty() ? CvString("UNKNOWN") : szVendors);
 }
 
 // <!-- custom: Resolve PSAPI only when enabled performance metrics first sample memory, so disabling them also avoids a mandatory runtime dependency. (GPT-5.6-Sol) -->
@@ -1470,7 +1714,7 @@ static void logSASGameRecordDisplayContext()
 	int const iSystemContextLevel = getSASGameRecordSystemContextLevel();
 	if (iSystemContextLevel < 1)
 	{
-		logSASGameRecord("GAME_RECORD_DISPLAY_CONTEXT systemContextLevel=0 resolution=-1x-1 graphicsInitialized=-1 fullscreen=-1 graphicOptions=-");
+		logSASGameRecord("GAME_RECORD_DISPLAY_CONTEXT systemContextLevel=0 resolution=-1x-1 graphicsInitialized=-1 fullscreen=-1 graphicOptions=- gpuVendors=-");
 		g_bSASGameRecordDisplayContextLogged = true;
 		return;
 	}
@@ -1488,7 +1732,11 @@ static void logSASGameRecordDisplayContext()
 	if (szGraphicOptions.empty())
 		szGraphicOptions = "-";
 	CvGame const& kGame = GC.getGame();
-	logSASGameRecord("GAME_RECORD_DISPLAY_CONTEXT systemContextLevel=%d resolution=%dx%d graphicsInitialized=1 fullscreen=%d graphicOptions=%s", iSystemContextLevel, kGame.getScreenWidth(), kGame.getScreenHeight(), gDLL->getGraphicOption(GRAPHICOPTION_FULLSCREEN), szGraphicOptions.GetCString());
+	CvString const szGpuVendors = (iSystemContextLevel >= 3 ? getSASGameRecordDisplayVendors() : CvString("-"));
+	logSASGameRecord("GAME_RECORD_DISPLAY_CONTEXT systemContextLevel=%d resolution=%dx%d graphicsInitialized=1 fullscreen=%d graphicOptions=%s gpuVendors=%s",
+		iSystemContextLevel, kGame.getScreenWidth(), kGame.getScreenHeight(),
+		gDLL->getGraphicOption(GRAPHICOPTION_FULLSCREEN),
+		szGraphicOptions.GetCString(), szGpuVendors.GetCString());
 	g_bSASGameRecordDisplayContextLogged = true;
 }
 
@@ -1623,26 +1871,41 @@ static void logSASGameRecordGameState(const char* szRowType)
 	logSASGameRecordWarAISettings(kGame);
 	// <!-- custom: Display settings can affect measured autoplay wall time. Record the compact Civ4 context once, after graphics initialization, rather than copying unrelated CivilizationIV.ini settings. (GPT-5.6-Sol) -->
 	logSASGameRecordDisplayContext();
-	// <!-- custom: A Civ4 custom DLL is a Win32 binary even when Wine or Proton runs it on another host OS.
-	// Record that compatibility layer honestly instead of guessing the host system, plus only compact hardware context useful for performance comparisons. (GPT-5.6-Sol) -->
+	// <!-- custom: A Civ4 custom DLL is a Win32 binary even when Wine/Proton runs it on another host OS.
+	// At the default privacy tier, retain raw Windows build/update identity and native architecture because OS/runtime changes can explain compatibility regressions while revealing far less than CPU/GPU models or absolute paths.
+	// Level 3 keeps the more identifying coarse CPU/GPU vendor families plus processor-count/RAM capacity fields. Wine version is compatibility-layer identity only; do not guess its host OS. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 	int const iSystemContextLevel = getSASGameRecordSystemContextLevel();
 	if (iSystemContextLevel >= 2)
 	{
+		SASGameRecordWindowsVersion const& kWindowsVersion = getSASGameRecordWindowsVersion();
+		SYSTEM_INFO kProcessSystemInfo;
+		SYSTEM_INFO kNativeSystemInfo;
+		ZeroMemory(&kProcessSystemInfo, sizeof(kProcessSystemInfo));
+		ZeroMemory(&kNativeSystemInfo, sizeof(kNativeSystemInfo));
+		GetSystemInfo(&kProcessSystemInfo);
+		getSASGameRecordNativeSystemInfo(kNativeSystemInfo);
+		CvString const szWineVersion = getSASGameRecordWineVersion();
+		CvString const szWineVersionField = (szWineVersion == "-" ? CvString("-") : getSASDiagnosticQuoted(szWineVersion.GetCString()));
+		CvString const szWindowsDisplayVersionField = (kWindowsVersion.szDisplayVersion == "-" ? CvString("-") : getSASDiagnosticQuoted(kWindowsVersion.szDisplayVersion.GetCString()));
 		int iLogicalProcessors = -1;
 		int iTotalPhysicalMemoryMB = -1;
+		char const* szCpuVendor = "-";
 		if (iSystemContextLevel >= 3)
 		{
-			SYSTEM_INFO kSystemInfo;
-			GetSystemInfo(&kSystemInfo);
-			iLogicalProcessors = (int)kSystemInfo.dwNumberOfProcessors;
+			szCpuVendor = getSASGameRecordProcessorVendor();
+			iLogicalProcessors = (int)kNativeSystemInfo.dwNumberOfProcessors;
 			MEMORYSTATUSEX kSystemMemory;
 			ZeroMemory(&kSystemMemory, sizeof(kSystemMemory));
 			kSystemMemory.dwLength = sizeof(kSystemMemory);
 			if (GlobalMemoryStatusEx(&kSystemMemory)) iTotalPhysicalMemoryMB = (int)(kSystemMemory.ullTotalPhys / (1024 * 1024));
 		}
-		logSASGameRecord("GAME_RECORD_RUNTIME_CONTEXT systemContextLevel=%d win32Runtime=%s pointerBits=%d logicalProcessors=%d totalPhysicalMemoryMB=%d", iSystemContextLevel, getSASGameRecordWin32Runtime(), (int)(8 * sizeof(void*)), iLogicalProcessors, iTotalPhysicalMemoryMB);
+		logSASGameRecord("GAME_RECORD_RUNTIME_CONTEXT systemContextLevel=%d win32Runtime=%s wineVersion=%s windowsMajor=%d windowsMinor=%d windowsBuild=%d windowsUpdateRevision=%d windowsServicePackMajor=%d windowsServicePackMinor=%d windowsDisplayVersion=%s pointerBits=%d processArch=%s nativeArch=%s wow64=%d cpuVendor=%s logicalProcessors=%d totalPhysicalMemoryMB=%d",
+			iSystemContextLevel, getSASGameRecordWin32Runtime(), szWineVersionField.GetCString(), kWindowsVersion.iMajor, kWindowsVersion.iMinor, kWindowsVersion.iBuild,
+			kWindowsVersion.iUpdateRevision, kWindowsVersion.iServicePackMajor, kWindowsVersion.iServicePackMinor, szWindowsDisplayVersionField.GetCString(),
+			(int)(8 * sizeof(void*)), getSASGameRecordArchitectureName(kProcessSystemInfo.wProcessorArchitecture),
+			getSASGameRecordArchitectureName(kNativeSystemInfo.wProcessorArchitecture), getSASGameRecordWow64State(), szCpuVendor, iLogicalProcessors, iTotalPhysicalMemoryMB);
 	}
-	else logSASGameRecord("GAME_RECORD_RUNTIME_CONTEXT systemContextLevel=%d win32Runtime=- pointerBits=-1 logicalProcessors=-1 totalPhysicalMemoryMB=-1", iSystemContextLevel);
+	else logSASGameRecord("GAME_RECORD_RUNTIME_CONTEXT systemContextLevel=%d win32Runtime=- wineVersion=- windowsMajor=-1 windowsMinor=-1 windowsBuild=-1 windowsUpdateRevision=-1 windowsServicePackMajor=-1 windowsServicePackMinor=-1 windowsDisplayVersion=- pointerBits=-1 processArch=- nativeArch=- wow64=-1 cpuVendor=- logicalProcessors=-1 totalPhysicalMemoryMB=-1", iSystemContextLevel);
 	// <!-- custom: Keep the game's persisted initial seeds beside the current post-initialization/load RNG states.
 	// Level-3 checkpoints add session-local consumption counts/fingerprints; this compact baseline remains useful at every enabled level. (GPT-5.6-Sol) -->
 	std::pair<uint,uint> const kInitialRandSeed = kGame.getInitialRandSeed();
@@ -1693,6 +1956,11 @@ static void logSASGameRecordProvenanceContext()
 	// <!-- custom: Include the official recorder revision in SOURCE_CONTEXT: recordRevision tells copied implementations that SASGameRecord itself changed, while the remaining fields identify the exact running tree. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_SOURCE_CONTEXT recordRevision=%d %s", SAS_GAME_RECORD_REVISION, getSASSourceContextFields().GetCString());
 	logSASGameRecord("GAME_RECORD_DLL_CONTEXT %s", getSASDllContextFields().GetCString());
+	// <!-- custom: Fingerprint the actual Civ4 executable separately from install-location labeling: exact bytes remain the durable build/branch identity even when storefront branches share one directory. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_EXE_CONTEXT %s", getSASExeContextFields().GetCString());
+	// <!-- custom: Keep install provenance privacy-tiered. Level 2 records only a coarse storefront/distribution hint and numeric Steam AppID when available; level 3 explicitly opts into exact EXE/mod paths, which can contain a Windows username or custom folder names. (ChatGPT-5.6-Sol) -->
+	int const iSystemContextLevel = getSASGameRecordSystemContextLevel();
+	logSASGameRecord("GAME_RECORD_INSTALL_CONTEXT systemContextLevel=%d %s", iSystemContextLevel, getSASInstallContextFields(iSystemContextLevel).GetCString());
 }
 
 // <!-- custom: Persisted game-source history is separate from the current SOURCE_CONTEXT: it records where this save lineage began and each later runtime-source transition without storing noisy dirty-file lists in the save itself. (ChatGPT-5.6-Sol) -->
@@ -3048,6 +3316,8 @@ void recordSASGameRecordPlotRevealed(CvPlot const& kPlot, TeamTypes eTeam)
 
 void logSASGameRecordEnvironmentTurn(int iPollution, int iSustainabilityThreshold, int iLandDefense, int iIndexBefore, int iIndexBeforeRestoration, int iIndexEnd, int iWarmingChances, int iEventTally)
 {
+	// <!-- custom: Loaded-save context is written before graphics initialization; retry the one-shot display context at this already-level-2 per-turn boundary so short manual/autoplay sessions do not omit resolution/options/GPU vendor merely because they never reach a full snapshot interval. (ChatGPT-5.6-Sol) -->
+	logSASGameRecordDisplayContext();
 	logSASGameRecord("GAME_RECORD_ENVIRONMENT_TURN turn=%d pollution=%d sustainabilityThreshold=%d landDefense=%d totalDefense=%d indexBefore=%d indexBeforeRestoration=%d indexEnd=%d indexDelta=%+d warmingChances=%d eventTally=%d severityPercent=%d active=%d",
 			GC.getGame().getGameTurn(), iPollution, iSustainabilityThreshold, iLandDefense, iSustainabilityThreshold + iLandDefense, iIndexBefore, iIndexBeforeRestoration, iIndexEnd, iIndexEnd - iIndexBefore, iWarmingChances, iEventTally, GC.getGame().calculateGwSeverityRating(), iIndexEnd > 0);
 }
@@ -6585,8 +6855,9 @@ static void logSASGameRecordUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	TeamTypes eTeam = kPlayer.getTeam();
 	SASGameRecordPlayerPrevious& kPrevious = g_akSASGameRecordPlayerPrevious[ePlayer];
-	// <!-- custom: Promotion-detail work is level 3 only. Cache the immutable detail gate once instead of querying it for every unit and every promotion container. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Promotion detail and exact assault-fleet mission destinations are level 3 only. Cache the immutable gates once instead of querying them for every unit/group. (ChatGPT-5.6-Sol) -->
 	bool const bLogPromotionDetails = (gGameRecordLogLevel >= 3);
+	bool const bLogNavalMissionTargets = (gGameRecordLogLevel >= 3);
 	int iTotal = 0;
 	int iMilitary = 0;
 	int iLandMilitary = 0;
@@ -6847,6 +7118,7 @@ static void logSASGameRecordUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 	int iOpenOceanGroups = 0;
 	int iGroupsWithSeaCombatSupport = 0;
 	int iGroupedSeaCombatSupportUnits = 0;
+	CvString szAssaultMissionTargets;
 	int iGroupLoop = 0;
 	for (CvSelectionGroup const* pLoopGroup = kPlayer.firstSelectionGroup(&iGroupLoop); pLoopGroup != NULL; pLoopGroup = kPlayer.nextSelectionGroup(&iGroupLoop))
 	{
@@ -6888,6 +7160,20 @@ static void logSASGameRecordUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 		else if (eMissionAI == MISSIONAI_PICKUP) iGroupsPickup++;
 		else if (eMissionAI == MISSIONAI_REINFORCE) iGroupsReinforce++;
 		else iGroupsOtherMissionAI++;
+		if (bLogNavalMissionTargets && eMissionAI != NO_MISSIONAI)
+		{
+			CvPlot const* pMissionPlot = pLoopGroup->AI().AI_getMissionAIPlot();
+			CvCity const* pMissionCity = (pMissionPlot == NULL ? NULL : pMissionPlot->getPlotCity());
+			CvString szMissionTarget;
+			szMissionTarget.Format(szAssaultMissionTargets.empty() ? "%d:%d@(%d,%d)>(%d,%d):team%d:city%d:%d/%d:support%d:base%d:ocean%d" : ";%d:%d@(%d,%d)>(%d,%d):team%d:city%d:%d/%d:support%d:base%d:ocean%d",
+				pLoopGroup->getID(), eMissionAI, (pGroupPlot == NULL ? -1 : pGroupPlot->getX()),
+				(pGroupPlot == NULL ? -1 : pGroupPlot->getY()),
+				(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()),
+				(pMissionPlot == NULL ? NO_TEAM : pMissionPlot->getTeam()),
+				(pMissionCity == NULL ? -1 : pMissionCity->getID()),
+				iGroupAssaultCargo, iGroupAssaultCapacity, iGroupSeaCombatSupport, bAtBase, bOpenOceanGroup);
+			szAssaultMissionTargets += szMissionTarget;
+		}
 		if (bAtBase && iGroupAssaultCargo <= 0 && eMissionAI == NO_MISSIONAI)
 			iGroupsEmptyNoMissionAIAtBase++;
 		if (pLoopGroup->getLengthMissionQueue() > 0) iGroupsMissionQueueNonempty++;
@@ -6957,16 +7243,18 @@ static void logSASGameRecordUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 		iGameTurn, ePlayer, getSASDiagnosticOrDash(szUnitTypes).GetCString(), getSASDiagnosticOrDash(szUnitAI).GetCString(), iUnitCombatTotal, getSASDiagnosticOrDash(szUnitCombat).GetCString(), getSASDiagnosticOrDash(szUnitCombatPercentX100).GetCString());
 	// <!-- custom: One compact periodic naval-projection row preserves whether completed assault lift is usable and actually being loaded/mobilized without copying per-target UWAI/InvasionGraph diagnostics into SASGameRecord.
 	// Capacity/cargo use only real UNITAI_ASSAULT_SEA transports, groups are counted once regardless of their head unit, openOceanGroups require every sea member in the current group to cross ordinary ocean, and existing empire-wide UnitAI/war-plan rows remain authoritative rather than being duplicated here.
-	// MISSIONAI_LOAD_ASSAULT belongs to land cargo groups seeking a transport, not to the assault-sea group itself; transport-side pickup readiness is represented by groupsPickup instead. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// MISSIONAI_LOAD_ASSAULT belongs to land cargo groups seeking a transport, not to the assault-sea group itself; transport-side pickup readiness is represented by groupsPickup instead.
+	// At level 3, missionTargets keeps each assault group's already-stored MissionAI destination plus current/target coordinates, target team/city, cargo/capacity, sea-combat support, base state and open-ocean capability, with no target search or pathfinding. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	FAssert(iAssaultTransports == iTransportsEmpty + iTransportsPartial + iTransportsFull);
 	FAssert(iLoadedCargo == iLoadedCargoCanAttack + iLoadedCargoCannotAttack);
 	FAssert(iAssaultGroups == iGroupsEmpty + iGroupsPartial + iGroupsFull);
 	FAssert(iAssaultGroups == iGroupsNoMissionAI + iGroupsAssault + iGroupsPickup + iGroupsReinforce + iGroupsOtherMissionAI);
-	logSASGameRecord("GAME_RECORD_NAVAL_ASSAULT_POSTURE turn=%d player=%d assaultTransports=%d assaultTransportsTraining=%d cargoCapacity=%d loadedCargo=%d cargoUtilizationPercentX100=%d openOceanTransports=%d openOceanCapacity=%d openOceanLoadedCargo=%d openOceanGroups=%d transportsEmpty=%d transportsPartial=%d transportsFull=%d damagedTransports=%d assaultGroups=%d groupsEmpty=%d groupsPartial=%d groupsFull=%d groupsAtBase=%d groupsEmptyAtBase=%d groupsEmptyNoMissionAIAtBase=%d groupsLoadedAwayFromBase=%d groupsNoMissionAI=%d groupsAssault=%d groupsPickup=%d groupsReinforce=%d groupsOtherMissionAI=%d groupsMissionQueueNonempty=%d groupsHealing=%d groupsWithSeaCombatSupport=%d groupedSeaCombatSupportUnits=%d loadedCargoCanAttack=%d loadedCargoCannotAttack=%d transportUnitTypes=%s cargoUnitTypes=%s cargoUnitAI=%s",
+	logSASGameRecord("GAME_RECORD_NAVAL_ASSAULT_POSTURE turn=%d player=%d assaultTransports=%d assaultTransportsTraining=%d cargoCapacity=%d loadedCargo=%d cargoUtilizationPercentX100=%d openOceanTransports=%d openOceanCapacity=%d openOceanLoadedCargo=%d openOceanGroups=%d transportsEmpty=%d transportsPartial=%d transportsFull=%d damagedTransports=%d assaultGroups=%d groupsEmpty=%d groupsPartial=%d groupsFull=%d groupsAtBase=%d groupsEmptyAtBase=%d groupsEmptyNoMissionAIAtBase=%d groupsLoadedAwayFromBase=%d groupsNoMissionAI=%d groupsAssault=%d groupsPickup=%d groupsReinforce=%d groupsOtherMissionAI=%d groupsMissionQueueNonempty=%d groupsHealing=%d groupsWithSeaCombatSupport=%d groupedSeaCombatSupportUnits=%d loadedCargoCanAttack=%d loadedCargoCannotAttack=%d transportUnitTypes=%s cargoUnitTypes=%s cargoUnitAI=%s missionTargets=%s",
 		iGameTurn, ePlayer, iAssaultTransports, GET_PLAYER(ePlayer).AI_getNumTrainAIUnits(UNITAI_ASSAULT_SEA), iCargoCapacity, iLoadedCargo, getSASGameRecordPercentX100(iLoadedCargo, iCargoCapacity),
 		iOpenOceanTransports, iOpenOceanCapacity, iOpenOceanLoadedCargo, iOpenOceanGroups, iTransportsEmpty, iTransportsPartial, iTransportsFull, iDamagedTransports, iAssaultGroups, iGroupsEmpty, iGroupsPartial, iGroupsFull, iGroupsAtBase, iGroupsEmptyAtBase, iGroupsEmptyNoMissionAIAtBase, iGroupsLoadedAwayFromBase,
 		iGroupsNoMissionAI, iGroupsAssault, iGroupsPickup, iGroupsReinforce, iGroupsOtherMissionAI, iGroupsMissionQueueNonempty, iGroupsHealing, iGroupsWithSeaCombatSupport, iGroupedSeaCombatSupportUnits, iLoadedCargoCanAttack, iLoadedCargoCannotAttack,
-		getSASDiagnosticOrDash(szAssaultTransportTypes).GetCString(), getSASDiagnosticOrDash(szAssaultCargoTypes).GetCString(), getSASDiagnosticOrDash(szAssaultCargoAI).GetCString());
+		getSASDiagnosticOrDash(szAssaultTransportTypes).GetCString(), getSASDiagnosticOrDash(szAssaultCargoTypes).GetCString(),
+		getSASDiagnosticOrDash(szAssaultCargoAI).GetCString(), getSASDiagnosticOrDash(szAssaultMissionTargets).GetCString());
 	if (bLogPromotionDetails) logSASGameRecord("GAME_RECORD_UNIT_PROMOTIONS turn=%d player=%d promotions=%s militaryPromotions=%s",
 		iGameTurn, ePlayer, getSASDiagnosticOrDash(szPromotions).GetCString(), getSASDiagnosticOrDash(szMilitaryPromotions).GetCString());
 }
@@ -9995,8 +10283,7 @@ void logSASGameRecordWarStarted(TeamTypes eDeclarer, TeamTypes eTarget, WarPlanT
 	int const iTargetMaxVictoryStage = getSASTeamMaxVictoryStage(eTarget);
 	int const iTargetSpaceVictoryStage = getSASTeamSpaceVictoryStage(eTarget);
 	int const iTargetSpaceshipParts = getSASTeamSpaceshipPartsBuilt(eTarget);
-	int const iSpaceshipPartsRequired = getSASSpaceshipPartsRequired();
-	int const iTargetSpaceshipPartsPercent = (iSpaceshipPartsRequired <= 0 ? 0 : iTargetSpaceshipParts * 100 / iSpaceshipPartsRequired);
+	int const iTargetSpaceshipPartsPercent = getSASTeamSpaceshipPartsPercent(eTarget);
 	int const iTargetVictoryCountdown = kTargetAI.AI_getLowestVictoryCountdown();
 	bool const bVictoryDenialContext = (iTargetVictoryCountdown >= 0 || iTargetMaxVictoryStage >= 4 || isSASTeamStage3SpaceVictoryThreat(eTarget));
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=WAR_STARTED declarerTeam=%d targetTeam=%d cause=%s primary=%d newDiplo=%d warPlan=%s sponsorPlayer=%d sponsorTeam=%d randomEvent=%d declarerMaster=%d targetMaster=%d declarerWarsAfter=%d targetWarsAfter=%d victoryDenialContext=%d targetMaxVictoryStage=%d targetSpaceVictoryStage=%d targetSpaceshipParts=%d targetSpaceshipPartsPercent=%d targetVictoryCountdown=%d",

@@ -200,17 +200,19 @@ CvWString getSASRuntimeDisplayNameAndVersion()
 	return szName;
 }
 
-// <!-- custom: Distinguish the exact loaded DLL candidate from source/version identity. The nmake target is embedded at compile time; size, linker timestamp, last-write time and FNV-1a fingerprint come from the loaded module's file.
-// FNV-1a is a compact diagnostic fingerprint rather than a security hash, but it is strong enough to tell same-commit local candidate DLLs apart without adding a CryptoAPI/library dependency. Cache once because the loaded DLL cannot change within this process. (ChatGPT-5.6-Sol) -->
-struct SASDllDiagnosticContext
+// <!-- custom: Distinguish the exact loaded DLL and Civ4 executable candidates from source/version identity. The nmake target is embedded at compile time; size, linker timestamp, last-write time and FNV-1a fingerprints come from the files backing the loaded modules.
+// FNV-1a is a compact diagnostic fingerprint rather than a security hash, but it is strong enough to tell different local DLL/EXE candidates apart without adding a CryptoAPI/library dependency.
+// Cache each once because neither loaded image can change within this process. (ChatGPT-5.6-Sol) -->
+struct SASBinaryDiagnosticContext
 {
-	SASDllDiagnosticContext() : bModuleFound(false), bFileReadable(false), iFileSize(-1), uiPETimestamp(0), uiFingerprint(0), szLastWriteUtc("-") {}
+	SASBinaryDiagnosticContext() : bModuleFound(false), bFileReadable(false), iFileSize(-1), uiPETimestamp(0), uiFingerprint(0), szLastWriteUtc("-"), szPath("-") {}
 	bool bModuleFound;
 	bool bFileReadable;
 	__int64 iFileSize;
 	DWORD uiPETimestamp;
 	unsigned __int64 uiFingerprint;
 	CvString szLastWriteUtc;
+	CvString szPath;
 };
 
 static char const* getSASDllBuildConfiguration()
@@ -236,17 +238,10 @@ static CvString getSASFileTimeUtc(FILETIME const& kFileTime)
 	return formatSASUtcSystemTime(kUtcTime);
 }
 
-static SASDllDiagnosticContext const& getSASDllDiagnosticContext()
+static void resolveSASBinaryDiagnosticContext(HMODULE hModule, SASBinaryDiagnosticContext& kContext)
 {
-	static SASDllDiagnosticContext kContext;
-	static bool bInitialized = false;
-	if (bInitialized)
-		return kContext;
-	bInitialized = true;
-
-	HMODULE const hModule = GetModuleHandleA("CvGameCoreDLL.dll");
 	if (hModule == NULL)
-		return kContext;
+		return;
 	kContext.bModuleFound = true;
 
 	IMAGE_DOS_HEADER const* pDosHeader = (IMAGE_DOS_HEADER const*)hModule;
@@ -260,11 +255,12 @@ static SASDllDiagnosticContext const& getSASDllDiagnosticContext()
 	char szPath[MAX_PATH];
 	DWORD const uiPathLength = GetModuleFileNameA(hModule, szPath, MAX_PATH);
 	if (uiPathLength == 0 || uiPathLength >= MAX_PATH)
-		return kContext;
+		return;
+	kContext.szPath = szPath;
 
 	HANDLE const hFile = CreateFileA(szPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
-		return kContext;
+		return;
 
 	DWORD uiSizeHigh = 0;
 	SetLastError(NO_ERROR);
@@ -302,6 +298,29 @@ static SASDllDiagnosticContext const& getSASDllDiagnosticContext()
 		kContext.bFileReadable = true;
 		kContext.uiFingerprint = uiHash;
 	}
+}
+
+static SASBinaryDiagnosticContext const& getSASDllDiagnosticContext()
+{
+	static SASBinaryDiagnosticContext kContext;
+	static bool bInitialized = false;
+	if (!bInitialized)
+	{
+		bInitialized = true;
+		resolveSASBinaryDiagnosticContext(GetModuleHandleA("CvGameCoreDLL.dll"), kContext);
+	}
+	return kContext;
+}
+
+static SASBinaryDiagnosticContext const& getSASExeDiagnosticContext()
+{
+	static SASBinaryDiagnosticContext kContext;
+	static bool bInitialized = false;
+	if (!bInitialized)
+	{
+		bInitialized = true;
+		resolveSASBinaryDiagnosticContext(GetModuleHandleA(NULL), kContext);
+	}
 	return kContext;
 }
 
@@ -313,12 +332,18 @@ static CvString getSASPETimestampUtc(DWORD uiTimestamp)
 	return (szTimestamp == "unknown_time" ? CvString("-") : szTimestamp);
 }
 
-CvString getSASDllContextFields()
+static CvString getSASBinaryFingerprint(SASBinaryDiagnosticContext const& kContext)
 {
-	SASDllDiagnosticContext const& kContext = getSASDllDiagnosticContext();
 	CvString szFingerprint = "-";
 	if (kContext.bFileReadable)
 		szFingerprint.Format("FNV1A64:%016I64X", kContext.uiFingerprint);
+	return szFingerprint;
+}
+
+CvString getSASDllContextFields()
+{
+	SASBinaryDiagnosticContext const& kContext = getSASDllDiagnosticContext();
+	CvString const szFingerprint = getSASBinaryFingerprint(kContext);
 #ifdef FASSERT_ENABLE
 	int const iFAssertEnabled = 1;
 #else
@@ -337,6 +362,211 @@ CvString getSASDllContextFields()
 	CvString szContext;
 	szContext.Format("build=%s moduleFound=%d fileReadable=%d fileSizeBytes=%I64d dllFingerprint=%s dllLastWriteUtc=%s peTimestampRaw=%u peTimestampUtc=%s fassertEnabled=%d debugDefine=%d ndebugDefine=%d",
 			getSASDllBuildConfiguration(), kContext.bModuleFound, kContext.bFileReadable, kContext.iFileSize, szFingerprint.GetCString(), kContext.szLastWriteUtc.GetCString(), kContext.uiPETimestamp, getSASPETimestampUtc(kContext.uiPETimestamp).GetCString(), iFAssertEnabled, iDebugDefine, iNDebugDefine);
+	return szContext;
+}
+
+CvString getSASExeContextFields()
+{
+	SASBinaryDiagnosticContext const& kContext = getSASExeDiagnosticContext();
+	CvString const szFingerprint = getSASBinaryFingerprint(kContext);
+	CvString szContext;
+	szContext.Format("moduleFound=%d fileReadable=%d fileSizeBytes=%I64d exeFingerprint=%s exeLastWriteUtc=%s peTimestampRaw=%u peTimestampUtc=%s",
+			kContext.bModuleFound, kContext.bFileReadable, kContext.iFileSize,
+			szFingerprint.GetCString(), kContext.szLastWriteUtc.GetCString(),
+			kContext.uiPETimestamp, getSASPETimestampUtc(kContext.uiPETimestamp).GetCString());
+	return szContext;
+}
+
+static char getSASLowerAscii(char c)
+{
+	return (c >= 'A' && c <= 'Z' ? (char)(c - 'A' + 'a') : c);
+}
+
+static CvString getSASLowerAscii(CvString const& szValue)
+{
+	CvString szLower = szValue;
+	for (int i = 0; i < (int)szLower.length(); i++)
+		szLower[i] = getSASLowerAscii(szLower[i]);
+	return szLower;
+}
+
+static bool isSASAbsoluteWindowsPath(CvString const& szPath)
+{
+	return ((szPath.length() >= 3 && szPath[1] == ':' && (szPath[2] == '\\' || szPath[2] == '/')) ||
+			(szPath.length() >= 2 && ((szPath[0] == '\\' && szPath[1] == '\\') || (szPath[0] == '/' && szPath[1] == '/'))));
+}
+
+static CvString getSASAbsoluteModPathForDiagnostics()
+{
+	CvString szPath = GC.getModName().getFullPath();
+	if (!isSASAbsoluteWindowsPath(szPath))
+	{
+		SASBinaryDiagnosticContext const& kExeContext = getSASExeDiagnosticContext();
+		if (kExeContext.szPath == "-")
+			return CvString("-");
+		size_t const iSlash = kExeContext.szPath.find_last_of("\\/");
+		if (iSlash == CvString::npos)
+			return CvString("-");
+		szPath = kExeContext.szPath.substr(0, iSlash + 1) + GC.getModName().getPathInRoot();
+	}
+	while (szPath.length() > 3)
+	{
+		int const iLast = (int)szPath.length() - 1;
+		if (szPath[iLast] != '\\' && szPath[iLast] != '/')
+			break;
+		szPath.erase(iLast, 1);
+	}
+	return szPath;
+}
+
+static CvString getSASNumericEnvironmentValue(char const* szName)
+{
+	char szValue[64];
+	DWORD const iLength = GetEnvironmentVariableA(szName, szValue, sizeof(szValue));
+	if (iLength == 0 || iLength >= sizeof(szValue))
+		return CvString("-");
+	for (DWORD i = 0; i < iLength; i++)
+	{
+		if (szValue[i] < '0' || szValue[i] > '9')
+			return CvString("-");
+	}
+	return CvString(szValue);
+}
+
+static bool hasSASFilePattern(CvString const& szDirectory, char const* szPattern)
+{
+	CvString szSearch = szDirectory;
+	if (!szSearch.empty() && szSearch[(int)szSearch.length() - 1] != '\\' && szSearch[(int)szSearch.length() - 1] != '/')
+		szSearch += "\\";
+	szSearch += szPattern;
+	WIN32_FIND_DATAA kFindData;
+	HANDLE const hFind = FindFirstFileA(szSearch.GetCString(), &kFindData);
+	if (hFind == INVALID_HANDLE_VALUE)
+		return false;
+	FindClose(hFind);
+	return true;
+}
+
+static bool hasSASGogInstallMarker(CvString const& szExePath)
+{
+	size_t const iSlash = szExePath.find_last_of("\\/");
+	if (iSlash == CvString::npos)
+		return false;
+	CvString const szExeDirectory = szExePath.substr(0, iSlash);
+	if (hasSASFilePattern(szExeDirectory, "goggame-*.info"))
+		return true;
+	size_t const iParentSlash = szExeDirectory.find_last_of("\\/");
+	return (iParentSlash != CvString::npos && hasSASFilePattern(szExeDirectory.substr(0, iParentSlash), "goggame-*.info"));
+}
+
+static bool readSASSmallTextFile(CvString const& szPath, CvString& szContents)
+{
+	HANDLE const hFile = CreateFileA(szPath.GetCString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return false;
+	DWORD uiSizeHigh = 0;
+	SetLastError(NO_ERROR);
+	DWORD const uiSizeLow = GetFileSize(hFile, &uiSizeHigh);
+	if (uiSizeHigh != 0 || uiSizeLow == INVALID_FILE_SIZE || GetLastError() != NO_ERROR || uiSizeLow > 1024 * 1024)
+	{
+		CloseHandle(hFile);
+		return false;
+	}
+	std::vector<char> aBuffer(uiSizeLow + 1, '\0');
+	DWORD uiRead = 0;
+	bool const bRead = (ReadFile(hFile, &aBuffer[0], uiSizeLow, &uiRead, NULL) != FALSE && uiRead == uiSizeLow);
+	CloseHandle(hFile);
+	if (!bRead)
+		return false;
+	szContents = &aBuffer[0];
+	return true;
+}
+
+static CvString getSASAcfValue(CvString const& szContents, char const* szKey)
+{
+	CvString const szLowerContents = getSASLowerAscii(szContents);
+	CvString szPattern;
+	szPattern.Format("\"%s\"", getSASLowerAscii(CvString(szKey)).GetCString());
+	size_t const iKey = szLowerContents.find(szPattern);
+	if (iKey == CvString::npos)
+		return CvString("-");
+	size_t const iValueStartQuote = szContents.find('"', iKey + szPattern.length());
+	if (iValueStartQuote == CvString::npos)
+		return CvString("-");
+	size_t const iValueEndQuote = szContents.find('"', iValueStartQuote + 1);
+	if (iValueEndQuote == CvString::npos || iValueEndQuote <= iValueStartQuote + 1)
+		return CvString("-");
+	return szContents.substr(iValueStartQuote + 1, iValueEndQuote - iValueStartQuote - 1);
+}
+
+static void getSASSteamManifestContext(CvString const& szExePath, CvString const& szSteamAppId, CvString& szBuildId, CvString& szBetaKey)
+{
+	szBuildId = "-";
+	szBetaKey = "-";
+	if (szSteamAppId == "-")
+		return;
+	CvString const szLowerExePath = getSASLowerAscii(szExePath);
+	char const* const szSteamCommonMarker = "\\steamapps\\common\\";
+	size_t const iSteamApps = szLowerExePath.find(szSteamCommonMarker);
+	if (iSteamApps == CvString::npos)
+		return;
+	CvString const szSteamAppsDirectory = szExePath.substr(0, iSteamApps + strlen("\\steamapps"));
+	CvString szManifestPath;
+	szManifestPath.Format("%s\\appmanifest_%s.acf", szSteamAppsDirectory.GetCString(), szSteamAppId.GetCString());
+	CvString szManifest;
+	if (!readSASSmallTextFile(szManifestPath, szManifest))
+		return;
+	CvString const szRawBuildId = getSASAcfValue(szManifest, "buildid");
+	bool bNumericBuildId = (szRawBuildId != "-");
+	for (int i = 0; bNumericBuildId && i < (int)szRawBuildId.length(); i++)
+		bNumericBuildId = (szRawBuildId[i] >= '0' && szRawBuildId[i] <= '9');
+	if (bNumericBuildId)
+		szBuildId = szRawBuildId;
+	CvString const szRawBetaKey = getSASAcfValue(szManifest, "betakey");
+	if (szRawBetaKey != "-")
+		szBetaKey = getSASDiagnosticQuoted(szRawBetaKey.GetCString());
+}
+
+CvString getSASInstallContextFields(int iSystemContextLevel)
+{
+	CvString szDistribution = "-";
+	CvString szSteamAppId = "-";
+	CvString szSteamBuildId = "-";
+	CvString szSteamBetaKey = "-";
+	CvString szExePath = "-";
+	CvString szModPath = "-";
+	if (iSystemContextLevel >= 2)
+	{
+		SASBinaryDiagnosticContext const& kExeContext = getSASExeDiagnosticContext();
+		CvString const szLowerExePath = getSASLowerAscii(kExeContext.szPath);
+		szSteamAppId = getSASNumericEnvironmentValue("SteamAppId");
+		if (szSteamAppId == "-")
+			szSteamAppId = getSASNumericEnvironmentValue("SteamGameId");
+		if (szSteamAppId != "-" || szLowerExePath.find("\\steamapps\\common\\") != CvString::npos || szLowerExePath.find("/steamapps/common/") != CvString::npos)
+		{
+			szDistribution = "STEAM";
+			getSASSteamManifestContext(kExeContext.szPath, szSteamAppId, szSteamBuildId, szSteamBetaKey);
+		}
+		else if (kExeContext.szPath == "-")
+			szDistribution = "UNKNOWN";
+		else if (szLowerExePath.find("\\gog games\\") != CvString::npos || szLowerExePath.find("/gog games/") != CvString::npos || hasSASGogInstallMarker(kExeContext.szPath))
+			szDistribution = "GOG";
+		else if (szLowerExePath.find("\\firaxis games\\") != CvString::npos || szLowerExePath.find("/firaxis games/") != CvString::npos)
+			szDistribution = "FIRAXIS_RETAIL";
+		else szDistribution = "RETAIL_OR_OTHER";
+		if (iSystemContextLevel >= 3)
+		{
+			if (kExeContext.szPath != "-")
+				szExePath = getSASDiagnosticQuoted(kExeContext.szPath.GetCString());
+			CvString const szAbsoluteModPath = getSASAbsoluteModPathForDiagnostics();
+			if (szAbsoluteModPath != "-")
+				szModPath = getSASDiagnosticQuoted(szAbsoluteModPath.GetCString());
+		}
+	}
+	CvString szContext;
+	szContext.Format("distributionHint=%s steamAppId=%s steamBuildId=%s steamBetaKey=%s absoluteExePath=%s absoluteModPath=%s",
+			szDistribution.GetCString(), szSteamAppId.GetCString(), szSteamBuildId.GetCString(), szSteamBetaKey.GetCString(),
+			szExePath.GetCString(), szModPath.GetCString());
 	return szContext;
 }
 

@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=79 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=80 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,36 +40,29 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
+### Revision 80 - SAS practical 6468
+
+- **Date:** 2026-09-16
+- **Change:** Added privacy-tiered runtime/install provenance and compact naval operational intent. `GAME_RECORD_EXE_CONTEXT` fingerprints the loaded `Civ4BeyondSword.exe`; level 2 records Windows/Wine runtime/build/update and process/native architecture plus coarse distribution/Steam AppID-build-beta metadata, while level 3 additionally records coarse CPU/GPU vendors, logical processors/RAM and exact EXE/mod paths. `GAME_RECORD_DISPLAY_CONTEXT` now retries after loaded-save graphics initialization so short sessions do not omit display/GPU context. Level-3 naval posture also records each assault group's existing MissionAI destination, target team/city, cargo/capacity, support/base and ocean capability without new pathfinding or AI evaluation; war-start context now reuses the shared spaceship-parts-percent helper.
+- **Validation:** Compiled and exercised at system-context levels 2 and 3 on the Steam release, including short loaded-save sessions. Steam detection/path/build metadata are runtime-validated; GOG, Firaxis retail/other and Wine/Proton branches are source-reviewed but not yet runtime-tested.
+
 ### Revision 79 - SAS practical 6465
 
 - **Date:** 2026-09-16
-- **Change:** Added compact city/territory development backlog state so broad game records can surface persistent Worker-development symptoms without duplicating BBAI decision reasoning. `GAME_RECORD_TERRITORY_DEVELOPMENT` now emits explicit subtraction-derived unimproved totals for combined, land, water, BFC and suburb coverage, and splits sparse developable water into BFC/suburb counts using the same visible-bonus/already-improved denominator as the existing total.
-
-At level 3, each periodic city snapshot now adds one `GAME_RECORD_CITY_DEVELOPMENT` row. It distinguishes the full geometric city radius, the subset owned by the player, and the owned plots currently assigned to that exact city; it also writes the useful derived `notOwnedRadiusPlots` and `ownedUnassignedPlots` gaps explicitly instead of forcing repeated subtraction. The row then records development/improvement/backlog counts over assigned plots, improvement percentages, improved/unimproved development bonuses, unimproved feature/bonus type counts, and bounded coordinates for every unimproved development land/water plot plus feature/resource-bearing subsets. This is intentionally descriptive state: it performs no build-legality scan, pathfinding, Worker target search or yield/value judgment, and the city-radius scan runs only inside the existing level-3 city-detail gate.
-
-Level 3 also serializes each non-empty already-maintained AI city-site shortlist as `GAME_RECORD_CITY_SITES`. The normal expansion row still keeps the compact site count, current minimum found-value threshold and primary site's coordinates/value; the companion row adds the cached rank, coordinates and current found value for every shortlisted site (normally at most four). It does not recalculate found values, scan the map, test Settler paths or duplicate detailed Settler/BBAI reasoning, so the record can show expansion opportunities even when no Settler currently exists at negligible extra cost.
+- **Git commit:** `439081be51b7ec481f72cda74688fce4ca8b5b33`
+- **Change:** Added explicit territory/BFC/suburb unimproved-development totals and level-3 `GAME_RECORD_CITY_DEVELOPMENT` rows with owned/assigned-radius gaps, development/improvement coverage, remaining feature/resource types and bounded plot coordinates. Level 3 also serializes each already-maintained AI city-site shortlist as rank/coordinates/current found value. These are descriptive/cached-state additions only: no Worker build-legality/value scan, city-site reevaluation or pathfinding.
 
 ### Revision 78 - SAS practical 6464
 
 - **Date:** 2026-09-16
 - **Git commit:** `fb4c3dcb0b8d8fe9f085620a7bdcaf2ea059bc63`
-- **Change:** Added compact strategic-intent context without copying exhaustive BBAI/UWAI reasoning into the game record. Periodic team state now preserves every active/preparing war target as `team:WARPLAN/age`, while AI military-production snapshots expose the remaining high-level military strategy flags (`CRUSH`, `TURTLE`, `LAST_STAND`, fast-mover/land-blitz/air-blitz and nuclear strategy) alongside the existing focus-war/dagger/alert/final-war state.
-
-Real foreground UWAI target selection now emits one `GAME_RECORD_AI_WAR_TARGET_CHOICE` when a target passes its actual selection roll, preserving final/original utility, victory-denial adjustment, direct/naval posture, evaluated preparation turns, forced-peace time, drive, rank/count, attitude/closeness, distance and relative power immediately before the resulting plan/declaration mutation.
-
-At level 3, best-target-only roll failures additionally emit one compact `DEFERRED_ROLL` row, making "considered war but delayed it" visible without logging rejected/disqualified candidates or reevaluating UWAI. Periodic espionage state now distinguishes current foreign Spy locations from `MISSIONAI_ATTACK_SPY` destinations and counts recon/guard intent by reading already-stored group mission targets; detailed movement and espionage-mission valuation remain BBAI territory.
-
-The RNG/state comparison helper also now requires both records to expose the same explicit `recordRevision` before emitting recipe-sensitive combined interpretations; two missing revisions no longer accidentally compare equal through the display placeholder `<unknown>`.
+- **Change:** Added compact strategic AI intent: current team war plans/ages, remaining high-level military-strategy flags, selected UWAI war-target context, and level-3 best-target `DEFERRED_ROLL` events without logging exhaustive rejected candidates. Espionage snapshots now distinguish foreign Spy locations from stored attack/recon/guard MissionAI intent. The RNG/state comparator also requires equal explicit `recordRevision` values before recipe-sensitive combined interpretation.
 
 ### Revision 77 - SAS practical 6463
 
 - **Date:** 2026-09-16
 - **Git commit:** `989eb50ce43e551708d7f573db4b140e28902307`
-- **Change:** Added compact expansion-intent context without enabling detailed Found/BBAI diagnostics: periodic expansion rows now preserve the maintained city-site shortlist count, current minimum found threshold, primary cached site/value, and settler `MISSIONAI_FOUND` count; level-3 settler rows preserve group/founding target coordinates, target shortlist rank and cached found value; and normal city founding records the chosen plot's current shortlist rank/value plus the first two alternative cached sites immediately before city creation mutates the plot.
-
-Barbarian city creation now separately records its exact chooser-time winner and first two runner-ups with raw, area-adjusted and final values, the applied per-site random percent, and the chooser's randomized inter-city discouraged range, reusing the gameplay-required scan rather than normal-civ city-site caches.
-
-The recorder performs no additional map-wide rescoring or pathfinding. Also removed a redundant duplicate `CvInfo_Symbol.h` include while retaining the combined dependency comment.
+- **Change:** Added compact expansion/city-site intent: maintained shortlist/threshold/primary-site context, settler `MISSIONAI_FOUND` targets/ranks/cached values, normal founding choice plus two cached alternatives, and exact barbarian chooser winner/two runner-ups with raw/area/final values and random/site-spacing context. All reuse already-computed state/scans, adding no map-wide rescoring or pathfinding; also removed a duplicate `CvInfo_Symbol.h` include.
 
 ### Revision 76 - SAS practical 6461
 
