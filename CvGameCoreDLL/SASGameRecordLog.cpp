@@ -1356,6 +1356,70 @@ static void logSASGameRecordTechCapabilitySources()
 			getSASDiagnosticOrDash(szMapTrading).GetCString(), getSASDiagnosticOrDash(szTechTrading).GetCString(), getSASDiagnosticOrDash(szGoldTrading).GetCString(), getSASDiagnosticOrDash(szOpenBordersTrading).GetCString(), getSASDiagnosticOrDash(szDefensivePactTrading).GetCString(), getSASDiagnosticOrDash(szPermanentAllianceTrading).GetCString(), getSASDiagnosticOrDash(szVassalStateTrading).GetCString());
 }
 
+
+static void resetSASGameRecordState();
+static void flushSASGameRecordPendingSessionRows();
+static void logSASGameRecordInitialPlayerIdentities();
+static void logSASGameRecordFinalizedInitialState(int& iTeamStateRows, int& iTechRows, int& iDeals);
+static void initializeSASGameRecordWarsFromLoadedSave();
+// <!-- custom: Base 1.14 still emits these setup helpers directly rather than through mature SAS's later combined initial-context helper. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordAttitudeLegend();
+static void logSASGameRecordTeamContacts(TeamTypes eTeam, int iGameTurn, char const* szReason);
+
+void startSASGameRecordLogForNewGame()
+{
+	// <!-- custom: Preserve delayed city-bombard and per-turn map-history rows from the previous session before switching log filenames. (ChatGPT-5.6-Sol) -->
+	flushSASGameRecordPendingSessionRows();
+	rollSASGameRecordLog("new");
+	resetSASGameRecordState();
+	CvString const szLogName = getSASGameRecordLogName();
+	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString());
+	logSASGameRecordLogSettings();
+	logSASGameRecordTechCapabilitySources();
+	logSASGameRecordAttitudeLegend();
+}
+
+void logSASGameRecordNewGameStarted()
+{
+	logSASGameRecordGameState("GAME_RECORD_NEW_GAME_STARTED");
+	logSASGameRecordInitialPlayerIdentities();
+	if (getSASGameRecordLogLevel() >= 2)
+	{
+		int iTeamStateRows = 0;
+		int iTechRows = 0;
+		int iDeals = 0;
+		logSASGameRecordFinalizedInitialState(iTeamStateRows, iTechRows, iDeals);
+		logSASGameRecord("GAME_RECORD_INITIAL_STATE_SUMMARY teamStateRows=%d techGroupRows=%d techTeamsCovered=%d %s source=FINALIZED_STATE", iTeamStateRows, iTechRows, iTeamStateRows, getSASInitialDealSummaryFields(true, iDeals).GetCString());
+	}
+}
+
+
+void startSASGameRecordLogForLoadedSave()
+{
+	// <!-- custom: Preserve any final pending bombard/map-history rows in the previous session before rolling to the loaded-save log. (ChatGPT-5.6-Sol) -->
+	flushSASGameRecordPendingSessionRows();
+	rollSASGameRecordLog("load");
+	resetSASGameRecordState();
+	// <!-- custom: Loaded RNG state already exists when onAllGameDataRead starts this new recorder session, so use it directly as the level-3 baseline. Session counters intentionally restart at each timestamped load log. GAMEOPTION_NEW_RANDOM_SEED is likewise applied during deserialization while old-session tracking is already finalized; its resulting seed is intentionally the new session baseline rather than a cross-session SEED_SET operation. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 3) initializeSASGameRecordRngTracking();
+	initializeSASGameRecordWarsFromLoadedSave();
+	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
+	logSASGameRecordLogSettings();
+	logSASGameRecordTechCapabilitySources();
+	logSASGameRecordAttitudeLegend();
+	logSASGameRecordInitialPlayerIdentities();
+	// <!-- custom: Level-2+ new games already emitted authoritative INITIAL_TEAM_STATE metTeams and seeded the contact baseline.
+	// Loaded saves have no finalized initial-team block in this session, so retain explicit setup contact rows for them. (ChatGPT-5.6-Sol) -->
+	if (getSASGameRecordLogLevel() >= 2)
+	{
+		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+		{
+			TeamTypes eLoopTeam = (TeamTypes)iI;
+			if (GET_TEAM(eLoopTeam).isAlive() && !GET_TEAM(eLoopTeam).isBarbarian())
+				logSASGameRecordTeamContacts(eLoopTeam, GC.getGame().getGameTurn(), "setup");
+		}
+	}
+}
 // <!-- custom: Game-record helpers keep output compact, stable, and machine-readable. They intentionally use XML type names instead of localized text where possible, so external tools can diff and parse autoplay runs reliably. The static state below is tiny and is only reset/updated through game-record call sites when the XML log level enables this feature; dynamic XML logging cannot be compiled out cleanly without losing normal runtime XML tuning. (ChatGPT-5.5) -->
 static int g_aiSASGameRecordBattleWins[MAX_PLAYERS];
 static int g_aiSASGameRecordBattleLosses[MAX_PLAYERS];
@@ -2086,88 +2150,17 @@ static int getSASGameRecordDelta(bool bValid, int iCurrent, int iPrevious)
 	return bValid ? iCurrent - iPrevious : 0;
 }
 
-static void resetSASGameRecordGlobalPrevious()
+// <!-- custom: New/load entry points are intentionally ordered with mature AdvCiv-SAS before plot-history globals are defined. Keep the existing Base rollover flush semantics behind one later helper instead of exposing those globals early. (ChatGPT-5.6-Sol) -->
+static void flushSASGameRecordPendingSessionRows()
 {
-	g_kSASGameRecordGlobalPrevious.bValid = false;
+	if (g_iSASGameRecordPendingPlotTurn >= 0) flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
+	else flushSASGameRecordPendingCityBombard();
 }
 
 
-static void resetSASGameRecordControlState()
+// <!-- custom: Consolidate the recorder-local session reset behind the same single entry point used by mature AdvCiv-SAS. This intentionally preserves the current Base 1.14 reset set rather than importing later SAS-only state. (ChatGPT-5.6-Sol) -->
+static void resetSASGameRecordState()
 {
-	g_iSASGameRecordAutoPlayRequestId = 0;
-	g_iSASGameRecordAutoPlayRequestedTurns = 0;
-	g_iSASGameRecordAutoPlayStartTurn = -1;
-	g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
-	g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
-	g_iSASGameRecordAutoPlayPlayerChanges = 0;
-	g_iSASGameRecordTotalActivePlayerChanges = 0;
-}
-
-
-
-static void resetSASGameRecordPlayerPrevious()
-{
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
-		g_akSASGameRecordPlayerPrevious[iI].bValid = false;
-}
-
-
-static void resetSASGameRecordResearchState()
-{
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		g_akSASGameRecordResearchPrevious[iI].bValid = false;
-		g_akSASGameRecordResearchPrevious[iI].ePendingCause = RESEARCH_TARGET_CHANGE_UNKNOWN;
-		g_akSASGameRecordResearchApplication[iI].bValid = false;
-	}
-}
-
-
-static void resetSASGameRecordPlayerDurationState()
-{
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		g_aiSASGameRecordLoggedGoldenAgeTurns[iI] = 0;
-		g_aiSASGameRecordLoggedAnarchyTurns[iI] = 0;
-	}
-}
-
-static void resetSASGameRecordTeamPrevious()
-{
-	for (int iI = 0; iI < MAX_TEAMS; iI++)
-	{
-		g_akSASGameRecordTeamPrevious[iI].bValid = false;
-		g_akSASGameRecordTeamPrevious[iI].bContactsValid = false;
-	}
-}
-
-static void resetSASGameRecordCityLifecycleState()
-{
-	g_aSASGameRecordCityRazeContexts.clear();
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		g_aiSASGameRecordCitiesAcquired[iI] = 0;
-		g_aiSASGameRecordCitiesLost[iI] = 0;
-		g_aiSASGameRecordCitiesConquered[iI] = 0;
-		g_aiSASGameRecordCitiesLostByConquest[iI] = 0;
-		g_aiSASGameRecordCitiesTradedIn[iI] = 0;
-		g_aiSASGameRecordCitiesTradedOut[iI] = 0;
-	}
-}
-
-static void resetSASGameRecordBlockadeState()
-{
-	g_aSASGameRecordBlockades.clear();
-}
-
-static void resetSASGameRecordCityBombardState()
-{
-	g_kSASGameRecordPendingCityBombard = SASGameRecordCityBombardPending();
-}
-
-static void resetSASGameRecordCombatState()
-{
-	g_aSASGameRecordCombatPending.clear();
 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		g_aiSASGameRecordBattleWins[iI] = 0;
@@ -2180,22 +2173,45 @@ static void resetSASGameRecordCombatState()
 		g_aiSASGameRecordTotalCityBattleLosses[iI] = 0;
 		g_akSASGameRecordBattleQuality[iI].reset();
 		g_akSASGameRecordTotalBattleQuality[iI].reset();
-	}
-	g_iSASGameRecordBattleStartTurn = GC.getGame().getGameTurn();
-}
-
-static void resetSASGameRecordMilitaryFlowState()
-{
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		g_akSASGameRecordPlayerFlow[iI].reset();
 		g_akSASGameRecordMilitaryQualityTotals[iI].reset();
+		g_aiSASGameRecordLoggedGoldenAgeTurns[iI] = 0;
+		g_aiSASGameRecordLoggedAnarchyTurns[iI] = 0;
+		g_akSASGameRecordResearchPrevious[iI].bValid = false;
+		g_akSASGameRecordResearchPrevious[iI].ePendingCause = RESEARCH_TARGET_CHANGE_UNKNOWN;
+		g_akSASGameRecordResearchApplication[iI].bValid = false;
+		g_aiSASGameRecordCitiesAcquired[iI] = 0;
+		g_aiSASGameRecordCitiesLost[iI] = 0;
+		g_aiSASGameRecordCitiesConquered[iI] = 0;
+		g_aiSASGameRecordCitiesLostByConquest[iI] = 0;
+		g_aiSASGameRecordCitiesTradedIn[iI] = 0;
+		g_aiSASGameRecordCitiesTradedOut[iI] = 0;
+		g_akSASGameRecordPlayerFlow[iI].reset();
+		g_akSASGameRecordPlayerPrevious[iI].bValid = false;
 	}
+	for (int iI = 0; iI < MAX_TEAMS; iI++)
+	{
+		g_akSASGameRecordTeamPrevious[iI].bValid = false;
+		g_akSASGameRecordTeamPrevious[iI].bContactsValid = false;
+	}
+	g_kSASGameRecordGlobalPrevious.bValid = false;
+	g_aSASGameRecordWars.clear();
+	g_aSASGameRecordCityRazeContexts.clear();
+	g_aSASGameRecordCombatPending.clear();
+	g_aSASGameRecordBlockades.clear();
+	g_iSASGameRecordLastFullSnapshotTurn = -1;
+	g_iSASGameRecordBattleStartTurn = GC.getGame().getGameTurn();
 	g_iSASGameRecordProductionFlowStartTurn = GC.getGame().getGameTurn();
 	g_iSASGameRecordMilitaryFlowStartTurn = GC.getGame().getGameTurn();
 	g_iSASGameRecordCityPopulationFlowStartTurn = GC.getGame().getGameTurn();
+	g_kSASGameRecordPendingCityBombard = SASGameRecordCityBombardPending();
+	g_iSASGameRecordAutoPlayRequestId = 0;
+	g_iSASGameRecordAutoPlayRequestedTurns = 0;
+	g_iSASGameRecordAutoPlayStartTurn = -1;
+	g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
+	g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
+	g_iSASGameRecordAutoPlayPlayerChanges = 0;
+	g_iSASGameRecordTotalActivePlayerChanges = 0;
 }
-
 // <!-- custom: Team snapshots intentionally list living members, but CvTeam::addTeam reassigns every player slot on the absorbed team.
 // Keep a separate exact helper for that rare structural boundary. (ChatGPT-5.6-Sol) -->
 static CvString getSASGameRecordTeamAssignedPlayers(TeamTypes eTeam, int& iCount)
@@ -3111,32 +3127,6 @@ static void logSASGameRecordAttitudeLegend()
 			iFuriousMax, iFuriousMax + 1, iAnnoyedMax, iAnnoyedMax + 1, iPleasedMin - 1, iPleasedMin, iFriendlyMin - 1, iFriendlyMin);
 }
 
-void startSASGameRecordLogForNewGame()
-{
-	// <!-- custom: Preserve delayed city-bombard and per-turn map-history rows from the previous session before switching log filenames. (ChatGPT-5.6-Sol) -->
-	if (g_iSASGameRecordPendingPlotTurn >= 0) flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
-	else flushSASGameRecordPendingCityBombard();
-	rollSASGameRecordLog("new");
-	resetSASGameRecordTeamPrevious();
-	resetSASGameRecordPlayerPrevious();
-	resetSASGameRecordPlayerDurationState();
-	resetSASGameRecordGlobalPrevious();
-	resetSASGameRecordResearchState();
-	resetSASGameRecordControlState();
-	resetSASGameRecordCityLifecycleState();
-	resetSASGameRecordCombatState();
-	resetSASGameRecordBlockadeState();
-	resetSASGameRecordMilitaryFlowState();
-	resetSASGameRecordCityBombardState();
-	g_aSASGameRecordWars.clear();
-	g_iSASGameRecordLastFullSnapshotTurn = -1;
-	CvString const szLogName = getSASGameRecordLogName();
-	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString());
-	logSASGameRecordLogSettings();
-	logSASGameRecordTechCapabilitySources();
-	logSASGameRecordAttitudeLegend();
-}
-
 static void seedSASGameRecordTeamPreviousFromCurrentState(TeamTypes eTeam)
 {
 	CvGame const& kGame = GC.getGame();
@@ -3228,60 +3218,6 @@ static void logSASGameRecordInitialPlayerIdentities()
 		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
 		if (kLoopPlayer.isEverAlive() && !kLoopPlayer.isBarbarian())
 			logSASGameRecordPlayerSetup(eLoopPlayer);
-	}
-}
-
-void logSASGameRecordNewGameStarted()
-{
-	logSASGameRecordGameState("GAME_RECORD_NEW_GAME_STARTED");
-	logSASGameRecordInitialPlayerIdentities();
-	if (getSASGameRecordLogLevel() >= 2)
-	{
-		int iTeamStateRows = 0;
-		int iTechRows = 0;
-		int iDeals = 0;
-		logSASGameRecordFinalizedInitialState(iTeamStateRows, iTechRows, iDeals);
-		logSASGameRecord("GAME_RECORD_INITIAL_STATE_SUMMARY teamStateRows=%d techGroupRows=%d techTeamsCovered=%d %s source=FINALIZED_STATE", iTeamStateRows, iTechRows, iTeamStateRows, getSASInitialDealSummaryFields(true, iDeals).GetCString());
-	}
-}
-
-void startSASGameRecordLogForLoadedSave()
-{
-	// <!-- custom: Preserve any final pending bombard/map-history rows in the previous session before rolling to the loaded-save log. (ChatGPT-5.6-Sol) -->
-	if (g_iSASGameRecordPendingPlotTurn >= 0) flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
-	else flushSASGameRecordPendingCityBombard();
-	rollSASGameRecordLog("load");
-	// <!-- custom: Loaded RNG state already exists when onAllGameDataRead starts this new recorder session, so use it directly as the level-3 baseline. Session counters intentionally restart at each timestamped load log. GAMEOPTION_NEW_RANDOM_SEED is likewise applied during deserialization while old-session tracking is already finalized; its resulting seed is intentionally the new session baseline rather than a cross-session SEED_SET operation. (GPT-5.6-Sol) -->
-	if (gGameRecordLogLevel >= 3) initializeSASGameRecordRngTracking();
-	resetSASGameRecordTeamPrevious();
-	resetSASGameRecordPlayerPrevious();
-	resetSASGameRecordPlayerDurationState();
-	resetSASGameRecordGlobalPrevious();
-	resetSASGameRecordResearchState();
-	resetSASGameRecordControlState();
-	resetSASGameRecordCityLifecycleState();
-	resetSASGameRecordCombatState();
-	resetSASGameRecordBlockadeState();
-	resetSASGameRecordMilitaryFlowState();
-	resetSASGameRecordCityBombardState();
-	g_aSASGameRecordWars.clear();
-	initializeSASGameRecordWarsFromLoadedSave();
-	g_iSASGameRecordLastFullSnapshotTurn = -1;
-	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
-	logSASGameRecordLogSettings();
-	logSASGameRecordTechCapabilitySources();
-	logSASGameRecordAttitudeLegend();
-	logSASGameRecordInitialPlayerIdentities();
-	// <!-- custom: Level-2+ new games already emitted authoritative INITIAL_TEAM_STATE metTeams and seeded the contact baseline.
-	// Loaded saves have no finalized initial-team block in this session, so retain explicit setup contact rows for them. (ChatGPT-5.6-Sol) -->
-	if (getSASGameRecordLogLevel() >= 2)
-	{
-		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
-		{
-			TeamTypes eLoopTeam = (TeamTypes)iI;
-			if (GET_TEAM(eLoopTeam).isAlive() && !GET_TEAM(eLoopTeam).isBarbarian())
-				logSASGameRecordTeamContacts(eLoopTeam, GC.getGame().getGameTurn(), "setup");
-		}
 	}
 }
 
