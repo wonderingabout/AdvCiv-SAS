@@ -7289,7 +7289,8 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 			iMinBarbarianStartingDistance);
 	/*	<advc.300> Randomize penalty on short inter-city distance for more variety
 		in Barbarian settling patterns. Was 8 in K-Mod. */
-	citySiteEval.discourageBarbarians(5 + SyncRandNum(7));
+	int const iBarbarianDiscouragedRange = 5 + SyncRandNum(7);
+	citySiteEval.discourageBarbarians(iBarbarianDiscouragedRange);
 	CvMap const& kMap = GC.getMap();
 	std::map<int,int> perAreaUnowned; // Precomputed for efficiency
 	FOR_EACH_AREA(pArea)
@@ -7319,12 +7320,15 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 	int aiTopValues[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
 	int aiTopRawValues[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
 	int aiTopAreaValues[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
+	int aiTopRandomPercents[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
+	bool const bTrackTopBarbarianSites = (gFoundLogLevel > 0 || gGameRecordLogLevel >= 2);
 	for (int i = 0; i < iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT; i++)
 	{
 		apTopPlots[i] = NULL;
 		aiTopValues[i] = 0;
 		aiTopRawValues[i] = 0;
 		aiTopAreaValues[i] = 0;
+		aiTopRandomPercents[i] = 0;
 	}
 	for (int iI = 0; iI < kMap.numPlots(); iI++)
 	{
@@ -7410,7 +7414,7 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 				iBestValue = iValue;
 				pBestPlot = &kPlot;
 			}
-			if (gFoundLogLevel > 0 && iValue > aiTopValues[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT - 1])
+			if (bTrackTopBarbarianSites && iValue > aiTopValues[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT - 1])
 			{
 				for (int i = 0; i < iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT; i++)
 				{
@@ -7421,11 +7425,13 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 						aiTopValues[j] = aiTopValues[j - 1];
 						aiTopRawValues[j] = aiTopRawValues[j - 1];
 						aiTopAreaValues[j] = aiTopAreaValues[j - 1];
+						aiTopRandomPercents[j] = aiTopRandomPercents[j - 1];
 						apTopPlots[j] = apTopPlots[j - 1];
 					}
 					aiTopValues[i] = iValue;
 					aiTopRawValues[i] = iRawValue;
 					aiTopAreaValues[i] = iAreaValue;
+					aiTopRandomPercents[i] = iRandomPercent;
 					apTopPlots[i] = &kPlot;
 					break;
 				}
@@ -7434,6 +7440,14 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 	}
 	if (pBestPlot != NULL)
 	{
+		if (gGameRecordLogLevel >= 2)
+		{
+			int iLoggedCandidates = 0;
+			while (iLoggedCandidates < iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT && apTopPlots[iLoggedCandidates] != NULL)
+				iLoggedCandidates++;
+			logSASGameRecordBarbarianCitySiteChoice(bSkipCivAreas, iProbModifierPercent, iTargetCitiesMultiplier, iBarbarianDiscouragedRange,
+					apTopPlots, aiTopRawValues, aiTopAreaValues, aiTopValues, aiTopRandomPercents, iLoggedCandidates);
+		}
 		if (gFoundLogLevel > 0)
 		{
 			logBBAI("Barbarian city chooser top final candidates before founding:");

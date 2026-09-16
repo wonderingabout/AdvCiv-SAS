@@ -22,14 +22,13 @@
 #include "CvInfo_Terrain.h" // <!-- custom: Needed for terrain/feature/bonus type names in game-record context rows. (ChatGPT-5.5) -->
 #include "CvInfo_Organization.h" // <!-- custom: Needed for religion/corporation type names in game-record action rows. (ChatGPT-5.5) -->
 #include "CvInfo_Unit.h" // <!-- custom: Needed to classify unit composition and city production in game-record rows. (ChatGPT-5.5) -->
-#include "CvInfo_Symbol.h" // <!-- custom: Needed for commerce-slider type names in game-record economy rows. (GPT-5.5) -->
+#include "CvInfo_Symbol.h" // <!-- custom: Needed for commerce-slider type names and actual assigned player-color/primary-color context; CvGlobals only forward-declares the related info classes. (GPT-5.5 + GPT-5.6-Sol) -->
 #include "CvInfo_City.h" // <!-- custom: Needed for specialist and process type names in game-record city rows. (ChatGPT-5.5) -->
 #include "CvInfo_Civics.h" // <!-- custom: Needed for policy/civic names in game-record advisor rows. (ChatGPT-5.5) -->
 #include "CvInfo_Civilization.h" // <!-- custom: Needed to attribute player-wide extra happiness/health to traits instead of leaving effects from loaded-mod rules under an opaque `extra` label. (GPT-5.6-Sol) -->
 #include "CvCivilization.h" // <!-- custom: Needed to resolve civilization-specific BuildingClass types in realized random-event building/city result rows; CvPlayer/CvCity only forward-declare the runtime CvCivilization wrapper. This is a compile-time dependency only. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
 #include "CvInfo_Misc.h" // <!-- custom: Needed to log enabled graphics-option type names; CvGlobals only forward-declares CvGraphicOptionInfo. (GPT-5.6-Sol) -->
-#include "CvInfo_Symbol.h" // <!-- custom: Needed to log actual assigned player-color and primary-color context; CvGlobals only forward-declares their info classes. (GPT-5.6-Sol) -->
 #include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
 #include "CvSelectionGroup.h" // <!-- custom: Needed to inspect worker/settler mission queues in game-record rows. (ChatGPT-5.5) -->
 #include "CvSelectionGroupAI.h" // <!-- custom: Needed for large city-group mission targets and MissionAI state; the base group header only forward-declares CvSelectionGroupAI. (GPT-5.6-Sol) -->
@@ -2266,6 +2265,7 @@ struct SASGameRecordPlayerPrevious
 	int iTerritoryDryFarms;
 	int iSettlerSettlers;
 	int iSettlerFoundMission;
+	int iSettlerFoundIntent;
 	int iSettlerMoving;
 	int iSettlerIdle;
 	int iSettlerWaiting;
@@ -6974,9 +6974,48 @@ static void logSASGameRecordWorkers(PlayerTypes ePlayer, int iGameTurn)
 	kPrevious.iWorkerThreatened = iThreatened;
 }
 
+// <!-- custom: City-site rows deliberately reuse CvPlayerAI's already-maintained shortlist and the found values stored on those shortlist plots.
+// Do not call AI_updateCitySites, CitySiteEvaluator, pathfinding or getFoundValue on arbitrary plots solely for logging; this keeps SASGameRecord observational and cheap while still preserving the AI's broad expansion intent. (ChatGPT-5.6-Sol) -->
+static int getSASGameRecordCitySiteRank(CvPlayerAI const& kPlayer, CvPlot const& kPlot, int& iFoundValue)
+{
+	iFoundValue = -1;
+	for (int iI = 0; iI < kPlayer.AI_getNumCitySites(); iI++)
+	{
+		CvPlot const& kSite = kPlayer.AI_getCitySite(iI);
+		if (&kSite != &kPlot)
+			continue;
+		iFoundValue = kSite.getFoundValue(kPlayer.getID());
+		return iI + 1;
+	}
+	return -1;
+}
+
+static void getSASGameRecordCitySiteAlternative(CvPlayerAI const& kPlayer, CvPlot const* pExclude, int iAlternativeIndex, int& iRank, int& iX, int& iY, int& iFoundValue)
+{
+	iRank = -1;
+	iX = -1;
+	iY = -1;
+	iFoundValue = -1;
+	int iSeen = 0;
+	for (int iI = 0; iI < kPlayer.AI_getNumCitySites(); iI++)
+	{
+		CvPlot const& kSite = kPlayer.AI_getCitySite(iI);
+		if (pExclude != NULL && &kSite == pExclude)
+			continue;
+		if (iSeen++ != iAlternativeIndex)
+			continue;
+		iRank = iI + 1;
+		iX = kSite.getX();
+		iY = kSite.getY();
+		iFoundValue = kSite.getFoundValue(kPlayer.getID());
+		return;
+	}
+}
+
 static void logSASGameRecordExpansion(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	CvPlayerAI const& kPlayerAI = kPlayer.AI();
 	const TeamTypes eTeam = kPlayer.getTeam();
 	static const ImprovementTypes eFarm = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FARM");
 	int iRevealedLand = 0;
@@ -7038,8 +7077,23 @@ static void logSASGameRecordExpansion(PlayerTypes ePlayer, int iGameTurn)
 		if (eProductionUnit != NO_UNIT && GC.getInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_SETTLE)
 			iCitiesProducingSettlers++;
 	}
+	// <!-- custom: One periodic shortlist summary answers whether the AI currently sees worthwhile expansion opportunities without serializing every plot valuation.
+	// The shortlist is already maintained by normal AI code; reading its primary entry and current threshold adds no map scan or candidate evaluation. (ChatGPT-5.6-Sol) -->
+	int const iCitySites = kPlayerAI.AI_getNumCitySites();
+	int const iMinFoundValue = kPlayerAI.AI_getMinFoundValue();
+	int iPrimarySiteX = -1;
+	int iPrimarySiteY = -1;
+	int iPrimarySiteFoundValue = -1;
+	if (iCitySites > 0)
+	{
+		CvPlot const& kPrimarySite = kPlayerAI.AI_getCitySite(0);
+		iPrimarySiteX = kPrimarySite.getX();
+		iPrimarySiteY = kPrimarySite.getY();
+		iPrimarySiteFoundValue = kPrimarySite.getFoundValue(ePlayer);
+	}
 	int iSettlers = 0;
 	int iFoundMission = 0;
+	int iFoundIntent = 0;
 	int iNearestSettlerCityDistance = -1;
 	int iTotalSettlerCityDistance = 0;
 	int iSettlersWithCityDistance = 0;
@@ -7051,6 +7105,9 @@ static void logSASGameRecordExpansion(PlayerTypes ePlayer, int iGameTurn)
 		iSettlers++;
 		if (getSASGameRecordUnitMissionType(*pLoopUnit) == MISSION_FOUND)
 			iFoundMission++;
+		CvSelectionGroup const* pGroup = pLoopUnit->getGroup();
+		if (pGroup != NULL && pGroup->AI().AI_getMissionAIType() == MISSIONAI_FOUND)
+			iFoundIntent++;
 		CvCity const* pNearestCity = kMap.findCity(pLoopUnit->getX(), pLoopUnit->getY(), ePlayer, NO_TEAM, false);
 		if (pNearestCity == NULL)
 			continue;
@@ -7145,9 +7202,9 @@ static void logSASGameRecordExpansion(PlayerTypes ePlayer, int iGameTurn)
 		if (bEnemyHasKnownCity)
 			iEnemyPlayersWithKnownCities++;
 	}
-	logSASGameRecord("GAME_RECORD_EXPANSION turn=%d player=%d cities=%d targetCities=%d ownedLand=%d revealedLand=%d visibleLand=%d revealedUnownedLand=%d visibleUnownedLand=%d revealedForeignLand=%d visibleForeignLand=%d revealedOtherTeamLand=%d visibleOtherTeamLand=%d settlers=%d foundMission=%d citiesProducingSettlers=%d nearestSettlerCityDistance=%d avgSettlerCityDistanceX100=%d capitalArea=%d nearestRevealedOtherTeamLandFromCapitalDistance=%d nearestRevealedEnemyLandFromCapitalDistance=%d metForeignPlayers=%d foreignPlayersWithKnownCities=%d knownForeignCities=%d capitalAreaForeignPlayersWithKnownCities=%d capitalAreaKnownForeignCities=%d nearestKnownForeignCityPlayer=%d nearestKnownForeignCityId=%d nearestKnownForeignCityFromCapitalDistance=%d nearestCapitalAreaKnownForeignCityPlayer=%d nearestCapitalAreaKnownForeignCityId=%d nearestCapitalAreaKnownForeignCityFromCapitalDistance=%d warEnemyPlayers=%d enemyPlayersWithKnownCities=%d knownEnemyCities=%d nearestKnownEnemyCityPlayer=%d nearestKnownEnemyCityId=%d nearestKnownEnemyCityFromCapitalDistance=%d",
+	logSASGameRecord("GAME_RECORD_EXPANSION turn=%d player=%d cities=%d targetCities=%d ownedLand=%d revealedLand=%d visibleLand=%d revealedUnownedLand=%d visibleUnownedLand=%d revealedForeignLand=%d visibleForeignLand=%d revealedOtherTeamLand=%d visibleOtherTeamLand=%d citySites=%d minFoundValue=%d primarySiteX=%d primarySiteY=%d primarySiteFoundValue=%d settlers=%d foundMission=%d foundIntent=%d citiesProducingSettlers=%d nearestSettlerCityDistance=%d avgSettlerCityDistanceX100=%d capitalArea=%d nearestRevealedOtherTeamLandFromCapitalDistance=%d nearestRevealedEnemyLandFromCapitalDistance=%d metForeignPlayers=%d foreignPlayersWithKnownCities=%d knownForeignCities=%d capitalAreaForeignPlayersWithKnownCities=%d capitalAreaKnownForeignCities=%d nearestKnownForeignCityPlayer=%d nearestKnownForeignCityId=%d nearestKnownForeignCityFromCapitalDistance=%d nearestCapitalAreaKnownForeignCityPlayer=%d nearestCapitalAreaKnownForeignCityId=%d nearestCapitalAreaKnownForeignCityFromCapitalDistance=%d warEnemyPlayers=%d enemyPlayersWithKnownCities=%d knownEnemyCities=%d nearestKnownEnemyCityPlayer=%d nearestKnownEnemyCityId=%d nearestKnownEnemyCityFromCapitalDistance=%d",
 			iGameTurn, ePlayer, kPlayer.getNumCities(), GC.getInfo(kMap.getWorldSize()).getTargetNumCities(), kPlayer.getTotalLand(), iRevealedLand, iVisibleLand, iRevealedUnownedLand, iVisibleUnownedLand, iRevealedForeignLand, iVisibleForeignLand, iRevealedOtherTeamLand, iVisibleOtherTeamLand,
-			iSettlers, iFoundMission, iCitiesProducingSettlers, iNearestSettlerCityDistance, iAvgSettlerCityDistanceX100, iCapitalArea, iNearestRevealedOtherTeamLandDistance, iNearestRevealedEnemyLandDistance,
+			iCitySites, iMinFoundValue, iPrimarySiteX, iPrimarySiteY, iPrimarySiteFoundValue, iSettlers, iFoundMission, iFoundIntent, iCitiesProducingSettlers, iNearestSettlerCityDistance, iAvgSettlerCityDistanceX100, iCapitalArea, iNearestRevealedOtherTeamLandDistance, iNearestRevealedEnemyLandDistance,
 			iMetForeignPlayers, iForeignPlayersWithKnownCities, iKnownForeignCities, iCapitalAreaForeignPlayersWithKnownCities, iCapitalAreaKnownForeignCities,
 			eNearestKnownForeignCityPlayer, iNearestKnownForeignCityId, iNearestKnownForeignCityDistance, eNearestCapitalAreaKnownForeignCityPlayer, iNearestCapitalAreaKnownForeignCityId, iNearestCapitalAreaKnownForeignCityDistance,
 			iWarEnemyPlayers, iEnemyPlayersWithKnownCities, iKnownEnemyCities, eNearestKnownEnemyCityPlayer, iNearestKnownEnemyCityId, iNearestKnownEnemyCityDistance);
@@ -7162,6 +7219,7 @@ static void logSASGameRecordSettlers(PlayerTypes ePlayer, int iGameTurn)
 	bool const bLogSettlerDetails = (gGameRecordLogLevel >= 3);
 	int iSettlers = 0;
 	int iFoundMission = 0;
+	int iFoundIntent = 0;
 	int iMoving = 0;
 	int iIdle = 0;
 	int iWaiting = 0;
@@ -7178,10 +7236,16 @@ static void logSASGameRecordSettlers(PlayerTypes ePlayer, int iGameTurn)
 			continue;
 		iSettlers++;
 		CvPlot const* pPlot = pLoopUnit->plot();
+		CvSelectionGroup const* pGroup = pLoopUnit->getGroup();
+		CvSelectionGroupAI const* pGroupAI = (pGroup == NULL ? NULL : &pGroup->AI());
+		MissionAITypes const eMissionAI = (pGroupAI == NULL ? NO_MISSIONAI : pGroupAI->AI_getMissionAIType());
+		CvPlot const* pMissionPlot = (pGroupAI == NULL ? NULL : pGroupAI->AI_getMissionAIPlot());
 		MissionTypes eMission = getSASGameRecordUnitMissionType(*pLoopUnit);
 		if (eMission == MISSION_FOUND)
 			iFoundMission++;
-		else if (eMission == MISSION_MOVE_TO || eMission == MISSION_ROUTE_TO || eMission == MISSION_MOVE_TO_UNIT)
+		if (eMissionAI == MISSIONAI_FOUND)
+			iFoundIntent++;
+		if (eMission == MISSION_MOVE_TO || eMission == MISSION_ROUTE_TO || eMission == MISSION_MOVE_TO_UNIT)
 			iMoving++;
 		else if (pLoopUnit->canMove())
 			iIdle++;
@@ -7205,20 +7269,38 @@ static void logSASGameRecordSettlers(PlayerTypes ePlayer, int iGameTurn)
 		{
 			CvCity const* pNearestCity = GC.getMap().findCity(pLoopUnit->getX(), pLoopUnit->getY(), ePlayer, NO_TEAM, false);
 			const int iNearestDistance = pNearestCity == NULL ? -1 : plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pNearestCity->getX(), pNearestCity->getY());
-			logSASGameRecord("GAME_RECORD_SETTLER turn=%d player=%d unitId=%d unit=%s unitAI=%s x=%d y=%d mission=%s plotOwner=%d plotTerrain=%s plotFeature=%s plotBonus=%s plotImprovement=%s plotRoute=%s guarded=%d threatened=%d nearestCityId=%d nearestCity=%S nearestCityDistance=%d",
-					iGameTurn, ePlayer, pLoopUnit->getID(), getSASGameRecordUnitType(pLoopUnit->getUnitType()), getSASGameRecordUnitAIType(pLoopUnit->AI_getUnitAIType()), pLoopUnit->getX(), pLoopUnit->getY(),
-					getSASGameRecordMissionType(eMission), pPlot->getOwner(), getSASGameRecordTerrainType(pPlot->getTerrainType()), getSASGameRecordFeatureType(pPlot->getFeatureType()),
+			int iTargetSiteFoundValue = -1;
+			int iTargetSiteRank = -1;
+			int iTargetX = -1;
+			int iTargetY = -1;
+			int iTargetArea = -1;
+			int iTargetDistance = -1;
+			if (pMissionPlot != NULL)
+			{
+				iTargetX = pMissionPlot->getX();
+				iTargetY = pMissionPlot->getY();
+				iTargetArea = pMissionPlot->getArea().getID();
+				iTargetDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iTargetX, iTargetY);
+				if (eMissionAI == MISSIONAI_FOUND)
+					iTargetSiteRank = getSASGameRecordCitySiteRank(kPlayer.AI(), *pMissionPlot, iTargetSiteFoundValue);
+			}
+			logSASGameRecord("GAME_RECORD_SETTLER turn=%d player=%d unitId=%d unit=%s unitAI=%s groupId=%d x=%d y=%d mission=%s missionAI=%d targetX=%d targetY=%d targetArea=%d targetDistance=%d targetSiteListRank=%d targetCachedFoundValue=%d plotOwner=%d plotTerrain=%s plotFeature=%s plotBonus=%s plotImprovement=%s plotRoute=%s guarded=%d threatened=%d nearestCityId=%d nearestCity=%S nearestCityDistance=%d",
+					iGameTurn, ePlayer, pLoopUnit->getID(), getSASGameRecordUnitType(pLoopUnit->getUnitType()), getSASGameRecordUnitAIType(pLoopUnit->AI_getUnitAIType()),
+					(pGroup == NULL ? -1 : pGroup->getID()), pLoopUnit->getX(), pLoopUnit->getY(), getSASGameRecordMissionType(eMission), eMissionAI,
+					iTargetX, iTargetY, iTargetArea, iTargetDistance, iTargetSiteRank, iTargetSiteFoundValue,
+					pPlot->getOwner(), getSASGameRecordTerrainType(pPlot->getTerrainType()), getSASGameRecordFeatureType(pPlot->getFeatureType()),
 					getSASGameRecordBonusType(pPlot->getBonusType(pLoopUnit->getTeam())), getSASGameRecordImprovementType(pPlot->getImprovementType()), getSASGameRecordRouteType(pPlot->getRouteType()),
 					bGuarded, bThreatened, pNearestCity == NULL ? -1 : pNearestCity->getID(), getSASGameRecordQuotedCityName(pNearestCity).GetCString(), iNearestDistance);
 		}
 	}
-	logSASGameRecord("GAME_RECORD_SETTLERS turn=%d player=%d settlers=%d foundMission=%d moving=%d idle=%d waiting=%d ownTerritory=%d enemyTerritory=%d neutralTerritory=%d guarded=%d unguarded=%d threatened=%d",
-			iGameTurn, ePlayer, iSettlers, iFoundMission, iMoving, iIdle, iWaiting, iOwnTerritory, iEnemyTerritory, iNeutralTerritory, iGuarded, iUnguarded, iThreatened);
-	logSASGameRecord("GAME_RECORD_SETTLERS_DELTAS turn=%d player=%d deltaValid=%d settlersDelta=%+d foundMissionDelta=%+d movingDelta=%+d idleDelta=%+d waitingDelta=%+d threatenedDelta=%+d",
-			iGameTurn, ePlayer, kPrevious.bValid, getSASGameRecordDelta(kPrevious.bValid, iSettlers, kPrevious.iSettlerSettlers), getSASGameRecordDelta(kPrevious.bValid, iFoundMission, kPrevious.iSettlerFoundMission),
+	logSASGameRecord("GAME_RECORD_SETTLERS turn=%d player=%d settlers=%d foundMission=%d foundIntent=%d moving=%d idle=%d waiting=%d ownTerritory=%d enemyTerritory=%d neutralTerritory=%d guarded=%d unguarded=%d threatened=%d",
+			iGameTurn, ePlayer, iSettlers, iFoundMission, iFoundIntent, iMoving, iIdle, iWaiting, iOwnTerritory, iEnemyTerritory, iNeutralTerritory, iGuarded, iUnguarded, iThreatened);
+	logSASGameRecord("GAME_RECORD_SETTLERS_DELTAS turn=%d player=%d deltaValid=%d settlersDelta=%+d foundMissionDelta=%+d foundIntentDelta=%+d movingDelta=%+d idleDelta=%+d waitingDelta=%+d threatenedDelta=%+d",
+			iGameTurn, ePlayer, kPrevious.bValid, getSASGameRecordDelta(kPrevious.bValid, iSettlers, kPrevious.iSettlerSettlers), getSASGameRecordDelta(kPrevious.bValid, iFoundMission, kPrevious.iSettlerFoundMission), getSASGameRecordDelta(kPrevious.bValid, iFoundIntent, kPrevious.iSettlerFoundIntent),
 			getSASGameRecordDelta(kPrevious.bValid, iMoving, kPrevious.iSettlerMoving), getSASGameRecordDelta(kPrevious.bValid, iIdle, kPrevious.iSettlerIdle), getSASGameRecordDelta(kPrevious.bValid, iWaiting, kPrevious.iSettlerWaiting), getSASGameRecordDelta(kPrevious.bValid, iThreatened, kPrevious.iSettlerThreatened));
 	kPrevious.iSettlerSettlers = iSettlers;
 	kPrevious.iSettlerFoundMission = iFoundMission;
+	kPrevious.iSettlerFoundIntent = iFoundIntent;
 	kPrevious.iSettlerMoving = iMoving;
 	kPrevious.iSettlerIdle = iIdle;
 	kPrevious.iSettlerWaiting = iWaiting;
@@ -9375,6 +9457,45 @@ void logSASGameRecordTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes 
 	CvTechInfo const& kTech = GC.getInfo(eType);
 	// <!-- custom: The acquisition turn already gives the exact chronology. Mark technologies that enable tech or gold trading, while team snapshots state whether each capability is currently available. (GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=TECH_ACQUIRED player=%d team=%d tech=%s source=%s enablesTechTrading=%d enablesGoldTrading=%d", GC.getGame().getGameTurn(), ePlayer, eTeam, getSASGameRecordTechType(eType), getSASTechAcquisitionCause(eCause), kTech.isTechTrading(), kTech.isGoldTrading());
+}
+
+void logSASGameRecordBarbarianCitySiteChoice(bool bSkipCivAreas, int iProbModifierPercent, int iTargetCitiesMultiplier, int iDiscouragedRange,
+		CvPlot const* const apPlots[], int const aiRawValues[], int const aiAreaValues[], int const aiFinalValues[], int const aiRandomPercents[], int iCandidateCount)
+{
+	CvPlot const* pChosen = (iCandidateCount > 0 ? apPlots[0] : NULL);
+	CvPlot const* pAlt1 = (iCandidateCount > 1 ? apPlots[1] : NULL);
+	CvPlot const* pAlt2 = (iCandidateCount > 2 ? apPlots[2] : NULL);
+	// <!-- custom: Unlike normal-civ settling, Barbarian cities are selected directly inside CvGame::createBarbarianCity from a full gameplay-required scan.
+	// Preserve that exact chooser-time winner and two runner-ups here; the caller passes values it already computed, so SASGameRecord performs no additional evaluation, RNG or map scan. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_BARBARIAN_CITY_SITE_CHOICE turn=%d skipCivAreas=%d probabilityModifierPercent=%d targetCitiesMultiplier=%d discouragedRange=%d chosenX=%d chosenY=%d chosenArea=%d chosenRawValue=%d chosenAreaAdjustedValue=%d chosenFinalValue=%d chosenRandomPercent=%d alt1X=%d alt1Y=%d alt1Area=%d alt1RawValue=%d alt1AreaAdjustedValue=%d alt1FinalValue=%d alt1RandomPercent=%d alt2X=%d alt2Y=%d alt2Area=%d alt2RawValue=%d alt2AreaAdjustedValue=%d alt2FinalValue=%d alt2RandomPercent=%d",
+			GC.getGame().getGameTurn(), bSkipCivAreas, iProbModifierPercent, iTargetCitiesMultiplier, iDiscouragedRange,
+			pChosen == NULL ? -1 : pChosen->getX(), pChosen == NULL ? -1 : pChosen->getY(), pChosen == NULL ? -1 : pChosen->getArea().getID(), iCandidateCount > 0 ? aiRawValues[0] : -1, iCandidateCount > 0 ? aiAreaValues[0] : -1, iCandidateCount > 0 ? aiFinalValues[0] : -1, iCandidateCount > 0 ? aiRandomPercents[0] : -1,
+			pAlt1 == NULL ? -1 : pAlt1->getX(), pAlt1 == NULL ? -1 : pAlt1->getY(), pAlt1 == NULL ? -1 : pAlt1->getArea().getID(), iCandidateCount > 1 ? aiRawValues[1] : -1, iCandidateCount > 1 ? aiAreaValues[1] : -1, iCandidateCount > 1 ? aiFinalValues[1] : -1, iCandidateCount > 1 ? aiRandomPercents[1] : -1,
+			pAlt2 == NULL ? -1 : pAlt2->getX(), pAlt2 == NULL ? -1 : pAlt2->getY(), pAlt2 == NULL ? -1 : pAlt2->getArea().getID(), iCandidateCount > 2 ? aiRawValues[2] : -1, iCandidateCount > 2 ? aiAreaValues[2] : -1, iCandidateCount > 2 ? aiFinalValues[2] : -1, iCandidateCount > 2 ? aiRandomPercents[2] : -1);
+}
+
+void logSASGameRecordCityFoundingSite(CvPlayer const& kPlayer, CvPlot const& kPlot)
+{
+	if (kPlayer.isBarbarian())
+		return;
+	CvPlayerAI const& kPlayerAI = kPlayer.AI();
+	int iChosenFoundValue = -1;
+	int const iChosenRank = getSASGameRecordCitySiteRank(kPlayerAI, kPlot, iChosenFoundValue);
+	int iAlt1Rank = -1;
+	int iAlt1X = -1;
+	int iAlt1Y = -1;
+	int iAlt1FoundValue = -1;
+	int iAlt2Rank = -1;
+	int iAlt2X = -1;
+	int iAlt2Y = -1;
+	int iAlt2FoundValue = -1;
+	getSASGameRecordCitySiteAlternative(kPlayerAI, &kPlot, 0, iAlt1Rank, iAlt1X, iAlt1Y, iAlt1FoundValue);
+	getSASGameRecordCitySiteAlternative(kPlayerAI, &kPlot, 1, iAlt2Rank, iAlt2X, iAlt2Y, iAlt2FoundValue);
+	// <!-- custom: `chosenCachedFoundValue=-1` means the founded plot is not in the current cached strategic shortlist, not that its true CitySiteEvaluator value is -1.
+	// This distinction is useful in itself: a travelling settler can legitimately found a formerly selected site after the live shortlist has changed. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_CITY_SITE_CHOICE turn=%d player=%d human=%d x=%d y=%d area=%d plotOwner=%d citySites=%d minFoundValue=%d chosenSiteListRank=%d chosenCachedFoundValue=%d alt1SiteListRank=%d alt1X=%d alt1Y=%d alt1CachedFoundValue=%d alt2SiteListRank=%d alt2X=%d alt2Y=%d alt2CachedFoundValue=%d",
+			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.isHuman(), kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), kPlot.getOwner(), kPlayerAI.AI_getNumCitySites(), kPlayerAI.AI_getMinFoundValue(),
+			iChosenRank, iChosenFoundValue, iAlt1Rank, iAlt1X, iAlt1Y, iAlt1FoundValue, iAlt2Rank, iAlt2X, iAlt2Y, iAlt2FoundValue);
 }
 
 void logSASGameRecordCityBuilt(CvCity const* pCity)

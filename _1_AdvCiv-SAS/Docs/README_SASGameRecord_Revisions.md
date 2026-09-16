@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=76 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=77 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -39,6 +39,15 @@ The history below counts commits that changed the recorder implementation itself
 Because this numbering is reconstructed after the fact, the descriptions are concise summaries of the canonical commit diffs/messages rather than claims that these revision numbers were emitted by historical builds.
 
 ## History (latest first)
+
+### Revision 77 - SAS practical pending
+
+- **Date:** 2026-09-15
+- **Change:** Added compact expansion-intent context without enabling detailed Found/BBAI diagnostics: periodic expansion rows now preserve the maintained city-site shortlist count, current minimum found threshold, primary cached site/value, and settler `MISSIONAI_FOUND` count; level-3 settler rows preserve group/founding target coordinates, target shortlist rank and cached found value; and normal city founding records the chosen plot's current shortlist rank/value plus the first two alternative cached sites immediately before city creation mutates the plot.
+
+Barbarian city creation now separately records its exact chooser-time winner and first two runner-ups with raw, area-adjusted and final values, the applied per-site random percent, and the chooser's randomized inter-city discouraged range, reusing the gameplay-required scan rather than normal-civ city-site caches.
+
+The recorder performs no additional map-wide rescoring or pathfinding. Also removed a redundant duplicate `CvInfo_Symbol.h` include while retaining the combined dependency comment.
 
 ### Revision 76 - SAS practical 6461
 

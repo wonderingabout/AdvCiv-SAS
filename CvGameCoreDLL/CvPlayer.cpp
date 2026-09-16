@@ -5449,6 +5449,9 @@ void CvPlayer::found(int iX, int iY)
 	{
 		AI().logFoundValue(GC.getMap().getPlot(iX, iY));
 	} // </advc.031c>
+	// <!-- custom: SASGameRecord keeps only the already-cached strategic site list/value context here, before initCity changes the plot and surrounding city state.
+	// Detailed CitySiteEvaluator component reasoning remains in Found/BBAI diagnostics. (ChatGPT-5.6-Sol) -->
+	if (bLogSASCityFounding) logSASGameRecordCityFoundingSite(*this, GC.getMap().getPlot(iX, iY));
 	CvCity* pCity = initCity(iX, iY, true, true);
 	FAssertMsg(pCity != NULL, "City is not assigned a valid value");
 
