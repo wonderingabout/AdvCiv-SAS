@@ -8478,9 +8478,15 @@ void logSASGameRecordVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVas
 
 void logSASGameRecordVictory(TeamTypes eWinner, VictoryTypes eVictory)
 {
+	// <!-- custom: CvEventReporter already pre-gates this recorder hook at level 1+.
+	// Cache the internal level-2 detail gate only for map-history and war-summary work; this does not replace the project rule that gameplay call sites pre-gate recorder helpers before computing logging-only arguments.
+	// Victory can be reported before the ordinary end-turn hook, so flush this turn's buffered map history first and keep the final snapshot after its last plot changes/revelation. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+	bool const bLogVictoryDetails = (gGameRecordLogLevel >= 2);
+	if (bLogVictoryDetails) flushSASGameRecordTurnChanges(GC.getGame().getGameTurn());
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=VICTORY team=%d victory=%s",
 			GC.getGame().getGameTurn(), eWinner, getSASGameRecordVictoryType(eVictory));
-	// <!-- custom: ReplayInfo preserves only the selected player's final and normalized scores. Record both for every civilization once at victory so benchmark review can compare the complete final field without reconstructing Civ4's final-score formula. (GPT-5.6-Sol) -->
+	// <!-- custom: ReplayInfo preserves only the selected player's final and normalized scores.
+	// Record both for every civilization once at victory so benchmark review can compare the complete final field without reconstructing Civ4's final-score formula. (GPT-5.6-Sol) -->
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
 		PlayerTypes const ePlayer = (PlayerTypes)iI;
@@ -8491,12 +8497,13 @@ void logSASGameRecordVictory(TeamTypes eWinner, VictoryTypes eVictory)
 		logSASGameRecord("GAME_RECORD_FINAL_SCORE turn=%d player=%d team=%d alive=%d winner=%d score=%d normalizedScore=%d", GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), bWinner, kPlayer.calculateScore(), kPlayer.calculateScore(true, bWinner));
 	}
 	// <!-- custom: A victory can end the run with wars still active; preserve their observed results without falsely marking them as completed wars. (GPT-5.6-Sol) -->
-	if (gGameRecordLogLevel >= 2)
+	if (bLogVictoryDetails)
 	{
 		reconcileSASGameRecordWars();
 		logSASGameRecordOngoingWarSummaries("VICTORY");
 	}
-	// <!-- custom: Periodic snapshots could stop several turns before victory, leaving every civilization's exact final state unknown. Force one complete marked snapshot now; the ordinary end-turn hook suppresses a duplicate on the same turn. (GPT-5.6-Sol) -->
+	// <!-- custom: Periodic snapshots could stop several turns before victory, leaving every civilization's exact final state unknown.
+	// Force one complete marked snapshot now; the ordinary end-turn hook suppresses a duplicate on the same turn. (GPT-5.6-Sol) -->
 	logSASGameRecordSnapshot(GC.getGame().getGameTurn(), "victory");
 }
 
@@ -8508,6 +8515,8 @@ void logSASGameRecordPlayerEliminated(PlayerTypes ePlayer)
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PLAYER_ELIMINATED player=%d team=%d civ=%s leader=%s cities=%d units=%d score=%d power=%d playersAlive=%d teamsAlive=%d eliminatedPlayers=%s",
 			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType(), kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType(),
 			kPlayer.getNumCities(), kPlayer.getNumUnits(), kPlayer.calculateScore(), kPlayer.getPower(), GC.getGame().countCivPlayersAlive(), GC.getGame().countCivTeamsAlive(), getSASGameRecordEliminatedPlayers().GetCString());
+	// <!-- custom: If this eliminated the team's last player, close its active war summaries on the exact elimination turn instead of waiting for the next periodic snapshot. (GPT-5.6-Sol) -->
+	reconcileSASGameRecordWars();
 	logSASGameRecordRunStatus("playerEliminated");
 }
 
@@ -8528,7 +8537,9 @@ void logSASGameRecordDebugModeChanged(bool bOldDebugMode, bool bNewDebugMode)
 			GC.getGame().getGameTurn(), bOldDebugMode, bNewDebugMode, GC.getGame().getActivePlayer(), GC.getGame().getAIAutoPlay());
 }
 
-// <!-- custom: Base AdvCiv 1.14 has no explicit autoplay-end-cause plumbing. Record only facts available at its authoritative counter mutation instead of changing signatures merely for telemetry. Scheduled completion is identifiable from the existing no-player-status countdown transition; other endings remain conservatively labelled from current authoritative state. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Base AdvCiv 1.14 has no explicit autoplay-end-cause plumbing.
+// Record only facts available at its authoritative counter mutation instead of changing signatures merely for telemetry.
+// Scheduled completion is identifiable from the existing no-player-status countdown transition; other endings remain conservatively labelled from current authoritative state. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus)
 {
 	if (iOldValue == iNewValue)
@@ -8835,10 +8846,14 @@ void logSASGameRecordCityBombard(CvUnit const* pUnit, CvCity const* pCity, char 
 {
 	if (pUnit == NULL || pCity == NULL)
 		return;
+	// <!-- custom: CvUnit callers already pre-gate this level-3 helper, so disabled/lower-level logging pays no preparation cost.
+	// Advance/flush pending turn/map history before buffering the first bombard of a new turn so older plot/revelation rows cannot be emitted after the synthetic bombard sequence. (ChatGPT-5.6-Sol) -->
+	prepareSASGameRecordTurnChanges();
 	const int iGameTurn = GC.getGame().getGameTurn();
 	const int iDefenseModifierAfter = pCity->getDefenseModifier(false);
 	const int iDefenseDamageAfter = pCity->getDefenseDamage();
-	// <!-- custom: Consecutive bombard actions against the same city are synthetic history, not five nearly identical rows for five Trebuchets. Keep sequences separate when attacker/mode/city changes or defense continuity breaks, and the generic writer flushes a pending sequence before the next unrelated GameRecord row so battle-vs-bombard order remains observable. (GPT-5.6 Thinking) -->
+	// <!-- custom: Consecutive bombard actions against the same city are synthetic history, not five nearly identical rows for five Trebuchets.
+	// Keep sequences separate when attacker/mode/city changes or defense continuity breaks, and the generic writer flushes a pending sequence before the next unrelated GameRecord row so battle-vs-bombard order remains observable. (GPT-5.6 Thinking) -->
 	const bool bContinueSequence = (g_kSASGameRecordPendingCityBombard.bValid && g_kSASGameRecordPendingCityBombard.iTurn == iGameTurn && g_kSASGameRecordPendingCityBombard.szMode == szMode && g_kSASGameRecordPendingCityBombard.ePlayer == pUnit->getOwner() && g_kSASGameRecordPendingCityBombard.eTargetPlayer == pCity->getOwner() && g_kSASGameRecordPendingCityBombard.iCityId == pCity->getID() && g_kSASGameRecordPendingCityBombard.iDefenseModifierAfter == iDefenseModifierBefore && g_kSASGameRecordPendingCityBombard.iDefenseDamageAfter == iDefenseDamageBefore);
 	if (!bContinueSequence)
 	{
