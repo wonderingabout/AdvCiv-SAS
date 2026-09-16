@@ -1,7 +1,8 @@
 A: SASGameRecord_20260915T165847Z_load1.log (155 RNG checkpoints, 155 state checkpoints, revision <unknown>, valid)
 B: SASGameRecord_20260915T170026Z_load2.log (155 RNG checkpoints, 155 state checkpoints, revision <unknown>, valid)
 RNG checkpoints are identical.
+STATE NOTE: recordRevision is unavailable for both records; semantic state hashes are recipe-specific, so recipe compatibility is unknown.
 State fingerprint cost A: total=173 ms median=1 ms p95=2 ms max=2 ms
 State fingerprint cost B: total=168 ms median=1 ms p95=2 ms max=2 ms
 State checkpoints are identical.
-Combined interpretation: authoritative RNG and semantic CORE state match at every comparable checkpoint.
+Combined RNG/state ordering interpretation is intentionally suppressed because explicit matching recordRevision metadata is unavailable.

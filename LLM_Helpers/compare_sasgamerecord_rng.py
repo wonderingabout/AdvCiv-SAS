@@ -375,10 +375,13 @@ def main(argv=None):
         return 2
 
     lines = []
-    revision_a = source_a.get("recordRevision", "<unknown>")
-    revision_b = source_b.get("recordRevision", "<unknown>")
-    lines.append("A: %s (%d RNG checkpoints, %d state checkpoints, revision %s, %s)" % (label_a, len(rows_a), len(state_rows_a), revision_a, "valid" if not errors_a else "%d validation error(s)" % len(errors_a)))
-    lines.append("B: %s (%d RNG checkpoints, %d state checkpoints, revision %s, %s)" % (label_b, len(rows_b), len(state_rows_b), revision_b, "valid" if not errors_b else "%d validation error(s)" % len(errors_b)))
+    revision_a = source_a.get("recordRevision")
+    revision_b = source_b.get("recordRevision")
+    revision_display_a = revision_a if revision_a is not None else "<unknown>"
+    revision_display_b = revision_b if revision_b is not None else "<unknown>"
+    revision_comparable = revision_a is not None and revision_b is not None and revision_a == revision_b
+    lines.append("A: %s (%d RNG checkpoints, %d state checkpoints, revision %s, %s)" % (label_a, len(rows_a), len(state_rows_a), revision_display_a, "valid" if not errors_a else "%d validation error(s)" % len(errors_a)))
+    lines.append("B: %s (%d RNG checkpoints, %d state checkpoints, revision %s, %s)" % (label_b, len(rows_b), len(state_rows_b), revision_display_b, "valid" if not errors_b else "%d validation error(s)" % len(errors_b)))
     for label, settings in (("A", settings_a), ("B", settings_b)):
         if has_game_option(settings, "GAMEOPTION_NEW_RANDOM_SEED"):
             lines.append("REPRODUCIBILITY NOTE: %s enables GAMEOPTION_NEW_RANDOM_SEED; loading that save intentionally reseeds the synchronized RNG, so repeated reload runs are not expected to match." % label)
@@ -409,7 +412,9 @@ def main(argv=None):
     if not state_comparable:
         lines.append("State checkpoint comparison unavailable: both records need GAME_RECORD_STATE_CHECKPOINT rows.")
     else:
-        if revision_a != revision_b:
+        if revision_a is None or revision_b is None:
+            lines.append("STATE NOTE: recordRevision is unavailable for %s; semantic state hashes are recipe-specific, so recipe compatibility is unknown." % ("both records" if revision_a is None and revision_b is None else ("A" if revision_a is None else "B")))
+        elif revision_a != revision_b:
             lines.append("STATE NOTE: recordRevision differs (%s vs %s); state hashes are recipe-specific, so a hash difference may reflect recorder changes as well as gameplay state." % (revision_a, revision_b))
         summary_a = state_compute_summary(state_rows_a)
         summary_b = state_compute_summary(state_rows_b)
@@ -429,12 +434,15 @@ def main(argv=None):
             for name, value_a, value_b in state_differences:
                 lines.append("  %s: %s vs %s" % (name, value_a, value_b))
             lines.append("Interpretation: semantic CORE state diverged (%s)." % state_difference_summary(state_differences))
-            if rng_index is None:
+            if rng_index is None and revision_comparable:
                 lines.append("The authoritative RNG checkpoints still match, so this is evidence of deterministic/non-RNG state divergence within the recorded CORE coverage.")
 
-        # <!-- custom: Interpret relative divergence only when both records use the same official revision, which identifies the exact state-hash recipe. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-        if revision_a != revision_b:
-            lines.append("Combined RNG/state ordering interpretation is intentionally suppressed across different recordRevision values.")
+        # <!-- custom: Interpret relative divergence only when both records expose the same explicit official revision, which identifies the exact state-hash recipe. Missing revision metadata must not accidentally compare equal as <unknown> == <unknown>. (ChatGPT-5.6-Sol) -->
+        if not revision_comparable:
+            if revision_a is None or revision_b is None:
+                lines.append("Combined RNG/state ordering interpretation is intentionally suppressed because explicit matching recordRevision metadata is unavailable.")
+            else:
+                lines.append("Combined RNG/state ordering interpretation is intentionally suppressed across different recordRevision values.")
         elif (rng_index is None or rng_finalize_only) and (state_index is None or state_finalize_only):
             lines.append("Combined interpretation: authoritative RNG and semantic CORE state match at every comparable checkpoint.")
         elif rng_index is None or rng_finalize_only:
