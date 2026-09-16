@@ -5183,21 +5183,7 @@ commit 002ee295c3dd57ce178c9cbf1d9f6c660df2a8d0
 Author: wonderingabout <hidden>
 Date:   2026-06-20 12:51:05 +0200
 
-Add make_light_source_zip.py (make an easily light exportable mod repo ZIP (e.g., for ChatGPT); add SAS_BBAI_WORKER_LOG_LEVEL and SAS_BBAI_WORKER_SEA_LOG_LEVEL
-
-Example of output (Git Bash):
-
-```text
-Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-
-SAS
-Mod name:  AdvCiv-SAS
-Prefix:    AdvCiv-SAS_light_source
-Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260620T124720.zip
-Files:     944
-Size:      43,264,448 bytes before ZIP container overhead
-Mode:      ZIP_STORED / no compression
-Wrote:     944 file(s)
-```
+Add make_light_source_zip.py (make an easily light exportable mod repo ZIP (e.g., for ChatGPT); add SAS_BBAI_WORKER_LOG_LEVEL and SAS_BBAI_WORKER_SEA_LOG_LEVEL, with a command output on Git Bash. Added the example of output (Git Bash) to doc.
 
 Done with the help of GPT-5.5 and ChatGPT-5.5 thanks
 

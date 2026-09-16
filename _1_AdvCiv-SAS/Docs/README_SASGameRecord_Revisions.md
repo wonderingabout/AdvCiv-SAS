@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=77 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=78 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,9 +40,21 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 77 - SAS practical pending
+### Revision 78 - SAS practical 6464
 
-- **Date:** 2026-09-15
+- **Date:** 2026-09-16
+- **Change:** Added compact strategic-intent context without copying exhaustive BBAI/UWAI reasoning into the game record. Periodic team state now preserves every active/preparing war target as `team:WARPLAN/age`, while AI military-production snapshots expose the remaining high-level military strategy flags (`CRUSH`, `TURTLE`, `LAST_STAND`, fast-mover/land-blitz/air-blitz and nuclear strategy) alongside the existing focus-war/dagger/alert/final-war state.
+
+Real foreground UWAI target selection now emits one `GAME_RECORD_AI_WAR_TARGET_CHOICE` when a target passes its actual selection roll, preserving final/original utility, victory-denial adjustment, direct/naval posture, evaluated preparation turns, forced-peace time, drive, rank/count, attitude/closeness, distance and relative power immediately before the resulting plan/declaration mutation.
+
+At level 3, best-target-only roll failures additionally emit one compact `DEFERRED_ROLL` row, making "considered war but delayed it" visible without logging rejected/disqualified candidates or reevaluating UWAI. Periodic espionage state now distinguishes current foreign Spy locations from `MISSIONAI_ATTACK_SPY` destinations and counts recon/guard intent by reading already-stored group mission targets; detailed movement and espionage-mission valuation remain BBAI territory.
+
+The RNG/state comparison helper also now requires both records to expose the same explicit `recordRevision` before emitting recipe-sensitive combined interpretations; two missing revisions no longer accidentally compare equal through the display placeholder `<unknown>`.
+
+### Revision 77 - SAS practical 6463
+
+- **Date:** 2026-09-16
+- **Git commit:** `989eb50ce43e551708d7f573db4b140e28902307`
 - **Change:** Added compact expansion-intent context without enabling detailed Found/BBAI diagnostics: periodic expansion rows now preserve the maintained city-site shortlist count, current minimum found threshold, primary cached site/value, and settler `MISSIONAI_FOUND` count; level-3 settler rows preserve group/founding target coordinates, target shortlist rank and cached found value; and normal city founding records the chosen plot's current shortlist rank/value plus the first two alternative cached sites immediately before city creation mutates the plot.
 
 Barbarian city creation now separately records its exact chooser-time winner and first two runner-ups with raw, area-adjusted and final values, the applied per-site random percent, and the chooser's randomized inter-city discouraged range, reusing the gameplay-required scan rather than normal-civ city-site caches.
@@ -52,6 +64,7 @@ The recorder performs no additional map-wide rescoring or pathfinding. Also remo
 ### Revision 76 - SAS practical 6461
 
 - **Date:** 2026-09-14
+- **Git commit:** `66f72899345d54e552c3a40da59b26d7cbdac270`
 - **Change:** Strengthened runtime provenance with a compact tracked code/rules/scripts diff fingerprint and byte count in `GAME_RECORD_SOURCE_CONTEXT`, scoped to `CvGameCoreDLL`, `Assets/Config`, `Assets/Python`, `Assets/XML`, and `PrivateMaps`. This distinguishes different edits to the same runtime-relevant dirty paths and, together with the independent exact-byte loaded-DLL fingerprint, makes stale/unrebuilt DLL mistakes directly visible without hashing docs/LLM helpers or adding per-file timestamp noise.
 
 ### Revision 75 - SAS practical 6460

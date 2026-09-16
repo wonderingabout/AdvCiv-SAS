@@ -2654,6 +2654,27 @@ static CvString getSASGameRecordWarTeams(TeamTypes eTeam)
 	return getSASDiagnosticOrDash(szList);
 }
 
+// <!-- custom: WAR_PLAN_CHANGED preserves exact transitions after the recorder begins, but a loaded save can already contain active/preparing plans.
+// Keep the current team-level target/plan/age set in periodic state so strategic intent is reconstructible without replaying earlier logs or enabling UWAI diagnostics. (ChatGPT-5.6-Sol) -->
+static CvString getSASGameRecordWarPlans(TeamTypes eTeam)
+{
+	CvString szList;
+	CvTeamAI const& kTeam = GET_TEAM(eTeam);
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		TeamTypes const eLoopTeam = (TeamTypes)iI;
+		if (eLoopTeam == eTeam || !GET_TEAM(eLoopTeam).isAlive() || GET_TEAM(eLoopTeam).isBarbarian())
+			continue;
+		WarPlanTypes const eWarPlan = kTeam.AI_getWarPlan(eLoopTeam);
+		if (eWarPlan == NO_WARPLAN)
+			continue;
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%d:%s/%d" : ",%d:%s/%d", eLoopTeam, getSASWarPlanType(eWarPlan), kTeam.AI_getWarPlanStateCounter(eLoopTeam));
+		szList += szItem;
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
 static CvString getSASGameRecordVassalTeams(TeamTypes eTeam)
 {
 	CvString szList;
@@ -5463,12 +5484,12 @@ static void logSASGameRecordTeamSnapshot(TeamTypes eTeam, int iGameTurn)
 	const int iPopPctX100 = (10000 * iPopulation) / iGamePopulation;
 	SASGameRecordTeamPrevious& kPrevious = g_akSASGameRecordTeamPrevious[eTeam];
 	TeamTypes const eMaster = (kTeam.isAVassal() ? kTeam.getMasterTeam() : NO_TEAM);
-	logSASGameRecord("GAME_RECORD_TEAM turn=%d team=%d members=%s alive=%d deltaValid=%d techs=%d techsDelta=%+d techEraCounts=%s techTrading=%d goldTrading=%d land=%d landDelta=%+d landPctX100=%d landPctX100Delta=%+d pop=%d popDelta=%+d popPctX100=%d popPctX100Delta=%+d wars=%s vassals=%s master=%d",
+	logSASGameRecord("GAME_RECORD_TEAM turn=%d team=%d members=%s alive=%d deltaValid=%d techs=%d techsDelta=%+d techEraCounts=%s techTrading=%d goldTrading=%d land=%d landDelta=%+d landPctX100=%d landPctX100Delta=%+d pop=%d popDelta=%+d popPctX100=%d popPctX100Delta=%+d wars=%s warPlans=%s vassals=%s master=%d",
 			iGameTurn, eTeam, getSASGameRecordTeamMembers(eTeam).GetCString(), kTeam.isAlive(), kPrevious.bValid,
 			iTechs, getSASGameRecordDelta(kPrevious.bValid, iTechs, kPrevious.iTechs), getSASGameRecordTechEraCounts(eTeam).GetCString(), kTeam.isTechTrading(), kTeam.isGoldTrading(),
 			iLand, getSASGameRecordDelta(kPrevious.bValid, iLand, kPrevious.iLand), iLandPctX100, getSASGameRecordDelta(kPrevious.bValid, iLandPctX100, kPrevious.iLandPctX100),
 			iPopulation, getSASGameRecordDelta(kPrevious.bValid, iPopulation, kPrevious.iPopulation), iPopPctX100, getSASGameRecordDelta(kPrevious.bValid, iPopPctX100, kPrevious.iPopPctX100),
-			getSASGameRecordWarTeams(eTeam).GetCString(), getSASGameRecordVassalTeams(eTeam).GetCString(), eMaster);
+			getSASGameRecordWarTeams(eTeam).GetCString(), getSASGameRecordWarPlans(eTeam).GetCString(), getSASGameRecordVassalTeams(eTeam).GetCString(), eMaster);
 	if (bLogTeamDetails) logSASGameRecordTeamContacts(eTeam, iGameTurn, "snapshot");
 	seedSASGameRecordTeamPreviousFromCurrentState(eTeam);
 
@@ -5675,11 +5696,12 @@ static void logSASGameRecordAIMilitaryProduction(PlayerTypes ePlayer, int iGameT
 	int const iPersonalityBuildProb = GC.getInfo(kPlayer.getPersonalityType()).getBuildUnitProb();
 	int const iUnitSpending = kPlayer.AI_unitCostPerMil();
 	int const iMaxUnitSpendingNoArea = kPlayer.AI_maxUnitCostPerMil();
-	logSASGameRecord("GAME_RECORD_AI_MILITARY_PRODUCTION turn=%d player=%d personalityBuildProb=%d unitSpending=%d maxUnitSpendingNoArea=%d spendingGapNoArea=%d aggressiveAI=%d financialTrouble=%d economyFocus=%d getBetterUnits=%d focusWar=%d dagger=%d alert1=%d alert2=%d finalWar=%d totalWarPlans=%d preparingTotalWarPlans=%d sneakPreparing=%d sneakReady=%d",
+	logSASGameRecord("GAME_RECORD_AI_MILITARY_PRODUCTION turn=%d player=%d personalityBuildProb=%d unitSpending=%d maxUnitSpendingNoArea=%d spendingGapNoArea=%d aggressiveAI=%d financialTrouble=%d economyFocus=%d getBetterUnits=%d focusWar=%d dagger=%d crush=%d alert1=%d alert2=%d turtle=%d lastStand=%d finalWar=%d fastMovers=%d landBlitz=%d airBlitz=%d nuclear=%d totalWarPlans=%d preparingTotalWarPlans=%d sneakPreparing=%d sneakReady=%d",
 		iGameTurn, ePlayer, iPersonalityBuildProb, iUnitSpending, iMaxUnitSpendingNoArea, iMaxUnitSpendingNoArea - iUnitSpending, GC.getGame().isOption(GAMEOPTION_AGGRESSIVE_AI),
-		kPlayer.AI_isFinancialTrouble(), kPlayer.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS), kPlayer.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS), kPlayer.AI_isFocusWar(), kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER),
-		kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT1), kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT2), kPlayer.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR), kTeam.AI_getNumWarPlans(WARPLAN_TOTAL), kTeam.AI_getNumWarPlans(WARPLAN_PREPARING_TOTAL),
-		kTeam.AI_isSneakAttackPreparing(), kTeam.AI_isSneakAttackReady());
+		kPlayer.AI_isFinancialTrouble(), kPlayer.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS), kPlayer.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS), kPlayer.AI_isFocusWar(), kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER), kPlayer.AI_isDoStrategy(AI_STRATEGY_CRUSH),
+		kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT1), kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT2), kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE), kPlayer.AI_isDoStrategy(AI_STRATEGY_LAST_STAND), kPlayer.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR),
+		kPlayer.AI_isDoStrategy(AI_STRATEGY_FASTMOVERS), kPlayer.AI_isDoStrategy(AI_STRATEGY_LAND_BLITZ), kPlayer.AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ), kPlayer.AI_isDoStrategy(AI_STRATEGY_OWABWNW),
+		kTeam.AI_getNumWarPlans(WARPLAN_TOTAL), kTeam.AI_getNumWarPlans(WARPLAN_PREPARING_TOTAL), kTeam.AI_isSneakAttackPreparing(), kTeam.AI_isSneakAttackReady());
 }
 
 static void logSASGameRecordPolicies(PlayerTypes ePlayer, int iGameTurn)
@@ -5702,15 +5724,20 @@ static void logSASGameRecordEspionage(PlayerTypes ePlayer, int iGameTurn)
 	CvString szSpending;
 	CvString szPoints;
 	CvString szModifiers;
-	// <!-- custom: EP totals alone do not show whether Spies are reaching rivals or remaining idle at home. At periodic level-2 snapshots, summarize foreign deployment, city infiltration, stationary cost-reduction preparation, and current rival targets without logging movement choices. (GPT-5.6-Sol) -->
+	// <!-- custom: EP totals alone do not show whether Spies are reaching rivals or remaining idle at home. At periodic level-2 snapshots, summarize foreign deployment, city infiltration, stationary cost-reduction preparation, and both current and MissionAI rival targets without reproducing detailed movement/target valuation. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 	CvString szSpyTargets;
+	CvString szSpyMissionTargets;
 	std::vector<int> aiSpiesAgainstPlayer(MAX_PLAYERS, 0);
+	std::vector<int> aiSpiesTargetingPlayer(MAX_PLAYERS, 0);
 	int iSpies = 0;
 	int iGreatSpies = 0;
 	int iSpiesInForeignTerritory = 0;
 	int iSpiesInForeignCities = 0;
 	int iStationarySpies = 0;
 	int iMaxFortifyTurns = 0;
+	int iAttackSpyIntent = 0;
+	int iReconSpyIntent = 0;
+	int iGuardSpyIntent = 0;
 	int iUnitLoop = 0;
 	for (CvUnit const* pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
 	{
@@ -5736,14 +5763,36 @@ static void logSASGameRecordEspionage(PlayerTypes ePlayer, int iGameTurn)
 				iSpiesInForeignCities++;
 			aiSpiesAgainstPlayer[ePlotOwner]++;
 		}
+		// <!-- custom: The player unit iterator exposes CvUnit, so access CvUnitAI through its AI facade when reading group MissionAI metadata. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+		CvSelectionGroupAI const* pGroup = pLoopUnit->AI().AI_getGroup();
+		MissionAITypes const eMissionAI = (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType());
+		if (eMissionAI == MISSIONAI_ATTACK_SPY)
+		{
+			iAttackSpyIntent++;
+			CvPlot const* pMissionPlot = pGroup->AI_getMissionAIPlot();
+			PlayerTypes const eTargetPlayer = (pMissionPlot == NULL ? NO_PLAYER : pMissionPlot->getOwner());
+			if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).getTeam() != kPlayer.getTeam())
+				aiSpiesTargetingPlayer[eTargetPlayer]++;
+		}
+		else if (eMissionAI == MISSIONAI_RECON_SPY)
+			iReconSpyIntent++;
+		else if (eMissionAI == MISSIONAI_GUARD_SPY)
+			iGuardSpyIntent++;
 	}
 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		if (aiSpiesAgainstPlayer[iI] <= 0)
-			continue;
-		CvString szItem;
-		szItem.Format(szSpyTargets.empty() ? "%d:%d" : ",%d:%d", iI, aiSpiesAgainstPlayer[iI]);
-		szSpyTargets += szItem;
+		if (aiSpiesAgainstPlayer[iI] > 0)
+		{
+			CvString szItem;
+			szItem.Format(szSpyTargets.empty() ? "%d:%d" : ",%d:%d", iI, aiSpiesAgainstPlayer[iI]);
+			szSpyTargets += szItem;
+		}
+		if (aiSpiesTargetingPlayer[iI] > 0)
+		{
+			CvString szItem;
+			szItem.Format(szSpyMissionTargets.empty() ? "%d:%d" : ",%d:%d", iI, aiSpiesTargetingPlayer[iI]);
+			szSpyMissionTargets += szItem;
+		}
 	}
 	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 	{
@@ -5786,8 +5835,8 @@ static void logSASGameRecordEspionage(PlayerTypes ePlayer, int iGameTurn)
 	// <!-- custom: Weights show intent but not the rounded EP distribution that the game actually applies. Record actual per-rival spending plus the two high-level espionage strategy flags; detailed reasons for enabling those strategies remain BBAI territory. (ChatGPT-5.6-Sol) -->
 	const bool bBigEspionage = kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE);
 	const bool bEspionageEconomy = kPlayer.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY);
-	logSASGameRecord("GAME_RECORD_ESPIONAGE turn=%d player=%d team=%d espionageRate=%d espionagePercent=%d teamEP=%d unspentEP=%d weights=%s spending=%s pointsAgainst=%s modifiers=%s bigEspionage=%d espionageEconomy=%d spies=%d greatSpies=%d spiesInForeignTerritory=%d spiesInForeignCities=%d stationarySpies=%d maxFortifyTurns=%d spyTargets=%s",
-			iGameTurn, ePlayer, kPlayer.getTeam(), iEspionageRate, iEspionagePercent, iTeamEP, iUnspentEP, getSASDiagnosticOrDash(szWeights).GetCString(), getSASDiagnosticOrDash(szSpending).GetCString(), getSASDiagnosticOrDash(szPoints).GetCString(), getSASDiagnosticOrDash(szModifiers).GetCString(), bBigEspionage, bEspionageEconomy, iSpies, iGreatSpies, iSpiesInForeignTerritory, iSpiesInForeignCities, iStationarySpies, iMaxFortifyTurns, getSASDiagnosticOrDash(szSpyTargets).GetCString());
+	logSASGameRecord("GAME_RECORD_ESPIONAGE turn=%d player=%d team=%d espionageRate=%d espionagePercent=%d teamEP=%d unspentEP=%d weights=%s spending=%s pointsAgainst=%s modifiers=%s bigEspionage=%d espionageEconomy=%d spies=%d greatSpies=%d spiesInForeignTerritory=%d spiesInForeignCities=%d stationarySpies=%d maxFortifyTurns=%d spyTargets=%s attackSpyIntent=%d spyMissionTargets=%s reconSpyIntent=%d guardSpyIntent=%d",
+			iGameTurn, ePlayer, kPlayer.getTeam(), iEspionageRate, iEspionagePercent, iTeamEP, iUnspentEP, getSASDiagnosticOrDash(szWeights).GetCString(), getSASDiagnosticOrDash(szSpending).GetCString(), getSASDiagnosticOrDash(szPoints).GetCString(), getSASDiagnosticOrDash(szModifiers).GetCString(), bBigEspionage, bEspionageEconomy, iSpies, iGreatSpies, iSpiesInForeignTerritory, iSpiesInForeignCities, iStationarySpies, iMaxFortifyTurns, getSASDiagnosticOrDash(szSpyTargets).GetCString(), iAttackSpyIntent, getSASDiagnosticOrDash(szSpyMissionTargets).GetCString(), iReconSpyIntent, iGuardSpyIntent);
 	logSASGameRecord("GAME_RECORD_ESPIONAGE_DELTAS turn=%d player=%d deltaValid=%d espionageRateDelta=%+d espionagePercentDelta=%+d teamEPDelta=%+d unspentEPDelta=%+d",
 			iGameTurn, ePlayer, kPrevious.bValid, getSASGameRecordDelta(kPrevious.bValid, iEspionageRate, kPrevious.iEspionageRate), getSASGameRecordDelta(kPrevious.bValid, iEspionagePercent, kPrevious.iEspionagePercent), getSASGameRecordDelta(kPrevious.bValid, iTeamEP, kPrevious.iTeamEP), getSASGameRecordDelta(kPrevious.bValid, iUnspentEP, kPrevious.iUnspentEP));
 	kPrevious.iEspionageRate = iEspionageRate;

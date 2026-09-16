@@ -15,6 +15,7 @@
 #include "CvArea.h"
 #include "RiseFall.h" // advc.705
 #include "BBAILog.h" // <!-- custom: Dedicated SAS war diagnostics log UWAI target utility and distance context separately from broad TEAM logging. (GPT-5.5) -->
+#include "SASGameRecordLog.h" // <!-- custom: Preserve only selected/deferred top-level UWAI war-target intent in the broad game record; exhaustive candidate reasoning remains in BBAI. (ChatGPT-5.6-Sol) -->
 
 using std::vector;
 using std::set;
@@ -1867,15 +1868,18 @@ namespace
 {
 	struct TargetData
 	{
-		// <!-- custom: Preserve original/boosted utility and victory-denial flags after sorting. Later selection needs them to reduce avoid-war hesitation, avoid local-target vetoes, choose direct vs preparation war, and log the actual adjustment. See KI#184. (GPT-5.5) -->
-		TargetData(scaled rDrive, TeamTypes eTeam, bool bTotal, bool bDirect, int iOriginalU, int iU, int iVictoryDenialBoost, int iTargetMaxVictoryStage, bool bShortWork)
-		:	rDrive(rDrive), eTeam(eTeam), bTotal(bTotal), bDirect(bDirect), iOriginalU(iOriginalU), iU(iU), iVictoryDenialBoost(iVictoryDenialBoost), iTargetMaxVictoryStage(iTargetMaxVictoryStage), bShortWork(bShortWork)
+		// <!-- custom: Preserve original/boosted utility and victory-denial flags after sorting.
+		// Later selection needs them to reduce avoid-war hesitation, avoid local-target vetoes, choose direct vs preparation war, and retain the already-evaluated naval/preparation context for compact selected-target logging. See KI#184. (GPT-5.5 + ChatGPT-5.6-Sol) -->
+		TargetData(scaled rDrive, TeamTypes eTeam, bool bTotal, bool bDirect, bool bNaval, int iPreparationTime, int iOriginalU, int iU, int iVictoryDenialBoost, int iTargetMaxVictoryStage, bool bShortWork)
+		:	rDrive(rDrive), eTeam(eTeam), bTotal(bTotal), bDirect(bDirect), bNaval(bNaval), iPreparationTime(iPreparationTime), iOriginalU(iOriginalU), iU(iU), iVictoryDenialBoost(iVictoryDenialBoost), iTargetMaxVictoryStage(iTargetMaxVictoryStage), bShortWork(bShortWork)
 		{}
 		bool operator<(TargetData const& kOther) { return rDrive < kOther.rDrive; }
 		scaled rDrive;
 		TeamTypes eTeam;
 		bool bTotal;
 		bool bDirect;
+		bool bNaval;
+		int iPreparationTime;
 		int iOriginalU;
 		int iU;
 		int iVictoryDenialBoost;
@@ -1891,7 +1895,8 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
 	if (kAgent.AI_countWarPlans() > kAgent.getNumWars(true, true))
 	{
 		// <!-- custom: Save-file 449 ended with India launching on turn 299 while the strongest rival continued preparing an unrelated Ottoman war and did not evaluate a new anti-Space war before India won on turn 311.
-		// When an existing non-war plan blocks all new scheming, identify each stage-3+, countdown, or launched-victory threat and the plan occupying the single slot. Include direct plans because a preparation can become one without starting a war. This is diagnostic only and is gated by War logging. (GPT-5.6-Sol) -->
+		// When an existing non-war plan blocks all new scheming, identify each stage-3+, countdown, or launched-victory threat and the plan occupying the single slot.
+		// Include direct plans because a preparation can become one without starting a war. This is diagnostic only and is gated by War logging. (GPT-5.6-Sol) -->
 		if (gWarLogLevel >= 1)
 		{
 			TeamTypes eBlockingTarget = NO_TEAM;
@@ -2078,7 +2083,7 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
 		rPeacePortionRemaining.decreaseTo(fixp(0.95));
 		// (Let's try it w/o exponentiation)
 		rDrive *= (1 - rPeacePortionRemaining)/*.pow(fixp(1.5))*/;
-		aTargets.push_back(TargetData(rDrive, eTarget, bTotal, bVictoryDenialDirect, iOriginalU, iU, iVictoryDenialBoost, iTargetMaxVictoryStage, bShortWork));
+		aTargets.push_back(TargetData(rDrive, eTarget, bTotal, bVictoryDenialDirect, bTotal ? bTotalNaval : bLimitedNaval, bTotal ? iTotalPrepTime : iLimitedPrepTime, iOriginalU, iU, iVictoryDenialBoost, iTargetMaxVictoryStage, bShortWork));
 		rTotalDrive += rDrive;
 	}
 	// Descending by drive
@@ -2179,8 +2184,25 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
 		// <!-- custom: Log the exact eligible order and best-target comparison. With the new rule enabled, only the highest final-drive candidate reaches this roll; disabling it restores inherited independent rolls and possible fall-through to lower-ranked targets. (GPT-5.6-Sol) -->
 		bool const bSelected = SyncRandSuccess(rDrive);
 		if (gWarLogLevel >= 2) logBBAI("WAR_TARGET_SELECTION_ROLL turn=%d background=%d bestOnly=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d selected=%d targetRank=%d eligibleRank=%d candidateCount=%d higherRankRollFailures=%d bestEligibleTargetTeam=%d bestEligibleDrivePercent=%d candidateDistance=%d bestEligibleDistance=%d candidateTargetPowerPercent=%d bestEligibleTargetPowerPercent=%d candidateAttitude=%d candidateAttitudeValue=%d bestEligibleAttitude=%d bestEligibleAttitudeValue=%d",
-				GC.getGame().getGameTurn(), isInBackground(), bOnlyRollBestEligibleTarget, kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, rDrive.getPercent(), bSelected, (int)i + 1, iEligibleRank, (int)aTargets.size(), iHigherRankRollFailures, eBestEligibleTarget, rBestEligibleDrive.getPercent(),
-				getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eBestEligibleTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, eBestEligibleTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitude(eBestEligibleTarget), kAgent.AI_getAttitudeVal(eBestEligibleTarget));
+				GC.getGame().getGameTurn(), isInBackground(), bOnlyRollBestEligibleTarget, kAgent.getID(), eTarget, getSASWarPlanType(eWP),
+				aTargets[i].iU, rDrive.getPercent(), bSelected, (int)i + 1, iEligibleRank, (int)aTargets.size(), iHigherRankRollFailures,
+				eBestEligibleTarget, rBestEligibleDrive.getPercent(), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eBestEligibleTarget),
+				getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, eBestEligibleTarget),
+				kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget),
+				kAgent.AI_getAttitude(eBestEligibleTarget), kAgent.AI_getAttitudeVal(eBestEligibleTarget));
+		// <!-- custom: SASGameRecord keeps only the real foreground target decision, not the full UWAI candidate/evaluation trace.
+		// A successful roll is preserved immediately before its plan/declaration mutation.
+		// At level 3, the single best-only failed roll is also retained as compact evidence that war was considered but deferred.
+		// Check the recorder level before the background flag so disabled logging adds no logging-only foreground test. (ChatGPT-5.6-Sol) -->
+		if ((bSelected || bOnlyRollBestEligibleTarget) && gGameRecordLogLevel >= (bSelected ? 2 : 3) && !isInBackground())
+		{
+			logSASGameRecord("GAME_RECORD_AI_WAR_TARGET_CHOICE turn=%d outcome=%s agentTeam=%d targetTeam=%d warPlan=%s utility=%d originalUtility=%d victoryDenialBoost=%d direct=%d naval=%d evaluatedPrepTurns=%d forcedPeaceTurns=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d drivePercent=%d shortWork=%d targetRank=%d eligibleRank=%d candidateCount=%d bestOnly=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
+					GC.getGame().getGameTurn(), bSelected ? "SELECTED" : "DEFERRED_ROLL", kAgent.getID(), eTarget, getSASWarPlanType(eWP),
+					aTargets[i].iU, aTargets[i].iOriginalU, aTargets[i].iVictoryDenialBoost, aTargets[i].bDirect, aTargets[i].bNaval, aTargets[i].iPreparationTime,
+					kAgent.turnsOfForcedPeaceRemaining(eTarget), aTargets[i].iTargetMaxVictoryStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), rDrive.getPercent(), aTargets[i].bShortWork,
+					(int)i + 1, iEligibleRank, (int)aTargets.size(), bOnlyRollBestEligibleTarget, kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget),
+					getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
+		}
 		if (bSelected)
 		{
 			if (gWarLogLevel >= 1)
