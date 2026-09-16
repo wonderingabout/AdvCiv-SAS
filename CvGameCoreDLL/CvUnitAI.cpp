@@ -2918,6 +2918,92 @@ static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlo
 	return SAS_pickWorkerNoBonusBranchBuild(kUnit, kPlot, kBranch.szDefineName, bLowFoodBranch, iAdjustedFoodDifference, iLowFoodValuePerFood, iFoodSupportValue, iIrrigationBlockingPenalty, aBuildValueAdjustments, eBestBuild, iValue);
 }
 
+// <!-- custom: Level-3 diagnostic for the remaining late-game idle-Worker / zero-candidate investigation.
+// Log each owned+assigned blank development plot at most once per player/plot/turn.
+// Report the configured branch dynamically and also scan all currently legal improvement Builds generically, rather than hardcoding Farm/Cottage/Mine/etc. Behavior is unchanged. (ChatGPT-5.6-Sol) -->
+static void SAS_logWorkerCityBuildRejectOnce(CvUnitAI const& kUnit, CvCityAI const& kCity, CvPlot& kPlot, char const* szReason, SASWorkerNoBonusBranch const* pBranch = NULL, BuildTypes eProposedBuild = NO_BUILD)
+{
+	if (kPlot.isWater() || kPlot.isCity() || kPlot.isPeak() ||
+		kPlot.getOwner() != kUnit.getOwner() || kPlot.getWorkingCity() != &kCity ||
+		kPlot.getImprovementType() != NO_IMPROVEMENT)
+	{
+		return;
+	}
+
+	static std::map<std::pair<int,int>,int> aiLastLoggedTurn;
+	std::pair<int,int> const kKey(kUnit.getOwner(), kPlot.plotNum());
+	int const iGameTurn = GC.getGame().getGameTurn();
+	std::map<std::pair<int,int>,int>::const_iterator const itLastLogged = aiLastLoggedTurn.find(kKey);
+	if (itLastLogged != aiLastLoggedTurn.end() && itLastLogged->second == iGameTurn)
+		return;
+	aiLastLoggedTurn[kKey] = iGameTurn;
+
+	int iBranchCandidates = 0;
+	int iBranchBuildable = 0;
+	CvString szBranch = "-";
+	CvString szBranchBuilds = "-";
+	if (pBranch != NULL)
+	{
+		szBranch = pBranch->szDefineName;
+		std::vector<SASWorkerNoBonusBuildCandidate> const& aCandidates = SAS_getWorkerNoBonusBranchCandidates(pBranch->szDefineName);
+		iBranchCandidates = (int)aCandidates.size();
+		szBranchBuilds.clear();
+		for (size_t i = 0; i < aCandidates.size(); ++i)
+		{
+			bool const bCanBuild = kUnit.canBuild(kPlot, aCandidates[i].eBuild);
+			if (bCanBuild)
+				iBranchBuildable++;
+			if (!szBranchBuilds.empty())
+				szBranchBuilds += ",";
+			szBranchBuilds += GC.getInfo(aCandidates[i].eBuild).getType();
+			szBranchBuilds += (bCanBuild ? ":1" : ":0");
+		}
+		if (szBranchBuilds.empty())
+			szBranchBuilds = "-";
+	}
+
+	int iLegalImprovementBuilds = 0;
+	int iLegalFeatureRemovingImprovementBuilds = 0;
+	CvString szLegalImprovementBuilds;
+	CvString szLegalFeatureRemovingImprovementBuilds;
+	FeatureTypes const eFeature = kPlot.getFeatureType();
+	FOR_EACH_ENUM(Build)
+	{
+		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
+		if (kBuild.getImprovement() == NO_IMPROVEMENT || !kUnit.canBuild(kPlot, eLoopBuild))
+			continue;
+		iLegalImprovementBuilds++;
+		if (!szLegalImprovementBuilds.empty())
+			szLegalImprovementBuilds += ",";
+		szLegalImprovementBuilds += kBuild.getType();
+		if (eFeature != NO_FEATURE && kBuild.isFeatureRemove(eFeature))
+		{
+			iLegalFeatureRemovingImprovementBuilds++;
+			if (!szLegalFeatureRemovingImprovementBuilds.empty())
+				szLegalFeatureRemovingImprovementBuilds += ",";
+			szLegalFeatureRemovingImprovementBuilds += kBuild.getType();
+		}
+	}
+	if (szLegalImprovementBuilds.empty())
+		szLegalImprovementBuilds = "-";
+	if (szLegalFeatureRemovingImprovementBuilds.empty())
+		szLegalFeatureRemovingImprovementBuilds = "-";
+
+	TerrainTypes const eTerrain = kPlot.getTerrainType();
+	BonusTypes const eBonus = kPlot.getNonObsoleteBonusType(kUnit.getTeam());
+	logBBAI("    WORKER_CITY_BUILD_REJECT turn=%d player=%d %S workerId=%d city=%S cityId=%d plot=(%d,%d) reason=%s terrain=%s feature=%s bonus=%s hills=%d worked=%d yields=(%d,%d,%d) branch=%s branchCandidates=%d branchBuildable=%d branchBuilds=%s proposedBuild=%s legalImprovementBuilds=%d legalImprovementBuildTypes=%s legalFeatureRemovingImprovementBuilds=%d legalFeatureRemovingImprovementBuildTypes=%s",
+		iGameTurn, kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kUnit.getID(),
+		kCity.getName().GetCString(), kCity.getID(), kPlot.getX(), kPlot.getY(), szReason,
+		(eTerrain == NO_TERRAIN ? "-" : GC.getInfo(eTerrain).getType()),
+		(eFeature == NO_FEATURE ? "-" : GC.getInfo(eFeature).getType()),
+		(eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType()), kPlot.isHills(), kCity.isWorkingPlot(kPlot),
+		kPlot.getYield(YIELD_FOOD), kPlot.getYield(YIELD_PRODUCTION), kPlot.getYield(YIELD_COMMERCE),
+		szBranch.c_str(), iBranchCandidates, iBranchBuildable, szBranchBuilds.c_str(),
+		(eProposedBuild == NO_BUILD ? "-" : GC.getInfo(eProposedBuild).getType()),
+		iLegalImprovementBuilds, szLegalImprovementBuilds.c_str(),
+		iLegalFeatureRemovingImprovementBuilds, szLegalFeatureRemovingImprovementBuilds.c_str());
+}
+
 struct SASWorkerIrrigationSearchNode
 {
 	int iCost;
@@ -3450,7 +3536,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		if (&kPlot == pIgnorePlot || /*!AI_plotValid(kPlot)*/kPlot.isWater()) // advc.opt
 			continue;
 		if (GET_PLAYER(getOwner()).isAutomationSafe(kPlot))
+		{
+			if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "AUTOMATION_SAFE");
 			continue;
+		}
 
 		// <!-- custom: start from scratch with own logic (saves computation). Now iValue chooses which tiles to improve first, while bestBuild is independently handled by own helpers based on terrain, feature, bonuses, tech (canBuild), etc. Logic cleanly separated: which is best ideal build vs which tile to improve first. (Claude code Sonnet 4.5 (summarized)) -->
 		// int iValue = kCity.AI_getBestBuildValue(ePlot);
@@ -3462,6 +3551,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		// BuildTypes const eBuild = kCity.AI_getBestBuild(ePlot);
 		BuildTypes eBestSupposedBuild = NO_BUILD;
 		BuildTypes eFeatureRemovalFollowupBuild = NO_BUILD;
+		// <!-- custom: Keep the selected no-bonus branch in per-plot scope so the shared Phase 1.3 rejection diagnostics can report it after the bonus and non-bonus paths rejoin; bonus plots leave it NULL. (GPT-5.6-Sol) -->
+		SASWorkerNoBonusBranch const* pNoBonusBranch = NULL;
 
 		TerrainTypes const eTerrain = kPlot.getTerrainType();
 		FeatureTypes const eFeature = kPlot.getFeatureType();
@@ -3511,6 +3602,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					else
 					{
 						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too -->
+						if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "BONUS_FOREST_REMOVE_UNAVAILABLE", NULL, eBonusSpecificBuild);
 						continue;
 					}
 				}
@@ -3535,6 +3627,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					else
 					{
 						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too -->
+						if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "BONUS_JUNGLE_REMOVE_UNAVAILABLE", NULL, eBonusSpecificBuild);
 						continue;
 					}
 				}
@@ -3564,6 +3657,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				if (eBonusSpecificBuild == NO_BUILD)
 				{
 					// <!-- custom: up to modders to support this in their mod, here we assume bonus not in map means unknown bonus, do not improve at all, for ease of code mostly if i may say rather than put any random build in a messy and inefficient or ineffective way worked aorund patched in a bad way i'd say-->
+					if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "BONUS_NO_SPECIFIC_BUILD");
 					continue;
 				}
 
@@ -3622,6 +3716,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				// <!-- custom: else fall back to general rule: ignore until better conditions, we can't build bonus specific build nor the farm alternatively, ignore for now -->
 				else
 				{
+					if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "BONUS_SPECIFIC_BUILD_UNAVAILABLE", NULL, eBonusSpecificBuild);
 					continue;
 				}
 			}
@@ -3769,7 +3864,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			// <!-- custom: PHASE 1 - estimate plot value (i.e. priority for the next plot to improve first) and best build on said plot, for all plots in our loop -->
 
 			// <!-- custom: PHASE 1.1: general for non-bonus plots terrain/feature (not choppable ones) analysis -->
-			SASWorkerNoBonusBranch const* pNoBonusBranch = NULL;
 			bool bNoBonusLowFoodBranch = false;
 			// <!-- custom: Most no-bonus dynamic scoring is now improvement-independent inside the generic picker: low-food pressure rewards the buildable candidate with the best food yield, and irrigation pressure penalizes candidates that do not carry irrigation. Keep this small BuildTypes-indexed vector only for rare residual build-specific tweaks, e.g. the old Grass Hill Mine population adjustment. (ChatGPT-5.5 + GPT-5.5) -->
 			for (size_t iBuildAdjustment = 0; iBuildAdjustment < aNoBonusBuildValueAdjustments.size(); ++iBuildAdjustment)
@@ -3850,6 +3944,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 
 			if (pNoBonusBranch != NULL && !SAS_pickWorkerNoBonusBranchBuild(*this, kPlot, *pNoBonusBranch, bNoBonusLowFoodBranch, iAdjustedFoodDifference, iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD, iFoodSupportFarmValue, iNonFoodIrrigationPathPenalty, aNoBonusBuildValueAdjustments, eBestSupposedBuild, iValue))
 			{
+				if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "NO_BUILDABLE_NO_BONUS_BRANCH", pNoBonusBranch);
 				continue;
 			}
 			BuildTypes const ePreFeatureRemovalBuild = eBestSupposedBuild;
@@ -3887,6 +3982,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				}
 				else if (eBestSupposedBuild == NO_BUILD)
 				{
+					if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "FOREST_REMOVE_UNAVAILABLE_NO_FOLLOWUP", pNoBonusBranch);
 					continue;
 				}
 			}
@@ -3909,6 +4005,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				}
 				else if (eBestSupposedBuild == NO_BUILD)
 				{
+					if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "JUNGLE_REMOVE_UNAVAILABLE_NO_FOLLOWUP", pNoBonusBranch);
 					continue;
 				}
 			}
@@ -3922,6 +4019,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				}
 				else
 				{
+					if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "FALLOUT_SCRUB_UNAVAILABLE", pNoBonusBranch);
 					continue;
 				}
 			}
@@ -3938,10 +4036,12 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		// <!-- custom: check here after all builds adjustments if final settled on build is still none, then forget this plot -->
 		if (eBestSupposedBuild == NO_BUILD)
 		{
+			if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "NO_SELECTED_BUILD", (eBonus == NO_BONUS ? pNoBonusBranch : NULL));
 			continue;
 		}
 		if (!canBuild(kPlot, eBestSupposedBuild))
 		{
+			if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "SELECTED_BUILD_CANBUILD_FALSE", (eBonus == NO_BONUS ? pNoBonusBranch : NULL), eBestSupposedBuild);
 			continue;
 		}
 

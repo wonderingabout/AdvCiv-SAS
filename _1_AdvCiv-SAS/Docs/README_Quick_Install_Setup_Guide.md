@@ -54,7 +54,7 @@ Note: the 18 civs DLL may often not be updated in this version as it is tedious 
 
 Note 2: if you want to modify AdvCiv-SAS, this player development version is missing some files, see [Modify the mod (its development version)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#modify-the-mod-its-development-version) for details.
 
-Update: now that i now seemingly know how to use .pdb files with WindDbg to inspect crashes or code issues precisely (it tells the line that crashed it seems), as was used to successfully resolve [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) and [KI#475.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.3), i may not update as often the Release DLL if it is too tedious, as i may have an already compiled locally Debug-Opt DLL, but that seems inconvenient to share for legal or sth reason (check if accurate as i don't know much about these) according to ChatGPT or Codex so i may not share it, meaning i may update not the Release DLL even for the 48 civs DLL as often as well.
+Update: now that i now seemingly know how to use .pdb files with WindDbg to inspect crashes or code issues precisely (it tells the line that crashed it seems), as was used to successfully resolve [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) and [KI#475.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.3), i may not update as often the Release DLL if it is too tedious, as i may have an already compiled locally Debug-opt DLL, but that seems inconvenient to share for legal or sth reason (check if accurate as i don't know much about these) according to ChatGPT or Codex so i may not share it, meaning i may update not the Release DLL even for the 48 civs DLL as often as well.
 
 ### Any version
 
