@@ -4,6 +4,7 @@
 #define CIV4_GAMECORE_UTILS_H
 
 #include "AIStrategies.h" // <!-- custom: getSAS*VictoryStageLevel helpers use AIVictoryStage bitfields. (GPT-5.5) -->
+#include <time.h> // <!-- custom: createSASUtcTimestamp accepts an already sampled time_t so recorder identity and loaded-DLL PE timestamps use one shared UTC formatter. (ChatGPT-5.6-Sol) -->
 class CvPlot;
 class CvCity;
 class CvCityAI; // advc.003u
@@ -17,6 +18,13 @@ class CvString;
 class CvRandom;
 class FAStarNode;
 class FAStar;
+
+// <!-- custom: Format one supplied time_t as second-precision UTC for stable diagnostic identities. (ChatGPT-5.6-Sol) -->
+CvString createSASUtcTimestamp(const time_t kTime);
+// <!-- custom: Sample and format the current UTC time at second precision. (ChatGPT-5.6-Sol) -->
+CvString createSASUtcTimestamp();
+// <!-- custom: Serialize exact loaded-DLL build/binary provenance for SASGameRecord diagnostics. (ChatGPT-5.6-Sol) -->
+CvString getSASDllContextFields();
 
 // <!-- custom: Quote/escape narrow diagnostic free text; NULL becomes the unquoted missing token "-". (ChatGPT-5.6-Sol) -->
 CvString getSASDiagnosticQuoted(char const* szValue);

@@ -1089,21 +1089,10 @@ void logSASGameRecordRngCheckpoint(int iGameTurn, SASGameRecordRngCheckpointReas
 }
 
 
-static CvString createSASGameRecordUtcTimestamp()
-{
-	time_t kNow;
-	time(&kNow);
-	char szBuffer[32];
-	struct tm* pUtcTime = gmtime(&kNow);
-	if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
-		return CvString(szBuffer);
-	return CvString("unknown_time");
-}
-
 static CvString getSASGameRecordLogTimestamp()
 {
 	if (g_szSASGameRecordLogTimestamp.empty())
-		g_szSASGameRecordLogTimestamp = createSASGameRecordUtcTimestamp();
+		g_szSASGameRecordLogTimestamp = createSASUtcTimestamp();
 	return g_szSASGameRecordLogTimestamp;
 }
 
@@ -1147,7 +1136,7 @@ static void rollSASGameRecordLog(const char* szContext)
 	g_uiSASGameRecordActiveTransaction = 0;
 	g_szSASGameRecordActiveTransactionKind.clear();
 	g_eSASGameRecordPlotOwnerChangeCause = SAS_PLOT_OWNER_CAUSE_NONE;
-	g_szSASGameRecordLogTimestamp = createSASGameRecordUtcTimestamp();
+	g_szSASGameRecordLogTimestamp = createSASUtcTimestamp();
 	g_szSASGameRecordLogContext.clear();
 	if (isSASGameRecordTimestampedFilenameEnabled())
 	{
@@ -1371,6 +1360,14 @@ static void initializeSASGameRecordWarsFromLoadedSave();
 static void logSASGameRecordAttitudeLegend();
 static void logSASGameRecordTeamContacts(TeamTypes eTeam, int iGameTurn, char const* szReason);
 
+// <!-- custom: Hashing the loaded DLL is intentionally behind the recorder's runtime gate and cached inside getSASDllContextFields(), so disabled logging performs no file I/O and later load sessions reuse the same immutable binary identity. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordDllContext()
+{
+	if (!isSASGameRecordLogEnabled())
+		return;
+	logSASGameRecord("GAME_RECORD_DLL_CONTEXT %s", getSASDllContextFields().GetCString());
+}
+
 void startSASGameRecordLogForNewGame()
 {
 	// <!-- custom: Preserve delayed city-bombard and per-turn map-history rows from the previous session before switching log filenames. (ChatGPT-5.6-Sol) -->
@@ -1379,6 +1376,8 @@ void startSASGameRecordLogForNewGame()
 	resetSASGameRecordState();
 	CvString const szLogName = getSASGameRecordLogName();
 	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString());
+	// <!-- custom: Keep immutable loaded-binary identity immediately after the lifecycle marker, before generated game context. (ChatGPT-5.6-Sol) -->
+	logSASGameRecordDllContext();
 	logSASGameRecordLogSettings();
 	logSASGameRecordTechCapabilitySources();
 	logSASGameRecordAttitudeLegend();
@@ -1409,6 +1408,8 @@ void startSASGameRecordLogForLoadedSave()
 	if (gGameRecordLogLevel >= 3) initializeSASGameRecordRngTracking();
 	initializeSASGameRecordWarsFromLoadedSave();
 	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
+	// <!-- custom: Keep immutable loaded-binary identity immediately after the load-session marker; the row does not depend on save contents. (ChatGPT-5.6-Sol) -->
+	logSASGameRecordDllContext();
 	logSASGameRecordLogSettings();
 	logSASGameRecordTechCapabilitySources();
 	logSASGameRecordAttitudeLegend();
