@@ -919,9 +919,19 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
 {
 	FAssert(!isHuman());
 	CvPlayerAI& kOther = GET_PLAYER(eOther);
+	// <!-- custom: This shared routine is reached only after the active peace system has decided to negotiate. Preserve the real value/reparations outcome at GameRecord level 2 without rerunning UWAI or trade valuation solely for logging.
+	// getUWAI().isEnabled cleanly identifies the active caller family because UWAI bypasses legacy AI_doPeace. (ChatGPT-5.6-Sol) -->
+	bool const bLogSASPeaceDecision = (gGameRecordLogLevel >= 2);
+	int const iSASInitialTheirBenefit = iTheirBenefit;
+	int const iSASInitialOurBenefit = iOurBenefit;
+	int const iSASAtWarTurns = (bLogSASPeaceDecision ? GET_TEAM(getTeam()).AI_getAtWarCounter(kOther.getTeam()) : -1);
+	bool const bSASUWAI = (bLogSASPeaceDecision && getUWAI().isEnabled());
 	// <!-- custom: UWAI now avoids ordinary peace with configured victory threats, but retain this shared pre-check for other AI peace callers. CvDeal still has the final safety guard for human and unusual trade paths. This fixed negotiations returning success for treaties that the final guard rejected. (GPT-5.6-Sol) -->
 	if (isSASUWAIVictoryDenialPeaceThreat(getTeam()) || isSASUWAIVictoryDenialPeaceThreat(kOther.getTeam()))
+	{
+		if (bLogSASPeaceDecision) logSASGameRecordAIPeaceDecision(getID(), eOther, iSASAtWarTurns, bSASUWAI, iSASInitialOurBenefit, iSASInitialTheirBenefit, iOurBenefit, iTheirBenefit, 0, 0, NO_TECH, NO_TECH, -1, -1, false, "BLOCKED_VICTORY_DENIAL", NULL, NULL);
 		return false;
+	}
 	TechTypes eBestReceiveTech = NO_TECH;
 	TechTypes eBestGiveTech = NO_TECH;
 	int iReceiveGold = 0;
@@ -939,6 +949,10 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
 		iTheirBenefit += AI_negotiatePeace(eOther, getID(), iOurBenefit - iTheirBenefit,
 				&iGiveGold, &eBestGiveTech, &pBestGiveCity);
 	}
+	// <!-- custom: Snapshot provisional city IDs before an eventual implementDeal can transfer/recreate those cities and invalidate the chooser pointers.
+	// Stable scalar IDs preserve the original reparations choice after ownership mutation. (ChatGPT-5.6-Sol) -->
+	int const iSASBestGiveCityId = (!bLogSASPeaceDecision || pBestGiveCity == NULL ? -1 : pBestGiveCity->getID());
+	int const iSASBestReceiveCityId = (!bLogSASPeaceDecision || pBestReceiveCity == NULL ? -1 : pBestReceiveCity->getID());
 	/*  K-Mod: "ratio of endWar values has to be somewhat evened out by reparations
 		for peace to happen" */
 	/*if(iTheirBenefit < iOurBenefit*3/5 ||
@@ -949,6 +963,7 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
 	if((!kOther.isHuman() && 5 * iTheirBenefit < 3 * iOurBenefit) ||
 		5 * iOurBenefit < (kOther.isHuman() ? 4 : 3) * iTheirBenefit)
 	{
+		if (bLogSASPeaceDecision) logSASGameRecordAIPeaceDecision(getID(), eOther, iSASAtWarTurns, bSASUWAI, iSASInitialOurBenefit, iSASInitialTheirBenefit, iOurBenefit, iTheirBenefit, iGiveGold, iReceiveGold, eBestGiveTech, eBestReceiveTech, iSASBestGiveCityId, iSASBestReceiveCityId, false, "REPARATIONS_INSUFFICIENT", NULL, NULL);
 		return false;
 	} // </advc.134a>
 	// <advc.039> Don't want to announce odd amounts of gold
@@ -984,6 +999,7 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
 		FAssert(theyGive.getLength() <= 0);
 		weGive.insertAtEnd(peaceTreaty);
 	}
+	bool bSASCounterProposal = false;
 	if (kOther.isHuman() && iTheirBenefit < iOurBenefit && theyGive.getLength() == 0)
 	{
 		/*  Really can't make an attractive offer w/o considering all tradeable items,
@@ -999,11 +1015,15 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
 				break;
 			}
 		}
+		bSASCounterProposal = true;
 		kOther.AI_counterPropose(getID(), weGive, theyGive, true, false);
 		iOurBenefit = AI_dealVal(eOther, theyGive);
 		iTheirBenefit = kOther.AI_dealVal(getID(), weGive);
 		if(5 * iTheirBenefit < 3 * iOurBenefit)
+		{
+			if (bLogSASPeaceDecision) logSASGameRecordAIPeaceDecision(getID(), eOther, iSASAtWarTurns, bSASUWAI, iSASInitialOurBenefit, iSASInitialTheirBenefit, iOurBenefit, iTheirBenefit, iGiveGold, iReceiveGold, eBestGiveTech, eBestReceiveTech, iSASBestGiveCityId, iSASBestReceiveCityId, bSASCounterProposal, "COUNTERPROPOSAL_INSUFFICIENT", &weGive, &theyGive);
 			return false;
+		}
 	}
 	/*	Now that trade balancing is through:
 		Important to have a peace treaty on both sides in the diplo popup,
@@ -1024,10 +1044,15 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
 		pDiplo->setOurOfferList(theyGive);
 		pDiplo->setTheirOfferList(weGive);
 		gDLL->beginDiplomacy(pDiplo, eOther);
+		if (bLogSASPeaceDecision) logSASGameRecordAIPeaceDecision(getID(), eOther, iSASAtWarTurns, bSASUWAI, iSASInitialOurBenefit, iSASInitialTheirBenefit, iOurBenefit, iTheirBenefit, iGiveGold, iReceiveGold, eBestGiveTech, eBestReceiveTech, iSASBestGiveCityId, iSASBestReceiveCityId, bSASCounterProposal, "OFFER_SENT", &weGive, &theyGive);
 		//advc.test, advc.134a:  (seems to work reliably now)
 		//FErrorMsg("AI sent peace offer; if it doesn't appear, it could be b/c of a change in circumstances, or advc.134a isn't working as intended");
 	}
-	else GC.getGame().implementDeal(getID(), eOther, weGive, theyGive);
+	else
+	{
+		GC.getGame().implementDeal(getID(), eOther, weGive, theyGive);
+		if (bLogSASPeaceDecision) logSASGameRecordAIPeaceDecision(getID(), eOther, iSASAtWarTurns, bSASUWAI, iSASInitialOurBenefit, iSASInitialTheirBenefit, iOurBenefit, iTheirBenefit, iGiveGold, iReceiveGold, eBestGiveTech, eBestReceiveTech, iSASBestGiveCityId, iSASBestReceiveCityId, bSASCounterProposal, GET_TEAM(getTeam()).isAtWar(kOther.getTeam()) ? "IMPLEMENTATION_REJECTED" : "PEACE_IMPLEMENTED", &weGive, &theyGive);
+	}
 	return true;
 }
 

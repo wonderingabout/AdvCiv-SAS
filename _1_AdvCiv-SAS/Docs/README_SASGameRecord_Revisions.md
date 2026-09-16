@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=80 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=81 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,11 +40,22 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
+### Revision 81 - SAS practical 6469
+
+- **Date:** 2026-09-16
+- **Git commit:** pending
+- **Change:** Added compact peace-decision provenance and knowledge-limited barbarian pressure. `GAME_RECORD_AI_PEACE_DECISION` records the real shared peace-negotiation boundary at level 2: UWAI versus legacy source, war age, initial/final end-war benefit values, provisional reparations, human-counterproposal use, final trade lists when available, and resolved outcomes such as victory-denial block, insufficient reparations/counterproposal, offer sent or AI-AI peace implemented/rejected. It reuses the live negotiation values/package rather than rerunning UWAI or trade valuation.
+
+`GAME_RECORD_BARBARIAN_PRESSURE` complements the omniscient global barbarian rows with what each player's team can actually know: visible/non-invisible barbarian units and city proximity, revealed/visible/actionable-known barbarian cities, explore/city-attack UnitAI state, `MISSIONAI_EXPLORE` groups, and the AI's existing barbarian-defense-focus/attacker-need predicates. `BARBARIAN_UNIT_SPAWNED` also records plot ownership/terrain/feature, revealed/visible major-team counts and the nearest major-civilization city. The new observations add no spawn reevaluation, pathfinding or barbarian target scoring.
+
 ### Revision 80 - SAS practical 6468
 
 - **Date:** 2026-09-16
-- **Change:** Added privacy-tiered runtime/install provenance and compact naval operational intent. `GAME_RECORD_EXE_CONTEXT` fingerprints the loaded `Civ4BeyondSword.exe`; level 2 records Windows/Wine runtime/build/update and process/native architecture plus coarse distribution/Steam AppID-build-beta metadata, while level 3 additionally records coarse CPU/GPU vendors, logical processors/RAM and exact EXE/mod paths. `GAME_RECORD_DISPLAY_CONTEXT` now retries after loaded-save graphics initialization so short sessions do not omit display/GPU context. Level-3 naval posture also records each assault group's existing MissionAI destination, target team/city, cargo/capacity, support/base and ocean capability without new pathfinding or AI evaluation; war-start context now reuses the shared spaceship-parts-percent helper.
-- **Validation:** Compiled and exercised at system-context levels 2 and 3 on the Steam release, including short loaded-save sessions. Steam detection/path/build metadata are runtime-validated; GOG, Firaxis retail/other and Wine/Proton branches are source-reviewed but not yet runtime-tested.
+- **Git commit:** `1cb708ab8dfc36d7200bd0b4e02cd70c4d6f62b1`
+- **Change:** Added privacy-tiered runtime/install provenance and compact naval operational intent. `GAME_RECORD_EXE_CONTEXT` fingerprints the loaded `Civ4BeyondSword.exe`; level 2 records Windows/Wine runtime/build/update and process/native architecture plus coarse distribution/Steam AppID-build-beta metadata, while level 3 additionally records coarse CPU/GPU vendors, logical processors/RAM and exact EXE/mod paths.
+
+`GAME_RECORD_DISPLAY_CONTEXT` now retries after loaded-save graphics initialization so short sessions do not omit display/GPU context. Level-3 naval posture also records each assault group's existing MissionAI destination, target team/city, cargo/capacity, support/base and ocean capability without new pathfinding or AI evaluation; war-start context now reuses the shared spaceship-parts-percent helper.
+Note: Steam detection/path/build metadata are runtime-validated; GOG, Firaxis retail/other and Wine/Proton branches are source-reviewed but not yet runtime-tested.
 
 ### Revision 79 - SAS practical 6465
 

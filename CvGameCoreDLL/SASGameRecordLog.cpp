@@ -8836,6 +8836,120 @@ static void logSASGameRecordBarbarians(int iGameTurn)
 		logSASGameRecord("GAME_RECORD_BARBARIAN_POSITIONS turn=%d part=%d parts=%d units=%s", iGameTurn, (int)iI + 1, (int)aszPositionChunks.size(), aszPositionChunks[iI].GetCString());
 }
 
+// <!-- custom: Complement the omniscient barbarian summary with the pressure that this player's team can actually know about.
+// Visible-unit counts require both plot visibility and unit non-invisibility; barbarian cities distinguish revealed, currently visible, and actionable known state (AI players reuse K-Mod's existing city-deduction rule, humans require actual city revelation).
+// UNITAI_EXPLORE / MISSIONAI_EXPLORE are recorded factually rather than relabeled as "fog busters", because the engine exposes no dedicated fog-busting intent.
+// The existing AI barbarian-defense-focus predicate is also preserved without invoking barbarian target scoring. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordBarbarianPressure(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer).AI();
+	TeamTypes const eTeam = kPlayer.getTeam();
+	CvPlayer const& kBarbarians = GET_PLAYER(BARBARIAN_PLAYER);
+	int iVisibleUnits = 0;
+	int iVisibleAnimals = 0;
+	int iVisibleLandUnits = 0;
+	int iVisibleSeaUnits = 0;
+	int iVisibleUnitsInTerritory = 0;
+	int iVisibleUnitsWithin3OfCity = 0;
+	int iVisibleUnitsWithin6OfCity = 0;
+	int iNearestVisibleUnitDistance = -1;
+	int iNearestVisibleUnitId = -1;
+	UnitTypes eNearestVisibleUnit = NO_UNIT;
+	int iNearestVisibleUnitX = -1;
+	int iNearestVisibleUnitY = -1;
+	int iUnitLoop = 0;
+	for (CvUnit const* pLoopUnit = kBarbarians.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kBarbarians.nextUnit(&iUnitLoop))
+	{
+		CvPlot const* pPlot = pLoopUnit->plot();
+		if (pPlot == NULL || !pPlot->isVisible(eTeam, false) || pLoopUnit->isInvisible(eTeam, false))
+			continue;
+		iVisibleUnits++;
+		if (pLoopUnit->isAnimal()) iVisibleAnimals++;
+		if (pLoopUnit->getDomainType() == DOMAIN_LAND) iVisibleLandUnits++;
+		else if (pLoopUnit->getDomainType() == DOMAIN_SEA) iVisibleSeaUnits++;
+		if (pPlot->getOwner() == ePlayer) iVisibleUnitsInTerritory++;
+		CvCity const* pNearestCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), ePlayer, NO_TEAM, false);
+		if (pNearestCity == NULL)
+			continue;
+		int const iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pNearestCity->getX(), pNearestCity->getY());
+		if (iDistance <= 3) iVisibleUnitsWithin3OfCity++;
+		if (iDistance <= 6) iVisibleUnitsWithin6OfCity++;
+		if (iNearestVisibleUnitDistance < 0 || iDistance < iNearestVisibleUnitDistance)
+		{
+			iNearestVisibleUnitDistance = iDistance;
+			iNearestVisibleUnitId = pLoopUnit->getID();
+			eNearestVisibleUnit = pLoopUnit->getUnitType();
+			iNearestVisibleUnitX = pPlot->getX();
+			iNearestVisibleUnitY = pPlot->getY();
+		}
+	}
+	int iRevealedCities = 0;
+	int iVisibleCities = 0;
+	int iKnownCities = 0;
+	int iNearestKnownCityDistance = -1;
+	int iNearestKnownCityId = -1;
+	int iNearestKnownCityX = -1;
+	int iNearestKnownCityY = -1;
+	int iCityLoop = 0;
+	for (CvCity const* pLoopCity = kBarbarians.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kBarbarians.nextCity(&iCityLoop))
+	{
+		CvPlot const& kPlot = pLoopCity->getPlot();
+		bool const bRevealed = pLoopCity->isRevealed(eTeam);
+		if (bRevealed) iRevealedCities++;
+		if (kPlot.isVisible(eTeam, false)) iVisibleCities++;
+		bool const bKnown = (kPlayer.isHuman() ? bRevealed : kPlayer.AI_deduceCitySite(*pLoopCity));
+		if (bKnown) iKnownCities++;
+		if (!bKnown)
+			continue;
+		CvCity const* pNearestCity = GC.getMap().findCity(kPlot.getX(), kPlot.getY(), ePlayer, NO_TEAM, false);
+		if (pNearestCity == NULL)
+			continue;
+		int const iDistance = plotDistance(kPlot.getX(), kPlot.getY(), pNearestCity->getX(), pNearestCity->getY());
+		if (iNearestKnownCityDistance < 0 || iDistance < iNearestKnownCityDistance)
+		{
+			iNearestKnownCityDistance = iDistance;
+			iNearestKnownCityId = pLoopCity->getID();
+			iNearestKnownCityX = kPlot.getX();
+			iNearestKnownCityY = kPlot.getY();
+		}
+	}
+	int iExploreMissionGroups = 0;
+	int iGroupLoop = 0;
+	for (CvSelectionGroup const* pLoopGroup = kPlayer.firstSelectionGroup(&iGroupLoop); pLoopGroup != NULL; pLoopGroup = kPlayer.nextSelectionGroup(&iGroupLoop))
+	{
+		if (pLoopGroup->AI().AI_getMissionAIType() == MISSIONAI_EXPLORE)
+			iExploreMissionGroups++;
+	}
+	int iBarbarianDefenseFocusAreas = -1;
+	int iCapitalAreaBarbarianDefenseFocus = -1;
+	int iBarbarianAttackersNeeded = -1;
+	if (!kPlayer.isHuman())
+	{
+		iBarbarianDefenseFocusAreas = 0;
+		std::vector<int> aiSettledAreaIds;
+		int iOwnCityLoop = 0;
+		for (CvCity const* pLoopCity = kPlayer.firstCity(&iOwnCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iOwnCityLoop))
+		{
+			int const iArea = pLoopCity->getArea().getID();
+			if (std::find(aiSettledAreaIds.begin(), aiSettledAreaIds.end(), iArea) != aiSettledAreaIds.end())
+				continue;
+			aiSettledAreaIds.push_back(iArea);
+			if (kPlayer.AI_isDefenseFocusOnBarbarians(pLoopCity->getArea()))
+				iBarbarianDefenseFocusAreas++;
+		}
+		CvCity const* pCapital = kPlayer.getCapital();
+		iCapitalAreaBarbarianDefenseFocus = (pCapital == NULL ? -1 : (kPlayer.AI_isDefenseFocusOnBarbarians(pCapital->getArea()) ? 1 : 0));
+		iBarbarianAttackersNeeded = kPlayer.AI_neededCityAttackersVsBarbarians().ceil();
+	}
+	logSASGameRecord("GAME_RECORD_BARBARIAN_PRESSURE turn=%d player=%d team=%d human=%d barbarianCreationEra=%d visibleUnits=%d visibleAnimals=%d visibleNonAnimals=%d visibleLandUnits=%d visibleSeaUnits=%d visibleUnitsInTerritory=%d visibleUnitsWithin3OfCity=%d visibleUnitsWithin6OfCity=%d nearestVisibleUnitDistance=%d nearestVisibleUnitId=%d nearestVisibleUnit=%s nearestVisibleUnitX=%d nearestVisibleUnitY=%d revealedCities=%d visibleCities=%d knownCities=%d nearestKnownCityDistance=%d nearestKnownCityId=%d nearestKnownCityX=%d nearestKnownCityY=%d cityAttackRoleUnits=%d exploreRoleUnits=%d exploreMissionGroups=%d barbarianDefenseFocusAreas=%d capitalAreaBarbarianDefenseFocus=%d aiBarbarianAttackersNeeded=%d",
+			iGameTurn, ePlayer, eTeam, kPlayer.isHuman() ? 1 : 0, GC.getGame().isBarbarianCreationEra() ? 1 : 0,
+			iVisibleUnits, iVisibleAnimals, iVisibleUnits - iVisibleAnimals, iVisibleLandUnits, iVisibleSeaUnits, iVisibleUnitsInTerritory, iVisibleUnitsWithin3OfCity, iVisibleUnitsWithin6OfCity,
+			iNearestVisibleUnitDistance, iNearestVisibleUnitId, getSASGameRecordUnitType(eNearestVisibleUnit), iNearestVisibleUnitX, iNearestVisibleUnitY,
+			iRevealedCities, iVisibleCities, iKnownCities, iNearestKnownCityDistance, iNearestKnownCityId, iNearestKnownCityX, iNearestKnownCityY,
+			kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_CITY), kPlayer.AI_totalUnitAIs(UNITAI_EXPLORE), iExploreMissionGroups,
+			iBarbarianDefenseFocusAreas, iCapitalAreaBarbarianDefenseFocus, iBarbarianAttackersNeeded);
+}
+
 static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvGame const& kGame = GC.getGame();
@@ -8916,6 +9030,7 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 		if (bLogPlayerVerboseDetails) logSASGameRecordDiplomaticMemories(ePlayer, iGameTurn);
 		logSASGameRecordDiploStatus(ePlayer, iGameTurn);
 		logSASGameRecordUnitPosture(ePlayer, iGameTurn);
+		logSASGameRecordBarbarianPressure(ePlayer, iGameTurn);
 		logSASGameRecordWorkers(ePlayer, iGameTurn);
 		logSASGameRecordExpansion(ePlayer, iGameTurn);
 		logSASGameRecordSettlers(ePlayer, iGameTurn);
@@ -9235,9 +9350,52 @@ void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause)
 	if (pUnit == NULL || pUnit->getOwner() != BARBARIAN_PLAYER)
 		return;
 	CvPlot const* pPlot = pUnit->plot();
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BARBARIAN_UNIT_SPAWNED cause=%s unitId=%d unit=%s unitAI=%s x=%d y=%d area=%d cargo=%d transportId=%d",
+	int iRevealedMajorTeams = 0;
+	int iVisibleMajorTeams = 0;
+	PlayerTypes eNearestCivilizationPlayer = NO_PLAYER;
+	int iNearestCivilizationCityId = -1;
+	int iNearestCivilizationCityDistance = -1;
+	if (pPlot != NULL)
+	{
+		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; iTeam++)
+		{
+			TeamTypes const eLoopTeam = (TeamTypes)iTeam;
+			CvTeam const& kLoopTeam = GET_TEAM(eLoopTeam);
+			if (!kLoopTeam.isAlive() || kLoopTeam.isBarbarian() || kLoopTeam.isMinorCiv())
+				continue;
+			if (pPlot->isRevealed(eLoopTeam, false)) iRevealedMajorTeams++;
+			if (pPlot->isVisible(eLoopTeam, false)) iVisibleMajorTeams++;
+		}
+		for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
+		{
+			PlayerTypes const eLoopPlayer = (PlayerTypes)iPlayer;
+			CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+			if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
+				continue;
+			int iCityLoop = 0;
+			for (CvCity const* pLoopCity = kLoopPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iCityLoop))
+			{
+				int const iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
+				if (iNearestCivilizationCityDistance < 0 || iDistance < iNearestCivilizationCityDistance)
+				{
+					eNearestCivilizationPlayer = eLoopPlayer;
+					iNearestCivilizationCityId = pLoopCity->getID();
+					iNearestCivilizationCityDistance = iDistance;
+				}
+			}
+		}
+	}
+	// <!-- custom: Spawn context records whether the new barbarian appeared in known/visible space, its terrain/feature, and its nearest major-civilization city without rerunning spawn eligibility or pathfinding.
+	// This complements later knowledge-limited per-player pressure snapshots. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BARBARIAN_UNIT_SPAWNED cause=%s unitId=%d unit=%s unitAI=%s x=%d y=%d area=%d plotOwner=%d terrain=%s feature=%s water=%d hills=%d cargo=%d transportId=%d plotRevealedMajorTeams=%d plotVisibleMajorTeams=%d nearestCivilizationPlayer=%d nearestCivilizationCityId=%d nearestCivilizationCityDistance=%d",
 			GC.getGame().getGameTurn(), szCause, pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
-			pUnit->getX(), pUnit->getY(), pPlot == NULL ? -1 : pPlot->getArea().getID(), pUnit->isCargo(), pUnit->getTransportUnit() == NULL ? -1 : pUnit->getTransportUnit()->getID());
+			pUnit->getX(), pUnit->getY(), pPlot == NULL ? -1 : pPlot->getArea().getID(),
+			pPlot == NULL ? NO_PLAYER : pPlot->getOwner(),
+			pPlot == NULL ? "-" : getSASGameRecordTerrainType(pPlot->getTerrainType()),
+			pPlot == NULL ? "-" : getSASGameRecordFeatureType(pPlot->getFeatureType()),
+			pPlot == NULL ? -1 : (pPlot->isWater() ? 1 : 0), pPlot == NULL ? -1 : (pPlot->isHills() ? 1 : 0),
+			pUnit->isCargo(), pUnit->getTransportUnit() == NULL ? -1 : pUnit->getTransportUnit()->getID(),
+			iRevealedMajorTeams, iVisibleMajorTeams, eNearestCivilizationPlayer, iNearestCivilizationCityId, iNearestCivilizationCityDistance);
 }
 
 static CvString getSASGameRecordGoodyUnits(std::vector<CvUnit const*> const& apUnits, bool bIncludePromotions)
@@ -10543,6 +10701,22 @@ void logSASGameRecordAIToHumanOfferRejected(PlayerTypes eProposer, PlayerTypes e
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DIPLO_OFFER_REJECTED proposer=%d responder=%d proposerGives=%s responderGives=%s proposerAttitudeValue=%d responderAttitudeValue=%d atWar=%d",
 			GC.getGame().getGameTurn(), eProposer, eResponder, getSASTradeListText(kProposerGives, eProposer).GetCString(), getSASTradeListText(kResponderGives, eResponder).GetCString(),
 			kProposer.AI_getAttitudeVal(eResponder), kResponder.AI_getAttitudeVal(eProposer), GET_TEAM(kProposer.getTeam()).isAtWar(kResponder.getTeam()) ? 1 : 0);
+}
+
+
+// <!-- custom: Record the resolved shared peace-negotiation boundary, including the compact end-war-value imbalance and reparations package that explains whether peace was blocked, deferred to a human offer, or implemented.
+// `provisional*` is the reparations selected by AI_negotiatePeace before any human counterproposal; `aiGives`/`aiReceives` serialize the final lists when they exist.
+// Exhaustive UWAI peace utility/reluctance/probability reasoning remains BBAI. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIPeaceDecision(PlayerTypes ePlayer, PlayerTypes eOther, int iAtWarTurns, bool bUWAI, int iInitialOurBenefit, int iInitialTheirBenefit, int iFinalOurBenefit, int iFinalTheirBenefit, int iGiveGold, int iReceiveGold, TechTypes eGiveTech, TechTypes eReceiveTech, int iGiveCityId, int iReceiveCityId, bool bCounterProposal, char const* szOutcome, CLinkList<TradeData> const* pWeGive, CLinkList<TradeData> const* pTheyGive)
+{
+	CvString const szAIGives = (pWeGive == NULL ? CvString("-") : getSASTradeListText(*pWeGive, ePlayer));
+	CvString const szAIReceives = (pTheyGive == NULL ? CvString("-") : getSASTradeListText(*pTheyGive, eOther));
+	logSASGameRecord("GAME_RECORD_AI_PEACE_DECISION turn=%d player=%d team=%d targetPlayer=%d targetTeam=%d humanTarget=%d source=%s atWarTurns=%d initialOurBenefit=%d initialTheirBenefit=%d finalOurBenefit=%d finalTheirBenefit=%d provisionalGiveGold=%d provisionalReceiveGold=%d provisionalGiveTech=%s provisionalReceiveTech=%s provisionalGiveCityId=%d provisionalReceiveCityId=%d counterProposal=%d outcome=%s aiGives=%s aiReceives=%s",
+			GC.getGame().getGameTurn(), ePlayer, GET_PLAYER(ePlayer).getTeam(), eOther,
+			GET_PLAYER(eOther).getTeam(), GET_PLAYER(eOther).isHuman() ? 1 : 0, bUWAI ? "UWAI" : "LEGACY", iAtWarTurns,
+			iInitialOurBenefit, iInitialTheirBenefit, iFinalOurBenefit, iFinalTheirBenefit, iGiveGold, iReceiveGold,
+			getSASGameRecordTechType(eGiveTech), getSASGameRecordTechType(eReceiveTech), iGiveCityId, iReceiveCityId,
+			bCounterProposal ? 1 : 0, szOutcome, szAIGives.GetCString(), szAIReceives.GetCString());
 }
 
 

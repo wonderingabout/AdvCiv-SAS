@@ -5,6 +5,8 @@
 [Copyright and Disclaimer](/_1_AdvCiv-SAS/Docs/README_References.md#copyright-and-disclaimer)\
 [Note about the audio in main menu](/_1_AdvCiv-SAS/Docs/README_References.md#note-about-the-audio-in-main-menu)\
 [Credits](/_1_AdvCiv-SAS/Docs/README_References.md#credits)\
+&emsp;[Game Mods](/_1_AdvCiv-SAS/Docs/README_References.md#game-mods)\
+&emsp;[Other Tools and Projects](/_1_AdvCiv-SAS/Docs/README_References.md#other-tools-and-projects)\
 [Starting your mod](/_1_AdvCiv-SAS/Docs/README_References.md#starting-your-mod)\
 [Some Useful tools while doing this](/_1_AdvCiv-SAS/Docs/README_References.md#some-useful-tools-while-doing-this)\
 
@@ -73,6 +75,8 @@ Sound seems strangely louder at first game launch, but then accesing main menu a
 
 ## Credits
 
+### Game Mods
+
 - Middle-earth (that i may call M-E sometimes maybe or not): i took (the) quite a bit (that i) could from their very amazing really Platypedia, wish i could take more but not sure i may or may not, thanks a big big lot, thanks a lot,
 - BASE 6.4 mod, for art like the the Spanish's Lonja in AdvCiv-SAS, thanks.
 - Thomas' War mod, for art like the German's Forge in AdvCiv-SAS thanks.
@@ -98,6 +102,10 @@ too too, thanks,
 - Rise of Mankind a New Dawn mod (which i also abbreviated as ROM a new dawn mod), from which i took assets like the asatru monastery thanks as of now for the german_longhouse thanks
 - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML, which surprised me a lot in a way that pleased me. So far i have not touched the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it would be. Also, even without modding, the base game is quite nice, thanks too i mean, thanks,
 - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my exchanges/experiences during these times. There are a lot of things i wanted to improve in base advciv, but i could only make so because the base, despite its flaws to me here and there, was mostly overall very good to start with thanks a lot.
+
+### Other Tools and Projects
+
+- civ4-advisor (that i as of now found to be [seemingly on here chris-h-sg's github](https://github.com/chris-h-sg/civ4-advisor)), notably as of now for some SASGameRecord ideas in revision 81, thanks.
 
 ## Starting your mod
 
