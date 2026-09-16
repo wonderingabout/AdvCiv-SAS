@@ -1994,7 +1994,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
-	<!-- custom: Phase 0 productive-feature chopping. CORE Worker/Settler production uses the lower threshold and can chop before bonuses; NORMAL production improves bonuses first and only chops very abundant feature stock before roads/ordinary work. Because the rule stays active while the uncommitted count is >= the threshold, 3 leaves about 2 reserves and 6 leaves about 5. Current unhealth/unhappiness relief can bypass either reserve. See KI#33.2. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Phase 0 productive-feature chopping. CORE Worker/Settler production uses the lower stock threshold and can chop before bonuses; NORMAL production improves bonuses first and only chops very abundant feature stock before roads/ordinary work. Because the rule stays active while the uncommitted count is >= the threshold, 3 leaves about 2 reserves and 6 leaves about 5. The hard chop/reserve is intentionally an early low-output accelerator rather than a permanent plot lock. Current unhealth/unhappiness relief bypasses all economic gates and can still remove the feature. See KI#33.2. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -2005,6 +2005,23 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</Define>
 	<Define>
 		<DefineName>SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_NORMAL_MIN_ELIGIBLE_PLOTS</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+	<!-- custom: MAX_ERA=2 means through Medieval, MAX_PLAYER_CITIES=6 stops it once the empire is already broad, MIN_PRODUCTION_TURNS_NORMAL_GAMESPEED_WORTH_X100=300 requires the chop's effective contribution after the current city/order production modifier to be worth at least 3.00 Normal-speed-equivalent turns of the city's current effective production (food counts when the current order uses food production), and CORE_FOOD_UNIT_MIN_REMAINING_TURNS_NORMAL_GAMESPEED=6 avoids hard-chopping for a Worker/Settler already near completion. CvUnitAI scales those two turn thresholds by FeatureProductionPercent and TrainPercent respectively; Normal-speed behavior is unchanged. Set MAX_ERA below 0, or any other numeric gate to 0, to disable that individual limit. See KI#33.2. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_MAX_ERA</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_MAX_PLAYER_CITIES</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_MIN_PRODUCTION_TURNS_NORMAL_GAMESPEED_WORTH_X100</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_CORE_FOOD_UNIT_MIN_REMAINING_TURNS_NORMAL_GAMESPEED</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
 	<!-- custom: value added when scrubbing non-bonus Fallout in CvUnitAI::AI_bestCityBuild. Fallout has severe yield penalties, so keep this much higher than normal tile-improvement values. If Fallout cannot be scrubbed yet, CvUnitAI skips ordinary non-bonus builds on that plot rather than improving through the Fallout. (ChatGPT-5.5) -->

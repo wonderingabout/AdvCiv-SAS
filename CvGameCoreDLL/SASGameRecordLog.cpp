@@ -9688,8 +9688,7 @@ void logSASGameRecordTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes 
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=TECH_ACQUIRED player=%d team=%d tech=%s source=%s enablesTechTrading=%d enablesGoldTrading=%d", GC.getGame().getGameTurn(), ePlayer, eTeam, getSASGameRecordTechType(eType), getSASTechAcquisitionCause(eCause), kTech.isTechTrading(), kTech.isGoldTrading());
 }
 
-void logSASGameRecordBarbarianCitySiteChoice(bool bSkipCivAreas, int iProbModifierPercent, int iTargetCitiesMultiplier, int iDiscouragedRange,
-		CvPlot const* const apPlots[], int const aiRawValues[], int const aiAreaValues[], int const aiFinalValues[], int const aiRandomPercents[], int iCandidateCount)
+void logSASGameRecordBarbarianCitySiteChoice(bool bSkipCivAreas, int iProbModifierPercent, int iTargetCitiesMultiplier, int iDiscouragedRange, CvPlot const* const apPlots[], int const aiRawValues[], int const aiAreaValues[], int const aiFinalValues[], int const aiRandomPercents[], int iCandidateCount)
 {
 	CvPlot const* pChosen = (iCandidateCount > 0 ? apPlots[0] : NULL);
 	CvPlot const* pAlt1 = (iCandidateCount > 1 ? apPlots[1] : NULL);

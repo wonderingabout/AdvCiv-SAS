@@ -7445,8 +7445,7 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 			int iLoggedCandidates = 0;
 			while (iLoggedCandidates < iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT && apTopPlots[iLoggedCandidates] != NULL)
 				iLoggedCandidates++;
-			logSASGameRecordBarbarianCitySiteChoice(bSkipCivAreas, iProbModifierPercent, iTargetCitiesMultiplier, iBarbarianDiscouragedRange,
-					apTopPlots, aiTopRawValues, aiTopAreaValues, aiTopValues, aiTopRandomPercents, iLoggedCandidates);
+			logSASGameRecordBarbarianCitySiteChoice(bSkipCivAreas, iProbModifierPercent, iTargetCitiesMultiplier, iBarbarianDiscouragedRange, apTopPlots, aiTopRawValues, aiTopAreaValues, aiTopValues, aiTopRandomPercents, iLoggedCandidates);
 		}
 		if (gFoundLogLevel > 0)
 		{

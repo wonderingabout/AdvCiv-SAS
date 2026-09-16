@@ -2314,7 +2314,27 @@ The final balanced replay (`Logs(20260905-135527).zip`) confirms that split. Por
 
 The expansion history also removes a separate suspected edge case rather than creating another Settler fix: Oporto was founded at **(63,50) on T35**, a second trained Settler completed on T81, and Guimaraes was founded at **(60,38) on T92**. The previously noted nearby-site concern therefore did not reproduce and is not being optimized around.
 
-The Worker-side result is accepted as **Improved**. The final policy intentionally remains BFC-focused; outside-BFC reduced-yield chopping and Base AdvCiv's other contextual chop cases (e.g. Wonders/projects/land war) can be investigated separately if future evidence shows a real need. Test-only Worker/Settler/Found diagnostics were restored to their normal disabled defaults before commit.
+Update: a September 16 2026 follow-up exposed a different lifetime edge case in the same reserve rule. In the reproducible French late-game state, France had **33 Workers, 26 idle and only 3 building** while retaining **29 Forest plots**. Level-3 Worker diagnostics identified **28 distinct unimproved Forest plots** repeatedly rejected by `WORKER_PHASE0_PRODUCTIVE_FEATURE_RESERVE`.
+
+At turn 340 those reserve rows had only 1-5 uncommitted eligible features per city against the normal threshold 6, so the hard chop itself was inactive but the below-threshold reserve still skipped those plots before ordinary bonus/improvement logic. The intended early "do not liquidate the whole productive-feature stock" safeguard had therefore become a permanent late-game plot lock.
+
+The follow-up candidate keeps the original threshold design but narrows which productive features belong to Phase 0/reserve at all. Non-pressure-relief removal now has to satisfy four XML-tunable early-economic gates:
+
+- current era at or before `SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_MAX_ERA` (default **2 = Medieval**), player city count at or below `..._MAX_PLAYER_CITIES` (default **6**),
+- the chop's effective production contribution after the current city/order production modifier worth at least `..._MIN_PRODUCTION_TURNS_WORTH_X100` of the city's current effective production (default **300 = 3.00 turns**,
+- with food counted when the current order uses food production), and, for a food-production Worker/Settler, at least `..._CORE_FOOD_UNIT_MIN_TURNS_LEFT` turns remaining (default **6**).
+
+Any individual numeric limit can be disabled through XML. Current unhealth/unhappiness relief bypasses these economic gates, so removing a genuinely harmful feature remains available even in a mature empire.
+
+The first combined Debug-opt replay of this follow-up reached turn 97 before exposing a separate logging-lifetime bug in the custom Phase-0 action row. The `crash_t97.txt` evidence shows: immediately before the crash, Greek Worker **131074** in Corinth selected `BUILD_REMOVE_FOREST` on **(52,33)** for **30** production (`eligible=7`, `targeted=1`, `uncommitted=6`, `minEligible=6`), and the mission-execution trace then reported `build-finished-or-invalid`.
+
+Because the Worker was already standing on the target, `pushMission(MISSION_BUILD, ...)` could execute synchronously and remove the Forest before control returned. The old ACTION diagnostic then re-read `pPhase0Plot->getFeatureType()`, obtained `NO_FEATURE`, and passed that invalid enum to `GC.getInfo`; WinDbg resolved the resulting `c0000005` invalid-pointer read to `CvInfoBase::getDescription`, called from `CvUnitAI::AI_workerMove` at the Phase-0 log line.
+
+The fix copies the feature description and decision-time reserve threshold before pushing the build mission in both CORE and NORMAL Phase-0 action paths, with a defensive `NO_FEATURE` fallback so future diagnostic changes cannot recreate the same crash class. A source scan for the same post-`pushMission` `GC.getInfo(plot.getFeatureType())` pattern found these two custom Phase-0 ACTION rows as the matching vulnerable cases, and both are covered by the guard. This is an AdvCiv-SAS diagnostic bug in the still-uncommitted follow-up, not an inherited AdvCiv 1.14 issue; the gameplay result beyond turn 97 still requires a fresh replay.
+
+This deliberately does **not** say that Forest/Jungle may never be removed after Medieval or after six cities. It only ends the special Phase-0 hammer override and its reserve protection once a fixed chop is no longer large enough to justify delaying ordinary development. The plot then falls through to the existing normal Worker logic, which can still clear the feature for a useful improvement, resource access, health pressure or other independent reason. This also means a valuable mature Grassland/Hill Forest is no longer made invisible merely because five productive features happened to remain in that city's BFC.
+
+The Worker-side result remains **Improved**, with this late-game follow-up requiring replay confirmation. The policy intentionally remains BFC-focused; outside-BFC reduced-yield chopping and Base AdvCiv's other contextual chop cases (e.g. Wonders/projects/land war) can be investigated separately if future evidence shows a real need.
 
 Investigation and implementation with the help of ChatGPT-5.6-Sol, thanks.
 
