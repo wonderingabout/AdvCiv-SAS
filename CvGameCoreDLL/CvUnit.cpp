@@ -4888,14 +4888,11 @@ bool CvUnit::pillage(/* advc.111: */ bool bForceImprovement)
 	}
 	ImprovementTypes const eOldImprovement = kPlot.getImprovementType();
 	RouteTypes const eOldRoute = kPlot.getRouteType();
-	// <!-- custom: A successful pillage can replace an improvement with another improvement or remove a route, and the gold transfer happens inside the existing pillage helper.
-	// Capture only the cheap pre-action facts needed to attribute the completed outcome; no logging-only work is done below level 2. (ChatGPT-5.6-Sol) -->
-	bool const bLogGameRecordPillage = (gGameRecordLogLevel >= 2);
+	bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
 	SASGameRecordPlotState kOldPlotState;
-	if (bLogGameRecordPillage) kOldPlotState = SASGameRecordPlotState(kPlot);
-	BonusTypes const eOldBonus = bLogGameRecordPillage ? kPlot.getBonusType() : NO_BONUS;
-	PlayerTypes const ePillageVictim = bLogGameRecordPillage ? kPlot.getOwner() : NO_PLAYER;
-	int const iPillagerGoldBefore = bLogGameRecordPillage ? GET_PLAYER(getOwner()).getGold() : 0;
+	PlayerTypes const ePillageVictim = bLogPlotChange ? kPlot.getOwner() : NO_PLAYER;
+	int const iPillagerGoldBefore = bLogPlotChange ? GET_PLAYER(getOwner()).getGold() : 0;
+	if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(kPlot);
 	// <advc.111>
 	bool bPillaged = false;
 	if (getDestructibleStructureAt(kPlot, false, bForceImprovement) == STRUCTURE_ROUTE)
@@ -4917,11 +4914,12 @@ bool CvUnit::pillage(/* advc.111: */ bool bForceImprovement)
 		improvements that replace themselves upon being pillaged.) */
 	if (bPillaged)
 	{
-		if (bLogGameRecordPillage)
+		if (bLogPlotChange)
 		{
 			recordSASGameRecordPlotChange(kPlot, kOldPlotState, "pillaging", "PILLAGE", true);
-			logSASGameRecordPillage(this, eOldImprovement, eOldRoute, eOldBonus, ePillageVictim,
-					GET_PLAYER(getOwner()).getGold() - iPillagerGoldBefore);
+			// <!-- custom: The existing plot-change row says what structure changed.
+			// Add the acting unit, actual victim and realized pillage gold so war/economy history can attribute the same event without guessing from nearby units. (ChatGPT-5.6-Sol) -->
+			logSASGameRecordPillage(this, kOldPlotState, ePillageVictim, GET_PLAYER(getOwner()).getGold() - iPillagerGoldBefore);
 		}
 		CvEventReporter::getInstance().unitPillage(this, eOldImprovement, eOldRoute, getOwner());
 	}
