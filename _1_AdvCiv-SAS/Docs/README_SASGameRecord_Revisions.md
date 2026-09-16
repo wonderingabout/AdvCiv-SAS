@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=78 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=79 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,9 +40,19 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
+### Revision 79 - SAS practical 6465
+
+- **Date:** 2026-09-16
+- **Change:** Added compact city/territory development backlog state so broad game records can surface persistent Worker-development symptoms without duplicating BBAI decision reasoning. `GAME_RECORD_TERRITORY_DEVELOPMENT` now emits explicit subtraction-derived unimproved totals for combined, land, water, BFC and suburb coverage, and splits sparse developable water into BFC/suburb counts using the same visible-bonus/already-improved denominator as the existing total.
+
+At level 3, each periodic city snapshot now adds one `GAME_RECORD_CITY_DEVELOPMENT` row. It distinguishes the full geometric city radius, the subset owned by the player, and the owned plots currently assigned to that exact city; it also writes the useful derived `notOwnedRadiusPlots` and `ownedUnassignedPlots` gaps explicitly instead of forcing repeated subtraction. The row then records development/improvement/backlog counts over assigned plots, improvement percentages, improved/unimproved development bonuses, unimproved feature/bonus type counts, and bounded coordinates for every unimproved development land/water plot plus feature/resource-bearing subsets. This is intentionally descriptive state: it performs no build-legality scan, pathfinding, Worker target search or yield/value judgment, and the city-radius scan runs only inside the existing level-3 city-detail gate.
+
+Level 3 also serializes each non-empty already-maintained AI city-site shortlist as `GAME_RECORD_CITY_SITES`. The normal expansion row still keeps the compact site count, current minimum found-value threshold and primary site's coordinates/value; the companion row adds the cached rank, coordinates and current found value for every shortlisted site (normally at most four). It does not recalculate found values, scan the map, test Settler paths or duplicate detailed Settler/BBAI reasoning, so the record can show expansion opportunities even when no Settler currently exists at negligible extra cost.
+
 ### Revision 78 - SAS practical 6464
 
 - **Date:** 2026-09-16
+- **Git commit:** `fb4c3dcb0b8d8fe9f085620a7bdcaf2ea059bc63`
 - **Change:** Added compact strategic-intent context without copying exhaustive BBAI/UWAI reasoning into the game record. Periodic team state now preserves every active/preparing war target as `team:WARPLAN/age`, while AI military-production snapshots expose the remaining high-level military strategy flags (`CRUSH`, `TURTLE`, `LAST_STAND`, fast-mover/land-blitz/air-blitz and nuclear strategy) alongside the existing focus-war/dagger/alert/final-war state.
 
 Real foreground UWAI target selection now emits one `GAME_RECORD_AI_WAR_TARGET_CHOICE` when a target passes its actual selection roll, preserving final/original utility, victory-denial adjustment, direct/naval posture, evaluated preparation turns, forced-peace time, drive, rank/count, attitude/closeness, distance and relative power immediately before the resulting plan/declaration mutation.
