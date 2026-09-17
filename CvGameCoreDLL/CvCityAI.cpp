@@ -1985,7 +1985,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		// <!-- custom: Controls showed every raw empty -> empty chooser call in two broad runs returned here: 364/364 were expected disorder, while the true function end was never reached without a target.
 		// Keep a dedicated level-3 microscope marker so future sniping can distinguish expected resistance/anarchy from an abnormal final fall-through; no extra evaluation or RNG is performed. See KI#51. (ChatGPT-5.6-Sol) -->
-		if (!isBarbarian() && gProductionNoTargetLogLevel >= 3)
+		if (gProductionNoTargetLogLevel >= 3 && !isBarbarian())
 			logBBAI("PRODUCTION_NO_TARGET_CHOOSER turn=%d player=%d %S city=%S cityId=%d reason=EXPECTED_DISORDER human=%d occupation=%d occupationTimer=%d",
 				kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), isHuman(), isOccupation(), getOccupationTimer());
 		return;
@@ -5220,7 +5220,7 @@ void CvCityAI::AI_chooseProduction()
 	// <!-- custom: A non-disorder city reaching the true end with no target is the abnormal KI#51 condition worth deep debugging.
 	// The fallback-off controls reached this marker zero times; keep the full dedicated level-3 context as the BBAI microscope if it ever reappears.
 	// Legal-target scans run only on this abnormal path. Diagnostic only; no RNG calls. See KI#51. (ChatGPT-5.6-Sol) -->
-	if (!isBarbarian() && gProductionNoTargetLogLevel >= 3)
+	if (gProductionNoTargetLogLevel >= 3 && !isBarbarian())
 	{
 		// <!-- custom: These four level-3 scans are intentionally duplicated at the broad player/city turn boundary. Both sites are cold; keeping the simple counters local avoids a cross-file diagnostic API with no hot-path or gameplay benefit. See KI#51. (GPT-5.6-Sol) -->
 		int iLegalUnits = 0;
@@ -14393,7 +14393,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 	UnitTypes const eRequestedUnit = eUnit;
 	UnitAITypes const eRequestedUnitAI = eUnitAI;
 	bool const bLogDetailedMilitaryProduction = (gMilitaryProductionLogLevel >= 3 && !isHuman() && !isBarbarian());
-	if (SAS_isSettlerProductionCandidate(eUnit, eUnitAI) && gSettlerLogLevel >= 2) SAS_logSettlerBuildDecision(*this, "AI_chooseUnit_concrete", "CANDIDATE", eUnit, eUnitAI, -1, -1);
+	if (gSettlerLogLevel >= 2 && SAS_isSettlerProductionCandidate(eUnit, eUnitAI)) SAS_logSettlerBuildDecision(*this, "AI_chooseUnit_concrete", "CANDIDATE", eUnit, eUnitAI, -1, -1);
 	if (eUnit != NO_UNIT)
 	{
 		// <!-- custom: see known issue 53.2.2 for related info or related code in this function on why we'd want to change unit here-->

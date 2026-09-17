@@ -699,7 +699,7 @@ void CvCity::doTurn()
 	const bool bHuman = isHuman();
 	// <!-- custom: Keep these forced emergency-building diagnostics behind the dedicated military-production category.
 	// The old KI#51 no-production fallback that shared this area was removed after fallback-off controls reproduced only intentional disorder returns. See KI#51. (ChatGPT-5.6-Sol) -->
-	bool const bLogMilitaryProduction = (!bHuman && !isBarbarian() && gMilitaryProductionLogLevel >= 2);
+	bool const bLogMilitaryProduction = (gMilitaryProductionLogLevel >= 2 && !bHuman && !isBarbarian());
 
 	bool const bDanger = AI().AI_isDanger();	// method lives on CvCityAI
 	// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate -->

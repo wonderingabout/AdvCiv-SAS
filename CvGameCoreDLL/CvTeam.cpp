@@ -4846,7 +4846,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 			if (bWasResearchingAcquiredTech)
 				kMember.popResearch(eTech);
 			// <!-- custom: A completed final queue target normally leaves currentResearch=- until the AI chooses again before its next research phase. Record that harmless cause so an end-of-round SASGameRecord snapshot is not mistaken for lost science. (GPT-5.6-Sol) -->
-			if (bWasResearchingAcquiredTech && !kMember.isHuman() && gPlayerLogLevel >= 2 && kGame.isFinalInitialized()) logBBAI("    RESEARCH_QUEUE_AFTER_ACQUIRE turn=%d player=%d %S acquired=%S next=%S queueLength=%d", kGame.getGameTurn(), kMember.getID(), kMember.getCivilizationDescription(0), kTech.getDescription(), (kMember.getCurrentResearch() == NO_TECH ? L"-" : GC.getInfo(kMember.getCurrentResearch()).getDescription()), kMember.getLengthResearchQueue());
+			if (gPlayerLogLevel >= 2 && bWasResearchingAcquiredTech && !kMember.isHuman() && kGame.isFinalInitialized()) logBBAI("    RESEARCH_QUEUE_AFTER_ACQUIRE turn=%d player=%d %S acquired=%S next=%S queueLength=%d", kGame.getGameTurn(), kMember.getID(), kMember.getCivilizationDescription(0), kTech.getDescription(), (kMember.getCurrentResearch() == NO_TECH ? L"-" : GC.getInfo(kMember.getCurrentResearch()).getDescription()), kMember.getLengthResearchQueue());
 			/*	notify the player they now have the tech,
 				if they want to make immediate changes */
 			kMember.AI_nowHasTech(eTech);

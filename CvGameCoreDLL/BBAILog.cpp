@@ -19,165 +19,44 @@ static int getClampedSASBBAILogLevel(char const* szDefineName)
 	return iLevel;
 }
 
-// <!-- custom: Cache each effective XML-backed BBAI diagnostic log setting on first use for cheap hot-path checks. Game-record run reports are handled independently in SASGameRecordLog.cpp. (GPT-5.5? + GPT-5.5) -->
-bool isSASBBAILogEnabled()
-{
-	static const bool bEnabled = (isSASBBAILogMasterEnabled() &&
-		(getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAIWarLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAIProductionNoTargetLogLevel() > 0 || getSASBBAIMilitaryProductionLogLevel() > 0 || getSASBBAISpaceProductionLogLevel() > 0 || getSASBBAILimitedProjectProductionLogLevel() > 0 || getSASBBAIBuildingProductionLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 ||
-		getSASBBAIUnitLogLevel() > 0 || getSASBBAIOverseasTransportLogLevel() > 0 || getSASBBAIGreatGeneralLogLevel() > 0 || getSASBBAISettlerLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 ||
-		getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
-	return bEnabled;
-}
+// <!-- custom: Zero initialization keeps BBAI disabled during DLL/XML startup. CvXMLLoadUtility::SetGlobalDefines fills this once after every base/SAS/modular override has loaded, so the hundreds of category gates in ordinary gameplay are direct field reads rather than out-of-line cached-getter calls.
+// Runtime Define mutation was already unsupported because the old getters cached their first resolved values. (ChatGPT-5.6-Sol) -->
+SASBBAILogSettings gSASBBAILogSettings;
 
-bool isSASBBAILogMasterEnabled()
+void cacheSASBBAILogSettings()
 {
-	static const bool bEnabled = (GC.getDefineINT("SAS_BBAI_LOG_ENABLE") > 0);
-	return bEnabled;
-}
-
-int getSASBBAIPlayerLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_PLAYER_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-int getSASBBAITeamLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_TEAM_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-// <!-- custom: Dedicated war diagnostics for UWAI target choice, war-plan lifecycle, and declaration context. TEAM remains for broader diplomacy/team events. (GPT-5.5) -->
-int getSASBBAIWarLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_WAR_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-int getSASBBAICityLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_CITY_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-// <!-- custom: Dedicated no-production diagnostics cover the all-city turn-boundary state and the exact AI chooser exits without enabling broad CITY or military-production logging. See KI#51. (GPT-5.6-Sol) -->
-int getSASBBAIProductionNoTargetLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_PRODUCTION_NO_TARGET_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-// <!-- custom: Dedicated military-production diagnostics notably so AI city build pressure, spending ceilings, war state, building competition, and unit-choice gates can be investigated without broad CITY logging. (ChatGPT-5.6-Sol) -->
-int getSASBBAIMilitaryProductionLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-// <!-- custom: Dedicated spaceship-production diagnostics so project valuation/fit and project interruption can be investigated without broad PLAYER/CITY logging. (ChatGPT-5.6-Sol) -->
-int getSASBBAISpaceProductionLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_SPACE_PRODUCTION_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-// <!-- custom: Dedicated one-copy non-spaceship Project diagnostics so Manhattan/Apollo/Internet/SDI investment churn can be investigated without broad PLAYER/CITY logging. (ChatGPT-5.6-Sol) -->
-int getSASBBAILimitedProjectProductionLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-// <!-- custom: Dedicated building-production diagnostics for useful-infrastructure opportunity cost, building need, and building-vs-unit hammer/turn comparisons without broad CITY or military-production logging. (ChatGPT-5.6-Sol) -->
-int getSASBBAIBuildingProductionLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-// <!-- custom: Separate citizen-assignment log level notably so expensive contextual swap and raw plot-yield diagnostics can run without broad city logging. (GPT-5.5) -->
-int getSASBBAICitizenLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_CITIZEN_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-int getSASBBAIUnitLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_UNIT_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-// <!-- custom: Separate overseas military-cargo and Settler-transport diagnostics from broad CITY and UNIT logging notably so naval opportunity, capacity, pickup, and launch decisions can be tested together. (GPT-5.6-Sol) -->
-int getSASBBAIOverseasTransportLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-// <!-- custom: Separate Great General diagnostics from general UNIT logging because one decision spans Military Academy construction, Military Instructor joining, Warlord attachment, and the target-city/unit valuation that decides between them. (GPT-5.5) -->
-int getSASBBAIGreatGeneralLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_GREAT_GENERAL_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-// <!-- custom: Separate Settler diagnostics from general UNIT logging so each can be inspected independently; FOUND separately controls detailed city-site scoring calculations. (GPT-5.5) -->
-int getSASBBAISettlerLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_SETTLER_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-int getSASBBAIFoundLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_FOUND_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-// <!-- custom: Separate evacuation/retreat diagnostics, notably for doomed cities, workers, and naval units. (GPT-5.5) -->
-int getSASBBAIEvacuationLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_EVACUATION_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-// <!-- custom: New Land-worker BBAI log level for Worker AI build, movement, and improvement-replacement diagnostics. This keeps WORKER_* diagnostics out of the general UNIT category, so UNIT can stay focused on non-worker unit AI. (ChatGPT-5.5 + GPT-5.5 review) -->
-int getSASBBAIWorkerLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_WORKER_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-// <!-- custom: New Worker-sea/Work Boat BBAI log level for UNITAI_WORKER_SEA production, target, audit, movement, and sea-improvement diagnostics. This separates noisy Work Boat diagnostics from both CITY and UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
-int getSASBBAIWorkerSeaLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_WORKER_SEA_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-int getSASBBAIMapLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_MAP_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-int getSASBBAIDealCancelLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_DEAL_CANCEL_LOG_LEVEL") : 0);
-	return iLevel;
-}
-
-// <!-- custom: Separate culture-victory BBAI log level so culture-slider, victory-stage, and city-target diagnostics can be enabled without turning on broad player/city logging. (ChatGPT-5.5) -->
-int getSASBBAICultureLogLevel()
-{
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_CULTURE_LOG_LEVEL") : 0);
-	return iLevel;
+	SASBBAILogSettings& kSettings = gSASBBAILogSettings;
+	bool const bMasterEnabled = (GC.getDefineINT("SAS_BBAI_LOG_ENABLE") > 0);
+	kSettings.bMasterEnabled = bMasterEnabled;
+	kSettings.iPlayerLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_PLAYER_LOG_LEVEL") : 0);
+	kSettings.iTeamLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_TEAM_LOG_LEVEL") : 0);
+	kSettings.iWarLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_WAR_LOG_LEVEL") : 0);
+	kSettings.iCityLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_CITY_LOG_LEVEL") : 0);
+	kSettings.iProductionNoTargetLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_PRODUCTION_NO_TARGET_LOG_LEVEL") : 0);
+	kSettings.iMilitaryProductionLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL") : 0);
+	kSettings.iSpaceProductionLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_SPACE_PRODUCTION_LOG_LEVEL") : 0);
+	kSettings.iLimitedProjectProductionLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL") : 0);
+	kSettings.iBuildingProductionLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL") : 0);
+	kSettings.iCitizenLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_CITIZEN_LOG_LEVEL") : 0);
+	kSettings.iUnitLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_UNIT_LOG_LEVEL") : 0);
+	kSettings.iOverseasTransportLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL") : 0);
+	kSettings.iGreatGeneralLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_GREAT_GENERAL_LOG_LEVEL") : 0);
+	kSettings.iSettlerLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_SETTLER_LOG_LEVEL") : 0);
+	kSettings.iFoundLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_FOUND_LOG_LEVEL") : 0);
+	kSettings.iEvacuationLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_EVACUATION_LOG_LEVEL") : 0);
+	kSettings.iWorkerLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_WORKER_LOG_LEVEL") : 0);
+	kSettings.iWorkerSeaLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_WORKER_SEA_LOG_LEVEL") : 0);
+	kSettings.iMapLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_MAP_LOG_LEVEL") : 0);
+	kSettings.iDealCancelLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_DEAL_CANCEL_LOG_LEVEL") : 0);
+	kSettings.iCultureLogLevel = (bMasterEnabled ? getClampedSASBBAILogLevel("SAS_BBAI_CULTURE_LOG_LEVEL") : 0);
+	kSettings.bEnabled = (bMasterEnabled &&
+		(kSettings.iPlayerLogLevel > 0 || kSettings.iTeamLogLevel > 0 || kSettings.iWarLogLevel > 0 || kSettings.iCityLogLevel > 0 || kSettings.iProductionNoTargetLogLevel > 0 || kSettings.iMilitaryProductionLogLevel > 0 || kSettings.iSpaceProductionLogLevel > 0 || kSettings.iLimitedProjectProductionLogLevel > 0 || kSettings.iBuildingProductionLogLevel > 0 || kSettings.iCitizenLogLevel > 0 ||
+		kSettings.iUnitLogLevel > 0 || kSettings.iOverseasTransportLogLevel > 0 || kSettings.iGreatGeneralLogLevel > 0 || kSettings.iSettlerLogLevel > 0 || kSettings.iFoundLogLevel > 0 || kSettings.iEvacuationLogLevel > 0 || kSettings.iWorkerLogLevel > 0 || kSettings.iWorkerSeaLogLevel > 0 || kSettings.iMapLogLevel > 0 || kSettings.iDealCancelLogLevel > 0 || kSettings.iCultureLogLevel > 0));
 }
 
 int getSASBBAIScoreLogInterval()
 {
-	// <!-- custom: When the master switch is disabled, return 1 rather than 0 because this value can be used as a modulo divisor. (GPT-5.5?) -->
+	// <!-- custom: This is reached only inside enabled PLAYER logging; keep the modulo divisor at least 1. (GPT-5.5? + ChatGPT-5.6-Sol) -->
 	static const int iInterval = (isSASBBAILogMasterEnabled() ? std::max(1, GC.getDefineINT("SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED")) : 1);
 	return iInterval;
 }
@@ -266,15 +145,15 @@ static void logSASBBAIProvenanceContext()
 static void logSASBBAILogSettings()
 {
 	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_WAR_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_PRODUCTION_NO_TARGET_LOG_LEVEL=%d SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_SPACE_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=%d SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d",
-			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAIWarLogLevel(), getSASBBAICityLogLevel(), getSASBBAIProductionNoTargetLogLevel(), getSASBBAIMilitaryProductionLogLevel(), getSASBBAISpaceProductionLogLevel(), getSASBBAILimitedProjectProductionLogLevel(), getSASBBAIBuildingProductionLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAIOverseasTransportLogLevel(), getSASBBAIGreatGeneralLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
+			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), gPlayerLogLevel, gTeamLogLevel, gWarLogLevel, gCityLogLevel, gProductionNoTargetLogLevel, gMilitaryProductionLogLevel, gSpaceProductionLogLevel, gLimitedProjectProductionLogLevel, gBuildingProductionLogLevel, gCitizenLogLevel, gUnitLogLevel, gOverseasTransportLogLevel, gGreatGeneralLogLevel, gSettlerLogLevel, gFoundLogLevel, gEvacuationLogLevel, gWorkerLogLevel, gWorkerSeaLogLevel, gMapLogLevel, gDealCancelLogLevel, gCultureLogLevel, gScoreLogInterval);
 }
 
 // <!-- custom: Replace setup-time tech/diplomacy construction chatter with one authoritative finalized state shared with SASGameRecord.
 // Preserve the inherited TEAM/WAR detail boundaries while making the successful-start representation compact and deterministic. (ChatGPT-5.6-Sol) -->
 static void logSASBBAIInitialState()
 {
-	int const iTeamLogLevel = getSASBBAITeamLogLevel();
-	int const iWarLogLevel = getSASBBAIWarLogLevel();
+	int const iTeamLogLevel = gTeamLogLevel;
+	int const iWarLogLevel = gWarLogLevel;
 	if (iTeamLogLevel < 1 && iWarLogLevel < 1)
 		return;
 	bool const bDealDetailEnabled = (iTeamLogLevel >= 2 || iWarLogLevel >= 2);
@@ -336,8 +215,8 @@ void startSASBBAILogForLoadedSave()
 
 void logBBAI(TCHAR* format, ... )
 {
-	static const bool bEnabled = isSASBBAILogEnabled();
-	if (!bEnabled)
+	// <!-- custom: Defensive backstop only; callers should pre-gate so logging-only arguments are never evaluated while BBAI diagnostics are disabled. (ChatGPT-5.6-Sol) -->
+	if (!gLogBBAI)
 		return;
 
 	std::string szLine;

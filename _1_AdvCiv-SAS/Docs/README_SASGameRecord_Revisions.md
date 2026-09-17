@@ -43,7 +43,7 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 ### Revision 89 - SAS practical 6477
 
 - **Date:** 2026-09-17
-- **Git commit:** pending
+- **Git commit:** `18e8765652b15b1726e3c97724f2a150656ef6ad`
 - **Change:** Tightened disabled-recorder overhead after the expanded provenance work. `SAS_GAME_RECORD_LOG_LEVEL` is now cached once after all GlobalDefines/module overrides load, making the widespread level gates direct integer reads instead of out-of-line getter calls in ordinary non-LTCG Release builds.
 
 Caller-gated plot/random-event placeholder states no longer initialize unused fields at level 0/1, the plot-owner cause scope avoids an unused disabled-path member write, and unit-event before/after snapshots now live wholly inside the enabled branch. Tiny empty vectors that must span gameplay mutation remain intentionally accepted and locally documented; they perform no recorder scan/allocation/population while logging is disabled. Emitted record semantics are unchanged.
