@@ -8,6 +8,7 @@
 #include "CvInfo_All.h"
 #include "CvGameAI.h" // advc.104x
 #include "FVariableSystem.h"
+#include "SASGameRecordLog.h" // <!-- custom: Cache the structured recorder level once after all GlobalDefines overrides load so its widespread disabled hot gates are direct reads. (ChatGPT-5.6-Sol) -->
 // <advc> Overwrite the definition in CvGlobals.h b/c a const GC is no use here
 #undef GC
 #define GC CvGlobals::getInstance() // </advc>
@@ -229,6 +230,9 @@ bool CvXMLLoadUtility::SetGlobalDefines()
 	gDLL->destroyCache(cache);
 	#endif
 	GC.cacheGlobals();
+	// <!-- custom: Do this only after every base/SAS/modular define file has had its final say.
+	// Before this point the zero-initialized recorder cache safely means disabled; afterwards no gameplay hook needs an out-of-line XML-backed level getter. (ChatGPT-5.6-Sol) -->
+	cacheSASGameRecordLogLevel();
 	return true;
 }
 

@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=88 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=89 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,18 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 88 - SAS practical 6476
+### Revision 89 - SAS practical 6477
 
 - **Date:** 2026-09-17
 - **Git commit:** pending
+- **Change:** Tightened disabled-recorder overhead after the expanded provenance work. `SAS_GAME_RECORD_LOG_LEVEL` is now cached once after all GlobalDefines/module overrides load, making the widespread level gates direct integer reads instead of out-of-line getter calls in ordinary non-LTCG Release builds.
+
+Caller-gated plot/random-event placeholder states no longer initialize unused fields at level 0/1, the plot-owner cause scope avoids an unused disabled-path member write, and unit-event before/after snapshots now live wholly inside the enabled branch. Tiny empty vectors that must span gameplay mutation remain intentionally accepted and locally documented; they perform no recorder scan/allocation/population while logging is disabled. Emitted record semantics are unchanged.
+
+### Revision 88 - SAS practical 6476
+
+- **Date:** 2026-09-17
+- **Git commit:** `d8a8df2f2dc046fa57ba8d4679e7d98cf130ab33`
 - **Change:** Added compact AI civic/revolution provenance. `GAME_RECORD_AI_CIVIC_DECISION` records live `AI_doCivics` switch candidates from the already-computed current/best civic values, percent threshold, absolute/anarchy slack, bundle-anarchy state and first/recheck pass; accepted candidates are level 2 while rejected/wanted-but-rejected candidates are level 3. `GAME_RECORD_AI_CIVIC_OUTCOME` records meaningful accepted-bundle outcomes: actual revolution, delaying for an imminent researched civic, insufficient-gold blocking, or an unexpected final `canRevolution` block, including the pending/final civic bundle and real timer/anarchy/research/gold context; `BLOCKED_GOLD` also records the net deal gold-per-turn actually used by its reserve formula. No civic valuation or revolution eligibility search is repeated solely for recording.
 
 The same call-site review also gates older BBAI-only financial-trouble/war-state diagnostic lookups so ordinary player-log-disabled gameplay no longer performs that diagnostic work.

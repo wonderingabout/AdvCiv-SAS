@@ -10,14 +10,20 @@
 #include <utility> // <!-- custom: Public religion-decision provenance uses std::pair for already-computed candidate religion/value scores; include its defining header directly instead of relying on transitive core includes. (ChatGPT-5.6-Sol) -->
 
 // <!-- custom: Structured game-record rows for autoplay comparison, game analysis, user-assistance summaries, and external LLM review. This is not a classic BBAI diagnostic category: it has its own XML defines, its own SASGameRecord_*.log files, and its own lightweight public header. Call sites should still gate before invoking helpers so disabled logging does not compute logging-only arguments. Pointer-only hooks use forward declarations here to avoid pulling city/unit headers into ordinary game files. (ChatGPT-5.5 + GPT-5.5) -->
-bool isSASGameRecordLogEnabled();
-int getSASGameRecordLogLevel();
+// <!-- custom: SAS_GAME_RECORD_LOG_LEVEL is copied once after all GlobalDefines/module overrides finish loading.
+// Keep the steady-state hot gate as a direct integer read: SASGameRecord hooks are intentionally widespread, and an out-of-line getter would impose a cross-translation-unit function call even at level 0 in ordinary non-LTCG Release builds.
+// Before XML setup completes the zero-initialized cache safely means disabled.
+// Callers must treat the cache as read-only and continue using gGameRecordLogLevel/getSASGameRecordLogLevel; only cacheSASGameRecordLogLevel writes it during GlobalDefines setup. (ChatGPT-5.6-Sol) -->
+extern int g_iSASGameRecordLogLevel;
+void cacheSASGameRecordLogLevel();
+__forceinline bool isSASGameRecordLogEnabled() { return g_iSASGameRecordLogLevel > 0; }
+__forceinline int getSASGameRecordLogLevel() { return g_iSASGameRecordLogLevel; }
 int getSASGameRecordTurnInterval();
 // <!-- custom: Monotonic official SASGameRecord downstream-update revision.
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 88 };
+enum { SAS_GAME_RECORD_REVISION = 89 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -76,7 +82,8 @@ enum SASGameRecordPlotOwnerChangeCause
 class SASGameRecordPlotOwnerChangeCauseScope
 {
 public:
-	SASGameRecordPlotOwnerChangeCauseScope(SASGameRecordPlotOwnerChangeCause eCause, bool bEnabled) : m_bActive(false), m_ePreviousCause(SAS_PLOT_OWNER_CAUSE_NONE)
+	// <!-- custom: begin assigns m_ePreviousCause before setting m_bActive, so a disabled scope need only initialize its one active gate; do not add recorder-only member writes back to the common level-0 path. (ChatGPT-5.6-Sol) -->
+	SASGameRecordPlotOwnerChangeCauseScope(SASGameRecordPlotOwnerChangeCause eCause, bool bEnabled) : m_bActive(false)
 	{
 		if (bEnabled) begin(eCause);
 	}
@@ -98,10 +105,11 @@ void logSASGameRecordPlotOwnerChanged(CvPlot const& kPlot, PlayerTypes eOldOwner
 struct VoteTriggeredData;
 // <!-- custom: Random-event lifecycle diagnostics pass the existing player-local trigger payload by const pointer/reference without exposing its save-layout definition through this lightweight recorder header. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 struct EventTriggeredData;
-// <!-- custom: Random-event city-result logging snapshots only realized city state that can otherwise disappear between periodic rows. The caller captures before/after only at level 2+, so disabled logging pays no city-query cost. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Random-event city-result logging snapshots only realized city state that can otherwise disappear between periodic rows. The caller captures before/after only at level 2+.
+// The default object is only a caller-gated placeholder that is assigned a real captured state before any read, so intentionally leave it uninitialized rather than writing every field while logging is disabled. (ChatGPT-5.6-Sol) -->
 struct SASGameRecordRandomEventCityState
 {
-	SASGameRecordRandomEventCityState();
+	SASGameRecordRandomEventCityState() {}
 	explicit SASGameRecordRandomEventCityState(CvCity const& kCity, EventTypes eEvent);
 	int iPopulation;
 	int iFood;
@@ -149,10 +157,11 @@ struct SASGameRecordRandomEventUnitState
 };
 
 // <!-- custom: Player-level EventInfo consequences can otherwise be visible only indirectly at a later snapshot.
-// Keep this to durable native values not already covered by dedicated gold/tech/Golden-Age/war rows. (ChatGPT-5.6-Sol) -->
+// Keep this to durable native values not already covered by dedicated gold/tech/Golden-Age/war rows.
+// The default object is only a caller-gated placeholder assigned a real captured state before any read, so its constructor intentionally does no level-0 recorder work. (ChatGPT-5.6-Sol) -->
 struct SASGameRecordRandomEventPlayerState
 {
-	SASGameRecordRandomEventPlayerState();
+	SASGameRecordRandomEventPlayerState() {}
 	SASGameRecordRandomEventPlayerState(CvPlayer const& kPlayer, EventTypes eEvent, PlayerTypes eOtherPlayer);
 	int iExtraHappiness;
 	int iExtraHealth;
@@ -239,10 +248,12 @@ struct SASGameRecordGoodyResult
 struct TradeData;
 template <class tVARTYPE> class CLinkList;
 // <!-- custom: Capture a plot before a logical action so one combined record can describe terrain, feature, resource, improvement, route and permanent event-yield changes.
-// The default constructor initializes safe NO_* enum and zero yield values without map lookups, letting caller-gated hooks avoid capture work when game-record logging is disabled. (GPT-5.6-Sol) -->
+// Every default-constructed instance is a caller-gated placeholder that is assigned SASGameRecordPlotState(kPlot) before any read.
+// Intentionally leave it uninitialized: initializing five enum fields plus the yield array would impose recorder-only writes at level 0, including inside nuke/global-warming plot loops.
+// Never read a default instance unless the matching capture gate ran. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 struct SASGameRecordPlotState
 {
-	SASGameRecordPlotState();
+	SASGameRecordPlotState() {}
 	explicit SASGameRecordPlotState(CvPlot const& kPlot);
 	TerrainTypes eTerrain;
 	FeatureTypes eFeature;
@@ -497,7 +508,7 @@ void logSASGameRecordNukeUnitEffect(CvUnit const* pNukeUnit, CvUnit const* pAffe
 void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser, CvPlot const* pBattlePlot);
 void logSASGameRecordBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, BonusTypes eNewBonus);
 
-#define gGameRecordLogLevel getSASGameRecordLogLevel() // <!-- custom: Structured game-state/action record for autoplay comparison and external review, independent from the classic BBAI master switch. (ChatGPT-5.5 + GPT-5.5) -->
+#define gGameRecordLogLevel g_iSASGameRecordLogLevel // <!-- custom: Startup-cached direct hot-path read; keep disabled SASGameRecord hooks free of accessor calls. (ChatGPT-5.5 + GPT-5.5 + ChatGPT-5.6-Sol) -->
 #define gGameRecordTurnInterval getSASGameRecordTurnInterval() // <!-- custom: Periodic game-record snapshot interval in game turns. (ChatGPT-5.5) -->
 
 void logSASGameRecord(TCHAR* format, ... );

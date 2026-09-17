@@ -1022,6 +1022,8 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 		// <!-- custom: Capture strategic per-city nuke consequences from the same destruction pass; build stable XML-type lists only while level-2 recording is enabled. (ChatGPT-5.6-Sol) -->
 		int const iSASPopulationBefore = (bLogSASNukeEffects ? pCity->getPopulation() : -1);
 		int const iSASNukeModifier = (bLogSASNukeEffects ? pCity->getNukeModifier() : 0);
+		// <!-- custom: Keep this tiny empty vector beside the authoritative building-destruction pass; only enabled level-2 logging ever pushes/allocates.
+		// Avoid heap/optional lifetime machinery merely to remove the empty vector object's few member writes from this rare nuke-city path. (ChatGPT-5.6-Sol) -->
 		std::vector<BuildingTypes> aeSASBuildingsDestroyed;
 
 		FOR_EACH_ENUM2(Building, eBuilding)

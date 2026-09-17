@@ -1720,7 +1720,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 
 
 
-	<!-- custom: Dedicated structured SASGameRecord report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review. This is independent from the classic SAS_BBAI_LOG_ENABLE diagnostic master switch and writes to SASGameRecord_*.log, so it can produce compact GAME_RECORD_* rows without broad AI-decision spam. Unlike BBAI diagnostics, this currently has no separate master switch because the record has only one log-level define: 0 disables it, higher values enable more detail (note: in the log, fields ending in X100 are percentages multiplied by 100, e.g. 150 means 1.50%). (ChatGPT-5.5 + GPT-5.5) -->
+	<!-- custom: Dedicated structured SASGameRecord report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review. This is independent from the classic SAS_BBAI_LOG_ENABLE diagnostic master switch and writes to SASGameRecord_*.log, so it can produce compact GAME_RECORD_* rows without broad AI-decision spam. Unlike BBAI diagnostics, this currently has no separate master switch because the record has only one log-level define: 0 disables it, higher values enable more detail. The level is cached once after all GlobalDefines/module overrides load so widespread disabled hooks are direct integer checks; change it before launching/reloading the DLL rather than expecting a runtime Define mutation to retune the recorder (the prior implementation also cached its first resolved value). (ChatGPT-5.5 + GPT-5.5 + ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_GAME_RECORD_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>

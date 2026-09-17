@@ -16745,6 +16745,8 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 				(kEvent.getHappy() != 0 || kEvent.getHealth() != 0 || kEvent.getHurryAnger() != 0 || kEvent.getHappyTurns() != 0 ||
 				kEvent.getFood() != 0 || kEvent.getFoodPercent() != 0 || kEvent.getPopulationChange() != 0 || kEvent.getCulture() != 0 ||
 				bLogRandomEventBuildingModifierResult));
+		// <!-- custom: This empty vector must span the gameplay mutation below; accept its tiny stack-object construction at level 0/1 rather than adding heap/optional lifetime machinery.
+		// No city scan, reserve or element construction occurs unless recording is enabled. (ChatGPT-5.6-Sol) -->
 		std::vector<std::pair<int, SASGameRecordRandomEventCityState> > aSASRandomEventCityBefore;
 		if (bLogRandomEventEmpireCityResult)
 		{
@@ -16948,17 +16950,20 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 		{
 			FAssert(pUnit->canApplyEvent(eEvent));
 			bool const bLogRandomEventUnitResult = (bLogRandomEvent && kEvent.hasUnitLocalEffect());
-			int const iSASUnitId = (bLogRandomEventUnitResult ? pUnit->getID() : -1);
-			SASGameRecordRandomEventUnitState kSASUnitBefore;
-			if (bLogRandomEventUnitResult) kSASUnitBefore = SASGameRecordRandomEventUnitState(*pUnit, eEvent);
-			pUnit->applyEvent(eEvent); // might kill the unit
 			if (bLogRandomEventUnitResult)
 			{
+				// <!-- custom: Keep both recorder snapshots wholly inside the enabled branch.
+				// The after-state still needs its sentinel default because applyEvent may disband the unit, but level 0/1 should not construct either recorder state at all.
+				// Both branches execute the same authoritative gameplay call exactly once. (ChatGPT-5.6-Sol) -->
+				int const iSASUnitId = pUnit->getID();
+				SASGameRecordRandomEventUnitState const kSASUnitBefore(*pUnit, eEvent);
+				pUnit->applyEvent(eEvent); // might kill the unit
 				CvUnit const* pSASUnitAfter = getUnit(iSASUnitId);
 				SASGameRecordRandomEventUnitState kSASUnitAfter;
 				if (pSASUnitAfter != NULL) kSASUnitAfter = SASGameRecordRandomEventUnitState(*pSASUnitAfter, eEvent);
 				logSASGameRecordRandomEventUnitResult(getID(), iEventTriggeredId, eEvent, kSASUnitBefore, kSASUnitAfter);
 			}
+			else pUnit->applyEvent(eEvent);
 		}
 	}
 	FOR_EACH_ENUM(UnitCombat)

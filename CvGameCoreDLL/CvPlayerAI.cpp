@@ -22730,6 +22730,8 @@ void CvPlayerAI::AI_doReligion()
 	int iSASBestValue = 0;
 	int iSASRunnerUpValue = 0;
 	int iSASCurrentScore = -1;
+	// <!-- custom: Keep one tiny empty vector object so the selected candidate list can survive through the later realized-outcome row.
+	// Level 0-2 performs no reserve/push or candidate collection; pointer/heap lifetime machinery would cost more complexity than these empty-vector member initializations save. (ChatGPT-5.6-Sol) -->
 	std::vector<std::pair<ReligionTypes, int> > aSASCandidateValues;
 	if (bLogSASReligionCandidates) aSASCandidateValues.reserve(GC.getNumReligionInfos());
 	if (bLogSASReligionDecision)

@@ -63,16 +63,14 @@ static int getClampedSASGameRecordLogLevel(char const* szDefineName)
 // Keep the recorder portable across Civ4 mods by enumerating loaded XML and using generic field meanings instead of hardcoding AdvCiv-SAS types or copying the full XML.
 // Mod-specific rules can still be named in comments as concrete examples: TECH_DEPOPULATION currently applies negative player-wide health and happiness in AdvCiv-SAS, but the recorder attributes health/happiness from every loaded trait, civic and technology dynamically.
 // The record describes the current format; do not add schema-version maintenance unless independently evolving consumers later require it. (ChatGPT-5.5 + GPT-5.5 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-int getSASGameRecordLogLevel()
-{
-	static const int iLevel = getClampedSASGameRecordLogLevel("SAS_GAME_RECORD_LOG_LEVEL");
-	return iLevel;
-}
+// <!-- custom: Default to disabled during DLL/XML startup.
+// CvXMLLoadUtility::SetGlobalDefines calls cacheSASGameRecordLogLevel only after base, SAS and modular GlobalDefines have all loaded, after which the widespread gGameRecordLogLevel gates are direct reads for the rest of the process.
+// The old out-of-line static-local getter made every disabled hook potentially pay a function call in ordinary /O2 Release builds without /GL + /LTCG. (ChatGPT-5.6-Sol) -->
+int g_iSASGameRecordLogLevel = 0;
 
-bool isSASGameRecordLogEnabled()
+void cacheSASGameRecordLogLevel()
 {
-	static const bool bEnabled = (getSASGameRecordLogLevel() > 0);
-	return bEnabled;
+	g_iSASGameRecordLogLevel = getClampedSASGameRecordLogLevel("SAS_GAME_RECORD_LOG_LEVEL");
 }
 
 static bool isSASGameRecordPerformanceMetricsEnabled()
@@ -3108,12 +3106,6 @@ SASGameRecordGoodyResult::SASGameRecordGoodyResult() :
 	iGold(0), iNewlyRevealedPlots(0), iExperienceGained(0), iDamageHealed(0), eTech(NO_TECH), iTechRewardValue(0),
 	iTechProgressBefore(-1), iTechProgressAfter(-1), iTechCost(-1), bTechCompleted(false), iFreePromotionsGranted(0)
 {}
-
-SASGameRecordPlotState::SASGameRecordPlotState() : eTerrain(NO_TERRAIN), eFeature(NO_FEATURE), eBonus(NO_BONUS), eImprovement(NO_IMPROVEMENT), eRoute(NO_ROUTE)
-{
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		aiExtraYield[iI] = 0;
-}
 
 SASGameRecordPlotState::SASGameRecordPlotState(CvPlot const& kPlot) : eTerrain(kPlot.getTerrainType()), eFeature(kPlot.getFeatureType()), eBonus(kPlot.getBonusType()), eImprovement(kPlot.getImprovementType()), eRoute(kPlot.getRouteType())
 {
@@ -9937,15 +9929,6 @@ void logSASGameRecordRandomEventTechResult(CvPlayer const& kPlayer, EventTypes e
 			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventType(eEvent), getSASGameRecordTechType(eTech), iTechPercent, iResearchBefore, iBeakersApplied, iResearchAfter, iTechCost, iCompleted);
 }
 
-SASGameRecordRandomEventCityState::SASGameRecordRandomEventCityState() :
-		iPopulation(-1), iFood(-1), iFoodYield(-1), iProductionYield(-1), iCommerceYield(-1),
-		iGoldRate(-1), iResearchRate(-1), iCultureRate(-1), iEspionageRate(-1), iOwnerCultureTimes100(-1),
-		iOccupationTurns(-1), iCultureUpdateTurns(-1), iExtraHappiness(-1), iExtraHealth(-1),
-		iHurryAngerTurns(-1), iHappinessTurns(-1), iAngryPopulation(-1), iHappyLevel(-1), iUnhappyLevel(-1),
-		iGoodHealth(-1), iBadHealth(-1), iSpaceProductionModifier(-1), iFreeSpecialistInstances(-1),
-		eBuilding(NO_BUILDING), iRealBuildingCount(-1)
-{}
-
 SASGameRecordRandomEventCityState::SASGameRecordRandomEventCityState(CvCity const& kCity, EventTypes eEvent) :
 		iPopulation(kCity.getPopulation()), iFood(kCity.getFood()), iFoodYield(kCity.getYieldRate(YIELD_FOOD)),
 		iProductionYield(kCity.getYieldRate(YIELD_PRODUCTION)), iCommerceYield(kCity.getYieldRate(YIELD_COMMERCE)),
@@ -10145,11 +10128,6 @@ void logSASGameRecordRandomEventUnitResult(PlayerTypes ePlayer, int iTriggeredId
 			kBefore.iHasPromotion, kAfter.iHasPromotion, bRenameApplied ? kEvent.getUnitNameKey() : L"-",
 			bRenameApplied, (kEvent.isDisbandUnit() && !kAfter.iExists));
 }
-
-SASGameRecordRandomEventPlayerState::SASGameRecordRandomEventPlayerState() :
-		iExtraHappiness(-1), iExtraHealth(-1), iBaseFreeUnits(-1), iSpaceProductionModifier(-1), iInflationRate(-1),
-		iEspionagePointsAgainstOther(-1), eBonusRevealed(NO_BONUS), iForceRevealedBonus(-1)
-{}
 
 SASGameRecordRandomEventPlayerState::SASGameRecordRandomEventPlayerState(CvPlayer const& kPlayer, EventTypes eEvent, PlayerTypes eOtherPlayer) :
 		iExtraHappiness(kPlayer.getExtraHappiness()), iExtraHealth(kPlayer.getExtraHealth()), iBaseFreeUnits(kPlayer.getBaseFreeUnits()),
