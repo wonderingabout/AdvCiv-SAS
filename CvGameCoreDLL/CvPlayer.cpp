@@ -9441,7 +9441,8 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 		// </advc.001x>
 		// K-Mod
 		AI().AI_updateCacheData();
-		onTurnLogging(); // bbai logging
+		// <!-- custom: Player-turn logging is pure diagnostics; skip the function call and its final-initialization query entirely when the cached PLAYER category is disabled. (ChatGPT-5.6-Sol) -->
+		if (gPlayerLogLevel > 0) onTurnLogging(); // bbai logging
 		// K-Mod end
 		GC.getLogger().logTurnActive(getID()); // advc.003t
 
@@ -9614,48 +9615,43 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 	(Based on BETTER_BTS_AI_MOD, 10/26/09, jdog5000 - AI logging.) */
 void CvPlayer::onTurnLogging() const
 {
-	// <!-- custom: During new-game construction, the first active-player callback can precede starting technologies/cities and therefore describes a half-built state.
-	// Finalized INITIAL_* rows now cover setup provenance; keep inherited turn logging for actual gameplay and loaded saves. (ChatGPT-5.6-Sol) -->
-	if (!GC.getGame().isFinalInitialized())
+	// <!-- custom: Caller pre-gates PLAYER logging. During new-game construction, the first active-player callback can precede starting technologies/cities and therefore describes a half-built state.
+	// Finalized INITIAL_* rows cover setup provenance; keep inherited turn logging for actual gameplay and loaded saves. (ChatGPT-5.6-Sol) -->
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized())
 		return;
-	if (gPlayerLogLevel > 0)
+
+	int const iGameTurn = kGame.getGameTurn();
+	logBBAI("Player %d (%S) setTurnActive for turn %d (%d %s)", getID(), getCivilizationDescription(0), iGameTurn, std::abs(kGame.getGameTurnYear()), kGame.getGameTurnYear()>0 ? "AD" : "BC");
+
+	// advc.007: Interval was 25
+	if (iGameTurn > 0 && !isBarbarian() && (iGameTurn % gScoreLogInterval) == 0)
 	{
-		// <!-- custom: performance optimization: cache repetitive calls -->
-		CvGame const& kGame = GC.getGame();
+		CvWStringBuffer szBuffer;
+		GAMETEXT.setScoreHelp(szBuffer, getID());
+		logBBAI("%S", szBuffer);
 
-		logBBAI("Player %d (%S) setTurnActive for turn %d (%d %s)", getID(), getCivilizationDescription(0), kGame.getGameTurn(), std::abs(kGame.getGameTurnYear()), kGame.getGameTurnYear()>0 ? "AD" : "BC");
+		logBBAI("  Total Score: %d, Population Score: %d (%d total pop), Land Score: %d, Tech Score: %d, Wonder Score: %d", calculateScore(), getPopScore(false), getTotalPopulation(), getLandScore(false), getTechScore(), getWondersScore());
 
-		if (kGame.getGameTurn() > 0 && !isBarbarian() &&
-			// advc.007: Interval was 25
-			(kGame.getGameTurn() % gScoreLogInterval) == 0)
+		int iEconomy = 0;
+		int iProduction = 0;
+		int iAgri = 0;
+		int iCount = 0;
+		for (int iI = 1; iI <= 5; iI++)
 		{
-			CvWStringBuffer szBuffer;
-			GAMETEXT.setScoreHelp(szBuffer, getID());
-			logBBAI("%S", szBuffer);
-
-			int iGameTurn = kGame.getGameTurn();
-			logBBAI("  Total Score: %d, Population Score: %d (%d total pop), Land Score: %d, Tech Score: %d, Wonder Score: %d", calculateScore(), getPopScore(false), getTotalPopulation(), getLandScore(false), getTechScore(), getWondersScore());
-
-			int iEconomy = 0;
-			int iProduction = 0;
-			int iAgri = 0;
-			int iCount = 0;
-			for (int iI = 1; iI <= 5; iI++)
+			if (iGameTurn - iI >= 0)
 			{
-				if (iGameTurn - iI >= 0)
-				{
-					iEconomy += getHistory(PLAYER_HISTORY_ECONOMY, iGameTurn - iI);
-					iProduction += getHistory(PLAYER_HISTORY_INDUSTRY, iGameTurn - iI);
-					iAgri += getHistory(PLAYER_HISTORY_AGRICULTURE, iGameTurn - iI);
-					iCount++;
-				}
+				iEconomy += getHistory(PLAYER_HISTORY_ECONOMY, iGameTurn - iI);
+				iProduction += getHistory(PLAYER_HISTORY_INDUSTRY, iGameTurn - iI);
+				iAgri += getHistory(PLAYER_HISTORY_AGRICULTURE, iGameTurn - iI);
+				iCount++;
 			}
-			iEconomy /= std::max(1, iCount);
-			iProduction /= std::max(1, iCount);
-			iAgri /= std::max(1, iCount);
-
-			logBBAI("  Economy avg: %d,  Industry avg: %d,  Agriculture avg: %d", iEconomy, iProduction, iAgri);
 		}
+		iEconomy /= std::max(1, iCount);
+		iProduction /= std::max(1, iCount);
+		iAgri /= std::max(1, iCount);
+
+		logBBAI("  Economy avg: %d,  Industry avg: %d,  Agriculture avg: %d", iEconomy, iProduction, iAgri);
 	}
 
 	if (gPlayerLogLevel >= 2)

@@ -608,20 +608,24 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 	std::sort(apUnitsByExp.begin(), apUnitsByExp.end(), DescByExperience());
 	for (int iPass = 0; iPass < 5; iPass++) // Case inserted for upgrade discounts
 	{
-		char const* szPassName = "";
-		switch (iPass)
+		// <!-- custom: Pass names exist only in level-3 upgrade diagnostics. Keep their switch off the ordinary AI-upgrade path; the tiny per-pass integer counters below remain unconditional to avoid adding a diagnostic branch to every unit candidate. (ChatGPT-5.6-Sol) -->
+		char const* szPassName = NULL;
+		if (bLogUpgradeDiagnostics)
 		{
-		case 0: szPassName = "impassable"; break;
-		case 1: szPassName = "city_defender_or_danger"; break;
-		case 2: szPassName = "discounted"; break;
-		case 3: szPassName = "transport_or_escort_sea"; break;
-		case 4: szPassName = "normal"; break;
-		default: FAssert(false); break;
+			switch (iPass)
+			{
+			case 0: szPassName = "impassable"; break;
+			case 1: szPassName = "city_defender_or_danger"; break;
+			case 2: szPassName = "discounted"; break;
+			case 3: szPassName = "transport_or_escort_sea"; break;
+			case 4: szPassName = "normal"; break;
+			default: FAssert(false); break;
+			}
 		}
 		// BBAI check moved up to save time. Discounted/free upgrades still get a chance when the normal budget is spent.
 		if (iPass >= 3 && iStartingGold - getGold() >= iUpgradeBudget)
 			break; // </advc.131e>
-		int const iPassGoldBefore = getGold();
+		int const iPassGoldBefore = (bLogUpgradeDiagnostics ? getGold() : 0);
 		int iPassEligibleUnits = 0;
 		int iPassUpgradedUnits = 0;
 		int iPassSkippedBudget = 0;
@@ -28974,6 +28978,27 @@ void CvPlayerAI::AI_updateStrategyHash()
 #undef log_strat
 #undef log_strat2
 
+// <!-- custom: Compact level-3-only retention for Great Person-weight diagnostics.
+// Keep one empty vector when CULTURE logging is off instead of constructing eight std::maps on every AI_updateGreatPersonWeights call; when enabled, direct UnitClass indexing also avoids repeated tree lookups. (ChatGPT-5.6-Sol) -->
+struct SASGreatPersonWeightLogData
+{
+	int iSettledValue;
+	int iSettledOriginalValue;
+	int iBuildingOriginalValue;
+	int iBuildingValue;
+	SpecialistTypes eSettledSpecialist;
+	BuildingTypes eBuilding;
+	CvCityAI const* pSettledCity;
+	int iSettledYieldValue;
+	int aiSettledCommerceValues[NUM_COMMERCE_TYPES];
+	int iSettledOtherValue;
+	SASGreatPersonWeightLogData() : iSettledValue(0), iSettledOriginalValue(0), iBuildingOriginalValue(0), iBuildingValue(0), eSettledSpecialist(NO_SPECIALIST), eBuilding(NO_BUILDING), pSettledCity(NULL), iSettledYieldValue(0), iSettledOtherValue(0)
+	{
+		for (int i = 0; i < NUM_COMMERCE_TYPES; ++i)
+			aiSettledCommerceValues[i] = 0;
+	}
+};
+
 // K-Mod
 void CvPlayerAI::AI_updateGreatPersonWeights()
 {
@@ -28995,14 +29020,9 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 	static int const iSASJoinCityCultureNonVictoryPercent = range(GC.getDefineINT("SAS_AI_GREAT_PERSON_WEIGHT_JOIN_CITY_CULTURE_NON_VICTORY_PERCENT"), 0, 100);
 	bool const bAICultureVictory = AI_atVictoryStage(AI_VICTORY_CULTURE1);
 	bool const bDampenJoinCityCulture = (!bAICultureVictory && iSASJoinCityCultureNonVictoryPercent < 100);
-	std::map<UnitClassTypes, int> sasSettledGreatPersonValues;
-	std::map<UnitClassTypes, int> sasSettledGreatPersonOriginalValues;
-	std::map<UnitClassTypes, int> sasBuildingGreatPersonOriginalValues;
-	std::map<UnitClassTypes, int> sasBuildingGreatPersonValues;
-	std::map<UnitClassTypes, SpecialistTypes> sasSettledGreatPersonSources;
-	std::map<UnitClassTypes, BuildingTypes> sasBuildingGreatPersonSources;
-	std::map<UnitClassTypes, CvCityAI const*> sasSettledGreatPersonCities;
-	std::map<UnitClassTypes, std::vector<int> > sasSettledGreatPersonValueComponents;
+	std::vector<SASGreatPersonWeightLogData> aSASGreatPersonWeightLogData;
+	if (bLogCultureGreatPersonWeights)
+		aSASGreatPersonWeightLogData.resize(GC.getNumUnitClassInfos());
 
 	// // <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// // <!-- custom: code/performance optimization: hoist -->
@@ -29042,12 +29062,7 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 
 		int iValue = 0;
 		int iBestSettledValue = 0;
-		int iBestSettledOriginalValue = 0;
-		SpecialistTypes eBestSettledSpecialist = NO_SPECIALIST;
-		CvCityAI const* pBestSettledCity = NULL;
-		int iBestSettledYieldValue = 0;
-		int aiBestSettledCommerceValues[NUM_COMMERCE_TYPES] = {0};
-		int iBestSettledOtherValue = 0;
+		SASGreatPersonWeightLogData* pSASLogData = (bLogCultureGreatPersonWeights ? &aSASGreatPersonWeightLogData[eGreatPersonClass] : NULL);
 		// value of joining a city as a super-specialist
 		FOR_EACH_ENUM2(Specialist, eSuperSpecialist)
 		{
@@ -29065,17 +29080,18 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 				if (iTempValue > iBestSettledValue)
 				{
 					iBestSettledValue = iTempValue;
-					if (bLogCultureGreatPersonWeights)
+					if (pSASLogData != NULL)
 					{
-						iBestSettledOriginalValue = iTempOriginalValue;
-						eBestSettledSpecialist = eSuperSpecialist;
-						pBestSettledCity = pLoopCity;
-						iBestSettledYieldValue = iTempYieldValue / 4;
-						iBestSettledOtherValue = iTempOriginalValue - iBestSettledYieldValue;
+						pSASLogData->iSettledValue = iTempValue;
+						pSASLogData->iSettledOriginalValue = iTempOriginalValue;
+						pSASLogData->eSettledSpecialist = eSuperSpecialist;
+						pSASLogData->pSettledCity = pLoopCity;
+						pSASLogData->iSettledYieldValue = iTempYieldValue / 4;
+						pSASLogData->iSettledOtherValue = iTempOriginalValue - pSASLogData->iSettledYieldValue;
 						FOR_EACH_ENUM(Commerce)
 						{
-							aiBestSettledCommerceValues[eLoopCommerce] = aiTempCommerceValues[eLoopCommerce] / 4;
-							iBestSettledOtherValue -= aiBestSettledCommerceValues[eLoopCommerce];
+							pSASLogData->aiSettledCommerceValues[eLoopCommerce] = aiTempCommerceValues[eLoopCommerce] / 4;
+							pSASLogData->iSettledOtherValue -= pSASLogData->aiSettledCommerceValues[eLoopCommerce];
 						}
 					}
 				}
@@ -29085,9 +29101,6 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 		int const iCurrentEra = getCurrentEra();
 		int const iCurrentGP = AI_totalUnitAIs(kGP.getDefaultUnitAIType());
 		// </advc.opt>
-		int iBestBuildingOriginalValue = 0;
-		int iBestBuildingValue = 0;
-		BuildingTypes eBestBuilding = NO_BUILDING;
 		// value of building something.
 		if (kGP.isAnyBuildings()) // advc.003t
 		{
@@ -29126,11 +29139,11 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 						if (GC.getInfo(eBuilding).getFoundsCorporation() != NO_CORPORATION && iSASCorporationFounderExcessPercent < 100 && iTempValue > iBestSettledValue)
 							iTempValue = iBestSettledValue + (iTempValue - iBestSettledValue) * iSASCorporationFounderExcessPercent / 100;
 
-						if (bLogCultureGreatPersonWeights && iTempValue > iBestBuildingValue)
+						if (pSASLogData != NULL && iTempValue > pSASLogData->iBuildingValue)
 						{
-							iBestBuildingOriginalValue = iOriginalTempValue;
-							iBestBuildingValue = iTempValue;
-							eBestBuilding = eBuilding;
+							pSASLogData->iBuildingOriginalValue = iOriginalTempValue;
+							pSASLogData->iBuildingValue = iTempValue;
+							pSASLogData->eBuilding = eBuilding;
 						}
 						iValue = std::max(iValue, iTempValue);
 					}
@@ -29142,22 +29155,6 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 		// store the value in the weights map - but remember, this isn't yet the actual weight.
 		FAssert(iValue >= 0);
 		m_GreatPersonWeights[eGreatPersonClass] = iValue;
-		if (bLogCultureGreatPersonWeights)
-		{
-			sasSettledGreatPersonValues[eGreatPersonClass] = iBestSettledValue;
-			sasSettledGreatPersonOriginalValues[eGreatPersonClass] = iBestSettledOriginalValue;
-			sasBuildingGreatPersonOriginalValues[eGreatPersonClass] = iBestBuildingOriginalValue;
-			sasBuildingGreatPersonValues[eGreatPersonClass] = iBestBuildingValue;
-			sasSettledGreatPersonSources[eGreatPersonClass] = eBestSettledSpecialist;
-			sasBuildingGreatPersonSources[eGreatPersonClass] = eBestBuilding;
-			sasSettledGreatPersonCities[eGreatPersonClass] = pBestSettledCity;
-			std::vector<int>& aSettledValueComponents = sasSettledGreatPersonValueComponents[eGreatPersonClass];
-			aSettledValueComponents.assign(NUM_COMMERCE_TYPES + 2, 0);
-			aSettledValueComponents[0] = iBestSettledYieldValue;
-			FOR_EACH_ENUM(Commerce)
-				aSettledValueComponents[1 + eLoopCommerce] = aiBestSettledCommerceValues[eLoopCommerce];
-			aSettledValueComponents[NUM_COMMERCE_TYPES + 1] = iBestSettledOtherValue;
-		}
 	}
 
 	// find the mean value.
@@ -29205,20 +29202,20 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 			UnitClassTypes const eGreatPersonClass = it->first;
 			UnitTypes const eGreatPerson = getCivilization().getUnit(eGreatPersonClass);
 			CvUnitInfo const& kGreatPerson = GC.getInfo(eGreatPerson);
-			SpecialistTypes const eSettledSpecialist = sasSettledGreatPersonSources[eGreatPersonClass];
-			BuildingTypes const eBuilding = sasBuildingGreatPersonSources[eGreatPersonClass];
-			CvCityAI const* pSettledCity = sasSettledGreatPersonCities[eGreatPersonClass];
-			std::vector<int> const& aSettledValueComponents = sasSettledGreatPersonValueComponents[eGreatPersonClass];
-			int const iSettledCultureValue = aSettledValueComponents[1 + COMMERCE_CULTURE];
+			SASGreatPersonWeightLogData const& kSASLogData = aSASGreatPersonWeightLogData[eGreatPersonClass];
+			SpecialistTypes const eSettledSpecialist = kSASLogData.eSettledSpecialist;
+			BuildingTypes const eBuilding = kSASLogData.eBuilding;
+			CvCityAI const* pSettledCity = kSASLogData.pSettledCity;
+			int const iSettledCultureValue = kSASLogData.aiSettledCommerceValues[COMMERCE_CULTURE];
 			int const iSettledCulturePercent = (bAICultureVictory ? 100 : iSASJoinCityCultureNonVictoryPercent);
 			int const iSettledCultureEffectiveValue = iSettledCultureValue * iSettledCulturePercent / 100;
 			logBBAI("CULTURE_GREAT_PERSON_WEIGHT turn=%d player=%d %S greatPersonClass=%s greatPerson=%s settledSource=%s settledOriginalValue=%d settledValue=%d settledCity=%S settledCityId=%d settledYieldValue=%d settledGoldValue=%d settledResearchValue=%d settledCultureValue=%d settledCulturePercent=%d settledCultureEffectiveValue=%d settledEspionageValue=%d settledOtherValue=%d buildingSource=%s buildingOriginalValue=%d buildingValue=%d rawValue=%d meanValue=%d normalizationMin=%d normalizedWeight=%d existingGreatPeople=%d cultureStage=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d focusWar=%d",
 					GC.getGame().getGameTurn(), getID(), getCivilizationShortDescription(), GC.getInfo(eGreatPersonClass).getType(), kGreatPerson.getType(),
-					(eSettledSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSettledSpecialist).getType()), sasSettledGreatPersonOriginalValues[eGreatPersonClass], sasSettledGreatPersonValues[eGreatPersonClass],
+					(eSettledSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSettledSpecialist).getType()), kSASLogData.iSettledOriginalValue, kSASLogData.iSettledValue,
 					(pSettledCity == NULL ? L"NONE" : pSettledCity->getName().GetCString()), (pSettledCity == NULL ? -1 : pSettledCity->getID()),
-					aSettledValueComponents[0], aSettledValueComponents[1 + COMMERCE_GOLD], aSettledValueComponents[1 + COMMERCE_RESEARCH],
-					iSettledCultureValue, iSettledCulturePercent, iSettledCultureEffectiveValue, aSettledValueComponents[1 + COMMERCE_ESPIONAGE], aSettledValueComponents[NUM_COMMERCE_TYPES + 1],
-					(eBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBuilding).getType()), sasBuildingGreatPersonOriginalValues[eGreatPersonClass], sasBuildingGreatPersonValues[eGreatPersonClass],
+					kSASLogData.iSettledYieldValue, kSASLogData.aiSettledCommerceValues[COMMERCE_GOLD], kSASLogData.aiSettledCommerceValues[COMMERCE_RESEARCH],
+					iSettledCultureValue, iSettledCulturePercent, iSettledCultureEffectiveValue, kSASLogData.aiSettledCommerceValues[COMMERCE_ESPIONAGE], kSASLogData.iSettledOtherValue,
+					(eBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBuilding).getType()), kSASLogData.iBuildingOriginalValue, kSASLogData.iBuildingValue,
 					iRawValue, iMean, iMin, iValue, AI_totalUnitAIs(kGreatPerson.getDefaultUnitAIType()),
 					iCultureStage, iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage, AI_isFocusWar());
 		}

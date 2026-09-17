@@ -156,12 +156,27 @@ struct SASSettlerCityEscortPool
 	int iCitySpareDefenders;
 	int iEscortCandidates;
 	CvUnit* pBestEscort;
-	CvString szUnitList;
-	SASSettlerCityEscortPool() : pCity(NULL), iCityUnits(0), iCityDefenders(0), iCityHealthyDefenders(0), iCityWoundedDefenders(0), iCitySettlers(0), iCityWorkers(0), iCityAttackers(0), iCityNeededDefenders(-1), iCitySpareDefenders(-1), iEscortCandidates(0), pBestEscort(NULL) {}
+	// <!-- custom: Ordinary escort behavior needs only pCity, healthy defenders and the best escort.
+	// Diagnostic counters are initialized/populated by SAS_collectSettlerCityEscortPool only when requested, so logging-off gameplay avoids their writes and classification work. (ChatGPT-5.6-Sol) -->
+	SASSettlerCityEscortPool() : pCity(NULL), iCityHealthyDefenders(0), pBestEscort(NULL) {}
 };
 
-static void SAS_collectSettlerCityEscortPool(CvUnitAI const& kSettler, SASSettlerCityEscortPool& kPool)
+// <!-- custom: The escort behavior itself needs only city/healthy-defender/best-escort state.
+// Populate the remaining counters, defender-need query, unit classifications and optional text list only for caller-gated Settler diagnostics. (ChatGPT-5.6-Sol) -->
+static void SAS_collectSettlerCityEscortPool(CvUnitAI const& kSettler, SASSettlerCityEscortPool& kPool, bool bCollectDiagnostics, CvString* pszUnitList)
 {
+	if (bCollectDiagnostics)
+	{
+		kPool.iCityUnits = 0;
+		kPool.iCityDefenders = 0;
+		kPool.iCityWoundedDefenders = 0;
+		kPool.iCitySettlers = 0;
+		kPool.iCityWorkers = 0;
+		kPool.iCityAttackers = 0;
+		kPool.iCityNeededDefenders = -1;
+		kPool.iCitySpareDefenders = -1;
+		kPool.iEscortCandidates = 0;
+	}
 	CvPlot const* pPlot = kSettler.plot();
 	if (pPlot == NULL || !pPlot->isCity() || pPlot->getOwner() != kSettler.getOwner())
 		return;
@@ -175,40 +190,50 @@ static void SAS_collectSettlerCityEscortPool(CvUnitAI const& kSettler, SASSettle
 		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
 		if (pLoopUnit == NULL || pLoopUnit->getOwner() != kSettler.getOwner())
 			continue;
-		kPool.iCityUnits++;
+		if (bCollectDiagnostics)
+			kPool.iCityUnits++;
 		bool const bCanDefend = pLoopUnit->canDefend(pPlot);
 		if (bCanDefend)
 		{
-			kPool.iCityDefenders++;
+			if (bCollectDiagnostics)
+				kPool.iCityDefenders++;
 			if (pLoopUnit->getDamage() <= 25)
 				kPool.iCityHealthyDefenders++;
-			else kPool.iCityWoundedDefenders++;
+			else if (bCollectDiagnostics)
+				kPool.iCityWoundedDefenders++;
 		}
-		if (SAS_isSettlerDiagnosticUnit(*pLoopUnit))
-			kPool.iCitySettlers++;
-		if (SAS_isWorkerDiagnosticUnit(*pLoopUnit))
-			kPool.iCityWorkers++;
-		if (pLoopUnit->canAttack())
-			kPool.iCityAttackers++;
+		if (bCollectDiagnostics)
+		{
+			if (SAS_isSettlerDiagnosticUnit(*pLoopUnit))
+				kPool.iCitySettlers++;
+			if (SAS_isWorkerDiagnosticUnit(*pLoopUnit))
+				kPool.iCityWorkers++;
+			if (pLoopUnit->canAttack())
+				kPool.iCityAttackers++;
+		}
 		bool const bInSettlerGroup = (pSettlerGroup != NULL && pLoopUnit->getGroup() == pSettlerGroup);
 		if (bCanDefend && !bInSettlerGroup && pLoopUnit->getDamage() <= 50)
 		{
-			kPool.iEscortCandidates++;
+			if (bCollectDiagnostics)
+				kPool.iEscortCandidates++;
 			if (kPool.pBestEscort == NULL || pLoopUnit->baseCombatStr() > kPool.pBestEscort->baseCombatStr() || (pLoopUnit->baseCombatStr() == kPool.pBestEscort->baseCombatStr() && pLoopUnit->getDamage() < kPool.pBestEscort->getDamage()))
 				kPool.pBestEscort = pLoopUnit;
 		}
-		if (gSettlerLogLevel >= 3 && iLoggedUnits < 10)
+		if (pszUnitList != NULL && iLoggedUnits < 10)
 		{
 			CvString szItem;
 			szItem.Format("%s#%d:%s:dmg%d:xp%d%s", SAS_getUnitTypeName(pLoopUnit->getUnitType()), pLoopUnit->getID(), SAS_getUnitAITypeName(pLoopUnit->AI_getUnitAIType()), pLoopUnit->getDamage(), pLoopUnit->getExperience(), bInSettlerGroup ? ":settlerGroup" : "");
-			if (!kPool.szUnitList.empty())
-				kPool.szUnitList += ",";
-			kPool.szUnitList += szItem;
+			if (!pszUnitList->empty())
+				*pszUnitList += ",";
+			*pszUnitList += szItem;
 			iLoggedUnits++;
 		}
 	}
-	kPool.iCityNeededDefenders = kPool.pCity->AI_neededDefenders(true);
-	kPool.iCitySpareDefenders = kPool.iCityDefenders - kPool.iCityNeededDefenders;
+	if (bCollectDiagnostics)
+	{
+		kPool.iCityNeededDefenders = kPool.pCity->AI_neededDefenders(true);
+		kPool.iCitySpareDefenders = kPool.iCityDefenders - kPool.iCityNeededDefenders;
+	}
 }
 
 static void SAS_countVisibleEnemiesNearPlot(CvPlot const& kCenter, PlayerTypes ePlayer, int iRange, int& iVisibleEnemies, int& iVisibleCombatEnemies, CvUnit const*& pNearestEnemy, int& iNearestEnemyDistance)
@@ -299,16 +324,26 @@ static void SAS_logSettlerParking(CvUnitAI& kSettler, char const* szReason, int 
 	if (pPlot != NULL)
 		SAS_countVisibleEnemiesNearPlot(*pPlot, kSettler.getOwner(), 2, iVisibleEnemies, iVisibleCombatEnemies, pNearestEnemy, iNearestEnemyDistance);
 	SASSettlerCityEscortPool kCityPool;
-	SAS_collectSettlerCityEscortPool(kSettler, kCityPool);
+	CvString szCityUnitList;
+	SAS_collectSettlerCityEscortPool(kSettler, kCityPool, true, (gSettlerLogLevel >= 3 ? &szCityUnitList : NULL));
 	MissionTypes const eMission = (pGroup == NULL ? NO_MISSION : pGroup->getMissionType(0));
 	MissionAITypes const eMissionAI = (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType());
 	int const iMissionTargetValue = (pMissionPlot == NULL ? -1 : pMissionPlot->getFoundValue(kSettler.getOwner()));
 	logBBAI("    SETTLER_PARKED turn=%d player=%d %S reason=%s unitId=%d unit=%s unitAI=%s age=%d x=%d y=%d city=%S cityId=%d parkedTurns=%d mission=%s missionAI=%d missionTarget=(%d,%d) missionTargetValue=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d areaBestFoundValue=%d otherBestFoundValue=%d bestReachableValue=%d bestReachable=(%d,%d) bestReachablePathTurns=%d bestEndTurn=(%d,%d) dangerFlag=%d plotDanger=%d visibleEnemiesR2=%d visibleCombatEnemiesR2=%d nearestEnemyPlayer=%d nearestEnemyUnit=%s nearestEnemyDist=%d cityUnits=%d cityDefenders=%d cityHealthyDefenders=%d cityNeededDefenders=%d citySpareDefenders=%d cityEscortCandidates=%d bestEscortId=%d bestEscortUnit=%s bestEscortAI=%s bestEscortDamage=%d",
-		GC.getGame().getGameTurn(), kSettler.getOwner(), kOwner.getCivilizationDescription(0), szReason, kSettler.getID(), SAS_getUnitTypeName(kSettler.getUnitType()), SAS_getUnitAITypeName(kSettler.AI_getUnitAIType()), GC.getGame().getGameTurn() - kSettler.getGameTurnCreated(), kSettler.getX(), kSettler.getY(), (kCityPool.pCity == NULL ? L"-" : kCityPool.pCity->getName().GetCString()), (kCityPool.pCity == NULL ? -1 : kCityPool.pCity->getID()), iParkedTurns, SAS_getMissionTypeName(eMission), eMissionAI, (pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iMissionTargetValue, (pGroup == NULL ? -1 : pGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders, iGroupHealthyDefenders, (pGroup == NULL ? 0 : pGroup->canDefend()), iAreaBestFoundValue, iOtherBestFoundValue, iBestReachableValue, (pBestSite == NULL ? -1 : pBestSite->getX()), (pBestSite == NULL ? -1 : pBestSite->getY()), iBestReachablePathTurns, (pBestEndTurnPlot == NULL ? -1 : pBestEndTurnPlot->getX()), (pBestEndTurnPlot == NULL ? -1 : pBestEndTurnPlot->getY()), bDanger, (pPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pPlot)), iVisibleEnemies, iVisibleCombatEnemies, (pNearestEnemy == NULL ? -1 : pNearestEnemy->getOwner()), (pNearestEnemy == NULL ? "-" : SAS_getUnitTypeName(pNearestEnemy->getUnitType())), iNearestEnemyDistance, kCityPool.iCityUnits, kCityPool.iCityDefenders, kCityPool.iCityHealthyDefenders, kCityPool.iCityNeededDefenders, kCityPool.iCitySpareDefenders, kCityPool.iEscortCandidates, (kCityPool.pBestEscort == NULL ? -1 : kCityPool.pBestEscort->getID()), (kCityPool.pBestEscort == NULL ? "-" : SAS_getUnitTypeName(kCityPool.pBestEscort->getUnitType())), (kCityPool.pBestEscort == NULL ? "-" : SAS_getUnitAITypeName(kCityPool.pBestEscort->AI_getUnitAIType())), (kCityPool.pBestEscort == NULL ? -1 : kCityPool.pBestEscort->getDamage()));
+		GC.getGame().getGameTurn(), kSettler.getOwner(), kOwner.getCivilizationDescription(0), szReason, kSettler.getID(), SAS_getUnitTypeName(kSettler.getUnitType()), SAS_getUnitAITypeName(kSettler.AI_getUnitAIType()), GC.getGame().getGameTurn() - kSettler.getGameTurnCreated(), kSettler.getX(), kSettler.getY(),
+		(kCityPool.pCity == NULL ? L"-" : kCityPool.pCity->getName().GetCString()), (kCityPool.pCity == NULL ? -1 : kCityPool.pCity->getID()),
+		iParkedTurns, SAS_getMissionTypeName(eMission), eMissionAI, (pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iMissionTargetValue,
+		(pGroup == NULL ? -1 : pGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders, iGroupHealthyDefenders, (pGroup == NULL ? 0 : pGroup->canDefend()), iAreaBestFoundValue, iOtherBestFoundValue, iBestReachableValue,
+		(pBestSite == NULL ? -1 : pBestSite->getX()), (pBestSite == NULL ? -1 : pBestSite->getY()), iBestReachablePathTurns, (pBestEndTurnPlot == NULL ? -1 : pBestEndTurnPlot->getX()), (pBestEndTurnPlot == NULL ? -1 : pBestEndTurnPlot->getY()),
+		bDanger, (pPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pPlot)), iVisibleEnemies, iVisibleCombatEnemies,
+		(pNearestEnemy == NULL ? -1 : pNearestEnemy->getOwner()), (pNearestEnemy == NULL ? "-" : SAS_getUnitTypeName(pNearestEnemy->getUnitType())), iNearestEnemyDistance, kCityPool.iCityUnits, kCityPool.iCityDefenders, kCityPool.iCityHealthyDefenders, kCityPool.iCityNeededDefenders, kCityPool.iCitySpareDefenders, kCityPool.iEscortCandidates, (kCityPool.pBestEscort == NULL ? -1 : kCityPool.pBestEscort->getID()),
+		(kCityPool.pBestEscort == NULL ? "-" : SAS_getUnitTypeName(kCityPool.pBestEscort->getUnitType())), (kCityPool.pBestEscort == NULL ? "-" : SAS_getUnitAITypeName(kCityPool.pBestEscort->AI_getUnitAIType())), (kCityPool.pBestEscort == NULL ? -1 : kCityPool.pBestEscort->getDamage()));
 	if (gSettlerLogLevel >= 3 && kCityPool.pCity != NULL)
 	{
 		logBBAI("    SETTLER_CITY_ESCORT_POOL turn=%d player=%d city=%S cityId=%d x=%d y=%d cityUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d neededDefenders=%d spareDefenders=%d settlers=%d workers=%d attackers=%d escortCandidates=%d units=%s",
-			GC.getGame().getGameTurn(), kSettler.getOwner(), kCityPool.pCity->getName().GetCString(), kCityPool.pCity->getID(), kCityPool.pCity->getX(), kCityPool.pCity->getY(), kCityPool.iCityUnits, kCityPool.iCityDefenders, kCityPool.iCityHealthyDefenders, kCityPool.iCityWoundedDefenders, kCityPool.iCityNeededDefenders, kCityPool.iCitySpareDefenders, kCityPool.iCitySettlers, kCityPool.iCityWorkers, kCityPool.iCityAttackers, kCityPool.iEscortCandidates, kCityPool.szUnitList.empty() ? "-" : kCityPool.szUnitList.GetCString());
+			GC.getGame().getGameTurn(), kSettler.getOwner(), kCityPool.pCity->getName().GetCString(), kCityPool.pCity->getID(), kCityPool.pCity->getX(), kCityPool.pCity->getY(),
+			kCityPool.iCityUnits, kCityPool.iCityDefenders, kCityPool.iCityHealthyDefenders, kCityPool.iCityWoundedDefenders, kCityPool.iCityNeededDefenders, kCityPool.iCitySpareDefenders,
+			kCityPool.iCitySettlers, kCityPool.iCityWorkers, kCityPool.iCityAttackers, kCityPool.iEscortCandidates, szCityUnitList.empty() ? "-" : szCityUnitList.GetCString());
 	}
 }
 
@@ -320,8 +355,9 @@ static bool SAS_tryAttachCityEscortToSettler(CvUnitAI& kSettler, int iAreaBestFo
 	CvSelectionGroup* pSettlerGroup = kSettler.getGroup();
 	if (pSettlerGroup == NULL || pSettlerGroup->canDefend())
 		return false;
+	bool const bLogSettlerEscort = (gSettlerLogLevel >= 2);
 	SASSettlerCityEscortPool kPool;
-	SAS_collectSettlerCityEscortPool(kSettler, kPool);
+	SAS_collectSettlerCityEscortPool(kSettler, kPool, bLogSettlerEscort, NULL);
 	static const int iSAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT = GC.getDefineINT("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT");
 	if (kPool.pCity == NULL || kPool.pBestEscort == NULL || kPool.iCityHealthyDefenders <= iSAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT)
 		return false;
@@ -330,10 +366,13 @@ static bool SAS_tryAttachCityEscortToSettler(CvUnitAI& kSettler, int iAreaBestFo
 	int const iOldEscortGroupId = (pEscort->getGroup() == NULL ? -1 : pEscort->getGroup()->getID());
 	int const iOldEscortGroupUnits = (pEscort->getGroup() == NULL ? 0 : pEscort->getGroup()->getNumUnits());
 	pEscort->joinGroup(pSettlerGroup);
-	if (gSettlerLogLevel >= 2)
+	if (bLogSettlerEscort)
 	{
 		logBBAI("    SETTLER_ATTACH_CITY_ESCORT turn=%d player=%d %S city=%S cityId=%d settlerId=%d escortId=%d escortUnit=%s escortAI=%s escortDamage=%d escortXP=%d oldSettlerGroupUnits=%d newSettlerGroupUnits=%d oldEscortGroupId=%d oldEscortGroupUnits=%d cityUnits=%d cityDefenders=%d cityNeededDefenders=%d citySpareDefenders=%d cityEscortCandidates=%d areaBestFoundValue=%d otherBestFoundValue=%d dangerFlag=%d",
-			GC.getGame().getGameTurn(), kSettler.getOwner(), GET_PLAYER(kSettler.getOwner()).getCivilizationDescription(0), kPool.pCity->getName().GetCString(), kPool.pCity->getID(), kSettler.getID(), pEscort->getID(), SAS_getUnitTypeName(pEscort->getUnitType()), SAS_getUnitAITypeName(pEscort->AI_getUnitAIType()), pEscort->getDamage(), pEscort->getExperience(), iOldGroupUnits, pSettlerGroup->getNumUnits(), iOldEscortGroupId, iOldEscortGroupUnits, kPool.iCityUnits, kPool.iCityDefenders, kPool.iCityNeededDefenders, kPool.iCitySpareDefenders, kPool.iEscortCandidates, iAreaBestFoundValue, iOtherBestFoundValue, bDanger);
+			GC.getGame().getGameTurn(), kSettler.getOwner(), GET_PLAYER(kSettler.getOwner()).getCivilizationDescription(0), kPool.pCity->getName().GetCString(), kPool.pCity->getID(),
+			kSettler.getID(), pEscort->getID(), SAS_getUnitTypeName(pEscort->getUnitType()), SAS_getUnitAITypeName(pEscort->AI_getUnitAIType()), pEscort->getDamage(),
+			pEscort->getExperience(), iOldGroupUnits, pSettlerGroup->getNumUnits(), iOldEscortGroupId, iOldEscortGroupUnits, kPool.iCityUnits, kPool.iCityDefenders, kPool.iCityNeededDefenders,
+			kPool.iCitySpareDefenders, kPool.iEscortCandidates, iAreaBestFoundValue, iOtherBestFoundValue, bDanger);
 		SAS_logSettlerParking(kSettler, "ATTACHED_CITY_ESCORT", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
 	}
 	return pSettlerGroup->canDefend();
@@ -5213,11 +5252,23 @@ bool CvUnitAI::AI_foundFirstCity()
 		int iBestTurnToFound = 0;
 		// <!-- custom: Karakorum founded in-place in plains/tundra while nearby high-food sites existed. Log the starting settler's top three reachable first-city candidates so we can see whether site valuation or the movement window caused the decision. (GPT-5.5) -->
 		// <!-- custom: enhance and add logging for first-city found logic: add scouting, moving away from high bad plot count starts, and running again an evaluate city site scoring when a site is no longer bad instead of settling right away; also add logging. See KI#144. -->
-		int aiTopWeightedValue[3] = {-99999, -99999, -99999};
-		int aiTopValue[3] = {0, 0, 0};
-		int aiTopTurnToFound[3] = {-1, -1, -1};
-		int aiTopX[3] = {-1, -1, -1};
-		int aiTopY[3] = {-1, -1, -1};
+		int aiTopWeightedValue[3];
+		int aiTopValue[3];
+		int aiTopTurnToFound[3];
+		int aiTopX[3];
+		int aiTopY[3];
+		if (bLogSettlerAILevel2)
+		{
+			// <!-- custom: These top-three arrays are diagnostic-only and read only by the level-2 block below; avoid 15 diagnostic writes when Settler logging is disabled. (ChatGPT-5.6-Sol) -->
+			for (int iTop = 0; iTop < 3; ++iTop)
+			{
+				aiTopWeightedValue[iTop] = -99999;
+				aiTopValue[iTop] = 0;
+				aiTopTurnToFound[iTop] = -1;
+				aiTopX[iTop] = -1;
+				aiTopY[iTop] = -1;
+			}
+		}
 
 		for (int iCitySite = 0; iCitySite < kOwner.AI_getNumCitySites(); iCitySite++)
 		{
@@ -5917,13 +5968,13 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			// The old ACTION diagnostic then re-read the now-NO_FEATURE plot and called GC.getInfo(NO_FEATURE).getDescription(), causing the CvInfoBase::getDescription invalid-pointer crash.
 			// Copy mutable diagnostic state before pushMission; chop production can also complete the current Worker/Settler and change the decision-time reserve threshold.
 			// Keep the NO_FEATURE fallback so later logging changes cannot turn a diagnostic into another gameplay crash. See KI#33.2. (ChatGPT-5.6-Sol) -->
-			CvWString szPhase0FeatureForLog;
+			bool const bLogPhase0Action = (gWorkerLogLevel >= 2);
+			FeatureTypes ePhase0FeatureForLog = NO_FEATURE;
 			int iPhase0MinEligibleForLog = -1;
-			if (gWorkerLogLevel >= 2)
+			if (bLogPhase0Action)
 			{
-				FeatureTypes const ePhase0FeatureForLog = pPhase0Plot->getFeatureType();
+				ePhase0FeatureForLog = pPhase0Plot->getFeatureType();
 				FAssert(ePhase0FeatureForLog != NO_FEATURE);
-				szPhase0FeatureForLog = (ePhase0FeatureForLog == NO_FEATURE ? L"-" : GC.getInfo(ePhase0FeatureForLog).getDescription());
 				iPhase0MinEligibleForLog = SAS_getWorkerPhase0MinEligiblePlots(*pPhase0City);
 			}
 			if (!at(*pPhase0Plot))
@@ -5934,10 +5985,10 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			getGroup()->pushMission(MISSION_BUILD, ePhase0Build, -1, NO_MOVEMENT_FLAGS,
 				true, false, MISSIONAI_BUILD, pPhase0Plot);
 
-			if (gWorkerLogLevel >= 2) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%S build=%S production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=%d result=SHORT_CIRCUIT_BEFORE_BONUS_AND_ROUTE_LOGIC",
+			if (bLogPhase0Action) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%S build=%S production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=%d result=SHORT_CIRCUIT_BEFORE_BONUS_AND_ROUTE_LOGIC",
 					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(),
 					pPhase0City->getName().GetCString(), pPhase0City->getID(), pPhase0Plot->getX(), pPhase0Plot->getY(),
-					szPhase0FeatureForLog.GetCString(),
+					(ePhase0FeatureForLog == NO_FEATURE ? L"-" : GC.getInfo(ePhase0FeatureForLog).getDescription()),
 					GC.getInfo(ePhase0Build).getDescription(), kVerify.iProduction,
 					iEligible, iTargeted, iPhase0MinEligibleForLog, bCoreFoodProduction);
 			return;
@@ -6021,13 +6072,13 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			}
 
 			// <!-- custom: Same synchronous-build lifetime guard as CORE Phase 0: never re-read mutable feature/order state after pushMission merely for diagnostics. (ChatGPT-5.6-Sol) -->
-			CvWString szPhase0FeatureForLog;
+			bool const bLogPhase0Action = (gWorkerLogLevel >= 2);
+			FeatureTypes ePhase0FeatureForLog = NO_FEATURE;
 			int iPhase0MinEligibleForLog = -1;
-			if (gWorkerLogLevel >= 2)
+			if (bLogPhase0Action)
 			{
-				FeatureTypes const ePhase0FeatureForLog = pPhase0Plot->getFeatureType();
+				ePhase0FeatureForLog = pPhase0Plot->getFeatureType();
 				FAssert(ePhase0FeatureForLog != NO_FEATURE);
-				szPhase0FeatureForLog = (ePhase0FeatureForLog == NO_FEATURE ? L"-" : GC.getInfo(ePhase0FeatureForLog).getDescription());
 				iPhase0MinEligibleForLog = SAS_getWorkerPhase0MinEligiblePlots(*pPhase0City);
 			}
 			if (!at(*pPhase0Plot))
@@ -6038,10 +6089,10 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			getGroup()->pushMission(MISSION_BUILD, ePhase0Build, -1, NO_MOVEMENT_FLAGS,
 				true, false, MISSIONAI_BUILD, pPhase0Plot);
 
-			if (gWorkerLogLevel >= 2) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%S build=%S production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=0 result=SHORT_CIRCUIT_AFTER_BONUS_BEFORE_ROUTE_AND_NORMAL_WORK",
+			if (bLogPhase0Action) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%S build=%S production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=0 result=SHORT_CIRCUIT_AFTER_BONUS_BEFORE_ROUTE_AND_NORMAL_WORK",
 					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(),
 					pPhase0City->getName().GetCString(), pPhase0City->getID(), pPhase0Plot->getX(), pPhase0Plot->getY(),
-					szPhase0FeatureForLog.GetCString(),
+					(ePhase0FeatureForLog == NO_FEATURE ? L"-" : GC.getInfo(ePhase0FeatureForLog).getDescription()),
 					GC.getInfo(ePhase0Build).getDescription(), kVerify.iProduction,
 					iEligible, iTargeted, iPhase0MinEligibleForLog);
 			return;

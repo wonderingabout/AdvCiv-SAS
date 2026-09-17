@@ -27,13 +27,14 @@ static bool SAS_isOneCopyNonSpaceshipProject(ProjectTypes eProject)
 class SASSpaceProductionReevaluationLogScope
 {
 public:
-	SASSpaceProductionReevaluationLogScope(CvCityAI const& kCity, bool bEnabled) : m_pCity(NULL), m_eOldProject(NO_PROJECT), m_iOldStored(0), m_iOldNeeded(0), m_iOldTurnsLeft(-1)
+	SASSpaceProductionReevaluationLogScope(CvCityAI const& kCity, bool bEnabled) : m_pCity(NULL)
 	{
 		if (!bEnabled || kCity.isHuman() || kCity.isBarbarian())
 			return;
 		ProjectTypes const eProject = kCity.getProductionProject();
 		if (eProject == NO_PROJECT || !GC.getInfo(eProject).isSpaceship())
 			return;
+		// <!-- custom: m_pCity is the destructor's active gate; leave the diagnostic-only payload uninitialized until the scope actually arms so disabled production checks perform only the null write. (ChatGPT-5.6-Sol) -->
 		m_pCity = &kCity;
 		m_eOldProject = eProject;
 		m_iOldStored = kCity.getProjectProduction(eProject);
@@ -115,13 +116,14 @@ private:
 class SASLimitedProjectProductionReevaluationLogScope
 {
 public:
-	SASLimitedProjectProductionReevaluationLogScope(CvCityAI const& kCity, bool bEnabled) : m_pCity(NULL), m_eOldProject(NO_PROJECT), m_iOldStored(0), m_iOldNeeded(0), m_iOldTurnsLeft(-1)
+	SASLimitedProjectProductionReevaluationLogScope(CvCityAI const& kCity, bool bEnabled) : m_pCity(NULL)
 	{
 		if (!bEnabled || kCity.isHuman() || kCity.isBarbarian())
 			return;
 		ProjectTypes const eProject = kCity.getProductionProject();
 		if (eProject == NO_PROJECT || !SAS_isOneCopyNonSpaceshipProject(eProject))
 			return;
+		// <!-- custom: As above, m_pCity alone controls destructor access; do not initialize the unused diagnostic payload on the common disabled path. (ChatGPT-5.6-Sol) -->
 		m_pCity = &kCity;
 		m_eOldProject = eProject;
 		m_iOldStored = kCity.getProjectProduction(eProject);
@@ -1645,10 +1647,18 @@ static void SAS_logBuildingProductionFocusCandidate(CvCityAI const& kCity, int i
 class SASBuildingProductionOpportunityLogScope
 {
 public:
-	SASBuildingProductionOpportunityLogScope(CvCityAI const& kCity, BuildingTypes eBestBuilding, int iRawValue, int iAdjustedValue, int iRepresentativeMilitaryCost, int iMilitaryMinCost, int iMilitaryMaxCost, int iRepresentativeMilitaryTurns, int iMilitaryUniqueUnits, int iBuildUnitProb, int iUnitSpending, bool bDanger, bool bLandWar, bool bAssault, bool bWarPrep, bool bFinancialTrouble, bool bEnabled) : m_pCity(NULL), m_eBestBuilding(NO_BUILDING)
+	SASBuildingProductionOpportunityLogScope(CvCityAI const& kCity, BuildingTypes eBestBuilding, int iRawValue, int iAdjustedValue, int iBuildUnitProb, int iUnitSpending, bool bDanger, bool bLandWar, bool bAssault, bool bWarPrep, bool bFinancialTrouble, bool bEnabled) : m_pCity(NULL)
 	{
 		if (!bEnabled || kCity.isHuman() || kCity.isBarbarian() || eBestBuilding == NO_BUILDING)
 			return;
+		// <!-- custom: Keep the representative military scan and all of its output variables inside the armed level-2 scope.
+		// This scope is constructed in every AI_chooseProduction call, so disabled BUILDING_PRODUCTION logging should not even initialize diagnostic-only scalar payload at the caller. (ChatGPT-5.6-Sol) -->
+		int iMilitaryMinCost = 0;
+		int iMilitaryMaxCost = 0;
+		int iRepresentativeMilitaryTurns = 0;
+		int iMilitaryUniqueUnits = 0;
+		int const iRepresentativeMilitaryCost = SAS_getRepresentativeLandMilitaryProductionCost(kCity, iMilitaryMinCost, iMilitaryMaxCost, iRepresentativeMilitaryTurns, iMilitaryUniqueUnits);
+		// <!-- custom: The destructor returns on NULL before reading m_eBestBuilding; initialize the persistent diagnostic payload only when this level-2 scope really arms. (ChatGPT-5.6-Sol) -->
 		m_pCity = &kCity;
 		m_eBestBuilding = eBestBuilding;
 		CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
@@ -2232,21 +2242,20 @@ void CvCityAI::AI_chooseProduction()
 	// <!-- custom: performance optimization - cache getPopulation() to avoid repeated calls in AI_chooseProduction. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	int const iCityPopulation = getPopulation();
 
-	// <!-- custom: performance optimization - cache getName() to avoid repeated calls when used multiple times in this function. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
-	const CvWString& kCityName = getName();      // bound to the city's internal name
-	const wchar* sCityName    = kCityName.GetCString();
+	// <!-- custom: The city name below is BBAI-only. Avoid the localized getName()/GetCString path on the ordinary all-logging-disabled production path.
+	// Keep a local CvWString alive when enabled because CvCity::getName() returns by value; storing getName().GetCString() directly would leave a pointer into a destroyed temporary. (ChatGPT-5.6-Sol) -->
+	CvWString kCityNameForLog;
+	wchar const* sCityName = NULL;
+	if (gLogBBAI)
+	{
+		kCityNameForLog = getName();
+		sCityName = kCityNameForLog.GetCString();
+	}
 
 	// <!-- custom: Diagnostic-only infrastructure opportunity snapshot.
 	// Compare the best current building and focused health/happiness/economic alternatives with the city's representative trainable land-combat cost before any later production branch returns.
 	// The RAII scope records the final target selected across AI_chooseProduction's many early returns; no production odds or values are changed. (ChatGPT-5.6-Sol) -->
-	int iSASBuildingMilitaryMinCost = 0;
-	int iSASBuildingMilitaryMaxCost = 0;
-	int iSASBuildingMilitaryAvgTurns = 0;
-	int iSASBuildingMilitaryUniqueUnits = 0;
-	int iSASBuildingMilitaryAvgCost = 0;
-	if (gBuildingProductionLogLevel >= 2)
-		iSASBuildingMilitaryAvgCost = SAS_getRepresentativeLandMilitaryProductionCost(*this, iSASBuildingMilitaryMinCost, iSASBuildingMilitaryMaxCost, iSASBuildingMilitaryAvgTurns, iSASBuildingMilitaryUniqueUnits);
-	SASBuildingProductionOpportunityLogScope kSASBuildingProductionOpportunityLogScope(*this, eBestBuilding, iBestBuildingValueRaw, iBestBuildingValue, iSASBuildingMilitaryAvgCost, iSASBuildingMilitaryMinCost, iSASBuildingMilitaryMaxCost, iSASBuildingMilitaryAvgTurns, iSASBuildingMilitaryUniqueUnits, iBuildUnitProb, iUnitSpending, bDanger, bLandWar, bAssault, bWarPrep, bFinancialTrouble, gBuildingProductionLogLevel >= 2);
+	SASBuildingProductionOpportunityLogScope kSASBuildingProductionOpportunityLogScope(*this, eBestBuilding, iBestBuildingValueRaw, iBestBuildingValue, iBuildUnitProb, iUnitSpending, bDanger, bLandWar, bAssault, bWarPrep, bFinancialTrouble, gBuildingProductionLogLevel >= 2);
 	if (gBuildingProductionLogLevel >= 3)
 	{
 		SAS_logBuildingProductionFocusCandidate(*this, BUILDINGFOCUS_HEALTHY, "HEALTH");
@@ -19218,12 +19227,15 @@ void CvCityAI::AI_barbChooseProduction()
 	// advc.305:
 	int iCityAge = kGame.getGameTurn() - getGameTurnAcquired();
 
-	// <!-- custom: optimization i found myself; done with the help of chatgpt 5 thanks. -->
-	// use sCityName (or kCityName) multiple times in this function
-	// My advice here is to avoid binding a pointer to a temporary object. If getName() doesn’t return const CvWString&, we can store a local copy, like so:
-	// Overhead of calling getName() or .GetCString() is minimal, but if repeated often, I could store it to save on performance. However, I must be cautious about pointer invalidation if name changes within the function (though rare). A better approach might be using const CvWString& szCityName = getName() to store it safely before passing .GetCString() when needed. If it’s only used once—没必要! For performance, it’s okay to use getName().GetCString() directly in formatting.
-	const CvWString& kCityName = getName();      // bound to the city's internal name
-	const wchar* sCityName    = kCityName.GetCString();
+	// <!-- custom: As in ordinary AI_chooseProduction, this name is used only by gated BBAI diagnostics.
+	// Keep the backing string alive when enabled because getName() returns by value. (ChatGPT-5.6-Sol) -->
+	CvWString kCityNameForLog;
+	wchar const* sCityName = NULL;
+	if (gLogBBAI)
+	{
+		kCityNameForLog = getName();
+		sCityName = kCityNameForLog.GetCString();
+	}
 
 	if (!bDanger && (2*iExistingWorkers < iNeededWorkers) && (AI_getWorkersNeeded() > 0) && (AI_getWorkersHave() == 0))
 	{
