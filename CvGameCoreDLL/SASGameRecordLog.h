@@ -17,7 +17,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 86 };
+enum { SAS_GAME_RECORD_REVISION = 87 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -344,6 +344,47 @@ void logSASGameRecordAIPeaceDecision(PlayerTypes ePlayer, PlayerTypes eOther, in
 // <!-- custom: Preserve the real research/free-tech source and, for AI_bestTech, the already-computed selected/runner-up path values and optional level-3 candidate paths.
 // Caller and chooser gates ensure no technology valuation or chooser RNG is repeated for SASGameRecord. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIResearchDecision(CvPlayerAI const& kPlayer, char const* szKind, char const* szSource, TechTypes eRequestedTech, int iResearchDepth, PlayerTypes eCoordinatingPlayer, SASTechChoiceContext const* pChoice);
+// <!-- custom: Proactive resource-trade provenance keeps only values and random draws already produced by AI_proposeResourceTrade; winner context is gathered later by the recorder only for an actual resolved proposal.
+// This avoids adding recorder branches to hot AI_bonusTradeVal callers. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordBonusTradeSide
+{
+	BonusTypes eBestBonus;
+	BonusTypes eRunnerUpBonus;
+	int iBestBuyerTradeValue;
+	int iBestSellerKeepValue;
+	int iBestBias;
+	int iBestGatePermille;
+	int iBestRandom;
+	int iBestScore;
+	int iRunnerUpBuyerTradeValue;
+	int iRunnerUpSellerKeepValue;
+	int iRunnerUpBias;
+	int iRunnerUpGatePermille;
+	int iRunnerUpRandom;
+	int iRunnerUpScore;
+	int iEvaluated;
+	int iGatePassed;
+	int iNoDenial;
+};
+void logSASGameRecordAIBonusTradeDecision(PlayerTypes ePlayer, PlayerTypes eOther, char const* szAnchor, SASGameRecordBonusTradeSide const& kReceive, SASGameRecordBonusTradeSide const& kGive, CLinkList<TradeData> const& kWeGive, CLinkList<TradeData> const& kTheyGive);
+// <!-- custom: Bonus-tribute provenance preserves the existing randomized DEMAND_BONUS sort result, non-surplus adjustment context and final selected bundle/value; no bonus valuation or RNG is repeated for logging. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordBonusDemandContext
+{
+	BonusTypes eBestBonus;
+	BonusTypes eRunnerUpBonus;
+	int iBestSortValueX100;
+	int iBestHumanTradeableCopies;
+	int iBestNonSurplusSort;
+	int iRunnerUpSortValueX100;
+	int iRunnerUpHumanTradeableCopies;
+	int iRunnerUpNonSurplusSort;
+	int iCandidateCount;
+	int iSelectedCount;
+	int iSelectedTotalValueX100;
+	int iMinValueX100;
+	int iDealValue;
+};
+void logSASGameRecordAIBonusDemandDecision(PlayerTypes ePlayer, PlayerTypes eHuman, SASGameRecordBonusDemandContext const& kContext, CLinkList<TradeData> const& kHumanGives);
 // <!-- custom: Preserve realized AI corporation operational intent when a city commits to an Executive, an Executive assigns/retargets a spread city, or an Executive is deliberately rerouted by air/sea transport.
 // Callers pre-gate at level 2 and pass only values already computed by the live production/target chooser; periodic posture separately preserves long-lived Executive missions across loaded saves. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIExecutiveProduction(CvCity const* pCity, UnitTypes eUnit, int iExecutiveValue, int iThreshold, char const* szStage);

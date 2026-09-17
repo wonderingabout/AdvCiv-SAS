@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=86 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=87 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,9 +40,18 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
+### Revision 87 - SAS practical 6475
+
+- **Date:** 2026-09-17
+- **Git commit:** pending
+- **Change:** Added compact AI resource-trade choice provenance. `GAME_RECORD_AI_BONUS_TRADE_DECISION` records the real proactive `AI_proposeResourceTrade` receive/give chooser winners and runner-ups from already-computed buyer trade value, seller keep-value estimate, bias, probability gate and random final score, then joins them to the actual counterproposal terms that are about to be shown to a human or implemented between AIs. Winner-only factual resource/strategic context is gathered only when an event is emitted; the shared `AI_bonusTradeVal` function itself remains uninstrumented.
+
+`GAME_RECORD_AI_BONUS_DEMAND_DECISION` separately records the different tribute chooser's randomized sorted winner/runner-up, non-surplus sorting adjustment, selected resource bundle/value, minimum threshold and final deal valuation. Existing periodic `GAME_RECORD_TRADE_MARKET` remains the resolved availability/denial/price view. The new rows repeat no bonus valuation, counterproposal search or RNG solely for recording.
+
 ### Revision 86 - SAS practical 6474
 
 - **Date:** 2026-09-17
+- **Git commit:** `318c4c070c954a548fd44ae819b59819981d3e1f`
 - **Change:** Added compact AI research/free-technology choice provenance. `GAME_RECORD_AI_RESEARCH_DECISION` identifies teammate coordination, Python overrides and the real `AI_bestTech` fallback; the latter preserves the chosen/requested technology, actual current research after queueing, deeper strategic aim, chooser/path values, distinct runner-up and chooser breadth from values already computed by gameplay. Level 3 additionally serializes each distinct returned-tech candidate with its chooser/path value and deeper aim, while free-tech choices use the same depth-1 machinery. No technology valuation or chooser RNG is repeated for recording.
 
 The technology-path diagnostic also recovers the actual deepest endpoint after K-Mod backfills/reorders paths with unrelated depth-0 technologies, rather than assuming `path.front()` is always the long-term aim; AdvCiv's rare scenario fallback likewise reports the path actually selected rather than always path 0. These are diagnostic/provenance corrections only and do not change research selection.

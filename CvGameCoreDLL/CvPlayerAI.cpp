@@ -24402,6 +24402,61 @@ bool CvPlayerAI::AI_proposeEmbargo(PlayerTypes eHuman)
 	return true;
 }
 
+// <!-- custom: Recorder-only resource chooser state is plain scalar storage and is initialized/updated only when SASGameRecord level 2+ is active.
+// Keep AI_bonusTradeVal itself untouched because it is a much hotter shared valuation path. (ChatGPT-5.6-Sol) -->
+static void initSASGameRecordBonusTradeSide(SASGameRecordBonusTradeSide& kSide)
+{
+	kSide.eBestBonus = NO_BONUS;
+	kSide.eRunnerUpBonus = NO_BONUS;
+	kSide.iBestBuyerTradeValue = -1;
+	kSide.iBestSellerKeepValue = -1;
+	kSide.iBestBias = 0;
+	kSide.iBestGatePermille = 0;
+	kSide.iBestRandom = -1;
+	kSide.iBestScore = 0;
+	kSide.iRunnerUpBuyerTradeValue = -1;
+	kSide.iRunnerUpSellerKeepValue = -1;
+	kSide.iRunnerUpBias = 0;
+	kSide.iRunnerUpGatePermille = 0;
+	kSide.iRunnerUpRandom = -1;
+	kSide.iRunnerUpScore = 0;
+	kSide.iEvaluated = 0;
+	kSide.iGatePassed = 0;
+	kSide.iNoDenial = 0;
+}
+
+static void considerSASGameRecordBonusTradeCandidate(SASGameRecordBonusTradeSide& kSide, BonusTypes eBonus, int iBuyerTradeValue, int iSellerKeepValue, int iBias, int iGatePermille, int iRandom, int iScore)
+{
+	if (iScore > kSide.iBestScore)
+	{
+		kSide.eRunnerUpBonus = kSide.eBestBonus;
+		kSide.iRunnerUpBuyerTradeValue = kSide.iBestBuyerTradeValue;
+		kSide.iRunnerUpSellerKeepValue = kSide.iBestSellerKeepValue;
+		kSide.iRunnerUpBias = kSide.iBestBias;
+		kSide.iRunnerUpGatePermille = kSide.iBestGatePermille;
+		kSide.iRunnerUpRandom = kSide.iBestRandom;
+		kSide.iRunnerUpScore = kSide.iBestScore;
+		kSide.eBestBonus = eBonus;
+		kSide.iBestBuyerTradeValue = iBuyerTradeValue;
+		kSide.iBestSellerKeepValue = iSellerKeepValue;
+		kSide.iBestBias = iBias;
+		kSide.iBestGatePermille = iGatePermille;
+		kSide.iBestRandom = iRandom;
+		kSide.iBestScore = iScore;
+	}
+	else if (iScore > kSide.iRunnerUpScore)
+	{
+		kSide.eRunnerUpBonus = eBonus;
+		kSide.iRunnerUpBuyerTradeValue = iBuyerTradeValue;
+		kSide.iRunnerUpSellerKeepValue = iSellerKeepValue;
+		kSide.iRunnerUpBias = iBias;
+		kSide.iRunnerUpGatePermille = iGatePermille;
+		kSide.iRunnerUpRandom = iRandom;
+		kSide.iRunnerUpScore = iScore;
+	}
+}
+
+
 /*  Caller ensures canContactAndTalk, not at war, this->isMajorCiv(),
 	!this->isHuman. If eTo is human, !abContacted is ensured, but eTo may
 	also be an AI civ.
@@ -24416,6 +24471,20 @@ bool CvPlayerAI::AI_proposeResourceTrade(PlayerTypes eTo)
 	CvPlayerAI const& kTo = GET_PLAYER(eTo);
 	CvGame& kGame = GC.getGame();
 	int const iDealLen = GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH);
+	bool const bLogSASBonusTrade = (getSASGameRecordLogLevel() >= 2);
+	// <!-- custom: Leave the recorder structs uninitialized when logging is off: NULL access pointers avoid recorder-only initialization cost.
+	// They also make the guarded initialization explicit enough for VC++ 2003 to avoid false C4701 warnings. (ChatGPT-5.6-Sol) -->
+	SASGameRecordBonusTradeSide kSASReceive;
+	SASGameRecordBonusTradeSide kSASGive;
+	SASGameRecordBonusTradeSide* pSASReceive = NULL;
+	SASGameRecordBonusTradeSide* pSASGive = NULL;
+	if (bLogSASBonusTrade)
+	{
+		initSASGameRecordBonusTradeSide(kSASReceive);
+		initSASGameRecordBonusTradeSide(kSASGive);
+		pSASReceive = &kSASReceive;
+		pSASGive = &kSASGive;
+	}
 	// Resource that this player wants to receive from eTo
 	BonusTypes eBestReceiveBonus = NO_BONUS;
 	if (kTo.canPossiblyTradeItem(getID(), TRADE_RESOURCES)) // advc.opt
@@ -24437,16 +24506,23 @@ bool CvPlayerAI::AI_proposeResourceTrade(PlayerTypes eTo)
 			TradeData item(TRADE_RESOURCES, eLoopBonus);
 			if (!kTo.canTradeItem(getID(), item, false))
 				continue;
-			int iBias = AI_bonusTradeVal(eLoopBonus, eTo, 1) -
-					// Estimate of how much kTo would rather keep eLoopBonus
-					kTo.AI_bonusVal(eLoopBonus, -1, false, true) * iDealLen *
+			int const iBuyerTradeValue = AI_bonusTradeVal(eLoopBonus, eTo, 1);
+			int const iSellerKeepValue = kTo.AI_bonusVal(eLoopBonus, -1, false, true) * iDealLen *
 					(getNumCities() + kTo.getNumCities()) / 5;
-			if (!SyncRandSuccess(scaled(iBias - 15, 90)))
+			int const iBias = iBuyerTradeValue - iSellerKeepValue;
+			scaled const rGateChance(iBias - 15, 90);
+			if (pSASReceive != NULL) pSASReceive->iEvaluated++;
+			bool const bGatePassed = SyncRandSuccess(rGateChance);
+			if (!bGatePassed)
 				continue;
+			if (pSASReceive != NULL) pSASReceive->iGatePassed++;
 			if (kTo.getTradeDenial(getID(), item) == NO_DENIAL)
 			{
+				if (pSASReceive != NULL) pSASReceive->iNoDenial++;
 				// Was completely random before
-				int iValue = SyncRandNum(25) + iBias; // </advc.036>
+				int const iRandom = SyncRandNum(25);
+				int const iValue = iRandom + iBias; // </advc.036>
+				if (pSASReceive != NULL) considerSASGameRecordBonusTradeCandidate(*pSASReceive, eLoopBonus, iBuyerTradeValue, iSellerKeepValue, iBias, rGateChance.getPermille(), iRandom, iValue);
 				if (iValue > iBestValue)
 				{
 					iBestValue = iValue;
@@ -24475,17 +24551,24 @@ bool CvPlayerAI::AI_proposeResourceTrade(PlayerTypes eTo)
 			/*if(i == eBestReceiveBonus || getNumTradeableBonuses(eLoopBonus) <= 1 ||
 					kTo.AI_bonusTradeVal(eLoopBonus, getID(), 1) <= 0)
 				continue;*/
-			int iBias = kTo.AI_bonusTradeVal(eLoopBonus, getID(), 1) -
-					// How much this player would rather keep eLoopBonus
-					AI_bonusVal(eLoopBonus, -1, false, true) * iDealLen *
+			int const iBuyerTradeValue = kTo.AI_bonusTradeVal(eLoopBonus, getID(), 1);
+			int const iSellerKeepValue = AI_bonusVal(eLoopBonus, -1, false, true) * iDealLen *
 					(getNumCities() + kTo.getNumCities()) / 5;
+			int const iBias = iBuyerTradeValue - iSellerKeepValue;
 			/*	Less likely to skip than above - now that one sensible trade item
 				is already locked in. And we don't want to pay cash for it. */
-			if (!SyncRandSuccess(scaled(iBias - 15, 35)))
+			scaled const rGateChance(iBias - 15, 35);
+			if (pSASGive != NULL) pSASGive->iEvaluated++;
+			bool const bGatePassed = SyncRandSuccess(rGateChance);
+			if (!bGatePassed)
 				continue;
+			if (pSASGive != NULL) pSASGive->iGatePassed++;
 			if (getTradeDenial(eTo, item) == NO_DENIAL)
 			{
-				int iValue = SyncRandNum(30) + iBias; // </advc.036>
+				if (pSASGive != NULL) pSASGive->iNoDenial++;
+				int const iRandom = SyncRandNum(30);
+				int const iValue = iRandom + iBias; // </advc.036>
+				if (pSASGive != NULL) considerSASGameRecordBonusTradeCandidate(*pSASGive, eLoopBonus, iBuyerTradeValue, iSellerKeepValue, iBias, rGateChance.getPermille(), iRandom, iValue);
 				if (iValue > iBestValue)
 				{
 					iBestValue = iValue;
@@ -24511,21 +24594,31 @@ bool CvPlayerAI::AI_proposeResourceTrade(PlayerTypes eTo)
 		pick the one with the higher trade value difference (iBestValue) and let
 		AI_counterPropose produce an offer. */
 	bool bDeal = false;
+	// <!-- custom: Explicitly initialize the recorder-only anchor so VC++ 2003 does not conservatively treat it as potentially uninitialized. (ChatGPT-5.6-Sol) -->
+	bool bSASGiveAnchor = false;
 	if(eBestGiveBonus != NO_BONUS)
 	{
 		weGive.insertAtEnd(TradeData(TRADE_RESOURCES, eBestGiveBonus));
 		if(AI_counterPropose(eTo, theyGive, weGive, true, false))
+		{
 			bDeal = true;
+			if (pSASGive != NULL) bSASGiveAnchor = true;
+		}
 	}
 	if(!bDeal && eBestReceiveBonus != NO_BONUS)
 	{
 		theyGive.insertAtEnd(TradeData(TRADE_RESOURCES, eBestReceiveBonus));
 		if(kTo.AI_counterPropose(getID(), weGive, theyGive, true, false))
+		{
 			bDeal = true;
+		}
 	}
 	if(!bDeal)
 		return false;
 	// </advc.036>
+	// <!-- custom: Log the resolved proposal before implementDeal can mutate resource/deal state.
+	// The row keeps both proactive chooser winners plus the final counterproposal lists, which may contain additional terms. (ChatGPT-5.6-Sol) -->
+	if (pSASReceive != NULL) logSASGameRecordAIBonusTradeDecision(getID(), eTo, bSASGiveAnchor ? "GIVE" : "RECEIVE", *pSASReceive, *pSASGive, weGive, theyGive);
 	if(kTo.isHuman())
 	{
 		AI_changeContactTimer(eTo, CONTACT_TRADE_BONUS,
@@ -24708,6 +24801,8 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
 		rMinVal *= per100(GC.getGame().getSpeedPercent());
 	} // </advc.104m>
 	CLinkList<TradeData> humanGives;
+	bool const bLogSASBonusDemand = (eDemand == DEMAND_BONUS && getSASGameRecordLogLevel() >= 2);
+	SASGameRecordBonusDemandContext kSASBonusDemand;
 	switch(eDemand)
 	{
 	case DEMAND_GOLD:
@@ -24779,6 +24874,24 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
 			break; // </advc.104m>
 		if (!kHuman.canPossiblyTradeItem(getID(), TRADE_RESOURCES))
 			break;
+		// <!-- custom: Keep bonus-demand recorder bookkeeping inside the already-rare resource-demand branch.
+		// The chooser's existing vector remains authoritative; no extra bonus valuation or random draw is performed for logging. (ChatGPT-5.6-Sol) -->
+		if (bLogSASBonusDemand)
+		{
+			kSASBonusDemand.eBestBonus = NO_BONUS;
+			kSASBonusDemand.eRunnerUpBonus = NO_BONUS;
+			kSASBonusDemand.iBestSortValueX100 = -1;
+			kSASBonusDemand.iBestHumanTradeableCopies = -1;
+			kSASBonusDemand.iBestNonSurplusSort = -1;
+			kSASBonusDemand.iRunnerUpSortValueX100 = -1;
+			kSASBonusDemand.iRunnerUpHumanTradeableCopies = -1;
+			kSASBonusDemand.iRunnerUpNonSurplusSort = -1;
+			kSASBonusDemand.iCandidateCount = 0;
+			kSASBonusDemand.iSelectedCount = 0;
+			kSASBonusDemand.iSelectedTotalValueX100 = 0;
+			kSASBonusDemand.iMinValueX100 = rMinVal.getPercent();
+			kSASBonusDemand.iDealValue = -1;
+		}
 		// <advc.104m>
 		std::vector<std::pair<scaled,BonusTypes> > aieBonuses;
 		scaled rNonSurplusFactor = fixp(0.6);// </advc.104m>
@@ -24810,6 +24923,24 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
 		}
 		std::sort(aieBonuses.begin(), aieBonuses.end(),
 				std::greater<std::pair<scaled,BonusTypes> >());
+		if (bLogSASBonusDemand)
+		{
+			kSASBonusDemand.iCandidateCount = (int)aieBonuses.size();
+			if (!aieBonuses.empty())
+			{
+				kSASBonusDemand.eBestBonus = aieBonuses[0].second;
+				kSASBonusDemand.iBestSortValueX100 = aieBonuses[0].first.getPercent();
+				kSASBonusDemand.iBestHumanTradeableCopies = kHuman.getNumTradeableBonuses(aieBonuses[0].second);
+				kSASBonusDemand.iBestNonSurplusSort = (kSASBonusDemand.iBestHumanTradeableCopies <= 1 ? 1 : 0);
+			}
+			if (aieBonuses.size() >= 2)
+			{
+				kSASBonusDemand.eRunnerUpBonus = aieBonuses[1].second;
+				kSASBonusDemand.iRunnerUpSortValueX100 = aieBonuses[1].first.getPercent();
+				kSASBonusDemand.iRunnerUpHumanTradeableCopies = kHuman.getNumTradeableBonuses(aieBonuses[1].second);
+				kSASBonusDemand.iRunnerUpNonSurplusSort = (kSASBonusDemand.iRunnerUpHumanTradeableCopies <= 1 ? 1 : 0);
+			}
+		}
 		scaled rTotal = 0;
 		for (size_t i = 0; i < std::min(aieBonuses.size(),
 			(size_t)(kHuman.getCurrentEra() + 2)) && rTotal < rMinVal; i++)
@@ -24821,6 +24952,11 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
 			if (kHuman.getNumTradeableBonuses(eBonus) <= 1)
 				rValue /= rNonSurplusFactor;
 			rTotal += rValue;
+		}
+		if (bLogSASBonusDemand)
+		{
+			kSASBonusDemand.iSelectedCount = humanGives.getLength();
+			kSASBonusDemand.iSelectedTotalValueX100 = rTotal.getPercent();
 		}
 		break;
 	}
@@ -24848,10 +24984,16 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
 		FErrorMsg("Unknown AI demand type");
 		return false;
 	}
-	if (humanGives.getLength() <= 0 ||
-		AI_dealVal(eHuman, humanGives, false, 1, true) < rMinVal) // advc.104m
-	{
+	if (humanGives.getLength() <= 0)
 		return false;
+	int const iDemandDealValue = AI_dealVal(eHuman, humanGives, false, 1, true); // advc.104m
+	if (iDemandDealValue < rMinVal)
+		return false;
+	// <!-- custom: Log only a bonus demand that survives the ordinary final deal-value gate, before a peace-treaty item can be appended to the requested list. (ChatGPT-5.6-Sol) -->
+	if (bLogSASBonusDemand)
+	{
+		kSASBonusDemand.iDealValue = iDemandDealValue;
+		logSASGameRecordAIBonusDemandDecision(getID(), eHuman, kSASBonusDemand, humanGives);
 	}
 	// <advc.104m>
 	CLinkList<TradeData> weGive;

@@ -10998,6 +10998,86 @@ void logSASGameRecordAIResearchDecision(CvPlayerAI const& kPlayer, char const* s
 			kPlayer.getLengthResearchQueue(), szCandidates.GetCString());
 }
 
+// <!-- custom: Resource-choice winner facts are deliberately cheap/factual and gathered only when an actual resource proposal/demand row is emitted.
+// They complement, rather than rerun or decompose, AI_bonusTradeVal. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordBonusChoiceFacts
+{
+	int iBuyerEra;
+	int iBuyerAvailableBefore;
+	int iSellerTradeableCopies;
+	int iBonusHealth;
+	int iBonusHappiness;
+	int iBonusAIObjective;
+	int iBuyerHasMetal;
+	int iBuyerHasMount;
+	int iBuyerHasElephants;
+	int iMasterVassalCluster;
+};
+
+static void getSASGameRecordBonusChoiceFacts(CvPlayerAI const& kBuyer, CvPlayerAI const& kSeller, BonusTypes eBonus, SASGameRecordBonusChoiceFacts& kFacts)
+{
+	kFacts.iBuyerEra = kBuyer.getCurrentEra();
+	kFacts.iBuyerAvailableBefore = (eBonus == NO_BONUS ? -1 : kBuyer.getNumAvailableBonuses(eBonus));
+	kFacts.iSellerTradeableCopies = (eBonus == NO_BONUS ? -1 : kSeller.getNumTradeableBonuses(eBonus));
+	kFacts.iBonusHealth = (eBonus == NO_BONUS ? 0 : GC.getInfo(eBonus).getHealth());
+	kFacts.iBonusHappiness = (eBonus == NO_BONUS ? 0 : GC.getInfo(eBonus).getHappiness());
+	kFacts.iBonusAIObjective = (eBonus == NO_BONUS ? 0 : GC.getInfo(eBonus).getAIObjective());
+	static const BonusTypes eCopper = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_1"), true);
+	static const BonusTypes eIron = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_2"), true);
+	static const BonusTypes eHorse = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_1"), true);
+	static const BonusTypes eCamel = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_2"), true);
+	static const BonusTypes eElephants = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_3"), true);
+	kFacts.iBuyerHasMetal = ((eCopper != NO_BONUS && kBuyer.getNumAvailableBonuses(eCopper) > 0) || (eIron != NO_BONUS && kBuyer.getNumAvailableBonuses(eIron) > 0) ? 1 : 0);
+	kFacts.iBuyerHasMount = ((eHorse != NO_BONUS && kBuyer.getNumAvailableBonuses(eHorse) > 0) || (eCamel != NO_BONUS && kBuyer.getNumAvailableBonuses(eCamel) > 0) ? 1 : 0);
+	kFacts.iBuyerHasElephants = (eElephants != NO_BONUS && kBuyer.getNumAvailableBonuses(eElephants) > 0 ? 1 : 0);
+	CvTeamAI const& kBuyerTeam = GET_TEAM(kBuyer.getTeam());
+	TeamTypes const eAnchor = (kBuyerTeam.isAVassal() ? kBuyerTeam.getMasterTeam() : kBuyer.getTeam());
+	TeamTypes const eSellerTeam = kSeller.getTeam();
+	kFacts.iMasterVassalCluster = (eSellerTeam == eAnchor || GET_TEAM(eSellerTeam).isVassal(eAnchor) ? 1 : 0);
+}
+
+// <!-- custom: Preserve the real proactive resource chooser's winning/runner-up receive and give candidates, including its existing gate/random score, then join those candidates to the final counterproposal terms.
+// Logging occurs before an AI-AI implementDeal can mutate holdings. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIBonusTradeDecision(PlayerTypes ePlayer, PlayerTypes eOther, char const* szAnchor, SASGameRecordBonusTradeSide const& kReceive, SASGameRecordBonusTradeSide const& kGive, CLinkList<TradeData> const& kWeGive, CLinkList<TradeData> const& kTheyGive)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer).AI();
+	CvPlayerAI const& kOther = GET_PLAYER(eOther).AI();
+	SASGameRecordBonusChoiceFacts kReceiveFacts;
+	SASGameRecordBonusChoiceFacts kGiveFacts;
+	getSASGameRecordBonusChoiceFacts(kPlayer, kOther, kReceive.eBestBonus, kReceiveFacts);
+	getSASGameRecordBonusChoiceFacts(kOther, kPlayer, kGive.eBestBonus, kGiveFacts);
+	CvString const szWeGive = getSASTradeListText(kWeGive, ePlayer);
+	CvString const szTheyGive = getSASTradeListText(kTheyGive, eOther);
+	logSASGameRecord("GAME_RECORD_AI_BONUS_TRADE_DECISION turn=%d player=%d team=%d other=%d otherTeam=%d otherHuman=%d anchor=%s outcome=%s receiveBonus=%s receiveBuyerTradeValue=%d receiveSellerKeepValue=%d receiveBias=%d receiveGatePermille=%d receiveRandom=%d receiveScore=%d receiveRunnerUpBonus=%s receiveRunnerUpBuyerTradeValue=%d receiveRunnerUpSellerKeepValue=%d receiveRunnerUpBias=%d receiveRunnerUpGatePermille=%d receiveRunnerUpRandom=%d receiveRunnerUpScore=%d receiveEvaluated=%d receiveGatePassed=%d receiveNoDenial=%d receiveBuyerEra=%s receiveBuyerAvailableBefore=%d receiveSellerTradeableCopies=%d receiveBonusHealth=%d receiveBonusHappiness=%d receiveBonusAIObjective=%d receiveBuyerHasMetal=%d receiveBuyerHasMount=%d receiveBuyerHasElephants=%d receiveMasterVassalCluster=%d giveBonus=%s giveBuyerTradeValue=%d giveSellerKeepValue=%d giveBias=%d giveGatePermille=%d giveRandom=%d giveScore=%d giveRunnerUpBonus=%s giveRunnerUpBuyerTradeValue=%d giveRunnerUpSellerKeepValue=%d giveRunnerUpBias=%d giveRunnerUpGatePermille=%d giveRunnerUpRandom=%d giveRunnerUpScore=%d giveEvaluated=%d giveGatePassed=%d giveNoDenial=%d giveBuyerEra=%s giveBuyerAvailableBefore=%d giveSellerTradeableCopies=%d giveBonusHealth=%d giveBonusHappiness=%d giveBonusAIObjective=%d giveBuyerHasMetal=%d giveBuyerHasMount=%d giveBuyerHasElephants=%d giveMasterVassalCluster=%d weGive=%s theyGive=%s",
+			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), eOther, kOther.getTeam(), kOther.isHuman() ? 1 : 0, szAnchor, kOther.isHuman() ? "CONTACT_HUMAN" : "IMPLEMENT_AI_DEAL",
+			getSASGameRecordBonusType(kReceive.eBestBonus), kReceive.iBestBuyerTradeValue, kReceive.iBestSellerKeepValue, kReceive.iBestBias, kReceive.iBestGatePermille, kReceive.iBestRandom, kReceive.iBestScore,
+			getSASGameRecordBonusType(kReceive.eRunnerUpBonus), kReceive.iRunnerUpBuyerTradeValue, kReceive.iRunnerUpSellerKeepValue, kReceive.iRunnerUpBias, kReceive.iRunnerUpGatePermille, kReceive.iRunnerUpRandom, kReceive.iRunnerUpScore,
+			kReceive.iEvaluated, kReceive.iGatePassed, kReceive.iNoDenial, getSASGameRecordEraType((EraTypes)kReceiveFacts.iBuyerEra), kReceiveFacts.iBuyerAvailableBefore, kReceiveFacts.iSellerTradeableCopies,
+			kReceiveFacts.iBonusHealth, kReceiveFacts.iBonusHappiness, kReceiveFacts.iBonusAIObjective, kReceiveFacts.iBuyerHasMetal, kReceiveFacts.iBuyerHasMount, kReceiveFacts.iBuyerHasElephants, kReceiveFacts.iMasterVassalCluster,
+			getSASGameRecordBonusType(kGive.eBestBonus), kGive.iBestBuyerTradeValue, kGive.iBestSellerKeepValue, kGive.iBestBias, kGive.iBestGatePermille, kGive.iBestRandom, kGive.iBestScore,
+			getSASGameRecordBonusType(kGive.eRunnerUpBonus), kGive.iRunnerUpBuyerTradeValue, kGive.iRunnerUpSellerKeepValue, kGive.iRunnerUpBias, kGive.iRunnerUpGatePermille, kGive.iRunnerUpRandom, kGive.iRunnerUpScore,
+			kGive.iEvaluated, kGive.iGatePassed, kGive.iNoDenial, getSASGameRecordEraType((EraTypes)kGiveFacts.iBuyerEra), kGiveFacts.iBuyerAvailableBefore, kGiveFacts.iSellerTradeableCopies,
+			kGiveFacts.iBonusHealth, kGiveFacts.iBonusHappiness, kGiveFacts.iBonusAIObjective, kGiveFacts.iBuyerHasMetal, kGiveFacts.iBuyerHasMount, kGiveFacts.iBuyerHasElephants, kGiveFacts.iMasterVassalCluster,
+			szWeGive.GetCString(), szTheyGive.GetCString());
+}
+
+// <!-- custom: Bonus tribute uses a different chooser from proactive resource trading.
+// Preserve the already-sorted winner/runner-up, the 0.6 non-surplus sort context, selected set/threshold and final ordinary deal valuation without duplicating AI_bonusTradeVal or its random factor. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIBonusDemandDecision(PlayerTypes ePlayer, PlayerTypes eHuman, SASGameRecordBonusDemandContext const& kContext, CLinkList<TradeData> const& kHumanGives)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer).AI();
+	CvPlayerAI const& kHuman = GET_PLAYER(eHuman).AI();
+	SASGameRecordBonusChoiceFacts kBestFacts;
+	getSASGameRecordBonusChoiceFacts(kPlayer, kHuman, kContext.eBestBonus, kBestFacts);
+	CvString const szDemanded = getSASTradeListText(kHumanGives, eHuman);
+	logSASGameRecord("GAME_RECORD_AI_BONUS_DEMAND_DECISION turn=%d player=%d team=%d human=%d humanTeam=%d bestBonus=%s bestSortValueX100=%d bestHumanTradeableCopies=%d bestNonSurplusSort=%d runnerUpBonus=%s runnerUpSortValueX100=%d runnerUpHumanTradeableCopies=%d runnerUpNonSurplusSort=%d candidates=%d maxSelectable=%d selected=%d selectedTotalValueX100=%d minValueX100=%d finalDealValue=%d buyerEra=%s buyerAvailableBefore=%d sellerTradeableCopies=%d bonusHealth=%d bonusHappiness=%d bonusAIObjective=%d buyerHasMetal=%d buyerHasMount=%d buyerHasElephants=%d masterVassalCluster=%d demanded=%s",
+			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), eHuman, kHuman.getTeam(), getSASGameRecordBonusType(kContext.eBestBonus), kContext.iBestSortValueX100, kContext.iBestHumanTradeableCopies, kContext.iBestNonSurplusSort,
+			getSASGameRecordBonusType(kContext.eRunnerUpBonus), kContext.iRunnerUpSortValueX100, kContext.iRunnerUpHumanTradeableCopies, kContext.iRunnerUpNonSurplusSort,
+			kContext.iCandidateCount, kHuman.getCurrentEra() + 2, kContext.iSelectedCount, kContext.iSelectedTotalValueX100, kContext.iMinValueX100, kContext.iDealValue,
+			getSASGameRecordEraType((EraTypes)kBestFacts.iBuyerEra), kBestFacts.iBuyerAvailableBefore, kBestFacts.iSellerTradeableCopies, kBestFacts.iBonusHealth, kBestFacts.iBonusHappiness, kBestFacts.iBonusAIObjective,
+			kBestFacts.iBuyerHasMetal, kBestFacts.iBuyerHasMount, kBestFacts.iBuyerHasElephants, kBestFacts.iMasterVassalCluster, szDemanded.GetCString());
+}
+
 // <!-- custom: Serialize only scores produced by the real AI_bestReligion loop; the vector is built only at GameRecord level 3 and formatted only when AI_doReligion reaches a meaningful switch/spread-block decision. (ChatGPT-5.6-Sol) -->
 static CvString getSASGameRecordReligionCandidateScores(std::vector<std::pair<ReligionTypes, int> > const* paCandidateValues)
 {
