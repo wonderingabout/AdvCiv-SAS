@@ -11000,6 +11000,56 @@ void logSASGameRecordAIResearchDecision(CvPlayerAI const& kPlayer, char const* s
 
 // <!-- custom: Resource-choice winner facts are deliberately cheap/factual and gathered only when an actual resource proposal/demand row is emitted.
 // They complement, rather than rerun or decompose, AI_bonusTradeVal. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Preserve the live AI_doCivics hysteresis decision without repeating civic valuation.
+// The recorder gathers broader strategic context only after the caller has crossed the level gate, keeping ordinary gameplay free of these diagnostic lookups. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAICivicCandidate(PlayerTypes ePlayer, char const* szStatus, CivicOptionTypes eCivicOption, CivicTypes eOldCivic, CivicTypes eNewCivic, int iCurrentValue, int iBestValue, int iTestAnarchy, int iCurrentBundleAnarchy, int iThreshold, int iSlack, bool bPassPercent, bool bPassSlack, bool bFirstPass)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer).AI();
+	CvTeamAI const& kTeam = GET_TEAM(kPlayer.getTeam());
+	int const iAnarchyDelta = std::max(0, iTestAnarchy - iCurrentBundleAnarchy);
+	logSASGameRecord("GAME_RECORD_AI_CIVIC_DECISION turn=%d player=%d team=%d status=%s option=%s oldCivic=%s newCivic=%s currentValue=%d bestValue=%d delta=%d anarchyTest=%d currentBundleAnarchy=%d anarchyDelta=%d threshold=%d slack=%d passPercent=%d passSlack=%d firstPass=%d civicTimer=%d goldenAgeTurns=%d maxAnarchyTurns=%d favoriteCivic=%s newIsFavorite=%d financialTrouble=%d wars=%d anyWarPlan=%d gold=%d goldRate=%d",
+			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), szStatus, GC.getInfo(eCivicOption).getType(), getSASGameRecordCivicType(eOldCivic), getSASGameRecordCivicType(eNewCivic),
+			iCurrentValue, iBestValue, iBestValue - iCurrentValue, iTestAnarchy, iCurrentBundleAnarchy, iAnarchyDelta, iThreshold, iSlack, bPassPercent ? 1 : 0, bPassSlack ? 1 : 0, bFirstPass ? 1 : 0,
+			kPlayer.AI_getCivicTimer(), kPlayer.getGoldenAgeTurns(), kPlayer.getMaxAnarchyTurns(), getSASGameRecordCivicType(kPlayer.getFavoriteCivic()), eNewCivic == kPlayer.getFavoriteCivic() ? 1 : 0,
+			kPlayer.AI_isFinancialTrouble() ? 1 : 0, kTeam.getNumWars(), kTeam.AI_isAnyWarPlan() ? 1 : 0, kPlayer.getGold(), kPlayer.calculateGoldRate());
+}
+
+static CvString getSASGameRecordCivicChanges(std::vector<std::pair<CivicTypes, CivicTypes> > const& aeChanges)
+{
+	if (aeChanges.empty())
+		return CvString("-");
+	CvString szChanges;
+	for (size_t i = 0; i < aeChanges.size(); i++)
+	{
+		CivicTypes const eOldCivic = aeChanges[i].first;
+		CivicTypes const eNewCivic = aeChanges[i].second;
+		CivicTypes const eOptionCivic = (eNewCivic != NO_CIVIC ? eNewCivic : eOldCivic);
+		CvString szItem;
+		if (eOptionCivic == NO_CIVIC)
+			szItem = "UNKNOWN:-";
+		else
+			szItem.Format("%s:%s>%s", GC.getInfo(GC.getInfo(eOptionCivic).getCivicOptionType()).getType(), getSASGameRecordCivicType(eOldCivic), getSASGameRecordCivicType(eNewCivic));
+		if (!szChanges.empty())
+			szChanges += ",";
+		szChanges += szItem;
+	}
+	return szChanges;
+}
+
+// <!-- custom: Final civic outcome records only a meaningful accepted bundle: an actual revolution or a concrete reason that the accepted bundle was postponed/blocked.
+// Pending/final civic pairs come from the already-mutated local AI_doCivics bundle; no civic valuation is repeated here. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAICivicOutcome(PlayerTypes ePlayer, char const* szOutcome, std::vector<std::pair<CivicTypes, CivicTypes> > const& aeChanges, int iAnarchyLength, int iCivicTimerAfter, TechTypes eResearch, int iResearchTurns, CivicTypes eWaitCivic, int iWaitValue, int iWaitCurrentValue, int iGoldNeeded, int iCanRevolution)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer).AI();
+	CvTeamAI const& kTeam = GET_TEAM(kPlayer.getTeam());
+	CvString const szChanges = getSASGameRecordCivicChanges(aeChanges);
+	// <!-- custom: getGoldPerTurn is net diplomatic deal GPT; AI_doCivics uses it directly for the paid-anarchy cash-reserve gate, while calculateGoldRate is broader economy context. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_AI_CIVIC_OUTCOME turn=%d player=%d team=%d outcome=%s changes=%s changeCount=%d plannedAnarchy=%d civicTimerBefore=%d civicTimerAfter=%d research=%s researchTurns=%d waitCivic=%s waitValue=%d waitCurrentValue=%d gold=%d goldRate=%d dealGoldPerTurn=%d goldNeeded=%d strikeTurns=%d canRevolution=%d goldenAgeTurns=%d maxAnarchyTurns=%d financialTrouble=%d wars=%d anyWarPlan=%d",
+			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), szOutcome, szChanges.GetCString(), (int)aeChanges.size(), iAnarchyLength, kPlayer.AI_getCivicTimer(), iCivicTimerAfter,
+			getSASGameRecordTechType(eResearch), iResearchTurns, getSASGameRecordCivicType(eWaitCivic), iWaitValue, iWaitCurrentValue, kPlayer.getGold(), kPlayer.calculateGoldRate(), kPlayer.getGoldPerTurn(), iGoldNeeded, kPlayer.getStrikeTurns(), iCanRevolution,
+			kPlayer.getGoldenAgeTurns(), kPlayer.getMaxAnarchyTurns(), kPlayer.AI_isFinancialTrouble() ? 1 : 0, kTeam.getNumWars(), kTeam.AI_isAnyWarPlan() ? 1 : 0);
+}
+
 struct SASGameRecordBonusChoiceFacts
 {
 	int iBuyerEra;

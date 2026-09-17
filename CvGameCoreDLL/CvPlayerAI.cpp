@@ -22390,6 +22390,19 @@ void CvPlayerAI::AI_doCommerce()
 	}
 }
 
+// <!-- custom: Build the pending/final civic bundle only when SASGameRecord is about to emit a meaningful civic outcome.
+// This keeps ordinary AI_doCivics execution free of recorder-only vector work. (ChatGPT-5.6-Sol) -->
+static void collectSASGameRecordCivicChanges(CivicMap const& aeOldCivic, CivicMap const& aeNewCivic, std::vector<std::pair<CivicTypes, CivicTypes> >& aeChanges)
+{
+	FOR_EACH_ENUM(CivicOption)
+	{
+		CivicTypes const eOldCivic = aeOldCivic.get(eLoopCivicOption);
+		CivicTypes const eNewCivic = aeNewCivic.get(eLoopCivicOption);
+		if (eOldCivic != eNewCivic)
+			aeChanges.push_back(std::make_pair(eOldCivic, eNewCivic));
+	}
+}
+
 /*	K-Mod. I've rewritten most of this function, based on edits from BBAI.
 	I don't know what's original bts code and what's not.
 	(the BBAI implementation had some bugs) */
@@ -22425,11 +22438,21 @@ void CvPlayerAI::AI_doCivics()
 				AI_civicValue(aeBestCivic.get(eLoopCivicOption)));
 	}
 	// <!-- custom: Civic churn is costly with 2-turn anarchy, and earlier logs only showed repeated switch lines without enough context to tell whether the AI was reversing the same option, paying anarchy for tiny gains, switching during war/financial trouble, or bundling good changes. Add structured diagnostics before changing behavior further. Accepted switches and final revolution bundles log at player log level 2+; rejected candidates log at 3+ to keep normal logs smaller. (ChatGPT-5.5 + GPT-5.5) -->
-	bool const bLogCivicDecision = (gPlayerLogLevel >= 2);
-	bool const bLogCivicCandidate = (gPlayerLogLevel >= 3);
-	bool const bFinancialTrouble = AI_isFinancialTrouble();
-	bool const bAnyWarPlan = GET_TEAM(getTeam()).AI_isAnyWarPlan();
-	int const iNumWars = GET_TEAM(getTeam()).getNumWars();
+	bool const bLogBBAICivicDecision = (gPlayerLogLevel >= 2);
+	bool const bLogBBAICivicCandidate = (gPlayerLogLevel >= 3);
+	int const iSASGameRecordLogLevel = getSASGameRecordLogLevel();
+	bool const bLogSASCivicDecision = (iSASGameRecordLogLevel >= 2);
+	bool const bLogSASCivicCandidate = (iSASGameRecordLogLevel >= 3);
+	// <!-- custom: These strategic-state lookups are diagnostic-only. Earlier civic diagnostics evaluated them even with BBAI logging disabled; gate them so normal gameplay pays none of that work. (ChatGPT-5.6-Sol) -->
+	bool bFinancialTrouble = false;
+	bool bAnyWarPlan = false;
+	int iNumWars = 0;
+	if (bLogBBAICivicDecision)
+	{
+		bFinancialTrouble = AI_isFinancialTrouble();
+		bAnyWarPlan = GET_TEAM(getTeam()).AI_isAnyWarPlan();
+		iNumWars = GET_TEAM(getTeam()).getNumWars();
+	}
 
 	// <!-- custom: we seem to have excessive civic oscillation, see below for details -->
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
@@ -22520,12 +22543,13 @@ void CvPlayerAI::AI_doCivics()
 					"    %S switches to %S (value: %d vs %d, slack %d, thr %d)%s",
 					getCivilizationDescription(0), GC.getInfo(eNewCivic).getDescription(0),
 					iBestValue, iCurrent, iAbsSlack, iThreshold, bFirstPass ? "" : ", recheck");
-				if (bLogCivicDecision)
+				if (bLogBBAICivicDecision)
 				{
 					logBBAI("    CIVIC_SWITCH_DETAIL turn=%d player=%d %S status=ACCEPT option=%S old=%S new=%S currentValue=%d bestValue=%d delta=%d anarchyTest=%d currentBundleAnarchy=%d anarchyDelta=%d threshold=%d slack=%d passPercent=%d passSlack=%d firstPass=%d financialTrouble=%d wars=%d anyWarPlan=%d gold=%d goldRate=%d",
 						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eLoopCivicOption).getDescription(), GC.getInfo(eOtherCivic).getDescription(), GC.getInfo(eNewCivic).getDescription(),
 						iCurrent, iBestValue, iBestValue - iCurrent, iTestAnarchy, iAnarchyLength, iAnarchyDelta, iThreshold, iAbsSlack, bPassPercent, bPassSlack, bFirstPass, bFinancialTrouble, iNumWars, bAnyWarPlan, getGold(), calculateGoldRate());
 				}
+				if (bLogSASCivicDecision) logSASGameRecordAICivicCandidate(getID(), "ACCEPT", eLoopCivicOption, eOtherCivic, eNewCivic, iCurrent, iBestValue, iTestAnarchy, iAnarchyLength, iThreshold, iAbsSlack, bPassPercent, bPassSlack, bFirstPass);
 
 				iAnarchyLength = iTestAnarchy;
 				aeBestCivic.set(eLoopCivicOption, eNewCivic);
@@ -22538,12 +22562,13 @@ void CvPlayerAI::AI_doCivics()
 				bool const bWouldLikeSwitch = (iBestValue > iCurrent);
 				if (bWouldLikeSwitch)
 					bWantSwitch = true;
-				if (bLogCivicCandidate)
+				if (bLogBBAICivicCandidate)
 				{
 					logBBAI("    CIVIC_SWITCH_DETAIL turn=%d player=%d %S status=%s option=%S old=%S new=%S currentValue=%d bestValue=%d delta=%d anarchyTest=%d currentBundleAnarchy=%d anarchyDelta=%d threshold=%d slack=%d passPercent=%d passSlack=%d firstPass=%d financialTrouble=%d wars=%d anyWarPlan=%d gold=%d goldRate=%d",
 						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), (bWouldLikeSwitch ? "WANT_REJECT" : "REJECT"), GC.getInfo(eLoopCivicOption).getDescription(), GC.getInfo(eOtherCivic).getDescription(), GC.getInfo(eNewCivic).getDescription(),
 						iCurrent, iBestValue, iBestValue - iCurrent, iTestAnarchy, iAnarchyLength, iAnarchyDelta, iThreshold, iAbsSlack, bPassPercent, bPassSlack, bFirstPass, bFinancialTrouble, iNumWars, bAnyWarPlan, getGold(), calculateGoldRate());
 				}
+				if (bLogSASCivicCandidate) logSASGameRecordAICivicCandidate(getID(), bWouldLikeSwitch ? "WANT_REJECT" : "REJECT", eLoopCivicOption, eOtherCivic, eNewCivic, iCurrent, iBestValue, iTestAnarchy, iAnarchyLength, iThreshold, iAbsSlack, bPassPercent, bPassSlack, bFirstPass);
 			}
 			// End - Civic switch hysteresis (anti flip-flop)
 		}
@@ -22584,7 +22609,14 @@ void CvPlayerAI::AI_doCivics()
 							iValue > 0) // advc.131: Better to be safe
 						{
 							if(gPlayerLogLevel > 0) logBBAI("    %S delays revolution to wait for %S (value: %d vs %d)", getCivilizationDescription(0), kCivic.getDescription(0), iValue, aiCurrentValue.get(kCivic.getCivicOptionType()));
-							AI_setCivicTimer(iResearchTurns*2/3);
+							int const iWaitCivicTimer = iResearchTurns * 2 / 3;
+							if (bLogSASCivicDecision)
+							{
+								std::vector<std::pair<CivicTypes, CivicTypes> > aeSASChanges;
+								collectSASGameRecordCivicChanges(aeOldCivic, aeBestCivic, aeSASChanges);
+								logSASGameRecordAICivicOutcome(getID(), "WAIT_RESEARCH", aeSASChanges, iAnarchyLength, iWaitCivicTimer, eResearch, iResearchTurns, eCivic, iValue, aiCurrentValue.get(kCivic.getCivicOptionType()), -1, -1);
+							}
+							AI_setCivicTimer(iWaitCivicTimer);
 							return;
 						}
 					}
@@ -22594,20 +22626,28 @@ void CvPlayerAI::AI_doCivics()
 		} // <advc.131>
 		if(iAnarchyLength > 0)
 		{
-			if(getGold() < (iAnarchyLength + std::min(0, getStrikeTurns() - 1))
-				* -getGoldPerTurn())
+			// <!-- custom: getGoldPerTurn is net diplomatic deal GPT, not the broader calculateGoldRate; preserve the legacy reserve input and expose both rates in SASGameRecord so a block is self-explanatory. (ChatGPT-5.6-Sol) -->
+			int const iGoldNeeded = (iAnarchyLength + std::min(0, getStrikeTurns() - 1)) * -getGoldPerTurn();
+			if(getGold() < iGoldNeeded)
 			{
+				if (bLogSASCivicDecision)
+				{
+					std::vector<std::pair<CivicTypes, CivicTypes> > aeSASChanges;
+					collectSASGameRecordCivicChanges(aeOldCivic, aeBestCivic, aeSASChanges);
+					logSASGameRecordAICivicOutcome(getID(), "BLOCKED_GOLD", aeSASChanges, iAnarchyLength, AI_getCivicTimer(), getCurrentResearch(), -1, NO_CIVIC, -1, -1, iGoldNeeded, -1);
+				}
 				return;
 			}
 		} // </advc.131>
 	}
 
-	if (canRevolution(aeBestCivic))
+	bool const bCanRevolution = canRevolution(aeBestCivic);
+	if (bCanRevolution)
 	{
 		int const iFinalAnarchyLength = getCivicAnarchyLength(aeBestCivic);
 		int const iBaseCivicTimer = (getMaxAnarchyTurns() != 0 ? CIVIC_CHANGE_DELAY : GC.getDefineINT(CvGlobals::MIN_REVOLUTION_TURNS) * 2);
 		int const iFinalCivicTimer = iBaseCivicTimer + iFinalAnarchyLength * iExtraTimerPerAnarchyTurn;
-		if (bLogCivicDecision)
+		if (bLogBBAICivicDecision)
 		{
 			int iChangedCivics = 0;
 			FOR_EACH_ENUM(CivicOption)
@@ -22630,9 +22670,21 @@ void CvPlayerAI::AI_doCivics()
 				}
 			}
 		}
+		if (bLogSASCivicDecision)
+		{
+			std::vector<std::pair<CivicTypes, CivicTypes> > aeSASChanges;
+			collectSASGameRecordCivicChanges(aeOldCivic, aeBestCivic, aeSASChanges);
+			logSASGameRecordAICivicOutcome(getID(), "REVOLUTION", aeSASChanges, iFinalAnarchyLength, iFinalCivicTimer, getCurrentResearch(), -1, NO_CIVIC, -1, -1, -1, 1);
+		}
 		revolution(aeBestCivic);
 		// <!-- custom: Paid-anarchy civic reversals often happened right when the old civic timer expired. Keep no-anarchy switches responsive, but after paid anarchy wait longer before reevaluating civics so a temporary value swing is less likely to immediately undo the revolution. See KI#159. (GPT-5.5 + ChatGPT-5.5) -->
 		AI_setCivicTimer(iFinalCivicTimer);
+	}
+	else if (bLogSASCivicDecision)
+	{
+		std::vector<std::pair<CivicTypes, CivicTypes> > aeSASChanges;
+		collectSASGameRecordCivicChanges(aeOldCivic, aeBestCivic, aeSASChanges);
+		if (!aeSASChanges.empty()) logSASGameRecordAICivicOutcome(getID(), "BLOCKED_CAN_REVOLUTION", aeSASChanges, iAnarchyLength, AI_getCivicTimer(), getCurrentResearch(), -1, NO_CIVIC, -1, -1, -1, 0);
 	}
 }
 

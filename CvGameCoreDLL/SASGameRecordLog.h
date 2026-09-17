@@ -17,7 +17,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 87 };
+enum { SAS_GAME_RECORD_REVISION = 88 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -344,6 +344,10 @@ void logSASGameRecordAIPeaceDecision(PlayerTypes ePlayer, PlayerTypes eOther, in
 // <!-- custom: Preserve the real research/free-tech source and, for AI_bestTech, the already-computed selected/runner-up path values and optional level-3 candidate paths.
 // Caller and chooser gates ensure no technology valuation or chooser RNG is repeated for SASGameRecord. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIResearchDecision(CvPlayerAI const& kPlayer, char const* szKind, char const* szSource, TechTypes eRequestedTech, int iResearchDepth, PlayerTypes eCoordinatingPlayer, SASTechChoiceContext const* pChoice);
+// <!-- custom: Civic provenance mirrors the live AI_doCivics hysteresis/revolution path rather than rerunning AI_bestCivic or AI_civicValue.
+// Accepted candidates are level 2; rejected/wanted candidates are level 3. Final outcomes preserve the pending/final bundle and real wait/gold/revolution gate. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAICivicCandidate(PlayerTypes ePlayer, char const* szStatus, CivicOptionTypes eCivicOption, CivicTypes eOldCivic, CivicTypes eNewCivic, int iCurrentValue, int iBestValue, int iTestAnarchy, int iCurrentBundleAnarchy, int iThreshold, int iSlack, bool bPassPercent, bool bPassSlack, bool bFirstPass);
+void logSASGameRecordAICivicOutcome(PlayerTypes ePlayer, char const* szOutcome, std::vector<std::pair<CivicTypes, CivicTypes> > const& aeChanges, int iAnarchyLength, int iCivicTimerAfter, TechTypes eResearch, int iResearchTurns, CivicTypes eWaitCivic, int iWaitValue, int iWaitCurrentValue, int iGoldNeeded, int iCanRevolution);
 // <!-- custom: Proactive resource-trade provenance keeps only values and random draws already produced by AI_proposeResourceTrade; winner context is gathered later by the recorder only for an actual resolved proposal.
 // This avoids adding recorder branches to hot AI_bonusTradeVal callers. (ChatGPT-5.6-Sol) -->
 struct SASGameRecordBonusTradeSide
