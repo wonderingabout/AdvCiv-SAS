@@ -4411,10 +4411,41 @@ struct PairFirstGreater : public std::binary_function<std::pair<A, B>,std::pair<
 	}
 };
 
+// <!-- custom: A K-Mod technology path can be backfilled with unrelated depth-0 technologies and reordered by value, so path.front() is not always the endpoint that caused the deeper path to exist.
+// Recover that endpoint from the deepest evaluated member for accurate diagnostics only; a pure depth-0 bundle has no deeper aim and therefore uses its actual first research step. (ChatGPT-5.6-Sol) -->
+static int getSASTechPathAimIndex(std::vector<int> const& aiPath, std::vector<int> const& aiTechsToDepth)
+{
+	FAssert(!aiPath.empty());
+	int iAimIndex = aiPath.back();
+	int iAimDepth = 0;
+	for (size_t i = 0; i < aiPath.size(); i++)
+	{
+		int iDepth = 0;
+		while (iDepth + 1 < (int)aiTechsToDepth.size() && aiPath[i] >= aiTechsToDepth[iDepth + 1])
+			iDepth++;
+		if (iDepth > iAimDepth)
+		{
+			iAimDepth = iDepth;
+			iAimIndex = aiPath[i];
+		}
+	}
+	return iAimIndex;
+}
+
 // edited by K-Mod and BBAI (05/14/10, jdog5000)
-TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsync, TechTypes eIgnoreTech, AdvisorTypes eIgnoreAdvisor, PlayerTypes eFromPlayer) const // advc.144
+// <!-- custom: pSASChoice is optional recorder-only output from this existing chooser.
+// NULL keeps ordinary calls free of recorder bookkeeping; when supplied, reuse the live pass's selected/runner-up path values and optionally retain level-3 candidates without reevaluation. (ChatGPT-5.6-Sol) -->
+TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsync, TechTypes eIgnoreTech, AdvisorTypes eIgnoreAdvisor, PlayerTypes eFromPlayer, SASTechChoiceContext* pSASChoice) const // advc.144
 {
 	PROFILE("CvPlayerAI::AI_bestTech");
+
+	// <!-- custom: Reset only the optional recorder output; bCollectCandidates is an input telling the live chooser whether level 3 wants its already-computed candidate paths retained.
+	// Ordinary callers pass NULL and incur no recorder bookkeeping. (ChatGPT-5.6-Sol) -->
+	if (pSASChoice != NULL)
+	{
+		bool const bCollectCandidates = pSASChoice->bCollectCandidates;
+		*pSASChoice = SASTechChoiceContext(bCollectCandidates);
+	}
 
 	CvTeam& kTeam = GET_TEAM(getTeam());
 
@@ -4717,20 +4748,50 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
 				techs.begin()+techs_to_depth[i],
 				std::greater<std::pair<int,TechTypes> >());
 	}
+	if (pSASChoice != NULL)
+	{
+		pSASChoice->iImmediateCandidateCount = (techs_to_depth.size() < 2 ? 0 : techs_to_depth[1]);
+		pSASChoice->iEvaluatedTechCount = (int)techs.size();
+	}
 
 	// First deal with the trivial cases...
 	// no Techs
 	if (techs.empty())
 		return NO_TECH;
 	// path length of 1.
-	if (iMaxPathLength < 2)
+	// <!-- custom: or not enough evaluated techs to construct a full path. (ChatGPT-5.6-Sol) -->
+	if (iMaxPathLength < 2 || ((int)techs.size()) < iMaxPathLength)
 	{
 		FAssert(techs.size() > 0);
+		if (pSASChoice != NULL)
+		{
+			pSASChoice->eAimTech = techs[0].second;
+			pSASChoice->iBestImmediateValue = techs[0].first;
+			pSASChoice->iBestPathValue = techs[0].first;
+			pSASChoice->iSelectedPathIndex = -1;
+			pSASChoice->iPathCount = 0;
+			if (pSASChoice->iImmediateCandidateCount > 1)
+			{
+				pSASChoice->eRunnerUpTech = techs[1].second;
+				pSASChoice->eRunnerUpAimTech = techs[1].second;
+				pSASChoice->iRunnerUpImmediateValue = techs[1].first;
+				pSASChoice->iRunnerUpPathValue = techs[1].first;
+			}
+			if (pSASChoice->bCollectCandidates)
+			{
+				for (int i = 0; i < pSASChoice->iImmediateCandidateCount; i++)
+				{
+					SASTechChoiceCandidate kCandidate;
+					kCandidate.eTech = techs[i].second;
+					kCandidate.eAimTech = techs[i].second;
+					kCandidate.iImmediateValue = techs[i].first;
+					kCandidate.iPathValue = techs[i].first;
+					pSASChoice->aCandidates.push_back(kCandidate);
+				}
+			}
+		}
 		return techs[0].second;
 	}
-	// ... and the case where there are not enough techs in the list.
-	if (((int)techs.size()) < iMaxPathLength)
-		return techs[0].second;
 
 	// Create a list of possible tech paths.
 	std::vector<std::pair<int,std::vector<int> > > tech_paths; // (total_value, path)
@@ -4942,25 +5003,62 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
 		E.g. in Earth1000AD, India starts with Paper but w/o its prereqs.
 		Under AdvCiv rules, India is then prohibited from researching Education. */
 	TechTypes eBestTech;
+	size_t iBestPath = 0;
 	{
-		size_t i = 0;
 		do
 		{
-			eBestTech = techs[
-					/*best_path_it->*/tech_paths[i]. // advc.550g
-					second.back()].second;
-			i++;
-		} while(i < tech_paths.size() &&
-				// K-Mod had asserted the negation of this
-				(isResearch() && getAdvancedStartPoints() >= 0 &&
-				!canResearch(eBestTech, false, bFreeTech)));
+			eBestTech = techs[tech_paths[iBestPath].second.back()].second;
+			iBestPath++;
+		} while(iBestPath < tech_paths.size() &&
+			// K-Mod had asserted the negation of this
+			(isResearch() && getAdvancedStartPoints() >= 0 &&
+			!canResearch(eBestTech, false, bFreeTech)));
+		iBestPath--;
 	} // </advc.126>
+	// <!-- custom: Preserve the actual selected path, including AdvCiv's rare scenario fallback past an invalid top path.
+	// Distinct first-step candidates are retained only at requested level 3; this reuses the already-sorted path/tech vectors and performs no new valuation or RNG. (ChatGPT-5.6-Sol) -->
+	if (pSASChoice != NULL)
+	{
+		pSASChoice->iPathCount = (int)tech_paths.size();
+		pSASChoice->eAimTech = techs[getSASTechPathAimIndex(tech_paths[iBestPath].second, techs_to_depth)].second;
+		pSASChoice->iBestImmediateValue = techs[tech_paths[iBestPath].second.back()].first;
+		pSASChoice->iBestPathValue = tech_paths[iBestPath].first;
+		pSASChoice->iSelectedPathIndex = (int)iBestPath;
+		std::vector<TechTypes> aeRecordedFirstSteps;
+		for (size_t i = 0; i < tech_paths.size(); i++)
+		{
+			TechTypes const eLoopTech = techs[tech_paths[i].second.back()].second;
+			if (isResearch() && getAdvancedStartPoints() >= 0 && !canResearch(eLoopTech, false, bFreeTech))
+				continue;
+			if (std::find(aeRecordedFirstSteps.begin(), aeRecordedFirstSteps.end(), eLoopTech) != aeRecordedFirstSteps.end())
+				continue;
+			aeRecordedFirstSteps.push_back(eLoopTech);
+			TechTypes const eAimTech = techs[getSASTechPathAimIndex(tech_paths[i].second, techs_to_depth)].second;
+			int const iImmediateValue = techs[tech_paths[i].second.back()].first;
+			if (eLoopTech != eBestTech && pSASChoice->eRunnerUpTech == NO_TECH)
+			{
+				pSASChoice->eRunnerUpTech = eLoopTech;
+				pSASChoice->eRunnerUpAimTech = eAimTech;
+				pSASChoice->iRunnerUpImmediateValue = iImmediateValue;
+				pSASChoice->iRunnerUpPathValue = tech_paths[i].first;
+			}
+			if (pSASChoice->bCollectCandidates)
+			{
+				SASTechChoiceCandidate kCandidate;
+				kCandidate.eTech = eLoopTech;
+				kCandidate.eAimTech = eAimTech;
+				kCandidate.iImmediateValue = iImmediateValue;
+				kCandidate.iPathValue = tech_paths[i].first;
+				pSASChoice->aCandidates.push_back(kCandidate);
+			}
+		}
+	}
 	if (gPlayerLogLevel >= 1)
 	{
-		logBBAI("  Player %d (%S) selects tech %S with value %d. (Aiming for %S)",
-				getID(), getCivilizationDescription(0), GC.getInfo(eBestTech).getDescription(),
-				techs[/*best_path_it->*/tech_paths[0].second.back()].first, GC.getInfo(
-				techs[/*best_path_it->*/tech_paths[0].second.front()].second).getDescription());
+		// <!-- custom: Use the path AdvCiv actually selected after its scenario fallback rather than always describing tech_paths[0]. This changes diagnostics only. (ChatGPT-5.6-Sol) -->
+		logBBAI("  Player %d (%S) selects tech %S with path value %d, immediate value %d. (Aiming for %S)",
+				getID(), getCivilizationDescription(0), GC.getInfo(eBestTech).getDescription(), tech_paths[iBestPath].first,
+				techs[tech_paths[iBestPath].second.back()].first, GC.getInfo(techs[getSASTechPathAimIndex(tech_paths[iBestPath].second, techs_to_depth)].second).getDescription());
 	}
 	// </k146>
 	// <advc.550g>
@@ -7967,14 +8065,24 @@ int CvPlayerAI::AI_cultureVictoryTechValue(TechTypes eTech) const
 
 void CvPlayerAI::AI_chooseFreeTech(/* advc.121: */ bool bEndOfTurn)
 {
-	// <!-- custom: Choosing a free technology intentionally clears the ordinary research plan first. Tag that high-level cause for SASGameRecord only when enabled; the later observer suppresses it unless an invested incomplete target truly changes. (ChatGPT-5.6-Sol) -->
-	if (gGameRecordLogLevel >= 2) noteSASGameRecordResearchTargetChangeCause(getID(), RESEARCH_TARGET_CHANGE_FREE_TECH_REEVALUATION);
+	// <!-- custom: Choosing a free technology intentionally clears the ordinary research plan first.
+	// Tag that high-level cause for SASGameRecord only when enabled; the later observer suppresses it unless an invested incomplete target truly changes. (ChatGPT-5.6-Sol) -->
+	bool const bLogSASResearchDecision = (gGameRecordLogLevel >= 2);
+	if (bLogSASResearchDecision) noteSASGameRecordResearchTargetChangeCause(getID(), RESEARCH_TARGET_CHANGE_FREE_TECH_REEVALUATION);
 	clearResearchQueue();
 
-	TechTypes eBestTech = GC.getPythonCaller()->AI_chooseTech(getID(), true); 
-
+	TechTypes eBestTech = GC.getPythonCaller()->AI_chooseTech(getID(), true);
 	if (eBestTech == NO_TECH)
-		eBestTech = AI_bestTech(1, true);
+	{
+		if (bLogSASResearchDecision)
+		{
+			SASTechChoiceContext kSASChoice(gGameRecordLogLevel >= 3);
+			eBestTech = AI_bestTech(1, true, false, NO_TECH, NO_ADVISOR, NO_PLAYER, &kSASChoice);
+			logSASGameRecordAIResearchDecision(*this, "FREE_TECH", "AI_BEST_TECH", eBestTech, 1, NO_PLAYER, &kSASChoice);
+		}
+		else eBestTech = AI_bestTech(1, true);
+	}
+	else if (bLogSASResearchDecision) logSASGameRecordAIResearchDecision(*this, "FREE_TECH", "PYTHON", eBestTech, 0, NO_PLAYER, NULL);
 
 	if (eBestTech != NO_TECH)
 	{
@@ -7987,6 +8095,8 @@ void CvPlayerAI::AI_chooseFreeTech(/* advc.121: */ bool bEndOfTurn)
 void CvPlayerAI::AI_chooseResearch()
 {
 	clearResearchQueue();
+	bool const bLogSASResearchDecision = (gGameRecordLogLevel >= 2);
+	PlayerTypes eSASCoordinatingPlayer = NO_PLAYER;
 
 	if(getCurrentResearch() == NO_TECH &&
 		// advc.156:
@@ -8004,14 +8114,19 @@ void CvPlayerAI::AI_chooseResearch()
 					kOtherMember.getCurrentResearch() != NO_TECH &&
 					canResearch(kOtherMember.getCurrentResearch()))
 				{
+					bool const bWasEmpty = (getCurrentResearch() == NO_TECH);
 					pushResearch(kOtherMember.getCurrentResearch());
+					if (bLogSASResearchDecision && bWasEmpty && getCurrentResearch() != NO_TECH) eSASCoordinatingPlayer = kOtherMember.getID();
 				}
 			}
 		}
 	}
 
 	if (getCurrentResearch() != NO_TECH)
+	{
+		if (bLogSASResearchDecision) logSASGameRecordAIResearchDecision(*this, "RESEARCH", "TEAM_COORDINATION", getCurrentResearch(), 0, eSASCoordinatingPlayer, NULL);
 		return;
+	}
 
 	TechTypes eBestTech = GC.getPythonCaller()->AI_chooseTech(getID(), false);
 
@@ -8021,19 +8136,42 @@ void CvPlayerAI::AI_chooseResearch()
 		eBestTech = NO_TECH;
 	if (eBestTech == NO_TECH)
 	{	// <k146>
-		int iResearchDepth = ((isHuman() || isBarbarian() ||
+		int const iResearchDepth = ((isHuman() || isBarbarian() ||
 				AI_atVictoryStage(AI_VICTORY_CULTURE3) ||
 				AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY))
 				? 1 : 3);
-		eBestTech = AI_bestTech(iResearchDepth); // </k146>
-	}
-	if (eBestTech != NO_TECH)
-	{	/*  advc.004x: Don't kill popup when AI chooses tech for human
-			(instead prod the human each turn to pick a tech him/herself) */
+		if (bLogSASResearchDecision)
+		{
+			SASTechChoiceContext kSASChoice(gGameRecordLogLevel >= 3);
+			eBestTech = AI_bestTech(iResearchDepth, false, false, NO_TECH, NO_ADVISOR, NO_PLAYER, &kSASChoice);
+			if (eBestTech != NO_TECH)
+			{	/*  advc.004x: Don't kill popup when AI chooses tech for human
+					(instead prod the human each turn to pick a tech him/herself) */
+				pushResearch(eBestTech, false, false);
+			}
+			logSASGameRecordAIResearchDecision(*this, "RESEARCH", "AI_BEST_TECH", eBestTech, iResearchDepth, NO_PLAYER, &kSASChoice);
+		}
+		else
+		{
+			eBestTech = AI_bestTech(iResearchDepth);
+			if (eBestTech != NO_TECH)
+			{	/*  advc.004x: Don't kill popup when AI chooses tech for human
+					(instead prod the human each turn to pick a tech him/herself) */
+				pushResearch(eBestTech, false, false);
+			}
+		}
+	} // </k146>
+	else
+	{
 		pushResearch(eBestTech, false, false);
+		if (bLogSASResearchDecision) logSASGameRecordAIResearchDecision(*this, "RESEARCH", "PYTHON", eBestTech, 0, NO_PLAYER, NULL);
 	}
-	// <!-- custom: Pair research selection with RESEARCH_NO_TARGET_OVERFLOW_STORED and the queue-invalidation diagnostics in CvTeam. This reveals whether currentResearch=- in an end-of-round summary was harmless timing, exhaustion of all technologies, or an actual failure to find a researchable target. (GPT-5.6-Sol) -->
-	if (!isHuman() && !isBarbarian() && gPlayerLogLevel >= 2) logBBAI("    RESEARCH_TARGET_CHOSEN turn=%d player=%d %S requested=%S current=%S queueLength=%d", GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), (eBestTech == NO_TECH ? L"-" : GC.getInfo(eBestTech).getDescription()), (getCurrentResearch() == NO_TECH ? L"-" : GC.getInfo(getCurrentResearch()).getDescription()), getLengthResearchQueue());
+	// <!-- custom: Pair research selection with RESEARCH_NO_TARGET_OVERFLOW_STORED and the queue-invalidation diagnostics in CvTeam.
+	// This reveals whether currentResearch=- in an end-of-round summary was harmless timing, exhaustion of all technologies, or an actual failure to find a researchable target. (GPT-5.6-Sol) -->
+	if (!isHuman() && !isBarbarian() && gPlayerLogLevel >= 2) logBBAI("    RESEARCH_TARGET_CHOSEN turn=%d player=%d %S requested=%S current=%S queueLength=%d",
+		GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0),
+		(eBestTech == NO_TECH ? L"-" : GC.getInfo(eBestTech).getDescription()),
+		(getCurrentResearch() == NO_TECH ? L"-" : GC.getInfo(getCurrentResearch()).getDescription()), getLengthResearchQueue());
 }
 
 DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const

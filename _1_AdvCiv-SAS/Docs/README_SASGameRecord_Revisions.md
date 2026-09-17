@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=85 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=86 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,9 +40,17 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
+### Revision 86 - SAS practical 6474
+
+- **Date:** 2026-09-17
+- **Change:** Added compact AI research/free-technology choice provenance. `GAME_RECORD_AI_RESEARCH_DECISION` identifies teammate coordination, Python overrides and the real `AI_bestTech` fallback; the latter preserves the chosen/requested technology, actual current research after queueing, deeper strategic aim, chooser/path values, distinct runner-up and chooser breadth from values already computed by gameplay. Level 3 additionally serializes each distinct returned-tech candidate with its chooser/path value and deeper aim, while free-tech choices use the same depth-1 machinery. No technology valuation or chooser RNG is repeated for recording.
+
+The technology-path diagnostic also recovers the actual deepest endpoint after K-Mod backfills/reorders paths with unrelated depth-0 technologies, rather than assuming `path.front()` is always the long-term aim; AdvCiv's rare scenario fallback likewise reports the path actually selected rather than always path 0. These are diagnostic/provenance corrections only and do not change research selection.
+
 ### Revision 85 - SAS practical 6473
 
 - **Date:** 2026-09-17
+- **Git commit:** `f94667171d4523a595a9153e253ad68c5486680b`
 - **Change:** Added compact AI espionage mission-choice and mission-phase interception provenance. `GAME_RECORD_AI_ESPIONAGE_DECISION` retains the scored chooser winner/runner-up and both candidates' already-computed valuation/randomization/overhead/cost components plus chooser risk/EP/strategy context without rerunning valuation or RNG; the separate K-Mod tactical city-revolt path emits `GAME_RECORD_AI_ESPIONAGE_TACTICAL_DECISION` with its factual remaining-defense gate instead of fabricated scores.
 
 `GAME_RECORD_SPY_INTERCEPTION_CHECK` records every real before/after-mission base/final chance and authoritative result/draw plus counterespionage, counter-Spy-defense/Spy, city-defense and recent-mission context; successful non-interceptions are therefore visible alongside existing completed-mission and caught-Spy outcomes. The ordinary logging-disabled/travel-interception path keeps the original `SyncRandSuccess10000` behavior, and logging-only plot/unit scans remain level-2 gated.

@@ -17,7 +17,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 85 };
+enum { SAS_GAME_RECORD_REVISION = 86 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -53,10 +53,12 @@ void logSASGameRecordRngCheckpoint(int iGameTurn, SASGameRecordRngCheckpointReas
 class CvCity;
 // <!-- custom: Required by random-event APIs using CvPlayer references; this lightweight declaration fixed the resulting AgentIterator/CvPlayer compile errors. (GPT-5.6-Sol) -->
 class CvPlayer;
+class CvPlayerAI;
 class CvPlot;
 class CvUnit;
 class CvUnitAI;
 struct SASEspionageChoiceContext;
+struct SASTechChoiceContext;
 // <!-- custom: Exact level-3 plot-owner transitions use a small recorder-owned root/mechanism vocabulary instead of guessing causes from the final setter.
 // `tx` identifies the outer causal operation; this separate cause scope identifies the immediate owner-change mechanism/source. Nested cause scopes therefore override temporarily and restore on exit (e.g. tx=VASSALAGE with cause=WAR_BORDER or CULTURE_UPDATE).
 // Call sites gate before gathering logging-only state; disabled scopes perform only their cheap constructor branch. NONE reports UNKNOWN rather than borrowing the active transaction kind, keeping root operation (`tx`) and immediate mechanism (`cause`) semantically distinct. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -339,6 +341,9 @@ void logSASGameRecordDiploCounterProposal(PlayerTypes eProposer, PlayerTypes eRe
 void logSASGameRecordAIToHumanOfferRejected(PlayerTypes eProposer, PlayerTypes eResponder, CLinkList<TradeData> const& kProposerGives, CLinkList<TradeData> const& kResponderGives);
 // <!-- custom: Preserve one resolved AI peace-negotiation boundary rather than copying the full UWAI/BBAI utility trace. Callers pre-gate at level 2 so disabled/lower-detail runs do not build logging-only trade context. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIPeaceDecision(PlayerTypes ePlayer, PlayerTypes eOther, int iAtWarTurns, bool bUWAI, int iInitialOurBenefit, int iInitialTheirBenefit, int iFinalOurBenefit, int iFinalTheirBenefit, int iGiveGold, int iReceiveGold, TechTypes eGiveTech, TechTypes eReceiveTech, int iGiveCityId, int iReceiveCityId, bool bCounterProposal, char const* szOutcome, CLinkList<TradeData> const* pWeGive, CLinkList<TradeData> const* pTheyGive);
+// <!-- custom: Preserve the real research/free-tech source and, for AI_bestTech, the already-computed selected/runner-up path values and optional level-3 candidate paths.
+// Caller and chooser gates ensure no technology valuation or chooser RNG is repeated for SASGameRecord. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIResearchDecision(CvPlayerAI const& kPlayer, char const* szKind, char const* szSource, TechTypes eRequestedTech, int iResearchDepth, PlayerTypes eCoordinatingPlayer, SASTechChoiceContext const* pChoice);
 // <!-- custom: Preserve realized AI corporation operational intent when a city commits to an Executive, an Executive assigns/retargets a spread city, or an Executive is deliberately rerouted by air/sea transport.
 // Callers pre-gate at level 2 and pass only values already computed by the live production/target chooser; periodic posture separately preserves long-lived Executive missions across loaded saves. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIExecutiveProduction(CvCity const* pCity, UnitTypes eUnit, int iExecutiveValue, int iThreshold, char const* szStage);

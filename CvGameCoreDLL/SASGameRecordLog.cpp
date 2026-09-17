@@ -10959,6 +10959,45 @@ void logSASGameRecordAICorporationTransit(CvUnit const* pExecutive, CvUnit const
 }
 
 
+// <!-- custom: Serialize level-3 AI_bestTech alternatives as candidateTech:immediateValue/pathValue>aimTech.
+// The list is already ordered by the live chooser's distinct returned-tech preference; no valuation is repeated here. (ChatGPT-5.6-Sol) -->
+static CvString getSASGameRecordTechCandidatePaths(SASTechChoiceContext const* pChoice)
+{
+	if (pChoice == NULL || !pChoice->bCollectCandidates || pChoice->aCandidates.empty())
+		return CvString("-");
+	CvString szResult;
+	for (size_t i = 0; i < pChoice->aCandidates.size(); i++)
+	{
+		SASTechChoiceCandidate const& kCandidate = pChoice->aCandidates[i];
+		CvString szItem;
+		szItem.Format(i == 0 ? "%s:%d/%d>%s" : ",%s:%d/%d>%s", getSASGameRecordTechType(kCandidate.eTech), kCandidate.iImmediateValue, kCandidate.iPathValue, getSASGameRecordTechType(kCandidate.eAimTech));
+		szResult += szItem;
+	}
+	return szResult;
+}
+
+// <!-- custom: Record one actual AI research/free-tech commitment.
+// Team coordination and Python overrides are identified honestly without fabricated scores; AI_bestTech contributes only the path data its real chooser already computed. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIResearchDecision(CvPlayerAI const& kPlayer, char const* szKind, char const* szSource, TechTypes eRequestedTech, int iResearchDepth, PlayerTypes eCoordinatingPlayer, SASTechChoiceContext const* pChoice)
+{
+	TechTypes const eCurrentResearch = (strcmp(szKind, "RESEARCH") == 0 ? kPlayer.getCurrentResearch() : NO_TECH);
+	TechTypes const eAimTech = (pChoice == NULL ? NO_TECH : pChoice->eAimTech);
+	TechTypes const eRunnerUpTech = (pChoice == NULL ? NO_TECH : pChoice->eRunnerUpTech);
+	TechTypes const eRunnerUpAimTech = (pChoice == NULL ? NO_TECH : pChoice->eRunnerUpAimTech);
+	int const iBestImmediateValue = (pChoice == NULL ? -1 : pChoice->iBestImmediateValue);
+	int const iBestPathValue = (pChoice == NULL ? -1 : pChoice->iBestPathValue);
+	int const iRunnerUpImmediateValue = (pChoice == NULL ? -1 : pChoice->iRunnerUpImmediateValue);
+	int const iRunnerUpPathValue = (pChoice == NULL ? -1 : pChoice->iRunnerUpPathValue);
+	CvString const szCandidates = getSASGameRecordTechCandidatePaths(pChoice);
+	logSASGameRecord("GAME_RECORD_AI_RESEARCH_DECISION turn=%d player=%d team=%d kind=%s source=%s requestedTech=%s currentResearchAfter=%s researchDepth=%d coordinatingPlayer=%d aimTech=%s immediateValue=%d pathValue=%d runnerUpTech=%s runnerUpAimTech=%s runnerUpImmediateValue=%d runnerUpPathValue=%d pathValueMargin=%d selectedPathIndex=%d depth0Evaluated=%d evaluatedTechs=%d evaluatedPaths=%d queueLength=%d candidatePaths=%s",
+			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), szKind, szSource, getSASGameRecordTechType(eRequestedTech), getSASGameRecordTechType(eCurrentResearch), iResearchDepth, eCoordinatingPlayer,
+			getSASGameRecordTechType(eAimTech), iBestImmediateValue, iBestPathValue, getSASGameRecordTechType(eRunnerUpTech), getSASGameRecordTechType(eRunnerUpAimTech), iRunnerUpImmediateValue, iRunnerUpPathValue,
+			(eRunnerUpTech == NO_TECH ? -1 : iBestPathValue - iRunnerUpPathValue),
+			pChoice == NULL ? -1 : pChoice->iSelectedPathIndex, pChoice == NULL ? -1 : pChoice->iImmediateCandidateCount,
+			pChoice == NULL ? -1 : pChoice->iEvaluatedTechCount, pChoice == NULL ? -1 : pChoice->iPathCount,
+			kPlayer.getLengthResearchQueue(), szCandidates.GetCString());
+}
+
 // <!-- custom: Serialize only scores produced by the real AI_bestReligion loop; the vector is built only at GameRecord level 3 and formatted only when AI_doReligion reaches a meaningful switch/spread-block decision. (ChatGPT-5.6-Sol) -->
 static CvString getSASGameRecordReligionCandidateScores(std::vector<std::pair<ReligionTypes, int> > const* paCandidateValues)
 {

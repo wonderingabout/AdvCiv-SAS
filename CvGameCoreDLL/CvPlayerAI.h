@@ -6,12 +6,41 @@
 #include "CvPlayer.h"
 #include "UWAI.h" // advc.104
 #include "AIStrategies.h" // advc.enum
+#include <vector> // <!-- custom: Recorder-only technology-choice context below owns a candidate vector; include its defining header directly rather than relying on transitive core includes. (ChatGPT-5.6-Sol) -->
 
 class CvDeal;
 class CvCityAI;
 class CvUnitAI;
 class CvSelectionGroupAI;
 class UWAICity; // advc.104d
+
+// <!-- custom: Optional recorder-only output from the existing technology chooser.
+// The live AI_bestTech pass fills these scalars/path candidates only when its real research/free-tech caller enables SASGameRecord; no technology valuation or chooser RNG is repeated for logging. (ChatGPT-5.6-Sol) -->
+struct SASTechChoiceCandidate
+{
+	TechTypes eTech;
+	TechTypes eAimTech;
+	int iImmediateValue;
+	int iPathValue;
+};
+
+struct SASTechChoiceContext
+{
+	explicit SASTechChoiceContext(bool bCollect = false) : eAimTech(NO_TECH), eRunnerUpTech(NO_TECH), eRunnerUpAimTech(NO_TECH), iBestImmediateValue(-1), iBestPathValue(-1), iRunnerUpImmediateValue(-1), iRunnerUpPathValue(-1), iSelectedPathIndex(-1), iImmediateCandidateCount(0), iEvaluatedTechCount(0), iPathCount(0), bCollectCandidates(bCollect) {}
+	TechTypes eAimTech;
+	TechTypes eRunnerUpTech;
+	TechTypes eRunnerUpAimTech;
+	int iBestImmediateValue;
+	int iBestPathValue;
+	int iRunnerUpImmediateValue;
+	int iRunnerUpPathValue;
+	int iSelectedPathIndex;
+	int iImmediateCandidateCount;
+	int iEvaluatedTechCount;
+	int iPathCount;
+	bool bCollectCandidates;
+	std::vector<SASTechChoiceCandidate> aCandidates;
+};
 
 /*	<advc.003u> Overwrite definition in CvPlayer.h (should perhaps instead define a
 	new macro "PLAYERAI" - a lot of call locations to change though ...) */
@@ -133,7 +162,9 @@ public:
 	//int AI_goldTarget() const;
 	int AI_goldTarget(bool bUpgradeBudgetOnly = false) const; // K-Mod
 
-	TechTypes AI_bestTech(int iMaxPathLength = 1, bool bFreeTech = false, bool bAsync = false, TechTypes eIgnoreTech = NO_TECH, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR, PlayerTypes eFromPlayer = NO_PLAYER) const; // advc.144
+	// <!-- custom: pSASChoice is optional recorder-only output.
+	// NULL preserves the normal chooser path; when non-NULL, it exposes values/path candidates already computed by AI_bestTech without reevaluating technologies or RNG. (ChatGPT-5.6-Sol) -->
+	TechTypes AI_bestTech(int iMaxPathLength = 1, bool bFreeTech = false, bool bAsync = false, TechTypes eIgnoreTech = NO_TECH, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR, PlayerTypes eFromPlayer = NO_PLAYER, SASTechChoiceContext* pSASChoice = NULL) const; // advc.144
 	scaled AI_getTechRank(TechTypes eTech) const; // advc.550g
 	// advc:
 	void AI_calculateTechRevealBonuses(EagerEnumMap<BonusClassTypes, int>& kBonusClassRevealed, EagerEnumMap<BonusClassTypes, int>& viBonusClassUnrevealed, EagerEnumMap<BonusClassTypes, int>& viBonusClassHave) const;
