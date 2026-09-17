@@ -3262,6 +3262,7 @@ void CvCityAI::AI_chooseProduction()
 			// if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 			if (eBestSpreadUnit != NO_UNIT && AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 			{
+				if (gGameRecordLogLevel >= 2) logSASGameRecordAIExecutiveProduction(this, eBestSpreadUnit, iBestSpreadUnitValue, iSpreadUnitThreshold, "PRIMARY");
 				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose missionary 1", sCityName);
 					return;
 			}
@@ -4062,6 +4063,7 @@ void CvCityAI::AI_chooseProduction()
 		{
 			if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 			{
+				if (gGameRecordLogLevel >= 2) logSASGameRecordAIExecutiveProduction(this, eBestSpreadUnit, iBestSpreadUnitValue, (iSpreadUnitThreshold * (bLandWar ? 80 : 60)) / 100, "FOLLOWUP");
 				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose missionary 2", sCityName);
 				return;
 			}
@@ -4848,6 +4850,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 		{
+			if (gGameRecordLogLevel >= 2) logSASGameRecordAIExecutiveProduction(this, eBestSpreadUnit, iBestSpreadUnitValue, (iSpreadUnitThreshold * 40) / 100, "LATE_RETRY");
 			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose missionary 3", sCityName);
 			return;
 		}
@@ -19117,6 +19120,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
 			{
 				if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 				{
+					if (gGameRecordLogLevel >= 2) logSASGameRecordAIExecutiveProduction(this, eBestSpreadUnit, iBestSpreadUnitValue, iSpreadUnitThreshold, "SECONDARY");
 					return;
 				}
 			}

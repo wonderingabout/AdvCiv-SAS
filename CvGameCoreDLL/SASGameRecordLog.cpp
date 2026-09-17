@@ -6020,6 +6020,123 @@ static void logSASGameRecordPolicies(PlayerTypes ePlayer, int iGameTurn)
 			kPlayer.getExtraHealth(), kPlayer.getExtraHappiness(), getSASDiagnosticOrDash(szExtraHealthSources).GetCString(), getSASDiagnosticOrDash(szExtraHappinessSources).GetCString());
 }
 
+
+static CorporationTypes getSASGameRecordExecutiveCorporation(UnitTypes eUnit);
+
+// <!-- custom: A corporation-spread MissionAI may belong either to the Executive's own group or to a sea transport carrying the Executive.
+// Resolve the factual Executive from current group/cargo state without any AI target/value call. (ChatGPT-5.6-Sol) -->
+static CvUnit const* getSASGameRecordCorporationMissionExecutive(CvSelectionGroup const* pGroup)
+{
+	if (pGroup == NULL)
+		return NULL;
+	CvUnit const* pHeadUnit = pGroup->getHeadUnit();
+	if (pHeadUnit != NULL && pHeadUnit->AI_getUnitAIType() == UNITAI_MISSIONARY &&
+		getSASGameRecordExecutiveCorporation(pHeadUnit->getUnitType()) != NO_CORPORATION)
+	{
+		return pHeadUnit;
+	}
+	CvPlot const* pPlot = pGroup->plot();
+	if (pPlot == NULL)
+		return NULL;
+	FOR_EACH_UNIT_IN(pLoopUnit, *pPlot)
+	{
+		if (pLoopUnit->getOwner() != pGroup->getOwner() || pLoopUnit->AI_getUnitAIType() != UNITAI_MISSIONARY ||
+			getSASGameRecordExecutiveCorporation(pLoopUnit->getUnitType()) == NO_CORPORATION)
+		{
+			continue;
+		}
+		CvUnit const* pTransport = pLoopUnit->getTransportUnit();
+		if (pTransport != NULL && pTransport->getGroup() == pGroup)
+			return pLoopUnit;
+	}
+	return NULL;
+}
+
+// <!-- custom: Corporation outcome rows say what ultimately spread; this periodic posture preserves long-lived Executive missions so a loaded-save analysis can still see where existing Executives are heading or whether they are already waiting in a target city.
+// Only current unit/group/cargo state and cheap spread-cost/eligibility checks are used here; no corporation valuation, target search or pathfinding is repeated for logging. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordCorporationPosture(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer).AI();
+	// <!-- custom: isActiveCorporation means policy-enabled for this player, not actually founded/present.
+	// Keep that useful rules-state separate from factual city presence so the posture row stays dormant before corporations exist. (ChatGPT-5.6-Sol) -->
+	int iEnabledCorporations = 0;
+	int iCorporationTypesPresent = 0;
+	int iCorporationCityInstances = 0;
+	int iTeamHeadquarters = 0;
+	FOR_EACH_ENUM(Corporation)
+	{
+		if (kPlayer.isActiveCorporation(eLoopCorporation))
+			iEnabledCorporations++;
+		int iCorporationCities = 0;
+		int iCityLoop = 0;
+		for (CvCity const* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
+		{
+			if (pLoopCity->isHasCorporation(eLoopCorporation))
+				iCorporationCities++;
+		}
+		if (iCorporationCities > 0)
+			iCorporationTypesPresent++;
+		iCorporationCityInstances += iCorporationCities;
+		if (GET_TEAM(kPlayer.getTeam()).hasHeadquarters(eLoopCorporation))
+			iTeamHeadquarters++;
+	}
+	int iExecutives = 0;
+	int iExecutivesOnSpreadMission = 0;
+	int iUnitLoop = 0;
+	for (CvUnit const* pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
+	{
+		if (pLoopUnit->AI_getUnitAIType() == UNITAI_MISSIONARY && getSASGameRecordExecutiveCorporation(pLoopUnit->getUnitType()) != NO_CORPORATION)
+			iExecutives++;
+	}
+	int iSpreadMissionGroups = 0;
+	int iSpreadMissionGroupsAtTarget = 0;
+	int iSpreadMissionGroupsWaitingGold = 0;
+	int iSpreadMissionGroupsReady = 0;
+	CvString szTargets;
+	bool const bLogTargets = (gGameRecordLogLevel >= 3);
+	int iGroupLoop = 0;
+	for (CvSelectionGroup const* pLoopGroup = kPlayer.firstSelectionGroup(&iGroupLoop); pLoopGroup != NULL; pLoopGroup = kPlayer.nextSelectionGroup(&iGroupLoop))
+	{
+		if (pLoopGroup->AI().AI_getMissionAIType() != MISSIONAI_SPREAD_CORPORATION)
+			continue;
+		CvPlot const* pMissionPlot = pLoopGroup->AI().AI_getMissionAIPlot();
+		CvUnit const* pExecutive = getSASGameRecordCorporationMissionExecutive(pLoopGroup);
+		CorporationTypes const eCorporation = (pExecutive == NULL ? NO_CORPORATION : getSASGameRecordExecutiveCorporation(pExecutive->getUnitType()));
+		if (pMissionPlot == NULL || pExecutive == NULL || eCorporation == NO_CORPORATION)
+			continue;
+		iSpreadMissionGroups++;
+		iExecutivesOnSpreadMission++;
+		CvCity const* pTargetCity = pMissionPlot->getPlotCity();
+		bool const bAtTarget = pExecutive->at(*pMissionPlot);
+		if (bAtTarget) iSpreadMissionGroupsAtTarget++;
+		int iSpreadCost = -1;
+		if (bAtTarget && pTargetCity != NULL && pExecutive->canSpreadCorporation(pMissionPlot, eCorporation, true))
+		{
+			iSpreadCost = pExecutive->spreadCorporationCost(eCorporation, pTargetCity);
+			if (kPlayer.getGold() < iSpreadCost) iSpreadMissionGroupsWaitingGold++;
+			else if (pExecutive->canSpreadCorporation(pMissionPlot, eCorporation)) iSpreadMissionGroupsReady++;
+		}
+		if (bLogTargets)
+		{
+			if (!szTargets.empty()) szTargets += ";";
+			CvPlot const* pCurrentPlot = pLoopGroup->plot();
+			CvUnit const* pTransport = pExecutive->getTransportUnit();
+			CvString szTarget;
+			szTarget.Format("%d:exec%d:transport%d:%s@(%d,%d)>(%d,%d):player%d:city%d:at%d:gold%d/cost%d",
+				pLoopGroup->getID(), pExecutive->getID(), pTransport == NULL ? -1 : pTransport->getID(), getSASGameRecordCorporationType(eCorporation),
+				pCurrentPlot == NULL ? -1 : pCurrentPlot->getX(), pCurrentPlot == NULL ? -1 : pCurrentPlot->getY(), pMissionPlot->getX(), pMissionPlot->getY(),
+				pTargetCity == NULL ? NO_PLAYER : pTargetCity->getOwner(), pTargetCity == NULL ? -1 : pTargetCity->getID(), bAtTarget ? 1 : 0, kPlayer.getGold(), iSpreadCost);
+			szTargets += szTarget;
+		}
+	}
+	if (iCorporationTypesPresent <= 0 && iTeamHeadquarters <= 0 && iExecutives <= 0 && iSpreadMissionGroups <= 0)
+		return;
+	logSASGameRecord("GAME_RECORD_CORPORATION_POSTURE turn=%d player=%d team=%d enabledCorporations=%d corporationTypesPresent=%d corporationCityInstances=%d teamHeadquarters=%d executives=%d executivesOnSpreadMission=%d idleExecutives=%d spreadMissionGroups=%d spreadMissionGroupsAtTarget=%d spreadMissionGroupsWaitingGold=%d spreadMissionGroupsReady=%d targets=%s",
+			iGameTurn, ePlayer, kPlayer.getTeam(), iEnabledCorporations, iCorporationTypesPresent, iCorporationCityInstances, iTeamHeadquarters,
+			iExecutives, iExecutivesOnSpreadMission, std::max(0, iExecutives - iExecutivesOnSpreadMission),
+			iSpreadMissionGroups, iSpreadMissionGroupsAtTarget, iSpreadMissionGroupsWaitingGold, iSpreadMissionGroupsReady, bLogTargets ? getSASDiagnosticOrDash(szTargets).GetCString() : "-");
+}
+
 static void logSASGameRecordEspionage(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
@@ -9068,6 +9185,7 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 		logSASGameRecordAIVictoryStages(ePlayer, iGameTurn);
 		logSASGameRecordAIMilitaryProduction(ePlayer, iGameTurn);
 		logSASGameRecordPolicies(ePlayer, iGameTurn);
+		logSASGameRecordCorporationPosture(ePlayer, iGameTurn);
 		logSASGameRecordEconomy(ePlayer, iGameTurn);
 		logSASGameRecordProductionPipeline(ePlayer, iGameTurn);
 		logSASGameRecordStatistics(ePlayer, iGameTurn);
@@ -10764,6 +10882,80 @@ void logSASGameRecordAIPeaceDecision(PlayerTypes ePlayer, PlayerTypes eOther, in
 			iInitialOurBenefit, iInitialTheirBenefit, iFinalOurBenefit, iFinalTheirBenefit, iGiveGold, iReceiveGold,
 			getSASGameRecordTechType(eGiveTech), getSASGameRecordTechType(eReceiveTech), iGiveCityId, iReceiveCityId,
 			bCounterProposal ? 1 : 0, szOutcome, szAIGives.GetCString(), szAIReceives.GetCString());
+}
+
+
+// <!-- custom: Executives are UNITAI_MISSIONARY units whose XML carries one or more corporation-spread entries.
+// Resolve the concrete corporation from the selected unit without invoking any AI value/search routine.
+// Standard/SAS executives are one-corporation units; returning the first positive spread keeps the recorder factual and cheap if a modmod ever adds more. (ChatGPT-5.6-Sol) -->
+static CorporationTypes getSASGameRecordExecutiveCorporation(UnitTypes eUnit)
+{
+	if (eUnit == NO_UNIT)
+		return NO_CORPORATION;
+	CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+	FOR_EACH_ENUM(Corporation)
+	{
+		if (kUnit.getCorporationSpreads(eLoopCorporation) > 0)
+			return eLoopCorporation;
+	}
+	return NO_CORPORATION;
+}
+
+// <!-- custom: Log only after the normal production chooser has actually committed to the selected spread unit.
+// Religious Missionaries share the same chooser and are intentionally ignored here; this row is corporation operational intent only. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIExecutiveProduction(CvCity const* pCity, UnitTypes eUnit, int iExecutiveValue, int iThreshold, char const* szStage)
+{
+	if (pCity == NULL || eUnit == NO_UNIT)
+		return;
+	CorporationTypes const eCorporation = getSASGameRecordExecutiveCorporation(eUnit);
+	if (eCorporation == NO_CORPORATION)
+		return;
+	CvPlayerAI const& kPlayer = GET_PLAYER(pCity->getOwner()).AI();
+	int const iProductionNeeded = kPlayer.getProductionNeeded(eUnit);
+	logSASGameRecord("GAME_RECORD_AI_CORPORATION_DECISION turn=%d player=%d team=%d kind=EXECUTIVE_PRODUCTION cityId=%d city=%S x=%d y=%d corporation=%s unit=%s stage=%s executiveValue=%d threshold=%d valueMargin=%d productionNeeded=%d teamHasHQ=%d cityHasCorporation=%d ownerCorporationCities=%d",
+			GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getTeam(),
+			pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(),
+			getSASGameRecordCorporationType(eCorporation), getSASGameRecordUnitType(eUnit), szStage == NULL ? "-" : szStage, iExecutiveValue, iThreshold, iExecutiveValue - iThreshold, iProductionNeeded,
+			GET_TEAM(kPlayer.getTeam()).hasHeadquarters(eCorporation) ? 1 : 0, pCity->isHasCorporation(eCorporation) ? 1 : 0, kPlayer.getHasCorporationCount(eCorporation));
+}
+
+// <!-- custom: Preserve one new/retargeted Executive spread destination using only target/value/path components already produced by AI_spreadCorporation.
+// The realized mission attempt remains authoritative in CORPORATION_SPREAD_ATTEMPT; this row explains the operational choice that led the Executive there. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAICorporationTarget(CvUnit const* pUnit, CorporationTypes eCorporation, PlayerTypes ePreferredPlayer, int iExecutiveSpreadValue, CvCity const* pTargetCity, int iHqBaseValue, int iLocalCorporationValue, int iCompetingCorporationAdjustment, int iPopulationBonus, int iPreferredPlayerMultiplier, int iPathTurns, int iTargetScore, char const* szAction)
+{
+	if (pUnit == NULL || eCorporation == NO_CORPORATION || pTargetCity == NULL)
+		return;
+	CvPlayerAI const& kPlayer = GET_PLAYER(pUnit->getOwner()).AI();
+	int const iSpreadCost = pUnit->spreadCorporationCost(eCorporation, pTargetCity);
+	int const iGold = kPlayer.getGold();
+	logSASGameRecord("GAME_RECORD_AI_CORPORATION_DECISION turn=%d player=%d team=%d kind=SPREAD_TARGET unitId=%d unit=%s unitAI=%s groupId=%d corporation=%s teamHasHQ=%d preferredPlayer=%d targetIsPreferredPlayer=%d executiveSpreadValue=%d targetPlayer=%d targetTeam=%d cityId=%d city=%S x=%d y=%d hqBaseValue=%d localCorporationValue=%d competingCorporationAdjustment=%d populationBonus=%d preferredPlayerMultiplier=%d pathTurns=%d targetScore=%d gold=%d spreadCost=%d canAfford=%d atTarget=%d action=%s",
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(),
+			pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+			pUnit->getGroupID(),
+			getSASGameRecordCorporationType(eCorporation), GET_TEAM(kPlayer.getTeam()).hasHeadquarters(eCorporation) ? 1 : 0, ePreferredPlayer,
+			pTargetCity->getOwner() == ePreferredPlayer ? 1 : 0, iExecutiveSpreadValue,
+			pTargetCity->getOwner(), pTargetCity->getTeam(), pTargetCity->getID(),
+			getSASGameRecordQuotedCityName(pTargetCity).GetCString(), pTargetCity->getX(), pTargetCity->getY(),
+			iHqBaseValue, iLocalCorporationValue, iCompetingCorporationAdjustment, iPopulationBonus, iPreferredPlayerMultiplier, iPathTurns, iTargetScore, iGold, iSpreadCost, iGold >= iSpreadCost ? 1 : 0,
+			pUnit->at(pTargetCity->getPlot()) ? 1 : 0, szAction == NULL ? "-" : szAction);
+}
+
+// <!-- custom: Airlift and sea-transport routing can materially redirect an Executive before its ordinary land spread target is chosen.
+// Record only the already-selected destination/score/path state; no extra corporation valuation, city search or pathfinding is performed for this transit row. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAICorporationTransit(CvUnit const* pExecutive, CvUnit const* pTransport, CorporationTypes eCorporation, int iEligibleCorporations, CvCity const* pTargetCity, CvPlot const* pMovePlot, int iPathTurns, int iTargetScore, char const* szRoute)
+{
+	if (pExecutive == NULL || eCorporation == NO_CORPORATION || pTargetCity == NULL)
+		return;
+	CvPlot const* pFromPlot = pExecutive->plot();
+	CvPlayerAI const& kPlayer = GET_PLAYER(pExecutive->getOwner()).AI();
+	logSASGameRecord("GAME_RECORD_AI_CORPORATION_DECISION turn=%d player=%d team=%d kind=TRANSIT_TARGET route=%s executiveId=%d executive=%s unitAI=%s transportId=%d transport=%s corporation=%s eligibleCorporations=%d teamHasHQ=%d fromX=%d fromY=%d moveX=%d moveY=%d targetPlayer=%d targetTeam=%d cityId=%d city=%S x=%d y=%d pathTurns=%d targetScore=%d",
+			GC.getGame().getGameTurn(), pExecutive->getOwner(), pExecutive->getTeam(), szRoute == NULL ? "-" : szRoute,
+			pExecutive->getID(), getSASGameRecordUnitType(pExecutive->getUnitType()), getSASGameRecordUnitAIType(pExecutive->AI_getUnitAIType()),
+			pTransport == NULL ? -1 : pTransport->getID(), pTransport == NULL ? "-" : getSASGameRecordUnitType(pTransport->getUnitType()),
+			getSASGameRecordCorporationType(eCorporation), iEligibleCorporations, GET_TEAM(kPlayer.getTeam()).hasHeadquarters(eCorporation) ? 1 : 0,
+			pFromPlot == NULL ? -1 : pFromPlot->getX(), pFromPlot == NULL ? -1 : pFromPlot->getY(), pMovePlot == NULL ? -1 : pMovePlot->getX(), pMovePlot == NULL ? -1 : pMovePlot->getY(),
+			pTargetCity->getOwner(), pTargetCity->getTeam(), pTargetCity->getID(),
+			getSASGameRecordQuotedCityName(pTargetCity).GetCString(), pTargetCity->getX(), pTargetCity->getY(), iPathTurns, iTargetScore);
 }
 
 

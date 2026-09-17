@@ -17323,6 +17323,19 @@ bool CvUnitAI::AI_spreadCorporation()
 
 	CvPlot* pBestPlot = NULL;
 	CvPlot* pBestSpreadPlot = NULL;
+	// <!-- custom: At GameRecord level 2+, retain corporation context only from values already produced by the real target search, and emit only for a new/retargeted destination.
+	// Continuing the same MISSIONAI_SPREAD_CORPORATION mission stays silent; periodic posture preserves that long-lived state. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bCaptureSASCorporationTarget = (gGameRecordLogLevel >= 2);
+	bool bSASContinuingCorporationMission = false;
+	PlayerTypes eSASPreferredPlayer = NO_PLAYER;
+	int iSASExecutiveSpreadValue = -1;
+	int iSASBestHqBaseValue = 0;
+	int iSASBestLocalCorporationValue = 0;
+	int iSASBestCompetingCorporationAdjustment = 0;
+	int iSASBestPopulationBonus = 0;
+	int iSASBestPreferredPlayerMultiplier = 1;
+	int iSASBestPathTurns = -1;
+	int iSASBestTargetScore = -1;
 	// K-Mod
 	// first, if we are already doing a spread mission, continue that.
 	if (AI_getGroup()->AI_getMissionAIType() == MISSIONAI_SPREAD_CORPORATION)
@@ -17336,6 +17349,7 @@ bool CvUnitAI::AI_spreadCorporation()
 		{
 			pBestPlot = &getPathEndTurnPlot();
 			pBestSpreadPlot = pMissionPlot;
+			if (bCaptureSASCorporationTarget) bSASContinuingCorporationMission = true;
 		}
 	}
 
@@ -17352,9 +17366,11 @@ bool CvUnitAI::AI_spreadCorporation()
 			GET_PLAYER(eTargetPlayer).countCorporations(eCorporation, area()) >=
 			getArea().getCitiesPerPlayer(eTargetPlayer))
 		{
-			if (kOwner.AI_executiveValue(eCorporation, area(), &eTargetPlayer, true) <= 0)
+			iSASExecutiveSpreadValue = kOwner.AI_executiveValue(eCorporation, area(), &eTargetPlayer, true);
+			if (iSASExecutiveSpreadValue <= 0)
 				return false; // corp is not worth spreading in this region.
 		}
+		if (bCaptureSASCorporationTarget) eSASPreferredPlayer = eTargetPlayer;
 		int iBestValue = 0;
 		for (PlayerAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
@@ -17378,37 +17394,55 @@ bool CvUnitAI::AI_spreadCorporation()
 						int iPathTurns;
 						if (!generatePath(pLoopCity->getPlot(), MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns))
 							continue;
-						int iValue = 0;
+						// <!-- custom: Keep the exact live score components beside the candidate so the eventual winning target can be explained without a second corporation-value or path calculation.
+						// These locals preserve K-Mod's original arithmetic. (ChatGPT-5.6-Sol) -->
+						int const iHqBaseValue = (bHasHQ ? 1000 : 0);
+						int iLocalCorporationValue = 0;
+						int iCompetingCorporationAdjustment = 0;
+						int iValue = iHqBaseValue;
 						// we should probably calculate the true HqValue, but I couldn't be bothered right now.
-						iValue += bHasHQ ? 1000 : 0;
 						if (pLoopCity->getTeam() == getTeam())
 						{
 							//CvPlayerAI const& kCityOwner = GET_PLAYER(pLoopCity->getOwner()); // advc: That's kLoopPlayer
-							iValue += kLoopPlayer.AI_corporationValue(eCorporation, pLoopCity);
+							iLocalCorporationValue = kLoopPlayer.AI_corporationValue(eCorporation, pLoopCity);
+							iValue += iLocalCorporationValue;
 							FOR_EACH_ENUM(Corporation)
 							{
 								if (pLoopCity->isHasCorporation(eLoopCorporation) &&
 									GC.getGame().isCompetingCorporation(eLoopCorporation, eCorporation))
 								{
-									iValue -= kLoopPlayer.AI_corporationValue(eLoopCorporation, pLoopCity) +
+									int const iPenalty = kLoopPlayer.AI_corporationValue(eLoopCorporation, pLoopCity) +
 											(GET_TEAM(getTeam()).hasHeadquarters(eLoopCorporation) ? 1100 : 100);
+									if (bCaptureSASCorporationTarget) iCompetingCorporationAdjustment += iPenalty;
+									iValue -= iPenalty;
 									// cf. iValue before AI_corporationValue is added.
 								}
 							}
 						}
 						if (iValue < 0)
 							continue;
-						iValue += 10 + pLoopCity->getPopulation() * 2;
-						if (kLoopPlayer.getID() == eTargetPlayer)
-							iValue *= 2;
+						int const iPopulationBonus = 10 + pLoopCity->getPopulation() * 2;
+						iValue += iPopulationBonus;
+						int const iPreferredPlayerMultiplier = (kLoopPlayer.getID() == eTargetPlayer ? 2 : 1);
+						iValue *= iPreferredPlayerMultiplier;
 						iValue *= 1000;
 						iValue /= (iPathTurns + 1);
 						if (iValue > iBestValue)
 						{
 							iBestValue = iValue;
 							pBestPlot = &(isHuman() ?
-									pLoopCity->getPlot() : getPathEndTurnPlot());
+								pLoopCity->getPlot() : getPathEndTurnPlot());
 							pBestSpreadPlot = pLoopCity->plot();
+							if (bCaptureSASCorporationTarget)
+							{
+								iSASBestHqBaseValue = iHqBaseValue;
+								iSASBestLocalCorporationValue = iLocalCorporationValue;
+								iSASBestCompetingCorporationAdjustment = iCompetingCorporationAdjustment;
+								iSASBestPopulationBonus = iPopulationBonus;
+								iSASBestPreferredPlayerMultiplier = iPreferredPlayerMultiplier;
+								iSASBestPathTurns = iPathTurns;
+								iSASBestTargetScore = iValue;
+							}
 						}
 					}
 				}
@@ -17421,27 +17455,34 @@ bool CvUnitAI::AI_spreadCorporation()
 
 	if (pBestPlot != NULL && pBestSpreadPlot != NULL)
 	{
+		bool const bLogSASCorporationTarget = (bCaptureSASCorporationTarget && !bSASContinuingCorporationMission);
 		if (at(*pBestSpreadPlot))
 		{
 			if (canSpreadCorporation(pBestSpreadPlot, eCorporation))
 			{
+				if (bLogSASCorporationTarget) logSASGameRecordAICorporationTarget(this, eCorporation, eSASPreferredPlayer, iSASExecutiveSpreadValue, pBestSpreadPlot->getPlotCity(), iSASBestHqBaseValue, iSASBestLocalCorporationValue, iSASBestCompetingCorporationAdjustment, iSASBestPopulationBonus, iSASBestPreferredPlayerMultiplier, iSASBestPathTurns, iSASBestTargetScore, "SPREAD");
 				getGroup()->pushMission(MISSION_SPREAD_CORPORATION, eCorporation);
 				return true;
 			}
 			//else
-			else if (GET_PLAYER(getOwner()).getGold() <
-				spreadCorporationCost(eCorporation, pBestSpreadPlot->getPlotCity()))
+			else
 			{
-				// wait for more money
-				getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
-						false, false, MISSIONAI_SPREAD_CORPORATION, pBestSpreadPlot);
-				return true;
+				CvCity const* pTargetCity = pBestSpreadPlot->getPlotCity();
+				if (GET_PLAYER(getOwner()).getGold() < spreadCorporationCost(eCorporation, pTargetCity))
+				{
+					// wait for more money
+					if (bLogSASCorporationTarget) logSASGameRecordAICorporationTarget(this, eCorporation, eSASPreferredPlayer, iSASExecutiveSpreadValue, pTargetCity, iSASBestHqBaseValue, iSASBestLocalCorporationValue, iSASBestCompetingCorporationAdjustment, iSASBestPopulationBonus, iSASBestPreferredPlayerMultiplier, iSASBestPathTurns, iSASBestTargetScore, "WAIT_GOLD");
+					getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
+							false, false, MISSIONAI_SPREAD_CORPORATION, pBestSpreadPlot);
+					return true;
+				}
 			}
 			// FErrorMsg("AI_spreadCorporation has taken us to a bogus pBestSpreadPlot");
 			// this can happen from time to time. For example, when the player loses their only corp resources while the exec is en route.
 		}
 		else
 		{
+			if (bLogSASCorporationTarget) logSASGameRecordAICorporationTarget(this, eCorporation, eSASPreferredPlayer, iSASExecutiveSpreadValue, pBestSpreadPlot->getPlotCity(), iSASBestHqBaseValue, iSASBestLocalCorporationValue, iSASBestCompetingCorporationAdjustment, iSASBestPopulationBonus, iSASBestPreferredPlayerMultiplier, iSASBestPathTurns, iSASBestTargetScore, "MOVE");
 			pushGroupMoveTo(*pBestPlot, MOVE_NO_ENEMY_TERRITORY, false, false,
 					MISSIONAI_SPREAD_CORPORATION, pBestSpreadPlot);
 			return true;
@@ -17599,6 +17640,8 @@ bool CvUnitAI::AI_spreadCorporationAirlift()
 
 	if (pBestPlot != NULL)
 	{
+		// <!-- custom: Preserve deliberate Executive airlift routing from the score already computed above; the ordinary corporation spread chooser will decide the post-airlift city target later. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2) logSASGameRecordAICorporationTransit(this, NULL, eCorporation, 1, pBestPlot->getPlotCity(), pBestPlot, -1, iBestValue, "AIRLIFT");
 		getGroup()->pushMission(MISSION_AIRLIFT,
 				pBestPlot->getX(), pBestPlot->getY(),
 				NO_MOVEMENT_FLAGS, false, false,
@@ -22728,6 +22771,11 @@ bool CvUnitAI::AI_specialSeaTransportMissionary()
 	CvPlot const* pBestPlot = NULL;
 	CvPlot const* pBestSpreadPlot = NULL;
 	int iBestValue = 0;
+	// <!-- custom: At GameRecord level 2+, snapshot the already-computed winning Executive sea-routing context without adding corporation tests or pathfinding. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bLogSASCorporationTransit = (gGameRecordLogLevel >= 2);
+	CorporationTypes eSASBestCorporation = NO_CORPORATION;
+	int iSASBestEligibleCorporations = 0;
+	int iSASBestPathTurns = -1;
 	// XXX what about non-coastal cities?
 	for (int i = 0; i < GC.getMap().numPlots(); i++)
 	{
@@ -22742,6 +22790,8 @@ bool CvUnitAI::AI_specialSeaTransportMissionary()
 
 		int iValue = 0;
 		int iCorpValue = 0;
+		CorporationTypes eSASCandidateCorporation = NO_CORPORATION;
+		int iSASEligibleCorporations = 0;
 		FOR_EACH_ENUM(Religion)
 		{
 			if (pMissionaryUnit->canSpread(&kLoopPlot, eLoopReligion))
@@ -22758,6 +22808,12 @@ bool CvUnitAI::AI_specialSeaTransportMissionary()
 				GET_PLAYER(getOwner()).hasHeadquarters(eLoopCorp))
 			{
 				iCorpValue += 3;
+				if (bLogSASCorporationTransit)
+				{
+					iSASEligibleCorporations++;
+					if (eSASCandidateCorporation == NO_CORPORATION)
+						eSASCandidateCorporation = eLoopCorp;
+				}
 			}
 		}
 
@@ -22819,6 +22875,12 @@ bool CvUnitAI::AI_specialSeaTransportMissionary()
 					pBestPlot = &getPathEndTurnPlot();
 					pBestSpreadPlot = &kLoopPlot;
 					bExecutive = true;
+					if (bLogSASCorporationTransit)
+					{
+						eSASBestCorporation = eSASCandidateCorporation;
+						iSASBestEligibleCorporations = iSASEligibleCorporations;
+						iSASBestPathTurns = iPathTurns;
+					}
 				}
 			}
 		}
@@ -22827,6 +22889,11 @@ bool CvUnitAI::AI_specialSeaTransportMissionary()
 	if (pBestPlot != NULL && pBestSpreadPlot != NULL)
 	{
 		FAssert(!pBestPlot->isImpassable() || canMoveImpassable());
+		if (bLogSASCorporationTransit && bExecutive && eSASBestCorporation != NO_CORPORATION &&
+			!(AI_getGroup()->AI_getMissionAIType() == MISSIONAI_SPREAD_CORPORATION && AI_getGroup()->AI_getMissionAIPlot() == pBestSpreadPlot))
+		{
+			logSASGameRecordAICorporationTransit(pMissionaryUnit, this, eSASBestCorporation, iSASBestEligibleCorporations, pBestSpreadPlot->getPlotCity(), pBestPlot, iSASBestPathTurns, iBestValue, "SEA_TRANSPORT");
+		}
 		if (pBestPlot == pBestSpreadPlot || ::stepDistance(pBestPlot, pBestSpreadPlot) == 1)
 		{
 			if (at(*pBestSpreadPlot))
