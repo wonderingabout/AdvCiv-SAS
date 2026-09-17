@@ -27313,6 +27313,8 @@ bool CvUnitAI::AI_revoltCitySpy()
 				pCity->getOwner(), pCity->plot(), -1, this))
 			{
 				if (gUnitLogLevel > 2) logBBAI("      %S uses city revolt at %S.", GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString());
+				// <!-- custom: This tactical city-revolt path bypasses AI_bestPlotEspionage; record its real commit separately so all AI MISSION_ESPIONAGE commits remain observable without inventing chooser scores. (ChatGPT-5.6-Sol) -->
+				if (gGameRecordLogLevel >= 2) logSASGameRecordAITacticalEspionageDecision(this, pCity, eLoopEspionageMission);
 				getGroup()->pushMission(MISSION_ESPIONAGE, eLoopEspionageMission);
 				return true;
 			} // K-Mod end
@@ -27569,19 +27571,25 @@ bool CvUnitAI::AI_espionageSpy()
 	int iExtraData = -1;
 
 	//eBestMission = GET_PLAYER(getOwner()).AI_bestPlotEspionage(plot(), eTargetPlayer, pTargetPlot, iExtraData);
-	eBestMission = AI_bestPlotEspionage(iExtraData);
+	// <!-- custom: Retain the live chooser's already-computed winner/runner-up arithmetic only for GameRecord level 2+; no mission valuation or chooser RNG is repeated for logging. (ChatGPT-5.6-Sol) -->
+	SASEspionageChoiceContext kSASChoice;
+	SASEspionageChoiceContext* pSASChoice = (gGameRecordLogLevel >= 2 ? &kSASChoice : NULL);
+	eBestMission = AI_bestPlotEspionage(iExtraData, pSASChoice);
 	if (eBestMission == NO_ESPIONAGEMISSION)
 		return false;
 
-	if (!GET_PLAYER(getOwner()).canDoEspionageMission(eBestMission,
-		getPlot().getOwner(), plot(), iExtraData, this))
-	{
+	PlayerTypes const eTargetPlayer = getPlot().getOwner();
+	if (!GET_PLAYER(getOwner()).canDoEspionageMission(eBestMission, eTargetPlayer, plot(), iExtraData, this))
 		return false;
-	}
 
 	/*if (!espionage(eBestMission, iExtraData))
 		return false;*/ // BtS - diabled by K-Mod
 
+	if (pSASChoice != NULL)
+	{
+		FAssert(kSASChoice.kBest.eMission == eBestMission && kSASChoice.kBest.iData == iExtraData);
+		logSASGameRecordAIEspionageDecision(this, eTargetPlayer, kSASChoice);
+	}
 	getGroup()->pushMission(MISSION_ESPIONAGE, eBestMission, iExtraData);
 	return true;
 }
@@ -27589,7 +27597,8 @@ bool CvUnitAI::AI_espionageSpy()
 /*	K-Mod edition (this use to be a CvPlayerAI:: function):
 	advc: Removed out parameters for target plot and target player
 	b/c it's always the plot of this unit and the owner of that plot. */
-EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(int& iData) const
+// <!-- custom: Optional pSASChoice exposes only already-computed chooser context to SASGameRecord; NULL preserves the ordinary K-Mod path without reevaluating missions or repeating chooser RNG. (ChatGPT-5.6-Sol) -->
+EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(int& iData, SASEspionageChoiceContext* pSASChoice) const
 {
 	PROFILE_FUNC();
 
@@ -27642,6 +27651,27 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(int& iData) const
 	int const iEscapeCost = 2 * iSpyValue * iBaseIntercept *
 			(100 + iESPIONAGE_SPY_MISSION_ESCAPE_MOD) / 10000;
 
+	if (pSASChoice != NULL)
+	{
+		pSASChoice->iSpyValue = iSpyValue;
+		pSASChoice->iEstimatedBaseInterceptPercent = iBaseIntercept;
+		pSASChoice->iEscapeCost = iEscapeCost;
+		pSASChoice->iEspionagePoints = iEspPoints;
+		pSASChoice->iEspionageRate = iEspionageRate;
+		pSASChoice->kBest.eMission = NO_ESPIONAGEMISSION;
+		pSASChoice->kBest.iData = -1;
+		pSASChoice->kBest.iRawValue = 0;
+		pSASChoice->kBest.iRandomPercent = 0;
+		pSASChoice->kBest.iRandomizedValue = 0;
+		pSASChoice->kBest.iOverhead = 0;
+		pSASChoice->kBest.iCostPenalty = 0;
+		pSASChoice->kBest.iCost = -1;
+		pSASChoice->kBest.iFinalValue = 0;
+		pSASChoice->kRunnerUp = pSASChoice->kBest;
+		pSASChoice->bBigEspionage = bBigEspionage;
+		pSASChoice->bEspionageEconomy = kOwner.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY);
+	}
+
 	// One espionage mission loop to rule them all.
 	FOR_EACH_ENUM2(EspionageMission, eMission)
 	{
@@ -27668,16 +27698,18 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(int& iData) const
 				continue; // we can't do the mission, and cost is not the limiting factor.
 			}
 			// <!-- custom: Supply the acting Spy so mission valuation shares the selector's unit-sensitive legality and stationary discount without preempting its save-for-later handling. See KI#671. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-			int iValue = kOwner.AI_espionageVal(
-					eTargetPlayer, eMission, kSpyPlot, iTestData, this);
-			iValue *= 80 + syncRand().get(60,
-					// <advc.007> Don't pollute the MPLog
-					bFirst ? "AI best espionage mission" : NULL);
+			int const iRawValue = kOwner.AI_espionageVal(eTargetPlayer, eMission, kSpyPlot, iTestData, this);
+			// <advc.007> Don't pollute the MPLog
+			int const iRandomPercent = 80 + syncRand().get(60, bFirst ? "AI best espionage mission" : NULL);
 			bFirst = false; // </advc.007>
+			int iValue = iRawValue;
+			iValue *= iRandomPercent;
 			iValue /= 100;
+			int const iRandomizedValue = iValue;
 			iValue -= iOverhead;
-			iValue -= iCost * (bBigEspionage ? 2 : 1) * iCost / std::max(1,
+			int const iCostPenalty = iCost * (bBigEspionage ? 2 : 1) * iCost / std::max(1,
 					iCost + GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(eTargetTeam));
+			iValue -= iCostPenalty;
 
 			/*	If we can't do the mission yet, don't completely give up.
 				It might be worth saving points for. */
@@ -27718,9 +27750,34 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(int& iData) const
 			}
 			if (iValue > iBestValue)
 			{
+				if (pSASChoice != NULL)
+				{
+					pSASChoice->kRunnerUp = pSASChoice->kBest;
+					pSASChoice->kBest.eMission = eMission;
+					pSASChoice->kBest.iData = iTestData;
+					pSASChoice->kBest.iRawValue = iRawValue;
+					pSASChoice->kBest.iRandomPercent = iRandomPercent;
+					pSASChoice->kBest.iRandomizedValue = iRandomizedValue;
+					pSASChoice->kBest.iOverhead = iOverhead;
+					pSASChoice->kBest.iCostPenalty = iCostPenalty;
+					pSASChoice->kBest.iCost = iCost;
+					pSASChoice->kBest.iFinalValue = iValue;
+				}
 				iBestValue = iValue;
 				eBestMission = eMission;
 				iData = iTestData;
+			}
+			else if (pSASChoice != NULL && iValue > pSASChoice->kRunnerUp.iFinalValue)
+			{
+				pSASChoice->kRunnerUp.eMission = eMission;
+				pSASChoice->kRunnerUp.iData = iTestData;
+				pSASChoice->kRunnerUp.iRawValue = iRawValue;
+				pSASChoice->kRunnerUp.iRandomPercent = iRandomPercent;
+				pSASChoice->kRunnerUp.iRandomizedValue = iRandomizedValue;
+				pSASChoice->kRunnerUp.iOverhead = iOverhead;
+				pSASChoice->kRunnerUp.iCostPenalty = iCostPenalty;
+				pSASChoice->kRunnerUp.iCost = iCost;
+				pSASChoice->kRunnerUp.iFinalValue = iValue;
 			}
 		}
 	}

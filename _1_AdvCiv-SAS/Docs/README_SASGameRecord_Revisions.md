@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=84 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=85 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,17 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
+### Revision 85 - SAS practical 6473
+
+- **Date:** 2026-09-17
+- **Change:** Added compact AI espionage mission-choice and mission-phase interception provenance. `GAME_RECORD_AI_ESPIONAGE_DECISION` retains the scored chooser winner/runner-up and both candidates' already-computed valuation/randomization/overhead/cost components plus chooser risk/EP/strategy context without rerunning valuation or RNG; the separate K-Mod tactical city-revolt path emits `GAME_RECORD_AI_ESPIONAGE_TACTICAL_DECISION` with its factual remaining-defense gate instead of fabricated scores.
+
+`GAME_RECORD_SPY_INTERCEPTION_CHECK` records every real before/after-mission base/final chance and authoritative result/draw plus counterespionage, counter-Spy-defense/Spy, city-defense and recent-mission context; successful non-interceptions are therefore visible alongside existing completed-mission and caught-Spy outcomes. The ordinary logging-disabled/travel-interception path keeps the original `SyncRandSuccess10000` behavior, and logging-only plot/unit scans remain level-2 gated.
+
 ### Revision 84 - SAS practical 6472
 
 - **Date:** 2026-09-17
-- **Git commit:** pending
+- **Git commit:** `b93cfcd8ae7a6279729c067373532f66d884ea8d`
 - **Change:** Added compact AI corporation operational provenance. `GAME_RECORD_AI_CORPORATION_DECISION` records actual Executive production commits, new/retargeted `AI_spreadCorporation` destinations and deliberate Executive airlift/sea-transport routing with only already-computed chooser scores/path context; no corporation valuation or pathfinding is repeated for logging. Periodic `GAME_RECORD_CORPORATION_POSTURE` separates policy-enabled corporations from actually present corporation types/city instances/headquarters and preserves persistent Executive spread missions, including Executive cargo carried by sea transports, at-target/waiting-gold/ready state and level-3 compact targets across loaded saves; it stays absent before meaningful corporation/Executive state exists.
 
 ### Revision 83 - SAS practical 6471

@@ -17,7 +17,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 84 };
+enum { SAS_GAME_RECORD_REVISION = 85 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -55,6 +55,8 @@ class CvCity;
 class CvPlayer;
 class CvPlot;
 class CvUnit;
+class CvUnitAI;
+struct SASEspionageChoiceContext;
 // <!-- custom: Exact level-3 plot-owner transitions use a small recorder-owned root/mechanism vocabulary instead of guessing causes from the final setter.
 // `tx` identifies the outer causal operation; this separate cause scope identifies the immediate owner-change mechanism/source. Nested cause scopes therefore override temporarily and restore on exit (e.g. tx=VASSALAGE with cause=WAR_BORDER or CULTURE_UPDATE).
 // Call sites gate before gathering logging-only state; disabled scopes perform only their cheap constructor branch. NONE reports UNKNOWN rather than borrowing the active transaction kind, keeping root operation (`tx`) and immediate mechanism (`cause`) semantically distinct. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -411,7 +413,10 @@ void logSASGameRecordGreatPersonInfiltrated(CvUnit const* pUnit, CvCity const* p
 void logSASGameRecordGreatPersonGoldenAgeConsumed(CvUnit const* pUnit);
 // <!-- custom: Combat can supply its actual target because a dead attacker still reports its origin; other death paths retain the unit's current plot. See KI#377. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void logSASGameRecordGreatPersonDied(CvUnit const* pUnit, PlayerTypes eResponsiblePlayer, char const* szCause, CvPlot const* pDeathPlot = NULL);
+void logSASGameRecordAIEspionageDecision(CvUnitAI const* pUnit, PlayerTypes eTargetPlayer, SASEspionageChoiceContext const& kChoice);
+void logSASGameRecordAITacticalEspionageDecision(CvUnitAI const* pUnit, CvCity const* pCity, EspionageMissionTypes eMission);
 void logSASGameRecordEspionageMission(CvUnit const* pUnit, EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot const* pPlot, int iExtraData, int iCost, int iEPBefore, int iEPAfter, ImprovementTypes eTargetImprovement, RouteTypes eTargetRoute, UnitTypes eTargetUnit, int iEffectValue, char const* szEffectKind);
+void logSASGameRecordSpyInterceptionCheck(CvUnit const* pUnit, PlayerTypes eTargetPlayer, char const* szPhase, int iModifier, int iBaseInterceptPercent, int iInterceptChanceX100, int iInterceptRoll, bool bIntercepted, int iCounterespionageMod, bool bCounterSpyDefenseAtPlot, int iTargetSpiesOnPlot, int iTargetCounterSpyUnitsOnPlot, int iAttackerSpiesOnPlot, int iCityEspionageDefenseModifier, bool bRecentMissionBonusApplies, EspionageMissionTypes eMission, int iExtraData, ImprovementTypes eTargetImprovement, RouteTypes eTargetRoute, UnitTypes eTargetUnit);
 void logSASGameRecordSpyIntercepted(CvUnit const* pUnit, PlayerTypes eTargetPlayer, char const* szPhase, int iModifier, int iInterceptChanceX100, EspionageMissionTypes eMission, int iExtraData, ImprovementTypes eTargetImprovement, RouteTypes eTargetRoute, UnitTypes eTargetUnit);
 void logSASGameRecordGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit const* pTargetUnit, PromotionTypes ePromotion);
 void logSASGameRecordUnitScrapped(CvUnit const* pUnit);

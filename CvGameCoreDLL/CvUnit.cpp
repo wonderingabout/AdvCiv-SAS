@@ -6910,8 +6910,39 @@ bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iM
 	if (kTargetPlayer.isBarbarian())
 		return false;
 
-	int const iInterceptChanceX100 = (100 + iModifier) * getSpyInterceptPercent(kTargetPlayer.getTeam(), bMission);
-	if (!SyncRandSuccess10000(iInterceptChanceX100))
+	int const iBaseInterceptPercent = getSpyInterceptPercent(kTargetPlayer.getTeam(), bMission);
+	int const iInterceptChanceX100 = (100 + iModifier) * iBaseInterceptPercent;
+	if (gGameRecordLogLevel >= 2 && bMission)
+	{
+		// <!-- custom: Preserve the exact authoritative mission-interception draw for GameRecord while keeping the ordinary/logging-disabled path on the original SyncRandSuccess10000 macro below.
+		// This is algebraically identical: chance <= 0 consumes no RNG and fails; chance >= 10000 consumes no RNG and succeeds; otherwise success is chance > SyncRandNum(10000). (ChatGPT-5.6-Sol) -->
+		int iInterceptRoll = -1;
+		bool bIntercepted = false;
+		if (iInterceptChanceX100 > 0)
+		{
+			if (iInterceptChanceX100 >= 10000) bIntercepted = true;
+			else
+			{
+				iInterceptRoll = SyncRandNum(10000);
+				bIntercepted = (iInterceptChanceX100 > iInterceptRoll);
+			}
+		}
+
+		// <!-- custom: Gather only mission-phase defensive facts and only while GameRecord is enabled; disabled logging and ordinary travel interception pay none of these extra plot/unit scans. (ChatGPT-5.6-Sol) -->
+		TeamTypes const eTargetTeam = kTargetPlayer.getTeam();
+		int const iCounterespionageMod = GET_TEAM(eTargetTeam).getCounterespionageModAgainstTeam(getTeam());
+		bool const bCounterSpyDefenseAtPlot = getPlot().isEspionageCounterSpy(eTargetTeam);
+		int const iTargetSpiesOnPlot = getPlot().plotCount(PUF_isSpy, -1, -1, NO_PLAYER, eTargetTeam);
+		int const iTargetCounterSpyUnitsOnPlot = getPlot().plotCount(PUF_isCounterSpy, -1, -1, NO_PLAYER, eTargetTeam);
+		int const iAttackerSpiesOnPlot = getPlot().plotCount(PUF_isSpy, -1, -1, NO_PLAYER, getTeam());
+		CvCity const* pTargetCity = getPlot().getPlotCity();
+		int const iCityEspionageDefenseModifier = (pTargetCity != NULL && pTargetCity->getTeam() == eTargetTeam ? pTargetCity->getEspionageDefenseModifier() : 0);
+		bool const bRecentMissionBonusApplies = (getFortifyTurns() == 0 || iAttackerSpiesOnPlot > 1);
+		logSASGameRecordSpyInterceptionCheck(this, eTargetPlayer, szSummaryPhase, iModifier, iBaseInterceptPercent, iInterceptChanceX100, iInterceptRoll, bIntercepted, iCounterespionageMod, bCounterSpyDefenseAtPlot, iTargetSpiesOnPlot, iTargetCounterSpyUnitsOnPlot, iAttackerSpiesOnPlot, iCityEspionageDefenseModifier, bRecentMissionBonusApplies, eMission, iData, eTargetImprovement, eTargetRoute, eTargetUnit);
+		if (!bIntercepted)
+			return false;
+	}
+	else if (!SyncRandSuccess10000(iInterceptChanceX100))
 	{
 		return false;
 	}

@@ -10,6 +10,33 @@
 class CvCity;
 class CvSelectionGroupAI; // advc.003u
 
+// <!-- custom: Optional recorder-only output from the existing espionage chooser. Plain scalars keep the real chooser values compact; this is filled only when the live caller enables GameRecord level 2+, never by reevaluating a mission. (ChatGPT-5.6-Sol) -->
+struct SASEspionageCandidateContext
+{
+	EspionageMissionTypes eMission;
+	int iData;
+	int iRawValue;
+	int iRandomPercent;
+	int iRandomizedValue;
+	int iOverhead;
+	int iCostPenalty;
+	int iCost;
+	int iFinalValue;
+};
+
+struct SASEspionageChoiceContext
+{
+	int iSpyValue;
+	int iEstimatedBaseInterceptPercent;
+	int iEscapeCost;
+	int iEspionagePoints;
+	int iEspionageRate;
+	SASEspionageCandidateContext kBest;
+	SASEspionageCandidateContext kRunnerUp;
+	bool bBigEspionage;
+	bool bEspionageEconomy;
+};
+
 class CvUnitAI : public CvUnit
 {
 public:
@@ -288,7 +315,8 @@ protected:
 	bool AI_cityOffenseSpy(int iRange, CvCity* pSkipCity = NULL);
 	// BETTER_BTS_AI_MOD: END
 	bool AI_espionageSpy();
-	EspionageMissionTypes AI_bestPlotEspionage(int& iData) const; // K-Mod
+	// <!-- custom: Optional pSASChoice is recorder-only output from the live chooser; NULL keeps normal callers free of context capture and no mission is revalued for logging. (ChatGPT-5.6-Sol) -->
+	EspionageMissionTypes AI_bestPlotEspionage(int& iData, SASEspionageChoiceContext* pSASChoice = NULL) const; // K-Mod
 	bool AI_moveToStagingCity();
 	bool AI_seaRetreatFromCityDanger();
 	bool AI_airRetreatFromCityDanger();

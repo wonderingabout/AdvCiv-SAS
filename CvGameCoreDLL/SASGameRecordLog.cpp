@@ -12054,9 +12054,78 @@ static void getSASGameRecordEspionageTarget(EspionageMissionTypes eMission, int 
 	}
 }
 
+// <!-- custom: Before execution, resolve the live selected/runner-up target using the same plot/data the chooser just scored.
+// Destructive target types are safe to inspect here because nothing has executed yet; completed/intercepted rows continue using their pre-mission captured target identity. (ChatGPT-5.6-Sol) -->
+static void getSASGameRecordLiveEspionageTarget(CvUnitAI const* pUnit, PlayerTypes eTargetPlayer, SASEspionageCandidateContext const& kCandidate, char const*& szTargetKind, char const*& szTargetType)
+{
+	ImprovementTypes eTargetImprovement = NO_IMPROVEMENT;
+	RouteTypes eTargetRoute = NO_ROUTE;
+	UnitTypes eTargetUnit = NO_UNIT;
+	if (pUnit != NULL && kCandidate.eMission != NO_ESPIONAGEMISSION)
+	{
+		CvPlot const* pPlot = pUnit->plot();
+		CvEspionageMissionInfo const& kMission = GC.getInfo(kCandidate.eMission);
+		if (pPlot != NULL && kMission.isDestroyImprovement())
+		{
+			eTargetImprovement = pPlot->getImprovementType();
+			eTargetRoute = pPlot->getRouteType();
+		}
+		else if (eTargetPlayer != NO_PLAYER && kCandidate.iData >= 0 &&
+			(kMission.getDestroyUnitCostFactor() > 0 || kMission.getBuyUnitCostFactor() > 0))
+		{
+			CvUnit const* pTargetUnit = GET_PLAYER(eTargetPlayer).getUnit(kCandidate.iData);
+			if (pTargetUnit != NULL)
+				eTargetUnit = pTargetUnit->getUnitType();
+		}
+	}
+	getSASGameRecordEspionageTarget(kCandidate.eMission, kCandidate.iData, eTargetImprovement, eTargetRoute, eTargetUnit, szTargetKind, szTargetType);
+}
+
+// <!-- custom: The real AI mission selector contributes only its already-computed winner/runner-up arithmetic at the actual MISSION_ESPIONAGE commit boundary.
+// No mission is revalued and no chooser RNG is repeated; completed effects and interception outcomes remain separate so decision -> attempt risk -> realized consequence can be reconciled compactly. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIEspionageDecision(CvUnitAI const* pUnit, PlayerTypes eTargetPlayer, SASEspionageChoiceContext const& kChoice)
+{
+	if (pUnit == NULL || kChoice.kBest.eMission == NO_ESPIONAGEMISSION)
+		return;
+	CvPlot const* pPlot = pUnit->plot();
+	CvCity const* pCity = (pPlot == NULL ? NULL : pPlot->getPlotCity());
+	char const* szTargetKind;
+	char const* szTargetType;
+	getSASGameRecordLiveEspionageTarget(pUnit, eTargetPlayer, kChoice.kBest, szTargetKind, szTargetType);
+	char const* szRunnerUpTargetKind;
+	char const* szRunnerUpTargetType;
+	getSASGameRecordLiveEspionageTarget(pUnit, eTargetPlayer, kChoice.kRunnerUp, szRunnerUpTargetKind, szRunnerUpTargetType);
+	logSASGameRecord("GAME_RECORD_AI_ESPIONAGE_DECISION turn=%d player=%d team=%d spyId=%d spy=%s spyAI=%s targetPlayer=%d targetTeam=%d targetGold=%d cityId=%d city=%S x=%d y=%d mission=%s targetKind=%s target=%s extraData=%d rawValue=%d randomPercent=%d randomizedValue=%d overhead=%d costPenalty=%d cost=%d finalValue=%d runnerUpMission=%s runnerUpTargetKind=%s runnerUpTarget=%s runnerUpData=%d runnerUpRawValue=%d runnerUpRandomPercent=%d runnerUpRandomizedValue=%d runnerUpOverhead=%d runnerUpCostPenalty=%d runnerUpCost=%d runnerUpValue=%d valueMargin=%d estimatedBaseInterceptPercent=%d estimatedSpyValue=%d estimatedEscapeCost=%d teamEP=%d espionageRate=%d bigEspionage=%d espionageEconomy=%d fortifyTurns=%d",
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(),
+			pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+			eTargetPlayer, eTargetPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eTargetPlayer).getTeam(), eTargetPlayer == NO_PLAYER ? -1 : GET_PLAYER(eTargetPlayer).getGold(),
+			pCity == NULL ? -1 : pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->getX(), pUnit->getY(),
+			getSASGameRecordEspionageMissionType(kChoice.kBest.eMission), szTargetKind, szTargetType, kChoice.kBest.iData,
+			kChoice.kBest.iRawValue, kChoice.kBest.iRandomPercent, kChoice.kBest.iRandomizedValue, kChoice.kBest.iOverhead, kChoice.kBest.iCostPenalty, kChoice.kBest.iCost, kChoice.kBest.iFinalValue,
+			getSASGameRecordEspionageMissionType(kChoice.kRunnerUp.eMission), szRunnerUpTargetKind, szRunnerUpTargetType, kChoice.kRunnerUp.iData,
+			kChoice.kRunnerUp.iRawValue, kChoice.kRunnerUp.iRandomPercent, kChoice.kRunnerUp.iRandomizedValue, kChoice.kRunnerUp.iOverhead, kChoice.kRunnerUp.iCostPenalty, kChoice.kRunnerUp.iCost, kChoice.kRunnerUp.iFinalValue,
+			kChoice.kBest.iFinalValue - kChoice.kRunnerUp.iFinalValue, kChoice.iEstimatedBaseInterceptPercent, kChoice.iSpyValue, kChoice.iEscapeCost, kChoice.iEspionagePoints, kChoice.iEspionageRate,
+			kChoice.bBigEspionage, kChoice.bEspionageEconomy, pUnit->getFortifyTurns());
+}
+
+// <!-- custom: AI_revoltCitySpy is a separate K-Mod tactical commit path that intentionally bypasses the scored general espionage chooser.
+// Record its factual city-defense gate and chosen revolt mission without fabricating winner/runner-up values or repeating any tactical/strength evaluation. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAITacticalEspionageDecision(CvUnitAI const* pUnit, CvCity const* pCity, EspionageMissionTypes eMission)
+{
+	if (pUnit == NULL || pCity == NULL || eMission == NO_ESPIONAGEMISSION)
+		return;
+	int const iMaxDefenseDamage = GC.getMAX_CITY_DEFENSE_DAMAGE();
+	int const iRemainingDefensePercent = 100 * (iMaxDefenseDamage - pCity->getDefenseDamage()) / std::max(1, iMaxDefenseDamage);
+	logSASGameRecord("GAME_RECORD_AI_ESPIONAGE_TACTICAL_DECISION turn=%d player=%d team=%d spyId=%d spy=%s spyAI=%s targetPlayer=%d targetTeam=%d cityId=%d city=%S x=%d y=%d mission=%s kind=CITY_REVOLT defenseDamage=%d maxDefenseDamage=%d remainingDefensePercent=%d fortifyTurns=%d",
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(),
+			pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+			pCity->getOwner(), pCity->getTeam(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(),
+			getSASGameRecordEspionageMissionType(eMission), pCity->getDefenseDamage(), iMaxDefenseDamage, iRemainingDefensePercent, pUnit->getFortifyTurns());
+}
+
 // <!-- custom: Periodic espionage totals showed investment against each rival but not what those points accomplished.
-// Record only completed missions and actual interceptions at game-record level 2; mission selection and movement reasoning remain BBAI diagnostics.
-// Resolve iExtraData to XML types so stolen technologies and sabotaged buildings/projects/units are readable. (GPT-5.6-Sol) -->
+// Record completed missions plus every real mission-phase interception check; target decoding keeps stolen technologies and sabotaged buildings/projects/units readable.
+// AI mission-choice provenance is emitted separately at the live chooser commit boundary above. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 void logSASGameRecordEspionageMission(CvUnit const* pUnit, EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot const* pPlot, int iExtraData, int iCost, int iEPBefore, int iEPAfter, ImprovementTypes eTargetImprovement, RouteTypes eTargetRoute, UnitTypes eTargetUnit, int iEffectValue, char const* szEffectKind)
 {
 	if (pUnit == NULL || eMission == NO_ESPIONAGEMISSION)
@@ -12070,6 +12139,22 @@ void logSASGameRecordEspionageMission(CvUnit const* pUnit, EspionageMissionTypes
 			eTargetPlayer, eTargetPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eTargetPlayer).getTeam(), getSASGameRecordEspionageMissionType(eMission), iCost, iEPBefore, iEPAfter,
 			pCity == NULL ? -1 : pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pPlot == NULL ? -1 : pPlot->getX(), pPlot == NULL ? -1 : pPlot->getY(),
 			szTargetKind, szTargetType, szEffectKind, iEffectValue, iExtraData, pUnit->getFortifyTurns());
+}
+
+void logSASGameRecordSpyInterceptionCheck(CvUnit const* pUnit, PlayerTypes eTargetPlayer, char const* szPhase, int iModifier, int iBaseInterceptPercent, int iInterceptChanceX100, int iInterceptRoll, bool bIntercepted, int iCounterespionageMod, bool bCounterSpyDefenseAtPlot, int iTargetSpiesOnPlot, int iTargetCounterSpyUnitsOnPlot, int iAttackerSpiesOnPlot, int iCityEspionageDefenseModifier, bool bRecentMissionBonusApplies, EspionageMissionTypes eMission, int iExtraData, ImprovementTypes eTargetImprovement, RouteTypes eTargetRoute, UnitTypes eTargetUnit)
+{
+	if (pUnit == NULL)
+		return;
+	char const* szTargetKind;
+	char const* szTargetType;
+	getSASGameRecordEspionageTarget(eMission, iExtraData, eTargetImprovement, eTargetRoute, eTargetUnit, szTargetKind, szTargetType);
+	CvCity const* pCity = pUnit->getPlot().getPlotCity();
+	logSASGameRecord("GAME_RECORD_SPY_INTERCEPTION_CHECK turn=%d player=%d team=%d spyId=%d spy=%s spyAI=%s targetPlayer=%d targetTeam=%d phase=%s mission=%s targetKind=%s target=%s extraData=%d x=%d y=%d cityId=%d city=%S modifier=%d baseInterceptPercent=%d interceptChanceX100=%d roll=%d intercepted=%d counterespionageMod=%d counterSpyDefenseAtPlot=%d targetSpiesOnPlot=%d targetCounterSpyUnitsOnPlot=%d attackerSpiesOnPlot=%d cityEspionageDefenseModifier=%d recentMissionBonusApplies=%d fortifyTurns=%d",
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(),
+			pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+			eTargetPlayer, eTargetPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eTargetPlayer).getTeam(), szPhase, getSASGameRecordEspionageMissionType(eMission), szTargetKind, szTargetType, iExtraData,
+			pUnit->getX(), pUnit->getY(), pCity == NULL ? -1 : pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(),
+			iModifier, iBaseInterceptPercent, iInterceptChanceX100, iInterceptRoll, bIntercepted, iCounterespionageMod, bCounterSpyDefenseAtPlot, iTargetSpiesOnPlot, iTargetCounterSpyUnitsOnPlot, iAttackerSpiesOnPlot, iCityEspionageDefenseModifier, bRecentMissionBonusApplies, pUnit->getFortifyTurns());
 }
 
 void logSASGameRecordSpyIntercepted(CvUnit const* pUnit, PlayerTypes eTargetPlayer, char const* szPhase, int iModifier, int iInterceptChanceX100, EspionageMissionTypes eMission, int iExtraData, ImprovementTypes eTargetImprovement, RouteTypes eTargetRoute, UnitTypes eTargetUnit)
