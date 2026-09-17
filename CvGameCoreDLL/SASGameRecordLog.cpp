@@ -8838,7 +8838,7 @@ static void logSASGameRecordBarbarians(int iGameTurn)
 
 // <!-- custom: Complement the omniscient barbarian summary with the pressure that this player's team can actually know about.
 // Visible-unit counts require both plot visibility and unit non-invisibility; barbarian cities distinguish revealed, currently visible, and actionable known state (AI players reuse K-Mod's existing city-deduction rule, humans require actual city revelation).
-// UNITAI_EXPLORE / MISSIONAI_EXPLORE are recorded factually rather than relabeled as "fog busters", because the engine exposes no dedicated fog-busting intent.
+// UNITAI_EXPLORE / MISSIONAI_EXPLORE remain factual exploration state rather than being relabeled as fog-busting; explicit AdvCiv city-site fog-control assignments use MISSIONAI_GUARD_CITY and are tracked separately below and at their real assignment boundary.
 // The existing AI barbarian-defense-focus predicate is also preserved without invoking barbarian target scoring. (ChatGPT-5.6-Sol) -->
 static void logSASGameRecordBarbarianPressure(PlayerTypes ePlayer, int iGameTurn)
 {
@@ -8914,11 +8914,57 @@ static void logSASGameRecordBarbarianPressure(PlayerTypes ePlayer, int iGameTurn
 		}
 	}
 	int iExploreMissionGroups = 0;
+	int iGuardCityMissionGroups = 0;
+	int iCitySiteGuardGroups = 0;
+	int iCitySiteGuardGroupsAtTarget = 0;
+	int iCitySiteAdjacentGuardGroups = 0;
+	CvString szCitySiteGuardTargets;
+	bool const bLogCitySiteGuardTargets = (gGameRecordLogLevel >= 3);
+	int const iCitySites = kPlayer.AI_getNumCitySites();
 	int iGroupLoop = 0;
 	for (CvSelectionGroup const* pLoopGroup = kPlayer.firstSelectionGroup(&iGroupLoop); pLoopGroup != NULL; pLoopGroup = kPlayer.nextSelectionGroup(&iGroupLoop))
 	{
-		if (pLoopGroup->AI().AI_getMissionAIType() == MISSIONAI_EXPLORE)
+		MissionAITypes const eMissionAI = pLoopGroup->AI().AI_getMissionAIType();
+		if (eMissionAI == MISSIONAI_EXPLORE)
 			iExploreMissionGroups++;
+		if (eMissionAI != MISSIONAI_GUARD_CITY)
+			continue;
+		iGuardCityMissionGroups++;
+		CvPlot const* pMissionPlot = pLoopGroup->AI().AI_getMissionAIPlot();
+		if (pMissionPlot == NULL || pMissionPlot->getPlotCity() != NULL)
+			continue;
+		int iMatchedSite = -1;
+		int iMatchedDistance = 2;
+		for (int iSite = 0; iSite < iCitySites; iSite++)
+		{
+			CvPlot const& kSite = kPlayer.AI_getCitySite(iSite);
+			int const iDistance = plotDistance(pMissionPlot->getX(), pMissionPlot->getY(), kSite.getX(), kSite.getY());
+			if (iDistance <= 1 && iDistance < iMatchedDistance)
+			{
+				iMatchedSite = iSite;
+				iMatchedDistance = iDistance;
+			}
+		}
+		if (iMatchedSite < 0)
+			continue;
+		iCitySiteGuardGroups++;
+		if (iMatchedDistance > 0) iCitySiteAdjacentGuardGroups++;
+		CvPlot const& kGroupPlot = pLoopGroup->getPlot();
+		bool const bAtTarget = (&kGroupPlot == pMissionPlot);
+		if (bAtTarget) iCitySiteGuardGroupsAtTarget++;
+		if (bLogCitySiteGuardTargets)
+		{
+			if (!szCitySiteGuardTargets.empty()) szCitySiteGuardTargets += ";";
+			CvPlot const& kSite = kPlayer.AI_getCitySite(iMatchedSite);
+			CvString szTarget;
+			szTarget.Format("%d:site%d@(%d,%d)>guard(%d,%d):current(%d,%d):adjacent%d:at%d",
+				pLoopGroup->getID(),
+				iMatchedSite + 1, kSite.getX(), kSite.getY(),
+				pMissionPlot->getX(), pMissionPlot->getY(),
+				kGroupPlot.getX(), kGroupPlot.getY(),
+				iMatchedDistance > 0 ? 1 : 0, bAtTarget ? 1 : 0);
+			szCitySiteGuardTargets += szTarget;
+		}
 	}
 	int iBarbarianDefenseFocusAreas = -1;
 	int iCapitalAreaBarbarianDefenseFocus = -1;
@@ -8941,12 +8987,13 @@ static void logSASGameRecordBarbarianPressure(PlayerTypes ePlayer, int iGameTurn
 		iCapitalAreaBarbarianDefenseFocus = (pCapital == NULL ? -1 : (kPlayer.AI_isDefenseFocusOnBarbarians(pCapital->getArea()) ? 1 : 0));
 		iBarbarianAttackersNeeded = kPlayer.AI_neededCityAttackersVsBarbarians().ceil();
 	}
-	logSASGameRecord("GAME_RECORD_BARBARIAN_PRESSURE turn=%d player=%d team=%d human=%d barbarianCreationEra=%d visibleUnits=%d visibleAnimals=%d visibleNonAnimals=%d visibleLandUnits=%d visibleSeaUnits=%d visibleUnitsInTerritory=%d visibleUnitsWithin3OfCity=%d visibleUnitsWithin6OfCity=%d nearestVisibleUnitDistance=%d nearestVisibleUnitId=%d nearestVisibleUnit=%s nearestVisibleUnitX=%d nearestVisibleUnitY=%d revealedCities=%d visibleCities=%d knownCities=%d nearestKnownCityDistance=%d nearestKnownCityId=%d nearestKnownCityX=%d nearestKnownCityY=%d cityAttackRoleUnits=%d exploreRoleUnits=%d exploreMissionGroups=%d barbarianDefenseFocusAreas=%d capitalAreaBarbarianDefenseFocus=%d aiBarbarianAttackersNeeded=%d",
+	logSASGameRecord("GAME_RECORD_BARBARIAN_PRESSURE turn=%d player=%d team=%d human=%d barbarianCreationEra=%d visibleUnits=%d visibleAnimals=%d visibleNonAnimals=%d visibleLandUnits=%d visibleSeaUnits=%d visibleUnitsInTerritory=%d visibleUnitsWithin3OfCity=%d visibleUnitsWithin6OfCity=%d nearestVisibleUnitDistance=%d nearestVisibleUnitId=%d nearestVisibleUnit=%s nearestVisibleUnitX=%d nearestVisibleUnitY=%d revealedCities=%d visibleCities=%d knownCities=%d nearestKnownCityDistance=%d nearestKnownCityId=%d nearestKnownCityX=%d nearestKnownCityY=%d cityAttackRoleUnits=%d exploreRoleUnits=%d exploreMissionGroups=%d guardCityMissionGroups=%d citySiteGuardGroups=%d citySiteGuardGroupsAtTarget=%d citySiteAdjacentGuardGroups=%d citySiteGuardTargets=%s barbarianDefenseFocusAreas=%d capitalAreaBarbarianDefenseFocus=%d aiBarbarianAttackersNeeded=%d",
 			iGameTurn, ePlayer, eTeam, kPlayer.isHuman() ? 1 : 0, GC.getGame().isBarbarianCreationEra() ? 1 : 0,
 			iVisibleUnits, iVisibleAnimals, iVisibleUnits - iVisibleAnimals, iVisibleLandUnits, iVisibleSeaUnits, iVisibleUnitsInTerritory, iVisibleUnitsWithin3OfCity, iVisibleUnitsWithin6OfCity,
 			iNearestVisibleUnitDistance, iNearestVisibleUnitId, getSASGameRecordUnitType(eNearestVisibleUnit), iNearestVisibleUnitX, iNearestVisibleUnitY,
 			iRevealedCities, iVisibleCities, iKnownCities, iNearestKnownCityDistance, iNearestKnownCityId, iNearestKnownCityX, iNearestKnownCityY,
-			kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_CITY), kPlayer.AI_totalUnitAIs(UNITAI_EXPLORE), iExploreMissionGroups,
+			kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_CITY), kPlayer.AI_totalUnitAIs(UNITAI_EXPLORE), iExploreMissionGroups, iGuardCityMissionGroups, iCitySiteGuardGroups, iCitySiteGuardGroupsAtTarget, iCitySiteAdjacentGuardGroups,
+			getSASDiagnosticOrDash(szCitySiteGuardTargets).GetCString(),
 			iBarbarianDefenseFocusAreas, iCapitalAreaBarbarianDefenseFocus, iBarbarianAttackersNeeded);
 }
 

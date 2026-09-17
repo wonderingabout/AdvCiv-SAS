@@ -17,6 +17,7 @@
 #include "CvInfo_City.h" // <!-- custom: Great Artist decision diagnostics log specialist XML types. (GPT-5.5) -->
 #include "CitySiteEvaluator.h" // <!-- custom: First-settler scoring keeps starting weights without all-seeing evaluation and provides compact diagnostics. (GPT-5.5) -->
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+#include "SASGameRecordLog.h" // <!-- custom: Record compact factual AI fog-control/map-control assignments separately from detailed BBAI movement reasoning. (ChatGPT-5.6-Sol) -->
 #include <queue> // <!-- custom: Needed by the least-cost owned-plot search for deterministic source-to-target Worker irrigation chains. (GPT-5.6-Sol) -->
 
 //#define FOUND_RANGE (7) // advc: unused
@@ -16300,10 +16301,12 @@ bool CvUnitAI::AI_guardYield()
 		pCity = getPlot().getWorkingCity();
 	if(pCity == NULL || pCity->getOwner() != getOwner())
 		return false;
-	int iBestValue = 6;
-	if(!GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
-		iBestValue = 8;
+	int const iThreshold = (GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS) ? 6 : 8);
+	int iBestValue = iThreshold;
 	CvPlot* pBestPlot = NULL;
+	int iBestYieldValue = -1;
+	int iBestDefenseModifier = -1;
+	int iBestNearestInvisibleDistance = -1;
 	// <!-- custom: AdvCiv recovered the guarded plot's working city but centered the candidate radius on the moving guard, allowing repeated one-hop drift outside that city's plots.
 	// Keep candidates and the promised one-turn city-return constraint anchored to the recovered city. See KI#710. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	for (CityPlotIter it(*pCity); it.hasNext(); ++it)
@@ -16323,37 +16326,54 @@ bool CvUnitAI::AI_guardYield()
 		{
 			continue;
 		}
-		int iValue = 0;
+		int iYieldValue = 0;
 		// Example: Plains Hill Mine in the outer ring gets a value of 8
 		FOR_EACH_ENUM(Yield)
 		{
-			int iYieldValue = kLoopPlot.getYield(eLoopYield);
+			int iYieldValuePart = kLoopPlot.getYield(eLoopYield);
 			if(eLoopYield != YIELD_COMMERCE)
-				iYieldValue *= 2;
-			iValue += iYieldValue;
+				iYieldValuePart *= 2;
+			iYieldValue += iYieldValuePart;
 		}
 		/*  BARBARIAN_TEAM: It's more about the defense that Barbarians will have if
 			allowed to enter the tile than our unit's defense. */
 		/*  Example cont.: +2 from the Hill (25/10 rounded down);
 			i.e. it's worth protecting (barely). */
-		iValue += kLoopPlot.defenseModifier(BARBARIAN_TEAM, true,
-				/* <advc.012> */ getTeam() /* </advc.012> */) / 10;
+		int const iDefenseModifier = kLoopPlot.defenseModifier(BARBARIAN_TEAM, true,
+				/* <advc.012> */ getTeam() /* </advc.012> */);
+		int iValue = iYieldValue + iDefenseModifier / 10;
 		if(iValue <= iBestValue) // Will only decrease from here
 			continue;
 		// Guard only tiles near invisible regions (where Barbarians might appear)
 		CvPlot const* pNearestInvis = kLoopPlot.nearestInvisiblePlot(true, 5, getTeam());
 		if(pNearestInvis == NULL)
 			continue;
-		iValue -= ::plotDistance(pNearestInvis, &kLoopPlot);
+		int const iNearestInvisibleDistance = ::plotDistance(pNearestInvis, &kLoopPlot);
+		iValue -= iNearestInvisibleDistance;
 		if(iValue > iBestValue)
 		{
 			iBestValue = iValue;
 			pBestPlot = &kLoopPlot;
+			iBestYieldValue = iYieldValue;
+			iBestDefenseModifier = iDefenseModifier;
+			iBestNearestInvisibleDistance = iNearestInvisibleDistance;
 		}
 	}
 	if(pBestPlot == NULL)
 		return false;
-	if(at(*pBestPlot))
+	bool const bLogSASMapControl = (gGameRecordLogLevel >= 2);
+	MissionAITypes const eOldMissionAI = (bLogSASMapControl ? AI_getGroup()->AI_getMissionAIType() : NO_MISSIONAI);
+	CvPlot const* pOldMissionPlot = (bLogSASMapControl ? AI_getGroup()->AI_getMissionAIPlot() : NULL);
+	bool const bAtTarget = at(*pBestPlot);
+	if (bLogSASMapControl && (eOldMissionAI != MISSIONAI_GUARD_BONUS || pOldMissionPlot != pBestPlot)) logSASGameRecord("GAME_RECORD_AI_MAP_CONTROL_DECISION turn=%d player=%d team=%d kind=YIELD_GUARD unitId=%d unit=%s unitAI=%s groupId=%d fromX=%d fromY=%d contextCityId=%d contextCityX=%d contextCityY=%d targetX=%d targetY=%d targetYieldValue=%d targetDefenseModifier=%d nearestInvisibleDistance=%d targetScore=%d threshold=%d ragingBarbarians=%d atTarget=%d action=%s",
+			GC.getGame().getGameTurn(), getOwner(), getTeam(), getID(),
+			SAS_getUnitTypeName(getUnitType()), SAS_getUnitAITypeName(AI_getUnitAIType()),
+			getGroup()->getID(), getX(), getY(),
+			pCity->getID(), pCity->getX(), pCity->getY(),
+			pBestPlot->getX(), pBestPlot->getY(),
+			iBestYieldValue, iBestDefenseModifier, iBestNearestInvisibleDistance, iBestValue, iThreshold,
+			GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS) ? 1 : 0, bAtTarget ? 1 : 0, bAtTarget ? (isFortifyable() ? "FORTIFY" : "SKIP") : "MOVE");
+	if(bAtTarget)
 	{
 		 getGroup()->pushMission(eStayPut, -1, -1, NO_MOVEMENT_FLAGS,
 				false, false, MISSIONAI_GUARD_BONUS, pBestPlot);
@@ -16557,9 +16577,17 @@ bool CvUnitAI::AI_guardCitySite()
 {
 	PROFILE_FUNC();
 
-	int iPathTurns;
+	// <!-- custom: VC++ 2003 cannot infer from the later selected-target pointer guards that every accepted city site initialized this through generatePath. Zero is the correct path length when already at the target; every accepted nonlocal target overwrites it through a successful path search. (GPT-5.6-Sol) -->
+	int iPathTurns = 0;
+	// <!-- custom: Keep the selected target's path length stable if a later candidate path search fails and overwrites iPathTurns with MAX_INT. Recorder-only scalar cache; no extra pathfinding. (ChatGPT-5.6-Sol) -->
+	int iBestPathTurns = -1;
 	CvPlot* pBestPlot = NULL;
+	CvPlot* pBestCitySite = NULL;
 	CvPlot* pBestGuardPlot = NULL;
+	int iBestCitySiteRank = -1;
+	int iBestGuardValue = -1;
+	int iBestGuardDefenseModifier = -1;
+	int iBestGuardSeeFromLevel = -1;
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // advc
 	/*	advc.300: Don't guard any ole tile with a positive found value;
 		only actual city sites. */
@@ -16592,51 +16620,90 @@ bool CvUnitAI::AI_guardCitySite()
 				{
 					iBestValue = iValue;
 					pBestPlot = &getPathEndTurnPlot();
+					pBestCitySite = &kLoopPlot;
 					pBestGuardPlot = &kLoopPlot;
+					iBestCitySiteRank = i + 1;
+					iBestPathTurns = iPathTurns;
 				}
 			}
 		}
 	}
 	// <advc.300> Guard an adjacent plot if it's better for fogbusting
-	if(pBestGuardPlot != NULL)
+	if(pBestCitySite != NULL)
 	{
 		int iBestGuardVal = 0;
-		CvPlot* pBetterGuardPlot = pBestGuardPlot;
+		int iBetterGuardDefenseModifier = -1;
+		int iBetterGuardSeeFromLevel = -1;
+		int iCitySiteGuardValue = -1;
+		int iCitySiteGuardDefenseModifier = -1;
+		int iCitySiteGuardSeeFromLevel = -1;
+		CvPlot* pBetterGuardPlot = pBestCitySite;
 		// <!-- custom: Score the planned city tile along with its adjacent alternatives.
 		// The former adjacent-only loop made its center tie-break unreachable and let any positive adjacent score displace the unscored center. See KI#708. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		for (SquareIter itGuardPlot(*pBestGuardPlot, 1); itGuardPlot.hasNext(); ++itGuardPlot)
+		for (SquareIter itGuardPlot(*pBestCitySite, 1); itGuardPlot.hasNext(); ++itGuardPlot)
 		{
 			CvPlot* pGuardPlot = &*itGuardPlot;
 			if(!pGuardPlot->isRevealed(getTeam()))
 				continue;
-			int iGuardValue = pGuardPlot->defenseModifier(getTeam(), true);
+			int const iDefenseModifier = pGuardPlot->defenseModifier(getTeam(), true);
+			int iGuardValue = iDefenseModifier;
 			if (noDefensiveBonus())
 			{	// Still useful to deny approaching enemies a defensive bonus
 				iGuardValue *= 3;
 				iGuardValue /= 5;
 			}
-			iGuardValue += pGuardPlot->seeFromLevel(getTeam()) * 30;
+			int const iSeeFromLevel = pGuardPlot->seeFromLevel(getTeam());
+			iGuardValue += iSeeFromLevel * 30;
 			if(at(*pGuardPlot))
 				iGuardValue += 3; // inertia
-			if(pGuardPlot == pBestGuardPlot)
+			if(pGuardPlot == pBestCitySite)
+			{
 				iGuardValue += 1; // tie-breaker
+				iCitySiteGuardValue = iGuardValue;
+				iCitySiteGuardDefenseModifier = iDefenseModifier;
+				iCitySiteGuardSeeFromLevel = iSeeFromLevel;
+			}
 			if(iGuardValue > iBestGuardVal && (at(*pGuardPlot) || canMoveInto(*pGuardPlot)))
 			{
 				iBestGuardVal = iGuardValue;
 				pBetterGuardPlot = pGuardPlot;
+				iBetterGuardDefenseModifier = iDefenseModifier;
+				iBetterGuardSeeFromLevel = iSeeFromLevel;
 			}
 		}
-		if(pBetterGuardPlot != pBestGuardPlot &&
+		if(pBetterGuardPlot != pBestCitySite &&
 			generatePath(*pBetterGuardPlot, NO_MOVEMENT_FLAGS, true, &iPathTurns))
 		{
 			pBestPlot = &getPathEndTurnPlot();
 			pBestGuardPlot = pBetterGuardPlot;
+			iBestPathTurns = iPathTurns;
+			iBestGuardValue = iBestGuardVal;
+			iBestGuardDefenseModifier = iBetterGuardDefenseModifier;
+			iBestGuardSeeFromLevel = iBetterGuardSeeFromLevel;
+		}
+		else
+		{
+			iBestGuardValue = iCitySiteGuardValue;
+			iBestGuardDefenseModifier = iCitySiteGuardDefenseModifier;
+			iBestGuardSeeFromLevel = iCitySiteGuardSeeFromLevel;
 		}
 	} // </advc.300>
-	if (pBestPlot != NULL && pBestGuardPlot != NULL)
+	if (pBestPlot != NULL && pBestCitySite != NULL && pBestGuardPlot != NULL)
 	{
-
-		if (at(*pBestGuardPlot))
+		bool const bLogSASMapControl = (gGameRecordLogLevel >= 2);
+		MissionAITypes const eOldMissionAI = (bLogSASMapControl ? AI_getGroup()->AI_getMissionAIType() : NO_MISSIONAI);
+		CvPlot const* pOldMissionPlot = (bLogSASMapControl ? AI_getGroup()->AI_getMissionAIPlot() : NULL);
+		bool const bAtTarget = at(*pBestGuardPlot);
+		if (bLogSASMapControl && (eOldMissionAI != MISSIONAI_GUARD_CITY || pOldMissionPlot != pBestGuardPlot)) logSASGameRecord("GAME_RECORD_AI_MAP_CONTROL_DECISION turn=%d player=%d team=%d kind=CITY_SITE_GUARD unitId=%d unit=%s unitAI=%s groupId=%d fromX=%d fromY=%d citySiteRank=%d citySiteX=%d citySiteY=%d citySiteFoundValue=%d targetX=%d targetY=%d targetIsCitySite=%d targetDefenseModifier=%d targetSeeFromLevel=%d targetScore=%d pathTurns=%d endTurnX=%d endTurnY=%d atTarget=%d action=%s",
+				GC.getGame().getGameTurn(), getOwner(), getTeam(), getID(),
+				SAS_getUnitTypeName(getUnitType()), SAS_getUnitAITypeName(AI_getUnitAIType()),
+				getGroup()->getID(), getX(), getY(),
+				iBestCitySiteRank, pBestCitySite->getX(), pBestCitySite->getY(),
+				iBestValue,
+				pBestGuardPlot->getX(), pBestGuardPlot->getY(),
+				pBestGuardPlot == pBestCitySite ? 1 : 0, iBestGuardDefenseModifier, iBestGuardSeeFromLevel, iBestGuardValue, iBestPathTurns,
+				pBestPlot->getX(), pBestPlot->getY(), bAtTarget ? 1 : 0, bAtTarget ? (isFortifyable() ? "FORTIFY" : "SKIP") : "MOVE");
+		if (bAtTarget)
 		{
 			getGroup()->pushMission(
 					isFortifyable() ? MISSION_FORTIFY : MISSION_SKIP,

@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=82 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=83 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,16 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 82 - SAS practical 6470
+### Revision 83 - SAS practical 6471
 
 - **Date:** 2026-09-17
 - **Git commit:** pending
+- **Change:** Added explicit AI fog-control / anti-Barbarian map-control provenance. `GAME_RECORD_AI_MAP_CONTROL_DECISION` records real `AI_guardCitySite` and `AI_guardYield` assignment/retarget changes with their already-computed site/guard/yield, defense/sight/fog-distance, path and action context, without extra target search, pathfinding or fog scans. Periodic `GAME_RECORD_BARBARIAN_PRESSURE` also identifies persistent city-site `MISSIONAI_GUARD_CITY` posture, including level-3 site/guard/current coordinates, so loaded saves retain ongoing fog-control state.
+
+### Revision 82 - SAS practical 6470
+
+- **Date:** 2026-09-17
+- **Git commit:** `a864aa13593c9e80df49d4ff8967b7139bd8d00d`
 - **Change:** Added compact AI religion-choice provenance at the real `AI_doReligion` boundary. Level 2 records meaningful switch/spread-block decisions with the pre-spread best and runner-up post-bias scores, current/selected religions, favorite/missionary/flavor context, best-religion spread/holy-city state, the raw values actually used by gameplay for switch probability, the real conversion probability/roll and realized outcome. Level 3 additionally serializes every eligible religion's already-computed chooser score. The recorder performs no extra religion valuation or RNG and suppresses routine keep-current evaluations to avoid per-turn noise.
 
 ### Revision 81 - SAS practical 6469
