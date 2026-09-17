@@ -631,9 +631,18 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 	{
 		int const iOddsDeficitBypassMaxCurrentOdds = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT");
 		logBBAI("WAR_ATTACK_ORDER_OBSOLETE_EXPEND_OVERRIDE turn=%d player=%d group=%d target=(%d,%d) inheritedUnit=%s inheritedUnitId=%d inheritedOdds=%d inheritedSacrificeValue=%d obsoleteUnit=%s obsoleteUnitId=%d obsoleteOdds=%d obsoleteSacrificeValue=%d currentSafeOdds=%d oddsDeficitBypassMaxCurrentOdds=%d oddsDeficitBypassed=%d maxOddsDeficit=%d minValuePercentOfCurrent=%d",
-			GC.getGame().getGameTurn(), pSASObsoleteSacrifice->getOwner(), getID(), pPlot->getX(), pPlot->getY(), GC.getInfo(pInheritedBestSacrifice->getUnitType()).getType(), pInheritedBestSacrifice->getID(), iInheritedBestSacrificeOdds, pInheritedBestSacrifice->AI_sacrificeValue(pPlot), GC.getInfo(pSASObsoleteSacrifice->getUnitType()).getType(), pSASObsoleteSacrifice->getID(), iSASObsoleteSacrificeOdds, pSASObsoleteSacrifice->AI_sacrificeValue(pPlot), GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT"), iOddsDeficitBypassMaxCurrentOdds, (iInheritedBestSacrificeOdds <= iOddsDeficitBypassMaxCurrentOdds ? 1 : 0), GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT"), GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT"));
+			GC.getGame().getGameTurn(), pSASObsoleteSacrifice->getOwner(), getID(), pPlot->getX(), pPlot->getY(),
+			GC.getInfo(pInheritedBestSacrifice->getUnitType()).getType(), pInheritedBestSacrifice->getID(), iInheritedBestSacrificeOdds,
+			pInheritedBestSacrifice->AI_sacrificeValue(pPlot), GC.getInfo(pSASObsoleteSacrifice->getUnitType()).getType(),
+			pSASObsoleteSacrifice->getID(), iSASObsoleteSacrificeOdds, pSASObsoleteSacrifice->AI_sacrificeValue(pPlot),
+			GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT"), iOddsDeficitBypassMaxCurrentOdds,
+			(iInheritedBestSacrificeOdds <= iOddsDeficitBypassMaxCurrentOdds ? 1 : 0),
+			GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT"),
+			GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT"));
 	}
-	// <!-- custom: Diagnostic only: verify whether the low-power stack ordering spends old/obsolete units, whether the inherited sacrifice fallback replaces that choice, and when the SAS obsolete-expenditure refinement changes the inherited sacrifice. Compare the exact best obsolete/non-obsolete sacrifice-value and attack-odds alternatives so tuning can remain evidence-based. Age is intentionally logged rather than used for selection; the low-power stage still ranks bombard/collateral first, then low effective power, XP and health. Gate all extra diagnostic candidate scans behind WAR level 3. (GPT-5.6 Thinking) -->
+	// <!-- custom: Diagnostic only: verify whether the low-power stack ordering spends old/obsolete units, whether the inherited sacrifice fallback replaces that choice, and when the SAS obsolete-expenditure refinement changes the inherited sacrifice.
+	// Compare the exact best obsolete/non-obsolete sacrifice-value and attack-odds alternatives so tuning can remain evidence-based.
+	// Age is intentionally logged rather than used for selection; the low-power stage still ranks bombard/collateral first, then low effective power, XP and health. Gate all extra diagnostic candidate scans behind WAR level 3. (GPT-5.6 Thinking) -->
 	if (bUseLowPower && gWarLogLevel >= 3 && pLowPowerSelected != NULL && pBestUnit != NULL)
 	{
 		int iEligibleAttackers = 0;
@@ -720,13 +729,23 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 		int const iLowPowerSacrificeValue = pLowPowerSelected->AI_sacrificeValue(pPlot);
 		int const iFinalSacrificeValue = pBestUnit->AI_sacrificeValue(pPlot);
 		logBBAI("WAR_ATTACK_ORDER turn=%d player=%d group=%d target=(%d,%d) eligible=%d obsoleteEligible=%d lowPowerUnit=%s lowPowerUnitId=%d lowPowerUnitAI=%d lowPowerAge=%d lowPowerXP=%d lowPowerHealth=%d lowPowerOdds=%d lowPowerSacrificeValue=%d lowPowerObsolete=%d finalUnit=%s finalUnitId=%d finalUnitAI=%d finalAge=%d finalXP=%d finalHealth=%d finalOdds=%d finalActualOdds=%d finalSacrificeValue=%d finalObsolete=%d sacrificeOverride=%d oldestUnit=%s oldestUnitAI=%d oldestAge=%d oldestXP=%d oldestObsolete=%d",
-			GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), iEligibleAttackers, iObsoleteEligible, GC.getInfo(pLowPowerSelected->getUnitType()).getType(), pLowPowerSelected->getID(), pLowPowerSelected->AI_getUnitAIType(), GC.getGame().getGameTurn() - pLowPowerSelected->getGameTurnCreated(), pLowPowerSelected->getExperience(), iLowPowerHealth, iLowPowerSelectedOdds, iLowPowerSacrificeValue, bLowPowerObsolete,
-			GC.getInfo(pBestUnit->getUnitType()).getType(), pBestUnit->getID(), pBestUnit->AI_getUnitAIType(), GC.getGame().getGameTurn() - pBestUnit->getGameTurnCreated(), pBestUnit->getExperience(), iFinalHealth, iUnitOdds, iFinalActualOdds, iFinalSacrificeValue, bFinalObsolete, pBestUnit != pLowPowerSelected,
-			(pOldestEligible == NULL ? "-" : GC.getInfo(pOldestEligible->getUnitType()).getType()), (pOldestEligible == NULL ? NO_UNITAI : pOldestEligible->AI_getUnitAIType()), iOldestAge, (pOldestEligible == NULL ? -1 : pOldestEligible->getExperience()), (pOldestEligible == NULL ? 0 : (pOldestEligible->getUnitInfo().getObsoleteTech() != NO_TECH && GET_TEAM(pOldestEligible->getTeam()).isHasTech(pOldestEligible->getUnitInfo().getObsoleteTech()))));
+			GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), iEligibleAttackers, iObsoleteEligible,
+			GC.getInfo(pLowPowerSelected->getUnitType()).getType(), pLowPowerSelected->getID(), pLowPowerSelected->AI_getUnitAIType(),
+			GC.getGame().getGameTurn() - pLowPowerSelected->getGameTurnCreated(), pLowPowerSelected->getExperience(), iLowPowerHealth,
+			iLowPowerSelectedOdds, iLowPowerSacrificeValue, bLowPowerObsolete, GC.getInfo(pBestUnit->getUnitType()).getType(),
+			pBestUnit->getID(), pBestUnit->AI_getUnitAIType(), GC.getGame().getGameTurn() - pBestUnit->getGameTurnCreated(),
+			pBestUnit->getExperience(), iFinalHealth, iUnitOdds, iFinalActualOdds, iFinalSacrificeValue, bFinalObsolete,
+			pBestUnit != pLowPowerSelected, (pOldestEligible == NULL ? "-" : GC.getInfo(pOldestEligible->getUnitType()).getType()),
+			(pOldestEligible == NULL ? NO_UNITAI : pOldestEligible->AI_getUnitAIType()), iOldestAge,
+			(pOldestEligible == NULL ? -1 : pOldestEligible->getExperience()),
+			(pOldestEligible == NULL ? 0 :
+				(pOldestEligible->getUnitInfo().getObsoleteTech() != NO_TECH &&
+				GET_TEAM(pOldestEligible->getTeam()).isHasTech(pOldestEligible->getUnitInfo().getObsoleteTech()))));
 		if (iObsoleteEligible > 0)
 		{
 			logBBAI("WAR_ATTACK_ORDER_CANDIDATE_SUMMARY turn=%d player=%d group=%d target=(%d,%d) sacrificeOddsThreshold=%d attackEligible=%d sacrificeEligible=%d obsoleteAttackEligible=%d obsoleteSacrificeEligible=%d obsoleteSacrificeAtOrAboveOddsThreshold=%d",
-				GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), iOddsThresh, iEligibleAttackers, iSacrificeEligibleAttackers, iObsoleteEligible, iObsoleteSacrificeEligible, iObsoleteSacrificeAtOrAboveOddsThreshold);
+				GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), iOddsThresh, iEligibleAttackers,
+				iSacrificeEligibleAttackers, iObsoleteEligible, iObsoleteSacrificeEligible, iObsoleteSacrificeAtOrAboveOddsThreshold);
 			CvUnitAI const* apCandidates[4] = { pBestObsoleteSacrifice, pBestNonObsoleteSacrifice, pBestObsoleteOdds, pBestNonObsoleteOdds };
 			char const* aszRoles[4] = { "BEST_OBSOLETE_SACRIFICE", "BEST_NONOBSOLETE_SACRIFICE", "BEST_OBSOLETE_ODDS", "BEST_NONOBSOLETE_ODDS" };
 			int aiOdds[4] = { iBestObsoleteSacrificeOdds, iBestNonObsoleteSacrificeOdds, iBestObsoleteOdds, iBestNonObsoleteOdds };
@@ -746,7 +765,17 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 				CvUnit const* pCandidateDefender = pPlot->getBestDefender(NO_PLAYER, kDefenderFilters);
 				int const iCandidateDefenderHealth = (pCandidateDefender == NULL ? -1 : (100 * (std::max(1, pCandidateDefender->maxHitPoints()) - pCandidateDefender->getDamage())) / std::max(1, pCandidateDefender->maxHitPoints()));
 				logBBAI("WAR_ATTACK_ORDER_CANDIDATE turn=%d player=%d group=%d target=(%d,%d) role=%s unit=%s unitId=%d unitAI=%d obsolete=%d age=%d xp=%d health=%d odds=%d sacrificeValue=%d effectiveStr=%d productionCost=%d bombard=%d collateral=%d combatLimit=%d withdrawal=%d leaderUnit=%d sameTileHeal=%d adjacentTileHeal=%d lfbRelativeValue=%d defenderOwner=%d defenderUnit=%s defenderUnitId=%d defenderHealth=%d defenderBaseStr=%d isLowPower=%d isFinal=%d",
-					GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), aszRoles[i], GC.getInfo(pCandidate->getUnitType()).getType(), pCandidate->getID(), pCandidate->AI_getUnitAIType(), bCandidateObsolete, GC.getGame().getGameTurn() - pCandidate->getGameTurnCreated(), pCandidate->getExperience(), iCandidateHealth, aiOdds[i], aiSacrificeValues[i], iCandidateEffectiveStr, pCandidate->getUnitInfo().getProductionCost(), pCandidate->bombardRate() > 0, bCandidateCollateral, pCandidate->combatLimit(), pCandidate->withdrawalProbability(), pCandidate->getLeaderUnitType() != NO_UNIT, pCandidate->getSameTileHeal(), pCandidate->getAdjacentTileHeal(), pCandidate->LFBgetRelativeValueRating(), (pCandidateDefender == NULL ? NO_PLAYER : pCandidateDefender->getOwner()), (pCandidateDefender == NULL ? "-" : GC.getInfo(pCandidateDefender->getUnitType()).getType()), (pCandidateDefender == NULL ? -1 : pCandidateDefender->getID()), iCandidateDefenderHealth, (pCandidateDefender == NULL ? -1 : pCandidateDefender->baseCombatStr()), pCandidate == pLowPowerSelected, pCandidate == pBestUnit);
+					GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), aszRoles[i],
+					GC.getInfo(pCandidate->getUnitType()).getType(), pCandidate->getID(), pCandidate->AI_getUnitAIType(), bCandidateObsolete,
+					GC.getGame().getGameTurn() - pCandidate->getGameTurnCreated(), pCandidate->getExperience(), iCandidateHealth, aiOdds[i],
+					aiSacrificeValues[i], iCandidateEffectiveStr, pCandidate->getUnitInfo().getProductionCost(),
+					pCandidate->bombardRate() > 0, bCandidateCollateral, pCandidate->combatLimit(), pCandidate->withdrawalProbability(),
+					pCandidate->getLeaderUnitType() != NO_UNIT, pCandidate->getSameTileHeal(), pCandidate->getAdjacentTileHeal(),
+					pCandidate->LFBgetRelativeValueRating(), (pCandidateDefender == NULL ? NO_PLAYER : pCandidateDefender->getOwner()),
+					(pCandidateDefender == NULL ? "-" : GC.getInfo(pCandidateDefender->getUnitType()).getType()),
+					(pCandidateDefender == NULL ? -1 : pCandidateDefender->getID()), iCandidateDefenderHealth,
+					(pCandidateDefender == NULL ? -1 : pCandidateDefender->baseCombatStr()), pCandidate == pLowPowerSelected,
+					pCandidate == pBestUnit);
 			}
 		}
 	}

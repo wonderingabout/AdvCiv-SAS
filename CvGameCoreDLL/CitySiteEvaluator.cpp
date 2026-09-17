@@ -301,8 +301,10 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 		return;
 	if (getPlayer().isBarbarian())
 	{
-		// <!-- custom: Barbarian cities are spawned by a global scan rather than normal Settler city-site lists, and old Barbarian scoring can ignore outer-BFC seafood or other long-term capture value. Log nearby alternatives so cases like Yue-Chi, Sarmatian, Aryan, and Numidian can show whether the selected spawn tile or a one-tile shift was actually better. (GPT-5.5) -->
-		logBBAI("Barbarian selected site spawn eligibility: water=%d visibleToCivTeam=%d spawnEligible=%d", kPlot.isWater(), kPlot.isVisibleToCivTeam(), !kPlot.isWater() && !kPlot.isVisibleToCivTeam());
+		// <!-- custom: Barbarian cities are spawned by a global scan rather than normal Settler city-site lists, and old Barbarian scoring can ignore outer-BFC seafood or other long-term capture value.
+		// Log nearby alternatives so cases like Yue-Chi, Sarmatian, Aryan, and Numidian can show whether the selected spawn tile or a one-tile shift was actually better. (GPT-5.5) -->
+		logBBAI("Barbarian selected site spawn eligibility: water=%d visibleToCivTeam=%d spawnEligible=%d",
+			kPlot.isWater(), kPlot.isVisibleToCivTeam(), !kPlot.isWater() && !kPlot.isVisibleToCivTeam());
 		CvPlot const* pBestAdjSite = NULL;
 		CvPlot const* pBestEligibleAdjSite = NULL;
 		int iBestAdj = 0;
@@ -325,7 +327,9 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 		{
 			int iAdjX = pBestAdjSite->getX();
 			int iAdjY = pBestAdjSite->getY();
-			logBBAI("\nBest Barbarian site adjacent to (%d,%d): selected=%d adjacent=%d delta=%+d (%d,%d) water=%d visibleToCivTeam=%d spawnEligible=%d", kPlot.getX(), kPlot.getY(), iCurrentValue, iBestAdj, iBestAdj - iCurrentValue, iAdjX, iAdjY, pBestAdjSite->isWater(), pBestAdjSite->isVisibleToCivTeam(), !pBestAdjSite->isWater() && !pBestAdjSite->isVisibleToCivTeam());
+			logBBAI("\nBest Barbarian site adjacent to (%d,%d): selected=%d adjacent=%d delta=%+d (%d,%d) water=%d visibleToCivTeam=%d spawnEligible=%d",
+				kPlot.getX(), kPlot.getY(), iCurrentValue, iBestAdj, iBestAdj - iCurrentValue, iAdjX, iAdjY, pBestAdjSite->isWater(),
+				pBestAdjSite->isVisibleToCivTeam(), !pBestAdjSite->isWater() && !pBestAdjSite->isVisibleToCivTeam());
 			evaluateWithLogging(*pBestAdjSite);
 			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best adjacent Barbarian site", *pBestAdjSite);
 		}
@@ -333,7 +337,8 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 		{
 			int iAdjX = pBestEligibleAdjSite->getX();
 			int iAdjY = pBestEligibleAdjSite->getY();
-			logBBAI("\nBest spawn-eligible Barbarian site adjacent to (%d,%d): selected=%d adjacent=%d delta=%+d (%d,%d)", kPlot.getX(), kPlot.getY(), iCurrentValue, iBestEligibleAdj, iBestEligibleAdj - iCurrentValue, iAdjX, iAdjY);
+			logBBAI("\nBest spawn-eligible Barbarian site adjacent to (%d,%d): selected=%d adjacent=%d delta=%+d (%d,%d)",
+				kPlot.getX(), kPlot.getY(), iCurrentValue, iBestEligibleAdj, iBestEligibleAdj - iCurrentValue, iAdjX, iAdjY);
 			evaluateWithLogging(*pBestEligibleAdjSite);
 			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best spawn-eligible adjacent Barbarian site", *pBestEligibleAdjSite);
 		}
@@ -365,7 +370,10 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 		{
 			int iRangeX = pBestRange2Site->getX();
 			int iRangeY = pBestRange2Site->getY();
-			logBBAI("\nBest Barbarian site at distance 2 from (%d,%d): selected=%d range2=%d delta=%+d (%d,%d) water=%d visibleToCivTeam=%d spawnEligible=%d", kPlot.getX(), kPlot.getY(), iCurrentValue, iBestRange2, iBestRange2 - iCurrentValue, iRangeX, iRangeY, pBestRange2Site->isWater(), pBestRange2Site->isVisibleToCivTeam(), !pBestRange2Site->isWater() && !pBestRange2Site->isVisibleToCivTeam());
+			logBBAI("\nBest Barbarian site at distance 2 from (%d,%d): selected=%d range2=%d delta=%+d (%d,%d) water=%d visibleToCivTeam=%d spawnEligible=%d",
+				kPlot.getX(), kPlot.getY(), iCurrentValue, iBestRange2, iBestRange2 - iCurrentValue, iRangeX, iRangeY,
+				pBestRange2Site->isWater(), pBestRange2Site->isVisibleToCivTeam(),
+				!pBestRange2Site->isWater() && !pBestRange2Site->isVisibleToCivTeam());
 			evaluateWithLogging(*pBestRange2Site);
 			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best distance-2 Barbarian site", *pBestRange2Site);
 		}
@@ -373,7 +381,8 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 		{
 			int iRangeX = pBestEligibleRange2Site->getX();
 			int iRangeY = pBestEligibleRange2Site->getY();
-			logBBAI("\nBest spawn-eligible Barbarian site at distance 2 from (%d,%d): selected=%d range2=%d delta=%+d (%d,%d)", kPlot.getX(), kPlot.getY(), iCurrentValue, iBestEligibleRange2, iBestEligibleRange2 - iCurrentValue, iRangeX, iRangeY);
+			logBBAI("\nBest spawn-eligible Barbarian site at distance 2 from (%d,%d): selected=%d range2=%d delta=%+d (%d,%d)",
+				kPlot.getX(), kPlot.getY(), iCurrentValue, iBestEligibleRange2, iBestEligibleRange2 - iCurrentValue, iRangeX, iRangeY);
 			evaluateWithLogging(*pBestEligibleRange2Site);
 			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best spawn-eligible distance-2 Barbarian site", *pBestEligibleRange2Site);
 		}
@@ -398,7 +407,8 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 		{
 			int iNextX = pNextBestSite->getX();
 			int iNextY = pNextBestSite->getY();
-			logBBAI("\nNext best site compared with selected (%d,%d): selected=%d next=%d delta=%+d (%d,%d)", kPlot.getX(), kPlot.getY(), iCurrentValue, iBest, iBest - iCurrentValue, iNextX, iNextY);
+			logBBAI("\nNext best site compared with selected (%d,%d): selected=%d next=%d delta=%+d (%d,%d)",
+				kPlot.getX(), kPlot.getY(), iCurrentValue, iBest, iBest - iCurrentValue, iNextX, iNextY);
 			evaluateWithLogging(*pNextBestSite);
 			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Next best site", *pNextBestSite);
 		}
@@ -419,7 +429,8 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 		{
 			int iAdjX = pBestAdjSite->getX();
 			int iAdjY = pBestAdjSite->getY();
-			logBBAI("\nBest site adjacent to (%d,%d): selected=%d adjacent=%d delta=%+d (%d,%d)", kPlot.getX(), kPlot.getY(), iCurrentValue, iBest, iBest - iCurrentValue, iAdjX, iAdjY);
+			logBBAI("\nBest site adjacent to (%d,%d): selected=%d adjacent=%d delta=%+d (%d,%d)",
+				kPlot.getX(), kPlot.getY(), iCurrentValue, iBest, iBest - iCurrentValue, iAdjX, iAdjY);
 			evaluateWithLogging(*pBestAdjSite);
 			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best adjacent site", *pBestAdjSite);
 		}
@@ -699,7 +710,9 @@ int AIFoundValue::evaluate()
 			if (bVeryBadBFCPlot)
 			{
 				++iVeryBadBFCTiles;
-				IFLOG logBBAI("Very bad BFC plot (%d,%d): %s, potential yield score %d below %d", p.getX(), p.getY(), (p.isImpassable() ? "impassable" : "weak despite improvements"), iBestPotentialYieldScore, iMinAcceptableVeryBadPlotPotentialYieldScore);
+				IFLOG logBBAI("Very bad BFC plot (%d,%d): %s, potential yield score %d below %d",
+					p.getX(), p.getY(), (p.isImpassable() ? "impassable" : "weak despite improvements"), iBestPotentialYieldScore,
+					iMinAcceptableVeryBadPlotPotentialYieldScore);
 			}
 			else iLowFoodLocationScore += p.SAS_getLowFoodEnvironmentScore(eBonusPlot, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement);
 			if (bStartPhase && p.SAS_isGoodEnoughFirstCityBFCPlot(eBonusPlot, ePlayer, kPlot, bVeryBadBFCPlot))
@@ -1077,7 +1090,9 @@ int AIFoundValue::evaluate()
 					const int iStartingBonusValuePercent = (bStartingFoodBonus ? iStartingFoodBonusValuePercent : iStartingNonFoodBonusValuePercent);
 					const int iOldBonusValue = iBonusValue;
 					iBonusValue = (iBonusValue * iStartingBonusValuePercent) / 100;
-					IFLOG if(iBonusValue!=iOldBonusValue) logBBAI("Starting %S bonus value x%d%%: %d -> %d (%S)", bStartingFoodBonus ? L"food" : L"non-food", iStartingBonusValuePercent, iOldBonusValue, iBonusValue, GC.getInfo(eBonus).getDescription());
+					IFLOG if(iBonusValue!=iOldBonusValue) logBBAI("Starting %S bonus value x%d%%: %d -> %d (%S)",
+						bStartingFoodBonus ? L"food" : L"non-food", iStartingBonusValuePercent, iOldBonusValue, iBonusValue,
+						GC.getInfo(eBonus).getDescription());
 				}
 				IFLOG if(iBonusValue!=0) logBBAI("+%d non-yield bonus value (%S)", iBonusValue, GC.getInfo(eBonus).getDescription());
 				//iValue += (iBonusValue + 10);
@@ -1219,11 +1234,16 @@ int AIFoundValue::evaluate()
 				iResourceValue += iBonusImprovementYieldValue;
 				iBreakdownBonusImprovementYields += iBonusImprovementYieldValue;
 				iBonusScoreYield = iBonusImprovementYieldValue;
-				IFLOG if(iBonusImprovementYieldValue != 0) logBBAI("%d from tunable bonus improvement yields %dF%dP%dC (%S)", iBonusImprovementYieldValue, aiBonusImprovementYield[YIELD_FOOD], aiBonusImprovementYield[YIELD_PRODUCTION], aiBonusImprovementYield[YIELD_COMMERCE], GC.getInfo(eBonus).getDescription());
+				IFLOG if(iBonusImprovementYieldValue != 0) logBBAI("%d from tunable bonus improvement yields %dF%dP%dC (%S)",
+					iBonusImprovementYieldValue, aiBonusImprovementYield[YIELD_FOOD], aiBonusImprovementYield[YIELD_PRODUCTION],
+					aiBonusImprovementYield[YIELD_COMMERCE], GC.getInfo(eBonus).getDescription());
 			}
 
 			if (bLogBonusScore)
-				logBBAI("BONUS_SCORE plot=%d,%d bonus=%S happyHealth=%d buildingHappyHealth=%d adjustPercent=%d waterPenalty=%d nonYield=%d diversity=%d aiObjective=%d bonusYield=%d total=%d", p.getX(), p.getY(), GC.getInfo(eBonus).getDescription(), iBonusScoreHappyHealth, iBonusScoreBuildingHappyHealth, iBonusScoreAdjustPercent, iBonusScoreWaterPenalty, iBonusScoreNonYield, iBonusScoreDiversity, iBonusScoreAIObjective, iBonusScoreYield, iBonusScoreNonYield + iBonusScoreDiversity + iBonusScoreAIObjective + iBonusScoreYield);
+				logBBAI("BONUS_SCORE plot=%d,%d bonus=%S happyHealth=%d buildingHappyHealth=%d adjustPercent=%d waterPenalty=%d nonYield=%d diversity=%d aiObjective=%d bonusYield=%d total=%d",
+					p.getX(), p.getY(), GC.getInfo(eBonus).getDescription(), iBonusScoreHappyHealth, iBonusScoreBuildingHappyHealth,
+					iBonusScoreAdjustPercent, iBonusScoreWaterPenalty, iBonusScoreNonYield, iBonusScoreDiversity, iBonusScoreAIObjective,
+					iBonusScoreYield, iBonusScoreNonYield + iBonusScoreDiversity + iBonusScoreAIObjective + iBonusScoreYield);
 
 			int iSpecialYieldModifier = calculateSpecialYieldModifier(iCultureModifier, bEasyAccess, eBonus != NO_BONUS, bCanSoonImproveBonus, bCanImproveBonus);
 			calculateSpecialYields(p, eBonusImprovement == NO_IMPROVEMENT ? NULL : aiBonusImprovementYield, aiNatureYield, iSpecialYieldModifier, aiSpecialYield, iSpecialFoodPlus, iSpecialFoodMinus, iSpecialYieldTiles);
@@ -2923,7 +2943,9 @@ int AIFoundValue::calculateBonusBuildingHappyHealthValue(BonusTypes eBonus, bool
 	int const iSpecialBuildingValue = std::min(iSpecialBuildingRawValue, iSpecialBuildingMaxValue);
 	iValue += iSpecialBuildingValue;
 	IFLOG if (iSpecialBuildingRawValue != 0) logBBAI("Special-building bonus (%S): religiousHealth=%d religiousHappiness=%d nonReligiousHealth=%d nonReligiousHappiness=%d religiousValue=%d nonReligiousValue=%d raw=%d cap=%d value=%d",
-			GC.getInfo(eBonus).getDescription(), iReligiousSpecialBuildingHealthPoints, iReligiousSpecialBuildingHappinessPoints, iNonReligiousSpecialBuildingHealthPoints, iNonReligiousSpecialBuildingHappinessPoints, iReligiousSpecialBuildingValue, iNonReligiousSpecialBuildingValue, iSpecialBuildingRawValue, iSpecialBuildingMaxValue, iSpecialBuildingValue);
+		GC.getInfo(eBonus).getDescription(), iReligiousSpecialBuildingHealthPoints, iReligiousSpecialBuildingHappinessPoints,
+		iNonReligiousSpecialBuildingHealthPoints, iNonReligiousSpecialBuildingHappinessPoints, iReligiousSpecialBuildingValue,
+		iNonReligiousSpecialBuildingValue, iSpecialBuildingRawValue, iSpecialBuildingMaxValue, iSpecialBuildingValue);
 	return iValue;
 }
 
@@ -3090,7 +3112,9 @@ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bC
 			int const iConnectionEraDistance = std::max(0, iConnectionEra - (int)eEra);
 			int const iConnectionEraAdjustPercent = std::max(0, 100 - iConnectionEraDistance * iConnectionEraValueLossPercent);
 			rAdjustment *= scaled(iConnectionEraAdjustPercent, 100);
-			IFLOG logBBAI("Bonus connection timing (%S): currentEra=%d connectionEra=%d eraDistance=%d lossPerEra=%d timingPercent=%d", GC.getInfo(eBonus).getDescription(), eEra, iConnectionEra, iConnectionEraDistance, iConnectionEraValueLossPercent, iConnectionEraAdjustPercent);
+			IFLOG logBBAI("Bonus connection timing (%S): currentEra=%d connectionEra=%d eraDistance=%d lossPerEra=%d timingPercent=%d",
+				GC.getInfo(eBonus).getDescription(), eEra, iConnectionEra, iConnectionEraDistance, iConnectionEraValueLossPercent,
+				iConnectionEraAdjustPercent);
 		}
 		// <advc.040>
 		if (!bEasyAccess)

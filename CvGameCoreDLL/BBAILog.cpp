@@ -124,14 +124,21 @@ static void logSASBBAIGameState(const char* szRowType)
 		szGameOptions = "-";
 	const CvString szLogName = getSASBBAILogName();
 	logBBAI("%s processUtc=%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
-			szRowType, getSASProcessUtcTimestamp().GetCString(), getSASBBAILogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+		szRowType, getSASProcessUtcTimestamp().GetCString(), getSASBBAILogTimestamp().GetCString(),
+		getSASDiagnosticQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(),
+		kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(),
+		kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
 	// <!-- custom: Log the actual cached DLL map classification rather than requiring tests to infer it from the map-script name. (GPT-5.5) -->
 	logBBAI("BBAI_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s options=%s",
-			kInitCore.getMapScriptName().GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), szGameOptions.GetCString());
+		kInitCore.getMapScriptName().GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(),
+		kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(),
+		GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(),
+		GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), szGameOptions.GetCString());
 	logBBAI("BBAI_GAME_RNG mapRandState=%u syncRandState=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed());
 }
 
-// <!-- custom: Static mod/source/binary provenance is shared with SASGameRecord so AI-decision logs can be tied to the exact source and candidate DLL that produced them. The common helpers also keep quoting and field semantics identical between logs. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Static mod/source/binary provenance is shared with SASGameRecord so AI-decision logs can be tied to the exact source and candidate DLL that produced them.
+// The common helpers also keep quoting and field semantics identical between logs. (ChatGPT-5.6-Sol) -->
 static void logSASBBAIProvenanceContext()
 {
 	if (!isSASBBAILogEnabled())
@@ -145,7 +152,11 @@ static void logSASBBAIProvenanceContext()
 static void logSASBBAILogSettings()
 {
 	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_WAR_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_PRODUCTION_NO_TARGET_LOG_LEVEL=%d SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_SPACE_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=%d SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d",
-			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), gPlayerLogLevel, gTeamLogLevel, gWarLogLevel, gCityLogLevel, gProductionNoTargetLogLevel, gMilitaryProductionLogLevel, gSpaceProductionLogLevel, gLimitedProjectProductionLogLevel, gBuildingProductionLogLevel, gCitizenLogLevel, gUnitLogLevel, gOverseasTransportLogLevel, gGreatGeneralLogLevel, gSettlerLogLevel, gFoundLogLevel, gEvacuationLogLevel, gWorkerLogLevel, gWorkerSeaLogLevel, gMapLogLevel, gDealCancelLogLevel, gCultureLogLevel, gScoreLogInterval);
+		isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), gPlayerLogLevel, gTeamLogLevel, gWarLogLevel, gCityLogLevel,
+		gProductionNoTargetLogLevel, gMilitaryProductionLogLevel, gSpaceProductionLogLevel, gLimitedProjectProductionLogLevel,
+		gBuildingProductionLogLevel, gCitizenLogLevel, gUnitLogLevel, gOverseasTransportLogLevel, gGreatGeneralLogLevel, gSettlerLogLevel,
+		gFoundLogLevel, gEvacuationLogLevel, gWorkerLogLevel, gWorkerSeaLogLevel, gMapLogLevel, gDealCancelLogLevel, gCultureLogLevel,
+		gScoreLogInterval);
 }
 
 // <!-- custom: Replace setup-time tech/diplomacy construction chatter with one authoritative finalized state shared with SASGameRecord.
@@ -184,7 +195,8 @@ static void logSASBBAIInitialState()
 			iLoggedDealRows++;
 		}
 	}
-	logBBAI("BBAI_INITIAL_STATE_SUMMARY teamStateRows=%d techRows=%d %s source=FINALIZED_STATE", iTeamStateRows, iTechRows, getSASInitialDealSummaryFields(bDealDetailEnabled, iLoggedDealRows).GetCString());
+	logBBAI("BBAI_INITIAL_STATE_SUMMARY teamStateRows=%d techRows=%d %s source=FINALIZED_STATE",
+		iTeamStateRows, iTechRows, getSASInitialDealSummaryFields(bDealDetailEnabled, iLoggedDealRows).GetCString());
 }
 
 // <!-- custom: Roll over before new-game initialization can emit map-generation or starting-position diagnostics.
@@ -192,7 +204,9 @@ static void logSASBBAIInitialState()
 void startSASBBAILogForNewGame()
 {
 	rollSASBBAILog("new");
-	logBBAI("BBAI_NEW_GAME_INITIALIZING processUtc=%s utc=%s logFile=%s", getSASProcessUtcTimestamp().GetCString(), getSASBBAILogTimestamp().GetCString(), getSASDiagnosticQuoted(getSASBBAILogName().GetCString()).GetCString());
+	logBBAI("BBAI_NEW_GAME_INITIALIZING processUtc=%s utc=%s logFile=%s",
+		getSASProcessUtcTimestamp().GetCString(), getSASBBAILogTimestamp().GetCString(),
+		getSASDiagnosticQuoted(getSASBBAILogName().GetCString()).GetCString());
 	logSASBBAIProvenanceContext();
 	logSASBBAILogSettings();
 }

@@ -216,8 +216,10 @@ void CvSelectionGroup::doTurn()
 	{
 		CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
 		logBBAI("    WORKER_GROUP_TURN phase=begin turn=%d player=%d %S workerId=%d groupId=%d worker=(%d,%d) activity=%d missionAI=%d missionTarget=(%d,%d) missionQueue=%d forceUpdate=%d canAnyMove=%d movesLeft=%d",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pHeadUnit->getID(), getID(), getX(), getY(), getActivityType(), AI().AI_getMissionAIType(),
-			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getLengthMissionQueue(), isForceUpdate(), canAnyMove(), pHeadUnit->movesLeft());
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pHeadUnit->getID(), getID(),
+			getX(), getY(), getActivityType(), AI().AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()),
+			(pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getLengthMissionQueue(), isForceUpdate(), canAnyMove(),
+			pHeadUnit->movesLeft());
 	}
 	/*	K-Mod. Wake spies when they reach max fortify turns in foreign territory.
 		Note: We only want to wake once. So this needs to be done
@@ -318,8 +320,10 @@ void CvSelectionGroup::doTurn()
 		{
 			CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
 			logBBAI("    WORKER_GROUP_TURN phase=transition turn=%d player=%d %S workerId=%d groupId=%d worker=(%d,%d) activity=%d->%d missionAI=%d->%d missionTarget=(%d,%d) missionQueue=%d->%d forceUpdate=%d canAnyMove=%d movesLeft=%d",
-				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorkerHead->getID(), getID(), getX(), getY(), eSASWorkerActivityBefore, getActivityType(), eSASWorkerMissionAIBefore, AI().AI_getMissionAIType(),
-				(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iSASWorkerQueueBefore, getLengthMissionQueue(), isForceUpdate(), canAnyMove(), pSASWorkerHead->movesLeft());
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorkerHead->getID(),
+				getID(), getX(), getY(), eSASWorkerActivityBefore, getActivityType(), eSASWorkerMissionAIBefore, AI().AI_getMissionAIType(),
+				(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()),
+				iSASWorkerQueueBefore, getLengthMissionQueue(), isForceUpdate(), canAnyMove(), pSASWorkerHead->movesLeft());
 		}
 	}
 
@@ -1342,8 +1346,10 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 		szSASWorkerMissionOutcome = "pending";
 		CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
 		logBBAI("    WORKER_MISSION_EXECUTION phase=begin turn=%d player=%d %S workerId=%d groupId=%d mission=%d data=(%d,%d) flags=%d pushTurn=%d from=(%d,%d) missionTarget=(%d,%d) queue=%d activity=%d movesLeft=%d",
-			kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorker->getID(), getID(), missionData.eMissionType, missionData.iData1, missionData.iData2, missionData.eFlags, missionData.iPushTurn, getX(), getY(),
-			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getLengthMissionQueue(), getActivityType(), pSASWorker->movesLeft());
+			kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorker->getID(), getID(),
+			missionData.eMissionType, missionData.iData1, missionData.iData2, missionData.eFlags, missionData.iPushTurn, getX(), getY(),
+			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getLengthMissionQueue(),
+			getActivityType(), pSASWorker->movesLeft());
 	}
 
 	if (!(missionData.eFlags & MOVE_NO_ATTACK) && // K-Mod
@@ -1744,8 +1750,10 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 	{
 		CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
 		logBBAI("    WORKER_MISSION_EXECUTION phase=result turn=%d player=%d %S workerId=%d groupId=%d outcome=%s mission=%d from=(%d,%d) to=(%d,%d) missionTarget=(%d,%d) done=%d action=%d ready=%d queue=%d activity=%d movesLeft=%d",
-			kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorker->getID(), getID(), szSASWorkerMissionOutcome, missionData.eMissionType, pFromPlot->getX(), pFromPlot->getY(), getX(), getY(),
-			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), bDone, bAction, readyForMission(), getLengthMissionQueue(), getActivityType(), pSASWorker->movesLeft());
+			kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorker->getID(), getID(),
+			szSASWorkerMissionOutcome, missionData.eMissionType, pFromPlot->getX(), pFromPlot->getY(), getX(), getY(),
+			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), bDone, bAction,
+			readyForMission(), getLengthMissionQueue(), getActivityType(), pSASWorker->movesLeft());
 	}
 
 	if (bDone)

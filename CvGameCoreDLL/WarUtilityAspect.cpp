@@ -3011,11 +3011,16 @@ int Risk::preEvaluate()
 			if (bOrdinaryHardReject && !bVictoryDenialContactBypass)
 			{
 				if (gWarLogLevel >= 3 || (gOverseasTransportLogLevel >= 3 && bDistanceGateNaval) || (gOverseasTransportLogLevel >= 2 && bNoLift)) logBBAI("WAR_TARGET_HARD_REJECT turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d distanceGateNaval=%d existingPlan=%d contactToleranceTurns=%d preparationTurns=%d nearestContactTurns=%d nearestLandContactTurns=%d nearestAnyContactTurns=%d maxContactTurns=%d canTrainCargo=%d unreachable=%d tooFar=%d noLift=%d",
-					GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, bDistanceGateNaval, bExistingPlan, iContactTolerance, m_kParams.getPreparationTime(), (iMinContact == INT_MAX ? -1 : iMinContact), (iMinLandContact == INT_MAX ? -1 : iMinLandContact), (iMinAnyContact == INT_MAX ? -1 : iMinAnyContact), iMaxTurns, iCanTrainCargo, (iMinContact == INT_MAX), (iMinContact != INT_MAX && iMinContact > iMaxTurns), bNoLift);
+					GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, bDistanceGateNaval, bExistingPlan,
+					iContactTolerance, m_kParams.getPreparationTime(), (iMinContact == INT_MAX ? -1 : iMinContact),
+					(iMinLandContact == INT_MAX ? -1 : iMinLandContact), (iMinAnyContact == INT_MAX ? -1 : iMinAnyContact), iMaxTurns,
+					iCanTrainCargo, (iMinContact == INT_MAX), (iMinContact != INT_MAX && iMinContact > iMaxTurns), bNoLift);
 				return -100000; // kill this (agent,target) war plan
 			}
 			if (bVictoryDenialContactBypass && gWarLogLevel >= 1) logBBAI("WAR_TARGET_VICTORY_DENIAL_CONTACT_BYPASS turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d existingPlan=%d nearestContactTurns=%d ordinaryMaxContactTurns=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d targetPowerPercent=%d",
-				GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, bExistingPlan, iMinContact, iMaxTurns, iTargetMaxVictoryStage, iTargetVictoryCountdown, 100 * GET_TEAM(eTarget).getDefensivePower(eOurTeam) / std::max(1, kOurTeam.getPower(true)));
+				GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, bExistingPlan, iMinContact, iMaxTurns,
+				iTargetMaxVictoryStage, iTargetVictoryCountdown,
+				100 * GET_TEAM(eTarget).getDefensivePower(eOurTeam) / std::max(1, kOurTeam.getPower(true)));
 		}
 	}
 

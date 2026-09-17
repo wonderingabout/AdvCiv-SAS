@@ -73,11 +73,13 @@ namespace
 			}
 			CvCityAI const& kCityAI = kCity.AI();
 			logBBAI("PRODUCTION_NO_TARGET_BOUNDARY turn=%d player=%d %S city=%S cityId=%d phase=%s human=%d humanDisabled=%d productionAutomated=%d chooseProductionDirty=%d gameState=%d population=%d rawProduction=%d overflowProduction=%d legalUnits=%d legalBuildings=%d legalProjects=%d legalProcesses=%d danger=%d focusWar=%d areaAI=%d primaryArea=%d financialTrouble=%d anarchyTurns=%d occupation=%d occupationTimer=%d happySurplus=%d healthSurplus=%d foodDifference=%d",
-				GC.getGame().getGameTurn(), ePlayer, kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), szPhase,
-				kPlayer.isHuman(), kPlayer.isHumanDisabled(), kCity.isProductionAutomated(), kCity.isChooseProductionDirty(), (int)GC.getGame().getGameState(), kCity.getPopulation(),
-				kCity.getCurrentProductionDifference(false, false, true), kCity.getOverflowProduction(), iLegalUnits, iLegalBuildings, iLegalProjects, iLegalProcesses,
-				kCityAI.AI_isDanger(), kPlayer.AI_isFocusWar(), (int)kCity.getArea().getAreaAIType(kCity.getTeam()), kPlayer.AI_isPrimaryArea(kCity.getArea()), kPlayer.AI_isFinancialTrouble(),
-				kPlayer.getAnarchyTurns(), kCity.isOccupation(), kCity.getOccupationTimer(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.foodDifference());
+				GC.getGame().getGameTurn(), ePlayer, kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(),
+				szPhase, kPlayer.isHuman(), kPlayer.isHumanDisabled(), kCity.isProductionAutomated(), kCity.isChooseProductionDirty(),
+				(int)GC.getGame().getGameState(), kCity.getPopulation(), kCity.getCurrentProductionDifference(false, false, true),
+				kCity.getOverflowProduction(), iLegalUnits, iLegalBuildings, iLegalProjects, iLegalProcesses, kCityAI.AI_isDanger(),
+				kPlayer.AI_isFocusWar(), (int)kCity.getArea().getAreaAIType(kCity.getTeam()), kPlayer.AI_isPrimaryArea(kCity.getArea()),
+				kPlayer.AI_isFinancialTrouble(), kPlayer.getAnarchyTurns(), kCity.isOccupation(), kCity.getOccupationTimer(),
+				kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.foodDifference());
 		}
 	}
 
@@ -143,9 +145,12 @@ namespace
 
 	void logSASGameRecordDiploEventAction(PlayerTypes ePlayer, DiploEventTypes eDiploEvent, PlayerTypes eOtherPlayer, int iData1, int iData2)
 	{
-		// <!-- custom: Preserve lower-value/raw EXE diplomacy events at level 3, and uncommon non-semantic events at level 2. Resolved help/demand/civic/religion/war-join/embargo interactions use the richer post-event row instead. (ChatGPT-5.6-Sol) -->
+		// <!-- custom: Preserve lower-value/raw EXE diplomacy events at level 3, and uncommon non-semantic events at level 2.
+		// Resolved help/demand/civic/religion/war-join/embargo interactions use the richer post-event row instead. (ChatGPT-5.6-Sol) -->
 		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DIPLO_EVENT player=%d other=%d event=%s data1=%d data1Text=%s data2=%d data2Text=%s",
-				GC.getGame().getGameTurn(), ePlayer, eOtherPlayer, getSASDiploEventType(eDiploEvent), iData1, getSASGameRecordDiploData1Text(ePlayer, eDiploEvent, iData1, iData2).GetCString(), iData2, getSASGameRecordDiploData2Text(eDiploEvent, iData2).GetCString());
+			GC.getGame().getGameTurn(), ePlayer, eOtherPlayer, getSASDiploEventType(eDiploEvent), iData1,
+			getSASGameRecordDiploData1Text(ePlayer, eDiploEvent, iData1, iData2).GetCString(), iData2,
+			getSASGameRecordDiploData2Text(eDiploEvent, iData2).GetCString());
 	}
 }
 
@@ -2102,7 +2107,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 		it->AI_cityCreated(kNewCity); // </advc.104>
 	CvEventReporter::getInstance().cityAcquired(
 			eOldOwner, getID(), &kNewCity, bConquest, bTrade);
-	if (gPlayerLogLevel >= 1) logBBAI("  Player %d (%S) acquires city %S bConq %d bTrade %d", getID(), getCivilizationDescription(0), kNewCity.getName(0).GetCString(), bConquest, bTrade); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+	if (gPlayerLogLevel >= 1) logBBAI("  Player %d (%S) acquires city %S bConq %d bTrade %d",
+		getID(), getCivilizationDescription(0), kNewCity.getName(0).GetCString(), bConquest, bTrade); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 
 	// Allow razing, disbanding
 	if (bConquest)
@@ -5554,7 +5560,8 @@ void CvPlayer::found(int iX, int iY)
 	} // </advc.210c>
 	if (!CvPlot::isAllFog()) // advc.706: Suppress name-city popup
 		CvEventReporter::getInstance().cityBuilt(pCity);
-	if (gPlayerLogLevel > 0 || /* advc.031c: */ gFoundLogLevel > 0) logBBAI("  Player %d (%S) founds new city %S at %d, %d", getID(), getCivilizationDescription(0), pCity->getName(0).GetCString(), iX, iY); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+	if (gPlayerLogLevel > 0 || /* advc.031c: */ gFoundLogLevel > 0) logBBAI("  Player %d (%S) founds new city %S at %d, %d",
+		getID(), getCivilizationDescription(0), pCity->getName(0).GetCString(), iX, iY); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 }
 
 
@@ -9622,7 +9629,8 @@ void CvPlayer::onTurnLogging() const
 		return;
 
 	int const iGameTurn = kGame.getGameTurn();
-	logBBAI("Player %d (%S) setTurnActive for turn %d (%d %s)", getID(), getCivilizationDescription(0), iGameTurn, std::abs(kGame.getGameTurnYear()), kGame.getGameTurnYear()>0 ? "AD" : "BC");
+	logBBAI("Player %d (%S) setTurnActive for turn %d (%d %s)",
+		getID(), getCivilizationDescription(0), iGameTurn, std::abs(kGame.getGameTurnYear()), kGame.getGameTurnYear()>0 ? "AD" : "BC");
 
 	// advc.007: Interval was 25
 	if (iGameTurn > 0 && !isBarbarian() && (iGameTurn % gScoreLogInterval) == 0)
@@ -9631,7 +9639,8 @@ void CvPlayer::onTurnLogging() const
 		GAMETEXT.setScoreHelp(szBuffer, getID());
 		logBBAI("%S", szBuffer);
 
-		logBBAI("  Total Score: %d, Population Score: %d (%d total pop), Land Score: %d, Tech Score: %d, Wonder Score: %d", calculateScore(), getPopScore(false), getTotalPopulation(), getLandScore(false), getTechScore(), getWondersScore());
+		logBBAI("  Total Score: %d, Population Score: %d (%d total pop), Land Score: %d, Tech Score: %d, Wonder Score: %d",
+			calculateScore(), getPopScore(false), getTotalPopulation(), getLandScore(false), getTechScore(), getWondersScore());
 
 		int iEconomy = 0;
 		int iProduction = 0;
@@ -9658,7 +9667,9 @@ void CvPlayer::onTurnLogging() const
 	{
 		CvWStringBuffer szBuffer;
 
-		logBBAI("    Player %d (%S) has %d cities, %d pop, %d power, %d tech percent", getID(), getCivilizationDescription(0), getNumCities(), getTotalPopulation(), getPower(), GET_TEAM(getTeam()).getBestKnownTechScorePercent());
+		logBBAI("    Player %d (%S) has %d cities, %d pop, %d power, %d tech percent",
+			getID(), getCivilizationDescription(0), getNumCities(), getTotalPopulation(), getPower(),
+			GET_TEAM(getTeam()).getBestKnownTechScorePercent());
 		if (AI().AI_isFinancialTrouble())
 			logBBAI("    Financial trouble!");
 
@@ -9718,7 +9729,8 @@ void CvPlayer::onTurnLogging() const
 
 		logBBAI("%S", szBuffer.getCString());
 		szBuffer.clear();
-		if (GET_TEAM(getTeam()).AI_isAnyWarPlan()) logBBAI("    Enemy power perc: %d (%d with others reduction)", GET_TEAM(getTeam()).AI_getEnemyPowerPercent(), GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true));
+		if (GET_TEAM(getTeam()).AI_isAnyWarPlan()) logBBAI("    Enemy power perc: %d (%d with others reduction)",
+			GET_TEAM(getTeam()).AI_getEnemyPowerPercent(), GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true));
 	}
 }
 
@@ -12292,8 +12304,11 @@ void CvPlayer::doResearch()
 		TechTypes eCurrentTech = getCurrentResearch();
 		if (eCurrentTech == NO_TECH)
 		{
-			// <!-- custom: End-of-round summaries can legitimately show no current research after a technology was completed, another player claimed its first-discovery reward, or all technologies were learned. The research rate is stored as overflow in this branch rather than lost; log it to distinguish those cases from a failed AI choice. (GPT-5.6-Sol) -->
-			if (gPlayerLogLevel >= 2 && !isHuman() && !isBarbarian()) logBBAI("    RESEARCH_NO_TARGET_OVERFLOW_STORED turn=%d player=%d %S researchPercent=%d nominalResearchRate=%d existingOverflow=%d", GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), getCommercePercent(COMMERCE_RESEARCH), calculateResearchRate(), getOverflowResearch());
+			// <!-- custom: End-of-round summaries can legitimately show no current research after a technology was completed, another player claimed its first-discovery reward, or all technologies were learned.
+			// The research rate is stored as overflow in this branch rather than lost; log it to distinguish those cases from a failed AI choice. (GPT-5.6-Sol) -->
+			if (gPlayerLogLevel >= 2 && !isHuman() && !isBarbarian()) logBBAI("    RESEARCH_NO_TARGET_OVERFLOW_STORED turn=%d player=%d %S researchPercent=%d nominalResearchRate=%d existingOverflow=%d",
+				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), getCommercePercent(COMMERCE_RESEARCH),
+				calculateResearchRate(), getOverflowResearch());
 			int iOverflow = (100 * calculateResearchRate()) /
 					std::max(1, calculateResearchModifier(eCurrentTech));
 			changeOverflowResearch(iOverflow);
@@ -13174,7 +13189,9 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 		pCity->changeOccupationTimer(kMission.getCityRevoltCounter());
 		bSomethingHappened = true;
 		bShowExplosion = true;
-		if (gUnitLogLevel >= 2 && !isHuman()) logBBAI("      Spy for player %d (%S) causes revolt in %S, owned by %S (%d)", getID(), getCivilizationDescription(0), pCity->getName().GetCString(), GET_PLAYER(pCity->getOwner()).getCivilizationDescription(0), pCity->getOwner());
+		if (gUnitLogLevel >= 2 && !isHuman()) logBBAI("      Spy for player %d (%S) causes revolt in %S, owned by %S (%d)",
+			getID(), getCivilizationDescription(0), pCity->getName().GetCString(),
+			GET_PLAYER(pCity->getOwner()).getCivilizationDescription(0), pCity->getOwner());
 	}
 
 	if (kMission.getStolenGoldPercent() > 0 && pCity != NULL)
@@ -16640,7 +16657,9 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 	{
 		if (pTriggeredData->m_eOtherPlayer != NO_PLAYER)
 		{
-			if (gWarLogLevel >= 2) logBBAI("    Team %d (%S) declares war on team %d due to event", GET_PLAYER(pTriggeredData->m_eOtherPlayer).getTeam(), GET_PLAYER(pTriggeredData->m_eOtherPlayer).getCivilizationDescription(0), getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+			if (gWarLogLevel >= 2) logBBAI("    Team %d (%S) declares war on team %d due to event",
+				GET_PLAYER(pTriggeredData->m_eOtherPlayer).getTeam(),
+				GET_PLAYER(pTriggeredData->m_eOtherPlayer).getCivilizationDescription(0), getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 			GET_TEAM(GET_PLAYER(pTriggeredData->m_eOtherPlayer).getTeam()).declareWar(getTeam(), false, WARPLAN_LIMITED,
 					true, NO_PLAYER, true); // advc.106g
 		}

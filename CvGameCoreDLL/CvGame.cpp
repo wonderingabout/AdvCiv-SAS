@@ -7454,9 +7454,12 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 			{
 				if (apTopPlots[i] == NULL)
 					continue;
-				logBBAI("  #%d raw=%d areaAdjusted=%d final=%d at %d,%d area=%d", i + 1, aiTopRawValues[i], aiTopAreaValues[i], aiTopValues[i], apTopPlots[i]->getX(), apTopPlots[i]->getY(), apTopPlots[i]->getArea().getID());
+				logBBAI("  #%d raw=%d areaAdjusted=%d final=%d at %d,%d area=%d",
+					i + 1, aiTopRawValues[i], aiTopAreaValues[i], aiTopValues[i], apTopPlots[i]->getX(), apTopPlots[i]->getY(),
+					apTopPlots[i]->getArea().getID());
 			}
-			// <!-- custom: Local found-value comparisons can show a better one-tile shift that the actual Barbarian creator skipped because it belongs to an area that does not currently want another Barbarian city. Log chooser-side eligibility around the selected plot so bad-looking Barbarian settlements can be diagnosed from the real creation filters, not only from post-selection site value. (GPT-5.5) -->
+			// <!-- custom: Local found-value comparisons can show a better one-tile shift that the actual Barbarian creator skipped because it belongs to an area that does not currently want another Barbarian city.
+			// Log chooser-side eligibility around the selected plot so bad-looking Barbarian settlements can be diagnosed from the real creation filters, not only from post-selection site value. (GPT-5.5) -->
 			for (int iDX = -2; iDX <= 2; iDX++)
 			{
 				for (int iDY = -2; iDY <= 2; iDY++)
@@ -7502,7 +7505,10 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 							else iNearbyAreaValue *= iOwned + NUM_INNER_PLOTS;
 						}
 					}
-					logBBAI("  nearby chooser candidate %d,%d dist=%d raw=%d areaAdjusted=%d area=%d areaBarbCities=%d areaTarget=%d water=%d visibleToCivTeam=%d civArea=%d areaEligible=%d spawnEligible=%d", pLoopPlot->getX(), pLoopPlot->getY(), plotDistance(pBestPlot, pLoopPlot), iNearbyRawValue, iNearbyAreaValue, a.getID(), a.getCitiesPerPlayer(BARBARIAN_PLAYER), iTargetCities, pLoopPlot->isWater(), pLoopPlot->isVisibleToCivTeam(), bCivArea, bAreaEligible, bSpawnEligible);
+					logBBAI("  nearby chooser candidate %d,%d dist=%d raw=%d areaAdjusted=%d area=%d areaBarbCities=%d areaTarget=%d water=%d visibleToCivTeam=%d civArea=%d areaEligible=%d spawnEligible=%d",
+						pLoopPlot->getX(), pLoopPlot->getY(), plotDistance(pBestPlot, pLoopPlot), iNearbyRawValue, iNearbyAreaValue,
+						a.getID(), a.getCitiesPerPlayer(BARBARIAN_PLAYER), iTargetCities, pLoopPlot->isWater(),
+						pLoopPlot->isVisibleToCivTeam(), bCivArea, bAreaEligible, bSpawnEligible);
 					if (bSpawnEligible && iNearbyRawValue <= 1)
 					{
 						logBBAI("  Detailed raw-value rejection check for nearby chooser candidate %d,%d:", pLoopPlot->getX(), pLoopPlot->getY());
@@ -8645,7 +8651,8 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
 	{
 		FAssert(NO_PLAYER != kData.kVoteOption.ePlayer);
 		CvPlayer& kPlayer = GET_PLAYER(kData.kVoteOption.ePlayer);
-		if (gTeamLogLevel >= 1) logBBAI("  Vote for forcing peace against team %d (%S) passes", kPlayer.getTeam(), kPlayer.getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+		if (gTeamLogLevel >= 1) logBBAI("  Vote for forcing peace against team %d (%S) passes",
+			kPlayer.getTeam(), kPlayer.getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 		// <kekm.25> 'Cancel defensive pacts with the attackers first'
 		FOR_EACH_DEAL_VAR(pLoopDeal)
 		{
@@ -8693,7 +8700,8 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
 	else if (kVote.isForceWar())
 	{
 		CvPlayer& kPlayer = GET_PLAYER(kData.kVoteOption.ePlayer);
-		if (gTeamLogLevel >= 1) logBBAI("  Vote for war against team %d (%S) passes", kPlayer.getTeam(), kPlayer.getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+		if (gTeamLogLevel >= 1) logBBAI("  Vote for war against team %d (%S) passes",
+			kPlayer.getTeam(), kPlayer.getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 		CvTeamAI& kTeam = GET_TEAM(kPlayer.getTeam());
 		// advc.001: Exclude dead civs
 		for (PlayerIter<MAJOR_CIV,POTENTIAL_ENEMY_OF> it(kTeam.getID());
@@ -8724,7 +8732,8 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
 			CvPlayer& kNewOwner = GET_PLAYER(kData.kVoteOption.eOtherPlayer);
 			if (kNewOwner.getID() != pCity->getOwner())
 			{
-				if (gTeamLogLevel >= 1) logBBAI("  Vote for assigning %S to %d (%S) passes", pCity->getName().GetCString(), kNewOwner.getTeam(), kNewOwner.getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+				if (gTeamLogLevel >= 1) logBBAI("  Vote for assigning %S to %d (%S) passes",
+					pCity->getName().GetCString(), kNewOwner.getTeam(), kNewOwner.getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 				kNewOwner.acquireCity(pCity, false, true, true,
 						false, true); // advc.ctr
 			}

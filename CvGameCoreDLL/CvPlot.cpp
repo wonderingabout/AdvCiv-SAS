@@ -4882,7 +4882,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, bool bUpdateInFoW) /
 			CvCity const* pWorkingCity = getWorkingCity();
 			CvWString const szWorkingCity = (pWorkingCity == NULL ? CvWString(L"-") : pWorkingCity->getName());
 			logBBAI("    WORKER_SEA_IMPROVEMENT_LOST turn=%d owner=%d %S plot=(%d,%d) area=%d bonus=%S oldImprovement=%S newImprovement=%S workingCity=%S workingCityId=%d visibleEnemy=%d",
-				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getX(), getY(), getArea().getID(), GC.getInfo(eBonus).getDescription(), GC.getInfo(eOldImprovement).getDescription(), (eNewValue == NO_IMPROVEMENT ? L"-" : GC.getInfo(eNewValue).getDescription()), szWorkingCity.GetCString(), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()), isVisibleEnemyUnit(getOwner()));
+				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getX(), getY(), getArea().getID(),
+				GC.getInfo(eBonus).getDescription(), GC.getInfo(eOldImprovement).getDescription(),
+				(eNewValue == NO_IMPROVEMENT ? L"-" : GC.getInfo(eNewValue).getDescription()), szWorkingCity.GetCString(),
+				(pWorkingCity == NULL ? -1 : pWorkingCity->getID()), isVisibleEnemyUnit(getOwner()));
 		}
 	}
 

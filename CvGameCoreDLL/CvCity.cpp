@@ -626,7 +626,11 @@ bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass, bool* pb
 			bool const bAlreadyQueued = (getProductionBuilding() == eBuilding);
 			char const* szDecision = (*pbDefenseBlockedByShelter ? (bAlreadyQueued ? "RELEASE_EMERGENCY_PRIORITY" : "BLOCK_NEW_ORDER") : (bAlreadyQueued ? "KEEP_EMERGENCY_PRIORITY" : "FORCE_NEW_ORDER"));
 			logBBAI("EMERGENCY_DEFENSE_BUILDING turn=%d player=%d city=%S cityId=%d building=%s decision=%s reason=%s filterEnabled=%d alreadyQueued=%d oceanCoastal=%d landDanger=%d strategicNavalExposure=%d navalDangerChecked=%d navalDanger=%d enemyLandX=%d enemyLandY=%d enemyLandTeam=%d",
-				GC.getGame().getGameTurn(), getOwner(), getName().GetCString(), getID(), GC.getInfo(eBuilding).getType(), szDecision, (*pbDefenseBlockedByShelter ? "SHELTERED" : "LOCATION_ALLOWED"), bSkipShelteredDefense, bAlreadyQueued, bOceanCoastal, bLandDanger, bStrategicNavalExposure, bCheckNavalDanger, bNavalDanger, (pEnemyBorderPlot == NULL ? -1 : pEnemyBorderPlot->getX()), (pEnemyBorderPlot == NULL ? -1 : pEnemyBorderPlot->getY()), (int)eEnemyBorderTeam);
+				GC.getGame().getGameTurn(), getOwner(), getName().GetCString(), getID(), GC.getInfo(eBuilding).getType(), szDecision,
+				(*pbDefenseBlockedByShelter ? "SHELTERED" : "LOCATION_ALLOWED"), bSkipShelteredDefense, bAlreadyQueued, bOceanCoastal,
+				bLandDanger, bStrategicNavalExposure, bCheckNavalDanger, bNavalDanger,
+				(pEnemyBorderPlot == NULL ? -1 : pEnemyBorderPlot->getX()), (pEnemyBorderPlot == NULL ? -1 : pEnemyBorderPlot->getY()),
+				(int)eEnemyBorderTeam);
 		}
 		if (*pbDefenseBlockedByShelter)
 			return false;
@@ -882,7 +886,8 @@ void CvCity::doTurn()
 					if (SASTryEmergencyBuilding(eWaterHammerBuildingClass))
 					{
 						bEmergencyBuilding = true;
-						if (gCityLogLevel >= 2) logBBAI("      City %S forces water hammer building. pop %d/%d, base hammers %d, food surplus %d/%d", getName().GetCString(), iCityPopulation, iMinPopulation, iBaseHammersPerTurn, iFoodDiff, iFoodSurplusThreshold);
+						if (gCityLogLevel >= 2) logBBAI("      City %S forces water hammer building. pop %d/%d, base hammers %d, food surplus %d/%d",
+							getName().GetCString(), iCityPopulation, iMinPopulation, iBaseHammersPerTurn, iFoodDiff, iFoodSurplusThreshold);
 					}
 				}
 			}
@@ -3069,7 +3074,8 @@ void CvCity::hurry(HurryTypes eHurry)
 			szString = GC.getInfo(getProductionBuilding()).getDescription();
 		else if (isProductionProject())
 			szString = GC.getInfo(getProductionProject()).getDescription();
-		logBBAI("    City %S hurrying production of %S at cost of %d pop, %d gold, %d anger length", getName().GetCString(), szString.GetCString(), iHurryPopulation, iHurryGold, iHurryAngerLength);
+		logBBAI("    City %S hurrying production of %S at cost of %d pop, %d gold, %d anger length",
+			getName().GetCString(), szString.GetCString(), iHurryPopulation, iHurryGold, iHurryAngerLength);
 	}
 
 	if (isActiveOwned() && isCitySelected())
@@ -3317,7 +3323,8 @@ void CvCity::conscript()
 			gDLL->UI().selectUnit(pUnit, true, false, true);
 			gDLL->UI().lookAt(getPlot().getPoint(), CAMERALOOKAT_NORMAL); // K-Mod
 		}
-		if (gCityLogLevel >= 2 && !isHuman()) logBBAI("      City %S does conscript of a %S at cost of %d pop, %d anger", getName().GetCString(), pUnit->getName().GetCString(), iPopChange, iAngerLength); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+		if (gCityLogLevel >= 2 && !isHuman()) logBBAI("      City %S does conscript of a %S at cost of %d pop, %d anger",
+			getName().GetCString(), pUnit->getName().GetCString(), iPopChange, iAngerLength); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 	}
 }
 
@@ -10525,7 +10532,8 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
 		// <advc.123f>
 		if(GC.getGame().isProjectMaxedOut(eCreateProject))
 			iMaxedBuildingOrProject = eCreateProject; // </advc.123f>
-		if (gCityLogLevel >= 1) logBBAI("    City %S finishes production of project %S", getName().GetCString(), GC.getInfo(eCreateProject).getDescription()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+		if (gCityLogLevel >= 1) logBBAI("    City %S finishes production of project %S",
+			getName().GetCString(), GC.getInfo(eCreateProject).getDescription()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 		break;
 	}
 	case ORDER_MAINTAIN:

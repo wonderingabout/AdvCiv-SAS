@@ -465,9 +465,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 		CvPlayer const& kKiller = GET_PLAYER(ePlayer);
 		if (gGreatGeneralLogLevel >= 1 && (bSASGreatGeneralUnit || bSASGreatGeneralAttached))
 		{
-			logBBAI("    GREAT_GENERAL_DIED turn=%d player=%d %S unitId=%d unitType=%s unitName=%S freeGreatGeneral=%d attachedGreatGeneral=%s killerPlayer=%d x=%d y=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), GC.getInfo(getUnitType()).getType(), getReplayName().GetCString(), bSASGreatGeneralUnit, bSASGreatGeneralAttached ? GC.getInfo(getLeaderUnitType()).getType() : "-", ePlayer, getX(), getY());
+			logBBAI("    GREAT_GENERAL_DIED turn=%d player=%d %S unitId=%d unitType=%s unitName=%S freeGreatGeneral=%d attachedGreatGeneral=%s killerPlayer=%d x=%d y=%d",
+				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), GC.getInfo(getUnitType()).getType(),
+				getReplayName().GetCString(), bSASGreatGeneralUnit,
+				bSASGreatGeneralAttached ? GC.getInfo(getLeaderUnitType()).getType() : "-", ePlayer, getX(), getY());
 		}
-		// <!-- custom: Base AdvCiv passed getNameKey() directly to the Great General death texts. Once a Great General or its combat unit has a personal name, getNameKey() returns only that name, hiding whether the dead unit was the free Great General itself or e.g. a named Longbowman carrying one.
+		// <!-- custom: Base AdvCiv passed getNameKey() directly to the Great General death texts.
+		// Once a Great General or its combat unit has a personal name, getNameKey() returns only that name, hiding whether the dead unit was the free Great General itself or e.g. a named Longbowman carrying one.
 		// getReplayName() keeps the unit type and personal name together for Great-General cases; retain getNameKey() for the unrelated Golden-Age notification path. See KI#204. (ChatGPT-5.6-Sol) -->
 		CvWString const szSASGreatGeneralDisplayName = (bSASGreatGeneralUnit || bSASGreatGeneralAttached ? getReplayName() : CvWString(getNameKey()));
 		if (NO_UNIT != getLeaderUnitType() ||
@@ -7816,7 +7820,9 @@ CvUnit* CvUnit::upgrade(UnitTypes eUnit) // K-Mod: this now returns the new unit
 	{
 		CvWString szString;
 		getUnitAIString(szString, AI_getUnitAIType());
-		logBBAI("    %S spends %d to upgrade %S to %S, unit AI %S", kOwner.getCivilizationDescription(0), upgradePrice(eUnit), getName(0).GetCString(), pUpgradeUnit->getName(0).GetCString(), szString.GetCString());
+		logBBAI("    %S spends %d to upgrade %S to %S, unit AI %S",
+			kOwner.getCivilizationDescription(0), upgradePrice(eUnit), getName(0).GetCString(), pUpgradeUnit->getName(0).GetCString(),
+			szString.GetCString());
 	}
 
 	return pUpgradeUnit; // K-Mod

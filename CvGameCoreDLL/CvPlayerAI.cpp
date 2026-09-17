@@ -591,7 +591,9 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 		}
 		bUpgradeLogAnyWarPlan = kUpgradeLogTeam.AI_isAnyWarPlan();
 		logBBAI("    UPGRADE_BUDGET_DETAIL turn=%d player=%d %S goldStart=%d goldRate=%d goldTargetUpgrade=%d goldTargetTotal=%d upgradeBudget=%d goldToUpgradeAllUnits=%d focusWar=%d wars=%d anyWarPlan=%d financialTrouble=%d cities=%d units=%d era=%d",
-			GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iStartingGold, calculateGoldRate(), AI_goldTarget(true), AI_goldTarget(false), iUpgradeBudget, AI_getGoldToUpgradeAllUnits(), bUpgradeFocusWar, iUpgradeLogWars, bUpgradeLogAnyWarPlan, bUpgradeFinancialTroubleStart, getNumCities(), getNumUnits(), getCurrentEra());
+			GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iStartingGold, calculateGoldRate(), AI_goldTarget(true),
+			AI_goldTarget(false), iUpgradeBudget, AI_getGoldToUpgradeAllUnits(), bUpgradeFocusWar, iUpgradeLogWars, bUpgradeLogAnyWarPlan,
+			bUpgradeFinancialTroubleStart, getNumCities(), getNumUnits(), getCurrentEra());
 	}
 
 	CvPlot const* pLastUpgradePlot = NULL;
@@ -762,8 +764,12 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 									{
 										// <!-- custom: add more logging information for better scrap diagnostics (was too noisy or imprecise) with the help of ChatGPT-5.5 and GPT-5.5 thanks -->
 										if (gUnitLogLevel > 2) logBBAI("    SCRAP_DECISION reason=upgrade-cleanup turn=%d player=%d (%S) unitId=%d unitType=%d name=%S at=(%d,%d) exp=%d unitCostPerMil=%d maxUnitCostPerMil=%d totalUnits=%d",
-											GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), pLoopUnit->getID(), pLoopUnit->getUnitType(), pLoopUnit->getName(0).GetCString(), pLoopUnit->getX(), pLoopUnit->getY(), iExp, iCostPerMil, AI_maxUnitCostPerMil(pLoopUnit->area(), 100), getNumUnits());
-										// <!-- custom: Restrictive SAS canScrap can veto inherited upgrade cleanup. Only mark the unit killed and skip its ordinary upgrade path after scrap confirms removal. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+											GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), pLoopUnit->getID(),
+											pLoopUnit->getUnitType(), pLoopUnit->getName(0).GetCString(), pLoopUnit->getX(),
+											pLoopUnit->getY(), iExp, iCostPerMil, AI_maxUnitCostPerMil(pLoopUnit->area(), 100),
+											getNumUnits());
+										// <!-- custom: Restrictive SAS canScrap can veto inherited upgrade cleanup.
+										// Only mark the unit killed and skip its ordinary upgrade path after scrap confirms removal. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 										if (pLoopUnit->scrap())
 										{
 											pLoopUnit->doDelayedDeath();
@@ -807,7 +813,11 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 					{
 						iPassUpgradedUnits++;
 						logBBAI("    UPGRADE_SPEND_DETAIL turn=%d player=%d %S pass=%d passName=%s unitId=%d oldUnitType=%d unitAI=%d domain=%d area=%d plot=(%d,%d) city=%S bestCityDefender=%d plotDanger=%d noDisband=%d exp=%d level=%d upgradeCost=%d maxUpgradePrice=%d goldBefore=%d goldAfter=%d spentSoFarBefore=%d spentSoFarAfter=%d budget=%d overspentAfter=%d focusWar=%d financialTrouble=%d wars=%d anyWarPlan=%d",
-							GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iPass, szPassName, iUnitID, eOldUnit, eUnitAI, eDomain, iUnitArea, iUnitX, iUnitY, szCityName.GetCString(), bBestCityDefender, bPlotDanger, bNoDisband, iUnitExp, iUnitLevel, iUpgradeSpend, iMaxUpgradePrice, iGoldBeforeUpgrade, iGoldAfterUpgrade, iSpentBeforeUpgrade, iStartingGold - getGold(), iUpgradeBudget, iStartingGold - getGold() > iUpgradeBudget, bUpgradeFocusWar, AI_isFinancialTrouble(), iUpgradeLogWars, bUpgradeLogAnyWarPlan);
+							GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iPass, szPassName, iUnitID, eOldUnit,
+							eUnitAI, eDomain, iUnitArea, iUnitX, iUnitY, szCityName.GetCString(), bBestCityDefender, bPlotDanger, bNoDisband,
+							iUnitExp, iUnitLevel, iUpgradeSpend, iMaxUpgradePrice, iGoldBeforeUpgrade, iGoldAfterUpgrade,
+							iSpentBeforeUpgrade, iStartingGold - getGold(), iUpgradeBudget, iStartingGold - getGold() > iUpgradeBudget,
+							bUpgradeFocusWar, AI_isFinancialTrouble(), iUpgradeLogWars, bUpgradeLogAnyWarPlan);
 					}
 				}
 				else
@@ -819,7 +829,9 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 		if (bLogUpgradeDiagnostics)
 		{
 			logBBAI("    UPGRADE_PASS_SUMMARY turn=%d player=%d %S pass=%d passName=%s eligibleUnits=%d upgradedUnits=%d skippedBudget=%d spentBefore=%d spentAfter=%d budget=%d goldBefore=%d goldAfter=%d overspentAfter=%d",
-				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iPass, szPassName, iPassEligibleUnits, iPassUpgradedUnits, iPassSkippedBudget, iStartingGold - iPassGoldBefore, iStartingGold - getGold(), iUpgradeBudget, iPassGoldBefore, getGold(), iStartingGold - getGold() > iUpgradeBudget);
+				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iPass, szPassName, iPassEligibleUnits,
+				iPassUpgradedUnits, iPassSkippedBudget, iStartingGold - iPassGoldBefore, iStartingGold - getGold(), iUpgradeBudget,
+				iPassGoldBefore, getGold(), iStartingGold - getGold() > iUpgradeBudget);
 		}
 	}
 
@@ -831,7 +843,8 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 	{
 		logBBAI("    %S spends %d on unit upgrades out of budget of %d, %d gold remaining", getCivilizationDescription(0), iStartingGold - getGold(), iUpgradeBudget, getGold());
 		logBBAI("    UPGRADE_BUDGET_RESULT turn=%d player=%d %S spent=%d budget=%d goldStart=%d goldEnd=%d overspent=%d financialTroubleAfter=%d",
-			GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iStartingGold - getGold(), iUpgradeBudget, iStartingGold, getGold(), iStartingGold - getGold() > iUpgradeBudget, AI_isFinancialTrouble());
+			GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iStartingGold - getGold(), iUpgradeBudget, iStartingGold,
+			getGold(), iStartingGold - getGold() > iUpgradeBudget, AI_isFinancialTrouble());
 	}
 
 	// <advc.mnai> Promotions for AI civs moved down
@@ -1894,7 +1907,10 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 			}
 		}
 		logBBAI("RAZE_EVAL_BEGIN turn=%d player=%d civ=%S city=%S population=%d previousOwner=%d originalOwner=%d everOwned=%d closeness=%d nearestOwnCity=%S nearestOwnCityDistance=%d teamAreaCities=%d",
-			kGame.getGameTurn(), getID(), getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getPopulation(), kCity.getPreviousOwner(), kCity.getOriginalOwner(), bEverOwned, iCloseness, (pNearestOwnCity == NULL ? L"-" : pNearestOwnCity->getName().GetCString()), iNearestOwnCityDistance, GET_TEAM(getTeam()).countNumCitiesByArea(kCity.getArea()));
+			kGame.getGameTurn(), getID(), getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getPopulation(),
+			kCity.getPreviousOwner(), kCity.getOriginalOwner(), bEverOwned, iCloseness,
+			(pNearestOwnCity == NULL ? L"-" : pNearestOwnCity->getName().GetCString()), iNearestOwnCityDistance,
+			GET_TEAM(getTeam()).countNumCitiesByArea(kCity.getArea()));
 	}
 
 	// <!-- custom: new logic later, see below for details -->
@@ -1943,7 +1959,8 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 	if (!bRaze && bKeepForDomination)
 	{
 		// Do not raze, going for domination
-		if (bLogRazeDecision) logBBAI("RAZE_DECISION turn=%d player=%d city=%S action=KEEP reason=DOMINATION3_PRIMARY_AREA_KEEP", kGame.getGameTurn(), getID(), kCity.getName().GetCString());
+		if (bLogRazeDecision) logBBAI("RAZE_DECISION turn=%d player=%d city=%S action=KEEP reason=DOMINATION3_PRIMARY_AREA_KEEP",
+			kGame.getGameTurn(), getID(), kCity.getName().GetCString());
 		keepCity(kCity);
 		return;
 	}
@@ -1959,10 +1976,13 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 		if (bShouldRazeBadCityLongTerm)
 		{
 			bRaze = true;
-			if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_UNLIKELY_LONG_TERM_BENEFIT population=%d closeness=%d nearestOwnCityDistance=%d activeWorldWonder=%d distanceOverrideActiveWorldWonder=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, iNearestOwnCityDistance, bActiveWorldWonder, bDistanceOverrideActiveWorldWonder);
+			if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_UNLIKELY_LONG_TERM_BENEFIT population=%d closeness=%d nearestOwnCityDistance=%d activeWorldWonder=%d distanceOverrideActiveWorldWonder=%d",
+				kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, iNearestOwnCityDistance,
+				bActiveWorldWonder, bDistanceOverrideActiveWorldWonder);
 		}
 	} // </advc.ctr>
-	// <!-- custom: we have an issue of AI not razing a bit or too far cities especially early, usually barbarian cities, that are detrimental to capture rather than simply raze. Make sure we always raze cities in such cases rather than keeping/capturing them, see known issue as of now 64 for details; also code provided by chatgpt 5, check if accurate -->
+	// <!-- custom: we have an issue of AI not razing a bit or too far cities especially early, usually barbarian cities, that are detrimental to capture rather than simply raze.
+	// Make sure we always raze cities in such cases rather than keeping/capturing them, see known issue as of now 64 for details; also code provided by chatgpt 5, check if accurate -->
 	bool const bPrevOwnerBarb = (kCity.getPreviousOwner() == BARBARIAN_PLAYER);
 	bool const bBarbCity = (bPrevOwnerBarb && (kCity.getOriginalOwner() == BARBARIAN_PLAYER));
 
@@ -1980,14 +2000,18 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 	if (!bBarbarian && !bEverOwned && bBarbCity && bIsolated && bEarlyPhase)
 	{
 		bRaze = true;
-		if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_EARLY_REMOTE_BARB population=%d closeness=%d isolated=%d earlyTurnLimit=%d nearestOwnCityDistance=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, bIsolated, iEarlyTurns, iNearestOwnCityDistance);
+		if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_EARLY_REMOTE_BARB population=%d closeness=%d isolated=%d earlyTurnLimit=%d nearestOwnCityDistance=%d",
+			kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, bIsolated, iEarlyTurns,
+			iNearestOwnCityDistance);
 	}
 	// <!-- custom: even for non barbarian cities, if they are too far and we are in the early game, do not risk crumbling or splitting our forces at a critical early time when economy and military is weaker and we can't spread too much; so raze the city rather -->
 	// Optional non-barb outpost rule (stricter)
 	if (!bBarbarian && bEarlyPhase && iCloseness == 0)
 	{
 		bRaze = true;
-		if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_EARLY_REMOTE_NONBARB population=%d closeness=%d earlyTurnLimit=%d nearestOwnCityDistance=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, iEarlyTurns, iNearestOwnCityDistance);
+		if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_EARLY_REMOTE_NONBARB population=%d closeness=%d earlyTurnLimit=%d nearestOwnCityDistance=%d",
+			kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, iEarlyTurns,
+			iNearestOwnCityDistance);
 	}
 
 	if (!bRaze)
@@ -2279,7 +2303,8 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 			{
 				if (bBarbCity) logBBAI("      %S is a barb city", kCity.getName().GetCString());
 				if (bPrevOwnerBarb) logBBAI("      %S was last owned by barbs", kCity.getName().GetCString());
-				logBBAI("      %S has area cities %d, closeness %d, bFinTrouble %d", kCity.getName().GetCString(), GET_TEAM(getTeam()).countNumCitiesByArea(kCity.getArea()), iCloseness, bFinancialTrouble);
+				logBBAI("      %S has area cities %d, closeness %d, bFinTrouble %d",
+					kCity.getName().GetCString(), GET_TEAM(getTeam()).countNumCitiesByArea(kCity.getArea()), iCloseness, bFinancialTrouble);
 			}
 
 			// advc.116: Replacing the dice roll below. Hardly any randomness this way.
@@ -2288,7 +2313,10 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 			iRazeValue += iRazeRandom;
 			// <!-- custom: Preserve the normal AdvCiv valuation result while exposing compact component deltas for review. (GPT-5.6-Sol) -->
 			if (bLogRazeDecision) logBBAI("RAZE_VALUE_COMPONENTS turn=%d player=%d city=%S distanceAndLocalPower=%d maintenance=%d population=%d personalityAndDomination=%d religionAssetsCultureExpansionAndEnemyPower=%d random=%d finalValue=%d threshold=0 financialTrouble=%d closeness=%d",
-				kGame.getGameTurn(), getID(), kCity.getName().GetCString(), iRazeValueAfterDistance, iRazeValueAfterMaintenance - iRazeValueAfterDistance, iRazeValueAfterPopulation - iRazeValueAfterMaintenance, iRazeValueAfterPersonalityAndDomination - iRazeValueAfterPopulation, iRazeValueBeforeRandom - iRazeValueAfterPersonalityAndDomination, iRazeRandom, iRazeValue, bFinancialTrouble, iCloseness);
+				kGame.getGameTurn(), getID(), kCity.getName().GetCString(), iRazeValueAfterDistance,
+				iRazeValueAfterMaintenance - iRazeValueAfterDistance, iRazeValueAfterPopulation - iRazeValueAfterMaintenance,
+				iRazeValueAfterPersonalityAndDomination - iRazeValueAfterPopulation,
+				iRazeValueBeforeRandom - iRazeValueAfterPersonalityAndDomination, iRazeRandom, iRazeValue, bFinancialTrouble, iCloseness);
 		} // End of !isBarbarian()
 
 		if(bLogRazeDecision)
@@ -2330,7 +2358,9 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 				{
 					// <!-- custom: same player-log category guard as the nearby conquest/raze diagnostics. (GPT-5.5 + ChatGPT 5.5) -->
 					if (bLogRazeDecision)
-						logBBAI("    Player %d (%S) decides to liberate city %S to player %d (%S)", getID(), getCivilizationDescription(0), kCity.getName().GetCString(), GET_PLAYER(eLiberationPlayer).getID(), GET_PLAYER(eLiberationPlayer).getCivilizationDescription(0));
+						logBBAI("    Player %d (%S) decides to liberate city %S to player %d (%S)",
+							getID(), getCivilizationDescription(0), kCity.getName().GetCString(), GET_PLAYER(eLiberationPlayer).getID(),
+							GET_PLAYER(eLiberationPlayer).getCivilizationDescription(0));
 					CvEventReporter::getInstance().cityAcquiredAndKept(getID(), &kCity);
 					kCity.liberate(true);
 				}
@@ -3057,7 +3087,16 @@ void CvPlayerAI::AI_updateCommerceWeights()
 			bool const bCultureProcess = (iProcessCultureTimes100 > 0);
 			int const iProductionTurns = (eProductionUnit != NO_UNIT || eProductionBuilding != NO_BUILDING || eProductionProject != NO_PROJECT ? pCity->getProductionTurnsLeft() : -1);
 			logBBAI("CULTURE_CITY_WEIGHT turn=%d player=%d %S city=%S cityId=%d rank=%d neededRank=%d victoryCandidate=%d victoryCountdownPercent=%d victoryBalancePercent=%d culture=%d/%d cultureRate=%d estimatedRate=%d currentCountdown=%d projectedCountdown=%d legendary=%d baseWeight=%d pressureFactor=%d pressureWeight=%d warPlans=%d finalWeight=%d useRank=%d C3Mode=%d production=%d productionRank=%d orderType=%s order=%S orderTurns=%d spaceship=%d cultureBuilding=%d cultureProcess=%d processCultureTimes100=%d assignedSpecialistCount=%d forcedSpecialistCount=%d assignedArtistCount=%d forcedArtistCount=%d assignedSpecialistBaseFood=%d assignedSpecialistBaseProduction=%d assignedSpecialistBaseCommerceYield=%d assignedSpecialistBaseResearch=%d assignedSpecialistBaseGold=%d assignedSpecialistBaseCulture=%d assignedSpecialistBaseEspionage=%d assignedSpecialistCultureTimes100=%d",
-				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), pCity->getName().GetCString(), pCity->getID(), iCultureRateRank, iVictoryCities, (bAICultureVictory && iCultureRateRank <= iVictoryCities), iCultureVictoryCountdownPercent, iCultureVictoryBalancePercent, iCityCulture, iLegendaryCulture, iCityCultureRate, iEstimatedCultureRate, iCurrentCountdown, iCountdown, (iCityCulture >= iLegendaryCulture), iBaseCultureWeight, iPressureFactor, iPressureWeight, bWarPlans, iWeight, bUseCultureRank, bC3, pCity->getYieldRate(YIELD_PRODUCTION), pCity->findYieldRateRank(YIELD_PRODUCTION), szProductionType, pCity->getProductionName(), iProductionTurns, bSpaceshipProject, bCultureBuilding, bCultureProcess, iProcessCultureTimes100, iAssignedSpecialistCount, iForcedSpecialistCount, iAssignedArtistCount, iForcedArtistCount, iAssignedSpecialistBaseFood, iAssignedSpecialistBaseProduction, iAssignedSpecialistBaseCommerceYield, iAssignedSpecialistBaseResearch, iAssignedSpecialistBaseGold, iAssignedSpecialistBaseCulture, iAssignedSpecialistBaseEspionage, iAssignedSpecialistCultureTimes100);
+				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), pCity->getName().GetCString(), pCity->getID(),
+				iCultureRateRank, iVictoryCities, (bAICultureVictory && iCultureRateRank <= iVictoryCities), iCultureVictoryCountdownPercent,
+				iCultureVictoryBalancePercent, iCityCulture, iLegendaryCulture, iCityCultureRate, iEstimatedCultureRate, iCurrentCountdown,
+				iCountdown, (iCityCulture >= iLegendaryCulture), iBaseCultureWeight, iPressureFactor, iPressureWeight, bWarPlans, iWeight,
+				bUseCultureRank, bC3, pCity->getYieldRate(YIELD_PRODUCTION), pCity->findYieldRateRank(YIELD_PRODUCTION), szProductionType,
+				pCity->getProductionName(), iProductionTurns, bSpaceshipProject, bCultureBuilding, bCultureProcess, iProcessCultureTimes100,
+				iAssignedSpecialistCount, iForcedSpecialistCount, iAssignedArtistCount, iForcedArtistCount, iAssignedSpecialistBaseFood,
+				iAssignedSpecialistBaseProduction, iAssignedSpecialistBaseCommerceYield, iAssignedSpecialistBaseResearch,
+				iAssignedSpecialistBaseGold, iAssignedSpecialistBaseCulture, iAssignedSpecialistBaseEspionage,
+				iAssignedSpecialistCultureTimes100);
 		}
 		pCity->AI_setCultureVictoryInvestmentPercent(bAICultureVictory && iCultureRateRank <= iVictoryCities ? std::max(0, iCultureVictoryBalancePercent) : 0);
 		pCity->AI_setCultureWeight(iWeight);
@@ -4563,7 +4602,8 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
 			//values.push_back(iValue);
 			++iTechCount;
 
-			if (!bAsync && iDepth == 0 && gPlayerLogLevel >= 3) logBBAI("      Player %d (%S) consider tech %S with value %d", getID(), getCivilizationDescription(0), GC.getInfo(eTech).getDescription(), iValue); // advc.007: Don't log when bAsync
+			if (!bAsync && iDepth == 0 && gPlayerLogLevel >= 3) logBBAI("      Player %d (%S) consider tech %S with value %d",
+				getID(), getCivilizationDescription(0), GC.getInfo(eTech).getDescription(), iValue); // advc.007: Don't log when bAsync
 		}
 	}
 	// We need this to ensure techs_to_depth[1] exists.
@@ -16374,12 +16414,23 @@ void CvPlayerAI::AI_logWorkerSeaAudit() const
 		wchar const* szImprovement = (eImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eImprovement).getDescription());
 		wchar const* szBestBuild = (eBestBuild == NO_BUILD ? L"-" : GC.getInfo(eBestBuild).getDescription());
 		logBBAI("    WORKER_SEA_AUDIT_TARGET turn=%d player=%d %S plot=(%d,%d) area=%d bonus=%S improvement=%S cityRadius=%d workingCity=%S workingCityId=%d nearestCoastalCity=%S nearestCityId=%d nearestCityDistance=%d firstSeenUnimproved=%d ageUnimproved=%d firstSeenBuildable=%d ageBuildable=%d firstSeenReachable=%d ageReachable=%d assignedMissions=%d visibleEnemy=%d waterDanger=%d canBuildSeaImprovement=%d bestBuild=%S countedReachable=%d areaWorkers=%d areaTrain=%d totalWorkers=%d totalTrain=%d",
-			iTurn, getID(), getCivilizationDescription(0), kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), GC.getInfo(eBonus).getDescription(), szImprovement, kPlot.isCityRadius(), szWorkingCity.GetCString(), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()), szNearestCity.GetCString(), (pNearestCoastalCity == NULL ? -1 : pNearestCoastalCity->getID()), (pNearestCoastalCity == NULL ? -1 : iNearestCityDistance), posFirstSeen->second, iAge, iFirstSeenBuildable, iAgeBuildable, iFirstSeenReachable, iAgeReachable, iAssignedMissions, bVisibleEnemy, bWaterDanger, bCanBuildSeaImprovement, szBestBuild, bCountedReachable, AI_totalWaterAreaUnitAIs(kPlot.getArea(), UNITAI_WORKER_SEA), kPlot.getArea().getNumTrainAIUnits(getID(), UNITAI_WORKER_SEA), AI_totalUnitAIs(UNITAI_WORKER_SEA), AI_getNumTrainAIUnits(UNITAI_WORKER_SEA));
+			iTurn, getID(), getCivilizationDescription(0), kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(),
+			GC.getInfo(eBonus).getDescription(), szImprovement, kPlot.isCityRadius(), szWorkingCity.GetCString(),
+			(pWorkingCity == NULL ? -1 : pWorkingCity->getID()), szNearestCity.GetCString(),
+			(pNearestCoastalCity == NULL ? -1 : pNearestCoastalCity->getID()), (pNearestCoastalCity == NULL ? -1 : iNearestCityDistance),
+			posFirstSeen->second, iAge, iFirstSeenBuildable, iAgeBuildable, iFirstSeenReachable, iAgeReachable, iAssignedMissions,
+			bVisibleEnemy, bWaterDanger, bCanBuildSeaImprovement, szBestBuild, bCountedReachable,
+			AI_totalWaterAreaUnitAIs(kPlot.getArea(), UNITAI_WORKER_SEA), kPlot.getArea().getNumTrainAIUnits(getID(), UNITAI_WORKER_SEA),
+			AI_totalUnitAIs(UNITAI_WORKER_SEA), AI_getNumTrainAIUnits(UNITAI_WORKER_SEA));
 		iLoggedTargets++;
 	}
 
 	logBBAI("    WORKER_SEA_AUDIT_SUMMARY turn=%d player=%d %S ownedSeaBonuses=%d connected=%d unimprovedBFC=%d unimprovedNonBFC=%d buildableReachable=%d countedReachable=%d unassigned=%d unassignedBuildableReachable=%d staleBuildableReachable=%d staleAssignedBuildableReachable=%d staleUnassignedBuildableReachable=%d staleUnassignedSafeBuildableReachable=%d oldestUnassignedSafeBuildableReachableAge=%d blockedByTechOrBuild=%d visibleEnemyTargets=%d waterDangerTargets=%d loggedTargets=%d totalWorkers=%d totalTrain=%d",
-		iTurn, getID(), getCivilizationDescription(0), iOwnedSeaBonuses, iConnected, iUnimprovedBFC, iUnimprovedNonBFC, iBuildableReachable, iCountedReachable, iUnassigned, iUnassignedBuildableReachable, iStaleBuildableReachable, iStaleAssignedBuildableReachable, iStaleUnassignedBuildableReachable, iStaleUnassignedSafeBuildableReachable, iOldestUnassignedSafeBuildableReachableAge, iBlockedByTechOrBuild, iVisibleEnemy, iWaterDanger, iLoggedTargets, AI_totalUnitAIs(UNITAI_WORKER_SEA), AI_getNumTrainAIUnits(UNITAI_WORKER_SEA));
+		iTurn, getID(), getCivilizationDescription(0), iOwnedSeaBonuses, iConnected, iUnimprovedBFC, iUnimprovedNonBFC, iBuildableReachable,
+		iCountedReachable, iUnassigned, iUnassignedBuildableReachable, iStaleBuildableReachable, iStaleAssignedBuildableReachable,
+		iStaleUnassignedBuildableReachable, iStaleUnassignedSafeBuildableReachable, iOldestUnassignedSafeBuildableReachableAge,
+		iBlockedByTechOrBuild, iVisibleEnemy, iWaterDanger, iLoggedTargets, AI_totalUnitAIs(UNITAI_WORKER_SEA),
+		AI_getNumTrainAIUnits(UNITAI_WORKER_SEA));
 }
 
 // advc.042: Cut from CvPlayer.cpp (w/o functional changes) b/c of the AI code at the end
@@ -18224,7 +18275,8 @@ scaled CvPlayerAI::AI_barbarianTargetCityScore(CvArea const& kArea) const
 			if (bLogBarbTargets && pBarbarianCity->isArea(kArea))
 			{
 				logBBAI("    BARB_CITY_SCORE_SKIP turn=%d player=%d %S area=%d target=%S target=(%d,%d) reason=not_deduced",
-					GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(), pBarbarianCity->getName().GetCString(), pBarbarianCity->getX(), pBarbarianCity->getY());
+					GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(),
+					pBarbarianCity->getName().GetCString(), pBarbarianCity->getX(), pBarbarianCity->getY());
 			}
 			continue;
 		}
@@ -18240,7 +18292,9 @@ scaled CvPlayerAI::AI_barbarianTargetCityScore(CvArea const& kArea) const
 			if (bLogBarbTargets)
 			{
 				logBBAI("    BARB_CITY_SCORE_SKIP turn=%d player=%d %S area=%d target=%S target=(%d,%d) pop=%d reason=distance ourDist=%d",
-					GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(), pBarbarianCity->getName().GetCString(), pBarbarianCity->getX(), pBarbarianCity->getY(), pBarbarianCity->getPopulation(), iOurDist);
+					GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(),
+					pBarbarianCity->getName().GetCString(), pBarbarianCity->getX(), pBarbarianCity->getY(), pBarbarianCity->getPopulation(),
+					iOurDist);
 			}
 			continue;
 		}
@@ -18296,13 +18350,17 @@ scaled CvPlayerAI::AI_barbarianTargetCityScore(CvArea const& kArea) const
 		if (bLogBarbTargets)
 		{
 			logBBAI("    BARB_CITY_SCORE_TARGET turn=%d player=%d %S area=%d target=%S target=(%d,%d) pop=%d ourDist=%d otherDist=%d ourCulture=%d otherCulture=%d defModifier=%d defenders=%d estimatedGarrison=%d score=%d scorePercent=%d",
-				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(), pBarbarianCity->getName().GetCString(), pBarbarianCity->getX(), pBarbarianCity->getY(), pBarbarianCity->getPopulation(), iOurDist, (iOtherDist == MAX_INT ? -1 : iOtherDist), iOurCulture, iOtherCulture, iDefModifier, iDefenders, AI_estimateBarbarianGarrisonSize(), rScore.round(), rScore.getPercent());
+				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(), pBarbarianCity->getName().GetCString(),
+				pBarbarianCity->getX(), pBarbarianCity->getY(), pBarbarianCity->getPopulation(), iOurDist,
+				(iOtherDist == MAX_INT ? -1 : iOtherDist), iOurCulture, iOtherCulture, iDefModifier, iDefenders,
+				AI_estimateBarbarianGarrisonSize(), rScore.round(), rScore.getPercent());
 		}
 		rTotal += rScore;
 	}
 	if (bLogBarbTargets && rTotal > 0)
 	{
-		logBBAI("    BARB_CITY_SCORE_SUMMARY turn=%d player=%d %S area=%d totalScore=%d totalScorePercent=%d", GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(), rTotal.round(), rTotal.getPercent());
+		logBBAI("    BARB_CITY_SCORE_SUMMARY turn=%d player=%d %S area=%d totalScore=%d totalScorePercent=%d",
+			GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kArea.getID(), rTotal.round(), rTotal.getPercent());
 	}
 	return rTotal;
 } // </advc.300>
@@ -21432,7 +21490,8 @@ int CvPlayerAI::AI_calculateGoldenAgeValue(bool bConsiderRevolution) const
 				100 * iBestValue > 110 * iCurrentValue)
 			{
 				aeBestCivics.set(eLoopCivicOption, eNewCivic);
-				if (gPlayerLogLevel > 0) logBBAI("      %S wants a golden age to switch to %S (value: %d vs %d)", getCivilizationDescription(0), GC.getInfo(eNewCivic).getDescription(0), iBestValue, iCurrentValue);
+				if (gPlayerLogLevel > 0) logBBAI("      %S wants a golden age to switch to %S (value: %d vs %d)",
+					getCivilizationDescription(0), GC.getInfo(eNewCivic).getDescription(0), iBestValue, iCurrentValue);
 			}
 		}
 
@@ -21764,8 +21823,10 @@ void CvPlayerAI::AI_doMilitary()
 					getUnitAIString(szAITypeString, pDisbandUnit->AI_getUnitAIType());
 					// <!-- custom: add more logging information for better scrap diagnostics (was too noisy or imprecise) with the help of ChatGPT-5.5 and GPT-5.5 thanks -->
 					logBBAI("    SCRAP_DECISION reason=financial-trouble turn=%d player=%d (%S) unitId=%d unitType=%d unitAI='%S' name=%S at=(%d,%d) value=%d disbandIndex=%d candidates=%d unitCostPerMil=%d maxUnitCostPerMil=%d goldRate=%d gold=%d totalUnits=%d",
-						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), pDisbandUnit->getID(), pDisbandUnit->getUnitType(), szAITypeString.GetCString(), pDisbandUnit->getName(0).GetCString(), pDisbandUnit->getX(), pDisbandUnit->getY(),
-						unit_values[iDisbandCandidateIndex].first, iDisbandCandidateIndex, (int)unit_values.size(), iCost, iMaxCost, calculateGoldRate(), getGold(), getNumUnits());
+						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), pDisbandUnit->getID(),
+						pDisbandUnit->getUnitType(), szAITypeString.GetCString(), pDisbandUnit->getName(0).GetCString(),
+						pDisbandUnit->getX(), pDisbandUnit->getY(), unit_values[iDisbandCandidateIndex].first, iDisbandCandidateIndex,
+						(int)unit_values.size(), iCost, iMaxCost, calculateGoldRate(), getGold(), getNumUnits());
 				}
 
 				iDisbandCandidateIndex++;
@@ -22550,8 +22611,10 @@ void CvPlayerAI::AI_doCivics()
 				if (bLogBBAICivicDecision)
 				{
 					logBBAI("    CIVIC_SWITCH_DETAIL turn=%d player=%d %S status=ACCEPT option=%S old=%S new=%S currentValue=%d bestValue=%d delta=%d anarchyTest=%d currentBundleAnarchy=%d anarchyDelta=%d threshold=%d slack=%d passPercent=%d passSlack=%d firstPass=%d financialTrouble=%d wars=%d anyWarPlan=%d gold=%d goldRate=%d",
-						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eLoopCivicOption).getDescription(), GC.getInfo(eOtherCivic).getDescription(), GC.getInfo(eNewCivic).getDescription(),
-						iCurrent, iBestValue, iBestValue - iCurrent, iTestAnarchy, iAnarchyLength, iAnarchyDelta, iThreshold, iAbsSlack, bPassPercent, bPassSlack, bFirstPass, bFinancialTrouble, iNumWars, bAnyWarPlan, getGold(), calculateGoldRate());
+						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eLoopCivicOption).getDescription(),
+						GC.getInfo(eOtherCivic).getDescription(), GC.getInfo(eNewCivic).getDescription(), iCurrent, iBestValue,
+						iBestValue - iCurrent, iTestAnarchy, iAnarchyLength, iAnarchyDelta, iThreshold, iAbsSlack, bPassPercent, bPassSlack,
+						bFirstPass, bFinancialTrouble, iNumWars, bAnyWarPlan, getGold(), calculateGoldRate());
 				}
 				if (bLogSASCivicDecision) logSASGameRecordAICivicCandidate(getID(), "ACCEPT", eLoopCivicOption, eOtherCivic, eNewCivic, iCurrent, iBestValue, iTestAnarchy, iAnarchyLength, iThreshold, iAbsSlack, bPassPercent, bPassSlack, bFirstPass);
 
@@ -22569,8 +22632,11 @@ void CvPlayerAI::AI_doCivics()
 				if (bLogBBAICivicCandidate)
 				{
 					logBBAI("    CIVIC_SWITCH_DETAIL turn=%d player=%d %S status=%s option=%S old=%S new=%S currentValue=%d bestValue=%d delta=%d anarchyTest=%d currentBundleAnarchy=%d anarchyDelta=%d threshold=%d slack=%d passPercent=%d passSlack=%d firstPass=%d financialTrouble=%d wars=%d anyWarPlan=%d gold=%d goldRate=%d",
-						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), (bWouldLikeSwitch ? "WANT_REJECT" : "REJECT"), GC.getInfo(eLoopCivicOption).getDescription(), GC.getInfo(eOtherCivic).getDescription(), GC.getInfo(eNewCivic).getDescription(),
-						iCurrent, iBestValue, iBestValue - iCurrent, iTestAnarchy, iAnarchyLength, iAnarchyDelta, iThreshold, iAbsSlack, bPassPercent, bPassSlack, bFirstPass, bFinancialTrouble, iNumWars, bAnyWarPlan, getGold(), calculateGoldRate());
+						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), (bWouldLikeSwitch ? "WANT_REJECT" : "REJECT"),
+						GC.getInfo(eLoopCivicOption).getDescription(), GC.getInfo(eOtherCivic).getDescription(),
+						GC.getInfo(eNewCivic).getDescription(), iCurrent, iBestValue, iBestValue - iCurrent, iTestAnarchy, iAnarchyLength,
+						iAnarchyDelta, iThreshold, iAbsSlack, bPassPercent, bPassSlack, bFirstPass, bFinancialTrouble, iNumWars, bAnyWarPlan,
+						getGold(), calculateGoldRate());
 				}
 				if (bLogSASCivicCandidate) logSASGameRecordAICivicCandidate(getID(), bWouldLikeSwitch ? "WANT_REJECT" : "REJECT", eLoopCivicOption, eOtherCivic, eNewCivic, iCurrent, iBestValue, iTestAnarchy, iAnarchyLength, iThreshold, iAbsSlack, bPassPercent, bPassSlack, bFirstPass);
 			}
@@ -22612,7 +22678,9 @@ void CvPlayerAI::AI_doCivics()
 							aiCurrentValue.get(kCivic.getCivicOptionType()) &&
 							iValue > 0) // advc.131: Better to be safe
 						{
-							if(gPlayerLogLevel > 0) logBBAI("    %S delays revolution to wait for %S (value: %d vs %d)", getCivilizationDescription(0), kCivic.getDescription(0), iValue, aiCurrentValue.get(kCivic.getCivicOptionType()));
+							if(gPlayerLogLevel > 0) logBBAI("    %S delays revolution to wait for %S (value: %d vs %d)",
+								getCivilizationDescription(0), kCivic.getDescription(0), iValue,
+								aiCurrentValue.get(kCivic.getCivicOptionType()));
 							int const iWaitCivicTimer = iResearchTurns * 2 / 3;
 							if (bLogSASCivicDecision)
 							{
@@ -22660,7 +22728,9 @@ void CvPlayerAI::AI_doCivics()
 					iChangedCivics++;
 			}
 			logBBAI("    CIVIC_REVOLUTION_DETAIL turn=%d player=%d %S changes=%d anarchy=%d oldCivicTimer=%d newCivicTimer=%d baseCivicTimer=%d extraTimerPerAnarchyTurn=%d financialTrouble=%d wars=%d anyWarPlan=%d gold=%d goldRate=%d research=%d",
-				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iChangedCivics, iFinalAnarchyLength, AI_getCivicTimer(), iFinalCivicTimer, iBaseCivicTimer, iExtraTimerPerAnarchyTurn, bFinancialTrouble, iNumWars, bAnyWarPlan, getGold(), calculateGoldRate(), getCurrentResearch());
+				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iChangedCivics, iFinalAnarchyLength, AI_getCivicTimer(),
+				iFinalCivicTimer, iBaseCivicTimer, iExtraTimerPerAnarchyTurn, bFinancialTrouble, iNumWars, bAnyWarPlan, getGold(),
+				calculateGoldRate(), getCurrentResearch());
 			FOR_EACH_ENUM(CivicOption)
 			{
 				CivicTypes const eOldCivic = aeOldCivic.get(eLoopCivicOption);
@@ -22670,7 +22740,9 @@ void CvPlayerAI::AI_doCivics()
 					int const iOldValue = AI_civicValue(eOldCivic);
 					int const iNewValue = AI_civicValue(eNewCivic);
 					logBBAI("    CIVIC_REVOLUTION_CHANGE turn=%d player=%d %S option=%S old=%S new=%S oldValue=%d newValue=%d delta=%d",
-						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eLoopCivicOption).getDescription(), GC.getInfo(eOldCivic).getDescription(), GC.getInfo(eNewCivic).getDescription(), iOldValue, iNewValue, iNewValue - iOldValue);
+						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eLoopCivicOption).getDescription(),
+						GC.getInfo(eOldCivic).getDescription(), GC.getInfo(eNewCivic).getDescription(), iOldValue, iNewValue,
+						iNewValue - iOldValue);
 				}
 			}
 		}
@@ -23893,7 +23965,8 @@ void CvPlayerAI::AI_doDiplo()
 										This is a problem in the way the getName function is implimented.
 										Unfortunately, the heart of the problem is in the signature of
 										some of the dllexport functions - and so it can't easily be fixed. */
-									if (gTeamLogLevel >= 2) logBBAI("    %S makes a deal with %S using AI_counterPropose. (%d : %d)", getName(0), kPlayer.getName(0), weGive.getLength(), theyGive.getLength());
+									if (gTeamLogLevel >= 2) logBBAI("    %S makes a deal with %S using AI_counterPropose. (%d : %d)",
+										getName(0), kPlayer.getName(0), weGive.getLength(), theyGive.getLength());
 								}
 							}
 							if (bDeal)
@@ -26743,7 +26816,8 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 
 	if (!hasCapital())
 	{
-		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=0 reason=noCapital", GC.getGame().getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh);
+		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=0 reason=noCapital",
+			GC.getGame().getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh);
 		return 0;
 	}
 	// <advc.115f>
@@ -26755,7 +26829,8 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 	}
 	if (iWeight < 0)
 	{
-		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=0 reason=negativeVictoryWeight cultureVictoryWeight=%d", GC.getGame().getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iWeight);
+		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=0 reason=negativeVictoryWeight cultureVictoryWeight=%d",
+			GC.getGame().getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iWeight);
 		return 0;
 	} // </advc.115f>
 
@@ -26821,7 +26896,9 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 	{
 		/*	Already won, keep playing culture heavy but do some tech
 			to keep pace if human wants to keep playing */
-		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=3 reason=alreadyLegendaryEnough legendary=%d needed=%d high=%d close=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iLegendaryCount, iVictoryCities, iHighCultureCount, iCloseToLegendaryCount);
+		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=3 reason=alreadyLegendaryEnough legendary=%d needed=%d high=%d close=%d",
+			kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iLegendaryCount, iVictoryCities,
+			iHighCultureCount, iCloseToLegendaryCount);
 		return 3;
 	}
 
@@ -26833,15 +26910,21 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 	{
 		if (iCloseToLegendaryCount >= iVictoryCities)
 		{
-			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=4 reason=humanCloseEnough high=%d close=%d legendary=%d needed=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
+			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=4 reason=humanCloseEnough high=%d close=%d legendary=%d needed=%d",
+				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iHighCultureCount, iCloseToLegendaryCount,
+				iLegendaryCount, iVictoryCities);
 			return 4;
 		}
 		if (getCommercePercent(COMMERCE_CULTURE) > 50)
 		{
-			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=3 reason=humanCultureSlider culturePercent=%d high=%d close=%d legendary=%d needed=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, getCommercePercent(COMMERCE_CULTURE), iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
+			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=3 reason=humanCultureSlider culturePercent=%d high=%d close=%d legendary=%d needed=%d",
+				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, getCommercePercent(COMMERCE_CULTURE),
+				iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
 			return 3;
 		}
-		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=0 reason=humanNotPursuing culturePercent=%d high=%d close=%d legendary=%d needed=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, getCommercePercent(COMMERCE_CULTURE), iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
+		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=0 reason=humanNotPursuing culturePercent=%d high=%d close=%d legendary=%d needed=%d",
+			kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, getCommercePercent(COMMERCE_CULTURE),
+			iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
 		return 0;
 	} // K-Mod end
 
@@ -26953,9 +27036,16 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 				int const iTurnsRemaining = std::max(0, kGame.getEstimateEndTurn() - kGame.getGameTurn());
 				int const iProjectedDeadlinePercent = (iProbeWinningCountdown < MAX_INT && iTurnsRemaining > 0 ? (int)((long long)100 * iProbeWinningCountdown / iTurnsRemaining) : -1);
 				logBBAI("CULTURE_STAGE_EARLY_PROBE turn=%d player=%d %S valueBeforeRandom=%d randomBonus=%d finalValue=%d threshold=100 victoryWeight=%d foundationCities=%d foundationCulture=%d foundationProgressPercent=%d minFoundationProgressPercent=%d foundationReady=%d winningCountdown=%d turnsRemaining=%d projectedDeadlinePercent=%d high=%d close=%d legendary=%d needed=%d era=%d eraThresholdPercent=%d culturePercent=%d cities=%d",
-					kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iValueBeforeRandom, iCultureStrategyRandomBonus, iValue, iWeight, iProbeFoundationCities, iProbeFoundationCulture, iProbeFoundationProgressPercent, iProbeMinFoundationProgressPercent, (iProbeFoundationProgressPercent >= iProbeMinFoundationProgressPercent), (iProbeWinningCountdown < MAX_INT ? iProbeWinningCountdown : -1), iTurnsRemaining, iProjectedDeadlinePercent, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, getCurrentEra(), iEraThresholdPercent, getCommercePercent(COMMERCE_CULTURE), getNumCities());
+					kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iValueBeforeRandom, iCultureStrategyRandomBonus, iValue,
+					iWeight, iProbeFoundationCities, iProbeFoundationCulture, iProbeFoundationProgressPercent,
+					iProbeMinFoundationProgressPercent, (iProbeFoundationProgressPercent >= iProbeMinFoundationProgressPercent),
+					(iProbeWinningCountdown < MAX_INT ? iProbeWinningCountdown : -1), iTurnsRemaining, iProjectedDeadlinePercent,
+					iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, getCurrentEra(), iEraThresholdPercent,
+					getCommercePercent(COMMERCE_CULTURE), getNumCities());
 			}
-			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=0 reason=lowCultureStrategyValue value=%d high=%d close=%d legendary=%d needed=%d cities=%d weight=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iValue, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, getNumCities(), iWeight);
+			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=0 reason=lowCultureStrategyValue value=%d high=%d close=%d legendary=%d needed=%d cities=%d weight=%d",
+				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iValue, iHighCultureCount,
+				iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, getNumCities(), iWeight);
 			return 0;
 		}
 	}
@@ -27023,7 +27113,10 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 		if (bLogCultureStage)
 		{
 			logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=insufficientCandidateFoundation foundationCities=%d foundationCulture=%d foundationProgressPercent=%d minProgressPercent=%d foundationRaceRank=%d/%d weakestCandidateCulture=%d weakestCandidateProgressPercent=%d high=%d close=%d legendary=%d needed=%d",
-				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iCultureFoundationCities, iCultureFoundationCulture, iCultureFoundationProgressPercent, iMinCultureFoundationProgressPercent, iCultureFoundationRaceRank, iCultureFoundationRacePlayers, iWeakestCandidateCulture, iWeakestCandidateProgressPercent, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
+				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iCultureFoundationCities,
+				iCultureFoundationCulture, iCultureFoundationProgressPercent, iMinCultureFoundationProgressPercent,
+				iCultureFoundationRaceRank, iCultureFoundationRacePlayers, iWeakestCandidateCulture, iWeakestCandidateProgressPercent,
+				iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
 		}
 		return 1;
 	}
@@ -27032,7 +27125,10 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 		if (bLogCultureStage)
 		{
 			logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=cultureFoundationRaceBehind foundationCities=%d foundationCulture=%d foundationProgressPercent=%d foundationRaceRank=%d/%d maxRaceRank=%d weakestCandidateCulture=%d weakestCandidateProgressPercent=%d high=%d close=%d legendary=%d needed=%d",
-				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iCultureFoundationCities, iCultureFoundationCulture, iCultureFoundationProgressPercent, iCultureFoundationRaceRank, iCultureFoundationRacePlayers, iMaxCultureRaceRank, iWeakestCandidateCulture, iWeakestCandidateProgressPercent, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
+				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iCultureFoundationCities,
+				iCultureFoundationCulture, iCultureFoundationProgressPercent, iCultureFoundationRaceRank, iCultureFoundationRacePlayers,
+				iMaxCultureRaceRank, iWeakestCandidateCulture, iWeakestCandidateProgressPercent, iHighCultureCount, iCloseToLegendaryCount,
+				iLegendaryCount, iVictoryCities);
 		}
 		return 1;
 	}
@@ -27048,7 +27144,11 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 		int const iMostAdvancedCompetingStage = std::max(std::max(iSpaceStage, iConquestStage), std::max(iDominationStage, iDiplomacyStage));
 		if (iMostAdvancedCompetingStage >= iMinCompetingVictoryStage)
 		{
-			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=advancedCompetingVictory minCompetingStage=%d mostAdvancedCompetingStage=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d winningCountdown=%d high=%d close=%d legendary=%d needed=%d foundationProgressPercent=%d foundationRaceRank=%d/%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iMinCompetingVictoryStage, iMostAdvancedCompetingStage, iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, iCultureFoundationProgressPercent, iCultureFoundationRaceRank, iCultureFoundationRacePlayers);
+			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=advancedCompetingVictory minCompetingStage=%d mostAdvancedCompetingStage=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d winningCountdown=%d high=%d close=%d legendary=%d needed=%d foundationProgressPercent=%d foundationRaceRank=%d/%d",
+				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iMinCompetingVictoryStage,
+				iMostAdvancedCompetingStage, iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage,
+				(iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount,
+				iVictoryCities, iCultureFoundationProgressPercent, iCultureFoundationRaceRank, iCultureFoundationRacePlayers);
 			return 1;
 		}
 	}
@@ -27064,7 +27164,9 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 			bool const bWarPlan = AI_isFocusWar();
 			bool const bAtWar = (kTeam.getNumWars() > 0);
 			logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=strongWarEnemy warPlan=%d atWar=%d enemyPowerPercent=%d strongEnemyThreshold=%d high=%d close=%d legendary=%d needed=%d foundationProgressPercent=%d foundationRaceRank=%d/%d",
-				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, bWarPlan, bAtWar, iEnemyPowerPercent, iSAS_ENEMY_STRONG_POWER_THRESHOLD, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, iCultureFoundationProgressPercent, iCultureFoundationRaceRank, iCultureFoundationRacePlayers);
+				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, bWarPlan, bAtWar, iEnemyPowerPercent,
+				iSAS_ENEMY_STRONG_POWER_THRESHOLD, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities,
+				iCultureFoundationProgressPercent, iCultureFoundationRaceRank, iCultureFoundationRacePlayers);
 		}
 		return 1;
 	}
@@ -27139,7 +27241,10 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 			if (bLogCultureStage)
 			{
 				logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=cultureDeadlineMiss winningCountdown=%d projectionAvailable=%d lateRace=%d turnsRemaining=%d maxDeadlinePercent=%d eligibleRaceRank=%d/%d high=%d close=%d legendary=%d needed=%d",
-					kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, (bWinningCountdownAvailable ? iWinningCountdown : -1), bWinningCountdownAvailable, bLateCultureRace, iTurnsRemaining, iMaxCultureDeadlinePercent, iEligibleCultureRaceRank, iEligibleCultureRacePlayers, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
+					kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh,
+					(bWinningCountdownAvailable ? iWinningCountdown : -1), bWinningCountdownAvailable, bLateCultureRace, iTurnsRemaining,
+					iMaxCultureDeadlinePercent, iEligibleCultureRaceRank, iEligibleCultureRacePlayers, iHighCultureCount,
+					iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
 			}
 			return 1;
 		}
@@ -27149,7 +27254,9 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 			if (bLogCultureStage)
 			{
 				logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=lateCultureRaceBehind winningCountdown=%d turnsRemaining=%d eligibleRaceRank=%d/%d maxRaceRank=%d high=%d close=%d legendary=%d needed=%d",
-					kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iWinningCountdown, iTurnsRemaining, iEligibleCultureRaceRank, iEligibleCultureRacePlayers, iMaxCultureRaceRank, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
+					kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iWinningCountdown, iTurnsRemaining,
+					iEligibleCultureRaceRank, iEligibleCultureRacePlayers, iMaxCultureRaceRank, iHighCultureCount, iCloseToLegendaryCount,
+					iLegendaryCount, iVictoryCities);
 			}
 			return 1;
 		}
@@ -27158,7 +27265,10 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 	int const iOwnVictoryCountdown = kTeam.AI_getLowestVictoryCountdown();
 	if (!isHuman() && iOwnVictoryCountdown >= 0 && iOwnVictoryCountdown < iWinningCountdown)
 	{
-		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=shorterActiveVictoryCountdown activeVictoryCountdown=%d cultureWinningCountdown=%d high=%d close=%d legendary=%d needed=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iOwnVictoryCountdown, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
+		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=shorterActiveVictoryCountdown activeVictoryCountdown=%d cultureWinningCountdown=%d high=%d close=%d legendary=%d needed=%d",
+			kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iOwnVictoryCountdown,
+			(iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount,
+			iVictoryCities);
 		return 1;
 	}
 	if (iCloseToLegendaryCount >= iVictoryCities ||
@@ -27261,17 +27371,30 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 					bool const bCandidateSprintWindow = (iProjectedCandidateCount >= iVictoryCities && bDeadlineOK && bEligibleRankOK && !bCompetingVictoryPressure && iCandidateDangerCities <= 0 && !isAnarchy());
 					bool const bAtWar = (kTeam.getNumWars() > 0);
 					logBBAI("CULTURE_STAGE_C4_PROBE turn=%d player=%d %S winningCountdown=%d oldTarget=%d oldTargetMet=%d candidateSprintWindow=%d turnsRemaining=%d projectedDeadlinePercent=%d maxDeadlinePercent=%d eligibleRaceRank=%d/%d rankOK=%d high=%d close=%d legendary=%d needed=%d projectedCandidates=%d candidateDangerCities=%d warPlan=%d atWar=%d enemyPowerPercent=%d enemyStrong=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d competingVictoryPressure=%d anarchy=%d culturePercent=%d cultureTechValue=%d getBetterUnits=%d",
-						kGame.getGameTurn(), getID(), getCivilizationShortDescription(), (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iCountdownTarget, (iWinningCountdown < iCountdownTarget), bCandidateSprintWindow, iTurnsRemaining, iProjectedDeadlinePercent, iMaxCultureDeadlinePercent, iEligibleCultureRaceRank, iEligibleCultureRacePlayers, bEligibleRankOK, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, iProjectedCandidateCount, iCandidateDangerCities, bFocusWar, bAtWar, iEnemyPowerPercent, bEnemyStrong, iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage, bCompetingVictoryPressure, isAnarchy(), getCommercePercent(COMMERCE_CULTURE), iCultureVictoryTechValue, bGetBetterUnits);
+						kGame.getGameTurn(), getID(), getCivilizationShortDescription(),
+						(iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iCountdownTarget, (iWinningCountdown < iCountdownTarget),
+						bCandidateSprintWindow, iTurnsRemaining, iProjectedDeadlinePercent, iMaxCultureDeadlinePercent,
+						iEligibleCultureRaceRank, iEligibleCultureRacePlayers, bEligibleRankOK, iHighCultureCount, iCloseToLegendaryCount,
+						iLegendaryCount, iVictoryCities, iProjectedCandidateCount, iCandidateDangerCities, bFocusWar, bAtWar,
+						iEnemyPowerPercent, bEnemyStrong, iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage,
+						bCompetingVictoryPressure, isAnarchy(), getCommercePercent(COMMERCE_CULTURE), iCultureVictoryTechValue,
+						bGetBetterUnits);
 				}
 			}
 			if (iWinningCountdown < iCountdownTarget)
 			{
-				if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=4 reason=winningCountdownBelowTarget winningCountdown=%d target=%d eligibleRaceRank=%d/%d high=%d close=%d legendary=%d needed=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iWinningCountdown, iCountdownTarget, iEligibleCultureRaceRank, iEligibleCultureRacePlayers, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
+				if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=4 reason=winningCountdownBelowTarget winningCountdown=%d target=%d eligibleRaceRank=%d/%d high=%d close=%d legendary=%d needed=%d",
+					kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iWinningCountdown, iCountdownTarget,
+					iEligibleCultureRaceRank, iEligibleCultureRacePlayers, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount,
+					iVictoryCities);
 				return 4;
 			}
 			// K-Mod end
 
-			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=3 reason=highCultureCities winningCountdown=%d target=%d eligibleRaceRank=%d/%d high=%d close=%d legendary=%d needed=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iWinningCountdown, iCountdownTarget, iEligibleCultureRaceRank, iEligibleCultureRacePlayers, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
+			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=3 reason=highCultureCities winningCountdown=%d target=%d eligibleRaceRank=%d/%d high=%d close=%d legendary=%d needed=%d",
+				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iWinningCountdown, iCountdownTarget,
+				iEligibleCultureRaceRank, iEligibleCultureRacePlayers, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount,
+				iVictoryCities);
 			return 3;
 		}
 	}
@@ -27285,14 +27408,23 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 			getNumCities() <= std::min(iVictoryCities + 1,
 			getCurrentEra() + iVictoryCities - GC.getNumEraInfos() / 2)) // </advc.115e>
 		{
-			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=tooFewHighCultureCities high=%d close=%d legendary=%d needed=%d winningCountdown=%d eligibleRaceRank=%d/%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iEligibleCultureRaceRank, iEligibleCultureRacePlayers);
+			if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=tooFewHighCultureCities high=%d close=%d legendary=%d needed=%d winningCountdown=%d eligibleRaceRank=%d/%d",
+				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iHighCultureCount, iCloseToLegendaryCount,
+				iLegendaryCount, iVictoryCities, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iEligibleCultureRaceRank,
+				iEligibleCultureRacePlayers);
 			return 1;
 		}
-		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=2 reason=midgameCulturePursuit high=%d close=%d legendary=%d needed=%d winningCountdown=%d eligibleRaceRank=%d/%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iEligibleCultureRaceRank, iEligibleCultureRacePlayers);
+		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=2 reason=midgameCulturePursuit high=%d close=%d legendary=%d needed=%d winningCountdown=%d eligibleRaceRank=%d/%d",
+			kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iHighCultureCount, iCloseToLegendaryCount,
+			iLegendaryCount, iVictoryCities, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iEligibleCultureRaceRank,
+			iEligibleCultureRacePlayers);
 		return 2;
 	}
 
-	if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=earlyCulturePreparation high=%d close=%d legendary=%d needed=%d winningCountdown=%d eligibleRaceRank=%d/%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iEligibleCultureRaceRank, iEligibleCultureRacePlayers);
+	if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=earlyCulturePreparation high=%d close=%d legendary=%d needed=%d winningCountdown=%d eligibleRaceRank=%d/%d",
+		kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iHighCultureCount, iCloseToLegendaryCount,
+		iLegendaryCount, iVictoryCities, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iEligibleCultureRaceRank,
+		iEligibleCultureRacePlayers);
 	return 1;
 }
 
@@ -28234,7 +28366,11 @@ void CvPlayerAI::AI_updateEraFactor()
 	{ \
 		if ((m_eStrategyHash & s) != (eLastStrategyHash & s)) \
 		{ \
-			logBBAI( "    Player %d (%S) %s strategy "#s" on turn %d", getID(), getCivilizationDescription(0), (m_eStrategyHash & s) ? "starts" : "stops", GC.getGame().getGameTurn()); \
+			// <!-- custom: "Inside these continued macros, the formatter split logBBAI(...) across physical lines but failed to put a trailing \ on every new macro-continuation line.
+			// The preprocessor therefore ended the macro early, and VC2003 started interpreting getCivilizationDescription(...) and the rest at file scope - which explains the huge cascade of bizarre errors." (ChatGPT-5.6-Sol) -->
+			logBBAI("    Player %d (%S) %s strategy "#s" on turn %d", \
+				getID(), getCivilizationDescription(0), \
+				(m_eStrategyHash & s) ? "starts" : "stops", GC.getGame().getGameTurn()); \
 		} \
 	}
 #define log_strat2(s, x) \
@@ -28242,7 +28378,10 @@ void CvPlayerAI::AI_updateEraFactor()
 	{ \
 		if ((m_eStrategyHash & s) != (eLastStrategyHash & s)) \
 		{ \
-			logBBAI( "    Player %d (%S) %s strategy "#s" on turn %d with "#x" %d", getID(), getCivilizationDescription(0), (m_eStrategyHash & s) ? "starts" : "stops", GC.getGame().getGameTurn(), x); \
+			// <!-- custom: same as for the above logBBAI call. -->
+			logBBAI("    Player %d (%S) %s strategy "#s" on turn %d with "#x" %d", \
+				getID(), getCivilizationDescription(0), \
+				(m_eStrategyHash & s) ? "starts" : "stops", GC.getGame().getGameTurn(), x); \
 		} \
 	}
 
@@ -29210,14 +29349,16 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 			int const iSettledCulturePercent = (bAICultureVictory ? 100 : iSASJoinCityCultureNonVictoryPercent);
 			int const iSettledCultureEffectiveValue = iSettledCultureValue * iSettledCulturePercent / 100;
 			logBBAI("CULTURE_GREAT_PERSON_WEIGHT turn=%d player=%d %S greatPersonClass=%s greatPerson=%s settledSource=%s settledOriginalValue=%d settledValue=%d settledCity=%S settledCityId=%d settledYieldValue=%d settledGoldValue=%d settledResearchValue=%d settledCultureValue=%d settledCulturePercent=%d settledCultureEffectiveValue=%d settledEspionageValue=%d settledOtherValue=%d buildingSource=%s buildingOriginalValue=%d buildingValue=%d rawValue=%d meanValue=%d normalizationMin=%d normalizedWeight=%d existingGreatPeople=%d cultureStage=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d focusWar=%d",
-					GC.getGame().getGameTurn(), getID(), getCivilizationShortDescription(), GC.getInfo(eGreatPersonClass).getType(), kGreatPerson.getType(),
-					(eSettledSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSettledSpecialist).getType()), kSASLogData.iSettledOriginalValue, kSASLogData.iSettledValue,
-					(pSettledCity == NULL ? L"NONE" : pSettledCity->getName().GetCString()), (pSettledCity == NULL ? -1 : pSettledCity->getID()),
-					kSASLogData.iSettledYieldValue, kSASLogData.aiSettledCommerceValues[COMMERCE_GOLD], kSASLogData.aiSettledCommerceValues[COMMERCE_RESEARCH],
-					iSettledCultureValue, iSettledCulturePercent, iSettledCultureEffectiveValue, kSASLogData.aiSettledCommerceValues[COMMERCE_ESPIONAGE], kSASLogData.iSettledOtherValue,
-					(eBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBuilding).getType()), kSASLogData.iBuildingOriginalValue, kSASLogData.iBuildingValue,
-					iRawValue, iMean, iMin, iValue, AI_totalUnitAIs(kGreatPerson.getDefaultUnitAIType()),
-					iCultureStage, iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage, AI_isFocusWar());
+				GC.getGame().getGameTurn(), getID(), getCivilizationShortDescription(), GC.getInfo(eGreatPersonClass).getType(),
+				kGreatPerson.getType(), (eSettledSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSettledSpecialist).getType()),
+				kSASLogData.iSettledOriginalValue, kSASLogData.iSettledValue,
+				(pSettledCity == NULL ? L"NONE" : pSettledCity->getName().GetCString()), (pSettledCity == NULL ? -1 : pSettledCity->getID()),
+				kSASLogData.iSettledYieldValue, kSASLogData.aiSettledCommerceValues[COMMERCE_GOLD],
+				kSASLogData.aiSettledCommerceValues[COMMERCE_RESEARCH], iSettledCultureValue, iSettledCulturePercent,
+				iSettledCultureEffectiveValue, kSASLogData.aiSettledCommerceValues[COMMERCE_ESPIONAGE], kSASLogData.iSettledOtherValue,
+				(eBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBuilding).getType()), kSASLogData.iBuildingOriginalValue,
+				kSASLogData.iBuildingValue, iRawValue, iMean, iMin, iValue, AI_totalUnitAIs(kGreatPerson.getDefaultUnitAIType()),
+				iCultureStage, iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage, AI_isFocusWar());
 		}
 	}
 }
@@ -29664,7 +29805,8 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
 			{
 				CvWString sOldType;
 				getUnitAIString(sOldType, getUnit(it->second)->AI_getUnitAIType());
-				logBBAI("    %S converts %S from %S to attack city for crush. (%d)", getName(), getUnit(it->second)->getName().GetCString(), sOldType.GetCString(), getUnit(it->second)->getID());
+				logBBAI("    %S converts %S from %S to attack city for crush. (%d)",
+					getName(), getUnit(it->second)->getName().GetCString(), sOldType.GetCString(), getUnit(it->second)->getID());
 			}
 
 			AI_getUnit(it->second)->AI_setUnitAIType(UNITAI_ATTACK_CITY);
@@ -29737,7 +29879,8 @@ int CvPlayerAI::AI_paranoiaRating(PlayerTypes eRival, int iOurDefPow, bool bRedu
 			{
 				//iValue += 50 + 50 * iWarMemory;
 				iValue += 40 + (20 * rWarMem).round(); // advc.022
-				if (gPlayerLogLevel >= 2) logBBAI( "    Player %d (%S) wary of %S because of war memory %d", getID(), getCivilizationDescription(0), kRival.getCivilizationDescription(0), rWarMem.round());
+				if (gPlayerLogLevel >= 2) logBBAI("    Player %d (%S) wary of %S because of war memory %d",
+					getID(), getCivilizationDescription(0), kRival.getCivilizationDescription(0), rWarMem.round());
 			}
 		}
 	}
@@ -31392,7 +31535,12 @@ bool CvPlayerAI::AI_isSASCityLikelyToBenefitUsLongTerm(CvCity const& kCity) cons
 	bool const bSameAreaDistanceLikelyToBenefit = (pNearestOwnCitySameArea == NULL || iMaxNearestOwnCityDistanceSameArea <= 0 || iNearestOwnCityDistanceSameArea <= iMaxNearestOwnCityDistanceSameArea);
 	bool const bLikelyToBenefitUsLongTerm = (bIntrinsicSiteLikelyToBenefit && bSameAreaDistanceLikelyToBenefit);
 	if (bLogLongTermCityEval) logBBAI("RAZE_LONG_TERM_CITY_EVAL turn=%d player=%d city=%S likelyToBenefit=%d intrinsicSiteLikelyToBenefit=%d rawIntrinsicSiteLikelyToBenefit=%d intrinsicSiteProtectedByActiveWorldWonder=%d sameAreaDistanceLikelyToBenefit=%d population=%d veryBadPlots=%d maxVeryBadPlots=%d lowFoodScore=%d maxLowFoodScore=%d foodSurplusPlots=%d foodDeficitPlots=%d bonusPlots=%d overlapPlots=%d impassablePlots=%d thirdPartyCulturePlots=%d thirdPartyCulturePercentSum=%d featureHealthPercent=%d assumedSeaPlotFoodChange=%d nearestOwnCitySameArea=%S nearestOwnCityDistanceSameArea=%d maxNearestOwnCityDistanceSameArea=%d",
-		GC.getGame().getGameTurn(), getID(), kCity.getName().GetCString(), bLikelyToBenefitUsLongTerm, bIntrinsicSiteLikelyToBenefit, bRawIntrinsicSiteLikelyToBenefit, bIntrinsicSiteProtectedByActiveWorldWonder, bSameAreaDistanceLikelyToBenefit, kCity.getPopulation(), iVeryBadPlots, iMaxVeryBadPlots, iLowFoodScore, iMaxLowFoodScore, iFoodSurplusPlots, iFoodDeficitPlots, iBonusPlots, iOverlapPlots, iImpassablePlots, iThirdPartyCulturePlots, iThirdPartyCulturePercentSum, iFeatureHealthPercent, iAssumedSeaPlotFoodChange, (pNearestOwnCitySameArea == NULL ? L"-" : pNearestOwnCitySameArea->getName().GetCString()), iNearestOwnCityDistanceSameArea, iMaxNearestOwnCityDistanceSameArea);
+		GC.getGame().getGameTurn(), getID(), kCity.getName().GetCString(), bLikelyToBenefitUsLongTerm, bIntrinsicSiteLikelyToBenefit,
+		bRawIntrinsicSiteLikelyToBenefit, bIntrinsicSiteProtectedByActiveWorldWonder, bSameAreaDistanceLikelyToBenefit,
+		kCity.getPopulation(), iVeryBadPlots, iMaxVeryBadPlots, iLowFoodScore, iMaxLowFoodScore, iFoodSurplusPlots, iFoodDeficitPlots,
+		iBonusPlots, iOverlapPlots, iImpassablePlots, iThirdPartyCulturePlots, iThirdPartyCulturePercentSum, iFeatureHealthPercent,
+		iAssumedSeaPlotFoodChange, (pNearestOwnCitySameArea == NULL ? L"-" : pNearestOwnCitySameArea->getName().GetCString()),
+		iNearestOwnCityDistanceSameArea, iMaxNearestOwnCityDistanceSameArea);
 	return bLikelyToBenefitUsLongTerm;
 }
 

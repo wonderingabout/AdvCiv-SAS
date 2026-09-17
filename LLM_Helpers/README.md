@@ -304,6 +304,38 @@ python LLM_Helpers\fix_line_endings.py Assets\Python PrivateMaps --in-place
 
 ## C++ source cleanup helpers
 
+### `reflow_cpp_logging_calls.py`
+
+Conservative readability formatter for long C++ BBAI/SASGameRecord logging calls.
+
+- Targets only active `logBBAI(...)` and `logSASGameRecord(...)` calls; commented-out code is ignored.
+- Keeps the diagnostic format string byte-for-byte intact and wraps only at top-level commas between C++ arguments.
+- Does not reflow or merge existing prose comments; comment layout remains author-maintained, and calls containing comments are skipped for manual review.
+- Skips preprocessor directives and continued macro bodies entirely. Physical `\` line-splicing is semantic before C++ tokenization, so macro logging calls require manual formatting.
+- By default, a one-line call is considered for wrapping above 180 columns; an already-multiline call is considered only when one of its argument/continuation lines exceeds that threshold, so a deliberately long format-string line alone does not trigger churn.
+- Uses a 140-column target for continuation lines while keeping individual nested expressions intact. Complex arguments that are themselves multiline or contain comments are skipped for manual review rather than reformatted speculatively.
+- Preserves LF/CRLF line endings and compares non-comment C++ token streams before writing, refusing the change if significant source tokens differ.
+- This intentionally complements rather than conflicts with the signature/single-line cleanup helpers: diagnostic argument lists are easier to inspect, crash-triage, and review when they are not packed into several-hundred-character physical lines.
+- Always review the diff before committing. This is a narrow logging formatter, not a general C++ formatter.
+
+Dry-run scan of the DLL source:
+
+```bash
+python LLM_Helpers/reflow_cpp_logging_calls.py CvGameCoreDLL
+```
+
+Review a single file as a unified diff:
+
+```bash
+python LLM_Helpers/reflow_cpp_logging_calls.py CvGameCoreDLL/CvUnitAI.cpp --diff
+```
+
+Apply across the DLL source:
+
+```bash
+python LLM_Helpers/reflow_cpp_logging_calls.py CvGameCoreDLL --in-place
+```
+
 ### `find_cpp_dead_code_candidates.py`
 
 Conservative C++ dead-code candidate finder for LLM/manual review.

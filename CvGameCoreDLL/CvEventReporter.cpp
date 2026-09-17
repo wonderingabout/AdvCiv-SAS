@@ -91,11 +91,24 @@ static void logSASBBAIWorkerDeathContext(CvUnit const* pWinner, CvUnit const* pL
 	const int iOwnerUnits = kPlot.plotCount(PUF_isPlayer, eLoser);
 	const int iOwnerDefenders = kPlot.plotCount(PUF_canDefend, -1, -1, eLoser);
 	const int iOwnerWorkers = kPlot.plotCount(PUF_isUnitAIType, UNITAI_WORKER, -1, eLoser) + kPlot.plotCount(PUF_isUnitAIType, UNITAI_WORKER_SEA, -1, eLoser);
-	// <!-- custom: Worker death counts dropped from 40 to 17 by t200 in the save-file-450 test after the current-danger fixes, but the remaining deaths still need classification. Log only Worker/Work Boat deaths in BBAI Worker diagnostics with enough context to distinguish unavoidable war-front losses from bad movement or missing retreat. No gameplay behavior change. (GPT-5.5) -->
+	// <!-- custom: Worker death counts dropped from 40 to 17 by t200 in the save-file-450 test after the current-danger fixes, but the remaining deaths still need classification.
+	// Log only Worker/Work Boat deaths in BBAI Worker diagnostics with enough context to distinguish unavoidable war-front losses from bad movement or missing retreat; no gameplay behavior change. (GPT-5.5) -->
 	logBBAI("    WORKER_DEATH_CONTEXT turn=%d loser=%d %S loserUnitId=%d loserUnit=%S loserAI=%S winner=%d winnerUnitId=%d winnerUnit=%S winnerAI=%S plot=(%d,%d) owner=%d cityPlot=%d currentDanger=%d missionAI=%S missionTarget=(%d,%d) missionQueue=%d activity=%d movesSpent=%d movesLeft=%d visibleEnemiesR2=%d visibleCombatEnemiesR2=%d ownerUnitsOnPlot=%d ownerDefendersOnPlot=%d ownerWorkersOnPlot=%d nearestOwnedCity=%S nearestOwnedCityId=%d nearestOwnedCityDistance=%d workingCity=%S workingCityId=%d terrain=%S feature=%S bonus=%S improvement=%S route=%S",
-			GC.getGame().getGameTurn(), eLoser, GET_PLAYER(eLoser).getCivilizationDescription(0), pLoser->getID(), GC.getInfo(pLoser->getUnitType()).getDescription(), szLoserAI.GetCString(), pWinner->getOwner(), pWinner->getID(), GC.getInfo(pWinner->getUnitType()).getDescription(), szWinnerAI.GetCString(), kPlot.getX(), kPlot.getY(), kPlot.getOwner(), kPlot.isCity(), GET_PLAYER(eLoser).AI_getPlotDanger(kPlot), szMissionAI.GetCString(),
-			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pGroup == NULL ? -1 : pGroup->getLengthMissionQueue()), (pGroup == NULL ? NO_ACTIVITY : pGroup->getActivityType()), pLoser->getMoves(), pLoser->movesLeft(), iVisibleEnemies, iVisibleCombatEnemies, iOwnerUnits, iOwnerDefenders, iOwnerWorkers, (pNearestOwnedCity == NULL ? L"-" : pNearestOwnedCity->getName().GetCString()), (pNearestOwnedCity == NULL ? -1 : pNearestOwnedCity->getID()), iNearestOwnedCityDistance, (pWorkingCity == NULL ? L"-" : pWorkingCity->getName().GetCString()), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()),
-			GC.getInfo(kPlot.getTerrainType()).getDescription(), (kPlot.getFeatureType() == NO_FEATURE ? L"-" : GC.getInfo(kPlot.getFeatureType()).getDescription()), (kPlot.getBonusType(pLoser->getTeam()) == NO_BONUS ? L"-" : GC.getInfo(kPlot.getBonusType(pLoser->getTeam())).getDescription()), (kPlot.getImprovementType() == NO_IMPROVEMENT ? L"-" : GC.getInfo(kPlot.getImprovementType()).getDescription()), (kPlot.getRouteType() == NO_ROUTE ? L"-" : GC.getInfo(kPlot.getRouteType()).getDescription()));
+		GC.getGame().getGameTurn(), eLoser, GET_PLAYER(eLoser).getCivilizationDescription(0), pLoser->getID(),
+		GC.getInfo(pLoser->getUnitType()).getDescription(), szLoserAI.GetCString(), pWinner->getOwner(), pWinner->getID(),
+		GC.getInfo(pWinner->getUnitType()).getDescription(), szWinnerAI.GetCString(), kPlot.getX(), kPlot.getY(), kPlot.getOwner(),
+		kPlot.isCity(), GET_PLAYER(eLoser).AI_getPlotDanger(kPlot), szMissionAI.GetCString(),
+		(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()),
+		(pGroup == NULL ? -1 : pGroup->getLengthMissionQueue()), (pGroup == NULL ? NO_ACTIVITY : pGroup->getActivityType()),
+		pLoser->getMoves(), pLoser->movesLeft(), iVisibleEnemies, iVisibleCombatEnemies, iOwnerUnits, iOwnerDefenders, iOwnerWorkers,
+		(pNearestOwnedCity == NULL ? L"-" : pNearestOwnedCity->getName().GetCString()),
+		(pNearestOwnedCity == NULL ? -1 : pNearestOwnedCity->getID()), iNearestOwnedCityDistance,
+		(pWorkingCity == NULL ? L"-" : pWorkingCity->getName().GetCString()), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()),
+		GC.getInfo(kPlot.getTerrainType()).getDescription(),
+		(kPlot.getFeatureType() == NO_FEATURE ? L"-" : GC.getInfo(kPlot.getFeatureType()).getDescription()),
+		(kPlot.getBonusType(pLoser->getTeam()) == NO_BONUS ? L"-" : GC.getInfo(kPlot.getBonusType(pLoser->getTeam())).getDescription()),
+		(kPlot.getImprovementType() == NO_IMPROVEMENT ? L"-" : GC.getInfo(kPlot.getImprovementType()).getDescription()),
+		(kPlot.getRouteType() == NO_ROUTE ? L"-" : GC.getInfo(kPlot.getRouteType()).getDescription()));
 }
 
 // advc.003y: Just pass the call along

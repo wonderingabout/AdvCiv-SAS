@@ -149,16 +149,25 @@ namespace
 		TeamTypes const eAgentTeam = kParams.getAgent();
 		TeamTypes const eTargetTeam = kParams.getTarget();
 		logBBAI("WAR_NAVAL_SIMULATION turn=%d agentTeam=%d targetTeam=%d agentPlayer=%d total=%d prepTurns=%d simTurns=%d ourConquestsFromTarget=%d targetConquestsFromUs=%d ourCityLosses=%d targetCityLosses=%d targetCapitulates=%d ourArmyPower=%d ourFleetPower=%d ourLogisticsPower=%d targetArmyPower=%d targetFleetPower=%d targetLogisticsPower=%d ourArmyLost=%d ourFleetLost=%d ourLogisticsLost=%d targetArmyLost=%d targetFleetLost=%d targetLogisticsLost=%d ourArmyGained=%d ourFleetGained=%d ourLogisticsGained=%d targetArmyGained=%d targetFleetGained=%d targetLogisticsGained=%d ourMilitaryProduction=%d targetMilitaryProduction=%d",
-			GC.getGame().getGameTurn(), eAgentTeam, eTargetTeam, eAgentPlayer, kParams.isTotal(), kParams.getPreparationTime(), kAnalysis.turnsSimulated(),
-			getSASBBAIConquestsFromTeam(kAnalysis, eAgentPlayer, eTargetTeam), getSASBBAITeamConquestsFromPlayer(kAnalysis, eTargetTeam, eAgentPlayer),
-			(int)kAnalysis.lostCities(eAgentPlayer).size(), getSASBBAITeamSimulatedCityLosses(kAnalysis, eTargetTeam), kAnalysis.getCapitulationsAccepted(eAgentTeam).count(eTargetTeam) > 0,
-			getSASBBAITeamBranchPower(eAgentTeam, ARMY), getSASBBAITeamBranchPower(eAgentTeam, FLEET), getSASBBAITeamBranchPower(eAgentTeam, LOGISTICS),
-			getSASBBAITeamBranchPower(eTargetTeam, ARMY), getSASBBAITeamBranchPower(eTargetTeam, FLEET), getSASBBAITeamBranchPower(eTargetTeam, LOGISTICS),
-			getSASBBAITeamSimulatedLostPower(kAnalysis, eAgentTeam, ARMY), getSASBBAITeamSimulatedLostPower(kAnalysis, eAgentTeam, FLEET), getSASBBAITeamSimulatedLostPower(kAnalysis, eAgentTeam, LOGISTICS),
-			getSASBBAITeamSimulatedLostPower(kAnalysis, eTargetTeam, ARMY), getSASBBAITeamSimulatedLostPower(kAnalysis, eTargetTeam, FLEET), getSASBBAITeamSimulatedLostPower(kAnalysis, eTargetTeam, LOGISTICS),
-			getSASBBAITeamSimulatedGainedPower(kAnalysis, eAgentTeam, ARMY), getSASBBAITeamSimulatedGainedPower(kAnalysis, eAgentTeam, FLEET), getSASBBAITeamSimulatedGainedPower(kAnalysis, eAgentTeam, LOGISTICS),
-			getSASBBAITeamSimulatedGainedPower(kAnalysis, eTargetTeam, ARMY), getSASBBAITeamSimulatedGainedPower(kAnalysis, eTargetTeam, FLEET), getSASBBAITeamSimulatedGainedPower(kAnalysis, eTargetTeam, LOGISTICS),
-			getSASBBAITeamSimulatedMilitaryProduction(kAnalysis, eAgentTeam), getSASBBAITeamSimulatedMilitaryProduction(kAnalysis, eTargetTeam));
+			GC.getGame().getGameTurn(), eAgentTeam, eTargetTeam, eAgentPlayer, kParams.isTotal(), kParams.getPreparationTime(),
+			kAnalysis.turnsSimulated(), getSASBBAIConquestsFromTeam(kAnalysis, eAgentPlayer, eTargetTeam),
+			getSASBBAITeamConquestsFromPlayer(kAnalysis, eTargetTeam, eAgentPlayer), (int)kAnalysis.lostCities(eAgentPlayer).size(),
+			getSASBBAITeamSimulatedCityLosses(kAnalysis, eTargetTeam), kAnalysis.getCapitulationsAccepted(eAgentTeam).count(eTargetTeam) > 0,
+			getSASBBAITeamBranchPower(eAgentTeam, ARMY), getSASBBAITeamBranchPower(eAgentTeam, FLEET),
+			getSASBBAITeamBranchPower(eAgentTeam, LOGISTICS), getSASBBAITeamBranchPower(eTargetTeam, ARMY),
+			getSASBBAITeamBranchPower(eTargetTeam, FLEET), getSASBBAITeamBranchPower(eTargetTeam, LOGISTICS),
+			getSASBBAITeamSimulatedLostPower(kAnalysis, eAgentTeam, ARMY), getSASBBAITeamSimulatedLostPower(kAnalysis, eAgentTeam, FLEET),
+			getSASBBAITeamSimulatedLostPower(kAnalysis, eAgentTeam, LOGISTICS),
+			getSASBBAITeamSimulatedLostPower(kAnalysis, eTargetTeam, ARMY), getSASBBAITeamSimulatedLostPower(kAnalysis, eTargetTeam, FLEET),
+			getSASBBAITeamSimulatedLostPower(kAnalysis, eTargetTeam, LOGISTICS),
+			getSASBBAITeamSimulatedGainedPower(kAnalysis, eAgentTeam, ARMY),
+			getSASBBAITeamSimulatedGainedPower(kAnalysis, eAgentTeam, FLEET),
+			getSASBBAITeamSimulatedGainedPower(kAnalysis, eAgentTeam, LOGISTICS),
+			getSASBBAITeamSimulatedGainedPower(kAnalysis, eTargetTeam, ARMY),
+			getSASBBAITeamSimulatedGainedPower(kAnalysis, eTargetTeam, FLEET),
+			getSASBBAITeamSimulatedGainedPower(kAnalysis, eTargetTeam, LOGISTICS),
+			getSASBBAITeamSimulatedMilitaryProduction(kAnalysis, eAgentTeam),
+			getSASBBAITeamSimulatedMilitaryProduction(kAnalysis, eTargetTeam));
 	}
 
 	bool isSASBBAINavalOpportunityCandidate(WarEvalParameters const& kParams, CvTeamAI const& kAgent, CvTeamAI const& kTarget, bool bNaval, int& iNearestCityDistance)
@@ -209,11 +218,12 @@ namespace
 		int const iOurPower = std::max(1, kAgent.getPower(true));
 		int const iTargetPower = kTarget.getDefensivePower(kAgent.getID());
 		logBBAI("WAR_NAVAL_OPPORTUNITY turn=%d agentTeam=%d targetTeam=%d warPlan=%s finalUtility=%d warScenarioUtility=%d peaceScenarioUtility=%d prepTurns=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d ourPower=%d targetPower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d assaultTransports=%d attackUnits=%d attackCityUnits=%d warComponents=\"%s\" peaceComponents=\"%s\"",
-			GC.getGame().getGameTurn(), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), iFinalUtility, iWarScenarioUtility, iPeaceScenarioUtility, iPreparationTime,
-			kAgent.AI_getAttitude(kTarget.getID()), kAgent.AI_getAttitudeVal(kTarget.getID()), kAgent.AI_teamCloseness(kTarget.getID()), iNearestCityDistance,
-			iOurPower, iTargetPower, (100 * iTargetPower) / iOurPower, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true),
-			getSASBBAITeamUnitAICount(kAgent.getID(), UNITAI_ASSAULT_SEA), getSASBBAITeamUnitAICount(kAgent.getID(), UNITAI_ATTACK), getSASBBAITeamUnitAICount(kAgent.getID(), UNITAI_ATTACK_CITY),
-			warComponents.str().c_str(), peaceComponents.str().c_str());
+			GC.getGame().getGameTurn(), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), iFinalUtility, iWarScenarioUtility,
+			iPeaceScenarioUtility, iPreparationTime, kAgent.AI_getAttitude(kTarget.getID()), kAgent.AI_getAttitudeVal(kTarget.getID()),
+			kAgent.AI_teamCloseness(kTarget.getID()), iNearestCityDistance, iOurPower, iTargetPower, (100 * iTargetPower) / iOurPower,
+			kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true),
+			getSASBBAITeamUnitAICount(kAgent.getID(), UNITAI_ASSAULT_SEA), getSASBBAITeamUnitAICount(kAgent.getID(), UNITAI_ATTACK),
+			getSASBBAITeamUnitAICount(kAgent.getID(), UNITAI_ATTACK_CITY), warComponents.str().c_str(), peaceComponents.str().c_str());
 	}
 
 	int getSASHighWarUtilityLogThreshold()
@@ -255,7 +265,10 @@ namespace
 			bFirstComponent = false;
 		}
 		logBBAI("WAR_PEACE_UTILITY_SCENARIO turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s scenario=%s scenarioUtility=%d naval=%d prepTurns=%d ourPower=%d targetPower=%d ourCities=%d targetCities=%d ourWarSuccess=%d targetWarSuccess=%d components=\"%s\"",
-				GC.getGame().getGameTurn(), getUWAI().isEnabled(true), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), szScenario, iScenarioUtility, bNaval, iPreparationTime, kAgent.getPower(true), kTarget.getPower(true), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.AI_getWarSuccess(kTarget.getID()).round(), kTarget.AI_getWarSuccess(kAgent.getID()).round(), componentList.str().c_str());
+			GC.getGame().getGameTurn(), getUWAI().isEnabled(true), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), szScenario,
+			iScenarioUtility, bNaval, iPreparationTime, kAgent.getPower(true), kTarget.getPower(true), kAgent.getNumCities(),
+			kTarget.getNumCities(), kAgent.AI_getWarSuccess(kTarget.getID()).round(), kTarget.AI_getWarSuccess(kAgent.getID()).round(),
+			componentList.str().c_str());
 	}
 
 	void logSASBBAISuspiciousPeaceFinal(WarEvalParameters const& kParams, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime, int iWarScenarioUtility, int iPeaceScenarioUtility, int iFinalUtility)
@@ -263,7 +276,9 @@ namespace
 		CvTeamAI const& kAgent = GET_TEAM(kParams.getAgent());
 		CvTeamAI const& kTarget = GET_TEAM(kParams.getTarget());
 		logBBAI("WAR_PEACE_UTILITY turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s finalUtility=%d warScenarioUtility=%d peaceScenarioUtility=%d naval=%d prepTurns=%d ourCities=%d targetCities=%d",
-				GC.getGame().getGameTurn(), getUWAI().isEnabled(true), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), iFinalUtility, iWarScenarioUtility, iPeaceScenarioUtility, bNaval, iPreparationTime, kAgent.getNumCities(), kTarget.getNumCities());
+			GC.getGame().getGameTurn(), getUWAI().isEnabled(true), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan),
+			iFinalUtility, iWarScenarioUtility, iPeaceScenarioUtility, bNaval, iPreparationTime, kAgent.getNumCities(),
+			kTarget.getNumCities());
 	}
 
 	void logSASBBAIHighWarUtilityScenario(WarEvalParameters const& kParams, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime, char const* szScenario, int iScenarioUtility, std::vector<CvString> const& asAspectNames, std::vector<int> const& aiAspectUtilities)
@@ -271,7 +286,8 @@ namespace
 		CvTeamAI const& kAgent = GET_TEAM(kParams.getAgent());
 		CvTeamAI const& kTarget = GET_TEAM(kParams.getTarget());
 		logBBAI("WAR_UTILITY_SCENARIO_HIGH turn=%d agentTeam=%d targetTeam=%d warPlan=%s scenario=%s scenarioUtility=%d naval=%d prepTurns=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
-				GC.getGame().getGameTurn(), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), szScenario, iScenarioUtility, bNaval, iPreparationTime, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
+			GC.getGame().getGameTurn(), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), szScenario, iScenarioUtility, bNaval,
+			iPreparationTime, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
 		for (size_t i = 0; i < aiAspectUtilities.size(); i++)
 		{
 			if (aiAspectUtilities[i] != 0)
@@ -287,7 +303,9 @@ namespace
 		CvTeamAI const& kAgent = GET_TEAM(kParams.getAgent());
 		CvTeamAI const& kTarget = GET_TEAM(kParams.getTarget());
 		logBBAI("WAR_UTILITY_HIGH turn=%d agentTeam=%d targetTeam=%d warPlan=%s finalUtility=%d warScenarioUtility=%d peaceScenarioUtility=%d naval=%d prepTurns=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
-				GC.getGame().getGameTurn(), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), iFinalUtility, iWarScenarioUtility, iPeaceScenarioUtility, bNaval, iPreparationTime, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
+			GC.getGame().getGameTurn(), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), iFinalUtility, iWarScenarioUtility,
+			iPeaceScenarioUtility, bNaval, iPreparationTime, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true),
+			kTarget.getNumWars(true, true));
 	}
 }
 
