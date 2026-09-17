@@ -356,7 +356,8 @@ public:
 	CivicTypes AI_bestCivic(CivicOptionTypes eCivicOption, int* iBestValue = 0) const;
 	int AI_civicValue(CivicTypes eCivic) const;						// Exposed to Python
 
-	ReligionTypes AI_bestReligion() const;
+	// <!-- custom: Optional outputs expose the pre-spread-gate winner and scores already computed by the live chooser for SASGameRecord; callers that omit them retain the prior selection behavior without logging-only reevaluation. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	ReligionTypes AI_bestReligion(ReligionTypes* peEvaluatedBest = NULL, int* piBestValue = NULL, ReligionTypes* peRunnerUp = NULL, int* piRunnerUpValue = NULL, int* piCurrentValue = NULL, std::vector<std::pair<ReligionTypes, int> >* paCandidateValues = NULL) const;
 	int AI_religionValue(ReligionTypes eReligion) const;
 	// K-Mod: moved to CvUnitAI
 	//EspionageMissionTypes AI_bestPlotEspionage(CvPlot* pSpyPlot, PlayerTypes& eTargetPlayer, CvPlot*& pPlot, int& iData) const;

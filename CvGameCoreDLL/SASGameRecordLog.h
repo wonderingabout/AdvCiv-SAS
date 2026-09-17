@@ -7,6 +7,7 @@
 #define SAS_GAME_RECORD_LOG_H
 
 #include <vector> // <!-- custom: Rare goody-result logging passes the actual created unit pointers to the recorder for compact canonical type/id/position formatting. (ChatGPT-5.6-Sol) -->
+#include <utility> // <!-- custom: Public religion-decision provenance uses std::pair for already-computed candidate religion/value scores; include its defining header directly instead of relying on transitive core includes. (ChatGPT-5.6-Sol) -->
 
 // <!-- custom: Structured game-record rows for autoplay comparison, game analysis, user-assistance summaries, and external LLM review. This is not a classic BBAI diagnostic category: it has its own XML defines, its own SASGameRecord_*.log files, and its own lightweight public header. Call sites should still gate before invoking helpers so disabled logging does not compute logging-only arguments. Pointer-only hooks use forward declarations here to avoid pulling city/unit headers into ordinary game files. (ChatGPT-5.5 + GPT-5.5) -->
 bool isSASGameRecordLogEnabled();
@@ -16,7 +17,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 81 };
+enum { SAS_GAME_RECORD_REVISION = 82 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -336,6 +337,8 @@ void logSASGameRecordDiploCounterProposal(PlayerTypes eProposer, PlayerTypes eRe
 void logSASGameRecordAIToHumanOfferRejected(PlayerTypes eProposer, PlayerTypes eResponder, CLinkList<TradeData> const& kProposerGives, CLinkList<TradeData> const& kResponderGives);
 // <!-- custom: Preserve one resolved AI peace-negotiation boundary rather than copying the full UWAI/BBAI utility trace. Callers pre-gate at level 2 so disabled/lower-detail runs do not build logging-only trade context. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIPeaceDecision(PlayerTypes ePlayer, PlayerTypes eOther, int iAtWarTurns, bool bUWAI, int iInitialOurBenefit, int iInitialTheirBenefit, int iFinalOurBenefit, int iFinalTheirBenefit, int iGiveGold, int iReceiveGold, TechTypes eGiveTech, TechTypes eReceiveTech, int iGiveCityId, int iReceiveCityId, bool bCounterProposal, char const* szOutcome, CLinkList<TradeData> const* pWeGive, CLinkList<TradeData> const* pTheyGive);
+// <!-- custom: Preserve one meaningful AI religion-switch decision from the live chooser/roll without reevaluating religion values; level-3 callers may additionally pass the candidate scores already computed by AI_bestReligion. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIReligionDecision(PlayerTypes ePlayer, ReligionTypes eCurrentReligion, ReligionTypes eEvaluatedBest, ReligionTypes eSelectedReligion, ReligionTypes eRunnerUp, int iBestValue, int iRunnerUpValue, int iCurrentScore, int iCurrentRawValue, int iSelectedRawValue, int iConvertProbabilityPercent, int iRollSuccess, char const* szOutcome, std::vector<std::pair<ReligionTypes, int> > const* paCandidateValues);
 // <!-- custom: Diplomatic vote-source elections and resolutions (the Apostolic Palace and United Nations in standard BtS) are rare, high-impact factual boundaries.
 // Record the real triggered proposal and one compact final weighted ballot/result rather than speculative AI vote reasoning or one row per cast ballot. Caller-gate at SASGameRecord level 2+. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordVoteTriggered(VoteTriggeredData const* pVoteTriggered);

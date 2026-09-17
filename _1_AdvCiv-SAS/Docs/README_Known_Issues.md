@@ -2316,7 +2316,7 @@ The expansion history also removes a separate suspected edge case rather than cr
 
 ### Update: September 16 2026 follow-up
 
-a September 16 2026 follow-up exposed a different lifetime edge case in the same reserve rule. In the reproducible French late-game state, France had **33 Workers, 26 idle and only 3 building** while retaining **29 Forest plots**. Level-3 Worker diagnostics identified **28 distinct unimproved Forest plots** repeatedly rejected by `WORKER_PHASE0_PRODUCTIVE_FEATURE_RESERVE`.
+A September 16 2026 follow-up exposed a different lifetime edge case in the same reserve rule. In the reproducible French late-game state, France had **33 Workers, 26 idle and only 3 building** while retaining **29 Forest plots**. Level-3 Worker diagnostics identified **28 distinct unimproved Forest plots** repeatedly rejected by `WORKER_PHASE0_PRODUCTIVE_FEATURE_RESERVE`.
 
 At turn 340 those reserve rows had only 1-5 uncommitted eligible features per city against the normal threshold 6, so the hard chop itself was inactive but the below-threshold reserve still skipped those plots before ordinary bonus/improvement logic. The intended early "do not liquidate the whole productive-feature stock" safeguard had therefore become a permanent late-game plot lock.
 

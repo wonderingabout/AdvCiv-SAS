@@ -21,7 +21,7 @@
 #include "BBAILog.h"
 #include "CvPopupInfo.h"
 #include "CvGameCoreUtils.h" // <!-- custom: Shared victory-stage helpers used by AI victory diagnostics and strategy logs. (GPT-5.5) -->
-#include "SASGameRecordLog.h" // <!-- custom: Free-tech research-plan reevaluation can tag its factual cause for later compact target-redirection history. (ChatGPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Structured recorder bridges for compact AI/action provenance such as research redirection, peace negotiation, and religion choice. (ChatGPT-5.6-Sol) -->
 
 //#define GREATER_FOUND_RANGE			(5)
 #define CIVIC_CHANGE_DELAY				(20) // was 25
@@ -19902,10 +19902,19 @@ int CvPlayerAI::AI_GPModifierCivicVal(std::vector<int>& kBaseRates, int iModifie
 	return 2 * iModifier * iR / 100;
 }
 
-ReligionTypes CvPlayerAI::AI_bestReligion() const
+// <!-- custom: Add optional outputs for the pre-spread-gate winner, runner-up, current-religion score, and full candidate scores already computed by the live chooser.
+// AI_doReligion uses them for SASGameRecord provenance without reevaluating the fluctuating AI_religionValue; no-argument callers and the returned religion retain the prior behavior. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+ReligionTypes CvPlayerAI::AI_bestReligion(ReligionTypes* peEvaluatedBest, int* piBestValue, ReligionTypes* peRunnerUp, int* piRunnerUpValue, int* piCurrentValue, std::vector<std::pair<ReligionTypes, int> >* paCandidateValues) const
 {
 	ReligionTypes eBestReligion = NO_RELIGION;
 	int iBestValue = 0;
+	ReligionTypes eRunnerUp = NO_RELIGION;
+	int iRunnerUpValue = 0;
+	int iCurrentValue = -1;
+	bool const bTrackRunnerUp = (peRunnerUp != NULL || piRunnerUpValue != NULL);
+	if (paCandidateValues != NULL)
+		paCandidateValues->clear();
+	ReligionTypes const eStateReligion = getStateReligion();
 	ReligionTypes const eFavorite = getFavoriteReligion();
 	FOR_EACH_ENUM(Religion)
 	{
@@ -19918,7 +19927,7 @@ ReligionTypes CvPlayerAI::AI_bestReligion() const
 				iValue /= 3;
 			}*/ // BtS
 			// K-Mod
-			if (eLoopReligion == getStateReligion() && getReligionAnarchyLength() > 0)
+			if (eLoopReligion == eStateReligion && getReligionAnarchyLength() > 0)
 			{
 				if (AI_isFirstTech(getCurrentResearch()) ||
 					//GET_TEAM(getTeam()).getAnyWarPlanCount(true))
@@ -19935,13 +19944,35 @@ ReligionTypes CvPlayerAI::AI_bestReligion() const
 				iValue *= 5;
 				iValue /= 4;
 			}
+			// <!-- custom: When the real religion chooser is being observed, retain its already-computed post-bias candidate scores rather than calling AI_religionValue again solely for SASGameRecord. (ChatGPT-5.6-Sol) -->
+			if (piCurrentValue != NULL && eLoopReligion == eStateReligion) iCurrentValue = iValue;
+			if (paCandidateValues != NULL)
+				paCandidateValues->push_back(std::make_pair(eLoopReligion, iValue));
 			if (iValue > iBestValue)
 			{
+				if (bTrackRunnerUp)
+				{
+					eRunnerUp = eBestReligion;
+					iRunnerUpValue = iBestValue;
+				}
 				iBestValue = iValue;
 				eBestReligion = eLoopReligion;
 			}
+			else if (bTrackRunnerUp && iValue > iRunnerUpValue)
+			{
+				iRunnerUpValue = iValue;
+				eRunnerUp = eLoopReligion;
+			}
 		}
 	}
+
+	// <!-- custom: Expose only the scores already computed by the live chooser.
+	// The returned religion below can still be NO_RELIGION because of K-Mod's low-spread gate, so preserve the pre-gate winner separately when requested. (ChatGPT-5.6-Sol) -->
+	if (peEvaluatedBest != NULL) *peEvaluatedBest = eBestReligion;
+	if (piBestValue != NULL) *piBestValue = iBestValue;
+	if (peRunnerUp != NULL) *peRunnerUp = eRunnerUp;
+	if (piRunnerUpValue != NULL) *piRunnerUpValue = iRunnerUpValue;
+	if (piCurrentValue != NULL) *piCurrentValue = iCurrentValue;
 
 	if (eBestReligion == NO_RELIGION || AI_isDoStrategy(AI_STRATEGY_MISSIONARY))
 		return eBestReligion;
@@ -19960,7 +19991,7 @@ ReligionTypes CvPlayerAI::AI_bestReligion() const
 	int iSpread = getHasReligionCount(eBestReligion) * 100 /
 			std::min(getNumCities() + 1,
 			(GC.getInfo(GC.getMap().getWorldSize()).getTargetNumCities() * 3) /2 + 1);
-	if (getStateReligion() == NO_RELIGION &&
+	if (eStateReligion == NO_RELIGION &&
 		iSpread < 29 - AI_getFlavorValue(FLAVOR_RELIGION) &&
 		(GC.getGame().getHolyCity(eBestReligion) == NULL ||
 		GC.getGame().getHolyCity(eBestReligion)->getTeam() != getTeam()))
@@ -22498,33 +22529,62 @@ void CvPlayerAI::AI_doReligion()
 			return;
 	} // </advc.131>
 
-	eBestReligion = AI_bestReligion();
+	// <!-- custom: Capture religion choice provenance only at the real AI_doReligion decision boundary.
+	// Level 2 retains the pre-spread winner/runner-up and actual conversion roll; level 3 additionally asks AI_bestReligion to retain all already-computed candidate scores.
+	// No religion value is recalculated solely for SASGameRecord. (ChatGPT-5.6-Sol) -->
+	bool const bLogSASReligionDecision = (gGameRecordLogLevel >= 2);
+	bool const bLogSASReligionCandidates = (bLogSASReligionDecision && gGameRecordLogLevel >= 3);
+	ReligionTypes const eCurrentReligion = getStateReligion();
+	ReligionTypes eSASEvaluatedBest = NO_RELIGION;
+	ReligionTypes eSASRunnerUp = NO_RELIGION;
+	int iSASBestValue = 0;
+	int iSASRunnerUpValue = 0;
+	int iSASCurrentScore = -1;
+	std::vector<std::pair<ReligionTypes, int> > aSASCandidateValues;
+	if (bLogSASReligionCandidates) aSASCandidateValues.reserve(GC.getNumReligionInfos());
+	if (bLogSASReligionDecision)
+		eBestReligion = AI_bestReligion(&eSASEvaluatedBest, &iSASBestValue, &eSASRunnerUp, &iSASRunnerUpValue, &iSASCurrentScore, bLogSASReligionCandidates ? &aSASCandidateValues : NULL);
+	else eBestReligion = AI_bestReligion();
 
+	bool const bSASSpreadBlocked = (bLogSASReligionDecision && eSASEvaluatedBest != NO_RELIGION && eBestReligion == NO_RELIGION);
 	if (eBestReligion == NO_RELIGION)
-		eBestReligion = getStateReligion();
-	if (canConvert(eBestReligion))
-	{	// <advc.131>
-		scaled rConvertProb = 1;
-		if (iAnarchyLength > 0 && eBestReligion != NO_RELIGION &&
-			getStateReligion() != NO_RELIGION)
+		eBestReligion = eCurrentReligion;
+	if (!canConvert(eBestReligion))
+	{
+		if (bLogSASReligionDecision && eSASEvaluatedBest != NO_RELIGION && (eSASEvaluatedBest != eCurrentReligion || bSASSpreadBlocked))
 		{
-			rConvertProb = 1 - scaled(AI_religionValue(getStateReligion()),
-					AI_religionValue(eBestReligion));
+			logSASGameRecordAIReligionDecision(getID(), eCurrentReligion, eSASEvaluatedBest, eBestReligion, eSASRunnerUp, iSASBestValue, iSASRunnerUpValue, iSASCurrentScore, -1, -1, -1, -1, bSASSpreadBlocked ? "SPREAD_BLOCKED" : "CANNOT_CONVERT", bLogSASReligionCandidates ? &aSASCandidateValues : NULL);
 		}
-		/*  AI_religionValue fluctuates a lot; not sure why.
-			Square pr to reduce switching. */
-		rConvertProb = SQR(rConvertProb);
-		if (SyncRandSuccess(rConvertProb)) // </advc.131>
-		{
-			if (gPlayerLogLevel > 0) logBBAI("    %S decides to convert to %S (value: %d vs %d)", getCivilizationDescription(0), GC.getInfo(eBestReligion).getDescription(0), eBestReligion == NO_RELIGION ? 0 : AI_religionValue(eBestReligion), getStateReligion() == NO_RELIGION ? 0 : AI_religionValue(getStateReligion()));
-			convert(eBestReligion);
-			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-			static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
-			AI_setReligionTimer(getMaxAnarchyTurns() == 0 ?
-					iMIN_CONVERSION_TURNS * 2 :
-					RELIGION_CHANGE_DELAY);
-		}
+		return;
 	}
+	// <advc.131>
+	scaled rConvertProb = 1;
+	int iCurrentReligionValue = -1;
+	int iSelectedReligionValue = -1;
+	if (iAnarchyLength > 0 && eBestReligion != NO_RELIGION && eCurrentReligion != NO_RELIGION)
+	{
+		iCurrentReligionValue = AI_religionValue(eCurrentReligion);
+		iSelectedReligionValue = AI_religionValue(eBestReligion);
+		rConvertProb = 1 - scaled(iCurrentReligionValue, iSelectedReligionValue);
+	}
+	/*  AI_religionValue fluctuates a lot; not sure why.
+		Square pr to reduce switching. */
+	rConvertProb = SQR(rConvertProb);
+	bool const bConvert = SyncRandSuccess(rConvertProb);
+	if (bConvert) // </advc.131>
+	{
+		if (gPlayerLogLevel > 0) logBBAI("    %S decides to convert to %S (value: %d vs %d)",
+			getCivilizationDescription(0),
+			GC.getInfo(eBestReligion).getDescription(0),
+			eBestReligion == NO_RELIGION ? 0 : (iSelectedReligionValue >= 0 ? iSelectedReligionValue : AI_religionValue(eBestReligion)),
+			eCurrentReligion == NO_RELIGION ? 0 : (iCurrentReligionValue >= 0 ? iCurrentReligionValue : AI_religionValue(eCurrentReligion)));
+		convert(eBestReligion);
+		if (bLogSASReligionDecision) logSASGameRecordAIReligionDecision(getID(), eCurrentReligion, eSASEvaluatedBest, eBestReligion, eSASRunnerUp, iSASBestValue, iSASRunnerUpValue, iSASCurrentScore, iCurrentReligionValue, iSelectedReligionValue, rConvertProb.getPercent(), 1, "CONVERTED", bLogSASReligionCandidates ? &aSASCandidateValues : NULL);
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iMIN_CONVERSION_TURNS = GC.getDefineINT("MIN_CONVERSION_TURNS");
+		AI_setReligionTimer(getMaxAnarchyTurns() == 0 ? iMIN_CONVERSION_TURNS * 2 : RELIGION_CHANGE_DELAY);
+	}
+	else if (bLogSASReligionDecision) logSASGameRecordAIReligionDecision(getID(), eCurrentReligion, eSASEvaluatedBest, eBestReligion, eSASRunnerUp, iSASBestValue, iSASRunnerUpValue, iSASCurrentScore, iCurrentReligionValue, iSelectedReligionValue, rConvertProb.getPercent(), 0, "DEFERRED_ROLL", bLogSASReligionCandidates ? &aSASCandidateValues : NULL);
 }
 
 /*  advc.133: Partly cut from AI_doDiplo. The caller ensures that the deal can

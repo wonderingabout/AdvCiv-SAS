@@ -10720,6 +10720,42 @@ void logSASGameRecordAIPeaceDecision(PlayerTypes ePlayer, PlayerTypes eOther, in
 }
 
 
+// <!-- custom: Serialize only scores produced by the real AI_bestReligion loop; the vector is built only at GameRecord level 3 and formatted only when AI_doReligion reaches a meaningful switch/spread-block decision. (ChatGPT-5.6-Sol) -->
+static CvString getSASGameRecordReligionCandidateScores(std::vector<std::pair<ReligionTypes, int> > const* paCandidateValues)
+{
+	if (paCandidateValues == NULL || paCandidateValues->empty())
+		return CvString("-");
+	CvString szResult;
+	for (size_t i = 0; i < paCandidateValues->size(); i++)
+	{
+		CvString szItem;
+		szItem.Format(i == 0 ? "%s:%d" : ",%s:%d", getSASGameRecordReligionType((*paCandidateValues)[i].first), (*paCandidateValues)[i].second);
+		szResult += szItem;
+	}
+	return szResult;
+}
+
+// <!-- custom: Record only meaningful AI religion-switch decisions. `evaluatedBest` is the pre-spread-gate winner using AI_bestReligion's real post-bias score; `selectedReligion` is the post-gate/fallback target actually considered by AI_doReligion.
+// Raw values are present only when gameplay itself needed them for the conversion probability. `stateReligionAfter` confirms realized conversion without adding another decision evaluation. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIReligionDecision(PlayerTypes ePlayer, ReligionTypes eCurrentReligion, ReligionTypes eEvaluatedBest, ReligionTypes eSelectedReligion, ReligionTypes eRunnerUp, int iBestValue, int iRunnerUpValue, int iCurrentScore, int iCurrentRawValue, int iSelectedRawValue, int iConvertProbabilityPercent, int iRollSuccess, char const* szOutcome, std::vector<std::pair<ReligionTypes, int> > const* paCandidateValues)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer).AI();
+	int iBestSpreadPercent = -1;
+	int iBestHolyCityOwned = -1;
+	if (eEvaluatedBest != NO_RELIGION)
+	{
+		iBestSpreadPercent = kPlayer.getHasReligionCount(eEvaluatedBest) * 100 /
+				std::min(kPlayer.getNumCities() + 1, (GC.getInfo(GC.getMap().getWorldSize()).getTargetNumCities() * 3) / 2 + 1);
+		CvCity const* pHolyCity = GC.getGame().getHolyCity(eEvaluatedBest);
+		iBestHolyCityOwned = (pHolyCity != NULL && pHolyCity->getTeam() == kPlayer.getTeam() ? 1 : 0);
+	}
+	CvString const szCandidateScores = getSASGameRecordReligionCandidateScores(paCandidateValues);
+	logSASGameRecord("GAME_RECORD_AI_RELIGION_DECISION turn=%d player=%d team=%d currentReligion=%s evaluatedBestReligion=%s selectedReligion=%s stateReligionAfter=%s runnerUpReligion=%s bestScore=%d runnerUpScore=%d currentScore=%d bestMinusCurrentScore=%d currentRawValue=%d selectedRawValue=%d favoriteReligion=%s missionaryStrategy=%d religionFlavor=%d bestSpreadPercent=%d bestHolyCityOwned=%d anarchyLength=%d convertProbabilityPercent=%d rollSuccess=%d outcome=%s candidateScores=%s",
+			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), getSASGameRecordReligionType(eCurrentReligion), getSASGameRecordReligionType(eEvaluatedBest), getSASGameRecordReligionType(eSelectedReligion), getSASGameRecordReligionType(kPlayer.getStateReligion()), getSASGameRecordReligionType(eRunnerUp),
+			iBestValue, iRunnerUpValue, iCurrentScore, (iCurrentScore < 0 ? -1 : iBestValue - iCurrentScore), iCurrentRawValue, iSelectedRawValue, getSASGameRecordReligionType(kPlayer.getFavoriteReligion()), kPlayer.AI_isDoStrategy(AI_STRATEGY_MISSIONARY) ? 1 : 0, kPlayer.AI_getFlavorValue(FLAVOR_RELIGION), iBestSpreadPercent, iBestHolyCityOwned, kPlayer.getReligionAnarchyLength(), iConvertProbabilityPercent, iRollSuccess, szOutcome, szCandidateScores.GetCString());
+}
+
+
 // <!-- custom: Vote helpers below are recorder schema, not gameplay abstractions: they translate native vote enums/flags into stable factual history tokens while leaving AI valuation in BBAI. (ChatGPT-5.6-Sol) -->
 static CvString getSASGameRecordPlayerVoteChoice(PlayerVoteTypes eChoice)
 {

@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=81 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=82 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,16 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
+### Revision 82 - SAS practical 6470
+
+- **Date:** 2026-09-17
+- **Git commit:** pending
+- **Change:** Added compact AI religion-choice provenance at the real `AI_doReligion` boundary. Level 2 records meaningful switch/spread-block decisions with the pre-spread best and runner-up post-bias scores, current/selected religions, favorite/missionary/flavor context, best-religion spread/holy-city state, the raw values actually used by gameplay for switch probability, the real conversion probability/roll and realized outcome. Level 3 additionally serializes every eligible religion's already-computed chooser score. The recorder performs no extra religion valuation or RNG and suppresses routine keep-current evaluations to avoid per-turn noise.
+
 ### Revision 81 - SAS practical 6469
 
 - **Date:** 2026-09-16
-- **Git commit:** pending
+- **Git commit:** `3bcaa9af2c70561ee62b2c60e938cce216949849`
 - **Change:** Added compact peace-decision provenance and knowledge-limited barbarian pressure. `GAME_RECORD_AI_PEACE_DECISION` records the real shared peace-negotiation boundary at level 2: UWAI versus legacy source, war age, initial/final end-war benefit values, provisional reparations, human-counterproposal use, final trade lists when available, and resolved outcomes such as victory-denial block, insufficient reparations/counterproposal, offer sent or AI-AI peace implemented/rejected. It reuses the live negotiation values/package rather than rerunning UWAI or trade valuation.
 
 `GAME_RECORD_BARBARIAN_PRESSURE` complements the omniscient global barbarian rows with what each player's team can actually know: visible/non-invisible barbarian units and city proximity, revealed/visible/actionable-known barbarian cities, explore/city-attack UnitAI state, `MISSIONAI_EXPLORE` groups, and the AI's existing barbarian-defense-focus/attacker-need predicates. `BARBARIAN_UNIT_SPAWNED` also records plot ownership/terrain/feature, revealed/visible major-team counts and the nearest major-civilization city. The new observations add no spawn reevaluation, pathfinding or barbarian target scoring.
