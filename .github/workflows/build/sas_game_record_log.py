@@ -3,7 +3,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 # Build check: SASGameRecord report logging must be disabled by default, the public revision/current history marker must stay synchronized.
-# Canonical readable AI-strategy/AreaAI diagnostics must match their native enums, periodic AI-attitude provenance must stay synchronized with AI_updateAttitude, and the strategic trade-market schema must remain present.
+# Canonical readable AI-strategy/AreaAI diagnostics must match their native enums, exact AI target-city provenance/checkpoints must cover every writer/effective clear, periodic AI-attitude provenance must stay synchronized with AI_updateAttitude, and the strategic trade-market schema must remain present.
 
 from pathlib import Path
 import argparse
@@ -22,6 +22,9 @@ AI_STRATEGIES_HEADER = Path("CvGameCoreDLL/AIStrategies.h")
 CV_ENUMS_HEADER = Path("CvGameCoreDLL/CvEnums.h")
 GAME_CORE_UTILS_SOURCE = Path("CvGameCoreDLL/CvGameCoreUtils.cpp")
 PLAYER_AI_SOURCE = Path("CvGameCoreDLL/CvPlayerAI.cpp")
+PLAYER_SOURCE = Path("CvGameCoreDLL/CvPlayer.cpp")
+PLOT_SOURCE = Path("CvGameCoreDLL/CvPlot.cpp")
+CITY_SOURCE = Path("CvGameCoreDLL/CvCity.cpp")
 TEAM_AI_SOURCE = Path("CvGameCoreDLL/CvTeamAI.cpp")
 UWAI_AGENT_SOURCE = Path("CvGameCoreDLL/UWAIAgent.cpp")
 
@@ -195,6 +198,99 @@ def check_area_ai_diagnostics(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_target_city_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	required_paths = (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE, PLAYER_SOURCE, PLOT_SOURCE, CITY_SOURCE)
+	for relative_path in required_paths:
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI target-city provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	expected_sources = [
+		"SAS_AI_TARGET_CITY_AREA_SEARCH",
+		"SAS_AI_TARGET_CITY_RANDOM_CLEAR",
+		"SAS_AI_TARGET_CITY_DIPLO_COORDINATION",
+		"SAS_AI_TARGET_CITY_AREA_REASSIGN_CLEAR",
+		"SAS_AI_TARGET_CITY_CITY_REMOVED",
+	]
+	enum_match = re.search(
+		r"enum\s+SASGameRecordAITargetCityChangeSource\s*\{(?P<body>.*?)\};",
+		header_text, flags=re.DOTALL)
+	if enum_match is None:
+		failures.append(f"{REVISION_HEADER}: missing SASGameRecordAITargetCityChangeSource enum")
+	else:
+		source_tokens = re.findall(r"\b(SAS_AI_TARGET_CITY_[A-Z0-9_]+)\b", enum_match.group("body"))
+		if source_tokens != expected_sources:
+			failures.append(
+				f"{REVISION_HEADER}: AI target-city source vocabulary changed; "
+				f"expected {expected_sources}, found {source_tokens}")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	mapping_match = re.search(
+		r"getSASGameRecordAITargetCityChangeSource\s*\([^)]*\)\s*\{(?P<body>.*?)^\}",
+		record_text, flags=re.DOTALL | re.MULTILINE)
+	if mapping_match is None:
+		failures.append(f"{REVISION_SOURCE}: missing AI target-city source-name mapping")
+	else:
+		mapped_tokens = re.findall(
+			r'case\s+(SAS_AI_TARGET_CITY_[A-Z0-9_]+)\s*:\s*return\s+"[A-Z0-9_]+"\s*;',
+			mapping_match.group("body"))
+		if mapped_tokens != expected_sources:
+			failures.append(
+				f"{REVISION_SOURCE}: AI target-city source-name mapping changed; "
+				f"expected {expected_sources}, found {mapped_tokens}")
+
+	# The normal updater keeps one target-refresh loop and caches its level-2 gate once.
+	# Provenance-only old-target/value work remains conditional; writer counts guard new state-changing paths.
+	writer_files = {}
+	for source_path in (repo_root / "CvGameCoreDLL").glob("*.cpp"):
+		if source_path.name == "CvArea.cpp":
+			continue  # contains the setter definition, not a caller
+		source_text = source_path.read_text(encoding="utf-8", errors="replace")
+		count = source_text.count("AI_setTargetCity(")
+		if count:
+			writer_files[source_path.name] = count
+	expected_writer_files = {"CvPlayerAI.cpp": 1, "CvPlayer.cpp": 1, "CvPlot.cpp": 1}
+	if writer_files != expected_writer_files:
+		failures.append(
+			f"AI target-city writer shape changed; expected {expected_writer_files}, found {writer_files}. "
+			"Update exact transition provenance/checkpoints together with any new writer.")
+
+	player_ai_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	player_text = (repo_root / PLAYER_SOURCE).read_text(encoding="utf-8", errors="replace")
+	plot_text = (repo_root / PLOT_SOURCE).read_text(encoding="utf-8", errors="replace")
+	city_text = (repo_root / CITY_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for source_text, relative_path, required in (
+		(player_ai_text, PLAYER_AI_SOURCE, (
+			"SAS_AI_TARGET_CITY_AREA_SEARCH", "SAS_AI_TARGET_CITY_RANDOM_CLEAR",
+			"bLogTargetCityChanges", "&iSelectionValue", "logSASGameRecordAITargetCityChanged(",
+		)),
+		(player_text, PLAYER_SOURCE, (
+			"SAS_AI_TARGET_CITY_DIPLO_COORDINATION", "logSASGameRecordAITargetCityChanged(",
+		)),
+		(plot_text, PLOT_SOURCE, (
+			"SAS_AI_TARGET_CITY_AREA_REASSIGN_CLEAR", "logSASGameRecordAITargetCityChanged(",
+		)),
+		(city_text, CITY_SOURCE, (
+			"SAS_AI_TARGET_CITY_CITY_REMOVED", "logSASGameRecordAITargetCityChanged(",
+		)),
+	):
+		for token in required:
+			if token not in source_text:
+				failures.append(f"{relative_path}: missing AI target-city provenance token {token}")
+
+	for required in (
+		"GAME_RECORD_AI_TARGET_CITY_CHANGE", "GAME_RECORD_AI_TARGET_CITIES",
+		"selectionValue=%d", "areaAI=%s", "newTargetWarPlan=%s",
+		"logSASGameRecordAITargetCities(ePlayer, iGameTurn);",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI target-city diagnostic/checkpoint token {required}")
+	return failures
+
+
 def _strip_cpp_comments(text: str) -> str:
 	text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
 	return re.sub(r"//.*", "", text)
@@ -323,6 +419,7 @@ def main() -> int:
 	failures.extend(check_revision(args.repo_root))
 	failures.extend(check_ai_strategy_diagnostics(args.repo_root))
 	failures.extend(check_area_ai_diagnostics(args.repo_root))
+	failures.extend(check_ai_target_city_provenance(args.repo_root))
 	failures.extend(check_ai_attitude_breakdown(args.repo_root))
 	failures.extend(check_strategic_trade_market(args.repo_root))
 	if failures:
@@ -330,7 +427,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-attitude/strategic-trade diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade diagnostics synchronized")
 	return 0
 
 

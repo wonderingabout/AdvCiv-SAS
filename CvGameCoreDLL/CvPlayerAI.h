@@ -140,7 +140,8 @@ public:
 	bool AI_feelsSafe() const; // advc.109
 
 	int AI_targetCityValue(CvCity const& kCity, bool bRandomize, bool bIgnoreAttackers = false, UWAICity const* pUWAICity = NULL) const; // advc.104d
-	CvCityAI* AI_findTargetCity(CvArea const& kArea) const;
+	// <!-- custom: Optional piBestValue exposes the already-computed randomized winning target value for diagnostics without repeating target valuation/RNG. (ChatGPT-5.6-Sol) -->
+	CvCityAI* AI_findTargetCity(CvArea const& kArea, int* piBestValue = NULL) const;
 	int AI_cityWonderVal(CvCity const& c) const; // advc.104d
 	scaled AI_assetVal(CvCityAI const& c, bool bConquest) const; // advc
 

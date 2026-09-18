@@ -289,6 +289,8 @@ Verifies the independent `SASGameRecord` report is disabled by default in `Asset
 
 The same check keeps readable AI-strategy diagnostics synchronized with `AIStrategies.h`: the enum must remain the contiguous power-of-two bitfield used by the recorder's shift scans, every `AIStrategy` value must map to its identical canonical raw token in `getSASAIStrategyType`, and the complete CORE/snapshot/transition scans must still reach the enum's current final strategy. This makes a future `AI_STRATEGY_*` addition or incompatible bit-layout change fail CI instead of silently disappearing from `GAME_RECORD_AI_STRATEGIES` or transition history.
 
+The check also guards exact AreaAI and AI target-city provenance. AreaAI raw-name coverage and its normal/UWAI writer bridges must remain synchronized; target-city checks require every current setter writer plus the city-removal effective-clear path to remain covered by exact transitions and the periodic `GAME_RECORD_AI_TARGET_CITIES` checkpoint. A new target writer therefore fails CI instead of silently bypassing target history.
+
 The check also keeps level-3 `GAME_RECORD_DIPLO_ATTITUDE_BREAKDOWN` synchronized with `CvPlayerAI::AI_updateAttitude`: the recorder component labels/order are validated against the current additive attitude getter sequence, including aggregate memories and the final partial-sum-dependent war modifier. If attitude arithmetic changes later, CI requires the diagnostic breakdown to be reviewed in the same change instead of silently becoming incomplete.
 
 ### `build/fonts.py`

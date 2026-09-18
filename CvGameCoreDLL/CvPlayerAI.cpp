@@ -1297,17 +1297,29 @@ void CvPlayerAI::AI_updateAreaTargets()
 	bool bResetTimer = (AI_getCityTargetTimer() > 4);
 	// advc.104p:
 	bool const bSneakAttackReady = GET_TEAM(getTeam()).AI_isSneakAttackReady();
+	// <!-- custom: Cache the level-2 recorder gate once.
+	// Area-target refresh is comparatively infrequent and already performs the expensive city search, so keep one gameplay loop instead of duplicating it merely to avoid tiny diagnostic branches.
+	// With logging off, the gate suppresses the old-target lookup and winning-value output; target selection and synchronized RNG still execute exactly once through the normal path. (ChatGPT-5.6-Sol) -->
+	bool const bLogTargetCityChanges = (getSASGameRecordLogLevel() >= 2);
 	FOR_EACH_AREA_VAR(pArea)
 	{
 		if (pArea->isWater() /* advc.opt: */ || pArea->getNumCities() <= 0)
 			continue;
-		if (!bSneakAttackReady && // advc.104p
-			SyncRandOneChanceIn(3))
+		CvCityAI const* pOldTarget = (bLogTargetCityChanges ? pArea->AI_getTargetCity(getID()) : NULL);
+		bool const bRandomClear = (!bSneakAttackReady && // advc.104p
+			SyncRandOneChanceIn(3));
+		CvCityAI* pNewTarget = NULL;
+		int iSelectionValue = -1;
+		if (!bRandomClear)
+			pNewTarget = AI_findTargetCity(*pArea, bLogTargetCityChanges ? &iSelectionValue : NULL);
+		pArea->AI_setTargetCity(getID(), pNewTarget);
+		if (bLogTargetCityChanges && pOldTarget != pNewTarget)
 		{
-			pArea->AI_setTargetCity(getID(), NULL);
+			SASGameRecordAITargetCityChangeSource const eSource =
+				(bRandomClear ? SAS_AI_TARGET_CITY_RANDOM_CLEAR : SAS_AI_TARGET_CITY_AREA_SEARCH);
+			logSASGameRecordAITargetCityChanged(*this, *pArea, pOldTarget, pNewTarget, eSource, iSelectionValue);
 		}
-		else pArea->AI_setTargetCity(getID(), AI_findTargetCity(*pArea));
-		bResetTimer = (bResetTimer || pArea->AI_getTargetCity(getID()) != NULL); // K-Mod
+		bResetTimer = (bResetTimer || pNewTarget != NULL); // K-Mod
 	}
 	// K-Mod. (guarantee a short amount of time before randomly updating again)
 	if (bResetTimer)
@@ -3901,7 +3913,8 @@ scaled CvPlayerAI::AI_assetVal(CvCityAI const& c, bool bConquest) const
 }
 
 
-CvCityAI* CvPlayerAI::AI_findTargetCity(CvArea const& kArea) const
+// <!-- custom: piBestValue is optional diagnostic output; when supplied, it receives the randomized winning value already computed by normal target selection so SASGameRecord can preserve that evidence without repeating AI_targetCityValue or synchronized RNG. (ChatGPT-5.6-Sol) -->
+CvCityAI* CvPlayerAI::AI_findTargetCity(CvArea const& kArea, int* piBestValue) const
 {
 	FAssert(!isBarbarian()); // advc.300
 	CvCityAI* pBestCity = NULL;
@@ -3934,6 +3947,8 @@ CvCityAI* CvPlayerAI::AI_findTargetCity(CvArea const& kArea) const
 			}
 		}
 	}
+	if (piBestValue != NULL)
+		*piBestValue = iBestValue;
 	return pBestCity;
 }
 

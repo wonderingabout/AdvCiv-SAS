@@ -7573,7 +7573,12 @@ void CvPlot::processArea(CvArea& kArea, int iChange)
 	FOR_EACH_ENUM(Player)
 	{
 		if (kArea.AI_getTargetCity(eLoopPlayer) == pCity)
+		{
+			// <!-- custom: Area reassignment is an authoritative target clear already performed by gameplay.
+			// Record it before invalidating the old area association; no extra target lookup is added on the common non-match path. (ChatGPT-5.6-Sol) -->
+			if (getSASGameRecordLogLevel() >= 2) logSASGameRecordAITargetCityChanged(GET_PLAYER(eLoopPlayer), kArea, pCity, NULL, SAS_AI_TARGET_CITY_AREA_REASSIGN_CLEAR);
 			kArea.AI_setTargetCity(eLoopPlayer, NULL);
+		}
 	}
 }
 

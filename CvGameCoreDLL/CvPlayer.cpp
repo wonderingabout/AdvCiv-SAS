@@ -4047,10 +4047,14 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
 		CvCityAI* pCity = GET_PLAYER((PlayerTypes)iData1).AI_getCity(iData2);
 		if (pCity != NULL)
 		{
-			pCity->getArea().AI_setTargetCity(getID(),
-					// advc.001: Set no target if the requested target isn't revealed
-					pCity->isRevealed(getTeam()) ? pCity : NULL);
+			CvArea& kTargetArea = pCity->getArea();
+			CvCityAI const* pOldTarget = (bLogSASDiplo ? kTargetArea.AI_getTargetCity(getID()) : NULL);
+			// advc.001: Set no target if the requested target isn't revealed
+			CvCityAI* pNewTarget = (pCity->isRevealed(getTeam()) ? pCity : NULL);
+			kTargetArea.AI_setTargetCity(getID(), pNewTarget);
 			AI().AI_setCityTargetTimer(GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH)); // K-Mod
+			// <!-- custom: The generic DIPLOEVENT_TARGET_CITY action already preserves the requested city id; this row records only the effective per-area target-state change after the visibility rule above. (ChatGPT-5.6-Sol) -->
+			if (bLogSASDiplo && pOldTarget != pNewTarget) logSASGameRecordAITargetCityChanged(AI(), kTargetArea, pOldTarget, pNewTarget, SAS_AI_TARGET_CITY_DIPLO_COORDINATION);
 		}
 		break;
 	} // K-Mod

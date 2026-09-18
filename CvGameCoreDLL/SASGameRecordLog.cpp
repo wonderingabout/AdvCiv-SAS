@@ -6003,6 +6003,29 @@ static void logSASGameRecordAreaAISnapshot(TeamTypes eTeam, int iGameTurn)
 		iGameTurn, eTeam, getSASDiagnosticOrDash(szAreaStates).GetCString());
 }
 
+// <!-- custom: Player+land-area target cities are persistent AI state consumed by stack movement, city production and UWAI alignment.
+// Preserve a compact checkpoint so exact target changes remain reconstructible after load/truncation.
+// Only non-null effective targets are listed; `timer` exposes K-Mod's refresh holdoff without invoking any target valuation. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordAITargetCities(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	CvString szTargets;
+	int iTargets = 0;
+	FOR_EACH_AREA(pLoopArea)
+	{
+		CvCityAI const* pTargetCity = pLoopArea->AI_getTargetCity(ePlayer);
+		if (pTargetCity == NULL)
+			continue;
+		CvString szItem;
+		szItem.Format(szTargets.empty() ? "A%d=P%d:C%d@%d:%d" : ",A%d=P%d:C%d@%d:%d", pLoopArea->getID(),
+			pTargetCity->getOwner(), pTargetCity->getID(), pTargetCity->getX(), pTargetCity->getY());
+		szTargets += szItem;
+		iTargets++;
+	}
+	logSASGameRecord("GAME_RECORD_AI_TARGET_CITIES turn=%d player=%d team=%d timer=%d targetCount=%d targets=%s",
+		iGameTurn, ePlayer, kPlayer.getTeam(), kPlayer.AI_getCityTargetTimer(), iTargets, getSASDiagnosticOrDash(szTargets).GetCString());
+}
+
 static void logSASGameRecordTeamSnapshot(TeamTypes eTeam, int iGameTurn)
 {
 	CvGame const& kGame = GC.getGame();
@@ -9773,6 +9796,7 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 	{
 		logSASGameRecordPlayerBonuses(ePlayer, iGameTurn, kPrevious);
 		logSASGameRecordAIStrategies(ePlayer, iGameTurn);
+		logSASGameRecordAITargetCities(ePlayer, iGameTurn);
 		logSASGameRecordAIVictoryStages(ePlayer, iGameTurn);
 		logSASGameRecordAIMilitaryProduction(ePlayer, iGameTurn);
 		logSASGameRecordPolicies(ePlayer, iGameTurn);
@@ -11885,6 +11909,44 @@ void logSASGameRecordAreaAIChanged(CvTeamAI const& kTeam, CvArea const& kArea, A
 	logSASGameRecord("GAME_RECORD_AREA_AI_CHANGE turn=%d team=%d area=%d source=%s oldType=%s newType=%s teamCities=%d totalCities=%d wars=%d anyWarPlan=%d",
 		GC.getGame().getGameTurn(), kTeam.getID(), kArea.getID(), szSource, getSASAreaAIType(eOldType), getSASAreaAIType(eNewType),
 		kTeam.countNumCitiesByArea(kArea), kArea.getNumCities(), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan() ? 1 : 0);
+}
+
+static char const* getSASGameRecordAITargetCityChangeSource(SASGameRecordAITargetCityChangeSource eSource)
+{
+	switch (eSource)
+	{
+	case SAS_AI_TARGET_CITY_AREA_SEARCH: return "AREA_SEARCH";
+	case SAS_AI_TARGET_CITY_RANDOM_CLEAR: return "RANDOM_CLEAR";
+	case SAS_AI_TARGET_CITY_DIPLO_COORDINATION: return "DIPLO_COORDINATION";
+	case SAS_AI_TARGET_CITY_AREA_REASSIGN_CLEAR: return "AREA_REASSIGN_CLEAR";
+	case SAS_AI_TARGET_CITY_CITY_REMOVED: return "CITY_REMOVED";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Target-city state is changed by periodic AI search/random clearing, diplomacy coordination and area reassignment; deleting the referenced city also makes the stored IDInfo resolve to NULL without a setter.
+// Record those authoritative/effective changes only from their real paths. `selectionValue` is the already-computed randomized winning AI_targetCityValue from AREA_SEARCH and is -1 for non-search causes; no target valuation is repeated for logging. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAITargetCityChanged(CvPlayerAI const& kPlayer, CvArea const& kArea, CvCity const* pOldCity, CvCity const* pNewCity, SASGameRecordAITargetCityChangeSource eSource, int iSelectionValue)
+{
+	if (pOldCity == pNewCity)
+		return;
+	PlayerTypes const eOldOwner = (pOldCity == NULL ? NO_PLAYER : pOldCity->getOwner());
+	TeamTypes const eOldTeam = (pOldCity == NULL ? NO_TEAM : pOldCity->getTeam());
+	int const iOldCity = (pOldCity == NULL ? -1 : pOldCity->getID());
+	int const iOldX = (pOldCity == NULL ? -1 : pOldCity->getX());
+	int const iOldY = (pOldCity == NULL ? -1 : pOldCity->getY());
+	PlayerTypes const eNewOwner = (pNewCity == NULL ? NO_PLAYER : pNewCity->getOwner());
+	TeamTypes const eNewTeam = (pNewCity == NULL ? NO_TEAM : pNewCity->getTeam());
+	int const iNewCity = (pNewCity == NULL ? -1 : pNewCity->getID());
+	int const iNewX = (pNewCity == NULL ? -1 : pNewCity->getX());
+	int const iNewY = (pNewCity == NULL ? -1 : pNewCity->getY());
+	CvTeamAI const& kTeam = GET_TEAM(kPlayer.getTeam());
+	WarPlanTypes const eNewWarPlan = (eNewTeam == NO_TEAM ? NO_WARPLAN : kTeam.AI_getWarPlan(eNewTeam));
+	bool const bAtWarWithNewTarget = (eNewTeam != NO_TEAM && kTeam.isAtWar(eNewTeam));
+	logSASGameRecord("GAME_RECORD_AI_TARGET_CITY_CHANGE turn=%d player=%d team=%d area=%d source=%s oldTargetPlayer=%d oldTargetTeam=%d oldTargetCity=%d oldTargetX=%d oldTargetY=%d newTargetPlayer=%d newTargetTeam=%d newTargetCity=%d newTargetX=%d newTargetY=%d selectionValue=%d areaAI=%s atWarWithNewTarget=%d newTargetWarPlan=%s",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), kArea.getID(), getSASGameRecordAITargetCityChangeSource(eSource),
+		eOldOwner, eOldTeam, iOldCity, iOldX, iOldY, eNewOwner, eNewTeam, iNewCity, iNewX, iNewY, iSelectionValue,
+		getSASAreaAIType(kArea.getAreaAIType(kPlayer.getTeam())), bAtWarWithNewTarget ? 1 : 0, getSASWarPlanType(eNewWarPlan));
 }
 
 // <!-- custom: Serialize only scores produced by the real AI_bestReligion loop; the vector is built only at GameRecord level 3 and formatted only when AI_doReligion reaches a meaningful switch/spread-block decision. (ChatGPT-5.6-Sol) -->

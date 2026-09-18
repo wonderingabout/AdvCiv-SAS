@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=96 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=97 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,16 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 96 - SAS practical 6486
+### Revision 97 - SAS practical 6487
 
 - **Date:** 2026-09-18
 - **Git commit:** pending
+- **Change:** Added exact level-2 per-player/per-area AI target-city history for normal area search, K-Mod random clearing, diplomacy coordination, area reassignment and effective clears when a referenced city is removed, plus compact periodic target checkpoints with the city-target refresh timer. Normal search exposes its already-computed winning target value through an optional diagnostic output; old-target provenance remains level-2 gated without duplicating the refresh loop.
+
+### Revision 96 - SAS practical 6486
+
+- **Date:** 2026-09-18
+- **Git commit:** `86485bdd6be96fcb0c3bb7d92ad6885a0fc197a2`
 - **Change:** Added exact level-2 AreaAI theater-posture transitions from the two authoritative writers (`CALCULATED` and UWAI land/naval alignment), plus compact periodic non-neutral AreaAI checkpoints and a shared canonical raw enum-name helper. Initial `NO_AREAAI` setup assignment is omitted from transition history; disabled logging keeps the original inner calculation loop.
 
 ### Revision 95 - SAS practical 6485

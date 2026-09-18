@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 96 };
+enum { SAS_GAME_RECORD_REVISION = 97 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -73,6 +73,17 @@ void logSASGameRecordAIVictoryStageChanges(CvPlayerAI const& kPlayer, AIVictoryS
 void logSASGameRecordWorstEnemyChanged(CvTeamAI const& kTeam, TeamTypes eOldEnemy, TeamTypes eNewEnemy, int iOldEnmity, int iNewEnmity, bool bRecursiveRecheck);
 // <!-- custom: Record AreaAI changes at the two authoritative writers only: ordinary team calculation and UWAI's later alignment override. Callers pre-gate at GameRecord level 2+. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAreaAIChanged(CvTeamAI const& kTeam, CvArea const& kArea, AreaAITypes eOldType, AreaAITypes eNewType, char const* szSource);
+// <!-- custom: AI target-city state is player+area scoped and has several authoritative/effective change paths.
+// Keep the closed recorder-only source vocabulary typed so distant callers cannot silently drift in spelling; callers pre-gate at GameRecord level 2+. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordAITargetCityChangeSource
+{
+	SAS_AI_TARGET_CITY_AREA_SEARCH,
+	SAS_AI_TARGET_CITY_RANDOM_CLEAR,
+	SAS_AI_TARGET_CITY_DIPLO_COORDINATION,
+	SAS_AI_TARGET_CITY_AREA_REASSIGN_CLEAR,
+	SAS_AI_TARGET_CITY_CITY_REMOVED
+};
+void logSASGameRecordAITargetCityChanged(CvPlayerAI const& kPlayer, CvArea const& kArea, CvCity const* pOldCity, CvCity const* pNewCity, SASGameRecordAITargetCityChangeSource eSource, int iSelectionValue = -1);
 class CvPlot;
 class CvUnit;
 class CvUnitAI;
