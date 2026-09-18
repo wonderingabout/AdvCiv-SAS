@@ -1894,6 +1894,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 {
 	if (!canRaze(kCity))
 	{
+		if (gGameRecordLogLevel >= 2) logSASGameRecordAIConquerCityDecision(*this, kCity, SAS_AI_CONQUER_CITY_KEEP, SAS_AI_CONQUER_CITY_CANNOT_RAZE, bEverOwned);
 		keepCity(kCity);
 		return;
 	}
@@ -1929,6 +1930,8 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 	// --- 1) Cultural victory emergency (existing logic, unchanged) ---
 	bool bCultureVictoryEmergency = false; // advc.116: preserve the inherited exception to normal no-raze reasons
 	bool bRaze = false;
+	bool const bLogSASConquerCityDecision = (gGameRecordLogLevel >= 2);
+	SASGameRecordAIConquerCityReason eSASForcedRazeReason = SAS_AI_CONQUER_CITY_NORMAL_VALUE;
 	// Reasons to always raze
 	if (2 * kCity.getCulture(kPreviousOwner.getID()) >
 		kCity.getCultureThreshold(kGame.culturalVictoryCultureLevel()))
@@ -1959,6 +1962,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 				iDefStr = AI_localDefenceStrength(kCity.plot(), getTeam(), DOMAIN_LAND, 3);
 				if(5 * iAttStr > 4 * iDefStr) bRaze = true;
 			}
+			if (bRaze) eSASForcedRazeReason = SAS_AI_CONQUER_CITY_CULTURE_VICTORY;
 			// <!-- custom: Identify each forced conquest-raze branch at PLAYER level 1 without changing the decision. (GPT-5.6-Sol) -->
 			if (bRaze && bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=CULTURE_VICTORY highCultureCities=%d victoryTargetCities=%d enemyPowerPercent=%d localAttackStrength=%d localDefenceStrength=%d",
 				kGame.getGameTurn(), getID(), kCity.getName().GetCString(), iHighCultureCount, iVictTarget, iEnemyPowerPercent, iAttStr, iDefStr);
@@ -1973,6 +1977,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 		// Do not raze, going for domination
 		if (bLogRazeDecision) logBBAI("RAZE_DECISION turn=%d player=%d city=%S action=KEEP reason=DOMINATION3_PRIMARY_AREA_KEEP",
 			kGame.getGameTurn(), getID(), kCity.getName().GetCString());
+		if (bLogSASConquerCityDecision) logSASGameRecordAIConquerCityDecision(*this, kCity, SAS_AI_CONQUER_CITY_KEEP, SAS_AI_CONQUER_CITY_DOMINATION3_PRIMARY_AREA_KEEP, bEverOwned, iCloseness);
 		keepCity(kCity);
 		return;
 	}
@@ -1987,6 +1992,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 		bool const bShouldRazeBadCityLongTerm = !AI_isSASCityLikelyToBenefitUsLongTerm(kCity);
 		if (bShouldRazeBadCityLongTerm)
 		{
+			if (!bRaze) eSASForcedRazeReason = SAS_AI_CONQUER_CITY_UNLIKELY_LONG_TERM_BENEFIT;
 			bRaze = true;
 			if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_UNLIKELY_LONG_TERM_BENEFIT population=%d closeness=%d nearestOwnCityDistance=%d activeWorldWonder=%d distanceOverrideActiveWorldWonder=%d",
 				kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, iNearestOwnCityDistance,
@@ -2011,6 +2017,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 	// <!-- custom: hopefully this helps raze islandic cities or such in pangea-like maps in particular so we stay focused and don't spread our troops too as chatgpt 5 added here (but check if accurate) -->
 	if (!bBarbarian && !bEverOwned && bBarbCity && bIsolated && bEarlyPhase)
 	{
+		if (!bRaze) eSASForcedRazeReason = SAS_AI_CONQUER_CITY_EARLY_REMOTE_BARB;
 		bRaze = true;
 		if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_EARLY_REMOTE_BARB population=%d closeness=%d isolated=%d earlyTurnLimit=%d nearestOwnCityDistance=%d",
 			kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, bIsolated, iEarlyTurns,
@@ -2020,6 +2027,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 	// Optional non-barb outpost rule (stricter)
 	if (!bBarbarian && bEarlyPhase && iCloseness == 0)
 	{
+		if (!bRaze) eSASForcedRazeReason = SAS_AI_CONQUER_CITY_EARLY_REMOTE_NONBARB;
 		bRaze = true;
 		if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_EARLY_REMOTE_NONBARB population=%d closeness=%d earlyTurnLimit=%d nearestOwnCityDistance=%d",
 			kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, iEarlyTurns,
@@ -2040,6 +2048,16 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 		// 	}
 		//
 		int iRazeValue = 0;
+		int iRazeValueAfterDistance = 0;
+		int iRazeValueAfterMaintenance = 0;
+		int iRazeValueAfterPopulation = 0;
+		int iRazeValueAfterPersonalityAndDomination = 0;
+		int iRazeValueBeforeRandom = 0;
+		int iRazeRandom = -1;
+		int iSASFinancialTrouble = -1;
+		int iBarbarianRollPassed = -1;
+		bool bSASValueValid = false;
+		bool bSASComponentsValid = false;
 		if (bBarbarian)
 		{
 			// <!-- custom: refactor this a bit and change intent a tiny/slight bit to simplify -->
@@ -2054,15 +2072,21 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 				int iDeltaEraPop = 1 + std::max(3, kPreviousOwner.AI_getCurrEra())
 						- kCity.getPopulation();
 				iRazeValue *= iDeltaEraPop;
+				bSASValueValid = true;
+				iRazeValueBeforeRandom = iRazeValue;
 				// The BtS raze roll; now used exclusively for Barbarians
-				if (SyncRandSuccess100(iRazeValue))
-					bRaze = true;
+				bool const bBarbarianRazeRoll = SyncRandSuccess100(iRazeValue);
+				iBarbarianRollPassed = (bBarbarianRazeRoll ? 1 : 0);
+				if (bBarbarianRazeRoll) bRaze = true;
 				// </advc.300>
 			}
 		}
 		else
 		{
 			bool const bFinancialTrouble = AI_isFinancialTrouble();
+			iSASFinancialTrouble = (bFinancialTrouble ? 1 : 0);
+			bSASValueValid = true;
+			bSASComponentsValid = true;
 			bool const bTotalWar = (kPreviousTeam.getNumCities() > 0 && // advc.116
 					// K-Mod
 					GET_TEAM(getTeam()).AI_getWarPlan(kPreviousTeam.getID()) == WARPLAN_TOTAL);
@@ -2180,16 +2204,16 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 							std::min(20, rSubtr.round()));
 				} // </advc.116>
 			}
-			int const iRazeValueAfterDistance = iRazeValue;
+			iRazeValueAfterDistance = iRazeValue;
 			// <advc.116>
 			if (bFinancialTrouble)
 			{
 				iRazeValue += //std::max(0, (70 - 15 * pCity->getPopulation()));
 						kCity.calculateBaseMaintenanceTimes100() / 100;
 			}
-			int const iRazeValueAfterMaintenance = iRazeValue;
+			iRazeValueAfterMaintenance = iRazeValue;
 			iRazeValue -= 3 * kCity.getPopulation();
-			int const iRazeValueAfterPopulation = iRazeValue;
+			iRazeValueAfterPopulation = iRazeValue;
 			// </advc.116>
 			// (disabled by K-Mod)
 			// Scale down distance/maintenance effects for organized.
@@ -2203,7 +2227,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 			iRazeValue += GC.getInfo(getPersonalityType()).getRazeCityProb()
 					/ 5; // advc.116
 			iRazeValue -= AI_atVictoryStage(AI_VICTORY_DOMINATION2) ? 20 : 0; // K-Mod
-			int const iRazeValueAfterPersonalityAndDomination = iRazeValue;
+			iRazeValueAfterPersonalityAndDomination = iRazeValue;
 
 			if (getStateReligion() != NO_RELIGION)
 			{
@@ -2320,8 +2344,8 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 			}
 
 			// advc.116: Replacing the dice roll below. Hardly any randomness this way.
-			int const iRazeValueBeforeRandom = iRazeValue;
-			int const iRazeRandom = SyncRandNum(6);
+			iRazeValueBeforeRandom = iRazeValue;
+			iRazeRandom = SyncRandNum(6);
 			iRazeValue += iRazeRandom;
 			// <!-- custom: Preserve the normal AdvCiv valuation result while exposing compact component deltas for review. (GPT-5.6-Sol) -->
 			if (bLogRazeDecision) logBBAI("RAZE_VALUE_COMPONENTS turn=%d player=%d city=%S distanceAndLocalPower=%d maintenance=%d population=%d personalityAndDomination=%d religionAssetsCultureExpansionAndEnemyPower=%d random=%d finalValue=%d threshold=0 financialTrouble=%d closeness=%d",
@@ -2366,6 +2390,11 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 						break;
 					}
 				}
+				if (bLogSASConquerCityDecision) logSASGameRecordAIConquerCityDecision(*this, kCity, (bLiberate ? SAS_AI_CONQUER_CITY_LIBERATE : SAS_AI_CONQUER_CITY_KEEP),
+					(bLiberate ? SAS_AI_CONQUER_CITY_LIBERATION : SAS_AI_CONQUER_CITY_LIBERATION_WITHHELD_HOSTAGE),
+					bEverOwned, iCloseness, bSASValueValid, iRazeValueBeforeRandom, iRazeRandom, iRazeValue, bSASComponentsValid,
+					iRazeValueAfterDistance, iRazeValueAfterMaintenance - iRazeValueAfterDistance, iRazeValueAfterPopulation - iRazeValueAfterMaintenance, iRazeValueAfterPersonalityAndDomination - iRazeValueAfterPopulation,
+					iRazeValueBeforeRandom - iRazeValueAfterPersonalityAndDomination, iSASFinancialTrouble, iBarbarianRollPassed, eLiberationPlayer);
 				if (bLiberate)
 				{
 					// <!-- custom: same player-log category guard as the nearby conquest/raze diagnostics. (GPT-5.5 + ChatGPT 5.5) -->
@@ -2382,10 +2411,16 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 		} // </advc.ctr>
 		if (iRazeValue > 0/*SyncRandNum(100)*/) // advc.116
 			bRaze = true;
+		if (bLogSASConquerCityDecision) logSASGameRecordAIConquerCityDecision(*this, kCity, (bRaze ? SAS_AI_CONQUER_CITY_RAZE : SAS_AI_CONQUER_CITY_KEEP),
+			(bBarbarian ? SAS_AI_CONQUER_CITY_BARBARIAN_VALUE : SAS_AI_CONQUER_CITY_NORMAL_VALUE),
+			bEverOwned, iCloseness, bSASValueValid, iRazeValueBeforeRandom, iRazeRandom, iRazeValue, bSASComponentsValid,
+			iRazeValueAfterDistance, iRazeValueAfterMaintenance - iRazeValueAfterDistance, iRazeValueAfterPopulation - iRazeValueAfterMaintenance, iRazeValueAfterPersonalityAndDomination - iRazeValueAfterPopulation,
+			iRazeValueBeforeRandom - iRazeValueAfterPersonalityAndDomination, iSASFinancialTrouble, iBarbarianRollPassed);
 	}
 
 	if (bRaze)
 	{	// K-Mod moved the log message up - otherwise it will crash due to pCity being deleted!
+		if (bLogSASConquerCityDecision && eSASForcedRazeReason != SAS_AI_CONQUER_CITY_NORMAL_VALUE) logSASGameRecordAIConquerCityDecision(*this, kCity, SAS_AI_CONQUER_CITY_RAZE, eSASForcedRazeReason, bEverOwned, iCloseness);
 		if (bLogRazeDecision) logBBAI("RAZE_DECISION turn=%d player=%d city=%S action=RAZE", kGame.getGameTurn(), getID(), kCity.getName().GetCString());
 		kCity.doTask(TASK_RAZE);
 	}

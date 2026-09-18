@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 100 };
+enum { SAS_GAME_RECORD_REVISION = 101 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -84,6 +84,28 @@ enum SASGameRecordAITargetCityChangeSource
 	SAS_AI_TARGET_CITY_CITY_REMOVED
 };
 void logSASGameRecordAITargetCityChanged(CvPlayerAI const& kPlayer, CvArea const& kArea, CvCity const* pOldCity, CvCity const* pNewCity, SASGameRecordAITargetCityChangeSource eSource, int iSelectionValue = -1);
+// <!-- custom: Closed recorder-only outcomes/reasons for AI captured-city disposition. These describe realized KEEP/RAZE/LIBERATE decisions rather than gameplay-wide enums, so they remain with SASGameRecord. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordAIConquerCityOutcome
+{
+	SAS_AI_CONQUER_CITY_KEEP,
+	SAS_AI_CONQUER_CITY_RAZE,
+	SAS_AI_CONQUER_CITY_LIBERATE
+};
+enum SASGameRecordAIConquerCityReason
+{
+	SAS_AI_CONQUER_CITY_CANNOT_RAZE,
+	SAS_AI_CONQUER_CITY_DOMINATION3_PRIMARY_AREA_KEEP,
+	SAS_AI_CONQUER_CITY_CULTURE_VICTORY,
+	SAS_AI_CONQUER_CITY_UNLIKELY_LONG_TERM_BENEFIT,
+	SAS_AI_CONQUER_CITY_EARLY_REMOTE_BARB,
+	SAS_AI_CONQUER_CITY_EARLY_REMOTE_NONBARB,
+	SAS_AI_CONQUER_CITY_BARBARIAN_VALUE,
+	SAS_AI_CONQUER_CITY_NORMAL_VALUE,
+	SAS_AI_CONQUER_CITY_LIBERATION,
+	SAS_AI_CONQUER_CITY_LIBERATION_WITHHELD_HOSTAGE
+};
+// <!-- custom: Record one realized AI disposition for every AI_conquerCity path. Value/component fields are valid only when gameplay reached the corresponding raze valuation; callers pass already-computed values and pre-gate at GameRecord level 2+. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIConquerCityDecision(CvPlayerAI const& kPlayer, CvCity const& kCity, SASGameRecordAIConquerCityOutcome eOutcome, SASGameRecordAIConquerCityReason eReason, bool bEverOwned, int iCloseness = -1, bool bValueValid = false, int iRazeValueBeforeRandom = 0, int iRazeRandom = -1, int iRazeValue = 0, bool bComponentsValid = false, int iDistanceAndLocalPower = 0, int iMaintenanceDelta = 0, int iPopulationDelta = 0, int iPersonalityDominationDelta = 0, int iOtherDelta = 0, int iFinancialTrouble = -1, int iBarbarianRollPassed = -1, PlayerTypes eLiberationPlayer = NO_PLAYER);
 // <!-- custom: Closed recorder-only reasons for foreground-UWAI war-plan lifecycle mutations.
 // These describe why a real plan changed; they are not gameplay enums and therefore remain with SASGameRecord rather than CvGameCoreUtils. (ChatGPT-5.6-Sol) -->
 enum SASGameRecordUWAIWarPlanDecisionReason

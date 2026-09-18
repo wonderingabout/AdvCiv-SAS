@@ -544,6 +544,60 @@ def check_ai_diplo_vote_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_conquer_city_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI captured-city provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	expected_outcomes = [
+		"SAS_AI_CONQUER_CITY_KEEP", "SAS_AI_CONQUER_CITY_RAZE", "SAS_AI_CONQUER_CITY_LIBERATE",
+	]
+	expected_reasons = [
+		"SAS_AI_CONQUER_CITY_CANNOT_RAZE", "SAS_AI_CONQUER_CITY_DOMINATION3_PRIMARY_AREA_KEEP",
+		"SAS_AI_CONQUER_CITY_CULTURE_VICTORY", "SAS_AI_CONQUER_CITY_UNLIKELY_LONG_TERM_BENEFIT",
+		"SAS_AI_CONQUER_CITY_EARLY_REMOTE_BARB", "SAS_AI_CONQUER_CITY_EARLY_REMOTE_NONBARB",
+		"SAS_AI_CONQUER_CITY_BARBARIAN_VALUE", "SAS_AI_CONQUER_CITY_NORMAL_VALUE",
+		"SAS_AI_CONQUER_CITY_LIBERATION", "SAS_AI_CONQUER_CITY_LIBERATION_WITHHELD_HOSTAGE",
+	]
+	for enum_name, expected in (("SASGameRecordAIConquerCityOutcome", expected_outcomes), ("SASGameRecordAIConquerCityReason", expected_reasons)):
+		m = re.search(r"enum\s+" + enum_name + r"\s*\{(?P<body>.*?)\};", header_text, flags=re.DOTALL)
+		if m is None:
+			failures.append(f"{REVISION_HEADER}: missing {enum_name}")
+			continue
+		tokens = re.findall(r"^\s*(SAS_AI_CONQUER_CITY_[A-Z0-9_]+)\s*,?\s*$", m.group("body"), flags=re.MULTILINE)
+		if tokens != expected:
+			failures.append(f"{REVISION_HEADER}: {enum_name} changed; expected {expected}, found {tokens}")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_CONQUER_CITY_DECISION", "outcome=%s", "reason=%s", "valueValid=%d",
+		"razeValueBeforeRandom=%d", "random=%d", "razeValue=%d", "componentsValid=%d",
+		"distanceAndLocalPower=%d", "maintenanceDelta=%+d", "populationDelta=%+d",
+		"personalityDominationDelta=%+d", "otherDelta=%+d", "barbarianRollPassed=%d", "liberationPlayer=%d",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI captured-city diagnostic token {required}")
+	for token in expected_outcomes + expected_reasons:
+		if token not in record_text:
+			failures.append(f"{REVISION_SOURCE}: captured-city stringifier missing {token}")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for token in expected_reasons:
+		if token not in player_text:
+			failures.append(f"{PLAYER_AI_SOURCE}: no AI_conquerCity path references {token}")
+	if "bLogSASConquerCityDecision = (gGameRecordLogLevel >= 2)" not in player_text:
+		failures.append(f"{PLAYER_AI_SOURCE}: captured-city valuation logging must retain the cached level-2 gate")
+	if player_text.count("SyncRandSuccess100(iRazeValue)") != 1:
+		failures.append(f"{PLAYER_AI_SOURCE}: inherited Barbarian raze percentage roll must remain a single live RNG call site")
+	if player_text.count("SyncRandNum(6)") < 1:
+		failures.append(f"{PLAYER_AI_SOURCE}: normal raze valuation lost its existing SyncRandNum(6) random component")
+	return failures
+
+
 def check_ai_diplo_contact_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (CV_ENUMS_HEADER, GAME_CORE_UTILS_SOURCE, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -646,12 +700,13 @@ def main() -> int:
 	failures.extend(check_uwai_war_plan_decisions(args.repo_root))
 	failures.extend(check_ai_diplo_vote_provenance(args.repo_root))
 	failures.extend(check_ai_diplo_contact_provenance(args.repo_root))
+	failures.extend(check_ai_conquer_city_provenance(args.repo_root))
 	if failures:
 		print("FAIL SASGameRecord report/revision checks")
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-conquer-city diagnostics synchronized")
 	return 0
 
 

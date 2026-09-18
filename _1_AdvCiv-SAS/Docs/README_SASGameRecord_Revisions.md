@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=100 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=101 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,16 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 100 - SAS practical 6490
+### Revision 101 - SAS practical 6491
 
 - **Date:** 2026-09-18
 - **Git commit:** pending
+- **Change:** Added one compact level-2 realized AI captured-city disposition row for KEEP/RAZE/LIBERATE outcomes, preserving forced reasons or the already-computed normal raze-value component boundaries/random result without repeating conquest valuation.
+
+### Revision 100 - SAS practical 6490
+
+- **Date:** 2026-09-18
+- **Git commit:** `a8452813b9aa0819ad20e454d8e7a34cbd4d3d27`
 - **Change:** Added compact level-2 realized proactive AI diplomatic-contact provenance: contact class, human-contact versus immediate AI-deal delivery, current attitude, optional non-package subject, and the final AI-gives/AI-receives package. Existing deeper peace and proactive resource-trade rows remain authoritative rather than being duplicated.
 
 ### Revision 99 - SAS practical 6489

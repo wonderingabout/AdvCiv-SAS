@@ -12017,6 +12017,50 @@ void logSASGameRecordAITargetCityChanged(CvPlayerAI const& kPlayer, CvArea const
 		getSASAreaAIType(kArea.getAreaAIType(kPlayer.getTeam())), bAtWarWithNewTarget ? 1 : 0, getSASWarPlanType(eNewWarPlan));
 }
 
+static char const* getSASGameRecordAIConquerCityOutcome(SASGameRecordAIConquerCityOutcome eOutcome)
+{
+	switch (eOutcome)
+	{
+	case SAS_AI_CONQUER_CITY_KEEP: return "KEEP";
+	case SAS_AI_CONQUER_CITY_RAZE: return "RAZE";
+	case SAS_AI_CONQUER_CITY_LIBERATE: return "LIBERATE";
+	default: return "UNKNOWN";
+	}
+}
+
+static char const* getSASGameRecordAIConquerCityReason(SASGameRecordAIConquerCityReason eReason)
+{
+	switch (eReason)
+	{
+	case SAS_AI_CONQUER_CITY_CANNOT_RAZE: return "CANNOT_RAZE";
+	case SAS_AI_CONQUER_CITY_DOMINATION3_PRIMARY_AREA_KEEP: return "DOMINATION3_PRIMARY_AREA_KEEP";
+	case SAS_AI_CONQUER_CITY_CULTURE_VICTORY: return "CULTURE_VICTORY";
+	case SAS_AI_CONQUER_CITY_UNLIKELY_LONG_TERM_BENEFIT: return "SAS_UNLIKELY_LONG_TERM_BENEFIT";
+	case SAS_AI_CONQUER_CITY_EARLY_REMOTE_BARB: return "SAS_EARLY_REMOTE_BARB";
+	case SAS_AI_CONQUER_CITY_EARLY_REMOTE_NONBARB: return "SAS_EARLY_REMOTE_NONBARB";
+	case SAS_AI_CONQUER_CITY_BARBARIAN_VALUE: return "BARBARIAN_VALUE";
+	case SAS_AI_CONQUER_CITY_NORMAL_VALUE: return "NORMAL_VALUE";
+	case SAS_AI_CONQUER_CITY_LIBERATION: return "LIBERATION";
+	case SAS_AI_CONQUER_CITY_LIBERATION_WITHHELD_HOSTAGE: return "LIBERATION_WITHHELD_HOSTAGE";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Compact realized captured-city disposition. Normal AdvCiv valuation reuses the component boundaries and random draw gameplay already computed; forced rules and no-raze exits deliberately leave valueValid=0 rather than reconstructing a hypothetical value.
+// Barbarian `barbarianRollPassed` preserves the inherited percentage-roll result separately from the final positive-value threshold, making that path auditable without consuming another RNG draw. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIConquerCityDecision(CvPlayerAI const& kPlayer, CvCity const& kCity, SASGameRecordAIConquerCityOutcome eOutcome, SASGameRecordAIConquerCityReason eReason, bool bEverOwned, int iCloseness, bool bValueValid, int iRazeValueBeforeRandom, int iRazeRandom, int iRazeValue, bool bComponentsValid, int iDistanceAndLocalPower, int iMaintenanceDelta, int iPopulationDelta, int iPersonalityDominationDelta, int iOtherDelta, int iFinancialTrouble, int iBarbarianRollPassed, PlayerTypes eLiberationPlayer)
+{
+	PlayerTypes const ePreviousOwner = kCity.getPreviousOwner();
+	TeamTypes const ePreviousTeam = (ePreviousOwner == NO_PLAYER ? NO_TEAM : GET_PLAYER(ePreviousOwner).getTeam());
+	logSASGameRecord("GAME_RECORD_AI_CONQUER_CITY_DECISION turn=%d player=%d team=%d cityId=%d city=%S x=%d y=%d area=%d previousOwner=%d previousTeam=%d originalOwner=%d pop=%d everOwned=%d outcome=%s reason=%s valueValid=%d razeValueBeforeRandom=%d random=%d razeValue=%d threshold=0 componentsValid=%d distanceAndLocalPower=%d maintenanceDelta=%+d populationDelta=%+d personalityDominationDelta=%+d otherDelta=%+d financialTrouble=%d closeness=%d barbarianRollPassed=%d liberationPlayer=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), kCity.getID(), kCity.getName().GetCString(), kCity.getX(),
+		kCity.getY(), kCity.getArea().getID(), ePreviousOwner, ePreviousTeam, kCity.getOriginalOwner(), kCity.getPopulation(),
+		bEverOwned ? 1 : 0, getSASGameRecordAIConquerCityOutcome(eOutcome), getSASGameRecordAIConquerCityReason(eReason),
+		bValueValid ? 1 : 0, iRazeValueBeforeRandom, iRazeRandom, iRazeValue, bComponentsValid ? 1 : 0, iDistanceAndLocalPower,
+		iMaintenanceDelta, iPopulationDelta, iPersonalityDominationDelta, iOtherDelta, iFinancialTrouble, iCloseness, iBarbarianRollPassed,
+		eLiberationPlayer);
+}
+
 // <!-- custom: Serialize only scores produced by the real AI_bestReligion loop; the vector is built only at GameRecord level 3 and formatted only when AI_doReligion reaches a meaningful switch/spread-block decision. (ChatGPT-5.6-Sol) -->
 static CvString getSASGameRecordReligionCandidateScores(std::vector<std::pair<ReligionTypes, int> > const* paCandidateValues)
 {
