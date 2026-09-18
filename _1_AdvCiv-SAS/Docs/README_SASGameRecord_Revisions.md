@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=97 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=98 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,16 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 97 - SAS practical 6487
+### Revision 98 - SAS practical 6488
 
 - **Date:** 2026-09-18
 - **Git commit:** pending
+- **Change:** Added compact level-2 foreground-UWAI war-plan lifecycle provenance for realized preparation conclusion/cancellation, target switching, active plan-type switching, imminent-war cancellation and victory-denial direct declaration, reusing already-computed UWAI values immediately before the authoritative mutation.
+
+### Revision 97 - SAS practical 6487
+
+- **Date:** 2026-09-18
+- **Git commit:** `c154939e23a030b1654b40ac4fbf5c492c2add65`
 - **Change:** Added exact level-2 per-player/per-area AI target-city history for normal area search, K-Mod random clearing, diplomacy coordination, area reassignment and effective clears when a referenced city is removed, plus compact periodic target checkpoints with the city-target refresh timer. Normal search exposes its already-computed winning target value through an optional diagnostic output; old-target provenance remains level-2 gated without duplicating the refresh loop.
 
 ### Revision 96 - SAS practical 6486

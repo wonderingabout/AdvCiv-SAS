@@ -11326,6 +11326,59 @@ void logSASGameRecordWarEnded(TeamTypes eTeam, TeamTypes eOtherTeam, int iTeamAW
 	}
 }
 
+static char const* getSASGameRecordUWAIWarPlanDecisionReason(SASGameRecordUWAIWarPlanDecisionReason eReason)
+{
+	switch (eReason)
+	{
+	case SAS_UWAI_WAR_PLAN_ILLEGAL_TARGET: return "ILLEGAL_TARGET";
+	case SAS_UWAI_WAR_PLAN_VICTORY_DENIAL_DIRECT: return "VICTORY_DENIAL_DIRECT";
+	case SAS_UWAI_WAR_PLAN_IMMINENT_NEGATIVE_UTILITY: return "IMMINENT_NEGATIVE_UTILITY";
+	case SAS_UWAI_WAR_PLAN_IMMINENT_TIMEOUT: return "IMMINENT_TIMEOUT";
+	case SAS_UWAI_WAR_PLAN_PREPARATION_DEADLINE_REACHED: return "PREPARATION_DEADLINE_REACHED";
+	case SAS_UWAI_WAR_PLAN_PREPARATION_DEADLINE_NEGATIVE_UTILITY: return "PREPARATION_DEADLINE_NEGATIVE_UTILITY";
+	case SAS_UWAI_WAR_PLAN_SEVERE_NEGATIVE_UTILITY: return "SEVERE_NEGATIVE_UTILITY";
+	case SAS_UWAI_WAR_PLAN_TARGET_SWITCH: return "TARGET_SWITCH";
+	case SAS_UWAI_WAR_PLAN_ATTACKED_RECENT_MATURED: return "ATTACKED_RECENT_MATURED";
+	case SAS_UWAI_WAR_PLAN_ACTIVE_TYPE_SWITCH: return "ACTIVE_TYPE_SWITCH";
+	case SAS_UWAI_WAR_PLAN_DIRECT_UTILITY_THRESHOLD: return "DIRECT_UTILITY_THRESHOLD";
+	default: return "UNKNOWN";
+	}
+}
+
+static char const* getSASGameRecordUWAIWarPlanDecisionAction(SASGameRecordUWAIWarPlanDecisionReason eReason)
+{
+	switch (eReason)
+	{
+	case SAS_UWAI_WAR_PLAN_ILLEGAL_TARGET:
+	case SAS_UWAI_WAR_PLAN_IMMINENT_NEGATIVE_UTILITY:
+	case SAS_UWAI_WAR_PLAN_IMMINENT_TIMEOUT:
+	case SAS_UWAI_WAR_PLAN_PREPARATION_DEADLINE_NEGATIVE_UTILITY:
+	case SAS_UWAI_WAR_PLAN_SEVERE_NEGATIVE_UTILITY:
+		return "CANCEL";
+	case SAS_UWAI_WAR_PLAN_VICTORY_DENIAL_DIRECT: return "DECLARE";
+	case SAS_UWAI_WAR_PLAN_PREPARATION_DEADLINE_REACHED:
+	case SAS_UWAI_WAR_PLAN_DIRECT_UTILITY_THRESHOLD:
+		return "CONCLUDE";
+	case SAS_UWAI_WAR_PLAN_TARGET_SWITCH: return "SWITCH_TARGET";
+	case SAS_UWAI_WAR_PLAN_ATTACKED_RECENT_MATURED:
+	case SAS_UWAI_WAR_PLAN_ACTIVE_TYPE_SWITCH:
+		return "SWITCH_TYPE";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Generic WAR_PLAN_CHANGED preserves authoritative before/after state, while this compact foreground-UWAI row preserves the already-computed causal decision that immediately triggered it.
+// N/A comparison/decision fields remain -1/NO_TEAM; their meaning is reason-specific and no war evaluation or RNG is repeated here. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordUWAIWarPlanDecision(TeamTypes eAgent, TeamTypes eTarget, SASGameRecordUWAIWarPlanDecisionReason eReason, WarPlanTypes eOldWarPlan, WarPlanTypes eNewWarPlan, int iUtility, int iStateCounter, int iPrepTurnsRemaining, TeamTypes eComparisonTarget, int iComparisonUtility, int iDecisionValue, int iDecisionThreshold, int iVictoryDenialBoost)
+{
+	if (eAgent < 0 || eAgent >= MAX_TEAMS || eTarget < 0 || eTarget >= MAX_TEAMS)
+		return;
+	logSASGameRecord("GAME_RECORD_AI_WAR_PLAN_DECISION turn=%d planner=UWAI action=%s reason=%s agentTeam=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s utility=%d stateCounter=%d prepTurnsRemaining=%d comparisonTargetTeam=%d comparisonUtility=%d decisionValue=%d decisionThreshold=%d victoryDenialBoost=%d",
+		GC.getGame().getGameTurn(), getSASGameRecordUWAIWarPlanDecisionAction(eReason), getSASGameRecordUWAIWarPlanDecisionReason(eReason),
+		eAgent, eTarget, getSASWarPlanType(eOldWarPlan), getSASWarPlanType(eNewWarPlan), iUtility, iStateCounter, iPrepTurnsRemaining,
+		eComparisonTarget, iComparisonUtility, iDecisionValue, iDecisionThreshold, iVictoryDenialBoost);
+}
+
 void logSASGameRecordWarPlanChanged(TeamTypes eTeam, TeamTypes eTarget, WarPlanTypes eOldWarPlan, WarPlanTypes eNewWarPlan, bool bWar, int iOldStateCounter)
 {
 	if (eTeam < 0 || eTeam >= MAX_TEAMS || eTarget < 0 || eTarget >= MAX_TEAMS)

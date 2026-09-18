@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 97 };
+enum { SAS_GAME_RECORD_REVISION = 98 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -84,6 +84,25 @@ enum SASGameRecordAITargetCityChangeSource
 	SAS_AI_TARGET_CITY_CITY_REMOVED
 };
 void logSASGameRecordAITargetCityChanged(CvPlayerAI const& kPlayer, CvArea const& kArea, CvCity const* pOldCity, CvCity const* pNewCity, SASGameRecordAITargetCityChangeSource eSource, int iSelectionValue = -1);
+// <!-- custom: Closed recorder-only reasons for foreground-UWAI war-plan lifecycle mutations.
+// These describe why a real plan changed; they are not gameplay enums and therefore remain with SASGameRecord rather than CvGameCoreUtils. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordUWAIWarPlanDecisionReason
+{
+	SAS_UWAI_WAR_PLAN_ILLEGAL_TARGET,
+	SAS_UWAI_WAR_PLAN_VICTORY_DENIAL_DIRECT,
+	SAS_UWAI_WAR_PLAN_IMMINENT_NEGATIVE_UTILITY,
+	SAS_UWAI_WAR_PLAN_IMMINENT_TIMEOUT,
+	SAS_UWAI_WAR_PLAN_PREPARATION_DEADLINE_REACHED,
+	SAS_UWAI_WAR_PLAN_PREPARATION_DEADLINE_NEGATIVE_UTILITY,
+	SAS_UWAI_WAR_PLAN_SEVERE_NEGATIVE_UTILITY,
+	SAS_UWAI_WAR_PLAN_TARGET_SWITCH,
+	SAS_UWAI_WAR_PLAN_ATTACKED_RECENT_MATURED,
+	SAS_UWAI_WAR_PLAN_ACTIVE_TYPE_SWITCH,
+	SAS_UWAI_WAR_PLAN_DIRECT_UTILITY_THRESHOLD
+};
+// <!-- custom: Record only realized foreground-UWAI lifecycle decisions immediately before their authoritative plan/declaration mutation.
+// Comparison/decision fields reuse values already computed by UWAI; callers pre-gate level 2+ and never rerun war evaluation or RNG for logging. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordUWAIWarPlanDecision(TeamTypes eAgent, TeamTypes eTarget, SASGameRecordUWAIWarPlanDecisionReason eReason, WarPlanTypes eOldWarPlan, WarPlanTypes eNewWarPlan, int iUtility, int iStateCounter, int iPrepTurnsRemaining, TeamTypes eComparisonTarget = NO_TEAM, int iComparisonUtility = -1, int iDecisionValue = -1, int iDecisionThreshold = -1, int iVictoryDenialBoost = 0);
 class CvPlot;
 class CvUnit;
 class CvUnitAI;

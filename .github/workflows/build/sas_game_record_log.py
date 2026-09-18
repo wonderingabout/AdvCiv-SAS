@@ -399,6 +399,64 @@ def check_strategic_trade_market(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_uwai_war_plan_decisions(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, UWAI_AGENT_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing UWAI war-plan provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	expected = [
+		("SAS_UWAI_WAR_PLAN_ILLEGAL_TARGET", "ILLEGAL_TARGET"),
+		("SAS_UWAI_WAR_PLAN_VICTORY_DENIAL_DIRECT", "VICTORY_DENIAL_DIRECT"),
+		("SAS_UWAI_WAR_PLAN_IMMINENT_NEGATIVE_UTILITY", "IMMINENT_NEGATIVE_UTILITY"),
+		("SAS_UWAI_WAR_PLAN_IMMINENT_TIMEOUT", "IMMINENT_TIMEOUT"),
+		("SAS_UWAI_WAR_PLAN_PREPARATION_DEADLINE_REACHED", "PREPARATION_DEADLINE_REACHED"),
+		("SAS_UWAI_WAR_PLAN_PREPARATION_DEADLINE_NEGATIVE_UTILITY", "PREPARATION_DEADLINE_NEGATIVE_UTILITY"),
+		("SAS_UWAI_WAR_PLAN_SEVERE_NEGATIVE_UTILITY", "SEVERE_NEGATIVE_UTILITY"),
+		("SAS_UWAI_WAR_PLAN_TARGET_SWITCH", "TARGET_SWITCH"),
+		("SAS_UWAI_WAR_PLAN_ATTACKED_RECENT_MATURED", "ATTACKED_RECENT_MATURED"),
+		("SAS_UWAI_WAR_PLAN_ACTIVE_TYPE_SWITCH", "ACTIVE_TYPE_SWITCH"),
+		("SAS_UWAI_WAR_PLAN_DIRECT_UTILITY_THRESHOLD", "DIRECT_UTILITY_THRESHOLD"),
+	]
+	expected_tokens = [token for token, _ in expected]
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	enum_match = re.search(r"enum\s+SASGameRecordUWAIWarPlanDecisionReason\s*\{(?P<body>.*?)\};", header_text, flags=re.DOTALL)
+	if enum_match is None:
+		failures.append(f"{REVISION_HEADER}: missing SASGameRecordUWAIWarPlanDecisionReason")
+	else:
+		enum_tokens = re.findall(r"^\s*(SAS_UWAI_WAR_PLAN_[A-Z0-9_]+)\s*,?\s*$", enum_match.group("body"), flags=re.MULTILINE)
+		if enum_tokens != expected_tokens:
+			failures.append(f"{REVISION_HEADER}: UWAI war-plan decision reasons changed; expected {expected_tokens}, found {enum_tokens}")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	mapping_match = re.search(r"getSASGameRecordUWAIWarPlanDecisionReason\s*\([^)]*\)\s*\{(?P<body>.*?)^\}", record_text, flags=re.DOTALL | re.MULTILINE)
+	if mapping_match is None:
+		failures.append(f"{REVISION_SOURCE}: missing UWAI war-plan reason stringifier")
+	else:
+		pairs = re.findall(r'case\s+(SAS_UWAI_WAR_PLAN_[A-Z0-9_]+)\s*:\s*return\s+"([A-Z0-9_]+)"\s*;', mapping_match.group("body"))
+		if pairs != expected:
+			failures.append(f"{REVISION_SOURCE}: UWAI war-plan reason mapping changed; expected {expected}, found {pairs}")
+	for required in (
+		"GAME_RECORD_AI_WAR_PLAN_DECISION", "planner=UWAI", "action=%s", "reason=%s",
+		"comparisonTargetTeam=%d", "comparisonUtility=%d", "decisionValue=%d",
+		"decisionThreshold=%d", "victoryDenialBoost=%d",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing foreground-UWAI war-plan diagnostic token {required}")
+
+	uwai_text = (repo_root / UWAI_AGENT_SOURCE).read_text(encoding="utf-8", errors="replace")
+	bridge_count = uwai_text.count("logSASGameRecordUWAIWarPlanDecision(")
+	if bridge_count != len(expected):
+		failures.append(f"{UWAI_AGENT_SOURCE}: expected {len(expected)} realized UWAI war-plan decision bridges, found {bridge_count}")
+	for token in expected_tokens:
+		if uwai_text.count(token) != 1:
+			failures.append(f"{UWAI_AGENT_SOURCE}: expected exactly one realized bridge for {token}, found {uwai_text.count(token)}")
+	return failures
+
+
 EXPECTED_GAME_RECORD_DEFAULTS = {
 	"SAS_GAME_RECORD_LOG_LEVEL": 0,
 	# These configure enabled record logging but do not enable it themselves.
@@ -422,12 +480,13 @@ def main() -> int:
 	failures.extend(check_ai_target_city_provenance(args.repo_root))
 	failures.extend(check_ai_attitude_breakdown(args.repo_root))
 	failures.extend(check_strategic_trade_market(args.repo_root))
+	failures.extend(check_uwai_war_plan_decisions(args.repo_root))
 	if failures:
 		print("FAIL SASGameRecord report/revision checks")
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan diagnostics synchronized")
 	return 0
 
 

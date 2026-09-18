@@ -15,7 +15,7 @@
 #include "CvArea.h"
 #include "RiseFall.h" // advc.705
 #include "BBAILog.h" // <!-- custom: Dedicated SAS war diagnostics log UWAI target utility and distance context separately from broad TEAM logging. (GPT-5.5) -->
-#include "SASGameRecordLog.h" // <!-- custom: Preserve only selected/deferred top-level UWAI war-target intent in the broad game record; exhaustive candidate reasoning remains in BBAI. (ChatGPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Preserve compact foreground-UWAI war-target intent and realized war-plan lifecycle causes in the broad game record; exhaustive candidate/review reasoning remains in BBAI. (ChatGPT-5.6-Sol) -->
 
 using std::vector;
 using std::set;
@@ -732,6 +732,7 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNav
 					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iWPAge, iPrepTurns);
 			if (!isInBackground())
 			{
+				if (gGameRecordLogLevel >= 2) logSASGameRecordUWAIWarPlanDecision(kAgent.getID(), eTarget, SAS_UWAI_WAR_PLAN_ILLEGAL_TARGET, eWP, NO_WARPLAN, iU, iWPAge, iPrepTurns);
 				kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
 				showWarPlanAbandonedMsg(eTarget);
 			}
@@ -745,7 +746,11 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNav
 				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP),
 				iU, iOriginalU, iVictoryDenialBoost, iTargetMaxVictoryStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(),
 				getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
-			if (!isInBackground()) kAgent.declareWar(eTarget, false, eDirectWP);
+			if (!isInBackground())
+			{
+				if (gGameRecordLogLevel >= 2) logSASGameRecordUWAIWarPlanDecision(kAgent.getID(), eTarget, SAS_UWAI_WAR_PLAN_VICTORY_DENIAL_DIRECT, eWP, eDirectWP, iU, iWPAge, iPrepTurns, NO_TEAM, -1, -1, -1, iVictoryDenialBoost);
+				kAgent.declareWar(eTarget, false, eDirectWP);
+			}
 			return false;
 		}
 		if (eWP != WARPLAN_PREPARING_LIMITED && eWP != WARPLAN_PREPARING_TOTAL)
@@ -760,6 +765,7 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNav
 						GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iWPAge, iPrepTurns);
 				if (!isInBackground())
 				{
+					if (gGameRecordLogLevel >= 2) logSASGameRecordUWAIWarPlanDecision(kAgent.getID(), eTarget, SAS_UWAI_WAR_PLAN_IMMINENT_NEGATIVE_UTILITY, eWP, NO_WARPLAN, iU, iWPAge, iPrepTurns);
 					kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
 					showWarPlanAbandonedMsg(eTarget);
 				}
@@ -804,6 +810,7 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNav
 						GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iWPAge, iTimeout);
 				if (!isInBackground())
 				{
+					if (gGameRecordLogLevel >= 2) logSASGameRecordUWAIWarPlanDecision(kAgent.getID(), eTarget, SAS_UWAI_WAR_PLAN_IMMINENT_TIMEOUT, eWP, NO_WARPLAN, iU, iWPAge, iPrepTurns, NO_TEAM, -1, iWPAge, iTimeout);
 					kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
 					showWarPlanAbandonedMsg(eTarget);
 				}
@@ -1396,6 +1403,7 @@ bool UWAI::Team::considerPlanTypeChange(TeamTypes eTarget, int iU)
 				m_pReport->log("Switching to war plan \"attacked\" after %d turns", iWPAge);
 				if (!isInBackground())
 				{
+					if (gGameRecordLogLevel >= 2) logSASGameRecordUWAIWarPlanDecision(kAgent.getID(), eTarget, SAS_UWAI_WAR_PLAN_ATTACKED_RECENT_MATURED, eWP, WARPLAN_ATTACKED, iU, iWPAge, -1);
 					kAgent.AI_setWarPlan(eTarget, WARPLAN_ATTACKED);
 					// Don't reset wpAge
 					kAgent.AI_setWarPlanStateCounter(eTarget, iWPAge);
@@ -1457,6 +1465,7 @@ bool UWAI::Team::considerPlanTypeChange(TeamTypes eTarget, int iU)
 		m_pReport->log("Switching to war plan \"%s\"", m_pReport->warPlanName(eAltWP));
 		if (!isInBackground())
 		{
+			if (gGameRecordLogLevel >= 2) logSASGameRecordUWAIWarPlanDecision(kAgent.getID(), eTarget, SAS_UWAI_WAR_PLAN_ACTIVE_TYPE_SWITCH, eWP, eAltWP, iU, iWPAge, -1, NO_TEAM, iAltU, rSwitchProb.getPercent());
 			kAgent.AI_setWarPlan(eTarget, eAltWP);
 			kAgent.AI_setWarPlanStateCounter(eTarget, iWPAge); // Don't reset wpAge
 		}
@@ -1498,6 +1507,7 @@ bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU, int iTur
 				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining);
 		if (!isInBackground())
 		{
+			if (gGameRecordLogLevel >= 2) logSASGameRecordUWAIWarPlanDecision(kAgent.getID(), eTarget, SAS_UWAI_WAR_PLAN_PREPARATION_DEADLINE_NEGATIVE_UTILITY, eWP, NO_WARPLAN, iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining);
 			kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
 			showWarPlanAbandonedMsg(eTarget);
 		}
@@ -1547,6 +1557,7 @@ bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU, int iTur
 			iWarRand, rAbandonSeverity.getPercent(), iMinAbandonSeverityPercent);
 		if (!isInBackground())
 		{
+			if (gGameRecordLogLevel >= 2) logSASGameRecordUWAIWarPlanDecision(kAgent.getID(), eTarget, SAS_UWAI_WAR_PLAN_SEVERE_NEGATIVE_UTILITY, eWP, NO_WARPLAN, iU, iAge, iTurnsRemaining, NO_TEAM, -1, rAbandonSeverity.getPercent(), iMinAbandonSeverityPercent);
 			kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
 			showWarPlanAbandonedMsg(eTarget);
 		}
@@ -1635,6 +1646,7 @@ bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU, int iTurnsRemai
 	if (!isInBackground())
 	{
 		int iWPAge = kAgent.AI_getWarPlanStateCounter(eTarget);
+		if (gGameRecordLogLevel >= 2) logSASGameRecordUWAIWarPlanDecision(kAgent.getID(), eTarget, SAS_UWAI_WAR_PLAN_TARGET_SWITCH, eWP, eWP, iU, iWPAge, iTurnsRemaining, eBestAltTarget, iBestUtility, rSwitchAdvantage.getPercent(), iMinSwitchAdvantagePercent);
 		kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
 		showWarPlanAbandonedMsg(eTarget);
 		kAgent.AI_setWarPlan(eBestAltTarget, eWP);
@@ -1680,6 +1692,7 @@ bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU, int iTu
 		m_pReport->log("Time limit for preparation reached; adopting direct war plan");
 		if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_CONCLUDE_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d stateCounter=%d prepTurnsRemaining=%d reason=deadline_reached concluded=1",
 				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining);
+		if (gGameRecordLogLevel >= 2 && !isInBackground()) logSASGameRecordUWAIWarPlanDecision(kAgent.getID(), eTarget, SAS_UWAI_WAR_PLAN_PREPARATION_DEADLINE_REACHED, eWP, eDirectWP, iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining, NO_TEAM, -1, -1, -1, iVictoryDenialBoost);
 		bConclude = true;
 	}
 	else
@@ -1704,7 +1717,10 @@ bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU, int iTu
 			scaled rThresh = iU * ((1 - rRandPortion) + fixp(0.5) * rRandPortion);
 			m_pReport->log("Utility threshold for direct war plan: %d", rThresh.round());
 			if (iDirectU >= rThresh)
+			{
+				if (gGameRecordLogLevel >= 2 && !isInBackground()) logSASGameRecordUWAIWarPlanDecision(kAgent.getID(), eTarget, SAS_UWAI_WAR_PLAN_DIRECT_UTILITY_THRESHOLD, eWP, eDirectWP, iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining, NO_TEAM, -1, iDirectU, rThresh.round(), iVictoryDenialBoost);
 				bConclude = true;
+			}
 			m_pReport->log("%sirect war plan adopted", (bConclude ? "D" : "No d"));
 			if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_CONCLUDE_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s directWarPlan=%s utility=%d directUtility=%d threshold=%d stateCounter=%d prepTurnsRemaining=%d reason=direct_utility_threshold concluded=%d",
 				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP),
