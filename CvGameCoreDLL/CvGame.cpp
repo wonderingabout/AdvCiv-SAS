@@ -10387,7 +10387,7 @@ VoteTriggeredData* CvGame::addVoteTriggered(VoteSourceTypes eVoteSource, VoteSel
 		if (!kVoter.isHuman())
 		{
 			castVote(kVoter.getID(), pData->getID(),
-					kVoter.AI_diploVote(kOptionData, eVoteSource, false));
+					kVoter.AI_diploVote(kOptionData, eVoteSource, false, pData->getID()));
 			continue;
 		}
 		// <kekm.25> (advc: simplified)
@@ -10400,7 +10400,7 @@ VoteTriggeredData* CvGame::addVoteTriggered(VoteSourceTypes eVoteSource, VoteSel
 				!isTeamVoteEligible(kVoter.getTeam(), eVoteSource))
 			{
 				castVote(kVoter.getID(), pData->getID(),
-						kVoter.AI_diploVote(kOptionData, eVoteSource, false));
+						kVoter.AI_diploVote(kOptionData, eVoteSource, false, pData->getID()));
 				continue;
 			}
 		} // </kekm.25>

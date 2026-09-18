@@ -12160,15 +12160,108 @@ static CvString getSASGameRecordVoteBallots(VoteTriggeredData const& kTriggered)
 	return getSASDiagnosticOrDash(szBallots);
 }
 
-static void getSASGameRecordVoteTarget(VoteTriggeredData const& kTriggered, PlayerTypes& eTargetPlayer, TeamTypes& eTargetTeam, CvCity const*& pTargetCity, PlayerTypes& eOtherPlayer, TeamTypes& eOtherTeam)
+static void getSASGameRecordVoteTarget(VoteSelectionSubData const& kVoteOption, PlayerTypes& eTargetPlayer, TeamTypes& eTargetTeam, CvCity const*& pTargetCity, PlayerTypes& eOtherPlayer, TeamTypes& eOtherTeam)
 {
-	eTargetPlayer = kTriggered.kVoteOption.ePlayer;
+	eTargetPlayer = kVoteOption.ePlayer;
 	eTargetTeam = (eTargetPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eTargetPlayer).getTeam());
 	pTargetCity = NULL;
-	if (eTargetPlayer != NO_PLAYER && kTriggered.kVoteOption.iCityId >= 0)
-		pTargetCity = GET_PLAYER(eTargetPlayer).getCity(kTriggered.kVoteOption.iCityId);
-	eOtherPlayer = kTriggered.kVoteOption.eOtherPlayer;
+	if (eTargetPlayer != NO_PLAYER && kVoteOption.iCityId >= 0)
+		pTargetCity = GET_PLAYER(eTargetPlayer).getCity(kVoteOption.iCityId);
+	eOtherPlayer = kVoteOption.eOtherPlayer;
 	eOtherTeam = (eOtherPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eOtherPlayer).getTeam());
+}
+
+static char const* getSASGameRecordAIDiploVoteReason(SASGameRecordAIDiploVoteReason eReason)
+{
+	switch (eReason)
+	{
+	case SAS_AI_DIPLO_VOTE_TEAM_SELF_ELIGIBLE: return "TEAM_SELF_ELIGIBLE";
+	case SAS_AI_DIPLO_VOTE_TEAM_VASSAL_MASTER: return "TEAM_VASSAL_MASTER";
+	case SAS_AI_DIPLO_VOTE_TEAM_OWN_DIPLO_VICTORY_ABSTAIN: return "TEAM_OWN_DIPLO_VICTORY_ABSTAIN";
+	case SAS_AI_DIPLO_VOTE_TEAM_ATTITUDE_TIE_ABSTAIN: return "TEAM_ATTITUDE_TIE_ABSTAIN";
+	case SAS_AI_DIPLO_VOTE_TEAM_BEST_ATTITUDE: return "TEAM_BEST_ATTITUDE";
+	case SAS_AI_DIPLO_VOTE_SECRETARY_SELF_OR_MASTER: return "SECRETARY_SELF_OR_MASTER";
+	case SAS_AI_DIPLO_VOTE_FRIENDLY_SECRETARY: return "FRIENDLY_SECRETARY";
+	case SAS_AI_DIPLO_VOTE_FORCE_CIVIC: return "FORCE_CIVIC";
+	case SAS_AI_DIPLO_VOTE_TRADE_ROUTES: return "TRADE_ROUTES";
+	case SAS_AI_DIPLO_VOTE_NO_NUKES: return "NO_NUKES";
+	case SAS_AI_DIPLO_VOTE_FREE_TRADE: return "FREE_TRADE";
+	case SAS_AI_DIPLO_VOTE_OPEN_BORDERS: return "OPEN_BORDERS";
+	case SAS_AI_DIPLO_VOTE_DEFENSIVE_PACT: return "DEFENSIVE_PACT";
+	case SAS_AI_DIPLO_VOTE_FORCE_PEACE: return "FORCE_PEACE";
+	case SAS_AI_DIPLO_VOTE_EMBARGO_RECENT_DEAL: return "EMBARGO_RECENT_DEAL";
+	case SAS_AI_DIPLO_VOTE_EMBARGO_UNMET_ABSTAIN: return "EMBARGO_UNMET_ABSTAIN";
+	case SAS_AI_DIPLO_VOTE_EMBARGO: return "EMBARGO";
+	case SAS_AI_DIPLO_VOTE_FORCE_WAR: return "FORCE_WAR";
+	case SAS_AI_DIPLO_VOTE_ASSIGN_CITY: return "ASSIGN_CITY";
+	case SAS_AI_DIPLO_VOTE_DEFAULT: return "DEFAULT";
+	default: return "UNKNOWN";
+	}
+}
+
+static void logSASGameRecordAIDiploVoteDecisionImpl(CvPlayerAI const& kPlayer, VoteSelectionSubData const& kVoteData, VoteSourceTypes eVoteSource, int iTriggeredVoteId, PlayerVoteTypes eChoice, SASGameRecordAIDiploVoteReason eReason, bool bHasDecisionMetrics, int iDecisionValue, int iDecisionThreshold, int iRandomRoll)
+{
+	CvGame const& kGame = GC.getGame();
+	TeamTypes const eSecretaryTeam = kGame.getSecretaryGeneral(eVoteSource);
+	CvString szSecretaryAttitude = "-";
+	if (eSecretaryTeam != NO_TEAM && eSecretaryTeam != kPlayer.getTeam())
+		szSecretaryAttitude.Format("%d", GET_TEAM(kPlayer.getTeam()).AI_getAttitudeVal(eSecretaryTeam));
+	PlayerTypes eTargetPlayer;
+	TeamTypes eTargetTeam;
+	CvCity const* pTargetCity;
+	PlayerTypes eOtherPlayer;
+	TeamTypes eOtherTeam;
+	getSASGameRecordVoteTarget(kVoteData, eTargetPlayer, eTargetTeam, pTargetCity, eOtherPlayer, eOtherTeam);
+	CvString szDecisionValue = "-";
+	CvString szDecisionThreshold = "-";
+	CvString szRandomRoll = "-";
+	if (bHasDecisionMetrics)
+	{
+		szDecisionValue.Format("%d", iDecisionValue);
+		szDecisionThreshold.Format("%d", iDecisionThreshold);
+		if (iRandomRoll >= 0)
+			szRandomRoll.Format("%d", iRandomRoll);
+	}
+	logSASGameRecord("GAME_RECORD_AI_DIPLO_VOTE turn=%d triggeredId=%d player=%d team=%d source=%s vote=%s choice=%s reason=%s effects=%s repeal=%d secretaryTeam=%d secretaryAttitude=%s decisionValue=%s decisionThreshold=%s randomRoll=%s targetPlayer=%d targetTeam=%d targetCityId=%d targetCity=%S targetX=%d targetY=%d otherPlayer=%d otherTeam=%d",
+		kGame.getGameTurn(), iTriggeredVoteId, kPlayer.getID(), kPlayer.getTeam(), getSASGameRecordVoteSourceType(eVoteSource),
+		getSASGameRecordVoteType(kVoteData.eVote), getSASGameRecordPlayerVoteChoice(eChoice).GetCString(),
+		getSASGameRecordAIDiploVoteReason(eReason), getSASGameRecordVoteEffects(kVoteData.eVote).GetCString(),
+		kGame.getVoteOutcome(kVoteData.eVote) == PLAYER_VOTE_YES ? 1 : 0, eSecretaryTeam, szSecretaryAttitude.GetCString(),
+		szDecisionValue.GetCString(), szDecisionThreshold.GetCString(), szRandomRoll.GetCString(), eTargetPlayer, eTargetTeam,
+		kVoteData.iCityId, getSASGameRecordQuotedCityName(pTargetCity).GetCString(), pTargetCity == NULL ? -1 : pTargetCity->getX(),
+		pTargetCity == NULL ? -1 : pTargetCity->getY(), eOtherPlayer, eOtherTeam);
+}
+
+void logSASGameRecordAIDiploVoteDecision(CvPlayerAI const& kPlayer, VoteSelectionSubData const& kVoteData, VoteSourceTypes eVoteSource, int iTriggeredVoteId, PlayerVoteTypes eChoice, SASGameRecordAIDiploVoteReason eReason)
+{
+	logSASGameRecordAIDiploVoteDecisionImpl(kPlayer, kVoteData, eVoteSource, iTriggeredVoteId, eChoice, eReason, false, 0, 0, -1);
+}
+
+void logSASGameRecordAIDiploVoteDecision(CvPlayerAI const& kPlayer, VoteSelectionSubData const& kVoteData, VoteSourceTypes eVoteSource, int iTriggeredVoteId, PlayerVoteTypes eChoice, SASGameRecordAIDiploVoteReason eReason, int iDecisionValue, int iDecisionThreshold, int iRandomRoll)
+{
+	logSASGameRecordAIDiploVoteDecisionImpl(kPlayer, kVoteData, eVoteSource, iTriggeredVoteId, eChoice, eReason, true, iDecisionValue, iDecisionThreshold, iRandomRoll);
+}
+
+void logSASGameRecordAIElectionChoice(CvTeamAI const& kTeam, VoteSelectionData const& kSelection, int iSelectedIndex, int iSelectedValue, int iSelectedRandomValue, int iSelectedVictoryBoost, int iValidOptions, int iRejectedOptions, int iVictoryBoostedOptions)
+{
+	VoteSelectionSubData const* pSelected = NULL;
+	if (iSelectedIndex >= 0 && iSelectedIndex < (int)kSelection.aVoteOptions.size())
+		pSelected = &kSelection.aVoteOptions[iSelectedIndex];
+	PlayerTypes eTargetPlayer = NO_PLAYER;
+	TeamTypes eTargetTeam = NO_TEAM;
+	CvCity const* pTargetCity = NULL;
+	PlayerTypes eOtherPlayer = NO_PLAYER;
+	TeamTypes eOtherTeam = NO_TEAM;
+	if (pSelected != NULL)
+		getSASGameRecordVoteTarget(*pSelected, eTargetPlayer, eTargetTeam, pTargetCity, eOtherPlayer, eOtherTeam);
+	logSASGameRecord("GAME_RECORD_AI_ELECTION_CHOICE turn=%d selectionId=%d team=%d secretaryPlayer=%d source=%s outcome=%s optionCount=%d validOptions=%d rejectedOptions=%d victoryBoostedOptions=%d selectedIndex=%d selectedVote=%s selectedEffects=%s selectedValue=%d selectedRandomValue=%d selectedVictoryBoost=%d targetPlayer=%d targetTeam=%d targetCityId=%d targetCity=%S targetX=%d targetY=%d otherPlayer=%d otherTeam=%d",
+		GC.getGame().getGameTurn(), kSelection.getID(), kTeam.getID(), kTeam.getSecretaryID(), getSASGameRecordVoteSourceType(kSelection.eVoteSource),
+		pSelected == NULL ? "NO_SELECTION" : "SELECTED", (int)kSelection.aVoteOptions.size(), iValidOptions, iRejectedOptions,
+		iVictoryBoostedOptions, iSelectedIndex, pSelected == NULL ? "-" : getSASGameRecordVoteType(pSelected->eVote),
+		pSelected == NULL ? "-" : getSASGameRecordVoteEffects(pSelected->eVote).GetCString(), iSelectedValue, iSelectedRandomValue,
+		iSelectedVictoryBoost, eTargetPlayer, eTargetTeam, pSelected == NULL ? -1 : pSelected->iCityId,
+		getSASGameRecordQuotedCityName(pTargetCity).GetCString(), pTargetCity == NULL ? -1 : pTargetCity->getX(),
+		pTargetCity == NULL ? -1 : pTargetCity->getY(), eOtherPlayer, eOtherTeam);
 }
 
 void logSASGameRecordVoteTriggered(VoteTriggeredData const* pVoteTriggered)
@@ -12187,7 +12280,7 @@ void logSASGameRecordVoteTriggered(VoteTriggeredData const* pVoteTriggered)
 	CvCity const* pTargetCity;
 	PlayerTypes eOtherPlayer;
 	TeamTypes eOtherTeam;
-	getSASGameRecordVoteTarget(*pVoteTriggered, eTargetPlayer, eTargetTeam, pTargetCity, eOtherPlayer, eOtherTeam);
+	getSASGameRecordVoteTarget(pVoteTriggered->kVoteOption, eTargetPlayer, eTargetTeam, pTargetCity, eOtherPlayer, eOtherTeam);
 	bool const bPreviouslyPassed = kGame.isVotePassed(eVote);
 	char const* szContext = (kVote.isSecretaryGeneral() ? "AUTOMATIC_SECRETARY_ELECTION" : (bPreviouslyPassed ? "ACTIVE_RESOLUTION_RECONSIDERATION" : "SECRETARY_PROPOSAL"));
 	BuildingTypes const eSourceBuilding = kGame.getVoteSourceBuilding(pVoteTriggered->eVoteSource);
@@ -12249,7 +12342,7 @@ void logSASGameRecordVoteResult(VoteTriggeredData const* pVoteTriggered, bool bT
 	CvCity const* pTargetCity;
 	PlayerTypes eOtherPlayer;
 	TeamTypes eOtherTeam;
-	getSASGameRecordVoteTarget(*pVoteTriggered, eTargetPlayer, eTargetTeam, pTargetCity, eOtherPlayer, eOtherTeam);
+	getSASGameRecordVoteTarget(pVoteTriggered->kVoteOption, eTargetPlayer, eTargetTeam, pTargetCity, eOtherPlayer, eOtherTeam);
 	TeamTypes const eSecretaryTeam = kGame.getSecretaryGeneral(pVoteTriggered->eVoteSource);
 
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DIPLO_VOTE_RESULT triggeredId=%d source=%s vote=%s result=%s operation=%s sourceReligion=%s secretaryTeamBefore=%d teamVote=%d secretaryElection=%d victoryVote=%d previousOutcome=%s previouslyPassed=%d thresholdPassed=%d resolutionPassed=%d winningTeam=%d winningVotes=%d yesVotes=%d noVotes=%d abstainVotes=%d neverVotes=%d requiredVotes=%d possibleVotes=%d defaultedAbstain=%s defiers=%s endorsers=%s effects=%s ballots=%s targetPlayer=%d targetTeam=%d targetCityId=%d targetCity=%S targetX=%d targetY=%d otherPlayer=%d otherTeam=%d",

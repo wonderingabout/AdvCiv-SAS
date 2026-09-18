@@ -945,6 +945,11 @@ int CvTeamAI::AI_chooseElection(VoteSelectionData const& kVoteSelectionData) con
 
 	int iBestVote = -1;
 	int iBestValue = 0;
+	bool const bLogElectionChoice = (getSASGameRecordLogLevel() >= 2);
+	int iValidOptions = 0;
+	int iRejectedOptions = 0;
+	int iVictoryBoostedOptions = 0;
+	int iBestVictoryBoost = 0;
 	for (size_t i = 0; i < kVoteSelectionData.aVoteOptions.size(); i++)
 	{
 		VoteSelectionSubData const& kVoteData = kVoteSelectionData.aVoteOptions[i];
@@ -976,6 +981,12 @@ int CvTeamAI::AI_chooseElection(VoteSelectionData const& kVoteSelectionData) con
 		// </advc.115b>
 		if (bValid)
 		{
+			if (bLogElectionChoice)
+			{
+				iValidOptions++;
+				if (bCanWinDiplo)
+					iVictoryBoostedOptions++;
+			}
 			int iValue = 1 + SyncRandNum(10000);
 			/*  <advc.115b> Always pick victory. Probabilistically instead? 8000
 				would be an 80% chance if there's one other proposal. */
@@ -985,10 +996,13 @@ int CvTeamAI::AI_chooseElection(VoteSelectionData const& kVoteSelectionData) con
 			{
 				iBestValue = iValue;
 				iBestVote = i;
+				if (bLogElectionChoice) iBestVictoryBoost = (bCanWinDiplo ? 20000 : 0);
 			}
 		}
+		else if (bLogElectionChoice) iRejectedOptions++;
 	}
 
+	if (bLogElectionChoice) logSASGameRecordAIElectionChoice(*this, kVoteSelectionData, iBestVote, iBestValue, iBestVote < 0 ? -1 : iBestValue - iBestVictoryBoost, iBestVictoryBoost, iValidOptions, iRejectedOptions, iVictoryBoostedOptions);
 	return iBestVote;
 }
 

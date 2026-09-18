@@ -236,7 +236,8 @@ public:
 	int AI_getExpansionistAttitude(PlayerTypes ePlayer) const; // advc.130w
 	void AI_updateIdeologyAttitude(int iChange, CvCity const& kCity); // advc.130n
 
-	PlayerVoteTypes AI_diploVote(const VoteSelectionSubData& kVoteData, VoteSourceTypes eVoteSource, bool bPropose);
+	// <!-- custom: Optional triggered-vote id is diagnostic only: real ballot calls pass it so SASGameRecord can join AI reasoning to the authoritative triggered/result rows; proposal/hypothetical callers keep the default and do not emit ballot provenance. (ChatGPT-5.6-Sol) -->
+	PlayerVoteTypes AI_diploVote(const VoteSelectionSubData& kVoteData, VoteSourceTypes eVoteSource, bool bPropose, int iTriggeredVoteId = -1);
 
 	// advc: was called iExtra, which didn't make sense and differed from the parameter name in CvPlayerAI.cpp. <!-- custom: hoisted from multiline signature between `iChange` and `bIgnoreDiscount` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	// advc.550a <!-- custom: hoisted from multiline signature between `bIgnoreDiscount` and `bIgnorePeace` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->

@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 98 };
+enum { SAS_GAME_RECORD_REVISION = 99 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -145,6 +145,8 @@ void prepareSASGameRecordPlotOwnerChange();
 void logSASGameRecordPlotOwnerChanged(CvPlot const& kPlot, PlayerTypes eOldOwner, PlayerTypes eNewOwner, int iOwnershipDurationBefore, bool bOwnershipScoreBefore);
 // <!-- custom: Forward-declare the vote payload because SASGameRecord only passes it by pointer.
 // This keeps the lightweight recorder header from needing CvStructs.h solely for diplomatic vote-source history hooks. (ChatGPT-5.6-Sol) -->
+struct VoteSelectionSubData;
+struct VoteSelectionData;
 struct VoteTriggeredData;
 // <!-- custom: Random-event lifecycle diagnostics pass the existing player-local trigger payload by const pointer/reference without exposing its save-layout definition through this lightweight recorder header. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 struct EventTriggeredData;
@@ -454,8 +456,35 @@ void logSASGameRecordAICorporationTarget(CvUnit const* pUnit, CorporationTypes e
 void logSASGameRecordAICorporationTransit(CvUnit const* pExecutive, CvUnit const* pTransport, CorporationTypes eCorporation, int iEligibleCorporations, CvCity const* pTargetCity, CvPlot const* pMovePlot, int iPathTurns, int iTargetScore, char const* szRoute);
 // <!-- custom: Preserve one meaningful AI religion-switch decision from the live chooser/roll without reevaluating religion values; level-3 callers may additionally pass the candidate scores already computed by AI_bestReligion. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIReligionDecision(PlayerTypes ePlayer, ReligionTypes eCurrentReligion, ReligionTypes eEvaluatedBest, ReligionTypes eSelectedReligion, ReligionTypes eRunnerUp, int iBestValue, int iRunnerUpValue, int iCurrentScore, int iCurrentRawValue, int iSelectedRawValue, int iConvertProbabilityPercent, int iRollSuccess, char const* szOutcome, std::vector<std::pair<ReligionTypes, int> > const* paCandidateValues);
+// <!-- custom: Closed recorder-only causes for actual AI AP/UN ballots. They classify the live AI_diploVote decision path rather than gameplay-wide vote enums, so keep them local to SASGameRecord. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordAIDiploVoteReason
+{
+	SAS_AI_DIPLO_VOTE_TEAM_SELF_ELIGIBLE,
+	SAS_AI_DIPLO_VOTE_TEAM_VASSAL_MASTER,
+	SAS_AI_DIPLO_VOTE_TEAM_OWN_DIPLO_VICTORY_ABSTAIN,
+	SAS_AI_DIPLO_VOTE_TEAM_ATTITUDE_TIE_ABSTAIN,
+	SAS_AI_DIPLO_VOTE_TEAM_BEST_ATTITUDE,
+	SAS_AI_DIPLO_VOTE_SECRETARY_SELF_OR_MASTER,
+	SAS_AI_DIPLO_VOTE_FRIENDLY_SECRETARY,
+	SAS_AI_DIPLO_VOTE_FORCE_CIVIC,
+	SAS_AI_DIPLO_VOTE_TRADE_ROUTES,
+	SAS_AI_DIPLO_VOTE_NO_NUKES,
+	SAS_AI_DIPLO_VOTE_FREE_TRADE,
+	SAS_AI_DIPLO_VOTE_OPEN_BORDERS,
+	SAS_AI_DIPLO_VOTE_DEFENSIVE_PACT,
+	SAS_AI_DIPLO_VOTE_FORCE_PEACE,
+	SAS_AI_DIPLO_VOTE_EMBARGO_RECENT_DEAL,
+	SAS_AI_DIPLO_VOTE_EMBARGO_UNMET_ABSTAIN,
+	SAS_AI_DIPLO_VOTE_EMBARGO,
+	SAS_AI_DIPLO_VOTE_FORCE_WAR,
+	SAS_AI_DIPLO_VOTE_ASSIGN_CITY,
+	SAS_AI_DIPLO_VOTE_DEFAULT
+};
 // <!-- custom: Diplomatic vote-source elections and resolutions (the Apostolic Palace and United Nations in standard BtS) are rare, high-impact factual boundaries.
-// Record the real triggered proposal and one compact final weighted ballot/result rather than speculative AI vote reasoning or one row per cast ballot. Caller-gate at SASGameRecord level 2+. (ChatGPT-5.6-Sol) -->
+// Preserve the AI secretary's selected proposal and each real AI ballot cause alongside the existing triggered-vote/result history; caller-gate at level 2 and reuse live decision values/RNG results rather than reevaluating. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIElectionChoice(CvTeamAI const& kTeam, VoteSelectionData const& kSelection, int iSelectedIndex, int iSelectedValue, int iSelectedRandomValue, int iSelectedVictoryBoost, int iValidOptions, int iRejectedOptions, int iVictoryBoostedOptions);
+void logSASGameRecordAIDiploVoteDecision(CvPlayerAI const& kPlayer, VoteSelectionSubData const& kVoteData, VoteSourceTypes eVoteSource, int iTriggeredVoteId, PlayerVoteTypes eChoice, SASGameRecordAIDiploVoteReason eReason);
+void logSASGameRecordAIDiploVoteDecision(CvPlayerAI const& kPlayer, VoteSelectionSubData const& kVoteData, VoteSourceTypes eVoteSource, int iTriggeredVoteId, PlayerVoteTypes eChoice, SASGameRecordAIDiploVoteReason eReason, int iDecisionValue, int iDecisionThreshold, int iRandomRoll);
 void logSASGameRecordVoteTriggered(VoteTriggeredData const* pVoteTriggered);
 void logSASGameRecordVoteResult(VoteTriggeredData const* pVoteTriggered, bool bThresholdPassed, bool bPassed, bool bCancelled, qword uiDefaultedAbstain, qword uiDefiers, qword uiEndorsers);
 void logSASGameRecordReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer);

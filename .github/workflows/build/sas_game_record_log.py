@@ -3,7 +3,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 # Build check: SASGameRecord report logging must be disabled by default, the public revision/current history marker must stay synchronized.
-# Canonical readable AI-strategy/AreaAI diagnostics must match their native enums, exact AI target-city provenance/checkpoints must cover every writer/effective clear, periodic AI-attitude provenance must stay synchronized with AI_updateAttitude, and the strategic trade-market schema must remain present.
+# Canonical readable AI-strategy/AreaAI diagnostics must match their native enums, exact AI target-city provenance/checkpoints must cover every writer/effective clear, periodic AI-attitude provenance must stay synchronized with AI_updateAttitude, and strategic/vote decision schemas must remain present.
 
 from pathlib import Path
 import argparse
@@ -22,6 +22,8 @@ AI_STRATEGIES_HEADER = Path("CvGameCoreDLL/AIStrategies.h")
 CV_ENUMS_HEADER = Path("CvGameCoreDLL/CvEnums.h")
 GAME_CORE_UTILS_SOURCE = Path("CvGameCoreDLL/CvGameCoreUtils.cpp")
 PLAYER_AI_SOURCE = Path("CvGameCoreDLL/CvPlayerAI.cpp")
+PLAYER_AI_HEADER = Path("CvGameCoreDLL/CvPlayerAI.h")
+GAME_SOURCE = Path("CvGameCoreDLL/CvGame.cpp")
 PLAYER_SOURCE = Path("CvGameCoreDLL/CvPlayer.cpp")
 PLOT_SOURCE = Path("CvGameCoreDLL/CvPlot.cpp")
 CITY_SOURCE = Path("CvGameCoreDLL/CvCity.cpp")
@@ -457,6 +459,91 @@ def check_uwai_war_plan_decisions(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_diplo_vote_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE, PLAYER_AI_HEADER, TEAM_AI_SOURCE, GAME_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI diplomatic-vote provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	expected = [
+		("SAS_AI_DIPLO_VOTE_TEAM_SELF_ELIGIBLE", "TEAM_SELF_ELIGIBLE"),
+		("SAS_AI_DIPLO_VOTE_TEAM_VASSAL_MASTER", "TEAM_VASSAL_MASTER"),
+		("SAS_AI_DIPLO_VOTE_TEAM_OWN_DIPLO_VICTORY_ABSTAIN", "TEAM_OWN_DIPLO_VICTORY_ABSTAIN"),
+		("SAS_AI_DIPLO_VOTE_TEAM_ATTITUDE_TIE_ABSTAIN", "TEAM_ATTITUDE_TIE_ABSTAIN"),
+		("SAS_AI_DIPLO_VOTE_TEAM_BEST_ATTITUDE", "TEAM_BEST_ATTITUDE"),
+		("SAS_AI_DIPLO_VOTE_SECRETARY_SELF_OR_MASTER", "SECRETARY_SELF_OR_MASTER"),
+		("SAS_AI_DIPLO_VOTE_FRIENDLY_SECRETARY", "FRIENDLY_SECRETARY"),
+		("SAS_AI_DIPLO_VOTE_FORCE_CIVIC", "FORCE_CIVIC"),
+		("SAS_AI_DIPLO_VOTE_TRADE_ROUTES", "TRADE_ROUTES"),
+		("SAS_AI_DIPLO_VOTE_NO_NUKES", "NO_NUKES"),
+		("SAS_AI_DIPLO_VOTE_FREE_TRADE", "FREE_TRADE"),
+		("SAS_AI_DIPLO_VOTE_OPEN_BORDERS", "OPEN_BORDERS"),
+		("SAS_AI_DIPLO_VOTE_DEFENSIVE_PACT", "DEFENSIVE_PACT"),
+		("SAS_AI_DIPLO_VOTE_FORCE_PEACE", "FORCE_PEACE"),
+		("SAS_AI_DIPLO_VOTE_EMBARGO_RECENT_DEAL", "EMBARGO_RECENT_DEAL"),
+		("SAS_AI_DIPLO_VOTE_EMBARGO_UNMET_ABSTAIN", "EMBARGO_UNMET_ABSTAIN"),
+		("SAS_AI_DIPLO_VOTE_EMBARGO", "EMBARGO"),
+		("SAS_AI_DIPLO_VOTE_FORCE_WAR", "FORCE_WAR"),
+		("SAS_AI_DIPLO_VOTE_ASSIGN_CITY", "ASSIGN_CITY"),
+		("SAS_AI_DIPLO_VOTE_DEFAULT", "DEFAULT"),
+	]
+	expected_tokens = [token for token, _ in expected]
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	enum_match = re.search(r"enum\s+SASGameRecordAIDiploVoteReason\s*\{(?P<body>.*?)\};", header_text, flags=re.DOTALL)
+	if enum_match is None:
+		failures.append(f"{REVISION_HEADER}: missing SASGameRecordAIDiploVoteReason")
+	else:
+		enum_tokens = re.findall(r"^\s*(SAS_AI_DIPLO_VOTE_[A-Z0-9_]+)\s*,?\s*$", enum_match.group("body"), flags=re.MULTILINE)
+		if enum_tokens != expected_tokens:
+			failures.append(f"{REVISION_HEADER}: AI diplomatic-vote reasons changed; expected {expected_tokens}, found {enum_tokens}")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	mapping_match = re.search(r"getSASGameRecordAIDiploVoteReason\s*\([^)]*\)\s*\{(?P<body>.*?)^\}", record_text, flags=re.DOTALL | re.MULTILINE)
+	if mapping_match is None:
+		failures.append(f"{REVISION_SOURCE}: missing AI diplomatic-vote reason stringifier")
+	else:
+		pairs = re.findall(r'case\s+(SAS_AI_DIPLO_VOTE_[A-Z0-9_]+)\s*:\s*return\s+"([A-Z0-9_]+)"\s*;', mapping_match.group("body"))
+		if pairs != expected:
+			failures.append(f"{REVISION_SOURCE}: AI diplomatic-vote reason mapping changed; expected {expected}, found {pairs}")
+	for required in (
+		"GAME_RECORD_AI_DIPLO_VOTE", "triggeredId=%d", "choice=%s", "reason=%s",
+		"decisionValue=%s", "decisionThreshold=%s", "randomRoll=%s",
+		"GAME_RECORD_AI_ELECTION_CHOICE", "selectionId=%d", "selectedRandomValue=%d", "selectedVictoryBoost=%d",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI diplomatic-vote/proposal diagnostic token {required}")
+
+	player_header = (repo_root / PLAYER_AI_HEADER).read_text(encoding="utf-8", errors="replace")
+	if "bool bPropose, int iTriggeredVoteId = -1" not in player_header:
+		failures.append(f"{PLAYER_AI_HEADER}: AI_diploVote must keep optional triggered-vote identity for real-ballot provenance")
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	if "!isHuman() && iTriggeredVoteId >= 0 && getSASGameRecordLogLevel() >= 2" not in player_text:
+		failures.append(f"{PLAYER_AI_SOURCE}: actual AI ballot logging must remain pre-gated by non-human, triggered id and level 2+")
+	for token in expected_tokens:
+		if token not in player_text and token != "SAS_AI_DIPLO_VOTE_DEFAULT":
+			failures.append(f"{PLAYER_AI_SOURCE}: no live AI_diploVote path references {token}")
+
+	game_text = (repo_root / GAME_SOURCE).read_text(encoding="utf-8", errors="replace")
+	actual_ballot_calls = game_text.count("AI_diploVote(kOptionData, eVoteSource, false, pData->getID())")
+	if actual_ballot_calls != 2:
+		failures.append(f"{GAME_SOURCE}: expected two real ballot calls to pass triggered vote id, found {actual_ballot_calls}")
+
+	team_text = (repo_root / TEAM_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	choose_match = re.search(r"int\s+CvTeamAI::AI_chooseElection\([^)]*\)\s+const\s*\{(?P<body>.*?)^\}", team_text, flags=re.DOTALL | re.MULTILINE)
+	if choose_match is None:
+		failures.append(f"{TEAM_AI_SOURCE}: could not locate AI_chooseElection")
+	else:
+		body = choose_match.group("body")
+		if body.count("SyncRandNum(10000)") != 1:
+			failures.append(f"{TEAM_AI_SOURCE}: AI_chooseElection must retain exactly one existing proposal-selection RNG call site")
+		if body.count("logSASGameRecordAIElectionChoice(") != 1:
+			failures.append(f"{TEAM_AI_SOURCE}: expected exactly one compact AI election-choice recorder bridge")
+	return failures
+
+
 EXPECTED_GAME_RECORD_DEFAULTS = {
 	"SAS_GAME_RECORD_LOG_LEVEL": 0,
 	# These configure enabled record logging but do not enable it themselves.
@@ -481,12 +568,13 @@ def main() -> int:
 	failures.extend(check_ai_attitude_breakdown(args.repo_root))
 	failures.extend(check_strategic_trade_market(args.repo_root))
 	failures.extend(check_uwai_war_plan_decisions(args.repo_root))
+	failures.extend(check_ai_diplo_vote_provenance(args.repo_root))
 	if failures:
 		print("FAIL SASGameRecord report/revision checks")
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote diagnostics synchronized")
 	return 0
 
 

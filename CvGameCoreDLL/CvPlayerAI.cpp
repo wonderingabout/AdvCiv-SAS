@@ -9590,18 +9590,28 @@ int CvPlayerAI::AI_knownRankDifference(PlayerTypes eOther, scaled& rOutrankingBo
 }
 
 // advc: Refactored (superficially; should really be in a separate class etc.)
-PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, VoteSourceTypes eVoteSource, bool bPropose)
+// <!-- custom: iTriggeredVoteId is supplied only for an actual cast ballot; proposal evaluation keeps -1 so SASGameRecord never mistakes secretary option screening for a real vote. (ChatGPT-5.6-Sol) -->
+PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, VoteSourceTypes eVoteSource, bool bPropose, int iTriggeredVoteId)
 {
 	PROFILE_FUNC();
 
 	CvGame const& kGame = GC.getGame();
 	VoteTypes const eVote = kVoteData.eVote;
 	CvTeamAI const& kOurTeam = GET_TEAM(getTeam()); // K-Mod
+	bool const bLogSASDiploVote = (!isHuman() && iTriggeredVoteId >= 0 && getSASGameRecordLogLevel() >= 2);
+	SASGameRecordAIDiploVoteReason eSASVoteReason = SAS_AI_DIPLO_VOTE_DEFAULT;
+	bool bSASVoteMetrics = false;
+	int iSASVoteValue = 0;
+	int iSASVoteThreshold = 0;
+	int iSASVoteRoll = -1;
 
 	if (kGame.isTeamVote(eVote))
 	{
 		if (kGame.isTeamVoteEligible(getTeam(), eVoteSource))
+		{
+			if (bLogSASDiploVote) logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, (PlayerVoteTypes)getTeam(), SAS_AI_DIPLO_VOTE_TEAM_SELF_ELIGIBLE);
 			return (PlayerVoteTypes)getTeam();
+		}
 		PlayerVoteTypes eBestTeam = PLAYER_VOTE_ABSTAIN;
 		// <advc.148>
 		int iBestValue = 0;
@@ -9615,7 +9625,10 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 			if (!kGame.isTeamVoteEligible(eCandidate, eVoteSource))
 				continue;
 			if (kOurTeam.isVassal(eCandidate))
+			{
+				if (bLogSASDiploVote) logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, (PlayerVoteTypes)eCandidate, SAS_AI_DIPLO_VOTE_TEAM_VASSAL_MASTER);
 				return (PlayerVoteTypes)eCandidate;
+			}
 
 			int iValue = kOurTeam.AI_getAttitudeVal(eCandidate);
 			/*  <advc.130v> Capitulated vassals don't just vote for
@@ -9637,11 +9650,17 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 				else iSecondBestVal = iValue; // advc.115b
 			}
 		} // <advc.115b>
-		if (iBestValue == iSecondBestVal || (eBestTeam != getMasterTeam() &&
-			kOurTeam.AI_anyMemberAtVictoryStage4()))
+		if (iBestValue == iSecondBestVal)
 		{
+			if (bLogSASDiploVote) logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, PLAYER_VOTE_ABSTAIN, SAS_AI_DIPLO_VOTE_TEAM_ATTITUDE_TIE_ABSTAIN, iBestValue, iSecondBestVal, -1);
+			return PLAYER_VOTE_ABSTAIN;
+		}
+		if (eBestTeam != getMasterTeam() && kOurTeam.AI_anyMemberAtVictoryStage4())
+		{
+			if (bLogSASDiploVote) logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, PLAYER_VOTE_ABSTAIN, SAS_AI_DIPLO_VOTE_TEAM_OWN_DIPLO_VICTORY_ABSTAIN, iBestValue, iSecondBestVal, -1);
 			return PLAYER_VOTE_ABSTAIN;
 		} // </advc.115b>
+		if (bLogSASDiploVote) logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, eBestTeam, SAS_AI_DIPLO_VOTE_TEAM_BEST_ATTITUDE, iBestValue, iSecondBestVal, -1);
 		return eBestTeam;
 	}
 
@@ -9672,9 +9691,9 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 				(GET_TEAM(getTeam()).isVassal(eSecretaryGeneral) &&
 				GET_TEAM(getTeam()).isCapitulated())) // </advc.130v>
 			{	// <kekm.25>
-				if (bRepeal)
-					return PLAYER_VOTE_NO; // </kekm.25>
-				return PLAYER_VOTE_YES;
+				PlayerVoteTypes const eSecretaryChoice = (bRepeal ? PLAYER_VOTE_NO : PLAYER_VOTE_YES);
+				if (bLogSASDiploVote) logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, eSecretaryChoice, SAS_AI_DIPLO_VOTE_SECRETARY_SELF_OR_MASTER);
+				return eSecretaryChoice; // </kekm.25>
 			}
 			else
 			{
@@ -9689,6 +9708,8 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 	bool bDefy = false;
 	bool bValid = true;
 
+	if (GC.getInfo(eVote).isForceCivic().isAnyNonDefault())
+		eSASVoteReason = SAS_AI_DIPLO_VOTE_FORCE_CIVIC;
 	FOR_EACH_NON_DEFAULT_KEY(GC.getInfo(eVote).isForceCivic(), Civic)
 	{
 		if (isCivic(eLoopCivic))
@@ -9715,9 +9736,15 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 				SyncRandNum(120)) / 100)*/ // BtS
 			// BETTER_BTS_AI_MOD, Diplomacy AI, 12/30/08, jdog5000: START
 			// Increase odds of defiance, particularly on AggressiveAI
-			if (iBestCivicValue * 100 >
-				iNewCivicValue * (140 + SyncRandNum(
-				kGame.isOption(GAMEOPTION_AGGRESSIVE_AI) ? 60 : 80)) &&
+			int const iDefyRoll = SyncRandNum(kGame.isOption(GAMEOPTION_AGGRESSIVE_AI) ? 60 : 80);
+			if (bLogSASDiploVote)
+			{
+				bSASVoteMetrics = true;
+				iSASVoteValue = iBestCivicValue * 100;
+				iSASVoteThreshold = iNewCivicValue * (140 + iDefyRoll);
+				iSASVoteRoll = iDefyRoll;
+			}
+			if (iBestCivicValue * 100 > iNewCivicValue * (140 + iDefyRoll) &&
 				// advc.118b: The absolute difference should very much matter too
 				iBestCivicValue - iNewCivicValue > AI_defianceAngerCost(eVoteSource))
 			{	// BETTER_BTS_AI_MOD: END
@@ -9729,22 +9756,29 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 
 	if (bValid && GC.getInfo(eVote).getTradeRoutes() > 0)
 	{
+		eSASVoteReason = SAS_AI_DIPLO_VOTE_TRADE_ROUTES;
 		// BETTER_BTS_AI_MOD, Diplomacy AI, 12/30/08, jdog5000: START
 		if (bFriendlyToSecretary)
 		{	// <kekm.25>
-			if (bRepeal)
-				return PLAYER_VOTE_NO; // </kekm.25>
-			return PLAYER_VOTE_YES;
+			PlayerVoteTypes const eFriendlyChoice = (bRepeal ? PLAYER_VOTE_NO : PLAYER_VOTE_YES);
+			if (bLogSASDiploVote) logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, eFriendlyChoice, SAS_AI_DIPLO_VOTE_FRIENDLY_SECRETARY);
+			return eFriendlyChoice; // </kekm.25>
 		} // BETTER_BTS_AI_MOD: END
-		if (getNumCities() > (kGame.getNumCities() * 2) /
-			(kGame.countCivPlayersAlive() + 1))
+		int const iOurCityCount = getNumCities();
+		int const iCityShareThreshold = (kGame.getNumCities() * 2) / (kGame.countCivPlayersAlive() + 1);
+		if (bLogSASDiploVote)
 		{
-			bValid = false;
+			bSASVoteMetrics = true;
+			iSASVoteValue = iOurCityCount;
+			iSASVoteThreshold = iCityShareThreshold;
 		}
+		if (iOurCityCount > iCityShareThreshold)
+			bValid = false;
 	}
 
 	if (bValid && GC.getInfo(eVote).isNoNukes())
 	{
+		eSASVoteReason = SAS_AI_DIPLO_VOTE_NO_NUKES;
 		int iVoteBanThreshold = 0;
 		iVoteBanThreshold += kOurTeam.getNukeInterception() / 3;
 		iVoteBanThreshold += kPersonality.getBuildUnitProb();
@@ -9784,7 +9818,15 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 			}
 		} // BETTER_BTS_AI_MOD: END
 
-		bValid = (SyncRandNum(100) > iVoteBanThreshold);
+		int const iVoteBanRoll = SyncRandNum(100);
+		bValid = (iVoteBanRoll > iVoteBanThreshold);
+		if (bLogSASDiploVote)
+		{
+			bSASVoteMetrics = true;
+			iSASVoteValue = iVoteBanRoll;
+			iSASVoteThreshold = iVoteBanThreshold;
+			iSASVoteRoll = iVoteBanRoll;
+		}
 
 		if (AI_isDoStrategy(AI_STRATEGY_OWABWNW))
 			bValid = false;
@@ -9803,12 +9845,13 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 
 	if (bValid && GC.getInfo(eVote).isFreeTrade())
 	{
+		eSASVoteReason = SAS_AI_DIPLO_VOTE_FREE_TRADE;
 		// BETTER_BTS_AI_MOD, Diplomacy AI, 12/30/08, jdog5000: START
 		if (bFriendlyToSecretary)
 		{	// <kekm.25>
-			if (bRepeal)
-				return PLAYER_VOTE_NO; // </kekm.25>
-			return PLAYER_VOTE_YES;
+			PlayerVoteTypes const eFriendlyChoice = (bRepeal ? PLAYER_VOTE_NO : PLAYER_VOTE_YES);
+			if (bLogSASDiploVote) logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, eFriendlyChoice, SAS_AI_DIPLO_VOTE_FRIENDLY_SECRETARY);
+			return eFriendlyChoice; // </kekm.25>
 		} // BETTER_BTS_AI_MOD: END
 
 		int iOpenCount = 0;
@@ -9822,7 +9865,14 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 				iOpenCount += itOtherTeam->getNumCities();
 			else iClosedCount += itOtherTeam->getNumCities();
 		}
-		if (iOpenCount >= getNumCities() * getTradeRoutes())
+		int const iOpenThreshold = getNumCities() * getTradeRoutes();
+		if (bLogSASDiploVote)
+		{
+			bSASVoteMetrics = true;
+			iSASVoteValue = iOpenCount;
+			iSASVoteThreshold = iOpenThreshold;
+		}
+		if (iOpenCount >= iOpenThreshold)
 			bValid = false;
 		if (iClosedCount == 0)
 			bValid = false;
@@ -9833,12 +9883,13 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 		mutually exclusive (else if). */
 	if (bValid && GC.getInfo(eVote).isOpenBorders())
 	{
+		eSASVoteReason = SAS_AI_DIPLO_VOTE_OPEN_BORDERS;
 		// BETTER_BTS_AI_MOD, Diplomacy AI, 12/30/08, jdog5000: START
 		if (bFriendlyToSecretary)
 		{	// <kekm.25>
-			if (bRepeal)
-				return PLAYER_VOTE_NO; // </kekm.25>
-			return PLAYER_VOTE_YES;
+			PlayerVoteTypes const eFriendlyChoice = (bRepeal ? PLAYER_VOTE_NO : PLAYER_VOTE_YES);
+			if (bLogSASDiploVote) logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, eFriendlyChoice, SAS_AI_DIPLO_VOTE_FRIENDLY_SECRETARY);
+			return eFriendlyChoice; // </kekm.25>
 		} // BETTER_BTS_AI_MOD: END
 
 		bValid = true;
@@ -9855,12 +9906,13 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 	}
 	if (bValid && GC.getInfo(eVote).isDefensivePact())
 	{
+		eSASVoteReason = SAS_AI_DIPLO_VOTE_DEFENSIVE_PACT;
 		// BETTER_BTS_AI_MOD, Diplomacy AI, 12/30/08, jdog5000: START
 		if (bFriendlyToSecretary)
 		{	// <kekm.25>
-			if (bRepeal)
-				return PLAYER_VOTE_NO; // </kekm.25>
-			return PLAYER_VOTE_YES;
+			PlayerVoteTypes const eFriendlyChoice = (bRepeal ? PLAYER_VOTE_NO : PLAYER_VOTE_YES);
+			if (bLogSASDiploVote) logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, eFriendlyChoice, SAS_AI_DIPLO_VOTE_FRIENDLY_SECRETARY);
+			return eFriendlyChoice; // </kekm.25>
 		} // BETTER_BTS_AI_MOD: END
 
 		bValid = true;
@@ -9877,6 +9929,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 	}
 	if (bValid && GC.getInfo(eVote).isForcePeace())
 	{
+		eSASVoteReason = SAS_AI_DIPLO_VOTE_FORCE_PEACE;
 		FAssert(kVoteData.ePlayer != NO_PLAYER);
 		TeamTypes const ePeaceTeam = TEAMID(kVoteData.ePlayer);
 		// advc (comment): These are named from ePeaceTeam's perspective
@@ -9980,6 +10033,12 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 				}
 			}
 			int const iWarUtil = -GET_TEAM(ePeaceTeam).uwai().uEndAllWars(eVoteSource);
+			if (bLogSASDiploVote)
+			{
+				bSASVoteMetrics = true;
+				iSASVoteValue = iWarUtil;
+				iSASVoteThreshold = 0;
+			}
 			if (iWarUtil < -10)
 				iWarsLosing = 1;
 			else if (iWarUtil > 10)
@@ -10073,6 +10132,12 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 			else
 			{
 				int const iWarUtil = -GET_TEAM(getTeam()).uwai().uEndWar(ePeaceTeam);
+				if (bLogSASDiploVote)
+				{
+					bSASVoteMetrics = true;
+					iSASVoteValue = iWarUtil;
+					iSASVoteThreshold = 0;
+				}
 				bValid = (iWarUtil < 0);
 				bDefy = false;
 				if (hasCapital())
@@ -10175,11 +10240,15 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 	// K-Mod end
 	if (bValid && GC.getInfo(eVote).isForceNoTrade())
 	{
+		eSASVoteReason = SAS_AI_DIPLO_VOTE_EMBARGO;
 		FAssert(kVoteData.ePlayer != NO_PLAYER);
 		TeamTypes const eEmbargoTeam = GET_PLAYER(kVoteData.ePlayer).getTeam();
 		// <advc.130f> Try to honor commitments
 		if (isAnyDealTooRecentToCancel(eEmbargoTeam))
-			return PLAYER_VOTE_NO; // </advc.130f>
+		{
+			if (bLogSASDiploVote) logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, PLAYER_VOTE_NO, SAS_AI_DIPLO_VOTE_EMBARGO_RECENT_DEAL);
+			return PLAYER_VOTE_NO;
+		} // </advc.130f>
 		if (eSecretaryGeneral == getTeam() && !bPropose)
 			bValid = true;
 		else if (eEmbargoTeam == getTeam())
@@ -10192,10 +10261,16 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 		else
 		{
 			if (bFriendlyToSecretary)
+			{
+				if (bLogSASDiploVote) logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, PLAYER_VOTE_YES, SAS_AI_DIPLO_VOTE_FRIENDLY_SECRETARY);
 				return PLAYER_VOTE_YES;
+			}
 			// <advc.001> Don't evaluate embargo against unmet non-member of AP
 			if (!kOurTeam.isHasMet(eEmbargoTeam))
-				return PLAYER_VOTE_ABSTAIN; // </advc.001>
+			{
+				if (bLogSASDiploVote) logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, PLAYER_VOTE_ABSTAIN, SAS_AI_DIPLO_VOTE_EMBARGO_UNMET_ABSTAIN);
+				return PLAYER_VOTE_ABSTAIN;
+			} // </advc.001>
 			if (canStopTradingWithTeam(eEmbargoTeam))
 			{
 				bValid = (NO_DENIAL == AI_stopTradingTrade(
@@ -10208,6 +10283,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 	}
 	if (bValid && GC.getInfo(eVote).isForceWar())
 	{
+		eSASVoteReason = SAS_AI_DIPLO_VOTE_FORCE_WAR;
 		FAssert(kVoteData.ePlayer != NO_PLAYER);
 		TeamTypes const eWarTeam = GET_PLAYER(kVoteData.ePlayer).getTeam();
 
@@ -10270,6 +10346,12 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 				{
 					int const iWarUtil = GET_TEAM(getTeam()).uwai().
 							uJointWar(eWarTeam, eVoteSource);
+					if (bLogSASDiploVote)
+					{
+						bSASVoteMetrics = true;
+						iSASVoteValue = iWarUtil;
+						iSASVoteThreshold = 0;
+					}
 					bValid = (bValid && iWarUtil > 0);
 					bDefy = false;
 					/*  The war will be trouble too, but checking fin. trouble is
@@ -10286,7 +10368,21 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 				{
 					// advc.104y:
 					int iNoWarOdds = kOurTeam.AI_noWarProbAdjusted(eWarTeam);
-					bValid = (iNoWarOdds < 30 || SyncRandNum(100) > iNoWarOdds);
+					if (iNoWarOdds < 30)
+						bValid = true;
+					else
+					{
+						int const iNoWarRoll = SyncRandNum(100);
+						bValid = (iNoWarRoll > iNoWarOdds);
+						if (bLogSASDiploVote)
+						{
+							bSASVoteMetrics = true;
+							iSASVoteValue = iNoWarRoll;
+							iSASVoteThreshold = iNoWarOdds;
+							iSASVoteRoll = iNoWarRoll;
+						}
+					}
+
 				}
 			}
 			/*else{ // Consider defying resolution
@@ -10303,6 +10399,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 	}
 	if (bValid && GC.getInfo(eVote).isAssignCity())
 	{
+		eSASVoteReason = SAS_AI_DIPLO_VOTE_ASSIGN_CITY;
 		bValid = false;
 		CvPlayer const& kPlayer = GET_PLAYER(kVoteData.ePlayer);
 		CvCity const* pCity = kPlayer.getCity(kVoteData.iCityId);
@@ -10328,8 +10425,15 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 			}
 			else
 			{
-				bValid = (AI_getAttitude(kVoteData.ePlayer) <
-						AI_getAttitude(kVoteData.eOtherPlayer));
+				AttitudeTypes const eOwnerAttitude = AI_getAttitude(kVoteData.ePlayer);
+				AttitudeTypes const eRecipientAttitude = AI_getAttitude(kVoteData.eOtherPlayer);
+				bValid = (eOwnerAttitude < eRecipientAttitude);
+				if (bLogSASDiploVote)
+				{
+					bSASVoteMetrics = true;
+					iSASVoteValue = eOwnerAttitude;
+					iSASVoteThreshold = eRecipientAttitude;
+				}
 			}
 			// BETTER_BTS_AI_MOD: END
 		}
@@ -10337,10 +10441,15 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 
 	//if (bDefy && canDefyResolution(eVoteSource, kVoteData))
 	// BETTER_BTS_AI_MOD, Diplomacy AI, 12/30/08, jdog5000: Don't defy resolutions from friends
+	PlayerVoteTypes eSASFinalVote = (bValid ? PLAYER_VOTE_YES : PLAYER_VOTE_NO);
 	if (bDefy && !bFriendlyToSecretary && canDefyResolution(eVoteSource, kVoteData))
-		return PLAYER_VOTE_NEVER;
-
-	return (bValid ? PLAYER_VOTE_YES : PLAYER_VOTE_NO);
+		eSASFinalVote = PLAYER_VOTE_NEVER;
+	if (bLogSASDiploVote)
+	{
+		if (bSASVoteMetrics) logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, eSASFinalVote, eSASVoteReason, iSASVoteValue, iSASVoteThreshold, iSASVoteRoll);
+		else logSASGameRecordAIDiploVoteDecision(*this, kVoteData, eVoteSource, iTriggeredVoteId, eSASFinalVote, eSASVoteReason);
+	}
+	return eSASFinalVote;
 }
 
 /*	advc.118b: Ideally, all defiance decisions should take this into account.

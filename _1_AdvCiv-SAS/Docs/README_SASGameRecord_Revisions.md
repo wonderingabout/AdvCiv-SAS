@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=98 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=99 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,16 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 98 - SAS practical 6488
+### Revision 99 - SAS practical 6489
 
 - **Date:** 2026-09-18
 - **Git commit:** pending
+- **Change:** Added compact level-2 AI AP/UN proposal-selection and real-ballot provenance: AI secretaries preserve the selected valid proposal's existing random/victory-boost score, while actual AI ballots preserve a typed live decision cause plus already-computed value/threshold/roll context where available and join directly to the triggered vote by id.
+
+### Revision 98 - SAS practical 6488
+
+- **Date:** 2026-09-18
+- **Git commit:** `b6cff05de7004bc0c8039bafbbdc87ef512d7fea`
 - **Change:** Added compact level-2 foreground-UWAI war-plan lifecycle provenance for realized preparation conclusion/cancellation, target switching, active plan-type switching, imminent-war cancellation and victory-denial direct declaration, reusing already-computed UWAI values immediately before the authoritative mutation.
 
 ### Revision 97 - SAS practical 6487
