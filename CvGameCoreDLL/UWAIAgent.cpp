@@ -676,7 +676,10 @@ void UWAI::Team::alignAreaAI(bool bNaval)
 				eNewAreaAI = AREAAI_OFFENSIVE;
 		}
 		if (eNewAreaAI != eOldAreaAI)
+		{
 			kArea.setAreaAIType(m_eAgent, eNewAreaAI);
+			if (gGameRecordLogLevel >= 2) logSASGameRecordAreaAIChanged(GET_TEAM(m_eAgent), kArea, eOldAreaAI, eNewAreaAI, bNaval ? "UWAI_ALIGN_NAVAL" : "UWAI_ALIGN_LAND");
+		}
 	}
 }
 

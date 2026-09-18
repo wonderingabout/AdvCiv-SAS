@@ -5982,6 +5982,27 @@ static CvString getSASGameRecordCultureVictoryCities(TeamTypes eTeam, int iRequi
 	return getSASDiagnosticOrDash(szCities);
 }
 
+// <!-- custom: Periodic AreaAI checkpoints preserve the effective post-UWAI theater posture without replaying every transition since game start/load.
+// Neutral/uninitialized areas are omitted; absence therefore means no active non-neutral theater posture at this checkpoint. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordAreaAISnapshot(TeamTypes eTeam, int iGameTurn)
+{
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	if (!kTeam.isAlive())
+		return;
+	CvString szAreaStates;
+	FOR_EACH_AREA(pLoopArea)
+	{
+		AreaAITypes const eAreaAI = pLoopArea->getAreaAIType(eTeam);
+		if (eAreaAI == NO_AREAAI || eAreaAI == AREAAI_NEUTRAL)
+			continue;
+		CvString szItem;
+		szItem.Format(szAreaStates.empty() ? "%d:%s" : ",%d:%s", pLoopArea->getID(), getSASAreaAIType(eAreaAI));
+		szAreaStates += szItem;
+	}
+	logSASGameRecord("GAME_RECORD_AREA_AI turn=%d team=%d areaStates=%s",
+		iGameTurn, eTeam, getSASDiagnosticOrDash(szAreaStates).GetCString());
+}
+
 static void logSASGameRecordTeamSnapshot(TeamTypes eTeam, int iGameTurn)
 {
 	CvGame const& kGame = GC.getGame();
@@ -6004,7 +6025,11 @@ static void logSASGameRecordTeamSnapshot(TeamTypes eTeam, int iGameTurn)
 		getSASGameRecordDelta(kPrevious.bValid, iPopulation, kPrevious.iPopulation), iPopPctX100,
 		getSASGameRecordDelta(kPrevious.bValid, iPopPctX100, kPrevious.iPopPctX100), getSASGameRecordWarTeams(eTeam).GetCString(),
 		getSASGameRecordWarPlans(eTeam).GetCString(), getSASGameRecordVassalTeams(eTeam).GetCString(), eMaster);
-	if (bLogTeamDetails) logSASGameRecordTeamContacts(eTeam, iGameTurn, "snapshot");
+	if (bLogTeamDetails)
+	{
+		logSASGameRecordTeamContacts(eTeam, iGameTurn, "snapshot");
+		logSASGameRecordAreaAISnapshot(eTeam, iGameTurn);
+	}
 	seedSASGameRecordTeamPreviousFromCurrentState(eTeam);
 
 	VictoryTypes eScoreVictory = NO_VICTORY;
@@ -9395,6 +9420,8 @@ static void logSASGameRecordCities(PlayerTypes ePlayer, int iGameTurn)
 // Preserve the strategically useful Barbarian pressure instead through one compact summary, concise city rows, and level-3 unit positions. (GPT-5.6-Sol) -->
 static void logSASGameRecordBarbarians(int iGameTurn)
 {
+	// <!-- custom: Barbarian AI uses the same AreaAI theater state as civilizations; checkpoint it here because the ordinary team-snapshot loop intentionally excludes the Barbarian team. (ChatGPT-5.6-Sol) -->
+	logSASGameRecordAreaAISnapshot(BARBARIAN_TEAM, iGameTurn);
 	CvPlayer const& kBarbarians = GET_PLAYER(BARBARIAN_PLAYER);
 	std::vector<int> aiUnitTypes(GC.getNumUnitInfos(), 0);
 	std::vector<int> aiUnitAI(NUM_UNITAI_TYPES, 0);
@@ -11846,6 +11873,18 @@ void logSASGameRecordWorstEnemyChanged(CvTeamAI const& kTeam, TeamTypes eOldEnem
 		return;
 	logSASGameRecord("GAME_RECORD_WORST_ENEMY_CHANGE turn=%d team=%d oldEnemyTeam=%d newEnemyTeam=%d oldEnmity=%d newEnmity=%d recursiveRecheck=%d",
 		GC.getGame().getGameTurn(), kTeam.getID(), eOldEnemy, eNewEnemy, iOldEnmity, iNewEnmity, bRecursiveRecheck ? 1 : 0);
+}
+
+// <!-- custom: AreaAI has only two authoritative writers: CvTeamAI's ordinary calculation and UWAI's later alignAreaAI override.
+// Record both changes with source provenance; ordering makes a same-turn UWAI row explicitly supersede the calculated row, while periodic GAME_RECORD_AREA_AI preserves the final checkpoint.
+// Initial NO_AREAAI assignment is setup rather than a gameplay transition and is intentionally left to the checkpoint. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAreaAIChanged(CvTeamAI const& kTeam, CvArea const& kArea, AreaAITypes eOldType, AreaAITypes eNewType, char const* szSource)
+{
+	if (eOldType == NO_AREAAI || eOldType == eNewType)
+		return;
+	logSASGameRecord("GAME_RECORD_AREA_AI_CHANGE turn=%d team=%d area=%d source=%s oldType=%s newType=%s teamCities=%d totalCities=%d wars=%d anyWarPlan=%d",
+		GC.getGame().getGameTurn(), kTeam.getID(), kArea.getID(), szSource, getSASAreaAIType(eOldType), getSASAreaAIType(eNewType),
+		kTeam.countNumCitiesByArea(kArea), kArea.getNumCities(), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan() ? 1 : 0);
 }
 
 // <!-- custom: Serialize only scores produced by the real AI_bestReligion loop; the vector is built only at GameRecord level 3 and formatted only when AI_doReligion reaches a meaningful switch/spread-block decision. (ChatGPT-5.6-Sol) -->

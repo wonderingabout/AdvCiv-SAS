@@ -1383,6 +1383,23 @@ char const* getSASAIStrategyType(AIStrategy eStrategy)
 	}
 }
 
+// <!-- custom: Keep one canonical machine-readable name for AreaAI theater posture; these raw tokens intentionally match the C++ enum rather than player-facing prose. (ChatGPT-5.6-Sol) -->
+char const* getSASAreaAIType(AreaAITypes eAreaAI)
+{
+	switch (eAreaAI)
+	{
+	case NO_AREAAI: return "NO_AREAAI";
+	case AREAAI_OFFENSIVE: return "AREAAI_OFFENSIVE";
+	case AREAAI_DEFENSIVE: return "AREAAI_DEFENSIVE";
+	case AREAAI_MASSING: return "AREAAI_MASSING";
+	case AREAAI_ASSAULT: return "AREAAI_ASSAULT";
+	case AREAAI_ASSAULT_MASSING: return "AREAAI_ASSAULT_MASSING";
+	case AREAAI_ASSAULT_ASSIST: return "AREAAI_ASSAULT_ASSIST";
+	case AREAAI_NEUTRAL: return "AREAAI_NEUTRAL";
+	default: return "UNKNOWN_AREAAI";
+	}
+}
+
 // <!-- custom: Victory-stage state is a bitfield; share this helper because BBAI/game-record diagnostics and AI logic all need the same compact 0..4 level without repeating four AI_atVictoryStage-style checks. (GPT-5.5) -->
 int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4)
 {

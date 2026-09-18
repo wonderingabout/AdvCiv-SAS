@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=95 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=96 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,16 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 95 - SAS practical 6485
+### Revision 96 - SAS practical 6486
 
 - **Date:** 2026-09-18
 - **Git commit:** pending
+- **Change:** Added exact level-2 AreaAI theater-posture transitions from the two authoritative writers (`CALCULATED` and UWAI land/naval alignment), plus compact periodic non-neutral AreaAI checkpoints and a shared canonical raw enum-name helper. Initial `NO_AREAAI` setup assignment is omitted from transition history; disabled logging keeps the original inner calculation loop.
+
+### Revision 95 - SAS practical 6485
+
+- **Date:** 2026-09-18
+- **Git commit:** `084b2bc93ce3734416f2a205eac6b035b3fe7c2d`
 - **Change:** Extended the opt-in level-3 active-viewer trade-market snapshot with `GAME_RECORD_TRADE_STRATEGIC`: exact bilateral denial state for maps/vassalage/capitulation/open borders/defensive pacts/permanent alliances/disengagement, city ids the rival will currently cede or refuse with denial reasons, and Glance-style third-party war-for-hire targets/denials.
 
 The scan reuses the existing Foreign-Advisor market gate and viewer scope rather than evaluating every possible observer. Derived willingness is periodic rather than presented as an exact transition because Civ4 computes these queries on demand instead of storing one authoritative willingness state.

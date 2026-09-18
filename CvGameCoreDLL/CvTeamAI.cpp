@@ -164,8 +164,22 @@ void CvTeamAI::AI_updateAreaStrategies(bool bTargets)
 	if (!GC.getGame().isFinalInitialized())
 		return;
 
-	FOR_EACH_AREA_VAR(pLoopArea)
-		pLoopArea->setAreaAIType(getID(), AI_calculateAreaAIType(*pLoopArea));
+	// <!-- custom: Keep the disabled recorder path identical to the original inner loop; only level-2+ logging pays the old-state read and transition bridge. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel < 2)
+	{
+		FOR_EACH_AREA_VAR(pLoopArea)
+			pLoopArea->setAreaAIType(getID(), AI_calculateAreaAIType(*pLoopArea));
+	}
+	else
+	{
+		FOR_EACH_AREA_VAR(pLoopArea)
+		{
+			AreaAITypes const eOldAreaAI = pLoopArea->getAreaAIType(getID());
+			AreaAITypes const eNewAreaAI = AI_calculateAreaAIType(*pLoopArea);
+			pLoopArea->setAreaAIType(getID(), eNewAreaAI);
+			logSASGameRecordAreaAIChanged(*this, *pLoopArea, eOldAreaAI, eNewAreaAI, "CALCULATED");
+		}
+	}
 
 	if (bTargets)
 		AI_updateAreaTargets();

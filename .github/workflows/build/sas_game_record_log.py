@@ -3,7 +3,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 # Build check: SASGameRecord report logging must be disabled by default, the public revision/current history marker must stay synchronized.
-# Canonical readable AI-strategy diagnostics must match the native enum, periodic AI-attitude provenance must stay synchronized with AI_updateAttitude, and the strategic trade-market schema must remain present.
+# Canonical readable AI-strategy/AreaAI diagnostics must match their native enums, periodic AI-attitude provenance must stay synchronized with AI_updateAttitude, and the strategic trade-market schema must remain present.
 
 from pathlib import Path
 import argparse
@@ -19,8 +19,11 @@ REVISION_HEADER = Path("CvGameCoreDLL/SASGameRecordLog.h")
 REVISION_SOURCE = Path("CvGameCoreDLL/SASGameRecordLog.cpp")
 REVISION_HISTORY = Path("_1_AdvCiv-SAS/Docs/README_SASGameRecord_Revisions.md")
 AI_STRATEGIES_HEADER = Path("CvGameCoreDLL/AIStrategies.h")
+CV_ENUMS_HEADER = Path("CvGameCoreDLL/CvEnums.h")
 GAME_CORE_UTILS_SOURCE = Path("CvGameCoreDLL/CvGameCoreUtils.cpp")
 PLAYER_AI_SOURCE = Path("CvGameCoreDLL/CvPlayerAI.cpp")
+TEAM_AI_SOURCE = Path("CvGameCoreDLL/CvTeamAI.cpp")
+UWAI_AGENT_SOURCE = Path("CvGameCoreDLL/UWAIAgent.cpp")
 
 
 
@@ -137,6 +140,58 @@ def check_ai_strategy_diagnostics(repo_root: Path) -> list[str]:
 	for required in ("GAME_RECORD_AI_STRATEGIES", "GAME_RECORD_AI_STRATEGY_CHANGE", "getSASAIStrategyType"):
 		if required not in record_text:
 			failures.append(f"{REVISION_SOURCE}: missing AI-strategy diagnostic token {required}")
+	return failures
+
+
+def check_area_ai_diagnostics(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (CV_ENUMS_HEADER, GAME_CORE_UTILS_SOURCE, TEAM_AI_SOURCE, UWAI_AGENT_SOURCE, REVISION_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AreaAI diagnostic file: {relative_path}")
+	if failures:
+		return failures
+
+	enum_text = (repo_root / CV_ENUMS_HEADER).read_text(encoding="utf-8", errors="replace")
+	enum_match = re.search(r"ENUM_START\(AreaAI,\s*AREAAI\)(?P<body>.*?)ENUM_END\(AreaAI,\s*AREAAI\)", enum_text, flags=re.DOTALL)
+	if enum_match is None:
+		return [f"{CV_ENUMS_HEADER}: could not locate AreaAI enum block"]
+	enum_tokens = ["NO_AREAAI"] + re.findall(r"^\s*(AREAAI_[A-Z0-9_]+)\s*,", enum_match.group("body"), flags=re.MULTILINE)
+	if len(enum_tokens) != len(set(enum_tokens)) or len(enum_tokens) < 2:
+		failures.append(f"{CV_ENUMS_HEADER}: invalid/duplicate AreaAI enumerators found")
+
+	utils_text = (repo_root / GAME_CORE_UTILS_SOURCE).read_text(encoding="utf-8", errors="replace")
+	helper_match = re.search(r"char\s+const\*\s+getSASAreaAIType\s*\([^)]*\)\s*\{(?P<body>.*?)^\}", utils_text, flags=re.DOTALL | re.MULTILINE)
+	if helper_match is None:
+		failures.append(f"{GAME_CORE_UTILS_SOURCE}: missing getSASAreaAIType definition")
+	else:
+		case_pairs = re.findall(r'case\s+(NO_AREAAI|AREAAI_[A-Z0-9_]+)\s*:\s*return\s+"([^"]+)"\s*;', helper_match.group("body"))
+		case_tokens = [token for token, _ in case_pairs]
+		missing = [token for token in enum_tokens if token not in case_tokens]
+		extra = [token for token in case_tokens if token not in enum_tokens]
+		if missing:
+			failures.append(f"{GAME_CORE_UTILS_SOURCE}: getSASAreaAIType missing {', '.join(missing)}")
+		if extra:
+			failures.append(f"{GAME_CORE_UTILS_SOURCE}: getSASAreaAIType has non-enum case(s): {', '.join(extra)}")
+		for token, label in case_pairs:
+			if token != label:
+				failures.append(f"{GAME_CORE_UTILS_SOURCE}: {token} maps to {label!r}, expected identical raw enum token")
+
+	team_text = (repo_root / TEAM_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	uwai_text = (repo_root / UWAI_AGENT_SOURCE).read_text(encoding="utf-8", errors="replace")
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	# AI_updateAreaStrategies deliberately duplicates the one-line setter between its disabled fast path and logged path so recorder-off gameplay pays no per-area diagnostic branch/read. UWAI has one setter in its alignment writer.
+	if team_text.count("setAreaAIType(") != 2 or uwai_text.count("setAreaAIType(") != 1:
+		failures.append(f"AreaAI writer shape changed: expected two guarded setter call sites in {TEAM_AI_SOURCE} and one in {UWAI_AGENT_SOURCE}")
+	if "logSASGameRecordAreaAIChanged(" not in team_text or '"CALCULATED"' not in team_text:
+		failures.append(f"{TEAM_AI_SOURCE}: missing calculated AreaAI transition bridge/source provenance")
+	if ("logSASGameRecordAreaAIChanged(" not in uwai_text or '"UWAI_ALIGN_NAVAL"' not in uwai_text or
+			'"UWAI_ALIGN_LAND"' not in uwai_text):
+		failures.append(f"{UWAI_AGENT_SOURCE}: missing UWAI AreaAI transition bridge/source provenance")
+	for required in ("GAME_RECORD_AREA_AI_CHANGE", "GAME_RECORD_AREA_AI", "getSASAreaAIType"):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AreaAI diagnostic token {required}")
+	if "logSASGameRecordAreaAISnapshot(BARBARIAN_TEAM, iGameTurn);" not in record_text:
+		failures.append(f"{REVISION_SOURCE}: missing Barbarian AreaAI periodic checkpoint bridge")
 	return failures
 
 
@@ -267,6 +322,7 @@ def main() -> int:
 	failures = require_int_values(defines, EXPECTED_GAME_RECORD_DEFAULTS)
 	failures.extend(check_revision(args.repo_root))
 	failures.extend(check_ai_strategy_diagnostics(args.repo_root))
+	failures.extend(check_area_ai_diagnostics(args.repo_root))
 	failures.extend(check_ai_attitude_breakdown(args.repo_root))
 	failures.extend(check_strategic_trade_market(args.repo_root))
 	if failures:
@@ -274,7 +330,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AI-attitude/strategic-trade diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-attitude/strategic-trade diagnostics synchronized")
 	return 0
 
 
