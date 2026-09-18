@@ -43,7 +43,7 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 ### Revision 101 - SAS practical 6491
 
 - **Date:** 2026-09-18
-- **Git commit:** pending
+- **Git commit:** `41e6193015c2c71402eeb453316d1a1d6999c1fa`
 - **Change:** Added one compact level-2 realized AI captured-city disposition row for KEEP/RAZE/LIBERATE outcomes, preserving forced reasons or the already-computed normal raze-value component boundaries/random result without repeating conquest valuation.
 
 ### Revision 100 - SAS practical 6490

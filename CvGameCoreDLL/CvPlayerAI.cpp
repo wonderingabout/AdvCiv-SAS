@@ -2405,11 +2405,16 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 					CvEventReporter::getInstance().cityAcquiredAndKept(getID(), &kCity);
 					kCity.liberate(true);
 				}
+				// <!-- custom: AdvCiv returned here even when the hostage check vetoed liberation, skipping the normal retained-city finalization.
+				// Finalize the KEEP outcome before returning. See KI#486.3. (ChatGPT-5.6-Sol) -->
+				else keepCity(kCity);
 				return;
 				}
 			}
 		} // </advc.ctr>
-		if (iRazeValue > 0/*SyncRandNum(100)*/) // advc.116
+		// <!-- custom: AdvCiv keeps the BtS percentage roll specifically for Barbarians, but its later deterministic positive-value gate accidentally overrode failed Barbarian rolls.
+		// Ordinary civilizations keep the threshold; Barbarian bRaze already has the roll. See KI#64.2. (ChatGPT-5.6-Sol) -->
+		if (!bBarbarian && iRazeValue > 0/*SyncRandNum(100)*/) // advc.116
 			bRaze = true;
 		if (bLogSASConquerCityDecision) logSASGameRecordAIConquerCityDecision(*this, kCity, (bRaze ? SAS_AI_CONQUER_CITY_RAZE : SAS_AI_CONQUER_CITY_KEEP),
 			(bBarbarian ? SAS_AI_CONQUER_CITY_BARBARIAN_VALUE : SAS_AI_CONQUER_CITY_NORMAL_VALUE),

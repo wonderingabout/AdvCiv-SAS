@@ -115,6 +115,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-62)\
 [KI#63 - (Possibly prevented and possibly fixed) Weird / very inefficient back and forth of going to attack a city stack, and then going back after seeing enemy stack is too strong. I don't know if this change fixes it since the issue was solved without it (2+ autoplay turns were needed at least it seems not 1), but maybe this change in CvUnitAI::AI_attackCityMove helps a lot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-63)\
 [KI#64 - (Greatly enhanced) AI not razing faraway cities at captures - now we raze them if we are in the early game and they are not close enough, thanks to changes and tweaks in CvPlayerAI::AI_conquerCity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-64)\
+[KI#64.2 - (Fixed inherited AdvCiv Barbarian raze-roll override) Failed Barbarian percentage rolls were overwritten by the later deterministic raze gate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-64.2)\
 [KI#65 - (Seemingly tremendously improved) Hatshepsut AI who was strongest player at turn 150 is fighting many wars and dies before turn 200: added "emergency peace" sanity pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-65)\
 [KI#66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-66)\
 [KI#67 - (Fixed/Enhanced) An ancient maceman 18 hammer costs 20 hammer ingame, and a swordsman 42 hammer costs 40 while a swordsman 43 hammer costs 45 which is a mess. Fixed by removing per 5 rounding in CvPlayer::getProductionNeeded and other related functions/issues](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-67)\
@@ -587,6 +588,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#485 - (Fixed SAS KI#178 regression) Future-BFC bonus coverage depended on city and plot iteration order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-485)\
 [KI#486 - (Fixed SAS KI#178 regression) Temporary resource imports counted as permanent owned copies in city-site valuation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486)\
 [KI#486.2 - (Fixed inherited AdvCiv use-after-free crash) Liberating a conquered city dereferenced its destroyed old city object](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486.2)\
+[KI#486.3 - (Fixed inherited AdvCiv conquest-liberation finalization bug) Hostage-withheld liberation skipped the retained-city finalization path](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486.3)\
 [KI#487 - (Fixed inherited K-Mod/AdvCiv geographic assumption retained by SAS) Cross-area rival culture pressure was discarded](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-487)\
 [KI#488 - (Fixed AdvCiv-SAS cautious-health defect) Resource plots lost Forest/Jungle health](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-488)\
 [KI#489 - (Fixed AdvCiv-SAS regression against AdvCiv Barbarian normalization) First Barbarian city received capital-only gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-489)\
@@ -4214,6 +4216,20 @@ I continued the game to see what happens a bit (existing screenshots between 262
 But then a new barbarian city (Phoenician) spawns nearby (of the old numidian city) and this time, still before the early window ends as it's still turn 115 (so before turn as of now 120 we defined as early phase for smart razing), german AI who is close enough to it captures it and does not raze it, which is good as it is close to him so he is likely to benefit from it. Also, it shows our code is not paranoid and still allows close enough cities to be captured, which is good and nice to know! (if i may say). So all in all this seems like a very nice code and enhancement of the AI razing behaviour, which should make AI quite a lot stronger and influence the early game quite heavily:)
 
 Note: some of the changes tweak the old logic to make it less restrictive and raze more often, and some of our additions may also include razing isolated cities like i assume islandic or such in the early game which should be fine considering the high cost to go and maintain presence there, although it might be less optimal for non pangea-like maps but maybe fine as such since is in the early game and we want focus forces and chatgpt 5 helped me lot do all this although i adjusted it too.
+
+<a id="ki-64.2"></a>
+
+## KI#64.2 - (Fixed inherited AdvCiv Barbarian raze-roll override) Failed Barbarian percentage rolls were overwritten by the later deterministic raze gate
+
+While adding and validating SASGameRecord revision 101's `GAME_RECORD_AI_CONQUER_CITY_DECISION` provenance, the Barbarian branch of `CvPlayerAI::AI_conquerCity` exposed a contradictory inherited decision path. AdvCiv deliberately computes the old BtS percentage roll specifically for Barbarians and stores its result in `bRaze`, with the source comment "The BtS raze roll; now used exclusively for Barbarians". A few lines later, however, the shared `if (iRazeValue > 0) bRaze = true` gate deterministically forced every positive Barbarian value to raze even when that percentage roll had failed.
+
+The practical effect was that positive Barbarian values from 1 through 99 consumed synchronized RNG without allowing the result to affect the final decision: a failed 40% roll at value 40 still razed the city. Values of 100 or more already succeed automatically and non-positive values remain keeps, so the defect was most visible only in the intermediate percentage range. The revision-101 control autoplay did not happen to produce such a revealing intermediate Barbarian case, but the source contradiction is direct.
+
+The contradictory combination is already present in the earliest reachable AdvCiv continuation at practical 1253 / commit `f6ff6a182f5187541fff6e5bbbe12f9573b3778c`: the old random raze decision is retained in the Barbarian-only branch while the ordinary civilization-wide decision is made nearly deterministic through the later positive-value threshold. Later AdvCiv changes continue to describe and preserve the roll as Barbarian-specific, including practical 1366's raze-AI refactor and practical 2464 / commit `82648fc9fbde6e70b16e677b82039fd6989b73de` ("Fix a couple issues with prev. owner in raze-city AI code"). K-Mod 1.46 still uses its percentage roll as the actual final raze decision, while Base AdvCiv 1.14 retains the contradictory AdvCiv combination. The exact original authoring commit therefore predates the reachable fine-grained history, but the intended split is clear.
+
+The repair keeps AdvCiv's deterministic `iRazeValue > 0` rule for ordinary AI civilizations only. Barbarians now retain the already-computed `SyncRandSuccess100(iRazeValue)` result as their final value-based raze decision. No new RNG or valuation is added, and ordinary-civilization razing is unchanged.
+
+Found while adding SASGameRecord revision 101 captured-city disposition provenance; source archaeology, repair and documentation completed with the help of ChatGPT-5.6-Sol, thanks.
 
 <a id="ki-65"></a>
 
@@ -13447,6 +13463,20 @@ The Debug-opt autoplay validating KI#484-KI#486 produced a real full-memory cras
 The repair caches the old owner and team IDs before transferring the city and uses only those stable IDs after `acquireCity`; fixed player/team arrays remain addressable even when losing the city eliminates the old player. This restores the function's pre-refactor contract rather than adding a null guard around invalid memory. AdvCiv commit `d6125a4c38c37aacda11dbd37d6752f90d21b0f8` (`Announce city trades to third parties`, 2019-09-22) removed the previously cached old-owner ID and replaced post-transfer uses with `getOwner()`/`getTeam()` during its `CvCity::liberate` refactor. Base AdvCiv 1.14 retains the resulting defect, so this is an inherited AdvCiv crash rather than an AdvCiv-SAS regression. Reproduced, diagnosed through the matching Debug-opt PDB, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 After rebuilding Debug-opt, loading the preserved `AutoSave_AD-2004.CivBeyondSwordSave` resumed immediately before the same Galway conquest/liberation sequence and the autoplay continued successfully. This directly validates the repaired lifetime boundary rather than relying only on a fresh run that might not repeat the rare AI liberation decision.
+
+<a id="ki-486.3"></a>
+
+## KI#486.3 - (Fixed inherited AdvCiv conquest-liberation finalization bug) Hostage-withheld liberation skipped the retained-city finalization path
+
+While adding and validating SASGameRecord revision 101's realized KEEP/RAZE/LIBERATE provenance, the conquest-liberation branch of `CvPlayerAI::AI_conquerCity` exposed another inherited AdvCiv control-flow defect. After `AI_intendsToCede` decides that a newly conquered city should be liberated, AdvCiv deliberately checks whether the intended recipient is holding one of the conqueror's own liberatable cities "hostage". In that case it sets `bLiberate = false`, correctly deciding not to give the new conquest away for free.
+
+The function nevertheless returned unconditionally after the `if (bLiberate)` block. A hostage-vetoed city was therefore neither liberated nor sent through `CvPlayer::keepCity`, even though KEEP was the intended and already-realized outcome. `keepCity` is AdvCiv's centralized finalization path for an acquired city once it is known not to be razed or liberated; notably it performs the normal `cityAcquiredAndKept` callback and any other retained-city finalization applicable there.
+
+Archaeology traces the defect directly to AdvC practical 2085 / commit `f54cc305502cb61c3a27a6de7f015925a5f1b4c1` ("AI code for initiating city trades", 2020-04-01). That commit introduced the conquest-time `AI_intendsToCede`/hostage logic with `return` outside the `if (bLiberate)` block. Base AdvCiv 1.14 retains the same structure. This is separate from KI#486.2's later use-after-free crash inside successful liberation: KI#486.3 concerns the opposite path, where liberation is intentionally withheld and the city remains ours.
+
+The repair preserves the strategic hostage veto exactly, but calls `keepCity(kCity)` before returning when `bLiberate` is false. Successful liberation is unchanged, and the revision-101 SASGameRecord reason `LIBERATION_WITHHELD_HOSTAGE` now corresponds to a fully finalized KEEP path rather than an early-return gap.
+
+Found while adding SASGameRecord revision 101 captured-city disposition provenance; source archaeology, repair and documentation completed with the help of ChatGPT-5.6-Sol, thanks.
 
 <a id="ki-487"></a>
 
