@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 92 };
+enum { SAS_GAME_RECORD_REVISION = 93 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -63,10 +63,13 @@ class CvCity;
 // <!-- custom: Required by random-event APIs using CvPlayer references; this lightweight declaration fixed the resulting AgentIterator/CvPlayer compile errors. (GPT-5.6-Sol) -->
 class CvPlayer;
 class CvPlayerAI;
+class CvTeamAI;
 // <!-- custom: Record final authoritative AIStrategy transitions from AI_updateStrategyHash without exposing its protected raw strategy hash or rerunning any strategy evaluation; caller must pre-gate at GameRecord level 2+. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIStrategyChanges(CvPlayerAI const& kPlayer, AIStrategy eOldStrategies, AIStrategy eNewStrategies);
 // <!-- custom: Record final authoritative 0..4 victory-route stage transitions from AI_updateVictoryStageHash using its already-computed before/after bitfields; caller must pre-gate at GameRecord level 2+. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIVictoryStageChanges(CvPlayerAI const& kPlayer, AIVictoryStage eOldStages, AIVictoryStage eNewStages);
+// <!-- custom: Record only the final committed team worst-enemy replacement; caller passes the real selection pass's already-computed old/new enmity values, whether it is AdvCiv's recursive corrective pass, and pre-gates at GameRecord level 2+. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordWorstEnemyChanged(CvTeamAI const& kTeam, TeamTypes eOldEnemy, TeamTypes eNewEnemy, int iOldEnmity, int iNewEnmity, bool bRecursiveRecheck);
 class CvPlot;
 class CvUnit;
 class CvUnitAI;

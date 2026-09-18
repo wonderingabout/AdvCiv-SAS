@@ -11,7 +11,7 @@
 #include "CvInfo_GameOption.h"
 #include "BBAILog.h"
 #include "CvGameCoreUtils.h" // <!-- custom: Shared raw WarPlanTypes token text for structured war diagnostics. (GPT-5.5) -->
-#include "SASGameRecordLog.h" // <!-- custom: Record strategic war-plan transitions separately from detailed BBAI/UWAI evaluations. (GPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Record authoritative strategic/diplomatic state transitions separately from detailed BBAI/UWAI evaluations. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 #include "UWAIAgent.h" // advc.104
 #include <numeric> // K-Mod. used in AI_warSpoilsValue
 
@@ -4397,6 +4397,7 @@ void CvTeamAI::AI_updateWorstEnemy(/* advc.130p: */ bool bUpdateTradeMemory)
 	TeamTypes eBestTeam = NO_TEAM;
 
 	int iBestValue = AI_enmityValue(m_eWorstEnemy);
+	int const iOldEnmityValue = iBestValue;
 	if(iBestValue > 0)
 	{
 		eBestTeam = m_eWorstEnemy;
@@ -4451,7 +4452,12 @@ void CvTeamAI::AI_updateWorstEnemy(/* advc.130p: */ bool bUpdateTradeMemory)
 			return;
 		}
 	}
+	TeamTypes const eOldWorstEnemy = m_eWorstEnemy;
 	m_eWorstEnemy = eBestTeam;
+	// <!-- custom: The recursive trade-memory correction returns before this assignment, so this boundary observes only the final committed worst enemy rather than its tentative first-pass candidate.
+	// Reuse the enmity values already computed by gameplay; bUpdateTradeMemory=false uniquely identifies that recursive corrective pass.
+	// No attitude/enmity evaluation is repeated solely for SASGameRecord. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized()) logSASGameRecordWorstEnemyChanged(*this, eOldWorstEnemy, m_eWorstEnemy, iOldEnmityValue, iBestValue, !bUpdateTradeMemory);
 	/*  Changing EnemyPeacetime values updates the attitude cache, but that's
 		still based on the old worst enemy. Need another update vs. everyone
 		(anyone could have OB with the new enemy).

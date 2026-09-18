@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=92 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=93 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,18 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 92 - SAS practical 6482
+### Revision 93 - SAS practical 6483
 
 - **Date:** 2026-09-18
 - **Git commit:** pending
+- **Change:** Added exact level-2 team worst-enemy transition history. `GAME_RECORD_WORST_ENEMY_CHANGE` records only the final committed `AI_updateWorstEnemy` replacement as `oldEnemyTeam` -> `newEnemyTeam`, together with the old/new enmity values already computed by the real selection pass plus `recursiveRecheck=0/1`. AdvCiv's optional recursive reevaluation after enemy-trade-memory decay therefore cannot emit its tentative first-pass candidate; the recursive final pass commits and records the authoritative result.
+
+The bridge adds no enemy scan, attitude/enmity evaluation, RNG or pathfinding solely for logging. Existing periodic `GAME_RECORD_DIPLO_STATUS worstEnemyTeam=` fields remain the checkpoint for loaded saves and truncated logs.
+
+### Revision 92 - SAS practical 6482
+
+- **Date:** 2026-09-18
+- **Git commit:** `d4a67ae0effbeaf879061e9f24c4382da83a7efe`
 - **Change:** Added exact readable AI victory-route stage history at level 2. `GAME_RECORD_AI_VICTORY_STAGE_CHANGE` records each final Culture/Space/Conquest/Domination/Diplomacy 0..4 stage transition after `AI_updateVictoryStageHash` finishes, including authoritative resets caused by invalid/capitulated/no-capital state; the existing periodic `GAME_RECORD_AI_VICTORY_STAGES` row remains the loaded-save/truncated-log checkpoint. The bridge compares only the already-computed before/after victory-stage bitfields and repeats no victory evaluation, RNG or pathfinding.
 
 The periodic and exact rows now share one AI/AI-Auto-Play eligibility helper. The revision checker also verifies the revision history's current emitted `recordRevision` example against the source constant so that descriptive marker cannot silently lag after a revision bump.

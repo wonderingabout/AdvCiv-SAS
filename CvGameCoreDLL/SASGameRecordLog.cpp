@@ -11706,6 +11706,16 @@ void logSASGameRecordAIVictoryStageChanges(CvPlayerAI const& kPlayer, AIVictoryS
 	logSASGameRecordAIVictoryStageChange(kPlayer, "DIPLOMACY", getSASDiplomacyVictoryStageLevel(eOldStages), getSASDiplomacyVictoryStageLevel(eNewStages));
 }
 
+// <!-- custom: AI_updateWorstEnemy can reevaluate once after decaying old enemy-trade memories; its recursive correction commits the final state, while the outer pass returns before assignment.
+// Log that one authoritative replacement together with the selection pass's already-computed enmity values and whether this was the unique recursive corrective pass; periodic GAME_RECORD_DIPLO_STATUS worstEnemyTeam remains the loaded-save/truncated-log checkpoint. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordWorstEnemyChanged(CvTeamAI const& kTeam, TeamTypes eOldEnemy, TeamTypes eNewEnemy, int iOldEnmity, int iNewEnmity, bool bRecursiveRecheck)
+{
+	if (eOldEnemy == eNewEnemy)
+		return;
+	logSASGameRecord("GAME_RECORD_WORST_ENEMY_CHANGE turn=%d team=%d oldEnemyTeam=%d newEnemyTeam=%d oldEnmity=%d newEnmity=%d recursiveRecheck=%d",
+		GC.getGame().getGameTurn(), kTeam.getID(), eOldEnemy, eNewEnemy, iOldEnmity, iNewEnmity, bRecursiveRecheck ? 1 : 0);
+}
+
 // <!-- custom: Serialize only scores produced by the real AI_bestReligion loop; the vector is built only at GameRecord level 3 and formatted only when AI_doReligion reaches a meaningful switch/spread-block decision. (ChatGPT-5.6-Sol) -->
 static CvString getSASGameRecordReligionCandidateScores(std::vector<std::pair<ReligionTypes, int> > const* paCandidateValues)
 {
