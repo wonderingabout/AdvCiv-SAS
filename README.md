@@ -936,6 +936,8 @@ Very large/generated/binary/redundant historical payloads are summarized instead
 
 AdvCiv-SAS has two complementary log families, that are as of now both tunable via SAS defines (i.e. XML) without needing DLL modifications: the BBAI log, and the SASGameRecord log. See [README_Main_Changes_Guide.md (Logging)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging).
 
+AI strategy is one example of how the two logs complement each other: BBAI keeps detailed K-Mod decision-point strategy transitions and their trigger values, while SASGameRecord records the final complete active strategy set and exact gameplay-effective start/stop history. Both use the same canonical raw `AIStrategy` names from shared DLL helpers.
+
 Both log families place canonical mod/source context and exact loaded-DLL build/binary provenance immediately after the session lifecycle marker.
 
 The source row records the practical commit-count version when available, exact Git commit, branch/date metadata when known, tracked dirty state/files for a live Git checkout, and a compact fingerprint/byte count of tracked gameplay code/rules/scripts changes relative to `HEAD`.

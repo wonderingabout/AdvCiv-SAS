@@ -176,6 +176,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - When doing performance optimizations, using local variables only is enough and best if we don't use this variable elsewhere. E.g. `eYellow = gc.getInfoTypeForString("COLOR_YELLOW")` at init in SevoPediaMain.py.
 - In some rare cases, it is better not to cache rather than cache, because we will not read the define again, so caching is costlier and needless. For example, `start_year = gc.getDefineINT("START_YEAR")` when `start_year` is only used once to build a (sevopedia game speed) chart that we cache and then the variable is discarded. Mark these with a comment like `not cached: read once only`.
 - Use specific asset names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.
+- For machine-readable diagnostics/provenance of static C++ enums that have no `CvInfo` type string, prefer one shared `getSAS*Type(...)` helper in `CvGameCoreUtils` over duplicated switches or preprocessor stringification. Keep translated/friendly UI labels separate when they serve presentation rather than canonical raw identity.
 - Avoid fluff like `================`, keep it nice and simple and clean.
 - Avoid silent fallbacks or placeholder defaults when data is missing: we want it to loudly fail so code is more robust rather.
 - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.

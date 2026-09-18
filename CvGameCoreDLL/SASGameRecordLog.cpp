@@ -525,6 +525,18 @@ static SASGameRecordStateObjectHash getSASGameRecordTeamStateSignature(CvTeamAI 
 	return uiHash;
 }
 
+// <!-- custom: Match AI_isDoStrategy's gameplay eligibility while treating AI Auto Play's disabled-human slot as AI-controlled.
+// Dead, Barbarian, minor and ordinary-human players have no active AI strategy even if their internal hash contains bits; fingerprints/snapshots/transitions should therefore expose only strategy state that can actually drive AI behavior. (ChatGPT-5.6-Sol) -->
+static bool isSASGameRecordAIStrategyPlayer(CvPlayerAI const& kPlayer)
+{
+	return (kPlayer.isAlive() && !kPlayer.isBarbarian() && !kPlayer.isMinorCiv() && (!kPlayer.isHuman() || kPlayer.isHumanDisabled()));
+}
+
+static bool isSASGameRecordAIStrategyActive(CvPlayerAI const& kPlayer, AIStrategy eStrategy)
+{
+	return kPlayer.AI_isDoStrategy(eStrategy, kPlayer.isHumanDisabled());
+}
+
 static SASGameRecordStateObjectHash getSASGameRecordPlayerStateSignature(CvPlayerAI const& kPlayer)
 {
 	SASGameRecordStateObjectHash uiHash;
@@ -616,9 +628,9 @@ static SASGameRecordStateObjectHash getSASGameRecordPlayerStateSignature(CvPlaye
 	if (!kPlayer.isBarbarian())
 	{
 		// <!-- custom: The prototype failed to compile because raw AI_getStrategyHash is protected.
-		// Hash each public strategy predicate instead of widening CvPlayerAI solely for diagnostics; for AI players these expose the same stored strategy bits. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		// Hash each public strategy predicate through the recorder wrapper instead of widening CvPlayerAI solely for diagnostics; this also keeps AI Auto Play and ordinary-human eligibility consistent with readable strategy rows. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		for (int iStrategy = AI_DEFAULT_STRATEGY; iStrategy <= AI_STRATEGY_ESPIONAGE_ECONOMY; iStrategy <<= 1)
-			updateSASGameRecordStateValue(uiHash, kPlayer.AI_isDoStrategy((AIStrategy)iStrategy));
+			updateSASGameRecordStateValue(uiHash, isSASGameRecordAIStrategyActive(kPlayer, (AIStrategy)iStrategy));
 		updateSASGameRecordStateValue(uiHash, kPlayer.AI_getVictoryStageHash());
 		updateSASGameRecordStateValue(uiHash, kPlayer.AI_getPeaceWeight());
 		updateSASGameRecordStateValue(uiHash, kPlayer.AI_getEspionageWeight());
@@ -6170,6 +6182,27 @@ static void getSASGameRecordPlayerExtraSources(CvPlayer const& kPlayer, CvString
 	appendSASGameRecordSignedValue(szHappinessSources, "OTHER", kPlayer.getExtraHappiness() - iKnownHappiness);
 }
 
+// <!-- custom: Periodic checkpoints make the complete final AI strategy state readable without replaying every transition since game start/load.
+// Exclude AI_DEFAULT_STRATEGY because it is always present in a valid strategy hash; exact transition rows below cover only meaningful non-default flags. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordAIStrategies(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	if (!isSASGameRecordAIStrategyPlayer(kPlayer))
+		return;
+	CvString szStrategies;
+	for (int iStrategy = AI_STRATEGY_DAGGER; iStrategy <= AI_STRATEGY_ESPIONAGE_ECONOMY; iStrategy <<= 1)
+	{
+		AIStrategy const eStrategy = (AIStrategy)iStrategy;
+		if (!isSASGameRecordAIStrategyActive(kPlayer, eStrategy))
+			continue;
+		if (!szStrategies.empty())
+			szStrategies += ",";
+		szStrategies += getSASAIStrategyType(eStrategy);
+	}
+	logSASGameRecord("GAME_RECORD_AI_STRATEGIES turn=%d player=%d team=%d strategies=%s",
+		iGameTurn, ePlayer, kPlayer.getTeam(), getSASDiagnosticOrDash(szStrategies).GetCString());
+}
+
 // <!-- custom: Objective victory progress does not show which route currently guides AI strategy.
 // Record the compact 0..4 route stages once per AI snapshot so city production and war choices can be interpreted without enabling detailed BBAI decisions. (GPT-5.6-Sol) -->
 static void logSASGameRecordAIVictoryStages(PlayerTypes ePlayer, int iGameTurn)
@@ -6202,13 +6235,15 @@ static void logSASGameRecordAIMilitaryProduction(PlayerTypes ePlayer, int iGameT
 	int const iMaxUnitSpendingNoArea = kPlayer.AI_maxUnitCostPerMil();
 	logSASGameRecord("GAME_RECORD_AI_MILITARY_PRODUCTION turn=%d player=%d personalityBuildProb=%d unitSpending=%d maxUnitSpendingNoArea=%d spendingGapNoArea=%d aggressiveAI=%d financialTrouble=%d economyFocus=%d getBetterUnits=%d focusWar=%d dagger=%d crush=%d alert1=%d alert2=%d turtle=%d lastStand=%d finalWar=%d fastMovers=%d landBlitz=%d airBlitz=%d nuclear=%d totalWarPlans=%d preparingTotalWarPlans=%d sneakPreparing=%d sneakReady=%d",
 		iGameTurn, ePlayer, iPersonalityBuildProb, iUnitSpending, iMaxUnitSpendingNoArea, iMaxUnitSpendingNoArea - iUnitSpending,
-		GC.getGame().isOption(GAMEOPTION_AGGRESSIVE_AI), kPlayer.AI_isFinancialTrouble(), kPlayer.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS),
-		kPlayer.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS), kPlayer.AI_isFocusWar(), kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER),
-		kPlayer.AI_isDoStrategy(AI_STRATEGY_CRUSH), kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT1), kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT2),
-		kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE), kPlayer.AI_isDoStrategy(AI_STRATEGY_LAST_STAND),
-		kPlayer.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR), kPlayer.AI_isDoStrategy(AI_STRATEGY_FASTMOVERS),
-		kPlayer.AI_isDoStrategy(AI_STRATEGY_LAND_BLITZ), kPlayer.AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ),
-		kPlayer.AI_isDoStrategy(AI_STRATEGY_OWABWNW), kTeam.AI_getNumWarPlans(WARPLAN_TOTAL),
+		GC.getGame().isOption(GAMEOPTION_AGGRESSIVE_AI), kPlayer.AI_isFinancialTrouble(),
+		isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_ECONOMY_FOCUS),
+		isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_GET_BETTER_UNITS), kPlayer.AI_isFocusWar(),
+		isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_DAGGER), isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_CRUSH),
+		isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_ALERT1), isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_ALERT2),
+		isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_TURTLE), isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_LAST_STAND),
+		isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_FINAL_WAR), isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_FASTMOVERS),
+		isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_LAND_BLITZ), isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_AIR_BLITZ),
+		isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_OWABWNW), kTeam.AI_getNumWarPlans(WARPLAN_TOTAL),
 		kTeam.AI_getNumWarPlans(WARPLAN_PREPARING_TOTAL), kTeam.AI_isSneakAttackPreparing(), kTeam.AI_isSneakAttackReady());
 }
 
@@ -6463,8 +6498,8 @@ static void logSASGameRecordEspionage(PlayerTypes ePlayer, int iGameTurn)
 	const int iUnspentEP = kTeam.getTotalUnspentEspionage();
 	// <!-- custom: Weights show intent but not the rounded EP distribution that the game actually applies.
 	// Record actual per-rival spending plus the two high-level espionage strategy flags; detailed reasons for enabling those strategies remain BBAI territory. (ChatGPT-5.6-Sol) -->
-	const bool bBigEspionage = kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE);
-	const bool bEspionageEconomy = kPlayer.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY);
+	const bool bBigEspionage = isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_BIG_ESPIONAGE);
+	const bool bEspionageEconomy = isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_ESPIONAGE_ECONOMY);
 	logSASGameRecord("GAME_RECORD_ESPIONAGE turn=%d player=%d team=%d espionageRate=%d espionagePercent=%d teamEP=%d unspentEP=%d weights=%s spending=%s pointsAgainst=%s modifiers=%s bigEspionage=%d espionageEconomy=%d spies=%d greatSpies=%d spiesInForeignTerritory=%d spiesInForeignCities=%d stationarySpies=%d maxFortifyTurns=%d spyTargets=%s attackSpyIntent=%d spyMissionTargets=%s reconSpyIntent=%d guardSpyIntent=%d",
 		iGameTurn, ePlayer, kPlayer.getTeam(), iEspionageRate, iEspionagePercent, iTeamEP, iUnspentEP,
 		getSASDiagnosticOrDash(szWeights).GetCString(), getSASDiagnosticOrDash(szSpending).GetCString(),
@@ -9571,6 +9606,7 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 	if (bLogPlayerDetails)
 	{
 		logSASGameRecordPlayerBonuses(ePlayer, iGameTurn, kPrevious);
+		logSASGameRecordAIStrategies(ePlayer, iGameTurn);
 		logSASGameRecordAIVictoryStages(ePlayer, iGameTurn);
 		logSASGameRecordAIMilitaryProduction(ePlayer, iGameTurn);
 		logSASGameRecordPolicies(ePlayer, iGameTurn);
@@ -11624,6 +11660,24 @@ void logSASGameRecordAIBonusDemandDecision(PlayerTypes ePlayer, PlayerTypes eHum
 		kBestFacts.iBuyerHasMount, kBestFacts.iBuyerHasElephants, kBestFacts.iMasterVassalCluster, szDemanded.GetCString());
 }
 
+// <!-- custom: Record the final authoritative non-default strategy-bit changes after AI_updateStrategyHash has completed all local strategy decisions and final validity cleanup.
+// The old/new hashes are already-computed gameplay state; this bridge performs no strategy evaluation, RNG or pathfinding. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIStrategyChanges(CvPlayerAI const& kPlayer, AIStrategy eOldStrategies, AIStrategy eNewStrategies)
+{
+	if (!isSASGameRecordAIStrategyPlayer(kPlayer))
+		return;
+	for (int iStrategy = AI_STRATEGY_DAGGER; iStrategy <= AI_STRATEGY_ESPIONAGE_ECONOMY; iStrategy <<= 1)
+	{
+		AIStrategy const eStrategy = (AIStrategy)iStrategy;
+		bool const bWasActive = ((eOldStrategies & eStrategy) != 0);
+		bool const bIsActive = ((eNewStrategies & eStrategy) != 0);
+		if (bWasActive == bIsActive)
+			continue;
+		logSASGameRecord("GAME_RECORD_AI_STRATEGY_CHANGE turn=%d player=%d team=%d strategy=%s activeAfter=%d",
+			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), getSASAIStrategyType(eStrategy), bIsActive);
+	}
+}
+
 // <!-- custom: Serialize only scores produced by the real AI_bestReligion loop; the vector is built only at GameRecord level 3 and formatted only when AI_doReligion reaches a meaningful switch/spread-block decision. (ChatGPT-5.6-Sol) -->
 static CvString getSASGameRecordReligionCandidateScores(std::vector<std::pair<ReligionTypes, int> > const* paCandidateValues)
 {
@@ -11659,7 +11713,7 @@ void logSASGameRecordAIReligionDecision(PlayerTypes ePlayer, ReligionTypes eCurr
 		getSASGameRecordReligionType(eEvaluatedBest), getSASGameRecordReligionType(eSelectedReligion),
 		getSASGameRecordReligionType(kPlayer.getStateReligion()), getSASGameRecordReligionType(eRunnerUp), iBestValue, iRunnerUpValue,
 		iCurrentScore, (iCurrentScore < 0 ? -1 : iBestValue - iCurrentScore), iCurrentRawValue, iSelectedRawValue,
-		getSASGameRecordReligionType(kPlayer.getFavoriteReligion()), kPlayer.AI_isDoStrategy(AI_STRATEGY_MISSIONARY) ? 1 : 0,
+		getSASGameRecordReligionType(kPlayer.getFavoriteReligion()), isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_MISSIONARY) ? 1 : 0,
 		kPlayer.AI_getFlavorValue(FLAVOR_RELIGION), iBestSpreadPercent, iBestHolyCityOwned, kPlayer.getReligionAnarchyLength(),
 		iConvertProbabilityPercent, iRollSuccess, szOutcome, szCandidateScores.GetCString());
 }

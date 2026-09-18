@@ -40,10 +40,18 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
+### Revision 91 - SAS practical 6481
+
+- **Date:** 2026-09-18
+- **Git commit:** pending
+- **Change:** Added complete readable AI-strategy history at level 2. `GAME_RECORD_AI_STRATEGY_CHANGE` records each final gameplay-active non-default `AIStrategy` bit that starts/stops after `AI_updateStrategyHash` finishes its validity cleanup, while periodic `GAME_RECORD_AI_STRATEGIES` checkpoints preserve the complete active set without requiring replay from turn 0. Existing specialized decision rows remain for local context and BBAI retains its detailed K-Mod transition diagnostics/trigger values.
+
+A shared `getSASAIStrategyType` helper in `CvGameCoreUtils` now provides canonical raw enum names to both logs, replacing the fragile BBAI stringification macros without changing their emitted strategy names. Existing SASGameRecord strategy predicates share one AI-Auto-Play-aware wrapper, and the build check guards the contiguous strategy-bit layout, enum-name coverage, and all complete strategy scans against future `AIStrategy` additions. No AI strategy evaluation, RNG or pathfinding is repeated solely for recording.
+
 ### Revision 90 - SAS practical 6480
 
 - **Date:** 2026-09-17
-- **Git commit:** pending
+- **Git commit:** `e25c3e02b18e1252d873e5b5eb978edf40225d37`
 - **Change:** Source-readability maintenance only. Oversized `logSASGameRecord(...)` argument lists are wrapped at top-level argument boundaries while their format strings remain unchanged. A conservative helper now preserves this argument-layout convention alongside the matching BBAI cleanup while deliberately leaving existing prose-comment layout untouched. Emitted SASGameRecord row text, fields, conditions, and gameplay behavior are unchanged.
 
 ### Revision 89 - SAS practical 6477

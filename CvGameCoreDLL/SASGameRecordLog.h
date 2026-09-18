@@ -6,6 +6,7 @@
 #ifndef SAS_GAME_RECORD_LOG_H
 #define SAS_GAME_RECORD_LOG_H
 
+#include "AIStrategies.h" // <!-- custom: Exact AI-strategy transition bridges use the native AIStrategy bitfield type while keeping the recorder interface type-safe. (ChatGPT-5.6-Sol) -->
 #include <vector> // <!-- custom: Rare goody-result logging passes the actual created unit pointers to the recorder for compact canonical type/id/position formatting. (ChatGPT-5.6-Sol) -->
 #include <utility> // <!-- custom: Public religion-decision provenance uses std::pair for already-computed candidate religion/value scores; include its defining header directly instead of relying on transitive core includes. (ChatGPT-5.6-Sol) -->
 
@@ -25,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 90 };
+enum { SAS_GAME_RECORD_REVISION = 91 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -62,6 +63,8 @@ class CvCity;
 // <!-- custom: Required by random-event APIs using CvPlayer references; this lightweight declaration fixed the resulting AgentIterator/CvPlayer compile errors. (GPT-5.6-Sol) -->
 class CvPlayer;
 class CvPlayerAI;
+// <!-- custom: Record final authoritative AIStrategy transitions from AI_updateStrategyHash without exposing its protected raw strategy hash or rerunning any strategy evaluation. Caller must pre-gate at GameRecord level 2+. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIStrategyChanges(CvPlayerAI const& kPlayer, AIStrategy eOldStrategies, AIStrategy eNewStrategies);
 class CvPlot;
 class CvUnit;
 class CvUnitAI;

@@ -28360,36 +28360,33 @@ void CvPlayerAI::AI_updateEraFactor()
 	m_rCurrEraFactor = per100(GC.getInfo(getCurrentEra()).get(CvEraInfo::AIEraFactor));
 }
 
-// K-Mod. Macros to help log changes in the AI strategy.
-#define log_strat(s) \
-	if (gPlayerLogLevel >= 2) \
-	{ \
-		if ((m_eStrategyHash & s) != (eLastStrategyHash & s)) \
-		{ \
-			// <!-- custom: "Inside these continued macros, the formatter split logBBAI(...) across physical lines but failed to put a trailing \ on every new macro-continuation line.
-			// The preprocessor therefore ended the macro early, and VC2003 started interpreting getCivilizationDescription(...) and the rest at file scope - which explains the huge cascade of bizarre errors." (ChatGPT-5.6-Sol) -->
-			logBBAI("    Player %d (%S) %s strategy "#s" on turn %d", \
-				getID(), getCivilizationDescription(0), \
-				(m_eStrategyHash & s) ? "starts" : "stops", GC.getGame().getGameTurn()); \
-		} \
-	}
-#define log_strat2(s, x) \
-	if (gPlayerLogLevel >= 2) \
-	{ \
-		if ((m_eStrategyHash & s) != (eLastStrategyHash & s)) \
-		{ \
-			// <!-- custom: same as for the above logBBAI call. -->
-			logBBAI("    Player %d (%S) %s strategy "#s" on turn %d with "#x" %d", \
-				getID(), getCivilizationDescription(0), \
-				(m_eStrategyHash & s) ? "starts" : "stops", GC.getGame().getGameTurn(), x); \
-		} \
-	}
+// <!-- custom: Keep K-Mod's detailed strategy-transition diagnostics in ordinary type-safe C++.
+// Use the shared raw AIStrategy name helper instead of the old log_strat and log_strat2 multiline stringification macros.
+// The caller owns the PLAYER-log-level gate; these helpers only test whether the requested strategy bit actually changed at this decision point. (ChatGPT-5.6-Sol) -->
+static void logBBAIStrategyChange(CvPlayerAI const& kPlayer, AIStrategy eOldStrategies, AIStrategy eNewStrategies, AIStrategy eStrategy)
+{
+	if ((eOldStrategies & eStrategy) == (eNewStrategies & eStrategy))
+		return;
+	logBBAI("    Player %d (%S) %s strategy %s on turn %d",
+		kPlayer.getID(), kPlayer.getCivilizationDescription(0), (eNewStrategies & eStrategy) ? "starts" : "stops",
+		getSASAIStrategyType(eStrategy), GC.getGame().getGameTurn());
+}
+
+static void logBBAIStrategyChange(CvPlayerAI const& kPlayer, AIStrategy eOldStrategies, AIStrategy eNewStrategies, AIStrategy eStrategy, char const* szDetailName, int iDetailValue)
+{
+	if ((eOldStrategies & eStrategy) == (eNewStrategies & eStrategy))
+		return;
+	logBBAI("    Player %d (%S) %s strategy %s on turn %d with %s %d",
+		kPlayer.getID(), kPlayer.getCivilizationDescription(0), (eNewStrategies & eStrategy) ? "starts" : "stops",
+		getSASAIStrategyType(eStrategy), GC.getGame().getGameTurn(), szDetailName, iDetailValue);
+}
 
 // K-mod. The body of this function use to be inside "AI_getStrategyHash"
 void CvPlayerAI::AI_updateStrategyHash()
 {
 	CvTeamAI const& kTeam = GET_TEAM(getTeam()); // K-Mod
 	AIStrategy const eLastStrategyHash = m_eStrategyHash;
+	bool const bLogBBAIStrategyChanges = (gPlayerLogLevel >= 2);
 	m_eStrategyHash = AI_DEFAULT_STRATEGY;
 
 	/*if (AI_getFlavorValue(FLAVOR_PRODUCTION) >= 2) // 0, 2, 5 or 10 in default xml [augustus 5, frederick 10, huayna 2, jc 2, chinese leader 2, qin 5, ramsess 2, roosevelt 5, stalin 2]
@@ -28397,7 +28394,10 @@ void CvPlayerAI::AI_updateStrategyHash()
 	// K-Mod. This strategy is now set later on, with new conditions.
 
 	if (getCapital() == NULL)
+	{
+		if (gGameRecordLogLevel >= 2) logSASGameRecordAIStrategyChanges(*this, eLastStrategyHash, m_eStrategyHash);
 		return;
+	}
 
 	//int iNonsense = AI_getStrategyRand();
 
@@ -28548,8 +28548,8 @@ void CvPlayerAI::AI_updateStrategyHash()
 		}
 	}
 
-	log_strat(AI_STRATEGY_LAND_BLITZ)
-	log_strat(AI_STRATEGY_AIR_BLITZ)
+	if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_LAND_BLITZ);
+	if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_AIR_BLITZ);
 
 	//missionary
 	{
@@ -28654,7 +28654,7 @@ void CvPlayerAI::AI_updateStrategyHash()
 		if (getCommercePercent(COMMERCE_ESPIONAGE) > 20)
 			m_eStrategyHash |= AI_STRATEGY_ESPIONAGE_ECONOMY;
 	}
-	log_strat(AI_STRATEGY_ESPIONAGE_ECONOMY)
+	if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_ESPIONAGE_ECONOMY);
 	// K-Mod end
 
 	// Turtle strategy
@@ -28683,7 +28683,7 @@ void CvPlayerAI::AI_updateStrategyHash()
 			}
 		}
 	}
-	log_strat(AI_STRATEGY_TURTLE)
+	if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_TURTLE);
 
 	int iParanoia = 0;
 	{
@@ -28725,8 +28725,8 @@ void CvPlayerAI::AI_updateStrategyHash()
 			m_eStrategyHash |= AI_STRATEGY_ALERT2;
 		}
 	}
-	log_strat2(AI_STRATEGY_ALERT1, iParanoia)
-	log_strat2(AI_STRATEGY_ALERT2, iParanoia)
+	if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_ALERT1, "iParanoia", iParanoia);
+	if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_ALERT2, "iParanoia", iParanoia);
 
 	/*	Economic focus (K-Mod) - This strategy is a gambit.
 		The goal is to tech faster by neglecting military. */
@@ -28743,7 +28743,7 @@ void CvPlayerAI::AI_updateStrategyHash()
 		if (iFocus >= 12 /* advc.109: */ || AI_feelsSafe())
 			m_eStrategyHash |= AI_STRATEGY_ECONOMY_FOCUS;
 	}
-	log_strat(AI_STRATEGY_ECONOMY_FOCUS)
+	if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_ECONOMY_FOCUS);
 
 	/*  <advc.104f> Don't want dagger even if UWAI only in the background
 		b/c it gets in the way of testing. If UWAI fully disabled, allow dagger
@@ -28870,7 +28870,7 @@ void CvPlayerAI::AI_updateStrategyHash()
 						m_eStrategyHash |= AI_STRATEGY_DAGGER;
 				}
 			}
-			log_strat2(AI_STRATEGY_DAGGER, iDagger)
+			if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_DAGGER, "iDagger", iDagger);
 		}
 	}
 
@@ -28950,7 +28950,7 @@ void CvPlayerAI::AI_updateStrategyHash()
 		{
 			m_eStrategyHash |= AI_STRATEGY_CRUSH;
 		}
-		log_strat2(AI_STRATEGY_CRUSH, iCrushValue)
+		if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_CRUSH, "iCrushValue", iCrushValue);
 	}
 
 	// K-Mod
@@ -28981,7 +28981,7 @@ void CvPlayerAI::AI_updateStrategyHash()
 		}
 		if (iProductionValue > 8) // advc.018: Threshold reduced by 1
 			m_eStrategyHash |= AI_STRATEGY_PRODUCTION;
-		log_strat2(AI_STRATEGY_PRODUCTION, iProductionValue)
+		if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_PRODUCTION, "iProductionValue", iProductionValue);
 	} // K-Mod end
 
 	{
@@ -29113,9 +29113,8 @@ void CvPlayerAI::AI_updateStrategyHash()
 		m_eStrategyHash &= ~AI_STRATEGY_OWABWNW;
 		m_eStrategyHash &= ~AI_STRATEGY_FASTMOVERS;
 	}
+	if (gGameRecordLogLevel >= 2) logSASGameRecordAIStrategyChanges(*this, eLastStrategyHash, m_eStrategyHash);
 }
-#undef log_strat
-#undef log_strat2
 
 // <!-- custom: Compact level-3-only retention for Great Person-weight diagnostics.
 // Keep one empty vector when CULTURE logging is off instead of constructing eight std::maps on every AI_updateGreatPersonWeights call; when enabled, direct UnitClass indexing also avoids repeated tree lookups. (ChatGPT-5.6-Sol) -->

@@ -1354,6 +1354,35 @@ char const* getSASAutoPlayEndCause(SASAutoPlayEndCause eCause)
 	}
 }
 
+// <!-- custom: Keep one canonical machine-readable name for the static AIStrategy bitfield enum.
+// Unlike the separate player-facing widget labels, these raw tokens are intended for diagnostics/provenance and therefore match the C++ enum names exactly. (ChatGPT-5.6-Sol) -->
+char const* getSASAIStrategyType(AIStrategy eStrategy)
+{
+	switch (eStrategy)
+	{
+	case NO_AI_STRATEGY: return "NO_AI_STRATEGY";
+	case AI_DEFAULT_STRATEGY: return "AI_DEFAULT_STRATEGY";
+	case AI_STRATEGY_DAGGER: return "AI_STRATEGY_DAGGER";
+	case AI_STRATEGY_CRUSH: return "AI_STRATEGY_CRUSH";
+	case AI_STRATEGY_ALERT1: return "AI_STRATEGY_ALERT1";
+	case AI_STRATEGY_ALERT2: return "AI_STRATEGY_ALERT2";
+	case AI_STRATEGY_TURTLE: return "AI_STRATEGY_TURTLE";
+	case AI_STRATEGY_LAST_STAND: return "AI_STRATEGY_LAST_STAND";
+	case AI_STRATEGY_FINAL_WAR: return "AI_STRATEGY_FINAL_WAR";
+	case AI_STRATEGY_GET_BETTER_UNITS: return "AI_STRATEGY_GET_BETTER_UNITS";
+	case AI_STRATEGY_FASTMOVERS: return "AI_STRATEGY_FASTMOVERS";
+	case AI_STRATEGY_LAND_BLITZ: return "AI_STRATEGY_LAND_BLITZ";
+	case AI_STRATEGY_AIR_BLITZ: return "AI_STRATEGY_AIR_BLITZ";
+	case AI_STRATEGY_OWABWNW: return "AI_STRATEGY_OWABWNW";
+	case AI_STRATEGY_PRODUCTION: return "AI_STRATEGY_PRODUCTION";
+	case AI_STRATEGY_MISSIONARY: return "AI_STRATEGY_MISSIONARY";
+	case AI_STRATEGY_BIG_ESPIONAGE: return "AI_STRATEGY_BIG_ESPIONAGE";
+	case AI_STRATEGY_ECONOMY_FOCUS: return "AI_STRATEGY_ECONOMY_FOCUS";
+	case AI_STRATEGY_ESPIONAGE_ECONOMY: return "AI_STRATEGY_ESPIONAGE_ECONOMY";
+	default: return "UNKNOWN_AI_STRATEGY";
+	}
+}
+
 // <!-- custom: Victory-stage state is a bitfield; share this helper because BBAI/game-record diagnostics and AI logic all need the same compact 0..4 level without repeating four AI_atVictoryStage-style checks. (GPT-5.5) -->
 int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4)
 {
