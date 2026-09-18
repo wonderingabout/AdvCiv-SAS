@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=94 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=95 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,18 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 94 - SAS practical 6484
+### Revision 95 - SAS practical 6485
 
 - **Date:** 2026-09-18
 - **Git commit:** pending
+- **Change:** Extended the opt-in level-3 active-viewer trade-market snapshot with `GAME_RECORD_TRADE_STRATEGIC`: exact bilateral denial state for maps/vassalage/capitulation/open borders/defensive pacts/permanent alliances/disengagement, city ids the rival will currently cede or refuse with denial reasons, and Glance-style third-party war-for-hire targets/denials.
+
+The scan reuses the existing Foreign-Advisor market gate and viewer scope rather than evaluating every possible observer. Derived willingness is periodic rather than presented as an exact transition because Civ4 computes these queries on demand instead of storing one authoritative willingness state.
+
+### Revision 94 - SAS practical 6484
+
+- **Date:** 2026-09-18
+- **Git commit:** `da80e04a653cfed2ec20621d9b8c6185acf33903`
 - **Change:** Added complete periodic level-3 AI attitude-component provenance. `GAME_RECORD_DIPLO_ATTITUDE_BREAKDOWN` reconstructs each known cross-team major-AI relationship from the same additive components and order used by `CvPlayerAI::AI_updateAttitude` (first impression, rank/team size, close borders, peace/war, religion, resource/open-border/defensive-pact effects, rival pacts/vassals, expansionism, shared war, favorite civic, trade/rival trade, aggregate memories and attitude-extra), plus the pre-clamp component sum, its normal -100..100 clamped value, cached raw value and gameplay-effective value.
 
 This makes fluctuating diplomacy such as different religion ("heathen"), open borders and fair trade explainable from the record rather than exposing only the final attitude number.

@@ -6938,6 +6938,81 @@ static char const* getSASGameRecordTechUnavailableReason(CvPlayerAI const& kFrom
 	return "OTHER";
 }
 
+static void appendSASGameRecordMarketIntReason(CvString& szList, int iItem, char const* szReason)
+{
+	CvString szEntry;
+	szEntry.Format(szList.empty() ? "%d=%s" : ",%d=%s", iItem, szReason);
+	szList += szEntry;
+}
+
+static void appendSASGameRecordStrategicTradeStatus(CvString& szStatus, CvPlayerAI const& kFrom, PlayerTypes eTo, TradeableItems eItem)
+{
+	TradeData kTrade(eItem, 0);
+	char const* szResult = "UNAVAILABLE";
+	if (kFrom.canTradeItem(eTo, kTrade, false))
+		szResult = getSASGameRecordDenialType(kFrom.getTradeDenial(eTo, kTrade));
+	appendSASGameRecordMarketReason(szStatus, getSASTradeItemType(eItem), szResult);
+}
+
+// <!-- custom: Mirror the strategically important Foreign Advisor/trade-screen state that is derived only when the UI asks for it rather than stored as authoritative persistent state.
+// Keep this active-viewer-relative and periodic: exact transition hooks do not exist for these derived willingness queries, and evaluating every possible viewer would turn the record into an unnecessary player^3 trade matrix.
+// City ids map back to GAME_RECORD_CITY. Third-party war targets use team ids and mirror the Glance tab's "will declare war for trade" test, with exact denial reasons retained for the same evaluated targets. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordStrategicTradeMarketPair(int iGameTurn, CvPlayerAI const& kViewer, CvPlayerAI const& kOther, bool bOtherWillingToTalk)
+{
+	PlayerTypes const eViewer = kViewer.getID();
+	PlayerTypes const eOther = kOther.getID();
+	CvString szStrategicStatus;
+	appendSASGameRecordStrategicTradeStatus(szStrategicStatus, kOther, eViewer, TRADE_MAPS);
+	appendSASGameRecordStrategicTradeStatus(szStrategicStatus, kOther, eViewer, TRADE_VASSAL);
+	appendSASGameRecordStrategicTradeStatus(szStrategicStatus, kOther, eViewer, TRADE_SURRENDER);
+	appendSASGameRecordStrategicTradeStatus(szStrategicStatus, kOther, eViewer, TRADE_OPEN_BORDERS);
+	appendSASGameRecordStrategicTradeStatus(szStrategicStatus, kOther, eViewer, TRADE_DEFENSIVE_PACT);
+	appendSASGameRecordStrategicTradeStatus(szStrategicStatus, kOther, eViewer, TRADE_PERMANENT_ALLIANCE);
+	appendSASGameRecordStrategicTradeStatus(szStrategicStatus, kOther, eViewer, TRADE_DISENGAGE);
+
+	CvString szCitiesWillCede;
+	CvString szCityDenials;
+	if (kOther.canPossiblyTradeItem(eViewer, TRADE_CITIES))
+	{
+		TradeData kCityTrade(TRADE_CITIES, 0);
+		FOR_EACH_CITY(pCity, kOther)
+		{
+			kCityTrade.m_iData = pCity->getID();
+			if (!kOther.canTradeItem(eViewer, kCityTrade, false))
+				continue;
+			DenialTypes const eDenial = kOther.getTradeDenial(eViewer, kCityTrade);
+			if (eDenial == NO_DENIAL)
+				appendSASDiagnosticIntListValue(szCitiesWillCede, pCity->getID());
+			else appendSASGameRecordMarketIntReason(szCityDenials, pCity->getID(), getSASGameRecordDenialType(eDenial));
+		}
+	}
+
+	CvString szGlanceWarTargets;
+	CvString szGlanceWarTargetDenials;
+	CvTeamAI const& kOtherTeam = GET_TEAM(kOther.getTeam());
+	// <!-- custom: Match AttitudeUtil.getAttitudeText / CvGameTextMgr::parseWarTradesHelp rather than broadening this into every theoretical third-party trade combination.
+	// The Glance fist is an AI-team willingness query relative to the active viewer; it intentionally does not require the pair to be willing to talk. (ChatGPT-5.6-Sol) -->
+	if (kOther.getTeam() != kViewer.getTeam() && !kOtherTeam.isHuman())
+	{
+		for (TeamIter<MAJOR_CIV,NOT_SAME_TEAM_AS> itTarget(kOther.getTeam()); itTarget.hasNext(); ++itTarget)
+		{
+			TeamTypes const eTarget = itTarget->getID();
+			if (eTarget == kViewer.getTeam() || kOtherTeam.isAtWar(eTarget))
+				continue;
+			DenialTypes const eDenial = kOtherTeam.AI_declareWarTrade(eTarget, kViewer.getTeam());
+			if (eDenial == NO_DENIAL)
+				appendSASDiagnosticIntListValue(szGlanceWarTargets, eTarget);
+			else appendSASGameRecordMarketIntReason(szGlanceWarTargetDenials, eTarget, getSASGameRecordDenialType(eDenial));
+		}
+	}
+
+	logSASGameRecord("GAME_RECORD_TRADE_STRATEGIC turn=%d viewer=%d other=%d viewerTeam=%d otherTeam=%d otherWillingToTalk=%d bilateral=%s citiesWillCede=%s cityDenials=%s glanceWarTargets=%s glanceWarTargetDenials=%s",
+		iGameTurn, eViewer, eOther, kViewer.getTeam(), kOther.getTeam(), bOtherWillingToTalk,
+		getSASDiagnosticOrDash(szStrategicStatus).GetCString(), getSASDiagnosticOrDash(szCitiesWillCede).GetCString(),
+		getSASDiagnosticOrDash(szCityDenials).GetCString(), getSASDiagnosticOrDash(szGlanceWarTargets).GetCString(),
+		getSASDiagnosticOrDash(szGlanceWarTargetDenials).GetCString());
+}
+
 static void logSASGameRecordTradeMarket(int iGameTurn)
 {
 	if (!isSASGameRecordTradeMarketEnabled())
@@ -7093,6 +7168,8 @@ static void logSASGameRecordTradeMarket(int iGameTurn)
 				}
 			}
 		}
+
+		logSASGameRecordStrategicTradeMarketPair(iGameTurn, kViewer, kOther, bOtherWillingToTalk);
 
 		// <!-- custom: `viewerGPTBalanceWithOther` uses CvPlayer's signed pair balance: positive means the viewer currently receives GPT from this player, negative means the viewer pays them.
 		// Accepted/ended deal rows remain the canonical item lifecycles; this snapshot supplies the current Foreign-Advisor-style market without duplicating every active deal. (ChatGPT-5.6-Sol) -->

@@ -1725,7 +1725,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_GAME_RECORD_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Level-3 periodic snapshots can also mirror the active player's resolved Foreign Advisor trade market: target-specific bonus/technology offerability, exact denial reasons, current pair GPT balance, and maximum additional gold/GPT. 1 enables this detailed active-viewer market scan; 0 skips all corresponding pair/item enumeration while preserving accepted/rejected deal history, ordinary economy/bonus rows, and every other SASGameRecord feature. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Level-3 periodic snapshots can also mirror the active player's resolved Foreign Advisor trade market: target-specific bonus/technology offerability, exact denial reasons, current pair GPT balance and maximum additional gold/GPT, plus compact strategic willingness for treaties/vassalage, city ceding and Glance-style war-for-hire targets. 1 enables this detailed active-viewer market scan; 0 skips all corresponding pair/item enumeration while preserving accepted/rejected deal history, ordinary economy/bonus rows, and every other SASGameRecord feature. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_GAME_RECORD_TRADE_MARKET_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

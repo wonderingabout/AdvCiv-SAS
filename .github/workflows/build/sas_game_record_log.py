@@ -2,8 +2,8 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# Build check: SASGameRecord report logging must be disabled by default, the public revision/current history marker must stay synchronized,
-# canonical readable AI-strategy diagnostics must match the native enum, and periodic AI-attitude provenance must stay synchronized with AI_updateAttitude.
+# Build check: SASGameRecord report logging must be disabled by default, the public revision/current history marker must stay synchronized.
+# Canonical readable AI-strategy diagnostics must match the native enum, periodic AI-attitude provenance must stay synchronized with AI_updateAttitude, and the strategic trade-market schema must remain present.
 
 from pathlib import Path
 import argparse
@@ -203,6 +203,51 @@ def check_ai_attitude_breakdown(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_strategic_trade_market(repo_root: Path) -> list[str]:
+	failures = []
+	record_path = repo_root / REVISION_SOURCE
+	if not record_path.is_file():
+		return [f"missing strategic trade-market diagnostic file: {REVISION_SOURCE}"]
+
+	record_text = record_path.read_text(encoding="utf-8", errors="replace")
+	start = record_text.find("static void logSASGameRecordStrategicTradeMarketPair")
+	end = record_text.find("static void logSASGameRecordTradeMarket", start)
+	if start < 0 or end < 0:
+		return [f"{REVISION_SOURCE}: could not isolate logSASGameRecordStrategicTradeMarketPair"]
+	record_body = _strip_cpp_comments(record_text[start:end])
+	expected_items = [
+		"TRADE_MAPS", "TRADE_VASSAL", "TRADE_SURRENDER", "TRADE_OPEN_BORDERS",
+		"TRADE_DEFENSIVE_PACT", "TRADE_PERMANENT_ALLIANCE", "TRADE_DISENGAGE",
+	]
+	items = re.findall(
+		r"appendSASGameRecordStrategicTradeStatus\s*\([^;]*?,\s*(TRADE_[A-Z0-9_]+)\s*\);",
+		record_body, flags=re.DOTALL)
+	if items != expected_items:
+		failures.append(
+			f"{REVISION_SOURCE}: strategic bilateral trade-status sequence changed; "
+			f"expected {expected_items}, found {items}")
+	for required in (
+		"GAME_RECORD_TRADE_STRATEGIC", "bilateral=%s", "citiesWillCede=%s", "cityDenials=%s",
+		"glanceWarTargets=%s", "glanceWarTargetDenials=%s",
+	):
+		if required not in record_body:
+			failures.append(f"{REVISION_SOURCE}: missing strategic trade-market diagnostic token {required}")
+
+	market_start = record_text.find("static void logSASGameRecordTradeMarket(int iGameTurn)")
+	market_end = record_text.find("static void logSASGameRecordEnvironment", market_start)
+	if market_start < 0 or market_end < 0:
+		failures.append(f"{REVISION_SOURCE}: could not isolate logSASGameRecordTradeMarket")
+	else:
+		market_body = _strip_cpp_comments(record_text[market_start:market_end])
+		for required in (
+			"if (!isSASGameRecordTradeMarketEnabled())",
+			"logSASGameRecordStrategicTradeMarketPair(",
+		):
+			if required not in market_body:
+				failures.append(f"{REVISION_SOURCE}: missing strategic trade-market gate/bridge token {required}")
+	return failures
+
+
 EXPECTED_GAME_RECORD_DEFAULTS = {
 	"SAS_GAME_RECORD_LOG_LEVEL": 0,
 	# These configure enabled record logging but do not enable it themselves.
@@ -223,12 +268,13 @@ def main() -> int:
 	failures.extend(check_revision(args.repo_root))
 	failures.extend(check_ai_strategy_diagnostics(args.repo_root))
 	failures.extend(check_ai_attitude_breakdown(args.repo_root))
+	failures.extend(check_strategic_trade_market(args.repo_root))
 	if failures:
 		print("FAIL SASGameRecord report/revision checks")
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AI-attitude diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AI-attitude/strategic-trade diagnostics synchronized")
 	return 0
 
 
