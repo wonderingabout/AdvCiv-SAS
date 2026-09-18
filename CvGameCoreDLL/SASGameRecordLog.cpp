@@ -6725,15 +6725,56 @@ static void logSASGameRecordAttitudes(PlayerTypes ePlayer, int iGameTurn)
 	logSASGameRecord("GAME_RECORD_ATTITUDES turn=%d player=%d towardValues=%s", iGameTurn, ePlayer, getSASDiagnosticOrDash(szToward).GetCString());
 }
 
-static void logSASGameRecordDiplomaticMemories(PlayerTypes ePlayer, int iGameTurn)
+static void appendSASGameRecordAttitudeComponent(CvString& szComponents, int& iComponentSum, char const* szName, int iValue)
+{
+	iComponentSum += iValue;
+	if (iValue == 0)
+		return;
+	CvString szItem;
+	szItem.Format(szComponents.empty() ? "%s=%+d" : ",%s=%+d", szName, iValue);
+	szComponents += szItem;
+}
+
+static void logSASGameRecordDiplomaticAttitudes(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	// <!-- custom: Level 3 already preserves individual memory counts/contributions.
+	// Add the rest of the cached AI-attitude arithmetic at the same periodic boundary so totals such as "heathen religion", open borders, fair trade, shared war and close borders can be explained without logging every routine counter/decay tick.
+	// Reuse the same memory scan for both rows; full additive breakdowns apply only to gameplay-active major AI players (including AI Auto Play), while the legacy memory row keeps its broader existing coverage. (GPT-5.6-Sol) -->
+	bool const bLogBreakdowns = (!kPlayer.isMinorCiv() && (!kPlayer.isHuman() || kPlayer.isHumanDisabled()));
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
 		PlayerTypes const eTowardPlayer = (PlayerTypes)iI;
-		if (eTowardPlayer == ePlayer || !GET_PLAYER(eTowardPlayer).isAlive() || GET_PLAYER(eTowardPlayer).isBarbarian() || !kTeam.isHasMet(GET_PLAYER(eTowardPlayer).getTeam()))
+		CvPlayerAI const& kTowardPlayer = GET_PLAYER(eTowardPlayer);
+		if (eTowardPlayer == ePlayer || !kTowardPlayer.isAlive() || kTowardPlayer.isBarbarian() || !kTeam.isHasMet(kTowardPlayer.getTeam()))
 			continue;
+
+		CvString szComponents;
+		int iComponentSum = 0;
+		bool const bLogThisBreakdown = (bLogBreakdowns && !kTowardPlayer.isMinorCiv() && kPlayer.getTeam() != kTowardPlayer.getTeam());
+		if (bLogThisBreakdown)
+		{
+			// <!-- custom: Mirror CvPlayerAI::AI_updateAttitude's additive order exactly; AI_getWarAttitude needs the full pre-war partial sum. (GPT-5.6-Sol) -->
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "firstImpression", kPlayer.AI_getFirstImpressionAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "teamSize", kPlayer.AI_getTeamSizeAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "rankDifference", kPlayer.AI_getRankDifferenceAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "closeBorders", kPlayer.AI_getCloseBordersAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "peace", kPlayer.AI_getPeaceAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "sameReligion", kPlayer.AI_getSameReligionAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "differentReligion", kPlayer.AI_getDifferentReligionAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "bonusTrade", kPlayer.AI_getBonusTradeAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "openBorders", kPlayer.AI_getOpenBordersAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "defensivePact", kPlayer.AI_getDefensivePactAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "rivalDefensivePact", kPlayer.AI_getRivalDefensivePactAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "rivalVassal", kPlayer.AI_getRivalVassalAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "expansionist", kPlayer.AI_getExpansionistAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "sharedWar", kPlayer.AI_getShareWarAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "favoriteCivic", kPlayer.AI_getFavoriteCivicAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "trade", kPlayer.AI_getTradeAttitude(eTowardPlayer));
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "rivalTrade", kPlayer.AI_getRivalTradeAttitude(eTowardPlayer));
+		}
+
 		CvString szMemories;
 		int iMemoryAttitude = 0;
 		for (int iJ = 0; iJ < NUM_MEMORY_TYPES; iJ++)
@@ -6748,10 +6789,24 @@ static void logSASGameRecordDiplomaticMemories(PlayerTypes ePlayer, int iGameTur
 			szItem.Format(szMemories.empty() ? "%s=%d/%+d" : ",%s=%d/%+d", getSASMemoryType(eMemory), iCount, iAttitude);
 			szMemories += szItem;
 		}
+		if (bLogThisBreakdown)
+		{
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "memories", iMemoryAttitude);
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "extra", kPlayer.AI_getAttitudeExtra(eTowardPlayer));
+			int const iWarAttitude = kPlayer.AI_getWarAttitude(eTowardPlayer, iComponentSum);
+			appendSASGameRecordAttitudeComponent(szComponents, iComponentSum, "war", iWarAttitude);
+			int const iComponentValue = ::range(iComponentSum, -100, 100);
+			int const iCachedRawValue = kPlayer.AI_getAttitudeVal(eTowardPlayer, false);
+			int const iEffectiveValue = kPlayer.AI_getAttitudeVal(eTowardPlayer);
+			// <!-- custom: componentSum is intentionally pre-clamp; componentValue applies the same -100..100 clamp as AI_updateAttitude, cachedRawValue exposes the actual cache, and effectiveValue additionally includes Civ4/AdvCiv forced vassal/master semantics.
+			// Keeping all four makes stale-cache or forced-relation differences explicit rather than misattributing them to an additive component. (GPT-5.6-Sol) -->
+			logSASGameRecord("GAME_RECORD_DIPLO_ATTITUDE_BREAKDOWN turn=%d player=%d toward=%d componentSum=%+d componentValue=%+d cachedRawValue=%+d effectiveValue=%+d forcedDelta=%+d components=%s",
+				iGameTurn, ePlayer, eTowardPlayer, iComponentSum, iComponentValue, iCachedRawValue, iEffectiveValue, iEffectiveValue - iCachedRawValue,
+				getSASDiagnosticOrDash(szComponents).GetCString());
+		}
 		if (!szMemories.empty())
 		{
-			// <!-- custom: Level-3 memory rows explain why the existing attitude value changed.
-			// Each item is MEMORY_TYPE=count/attitudeContribution; periodic snapshots avoid logging every routine memory decay. (GPT-5.6-Sol) -->
+			// <!-- custom: Each item is MEMORY_TYPE=count/attitudeContribution; periodic snapshots avoid logging every routine memory decay. (GPT-5.6-Sol) -->
 			logSASGameRecord("GAME_RECORD_DIPLO_MEMORIES turn=%d player=%d toward=%d attitudeValue=%+d memoryAttitude=%+d memories=%s",
 				iGameTurn, ePlayer, eTowardPlayer, kPlayer.AI_getAttitudeVal(eTowardPlayer), iMemoryAttitude, szMemories.GetCString());
 		}
@@ -9624,7 +9679,7 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 		logSASGameRecordEspionage(ePlayer, iGameTurn);
 		logSASGameRecordDemographics(ePlayer, iGameTurn);
 		logSASGameRecordAttitudes(ePlayer, iGameTurn);
-		if (bLogPlayerVerboseDetails) logSASGameRecordDiplomaticMemories(ePlayer, iGameTurn);
+		if (bLogPlayerVerboseDetails) logSASGameRecordDiplomaticAttitudes(ePlayer, iGameTurn);
 		logSASGameRecordDiploStatus(ePlayer, iGameTurn);
 		logSASGameRecordUnitPosture(ePlayer, iGameTurn);
 		logSASGameRecordBarbarianPressure(ePlayer, iGameTurn);

@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=93 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=94 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,20 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 93 - SAS practical 6483
+### Revision 94 - SAS practical 6484
 
 - **Date:** 2026-09-18
 - **Git commit:** pending
+- **Change:** Added complete periodic level-3 AI attitude-component provenance. `GAME_RECORD_DIPLO_ATTITUDE_BREAKDOWN` reconstructs each known cross-team major-AI relationship from the same additive components and order used by `CvPlayerAI::AI_updateAttitude` (first impression, rank/team size, close borders, peace/war, religion, resource/open-border/defensive-pact effects, rival pacts/vassals, expansionism, shared war, favorite civic, trade/rival trade, aggregate memories and attitude-extra), plus the pre-clamp component sum, its normal -100..100 clamped value, cached raw value and gameplay-effective value.
+
+This makes fluctuating diplomacy such as different religion ("heathen"), open borders and fair trade explainable from the record rather than exposing only the final attitude number.
+
+The existing `GAME_RECORD_DIPLO_MEMORIES` row remains the per-memory detail and now shares the same memory scan with the broader breakdown instead of recomputing it separately. Full breakdowns are level-3-only and limited to gameplay-active major AI players (including AI Auto Play); ordinary human outgoing pseudo-attitudes and same-team forced relations are not presented as additive AI reasoning. No extra attitude work is added when level 3 is disabled.
+
+### Revision 93 - SAS practical 6483
+
+- **Date:** 2026-09-18
+- **Git commit:** `56f4bce56342897f452363f8f6a52a31c8e52b1c`
 - **Change:** Added exact level-2 team worst-enemy transition history. `GAME_RECORD_WORST_ENEMY_CHANGE` records only the final committed `AI_updateWorstEnemy` replacement as `oldEnemyTeam` -> `newEnemyTeam`, together with the old/new enmity values already computed by the real selection pass plus `recursiveRecheck=0/1`. AdvCiv's optional recursive reevaluation after enemy-trade-memory decay therefore cannot emit its tentative first-pass candidate; the recursive final pass commits and records the authoritative result.
 
 The bridge adds no enemy scan, attitude/enmity evaluation, RNG or pathfinding solely for logging. Existing periodic `GAME_RECORD_DIPLO_STATUS worstEnemyTeam=` fields remain the checkpoint for loaded saves and truncated logs.

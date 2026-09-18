@@ -2,7 +2,8 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# Build check: SASGameRecord report logging must be disabled by default, the public revision/current history marker must stay synchronized, and canonical readable AI-strategy diagnostics must match the native enum.
+# Build check: SASGameRecord report logging must be disabled by default, the public revision/current history marker must stay synchronized,
+# canonical readable AI-strategy diagnostics must match the native enum, and periodic AI-attitude provenance must stay synchronized with AI_updateAttitude.
 
 from pathlib import Path
 import argparse
@@ -19,6 +20,7 @@ REVISION_SOURCE = Path("CvGameCoreDLL/SASGameRecordLog.cpp")
 REVISION_HISTORY = Path("_1_AdvCiv-SAS/Docs/README_SASGameRecord_Revisions.md")
 AI_STRATEGIES_HEADER = Path("CvGameCoreDLL/AIStrategies.h")
 GAME_CORE_UTILS_SOURCE = Path("CvGameCoreDLL/CvGameCoreUtils.cpp")
+PLAYER_AI_SOURCE = Path("CvGameCoreDLL/CvPlayerAI.cpp")
 
 
 
@@ -138,6 +140,68 @@ def check_ai_strategy_diagnostics(repo_root: Path) -> list[str]:
 	return failures
 
 
+def _strip_cpp_comments(text: str) -> str:
+	text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+	return re.sub(r"//.*", "", text)
+
+
+def check_ai_attitude_breakdown(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (PLAYER_AI_SOURCE, REVISION_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI-attitude diagnostic file: {relative_path}")
+	if failures:
+		return failures
+
+	expected_getters = [
+		"AI_getFirstImpressionAttitude", "AI_getTeamSizeAttitude", "AI_getRankDifferenceAttitude",
+		"AI_getCloseBordersAttitude", "AI_getPeaceAttitude", "AI_getSameReligionAttitude",
+		"AI_getDifferentReligionAttitude", "AI_getBonusTradeAttitude", "AI_getOpenBordersAttitude",
+		"AI_getDefensivePactAttitude", "AI_getRivalDefensivePactAttitude", "AI_getRivalVassalAttitude",
+		"AI_getExpansionistAttitude", "AI_getShareWarAttitude", "AI_getFavoriteCivicAttitude",
+		"AI_getTradeAttitude", "AI_getRivalTradeAttitude", "AI_getMemoryAttitude",
+		"AI_getAttitudeExtra", "AI_getWarAttitude",
+	]
+	expected_labels = [
+		"firstImpression", "teamSize", "rankDifference", "closeBorders", "peace", "sameReligion",
+		"differentReligion", "bonusTrade", "openBorders", "defensivePact", "rivalDefensivePact",
+		"rivalVassal", "expansionist", "sharedWar", "favoriteCivic", "trade", "rivalTrade",
+		"memories", "extra", "war",
+	]
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	start = player_text.find("void CvPlayerAI::AI_updateAttitude(PlayerTypes ePlayer")
+	end = player_text.find("// for making minor adjustments", start)
+	if start < 0 or end < 0:
+		return [f"{PLAYER_AI_SOURCE}: could not isolate CvPlayerAI::AI_updateAttitude(PlayerTypes,...)"]
+	update_body = _strip_cpp_comments(player_text[start:end])
+	getters = re.findall(
+		r"(?:int\s+iAttitude\s*=|iAttitude\s*\+=)\s*(AI_get[A-Za-z0-9_]+)\s*\(",
+		update_body)
+	if getters != expected_getters:
+		failures.append(
+			f"{PLAYER_AI_SOURCE}: AI_updateAttitude component sequence changed; "
+			f"expected {expected_getters}, found {getters}. Update GAME_RECORD_DIPLO_ATTITUDE_BREAKDOWN and this check together.")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	start = record_text.find("static void logSASGameRecordDiplomaticAttitudes(PlayerTypes ePlayer")
+	end = record_text.find("static void logSASGameRecordDiploStatus(PlayerTypes ePlayer", start)
+	if start < 0 or end < 0:
+		return failures + [f"{REVISION_SOURCE}: could not isolate logSASGameRecordDiplomaticAttitudes"]
+	record_body = _strip_cpp_comments(record_text[start:end])
+	labels = re.findall(r'appendSASGameRecordAttitudeComponent\s*\([^;]*?"([A-Za-z0-9_]+)"', record_body)
+	if labels != expected_labels:
+		failures.append(
+			f"{REVISION_SOURCE}: attitude-breakdown component labels/order changed; "
+			f"expected {expected_labels}, found {labels}")
+	for required in (
+		"GAME_RECORD_DIPLO_ATTITUDE_BREAKDOWN", "componentSum=%+d", "componentValue=%+d",
+		"cachedRawValue=%+d", "effectiveValue=%+d", "forcedDelta=%+d",
+	):
+		if required not in record_body:
+			failures.append(f"{REVISION_SOURCE}: missing AI-attitude diagnostic token {required}")
+	return failures
+
 
 EXPECTED_GAME_RECORD_DEFAULTS = {
 	"SAS_GAME_RECORD_LOG_LEVEL": 0,
@@ -158,12 +222,13 @@ def main() -> int:
 	failures = require_int_values(defines, EXPECTED_GAME_RECORD_DEFAULTS)
 	failures.extend(check_revision(args.repo_root))
 	failures.extend(check_ai_strategy_diagnostics(args.repo_root))
+	failures.extend(check_ai_attitude_breakdown(args.repo_root))
 	if failures:
 		print("FAIL SASGameRecord report/revision checks")
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AI-attitude diagnostics synchronized")
 	return 0
 
 
