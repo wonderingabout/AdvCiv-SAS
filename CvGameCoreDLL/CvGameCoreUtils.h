@@ -177,6 +177,7 @@ namespace hotkeyDescr
 bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);												// Exposed to Python
 //isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam); // advc: Use CvTeamAI::AI_mayAttack instead
 char const* getSASDiploEventType(DiploEventTypes eDiploEvent); // <!-- custom: Shared raw enum-token text for DiploEventTypes because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
+char const* getSASContactType(ContactTypes eContact); // <!-- custom: Shared raw enum-token text for ContactTypes so diplomacy diagnostics can describe proactive contact classes without opaque enum integers. (ChatGPT-5.6-Sol) -->
 char const* getSASTradeItemType(TradeableItems eItem); // <!-- custom: Shared raw enum-token text for TradeableItems because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
 char const* getSASWarPlanType(WarPlanTypes eWarPlan); // <!-- custom: Shared raw enum-token text for WarPlanTypes because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
 char const* getSASGameType(GameType eType); // <!-- custom: Shared raw enum-token text for game/session diagnostics because GameType has no CvInfo type strings. (GPT-5.6-Sol) -->

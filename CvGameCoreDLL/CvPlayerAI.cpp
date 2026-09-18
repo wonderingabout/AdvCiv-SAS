@@ -23380,11 +23380,16 @@ void CvPlayerAI::AI_doDiplo()
 							pDiplo->setDiploComment(GC.getAIDiploCommentType("GIVE_HELP"));
 							pDiplo->setAIContact(true);
 							pDiplo->setTheirOfferList(weGive);
+							if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
 							gDLL->beginDiplomacy(pDiplo, ePlayer);
 							abContacted[kPlayer.getTeam()] = true;
 						}
 					}
-					else kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+					else
+					{
+						if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+						kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+					}
 				}
 			}
 
@@ -23451,11 +23456,16 @@ void CvPlayerAI::AI_doDiplo()
 							pDiplo->setDiploComment(GC.getAIDiploCommentType("GIVE_HELP"));
 							pDiplo->setAIContact(true);
 							pDiplo->setTheirOfferList(weGive);
+							if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
 							gDLL->beginDiplomacy(pDiplo, ePlayer);
 							abContacted[kPlayer.getTeam()] = true;
 						}
 					}
-					else kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+					else
+					{
+						if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+						kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+					}
 				}
 			}
 
@@ -23537,12 +23547,14 @@ void CvPlayerAI::AI_doDiplo()
 								pDiplo->setAIContact(true);
 								pDiplo->setOurOfferList(theyGive);
 								pDiplo->setTheirOfferList(weGive);
+								if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_PERMANENT_ALLIANCE, NULL, &weGive, &theyGive);
 								gDLL->beginDiplomacy(pDiplo, ePlayer);
 								abContacted[kPlayer.getTeam()] = true;
 							}
 						}
 						else
 						{
+							if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_PERMANENT_ALLIANCE, NULL, &weGive, &theyGive);
 							kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
 							// <!-- custom: The common CvTeam::addTeam transaction now rebuilds AgentIterator for AI and human Permanent Alliances alike; remove AdvCiv's AI-only duplicate. See KI#793. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 							break; // move on to next player since we are on the same team now
@@ -23575,6 +23587,7 @@ void CvPlayerAI::AI_doDiplo()
 								pDiplo->setAIContact(true);
 								pDiplo->setOurOfferList(theyGive);
 								pDiplo->setTheirOfferList(weGive);
+								if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_PERMANENT_ALLIANCE, NULL, &weGive, &theyGive);
 								gDLL->beginDiplomacy(pDiplo, ePlayer);
 								abContacted[kPlayer.getTeam()] = true;
 							}
@@ -23582,7 +23595,11 @@ void CvPlayerAI::AI_doDiplo()
 						/*	advc: AI_declareWarTrade check for this player's
 							war enemies (on whom the master will have to declare war)
 							removed on 22 Feb 2021. Already checked through canTradeItem. */
-						else kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+						else
+						{
+							if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_PERMANENT_ALLIANCE, NULL, &weGive, &theyGive);
+							kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+						}
 					}
 				}
 			}
@@ -23698,11 +23715,16 @@ void CvPlayerAI::AI_doDiplo()
 											pDiplo->setDiploComment(GC.getAIDiploCommentType("GIVE_HELP"));
 											pDiplo->setAIContact(true);
 											pDiplo->setTheirOfferList(weGive);
+											if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
 											gDLL->beginDiplomacy(pDiplo, ePlayer);
 											abContacted[kPlayer.getTeam()] = true;
 										} // <avdc.130z>
 									}
-									else kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+									else
+									{
+										if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+										kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+									}
 									// </advc.130z>
 								}
 							}
@@ -23789,10 +23811,15 @@ void CvPlayerAI::AI_doDiplo()
 							pDiplo->setAIContact(true);
 							pDiplo->setOurOfferList(theyGive);
 							pDiplo->setTheirOfferList(weGive);
+							if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_OPEN_BORDERS, NULL, &weGive, &theyGive);
 							gDLL->beginDiplomacy(pDiplo, ePlayer);
 							abContacted[kPlayer.getTeam()] = true;
 						}
-						else kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+						else
+						{
+							if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_OPEN_BORDERS, NULL, &weGive, &theyGive);
+							kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+						}
 					}
 				}
 
@@ -23833,11 +23860,16 @@ void CvPlayerAI::AI_doDiplo()
 									pDiplo->setAIContact(true);
 									pDiplo->setOurOfferList(theyGive);
 									pDiplo->setTheirOfferList(weGive);
+									if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_DEFENSIVE_PACT, NULL, &weGive, &theyGive);
 									gDLL->beginDiplomacy(pDiplo, ePlayer);
 									abContacted[kPlayer.getTeam()] = true;
 								}
 							}
-							else kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+							else
+							{
+								if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_DEFENSIVE_PACT, NULL, &weGive, &theyGive);
+								kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+							}
 						}
 					}
 				}
@@ -24107,12 +24139,14 @@ void CvPlayerAI::AI_doDiplo()
 										pDiplo->setAIContact(true);
 										pDiplo->setOurOfferList(theyGive);
 										pDiplo->setTheirOfferList(weGive);
+										if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_TECH, NULL, &weGive, &theyGive);
 										gDLL->beginDiplomacy(pDiplo, ePlayer);
 										abContacted[kPlayer.getTeam()] = true;
 									}
 								}
 								else
 								{
+									if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_TECH, NULL, &weGive, &theyGive);
 									kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
 									// advc.550f: I.e. we're done trading tech
 									eBestProgressTech = NO_TECH;
@@ -24135,6 +24169,7 @@ void CvPlayerAI::AI_doDiplo()
 									theyGive.clear();
 									setTradeItem(&item, TRADE_TECHNOLOGIES, eBestProgressTech);
 									theyGive.insertAtEnd(item);
+									if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_TECH, NULL, &weGive, &theyGive);
 									kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
 								}
 							}
@@ -24182,11 +24217,16 @@ void CvPlayerAI::AI_doDiplo()
 									pDiplo->setAIContact(true);
 									pDiplo->setOurOfferList(theyGive);
 									pDiplo->setTheirOfferList(weGive);
+									if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_MAP, NULL, &weGive, &theyGive);
 									gDLL->beginDiplomacy(pDiplo, ePlayer);
 									abContacted[kPlayer.getTeam()] = true;
 								}
 							}
-							else kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+							else
+							{
+								if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_MAP, NULL, &weGive, &theyGive);
+								kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+							}
 						}
 					}
 				}
@@ -24310,6 +24350,11 @@ bool CvPlayerAI::AI_proposeJointWar(PlayerTypes eHuman)
 			kTargetLeader.getNameKey(), ""); // advc.mnai (lfgr 11/2021)
 	pDiplo->setAIContact(true);
 	pDiplo->setData(eBestTarget);
+	if (gGameRecordLogLevel >= 2)
+	{
+		TradeData const kSubject(TRADE_WAR, eBestTarget);
+		logSASGameRecordAIDiploContactIntent(*this, eHuman, CONTACT_JOIN_WAR, &kSubject, NULL, NULL);
+	}
 	gDLL->beginDiplomacy(pDiplo, eHuman);
 	return true;
 }
@@ -24538,6 +24583,7 @@ void CvPlayerAI::AI_proposeWarTrade(PlayerTypes eHireling)
 				// Implement and stop only after successful balancing; otherwise continue to the ordinary tech/gold proposal path. See KI#674. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				if (AI_counterPropose(eHireling, hirelingGives, weGive, true, true))
 				{
+					if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, eHireling, CONTACT_JOIN_WAR, NULL, &weGive, &hirelingGives);
 					kGame.implementDeal(getID(), eHireling, weGive, hirelingGives);
 					return;
 				}
@@ -24593,6 +24639,7 @@ void CvPlayerAI::AI_proposeWarTrade(PlayerTypes eHireling)
 			weGive.insertAtEnd(TradeData(TRADE_GOLD, iGiveGold));
 		if (iReceiveGold != 0)
 			theyGive.insertAtEnd(TradeData(TRADE_GOLD, iReceiveGold));
+		if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, eHireling, CONTACT_JOIN_WAR, NULL, &weGive, &theyGive);
 		kGame.implementDeal(getID(), eHireling, weGive, theyGive);
 	}
 }
@@ -24653,6 +24700,11 @@ bool CvPlayerAI::AI_proposeEmbargo(PlayerTypes eHuman)
 			kTargetLeader.getNameKey(), ""); // advc.mnai (lfgr 11/2021)
 	pDiplo->setAIContact(true);
 	pDiplo->setData(eBestTeam);
+	if (gGameRecordLogLevel >= 2)
+	{
+		TradeData const kSubject(TRADE_EMBARGO, eBestTeam);
+		logSASGameRecordAIDiploContactIntent(*this, eHuman, CONTACT_STOP_TRADING, &kSubject, NULL, NULL);
+	}
 	gDLL->beginDiplomacy(pDiplo, eHuman);
 	return true;
 }
@@ -24905,6 +24957,11 @@ bool CvPlayerAI::AI_contactReligion(PlayerTypes eHuman)
 	CvDiploParameters* pDiplo = new CvDiploParameters(getID());
 	pDiplo->setDiploComment(GC.getAIDiploCommentType("RELIGION_PRESSURE"));
 	pDiplo->setAIContact(true);
+	if (gGameRecordLogLevel >= 2)
+	{
+		TradeData const kSubject(TRADE_RELIGION, getStateReligion());
+		logSASGameRecordAIDiploContactIntent(*this, eHuman, CONTACT_RELIGION_PRESSURE, &kSubject, NULL, NULL);
+	}
 	gDLL->beginDiplomacy(pDiplo, eHuman);
 	return true;
 }
@@ -24929,6 +24986,11 @@ bool CvPlayerAI::AI_contactCivics(PlayerTypes eHuman)
 	pDiplo->setDiploComment(GC.getAIDiploCommentType("CIVIC_PRESSURE"),
 			GC.getInfo(eFavoriteCivic).getTextKeyWide());
 	pDiplo->setAIContact(true);
+	if (gGameRecordLogLevel >= 2)
+	{
+		TradeData const kSubject(TRADE_CIVIC, eFavoriteCivic);
+		logSASGameRecordAIDiploContactIntent(*this, eHuman, CONTACT_CIVIC_PRESSURE, &kSubject, NULL, NULL);
+	}
 	gDLL->beginDiplomacy(pDiplo, eHuman);
 	return true;
 }
@@ -25019,6 +25081,7 @@ bool CvPlayerAI::AI_askHelp(PlayerTypes eHuman)
 	pDiplo->setAIContact(true);
 	pDiplo->setOurOfferList(humanGives);
 	pDiplo->setTheirOfferList(weGive); // advc.104m
+	if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, eHuman, CONTACT_ASK_FOR_HELP, NULL, &weGive, &humanGives);
 	gDLL->beginDiplomacy(pDiplo, eHuman);
 	return true;
 }
@@ -25268,6 +25331,7 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
 	pDiplo->setAIContact(true);
 	pDiplo->setOurOfferList(humanGives);
 	pDiplo->setTheirOfferList(weGive); // advc.104m
+	if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, eHuman, CONTACT_DEMAND_TRIBUTE, NULL, &weGive, &humanGives);
 	gDLL->beginDiplomacy(pDiplo, eHuman);
 	return true;
 }

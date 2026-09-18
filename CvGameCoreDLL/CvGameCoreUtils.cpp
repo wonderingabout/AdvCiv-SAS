@@ -1148,6 +1148,28 @@ char const* getSASDiploEventType(DiploEventTypes eDiploEvent)
 	}
 }
 
+char const* getSASContactType(ContactTypes eContact)
+{
+	switch (eContact)
+	{
+	case CONTACT_RELIGION_PRESSURE: return "CONTACT_RELIGION_PRESSURE";
+	case CONTACT_CIVIC_PRESSURE: return "CONTACT_CIVIC_PRESSURE";
+	case CONTACT_JOIN_WAR: return "CONTACT_JOIN_WAR";
+	case CONTACT_STOP_TRADING: return "CONTACT_STOP_TRADING";
+	case CONTACT_GIVE_HELP: return "CONTACT_GIVE_HELP";
+	case CONTACT_ASK_FOR_HELP: return "CONTACT_ASK_FOR_HELP";
+	case CONTACT_DEMAND_TRIBUTE: return "CONTACT_DEMAND_TRIBUTE";
+	case CONTACT_OPEN_BORDERS: return "CONTACT_OPEN_BORDERS";
+	case CONTACT_DEFENSIVE_PACT: return "CONTACT_DEFENSIVE_PACT";
+	case CONTACT_PERMANENT_ALLIANCE: return "CONTACT_PERMANENT_ALLIANCE";
+	case CONTACT_PEACE_TREATY: return "CONTACT_PEACE_TREATY";
+	case CONTACT_TRADE_TECH: return "CONTACT_TRADE_TECH";
+	case CONTACT_TRADE_BONUS: return "CONTACT_TRADE_BONUS";
+	case CONTACT_TRADE_MAP: return "CONTACT_TRADE_MAP";
+	default: return "UNKNOWN_CONTACT";
+	}
+}
+
 char const* getSASMemoryType(MemoryTypes eMemory)
 {
 	switch (eMemory)

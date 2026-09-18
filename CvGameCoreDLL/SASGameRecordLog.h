@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 99 };
+enum { SAS_GAME_RECORD_REVISION = 100 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -400,6 +400,9 @@ void logSASGameRecordDiploOfferEvaluated(PlayerTypes eProposer, PlayerTypes eRes
 void logSASGameRecordDiploCounterProposal(PlayerTypes eProposer, PlayerTypes eResponder, CLinkList<TradeData> const& kOriginalProposerGives, CLinkList<TradeData> const& kOriginalResponderGives, CLinkList<TradeData> const& kProposerAdds, CLinkList<TradeData> const& kResponderAdds, bool bProposed);
 // <!-- custom: AI->human rejected ordinary offers are visible only at the Python diplomacy UI boundary; the CyGame bridge rebuilds these lists and calls this canonical recorder formatter. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIToHumanOfferRejected(PlayerTypes eProposer, PlayerTypes eResponder, CLinkList<TradeData> const& kProposerGives, CLinkList<TradeData> const& kResponderGives);
+// <!-- custom: Preserve one realized proactive AI diplomacy intent only after the live branch has formed a real contact/deal package.
+// `subject` is reserved for non-package requests such as religion/civic pressure, joint war or embargo; specialized peace/resource-trade provenance remains authoritative for those paths. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIDiploContactIntent(CvPlayerAI const& kPlayer, PlayerTypes eTarget, ContactTypes eContact, TradeData const* pSubject, CLinkList<TradeData> const* pAIGives, CLinkList<TradeData> const* pAIReceives);
 // <!-- custom: Preserve one resolved AI peace-negotiation boundary rather than copying the full UWAI/BBAI utility trace; callers pre-gate at level 2 so disabled/lower-detail runs do not build logging-only trade context. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIPeaceDecision(PlayerTypes ePlayer, PlayerTypes eOther, int iAtWarTurns, bool bUWAI, int iInitialOurBenefit, int iInitialTheirBenefit, int iFinalOurBenefit, int iFinalTheirBenefit, int iGiveGold, int iReceiveGold, TechTypes eGiveTech, TechTypes eReceiveTech, int iGiveCityId, int iReceiveCityId, bool bCounterProposal, char const* szOutcome, CLinkList<TradeData> const* pWeGive, CLinkList<TradeData> const* pTheyGive);
 // <!-- custom: Preserve the real research/free-tech source and, for AI_bestTech, the already-computed selected/runner-up path values and optional level-3 candidate paths; caller and chooser gates ensure no technology valuation or chooser RNG is repeated for SASGameRecord. (ChatGPT-5.6-Sol) -->

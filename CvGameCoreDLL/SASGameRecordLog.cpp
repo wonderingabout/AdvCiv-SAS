@@ -11626,6 +11626,21 @@ void logSASGameRecordAIToHumanOfferRejected(PlayerTypes eProposer, PlayerTypes e
 		kResponder.AI_getAttitudeVal(eProposer), GET_TEAM(kProposer.getTeam()).isAtWar(kResponder.getTeam()) ? 1 : 0);
 }
 
+// <!-- custom: This is the compact missing first link before existing offer/deal/interaction rows: record only a realized proactive contact/deal, not every failed AI_contactRoll or discarded candidate.
+// All package/subject inputs are already final live state; no trade valuation, contact roll, RNG or candidate search is repeated for logging. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIDiploContactIntent(CvPlayerAI const& kPlayer, PlayerTypes eTarget, ContactTypes eContact, TradeData const* pSubject, CLinkList<TradeData> const* pAIGives, CLinkList<TradeData> const* pAIReceives)
+{
+	CvString const szSubject = (pSubject == NULL ? CvString("-") : getSASTradeDataText(*pSubject, kPlayer.getID()));
+	CvString const szAIGives = (pAIGives == NULL ? CvString("-") : getSASTradeListText(*pAIGives, kPlayer.getID()));
+	CvString const szAIReceives = (pAIReceives == NULL ? CvString("-") : getSASTradeListText(*pAIReceives, eTarget));
+	CvPlayerAI const& kTarget = GET_PLAYER(eTarget);
+	bool const bTargetHuman = kTarget.isHuman();
+	logSASGameRecord("GAME_RECORD_AI_DIPLO_CONTACT turn=%d player=%d team=%d targetPlayer=%d targetTeam=%d targetHuman=%d contact=%s delivery=%s attitudeValue=%d subject=%s aiGives=%s aiReceives=%s",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eTarget, kTarget.getTeam(), bTargetHuman ? 1 : 0,
+		getSASContactType(eContact), bTargetHuman ? "HUMAN_CONTACT" : "AI_DEAL", kPlayer.AI_getAttitudeVal(eTarget),
+		szSubject.GetCString(), szAIGives.GetCString(), szAIReceives.GetCString());
+}
+
 
 // <!-- custom: Record the resolved shared peace-negotiation boundary, including the compact end-war-value imbalance and reparations package that explains whether peace was blocked, deferred to a human offer, or implemented.
 // `provisional*` is the reparations selected by AI_negotiatePeace before any human counterproposal; `aiGives`/`aiReceives` serialize the final lists when they exist.

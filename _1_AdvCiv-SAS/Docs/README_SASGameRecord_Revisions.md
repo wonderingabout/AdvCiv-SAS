@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=99 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=100 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,16 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 99 - SAS practical 6489
+### Revision 100 - SAS practical 6490
 
 - **Date:** 2026-09-18
 - **Git commit:** pending
+- **Change:** Added compact level-2 realized proactive AI diplomatic-contact provenance: contact class, human-contact versus immediate AI-deal delivery, current attitude, optional non-package subject, and the final AI-gives/AI-receives package. Existing deeper peace and proactive resource-trade rows remain authoritative rather than being duplicated.
+
+### Revision 99 - SAS practical 6489
+
+- **Date:** 2026-09-18
+- **Git commit:** `c4cc6993fa06974fa9c91a8c45cde8f5c57c1f5a`
 - **Change:** Added compact level-2 AI AP/UN proposal-selection and real-ballot provenance: AI secretaries preserve the selected valid proposal's existing random/victory-boost score, while actual AI ballots preserve a typed live decision cause plus already-computed value/threshold/roll context where available and join directly to the triggered vote by id.
 
 ### Revision 98 - SAS practical 6488

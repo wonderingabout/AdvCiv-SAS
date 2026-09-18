@@ -3,7 +3,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 # Build check: SASGameRecord report logging must be disabled by default, the public revision/current history marker must stay synchronized.
-# Canonical readable AI-strategy/AreaAI diagnostics must match their native enums, exact AI target-city provenance/checkpoints must cover every writer/effective clear, periodic AI-attitude provenance must stay synchronized with AI_updateAttitude, and strategic/vote decision schemas must remain present.
+# Canonical readable AI-strategy/AreaAI/contact diagnostics must match their native enums, exact AI target-city provenance/checkpoints must cover every writer/effective clear, periodic AI-attitude provenance must stay synchronized with AI_updateAttitude, and strategic/vote/contact decision schemas must remain present.
 
 from pathlib import Path
 import argparse
@@ -544,6 +544,82 @@ def check_ai_diplo_vote_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_diplo_contact_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (CV_ENUMS_HEADER, GAME_CORE_UTILS_SOURCE, REVISION_SOURCE, PLAYER_AI_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI diplomatic-contact provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	enum_text = (repo_root / CV_ENUMS_HEADER).read_text(encoding="utf-8", errors="replace")
+	enum_match = re.search(r"ENUM_START\(Contact,\s*CONTACT\)(?P<body>.*?)ENUM_END\(Contact,\s*CONTACT\)", enum_text, flags=re.DOTALL)
+	if enum_match is None:
+		return [f"{CV_ENUMS_HEADER}: could not locate Contact enum block"]
+	enum_tokens = re.findall(r"^\s*(CONTACT_[A-Z0-9_]+)\s*,", enum_match.group("body"), flags=re.MULTILINE)
+	if not enum_tokens or len(enum_tokens) != len(set(enum_tokens)):
+		failures.append(f"{CV_ENUMS_HEADER}: invalid/duplicate Contact enumerators found")
+
+	utils_text = (repo_root / GAME_CORE_UTILS_SOURCE).read_text(encoding="utf-8", errors="replace")
+	helper_match = re.search(r"char\s+const\*\s+getSASContactType\s*\([^)]*\)\s*\{(?P<body>.*?)^\}", utils_text, flags=re.DOTALL | re.MULTILINE)
+	if helper_match is None:
+		failures.append(f"{GAME_CORE_UTILS_SOURCE}: missing getSASContactType definition")
+	else:
+		case_pairs = re.findall(r'case\s+(CONTACT_[A-Z0-9_]+)\s*:\s*return\s+"([^"]+)"\s*;', helper_match.group("body"))
+		case_tokens = [token for token, _ in case_pairs]
+		missing = [token for token in enum_tokens if token not in case_tokens]
+		extra = [token for token in case_tokens if token not in enum_tokens]
+		if missing:
+			failures.append(f"{GAME_CORE_UTILS_SOURCE}: getSASContactType missing {', '.join(missing)}")
+		if extra:
+			failures.append(f"{GAME_CORE_UTILS_SOURCE}: getSASContactType has non-enum case(s): {', '.join(extra)}")
+		if len(case_tokens) != len(set(case_tokens)):
+			failures.append(f"{GAME_CORE_UTILS_SOURCE}: duplicate getSASContactType case(s) found")
+		for token, label in case_pairs:
+			if token != label:
+				failures.append(f"{GAME_CORE_UTILS_SOURCE}: {token} maps to {label!r}, expected identical raw enum token")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_DIPLO_CONTACT", "contact=%s", "delivery=%s", "attitudeValue=%d",
+		"subject=%s", "aiGives=%s", "aiReceives=%s", "getSASContactType",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI diplomatic-contact diagnostic token {required}")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	bridged_contacts = re.findall(
+		r"logSASGameRecordAIDiploContactIntent\s*\([^;]*?\b(CONTACT_[A-Z0-9_]+)\b",
+		player_text, flags=re.DOTALL)
+	bridged_set = set(bridged_contacts)
+	expected_generic = {
+		"CONTACT_RELIGION_PRESSURE", "CONTACT_CIVIC_PRESSURE", "CONTACT_JOIN_WAR",
+		"CONTACT_STOP_TRADING", "CONTACT_GIVE_HELP", "CONTACT_ASK_FOR_HELP",
+		"CONTACT_DEMAND_TRIBUTE", "CONTACT_OPEN_BORDERS", "CONTACT_DEFENSIVE_PACT",
+		"CONTACT_PERMANENT_ALLIANCE", "CONTACT_TRADE_TECH", "CONTACT_TRADE_MAP",
+	}
+	missing_generic = sorted(expected_generic - bridged_set)
+	unexpected_generic = sorted(bridged_set - expected_generic)
+	if missing_generic:
+		failures.append(f"{PLAYER_AI_SOURCE}: generic realized-contact provenance missing {', '.join(missing_generic)}")
+	if unexpected_generic:
+		failures.append(f"{PLAYER_AI_SOURCE}: unexpected generic realized-contact class(es): {', '.join(unexpected_generic)}")
+	for delivery in ('"HUMAN_CONTACT"', '"AI_DEAL"'):
+		if delivery not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing realized diplomatic-contact delivery marker {delivery}")
+	if "gGameRecordLogLevel >= 2" not in player_text:
+		failures.append(f"{PLAYER_AI_SOURCE}: realized diplomatic-contact bridges must remain level-2 pre-gated")
+
+	# Peace and proactive resource exchange already have richer dedicated provenance;
+	# keeping them out of the generic row prevents duplicate rows for the same intent.
+	for specialized in ("GAME_RECORD_AI_PEACE_DECISION", "GAME_RECORD_AI_BONUS_TRADE_DECISION"):
+		if specialized not in record_text:
+			failures.append(f"{REVISION_SOURCE}: specialized contact provenance missing {specialized}")
+	if "CONTACT_PEACE_TREATY" in bridged_set or "CONTACT_TRADE_BONUS" in bridged_set:
+		failures.append(f"{PLAYER_AI_SOURCE}: peace/resource intent should remain in specialized provenance rather than duplicate GAME_RECORD_AI_DIPLO_CONTACT")
+	return failures
+
+
 EXPECTED_GAME_RECORD_DEFAULTS = {
 	"SAS_GAME_RECORD_LOG_LEVEL": 0,
 	# These configure enabled record logging but do not enable it themselves.
@@ -569,12 +645,13 @@ def main() -> int:
 	failures.extend(check_strategic_trade_market(args.repo_root))
 	failures.extend(check_uwai_war_plan_decisions(args.repo_root))
 	failures.extend(check_ai_diplo_vote_provenance(args.repo_root))
+	failures.extend(check_ai_diplo_contact_provenance(args.repo_root))
 	if failures:
 		print("FAIL SASGameRecord report/revision checks")
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact diagnostics synchronized")
 	return 0
 
 
