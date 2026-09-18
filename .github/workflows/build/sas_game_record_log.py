@@ -2,7 +2,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# Build check: SASGameRecord report logging must be disabled by default, the public revision must match its maintained history, and the canonical readable AI-strategy diagnostics must stay synchronized with the native enum.
+# Build check: SASGameRecord report logging must be disabled by default, the public revision/current history marker must stay synchronized, and canonical readable AI-strategy diagnostics must match the native enum.
 
 from pathlib import Path
 import argparse
@@ -46,6 +46,11 @@ def check_revision(repo_root: Path) -> list[str]:
 		expected = list(range(revision, 0, -1))
 		if history_revisions != expected:
 			failures.append(f"{REVISION_HISTORY}: expected contiguous latest-first revisions {revision}..1")
+	documented_revision_matches = re.findall(r"GAME_RECORD_SOURCE_CONTEXT recordRevision=(\d+) \.\.\.", history_text)
+	if len(documented_revision_matches) != 1:
+		failures.append(f"{REVISION_HISTORY}: expected exactly one current emitted recordRevision example, found {len(documented_revision_matches)}")
+	elif int(documented_revision_matches[0]) != revision:
+		failures.append(f"{REVISION_HISTORY}: current emitted recordRevision example={documented_revision_matches[0]}, source={revision}")
 
 	source_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
 	if 'GAME_RECORD_SOURCE_CONTEXT recordRevision=%d %s' not in source_text or 'SAS_GAME_RECORD_REVISION' not in source_text:
@@ -158,7 +163,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/AI-strategy diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy diagnostics synchronized")
 	return 0
 
 

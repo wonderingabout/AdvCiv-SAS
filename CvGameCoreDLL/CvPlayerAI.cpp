@@ -28091,12 +28091,9 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
 		iWeight = (bHuman ? iHumanWeight : kPersonality.getCultureVictoryWeight());
 		if (!kGame.culturalVictoryValid())
 			return false;
-
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const bool bBBAIVictoryStrategyCulture = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_CULTURE");
-
-		if (bCheckBBAIDefine && 
-			!bBBAIVictoryStrategyCulture)
+		if (bCheckBBAIDefine && !bBBAIVictoryStrategyCulture)
 		{
 			return false;
 		}
@@ -28104,12 +28101,8 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
 	if (eVictory == kGame.getSpaceVictory())
 	{
 		iWeight = (bHuman ? iHumanWeight : kPersonality.getSpaceVictoryWeight());
-
-		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const bool bBBAIVictoryStrategySpace = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_SPACE");
-
-		if (bCheckBBAIDefine &&
-			!GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_SPACE"))
+		if (bCheckBBAIDefine && !bBBAIVictoryStrategySpace)
 		{
 			return false;
 		}
@@ -28117,12 +28110,8 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
 	if (kVictory.isConquest())
 	{
 		iWeight = (bHuman ? iHumanWeight : kPersonality.getConquestVictoryWeight());
-
-		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const bool bBBAIVictoryStrategyConquest = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_CONQUEST");
-
-		if (bCheckBBAIDefine &&
-			!bBBAIVictoryStrategyConquest)
+		if (bCheckBBAIDefine && !bBBAIVictoryStrategyConquest)
 		{
 			return false;
 		}
@@ -28130,12 +28119,8 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
 	if (eVictory == kGame.getDominationVictory())
 	{
 		iWeight = (bHuman ? iHumanWeight : kPersonality.getDominationVictoryWeight());
-
-		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const bool bBBAIVictoryStrategyDomination = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_DOMINATION");
-
-		if (bCheckBBAIDefine &&
-			!bBBAIVictoryStrategyDomination)
+		if (bCheckBBAIDefine && !bBBAIVictoryStrategyDomination)
 		{
 			return false;
 		}
@@ -28143,12 +28128,8 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
 	if (kVictory.isDiploVote())
 	{
 		iWeight = (bHuman ? iHumanWeight : kPersonality.getDiplomacyVictoryWeight());
-
-		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const bool bBBAIVictoryStrategyDiplomacy = GC.getDefineBOOL("BBAI_VICTORY_STRATEGY_DIPLOMACY");
-
-		if (bCheckBBAIDefine &&
-			!bBBAIVictoryStrategyDiplomacy)
+		if (bCheckBBAIDefine && !bBBAIVictoryStrategyDiplomacy)
 		{
 			return false;
 		}
@@ -28160,11 +28141,15 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
 void CvPlayerAI::AI_updateVictoryStageHash()
 {
 	PROFILE_FUNC();
+	bool const bLogSASVictoryStageChanges = (gGameRecordLogLevel >= 2 && (!isHuman() || isHumanDisabled()));
+	AIVictoryStage eLastVictoryStageHash = NO_AI_VICTORY_STAGE;
+	if (bLogSASVictoryStageChanges) eLastVictoryStageHash = m_eVictoryStageHash;
 
 	if (isBarbarian() || isMinorCiv() || !isAlive() ||
 		GET_TEAM(getTeam()).isCapitulated()) // advc.014
 	{
 		m_eVictoryStageHash = NO_AI_VICTORY_STAGE;
+		if (bLogSASVictoryStageChanges) logSASGameRecordAIVictoryStageChanges(*this, eLastVictoryStageHash, m_eVictoryStageHash);
 		return;
 	}
 
@@ -28175,6 +28160,7 @@ void CvPlayerAI::AI_updateVictoryStageHash()
 		// advc.115: Can't estimate yield rates on turn 0
 		GC.getGame().getElapsedGameTurns() <= 0)
 	{
+		if (bLogSASVictoryStageChanges) logSASGameRecordAIVictoryStageChanges(*this, eLastVictoryStageHash, m_eVictoryStageHash);
 		return;
 	}
 	//bool bStartedOtherLevel3 = false;
@@ -28301,6 +28287,7 @@ void CvPlayerAI::AI_updateVictoryStageHash()
 			}
 		}
 	}
+	if (bLogSASVictoryStageChanges) logSASGameRecordAIVictoryStageChanges(*this, eLastVictoryStageHash, m_eVictoryStageHash);
 } // BETTER_BTS_AI_MOD: END (Victory Strategy AI)
 
 // K-Mod, based on BBAI

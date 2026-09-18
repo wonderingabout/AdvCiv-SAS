@@ -537,6 +537,13 @@ static bool isSASGameRecordAIStrategyActive(CvPlayerAI const& kPlayer, AIStrateg
 	return kPlayer.AI_isDoStrategy(eStrategy, kPlayer.isHumanDisabled());
 }
 
+// <!-- custom: Victory-stage hashes are also maintained for ordinary humans because UWAI can inspect them, but GAME_RECORD_AI_VICTORY_* rows are AI-behavior history.
+// Match the existing periodic-row policy: include AI Auto Play's disabled-human slot, but not an actively human-controlled player. (ChatGPT-5.6-Sol) -->
+static bool isSASGameRecordAIVictoryStagePlayer(CvPlayerAI const& kPlayer)
+{
+	return (!kPlayer.isHuman() || kPlayer.isHumanDisabled());
+}
+
 static SASGameRecordStateObjectHash getSASGameRecordPlayerStateSignature(CvPlayerAI const& kPlayer)
 {
 	SASGameRecordStateObjectHash uiHash;
@@ -6208,7 +6215,7 @@ static void logSASGameRecordAIStrategies(PlayerTypes ePlayer, int iGameTurn)
 static void logSASGameRecordAIVictoryStages(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
-	if (kPlayer.isHuman() && !kPlayer.isHumanDisabled())
+	if (!isSASGameRecordAIVictoryStagePlayer(kPlayer))
 		return;
 	AIVictoryStage const eStages = kPlayer.AI_getVictoryStageHash();
 	int const iCultureStage = getSASCultureVictoryStageLevel(eStages);
@@ -11676,6 +11683,27 @@ void logSASGameRecordAIStrategyChanges(CvPlayerAI const& kPlayer, AIStrategy eOl
 		logSASGameRecord("GAME_RECORD_AI_STRATEGY_CHANGE turn=%d player=%d team=%d strategy=%s activeAfter=%d",
 			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), getSASAIStrategyType(eStrategy), bIsActive);
 	}
+}
+
+static void logSASGameRecordAIVictoryStageChange(CvPlayerAI const& kPlayer, char const* szRoute, int iOldStage, int iNewStage)
+{
+	if (iOldStage == iNewStage)
+		return;
+	logSASGameRecord("GAME_RECORD_AI_VICTORY_STAGE_CHANGE turn=%d player=%d team=%d route=%s oldStage=%d newStage=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), szRoute, iOldStage, iNewStage);
+}
+
+// <!-- custom: Record route-level 0..4 transitions only after AI_updateVictoryStageHash reaches its final state, including early resets for invalid/capitulated/no-capital players.
+// Comparing its already-computed old/new bitfields adds no victory-stage evaluation, RNG or pathfinding; periodic GAME_RECORD_AI_VICTORY_STAGES remains the checkpoint for loaded/truncated records. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIVictoryStageChanges(CvPlayerAI const& kPlayer, AIVictoryStage eOldStages, AIVictoryStage eNewStages)
+{
+	if (!isSASGameRecordAIVictoryStagePlayer(kPlayer) || eOldStages == eNewStages)
+		return;
+	logSASGameRecordAIVictoryStageChange(kPlayer, "CULTURE", getSASCultureVictoryStageLevel(eOldStages), getSASCultureVictoryStageLevel(eNewStages));
+	logSASGameRecordAIVictoryStageChange(kPlayer, "SPACE", getSASSpaceVictoryStageLevel(eOldStages), getSASSpaceVictoryStageLevel(eNewStages));
+	logSASGameRecordAIVictoryStageChange(kPlayer, "CONQUEST", getSASConquestVictoryStageLevel(eOldStages), getSASConquestVictoryStageLevel(eNewStages));
+	logSASGameRecordAIVictoryStageChange(kPlayer, "DOMINATION", getSASDominationVictoryStageLevel(eOldStages), getSASDominationVictoryStageLevel(eNewStages));
+	logSASGameRecordAIVictoryStageChange(kPlayer, "DIPLOMACY", getSASDiplomacyVictoryStageLevel(eOldStages), getSASDiplomacyVictoryStageLevel(eNewStages));
 }
 
 // <!-- custom: Serialize only scores produced by the real AI_bestReligion loop; the vector is built only at GameRecord level 3 and formatted only when AI_doReligion reaches a meaningful switch/spread-block decision. (ChatGPT-5.6-Sol) -->

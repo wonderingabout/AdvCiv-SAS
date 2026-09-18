@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=90 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=92 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,18 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 91 - SAS practical 6481
+### Revision 92 - SAS practical 6482
 
 - **Date:** 2026-09-18
 - **Git commit:** pending
+- **Change:** Added exact readable AI victory-route stage history at level 2. `GAME_RECORD_AI_VICTORY_STAGE_CHANGE` records each final Culture/Space/Conquest/Domination/Diplomacy 0..4 stage transition after `AI_updateVictoryStageHash` finishes, including authoritative resets caused by invalid/capitulated/no-capital state; the existing periodic `GAME_RECORD_AI_VICTORY_STAGES` row remains the loaded-save/truncated-log checkpoint. The bridge compares only the already-computed before/after victory-stage bitfields and repeats no victory evaluation, RNG or pathfinding.
+
+The periodic and exact rows now share one AI/AI-Auto-Play eligibility helper. The revision checker also verifies the revision history's current emitted `recordRevision` example against the source constant so that descriptive marker cannot silently lag after a revision bump.
+
+### Revision 91 - SAS practical 6481
+
+- **Date:** 2026-09-18
+- **Git commit:** `9a2348b4029ec5e4bc1c609e00018235d62d0123`
 - **Change:** Added complete readable AI-strategy history at level 2. `GAME_RECORD_AI_STRATEGY_CHANGE` records each final gameplay-active non-default `AIStrategy` bit that starts/stops after `AI_updateStrategyHash` finishes its validity cleanup, while periodic `GAME_RECORD_AI_STRATEGIES` checkpoints preserve the complete active set without requiring replay from turn 0. Existing specialized decision rows remain for local context and BBAI retains its detailed K-Mod transition diagnostics/trigger values.
 
 A shared `getSASAIStrategyType` helper in `CvGameCoreUtils` now provides canonical raw enum names to both logs, replacing the fragile BBAI stringification macros without changing their emitted strategy names. Existing SASGameRecord strategy predicates share one AI-Auto-Play-aware wrapper, and the build check guards the contiguous strategy-bit layout, enum-name coverage, and all complete strategy scans against future `AIStrategy` additions. No AI strategy evaluation, RNG or pathfinding is repeated solely for recording.
