@@ -1170,15 +1170,15 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1056 - (Provisional Pending AdvCiv-SAS Permanent-Alliance repair regression) Historical identity migration skips dead outsiders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1056)\
 [KI#1057 - (Provisional Pending AdvCiv-SAS Permanent-Alliance repair regression) Contact and first-contact migration skip dead outsiders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1057)\
 [KI#1058 - (Provisional Pending AdvCiv-SAS Espionage repair regression) The first generic Spy can block an eligible grouped Spy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1058)\
-[KI#1059 - (Provisional Pending UI AdvCiv-SAS perspective defect) Info Screen power hover uses the real active player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1059)\
-[KI#1060 - (Provisional Pending UI AdvCiv-SAS replay repair regression) Timeline reuses another observer's filtered replay](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1060)\
+[KI#1059 - (Fixed UI AdvCiv-SAS perspective defect) Info Screen power hover used the real active player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1059)\
+[KI#1060 - (Fixed UI AdvCiv-SAS replay repair regression) Timeline reused another observer's filtered replay](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1060)\
 [KI#1061 - (Provisional Pending inherited AdvC starting-position regression) A preassigned teammate blocks later fallback assignment](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1061)\
 [KI#1062 - (Provisional Pending UI mixed inherited/AdvCiv-SAS localization defect) Four persistent Main Interface labels remain stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1062)\
 [KI#1063 - (Provisional Pending UI AdvCiv-SAS display defect) Culture Breakdown omits slider and process culture](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1063)\
 [KI#1064 - (Provisional Pending Team Battleground regeneration defect) Start assignment mixes alive and ever-alive populations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1064)\
 [KI#1065 - (Provisional Pending inherited Custom Continents regeneration defect) One-Per-Team producer and consumer cross different team thresholds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1065)\
 [KI#1066 - (Provisional Pending UI AdvCiv-SAS font-migration regression) Great Person fitting measures a different font than it renders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1066)\
-[KI#1067 - (Provisional Pending UI AdvCiv-SAS Domestic Advisor repair regression) Debug-selected Free Colony availability executes for the active player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067)\
+[KI#1067 - (Fixed UI AdvCiv-SAS Domestic Advisor repair regression) Debug-selected Free Colony availability executed for the active player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067)\
 [KI#1068 - (Fixed AdvCiv-SAS Sevopedia repair regression) EventTrigger corporation-era inference ignored HQ-building technology gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1068)\
 [KI#1069 - (Fixed UI AdvCiv-SAS World Advisor repair regression) Territory revealed live ownership changes under fog](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1069)\
 [KI#1070 - (Provisional Pending audit cursor) Mechanical denominator and modulo scan remains active](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1070)\
@@ -10501,6 +10501,8 @@ The fix restores the original native `CONTROL_FREE_COLONY` `WIDGET_ACTION`, auto
 
 This is an AdvCiv-SAS regression introduced by practical 5599 (`b8253247d2`). Screenshot 0044 confirms that the restored icon and native Alt+F1 tooltip render cleanly beside Exit; screenshot 0045 confirms that clicking it closes the advisor and opens the correct native popup with Alexandria and Memphis as liberation choices. The refreshed `PythonErr.log` remained empty.
 
+Update: A later repair-side audit found that Debug mode could still expose this native active-player action while another player was selected. KI#1067 completes the perspective contract by hiding the button whenever the selected Domestic Advisor player is not the real active player; the original restoration remains valid.
+
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
 
 <a id="ki-234"></a>
@@ -11743,7 +11745,11 @@ The current save schema now reads and writes the parallel masks after the unchan
 
 After compilation, a fresh game completed its autoplay, saved and reloaded successfully, and its ordinary Timeline opened without an observed issue. Screenshots 0247 and 0248 confirm that the Apostolic Palace had been built but the Resolutions tab still reported no resolution and both vote sources inactive, so the exact passed-resolution member/nonmember contrast remains source-verified rather than directly reproduced.
 
-This is an inherited AdvCiv `advc.150b` information-visibility defect exposed by the AdvCiv-SAS Timeline, not an original BtS/K-Mod or AdvCiv-SAS replay-persistence change. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+This is an inherited AdvCiv `advc.150b` information-visibility defect exposed by the AdvCiv-SAS Timeline, not an original BtS/K-Mod or AdvCiv-SAS replay-persistence change.
+
+Update: A later repair-side audit found that the Timeline could reuse a global replay snapshot built for a different observer after switching advisor perspectives. KI#1060 now rebuilds the snapshot for the selected perspective, preserving this historical audience mask across that cross-context use; the original mask repair remains valid.
+
+Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
 
 <a id="ki-338"></a>
 
@@ -12351,9 +12357,13 @@ Former F066/provisional KI#387 was retracted by ChatGPT-5.6-Sol in C012-WIP04 an
 
 The AdvCiv-SAS Info Screen Score tab reused `WIDGET_SCORE_BREAKDOWN` with `data2=0`, `WIDGET_POWER_RATIO` and `WIDGET_TRADE_ROUTES_SCOREBOARD` for their useful scoreboard hover text. `CvDLLWidgetData::parseHelp` also treats all three as scoreboard expansion controls and calls `setScoreboardExpanded(true)`. Hovering these advisor cells therefore imported hidden scoreboard expansion state and collapse-timer activity into an unrelated focused screen.
 
-This is an AdvCiv-SAS cross-context regression introduced with the custom Score tab in practical 5483, not an inherited AdvCiv defect. The fix preserves the active-player score breakdown with a non-expansion `data2` value, reuses the ordinary non-scoreboard trade-routes hover, and adds an Info Screen-specific power-ratio widget that shares the same tooltip parser without entering the scoreboard expansion list. Found as F066/provisional KI#388 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; fixed and documented with the help of GPT-5.6-Sol, thanks.
+This is an AdvCiv-SAS cross-context regression introduced with the custom Score tab in practical 5483, not an inherited AdvCiv defect. The fix preserves the active-player score breakdown with a non-expansion `data2` value, reuses the ordinary non-scoreboard trade-routes hover, and adds an Info Screen-specific power-ratio widget that shares the same tooltip parser without entering the scoreboard expansion list.
 
 Compile/runtime testing with the help of wonderingabout confirmed that hovering the Info Screen Score tab no longer changed the scoreboard state, thanks.
+
+Update: A later repair-side audit found that the new power widget still inherited the scoreboard parser's real-active-player viewpoint under alternate advisor perspectives. KI#1059 adds the selected perspective to that Info-Screen-only widget contract while preserving this repair's separation from scoreboard expansion; the original repair remains valid.
+
+Found as F066/provisional KI#388 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-389"></a>
 
@@ -19192,21 +19202,25 @@ Found as F737/provisional KI#1058 during ChatGPT-5.6-Sol's C031-WIP797 repair-si
 
 <a id="ki-1059"></a>
 
-## KI#1059 - (Provisional Pending UI AdvCiv-SAS perspective defect) Info Screen power hover uses the real active player
+## KI#1059 - (Fixed UI AdvCiv-SAS perspective defect) Info Screen power hover used the real active player
 
 The Info Screen Score table can display an allowed debug/vassal advisor perspective B, but its dedicated power-ratio widget carries only the target and delegates to scoreboard help that hardcodes the real active player A. A visible B-vs-C ratio can therefore receive A-vs-C hover percentages and espionage-threshold explanations.
 
-This is an AdvCiv-SAS Score-tab widget/caller contract defect exposed while reviewing the otherwise-valid KI#388 repair; the ordinary scoreboard correctly belongs to the real active player. Pending carrying the selected advisor perspective explicitly and using it for both ratio and espionage help.
+This is an AdvCiv-SAS Score-tab widget/caller contract defect exposed while reviewing the otherwise-valid KI#388 repair; the ordinary scoreboard correctly belongs to the real active player. The Info-Screen-only widget now carries and validates the selected advisor perspective explicitly, and uses it for both the power ratio and espionage-threshold help. The ordinary scoreboard retains its real-active-player and optional tooltip-color contract.
+
+Compilation and a fresh Pangaea autoplay through turn 201 completed successfully. The alternate-perspective hover pairing remains source-verified rather than requiring a specialized debug comparison.
 
 Found as F738/provisional KI#1059 during ChatGPT-5.6-Sol's C031-WIP800 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-1060"></a>
 
-## KI#1060 - (Provisional Pending UI AdvCiv-SAS replay repair regression) Timeline reuses another observer's filtered replay
+## KI#1060 - (Fixed UI AdvCiv-SAS replay repair regression) Timeline reused another observer's filtered replay
 
 KI#337 correctly stores and applies historical AP/UN audience masks, but the Info Screen Timeline can reuse a non-null global replay snapshot without proving that it was built for the currently selected advisor perspective. After the end-game Replay creates a snapshot for human A, switching Timeline to allowed vassal B can leak A-only resolution rows or omit rows visible only to B.
 
-The historical-mask root remains KI#337; this is a SAS cross-context cache-ownership defect created by combining observer-filtered replay data with alternate advisor perspectives. Pending rebuilding the Timeline snapshot for the selected perspective, or storing and requiring an exact observer identity before reuse.
+The historical-mask root remains KI#337; this was a SAS cross-context cache-ownership defect created by combining observer-filtered replay data with alternate advisor perspectives. Timeline now constructs its replay snapshot for the selected perspective on each cache-build attempt, using `NO_PLAYER` only for explicit reveal-all mode. Its existing processed-entry cache remains keyed by perspective, reveal-all state, message count and game turn.
+
+The same successful turn-201 autoplay exercised replay production. Screenshot 0596 confirms that Debug mode still intentionally shows the same complete reveal-all Timeline across selected players; the narrower non-Debug vassal/AP-or-UN audience contrast remains source-verified.
 
 Found as F739/provisional KI#1060 during ChatGPT-5.6-Sol's C031-WIP814 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
@@ -19272,11 +19286,13 @@ Found as F745/provisional KI#1066 during ChatGPT-5.6-Sol's C031-WIP860 repair-si
 
 <a id="ki-1067"></a>
 
-## KI#1067 - (Provisional Pending UI AdvCiv-SAS Domestic Advisor repair regression) Debug-selected Free Colony availability executes for the active player
+## KI#1067 - (Fixed UI AdvCiv-SAS Domestic Advisor repair regression) Debug-selected Free Colony availability executed for the active player
 
 KI#233 restores the standard Domestic Advisor's Free Colony/Liberate button and, in Debug mode, computes its visibility from the dropdown-selected player B. The native `WIDGET_ACTION` carries no player identity: clicking it launches and executes the Free Colony action for the real active player A, so eligibility and mutation can describe different empires.
 
-The original active-player repair remains valid; this extra perspective mismatch is SAS-specific. Pending showing this native action only when the selected Domestic perspective equals the real active player, including in Debug mode, unless a genuinely selected-player-aware executor is introduced.
+The original active-player repair remains valid; this extra perspective mismatch was SAS-specific. The button is now suppressed whenever the selected Domestic perspective differs from the real active player, including in Debug mode, so its displayed eligibility and native executor always describe the same empire.
+
+Compilation and the same fresh autoplay completed successfully. The selected-player/native-executor ownership mismatch is additionally source-verified against the action's fixed active-player dispatch.
 
 Found as F746/provisional KI#1067 during ChatGPT-5.6-Sol's C031-WIP864 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 

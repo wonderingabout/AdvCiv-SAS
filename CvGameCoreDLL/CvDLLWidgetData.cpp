@@ -70,6 +70,13 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 			return;
 		}
 	} // </advc.085>
+	// <!-- custom: The AdvCiv-SAS Info Screen Score tab's power widget carries its selected advisor perspective in data2 so its help does not silently fall back to the real active player. See KI#1059. (GPT-5.6-Sol) -->
+	if (widgetDataStruct.m_eWidgetType == WIDGET_POWER_RATIO_INFO_SCREEN &&
+		(widgetDataStruct.m_iData2 <= NO_PLAYER || widgetDataStruct.m_iData2 >= MAX_PLAYERS))
+	{
+		FErrorMsg("Info Screen perspective player id missing in widget data");
+		return;
+	}
 	/*	advc: (Note - Better not to assume that this is valid, widgets might perhaps
 		get triggered while returning to opening menu or sth. like that.) */
 	PlayerTypes const eActivePlayer = getActivePlayer();
@@ -6185,7 +6192,11 @@ void CvDLLWidgetData::parseFoodModHelp(CvWidgetDataStruct &widgetDataStruct, CvW
 void CvDLLWidgetData::parsePowerRatioHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)widgetDataStruct.m_iData1);
-	CvPlayer const& kActivePlayer = GET_PLAYER(getActivePlayer());
+	// <!-- custom: The ordinary scoreboard belongs to the real active player, while the AdvCiv-SAS Info Screen Score tab can show another permitted advisor perspective.
+	// Use that screen-specific payload for both ratio and espionage help. See KI#1059. (GPT-5.6-Sol) -->
+	PlayerTypes const ePerspective = (widgetDataStruct.m_eWidgetType == WIDGET_POWER_RATIO_INFO_SCREEN ?
+			(PlayerTypes)widgetDataStruct.m_iData2 : getActivePlayer());
+	CvPlayer const& kActivePlayer = GET_PLAYER(ePerspective);
 	bool bThemVsYou = (BUGOption::getValue("Scores__PowerFormula", 0, false) == 0);
 	int iPow = std::max(1, kPlayer.getPower());
 	int iActivePow = std::max(1, kActivePlayer.getPower());
@@ -6203,7 +6214,7 @@ void CvDLLWidgetData::parsePowerRatioHelp(CvWidgetDataStruct &widgetDataStruct, 
 	else szPowerRatioHelpTag += L"YOU_VS_THEM";
 	szBuffer.append(gDLL->getText(szPowerRatioHelpTag, kPlayer.getName(),
 			gDLL->getText(szCompareTag).GetCString()));
-	ColorTypes eRatioColor = widgetDataStruct.m_iData2 <= 0 ? NO_COLOR :
+	ColorTypes eRatioColor = (widgetDataStruct.m_eWidgetType == WIDGET_POWER_RATIO_INFO_SCREEN || widgetDataStruct.m_iData2 <= 0) ? NO_COLOR :
 			(ColorTypes)widgetDataStruct.m_iData2;
 	if(eRatioColor != NO_COLOR)
 	{

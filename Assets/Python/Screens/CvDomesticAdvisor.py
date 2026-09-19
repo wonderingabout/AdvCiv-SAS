@@ -260,6 +260,10 @@ class CvDomesticAdvisor:
 
 	def drawFreeColonyButton(self, screen):
 		screen.deleteWidget(self.FREE_COLONY_BUTTON_ID)
+		# <!-- custom: The native Free Colony action always executes for the real active player and carries no selected-player identity.
+		# Do not show eligibility computed for a different Debug-selected perspective. See KI#1067. (GPT-5.6-Sol) -->
+		if self.iActivePlayer != CyGame().getActivePlayer():
+			return
 		if isAdvisorReadOnlyPerspective(self.iActivePlayer):
 			return
 		player = gc.getPlayer(self.iActivePlayer)

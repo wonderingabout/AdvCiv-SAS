@@ -907,14 +907,14 @@ class CvInfoScreen:
 
 	# <!-- custom: Timeline cache - builds cached entries for faster tab loading (Claude Opus 4.5) -->
 	def buildTimelineCache(self, bForceRebuild = False):
-		# <!-- custom: Reuse the observer-filtered replay normally, but rebuild it for Debug/reveal-all so an existing end-game replay cannot hide entries from the complete stream. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		replayInfo = CyGame().getReplayInfo()
-		if replayInfo.isNone() or self.bRevealAll:
-			replayInfo = CyReplayInfo()
-			iReplayPlayer = self.iActivePlayer
-			if self.bRevealAll:
-				iReplayPlayer = -1
-			replayInfo.createInfo(iReplayPlayer)
+		# <!-- custom: A non-null global replay snapshot does not expose which observer's historical audience mask built it.
+		# Always construct Timeline data for the selected advisor perspective, or reveal all only in that explicit mode.
+		# This preserves KI#337 across perspective switches. See KI#1060. (GPT-5.6-Sol) -->
+		replayInfo = CyReplayInfo()
+		iReplayPlayer = self.iActivePlayer
+		if self.bRevealAll:
+			iReplayPlayer = -1
+		replayInfo.createInfo(iReplayPlayer)
 
 		iNumMessages = replayInfo.getNumReplayMessages()
 		iGameTurn = CyGame().getGameTurn()
@@ -1428,8 +1428,8 @@ class CvInfoScreen:
 						iPowerColorForWidget = iPowerColor
 					if iPowerColorForWidget > 0:
 						szPower = localText.changeTextColor(szPower, iPowerColorForWidget)
-			# <!-- custom: Use the same power-ratio help through an Info Screen-specific widget that has no scoreboard expansion side effect. See KI#388. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-			SASTextScale.setTableTextLabel(screen, szTable, iColPower, iRow, szPower, "", WidgetTypes.WIDGET_POWER_RATIO_INFO_SCREEN, ePlayer, iPowerColorForWidget, CvUtil.FONT_RIGHT_JUSTIFY)
+			# <!-- custom: Use an Info Screen-specific widget with no scoreboard expansion side effect, and carry the selected advisor perspective explicitly for accurate ratio and espionage help. See KI#388 and KI#1059. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			SASTextScale.setTableTextLabel(screen, szTable, iColPower, iRow, szPower, "", WidgetTypes.WIDGET_POWER_RATIO_INFO_SCREEN, ePlayer, eActivePlayer, CvUtil.FONT_RIGHT_JUSTIFY)
 			if iTheirPower > -1:
 				SASTextScale.setTableIntLabel(screen, szTable, iColPowerAbs, iRow, str(iTheirPower), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 			else:
