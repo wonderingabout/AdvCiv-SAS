@@ -965,6 +965,82 @@ def check_ai_help_tribute_request_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_give_help_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI give-help provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	expected_origins = [
+		"SAS_AI_GIVE_HELP_RELATION_RESOURCE",
+		"SAS_AI_GIVE_HELP_RELATION_TECH",
+		"SAS_AI_GIVE_HELP_PROACTIVE_TECH",
+	]
+	m = re.search(r"enum\s+SASGameRecordAIGiveHelpOrigin\s*\{(?P<body>.*?)\};", header_text, flags=re.DOTALL)
+	if m is None:
+		failures.append(f"{REVISION_HEADER}: missing SASGameRecordAIGiveHelpOrigin")
+	else:
+		tokens = re.findall(r"^\s*(SAS_AI_GIVE_HELP_[A-Z0-9_]+)\s*,?\s*$", m.group("body"), flags=re.MULTILINE)
+		if tokens != expected_origins:
+			failures.append(f"{REVISION_HEADER}: AI give-help origin vocabulary changed; expected {expected_origins}, found {tokens}")
+	if "logSASGameRecordAIGiveHelpDecision" not in header_text:
+		failures.append(f"{REVISION_HEADER}: missing give-help provenance logger declaration")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_GIVE_HELP_DECISION", "origin=%s", "sameTeam=%d", "targetVassal=%d", "giverVassal=%d",
+		"attitudeValue=%d", "proactiveAttitude=%s", "proactiveAttitudeThreshold=%s", "giverAssets=%d", "targetAssets=%d", "selectedBonus=%s", "targetHadBonus=%d",
+		"selectedTech=%s", "selectedTechCost=%d", "selectionScore=%d", "techScoreRatioX1000=%d", "giftProbX1000=%d",
+		"contactProbMultX1000=%d",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI give-help diagnostic token {required}")
+	for token in expected_origins:
+		if record_text.count(f"case {token}:") != 1:
+			failures.append(f"{REVISION_SOURCE}: give-help origin {token} must have exactly one stringifier case")
+	m = re.search(r"void\s+logSASGameRecordAIGiveHelpDecision\([^)]*\)\s*\{(?P<body>.*?)^\}", record_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		failures.append(f"{REVISION_SOURCE}: could not locate give-help provenance logger body")
+	else:
+		body = m.group("body")
+		if body.count("AI_getAttitudeVal(eTarget)") != 1 or "AI_getAttitude(eTarget)" in body:
+			failures.append(f"{REVISION_SOURCE}: give-help logger must query raw target attitude only once and derive its category without a second lookup")
+		if "int const iAttitudeValue = (bProactive ? kPlayer.AI_getAttitudeVal(eTarget) : -1);" not in body:
+			failures.append(f"{REVISION_SOURCE}: give-help attitude context must stay proactive-only so relationship gifts do not log an unrelated/forced attitude value")
+		if body.count("AI_getAttitudeFromValue(iAttitudeValue)") != 1:
+			failures.append(f"{REVISION_SOURCE}: give-help logger must derive proactiveAttitude from the cached raw attitude value")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	if player_text.count("logSASGameRecordAIGiveHelpDecision(") != 6:
+		failures.append(f"{PLAYER_AI_SOURCE}: expected 6 realized give-help provenance bridges (human/AI for three live algorithms)")
+	for token, expected in (
+		("SAS_AI_GIVE_HELP_RELATION_RESOURCE", 2),
+		("SAS_AI_GIVE_HELP_RELATION_TECH", 2),
+		("SAS_AI_GIVE_HELP_PROACTIVE_TECH", 2),
+	):
+		actual = player_text.count(token)
+		if actual != expected:
+			failures.append(f"{PLAYER_AI_SOURCE}: expected {expected} {token} bridges, found {actual}")
+	if player_text.count("logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP") != 6:
+		failures.append(f"{PLAYER_AI_SOURCE}: revision-100 CONTACT_GIVE_HELP package bridges changed unexpectedly")
+	if player_text.count("if (gGameRecordLogLevel >= 2)") < 6:
+		failures.append(f"{PLAYER_AI_SOURCE}: give-help specialized bridges must remain level-2 pre-gated")
+
+	# Preserve the live chooser/contact RNG structure inside AI_doDiplo; revision 110 may reuse winners but must not add recorder draws.
+	m = re.search(r"void\s+CvPlayerAI::AI_doDiplo\(\)\s*\{(?P<body>.*?)^\}\s*\n\n", player_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		failures.append(f"{PLAYER_AI_SOURCE}: could not locate AI_doDiplo for give-help RNG guard")
+	else:
+		body = m.group("body")
+		for token, expected in (("SyncRandNum(10000)", 5), ("-SyncRandNum(iCost)", 2), ("SyncRandSuccess(rGiftProb)", 1), ("AI_contactRoll(CONTACT_GIVE_HELP", 1)):
+			actual = body.count(token)
+			if actual != expected:
+				failures.append(f"{PLAYER_AI_SOURCE}: expected {expected} AI_doDiplo occurrence(s) of {token}, found {actual}")
+	return failures
+
 def check_ai_joint_war_request_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -1226,6 +1302,7 @@ def main() -> int:
 	failures.extend(check_ai_diplo_vote_provenance(args.repo_root))
 	failures.extend(check_ai_diplo_contact_provenance(args.repo_root))
 	failures.extend(check_ai_help_tribute_request_provenance(args.repo_root))
+	failures.extend(check_ai_give_help_provenance(args.repo_root))
 	failures.extend(check_ai_city_trade_intent_provenance(args.repo_root))
 	failures.extend(check_ai_embargo_request_provenance(args.repo_root))
 	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
@@ -1238,7 +1315,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-city-trade/AI-embargo/AI-joint-war/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-city-trade/AI-embargo/AI-joint-war/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

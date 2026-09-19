@@ -23422,14 +23422,22 @@ void CvPlayerAI::AI_doDiplo()
 							pDiplo->setDiploComment(GC.getAIDiploCommentType("GIVE_HELP"));
 							pDiplo->setAIContact(true);
 							pDiplo->setTheirOfferList(weGive);
-							if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+							if (gGameRecordLogLevel >= 2)
+							{
+								logSASGameRecordAIGiveHelpDecision(*this, ePlayer, SAS_AI_GIVE_HELP_RELATION_RESOURCE, eBestGiveBonus, NO_TECH, iBestValue);
+								logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+							}
 							gDLL->beginDiplomacy(pDiplo, ePlayer);
 							abContacted[kPlayer.getTeam()] = true;
 						}
 					}
 					else
 					{
-						if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+						if (gGameRecordLogLevel >= 2)
+						{
+							logSASGameRecordAIGiveHelpDecision(*this, ePlayer, SAS_AI_GIVE_HELP_RELATION_RESOURCE, eBestGiveBonus, NO_TECH, iBestValue);
+							logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+						}
 						kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
 					}
 				}
@@ -23498,14 +23506,22 @@ void CvPlayerAI::AI_doDiplo()
 							pDiplo->setDiploComment(GC.getAIDiploCommentType("GIVE_HELP"));
 							pDiplo->setAIContact(true);
 							pDiplo->setTheirOfferList(weGive);
-							if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+							if (gGameRecordLogLevel >= 2)
+							{
+								logSASGameRecordAIGiveHelpDecision(*this, ePlayer, SAS_AI_GIVE_HELP_RELATION_TECH, NO_BONUS, eBestGiveTech, iBestValue, (rTechScoreRatio * 1000).round(), (rGiftProb * 1000).round());
+								logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+							}
 							gDLL->beginDiplomacy(pDiplo, ePlayer);
 							abContacted[kPlayer.getTeam()] = true;
 						}
 					}
 					else
 					{
-						if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+						if (gGameRecordLogLevel >= 2)
+						{
+							logSASGameRecordAIGiveHelpDecision(*this, ePlayer, SAS_AI_GIVE_HELP_RELATION_TECH, NO_BONUS, eBestGiveTech, iBestValue, (rTechScoreRatio * 1000).round(), (rGiftProb * 1000).round());
+							logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+						}
 						kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
 					}
 				}
@@ -23760,14 +23776,22 @@ void CvPlayerAI::AI_doDiplo()
 											pDiplo->setDiploComment(GC.getAIDiploCommentType("GIVE_HELP"));
 											pDiplo->setAIContact(true);
 											pDiplo->setTheirOfferList(weGive);
-											if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+											if (gGameRecordLogLevel >= 2)
+											{
+												logSASGameRecordAIGiveHelpDecision(*this, ePlayer, SAS_AI_GIVE_HELP_PROACTIVE_TECH, NO_BONUS, eBestGiveTech, iBestValue, -1, -1, (rContactProbMult * 1000).round());
+												logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+											}
 											gDLL->beginDiplomacy(pDiplo, ePlayer);
 											abContacted[kPlayer.getTeam()] = true;
 										} // <avdc.130z>
 									}
 									else
 									{
-										if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+										if (gGameRecordLogLevel >= 2)
+										{
+											logSASGameRecordAIGiveHelpDecision(*this, ePlayer, SAS_AI_GIVE_HELP_PROACTIVE_TECH, NO_BONUS, eBestGiveTech, iBestValue, -1, -1, (rContactProbMult * 1000).round());
+											logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_GIVE_HELP, NULL, &weGive, NULL);
+										}
 										kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
 									}
 									// </advc.130z>

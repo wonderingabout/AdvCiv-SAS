@@ -3113,6 +3113,11 @@ static const char* getSASGameRecordBonusType(BonusTypes eBonus)
 	return (eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType());
 }
 
+static const char* getSASGameRecordAttitudeType(AttitudeTypes eAttitude)
+{
+	return (eAttitude == NO_ATTITUDE ? "-" : GC.getInfo(eAttitude).getType());
+}
+
 static const char* getSASGameRecordTerrainType(TerrainTypes eTerrain)
 {
 	return (eTerrain == NO_TERRAIN ? "-" : GC.getInfo(eTerrain).getType());
@@ -11689,6 +11694,45 @@ void logSASGameRecordAITributeRequest(CvPlayerAI const& kPlayer, PlayerTypes eHu
 		kPlayer.AI_getAttitudeVal(eHuman), getSASGameRecordAIDemandType(kContext.eDemand), kContext.iMinValueX100, kContext.iFinalDealValue,
 		getSASGameRecordTechType(kContext.eMostUsefulTech), getSASGameRecordTechType(kContext.eSelectedTech), kContext.iSelectedTechSortScore,
 		kContext.iSelectedTechTradeValue, kContext.iMapTradeValue, kContext.bMapAdded ? 1 : 0);
+}
+
+static char const* getSASGameRecordAIGiveHelpOrigin(SASGameRecordAIGiveHelpOrigin eOrigin)
+{
+	switch (eOrigin)
+	{
+	case SAS_AI_GIVE_HELP_RELATION_RESOURCE: return "RELATION_RESOURCE";
+	case SAS_AI_GIVE_HELP_RELATION_TECH: return "RELATION_TECH";
+	case SAS_AI_GIVE_HELP_PROACTIVE_TECH: return "PROACTIVE_TECH";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Preserve which live GIVE_HELP algorithm produced a realized gift and the chooser/gate values that disappear after the generic revision-100 package is emitted.
+// Relationship flags and cheap winner facts are derived only after the caller's level-2 gate; no candidate scan, valuation or synchronized RNG is repeated. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIGiveHelpDecision(CvPlayerAI const& kPlayer, PlayerTypes eTarget, SASGameRecordAIGiveHelpOrigin eOrigin, BonusTypes eSelectedBonus, TechTypes eSelectedTech, int iSelectionScore, int iTechScoreRatioX1000, int iGiftProbX1000, int iContactProbMultX1000)
+{
+	CvPlayerAI const& kTarget = GET_PLAYER(eTarget);
+	TeamTypes const eOurTeam = kPlayer.getTeam();
+	TeamTypes const eTargetTeam = kTarget.getTeam();
+	bool const bSameTeam = (eOurTeam == eTargetTeam);
+	bool const bTargetVassal = (!bSameTeam && GET_TEAM(eTargetTeam).isVassal(eOurTeam));
+	bool const bGiverVassal = (!bSameTeam && GET_TEAM(eOurTeam).isVassal(eTargetTeam));
+	int const iTargetHadBonus = (eSelectedBonus == NO_BONUS ? -1 : (kTarget.getNumAvailableBonuses(eSelectedBonus) > 0 ? 1 : 0));
+	int const iSelectedTechCost = (eSelectedTech == NO_TECH ? -1 : GC.getInfo(eSelectedTech).getResearchCost());
+	bool const bProactive = (eOrigin == SAS_AI_GIVE_HELP_PROACTIVE_TECH);
+	// <!-- custom: attitudeValue is chooser provenance only for proactive gifts. RELATION_RESOURCE does not use attitude here, while RELATION_TECH can deliberately use AI_getAttitude(..., false); the normal forced-attitude lookup would therefore be misleading for those origins.
+	// Keep this lookup proactive-only (-1 otherwise), matching the proactive-only threshold/assets fields and avoiding an unnecessary recorder lookup. (ChatGPT-5.6-Sol) -->
+	int const iAttitudeValue = (bProactive ? kPlayer.AI_getAttitudeVal(eTarget) : -1);
+	AttitudeTypes const eAttitude = (bProactive ? CvPlayerAI::AI_getAttitudeFromValue(iAttitudeValue) : NO_ATTITUDE);
+	AttitudeTypes const eAttitudeThreshold = (bProactive ? (AttitudeTypes)GC.getInfo(kPlayer.getPersonalityType()).getNoGiveHelpAttitudeThreshold() : NO_ATTITUDE);
+	int const iOurAssets = (bProactive ? GET_TEAM(eOurTeam).getAssets() : -1);
+	int const iTargetAssets = (bProactive ? GET_TEAM(eTargetTeam).getAssets() : -1);
+	logSASGameRecord("GAME_RECORD_AI_GIVE_HELP_DECISION turn=%d player=%d team=%d targetPlayer=%d targetTeam=%d targetHuman=%d origin=%s sameTeam=%d targetVassal=%d giverVassal=%d attitudeValue=%d proactiveAttitude=%s proactiveAttitudeThreshold=%s giverAssets=%d targetAssets=%d selectedBonus=%s targetHadBonus=%d selectedTech=%s selectedTechCost=%d selectionScore=%d techScoreRatioX1000=%d giftProbX1000=%d contactProbMultX1000=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), eOurTeam, eTarget, eTargetTeam, kTarget.isHuman() ? 1 : 0,
+		getSASGameRecordAIGiveHelpOrigin(eOrigin), bSameTeam ? 1 : 0, bTargetVassal ? 1 : 0, bGiverVassal ? 1 : 0,
+		iAttitudeValue, getSASGameRecordAttitudeType(eAttitude), getSASGameRecordAttitudeType(eAttitudeThreshold),
+		iOurAssets, iTargetAssets, getSASGameRecordBonusType(eSelectedBonus), iTargetHadBonus, getSASGameRecordTechType(eSelectedTech),
+		iSelectedTechCost, iSelectionScore, iTechScoreRatioX1000, iGiftProbX1000, iContactProbMultX1000);
 }
 
 // <!-- custom: Preserve the live reason for a realized AI request that a human join one of its wars.

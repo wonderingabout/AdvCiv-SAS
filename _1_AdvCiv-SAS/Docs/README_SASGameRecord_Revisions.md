@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=109 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=110 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,20 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 109 - SAS practical 6502
+### Revision 110 - SAS practical 6508
 
 - **Date:** 2026-09-19
 - **Git commit:** pending
+- **Change:** Added compact level-2 realized `GAME_RECORD_AI_GIVE_HELP_DECISION` provenance for the three live `CONTACT_GIVE_HELP` algorithms in `AI_doDiplo`: relation-based resource aid, relation-based technology aid, and ordinary proactive technology aid.
+
+The row preserves which algorithm produced the realized gift together with the already-selected random score and algorithm-specific live gate state: relationship direction and pre-gift bonus ownership for resource aid, tech-score ratio/gift probability for relation technology aid, and the contact-probability multiplier plus asset/attitude gate context for proactive technology aid.
+
+Revision 100 remains authoritative for the actual gifted package. All specialized formatting/derived factual context is level-2 pre-gated, and no candidate scan, trade valuation or synchronized RNG is repeated solely for recording.
+
+### Revision 109 - SAS practical 6503
+
+- **Date:** 2026-09-19
+- **Git commit:** `fbe6e098a3c0bc1efb7d2d18701a43641042f558`
 - **Change:** Added compact level-2 realized AI help/tribute request provenance around `AI_askHelp` and `AI_demandTribute`, complementing revision 100's final `CONTACT_ASK_FOR_HELP` / `CONTACT_DEMAND_TRIBUTE` packages with the live chooser state and caller origin that disappear afterward.
 
 Help rows distinguish ordinary `AI_doDiplo` from UWAI `amendTensions`, retain the competing best city/technology and their live values, liberation context, whether the existing 2/3 city-preference roll was reached/passed, and the selected item. Tribute rows preserve the same caller origin, `AIDemandTypes` route, minimum/final deal value, and the already-computed technology/map chooser context where meaningful; revision 87 remains authoritative for detailed resource-candidate selection. Optional recorder contexts are supplied only at level 2+, and the helpers reuse existing live valuations/results without repeating candidate scans or synchronized RNG.
