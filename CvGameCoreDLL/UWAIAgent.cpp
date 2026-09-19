@@ -3385,7 +3385,9 @@ bool UWAI::Player::amendTensions(PlayerTypes eHuman)
 			kSASTributeRequest.eOrigin = SAS_AI_HUMAN_REQUEST_UWAI_AMEND_TENSIONS;
 			pSASTributeRequest = &kSASTributeRequest;
 		}
-		FOR_EACH_ENUM(AIDemand)
+		// <!-- custom: AdvC practical 2075 explicitly randomized tribute-demand type order in AI_doDiplo, but this parallel UWAI path retained fixed enum order and therefore favored earlier types before its first successful return.
+		// Apply the same synchronized random ordering here; contact/helper logic is unchanged apart from removing that inherited positional bias. See KI#518.2. (ChatGPT-5.6-Sol) -->
+		FOR_EACH_ENUM_RAND(AIDemand, syncRand())
 		{
 			if (GET_PLAYER(m_eAgent).AI_contactRoll(CONTACT_DEMAND_TRIBUTE,
 				(fixp(8.5) - rEra) / 2) &&

@@ -623,6 +623,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#516 - (Fixed inherited AdvCiv vassal-war defect) Inverted master test prevented preparation timeout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-516)\
 [KI#517 - (Fixed inherited AdvCiv debug-path defect) doWarReport could mutate real diplomacy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-517)\
 [KI#518 - (Fixed inherited AdvCiv assertion regression) Random nonleader diplomat tripped leader-only check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-518)\
+[KI#518.2 - (Fixed inherited AdvCiv UWAI ordering defect) Tribute demand types kept fixed enum priority](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-518.2)\
 [KI#519 - (Fixed inherited AdvCiv lifecycle defect) Capitulation readiness survived peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-519)\
 [KI#520 - (Fixed inherited AdvCiv UWAI debug-assertion defect) Declaration-turn brokered peace rejected a valid zero war age](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-520)\
 [KI#521 - (Fixed inherited AdvCiv debug-assertion defect) Legal human bombardment of an undefended city asserted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-521)\
@@ -13803,6 +13804,16 @@ AdvCiv commit `a8a7e75c6c` added `doWarReport` after the Team-local background c
 The stale leader assertion is replaced by the surviving alive-player contract. Random-member diplomacy remains intact. This regression was introduced by AdvCiv commit `f016996eb6`, remains in Base AdvCiv 1.14 and was not introduced by AdvCiv-SAS.
 
 A current-build huge autoplay completed successfully; the exact nonleader random-diplomat selection remains source-verified. Found as F195/provisional KI#518 during ChatGPT-5.6-Sol's C017 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-518.2"></a>
+
+## KI#518.2 - (Fixed inherited AdvCiv UWAI ordering defect) Tribute demand types kept fixed enum priority
+
+AdvCiv practical 2075 explicitly changed ordinary `CvPlayerAI::AI_doDiplo` tribute selection from fixed `AIDemandTypes` enum order to synchronized randomized order, describing the old behavior as an ordering problem. The parallel `UWAI::Player::amendTensions` path was left unchanged: it still tested `DEMAND_GOLD`, `DEMAND_MAP`, `DEMAND_TECH`, `DEMAND_BONUS`, `DEMAND_GOLD_PER_TURN`, then `DEMAND_CITY` in fixed order and returned after the first successful demand. Each attempted type uses the same contact-roll probability, but the function returns after the first successful demand; fixed ordering therefore gave earlier enum types systematically earlier opportunities and retained the positional bias that the practical-2075 change was intended to remove.
+
+The repair uses the same synchronized `FOR_EACH_ENUM_RAND(AIDemand, syncRand())` ordering already used by ordinary `AI_doDiplo`. It does not change the per-demand contact probability, helper eligibility/value gates, or the first-success return policy; it only randomizes which demand type receives the earlier opportunities. The added synchronized permutation RNG is intentional gameplay behavior and therefore this fix is kept separate from the diagnostic-only SASGameRecord revision 109 that exposed it.
+
+Base AdvCiv 1.14 retains the fixed UWAI loop while its ordinary diplomacy path is randomized. Found while auditing help/tribute chooser provenance for SASGameRecord revision 109; related to KI#518 because both concern inherited defects in `UWAI::Player::amendTensions`, but this is a release-gameplay ordering issue rather than the earlier debug assertion regression. Fixed and documented with ChatGPT-5.6-Sol, thanks.
 
 <a id="ki-519"></a>
 
