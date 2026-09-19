@@ -24085,10 +24085,11 @@ void CvPlayerAI::AI_doDiplo()
 							getCurrentResearch, but it doesn't hurt to check if
 							we have more progress on some other tech. */
 						TechTypes eBestProgressTech = NO_TECH;
+						// <!-- custom: Keep the already-live winning random/progress scores in scope until a realized tech deal is recorded; no candidate evaluation or RNG is added. (ChatGPT-5.6-Sol) -->
+						int iBestValue = 0;
+						int iBestProgress = 0; // advc.550f
 						if (kPlayer.canPossiblyTradeItem(getID(), TRADE_TECHNOLOGIES)) // advc.opt
 						{
-							int iBestValue = 0;
-							int iBestProgress = 0; // advc.550f
 							FOR_EACH_ENUM(Tech)
 							{
 								if (kPlayer.canTradeItem(getID(), TradeData(
@@ -24116,6 +24117,8 @@ void CvPlayerAI::AI_doDiplo()
 								}
 							}
 						}
+						TechTypes const eRandomReceiveTech = eBestReceiveTech;
+						TechTypes const eProgressTech = eBestProgressTech;
 
 						// <!-- custom: Prefer a master/vassal-locus source over an outsider only when the shared predicate finds an immediately legal and non-denied internal deal.
 						// This prevents No Tech Trading, non-tradeable and no-broker copies from suppressing a viable outsider offer. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -24136,10 +24139,10 @@ void CvPlayerAI::AI_doDiplo()
 							// K-Mod
 							int iWeReceive = kOurTeam.AI_techTradeVal(eBestReceiveTech, kPlayer.getTeam());
 							int iTheyReceive = 0;
+							int iBestDelta = iWeReceive;
 							// K-Mod end
 							if (canPossiblyTradeItem(ePlayer, TRADE_TECHNOLOGIES))
 							{	// int iBestValue=0;
-								int iBestDelta = iWeReceive; // K-Mod
 								FOR_EACH_ENUM(Tech)
 								{
 									if (canTradeItem(ePlayer, TradeData(
@@ -24182,10 +24185,11 @@ void CvPlayerAI::AI_doDiplo()
 							/* bool bDeal = GET_PLAYER((PlayerTypes)iI).isHuman()
 								? 6*iWeReceive > 5*iTheyReceive && 3*iTheyReceive > 2*iWeReceive
 								: 3*iWeReceive > 2*iTheyReceive && 3*iTheyReceive > 2*iWeReceive; */
-							bool bDeal = (100 * iWeReceive >=
+							bool const bInitialDeal = (100 * iWeReceive >=
 									AI_tradeAcceptabilityThreshold(ePlayer) * iTheyReceive &&
 									100 * iTheyReceive >=
 									kPlayer.AI_tradeAcceptabilityThreshold(getID()) * iWeReceive);
+							bool bDeal = bInitialDeal;
 							if (!bDeal &&
 								// <advc.550b>
 								(!bPlayerHuman ||
@@ -24225,14 +24229,30 @@ void CvPlayerAI::AI_doDiplo()
 										pDiplo->setAIContact(true);
 										pDiplo->setOurOfferList(theyGive);
 										pDiplo->setTheirOfferList(weGive);
-										if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_TECH, NULL, &weGive, &theyGive);
+										if (gGameRecordLogLevel >= 2)
+										{
+											logSASGameRecordAITechTradeDecision(*this, ePlayer, bInitialDeal ? SAS_AI_TECH_TRADE_RANDOM_DIRECT : SAS_AI_TECH_TRADE_RANDOM_COUNTERPROPOSE,
+												(rContactProbMult * 1000).round(), iTechPerc, eRandomReceiveTech, iBestValue,
+												(eRandomReceiveTech != NO_TECH && eBestReceiveTech == NO_TECH), eProgressTech, iBestProgress,
+												(eProgressTech != NO_TECH && eBestProgressTech == NO_TECH),
+												eBestGiveTech, iWeReceive, iTheyReceive, iBestDelta, -1, -1);
+											logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_TECH, NULL, &weGive, &theyGive);
+										}
 										gDLL->beginDiplomacy(pDiplo, ePlayer);
 										abContacted[kPlayer.getTeam()] = true;
 									}
 								}
 								else
 								{
-									if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_TECH, NULL, &weGive, &theyGive);
+									if (gGameRecordLogLevel >= 2)
+									{
+										logSASGameRecordAITechTradeDecision(*this, ePlayer, bInitialDeal ? SAS_AI_TECH_TRADE_RANDOM_DIRECT : SAS_AI_TECH_TRADE_RANDOM_COUNTERPROPOSE,
+											(rContactProbMult * 1000).round(), iTechPerc, eRandomReceiveTech, iBestValue,
+											(eRandomReceiveTech != NO_TECH && eBestReceiveTech == NO_TECH), eProgressTech, iBestProgress,
+											(eProgressTech != NO_TECH && eBestProgressTech == NO_TECH),
+											eBestGiveTech, iWeReceive, iTheyReceive, iBestDelta, -1, -1);
+										logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_TECH, NULL, &weGive, &theyGive);
+									}
 									kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
 									// advc.550f: I.e. we're done trading tech
 									eBestProgressTech = NO_TECH;
@@ -24245,7 +24265,8 @@ void CvPlayerAI::AI_doDiplo()
 							int iWeReceive = kOurTeam.AI_techTradeVal(eBestProgressTech,
 									kPlayer.getTeam());
 							int iPrice = (100 * iWeReceive) / kPlayer.AI_goldTradeValuePercent();
-							if(iPrice <= AI_maxGoldTrade(kPlayer.getID()))
+							int const iMaxGoldTrade = AI_maxGoldTrade(kPlayer.getID());
+							if(iPrice <= iMaxGoldTrade)
 							{
 								TradeData item(TRADE_GOLD, iPrice);
 								if(canTradeItem(kPlayer.getID(), item))
@@ -24255,7 +24276,14 @@ void CvPlayerAI::AI_doDiplo()
 									theyGive.clear();
 									setTradeItem(&item, TRADE_TECHNOLOGIES, eBestProgressTech);
 									theyGive.insertAtEnd(item);
-									if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_TECH, NULL, &weGive, &theyGive);
+									if (gGameRecordLogLevel >= 2)
+									{
+										logSASGameRecordAITechTradeDecision(*this, ePlayer, SAS_AI_TECH_TRADE_PROGRESS_GOLD,
+											(rContactProbMult * 1000).round(), iTechPerc, eRandomReceiveTech, iBestValue,
+											(eRandomReceiveTech != NO_TECH && eBestReceiveTech == NO_TECH), eProgressTech, iBestProgress,
+											(eProgressTech != NO_TECH && eBestProgressTech == NO_TECH), NO_TECH, -1, -1, -1, iWeReceive, iMaxGoldTrade);
+										logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_TECH, NULL, &weGive, &theyGive);
+									}
 									kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
 								}
 							}

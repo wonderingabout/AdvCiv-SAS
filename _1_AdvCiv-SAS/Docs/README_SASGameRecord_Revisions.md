@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=110 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=111 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,18 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 110 - SAS practical 6508
+### Revision 111 - SAS practical 6509
 
 - **Date:** 2026-09-19
 - **Git commit:** pending
+- **Change:** Added compact level-2 realized `GAME_RECORD_AI_TECH_TRADE_DECISION` provenance for the three live `CONTACT_TRADE_TECH` outcomes in `AI_doDiplo`: a directly acceptable randomized technology proposal, that same proposal after successful `AI_counterPropose` balancing, and AdvC's separate research-progress technology-for-gold purchase.
+
+The row preserves the net live contact-probability multiplier and known-tech percentage, the pre-locus randomized receive-technology winner and its existing random score, whether that winner was suppressed by the master/vassal-locus preference, the already-selected high-progress fallback technology/raw research-point amount and whether locus policy suppresses it, and the main proposal's selected give technology/recipient-side trade values/value-match delta or the progress purchase's live receive-tech value/max-gold boundary. Revision 100 remains authoritative for the final package, including counterproposal additions. No technology candidate scan, trade valuation, counterproposal search or synchronized RNG is repeated solely for recording.
+
+### Revision 110 - SAS practical 6508
+
+- **Date:** 2026-09-19
+- **Git commit:** `2129ec3e1161b5d872d53e8a89328b844a34f624`
 - **Change:** Added compact level-2 realized `GAME_RECORD_AI_GIVE_HELP_DECISION` provenance for the three live `CONTACT_GIVE_HELP` algorithms in `AI_doDiplo`: relation-based resource aid, relation-based technology aid, and ordinary proactive technology aid.
 
 The row preserves which algorithm produced the realized gift together with the already-selected random score and algorithm-specific live gate state: relationship direction and pre-gift bonus ownership for resource aid, tech-score ratio/gift probability for relation technology aid, and the contact-probability multiplier plus asset/attitude gate context for proactive technology aid.

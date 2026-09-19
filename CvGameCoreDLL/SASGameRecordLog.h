@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 110 };
+enum { SAS_GAME_RECORD_REVISION = 111 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -589,6 +589,15 @@ enum SASGameRecordAIGiveHelpOrigin
 	SAS_AI_GIVE_HELP_PROACTIVE_TECH
 };
 void logSASGameRecordAIGiveHelpDecision(CvPlayerAI const& kPlayer, PlayerTypes eTarget, SASGameRecordAIGiveHelpOrigin eOrigin, BonusTypes eSelectedBonus, TechTypes eSelectedTech, int iSelectionScore, int iTechScoreRatioX1000 = -1, int iGiftProbX1000 = -1, int iContactProbMultX1000 = -1);
+// <!-- custom: CONTACT_TRADE_TECH can resolve through the ordinary randomized tech proposal (directly acceptable or balanced by AI_counterPropose) or AdvC's separate research-progress tech-for-gold purchase.
+// Revision 100 preserves the final package but cannot distinguish those live algorithms or recover their selected chooser values; callers log only realized contacts/deals and never repeat trade valuation or synchronized RNG. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordAITechTradeOrigin
+{
+	SAS_AI_TECH_TRADE_RANDOM_DIRECT,
+	SAS_AI_TECH_TRADE_RANDOM_COUNTERPROPOSE,
+	SAS_AI_TECH_TRADE_PROGRESS_GOLD
+};
+void logSASGameRecordAITechTradeDecision(CvPlayerAI const& kPlayer, PlayerTypes eTarget, SASGameRecordAITechTradeOrigin eOrigin, int iContactProbMultX1000, int iBestKnownTechScorePercent, TechTypes eRandomReceiveTech, int iRandomReceiveScore, bool bRandomReceiveLocusSuppressed, TechTypes eProgressTech, int iProgressResearchPoints, bool bProgressLocusSuppressed, TechTypes eGiveTech, int iOurReceiveTechValue, int iTargetReceiveTechValue, int iGiveMatchDeltaValue, int iProgressReceiveTechValue, int iProgressMaxGold);
 // <!-- custom: AI_proposeJointWar uses war-duration-adjusted contact cadence plus randomized target selection that the generic CONTACT_JOIN_WAR subject cannot reconstruct.
 // Preserve only the two irrecoverable live chooser values; the recorder derives selected-target counters/static context after the successful gates and before diplomacy begins. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIJointWarRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, TeamTypes eTarget, int iTargetScore, int iMeanAtWarTurnsX1000);

@@ -1041,6 +1041,87 @@ def check_ai_give_help_provenance(repo_root: Path) -> list[str]:
 				failures.append(f"{PLAYER_AI_SOURCE}: expected {expected} AI_doDiplo occurrence(s) of {token}, found {actual}")
 	return failures
 
+
+def check_ai_tech_trade_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI tech-trade provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	expected_origins = [
+		"SAS_AI_TECH_TRADE_RANDOM_DIRECT",
+		"SAS_AI_TECH_TRADE_RANDOM_COUNTERPROPOSE",
+		"SAS_AI_TECH_TRADE_PROGRESS_GOLD",
+	]
+	m = re.search(r"enum\s+SASGameRecordAITechTradeOrigin\s*\{(?P<body>.*?)\};", header_text, flags=re.DOTALL)
+	if m is None:
+		failures.append(f"{REVISION_HEADER}: missing SASGameRecordAITechTradeOrigin")
+	else:
+		tokens = re.findall(r"^\s*(SAS_AI_TECH_TRADE_[A-Z0-9_]+)\s*,?\s*$", m.group("body"), flags=re.MULTILINE)
+		if tokens != expected_origins:
+			failures.append(f"{REVISION_HEADER}: AI tech-trade origin vocabulary changed; expected {expected_origins}, found {tokens}")
+	if "logSASGameRecordAITechTradeDecision" not in header_text:
+		failures.append(f"{REVISION_HEADER}: missing tech-trade provenance logger declaration")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_TECH_TRADE_DECISION", "origin=%s", "contactProbMultX1000=%d", "bestKnownTechScorePercent=%d",
+		"randomReceiveTech=%s", "randomReceiveScore=%d", "randomReceiveLocusSuppressed=%d", "progressTech=%s",
+		"progressResearchPoints=%d", "progressLocusSuppressed=%d", "giveTech=%s", "ourReceiveTechValue=%d", "targetReceiveTechValue=%d", "giveMatchDeltaValue=%d",
+		"progressReceiveTechValue=%d", "progressMaxGold=%d",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI tech-trade diagnostic token {required}")
+	for token in expected_origins:
+		if record_text.count(f"case {token}:") != 1:
+			failures.append(f"{REVISION_SOURCE}: AI tech-trade origin {token} must have exactly one stringifier case")
+	m = re.search(r"void\s+logSASGameRecordAITechTradeDecision\([^)]*\)\s*\{(?P<body>.*?)^\}", record_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		failures.append(f"{REVISION_SOURCE}: could not locate AI tech-trade provenance logger body")
+	else:
+		body = m.group("body")
+		for forbidden in ("SyncRand", "AI_techTradeVal(", "AI_counterPropose(", "AI_maxGoldTrade("):
+			if forbidden in body:
+				failures.append(f"{REVISION_SOURCE}: tech-trade formatter must not repeat live chooser/valuation work ({forbidden})")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	start = player_text.find("if (AI_getContactTimer(ePlayer, CONTACT_TRADE_TECH) == 0)")
+	end = player_text.find("if ((!abContacted[kPlayer.getTeam()] || !bPlayerHuman) &&\n\t\t\t\tAI_contactRoll(CONTACT_TRADE_BONUS))", start)
+	if start < 0 or end < 0:
+		return failures + [f"{PLAYER_AI_SOURCE}: could not isolate CONTACT_TRADE_TECH block"]
+	body = player_text[start:end]
+	if body.count("logSASGameRecordAITechTradeDecision(") != 3:
+		failures.append(f"{PLAYER_AI_SOURCE}: expected 3 realized tech-trade provenance bridges (human/AI main proposal plus AI progress purchase)")
+	if body.count("logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_TECH") != 3:
+		failures.append(f"{PLAYER_AI_SOURCE}: revision-100 CONTACT_TRADE_TECH package bridges changed unexpectedly")
+	if body.count("SAS_AI_TECH_TRADE_RANDOM_DIRECT") != 2 or body.count("SAS_AI_TECH_TRADE_RANDOM_COUNTERPROPOSE") != 2 or body.count("SAS_AI_TECH_TRADE_PROGRESS_GOLD") != 1:
+		failures.append(f"{PLAYER_AI_SOURCE}: realized tech-trade origin bridges changed unexpectedly")
+	for token, expected in (
+		("if (AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult))", 1),
+		("int iValue = 1 + SyncRandNum(10000);", 1),
+		("SyncRandNum(21)", 1),
+		("SyncRandSuccess100(36)", 1),
+		("kPlayer.AI_counterPropose(getID(), weGive, theyGive, true, true)", 1),
+		("AI_techTradeVal(eBestProgressTech", 1),
+		("AI_maxGoldTrade(kPlayer.getID())", 1),
+	):
+		actual = body.count(token)
+		if actual != expected:
+			failures.append(f"{PLAYER_AI_SOURCE}: CONTACT_TRADE_TECH live call count for {token} changed; expected {expected}, found {actual}")
+	if "bool const bInitialDeal =" not in body or "bool bDeal = bInitialDeal;" not in body:
+		failures.append(f"{PLAYER_AI_SOURCE}: tech-trade provenance must retain the original direct-vs-counterproposal decision without reevaluating acceptability")
+	if "TechTypes const eRandomReceiveTech = eBestReceiveTech;" not in body:
+		failures.append(f"{PLAYER_AI_SOURCE}: tech-trade provenance must preserve the pre-locus random receive-tech winner")
+	if "TechTypes const eProgressTech = eBestProgressTech;" not in body:
+		failures.append(f"{PLAYER_AI_SOURCE}: tech-trade provenance must preserve the pre-locus progress-tech winner")
+	if "int const iMaxGoldTrade = AI_maxGoldTrade(kPlayer.getID());" not in body:
+		failures.append(f"{PLAYER_AI_SOURCE}: progress-tech affordability context must reuse the single live max-gold query")
+	return failures
+
+
 def check_ai_joint_war_request_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -1303,6 +1384,7 @@ def main() -> int:
 	failures.extend(check_ai_diplo_contact_provenance(args.repo_root))
 	failures.extend(check_ai_help_tribute_request_provenance(args.repo_root))
 	failures.extend(check_ai_give_help_provenance(args.repo_root))
+	failures.extend(check_ai_tech_trade_provenance(args.repo_root))
 	failures.extend(check_ai_city_trade_intent_provenance(args.repo_root))
 	failures.extend(check_ai_embargo_request_provenance(args.repo_root))
 	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
@@ -1315,7 +1397,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-city-trade/AI-embargo/AI-joint-war/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-city-trade/AI-embargo/AI-joint-war/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

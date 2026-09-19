@@ -11735,6 +11735,31 @@ void logSASGameRecordAIGiveHelpDecision(CvPlayerAI const& kPlayer, PlayerTypes e
 		iSelectedTechCost, iSelectionScore, iTechScoreRatioX1000, iGiftProbX1000, iContactProbMultX1000);
 }
 
+static char const* getSASGameRecordAITechTradeOrigin(SASGameRecordAITechTradeOrigin eOrigin)
+{
+	switch (eOrigin)
+	{
+	case SAS_AI_TECH_TRADE_RANDOM_DIRECT: return "RANDOM_TECH_DIRECT";
+	case SAS_AI_TECH_TRADE_RANDOM_COUNTERPROPOSE: return "RANDOM_TECH_COUNTERPROPOSE";
+	case SAS_AI_TECH_TRADE_PROGRESS_GOLD: return "PROGRESS_TECH_GOLD";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Preserve the selected random receive-tech score, value-matched give-tech result and AdvC progress-purchase alternative only for a realized CONTACT_TRADE_TECH.
+// The revision-100 contact row remains authoritative for the final package (including any counterproposal additions); this formatter performs no candidate scan, trade valuation or synchronized RNG. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAITechTradeDecision(CvPlayerAI const& kPlayer, PlayerTypes eTarget, SASGameRecordAITechTradeOrigin eOrigin, int iContactProbMultX1000, int iBestKnownTechScorePercent, TechTypes eRandomReceiveTech, int iRandomReceiveScore, bool bRandomReceiveLocusSuppressed, TechTypes eProgressTech, int iProgressResearchPoints, bool bProgressLocusSuppressed, TechTypes eGiveTech, int iOurReceiveTechValue, int iTargetReceiveTechValue, int iGiveMatchDeltaValue, int iProgressReceiveTechValue, int iProgressMaxGold)
+{
+	CvPlayerAI const& kTarget = GET_PLAYER(eTarget);
+	int const iProgressResearchPointsLogged = (eProgressTech == NO_TECH ? -1 : iProgressResearchPoints);
+	logSASGameRecord("GAME_RECORD_AI_TECH_TRADE_DECISION turn=%d player=%d team=%d targetPlayer=%d targetTeam=%d targetHuman=%d origin=%s contactProbMultX1000=%d bestKnownTechScorePercent=%d randomReceiveTech=%s randomReceiveScore=%d randomReceiveLocusSuppressed=%d progressTech=%s progressResearchPoints=%d progressLocusSuppressed=%d giveTech=%s ourReceiveTechValue=%d targetReceiveTechValue=%d giveMatchDeltaValue=%d progressReceiveTechValue=%d progressMaxGold=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eTarget, kTarget.getTeam(), kTarget.isHuman() ? 1 : 0,
+		getSASGameRecordAITechTradeOrigin(eOrigin), iContactProbMultX1000, iBestKnownTechScorePercent,
+		getSASGameRecordTechType(eRandomReceiveTech), (eRandomReceiveTech == NO_TECH ? -1 : iRandomReceiveScore), bRandomReceiveLocusSuppressed ? 1 : 0,
+		getSASGameRecordTechType(eProgressTech), iProgressResearchPointsLogged, bProgressLocusSuppressed ? 1 : 0, getSASGameRecordTechType(eGiveTech),
+		iOurReceiveTechValue, iTargetReceiveTechValue, iGiveMatchDeltaValue, iProgressReceiveTechValue, iProgressMaxGold);
+}
+
 // <!-- custom: Preserve the live reason for a realized AI request that a human join one of its wars.
 // The generic CONTACT_JOIN_WAR row remains authoritative for the request subject; this row derives only cheap current counters/static context and never repeats contact/peace/target RNG or UWAI denial evaluation. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIJointWarRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, TeamTypes eTarget, int iTargetScore, int iMeanAtWarTurnsX1000)
