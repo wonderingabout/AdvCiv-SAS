@@ -11641,6 +11641,23 @@ void logSASGameRecordAIDiploContactIntent(CvPlayerAI const& kPlayer, PlayerTypes
 		szSubject.GetCString(), szAIGives.GetCString(), szAIReceives.GetCString());
 }
 
+// <!-- custom: Preserve the live reason for a realized AI request that a human join one of its wars.
+// The generic CONTACT_JOIN_WAR row remains authoritative for the request subject; this row derives only cheap current counters/static context and never repeats contact/peace/target RNG or UWAI denial evaluation. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIJointWarRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, TeamTypes eTarget, int iTargetScore, int iMeanAtWarTurnsX1000)
+{
+	CvTeamAI const& kOurTeam = GET_TEAM(kPlayer.getTeam());
+	// <!-- custom: CvPlayerAI.cpp includes CoreAI.h, whose GET_TEAM overload accepts PlayerTypes and whose CvGamePlay dependency provides TEAMID; this recorder translation unit deliberately does not include those broad gameplay wrappers.
+	// Spell out the player-to-team conversion here instead of copying that file-local shorthand or widening SASGameRecordLog's include dependencies just for one lookup. See also KI#436. (ChatGPT-5.6-Sol) -->
+	CvTeamAI const& kHumanTeam = GET_TEAM(GET_PLAYER(eHuman).getTeam());
+	int const iTargetAtWarCounter = kOurTeam.AI_getAtWarCounter(eTarget);
+	int const iHumanPeaceCounter = kHumanTeam.AI_getAtPeaceCounter(eTarget);
+	int const iTargetRandomScore = iTargetScore - std::min(20, iTargetAtWarCounter) * 1000;
+	int const iContactRand = GC.getInfo(kPlayer.getPersonalityType()).getContactRand(CONTACT_JOIN_WAR);
+	logSASGameRecord("GAME_RECORD_AI_JOINT_WAR_REQUEST turn=%d player=%d team=%d human=%d humanTeam=%d attitudeValue=%d meanAtWarTurnsX1000=%d contactRand=%d targetTeam=%d targetScore=%d targetRandomScore=%d targetAtWarCounter=%d humanPeaceCounter=%d uwai=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eHuman, kHumanTeam.getID(), kPlayer.AI_getAttitudeVal(eHuman),
+		iMeanAtWarTurnsX1000, iContactRand, eTarget, iTargetScore, iTargetRandomScore, iTargetAtWarCounter, iHumanPeaceCounter, getUWAI().isEnabled() ? 1 : 0);
+}
+
 static char const* getSASGameRecordAIWarTradePaymentPath(SASGameRecordAIWarTradePaymentPath ePaymentPath)
 {
 	switch (ePaymentPath)

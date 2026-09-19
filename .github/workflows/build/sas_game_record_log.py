@@ -865,6 +865,49 @@ def check_ai_diplo_contact_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_joint_war_request_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI joint-war request provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_JOINT_WAR_REQUEST", "human=%d", "humanTeam=%d", "attitudeValue=%d",
+		"meanAtWarTurnsX1000=%d", "contactRand=%d", "targetTeam=%d", "targetScore=%d",
+		"targetRandomScore=%d", "targetAtWarCounter=%d", "humanPeaceCounter=%d", "uwai=%d",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI joint-war request diagnostic token {required}")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	m = re.search(r"bool\s+CvPlayerAI::AI_proposeJointWar\([^)]*\)\s*\{(?P<body>.*?)^\}\s*\n\n/\*\s*Caller ensures that both players", player_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		return failures + [f"{PLAYER_AI_SOURCE}: could not locate AI_proposeJointWar"]
+	body = m.group("body")
+	if body.count("logSASGameRecordAIJointWarRequest(") != 1:
+		failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeJointWar must emit exactly one realized joint-war request bridge")
+	if body.count("logSASGameRecordAIDiploContactIntent(") != 1:
+		failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeJointWar must retain exactly one generic CONTACT_JOIN_WAR subject bridge")
+	if not re.search(r"if\s*\(gGameRecordLogLevel\s*>=\s*2\)\s*\{[^{}]*logSASGameRecordAIJointWarRequest\([^;]+;[^{}]*logSASGameRecordAIDiploContactIntent", body, flags=re.DOTALL):
+		failures.append(f"{PLAYER_AI_SOURCE}: joint-war request provenance must remain level-2 pre-gated and precede the generic contact row")
+	for token, expected in (("AI_contactRoll(CONTACT_JOIN_WAR", 1), ("SyncRandSuccess(", 1), ("SyncRandNum(10000)", 1), ("declareWarTrade(", 1), ("AI_proposeEmbargo(", 2), ("gDLL->beginDiplomacy(", 1)):
+		actual = body.count(token)
+		if actual != expected:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeJointWar live call count for {token} changed; expected {expected}, found {actual}")
+	if "iTargetVal += std::min(20, kOurTeam.AI_getAtWarCounter(eTarget)) * 1000" not in body:
+		failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeJointWar must retain its war-duration-weighted target score")
+	if "(rMeanAtWarTurns * 1000).round()" not in body:
+		failures.append(f"{PLAYER_AI_SOURCE}: joint-war request bridge must preserve the live shared-war-adjusted mean war age without recomputing it")
+	log_pos = body.find("logSASGameRecordAIJointWarRequest(")
+	diplo_pos = body.find("gDLL->beginDiplomacy(")
+	if log_pos >= 0 and diplo_pos >= 0 and log_pos > diplo_pos:
+		failures.append(f"{PLAYER_AI_SOURCE}: joint-war request provenance must emit before beginDiplomacy")
+	return failures
+
+
 def check_ai_war_trade_intent_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -1011,6 +1054,7 @@ def main() -> int:
 	failures.extend(check_ai_diplo_vote_provenance(args.repo_root))
 	failures.extend(check_ai_diplo_contact_provenance(args.repo_root))
 	failures.extend(check_ai_city_trade_intent_provenance(args.repo_root))
+	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
 	failures.extend(check_ai_war_trade_intent_provenance(args.repo_root))
 	failures.extend(check_ai_conquer_city_provenance(args.repo_root))
 	failures.extend(check_ai_great_person_provenance(args.repo_root))
@@ -1020,7 +1064,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-city-trade/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-city-trade/AI-joint-war/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

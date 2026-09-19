@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=106 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=107 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,18 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 106 - SAS practical 6498
+### Revision 107 - SAS practical 6499
 
 - **Date:** 2026-09-19
 - **Git commit:** pending
+- **Change:** Added one compact level-2 realized AI-to-human joint-war request row at `AI_proposeJointWar`, complementing revision 100's generic `CONTACT_JOIN_WAR` subject with the live cadence and target-selection rationale that cannot be reconstructed afterward.
+
+The row preserves the shared-war-adjusted mean war age used to scale contact probability, personality contact divisor, selected enemy's combined random/war-duration score and derived random component, selected-war age, the human team's peace counter with that target, and whether UWAI's reasonableness screen was active. It emits only after the existing attitude/UWAI gates have accepted a real request and derives cheap current counters immediately before diplomacy begins; no contact roll, recent-peace gate, target RNG or UWAI denial evaluation is repeated.
+
+### Revision 106 - SAS practical 6498
+
+- **Date:** 2026-09-19
+- **Git commit:** `edd5314594c785f02e5d13b79b5e93583cbae6cf`
 - **Change:** Added one compact level-2 realized AI joint-war-hiring provenance row at `AI_proposeWarTrade`, complementing revision 100's generic `CONTACT_JOIN_WAR` package with the live target-selection and payment rationale that cannot be reconstructed afterward.
 
 The row records full-UWAI versus legacy selection, the adjusted minimum war-age/cadence denominator, selected war target, UWAI joint-war value or legacy randomized target score, the hireling's cached war price, candidate technology payment, and whether the realized deal used ordinary tech/gold balancing or the rare city/counterproposal fallback. Ordinary deals also preserve the final two live balance values used by the existing 75% acceptance test; city fallback rows preserve war-success rating, selected city and its existing acquire-minus-keep fitness instead. The existing generic `GAME_RECORD_AI_DIPLO_CONTACT` row remains authoritative for the final trade package, so revision 106 adds no duplicate trade-list serialization, target valuation, balancing search or synchronized RNG.

@@ -24392,6 +24392,9 @@ bool CvPlayerAI::AI_proposeJointWar(PlayerTypes eHuman)
 	pDiplo->setData(eBestTarget);
 	if (gGameRecordLogLevel >= 2)
 	{
+		// <!-- custom: Preserve the realized human joint-war request's live cadence/target-selection rationale before the generic CONTACT_JOIN_WAR subject row.
+		// All extra context is read only after the existing chooser/gates succeed; no contact roll, candidate RNG, peace gate or UWAI denial evaluation is repeated. (ChatGPT-5.6-Sol) -->
+		logSASGameRecordAIJointWarRequest(*this, eHuman, eBestTarget, iBestTargetVal, (rMeanAtWarTurns * 1000).round());
 		TradeData const kSubject(TRADE_WAR, eBestTarget);
 		logSASGameRecordAIDiploContactIntent(*this, eHuman, CONTACT_JOIN_WAR, &kSubject, NULL, NULL);
 	}
