@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=101 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=102 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -39,6 +39,12 @@ The history below counts commits that changed the recorder implementation itself
 Because this numbering is reconstructed after the fact, the descriptions are concise summaries of the canonical commit diffs/messages rather than claims that these revision numbers were emitted by historical builds.
 
 ## History (latest first)
+
+### Revision 102 - SAS practical 6493
+
+- **Date:** 2026-09-19
+- **Git commit:** pending
+- **Change:** Added compact level-2 ordinary-AI Great Person action provenance from `AI_greatPersonMove`: the realized scored action or movement continuation plus the already-computed Slow/Discover/Golden-Age/Trade/Great-Work values, threshold, slow-action target metadata and previous mission state. Later danger/recon/retreat/stranded/safety/skip fallbacks are explicit without pretending they won the earlier score comparison; Great Generals remain on their separate decision path.
 
 ### Revision 101 - SAS practical 6491
 

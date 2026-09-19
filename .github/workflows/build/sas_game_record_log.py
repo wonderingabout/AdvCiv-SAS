@@ -3,7 +3,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 # Build check: SASGameRecord report logging must be disabled by default, the public revision/current history marker must stay synchronized.
-# Canonical readable AI-strategy/AreaAI/contact diagnostics must match their native enums, exact AI target-city provenance/checkpoints must cover every writer/effective clear, periodic AI-attitude provenance must stay synchronized with AI_updateAttitude, and strategic/vote/contact decision schemas must remain present.
+# Canonical readable AI-strategy/AreaAI/contact diagnostics must match their native enums, exact AI target-city provenance/checkpoints must cover every writer/effective clear, periodic AI-attitude provenance must stay synchronized with AI_updateAttitude, and strategic/vote/contact/Great-Person decision schemas must remain present.
 
 from pathlib import Path
 import argparse
@@ -29,6 +29,7 @@ PLOT_SOURCE = Path("CvGameCoreDLL/CvPlot.cpp")
 CITY_SOURCE = Path("CvGameCoreDLL/CvCity.cpp")
 TEAM_AI_SOURCE = Path("CvGameCoreDLL/CvTeamAI.cpp")
 UWAI_AGENT_SOURCE = Path("CvGameCoreDLL/UWAIAgent.cpp")
+UNIT_AI_SOURCE = Path("CvGameCoreDLL/CvUnitAI.cpp")
 
 
 
@@ -598,6 +599,81 @@ def check_ai_conquer_city_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_great_person_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, UNIT_AI_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI Great Person provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	expected_actions = [
+		"SAS_AI_GREAT_PERSON_DISCOVER_TECH", "SAS_AI_GREAT_PERSON_TRADE_MISSION", "SAS_AI_GREAT_PERSON_MOVE_TO_TRADE_MISSION",
+		"SAS_AI_GREAT_PERSON_GREAT_WORK", "SAS_AI_GREAT_PERSON_MOVE_TO_GREAT_WORK", "SAS_AI_GREAT_PERSON_GOLDEN_AGE",
+		"SAS_AI_GREAT_PERSON_JOIN_CITY", "SAS_AI_GREAT_PERSON_MOVE_TO_JOIN_CITY", "SAS_AI_GREAT_PERSON_CONSTRUCT_BUILDING",
+		"SAS_AI_GREAT_PERSON_MOVE_TO_CONSTRUCT_BUILDING", "SAS_AI_GREAT_PERSON_HURRY_BUILDING", "SAS_AI_GREAT_PERSON_MOVE_TO_HURRY_BUILDING",
+		"SAS_AI_GREAT_PERSON_DANGER_DISCOVER_TECH", "SAS_AI_GREAT_PERSON_RECON_SPY", "SAS_AI_GREAT_PERSON_RETREAT",
+		"SAS_AI_GREAT_PERSON_STRANDED", "SAS_AI_GREAT_PERSON_SAFETY", "SAS_AI_GREAT_PERSON_SKIP",
+	]
+	m = re.search(r"enum\s+SASGameRecordAIGreatPersonAction\s*\{(?P<body>.*?)\};", header_text, flags=re.DOTALL)
+	if m is None:
+		failures.append(f"{REVISION_HEADER}: missing SASGameRecordAIGreatPersonAction")
+	else:
+		tokens = re.findall(r"^\s*(SAS_AI_GREAT_PERSON_[A-Z0-9_]+)\s*,?\s*$", m.group("body"), flags=re.MULTILINE)
+		if tokens != expected_actions:
+			failures.append(f"{REVISION_HEADER}: Great Person action vocabulary changed; expected {expected_actions}, found {tokens}")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_GREAT_PERSON_DECISION", "action=%s", "choiceRank=%d", "selectedValue=%d", "threshold=%d",
+		"slow=%d", "slowBaseValue=%d", "slowPathTurns=%d", "slowMissionAI=%d", "slowCityId=%d",
+		"specialist=%s", "building=%s", "discover=%d", "discoverTech=%s", "goldenAge=%d", "trade=%d", "culture=%d",
+		"targetX=%d", "targetY=%d", "previousMissionAI=%d", "previousTargetX=%d", "previousTargetY=%d",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI Great Person diagnostic token {required}")
+	for token in expected_actions:
+		if token not in record_text:
+			failures.append(f"{REVISION_SOURCE}: Great Person action stringifier missing {token}")
+
+	unit_text = (repo_root / UNIT_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	if "bLogSASGreatPersonDecision = (gGameRecordLogLevel >= 2)" not in unit_text:
+		failures.append(f"{UNIT_AI_SOURCE}: Great Person provenance must retain the cached level-2 gate")
+	if "if (bLogCultureGreatArtistDecision || bLogSASGreatPersonDecision)" not in unit_text:
+		failures.append(f"{UNIT_AI_SOURCE}: previous Great Person mission state must remain shared/gated between Artist diagnostics and SASGameRecord")
+	for token in expected_actions:
+		if token not in unit_text:
+			failures.append(f"{UNIT_AI_SOURCE}: no AI_greatPersonMove path references {token}")
+	if not re.search(r"SAS_AI_GREAT_PERSON_DANGER_DISCOVER_TECH\s*,\s*-1\s*,\s*-1\s*,", unit_text):
+		failures.append(f"{UNIT_AI_SOURCE}: danger-discover fallback must keep choiceRank/selectedValue at -1")
+	# Great Generals deliberately remain on their separate AI_generalMove path. Guard the schema boundary rather than folding unrelated BBAI logic into this row.
+	gp_function = re.search(r"void\s+CvUnitAI::AI_greatPersonMove\(\)\s*\{(?P<body>.*?)^\}", unit_text, flags=re.DOTALL | re.MULTILINE)
+	if gp_function is None:
+		failures.append(f"{UNIT_AI_SOURCE}: could not locate AI_greatPersonMove")
+	else:
+		gp_body = gp_function.group("body")
+		if "logSASGameRecordAIGreatPersonDecision" not in gp_body:
+			failures.append(f"{UNIT_AI_SOURCE}: Great Person provenance bridge missing from AI_greatPersonMove")
+		# The recorder must consume the live comparison, never re-run GP valuation/path/action helpers. These counts describe the inherited gameplay pass itself.
+		for call, expected_count in (
+			("generatePath(", 1), ("AI_calculateGoldenAgeValue(", 1), ("AI_tradeMissionValue(", 1), ("AI_greatWorkValue(", 1),
+			("AI_doTradeMission(", 1), ("AI_doGreatWork(", 1), ("AI_goldenAge(", 1), ("AI_discover()", 1),
+			("AI_reconSpy(5)", 1), ("AI_retreatToCity()", 1), ("AI_handleStranded()", 2), ("AI_safety()", 1),
+		):
+			actual_count = gp_body.count(call)
+			if actual_count != expected_count:
+				failures.append(f"{UNIT_AI_SOURCE}: AI_greatPersonMove {call} count changed; expected {expected_count}, found {actual_count}")
+		if "SyncRand" in gp_body:
+			failures.append(f"{UNIT_AI_SOURCE}: AI_greatPersonMove gained a direct synchronized RNG call; provenance must not add RNG")
+	general_function = re.search(r"void\s+CvUnitAI::AI_generalMove\(\)\s*\{(?P<body>.*?)^\}", unit_text, flags=re.DOTALL | re.MULTILINE)
+	if general_function is None:
+		failures.append(f"{UNIT_AI_SOURCE}: could not locate separate AI_generalMove Great-General path")
+	elif "logSASGameRecordAIGreatPersonDecision" in general_function.group("body"):
+		failures.append(f"{UNIT_AI_SOURCE}: ordinary Great Person provenance must not be bridged into AI_generalMove")
+	return failures
+
+
 def check_ai_diplo_contact_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (CV_ENUMS_HEADER, GAME_CORE_UTILS_SOURCE, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -701,12 +777,13 @@ def main() -> int:
 	failures.extend(check_ai_diplo_vote_provenance(args.repo_root))
 	failures.extend(check_ai_diplo_contact_provenance(args.repo_root))
 	failures.extend(check_ai_conquer_city_provenance(args.repo_root))
+	failures.extend(check_ai_great_person_provenance(args.repo_root))
 	if failures:
 		print("FAIL SASGameRecord report/revision checks")
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-conquer-city diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-conquer-city/AI-Great-Person diagnostics synchronized")
 	return 0
 
 

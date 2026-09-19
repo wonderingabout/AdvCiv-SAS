@@ -10288,9 +10288,14 @@ void CvUnitAI::AI_greatPersonMove()
 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 	bool const bLogCultureGreatArtistDecision = (gCultureLogLevel >= 3 && AI_getUnitAIType() == UNITAI_GREAT_ARTIST);
 	bool const bLogUnitGreatPersonDecision = (gUnitLogLevel > 2);
+	// <!-- custom: Level-2 SASGameRecord reuses the live Great Person comparison and realized action below.
+	// Share the previous mission-state read with the existing Great Artist diagnostic so level 0/1 performs no logging-only group inspection. (ChatGPT-5.6-Sol) -->
+	bool const bLogSASGreatPersonDecision = (gGameRecordLogLevel >= 2);
+	CvPlot const* pSASGreatPersonDecisionPlot = NULL;
+	if (bLogSASGreatPersonDecision) pSASGreatPersonDecisionPlot = &getPlot();
 	MissionAITypes ePreviousMissionAI = NO_MISSIONAI;
 	CvPlot const* pPreviousMissionPlot = NULL;
-	if (bLogCultureGreatArtistDecision)
+	if (bLogCultureGreatArtistDecision || bLogSASGreatPersonDecision)
 	{
 		CvSelectionGroupAI const* pGroup = AI_getGroup();
 		if (pGroup != NULL)
@@ -10666,6 +10671,7 @@ void CvUnitAI::AI_greatPersonMove()
 			if (canDiscover(plot()))
 			{
 				getGroup()->pushMission(MISSION_DISCOVER);
+				if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_DISCOVER_TECH, iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pSASGreatPersonDecisionPlot, ePreviousMissionAI, pPreviousMissionPlot);
 				if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("DISCOVER", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
 				if (bLogUnitGreatPersonDecision) logBBAI("    %S chooses 'discover' (%S) with their %S (value: %d, choice #%d)",
 					GET_PLAYER(getOwner()).getCivilizationDescription(0), GC.getInfo(eDiscoverTech).getDescription(),
@@ -10676,8 +10682,10 @@ void CvUnitAI::AI_greatPersonMove()
 
 		case GP_TRADE:
 			{
+				bool const bAtTradePlot = (bLogSASGreatPersonDecision && pBestTradePlot != NULL && at(*pBestTradePlot));
 				if (AI_doTradeMission(pBestTradePlot))
 				{
+					if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, (bAtTradePlot ? SAS_AI_GREAT_PERSON_TRADE_MISSION : SAS_AI_GREAT_PERSON_MOVE_TO_TRADE_MISSION), iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pBestTradePlot, ePreviousMissionAI, pPreviousMissionPlot);
 					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("TRADE_OR_MOVE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, (pBestTradePlot == NULL ? NULL : pBestTradePlot->getPlotCity()), pBestTradePlot, NO_SPECIALIST, NO_BUILDING);
 					if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'trade mission' with their %S (value: %d, choice #%d)",
 						GET_PLAYER(getOwner()).getCivilizationDescription(0),
@@ -10690,8 +10698,10 @@ void CvUnitAI::AI_greatPersonMove()
 
 		case GP_CULTURE:
 			{
+				bool const bAtCulturePlot = (bLogSASGreatPersonDecision && pBestCulturePlot != NULL && at(*pBestCulturePlot));
 				if (AI_doGreatWork(pBestCulturePlot))
 				{
+					if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, (bAtCulturePlot ? SAS_AI_GREAT_PERSON_GREAT_WORK : SAS_AI_GREAT_PERSON_MOVE_TO_GREAT_WORK), iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pBestCulturePlot, ePreviousMissionAI, pPreviousMissionPlot);
 					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("GREAT_WORK_OR_MOVE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, (pBestCulturePlot == NULL ? NULL : pBestCulturePlot->getPlotCity()), pBestCulturePlot, NO_SPECIALIST, NO_BUILDING);
 					// <!-- custom: fixed an inherited logging typo: Great Work continuation now checks MISSIONAI_GREAT_WORK, not MISSIONAI_TRADE (GPT-5.5); See KI#167. -->
 					if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'great work' with their %S (value: %d, choice #%d)",
@@ -10706,6 +10716,7 @@ void CvUnitAI::AI_greatPersonMove()
 		case GP_GOLDENAGE:
 			if (AI_goldenAge())
 			{
+				if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_GOLDEN_AGE, iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pSASGreatPersonDecisionPlot, ePreviousMissionAI, pPreviousMissionPlot);
 				if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("GOLDEN_AGE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
 				if (bLogUnitGreatPersonDecision) logBBAI("    %S chooses 'golden age' with their %S (value: %d, choice #%d)",
 					GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iGoldenAgeValue, iChoice);
@@ -10767,13 +10778,16 @@ void CvUnitAI::AI_greatPersonMove()
 				if (at(*pBestPlot))
 				{
 					getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
+					if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_JOIN_CITY, iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pBestPlot, ePreviousMissionAI, pPreviousMissionPlot);
 					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("JOIN", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, eBestSpecialist, NO_BUILDING);
 					return;
 				}
 				else
 				{
-					// <!-- custom: Slow Great Person movement stored the mission type but omitted its final city, leaving no target continuity data. Keep the same end-turn movement while recording the intended city through the existing mission-AI target field. See KI#169. (GPT-5.5) -->
+					// <!-- custom: Slow Great Person movement stored the mission type but omitted its final city, leaving no target continuity data.
+					// Keep the same end-turn movement while recording the intended city through the existing mission-AI target field. See KI#169. (GPT-5.5) -->
 					pushGroupMoveTo(*pBestPlot, eMoveFlags, false, false, MISSIONAI_JOIN_CITY, &pBestCity->getPlot());
+					if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_MOVE_TO_JOIN_CITY, iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pBestPlot, ePreviousMissionAI, pPreviousMissionPlot);
 					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("MOVE_TO_JOIN", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, eBestSpecialist, NO_BUILDING);
 					return;
 				}
@@ -10795,6 +10809,7 @@ void CvUnitAI::AI_greatPersonMove()
 					if (eMissionAI == MISSIONAI_CONSTRUCT)
 					{
 						getGroup()->pushMission(MISSION_CONSTRUCT, eBestBuilding);
+						if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_CONSTRUCT_BUILDING, iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pBestPlot, ePreviousMissionAI, pPreviousMissionPlot);
 						if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("CONSTRUCT", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
 					}
 					else
@@ -10806,6 +10821,7 @@ void CvUnitAI::AI_greatPersonMove()
 						if (pCity->getProductionBuilding() == eBestBuilding && canHurry(plot()))
 						{
 							getGroup()->pushMission(MISSION_HURRY);
+							if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_HURRY_BUILDING, iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pBestPlot, ePreviousMissionAI, pPreviousMissionPlot);
 							if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("HURRY", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
 						}
 						else
@@ -10820,6 +10836,7 @@ void CvUnitAI::AI_greatPersonMove()
 				{
 					// <!-- custom: pBestPlot is the end-turn waypoint; store the final city separately so multi-turn Construct/Hurry movement preserves its intended target. See KI#169. (GPT-5.5) -->
 					pushGroupMoveTo(*pBestPlot, eMoveFlags, false, false, eMissionAI, &pBestCity->getPlot());
+					if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, (eMissionAI == MISSIONAI_CONSTRUCT ? SAS_AI_GREAT_PERSON_MOVE_TO_CONSTRUCT_BUILDING : SAS_AI_GREAT_PERSON_MOVE_TO_HURRY_BUILDING), iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pBestPlot, ePreviousMissionAI, pPreviousMissionPlot);
 					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision((eMissionAI == MISSIONAI_CONSTRUCT ? "MOVE_TO_CONSTRUCT" : "MOVE_TO_HURRY"), *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
 					return;
 				}
@@ -10839,12 +10856,19 @@ void CvUnitAI::AI_greatPersonMove()
 		if (getArea().getNumCities() > getArea().getCitiesPerPlayer(getOwner()))
 		{
 			if (AI_reconSpy(5))
+			{
+				if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_RECON_SPY, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, AI_getGroup()->AI_getMissionAIPlot(), ePreviousMissionAI, pPreviousMissionPlot);
 				return;
+			}
 		}
 		if (AI_handleStranded())
+		{
+			if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_STRANDED, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, AI_getGroup()->AI_getMissionAIPlot(), ePreviousMissionAI, pPreviousMissionPlot);
 			return;
+		}
 
 		getGroup()->pushMission(MISSION_SKIP);
+		if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_SKIP, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, NULL, ePreviousMissionAI, pPreviousMissionPlot);
 		return;
 	}
 	/*  advc: I've cut and pasted the rest of this function from AI_greatEngineerMove;
@@ -10855,6 +10879,8 @@ void CvUnitAI::AI_greatPersonMove()
 	{
 		if (AI_discover())
 		{
+			// <!-- custom: This emergency discover is selected by AI_discover's danger/waste rules after the sorted GP comparison has failed, so selectedValue=-1 rather than falsely attributing the earlier discover score as its selector. (ChatGPT-5.6-Sol) -->
+			if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_DANGER_DISCOVER_TECH, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pSASGreatPersonDecisionPlot, ePreviousMissionAI, pPreviousMissionPlot);
 			if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("DANGER_DISCOVER", *this, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
 			return;
 		}
@@ -10870,15 +10896,25 @@ void CvUnitAI::AI_greatPersonMove()
 			rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, AI_getGroup()->AI_getMissionAIType());
 	}
 	if (AI_retreatToCity())
+	{
+		if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_RETREAT, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, AI_getGroup()->AI_getMissionAIPlot(), ePreviousMissionAI, pPreviousMissionPlot);
 		return;
+	}
 	// K-Mod
 	if (AI_handleStranded())
+	{
+		if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_STRANDED, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, AI_getGroup()->AI_getMissionAIPlot(), ePreviousMissionAI, pPreviousMissionPlot);
 		return;
+	}
 	// K-Mod end
 	if (AI_safety())
+	{
+		if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_SAFETY, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, AI_getGroup()->AI_getMissionAIPlot(), ePreviousMissionAI, pPreviousMissionPlot);
 		return;
+	}
 
 	getGroup()->pushMission(MISSION_SKIP);
+	if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_SKIP, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, NULL, ePreviousMissionAI, pPreviousMissionPlot);
 } // K-Mod end
 
 // Edited heavily for K-Mod

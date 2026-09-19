@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 101 };
+enum { SAS_GAME_RECORD_REVISION = 102 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -128,6 +128,33 @@ void logSASGameRecordUWAIWarPlanDecision(TeamTypes eAgent, TeamTypes eTarget, SA
 class CvPlot;
 class CvUnit;
 class CvUnitAI;
+// <!-- custom: Closed recorder-only outcomes for ordinary AI Great Person action selection.
+// These describe AI_greatPersonMove's realized action/continuation/fallback rather than a gameplay-wide enum, so keep them with SASGameRecord.
+// Great Generals use the separate AI_generalMove path and are intentionally outside this schema. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordAIGreatPersonAction
+{
+	SAS_AI_GREAT_PERSON_DISCOVER_TECH,
+	SAS_AI_GREAT_PERSON_TRADE_MISSION,
+	SAS_AI_GREAT_PERSON_MOVE_TO_TRADE_MISSION,
+	SAS_AI_GREAT_PERSON_GREAT_WORK,
+	SAS_AI_GREAT_PERSON_MOVE_TO_GREAT_WORK,
+	SAS_AI_GREAT_PERSON_GOLDEN_AGE,
+	SAS_AI_GREAT_PERSON_JOIN_CITY,
+	SAS_AI_GREAT_PERSON_MOVE_TO_JOIN_CITY,
+	SAS_AI_GREAT_PERSON_CONSTRUCT_BUILDING,
+	SAS_AI_GREAT_PERSON_MOVE_TO_CONSTRUCT_BUILDING,
+	SAS_AI_GREAT_PERSON_HURRY_BUILDING,
+	SAS_AI_GREAT_PERSON_MOVE_TO_HURRY_BUILDING,
+	SAS_AI_GREAT_PERSON_DANGER_DISCOVER_TECH,
+	SAS_AI_GREAT_PERSON_RECON_SPY,
+	SAS_AI_GREAT_PERSON_RETREAT,
+	SAS_AI_GREAT_PERSON_STRANDED,
+	SAS_AI_GREAT_PERSON_SAFETY,
+	SAS_AI_GREAT_PERSON_SKIP
+};
+// <!-- custom: Record one realized ordinary Great Person decision/continuation from AI_greatPersonMove.
+// Scores, slow-action details and movement state are values gameplay already computed; callers pre-gate at GameRecord level 2+ and never repeat valuation, candidate search, pathfinding or RNG for logging. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIGreatPersonDecision(CvUnitAI const& kUnit, CvPlot const* pDecisionPlot, SASGameRecordAIGreatPersonAction eAction, int iChoiceRank, int iSelectedValue, int iScoreThreshold, int iSlowValue, int iSlowBaseValue, int iSlowPathTurns, MissionAITypes eSlowMissionAI, CvCity const* pSlowCity, SpecialistTypes eSpecialist, BuildingTypes eBuilding, int iDiscoverValue, TechTypes eDiscoverTech, int iGoldenAgeValue, int iTradeValue, int iCultureValue, CvPlot const* pTargetPlot, MissionAITypes ePreviousMissionAI, CvPlot const* pPreviousMissionPlot);
 struct SASEspionageChoiceContext;
 struct SASTechChoiceContext;
 // <!-- custom: Exact level-3 plot-owner transitions use a small recorder-owned root/mechanism vocabulary instead of guessing causes from the final setter.

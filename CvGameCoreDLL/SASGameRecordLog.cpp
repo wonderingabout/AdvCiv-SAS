@@ -12061,6 +12061,53 @@ void logSASGameRecordAIConquerCityDecision(CvPlayerAI const& kPlayer, CvCity con
 		eLiberationPlayer);
 }
 
+static char const* getSASGameRecordAIGreatPersonAction(SASGameRecordAIGreatPersonAction eAction)
+{
+	switch (eAction)
+	{
+	case SAS_AI_GREAT_PERSON_DISCOVER_TECH: return "DISCOVER_TECH";
+	case SAS_AI_GREAT_PERSON_TRADE_MISSION: return "TRADE_MISSION";
+	case SAS_AI_GREAT_PERSON_MOVE_TO_TRADE_MISSION: return "MOVE_TO_TRADE_MISSION";
+	case SAS_AI_GREAT_PERSON_GREAT_WORK: return "GREAT_WORK";
+	case SAS_AI_GREAT_PERSON_MOVE_TO_GREAT_WORK: return "MOVE_TO_GREAT_WORK";
+	case SAS_AI_GREAT_PERSON_GOLDEN_AGE: return "GOLDEN_AGE";
+	case SAS_AI_GREAT_PERSON_JOIN_CITY: return "JOIN_CITY";
+	case SAS_AI_GREAT_PERSON_MOVE_TO_JOIN_CITY: return "MOVE_TO_JOIN_CITY";
+	case SAS_AI_GREAT_PERSON_CONSTRUCT_BUILDING: return "CONSTRUCT_BUILDING";
+	case SAS_AI_GREAT_PERSON_MOVE_TO_CONSTRUCT_BUILDING: return "MOVE_TO_CONSTRUCT_BUILDING";
+	case SAS_AI_GREAT_PERSON_HURRY_BUILDING: return "HURRY_BUILDING";
+	case SAS_AI_GREAT_PERSON_MOVE_TO_HURRY_BUILDING: return "MOVE_TO_HURRY_BUILDING";
+	case SAS_AI_GREAT_PERSON_DANGER_DISCOVER_TECH: return "DANGER_DISCOVER_TECH";
+	case SAS_AI_GREAT_PERSON_RECON_SPY: return "RECON_SPY";
+	case SAS_AI_GREAT_PERSON_RETREAT: return "RETREAT";
+	case SAS_AI_GREAT_PERSON_STRANDED: return "STRANDED";
+	case SAS_AI_GREAT_PERSON_SAFETY: return "SAFETY";
+	case SAS_AI_GREAT_PERSON_SKIP: return "SKIP";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Compact all-type Great Person action provenance.
+// The five action scores and slow candidate metadata are the exact values produced by AI_greatPersonMove before sorting; target is the already-selected current waypoint/action plot and previousMission* preserves continuity from the group's pre-decision state.
+// Fallback actions deliberately use choiceRank/selectedValue=-1: danger discovery, recon, retreat, stranded handling and safety are later fallback helpers, not winners of the earlier sorted score comparison. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIGreatPersonDecision(CvUnitAI const& kUnit, CvPlot const* pDecisionPlot, SASGameRecordAIGreatPersonAction eAction, int iChoiceRank, int iSelectedValue, int iScoreThreshold, int iSlowValue, int iSlowBaseValue, int iSlowPathTurns, MissionAITypes eSlowMissionAI, CvCity const* pSlowCity, SpecialistTypes eSpecialist, BuildingTypes eBuilding, int iDiscoverValue, TechTypes eDiscoverTech, int iGoldenAgeValue, int iTradeValue, int iCultureValue, CvPlot const* pTargetPlot, MissionAITypes ePreviousMissionAI, CvPlot const* pPreviousMissionPlot)
+{
+	CvGame const& kGame = GC.getGame();
+	int const iAge = kGame.getGameTurn() - kUnit.getGameTurnCreated();
+	int const iAgeNormal = 100 * iAge / std::max(1, kGame.getSpeedPercent());
+	logSASGameRecord("GAME_RECORD_AI_GREAT_PERSON_DECISION turn=%d player=%d team=%d unitId=%d unit=%s unitAI=%s x=%d y=%d age=%d ageNormal=%d action=%s choiceRank=%d selectedValue=%d threshold=%d slow=%d slowBaseValue=%d slowPathTurns=%d slowMissionAI=%d slowCityId=%d slowCity=%S slowCityX=%d slowCityY=%d specialist=%s building=%s discover=%d discoverTech=%s goldenAge=%d trade=%d culture=%d targetX=%d targetY=%d previousMissionAI=%d previousTargetX=%d previousTargetY=%d",
+		kGame.getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()),
+		getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()), (pDecisionPlot == NULL ? kUnit.getX() : pDecisionPlot->getX()),
+		(pDecisionPlot == NULL ? kUnit.getY() : pDecisionPlot->getY()), iAge, iAgeNormal,
+		getSASGameRecordAIGreatPersonAction(eAction), iChoiceRank, iSelectedValue, iScoreThreshold, iSlowValue, iSlowBaseValue,
+		(iSlowPathTurns == MAX_INT ? -1 : iSlowPathTurns), eSlowMissionAI, (pSlowCity == NULL ? -1 : pSlowCity->getID()),
+		(pSlowCity == NULL ? L"-" : pSlowCity->getName().GetCString()), (pSlowCity == NULL ? -1 : pSlowCity->getX()),
+		(pSlowCity == NULL ? -1 : pSlowCity->getY()), getSASGameRecordSpecialistType(eSpecialist), getSASGameRecordBuildingType(eBuilding),
+		iDiscoverValue, getSASGameRecordTechType(eDiscoverTech), iGoldenAgeValue, iTradeValue, iCultureValue,
+		(pTargetPlot == NULL ? -1 : pTargetPlot->getX()), (pTargetPlot == NULL ? -1 : pTargetPlot->getY()), ePreviousMissionAI,
+		(pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getX()), (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getY()));
+}
+
 // <!-- custom: Serialize only scores produced by the real AI_bestReligion loop; the vector is built only at GameRecord level 3 and formatted only when AI_doReligion reaches a meaningful switch/spread-block decision. (ChatGPT-5.6-Sol) -->
 static CvString getSASGameRecordReligionCandidateScores(std::vector<std::pair<ReligionTypes, int> > const* paCandidateValues)
 {
