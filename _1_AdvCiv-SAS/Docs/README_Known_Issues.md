@@ -4408,6 +4408,10 @@ Update: BBAI save-file 450 testing showed a remaining edge case: France had a Gr
 
 Great General unit-attachment branches now use tunable minimum target gates that default very high, so Great Generals effectively keep preferring Military Academy or Military Instructor unless these thresholds are deliberately lowered. In the latest T200 retest, France's low-value Longbowman attachment was rejected from T132 to T136 and the Great General joined Orleans at T137; the same gate also rejected a United States Longbowman from T186 to T188, and that Great General joined Washington at T189.
 
+Update 2: While adding and reviewing SASGameRecord revision 103 Great General decision provenance, source archaeology showed that practical 5081's original KI#69 implementation inserted an earlier Military Academy + high-limit Military Instructor pair but also retained K-Mod/AdvCiv's original pair later in `AI_generalMove`. If execution reached that later pair, the identical earlier helper had already returned false; the intervening failed Join/Lead scans do not move or consume the Great General or change the relevant city specialist/building state, so rerunning the same city scans, valuation and pathfinding could not produce a different result.
+
+Practical 6495 fixes this SAS-specific practical-5081 performance/tidiness defect by removing only those two duplicate passes, preserving KI#69's Instructor-first/top-hammer/Heroic-Epic preference and every distinct progressively looser fallback. The duplication was found through the recorder work rather than through a gameplay failure; SASGameRecord revision 104 also removes the now-dead `SECOND_ACADEMY` / `SECOND_INSTRUCTOR` stage labels and updates the guarded live stage vocabulary.
+
 <a id="ki-70"></a>
 
 ## KI#70 - (Fixed inherited K-Mod bug, exposed by AdvCiv-SAS) Forced-specialist sanitizer could retain an invalid target

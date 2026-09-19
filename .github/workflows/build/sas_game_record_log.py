@@ -692,7 +692,7 @@ def check_ai_great_general_provenance(repo_root: Path) -> list[str]:
 	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
 	expected_stages = [
 		"SAS_AI_GREAT_GENERAL_PREFERRED_INSTRUCTOR", "SAS_AI_GREAT_GENERAL_FIRST_ACADEMY", "SAS_AI_GREAT_GENERAL_FIRST_INSTRUCTOR",
-		"SAS_AI_GREAT_GENERAL_DANGER_LEAD", "SAS_AI_GREAT_GENERAL_SECOND_ACADEMY", "SAS_AI_GREAT_GENERAL_SECOND_INSTRUCTOR",
+		"SAS_AI_GREAT_GENERAL_DANGER_LEAD",
 		"SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK_CITY", "SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK",
 		"SAS_AI_GREAT_GENERAL_JOIN_LIMIT_2", "SAS_AI_GREAT_GENERAL_ACADEMY_LIMIT_2", "SAS_AI_GREAT_GENERAL_JOIN_LIMIT_4",
 		"SAS_AI_GREAT_GENERAL_RANDOM_CONSTRUCT", "SAS_AI_GREAT_GENERAL_FINAL_JOIN", "SAS_AI_GREAT_GENERAL_RETREAT",
@@ -748,16 +748,16 @@ def check_ai_great_general_provenance(repo_root: Path) -> list[str]:
 		body = general_function.group("body")
 		if "logSASGameRecordAIGreatGeneralDecision" not in body:
 			failures.append(f"{UNIT_AI_SOURCE}: Great General provenance bridge missing from AI_generalMove")
-		# Preserve the inherited policy/RNG structure. Optional helper context may expose live results, but must not add another helper/search pass.
+		# Preserve the policy/RNG structure after practical 6495 removes the exact duplicate Academy/Instructor passes accidentally introduced in practical 5081. Optional helper context may expose live results, but must not add another helper/search pass.
 		for call, expected_count in (
-			("AI_join(", 6), ("AI_construct(", 4), ("AI_lead(", 3), ("AI_retreatToCity(", 1),
+			("AI_join(", 5), ("AI_construct(", 3), ("AI_lead(", 3), ("AI_retreatToCity(", 1),
 			("AI_handleStranded(", 1), ("AI_safety(", 1), ("SyncRandOneChanceIn(3)", 1),
 		):
 			actual_count = body.count(call)
 			if actual_count != expected_count:
 				failures.append(f"{UNIT_AI_SOURCE}: AI_generalMove {call} count changed; expected {expected_count}, found {actual_count}")
-		if body.count("prepareSASGreatGeneralChoiceContext(") != 13:
-			failures.append(f"{UNIT_AI_SOURCE}: expected 13 prepared helper stages before Great General Join/Construct/Lead passes")
+		if body.count("prepareSASGreatGeneralChoiceContext(") != 11:
+			failures.append(f"{UNIT_AI_SOURCE}: expected 11 prepared helper stages before Great General Join/Construct/Lead passes after redundant-pass removal")
 		if body.count("logSASGameRecordAIGreatGeneralDecision") != 4:
 			failures.append(f"{UNIT_AI_SOURCE}: expected four direct non-consuming/fallback Great General bridges (retreat/stranded/safety/skip)")
 		# Retreat/safety often have no MissionAI plot and stranded can retain a longer-term MissionAI destination; waypoint must be the realized post-helper unit plot.

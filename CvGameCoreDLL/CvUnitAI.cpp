@@ -10116,7 +10116,7 @@ void CvUnitAI::AI_missionaryMove()
 
 
 // <!-- custom: Prepare a rare Great-General helper pass with its caller-owned ordered policy stage.
-// AI_generalMove passes NULL at SASGameRecord level 0/1; this forced-inline pointer gate avoids duplicating 13 caller-side logging branches and performs no recorder-only assignments when disabled. (ChatGPT-5.6-Sol) -->
+// AI_generalMove passes NULL at SASGameRecord level 0/1; this forced-inline pointer gate avoids duplicating 11 caller-side logging branches and performs no recorder-only assignments when disabled. (ChatGPT-5.6-Sol) -->
 static __forceinline SASGreatGeneralChoiceContext* prepareSASGreatGeneralChoiceContext(SASGreatGeneralChoiceContext* pContext, SASGameRecordAIGreatGeneralAction eAction, SASGameRecordAIGreatGeneralStage eStage, int iPolicyLimit, int iValueThreshold, int iMinStrength, int iMinHealing, int iRandomConstructRoll)
 {
 	if (pContext != NULL) pContext->prepare(eAction, eStage, iPolicyLimit, iValueThreshold, iMinStrength, iMinHealing, iRandomConstructRoll);
@@ -10196,7 +10196,7 @@ void CvUnitAI::AI_generalMove()
 	static const int iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE = GC.getDefineINT("SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE");
 	static const int iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING = GC.getDefineINT("SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING");
 
-	if (GET_PLAYER(getOwner()).AI_isAnyPlotDanger(getPlot(), 2))
+	if (kOwner.AI_isAnyPlotDanger(getPlot(), 2))
 	{
 		aeUnitAITypes.clear();
 		aeUnitAITypes.push_back(UNITAI_ATTACK);
@@ -10211,21 +10211,8 @@ void CvUnitAI::AI_generalMove()
 		}
 	}
 
-    if (AI_construct(1, MAX_INT, iGreatGeneralConstructValueThreshold, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_CONSTRUCT, SAS_AI_GREAT_GENERAL_SECOND_ACADEMY, 1, iGreatGeneralConstructValueThreshold, -1, -1, iRandomConstructRoll)))
-    {
-		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=1 stage=second",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
-        return;
-    }
-
-    // Try joining again
-    if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_SECOND_INSTRUCTOR, iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, -1, -1, -1, iRandomConstructRoll)))
-    {
-		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=second",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(),
-			iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT);
-        return;
-    }
+	// <!-- custom: Practical 5081 inserted the earlier Academy + high-limit Instructor passes while retaining K-Mod/AdvCiv's original pair here, making these two calls exact duplicates whenever execution reaches this point.
+	// Reaching here proves the corresponding earlier helper returned false; the intervening failed Join/Lead scans do not move/consume the General or change city specialist/building state, so repeating the same city scans/pathfinding cannot produce a different result. Keep the later distinct fallback limits below. See KI#69 (Update 2). (ChatGPT-5.6-Sol) -->
 	// BETTER_BTS_AI_MOD, Unit AI, 05/14/10, jdog5000: START
 	if (bOffenseWar && (AI_getBirthmark() % 2 == 0))
 	{

@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=103 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=104 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,18 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 103 - SAS practical 6494
+### Revision 104 - SAS practical 6495
 
 - **Date:** 2026-09-19
 - **Git commit:** pending
+- **Change:** Removed two exact duplicate Great General Academy/Instructor helper passes accidentally introduced in practical 5081, avoiding repeated city/specialist/building valuation and pathfinding after the identical earlier helper had already failed with unchanged relevant state.
+
+The structured row fields are unchanged, but the live Great General stage vocabulary is reduced from 17 to 15 values: the now-dead revision-103 `SECOND_ACADEMY` and `SECOND_INSTRUCTOR` labels are removed together with the duplicate gameplay stages that could emit them. CI now guards the 11 live helper-preparation stages, the reduced helper-pass counts and the absence of those deleted labels. This SAS-specific practical-5081 performance/tidiness fix was found while reviewing SASGameRecord revision 103 Great General provenance and is documented as KI#69 Update 2.
+
+### Revision 103 - SAS practical 6494
+
+- **Date:** 2026-09-19
+- **Git commit:** `437d6eb6bfe50d1435215c47658f036765d3061b`
 - **Change:** Added compact level-2 Great General decision provenance from `AI_generalMove`: the realized ordered policy stage (Instructor, Academy, danger/offensive attachment, progressively looser fallback, retreat/stranded/safety/skip) plus the already-selected helper target, value/path context, attachment criteria, late construct roll and previous mission state.
 
 The helper bridges expose only live results already computed by gameplay and do not repeat candidate scans, valuation, pathfinding or RNG. Also corrected Great General and ordinary Great Person fallback waypoint reporting to use the realized post-helper action plot rather than often-empty or longer-term MissionAI target metadata.
