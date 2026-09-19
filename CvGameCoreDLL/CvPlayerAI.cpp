@@ -23092,7 +23092,8 @@ CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& kDeal, PlayerTyp
 }
 
 // <!-- custom: AdvCiv queued AI-human cancellations to combine their notification, leaving already-rejected GPT obligations economically active during its later per-rival cap check.
-// Capture the notification payload and end those deals now, so the cap sees projected surviving state; reuse this after the cap for any additional cancellations it selects. See KI#661. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+// Capture the notification payload and end those deals now, so the cap sees projected surviving state; reuse this after the cap for any additional cancellations it selects.
+// These are AI-initiated cancellations: pass this AI as eCancelPlayer so advc.130j gives only the canceler half renewal memory while the other side keeps the intended full memory. See KI#661 and KI#605.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void CvPlayerAI::AI_applyHumanDealCancellations(PlayerTypes eOther, std::vector<CvDeal*>& apDeals, CLinkList<TradeData>& kHumanReceived, CLinkList<TradeData>& kHumanGave, int& iHumanReceivedGold, int& iHumanGaveGold)
 {
 	for (size_t i = 0; i < apDeals.size(); i++)
@@ -23125,7 +23126,8 @@ void CvPlayerAI::AI_applyHumanDealCancellations(PlayerTypes eOther, std::vector<
 						getID(), (BonusTypes)pItem->m_iData));
 			} // </advc.074>
 		}
-		kDeal.kill();
+		// <!-- custom: Preserve the AI canceler identity for advc.130j renewal memory. See KI#605.2. (ChatGPT-5.6-Sol) -->
+		kDeal.kill(true, getID());
 	}
 	apDeals.clear();
 }
@@ -23178,7 +23180,8 @@ bool CvPlayerAI::AI_doDeals(PlayerTypes eOther)
 			CvDiploParameters* pDiplo = new CvDiploParameters(getID());
 			if (bVassalDeal)
 			{
-				pLoopDeal->kill(); // K-Mod. Kill the old deal first
+				// <!-- custom: This AI selected the cancellation; preserve that identity for advc.130j before opening diplomacy. See KI#605.2. (ChatGPT-5.6-Sol) -->
+				pLoopDeal->kill(true, getID()); // K-Mod. Kill the old deal first
 				// <advc.062>
 				CvString szReason = "AI_DIPLOCOMMENT_NO_VASSAL";
 				switch(eVassalCancelReason)
@@ -23204,7 +23207,8 @@ bool CvPlayerAI::AI_doDeals(PlayerTypes eOther)
 		}
 		else
 		{
-			pLoopDeal->kill(); // K-Mod
+			// <!-- custom: AI_doDeals is the cancelling side; advc.130j needs that player ID to keep full renewal memory only on the non-cancelling side. See KI#605.2. (ChatGPT-5.6-Sol) -->
+			pLoopDeal->kill(true, getID()); // K-Mod
 			// <advc.133>
 			if(bRenegotiate)
 				bContacted = (AI_proposeResourceTrade(eOther) || bContacted); // </advc.133>
@@ -23251,7 +23255,11 @@ bool CvPlayerAI::AI_doDeals(PlayerTypes eOther)
 			if (gDealCancelLogLevel > 0) logBBAICancel(kDeal, getID(), L"GPT limit");
 			if (GET_PLAYER(eOther).isHuman() && canContact(eOther, true))
 				apHumanDealsToCancel.push_back(&kDeal);
-			else kDeal.kill();
+			else
+			{
+				// <!-- custom: The GPT-cap pass is also an AI-initiated cancellation; propagate the canceler for advc.130j. See KI#605.2. (ChatGPT-5.6-Sol) -->
+				kDeal.kill(true, getID());
+			}
 			if (iOverdraft <= 0)
 				break;
 		}

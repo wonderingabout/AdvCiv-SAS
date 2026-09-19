@@ -718,6 +718,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#603 - (Fixed inherited AdvCiv callback regression) Unit-cost result 1 became a 1 percent cost modifier](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-603)\
 [KI#604 - (Fixed inherited AdvCiv deal-list regression) Second-list-only peace treaties never expire](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-604)\
 [KI#605 - (Fixed inherited AdvCiv diplomacy-memory regression) Deal cancellations overwrote rather than accumulated memory](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-605)\
+[KI#605.2 - (Fixed inherited AdvCiv AI deal-cancellation memory defect found during SASGameRecord revision 112) AI cancellations halved both sides' renewal memory](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-605.2)\
 [KI#606 - (Fixed inherited AdvCiv deal-renewal defect) Team agreements were renewed through only one player pair and one trade list](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-606)\
 [KI#607 - (Pending Architectural inherited team-deal ownership defect incompletely addressed by AdvCiv) One teammate's death tears down surviving team agreements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-607)\
 [KI#608 - (Fixed inherited AdvCiv deal-list regression) Embargo denial misses opposite-list peace reparations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-608)\
@@ -14917,6 +14918,30 @@ The helper again adds each cancellation event: +2 on the current doubled-decay s
 `SASGameRecord_20260829T065332Z_new1.log` confirms that a current Huge Custom Continents autoplay completed by Space victory at turn 446 and exercised 24 surrender/vassal trade rows without an observed issue. The practical 1497 ancestry, current decay scale and proxy teardown order remain source verified. SASGameRecord does expose exact AI memory counters in periodic level-3 `GAME_RECORD_DIPLO_MEMORIES` snapshots, but this autoplay did not sample the exact cancellation boundary; it therefore does not by itself prove that this specific cancellation produced the intended +4 master or +6 denied-help vassal increment before later decay or other memory changes.
 
 Found during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-605.2"></a>
+
+## KI#605.2 - (Fixed inherited AdvCiv AI deal-cancellation memory defect found during SASGameRecord revision 112) AI cancellations halved both sides' renewal memory
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1ym2JX7vsgPonVtlIVDo1M_RCWQWjga78?usp=sharing).
+
+AdvCiv practical 3118 (`b25510b1a22f768af80ad422e617bd9a071f1503`, advc.130j) deliberately distinguished the side that cancels Open Borders or a Defensive Pact: the cancelling AI should retain only half cancellation memory (about 5 turns on average), while the non-cancelling AI should retain the full memory (about 10 turns). `CvDeal::kill` therefore accepts `eCancelPlayer`, and the same upstream commit propagated the declaring leader when war ends deals.
+
+`CvPlayerAI::AI_doDeals`, however, continued to end every AI-selected deal through the one-argument/default `kill()` path. Its default `eCancelPlayer = NO_PLAYER` makes both directional Open Borders/Defensive Pact teardown calls satisfy `eCancelPlayer != eFromPlayer`, so both sides receive the halved memory. The intended asymmetry therefore disappeared specifically when ordinary AI diplomacy cancelled the agreement.
+
+The fix passes the cancelling AI's `getID()` through every `AI_doDeals`-owned teardown path, including queued AI-human cancellations and the later GPT-cap pass. `CvDeal::endTrade` can then apply advc.130j exactly as practical 3118 describes: half memory for the cancelling AI and full memory for the other AI. `eCancelPlayer` affects Open Borders/Defensive Pact cancellation memory (and diagnostic provenance); resource, GPT and vassal teardown rules are otherwise unchanged.
+
+This is intentionally gameplay-altering because the corrected diplomacy memory can affect later AI choices. On the canonical Archipelago control run, the first affected event is turn 98: player 10 cancels Open Borders with player 4 (`dealId=163845`, `DUAL_DENIAL` / `DENIAL_NO_GAIN`). Before the fix the teardown records `cancelPlayer=-1`; with the fix it records `cancelPlayer=10`.
+
+The turn-98 state checkpoint first differs only in the player fingerprint, while the RNG state and value stream remain identical through turn 101. At the turn-100 memory snapshot, the old run has `MEMORY_CANCELLED_OPEN_BORDERS=1` in both directions; the fixed run gives the non-cancelling player 4 the full count of 2 while the cancelling player 10 remains at the halved count of 1, matching advc.130j's intended roughly 10-turn versus 5-turn average persistence.
+
+The first downstream realized action difference appears on turn 102, when the old run's player-8 purchase of `TECH_MONARCHY` from player 0 for 45 gold no longer occurs; synchronized RNG also diverges from that turn onward. The resulting deterministic butterfly eventually changes the control history from team 11 winning a Space victory on turn 372 to team 14 winning a Space victory on turn 441. That later winner and timing are not evidence by themselves that the fix is strategically better; they are the expected consequence of restoring the intended cancellation-memory semantics.
+
+This validation is also a concrete example of the value of SASGameRecord's layered decision, action, state and RNG provenance for deterministic AI debugging. Revision 112's cancellation-decision row identifies the exact AI decision, deal and reason; `DIPLO_DEAL_ENDED` then shows whether the cancelling player identity reached the native teardown; the memory snapshot exposes the immediate gameplay-semantic effect; and the state/RNG checkpoints separate that direct effect from later butterfly consequences.
+
+Here they narrow the causal chain from the turn-98 cancellation, through the corrected turn-100 memory state and still-synchronized RNG through turn 101, to the first downstream action/RNG divergence on turn 102. Without those complementary records, the eventual turn-441 outcome would show only that the game had diverged, not precisely where, why or how the divergence began.
+
+Found by ChatGPT-5.6-Sol while auditing `AI_doDeals` for SASGameRecord revision 112; reviewed, fixed, tested and documented together with the user, thanks. This belongs in the KI#605 cancellation-memory family, but is a separate inherited AdvCiv defect: practical 3118 added the canceler-aware memory mechanism without propagating the canceling player through these pre-existing AI cancellation call sites.
 
 <a id="ki-606"></a>
 

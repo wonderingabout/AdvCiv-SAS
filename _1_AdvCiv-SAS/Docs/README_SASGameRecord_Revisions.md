@@ -47,7 +47,7 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 ### Revision 112 - SAS practical 6512
 
 - **Date:** 2026-09-19
-- **Git commit:** pending
+- **Git commit:** `6784e785cb05d6028454a0dc96a1def3878b286d`
 - **Change:** Added compact level-2 realized `GAME_RECORD_AI_DEAL_CANCELLATION_DECISION` provenance for AI deal teardown/renegotiation decisions in `AI_checkCancel` and the later per-rival GPT-cap pass.
 
 The row distinguishes offer-rejection renegotiation, dual-agreement denial, outgoing-resource denial, an incoming resource no longer needed, and GPT-limit cancellation. It preserves the triggering trade item/denial when one exists, the static 20%/40%/immediate dual-denial cancellation chance, and the already-live GPT overdraft/deal amount boundary.
