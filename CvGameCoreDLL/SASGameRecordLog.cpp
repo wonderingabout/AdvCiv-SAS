@@ -11760,6 +11760,46 @@ void logSASGameRecordAITechTradeDecision(CvPlayerAI const& kPlayer, PlayerTypes 
 		iOurReceiveTechValue, iTargetReceiveTechValue, iGiveMatchDeltaValue, iProgressReceiveTechValue, iProgressMaxGold);
 }
 
+static char const* getSASGameRecordAIDealCancellationReason(SASGameRecordAIDealCancellationReason eReason)
+{
+	switch (eReason)
+	{
+	case SAS_AI_DEAL_CANCEL_OFFER_REJECTED_RENEGOTIATE: return "OFFER_REJECTED_RENEGOTIATE";
+	case SAS_AI_DEAL_CANCEL_DUAL_DENIAL: return "DUAL_DENIAL";
+	case SAS_AI_DEAL_CANCEL_AI_RESOURCE_DENIAL: return "AI_RESOURCE_DENIAL";
+	case SAS_AI_DEAL_CANCEL_OTHER_RESOURCE_JOKING: return "OTHER_RESOURCE_JOKING";
+	case SAS_AI_DEAL_CANCEL_GPT_LIMIT: return "GPT_LIMIT";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Preserve only the realized AI_doDeals cancellation boundary. The authoritative DIPLO_DEAL_ENDED action still owns the deal payload; this row keeps the otherwise-lost decision cause and already-computed denial/GPT-cap context.
+// Trigger formatting and the static dual-denial probability are recorder-only and run only after the caller's level-2 gate; no AI_considerOffer, trade denial, bonus valuation or RNG is repeated. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIDealCancellationDecision(CvPlayerAI const& kPlayer, PlayerTypes eOther, CvDeal const& kDeal, SASGameRecordAIDealCancellationReason eReason, TradeData const* pTriggerItem, bool bTriggerFromAI, DenialTypes eDenial, int iGptOverdraftBefore, int iDealGpt, int iGptOverdraftAfter)
+{
+	CvPlayerAI const& kOther = GET_PLAYER(eOther);
+	CvString szTriggerItem("-");
+	char const* szTriggerSide = "-";
+	if (pTriggerItem != NULL)
+	{
+		szTriggerSide = (bTriggerFromAI ? "AI_GIVES" : "OTHER_GIVES");
+		CvString const szData = getSASTradeDataText(*pTriggerItem, bTriggerFromAI ? kPlayer.getID() : eOther);
+		szTriggerItem.Format("%s:%s", getSASTradeItemType(pTriggerItem->m_eItemType), szData.GetCString());
+	}
+	char const* szDenial = (eDenial == NO_DENIAL ? "-" : getSASGameRecordDenialType(eDenial));
+	int iDualCancelChanceX1000 = -1;
+	if (eReason == SAS_AI_DEAL_CANCEL_DUAL_DENIAL && pTriggerItem != NULL)
+	{
+		iDualCancelChanceX1000 =
+				(pTriggerItem->m_eItemType == TRADE_DEFENSIVE_PACT && eDenial == DENIAL_JOKING ? 1000 :
+				(eDenial == DENIAL_WORST_ENEMY ? 400 : 200));
+	}
+	logSASGameRecord("GAME_RECORD_AI_DEAL_CANCELLATION_DECISION turn=%d player=%d team=%d otherPlayer=%d otherTeam=%d otherHuman=%d dealId=%d dealAge=%d vassalDeal=%d reason=%s triggerSide=%s triggerItem=%s denial=%s dualCancelChanceX1000=%d gptOverdraftBefore=%d dealGpt=%d gptOverdraftAfter=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eOther, kOther.getTeam(), kOther.isHuman() ? 1 : 0,
+		kDeal.getID(), kDeal.getAge(), kDeal.isVassalDeal() ? 1 : 0, getSASGameRecordAIDealCancellationReason(eReason),
+		szTriggerSide, szTriggerItem.GetCString(), szDenial, iDualCancelChanceX1000, iGptOverdraftBefore, iDealGpt, iGptOverdraftAfter);
+}
+
 // <!-- custom: Preserve the live reason for a realized AI request that a human join one of its wars.
 // The generic CONTACT_JOIN_WAR row remains authoritative for the request subject; this row derives only cheap current counters/static context and never repeats contact/peace/target RNG or UWAI denial evaluation. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIJointWarRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, TeamTypes eTarget, int iTargetScore, int iMeanAtWarTurnsX1000)

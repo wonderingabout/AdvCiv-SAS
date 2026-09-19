@@ -1122,6 +1122,84 @@ def check_ai_tech_trade_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_deal_cancellation_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI deal-cancellation provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	expected_reasons = [
+		"SAS_AI_DEAL_CANCEL_OFFER_REJECTED_RENEGOTIATE",
+		"SAS_AI_DEAL_CANCEL_DUAL_DENIAL",
+		"SAS_AI_DEAL_CANCEL_AI_RESOURCE_DENIAL",
+		"SAS_AI_DEAL_CANCEL_OTHER_RESOURCE_JOKING",
+		"SAS_AI_DEAL_CANCEL_GPT_LIMIT",
+	]
+	m = re.search(r"enum\s+SASGameRecordAIDealCancellationReason\s*\{(?P<body>.*?)\};", header_text, flags=re.DOTALL)
+	if m is None:
+		failures.append(f"{REVISION_HEADER}: missing SASGameRecordAIDealCancellationReason")
+	else:
+		tokens = re.findall(r"^\s*(SAS_AI_DEAL_CANCEL_[A-Z0-9_]+)\s*,?\s*$", m.group("body"), flags=re.MULTILINE)
+		if tokens != expected_reasons:
+			failures.append(f"{REVISION_HEADER}: AI deal-cancellation reason vocabulary changed; expected {expected_reasons}, found {tokens}")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_DEAL_CANCELLATION_DECISION", "reason=%s", "dealId=%d", "dealAge=%d", "vassalDeal=%d",
+		"triggerSide=%s", "triggerItem=%s", "denial=%s", "dualCancelChanceX1000=%d",
+		"gptOverdraftBefore=%d", "dealGpt=%d", "gptOverdraftAfter=%d",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI deal-cancellation diagnostic token {required}")
+	for token in expected_reasons:
+		if record_text.count(f"case {token}:") != 1:
+			failures.append(f"{REVISION_SOURCE}: AI deal-cancellation reason {token} must have exactly one stringifier case")
+	m = re.search(r"void\s+logSASGameRecordAIDealCancellationDecision\([^)]*\)\s*\{(?P<body>.*?)^\}", record_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		failures.append(f"{REVISION_SOURCE}: could not locate AI deal-cancellation logger body")
+	else:
+		body = m.group("body")
+		for forbidden in ("AI_considerOffer(", "getTradeDenial(", "AI_bonusTrade(", "SyncRand"):
+			if forbidden in body:
+				failures.append(f"{REVISION_SOURCE}: deal-cancellation formatter must not repeat live decision work ({forbidden})")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	start = player_text.find("CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel")
+	end = player_text.find("// <!-- custom: AdvCiv queued AI-human cancellations", start)
+	if start < 0 or end < 0:
+		failures.append(f"{PLAYER_AI_SOURCE}: could not isolate AI_checkCancel")
+	else:
+		body = player_text[start:end]
+		if body.count("logSASGameRecordAIDealCancellationDecision(") != 4:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_checkCancel must retain exactly four realized cancellation-reason bridges")
+		for token in expected_reasons[:4]:
+			if body.count(token) != 1:
+				failures.append(f"{PLAYER_AI_SOURCE}: AI_checkCancel must use {token} exactly once")
+		for token, expected in (("AI_considerOffer(", 1), ("getTradeDenial(", 1), ("SyncRandSuccess(", 1), ("AI_bonusTrade(", 2)):
+			actual = body.count(token)
+			if actual != expected:
+				failures.append(f"{PLAYER_AI_SOURCE}: AI_checkCancel live call count for {token} changed; expected {expected}, found {actual}")
+		if body.count("if (gGameRecordLogLevel >= 2) logSASGameRecordAIDealCancellationDecision") != 4:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_checkCancel cancellation provenance must remain success-only and level-2 gated")
+
+	start = player_text.find("// Enforce GPT limit")
+	end = player_text.find("// One diplo popup for all canceled non-vassal deals", start)
+	if start < 0 or end < 0:
+		failures.append(f"{PLAYER_AI_SOURCE}: could not isolate AI_doDeals GPT-limit pass")
+	else:
+		body = player_text[start:end]
+		if body.count("SAS_AI_DEAL_CANCEL_GPT_LIMIT") != 1 or body.count("logSASGameRecordAIDealCancellationDecision(") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: GPT-limit cancellation must retain exactly one realized provenance bridge")
+		if body.count("AI_maxGoldPerTurnTrade(eOther, true)") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: GPT-limit provenance must reuse the single live AI_maxGoldPerTurnTrade query")
+		if "iOverdraft - aiiDealsByGPT[i].first" not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: GPT-limit provenance must derive post-cancel overdraft from the already-selected deal amount")
+	return failures
+
+
 def check_ai_joint_war_request_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -1385,6 +1463,7 @@ def main() -> int:
 	failures.extend(check_ai_help_tribute_request_provenance(args.repo_root))
 	failures.extend(check_ai_give_help_provenance(args.repo_root))
 	failures.extend(check_ai_tech_trade_provenance(args.repo_root))
+	failures.extend(check_ai_deal_cancellation_provenance(args.repo_root))
 	failures.extend(check_ai_city_trade_intent_provenance(args.repo_root))
 	failures.extend(check_ai_embargo_request_provenance(args.repo_root))
 	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
@@ -1397,7 +1476,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-city-trade/AI-embargo/AI-joint-war/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/AI-city-trade/AI-embargo/AI-joint-war/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

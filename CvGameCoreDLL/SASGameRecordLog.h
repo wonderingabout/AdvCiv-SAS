@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 111 };
+enum { SAS_GAME_RECORD_REVISION = 112 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -432,8 +432,9 @@ struct SASGameRecordGoodyResult
 	std::vector<CvUnit const*> apFreeUnits;
 	std::vector<CvUnit const*> apBarbarianUnits;
 };
-// <!-- custom: Diplomacy logging declarations below use TradeData and CLinkList only by reference.
-// Forward declarations avoid pulling trade-list implementation headers into every SASGameRecordLog.h includer. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Diplomacy logging declarations below use CvDeal, TradeData and CLinkList only by reference/pointer.
+// Forward declarations avoid pulling deal/trade-list implementation headers into every SASGameRecordLog.h includer. (ChatGPT-5.6-Sol) -->
+class CvDeal;
 struct TradeData;
 template <class tVARTYPE> class CLinkList;
 // <!-- custom: Capture a plot before a logical action so one combined record can describe terrain, feature, resource, improvement, route and permanent event-yield changes.
@@ -598,6 +599,17 @@ enum SASGameRecordAITechTradeOrigin
 	SAS_AI_TECH_TRADE_PROGRESS_GOLD
 };
 void logSASGameRecordAITechTradeDecision(CvPlayerAI const& kPlayer, PlayerTypes eTarget, SASGameRecordAITechTradeOrigin eOrigin, int iContactProbMultX1000, int iBestKnownTechScorePercent, TechTypes eRandomReceiveTech, int iRandomReceiveScore, bool bRandomReceiveLocusSuppressed, TechTypes eProgressTech, int iProgressResearchPoints, bool bProgressLocusSuppressed, TechTypes eGiveTech, int iOurReceiveTechValue, int iTargetReceiveTechValue, int iGiveMatchDeltaValue, int iProgressReceiveTechValue, int iProgressMaxGold);
+// <!-- custom: DIPLO_DEAL_ENDED preserves the final deal payload but not why AI_doDeals chose to end it; AI_checkCancel also discards its denial/resource trigger after returning.
+// Keep only realized cancellation causes and already-live trigger/overdraft context. Callers gate each row after the existing decision succeeds, so no offer valuation, denial query or synchronized RNG is repeated solely for recording. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordAIDealCancellationReason
+{
+	SAS_AI_DEAL_CANCEL_OFFER_REJECTED_RENEGOTIATE,
+	SAS_AI_DEAL_CANCEL_DUAL_DENIAL,
+	SAS_AI_DEAL_CANCEL_AI_RESOURCE_DENIAL,
+	SAS_AI_DEAL_CANCEL_OTHER_RESOURCE_JOKING,
+	SAS_AI_DEAL_CANCEL_GPT_LIMIT
+};
+void logSASGameRecordAIDealCancellationDecision(CvPlayerAI const& kPlayer, PlayerTypes eOther, CvDeal const& kDeal, SASGameRecordAIDealCancellationReason eReason, TradeData const* pTriggerItem = NULL, bool bTriggerFromAI = true, DenialTypes eDenial = NO_DENIAL, int iGptOverdraftBefore = -1, int iDealGpt = -1, int iGptOverdraftAfter = -1);
 // <!-- custom: AI_proposeJointWar uses war-duration-adjusted contact cadence plus randomized target selection that the generic CONTACT_JOIN_WAR subject cannot reconstruct.
 // Preserve only the two irrecoverable live chooser values; the recorder derives selected-target counters/static context after the successful gates and before diplomacy begins. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIJointWarRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, TeamTypes eTarget, int iTargetScore, int iMeanAtWarTurnsX1000);

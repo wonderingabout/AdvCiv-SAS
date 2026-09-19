@@ -27,26 +27,42 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=111 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=112 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
 
 ## Reconstruction method
 
-The history below counts commits that changed the recorder implementation itself (`SASGameSummaryLog.*` / `SASGameRecordLog.*`) or changed runtime/configuration call sites directly participating in the structured record. It intentionally excludes broad text-search hits that only mentioned the record in documentation/comments, used it as test evidence, refreshed example logs, or changed packaging/tooling without changing the recorder implementation. This is why the original reconstruction produced 67 revisions through practical 6438 rather than the much noisier ~166 broad-history-hit figure. The stricter current policy additionally counts later intentional code-comment/header-only updates in SASGameRecord-related implementation/checker files.
+The history below counts commits that changed the recorder implementation itself (`SASGameSummaryLog.*` / `SASGameRecordLog.*`) or changed runtime/configuration call sites directly participating in the structured record.
+
+It intentionally excludes broad text-search hits that only mentioned the record in documentation/comments, used it as test evidence, refreshed example logs, or changed packaging/tooling without changing the recorder implementation.
+
+This is why the original reconstruction produced 67 revisions through practical 6438 rather than the much noisier ~166 broad-history-hit figure. The stricter current policy additionally counts later intentional code-comment/header-only updates in SASGameRecord-related implementation/checker files.
 
 Because this numbering is reconstructed after the fact, the descriptions are concise summaries of the canonical commit diffs/messages rather than claims that these revision numbers were emitted by historical builds.
 
 ## History (latest first)
 
-### Revision 111 - SAS practical 6509
+### Revision 112 - SAS practical 6512
 
 - **Date:** 2026-09-19
 - **Git commit:** pending
+- **Change:** Added compact level-2 realized `GAME_RECORD_AI_DEAL_CANCELLATION_DECISION` provenance for AI deal teardown/renegotiation decisions in `AI_checkCancel` and the later per-rival GPT-cap pass.
+
+The row distinguishes offer-rejection renegotiation, dual-agreement denial, outgoing-resource denial, an incoming resource no longer needed, and GPT-limit cancellation. It preserves the triggering trade item/denial when one exists, the static 20%/40%/immediate dual-denial cancellation chance, and the already-live GPT overdraft/deal amount boundary.
+
+Existing `DIPLO_DEAL_ENDED` actions remain authoritative for the ended deal payload. No offer valuation, denial/resource query, GPT-cap query or synchronized RNG is repeated solely for recording.
+
+### Revision 111 - SAS practical 6509
+
+- **Date:** 2026-09-19
+- **Git commit:** `3518d2d93b81fe89b212df40b4cc75dcb3fc8e8a`
 - **Change:** Added compact level-2 realized `GAME_RECORD_AI_TECH_TRADE_DECISION` provenance for the three live `CONTACT_TRADE_TECH` outcomes in `AI_doDiplo`: a directly acceptable randomized technology proposal, that same proposal after successful `AI_counterPropose` balancing, and AdvC's separate research-progress technology-for-gold purchase.
 
-The row preserves the net live contact-probability multiplier and known-tech percentage, the pre-locus randomized receive-technology winner and its existing random score, whether that winner was suppressed by the master/vassal-locus preference, the already-selected high-progress fallback technology/raw research-point amount and whether locus policy suppresses it, and the main proposal's selected give technology/recipient-side trade values/value-match delta or the progress purchase's live receive-tech value/max-gold boundary. Revision 100 remains authoritative for the final package, including counterproposal additions. No technology candidate scan, trade valuation, counterproposal search or synchronized RNG is repeated solely for recording.
+The row preserves the net live contact-probability multiplier and known-tech percentage, the pre-locus randomized receive-technology winner and its existing random score, whether that winner was suppressed by the master/vassal-locus preference, the already-selected high-progress fallback technology/raw research-point amount and whether locus policy suppresses it, and the main proposal's selected give technology/recipient-side trade values/value-match delta or the progress purchase's live receive-tech value/max-gold boundary.
+
+Revision 100 remains authoritative for the final package, including counterproposal additions. No technology candidate scan, trade valuation, counterproposal search or synchronized RNG is repeated solely for recording.
 
 ### Revision 110 - SAS practical 6508
 
@@ -64,7 +80,9 @@ Revision 100 remains authoritative for the actual gifted package. All specialize
 - **Git commit:** `fbe6e098a3c0bc1efb7d2d18701a43641042f558`
 - **Change:** Added compact level-2 realized AI help/tribute request provenance around `AI_askHelp` and `AI_demandTribute`, complementing revision 100's final `CONTACT_ASK_FOR_HELP` / `CONTACT_DEMAND_TRIBUTE` packages with the live chooser state and caller origin that disappear afterward.
 
-Help rows distinguish ordinary `AI_doDiplo` from UWAI `amendTensions`, retain the competing best city/technology and their live values, liberation context, whether the existing 2/3 city-preference roll was reached/passed, and the selected item. Tribute rows preserve the same caller origin, `AIDemandTypes` route, minimum/final deal value, and the already-computed technology/map chooser context where meaningful; revision 87 remains authoritative for detailed resource-candidate selection. Optional recorder contexts are supplied only at level 2+, and the helpers reuse existing live valuations/results without repeating candidate scans or synchronized RNG.
+Help rows distinguish ordinary `AI_doDiplo` from UWAI `amendTensions`, retain the competing best city/technology and their live values, liberation context, whether the existing 2/3 city-preference roll was reached/passed, and the selected item.
+
+Tribute rows preserve the same caller origin, `AIDemandTypes` route, minimum/final deal value, and the already-computed technology/map chooser context where meaningful; revision 87 remains authoritative for detailed resource-candidate selection. Optional recorder contexts are supplied only at level 2+, and the helpers reuse existing live valuations/results without repeating candidate scans or synchronized RNG.
 
 ### Revision 108 - SAS practical 6500
 
@@ -72,7 +90,9 @@ Help rows distinguish ordinary `AI_doDiplo` from UWAI `amendTensions`, retain th
 - **Git commit:** `1c4cd80537b784a902896235d20833dfd672c7e1`
 - **Change:** Added one compact level-2 realized AI-to-human embargo-request provenance row that distinguishes ordinary `CONTACT_STOP_TRADING` initiation from the two intentional `AI_proposeJointWar` fallback redirects that revision 100's generic embargo subject cannot reconstruct.
 
-The row records direct contact versus joint-war attitude/UWAI redirect origin, the actual current worst-enemy embargo target and team-attitude gap used by `AI_proposeEmbargo`, plus the already-selected joint-war target/score and cached UWAI denial when a rejected war request caused the fallback. The generic revision-100 `CONTACT_STOP_TRADING` row remains authoritative for the actual embargo subject. Recording occurs only after the existing embargo helper has succeeded; direct calls add no chooser work, and the UWAI path merely retains the denial result it already computes rather than evaluating it twice.
+The row records direct contact versus joint-war attitude/UWAI redirect origin, the actual current worst-enemy embargo target and team-attitude gap used by `AI_proposeEmbargo`, plus the already-selected joint-war target/score and cached UWAI denial when a rejected war request caused the fallback.
+
+The generic revision-100 `CONTACT_STOP_TRADING` row remains authoritative for the actual embargo subject. Recording occurs only after the existing embargo helper has succeeded; direct calls add no chooser work, and the UWAI path merely retains the denial result it already computes rather than evaluating it twice.
 
 ### Revision 107 - SAS practical 6499
 
@@ -80,7 +100,9 @@ The row records direct contact versus joint-war attitude/UWAI redirect origin, t
 - **Git commit:** `067d8ed44e57c3c5db3e6c0ecad57639a65ba276`
 - **Change:** Added one compact level-2 realized AI-to-human joint-war request row at `AI_proposeJointWar`, complementing revision 100's generic `CONTACT_JOIN_WAR` subject with the live cadence and target-selection rationale that cannot be reconstructed afterward.
 
-The row preserves the shared-war-adjusted mean war age used to scale contact probability, personality contact divisor, selected enemy's combined random/war-duration score and derived random component, selected-war age, the human team's peace counter with that target, and whether UWAI's reasonableness screen was active. It emits only after the existing attitude/UWAI gates have accepted a real request and derives cheap current counters immediately before diplomacy begins; no contact roll, recent-peace gate, target RNG or UWAI denial evaluation is repeated.
+The row preserves the shared-war-adjusted mean war age used to scale contact probability, personality contact divisor, selected enemy's combined random/war-duration score and derived random component, selected-war age, the human team's peace counter with that target, and whether UWAI's reasonableness screen was active.
+
+It emits only after the existing attitude/UWAI gates have accepted a real request and derives cheap current counters immediately before diplomacy begins; no contact roll, recent-peace gate, target RNG or UWAI denial evaluation is repeated.
 
 ### Revision 106 - SAS practical 6498
 
@@ -88,7 +110,9 @@ The row preserves the shared-war-adjusted mean war age used to scale contact pro
 - **Git commit:** `edd5314594c785f02e5d13b79b5e93583cbae6cf`
 - **Change:** Added one compact level-2 realized AI joint-war-hiring provenance row at `AI_proposeWarTrade`, complementing revision 100's generic `CONTACT_JOIN_WAR` package with the live target-selection and payment rationale that cannot be reconstructed afterward.
 
-The row records full-UWAI versus legacy selection, the adjusted minimum war-age/cadence denominator, selected war target, UWAI joint-war value or legacy randomized target score, the hireling's cached war price, candidate technology payment, and whether the realized deal used ordinary tech/gold balancing or the rare city/counterproposal fallback. Ordinary deals also preserve the final two live balance values used by the existing 75% acceptance test; city fallback rows preserve war-success rating, selected city and its existing acquire-minus-keep fitness instead. The existing generic `GAME_RECORD_AI_DIPLO_CONTACT` row remains authoritative for the final trade package, so revision 106 adds no duplicate trade-list serialization, target valuation, balancing search or synchronized RNG.
+The row records full-UWAI versus legacy selection, the adjusted minimum war-age/cadence denominator, selected war target, UWAI joint-war value or legacy randomized target score, the hireling's cached war price, candidate technology payment, and whether the realized deal used ordinary tech/gold balancing or the rare city/counterproposal fallback.
+
+Ordinary deals also preserve the final two live balance values used by the existing 75% acceptance test; city fallback rows preserve war-success rating, selected city and its existing acquire-minus-keep fitness instead. The existing generic `GAME_RECORD_AI_DIPLO_CONTACT` row remains authoritative for the final trade package, so revision 106 adds no duplicate trade-list serialization, target valuation, balancing search or synchronized RNG.
 
 ### Revision 105 - SAS practical 6496
 
@@ -96,7 +120,9 @@ The row records full-UWAI versus legacy selection, the adjusted minimum war-age/
 - **Git commit:** `55670b590461b121aa56ea097e17fb6e4ef436c7`
 - **Change:** Added one compact level-2 realized AI city-trade intent row at `AI_proposeCityTrade`, covering free liberation, strategic one-way gifts, city swaps/negotiated city-centered packages, and same-team forced completion without pretending they belong to a generic `ContactTypes` class.
 
-The row records the selected sorted-pair rank/count, signed initial cede-value gap, whether selection had fallen back to the inverse gap sign, initial city ids, liberation/evacuation/team/negotiability context, exact formation path, and final AI-gives/AI-receives package. It emits only after a real human contact or immediate AI deal has been formed and reuses live state already computed by gameplay; no city valuation, `AI_intendsToCede`, counterproposal search or RNG is repeated for recording. Existing canonical deal/offer/rejection rows remain responsible for the downstream outcome.
+The row records the selected sorted-pair rank/count, signed initial cede-value gap, whether selection had fallen back to the inverse gap sign, initial city ids, liberation/evacuation/team/negotiability context, exact formation path, and final AI-gives/AI-receives package.
+
+It emits only after a real human contact or immediate AI deal has been formed and reuses live state already computed by gameplay; no city valuation, `AI_intendsToCede`, counterproposal search or RNG is repeated for recording. Existing canonical deal/offer/rejection rows remain responsible for the downstream outcome.
 
 ### Revision 104 - SAS practical 6495
 
@@ -104,7 +130,9 @@ The row records the selected sorted-pair rank/count, signed initial cede-value g
 - **Git commit:** `f6f3372d294b3660650c6faf95636e6231a8db20`
 - **Change:** Removed two exact duplicate Great General Academy/Instructor helper passes accidentally introduced in practical 5081, avoiding repeated city/specialist/building valuation and pathfinding after the identical earlier helper had already failed with unchanged relevant state.
 
-The structured row fields are unchanged, but the live Great General stage vocabulary is reduced from 17 to 15 values: the now-dead revision-103 `SECOND_ACADEMY` and `SECOND_INSTRUCTOR` labels are removed together with the duplicate gameplay stages that could emit them. CI now guards the 11 live helper-preparation stages, the reduced helper-pass counts and the absence of those deleted labels. This SAS-specific practical-5081 performance/tidiness fix was found while reviewing SASGameRecord revision 103 Great General provenance and is documented as KI#69 Update 2.
+The structured row fields are unchanged, but the live Great General stage vocabulary is reduced from 17 to 15 values: the now-dead revision-103 `SECOND_ACADEMY` and `SECOND_INSTRUCTOR` labels are removed together with the duplicate gameplay stages that could emit them.
+
+CI now guards the 11 live helper-preparation stages, the reduced helper-pass counts and the absence of those deleted labels. This SAS-specific practical-5081 performance/tidiness fix was found while reviewing SASGameRecord revision 103 Great General provenance and is documented as KI#69 Update 2.
 
 ### Revision 103 - SAS practical 6494
 
@@ -118,7 +146,9 @@ The helper bridges expose only live results already computed by gameplay and do 
 
 - **Date:** 2026-09-19
 - **Git commit:** `09b183d2cc6fb69a7d53b0788d7e1692a21f4a83`
-- **Change:** Added compact level-2 ordinary-AI Great Person action provenance from `AI_greatPersonMove`: the realized scored action or movement continuation plus the already-computed Slow/Discover/Golden-Age/Trade/Great-Work values, threshold, slow-action target metadata and previous mission state. Later danger/recon/retreat/stranded/safety/skip fallbacks are explicit without pretending they won the earlier score comparison; Great Generals remain on their separate decision path.
+- **Change:** Added compact level-2 ordinary-AI Great Person action provenance from `AI_greatPersonMove`: the realized scored action or movement continuation plus the already-computed Slow/Discover/Golden-Age/Trade/Great-Work values, threshold, slow-action target metadata and previous mission state.
+
+Later danger/recon/retreat/stranded/safety/skip fallbacks are explicit without pretending they won the earlier score comparison; Great Generals remain on their separate decision path.
 
 ### Revision 101 - SAS practical 6491
 

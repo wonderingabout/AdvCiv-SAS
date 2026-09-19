@@ -23029,6 +23029,8 @@ CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& kDeal, PlayerTyp
 	if (!AI_considerOffer(ePlayer,
 		kDeal.getGivesList(ePlayer), kDeal.getGivesList(getID()), -1, kDeal.getAge()))
 	{
+		// <!-- custom: Preserve the realized cancellation/renegotiation cause without reevaluating the offer for SASGameRecord. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2) logSASGameRecordAIDealCancellationDecision(*this, ePlayer, kDeal, SAS_AI_DEAL_CANCEL_OFFER_REJECTED_RENEGOTIATE);
 		if (gDealCancelLogLevel > 0) logBBAICancel(kDeal, getID(), L"trade value");
 		return RENEGOTIATE;
 	}
@@ -23049,6 +23051,8 @@ CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& kDeal, PlayerTyp
 			eDenial == DENIAL_JOKING)) || // </kekm.3>
 			SyncRandSuccess(eDenial == DENIAL_WORST_ENEMY ? fixp(0.4) : fixp(0.2))))
 		{
+			// <!-- custom: Reuse the live denial and triggering dual item; do not call getTradeDenial or consume the cancellation RNG again for recording. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2) logSASGameRecordAIDealCancellationDecision(*this, ePlayer, kDeal, SAS_AI_DEAL_CANCEL_DUAL_DENIAL, &pNode->m_data, true, eDenial);
 			if (gDealCancelLogLevel > 1) logBBAICancel(kDeal, getID(), L"dual denial");
 			return DO_CANCEL;
 		}
@@ -23060,9 +23064,11 @@ CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& kDeal, PlayerTyp
 	{
 		if(pItem->m_eItemType != TRADE_RESOURCES)
 			continue;
-		if(AI_bonusTrade((BonusTypes)
-			pItem->m_iData, ePlayer, 0) != NO_DENIAL)
+		DenialTypes const eDenial = AI_bonusTrade((BonusTypes)pItem->m_iData, ePlayer, 0);
+		if(eDenial != NO_DENIAL)
 		{
+			// <!-- custom: Retain the single live resource denial as the realized cancellation trigger; no second AI_bonusTrade query is made for SASGameRecord. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2) logSASGameRecordAIDealCancellationDecision(*this, ePlayer, kDeal, SAS_AI_DEAL_CANCEL_AI_RESOURCE_DENIAL, pItem, true, eDenial);
 			if (gDealCancelLogLevel > 0) logBBAICancel(kDeal, getID(), L"resource - denial");
 			return DO_CANCEL;
 		}
@@ -23073,9 +23079,11 @@ CvPlayerAI::CancelCode CvPlayerAI::AI_checkCancel(CvDeal const& kDeal, PlayerTyp
 	{
 		if(pItem->m_eItemType != TRADE_RESOURCES)
 			continue;
-		if(GET_PLAYER(ePlayer).AI_bonusTrade((BonusTypes)
-			pItem->m_iData, getID(), 0) == DENIAL_JOKING)
+		DenialTypes const eDenial = GET_PLAYER(ePlayer).AI_bonusTrade((BonusTypes)pItem->m_iData, getID(), 0);
+		if(eDenial == DENIAL_JOKING)
 		{
+			// <!-- custom: Retain the other side's single live DENIAL_JOKING result; this is the existing "we no longer need their resource" cancellation test. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2) logSASGameRecordAIDealCancellationDecision(*this, ePlayer, kDeal, SAS_AI_DEAL_CANCEL_OTHER_RESOURCE_JOKING, pItem, false, eDenial);
 			if (gDealCancelLogLevel > 0) logBBAICancel(kDeal, getID(), L"resource - joking");
 			return DO_CANCEL;
 		}
@@ -23237,6 +23245,8 @@ bool CvPlayerAI::AI_doDeals(PlayerTypes eOther)
 		for (size_t i = 0; i < aiiDealsByGPT.size(); i++)
 		{
 			CvDeal& kDeal = *GC.getGame().getDeal(aiiDealsByGPT[i].second);
+			// <!-- custom: Preserve the live per-rival GPT overdraft boundary before mutating it; the existing max-GPT query and sorted deal amount are reused verbatim. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2) logSASGameRecordAIDealCancellationDecision(*this, eOther, kDeal, SAS_AI_DEAL_CANCEL_GPT_LIMIT, NULL, true, NO_DENIAL, iOverdraft, aiiDealsByGPT[i].first, iOverdraft - aiiDealsByGPT[i].first);
 			iOverdraft -= aiiDealsByGPT[i].first;
 			if (gDealCancelLogLevel > 0) logBBAICancel(kDeal, getID(), L"GPT limit");
 			if (GET_PLAYER(eOther).isHuman() && canContact(eOther, true))
