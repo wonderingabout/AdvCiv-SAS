@@ -409,6 +409,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#310 - (Fixed AdvCiv-SAS bug) Water-heavy AI city fallback could leave production empty](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-310)\
 [KI#311 - (Rejected archaeology finding) GET_TEAM(PlayerTypes) correctly resolves the player's team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-311)\
 [KI#312 - (Fixed AdvCiv-SAS bug) Master/vassal technology preferences treated legally unavailable knowledge as supply](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-312)\
+[KI#312.2 - (Fixed AdvCiv-SAS follow-up bug) Progress-tech purchases bypassed master/vassal cluster-first sourcing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-312.2)\
 [KI#313 - (Fixed AdvCiv-SAS bug) Human BFC Artist cleanup could remove manually forced Artists](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-313)\
 [KI#314 - (Fixed AdvCiv-SAS issue) Earth Day required and spread the unrelated Trade Bloc civic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-314)\
 [KI#315 - (Fixed AdvCiv-SAS bug) Active unlimited-specialist civics subtracted their own benefit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-315)\
@@ -11434,6 +11435,18 @@ Three AdvCiv-SAS master/vassal optimizations inferred an internal technology sou
 The fix centralizes exact recipient-side predicates in `CvTeamAI`. They test the real player-level `canTradeItem` contract across source and recipient team members, covering No Tech Trading, per-technology tradeability, no-broker/no-trade state and recipient research legality. Self-research and outsider valuation allow a currently reluctant source to become willing later but require legal transferability; immediate contact redirection additionally requires `NO_DENIAL`. The existing master/vassal percentages and preference policy remain unchanged. A full turn-436 autoplay completed normally with technology trading and multiple master/vassal relationships active; this smoke-tests the shared paths, while the individual No Tech Trading and No Tech Brokering edge cases remain source-verified rather than separately reproduced.
 
 This is one AdvCiv-SAS technology-supply legality regression shared by the research, outsider-valuation and contact-redirection optimizations. Found and investigated through archaeology with the help of ChatGPT-5.6-Sol, fixed with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+<a id="ki-312.2"></a>
+
+## KI#312.2 - (Fixed AdvCiv-SAS follow-up bug) Progress-tech purchases bypassed master/vassal cluster-first sourcing
+
+KI#79's cluster-first diplomacy rule, later legality-hardened by KI#312, redirected only the randomized `eBestReceiveTech` winner away from an outsider when a legal non-denied master/vassal-locus source could supply that technology. AdvC's separate `advc.550f` `eBestProgressTech` fallback is selected in the same candidate scan but executes afterward as an AI-to-AI technology-for-gold purchase. That second receive-tech path never passed through the cluster-first check. The AI could therefore reject an outsider technology because its master, vassal or sibling vassal could legally trade it, then immediately buy a high-progress technology from that same outsider anyway. When the high-progress candidate was the same technology as the rejected random winner, clearing `eBestReceiveTech` also made the fallback's `eBestProgressTech != eBestReceiveTech` guard trivially pass.
+
+The fix applies the same cluster-first source contract to both receive-tech candidates before either proposal path executes. If the random and high-progress winners are the same technology, the already-computed exact locus-source result is reused rather than repeating the member/trade-denial scan; if they differ, the progress winner receives its own exact `AI_hasLocusTechTradeSource(..., true)` test. Only an outsider source is suppressed, and only when an immediately legal, non-denied internal source exists, preserving KI#312's No Tech Trading, No Tech Brokering and per-technology legality safeguards. AdvC's progress-purchase algorithm, contact roll, technology selection, pricing and gold affordability logic are otherwise unchanged.
+
+This is an AdvCiv-SAS interaction bug: the SAS cluster-first optimization was layered onto `AI_doDiplo` after AdvC had already added the independent progress-purchase branch, but guarded only the ordinary randomized receive-tech winner. It was exposed while adding SASGameRecord revision 111 technology-trade provenance, which made the two live proposal algorithms explicit.
+
+Found and investigated with the help of ChatGPT-5.6-Sol; fixed with the help of ChatGPT-5.6-Sol and awaiting compile/runtime validation by wonderingabout, thanks.
 
 <a id="ki-313"></a>
 

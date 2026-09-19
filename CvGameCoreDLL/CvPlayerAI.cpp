@@ -24123,13 +24123,28 @@ void CvPlayerAI::AI_doDiplo()
 						// <!-- custom: Prefer a master/vassal-locus source over an outsider only when the shared predicate finds an immediately legal and non-denied internal deal.
 						// This prevents No Tech Trading, non-tradeable and no-broker copies from suppressing a viable outsider offer. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 						static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE");
-						if (bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE && eBestReceiveTech != NO_TECH)
+						if (bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE && (eBestReceiveTech != NO_TECH || eBestProgressTech != NO_TECH))
 						{
 							// <!-- custom: Only re-route when ePlayer is outside our complete master/vassal/sibling-vassal preference locus. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 							if (!kOurTeam.AI_isLocusMember(eTheirTeam))
 							{
-								if (kOurTeam.AI_hasLocusTechTradeSource(eBestReceiveTech, eTheirTeam, true))
-									eBestReceiveTech = NO_TECH;
+								TechTypes eCheckedLocusTech = NO_TECH;
+								bool bCheckedLocusSource = false;
+								if (eBestReceiveTech != NO_TECH)
+								{
+									eCheckedLocusTech = eBestReceiveTech;
+									bCheckedLocusSource = kOurTeam.AI_hasLocusTechTradeSource(eBestReceiveTech, eTheirTeam, true);
+									if (bCheckedLocusSource)
+										eBestReceiveTech = NO_TECH;
+								}
+								// <!-- custom: AdvC's later advc.550f progress-tech-for-gold fallback is a second receive-tech path; applying cluster-first only above let that fallback immediately bypass the same preference after an outsider random winner was rejected.
+								// Reuse the first exact locus-source result when both winners are the same tech; otherwise perform the same legal/non-denied source test for the progress winner. See KI#312.2. (ChatGPT-5.6-Sol) -->
+								if (eBestProgressTech != NO_TECH)
+								{
+									bool const bProgressLocusSource = (eBestProgressTech == eCheckedLocusTech ? bCheckedLocusSource : kOurTeam.AI_hasLocusTechTradeSource(eBestProgressTech, eTheirTeam, true));
+									if (bProgressLocusSource)
+										eBestProgressTech = NO_TECH;
+								}
 							}
 						}
 
