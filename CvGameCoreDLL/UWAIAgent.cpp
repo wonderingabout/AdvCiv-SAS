@@ -3377,11 +3377,19 @@ bool UWAI::Player::amendTensions(PlayerTypes eHuman)
 	if (GET_PLAYER(m_eAgent).AI_getAttitude(eHuman) <=
 		kPersonality.getDemandTributeAttitudeThreshold())
 	{
+		// <!-- custom: Preserve only the UWAI caller origin when level-2 request provenance is enabled; AI_demandTribute fills and emits the realized chooser state. (ChatGPT-5.6-Sol) -->
+		SASGameRecordAITributeRequestContext kSASTributeRequest;
+		SASGameRecordAITributeRequestContext* pSASTributeRequest = NULL;
+		if (gGameRecordLogLevel >= 2)
+		{
+			kSASTributeRequest.eOrigin = SAS_AI_HUMAN_REQUEST_UWAI_AMEND_TENSIONS;
+			pSASTributeRequest = &kSASTributeRequest;
+		}
 		FOR_EACH_ENUM(AIDemand)
 		{
 			if (GET_PLAYER(m_eAgent).AI_contactRoll(CONTACT_DEMAND_TRIBUTE,
 				(fixp(8.5) - rEra) / 2) &&
-				GET_PLAYER(m_eAgent).AI_demandTribute(eHuman, eLoopAIDemand))
+				GET_PLAYER(m_eAgent).AI_demandTribute(eHuman, eLoopAIDemand, pSASTributeRequest))
 			{
 				return true;
 			}
@@ -3389,9 +3397,17 @@ bool UWAI::Player::amendTensions(PlayerTypes eHuman)
 	}
 	else
 	{
+		// <!-- custom: Same origin-only recorder bridge for UWAI help requests; NULL leaves ordinary gameplay unchanged when detailed recording is off. (ChatGPT-5.6-Sol) -->
+		SASGameRecordAIHelpRequestContext kSASHelpRequest;
+		SASGameRecordAIHelpRequestContext* pSASHelpRequest = NULL;
+		if (gGameRecordLogLevel >= 2)
+		{
+			kSASHelpRequest.eOrigin = SAS_AI_HUMAN_REQUEST_UWAI_AMEND_TENSIONS;
+			pSASHelpRequest = &kSASHelpRequest;
+		}
 		if (GET_PLAYER(m_eAgent).AI_contactRoll(CONTACT_ASK_FOR_HELP,
 			(fixp(5.5) - rEra) / fixp(1.25)) &&
-			GET_PLAYER(m_eAgent).AI_askHelp(eHuman))
+			GET_PLAYER(m_eAgent).AI_askHelp(eHuman, pSASHelpRequest))
 		{
 			return true;
 		}

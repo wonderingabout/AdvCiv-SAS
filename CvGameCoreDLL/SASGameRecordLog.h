@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 108 };
+enum { SAS_GAME_RECORD_REVISION = 109 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -546,6 +546,40 @@ void logSASGameRecordAIToHumanOfferRejected(PlayerTypes eProposer, PlayerTypes e
 // <!-- custom: Preserve one realized proactive AI diplomacy intent only after the live branch has formed a real contact/deal package.
 // `subject` is reserved for non-package requests such as religion/civic pressure, joint war or embargo; specialized peace/resource-trade provenance remains authoritative for those paths. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIDiploContactIntent(CvPlayerAI const& kPlayer, PlayerTypes eTarget, ContactTypes eContact, TradeData const* pSubject, CLinkList<TradeData> const* pAIGives, CLinkList<TradeData> const* pAIReceives);
+// <!-- custom: AI help/tribute requests can originate in ordinary AI_doDiplo or UWAI's amendTensions pass; the generic revision-100 contact package cannot recover that caller or the live request chooser values.
+// Keep the origin and helper-specific output contexts recorder-owned and optional so logging-off gameplay performs no extra chooser bookkeeping. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordAIHumanRequestOrigin
+{
+	SAS_AI_HUMAN_REQUEST_AI_DO_DIPLO,
+	SAS_AI_HUMAN_REQUEST_UWAI_AMEND_TENSIONS
+};
+struct SASGameRecordAIHelpRequestContext
+{
+	SASGameRecordAIHumanRequestOrigin eOrigin;
+	TechTypes eBestTech;
+	int iTechValue;
+	int iBestCityId;
+	int iCityValue;
+	int iCityChoiceRoll;
+	bool bBestCityLiberation;
+	TradeableItems eSelectedItemType;
+	int iSelectedItemData;
+};
+struct SASGameRecordAITributeRequestContext
+{
+	SASGameRecordAIHumanRequestOrigin eOrigin;
+	AIDemandTypes eDemand;
+	int iMinValueX100;
+	int iFinalDealValue;
+	TechTypes eMostUsefulTech;
+	TechTypes eSelectedTech;
+	int iSelectedTechSortScore;
+	int iSelectedTechTradeValue;
+	int iMapTradeValue;
+	bool bMapAdded;
+};
+void logSASGameRecordAIHelpRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, SASGameRecordAIHelpRequestContext const& kContext);
+void logSASGameRecordAITributeRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, SASGameRecordAITributeRequestContext const& kContext);
 // <!-- custom: AI_proposeJointWar uses war-duration-adjusted contact cadence plus randomized target selection that the generic CONTACT_JOIN_WAR subject cannot reconstruct.
 // Preserve only the two irrecoverable live chooser values; the recorder derives selected-target counters/static context after the successful gates and before diplomacy begins. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIJointWarRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, TeamTypes eTarget, int iTargetScore, int iMeanAtWarTurnsX1000);

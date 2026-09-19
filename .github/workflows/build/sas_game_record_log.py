@@ -865,6 +865,106 @@ def check_ai_diplo_contact_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_help_tribute_request_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE, PLAYER_AI_HEADER, UWAI_AGENT_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI help/tribute request provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	expected_origins = ["SAS_AI_HUMAN_REQUEST_AI_DO_DIPLO", "SAS_AI_HUMAN_REQUEST_UWAI_AMEND_TENSIONS"]
+	m = re.search(r"enum\s+SASGameRecordAIHumanRequestOrigin\s*\{(?P<body>.*?)\};", header_text, flags=re.DOTALL)
+	if m is None:
+		failures.append(f"{REVISION_HEADER}: missing SASGameRecordAIHumanRequestOrigin")
+	else:
+		tokens = re.findall(r"^\s*(SAS_AI_HUMAN_REQUEST_[A-Z0-9_]+)\s*,?\s*$", m.group("body"), flags=re.MULTILINE)
+		if tokens != expected_origins:
+			failures.append(f"{REVISION_HEADER}: AI human-request origin vocabulary changed; expected {expected_origins}, found {tokens}")
+	for token in ("SASGameRecordAIHelpRequestContext", "SASGameRecordAITributeRequestContext", "logSASGameRecordAIHelpRequest", "logSASGameRecordAITributeRequest"):
+		if token not in header_text:
+			failures.append(f"{REVISION_HEADER}: missing help/tribute provenance declaration {token}")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_HELP_REQUEST", "origin=%s", "humanAssets=%d", "aiTeamAssets=%d", "bestTech=%s",
+		"techValue=%d", "bestCityId=%d", "cityValue=%d", "bestCityLiberation=%d", "cityChoiceRoll=%d", "selected=%s:%s",
+		"GAME_RECORD_AI_TRIBUTE_REQUEST", "demand=%s", "minValueX100=%d", "finalDealValue=%d", "mostUsefulTech=%s",
+		"selectedTech=%s", "selectedTechSortScore=%d", "selectedTechTradeValue=%d", "mapTradeValue=%d", "mapAdded=%d",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI help/tribute request diagnostic token {required}")
+	for token in expected_origins:
+		if record_text.count(f"case {token}:") != 1:
+			failures.append(f"{REVISION_SOURCE}: human-request origin {token} must have exactly one stringifier case")
+	for demand in ("DEMAND_GOLD", "DEMAND_MAP", "DEMAND_TECH", "DEMAND_BONUS", "DEMAND_GOLD_PER_TURN", "DEMAND_CITY"):
+		if record_text.count(f"case {demand}:") != 1:
+			failures.append(f"{REVISION_SOURCE}: tribute demand {demand} must have exactly one recorder stringifier case")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	player_header = (repo_root / PLAYER_AI_HEADER).read_text(encoding="utf-8", errors="replace")
+	for signature in (
+		"AI_askHelp(PlayerTypes eHuman, SASGameRecordAIHelpRequestContext* pSASContext = NULL)",
+		"AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand, SASGameRecordAITributeRequestContext* pSASContext = NULL)",
+	):
+		if signature not in player_header:
+			failures.append(f"{PLAYER_AI_HEADER}: missing optional recorder helper signature {signature}")
+
+	ask = re.search(r"bool\s+CvPlayerAI::AI_askHelp\([^)]*\)\s*\{(?P<body>.*?)^\}\s*\n\n/\*\s*Same conditions ensured by the caller", player_text, flags=re.DOTALL | re.MULTILINE)
+	if ask is None:
+		failures.append(f"{PLAYER_AI_SOURCE}: could not locate AI_askHelp")
+	else:
+		body = ask.group("body")
+		for token, expected in (("AI_bestRequestCity(", 1), ("AI_bestTech(", 1), ("AI_techTradeVal(", 1), ("AI_cityTradeVal(", 1), ("SyncRandSuccess(", 2), ("logSASGameRecordAIHelpRequest(", 1), ("logSASGameRecordAIDiploContactIntent(", 1), ("gDLL->beginDiplomacy(", 1)):
+			actual = body.count(token)
+			if actual != expected:
+				failures.append(f"{PLAYER_AI_SOURCE}: AI_askHelp live call count for {token} changed; expected {expected}, found {actual}")
+		if "if (pSASContext != NULL) logSASGameRecordAIHelpRequest" not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_askHelp specialized row must remain optional-context pre-gated")
+		if "iCityChoiceRoll = (bCityChoiceRollReached ? (mainItem.m_eItemType == TRADE_CITIES ? 1 : 0) : -1)" not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_askHelp must infer the existing 2/3 city-roll result without drawing recorder RNG")
+		if body.find("logSASGameRecordAIHelpRequest(") > body.find("gDLL->beginDiplomacy("):
+			failures.append(f"{PLAYER_AI_SOURCE}: AI help-request provenance must emit before beginDiplomacy")
+
+	tribute = re.search(r"bool\s+CvPlayerAI::AI_demandTribute\([^)]*\)\s*\{(?P<body>.*?)^\}\s*\n\n// advc\.ctr: For tribute and help requests", player_text, flags=re.DOTALL | re.MULTILINE)
+	if tribute is None:
+		failures.append(f"{PLAYER_AI_SOURCE}: could not locate AI_demandTribute")
+	else:
+		body = tribute.group("body")
+		for token, expected in (("AI_bestTech(", 1), ("AI_techTradeVal(", 1), ("AI_mapTradeVal(", 1), ("AI_dealVal(", 1), ("AI_bestRequestCity(", 1), ("SyncRandNum(10000)", 1), ("SyncRandFract(", 1), ("logSASGameRecordAITributeRequest(", 1), ("logSASGameRecordAIDiploContactIntent(", 1), ("gDLL->beginDiplomacy(", 1)):
+			actual = body.count(token)
+			if actual != expected:
+				failures.append(f"{PLAYER_AI_SOURCE}: AI_demandTribute live call count for {token} changed; expected {expected}, found {actual}")
+		if "int const iSelectedTechTradeValue = GET_TEAM(getTeam()).AI_techTradeVal" not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: tribute tech valuation must be cached from the existing live call instead of repeated for logging")
+		if "int const iMapTradeValue = GET_TEAM(getTeam()).AI_mapTradeVal" not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: tribute map valuation must be cached from the existing live call instead of repeated for logging")
+		if "if (pSASContext != NULL)" not in body or "pSASContext->iFinalDealValue = iDemandDealValue" not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: tribute recorder output must remain optional and use the existing final deal value")
+		if body.find("logSASGameRecordAITributeRequest(") > body.find("gDLL->beginDiplomacy("):
+			failures.append(f"{PLAYER_AI_SOURCE}: AI tribute-request provenance must emit before beginDiplomacy")
+		if body.count("logSASGameRecordAIBonusDemandDecision(") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: revision-87 bonus-demand detail must remain authoritative and emitted exactly once")
+
+	for token in expected_origins:
+		if player_text.count(token) + (repo_root / UWAI_AGENT_SOURCE).read_text(encoding="utf-8", errors="replace").count(token) < 1:
+			failures.append(f"AI help/tribute callers no longer assign origin {token}")
+	uwai_text = (repo_root / UWAI_AGENT_SOURCE).read_text(encoding="utf-8", errors="replace")
+	m = re.search(r"bool\s+UWAI::Player::amendTensions\([^)]*\)\s*\{(?P<body>.*?)^\}\s*\n", uwai_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		failures.append(f"{UWAI_AGENT_SOURCE}: could not locate amendTensions")
+	else:
+		body = m.group("body")
+		if body.count("SAS_AI_HUMAN_REQUEST_UWAI_AMEND_TENSIONS") != 2:
+			failures.append(f"{UWAI_AGENT_SOURCE}: amendTensions must tag both tribute and help request helpers with the UWAI origin")
+		if body.count("AI_demandTribute(eHuman, eLoopAIDemand, pSASTributeRequest)") != 1:
+			failures.append(f"{UWAI_AGENT_SOURCE}: UWAI tribute helper must pass the optional recorder context exactly once")
+		if body.count("AI_askHelp(eHuman, pSASHelpRequest)") != 1:
+			failures.append(f"{UWAI_AGENT_SOURCE}: UWAI help helper must pass the optional recorder context exactly once")
+	return failures
+
+
 def check_ai_joint_war_request_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -1125,6 +1225,7 @@ def main() -> int:
 	failures.extend(check_uwai_war_plan_decisions(args.repo_root))
 	failures.extend(check_ai_diplo_vote_provenance(args.repo_root))
 	failures.extend(check_ai_diplo_contact_provenance(args.repo_root))
+	failures.extend(check_ai_help_tribute_request_provenance(args.repo_root))
 	failures.extend(check_ai_city_trade_intent_provenance(args.repo_root))
 	failures.extend(check_ai_embargo_request_provenance(args.repo_root))
 	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
@@ -1137,7 +1238,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-city-trade/AI-embargo/AI-joint-war/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-city-trade/AI-embargo/AI-joint-war/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

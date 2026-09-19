@@ -13,6 +13,8 @@ class CvCityAI;
 class CvUnitAI;
 class CvSelectionGroupAI;
 class UWAICity; // advc.104d
+struct SASGameRecordAIHelpRequestContext; // <!-- custom: Opaque optional SASGameRecord provenance from AI help-request selection; definition remains recorder-owned. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordAITributeRequestContext; // <!-- custom: Opaque optional SASGameRecord provenance from AI tribute-request selection; definition remains recorder-owned. (ChatGPT-5.6-Sol) -->
 
 // <!-- custom: Optional recorder-only output from the existing technology chooser.
 // The live AI_bestTech pass fills these scalars/path candidates only when its real research/free-tech caller enables SASGameRecord; no technology valuation or chooser RNG is repeated for logging. (ChatGPT-5.6-Sol) -->
@@ -647,8 +649,9 @@ public:
 	bool AI_proposeEmbargo(PlayerTypes eHuman);
 	bool AI_contactReligion(PlayerTypes eHuman);
 	bool AI_contactCivics(PlayerTypes eHuman);
-	bool AI_askHelp(PlayerTypes eHuman);
-	bool AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand);
+	// <!-- custom: Optional recorder contexts carry only caller origin and already-computed realized chooser state; NULL preserves the ordinary gameplay-only path. (ChatGPT-5.6-Sol) -->
+	bool AI_askHelp(PlayerTypes eHuman, SASGameRecordAIHelpRequestContext* pSASContext = NULL);
+	bool AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand, SASGameRecordAITributeRequestContext* pSASContext = NULL);
 	// </advc.104m>  <advc.ctr>
 	CvCityAI const* AI_bestRequestCity(PlayerTypes eOwner, scaled rMinVal = 1, scaled rMinRatio = -1) const;
 	bool AI_proposeCityTrade(PlayerTypes eToPlayer);

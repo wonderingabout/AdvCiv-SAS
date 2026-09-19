@@ -11641,6 +11641,56 @@ void logSASGameRecordAIDiploContactIntent(CvPlayerAI const& kPlayer, PlayerTypes
 		szSubject.GetCString(), szAIGives.GetCString(), szAIReceives.GetCString());
 }
 
+// <!-- custom: Help/tribute origin is caller state that disappears once the shared request helper succeeds; keep the vocabulary recorder-local and leave revision-100 contact rows authoritative for the final package. (ChatGPT-5.6-Sol) -->
+static char const* getSASGameRecordAIHumanRequestOrigin(SASGameRecordAIHumanRequestOrigin eOrigin)
+{
+	switch (eOrigin)
+	{
+	case SAS_AI_HUMAN_REQUEST_AI_DO_DIPLO: return "AI_DO_DIPLO";
+	case SAS_AI_HUMAN_REQUEST_UWAI_AMEND_TENSIONS: return "UWAI_AMEND_TENSIONS";
+	default: return "UNKNOWN";
+	}
+}
+
+static char const* getSASGameRecordAIDemandType(AIDemandTypes eDemand)
+{
+	switch (eDemand)
+	{
+	case DEMAND_GOLD: return "DEMAND_GOLD";
+	case DEMAND_MAP: return "DEMAND_MAP";
+	case DEMAND_TECH: return "DEMAND_TECH";
+	case DEMAND_BONUS: return "DEMAND_BONUS";
+	case DEMAND_GOLD_PER_TURN: return "DEMAND_GOLD_PER_TURN";
+	case DEMAND_CITY: return "DEMAND_CITY";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Preserve the city-vs-tech chooser behind one realized AI help request.
+// The generic CONTACT_ASK_FOR_HELP row remains authoritative for the final package; no chooser valuation or RNG is repeated here. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIHelpRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, SASGameRecordAIHelpRequestContext const& kContext)
+{
+	CvPlayerAI const& kHuman = GET_PLAYER(eHuman);
+	TradeData const kSelected(kContext.eSelectedItemType, kContext.iSelectedItemData);
+	logSASGameRecord("GAME_RECORD_AI_HELP_REQUEST turn=%d player=%d team=%d human=%d humanTeam=%d origin=%s attitudeValue=%d humanAssets=%d aiTeamAssets=%d bestTech=%s techValue=%d bestCityId=%d cityValue=%d bestCityLiberation=%d cityChoiceRoll=%d selected=%s:%s",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eHuman, kHuman.getTeam(), getSASGameRecordAIHumanRequestOrigin(kContext.eOrigin),
+		kPlayer.AI_getAttitudeVal(eHuman), kHuman.getAssets(), GET_TEAM(kPlayer.getTeam()).getAssets(), getSASGameRecordTechType(kContext.eBestTech), kContext.iTechValue,
+		kContext.iBestCityId, kContext.iCityValue, kContext.bBestCityLiberation ? 1 : 0, kContext.iCityChoiceRoll, getSASTradeItemType(kContext.eSelectedItemType),
+		getSASTradeDataText(kSelected, eHuman).GetCString());
+}
+
+// <!-- custom: Preserve the realized tribute-request route and final live threshold comparison, plus only the technology/map chooser state that revision-100 contact packages cannot reconstruct.
+// Revision 87's bonus-demand row remains authoritative for resource-candidate detail. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAITributeRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, SASGameRecordAITributeRequestContext const& kContext)
+{
+	CvPlayerAI const& kHuman = GET_PLAYER(eHuman);
+	logSASGameRecord("GAME_RECORD_AI_TRIBUTE_REQUEST turn=%d player=%d team=%d human=%d humanTeam=%d origin=%s attitudeValue=%d demand=%s minValueX100=%d finalDealValue=%d mostUsefulTech=%s selectedTech=%s selectedTechSortScore=%d selectedTechTradeValue=%d mapTradeValue=%d mapAdded=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eHuman, kHuman.getTeam(), getSASGameRecordAIHumanRequestOrigin(kContext.eOrigin),
+		kPlayer.AI_getAttitudeVal(eHuman), getSASGameRecordAIDemandType(kContext.eDemand), kContext.iMinValueX100, kContext.iFinalDealValue,
+		getSASGameRecordTechType(kContext.eMostUsefulTech), getSASGameRecordTechType(kContext.eSelectedTech), kContext.iSelectedTechSortScore,
+		kContext.iSelectedTechTradeValue, kContext.iMapTradeValue, kContext.bMapAdded ? 1 : 0);
+}
+
 // <!-- custom: Preserve the live reason for a realized AI request that a human join one of its wars.
 // The generic CONTACT_JOIN_WAR row remains authoritative for the request subject; this row derives only cheap current counters/static context and never repeats contact/peace/target RNG or UWAI denial evaluation. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIJointWarRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, TeamTypes eTarget, int iTargetScore, int iMeanAtWarTurnsX1000)

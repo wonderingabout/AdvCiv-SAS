@@ -23799,7 +23799,17 @@ void CvPlayerAI::AI_doDiplo()
 					if (getUWAI().isEnabled())
 						rContactProbMult *= fixp(0.8); // </advc.104m>
 					if (AI_contactRoll(CONTACT_ASK_FOR_HELP, rContactProbMult))
-						abContacted[kPlayer.getTeam()] = AI_askHelp(ePlayer);
+					{
+						// <!-- custom: Prepare only the origin when level-2 provenance is enabled; AI_askHelp fills its already-computed realized chooser output on success. (ChatGPT-5.6-Sol) -->
+						SASGameRecordAIHelpRequestContext kSASHelpRequest;
+						SASGameRecordAIHelpRequestContext* pSASHelpRequest = NULL;
+						if (gGameRecordLogLevel >= 2)
+						{
+							kSASHelpRequest.eOrigin = SAS_AI_HUMAN_REQUEST_AI_DO_DIPLO;
+							pSASHelpRequest = &kSASHelpRequest;
+						}
+						abContacted[kPlayer.getTeam()] = AI_askHelp(ePlayer, pSASHelpRequest);
+					}
 				}
 				if (kOurTeam.canDeclareWar(kPlayer.getTeam()) &&
 					//!kOurTeam.AI_isSneakAttackPreparing(kPlayer.getTeam())
@@ -23821,10 +23831,17 @@ void CvPlayerAI::AI_doDiplo()
 								// advc.104m: Lower pro b/c UWAI also calls AI_demandTribute
 								getUWAI().isEnabled() ? fixp(0.5) : 1))
 							{
+								// <!-- custom: Reuse one recorder context across the randomized demand attempts; failed helpers may overwrite scratch fields, but only the successful realized request emits. (ChatGPT-5.6-Sol) -->
+								SASGameRecordAITributeRequestContext kSASTributeRequest;
+								SASGameRecordAITributeRequestContext* pSASTributeRequest = NULL;
+								if (gGameRecordLogLevel >= 2)
+								{
+									kSASTributeRequest.eOrigin = SAS_AI_HUMAN_REQUEST_AI_DO_DIPLO;
+									pSASTributeRequest = &kSASTributeRequest;
+								}
 								FOR_EACH_ENUM_RAND(AIDemand, syncRand()) // advc.104m
 								{
-									abContacted[kPlayer.getTeam()] = AI_demandTribute(
-											ePlayer, eLoopAIDemand);
+									abContacted[kPlayer.getTeam()] = AI_demandTribute(ePlayer, eLoopAIDemand, pSASTributeRequest);
 									if(abContacted[kPlayer.getTeam()])
 										break;
 								}
@@ -25072,7 +25089,8 @@ bool CvPlayerAI::AI_contactCivics(PlayerTypes eHuman)
 
 /*  Same conditions as contactReligion. (AI_doDiplo checks additional ones,
 	but those aren't necessary for this function to work correctly.) */
-bool CvPlayerAI::AI_askHelp(PlayerTypes eHuman)
+// <!-- custom: The optional recorder context extends this legacy helper only to return already-computed chooser provenance; callers pass NULL unless level-2 SASGameRecord is enabled, so logging-off gameplay does no recorder population, repeated valuation or extra RNG. (ChatGPT-5.6-Sol) -->
+bool CvPlayerAI::AI_askHelp(PlayerTypes eHuman, SASGameRecordAIHelpRequestContext* pSASContext)
 {
 	CvPlayerAI const& kHuman = GET_PLAYER(eHuman);
 	// <advc.104m>
@@ -25137,6 +25155,20 @@ bool CvPlayerAI::AI_askHelp(PlayerTypes eHuman)
 	// <advc.144>
 	if (!kHuman.canTradeItem(getID(), mainItem))
 		return false; // </advc.144>
+	// <!-- custom: Expose only the already-computed winning/counterfactual request values after the selected item is actually tradeable.
+	// The 2/3 city roll result is recoverable from the chosen item whenever its existing guard was reached, so no recorder RNG is drawn. (ChatGPT-5.6-Sol) -->
+	if (pSASContext != NULL)
+	{
+		pSASContext->eBestTech = eBestTech;
+		pSASContext->iTechValue = iTechVal;
+		pSASContext->iBestCityId = (pBestCity == NULL ? -1 : pBestCity->getID());
+		pSASContext->iCityValue = iCityVal;
+		pSASContext->bBestCityLiberation = (pBestCity != NULL && pBestCity->getLiberationPlayer() == getID());
+		bool const bCityChoiceRollReached = (pBestCity != NULL && iTechVal > 0 && 3 * iCityVal < 4 * iTechVal);
+		pSASContext->iCityChoiceRoll = (bCityChoiceRollReached ? (mainItem.m_eItemType == TRADE_CITIES ? 1 : 0) : -1);
+		pSASContext->eSelectedItemType = mainItem.m_eItemType;
+		pSASContext->iSelectedItemData = mainItem.m_iData;
+	}
 	CLinkList<TradeData> humanGives;
 	humanGives.insertAtEnd(mainItem);
 	// <advc.104m>
@@ -25156,6 +25188,7 @@ bool CvPlayerAI::AI_askHelp(PlayerTypes eHuman)
 	pDiplo->setAIContact(true);
 	pDiplo->setOurOfferList(humanGives);
 	pDiplo->setTheirOfferList(weGive); // advc.104m
+	if (pSASContext != NULL) logSASGameRecordAIHelpRequest(*this, eHuman, *pSASContext);
 	if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, eHuman, CONTACT_ASK_FOR_HELP, NULL, &weGive, &humanGives);
 	gDLL->beginDiplomacy(pDiplo, eHuman);
 	return true;
@@ -25163,7 +25196,8 @@ bool CvPlayerAI::AI_askHelp(PlayerTypes eHuman)
 
 /*	Same conditions ensured by the caller as for the functions above.
 	And this player's team doesn't have an imminent war plan. */
-bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
+// <!-- custom: As with AI_askHelp, this optional context is recorder-only output from the existing live chooser; NULL preserves the ordinary gameplay path; a level-2 caller supplies it only to retain demand-specific values for a realized request. (ChatGPT-5.6-Sol) -->
+bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand, SASGameRecordAITributeRequestContext* pSASContext)
 {
 	FAssert(!GET_TEAM(getTeam()).AI_isSneakAttackReady(TEAMID(eHuman))); // advc.104m
 	// <advc.144> Not during a peace treaty
@@ -25193,6 +25227,19 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
 		else rMinVal = 70 * scaled(2).pow(getCurrentEra());
 		rMinVal *= per100(GC.getGame().getSpeedPercent());
 	} // </advc.104m>
+	// <!-- custom: Initialize recorder-only helper output only for a level-2 caller; the caller-owned origin survives failed demand-type attempts and is not overwritten here. (ChatGPT-5.6-Sol) -->
+	if (pSASContext != NULL)
+	{
+		pSASContext->eDemand = eDemand;
+		pSASContext->iMinValueX100 = rMinVal.getPercent();
+		pSASContext->iFinalDealValue = -1;
+		pSASContext->eMostUsefulTech = NO_TECH;
+		pSASContext->eSelectedTech = NO_TECH;
+		pSASContext->iSelectedTechSortScore = -1;
+		pSASContext->iSelectedTechTradeValue = -1;
+		pSASContext->iMapTradeValue = -1;
+		pSASContext->bMapAdded = false;
+	}
 	CLinkList<TradeData> humanGives;
 	bool const bLogSASBonusDemand = (eDemand == DEMAND_BONUS && getSASGameRecordLogLevel() >= 2);
 	SASGameRecordBonusDemandContext kSASBonusDemand;
@@ -25244,8 +25291,15 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
 			break;
 		humanGives.insertAtEnd(TradeData(TRADE_TECHNOLOGIES, eBestReceiveTech));
 		// <advc.104m>
-		if (GET_TEAM(getTeam()).
-			AI_techTradeVal(eBestReceiveTech, kHuman.getTeam()) >= rMinVal)
+		int const iSelectedTechTradeValue = GET_TEAM(getTeam()).AI_techTradeVal(eBestReceiveTech, kHuman.getTeam());
+		if (pSASContext != NULL)
+		{
+			pSASContext->eMostUsefulTech = eMostUsefulTech;
+			pSASContext->eSelectedTech = eBestReceiveTech;
+			pSASContext->iSelectedTechSortScore = iBestValue;
+			pSASContext->iSelectedTechTradeValue = iSelectedTechTradeValue;
+		}
+		if (iSelectedTechTradeValue >= rMinVal)
 		{
 			break;
 		} // else fall through
@@ -25256,8 +25310,13 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
 		TradeData item(TRADE_MAPS);
 		if(kHuman.canTradeItem(getID(), item)) // advc.001
 		{
-			if(GET_TEAM(getTeam()).AI_mapTradeVal(kHuman.getTeam()) > 100)
+			int const iMapTradeValue = GET_TEAM(getTeam()).AI_mapTradeVal(kHuman.getTeam());
+			if (pSASContext != NULL) pSASContext->iMapTradeValue = iMapTradeValue;
+			if(iMapTradeValue > 100)
+			{
 				humanGives.insertAtEnd(item);
+				if (pSASContext != NULL) pSASContext->bMapAdded = true;
+			}
 		}
 		break;
 	}
@@ -25387,6 +25446,11 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
 	{
 		kSASBonusDemand.iDealValue = iDemandDealValue;
 		logSASGameRecordAIBonusDemandDecision(getID(), eHuman, kSASBonusDemand, humanGives);
+	}
+	if (pSASContext != NULL)
+	{
+		pSASContext->iFinalDealValue = iDemandDealValue;
+		logSASGameRecordAITributeRequest(*this, eHuman, *pSASContext);
 	}
 	// <advc.104m>
 	CLinkList<TradeData> weGive;
