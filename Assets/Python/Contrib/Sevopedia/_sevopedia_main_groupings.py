@@ -1568,19 +1568,22 @@ def _SAS_getEventTriggerEarliestEraAndSource(iTrigger, seenTriggers=None):
 			_bumpIndirect(_SAS_getThresholdEra(aiReligionEras, info.getNumReligions()))
 
 	if info.getNumCorporations() > 0:
+		# <!-- custom: AdvCiv-SAS corporations use their HQ/founding building's technology gates rather than CvCorporationInfo.TechPrereq.
+		# Reuse the existing availability helper so the repaired threshold semantics classify shipped corporation EventTriggers in their reachable era. See KI#1068. (GPT-5.6-Sol) -->
+		iNumBuildingAndTechs = gc.getNUM_BUILDING_AND_TECH_PREREQS()
 		aiCorporationEras = []
 		for i in range(info.getNumCorporationsRequired()):
 			iCorporation = info.getCorporationRequired(i)
 			if iCorporation >= 0:
-				corporationInfo = gc.getCorporationInfo(iCorporation)
-				if corporationInfo:
-					aiCorporationEras.append(_SAS_getTechEra(corporationInfo.getTechPrereq()))
+				iCorporationEra = SAS_getCorporationAvailabilityEra(iCorporation, iNumBuildingAndTechs)
+				if iCorporationEra is not None:
+					aiCorporationEras.append(iCorporationEra)
 		if info.isPickCity() or len(aiCorporationEras) <= 0:
 			aiAllCorporationEras = []
 			for iCorporation in range(gc.getNumCorporationInfos()):
-				corporationInfo = gc.getCorporationInfo(iCorporation)
-				if corporationInfo:
-					aiAllCorporationEras.append(_SAS_getTechEra(corporationInfo.getTechPrereq()))
+				iCorporationEra = SAS_getCorporationAvailabilityEra(iCorporation, iNumBuildingAndTechs)
+				if iCorporationEra is not None:
+					aiAllCorporationEras.append(iCorporationEra)
 			_bumpIndirect(_SAS_getThresholdEra(aiAllCorporationEras, info.getNumCorporations()))
 		if info.isPickCity():
 			_bumpIndirect(_SAS_getThresholdEra(aiCorporationEras, 1))

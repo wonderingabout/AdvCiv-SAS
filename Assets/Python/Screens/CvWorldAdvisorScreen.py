@@ -542,7 +542,9 @@ class CvWorldAdvisorScreen:
 		iObserverTeam = self.getMapObserverTeam()
 		for iPlot in range(cyMap.numPlots()):
 			pPlot = cyMap.plotByIndex(iPlot)
-			if pPlot and not pPlot.isNone() and pPlot.getOwner() == self.iActivePlayer and (bDebug or pPlot.isRevealed(iObserverTeam, False)):
+			# <!-- custom: Territory membership used live ownership even under fog, revealing unseen border changes despite KI#224's observer-relative detail reads.
+			# Use the observer's remembered owner; debug mode still receives live ownership through the API's debug flag. See KI#1069. (GPT-5.6-Sol) -->
+			if pPlot and not pPlot.isNone() and (bDebug or pPlot.isRevealed(iObserverTeam, False)) and pPlot.getRevealedOwner(iObserverTeam, bDebug) == self.iActivePlayer:
 				iBucket = 1
 				if iPlot in aiBFCPlots:
 					iBucket = 0
