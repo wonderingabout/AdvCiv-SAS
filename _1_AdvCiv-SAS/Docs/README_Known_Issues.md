@@ -541,6 +541,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#440 - (Pending Architectural inherited AdvCiv UWAI public-opposition defect) Hypothetical religion anger is capped by current anger](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-440)\
 [KI#441 - (Fixed inherited AdvCiv UWAI revolt defect) Negative city assets could become positive war utility](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-441)\
 [KI#442 - (Fixed inherited AdvCiv UWAI capitulation defect) A team vector was written with player IDs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-442)\
+[KI#442.2 - (Fixed inherited AdvCiv diplomacy refactor bug) Team-contact state was written with a player ID](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-442.2)\
 [KI#443 - (Fixed inherited AdvCiv UWAI later-era defect) Fair Play double-counted the starting-era position](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-443)\
 [KI#444 - (Fixed inherited AdvCiv UWAI terminal-era defect) Temporary startup guards could never expire](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-444)\
 [KI#445 - (Pending Architectural inherited AdvCiv UWAI tactical defect) Agent assets can be reused across enemy teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-445)\
@@ -13020,6 +13021,18 @@ Screenshots/files for this issue: same google drive folder link as KI#441.
 The repair writes through `TEAMID(ePlayer)`. `getCapitulationsAccepted(TeamSet&)` merges into its destination, so all live member nodes naturally union their shared result into the actual master-team slot. Unlike the rejected KI#311, KI#387 and KI#436 `GET_TEAM(PlayerTypes)` findings, raw `std::vector::operator[]` has no type-aware overload and performs no player-to-team conversion. Base AdvCiv 1.14 contains the same raw index, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F119/provisional KI#442 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 The same autoplay directly exercised mismatched player/team IDs and accepted capitulations: multi-member teams 8, 5 and 1 became masters of teams 9, 10 and 4 respectively. The resulting vassal relationships persisted through later UWAI evaluations without an observed issue.
+
+<a id="ki-442.2"></a>
+
+## KI#442.2 - (Fixed inherited AdvCiv diplomacy refactor bug) Team-contact state was written with a player ID
+
+Found while reviewing `AI_doDiplo` during SASGameRecord revision 108. `abContacted` is declared as a `MAX_TEAMS` array and the surrounding diplomacy gates consistently read and write it with `kPlayer.getTeam()`, because only one popup/contact should be initiated for a target team in a turn. However, AdvC practical 1367 / `aa0ea958c4ae489786cca97cec5f6e3b5615c2de` (2018-10-09, "Some minor misc. changes") extracted the old deal-cancellation/renegotiation block into `AI_doDeals(PlayerTypes)` and replaced the old team-indexed contact assignment with `abContacted[civId] = doDeals(civId)`. Practical 1684 later renamed `civId` to `ePlayer` without changing that index, and Base AdvCiv 1.14 still retains the resulting `abContacted[ePlayer] = AI_doDeals(ePlayer)` line.
+
+When a player's numeric ID differs from its team ID, a successful `AI_doDeals` contact therefore marks the wrong slot. Later checks such as `abContacted[kPlayer.getTeam()]` can remain false and permit another human diplomacy contact for the same team in the same `AI_doDiplo` pass. This matters in explicit team games and after team-merging mechanics such as Permanent Alliances; it is not the rejected `GET_TEAM(PlayerTypes)` false positive documented by KI#311/KI#387/KI#436, because raw array indexing performs no player-to-team conversion.
+
+The repair stores the result in `abContacted[kPlayer.getTeam()]`, restoring the team-domain invariant already used throughout the rest of the function. No contact selection, timer, deal, RNG or diplomacy policy changes otherwise. This is the same raw-container type-domain defect family as KI#442, hence the `.1` follow-up number.
+
+Found while adding SASGameRecord revision 108 AI embargo request provenance; source archaeology, repair and documentation completed with the help of ChatGPT-5.6-Sol, thanks.
 
 <a id="ki-443"></a>
 

@@ -23357,7 +23357,9 @@ void CvPlayerAI::AI_doDiplo()
 				continue;
 			} // </advc.706>
 			//if (GET_PLAYER((PlayerTypes)iI).getTeam() != getTeam()) // disabled by K-Mod
-			abContacted[ePlayer] = AI_doDeals(ePlayer); // advc
+			// <!-- custom: abContacted is indexed by TeamTypes throughout this function; AdvC practical 1367's AI_doDeals extraction accidentally kept the PlayerTypes index.
+			// Use the target player's actual team so team games and post-merge Permanent Alliances mark the same contact slot that later diplomacy gates read. See KI#442.2. (ChatGPT-5.6-Sol) -->
+			abContacted[kPlayer.getTeam()] = AI_doDeals(ePlayer); // advc
 			if (!canContact(ePlayer, true))
 				continue;
 
