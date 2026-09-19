@@ -25468,9 +25468,9 @@ bool CvPlayerAI::AI_proposeCityTrade(PlayerTypes eToPlayer)
 				if (bLiberation != (pTheirCity->getLiberationPlayer() == getID()))
 					continue;
 				int iTheyGiveVal = 0;
+				// <!-- custom: AdvC practical 2085 created this city trade descriptor but passed an identical temporary to canTradeItem, leaving the named local unused; reuse it directly. See KI#486.4. (ChatGPT-5.6-Sol) -->
 				TradeData item(TRADE_CITIES, pTheirCity->getID());
-				if (kToPlayer.canTradeItem(getID(),
-					TradeData(TRADE_CITIES, pTheirCity->getID()), true) &&
+				if (kToPlayer.canTradeItem(getID(), item, true) &&
 					kToPlayer.AI_intendsToCede(*pTheirCity, getID(), false, &iTheyGiveVal))
 				{
 					aiiiCityPairs.push_back(std::make_pair(

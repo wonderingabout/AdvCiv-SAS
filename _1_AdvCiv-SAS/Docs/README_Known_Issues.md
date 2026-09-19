@@ -589,6 +589,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#486 - (Fixed SAS KI#178 regression) Temporary resource imports counted as permanent owned copies in city-site valuation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486)\
 [KI#486.2 - (Fixed inherited AdvCiv use-after-free crash) Liberating a conquered city dereferenced its destroyed old city object](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486.2)\
 [KI#486.3 - (Fixed inherited AdvCiv conquest-liberation finalization bug) Hostage-withheld liberation skipped the retained-city finalization path](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486.3)\
+[KI#486.4 - (Fixed inherited AdvCiv city-trade source redundancy) AI city-pair scan built the same TradeData twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486.4)\
 [KI#487 - (Fixed inherited K-Mod/AdvCiv geographic assumption retained by SAS) Cross-area rival culture pressure was discarded](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-487)\
 [KI#488 - (Fixed AdvCiv-SAS cautious-health defect) Resource plots lost Forest/Jungle health](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-488)\
 [KI#489 - (Fixed AdvCiv-SAS regression against AdvCiv Barbarian normalization) First Barbarian city received capital-only gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-489)\
@@ -13481,6 +13482,18 @@ Archaeology traces the defect directly to AdvC practical 2085 / commit `f54cc305
 The repair preserves the strategic hostage veto exactly, but calls `keepCity(kCity)` before returning when `bLiberate` is false. Successful liberation is unchanged, and the revision-101 SASGameRecord reason `LIBERATION_WITHHELD_HOSTAGE` now corresponds to a fully finalized KEEP path rather than an early-return gap.
 
 Found while adding SASGameRecord revision 101 captured-city disposition provenance; source archaeology, repair and documentation completed with the help of ChatGPT-5.6-Sol, thanks.
+
+<a id="ki-486.4"></a>
+
+## KI#486.4 - (Fixed inherited AdvCiv city-trade source redundancy) AI city-pair scan built the same TradeData twice
+
+While adding SASGameRecord revision 105 provenance to `CvPlayerAI::AI_proposeCityTrade`, the prospective partner-city loop exposed a named `TradeData item(TRADE_CITIES, pTheirCity->getID())` immediately followed by `canTradeItem` receiving a freshly constructed `TradeData` with the same type and city id. The named local was otherwise unused, so the source initialized the same trade descriptor twice instead of reusing the object already present. An optimizing compiler may eliminate the dead local, making this primarily a source-tidiness issue in optimized builds rather than a guaranteed measurable runtime cost.
+
+Archaeology traces both lines directly to AdvC practical 2085 / commit `f54cc305502cb61c3a27a6de7f015925a5f1b4c1` (`AI code for initiating city trades`, 2020-04-01), which introduced the current broader `AI_proposeCityTrade` implementation. K-Mod does not contain this later routine, while Base AdvCiv 1.14 retains the exact redundant local-plus-temporary pattern. This is therefore an inherited AdvCiv source redundancy, not an AdvCiv-SAS regression and not a gameplay-decision defect.
+
+Fixed by passing the already-created `item` to `canTradeItem`. The trade type/data and denial test are identical; city-pair selection, cede valuation, counterproposal behavior, RNG and SASGameRecord semantics are unchanged. The issue was found while adding SASGameRecord revision 105 AI city-trade intent provenance; that revision's full autoplay exercised a real free-liberation city transfer and retained the control final state and synchronized RNG value stream.
+
+Found and fixed while adding SASGameRecord revision 105 with the help of ChatGPT-5.6-Sol, thanks.
 
 <a id="ki-487"></a>
 

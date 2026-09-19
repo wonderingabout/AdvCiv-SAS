@@ -43,7 +43,7 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 ### Revision 105 - SAS practical 6496
 
 - **Date:** 2026-09-19
-- **Git commit:** pending
+- **Git commit:** `55670b590461b121aa56ea097e17fb6e4ef436c7`
 - **Change:** Added one compact level-2 realized AI city-trade intent row at `AI_proposeCityTrade`, covering free liberation, strategic one-way gifts, city swaps/negotiated city-centered packages, and same-team forced completion without pretending they belong to a generic `ContactTypes` class.
 
 The row records the selected sorted-pair rank/count, signed initial cede-value gap, whether selection had fallen back to the inverse gap sign, initial city ids, liberation/evacuation/team/negotiability context, exact formation path, and final AI-gives/AI-receives package. It emits only after a real human contact or immediate AI deal has been formed and reuses live state already computed by gameplay; no city valuation, `AI_intendsToCede`, counterproposal search or RNG is repeated for recording. Existing canonical deal/offer/rejection rows remain responsible for the downstream outcome.
