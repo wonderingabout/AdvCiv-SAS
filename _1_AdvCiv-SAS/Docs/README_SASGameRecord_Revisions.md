@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=105 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=106 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -39,6 +39,14 @@ The history below counts commits that changed the recorder implementation itself
 Because this numbering is reconstructed after the fact, the descriptions are concise summaries of the canonical commit diffs/messages rather than claims that these revision numbers were emitted by historical builds.
 
 ## History (latest first)
+
+### Revision 106 - SAS practical 6498
+
+- **Date:** 2026-09-19
+- **Git commit:** pending
+- **Change:** Added one compact level-2 realized AI joint-war-hiring provenance row at `AI_proposeWarTrade`, complementing revision 100's generic `CONTACT_JOIN_WAR` package with the live target-selection and payment rationale that cannot be reconstructed afterward.
+
+The row records full-UWAI versus legacy selection, the adjusted minimum war-age/cadence denominator, selected war target, UWAI joint-war value or legacy randomized target score, the hireling's cached war price, candidate technology payment, and whether the realized deal used ordinary tech/gold balancing or the rare city/counterproposal fallback. Ordinary deals also preserve the final two live balance values used by the existing 75% acceptance test; city fallback rows preserve war-success rating, selected city and its existing acquire-minus-keep fitness instead. The existing generic `GAME_RECORD_AI_DIPLO_CONTACT` row remains authoritative for the final trade package, so revision 106 adds no duplicate trade-list serialization, target valuation, balancing search or synchronized RNG.
 
 ### Revision 105 - SAS practical 6496
 

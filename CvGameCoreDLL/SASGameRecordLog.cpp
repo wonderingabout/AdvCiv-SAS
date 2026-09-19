@@ -11641,6 +11641,29 @@ void logSASGameRecordAIDiploContactIntent(CvPlayerAI const& kPlayer, PlayerTypes
 		szSubject.GetCString(), szAIGives.GetCString(), szAIReceives.GetCString());
 }
 
+static char const* getSASGameRecordAIWarTradePaymentPath(SASGameRecordAIWarTradePaymentPath ePaymentPath)
+{
+	switch (ePaymentPath)
+	{
+	case SAS_AI_WAR_TRADE_TECH_GOLD: return "TECH_GOLD";
+	case SAS_AI_WAR_TRADE_CITY_COUNTERPROPOSE: return "CITY_COUNTERPROPOSE";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Preserve the live reason for a realized AI-to-AI joint-war hire immediately before the existing deal bridge.
+// The generic CONTACT_JOIN_WAR row remains authoritative for the final package; this row reuses already-computed target/price/payment state and performs no extra target valuation, trade balancing or RNG. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIWarTradeIntent(CvPlayerAI const& kPlayer, PlayerTypes eHireling, SASGameRecordAIWarTradePaymentPath ePaymentPath, bool bUWAI, int iMinAtWarCounter, int iOfferDenominator, TeamTypes eTargetTeam, int iUWAITargetValue, int iLegacyTargetScore, int iHirePrice, TechTypes eCandidateTech1, TechTypes eCandidateTech2, int iWarSuccessRating, int iCityId, int iCityFitness, int iFinalWarSideValue, int iFinalPaymentSideValue)
+{
+	CvPlayerAI const& kHireling = GET_PLAYER(eHireling);
+	logSASGameRecord("GAME_RECORD_AI_WAR_TRADE_INTENT turn=%d player=%d team=%d hireling=%d hirelingTeam=%d source=%s minAtWarCounter=%d offerDenominator=%d targetTeam=%d uwaiTargetValue=%d legacyTargetScore=%d hirePrice=%d paymentPath=%s candidateTech1=%s candidateTech2=%s warSuccessRating=%d cityId=%d cityFitness=%d finalWarSideValue=%d finalPaymentSideValue=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eHireling, kHireling.getTeam(),
+		bUWAI ? "UWAI" : "LEGACY", iMinAtWarCounter, iOfferDenominator, eTargetTeam,
+		iUWAITargetValue, iLegacyTargetScore, iHirePrice, getSASGameRecordAIWarTradePaymentPath(ePaymentPath),
+		getSASGameRecordTechType(eCandidateTech1), getSASGameRecordTechType(eCandidateTech2),
+		iWarSuccessRating, iCityId, iCityFitness, iFinalWarSideValue, iFinalPaymentSideValue);
+}
+
 static char const* getSASGameRecordAICityTradeFormation(SASGameRecordAICityTradeFormation eFormation)
 {
 	switch (eFormation)

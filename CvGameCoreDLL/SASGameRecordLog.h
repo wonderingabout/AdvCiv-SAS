@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 105 };
+enum { SAS_GAME_RECORD_REVISION = 106 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -546,6 +546,14 @@ void logSASGameRecordAIToHumanOfferRejected(PlayerTypes eProposer, PlayerTypes e
 // <!-- custom: Preserve one realized proactive AI diplomacy intent only after the live branch has formed a real contact/deal package.
 // `subject` is reserved for non-package requests such as religion/civic pressure, joint war or embargo; specialized peace/resource-trade provenance remains authoritative for those paths. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIDiploContactIntent(CvPlayerAI const& kPlayer, PlayerTypes eTarget, ContactTypes eContact, TradeData const* pSubject, CLinkList<TradeData> const* pAIGives, CLinkList<TradeData> const* pAIReceives);
+// <!-- custom: AI_proposeWarTrade has richer realized joint-war hiring provenance than the generic CONTACT_JOIN_WAR package can preserve.
+// Keep only the two execution paths recorder-local; the generic contact row remains authoritative for the final trade items. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordAIWarTradePaymentPath
+{
+	SAS_AI_WAR_TRADE_TECH_GOLD,
+	SAS_AI_WAR_TRADE_CITY_COUNTERPROPOSE
+};
+void logSASGameRecordAIWarTradeIntent(CvPlayerAI const& kPlayer, PlayerTypes eHireling, SASGameRecordAIWarTradePaymentPath ePaymentPath, bool bUWAI, int iMinAtWarCounter, int iOfferDenominator, TeamTypes eTargetTeam, int iUWAITargetValue, int iLegacyTargetScore, int iHirePrice, TechTypes eCandidateTech1, TechTypes eCandidateTech2, int iWarSuccessRating, int iCityId, int iCityFitness, int iFinalWarSideValue, int iFinalPaymentSideValue);
 // <!-- custom: AI_proposeCityTrade does not map honestly onto ContactTypes: one realized proposal may be a free liberation, strategic gift, city swap or negotiated city-centered package.
 // Keep that compact formation vocabulary recorder-local and log only after the live candidate/counterproposal path has actually formed a contact/deal. `initialValueGap` is our city's already-computed cede value minus theirs; callers pre-gate at level 2+. (ChatGPT-5.6-Sol) -->
 enum SASGameRecordAICityTradeFormation

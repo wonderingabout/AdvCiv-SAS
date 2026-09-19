@@ -865,6 +865,63 @@ def check_ai_diplo_contact_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_war_trade_intent_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI war-trade intent provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	expected_paths = ["SAS_AI_WAR_TRADE_TECH_GOLD", "SAS_AI_WAR_TRADE_CITY_COUNTERPROPOSE"]
+	m = re.search(r"enum\s+SASGameRecordAIWarTradePaymentPath\s*\{(?P<body>.*?)\};", header_text, flags=re.DOTALL)
+	if m is None:
+		failures.append(f"{REVISION_HEADER}: missing SASGameRecordAIWarTradePaymentPath")
+	else:
+		tokens = re.findall(r"^\s*(SAS_AI_WAR_TRADE_[A-Z0-9_]+)\s*,?\s*$", m.group("body"), flags=re.MULTILINE)
+		if tokens != expected_paths:
+			failures.append(f"{REVISION_HEADER}: AI war-trade payment vocabulary changed; expected {expected_paths}, found {tokens}")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_WAR_TRADE_INTENT", "source=%s", "minAtWarCounter=%d", "offerDenominator=%d",
+		"targetTeam=%d", "uwaiTargetValue=%d", "legacyTargetScore=%d", "hirePrice=%d", "paymentPath=%s",
+		"candidateTech1=%s", "candidateTech2=%s", "warSuccessRating=%d", "cityId=%d", "cityFitness=%d",
+		"finalWarSideValue=%d", "finalPaymentSideValue=%d",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI war-trade intent diagnostic token {required}")
+	for token in expected_paths:
+		if record_text.count(f"case {token}:") != 1:
+			failures.append(f"{REVISION_SOURCE}: AI war-trade payment path {token} must have exactly one stringifier case")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	m = re.search(r"void\s+CvPlayerAI::AI_proposeWarTrade\([^)]*\)\s*\{(?P<body>.*?)^\}\s*\n\n//  Same assumptions as for contactReligion", player_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		return failures + [f"{PLAYER_AI_SOURCE}: could not locate AI_proposeWarTrade"]
+	body = m.group("body")
+	if body.count("logSASGameRecordAIWarTradeIntent(") != 2:
+		failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeWarTrade must emit exactly two realized war-trade intent bridges, found {body.count('logSASGameRecordAIWarTradeIntent(')}")
+	if body.count("logSASGameRecordAIDiploContactIntent(") != 2:
+		failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeWarTrade must retain exactly two generic CONTACT_JOIN_WAR package bridges")
+	if body.count("SAS_AI_WAR_TRADE_TECH_GOLD") != 1 or body.count("SAS_AI_WAR_TRADE_CITY_COUNTERPROPOSE") != 1:
+		failures.append(f"{PLAYER_AI_SOURCE}: both realized AI war-trade payment paths must remain bridged exactly once")
+	if body.count("gGameRecordLogLevel >= 2") < 2:
+		failures.append(f"{PLAYER_AI_SOURCE}: realized AI war-trade intent bridges must remain level-2 pre-gated")
+	for token, expected in (("tradeValJointWar(", 1), ("AI_declareWarTradeVal(", 2), ("AI_counterPropose(", 1), ("SyncRandSuccess(", 1), ("SyncRandNum(1000)", 1), ("SyncRandNum(100)", 2), ("kGame.implementDeal(", 2)):
+		actual = body.count(token)
+		if actual != expected:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeWarTrade live call count for {token} changed; expected {expected}, found {actual}")
+	if "iBestTeamPrice = kOurTeam.AI_declareWarTradeVal" not in body:
+		failures.append(f"{PLAYER_AI_SOURCE}: KI#372 legacy joint-war target must retain its cached non-sentinel hire price")
+	if "if (AI_counterPropose(eHireling, hirelingGives, weGive, true, true))" not in body:
+		failures.append(f"{PLAYER_AI_SOURCE}: KI#674 city-for-war implementation must remain conditional on successful AI_counterPropose")
+	if "-100, -1, 0, iWeReceive, iHirelingReceives" not in body:
+		failures.append(f"{PLAYER_AI_SOURCE}: ordinary war-trade row must retain the documented no-city sentinel and live final balance values")
+	return failures
+
+
 def check_ai_city_trade_intent_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -954,6 +1011,7 @@ def main() -> int:
 	failures.extend(check_ai_diplo_vote_provenance(args.repo_root))
 	failures.extend(check_ai_diplo_contact_provenance(args.repo_root))
 	failures.extend(check_ai_city_trade_intent_provenance(args.repo_root))
+	failures.extend(check_ai_war_trade_intent_provenance(args.repo_root))
 	failures.extend(check_ai_conquer_city_provenance(args.repo_root))
 	failures.extend(check_ai_great_person_provenance(args.repo_root))
 	failures.extend(check_ai_great_general_provenance(args.repo_root))
@@ -962,7 +1020,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-city-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-city-trade/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

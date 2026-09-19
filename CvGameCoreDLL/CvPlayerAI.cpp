@@ -24623,7 +24623,13 @@ void CvPlayerAI::AI_proposeWarTrade(PlayerTypes eHireling)
 				// Implement and stop only after successful balancing; otherwise continue to the ordinary tech/gold proposal path. See KI#674. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				if (AI_counterPropose(eHireling, hirelingGives, weGive, true, true))
 				{
-					if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, eHireling, CONTACT_JOIN_WAR, NULL, &weGive, &hirelingGives);
+					if (gGameRecordLogLevel >= 2)
+					{
+						// <!-- custom: Preserve the already-selected joint-war target/payment rationale before the generic CONTACT_JOIN_WAR package row; no target valuation, counterproposal or RNG is repeated. (ChatGPT-5.6-Sol) -->
+						bool const bSASWarTradeUWAI = getUWAI().isEnabled();
+						logSASGameRecordAIWarTradeIntent(*this, eHireling, SAS_AI_WAR_TRADE_CITY_COUNTERPROPOSE, bSASWarTradeUWAI, iMinAtWarCounter, iDeclareWarTradeRand, eBestTarget, bSASWarTradeUWAI ? iBestTargetValue : -1, bSASWarTradeUWAI ? -1 : iBestValue, iBestTeamPrice, eeBestGiveTech.first, eeBestGiveTech.second, iWSRating, pBestCity->getID(), iBestFitness, -1, -1);
+						logSASGameRecordAIDiploContactIntent(*this, eHireling, CONTACT_JOIN_WAR, NULL, &weGive, &hirelingGives);
+					}
 					kGame.implementDeal(getID(), eHireling, weGive, hirelingGives);
 					return;
 				}
@@ -24679,7 +24685,13 @@ void CvPlayerAI::AI_proposeWarTrade(PlayerTypes eHireling)
 			weGive.insertAtEnd(TradeData(TRADE_GOLD, iGiveGold));
 		if (iReceiveGold != 0)
 			theyGive.insertAtEnd(TradeData(TRADE_GOLD, iReceiveGold));
-		if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, eHireling, CONTACT_JOIN_WAR, NULL, &weGive, &theyGive);
+		if (gGameRecordLogLevel >= 2)
+		{
+			// <!-- custom: Preserve the realized joint-war target and live balancing values before the generic package row; -100 is outside AI_getWarSuccessRating's documented -99..99 range and means the city fallback was not evaluated here. (ChatGPT-5.6-Sol) -->
+			bool const bSASWarTradeUWAI = getUWAI().isEnabled();
+			logSASGameRecordAIWarTradeIntent(*this, eHireling, SAS_AI_WAR_TRADE_TECH_GOLD, bSASWarTradeUWAI, iMinAtWarCounter, iDeclareWarTradeRand, eBestTarget, bSASWarTradeUWAI ? iBestTargetValue : -1, bSASWarTradeUWAI ? -1 : iBestValue, iBestTeamPrice, eeBestGiveTech.first, eeBestGiveTech.second, -100, -1, 0, iWeReceive, iHirelingReceives);
+			logSASGameRecordAIDiploContactIntent(*this, eHireling, CONTACT_JOIN_WAR, NULL, &weGive, &theyGive);
+		}
 		kGame.implementDeal(getID(), eHireling, weGive, theyGive);
 	}
 }
