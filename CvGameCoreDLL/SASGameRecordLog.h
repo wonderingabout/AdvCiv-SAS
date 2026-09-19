@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 104 };
+enum { SAS_GAME_RECORD_REVISION = 105 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -546,6 +546,17 @@ void logSASGameRecordAIToHumanOfferRejected(PlayerTypes eProposer, PlayerTypes e
 // <!-- custom: Preserve one realized proactive AI diplomacy intent only after the live branch has formed a real contact/deal package.
 // `subject` is reserved for non-package requests such as religion/civic pressure, joint war or embargo; specialized peace/resource-trade provenance remains authoritative for those paths. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIDiploContactIntent(CvPlayerAI const& kPlayer, PlayerTypes eTarget, ContactTypes eContact, TradeData const* pSubject, CLinkList<TradeData> const* pAIGives, CLinkList<TradeData> const* pAIReceives);
+// <!-- custom: AI_proposeCityTrade does not map honestly onto ContactTypes: one realized proposal may be a free liberation, strategic gift, city swap or negotiated city-centered package.
+// Keep that compact formation vocabulary recorder-local and log only after the live candidate/counterproposal path has actually formed a contact/deal. `initialValueGap` is our city's already-computed cede value minus theirs; callers pre-gate at level 2+. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordAICityTradeFormation
+{
+	SAS_AI_CITY_TRADE_FREE_LIBERATION,
+	SAS_AI_CITY_TRADE_FREE_CITY_TO_HUMAN,
+	SAS_AI_CITY_TRADE_OUR_SIDE_COUNTERPROPOSE,
+	SAS_AI_CITY_TRADE_TARGET_SIDE_COUNTERPROPOSE,
+	SAS_AI_CITY_TRADE_SAME_TEAM_OVERRIDE
+};
+void logSASGameRecordAICityTradeIntent(CvPlayerAI const& kPlayer, PlayerTypes eTarget, SASGameRecordAICityTradeFormation eFormation, int iCandidateRank, int iCandidateCount, int iInitialValueGap, bool bInverseGapFallback, int iOurCityId, int iTheirCityId, bool bLiberation, bool bEvacuating, bool bSameTeam, bool bNegotiable, CLinkList<TradeData> const& kAIGives, CLinkList<TradeData> const& kAIReceives);
 // <!-- custom: Preserve one resolved AI peace-negotiation boundary rather than copying the full UWAI/BBAI utility trace; callers pre-gate at level 2 so disabled/lower-detail runs do not build logging-only trade context. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIPeaceDecision(PlayerTypes ePlayer, PlayerTypes eOther, int iAtWarTurns, bool bUWAI, int iInitialOurBenefit, int iInitialTheirBenefit, int iFinalOurBenefit, int iFinalTheirBenefit, int iGiveGold, int iReceiveGold, TechTypes eGiveTech, TechTypes eReceiveTech, int iGiveCityId, int iReceiveCityId, bool bCounterProposal, char const* szOutcome, CLinkList<TradeData> const* pWeGive, CLinkList<TradeData> const* pTheyGive);
 // <!-- custom: Preserve the real research/free-tech source and, for AI_bestTech, the already-computed selected/runner-up path values and optional level-3 candidate paths; caller and chooser gates ensure no technology valuation or chooser RNG is repeated for SASGameRecord. (ChatGPT-5.6-Sol) -->

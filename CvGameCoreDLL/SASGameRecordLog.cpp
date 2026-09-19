@@ -11641,6 +11641,33 @@ void logSASGameRecordAIDiploContactIntent(CvPlayerAI const& kPlayer, PlayerTypes
 		szSubject.GetCString(), szAIGives.GetCString(), szAIReceives.GetCString());
 }
 
+static char const* getSASGameRecordAICityTradeFormation(SASGameRecordAICityTradeFormation eFormation)
+{
+	switch (eFormation)
+	{
+	case SAS_AI_CITY_TRADE_FREE_LIBERATION: return "FREE_LIBERATION";
+	case SAS_AI_CITY_TRADE_FREE_CITY_TO_HUMAN: return "FREE_CITY_TO_HUMAN";
+	case SAS_AI_CITY_TRADE_OUR_SIDE_COUNTERPROPOSE: return "OUR_SIDE_COUNTERPROPOSE";
+	case SAS_AI_CITY_TRADE_TARGET_SIDE_COUNTERPROPOSE: return "TARGET_SIDE_COUNTERPROPOSE";
+	case SAS_AI_CITY_TRADE_SAME_TEAM_OVERRIDE: return "SAME_TEAM_OVERRIDE";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Preserve the selected AI_proposeCityTrade boundary only after its live cede/counterproposal logic has formed a real human contact or immediate AI deal.
+// Candidate rank/count and signed initial value gap reuse the function's existing sorted pair state; final trade lists are already formed. No city valuation, cede test, counterproposal search or RNG is repeated for logging. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAICityTradeIntent(CvPlayerAI const& kPlayer, PlayerTypes eTarget, SASGameRecordAICityTradeFormation eFormation, int iCandidateRank, int iCandidateCount, int iInitialValueGap, bool bInverseGapFallback, int iOurCityId, int iTheirCityId, bool bLiberation, bool bEvacuating, bool bSameTeam, bool bNegotiable, CLinkList<TradeData> const& kAIGives, CLinkList<TradeData> const& kAIReceives)
+{
+	CvPlayerAI const& kTarget = GET_PLAYER(eTarget);
+	bool const bTargetHuman = kTarget.isHuman();
+	logSASGameRecord("GAME_RECORD_AI_CITY_TRADE_INTENT turn=%d player=%d team=%d targetPlayer=%d targetTeam=%d targetHuman=%d delivery=%s attitudeValue=%d formation=%s candidateRank=%d candidates=%d initialValueGap=%d inverseGapFallback=%d ourCityId=%d theirCityId=%d liberation=%d evacuating=%d sameTeam=%d negotiable=%d aiGives=%s aiReceives=%s",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eTarget, kTarget.getTeam(), bTargetHuman ? 1 : 0,
+		bTargetHuman ? "HUMAN_CONTACT" : "AI_DEAL", kPlayer.AI_getAttitudeVal(eTarget), getSASGameRecordAICityTradeFormation(eFormation),
+		iCandidateRank, iCandidateCount, iInitialValueGap, bInverseGapFallback ? 1 : 0, iOurCityId, iTheirCityId,
+		bLiberation ? 1 : 0, bEvacuating ? 1 : 0, bSameTeam ? 1 : 0, bNegotiable ? 1 : 0,
+		getSASTradeListText(kAIGives, kPlayer.getID()).GetCString(), getSASTradeListText(kAIReceives, eTarget).GetCString());
+}
+
 
 // <!-- custom: Record the resolved shared peace-negotiation boundary, including the compact end-war-value imbalance and reparations package that explains whether peace was blocked, deferred to a human offer, or implemented.
 // `provisional*` is the reparations selected by AI_negotiatePeace before any human counterproposal; `aiGives`/`aiReceives` serialize the final lists when they exist.

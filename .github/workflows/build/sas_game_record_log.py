@@ -865,6 +865,68 @@ def check_ai_diplo_contact_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_city_trade_intent_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI city-trade intent provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	expected_formations = [
+		"SAS_AI_CITY_TRADE_FREE_LIBERATION", "SAS_AI_CITY_TRADE_FREE_CITY_TO_HUMAN",
+		"SAS_AI_CITY_TRADE_OUR_SIDE_COUNTERPROPOSE", "SAS_AI_CITY_TRADE_TARGET_SIDE_COUNTERPROPOSE",
+		"SAS_AI_CITY_TRADE_SAME_TEAM_OVERRIDE",
+	]
+	m = re.search(r"enum\s+SASGameRecordAICityTradeFormation\s*\{(?P<body>.*?)\};", header_text, flags=re.DOTALL)
+	if m is None:
+		failures.append(f"{REVISION_HEADER}: missing SASGameRecordAICityTradeFormation")
+	else:
+		tokens = re.findall(r"^\s*(SAS_AI_CITY_TRADE_[A-Z0-9_]+)\s*,?\s*$", m.group("body"), flags=re.MULTILINE)
+		if tokens != expected_formations:
+			failures.append(f"{REVISION_HEADER}: AI city-trade formation vocabulary changed; expected {expected_formations}, found {tokens}")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_CITY_TRADE_INTENT", "delivery=%s", "attitudeValue=%d", "formation=%s", "candidateRank=%d",
+		"candidates=%d", "initialValueGap=%d", "inverseGapFallback=%d", "ourCityId=%d", "theirCityId=%d",
+		"liberation=%d", "evacuating=%d", "sameTeam=%d", "negotiable=%d", "aiGives=%s", "aiReceives=%s",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI city-trade intent diagnostic token {required}")
+	for token in expected_formations:
+		if record_text.count(f"case {token}:") != 1:
+			failures.append(f"{REVISION_SOURCE}: AI city-trade formation {token} must have exactly one stringifier case")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	m = re.search(r"bool\s+CvPlayerAI::AI_proposeCityTrade\([^)]*\)\s*\{(?P<body>.*?)^\}\s*// advc: End of functions cut from AI_doDiplo", player_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		return failures + [f"{PLAYER_AI_SOURCE}: could not locate AI_proposeCityTrade"]
+	body = m.group("body")
+	if body.count("logSASGameRecordAICityTradeIntent(") != 1:
+		failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeCityTrade must emit exactly one realized city-trade intent bridge")
+	if not re.search(r"if\s*\(gGameRecordLogLevel\s*>=\s*2\)\s*\{[^{}]*logSASGameRecordAICityTradeIntent", body, flags=re.DOTALL):
+		failures.append(f"{PLAYER_AI_SOURCE}: realized AI city-trade intent must remain level-2 pre-gated")
+	if body.count("AI_intendsToCede(") != 3:
+		failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeCityTrade cede-evaluation count changed; expected 3 live calls, found {body.count('AI_intendsToCede(')}")
+	if body.count("AI_counterPropose(") != 2:
+		failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeCityTrade counterproposal count changed; expected 2 live calls, found {body.count('AI_counterPropose(')}")
+	if re.search(r"SyncRand|getSorenRand|MapRand", body):
+		failures.append(f"{PLAYER_AI_SOURCE}: AI city-trade recorder path must not add RNG to AI_proposeCityTrade")
+	log_pos = body.find("logSASGameRecordAICityTradeIntent(")
+	for action in ("gDLL->beginDiplomacy(", "kGame.implementDeal("):
+		pos = body.find(action)
+		if pos < 0:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeCityTrade missing expected realized action {action}")
+		elif log_pos >= 0 and log_pos > pos:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI city-trade intent must emit before {action}")
+	for token in expected_formations:
+		if token not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeCityTrade no longer assigns realized formation {token}")
+	return failures
+
+
 EXPECTED_GAME_RECORD_DEFAULTS = {
 	"SAS_GAME_RECORD_LOG_LEVEL": 0,
 	# These configure enabled record logging but do not enable it themselves.
@@ -891,6 +953,7 @@ def main() -> int:
 	failures.extend(check_uwai_war_plan_decisions(args.repo_root))
 	failures.extend(check_ai_diplo_vote_provenance(args.repo_root))
 	failures.extend(check_ai_diplo_contact_provenance(args.repo_root))
+	failures.extend(check_ai_city_trade_intent_provenance(args.repo_root))
 	failures.extend(check_ai_conquer_city_provenance(args.repo_root))
 	failures.extend(check_ai_great_person_provenance(args.repo_root))
 	failures.extend(check_ai_great_general_provenance(args.repo_root))
@@ -899,7 +962,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-city-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=104 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=105 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,18 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 104 - SAS practical 6495
+### Revision 105 - SAS practical 6496
 
 - **Date:** 2026-09-19
 - **Git commit:** pending
+- **Change:** Added one compact level-2 realized AI city-trade intent row at `AI_proposeCityTrade`, covering free liberation, strategic one-way gifts, city swaps/negotiated city-centered packages, and same-team forced completion without pretending they belong to a generic `ContactTypes` class.
+
+The row records the selected sorted-pair rank/count, signed initial cede-value gap, whether selection had fallen back to the inverse gap sign, initial city ids, liberation/evacuation/team/negotiability context, exact formation path, and final AI-gives/AI-receives package. It emits only after a real human contact or immediate AI deal has been formed and reuses live state already computed by gameplay; no city valuation, `AI_intendsToCede`, counterproposal search or RNG is repeated for recording. Existing canonical deal/offer/rejection rows remain responsible for the downstream outcome.
+
+### Revision 104 - SAS practical 6495
+
+- **Date:** 2026-09-19
+- **Git commit:** `f6f3372d294b3660650c6faf95636e6231a8db20`
 - **Change:** Removed two exact duplicate Great General Academy/Instructor helper passes accidentally introduced in practical 5081, avoiding repeated city/specialist/building valuation and pathfinding after the identical earlier helper had already failed with unchanged relevant state.
 
 The structured row fields are unchanged, but the live Great General stage vocabulary is reduced from 17 to 15 values: the now-dead revision-103 `SECOND_ACADEMY` and `SECOND_INSTRUCTOR` labels are removed together with the duplicate gameplay stages that could emit them. CI now guards the 11 live helper-preparation stages, the reduced helper-pass counts and the absence of those deleted labels. This SAS-specific practical-5081 performance/tidiness fix was found while reviewing SASGameRecord revision 103 Great General provenance and is documented as KI#69 Update 2.

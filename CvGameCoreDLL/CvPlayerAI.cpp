@@ -25490,22 +25490,29 @@ bool CvPlayerAI::AI_proposeCityTrade(PlayerTypes eToPlayer)
 		bool bDeal = false;
 		bool bAllowNegotiation = true;
 		bool const bWeGiveMore = aiiiCityPairs[i].first.second;
+		// <!-- custom: Recorder-only scalar remembers which already-executed city-trade formation path produced the proposal so the final level-2 row can report it without rerunning or inferring decision logic; it does not affect trade selection or gameplay. (ChatGPT-5.6-Sol) -->
+		SASGameRecordAICityTradeFormation eFormation = (bWeGiveMore ? SAS_AI_CITY_TRADE_OUR_SIDE_COUNTERPROPOSE : SAS_AI_CITY_TRADE_TARGET_SIDE_COUNTERPROPOSE);
 		CLinkList<TradeData> weGive;
 		CLinkList<TradeData> theyGive;
-		weGive.insertAtEnd(TradeData(TRADE_CITIES, aiiiCityPairs[i].second.first));
-		bool const bEvac = AI_getCity(aiiiCityPairs[i].second.first)->AI_isEvacuating();
-		if (aiiiCityPairs[i].second.second != -1)
-			theyGive.insertAtEnd(TradeData(TRADE_CITIES, aiiiCityPairs[i].second.second));
+		int const iOurCityId = aiiiCityPairs[i].second.first;
+		int const iTheirCityId = aiiiCityPairs[i].second.second;
+		CvCityAI const& kWeGiveCity = *AI_getCity(iOurCityId);
+		bool const bEvac = kWeGiveCity.AI_isEvacuating();
+		bool bLiberation = false;
+		weGive.insertAtEnd(TradeData(TRADE_CITIES, iOurCityId));
+		if (iTheirCityId != -1)
+			theyGive.insertAtEnd(TradeData(TRADE_CITIES, iTheirCityId));
 		else
 		{
-			CvCityAI const& kWeGiveCity = *AI_getCity(aiiiCityPairs[i].second.first);
 			// One-way liberation; we're not going to get anything for it.
-			if (kWeGiveCity.getLiberationPlayer() == eToPlayer)
+			bLiberation = (kWeGiveCity.getLiberationPlayer() == eToPlayer);
+			if (bLiberation)
 			{
 				if (AI_intendsToCede(kWeGiveCity, eToPlayer, true))
 				{
 					bDeal = true;
 					bAllowNegotiation = false;
+					eFormation = SAS_AI_CITY_TRADE_FREE_LIBERATION;
 				}
 				else continue;
 			}
@@ -25525,7 +25532,10 @@ bool CvPlayerAI::AI_proposeCityTrade(PlayerTypes eToPlayer)
 				/*	Even if we think that gifting a city will benefit us more than them,
 					we're not going to pay a human extra to accept a free city. */
 				if (theyGive.getLength() <= 0 && kToPlayer.isHuman())
+				{
 					bDeal = true;
+					eFormation = SAS_AI_CITY_TRADE_FREE_CITY_TO_HUMAN;
+				}
 				else
 				{
 					bDeal = kToPlayer.AI_counterPropose(getID(), weGive, theyGive, true, false,
@@ -25533,7 +25543,11 @@ bool CvPlayerAI::AI_proposeCityTrade(PlayerTypes eToPlayer)
 				}
 			}
 			if (bSameTeam) // Get what we can in exchange, but always make a trade.
+			{
+				if (!bDeal)
+					eFormation = SAS_AI_CITY_TRADE_SAME_TEAM_OVERRIDE;
 				bDeal = true;
+			}
 		}
 		if (!bDeal)
 		{
@@ -25542,6 +25556,15 @@ bool CvPlayerAI::AI_proposeCityTrade(PlayerTypes eToPlayer)
 			// Failed to fill the smallest gap; try filling a gap with the inverse sign.
 			iGapSign = (bWeGiveMore ? -1 : 1);
 			continue;
+		}
+		// <!-- custom: City transfers have no truthful ContactTypes identity, so preserve their realized intent separately once the final package is formed.
+		// Reuse the sorted pair's live gap/rank and selected package only; do not repeat cede valuation or counterproposal search for SASGameRecord. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2)
+		{
+			int const iInitialValueGap = (bWeGiveMore ? aiiiCityPairs[i].first.first : -aiiiCityPairs[i].first.first);
+			if (iTheirCityId != -1)
+				bLiberation = (kWeGiveCity.getLiberationPlayer() == eToPlayer);
+			logSASGameRecordAICityTradeIntent(*this, eToPlayer, eFormation, (int)i + 1, (int)aiiiCityPairs.size(), iInitialValueGap, iGapSign != 0, iOurCityId, iTheirCityId, bLiberation, bEvac, bSameTeam, bAllowNegotiation, weGive, theyGive);
 		}
 		if (kToPlayer.isHuman())
 		{
