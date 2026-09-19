@@ -751,11 +751,6 @@ class CvMainInterface:
 		self.szBuildFilterTooltipNational = "TXT_KEY_BUILDING_FILTER_NATIONAL"
 		self.szBuildFilterTooltipWorld = "TXT_KEY_BUILDING_FILTER_WORLD"
 		#
-		# <!-- custom: use LABEL for waiting states so "Waiting for other civilizations..." follows main-interface text upscaling/readability. (GPT-5.3-Codex) -->
-		self.szTextWaiting = sasFontTagLabel + localText.getText("SYSTEM_WAITING", ()) + SAS_FONT_TAG_CLOSE
-		self.szTextEndTurn = localText.getText("SYSTEM_END_TURN", ())
-		self.szTextWaitingForYou = sasFontTagLabel + localText.getText("SYSTEM_WAITING_FOR_YOU", ()) + SAS_FONT_TAG_CLOSE
-
 		# <advc.092>
 		gSetRectangle("Top", RectLayout(None, 0, 0, self.xResolution, self.yResolution))
 		self.bScaleHUD = MainOpt.isEnlargeHUD()
@@ -988,7 +983,6 @@ class CvMainInterface:
 		gSetRect("FoVSlider", "Top", -HSPACE(18), gRect("AdvisorButtons").yBottom() + VSPACE(4), iW_FoVSlider, VLEN(15))
 		gOffSetPoint("FoVSliderText", "FoVSlider", -HSPACE(6), VSPACE(3))
 		# </advc.090>
-		self.sFieldOfView_Text = localText.getText("TXT_KEY_BUG_OPT_MAININTERFACE__FIELDOFVIEW_TEXT", ())
 		# K-Mod (bigger FoW for bigger monitors. They'll appreciate it. Trust me.)
 		#self.DEFAULT_FIELD_OF_VIEW = max(40, min(80, self.xResolution / 30))
 		#if MainOpt.isRememberFieldOfView():
@@ -1146,6 +1140,11 @@ class CvMainInterface:
 		self.szTextStagnant = localText.getText("INTERFACE_CITY_STAGNANT", ())
 		self.szTextMaintenance = localText.getText("INTERFACE_CITY_MAINTENANCE", ())
 		self.szTextDeadCiv = localText.getText("TXT_KEY_BUG_DEAD_CIV", ())
+		# <!-- custom: KI#307's live-language refresh omitted four other persistent Main Interface translations; keep their cached lookup under the same language guard; preserve the Label wrappers added for waiting-state readability. See KI#1062. (GPT-5.6-Sol) -->
+		self.szTextWaiting = sasFontTagLabel + localText.getText("SYSTEM_WAITING", ()) + SAS_FONT_TAG_CLOSE
+		self.szTextEndTurn = localText.getText("SYSTEM_END_TURN", ())
+		self.szTextWaitingForYou = sasFontTagLabel + localText.getText("SYSTEM_WAITING_FOR_YOU", ()) + SAS_FONT_TAG_CLOSE
+		self.sFieldOfView_Text = localText.getText("TXT_KEY_BUG_OPT_MAININTERFACE__FIELDOFVIEW_TEXT", ())
 
 	def setMiniMapRects(self):
 		# <advc.137>

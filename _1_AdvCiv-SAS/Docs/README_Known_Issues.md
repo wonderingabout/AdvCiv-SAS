@@ -1174,11 +1174,11 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1059 - (Fixed UI AdvCiv-SAS perspective defect) Info Screen power hover used the real active player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1059)\
 [KI#1060 - (Fixed UI AdvCiv-SAS replay repair regression) Timeline reused another observer's filtered replay](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1060)\
 [KI#1061 - (Provisional Pending inherited AdvC starting-position regression) A preassigned teammate blocks later fallback assignment](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1061)\
-[KI#1062 - (Provisional Pending UI mixed inherited/AdvCiv-SAS localization defect) Four persistent Main Interface labels remain stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1062)\
+[KI#1062 - (Fixed UI one inherited K-Mod/Base AdvCiv defect plus three AdvCiv-SAS regressions) Four persistent Main Interface labels remained stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1062)\
 [KI#1063 - (Provisional Pending UI AdvCiv-SAS display defect) Culture Breakdown omits slider and process culture](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1063)\
 [KI#1064 - (Provisional Pending Team Battleground regeneration defect) Start assignment mixes alive and ever-alive populations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1064)\
 [KI#1065 - (Provisional Pending inherited Custom Continents regeneration defect) One-Per-Team producer and consumer cross different team thresholds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1065)\
-[KI#1066 - (Provisional Pending UI AdvCiv-SAS font-migration regression) Great Person fitting measures a different font than it renders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1066)\
+[KI#1066 - (Fixed UI AdvCiv-SAS font-migration regression) Great Person fitting measured a different font than it rendered](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1066)\
 [KI#1067 - (Fixed UI AdvCiv-SAS Domestic Advisor repair regression) Debug-selected Free Colony availability executed for the active player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067)\
 [KI#1068 - (Fixed AdvCiv-SAS Sevopedia repair regression) EventTrigger corporation-era inference ignored HQ-building technology gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1068)\
 [KI#1069 - (Fixed UI AdvCiv-SAS World Advisor repair regression) Territory revealed live ownership changes under fog](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1069)\
@@ -10556,6 +10556,8 @@ In `GPUtil.getGreatPeopleText()`, Maximum-types mode builds a candidate Great Pe
 
 The fix measures the text containing `szNewTypes` before assigning it to `szTypes`. A candidate that exceeds the width now stops the loop without being appended, preserving the existing probability ordering and stop-on-first-nonfit behavior. Great Person probabilities, city selection, turn estimates, the None/One display modes and bar geometry remain unchanged. The bug is inherited from the earliest available K-Mod BUG import, and Base AdvCiv 1.14 retains the same one-candidate-late control flow. A narrow regression fixture confirms that the old flow accepted an over-limit candidate while the corrected flow rejects it. Save file 478 screenshots 0062 and 0063 provide the post-fix in-game Maximum-types smoke test, with matching 53% / 42% / 5% data in both bars and an empty refreshed `PythonErr.log`. The separate fixed 230px city-caller mismatch exposed during testing is tracked as KI#237.2.
 
+Update: A later repair-side audit found that SAS's outward Label-font ownership still left the helper measuring untagged candidate text. KI#1066 now measures the same candidate under the configured Label wrapper without changing the unwrapped returned text; this original candidate-selection repair remains valid.
+
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol thanks; reviewed and documented with the help of GPT-5.6-Sol thanks.
 
 <a id="ki-237.2"></a>
@@ -10567,6 +10569,8 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 K-Mod/BUG passed a fixed 230px width to the city-screen `getGreatPeopleText()` caller. Base AdvCiv practical 3784 (`e491d6d576`) merged the scalable HUD into AdvCiv 1.06 and introduced a runtime-scaled `CityRightPanelContents` plus a full-width `GreatPeopleBar`, but retained the old 230px argument when relocating the caller. At wider resolutions the rendered bar therefore had room for more Great Person type/chance entries than the fitting helper was allowed to consider. Base AdvCiv 1.14 retains the same dynamic bar and fixed caller, so this mismatch is inherited from Base AdvCiv rather than introduced by AdvCiv-SAS.
 
 Save file 478 screenshots 0060 and 0061 show the mismatch in Poverty Point: the wider map GP bar displayed all 53% / 42% / 5% types, while the city GP bar prematurely omitted the fitting 5% Scientist. The fix passes `gRect("GreatPeopleBar").width()` to the city caller, matching the map caller and the actual runtime geometry. Great Person probabilities, ordering, bar geometry and the width-fitting policy remain unchanged. Post-fix screenshots 0062 and 0063 confirm that the map and city bars now both display 53% / 42% / 5%; the refreshed `PythonErr.log` remained empty.
+
+Update: A later repair-side audit found that both runtime-width callers rendered with SAS's configurable Label font while the shared helper still measured untagged candidates. KI#1066 makes that measurement font-consistent; this original runtime-width repair remains valid.
 
 Found through runtime testing with the help of wonderingabout thanks; investigated, fixed and documented with the help of GPT-5.6-Sol thanks.
 
@@ -11370,7 +11374,11 @@ The fix retains the translation cache but records the language ID. The ordinary 
 
 AdvCiv-SAS officially supports English only, so this is a low-priority robustness repair rather than a promise of complete multilingual support. Runtime testing after loading a save and changing language confirmed that affected Main Interface labels refreshed without recreating the interface.
 
-This is an AdvCiv-SAS Main Interface localization-cache invalidation regression. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+This is an AdvCiv-SAS Main Interface localization-cache invalidation regression.
+
+Update: A later repair-side audit found four additional persistent translations outside this language guard: the SAS-cached Waiting, End Turn and Waiting for You strings plus K-Mod/Base AdvCiv's cached Field-of-View label. KI#1062 moves all four into the same guarded refresh helper; this original ten-field repair remains valid.
+
+Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
 
 <a id="ki-308"></a>
 
@@ -19249,11 +19257,15 @@ Found as F740/provisional KI#1061 during ChatGPT-5.6-Sol's C031-WIP821 repair-si
 
 <a id="ki-1062"></a>
 
-## KI#1062 - (Provisional Pending UI mixed inherited/AdvCiv-SAS localization defect) Four persistent Main Interface labels remain stale
+## KI#1062 - (Fixed UI one inherited K-Mod/Base AdvCiv defect plus three AdvCiv-SAS regressions) Four persistent Main Interface labels remained stale
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1JZdIsHlHM_tcqSSotww3YsUJfTNsW-uf?usp=sharing).
 
 KI#307 refreshes ten persistent translated Main Interface fields after an in-session language change, but omits Waiting, End Turn, Waiting for You and Field-of-View text. The first three became persistent through SAS caching; the Field-of-View label was already cached in K-Mod/Base AdvC. All four continue displaying the language active when `initState` last ran.
 
-This is low priority because AdvCiv-SAS officially targets English, but it is the same live-language invalidation contract as KI#307. Pending moving the four lookups into the existing language-ID-guarded refresh helper while preserving their SAS font wrappers.
+This is low priority because AdvCiv-SAS officially targets English, but it is the same live-language invalidation contract as KI#307. All four lookups now live in the existing language-ID-guarded refresh helper, preserving the SAS Label wrappers around Waiting and Waiting for You without adding per-frame translation work.
+
+Runtime screenshots 0598 and 0601 confirm that the persistent Waiting label changed in-session from English "Waiting for other Civilizations..." to French "En attente d'autres civilisations..." without recreating the interface.
 
 Found as F741/provisional KI#1062 during ChatGPT-5.6-Sol's C031-WIP839 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
@@ -19289,11 +19301,15 @@ Found as F744/provisional KI#1065 during ChatGPT-5.6-Sol's C031-WIP854 repair-si
 
 <a id="ki-1066"></a>
 
-## KI#1066 - (Provisional Pending UI AdvCiv-SAS font-migration regression) Great Person fitting measures a different font than it renders
+## KI#1066 - (Fixed UI AdvCiv-SAS font-migration regression) Great Person fitting measured a different font than it rendered
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Y4d2JsEtF9NK7ArPcfyEFLJYZngnLkr2?usp=sharing).
 
 Maximum-types Great Person text measures each untagged candidate through `determineWidth`, but both live callers render the result under the configurable SAS Label font. Larger Label fonts can therefore admit a suffix that clips, while smaller fonts can reject one that would fit, in both the map and city Great Person bars.
 
-KI#237 correctly fixed one-candidate-late acceptance and KI#237.2 supplies the real runtime bar width; SAS's later outward font ownership/migration created the remaining measurement mismatch. Pending measuring the candidate under the same configured Label wrapper without returning nested font tags.
+KI#237 correctly fixed one-candidate-late acceptance and KI#237.2 supplies the real runtime bar width; SAS's later outward font ownership/migration created the remaining measurement mismatch. The helper now applies the shared Label wrapper only to the temporary candidate passed to `determineWidth`; it still returns unwrapped text for both callers to wrap once, avoiding nested font tags.
+
+Runtime screenshots 0602 and 0603 confirm that a crowded city Great Person bar fitted and displayed all six candidates under the configured Label font in both English and French.
 
 Found as F745/provisional KI#1066 during ChatGPT-5.6-Sol's C031-WIP860 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
