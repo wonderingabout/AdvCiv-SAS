@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=107 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=108 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,18 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 107 - SAS practical 6499
+### Revision 108 - SAS practical 6500
 
 - **Date:** 2026-09-19
 - **Git commit:** pending
+- **Change:** Added one compact level-2 realized AI-to-human embargo-request provenance row that distinguishes ordinary `CONTACT_STOP_TRADING` initiation from the two intentional `AI_proposeJointWar` fallback redirects that revision 100's generic embargo subject cannot reconstruct.
+
+The row records direct contact versus joint-war attitude/UWAI redirect origin, the actual current worst-enemy embargo target and team-attitude gap used by `AI_proposeEmbargo`, plus the already-selected joint-war target/score and cached UWAI denial when a rejected war request caused the fallback. The generic revision-100 `CONTACT_STOP_TRADING` row remains authoritative for the actual embargo subject. Recording occurs only after the existing embargo helper has succeeded; direct calls add no chooser work, and the UWAI path merely retains the denial result it already computes rather than evaluating it twice.
+
+### Revision 107 - SAS practical 6499
+
+- **Date:** 2026-09-19
+- **Git commit:** `067d8ed44e57c3c5db3e6c0ecad57639a65ba276`
 - **Change:** Added one compact level-2 realized AI-to-human joint-war request row at `AI_proposeJointWar`, complementing revision 100's generic `CONTACT_JOIN_WAR` subject with the live cadence and target-selection rationale that cannot be reconstructed afterward.
 
 The row preserves the shared-war-adjusted mean war age used to scale contact probability, personality contact divisor, selected enemy's combined random/war-duration score and derived random component, selected-war age, the human team's peace counter with that target, and whether UWAI's reasonableness screen was active. It emits only after the existing attitude/UWAI gates have accepted a real request and derives cheap current counters immediately before diplomacy begins; no contact roll, recent-peace gate, target RNG or UWAI denial evaluation is repeated.

@@ -23674,7 +23674,10 @@ void CvPlayerAI::AI_doDiplo()
 				if (AI_contactRoll(CONTACT_STOP_TRADING))
 				{	// <advc> Moved into new function
 					if (!abContacted[kPlayer.getTeam()])
+					{
 						abContacted[kPlayer.getTeam()] = AI_proposeEmbargo(ePlayer);
+						if (gGameRecordLogLevel >= 2 && abContacted[kPlayer.getTeam()]) logSASGameRecordAIEmbargoRequest(*this, ePlayer, SAS_AI_EMBARGO_DIRECT_CONTACT, NO_TEAM, -1, NO_DENIAL);
+					}
 					// </advc>
 				}
 			}
@@ -24369,13 +24372,28 @@ bool CvPlayerAI::AI_proposeJointWar(PlayerTypes eHuman)
 	if(eTowardHuman <= ATTITUDE_ANNOYED)
 	{
 		if(kOurTeam.AI_getWorstEnemy() == eBestTarget && eTowardHuman == ATTITUDE_ANNOYED)
- 			return AI_proposeEmbargo(eHuman);
+		{
+			if (AI_proposeEmbargo(eHuman))
+			{
+				if (gGameRecordLogLevel >= 2) logSASGameRecordAIEmbargoRequest(*this, eHuman, SAS_AI_EMBARGO_JOINT_WAR_ATTITUDE_REDIRECT, eBestTarget, iBestTargetVal, NO_DENIAL);
+				return true;
+			}
+		}
 		return false;
 	}
 	if(getUWAI().isEnabled() && eBestTarget != NO_TEAM)
 	{
-		if(GET_TEAM(eHuman).uwai().declareWarTrade(eBestTarget, getTeam()) != NO_DENIAL)
-			return AI_proposeEmbargo(eHuman);
+		// <!-- custom: Cache the existing UWAI denial once so a successful embargo fallback can preserve its cause without reevaluating the war-trade refusal solely for SASGameRecord. (ChatGPT-5.6-Sol) -->
+		DenialTypes const eJointWarDenial = GET_TEAM(eHuman).uwai().declareWarTrade(eBestTarget, getTeam());
+		if(eJointWarDenial != NO_DENIAL)
+		{
+			if (AI_proposeEmbargo(eHuman))
+			{
+				if (gGameRecordLogLevel >= 2) logSASGameRecordAIEmbargoRequest(*this, eHuman, SAS_AI_EMBARGO_JOINT_WAR_UWAI_REDIRECT, eBestTarget, iBestTargetVal, eJointWarDenial);
+				return true;
+			}
+			return false;
+		}
 	} // </advc.130m>
 	if(eBestTarget == NO_TEAM)
 		return false;

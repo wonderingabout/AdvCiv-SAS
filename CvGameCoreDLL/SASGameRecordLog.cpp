@@ -11658,6 +11658,38 @@ void logSASGameRecordAIJointWarRequest(CvPlayerAI const& kPlayer, PlayerTypes eH
 		iMeanAtWarTurnsX1000, iContactRand, eTarget, iTargetScore, iTargetRandomScore, iTargetAtWarCounter, iHumanPeaceCounter, getUWAI().isEnabled() ? 1 : 0);
 }
 
+// <!-- custom: Preserve why a realized STOP_TRADING request exists; the generic revision-100 contact row remains authoritative for the actual embargo subject.
+// Redirect-only fields describe the already-selected joint-war target and cached UWAI denial; direct embargo contacts use explicit sentinel/NA values and no chooser/RNG work is repeated. (ChatGPT-5.6-Sol) -->
+static char const* getSASGameRecordAIEmbargoRequestOrigin(SASGameRecordAIEmbargoRequestOrigin eOrigin)
+{
+	switch (eOrigin)
+	{
+	case SAS_AI_EMBARGO_DIRECT_CONTACT: return "DIRECT_CONTACT";
+	case SAS_AI_EMBARGO_JOINT_WAR_ATTITUDE_REDIRECT: return "JOINT_WAR_ATTITUDE_REDIRECT";
+	case SAS_AI_EMBARGO_JOINT_WAR_UWAI_REDIRECT: return "JOINT_WAR_UWAI_REDIRECT";
+	default: return "UNKNOWN";
+	}
+}
+
+void logSASGameRecordAIEmbargoRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, SASGameRecordAIEmbargoRequestOrigin eOrigin, TeamTypes eJointWarTarget, int iJointWarTargetScore, DenialTypes eJointWarDenial)
+{
+	CvTeamAI const& kOurTeam = GET_TEAM(kPlayer.getTeam());
+	// <!-- custom: This narrow recorder translation unit does not inherit CoreAI.h's PlayerTypes-aware GET_TEAM shorthand; spell out the player-to-team conversion as for the revision-107 joint-war logger. See also KI#436. (ChatGPT-5.6-Sol) -->
+	TeamTypes const eHumanTeam = GET_PLAYER(eHuman).getTeam();
+	TeamTypes const eEmbargoTarget = kOurTeam.AI_getWorstEnemy();
+	// <!-- custom: A successful AI_proposeEmbargo necessarily selected the current worst enemy; assert that invariant before recording its realized target. (ChatGPT-5.6-Sol) -->
+	FAssert(eEmbargoTarget != NO_TEAM);
+	int const iTeamAttitudeHuman = kOurTeam.AI_getAttitudeVal(eHumanTeam);
+	int const iTeamAttitudeTarget = kOurTeam.AI_getAttitudeVal(eEmbargoTarget);
+	int const iJointWarAtWarCounter = (eJointWarTarget == NO_TEAM ? -1 : kOurTeam.AI_getAtWarCounter(eJointWarTarget));
+	int const iJointWarRandomScore = (eJointWarTarget == NO_TEAM ? -1 : iJointWarTargetScore - std::min(20, iJointWarAtWarCounter) * 1000);
+	char const* szJointWarDenial = (eOrigin == SAS_AI_EMBARGO_JOINT_WAR_UWAI_REDIRECT ? getSASGameRecordDenialType(eJointWarDenial) : "-");
+	logSASGameRecord("GAME_RECORD_AI_EMBARGO_REQUEST turn=%d player=%d team=%d human=%d humanTeam=%d attitudeValue=%d origin=%s embargoTargetTeam=%d teamAttitudeHuman=%d teamAttitudeTarget=%d attitudeGap=%d jointWarTargetTeam=%d jointWarTargetScore=%d jointWarTargetRandomScore=%d jointWarTargetAtWarCounter=%d jointWarTargetIsEmbargoTarget=%d jointWarDenial=%s",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eHuman, eHumanTeam, kPlayer.AI_getAttitudeVal(eHuman), getSASGameRecordAIEmbargoRequestOrigin(eOrigin),
+		eEmbargoTarget, iTeamAttitudeHuman, iTeamAttitudeTarget, iTeamAttitudeHuman - iTeamAttitudeTarget, eJointWarTarget, iJointWarTargetScore, iJointWarRandomScore,
+		iJointWarAtWarCounter, (eJointWarTarget != NO_TEAM && eJointWarTarget == eEmbargoTarget) ? 1 : 0, szJointWarDenial);
+}
+
 static char const* getSASGameRecordAIWarTradePaymentPath(SASGameRecordAIWarTradePaymentPath ePaymentPath)
 {
 	switch (ePaymentPath)

@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 107 };
+enum { SAS_GAME_RECORD_REVISION = 108 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -549,6 +549,15 @@ void logSASGameRecordAIDiploContactIntent(CvPlayerAI const& kPlayer, PlayerTypes
 // <!-- custom: AI_proposeJointWar uses war-duration-adjusted contact cadence plus randomized target selection that the generic CONTACT_JOIN_WAR subject cannot reconstruct.
 // Preserve only the two irrecoverable live chooser values; the recorder derives selected-target counters/static context after the successful gates and before diplomacy begins. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIJointWarRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, TeamTypes eTarget, int iTargetScore, int iMeanAtWarTurnsX1000);
+// <!-- custom: A realized embargo can originate from the ordinary STOP_TRADING contact path or from two distinct AI_proposeJointWar redirects; revision 100 preserves the final embargo subject but cannot reconstruct that origin.
+// Keep the tiny origin vocabulary recorder-local and pair it with the already-selected joint-war target/denial context only when such a redirect actually succeeds. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordAIEmbargoRequestOrigin
+{
+	SAS_AI_EMBARGO_DIRECT_CONTACT,
+	SAS_AI_EMBARGO_JOINT_WAR_ATTITUDE_REDIRECT,
+	SAS_AI_EMBARGO_JOINT_WAR_UWAI_REDIRECT
+};
+void logSASGameRecordAIEmbargoRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, SASGameRecordAIEmbargoRequestOrigin eOrigin, TeamTypes eJointWarTarget, int iJointWarTargetScore, DenialTypes eJointWarDenial);
 // <!-- custom: AI_proposeWarTrade has richer realized joint-war hiring provenance than the generic CONTACT_JOIN_WAR package can preserve.
 // Keep only the two execution paths recorder-local; the generic contact row remains authoritative for the final trade items. (ChatGPT-5.6-Sol) -->
 enum SASGameRecordAIWarTradePaymentPath

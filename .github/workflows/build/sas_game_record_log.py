@@ -908,6 +908,78 @@ def check_ai_joint_war_request_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_embargo_request_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI embargo request provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	expected_origins = [
+		"SAS_AI_EMBARGO_DIRECT_CONTACT",
+		"SAS_AI_EMBARGO_JOINT_WAR_ATTITUDE_REDIRECT",
+		"SAS_AI_EMBARGO_JOINT_WAR_UWAI_REDIRECT",
+	]
+	m = re.search(r"enum\s+SASGameRecordAIEmbargoRequestOrigin\s*\{(?P<body>.*?)\};", header_text, flags=re.DOTALL)
+	if m is None:
+		failures.append(f"{REVISION_HEADER}: missing SASGameRecordAIEmbargoRequestOrigin")
+	else:
+		tokens = re.findall(r"^\s*(SAS_AI_EMBARGO_[A-Z0-9_]+)\s*,?\s*$", m.group("body"), flags=re.MULTILINE)
+		if tokens != expected_origins:
+			failures.append(f"{REVISION_HEADER}: AI embargo origin vocabulary changed; expected {expected_origins}, found {tokens}")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_EMBARGO_REQUEST", "origin=%s", "embargoTargetTeam=%d", "teamAttitudeHuman=%d",
+		"teamAttitudeTarget=%d", "attitudeGap=%d", "jointWarTargetTeam=%d", "jointWarTargetScore=%d",
+		"jointWarTargetRandomScore=%d", "jointWarTargetAtWarCounter=%d", "jointWarTargetIsEmbargoTarget=%d",
+		"jointWarDenial=%s", "getSASGameRecordDenialType",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI embargo request diagnostic token {required}")
+	for token in expected_origins:
+		if record_text.count(f"case {token}:") != 1:
+			failures.append(f"{REVISION_SOURCE}: AI embargo origin {token} must have exactly one stringifier case")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	m = re.search(r"bool\s+CvPlayerAI::AI_proposeJointWar\([^)]*\)\s*\{(?P<body>.*?)^\}\s*\n\n/\*\s*Caller ensures that both players", player_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		failures.append(f"{PLAYER_AI_SOURCE}: could not locate AI_proposeJointWar for embargo provenance")
+	else:
+		body = m.group("body")
+		if body.count("logSASGameRecordAIEmbargoRequest(") != 2:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeJointWar must retain exactly two realized embargo-redirect bridges")
+		for token in expected_origins[1:]:
+			if body.count(token) != 1:
+				failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeJointWar must use {token} exactly once")
+		if body.count("AI_proposeEmbargo(eHuman)") != 2:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeJointWar live embargo fallback count changed")
+		if body.count("declareWarTrade(eBestTarget, getTeam())") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeJointWar must evaluate UWAI joint-war denial exactly once")
+		if "DenialTypes const eJointWarDenial" not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: UWAI embargo redirect must retain the already-computed denial instead of reevaluating it for logging")
+
+	if player_text.count("SAS_AI_EMBARGO_DIRECT_CONTACT") != 1:
+		failures.append(f"{PLAYER_AI_SOURCE}: ordinary STOP_TRADING path must bridge the direct embargo origin exactly once")
+	if not re.search(r"abContacted\[kPlayer\.getTeam\(\)\]\s*=\s*AI_proposeEmbargo\(ePlayer\);\s*if\s*\(gGameRecordLogLevel\s*>=\s*2\s*&&\s*abContacted\[kPlayer\.getTeam\(\)\]\)\s*logSASGameRecordAIEmbargoRequest\([^;]+SAS_AI_EMBARGO_DIRECT_CONTACT", player_text, flags=re.DOTALL):
+		failures.append(f"{PLAYER_AI_SOURCE}: direct embargo provenance must remain success-only and level-2 pre-gated")
+
+	m = re.search(r"bool\s+CvPlayerAI::AI_proposeEmbargo\([^)]*\)\s*\{(?P<body>.*?)^\}\s*\n\n// <!-- custom: Recorder-only resource chooser", player_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		failures.append(f"{PLAYER_AI_SOURCE}: could not locate AI_proposeEmbargo")
+	else:
+		body = m.group("body")
+		if body.count("logSASGameRecordAIDiploContactIntent(") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeEmbargo must retain exactly one generic CONTACT_STOP_TRADING subject bridge")
+		if "logSASGameRecordAIEmbargoRequest(" in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: embargo origin must remain caller-owned so AI_proposeEmbargo's public gameplay signature stays unchanged")
+		if re.search(r"SyncRand|getSorenRand|MapRand", body):
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_proposeEmbargo must remain RNG-free")
+	return failures
+
+
 def check_ai_war_trade_intent_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -1054,6 +1126,7 @@ def main() -> int:
 	failures.extend(check_ai_diplo_vote_provenance(args.repo_root))
 	failures.extend(check_ai_diplo_contact_provenance(args.repo_root))
 	failures.extend(check_ai_city_trade_intent_provenance(args.repo_root))
+	failures.extend(check_ai_embargo_request_provenance(args.repo_root))
 	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
 	failures.extend(check_ai_war_trade_intent_provenance(args.repo_root))
 	failures.extend(check_ai_conquer_city_provenance(args.repo_root))
@@ -1064,7 +1137,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-city-trade/AI-joint-war/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-city-trade/AI-embargo/AI-joint-war/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 
