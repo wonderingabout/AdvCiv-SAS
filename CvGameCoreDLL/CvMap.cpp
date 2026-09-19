@@ -47,7 +47,8 @@ CvMap::~CvMap()
 void CvMap::init(CvMapInitData* pInitInfo)
 {
 	PROFILE("CvMap::init");
-	gDLL->logMemState(CvString::format("CvMap::init begin - world size=%s, climate=%s, sealevel=%s, num custom options=%6",
+	// <!-- custom: K-Mod's terminal printf conversion was malformed, so the custom-map-option count could enter CRT format-error handling before map setup; complete it as an integer conversion. See KI#1034. (GPT-5.6-Sol) -->
+	gDLL->logMemState(CvString::format("CvMap::init begin - world size=%s, climate=%s, sealevel=%s, num custom options=%d",
 			GC.getInfo(GC.getInitCore().getWorldSize()).getDescription(),
 			GC.getInfo(GC.getInitCore().getClimate()).getDescription(),
 			GC.getInfo(GC.getInitCore().getSeaLevel()).getDescription(),

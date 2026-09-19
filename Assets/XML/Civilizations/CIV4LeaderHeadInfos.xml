@@ -11193,6 +11193,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 					<iWeightModifier>20</iWeightModifier>
 				</ImprovementWeightModifier>
 			</ImprovementWeightModifiers>
+			<!-- custom: Remove the SAS-specific extra trailing O typo so Stalin's Renaissance peace intro resolves to the defined audio script. See KI#1031. (GPT-5.6-Sol) -->
 			<DiplomacyIntroMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
@@ -11208,7 +11209,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTROO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>

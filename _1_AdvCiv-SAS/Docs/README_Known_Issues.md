@@ -1142,10 +1142,10 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1028 - (Provisional Pending inherited AdvC lifecycle defect) Reopening Hall of Fame loses its native cleanup registration](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1028)\
 [KI#1029 - (Provisional Pending Architectural inherited wrapped-map iterator defect, exposed by SAS Arena) Radius iterators can repeat physical plots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1029)\
 [KI#1030 - (Provisional Pending UI inherited AdvC Turn Log defect) Persistent NO_TECH discounts a nonexistent completion message](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1030)\
-[KI#1031 - (Provisional Pending SAS data regression) Stalin's Renaissance peace intro references a nonexistent audio script](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1031)\
+[KI#1031 - (Fixed SAS data regression) Stalin's Renaissance peace intro referenced a nonexistent audio script](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1031)\
 [KI#1032 - (Provisional Pending UI inherited AdvC SPaH defect) Hidden randomized points omit their disclosure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1032)\
 [KI#1033 - (Provisional Pending UI inherited AdvC optional-alert defect) Multi-copy resource changes duplicate third-party alerts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1033)\
-[KI#1034 - (Provisional Pending inherited K-Mod diagnostic defect) CvMap initialization uses an incomplete printf conversion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1034)\
+[KI#1034 - (Fixed inherited K-Mod diagnostic defect) CvMap initialization used an incomplete printf conversion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1034)\
 [KI#1035 - (Provisional Pending AdvCiv-SAS maintenance repair regression) Vassal city loss refreshes master maintenance before deletion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1035)\
 [KI#1036 - (Provisional Pending inherited BtS/K-Mod/AdvC AI valuation defect left incomplete by SAS) Recovered Conscript and Defy-Resolution anger layers count as one citizen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1036)\
 [KI#1037 - (Provisional Pending AdvCiv-SAS Worker AI regression) Productive-feature Phase 0 ignores other affected cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1037)\
@@ -18908,11 +18908,13 @@ Found as F709/provisional KI#1030 during ChatGPT-5.6-Sol's C031-WIP678 post-prim
 
 <a id="ki-1031"></a>
 
-## KI#1031 - (Provisional Pending SAS data regression) Stalin's Renaissance peace intro references a nonexistent audio script
+## KI#1031 - (Fixed SAS data regression) Stalin's Renaissance peace intro referenced a nonexistent audio script
 
 Stalin's Renaissance `DiplomacyIntroMusicPeace` uses `AS2D_DIPLO_STALIN_EARLY_INTROO`, while every neighboring era and the actual Audio2DScript use `AS2D_DIPLO_STALIN_EARLY_INTRO`. A full current audio-reference census found this as the only unmatched non-definition `AS2D_*`/`AS3D_*` reference, so peaceful Renaissance diplomacy cannot resolve the intended intro through the normal audio lookup.
 
-SAS practical 4880 introduced the per-era Stalin mapping and this one extra trailing `O`; Base AdvC does not contain it. Pending correcting the XML reference and adding a static check that every non-empty leader diplomacy-audio reference names a defined script.
+SAS practical 4880 introduced the per-era Stalin mapping and this one extra trailing `O`; Base AdvC does not contain it. Corrected the Renaissance reference and added a CI check that resolves every non-empty leader diplomacy-audio reference through the mod-local `Audio2DScripts.xml` and `AudioDefines.xml` tables, including a non-empty final filename.
+
+The focused check passes locally for all 500 current non-empty leader diplomacy-audio references. An in-game Stalin Renaissance peace-intro check remains optional because the static check exercises the exact broken cross-file relationship.
 
 Found as F710/provisional KI#1031 during ChatGPT-5.6-Sol's C031-WIP679 post-primary data/cross-file pass; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
@@ -18938,11 +18940,13 @@ Found as F712/provisional KI#1033 during ChatGPT-5.6-Sol's C031-WIP681 post-prim
 
 <a id="ki-1034"></a>
 
-## KI#1034 - (Provisional Pending inherited K-Mod diagnostic defect) CvMap initialization uses an incomplete printf conversion
+## KI#1034 - (Fixed inherited K-Mod diagnostic defect) CvMap initialization used an incomplete printf conversion
 
 Every `CvMap::init` sends `CvString::format` a memory-log format ending in `num custom options=%6`. `%6` is only a width fragment without a conversion specifier, so the intended integer cannot be formatted correctly and the CRT receives malformed input; depending on its error result, `CvString::formatv` can also mistake that failure for truncation and retry buffer growth repeatedly.
 
-K-Mod history already contains the malformed literal, and Base AdvC 1.14/SAS retain it. A mechanical current scan found no second dangling conversion of this kind. Pending changing it to `%d`—no surrounding alignment indicates that `%6d` width was intended—and adding a lightweight static regression check for incomplete terminal conversions.
+K-Mod history already contains the malformed literal, and Base AdvC 1.14/SAS retained it. A mechanical current scan found no second dangling conversion of this kind. Changed it to `%d`—no surrounding alignment indicates that `%6d` width was intended. A dedicated CI check for this single diagnostic literal would add disproportionate maintenance, unlike KI#1031's broad cross-file audio-reference check.
+
+Source review confirms the intended integer argument now has a complete conversion. Runtime validation requires the normal DLL compile and map-generation smoke test because this diagnostic path executes during every `CvMap::init`.
 
 Found as F713/provisional KI#1034 during ChatGPT-5.6-Sol's C031-WIP682 post-primary diagnostic/format pass; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 

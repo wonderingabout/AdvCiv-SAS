@@ -96,6 +96,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
 - [`build/define_tag_refs.py`](#builddefine_tag_refspy)
 - [`build/raw_getinfotype.py`](#buildraw_getinfotypepy)
 - [`build/tech_audio.py`](#buildtech_audiopy)
+- [`build/leader_audio.py`](#buildleader_audiopy)
 - [`build/opening_music.py`](#buildopening_musicpy)
 - [`build/bbai_log.py`](#buildbbai_logpy)
 - [`build/sas_game_record_log.py`](#buildsas_game_record_logpy)
@@ -274,6 +275,10 @@ Verifies runtime Python files do not add raw `getInfoTypeForString(...)` or `CvU
 ### `build/tech_audio.py`
 
 Verifies every technology's normal and multiplayer audio reference resolves through the mod-local `Audio2DScripts.xml` and `AudioDefines.xml` tables to a non-empty filename, that each technology keeps a distinct spoken recording, and that no technology-specific `AS2D_TECH_*` script remains orphaned after a technology is removed or renamed. `AS2D_TECH_GENERIC` is the intentional reusable exception. Mod-local resolution matters because missing entries in these replacement audio tables are not inherited from base Civ4; this check would catch the missing Drama entries, malformed Communism multiplayer script ID, wrong-layer Aesthetics multiplayer reference, and stale removed-tech scripts found during a technology rework.
+
+### `build/leader_audio.py`
+
+Verifies every non-empty leader diplomacy-audio reference resolves through the mod-local `Audio2DScripts.xml` and `AudioDefines.xml` tables to a non-empty filename. This catches per-era mapping typos such as Stalin's former Renaissance `AS2D_DIPLO_STALIN_EARLY_INTROO` reference instead of silently losing the intended diplomacy intro. See [KI#1031](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1031).
 
 ### `build/opening_music.py`
 
