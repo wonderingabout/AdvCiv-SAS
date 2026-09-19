@@ -1079,6 +1079,8 @@ public:
 	int getEventTriggerWeight(EventTriggerTypes eTrigger) const;													// Exposed to python
 
 	DllExport void addMessage(CvTalkingHeadMessage const& kMessage);
+	// <!-- custom: Record actual interturn technology-completion notices so Turn Log auto-opening discounts only messages that were produced; this state is ephemeral and does not alter the save format. See KI#1030. (GPT-5.6-Sol) -->
+	void noteNewTechCompletionMessage();
 	void showMissedMessages();
 	void clearMessages();
 	DllExport const CvMessageQueue& getGameMessages() const;
@@ -1418,7 +1420,9 @@ protected:  // <advc.210>
 	// <advc.106b>
 	std::vector<CvTalkingHeadMessage*> m_aMajorMsgs;
 	std::vector<CvTalkingHeadMessage*> m_aHotSeatMsgs;
-	int m_iNewMessages; // </advc.106b>
+	int m_iNewMessages;
+	// <!-- custom: Ephemeral counterpart to m_iNewMessages; count only actual technology-completion notices in the current interturn window. See KI#1030. (GPT-5.6-Sol) -->
+	int m_iNewTechCompletionMessages; // </advc.106b>
 	// advc.074:
 	mutable CLinkList<std::pair<PlayerTypes,BonusTypes> > m_cancelingExport;
 

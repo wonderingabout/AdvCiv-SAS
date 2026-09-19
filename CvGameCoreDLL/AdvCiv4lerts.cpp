@@ -260,27 +260,30 @@ void BonusThirdPartiesAlert::check()
 		PlayerTypes const eFrom = itFrom->getID();
 		if (eFrom == m_eOwner)
 			continue;
-		vector<int> aiNewDeals;
+		// <!-- custom: Preserve multisets for quantity-aware messages, but visit each changed exporter/recipient/resource relation only once; a 0-to-2 change therefore cannot emit duplicate alerts. See KI#1033. (GPT-5.6-Sol) -->
+		set<int> aiNewDeals;
 		set_difference(updatedDeals[eFrom].begin(), updatedDeals[eFrom].end(),
 				m_exportDeals[eFrom].begin(), m_exportDeals[eFrom].end(),
 				inserter(aiNewDeals, aiNewDeals.begin()));
-		vector<int> aiMissingDeals;
+		set<int> aiMissingDeals;
 		set_difference(m_exportDeals[eFrom].begin(), m_exportDeals[eFrom].end(),
 				updatedDeals[eFrom].begin(), updatedDeals[eFrom].end(),
 				inserter(aiMissingDeals, aiMissingDeals.begin()));
-		for (size_t i = 0; i < aiNewDeals.size(); i++)
+		for (set<int>::const_iterator it = aiNewDeals.begin(); it != aiNewDeals.end(); ++it)
 		{
-			int iNewCount = updatedDeals[eFrom].count(aiNewDeals[i]);
-			int iOldCount = m_exportDeals[eFrom].count(aiNewDeals[i]);
+			int const iData = *it;
+			int const iNewCount = updatedDeals[eFrom].count(iData);
+			int const iOldCount = m_exportDeals[eFrom].count(iData);
 			FAssert(iNewCount > iOldCount);
-			showMessage(eFrom, aiNewDeals[i], iNewCount, iOldCount);
+			showMessage(eFrom, iData, iNewCount, iOldCount);
 		}
-		for (size_t i = 0; i < aiMissingDeals.size(); i++)
+		for (set<int>::const_iterator it = aiMissingDeals.begin(); it != aiMissingDeals.end(); ++it)
 		{
-			int iNewCount = updatedDeals[eFrom].count(aiMissingDeals[i]);
-			int iOldCount = m_exportDeals[eFrom].count(aiMissingDeals[i]);
+			int const iData = *it;
+			int const iNewCount = updatedDeals[eFrom].count(iData);
+			int const iOldCount = m_exportDeals[eFrom].count(iData);
 			FAssert(iNewCount < iOldCount);
-			showMessage(eFrom, aiMissingDeals[i], iNewCount, iOldCount);
+			showMessage(eFrom, iData, iNewCount, iOldCount);
 		}
 		m_exportDeals[eFrom] = updatedDeals[eFrom];
 	}

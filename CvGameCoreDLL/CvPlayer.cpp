@@ -560,6 +560,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_iInflationModifier = 0;
 	m_iChoosingFreeTechCount = 0; // K-Mod
 	m_iNewMessages = 0; // advc.106b
+	m_iNewTechCompletionMessages = 0; // <!-- custom: Reset the non-serialized Turn Log completion-message count with its parent count. See KI#1030. (GPT-5.6-Sol) -->
 	m_iButtonPopupsRelaunching = 0; // advc.004x
 	m_uiStartTime = 0;
 	m_eReminderPending = NO_CIVIC; // advc.004x
@@ -2737,7 +2738,10 @@ void CvPlayer::setHumanDisabled(bool bNewVal)
 				getID(), szReplayText, eColorHighlightText);
 	}
 	if (!bNewVal)
+	{
 		m_iNewMessages = 0; // Don't open Event Log when coming out of Auto Play
+		m_iNewTechCompletionMessages = 0; // <!-- custom: The paired completion count belongs to the same discarded autoplay window. See KI#1030. (GPT-5.6-Sol) -->
+	}
 }
 
 // <advc.127>
@@ -3065,7 +3069,10 @@ void CvPlayer::doTurn()
 				MESSAGE_TYPE_EOT, 0, eColorLightGrey);
 	}
 	if (isHuman())
+	{
 		m_iNewMessages = 0;
+		m_iNewTechCompletionMessages = 0; // <!-- custom: Start both interturn message counts together. See KI#1030. (GPT-5.6-Sol) -->
+	}
 	/*  This way, NewMessages is never reset for non-humans. It is reset in
 		setHumanDisabled though, i.e. when coming out of AI Auto Play. */
 	if (isHuman() && isActive())
@@ -11680,6 +11687,15 @@ void CvPlayer::addMessage(CvTalkingHeadMessage const& kMessage)
 	} // </advc.106b>
 }
 
+// <!-- custom: Mirror addMessage's interturn eligibility for the specific completion notice identified at its producer; unlike persistent NO_TECH, this proves that a discounted message exists. See KI#1030. (GPT-5.6-Sol) -->
+void CvPlayer::noteNewTechCompletionMessage()
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isInBetweenTurns() && isActive())
+		return;
+	m_iNewTechCompletionMessages++;
+}
+
 // <advc.106b>
 void CvPlayer::clearMessageCopies(std::vector<CvTalkingHeadMessage*>* pContainer)
 {
@@ -11724,15 +11740,15 @@ void CvPlayer::postProcessMessages()
 		isn't available at the start of the 0th turn) */
 	int iLimit = (kGame.getElapsedGameTurns() <= 0 ? MAX_INT :
 			getStartOfTurnMessageLimit());
-	/* Finishing a tech should generate a message, which is rather superfluous
-	   b/c of the splash screen. Don't want to suppress it b/c it should go
-	   into the log, but don't count it when deciding whether to open the log
-	   b/c the tech finished message doesn't take up much attention. */
-	if (getCurrentResearch() == NO_TECH)
-		m_iNewMessages--;
+	// <!-- custom: Update AdvC's adjacent explanation to describe the exact completion-notice tracking that replaces its NO_TECH heuristic. See KI#1030. (GPT-5.6-Sol) -->
+	// Finishing a tech generates a message that is rather superfluous b/c of the splash screen; keep it in the log, but don't count the actual completion notice when deciding whether to open the log.
+	// <!-- custom: AdvC inferred that notice from current research being NO_TECH, which stays true after the technology tree is exhausted and discounted unrelated messages.
+	// Track the real producer instead, including multiple genuine completion notices. See KI#1030. (GPT-5.6-Sol) -->
+	FAssert(m_iNewTechCompletionMessages <= m_iNewMessages);
+	int const iRelevantNewMessages = std::max(0, m_iNewMessages - m_iNewTechCompletionMessages);
 	// Don't open the Turn Log when there's only first-contact diplo
 	bool bRelevantDiplo = false;
-	if (!m_listDiplomacy.empty() && m_iNewMessages > 0)
+	if (!m_listDiplomacy.empty() && iRelevantNewMessages > 0)
 	{
 		TCHAR const* aszRelevantNonOffers[] = { "CANCEL_DEAL", "RELIGION_PRESSURE",
 			"CIVIC_PRESSURE", "JOIN_WAR", "STOP_TRADING",
@@ -11765,8 +11781,8 @@ void CvPlayer::postProcessMessages()
 	bool const bHotSeat = kGame.isHotSeat();
 	if (!kGame.getAIAutoPlay())
 	{
-		if (iLimit >= 0 && (m_iNewMessages > iLimit ||
-			(m_iNewMessages > 0 && bRelevantDiplo)))
+		if (iLimit >= 0 && (iRelevantNewMessages > iLimit ||
+			(iRelevantNewMessages > 0 && bRelevantDiplo)))
 		{
 			gDLL->UI().clearEventMessages();
 			/*  Show major events even if the Turn Log gets opened. As with

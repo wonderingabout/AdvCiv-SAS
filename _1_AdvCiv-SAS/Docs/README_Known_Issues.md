@@ -1141,10 +1141,10 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1027 - (Provisional Pending inherited AdvC gameplay defect) Shelf head-unit shortcuts miss ships behind an invisible foreign unit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1027)\
 [KI#1028 - (Provisional Pending inherited AdvC lifecycle defect) Reopening Hall of Fame loses its native cleanup registration](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1028)\
 [KI#1029 - (Provisional Pending Architectural inherited wrapped-map iterator defect, exposed by SAS Arena) Radius iterators can repeat physical plots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1029)\
-[KI#1030 - (Provisional Pending UI inherited AdvC Turn Log defect) Persistent NO_TECH discounts a nonexistent completion message](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1030)\
+[KI#1030 - (Fixed UI inherited AdvC Turn Log defect) Persistent NO_TECH discounted a nonexistent completion message](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1030)\
 [KI#1031 - (Fixed SAS data regression) Stalin's Renaissance peace intro referenced a nonexistent audio script](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1031)\
-[KI#1032 - (Provisional Pending UI inherited AdvC SPaH defect) Hidden randomized points omit their disclosure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1032)\
-[KI#1033 - (Provisional Pending UI inherited AdvC optional-alert defect) Multi-copy resource changes duplicate third-party alerts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1033)\
+[KI#1032 - (Fixed UI inherited AdvC SPaH defect) Hidden randomized points omitted their disclosure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1032)\
+[KI#1033 - (Fixed UI inherited AdvC optional-alert defect) Multi-copy resource changes duplicated third-party alerts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1033)\
 [KI#1034 - (Fixed inherited K-Mod diagnostic defect) CvMap initialization used an incomplete printf conversion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1034)\
 [KI#1035 - (Provisional Pending AdvCiv-SAS maintenance repair regression) Vassal city loss refreshes master maintenance before deletion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1035)\
 [KI#1036 - (Provisional Pending inherited BtS/K-Mod/AdvC AI valuation defect left incomplete by SAS) Recovered Conscript and Defy-Resolution anger layers count as one citizen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1036)\
@@ -18898,11 +18898,11 @@ Found as F708/provisional KI#1029 during ChatGPT-5.6-Sol's C031-WIP677 post-prim
 
 <a id="ki-1030"></a>
 
-## KI#1030 - (Provisional Pending UI inherited AdvC Turn Log defect) Persistent NO_TECH discounts a nonexistent completion message
+## KI#1030 - (Fixed UI inherited AdvC Turn Log defect) Persistent NO_TECH discounted a nonexistent completion message
 
 At human turn activation, AdvC subtracts one from the interturn-message count whenever current research is `NO_TECH`, intending to ignore the technology-completion notice already represented by its splash. After the entire technology tree is exhausted, `NO_TECH` persists without any completion message; exactly `MessageLimit + 1` genuine messages are then reduced to the configured threshold and can fail to auto-open the Turn Log. The messages themselves remain stored.
 
-AdvC practical 1253 introduced the heuristic and Base AdvC 1.14/SAS retain it. Pending tracking an actual completion notice during the relevant window or excluding that specific message at production time, rather than inferring its existence from an empty research queue.
+AdvC practical 1253 introduced the heuristic and Base AdvC 1.14/SAS retained it. The technology-announcement producer now records each actual full-completion notice that belongs to the interturn message window, and Turn Log auto-opening discounts exactly that count instead of inferring a notice from an empty research queue. The paired counts remain ephemeral and reset together, so no save-format change is involved.
 
 Found as F709/provisional KI#1030 during ChatGPT-5.6-Sol's C031-WIP678 post-primary deferred-note pass; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
@@ -18920,21 +18920,21 @@ Found as F710/provisional KI#1031 during ChatGPT-5.6-Sol's C031-WIP679 post-prim
 
 <a id="ki-1032"></a>
 
-## KI#1032 - (Provisional Pending UI inherited AdvC SPaH defect) Hidden randomized points omit their disclosure
+## KI#1032 - (Fixed UI inherited AdvC SPaH defect) Hidden randomized points omitted their disclosure
 
 SPaH can randomize an unequal start-point distribution while deliberately displaying only configured pre-randomization values. Its Settings/replay text contains an intended `Not shown: randomization` disclosure guarded by serialized `randPoints`, but new-game code never sets that field true after `randomizePoints`, so the displayed setup silently looks exact.
 
-AdvC practical 1253 introduced the randomization, flag and disclosure without the true assignment; practical 1395 initialized the field false but still never set it. Pending resetting it at SPaH initialization, setting it only when randomization actually executes, and preserving the existing serialization so load/replay presentation remains truthful.
+AdvC practical 1253 introduced the randomization, flag and disclosure without the true assignment; practical 1395 initialized the field false but still never set it. SPaH now resets the flag for each initialization and sets it only after reaching a randomization path with at least four AI civilizations. The existing serialization and Settings/replay disclosure then preserve and present the truth across save/load without changing the save layout.
 
 Found as F711/provisional KI#1032 during ChatGPT-5.6-Sol's C031-WIP680 post-primary deferred UI/config pass; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-1033"></a>
 
-## KI#1033 - (Provisional Pending UI inherited AdvC optional-alert defect) Multi-copy resource changes duplicate third-party alerts
+## KI#1033 - (Fixed UI inherited AdvC optional-alert defect) Multi-copy resource changes duplicated third-party alerts
 
 The default-off Bonus Third Parties alert stores resource relations in multisets and iterates every element of their multiset difference. A supported 0-to-2 or 2-to-0 change for the same exporter, recipient and resource therefore supplies the identical key twice, recomputes the same aggregate counts twice and emits two identical strategic-resource notifications; underlying deals and quantities remain correct.
 
-AdvC practical 1287 introduced the multiset snapshot and element-wise delta loop together, and Base AdvC 1.14/SAS retain it. Pending iterating each distinct changed relation once while keeping the multisets for quantity-aware messages and preserving visibility, war/death and recent-stop-trading suppression.
+AdvC practical 1287 introduced the multiset snapshot and element-wise delta loop together, and Base AdvC 1.14/SAS retained it. The snapshots remain multisets so quantity-aware messages still receive exact old/new counts, while their set differences now collect distinct changed relations and invoke the existing visibility, strategic-resource, war/death and recent-stop-trading handling only once per relation.
 
 Found as F712/provisional KI#1033 during ChatGPT-5.6-Sol's C031-WIP681 post-primary optional-alert pass; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 

@@ -4676,6 +4676,10 @@ void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes
 				szSound, // advc.156
 				MESSAGE_TYPE_MINOR_EVENT, // advc.106b
 				NULL, eColorTechText);
+		// <!-- custom: Identify the actual full-completion notice at its producer so Turn Log accounting no longer guesses from persistent NO_TECH state.
+		// This complements rather than removes the logged notice. See KI#1030. (GPT-5.6-Sol) -->
+		if (!bPartial)
+			GET_PLAYER(kPlayer.getID()).noteNewTechCompletionMessage();
 				// K-Mod. Play the quote sound always, the "MP" sound is boring.
 				//(bSound ? GC.getInfo(eIndex).getSound() : NULL)
 	}
