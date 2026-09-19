@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 102 };
+enum { SAS_GAME_RECORD_REVISION = 103 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -155,6 +155,102 @@ enum SASGameRecordAIGreatPersonAction
 // <!-- custom: Record one realized ordinary Great Person decision/continuation from AI_greatPersonMove.
 // Scores, slow-action details and movement state are values gameplay already computed; callers pre-gate at GameRecord level 2+ and never repeat valuation, candidate search, pathfinding or RNG for logging. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIGreatPersonDecision(CvUnitAI const& kUnit, CvPlot const* pDecisionPlot, SASGameRecordAIGreatPersonAction eAction, int iChoiceRank, int iSelectedValue, int iScoreThreshold, int iSlowValue, int iSlowBaseValue, int iSlowPathTurns, MissionAITypes eSlowMissionAI, CvCity const* pSlowCity, SpecialistTypes eSpecialist, BuildingTypes eBuilding, int iDiscoverValue, TechTypes eDiscoverTech, int iGoldenAgeValue, int iTradeValue, int iCultureValue, CvPlot const* pTargetPlot, MissionAITypes ePreviousMissionAI, CvPlot const* pPreviousMissionPlot);
+
+// <!-- custom: Closed recorder-only policy stages for AI_generalMove. The stage names preserve the actual ordered fallback chain rather than inventing a cross-action score that Great-General AI does not compute. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordAIGreatGeneralStage
+{
+	SAS_AI_GREAT_GENERAL_PREFERRED_INSTRUCTOR,
+	SAS_AI_GREAT_GENERAL_FIRST_ACADEMY,
+	SAS_AI_GREAT_GENERAL_FIRST_INSTRUCTOR,
+	SAS_AI_GREAT_GENERAL_DANGER_LEAD,
+	SAS_AI_GREAT_GENERAL_SECOND_ACADEMY,
+	SAS_AI_GREAT_GENERAL_SECOND_INSTRUCTOR,
+	SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK_CITY,
+	SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK,
+	SAS_AI_GREAT_GENERAL_JOIN_LIMIT_2,
+	SAS_AI_GREAT_GENERAL_ACADEMY_LIMIT_2,
+	SAS_AI_GREAT_GENERAL_JOIN_LIMIT_4,
+	SAS_AI_GREAT_GENERAL_RANDOM_CONSTRUCT,
+	SAS_AI_GREAT_GENERAL_FINAL_JOIN,
+	SAS_AI_GREAT_GENERAL_RETREAT,
+	SAS_AI_GREAT_GENERAL_STRANDED,
+	SAS_AI_GREAT_GENERAL_SAFETY,
+	SAS_AI_GREAT_GENERAL_SKIP
+};
+enum SASGameRecordAIGreatGeneralAction
+{
+	SAS_AI_GREAT_GENERAL_ACTION_JOIN,
+	SAS_AI_GREAT_GENERAL_ACTION_CONSTRUCT,
+	SAS_AI_GREAT_GENERAL_ACTION_LEAD,
+	SAS_AI_GREAT_GENERAL_ACTION_RETREAT,
+	SAS_AI_GREAT_GENERAL_ACTION_STRANDED,
+	SAS_AI_GREAT_GENERAL_ACTION_SAFETY,
+	SAS_AI_GREAT_GENERAL_ACTION_SKIP
+};
+// <!-- custom: Recorder-owned optional output context for AI_generalMove's existing Great-General helper passes.
+// The object is initialized/prepared only at SASGameRecord level 2+; helpers fill only the candidate/value/path they already selected. Keeping the definition here rather than CvUnitAI.h makes ownership explicit while CvUnitAI exposes only an opaque optional pointer. (ChatGPT-5.6-Sol) -->
+struct SASGreatGeneralChoiceContext
+{
+	void resetChoice()
+	{
+		bMove = false;
+		iSelectedValue = -1;
+		pWaypointPlot = NULL;
+		pTargetPlot = NULL;
+		pTargetCity = NULL;
+		eSpecialist = NO_SPECIALIST;
+		eBuilding = NO_BUILDING;
+		pTargetUnit = NULL;
+		iTargetStrengthScore = -1;
+		iTargetHealing = -1;
+		iLeadByHealing = -1;
+	}
+	void initialize(CvPlot const* pDecisionPlot_, int iPreferThroughEra_, bool bPreferInstructorFirst_, MissionAITypes ePreviousMissionAI_, CvPlot const* pPreviousMissionPlot_)
+	{
+		pDecisionPlot = pDecisionPlot_;
+		iPreferThroughEra = iPreferThroughEra_;
+		bPreferInstructorFirst = bPreferInstructorFirst_;
+		ePreviousMissionAI = ePreviousMissionAI_;
+		pPreviousMissionPlot = pPreviousMissionPlot_;
+	}
+	void prepare(SASGameRecordAIGreatGeneralAction eAction_, SASGameRecordAIGreatGeneralStage eStage_, int iPolicyLimit_, int iValueThreshold_, int iMinStrength_, int iMinHealing_, int iRandomConstructRoll_)
+	{
+		resetChoice();
+		eAction = eAction_;
+		eStage = eStage_;
+		iPolicyLimit = iPolicyLimit_;
+		iValueThreshold = iValueThreshold_;
+		iMinStrength = iMinStrength_;
+		iMinHealing = iMinHealing_;
+		iRandomConstructRoll = iRandomConstructRoll_;
+	}
+	CvPlot const* pDecisionPlot;
+	SASGameRecordAIGreatGeneralAction eAction;
+	SASGameRecordAIGreatGeneralStage eStage;
+	int iPolicyLimit;
+	int iValueThreshold;
+	int iMinStrength;
+	int iMinHealing;
+	int iPreferThroughEra;
+	bool bPreferInstructorFirst;
+	int iRandomConstructRoll;
+	MissionAITypes ePreviousMissionAI;
+	CvPlot const* pPreviousMissionPlot;
+	bool bMove;
+	int iSelectedValue;
+	CvPlot const* pWaypointPlot;
+	CvPlot const* pTargetPlot;
+	CvCity const* pTargetCity;
+	SpecialistTypes eSpecialist;
+	BuildingTypes eBuilding;
+	CvUnit const* pTargetUnit;
+	int iTargetStrengthScore;
+	int iTargetHealing;
+	int iLeadByHealing;
+};
+// <!-- custom: Record one realized Great-General policy stage from AI_generalMove.
+// Optional helper context is filled by the live AI_join/AI_construct/AI_lead pass only when level 2+ is enabled; no target search, valuation, pathfinding or RNG is repeated for recording. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIGreatGeneralDecision(CvUnitAI const& kUnit, SASGreatGeneralChoiceContext const& kChoice);
 struct SASEspionageChoiceContext;
 struct SASTechChoiceContext;
 // <!-- custom: Exact level-3 plot-owner transitions use a small recorder-owned root/mechanism vocabulary instead of guessing causes from the final setter.

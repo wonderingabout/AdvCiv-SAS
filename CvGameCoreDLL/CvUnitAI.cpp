@@ -10115,11 +10115,36 @@ void CvUnitAI::AI_missionaryMove()
 }
 
 
+// <!-- custom: Prepare a rare Great-General helper pass with its caller-owned ordered policy stage.
+// AI_generalMove passes NULL at SASGameRecord level 0/1; this forced-inline pointer gate avoids duplicating 13 caller-side logging branches and performs no recorder-only assignments when disabled. (ChatGPT-5.6-Sol) -->
+static __forceinline SASGreatGeneralChoiceContext* prepareSASGreatGeneralChoiceContext(SASGreatGeneralChoiceContext* pContext, SASGameRecordAIGreatGeneralAction eAction, SASGameRecordAIGreatGeneralStage eStage, int iPolicyLimit, int iValueThreshold, int iMinStrength, int iMinHealing, int iRandomConstructRoll)
+{
+	if (pContext != NULL) pContext->prepare(eAction, eStage, iPolicyLimit, iValueThreshold, iMinStrength, iMinHealing, iRandomConstructRoll);
+	return pContext;
+}
+
 void CvUnitAI::AI_generalMove()
 {
 	PROFILE_FUNC();
 
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	// <!-- custom: Great-General SASGameRecord provenance observes only the realized ordered policy stage.
+	// Capture origin/previous mission state once at level 2+ and let the live helper passes optionally return the target/value/path they already selected. (ChatGPT-5.6-Sol) -->
+	bool const bLogSASGreatGeneralDecision = (gGameRecordLogLevel >= 2);
+	CvPlot const* pSASGreatGeneralDecisionPlot = (bLogSASGreatGeneralDecision ? &getPlot() : NULL);
+	MissionAITypes ePreviousMissionAI = NO_MISSIONAI;
+	CvPlot const* pPreviousMissionPlot = NULL;
+	if (bLogSASGreatGeneralDecision)
+	{
+		CvSelectionGroupAI const* pGroup = AI_getGroup();
+		if (pGroup != NULL)
+		{
+			ePreviousMissionAI = pGroup->AI_getMissionAIType();
+			pPreviousMissionPlot = pGroup->AI_getMissionAIPlot();
+		}
+	}
+	SASGreatGeneralChoiceContext kSASGreatGeneralChoice;
+	SASGreatGeneralChoiceContext* pSASGreatGeneralChoice = (bLogSASGreatGeneralDecision ? &kSASGreatGeneralChoice : NULL);
 	if (gGreatGeneralLogLevel >= 2) logBBAI("    GREAT_GENERAL_MOVE turn=%d player=%d %S generalId=%d general=(%d,%d) area=%d areaAI=%d action=start",
 		GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(),
 		getArea().getAreaAIType(getTeam()));
@@ -10129,10 +10154,15 @@ void CvUnitAI::AI_generalMove()
 	static const EraTypes eERA_FUTURE = (EraTypes)GC.getInfoTypeForString("ERA_FUTURE");
 	FAssertMsg((eERA_FUTURE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
 	bool const bSASPreferMilitaryInstructorFirst = (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA >= 0 && (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA >= eERA_FUTURE || kOwner.getCurrentEra() <= iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA));
+	// <!-- custom: Mirror AI_construct's inherited K-Mod default explicitly so SASGameRecord can report the live threshold without changing gameplay. (ChatGPT-5.6-Sol) -->
+	int const iGreatGeneralConstructValueThreshold = 15;
+	// <!-- custom: Recorder context stays unknown until the inherited late 1-in-3 construct gate is actually reached, then preserves its existing 0/1 result without another RNG call. (ChatGPT-5.6-Sol) -->
+	int iRandomConstructRoll = -1;
+	if (pSASGreatGeneralChoice != NULL) pSASGreatGeneralChoice->initialize(pSASGreatGeneralDecisionPlot, iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA, bSASPreferMilitaryInstructorFirst, ePreviousMissionAI, pPreviousMissionPlot);
 	// <!-- custom: SAS previously still tried the first Military Academy before its preferred Military Instructor use.
 	// Make Instructor-first behavior era-tunable as a SAS balance policy; if joining is unavailable, retain the existing Academy/attachment/retreat fallback chain rather than wasting or indefinitely parking the General.
 	// The upstream Great-General safety problems corrected below are documented separately in KI#204. (ChatGPT-5.6-Sol) -->
-	if (bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
+	if (bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_PREFERRED_INSTRUCTOR, iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, -1, -1, -1, iRandomConstructRoll)))
 	{
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=preferred-first era=%d preferThroughEra=%d",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(),
@@ -10144,7 +10174,7 @@ void CvUnitAI::AI_generalMove()
 	// <!-- custom: AI goes for Great General units while Military Instructor is much better, especially in top hammer cities with Heroic Epic. Credit: ChatGPT 5; Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
 	// 2. Modify AI_generalMove() - Prioritize Joining <!-- custom: legacy SAS order was after the first academy; the era preference above can now move this before it. (ChatGPT-5.6-Sol) -->
 	// “Try to construct a Military Academy if our empire currently has fewer than X academies."
-	if (AI_construct(1))
+	if (AI_construct(1, MAX_INT, iGreatGeneralConstructValueThreshold, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_CONSTRUCT, SAS_AI_GREAT_GENERAL_FIRST_ACADEMY, 1, iGreatGeneralConstructValueThreshold, -1, -1, iRandomConstructRoll)))
 	{
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=1",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
@@ -10153,7 +10183,7 @@ void CvUnitAI::AI_generalMove()
 
 	// NEW: Try joining FIRST <!-- custom: legacy fallback order when Instructor-first preference is disabled; before and instead of any great general leader, but after we have our academy (if we can). (ChatGPT-5.6-Sol) --> (allow multiple instructors per city)
 	// “Try to settle as Military Instructor if our empire currently has fewer than X already settled."
-	if (!bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
+	if (!bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_FIRST_INSTRUCTOR, iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, -1, -1, -1, iRandomConstructRoll)))
 	{
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=first",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(),
@@ -10173,7 +10203,7 @@ void CvUnitAI::AI_generalMove()
 		aeUnitAITypes.push_back(UNITAI_COUNTER);
 		// <!-- custom: BBAI save-file 450 testing showed the inherited plot-danger Great General unit-attachment branch attaching to a low-value Longbowman after AI_join rejected all cities for safety/path reasons.
 		// Keep this path XML-tunable, but default the gate high enough that Military Academy or Military Instructor remains the normal AdvCiv-SAS Great General use. (GPT-5.5) -->
-		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING))
+		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_LEAD, SAS_AI_GREAT_GENERAL_DANGER_LEAD, -1, -1, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING, iRandomConstructRoll)))
 		{
 			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=plotDanger roles=ATTACK,COUNTER",
 				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
@@ -10181,7 +10211,7 @@ void CvUnitAI::AI_generalMove()
 		}
 	}
 
-    if (AI_construct(1))
+    if (AI_construct(1, MAX_INT, iGreatGeneralConstructValueThreshold, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_CONSTRUCT, SAS_AI_GREAT_GENERAL_SECOND_ACADEMY, 1, iGreatGeneralConstructValueThreshold, -1, -1, iRandomConstructRoll)))
     {
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=1 stage=second",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
@@ -10189,7 +10219,7 @@ void CvUnitAI::AI_generalMove()
     }
 
     // Try joining again
-    if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
+    if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_SECOND_INSTRUCTOR, iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, -1, -1, -1, iRandomConstructRoll)))
     {
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=second",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(),
@@ -10201,7 +10231,7 @@ void CvUnitAI::AI_generalMove()
 	{
 		aeUnitAITypes.clear();
 		aeUnitAITypes.push_back(UNITAI_ATTACK_CITY);
-		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING))
+		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_LEAD, SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK_CITY, -1, -1, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING, iRandomConstructRoll)))
 		{
 			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK_CITY",
 				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
@@ -10210,7 +10240,7 @@ void CvUnitAI::AI_generalMove()
 
 		aeUnitAITypes.clear();
 		aeUnitAITypes.push_back(UNITAI_ATTACK);
-		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING))
+		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_LEAD, SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK, -1, -1, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING, iRandomConstructRoll)))
 		{
 			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK",
 				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
@@ -10218,30 +10248,32 @@ void CvUnitAI::AI_generalMove()
 		}
 	} // BETTER_BTS_AI_MOD: END
 
-	if (AI_join(2))
+	if (AI_join(2, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_JOIN_LIMIT_2, 2, -1, -1, -1, iRandomConstructRoll)))
 	{
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=2 stage=legacy1",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
-	if (AI_construct(2))
+	if (AI_construct(2, MAX_INT, iGreatGeneralConstructValueThreshold, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_CONSTRUCT, SAS_AI_GREAT_GENERAL_ACADEMY_LIMIT_2, 2, iGreatGeneralConstructValueThreshold, -1, -1, iRandomConstructRoll)))
 	{
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=2",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
-	if (AI_join(4))
+	if (AI_join(4, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_JOIN_LIMIT_4, 4, -1, -1, -1, iRandomConstructRoll)))
 	{
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=4 stage=legacy2",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
-	if (SyncRandOneChanceIn(3))
+	bool const bRandomConstructRoll = SyncRandOneChanceIn(3);
+	if (pSASGreatGeneralChoice != NULL) iRandomConstructRoll = (bRandomConstructRoll ? 1 : 0);
+	if (bRandomConstructRoll)
 	{
-		if (AI_construct())
+		if (AI_construct(MAX_INT, MAX_INT, iGreatGeneralConstructValueThreshold, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_CONSTRUCT, SAS_AI_GREAT_GENERAL_RANDOM_CONSTRUCT, -1, iGreatGeneralConstructValueThreshold, -1, -1, iRandomConstructRoll)))
 		{
 			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=unbounded random=1in3",
 				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
@@ -10249,7 +10281,7 @@ void CvUnitAI::AI_generalMove()
 		}
 	}
 
-	if (AI_join())
+	if (AI_join(MAX_INT, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_FINAL_JOIN, -1, -1, -1, -1, iRandomConstructRoll)))
 	{
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=unbounded stage=legacy3",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
@@ -10258,6 +10290,15 @@ void CvUnitAI::AI_generalMove()
 
 	if (AI_retreatToCity())
 	{
+		// <!-- custom: Fallback helpers may execute AI movement before returning; preserve any longer-term MissionAI target separately, but record the post-helper unit plot as the realized waypoint and compare it with the saved decision origin for `move`. (ChatGPT-5.6-Sol) -->
+		if (bLogSASGreatGeneralDecision)
+		{
+			kSASGreatGeneralChoice.prepare(SAS_AI_GREAT_GENERAL_ACTION_RETREAT, SAS_AI_GREAT_GENERAL_RETREAT, -1, -1, -1, -1, iRandomConstructRoll);
+			kSASGreatGeneralChoice.pTargetPlot = AI_getGroup()->AI_getMissionAIPlot();
+			kSASGreatGeneralChoice.pWaypointPlot = &getPlot();
+			kSASGreatGeneralChoice.bMove = (pSASGreatGeneralDecisionPlot != NULL && kSASGreatGeneralChoice.pWaypointPlot != pSASGreatGeneralDecisionPlot);
+			logSASGameRecordAIGreatGeneralDecision(*this, kSASGreatGeneralChoice);
+		}
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=retreat",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
@@ -10265,16 +10306,41 @@ void CvUnitAI::AI_generalMove()
 
 	// K-Mod
 	if (AI_handleStranded())
+	{
+		if (bLogSASGreatGeneralDecision)
+		{
+			kSASGreatGeneralChoice.prepare(SAS_AI_GREAT_GENERAL_ACTION_STRANDED, SAS_AI_GREAT_GENERAL_STRANDED, -1, -1, -1, -1, iRandomConstructRoll);
+			kSASGreatGeneralChoice.pTargetPlot = AI_getGroup()->AI_getMissionAIPlot();
+			kSASGreatGeneralChoice.pWaypointPlot = &getPlot();
+			kSASGreatGeneralChoice.bMove = (pSASGreatGeneralDecisionPlot != NULL && kSASGreatGeneralChoice.pWaypointPlot != pSASGreatGeneralDecisionPlot);
+			logSASGameRecordAIGreatGeneralDecision(*this, kSASGreatGeneralChoice);
+		}
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=stranded",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
+	}
 	// K-Mod end
 
 	if (AI_safety())
 	{
+		if (bLogSASGreatGeneralDecision)
+		{
+			kSASGreatGeneralChoice.prepare(SAS_AI_GREAT_GENERAL_ACTION_SAFETY, SAS_AI_GREAT_GENERAL_SAFETY, -1, -1, -1, -1, iRandomConstructRoll);
+			kSASGreatGeneralChoice.pTargetPlot = AI_getGroup()->AI_getMissionAIPlot();
+			kSASGreatGeneralChoice.pWaypointPlot = &getPlot();
+			kSASGreatGeneralChoice.bMove = (pSASGreatGeneralDecisionPlot != NULL && kSASGreatGeneralChoice.pWaypointPlot != pSASGreatGeneralDecisionPlot);
+			logSASGameRecordAIGreatGeneralDecision(*this, kSASGreatGeneralChoice);
+		}
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=safety",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
+	if (bLogSASGreatGeneralDecision)
+	{
+		kSASGreatGeneralChoice.prepare(SAS_AI_GREAT_GENERAL_ACTION_SKIP, SAS_AI_GREAT_GENERAL_SKIP, -1, -1, -1, -1, iRandomConstructRoll);
+		logSASGameRecordAIGreatGeneralDecision(*this, kSASGreatGeneralChoice);
+	}
 	if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=skip",
 		GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 	getGroup()->pushMission(MISSION_SKIP);
@@ -10857,13 +10923,13 @@ void CvUnitAI::AI_greatPersonMove()
 		{
 			if (AI_reconSpy(5))
 			{
-				if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_RECON_SPY, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, AI_getGroup()->AI_getMissionAIPlot(), ePreviousMissionAI, pPreviousMissionPlot);
+				if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_RECON_SPY, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, &getPlot(), ePreviousMissionAI, pPreviousMissionPlot);
 				return;
 			}
 		}
 		if (AI_handleStranded())
 		{
-			if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_STRANDED, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, AI_getGroup()->AI_getMissionAIPlot(), ePreviousMissionAI, pPreviousMissionPlot);
+			if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_STRANDED, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, &getPlot(), ePreviousMissionAI, pPreviousMissionPlot);
 			return;
 		}
 
@@ -10897,19 +10963,19 @@ void CvUnitAI::AI_greatPersonMove()
 	}
 	if (AI_retreatToCity())
 	{
-		if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_RETREAT, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, AI_getGroup()->AI_getMissionAIPlot(), ePreviousMissionAI, pPreviousMissionPlot);
+		if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_RETREAT, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, &getPlot(), ePreviousMissionAI, pPreviousMissionPlot);
 		return;
 	}
 	// K-Mod
 	if (AI_handleStranded())
 	{
-		if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_STRANDED, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, AI_getGroup()->AI_getMissionAIPlot(), ePreviousMissionAI, pPreviousMissionPlot);
+		if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_STRANDED, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, &getPlot(), ePreviousMissionAI, pPreviousMissionPlot);
 		return;
 	}
 	// K-Mod end
 	if (AI_safety())
 	{
-		if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_SAFETY, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, AI_getGroup()->AI_getMissionAIPlot(), ePreviousMissionAI, pPreviousMissionPlot);
+		if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_SAFETY, -1, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, &getPlot(), ePreviousMissionAI, pPreviousMissionPlot);
 		return;
 	}
 
@@ -18196,7 +18262,9 @@ bool CvUnitAI::AI_discover(bool bThisTurnOnly, bool bFirstResearchOnly)
 }
 
 
-bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrengthScore, int iMinHealing)
+// <!-- custom: pSASChoiceContext is an optional caller-pre-gated SASGameRecord output sink used only by AI_generalMove.
+// When non-NULL, expose the live selected attachment/path and emit before the existing mission/move push because an immediate Lead can consume this Great General. (ChatGPT-5.6-Sol) -->
+bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrengthScore, int iMinHealing, SASGreatGeneralChoiceContext* pSASChoiceContext)
 {
 	PROFILE_FUNC();
 
@@ -18222,12 +18290,15 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrength
 
 	CvUnit const* pBestHealUnit = NULL;
 	CvPlot* pBestHealPlot = NULL;
+	// <!-- custom: Keep the two legacy best scores in scope through final target selection; the cross-metrics are SASGameRecord-only and updated only when the optional context exists. (ChatGPT-5.6-Sol) -->
+	int iBestStrength = 0;
+	int iBestStrHealing = -1;
+	int iBestHealing = 0;
+	int iBestHealStrength = -1;
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	// BETTER_BTS_AI_MOD, Great People AI, Unit AI, 05/14/10, jdog5000: START
 	if (bNeedLeader)
 	{
-		int iBestStrength = 0;
-		int iBestHealing = 0;
 		FOR_EACH_UNITAI(pLoopUnit, kOwner)
 		{
 			bool bValid = GC.getInfo(pLoopUnit->getUnitClassType()).isWorldUnit();
@@ -18287,6 +18358,7 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrength
 				if (iCombatStrength > iBestStrength)
 				{
 					iBestStrength = iCombatStrength;
+					if (pSASChoiceContext != NULL) iBestStrHealing = iHealing;
 					pBestStrUnit = pLoopUnit;
 					pBestStrPlot = &getPathEndTurnPlot();
 				}
@@ -18304,6 +18376,7 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrength
 				if (iHealing > iBestHealing)
 				{
 					iBestHealing = iHealing;
+					if (pSASChoiceContext != NULL) iBestHealStrength = iCombatStrength;
 					pBestHealUnit = pLoopUnit;
 					pBestHealPlot = &getPathEndTurnPlot();
 				}
@@ -18311,7 +18384,8 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrength
 		}
 	}
 
-	if (AI_getBirthmark() % 3 == 0 && pBestHealUnit != NULL)
+	bool const bChooseHealing = (AI_getBirthmark() % 3 == 0 && pBestHealUnit != NULL);
+	if (bChooseHealing)
 	{
 		pBestPlot = pBestHealPlot;
 		pBestUnit = pBestHealUnit;
@@ -18324,6 +18398,18 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrength
 
 	if (pBestPlot != NULL)
 	{
+		if (pSASChoiceContext != NULL)
+		{
+			pSASChoiceContext->bMove = !at(*pBestPlot);
+			pSASChoiceContext->iSelectedValue = (bChooseHealing ? iBestHealing : iBestStrength);
+			pSASChoiceContext->pWaypointPlot = pBestPlot;
+			pSASChoiceContext->pTargetUnit = pBestUnit;
+			pSASChoiceContext->pTargetPlot = (pBestUnit == NULL ? NULL : &pBestUnit->getPlot());
+			pSASChoiceContext->iTargetStrengthScore = (bChooseHealing ? iBestHealStrength : iBestStrength);
+			pSASChoiceContext->iTargetHealing = (bChooseHealing ? iBestHealing : iBestStrHealing);
+			pSASChoiceContext->iLeadByHealing = (bChooseHealing ? 1 : 0);
+			logSASGameRecordAIGreatGeneralDecision(*this, *pSASChoiceContext);
+		}
 		if (at(*pBestPlot) && pBestUnit != NULL)
 		{
 			if (gGreatGeneralLogLevel >= 1)
@@ -18333,7 +18419,7 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrength
 					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pBestUnit->getID(),
 					pBestUnit->getName(0).GetCString(), GC.getInfo(pBestUnit->getUnitType()).getType(), szString.GetCString(),
 					pBestUnit->getX(), pBestUnit->getY(), pBestUnit->getLevel(), pBestUnit->getExperience(), pBestUnit->baseCombatStr(),
-					pBestUnit->currCombatStr(NULL, NULL), pBestUnit->combatLimit(), (pBestUnit == pBestHealUnit ? "healing" : "strength"));
+					pBestUnit->currCombatStr(NULL, NULL), pBestUnit->combatLimit(), (bChooseHealing ? "healing" : "strength"));
 			}
 			getGroup()->pushMission(MISSION_LEAD, pBestUnit->getID());
 			return true;
@@ -18378,12 +18464,16 @@ static void logSASGreatGeneralJoinCityRejected(CvUnitAI const& kGeneral, CvCityA
 		pPathEnd == NULL ? -1 : pPathEnd->getY(), pPathEnd == NULL ? -1 : kOwner.AI_getPlotDanger(*pPathEnd, 2));
 }
 
-bool CvUnitAI::AI_join(int iMaxCount)
+// <!-- custom: pSASChoiceContext is optional recorder output prepared by AI_generalMove only at SASGameRecord level 2+.
+// Fill/log it solely from the already-selected live city/specialist/path before the existing Join mission can consume the Great General. (ChatGPT-5.6-Sol) -->
+bool CvUnitAI::AI_join(int iMaxCount, SASGreatGeneralChoiceContext* pSASChoiceContext)
 {
 	PROFILE_FUNC();
 
 	int iBestValue = 0;
 	CvPlot* pBestPlot = NULL;
+	// <!-- custom: Recorder-only final city identity; assigned only when the optional level-2+ context exists. (ChatGPT-5.6-Sol) -->
+	CvCity const* pBestTargetCity = NULL;
 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
 	int iCount = 0;
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
@@ -18469,6 +18559,7 @@ bool CvUnitAI::AI_join(int iMaxCount)
 					{
 						iBestValue = iValue;
 						pBestPlot = &getPathEndTurnPlot();
+						if (pSASChoiceContext != NULL) pBestTargetCity = pLoopCity;
 						eBestSpecialist = eLoopSpecialist;
 					}
 				}
@@ -18482,6 +18573,16 @@ bool CvUnitAI::AI_join(int iMaxCount)
 
 	if (pBestPlot != NULL && eBestSpecialist != NO_SPECIALIST)
 	{
+		if (pSASChoiceContext != NULL)
+		{
+			pSASChoiceContext->bMove = !at(*pBestPlot);
+			pSASChoiceContext->iSelectedValue = iBestValue;
+			pSASChoiceContext->pWaypointPlot = pBestPlot;
+			pSASChoiceContext->pTargetCity = pBestTargetCity;
+			pSASChoiceContext->pTargetPlot = (pBestTargetCity == NULL ? NULL : &pBestTargetCity->getPlot());
+			pSASChoiceContext->eSpecialist = eBestSpecialist;
+			logSASGameRecordAIGreatGeneralDecision(*this, *pSASChoiceContext);
+		}
 		if (at(*pBestPlot))
 		{
 			if (gGreatGeneralLogLevel >= 1) logBBAI("      GREAT_GENERAL_JOIN_CHOSEN turn=%d player=%d %S generalId=%d specialist=%s value=%d cityPlot=(%d,%d) maxCount=%d",
@@ -18509,7 +18610,9 @@ bool CvUnitAI::AI_join(int iMaxCount)
 
 // iMaxCount = 1 would mean construct only if there are no existing buildings constructed by this GP type.
 // advc (note): Only used for Great General; see comment above AI_join.
-bool CvUnitAI::AI_construct(int iMaxCount, int iMaxSingleBuildingCount, int iThreshold)
+// <!-- custom: pSASChoiceContext is optional recorder output prepared by AI_generalMove only at SASGameRecord level 2+.
+// Fill/log it solely from the already-selected live building/city/path before the existing Construct mission can consume the Great General. (ChatGPT-5.6-Sol) -->
+bool CvUnitAI::AI_construct(int iMaxCount, int iMaxSingleBuildingCount, int iThreshold, SASGreatGeneralChoiceContext* pSASChoiceContext)
 {
 	PROFILE_FUNC();
 	// <advc.003t>
@@ -18575,6 +18678,16 @@ bool CvUnitAI::AI_construct(int iMaxCount, int iMaxSingleBuildingCount, int iThr
 
 	if (pBestPlot != NULL && pBestConstructPlot != NULL && eBestBuilding != NO_BUILDING)
 	{
+		if (pSASChoiceContext != NULL)
+		{
+			pSASChoiceContext->bMove = !at(*pBestConstructPlot);
+			pSASChoiceContext->iSelectedValue = iBestValue;
+			pSASChoiceContext->pWaypointPlot = pBestPlot;
+			pSASChoiceContext->pTargetPlot = pBestConstructPlot;
+			pSASChoiceContext->pTargetCity = pBestConstructPlot->getPlotCity();
+			pSASChoiceContext->eBuilding = eBestBuilding;
+			logSASGameRecordAIGreatGeneralDecision(*this, *pSASChoiceContext);
+		}
 		if (at(*pBestConstructPlot))
 		{
 			getGroup()->pushMission(MISSION_CONSTRUCT, eBestBuilding);

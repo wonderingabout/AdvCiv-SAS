@@ -29,6 +29,7 @@ PLOT_SOURCE = Path("CvGameCoreDLL/CvPlot.cpp")
 CITY_SOURCE = Path("CvGameCoreDLL/CvCity.cpp")
 TEAM_AI_SOURCE = Path("CvGameCoreDLL/CvTeamAI.cpp")
 UWAI_AGENT_SOURCE = Path("CvGameCoreDLL/UWAIAgent.cpp")
+UNIT_AI_HEADER = Path("CvGameCoreDLL/CvUnitAI.h")
 UNIT_AI_SOURCE = Path("CvGameCoreDLL/CvUnitAI.cpp")
 
 
@@ -647,6 +648,12 @@ def check_ai_great_person_provenance(repo_root: Path) -> list[str]:
 			failures.append(f"{UNIT_AI_SOURCE}: no AI_greatPersonMove path references {token}")
 	if not re.search(r"SAS_AI_GREAT_PERSON_DANGER_DISCOVER_TECH\s*,\s*-1\s*,\s*-1\s*,", unit_text):
 		failures.append(f"{UNIT_AI_SOURCE}: danger-discover fallback must keep choiceRank/selectedValue at -1")
+	# Fallback helpers can execute AI movement immediately; the row schema calls targetX/targetY the realized waypoint/action plot, so do not reuse often-empty or longer-term MissionAI target metadata here.
+	for action in ("RECON_SPY", "RETREAT", "SAFETY"):
+		if not re.search(rf"SAS_AI_GREAT_PERSON_{action}[^;]*&getPlot\(\)[^;]*ePreviousMissionAI", unit_text):
+			failures.append(f"{UNIT_AI_SOURCE}: Great Person {action} fallback must report the realized post-helper waypoint/action plot")
+	if len(re.findall(r"SAS_AI_GREAT_PERSON_STRANDED[^;]*&getPlot\(\)[^;]*ePreviousMissionAI", unit_text)) != 2:
+		failures.append(f"{UNIT_AI_SOURCE}: both Great Person stranded fallbacks must report the realized post-helper waypoint/action plot")
 	# Great Generals deliberately remain on their separate AI_generalMove path. Guard the schema boundary rather than folding unrelated BBAI logic into this row.
 	gp_function = re.search(r"void\s+CvUnitAI::AI_greatPersonMove\(\)\s*\{(?P<body>.*?)^\}", unit_text, flags=re.DOTALL | re.MULTILINE)
 	if gp_function is None:
@@ -671,6 +678,114 @@ def check_ai_great_person_provenance(repo_root: Path) -> list[str]:
 		failures.append(f"{UNIT_AI_SOURCE}: could not locate separate AI_generalMove Great-General path")
 	elif "logSASGameRecordAIGreatPersonDecision" in general_function.group("body"):
 		failures.append(f"{UNIT_AI_SOURCE}: ordinary Great Person provenance must not be bridged into AI_generalMove")
+	return failures
+
+
+def check_ai_great_general_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, UNIT_AI_HEADER, UNIT_AI_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI Great General provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	expected_stages = [
+		"SAS_AI_GREAT_GENERAL_PREFERRED_INSTRUCTOR", "SAS_AI_GREAT_GENERAL_FIRST_ACADEMY", "SAS_AI_GREAT_GENERAL_FIRST_INSTRUCTOR",
+		"SAS_AI_GREAT_GENERAL_DANGER_LEAD", "SAS_AI_GREAT_GENERAL_SECOND_ACADEMY", "SAS_AI_GREAT_GENERAL_SECOND_INSTRUCTOR",
+		"SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK_CITY", "SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK",
+		"SAS_AI_GREAT_GENERAL_JOIN_LIMIT_2", "SAS_AI_GREAT_GENERAL_ACADEMY_LIMIT_2", "SAS_AI_GREAT_GENERAL_JOIN_LIMIT_4",
+		"SAS_AI_GREAT_GENERAL_RANDOM_CONSTRUCT", "SAS_AI_GREAT_GENERAL_FINAL_JOIN", "SAS_AI_GREAT_GENERAL_RETREAT",
+		"SAS_AI_GREAT_GENERAL_STRANDED", "SAS_AI_GREAT_GENERAL_SAFETY", "SAS_AI_GREAT_GENERAL_SKIP",
+	]
+	expected_actions = [
+		"SAS_AI_GREAT_GENERAL_ACTION_JOIN", "SAS_AI_GREAT_GENERAL_ACTION_CONSTRUCT", "SAS_AI_GREAT_GENERAL_ACTION_LEAD",
+		"SAS_AI_GREAT_GENERAL_ACTION_RETREAT", "SAS_AI_GREAT_GENERAL_ACTION_STRANDED", "SAS_AI_GREAT_GENERAL_ACTION_SAFETY",
+		"SAS_AI_GREAT_GENERAL_ACTION_SKIP",
+	]
+	for enum_name, expected in (("SASGameRecordAIGreatGeneralStage", expected_stages), ("SASGameRecordAIGreatGeneralAction", expected_actions)):
+		m = re.search(rf"enum\s+{enum_name}\s*\{{(?P<body>.*?)\}};", header_text, flags=re.DOTALL)
+		if m is None:
+			failures.append(f"{REVISION_HEADER}: missing {enum_name}")
+		else:
+			tokens = re.findall(r"^\s*(SAS_AI_GREAT_GENERAL_[A-Z0-9_]+)\s*,?\s*$", m.group("body"), flags=re.MULTILINE)
+			if tokens != expected:
+				failures.append(f"{REVISION_HEADER}: {enum_name} vocabulary changed; expected {expected}, found {tokens}")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_GREAT_GENERAL_DECISION", "unitAI=%s", "area=%d", "areaAI=%d", "action=%s", "stage=%s", "move=%d", "selectedValue=%d", "limit=%d",
+		"valueThreshold=%d", "minStrength=%d", "minHealing=%d", "preferInstructorFirst=%d", "preferThroughEra=%d",
+		"randomConstructRoll=%d", "specialist=%s", "building=%s", "targetCityId=%d", "targetUnitId=%d", "targetUnitAI=%s",
+		"targetStrengthScore=%d", "targetHealing=%d", "leadByHealing=%d", "targetX=%d", "targetY=%d", "waypointX=%d",
+		"waypointY=%d", "previousMissionAI=%d", "previousTargetX=%d", "previousTargetY=%d",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI Great General diagnostic token {required}")
+	for token in expected_stages + expected_actions:
+		if token not in record_text:
+			failures.append(f"{REVISION_SOURCE}: Great General stringifier missing {token}")
+
+	# Recorder owns the full context schema; CvUnitAI.h should expose only the opaque optional pointer used by the three Great-General-only helpers.
+	for required in ("struct SASGreatGeneralChoiceContext", "resetChoice()", "void initialize(", "void prepare("):
+		if required not in header_text:
+			failures.append(f"{REVISION_HEADER}: missing recorder-owned Great General context token {required}")
+	unit_header_text = (repo_root / UNIT_AI_HEADER).read_text(encoding="utf-8", errors="replace")
+	for required in ("struct SASGreatGeneralChoiceContext;", "pSASChoiceContext = NULL"):
+		if required not in unit_header_text:
+			failures.append(f"{UNIT_AI_HEADER}: missing opaque optional Great General helper context token {required}")
+
+	unit_text = (repo_root / UNIT_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	if "bLogSASGreatGeneralDecision = (gGameRecordLogLevel >= 2)" not in unit_text:
+		failures.append(f"{UNIT_AI_SOURCE}: Great General provenance must retain the cached level-2 gate")
+	for token in expected_stages:
+		if token not in unit_text:
+			failures.append(f"{UNIT_AI_SOURCE}: no AI_generalMove path references {token}")
+	general_function = re.search(r"void\s+CvUnitAI::AI_generalMove\(\)\s*\{(?P<body>.*?)^\}", unit_text, flags=re.DOTALL | re.MULTILINE)
+	if general_function is None:
+		failures.append(f"{UNIT_AI_SOURCE}: could not locate AI_generalMove")
+	else:
+		body = general_function.group("body")
+		if "logSASGameRecordAIGreatGeneralDecision" not in body:
+			failures.append(f"{UNIT_AI_SOURCE}: Great General provenance bridge missing from AI_generalMove")
+		# Preserve the inherited policy/RNG structure. Optional helper context may expose live results, but must not add another helper/search pass.
+		for call, expected_count in (
+			("AI_join(", 6), ("AI_construct(", 4), ("AI_lead(", 3), ("AI_retreatToCity(", 1),
+			("AI_handleStranded(", 1), ("AI_safety(", 1), ("SyncRandOneChanceIn(3)", 1),
+		):
+			actual_count = body.count(call)
+			if actual_count != expected_count:
+				failures.append(f"{UNIT_AI_SOURCE}: AI_generalMove {call} count changed; expected {expected_count}, found {actual_count}")
+		if body.count("prepareSASGreatGeneralChoiceContext(") != 13:
+			failures.append(f"{UNIT_AI_SOURCE}: expected 13 prepared helper stages before Great General Join/Construct/Lead passes")
+		if body.count("logSASGameRecordAIGreatGeneralDecision") != 4:
+			failures.append(f"{UNIT_AI_SOURCE}: expected four direct non-consuming/fallback Great General bridges (retreat/stranded/safety/skip)")
+		# Retreat/safety often have no MissionAI plot and stranded can retain a longer-term MissionAI destination; waypoint must be the realized post-helper unit plot.
+		if body.count("kSASGreatGeneralChoice.pWaypointPlot = &getPlot();") != 3:
+			failures.append(f"{UNIT_AI_SOURCE}: Great General retreat/stranded/safety fallbacks must report the realized post-helper waypoint")
+		if body.count("kSASGreatGeneralChoice.bMove = (pSASGreatGeneralDecisionPlot != NULL && kSASGreatGeneralChoice.pWaypointPlot != pSASGreatGeneralDecisionPlot);") != 3:
+			failures.append(f"{UNIT_AI_SOURCE}: Great General fallback move flag must compare realized waypoint against the saved decision origin")
+		if not re.search(r"bool\s+const\s+bRandomConstructRoll\s*=\s*SyncRandOneChanceIn\(3\);", body):
+			failures.append(f"{UNIT_AI_SOURCE}: late construct gate must preserve the existing single 1-in-3 RNG result for provenance")
+	# The three helper scans are Great-General-only in this codebase; their optional context must observe the selected live candidate rather than trigger a second search.
+	for helper_name in ("AI_join", "AI_construct", "AI_lead"):
+		m = re.search(rf"bool\s+CvUnitAI::{helper_name}\([^)]*\)\s*\{{(?P<body>.*?)^\}}", unit_text, flags=re.DOTALL | re.MULTILINE)
+		if m is None:
+			failures.append(f"{UNIT_AI_SOURCE}: could not locate {helper_name}")
+		else:
+			helper_body = m.group("body")
+			if "pSASChoiceContext" not in helper_body:
+				failures.append(f"{UNIT_AI_SOURCE}: {helper_name} no longer exposes its selected live target/value to the optional recorder context")
+			emit_token = "logSASGameRecordAIGreatGeneralDecision(*this, *pSASChoiceContext)"
+			if helper_body.count(emit_token) != 1:
+				failures.append(f"{UNIT_AI_SOURCE}: {helper_name} must emit exactly one successful prepared Great General row")
+			emit_pos = helper_body.find(emit_token)
+			gate_pos = helper_body.rfind("if (pSASChoiceContext != NULL)", 0, emit_pos)
+			if emit_pos >= 0 and gate_pos < 0:
+				failures.append(f"{UNIT_AI_SOURCE}: {helper_name} Great General recorder emission must remain pre-gated by the optional context")
+			action_positions = [pos for pos in (helper_body.find("pushMission("), helper_body.find("pushGroupMoveTo(")) if pos >= 0]
+			if emit_pos >= 0 and action_positions and emit_pos > min(action_positions):
+				failures.append(f"{UNIT_AI_SOURCE}: {helper_name} Great General provenance must emit before its existing mission/move push")
 	return failures
 
 
@@ -778,12 +893,13 @@ def main() -> int:
 	failures.extend(check_ai_diplo_contact_provenance(args.repo_root))
 	failures.extend(check_ai_conquer_city_provenance(args.repo_root))
 	failures.extend(check_ai_great_person_provenance(args.repo_root))
+	failures.extend(check_ai_great_general_provenance(args.repo_root))
 	if failures:
 		print("FAIL SASGameRecord report/revision checks")
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-conquer-city/AI-Great-Person diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

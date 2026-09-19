@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=102 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=103 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -40,10 +40,18 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 102 - SAS practical 6493
+### Revision 103 - SAS practical 6494
 
 - **Date:** 2026-09-19
 - **Git commit:** pending
+- **Change:** Added compact level-2 Great General decision provenance from `AI_generalMove`: the realized ordered policy stage (Instructor, Academy, danger/offensive attachment, progressively looser fallback, retreat/stranded/safety/skip) plus the already-selected helper target, value/path context, attachment criteria, late construct roll and previous mission state.
+
+The helper bridges expose only live results already computed by gameplay and do not repeat candidate scans, valuation, pathfinding or RNG. Also corrected Great General and ordinary Great Person fallback waypoint reporting to use the realized post-helper action plot rather than often-empty or longer-term MissionAI target metadata.
+
+### Revision 102 - SAS practical 6493
+
+- **Date:** 2026-09-19
+- **Git commit:** `09b183d2cc6fb69a7d53b0788d7e1692a21f4a83`
 - **Change:** Added compact level-2 ordinary-AI Great Person action provenance from `AI_greatPersonMove`: the realized scored action or movement continuation plus the already-computed Slow/Discover/Golden-Age/Trade/Great-Work values, threshold, slow-action target metadata and previous mission state. Later danger/recon/retreat/stranded/safety/skip fallbacks are explicit without pretending they won the earlier score comparison; Great Generals remain on their separate decision path.
 
 ### Revision 101 - SAS practical 6491

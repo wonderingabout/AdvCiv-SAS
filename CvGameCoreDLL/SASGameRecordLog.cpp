@@ -12108,6 +12108,74 @@ void logSASGameRecordAIGreatPersonDecision(CvUnitAI const& kUnit, CvPlot const* 
 		(pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getX()), (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getY()));
 }
 
+static char const* getSASGameRecordAIGreatGeneralStage(SASGameRecordAIGreatGeneralStage eStage)
+{
+	switch (eStage)
+	{
+	case SAS_AI_GREAT_GENERAL_PREFERRED_INSTRUCTOR: return "PREFERRED_INSTRUCTOR";
+	case SAS_AI_GREAT_GENERAL_FIRST_ACADEMY: return "FIRST_ACADEMY";
+	case SAS_AI_GREAT_GENERAL_FIRST_INSTRUCTOR: return "FIRST_INSTRUCTOR";
+	case SAS_AI_GREAT_GENERAL_DANGER_LEAD: return "DANGER_LEAD";
+	case SAS_AI_GREAT_GENERAL_SECOND_ACADEMY: return "SECOND_ACADEMY";
+	case SAS_AI_GREAT_GENERAL_SECOND_INSTRUCTOR: return "SECOND_INSTRUCTOR";
+	case SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK_CITY: return "OFFENSE_LEAD_ATTACK_CITY";
+	case SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK: return "OFFENSE_LEAD_ATTACK";
+	case SAS_AI_GREAT_GENERAL_JOIN_LIMIT_2: return "JOIN_LIMIT_2";
+	case SAS_AI_GREAT_GENERAL_ACADEMY_LIMIT_2: return "ACADEMY_LIMIT_2";
+	case SAS_AI_GREAT_GENERAL_JOIN_LIMIT_4: return "JOIN_LIMIT_4";
+	case SAS_AI_GREAT_GENERAL_RANDOM_CONSTRUCT: return "RANDOM_CONSTRUCT";
+	case SAS_AI_GREAT_GENERAL_FINAL_JOIN: return "FINAL_JOIN";
+	case SAS_AI_GREAT_GENERAL_RETREAT: return "RETREAT";
+	case SAS_AI_GREAT_GENERAL_STRANDED: return "STRANDED";
+	case SAS_AI_GREAT_GENERAL_SAFETY: return "SAFETY";
+	case SAS_AI_GREAT_GENERAL_SKIP: return "SKIP";
+	default: return "UNKNOWN";
+	}
+}
+
+static char const* getSASGameRecordAIGreatGeneralAction(SASGameRecordAIGreatGeneralAction eAction)
+{
+	switch (eAction)
+	{
+	case SAS_AI_GREAT_GENERAL_ACTION_JOIN: return "JOIN";
+	case SAS_AI_GREAT_GENERAL_ACTION_CONSTRUCT: return "CONSTRUCT";
+	case SAS_AI_GREAT_GENERAL_ACTION_LEAD: return "LEAD";
+	case SAS_AI_GREAT_GENERAL_ACTION_RETREAT: return "RETREAT";
+	case SAS_AI_GREAT_GENERAL_ACTION_STRANDED: return "STRANDED";
+	case SAS_AI_GREAT_GENERAL_ACTION_SAFETY: return "SAFETY";
+	case SAS_AI_GREAT_GENERAL_ACTION_SKIP: return "SKIP";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Compact Great-General policy provenance. Unlike ordinary Great People, AI_generalMove uses an ordered fallback chain rather than a cross-action score; stage therefore records the live policy branch and the optional helper context preserves only the target/value/path the selected helper already computed. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIGreatGeneralDecision(CvUnitAI const& kUnit, SASGreatGeneralChoiceContext const& kChoice)
+{
+	CvGame const& kGame = GC.getGame();
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	int const iAge = kGame.getGameTurn() - kUnit.getGameTurnCreated();
+	int const iAgeNormal = 100 * iAge / std::max(1, kGame.getSpeedPercent());
+	CvCity const* pTargetCity = kChoice.pTargetCity;
+	CvUnit const* pTargetUnit = kChoice.pTargetUnit;
+	CvPlot const* pTargetPlot = kChoice.pTargetPlot;
+	CvPlot const* pWaypointPlot = kChoice.pWaypointPlot;
+	CvPlot const& kDecisionPlot = (kChoice.pDecisionPlot == NULL ? kUnit.getPlot() : *kChoice.pDecisionPlot);
+	logSASGameRecord("GAME_RECORD_AI_GREAT_GENERAL_DECISION turn=%d player=%d team=%d unitId=%d unit=%s unitAI=%s x=%d y=%d area=%d areaAI=%d age=%d ageNormal=%d action=%s stage=%s move=%d selectedValue=%d limit=%d valueThreshold=%d minStrength=%d minHealing=%d era=%d preferInstructorFirst=%d preferThroughEra=%d randomConstructRoll=%d specialist=%s building=%s targetCityId=%d targetCity=%S targetUnitId=%d targetUnit=%s targetUnitAI=%s targetStrengthScore=%d targetHealing=%d leadByHealing=%d targetX=%d targetY=%d waypointX=%d waypointY=%d previousMissionAI=%d previousTargetX=%d previousTargetY=%d",
+		kGame.getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()), getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()),
+		kDecisionPlot.getX(), kDecisionPlot.getY(), kDecisionPlot.getArea().getID(), kDecisionPlot.getArea().getAreaAIType(kUnit.getTeam()), iAge, iAgeNormal,
+		getSASGameRecordAIGreatGeneralAction(kChoice.eAction), getSASGameRecordAIGreatGeneralStage(kChoice.eStage), (int)kChoice.bMove, kChoice.iSelectedValue,
+		(kChoice.iPolicyLimit == MAX_INT ? -1 : kChoice.iPolicyLimit), kChoice.iValueThreshold, kChoice.iMinStrength, kChoice.iMinHealing,
+		kOwner.getCurrentEra(), kChoice.bPreferInstructorFirst, kChoice.iPreferThroughEra, kChoice.iRandomConstructRoll,
+		getSASGameRecordSpecialistType(kChoice.eSpecialist), getSASGameRecordBuildingType(kChoice.eBuilding),
+		(pTargetCity == NULL ? -1 : pTargetCity->getID()), (pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()),
+		(pTargetUnit == NULL ? -1 : pTargetUnit->getID()), (pTargetUnit == NULL ? "-" : getSASGameRecordUnitType(pTargetUnit->getUnitType())),
+		(pTargetUnit == NULL ? "-" : getSASGameRecordUnitAIType(pTargetUnit->AI_getUnitAIType())), kChoice.iTargetStrengthScore, kChoice.iTargetHealing,
+		kChoice.iLeadByHealing, (pTargetPlot == NULL ? -1 : pTargetPlot->getX()), (pTargetPlot == NULL ? -1 : pTargetPlot->getY()),
+		(pWaypointPlot == NULL ? -1 : pWaypointPlot->getX()), (pWaypointPlot == NULL ? -1 : pWaypointPlot->getY()), kChoice.ePreviousMissionAI,
+		(kChoice.pPreviousMissionPlot == NULL ? -1 : kChoice.pPreviousMissionPlot->getX()), (kChoice.pPreviousMissionPlot == NULL ? -1 : kChoice.pPreviousMissionPlot->getY()));
+}
+
+
 // <!-- custom: Serialize only scores produced by the real AI_bestReligion loop; the vector is built only at GameRecord level 3 and formatted only when AI_doReligion reaches a meaningful switch/spread-block decision. (ChatGPT-5.6-Sol) -->
 static CvString getSASGameRecordReligionCandidateScores(std::vector<std::pair<ReligionTypes, int> > const* paCandidateValues)
 {

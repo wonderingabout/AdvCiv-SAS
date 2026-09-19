@@ -37,6 +37,10 @@ struct SASEspionageChoiceContext
 	bool bEspionageEconomy;
 };
 
+// <!-- custom: Great-General helper signatures use an opaque optional SASGameRecord output context; the recorder owns its fields/schema.
+// AI_generalMove passes NULL unless level 2+ recording is active, so ordinary helper calls keep their legacy candidate/search work only. (ChatGPT-5.6-Sol) -->
+struct SASGreatGeneralChoiceContext;
+
 class CvUnitAI : public CvUnit
 {
 public:
@@ -194,9 +198,11 @@ protected:
 	bool AI_spreadCorporationAirlift();
 	bool AI_discover(bool bThisTurnOnly = false, bool bFirstResearchOnly = false);
 	// <!-- custom: Optional minimum Great General unit-attachment target gates; AI_generalMove passes high SAS defaults so Great Generals normally still prefer Military Academy or Military Instructor unless the thresholds are deliberately lowered. (GPT-5.5) -->
-	bool AI_lead(std::vector<UnitAITypes>& aeAIUnitTypes, int iMinStrengthScore = 0, int iMinHealing = 0);
-	bool AI_join(int iMaxCount = MAX_INT);
-	bool AI_construct(int iMaxCount = MAX_INT, int iMaxSingleBuildingCount = MAX_INT, int iThreshold = 15);
+	// <!-- custom: AI_generalMove can also pass the opaque SASGameRecord context below to these Great-General-only helpers.
+	// NULL is the normal level-0/1 path; a non-NULL context only receives the candidate/value/path the helper already selected and is logged before a potentially consuming mission push. (ChatGPT-5.6-Sol) -->
+	bool AI_lead(std::vector<UnitAITypes>& aeAIUnitTypes, int iMinStrengthScore = 0, int iMinHealing = 0, SASGreatGeneralChoiceContext* pSASChoiceContext = NULL);
+	bool AI_join(int iMaxCount = MAX_INT, SASGreatGeneralChoiceContext* pSASChoiceContext = NULL);
+	bool AI_construct(int iMaxCount = MAX_INT, int iMaxSingleBuildingCount = MAX_INT, int iThreshold = 15, SASGreatGeneralChoiceContext* pSASChoiceContext = NULL);
 	/*bool AI_switchHurry(); // advc.003j
 	bool AI_hurry();*/
 	//bool AI_greatWork(); // disabled by K-Mod
