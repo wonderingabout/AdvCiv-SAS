@@ -22324,6 +22324,23 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal, int iMaxAr
 			// </advc.001>
 		}
 
+		// <!-- custom: KI#529's attack-capable cargo census still admitted no-capture Gunships. Before an assault target can authorize movement or war, require ready cargo carried by this sea group that can legally land on the actual post-declaration plot; a city-directed landing also needs a unit able to capture that city eventually.
+		// Keep the broader attack-capable census for strategic-pressure callers, where Gunships remain genuine military cargo. See KI#529 and KI#1039. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bool bCargoCanInvade = false;
+		FOR_EACH_UNIT_IN(pCargoUnit, getPlot())
+		{
+			CvUnit const* pTransport = pCargoUnit->getTransportUnit();
+			if (pTransport != NULL && pTransport->getGroup() == getGroup() &&
+				pCargoUnit->canMove() && (pCity == NULL || !pCargoUnit->isNoCityCapture()) &&
+				pCargoUnit->canMoveOrAttackInto(kPlot, true))
+			{
+				bCargoCanInvade = true;
+				break;
+			}
+		}
+		if (!bCargoCanInvade)
+			continue;
+
 		if (pCity != NULL)
 		{
 			// <!-- custom: Naval assaults previously bypassed the shared distant-disposable Barbarian-city gate, so an opportunistic launch could revive the KI#188.5 charity cleanup that land armies reject.

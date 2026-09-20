@@ -1152,7 +1152,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1036 - (Provisional Pending inherited BtS/K-Mod/AdvC AI valuation defect left incomplete by SAS) Recovered Conscript and Defy-Resolution anger layers count as one citizen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1036)\
 [KI#1037 - (Provisional Pending AdvCiv-SAS Worker AI regression) Productive-feature Phase 0 ignores other affected cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1037)\
 [KI#1038 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI cache defect) Non-capital foreign city changes left observer target values stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1038)\
-[KI#1039 - (Provisional Pending AdvCiv-SAS assault repair regression) Gunship-only cargo can authorize an impossible city invasion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1039)\
+[KI#1039 - (Fixed AdvCiv-SAS regression in repair of an inherited K-Mod/AdvCiv assault contract defect amplified by SAS) Gunship-only cargo authorized an impossible city invasion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1039)\
 [KI#1040 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv Bombard defect) Undefended cities excluded every legal immediate capturer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1040)\
 [KI#1041 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv trade-rounding defect) An out-of-bounds exact multiple hid the nearest legal value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1041)\
 [KI#1042 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS event-value defect) PlotExtraYield absolute values were treated as additive gains](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1042)\
@@ -14161,9 +14161,13 @@ This is an inherited AdvCiv practical-2809 ordering defect, not an AdvCiv-SAS ch
 
 K-Mod and AdvCiv allow `UNITAI_ASSAULT_SEA` transports to rescue any stranded land-unit role, including Missionaries and Great People, but inherited declaration intent treated `hasCargo()` as proof of invasion cargo. SAS KI#193 amplified that loose contract by allowing any below-threshold nonempty load into opportunistic target evaluation despite documenting the exception for small military cargo. A rescued civilian could therefore make an assault transport evaluate an undefended foreign coastal city with zero landed attack strength, declare war through the pre-war Open Borders path, and then lose that path when war removed Open Borders because its cargo could not execute the landing.
 
-A shared selection-group helper now counts only loaded units that can attack. Inherited assault declaration intent and SAS's opportunistic launch both require that capability, while `AI_enemyTargetMissions` counts only attack-capable cargo as strategic pressure for assault groups. Generic stranded civilian rescue remains available. K-Mod/AdvCiv introduced the loose total-cargo declaration assumption; AdvCiv-SAS KI#193 made the civilian-only path much more reachable. Found as F206/provisional KI#529 during ChatGPT-5.6-Sol's C018-WIP08-WIP10 `CvSelectionGroupAI.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+A shared selection-group helper now counts only loaded units that can attack. Inherited assault declaration intent and SAS's opportunistic launch both require that capability, while `AI_enemyTargetMissions` counts only attack-capable cargo as strategic pressure for assault groups. Generic stranded civilian rescue remains available. K-Mod/AdvCiv introduced the loose total-cargo declaration assumption; AdvCiv-SAS KI#193 made the civilian-only path much more reachable.
 
 After a clean Debug-opt compilation, a Huge Archipelago, Normal-speed, full-UWAI autoplay with standard Aggressive AI and 16 independent starting teams completed successfully by Space Race on turn 438. `SASGameRecord_20260901T070918Z_new2.log` confirms the matching DLL and provides broad naval/transport regression coverage. The exact rescued-civilian/Open-Borders declaration chain remains source-verified.
+
+Update: The repair-side audit found that `canAttack()` still admitted no-capture Gunships. KI#1039 now retains that broad military-cargo census for strategic-pressure accounting, but target selection additionally requires ready cargo carried by the current sea group that can legally enter the actual landing plot under post-declaration rules; city-directed invasions also require a unit capable of eventual city capture. The refined Debug-opt DLL completed a Huge Archipelago, Renaissance-start autoplay through a turn-471 Space Race victory; `SASGameRecord_20260920T181736Z_new3.log` confirms the matching dirty source and provides fresh naval-assault coverage, while the exact Gunship-only target remains source-verified.
+
+Found as F206/provisional KI#529 during ChatGPT-5.6-Sol's C018-WIP08-WIP10 `CvSelectionGroupAI.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and later refined and tested with the help of wonderingabout, thanks.
 
 <a id="ki-530"></a>
 
@@ -19084,13 +19088,15 @@ Found as F717/provisional KI#1038 during ChatGPT-5.6-Sol's C031-WIP707 repair-si
 
 <a id="ki-1039"></a>
 
-## KI#1039 - (Provisional Pending AdvCiv-SAS assault repair regression) Gunship-only cargo can authorize an impossible city invasion
+## KI#1039 - (Fixed AdvCiv-SAS regression in repair of an inherited K-Mod/AdvCiv assault contract defect amplified by SAS) Gunship-only cargo authorized an impossible city invasion
 
-KI#529 replaced broad cargo counts with `getCargoThatCanAttack`, but `canAttack()` includes the current Gunship even though `bNoCapture=1`. A Gunship-only assault transport can consequently authorize a declaration and target an undefended coastal city; after war begins, the Gunship can neither attack a nonexistent defender nor enter and capture the enemy city.
+KI#529 replaced broad cargo counts with `getCargoThatCanAttack`, but `canAttack()` includes the current Gunship even though `bNoCapture=1`. A Gunship-only assault transport could consequently authorize a declaration and target an undefended coastal city; after war began, the Gunship could neither attack a nonexistent defender nor enter and capture the enemy city.
 
-The inherited/SAS-amplified capability root remains KI#529; practical 6372 repaired civilian-cargo false positives but not city-capture capability. Pending using target-local post-declaration landing legality for assault-war decisions, without weakening the separate strategic-pressure census where a Gunship remains genuine military cargo.
+Target evaluation now requires at least one ready cargo unit carried by the current sea group that can legally move or attack into the actual landing plot with war declared. When the target is a city or its adjacent landing plot, that unit must also be able to capture cities. The broader attack-capable helper remains unchanged for `AI_enemyTargetMissions`, where a Gunship still represents real strategic pressure. The inherited/SAS-amplified capability root remains KI#529; practical 6372 repaired civilian-cargo false positives but not this city-capture boundary.
 
-Found as F718/provisional KI#1039 during ChatGPT-5.6-Sol's C031-WIP708 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The rebuilt Debug-opt DLL completed a Huge Archipelago, Renaissance-start autoplay through a turn-471 Space Race victory. `SASGameRecord_20260920T181736Z_new3.log` confirms the matching dirty source and provides broad naval-assault coverage without an observed regression; the exact Gunship-only target remains source-verified.
+
+Found as F718/provisional KI#1039 during ChatGPT-5.6-Sol's C031-WIP708 repair-side audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
 <a id="ki-1040"></a>
 
