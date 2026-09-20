@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=117 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=118 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -44,10 +44,22 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 117 - SAS practical 6522
+### Revision 118 - SAS practical 6523
 
 - **Date:** 2026-09-20
 - **Git commit:** pending
+- **Change:** Added compact level-2 `GAME_RECORD_AI_DRAFT_DECISION` provenance for realized AI city conscription.
+
+The row distinguishes turtle-strategy drafting, local-danger drafting when nearby enemy attack strength exceeds local defense, the final non-critical randomized/value route, and the existing forced-caller API exit. Ordinary decisions preserve the already-computed conscript unit/population cost, danger and land-war state, good-value/excess-population context, poor worked plots, happiness allowance, unit-cost pressure, and the trigger-specific local-strength or `AI_buildUnitProb` input.
+
+Recording is reached only immediately before an actual `conscript()` call. Rejected/no-draft city turns remain intentionally unlogged; the live poor-plot count is cached once and reused by gameplay/BBAI/recorder consumers; and no draft valuation, local-strength query or synchronized RNG is repeated solely for recording.
+
+Validation also exposed an older factual-source ambiguity: `CvPlayer::splitEmpire` creates free colony defenders through the same `initConscriptedUnit()` helper, so they had been counted and labeled as ordinary conscription. Unit-completion provenance now uses explicit `PRODUCTION`, `CONSCRIPT` and `COLONY_FREE_DEFENDER` sources; level-2 production flow keeps separate colony-defender count/material/type buckets, while true `AI_doDraft` rows continue to pair with `UNIT_COMPLETED source=CONSCRIPT`.
+
+### Revision 117 - SAS practical 6522
+
+- **Date:** 2026-09-20
+- **Git commit:** `5aa5122bee1e089e723de0926a0572209673b0a3`
 - **Change:** Added compact level-2 `GAME_RECORD_AI_HURRY_DECISION` provenance for realized AI/automated-governor city hurries.
 
 The row distinguishes panic-forced hurries, population whipping that immediately relieves unhappiness or food loss, and ordinary unit/building value decisions. Value-based rows preserve the already-computed subjective population/gold costs, final target value, valued overflow and value-minus-cost margin together with live happiness/food context; the following `CITY_HURRIED` action remains authoritative for the actual production/population/treasury/anger mutation.

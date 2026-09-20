@@ -1499,6 +1499,107 @@ def check_ai_map_trade_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_unit_completion_sources(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, CITY_SOURCE, PLAYER_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing unit-completion provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	for token in ("SASGameRecordUnitCompletionSource", "SAS_UNIT_COMPLETION_PRODUCTION", "SAS_UNIT_COMPLETION_CONSCRIPT", "SAS_UNIT_COMPLETION_COLONY_FREE_DEFENDER"):
+		if token not in header_text:
+			failures.append(f"{REVISION_HEADER}: missing explicit unit-completion source token {token}")
+	if "bool bConscripted" in header_text:
+		failures.append(f"{REVISION_HEADER}: unit-completion recorder must not collapse completion provenance back to a conscripted boolean")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for token in (
+		'"PRODUCTION"', '"CONSCRIPT"', '"COLONY_FREE_DEFENDER"',
+		"colonyFreeDefenders=%d", "colonyFreeDefenderProductionNeeded=%d", "colonyFreeDefenderUnitTypes=%s",
+	):
+		if token not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing explicit unit-completion/colony-flow token {token}")
+	m_record = re.search(r"void logSASGameRecordUnitCompleted\([^\)]*\)\s*\{(?P<body>.*?)^\}", record_text, flags=re.DOTALL | re.MULTILINE)
+	if m_record is None:
+		failures.append(f"{REVISION_SOURCE}: could not locate unit-completion recorder definition")
+	else:
+		body = m_record.group("body")
+		for token in ("SAS_UNIT_COMPLETION_PRODUCTION", "SAS_UNIT_COMPLETION_CONSCRIPT", "SAS_UNIT_COMPLETION_COLONY_FREE_DEFENDER"):
+			if body.count(token) != 1:
+				failures.append(f"{REVISION_SOURCE}: unit-completion source {token} must have exactly one accounting branch")
+
+	city_text = (repo_root / CITY_SOURCE).read_text(encoding="utf-8", errors="replace")
+	m_city = re.search(r"CvUnit\* CvCity::initConscriptedUnit\(bool bColonyFreeDefender\)(?P<body>.*?)^\}", city_text, flags=re.DOTALL | re.MULTILINE)
+	if m_city is None:
+		failures.append(f"{CITY_SOURCE}: initConscriptedUnit must retain explicit colony-source context")
+	else:
+		body = m_city.group("body")
+		if "bColonyFreeDefender ? SAS_UNIT_COMPLETION_COLONY_FREE_DEFENDER : SAS_UNIT_COMPLETION_CONSCRIPT" not in body:
+			failures.append(f"{CITY_SOURCE}: shared conscript-unit initializer must distinguish true drafts from colony bootstrap defenders")
+	if city_text.count("SAS_UNIT_COMPLETION_PRODUCTION") != 1:
+		failures.append(f"{CITY_SOURCE}: ordinary city production must retain exactly one explicit PRODUCTION completion source")
+
+	player_text = (repo_root / PLAYER_SOURCE).read_text(encoding="utf-8", errors="replace")
+	if player_text.count("initConscriptedUnit(/* bColonyFreeDefender=*/true)") != 1:
+		failures.append(f"{PLAYER_SOURCE}: split-empire free defenders must pass explicit colony bootstrap provenance exactly once")
+	return failures
+
+
+def check_ai_draft_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, "CvGameCoreDLL/CvCityAI.cpp"):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI draft provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	for token in ("SASGameRecordAIDraftReason", "logSASGameRecordAIDraftDecision("):
+		if token not in header_text:
+			failures.append(f"{REVISION_HEADER}: missing AI draft provenance declaration token {token}")
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_DRAFT_DECISION", "reason=%s", "unit=%s", "population=%d", "highestPopulation=%d",
+		"conscriptPopulation=%d", "conscriptAngerTimer=%d", "danger=%d", "landWar=%d", "goodValue=%d",
+		"tooMuchPop=%d", "poorPlots=%d", "happyDiff=%d", "unitCostPerMil=%d", "localDefense=%d",
+		"localEnemyOffense=%d", "buildUnitProb=%d", '"FORCED_CALLER"', '"TURTLE_STRATEGY"',
+		'"LOCAL_DANGER"', '"NONCRITICAL_RANDOM_VALUE"',
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI draft diagnostic token {required}")
+	m_record = re.search(r"void logSASGameRecordAIDraftDecision\([^\)]*\)\s*\{(?P<body>.*?)^\}", record_text, flags=re.DOTALL | re.MULTILINE)
+	if m_record is None:
+		failures.append(f"{REVISION_SOURCE}: could not locate AI draft provenance definition")
+	elif "gGameRecordLogLevel" in m_record.group("body"):
+		failures.append(f"{REVISION_SOURCE}: AI draft serializer must rely on realized caller-side level-2 pre-gating")
+
+	city_text = (repo_root / "CvGameCoreDLL/CvCityAI.cpp").read_text(encoding="utf-8", errors="replace")
+	m = re.search(r"void CvCityAI::AI_doDraft\(bool bForce\)(?P<body>.*?)^\}", city_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		return failures + ["CvGameCoreDLL/CvCityAI.cpp: could not locate AI_doDraft"]
+	body = m.group("body")
+	if body.count("conscript();") != 2:
+		failures.append("CvGameCoreDLL/CvCityAI.cpp: AI_doDraft realized conscript exit count changed")
+	if body.count("logSASGameRecordAIDraftDecision(") != 2:
+		failures.append("CvGameCoreDLL/CvCityAI.cpp: forced and ordinary realized AI_doDraft exits must each retain one provenance bridge")
+	if body.count("if (gGameRecordLogLevel >= 2)") != 2:
+		failures.append("CvGameCoreDLL/CvCityAI.cpp: AI draft provenance must remain level-2 pre-gated only at realized conscript exits")
+	if "int const iPoorPlots = AI_countWorkedPoorPlots();" not in body:
+		failures.append("CvGameCoreDLL/CvCityAI.cpp: AI_doDraft must cache the live poor-plot count once for gameplay/BBAI/recorder reuse")
+	for token, expected in (("AI_localDefenceStrength(", 1), ("AI_localAttackStrength(", 1), ("AI_buildUnitProb(true)", 1), ("SyncRandSuccess100(", 1)):
+		actual = body.count(token)
+		if actual != expected:
+			failures.append(f"CvGameCoreDLL/CvCityAI.cpp: AI_doDraft live call count for {token} changed; expected {expected}, found {actual}")
+	for token in ("SAS_AI_DRAFT_TURTLE_STRATEGY", "SAS_AI_DRAFT_LOCAL_DANGER", "SAS_AI_DRAFT_NONCRITICAL_RANDOM_VALUE"):
+		if body.count(token) != 1:
+			failures.append(f"CvGameCoreDLL/CvCityAI.cpp: realized AI draft reason {token} must be assigned exactly once")
+	if "SyncRandSuccess100(iSASBuildUnitProb)" not in body:
+		failures.append("CvGameCoreDLL/CvCityAI.cpp: non-critical draft RNG must reuse the cached live AI_buildUnitProb value")
+	return failures
+
+
 def check_ai_hurry_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, "CvGameCoreDLL/CvCityAI.cpp"):
@@ -1758,6 +1859,8 @@ def main() -> int:
 	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
 	failures.extend(check_ai_vassalage_provenance(args.repo_root))
 	failures.extend(check_ai_map_trade_provenance(args.repo_root))
+	failures.extend(check_unit_completion_sources(args.repo_root))
+	failures.extend(check_ai_draft_provenance(args.repo_root))
 	failures.extend(check_ai_hurry_provenance(args.repo_root))
 	failures.extend(check_ai_vassal_resource_tribute_provenance(args.repo_root))
 	failures.extend(check_ai_war_trade_intent_provenance(args.repo_root))
@@ -1769,7 +1872,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-map-trade/AI-vassal-resource-tribute/AI-hurry/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-map-trade/unit-completion-sources/AI-vassal-resource-tribute/AI-draft/AI-hurry/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

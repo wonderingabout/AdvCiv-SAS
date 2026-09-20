@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 117 };
+enum { SAS_GAME_RECORD_REVISION = 118 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -503,7 +503,14 @@ void logSASGameRecordRandomEventOccurrenceCleared(CvPlayer const& kPlayer, Event
 void logSASGameRecordRandomEventExpired(CvPlayer const& kPlayer, EventTypes eEvent, EventTriggeredData const& kTriggeredData, char const* szReason);
 void logSASGameRecordRandomEventPillageResult(char const* szScope, PlayerTypes ePlayer, PlayerTypes eAffectedPlayer, int iCityId, int iTriggeredId, EventTypes eEvent, int iMinPillage, int iMaxPillage, int iAttempts, int iDestroyed);
 void logSASGameRecordRandomEventCountdownScheduled(CvPlayer const& kPlayer, EventTypes eSourceEvent, EventTypes eFollowupEvent, int iTriggeredId, int iRequestedDueTurn, int iPreviousDueTurn, int iScheduledDueTurn);
-void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted, int iRawModifiedOverflow = 0, int iUnmodifiedOverflow = 0, int iKeptOverflow = 0, int iLostProduction = 0, int iUnusedOverflowCapacity = 0, int iOverflowGold = 0);
+// <!-- custom: Keep factual unit-completion provenance explicit: ordinary production, true population conscription, and free colony bootstrap defenders share unit-init machinery but have different strategic/economic meaning. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordUnitCompletionSource
+{
+	SAS_UNIT_COMPLETION_PRODUCTION = 0,
+	SAS_UNIT_COMPLETION_CONSCRIPT,
+	SAS_UNIT_COMPLETION_COLONY_FREE_DEFENDER
+};
+void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, SASGameRecordUnitCompletionSource eSource, int iRawModifiedOverflow = 0, int iUnmodifiedOverflow = 0, int iKeptOverflow = 0, int iLostProduction = 0, int iUnusedOverflowCapacity = 0, int iOverflowGold = 0);
 // <!-- custom: Research completion has its own accounting row because generic TECH_ACQUIRED also covers trades, free technologies, espionage and other sources where research overflow fields would be meaningless.
 // Call only for actual TECH_ACQUISITION_RESEARCH threshold crossings at level 2+. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordResearchCompleted(TechTypes eTech, TeamTypes eTeam, PlayerTypes ePlayer, int iProgressBefore, int iProgressBeforeClamp, int iResearchModifier, int iUnmodifiedOverflow);
@@ -769,6 +776,17 @@ void logSASGameRecordVoteTriggered(VoteTriggeredData const* pVoteTriggered);
 void logSASGameRecordVoteResult(VoteTriggeredData const* pVoteTriggered, bool bThresholdPassed, bool bPassed, bool bCancelled, qword uiDefaultedAbstain, qword uiDefiers, qword uiEndorsers);
 void logSASGameRecordReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer);
 void logSASGameRecordCorporationFounded(CorporationTypes eCorporation, PlayerTypes ePlayer);
+// <!-- custom: Closed recorder-only triggers for a realized AI city draft. NONE is an internal assignment sentinel; current ordinary AI_doDraft can realize TURTLE_STRATEGY, LOCAL_DANGER or NONCRITICAL_RANDOM_VALUE, while FORCED_CALLER preserves the existing bForce API exit without running the ordinary chooser. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordAIDraftReason
+{
+	SAS_AI_DRAFT_NONE,
+	SAS_AI_DRAFT_FORCED_CALLER,
+	SAS_AI_DRAFT_TURTLE_STRATEGY,
+	SAS_AI_DRAFT_LOCAL_DANGER,
+	SAS_AI_DRAFT_NONCRITICAL_RANDOM_VALUE
+};
+// <!-- custom: Preserve only the realized AI_doDraft trigger and already-computed enabling context that the following conscription mutation cannot reconstruct; callers pre-gate at level 2 immediately before conscript(), so rejected/no-draft city turns add no recorder-only scans, valuations or RNG. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIDraftDecision(CvCity const& kCity, SASGameRecordAIDraftReason eReason, UnitTypes eConscriptUnit, int iConscriptPopulation, int iDanger, int iLandWar, int iGoodValue, int iTooMuchPop, int iPoorPlots, int iHappyDiff, int iUnitCostPerMil, int iLocalDefense, int iLocalEnemyOffense, int iBuildUnitProb);
 // <!-- custom: Closed recorder-only reasons for a realized AI/automated-governor city hurry. Keep the choice vocabulary beside its serializer rather than exposing diagnostic-only causes through gameplay enums. (ChatGPT-5.6-Sol) -->
 enum SASGameRecordAIHurryReason
 {

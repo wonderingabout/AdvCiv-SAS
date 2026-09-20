@@ -18338,7 +18338,8 @@ bool CvPlayer::splitEmpire(CvArea& kArea) // advc: was iAreaId
 	for(size_t i = 0; i < apAcquiredCities.size(); i++)
 	{
 		for(int j = 0; j < iCOLONY_NUM_FREE_DEFENDERS; j++)
-			apAcquiredCities[i]->initConscriptedUnit();
+			// <!-- custom: Colony bootstrap deliberately reuses the conscript unit initializer for its shared unit setup, but these units are free defenders rather than population drafts; pass recorder-only provenance so SASGameRecord does not inflate conscription counts/material. (ChatGPT-5.6-Sol) -->
+			apAcquiredCities[i]->initConscriptedUnit(/* bColonyFreeDefender=*/true);
 	}
 	if (getUWAI().isEnabled())
 		getUWAI().processNewPlayerInGame(eNewPlayer); // </advc.104r>

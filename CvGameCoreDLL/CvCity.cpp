@@ -3275,7 +3275,9 @@ bool CvCity::canConscript() const
 	return true;
 }
 
-CvUnit* CvCity::initConscriptedUnit()
+// <!-- custom: splitEmpire shares this initializer for free colony bootstrap defenders.
+// bColonyFreeDefender is recorder/accounting provenance only; keep the actual unit initialization identical to ordinary conscription. (ChatGPT-5.6-Sol) -->
+CvUnit* CvCity::initConscriptedUnit(bool bColonyFreeDefender)
 {
 	UnitTypes eConscriptUnit = getConscriptUnit();
 	if (eConscriptUnit == NO_UNIT)
@@ -3300,7 +3302,7 @@ CvUnit* CvCity::initConscriptedUnit()
 	addProductionExperience(pUnit, true);
 	pUnit->setMoves(0);
 	// K-Mod, 26/Jun/2011: Conscription counts as building the unit
-	if (gGameRecordLogLevel >= 2) logSASGameRecordUnitCompleted(this, pUnit, true);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordUnitCompleted(this, pUnit, bColonyFreeDefender ? SAS_UNIT_COMPLETION_COLONY_FREE_DEFENDER : SAS_UNIT_COMPLETION_CONSCRIPT);
 	CvEventReporter::getInstance().unitBuilt(this, pUnit);
 
 	return pUnit;
@@ -10400,7 +10402,7 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
 		if (eTrainAIUnit == UNITAI_WORKER)
 			AI().AI_updateWorkersHaveAndNeeded();
 		// <!-- custom: Record completion before air-capacity relocation. A produced air unit with no valid destination can be destroyed below before the ordinary unitBuilt event fires. (GPT-5.6-Sol) -->
-		if (gGameRecordLogLevel >= 2) logSASGameRecordUnitCompleted(this, pUnit, false, iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostOverflowProduction, iUnusedOverflowCapacity, iOverflowGold);
+		if (gGameRecordLogLevel >= 2) logSASGameRecordUnitCompleted(this, pUnit, SAS_UNIT_COMPLETION_PRODUCTION, iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostOverflowProduction, iUnusedOverflowCapacity, iOverflowGold);
 		CvPlot* pRallyPlot = getRallyPlot(); // (advc.001b: moved up)
 		if (GC.getInfo(eTrainUnit).getDomainType() == DOMAIN_AIR &&
 			getPlot().countNumAirUnits(getTeam()) > getAirUnitCapacity(getTeam()))

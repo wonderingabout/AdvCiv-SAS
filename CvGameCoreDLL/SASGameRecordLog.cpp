@@ -2338,8 +2338,10 @@ struct SASGameRecordPlayerFlow
 {
 	int iUnitsCompleted;
 	int iUnitsConscripted;
+	int iColonyFreeDefenders;
 	int iUnitProductionNeeded;
 	int iConscriptProductionNeeded;
+	int iColonyFreeDefenderProductionNeeded;
 	int iBuildingsCompleted;
 	int iBuildingProductionNeeded;
 	int iProjectsCompleted;
@@ -2402,6 +2404,7 @@ struct SASGameRecordPlayerFlow
 	int iOwnExperienceLost;
 	std::vector<int> aiUnitTypes;
 	std::vector<int> aiConscriptedUnitTypes;
+	std::vector<int> aiColonyFreeDefenderUnitTypes;
 	std::vector<int> aiBuildingTypes;
 	std::vector<int> aiProjectTypes;
 	std::vector<int> aiPromotionChoices;
@@ -2410,8 +2413,10 @@ struct SASGameRecordPlayerFlow
 	{
 		iUnitsCompleted = 0;
 		iUnitsConscripted = 0;
+		iColonyFreeDefenders = 0;
 		iUnitProductionNeeded = 0;
 		iConscriptProductionNeeded = 0;
+		iColonyFreeDefenderProductionNeeded = 0;
 		iBuildingsCompleted = 0;
 		iBuildingProductionNeeded = 0;
 		iProjectsCompleted = 0;
@@ -2470,6 +2475,7 @@ struct SASGameRecordPlayerFlow
 		iOwnExperienceLost = 0;
 		aiUnitTypes.assign(GC.getNumUnitInfos(), 0);
 		aiConscriptedUnitTypes.assign(GC.getNumUnitInfos(), 0);
+		aiColonyFreeDefenderUnitTypes.assign(GC.getNumUnitInfos(), 0);
 		aiBuildingTypes.assign(GC.getNumBuildingInfos(), 0);
 		aiProjectTypes.assign(GC.getNumProjectInfos(), 0);
 		aiPromotionChoices.assign(GC.getNumPromotionInfos(), 0);
@@ -2477,7 +2483,7 @@ struct SASGameRecordPlayerFlow
 
 	bool hasProduction() const
 	{
-		return (iUnitsCompleted > 0 || iUnitsConscripted > 0 || iBuildingsCompleted > 0 || iProjectsCompleted > 0 || iOverflowActions > 0 || iFailedInvestedProduction > 0 || iFailGold > 0 ||
+		return (iUnitsCompleted > 0 || iUnitsConscripted > 0 || iColonyFreeDefenders > 0 || iBuildingsCompleted > 0 || iProjectsCompleted > 0 || iOverflowActions > 0 || iFailedInvestedProduction > 0 || iFailGold > 0 ||
 			iAIProductionTargetSwitches > 0 || iAIProductionTargetClears > 0 || iAIProductionTargetResumes > 0 || iProductionDecayActions > 0 || iProductionInvalidatedActions > 0 || iProductionUpgradeTransfers > 0 || iProductionUpgradeOverwritten > 0);
 	}
 
@@ -5862,21 +5868,24 @@ static void logSASGameRecordFlowBuckets(int iGameTurn)
 		{
 			CvString szUnitTypes;
 			CvString szConscriptedUnitTypes;
+			CvString szColonyFreeDefenderUnitTypes;
 			CvString szBuildingTypes;
 			CvString szProjectTypes;
 			FOR_EACH_ENUM(Unit)
 			{
 				appendSASGameRecordTypeCount(szUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiUnitTypes[eLoopUnit]);
 				appendSASGameRecordTypeCount(szConscriptedUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiConscriptedUnitTypes[eLoopUnit]);
+				appendSASGameRecordTypeCount(szColonyFreeDefenderUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiColonyFreeDefenderUnitTypes[eLoopUnit]);
 			}
 			FOR_EACH_ENUM(Building)
 				appendSASGameRecordTypeCount(szBuildingTypes, getSASGameRecordBuildingType(eLoopBuilding), kFlow.aiBuildingTypes[eLoopBuilding]);
 			FOR_EACH_ENUM(Project)
 				appendSASGameRecordTypeCount(szProjectTypes, getSASGameRecordProjectType(eLoopProject), kFlow.aiProjectTypes[eLoopProject]);
-			logSASGameRecord("GAME_RECORD_PRODUCTION_FLOW turn=%d range=%d-%d player=%d unitsProduced=%d unitProductionNeeded=%d unitTypes=%s unitsConscripted=%d conscriptProductionNeeded=%d conscriptedUnitTypes=%s buildingsCompleted=%d buildingProductionNeeded=%d buildingTypes=%s projectsCompleted=%d projectProductionNeeded=%d projectTypes=%s overflowActions=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d failedInvestedProduction=%d failGold=%d aiTargetSwitches=%d aiTargetClears=%d aiInvestedTargetChanges=%d aiProductionParked=%d aiTargetResumes=%d aiProductionResumed=%d aiTargetChangedCities=%d aiMaxTargetChangesOneCity=%d aiTargetTransitions=%s productionDecayActions=%d productionDecayLost=%d productionInvalidatedActions=%d productionInvalidatedLost=%d productionUpgradeTransfers=%d productionUpgradeTransferred=%d productionUpgradeOverwriteActions=%d productionUpgradeOverwritten=%d",
+			logSASGameRecord("GAME_RECORD_PRODUCTION_FLOW turn=%d range=%d-%d player=%d unitsProduced=%d unitProductionNeeded=%d unitTypes=%s unitsConscripted=%d conscriptProductionNeeded=%d conscriptedUnitTypes=%s colonyFreeDefenders=%d colonyFreeDefenderProductionNeeded=%d colonyFreeDefenderUnitTypes=%s buildingsCompleted=%d buildingProductionNeeded=%d buildingTypes=%s projectsCompleted=%d projectProductionNeeded=%d projectTypes=%s overflowActions=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d failedInvestedProduction=%d failGold=%d aiTargetSwitches=%d aiTargetClears=%d aiInvestedTargetChanges=%d aiProductionParked=%d aiTargetResumes=%d aiProductionResumed=%d aiTargetChangedCities=%d aiMaxTargetChangesOneCity=%d aiTargetTransitions=%s productionDecayActions=%d productionDecayLost=%d productionInvalidatedActions=%d productionInvalidatedLost=%d productionUpgradeTransfers=%d productionUpgradeTransferred=%d productionUpgradeOverwriteActions=%d productionUpgradeOverwritten=%d",
 				iGameTurn, g_iSASGameRecordFlowStartTurn, iGameTurn, ePlayer, kFlow.iUnitsCompleted, kFlow.iUnitProductionNeeded,
 				getSASDiagnosticOrDash(szUnitTypes).GetCString(), kFlow.iUnitsConscripted, kFlow.iConscriptProductionNeeded,
-				getSASDiagnosticOrDash(szConscriptedUnitTypes).GetCString(), kFlow.iBuildingsCompleted, kFlow.iBuildingProductionNeeded,
+				getSASDiagnosticOrDash(szConscriptedUnitTypes).GetCString(), kFlow.iColonyFreeDefenders, kFlow.iColonyFreeDefenderProductionNeeded,
+				getSASDiagnosticOrDash(szColonyFreeDefenderUnitTypes).GetCString(), kFlow.iBuildingsCompleted, kFlow.iBuildingProductionNeeded,
 				getSASDiagnosticOrDash(szBuildingTypes).GetCString(), kFlow.iProjectsCompleted, kFlow.iProjectProductionNeeded,
 				getSASDiagnosticOrDash(szProjectTypes).GetCString(), kFlow.iOverflowActions, kFlow.iRawModifiedOverflow,
 				kFlow.iUnmodifiedOverflow, kFlow.iKeptOverflow, kFlow.iLostProduction, kFlow.iUnusedOverflowCapacity, kFlow.iOverflowGold,
@@ -10906,7 +10915,7 @@ void logSASGameRecordRandomEventCountdownScheduled(CvPlayer const& kPlayer, Even
 		iScheduledDueTurn - GC.getGame().getGameTurn());
 }
 
-void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
+void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, SASGameRecordUnitCompletionSource eSource, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
 {
 	if (pCity == NULL || pUnit == NULL)
 		return;
@@ -10915,25 +10924,37 @@ void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, boo
 		return;
 	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
 	int const iProductionNeeded = GET_PLAYER(ePlayer).getProductionNeeded(pUnit->getUnitType());
-	if (bConscripted)
+	char const* szSource = NULL;
+	switch (eSource)
 	{
-		kFlow.iUnitsConscripted++;
-		kFlow.iConscriptProductionNeeded += iProductionNeeded;
-		kFlow.aiConscriptedUnitTypes[pUnit->getUnitType()]++;
-	}
-	else
-	{
+	case SAS_UNIT_COMPLETION_PRODUCTION:
 		kFlow.iUnitsCompleted++;
 		kFlow.iUnitProductionNeeded += iProductionNeeded;
 		kFlow.aiUnitTypes[pUnit->getUnitType()]++;
+		szSource = "PRODUCTION";
+		break;
+	case SAS_UNIT_COMPLETION_CONSCRIPT:
+		kFlow.iUnitsConscripted++;
+		kFlow.iConscriptProductionNeeded += iProductionNeeded;
+		kFlow.aiConscriptedUnitTypes[pUnit->getUnitType()]++;
+		szSource = "CONSCRIPT";
+		break;
+	case SAS_UNIT_COMPLETION_COLONY_FREE_DEFENDER:
+		kFlow.iColonyFreeDefenders++;
+		kFlow.iColonyFreeDefenderProductionNeeded += iProductionNeeded;
+		kFlow.aiColonyFreeDefenderUnitTypes[pUnit->getUnitType()]++;
+		szSource = "COLONY_FREE_DEFENDER";
+		break;
+	default:
+		FAssert(false);
+		return;
 	}
 	if (gGameRecordLogLevel >= 3)
 	{
 		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_COMPLETED player=%d cityId=%d city=%S unitId=%d unit=%s unitAI=%s source=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
 			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->getID(),
-			getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
-			bConscripted ? "CONSCRIPT" : "PRODUCTION", iProductionNeeded, iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow,
-			iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
+			getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), szSource,
+			iProductionNeeded, iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
 	}
 }
 
@@ -12945,6 +12966,28 @@ void logSASGameRecordCityCultureExpanded(CvCity const* pCity)
 		GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(),
 		pCity->getY(), GC.getInfo(eCultureLevel).getType(), eCultureLevel, pCity->getCultureTimes100(pCity->getOwner()),
 		pCity->getCultureThreshold(), pCity->getDefenseModifier(false), pCity->getTotalDefense(false));
+}
+
+// <!-- custom: AI_doDraft's final conscription action preserves the unit but loses which live trigger released bWait and the enabling value/population context.
+// Keep this serializer factual about the already-resolved trigger; rejected city turns remain intentionally unlogged. (ChatGPT-5.6-Sol) -->
+static char const* getSASGameRecordAIDraftReason(SASGameRecordAIDraftReason eReason)
+{
+	switch (eReason)
+	{
+	case SAS_AI_DRAFT_FORCED_CALLER: return "FORCED_CALLER";
+	case SAS_AI_DRAFT_TURTLE_STRATEGY: return "TURTLE_STRATEGY";
+	case SAS_AI_DRAFT_LOCAL_DANGER: return "LOCAL_DANGER";
+	case SAS_AI_DRAFT_NONCRITICAL_RANDOM_VALUE: return "NONCRITICAL_RANDOM_VALUE";
+	default: return "UNKNOWN";
+	}
+}
+
+void logSASGameRecordAIDraftDecision(CvCity const& kCity, SASGameRecordAIDraftReason eReason, UnitTypes eConscriptUnit, int iConscriptPopulation, int iDanger, int iLandWar, int iGoodValue, int iTooMuchPop, int iPoorPlots, int iHappyDiff, int iUnitCostPerMil, int iLocalDefense, int iLocalEnemyOffense, int iBuildUnitProb)
+{
+	logSASGameRecord("GAME_RECORD_AI_DRAFT_DECISION turn=%d player=%d cityId=%d city=%S reason=%s unit=%s population=%d highestPopulation=%d conscriptPopulation=%d conscriptAngerTimer=%d danger=%d landWar=%d goodValue=%d tooMuchPop=%d poorPlots=%d happyDiff=%d unitCostPerMil=%d localDefense=%d localEnemyOffense=%d buildUnitProb=%d",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), getSASGameRecordAIDraftReason(eReason),
+		getSASGameRecordUnitType(eConscriptUnit), kCity.getPopulation(), kCity.getHighestPopulation(), iConscriptPopulation, kCity.getConscriptAngerTimer(),
+		iDanger, iLandWar, iGoodValue, iTooMuchPop, iPoorPlots, iHappyDiff, iUnitCostPerMil, iLocalDefense, iLocalEnemyOffense, iBuildUnitProb);
 }
 
 // <!-- custom: AI_doHurry has several mutually exclusive realized exits whose live value/cost comparison is lost as soon as hurry mutates production, population and treasury.

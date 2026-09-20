@@ -158,7 +158,9 @@ public:
 	void changePopRushCount(int iChange);
 	// </advc.912d>
 	UnitTypes getConscriptUnit() const;																			// Exposed to Python
-	CvUnit* initConscriptedUnit();
+	// <!-- custom: This helper is also reused by CvPlayer::splitEmpire for free colony bootstrap defenders.
+	// The default false preserves ordinary population conscription; true changes SASGameRecord source/accounting only, not unit creation mechanics. (ChatGPT-5.6-Sol) -->
+	CvUnit* initConscriptedUnit(bool bColonyFreeDefender = false);
 	int getConscriptPopulation() const;																			// Exposed to Python
 	int conscriptMinCityPopulation() const;																		// Exposed to Python
 	int flatConscriptAngerLength() const;																		// Exposed to Python

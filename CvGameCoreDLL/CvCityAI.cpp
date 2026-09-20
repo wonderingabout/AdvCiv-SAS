@@ -13741,6 +13741,9 @@ void CvCityAI::AI_doDraft(bool bForce)
 	//if (GC.getGame().AI_combatValue(getConscriptUnit()) > 33) // disabled by K-Mod
 	if (bForce)
 	{
+		// <!-- custom: Preserve the otherwise-opaque forced-call exit without evaluating the ordinary draft chooser solely for recording.
+		// No current DLL caller passes true, but keep the existing API path observable if reused. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2) logSASGameRecordAIDraftDecision(*this, SAS_AI_DRAFT_FORCED_CALLER, getConscriptUnit(), getConscriptPopulation(), -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
 		conscript();
 		return;
 	}
@@ -13784,7 +13787,9 @@ void CvCityAI::AI_doDraft(bool bForce)
 		return;
 	} // <advc.017>
 	// Cut-and-pasted from below:
-	bool bTooMuchPop = AI_countWorkedPoorPlots() > 0 ||
+	// <!-- custom: Reuse the already-live poor-plot count in the turtle branch, BBAI line and realized draft provenance instead of rescanning worked plots. (ChatGPT-5.6-Sol) -->
+	int const iPoorPlots = AI_countWorkedPoorPlots();
+	bool bTooMuchPop = iPoorPlots > 0 ||
 			foodDifference(false, true)+getFood() < 0 ||
 			(foodDifference(false, true) < 0 && healthRate() <= -4);
 	// Don't just draft for no particular reason
@@ -13796,6 +13801,10 @@ void CvCityAI::AI_doDraft(bool bForce)
 	if((!bGoodValue && !bLandWar) || angryPopulation(iHappyDiff) > 0)
 		return; // advc
 	bool bWait = true;
+	SASGameRecordAIDraftReason eSASDraftReason = SAS_AI_DRAFT_NONE;
+	int iSASLocalDefense = -1;
+	int iSASLocalEnemyOffense = -1;
+	int iSASBuildUnitProb = -1;
 	if(kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE))
 	{	// Full out defensive
 		/*if (bDanger || getPopulation() >= std::max(5, getHighestPopulation() - 1))
@@ -13804,8 +13813,11 @@ void CvCityAI::AI_doDraft(bool bForce)
 			bWait = false;*/ // BtS
 		// K-Mod: full out defensive indeed. We've already checked for happiness, and we're desperate for units.
 		// Just beware of happiness sources that might expire - such as military happiness.
-		if (getConscriptAngerTimer() == 0 || AI_countWorkedPoorPlots() > 0)
+		if (getConscriptAngerTimer() == 0 || iPoorPlots > 0)
+		{
 			bWait = false;
+			eSASDraftReason = SAS_AI_DRAFT_TURTLE_STRATEGY;
+		}
 	}
 
 	// // <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
@@ -13819,30 +13831,41 @@ void CvCityAI::AI_doDraft(bool bForce)
 		int iEnemyOffense = GET_PLAYER(getOwner()).AI_getEnemyPlotStrength(plot(),2,false,false);
 		if (iOurDefense == 0 || 3 * iEnemyOffense > 2 * iOurDefense)*/
 		// K-Mod
-		int iOurDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
-		int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
-		if (iOurDefense < iEnemyOffense) // K-Mod end
+		iSASLocalDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
+		iSASLocalEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
+		if (iSASLocalDefense < iSASLocalEnemyOffense) // K-Mod end
+		{
 			bWait = false;
+			eSASDraftReason = SAS_AI_DRAFT_LOCAL_DANGER;
+		}
 	}
 
 	if (bWait)
 	{
 		// Non-critical, only burn population if population is not worth much
-		if (SyncRandSuccess100(AI_buildUnitProb(true)) && // advc.017
+		iSASBuildUnitProb = AI_buildUnitProb(true);
+		if (SyncRandSuccess100(iSASBuildUnitProb) && // advc.017
 			(getConscriptAngerTimer() == 0 || isNoUnhappiness()) && // K-Mod
 			(bGoodValue || bTooMuchPop)) // advc.017  (no functional change here)
 		{
 			bWait = false;
+			eSASDraftReason = SAS_AI_DRAFT_NONCRITICAL_RANDOM_VALUE;
 		}
 	}
 
 	if (!bWait && gCityLogLevel >= 2)
 		logBBAI("      City %S (size %d, highest %d) chooses to conscript with danger: %d, land war: %d, poor tiles: %d%s",
-			getName().GetCString(), getPopulation(), getHighestPopulation(), bDanger, bLandWar, AI_countWorkedPoorPlots(),
+			getName().GetCString(), getPopulation(), getHighestPopulation(), bDanger, bLandWar, iPoorPlots,
 			bGoodValue ? ", good value" : "");
 	// BETTER_BTS_AI_MOD: END
 	if (!bWait)
+	{
+		FAssert(eSASDraftReason != SAS_AI_DRAFT_NONE);
+		// <!-- custom: Record only the realized trigger immediately before conscript mutates population/anger and creates the unit.
+		// Reuse all live chooser context; rejected city turns stay unlogged. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2) logSASGameRecordAIDraftDecision(*this, eSASDraftReason, eConscriptUnit, iConscriptPop, bDanger ? 1 : 0, bLandWar ? 1 : 0, bGoodValue ? 1 : 0, bTooMuchPop ? 1 : 0, iPoorPlots, iHappyDiff, iUnitCostPerMil, iSASLocalDefense, iSASLocalEnemyOffense, iSASBuildUnitProb);
 		conscript();
+	}
 }
 
 // This function has been heavily edited for K-Mod
