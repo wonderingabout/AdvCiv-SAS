@@ -5585,6 +5585,7 @@ bool CvTeam::isTurnActive() const
 }
 
 
+// <!-- custom: This aging runs from the ordinary team turn for living owners and from CvGame's global-turn boundary for dead owners that can later revive. See KI#415. See KI#1055. (GPT-5.6-Sol) -->
 void CvTeam::doWarWeariness()
 {
 	static int const iWW_DECAY_RATE = GC.getDefineINT("WW_DECAY_RATE"); // advc.opt

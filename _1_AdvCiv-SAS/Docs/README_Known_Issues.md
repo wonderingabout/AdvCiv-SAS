@@ -1168,7 +1168,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1052 - (Fixed inherited AdvCiv UWAI HiredHand defect) Ally-hire obligation repeated across target teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1052)\
 [KI#1053 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI KingMaking defect) Target-team utility used its leader's personal relation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1053)\
 [KI#1054 - (Fixed inherited original UWAI KingMaking defect) Pre-launch capital loss falsely eliminated a Space4 contender](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1054)\
-[KI#1055 - (Provisional Pending AdvCiv-SAS war-weariness repair regression) Dead-owner values freeze through elimination](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1055)\
+[KI#1055 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv war-weariness defect) Dead-owner values froze through elimination](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1055)\
 [KI#1056 - (Fixed AdvCiv-SAS regression in repair of an inherited K-Mod Permanent-Alliance defect) Historical identity migration skipped dead outsiders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1056)\
 [KI#1057 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv Permanent-Alliance defect) Contact and first-contact migration skipped dead outsiders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1057)\
 [KI#1058 - (Provisional Pending AdvCiv-SAS Espionage repair regression) The first generic Spy can block an eligible grouped Spy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1058)\
@@ -12717,6 +12717,8 @@ The fix iterates all civilization teams that have ever lived. Living targets ret
 
 The full-domain loop and explicit dead-target condition are inherited from BtS, while AdvCiv practical 1837 introduced the iterator regression retained in AdvCiv 1.14. This is an inherited AdvCiv regression rather than an AdvCiv-SAS change. The compiled Huge full autoplay completed normally on turn 382 and eliminated players 1, 6 and 13, supplying broad runtime coverage with dead civilization teams; the exact decay of a nonzero stored value remains source-verified. Found as F093/provisional KI#415 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
+Update: KI#1055 found that broadening the target loop did not age values owned by a dead team because dead teams receive no ordinary team turn. Dead ever-alive owners now run the same war-weariness aging once at each global-turn boundary; living owners retain their existing team-turn path.
+
 <a id="ki-416"></a>
 
 ## KI#416 - (Fixed inherited AdvCiv team-technology regression) Dead teammates missed persistent effects
@@ -19270,13 +19272,15 @@ A current-build compilation and autoplay completed successfully. The exact predi
 
 <a id="ki-1055"></a>
 
-## KI#1055 - (Provisional Pending AdvCiv-SAS war-weariness repair regression) Dead-owner values freeze through elimination
+## KI#1055 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv war-weariness defect) Dead-owner values froze through elimination
 
-KI#415 restores decay for an alive team's war-weariness value against a dead target, but decay still runs only from the owner team's alive-only `doTurn`. The reciprocal dead owner's value therefore freezes for the whole elimination interval and can return as obsolete asymmetric war-weariness if that civilization revives and fights the survivor again.
+KI#415 restored decay for an alive team's war-weariness value against a dead target, but decay still ran only from the owner team's alive-only `doTurn`. The reciprocal dead owner's value therefore froze for the whole elimination interval and could return as obsolete asymmetric war-weariness if that civilization revived and fought the survivor again.
 
-The inherited dead-target iterator root remains KI#415; its SAS repair does not cover the distinct dead-owner lifecycle. Pending aging retained directional values while their owner is dead or equivalently normalizing them on elimination/revival with the same decay semantics, rather than simply erasing history.
+The repair exposes the existing aging routine to `CvGame` and invokes it for each dead ever-alive team immediately after the authoritative game-turn/elapsed-turn increment. Alive teams retain their ordinary team-turn call, while dead owners receive exactly the missing once-per-global-turn decay and peace multiplier without clearing their historical values or adding save state. The inherited dead-target iterator root remains KI#415; its AdvCiv-SAS repair omitted this distinct dead-owner lifecycle.
 
-Found as F734/provisional KI#1055 during ChatGPT-5.6-Sol's C031-WIP790 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The rebuilt Debug-opt DLL completed a Huge Pangaea autoplay through a turn-423 Space Race victory. `SASGameRecord_20260920T185427Z_new1.log` confirms matching dirty source and three eliminated players (0, 2 and 9), providing direct dead-owner lifecycle coverage without an observed regression; exact nonzero directional decay remains source-verified.
+
+Found as F734/provisional KI#1055 during ChatGPT-5.6-Sol's C031-WIP790 repair-side audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and tested with the help of wonderingabout, thanks.
 
 <a id="ki-1056"></a>
 

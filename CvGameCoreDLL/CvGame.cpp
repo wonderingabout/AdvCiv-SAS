@@ -6376,6 +6376,13 @@ void CvGame::doTurn()
 	}
 	incrementGameTurn();
 	incrementElapsedGameTurns();
+	// <!-- custom: Alive teams age war weariness in their ordinary team turn, but dead teams have no such callback and can later revive with retained state.
+	// Age each dead ever-alive owner's directional values once at the authoritative global-turn boundary. See KI#415. See KI#1055. (GPT-5.6-Sol) -->
+	for (TeamIter<EVER_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+	{
+		if (!itTeam->isAlive())
+			itTeam->doWarWeariness();
+	}
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);

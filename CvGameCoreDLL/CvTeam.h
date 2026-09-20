@@ -58,6 +58,8 @@ public:
 	void processBuilding(BuildingTypes eBuilding, int iChange);
 
 	void doTurn();
+	// <!-- custom: Dead teams receive no ordinary team turn, so the global-turn boundary invokes only their retained war-weariness aging. See KI#415. See KI#1055. (GPT-5.6-Sol) -->
+	void doWarWeariness();
 
 	void updateYield();
 	void updatePowerHealth();
@@ -596,7 +598,6 @@ protected:
 	static bool bTriggeringWars;
 	// </kekm.26>
 
-	void doWarWeariness();
 	void doBarbarianResearch(); // advc
 	void updateTechShare(TechTypes eTech, /* advc.opt: */ int iOtherKnownThreshold = -1);
 	void updateTechShare();
