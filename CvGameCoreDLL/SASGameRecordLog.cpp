@@ -11910,6 +11910,17 @@ void logSASGameRecordAIVassalageDecision(CvPlayerAI const& kPlayer, PlayerTypes 
 		getSASTradeListText(kAIReceives, eTarget).GetCString());
 }
 
+// <!-- custom: MAPS <-> MAPS loses its pre-exchange valuation asymmetry as soon as the deal reveals both maps. Serialize only the already-live proposer/target values and threshold; the generic CONTACT_TRADE_MAP row remains authoritative for delivery/package. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIMapTradeDecision(CvPlayerAI const& kPlayer, PlayerTypes eTarget, int iOurReceiveValue, int iTargetReceiveValue, int iTargetReceiveMinExclusive)
+{
+	if (eTarget == NO_PLAYER)
+		return;
+	CvPlayerAI const& kTarget = GET_PLAYER(eTarget);
+	logSASGameRecord("GAME_RECORD_AI_MAP_TRADE_DECISION turn=%d player=%d team=%d targetPlayer=%d targetTeam=%d targetHuman=%d ourReceiveMapValue=%d targetReceiveMapValue=%d ourValueAdvantage=%d targetReceiveMinExclusive=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eTarget, kTarget.getTeam(), kTarget.isHuman() ? 1 : 0,
+		iOurReceiveValue, iTargetReceiveValue, iOurReceiveValue - iTargetReceiveValue, iTargetReceiveMinExclusive);
+}
+
 static char const* getSASGameRecordAIWarTradePaymentPath(SASGameRecordAIWarTradePaymentPath ePaymentPath)
 {
 	switch (ePaymentPath)

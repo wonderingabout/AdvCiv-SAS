@@ -24352,40 +24352,51 @@ void CvPlayerAI::AI_doDiplo()
 					if (kPlayer.canTradeItem(getID(), item, true) &&
 						canTradeItem(ePlayer, item, true))
 					{	// <advc.136b>
-						int const iTheyReceive = GET_TEAM(ePlayer).AI_mapTradeVal(getTeam());
-						// Apply threshold also to AI b/c map trades slow down AI turns
-						if (//!bPlayerHuman ||
-							(kOurTeam.AI_mapTradeVal(kPlayer.getTeam()) >= iTheyReceive &&
-							iTheyReceive > GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER)))
-							// <advc.136b>
+						// <!-- custom: Name both already-live pre-exchange map values so a realized map-trade row can preserve the asymmetric acceptance boundary without rescanning the map solely for recording. (ChatGPT-5.6-Sol) -->
+						int const iTargetReceiveValue = GET_TEAM(ePlayer).AI_mapTradeVal(getTeam());
+						int const iOurReceiveValue = kOurTeam.AI_mapTradeVal(kPlayer.getTeam());
+						if (iOurReceiveValue >= iTargetReceiveValue)
 						{
-							weGive.clear();
-							theyGive.clear();
-							setTradeItem(&item, TRADE_MAPS);
-							weGive.insertAtEnd(item);
-							setTradeItem(&item, TRADE_MAPS);
-							theyGive.insertAtEnd(item);
+							// Apply threshold also to AI b/c map trades slow down AI turns
+							int const iTargetReceiveMinExclusive = GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER);
+							if (iTargetReceiveValue > iTargetReceiveMinExclusive) // <advc.136b>
+							{
+								weGive.clear();
+								theyGive.clear();
+								setTradeItem(&item, TRADE_MAPS);
+								weGive.insertAtEnd(item);
+								setTradeItem(&item, TRADE_MAPS);
+								theyGive.insertAtEnd(item);
 
-							if (bPlayerHuman)
-							{
-								if (!abContacted[kPlayer.getTeam()])
+								if (bPlayerHuman)
 								{
-									AI_changeContactTimer(ePlayer, CONTACT_TRADE_MAP,
-											AI_getContactDelay(CONTACT_TRADE_MAP));
-									pDiplo = new CvDiploParameters(getID());
-									pDiplo->setDiploComment(GC.getAIDiploCommentType("OFFER_DEAL"));
-									pDiplo->setAIContact(true);
-									pDiplo->setOurOfferList(theyGive);
-									pDiplo->setTheirOfferList(weGive);
-									if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_MAP, NULL, &weGive, &theyGive);
-									gDLL->beginDiplomacy(pDiplo, ePlayer);
-									abContacted[kPlayer.getTeam()] = true;
+									if (!abContacted[kPlayer.getTeam()])
+									{
+										AI_changeContactTimer(ePlayer, CONTACT_TRADE_MAP,
+												AI_getContactDelay(CONTACT_TRADE_MAP));
+										pDiplo = new CvDiploParameters(getID());
+										pDiplo->setDiploComment(GC.getAIDiploCommentType("OFFER_DEAL"));
+										pDiplo->setAIContact(true);
+										pDiplo->setOurOfferList(theyGive);
+										pDiplo->setTheirOfferList(weGive);
+										if (gGameRecordLogLevel >= 2)
+										{
+											logSASGameRecordAIMapTradeDecision(*this, ePlayer, iOurReceiveValue, iTargetReceiveValue, iTargetReceiveMinExclusive);
+											logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_MAP, NULL, &weGive, &theyGive);
+										}
+										gDLL->beginDiplomacy(pDiplo, ePlayer);
+										abContacted[kPlayer.getTeam()] = true;
+									}
 								}
-							}
-							else
-							{
-								if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_MAP, NULL, &weGive, &theyGive);
-								kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+								else
+								{
+									if (gGameRecordLogLevel >= 2)
+									{
+										logSASGameRecordAIMapTradeDecision(*this, ePlayer, iOurReceiveValue, iTargetReceiveValue, iTargetReceiveMinExclusive);
+										logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_TRADE_MAP, NULL, &weGive, &theyGive);
+									}
+									kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+								}
 							}
 						}
 					}

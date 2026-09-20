@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=114 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=115 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -44,10 +44,20 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 114 - SAS practical 6516
+### Revision 115 - SAS practical 6518
 
 - **Date:** 2026-09-20
 - **Git commit:** pending
+- **Change:** Added compact level-2 realized `GAME_RECORD_AI_MAP_TRADE_DECISION` provenance for proactive AI map swaps.
+
+The row preserves the two live pre-exchange `AI_mapTradeVal` results: how much the proposer values the target map and how much the target values the proposer map. It also records their value advantage and the strict `DIPLOMACY_VALUE_REMAINDER` threshold applied to the target's received-map value.
+
+A final `MAPS <-> MAPS` package cannot reconstruct those inputs because implementing the deal reveals both maps and changes subsequent map valuation. Existing generic `CONTACT_TRADE_MAP`/deal actions remain authoritative for delivery and payload. The native contact roll, bilateral trade-denial checks, two map valuations and acceptance inequalities remain unchanged, and no map valuation or synchronized RNG is repeated solely for recording.
+
+### Revision 114 - SAS practical 6516
+
+- **Date:** 2026-09-20
+- **Git commit:** `8af8c0f70bc2cbc8bf6d0efaab1f28f35031a6cd`
 - **Change:** Added compact level-2 realized `GAME_RECORD_AI_VASSALAGE_DECISION` provenance for AI-originated vassalage and capitulation.
 
 The row distinguishes ordinary `AI_doDiplo` voluntary-vassal contact, UWAI's `tryFindingMaster` third-party protector path, and legacy/UWAI capitulation to the current enemy. It preserves the enemy/war-age context where applicable, the live voluntary-contact probability multiplier/rank inputs, human-capitulation counterproposal result, and final AI-gives/AI-receives package.

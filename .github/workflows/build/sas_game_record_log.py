@@ -1444,6 +1444,61 @@ def check_ai_vassalage_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_map_trade_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI map-trade provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	if "logSASGameRecordAIMapTradeDecision(" not in header_text:
+		failures.append(f"{REVISION_HEADER}: missing AI map-trade provenance declaration")
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	m_record = re.search(r"void logSASGameRecordAIMapTradeDecision\([^\)]*\)\s*\{(?P<body>.*?)^\}", record_text, flags=re.DOTALL | re.MULTILINE)
+	if m_record is None:
+		failures.append(f"{REVISION_SOURCE}: could not locate AI map-trade provenance definition")
+	else:
+		record_body = m_record.group("body")
+		if "gGameRecordLogLevel" in record_body:
+			failures.append(f"{REVISION_SOURCE}: map-trade serializer must rely on the caller's level-2 pre-gate")
+		if "if (eTarget == NO_PLAYER)" not in record_body:
+			failures.append(f"{REVISION_SOURCE}: map-trade serializer must retain the cheap NO_PLAYER safety before GET_PLAYER")
+	for required in (
+		"GAME_RECORD_AI_MAP_TRADE_DECISION", "ourReceiveMapValue=%d", "targetReceiveMapValue=%d",
+		"ourValueAdvantage=%d", "targetReceiveMinExclusive=%d",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI map-trade diagnostic token {required}")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	m = re.search(r"if \(AI_getContactTimer\(ePlayer, CONTACT_TRADE_MAP\) == 0\)(?P<body>.*?)^\t\t\t\}", player_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		failures.append(f"{PLAYER_AI_SOURCE}: could not locate CONTACT_TRADE_MAP block")
+	else:
+		body = m.group("body")
+		if body.count("AI_mapTradeVal(") != 2:
+			failures.append(f"{PLAYER_AI_SOURCE}: proactive map trade must retain exactly two live AI_mapTradeVal evaluations")
+		if body.count("logSASGameRecordAIMapTradeDecision(") != 2:
+			failures.append(f"{PLAYER_AI_SOURCE}: realized human/AI map-trade delivery paths must each retain one specialized provenance bridge")
+		if body.count("if (gGameRecordLogLevel >= 2)") != 2:
+			failures.append(f"{PLAYER_AI_SOURCE}: both realized map-trade delivery paths must pre-gate specialized/generic recording at level 2")
+		if "if (iOurReceiveValue >= iTargetReceiveValue)" not in body or "if (iTargetReceiveValue > iTargetReceiveMinExclusive)" not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: proactive map-trade asymmetric value/threshold gate changed")
+		if body.count("GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER)") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: proactive map-trade threshold lookup count changed")
+		else:
+			iValueGate = body.find("if (iOurReceiveValue >= iTargetReceiveValue)")
+			iThresholdLookup = body.find("GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER)")
+			iThresholdGate = body.find("if (iTargetReceiveValue > iTargetReceiveMinExclusive)")
+			if not (0 <= iValueGate < iThresholdLookup < iThresholdGate):
+				failures.append(f"{PLAYER_AI_SOURCE}: proactive map-trade threshold must remain short-circuited behind the proposer-value gate")
+		if body.count("AI_contactRoll(CONTACT_TRADE_MAP)") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: proactive map-trade contact RNG structure changed")
+	return failures
+
+
 def check_ai_war_trade_intent_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -1598,6 +1653,7 @@ def main() -> int:
 	failures.extend(check_ai_embargo_request_provenance(args.repo_root))
 	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
 	failures.extend(check_ai_vassalage_provenance(args.repo_root))
+	failures.extend(check_ai_map_trade_provenance(args.repo_root))
 	failures.extend(check_ai_war_trade_intent_provenance(args.repo_root))
 	failures.extend(check_ai_conquer_city_provenance(args.repo_root))
 	failures.extend(check_ai_great_person_provenance(args.repo_root))
@@ -1607,7 +1663,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-map-trade/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 
