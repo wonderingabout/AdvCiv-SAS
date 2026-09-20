@@ -1169,8 +1169,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1053 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI KingMaking defect) Target-team utility used its leader's personal relation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1053)\
 [KI#1054 - (Fixed inherited original UWAI KingMaking defect) Pre-launch capital loss falsely eliminated a Space4 contender](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1054)\
 [KI#1055 - (Provisional Pending AdvCiv-SAS war-weariness repair regression) Dead-owner values freeze through elimination](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1055)\
-[KI#1056 - (Provisional Pending AdvCiv-SAS Permanent-Alliance repair regression) Historical identity migration skips dead outsiders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1056)\
-[KI#1057 - (Provisional Pending AdvCiv-SAS Permanent-Alliance repair regression) Contact and first-contact migration skip dead outsiders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1057)\
+[KI#1056 - (Fixed AdvCiv-SAS regression in repair of an inherited K-Mod Permanent-Alliance defect) Historical identity migration skipped dead outsiders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1056)\
+[KI#1057 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv Permanent-Alliance defect) Contact and first-contact migration skipped dead outsiders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1057)\
 [KI#1058 - (Provisional Pending AdvCiv-SAS Espionage repair regression) The first generic Spy can block an eligible grouped Spy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1058)\
 [KI#1059 - (Fixed UI AdvCiv-SAS perspective defect) Info Screen power hover used the real active player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1059)\
 [KI#1060 - (Fixed UI AdvCiv-SAS regression in repair of an inherited AdvCiv replay-visibility defect) Timeline reused another observer's filtered replay](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1060)\
@@ -12557,6 +12557,8 @@ AdvCiv replaced BtS's core `m_abHasMet` team-contact boolean storage with a firs
 
 The fix snapshots the earliest nonnegative constituent contact date before `meet` fills missing entries with the current turn, then restores that inherited date in both the survivor-to-outsider and outsider-to-survivor directions. A missing `-1` entry cannot replace a real date.
 
+Update: The repair-side audit found that the migration still omitted ever-alive outsiders while they were dead. KI#1057 now directly preserves their durable bilateral contact timestamps without invoking live `meet` side effects; the original live-outsider path remains unchanged.
+
 AdvCiv practical 2468 introduced `m_aiHasMetTurn` and the Info Screen behavior without extending Permanent Alliance state migration. This is therefore an inherited AdvCiv regression rather than an AdvCiv-SAS issue. A post-fix Huge autoplay with Permanent Alliances enabled completed normally as broad regression coverage; exact UI reproduction still requires an alliance between teams with different earlier contact histories.
 
 Found as F079/provisional KI#401 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
@@ -12664,6 +12666,8 @@ Rejected for the same reachability reason as KI#406-KI#407: the shipped Tech Cho
 K-Mod's persistent `m_abHasSeen` records civilization identity learned through contact, map information, revealed ownership or cities even after the revealing evidence disappears. Permanent Alliances merged first-contact and current map state but not this historical knowledge. When B joined surviving team A, B's players could therefore forget an outsider C that only B had seen; conversely, outsider C could forget B's civilization because its future identity queries use C's knowledge of A.
 
 The fix unions both directions before the absorbed team disappears: A inherits every outsider historically seen by B, and each outsider that had seen B is marked as having seen A. First-contact dates remain governed separately by the KI#401 repair; this change transfers identity knowledge without inventing diplomatic contact.
+
+Update: The repair-side audit found that the migration still omitted ever-alive outsiders while they were dead. KI#1056 now unions their persistent `hasSeen` state separately without broadening active Permanent-Alliance side effects to dead slots.
 
 K-Mod practical 728 introduced `m_abHasSeen` without extending the inherited Permanent-Alliance merger, and AdvCiv 1.14 retains that omission. This is an inherited K-Mod state-migration defect rather than an AdvCiv-SAS regression. The compiled turn-375 Permanent-Alliances-enabled autoplay supplied broad runtime coverage, while the exact alliance transition remains source-verified because no alliance formed. Found as F089/provisional KI#411 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
@@ -19250,23 +19254,23 @@ Found as F734/provisional KI#1055 during ChatGPT-5.6-Sol's C031-WIP790 repair-si
 
 <a id="ki-1056"></a>
 
-## KI#1056 - (Provisional Pending AdvCiv-SAS Permanent-Alliance repair regression) Historical identity migration skips dead outsiders
+## KI#1056 - (Fixed AdvCiv-SAS regression in repair of an inherited K-Mod Permanent-Alliance defect) Historical identity migration skipped dead outsiders
 
 KI#411 migrates the absorbed team's persistent `hasSeen` identity history through a Permanent Alliance, but iterates only currently alive outsider teams. A dead outsider's retained knowledge in either direction remains keyed to the obsolete absorbed team, so later revival can make the surviving alliance or revived civilization forget an identity it historically knew.
 
-The inherited K-Mod identity-loss root remains KI#411; its SAS repair is complete for live outsiders but leaves this revival boundary. Pending unioning persistent `hasSeen` state across every relevant ever-alive outsider while retaining alive-only restrictions for neighboring active side effects.
+The inherited K-Mod identity-loss root remains KI#411; its SAS repair was complete for live outsiders but left this revival boundary. The repair now unions persistent `hasSeen` state in both directions for ever-alive dead outsiders while retaining the alive-only restrictions on neighboring war, deal, visibility and diplomacy side effects.
 
-Found as F735/provisional KI#1056 during ChatGPT-5.6-Sol's C031-WIP792 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+`SASGameRecord_20260920T145943Z_new2.log` confirms that the matching Debug-opt DLL and dirty `CvTeam.cpp` completed a Huge Pangaea Permanent-Alliances autoplay from turn 0 through a turn-394 Cultural victory. The exact dead-outsider revival boundary remains source-verified. Found as F735/provisional KI#1056 during ChatGPT-5.6-Sol's C031-WIP792 repair-side audit; implemented and reviewed with the help of GPT-5.6-Sol and tested with the help of wonderingabout, thanks.
 
 <a id="ki-1057"></a>
 
-## KI#1057 - (Provisional Pending AdvCiv-SAS Permanent-Alliance repair regression) Contact and first-contact migration skip dead outsiders
+## KI#1057 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv Permanent-Alliance defect) Contact and first-contact migration skipped dead outsiders
 
 KI#401 preserves `hasMet` and earliest first-contact turns for live outsiders during Permanent-Alliance absorption, but its outsider list is alive-only. If an already-met civilization is dead during the merge, both directions of its persistent contact state remain stranded on the absorbed team ID; after revival, the survivor can behave as if contact never occurred.
 
-The inherited AdvC first-contact migration root remains KI#401; the SAS repair omits the dead-outsider lifecycle. Pending directly unioning durable contact/timestamp fields for relevant ever-alive dead slots without firing inappropriate live-contact side effects, while retaining normal `meet` behavior for live teams.
+The inherited AdvC first-contact migration root remains KI#401; the SAS repair omitted the dead-outsider lifecycle. The repair now unions the earliest durable contact timestamp in both directions for ever-alive dead outsiders through direct storage, without firing `meet` or its inappropriate live-contact side effects. Live outsiders retain the existing `meet` path and earliest-date restoration.
 
-Found as F736/provisional KI#1057 during ChatGPT-5.6-Sol's C031-WIP794 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The same SASGameRecord confirms the matching build and successful Permanent-Alliances autoplay; the exact dead-outsider revival boundary remains source-verified. Found as F736/provisional KI#1057 during ChatGPT-5.6-Sol's C031-WIP794 repair-side audit; implemented and reviewed with the help of GPT-5.6-Sol and tested with the help of wonderingabout, thanks.
 
 <a id="ki-1058"></a>
 

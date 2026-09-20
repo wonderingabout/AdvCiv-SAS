@@ -320,6 +320,31 @@ void CvTeam::addTeam(TeamTypes eTeam)
 		if (iOtherHasMetTurn >= 0)
 			apOther[i]->m_aiHasMetTurn.set(getID(), iOtherHasMetTurn);
 	}
+	// <!-- custom: The live-outsider pass above must retain `meet` and its active side effects, but durable identity/contact history must also survive through dead outsiders that can later revive.
+	// Copy only persistent fields for those ever-alive dead teams; do not expand the neighboring war, deal, visibility or diplomacy migrations to inactive slots. See KI#1056 and KI#1057. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (int i = 0; i < MAX_TEAMS; i++)
+	{
+		CvTeam& kOther = GET_TEAM((TeamTypes)i);
+		TeamTypes const eOther = kOther.getID();
+		if (eOther == getID() || eOther == eTeam || kOther.isAlive() || !kOther.isEverAlive())
+			continue;
+		if (GET_TEAM(eTeam).isHasSeen(eOther))
+			makeHasSeen(eOther);
+		if (kOther.isHasSeen(eTeam))
+			kOther.makeHasSeen(getID());
+		int iOurHasMetTurn = getHasMetTurn(eOther);
+		int const iShareHasMetTurn = GET_TEAM(eTeam).getHasMetTurn(eOther);
+		if (iOurHasMetTurn < 0 || (iShareHasMetTurn >= 0 && iShareHasMetTurn < iOurHasMetTurn))
+			iOurHasMetTurn = iShareHasMetTurn;
+		int iOtherHasMetTurn = kOther.getHasMetTurn(getID());
+		int const iOtherShareHasMetTurn = kOther.getHasMetTurn(eTeam);
+		if (iOtherHasMetTurn < 0 || (iOtherShareHasMetTurn >= 0 && iOtherShareHasMetTurn < iOtherHasMetTurn))
+			iOtherHasMetTurn = iOtherShareHasMetTurn;
+		if (iOurHasMetTurn >= 0)
+			m_aiHasMetTurn.set(eOther, iOurHasMetTurn);
+		if (iOtherHasMetTurn >= 0)
+			kOther.m_aiHasMetTurn.set(getID(), iOtherHasMetTurn);
+	}
 
 	for (size_t i = 0; i < apOther.size(); i++)
 	{
