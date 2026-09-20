@@ -1166,8 +1166,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1050 - (Provisional Pending Architectural AdvCiv-SAS UWAI repair regression) GreedForSpace dedup state leaks across agent teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1050)\
 [KI#1051 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI HiredHand defect) Historical-role utility repeated across agent teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1051)\
 [KI#1052 - (Fixed inherited AdvCiv UWAI HiredHand defect) Ally-hire obligation repeated across target teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1052)\
-[KI#1053 - (Provisional Pending AdvCiv-SAS UWAI repair regression) KingMaking uses the target team leader's personal attitude](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1053)\
-[KI#1054 - (Provisional Pending inherited Base AdvCiv KingMaking defect) Pre-launch capital loss falsely eliminates a Space4 contender](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1054)\
+[KI#1053 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI KingMaking defect) Target-team utility used its leader's personal relation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1053)\
+[KI#1054 - (Fixed inherited original UWAI KingMaking defect) Pre-launch capital loss falsely eliminated a Space4 contender](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1054)\
 [KI#1055 - (Provisional Pending AdvCiv-SAS war-weariness repair regression) Dead-owner values freeze through elimination](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1055)\
 [KI#1056 - (Provisional Pending AdvCiv-SAS Permanent-Alliance repair regression) Historical identity migration skips dead outsiders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1056)\
 [KI#1057 - (Provisional Pending AdvCiv-SAS Permanent-Alliance repair regression) Contact and first-contact migration skip dead outsiders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1057)\
@@ -12949,6 +12949,8 @@ Two underlying forecasts used the same wrong domain. Score/Time leadership ranke
 
 The repair stores each likely winner once in `TeamSet`. Player-local Culture, Space, Conquest and Diplomacy inputs still pass through `anyVictory`, but a successful member inserts its team. Score/Time ranking sums every member's current or predicted score after preserving the existing member-specific commerce and overseas peaceful-victory adjustments; a predicted capitulation's shared score is then added only once. Domination prediction aggregates city-population losses and gains across every team member and compares the remaining team population with the team threshold. Finally, the coalition-wide Kingmaking evaluation runs through the rival team leader once instead of repeating the same shared state for every teammate.
 
+Update: The repair-side audit found that this representative still supplied a player-local attitude to the team-owned evaluation. KI#1053 now averages each evaluating agent member's attitude values across the target team, retaining the once-per-team calculation without equating its administrative leader with the coalition.
+
 Base AdvCiv 1.14 contains the same player winner sets, player Score/Time ranking and player-population Domination comparison, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F110/provisional KI#433 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 The repaired DLL compiled successfully. A Huge Pangaea full UWAI autoplay with five two-player starting teams plus solo teams completed normally with a Space Race victory on turn 427. Frederick's solo team won while eight teams remained alive, including three surviving two-player teams and two master-vassal pairs. `Aggressive AI (legacy)` was unticked in setup; SASGameRecord still lists `GAMEOPTION_AGGRESSIVE_AI` because AdvCiv enables that internal flag after selecting UWAI.
@@ -19214,23 +19216,23 @@ The same clean Debug-opt mixed-team autoplay completed successfully. The exact p
 
 <a id="ki-1053"></a>
 
-## KI#1053 - (Provisional Pending AdvCiv-SAS UWAI repair regression) KingMaking uses the target team leader's personal attitude
+## KI#1053 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI KingMaking defect) Target-team utility used its leader's personal relation
 
 KI#433 prevents repeated team-owned KingMaking state by evaluating only the target team's administrative leader, but the next gate still reads the current agent player's attitude toward that exact rival player. Two otherwise identical Permanent Alliances can therefore produce or erase the whole coalition value merely because a Friendly rather than Annoyed teammate is selected as leader.
 
-Base AdvC has the broader player/team modeling root but not this leader guard; practical 6272 introduced the representative leak. Pending retaining once-per-target-team ownership while defining an explicit attitude aggregation rather than equating the administrative leader with team diplomacy.
+Base AdvC has the broader player/team modeling root but not this leader guard; practical 6272 introduced the representative leak. The repair retains once-per-target-team ownership while averaging the current agent player's attitude values toward every living target member. This preserves the agent member's own personality and relationships without treating the administrative leader as the whole coalition.
 
-Found as F732/provisional KI#1053 during ChatGPT-5.6-Sol's C031-WIP783 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+A current-build compilation and autoplay completed successfully. The exact mixed-target-team attitude boundary remains source-verified. Found as F732/provisional KI#1053 during ChatGPT-5.6-Sol's C031-WIP783 repair-side audit; implemented and reviewed with the help of GPT-5.6-Sol and tested with the help of wonderingabout, thanks.
 
 <a id="ki-1054"></a>
 
-## KI#1054 - (Provisional Pending inherited Base AdvCiv KingMaking defect) Pre-launch capital loss falsely eliminates a Space4 contender
+## KI#1054 - (Fixed inherited original UWAI KingMaking defect) Pre-launch capital loss falsely eliminated a Space4 contender
 
 KingMaking drops a stage-4 Space candidate whenever the military scenario predicts loss of its current capital. Before launch there is no active victory countdown: the capital relocates and completed spaceship Projects survive, so the team can still finish and launch despite being removed from the predicted winner set.
 
-Base AdvC retains this K-Mod-era shortcut; practical 6272 did not introduce it. Pending making capital loss categorically invalidate Space4 only when an active Space-victory countdown would actually trigger `resetVictoryProgress`, while treating a pre-launch loss as at most a softer setback.
+The shortcut comes from the original UWAI lineage and remains in Base AdvCiv 1.14; K-Mod does not contain this `KingMaking` implementation, and SAS practical 6272 did not introduce it. The repair now rejects a stage-4 Space contender after predicted capital loss only when an active Space-victory countdown means that `resetVictoryProgress` would remove its launched ship and spaceship Projects. Before launch, the Palace relocates and completed Projects survive, so capital loss alone no longer erases the candidacy. Existing elimination and capitulation gates remain unchanged.
 
-Found as F733/provisional KI#1054 during ChatGPT-5.6-Sol's C031-WIP783 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+A current-build compilation and autoplay completed successfully. The exact predicted capital-loss states remain source-verified. Found as F733/provisional KI#1054 during ChatGPT-5.6-Sol's C031-WIP783 repair-side audit; implemented and reviewed with the help of GPT-5.6-Sol and tested with the help of wonderingabout, thanks.
 
 <a id="ki-1055"></a>
 

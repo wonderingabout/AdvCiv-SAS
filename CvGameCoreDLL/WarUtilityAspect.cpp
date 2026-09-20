@@ -2432,9 +2432,12 @@ bool KingMaking::anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iSta
 	}
 	if ((eFlags & AI_VICTORY_SPACE4) && iStage == 4)
 	{
-		if (kPlayer.hasCapital() &&
+		// <!-- custom: Capital loss resets an active launch, but before launch the Palace merely relocates and completed spaceship Projects survive; reject the predicted Space4 contender only in the former case. See KI#1054. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		VictoryTypes const eSpaceVictory = m_kGame.getSpaceVictory();
+		bool const bLaunched = (eSpaceVictory != NO_VICTORY && GET_TEAM(kPlayer.getTeam()).getVictoryCountdown(eSpaceVictory) >= 0);
+		if (!bLaunched || (kPlayer.hasCapital() &&
 			militAnalyst().lostCities(ePlayer).
-			count(kPlayer.getCapital()->plotNum()) <= 0)
+			count(kPlayer.getCapital()->plotNum()) <= 0))
 		{
 			return true;
 		}
@@ -2607,7 +2610,22 @@ void KingMaking::evaluate()
 	/*	As humans we are very much not OK with rivals winning the game,
 		so ATTITUDE_FURIOUS would be the smarter assumption, however, I don't want
 		a leading AI to be extremely alert about a human runner-up. */
-	int iAttitude = (kWe.isHuman() ? ATTITUDE_ANNOYED : towardThem());
+	// <!-- custom: Kingmaking is evaluated once through the target team's administrative leader, but that player's personal relation is not the agent member's attitude toward the coalition.
+	// Average this agent's attitude values across all target members before applying the team-owned utility. See KI#433 and KI#1053. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int iAttitude = ATTITUDE_ANNOYED;
+	if (!kWe.isHuman())
+	{
+		int iTargetAttitude = 0;
+		int iTargetMembers = 0;
+		for (MemberIter itTargetMember(eTheirTeam); itTargetMember.hasNext(); ++itTargetMember)
+		{
+			iTargetAttitude += kWe.AI_getAttitudeVal(itTargetMember->getID());
+			iTargetMembers++;
+		}
+		FAssert(iTargetMembers > 0);
+		if (iTargetMembers > 0)
+			iAttitude = kWe.AI_getAttitudeFromValue(iTargetAttitude / iTargetMembers);
+	}
 	if (kOurTeam.isAtWar(eTheirTeam)) // When at war, bad attitude is normal.
 		iAttitude++;
 	if (iAttitude >= ATTITUDE_FRIENDLY)
