@@ -12089,6 +12089,25 @@ void logSASGameRecordAICorporationTarget(CvUnit const* pUnit, CorporationTypes e
 		szAction == NULL ? "-" : szAction);
 }
 
+// <!-- custom: Preserve the compact selected Missionary destination boundary without duplicating AI_spreadReligion's city/player scoring internals.
+// Ordinary land rows are emitted only for a new/retargeted MISSIONAI_SPREAD destination; airlift rows preserve the realized redirect. The eventual RELIGION_SPREAD_ATTEMPT remains authoritative for the actual spread outcome. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIReligionSpreadTarget(CvUnit const* pUnit, ReligionTypes eReligion, CvCity const* pTargetCity, int iPlayerMultiplierPercent, int iPathTurns, int iTargetScore, char const* szAction)
+{
+	if (pUnit == NULL || eReligion == NO_RELIGION || pTargetCity == NULL)
+		return;
+	CvPlayer const& kOwner = GET_PLAYER(pUnit->getOwner());
+	char const* szTargetScope = (pTargetCity->getOwner() == pUnit->getOwner() ? "SELF" :
+			(pTargetCity->getTeam() == pUnit->getTeam() ? "TEAM" : "FOREIGN"));
+	logSASGameRecord("GAME_RECORD_AI_RELIGION_SPREAD_TARGET turn=%d player=%d team=%d ownerHuman=%d unitId=%d unit=%s unitAI=%s groupId=%d religion=%s teamHasHolyCity=%d targetScope=%s targetPlayer=%d targetTeam=%d cityId=%d city=%S x=%d y=%d playerMultiplierPercent=%d pathTurns=%d targetScore=%d atTarget=%d action=%s",
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), kOwner.isHuman() ? 1 : 0, pUnit->getID(),
+		getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getGroupID(),
+		getSASGameRecordReligionType(eReligion), GET_TEAM(pUnit->getTeam()).hasHolyCity(eReligion) ? 1 : 0, szTargetScope,
+		pTargetCity->getOwner(), pTargetCity->getTeam(), pTargetCity->getID(), getSASGameRecordQuotedCityName(pTargetCity).GetCString(),
+		pTargetCity->getX(), pTargetCity->getY(), iPlayerMultiplierPercent, iPathTurns, iTargetScore,
+		pUnit->at(pTargetCity->getPlot()) ? 1 : 0, szAction == NULL ? "-" : szAction);
+}
+
+
 // <!-- custom: Airlift and sea-transport routing can materially redirect an Executive before its ordinary land spread target is chosen.
 // Record only the already-selected destination/score/path state; no extra corporation valuation, city search or pathfinding is performed for this transit row. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAICorporationTransit(CvUnit const* pExecutive, CvUnit const* pTransport, CorporationTypes eCorporation, int iEligibleCorporations, CvCity const* pTargetCity, CvPlot const* pMovePlot, int iPathTurns, int iTargetScore, char const* szRoute)

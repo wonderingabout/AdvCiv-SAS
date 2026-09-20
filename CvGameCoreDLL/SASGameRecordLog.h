@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 119 };
+enum { SAS_GAME_RECORD_REVISION = 120 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -744,6 +744,9 @@ void logSASGameRecordAIBonusDemandDecision(PlayerTypes ePlayer, PlayerTypes eHum
 void logSASGameRecordAIExecutiveProduction(CvCity const* pCity, UnitTypes eUnit, int iExecutiveValue, int iThreshold, char const* szStage);
 void logSASGameRecordAICorporationTarget(CvUnit const* pUnit, CorporationTypes eCorporation, PlayerTypes ePreferredPlayer, int iExecutiveSpreadValue, CvCity const* pTargetCity, int iHqBaseValue, int iLocalCorporationValue, int iCompetingCorporationAdjustment, int iPopulationBonus, int iPreferredPlayerMultiplier, int iPathTurns, int iTargetScore, char const* szAction);
 void logSASGameRecordAICorporationTransit(CvUnit const* pExecutive, CvUnit const* pTransport, CorporationTypes eCorporation, int iEligibleCorporations, CvCity const* pTargetCity, CvPlot const* pMovePlot, int iPathTurns, int iTargetScore, char const* szRoute);
+// <!-- custom: Preserve only a realized/new Missionary religion-spread destination or airlift reroute.
+// The live chooser supplies its already-selected religion/city/path/score; deeper player/city multiplier composition remains UnitAI/BBAI territory. Callers pre-gate at GameRecord level 2. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIReligionSpreadTarget(CvUnit const* pUnit, ReligionTypes eReligion, CvCity const* pTargetCity, int iPlayerMultiplierPercent, int iPathTurns, int iTargetScore, char const* szAction);
 // <!-- custom: Preserve one meaningful AI religion-switch decision from the live chooser/roll without reevaluating religion values; level-3 callers may additionally pass the candidate scores already computed by AI_bestReligion. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIReligionDecision(PlayerTypes ePlayer, ReligionTypes eCurrentReligion, ReligionTypes eEvaluatedBest, ReligionTypes eSelectedReligion, ReligionTypes eRunnerUp, int iBestValue, int iRunnerUpValue, int iCurrentScore, int iCurrentRawValue, int iSelectedRawValue, int iConvertProbabilityPercent, int iRollSuccess, char const* szOutcome, std::vector<std::pair<ReligionTypes, int> > const* paCandidateValues);
 // <!-- custom: Closed recorder-only causes for actual AI AP/UN ballots. They classify the live AI_diploVote decision path rather than gameplay-wide vote enums, so keep them local to SASGameRecord. (ChatGPT-5.6-Sol) -->

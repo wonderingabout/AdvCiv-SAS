@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=119 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=120 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -44,10 +44,20 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 119 - SAS practical 6524
+### Revision 120 - SAS practical 6525
 
 - **Date:** 2026-09-20
 - **Git commit:** pending
+- **Change:** Added compact level-2 `GAME_RECORD_AI_RELIGION_SPREAD_TARGET` provenance for realized/new Missionary religion-spread destinations and Missionary airlift reroutes.
+
+Ordinary land targeting preserves the selected religion/city, target scope/player, already-computed player multiplier, path turns and final target score only when `AI_spreadReligion` assigns a new or different `MISSIONAI_SPREAD` destination. Continuing the same long-lived destination stays silent, and the eventual `RELIGION_SPREAD_ATTEMPT` remains authoritative for the actual spread outcome.
+
+The same row preserves the realized target/score when `AI_spreadReligionAirlift` deliberately reroutes a Missionary by air. No religion/player/city multiplier decomposition, rejected-target list, target search, pathfinding or RNG is repeated solely for recording; deeper spread-target scoring remains UnitAI/BBAI/source-analysis territory.
+
+### Revision 119 - SAS practical 6524
+
+- **Date:** 2026-09-20
+- **Git commit:** `8a9b6393a942851a05ca6b0086478523460082c5`
 - **Change:** Added compact level-2 `GAME_RECORD_AI_COLONY_SPLIT_DECISION` provenance for realized AI colony / split-empire decisions.
 
 The row distinguishes ordinary positive-value colony creation from UWAI's unique forced pre-capitulation colony-liberation path. It preserves the selected area's already-computed aggregate `AI_splitEmpireValue` together with its pre-transfer city/population scale and the parent's total city/population context before `splitEmpire()` moves the cities and obscures that decision boundary.

@@ -17697,6 +17697,12 @@ bool CvUnitAI::AI_spreadReligion()
 	int iBestValue = 0;
 	CvPlot* pBestPlot = NULL;
 	CvPlot* pBestSpreadPlot = NULL;
+	// <!-- custom: Preserve only the winning Missionary destination context at GameRecord level 2.
+	// The player/city scoring loop remains authoritative; no target search, pathfinding or multiplier calculation is repeated solely for recording. (ChatGPT-5.6-Sol) -->
+	bool const bCaptureSASReligionSpreadTarget = (gGameRecordLogLevel >= 2);
+	int iSASBestPlayerMultiplierPercent = -1;
+	int iSASBestPathTurns = -1;
+	int iSASBestTargetScore = -1;
 
 	// BBAI TODO: Could also use CvPlayerAI::AI_missionaryValue to determine which player to target ...
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -17827,6 +17833,12 @@ bool CvUnitAI::AI_spreadReligion()
 						pBestPlot = &(bForceMove ?
 								pLoopCity->getPlot() : getPathEndTurnPlot());
 						pBestSpreadPlot = pLoopCity->plot();
+						if (bCaptureSASReligionSpreadTarget)
+						{
+							iSASBestPlayerMultiplierPercent = iPlayerMultiplierPercent;
+							iSASBestPathTurns = iPathTurns;
+							iSASBestTargetScore = iValue;
+						}
 					}
 				}
 			}
@@ -17836,7 +17848,16 @@ bool CvUnitAI::AI_spreadReligion()
 	if (pBestPlot == NULL || pBestSpreadPlot == NULL)
 		return false;
 
-	if (at(*pBestSpreadPlot))
+	bool bLogSASReligionSpreadTarget = false;
+	if (bCaptureSASReligionSpreadTarget)
+	{
+		CvSelectionGroupAI const* pGroup = AI_getGroup();
+		bLogSASReligionSpreadTarget = (pGroup == NULL || pGroup->AI_getMissionAIType() != MISSIONAI_SPREAD ||
+				pGroup->AI_getMissionAIPlot() != pBestSpreadPlot);
+	}
+	bool const bAtSpreadTarget = at(*pBestSpreadPlot);
+	if (bLogSASReligionSpreadTarget) logSASGameRecordAIReligionSpreadTarget(this, eReligion, pBestSpreadPlot->getPlotCity(), iSASBestPlayerMultiplierPercent, iSASBestPathTurns, iSASBestTargetScore, bAtSpreadTarget ? "SPREAD" : "MOVE");
+	if (bAtSpreadTarget)
 		getGroup()->pushMission(MISSION_SPREAD, eReligion);
 	else
 	{
@@ -18122,6 +18143,8 @@ bool CvUnitAI::AI_spreadReligionAirlift()
 	}
 	if (pBestPlot != NULL)
 	{
+		// <!-- custom: The airlift branch bypasses the ordinary land target mission; preserve this realized Missionary reroute using its existing winning city score only. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2) logSASGameRecordAIReligionSpreadTarget(this, eReligion, pBestPlot->getPlotCity(), -1, -1, iBestValue, "AIRLIFT");
 		getGroup()->pushMission(MISSION_AIRLIFT, pBestPlot->getX(), pBestPlot->getY(),
 				NO_MOVEMENT_FLAGS, false, false, MISSIONAI_SPREAD, pBestPlot);
 		return true;

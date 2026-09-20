@@ -1495,6 +1495,67 @@ def check_ai_colony_split_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_religion_spread_target_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, "CvGameCoreDLL/CvUnitAI.cpp"):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI religion-spread target provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	if "logSASGameRecordAIReligionSpreadTarget(" not in header_text:
+		failures.append(f"{REVISION_HEADER}: missing AI religion-spread target provenance declaration")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_RELIGION_SPREAD_TARGET", "religion=%s", "targetScope=%s", "targetPlayer=%d",
+		"playerMultiplierPercent=%d", "pathTurns=%d", "targetScore=%d", "action=%s",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI religion-spread target diagnostic token {required}")
+	m_record = re.search(r"void logSASGameRecordAIReligionSpreadTarget\([^\)]*\)\s*\{(?P<body>.*?)^\}", record_text, flags=re.DOTALL | re.MULTILINE)
+	if m_record is None:
+		failures.append(f"{REVISION_SOURCE}: could not locate AI religion-spread target provenance definition")
+	elif "gGameRecordLogLevel" in m_record.group("body"):
+		failures.append(f"{REVISION_SOURCE}: religion-spread target serializer must rely on caller-side level-2 pre-gating")
+
+	unit_text = (repo_root / "CvGameCoreDLL/CvUnitAI.cpp").read_text(encoding="utf-8", errors="replace")
+	m_spread = re.search(r"bool CvUnitAI::AI_spreadReligion\(\)(?P<body>.*?)^\}", unit_text, flags=re.DOTALL | re.MULTILINE)
+	if m_spread is None:
+		failures.append("CvGameCoreDLL/CvUnitAI.cpp: could not locate AI_spreadReligion")
+	else:
+		body = m_spread.group("body")
+		if body.count("generatePath(") != 1:
+			failures.append("CvGameCoreDLL/CvUnitAI.cpp: AI_spreadReligion path-search call count changed")
+		if body.count("logSASGameRecordAIReligionSpreadTarget(") != 1:
+			failures.append("CvGameCoreDLL/CvUnitAI.cpp: ordinary Missionary target selection must retain exactly one provenance bridge")
+		if body.count("AI_getMissionAIType()") != 1 or body.count("AI_getMissionAIPlot()") != 1:
+			failures.append("CvGameCoreDLL/CvUnitAI.cpp: Missionary continuing-target suppression must inspect existing MissionAI state exactly once each")
+		for required in (
+			"if (bCaptureSASReligionSpreadTarget)", "iSASBestPlayerMultiplierPercent = iPlayerMultiplierPercent;",
+			"iSASBestPathTurns = iPathTurns;", "iSASBestTargetScore = iValue;",
+			"pGroup->AI_getMissionAIType() != MISSIONAI_SPREAD", "pGroup->AI_getMissionAIPlot() != pBestSpreadPlot",
+		):
+			if required not in body:
+				failures.append(f"CvGameCoreDLL/CvUnitAI.cpp: missing Missionary target provenance invariant {required}")
+		if "SyncRand" in body:
+			failures.append("CvGameCoreDLL/CvUnitAI.cpp: ordinary Missionary land targeting should remain synchronized-RNG-free")
+
+	m_airlift = re.search(r"bool CvUnitAI::AI_spreadReligionAirlift\(\)(?P<body>.*?)^\}", unit_text, flags=re.DOTALL | re.MULTILINE)
+	if m_airlift is None:
+		failures.append("CvGameCoreDLL/CvUnitAI.cpp: could not locate AI_spreadReligionAirlift")
+	else:
+		body = m_airlift.group("body")
+		if body.count("logSASGameRecordAIReligionSpreadTarget(") != 1 or '"AIRLIFT"' not in body:
+			failures.append("CvGameCoreDLL/CvUnitAI.cpp: Missionary airlift must retain one realized AIRLIFT provenance bridge")
+		if body.count("if (gGameRecordLogLevel >= 2)") != 1:
+			failures.append("CvGameCoreDLL/CvUnitAI.cpp: Missionary airlift provenance must remain caller-pre-gated at level 2")
+		if "SyncRand" in body:
+			failures.append("CvGameCoreDLL/CvUnitAI.cpp: Missionary airlift target selection should remain synchronized-RNG-free")
+	return failures
+
+
 def check_ai_map_trade_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -1910,6 +1971,7 @@ def main() -> int:
 	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
 	failures.extend(check_ai_vassalage_provenance(args.repo_root))
 	failures.extend(check_ai_colony_split_provenance(args.repo_root))
+	failures.extend(check_ai_religion_spread_target_provenance(args.repo_root))
 	failures.extend(check_ai_map_trade_provenance(args.repo_root))
 	failures.extend(check_unit_completion_sources(args.repo_root))
 	failures.extend(check_ai_draft_provenance(args.repo_root))
@@ -1924,7 +1986,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-colony-split/AI-map-trade/unit-completion-sources/AI-vassal-resource-tribute/AI-draft/AI-hurry/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-colony-split/AI-religion-spread-target/AI-map-trade/unit-completion-sources/AI-vassal-resource-tribute/AI-draft/AI-hurry/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 
