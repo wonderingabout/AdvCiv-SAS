@@ -13871,6 +13871,8 @@ void CvCityAI::AI_doHurry(bool bForce)
 
 		if (bForce)
 		{
+			// <!-- custom: Panic-forced hurries bypass the ordinary value/cost model; preserve that realized cause immediately before the factual hurry mutation. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2) logSASGameRecordAIHurryDecision(*this, eHurry, SAS_AI_HURRY_FORCED_PANIC, eProductionUnitAI, -1, -1, -1, -1, -1, -1, -1, -1);
 			hurry(eHurry);
 			break;
 		}
@@ -13928,6 +13930,7 @@ void CvCityAI::AI_doHurry(bool bForce)
 				{
 					if (gCityLogLevel >= 2)
 						logBBAI("      City %S whips to reduce unhappiness", getName().GetCString());
+					if (gGameRecordLogLevel >= 2) logSASGameRecordAIHurryDecision(*this, eHurry, SAS_AI_HURRY_UNHAPPINESS_RELIEF, eProductionUnitAI, iHappy, iHappyDiff, foodDifference(), -1, iGoldCost, -1, -1, -1);
 					hurry(eHurry);
 					return;
 				}
@@ -13939,6 +13942,7 @@ void CvCityAI::AI_doHurry(bool bForce)
 			{
 				if (gCityLogLevel >= 2)
 					logBBAI("      City %S whips to reduce food loss", getName().GetCString());
+				if (gGameRecordLogLevel >= 2) logSASGameRecordAIHurryDecision(*this, eHurry, SAS_AI_HURRY_FOOD_LOSS_RELIEF, eProductionUnitAI, iHappy, iHappyDiff, foodDifference(), -1, iGoldCost, -1, -1, -1);
 				hurry(eHurry);
 				return;
 			}
@@ -14104,6 +14108,7 @@ void CvCityAI::AI_doHurry(bool bForce)
 				if (gCityLogLevel >= 2) logBBAI("      City %S (%d) hurries %S. %d pop (%d) + %d gold (%d) to save %d turns. (value %d) (hd %d)",
 					getName().GetCString(), getPopulation(), GC.getInfo(eProductionUnit).getDescription(0), iHurryPopulation, iPopCost, iHurryGold,
 					iGoldCost, getProductionTurnsLeft(eProductionUnit, /* advc.064b: was 1 */ 2), iValue, iHappyDiff);
+				if (gGameRecordLogLevel >= 2) logSASGameRecordAIHurryDecision(*this, eHurry, SAS_AI_HURRY_UNIT_VALUE, eProductionUnitAI, happyLevel() - unhappyLevel(), iHappyDiff, foodDifference(), iPopCost, iGoldCost, iValue, iOverflow, iValue + iOverflow - iHurryCost);
 				hurry(eHurry);
 				return;
 			}
@@ -14150,6 +14155,7 @@ void CvCityAI::AI_doHurry(bool bForce)
 							iGoldCost, getProductionTurnsLeft(eProductionBuilding, /* advc.064b: was 1 */ 2), AI_buildingValue(eProductionBuilding),
 							iValue, iHappyDiff);
 					}
+					if (gGameRecordLogLevel >= 2) logSASGameRecordAIHurryDecision(*this, eHurry, SAS_AI_HURRY_BUILDING_VALUE, NO_UNITAI, happyLevel() - unhappyLevel(), iHappyDiff, foodDifference(), iPopCost, iGoldCost, iValue, iOverflow, iValue + iOverflow - iHurryCost);
 					hurry(eHurry);
 					return;
 				}

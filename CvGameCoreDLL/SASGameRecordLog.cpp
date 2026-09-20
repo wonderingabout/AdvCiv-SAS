@@ -12947,6 +12947,30 @@ void logSASGameRecordCityCultureExpanded(CvCity const* pCity)
 		pCity->getCultureThreshold(), pCity->getDefenseModifier(false), pCity->getTotalDefense(false));
 }
 
+// <!-- custom: AI_doHurry has several mutually exclusive realized exits whose live value/cost comparison is lost as soon as hurry mutates production, population and treasury.
+// Keep this serializer factual about the already-resolved reason; rejected hurry types remain intentionally unlogged. (ChatGPT-5.6-Sol) -->
+static char const* getSASGameRecordAIHurryReason(SASGameRecordAIHurryReason eReason)
+{
+	switch (eReason)
+	{
+	case SAS_AI_HURRY_FORCED_PANIC: return "FORCED_PANIC";
+	case SAS_AI_HURRY_UNHAPPINESS_RELIEF: return "UNHAPPINESS_RELIEF";
+	case SAS_AI_HURRY_FOOD_LOSS_RELIEF: return "FOOD_LOSS_RELIEF";
+	case SAS_AI_HURRY_UNIT_VALUE: return "UNIT_VALUE";
+	case SAS_AI_HURRY_BUILDING_VALUE: return "BUILDING_VALUE";
+	default: return "UNKNOWN";
+	}
+}
+
+void logSASGameRecordAIHurryDecision(CvCity const& kCity, HurryTypes eHurry, SASGameRecordAIHurryReason eReason, UnitAITypes eUnitAI, int iHappyBalance, int iHappyDiff, int iFoodDifference, int iPopCost, int iGoldCost, int iDecisionValue, int iOverflowValue, int iDecisionMargin)
+{
+	logSASGameRecord("GAME_RECORD_AI_HURRY_DECISION turn=%d player=%d cityId=%d city=%S ownerHuman=%d productionAutomated=%d reason=%s hurry=%s targetKind=%s target=%s unitAI=%s happyBalance=%d happyDiff=%d foodDifference=%d subjectivePopCost=%d subjectiveGoldCost=%d decisionValue=%d overflowValue=%d decisionMargin=%d",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.isHuman() ? 1 : 0,
+		kCity.isProductionAutomated() ? 1 : 0, getSASGameRecordAIHurryReason(eReason), GC.getInfo(eHurry).getType(),
+		getSASGameRecordCityProductionKind(kCity), getSASGameRecordCityProductionType(kCity), getSASGameRecordUnitAIType(eUnitAI),
+		iHappyBalance, iHappyDiff, iFoodDifference, iPopCost, iGoldCost, iDecisionValue, iOverflowValue, iDecisionMargin);
+}
+
 void logSASGameRecordCityHurry(CvCity const* pCity, HurryTypes eHurry, int iProductionBefore, int iProductionAdded, int iGoldCost, int iPopulationCost, int iHurryAngerAdded, int iGoldBefore, int iPopulationBefore, int iHurryAngerBefore)
 {
 	if (pCity == NULL || eHurry == NO_HURRY)

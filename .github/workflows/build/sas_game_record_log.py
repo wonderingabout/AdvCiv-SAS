@@ -1499,6 +1499,52 @@ def check_ai_map_trade_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_hurry_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, "CvGameCoreDLL/CvCityAI.cpp"):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI hurry provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	for token in ("SASGameRecordAIHurryReason", "logSASGameRecordAIHurryDecision("):
+		if token not in header_text:
+			failures.append(f"{REVISION_HEADER}: missing AI hurry provenance declaration token {token}")
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_HURRY_DECISION", "reason=%s", "hurry=%s", "targetKind=%s", "target=%s",
+		"unitAI=%s", "happyBalance=%d", "happyDiff=%d", "foodDifference=%d",
+		"subjectivePopCost=%d", "subjectiveGoldCost=%d", "decisionValue=%d", "overflowValue=%d", "decisionMargin=%d",
+		'"FORCED_PANIC"', '"UNHAPPINESS_RELIEF"', '"FOOD_LOSS_RELIEF"', '"UNIT_VALUE"', '"BUILDING_VALUE"',
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI hurry diagnostic token {required}")
+	m_record = re.search(r"void logSASGameRecordAIHurryDecision\([^\)]*\)\s*\{(?P<body>.*?)^\}", record_text, flags=re.DOTALL | re.MULTILINE)
+	if m_record is None:
+		failures.append(f"{REVISION_SOURCE}: could not locate AI hurry provenance definition")
+	elif "gGameRecordLogLevel" in m_record.group("body"):
+		failures.append(f"{REVISION_SOURCE}: AI hurry serializer must rely on realized caller-side level-2 pre-gating")
+
+	city_text = (repo_root / "CvGameCoreDLL/CvCityAI.cpp").read_text(encoding="utf-8", errors="replace")
+	m = re.search(r"void CvCityAI::AI_doHurry\(bool bForce\)(?P<body>.*?)^\}", city_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		failures.append("CvGameCoreDLL/CvCityAI.cpp: could not locate AI_doHurry")
+		return failures
+	body = m.group("body")
+	if body.count("hurry(eHurry);") != 5:
+		failures.append("CvGameCoreDLL/CvCityAI.cpp: AI_doHurry realized hurry exit count changed")
+	if body.count("logSASGameRecordAIHurryDecision(") != 5:
+		failures.append("CvGameCoreDLL/CvCityAI.cpp: every realized AI_doHurry exit must retain one specialized provenance bridge")
+	if body.count("if (gGameRecordLogLevel >= 2)") != 5:
+		failures.append("CvGameCoreDLL/CvCityAI.cpp: AI hurry provenance must stay pre-gated only at the five realized hurry exits")
+	if "AI_buildingValue(eProductionBuilding, 0, 0, false" not in body:
+		failures.append("CvGameCoreDLL/CvCityAI.cpp: native building-hurry valuation structure changed")
+	if "if (iHurryCost < iValue + /* advc.121b: */ iOverflow)" not in body or "if (iValue + iOverflow > iHurryCost)" not in body:
+		failures.append("CvGameCoreDLL/CvCityAI.cpp: native unit/building hurry value gates changed")
+	return failures
+
+
 def check_ai_vassal_resource_tribute_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -1712,6 +1758,7 @@ def main() -> int:
 	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
 	failures.extend(check_ai_vassalage_provenance(args.repo_root))
 	failures.extend(check_ai_map_trade_provenance(args.repo_root))
+	failures.extend(check_ai_hurry_provenance(args.repo_root))
 	failures.extend(check_ai_vassal_resource_tribute_provenance(args.repo_root))
 	failures.extend(check_ai_war_trade_intent_provenance(args.repo_root))
 	failures.extend(check_ai_conquer_city_provenance(args.repo_root))
@@ -1722,7 +1769,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-map-trade/AI-vassal-resource-tribute/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-map-trade/AI-vassal-resource-tribute/AI-hurry/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

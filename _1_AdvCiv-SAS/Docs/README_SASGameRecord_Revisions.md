@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=116 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=117 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -44,10 +44,20 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 116 - SAS practical 6521
+### Revision 117 - SAS practical 6522
 
 - **Date:** 2026-09-20
 - **Git commit:** pending
+- **Change:** Added compact level-2 `GAME_RECORD_AI_HURRY_DECISION` provenance for realized AI/automated-governor city hurries.
+
+The row distinguishes panic-forced hurries, population whipping that immediately relieves unhappiness or food loss, and ordinary unit/building value decisions. Value-based rows preserve the already-computed subjective population/gold costs, final target value, valued overflow and value-minus-cost margin together with live happiness/food context; the following `CITY_HURRIED` action remains authoritative for the actual production/population/treasury/anger mutation.
+
+Recording is reached only immediately before an actual `hurry()` call. Rejected hurry types remain intentionally unlogged, no target/building valuation or synchronized RNG is repeated solely for recording, and ordinary no-hurry city turns pay no recorder-only state collection.
+
+### Revision 116 - SAS practical 6521
+
+- **Date:** 2026-09-20
+- **Git commit:** `7b12ec59733e99164ea2badfeac4d35420a97be3`
 - **Change:** Added compact level-2 `GAME_RECORD_AI_VASSAL_RESOURCE_TRIBUTE` provenance for the master's automatic vassal-resource chooser.
 
 The row preserves the selected missing resource and its already-computed `AI_bonusTradeVal` together with the runner-up/value margin and eligible-candidate count. This chooser is separate from ordinary negotiated resource trading: after other diplomacy gates, the master scans resources its vassal can provide, requires the master to have none, and deterministically chooses the highest-valued tradeable resource.

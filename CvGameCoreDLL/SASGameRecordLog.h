@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 116 };
+enum { SAS_GAME_RECORD_REVISION = 117 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -769,8 +769,20 @@ void logSASGameRecordVoteTriggered(VoteTriggeredData const* pVoteTriggered);
 void logSASGameRecordVoteResult(VoteTriggeredData const* pVoteTriggered, bool bThresholdPassed, bool bPassed, bool bCancelled, qword uiDefaultedAbstain, qword uiDefiers, qword uiEndorsers);
 void logSASGameRecordReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer);
 void logSASGameRecordCorporationFounded(CorporationTypes eCorporation, PlayerTypes ePlayer);
+// <!-- custom: Closed recorder-only reasons for a realized AI/automated-governor city hurry. Keep the choice vocabulary beside its serializer rather than exposing diagnostic-only causes through gameplay enums. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordAIHurryReason
+{
+	SAS_AI_HURRY_FORCED_PANIC,
+	SAS_AI_HURRY_UNHAPPINESS_RELIEF,
+	SAS_AI_HURRY_FOOD_LOSS_RELIEF,
+	SAS_AI_HURRY_UNIT_VALUE,
+	SAS_AI_HURRY_BUILDING_VALUE
+};
+// <!-- custom: Preserve only the live realized AI_doHurry comparison that the following CITY_HURRIED mutation cannot reconstruct; callers pre-gate at level 2 immediately before hurry(), so no logging-only hurry valuation or city-state lookup is paid on ordinary no-hurry turns. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIHurryDecision(CvCity const& kCity, HurryTypes eHurry, SASGameRecordAIHurryReason eReason, UnitAITypes eUnitAI, int iHappyBalance, int iHappyDiff, int iFoodDifference, int iPopCost, int iGoldCost, int iDecisionValue, int iOverflowValue, int iDecisionMargin);
 // <!-- custom: Preserve consequential factual city/unit actions that otherwise disappear between periodic snapshots: hurrying, natural growth/starvation, culture expansion, pillage attribution/economic gain, naval blockade lifecycle/plunder, unit gifting, religion/corporation membership changes, and circumnavigation.
-// These hooks record only realized gameplay outcomes at level 2+; routine natural population changes are interval-compacted unless level 3 requests exact city transitions, and AI choice reasoning remains in BBAI diagnostics. (ChatGPT-5.6-Sol) -->
+// These hooks record only realized gameplay outcomes at level 2+; routine natural population changes are interval-compacted unless level 3 requests exact city transitions.
+// Specialized SASGameRecord rows may preserve compact realized AI provenance, while rejected/speculative chooser detail remains in BBAI diagnostics. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordCityHurry(CvCity const* pCity, HurryTypes eHurry, int iProductionBefore, int iProductionAdded, int iGoldCost, int iPopulationCost, int iHurryAngerAdded, int iGoldBefore, int iPopulationBefore, int iHurryAngerBefore);
 void logSASGameRecordCityGrowthPrevented(CvCity const* pCity, int iFoodDiscarded);
 void logSASGameRecordCityPopulationChanged(CvCity const* pCity, bool bGrowth, int iPopulationBefore, int iFoodDifference, int iFoodBefore, int iFoodAfterDifference, int iFoodKeptBefore, int iFoodKeptBeforePopulationChange, int iGrowthThresholdBefore);
