@@ -1164,8 +1164,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1048 - (Provisional Pending inherited BtS/K-Mod/AdvC amphibious scope defect) One carrier can land another carrier's grouped cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1048)\
 [KI#1049 - (Provisional Pending AdvCiv-SAS air-rebase repair regression) Recon is cleared before shared destination capacity is consumed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1049)\
 [KI#1050 - (Provisional Pending Architectural AdvCiv-SAS UWAI repair regression) GreedForSpace dedup state leaks across agent teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1050)\
-[KI#1051 - (Provisional Pending AdvCiv-SAS UWAI repair regression) HiredHand historical-role utility repeats across agent teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1051)\
-[KI#1052 - (Provisional Pending inherited AdvC HiredHand defect) Ally-hire obligation repeats across target teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1052)\
+[KI#1051 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI HiredHand defect) Historical-role utility repeated across agent teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1051)\
+[KI#1052 - (Fixed inherited AdvCiv UWAI HiredHand defect) Ally-hire obligation repeated across target teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1052)\
 [KI#1053 - (Provisional Pending AdvCiv-SAS UWAI repair regression) KingMaking uses the target team leader's personal attitude](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1053)\
 [KI#1054 - (Provisional Pending inherited Base AdvCiv KingMaking defect) Pre-launch capital loss falsely eliminates a Space4 contender](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1054)\
 [KI#1055 - (Provisional Pending AdvCiv-SAS war-weariness repair regression) Dead-owner values freeze through elimination](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1055)\
@@ -13153,6 +13153,8 @@ Base AdvCiv 1.14 contains the same mixed global/opponent calculation, making thi
 
 The repair charges sponsor/bounty and scenario-long-war obligations only through the target team's leader while deliberately retaining the separate player-memory hireling evaluation. Base AdvCiv 1.14 contains the same duplicated team-keyed terms, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F128/provisional KI#451 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
+Update: The repair-side audit found two remaining dimensions. KI#1051 now charges the scenario-long historical role once through the first living AI agent-team member, and KI#1052 aggregates player-memory evidence across the target team before charging its ally-hire obligation once. Player-owned sponsorship, attitude and hireling inputs remain evaluated for their actual agent member.
+
 The repaired DLL compiled successfully. A Huge Normal Pangaea full UWAI autoplay with four two-player teams plus solo teams and Aggressive AI enabled exercised mixed-team warfare before completing normally with a Space Race victory on turn 446. The exact sponsorship transition remains source-verified because it was not isolated in the run.
 
 <a id="ki-452"></a>
@@ -19192,23 +19194,23 @@ Found as F729/provisional KI#1050 during ChatGPT-5.6-Sol's C031-WIP777 repair-si
 
 <a id="ki-1051"></a>
 
-## KI#1051 - (Provisional Pending AdvCiv-SAS UWAI repair regression) HiredHand historical-role utility repeats across agent teammates
+## KI#1051 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI HiredHand defect) Historical-role utility repeated across agent teammates
 
 KI#451 canonicalizes the target side of HiredHand's historical-role term, but `WarEvaluator` still evaluates the same aspect for every member of the agent team. Because the term uses the same team-vs-team war counter and elapsed-game-turn state, a two-member agent team receives twice the one-member team's obligation solely from its player partition.
 
-The inherited target-member repetition remains KI#451; practical 6277 fixed that dimension but left the agent-member dimension. Pending charging this team-owned historical-role term once through a deterministic eligible AI representative or coherent team-level evaluation, without suppressing the genuinely player-owned sponsorship branches.
+The inherited target-member repetition remains KI#451; practical 6277 fixed that dimension but left the agent-member dimension. The repair now charges this team-owned historical-role term only through the first living AI member of the evaluating team and the target team's leader. Selecting an eligible AI rather than the administrative leader preserves the term for a mixed team led by a human, while the genuinely player-owned sponsorship branches remain evaluated for each actual agent member.
 
-Found as F730/provisional KI#1051 during ChatGPT-5.6-Sol's C031-WIP778 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+A clean Debug-opt compilation and mixed-team autoplay completed successfully. The exact scenario-long mixed-agent-team evaluation remains source-verified. Found as F730/provisional KI#1051 during ChatGPT-5.6-Sol's C031-WIP778 repair-side audit; implemented and reviewed with the help of GPT-5.6-Sol and tested with the help of wonderingabout, thanks.
 
 <a id="ki-1052"></a>
 
-## KI#1052 - (Provisional Pending inherited AdvC HiredHand defect) Ally-hire obligation repeats across target teammates
+## KI#1052 - (Fixed inherited AdvCiv UWAI HiredHand defect) Ally-hire obligation repeated across target teammates
 
 HiredHand's separate “we hired an ally” branch remains inside every rival-player pass even though `sponsorAgainst(eTheirTeam)` and the resulting fight-along obligation are target-team state. Normal hired-war bookkeeping also broadcasts the fallback memory to each attacked team member, so one paid war against a two-member target can contribute the same obligation twice.
 
-This branch is inherited from AdvC and was intentionally left outside practical 6277's KI#451 target-side repair because it mixes team sponsorship with player memories. Pending aggregating whether any target member supplies the fallback evidence, then charging the target-team obligation once.
+This branch is inherited from AdvC and was intentionally left outside practical 6277's KI#451 target-side repair because it mixes team sponsorship with player memories. The repair now aggregates whether any target member supplies the fallback evidence, then evaluates the target-team obligation once through its leader. The current agent player's accepted-hire memory and attitude toward each ally remain player-specific.
 
-Found as F731/provisional KI#1052 during ChatGPT-5.6-Sol's C031-WIP778 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The same clean Debug-opt mixed-team autoplay completed successfully. The exact paid-war transition against a multi-member target team remains source-verified. Found as F731/provisional KI#1052 during ChatGPT-5.6-Sol's C031-WIP778 repair-side audit; implemented and reviewed with the help of GPT-5.6-Sol and tested with the help of wonderingabout, thanks.
 
 <a id="ki-1053"></a>
 

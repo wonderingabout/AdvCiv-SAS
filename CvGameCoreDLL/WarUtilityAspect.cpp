@@ -1944,39 +1944,54 @@ void HiredHand::evaluate()
 			}
 		}
 	}
-	// Have we hired someone to help us against eThey?
-	for (PlayerAIIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itAlly(eOurTeam);
-		itAlly.hasNext(); ++itAlly)
+	// <!-- custom: The ally-hire obligation is target-team state, although its fallback evidence is stored in player memories; aggregate that evidence across the target members and charge the obligation once through their leader. See KI#451 and KI#1052. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (bCanonicalTargetMember)
 	{
-		CvPlayerAI const& kAlly = *itAlly;
-		/*	No point in checking if the ally is coming through. Need to allow
-			some time for that, and we don't feel obliged for that long anyway.
-			Or might say: We keep up the war just long enough to find out if
-			our ally can make a difference. That's actually almost rational. */
-		if (kAlly.uwai().getCache().sponsorAgainst(eTheirTeam) == eWe ||
-			(kWe.AI_getMemoryCount(kAlly.getID(), MEMORY_ACCEPTED_JOIN_WAR) > 0 &&
-			/*	Still can't be sure that the current war between the (human) ally
-				and eThey is the war we've asked the ally to declare, but that's OK. */
-			kThey.AI_getMemoryCount(eWe, MEMORY_HIRED_WAR_ALLY) > 0))
+		bool bTargetRecordsHire = false;
+		for (MemberAIIter itTargetMember(eTheirTeam); itTargetMember.hasNext(); ++itTargetMember)
 		{
-			log("We've hired %s for war against %s",
-					m_kReport.leaderName(kAlly.getID()),
-					m_kReport.leaderName(eThey));
-			if (kWe.AI_getAttitude(kAlly.getID()) <= ATTITUDE_ANNOYED)
+			if (itTargetMember->AI_getMemoryCount(eWe, MEMORY_HIRED_WAR_ALLY) > 0)
 			{
-				log("... but we don't like our hireling enough to care");
-				continue;
+				bTargetRecordsHire = true;
+				break;
 			}
-			/*	Behave as if someone had paid us the equivalent of 25 utility;
-				feel obliged to fight along the ally for 10 turns.
-				(Or should it matter how much we've paid the ally?) */
-			rUtility += eval(kAlly.getID(), 25, 10);
+		}
+		// Have we hired someone to help us against eThey?
+		for (PlayerAIIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itAlly(eOurTeam); itAlly.hasNext(); ++itAlly)
+		{
+			CvPlayerAI const& kAlly = *itAlly;
+			/*	No point in checking if the ally is coming through. Need to allow
+				some time for that, and we don't feel obliged for that long anyway.
+				Or might say: We keep up the war just long enough to find out if
+				our ally can make a difference. That's actually almost rational. */
+			if (kAlly.uwai().getCache().sponsorAgainst(eTheirTeam) == eWe ||
+				(kWe.AI_getMemoryCount(kAlly.getID(), MEMORY_ACCEPTED_JOIN_WAR) > 0 &&
+				/*	Still can't be sure that the current war between the (human) ally
+					and eThey is the war we've asked the ally to declare, but that's OK. */
+				bTargetRecordsHire))
+			{
+				log("We've hired %s for war against %s",
+						m_kReport.leaderName(kAlly.getID()),
+						m_kReport.leaderName(eThey));
+				if (kWe.AI_getAttitude(kAlly.getID()) <= ATTITUDE_ANNOYED)
+				{
+					log("... but we don't like our hireling enough to care");
+					continue;
+				}
+				/*	Behave as if someone had paid us the equivalent of 25 utility;
+					feel obliged to fight along the ally for 10 turns.
+					(Or should it matter how much we've paid the ally?) */
+				rUtility += eval(kAlly.getID(), 25, 10);
+			}
 		}
 	}
 	/*	Have we been at war since the start of the game? Then it's a scenario
 		and we should try to play along for a while. Tbd.: Should be a
 		separate aspect "Historical Role". */
-	if (bCanonicalTargetMember && kOurTeam.AI_getAtWarCounter(eTheirTeam) >= m_kGame.getElapsedGameTurns())
+	// <!-- custom: The scenario-long historical role is also team-owned on the agent side; charge it only through the first living AI member so mixed human/AI teams do not lose it merely because their administrative leader is human. See KI#451 and KI#1051. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	MemberAIIter itCanonicalAgent(eOurTeam);
+	if (bCanonicalTargetMember && itCanonicalAgent.hasNext() && eWe == itCanonicalAgent->getID() &&
+		kOurTeam.AI_getAtWarCounter(eTheirTeam) >= m_kGame.getElapsedGameTurns())
 		rUtility += eval(NO_PLAYER, 50, 12);
 	m_iU += rUtility.round();
 }
