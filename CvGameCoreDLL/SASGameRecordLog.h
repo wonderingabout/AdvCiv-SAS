@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 113 };
+enum { SAS_GAME_RECORD_REVISION = 114 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -645,6 +645,16 @@ enum SASGameRecordAIEmbargoRequestOrigin
 	SAS_AI_EMBARGO_JOINT_WAR_UWAI_REDIRECT
 };
 void logSASGameRecordAIEmbargoRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, SASGameRecordAIEmbargoRequestOrigin eOrigin, TeamTypes eJointWarTarget, int iJointWarTargetScore, DenialTypes eJointWarDenial);
+// <!-- custom: AI-originated vassalage can come from ordinary voluntary diplomacy, UWAI seeking a third-party protector, or legacy/UWAI capitulation to the current enemy.
+// The eventual TRADE_VASSAL/TRADE_SURRENDER action cannot reconstruct that decision origin; preserve only realized origin/cadence/package context while detailed UWAI capitulation/protector reasoning remains in BBAI. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordAIVassalageOrigin
+{
+	SAS_AI_VASSALAGE_VOLUNTARY_CONTACT,
+	SAS_AI_VASSALAGE_UWAI_FIND_MASTER,
+	SAS_AI_VASSALAGE_LEGACY_CAPITULATION,
+	SAS_AI_VASSALAGE_UWAI_CAPITULATION
+};
+void logSASGameRecordAIVassalageDecision(CvPlayerAI const& kPlayer, PlayerTypes eTarget, SASGameRecordAIVassalageOrigin eOrigin, TeamTypes eEnemyTeam, int iContactProbMultX1000, int iTargetRank, int iAliveCivs, int iCounterProposal, CLinkList<TradeData> const& kAIGives, CLinkList<TradeData> const& kAIReceives);
 // <!-- custom: AI_proposeWarTrade has richer realized joint-war hiring provenance than the generic CONTACT_JOIN_WAR package can preserve.
 // Keep only the two execution paths recorder-local; the generic contact row remains authoritative for the final trade items. (ChatGPT-5.6-Sol) -->
 enum SASGameRecordAIWarTradePaymentPath

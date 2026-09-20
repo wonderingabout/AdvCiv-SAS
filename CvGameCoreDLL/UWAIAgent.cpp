@@ -1204,7 +1204,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iE
 				m_pReport->leaderName(kTargetPlayer.getID()));
 		if (!isInBackground())
 		{
-			kAgentPlayer.AI_offerCapitulation(kTargetPlayer.getID());
+			kAgentPlayer.AI_offerCapitulation(kTargetPlayer.getID(), true);
 			return false;
 		}
 	}
@@ -1360,6 +1360,12 @@ bool UWAI::Team::tryFindingMaster(TeamTypes eEnemy)
 {
 			CLinkList<TradeData> ourList, theirList;
 			ourList.insertAtEnd(item);
+			// <!-- custom: This third-party protector path otherwise collapses into an ordinary TRADE_VASSAL action; preserve only the realized origin/current enemy/package and leave rejected-master reasoning in BBAI. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2)
+			{
+				logSASGameRecordAIVassalageDecision(kAgentPlayer, kMasterPlayer.getID(), SAS_AI_VASSALAGE_UWAI_FIND_MASTER,
+					eEnemy, -1, -1, -1, -1, ourList, theirList);
+			}
 			if (kMaster.isHuman())
 			{
 				kAgentPlayer.AI_changeContactTimer(kMasterPlayer.getID(),

@@ -1378,6 +1378,72 @@ def check_ai_embargo_request_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_vassalage_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE, PLAYER_AI_HEADER, UWAI_AGENT_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI vassalage provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	expected_origins = [
+		"SAS_AI_VASSALAGE_VOLUNTARY_CONTACT", "SAS_AI_VASSALAGE_UWAI_FIND_MASTER",
+		"SAS_AI_VASSALAGE_LEGACY_CAPITULATION", "SAS_AI_VASSALAGE_UWAI_CAPITULATION",
+	]
+	m = re.search(r"enum\s+SASGameRecordAIVassalageOrigin\s*\{(?P<body>.*?)\};", header_text, flags=re.DOTALL)
+	if m is None:
+		failures.append(f"{REVISION_HEADER}: missing SASGameRecordAIVassalageOrigin")
+	else:
+		tokens = re.findall(r"^\s*(SAS_AI_VASSALAGE_[A-Z0-9_]+)\s*,?\s*$", m.group("body"), flags=re.MULTILINE)
+		if tokens != expected_origins:
+			failures.append(f"{REVISION_HEADER}: AI vassalage origin vocabulary changed; expected {expected_origins}, found {tokens}")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_VASSALAGE_DECISION", "origin=%s", "enemyTeam=%d", "enemyAtWarCounter=%d",
+		"contactProbMultX1000=%d", "targetRank=%d", "aliveCivs=%d", "ourWars=%d", "counterProposal=%d",
+		"aiGives=%s", "aiReceives=%s",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI vassalage diagnostic token {required}")
+	for token in expected_origins:
+		if record_text.count(f"case {token}:") != 1:
+			failures.append(f"{REVISION_SOURCE}: AI vassalage origin {token} must have exactly one stringifier case")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	player_header = (repo_root / PLAYER_AI_HEADER).read_text(encoding="utf-8", errors="replace")
+	uwai_text = (repo_root / UWAI_AGENT_SOURCE).read_text(encoding="utf-8", errors="replace")
+	if "void AI_offerCapitulation(PlayerTypes eTo, bool bUWAI);" not in player_header:
+		failures.append(f"{PLAYER_AI_HEADER}: AI_offerCapitulation must retain explicit caller-family provenance")
+	m = re.search(r"void\s+CvPlayerAI::AI_offerCapitulation\([^)]*\)\s*\{(?P<body>.*?)^\}\s*// </advc\.104h>", player_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		failures.append(f"{PLAYER_AI_SOURCE}: could not locate AI_offerCapitulation")
+	else:
+		body = m.group("body")
+		if body.count("logSASGameRecordAIVassalageDecision(") != 2:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_offerCapitulation must bridge AI and human realized surrender delivery exactly once each")
+		if body.count("AI_counterPropose(") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_offerCapitulation counterproposal call count changed")
+		if body.count("implementDeal(") != 1 or body.count("beginDiplomacy(") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_offerCapitulation realized AI/human delivery structure changed")
+		if "bUWAI ? SAS_AI_VASSALAGE_UWAI_CAPITULATION : SAS_AI_VASSALAGE_LEGACY_CAPITULATION" not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: capitulation row must preserve explicit legacy/UWAI origin")
+	if player_text.count("AI_offerCapitulation(eTarget, false)") != 1:
+		failures.append(f"{PLAYER_AI_SOURCE}: legacy AI_doPeace must identify its capitulation caller exactly once")
+	if player_text.count("SAS_AI_VASSALAGE_VOLUNTARY_CONTACT") != 2:
+		failures.append(f"{PLAYER_AI_SOURCE}: voluntary-vassal human/AI delivery paths must each retain one provenance bridge")
+	if player_text.count("int const iTargetRank = kGame.getPlayerRank(ePlayer);") != 1 or player_text.count("int const iAliveCivs = kGame.countCivPlayersAlive();") != 1:
+		failures.append(f"{PLAYER_AI_SOURCE}: voluntary-vassal contact multiplier inputs must remain cached from the live formula")
+	if uwai_text.count("AI_offerCapitulation(kTargetPlayer.getID(), true)") != 1:
+		failures.append(f"{UWAI_AGENT_SOURCE}: UWAI capitulation must identify its caller exactly once")
+	if uwai_text.count("SAS_AI_VASSALAGE_UWAI_FIND_MASTER") != 1:
+		failures.append(f"{UWAI_AGENT_SOURCE}: tryFindingMaster must emit exactly one realized protector-selection bridge")
+	if re.search(r"logSASGameRecordAIVassalageDecision\([^;]+SAS_AI_VASSALAGE_UWAI_FIND_MASTER", uwai_text, flags=re.DOTALL) is None:
+		failures.append(f"{UWAI_AGENT_SOURCE}: missing UWAI protector-selection vassalage bridge")
+	return failures
+
+
 def check_ai_war_trade_intent_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -1531,6 +1597,7 @@ def main() -> int:
 	failures.extend(check_ai_city_trade_intent_provenance(args.repo_root))
 	failures.extend(check_ai_embargo_request_provenance(args.repo_root))
 	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
+	failures.extend(check_ai_vassalage_provenance(args.repo_root))
 	failures.extend(check_ai_war_trade_intent_provenance(args.repo_root))
 	failures.extend(check_ai_conquer_city_provenance(args.repo_root))
 	failures.extend(check_ai_great_person_provenance(args.repo_root))
@@ -1540,7 +1607,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

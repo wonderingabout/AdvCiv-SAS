@@ -11883,6 +11883,33 @@ void logSASGameRecordAIEmbargoRequest(CvPlayerAI const& kPlayer, PlayerTypes eHu
 		iJointWarAtWarCounter, (eJointWarTarget != NO_TEAM && eJointWarTarget == eEmbargoTarget) ? 1 : 0, szJointWarDenial);
 }
 
+// <!-- custom: Preserve the realized origin of AI-driven vassalage/surrender before downstream deal/vassal actions erase whether this came from ordinary voluntary diplomacy, UWAI protector-seeking, or legacy/UWAI capitulation.
+// Final package serialization is necessary for capitulation-to-human counterproposals; detailed rejected-master/capitulation utility reasoning remains in BBAI. (ChatGPT-5.6-Sol) -->
+static char const* getSASGameRecordAIVassalageOrigin(SASGameRecordAIVassalageOrigin eOrigin)
+{
+	switch (eOrigin)
+	{
+	case SAS_AI_VASSALAGE_VOLUNTARY_CONTACT: return "VOLUNTARY_CONTACT";
+	case SAS_AI_VASSALAGE_UWAI_FIND_MASTER: return "UWAI_FIND_MASTER";
+	case SAS_AI_VASSALAGE_LEGACY_CAPITULATION: return "LEGACY_CAPITULATION";
+	case SAS_AI_VASSALAGE_UWAI_CAPITULATION: return "UWAI_CAPITULATION";
+	default: return "UNKNOWN";
+	}
+}
+
+void logSASGameRecordAIVassalageDecision(CvPlayerAI const& kPlayer, PlayerTypes eTarget, SASGameRecordAIVassalageOrigin eOrigin, TeamTypes eEnemyTeam, int iContactProbMultX1000, int iTargetRank, int iAliveCivs, int iCounterProposal, CLinkList<TradeData> const& kAIGives, CLinkList<TradeData> const& kAIReceives)
+{
+	CvPlayerAI const& kTarget = GET_PLAYER(eTarget);
+	int iEnemyAtWarCounter = -1;
+	if (eEnemyTeam != NO_TEAM && GET_TEAM(kPlayer.getTeam()).isAtWar(eEnemyTeam))
+		iEnemyAtWarCounter = GET_TEAM(kPlayer.getTeam()).AI_getAtWarCounter(eEnemyTeam);
+	logSASGameRecord("GAME_RECORD_AI_VASSALAGE_DECISION turn=%d player=%d team=%d targetPlayer=%d targetTeam=%d targetHuman=%d origin=%s enemyTeam=%d enemyAtWarCounter=%d contactProbMultX1000=%d targetRank=%d aliveCivs=%d ourWars=%d counterProposal=%d aiGives=%s aiReceives=%s",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eTarget, kTarget.getTeam(), kTarget.isHuman() ? 1 : 0,
+		getSASGameRecordAIVassalageOrigin(eOrigin), eEnemyTeam, iEnemyAtWarCounter, iContactProbMultX1000, iTargetRank, iAliveCivs,
+		GET_TEAM(kPlayer.getTeam()).getNumWars(), iCounterProposal, getSASTradeListText(kAIGives, kPlayer.getID()).GetCString(),
+		getSASTradeListText(kAIReceives, eTarget).GetCString());
+}
+
 static char const* getSASGameRecordAIWarTradePaymentPath(SASGameRecordAIWarTradePaymentPath ePaymentPath)
 {
 	switch (ePaymentPath)

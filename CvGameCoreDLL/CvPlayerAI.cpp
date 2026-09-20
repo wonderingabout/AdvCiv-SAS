@@ -884,7 +884,7 @@ void CvPlayerAI::AI_doPeace()
 		if (canTradeItem(eTarget, TradeData(TRADE_SURRENDER), /* bTestDenial=*/true))
 		{
 			// advc.104h: Moved into new function
-			AI_offerCapitulation(eTarget);
+			AI_offerCapitulation(eTarget, false);
 			return;
 		}
 		if (!AI_contactRoll(CONTACT_PEACE_TREATY))
@@ -1179,17 +1179,19 @@ int CvPlayerAI::AI_negotiatePeace(PlayerTypes eRecipient, PlayerTypes eGiver, in
 	return iR;
 }
 
-void CvPlayerAI::AI_offerCapitulation(PlayerTypes eTo)
+// <!-- custom: The explicit caller-family flag exists only to retain realized surrender provenance; detailed peace/capitulation evaluation stays in the live legacy/UWAI code and BBAI. (ChatGPT-5.6-Sol) -->
+void CvPlayerAI::AI_offerCapitulation(PlayerTypes eTo, bool bUWAI)
 {
 	CLinkList<TradeData> weGive;
 	CLinkList<TradeData> theyGive;
 	weGive.insertAtEnd(TradeData(TRADE_SURRENDER));
 	if(!GET_PLAYER(eTo).isHuman())
 	{
+		if (gGameRecordLogLevel >= 2) logSASGameRecordAIVassalageDecision(*this, eTo, bUWAI ? SAS_AI_VASSALAGE_UWAI_CAPITULATION : SAS_AI_VASSALAGE_LEGACY_CAPITULATION, GET_PLAYER(eTo).getTeam(), -1, -1, -1, -1, weGive, theyGive);
 		GC.getGame().implementDeal(getID(), eTo, weGive, theyGive);
 		return;
 	} // advc.134a:
-	GET_PLAYER(eTo).AI_counterPropose(getID(), weGive, theyGive, true, false, fixp(0.9));
+	bool const bCounterProposal = GET_PLAYER(eTo).AI_counterPropose(getID(), weGive, theyGive, true, false, fixp(0.9));
 	AI_changeContactTimer(eTo, CONTACT_PEACE_TREATY,
 			// advc.134a: Double the delay
 			2 * AI_getContactDelay(CONTACT_PEACE_TREATY));
@@ -1198,6 +1200,7 @@ void CvPlayerAI::AI_offerCapitulation(PlayerTypes eTo)
 	pDiplo->setAIContact(true);
 	pDiplo->setOurOfferList(theyGive);
 	pDiplo->setTheirOfferList(weGive);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordAIVassalageDecision(*this, eTo, bUWAI ? SAS_AI_VASSALAGE_UWAI_CAPITULATION : SAS_AI_VASSALAGE_LEGACY_CAPITULATION, GET_PLAYER(eTo).getTeam(), -1, -1, -1, bCounterProposal ? 1 : 0, weGive, theyGive);
 	gDLL->beginDiplomacy(pDiplo, eTo);
 	//advc.test, advc.134a:
 	/*FErrorMsg("AI sent capitulation offer; if it doesn't appear, "
@@ -23640,8 +23643,10 @@ void CvPlayerAI::AI_doDiplo()
 				if (bOffered)
 					continue;
 				// <advc.112>
-				scaled rContactProbMult = 8 * scaled::clamp(scaled(kGame.getPlayerRank(ePlayer),
-						kGame.countCivPlayersAlive()), fixp(0.25), fixp(0.5));
+				// <!-- custom: Name the live rank/alive-civ inputs so a realized voluntary-vassal row can preserve the exact contact multiplier without repeating either lookup solely for SASGameRecord. (ChatGPT-5.6-Sol) -->
+				int const iTargetRank = kGame.getPlayerRank(ePlayer);
+				int const iAliveCivs = kGame.countCivPlayersAlive();
+				scaled rContactProbMult = 8 * scaled::clamp(scaled(iTargetRank, iAliveCivs), fixp(0.25), fixp(0.5));
 				if (kOurTeam.getNumWars() > 0)
 					rContactProbMult *= 4;
 				if (AI_contactRoll(CONTACT_PERMANENT_ALLIANCE, rContactProbMult))
@@ -23663,7 +23668,11 @@ void CvPlayerAI::AI_doDiplo()
 								pDiplo->setAIContact(true);
 								pDiplo->setOurOfferList(theyGive);
 								pDiplo->setTheirOfferList(weGive);
-								if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_PERMANENT_ALLIANCE, NULL, &weGive, &theyGive);
+								if (gGameRecordLogLevel >= 2)
+								{
+									logSASGameRecordAIVassalageDecision(*this, ePlayer, SAS_AI_VASSALAGE_VOLUNTARY_CONTACT, NO_TEAM, (rContactProbMult * 1000).round(), iTargetRank, iAliveCivs, -1, weGive, theyGive);
+									logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_PERMANENT_ALLIANCE, NULL, &weGive, &theyGive);
+								}
 								gDLL->beginDiplomacy(pDiplo, ePlayer);
 								abContacted[kPlayer.getTeam()] = true;
 							}
@@ -23673,7 +23682,11 @@ void CvPlayerAI::AI_doDiplo()
 							removed on 22 Feb 2021. Already checked through canTradeItem. */
 						else
 						{
-							if (gGameRecordLogLevel >= 2) logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_PERMANENT_ALLIANCE, NULL, &weGive, &theyGive);
+							if (gGameRecordLogLevel >= 2)
+							{
+								logSASGameRecordAIVassalageDecision(*this, ePlayer, SAS_AI_VASSALAGE_VOLUNTARY_CONTACT, NO_TEAM, (rContactProbMult * 1000).round(), iTargetRank, iAliveCivs, -1, weGive, theyGive);
+								logSASGameRecordAIDiploContactIntent(*this, ePlayer, CONTACT_PERMANENT_ALLIANCE, NULL, &weGive, &theyGive);
+							}
 							kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
 						}
 					}

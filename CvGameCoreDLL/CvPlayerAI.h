@@ -632,7 +632,8 @@ public:
 	// <advc.104h>
 	// Returns true if peace deal implemented (or offered to human)
 	bool AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iOurBenefit);
-	void AI_offerCapitulation(PlayerTypes eTo);
+	// <!-- custom: bUWAI labels the already-live capitulation caller for SASGameRecord; both callers pass it explicitly and it does not alter surrender eligibility or package formation. (ChatGPT-5.6-Sol) -->
+	void AI_offerCapitulation(PlayerTypes eTo, bool bUWAI);
 	// </advc.104h>
 	bool AI_willOfferPeace(PlayerTypes eTo) const; // advc
 	// advc.130h:

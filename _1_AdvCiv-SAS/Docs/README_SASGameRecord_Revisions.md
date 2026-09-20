@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=113 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=114 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -44,10 +44,20 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
+### Revision 114 - SAS practical 6516
+
+- **Date:** 2026-09-20
+- **Git commit:** pending
+- **Change:** Added compact level-2 realized `GAME_RECORD_AI_VASSALAGE_DECISION` provenance for AI-originated vassalage and capitulation.
+
+The row distinguishes ordinary `AI_doDiplo` voluntary-vassal contact, UWAI's `tryFindingMaster` third-party protector path, and legacy/UWAI capitulation to the current enemy. It preserves the enemy/war-age context where applicable, the live voluntary-contact probability multiplier/rank inputs, human-capitulation counterproposal result, and final AI-gives/AI-receives package.
+
+Automatic colony/system vassalage is intentionally excluded because it is not an AI diplomatic decision. Existing generic contact/deal/vassalage actions remain authoritative for delivery and state transition, detailed UWAI protector/capitulation reasoning remains in BBAI, and no denial, target search, counterproposal or synchronized RNG is repeated solely for recording.
+
 ### Revision 113 - SAS practical 6514
 
-- **Date:** 2026-09-19
-- **Git commit:** pending
+- **Date:** 2026-09-20
+- **Git commit:** `0372d02af23b9eb891d1ec7053f0b54c7f5225b4`
 - **Change:** Added compact level-2 realized `GAME_RECORD_DEAL_INVALIDATION` provenance for automatic `CvDeal::verify()` teardown.
 
 The row distinguishes a resource-supply deficit, lost trade network, giver- or recipient-side resource obsolescence, AdvC's broke-GPT enforcement, and ordinary peace-treaty expiry. It preserves the exact first failing direction/item plus already-live bonus-count or GPT gold/rate boundary where applicable.
