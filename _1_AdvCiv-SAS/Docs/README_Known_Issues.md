@@ -1157,7 +1157,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1041 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv trade-rounding defect) An out-of-bounds exact multiple hid the nearest legal value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1041)\
 [KI#1042 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS event-value defect) PlotExtraYield absolute values were treated as additive gains](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1042)\
 [KI#1043 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS event-value defect) Already revealed resources retained full force-reveal value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1043)\
-[KI#1044 - (Provisional Pending AdvCiv-SAS UWAI repair regression) Asymmetric land clashes average an unavailable distance](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1044)\
+[KI#1044 - (Fixed AdvCiv-SAS regression in repair of an inherited original UWAI route-representation defect) Asymmetric land clashes averaged an unavailable distance](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1044)\
 [KI#1045 - (Provisional Pending AdvCiv-SAS Permanent-Alliance repair regression) Transient UWAI state is cleared before target migration](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1045)\
 [KI#1046 - (Provisional Pending AdvCiv-SAS cargo-automation repair regression) Carrier cancellation omits automated air cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1046)\
 [KI#1047 - (Provisional Pending inherited BtS carrier-automation defect) Carrier Explore mixes head-unit cargo with group-wide automation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1047)\
@@ -14765,6 +14765,8 @@ A current-build Debug-opt autoplay completed successfully; the precise third-par
 
 The cache now retains both contracts: `getDistance()` remains the fastest mixed deployment estimate for generic and naval consumers, while `getDistanceByLand()` is independently weighted from qualifying land routes before any faster sea substitution. Land reachability thresholds, land-invasion deployment, target-specific land/naval armament classification, overland clashes, UWAI land-target classification, conquest defensibility and AdvCiv-SAS's pre-war land-contact gate use the land-only value; fleet-only clashes, naval invasions and generic target-value consumers retain the mixed value. The new value is stored directly in the current save format without an older-save migration, consistently with AdvCiv-SAS's current-version-only save policy.
 
+Update: A repair-side audit found that the inherited non-fleet clash predicate requires a qualifying land route from only one side. KI#1044 now uses each side's land-only distance when available and its valid mixed distance otherwise, preventing asymmetric geography from feeding the new `-1` unavailable sentinel into clash arithmetic.
+
 This representation/consumer mismatch originates in original UWAI, remains in Base AdvCiv 1.14 and was not introduced by AdvCiv-SAS. AdvCiv's own UWAI TODO independently identifies the missing separate land distance, while KI#549 and KI#563 concern distinct earlier route-discovery boundaries and do not repair this dual-route state.
 
 A current-build autoplay completed successfully; the exact simultaneous long-land/short-sea case and current-format save/reload remain source-verified. Found as F268/provisional KI#591 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
@@ -19114,13 +19116,15 @@ Found as F722/provisional KI#1043 during ChatGPT-5.6-Sol's C031-WIP718 repair-si
 
 <a id="ki-1044"></a>
 
-## KI#1044 - (Provisional Pending AdvCiv-SAS UWAI repair regression) Asymmetric land clashes average an unavailable distance
+## KI#1044 - (Fixed AdvCiv-SAS regression in repair of an inherited original UWAI route-representation defect) Asymmetric land clashes averaged an unavailable distance
 
-KI#591's clash repair averages land-only deployment distances for both sides whenever a clash is not fleet-only, while the inherited mode predicate requires only one side to have a qualifying land route. The other side can therefore contribute the new unavailable `-1` sentinel to physical-distance arithmetic.
+KI#591's clash repair averaged land-only deployment distances for both sides whenever a clash was not fleet-only, while the inherited mode predicate requires only one side to have a qualifying land route. The other side could therefore contribute the new unavailable `-1` sentinel to physical-distance arithmetic. In the strongest boundary, averaging a one-turn route with `-1` produced zero and violated the immediately following positive-distance assertion.
 
-The inherited mixed-route representation root remains KI#591; practical 6315 introduced the separate land-distance metric but not a safe asymmetric clash contract. Pending selecting a valid per-side metric consistent with each available route, or strengthening the clash-mode predicate, and never using `-1` in arithmetic.
+The inherited mixed-route representation root remains KI#591; practical 6315 introduced the separate land-distance metric but not a safe asymmetric clash contract. `clashDistance` now selects the route independently for each side: a qualifying land-only distance for an overland participant when available, otherwise that side's valid mixed deployment distance. Fleet-only clashes continue using both mixed distances, and no unavailable land sentinel enters the average.
 
-Found as F723/provisional KI#1044 during ChatGPT-5.6-Sol's C031-WIP739 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The exact asymmetric primary-area/remote-colony topology remains source-verified. A current-build Archipelago autoplay with snaky continents completed successfully; this land-and-sea map is proportional runtime validation because ordinary UWAI repeatedly exercises the surrounding invasion simulation even when that precise reciprocal cache state does not arise.
+
+Found as F723/provisional KI#1044 during ChatGPT-5.6-Sol's C031-WIP739 repair-side audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-1045"></a>
 

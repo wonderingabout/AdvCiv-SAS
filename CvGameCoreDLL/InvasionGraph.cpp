@@ -2173,7 +2173,8 @@ void InvasionGraph::Node::clash(scaled rArmyPortion, scaled rTargetArmyPortion)
 }
 
 
-// <!-- custom: Accept the selected invasion mode so overland clashes average land-only deployment distances, while fleet-only clashes retain the existing mixed metric. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+// <!-- custom: Accept the selected invasion mode so overland clashes use each side's available land-only deployment distance, while fleet-only clashes retain the mixed metric.
+// A non-fleet clash requires only one side to have a qualifying land route, so fall back per side to its valid mixed distance rather than averaging an unavailable -1 land sentinel. See KI#591 and KI#1044. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 scaled InvasionGraph::Node::clashDistance(InvasionGraph::Node const& kOther,
 	bool bNaval) const
 {
@@ -2182,10 +2183,11 @@ scaled InvasionGraph::Node::clashDistance(InvasionGraph::Node const& kOther,
 	// Clash half-way in the middle
 	if (pTargetCity != NULL && pOtherTargetCity != NULL)
 	{
-		return scaled((bNaval ? pTargetCity->getDistance() :
-				pTargetCity->getDistanceByLand()) +
-				(bNaval ? pOtherTargetCity->getDistance() :
-				pOtherTargetCity->getDistanceByLand()), 2);
+		int const iDistance = (!bNaval && pTargetCity->getDistanceByLand() >= 0 ?
+				pTargetCity->getDistanceByLand() : pTargetCity->getDistance());
+		int const iOtherDistance = (!bNaval && pOtherTargetCity->getDistanceByLand() >= 0 ?
+				pOtherTargetCity->getDistanceByLand() : pOtherTargetCity->getDistance());
+		return scaled(iDistance + iOtherDistance, 2);
 	}
 	FErrorMsg("Shouldn't clash if not mutually reachable");
 	return -1;
