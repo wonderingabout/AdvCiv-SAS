@@ -11921,6 +11921,20 @@ void logSASGameRecordAIMapTradeDecision(CvPlayerAI const& kPlayer, PlayerTypes e
 		iOurReceiveValue, iTargetReceiveValue, iOurReceiveValue - iTargetReceiveValue, iTargetReceiveMinExclusive);
 }
 
+// <!-- custom: The native vassal tribute chooser already evaluated every eligible resource before selecting the master's highest-value missing bonus.
+// Serialize those retained scalars before delivery; the following DIPLO_DEAL remains authoritative for an AI-vassal transfer, while HUMAN_POPUP records a request that the human vassal may still decline. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIVassalResourceTributeDecision(CvPlayerAI const& kMaster, PlayerTypes eVassal, bool bHumanPopup, BonusTypes eSelectedBonus, int iSelectedValue, BonusTypes eRunnerUpBonus, int iRunnerUpValue, int iCandidateCount)
+{
+	if (eVassal == NO_PLAYER || eSelectedBonus == NO_BONUS)
+		return;
+	CvPlayerAI const& kVassal = GET_PLAYER(eVassal);
+	int const iRunnerUpValueLogged = (eRunnerUpBonus == NO_BONUS ? -1 : iRunnerUpValue);
+	logSASGameRecord("GAME_RECORD_AI_VASSAL_RESOURCE_TRIBUTE turn=%d master=%d masterTeam=%d vassal=%d vassalTeam=%d vassalHuman=%d vassalCapitulated=%d delivery=%s selectedBonus=%s selectedValue=%d runnerUpBonus=%s runnerUpValue=%d selectedAdvantage=%d candidateCount=%d",
+		GC.getGame().getGameTurn(), kMaster.getID(), kMaster.getTeam(), eVassal, kVassal.getTeam(), kVassal.isHuman() ? 1 : 0,
+		GET_TEAM(kVassal.getTeam()).isCapitulated() ? 1 : 0, bHumanPopup ? "HUMAN_POPUP" : "AI_DEAL", getSASGameRecordBonusType(eSelectedBonus), iSelectedValue,
+		getSASGameRecordBonusType(eRunnerUpBonus), iRunnerUpValueLogged, eRunnerUpBonus == NO_BONUS ? -1 : iSelectedValue - iRunnerUpValue, iCandidateCount);
+}
+
 static char const* getSASGameRecordAIWarTradePaymentPath(SASGameRecordAIWarTradePaymentPath ePaymentPath)
 {
 	switch (ePaymentPath)

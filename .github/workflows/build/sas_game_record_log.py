@@ -1499,6 +1499,64 @@ def check_ai_map_trade_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_vassal_resource_tribute_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI vassal-resource tribute provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	if "logSASGameRecordAIVassalResourceTributeDecision(" not in header_text:
+		failures.append(f"{REVISION_HEADER}: missing AI vassal-resource tribute provenance declaration")
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_VASSAL_RESOURCE_TRIBUTE", "master=%d", "vassal=%d", "vassalHuman=%d",
+		"vassalCapitulated=%d", "delivery=%s", "selectedBonus=%s", "selectedValue=%d",
+		"runnerUpBonus=%s", "runnerUpValue=%d", "selectedAdvantage=%d", "candidateCount=%d",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI vassal-resource tribute diagnostic token {required}")
+	m_record = re.search(r"void logSASGameRecordAIVassalResourceTributeDecision\([^\)]*\)\s*\{(?P<body>.*?)^\}", record_text, flags=re.DOTALL | re.MULTILINE)
+	if m_record is None:
+		failures.append(f"{REVISION_SOURCE}: could not locate AI vassal-resource tribute provenance definition")
+	else:
+		record_body = m_record.group("body")
+		if "gGameRecordLogLevel" in record_body:
+			failures.append(f"{REVISION_SOURCE}: vassal-resource tribute serializer must rely on the caller's level-2 pre-gate")
+		if "if (eVassal == NO_PLAYER || eSelectedBonus == NO_BONUS)" not in record_body:
+			failures.append(f"{REVISION_SOURCE}: vassal-resource tribute serializer must retain cheap target/selected-bonus safety")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	m = re.search(r"if \(GET_TEAM\(ePlayer\)\.isVassal\(getTeam\(\)\) &&\s*\n\s*kPlayer\.canPossiblyTradeItem\(getID\(\), TRADE_RESOURCES\)\).*?(?=\n\s*if \(kOurTeam\.getLeaderID\(\) == getID\(\) &&)", player_text, flags=re.DOTALL)
+	if m is None:
+		failures.append(f"{PLAYER_AI_SOURCE}: could not locate automatic vassal-resource tribute block")
+		return failures
+	body = m.group(0)
+	for token, expected in (
+		("AI_bonusTradeVal(eLoopBonus, ePlayer, 1)", 1),
+		("logSASGameRecordAIVassalResourceTributeDecision(", 2),
+		("BUTTONPOPUP_VASSAL_GRANT_TRIBUTE", 1),
+		("kGame.implementDeal(getID(), ePlayer, weGive, theyGive)", 1),
+	):
+		actual = body.count(token)
+		if actual != expected:
+			failures.append(f"{PLAYER_AI_SOURCE}: vassal-resource tribute live call count for {token} changed; expected {expected}, found {actual}")
+	for required in (
+		"kPlayer.getNumTradeableBonuses(eLoopBonus) > 0",
+		"getNumAvailableBonuses(eLoopBonus) == 0",
+		"kPlayer.canTradeItem(getID(), TradeData(",
+		"bool const bLogSASVassalResourceTribute = (gGameRecordLogLevel >= 2);",
+		"if (bLogSASVassalResourceTribute)",
+	):
+		if required not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: missing vassal-resource tribute chooser/pre-gate invariant {required}")
+	if any(token in body for token in ("SyncRand", "AI_counterPropose(")):
+		failures.append(f"{PLAYER_AI_SOURCE}: automatic vassal-resource tribute chooser should remain RNG/counterproposal-free")
+	return failures
+
+
 def check_ai_war_trade_intent_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -1654,6 +1712,7 @@ def main() -> int:
 	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
 	failures.extend(check_ai_vassalage_provenance(args.repo_root))
 	failures.extend(check_ai_map_trade_provenance(args.repo_root))
+	failures.extend(check_ai_vassal_resource_tribute_provenance(args.repo_root))
 	failures.extend(check_ai_war_trade_intent_provenance(args.repo_root))
 	failures.extend(check_ai_conquer_city_provenance(args.repo_root))
 	failures.extend(check_ai_great_person_provenance(args.repo_root))
@@ -1663,7 +1722,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-map-trade/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-map-trade/AI-vassal-resource-tribute/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

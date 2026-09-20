@@ -23559,6 +23559,12 @@ void CvPlayerAI::AI_doDiplo()
 			{
 				int iBestValue = 0;
 				BonusTypes eBestGiveBonus = NO_BONUS;
+				// <!-- custom: The master deterministically picks the highest-value resource its vassal can provide while the master has none.
+				// Preserve runner-up/candidate context only at GameRecord level 2, reusing each already-live AI_bonusTradeVal result instead of rescanning any bonus solely for logging. (ChatGPT-5.6-Sol) -->
+				bool const bLogSASVassalResourceTribute = (gGameRecordLogLevel >= 2);
+				int iSASCandidateCount = 0;
+				BonusTypes eSASRunnerUpBonus = NO_BONUS;
+				int iSASRunnerUpValue = MIN_INT;
 				FOR_EACH_ENUM(Bonus)
 				{
 					if (kPlayer.getNumTradeableBonuses(eLoopBonus) > 0 &&
@@ -23568,10 +23574,21 @@ void CvPlayerAI::AI_doDiplo()
 						TRADE_RESOURCES, eLoopBonus))) // </advc.001>
 					{
 						int iValue = AI_bonusTradeVal(eLoopBonus, ePlayer, 1);
+						if (bLogSASVassalResourceTribute) iSASCandidateCount++;
 						if (iValue > iBestValue)
 						{
+							if (bLogSASVassalResourceTribute && eBestGiveBonus != NO_BONUS)
+							{
+								eSASRunnerUpBonus = eBestGiveBonus;
+								iSASRunnerUpValue = iBestValue;
+							}
 							iBestValue = iValue;
 							eBestGiveBonus = (eLoopBonus);
+						}
+						else if (bLogSASVassalResourceTribute && (eSASRunnerUpBonus == NO_BONUS || iValue > iSASRunnerUpValue))
+						{
+							eSASRunnerUpBonus = eLoopBonus;
+							iSASRunnerUpValue = iValue;
 						}
 					}
 				}
@@ -23590,12 +23607,17 @@ void CvPlayerAI::AI_doDiplo()
 									getID(), eBestGiveBonus);
 							if (pInfo)
 							{
+								if (bLogSASVassalResourceTribute) logSASGameRecordAIVassalResourceTributeDecision(*this, ePlayer, true, eBestGiveBonus, iBestValue, eSASRunnerUpBonus, iSASRunnerUpValue, iSASCandidateCount);
 								gDLL->UI().addPopup(pInfo, ePlayer);
 								abContacted[kPlayer.getTeam()] = true;
 							}
 						}
 					}
-					else kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+					else
+					{
+						if (bLogSASVassalResourceTribute) logSASGameRecordAIVassalResourceTributeDecision(*this, ePlayer, false, eBestGiveBonus, iBestValue, eSASRunnerUpBonus, iSASRunnerUpValue, iSASCandidateCount);
+						kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+					}
 				}
 			}
 

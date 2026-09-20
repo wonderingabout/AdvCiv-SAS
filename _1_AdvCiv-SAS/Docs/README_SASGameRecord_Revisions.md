@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=115 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=116 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -44,10 +44,20 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 115 - SAS practical 6518
+### Revision 116 - SAS practical 6521
 
 - **Date:** 2026-09-20
 - **Git commit:** pending
+- **Change:** Added compact level-2 `GAME_RECORD_AI_VASSAL_RESOURCE_TRIBUTE` provenance for the master's automatic vassal-resource chooser.
+
+The row preserves the selected missing resource and its already-computed `AI_bonusTradeVal` together with the runner-up/value margin and eligible-candidate count. This chooser is separate from ordinary negotiated resource trading: after other diplomacy gates, the master scans resources its vassal can provide, requires the master to have none, and deterministically chooses the highest-valued tradeable resource.
+
+For an AI vassal, the row is emitted immediately before the existing one-sided resource deal. For a human vassal, `delivery=HUMAN_POPUP` records the selected tribute request before `BUTTONPOPUP_VASSAL_GRANT_TRIBUTE`; a later transfer still depends on the human response. Candidate/runner-up bookkeeping is level-2-only, every `AI_bonusTradeVal` result is reused from the native scan, and no resource valuation, tradeability query, counterproposal or synchronized RNG is added solely for recording.
+
+### Revision 115 - SAS practical 6518
+
+- **Date:** 2026-09-20
+- **Git commit:** `f3cf0b1a0a8f07110e2850188f8b25d93402e136`
 - **Change:** Added compact level-2 realized `GAME_RECORD_AI_MAP_TRADE_DECISION` provenance for proactive AI map swaps.
 
 The row preserves the two live pre-exchange `AI_mapTradeVal` results: how much the proposer values the target map and how much the target values the proposer map. It also records their value advantage and the strict `DIPLOMACY_VALUE_REMAINDER` threshold applied to the target's received-map value.

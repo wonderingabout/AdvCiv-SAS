@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 115 };
+enum { SAS_GAME_RECORD_REVISION = 116 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -658,6 +658,9 @@ void logSASGameRecordAIVassalageDecision(CvPlayerAI const& kPlayer, PlayerTypes 
 // <!-- custom: A realized proactive map swap is symmetric in the final package but not in the live decision: preserve both pre-exchange map values and the minimum target-value gate without recomputing AI_mapTradeVal after maps change.
 // Callers pre-gate this realized-only bridge at GameRecord level 2 so disabled logging never enters the serializer; retain only the cheap NO_PLAYER safety before dereferencing the live diplomacy target. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIMapTradeDecision(CvPlayerAI const& kPlayer, PlayerTypes eTarget, int iOurReceiveValue, int iTargetReceiveValue, int iTargetReceiveMinExclusive);
+// <!-- custom: A master's automatic vassal-resource chooser is not an ordinary negotiated bonus trade: it picks the highest live AI_bonusTradeVal among resources the vassal can provide while the master has none.
+// Preserve the realized best/runner-up/candidate boundary before the one-sided deal or human tribute popup mutates/obscures that choice; callers pre-gate at GameRecord level 2. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIVassalResourceTributeDecision(CvPlayerAI const& kMaster, PlayerTypes eVassal, bool bHumanPopup, BonusTypes eSelectedBonus, int iSelectedValue, BonusTypes eRunnerUpBonus, int iRunnerUpValue, int iCandidateCount);
 // <!-- custom: AI_proposeWarTrade has richer realized joint-war hiring provenance than the generic CONTACT_JOIN_WAR package can preserve.
 // Keep only the two execution paths recorder-local; the generic contact row remains authoritative for the final trade items. (ChatGPT-5.6-Sol) -->
 enum SASGameRecordAIWarTradePaymentPath
