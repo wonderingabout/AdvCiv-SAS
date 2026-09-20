@@ -11800,6 +11800,40 @@ void logSASGameRecordAIDealCancellationDecision(CvPlayerAI const& kPlayer, Playe
 		szTriggerSide, szTriggerItem.GetCString(), szDenial, iDualCancelChanceX1000, iGptOverdraftBefore, iDealGpt, iGptOverdraftAfter);
 }
 
+static char const* getSASGameRecordDealInvalidationReason(SASGameRecordDealInvalidationReason eReason)
+{
+	switch (eReason)
+	{
+	case SAS_DEAL_INVALID_RESOURCE_SUPPLY_DEFICIT: return "RESOURCE_SUPPLY_DEFICIT";
+	case SAS_DEAL_INVALID_TRADE_NETWORK_LOST: return "TRADE_NETWORK_LOST";
+	case SAS_DEAL_INVALID_GIVER_BONUS_OBSOLETE: return "GIVER_BONUS_OBSOLETE";
+	case SAS_DEAL_INVALID_RECIPIENT_BONUS_OBSOLETE: return "RECIPIENT_BONUS_OBSOLETE";
+	case SAS_DEAL_INVALID_GPT_INSOLVENT: return "GPT_INSOLVENT";
+	case SAS_DEAL_INVALID_PEACE_TREATY_EXPIRED: return "PEACE_TREATY_EXPIRED";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Preserve CvDeal::verify's realized first-failure cause immediately before native teardown.
+// DIPLO_DEAL_ENDED remains authoritative for the full payload; this formatter only serializes already-captured context and performs no validity query itself. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordDealInvalidation(CvDeal const& kDeal, SASGameRecordDealInvalidationContext const& kContext)
+{
+	CvString szTriggerItem("-");
+	int iGptDue = -1;
+	if (kContext.pTriggerItem != NULL)
+	{
+		CvString const szData = getSASTradeDataText(*kContext.pTriggerItem, kContext.eGiver);
+		szTriggerItem.Format("%s:%s", getSASTradeItemType(kContext.pTriggerItem->m_eItemType), szData.GetCString());
+		if (kContext.pTriggerItem->m_eItemType == TRADE_GOLD_PER_TURN)
+			iGptDue = kContext.pTriggerItem->m_iData;
+	}
+	int const iGiverTeam = (kContext.eGiver == NO_PLAYER ? -1 : GET_PLAYER(kContext.eGiver).getTeam());
+	int const iRecipientTeam = (kContext.eRecipient == NO_PLAYER ? -1 : GET_PLAYER(kContext.eRecipient).getTeam());
+	logSASGameRecord("GAME_RECORD_DEAL_INVALIDATION turn=%d dealId=%d dealAge=%d first=%d second=%d reason=%s giver=%d giverTeam=%d recipient=%d recipientTeam=%d triggerItem=%s tradeableBonusCount=%d goldPercent=%d gold=%d gptDue=%d goldRate=%d",
+		GC.getGame().getGameTurn(), kDeal.getID(), kDeal.getAge(), kDeal.getFirstPlayer(), kDeal.getSecondPlayer(), getSASGameRecordDealInvalidationReason(kContext.eReason),
+		kContext.eGiver, iGiverTeam, kContext.eRecipient, iRecipientTeam, szTriggerItem.GetCString(), kContext.iTradeableBonusCount, kContext.iGoldPercent, kContext.iGold, iGptDue, kContext.iGoldRate);
+}
+
 // <!-- custom: Preserve the live reason for a realized AI request that a human join one of its wars.
 // The generic CONTACT_JOIN_WAR row remains authoritative for the request subject; this row derives only cheap current counters/static context and never repeats contact/peace/target RNG or UWAI denial evaluation. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIJointWarRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, TeamTypes eTarget, int iTargetScore, int iMeanAtWarTurnsX1000)

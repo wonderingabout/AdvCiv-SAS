@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 112 };
+enum { SAS_GAME_RECORD_REVISION = 113 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -610,6 +610,29 @@ enum SASGameRecordAIDealCancellationReason
 	SAS_AI_DEAL_CANCEL_GPT_LIMIT
 };
 void logSASGameRecordAIDealCancellationDecision(CvPlayerAI const& kPlayer, PlayerTypes eOther, CvDeal const& kDeal, SASGameRecordAIDealCancellationReason eReason, TradeData const* pTriggerItem = NULL, bool bTriggerFromAI = true, DenialTypes eDenial = NO_DENIAL, int iGptOverdraftBefore = -1, int iDealGpt = -1, int iGptOverdraftAfter = -1);
+// <!-- custom: CvDeal::verify automatically tears down deals whose live validity has failed, but DIPLO_DEAL_ENDED cannot distinguish resource-supply/network/obsolescence failures, broke-GPT enforcement or normal peace-treaty expiry.
+// Preserve only the first live failure already encountered by verify; the deal-end action remains authoritative for the payload and no validity query is repeated solely for recording. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordDealInvalidationReason
+{
+	SAS_DEAL_INVALID_RESOURCE_SUPPLY_DEFICIT,
+	SAS_DEAL_INVALID_TRADE_NETWORK_LOST,
+	SAS_DEAL_INVALID_GIVER_BONUS_OBSOLETE,
+	SAS_DEAL_INVALID_RECIPIENT_BONUS_OBSOLETE,
+	SAS_DEAL_INVALID_GPT_INSOLVENT,
+	SAS_DEAL_INVALID_PEACE_TREATY_EXPIRED
+};
+struct SASGameRecordDealInvalidationContext
+{
+	SASGameRecordDealInvalidationReason eReason;
+	PlayerTypes eGiver;
+	PlayerTypes eRecipient;
+	TradeData const* pTriggerItem;
+	int iTradeableBonusCount;
+	int iGoldPercent;
+	int iGold;
+	int iGoldRate;
+};
+void logSASGameRecordDealInvalidation(CvDeal const& kDeal, SASGameRecordDealInvalidationContext const& kContext);
 // <!-- custom: AI_proposeJointWar uses war-duration-adjusted contact cadence plus randomized target selection that the generic CONTACT_JOIN_WAR subject cannot reconstruct.
 // Preserve only the two irrecoverable live chooser values; the recorder derives selected-target counters/static context after the successful gates and before diplomacy begins. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIJointWarRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman, TeamTypes eTarget, int iTargetScore, int iMeanAtWarTurnsX1000);

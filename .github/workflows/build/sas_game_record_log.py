@@ -1200,6 +1200,69 @@ def check_ai_deal_cancellation_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_deal_invalidation_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, "CvGameCoreDLL/CvDeal.cpp", "CvGameCoreDLL/CvDeal.h"):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing deal-invalidation provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	expected_reasons = [
+		"SAS_DEAL_INVALID_RESOURCE_SUPPLY_DEFICIT",
+		"SAS_DEAL_INVALID_TRADE_NETWORK_LOST",
+		"SAS_DEAL_INVALID_GIVER_BONUS_OBSOLETE",
+		"SAS_DEAL_INVALID_RECIPIENT_BONUS_OBSOLETE",
+		"SAS_DEAL_INVALID_GPT_INSOLVENT",
+		"SAS_DEAL_INVALID_PEACE_TREATY_EXPIRED",
+	]
+	m = re.search(r"enum\s+SASGameRecordDealInvalidationReason\s*\{(?P<body>.*?)\};", header_text, flags=re.DOTALL)
+	if m is None:
+		failures.append(f"{REVISION_HEADER}: missing SASGameRecordDealInvalidationReason")
+	else:
+		tokens = re.findall(r"^\s*(SAS_DEAL_INVALID_[A-Z0-9_]+)\s*,?\s*$", m.group("body"), flags=re.MULTILINE)
+		if tokens != expected_reasons:
+			failures.append(f"{REVISION_HEADER}: deal-invalidation reason vocabulary changed; expected {expected_reasons}, found {tokens}")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_DEAL_INVALIDATION", "dealId=%d", "dealAge=%d", "reason=%s", "giver=%d", "recipient=%d",
+		"triggerItem=%s", "tradeableBonusCount=%d", "goldPercent=%d", "gold=%d", "gptDue=%d", "goldRate=%d",
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing deal-invalidation diagnostic token {required}")
+	for token in expected_reasons:
+		if record_text.count(f"case {token}:") != 1:
+			failures.append(f"{REVISION_SOURCE}: deal-invalidation reason {token} must have exactly one stringifier case")
+	m = re.search(r"void\s+logSASGameRecordDealInvalidation\([^)]*\)\s*\{(?P<body>.*?)^\}", record_text, flags=re.DOTALL | re.MULTILINE)
+	if m is None:
+		failures.append(f"{REVISION_SOURCE}: could not locate deal-invalidation logger body")
+	else:
+		body = m.group("body")
+		for forbidden in ("getNumTradeableBonuses(", "canTradeNetworkWith(", "isBonusObsolete(", "calculateGoldRate(", "isCancelable(", "isPeaceDeal(", "SyncRand"):
+			if forbidden in body:
+				failures.append(f"{REVISION_SOURCE}: deal-invalidation formatter must not repeat live validity work ({forbidden})")
+
+	deal_text = (repo_root / "CvGameCoreDLL/CvDeal.cpp").read_text(encoding="utf-8", errors="replace")
+	start = deal_text.find("void CvDeal::verify()")
+	end = deal_text.find("// <!-- custom: AdvCiv's simplified traversal", start)
+	if start < 0 or end < 0:
+		failures.append("CvGameCoreDLL/CvDeal.cpp: could not isolate CvDeal::verify overloads")
+	else:
+		body = deal_text[start:end]
+		for token in expected_reasons:
+			if body.count(token) != 1:
+				failures.append(f"CvGameCoreDLL/CvDeal.cpp: verify path must use {token} exactly once")
+		for token, expected in (("getNumTradeableBonuses(", 1), ("canTradeNetworkWith(", 1), ("isBonusObsolete(", 2), ("getCommercePercent(COMMERCE_GOLD)", 1), ("getGold()", 1), ("isAnarchy()", 1), ("calculateGoldRate()", 1), ("isCancelable(NO_PLAYER)", 1), ("isPeaceDeal()", 1), ("logSASGameRecordDealInvalidation(", 1), ("kill();", 1)):
+			actual = body.count(token)
+			if actual != expected:
+				failures.append(f"CvGameCoreDLL/CvDeal.cpp: verify live call count for {token} changed; expected {expected}, found {actual}")
+		if "SASGameRecordDealInvalidationContext* pSASContext = (gGameRecordLogLevel >= 2 ? &kSASContext : NULL);" not in body:
+			failures.append("CvGameCoreDLL/CvDeal.cpp: deal-invalidation capture must remain level-2 pre-gated")
+	return failures
+
+
 def check_ai_joint_war_request_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -1464,6 +1527,7 @@ def main() -> int:
 	failures.extend(check_ai_give_help_provenance(args.repo_root))
 	failures.extend(check_ai_tech_trade_provenance(args.repo_root))
 	failures.extend(check_ai_deal_cancellation_provenance(args.repo_root))
+	failures.extend(check_deal_invalidation_provenance(args.repo_root))
 	failures.extend(check_ai_city_trade_intent_provenance(args.repo_root))
 	failures.extend(check_ai_embargo_request_provenance(args.repo_root))
 	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
@@ -1476,7 +1540,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/AI-city-trade/AI-embargo/AI-joint-war/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

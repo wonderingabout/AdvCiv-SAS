@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=112 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=113 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -43,6 +43,16 @@ This is why the original reconstruction produced 67 revisions through practical 
 Because this numbering is reconstructed after the fact, the descriptions are concise summaries of the canonical commit diffs/messages rather than claims that these revision numbers were emitted by historical builds.
 
 ## History (latest first)
+
+### Revision 113 - SAS practical 6514
+
+- **Date:** 2026-09-19
+- **Git commit:** pending
+- **Change:** Added compact level-2 realized `GAME_RECORD_DEAL_INVALIDATION` provenance for automatic `CvDeal::verify()` teardown.
+
+The row distinguishes a resource-supply deficit, lost trade network, giver- or recipient-side resource obsolescence, AdvC's broke-GPT enforcement, and ordinary peace-treaty expiry. It preserves the exact first failing direction/item plus already-live bonus-count or GPT gold/rate boundary where applicable.
+
+Existing `DIPLO_DEAL_ENDED` actions remain authoritative for the ended deal payload. The live validity tests retain their inherited short-circuit order, and no bonus/network/obsolescence/gold-rate/treaty query or synchronized RNG is repeated solely for recording.
 
 ### Revision 112 - SAS practical 6512
 

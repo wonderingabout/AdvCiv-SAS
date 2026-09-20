@@ -63,6 +63,20 @@ namespace
 		}
 		return true;
 	}
+
+	// <!-- custom: Capture only a realized first-failure boundary from CvDeal::verify; callers invoke this only with the level-2 context active, and the helper performs no gameplay query itself. (ChatGPT-5.6-Sol) -->
+	void setSASGameRecordDealInvalidationContext(SASGameRecordDealInvalidationContext* pContext, SASGameRecordDealInvalidationReason eReason, PlayerTypes eGiver, PlayerTypes eRecipient, TradeData const* pTriggerItem, int iTradeableBonusCount = -1, int iGoldPercent = -1, int iGold = -1, int iGoldRate = -1)
+	{
+		FAssert(pContext != NULL);
+		pContext->eReason = eReason;
+		pContext->eGiver = eGiver;
+		pContext->eRecipient = eRecipient;
+		pContext->pTriggerItem = pTriggerItem;
+		pContext->iTradeableBonusCount = iTradeableBonusCount;
+		pContext->iGoldPercent = iGoldPercent;
+		pContext->iGold = iGold;
+		pContext->iGoldRate = iGoldRate;
+	}
 }
 
 
@@ -480,17 +494,28 @@ void CvDeal::doTurn()
 // XXX probably should have some sort of message for the user or something...
 void CvDeal::verify()
 {
+	// <!-- custom: Preserve CvDeal::verify's first live invalidation cause for SASGameRecord without evaluating either direction or the peace-expiry gate twice. The POD context remains untouched when level 2 is disabled. (ChatGPT-5.6-Sol) -->
+	SASGameRecordDealInvalidationContext kSASContext;
+	SASGameRecordDealInvalidationContext* pSASContext = (gGameRecordLogLevel >= 2 ? &kSASContext : NULL);
 	// advc: Moved into auxiliary function to get rid of duplicate code
-	if (!verify(getFirstPlayer(), getSecondPlayer()) ||
-		!verify(getSecondPlayer(), getFirstPlayer()) ||
-		(isCancelable(NO_PLAYER) && isPeaceDeal())) // advc.104m
+	bool bInvalid = !verify(getFirstPlayer(), getSecondPlayer(), pSASContext);
+	if (!bInvalid)
+		bInvalid = !verify(getSecondPlayer(), getFirstPlayer(), pSASContext);
+	if (!bInvalid && isCancelable(NO_PLAYER) && isPeaceDeal()) // advc.104m
 	{
+		if (pSASContext != NULL) setSASGameRecordDealInvalidationContext(pSASContext, SAS_DEAL_INVALID_PEACE_TREATY_EXPIRED, NO_PLAYER, NO_PLAYER, NULL);
+		bInvalid = true;
+	}
+	if (bInvalid)
+	{
+		if (pSASContext != NULL) logSASGameRecordDealInvalidation(*this, *pSASContext);
 		kill();
 	}
 }
 
 // advc: Cut from 'verify' above
-bool CvDeal::verify(PlayerTypes eRecipient, PlayerTypes eGiver)
+// <!-- custom: The optional recorder context returns the already-evaluated first validity failure to verify() above; NULL preserves legacy behavior and adds no recorder-only validity work when level 2 is disabled. (ChatGPT-5.6-Sol) -->
+bool CvDeal::verify(PlayerTypes eRecipient, PlayerTypes eGiver, SASGameRecordDealInvalidationContext* pSASContext)
 {
 	CvPlayer& kGiver = GET_PLAYER(eGiver);
 	FOR_EACH_TRADE_ITEM(getReceivesList(eRecipient))
@@ -499,22 +524,46 @@ bool CvDeal::verify(PlayerTypes eRecipient, PlayerTypes eGiver)
 		{
 			BonusTypes eBonus = (BonusTypes)pItem->m_iData;
 			// XXX embargoes? // advc.130f (note): Handled by CvPlayer::stopTradingWithTeam
-			if ((kGiver.getNumTradeableBonuses(eBonus) < 0) ||
-				!kGiver.canTradeNetworkWith(eRecipient) ||
-				GET_TEAM(kGiver.getTeam()).isBonusObsolete(eBonus) ||
-				GET_TEAM(eRecipient).isBonusObsolete(eBonus))
+			// <!-- custom: Keep the inherited short-circuit query order exactly while exposing which already-live validity test failed. (ChatGPT-5.6-Sol) -->
+			int const iTradeableBonuses = kGiver.getNumTradeableBonuses(eBonus);
+			if (iTradeableBonuses < 0)
 			{
+				if (pSASContext != NULL) setSASGameRecordDealInvalidationContext(pSASContext, SAS_DEAL_INVALID_RESOURCE_SUPPLY_DEFICIT, eGiver, eRecipient, pItem, iTradeableBonuses);
+				return false;
+			}
+			if (!kGiver.canTradeNetworkWith(eRecipient))
+			{
+				if (pSASContext != NULL) setSASGameRecordDealInvalidationContext(pSASContext, SAS_DEAL_INVALID_TRADE_NETWORK_LOST, eGiver, eRecipient, pItem);
+				return false;
+			}
+			if (GET_TEAM(kGiver.getTeam()).isBonusObsolete(eBonus))
+			{
+				if (pSASContext != NULL) setSASGameRecordDealInvalidationContext(pSASContext, SAS_DEAL_INVALID_GIVER_BONUS_OBSOLETE, eGiver, eRecipient, pItem);
+				return false;
+			}
+			if (GET_TEAM(eRecipient).isBonusObsolete(eBonus))
+			{
+				if (pSASContext != NULL) setSASGameRecordDealInvalidationContext(pSASContext, SAS_DEAL_INVALID_RECIPIENT_BONUS_OBSOLETE, eGiver, eRecipient, pItem);
 				return false;
 			}
 		}
 		// <advc.133> Force-cancel GPT deals when broke
 		if (pItem->m_eItemType == TRADE_GOLD_PER_TURN)
 		{
-			if (kGiver.getCommercePercent(COMMERCE_GOLD) >= 100 &&
-				kGiver.getGold() < pItem->m_iData && !kGiver.isAnarchy() &&
-				kGiver.calculateGoldRate() < 0)
+			// <!-- custom: Preserve the inherited && short-circuit order so calculateGoldRate remains reached only when the preceding insolvency gates already pass. (ChatGPT-5.6-Sol) -->
+			int const iGoldPercent = kGiver.getCommercePercent(COMMERCE_GOLD);
+			if (iGoldPercent >= 100)
 			{
-				return false;
+				int const iGold = kGiver.getGold();
+				if (iGold < pItem->m_iData && !kGiver.isAnarchy())
+				{
+					int const iGoldRate = kGiver.calculateGoldRate();
+					if (iGoldRate < 0)
+					{
+						if (pSASContext != NULL) setSASGameRecordDealInvalidationContext(pSASContext, SAS_DEAL_INVALID_GPT_INSOLVENT, eGiver, eRecipient, pItem, -1, iGoldPercent, iGold, iGoldRate);
+						return false;
+					}
+				}
 			}
 		} // </advc.133>
 	}

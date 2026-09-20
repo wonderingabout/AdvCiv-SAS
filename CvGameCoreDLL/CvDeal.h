@@ -6,6 +6,8 @@
 #define CIV4_DEAL_H
 
 
+struct SASGameRecordDealInvalidationContext; // <!-- custom: Optional recorder-only failure context for CvDeal::verify; kept opaque here to avoid pulling SASGameRecordLog.h into the public deal header. (ChatGPT-5.6-Sol) -->
+
 class CvDeal
 {
 public:
@@ -129,7 +131,8 @@ protected:
 	// advc <!-- custom: hoisted from multiline signature between `eOther` and `bForce` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	// advc.106j <!-- custom: hoisted from multiline signature between `bForce` and `bNoSound` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	void announceCancel(PlayerTypes eMsgTarget, PlayerTypes eOther, bool bForce, bool bNoSound) const; // advc.002l
-	bool verify(PlayerTypes eRecipient, PlayerTypes eGiver);
+	// <!-- custom: Optional context is NULL unless SASGameRecord level 2+ is active; the helper preserves the live first-failure reason without repeating any validity query. (ChatGPT-5.6-Sol) -->
+	bool verify(PlayerTypes eRecipient, PlayerTypes eGiver, SASGameRecordDealInvalidationContext* pSASContext = NULL);
 	// advc: was public
 	bool isUncancelableVassalDeal(PlayerTypes eByPlayer, CvWString* pszReason = NULL) const;
 
