@@ -27243,11 +27243,15 @@ void CvPlayerAI::AI_doCheckFinancialTrouble()
 void CvPlayerAI::AI_roundTradeValBounds(int& iTradeVal, bool bPreferRoundingUp, int iLower, int iUpper) const
 {
 	// <!-- custom: AdvCiv mutated iTradeVal to the lower multiple before validating the preferred upper multiple, so failure could return a value outside the documented bounds.
-	// Compute both candidates without touching the caller's value, try them in the requested order and retain the original when neither is valid. See KI#685. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// Compute both candidates without touching the caller's value, try them in the requested order and retain the original when neither is valid.
+	// Base the candidates on the nearest point inside the interval so an out-of-bounds exact multiple does not hide the nearest legal multiple. See KI#685 and KI#1041. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int const iOriginal = iTradeVal;
-	int iRoundedDown = iOriginal;
+	if (iLower > iUpper)
+		return;
+	int const iNearestBounded = std::min(std::max(iOriginal, iLower), iUpper);
+	int iRoundedDown = iNearestBounded;
 	AI_roundTradeVal(iRoundedDown);
-	int const iRoundedUp = (iRoundedDown == iOriginal ? iOriginal : iRoundedDown + GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER));
+	int const iRoundedUp = (iRoundedDown == iNearestBounded ? iRoundedDown : iRoundedDown + GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER));
 	int const iPreferred = (bPreferRoundingUp ? iRoundedUp : iRoundedDown);
 	int const iFallback = (bPreferRoundingUp ? iRoundedDown : iRoundedUp);
 	if (iPreferred >= iLower && iPreferred <= iUpper)

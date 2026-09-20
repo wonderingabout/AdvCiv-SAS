@@ -1154,7 +1154,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1038 - (Provisional Pending AdvCiv-SAS UWAI repair regression) Non-capital foreign city changes leave observer target values stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1038)\
 [KI#1039 - (Provisional Pending AdvCiv-SAS assault repair regression) Gunship-only cargo can authorize an impossible city invasion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1039)\
 [KI#1040 - (Provisional Pending AdvCiv-SAS smart-Bombard repair regression) Undefended cities exclude every legal immediate capturer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1040)\
-[KI#1041 - (Provisional Pending AdvCiv-SAS trade-rounding repair regression) An out-of-bounds exact multiple hides the adjacent legal value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1041)\
+[KI#1041 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv trade-rounding defect) An out-of-bounds exact multiple hid the nearest legal value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1041)\
 [KI#1042 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS event-value defect) PlotExtraYield absolute values were treated as additive gains](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1042)\
 [KI#1043 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS event-value defect) Already revealed resources retained full force-reveal value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1043)\
 [KI#1044 - (Provisional Pending AdvCiv-SAS UWAI repair regression) Asymmetric land clashes average an unavailable distance](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1044)\
@@ -15747,6 +15747,8 @@ Album F362 found `AI_roundTradeValBounds` mutating its caller's value to the low
 
 The fix computes the lower and upper multiples without changing the caller's value, tries both in the requested preference order and leaves the original unchanged when neither candidate satisfies the bounds.
 
+Update: A repair-side audit found that an exact multiple outside the interval made both candidates equal that rejected original, hiding the nearest legal multiple. KI#1041 now bases candidate rounding on the nearest point inside the interval while preserving this fix's no-mutation-until-valid invariant.
+
 Found and investigated during ChatGPT-5.6-Sol's C031-WIP52 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-686"></a>
@@ -19072,13 +19074,15 @@ Found as F719/provisional KI#1040 during ChatGPT-5.6-Sol's C031-WIP710 repair-si
 
 <a id="ki-1041"></a>
 
-## KI#1041 - (Provisional Pending AdvCiv-SAS trade-rounding repair regression) An out-of-bounds exact multiple hides the adjacent legal value
+## KI#1041 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv trade-rounding defect) An out-of-bounds exact multiple hid the nearest legal value
 
-The KI#685 bounded trade-rounding repair makes both candidate values equal the original whenever the requested value is already an exact `DIPLOMACY_VALUE_REMAINDER` multiple. If that original lies outside the permitted interval, a legal adjacent multiple is never tested—for example, requested 100 with upper bound 97 misses 95 and can skip a valid gold counterproposal.
+The KI#685 bounded trade-rounding repair made both candidate values equal the original whenever the requested value was already an exact `DIPLOMACY_VALUE_REMAINDER` multiple. If that original lay outside the permitted interval, a legal neighboring multiple was never tested—for example, requested 100 with upper bound 97 missed 95 and could skip a valid gold counterproposal.
 
-The inherited destructive-fallback root remains KI#685; practical 6340 fixed it but introduced/retained this exact-multiple boundary. Pending retaining the no-mutation-until-valid invariant while selecting the neighboring multiple toward the interval whenever the exact original is out of bounds.
+The inherited destructive-fallback root remains KI#685; practical 6340 fixed it but retained this exact-multiple boundary. Candidate rounding now starts from the nearest point inside the permitted interval, then tests the lower and upper multiples in the requested preference order. This selects 95 in the example, handles wider gaps to the interval and preserves the original repair's rule that the caller's value changes only after a valid candidate is found.
 
-Found as F720/provisional KI#1041 during ChatGPT-5.6-Sol's C031-WIP716 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The exact counterproposal boundary is source-verified because reproducing those inputs interactively is impractical. A continuation of an existing save through turn 201 completed successfully as proportional compile/runtime validation.
+
+Found as F720/provisional KI#1041 during ChatGPT-5.6-Sol's C031-WIP716 repair-side audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-1042"></a>
 
