@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=118 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=119 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -44,10 +44,20 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 118 - SAS practical 6523
+### Revision 119 - SAS practical 6524
 
 - **Date:** 2026-09-20
 - **Git commit:** pending
+- **Change:** Added compact level-2 `GAME_RECORD_AI_COLONY_SPLIT_DECISION` provenance for realized AI colony / split-empire decisions.
+
+The row distinguishes ordinary positive-value colony creation from UWAI's unique forced pre-capitulation colony-liberation path. It preserves the selected area's already-computed aggregate `AI_splitEmpireValue` together with its pre-transfer city/population scale and the parent's total city/population context before `splitEmpire()` moves the cities and obscures that decision boundary.
+
+Recording is reached only after the native positive-value/forced gate and `canSplitArea` checks select the area, immediately before the committed split. The recorder does not rerun `AI_splitEmpireValue`, rescan candidate areas, or duplicate the downstream player/vassal/city/unit consequences; detailed split-value components remain BBAI/source-analysis territory.
+
+### Revision 118 - SAS practical 6523
+
+- **Date:** 2026-09-20
+- **Git commit:** `409944dbf0748f03f730afe7688956e5e3426f16`
 - **Change:** Added compact level-2 `GAME_RECORD_AI_DRAFT_DECISION` provenance for realized AI city conscription.
 
 The row distinguishes turtle-strategy drafting, local-danger drafting when nearby enemy attack strength exceeds local defense, the final non-critical randomized/value route, and the existing forced-caller API exit. Ordinary decisions preserve the already-computed conscript unit/population cost, danger and land-war state, good-value/excess-population context, poor worked plots, happiness allowance, unit-cost pressure, and the trigger-specific local-strength or `AI_buildUnitProb` input.

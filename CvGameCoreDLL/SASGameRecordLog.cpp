@@ -11931,6 +11931,17 @@ void logSASGameRecordAIVassalageDecision(CvPlayerAI const& kPlayer, PlayerTypes 
 		getSASTradeListText(kAIReceives, eTarget).GetCString());
 }
 
+// <!-- custom: The colony transfer itself is already visible through player/vassal/city/unit actions, but those consequences cannot recover why this area was chosen or the pre-split aggregate AI_splitEmpireValue.
+// Serialize only the committed broad decision and cheap pre-transfer scale context; detailed city-value components remain BBAI/source-analysis territory. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIColonySplitDecision(CvPlayerAI const& kPlayer, CvArea const& kArea, int iAreaValue, bool bForce)
+{
+	logSASGameRecord("GAME_RECORD_AI_COLONY_SPLIT_DECISION turn=%d player=%d team=%d origin=%s areaId=%d areaValue=%d areaCities=%d areaPopulation=%d playerCitiesBefore=%d playerPopulationBefore=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(),
+		bForce ? "UWAI_FORCED_PRE_CAPITULATION" : "NORMAL_POSITIVE_VALUE",
+		kArea.getID(), iAreaValue, kArea.getCitiesPerPlayer(kPlayer.getID()), kArea.getPopulationPerPlayer(kPlayer.getID()),
+		kPlayer.getNumCities(), kPlayer.getTotalPopulation());
+}
+
 // <!-- custom: MAPS <-> MAPS loses its pre-exchange valuation asymmetry as soon as the deal reveals both maps. Serialize only the already-live proposer/target values and threshold; the generic CONTACT_TRADE_MAP row remains authoritative for delivery/package. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIMapTradeDecision(CvPlayerAI const& kPlayer, PlayerTypes eTarget, int iOurReceiveValue, int iTargetReceiveValue, int iTargetReceiveMinExclusive)
 {

@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 118 };
+enum { SAS_GAME_RECORD_REVISION = 119 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -662,6 +662,9 @@ enum SASGameRecordAIVassalageOrigin
 	SAS_AI_VASSALAGE_UWAI_CAPITULATION
 };
 void logSASGameRecordAIVassalageDecision(CvPlayerAI const& kPlayer, PlayerTypes eTarget, SASGameRecordAIVassalageOrigin eOrigin, TeamTypes eEnemyTeam, int iContactProbMultX1000, int iTargetRank, int iAliveCivs, int iCounterProposal, CLinkList<TradeData> const& kAIGives, CLinkList<TradeData> const& kAIReceives);
+// <!-- custom: AI_doSplit commits one high-level colony decision whose pre-transfer aggregate area value is lost once splitEmpire moves the cities.
+// Ordinary splitting requires positive value; the only live forced caller is UWAI's last pre-capitulation colony-liberation attempt. Keep deeper AI_splitEmpireValue scoring out of SASGameRecord. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIColonySplitDecision(CvPlayerAI const& kPlayer, CvArea const& kArea, int iAreaValue, bool bForce);
 // <!-- custom: A realized proactive map swap is symmetric in the final package but not in the live decision: preserve both pre-exchange map values and the minimum target-value gate without recomputing AI_mapTradeVal after maps change.
 // Callers pre-gate this realized-only bridge at GameRecord level 2 so disabled logging never enters the serializer; retain only the cheap NO_PLAYER safety before dereferencing the live diplomacy target. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIMapTradeDecision(CvPlayerAI const& kPlayer, PlayerTypes eTarget, int iOurReceiveValue, int iTargetReceiveValue, int iTargetReceiveMinExclusive);

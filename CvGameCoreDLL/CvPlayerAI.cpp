@@ -27137,6 +27137,9 @@ void CvPlayerAI::AI_doSplit(/* advc.104r: */ bool bForce)
 		if (!canSplitArea(kArea))
 			continue;
 
+		// <!-- custom: Preserve the committed colony-split origin and the already-computed aggregate area value before splitEmpire transfers the cities and destroys that pre-split context.
+		// Keep AI_splitEmpireValue's internal scoring in BBAI/source analysis; no value or candidate scan is repeated solely for SASGameRecord. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2) logSASGameRecordAIColonySplitDecision(*this, kArea, it->second, bForce);
 		splitEmpire(kArea);
 
 		FOR_EACH_UNIT_VAR(pUnit, *this)

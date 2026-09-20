@@ -1444,6 +1444,57 @@ def check_ai_vassalage_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_colony_split_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE, UWAI_AGENT_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI colony-split provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	if "logSASGameRecordAIColonySplitDecision(" not in header_text:
+		failures.append(f"{REVISION_HEADER}: missing AI colony-split provenance declaration")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_COLONY_SPLIT_DECISION", "origin=%s", "areaId=%d", "areaValue=%d",
+		"areaCities=%d", "areaPopulation=%d", "playerCitiesBefore=%d", "playerPopulationBefore=%d",
+		'"UWAI_FORCED_PRE_CAPITULATION"', '"NORMAL_POSITIVE_VALUE"',
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI colony-split diagnostic token {required}")
+	m_record = re.search(r"void logSASGameRecordAIColonySplitDecision\([^\)]*\)\s*\{(?P<body>.*?)^\}", record_text, flags=re.DOTALL | re.MULTILINE)
+	if m_record is None:
+		failures.append(f"{REVISION_SOURCE}: could not locate AI colony-split provenance definition")
+	elif "gGameRecordLogLevel" in m_record.group("body"):
+		failures.append(f"{REVISION_SOURCE}: AI colony-split serializer must rely on caller-side level-2 pre-gating")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	m_split = re.search(r"void CvPlayerAI::AI_doSplit\([^\)]*\)(?P<body>.*?)^\}", player_text, flags=re.DOTALL | re.MULTILINE)
+	if m_split is None:
+		failures.append(f"{PLAYER_AI_SOURCE}: could not locate AI_doSplit")
+	else:
+		body = m_split.group("body")
+		if body.count("logSASGameRecordAIColonySplitDecision(") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_doSplit must retain exactly one realized colony-split provenance bridge")
+		if body.count("if (gGameRecordLogLevel >= 2)") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: colony-split provenance must remain level-2 pre-gated only at the committed split boundary")
+		if body.count("AI_splitEmpireValue()") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_doSplit must retain exactly one live AI_splitEmpireValue evaluation site")
+		if "logSASGameRecordAIColonySplitDecision(*this, kArea, it->second, bForce);" not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: colony-split provenance must reuse the selected area's already-computed aggregate value and force flag")
+		if "if (it->second <= 0 /* advc.104r: */ && !bForce)" not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: ordinary colony splitting must retain its positive-value gate")
+		if body.find("logSASGameRecordAIColonySplitDecision(") > body.find("splitEmpire(kArea);"):
+			failures.append(f"{PLAYER_AI_SOURCE}: colony-split decision row must be emitted before splitEmpire destroys pre-transfer context")
+
+	uwai_text = (repo_root / UWAI_AGENT_SOURCE).read_text(encoding="utf-8", errors="replace")
+	if uwai_text.count("AI_doSplit(true);") != 1:
+		failures.append(f"{UWAI_AGENT_SOURCE}: expected exactly one forced AI_doSplit caller for the UWAI pre-capitulation origin")
+	return failures
+
+
 def check_ai_map_trade_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
@@ -1858,6 +1909,7 @@ def main() -> int:
 	failures.extend(check_ai_embargo_request_provenance(args.repo_root))
 	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
 	failures.extend(check_ai_vassalage_provenance(args.repo_root))
+	failures.extend(check_ai_colony_split_provenance(args.repo_root))
 	failures.extend(check_ai_map_trade_provenance(args.repo_root))
 	failures.extend(check_unit_completion_sources(args.repo_root))
 	failures.extend(check_ai_draft_provenance(args.repo_root))
@@ -1872,7 +1924,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-map-trade/unit-completion-sources/AI-vassal-resource-tribute/AI-draft/AI-hurry/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-colony-split/AI-map-trade/unit-completion-sources/AI-vassal-resource-tribute/AI-draft/AI-hurry/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 
