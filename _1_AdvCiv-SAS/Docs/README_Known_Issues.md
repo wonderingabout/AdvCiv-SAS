@@ -1115,7 +1115,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#999 - (Provisional Pending inherited AdvCiv replay-compatibility defect) Taurus version 132 is parsed as AdvC format](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-999)\
 [KI#1000 - (Provisional Pending Base AdvCiv replay-export defect inactive in SAS) Late fallback can retain an empty mod name](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1000)\
 [KI#1001 - (Provisional Pending inherited XML-buffer defect activated by SAS) An overlong GlobalDefine exceeds 256 bytes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001)\
-[KI#1002 - (Provisional Pending AdvCiv initialization regression) FirstContactData can contain uninitialized plot coordinates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1002)\
+[KI#1002 - (Fixed AdvCiv initialization regression) FirstContactData could contain uninitialized plot coordinates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1002)\
 [KI#1003 - (Provisional Pending inherited Taurus/AdvC memory leak) Fallback EXE search leaks 512 KiB](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1003)\
 [KI#1004 - (Provisional Pending AdvC memory leak) Rebuilding SPaH settings abandons the prior string](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1004)\
 [KI#1005 - (Provisional Pending Architectural AdvC regression) Regenerate Map collapses the SPaH distribution](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1005)\
@@ -18684,13 +18684,17 @@ Found as F680/provisional KI#1001 during ChatGPT-5.6-Sol's C031-WIP555 `CvXMLLoa
 
 <a id="ki-1002"></a>
 
-## KI#1002 - (Provisional Pending AdvCiv initialization regression) FirstContactData can contain uninitialized plot coordinates
+## KI#1002 - (Fixed AdvCiv initialization regression) FirstContactData could contain uninitialized plot coordinates
 
 `FirstContactData` safely initializes both optional plot-coordinate pairs to `-1,-1` in its default constructor, but the parameterized convenience constructor assigns a pair only when the corresponding plot pointer is non-null. Its four built-in integers otherwise remain indeterminate. Ordinary shipped callers intentionally supply only one plot, after which `CvTeam::makeHasMet` reads both coordinate pairs unconditionally. Most garbage values resolve to no plot, but accidentally in-range values can be interpreted as an unrelated contact plot and affect the met-player/contact location used by first-contact and espionage-reminder messages.
 
-This is an AdvCiv regression introduced by practical 1499 when the earlier helper's conditional assignments moved into the convenience constructor without retaining the default constructor's sentinel initialization. Base AdvCiv 1.14 and SAS retain it; K-Mod and Civ4CE predate `FirstContactData`. The current SASGameRecord example independently confirms the live invalid reads: 9 of 119 `TEAM_MET` rows contained malformed second-coordinate pairs such as `0,1114128` and `1701972,100295445`. Pending initializing both `IDInfo` members and all four coordinates in the parameterized constructor before overwriting the supplied plot pairs.
+This is an AdvCiv regression introduced by practical 1499 when the earlier helper's conditional assignments moved into the convenience constructor without retaining the default constructor's sentinel initialization. Base AdvCiv 1.14 and SAS retain it; K-Mod and Civ4CE predate `FirstContactData`. The earlier SASGameRecord example independently confirmed the live invalid reads: 9 of 119 `TEAM_MET` rows contained malformed second-coordinate pairs such as `0,1114128` and `1701972,100295445`. The repair initializes both `IDInfo` members and all four coordinates in the parameterized constructor before conditionally overwriting the supplied values, restoring the same explicit invalid sentinels as the default constructor without changing first-contact selection or gameplay.
 
-Found as F681/provisional KI#1002 during ChatGPT-5.6-Sol's C031-WIP563 `CvStructs.cpp` audit and confirmed through current SASGameRecord runtime evidence; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+Found as F681/provisional KI#1002 during ChatGPT-5.6-Sol's C031-WIP563 `CvStructs.cpp` audit and confirmed through SASGameRecord runtime evidence; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+The issue was rediscovered and encountered again while validating SASGameRecord revision 121, which prompted the pending repair. The repaired DLL compiled and completed the same 500-turn autoplay normally; the fresh record contains 505 state checkpoints, 505 RNG checkpoints, and no invalid `meetDataPlot2` coordinate pair outside the canonical `-1,-1` sentinel.
+
+Found again while adding SASGameRecord revision 121 AI spaceship launch-timing provenance; source archaeology, repair and documentation completed with the help of ChatGPT-5.6-Sol, thanks.
 
 <a id="ki-1003"></a>
 

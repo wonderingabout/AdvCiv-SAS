@@ -575,7 +575,9 @@ PBGameSetupData::PBGameSetupData()
 }
 
 // advc.071:
-FirstContactData::FirstContactData(CvPlot const* pAt1, CvPlot const* pAt2, CvUnit const* pUnit1, CvUnit const* pUnit2)
+// <!-- custom: Optional contact plots are genuinely absent at several live call sites; initialize both coordinate pairs explicitly so CvTeam::makeHasMet never reads indeterminate x/y values when it probes the optional second plot. See KI#1002. (ChatGPT-5.6-Sol) -->
+FirstContactData::FirstContactData(CvPlot const* pAt1, CvPlot const* pAt2, CvUnit const* pUnit1, CvUnit const* pUnit2) :
+		u1(), u2(), x1(-1), y1(-1), x2(-1), y2(-1)
 {
 	/*  Don't need to worry here about which unit is where and who sees whom - can
 		figure that out when we know which teams are meeting. */
