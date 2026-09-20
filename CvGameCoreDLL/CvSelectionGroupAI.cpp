@@ -1008,10 +1008,10 @@ CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission, CvPlot 
 				int iAttackers = 0;
 				FOR_EACH_UNIT_IN(pUnit, kAt)
 				{
-					// <!-- custom: Count only the human owner's units that can attack now.
-					// The inherited entry test admitted peaceful foreign units and noncombat units such as Spies, distorting the smart-Bombard decision. See KI#530. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-					if (pUnit->getOwner() == getOwner() && pUnit->canMove() &&
-						!pUnit->canBombard(kAt) && pUnit->canMoveInto(*pMissionPlot, true))
+					// <!-- custom: Count only the human owner's units that can participate in the immediate city take. The inherited entry test admitted peaceful foreign units and noncombat units such as Spies, distorting the smart-Bombard decision.
+					// KI#530 consequently required attack entry, but that excludes every legal capturer when the city has no defender; use capture entry in that state, which still rejects no-capture units. See KI#530 and KI#1040. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					if (pUnit->getOwner() == getOwner() && pUnit->canMove() && pUnit->canAttack() &&
+						!pUnit->canBombard(kAt) && pUnit->canMoveInto(*pMissionPlot, iDefenders > 0))
 					{
 						iAttackers++;
 						if (iAttackers >= 2 * iDefenders)

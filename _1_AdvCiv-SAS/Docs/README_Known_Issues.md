@@ -1153,7 +1153,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1037 - (Provisional Pending AdvCiv-SAS Worker AI regression) Productive-feature Phase 0 ignores other affected cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1037)\
 [KI#1038 - (Provisional Pending AdvCiv-SAS UWAI repair regression) Non-capital foreign city changes leave observer target values stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1038)\
 [KI#1039 - (Provisional Pending AdvCiv-SAS assault repair regression) Gunship-only cargo can authorize an impossible city invasion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1039)\
-[KI#1040 - (Provisional Pending AdvCiv-SAS smart-Bombard repair regression) Undefended cities exclude every legal immediate capturer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1040)\
+[KI#1040 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv Bombard defect) Undefended cities excluded every legal immediate capturer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1040)\
 [KI#1041 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv trade-rounding defect) An out-of-bounds exact multiple hid the nearest legal value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1041)\
 [KI#1042 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS event-value defect) PlotExtraYield absolute values were treated as additive gains](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1042)\
 [KI#1043 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS event-value defect) Already revealed resources retained full force-reveal value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1043)\
@@ -14161,6 +14161,8 @@ AdvCiv's smart human Bombard ordering estimates whether the city is easy to capt
 
 The fix counts only units owned by the human group owner that can move now and can enter the target specifically as an attack. It therefore follows immediate assault capability rather than generic destination entry, while leaving the separate stack-strength and Bombard-priority calculations unchanged.
 
+Update: A repair-side audit found that attack-only entry excludes every legal city-capturer when the target has no defender. KI#1040 now retains attack entry for defended targets but uses immediate capture entry for undefended cities; ownership, current movement, combat capability and no-capture restrictions remain enforced.
+
 The same fresh Balanced Huge 16-player autoplay completed successfully after compilation. Peaceful foreign units and same-owner Spies were not manually arranged beside a human Bombard group, so the exact census contrast remains source-verified.
 
 This is an inherited AdvCiv practical-2809 attacker-census defect, not an AdvCiv-SAS change. Found as F207 during ChatGPT-5.6-Sol's C++ File Audit Album review; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
@@ -19064,13 +19066,15 @@ Found as F718/provisional KI#1039 during ChatGPT-5.6-Sol's C031-WIP708 repair-si
 
 <a id="ki-1040"></a>
 
-## KI#1040 - (Provisional Pending AdvCiv-SAS smart-Bombard repair regression) Undefended cities exclude every legal immediate capturer
+## KI#1040 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv Bombard defect) Undefended cities excluded every legal immediate capturer
 
-KI#530's repaired human smart-Bombard attacker census unconditionally uses attack-only `canMoveInto(target, true)`. Against an undefended city that form requires a defender to fight, so every ordinary unit that can legally enter and capture the city is excluded; the intended easy-capture ordering state becomes unreachable exactly in the zero-defender case.
+KI#530's repaired human smart-Bombard attacker census unconditionally used attack-only `canMoveInto(target, true)`. Against an undefended city that form requires a defender to fight, so every ordinary unit that could legally enter and capture the city was excluded; the intended easy-capture ordering state became unreachable exactly in the zero-defender case.
 
-The inherited ordering root remains KI#530; practical 6356 correctly added same-owner/current-movement safeguards but applied the defended-target predicate too broadly. Pending preserving those filters while using immediate legal capture entry for undefended targets.
+The inherited attacker-census root remains KI#530; practical 6356 correctly added same-owner/current-movement safeguards but applied the defended-target predicate too broadly. The census now explicitly requires combat capability, then requires attack entry when a defender exists and ordinary entry when the city is undefended. Ordinary entry represents the immediate capture, while the explicit combat gate rejects Spies and `canMoveInto` rejects Gunships and other no-capture units.
 
-Found as F719/provisional KI#1040 during ChatGPT-5.6-Sol's C031-WIP710 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The precise human smart-Bombard ordering state is source-verified because constructing the full priority contrast interactively is disproportionate. A turn-251 autoplay completed successfully as compile/runtime validation, although this human-only branch was not expected to execute during it.
+
+Found as F719/provisional KI#1040 during ChatGPT-5.6-Sol's C031-WIP710 repair-side audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-1041"></a>
 
