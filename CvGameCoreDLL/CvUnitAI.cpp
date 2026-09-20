@@ -2668,6 +2668,27 @@ static bool SAS_getWorkerPhase0ProductiveFeatureInfo(CvUnitAI const& kUnit, CvCi
 		return false;
 	if (iHappyChange < 0 && iHappySurplus + iHappyChange < 0)
 		return false;
+	// <!-- custom: A feature in overlapping/shared BFCs affects every nearby city radius, not only the city receiving the chop production.
+	// Keep pressure-relief priority local to the production city, but reject a hard Phase-0 removal that makes or worsens a rounded deficit in any other affected same-team city. See KI#1037. (ChatGPT-5.6-Sol) -->
+	for (NearbyCityIter itCity(kPlot); itCity.hasNext(); ++itCity)
+	{
+		if (itCity->getTeam() != kUnit.getTeam() ||
+			(itCity->getOwner() == kCity.getOwner() && itCity->getID() == kCity.getID()))
+		{
+			continue;
+		}
+		int iOtherHappyChange = 0;
+		int iOtherHealthChange = 0;
+		int iOtherHealthPercentChange = 0;
+		itCity->calculateHealthHappyChange(kPlot, NO_IMPROVEMENT, NO_IMPROVEMENT, true, iOtherHappyChange, iOtherHealthChange, iOtherHealthPercentChange);
+		int const iOtherHealthSurplus = itCity->goodHealth() - itCity->badHealth();
+		int const iOtherHappySurplus = itCity->happyLevel() - itCity->unhappyLevel();
+		if ((iOtherHealthChange < 0 && iOtherHealthSurplus + iOtherHealthChange < 0) ||
+			(iOtherHappyChange < 0 && iOtherHappySurplus + iOtherHappyChange < 0))
+		{
+			return false;
+		}
+	}
 
 	int iBestBuildTurns = MAX_INT;
 	FOR_EACH_ENUM(Build)

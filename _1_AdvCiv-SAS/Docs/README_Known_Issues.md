@@ -1150,7 +1150,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1034 - (Fixed inherited K-Mod diagnostic defect) CvMap initialization used an incomplete printf conversion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1034)\
 [KI#1035 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS vassal-maintenance cache defect) Vassal city loss refreshed master maintenance before deletion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1035)\
 [KI#1036 - (Fixed inherited BtS/K-Mod/AdvC AI valuation defect left incomplete by SAS) Recovered Conscript and Defy-Resolution anger layers counted as one citizen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1036)\
-[KI#1037 - (Provisional Pending AdvCiv-SAS Worker AI regression) Productive-feature Phase 0 ignores other affected cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1037)\
+[KI#1037 - (Fixed AdvCiv-SAS Worker AI regression) Productive-feature Phase 0 ignored other affected cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1037)\
 [KI#1038 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI cache defect) Non-capital foreign city changes left observer target values stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1038)\
 [KI#1039 - (Fixed AdvCiv-SAS regression in repair of an inherited K-Mod/AdvCiv assault contract defect amplified by SAS) Gunship-only cargo authorized an impossible city invasion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1039)\
 [KI#1040 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv Bombard defect) Undefended cities excluded every legal immediate capturer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1040)\
@@ -2358,6 +2358,10 @@ The same replay still showed a visually striking late-game state of **28 French 
 That diagnostic materially changes the interpretation of the remaining French backlog. At turn 340 the recorder showed 22 assigned unimproved BFC land plots, but the rejection trace identified **21 bare Desert plots and 1 Oasis**, all **unworked**; the ordinary configured branches had no buildable normal improvement candidate. The surviving 28-idle-Worker stack is therefore not evidence that the Phase-0 Forest fix failed or that those 22 plots are ordinary useful jobs being ignored. The investigation has instead exposed a separate **late surplus-Worker cleanup** problem: once useful land work is largely finished, existing Workers can remain above the later-era production cap rather than being retired. That cleanup issue is tracked separately from KI#33.2 because it concerns Worker population management after job discovery, not productive-feature timing.
 
 The retained generic rejection diagnostic should also make future Worker regressions easier to distinguish: it can show whether a blank plot is genuinely undevelopable under current rules, excluded by a configured branch, blocked by feature/bonus handling, or has a legal improvement Build that the SAS candidate lists failed to consider.
+
+### Update3: shared-radius health/happiness safety
+
+KI#1037 later found that Phase 0's safety gate checked only the city receiving chop production even though a feature in overlapping/shared BFCs updates health and happiness for every nearby city radius. The completed repair preserves city-specific hammer assignment and pressure-relief priority, but now rejects a hard Phase-0 removal when it would make or worsen a rounded health or happiness deficit in any affected same-team city.
 
 Investigation and implementation with the help of ChatGPT-5.6-Sol, thanks.
 
@@ -19084,11 +19088,13 @@ Found as F715/provisional KI#1036 during ChatGPT-5.6-Sol's C031-WIP689 repair-si
 
 <a id="ki-1037"></a>
 
-## KI#1037 - (Provisional Pending AdvCiv-SAS Worker AI regression) Productive-feature Phase 0 ignores other affected cities
+## KI#1037 - (Fixed AdvCiv-SAS Worker AI regression) Productive-feature Phase 0 ignored other affected cities
 
-The SAS productive-feature Phase-0 Worker override rejects a Forest removal only when the chop-production city would make or worsen a current health/happiness deficit. A shared-radius Forest affects every nearby qualifying city, so the chosen production city can retain its rounded health while another same-team city loses a full healthy population and becomes unhealthy.
+The SAS productive-feature Phase-0 Worker override rejects a Forest removal only when the chop-production city would make or worsen a current health/happiness deficit. A Forest in overlapping/shared BFCs affects every nearby qualifying city, so the chosen production city can retain its rounded health while another same-team city loses a full healthy population and becomes unhealthy.
 
-Practical 6402 introduced this default-enabled Phase-0 gate; Base AdvC has no equivalent producer. Pending preserving city-specific chop-hammer assignment while validating the feature transition against every affected same-team city before classifying the plot as safely expendable.
+Practical 6402 introduced this default-enabled Phase-0 gate; Base AdvC has no equivalent producer. The repair preserves city-specific chop-hammer assignment and local pressure-relief priority while validating the feature transition against every other nearby same-team city. A candidate is no longer classified as safely expendable when removing its feature would make or worsen any affected city's rounded health or happiness deficit.
+
+The rebuilt Debug-opt DLL completed a Huge Pangaea autoplay through a turn-416 Space Race victory. `SASGameRecord_20260920T195949Z_load1.log` confirms the matching dirty source and 98 surviving cities after extensive Worker/city development without an observed regression; the exact overlapping-BFC rounded-health fixture remains source-verified.
 
 Found as F716/provisional KI#1037 during ChatGPT-5.6-Sol's C031-WIP699 current-tail audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
