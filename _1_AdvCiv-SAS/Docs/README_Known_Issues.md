@@ -1155,8 +1155,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1039 - (Provisional Pending AdvCiv-SAS assault repair regression) Gunship-only cargo can authorize an impossible city invasion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1039)\
 [KI#1040 - (Provisional Pending AdvCiv-SAS smart-Bombard repair regression) Undefended cities exclude every legal immediate capturer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1040)\
 [KI#1041 - (Provisional Pending AdvCiv-SAS trade-rounding repair regression) An out-of-bounds exact multiple hides the adjacent legal value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1041)\
-[KI#1042 - (Provisional Pending AdvCiv-SAS event-valuation repair regression) PlotExtraYield absolute values are treated as additive gains](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1042)\
-[KI#1043 - (Provisional Pending AdvCiv-SAS event-valuation repair regression) Already revealed resources retain full force-reveal value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1043)\
+[KI#1042 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS event-value defect) PlotExtraYield absolute values were treated as additive gains](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1042)\
+[KI#1043 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS event-value defect) Already revealed resources retained full force-reveal value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1043)\
 [KI#1044 - (Provisional Pending AdvCiv-SAS UWAI repair regression) Asymmetric land clashes average an unavailable distance](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1044)\
 [KI#1045 - (Provisional Pending AdvCiv-SAS Permanent-Alliance repair regression) Transient UWAI state is cleared before target migration](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1045)\
 [KI#1046 - (Provisional Pending AdvCiv-SAS cargo-automation repair regression) Carrier cancellation omits automated air cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1046)\
@@ -1173,7 +1173,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1057 - (Provisional Pending AdvCiv-SAS Permanent-Alliance repair regression) Contact and first-contact migration skip dead outsiders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1057)\
 [KI#1058 - (Provisional Pending AdvCiv-SAS Espionage repair regression) The first generic Spy can block an eligible grouped Spy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1058)\
 [KI#1059 - (Fixed UI AdvCiv-SAS perspective defect) Info Screen power hover used the real active player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1059)\
-[KI#1060 - (Fixed UI AdvCiv-SAS replay repair regression) Timeline reused another observer's filtered replay](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1060)\
+[KI#1060 - (Fixed UI AdvCiv-SAS regression in repair of an inherited AdvCiv replay-visibility defect) Timeline reused another observer's filtered replay](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1060)\
 [KI#1061 - (Provisional Pending inherited AdvC starting-position regression) A preassigned teammate blocks later fallback assignment](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1061)\
 [KI#1062 - (Fixed UI one inherited K-Mod/Base AdvCiv defect plus three AdvCiv-SAS regressions) Four persistent Main Interface labels remained stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1062)\
 [KI#1063 - (Provisional Pending UI AdvCiv-SAS display defect) Culture Breakdown omits slider and process culture](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1063)\
@@ -15651,6 +15651,8 @@ Album F353 found `AI_eventValue` valuing an event's `BonusRevealed` effect throu
 
 The fix values `BonusRevealed` through that resource's own `AI_bonusVal`, independently of the event's separate plot `BonusType` and `BonusChange` effect.
 
+Update: A later repair-side audit found that the corrected resource identity was still valued after technology or an earlier force reveal had already exposed it. KI#1043 now prices only an effective reveal-state change; this original field-identity repair remains valid.
+
 Found and investigated during ChatGPT-5.6-Sol's C031-WIP43 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-677"></a>
@@ -15702,6 +15704,8 @@ Found and investigated during ChatGPT-5.6-Sol's C031-WIP47 `CvPlayerAI.cpp` deep
 Album F358 found `AI_eventValue` adding an event's permanent `PlotExtraYield` to its yield accumulator only after every valuation of that accumulator had already run. Whenever the selected plot had a working city, the runtime applied the yield but the AI priced it at zero.
 
 The fix collects plot extra yield before the city and global yield consumers. Worked plots now flow through the existing city-aware valuation, while plots without a working city retain the existing direct estimate.
+
+Update: A later repair-side audit found that the moved XML value was absolute plot state rather than an additive gain. KI#1042 now subtracts the stored value and prices the actual replacement delta; this original ordering repair remains valid.
 
 Found and investigated during ChatGPT-5.6-Sol's C031-WIP48 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
@@ -19078,21 +19082,25 @@ Found as F720/provisional KI#1041 during ChatGPT-5.6-Sol's C031-WIP716 repair-si
 
 <a id="ki-1042"></a>
 
-## KI#1042 - (Provisional Pending AdvCiv-SAS event-valuation repair regression) PlotExtraYield absolute values are treated as additive gains
+## KI#1042 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS event-value defect) PlotExtraYield absolute values were treated as additive gains
 
 KI#681 moved `PlotExtraYield` into AI event valuation before its consumers, but adds the configured EventInfo value as a new yield gain. Runtime `CvMap::setPlotExtraYield` stores that number as an absolute per-plot value, so a later event that writes +1 over an existing +1 produces no change while the AI still assigns positive permanent-yield value.
 
-The inherited late-ordering root remains KI#681; practical 6339 made the value effective without converting it to the runtime delta. Pending valuing configured absolute value minus the plot's current stored extra yield for both worked and unworked plots.
+The inherited late-ordering root remains KI#681; practical 6339 made the value effective without converting it to the runtime delta. The evaluator now subtracts the plot's current stored extra yield from the configured absolute value and prices that actual change for both worked and unworked plots. First-time values retain their intended worth, while overwriting +1 with +1 is correctly worth zero.
+
+A full autoplay with random events enabled completed successfully after the repair. The rare shipped Truffles/Antelope/Great Beast overlap remains source-verified rather than directly reproduced.
 
 Found as F721/provisional KI#1042 during ChatGPT-5.6-Sol's C031-WIP717 repair-side audit, including the shipped Truffles/Antelope/Great Beast chain; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-1043"></a>
 
-## KI#1043 - (Provisional Pending AdvCiv-SAS event-valuation repair regression) Already revealed resources retain full force-reveal value
+## KI#1043 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS event-value defect) Already revealed resources retained full force-reveal value
 
 KI#676 correctly changed event valuation to read `BonusRevealed`, but grants the full resource-reveal value without checking whether the team already reveals that bonus through technology. The shipped A Man Named Jed event can therefore make an AI pay gold to force-reveal Oil after Combustion, despite producing no new current or ordinary future information.
 
-The inherited wrong-field root remains KI#676; practical 6338 repaired the field identity but not the actual state transition. Pending valuing only a force reveal that changes the team's effective reveal state.
+The inherited wrong-field root remains KI#676; practical 6338 repaired the field identity but not the actual state transition. The evaluator now grants reveal value only while the team does not already reveal that resource, covering both its normal reveal technology and an earlier force reveal. A post-Combustion Man Named Jed choice therefore no longer receives fictitious Oil-reveal value.
+
+The same full autoplay with random events enabled completed successfully after the repair. The post-Combustion Man Named Jed choice state remains source-verified rather than directly reproduced.
 
 Found as F722/provisional KI#1043 during ChatGPT-5.6-Sol's C031-WIP718 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
@@ -19260,7 +19268,7 @@ Found as F738/provisional KI#1059 during ChatGPT-5.6-Sol's C031-WIP800 repair-si
 
 <a id="ki-1060"></a>
 
-## KI#1060 - (Fixed UI AdvCiv-SAS replay repair regression) Timeline reused another observer's filtered replay
+## KI#1060 - (Fixed UI AdvCiv-SAS regression in repair of an inherited AdvCiv replay-visibility defect) Timeline reused another observer's filtered replay
 
 KI#337 correctly stores and applies historical AP/UN audience masks, but the Info Screen Timeline can reuse a non-null global replay snapshot without proving that it was built for the currently selected advisor perspective. After the end-game Replay creates a snapshot for human A, switching Timeline to allowed vassal B can leak A-only resolution rows or omit rows visible only to B.
 

@@ -26489,19 +26489,24 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
 		iValue += AI_calculateGoldenAgeValue();
 
 	// <!-- custom: BtS appended worked PlotExtraYield to aiYields only after its final consumer, valuing the permanent output at zero.
-	// Collect it before city/global yield valuation; retain the existing direct estimate for plots without a working city. See KI#681. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// Collect it before city/global yield valuation; retain the existing direct estimate for plots without a working city.
+	// CvMap stores the configured value absolutely rather than adding it, so value its delta from the current plot state; otherwise a later event can receive value for overwriting +1 with +1. See KI#681 and KI#1042. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (pPlot != NULL)
 	{
 		FOR_EACH_ENUM(Yield)
 		{
 			if (kEvent.getPlotExtraYield(eLoopYield) == 0)
 				continue;
+			int const iPlotExtraYieldChange = kEvent.getPlotExtraYield(eLoopYield) -
+					GC.getMap().getPlotExtraYield(*pPlot, eLoopYield);
+			if (iPlotExtraYieldChange == 0)
+				continue;
 			if (pPlot->getWorkingCity() != NULL)
 			{
 				FAssertMsg(pPlot->getWorkingCity()->getOwner() == getID(), "Event creates a boni for another player?");
-				aiYields.add(eLoopYield, kEvent.getPlotExtraYield(eLoopYield));
+				aiYields.add(eLoopYield, iPlotExtraYieldChange);
 			}
-			else iValue += (20 * 8 * kEvent.getPlotExtraYield(eLoopYield) * iGameSpeedPercent) / 100;
+			else iValue += (20 * 8 * iPlotExtraYieldChange * iGameSpeedPercent) / 100;
 		}
 	}
 
@@ -26718,11 +26723,12 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
 
 	}
 
-	if (kEvent.getBonusRevealed() != NO_BONUS)
+	BonusTypes const eRevealedBonus = (BonusTypes)kEvent.getBonusRevealed();
+	if (eRevealedBonus != NO_BONUS && !kTeam.isBonusRevealed(eRevealedBonus))
 	{
 		// <!-- custom: BtS tested BonusRevealed but reused the unrelated BonusType value, so resource-reveal choices could receive zero or another resource's value.
-		// Value the revealed resource independently. See KI#676. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		int const iRevealedBonusValue = AI_bonusVal((BonusTypes)kEvent.getBonusRevealed(), 0, true);
+		// Value the revealed resource independently, but only when force reveal changes its current visibility; after its reveal technology or an earlier force reveal, the runtime flag adds no information. See KI#676 and KI#1043. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int const iRevealedBonusValue = AI_bonusVal(eRevealedBonus, 0, true);
 		iValue += (iRevealedBonusValue * 10 * iGameSpeedPercent) / 100;
 	}
 
