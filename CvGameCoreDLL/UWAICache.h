@@ -164,7 +164,9 @@ public:
 	void setReadyToCapitulate(TeamTypes eMaster, bool b);
 	// <!-- custom: Merge persistent history from the absorbed leader across every civilization-team key when forming a Permanent Alliance. See KI#539. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void addTeam(PlayerTypes eOtherLeader);
-	// <!-- custom: When a Permanent Alliance absorbs a target team, migrate outsiders' persistent history and obligations to the surviving target identity. See KI#551. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Preserve outsiders' transient obligations before Permanent-Alliance player reassignment triggers absorbed-team war teardown. See KI#551. See KI#1045. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void onTargetTeamAboutToBeAbsorbed(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam);
+	// <!-- custom: After Permanent-Alliance teardown has finalized outsiders' war history, migrate that persistent history to the surviving target identity. See KI#551. See KI#1045. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void onTargetTeamAbsorbed(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam);
 	// <!-- custom: Move team-level leader-cache data and explicitly initialize planning-derived hireability when leadership changes. See KI#538. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void onTeamLeaderChanged(PlayerTypes formerLeaderId);

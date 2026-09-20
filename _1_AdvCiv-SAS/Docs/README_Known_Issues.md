@@ -1158,7 +1158,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1042 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS event-value defect) PlotExtraYield absolute values were treated as additive gains](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1042)\
 [KI#1043 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS event-value defect) Already revealed resources retained full force-reveal value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1043)\
 [KI#1044 - (Fixed AdvCiv-SAS regression in repair of an inherited original UWAI route-representation defect) Asymmetric land clashes averaged an unavailable distance](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1044)\
-[KI#1045 - (Provisional Pending AdvCiv-SAS Permanent-Alliance repair regression) Transient UWAI state is cleared before target migration](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1045)\
+[KI#1045 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI Permanent-Alliance migration defect) Transient state was cleared before target migration](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1045)\
 [KI#1046 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS cargo-automation defect) Carrier cancellation omitted automated air cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1046)\
 [KI#1047 - (Provisional Pending inherited BtS carrier-automation defect) Carrier Explore mixes head-unit cargo with group-wide automation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1047)\
 [KI#1048 - (Provisional Pending inherited BtS/K-Mod/AdvC amphibious scope defect) One carrier can land another carrier's grouped cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1048)\
@@ -14393,9 +14393,11 @@ Permanent Alliance formation merges the absorbed leader's UWAI history into each
 
 For example, an outside AI hired to declare war on team B can remain physically at war when B joins surviving team A because `CvTeam::addTeam` transfers differing wars. Its paid obligation nevertheless remained stored against B; subsequent `HiredHand` evaluation queried current opponent A, found no sponsor or bounty, and could agree to peace earlier than the intended roughly 20-turn obligation. Past-war confidence against B was similarly orphaned. If an outside AI had already decided to capitulate to human B, absorption into a surviving human team A made `AI_surrenderTrade(A)` miss the readiness handshake and potentially return `DENIAL_RECENT_CANCEL` solely because the target team identity changed.
 
-The repair adds an explicit reverse-direction migration for every living outside major player after the absorbed players join the surviving team and before the existing survivor-member UWAI merge. Past-war scores are added to the surviving key. Sponsored-war state adopts the absorbed sponsor when the survivor has none or the absorbed bounty is larger, matching the existing higher-bounty conflict policy. Human-capitulation readiness is unioned onto the surviving human target. All four absorbed-team entries are then cleared, while ordinary derived maps remain governed by their normal refresh cadence. Merged-team members are excluded, keeping this helper separate from the existing `UWAI::Team::addTeam` direction and avoiding the earlier live-iterator self-add defect.
+The repair adds an explicit reverse-direction migration for every living outside major player. Before absorbed players join the surviving team, sponsored-war state adopts the absorbed sponsor when the survivor has none or the absorbed bounty is larger, matching the existing higher-bounty conflict policy; human-capitulation readiness is unioned onto the team that will be human after the merge. After player reassignment finalizes war-ending history, past-war scores are added to the surviving key. All four absorbed-team entries are cleared across these phases, while ordinary derived maps remain governed by their normal refresh cadence. Merged-team members are excluded, keeping this helper separate from the existing `UWAI::Team::addTeam` direction and avoiding the earlier live-iterator self-add defect.
 
 The missing outsider direction dates to AdvCiv's initial 2017 WarAndPeace/UWAI Permanent Alliance support and remains in Base AdvCiv 1.14; later iterator and cache rewrites retained the same contract. KI#551 is therefore an inherited AdvCiv design omission rather than an AdvCiv-SAS regression. A rebuilt DLL completed a Huge Pangaea mixed-team autoplay with Permanent Alliances enabled through a turn-420 Space Race victory. `SASGameRecord_20260828T061105Z_new1.log` confirms the option and team setup; no new Permanent Alliance formed during the sample, so the exact outsider-state migration remains source/lifecycle verified rather than empirically triggered. Found as F228/provisional KI#551 during ChatGPT-5.6-Sol's C019 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
+Update: KI#1045 found that this repair ran only after absorbed-player reassignment had already cleared sponsored-war and capitulation state. The migration is now split across the exact lifecycle boundary: transient obligations move before reassignment, while finalized past-war history moves after the absorbed team's zero-alive war teardown.
 
 <a id="ki-552"></a>
 
@@ -19148,13 +19150,17 @@ Found as F723/provisional KI#1044 during ChatGPT-5.6-Sol's C031-WIP739 repair-si
 
 <a id="ki-1045"></a>
 
-## KI#1045 - (Provisional Pending AdvCiv-SAS Permanent-Alliance repair regression) Transient UWAI state is cleared before target migration
+## KI#1045 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI Permanent-Alliance migration defect) Transient state was cleared before target migration
 
-KI#551 migrates an absorbed Permanent-Alliance team's outsider target keys only after player reassignment has reduced that team's alive count to zero. Normal war-ending teardown has already cleared sponsored-war bounty/sponsor state and human capitulation readiness by then, so those advertised migrations see no source state; only the finalized past-war history remains available.
+KI#551 migrated an absorbed Permanent-Alliance team's outsider target keys only after player reassignment had reduced that team's alive count to zero. Normal war-ending teardown had already cleared sponsored-war bounty/sponsor state and human capitulation readiness by then, so those advertised migrations saw no source state; only the finalized past-war history remained available.
 
-The inherited one-way target-key omission remains KI#551; practical 6302 introduced this repair ordering, and later KI#562 makes the preceding cleanup explicit rather than curing it. Pending snapshotting the transient absorbed-target state before teardown or otherwise transferring it without disturbing final past-war accounting.
+The repair splits migration across that teardown. Before reassignment, every living outside major player's cache transfers the absorbed target's higher-bounty sponsored-war obligation and human-capitulation readiness to the surviving team, then clears the obsolete key. Both merging teams are excluded at this stage, and readiness recognizes humans on either team because absorbed human players have not joined the survivor yet. After reassignment and zero-alive war teardown, the existing outsider pass migrates only the now-final past-war score. This preserves KI#551's conflict policy and final history accounting without suppressing KI#562's legitimate cleanup.
 
-Found as F724/provisional KI#1045 during ChatGPT-5.6-Sol's C031-WIP752 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The inherited one-way target-key omission remains KI#551. Practical 6302 introduced this AdvCiv-SAS repair-ordering regression; later KI#562 made the preceding cleanup explicit rather than causing the defect.
+
+The rebuilt Debug-opt DLL completed a Huge Pangaea autoplay with mixed initial teams and Permanent Alliances enabled through a turn-379 Domination victory. `SASGameRecord_20260920T173139Z_new1.log` confirms the relevant settings and successful completion; no new Permanent Alliance formed during the sample, so the exact two-phase migration remains source/lifecycle verified.
+
+Found as F724/provisional KI#1045 during ChatGPT-5.6-Sol's C031-WIP752 repair-side audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
 <a id="ki-1046"></a>
 

@@ -1616,14 +1616,11 @@ void UWAICache::addTeam(PlayerTypes eOtherLeader)
 }
 
 
-// <!-- custom: The existing Permanent Alliance merge imports the absorbed leader's history into surviving-team members, but did not update persistent target-team keys in outside players' caches.
-// Preserve those histories and live obligations under the surviving identity, then clear the dead key; ordinary per-turn derived maps rebuild separately. See KI#551. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-void UWAICache::onTargetTeamAbsorbed(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam)
+// <!-- custom: Player reassignment during a Permanent Alliance tears down the absorbed team's wars and clears outsiders' paid-war and human-capitulation state.
+// Move those live obligations first, while excluding both merging teams; consider either team's humans because the survivor can become human only after reassignment. See KI#551. See KI#1045. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::onTargetTeamAboutToBeAbsorbed(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam)
 {
 	FAssert(eSurvivingTeam != NO_TEAM && eAbsorbedTeam != NO_TEAM && eSurvivingTeam != eAbsorbedTeam);
-	m_aiPastWarScore.add(eSurvivingTeam, m_aiPastWarScore.get(eAbsorbedTeam));
-	m_aiPastWarScore.set(eAbsorbedTeam, 0);
-
 	PlayerTypes const eAbsorbedSponsor = m_aeSponsorPerTarget.get(eAbsorbedTeam);
 	int const iAbsorbedBounty = m_aiBounty.get(eAbsorbedTeam);
 	if (eAbsorbedSponsor != NO_PLAYER && iAbsorbedBounty > 0 &&
@@ -1636,8 +1633,19 @@ void UWAICache::onTargetTeamAbsorbed(TeamTypes eSurvivingTeam, TeamTypes eAbsorb
 	m_aeSponsorPerTarget.set(eAbsorbedTeam, NO_PLAYER);
 	m_aiBounty.set(eAbsorbedTeam, 0);
 
-	if (m_readyToCapitulateTo.erase(eAbsorbedTeam) > 0 && GET_TEAM(eSurvivingTeam).isHuman())
+	if (m_readyToCapitulateTo.erase(eAbsorbedTeam) > 0 &&
+		(GET_TEAM(eSurvivingTeam).isHuman() || GET_TEAM(eAbsorbedTeam).isHuman()))
 		m_readyToCapitulateTo.insert(eSurvivingTeam);
+}
+
+
+// <!-- custom: The absorbed team's final alive-count transition records the completed war before clearing it.
+// Migrate that now-final past-war score afterward instead of moving a premature snapshot. See KI#551. See KI#1045. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::onTargetTeamAbsorbed(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam)
+{
+	FAssert(eSurvivingTeam != NO_TEAM && eAbsorbedTeam != NO_TEAM && eSurvivingTeam != eAbsorbedTeam);
+	m_aiPastWarScore.add(eSurvivingTeam, m_aiPastWarScore.get(eAbsorbedTeam));
+	m_aiPastWarScore.set(eAbsorbedTeam, 0);
 }
 
 

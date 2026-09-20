@@ -489,7 +489,16 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	// <!-- custom: AdvCiv practical 1818 replaced the old pre-merge member cache with a live iterator, but kept this call after player reassignment.
 	// Merge into only the original surviving members before changing teams so the absorbed leader cannot add its history to itself. See KI#539. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (getUWAI().isEnabled())
+	{
 		AI().uwai().addTeam(eTeamLeader);
+		// <!-- custom: Preserve outsiders' paid-war and human-capitulation state before absorbed-player reassignment reaches zero alive members and clears that transient state.
+		// Exclude both merging teams here; absorbed members have not joined the survivor yet. See KI#1045. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for (PlayerAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
+		{
+			if (it->getTeam() != getID() && it->getTeam() != eTeam)
+				it->uwai().getCache().onTargetTeamAboutToBeAbsorbed(getID(), eTeam);
+		}
+	}
 	// <!-- custom: Capture the exact team-merge boundary while both pre-merge member lists still exist.
 	// The logger call is cold and fully gated before it gathers diagnostic-only strings. (ChatGPT-5.6-Sol) -->
 	if (gGameRecordLogLevel >= 2) logSASGameRecordTeamMerged(getID(), eTeam);
@@ -709,7 +718,8 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	// <advc.104t>
 	if(getUWAI().isEnabled())
 	{
-		// <!-- custom: Survivor-member UWAI merging is only one direction. Before the absorbed target identity becomes unusable, migrate every outside major player's persistent target-keyed history, sponsored-war obligation and human-capitulation readiness to this surviving team. See KI#551. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		// <!-- custom: After the absorbed team's war teardown has finalized outsiders' past-war scores, migrate that persistent history to the surviving target key.
+		// Transient obligations were moved before player reassignment so teardown could not erase them. See KI#551. See KI#1045. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		for (PlayerAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
 			if (it->getTeam() != getID())
