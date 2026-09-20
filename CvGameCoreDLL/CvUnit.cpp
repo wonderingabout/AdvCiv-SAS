@@ -3153,6 +3153,9 @@ void CvUnit::move(CvPlot& kPlot, bool bShow, /* advc.163: */ bool bJump, bool bG
 			}
 		}
 	} // </advc.162>
+	// <!-- custom: Clear recon only at the successful unit-local air-base move boundary. The former group preflight could clear later aircraft that failed after earlier members consumed shared destination capacity. See KI#471 and KI#1049. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (getDomainType() == DOMAIN_AIR && GET_TEAM(getTeam()).isRevealedAirBase(kPlot))
+		setReconPlot(NULL);
 	setXY(kPlot.getX(), kPlot.getY(), /* advc.163 (was 'true'): */ bGroup,
 			true, bShow && kPlot.isVisibleToWatchingHuman(), bShow);
 

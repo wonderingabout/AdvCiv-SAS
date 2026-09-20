@@ -812,23 +812,7 @@ void CvSelectionGroup::startMission()
 		if (readyForMission())
 		{
 			setActivityType(ACTIVITY_MISSION);
-			// <advc.029> (Not sure if this is the best place for this)
-			if (getHeadUnit() != NULL && getDomainType() == DOMAIN_AIR)
-			{
-				MissionData data = headMissionQueueNode()->m_data;
-				CvPlot* pDest = GC.getMap().plot(data.iData1, data.iData2);
-				// Both air attack and rebase are MOVE_TO missions. Want to clear the recon-plot only for rebase.
-				if (data.eMissionType == MISSION_MOVE_TO && pDest != NULL && GET_TEAM(getTeam()).isRevealedAirBase(*pDest))
-				{
-					// <!-- custom: Recon visibility is unit-local, and an air-group rebase moves only members that have moves and can enter the destination.
-					// Clear every participating aircraft's old recon plot instead of the possibly immobile head's alone. See KI#471. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-					FOR_EACH_UNIT_VAR_IN(pUnit, *this)
-					{
-						if (pUnit->canMove() && pUnit->canMoveInto(*pDest))
-							pUnit->setReconPlot(NULL);
-					}
-				}
-			} // </advc.029>
+			// <!-- custom: Removed AdvCiv's pre-move recon cleanup from here: shared destination capacity can change while grouped aircraft move sequentially. CvUnit::move now clears recon only for each aircraft that actually rebases. See KI#471 and KI#1049. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		}
 		else setActivityType(ACTIVITY_HOLD);
 		// K-Mod end

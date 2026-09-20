@@ -1162,7 +1162,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1046 - (Provisional Pending AdvCiv-SAS cargo-automation repair regression) Carrier cancellation omits automated air cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1046)\
 [KI#1047 - (Provisional Pending inherited BtS carrier-automation defect) Carrier Explore mixes head-unit cargo with group-wide automation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1047)\
 [KI#1048 - (Provisional Pending inherited BtS/K-Mod/AdvC amphibious scope defect) One carrier can land another carrier's grouped cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1048)\
-[KI#1049 - (Provisional Pending AdvCiv-SAS air-rebase repair regression) Recon is cleared before shared destination capacity is consumed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1049)\
+[KI#1049 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv air-rebase defect) Recon was cleared before shared destination capacity was consumed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1049)\
 [KI#1050 - (Provisional Pending Architectural AdvCiv-SAS UWAI repair regression) GreedForSpace dedup state leaks across agent teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1050)\
 [KI#1051 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI HiredHand defect) Historical-role utility repeated across agent teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1051)\
 [KI#1052 - (Fixed inherited AdvCiv UWAI HiredHand defect) Ally-hire obligation repeated across target teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1052)\
@@ -13339,6 +13339,8 @@ AdvCiv clears a recon aircraft's remote visibility immediately when it rebases, 
 
 The repair matches group movement participation: when the destination is a revealed air base, clear old recon state for every member that currently has moves and can enter that destination. Air attacks remain excluded from the cleanup. Base AdvCiv 1.14 contains the head-only advc.029 hook introduced for this behavior, making this an inherited AdvCiv defect rather than an AdvCiv-SAS regression. Found as F148/provisional KI#471 during ChatGPT-5.6-Sol's C015 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
+Update: The repair-side audit found that independent preflight checks still overpredicted participation when grouped aircraft competed for shared destination capacity. KI#1049 moves recon cleanup to each aircraft's successful air-base movement, so a member left behind retains its remote visibility.
+
 The repaired DLL compiled successfully, and a Large Pangaea autoplay completed normally. The exact mixed Spy, hidden-nationality Sentry and grouped-aircraft rebase transitions were not reproduced because their manual setups were disproportionate, so KI#469-KI#471 remain source-verified rather than being recorded as directly exercised in-game.
 
 <a id="ki-472"></a>
@@ -19184,13 +19186,13 @@ Found as F727/provisional KI#1048 during ChatGPT-5.6-Sol's C031-WIP774 repair-si
 
 <a id="ki-1049"></a>
 
-## KI#1049 - (Provisional Pending AdvCiv-SAS air-rebase repair regression) Recon is cleared before shared destination capacity is consumed
+## KI#1049 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv air-rebase defect) Recon was cleared before shared destination capacity was consumed
 
 KI#471 clears recon state for every grouped aircraft that independently passes `canMoveInto` before movement begins. With one destination air-capacity slot left, two Fighters can both pass that preflight test; the first consumes the slot, the second remains behind after a fresh execution-time failure, but both have already lost their recon plots.
 
-The inherited head-only recon root remains KI#471; practical 6280 introduced this shared-capacity participation mismatch. Pending clearing recon only for aircraft that actually rebase, without reverting the repaired per-member checks.
+The inherited head-only recon root remains KI#471; practical 6280 introduced this shared-capacity participation mismatch. The repair removes the group preflight mutation and clears recon at each aircraft's successful unit-local move into an air base. Sequential destination-capacity checks therefore decide participation before state changes, while air attacks remain excluded because they do not relocate into an air base.
 
-Found as F728/provisional KI#1049 during ChatGPT-5.6-Sol's C031-WIP775 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+`SASGameRecord_20260920T151646Z_new1.log` confirms that the matching Debug-opt DLL and dirty KI#1049 source completed a Huge Pangaea Renaissance-start autoplay for 320 turns through the turn-500 Time victory. The exact final-capacity-slot transition remains source-verified. Found as F728/provisional KI#1049 during ChatGPT-5.6-Sol's C031-WIP775 repair-side audit; implemented and reviewed with the help of GPT-5.6-Sol and tested with the help of wonderingabout, thanks.
 
 <a id="ki-1050"></a>
 
