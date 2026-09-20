@@ -2754,13 +2754,20 @@ void CvTeam::changeNumCities(int iChange)
 {
 	m_iNumCities += iChange;
 	FAssert(getNumCities() >= 0);
-	// <!-- custom: The inherited number-of-cities maintenance cache also depends on the current city count of every vassal, but city lifecycle updates only the city's owner.
-	// Refresh the master after the authoritative team count changes; final-initialization guards setup-time partial state. See KI#789. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	if (iChange != 0 && isAVassal() && GC.getGame().isFinalInitialized())
-	{
-		for (MemberIter it(getMasterTeam()); it.hasNext(); ++it)
-			it->updateMaintenance();
-	}
+	// <!-- custom: A city addition is already present in its owner's authoritative container here, so refresh the vassal master's city-count-dependent maintenance immediately.
+	// City loss reaches this counter before player-city deletion and is deferred to the stable post-deletion callback. See KI#789. See KI#1035. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (iChange > 0)
+		updateMasterMaintenance();
+}
+
+
+// <!-- custom: Centralize the vassal-city invalidation shared by additions and stable post-deletion losses; final-initialization guards setup-time partial state. See KI#789. See KI#1035. (GPT-5.6-Sol) -->
+void CvTeam::updateMasterMaintenance() const
+{
+	if (!isAVassal() || !GC.getGame().isFinalInitialized())
+		return;
+	for (MemberIter it(getMasterTeam()); it.hasNext(); ++it)
+		it->updateMaintenance();
 }
 
 

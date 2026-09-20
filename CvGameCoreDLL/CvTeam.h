@@ -173,6 +173,8 @@ public:
 
 	int getNumCities() const { return m_iNumCities; }															// Exposed to Python
 	void changeNumCities(int iChange);
+	// <!-- custom: Refresh every master member's maintenance only after this vassal's authoritative player-city container reaches its final state. See KI#789. See KI#1035. (GPT-5.6-Sol) -->
+	void updateMasterMaintenance() const;
 
 	int getTotalPopulation(bool bCheckVassals = true) const;																											// Exposed to Python
 	void changeTotalPopulation(int iChange);

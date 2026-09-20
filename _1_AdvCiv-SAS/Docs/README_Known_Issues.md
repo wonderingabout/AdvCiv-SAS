@@ -1148,7 +1148,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1032 - (Fixed UI inherited AdvC SPaH defect) Hidden randomized points omitted their disclosure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1032)\
 [KI#1033 - (Fixed UI inherited AdvC optional-alert defect) Multi-copy resource changes duplicated third-party alerts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1033)\
 [KI#1034 - (Fixed inherited K-Mod diagnostic defect) CvMap initialization used an incomplete printf conversion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1034)\
-[KI#1035 - (Provisional Pending AdvCiv-SAS maintenance repair regression) Vassal city loss refreshes master maintenance before deletion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1035)\
+[KI#1035 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS vassal-maintenance cache defect) Vassal city loss refreshed master maintenance before deletion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1035)\
 [KI#1036 - (Provisional Pending inherited BtS/K-Mod/AdvC AI valuation defect left incomplete by SAS) Recovered Conscript and Defy-Resolution anger layers count as one citizen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1036)\
 [KI#1037 - (Provisional Pending AdvCiv-SAS Worker AI regression) Productive-feature Phase 0 ignores other affected cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1037)\
 [KI#1038 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI cache defect) Non-capital foreign city changes left observer target values stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1038)\
@@ -16881,6 +16881,8 @@ Prepared centrally in `CvTeam::changeNumCities`: after a vassal team's authorita
 
 Validated in the same Huge Pangaea Debug-opt autoplay: several live vassal relationships and changing city holdings exercised the central invalidation through turn 427 without a crash or observed economy failure. Validated by wonderingabout with the help of GPT-5.6-Sol, thanks.
 
+Update: KI#1035 found that the central callback sees additions after insertion but losses before `CvPlayer::deleteCity` removes the doomed city. Positive changes still refresh immediately; losses now refresh from the stable post-deletion city callback through one shared guarded helper.
+
 <a id="ki-790"></a>
 
 ## KI#790 - (Fixed inherited K-Mod timer regression exposed by SAS data) -100% anarchy modifiers create negative or 101-turn cooldowns
@@ -19046,13 +19048,15 @@ Found as F713/provisional KI#1034 during ChatGPT-5.6-Sol's C031-WIP682 post-prim
 
 <a id="ki-1035"></a>
 
-## KI#1035 - (Provisional Pending AdvCiv-SAS maintenance repair regression) Vassal city loss refreshes master maintenance before deletion
+## KI#1035 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS vassal-maintenance cache defect) Vassal city loss refreshed master maintenance before deletion
 
-The KI#789 repair refreshes a vassal master's maintenance from `CvTeam::changeNumCities(-1)`, but city destruction reaches that hook before `CvPlayer::deleteCity` removes the doomed city from the vassal's authoritative `m_cities` container. The refresh therefore still sees the old vassal city count; unlike founding/acquisition `+1`, no later ordinary loss/raze refresh repairs the master's cached maintenance.
+The KI#789 repair refreshed a vassal master's maintenance from `CvTeam::changeNumCities(-1)`, but city destruction reaches that hook before `CvPlayer::deleteCity` removes the doomed city from the vassal's authoritative `m_cities` container. The refresh therefore still saw the old vassal city count; unlike founding/acquisition `+1`, no later ordinary loss/raze refresh repaired the master's cached maintenance.
 
-The inherited missing-invalidation root remains KI#789; practical 6419 introduced this asymmetric SAS repair ordering. Pending refreshing the master after player-city removal, without broadly reordering the established city-kill transaction.
+The repair centralizes the guarded master-maintenance refresh in `CvTeam::updateMasterMaintenance`. Positive city-count changes still invoke it immediately because the new city is already present in its owner's container. Negative changes defer it until the existing post-deletion city callback, immediately after the doomed city has left that container. The inherited missing-invalidation root remains KI#789; practical 6419 introduced this asymmetric AdvCiv-SAS repair ordering.
 
-Found as F714/provisional KI#1035 during ChatGPT-5.6-Sol's C031-WIP687 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The rebuilt Debug-opt DLL completed a Huge Pangaea autoplay through the turn-500 Time victory. `SASGameRecord_20260920T183631Z_new1.log` confirms the matching dirty source, multiple active vassal relationships and 135 city removals, providing broad coverage of the repaired lifecycle without an observed regression; the exact maintenance value immediately after a vassal city loss remains source-verified.
+
+Found as F714/provisional KI#1035 during ChatGPT-5.6-Sol's C031-WIP687 repair-side audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
 <a id="ki-1036"></a>
 

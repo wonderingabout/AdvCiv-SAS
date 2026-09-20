@@ -488,6 +488,8 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 	}
 
 	kOwner.updateMaintenance();
+	// <!-- custom: Team city-count decrement precedes player-city deletion, so refresh the vassal master's city-count-dependent maintenance only now that the doomed city has left the authoritative container. See KI#789. See KI#1035. (GPT-5.6-Sol) -->
+	GET_TEAM(eOwner).updateMasterMaintenance();
 	GC.getMap().updateWorkingCity();
 	GC.getGame().AI_makeAssignWorkDirty();
 
