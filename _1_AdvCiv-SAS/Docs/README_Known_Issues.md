@@ -1149,7 +1149,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1033 - (Fixed UI inherited AdvC optional-alert defect) Multi-copy resource changes duplicated third-party alerts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1033)\
 [KI#1034 - (Fixed inherited K-Mod diagnostic defect) CvMap initialization used an incomplete printf conversion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1034)\
 [KI#1035 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS vassal-maintenance cache defect) Vassal city loss refreshed master maintenance before deletion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1035)\
-[KI#1036 - (Provisional Pending inherited BtS/K-Mod/AdvC AI valuation defect left incomplete by SAS) Recovered Conscript and Defy-Resolution anger layers count as one citizen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1036)\
+[KI#1036 - (Fixed inherited BtS/K-Mod/AdvC AI valuation defect left incomplete by SAS) Recovered Conscript and Defy-Resolution anger layers counted as one citizen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1036)\
 [KI#1037 - (Provisional Pending AdvCiv-SAS Worker AI regression) Productive-feature Phase 0 ignores other affected cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1037)\
 [KI#1038 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI cache defect) Non-capital foreign city changes left observer target values stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1038)\
 [KI#1039 - (Fixed AdvCiv-SAS regression in repair of an inherited K-Mod/AdvCiv assault contract defect amplified by SAS) Gunship-only cargo authorized an impossible city invasion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1039)\
@@ -17474,6 +17474,8 @@ Found as F529 during ChatGPT-5.6-Sol's C031-WIP298 `CvCityAI.cpp` deep re-audit;
 
 `AI_yieldValue` used `timer % angerLength` for the next unhappy-layer expiry, so an exact full cycle reported zero turns instead of one full length. The shared replacement now compares current stacked layers with the layers remaining at projected growth, which handles exact cycles without a separate fragile remainder formula and also integrates KI#854, KI#858 and KI#860.
 
+Update: KI#1036 subsequently corrected the inherited source-magnitude assumption left by this repair; recovered layers retain this exact-cycle arithmetic but are now converted to their actual unhappy-citizen magnitudes.
+
 The repair compiled successfully. A Debug-opt Huge Continents, Normal-speed full-UWAI autoplay with 16 independent teams completed 416 turns through a Domination victory; no issue was observed.
 
 Found as F530 during ChatGPT-5.6-Sol's C031-WIP299 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
@@ -17483,6 +17485,8 @@ Found as F530 during ChatGPT-5.6-Sol's C031-WIP299 `CvCityAI.cpp` deep re-audit;
 ## KI#854 - (Fixed BtS-origin anger/growth ordering defect reintroduced by K-Mod) Equal timing counted recovery too early
 
 BtS's projected anger recovery used `<=` against turns to growth even though normal city order performs growth before that turn's anger decrement. K-Mod had the correct strict `<` comparison before practical 1139 changed all three sources back to BtS's `<=`; Base AdvCiv 1.14 and SAS retained that reintroduction. The shared replacement subtracts only the `growthTurns - 1` decrements that occur before projected growth, so an anger layer expiring on the growth turn itself is no longer credited early.
+
+Update: KI#1036 subsequently corrected the inherited source-magnitude assumption left by this repair; recovered layers retain this growth-order boundary but are now converted to their actual unhappy-citizen magnitudes.
 
 The repair compiled successfully. The same Debug-opt Huge Continents, Normal-speed full-UWAI autoplay with 16 independent teams completed 416 turns through a Domination victory; no issue was observed.
 
@@ -17522,6 +17526,8 @@ Found as F534 during ChatGPT-5.6-Sol's C031-WIP304 `CvCityAI.cpp` deep re-audit;
 
 The `AI_yieldValue` pre-gate assumed future happiness could increase by at most two, but its body independently credited Hurry, Conscript and Defy anger expiry for a possible total of three. A city at happiness -2 could therefore skip a valid positive-growth evaluation. The false optimization is removed; each source now contributes its actual number of layers recovered before growth.
 
+Update: KI#1036 subsequently corrected the inherited source-magnitude assumption left by this repair; each recovered layer is now converted to its actual unhappy-citizen magnitude rather than every source contributing one citizen per layer.
+
 The repair compiled successfully. The same Debug-opt Huge Continents, Normal-speed full-UWAI autoplay with 16 independent teams completed 416 turns through a Domination victory; no issue was observed.
 
 Found as F535 during ChatGPT-5.6-Sol's C031-WIP308 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
@@ -17539,6 +17545,8 @@ Found as F536 during ChatGPT-5.6-Sol's C031-WIP309-WIP310 `CvCityAI.cpp` deep re
 ## KI#860 - (Fixed inherited BtS stacked-anger valuation defect) Only one layer per source could recover
 
 `AI_yieldValue` credited at most one future happiness recovery for each temporary-anger source, even when multiple stacked layers of the same source expired before projected growth. The shared replacement computes the ceiling-divided layer count both now and immediately before growth, adding their full difference while preserving KI#853's exact-cycle and KI#854's event-order boundaries.
+
+Update: KI#1036 subsequently corrected the inherited source-magnitude assumption left by this repair; the full recovered-layer count is now multiplied by each anger source's actual unhappy-citizen magnitude.
 
 The repair compiled successfully. The same Debug-opt Huge Continents, Normal-speed full-UWAI autoplay with 16 independent teams completed 416 turns through a Domination victory; no issue was observed.
 
@@ -19064,11 +19072,13 @@ Found as F714/provisional KI#1035 during ChatGPT-5.6-Sol's C031-WIP687 repair-si
 
 <a id="ki-1036"></a>
 
-## KI#1036 - (Provisional Pending inherited BtS/K-Mod/AdvC AI valuation defect left incomplete by SAS) Recovered Conscript and Defy-Resolution anger layers count as one citizen
+## KI#1036 - (Fixed inherited BtS/K-Mod/AdvC AI valuation defect left incomplete by SAS) Recovered Conscript and Defy-Resolution anger layers counted as one citizen
 
 `CvCityAI::AI_yieldValue` adds the number of temporary-anger timer layers recovered before growth directly to future happiness. That is dimensionally correct for Hurry anger, but current Conscript and Defy-Resolution layers represent 3 and 5 angry population respectively; recovering one such layer can therefore restore 3 or 5 population of happiness headroom while the evaluator credits only 1.
 
-BtS, K-Mod and Base AdvC already used the one-citizen assumption. Practical 6426 repaired the timing/layer-count defects in KI#853, KI#854, KI#858 and KI#860 but retained the inherited magnitude error. Pending forecasting the actual recovered unhappy-population contribution through the authoritative anger arithmetic rather than treating every source layer equally.
+BtS, K-Mod and Base AdvC already used the one-citizen assumption. Practical 6426 repaired the timing/layer-count defects in KI#853, KI#854, KI#858 and KI#860 but retained the inherited magnitude error. The completed repair preserves that layer arithmetic, then multiplies recovered Hurry, Conscript and Defy-Resolution layers by their corresponding `*_POP_ANGER` definitions. The forecast therefore remains data-driven and now measures future happiness in unhappy-citizen units rather than raw timer layers.
+
+The rebuilt Debug-opt DLL completed a Huge Pangaea autoplay through a turn-416 Space Race victory. `SASGameRecord_20260920T194232Z_load1.log` confirms the matching dirty source and records 1,396 final population across 98 cities after more than 35 million synchronized RNG calls, providing substantial growth/valuation coverage without an observed regression; the exact single- and multi-layer source magnitudes remain source-verified.
 
 Found as F715/provisional KI#1036 during ChatGPT-5.6-Sol's C031-WIP689 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 

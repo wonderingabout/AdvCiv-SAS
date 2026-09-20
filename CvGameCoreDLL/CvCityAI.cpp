@@ -17616,10 +17616,10 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove, 
 					int const iApproxTurnsToGrow = (iNewFoodPerTurn <= 0 ? MAX_INT : ((iFoodToGrow - iFoodLevel + iNewFoodPerTurn - 1) / iNewFoodPerTurn));
 
 					// <!-- custom: The legacy forecast counted only one next expiry per source, used modulo zero at exact cycles, counted an expiry on the growth turn itself, and could skip all three sources behind a hardcoded +2 gate.
-					// Count every layer that has actually expired before growth instead. See KI#853, KI#854, KI#858 and KI#860. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-					iFutureHappy += SAS_angerLayersRecoveredBeforeGrowth(getHurryAngerTimer(), flatHurryAngerLength(), iApproxTurnsToGrow);
-					iFutureHappy += SAS_angerLayersRecoveredBeforeGrowth(getConscriptAngerTimer(), flatConscriptAngerLength(), iApproxTurnsToGrow);
-					iFutureHappy += SAS_angerLayersRecoveredBeforeGrowth(getDefyResolutionAngerTimer(), flatDefyResolutionAngerLength(), iApproxTurnsToGrow);
+					// Count every layer that has actually expired before growth, then convert those layers to unhappy-citizen units: unlike Hurry, one Conscript or Defy-Resolution layer represents multiple angry citizens. See KI#853, KI#854, KI#858, KI#860 and KI#1036. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					iFutureHappy += SAS_angerLayersRecoveredBeforeGrowth(getHurryAngerTimer(), flatHurryAngerLength(), iApproxTurnsToGrow) * GC.getDefineINT(CvGlobals::HURRY_POP_ANGER);
+					iFutureHappy += SAS_angerLayersRecoveredBeforeGrowth(getConscriptAngerTimer(), flatConscriptAngerLength(), iApproxTurnsToGrow) * GC.getDefineINT(CvGlobals::CONSCRIPT_POP_ANGER);
+					iFutureHappy += SAS_angerLayersRecoveredBeforeGrowth(getDefyResolutionAngerTimer(), flatDefyResolutionAngerLength(), iApproxTurnsToGrow) * GC.getDefineINT(CvGlobals::DEFY_RESOLUTION_POP_ANGER);
 				}
 				/*  advc.121: Want the AI to grow cities a bit more aggressively
 					(but I don't quite know what I'm doing). Surely, in the
