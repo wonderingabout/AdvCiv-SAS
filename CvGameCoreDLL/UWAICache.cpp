@@ -1503,25 +1503,10 @@ void UWAICache::reportCityCreated(CvCity& kCity)
 		then trying to add the city to the cache will lead to problems. */
 	if (GET_PLAYER(m_eOwner).getNumCities() <= 0)
 		return;
-	// <!-- custom: A new city owned by the cache owner changes the source set for every surviving foreign target, so refresh the complete city-derived snapshot after founding/acquisition is stable.
-	// This also replaces the owner's first-city wrapper instead of inserting it twice. See KI#554. See KI#557. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	if (kCity.getOwner() == m_eOwner)
-	{
-		rebuildCities();
-		return;
-	}
-	CvTeamAI const& kCacheTeam = GET_TEAM(TEAMID(m_eOwner));
-	bool const bOwnTeamCity = (kCity.getTeam() == kCacheTeam.getID());
-	// <!-- custom: Match full updateCities membership exactly: a foreign team must already be known, then a human cache may include all of its cities while an AI still needs to deduce the site. See KI#556. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	if (bOwnTeamCity || (kCacheTeam.isHasMet(kCity.getTeam()) &&
-		(GET_PLAYER(m_eOwner).isHuman() || kCacheTeam.AI_deduceCitySite(kCity))))
-	{
-		// <!-- custom: The first-city full refresh can already have inserted this plot.
-		// Replace any existing wrapper before adding its now-final city snapshot, preserving one vector/map owner per plot. See KI#557. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		remove(kCity);
-		add(kCity);
-		sortCitiesByAttackPriority();
-	}
+	// <!-- custom: Remove KI#554's owner-only rebuild plus inherited incremental observer insertion.
+	// Any major-civilization city creation changes city-count and production-rank inputs used by surviving foreign target values, so rebuild the coherent snapshot for every eligible observer after creation is stable.
+	// Full reconstruction retains KI#556's known-city membership and KI#557's unique wrapper ownership. See KI#554, KI#556, KI#557 and KI#1038. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	rebuildCities();
 }
 
 
@@ -1677,12 +1662,10 @@ void UWAICache::onTeamLeaderChanged(PlayerTypes eFormerLeader)
 }
 
 
-// <!-- custom: Ordinary destruction invalidates the former owner's source-city geometry; a capital replacement can additionally change every observer's target values.
-// Avoid rebuilding unaffected observer caches for routine non-capital loss. See KI#554. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-void UWAICache::reportCitySetChanged(PlayerTypes eChangedOwner, bool bCapitalChanged)
+// <!-- custom: Remove KI#554's owner-or-capital-only rebuild optimization; any major-civilization city loss changes city-count and production-rank inputs used by surviving foreign target values, so every eligible observer needs one coherent post-destruction snapshot. See KI#554 and KI#1038. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::reportCitySetChanged()
 {
-	if (m_eOwner == eChangedOwner || bCapitalChanged)
-		rebuildCities();
+	rebuildCities();
 }
 
 

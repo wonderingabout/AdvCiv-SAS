@@ -547,8 +547,9 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 	// Barbarian cities are outside this cache. See KI#554. See KI#557. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (kOwner.isMajorCiv())
 	{
+		// <!-- custom: Every eligible observer now performs the same coherent refresh, so the old owner/capital selector arguments are no longer needed. See KI#1038. (GPT-5.6-Sol) -->
 		for (PlayerAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
-			it->AI_citySetChanged(eOwner, bCapital);
+			it->AI_citySetChanged();
 	}
 
 	if (bUpdatePlotGroups)

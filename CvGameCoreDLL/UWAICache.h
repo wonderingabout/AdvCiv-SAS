@@ -152,11 +152,12 @@ public:
 	// <!-- custom: Paid-war obligations end with their war even when full war-history evaluation is unavailable. See KI#562. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void clearWarSponsorship(TeamTypes eEnemy);
 	void reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive = NULL, CLinkList<TradeData> const* pWeGive = NULL);
+	// <!-- custom: Every major-civilization city creation can change surviving foreign target values, so rebuild the eligible observer snapshot rather than incrementally adding only the new wrapper. See KI#554, KI#556, KI#557 and KI#1038. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void reportCityCreated(CvCity& kCity);
 	// <!-- custom: Remove the destroyed city's wrapper before its CvCity storage is freed, then rebuild city-derived cache state only through reportCitySetChanged after deletion and any capital replacement are complete. See KI#547. See KI#550. See KI#554. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void reportCityDestroyed(CvCity const& kCity);
-	// <!-- custom: Rebuild all city-derived state after a city destruction has fully changed the world state. See KI#554. See KI#557. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	void reportCitySetChanged(PlayerTypes eChangedOwner, bool bCapitalChanged);
+	// <!-- custom: Rebuild every eligible observer's city-derived state after destruction has fully changed the world state; non-capital changes also alter surviving target values. See KI#554, KI#557 and KI#1038. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void reportCitySetChanged();
 	/*	Would prefer to pass a CvDeal instance, but no suitable one is available
 		at the call location */
 	void reportSponsoredWar(CLinkList<TradeData> const& kWeReceive, PlayerTypes eSponsor, TeamTypes eTarget);

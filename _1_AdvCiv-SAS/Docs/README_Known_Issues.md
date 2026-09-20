@@ -1151,7 +1151,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1035 - (Provisional Pending AdvCiv-SAS maintenance repair regression) Vassal city loss refreshes master maintenance before deletion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1035)\
 [KI#1036 - (Provisional Pending inherited BtS/K-Mod/AdvC AI valuation defect left incomplete by SAS) Recovered Conscript and Defy-Resolution anger layers count as one citizen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1036)\
 [KI#1037 - (Provisional Pending AdvCiv-SAS Worker AI regression) Productive-feature Phase 0 ignores other affected cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1037)\
-[KI#1038 - (Provisional Pending AdvCiv-SAS UWAI repair regression) Non-capital foreign city changes leave observer target values stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1038)\
+[KI#1038 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI cache defect) Non-capital foreign city changes left observer target values stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1038)\
 [KI#1039 - (Provisional Pending AdvCiv-SAS assault repair regression) Gunship-only cargo can authorize an impossible city invasion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1039)\
 [KI#1040 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv Bombard defect) Undefended cities excluded every legal immediate capturer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1040)\
 [KI#1041 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv trade-rounding defect) An out-of-bounds exact multiple hid the nearest legal value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1041)\
@@ -14423,6 +14423,8 @@ AdvCiv's incremental city-created/destroyed callbacks updated only the changed c
 
 The repair introduces one targeted city-cache reconstruction that rebuilds uniquely indexed city wrappers, reachability counts, deployment geometry, target values, attack ordering and the owner's total asset score without disturbing unrelated persistent UWAI history. Creation invokes it only for the cache whose own city set changed; other observers retain the cheaper incremental update. Destruction still removes the old wrapper before its `CvCity` storage is freed, then a new post-mutation callback rebuilds the former owner's cache only after deletion and any capital replacement are complete. Capital replacement additionally rebuilds observer caches because their surviving target values can change; routine non-capital loss avoids that broader cost. This closes the unsafe timing gap without paying for a whole `UWAICache::update` on every city event.
 
+Update: The repair-side audit found that the owner/capital-only optimization remained too narrow: ordinary foreign city creation or loss changes city-count and production-rank inputs used by every surviving target city's cached value. KI#1038 replaces incremental observer insertion and conditional post-destruction rebuilding with the same coherent city-derived reconstruction for every eligible observer. City events remain far less frequent than UWAI's ordinary per-turn work, while the cache can no longer expose mixed old/new target values between turns.
+
 KI#554 is an inherited AdvCiv practical-2605 incremental-cache regression retained in Base AdvCiv 1.14, not an AdvCiv-SAS regression. A rebuilt Debug-opt DLL completed a Huge Pangaea Normal-speed autoplay through a turn-391 Domination victory. `SASGameRecord_20260901T075637Z_new1.log` records 116 city acquisitions, 166 `CITY_REMOVED` plot-change rows and nine eliminated players, providing substantial coverage of the repaired creation/destruction lifecycle; exact post-capital cache values remain source/lifecycle verified. Found as F231/provisional KI#554 during ChatGPT-5.6-Sol's C019 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
 <a id="ki-555"></a>
@@ -19070,13 +19072,15 @@ Found as F716/provisional KI#1037 during ChatGPT-5.6-Sol's C031-WIP699 current-t
 
 <a id="ki-1038"></a>
 
-## KI#1038 - (Provisional Pending AdvCiv-SAS UWAI repair regression) Non-capital foreign city changes leave observer target values stale
+## KI#1038 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI cache defect) Non-capital foreign city changes left observer target values stale
 
-The KI#554 repair rebuilds an observer's UWAI city cache when its own city set changes or a foreign capital changes. Ordinary foreign non-capital creation/destruction can also change every surviving target city's cached `m_iTargetValue` through owner city counts and production ranks, yet observers only add/remove the changed wrapper and resort using the surviving stale values.
+The KI#554 repair rebuilt an observer's UWAI city cache when its own city set changed or a foreign capital changed. Ordinary foreign non-capital creation/destruction can also change every surviving target city's cached `m_iTargetValue` through owner city counts and production ranks, yet observers only added/removed the changed wrapper and resorted using the surviving stale values.
 
-The inherited invalidation root remains KI#554; practical 6373 made its SAS observer optimization too narrow. Pending recomputing affected surviving target values and resorting, or safely rebuilding eligible observer caches, for both foreign city creation and destruction.
+The repair rebuilds each eligible observer's coherent city-derived snapshot after any major-civilization city creation and after destruction reaches its stable post-deletion/post-capital-replacement state. This refreshes membership, geometry, reachability, target values, ordering and aggregate assets together, preserving KI#556's visibility rules and KI#557's unique wrapper ownership. The inherited invalidation root remains KI#554; practical 6373 made its AdvCiv-SAS observer optimization too narrow.
 
-Found as F717/provisional KI#1038 during ChatGPT-5.6-Sol's C031-WIP707 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The rebuilt Debug-opt DLL completed a Huge Pangaea autoplay through a turn-395 Space Race victory. `SASGameRecord_20260920T175802Z_new1.log` confirms the matching dirty source and records 241 city foundings, 130 acquisitions, 35 razings and 165 city removals, providing substantial coverage of both rebuilt callback paths without an observed regression.
+
+Found as F717/provisional KI#1038 during ChatGPT-5.6-Sol's C031-WIP707 repair-side audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
 <a id="ki-1039"></a>
 
