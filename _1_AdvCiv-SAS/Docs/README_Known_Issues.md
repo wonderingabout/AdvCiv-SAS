@@ -1159,7 +1159,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1043 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS event-value defect) Already revealed resources retained full force-reveal value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1043)\
 [KI#1044 - (Fixed AdvCiv-SAS regression in repair of an inherited original UWAI route-representation defect) Asymmetric land clashes averaged an unavailable distance](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1044)\
 [KI#1045 - (Provisional Pending AdvCiv-SAS Permanent-Alliance repair regression) Transient UWAI state is cleared before target migration](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1045)\
-[KI#1046 - (Provisional Pending AdvCiv-SAS cargo-automation repair regression) Carrier cancellation omits automated air cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1046)\
+[KI#1046 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS cargo-automation defect) Carrier cancellation omitted automated air cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1046)\
 [KI#1047 - (Provisional Pending inherited BtS carrier-automation defect) Carrier Explore mixes head-unit cargo with group-wide automation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1047)\
 [KI#1048 - (Provisional Pending inherited BtS/K-Mod/AdvC amphibious scope defect) One carrier can land another carrier's grouped cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1048)\
 [KI#1049 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv air-rebase defect) Recon was cleared before shared destination capacity was consumed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1049)\
@@ -13425,6 +13425,8 @@ BtS propagates `NO_AUTOMATE` and `ACTIVITY_AWAKE` from a transport group whose a
 
 The repair shares KI#476's carrier-ownership boundary: cargo automation is canceled only for land groups whose every member is carried by the sea group being stopped. A cross-carrier group keeps its shared automation rather than being split destructively or changed through an unrelated carrier. The intended convenience remains unchanged for ordinary exclusive cargo groups. Civ4CE BtS contains the same propagation loop, whereas supplied Vanilla and Warlords sources do not; Base AdvCiv 1.14 and current AdvCiv-SAS inherit it. This is therefore an inherited Firaxis BtS defect rather than an AdvCiv-SAS regression. Found as F154/provisional KI#477 during ChatGPT-5.6-Sol's C015 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
+Update: The repair-side audit found that reusing KI#476's land-only Boarded helper had narrowed BtS's all-cargo cancellation and omitted ordinary exclusive air cargo. KI#1046 generalizes the carrier-ownership helper with an optional domain filter: stopping automation again reaches every exclusively carried cargo domain, while AdvCiv's Boarded cycling explicitly remains land-only.
+
 The repaired DLL compiled successfully, and an autoplay completed normally. The exact two-transport shared-cargo cycling and automation transitions were not reproduced because their manual setup was disproportionate, so KI#476 and KI#477 remain source-verified.
 
 <a id="ki-478"></a>
@@ -19156,11 +19158,13 @@ Found as F724/provisional KI#1045 during ChatGPT-5.6-Sol's C031-WIP752 repair-si
 
 <a id="ki-1046"></a>
 
-## KI#1046 - (Provisional Pending AdvCiv-SAS cargo-automation repair regression) Carrier cancellation omits automated air cargo
+## KI#1046 - (Fixed AdvCiv-SAS regression in repair of an inherited BtS cargo-automation defect) Carrier cancellation omitted automated air cargo
 
-KI#477 reused the land-only KI#476 cargo helper when a transport changes to `NO_AUTOMATE`. That narrows BtS's all-cargo cancellation behavior and leaves ordinary automated air cargo active when its sole carrier's automation stops, even though the cross-transport ownership correction itself is valid.
+KI#477 reused the land-only KI#476 cargo helper when a transport changes to `NO_AUTOMATE`. That narrowed BtS's all-cargo cancellation behavior and left ordinary automated air cargo active when its sole carrier's automation stopped, even though the cross-transport ownership correction itself was valid.
 
-The inherited cross-transport group-scope root remains KI#477; practical 6282 introduced this domain-narrowing SAS repair regression. Pending applying cancellation to deduplicated cargo groups exclusively carried by the current transport group across all supported cargo domains.
+The repair generalizes the exclusive-carrier cargo-group collector with an optional domain filter. Automation cancellation now processes deduplicated groups exclusively carried by the current transport group across all supported cargo domains; AdvCiv's Boarded cycling callers explicitly request land cargo and retain their intended behavior. This removes the land-only narrowing without restoring BtS's cross-carrier group mutation. The inherited cross-transport group-scope root remains KI#477; practical 6282 introduced this domain-narrowing AdvCiv-SAS repair regression.
+
+The repaired Debug-opt DLL compiled successfully. `SASGameRecord_20260920T153218Z_load1.log` identifies the dirty KI#1046 source and records a Huge Pangaea Renaissance-start autoplay from turn 180 through the turn-500 Time victory without an observed regression. The exact carrier-aircraft cancellation transition remains source-verified because constructing and observing that automation state manually would be disproportionate.
 
 Found as F725/provisional KI#1046 during ChatGPT-5.6-Sol's C031-WIP772 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 

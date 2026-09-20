@@ -3965,14 +3965,14 @@ void CvSelectionGroup::setAutomateType(AutomateTypes eNewValue)
 		return;
 
 	// If canceling automation, cancel on cargo as well.
-	// <!-- custom: BtS applied this carrier-local transition to an entire land group after finding only one cargo member aboard this sea group. Preserve a cross-carrier cargo group's shared automation instead of canceling another carrier's cargo.
-	// Only groups exclusively carried by this sea group can receive the group-wide state change. See KI#477. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	std::vector<CvSelectionGroup*> apLandCargoGroups;
-	getExclusiveLandCargoGroups(apLandCargoGroups);
-	for (size_t i = 0; i < apLandCargoGroups.size(); i++)
+	// <!-- custom: Replace BtS/AdvCiv's member-based all-cargo loop: changing an admitted member's whole group also canceled cargo carried by another sea group.
+	// KI#477 first replaced it with the land-only Boarded helper, but that omitted automated aircraft. Apply the ownership proof to every cargo domain while preserving mixed-carrier groups. See KI#477 and KI#1046. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::vector<CvSelectionGroup*> apCargoGroups;
+	getExclusiveCargoGroups(apCargoGroups);
+	for (size_t i = 0; i < apCargoGroups.size(); i++)
 	{
-		apLandCargoGroups[i]->setAutomateType(NO_AUTOMATE);
-		apLandCargoGroups[i]->setActivityType(ACTIVITY_AWAKE);
+		apCargoGroups[i]->setAutomateType(NO_AUTOMATE);
+		apCargoGroups[i]->setActivityType(ACTIVITY_AWAKE);
 	}
 }
 
@@ -4638,8 +4638,9 @@ void CvSelectionGroup::handleBoarded()
 	if(kAt.isWater() && !kAt.isAdjacentToLand())
 		return;
 
+	// <!-- custom: AdvCiv's Boarded arrival/wake convenience is intentionally land-only despite the shared helper also serving all-domain automation cancellation. See KI#476 and KI#1046. (GPT-5.6-Sol) -->
 	std::vector<CvSelectionGroup*> apLandCargoGroups;
-	getExclusiveLandCargoGroups(apLandCargoGroups);
+	getExclusiveCargoGroups(apLandCargoGroups, DOMAIN_LAND);
 	std::vector<CvSelectionGroup*> aAwake;
 	for (size_t i = 0; i < apLandCargoGroups.size(); i++)
 	{
@@ -4677,8 +4678,9 @@ void CvSelectionGroup::resetBoarded()
 	{
 		return;
 	}
+	// <!-- custom: Reset only AdvCiv's land-cargo Boarded state; air cargo participates in KI#1046's automation cancellation, not this cycling convenience. See KI#476 and KI#1046. (GPT-5.6-Sol) -->
 	std::vector<CvSelectionGroup*> apLandCargoGroups;
-	getExclusiveLandCargoGroups(apLandCargoGroups);
+	getExclusiveCargoGroups(apLandCargoGroups, DOMAIN_LAND);
 	for (size_t i = 0; i < apLandCargoGroups.size(); i++)
 	{
 		if(apLandCargoGroups[i]->getActivityType() == ACTIVITY_AWAKE)
@@ -4687,14 +4689,16 @@ void CvSelectionGroup::resetBoarded()
 }
 
 
-// <!-- custom: Cargo aboard different sea groups can legitimately share one land selection group. Boarded, wake and automation states are group-wide, so return a cargo group only when every member is carried by this sea group; changing a mixed group would also change unrelated cargo, while splitting it here would destroy its shared automation and mission queue. See KI#476 and KI#477. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-void CvSelectionGroup::getExclusiveLandCargoGroups(std::vector<CvSelectionGroup*>& kResult)
+// <!-- custom: Cargo aboard different sea groups can legitimately share one selection group.
+// Group-wide state changes therefore require every member to be carried by this sea group; changing a mixed group would also change unrelated cargo, while splitting it here would destroy its shared automation and mission queue.
+// Filter by eDomain only for domain-specific callers such as AdvCiv's land-only Boarded cycling. See KI#476, KI#477 and KI#1046. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvSelectionGroup::getExclusiveCargoGroups(std::vector<CvSelectionGroup*>& kResult, DomainTypes eDomain)
 {
 	// Akin to canCargoAllMove
 	FOR_EACH_UNIT_VAR_IN(pUnit, getPlot())
 	{
 		CvUnit* pTransport = pUnit->getTransportUnit();
-		if (pTransport == NULL || pUnit->getDomainType() != DOMAIN_LAND ||
+		if (pTransport == NULL || (eDomain != NO_DOMAIN && pUnit->getDomainType() != eDomain) ||
 			pTransport->getGroup() != this)
 		{
 			continue;

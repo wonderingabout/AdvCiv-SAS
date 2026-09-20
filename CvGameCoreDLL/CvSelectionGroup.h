@@ -314,8 +314,8 @@ protected:
 	void handleBoarded();
 	bool canDisembark() const;
 	void resetBoarded();
-	// <!-- custom: Carrier-local group-wide state changes must exclude land cargo groups spanning another sea group. See KI#476 and KI#477. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	void getExclusiveLandCargoGroups(std::vector<CvSelectionGroup*>& kResult);
+	// <!-- custom: Carrier-local group-wide state changes must exclude cargo groups spanning another sea group; the optional domain keeps AdvCiv's Boarded cycling land-only while BtS automation cancellation can cover every cargo domain. See KI#476, KI#477 and KI#1046. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void getExclusiveCargoGroups(std::vector<CvSelectionGroup*>& kResult, DomainTypes eDomain = NO_DOMAIN);
 	// </advc.075>
 	bool sentryAlert(/* advc.004l: */ bool bUpdateKnownEnemies = false);
 	// <advc> Was public. Should only be used by Python
