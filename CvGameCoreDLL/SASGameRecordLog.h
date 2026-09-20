@@ -26,7 +26,7 @@ int getSASGameRecordTurnInterval();
 // This is deliberately not a compatibility/schema promise: increment it for every intentional change to SASGameRecord implementation code, relevant bridges/call sites/configuration/checkers, or their code comments, even when emitted semantics are unchanged.
 // Standalone docs/example-log/package refreshes do not require a bump. Keep the matching revision-history entry in the same commit.
 // An anonymous enum keeps this a C++03 compile-time integer without a separate storage/linkage definition. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-enum { SAS_GAME_RECORD_REVISION = 120 };
+enum { SAS_GAME_RECORD_REVISION = 121 };
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
@@ -665,6 +665,9 @@ void logSASGameRecordAIVassalageDecision(CvPlayerAI const& kPlayer, PlayerTypes 
 // <!-- custom: AI_doSplit commits one high-level colony decision whose pre-transfer aggregate area value is lost once splitEmpire moves the cities.
 // Ordinary splitting requires positive value; the only live forced caller is UWAI's last pre-capitulation colony-liberation attempt. Keep deeper AI_splitEmpireValue scoring out of SASGameRecord. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIColonySplitDecision(CvPlayerAI const& kPlayer, CvArea const& kArea, int iAreaValue, bool bForce);
+// <!-- custom: AI_launch commits a rare high-level spaceship timing choice after its native rival-countdown scan.
+// Preserve the realized full-success vs urgent-rival reason and nearest rival deadline before launch mutates team victory state; callers pre-gate at GameRecord level 2 and do not repeat the rival scan. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAISpaceshipLaunchDecision(CvPlayerAI const& kPlayer, VictoryTypes eVictory, int iLaunchSuccessPercent, TeamTypes eNearestRivalTeam, int iNearestRivalCountdown, bool bUrgentRival);
 // <!-- custom: A realized proactive map swap is symmetric in the final package but not in the live decision: preserve both pre-exchange map values and the minimum target-value gate without recomputing AI_mapTradeVal after maps change.
 // Callers pre-gate this realized-only bridge at GameRecord level 2 so disabled logging never enters the serializer; retain only the cheap NO_PLAYER safety before dereferencing the live diplomacy target. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIMapTradeDecision(CvPlayerAI const& kPlayer, PlayerTypes eTarget, int iOurReceiveValue, int iTargetReceiveValue, int iTargetReceiveMinExclusive);

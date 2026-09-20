@@ -11942,6 +11942,22 @@ void logSASGameRecordAIColonySplitDecision(CvPlayerAI const& kPlayer, CvArea con
 		kPlayer.getNumCities(), kPlayer.getTotalPopulation());
 }
 
+// <!-- custom: The factual SPACESHIP_LAUNCHED action preserves the post-launch countdown/components but cannot recover why the AI launched now.
+// Reuse AI_launch's caller-supplied nearest-rival and live success context; no rival/project scan, value calculation or RNG is repeated in the serializer. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAISpaceshipLaunchDecision(CvPlayerAI const& kPlayer, VictoryTypes eVictory, int iLaunchSuccessPercent, TeamTypes eNearestRivalTeam, int iNearestRivalCountdown, bool bUrgentRival)
+{
+	if (eVictory == NO_VICTORY)
+		return;
+	char const* szReason = (iLaunchSuccessPercent >= 100 ? "FULL_SUCCESS" : "RIVAL_DEADLINE");
+	// <!-- custom: A sub-100% launch is only reachable through the native urgent-rival override. (ChatGPT-5.6-Sol) -->
+	FAssert(iLaunchSuccessPercent >= 0 && iLaunchSuccessPercent <= 100);
+	FAssert(iLaunchSuccessPercent >= 100 || bUrgentRival);
+	logSASGameRecord("GAME_RECORD_AI_SPACESHIP_LAUNCH_DECISION turn=%d player=%d team=%d victory=%s reason=%s launchSuccessPercent=%d nearestRivalTeam=%d nearestRivalCountdown=%d rivalAtOrBeforeOurArrival=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), getSASGameRecordVictoryType(eVictory), szReason,
+		iLaunchSuccessPercent, eNearestRivalTeam, iNearestRivalCountdown, bUrgentRival ? 1 : 0);
+}
+
+
 // <!-- custom: MAPS <-> MAPS loses its pre-exchange valuation asymmetry as soon as the deal reveals both maps. Serialize only the already-live proposer/target values and threshold; the generic CONTACT_TRADE_MAP row remains authoritative for delivery/package. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIMapTradeDecision(CvPlayerAI const& kPlayer, PlayerTypes eTarget, int iOurReceiveValue, int iTargetReceiveValue, int iTargetReceiveMinExclusive)
 {

@@ -27238,15 +27238,36 @@ void CvPlayerAI::AI_launch(VictoryTypes eVictory)
 			}*/
 		}
 	}
-	bool bLaunch = true;
-	if (eBestTeam == NO_TEAM ||
-		iBestArrival > GET_TEAM(getTeam()).getVictoryDelay(eVictory))
+	// <!-- custom: Retain the native launch gate's already-live deadline/success values so SASGameRecord can explain a realized launch without repeating project-state scans.
+	// With logging disabled, the urgent-rival path still skips getLaunchSuccessRate exactly as before; the non-urgent path performs the same one success check. (ChatGPT-5.6-Sol) -->
+	int iVictoryDelay = -1;
+	bool bUrgentRival = false;
+	if (eBestTeam != NO_TEAM)
 	{
-		if (GET_TEAM(getTeam()).getLaunchSuccessRate(eVictory) < 100)
+		iVictoryDelay = GET_TEAM(getTeam()).getVictoryDelay(eVictory);
+		bUrgentRival = (iBestArrival <= iVictoryDelay);
+	}
+	int iLaunchSuccessPercent = -1;
+	bool bLaunch = true;
+	if (!bUrgentRival)
+	{
+		iLaunchSuccessPercent = GET_TEAM(getTeam()).getLaunchSuccessRate(eVictory);
+		if (iLaunchSuccessPercent < 100)
 			bLaunch = false;
 	}
 	if (bLaunch)
+	{
+		// <!-- custom: Preserve only the realized high-level launch-timing decision before CvPlayer::launch mutates the team's countdown/canLaunch state.
+		// The existing rival scan already found the nearest active spaceship; do not rescan rivals or decompose deeper space-strategy reasoning for SASGameRecord. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2)
+		{
+			// <!-- custom: Native gameplay deliberately skips this project scan on the urgent-rival override; perform it only when the level-2 row needs to distinguish a genuinely sub-100% launch from an already-safe one. (ChatGPT-5.6-Sol) -->
+			if (iLaunchSuccessPercent < 0)
+				iLaunchSuccessPercent = GET_TEAM(getTeam()).getLaunchSuccessRate(eVictory);
+			logSASGameRecordAISpaceshipLaunchDecision(*this, eVictory, iLaunchSuccessPercent, eBestTeam, eBestTeam == NO_TEAM ? -1 : iBestArrival, bUrgentRival);
+		}
 		launch(eVictory);
+	}
 }
 
 void CvPlayerAI::AI_doCheckFinancialTrouble()

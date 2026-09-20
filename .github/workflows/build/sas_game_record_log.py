@@ -1495,6 +1495,73 @@ def check_ai_colony_split_provenance(repo_root: Path) -> list[str]:
 	return failures
 
 
+def check_ai_spaceship_launch_provenance(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_HEADER, REVISION_SOURCE, PLAYER_AI_SOURCE):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing AI spaceship-launch provenance file: {relative_path}")
+	if failures:
+		return failures
+
+	header_text = (repo_root / REVISION_HEADER).read_text(encoding="utf-8", errors="replace")
+	if "logSASGameRecordAISpaceshipLaunchDecision(" not in header_text:
+		failures.append(f"{REVISION_HEADER}: missing AI spaceship-launch provenance declaration")
+
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"GAME_RECORD_AI_SPACESHIP_LAUNCH_DECISION", "victory=%s", "reason=%s", "launchSuccessPercent=%d",
+		"nearestRivalTeam=%d", "nearestRivalCountdown=%d", "rivalAtOrBeforeOurArrival=%d",
+		'"FULL_SUCCESS"', '"RIVAL_DEADLINE"',
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing AI spaceship-launch diagnostic token {required}")
+	m_record = re.search(r"void logSASGameRecordAISpaceshipLaunchDecision\([^\)]*\)\s*\{(?P<body>.*?)^\}", record_text, flags=re.DOTALL | re.MULTILINE)
+	if m_record is None:
+		failures.append(f"{REVISION_SOURCE}: could not locate AI spaceship-launch provenance definition")
+	else:
+		body = m_record.group("body")
+		if "gGameRecordLogLevel" in body:
+			failures.append(f"{REVISION_SOURCE}: spaceship-launch serializer must rely on caller-side level-2 pre-gating")
+		if "TeamIter<" in body or "getLaunchSuccessRate(" in body or "getVictoryDelay(" in body:
+			failures.append(f"{REVISION_SOURCE}: spaceship-launch serializer must reuse caller-supplied live gate values rather than rescanning rivals/project state")
+		if 'iLaunchSuccessPercent >= 100 ? "FULL_SUCCESS" : "RIVAL_DEADLINE"' not in body:
+			failures.append(f"{REVISION_SOURCE}: spaceship-launch reason must remain classified from the live success percentage")
+
+	player_text = (repo_root / PLAYER_AI_SOURCE).read_text(encoding="utf-8", errors="replace")
+	m_launch = re.search(r"void CvPlayerAI::AI_launch\([^\)]*\)(?P<body>.*?)^\}", player_text, flags=re.DOTALL | re.MULTILINE)
+	if m_launch is None:
+		failures.append(f"{PLAYER_AI_SOURCE}: could not locate AI_launch")
+	else:
+		body = m_launch.group("body")
+		if body.count("logSASGameRecordAISpaceshipLaunchDecision(") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_launch must retain exactly one realized spaceship-launch provenance bridge")
+		if body.count("if (gGameRecordLogLevel >= 2)") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: spaceship-launch provenance must remain caller-pre-gated only at the realized launch boundary")
+		if body.count("TeamIter<CIV_ALIVE,NOT_SAME_TEAM_AS>") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_launch nearest-rival scan count changed")
+		if body.count("getVictoryCountdown(eVictory)") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_launch must retain exactly one live rival countdown read site")
+		if body.count("getVictoryDelay(eVictory)") != 2:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_launch must retain one live victory-delay gate plus the inherited commented-out reference")
+		if body.count("getLaunchSuccessRate(eVictory)") != 3:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_launch must retain the inherited commented-out success reference plus native and level-2 urgent-launch reads")
+		if "if (iLaunchSuccessPercent < 0)" not in body or "if (gGameRecordLogLevel >= 2)" not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: urgent-rival launch success must remain collected only inside the realized level-2 recorder gate")
+		if "bUrgentRival = (iBestArrival <= iVictoryDelay);" not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_launch must retain the native rival-deadline comparison explicitly")
+		if body.count("launch(eVictory);") != 1:
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_launch realized launch call count changed")
+		if "logSASGameRecordAISpaceshipLaunchDecision(*this, eVictory, iLaunchSuccessPercent, eBestTeam, eBestTeam == NO_TEAM ? -1 : iBestArrival, bUrgentRival);" not in body:
+			failures.append(f"{PLAYER_AI_SOURCE}: spaceship-launch provenance must reuse the already-selected success/rival/deadline context and normalize no-rival to -1")
+		log_pos = body.find("logSASGameRecordAISpaceshipLaunchDecision(")
+		launch_pos = body.find("launch(eVictory);")
+		if log_pos < 0 or launch_pos < 0 or log_pos > launch_pos:
+			failures.append(f"{PLAYER_AI_SOURCE}: spaceship-launch decision row must emit before launch mutates victory state")
+		if re.search(r"SyncRand|getSorenRand|MapRand", body):
+			failures.append(f"{PLAYER_AI_SOURCE}: AI_launch should remain RNG-free")
+	return failures
+
+
 def check_ai_religion_spread_target_provenance(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (REVISION_HEADER, REVISION_SOURCE, "CvGameCoreDLL/CvUnitAI.cpp"):
@@ -1971,6 +2038,7 @@ def main() -> int:
 	failures.extend(check_ai_joint_war_request_provenance(args.repo_root))
 	failures.extend(check_ai_vassalage_provenance(args.repo_root))
 	failures.extend(check_ai_colony_split_provenance(args.repo_root))
+	failures.extend(check_ai_spaceship_launch_provenance(args.repo_root))
 	failures.extend(check_ai_religion_spread_target_provenance(args.repo_root))
 	failures.extend(check_ai_map_trade_provenance(args.repo_root))
 	failures.extend(check_unit_completion_sources(args.repo_root))
@@ -1986,7 +2054,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-colony-split/AI-religion-spread-target/AI-map-trade/unit-completion-sources/AI-vassal-resource-tribute/AI-draft/AI-hurry/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-colony-split/AI-spaceship-launch/AI-religion-spread-target/AI-map-trade/unit-completion-sources/AI-vassal-resource-tribute/AI-draft/AI-hurry/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

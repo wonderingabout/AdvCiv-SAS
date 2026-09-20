@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=120 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=121 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -44,10 +44,24 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 120 - SAS practical 6525
+### Revision 121 - SAS practical 6526
 
 - **Date:** 2026-09-20
 - **Git commit:** pending
+- **Change:** Added compact level-2 `GAME_RECORD_AI_SPACESHIP_LAUNCH_DECISION` provenance for realized AI spaceship launch timing.
+
+The row distinguishes launches made after reaching 100% success from the native urgent-rival override that can launch below 100% when the nearest rival spaceship is due at or before our own travel delay.
+
+It preserves the selected victory, live launch-success percentage, nearest rival team/countdown and whether that rival deadline is at or before our arrival threshold immediately before `launch()` mutates the team's victory countdown/can-launch state. The following factual launch row remains authoritative for our exact travel time.
+
+Recording reuses `AI_launch`'s existing nearest-rival scan and retained gate values and performs no extra rival scan, spaceship valuation or synchronized RNG. With logging disabled, the urgent-rival route still skips the launch-success project scan exactly as before.
+
+Level 2 performs that scan only when needed to classify a realized urgent launch. Existing `SPACESHIP_LAUNCHED` remains authoritative for the actual post-launch countdown, arrival turn and component state; deeper spaceship strategy remains BBAI/source-analysis territory.
+
+### Revision 120 - SAS practical 6525
+
+- **Date:** 2026-09-20
+- **Git commit:** `42c5fb7554dfce7d223fc71bd8adef7afb3648de`
 - **Change:** Added compact level-2 `GAME_RECORD_AI_RELIGION_SPREAD_TARGET` provenance for realized/new Missionary religion-spread destinations and Missionary airlift reroutes.
 
 Ordinary land targeting preserves the selected religion/city, target scope/player, already-computed player multiplier, path turns and final target score only when `AI_spreadReligion` assigns a new or different `MISSIONAI_SPREAD` destination. Continuing the same long-lived destination stays silent, and the eventual `RELIGION_SPREAD_ATTEMPT` remains authoritative for the actual spread outcome.
