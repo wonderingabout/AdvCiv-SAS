@@ -1171,7 +1171,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1055 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv war-weariness defect) Dead-owner values froze through elimination](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1055)\
 [KI#1056 - (Fixed AdvCiv-SAS regression in repair of an inherited K-Mod Permanent-Alliance defect) Historical identity migration skipped dead outsiders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1056)\
 [KI#1057 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv Permanent-Alliance defect) Contact and first-contact migration skipped dead outsiders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1057)\
-[KI#1058 - (Provisional Pending AdvCiv-SAS Espionage repair regression) The first generic Spy can block an eligible grouped Spy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1058)\
+[KI#1058 - (Fixed inherited BtS target-identity defect plus an AdvCiv-SAS group-Espionage repair regression) The wrong Spy or unit target could control a mission](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1058)\
 [KI#1059 - (Fixed UI AdvCiv-SAS perspective defect) Info Screen power hover used the real active player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1059)\
 [KI#1060 - (Fixed UI AdvCiv-SAS regression in repair of an inherited AdvCiv replay-visibility defect) Timeline reused another observer's filtered replay](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1060)\
 [KI#1061 - (Provisional Pending inherited AdvC starting-position regression) A preassigned teammate blocks later fallback assignment](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1061)\
@@ -12519,6 +12519,8 @@ Compiled runtime testing formed a two-unit selection by selecting a Musketman be
 
 Found as F076/provisional KI#398 and retained after the final adversarial review in ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
+Update: KI#1058 found that the centralized actor helper still selected only the first generically eligible Spy. The helper, mission/target popups, cost help and executor now resolve the first Spy eligible for the exact mission and target; final execution also rejects stale requests before interception. The inherited Destroy Unit popup also substituted a unit type where the cost API and eventual command require a concrete unit ID; its target buttons now carry the ID consistently through eligibility, cost help and execution.
+
 <a id="ki-399"></a>
 
 ## KI#399 - (Fixed inherited BtS Great General XP defect) Ineligible plot units consumed remainder slots
@@ -19304,13 +19306,15 @@ The same SASGameRecord confirms the matching build and successful Permanent-Alli
 
 <a id="ki-1058"></a>
 
-## KI#1058 - (Provisional Pending AdvCiv-SAS Espionage repair regression) The first generic Spy can block an eligible grouped Spy
+## KI#1058 - (Fixed inherited BtS target-identity defect plus an AdvCiv-SAS group-Espionage repair regression) The wrong Spy or unit target could control a mission
 
-KI#398 now finds a Spy rather than accepting an arbitrary movable group head, but the helper knows neither the selected Espionage mission nor its target. Grouped Spies can differ in stationary discounts and exact affordability, so the first generic Spy can hide a mission that a later selected Spy could perform; execution can also expose that first Spy to interception before final mission-specific rejection and then stop without trying the eligible Spy.
+KI#398 found a Spy rather than accepting an arbitrary movable group head, but the helper knew neither the selected Espionage mission nor its target. Grouped Spies can differ in stationary discounts and exact affordability, so the first generic Spy could hide a mission that a later selected Spy could perform; execution could also expose that first Spy to interception before final mission-specific rejection and then stop without trying the eligible Spy.
 
-The inherited BtS mixed-group actor root remains KI#398; its SAS repair uses a still-too-broad actor population. Pending selecting or aggregating Spies that pass `canDoEspionageMission` for the exact mission/target and validating that eligibility before interception, while preserving one successful Spy action per command.
+The repair extends the centralized selection helper with optional mission and target data. The first popup now finds an eligible Spy independently for each mission; the second popup and cost help do so for each exact target; execution skips all ineligible selected units and locally rejects a stale direct request before any interception roll. Destroy Unit choices also carry the target unit ID consistently instead of substituting its unit type for eligibility and cost calculation. That substitution was inherited from BtS and could resolve an unrelated same-numbered unit ID or fall back to the cheapest eligible plot unit instead of the displayed target. One successful Spy action per group command remains unchanged.
 
-Found as F737/provisional KI#1058 during ChatGPT-5.6-Sol's C031-WIP797 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The rebuilt Debug-opt DLL completed a loaded Huge Pangaea autoplay from turn 0 through a turn-423 Space Race victory. `SASGameRecord_20260920T191539Z_load1.log` confirms the matching dirty Spy-selection source and uninterrupted completion; the specialized two-Spies-with-different-stationary-discounts ordering remains source-verified.
+
+The inherited BtS mixed-group actor root remains KI#398; the wrong target-unit encoding was also inherited from BtS, while the still-too-broad generic Spy population was introduced by the AdvCiv-SAS KI#398 repair. Found as F737/provisional KI#1058 during ChatGPT-5.6-Sol's C031-WIP797 repair-side audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and tested with the help of wonderingabout, thanks.
 
 <a id="ki-1059"></a>
 

@@ -6778,6 +6778,13 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 	else
 	{
 		CvEspionageMissionInfo const& kMission = GC.getInfo(eMission);
+		// <!-- custom: Reject stale or mismatched exact mission/target requests before interception.
+		// Group execution normally preselects an eligible Spy, but this local guard keeps direct callers from exposing an ineligible Spy before doEspionageMission rejects it. See KI#1058. (GPT-5.6-Sol) -->
+		if (!GET_PLAYER(getOwner()).canDoEspionageMission(
+			eMission, eTargetPlayer, plot(), iData, this))
+		{
+			return false;
+		}
 		bool const bLogEspionageMission = (gGameRecordLogLevel >= 2);
 		ImprovementTypes eTargetImprovement = NO_IMPROVEMENT;
 		RouteTypes eTargetRoute = NO_ROUTE;

@@ -1216,8 +1216,12 @@ void CvSelectionGroup::startMission()
 					bAction = true;
 				break;
 			case MISSION_ESPIONAGE:
-				// <!-- custom: A movable non-Spy can precede the Spy that made this group mission legal. Skip ineligible units and retain the one-Spy-per-command exit only after trying an eligible Spy. See KI#398. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-				if (!pUnit->canEspionage(pUnit->plot()))
+				// <!-- custom: A movable non-Spy or a Spy ineligible for this exact target can precede the Spy that made the mission legal.
+				// Skip either one before interception and retain the one-Spy-per-command exit only after trying an eligible Spy. See KI#398. See KI#1058. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (!pUnit->canEspionage(pUnit->plot()) ||
+					((EspionageMissionTypes)iData1 != NO_ESPIONAGEMISSION &&
+					!GET_PLAYER(pUnit->getOwner()).canDoEspionageMission(
+					(EspionageMissionTypes)iData1, pUnit->getPlot().getOwner(), pUnit->plot(), iData2, pUnit)))
 					break;
 				if (pUnit->espionage((EspionageMissionTypes)iData1, iData2))
 					bAction = true;
@@ -4431,12 +4435,15 @@ CvUnit* CvSelectionGroup::getHeadUnit()
 }
 
 
-// <!-- custom: BtS mission availability searches the whole group, but Espionage help and popup stages formerly reacquired only the head unit. Centralize their actor selection on the first currently eligible Spy. See KI#398. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-CvUnit const* CvSelectionGroup::getEspionageUnit() const
+// <!-- custom: BtS mission availability searches the whole group, but Espionage help and popup stages formerly reacquired only the head unit.
+// Centralize actor selection on the first Spy eligible for the exact requested mission/target, while retaining a generic query for opening the mission chooser. See KI#398. See KI#1058. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+CvUnit const* CvSelectionGroup::getEspionageUnit(EspionageMissionTypes eMission, int iData) const
 {
 	FOR_EACH_UNIT_IN(pUnit, *this)
 	{
-		if (pUnit->canEspionage(pUnit->plot()))
+		if (pUnit->canEspionage(pUnit->plot()) &&
+			(eMission == NO_ESPIONAGEMISSION || GET_PLAYER(pUnit->getOwner()).canDoEspionageMission(
+			eMission, pUnit->getPlot().getOwner(), pUnit->plot(), iData, pUnit)))
 			return pUnit;
 	}
 	return NULL;

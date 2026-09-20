@@ -214,8 +214,8 @@ public:
 	CLLNode<IDInfo>* headUnitNode() { return m_units.head(); }
 	CvUnit const* getHeadUnit() const;
 	CvUnit* getHeadUnit();
-	// <!-- custom: Resolve the first selected unit that can currently perform Espionage so mission help and both popup phases use the Spy that makes the group action legal. See KI#398. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	CvUnit const* getEspionageUnit() const;
+	// <!-- custom: Resolve the first selected Spy eligible for the requested mission and target; omitted mission data retains the generic group-action query. See KI#398. See KI#1058. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvUnit const* getEspionageUnit(EspionageMissionTypes eMission = NO_ESPIONAGEMISSION, int iData = -1) const;
 	// </advc.003s>
 	DllExport int getNumUnits() const { return m_units.getLength(); } // Exposed to Python
 	DllExport int getUnitIndex(CvUnit* pUnit, int iMaxIndex = -1) const;

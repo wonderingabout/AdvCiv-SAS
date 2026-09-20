@@ -1940,7 +1940,7 @@ bool CvDLLButtonPopup::launchLeadUnitPopup(CvPopup* pPopup, CvPopupInfo &info)
 
 bool CvDLLButtonPopup::launchDoEspionagePopup(CvPopup* pPopup, CvPopupInfo &info)
 {
-	// <!-- custom: Use the eligible selected Spy rather than the arbitrary selection head throughout the first Espionage popup. See KI#398. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Use an eligible selected Spy rather than the arbitrary selection head, then resolve each listed mission against every selected Spy because their stationary discounts and affordability can differ. See KI#398. See KI#1058. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	CvSelectionGroup const* pSelectionGroup = m_kUI.getSelectionList();
 	CvUnit const* pUnit = (pSelectionGroup == NULL ? NULL : pSelectionGroup->getEspionageUnit());
 	if (pUnit == NULL)
@@ -1956,9 +1956,10 @@ bool CvDLLButtonPopup::launchDoEspionagePopup(CvPopup* pPopup, CvPopupInfo &info
 	for (int i = 0; i < GC.getNumEspionageMissionInfos(); i++)
 	{
 		EspionageMissionTypes eLoopMission = (EspionageMissionTypes)i;
-		if (GC.getInfo(eLoopMission).isPassive() ||
-				!GET_PLAYER(pUnit->getOwner()).canDoEspionageMission(
-				eLoopMission, pPlot->getOwner(), pPlot, -1, pUnit))
+		if (GC.getInfo(eLoopMission).isPassive())
+			continue;
+		CvUnit const* pMissionUnit = pSelectionGroup->getEspionageUnit(eLoopMission);
+		if (pMissionUnit == NULL)
 			continue;
 
 		if (GC.getInfo(eLoopMission).isTwoPhases())
@@ -1971,7 +1972,7 @@ bool CvDLLButtonPopup::launchDoEspionagePopup(CvPopup* pPopup, CvPopupInfo &info
 		else
 		{
 			int iCost = GET_PLAYER(pUnit->getOwner()).getEspionageMissionCost(
-					eLoopMission, pPlot->getOwner(), pPlot, -1, pUnit);
+					eLoopMission, pPlot->getOwner(), pPlot, -1, pMissionUnit);
 			if (iCost > 0)
 			{
 				szBuffer = gDLL->getText("TXT_KET_ESPIONAGE_MISSION_COST",
@@ -1993,7 +1994,7 @@ bool CvDLLButtonPopup::launchDoEspionagePopup(CvPopup* pPopup, CvPopupInfo &info
 
 bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo &info)
 {
-	// <!-- custom: Re-resolve the same first eligible selected Spy for the second Espionage popup instead of losing its identity to the selection head. See KI#398. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Re-resolve selected Spies for the chosen mission and each exact target instead of letting one generic Spy hide targets usable by another. See KI#398. See KI#1058. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	CvSelectionGroup const* pSelectionGroup = m_kUI.getSelectionList();
 	CvUnit const* pSpyUnit = (pSelectionGroup == NULL ? NULL : pSelectionGroup->getEspionageUnit());
 	if (pSpyUnit == NULL)
@@ -2018,14 +2019,14 @@ bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo
 		{
 			for (int iBuilding = 0; iBuilding < GC.getNumBuildingInfos(); ++iBuilding)
 			{
-				if (kPlayer.canDoEspionageMission(
-					eMission, eTargetPlayer, &kPlot, iBuilding, pSpyUnit))
+				CvUnit const* pTargetSpy = pSelectionGroup->getEspionageUnit(eMission, iBuilding);
+				if (pTargetSpy != NULL)
 				{
 					CvBuildingInfo& kBuilding = GC.getInfo((BuildingTypes)iBuilding);
 					if (pCity->getNumRealBuilding((BuildingTypes)iBuilding) > 0)
 					{
 						int iCost = kPlayer.getEspionageMissionCost(
-								eMission, eTargetPlayer, &kPlot, iBuilding, pSpyUnit);
+								eMission, eTargetPlayer, &kPlot, iBuilding, pTargetSpy);
 						CvWString szBuffer = gDLL->getText("TXT_KET_ESPIONAGE_MISSION_COST",
 								kBuilding.getDescription(), iCost);
 						m_kUI.popupAddGenericButton(pPopup, szBuffer, kBuilding.getButton(),
@@ -2041,18 +2042,19 @@ bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo
 		{
 			if (pTargetUnit == NULL)
 				continue;
-			if (kPlayer.canDoEspionageMission(
-				eMission, eTargetPlayer, &kPlot, pTargetUnit->getUnitType(), pSpyUnit) &&
-				pTargetUnit->getTeam() == TEAMID(eTargetPlayer))
+			if (pTargetUnit->getTeam() != TEAMID(eTargetPlayer))
+				continue;
+			CvUnit const* pTargetSpy = pSelectionGroup->getEspionageUnit(eMission, pTargetUnit->getID());
+			if (pTargetSpy != NULL)
 			{
 				int iCost = kPlayer.getEspionageMissionCost(eMission, eTargetPlayer,
-							&kPlot, pTargetUnit->getUnitType(), pSpyUnit);
+							&kPlot, pTargetUnit->getID(), pTargetSpy);
 					CvWString szBuffer = gDLL->getText("TXT_KET_ESPIONAGE_MISSION_COST",
 							pTargetUnit->getUnitInfo().getDescription(), iCost);
-					m_kUI.popupAddGenericButton(pPopup, szBuffer,
-							pTargetUnit->getButton(), pTargetUnit->getID(),
-							WIDGET_HELP_ESPIONAGE_COST, eMission,
-							pTargetUnit->getUnitType());
+				m_kUI.popupAddGenericButton(pPopup, szBuffer,
+						pTargetUnit->getButton(), pTargetUnit->getID(),
+						WIDGET_HELP_ESPIONAGE_COST, eMission,
+						pTargetUnit->getID());
 			}
 		}
 	}
@@ -2060,13 +2062,13 @@ bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo
 	{
 		FOR_EACH_ENUM(Project)
 		{
-			if (kPlayer.canDoEspionageMission(
-				eMission, eTargetPlayer, &kPlot, eLoopProject, pSpyUnit) &&
+			CvUnit const* pTargetSpy = pSelectionGroup->getEspionageUnit(eMission, eLoopProject);
+			if (pTargetSpy != NULL &&
 				GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).getProjectCount(
 				eLoopProject) > 0)
 			{
 				int iCost = kPlayer.getEspionageMissionCost(
-						eMission, eTargetPlayer, &kPlot, eLoopProject, pSpyUnit);
+						eMission, eTargetPlayer, &kPlot, eLoopProject, pTargetSpy);
 				CvWString szBuffer = gDLL->getText("TXT_KET_ESPIONAGE_MISSION_COST",
 						GC.getInfo(eLoopProject).getDescription(), iCost);
 				m_kUI.popupAddGenericButton(pPopup, szBuffer,
@@ -2079,11 +2081,11 @@ bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo
 	{
 		FOR_EACH_ENUM(Tech)
 		{
-			if (kPlayer.canDoEspionageMission(
-				eMission, eTargetPlayer, &kPlot, eLoopTech, pSpyUnit))
+			CvUnit const* pTargetSpy = pSelectionGroup->getEspionageUnit(eMission, eLoopTech);
+			if (pTargetSpy != NULL)
 			{
 				int iCost = kPlayer.getEspionageMissionCost(
-						eMission, eTargetPlayer, &kPlot, eLoopTech, pSpyUnit);
+						eMission, eTargetPlayer, &kPlot, eLoopTech, pTargetSpy);
 				CvTechInfo& kTech = GC.getInfo(eLoopTech);
 				CvWString szBuffer = gDLL->getText("TXT_KET_ESPIONAGE_MISSION_COST",
 						kTech.getDescription(), iCost);
@@ -2096,11 +2098,11 @@ bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo
 	{
 		FOR_EACH_ENUM(Civic)
 		{
-			if (kPlayer.canDoEspionageMission(
-				eMission, eTargetPlayer, &kPlot, eLoopCivic, pSpyUnit))
+			CvUnit const* pTargetSpy = pSelectionGroup->getEspionageUnit(eMission, eLoopCivic);
+			if (pTargetSpy != NULL)
 			{
 				int iCost = kPlayer.getEspionageMissionCost(
-						eMission, eTargetPlayer, &kPlot, eLoopCivic, pSpyUnit);
+						eMission, eTargetPlayer, &kPlot, eLoopCivic, pTargetSpy);
 				CvCivicInfo& kCivic = GC.getInfo(eLoopCivic);
 				CvWString szBuffer = gDLL->getText("TXT_KET_ESPIONAGE_MISSION_COST",
 						kCivic.getDescription(), iCost);
@@ -2113,11 +2115,11 @@ bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo
 	{
 		FOR_EACH_ENUM(Religion)
 		{
-			if (kPlayer.canDoEspionageMission(
-				eMission, eTargetPlayer, &kPlot, eLoopReligion, pSpyUnit))
+			CvUnit const* pTargetSpy = pSelectionGroup->getEspionageUnit(eMission, eLoopReligion);
+			if (pTargetSpy != NULL)
 			{
 				int iCost = kPlayer.getEspionageMissionCost(
-						eMission, eTargetPlayer, &kPlot, eLoopReligion, pSpyUnit);
+						eMission, eTargetPlayer, &kPlot, eLoopReligion, pTargetSpy);
 				CvReligionInfo& kReligion = GC.getInfo(eLoopReligion);
 				CvWString szBuffer = gDLL->getText("TXT_KET_ESPIONAGE_MISSION_COST",
 						kReligion.getDescription(), iCost);

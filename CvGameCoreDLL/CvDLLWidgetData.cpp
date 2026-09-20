@@ -5343,9 +5343,10 @@ void CvDLLWidgetData::parseTradeRouteCityHelp(CvWidgetDataStruct &widgetDataStru
 
 void CvDLLWidgetData::parseEspionageCostHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
-	// <!-- custom: Espionage popup cost help must use the same eligible selected Spy as the executor and both popup builders; the selection head can be a non-Spy. See KI#398. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Espionage popup cost help must use a selected Spy eligible for this exact mission/target; a generic first Spy can be unaffordable despite a later Spy's stationary discount. See KI#398. See KI#1058. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	CvSelectionGroup const* pSelectionGroup = gDLL->UI().getSelectionList();
-	CvUnit const* pUnit = (pSelectionGroup == NULL ? NULL : pSelectionGroup->getEspionageUnit());
+	CvUnit const* pUnit = (pSelectionGroup == NULL ? NULL : pSelectionGroup->getEspionageUnit(
+			(EspionageMissionTypes)widgetDataStruct.m_iData1, widgetDataStruct.m_iData2));
 	if (pUnit != NULL)
 	{
 		CvPlot* pPlot = pUnit->plot();
