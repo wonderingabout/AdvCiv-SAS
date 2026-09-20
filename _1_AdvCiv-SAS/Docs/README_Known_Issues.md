@@ -1079,8 +1079,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#963 - (Provisional Pending inherited AdvCiv forecast-state defect) Post-conquest forecasts retain pre-loss city topology](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-963)\
 [KI#964 - (Provisional Pending inherited AdvCiv comparison-scope defect) One evaluated war changes unrelated wars' armament](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-964)\
 [KI#965 - (Provisional Pending inherited AdvCiv Barbarian-context regression) Shelf spawns test water instead of their parent continent](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-965)\
-[KI#966 - (Provisional Pending inherited AdvCiv/UWAI side-identity defect) Tactical-Nuke mix follows the defender](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-966)\
-[KI#967 - (Provisional Pending inherited AdvCiv/UWAI simulation-state defect) Conventionally eliminated enemies still exchange nukes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-967)\
+[KI#966 - (Fixed inherited AdvCiv/UWAI side-identity defect) Tactical-Nuke mix followed the defender](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-966)\
+[KI#967 - (Fixed inherited AdvCiv/UWAI simulation-state defect) Conventionally eliminated enemies still exchanged nukes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-967)\
 [KI#968 - (Provisional Pending inherited AdvCiv knowledge-polarity regression) Tech-gated typical units are automatically known](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-968)\
 [KI#969 - (Provisional Pending inherited BtS/K-Mod/AdvC lifetime defect) Recycled player slots inherit extinct statistics](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-969)\
 [KI#970 - (Provisional Pending inherited BtS statistics defect) Eliminated human teammates are recorded as winners](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-970)\
@@ -18392,19 +18392,23 @@ Found during ChatGPT-5.6-Sol's C031-WIP477 `CvArea.cpp` audit and confirmed thro
 
 <a id="ki-966"></a>
 
-## KI#966 - (Provisional Pending inherited AdvCiv/UWAI side-identity defect) Tactical-Nuke mix follows the defender
+## KI#966 - (Fixed inherited AdvCiv/UWAI side-identity defect) Tactical-Nuke mix followed the defender
 
-Album F644 finds `MilitaryAnalyst` deriving both target-side interception and incoming Tactical-Nuke share from the defending team. The weapon mix belongs to the firing side; when attacker and defender differ in human/AI status at 50% interception, victim identity alone can shift modeled hit probability from about 58.33% to 62.5%. Pending passing attacker and defender teams separately.
+Album F644 finds `MilitaryAnalyst` deriving both target-side interception and incoming Tactical-Nuke share from the defending team. The weapon mix belongs to the firing side; when attacker and defender differ in human/AI status at 50% interception, victim identity alone can shift modeled hit probability from about 58.33% to 62.5%.
 
-Found during ChatGPT-5.6-Sol's C031-WIP480 `MilitaryAnalyst.cpp` audit and reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The repair passes both teams explicitly: defender and its master continue to supply interception, while attacker identity supplies the existing human/AI Tactical-Nuke ratio. The two directions of an exchange now use opposite attacker/defender orientations without changing the inherited ratio, evasion or interception policy.
+
+`SASGameRecord_20260920T144708Z_new1.log` independently confirms that the matching Debug-opt DLL and dirty KI#966-KI#967 source completed a Huge Pangaea Future Era autoplay from turn 400 through the turn-500 Time victory without a crash. The exact asymmetric human/AI interception fixtures remain source-verified. Found during ChatGPT-5.6-Sol's C031-WIP480 `MilitaryAnalyst.cpp` audit; implemented and reviewed with the help of GPT-5.6-Sol and tested with the help of wonderingabout, thanks.
 
 <a id="ki-967"></a>
 
-## KI#967 - (Provisional Pending inherited AdvCiv/UWAI simulation-state defect) Conventionally eliminated enemies still exchange nukes
+## KI#967 - (Fixed inherited AdvCiv/UWAI simulation-state defect) Conventionally eliminated enemies still exchanged nukes
 
-Album F645 finds nuclear simulation running after conventional results but continuing to use real pre-simulation enemy existence, cities and cached nukes. An enemy eliminated by the InvasionGraph can therefore still fire its nuclear arsenal, receive nukes against its former city count and dilute allocation away from surviving enemies. Pending filtering nuclear participants and target denominators through the already-materialized graph result.
+Album F645 finds nuclear simulation running after conventional results but continuing to use real pre-simulation enemy existence, cities and cached nukes. An enemy eliminated by the InvasionGraph can therefore still fire its nuclear arsenal, receive nukes against its former city count and dilute allocation away from surviving enemies.
 
-Found during ChatGPT-5.6-Sol's C031-WIP481 `MilitaryAnalyst.cpp` audit and confirmed through the C031-WIP482 closure; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The repair derives each player's remaining simulated city count from current cities minus graph-predicted losses. It uses that state for the agent early exit, enemy participation, both target denominators and both city-based firing caps. Eliminated players therefore leave the later exchange entirely, while partial conventional losses proportionally reduce the inherited nuclear caps without mutating live game state.
+
+The same SASGameRecord independently confirms the matching Debug-opt build and successful turn-400-to-500 Future Era autoplay; the exact post-conventional elimination and partial-loss boundaries remain source-verified. Found during ChatGPT-5.6-Sol's C031-WIP481 `MilitaryAnalyst.cpp` audit and confirmed through the C031-WIP482 closure; implemented and reviewed with the help of GPT-5.6-Sol and tested with the help of wonderingabout, thanks.
 
 <a id="ki-968"></a>
 

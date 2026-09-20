@@ -166,6 +166,8 @@ private:
 	bool doWePlanToDeclWar(PlayerTypes ePlayer) const;
 	void prepareResults();
 	void simulateNuclearWar();
+	// <!-- custom: Use the conventional forecast's remaining city count when deciding which players can participate in the later nuclear simulation. See KI#967. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int simulatedRemainingCities(PlayerTypes ePlayer) const;
 	/*  Also checks vassal agreements, including other vassals of
 		the same master. */
 	bool isDefactoDefensivePact(TeamTypes eFirst, TeamTypes eSecond) const;

@@ -17,15 +17,16 @@ PlyrSet MilitaryAnalyst::m_emptyPlayerSet;
 
 namespace
 {
-	scaled nukeChanceToHit(TeamTypes eTeam)
+	// <!-- custom: Interception belongs to the defending team, while the assumed Tactical-Nuke share belongs to the firing team. See KI#966. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled nukeChanceToHit(TeamTypes eAttacker, TeamTypes eDefender)
 	{
 		scaled const rInterceptionProb = per100(std::max(
-				GET_TEAM(eTeam).getNukeInterception(),
+				GET_TEAM(eDefender).getNukeInterception(),
 				// advc.143b:
-				GET_TEAM(GET_TEAM(eTeam).getMasterTeam()).getNukeInterception()));
+				GET_TEAM(GET_TEAM(eDefender).getMasterTeam()).getNukeInterception()));
 		scaled const rEvasionProb = fixp(0.5); // Fixme: Shouldn't hardcode this
 		// Percentage of Tactical Nukes
-		scaled rTactRatio = (GET_TEAM(eTeam).isHuman() ? fixp(0.5) : fixp(1/3.));
+		scaled rTactRatio = (GET_TEAM(eAttacker).isHuman() ? fixp(0.5) : fixp(1/3.));
 		scaled rHitProb = 1 - (rInterceptionProb *
 				((1 - rTactRatio) + rTactRatio * (1 - rEvasionProb)));
 		rHitProb.clamp(0, 1);
@@ -311,7 +312,8 @@ void MilitaryAnalyst::simulateNuclearWar()
 	// Only simulates nukes fired by or on us
 	PlayerTypes const eWe = m_eWe; // abbreviate
 	CvPlayerAI const& kWe = GET_PLAYER(eWe);
-	if (isEliminated(eWe) || kWe.getNumCities() <= 0)
+	// <!-- custom: Conventional simulation runs first; use its remaining-city state throughout the later nuclear exchange so eliminated players cannot fire, receive or dilute nukes. See KI#967. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (simulatedRemainingCities(eWe) <= 0)
 		return; // Who cares then
 	CvTeamAI const& kAgent = GET_TEAM(eWe);
 	UWAICache const& kOurCache = kWe.uwai().getCache();
@@ -321,13 +323,13 @@ void MilitaryAnalyst::simulateNuclearWar()
 	scaled rOurTargets;
 	for (PlayerIter<MAJOR_CIV> itEnemy; itEnemy.hasNext(); ++itEnemy)
 	{
-		if (isWar(eWe, itEnemy->getID()))
+		if (isWar(eWe, itEnemy->getID()) && simulatedRemainingCities(itEnemy->getID()) > 0)
 			rOurTargets += (itEnemy->isAVassal() ? fixp(0.5) : 1);
 	}
 	for (PlayerAIIter<MAJOR_CIV> itEnemy; itEnemy.hasNext(); ++itEnemy)
 	{
 		CvPlayerAI const& kEnemy = *itEnemy;
-		if (!isWar(eWe, kEnemy.getID()))
+		if (!isWar(eWe, kEnemy.getID()) || simulatedRemainingCities(kEnemy.getID()) <= 0)
 			continue;
 		int iEnemyNukes = kEnemy.uwai().getCache().
 				getPowerValues()[NUCLEAR]->numUnits();
@@ -359,14 +361,17 @@ void MilitaryAnalyst::simulateNuclearWar()
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
 			CvPlayer const& kEnemyOfEnemy = *it;
-			if (isWar(kEnemyOfEnemy.getID(), kEnemy.getID()))
+			if (isWar(kEnemyOfEnemy.getID(), kEnemy.getID()) &&
+				simulatedRemainingCities(kEnemyOfEnemy.getID()) > 0)
+			{
 				rEnemyTargets += (kEnemyOfEnemy.isAVassal() ? fixp(0.5) : 1);
+			}
 		}
 		scaled rFiredOnUs = rPortionFired * rOurVassalMult * rEnemyVassalMult *
 				/*  sqrt for pessimism - we may get hit worse than the
 					average target, and that worries us. */
 				(iEnemyNukes / rEnemyTargets.sqrt());
-		rFiredOnUs.decreaseTo(fixp(1.5) * kWe.getNumCities());
+		rFiredOnUs.decreaseTo(fixp(1.5) * simulatedRemainingCities(eWe));
 		scaled rFiredByUs;
 		if (rOurTargets > 0)
 		{
@@ -374,9 +379,9 @@ void MilitaryAnalyst::simulateNuclearWar()
 					(kWe.AI_isDoStrategy(AI_STRATEGY_OWABWNW) ? fixp(1.1) : fixp(0.9)) /
 					rOurTargets;
 		}
-		rFiredByUs.decreaseTo(fixp(1.5) * kEnemy.getNumCities());
-		scaled rHittingUs = rFiredOnUs * nukeChanceToHit(kAgent.getID());
-		scaled rHittingEnemy = rFiredByUs * nukeChanceToHit(kEnemy.getTeam());
+		rFiredByUs.decreaseTo(fixp(1.5) * simulatedRemainingCities(kEnemy.getID()));
+		scaled rHittingUs = rFiredOnUs * nukeChanceToHit(kEnemy.getTeam(), kAgent.getID());
+		scaled rHittingEnemy = rFiredByUs * nukeChanceToHit(kAgent.getID(), kEnemy.getTeam());
 		// Make sure not to allocate PlayerResult unnecessarily
 		if (rHittingUs > 0)
 		{
@@ -393,6 +398,14 @@ void MilitaryAnalyst::simulateNuclearWar()
 		if (rFiredOnUs > 0)
 			playerResult(kEnemy.getID()).addNukesFired(rFiredOnUs);
 	}
+}
+
+
+// <!-- custom: Nuclear exchange follows conventional simulation, so real city counts include cities already predicted lost.
+// Keep this analysis local and use the graph result instead. See KI#967. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int MilitaryAnalyst::simulatedRemainingCities(PlayerTypes ePlayer) const
+{
+	return std::max(0, GET_PLAYER(ePlayer).getNumCities() - (int)lostCities(ePlayer).size());
 }
 
 
