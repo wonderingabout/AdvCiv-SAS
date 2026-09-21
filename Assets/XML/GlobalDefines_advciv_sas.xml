@@ -103,7 +103,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_UI_FONT_TITLE</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
-	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc); Long_Comments_XML.txt #106. Keep in [1..4]. (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
+	<!-- custom: shared UI hover/tooltip font size for widget hover help text (e.g., building info, city name popup, specialist/culture breakdown hover); Long_Comments_XML.txt #106. Keep in [1..4]. (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
 	<Define>
 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>

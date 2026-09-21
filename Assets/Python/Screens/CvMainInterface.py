@@ -5782,8 +5782,12 @@ class CvMainInterface:
 				szProgress = formatExactHundredths(iCultureProgressTimes100)
 				# <!-- custom: The Culture modifier above applies only to the upper-row base sources.
 				# Placing both post-modifier additions on this roomier lower row mirrors the native formula and keeps the legend stable: Build Culture is added afterward, while No Espionage transfers an already-calculated Espionage rate without applying the Culture modifier again. See KI#1063. (GPT-5.6-Sol) -->
-				szPostModifierSources = u"+%s%s +%s%s = " % (formatExactHundredths(iProcessCultureTimes100), self.szProductionIcon, formatExactHundredths(iEspionageTransferTimes100), self.szEspionageIcon)
-				szRow2 = sasFontTagLabel + u"%s%s%s: %s/%d %s" % (szPostModifierSources, szRate, self.szCultureIcon, szProgress, iCultureThreshold, szTurns) + SAS_FONT_TAG_CLOSE
+				# <!-- custom: When label text is upscaled above its base font size 3 at widths below the usual 2560px of 1440p, remove only spacing/punctuation from this longer row; retain every value, and keep the complete named breakdown in the combined hover. (GPT-5.6-Sol) -->
+				if xResolution < 2560 and getSASUIFontLabel() > 3:
+					szRow2 = sasFontTagLabel + u"%s%s%s%s|%s%s:%s/%d%s" % (formatExactHundredths(iProcessCultureTimes100), self.szProductionIcon, formatExactHundredths(iEspionageTransferTimes100), self.szEspionageIcon, szRate, self.szCultureIcon, szProgress, iCultureThreshold, szTurns) + SAS_FONT_TAG_CLOSE
+				else:
+					szPostModifierSources = u"+%s%s +%s%s = " % (formatExactHundredths(iProcessCultureTimes100), self.szProductionIcon, formatExactHundredths(iEspionageTransferTimes100), self.szEspionageIcon)
+					szRow2 = sasFontTagLabel + u"%s%s%s: %s/%d %s" % (szPostModifierSources, szRate, self.szCultureIcon, szProgress, iCultureThreshold, szTurns) + SAS_FONT_TAG_CLOSE
 				# <!-- custom: Name every compact Culture glyph in a live hover, reuse those glyphs for direct visual matching, and preserve the native calculation order: base sources, Culture modifier, then Build Culture and No Espionage's transferred Espionage. See KI#1063. (GPT-5.6-Sol) -->
 				szCultureHoverTitle = localText.changeTextColor(u"Culture breakdown", self.colorYellow)
 				szCultureHoverModifier = localText.changeTextColor(u"%+d%%" % iModPercent, self.colorGreen)
