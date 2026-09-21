@@ -69,6 +69,35 @@ def check_revision(repo_root: Path) -> list[str]:
 		failures.append(f"{REVISION_SOURCE}: missing emitted recordRevision SOURCE_CONTEXT field tied to SAS_GAME_RECORD_REVISION")
 	return failures
 
+
+def check_context_consumer_contracts(repo_root: Path) -> list[str]:
+	failures = []
+	if not (repo_root / REVISION_SOURCE).is_file():
+		return [f"missing SASGameRecord context-contract file: {REVISION_SOURCE}"]
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+
+	# <!-- custom: Keep the compact support-context topology stable for downstream parsers without claiming that Windows' primary adapter proves the exact Direct3D device selected by Civ4. (ChatGPT-5.6-Sol) -->
+	display_fields = "gpuAdapterCount=%d gpuDesktopAdapterCount=%d gpuVendorFamilyCount=%d gpuPrimaryVendor=%s gpuVendors=%s"
+	if display_fields not in record_text:
+		failures.append(f"{REVISION_SOURCE}: GAME_RECORD_DISPLAY_CONTEXT missing multi-GPU topology fields")
+	display_placeholders = "gpuAdapterCount=-1 gpuDesktopAdapterCount=-1 gpuVendorFamilyCount=-1 gpuPrimaryVendor=- gpuVendors=-"
+	if display_placeholders not in record_text:
+		failures.append(f"{REVISION_SOURCE}: disabled/lower-level GAME_RECORD_DISPLAY_CONTEXT placeholders changed")
+	for required in ("getSASGameRecordDisplayAdapterContext", "DISPLAY_DEVICE_MIRRORING_DRIVER", "DISPLAY_DEVICE_ATTACHED_TO_DESKTOP", "DISPLAY_DEVICE_PRIMARY_DEVICE"):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: display-adapter context missing {required}")
+
+	# <!-- custom: Structured text-map rows are independently grep/parser friendly; raw |...| drawing rows intentionally remain undecorated. (ChatGPT-5.6-Sol) -->
+	if record_text.count('GAME_RECORD_MAP_ASCII_LEGEND turn=%d') != 6:
+		failures.append(f"{REVISION_SOURCE}: expected turn on all 6 structured text-map legend rows")
+	if record_text.count('GAME_RECORD_MAP_ASCII_LAYER_BEGIN turn=%d') != 1:
+		failures.append(f"{REVISION_SOURCE}: expected turn on structured text-map layer-begin row")
+	if record_text.count('GAME_RECORD_MAP_ASCII_LAYER_END turn=%d') != 2:
+		failures.append(f"{REVISION_SOURCE}: expected turn on both structured text-map layer-end formats")
+	if 'GAME_RECORD_MAP_ASCII_CONFIG_ERROR turn=%d' not in record_text:
+		failures.append(f"{REVISION_SOURCE}: text-map config-error row must remain self-locating with turn")
+	return failures
+
 def check_ai_strategy_diagnostics(repo_root: Path) -> list[str]:
 	failures = []
 	for relative_path in (AI_STRATEGIES_HEADER, GAME_CORE_UTILS_SOURCE, REVISION_SOURCE):
@@ -2020,6 +2049,7 @@ def main() -> int:
 	defines = read_global_define_ints(args.repo_root)
 	failures = require_int_values(defines, EXPECTED_GAME_RECORD_DEFAULTS)
 	failures.extend(check_revision(args.repo_root))
+	failures.extend(check_context_consumer_contracts(args.repo_root))
 	failures.extend(check_ai_strategy_diagnostics(args.repo_root))
 	failures.extend(check_area_ai_diagnostics(args.repo_root))
 	failures.extend(check_ai_target_city_provenance(args.repo_root))
@@ -2054,7 +2084,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-colony-split/AI-spaceship-launch/AI-religion-spread-target/AI-map-trade/unit-completion-sources/AI-vassal-resource-tribute/AI-draft/AI-hurry/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/context-consumer-contracts/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-colony-split/AI-spaceship-launch/AI-religion-spread-target/AI-map-trade/unit-completion-sources/AI-vassal-resource-tribute/AI-draft/AI-hurry/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

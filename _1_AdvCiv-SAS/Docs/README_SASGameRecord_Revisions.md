@@ -27,10 +27,18 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=121 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=122 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
+
+## Consumer/parser notes
+
+- **Runtime rows are the dynamic game record, not an exhaustive static schema manifest.** The build's exact revision/source identity and `GAME_RECORD_LOG_SETTINGS` tell a consumer which implementation/settings produced the file; loaded-XML/rules rows preserve runtime-dependent mappings. An exhaustive per-run list of every row type the source *could* emit would repeat gameplay-independent implementation metadata and still require maintenance for conditional/dynamic `GAME_RECORD_ACTION type=...` families. Keep such schema/consumer guidance in source/docs/checkers rather than enlarging every record with a static manifest unless a concrete downstream consumer later proves that worthwhile.
+- **Object IDs are namespace-local unless a row explicitly says otherwise.** In particular, Civ4 `cityId` and `unitId` values are player-local; trace them as `(player, cityId)` and `(player, unitId)`, not as globally unique integers. Team/player slot IDs remain their ordinary game slot identities.
+- **Missing-value interpretation is field-specific.** `-` is the common textual/not-applicable token, while numeric `-1` is also used by native Civ4 `NO_*` IDs and by some unavailable numeric fields. Do not globally rewrite every `-1` as null; parse the documented field meaning/context.
+- **Text-map body rows deliberately remain raw pipe-framed art.** Structured `BEGIN`, `LEGEND`, `LAYER_BEGIN`, `LAYER_END`, and `END` framing rows carry the parseable metadata; revision 122 makes every structured legend/layer frame self-locating by repeating `turn`, while the fixed-width `|...|` drawing rows remain undecorated.
+- **Detailed AI-intent coverage follows AdvCiv-SAS-supported gameplay rather than every inherited compatibility mode.** War-plan causal provenance targets foreground UWAI. `GAME_RECORD_WAR_AI_SETTINGS` still identifies inherited K-Mod/Legacy configurations and factual `WAR_PLAN_CHANGED` history remains available, but SASGameRecord does not promise equivalent deep causal provenance for intentionally unsupported Legacy war/peace planning. Deeper rejected-candidate/value decomposition remains BBAI/source-investigation territory.
 
 ## Reconstruction method
 
@@ -44,10 +52,24 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
+### Revision 122 - SAS practical 6551
+
+- **Date:** 2026-09-21
+- **Git commit:** pending
+- **Change:** Bundled small SASGameRecord consumer/reproducibility improvements after the broad AI-intent sweep reached saturation: richer opt-in multi-GPU display topology, self-locating structured text-map frames, and explicit supported-scope/parser guidance.
+
+Level-3 `GAME_RECORD_DISPLAY_CONTEXT` now preserves the number of non-mirroring Windows display adapters, desktop-attached-adapter count, recognized vendor-family count, Windows-primary adapter vendor and the existing deduplicated vendor-family list.
+
+This makes hybrid/multi-GPU support cases such as Intel + NVIDIA laptops distinguishable and can help explain graphics/performance anomalies when multiple adapters or drivers coexist (for example a less-suitable or problematic adapter being selected), without recording GPU model names or claiming that the Windows-primary adapter is necessarily the exact Direct3D adapter Civ4 selected. Levels 0-2 retain stable placeholder fields and pay no adapter enumeration.
+
+Structured `GAME_RECORD_MAP_ASCII_LEGEND`, `GAME_RECORD_MAP_ASCII_LAYER_BEGIN`, `GAME_RECORD_MAP_ASCII_LAYER_END` and map-config-error rows now repeat `turn`, matching the existing map-block begin/end chronology and making grep/parser slices self-locating without decorating or widening the raw fixed-width `|...|` drawing rows.
+
+Consumer notes document player-local city/unit ID namespaces, field-specific `-`/`-1` semantics, the choice to keep static schema guidance in docs/source rather than emit an exhaustive runtime manifest, and the deliberate scope boundary that full causal war-plan provenance follows supported foreground UWAI rather than inherited K-Mod/Legacy compatibility modes. No gameplay, synchronized RNG, pathfinding or AI valuation is changed.
+
 ### Revision 121 - SAS practical 6526
 
 - **Date:** 2026-09-20
-- **Git commit:** pending
+- **Git commit:** `873f0e52db90c8a59576dc4331826646b201d587`
 - **Change:** Added compact level-2 `GAME_RECORD_AI_SPACESHIP_LAUNCH_DECISION` provenance for realized AI spaceship launch timing.
 
 The row distinguishes launches made after reaching 100% success from the native urgent-rival override that can launch below 100% when the nearest rival spaceship is due at or before our own travel delay.

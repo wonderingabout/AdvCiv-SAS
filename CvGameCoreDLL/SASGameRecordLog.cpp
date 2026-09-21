@@ -1472,9 +1472,19 @@ static char const* classifySASGameRecordDisplayVendor(DISPLAY_DEVICEA const& kDe
 	return NULL;
 }
 
-static CvString getSASGameRecordDisplayVendors()
+struct SASGameRecordDisplayAdapterContext
 {
+	SASGameRecordDisplayAdapterContext() : iAdapters(0), iDesktopAdapters(0), iVendorFamilies(0), szPrimaryVendor("UNKNOWN") {}
+	int iAdapters;
+	int iDesktopAdapters;
+	int iVendorFamilies;
+	CvString szPrimaryVendor;
 	CvString szVendors;
+};
+
+static SASGameRecordDisplayAdapterContext getSASGameRecordDisplayAdapterContext()
+{
+	SASGameRecordDisplayAdapterContext kContext;
 	for (DWORD iDevice = 0; ; iDevice++)
 	{
 		DISPLAY_DEVICEA kDevice;
@@ -1482,16 +1492,27 @@ static CvString getSASGameRecordDisplayVendors()
 		kDevice.cb = sizeof(kDevice);
 		if (!EnumDisplayDevicesA(NULL, iDevice, &kDevice, 0))
 			break;
+		// <!-- custom: EnumDisplayDevices(NULL, ...) enumerates display adapters rather than monitor children.
+		// Ignore mirror-only pseudo-adapters, but retain inactive hardware so hybrid/multi-GPU laptops remain visible in support records.
+		// Multiple adapters/vendors can help explain graphics/performance anomalies from driver or device selection (e.g. a less-suitable GPU being used), while this topology remains support context and does not prove which Direct3D adapter Civ4 selected. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+		if ((kDevice.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER) != 0)
+			continue;
+		kContext.iAdapters++;
+		if ((kDevice.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP) != 0)
+			kContext.iDesktopAdapters++;
 		char const* const szVendor = classifySASGameRecordDisplayVendor(kDevice);
-		if (szVendor == NULL)
+		if ((kDevice.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) != 0)
+			kContext.szPrimaryVendor = (szVendor == NULL ? "UNKNOWN" : szVendor);
+		if (szVendor == NULL || strstr(kContext.szVendors.GetCString(), szVendor) != NULL)
 			continue;
-		if (strstr(szVendors.GetCString(), szVendor) != NULL)
-			continue;
-		if (!szVendors.empty())
-			szVendors += ",";
-		szVendors += szVendor;
+		if (!kContext.szVendors.empty())
+			kContext.szVendors += ",";
+		kContext.szVendors += szVendor;
+		kContext.iVendorFamilies++;
 	}
-	return (szVendors.empty() ? CvString("UNKNOWN") : szVendors);
+	if (kContext.szVendors.empty())
+		kContext.szVendors = "UNKNOWN";
+	return kContext;
 }
 
 // <!-- custom: Resolve PSAPI only when enabled performance metrics first sample memory, so disabling them also avoids a mandatory runtime dependency. (GPT-5.6-Sol) -->
@@ -1747,7 +1768,7 @@ static void logSASGameRecordDisplayContext()
 	int const iSystemContextLevel = getSASGameRecordSystemContextLevel();
 	if (iSystemContextLevel < 1)
 	{
-		logSASGameRecord("GAME_RECORD_DISPLAY_CONTEXT systemContextLevel=0 resolution=-1x-1 graphicsInitialized=-1 fullscreen=-1 graphicOptions=- gpuVendors=-");
+		logSASGameRecord("GAME_RECORD_DISPLAY_CONTEXT systemContextLevel=0 resolution=-1x-1 graphicsInitialized=-1 fullscreen=-1 graphicOptions=- gpuAdapterCount=-1 gpuDesktopAdapterCount=-1 gpuVendorFamilyCount=-1 gpuPrimaryVendor=- gpuVendors=-");
 		g_bSASGameRecordDisplayContextLogged = true;
 		return;
 	}
@@ -1765,11 +1786,16 @@ static void logSASGameRecordDisplayContext()
 	if (szGraphicOptions.empty())
 		szGraphicOptions = "-";
 	CvGame const& kGame = GC.getGame();
-	CvString const szGpuVendors = (iSystemContextLevel >= 3 ? getSASGameRecordDisplayVendors() : CvString("-"));
-	logSASGameRecord("GAME_RECORD_DISPLAY_CONTEXT systemContextLevel=%d resolution=%dx%d graphicsInitialized=1 fullscreen=%d graphicOptions=%s gpuVendors=%s",
+	SASGameRecordDisplayAdapterContext kDisplayAdapters;
+	if (iSystemContextLevel >= 3)
+		kDisplayAdapters = getSASGameRecordDisplayAdapterContext();
+	logSASGameRecord("GAME_RECORD_DISPLAY_CONTEXT systemContextLevel=%d resolution=%dx%d graphicsInitialized=1 fullscreen=%d graphicOptions=%s gpuAdapterCount=%d gpuDesktopAdapterCount=%d gpuVendorFamilyCount=%d gpuPrimaryVendor=%s gpuVendors=%s",
 		iSystemContextLevel, kGame.getScreenWidth(), kGame.getScreenHeight(),
-		gDLL->getGraphicOption(GRAPHICOPTION_FULLSCREEN),
-		szGraphicOptions.GetCString(), szGpuVendors.GetCString());
+		gDLL->getGraphicOption(GRAPHICOPTION_FULLSCREEN), szGraphicOptions.GetCString(),
+		iSystemContextLevel >= 3 ? kDisplayAdapters.iAdapters : -1, iSystemContextLevel >= 3 ? kDisplayAdapters.iDesktopAdapters : -1,
+		iSystemContextLevel >= 3 ? kDisplayAdapters.iVendorFamilies : -1,
+		iSystemContextLevel >= 3 ? kDisplayAdapters.szPrimaryVendor.GetCString() : "-",
+		iSystemContextLevel >= 3 ? kDisplayAdapters.szVendors.GetCString() : "-");
 	g_bSASGameRecordDisplayContextLogged = true;
 }
 
@@ -1808,7 +1834,8 @@ static void logSASGameRecordMapOptions(CvInitCore const& kInitCore)
 }
 
 // <!-- custom: GAMEOPTION_AGGRESSIVE_AI is repurposed while AdvCiv selects UWAI versus legacy K-Mod logic.
-// Record the resolved mode, the three defines that can change that interpretation, and SAS gameplay toggles that materially change UWAI behavior under the same source/settings context. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+// Record the resolved mode, the three defines that can change that interpretation, and SAS gameplay toggles that materially change UWAI behavior under the same source/settings context.
+// Detailed SASGameRecord war-plan intent deliberately follows AdvCiv-SAS's supported foreground-UWAI gameplay; inherited K-Mod/Legacy modes stay identifiable here and through factual WAR_PLAN_CHANGED history, but are not promised equivalent causal provenance. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 static void logSASGameRecordWarAISettings(CvGame const& kGame)
 {
 	const bool bUWAI = getUWAI().isEnabled();
@@ -5509,7 +5536,7 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 	SASGameRecordMapAsciiPalette const& kPalette = getSASGameRecordMapAsciiPalette();
 	if (!kPalette.bValid)
 	{
-		logSASGameRecord("GAME_RECORD_MAP_ASCII_CONFIG_ERROR error=%s", getSASDiagnosticQuoted(kPalette.szError.GetCString()).GetCString());
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_CONFIG_ERROR turn=%d error=%s", GC.getGame().getGameTurn(), getSASDiagnosticQuoted(kPalette.szError.GetCString()).GetCString());
 		FAssertMsg(false, kPalette.szError.GetCString());
 		return;
 	}
@@ -5568,39 +5595,41 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 		}
 	}
 	CvString const szPlayerSymbolsQuoted = getSASDiagnosticQuoted(getSASDiagnosticOrDash(szPlayerSymbols).GetCString());
+	int const iGameTurn = GC.getGame().getGameTurn();
 	// <!-- custom: Keep one timing anchor at each text-map boundary.
-	// Appending the same session time to every fixed-width drawing row obscured the frame, repeated no useful chronology and materially enlarged the log. (GPT-5.6-Sol) -->
+	// Appending the same session time to every fixed-width drawing row obscured the frame, repeated no useful chronology and materially enlarged the log.
+	// Repeat only `turn` on structured legend/layer framing rows so grep/parser slices remain self-locating while raw pipe-art rows stay compact and visually aligned. (GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_MAP_ASCII_BEGIN turn=%d reason=%s layers=%d source=%dx%d previewCells=%dx%d outputCharacters=%dx%d maxCharacters=%dx%d horizontalCharactersPerCell=%d aspectRatioPreserved=1 resampled=%d wrapX=%d wrapY=%d topRowFirst=1 rowFrame=PIPE informationScope=omniscient_actual_map sessionWallMilliseconds=%u",
-		GC.getGame().getGameTurn(), szReason, iLayerCount, iSourceWidth, iSourceHeight, iPreviewWidth, iPreviewHeight, iOutputWidth,
+		iGameTurn, szReason, iLayerCount, iSourceWidth, iSourceHeight, iPreviewWidth, iPreviewHeight, iOutputWidth,
 		iPreviewHeight, iMaxWidth, iMaxHeight, iHorizontalCharsPerCell, iPreviewWidth != iSourceWidth || iPreviewHeight != iSourceHeight,
 		kMap.isWrapX(), kMap.isWrapY(), getSASGameRecordSessionWallMilliseconds(uiMapAsciiStartTime));
 	if (abLayerEnabled[0])
-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=GEOGRAPHY symbolTypeCount=%d symbolTypes=%s sourcePlotTypeCount=%d sourcePlotTypes=\"%d:PLOT_PEAK;%d:PLOT_HILLS;%d:PLOT_LAND;%d:PLOT_OCEAN\" resampledCell=derived_plot_mix",
-			SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT,
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND turn=%d layer=GEOGRAPHY symbolTypeCount=%d symbolTypes=%s sourcePlotTypeCount=%d sourcePlotTypes=\"%d:PLOT_PEAK;%d:PLOT_HILLS;%d:PLOT_LAND;%d:PLOT_OCEAN\" resampledCell=derived_plot_mix",
+			iGameTurn, SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT,
 			getSASDiagnosticQuoted(getSASGameRecordMapAsciiGeographyLegend(kPalette).GetCString()).GetCString(), NUM_PLOT_TYPES, PLOT_PEAK,
 			PLOT_HILLS, PLOT_LAND, PLOT_OCEAN);
 	if (abLayerEnabled[1])
-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=TERRAIN runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s uppercaseFoodSymbols=%s uppercaseMinNatureFoodSurplus=%d foodPerPopulation=%d foodIncludes=hills_features_lakes_rivers_permanent_plot_yields foodExcludes=improvements_bonuses resampledCell=dominant_type_with_average_nature_food_case",
-			GC.getNumTerrainInfos(), getSASDiagnosticQuoted(getSASGameRecordMapAsciiTerrainLegend(kPalette).GetCString()).GetCString(),
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND turn=%d layer=TERRAIN runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s uppercaseFoodSymbols=%s uppercaseMinNatureFoodSurplus=%d foodPerPopulation=%d foodIncludes=hills_features_lakes_rivers_permanent_plot_yields foodExcludes=improvements_bonuses resampledCell=dominant_type_with_average_nature_food_case",
+			iGameTurn, GC.getNumTerrainInfos(), getSASDiagnosticQuoted(getSASGameRecordMapAsciiTerrainLegend(kPalette).GetCString()).GetCString(),
 			getSASDiagnosticQuoted(getSASGameRecordMapAsciiTerrainUppercaseLegend(kPalette).GetCString()).GetCString(),
 			kPalette.iTerrainUppercaseMinNatureFoodSurplus, kPalette.iFoodPerPopulation);
 	if (abLayerEnabled[2])
-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=RIVERS palette=%s symbolTypes=%s storedEdgeSemantics=plot_south_and_east_boundaries resampledCell=any_source_edge_by_orientation",
-			getSASDiagnosticQuoted(kPalette.szRiverDefine.GetCString()).GetCString(),
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND turn=%d layer=RIVERS palette=%s symbolTypes=%s storedEdgeSemantics=plot_south_and_east_boundaries resampledCell=any_source_edge_by_orientation",
+			iGameTurn, getSASDiagnosticQuoted(kPalette.szRiverDefine.GetCString()).GetCString(),
 			getSASDiagnosticQuoted(getSASGameRecordMapAsciiRiverLegend(kPalette).GetCString()).GetCString());
 	// <!-- custom: getBonusType(NO_TEAM) intentionally records the actual map, including bonuses that no civilization has the technology to reveal yet.
 	// State this explicitly so an analyst does not mistake diagnostic knowledge for contemporary AI knowledge. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (abLayerEnabled[3])
-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=BONUSES runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=bonus_type_or_multiple includesUnrevealedBonuses=1",
-			GC.getNumBonusInfos(), getSASDiagnosticQuoted(getSASGameRecordMapAsciiBonusLegend(kPalette).GetCString()).GetCString());
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND turn=%d layer=BONUSES runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=bonus_type_or_multiple includesUnrevealedBonuses=1",
+			iGameTurn, GC.getNumBonusInfos(), getSASDiagnosticQuoted(getSASGameRecordMapAsciiBonusLegend(kPalette).GetCString()).GetCString());
 	if (abLayerEnabled[4])
-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=FEATURES runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=dominant_type",
-			GC.getNumFeatureInfos(), getSASDiagnosticQuoted(getSASGameRecordMapAsciiFeatureLegend(kPalette).GetCString()).GetCString());
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND turn=%d layer=FEATURES runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=dominant_type",
+			iGameTurn, GC.getNumFeatureInfos(), getSASDiagnosticQuoted(getSASGameRecordMapAsciiFeatureLegend(kPalette).GetCString()).GetCString());
 	// <!-- custom: GAME_RECORD_PLAYER_SETUP already stores each player ID's quoted civilization and display name.
 	// Keep this repeated map legend to unambiguous SYMBOL=PLAYER_ID pairs so user-controlled punctuation in names cannot break an embedded mini-format or duplicate long names at every snapshot. (ChatGPT-5.5 + GPT-5.6-Sol) -->
 	if (abLayerEnabled[5])
-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=POLITICAL palette=%s order=unowned_water,unowned_land,mixed_unowned_water_land,civilization_city,Barbarian_city,civilization_and_Barbarian_cities,multiple_starting_players,Barbarian_territory playerSymbolFormat=SYMBOL=PLAYER_ID playerSymbols=%s playerDetailsRows=GAME_RECORD_PLAYER_SETUP startingPlotsMarked=%d",
-				getSASDiagnosticQuoted(kPalette.szPoliticalDefine.GetCString()).GetCString(), szPlayerSymbolsQuoted.GetCString(), bMarkStartingPlots);
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND turn=%d layer=POLITICAL palette=%s order=unowned_water,unowned_land,mixed_unowned_water_land,civilization_city,Barbarian_city,civilization_and_Barbarian_cities,multiple_starting_players,Barbarian_territory playerSymbolFormat=SYMBOL=PLAYER_ID playerSymbols=%s playerDetailsRows=GAME_RECORD_PLAYER_SETUP startingPlotsMarked=%d",
+				iGameTurn, getSASDiagnosticQuoted(kPalette.szPoliticalDefine.GetCString()).GetCString(), szPlayerSymbolsQuoted.GetCString(), bMarkStartingPlots);
 	if (abLayerEnabled[0])
 	{
 		int const iOverview1ScalePercent = getSASGameRecordMapAsciiOverview1ScalePercent();
@@ -5618,7 +5647,7 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 		if (!abLayerEnabled[iLayer]) continue;
 		char const* szLayer = (iLayer == 0 ? "GEOGRAPHY" : iLayer == 1 ? "TERRAIN" : iLayer == 2 ? "RIVERS" : iLayer == 3 ? "BONUSES" : iLayer == 4 ? "FEATURES" : "POLITICAL");
 		int aiSymbolCounts[127] = { 0 };
-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_BEGIN layer=%s rows=%d columns=%d sourceYTop=%d sourceYBottom=0", szLayer, iPreviewHeight, iOutputWidth, iSourceHeight - 1);
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_BEGIN turn=%d layer=%s rows=%d columns=%d sourceYTop=%d sourceYBottom=0", iGameTurn, szLayer, iPreviewHeight, iOutputWidth, iSourceHeight - 1);
 		for (int iRow = 0; iRow < iPreviewHeight; iRow++)
 		{
 			int const iPreviewY = iPreviewHeight - iRow - 1;
@@ -5646,16 +5675,16 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 		int const iPreviewCells = iPreviewWidth * iPreviewHeight;
 		int const iDrawingCharacters = (iOutputWidth + 2) * iPreviewHeight;
 		if (iLayer == 2)
-			logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_END layer=%s previewCells=%d drawingCharacters=%d previewCellCounts=%s sourceSouthBoundaryRiverEdges=%d sourceEastBoundaryRiverEdges=%d sourceRiverEdges=%d",
-					szLayer, iPreviewCells, iDrawingCharacters, getSASDiagnosticQuoted(getSASGameRecordMapAsciiSymbolCounts(aiSymbolCounts).GetCString()).GetCString(),
+			logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_END turn=%d layer=%s previewCells=%d drawingCharacters=%d previewCellCounts=%s sourceSouthBoundaryRiverEdges=%d sourceEastBoundaryRiverEdges=%d sourceRiverEdges=%d",
+					iGameTurn, szLayer, iPreviewCells, iDrawingCharacters, getSASDiagnosticQuoted(getSASGameRecordMapAsciiSymbolCounts(aiSymbolCounts).GetCString()).GetCString(),
 					iSourceSouthBoundaryRiverEdges, iSourceEastBoundaryRiverEdges, iSourceSouthBoundaryRiverEdges + iSourceEastBoundaryRiverEdges);
-		else logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_END layer=%s previewCells=%d drawingCharacters=%d previewCellCounts=%s",
-			szLayer, iPreviewCells, iDrawingCharacters,
+		else logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_END turn=%d layer=%s previewCells=%d drawingCharacters=%d previewCellCounts=%s",
+			iGameTurn, szLayer, iPreviewCells, iDrawingCharacters,
 			getSASDiagnosticQuoted(getSASGameRecordMapAsciiSymbolCounts(aiSymbolCounts).GetCString()).GetCString());
 	}
 	uint const uiMapAsciiEndTime = getSASMonotonicMilliseconds();
 	logSASGameRecord("GAME_RECORD_MAP_ASCII_END turn=%d reason=%s layers=%d rowsPerLayer=%d sessionWallMilliseconds=%u mapBlockWallMilliseconds=%u",
-		GC.getGame().getGameTurn(), szReason, iLayerCount, iPreviewHeight, getSASGameRecordSessionWallMilliseconds(uiMapAsciiEndTime),
+		iGameTurn, szReason, iLayerCount, iPreviewHeight, getSASGameRecordSessionWallMilliseconds(uiMapAsciiEndTime),
 		getSASElapsedMilliseconds(uiMapAsciiStartTime, uiMapAsciiEndTime));
 }
 
