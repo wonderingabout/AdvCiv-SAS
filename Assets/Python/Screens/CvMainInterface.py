@@ -55,7 +55,7 @@ import PLE # PLE Code
 import MinimapOptions # advc.002a
 import RawYields # BUG - Raw Yields
 import WidgetUtil
-# <!-- custom: custom widget types for scoreboard scroll/expand buttons; registered once at module load so hover text works. (Claude code Sonnet 4.6) -->
+# <!-- custom: Register custom widget types once at module load so scoreboard-control and City Breakdown hover text works. (Claude code Sonnet 4.6 + GPT-5.6-Sol) -->
 WIDGET_SCORE_SCROLL_UP = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP")
 WIDGET_SCORE_SCROLL_DOWN = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN")
 WIDGET_SCORE_SCROLL_UP_FAST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP_FAST")
@@ -65,8 +65,12 @@ WIDGET_SCORE_EXPAND_TOGGLE = WidgetUtil.createWidget("WIDGET_SCORE_EXPAND_TOGGLE
 WIDGET_SCORE_SCROLL_CENTER_ACTIVE_PLAYER = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_CENTER_ACTIVE_PLAYER")
 WIDGET_SCORE_SCROLL_AUTOCENTER_ACTIVE_PLAYER_TOGGLE = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_AUTOCENTER_ACTIVE_PLAYER_TOGGLE")
 WIDGET_ANNOTATIONS_TOGGLE = WidgetUtil.createWidget("WIDGET_ANNOTATIONS_TOGGLE")
+WIDGET_CITY_BREAKDOWNS = WidgetUtil.createWidget("WIDGET_CITY_BREAKDOWNS")
+g_szCityBreakdownsHelp = u""
 def _scoreHelp(szText):
 	return lambda *_: sasFontTagHover + szText + SAS_FONT_TAG_CLOSE
+def _cityBreakdownsHelp(*_):
+	return g_szCityBreakdownsHelp
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP, _scoreHelp(u"Scroll scoreboard up"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN, _scoreHelp(u"Scroll scoreboard down"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FAST, _scoreHelp(u"Scroll scoreboard up (fast)"))
@@ -76,6 +80,7 @@ WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_EXPAND_TOGGLE, _scoreHelp(u"Toggle
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_CENTER_ACTIVE_PLAYER, _scoreHelp(u"Center scoreboard scroll on the active player"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_AUTOCENTER_ACTIVE_PLAYER_TOGGLE, _scoreHelp(u"Toggle autocenter scoreboard scroll on the active player"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_ANNOTATIONS_TOGGLE, _scoreHelp(u"Toggle show map annotations"))
+WidgetUtil.setWidgetHelpFunction(WIDGET_CITY_BREAKDOWNS, _cityBreakdownsHelp)
 # <advc.090>
 import math
 def floor(f):
@@ -4493,6 +4498,7 @@ class CvMainInterface:
 		global g_iNumLeftBonus
 		global g_iNumCenterBonus
 		global g_iNumRightBonus
+		global g_szCityBreakdownsHelp
 
 		screen = self.screen
 		pHeadSelectedCity = CyInterface().getHeadSelectedCity()
@@ -5680,6 +5686,16 @@ class CvMainInterface:
 
 			# 4. Construct ROW 2 (Bottom Line): "10 [GP]: 109/249 (14)"
 			szRow2 = sasFontTagLabel + u"%d%s: %d/%d %s" % (iTotalRate, self.szGreatPeopleIcon, iProgress, iThreshold, szTurns) + SAS_FONT_TAG_CLOSE
+			# <!-- custom: The compact glyph-only breakdown is hard to interpret without already knowing its legend. Give both rendered rows the same live hover with matching glyphs, named sources, colored key results, modifier, rate, progress and turn estimate. (GPT-5.6-Sol) -->
+			szSpecHoverTitle = localText.changeTextColor(u"Great Person Points breakdown", self.colorYellow)
+			szSpecHoverModifier = localText.changeTextColor(u"%+d%%" % iModPercent, self.colorGreen)
+			szSpecHoverRate = localText.changeTextColor(u"%d%s" % (iTotalRate, self.szGreatPeopleIcon), self.colorGreen)
+			# <!-- custom: Keep the exact progress fraction and add an at-a-glance percentage rounded to the nearest hundredth; fixed one-decimal formatting would discard useful precision. (GPT-5.6-Sol) -->
+			iSpecProgressPercentTimes100 = (iProgress * 10000 + iThreshold / 2) / iThreshold
+			szSpecHoverProgress = localText.changeTextColor(u"%d/%d (%s%%)" % (iProgress, iThreshold, formatExactHundredths(iSpecProgressPercentTimes100)), self.colorYellow)
+			szSpecHoverSources = u"Buildings: %d%s\nSpecialists: %d%s" % (iBldgRaw, self.szMapIcon, iSpecRaw, self.szCitizenIcon)
+			szSpecHoverResult = u"Modifier: %s\nRate: %s per turn\nProgress: %s\nTurns: %s" % (szSpecHoverModifier, szSpecHoverRate, szSpecHoverProgress, szTurns.strip(u"()"))
+			szSpecialistBreakdownHelp = u"%s\n%s\n%s" % (szSpecHoverTitle, szSpecHoverSources, szSpecHoverResult)
 
 			# 5. Positioning & Rendering (Split into TWO Labels)
 			# screen.setLabel ignores \n, so we must draw two separate text widgets.
@@ -5690,10 +5706,10 @@ class CvMainInterface:
 			iY1 = gRect("GreatPeopleBar").y() - 82
 
 			# Draw Label 1 (Top)
-			screen.setLabel("SpecBreakdownLabel1", "Background", szRow1, CvUtil.FONT_LEFT_JUSTIFY, iX, iY1, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabel("SpecBreakdownLabel1", "Background", szRow1, CvUtil.FONT_LEFT_JUSTIFY, iX, iY1, -0.1, FontTypes.SMALL_FONT, WIDGET_CITY_BREAKDOWNS, -1, -1)
 
 			# Draw Label 2 (Bottom)
-			screen.setLabel("SpecBreakdownLabel2", "Background", szRow2, CvUtil.FONT_LEFT_JUSTIFY, iX, iY2, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.setLabel("SpecBreakdownLabel2", "Background", szRow2, CvUtil.FONT_LEFT_JUSTIFY, iX, iY2, -0.1, FontTypes.SMALL_FONT, WIDGET_CITY_BREAKDOWNS, -1, -1)
 			# --- END: Specialist Breakdown Widget ---
 
 			# <!-- custom: Culture breakdown summary (per-source base culture and total/turns), placed in the right half below specialists to mirror the specialist breakdown while keeping all other panels unchanged. (GPT-5.2-Codex) -->
@@ -5768,12 +5784,24 @@ class CvMainInterface:
 				# Placing both post-modifier additions on this roomier lower row mirrors the native formula and keeps the legend stable: Build Culture is added afterward, while No Espionage transfers an already-calculated Espionage rate without applying the Culture modifier again. See KI#1063. (GPT-5.6-Sol) -->
 				szPostModifierSources = u"+%s%s +%s%s = " % (formatExactHundredths(iProcessCultureTimes100), self.szProductionIcon, formatExactHundredths(iEspionageTransferTimes100), self.szEspionageIcon)
 				szRow2 = sasFontTagLabel + u"%s%s%s: %s/%d %s" % (szPostModifierSources, szRate, self.szCultureIcon, szProgress, iCultureThreshold, szTurns) + SAS_FONT_TAG_CLOSE
+				# <!-- custom: Name every compact Culture glyph in a live hover, reuse those glyphs for direct visual matching, and preserve the native calculation order: base sources, Culture modifier, then Build Culture and No Espionage's transferred Espionage. See KI#1063. (GPT-5.6-Sol) -->
+				szCultureHoverTitle = localText.changeTextColor(u"Culture breakdown", self.colorYellow)
+				szCultureHoverModifier = localText.changeTextColor(u"%+d%%" % iModPercent, self.colorGreen)
+				szCultureHoverRate = localText.changeTextColor(u"%s%s" % (szRate, self.szCultureIcon), self.colorGreen)
+				iCultureProgressPercentTimes100 = (iCultureProgressTimes100 * 100 + iCultureThreshold / 2) / iCultureThreshold
+				szCultureHoverProgress = localText.changeTextColor(u"%s/%d (%s%%)" % (szProgress, iCultureThreshold, formatExactHundredths(iCultureProgressPercentTimes100)), self.colorYellow)
+				szCultureHoverSources = u"Slider: %s%s\nReligions: %d%s\nCorporations: %d%s\nBuildings: %d%s\nTraits: %d%s\nSpecialists: %d%s" % (formatExactHundredths(iSliderCultureTimes100), self.szCultureIcon, iRelCulture, self.szReligionIcon, iCorpCulture, self.szTradeIcon, iBldgCulture, self.szMapIcon, iTraitCulture, self.szStarIcon, iSpecCulture, self.szCitizenIcon)
+				szCultureHoverPostModifier = u"Build Culture: %s%s\nNo Espionage transfer: %s%s" % (formatExactHundredths(iProcessCultureTimes100), self.szProductionIcon, formatExactHundredths(iEspionageTransferTimes100), self.szEspionageIcon)
+				szCultureHoverResult = u"Modifier: %s\n%s\nRate: %s per turn\nProgress: %s\nTurns: %s" % (szCultureHoverModifier, szCultureHoverPostModifier, szCultureHoverRate, szCultureHoverProgress, szTurns.strip(u"()"))
+				szCultureBreakdownHelp = u"%s\n%s\n%s" % (szCultureHoverTitle, szCultureHoverSources, szCultureHoverResult)
+				# <!-- custom: Hovering either compact breakdown shows both related city-output summaries, avoiding mouse movement (aims to reduce user tedium) between adjacent rows while retaining separate readable sections. (GPT-5.6-Sol) -->
+				g_szCityBreakdownsHelp = sasFontTagHover + szSpecialistBreakdownHelp + u"\n\n" + szCultureBreakdownHelp + SAS_FONT_TAG_CLOSE
 
 				iXRight = iX
 				iY2 = gRect("GreatPeopleBar").y() - 22
 				iY1 = gRect("GreatPeopleBar").y() - 42
-				screen.setLabel("CultureBreakdownLabel1", "Background", szRow1, CvUtil.FONT_LEFT_JUSTIFY, iXRight, iY1, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				screen.setLabel("CultureBreakdownLabel2", "Background", szRow2, CvUtil.FONT_LEFT_JUSTIFY, iXRight, iY2, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setLabel("CultureBreakdownLabel1", "Background", szRow1, CvUtil.FONT_LEFT_JUSTIFY, iXRight, iY1, -0.1, FontTypes.SMALL_FONT, WIDGET_CITY_BREAKDOWNS, -1, -1)
+				screen.setLabel("CultureBreakdownLabel2", "Background", szRow2, CvUtil.FONT_LEFT_JUSTIFY, iXRight, iY2, -0.1, FontTypes.SMALL_FONT, WIDGET_CITY_BREAKDOWNS, -1, -1)
 
 		return 0
 
