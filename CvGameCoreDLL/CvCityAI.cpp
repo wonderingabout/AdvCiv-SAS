@@ -495,18 +495,33 @@ static int SAS_getSettlerBuildMinFoundValue(CvPlayerAI const& kPlayer, bool bDan
 	return iMinFoundValue;
 }
 
-// <!-- custom: Save file 449 showed an inland capital's concrete SAS Settler gate reporting no water sites while the surrounding city-production logic simultaneously recognized a nearby Fish/Whale/Crab island and already had two Settler transports. Reuse the production logic's relevant-water-area fallback so an existing transport lets inland cities consider sites on the main sea; otherwise an unrelated land site must appear before the valid overseas Settler can be built. (GPT-5.6-Sol) -->
-static CvArea const* SAS_getSettlerWaterArea(CvCityAI const& kCity)
+// <!-- custom: Save file 449 showed an inland capital's concrete SAS Settler gate reporting no water sites while the surrounding city-production logic simultaneously recognized a nearby Fish/Whale/Crab island and already had two Settler transports. Reuse the production logic's relevant-water-area fallback so an existing transport lets inland cities consider sites on the main sea; otherwise an unrelated land site must appear before the valid overseas Settler can be built.
+// A dual-coast capital can reach two distinct seas, so evaluate both unique relevant water areas and return the one with the strongest known Settler site instead of silently privileging waterArea(true). See KI#194. (GPT-5.6-Sol) -->
+static CvArea const* SAS_getSettlerWaterArea(CvCityAI const& kCity, int& iNumWaterAreaCitySites, int& iWaterAreaBestFoundValue)
 {
 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
-	CvArea const* pWaterArea = kCity.waterArea(true);
-	if (pWaterArea != NULL && !GET_TEAM(kCity.getTeam()).AI_isWaterAreaRelevant(*pWaterArea)) pWaterArea = NULL;
-	if (pWaterArea == NULL)
+	iNumWaterAreaCitySites = 0;
+	iWaterAreaBestFoundValue = 0;
+	CvArea const* pBestWaterArea = NULL;
+	CvArea const* apWaterAreas[2] = { kCity.waterArea(true), kCity.secondWaterArea() };
+	for (int i = 0; i < 2; i++)
 	{
-		pWaterArea = GC.getMap().findBiggestArea(true);
-		if (pWaterArea != NULL && kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_SETTLER_SEA) <= 0) pWaterArea = NULL;
+		CvArea const* pWaterArea = apWaterAreas[i];
+		if (pWaterArea == NULL || pWaterArea == pBestWaterArea || !GET_TEAM(kCity.getTeam()).AI_isWaterAreaRelevant(*pWaterArea)) continue;
+		int iCandidateBestFoundValue = 0;
+		int const iCandidateSites = kPlayer.AI_getNumAdjacentAreaCitySites(iCandidateBestFoundValue, *pWaterArea, &kCity.getArea());
+		if (pBestWaterArea == NULL || iCandidateBestFoundValue > iWaterAreaBestFoundValue || (iCandidateBestFoundValue == iWaterAreaBestFoundValue && iCandidateSites > iNumWaterAreaCitySites))
+		{
+			pBestWaterArea = pWaterArea;
+			iNumWaterAreaCitySites = iCandidateSites;
+			iWaterAreaBestFoundValue = iCandidateBestFoundValue;
+		}
 	}
-	return pWaterArea;
+	if (pBestWaterArea != NULL) return pBestWaterArea;
+	pBestWaterArea = GC.getMap().findBiggestArea(true);
+	if (pBestWaterArea == NULL || kPlayer.AI_totalWaterAreaUnitAIs(*pBestWaterArea, UNITAI_SETTLER_SEA) <= 0) return NULL;
+	iNumWaterAreaCitySites = kPlayer.AI_getNumAdjacentAreaCitySites(iWaterAreaBestFoundValue, *pBestWaterArea, &kCity.getArea());
+	return pBestWaterArea;
 }
 
 static bool SAS_getSettlerBuildSiteStatus(CvCityAI const& kCity, int& iNumAreaCitySites, int& iAreaBestFoundValue, int& iNumWaterAreaCitySites, int& iWaterAreaBestFoundValue, int& iSettlerBuildMinFoundValue)
@@ -515,8 +530,7 @@ static bool SAS_getSettlerBuildSiteStatus(CvCityAI const& kCity, int& iNumAreaCi
 	iAreaBestFoundValue = -1;
 	iNumAreaCitySites = kPlayer.AI_getNumAreaCitySites(kCity.getArea(), iAreaBestFoundValue);
 	iWaterAreaBestFoundValue = 0;
-	CvArea const* pWaterArea = SAS_getSettlerWaterArea(kCity);
-	iNumWaterAreaCitySites = (pWaterArea == NULL ? 0 : kPlayer.AI_getNumAdjacentAreaCitySites(iWaterAreaBestFoundValue, *pWaterArea, &kCity.getArea()));
+	SAS_getSettlerWaterArea(kCity, iNumWaterAreaCitySites, iWaterAreaBestFoundValue);
 	iSettlerBuildMinFoundValue = SAS_getSettlerBuildMinFoundValue(kPlayer, kCity.AI_isDanger());
 	return (iNumAreaCitySites > 0 && iAreaBestFoundValue > iSettlerBuildMinFoundValue) || (iNumWaterAreaCitySites > 0 && iWaterAreaBestFoundValue > iSettlerBuildMinFoundValue);
 }
@@ -2213,8 +2227,8 @@ void CvCityAI::AI_chooseProduction()
 	// 		pWaterSettlerArea = NULL;
 	// 	}
 	// }
-	CvArea const* pWaterSettlerArea = SAS_getSettlerWaterArea(*this);
-	int iNumWaterAreaCitySites = (pWaterSettlerArea == NULL) ? 0 : kPlayer.AI_getNumAdjacentAreaCitySites(iWaterAreaBestFoundValue, *pWaterSettlerArea, &kArea);
+	int iNumWaterAreaCitySites = 0;
+	CvArea const* pWaterSettlerArea = SAS_getSettlerWaterArea(*this, iNumWaterAreaCitySites, iWaterAreaBestFoundValue);
 	int iNumSettlers = kPlayer.AI_totalUnitAIs(UNITAI_SETTLE);
 	if (bLogOverseasTransport && isCapital()) SAS_logOverseasTransportOpportunity(*this, pWaterSettlerArea, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, SAS_getSettlerBuildMinFoundValue(kPlayer, bDanger), iWaterPercent, iBuildUnitProb, iUnitSpending, bFinancialTrouble, bDanger, bLandWar, bAssault);
 

@@ -266,7 +266,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#192 - (Fixed/Improved) Base AdvCiv/K-Mod island Worker logistics and AdvCiv-SAS production safety gap could strand Workers and other land civilians where they had no use](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-192)\
 [KI#193 - (Fixed/Improved) Base AdvCiv/K-Mod generic army thresholds could make loaded assault ships wait instead of taking achievable overseas targets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-193)\
 [KI#193.2 - (Fixed SAS transport-accounting defect) Dual-coast ports omitted docked assault-transport capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-193.2)\
-[KI#194 - (Reopened/Broadened after SAS fix) A capital can omit Settler sites reachable through its second water area](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-194)\
+[KI#194 - (Fixed SAS overseas-settlement defect) A capital omitted Settler sites reachable through its second water area](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-194)\
 [KI#195 - (Reopened/Broadened after SAS fix) Barbarian Work Boat demand still uses an incomplete city-radius/helper contract](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-195)\
 [KI#196 - (Fixed/Improved) AdvCiv-SAS's short-chain irrigation replacement could leave valuable BFC bonus Farms dry for up to 191 turns (Base AdvCiv had a similar untargeted routine, which AdvCiv-SAS does not use because it conflicted with SAS improvement choice)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-196)\
 [KI#197 - (Fixed SAS military-production improvement defect) Power-per-city catch-up counted vassal power but not vassal cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197)\
@@ -9458,7 +9458,7 @@ The original fix was implemented with the help of GPT-5.6-Sol (on ChatGPT Codex)
 
 <a id="ki-194"></a>
 
-## KI#194 - (Reopened/Broadened after SAS fix) A capital can omit Settler sites reachable through its second water area
+## KI#194 - (Fixed SAS overseas-settlement defect) A capital omitted Settler sites reachable through its second water area
 
 Queue-005 WIP282 found that the central Settler water-area repair checks the capital's primary adjacent sea but omits `secondWaterArea()`. An isthmus or dual-coast capital can therefore miss worthwhile islands reachable through its other sea.
 
@@ -9472,7 +9472,9 @@ The first confirming save-file 449 run logged the corrected decision on turn 119
 
 That second Settler exposed the separate KI#179 follow-up described there: it reached a danger-free valid site but the existing escort safeguard prevented it from founding. After narrowing only direct danger-free founding, the final run founded Agra immediately on turn 144 instead of turn 257. Save file 450 then confirmed that the original dangerous-expansion protection remained guarded. Together, the tests show that the AI can exploit worthwhile islands from an inland capital without restoring reckless dangerous founding.
 
-Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+Update: the shared Settler-water helper now evaluates both unique strategically relevant seas adjacent to the producing city and selects the coast with the strongest known Settler site, breaking equal-value ties by site count. The inland-city fallback remains unchanged: only the largest sea is considered, and only when the player already owns a Settler transport there. Both broad production planning and the final concrete Settler gate consume the same selected area and already-computed site values. The repaired DLL compiled successfully, and a water-rich full autoplay completed without an observed production or runtime issue.
+
+The original fix/improvement was implemented with the help of GPT-5.6-Sol (on ChatGPT Codex); its second-coast omission was reopened through ChatGPT-5.6-Sol's Queue-005 WIP282 audit and fixed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-195"></a>
 
