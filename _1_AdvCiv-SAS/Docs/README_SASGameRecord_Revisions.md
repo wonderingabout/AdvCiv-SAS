@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=122 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=123 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -38,6 +38,7 @@ After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REV
 - **Object IDs are namespace-local unless a row explicitly says otherwise.** In particular, Civ4 `cityId` and `unitId` values are player-local; trace them as `(player, cityId)` and `(player, unitId)`, not as globally unique integers. Team/player slot IDs remain their ordinary game slot identities.
 - **Missing-value interpretation is field-specific.** `-` is the common textual/not-applicable token, while numeric `-1` is also used by native Civ4 `NO_*` IDs and by some unavailable numeric fields. Do not globally rewrite every `-1` as null; parse the documented field meaning/context.
 - **Text-map body rows deliberately remain raw pipe-framed art.** Structured `BEGIN`, `LEGEND`, `LAYER_BEGIN`, `LAYER_END`, and `END` framing rows carry the parseable metadata; revision 122 makes every structured legend/layer frame self-locating by repeating `turn`, while the fixed-width `|...|` drawing rows remain undecorated.
+- **Level-3 periodic city detail is checkpoint-plus-delta encoded from revision 123 onward.** Full `GAME_RECORD_CITY`, `GAME_RECORD_CITY_DEVELOPMENT`, `GAME_RECORD_CITY_HAPPINESS`, `GAME_RECORD_CITY_HEALTH`, and `GAME_RECORD_CITY_BUILDINGS` rows establish complete state. Matching `*_DELTA` rows inherit every omitted field from the immediately preceding observation of the same `(player, cityId)` and base family, apply only explicitly present changed fields, and expose `previousTurn`/`fullBaseTurn` so missing chains are detectable. Every new/load log session and every tenth observation returns to a full row. `GAME_RECORD_CITY_TRADE_PARTNERS` remains full. The reference `LLM_Helpers/expand_sasgamerecord_city_deltas.py` can restore these five families to ordinary full rows while validating the chain.
 - **Detailed AI-intent coverage follows AdvCiv-SAS-supported gameplay rather than every inherited compatibility mode.** War-plan causal provenance targets foreground UWAI. `GAME_RECORD_WAR_AI_SETTINGS` still identifies inherited K-Mod/Legacy configurations and factual `WAR_PLAN_CHANGED` history remains available, but SASGameRecord does not promise equivalent deep causal provenance for intentionally unsupported Legacy war/peace planning. Deeper rejected-candidate/value decomposition remains BBAI/source-investigation territory.
 
 ## Reconstruction method
@@ -52,10 +53,22 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 122 - SAS practical 6551
+### Revision 123 - SAS practical 6552
 
 - **Date:** 2026-09-21
 - **Git commit:** pending
+- **Change:** Added bounded level-3 checkpoint-plus-delta encoding for the five largest repetitive periodic city-detail families while retaining ordinary full rows as self-contained recovery points.
+
+`GAME_RECORD_CITY`, `GAME_RECORD_CITY_DEVELOPMENT`, `GAME_RECORD_CITY_HAPPINESS`, `GAME_RECORD_CITY_HEALTH`, and `GAME_RECORD_CITY_BUILDINGS` now emit a full row on the first observation of each city/family in a log session and every tenth observation thereafter. Intermediate `*_DELTA` rows keep `(player, cityId)`, `previousTurn`, `fullBaseTurn`, `changed`, and only serialized fields that changed. New/load log rolls clear every chain; a lifecycle generation guard prevents reused/reacquired city identities from inheriting stale state. `GAME_RECORD_CITY_TRADE_PARTNERS` deliberately remains full because its small payload became larger with delta metadata.
+
+The level-3-only compressor runs after the ordinary city snapshot is already computed/formatted, so levels 0-2 add no city scan, AI query, pathfinding, or RNG work. `LLM_Helpers/expand_sasgamerecord_city_deltas.py` is the strict reference expander: it validates `previousTurn`/`fullBaseTurn`, fails closed on missing bases/links, copies unrelated rows byte-for-byte, and restores the five encoded families to ordinary full rows for older/simple consumers.
+
+Runtime validation used the actual revision-123 C++ output: 14,835 delta rows and 2,200 full city-detail checkpoints compressed a 59,726,600-byte expanded record to 53,805,598 bytes, saving 5,921,002 bytes (about 9.9% overall). Against the revision-122 same-parent control, all 425 state checkpoints, all 425 gameplay-significant RNG checkpoints, and all 37,458 pre-existing factual actions matched after ignoring timing/sequence-only fields. Expansion reproduced the logical city-detail history; its byte-level comparison also exposed a separate pre-existing exact-boundary `CvString::formatv` termination defect, left for a dedicated source fix rather than mixed into this format revision.
+
+### Revision 122 - SAS practical 6551
+
+- **Date:** 2026-09-21
+- **Git commit:** `21c841ea2b4d431c130489bc0410e3d26a3e326a`
 - **Change:** Bundled small SASGameRecord consumer/reproducibility improvements after the broad AI-intent sweep reached saturation: richer opt-in multi-GPU display topology, self-locating structured text-map frames, and explicit supported-scope/parser guidance.
 
 Level-3 `GAME_RECORD_DISPLAY_CONTEXT` now preserves the number of non-mirroring Windows display adapters, desktop-attached-adapter count, recognized vendor-family count, Windows-primary adapter vendor and the existing deduplicated vendor-family list.

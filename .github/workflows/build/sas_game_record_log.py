@@ -18,6 +18,7 @@ from xml_defines import get_default_repo_root, read_global_define_ints, require_
 REVISION_HEADER = Path("CvGameCoreDLL/SASGameRecordLog.h")
 REVISION_SOURCE = Path("CvGameCoreDLL/SASGameRecordLog.cpp")
 REVISION_HISTORY = Path("_1_AdvCiv-SAS/Docs/README_SASGameRecord_Revisions.md")
+CITY_DELTA_EXPANDER = Path("LLM_Helpers/expand_sasgamerecord_city_deltas.py")
 AI_STRATEGIES_HEADER = Path("CvGameCoreDLL/AIStrategies.h")
 CV_ENUMS_HEADER = Path("CvGameCoreDLL/CvEnums.h")
 GAME_CORE_UTILS_SOURCE = Path("CvGameCoreDLL/CvGameCoreUtils.cpp")
@@ -97,6 +98,36 @@ def check_context_consumer_contracts(repo_root: Path) -> list[str]:
 	if 'GAME_RECORD_MAP_ASCII_CONFIG_ERROR turn=%d' not in record_text:
 		failures.append(f"{REVISION_SOURCE}: text-map config-error row must remain self-locating with turn")
 	return failures
+
+def check_city_delta_contracts(repo_root: Path) -> list[str]:
+	failures = []
+	for relative_path in (REVISION_SOURCE, CITY_DELTA_EXPANDER):
+		if not (repo_root / relative_path).is_file():
+			failures.append(f"missing SASGameRecord city-delta file: {relative_path}")
+	if failures:
+		return failures
+	record_text = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+	for required in (
+		"SAS_GAME_RECORD_CITY_FULL_SNAPSHOT_CADENCE = 10", "compactSASGameRecordCityDetailRow",
+		"previousTurn=%d fullBaseTurn=%d changed=%d", "g_mapSASGameRecordCityDeltaStates.clear()",
+		"g_mapSASGameRecordCityIdentityStates.clear()", 'g_iSASGameRecordLogLevel >= 3 && szLine.find("GAME_RECORD_CITY") == 0',
+	):
+		if required not in record_text:
+			failures.append(f"{REVISION_SOURCE}: missing bounded city-delta contract token {required}")
+	for row_type in ("GAME_RECORD_CITY", "GAME_RECORD_CITY_DEVELOPMENT", "GAME_RECORD_CITY_HAPPINESS", "GAME_RECORD_CITY_HEALTH", "GAME_RECORD_CITY_BUILDINGS"):
+		if f'szType == "{row_type}"' not in record_text:
+			failures.append(f"{REVISION_SOURCE}: city-delta family missing {row_type}")
+	if 'szType == "GAME_RECORD_CITY_TRADE_PARTNERS"' in record_text:
+		failures.append(f"{REVISION_SOURCE}: trade-partner rows must remain full; delta metadata is larger than their one-field payload")
+	for identity_field in ("x", "y", "originalOwner", "foundedTurn", "acquiredTurn"):
+		if f'getSASGameRecordDeltaFieldValue(aFields, "{identity_field}")' not in record_text:
+			failures.append(f"{REVISION_SOURCE}: city delta generation guard missing {identity_field}")
+	expander_text = (repo_root / CITY_DELTA_EXPANDER).read_text(encoding="utf-8", errors="replace")
+	for required in ("previousTurn", "fullBaseTurn", "changed", "GAME_RECORD_CITY_DEVELOPMENT", "GAME_RECORD_CITY_BUILDINGS"):
+		if required not in expander_text:
+			failures.append(f"{CITY_DELTA_EXPANDER}: reference city-delta expander missing {required}")
+	return failures
+
 
 def check_ai_strategy_diagnostics(repo_root: Path) -> list[str]:
 	failures = []
@@ -2050,6 +2081,7 @@ def main() -> int:
 	failures = require_int_values(defines, EXPECTED_GAME_RECORD_DEFAULTS)
 	failures.extend(check_revision(args.repo_root))
 	failures.extend(check_context_consumer_contracts(args.repo_root))
+	failures.extend(check_city_delta_contracts(args.repo_root))
 	failures.extend(check_ai_strategy_diagnostics(args.repo_root))
 	failures.extend(check_area_ai_diagnostics(args.repo_root))
 	failures.extend(check_ai_target_city_provenance(args.repo_root))
@@ -2084,7 +2116,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/context-consumer-contracts/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-colony-split/AI-spaceship-launch/AI-religion-spread-target/AI-map-trade/unit-completion-sources/AI-vassal-resource-tribute/AI-draft/AI-hurry/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
+	print(f"PASS SASGameRecord report/revision checks: logging defaults={len(EXPECTED_GAME_RECORD_DEFAULTS)}, revision history/current marker/context-consumer-contracts/city-delta/AI-strategy/AreaAI/AI-target-city/AI-attitude/strategic-trade/UWAI-war-plan/AI-vote/AI-contact/AI-help-tribute/AI-give-help/AI-tech-trade/AI-deal-cancel/deal-invalidation/AI-city-trade/AI-embargo/AI-joint-war/AI-vassalage/AI-colony-split/AI-spaceship-launch/AI-religion-spread-target/AI-map-trade/unit-completion-sources/AI-vassal-resource-tribute/AI-draft/AI-hurry/AI-war-trade/AI-conquer-city/AI-Great-Person/AI-Great-General diagnostics synchronized")
 	return 0
 
 

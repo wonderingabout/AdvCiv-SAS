@@ -41,6 +41,7 @@ Always review diffs before committing generated source changes.
   - [`autotune_speed_from_xml.py`](#autotune_speed_from_xmlpy)
 - [SASGameRecord comparison helpers](#sasgamerecord-comparison-helpers)
   - [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy)
+  - [`expand_sasgamerecord_city_deltas.py`](#expand_sasgamerecord_city_deltaspy)
 - [Game info comparison helpers](#game-info-comparison-helpers)
   - [`compare_handicap_infos.py`](#compare_handicap_infospy)
 - [Static audit helpers](#static-audit-helpers)
@@ -761,6 +762,21 @@ Examples:
 python LLM_Helpers\compare_sasgamerecord_rng.py "C:\path\run_a.log" "C:\path\run_b.log"
 python LLM_Helpers\compare_sasgamerecord_rng.py "C:\path\run_a.zip" "C:\path\run_b.zip"
 python LLM_Helpers\compare_sasgamerecord_rng.py "C:\path\run_a.log" "C:\path\run_b.log" --example-output
+```
+
+### `expand_sasgamerecord_city_deltas.py`
+
+- Expands revision-123+ bounded level-3 `GAME_RECORD_CITY*_DELTA` rows back into the ordinary full city-detail rows understood by older/simple consumers.
+- Supports the five intentionally delta-eligible families: core city, development, happiness, health and buildings. `GAME_RECORD_CITY_TRADE_PARTNERS` remains full in the source log because delta metadata would make that one-field payload larger.
+- Validates `previousTurn`, `fullBaseTurn`, `changed` and the required preceding full/delta chain instead of silently inventing missing inherited fields. A truncated excerpt that begins inside a delta chain therefore fails visibly until its preceding full checkpoint is included.
+- Preserves unrelated rows and reconstructed serialized field tokens byte-for-byte, including quoted/escaped values; only the delta representation itself is replaced by its reconstructed ordinary full row.
+- Reads/writes the record byte-preservingly with the Civ4-compatible single-byte mapping used by the helper, so it is suitable for lossless round-trip/reference validation rather than semantic reserialization.
+- Does not modify the input record and has no game/runtime overhead.
+
+Usage:
+
+```bat
+python LLM_Helpers\expand_sasgamerecord_city_deltas.py SASGameRecord.log SASGameRecord_expanded.log
 ```
 
 ## Game info comparison helpers

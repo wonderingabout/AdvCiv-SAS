@@ -45,6 +45,7 @@
 #include <time.h>
 #include <psapi.h> // <!-- custom: Reuse AdvCiv's existing Windows process-memory API for compact game-record performance context. (GPT-5.6-Sol) -->
 #include <algorithm> // <!-- custom: Needed to deduplicate buffered plot-change/map-revelation coordinates within each turn. (GPT-5.6-Sol) -->
+#include <map> // <!-- custom: Level-3 city snapshot delta compression keeps small session-local previous-row state keyed by city identity/row family; disabled lower record levels never populate it. (ChatGPT-5.6-Sol) -->
 #include <utility> // <!-- custom: Needed for Great Person odds pairs in game-record city rows. (ChatGPT-5.5) -->
 #include <vector> // <!-- custom: Used for compact dynamic buckets in game-record known-area, BFC development, advisor, tech-era, worker/settler, and unit-composition rows. (ChatGPT-5.5) -->
 
@@ -209,6 +210,33 @@ static bool g_bSASGameRecordDisplayContextLogged = false;
 // Buffer only those actions so stable game/mod/map context stays at the top, then flush them in original order once initialization is complete. (ChatGPT-5.6-Sol) -->
 static bool g_bSASGameRecordBufferInitializingActions = false;
 static std::vector<std::pair<CvString, std::string> > g_aszSASGameRecordInitializingActions;
+
+// <!-- custom: Level-3 periodic city-detail rows are among the largest/repetitive SASGameRecord families.
+// Keep full rows as ordinary self-contained checkpoints, but between them emit only changed fields with an explicit previous/full-base turn chain.
+// State is session-local and cleared on every new/load log roll, so a fresh file always starts each observed city/family with a full row; every tenth observation is full again to bound recovery after a truncated excerpt.
+// The cache exists only for level-3-only city detail already being formatted/logged and therefore adds no work to level 0-2 gameplay. (ChatGPT-5.6-Sol; inspired by Claude Opus 5 and Claude Sonnet 5 feedback) -->
+struct SASGameRecordCityDeltaField
+{
+	std::string szName;
+	std::string szToken;
+};
+struct SASGameRecordCityDeltaState
+{
+	SASGameRecordCityDeltaState() : iPreviousTurn(-1), iFullBaseTurn(-1), iSnapshotsSinceFull(0) {}
+	std::vector<SASGameRecordCityDeltaField> aFields;
+	int iPreviousTurn;
+	int iFullBaseTurn;
+	int iSnapshotsSinceFull;
+};
+struct SASGameRecordCityIdentityState
+{
+	SASGameRecordCityIdentityState() : iGeneration(0) {}
+	std::string szSignature;
+	int iGeneration;
+};
+static std::map<std::string, SASGameRecordCityDeltaState> g_mapSASGameRecordCityDeltaStates;
+static std::map<std::string, SASGameRecordCityIdentityState> g_mapSASGameRecordCityIdentityStates;
+static const int SAS_GAME_RECORD_CITY_FULL_SNAPSHOT_CADENCE = 10;
 static void flushSASGameRecordPendingCityBombard();
 static bool g_bSASGameRecordFlushingCityBombard = false;
 
@@ -1493,7 +1521,7 @@ static SASGameRecordDisplayAdapterContext getSASGameRecordDisplayAdapterContext(
 		if (!EnumDisplayDevicesA(NULL, iDevice, &kDevice, 0))
 			break;
 		// <!-- custom: EnumDisplayDevices(NULL, ...) enumerates display adapters rather than monitor children.
-		// Ignore mirror-only pseudo-adapters, but retain inactive hardware so hybrid/multi-GPU laptops remain visible in support records.
+		// Ignore mirror-only pseudo-adapters, but retain inactive adapters that Windows still enumerates so hybrid/multi-GPU topology can remain visible in support records; this is not a physical-GPU inventory.
 		// Multiple adapters/vendors can help explain graphics/performance anomalies from driver or device selection (e.g. a less-suitable GPU being used), while this topology remains support context and does not prove which Direct3D adapter Civ4 selected. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 		if ((kDevice.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER) != 0)
 			continue;
@@ -1597,6 +1625,9 @@ static void rollSASGameRecordLog(const char* szContext)
 	g_uiSASGameRecordSessionStartTime = getSASMonotonicMilliseconds();
 	g_uiSASGameRecordPreviousSnapshotTime = g_uiSASGameRecordSessionStartTime;
 	g_bSASGameRecordDisplayContextLogged = false;
+	// <!-- custom: Delta reconstruction never crosses SASGameRecord files/sessions; the first city-detail observation after every new/load roll must therefore be a full row. (ChatGPT-5.6-Sol) -->
+	g_mapSASGameRecordCityDeltaStates.clear();
+	g_mapSASGameRecordCityIdentityStates.clear();
 	g_szSASGameRecordLogTimestamp = createSASUtcTimestamp(kSessionStartTime);
 	if (isSASGameRecordTimestampedFilenameEnabled())
 	{
@@ -1616,6 +1647,183 @@ static void insertSASGameRecordFieldAfterRowType(std::string& szLine, char const
 		return;
 	size_t const iTypeEnd = szLine.find(' ');
 	szLine.insert(iTypeEnd == std::string::npos ? szLine.length() : iTypeEnd, szField);
+}
+
+
+// <!-- custom: Parse only already-formatted level-3 city-detail rows, preserving each original key=value token byte-for-byte.
+// Quoted diagnostic values can contain spaces and escaped quotes/backslashes, so tokenization must honor the shared getSASDiagnosticQuoted escaping rather than split blindly on spaces. (ChatGPT-5.6-Sol) -->
+static bool parseSASGameRecordDeltaFields(std::string const& szLine, std::string& szType, std::vector<SASGameRecordCityDeltaField>& aFields)
+{
+	size_t const iTypeEnd = szLine.find(' ');
+	if (iTypeEnd == std::string::npos)
+		return false;
+	szType = szLine.substr(0, iTypeEnd);
+	size_t iPos = iTypeEnd + 1;
+	while (iPos < szLine.length())
+	{
+		while (iPos < szLine.length() && szLine[iPos] == ' ')
+			iPos++;
+		if (iPos >= szLine.length())
+			break;
+		size_t const iFieldStart = iPos;
+		size_t const iEquals = szLine.find('=', iFieldStart);
+		if (iEquals == std::string::npos)
+			return false;
+		size_t iFieldEnd = iEquals + 1;
+		if (iFieldEnd < szLine.length() && szLine[iFieldEnd] == '"')
+		{
+			bool bEscaped = false;
+			iFieldEnd++;
+			for (; iFieldEnd < szLine.length(); iFieldEnd++)
+			{
+				char const c = szLine[iFieldEnd];
+				if (bEscaped)
+				{
+					bEscaped = false;
+					continue;
+				}
+				if (c == '\\')
+				{
+					bEscaped = true;
+					continue;
+				}
+				if (c == '"')
+				{
+					iFieldEnd++;
+					break;
+				}
+			}
+		}
+		else
+		{
+			size_t const iSpace = szLine.find(' ', iFieldEnd);
+			iFieldEnd = (iSpace == std::string::npos ? szLine.length() : iSpace);
+		}
+		if (iFieldEnd > szLine.length())
+			return false;
+		SASGameRecordCityDeltaField kField;
+		kField.szName = szLine.substr(iFieldStart, iEquals - iFieldStart);
+		kField.szToken = szLine.substr(iFieldStart, iFieldEnd - iFieldStart);
+		aFields.push_back(kField);
+		iPos = iFieldEnd;
+	}
+	return !aFields.empty();
+}
+
+static std::string getSASGameRecordDeltaFieldValue(std::vector<SASGameRecordCityDeltaField> const& aFields, char const* szName)
+{
+	for (size_t iI = 0; iI < aFields.size(); iI++)
+	{
+		if (aFields[iI].szName != szName)
+			continue;
+		size_t const iValue = aFields[iI].szToken.find('=');
+		return (iValue == std::string::npos ? std::string() : aFields[iI].szToken.substr(iValue + 1));
+	}
+	return std::string();
+}
+
+static bool isSASGameRecordCityDeltaFamily(std::string const& szType)
+{
+	// <!-- custom: Trade-partner rows deliberately stay full: measured late-game records have only one payload field, so previous/full-base/change metadata can make a delta row larger than the original.
+	// The five families below materially shrink in real level-3 records while retaining periodic full checkpoints. (ChatGPT-5.6-Sol) -->
+	return (szType == "GAME_RECORD_CITY" || szType == "GAME_RECORD_CITY_DEVELOPMENT" ||
+		szType == "GAME_RECORD_CITY_HAPPINESS" || szType == "GAME_RECORD_CITY_HEALTH" ||
+		szType == "GAME_RECORD_CITY_BUILDINGS");
+}
+
+static bool hasSASGameRecordCityDeltaSchema(std::vector<SASGameRecordCityDeltaField> const& aCurrent, std::vector<SASGameRecordCityDeltaField> const& aPrevious)
+{
+	if (aCurrent.size() != aPrevious.size())
+		return false;
+	for (size_t iI = 0; iI < aCurrent.size(); iI++)
+	{
+		if (aCurrent[iI].szName != aPrevious[iI].szName)
+			return false;
+	}
+	return true;
+}
+
+static void compactSASGameRecordCityDetailRow(std::string& szLine)
+{
+	std::string szType;
+	std::vector<SASGameRecordCityDeltaField> aFields;
+	if (!parseSASGameRecordDeltaFields(szLine, szType, aFields) || !isSASGameRecordCityDeltaFamily(szType))
+		return;
+	std::string const szTurn = getSASGameRecordDeltaFieldValue(aFields, "turn");
+	std::string const szPlayer = getSASGameRecordDeltaFieldValue(aFields, "player");
+	std::string const szCityId = getSASGameRecordDeltaFieldValue(aFields, "cityId");
+	if (szTurn.empty() || szPlayer.empty() || szCityId.empty())
+		return;
+	int const iTurn = atoi(szTurn.c_str());
+	CvString szIdentityKey;
+	szIdentityKey.Format("%s:%s", szPlayer.c_str(), szCityId.c_str());
+
+	// <!-- custom: (player, cityId) is the runtime key, but a slot can eventually be reused after city destruction.
+	// The core CITY row arrives before its same-snapshot detail companions; track stable lifecycle identity there and advance a session-local generation whenever founding/acquisition/location identity changes, preventing a newly created/reacquired city from inheriting an older city's delta base. (ChatGPT-5.6-Sol) -->
+	if (szType == "GAME_RECORD_CITY")
+	{
+		std::string const szSignature =
+			getSASGameRecordDeltaFieldValue(aFields, "x") + "|" +
+			getSASGameRecordDeltaFieldValue(aFields, "y") + "|" +
+			getSASGameRecordDeltaFieldValue(aFields, "originalOwner") + "|" +
+			getSASGameRecordDeltaFieldValue(aFields, "foundedTurn") + "|" +
+			getSASGameRecordDeltaFieldValue(aFields, "acquiredTurn");
+		std::map<std::string, SASGameRecordCityIdentityState>::iterator itIdentity = g_mapSASGameRecordCityIdentityStates.find(szIdentityKey.GetCString());
+		if (itIdentity == g_mapSASGameRecordCityIdentityStates.end())
+		{
+			SASGameRecordCityIdentityState kIdentity;
+			kIdentity.szSignature = szSignature;
+			g_mapSASGameRecordCityIdentityStates[szIdentityKey.GetCString()] = kIdentity;
+		}
+		else if (itIdentity->second.szSignature != szSignature)
+		{
+			itIdentity->second.szSignature = szSignature;
+			itIdentity->second.iGeneration++;
+		}
+	}
+	int iGeneration = 0;
+	std::map<std::string, SASGameRecordCityIdentityState>::const_iterator itIdentity = g_mapSASGameRecordCityIdentityStates.find(szIdentityKey.GetCString());
+	if (itIdentity != g_mapSASGameRecordCityIdentityStates.end())
+		iGeneration = itIdentity->second.iGeneration;
+
+	CvString szStateKey;
+	szStateKey.Format("%s|%s|%s|%d", szType.c_str(), szPlayer.c_str(), szCityId.c_str(), iGeneration);
+	std::map<std::string, SASGameRecordCityDeltaState>::iterator itState = g_mapSASGameRecordCityDeltaStates.find(szStateKey.GetCString());
+	bool const bHavePrevious = (itState != g_mapSASGameRecordCityDeltaStates.end());
+	bool const bSchemaMatches = (bHavePrevious && hasSASGameRecordCityDeltaSchema(aFields, itState->second.aFields));
+	bool const bPeriodicFull = (bHavePrevious && itState->second.iSnapshotsSinceFull >= SAS_GAME_RECORD_CITY_FULL_SNAPSHOT_CADENCE - 1);
+	if (!bHavePrevious || !bSchemaMatches || bPeriodicFull)
+	{
+		SASGameRecordCityDeltaState& kState = g_mapSASGameRecordCityDeltaStates[szStateKey.GetCString()];
+		kState.aFields = aFields;
+		kState.iPreviousTurn = iTurn;
+		kState.iFullBaseTurn = iTurn;
+		kState.iSnapshotsSinceFull = 0;
+		return;
+	}
+
+	SASGameRecordCityDeltaState& kState = itState->second;
+	std::vector<int> aiChanged;
+	for (size_t iI = 0; iI < aFields.size(); iI++)
+	{
+		std::string const& szName = aFields[iI].szName;
+		if (szName == "turn" || szName == "player" || szName == "cityId")
+			continue;
+		if (aFields[iI].szToken != kState.aFields[iI].szToken)
+			aiChanged.push_back((int)iI);
+	}
+	CvString szDeltaPrefix;
+	szDeltaPrefix.Format("%s_DELTA turn=%d player=%s cityId=%s previousTurn=%d fullBaseTurn=%d changed=%d",
+		szType.c_str(), iTurn, szPlayer.c_str(), szCityId.c_str(), kState.iPreviousTurn, kState.iFullBaseTurn, (int)aiChanged.size());
+	szLine = szDeltaPrefix.GetCString();
+	for (size_t iI = 0; iI < aiChanged.size(); iI++)
+	{
+		szLine += " ";
+		szLine += aFields[aiChanged[iI]].szToken;
+	}
+	kState.aFields = aFields;
+	kState.iPreviousTurn = iTurn;
+	kState.iSnapshotsSinceFull++;
 }
 
 static void emitSASGameRecordLine(CvString const& szLogName, std::string szLine)
@@ -1640,6 +1848,10 @@ static void logSASGameRecordFormattedLine(CvString const& szLogName, TCHAR* form
 	FAssertMsg(bFormatted, "SASGameRecord row formatting failed");
 	if (!bFormatted)
 		return;
+	// <!-- custom: Delta-compaction runs only after a level-3 city-detail row has already paid its native snapshot computation/formatting cost; lower record levels never enter this parser/cache path.
+	// Do this before transaction/sequence decoration so those session-local chronology fields cannot masquerade as city-state changes. (ChatGPT-5.6-Sol) -->
+	if (g_iSASGameRecordLogLevel >= 3 && szLine.find("GAME_RECORD_CITY") == 0)
+		compactSASGameRecordCityDetailRow(szLine);
 	// <!-- custom: Capture causal membership before any buffering.
 	// `seq` is deliberately deferred until actual emission, but `tx` must describe the operation active when the observation was produced. (ChatGPT-5.6-Sol) -->
 	if (g_uiSASGameRecordActiveTransaction != 0 && isSASGameRecordStructuredRow(szLine))
