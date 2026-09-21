@@ -282,7 +282,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#197.11 - (Fixed SAS naval-production tuning defect) Per-water-area naval floors reused an empire-wide denominator](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.11)\
 [KI#197.12 - (Greatly Improved) AI may under-prioritize cheap useful infrastructure once buildings become inexpensive relative to contemporary military units](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.12)\
 [KI#197.13 - (Improved) Safe over-funded AIs could still skip very cheap high-return economic infrastructure after hard city needs were fixed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.13)\
-[KI#198 - (Reopened/Broadened after SAS fix) An area-local Worker minimum can be vetoed by the empire-wide concrete cap](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-198)\
+[KI#198 - (Fixed SAS Worker-policy defect) An area-local Worker minimum could be vetoed by the empire-wide concrete cap](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-198)\
 [KI#198.2 - (Fixed/Improved) Base AdvCiv AI non-combat food-production allocation could stall small growing cities instead of using mature or stagnant food/production pumps (observed with Workers)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-198.2)\
 [KI#199 - (Fixed/Improved) Base AdvCiv/K-Mod generic UnitAI fallback could use dedicated land anti-air units as ordinary attackers or reserves](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-199)\
 [KI#200 - (Improved) Inherited Base AdvCiv/K-Mod sacrifice selection could spend current units before SAS-defined obsolete expendables during risky AI stack attacks](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-200)\
@@ -9905,9 +9905,13 @@ Investigated/improved with the help of ChatGPT-5.6-Sol thanks.
 
 <a id="ki-198"></a>
 
-## KI#198 - (Reopened/Broadened after SAS fix) An area-local Worker minimum can be vetoed by the empire-wide concrete cap
+## KI#198 - (Fixed SAS Worker-policy defect) An area-local Worker minimum could be vetoed by the empire-wide concrete cap
 
 Queue-005 WIP279 found that the repaired local land-area Worker floor is still applied beneath an empire-wide cap on concrete Workers. Workers elsewhere can veto the minimum for an underdeveloped disconnected area.
+
+Update: the concrete Worker gate now retains its ordinary empire-wide maximum once the selected city's land area has met its shared Worker minimum, but bypasses that global cap while the area remains locally below the minimum. Workers on developed landmasses therefore no longer suppress the guaranteed workforce of a disconnected underdeveloped area. The existing war/strong-enemy safety veto and all ordinary demand calculation remain unchanged.
+
+The repaired DLL compiled successfully, and a reused multi-landmass full autoplay completed without an observed production or runtime issue.
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1LG6nM1Br5bfPYIDGj9yH4B7nPsuRbUeZ?usp=sharing).
 
@@ -9937,7 +9941,7 @@ The final defaults are therefore `-1 / -1 / -1`: with the 200% per-city percenta
 
 This is therefore both a regression fix and a deliberate AI-strength enhancement, while also addressing a broader symptom that appears to have existed in Base AdvCiv already. Workers convert population and territory into food, production, commerce, routes and cleared terrain, so chronically running near one Worker per city can leave otherwise strong AI empires unable to exploit their own land. Further reserve/ratio tuning can still be revisited empirically, but the previous pathological shortage is considered fixed/improved for now.
 
-Fixed/improved with the help of GPT-5.6 Thinking and GPT-5.6-Sol thanks.
+The original fix/improvement was implemented with the help of GPT-5.6 Thinking and GPT-5.6-Sol; its area/global cap mismatch was reopened through ChatGPT-5.6-Sol's Queue-005 WIP279 audit and fixed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-198.2"></a>
 

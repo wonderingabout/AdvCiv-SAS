@@ -15642,8 +15642,11 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							iMaxUnits = std::max(iMinWorkersInCase, iMaxWorkersDecayed);
 						}
 
-						// <!-- custom: Keep the generic Worker cap at least as high as the shared SAS minimum, so the XML-tuned primary-area floor can actually be rebuilt in later eras instead of being vetoed by the era-decayed maximum. Worker scrapping already uses the same shared minimum. (GPT-5.6 Thinking) -->
-						iMaxUnits = std::max(iMaxUnits, kPlayer.AI_getSASMinimumAreaWorkers(getArea()));
+						// <!-- custom: The shared Worker minimum is area-local, whereas this concrete cap is empire-wide.
+						// Workers on other landmasses must not veto a Worker while this area is below its own minimum; once the floor is met, retain the ordinary global cap. See KI#198. (GPT-5.6 Thinking + GPT-5.6-Sol) -->
+						int const iAreaWorkers = kPlayer.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER);
+						int const iMinimumAreaWorkers = kPlayer.AI_getSASMinimumAreaWorkers(getArea());
+						bool const bAreaWorkerMinimumDeficit = (iAreaWorkers < iMinimumAreaWorkers);
 
 						// <!-- custom: no time for expansion at war or danger or similar, but the worker is so important we'll be a bit more lenient, we may unlock more hammers for example by producing a worker that would then chop or build a mine or workshop or anything useful so don't be too harsh here as advised by chatgpt 5 thanks-->
 						if (bAtWar && bEnemyStrong)
@@ -15655,7 +15658,11 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_WORKER);
 
-						if (iTotalUnitAIs >= iMaxUnits)
+						if (gWorkerLogLevel >= 2 && iTotalUnitAIs >= iMaxUnits && bAreaWorkerMinimumDeficit)
+							logBBAI("      WORKER_CAP_BYPASS turn=%d player=%d %S city=%S cityId=%d total=%d cap=%d area=%d areaWorkers=%d areaMinimum=%d",
+								GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(),
+								iTotalUnitAIs, iMaxUnits, getArea().getID(), iAreaWorkers, iMinimumAreaWorkers);
+						if (iTotalUnitAIs >= iMaxUnits && !bAreaWorkerMinimumDeficit)
 						{
 							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "LAND_WORKER_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
