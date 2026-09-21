@@ -440,13 +440,16 @@ static int SAS_getMilitaryProductionCapacityPercent(CvPlayerAI const& kPlayer, C
 	int iLoop = 0;
 	for (CvCity const* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 	{
+		// <!-- custom: A per-water-area naval floor must measure its share only among ports that can contribute to that sea.
+		// Reusing whole-empire production let every disconnected sea independently demand the intended empire-wide naval share; include either coast of a dual-coast port. See KI#197.11. (GPT-5.6-Sol) -->
+		if (pNavalWaterArea != NULL && !SAS_cityTouchesWaterArea(*pLoopCity, *pNavalWaterArea)) continue;
 		int const iBaseProduction = std::max(0, pLoopCity->getBaseYieldRate(YIELD_PRODUCTION));
 		if (iBaseProduction <= 0) continue;
 		iProductiveCities++;
 		iTotalBaseProduction += iBaseProduction;
 		if (pLoopCity->getProductionUnit() == NO_UNIT) continue;
 		UnitAITypes const eProductionAI = pLoopCity->getProductionUnitAI();
-		bool const bMatchesRole = (pNavalWaterArea == NULL ? SAS_isOffensiveProductionAI(eProductionAI) : (pLoopCity->waterArea(true) == pNavalWaterArea && SAS_isNavalOffensiveProductionAI(eProductionAI)));
+		bool const bMatchesRole = (pNavalWaterArea == NULL ? SAS_isOffensiveProductionAI(eProductionAI) : SAS_isNavalOffensiveProductionAI(eProductionAI));
 		if (!bMatchesRole) continue;
 		iRoleProductionCities++;
 		iRoleBaseProduction += iBaseProduction;

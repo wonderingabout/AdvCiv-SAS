@@ -279,7 +279,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#197.8 - (Improved) Under-strength military production could still react too weakly for low-BuildUnitProb personalities because the relative-power catch-up was only multiplicative even when more units were affordable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.8)\
 [KI#197.9 - (Improved) Healthy AI empires could still devote too little productive capacity to offensive units even after BuildUnitProb and spending-limit fixes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.9)\
 [KI#197.10 - (Improved / tuned) An era-progressive offensive production floor preserves early AI strategies while correcting weak middle and late armies](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.10)\
-[KI#197.11 - (Reopened/Broadened after SAS tuning) Per-water-area naval floors reuse an empire-wide denominator](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.11)\
+[KI#197.11 - (Fixed SAS naval-production tuning defect) Per-water-area naval floors reused an empire-wide denominator](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.11)\
 [KI#197.12 - (Greatly Improved) AI may under-prioritize cheap useful infrastructure once buildings become inexpensive relative to contemporary military units](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.12)\
 [KI#197.13 - (Improved) Safe over-funded AIs could still skip very cheap high-return economic infrastructure after hard city needs were fixed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.13)\
 [KI#198 - (Reopened/Broadened after SAS fix) An area-local Worker minimum can be vetoed by the empire-wide concrete cap](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-198)\
@@ -9785,9 +9785,13 @@ Investigated with the help of GPT-5.6-Sol thanks.
 
 <a id="ki-197.11"></a>
 
-## KI#197.11 - (Reopened/Broadened after SAS tuning) Per-water-area naval floors reuse an empire-wide denominator
+## KI#197.11 - (Fixed SAS naval-production tuning defect) Per-water-area naval floors reused an empire-wide denominator
 
 Queue-005 WIP281, with further topology accounting in WIP301, found that each disconnected water area can compare its own secured naval output against an empire-wide production denominator. Multiple seas can therefore each force what was intended as the full empire naval share.
+
+Update: each naval floor now measures both its naval-role production and total productive capacity among only the ports that can contribute to the selected water area. A dual-coast port participates for either accessible sea. Thus disconnected seas retain independent fleet choices without each applying its target percentage to the entire empire's production base; the land-offense floor remains empire-wide.
+
+The repaired DLL compiled successfully, and a reused water-rich full autoplay completed without an observed production or runtime issue.
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1HSn5DodRFQr7i4DNdj84JllyIt1lYQWa?usp=sharing).
 
@@ -9805,7 +9809,7 @@ To prevent that without strangling real invasions, the secured naval floor now h
 
 The default 5 was then confirmed in the same-map rerun (`BBAI_20260903T110150Z_load1.log` / `SASGameRecord_20260903T110150Z_load1.log`). Byzantium again had five connected ports: by T351 its tracked invasion-role stock had reached exactly 25, `navalStockCapActive=1`, `navalStockLimit=25`, and the extra naval floor stopped qualifying. When real naval-war/projection state began on T362 the guard lifted automatically, allowing further naval production while ships were being used and lost; when that projection state ended on T415 the 25-ship peaceful guard immediately became active again. At T420 Byzantium had 25 tracked roles (6 Assault / 12 Escort / 7 Attack) and 79 total combat units, versus 56 tracked roles (9 / 28 / 19) and 141 combat units in the prior no-stock-guard run. The game trajectories naturally diverged after the behavioral change, so those totals are not a controlled outcome comparison by themselves, but the detailed BBAI state confirms that the guard stops the forced peacetime accumulation at its intended threshold and gets out of the way during actual projection. The default 5 therefore looks reasonable rather than merely hypothetical, while remaining XML-tunable.
 
-Improved/investigated with the help of ChatGPT-5.6-Sol thanks.
+The original tuning was improved/investigated with the help of ChatGPT-5.6-Sol; its denominator mismatch was reopened through ChatGPT-5.6-Sol's Queue-005 WIP281/WIP301 audit and fixed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-197.12"></a>
 
