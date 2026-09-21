@@ -76,7 +76,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-42)\
 [KI#43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-43)\
 [KI#44 - (Enhanced) Make/Encourage AI settlers walk away from bad starting sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44)\
-[KI#44.5 - (Reopened/Broadened after partial SAS repair) Disallow citizen specialist unless absolutely necessary](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44.5)\
+[KI#44.5 - (Fixed SAS citizen-assignment regression) Citizen specialist could be impossible even when absolutely necessary](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44.5)\
 [KI#44.6 - Disable auto citizen specialists for the human player as well](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44.6)\
 [KI#45 - (Addressed / Patched / Worked around) AI cities assigning too soon or too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-45)\
 [KI#46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46)\
@@ -2745,9 +2745,9 @@ Note: these are done at emperor difficulty, before changing all tech prereqs, so
 
 <a id="ki-44.5"></a>
 
-## KI#44.5 - (Reopened/Broadened after partial SAS repair) Disallow citizen specialist unless absolutely necessary
+## KI#44.5 - (Fixed SAS citizen-assignment regression) Citizen specialist could be impossible even when absolutely necessary
 
-Queue-005 WIP285 found that the mandatory-citizen fallback can still select the deliberately avoided Citizen specialist when another legal assignment exists. The earlier SAS repair improved normal assignment but did not close this forced fallback contract.
+Queue-005 WIP285 found that the absolute anti-Citizen guard also removed the mandatory default-specialist fallback when no ordinary assignment remained. The earlier SAS repair improved normal assignment but could leave population unassigned and trigger an assertion cascade.
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/13QF4EHJMAg8Eur-H6N0qYVd_nvWXgupS?usp=sharing).
 
@@ -2804,6 +2804,12 @@ Message:
 ```
 
 I don't know if it is related to citizen specialists not being usable as a fallback, or if it's an unrelated issue, but added for exhaustiveness or reference.
+
+Update: Queue-005 WIP285 established that the assertion cascade was directly reachable when ordinary war, siege or blockade invalidated every workable plot while productive specialist slots were unavailable or full. SAS's `-100000` Citizen valuation kept the default specialist out of ordinary ranking as intended, but `AI_addBestCitizen` began from `-1`, so it could not use Citizen even as the engine's terminal population-conservation fallback. The completed repair excludes the default Citizen explicitly from normal specialist ranking, then assigns one only when no workable plot or non-default specialist was selected and the default specialist remains legal. Human automated assignment receives the same last-resort safety without changing manual specialist controls or allowing Citizen to compete normally.
+
+The repaired DLL compiled successfully, and a full autoplay completed through a Space victory without an observed citizen-assignment or runtime failure.
+
+The anti-Citizen policy was originally implemented with AI/LLM help recorded above; its missing mandatory fallback was reopened through ChatGPT-5.6-Sol's Queue-005 WIP285 audit and fixed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-44.6"></a>
 

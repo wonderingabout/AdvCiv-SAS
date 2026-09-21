@@ -16411,6 +16411,7 @@ bool CvCityAI::AI_addBestCitizen(bool bWorkers, bool bSpecialists, CityPlotTypes
 
 	int iBestValue = -1;
 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
+	static SpecialistTypes const eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
 
 	if (bSpecialists)
 	{
@@ -16428,6 +16429,8 @@ bool CvCityAI::AI_addBestCitizen(bool bWorkers, bool bSpecialists, CityPlotTypes
 		}
 		FOR_EACH_ENUM(Specialist)
 		{
+			// <!-- custom: Keep the low-yield default Citizen out of ordinary job ranking; if no plot or productive specialist can absorb the population, the terminal fallback below may still use one so assignment cannot fail. See KI#44.5. (GPT-5.6-Sol) -->
+			if (eLoopSpecialist == eDefaultSpecialist) continue;
 			if (isSpecialistValid(eLoopSpecialist, 1) &&
 				(!bForcedSpecAvailable || getForceSpecialistCount(eLoopSpecialist) > 0))
 			{
@@ -16481,6 +16484,20 @@ bool CvCityAI::AI_addBestCitizen(bool bWorkers, bool bSpecialists, CityPlotTypes
 			*peBestSpecialist = NO_SPECIALIST;
 			*peBestPlot = eBestPlot;
 
+		}
+		return true;
+	}
+	// <!-- custom: SAS's forbidden Citizen value converted the intended strong preference into an absolute impossibility and caused the recorded unassigned-population assertion cascade when war/blockade removed every normal job.
+	// Use the default specialist only as the engine's final population-conservation fallback; it never competes with a legal plot or non-default specialist above.
+	// This also preserves the human no-auto-Citizen convenience setting until a Citizen is genuinely unavoidable. See KI#44.5. (GPT-5.6-Sol) -->
+	else if (bSpecialists && eDefaultSpecialist != NO_SPECIALIST && isSpecialistValid(eDefaultSpecialist, 1))
+	{
+		changeSpecialistCount(eDefaultSpecialist, 1);
+		if (peBestPlot != NULL)
+		{
+			FAssert(peBestSpecialist != NULL);
+			*peBestSpecialist = eDefaultSpecialist;
+			*peBestPlot = NO_CITYPLOT;
 		}
 		return true;
 	}
