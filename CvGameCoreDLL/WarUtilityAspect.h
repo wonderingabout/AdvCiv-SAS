@@ -177,11 +177,17 @@ class GreedForSpace : public WarUtilityAspect
 public:
 	GreedForSpace(WarEvalParameters const& kParams)
 	:	WarUtilityAspect(kParams) {}
+	// <!-- custom: Start each agent teammate with local rival-cache dedup state; deterministic physical-site ownership prevents the same opportunity from then being valued by another teammate. See KI#1050. (GPT-5.6-Sol) -->
+	int preEvaluate();
 	void evaluate();
 	UWAI::AspectTypes xmlID() const { return UWAI::GREED_FOR_SPACE; }
-// <!-- custom: Rival teammates can cache the same physical settlement plot independently. Preserve plot identity across their aspect passes so one site creates one opportunity. See KI#454. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 private:
+	// <!-- custom: Rival teammates can cache the same physical settlement plot independently. Preserve plot identity across this agent member's rival passes, while nearest-city ownership coordinates the opportunity across agent teammates. See KI#454 and KI#1050. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	std::set<PlotNumTypes> m_countedSites;
+	// <!-- custom: Select the one agent teammate allowed to value a physical site instead of letting aspect iteration order claim it. See KI#1050. (GPT-5.6-Sol) -->
+	PlayerTypes siteOwner(CvPlot const& kSite) const;
+	// <!-- custom: Preserve AdvCiv's eliminated-rival adjacency gate at team scope now that site ownership is explicitly coordinated across agent teammates. See KI#1050. (GPT-5.6-Sol) -->
+	bool agentTeamAdjacentTo(PlayerTypes eRival) const;
 };
 
 

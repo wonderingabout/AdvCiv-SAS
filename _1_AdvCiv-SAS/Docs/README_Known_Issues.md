@@ -1163,7 +1163,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1047 - (Provisional Pending inherited BtS carrier-automation defect) Carrier Explore mixes head-unit cargo with group-wide automation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1047)\
 [KI#1048 - (Provisional Pending inherited BtS/K-Mod/AdvC amphibious scope defect) One carrier can land another carrier's grouped cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1048)\
 [KI#1049 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv air-rebase defect) Recon was cleared before shared destination capacity was consumed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1049)\
-[KI#1050 - (Provisional Pending Architectural AdvCiv-SAS UWAI repair regression) GreedForSpace dedup state leaks across agent teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1050)\
+[KI#1050 - (Fixed Architectural AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI defect) GreedForSpace dedup state leaked across agent teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1050)\
 [KI#1051 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI HiredHand defect) Historical-role utility repeated across agent teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1051)\
 [KI#1052 - (Fixed inherited AdvCiv UWAI HiredHand defect) Ally-hire obligation repeated across target teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1052)\
 [KI#1053 - (Fixed AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI KingMaking defect) Target-team utility used its leader's personal relation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1053)\
@@ -13193,7 +13193,9 @@ Base AdvCiv 1.14 contains the same mixed ownership, making this an inherited Adv
 
 `GreedForSpace::evaluate` consumes each eliminated rival player's independently cached city-site recommendations. Two teammates can recommend the same plot, but that physical plot can host only one future city. The old per-player passes therefore converted one released settlement opportunity into several merely because the recommendation appeared in several player caches.
 
-The repair preserves a plot-identity set across rival-member passes and counts each visible recommended plot once, while distinct sites and player-owned auto-raze city plots remain additive. Base AdvCiv 1.14 contains the same uncoordinated player-cache accounting, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F131/provisional KI#454 during ChatGPT-5.6-Sol's C014 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+The repair preserves a plot-identity set across rival-member passes and counts each visible recommended plot once, while distinct sites and player-owned auto-raze city plots remain additive. Base AdvCiv 1.14 contains the same uncoordinated player-cache accounting, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression.
+
+Update: KI#1050 found that the initial SAS repair's persistent set leaked across agent teammates because one aspect object evaluates every living member. The completed repair resets rival-cache dedup for each member and assigns every physical site once to the agent teammate with the nearest existing city, with stable player order breaking equal-distance ties; the eliminated-rival adjacency gate remains team-wide. Found as F131/provisional KI#454 during ChatGPT-5.6-Sol's C014 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-455"></a>
 
@@ -19240,13 +19242,17 @@ The inherited head-only recon root remains KI#471; practical 6280 introduced thi
 
 <a id="ki-1050"></a>
 
-## KI#1050 - (Provisional Pending Architectural AdvCiv-SAS UWAI repair regression) GreedForSpace dedup state leaks across agent teammates
+## KI#1050 - (Fixed Architectural AdvCiv-SAS regression in repair of an inherited AdvCiv UWAI defect) GreedForSpace dedup state leaked across agent teammates
 
-KI#454 deduplicates rival teammates' repeated physical settlement plots through `GreedForSpace::m_countedSites`, but one aspect object is reused across every member of the evaluating agent team and its set is not reset. The first agent member to encounter a plot therefore suppresses later teammates from applying their different player-local city/site and amortization values to it.
+KI#454 deduplicated rival teammates' repeated physical settlement plots through `GreedForSpace::m_countedSites`, but one aspect object is reused across every member of the evaluating agent team and its set was not reset. The first agent member to encounter a plot therefore suppressed later teammates from applying their different player-local city/site and amortization values to it.
 
-Base AdvC contains the original rival-side duplicate-site root but not this persistent set. Practical 6278 introduced the SAS lifetime mismatch. Pending an explicit team/scenario ownership rule that values each physical opportunity once without assigning it implicitly to whichever teammate iterates first.
+Base AdvCiv 1.14 contains the original rival-side duplicate-site root but not this persistent set; practical 6278 introduced the AdvCiv-SAS lifetime regression while repairing that inherited defect. The completed architectural repair clears the set for each agent member so it remains local rival-cache dedup state, then assigns every physical settlement site to the living agent teammate whose existing city is nearest.
 
-Found as F729/provisional KI#1050 during ChatGPT-5.6-Sol's C031-WIP777 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+Stable player iteration order breaks equal-distance ties, so aspect evaluation order no longer claims the opportunity and the site remains valued exactly once. The original eliminated-rival adjacency requirement is evaluated across the whole agent team because another teammate can provide access to the shared war opportunity; player-owned auto-raze city value remains local and additive.
+
+`SASGameRecord_20260921T052920Z_new1.log` confirms that the matching dirty Debug-opt DLL completed a Huge Normal Pangaea full-UWAI autoplay with 16 players, including four two-player teams. The mixed-team game exercised repeated shared-aspect evaluation and several player eliminations before team 8 won a Domination victory on turn 379; the exact released-site ownership transition remains source-verified because UWAI reporting was not enabled.
+
+Found as F729/provisional KI#1050 during ChatGPT-5.6-Sol's C031-WIP777 repair-side audit; reconciled, repaired and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-1051"></a>
 

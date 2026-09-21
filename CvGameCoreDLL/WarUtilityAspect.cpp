@@ -1029,10 +1029,54 @@ void GreedForVassals::evaluate()
 }
 
 
+// <!-- custom: The aspect object is reused across living agent teammates; reset rival-cache dedup for each member; physical ownership below prevents cross-member double counting without leaking first-member state. See KI#1050. (GPT-5.6-Sol) -->
+int GreedForSpace::preEvaluate()
+{
+	m_countedSites.clear();
+	return 0;
+}
+
+
+// <!-- custom: Assign each released physical site to the living agent teammate whose existing city is nearest, with player iteration order as a stable tie-break.
+// This is a deliberate map-based ownership rule rather than letting whichever teammate is evaluated first capture the opportunity. See KI#1050. (GPT-5.6-Sol) -->
+PlayerTypes GreedForSpace::siteOwner(CvPlot const& kSite) const
+{
+	PlayerTypes eBestOwner = NO_PLAYER;
+	int iBestDistance = MAX_INT;
+	for (MemberIter itMember(eOurTeam); itMember.hasNext(); ++itMember)
+	{
+		FOR_EACH_CITY(pCity, *itMember)
+		{
+			int const iDistance = plotDistance(&kSite, pCity->plot());
+			if (iDistance < iBestDistance)
+			{
+				iBestDistance = iDistance;
+				eBestOwner = itMember->getID();
+			}
+		}
+	}
+	return eBestOwner;
+}
+
+
+// <!-- custom: Greed for Space concerns a team war opportunity; retain AdvCiv's adjacency gate, but accept it when any living agent teammate borders the eliminated rival so the deterministically assigned owner is not suppressed merely because another teammate provides the shared access. See KI#1050. (GPT-5.6-Sol) -->
+bool GreedForSpace::agentTeamAdjacentTo(PlayerTypes eRival) const
+{
+	for (MemberIter itMember(eOurTeam); itMember.hasNext(); ++itMember)
+	{
+		// <!-- custom: MemberIter exposes CvPlayer, where calling uwai() failed to compile; recover CvPlayerAI through GET_PLAYER(member ID) before accessing its UWAI cache. See KI#1050. (GPT-5.6-Sol) -->
+		if (GET_PLAYER(itMember->getID()).uwai().getCache().numAdjacentLandPlots(eRival) > 0)
+			return true;
+	}
+	return false;
+}
+
+
 void GreedForSpace::evaluate()
 {
 	// If they lose cities, but aren't eliminated, they'll try to settle sites aggressively; doesn't help us.
-	if (!militAnalyst().isEliminated(eThey) || ourCache().numAdjacentLandPlots(eThey) <= 0)
+	// <!-- custom: Replace the evaluating player's adjacency test with the coordinated agent-team test because another teammate can provide access to the shared opportunity. See KI#1050. (GPT-5.6-Sol) -->
+	if (!militAnalyst().isEliminated(eThey) || !agentTeamAdjacentTo(eThey))
 	{
 		return;
 	}
@@ -1043,7 +1087,7 @@ void GreedForSpace::evaluate()
 	for (int i = 0; i < kThey.AI_getNumCitySites(); i++)
 	{
 		CvPlot const& kSite = kThey.AI_getCitySite(i);
-		// <!-- custom: Track visibility without incrementing immediately so the persistent plot-identity set can reject a duplicate teammate recommendation before it becomes another settlement opportunity. See KI#454. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		// <!-- custom: Track visibility without incrementing immediately so the local plot-identity set rejects duplicate rival recommendations and deterministic nearest-city ownership admits the site for only one agent teammate. See KI#454 and KI#1050. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		bool bVisible = kSite.isRevealed(eOurTeam);
 		if (!bVisible)
 		{
@@ -1056,7 +1100,8 @@ void GreedForSpace::evaluate()
 				}
 			}
 		}
-		if (bVisible && m_countedSites.insert(kSite.plotNum()).second)
+		// <!-- custom: Count the site only for its deterministic agent owner, then reject repeated recommendations from this member's rival caches. See KI#454 and KI#1050. (GPT-5.6-Sol) -->
+		if (bVisible && siteOwner(kSite) == eWe && m_countedSites.insert(kSite.plotNum()).second)
 			iTheirSites++;
 	}
 	// Expect to raze only when we have to
