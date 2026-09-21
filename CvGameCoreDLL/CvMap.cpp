@@ -1246,6 +1246,46 @@ void CvMap::updateIrrigated(CvPlot& kPlot)
 }
 
 
+// <!-- custom: The inherited updater above removes irrigation only when a carrier ceases to be potential irrigation.
+// Runtime river or Oasis removal leaves Farms potential, so validate every locally affected carrier component against its surviving fresh-water sources. See KI#351 and KI#933. (GPT-5.6-Sol) -->
+void CvMap::updateIrrigationSourceChanged(CvPlot& kSourcePlot)
+{
+	PROFILE_FUNC();
+
+	if (!GC.getGame().isFinalInitialized())
+		return;
+
+	std::vector<bool> abVisited(numPlots(), false);
+	for (SquareIter itSeed(kSourcePlot, 1); itSeed.hasNext(); ++itSeed)
+	{
+		CvPlot& kSeed = *itSeed;
+		if (!kSeed.isPotentialIrrigation() || abVisited[kSeed.plotNum()])
+			continue;
+
+		std::vector<CvPlot*> apComponent;
+		apComponent.push_back(&kSeed);
+		abVisited[kSeed.plotNum()] = true;
+		bool bFoundFreshWater = false;
+		for (size_t i = 0; i < apComponent.size(); i++)
+		{
+			CvPlot& kComponentPlot = *apComponent[i];
+			if (kComponentPlot.isFreshWater())
+				bFoundFreshWater = true;
+			FOR_EACH_ADJ_PLOT_VAR(kComponentPlot)
+			{
+				if (pAdj->isPotentialIrrigation() && !abVisited[pAdj->plotNum()])
+				{
+					abVisited[pAdj->plotNum()] = true;
+					apComponent.push_back(pAdj);
+				}
+			}
+		}
+		for (size_t i = 0; i < apComponent.size(); i++)
+			apComponent[i]->setIrrigated(bFoundFreshWater);
+	}
+}
+
+
 // BETTER_BTS_AI_MOD, Efficiency (plot danger cache), 08/21/09, jdog5000: START
 void CvMap::invalidateActivePlayerSafeRangeCache()
 {

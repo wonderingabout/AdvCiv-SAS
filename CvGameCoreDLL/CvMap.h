@@ -417,6 +417,8 @@ public: // advc: made several functions const
 	void resetPathDistance();																		// Exposed to Python
 	int calculatePathDistance(CvPlot const* pSource, CvPlot const* pDest) const;					// Exposed to Python
 	void updateIrrigated(CvPlot& kPlot); // advc.pf
+	// <!-- custom: A fresh-water source can disappear while every Farm remains a potential irrigation carrier, so recompute the locally affected carrier components instead of relying on the narrower carrier-change updater. See KI#351 and KI#933. (GPT-5.6-Sol) -->
+	void updateIrrigationSourceChanged(CvPlot& kSourcePlot);
 
 	// BETTER_BTS_AI_MOD, Efficiency (plot danger cache), 08/21/09, jdog5000: START
 	//void invalidateIsActivePlayerNoDangerCache();

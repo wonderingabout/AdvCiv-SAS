@@ -449,7 +449,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#348 - (Fixed inherited BtS bug) Foreign friendly aircraft inherited the host city's enhanced air capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-348)\
 [KI#349 - (Fixed inherited AdvCiv bug) Plot debug strings returned dangling pointers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-349)\
 [KI#350 - (Fixed inherited AdvCiv information leak) Nuke reports revealed hidden-nationality unit owners](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-350)\
-[KI#351 - (Reopened after partial SAS fix of inherited BtS bug) Runtime fresh-water-source removal can leave irrigation stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-351)\
+[KI#351 - (Fixed SAS repair regression atop inherited BtS bug) Runtime river-source removal left irrigation stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-351)\
 [KI#352 - (Fixed inherited AdvCiv bug) Barbarian culture decay read past its city-radius array](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-352)\
 [KI#353 - (Fixed inherited AdvCiv bug) Diplomatic-vote counter-candidate selection compared a vote count with a team ID](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-353)\
 [KI#354 - (Fixed inherited AdvCiv iterator-refactor bug) War planning checked our cities instead of the proposed target's cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-354)\
@@ -1047,7 +1047,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#930 - (Provisional Pending inherited BtS/K-Mod combat-state defect) Paratrooper interceptors receive no experience](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-930)\
 [KI#931 - (Provisional Pending AdvCiv-SAS Fast Save defect) Victory save records GAMESTATE_ON](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-931)\
 [KI#932 - (Provisional Pending AdvC terrain-reveal regression) Advanced Start skips requested plot-group refresh](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-932)\
-[KI#933 - (Provisional Pending inherited BtS invalidation defect) Oasis removal leaves fresh-water state stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-933)\
+[KI#933 - (Fixed inherited BtS invalidation defect) Oasis removal left fresh-water state stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-933)\
 [KI#934 - (Provisional Pending AdvCiv-SAS promotion-field mismatch) Air Bomber city bombard bonus uses the wrong mechanic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-934)\
 [KI#935 - (Provisional Pending inherited AdvC True Starts cardinality defect amplified by SAS) Civilization uniqueness exhausts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-935)\
 [KI#936 - (Provisional Pending AdvCiv-SAS True Starts data omission) Ireland and Benin cannot be selected](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-936)\
@@ -12000,17 +12000,21 @@ This is an inherited AdvCiv `advc.650` information leak, not an AdvCiv-SAS chang
 
 <a id="ki-351"></a>
 
-## KI#351 - (Reopened after partial SAS fix of inherited BtS bug) Runtime fresh-water-source removal can leave irrigation stale
+## KI#351 - (Fixed SAS repair regression atop inherited BtS bug) Runtime river-source removal left irrigation stale
 
 BtS exposes `CvPlot::setNOfRiver` and `setWOfRiver` to Python and WorldBuilder for changing river edges after game initialization. The setters updated the stored edge, river crossings, yields, area river-edge count and graphics, but did not update three systems that consume the changed river state: irrigation propagation, city fresh-water health and river-based plot-group connectivity. A visible post-start river edit could therefore disagree with worked-plot yields, city health or resource/trade connections until some unrelated later rebuild happened.
 
-The fix runs only when the edge's presence actually changes after final game initialization, so initial map generation and direction-only corrections retain their existing inexpensive behavior. It refreshes irrigation from the changed plot and every adjacent plot, which correctly propagates river-source additions through connected irrigation networks; updates fresh-water health for cities in the affected local radius; and rebuilds player plot groups and trade routes for potentially nonlocal river-network splits or merges. Existing river-crossing, yield, graphics and SASGameRecord updates remain unchanged.
+The fix runs only when the edge's presence actually changes after final game initialization, so initial map generation and direction-only corrections retain their existing inexpensive behavior. It updates fresh-water health for cities in the affected local radius and rebuilds player plot groups and trade routes for potentially nonlocal river-network splits or merges. Existing river-crossing, yield, graphics and SASGameRecord updates remain unchanged.
 
-The C031-WIP434 current-tree audit proved that the irrigation-removal half remains incomplete. The inherited BtS/K-Mod updater clears an irrigated component only when its triggering plot ceases to be a potential irrigation carrier. Removing the last river source does not make an already-irrigated Farm cease to carry irrigation, so every locally refreshed Farm can remain both `isIrrigated()` and `isPotentialIrrigation()` and enter neither state-changing branch. Its stale flag can preserve the irrigated yield and downstream chain after no fresh-water source remains. This reopens KI#351 as a supported runtime-mutation follow-up in the SAS repair, rather than consuming a new KI number; fresh-water-source removal needs an explicit component traversal that tests for a surviving source and clears the component when none remains. The city-health and plot-group portions of the original fix remain valid.
+The C031-WIP434 current-tree audit proved that the original SAS irrigation-removal repair remained incomplete. The inherited BtS/K-Mod updater clears an irrigated component only when its triggering plot ceases to be a potential irrigation carrier. Removing the last river source does not make an already-irrigated Farm cease to carry irrigation, so every locally refreshed Farm could remain both `isIrrigated()` and `isPotentialIrrigation()` and enter neither state-changing branch. Its stale flag could preserve the irrigated yield and downstream chain after no fresh-water source remained.
+
+The completed repair adds a source-change operation distinct from the inherited carrier-change updater. It traverses each potential-irrigation component touching the changed source, checks the component for any surviving fresh-water source and sets the stored irrigation state of the entire component accordingly. River additions therefore still propagate irrigation, while removal of the last source now clears the component. KI#933 reuses the same operation for `AddsFreshWater` feature changes rather than duplicating or partially reimplementing the component logic.
 
 A fresh game completed turn 201 through autoplay without an observed issue after compilation. No post-start river edge was deliberately added or removed beside a city and irrigation network, so the exact derived-state contrast remains source-verified.
 
-The original omission is an inherited BtS supported-API defect retained by K-Mod and AdvCiv, not an AdvCiv-SAS change. It was found through C010 of the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, partially fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks. The surviving removal asymmetry was reopened through ChatGPT-5.6-Sol's C031-WIP434 audit and reconciled into this KI with the help of GPT-5.6-Sol, thanks; its implementation remains pending.
+Update: after the source-aware component repair, a Debug-opt DLL completed a Huge Pangaea, Normal-speed, Ancient-start autoplay with standard Aggressive AI and independent teams through a turn-450 Space Race victory. `SASGameRecord_20260921T180138Z_new1.log` identifies the matching dirty source and records the successful run without an observed regression. The exact runtime river-removal contrast remains source-verified.
+
+The original omission is an inherited BtS supported-API defect retained by K-Mod and AdvCiv, not an AdvCiv-SAS change. It was found through C010 of the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, partially fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks. The surviving removal asymmetry was reopened through ChatGPT-5.6-Sol's C031-WIP434 audit, then fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-352"></a>
 
@@ -18243,11 +18247,15 @@ Found as F609 during ChatGPT-5.6-Sol's C031-WIP432 audit; reconciled into Known 
 
 <a id="ki-933"></a>
 
-## KI#933 - (Provisional Pending inherited BtS invalidation defect) Oasis removal leaves fresh-water state stale
+## KI#933 - (Fixed inherited BtS invalidation defect) Oasis removal left fresh-water state stale
 
-Global Warming removes an Oasis through `setFeatureType(NO_FEATURE)` without refreshing nearby city fresh-water health or irrigation state. Add an explicit fresh-water-source-change invalidation that also supports component teardown.
+Global Warming and other supported runtime mutations remove an Oasis through `setFeatureType(NO_FEATURE)`. The inherited BtS path, retained by K-Mod and AdvCiv, refreshed feature health and yields but not nearby city fresh-water health or irrigation state. Cities could therefore retain obsolete fresh-water health, and an already-irrigated Farm network could retain its irrigated yield and continue propagating irrigation after its last Oasis source disappeared.
 
-Found as F610 during ChatGPT-5.6-Sol's C031-WIP433 audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+When a feature mutation changes `AddsFreshWater`, the fix now refreshes nearby city fresh-water health and invokes the source-aware irrigation-component operation added while completing KI#351. This covers both source addition and removal without adding work to ordinary feature changes or initial map generation.
+
+A Debug-opt DLL completed the matching Huge Pangaea, Normal-speed, Ancient-start autoplay through a turn-450 Space Race victory without an observed regression, recorded by `SASGameRecord_20260921T180138Z_new1.log`. No Oasis was deliberately removed beside a city and irrigated Farm component, so that exact transition remains source-verified.
+
+Found as F610 during ChatGPT-5.6-Sol's C031-WIP433 audit; reconciled, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-934"></a>
 

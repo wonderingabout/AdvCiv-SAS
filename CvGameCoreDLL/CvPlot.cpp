@@ -66,19 +66,22 @@ namespace
 		PlayerTypes aeVisualOwner[MAX_CIV_TEAMS];
 	};
 
-	// <!-- custom: BtS runtime river-edge setters updated the visible edge and yields but left irrigation, city fresh-water health and trade-network plot groups stale.
-	// Refresh irrigation from every locally affected plot, refresh nearby city health and rebuild plot groups after a finalized-game edge edit. See KI#351. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	void updateRiverDerivedState(CvPlot& kPlot)
+	// <!-- custom: Runtime river or AddsFreshWater-feature changes can invalidate irrigation and city fresh-water health; refresh those shared derived states after the source changes. See KI#351 and KI#933. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void updateFreshWaterDerivedState(CvPlot& kPlot)
 	{
-		kPlot.updateIrrigated();
-		FOR_EACH_ADJ_PLOT_VAR(kPlot)
-			pAdj->updateIrrigated();
+		GC.getMap().updateIrrigationSourceChanged(kPlot);
 		for (SquareIter itPlot(kPlot, 1); itPlot.hasNext(); ++itPlot)
 		{
 			CvCity* pCity = itPlot->getPlotCity();
 			if (pCity != NULL)
 				pCity->updateFreshWaterHealth();
 		}
+	}
+
+	// <!-- custom: River-edge changes additionally alter river-based resource/trade connectivity, so rebuild plot groups after the shared fresh-water refresh. See KI#351. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void updateRiverDerivedState(CvPlot& kPlot)
+	{
+		updateFreshWaterDerivedState(kPlot);
 		GC.getGame().updatePlotGroups();
 	}
 }
@@ -4678,6 +4681,9 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 	FeatureTypes eOldFeature = getFeatureType();
 	if(eOldFeature == eNewValue && m_iFeatureVariety == iVariety)
 		return; // advc
+	// <!-- custom: Preserve whether this feature supplied fresh water so a runtime addition or removal can refresh irrigation and city health after the mutation. See KI#933. (GPT-5.6-Sol) -->
+	bool const bOldAddsFreshWater = (eOldFeature != NO_FEATURE && GC.getInfo(eOldFeature).isAddsFreshWater());
+	bool const bNewAddsFreshWater = (eNewValue != NO_FEATURE && GC.getInfo(eNewValue).isAddsFreshWater());
 
 	bool bUpdateSight = false;
 
@@ -4711,6 +4717,9 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 	{
 		itCity->updateSurroundingHealthHappiness();
 	}
+	// <!-- custom: Global Warming and other supported runtime mutations can remove an Oasis; refresh source-dependent state only when AddsFreshWater actually changes and the game is fully initialized. See KI#933. (GPT-5.6-Sol) -->
+	if (bOldAddsFreshWater != bNewAddsFreshWater && GC.getGame().isFinalInitialized())
+		updateFreshWaterDerivedState(*this);
 
 	if (!isFeature() && isImproved())
 	{
