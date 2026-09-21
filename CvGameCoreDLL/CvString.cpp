@@ -123,6 +123,9 @@ bool CvString::formatv(std::string & out, const char * fmt, va_list args)
 		int len = _vsnprintf(pbuf,maxlen,fmt,args);
 		attempts++;
 		success = (len>=0 && len<=maxlen);
+		// <!-- custom: Legacy _vsnprintf can return maxlen after an exact fit without writing a terminating NUL; every buffer here reserves maxlen+1 elements, so explicitly terminate successful output at the returned length before constructing std::string. See KI#375.2. (ChatGPT-5.6-Sol) -->
+		if (success)
+			pbuf[len] = '\0';
 		if (!success)
 		{
 			if (pbuf!=buf)
@@ -163,6 +166,9 @@ bool CvWString::formatv(std::wstring & out, const wchar * fmt, va_list args)
 		int len = _vsnwprintf(pbuf,maxlen,fmt,args);
 		attempts++;
 		success = (len>=0 && len<=maxlen);
+		// <!-- custom: _vsnwprintf has the same legacy exact-fit termination behavior as the narrow formatter above. (ChatGPT-5.6-Sol) -->
+		if (success)
+			pbuf[len] = L'\0';
 		if (!success)
 		{
 			if (pbuf!=buf)

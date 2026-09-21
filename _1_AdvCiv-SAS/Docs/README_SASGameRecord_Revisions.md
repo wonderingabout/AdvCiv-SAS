@@ -56,14 +56,14 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 ### Revision 123 - SAS practical 6552
 
 - **Date:** 2026-09-21
-- **Git commit:** pending
+- **Git commit:** `37448599d5f14a155645fe08838df74f41f9db82`
 - **Change:** Added bounded level-3 checkpoint-plus-delta encoding for the five largest repetitive periodic city-detail families while retaining ordinary full rows as self-contained recovery points.
 
 `GAME_RECORD_CITY`, `GAME_RECORD_CITY_DEVELOPMENT`, `GAME_RECORD_CITY_HAPPINESS`, `GAME_RECORD_CITY_HEALTH`, and `GAME_RECORD_CITY_BUILDINGS` now emit a full row on the first observation of each city/family in a log session and every tenth observation thereafter. Intermediate `*_DELTA` rows keep `(player, cityId)`, `previousTurn`, `fullBaseTurn`, `changed`, and only serialized fields that changed. New/load log rolls clear every chain; a lifecycle generation guard prevents reused/reacquired city identities from inheriting stale state. `GAME_RECORD_CITY_TRADE_PARTNERS` deliberately remains full because its small payload became larger with delta metadata.
 
 The level-3-only compressor runs after the ordinary city snapshot is already computed/formatted, so levels 0-2 add no city scan, AI query, pathfinding, or RNG work. `LLM_Helpers/expand_sasgamerecord_city_deltas.py` is the strict reference expander: it validates `previousTurn`/`fullBaseTurn`, fails closed on missing bases/links, copies unrelated rows byte-for-byte, and restores the five encoded families to ordinary full rows for older/simple consumers.
 
-Runtime validation used the actual revision-123 C++ output: 14,835 delta rows and 2,200 full city-detail checkpoints compressed a 59,726,600-byte expanded record to 53,805,598 bytes, saving 5,921,002 bytes (about 9.9% overall). Against the revision-122 same-parent control, all 425 state checkpoints, all 425 gameplay-significant RNG checkpoints, and all 37,458 pre-existing factual actions matched after ignoring timing/sequence-only fields. Expansion reproduced the logical city-detail history; its byte-level comparison also exposed a separate pre-existing exact-boundary `CvString::formatv` termination defect, left for a dedicated source fix rather than mixed into this format revision.
+Runtime validation used the actual revision-123 C++ output: 14,835 delta rows and 2,200 full city-detail checkpoints compressed a 59,726,600-byte expanded record to 53,805,598 bytes, saving 5,921,002 bytes (about 9.9% overall). Against the revision-122 same-parent control, all 425 state checkpoints, all 425 gameplay-significant RNG checkpoints, and all 37,458 pre-existing factual actions matched after ignoring timing/sequence-only fields. Expansion reproduced the logical city-detail history; its byte-level comparison also exposed a separate pre-existing exact-boundary `CvString::formatv` termination defect, left for a dedicated source fix rather than mixed into this format revision. See also [KI#375.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-375.2)\
 
 ### Revision 122 - SAS practical 6551
 
