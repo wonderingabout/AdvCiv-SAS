@@ -1261,12 +1261,11 @@ NormalizationTarget* CvGame::assignStartingPlots()
 						if (abPlayerDone.get(itMember->getID()))
 							continue;
 						if (itMember->getStartingPlot() == NULL)
-						{
 							itMember->setStartingPlot(itMember->findStartingPlot()/*, true*/); // advc.opt
-							abPlayerDone.set(itMember->getID(), true);
-						}
 						if (itMember->getStartingPlot() != NULL)
 						{
+							// <!-- custom: A preassigned teammate is just as complete as one assigned by this fallback; mark completion only after a valid plot exists so later passes advance, while a failed search remains retryable. See KI#1061. (GPT-5.6-Sol) -->
+							abPlayerDone.set(itMember->getID(), true);
 							bStartFound = true;
 							break;
 						}

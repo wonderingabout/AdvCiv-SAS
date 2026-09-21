@@ -1174,7 +1174,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1058 - (Fixed inherited BtS target-identity defect plus an AdvCiv-SAS group-Espionage repair regression) The wrong Spy or unit target could control a mission](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1058)\
 [KI#1059 - (Fixed UI AdvCiv-SAS perspective defect) Info Screen power hover used the real active player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1059)\
 [KI#1060 - (Fixed UI AdvCiv-SAS regression in repair of an inherited AdvCiv replay-visibility defect) Timeline reused another observer's filtered replay](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1060)\
-[KI#1061 - (Provisional Pending inherited AdvC starting-position regression) A preassigned teammate blocks later fallback assignment](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1061)\
+[KI#1061 - (Fixed inherited AdvC starting-position regression) A preassigned teammate blocked later fallback assignment](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1061)\
 [KI#1062 - (Fixed UI one inherited K-Mod/Base AdvCiv defect plus three AdvCiv-SAS regressions) Four persistent Main Interface labels remained stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1062)\
 [KI#1063 - (Provisional Pending UI AdvCiv-SAS display defect) Culture Breakdown omits slider and process culture](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1063)\
 [KI#1064 - (Provisional Pending Team Battleground regeneration defect) Start assignment mixes alive and ever-alive populations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1064)\
@@ -11819,6 +11819,8 @@ A new save file 493 Fractal Large game with ten players split between sparse tea
 
 This is an inherited BtS team-assignment defect retained by K-Mod and AdvCiv, not an AdvCiv-SAS regression. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
 
+Update: KI#1061 found a distinct AdvC regression inside the same fallback: a teammate that entered with a valid preassigned plot was never marked complete, so every pass stopped on that player and could leave a later teammate unassigned. Completion is now recorded whenever a valid plot exists, whether preassigned or newly found; a failed search remains eligible for a later retry.
+
 <a id="ki-341"></a>
 
 ## KI#341 - (Fixed inherited AdvCiv enum-refactor bug) Initial score normalization ignored civilization free technologies
@@ -19364,13 +19366,15 @@ Found as F739/provisional KI#1060 during ChatGPT-5.6-Sol's C031-WIP814 repair-si
 
 <a id="ki-1061"></a>
 
-## KI#1061 - (Provisional Pending inherited AdvC starting-position regression) A preassigned teammate blocks later fallback assignment
+## KI#1061 - (Fixed inherited AdvC starting-position regression) A preassigned teammate blocked later fallback assignment
 
-AdvC's team-start fallback marks `abPlayerDone` only inside the branch that began with a null starting plot. If the first teammate already has a pre-marked start, every outer pass reaches that same unmarked member and breaks again; a later teammate can remain without any starting plot in both Debug verification and Release recovery paths.
+AdvC's team-start fallback marked `abPlayerDone` only inside the branch that began with a null starting plot. If the first teammate already had a pre-marked start, every outer pass reached that same unmarked member and broke again; a later teammate could remain without any starting plot in both Debug verification and Release recovery paths.
 
-AdvC practical 2708 introduced this bookkeeping regression; K-Mod's older fallback progressed past already-started members. Pending marking a member done only after it actually has a valid start, whether pre-existing or newly found, while preserving KI#340's compact alive-team rotation.
+The repair marks a teammate complete only after that player actually has a valid starting plot, whether preassigned or newly found. Later passes therefore advance to subsequent teammates, while a failed null `findStartingPlot` result remains retryable. KI#340's compact alive-team rotation is unchanged.
 
-Found as F740/provisional KI#1061 during ChatGPT-5.6-Sol's C031-WIP821 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+`SASGameRecord_20260921T055059Z_new1.log` confirms that the matching dirty Debug-opt DLL generated a SAS48 Custom Continents map with all 48 players assigned cities across 40 teams, including eight two-player teams, then completed the requested 11-turn autoplay normally. This fully covers initialization and mixed-team start assignment; the exact preassigned-first-teammate fallback ordering remains source-verified.
+
+AdvC practical 2708 introduced this bookkeeping regression; K-Mod's older fallback progressed past already-started members. Found as F740/provisional KI#1061 during ChatGPT-5.6-Sol's C031-WIP821 repair-side audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-1062"></a>
 
