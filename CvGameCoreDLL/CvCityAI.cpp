@@ -6263,10 +6263,13 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 // Choose the best unit to build for the given AI type.
 // Note: a lot of this function has been restructured / rewritten for K-Mod
-UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes eIgnoreAdvisor) /* advc: */ const
+UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes eIgnoreAdvisor, std::vector<UnitTypes>* paeRankedUnits) /* advc: */ const
 {
 	PROFILE_FUNC();
 	FAssertMsg(eUnitAI != NO_UNITAI, "UnitAI is not assigned a valid value");
+	// <!-- custom: Collect final values only when the caller needs KI#53 same-role fallback; ordinary callers retain the original best-unit-only work and result. See KI#53.3. (GPT-5.6-Sol) -->
+	std::vector<int> aiRankedValues;
+	if (paeRankedUnits != NULL) paeRankedUnits->clear();
 
 	// <!-- custom: it seems that sometimes the settler or such bestunits are forced and bypass our new logic that is simpler in bestunit, and that is also an attempt to fix ai producing settlers in small sizes cities, that currently take +/- 50 turns to complete and ruin AI growth and potential, instead of big cities that could produce them fast (see code comments at bestUnit for details). Instead of rewriting everything tediously, try to fix current issue(s) instead/rather by making the below GrowMore logic closer to ours; also rewrite this below to be our economy rather than workers or such, assume there are always good cities to settle, and let workers handle best tiles, and settlers handle best found value, focus only on if we should produce a settler or not based on our economy or such rather; see code comments we added in AI_chooseProduction as well where logic was moved for details (change parent callers rather then hack this one in a not clean not reliable way) -->
 
@@ -6558,6 +6561,14 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
 		// K-Mod end
 
 		iValue = std::max(1, iValue);
+		// <!-- custom: Insert after equal-valued candidates to preserve the civilization iteration tie order used by the original strict-greater best-unit comparison. See KI#53.3. (GPT-5.6-Sol) -->
+		if (paeRankedUnits != NULL)
+		{
+			size_t iRank = 0;
+			while (iRank < aiRankedValues.size() && aiRankedValues[iRank] >= iValue) iRank++;
+			aiRankedValues.insert(aiRankedValues.begin() + iRank, iValue);
+			paeRankedUnits->insert(paeRankedUnits->begin() + iRank, eUnit);
+		}
 		if (iValue > iBestValue)
 		{
 			iBestValue = iValue;
@@ -14329,8 +14340,10 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 	}
 
 	UnitTypes eBestUnit;
+	// <!-- custom: A requested role receives the already-valued candidate order for a narrowly retryable KI#53 siege veto; generic role selection retains its original single concrete candidate. See KI#53.3. (GPT-5.6-Sol) -->
+	std::vector<UnitTypes> aeRankedUnits;
 	if (eUnitAI != NO_UNITAI)
-		eBestUnit = AI_bestUnitAI(eUnitAI);
+		eBestUnit = AI_bestUnitAI(eUnitAI, false, NO_ADVISOR, &aeRankedUnits);
 	else eBestUnit = AI_bestUnit(false, NO_ADVISOR, &eUnitAI);
 	if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_UNIT_SELECTION turn=%d player=%d %S city=%S cityId=%d stage=BEST_UNIT requestedAI=%s resolvedAI=%s bestUnit=%s odds=%d progress=%d needed=%d",
 		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
@@ -14404,13 +14417,24 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 			// pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI);
 			// return true;
 			// Funnel through the (UnitTypes, UnitAITypes) overload and propagate success/failure.
-			const bool bChosen = AI_chooseUnit(eBestUnit, eUnitAI);
-			if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_UNIT_SELECTION turn=%d player=%d %S city=%S cityId=%d stage=CONCRETE_RESULT unit=%s unitAI=%s success=%d",
-				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
-				GC.getInfo(eBestUnit).getType(), (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), bChosen);
-			if (!bChosen && bResolvedSettler && gSettlerLogLevel >= 2)
-				SAS_logSettlerBuildDecision(*this, bRequestedSettler ? "AI_chooseUnit_requested" : "AI_chooseUnit_generic", "CONCRETE_REJECTED", eBestUnit, eUnitAI, iOdds, -1);
-			return bChosen;
+			// <!-- custom: Consume the odds roll once, then walk the original same-pass ranking only when a concrete KI#53 siege veto requests it. Other failures still stop immediately. See KI#53.3. (GPT-5.6-Sol) -->
+			if (aeRankedUnits.empty()) aeRankedUnits.push_back(eBestUnit);
+			for (size_t i = 0; i < aeRankedUnits.size(); i++)
+			{
+				UnitTypes const eCandidate = aeRankedUnits[i];
+				bool bRetrySameRole = false;
+				bool const bChosen = AI_chooseUnit(eCandidate, eUnitAI, &bRetrySameRole);
+				if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_UNIT_SELECTION turn=%d player=%d %S city=%S cityId=%d stage=CONCRETE_RESULT unit=%s unitAI=%s success=%d retrySameRole=%d rank=%d",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
+					GC.getInfo(eCandidate).getType(), (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), bChosen, bRetrySameRole, (int)i);
+				if (bChosen) return true;
+				if (!bRetrySameRole)
+				{
+					if (bResolvedSettler && gSettlerLogLevel >= 2) SAS_logSettlerBuildDecision(*this, bRequestedSettler ? "AI_chooseUnit_requested" : "AI_chooseUnit_generic", "CONCRETE_REJECTED", eCandidate, eUnitAI, iOdds, -1);
+					return false;
+				}
+			}
+			return false;
 		}
 		else if (bResolvedSettler && gSettlerLogLevel >= 2)
 		{
@@ -14739,8 +14763,10 @@ bool CvCityAI::SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& eP
 	return ((ePickUnit != NO_UNIT) && (ePickUnitAI != NO_UNITAI));
 }
 
-bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetrySameRole)
 {
+	// <!-- custom: Default every concrete-unit failure to terminal; only the KI#53 siege checks below opt into a same-role retry. See KI#53.3. (GPT-5.6-Sol) -->
+	if (pbRetrySameRole != NULL) *pbRetrySameRole = false;
 	UnitTypes const eRequestedUnit = eUnit;
 	UnitAITypes const eRequestedUnitAI = eUnitAI;
 	bool const bLogDetailedMilitaryProduction = (gMilitaryProductionLogLevel >= 3 && !isHuman() && !isBarbarian());
@@ -14876,12 +14902,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						if (bAtWar && bEnemyStrong)
 						{
 							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "TREBUCHET_AT_WAR_ENEMY_STRONG", "enemyPowerPercent", iEnemyPowerPercent, "strongThreshold", iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+							if (pbRetrySameRole != NULL) *pbRetrySameRole = true;
 							return false; // don’t add more narrow-purpose siege when not stronger
 						}
 						// <!-- custom: even if not at war and still in planning stage, trebuchets are bad if we're weak regardless (we can expect to be attacked, so don't build them); note: i guessedly assume if we are planning war we are strong enough to do so and so don't mind some trebuchets to help that (otherwise maybe not if other conditions are also not met) but i didn't check, check if accurate -->
 						if (bDanger)
 						{
 							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "TREBUCHET_LOCAL_DANGER");
+							if (pbRetrySameRole != NULL) *pbRetrySameRole = true;
 							return false; // don’t add more narrow-purpose siege when not stronger
 						}
 						if (!bWarPlan)
@@ -14892,6 +14920,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						if (bEnemyStrong)
 						{
 							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "TREBUCHET_ENEMY_STRONG", "enemyPowerPercent", iEnemyPowerPercent, "strongThreshold", iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+							if (pbRetrySameRole != NULL) *pbRetrySameRole = true;
 							return false;
 						}
 
@@ -14915,6 +14944,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						if (iTrebsShareOff >= (iCapTrebs + iTrebuchetsLikeMinExtraCap))
 						{
 							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "TREBUCHET_SHARE_CAP", "sharePercent", iTrebsShareOff, "capPercent", iCapTrebs + iTrebuchetsLikeMinExtraCap);
+							if (pbRetrySameRole != NULL) *pbRetrySameRole = true;
 							return false;
 						}
 					}
@@ -14968,6 +14998,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						if ((iSiegesShareOff) >= (iCapSiegesAll + iSiegesAllMinExtraCap))
 						{
 							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "SIEGE_SHARE_CAP", "sharePercent", iSiegesShareOff, "capPercent", iCapSiegesAll + iSiegesAllMinExtraCap);
+							if (pbRetrySameRole != NULL) *pbRetrySameRole = true;
 							return false;
 						}
 					}

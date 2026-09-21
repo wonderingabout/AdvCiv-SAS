@@ -29,7 +29,8 @@ public:
 	bool SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& ePickUnitAI, bool bOffenseDefaultUnitAIsOnly, bool bDefenseDefaultUnitAIsOnly, int iMaxCost, bool bAllowSiege, bool bAllowTrebuchetsLike, int iCapNonTrebuchetsLikeSiegesAll, int iCapTrebsLike, int iSiegesAllNonTrebuchetsLike, int iSiegesAllTrebuchetsLike, UnitTypes eSkipUnit, bool bAllowOverallFallback, bool bAllowCheapestFallback) const;
 
 	UnitTypes AI_bestUnit(bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR, UnitAITypes* peBestUnitAI = NULL) const;
-	UnitTypes AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR) const;
+	// <!-- custom: Optionally return the same-pass ranked concrete candidates so a KI#53 siege veto can try the next unit without rerunning randomized valuation. See KI#53.3. (GPT-5.6-Sol) -->
+	UnitTypes AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR, std::vector<UnitTypes>* paeRankedUnits = NULL) const;
 
 	BuildingTypes AI_bestBuilding(int iFocusFlags = 0, int iMaxTurns = 0, bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR) const;
 	// <!-- custom: bRandomize preserves the inherited random wonder bonus and final 100-124% building-value multiplier by default.
@@ -219,7 +220,8 @@ protected:
 
 	bool AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseChance, UnitTypes* eBestSpreadUnit, int* iBestSpreadUnitValue);
 	bool AI_chooseUnit(UnitAITypes eUnitAI = NO_UNITAI, int iOdds = -1); // BETTER_BTS_AI_MOD, 01/09/10, jdog5000: City AI
-	bool AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI);
+	// <!-- custom: The optional result distinguishes a KI#53 siege veto from other terminal concrete-unit failures, allowing only the former to try another unit of the same role. See KI#53.3. (GPT-5.6-Sol) -->
+	bool AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetrySameRole = NULL);
 	bool AI_chooseDefender();
 	bool AI_chooseLeastRepresentedUnit(UnitAIWeightMap const& kWeights, int iOdds = -1); // BBAI
 	bool AI_chooseBuilding(int iFocusFlags = 0, int iMaxTurns = MAX_INT, int iMinThreshold = 0, int iOdds = -1); // BBAI
