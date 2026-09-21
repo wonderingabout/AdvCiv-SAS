@@ -395,7 +395,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#298 - (Fixed AdvCiv-SAS bug) Highlands Arena could lack legal sites for 48 civilizations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-298)\
 [KI#298.2 - (Fixed AdvCiv-SAS bug) Highlands was undersized beyond the Arena capacity case](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-298.2)\
 [KI#299 - (Fixed AdvCiv-SAS bug) Movie-to-Music left the user's No Movies option disabled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-299)\
-[KI#300 - (Reopened Pending AdvCiv-SAS bug) Timeline can reveal a razed hidden holy city's name](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300)\
+[KI#300 - (Fixed reopened AdvCiv-SAS bug after incomplete repair) Timeline could reveal a razed hidden holy city's name](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300)\
 [KI#301 - (Fixed AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-301)\
 [KI#302 - (Fixed AdvCiv-SAS bug) Terrain Units (Any Build) omitted Hill and water builders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-302)\
 [KI#303 - (Fixed AdvCiv-SAS issue) Specialist Extra Yields omitted building-wide specialist commerce](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-303)\
@@ -11285,7 +11285,7 @@ This is an AdvCiv-SAS Sevopedia media-state regression introduced when the Movie
 
 <a id="ki-300"></a>
 
-## KI#300 - (Reopened Pending AdvCiv-SAS bug) Timeline can reveal a razed hidden holy city's name
+## KI#300 - (Fixed reopened AdvCiv-SAS bug after incomplete repair) Timeline could reveal a razed hidden holy city's name
 
 Religion founding writes the real holy-city name into its replay message, while the live notification correctly uses the localized faraway-land text for observers who cannot see the city. The AdvCiv-SAS Info Screen Timeline deliberately keeps this globally known event visible, then formerly tried to hide the city name by replacing the current city object's current name. If the holy city had been razed before the observer revealed its plot, no current city object remained and the historical replay name was shown verbatim. Renaming could similarly make the current name differ from the historical replay text.
 
@@ -11293,9 +11293,13 @@ The fix recognizes the localized religion-founding replay template with a sentin
 
 Runtime screenshot 0216 confirms that the ordinary known-city path remains intact: the active Ethiopian player correctly sees `Paganism has been founded in Aksum!`. The exact razed-before-reveal spoiler state was not reproduced; its corrected hidden/no-current-city branch is established by source review.
 
-C031-WIP552 review reopened the issue. `CyPlot.getPlotCity()` returns a managed `CyCity` wrapper even when the underlying city pointer is null, so Python `is None` tests do not recognize the empty-city state. If the razed holy-city plot is revealed later, `bPlotHidden` is false and the null wrapper passes the current-city branch; its empty name cannot replace the historical replay name, which remains visible. The earlier repair therefore works while the plot is still hidden but misses the later-revealed state it was intended to cover. Pending obtaining the wrapper once and testing `pCity is None or pCity.isNone()` before reading its owner or name.
+C031-WIP552 review reopened the issue. `CyPlot.getPlotCity()` returns a managed `CyCity` wrapper even when the underlying city pointer is null, so Python `is None` tests did not recognize the empty-city state. If the razed holy-city plot was revealed later, `bPlotHidden` was false and the null wrapper passed the current-city branch; its empty name could not replace the historical replay name, which remained visible. The earlier repair therefore worked while the plot was still hidden but missed the later-revealed state it was intended to cover.
 
-This is an AdvCiv-SAS Timeline spoiler introduced with its hidden-event filtering. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol and partially fixed with the help of GPT-5.6-Sol; reopened as F679 during ChatGPT-5.6-Sol's C031-WIP552 `CyPlot.cpp` audit and reconciled with the help of GPT-5.6-Sol, thanks.
+Update: the completed repair obtains the city wrapper once and treats both a missing Python object and `CyCity.isNone()` as no current city before reading any city data. A recognized religion-founding replay therefore retains the localized faraway-land text when its plot is hidden or its historical holy city no longer exists, including after that razed plot becomes visible. The ordinary surviving-city path continues to use current owner/contact visibility.
+
+Runtime validation exported a full Timeline panel to `PythonDbg.log` without a Python error. Seven ordinary surviving-city entries retained their named-city form, including `Hinduism has been founded in Tenochtitlan!`, `Paganism has been founded in Gondar!` and the later Judaism, Daoism, Buddhism, Christianity and Islam entries. The exact razed-before-reveal state remains source-verified because reproducing that historical visibility sequence is disproportionately cumbersome.
+
+This is an AdvCiv-SAS Timeline spoiler introduced with its hidden-event filtering. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol and partially fixed with the help of GPT-5.6-Sol; reopened as F679 during ChatGPT-5.6-Sol's C031-WIP552 `CyPlot.cpp` audit, then completed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-301"></a>
 

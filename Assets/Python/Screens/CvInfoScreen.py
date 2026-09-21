@@ -1039,23 +1039,27 @@ class CvInfoScreen:
 				szTextNoColor = self.RE_COLOR_CLOSE.sub("", self.RE_COLOR_OPEN.sub("", szText))
 			szText = szTextNoColor
 
-			if not self.bRevealAll and szHiddenReligionText is not None and (pPlot is None or bPlotHidden or pPlot.getPlotCity() is None):
-				# <!-- custom: A hidden religion founding remains globally visible, but its replay text must not reveal a historical holy-city name merely because the city was razed before the observer learned it. Use the localized unknown-location line identified above. See KI#300. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-				szText = szHiddenReligionText
-			elif not self.bRevealAll and pPlot is not None:
+			# <!-- custom: CyPlot.getPlotCity returns a managed CyCity wrapper even when its native city pointer is null, so Python identity alone did not recognize a razed holy city.
+			# Resolve the wrapper once and use isNone before any city access; this completes the earlier hidden-founding repair after a razed holy-city plot becomes visible. See KI#300. (GPT-5.6-Sol) -->
+			pCity = None
+			if not self.bRevealAll and pPlot is not None:
 				pCity = pPlot.getPlotCity()
-				if pCity is not None:
-					bCityOwnerMet = False
-					iCityOwner = pCity.getOwner()
-					if iCityOwner != -1:
-						pCityOwner = gc.getPlayer(iCityOwner)
-						if pCityOwner.isEverAlive():
-							if self.pActiveTeam.isHasMet(pCityOwner.getTeam()):
-								bCityOwnerMet = True
-					if not bCityOwnerMet or bPlotHidden:
-						szCityName = pCity.getName()
-						if szCityName:
-							szText = szText.replace(szCityName, self.TEXT_TIMELINE_UNKNOWN_CITY)
+			bCityMissing = pCity is None or pCity.isNone()
+			if not self.bRevealAll and szHiddenReligionText is not None and (bPlotHidden or bCityMissing):
+				# <!-- custom: A hidden religion founding remains globally visible, but its replay text must not reveal a historical holy-city name merely because the city was razed before the observer learned it; use the localized unknown-location line identified above. See KI#300. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				szText = szHiddenReligionText
+			elif not self.bRevealAll and not bCityMissing:
+				bCityOwnerMet = False
+				iCityOwner = pCity.getOwner()
+				if iCityOwner != -1:
+					pCityOwner = gc.getPlayer(iCityOwner)
+					if pCityOwner.isEverAlive():
+						if self.pActiveTeam.isHasMet(pCityOwner.getTeam()):
+							bCityOwnerMet = True
+				if not bCityOwnerMet or bPlotHidden:
+					szCityName = pCity.getName()
+					if szCityName:
+						szText = szText.replace(szCityName, self.TEXT_TIMELINE_UNKNOWN_CITY)
 
 			szFormattedText = localText.changeTextColor(sasFontTagLabel + szEventDate + u": " + szText + SAS_FONT_TAG_CLOSE, eColor)
 			entries.append(szFormattedText)
