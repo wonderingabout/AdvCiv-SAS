@@ -15,7 +15,7 @@ import CvUtil
 import ScreenInput
 import CvScreenEnums
 from SASFontUtils import *
-from SASUtils import getInfoTypeOrFail
+from SASUtils import formatExactHundredths, getInfoTypeOrFail
 # <!-- custom: in main interface, use LABEL as the base text font instead of BODY because it is more readable. (GPT-5.3-Codex) -->
 import CvEventInterface
 import time
@@ -1118,6 +1118,7 @@ class CvMainInterface:
 		self.szProductionIcon = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
 		self.szCultureIcon = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()
 		self.szGoldIcon = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()
+		self.szEspionageIcon = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar()
 		# Precomputed constants
 		self.iMoveDenominator = gc.getMOVE_DENOMINATOR()
 		# <!-- custom: K-Mod/Base AdvCiv already key Info and Foreign Advisor text caches by language, and SAS correctly retained/extended that pattern in other advisor initText paths.
@@ -5671,7 +5672,7 @@ class CvMainInterface:
 			else:
 				szTurns = u"(-)"
 
-			# 3. Construct ROW 1 (Top Line): "(5 [Silver Star] 3 [Cit]) +25% [GP]"
+			# 3. Construct ROW 1 (Top Line): "(5 [Map] 3 [Cit]) +25% [GP]"
 			szRow1 = sasFontTagLabel + u"(%d%s %d%s)" % (iBldgRaw, self.szMapIcon, iSpecRaw, self.szCitizenIcon)
 			if iModPercent != 0:
 				szRow1 += u" %+d%%" % (iModPercent)
@@ -5730,12 +5731,25 @@ class CvMainInterface:
 					iSpecPop = pHeadSelectedCity.getSpecialistPopulation()
 					iSpecGreat = pHeadSelectedCity.getNumGreatPeople()
 					iSpecCulture += iSpecExtraPer * (iSpecPop + iSpecGreat)
+				# <!-- custom: Complete the SAS Culture Breakdown from the same exact native partition as CvCity::updateCommerce: slider commerce joins the base sources, the modifier applies only to that base, Build Culture is added afterward, and No Espionage contributes the remaining transferred Espionage rate. See KI#1063. (GPT-5.6-Sol) -->
+				iSliderCultureTimes100 = pHeadSelectedCity.getCommerceFromPercent(CommerceTypes.COMMERCE_CULTURE, pHeadSelectedCity.getYieldRate(YieldTypes.YIELD_COMMERCE) * 100)
+				iBaseCultureTimes100 = pHeadSelectedCity.getBaseCommerceRateTimes100(CommerceTypes.COMMERCE_CULTURE)
 				iTotalCultureRateTimes100 = pHeadSelectedCity.getCommerceRateTimes100(CommerceTypes.COMMERCE_CULTURE)
 				# <!-- custom: Before KI#308.2, the Culture Breakdown inferred its modifier by dividing the precise final rate by getBaseCommerceRate(), which had already truncated fractional slider commerce.
 				# CyCity exposes the exact combined commerce modifier; using it directly prevents the displayed percentage from depending on that rounding. See KI#308.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				iModPercent = pHeadSelectedCity.getTotalCommerceRateModifier(CommerceTypes.COMMERCE_CULTURE) - 100
+				if pHeadSelectedCity.isDisorder():
+					iModifiedBaseCultureTimes100 = 0
+					iProcessCultureTimes100 = 0
+				else:
+					iModifiedBaseCultureTimes100 = iBaseCultureTimes100 * (iModPercent + 100) / 100
+					iProcessCultureTimes100 = pHeadSelectedCity.getYieldRate(YieldTypes.YIELD_PRODUCTION) * pHeadSelectedCity.getProductionToCommerceModifier(CommerceTypes.COMMERCE_CULTURE)
+				iEspionageTransferTimes100 = 0
+				if gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE):
+					iEspionageTransferTimes100 = iTotalCultureRateTimes100 - iModifiedBaseCultureTimes100 - iProcessCultureTimes100
 
-				szRow1 = sasFontTagLabel + u"(%d%s %d%s %d%s %d%s %d%s)" % (iRelCulture, self.szReligionIcon, iCorpCulture, self.szTradeIcon, iBldgCulture, self.szProductionIcon, iTraitCulture, self.szStarIcon, iSpecCulture, self.szCitizenIcon)
+				# <!-- custom: Match the adjacent Great Person legend by using MAP_CHAR for building-derived points, leaving the Production glyph to identify Build Culture unambiguously. See KI#1063. (GPT-5.6-Sol) -->
+				szRow1 = sasFontTagLabel + u"(%s%s %d%s %d%s %d%s %d%s %d%s)" % (formatExactHundredths(iSliderCultureTimes100), self.szCultureIcon, iRelCulture, self.szReligionIcon, iCorpCulture, self.szTradeIcon, iBldgCulture, self.szMapIcon, iTraitCulture, self.szStarIcon, iSpecCulture, self.szCitizenIcon)
 				if iModPercent != 0:
 					szRow1 += u" %+d%%" % (iModPercent)
 				szRow1 += SAS_FONT_TAG_CLOSE
@@ -5748,13 +5762,12 @@ class CvMainInterface:
 					szTurns = u"(%d)" % iTurns
 				else:
 					szTurns = u"(-)"
-				iRateWhole = iTotalCultureRateTimes100 / 100
-				iRateFrac = iTotalCultureRateTimes100 % 100
-				iProgWhole = iCultureProgressTimes100 / 100
-				iProgFrac = iCultureProgressTimes100 % 100
-				szRate = u"%d.%02d" % (iRateWhole, iRateFrac)
-				szProgress = u"%d.%02d" % (iProgWhole, iProgFrac)
-				szRow2 = sasFontTagLabel + u"%s%s: %s/%d %s" % (szRate, self.szCultureIcon, szProgress, iCultureThreshold, szTurns) + SAS_FONT_TAG_CLOSE
+				szRate = formatExactHundredths(iTotalCultureRateTimes100)
+				szProgress = formatExactHundredths(iCultureProgressTimes100)
+				# <!-- custom: The Culture modifier above applies only to the upper-row base sources.
+				# Placing both post-modifier additions on this roomier lower row mirrors the native formula and keeps the legend stable: Build Culture is added afterward, while No Espionage transfers an already-calculated Espionage rate without applying the Culture modifier again. See KI#1063. (GPT-5.6-Sol) -->
+				szPostModifierSources = u"+%s%s +%s%s = " % (formatExactHundredths(iProcessCultureTimes100), self.szProductionIcon, formatExactHundredths(iEspionageTransferTimes100), self.szEspionageIcon)
+				szRow2 = sasFontTagLabel + u"%s%s%s: %s/%d %s" % (szPostModifierSources, szRate, self.szCultureIcon, szProgress, iCultureThreshold, szTurns) + SAS_FONT_TAG_CLOSE
 
 				iXRight = iX
 				iY2 = gRect("GreatPeopleBar").y() - 22

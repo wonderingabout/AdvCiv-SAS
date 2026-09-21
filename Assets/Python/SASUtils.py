@@ -35,6 +35,16 @@ def separateThousands(iValue, szSeparator):
 	return s + szSeparator.join(reversed(groups))
 # </advc.077>
 
+# <!-- custom: Shared exact times-100 formatter: omit redundant .00 while retaining nonzero hundredths without approximation. First used by the Culture Breakdown. See KI#1063. (GPT-5.6-Sol) -->
+def formatExactHundredths(iValue):
+	szSign = u""
+	if iValue < 0:
+		szSign = u"-"
+	iAbsValue = abs(iValue)
+	if iAbsValue % 100 == 0:
+		return u"%s%d" % (szSign, iAbsValue / 100)
+	return u"%s%d.%02d" % (szSign, iAbsValue / 100, iAbsValue % 100)
+
 # <!-- custom: shared advisor layout constants that are screen-independent (safe to read in __init__); runtime screen-dependent geometry is derived per screen from current resolution in interfaceScreen. (GPT-5.3-Codex) -->
 # <!-- custom: as part of upscaling text code changes, now that commerce sliders are on the right-side, reduce left-space (from 172). Increase right-space for scoreboard (from 390) to give more room for anarchy and golden age button and just in case here. Increase top space (from 28). -->
 SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS = 0

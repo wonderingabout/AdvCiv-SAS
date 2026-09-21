@@ -1176,7 +1176,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1060 - (Fixed UI AdvCiv-SAS regression in repair of an inherited AdvCiv replay-visibility defect) Timeline reused another observer's filtered replay](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1060)\
 [KI#1061 - (Fixed inherited AdvC starting-position regression) A preassigned teammate blocked later fallback assignment](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1061)\
 [KI#1062 - (Fixed UI one inherited K-Mod/Base AdvCiv defect plus three AdvCiv-SAS regressions) Four persistent Main Interface labels remained stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1062)\
-[KI#1063 - (Provisional Pending UI AdvCiv-SAS display defect) Culture Breakdown omits slider and process culture](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1063)\
+[KI#1063 - (Fixed UI AdvCiv-SAS display defect) Culture Breakdown omitted slider, process and transferred Espionage culture](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1063)\
 [KI#1064 - (Provisional Pending Team Battleground regeneration defect) Start assignment mixes alive and ever-alive populations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1064)\
 [KI#1065 - (Provisional Pending inherited Custom Continents regeneration defect) One-Per-Team producer and consumer cross different team thresholds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1065)\
 [KI#1066 - (Fixed UI AdvCiv-SAS font-migration regression) Great Person fitting measured a different font than it rendered](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1066)\
@@ -11405,6 +11405,8 @@ Validation of KI#308 exposed the same unnecessary reconstruction pattern in the 
 
 Runtime follow-up across multiple cities showed only the expected 25-point modifier increments, including screenshot 0180's +75%, rather than the irregular inferred percentages seen before.
 
+Update: KI#1063 subsequently completed the same Culture Breakdown's source accounting. Exact slider commerce now appears among the pre-modifier sources, while Build Culture and No-Espionage's transferred Espionage rate appear separately after the modifier so the displayed terms reconcile with the native final rate.
+
 This is a sibling AdvCiv-SAS City Screen display regression discovered while validating KI#308. Found and runtime-tested with the help of wonderingabout; fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-309"></a>
@@ -19392,13 +19394,13 @@ Found as F741/provisional KI#1062 during ChatGPT-5.6-Sol's C031-WIP839 repair-si
 
 <a id="ki-1063"></a>
 
-## KI#1063 - (Provisional Pending UI AdvCiv-SAS display defect) Culture Breakdown omits slider and process culture
+## KI#1063 - (Fixed UI AdvCiv-SAS display defect) Culture Breakdown omitted slider, process and transferred Espionage culture
 
-KI#308.2 now displays the exact Culture modifier, but the custom City Screen breakdown's base rows still omit ordinary Culture-slider commerce and production converted through the shipped Build Culture process. Under No Espionage, the final Culture rate can additionally include transferred Espionage commerce absent from the decomposition, so the displayed sources need not reconcile with the exact total.
+KI#308.2 displayed the exact Culture modifier, but the custom City Screen breakdown's base rows still omitted ordinary Culture-slider commerce and production converted through the shipped Build Culture process. Under No Espionage, the final Culture rate could additionally include transferred Espionage commerce absent from the decomposition, so the displayed sources did not necessarily reconcile with the exact total.
 
-The custom decomposition is SAS-specific; practical 6207 repaired only its old inferred modifier and exposed the broader source-accounting mismatch. Pending deriving rows from the same native source partition as `getBaseCommerceRateTimes100`, including an explicit process term and a clear No-Espionage policy.
+The repaired source row uses the exact native partition exposed to Python. Slider commerce joins religion, corporation, building, trait and specialist base sources; the building source uses the same Map glyph as the adjacent Great Person breakdown. Build Culture and No-Espionage transfer remain visible on the roomier lower row as `+` terms before the final total, with Production and Espionage glyphs respectively. This stable layout also makes the native order explicit: the Culture modifier above applies only to the base sources, Build Culture is added afterward, and No Espionage transfers an already-calculated Espionage rate without applying the Culture modifier again. Disorder suppresses the modified base and process terms just as `CvCity::updateCommerce` does, and a shared formatter retains exact nonzero hundredths without cluttering integral values with `.00`.
 
-Found as F742/provisional KI#1063 during ChatGPT-5.6-Sol's C031-WIP840 repair-side audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The custom decomposition is SAS-specific; practical 6207 repaired only its old inferred modifier and exposed the broader source-accounting mismatch. Found as F742/provisional KI#1063 during ChatGPT-5.6-Sol's C031-WIP840 repair-side audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-1064"></a>
 
