@@ -265,7 +265,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#191 - (Fixed/Improved) Base AdvCiv UWAI issue: independent target rolls could reject the best war target and then select a much worse rival](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-191)\
 [KI#192 - (Fixed/Improved) Base AdvCiv/K-Mod island Worker logistics and AdvCiv-SAS production safety gap could strand Workers and other land civilians where they had no use](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-192)\
 [KI#193 - (Fixed/Improved) Base AdvCiv/K-Mod generic army thresholds could make loaded assault ships wait instead of taking achievable overseas targets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-193)\
-[KI#193.2 - (Reopened/Broadened after SAS fix) Dual-coast ports can omit docked assault-transport capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-193.2)\
+[KI#193.2 - (Fixed SAS transport-accounting defect) Dual-coast ports omitted docked assault-transport capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-193.2)\
 [KI#194 - (Reopened/Broadened after SAS fix) A capital can omit Settler sites reachable through its second water area](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-194)\
 [KI#195 - (Reopened/Broadened after SAS fix) Barbarian Work Boat demand still uses an incomplete city-radius/helper contract](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-195)\
 [KI#196 - (Fixed/Improved) AdvCiv-SAS's short-chain irrigation replacement could leave valuable BFC bonus Farms dry for up to 191 turns (Base AdvCiv had a similar untargeted routine, which AdvCiv-SAS does not use because it conflicted with SAS improvement choice)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-196)\
@@ -274,7 +274,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#197.3 - (Fixed/Improved) Base AdvCiv/K-Mod late floating-defender retry ignored military unit-spending limits and could keep producing extra defenders far above budget in peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.3)\
 [KI#197.4 - (Fixed/Improved) AdvCiv-SAS excess-defender optimization could replace explicitly required `UNITAI_CITY_DEFENSE` production with offensive UnitAIs, including minimum defenders and Settler escorts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.4)\
 [KI#197.5 - (Fixed/Improved) Base AdvCiv/K-Mod generic city-hunting-stack production ignored military unit-spending limits and could keep growing peaceful offensive stacks far above budget](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.5)\
-[KI#197.6 - (Reopened/Broadened after SAS fix) Dual-coast ports can omit docked naval-trade ships](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.6)\
+[KI#197.6 - (Fixed SAS naval-trade accounting defect) Dual-coast ports omitted docked ships](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.6)\
 [KI#197.7 - (Fixed/Improved) Base AdvCiv/K-Mod early building short-circuit (`CvCityAI::AI_chooseProduction`'s short-circuit 1) ignored BuildUnitProb and could start fresh infrastructure despite maximum military-production pressure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.7)\
 [KI#197.8 - (Improved) Under-strength military production could still react too weakly for low-BuildUnitProb personalities because the relative-power catch-up was only multiplicative even when more units were affordable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.8)\
 [KI#197.9 - (Improved) Healthy AI empires could still devote too little productive capacity to offensive units even after BuildUnitProb and spending-limit fixes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.9)\
@@ -395,13 +395,13 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#298 - (Fixed AdvCiv-SAS bug) Highlands Arena could lack legal sites for 48 civilizations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-298)\
 [KI#298.2 - (Fixed AdvCiv-SAS bug) Highlands was undersized beyond the Arena capacity case](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-298.2)\
 [KI#299 - (Fixed AdvCiv-SAS bug) Movie-to-Music left the user's No Movies option disabled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-299)\
-[KI#300 - (Fixed reopened AdvCiv-SAS bug after incomplete repair) Timeline could reveal a razed hidden holy city's name](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300)\
+[KI#300 - (Fixed AdvCiv-SAS bug after incomplete repair) Timeline could reveal a razed hidden holy city's name](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300)\
 [KI#301 - (Fixed AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-301)\
 [KI#302 - (Fixed AdvCiv-SAS bug) Terrain Units (Any Build) omitted Hill and water builders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-302)\
 [KI#303 - (Fixed AdvCiv-SAS issue) Specialist Extra Yields omitted building-wide specialist commerce](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-303)\
 [KI#304 - (Fixed AdvCiv-SAS bug) Python found-value callback still narrowed int results to short](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-304)\
 [KI#305 - (Fixed AdvCiv-SAS bug) World Size Chart called WorldInfo grid cells playable tiles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-305)\
-[KI#306 - (Fixed reopened AdvCiv-SAS bug after partial repair) Top-production-city rankings could go stale within a turn](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-306)\
+[KI#306 - (Fixed AdvCiv-SAS bug after partial repair) Top-production-city rankings could go stale within a turn](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-306)\
 [KI#307 - (Fixed AdvCiv-SAS bug) Main Interface cached translated labels across live language changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-307)\
 [KI#308 - (Fixed AdvCiv-SAS bug) City Screen Specialist Breakdown inferred inaccurate Great Person modifiers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-308)\
 [KI#308.2 - (Fixed AdvCiv-SAS bug) City Screen Culture Breakdown inferred its modifier from a truncated base rate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-308.2)\
@@ -9417,9 +9417,13 @@ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
 
 <a id="ki-193.2"></a>
 
-## KI#193.2 - (Reopened/Broadened after SAS fix) Dual-coast ports can omit docked assault-transport capacity
+## KI#193.2 - (Fixed SAS transport-accounting defect) Dual-coast ports omitted docked assault-transport capacity
 
-Queue-005 WIP283 found that the repaired selected-water-area capacity count can omit transports docked through a dual-coast city's other adjacent water area. The original overproduction fix remains useful, but its topology coverage is incomplete.
+Queue-005 WIP283 found that the repaired selected-water-area capacity count could omit transports docked through a dual-coast city's other adjacent water area. The original overproduction fix remained useful, but its topology coverage was incomplete.
+
+Update: the completed repair shares one dual-coast predicate with the naval-trade correction in KI#197.6. A docked assault transport now belongs to the selected sea when either the port's primary accessible water area or `secondWaterArea()` matches it, so capacity on the opposite coast is no longer omitted or needlessly replaced.
+
+The repaired DLL compiled successfully, and a water-rich full autoplay completed without an observed production or runtime issue.
 
 This is the production-side follow-up to KI#193. That cure lets an existing loaded fleet consider a specific achievable target before reaching Base AdvCiv/K-Mod's generic invasion size, but the same overseas-transport diagnostics showed that an AI could know a worthwhile nearby island city and have ample attackers without producing the ship needed to carry them there.
 
@@ -9449,7 +9453,7 @@ Save file 449 independently tested the cure on another island-rich but land-heav
 
 Chehalis changing from Mali in the older run to Aztec ownership in this confirming run was unrelated to the cure because it was reachable by land. Both runs valued the city as worthwhile. In the older history, Aztec remained committed to a costly Scandinavian war while Mali made peace and reached Chehalis first; in the confirming history, the Aztec war ended earlier and its freed army captured Chehalis before Mali. This is useful evidence that preserving available military tempo matters, but not evidence that the overseas-production rule selected Chehalis.
 
-Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+The original fix was implemented with the help of GPT-5.6-Sol (on ChatGPT Codex); its dual-coast omission was reopened through ChatGPT-5.6-Sol's Queue-005 WIP283 audit and completed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-194"></a>
 
@@ -9601,9 +9605,13 @@ Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
 
 <a id="ki-197.6"></a>
 
-## KI#197.6 - (Reopened/Broadened after SAS fix) Dual-coast ports can omit docked naval-trade ships
+## KI#197.6 - (Fixed SAS naval-trade accounting defect) Dual-coast ports omitted docked ships
 
-Queue-005 WIP284 found that the corrected naval-trade cap still counts docked ships only for one selected water area. A dual-coast city's ship on the other adjacent sea can be omitted and trigger unnecessary production.
+Queue-005 WIP284 found that the corrected naval-trade cap still counted docked ships only for one selected water area. A dual-coast city's ship on the other adjacent sea could be omitted and trigger unnecessary production.
+
+Update: the completed repair uses the same dual-coast predicate as KI#193.2 for both existing ships and sea units under construction. A ship docked or queued at a port now counts for the selected sea when either the city's primary accessible water area or `secondWaterArea()` matches it; ships physically at sea retain their direct area test.
+
+The repaired DLL compiled successfully, and a water-rich full autoplay completed without an observed production or runtime issue.
 
 The continued KI#197 military-production audit exposed another inherited `CvCityAI::AI_chooseProduction` edge case in AdvCiv's special naval-trade sea-explorer fallback. Base AdvCiv/K-Mod deliberately handles trade exploration separately from the ordinary sea-explorer target: if a city has access to naval trade, the branch ignores `seaExplorersTarget`, counts up to three "water units" in the relevant water area, and then has a 25% chance to request `UNITAI_EXPLORE_SEA`. Direct comparison with Base AdvCiv 1.13 confirmed that this behavior is inherited.
 
@@ -9615,7 +9623,7 @@ AdvCiv-SAS keeps the special naval-trade fallback, its inherited cap of three sh
 
 The confirming save-file 456 rerun logged 437 naval-trade fallback evaluations. Only 44 met the corrected eligibility conditions and attempted the inherited 25% roll, producing 8 actual explorer choices. Every actual choice had unrevealed water and fewer than three corrected sea units; none occurred above the normal `max+15` military-spending allowance in this run. Three of the eight successful choices still had `seaExplorerTarget=0` (Cologne on turn 114, Munich on turn 227 and Bursa on turn 254), confirming that the distinct naval-trade fallback remains functional instead of merely duplicating the ordinary target-based explorer rule. The earlier fully explored / already-large-navy Attack Submarine and Destroyer production disappeared because those states are no longer eligible.
 
-Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
+The original fix was implemented with the help of ChatGPT-5.6-Sol; its dual-coast omission was reopened through ChatGPT-5.6-Sol's Queue-005 WIP284 audit and completed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-197.7"></a>
 
@@ -11285,7 +11293,7 @@ This is an AdvCiv-SAS Sevopedia media-state regression introduced when the Movie
 
 <a id="ki-300"></a>
 
-## KI#300 - (Fixed reopened AdvCiv-SAS bug after incomplete repair) Timeline could reveal a razed hidden holy city's name
+## KI#300 - (Fixed AdvCiv-SAS bug after incomplete repair) Timeline could reveal a razed hidden holy city's name
 
 Religion founding writes the real holy-city name into its replay message, while the live notification correctly uses the localized faraway-land text for observers who cannot see the city. The AdvCiv-SAS Info Screen Timeline deliberately keeps this globally known event visible, then formerly tried to hide the city name by replacing the current city object's current name. If the holy city had been razed before the observer revealed its plot, no current city object remained and the historical replay name was shown verbatim. Renaming could similarly make the current name differ from the historical replay text.
 
@@ -11359,7 +11367,7 @@ This is an AdvCiv-SAS World Size Chart unit/label regression introduced with the
 
 <a id="ki-306"></a>
 
-## KI#306 - (Fixed reopened AdvCiv-SAS bug after partial repair) Top-production-city rankings could go stale within a turn
+## KI#306 - (Fixed AdvCiv-SAS bug after partial repair) Top-production-city rankings could go stale within a turn
 
 AdvCiv-SAS practical 5281 (`3e072ae409`) cached each player's best and second-best city maintenance plus the number of high-maintenance cities under `(player, game turn, city count)`. The government-center building gate then reused this ranking throughout the turn. Civ4 processes a player's cities sequentially, and an earlier city can grow before a later city chooses production; population changes immediately recalculate maintenance without changing the turn or city count. The later city's government-center evaluation could consequently use an empire ranking captured before that growth and choose or reject the candidate from stale values.
 

@@ -22,6 +22,12 @@ static bool SAS_isOneCopyNonSpaceshipProject(ProjectTypes eProject)
 	return (!kProject.isSpaceship() && (kProject.getMaxGlobalInstances() == 1 || kProject.getMaxTeamInstances() == 1));
 }
 
+// <!-- custom: A ship docked on a city plot belongs to either adjacent accessible sea, not only the city's primary waterArea; share this dual-coast test between assault-capacity and naval-trade accounting. See KI#193.2 and KI#197.6. (GPT-5.6-Sol) -->
+static bool SAS_cityTouchesWaterArea(CvCity const& kCity, CvArea const& kWaterArea)
+{
+	return (kCity.waterArea(true) == &kWaterArea || kCity.secondWaterArea() == &kWaterArea);
+}
+
 // <!-- custom: Targeted RAII trace for the Rome-style failure where invested spaceship production is reevaluated and parked. The constructor arms only for an AI city currently producing a spaceship project.
 // The destructor reports the authoritative final head target across every early return in AI_chooseProduction. This is diagnostic-only and adds no RNG calls. (ChatGPT-5.6-Sol) -->
 class SASSpaceProductionReevaluationLogScope
@@ -3917,7 +3923,8 @@ void CvCityAI::AI_chooseProduction()
 			/*	Don't rely on seaExplorersTarget. Can be 0 if already met all
 				other civs or if there is a larger separate water area. */
 			// <!-- custom: Base AdvCiv's naval-trade explorer fallback counted only units physically in the water area, so docked/queued ships disappeared from its <3 cap; save-file 456 also showed late Attack Submarine/Destroyer explorers after the entire relevant water area was revealed.
-			// Count actual sea-domain UnitAIs including docked and queued ships, and require at least one unrevealed tile before this special trade-exploration fallback can fire. Keep the inherited cap of 3 ships and 25% explorer choice. (ChatGPT-5.6-Sol) -->
+			// Count actual sea-domain UnitAIs including docked and queued ships, and require at least one unrevealed tile before this special trade-exploration fallback can fire.
+			// Count a port against either accessible coast; the earlier primary-water-only correction still omitted the opposite coast and could request an unnecessary explorer. Keep the inherited cap of 3 ships and 25% explorer choice. See KI#197.6. (ChatGPT-5.6-Sol & GPT-5.6-Sol) -->
 			int iSeaUnitsAtSea = 0;
 			int iSeaUnitsIncludingDocked = 0;
 			int iSeaUnitsTraining = 0;
@@ -3930,12 +3937,13 @@ void CvCityAI::AI_chooseProduction()
 						continue;
 					if (&pLoopUnit->getArea() == pWaterArea)
 						iSeaUnitsAtSea++;
-					if (pLoopUnit->getPlot().waterArea() == pWaterArea)
+					CvCity const* pPortCity = pLoopUnit->getPlot().getPlotCity();
+					if (&pLoopUnit->getArea() == pWaterArea || (pPortCity != NULL && SAS_cityTouchesWaterArea(*pPortCity, *pWaterArea)))
 						iSeaUnitsIncludingDocked++;
 				}
 				FOR_EACH_CITY(pLoopCity, kMember)
 				{
-					if (pLoopCity->waterArea() != pWaterArea)
+					if (!SAS_cityTouchesWaterArea(*pLoopCity, *pWaterArea))
 						continue;
 					FOR_EACH_ENUM(UnitAI)
 					{
@@ -4272,12 +4280,13 @@ void CvCityAI::AI_chooseProduction()
 			if (eOpportunisticAssaultUnit != NO_UNIT)
 			{
 				iOpportunisticTargetCapacity = std::min(iUnitsToTransport, std::max(1, 2 * iOpportunisticTargetDefenders));
-				// <!-- custom: A ship docked in a coastal city is on the city's land plot, so CvUnit::isArea(water) misses it. Count its real cargo space through the port's water area, then estimate queued capacity from AI_totalWaterAreaUnitAIs, which also includes ships currently being trained. This fixed repeated transport requests that still logged zero capacity immediately after a city accepted the first order. (GPT-5.6-Sol) -->
+				// <!-- custom: A ship docked in a coastal city is on the city's land plot, so CvUnit::isArea(water) misses it. Count its real cargo space through either adjacent accessible sea of its port; the earlier primary-water-only correction still omitted the opposite coast.
+				// Then estimate queued capacity from AI_totalWaterAreaUnitAIs, which also includes ships currently being trained. This fixed repeated transport requests that still logged zero capacity immediately after a city accepted the first order. See KI#193.2. (GPT-5.6-Sol) -->
 				FOR_EACH_UNITAI(pLoopUnit, kPlayer)
 				{
 					if (pLoopUnit->AI_getUnitAIType() != UNITAI_ASSAULT_SEA) continue;
 					CvCity const* pPortCity = pLoopUnit->getPlot().getPlotCity();
-					if (!pLoopUnit->isArea(*pWaterArea) && (pPortCity == NULL || pPortCity->waterArea() != pWaterArea)) continue;
+					if (!pLoopUnit->isArea(*pWaterArea) && (pPortCity == NULL || !SAS_cityTouchesWaterArea(*pPortCity, *pWaterArea))) continue;
 					iOpportunisticExistingCapacity += pLoopUnit->cargoSpace();
 					iOpportunisticExistingTransports++;
 				}
