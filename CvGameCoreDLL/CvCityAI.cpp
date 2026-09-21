@@ -6944,6 +6944,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	// <!-- custom: renamed iExistingUpkeep to iMaintenanceTimes100 -->
 	const int iMaintenanceTimes100 = getMaintenanceTimes100();
 	// <!-- custom: performance optimizations -->
+	// <!-- custom: Preserve whether AdvCiv's authoritative production ranks were invalid before findBaseYieldRateRank refreshes them; the SAS top-three cache must refresh in the same evaluation too. See KI#306. (GPT-5.6-Sol) -->
+	const bool bProductionRankCacheWasValid = m_abBaseYieldRankValid.get(YIELD_PRODUCTION);
 	const int iProductionRank = findBaseYieldRateRank(YIELD_PRODUCTION);
 	const int iFreeExperience = kBuilding.getFreeExperience();
 	const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
@@ -8063,6 +8065,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			int iBestHpt = 0, iSecondBestHpt = 0, iThirdBestHpt = 0;
 
 			const bool bHammerCacheValid =
+				bProductionRankCacheWasValid &&
 				s_abTopHptValid[eOwner] &&
 				s_aiTopHptTurn[eOwner] == iCurrentTurn &&
 				s_aiTopHptNumCities[eOwner] == iNumCities;

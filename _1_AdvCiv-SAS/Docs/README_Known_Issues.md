@@ -401,7 +401,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#303 - (Fixed AdvCiv-SAS issue) Specialist Extra Yields omitted building-wide specialist commerce](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-303)\
 [KI#304 - (Fixed AdvCiv-SAS bug) Python found-value callback still narrowed int results to short](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-304)\
 [KI#305 - (Fixed AdvCiv-SAS bug) World Size Chart called WorldInfo grid cells playable tiles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-305)\
-[KI#306 - (Reopened AdvCiv-SAS bug after partial fix) Top-production-city rankings can go stale within a turn](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-306)\
+[KI#306 - (Fixed reopened AdvCiv-SAS bug after partial repair) Top-production-city rankings could go stale within a turn](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-306)\
 [KI#307 - (Fixed AdvCiv-SAS bug) Main Interface cached translated labels across live language changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-307)\
 [KI#308 - (Fixed AdvCiv-SAS bug) City Screen Specialist Breakdown inferred inaccurate Great Person modifiers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-308)\
 [KI#308.2 - (Fixed AdvCiv-SAS bug) City Screen Culture Breakdown inferred its modifier from a truncated base rate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-308.2)\
@@ -11359,7 +11359,7 @@ This is an AdvCiv-SAS World Size Chart unit/label regression introduced with the
 
 <a id="ki-306"></a>
 
-## KI#306 - (Reopened AdvCiv-SAS bug after partial fix) Top-production-city rankings can go stale within a turn
+## KI#306 - (Fixed reopened AdvCiv-SAS bug after partial repair) Top-production-city rankings could go stale within a turn
 
 AdvCiv-SAS practical 5281 (`3e072ae409`) cached each player's best and second-best city maintenance plus the number of high-maintenance cities under `(player, game turn, city count)`. The government-center building gate then reused this ranking throughout the turn. Civ4 processes a player's cities sequentially, and an earlier city can grow before a later city chooses production; population changes immediately recalculate maintenance without changing the turn or city count. The later city's government-center evaluation could consequently use an empire ranking captured before that growth and choose or reject the candidate from stale values.
 
@@ -11367,9 +11367,13 @@ The fix removes only this maintenance cache. The live empire scan already occurs
 
 The compiled game smoke test ran without an observed AI-production or general runtime issue.
 
-The C031-WIP318 current-tree audit found that this repair was correct but incomplete for its broader cache-invalidation family. The sibling top-production-city cache is still keyed only by game turn and city count, yet a building completed earlier in the same player's sequential city processing can immediately change other cities' base production through `SpecialistYieldChanges`. Current Angkor Wat and Cristo Redentor can each add production to assigned Priest specialists this way. A later city's Wonder gate can therefore consume stale best/second/third production rankings, and even a one-hammer discrepancy can cross its exact top-city or +5-hammer thresholds. KI#306 is reopened for this surviving AdvCiv-SAS cache; a production-state revision or live recomputation is preferable to another ad hoc invalidation condition.
+The C031-WIP318 current-tree audit found that this repair was correct but incomplete for its broader cache-invalidation family. The sibling top-production-city cache was still keyed only by game turn and city count, yet a building completed earlier in the same player's sequential city processing can immediately change other cities' base production through `SpecialistYieldChanges`. Current Angkor Wat and Cristo Redentor can each add production to assigned Priest specialists this way. A later city's Wonder gate could therefore consume stale best/second/third production rankings, and even a one-hammer discrepancy could cross its exact top-city or +5-hammer thresholds.
 
-The original government-center maintenance regression was found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks. The sibling AdvCiv-SAS top-production cache was reopened through ChatGPT-5.6-Sol's C031-WIP318 audit and reconciled into this KI with the help of GPT-5.6-Sol, thanks; its implementation remains pending.
+Update: the completed repair reuses AdvCiv's authoritative yield-rank invalidation instead of adding a parallel production revision or discarding the optimization. Player-wide specialist-yield changes now invalidate the affected yield ranks after updating every city. `AI_buildingValue` records whether Production ranks were valid before `findBaseYieldRateRank` refreshes them and reuses the SAS top-three cache only in that case; an invalid rank therefore refreshes both rank systems in the same evaluation. The existing turn and city-count keys remain as additional guards.
+
+The repaired DLL compiled successfully, and a full autoplay completed without an observed AI-production or general runtime issue.
+
+The original government-center maintenance regression was found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks. The sibling AdvCiv-SAS top-production cache was reopened through ChatGPT-5.6-Sol's C031-WIP318 audit, reconciled into this KI and completed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-307"></a>
 

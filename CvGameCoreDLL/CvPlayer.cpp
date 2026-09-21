@@ -11211,6 +11211,8 @@ void CvPlayer::changeSpecialistExtraYield(SpecialistTypes eSpecialist, YieldType
 		m_aeeiSpecialistExtraYield.add(eSpecialist, eYield, iChange);
 		FAssert(getSpecialistExtraYield(eSpecialist, eYield) >= 0);
 		updateExtraSpecialistYield();
+		// <!-- custom: A completed building can change this player-wide specialist yield between sequential city production choices; invalidate the established city-rank cache after applying the new yields so the SAS top-production cache can detect and refresh that same-turn change. See KI#306. (GPT-5.6-Sol) -->
+		invalidateYieldRankCache(eYield);
 		AI_makeAssignWorkDirty();
 	}
 }
