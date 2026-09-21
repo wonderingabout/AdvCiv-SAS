@@ -18782,6 +18782,9 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 					iHighestRivalPow = std::max(iRivalPower, iHighestRivalPow);
 					iRelevantRivalPower += iRivalPower;
 					iRelevantRivalCities += kRival.getNumCities();
+					// <!-- custom: getPower(true) includes the rival master's vassals, so count those vassals' cities too; dividing coalition power by only the master's cities overstated rival military density and SAS's under-strength production response. See KI#197. (GPT-5.6-Sol) -->
+					for (TeamIter<CIV_ALIVE,VASSAL_OF> itVassal(kRival.getID()); itVassal.hasNext(); ++itVassal)
+						iRelevantRivalCities += itVassal->getNumCities();
 				}
 			}
 			iHighestRivalPowForLog = iHighestRivalPow;

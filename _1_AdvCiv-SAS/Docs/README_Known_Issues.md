@@ -269,7 +269,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#194 - (Reopened/Broadened after SAS fix) A capital can omit Settler sites reachable through its second water area](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-194)\
 [KI#195 - (Reopened/Broadened after SAS fix) Barbarian Work Boat demand still uses an incomplete city-radius/helper contract](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-195)\
 [KI#196 - (Fixed/Improved) AdvCiv-SAS's short-chain irrigation replacement could leave valuable BFC bonus Farms dry for up to 191 turns (Base AdvCiv had a similar untargeted routine, which AdvCiv-SAS does not use because it conflicted with SAS improvement choice)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-196)\
-[KI#197 - (Reopened/Broadened after SAS improvement) Power-per-city catch-up counts vassal power but not vassal cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197)\
+[KI#197 - (Fixed SAS military-production improvement defect) Power-per-city catch-up counted vassal power but not vassal cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197)\
 [KI#197.2 - (Fixed/Improved) Base AdvCiv/K-Mod final building short-circuit (`CvCityAI::AI_chooseProduction`'s short-circuit 3) ignored BuildUnitProb and could override strong military-production pressure immediately before generic unit production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.2)\
 [KI#197.3 - (Fixed/Improved) Base AdvCiv/K-Mod late floating-defender retry ignored military unit-spending limits and could keep producing extra defenders far above budget in peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.3)\
 [KI#197.4 - (Fixed/Improved) AdvCiv-SAS excess-defender optimization could replace explicitly required `UNITAI_CITY_DEFENSE` production with offensive UnitAIs, including minimum defenders and Settler escorts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.4)\
@@ -9509,9 +9509,13 @@ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
 
 <a id="ki-197"></a>
 
-## KI#197 - (Reopened/Broadened after SAS improvement) Power-per-city catch-up counts vassal power but not vassal cities
+## KI#197 - (Fixed SAS military-production improvement defect) Power-per-city catch-up counted vassal power but not vassal cities
 
 Queue-005 WIP286 found that the improved under-strength catch-up numerator includes vassal power while its per-city denominator omits vassal cities. This mismatched empire scope can overstate military weakness and production demand.
+
+Update: SAS's catch-up now counts every relevant rival master's vassal cities alongside the master cities before dividing the already coalition-wide `getPower(true)` numerator. The rival power-per-city average therefore uses one consistent coalition scope, while the inherited total-power throttle and SAS's own-team `getPower(false)` / team-city pair remain unchanged.
+
+The repaired DLL compiled successfully, and a full autoplay completed without an observed production or runtime issue.
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/12ausI-H34CWK1jaXzn1cedb0l9yOvxtX?usp=sharing).
 
@@ -9533,7 +9537,7 @@ The runs also retained substantial variation between civilizations rather than e
 
 A separate related Base AdvCiv/K-Mod follow-up was also exposed by the same diagnostics: `AI_chooseProduction` short-circuit 2 explicitly lowers building odds as `iBuildUnitProb` rises, while the later short-circuit 3 did not use `iBuildUnitProb`. That distinct issue is addressed in KI#197.2. Continued production-branch auditing then exposed the separate spending and role-selection issues documented in KI#197.3 through KI#197.6, followed by the earlier building-gate issue documented in KI#197.7.
 
-Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
+The original improvement was implemented with the help of ChatGPT-5.6-Sol; its coalition-scope mismatch was reopened through ChatGPT-5.6-Sol's Queue-005 WIP286 audit and fixed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-197.2"></a>
 
