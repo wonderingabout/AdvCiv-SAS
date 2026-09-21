@@ -19687,11 +19687,10 @@ void CvCityAI::AI_barbChooseProduction()
 	{
 		// advc.opt: Sea worker counts moved down; only needed here.
 		int const iNeededSeaWorkers = (bMaybeWaterArea ? AI_neededSeaWorkers() : 0);
-		// <!-- custom: AI_totalWaterAreaUnitAIs counts ships docked or being trained by iterating major-civilization cities, so Base AdvCiv's Barbarian production branch missed its own docked and queued Work Boats.
-		// After the full-city-radius cure exposed this, Hun repeatedly ordered another boat for the same target and Barbarians accumulated 20 at once.
-		// Count this city's boats separately; boats sailing in the water area remain covered below, while boats in unrelated Barbarian cities do not suppress local demand. See KI#195. (GPT-5.6-Sol) -->
+		// <!-- custom: The full-city-radius cure retains city-local Barbarian seafood demand. AI_totalWaterAreaUnitAIs is too broad for that contract: it scans every alive city on the sea, so a boat docked or queued in one Barbarian city can suppress another city's independent demand, while adding explicit local terms double-counts the current city.
+		// Count boats physically sailing in the accessible production sea through AI_totalAreaUnitAIs, then add only this city's docked and queued boats. This also preserves the waterArea(true) Ice/accessibility correction. See KI#195. (GPT-5.6-Sol) -->
 		CvArea const* const pProductionWaterArea = waterArea(true);
-		int const iWaterAreaSeaWorkers = (pProductionWaterArea == NULL ? 0 : kPlayer.AI_totalWaterAreaUnitAIs(*pProductionWaterArea, UNITAI_WORKER_SEA));
+		int const iWaterAreaSeaWorkers = (pProductionWaterArea == NULL ? 0 : kPlayer.AI_totalAreaUnitAIs(*pProductionWaterArea, UNITAI_WORKER_SEA));
 		int const iExistingSeaWorkers = iWaterAreaSeaWorkers + kPlot.plotCount(PUF_isUnitAIType, UNITAI_WORKER_SEA, -1, getOwner()) + getNumTrainUnitAI(UNITAI_WORKER_SEA);
 		if (iNeededSeaWorkers > 0 &&
 			iExistingSeaWorkers <= 0 )// advc.001: safer (as in AI_chooseProduction)

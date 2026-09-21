@@ -267,7 +267,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#193 - (Fixed/Improved) Base AdvCiv/K-Mod generic army thresholds could make loaded assault ships wait instead of taking achievable overseas targets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-193)\
 [KI#193.2 - (Fixed SAS transport-accounting defect) Dual-coast ports omitted docked assault-transport capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-193.2)\
 [KI#194 - (Fixed SAS overseas-settlement defect) A capital omitted Settler sites reachable through its second water area](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-194)\
-[KI#195 - (Reopened/Broadened after SAS fix) Barbarian Work Boat demand still uses an incomplete city-radius/helper contract](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-195)\
+[KI#195 - (Fixed inherited AdvCiv/K-Mod omission and SAS repair defect) Barbarian Work Boat demand used incomplete city-radius and availability scopes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-195)\
 [KI#196 - (Fixed/Improved) AdvCiv-SAS's short-chain irrigation replacement could leave valuable BFC bonus Farms dry for up to 191 turns (Base AdvCiv had a similar untargeted routine, which AdvCiv-SAS does not use because it conflicted with SAS improvement choice)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-196)\
 [KI#197 - (Fixed SAS military-production improvement defect) Power-per-city catch-up counted vassal power but not vassal cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197)\
 [KI#197.2 - (Fixed/Improved) Base AdvCiv/K-Mod final building short-circuit (`CvCityAI::AI_chooseProduction`'s short-circuit 3) ignored BuildUnitProb and could override strong military-production pressure immediately before generic unit production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.2)\
@@ -9478,7 +9478,7 @@ The original fix/improvement was implemented with the help of GPT-5.6-Sol (on Ch
 
 <a id="ki-195"></a>
 
-## KI#195 - (Reopened/Broadened after SAS fix) Barbarian Work Boat demand still uses an incomplete city-radius/helper contract
+## KI#195 - (Fixed inherited AdvCiv/K-Mod omission and SAS repair defect) Barbarian Work Boat demand used incomplete city-radius and availability scopes
 
 Queue-005 WIP292 found that the earlier outer-radius diagnosis and repair relied on a helper whose actual plot coverage did not match the assumed contract. The Work Boat counting cure needs to be rebuilt from the real city-radius and seafood-demand scopes.
 
@@ -9492,7 +9492,11 @@ The first confirming run improved 13 of 14 seafood targets assigned to a Barbari
 
 The final cure counts Work Boats already sailing in the relevant water area, plus those docked or being trained in the current Barbarian city. It does not let boats in unrelated Barbarian cities suppress valid local production. In the final confirming run, the peak fell from 20 Work Boats to 2 while 12 city-assigned seafood targets were improved. The other 3 assigned targets belonged to Shangian or Visigoth; both cities produced or assigned Work Boats but were conquered before the improvements could finish. Owned seafood outside every Barbarian city's workable assignment remains a separate possible policy enhancement rather than being included in this city-local fix.
 
-Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+Update: Queue-005 WIP292 verified that the full assigned-city-radius demand loop above is correct, but disproved the second repair's helper assumption. `AI_totalWaterAreaUnitAIs` scans every alive player's cities, including Barbarian cities, so it already counted the current city's docked/queued boat and also let another Barbarian city's docked/queued boat suppress this city's independent local demand. The completed correction instead uses `AI_totalAreaUnitAIs` for boats physically sailing in the accessible production sea, then adds only the current city's docked and queued boats explicitly. This matches the intended city-local demand contract and preserves the `waterArea(true)` Ice/accessibility edge case.
+
+The repaired DLL compiled successfully, and a water-rich full autoplay with Barbarians enabled completed without an observed production or runtime issue.
+
+The inherited outer-radius omission was fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex); the helper-contract defect in that SAS repair was reopened through ChatGPT-5.6-Sol's Queue-005 WIP292 audit and fixed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-196"></a>
 
