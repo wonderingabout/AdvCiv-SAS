@@ -23630,17 +23630,19 @@ bool CvUnitAI::AI_connectPlot(CvPlot const& kPlot, int iRange, char const* szCon
 }
 
 // advc: Cut from AI_improveCity to reduce code duplication; MovementFlags& eFlags, // in-out param
-// <!-- custom: ppszRouteReason reports only an accepted condition already evaluated here; it lets AI_improveCity and AI_improveLocalPlot explain route-before-improvement missions without repeating pathfinding or changing the decision. (GPT-5.6-Sol) -->
+// <!-- custom: ppszRouteReason reports only an accepted condition already evaluated here; callers pass NULL when Worker diagnostics are disabled, avoiding diagnostic-only writes without repeating pathfinding or changing the decision. (GPT-5.6-Sol) -->
 // in-out param <!-- custom: hoisted from multiline signature between `eFlags` and `pDestCity` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 bool CvUnitAI::AI_shouldRouteWhileImproving(CvPlot const& kDest, MovementFlags& eFlags, CvCity const* pDestCity, char const** ppszRouteReason) const
 {
 	bool bRoute = false;
-	char const* szRouteReason = "NONE";
+	if (ppszRouteReason != NULL)
+		*ppszRouteReason = "NONE";
 	if (pDestCity != NULL && getPlot().getWorkingCity() != pDestCity /*||
 		GC.getInfo(eBestBuild).getRoute() != NO_ROUTE*/) // advc.121: Walk don't route
 	{
 		bRoute = true;
-		szRouteReason = "DESTINATION_OTHER_WORKING_CITY";
+		if (ppszRouteReason != NULL)
+			*ppszRouteReason = "DESTINATION_OTHER_WORKING_CITY";
 	}
 	else if (generatePath(kDest, eFlags, true) &&
 		getPathFinder().getPathTurns() == 1 && getPathFinder().getFinalMoves() == 0)
@@ -23648,7 +23650,8 @@ bool CvUnitAI::AI_shouldRouteWhileImproving(CvPlot const& kDest, MovementFlags& 
 		if (kDest.isRoute())
 		{
 			bRoute = true;
-			szRouteReason = "ONE_TURN_DESTINATION_ALREADY_ROUTED";
+			if (ppszRouteReason != NULL)
+				*ppszRouteReason = "ONE_TURN_DESTINATION_ALREADY_ROUTED";
 		}
 	}
 	else if (!getPlot().isRoute())
@@ -23662,12 +23665,13 @@ bool CvUnitAI::AI_shouldRouteWhileImproving(CvPlot const& kDest, MovementFlags& 
 		if (iPlotMoveCost > 1)
 		{
 			bRoute = true;
-			szRouteReason = "SLOW_UNROUTED_SOURCE_PLOT";
+			if (ppszRouteReason != NULL)
+				*ppszRouteReason = "SLOW_UNROUTED_SOURCE_PLOT";
 		}
 	}
 	bool const bSafeRoute = (bRoute && AI_canRouteThroughSafeTerritory(kDest, eFlags));
-	if (ppszRouteReason != NULL)
-		*ppszRouteReason = (bSafeRoute ? szRouteReason : "NONE");
+	if (!bSafeRoute && ppszRouteReason != NULL)
+		*ppszRouteReason = "NONE";
 	return bSafeRoute;
 }
 
@@ -23709,8 +23713,9 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
 
 	MovementFlags eFlags = NO_MOVEMENT_FLAGS; // advc.pf
 	// <advc> Moved into helper function
-	char const* szRouteReason = "NONE";
-	MissionTypes eMission = (AI_shouldRouteWhileImproving(*pBestPlot, eFlags, &kCity, &szRouteReason) ?
+	bool const bLogRoute = (gWorkerLogLevel >= 2);
+	char const* szRouteReason = NULL;
+	MissionTypes eMission = (AI_shouldRouteWhileImproving(*pBestPlot, eFlags, &kCity, (bLogRoute ? &szRouteReason : NULL)) ?
 			MISSION_ROUTE_TO : MISSION_MOVE_TO); // </advc>
 	getGroup()->pushMission(eMission,
 			pBestPlot->getX(), pBestPlot->getY(),
@@ -23723,7 +23728,7 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
 			false, MISSIONAI_BUILD, pBestPlot);
 	if (eFollowupBuild != NO_BUILD)
 		getGroup()->pushMission(MISSION_BUILD, eFollowupBuild, -1, eFlags, true, false, MISSIONAI_BUILD, pBestPlot);
-	if (gWorkerLogLevel >= 2 && eMission == MISSION_ROUTE_TO) logBBAI("    WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_CITY target=(%d,%d) targetCity=%S targetCityId=%d reason=%s targetHasRoute=%d intendedBuild=%S followup=%S",
+	if (bLogRoute && eMission == MISSION_ROUTE_TO) logBBAI("    WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_CITY target=(%d,%d) targetCity=%S targetCityId=%d reason=%s targetHasRoute=%d intendedBuild=%S followup=%S",
 		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
 		pBestPlot->getX(), pBestPlot->getY(), kCity.getName().GetCString(), kCity.getID(), szRouteReason, pBestPlot->isRoute(),
 		GC.getInfo(eBestBuild).getDescription(), (eFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eFollowupBuild).getDescription()));
@@ -23869,8 +23874,9 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, int iM
 	}*/
 	MovementFlags eFlags = NO_MOVEMENT_FLAGS; // advc.pf
 	// <advc> Moved into helper function
-	char const* szRouteReason = "NONE";
-	MissionTypes eMission = (AI_shouldRouteWhileImproving(*pBestPlot, eFlags, NULL, &szRouteReason) ?
+	bool const bLogRoute = (gWorkerLogLevel >= 2);
+	char const* szRouteReason = NULL;
+	MissionTypes eMission = (AI_shouldRouteWhileImproving(*pBestPlot, eFlags, NULL, (bLogRoute ? &szRouteReason : NULL)) ?
 			MISSION_ROUTE_TO : MISSION_MOVE_TO); // </advc>
 	getGroup()->pushMission(eMission,
 			pBestPlot->getX(), pBestPlot->getY(),
@@ -23878,17 +23884,17 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, int iM
 			MISSIONAI_BUILD, pBestPlot);
 	/* advc.117: betterPlotBuild will only suggest Farms or Forts
 		or who knows what -- stick to the chopping plan. */
-	char const* szBuildRouteReason = "NONE";
+	char const* szBuildRouteReason = NULL;
 	if (!bChop)
-		eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild, &szBuildRouteReason);
+		eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild, (bLogRoute ? &szBuildRouteReason : NULL));
 	getGroup()->pushMission(MISSION_BUILD,
 			eBestBuild, -1,
 			eFlags, true, false,
 			MISSIONAI_BUILD, pBestPlot); // K-Mod
-	if (gWorkerLogLevel >= 2 && eMission == MISSION_ROUTE_TO) logBBAI("    WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_LOCAL_PLOT target=(%d,%d) reason=%s targetHasRoute=%d intendedBuild=%S standaloneChop=%d",
+	if (bLogRoute && eMission == MISSION_ROUTE_TO) logBBAI("    WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_LOCAL_PLOT target=(%d,%d) reason=%s targetHasRoute=%d intendedBuild=%S standaloneChop=%d",
 		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
 		pBestPlot->getX(), pBestPlot->getY(), szRouteReason, pBestPlot->isRoute(), GC.getInfo(eBestBuild).getDescription(), bChop);
-	if (gWorkerLogLevel >= 2 && GC.getInfo(eBestBuild).getRoute() != NO_ROUTE) logBBAI("    WORKER_ROUTE_BUILD_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_LOCAL_PLOT target=(%d,%d) reason=%s build=%S standaloneChop=%d",
+	if (bLogRoute && GC.getInfo(eBestBuild).getRoute() != NO_ROUTE) logBBAI("    WORKER_ROUTE_BUILD_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_LOCAL_PLOT target=(%d,%d) reason=%s build=%S standaloneChop=%d",
 		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
 		pBestPlot->getX(), pBestPlot->getY(), szBuildRouteReason, GC.getInfo(eBestBuild).getDescription(), bChop);
 	return true;
@@ -24130,7 +24136,10 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 		if (bRoutePathFound)
 			eMission = MISSION_ROUTE_TO;
 	}
-	char const* szRouteReason = (!bSamePlotGroup ? "DIFFERENT_PLOT_GROUP" : (!bSourceHasRoute ? "SOURCE_UNROUTED" : (bRouteRollPassed ? "DISTANCE_RANDOM_ROLL" : "NONE")));
+	bool const bLogRoute = (gWorkerLogLevel >= 2);
+	char const* szRouteReason = NULL;
+	if (bLogRoute)
+		szRouteReason = (!bSamePlotGroup ? "DIFFERENT_PLOT_GROUP" : (!bSourceHasRoute ? "SOURCE_UNROUTED" : (bRouteRollPassed ? "DISTANCE_RANDOM_ROLL" : "NONE")));
 	getGroup()->pushMission(eMission, /* </advc.121> */
 			pBestPlot->getX(), pBestPlot->getY(),
 			eMission == MISSION_ROUTE_TO ? MOVE_SAFE_TERRITORY : NO_MOVEMENT_FLAGS, // advc.pf
@@ -24145,7 +24154,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	{
 		getGroup()->pushMission(MISSION_BUILD, eBestFollowupBuild, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pBestPlot);
 	}
-	if (gWorkerLogLevel >= 2 && eMission == MISSION_ROUTE_TO)
+	if (bLogRoute && eMission == MISSION_ROUTE_TO)
 	{
 		ImprovementTypes const eTargetImprovement = pBestPlot->getImprovementType();
 		logBBAI("    WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) source=NEXT_CITY_TO_IMPROVE target=(%d,%d) reason=%s targetHasRoute=%d targetImprovement=%S intendedBuild=%S followup=%S",
@@ -24697,8 +24706,9 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 	{
 		FAssert(!bBestBuildIsRoute);
 		FAssert(eBestBuild < GC.getNumBuildInfos());
+		bool const bLogRoute = (gWorkerLogLevel >= 2);
 		MissionTypes eBestMission = MISSION_MOVE_TO;
-		char const* szRouteReason = "NONE";
+		char const* szRouteReason = NULL;
 		// advc.001y: Sea workers can't route
 		if (getGroup()->canDoMission(MISSION_ROUTE_TO, getX(), getY(), plot(), false, false))
 		{
@@ -24706,7 +24716,8 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 				!pBestPlot->getWorkingCity()->isConnectedToCapital())
 			{
 				eBestMission = MISSION_ROUTE_TO;
-				szRouteReason = (pBestPlot->getWorkingCity() == NULL ? "BONUS_OUTSIDE_CITY_RADIUS" : "BONUS_CITY_NOT_CONNECTED_TO_CAPITAL");
+				if (bLogRoute)
+					szRouteReason = (pBestPlot->getWorkingCity() == NULL ? "BONUS_OUTSIDE_CITY_RADIUS" : "BONUS_CITY_NOT_CONNECTED_TO_CAPITAL");
 			}
 			else
 			{
@@ -24719,7 +24730,8 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 					if (iPathTurns >= iDistance)
 					{
 						eBestMission = MISSION_ROUTE_TO;
-						szRouteReason = "BONUS_PATH_TURNS_AT_LEAST_STEP_DISTANCE";
+						if (bLogRoute)
+							szRouteReason = "BONUS_PATH_TURNS_AT_LEAST_STEP_DISTANCE";
 					}
 				}
 			}
@@ -24729,19 +24741,20 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 		if (!AI_canRouteThroughSafeTerritory(*pBestPlot, eFlags))
 		{
 			eBestMission = MISSION_MOVE_TO; // </advc.pf>
-			szRouteReason = "NONE";
+			if (bLogRoute)
+				szRouteReason = "NONE";
 		}
 		getGroup()->pushMission(eBestMission,
 				pBestPlot->getX(), pBestPlot->getY(), eFlags, false,
 				false, MISSIONAI_BUILD, pBestPlot);
-		char const* szBuildRouteReason = "NONE";
-		eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild, &szBuildRouteReason);
+		char const* szBuildRouteReason = NULL;
+		eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild, (bLogRoute ? &szBuildRouteReason : NULL));
 		getGroup()->pushMission(MISSION_BUILD,
 				eBestBuild, -1, eFlags,
 				//(getGroup()->getLengthMissionQueue() > 0),
 				true, // K-Mod
 				false, MISSIONAI_BUILD, pBestPlot);
-		if (gWorkerLogLevel >= 2 && eBestMission == MISSION_ROUTE_TO)
+		if (bLogRoute && eBestMission == MISSION_ROUTE_TO)
 		{
 			BonusTypes const eTargetBonus = pBestPlot->getNonObsoleteBonusType(getTeam());
 			logBBAI("    WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_BONUS target=(%d,%d) reason=%s targetHasRoute=%d targetBonus=%S intendedBuild=%S value=%d",
@@ -24749,7 +24762,7 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 				pBestPlot->getX(), pBestPlot->getY(), szRouteReason, pBestPlot->isRoute(),
 				(eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription()), GC.getInfo(eBestBuild).getDescription(), iBestValue);
 		}
-		if (gWorkerLogLevel >= 2 && GC.getInfo(eBestBuild).getRoute() != NO_ROUTE)
+		if (bLogRoute && GC.getInfo(eBestBuild).getRoute() != NO_ROUTE)
 		{
 			BonusTypes const eTargetBonus = pBestPlot->getNonObsoleteBonusType(getTeam());
 			logBBAI("    WORKER_ROUTE_BUILD_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_BONUS target=(%d,%d) reason=%s bonus=%S build=%S value=%d",
@@ -24787,12 +24800,13 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
 			pushGroupMoveTo(kPlot, NO_MOVEMENT_FLAGS, false, false,
 					MISSIONAI_BUILD, &kPlot);
 		}
-		char const* szBuildRouteReason = "NONE";
-		eBuild = AI_betterPlotBuild(kPlot, eBuild, &szBuildRouteReason);
+		bool const bLogRoute = (gWorkerLogLevel >= 2);
+		char const* szBuildRouteReason = NULL;
+		eBuild = AI_betterPlotBuild(kPlot, eBuild, (bLogRoute ? &szBuildRouteReason : NULL));
 		getGroup()->pushMission(MISSION_BUILD, eBuild, -1, NO_MOVEMENT_FLAGS,
 				//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
 				true, false, MISSIONAI_BUILD, &kPlot); // K-Mod
-		if (gWorkerLogLevel >= 2 && GC.getInfo(eBuild).getRoute() != NO_ROUTE) logBBAI("    WORKER_ROUTE_BUILD_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_PLOT_EXPLICIT_BUILD target=(%d,%d) reason=%s build=%S",
+		if (bLogRoute && GC.getInfo(eBuild).getRoute() != NO_ROUTE) logBBAI("    WORKER_ROUTE_BUILD_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_PLOT_EXPLICIT_BUILD target=(%d,%d) reason=%s build=%S",
 			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
 			kPlot.getX(), kPlot.getY(), szBuildRouteReason, GC.getInfo(eBuild).getDescription());
 
