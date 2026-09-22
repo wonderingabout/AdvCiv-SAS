@@ -3519,13 +3519,19 @@ static bool SAS_findWorkerIrrigationChainStep(CvUnitAI const& kUnit, CvPlot& kTa
 }
 
 // Returns true if the unit found a build for this city...
-// <!-- custom: The earlier SAS rewrite replaced Base AdvCiv's unstable land-improvement evaluator with reliable bonus priority, candidate/path fallback, reservations, explicit feature work and irrigation handling, but ordinary no-bonus choices still duplicated current terrain/build XML in manual branches. Preserve that SAS structure while enumerating every legal improvement Build and valuing the actual current-to-result yield transition with city-specific Food/Production/Commerce prices. XML terrain, feature, improvement and upgrade changes now flow through without new C++ branches; a replacement deadband prevents the Farm/Cottage and Mine/Windmill oscillation seen in the old evaluator. Original SAS Worker rewrite developed with Gemini AI, ChatGPT 5 and Claude code Sonnet 4.5. See KI#30. (GPT-5.6-Sol) -->
+// <!-- custom: The earlier SAS rewrite replaced Base AdvCiv's unstable land-improvement evaluator with reliable bonus priority, candidate/path fallback, reservations, explicit feature work and irrigation handling, but ordinary no-bonus choices still duplicated current terrain/build XML in manual branches.
+// Preserve that SAS structure while enumerating every legal improvement Build and valuing the actual current-to-result yield transition with city-specific Food/Production/Commerce prices.
+// XML terrain, feature, improvement and upgrade changes now flow through without new C++ branches; a replacement deadband prevents the Farm/Cottage and Mine/Windmill oscillation seen in the old evaluator.
+// Original SAS Worker rewrite developed with Gemini AI, ChatGPT 5 and Claude code Sonnet 4.5. See KI#30. (GPT-5.6-Sol) -->
+// <!-- custom: pOnlyPlot restricts evaluation to one BFC destination, and bIgnorePath lets an embarked Worker value that destination before it has a land path; bIgnorePath is valid only with pOnlyPlot.
+// The Settler transport separately checks its sea path before ferrying the Worker. (GPT-5.6-Sol) -->
 bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, BuildTypes* peBestBuild, CvPlot* pIgnorePlot, CvUnit* pUnit, int* piBestValue, BuildTypes* peFollowupBuild, CvPlot const* pOnlyPlot, bool bIgnorePath) const
 {
 	PROFILE_FUNC();
 	FAssert(!bIgnorePath || pOnlyPlot != NULL);
 
-	// <!-- custom: fix crash at turn 77 more properly now that we have identified the cause to be here since changing the code here triggers it, and guarding null and no build in caller avoids it, see code comment at callers of this function for details. Code provided by chatgpt 5 in an attempt to fix it more cleanly and ideally not have workers parked, check if accurate -->
+	// <!-- custom: fix crash at turn 77 more properly now that we have identified the cause to be here since changing the code here triggers it, and guarding null and no build in caller avoids it, see code comment at callers of this function for details.
+	// Code provided by chatgpt 5 in an attempt to fix it more cleanly and ideally not have workers parked, check if accurate -->
 	// And no—you won’t be “back to square one" or re-introduce the crash as long as you add two tiny safety fixes:
 	if (ppBestPlot)  *ppBestPlot  = NULL;
 	if (peBestBuild) *peBestBuild = NO_BUILD;
@@ -4310,7 +4316,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		if (bIgnorePath || pathFinder.generatePath(*pB))
 		{
 			iDiagnosticPathableCandidates++;
-			// <!-- custom: max one worker per tile, should be much more efficient in most cases, minimal gain in spending a lot of move speed to go in one tile this move speed could be used to start much faster on other tiles, especially if it's to inefficiently move to high move cost tile like unroaded hill or forest; however in some cases this may be slower, than say improve a bonus to a farm or pasture with 2 available workers, but i hope that in most cases this is statistically more beneficial for the AI than not to focus one worker on one tile, the type of improvement may also be improtant to tweak as well, ideally start with the improvement not a road on food bonuses (even if just 1 food) but not handled here if we ever handle it; is maybe also computationally faster as a side effect to execute this code maybe (but check to be sure as this is just a guess and i don't know too much about these but i assume so), it also nicely simplifies code as gemini ai suggested. -->
+			// <!-- custom: max one worker per tile, should be much more efficient in most cases, minimal gain in spending a lot of move speed to go in one tile this move speed could be used to start much faster on other tiles, especially if it's to inefficiently move to high move cost tile like unroaded hill or forest; however in some cases this may be slower, than say improve a bonus to a farm or pasture with 2 available workers, but i hope that in most cases this is statistically more beneficial for the AI than not to focus one worker on one tile.
+			// The type of improvement may also be improtant to tweak as well, ideally start with the improvement not a road on food bonuses (even if just 1 food) but not handled here if we ever handle it; is maybe also computationally faster as a side effect to execute this code maybe (but check to be sure as this is just a guess and i don't know too much about these but i assume so), it also nicely simplifies code as gemini ai suggested. -->
 			//int iPathTurns = pathFinder.getPathTurns() + (pathFinder.getFinalMoves() == 0 ? 1 : 0);
 			// int iMaxWorkers = iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(*pB, eB);
 			// if (pUnit != NULL && pUnit->getPlot().isCity() && iPathTurns == 1)
@@ -23130,7 +23137,7 @@ bool CvUnitAI::AI_ferryWorkers()
 			CvPlot& kPlot = kMap.getPlotByIndex(i);
 			if(kPlot.isWater() || kPlot.getOwner() != kOwner.getID())
 				continue;
-			// <!-- custom: A cityless island needs at most one ferried Worker at a time. That Worker can improve every connected BFC/bonus plot, then the existing stranded-unit pickup path can recover it; reject another voyage while one already occupies the land area. (GPT-5.6-Sol) -->
+			// <!-- custom: A cityless island needs at most one ferried Worker at a time; that Worker can improve every connected BFC/bonus plot, then the existing stranded-unit pickup path can recover it; reject another voyage while one already occupies the land area. (GPT-5.6-Sol) -->
 			if (kPlot.getArea().getCitiesPerPlayer(kOwner.getID()) <= 0 && kOwner.AI_totalAreaUnitAIs(kPlot.getArea(), UNITAI_WORKER) > 0)
 				continue;
 			CvCityAI* pWorkingCity = NULL;
@@ -23168,7 +23175,9 @@ bool CvUnitAI::AI_ferryWorkers()
 				BuildTypes eBestBuild = NO_BUILD;
 				BuildTypes eFollowupBuild = NO_BUILD;
 				int iBuildValue = 0;
-				// <!-- custom: Base AdvCiv's off-area BFC ferry scan used the city best-build cache, but SAS deliberately disables that legacy evaluator for land plots. Query the current yield/feature/bonus evaluator for this exact plot without land pathfinding; the Settler transport separately proves the sea route before dispatching one Worker. This restores the intended small-island BFC support without maintaining a second improvement formula. (GPT-5.6-Sol) -->
+				// <!-- custom: Base AdvCiv's off-area BFC ferry scan used the city best-build cache, but SAS deliberately disables that legacy evaluator for land plots.
+				// Query the current yield/feature/bonus evaluator for this exact plot without land pathfinding; the Settler transport separately proves the sea route before dispatching one Worker.
+				// This restores the intended small-island BFC support without maintaining a second improvement formula. (GPT-5.6-Sol) -->
 				if (!kWorker.AI_bestCityBuild(*pWorkingCity, &pEvaluatedPlot, &eBestBuild, NULL, pWorker, &iBuildValue, &eFollowupBuild, &kPlot, true) || pEvaluatedPlot != &kPlot)
 					continue;
 				BuildTypes const eImprovementBuild = (GC.getInfo(eBestBuild).getImprovement() != NO_IMPROVEMENT ? eBestBuild : eFollowupBuild);
