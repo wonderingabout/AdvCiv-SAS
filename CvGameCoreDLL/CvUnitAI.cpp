@@ -3520,9 +3520,10 @@ static bool SAS_findWorkerIrrigationChainStep(CvUnitAI const& kUnit, CvPlot& kTa
 
 // Returns true if the unit found a build for this city...
 // <!-- custom: The earlier SAS rewrite replaced Base AdvCiv's unstable land-improvement evaluator with reliable bonus priority, candidate/path fallback, reservations, explicit feature work and irrigation handling, but ordinary no-bonus choices still duplicated current terrain/build XML in manual branches. Preserve that SAS structure while enumerating every legal improvement Build and valuing the actual current-to-result yield transition with city-specific Food/Production/Commerce prices. XML terrain, feature, improvement and upgrade changes now flow through without new C++ branches; a replacement deadband prevents the Farm/Cottage and Mine/Windmill oscillation seen in the old evaluator. Original SAS Worker rewrite developed with Gemini AI, ChatGPT 5 and Claude code Sonnet 4.5. See KI#30. (GPT-5.6-Sol) -->
-bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, BuildTypes* peBestBuild, CvPlot* pIgnorePlot, CvUnit* pUnit, int* piBestValue, BuildTypes* peFollowupBuild) const
+bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, BuildTypes* peBestBuild, CvPlot* pIgnorePlot, CvUnit* pUnit, int* piBestValue, BuildTypes* peFollowupBuild, CvPlot const* pOnlyPlot, bool bIgnorePath) const
 {
 	PROFILE_FUNC();
+	FAssert(!bIgnorePath || pOnlyPlot != NULL);
 
 	// <!-- custom: fix crash at turn 77 more properly now that we have identified the cause to be here since changing the code here triggers it, and guarding null and no build in caller avoids it, see code comment at callers of this function for details. Code provided by chatgpt 5 in an attempt to fix it more cleanly and ideally not have workers parked, check if accurate -->
 	// And no—you won’t be “back to square one" or re-introduce the crash as long as you add two tiny safety fixes:
@@ -3690,7 +3691,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		for (WorkablePlotIter itPhase0(kCity, false); itPhase0.hasNext(); ++itPhase0)
 		{
 			CvPlot& kPlot = *itPhase0;
-			if (&kPlot == pIgnorePlot)
+			if (&kPlot == pIgnorePlot || (pOnlyPlot != NULL && &kPlot != pOnlyPlot))
 				continue;
 
 			SASWorkerPhase0ProductiveFeatureInfo kInfo;
@@ -3700,7 +3701,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				continue;
 			if (kOwner.AI_plotTargetMissionAIs(kPlot, MISSIONAI_BUILD, getGroup(), 0, 1) > 0)
 				continue;
-			if (!pathFinder.generatePath(kPlot))
+			if (!bIgnorePath && !pathFinder.generatePath(kPlot))
 				continue;
 
 			BuildTypes ePhase0FollowupBuild = NO_BUILD;
@@ -3734,7 +3735,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				}
 			}
 
-			int const iPathTurns = pathFinder.getPathTurns();
+			int const iPathTurns = (bIgnorePath ? 0 : pathFinder.getPathTurns());
 			// <!-- custom: Phase-0 chopping used to abandon even a strong Hill Mine after paying the plot's travel and movement cost, then make another Worker return later.
 			// Reuse the ordinary yield evaluator and existing follow-up threshold, but accept only a Build that removes the current feature and therefore remains valid after the pure chop; immediate danger deliberately leaves the queue open for replanning.
 			// A bounded tie-break favours productive post-chop plots without overruling pressure relief, bonus removal or a larger hammer chop. (GPT-5.6-Sol) -->
@@ -3781,7 +3782,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		}
 	}
 
-	if (bSAS_WORKER_AI_IRRIGATION_CHAIN_ENABLE && GET_TEAM(getTeam()).isIrrigation())
+	// <!-- custom: An exact-plot transport query asks whether its destination itself has worthwhile work; an irrigation step elsewhere cannot justify unloading a Worker there. (GPT-5.6-Sol) -->
+	if (pOnlyPlot == NULL && bSAS_WORKER_AI_IRRIGATION_CHAIN_ENABLE && GET_TEAM(getTeam()).isIrrigation())
 	{
 		static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS");
 		for (WorkablePlotIter itBFC(kCity, false); itBFC.hasNext(); ++itBFC)
@@ -3847,7 +3849,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		CvPlot& kPlot = *it;
 		CityPlotTypes ePlot = it.currID();
 
-		if (&kPlot == pIgnorePlot || /*!AI_plotValid(kPlot)*/kPlot.isWater()) // advc.opt
+		if (&kPlot == pIgnorePlot || (pOnlyPlot != NULL && &kPlot != pOnlyPlot) || /*!AI_plotValid(kPlot)*/kPlot.isWater()) // advc.opt
 			continue;
 		if (GET_PLAYER(getOwner()).isAutomationSafe(kPlot))
 		{
@@ -4214,7 +4216,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				continue;
 			if (pCandidatePlot->getImprovementType() != NO_IMPROVEMENT || GC.getInfo(eCandidateBuild).getImprovement() == NO_IMPROVEMENT)
 				continue;
-			if (pCandidatePlot->isVisibleEnemyUnit(this) || !pathFinder.generatePath(*pCandidatePlot))
+			if (pCandidatePlot->isVisibleEnemyUnit(this) || (!bIgnorePath && !pathFinder.generatePath(*pCandidatePlot)))
 				continue;
 			int const iMaxWorkers = 1;
 			int const iReservedPlot = GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pCandidatePlot, MISSIONAI_BUILD, getGroup(), iRange, iMaxWorkers);
@@ -4305,7 +4307,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				iMaxWorkers = AI_calculatePlotWorkersNeeded(pB, eB);
 		} */ // BtS
 		// K-Mod. basically the same thing, but using pathFinder.
-		if (pathFinder.generatePath(*pB))
+		if (bIgnorePath || pathFinder.generatePath(*pB))
 		{
 			iDiagnosticPathableCandidates++;
 			// <!-- custom: max one worker per tile, should be much more efficient in most cases, minimal gain in spending a lot of move speed to go in one tile this move speed could be used to start much faster on other tiles, especially if it's to inefficiently move to high move cost tile like unroaded hill or forest; however in some cases this may be slower, than say improve a bonus to a farm or pasture with 2 available workers, but i hope that in most cases this is statistically more beneficial for the AI than not to focus one worker on one tile, the type of improvement may also be improtant to tweak as well, ideally start with the improvement not a road on food bonuses (even if just 1 food) but not handled here if we ever handle it; is maybe also computationally faster as a side effect to execute this code maybe (but check to be sure as this is just a guess and i don't know too much about these but i assume so), it also nicely simplifies code as gemini ai suggested. -->
@@ -4338,7 +4340,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				bFound     = true;
 				if (gWorkerLogLevel >= 2 && iCityPopulation >= 6)
 				{
-					int const iDiagnosticPathTurns = pathFinder.getPathTurns();
+					int const iDiagnosticPathTurns = (bIgnorePath ? 0 : pathFinder.getPathTurns());
 					ImprovementTypes const eCurrentImprovement = pB->getImprovementType();
 					ImprovementTypes const eCandidateImprovement = GC.getInfo(eB).getImprovement();
 					wchar const* szCurrentImprovement = (eCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eCurrentImprovement).getDescription());
@@ -23128,6 +23130,9 @@ bool CvUnitAI::AI_ferryWorkers()
 			CvPlot& kPlot = kMap.getPlotByIndex(i);
 			if(kPlot.isWater() || kPlot.getOwner() != kOwner.getID())
 				continue;
+			// <!-- custom: A cityless island needs at most one ferried Worker at a time. That Worker can improve every connected BFC/bonus plot, then the existing stranded-unit pickup path can recover it; reject another voyage while one already occupies the land area. (GPT-5.6-Sol) -->
+			if (kPlot.getArea().getCitiesPerPlayer(kOwner.getID()) <= 0 && kOwner.AI_totalAreaUnitAIs(kPlot.getArea(), UNITAI_WORKER) > 0)
+				continue;
 			CvCityAI* pWorkingCity = NULL;
 			if (kPlot.getArea().getCitiesPerPlayer(kOwner.getID()) > 0 ||
 				kOwner.AI_neededWorkers(kPlot.getArea()) <= 0 ||
@@ -23159,16 +23164,26 @@ bool CvUnitAI::AI_ferryWorkers()
 				continue;
 			if (pWorkingCity != NULL)
 			{
-				BuildTypes eBestBuild = pWorkingCity->AI_getBestBuild(pWorkingCity->
-						getCityPlotIndex(kPlot));
-				if (eBestBuild == NO_BUILD || !kWorker.canBuild(kPlot, eBestBuild))
+				CvPlot* pEvaluatedPlot = NULL;
+				BuildTypes eBestBuild = NO_BUILD;
+				BuildTypes eFollowupBuild = NO_BUILD;
+				int iBuildValue = 0;
+				// <!-- custom: Base AdvCiv's off-area BFC ferry scan used the city best-build cache, but SAS deliberately disables that legacy evaluator for land plots. Query the current yield/feature/bonus evaluator for this exact plot without land pathfinding; the Settler transport separately proves the sea route before dispatching one Worker. This restores the intended small-island BFC support without maintaining a second improvement formula. (GPT-5.6-Sol) -->
+				if (!kWorker.AI_bestCityBuild(*pWorkingCity, &pEvaluatedPlot, &eBestBuild, NULL, pWorker, &iBuildValue, &eFollowupBuild, &kPlot, true) || pEvaluatedPlot != &kPlot)
 					continue;
-				ImprovementTypes eBestImpr = GC.getInfo(eBestBuild).getImprovement();
+				BuildTypes const eImprovementBuild = (GC.getInfo(eBestBuild).getImprovement() != NO_IMPROVEMENT ? eBestBuild : eFollowupBuild);
+				if (eImprovementBuild == NO_BUILD || !kWorker.canBuild(kPlot, eImprovementBuild))
+					continue;
+				ImprovementTypes eBestImpr = GC.getInfo(eImprovementBuild).getImprovement();
 				if (eBestImpr == NO_IMPROVEMENT) // Don't go there just to chop
 					continue;
 				// Not going to build forts on workable tiles
 				if (GC.getInfo(eBestImpr).isActsAsCity())
 					continue;
+				if (gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) logBBAI("    WORKER_CROSS_WATER_BFC_CANDIDATE turn=%d player=%d %S transportId=%d workerId=%d city=%S plot=(%d,%d) plotArea=%d directBuild=%S followup=%S improvement=%S buildValue=%d result=ELIGIBLE",
+					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pWorker->getID(), pWorkingCity->getName().GetCString(),
+					kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), GC.getInfo(eBestBuild).getDescription(),
+					(eFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eFollowupBuild).getDescription()), GC.getInfo(eBestImpr).getDescription(), iBuildValue);
 			}
 			else
 			{
@@ -23220,6 +23235,13 @@ bool CvUnitAI::AI_ferryWorkers()
 
 	if (pBestPlot != NULL)
 	{
+		if ((gWorkerLogLevel >= 2 || gOverseasTransportLogLevel >= 2) && !pBestPlot->isCity())
+		{
+			CvCity const* pWorkingCity = pBestPlot->AI_getWorkingCity();
+			if (pWorkingCity != NULL) logBBAI("    WORKER_CROSS_WATER_BFC_DISPATCH turn=%d player=%d %S transportId=%d transport=(%d,%d) workersAboardBeforeTrim=%d city=%S target=(%d,%d) targetArea=%d result=ONE_WORKER_FERRY",
+				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkers,
+				pWorkingCity->getName().GetCString(), pBestPlot->getX(), pBestPlot->getY(), pBestPlot->getArea().getID());
+		}
 		if (atPlot(pBestPlot))
 		{
 			unloadAll(); // XXX is this dangerous (not pushing a mission...) XXX air units?
