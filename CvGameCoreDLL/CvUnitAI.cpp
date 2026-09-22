@@ -2924,6 +2924,20 @@ static int SAS_getWorkerBuildEffectiveYield(CvPlot const& kPlot, BuildTypes eBui
 	return (2 * iImmediateYield + iFinalUpgradeYield) / 3;
 }
 
+// <!-- custom: AI_bestCityBuild is evaluated repeatedly by every Worker scanning the same cities. In the first three yield-rework autoplay logs this produced roughly 4-11 million WORKER_YIELD_NO_BUILD rows per run, although only about 1700-2300 city-build assignments occurred; deduplicating one sample by player/plot/turn/current improvement removed about 94% of those rows. Log an unchanged plot decision only once for that state, but allow another row if a Worker completes or replaces the improvement during the same turn, preserving useful candidate evidence without overwhelming BBAI.log. (GPT-5.6-Sol) -->
+static bool SAS_shouldLogWorkerYieldDecision(CvUnitAI const& kUnit, CvPlot const& kPlot)
+{
+	typedef std::pair<int,int> SASWorkerYieldLogState;
+	static std::map<std::pair<int,int>,SASWorkerYieldLogState> akLastLoggedState;
+	std::pair<int,int> const kKey(kUnit.getOwner(), kPlot.plotNum());
+	SASWorkerYieldLogState const kState(GC.getGame().getGameTurn(), kPlot.getImprovementType());
+	std::map<std::pair<int,int>,SASWorkerYieldLogState>::const_iterator const itLastLogged = akLastLoggedState.find(kKey);
+	if (itLastLogged != akLastLoggedState.end() && itLastLogged->second == kState)
+		return false;
+	akLastLoggedState[kKey] = kState;
+	return true;
+}
+
 // <!-- custom: Enumerate every legal improvement Build and score the state transition generically. Twice the final-state utility prioritizes plots that cities will actually want to work instead of letting a large gain on poor terrain win by itself; the gain still rewards productive Worker turns, build duration breaks close choices, and replacement hysteresis requires both a fixed and percentage improvement before destroying existing infrastructure. Irrigation-chain infrastructure is selected by the separate route pass instead of being mixed into ordinary plot-yield valuation. (GPT-5.6-Sol) -->
 static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCity, CvPlot& kPlot, SASWorkerYieldWeights const& kWeights, BuildTypes& eBestBuild, int& iValue)
 {
@@ -2947,7 +2961,8 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 	{
 		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
 		ImprovementTypes const eImprovement = kBuild.getImprovement();
-		if (eImprovement == NO_IMPROVEMENT || eImprovement == eCurrentImprovement || !kUnit.canBuild(kPlot, eLoopBuild))
+		// <!-- custom: Defensive infrastructure belongs to the dedicated Fort/Airbase policy, not economic BFC yield competition. Autoplay logs showed Fort replacing a temporarily food-negative Workshop at Texcoco and Hastings because the zero-yield Fort appeared beneficial merely by removing the Workshop's food penalty. Keep this generic through the XML bActsAsCity role instead of hardcoding Fort; a later idle-Worker defensive policy can still build Forts deliberately outside this economic comparison. (GPT-5.6-Sol) -->
+		if (eImprovement == NO_IMPROVEMENT || eImprovement == eCurrentImprovement || GC.getInfo(eImprovement).isActsAsCity() || !kUnit.canBuild(kPlot, eLoopBuild))
 			continue;
 		iLegalCandidateCount++;
 
@@ -2989,7 +3004,8 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 
 	if (eBestCandidate == NO_BUILD)
 	{
-		if (gWorkerLogLevel >= 3)
+		// <!-- custom: Zero legal candidates are already covered by the compact once-per-plot rejection diagnostic. Keep WORKER_YIELD_NO_BUILD for the strategically useful case where replacement hysteresis rejected otherwise legal Builds. (GPT-5.6-Sol) -->
+		if (gWorkerLogLevel >= 3 && iLegalCandidateCount > 0 && SAS_shouldLogWorkerYieldDecision(kUnit, kPlot))
 			logBBAI("    WORKER_YIELD_NO_BUILD turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) current=%S weights=(%d,%d,%d) currentUtility=%d legal=%d marginRejected=%d bestRejected=%S bestRejectedGain=%d",
 				GC.getGame().getGameTurn(), kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kUnit.getID(),
 				kCity.getName().GetCString(), kPlot.getX(), kPlot.getY(),
@@ -3001,7 +3017,7 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 	}
 	eBestBuild = eBestCandidate;
 	iValue += iBestCandidateValue;
-	if (gWorkerLogLevel >= 3)
+	if (gWorkerLogLevel >= 3 && SAS_shouldLogWorkerYieldDecision(kUnit, kPlot))
 	{
 		ImprovementTypes const eResultImprovement = GC.getInfo(eBestCandidate).getImprovement();
 		logBBAI("    WORKER_YIELD_BUILD turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) current=%S build=%S result=%S weights=(%d,%d,%d) currentUtility=%d gain=%d buildValue=%d runnerUp=%S runnerUpValue=%d legal=%d marginRejected=%d bestRejected=%S bestRejectedGain=%d",
@@ -3788,9 +3804,16 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			BuildTypes const ePreFeatureRemovalBuild = eBestSupposedBuild;
 			int const iPreFeatureRemovalBuildValue = iValue;
 			bool const bSelectedBuildPreservesFeature = (bHasYieldBuild && eFeature != NO_FEATURE && !GC.getInfo(ePreFeatureRemovalBuild).isFeatureRemove(eFeature));
+			ImprovementTypes const eCurrentImprovement = kPlot.getImprovementType();
+			bool const bCurrentImprovementUsesFeatureValidity = (eFeature != NO_FEATURE && eCurrentImprovement != NO_IMPROVEMENT && GC.getInfo(eCurrentImprovement).getFeatureMakesValid(eFeature));
+			bool const bPreserveCurrentImprovementFeature = (bCurrentImprovementUsesFeatureValidity && !bHasYieldBuild);
 
-			// <!-- custom: PHASE 1.2 - feature-removal policy stays separate from economic yield comparison because chop production, health and Fallout urgency are not plot yields. Preserve a Forest when the selected legal improvement does; otherwise perform removal first and queue a worthwhile selected improvement as its follow-up. Detailed tuning remains in GlobalDefines_advciv_sas.xml. (ChatGPT-5.5 temporary review + GPT-5.5 review + GPT-5.6-Sol) -->
-			if (eFeature == eFeatureForest && !bSelectedBuildPreservesFeature)
+			// <!-- custom: PHASE 1.2 - feature-removal policy stays separate from economic yield comparison because chop production, health and Fallout urgency are not plot yields.
+			// In the first yield-rework autoplay, Tiwanaku built two Lumbermills on turns 161-162; the yield evaluator correctly rejected Cottage replacements on turn 186, but this separate policy nevertheless ordered standalone chops, destroyed both Lumbermills, and then rebuilt the plots as Cottages on turn 190.
+			// Preserve a feature when the selected legal improvement does, or when the current improvement depends on that feature and no replacement passed the yield/hysteresis gate; otherwise perform removal first and queue a worthwhile selected improvement as its follow-up.
+			// Use XML FeatureMakesValid rather than hardcoding Lumbermill so mod-added feature-dependent improvements receive the same protection.
+			// Detailed tuning remains in GlobalDefines_advciv_sas.xml. (ChatGPT-5.5 temporary review + GPT-5.5 review + GPT-5.6-Sol) -->
+			if (eFeature == eFeatureForest && !bSelectedBuildPreservesFeature && !bPreserveCurrentImprovementFeature)
 			{
 				if (canBuild(kPlot, eBuildRemoveForest))
 				{
@@ -3825,7 +3848,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					continue;
 				}
 			}
-			else if (eFeature == eFeatureJungle)
+			else if (eFeature == eFeatureJungle && !bPreserveCurrentImprovementFeature)
 			{
 				if (canBuild(kPlot, eBuildRemoveJungle))
 				{
