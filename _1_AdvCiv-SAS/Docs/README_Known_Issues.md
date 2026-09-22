@@ -1009,8 +1009,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#892 - (Provisional Pending AdvCiv Cppcheck regression) Real population can overflow before truncation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-892)\
 [KI#893 - (Provisional Pending AdvCiv Hotseat/PBEM entitlement defect) City investigation leaks between teams](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-893)\
 [KI#894 - (Provisional Pending AdvCiv trait-culture regression) Absolute setter can remove existing culture](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-894)\
-[KI#895 - (Provisional Pending AdvCiv use-after-free regression) Capital-loss announcement uses deleted city state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-895)\
-[KI#896 - (Provisional Pending AdvCiv use-after-free regression) City kill reads isActiveOwned after deletion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-896)\
+[KI#895 - (Fixed Base AdvCiv crash; album-found, runtime-rediscovered and deterministically reproduced during Worker AI yield rework) Capital-loss announcement uses deleted city state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-895)\
+[KI#896 - (Fixed companion Base AdvCiv use-after-free; album-found) City kill reads isActiveOwned after deletion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-896)\
 [KI#897 - (Provisional Pending inherited BtS/K-Mod transfer omission) Hostile espionage counters are cleansed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-897)\
 [KI#898 - (Provisional Pending inherited city-transfer omission) Event extra happiness/health is lost](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-898)\
 [KI#899 - (Provisional Pending inherited BtS event-history defect) ClearEvents erases unrelated city event flags](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-899)\
@@ -17954,19 +17954,56 @@ Found as F571 during ChatGPT-5.6-Sol's C031-WIP353 audit; reconciled into Known 
 
 <a id="ki-895"></a>
 
-## KI#895 - (Provisional Pending AdvCiv use-after-free regression) Capital-loss announcement uses deleted city state
+## KI#895 - (Fixed Base AdvCiv crash; album-found, runtime-rediscovered and deterministically reproduced during Worker AI yield rework) Capital-loss announcement uses deleted city state
 
-After deleting the old capital, the moved announcement block still reads the destroyed city and also compares observer player IDs against a city ID. Snapshot owner/team/city context before deletion and use the correct identity domains.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1fH3urqhlw5iirFClj1Cpz8vsggMVR1Wz?usp=sharing).
 
-Found as F572 during ChatGPT-5.6-Sol's C031-WIP355 audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+After deleting the old capital, AdvCiv's moved-capital announcement block still called `getID()` and `getTeam()` on the destroyed `CvCity`. The copied `getID()` test was also wrong independently of the lifetime bug: it compared an observer player ID against the old city's city ID rather than against the old owner's player ID. `CvPlayer::deleteCity` removes the city from the free list and immediately deletes the object, so these later member reads were a real use-after-free.
+
+This was originally found statically as F572 during the C++ File Audit Album, then independently rediscovered ingame on 2026-09-22 while testing an otherwise unrelated intermediate state of the Worker AI yield rework, before that rework's second commit. Germany (player 10) conquered Vijayanagara at `(40,17)`, the capital of player 11, through the normal `CvUnit::setXY -> CvPlayer::acquireCity -> CvCity::kill` conquest path. WinDbg reported the crash directly in the post-delete capital-announcement block:
+
+```text
+Failure.Bucket
+Value: INVALID_POINTER_READ_c0000005_CvGameCoreDLL.dll!CvCity::kill
+...
+CvGameCoreDLL!CvCity::kill+0xb75 [CvCity.cpp @ 517]
+Attempt to read from address ee0000e2
+...
+516: if (GET_TEAM(getTeam()).isHasMet(kObs.getTeam()) ||
+> 517:      kObs.isSpectator()) // advc.127
+```
+
+The SASGameRecord identifies that crash run as dirty version `6563` on branch `codex/worker-yield-rework`, with the Worker-rework DLL, `CvUnitAI.cpp` and `GlobalDefines_advciv_sas.xml` as the three tracked dirty files. It reaches the turn-239 acquisition transaction for Vijayanagara, removes the old capital and records its culture cleanup immediately before the native crash. The Worker changes therefore exposed the defect by changing game history and/or allocator state; they did not create the invalid post-delete city accesses.
+
+Archaeology identifies this as a Base AdvCiv regression rather than an AdvCiv-SAS change. AdvCiv practical 4125 / commit `174b7ed58a0d8a1734cc23192aefdbb2495d5102` moved the capital-change announcement from `CvPlayer::setCapital` into `CvCity::kill` after deletion but copied receiver-relative `getID()` / `getTeam()` expressions unchanged. Practical 4135 / commit `99f31a43eff07936842b1eccb3237fa97d8a8161` then explicitly amended a dangling pointer introduced by practical 4125 by snapshotting the old-capital name, but it left these remaining post-delete member accesses in place. Base AdvCiv 1.14 still contains the same code; K-Mod 1.46 / stock lineage does not contain this exact AdvCiv announcement root.
+
+Fix: treat `kOwner.deleteCity(getID())` as the hard last-use boundary for `this`. In the moved announcement, compare `kObs.getID()` with the already-saved `eOwner` and obtain the old team from the still-live `kOwner`, rather than from the deleted city. This also corrects the copied player-ID-versus-city-ID comparison.
+
+Validation deliberately reused a locally retained backup of the exact intermediate Worker-rework state that produced the crash, because the branch had already diverged by the time the defect was diagnosed. The restored backup's `CvGameCoreDLL.dll` independently matches the crash run's SASGameRecord fingerprint `FNV1A64:3390ED305EC87486` and PE timestamp `2026-09-22T08:57:03Z`, so the pre-fix binary provenance is exact.
+
+The first attempted validation archive was accidentally made with the SAS logging defines disabled and then supplied with duplicate old logs, so it was discarded as evidence. After restoring the intended logging settings, applying the repair and recompiling, `SASGameRecord_20260922T103354Z_load1.log` reproduced the former crash history deterministically: the CORE state-checkpoint combined fingerprints are identical to the crash run on every turn from 230 through 238, the turn-238 synchronized RNG state/call count/stream fingerprint also match, and records `seq=79290` through `seq=79341` are byte-for-byte identical, including Germany's same attacks, transaction `tx=513`, Vijayanagara city ID `24578`, and `CITY_REMOVED` at `(40,17)`.
+
+The old run then terminates at the native KI#895 fault, while the repaired run continues through `CITY_ACQUIRED` for the recreated German Vijayanagara (`seq=79347`), the AI raze decision and `CITY_RAZED` (`seq=79356`), and finally completes normally with a turn-426 Space Race victory. This is therefore a log-proven same-history reproduction through the exact former crash path and a strong runtime confirmation of the repair, rather than merely a generic autoplay smoke test.
+
+This validation is also another practical illustration of SASGameRecord as a determinism and provenance tool: comparing CORE checkpoints, synchronized RNG provenance and the event stream can identify the first point where two runs diverge, or, as here, demonstrate the lack of divergence through a specific formerly crashing path. That distinction is what lets this test establish that the repaired DLL reached the same game history rather than merely a similar-looking conquest.
+
+Found as F572 / KI#895 during ChatGPT-5.6-Sol's C031-WIP355 audit; independently rediscovered ingame during the Worker AI yield rework and fixed with the help of GPT-5.6-Sol and wonderingabout, thanks.
 
 <a id="ki-896"></a>
 
-## KI#896 - (Provisional Pending AdvCiv use-after-free regression) City kill reads isActiveOwned after deletion
+## KI#896 - (Fixed companion Base AdvCiv use-after-free; album-found) City kill reads isActiveOwned after deletion
 
-A later `CvCity::kill` path calls city-member `isActiveOwned` after `deleteCity` has destroyed the object. Capture the needed active-owner state before the deletion boundary.
+Screenshots/files for this issue: same google drive folder link as KI#895.
 
-Found as F573 during ChatGPT-5.6-Sol's C031-WIP356 audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The end of `CvCity::kill` called city-member `isActiveOwned()` after `kOwner.deleteCity(getID())` had already destroyed the city. `isActiveOwned()` reads `getOwner()` from `this`, so this was a second independent use-after-free in the same function. It is not capital-specific and is reachable on ordinary city-removal paths if execution gets past the earlier cleanup. The 2026-09-22 crash itself faulted earlier in KI#895, so KI#896 was source-confirmed rather than directly crash-confirmed by that run.
+
+Archaeology again identifies a Base AdvCiv regression. Stock BtS / Civ4CE and K-Mod retain the saved-owner comparison after city deletion. AdvCiv practical 3218 / commit `40060514c0e678c1d2bd252c961eef0e1333121b` mechanically replaced the safe `eOwner == activePlayer` test with `isActiveOwned()` without accounting for the fact that this call site is after `deleteCity`. Base AdvCiv 1.14 and AdvCiv-SAS inherited that change.
+
+Fix: restore the saved-owner test, `eOwner == GC.getInitCore().getActivePlayer()`, so no `CvCity` member is touched after deletion. This companion repair compiled and was exercised in the same deterministic post-fix replay as KI#895: the replay crossed the exact formerly crashing capital-removal path, completed the acquisition and immediate raze, and continued to turn-426 victory.
+
+The observed pre-fix fault site was still KI#895 rather than this later read, so KI#896 remains fixed from direct source proof plus execution of the repaired path rather than from its own captured fault.
+
+Found as F573 / KI#896 during ChatGPT-5.6-Sol's C031-WIP356 audit; fixed alongside the runtime-confirmed neighboring KI#895 with the help of GPT-5.6-Sol and wonderingabout, thanks.
 
 <a id="ki-897"></a>
 

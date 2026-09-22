@@ -511,9 +511,10 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 			for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 			{
 				CvPlayer const& kObs = *it;
-				if (kObs.getID() == getID())
+				// <!-- custom: The old CvCity has already been deleted above; keep the saved owner/player context instead of dereferencing this; the moved AdvCiv announcement otherwise causes KI#895. (ChatGPT-5.6-Sol) -->
+				if (kObs.getID() == eOwner)
 					continue;
-				if (GET_TEAM(getTeam()).isHasMet(kObs.getTeam()) ||
+				if (GET_TEAM(kOwner.getTeam()).isHasMet(kObs.getTeam()) ||
 					 kObs.isSpectator()) // advc.127
 				{
 					CvWString* pszMsg = NULL;
@@ -557,7 +558,8 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 	if (bUpdatePlotGroups)
 		GC.getGame().updatePlotGroups();
 
-	if (isActiveOwned())
+	// <!-- custom: deleteCity above has already destroyed this CvCity; use the saved pre-delete owner identity for the final UI gate; see KI#896. (ChatGPT-5.6-Sol) -->
+	if (eOwner == GC.getInitCore().getActivePlayer())
 		gDLL->UI().setDirty(SelectionButtons_DIRTY_BIT, true);
 }
 
