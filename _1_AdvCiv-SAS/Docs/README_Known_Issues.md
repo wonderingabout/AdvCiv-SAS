@@ -3417,6 +3417,16 @@ So i am very happy and satisfied of these changes, now below the detail by chatg
 
 Note: i went beyond fixing the issue at hand and added some nice extra sanity cheks like icbm or worker max count per era and such as shown below, i hope AI is a lot more competitive, possibly silent issues like unknown scrapping or loops are solved by now, check for economic bankruptcy as i didn't guard against it assuming AI is rich enough or threatened enough to make it compensate its excess or handicap lowered enough so it can't overproduce so easily which is a win for us at least me xd if not some other players or not or etc.
 
+### Update: the later KI#33.2 Worker investigation exposed a gap between this policy and the late Worker fallback
+
+Land Workers have no `ObsoleteTech`, so `SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE` prevented the fallback's ordinary `scrap()` call from ever retiring them. Two older custom guards also made the fallback practically unreachable where surplus Workers normally wait: owned borders were treated as sufficient reason to keep them, and `AI_getCityToImprove()` was treated as proof of remaining demand even though that helper only identifies the city containing or working the Worker's plot.
+
+The fallback now uses caller-vetted `scrapForced()` only after ordinary Worker actions have found nothing productive and the existing conservative safeguards establish age, maintenance cost, empire-wide surplus, area surplus, local Workers-needed versus Workers-present, the shared area demand/floor and the inherited random retirement roll. This preserves the production/retirement asymmetry for useful units while allowing genuinely excess non-obsoleting Workers to leave after conquest or empire contraction.
+
+The confirming turn-430 Huge Archipelago replay began with Greece reduced to one fully developed city and 9 land Workers plus 1 Work Boat. Three logged `WORKER_SURPLUS_RETIREMENT` attempts on turns 432, 433 and 465 matched three `UNIT_SCRAPPED` records, reducing land Workers from 9 to the Huge-map conservative threshold of 6; the Work Boat remained, and Greece trained no replacement Worker through turn 481. Byzantium independently exercised the same path seven times in that run. An earlier replay also clarified the scope: France's 35 Workers for 18 cities equaled KI#198's configured shared primary-area floor, so none were considered surplus. This fix handles Workers that exceed the established safeguards; whether the mature-empire floor itself should decay remains a separate tuning question rather than being silently changed here.
+
+This follow-up was investigated, fixed and validated with the help of GPT-5.6-Sol, thanks.
+
 ### canScrap() — AI scrapping policy
 
 >Scope: applies only to AI units (if (!isHuman()) …).

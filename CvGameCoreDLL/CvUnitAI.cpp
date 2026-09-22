@@ -6725,30 +6725,28 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			}
 			/*  advc.113: Don't use AI_totalUnitAIs here; if we're training workers,
 				then we probably don't have too many. */
-			int iTotalHave = kOwner.AI_getNumAIUnits(UNITAI_WORKER);
+			int const iTotalHave = kOwner.AI_getNumAIUnits(UNITAI_WORKER);
+			int const iAreaHave = getArea().getNumAIUnits(getOwner(), UNITAI_WORKER);
 			if (iTotalHave > iTotalThresh &&
-				getArea().getNumAIUnits(getOwner(), UNITAI_WORKER) >
+				iAreaHave >
 				// advc.113: Add 1 b/c e.g. 2 have, 1 needed shouldn't lead to scrapping
 				(iNeededWorkersInArea * 3 + 1) / 2 &&
 		// K-Mod end
 				kOwner.calculateUnitCost() > 0)
 			{	// <advc.113>
 				if (pCity == NULL || pCity->AI_getWorkersNeeded() < pCity->AI_getWorkersHave() + 1)
-				{	
-					// <!-- custom: i had added this code in an attempt to address known issue 52, now seemingly sovled or tremendously improved but check docs there to be sure, still this code may be useful maybe although i didn't test it too much if at all, so kept enabled, disable it / comment-out / remove if you have no use for it or don't deem it relevant, -->
-					// Never scrap if safe / new / still useful
-					if (plot() != NULL && plot()->getOwner() == getOwner()) return;            // inside borders
-					if (GC.getGame().getGameTurn() - getGameTurnCreated() < 10) return;        // young unit
-					if (AI_getCityToImprove() != NULL) return;                                  // we have demand
+				{
+					// <!-- custom: Owned cities and their BFCs are the normal location for idle surplus Workers, so location alone must not make non-obsoleting Workers permanent.
+					// AI_getCityToImprove only identifies the local city; it does not prove that the city has work, while the surrounding WorkersNeeded/WorkersHave gate already protects concrete local demand.
+					// Retain the young-unit safeguard before considering retirement. See KI#53. (GPT-5.6-Sol) -->
+					if (GC.getGame().getGameTurn() - getGameTurnCreated() < 10) return;
 
 					// <!-- custom: Also avoid worker self-scrapping when the area does not exceed worker need or the shared AdvCiv-SAS minimum worker floor. (GPT-5.5) -->
-					if (GET_PLAYER(getOwner()).AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER) <=
-						std::max(GET_PLAYER(getOwner()).AI_neededWorkers(getArea()),
-						GET_PLAYER(getOwner()).AI_getSASMinimumAreaWorkers(getArea())))
+					int const iProtectedAreaWorkers = std::max(kOwner.AI_neededWorkers(getArea()), kOwner.AI_getSASMinimumAreaWorkers(getArea()));
+					if (kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER) <= iProtectedAreaWorkers)
 					{
 						return;
 					}
-					// <!-- custom: end of new code change -->
 
 					/*  Scrap eventually b/c the worker could be stuck in this area,
 						but there's no hurry. */
@@ -6762,11 +6760,15 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 						int iFinancialTroubleMargin = kOwner.AI_financialTroubleMargin();
 						rScrapProb *= per100(100 - std::min(iFinancialTroubleMargin, 85));
 					}
-					// <!-- custom: Preserve the inherited scrap roll, but continue normal Worker fallback when restrictive SAS canScrap vetoes removal instead of burning the unit's turn. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-					if (SyncRandSuccess(rScrapProb) && scrap())
-					{ // </advc.113>
-						return;
-					}
+					if (SyncRandSuccess(rScrapProb))
+					{
+						// <!-- custom: This caller has already proved that the old Worker exhausted productive actions and exceeds both area demand and conservative empire/area surplus thresholds.
+						// Use caller-vetted retirement because routine obsolete-only canScrap would otherwise make every Worker permanent; this retains scrapForced's fighting and absolute-disable guards and avoids produce -> scrap loops through the shared area demand/floor. See KI#53. (GPT-5.6-Sol) -->
+						if (gWorkerLogLevel >= 2) logBBAI("    WORKER_SURPLUS_RETIREMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d protectedAreaWorkers=%d workersTotal=%d totalThreshold=%d age=%d unitCost=%d result=ATTEMPT_FORCED_RETIREMENT",
+							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(),
+							iAreaHave, iProtectedAreaWorkers, iTotalHave, iTotalThresh, GC.getGame().getGameTurn() - getGameTurnCreated(), kOwner.calculateUnitCost());
+						if (scrapForced()) return;
+					} // </advc.113>
 				}
 			}
 		}
