@@ -23914,7 +23914,12 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	//bool const bMoveAllTerrain = getGroup()->canMoveAllTerrain(); // advc
 
-	// <!-- custom: with AI worker move optimization (going to city B/C sooner instead of overimproving city A), workers now go back to city A since they consider it improved enough. Strong indication something else prevents going to city C (unimproved at turn 105-175). Making this much more lax since we handle worker oscillation in our own way. Old code prevented workers from ever going to city C - AI behaved badly, staying forever in city A. Results after fix: tremendous improvement - city C now fully improved and size 2 at turn 105, with 5+ tiles chopped/improved (jungle chopping gives production in our mod), instead of staying parked in city A. Jungle cities get first improvements much earlier. See known issue 41 with screenshots for details. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+	// <!-- custom: with AI worker move optimization (going to city B/C sooner instead of overimproving city A), workers now go back to city A since they consider it improved enough.
+	// Strong indication something else prevents going to city C (unimproved at turn 105-175).
+	// Making this much more lax since we handle worker oscillation in our own way.
+	// Old code prevented workers from ever going to city C - AI behaved badly, staying forever in city A.
+	// Results after fix: tremendous improvement - city C now fully improved and size 2 at turn 105, with 5+ tiles chopped/improved (jungle chopping gives production in our mod), instead of staying parked in city A.
+	// Jungle cities get first improvements much earlier. See known issue 41 with screenshots for details. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
 	// FOR_EACH_CITYAI(pLoopCity, kOwner)
 	// {
 	// 	if (pLoopCity == pCity)
@@ -23995,8 +24000,8 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         BuildTypes eBuild = NO_BUILD;
 		BuildTypes eFollowupBuild = NO_BUILD;
 		int iBuildValue = 0;
-		// <!-- custom: Legacy context: calling only our rewritten AI_bestCityBuild initially exposed crashes around turns 77/156, so its callers and outputs retain explicit null/NO_BUILD guards. This version no longer depends on old AI_getBestBuild filtering, which had hidden valid custom worker jobs; attempted bonus-roading additions were reverted after making workers less efficient. (GPT-5.5) -->
-        // <!-- custom: AI_getBestBuild is disabled for land improvements; relying on it here made workers ignore cities whose custom AI_bestCityBuild still had work. In the Niani 2027 AD autoplay sample, a roaded but unimproved Pig stayed unimproved while nearby workers were on HOLD; letting AI_bestCityBuild decide fixed the in-game case. (GPT-5.5) -->
+		// <!-- custom: Legacy context: calling only our rewritten AI_bestCityBuild initially exposed crashes around turns 77/156, so its callers and outputs retain explicit null/NO_BUILD guards; this version no longer depends on old AI_getBestBuild filtering, which had hidden valid custom worker jobs; attempted bonus-roading additions were reverted after making workers less efficient. (GPT-5.5) -->
+        // <!-- custom: AI_getBestBuild is disabled for land improvements; relying on it here made workers ignore cities whose custom AI_bestCityBuild still had work; in the Niani 2027 AD autoplay sample, a roaded but unimproved Pig stayed unimproved while nearby workers were on HOLD; letting AI_bestCityBuild decide fixed the in-game case. (GPT-5.5) -->
         if (!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this, &iBuildValue, &eFollowupBuild))
         {
 			if (bLogWorkerCityTarget)
@@ -24119,14 +24124,17 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	// if (!canBuild(*pBestPlot, eBestBuild))
 	// 	return false; // something changed; replan next turn
 
-	// <!-- custom: Move directly to the selected city improvement instead of inheriting a Road merely because the Worker starts outside the target plot group, stands on an unroaded plot, or passes a distance-based random roll. Two 2026-09-22 autoplay runs logged 1,850 and 1,608 such route-before-improvement missions; Berlin also showed a Worker spend Mine turns roading toward the plot and then leave. City-pair roads, bonus connections, improvement-yield routes, and later fallback route work remain responsible for deliberate network coverage, while this path completes the already-scored city yield first. See KI#30. (GPT-5.6-Sol) -->
+	// <!-- custom: Move directly to the selected city improvement instead of inheriting a Road merely because the Worker starts outside the target plot group, stands on an unroaded plot, or passes a distance-based random roll.
+	// Two 2026-09-22 autoplay runs logged 1,850 and 1,608 such route-before-improvement missions; Berlin also showed a Worker spend Mine turns roading toward the plot and then leave.
+	// City-pair roads, bonus connections, improvement-yield routes, and later fallback route work remain responsible for deliberate network coverage, while this path completes the already-scored city yield first. See KI#30. (GPT-5.6-Sol) -->
 	getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX(), pBestPlot->getY(), NO_MOVEMENT_FLAGS, false, false, MISSIONAI_BUILD, pBestPlot);
 	// <!-- custom: AI_bestCityBuild already evaluates the city, plot, feature removal, and exact build together. Chengdu selected Chop Forest at (29,11) on turn 106, but postprocessing it through AI_betterPlotBuild replaced the scored and reserved job with Road; execute the selected build unchanged so worker assignment remains consistent with its full evaluation. (GPT-5.5) -->
 	getGroup()->pushMission(MISSION_BUILD,
 			eBestBuild, -1, NO_MOVEMENT_FLAGS,
 			//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
 			true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
-	// <!-- custom: AI_bestCityBuild deliberately chooses standalone feature removal so Forest/Jungle production arrives sooner, but previously forgot the valuable Mine/Farm/Cottage/etc. it had selected underneath. Continue into that evaluator-selected improvement when supplied; low-value no-bonus follow-ups are filtered by XML, while mission legality is checked again when the queued build executes. (GPT-5.5) -->
+	// <!-- custom: AI_bestCityBuild deliberately chooses standalone feature removal so Forest/Jungle production arrives sooner, but previously forgot the valuable Mine/Farm/Cottage/etc it had selected underneath.
+	// Continue into that evaluator-selected improvement when supplied; low-value no-bonus follow-ups are filtered by XML, while mission legality is checked again when the queued build executes. (GPT-5.5) -->
 	if (eBestFollowupBuild != NO_BUILD)
 	{
 		getGroup()->pushMission(MISSION_BUILD, eBestFollowupBuild, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pBestPlot);
@@ -24184,7 +24192,8 @@ bool CvUnitAI::AI_nextCityToImproveAirlift()
 }
 
 
-// <!-- custom: we handle these ourselves now in CvUnitAI::AI_bestCityBuild, please do not override and interfere with our preferred ideal tiles like often cottages on flood plains or grass, no farm on plains spices (exceptions managed there as well), we as of now don't strictly handle irrigation, but we want to remove unwanted interferences, this ruins good city radiuses with needless farms just because a tile, any unimproved tile, can be irrigated, according to what i understand of claude ai's explanation, and otherwise we have almost total control and improved it nicely. So testing commenting-out this function entirely to see what happens, as advised by claude ai, we already choose and improve cities based on terrain and such, even if as of now we don't handle irrigation, it is not a concern big enough to override nice and ultimate or at least very efficient yield and terrain optimization we added, so testing to disable functionally this to see -->
+// <!-- custom: we handle these ourselves now in CvUnitAI::AI_bestCityBuild, please do not override and interfere with our preferred ideal tiles like often cottages on flood plains or grass, no farm on plains spices (exceptions managed there as well), we as of now don't strictly handle irrigation, but we want to remove unwanted interferences, this ruins good city radiuses with needless farms just because a tile, any unimproved tile, can be irrigated, according to what i understand of claude ai's explanation, and otherwise we have almost total control and improved it nicely.
+// So testing commenting-out this function entirely to see what happens, as advised by claude ai, we already choose and improve cities based on terrain and such, even if as of now we don't handle irrigation, it is not a concern big enough to override nice and ultimate or at least very efficient yield and terrain optimization we added, so testing to disable functionally this to see -->
 bool CvUnitAI::AI_irrigateTerritory()
 {
 	// PROFILE_FUNC();
