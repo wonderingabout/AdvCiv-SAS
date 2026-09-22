@@ -2881,15 +2881,13 @@ struct SASWorkerYieldWeights
 	int iCommerce;
 };
 
-// <!-- custom: During the yield-rework experiment, treat a 3+-hammer plot as a practical production option: this is the ordinary early Mine output that the autoplay cases lacked, but the test remains based on resulting XML yields rather than terrain/build names.
-// Keep the policy threshold centralized here; move it and the related target/weight constants to XML together after the model stabilizes. (GPT-5.6-Sol) -->
-int const SAS_WORKER_STRONG_PRODUCTION_PLOT_YIELD = 3;
-
 // <!-- custom: Value ordinary Worker improvements from their resulting yields instead of terrain/build name tables.
 // Keep the per-100 prices deliberately small and understandable: Food starts above Production and Commerce, then gradually yields some value to Production as improvements and cities mature; financial trouble raises Commerce, city/BFC shortage raises Food, and too few developed strong hammer plots or immediate danger raise Production.
 // Bounded adjustments keep transient city state from overwhelming a long-lived improvement decision. (GPT-5.6-Sol) -->
 static SASWorkerYieldWeights SAS_getWorkerYieldWeights(CvCityAI const& kCity, int iAdjustedFoodDifference, int iStructuralFoodPressure, int iStructuralProductionPressure)
 {
+	static const int iStrongProductionPressureValuePerMissingPlot = std::max(0, GC.getDefineINT("SAS_WORKER_AI_STRONG_PRODUCTION_PRESSURE_VALUE_PER_MISSING_PLOT"));
+	static const int iStrongProductionPressureMaxValue = std::max(0, GC.getDefineINT("SAS_WORKER_AI_STRONG_PRODUCTION_PRESSURE_MAX_VALUE"));
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
 	int const iGameProgressPercent = (100 * GC.getGame().gameTurnProgress()).uround();
 	SASWorkerYieldWeights kWeights;
@@ -2898,8 +2896,8 @@ static SASWorkerYieldWeights SAS_getWorkerYieldWeights(CvCityAI const& kCity, in
 	kWeights.iCommerce = 100 + (kOwner.AI_isFinancialTrouble() ? 50 : 0);
 	kWeights.iFood += std::min(200, 35 * std::max(0, -iAdjustedFoodDifference) + 10 * std::max(0, iStructuralFoodPressure));
 	// <!-- custom: Early cities often have no strong hammer source even when several mediocre natural hammers make their BFC total look adequate.
-	// Value each missing 3+-hammer plot strongly enough that a low-food-cost Grass Hill Mine can beat another flatland Cottage/Farm; count the resulting yields rather than naming terrain or improvements, and remove the pressure as those production options are built so the city still diversifies afterward. (GPT-5.6-Sol) -->
-	kWeights.iProduction += std::min(120, 40 * std::max(0, iStructuralProductionPressure));
+	// Value each missing strong-production plot enough that a low-food-cost Grass Hill Mine can beat another flatland Cottage/Farm under the default XML values; count resulting yields rather than naming terrain or improvements, and remove the pressure as those options are built so the city still diversifies afterward. (GPT-5.6-Sol) -->
+	kWeights.iProduction += std::min(iStrongProductionPressureMaxValue, iStrongProductionPressureValuePerMissingPlot * std::max(0, iStructuralProductionPressure));
 	if (kCity.AI_isDanger())
 		kWeights.iProduction += 100;
 	return kWeights;
@@ -3584,6 +3582,9 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	int const iCityPopulation = kCity.getPopulation();
 
 	int const iFoodConsumptionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+	static const int iSAS_WORKER_AI_STRONG_PRODUCTION_PLOT_MIN_YIELD = std::max(0, GC.getDefineINT("SAS_WORKER_AI_STRONG_PRODUCTION_PLOT_MIN_YIELD"));
+	static const int iSAS_WORKER_AI_STRONG_PRODUCTION_POPULATION_PER_TARGET = std::max(1, GC.getDefineINT("SAS_WORKER_AI_STRONG_PRODUCTION_POPULATION_PER_TARGET"));
+	static const int iSAS_WORKER_AI_STRONG_PRODUCTION_MAX_TARGET = std::max(0, GC.getDefineINT("SAS_WORKER_AI_STRONG_PRODUCTION_MAX_TARGET"));
 
 	// <!-- custom: note: see also a slightly different implementation of this at variable iEffectiveFoodAfterBuiltHappy in as of now buildingvalue function in cvcityai.cpp file -->
 	// Specialists that actually cost population (and thus 'pull' 2 food each)
@@ -3615,7 +3616,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		int const iNatureFood = kBFCPlot.calculateNatureYield(YIELD_FOOD, getTeam());
 		BonusTypes const eBFCVisibleBonus = kBFCPlot.getBonusType(getTeam());
 		iBFCLowFoodScore += kBFCPlot.SAS_getLowFoodEnvironmentScore(eBFCVisibleBonus, 0, false);
-		if (kBFCPlot.getYield(YIELD_PRODUCTION) >= SAS_WORKER_STRONG_PRODUCTION_PLOT_YIELD)
+		if (kBFCPlot.getYield(YIELD_PRODUCTION) >= iSAS_WORKER_AI_STRONG_PRODUCTION_PLOT_MIN_YIELD)
 			iBFCStrongProductionPlots++;
 
 		// <!-- custom: Non-bonus food improvements can be the right support infrastructure in cities with many food-consuming hill mines.
@@ -3651,8 +3652,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	bool const bCityStructuralFoodSupportNeed = (iBFCStructuralFoodSupportPressure >= iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH + 4);
 	bool const bCityHighFoodSupportNeed = (bCityLowFoodBFC || bCityStructuralFoodSupportNeed || iCityFoodSupportPressure >= iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH + 4);
 	// <!-- custom: Aggregate natural BFC hammers misclassified Istanbul and Berlin as production-rich while their useful early output still lacked developed high-hammer plots.
-	// Aim for roughly one 3+-hammer land option per three citizens, capped at four and at available land; this responds to actual XML yields, works for mod-added builds and features, and automatically stops favouring new production builds once the city has enough practical options. (GPT-5.6-Sol) -->
-	int const iBFCStrongProductionPlotTarget = std::min(iBFCDevelopmentLandPlots, std::min(4, std::max(1, (iCityPopulation + 2) / 3)));
+	// By default, aim for one 3+-hammer land option per three citizens, capped at four and available land; the XML threshold, population ratio, cap and scarcity weight let balance changes redefine a practical option without terrain/build branches, and pressure ends once the city has enough. (GPT-5.6-Sol) -->
+	int const iBFCStrongProductionPlotTarget = std::min(iBFCDevelopmentLandPlots, std::min(iSAS_WORKER_AI_STRONG_PRODUCTION_MAX_TARGET, std::max(1, (iCityPopulation + iSAS_WORKER_AI_STRONG_PRODUCTION_POPULATION_PER_TARGET - 1) / iSAS_WORKER_AI_STRONG_PRODUCTION_POPULATION_PER_TARGET)));
 	int const iBFCStructuralProductionPressure = std::max(0, iBFCStrongProductionPlotTarget - iBFCStrongProductionPlots);
 	SASWorkerYieldWeights const kWorkerYieldWeights = SAS_getWorkerYieldWeights(kCity, iAdjustedFoodDifference, iBFCStructuralFoodSupportPressure, iBFCStructuralProductionPressure);
 	if (gWorkerLogLevel >= 3 && SAS_shouldLogWorkerYieldContext(kCity))

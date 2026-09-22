@@ -2058,6 +2058,31 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
+	<!-- custom: Minimum current production yield for a BFC land plot to count as a practical strong production option. The default 3 is the ordinary early Mine output missing in the Istanbul/Berlin autoplay cases; using resulting yields instead of terrain or improvement names keeps the policy compatible with XML balance changes and mod-added improvements. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_STRONG_PRODUCTION_PLOT_MIN_YIELD</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: City population represented by each desired strong production plot. With the default 3, target one such plot per three citizens; the target remains at least one when enabled and is capped separately below. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_STRONG_PRODUCTION_POPULATION_PER_TARGET</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum number of strong production plots requested by production-scarcity pressure. Default 4 lets growing cities diversify after securing several practical hammer options; 0 disables this pressure without disabling the generic yield evaluator. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_STRONG_PRODUCTION_MAX_TARGET</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: Production-yield weight added for each desired strong production plot still missing. Default 40 makes a low-food-cost Grass Hill Mine compete with another flatland Cottage/Farm when a city lacks practical hammer options; the total adjustment is capped separately below. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_STRONG_PRODUCTION_PRESSURE_VALUE_PER_MISSING_PLOT</DefineName>
+		<iDefineIntVal>40</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum production-yield weight added by missing strong production plots. Default 120 prevents a severe local hammer shortage from overwhelming food, commerce and ordinary long-lived improvement value. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_STRONG_PRODUCTION_PRESSURE_MAX_VALUE</DefineName>
+		<iDefineIntVal>120</iDefineIntVal>
+	</Define>
 	<!-- custom: Comma-separated IMPROVEMENT_* chain starts whose XML ImprovementUpgrade chains should count as growth improvements for worker overwrite penalties. Default preserves the Cottage -> Hamlet -> Village -> Town chain. Modmods can add shorter/longer chains or other growth-style chains without changing CvUnitAI. Use NONE for no growth-chain penalty levels. (ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_GROWTH_IMPROVEMENT_CHAIN_START_NAMES</DefineName>
