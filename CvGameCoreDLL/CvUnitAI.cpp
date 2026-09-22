@@ -3678,8 +3678,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	{
 		CvPlot* pBestPhase0Plot = NULL;
 		BuildTypes eBestPhase0Build = NO_BUILD;
+		BuildTypes eBestPhase0FollowupBuild = NO_BUILD;
 		int iBestPhase0Priority = MIN_INT;
 		int iBestPhase0Production = 0;
+		int iBestPhase0FollowupValue = 0;
 		int iBestPhase0PathTurns = MAX_INT;
 		bool bBestPhase0PressureRelief = false;
 		bool bBestPhase0BonusRemoval = false;
@@ -3701,8 +3703,40 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			if (!pathFinder.generatePath(kPlot))
 				continue;
 
+			BuildTypes ePhase0FollowupBuild = NO_BUILD;
+			int iPhase0FollowupValue = 0;
+			if (!kCity.AI_isDanger())
+			{
+				BonusTypes const eBonus = kPlot.getNonObsoleteBonusType(getTeam());
+				if (eBonus != NO_BONUS)
+				{
+					BuildTypes const eBonusBuild = kPlot.SAS_getBonusSpecificBuild(eBonus);
+					if (eBonusBuild != NO_BUILD && canBuild(kPlot, eBonusBuild) && GC.getInfo(eBonusBuild).getImprovement() != NO_IMPROVEMENT && GC.getInfo(eBonusBuild).isFeatureRemove(kPlot.getFeatureType()))
+					{
+						ePhase0FollowupBuild = eBonusBuild;
+						iPhase0FollowupValue = iSAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE;
+					}
+				}
+				else
+				{
+					BuildTypes eYieldBuild = NO_BUILD;
+					int iYieldBuildValue = 0;
+					if (SAS_pickWorkerYieldBuild(*this, kCity, kPlot, kWorkerYieldWeights, eYieldBuild, iYieldBuildValue) && GC.getInfo(eYieldBuild).isFeatureRemove(kPlot.getFeatureType()))
+					{
+						ePhase0FollowupBuild = eYieldBuild;
+						iPhase0FollowupValue = iYieldBuildValue;
+					}
+				}
+				if (iPhase0FollowupValue < iSAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE)
+				{
+					ePhase0FollowupBuild = NO_BUILD;
+					iPhase0FollowupValue = 0;
+				}
+			}
+
 			int const iPathTurns = pathFinder.getPathTurns();
-			int iPriority = kInfo.iProduction * 1000 - iPathTurns * 100;
+			// <!-- custom: Phase-0 chopping used to abandon even a strong Hill Mine after paying the plot's travel and movement cost, then make another Worker return later. Reuse the ordinary yield evaluator and existing follow-up threshold, but accept only a Build that removes the current feature and therefore remains valid after the pure chop; immediate danger deliberately leaves the queue open for replanning. A bounded tie-break favours productive post-chop plots without overruling pressure relief, bonus removal or a larger hammer chop. (GPT-5.6-Sol) -->
+			int iPriority = kInfo.iProduction * 1000 - iPathTurns * 100 + std::min(900, iPhase0FollowupValue / 10);
 			if (kInfo.bBonusRemoval)
 				iPriority += 100000;
 			if (kInfo.bPressureRelief)
@@ -3713,7 +3747,9 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				iBestPhase0Priority = iPriority;
 				pBestPhase0Plot = &kPlot;
 				eBestPhase0Build = kInfo.eBuild;
+				eBestPhase0FollowupBuild = ePhase0FollowupBuild;
 				iBestPhase0Production = kInfo.iProduction;
+				iBestPhase0FollowupValue = iPhase0FollowupValue;
 				iBestPhase0PathTurns = iPathTurns;
 				bBestPhase0PressureRelief = kInfo.bPressureRelief;
 				bBestPhase0BonusRemoval = kInfo.bBonusRemoval;
@@ -3729,13 +3765,13 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			if (piBestValue != NULL)
 				*piBestValue = 95000; // <!-- custom: diagnostic/ranking value only; PHASE 0 already hard-returned before ordinary scoring. (ChatGPT-5.6-Sol) -->
 			if (peFollowupBuild != NULL)
-				*peFollowupBuild = NO_BUILD;
+				*peFollowupBuild = eBestPhase0FollowupBuild;
 
-			if (gWorkerLogLevel >= 2) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_CHOP turn=%d player=%d %S workerId=%d city=%S cityId=%d plot=(%d,%d) feature=%S build=%S production=%d pathTurns=%d eligible=%d targeted=%d uncommitted=%d minEligible=%d pressureRelief=%d bonusRemoval=%d result=HARD_OVERRIDE",
+			if (gWorkerLogLevel >= 2) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_CHOP turn=%d player=%d %S workerId=%d city=%S cityId=%d plot=(%d,%d) feature=%S build=%S followup=%S followupValue=%d production=%d pathTurns=%d eligible=%d targeted=%d uncommitted=%d minEligible=%d pressureRelief=%d bonusRemoval=%d result=HARD_OVERRIDE",
 				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(),
 				kCity.getName().GetCString(), kCity.getID(), pBestPhase0Plot->getX(), pBestPhase0Plot->getY(),
 				GC.getInfo(pBestPhase0Plot->getFeatureType()).getDescription(),
-				GC.getInfo(eBestPhase0Build).getDescription(), iBestPhase0Production, iBestPhase0PathTurns,
+				GC.getInfo(eBestPhase0Build).getDescription(), (eBestPhase0FollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eBestPhase0FollowupBuild).getDescription()), iBestPhase0FollowupValue, iBestPhase0Production, iBestPhase0PathTurns,
 				iSASPhase0Eligible, iSASPhase0Targeted, iSASPhase0Uncommitted,
 				SAS_getWorkerPhase0MinEligiblePlots(kCity),
 				bBestPhase0PressureRelief, bBestPhase0BonusRemoval);
@@ -5973,12 +6009,15 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			}
 			getGroup()->pushMission(MISSION_BUILD, ePhase0Build, -1, NO_MOVEMENT_FLAGS,
 				true, false, MISSIONAI_BUILD, pPhase0Plot);
+			// <!-- custom: AI_bestCityBuild now returns a worthwhile post-chop improvement for Phase 0. This short-circuit path bypasses AI_nextCityToImprove, so queue that same follow-up here to preserve the Worker's position and Hill/feature movement investment. (GPT-5.6-Sol) -->
+			if (ePhase0Followup != NO_BUILD)
+				getGroup()->pushMission(MISSION_BUILD, ePhase0Followup, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pPhase0Plot);
 
-			if (bLogPhase0Action) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%S build=%S production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=%d result=SHORT_CIRCUIT_BEFORE_BONUS_AND_ROUTE_LOGIC",
+			if (bLogPhase0Action) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%S build=%S followup=%S production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=%d result=SHORT_CIRCUIT_BEFORE_BONUS_AND_ROUTE_LOGIC",
 					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(),
 					pPhase0City->getName().GetCString(), pPhase0City->getID(), pPhase0Plot->getX(), pPhase0Plot->getY(),
 					(ePhase0FeatureForLog == NO_FEATURE ? L"-" : GC.getInfo(ePhase0FeatureForLog).getDescription()),
-					GC.getInfo(ePhase0Build).getDescription(), kVerify.iProduction,
+					GC.getInfo(ePhase0Build).getDescription(), (ePhase0Followup == NO_BUILD ? L"-" : GC.getInfo(ePhase0Followup).getDescription()), kVerify.iProduction,
 					iEligible, iTargeted, iPhase0MinEligibleForLog, bCoreFoodProduction);
 			return;
 		}
@@ -6079,12 +6118,15 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			}
 			getGroup()->pushMission(MISSION_BUILD, ePhase0Build, -1, NO_MOVEMENT_FLAGS,
 				true, false, MISSIONAI_BUILD, pPhase0Plot);
+			// <!-- custom: Preserve the same selected post-chop improvement in the NORMAL Phase-0 short-circuit path; otherwise only city-job callers would retain the new follow-up. (GPT-5.6-Sol) -->
+			if (ePhase0Followup != NO_BUILD)
+				getGroup()->pushMission(MISSION_BUILD, ePhase0Followup, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pPhase0Plot);
 
-			if (bLogPhase0Action) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%S build=%S production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=0 result=SHORT_CIRCUIT_AFTER_BONUS_BEFORE_ROUTE_AND_NORMAL_WORK",
+			if (bLogPhase0Action) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%S build=%S followup=%S production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=0 result=SHORT_CIRCUIT_AFTER_BONUS_BEFORE_ROUTE_AND_NORMAL_WORK",
 					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(),
 					pPhase0City->getName().GetCString(), pPhase0City->getID(), pPhase0Plot->getX(), pPhase0Plot->getY(),
 					(ePhase0FeatureForLog == NO_FEATURE ? L"-" : GC.getInfo(ePhase0FeatureForLog).getDescription()),
-					GC.getInfo(ePhase0Build).getDescription(), kVerify.iProduction,
+					GC.getInfo(ePhase0Build).getDescription(), (ePhase0Followup == NO_BUILD ? L"-" : GC.getInfo(ePhase0Followup).getDescription()), kVerify.iProduction,
 					iEligible, iTargeted, iPhase0MinEligibleForLog);
 			return;
 		}
