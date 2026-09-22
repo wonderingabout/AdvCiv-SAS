@@ -3735,7 +3735,9 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			}
 
 			int const iPathTurns = pathFinder.getPathTurns();
-			// <!-- custom: Phase-0 chopping used to abandon even a strong Hill Mine after paying the plot's travel and movement cost, then make another Worker return later. Reuse the ordinary yield evaluator and existing follow-up threshold, but accept only a Build that removes the current feature and therefore remains valid after the pure chop; immediate danger deliberately leaves the queue open for replanning. A bounded tie-break favours productive post-chop plots without overruling pressure relief, bonus removal or a larger hammer chop. (GPT-5.6-Sol) -->
+			// <!-- custom: Phase-0 chopping used to abandon even a strong Hill Mine after paying the plot's travel and movement cost, then make another Worker return later.
+			// Reuse the ordinary yield evaluator and existing follow-up threshold, but accept only a Build that removes the current feature and therefore remains valid after the pure chop; immediate danger deliberately leaves the queue open for replanning.
+			// A bounded tie-break favours productive post-chop plots without overruling pressure relief, bonus removal or a larger hammer chop. (GPT-5.6-Sol) -->
 			int iPriority = kInfo.iProduction * 1000 - iPathTurns * 100 + std::min(900, iPhase0FollowupValue / 10);
 			if (kInfo.bBonusRemoval)
 				iPriority += 100000;
@@ -6009,7 +6011,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			}
 			getGroup()->pushMission(MISSION_BUILD, ePhase0Build, -1, NO_MOVEMENT_FLAGS,
 				true, false, MISSIONAI_BUILD, pPhase0Plot);
-			// <!-- custom: AI_bestCityBuild now returns a worthwhile post-chop improvement for Phase 0. This short-circuit path bypasses AI_nextCityToImprove, so queue that same follow-up here to preserve the Worker's position and Hill/feature movement investment. (GPT-5.6-Sol) -->
+			// <!-- custom: AI_bestCityBuild now returns a worthwhile post-chop improvement for Phase 0.
+			// This short-circuit path bypasses AI_nextCityToImprove, so queue that same follow-up here to preserve the Worker's position and Hill/feature movement investment. (GPT-5.6-Sol) -->
 			if (ePhase0Followup != NO_BUILD)
 				getGroup()->pushMission(MISSION_BUILD, ePhase0Followup, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pPhase0Plot);
 
