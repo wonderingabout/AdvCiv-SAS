@@ -3034,6 +3034,61 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 	return true;
 }
 
+// <!-- custom: Discover a dedicated feature-removal action from Build XML instead of naming Forest, Jungle, Fallout or their Builds. Prefer the legal non-sacrificial action that sends the most production to a city, then the quicker action; improvement Builds remain in the yield evaluator so this helper only supplies the interruptible removal-first step. (GPT-5.6-Sol) -->
+static BuildTypes SAS_getWorkerPureFeatureRemovalBuild(CvUnitAI const& kUnit, CvPlot const& kPlot, int* piProduction = NULL)
+{
+	if (piProduction != NULL)
+		*piProduction = 0;
+	FeatureTypes const eFeature = kPlot.getFeatureType();
+	if (eFeature == NO_FEATURE)
+		return NO_BUILD;
+	BuildTypes eBestBuild = NO_BUILD;
+	int iBestProduction = -1;
+	int iBestTurns = MAX_INT;
+	FOR_EACH_ENUM(Build)
+	{
+		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
+		if (kBuild.getImprovement() != NO_IMPROVEMENT || kBuild.getRoute() != NO_ROUTE || kBuild.isKill() || !kBuild.isFeatureRemove(eFeature) || !kUnit.canBuild(kPlot, eLoopBuild))
+			continue;
+		CvCity* pProductionCity = NULL;
+		int const iProduction = kPlot.getFeatureProduction(eLoopBuild, kUnit.getTeam(), &pProductionCity);
+		int const iTurns = kPlot.getBuildTurnsLeft(eLoopBuild, kUnit.getOwner());
+		if (iProduction > iBestProduction || (iProduction == iBestProduction && iTurns < iBestTurns))
+		{
+			eBestBuild = eLoopBuild;
+			iBestProduction = iProduction;
+			iBestTurns = iTurns;
+		}
+	}
+	if (piProduction != NULL && eBestBuild != NO_BUILD)
+		*piProduction = iBestProduction;
+	return eBestBuild;
+}
+
+// <!-- custom: Score removal from what the current XML feature actually does: recovered plot yields, rounded and fractional city health/happiness, turn damage, received production and Worker time. This makes ordinary Jungle attractive through negative health, protects Forest through positive health and production yield, and makes Fallout urgent through its severe negative yields without naming any of them or assigning a magic Fallout priority. Productive early chopping remains the separate Phase-0 strategic policy. (GPT-5.6-Sol) -->
+static int SAS_getWorkerStandaloneFeatureRemovalValue(CvUnitAI const& kUnit, CvCityAI const& kCity, CvPlot const& kPlot, BuildTypes eRemovalBuild, SASWorkerYieldWeights const& kWeights, int iProduction)
+{
+	if (eRemovalBuild == NO_BUILD || kPlot.getFeatureType() == NO_FEATURE)
+		return MIN_INT;
+	int aiCurrentYields[NUM_YIELD_TYPES];
+	int aiResultYields[NUM_YIELD_TYPES];
+	FOR_EACH_ENUM(Yield)
+	{
+		aiCurrentYields[eLoopYield] = SAS_getWorkerCurrentEffectiveYield(kPlot, eLoopYield, kUnit.getOwner());
+		aiResultYields[eLoopYield] = kPlot.getYieldWithBuild(eRemovalBuild, eLoopYield, false);
+	}
+	int const iCurrentUtility = SAS_getWorkerYieldUtility(aiCurrentYields[YIELD_FOOD], aiCurrentYields[YIELD_PRODUCTION], aiCurrentYields[YIELD_COMMERCE], kWeights);
+	int const iResultUtility = SAS_getWorkerYieldUtility(aiResultYields[YIELD_FOOD], aiResultYields[YIELD_PRODUCTION], aiResultYields[YIELD_COMMERCE], kWeights);
+	int iHappyChange = 0;
+	int iHealthChange = 0;
+	int iHealthPercentChange = 0;
+	ImprovementTypes const eCurrentImprovement = kPlot.getImprovementType();
+	kCity.calculateHealthHappyChange(kPlot, eCurrentImprovement, eCurrentImprovement, true, iHappyChange, iHealthChange, iHealthPercentChange);
+	CvFeatureInfo const& kFeature = GC.getInfo(kPlot.getFeatureType());
+	int const iBuildDuration = std::min(40, kPlot.getBuildTurnsLeft(eRemovalBuild, kUnit.getOwner()));
+	return 2 * (iResultUtility - iCurrentUtility) + 2 * kWeights.iFood * (iHappyChange + iHealthChange) + (kWeights.iFood * iHealthPercentChange) / 50 + 10 * std::max(0, kFeature.getTurnDamage()) + (kWeights.iProduction * iProduction) / 20 - 25 * iBuildDuration;
+}
+
 // <!-- custom: Level-3 diagnostic for the remaining late-game idle-Worker / zero-candidate investigation.
 // Log each owned+assigned blank development plot at most once per player/plot/turn.
 // Scan all currently legal improvement Builds generically so zero-candidate cases show whether legality or valuation rejected the plot. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -3314,33 +3369,15 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	if (peFollowupBuild) *peFollowupBuild = NO_BUILD;
 	// ... PHASE 1 builds candidates ...
 
-	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
-	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
-	// <!-- custom: untested but i assume/hope would work-function fine but check to be sure-->
-	static const FeatureTypes eFeatureFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
-
-	// <!-- custom: Explicit feature-removal and Farm infrastructure actions remain policy overlays; ordinary improvement Builds are discovered and valued generically. (GPT-5.6-Sol) -->
-    static const BuildTypes eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
-    static const BuildTypes eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
-	static const BuildTypes eBuildScrubFallout = (BuildTypes)GC.getInfoTypeForString("BUILD_SCRUB_FALLOUT");
-    static const BuildTypes eBuildFarm = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
-    static const BuildTypes eBuildWorkshop = (BuildTypes)GC.getInfoTypeForString("BUILD_WORKSHOP");
+	// <!-- custom: Farm infrastructure remains a separate policy overlay; ordinary improvements and feature-removal actions are discovered and valued generically. (GPT-5.6-Sol) -->
+	static const BuildTypes eBuildFarm = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
 
 	// <!-- custom: Irrigation-route overwrite cost distinguishes cheap-to-rebuild Workshops from growth improvements and other infrastructure. Ordinary yield valuation itself does not special-case Workshop. (GPT-5.6-Sol) -->
 	static const ImprovementTypes eImprovementWorkshop = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_WORKSHOP");
 
 	static const ImprovementTypes eImprovementFarm = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FARM");
-	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION");
-	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE");
-	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT");
-	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT");
-	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION");
-	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT");
-	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT");
 	static const bool bSAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE");
-	static const int iSAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE");
 	static const int iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE");
-	static const int iSAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE");
 	static const int iSAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE");
 	static const int iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD = GC.getDefineINT("SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD");
 	static const int iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION = GC.getDefineINT("SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION");
@@ -3381,7 +3418,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	// <!-- custom: note: performance/logic optimization: it seems faster to not check pathfinding at all and loop over all tiles rather than check pathfinding at same time as we check candidate plots (check if accurate) -->
 
 	// <!-- custom: moved up for perf opt -->
-	int const iCityHealthCalculatedDifference = kCity.goodHealth() - kCity.badHealth();
 	int const iCityPopulation = kCity.getPopulation();
 
 	int const iFoodConsumptionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
@@ -3637,79 +3673,33 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		if (eBonus != NO_BONUS)
 		{
 			BuildTypes const eBonusSpecificBuild = kPlot.SAS_getBonusSpecificBuild(eBonus);
+			ImprovementTypes const eBonusSpecificImprovement = (eBonusSpecificBuild == NO_BUILD ? NO_IMPROVEMENT : GC.getInfo(eBonusSpecificBuild).getImprovement());
 			bool const bCanBuildBonusSpecificBeforeFeatureRemoval = (eBonusSpecificBuild != NO_BUILD && canBuild(kPlot, eBonusSpecificBuild) && (eFeature == NO_FEATURE || !GC.getInfo(eBonusSpecificBuild).isFeatureRemove(eFeature)));
-			// <!-- custom: note : flexibly chop, instead of bonus flexible build, we'll choose same best plot again, but advantage is we can better respond, say to invasion, and finish chopping (getting production too and worker availability) if we need to interrupt it mid way, more efficient this way, frees also some move speed if flatland for mobile units -->
-			if (eFeature == eFeatureForest)
+			int iFeatureProduction = 0;
+			BuildTypes const eFeatureRemovalBuild = SAS_getWorkerPureFeatureRemovalBuild(*this, kPlot, &iFeatureProduction);
+			int const iFeatureRemovalValue = SAS_getWorkerStandaloneFeatureRemovalValue(*this, kCity, kPlot, eFeatureRemovalBuild, kWorkerYieldWeights, iFeatureProduction);
+			bool const bBonusSpecificImprovementUsesFeatureValidity = (eFeature != NO_FEATURE && eBonusSpecificImprovement != NO_IMPROVEMENT && GC.getInfo(eBonusSpecificImprovement).getFeatureMakesValid(eFeature));
+			bool const bBonusAlreadyCorrect = (eBonusSpecificImprovement != NO_IMPROVEMENT && kPlot.getImprovementType() == eBonusSpecificImprovement);
+			// <!-- custom: A completed feature-preserving bonus improvement is normally the desired endpoint. Preserve an existing Forest Camp or similar feature-valid infrastructure, but still remove an independently harmful feature such as post-nuclear Fallout when scrubbing leaves the correct improvement intact. (GPT-5.6-Sol) -->
+			if (bBonusAlreadyCorrect && (eFeature == NO_FEATURE || bBonusSpecificImprovementUsesFeatureValidity || iFeatureRemovalValue <= 0))
+				continue;
+			// <!-- custom: Bonus handling first tries the XML-inferred specific Build when it preserves the feature. Otherwise use the XML-discovered pure removal Build as an interruptible first step, then queue the bonus improvement when currently legal. This preserves Camp-like feature paths and supports mod-added removable features without Forest/Jungle/Fallout branches. (GPT-5.5 + ChatGPT-5.5 + GPT-5.6-Sol) -->
+			if (eFeature != NO_FEATURE && bCanBuildBonusSpecificBeforeFeatureRemoval && (bBonusSpecificImprovementUsesFeatureValidity || iFeatureRemovalValue <= 0))
 			{
-				// <!-- custom: Try the XML-inferred bonus-specific build before removing Forest/Jungle only when that build preserves the current feature. This keeps feature-preserving bonus builds like Camp generic while preventing Mine/Plantation/etc. from skipping the explicit feature-removal step merely because canBuild can remove the feature as part of the build. (GPT-5.5 + ChatGPT-5.5) -->
-				if (bCanBuildBonusSpecificBeforeFeatureRemoval)
-				{
-					eBestSupposedBuild = eBonusSpecificBuild;
-					iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
-				}
-				// <!-- custom: also handle silver or other bonuses on forest as well; we need to remove the forest else the bonus specific branch will never be reached due to feature being forest or jungle and we'd be stuck here forever wondering if we chop or not-->
-				else
-				{
-					if (canBuild(kPlot, eBuildRemoveForest))
-					{
-						eBestSupposedBuild = eBuildRemoveForest;
-						if (eBonusSpecificBuild != NO_BUILD && canBuild(kPlot, eBonusSpecificBuild) && GC.getInfo(eBonusSpecificBuild).getImprovement() != NO_IMPROVEMENT)
-							eFeatureRemovalFollowupBuild = eBonusSpecificBuild;
-						iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
-					}
-					else
-					{
-						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too -->
-						if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "BONUS_FOREST_REMOVE_UNAVAILABLE", eBonusSpecificBuild);
-						continue;
-					}
-				}
+				eBestSupposedBuild = eBonusSpecificBuild;
+				iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
 			}
-			else if (eFeature == eFeatureJungle)
+			else if (eFeature != NO_FEATURE)
 			{
-				if (bCanBuildBonusSpecificBeforeFeatureRemoval)
+				if (eFeatureRemovalBuild != NO_BUILD)
 				{
-					eBestSupposedBuild = eBonusSpecificBuild;
-					iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
-				}
-				// <!-- custom: also handle gemstones or other bonuses on jungle as well; we need to remove the jungle else the bonus specific branch will never be reached due to feature being forest or jungle and we'd be stuck here forever wondering if we chop or not-->
-				else
-				{
-					if (canBuild(kPlot, eBuildRemoveJungle))
-					{
-						eBestSupposedBuild = eBuildRemoveJungle;
-						if (eBonusSpecificBuild != NO_BUILD && canBuild(kPlot, eBonusSpecificBuild) && GC.getInfo(eBonusSpecificBuild).getImprovement() != NO_IMPROVEMENT)
-							eFeatureRemovalFollowupBuild = eBonusSpecificBuild;
-						iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
-					}
-					else
-					{
-						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too -->
-						if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "BONUS_JUNGLE_REMOVE_UNAVAILABLE", eBonusSpecificBuild);
-						continue;
-					}
-				}
-			}
-			// <!-- custom: computationally faster to put it at last feature (among features to remove/scrub i mean) even though it has highest value due to urgency to clean/remove/scrub this feature, but very few feature_fallout ever happen in the game and generally quite late, but we loop quite often over al tiles, so try to save computation and put this check last even though is the most important in iValue as of now -->
-			else if (eFeature == eFeatureFallout)
-			{
-				if (canBuild(kPlot, eBuildScrubFallout))
-				{
-					eBestSupposedBuild = eBuildScrubFallout;
+					eBestSupposedBuild = eFeatureRemovalBuild;
 					if (eBonusSpecificBuild != NO_BUILD && canBuild(kPlot, eBonusSpecificBuild) && GC.getInfo(eBonusSpecificBuild).getImprovement() != NO_IMPROVEMENT)
 						eFeatureRemovalFollowupBuild = eBonusSpecificBuild;
-
-					// <!-- custom: more important than improving any bonus, and add some value so it is also more important than scrubing non-bonus fallout tiles (not sure it makes a difference since we want to clear all fallout anyway before improving any bonus but maybe the distinction helps if we change the code someday or someone does it or such) -->
-					iValue += iSAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE;
-				}
-				else
-				{
-					// If you truly can’t scrub yet, consider skipping, don’t try to “overwrite" with another build.
-					continue;
+					iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE + std::max(0, iFeatureRemovalValue);
 				}
 			}
-			// <!-- custom: if we know we can chop, no need to look for a costly specific build we won't do now since we want to chop explicitly/specifically if i may say in this casefirst. So else, only look for a bonus specific build if plot is already chopped, in other words if plot's feature is not forest nor jungle -->
-			else
+			if (eBestSupposedBuild == NO_BUILD)
 			{
 				// <!-- custom: find the bonus's bonus-specific build first -->
 				if (eBonusSpecificBuild == NO_BUILD)
@@ -3717,18 +3707,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					// <!-- custom: up to modders to support this in their mod, here we assume bonus not in map means unknown bonus, do not improve at all, for ease of code mostly if i may say rather than put any random build in a messy and inefficient or ineffective way worked aorund patched in a bad way i'd say-->
 					if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "BONUS_NO_SPECIFIC_BUILD");
 					continue;
-				}
-
-				ImprovementTypes eBonusSpecificImprovement = GC.getBuildInfo(eBonusSpecificBuild).getImprovement();
-
-				// === Blacklist: Early exit if bonus <!-- should not be improved -->
-				if (kPlot.getImprovementType() != NO_IMPROVEMENT)
-				{
-					//  is already improved correctly ===
-					if (kPlot.getImprovementType() == eBonusSpecificImprovement)
-					{
-						continue;
-					}
 				}
 
 				// <!-- custom: build these or almost always nothing else, leave banana tile empty until we have plantation, may be efficient in most cases for the AI to optimize build time usage rather than overwriting them inefficiently later, except some exceptions such as banana farms if irrigated on grass, but generally workers have probably better things (chop for hammer on remove, build cottage early, etc) to do that would not make it so worth it) so maybe fine as such, hopefully no more banana cottages on plains still though and such similar cases or such with this patch or new logic at least for this part of the code -->
@@ -3796,99 +3774,38 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		{
 			// <!-- custom: PHASE 1.1: select the best ordinary non-bonus improvement from actual resulting yields. Terrain, feature and Build XML changes flow through getYieldWithBuild/canBuild automatically; the separate irrigation pass above remains responsible for water-network infrastructure. (GPT-5.6-Sol) -->
 			bool const bHasYieldBuild = SAS_pickWorkerYieldBuild(*this, kCity, kPlot, kWorkerYieldWeights, eBestSupposedBuild, iValue);
-			if (!bHasYieldBuild && eFeature != eFeatureForest && eFeature != eFeatureJungle && eFeature != eFeatureFallout)
-			{
-				if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "NO_POSITIVE_YIELD_BUILD");
-				continue;
-			}
 			BuildTypes const ePreFeatureRemovalBuild = eBestSupposedBuild;
 			int const iPreFeatureRemovalBuildValue = iValue;
-			bool const bSelectedBuildPreservesFeature = (bHasYieldBuild && eFeature != NO_FEATURE && !GC.getInfo(ePreFeatureRemovalBuild).isFeatureRemove(eFeature));
 			ImprovementTypes const eCurrentImprovement = kPlot.getImprovementType();
 			bool const bCurrentImprovementUsesFeatureValidity = (eFeature != NO_FEATURE && eCurrentImprovement != NO_IMPROVEMENT && GC.getInfo(eCurrentImprovement).getFeatureMakesValid(eFeature));
 			bool const bPreserveCurrentImprovementFeature = (bCurrentImprovementUsesFeatureValidity && !bHasYieldBuild);
+			int iFeatureProduction = 0;
+			BuildTypes const ePureFeatureRemovalBuild = SAS_getWorkerPureFeatureRemovalBuild(*this, kPlot, &iFeatureProduction);
+			bool const bSelectedBuildRemovesFeature = (bHasYieldBuild && eFeature != NO_FEATURE && GC.getInfo(ePreFeatureRemovalBuild).isFeatureRemove(eFeature));
+			ImprovementTypes const eSelectedImprovement = (bHasYieldBuild ? GC.getInfo(ePreFeatureRemovalBuild).getImprovement() : NO_IMPROVEMENT);
+			bool const bSelectedImprovementUsesFeatureValidity = (eFeature != NO_FEATURE && eSelectedImprovement != NO_IMPROVEMENT && GC.getInfo(eSelectedImprovement).getFeatureMakesValid(eFeature));
+			int const iRemovalValue = (bPreserveCurrentImprovementFeature ? MIN_INT : SAS_getWorkerStandaloneFeatureRemovalValue(*this, kCity, kPlot, ePureFeatureRemovalBuild, kWorkerYieldWeights, iFeatureProduction));
 
-			// <!-- custom: PHASE 1.2 - feature-removal policy stays separate from economic yield comparison because chop production, health and Fallout urgency are not plot yields.
-			// In the first yield-rework autoplay, Tiwanaku built two Lumbermills on turns 161-162; the yield evaluator correctly rejected Cottage replacements on turn 186, but this separate policy nevertheless ordered standalone chops, destroyed both Lumbermills, and then rebuilt the plots as Cottages on turn 190.
-			// Preserve a feature when the selected legal improvement does, or when the current improvement depends on that feature and no replacement passed the yield/hysteresis gate; otherwise perform removal first and queue a worthwhile selected improvement as its follow-up.
-			// Use XML FeatureMakesValid rather than hardcoding Lumbermill so mod-added feature-dependent improvements receive the same protection.
-			// Detailed tuning remains in GlobalDefines_advciv_sas.xml. (ChatGPT-5.5 temporary review + GPT-5.5 review + GPT-5.6-Sol) -->
-			if (eFeature == eFeatureForest && !bSelectedBuildPreservesFeature && !bPreserveCurrentImprovementFeature)
+			// <!-- custom: PHASE 1.2 - when the chosen improvement removes the current feature, perform the XML-discovered pure removal first so its production arrives promptly and the Worker can be redirected before committing to the improvement. Also remove an independently harmful feature before a feature-neutral improvement; e.g. severe Fallout yield/health penalties outweigh building through it, while a feature-valid Camp or Lumbermill still preserves the feature it needs. If no improvement cleared the yield/replacement gate, consider removal by its own XML-derived yield, health, happiness, damage, production and time effects instead of a Forest/Jungle/Fallout rule.
+			// The Tiwanaku autoplay exposed why the yield gate remains authoritative: two Lumbermills built on turns 161-162 were independently chopped on turn 186 despite rejected Cottage replacements, then rebuilt as Cottages on turn 190. FeatureMakesValid now preserves such infrastructure unless a replacement passes the gate. (GPT-5.6-Sol) -->
+			if (bSelectedBuildRemovesFeature && ePureFeatureRemovalBuild != NO_BUILD)
 			{
-				if (canBuild(kPlot, eBuildRemoveForest))
-				{
-					// <!-- custom: Forest: do not blindly chop health-providing Forests in small/unhealthy cities. Small cities use the old negative scoring formula; the no-health-surplus relax check applies only inside the large-city branch, so its effective threshold is also gated by SAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
-					static const int iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION = GC.getDefineINT("SAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION");
-					if (iCityPopulation >= iSAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION)
-					{
-						if (iCityHealthCalculatedDifference >= 1)
-						{
-							eBestSupposedBuild = eBuildRemoveForest;
-							iValue += iSAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT * iCityHealthCalculatedDifference;
-						}
-						else if (iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION > 0 && iCityPopulation >= iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION)
-						{
-							eBestSupposedBuild = eBuildRemoveForest;
-							iValue -= iSAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT * (1 - iCityHealthCalculatedDifference);
-						}
-						else
-						{
-							continue;
-						}
-					}
-					else
-					{
-						eBestSupposedBuild = eBuildRemoveForest;
-						iValue += iSAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE + (iSAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT * iCityHealthCalculatedDifference);
-					}
-				}
-				else if (eBestSupposedBuild == NO_BUILD)
-				{
-					if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "FOREST_REMOVE_UNAVAILABLE_NO_FOLLOWUP");
-					continue;
-				}
+				eBestSupposedBuild = ePureFeatureRemovalBuild;
+				if (iPreFeatureRemovalBuildValue >= iSAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE)
+					eFeatureRemovalFollowupBuild = ePreFeatureRemovalBuild;
 			}
-			else if (eFeature == eFeatureJungle && !bPreserveCurrentImprovementFeature)
+			else if (iRemovalValue > 0 && !bSelectedImprovementUsesFeatureValidity)
 			{
-				if (canBuild(kPlot, eBuildRemoveJungle))
-				{
-					// <!-- custom: Jungle: usually clear because it blocks normal improvements and adds unhealth; XML-tunable population and health-pressure scoring only controls priority among possible worker jobs. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
-					if (iCityPopulation >= iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION)
-					{
-						eBestSupposedBuild = eBuildRemoveJungle;
-						int const iJungleLargeCityPopulationPressure = iCityPopulation - std::max(0, iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION - 1);
-						iValue += iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT * (iJungleLargeCityPopulationPressure - iCityHealthCalculatedDifference);
-					}
-					else
-					{
-						eBestSupposedBuild = eBuildRemoveJungle;
-						iValue += std::max(0, iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT * (-1 * iCityHealthCalculatedDifference));
-					}
-				}
-				else if (eBestSupposedBuild == NO_BUILD)
-				{
-					if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "JUNGLE_REMOVE_UNAVAILABLE_NO_FOLLOWUP");
-					continue;
-				}
+				eBestSupposedBuild = ePureFeatureRemovalBuild;
+				iValue += iRemovalValue;
+				if (bHasYieldBuild && iPreFeatureRemovalBuildValue >= iSAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE)
+					eFeatureRemovalFollowupBuild = ePreFeatureRemovalBuild;
 			}
-			else if (eFeature == eFeatureFallout)
+			else if (!bHasYieldBuild)
 			{
-				// <!-- custom: Fallout: scrub before ordinary non-bonus worker builds; if scrubbing is unavailable, skip the plot so workers do not improve through Fallout. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
-				if (canBuild(kPlot, eBuildScrubFallout))
-				{
-					eBestSupposedBuild = eBuildScrubFallout;
-					iValue += iSAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE;
-				}
-				else
-				{
-					if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, "FALLOUT_SCRUB_UNAVAILABLE");
-					continue;
-				}
+				if (gWorkerLogLevel >= 3) SAS_logWorkerCityBuildRejectOnce(*this, kCity, kPlot, bPreserveCurrentImprovementFeature ? "PRESERVE_FEATURE_DEPENDENT_IMPROVEMENT" : "NO_POSITIVE_BUILD_OR_FEATURE_REMOVAL");
+				continue;
 			}
-			if (eBestSupposedBuild != ePreFeatureRemovalBuild && ePreFeatureRemovalBuild != NO_BUILD && iPreFeatureRemovalBuildValue >= iSAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE && GC.getInfo(ePreFeatureRemovalBuild).getImprovement() != NO_IMPROVEMENT && canBuild(kPlot, ePreFeatureRemovalBuild))
-				eFeatureRemovalFollowupBuild = ePreFeatureRemovalBuild;
-
-			// <!-- custom: Otherwise keep the ordinary yield-selected Build. New XML terrains, features and improvement Builds need no C++ branch when their strategic effect is represented by yields and standard build legality. (GPT-5.6-Sol) -->
 		}
 
 		// <!-- custom: PHASE 1.3 - common logic again (both bonus and non-bonus plots again) no more adjusting the best build to build for this loop plot, now only final adjustments before storing plot information -->
@@ -5716,8 +5633,6 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	// Simple, readable "redirect instead of retreat" logic
 	// ----------------------------------------------------
 
-	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
-
 	if (bCanRetreat && !getGroup()->canDefend())
 	{
     /* Retreat logic policy change:
@@ -5777,9 +5692,17 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				{
 					int iNearTurns = 1;
 
-					// Commit from a bit farther if target is high-impact (jungle clear or bonus)
-					if ((pTarget->getFeatureType() == eFeatureJungle) ||
-						(pTarget->getNonObsoleteBonusType(getTeam()) != NO_BONUS))
+					// <!-- custom: Commit from a little farther when finishing a bonus or clearing any XML-defined harmful feature, rather than naming Jungle. Negative health, tile yields or turn damage identify the same strategic urgency for mod-added features. (GPT-5.6-Sol) -->
+					FeatureTypes const eTargetFeature = pTarget->getFeatureType();
+					bool bHarmfulTargetFeature = false;
+					if (eTargetFeature != NO_FEATURE)
+					{
+						CvFeatureInfo const& kTargetFeature = GC.getInfo(eTargetFeature);
+						bHarmfulTargetFeature = (kTargetFeature.getHealthPercent() < 0 || kTargetFeature.getTurnDamage() > 0);
+						for (int i = 0; i < NUM_YIELD_TYPES && !bHarmfulTargetFeature; i++)
+							bHarmfulTargetFeature = (kTargetFeature.getYieldChange(i) < 0);
+					}
+					if (bHarmfulTargetFeature || pTarget->getNonObsoleteBonusType(getTeam()) != NO_BONUS)
 					{
 						iNearTurns = 2;
 					}
@@ -24825,8 +24748,7 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 	// 1. To clear a feature if a planned improvement requires it.
 	// 2. To build a road if the plot bridges two separate road networks.
 
-	// <!-- custom: not sure it is needed to add fallout as such but just to be safe, get any build we can, as fallout doesn't have as of now a build_remove_fallout, get build through say build_farm if it can remove fallout (anything is good as long as we remove fallout, but if our preivous build was already made with that in mind (removing fallout if we selected a workshop in another function for example, then kOriginalBuildInfo.isFeatureRemove(eFeature) would be true and we wouldn't reach this code at all anyway so this is really a safeguad of a safeguard xd and in case other functions call this somehow (i ddin't check))) -->
-	// <!-- custom: for feature remove builds, this is a safeguard for cases where somehow we may have missed the specific build to remove feature (if any exists); note: advantage of hardcoding these especially for forest and jungle is we don't say get a farm that maybe can remove a jungle when we wanted to build a workshop instead after chopping, requires a bit more maintenance but hopefully this stay consistent enough and is computationally efficient, also when caller is one of our refactored functions such as CvUnitAI::AI_bestCityBuild, they already process extensively best build in many conditions including chopping, so this is a safeguard and in case other functions call this (didn't check too much if at all). -->
+	// <!-- custom: Keep feature removal as a separate first mission when the requested improvement removes that feature. Selecting only a pure XML removal Build preserves the intended follow-up improvement instead of substituting an arbitrary Farm or other feature-removing improvement. (GPT-5.6-Sol) -->
 	// <!-- custom: fix on refactored version: while we now improve bonuses much more efficiently, and not needlessly road them first and other things, so very nice early yields, and bonuses improved much sooner in the game, so very very nice yields too, we now however have bonuses sometimes unroaded, for quite a long time often. Trying to do the best of both, improving bonuses sooner, but also roading them sooner as well, and not roading everything execessively/needlessly or too soon as well (the former function was quite crazy about roading based on the ai that helped me refactor it and all's reaction to the code xd if i remember it correctly); code provided by claude ai; with this version it seems we are on a good track, as we road more bonuses or sooner (at turn 60 almost all are roaded in capital city it seems (vs most but not marbe with o3's fix, and i assume worse or same before o3's fix even) in the autoplay same map i ran, but we'd still like to road even sooner ideally -->
 
 	FAssert(eBuild != NO_BUILD);
@@ -24838,15 +24760,6 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 		return NO_BUILD;
 	if (eBuild < 0 || eBuild >= GC.getNumBuildInfos())
 		return NO_BUILD;
-
-	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
-	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
-	static const FeatureTypes eFeatureFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
-
-	// Hardcoded BuildTypes for common feature removals for efficiency.
-	static const BuildTypes eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
-	static const BuildTypes eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
-	static const BuildTypes eBuildScrubFallout = (BuildTypes)GC.getInfoTypeForString("BUILD_SCRUB_FALLOUT");
 
 	FeatureTypes const eFeature = kPlot.getFeatureType();
 	CvBuildInfo const& kOriginalBuildInfo = GC.getInfo(eBuild);
@@ -24894,27 +24807,10 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 	// A caller-validated feature-preserving improvement such as Camp on Forest Deer/Fur must not become a pure chop merely because the dedicated removal build is also legal. See KI#700. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (eFeature != NO_FEATURE && kOriginalBuildInfo.isFeatureRemove(eFeature))
 	{
-		if (eFeature == eFeatureForest)
-		{
-			if (canBuild(kPlot, eBuildRemoveForest))
-			{
-				return eBuildRemoveForest;
-			}
-		}
-		else if (eFeature == eFeatureJungle)
-		{
-			if (canBuild(kPlot, eBuildRemoveJungle))
-			{
-				return eBuildRemoveJungle;
-			}
-		}
-		else if (eFeature == eFeatureFallout)
-		{
-			if (canBuild(kPlot, eBuildScrubFallout))
-			{
-				return eBuildScrubFallout;
-			}
-		}
+		// <!-- custom: Preserve the removal-first safeguard without naming the feature or Build; use the same XML-derived pure removal selection as AI_bestCityBuild. If none exists, keep the original legal improvement Build, which can remove the feature itself. (GPT-5.6-Sol) -->
+		BuildTypes const ePureFeatureRemovalBuild = SAS_getWorkerPureFeatureRemovalBuild(*this, kPlot);
+		if (ePureFeatureRemovalBuild != NO_BUILD)
+			return ePureFeatureRemovalBuild;
 	}
 
 	// --- High-Priority Override 2: Bridge Plot Groups ---

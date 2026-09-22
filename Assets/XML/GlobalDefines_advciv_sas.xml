@@ -1954,41 +1954,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_WORKER_OVERIMPROVE_SKIP_KEEP_CURRENT_UNIMPROVED_BFC_PLOT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: minimum city population, within the large-city Forest chop path, where AI_bestCityBuild may consider chopping a non-bonus forested BFC plot even when the city has no current health surplus. Effective threshold is max(this define, SAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION), because the C++ relax check is inside the large-city branch. Early/small cities still use the old negative scoring formula rather than the large-city relaxed path. Set to 0 to disable the relaxed no-health-surplus large-city path. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
-	<Define>
-		<DefineName>SAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION</DefineName>
-		<iDefineIntVal>7</iDefineIntVal>
-	</Define>
-	<!-- custom: non-bonus Forest chop feature scoring used by CvUnitAI::AI_bestCityBuild. Early/small cities preserve Forest health through the old small-city formula (-100 + 50 * healthDiff by default), so pop 6 / health 0 still remains a low-priority candidate rather than using the relaxed large-city path. Medium/large cities keep Forest chop candidates visible instead of hard-skipping them, because otherwise useful forested BFC tiles can stay unimproved forever even when later health sources and stronger improved yields make chopping reasonable. LARGE_CITY_MIN_POPULATION selects the large-city health-aware path. UNHEALTH_PENALTY_PER_POINT preserves the old larger-city no-health-surplus penalty (health 0 -> -50, health -1 -> -100, etc.). (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
-	<Define>
-		<DefineName>SAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION</DefineName>
-		<iDefineIntVal>7</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE</DefineName>
-		<iDefineIntVal>-100</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT</DefineName>
-		<iDefineIntVal>50</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT</DefineName>
-		<iDefineIntVal>50</iDefineIntVal>
-	</Define>
-	<!-- custom: non-bonus Jungle clear feature scoring used by CvUnitAI::AI_bestCityBuild. Jungle is normally worth clearing when possible because it reduces health and blocks normal improvements; scoring only decides priority among candidate worker tasks. LARGE_CITY_MIN_POPULATION selects the population/health-pressure formula: PRESSURE_VALUE_PER_POINT * ((population - (threshold - 1)) - healthDiff). With defaults, pop 7 / health 0 gives +75, pop 7 / health +2 gives -75, and pop 10 / health -2 gives +450. Small cities use max(0, SMALL_CITY_UNHEALTH_VALUE_PER_POINT * -healthDiff), so healthy small cities do not get an artificial penalty while unhealthy small cities are pushed to clear Jungle. (ChatGPT-5.5 + GPT-5.5 review) -->
-	<Define>
-		<DefineName>SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION</DefineName>
-		<iDefineIntVal>7</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT</DefineName>
-		<iDefineIntVal>75</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT</DefineName>
-		<iDefineIntVal>50</iDefineIntVal>
-	</Define>
 	<!-- custom: Phase 0 productive-feature chopping. CORE Worker/Settler production uses the lower stock threshold and can chop before bonuses; NORMAL production improves bonuses first and only chops very abundant feature stock before roads/ordinary work. Because the rule stays active while the uncommitted count is >= the threshold, 3 leaves about 2 reserves and 6 leaves about 5. The hard chop/reserve is intentionally an early low-output accelerator rather than a permanent plot lock. Current unhealth/unhappiness relief bypasses all economic gates and can still remove the feature. See KI#33.2. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE</DefineName>
@@ -2019,19 +1984,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_CORE_FOOD_UNIT_MIN_REMAINING_TURNS_NORMAL_GAMESPEED</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
-	<!-- custom: value added when scrubbing non-bonus Fallout in CvUnitAI::AI_bestCityBuild. Fallout has severe yield penalties, so keep this much higher than normal tile-improvement values. If Fallout cannot be scrubbed yet, CvUnitAI skips ordinary non-bonus builds on that plot rather than improving through the Fallout. (ChatGPT-5.5) -->
-	<Define>
-		<DefineName>SAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE</DefineName>
-		<iDefineIntVal>100000</iDefineIntVal>
-	</Define>
-	<!-- custom: Bonus worker scoring mostly used by CvUnitAI::AI_bestCityBuild. These values preserve previous AdvCiv-SAS bonus-branch behavior while making the custom hardcoded priorities tunable. FEATURE_STEP_VALUE covers feature-preserving bonus builds on Forest/Jungle and feature removal before the final bonus-specific build. FALLOUT_SCRUB_VALUE is higher because Fallout should be scrubbed before ordinary bonus improvement. SPECIFIC_BUILD_BASE_VALUE is the base priority once the bonus-specific build is available. Yield and AIObjective values then order high-food, strategic/production, commerce, and XML-marked critical bonuses against each other. IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT is for CvUnitAI::AI_improveBonus target selection across the map, so it keeps the larger previous AdvCiv-SAS scale. FARM_FALLBACK applies to high-food bonuses before the bonus-specific build is available; it requires enough total bonus + Farm food, and by default only applies when the real bonus improvement unlocks in Medieval or later eras (2 = ERA_MEDIEVAL), so workers do not spend early turns on temporary farms when the real improvement is close. (GPT-5.5) -->
+	<!-- custom: Bonus worker scoring mostly used by CvUnitAI::AI_bestCityBuild. These values preserve previous AdvCiv-SAS bonus-branch behavior while making the custom priorities tunable from XML. FEATURE_STEP_VALUE covers a feature-preserving bonus Build or a pure XML-discovered removal step before the final bonus-specific Build; harmful-feature urgency is added dynamically from the feature's yields, health, happiness, turn damage, removal production and Worker time. SPECIFIC_BUILD_BASE_VALUE is the base priority once the bonus-specific Build is available. Yield and AIObjective values then order high-food, strategic/production, commerce, and XML-marked critical bonuses against each other. IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT is for CvUnitAI::AI_improveBonus target selection across the map, so it keeps the larger previous AdvCiv-SAS scale. FARM_FALLBACK applies to high-food bonuses before the bonus-specific Build is available; it requires enough total bonus + Farm food, and by default only applies when the real bonus improvement unlocks in Medieval or later eras (2 = ERA_MEDIEVAL), so Workers do not spend early turns on temporary Farms when the real improvement is close. (GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE</DefineName>
 		<iDefineIntVal>19000</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE</DefineName>
-		<iDefineIntVal>150000</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE</DefineName>
