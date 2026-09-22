@@ -3034,7 +3034,8 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 	return true;
 }
 
-// <!-- custom: Discover a dedicated feature-removal action from Build XML instead of naming Forest, Jungle, Fallout or their Builds. Prefer the legal non-sacrificial action that sends the most production to a city, then the quicker action; improvement Builds remain in the yield evaluator so this helper only supplies the interruptible removal-first step. (GPT-5.6-Sol) -->
+// <!-- custom: Discover a dedicated feature-removal action from Build XML instead of naming Forest, Jungle, Fallout or their Builds.
+// Prefer the legal non-sacrificial action that sends the most production to a city, then the quicker action; improvement Builds remain in the yield evaluator so this helper only supplies the interruptible removal-first step. (GPT-5.6-Sol) -->
 static BuildTypes SAS_getWorkerPureFeatureRemovalBuild(CvUnitAI const& kUnit, CvPlot const& kPlot, int* piProduction = NULL)
 {
 	if (piProduction != NULL)
@@ -3065,7 +3066,9 @@ static BuildTypes SAS_getWorkerPureFeatureRemovalBuild(CvUnitAI const& kUnit, Cv
 	return eBestBuild;
 }
 
-// <!-- custom: Score removal from what the current XML feature actually does: recovered plot yields, rounded and fractional city health/happiness, turn damage, received production and Worker time. This makes ordinary Jungle attractive through negative health, protects Forest through positive health and production yield, and makes Fallout urgent through its severe negative yields without naming any of them or assigning a magic Fallout priority. Productive early chopping remains the separate Phase-0 strategic policy. (GPT-5.6-Sol) -->
+// <!-- custom: Score removal from what the current XML feature actually does: recovered plot yields, rounded and fractional city health/happiness, turn damage, received production and Worker time.
+// This makes ordinary Jungle attractive through negative health, protects Forest through positive health and production yield, and makes Fallout urgent through its severe negative yields without naming any of them or assigning a magic Fallout priority.
+// Productive early chopping remains the separate Phase-0 strategic policy. (GPT-5.6-Sol) -->
 static int SAS_getWorkerStandaloneFeatureRemovalValue(CvUnitAI const& kUnit, CvCityAI const& kCity, CvPlot const& kPlot, BuildTypes eRemovalBuild, SASWorkerYieldWeights const& kWeights, int iProduction)
 {
 	if (eRemovalBuild == NO_BUILD || kPlot.getFeatureType() == NO_FEATURE)
@@ -3680,10 +3683,12 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			int const iFeatureRemovalValue = SAS_getWorkerStandaloneFeatureRemovalValue(*this, kCity, kPlot, eFeatureRemovalBuild, kWorkerYieldWeights, iFeatureProduction);
 			bool const bBonusSpecificImprovementUsesFeatureValidity = (eFeature != NO_FEATURE && eBonusSpecificImprovement != NO_IMPROVEMENT && GC.getInfo(eBonusSpecificImprovement).getFeatureMakesValid(eFeature));
 			bool const bBonusAlreadyCorrect = (eBonusSpecificImprovement != NO_IMPROVEMENT && kPlot.getImprovementType() == eBonusSpecificImprovement);
-			// <!-- custom: A completed feature-preserving bonus improvement is normally the desired endpoint. Preserve an existing Forest Camp or similar feature-valid infrastructure, but still remove an independently harmful feature such as post-nuclear Fallout when scrubbing leaves the correct improvement intact. (GPT-5.6-Sol) -->
+			// <!-- custom: A completed feature-preserving bonus improvement is normally the desired endpoint.
+			// Preserve an existing Forest Camp or similar feature-valid infrastructure, but still remove an independently harmful feature such as post-nuclear Fallout when scrubbing leaves the correct improvement intact. (GPT-5.6-Sol) -->
 			if (bBonusAlreadyCorrect && (eFeature == NO_FEATURE || bBonusSpecificImprovementUsesFeatureValidity || iFeatureRemovalValue <= 0))
 				continue;
-			// <!-- custom: Bonus handling first tries the XML-inferred specific Build when it preserves the feature. Otherwise use the XML-discovered pure removal Build as an interruptible first step, then queue the bonus improvement when currently legal. This preserves Camp-like feature paths and supports mod-added removable features without Forest/Jungle/Fallout branches. (GPT-5.5 + ChatGPT-5.5 + GPT-5.6-Sol) -->
+			// <!-- custom: Bonus handling first tries the XML-inferred specific Build when it preserves the feature.
+			// Otherwise use the XML-discovered pure removal Build as an interruptible first step, then queue the bonus improvement when currently legal. This preserves Camp-like feature paths and supports mod-added removable features without Forest/Jungle/Fallout branches. (GPT-5.5 + ChatGPT-5.5 + GPT-5.6-Sol) -->
 			if (eFeature != NO_FEATURE && bCanBuildBonusSpecificBeforeFeatureRemoval && (bBonusSpecificImprovementUsesFeatureValidity || iFeatureRemovalValue <= 0))
 			{
 				eBestSupposedBuild = eBonusSpecificBuild;
@@ -3786,8 +3791,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			bool const bSelectedImprovementUsesFeatureValidity = (eFeature != NO_FEATURE && eSelectedImprovement != NO_IMPROVEMENT && GC.getInfo(eSelectedImprovement).getFeatureMakesValid(eFeature));
 			int const iRemovalValue = (bPreserveCurrentImprovementFeature ? MIN_INT : SAS_getWorkerStandaloneFeatureRemovalValue(*this, kCity, kPlot, ePureFeatureRemovalBuild, kWorkerYieldWeights, iFeatureProduction));
 
-			// <!-- custom: PHASE 1.2 - when the chosen improvement removes the current feature, perform the XML-discovered pure removal first so its production arrives promptly and the Worker can be redirected before committing to the improvement. Also remove an independently harmful feature before a feature-neutral improvement; e.g. severe Fallout yield/health penalties outweigh building through it, while a feature-valid Camp or Lumbermill still preserves the feature it needs. If no improvement cleared the yield/replacement gate, consider removal by its own XML-derived yield, health, happiness, damage, production and time effects instead of a Forest/Jungle/Fallout rule.
-			// The Tiwanaku autoplay exposed why the yield gate remains authoritative: two Lumbermills built on turns 161-162 were independently chopped on turn 186 despite rejected Cottage replacements, then rebuilt as Cottages on turn 190. FeatureMakesValid now preserves such infrastructure unless a replacement passes the gate. (GPT-5.6-Sol) -->
+			// <!-- custom: PHASE 1.2 - when the chosen improvement removes the current feature, perform the XML-discovered pure removal first so its production arrives promptly and the Worker can be redirected before committing to the improvement.
+			// Also remove an independently harmful feature before a feature-neutral improvement; e.g. severe Fallout yield/health penalties outweigh building through it, while a feature-valid Camp or Lumbermill still preserves the feature it needs.
+			// If no improvement cleared the yield/replacement gate, consider removal by its own XML-derived yield, health, happiness, damage, production and time effects instead of a Forest/Jungle/Fallout rule.
+			// The Tiwanaku autoplay exposed why the yield gate remains authoritative: two Lumbermills built on turns 161-162 were independently chopped on turn 186 despite rejected Cottage replacements, then rebuilt as Cottages on turn 190.
+			// FeatureMakesValid now preserves such infrastructure unless a replacement passes the gate. (GPT-5.6-Sol) -->
 			if (bSelectedBuildRemovesFeature && ePureFeatureRemovalBuild != NO_BUILD)
 			{
 				eBestSupposedBuild = ePureFeatureRemovalBuild;
@@ -5692,7 +5700,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				{
 					int iNearTurns = 1;
 
-					// <!-- custom: Commit from a little farther when finishing a bonus or clearing any XML-defined harmful feature, rather than naming Jungle. Negative health, tile yields or turn damage identify the same strategic urgency for mod-added features. (GPT-5.6-Sol) -->
+					// <!-- custom: Commit from a little farther when finishing a bonus or clearing any XML-defined harmful feature, rather than naming Jungle; negative health, tile yields or turn damage identify the same strategic urgency for mod-added features. (GPT-5.6-Sol) -->
 					FeatureTypes const eTargetFeature = pTarget->getFeatureType();
 					bool bHarmfulTargetFeature = false;
 					if (eTargetFeature != NO_FEATURE)
@@ -24807,7 +24815,7 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 	// A caller-validated feature-preserving improvement such as Camp on Forest Deer/Fur must not become a pure chop merely because the dedicated removal build is also legal. See KI#700. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (eFeature != NO_FEATURE && kOriginalBuildInfo.isFeatureRemove(eFeature))
 	{
-		// <!-- custom: Preserve the removal-first safeguard without naming the feature or Build; use the same XML-derived pure removal selection as AI_bestCityBuild. If none exists, keep the original legal improvement Build, which can remove the feature itself. (GPT-5.6-Sol) -->
+		// <!-- custom: Preserve the removal-first safeguard without naming the feature or Build; use the same XML-derived pure removal selection as AI_bestCityBuild; if none exists, keep the original legal improvement Build, which can remove the feature itself. (GPT-5.6-Sol) -->
 		BuildTypes const ePureFeatureRemovalBuild = SAS_getWorkerPureFeatureRemovalBuild(*this, kPlot);
 		if (ePureFeatureRemovalBuild != NO_BUILD)
 			return ePureFeatureRemovalBuild;
