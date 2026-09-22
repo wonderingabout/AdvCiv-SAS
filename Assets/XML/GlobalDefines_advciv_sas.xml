@@ -1954,7 +1954,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_WORKER_OVERIMPROVE_SKIP_KEEP_CURRENT_UNIMPROVED_BFC_PLOT</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Phase 0 productive-feature chopping. CORE Worker/Settler production uses the lower stock threshold and can chop before bonuses; NORMAL production improves bonuses first and only chops very abundant feature stock before roads/ordinary work. Because the rule stays active while the uncommitted count is >= the threshold, 3 leaves about 2 reserves and 6 leaves about 5. The hard chop/reserve is intentionally an early low-output accelerator rather than a permanent plot lock. Current unhealth/unhappiness relief bypasses all economic gates and can still remove the feature. See KI#33.2. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Phase 0 productive-feature chopping. CORE Worker/Settler production uses the lower stock threshold and can chop before bonuses; NORMAL production improves bonuses first and only hard-chops very abundant feature stock before roads/ordinary work. The rule stays active while the uncommitted count is >= the threshold; below it, the generic yield/feature evaluator inspects every plot rather than protecting the remaining stock as an invisible reserve. Current unhealth/unhappiness relief bypasses all economic gates and can still remove the feature. See KI#33.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
