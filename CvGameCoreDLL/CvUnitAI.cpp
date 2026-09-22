@@ -24119,31 +24119,8 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	// if (!canBuild(*pBestPlot, eBestBuild))
 	// 	return false; // something changed; replan next turn
 
-	// <!-- custom: The inherited city-job movement can route before its selected improvement either because the Worker starts outside the target plot group, because its current plot has no route, or through the old distance-based random roll.
-	// Keep the behavior and exact one-roll short circuit for this diagnostic iteration, but name the trigger so logs can distinguish this implicit routing from explicit city/bonus/territory route policies.
-	// The 2026-09-22 Berlin observation showed why this matters: a Worker roaded toward a selected improvement and then left, spending turns that could otherwise have completed the plot yield first. (GPT-5.6-Sol) -->
-	// <advc.121>
-	MissionTypes eMission = MISSION_MOVE_TO;
-	bool const bSamePlotGroup = getPlot().isSamePlotGroup(*pBestPlot, getOwner());
-	bool const bSourceHasRoute = getPlot().isRoute();
-	bool const bRouteRollTested = (bSamePlotGroup && bSourceHasRoute);
-	bool const bRouteRollPassed = (bRouteRollTested && SyncRandOneChanceIn(stepDistance(plot(), pBestPlot) + 1));
-	bool const bRouteRequested = (!bSamePlotGroup || !bSourceHasRoute || bRouteRollPassed);
-	bool bRoutePathFound = false;
-	if (bRouteRequested)
-	{
-		bRoutePathFound = generatePath(*pBestPlot, MOVE_SAFE_TERRITORY); // advc.pf
-		if (bRoutePathFound)
-			eMission = MISSION_ROUTE_TO;
-	}
-	bool const bLogRoute = (gWorkerLogLevel >= 2);
-	char const* szRouteReason = NULL;
-	if (bLogRoute)
-		szRouteReason = (!bSamePlotGroup ? "DIFFERENT_PLOT_GROUP" : (!bSourceHasRoute ? "SOURCE_UNROUTED" : (bRouteRollPassed ? "DISTANCE_RANDOM_ROLL" : "NONE")));
-	getGroup()->pushMission(eMission, /* </advc.121> */
-			pBestPlot->getX(), pBestPlot->getY(),
-			eMission == MISSION_ROUTE_TO ? MOVE_SAFE_TERRITORY : NO_MOVEMENT_FLAGS, // advc.pf
-			false, false, MISSIONAI_BUILD, pBestPlot);
+	// <!-- custom: Move directly to the selected city improvement instead of inheriting a Road merely because the Worker starts outside the target plot group, stands on an unroaded plot, or passes a distance-based random roll. Two 2026-09-22 autoplay runs logged 1,850 and 1,608 such route-before-improvement missions; Berlin also showed a Worker spend Mine turns roading toward the plot and then leave. City-pair roads, bonus connections, improvement-yield routes, and later fallback route work remain responsible for deliberate network coverage, while this path completes the already-scored city yield first. See KI#30. (GPT-5.6-Sol) -->
+	getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX(), pBestPlot->getY(), NO_MOVEMENT_FLAGS, false, false, MISSIONAI_BUILD, pBestPlot);
 	// <!-- custom: AI_bestCityBuild already evaluates the city, plot, feature removal, and exact build together. Chengdu selected Chop Forest at (29,11) on turn 106, but postprocessing it through AI_betterPlotBuild replaced the scored and reserved job with Road; execute the selected build unchanged so worker assignment remains consistent with its full evaluation. (GPT-5.5) -->
 	getGroup()->pushMission(MISSION_BUILD,
 			eBestBuild, -1, NO_MOVEMENT_FLAGS,
@@ -24154,23 +24131,13 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	{
 		getGroup()->pushMission(MISSION_BUILD, eBestFollowupBuild, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pBestPlot);
 	}
-	if (bLogRoute && eMission == MISSION_ROUTE_TO)
-	{
-		ImprovementTypes const eTargetImprovement = pBestPlot->getImprovementType();
-		logBBAI("    WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) source=NEXT_CITY_TO_IMPROVE target=(%d,%d) reason=%s targetHasRoute=%d targetImprovement=%S intendedBuild=%S followup=%S",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
-			pBestPlot->getX(), pBestPlot->getY(), szRouteReason, pBestPlot->isRoute(),
-			(eTargetImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTargetImprovement).getDescription()), GC.getInfo(eBestBuild).getDescription(),
-			(eBestFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eBestFollowupBuild).getDescription()));
-	}
 	// <!-- custom: Pair the chosen city job with the exact worker, movement mode, and resulting queue so repeated selections can be distinguished from separate workers and traced through mission execution. No behavior change. (GPT-5.5) -->
 	if (gWorkerLogLevel >= 3)
 	{
 		wchar const* szFollowupBuild = (eBestFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eBestFollowupBuild).getDescription());
-		logBBAI("    WORKER_CITY_ASSIGNMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d target=(%d,%d) moveMission=%s routeReason=%s samePlotGroup=%d sourceHasRoute=%d routeRollTested=%d routeRollPassed=%d routeRequested=%d routePathFound=%d targetHasRoute=%d build=%S followup=%S missionAI=%d missionQueue=%d movesSpent=%d movesLeft=%d",
+		logBBAI("    WORKER_CITY_ASSIGNMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d target=(%d,%d) moveMission=MOVE_TO routePolicy=DIRECT_TO_CITY_YIELD targetHasRoute=%d build=%S followup=%S missionAI=%d missionQueue=%d movesSpent=%d movesLeft=%d",
 			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
-			getGroup()->getID(), pBestPlot->getX(), pBestPlot->getY(), (eMission == MISSION_ROUTE_TO ? "ROUTE_TO" : "MOVE_TO"), szRouteReason,
-			bSamePlotGroup, bSourceHasRoute, bRouteRollTested, bRouteRollPassed, bRouteRequested, bRoutePathFound, pBestPlot->isRoute(), GC.getInfo(eBestBuild).getDescription(), szFollowupBuild,
+			getGroup()->getID(), pBestPlot->getX(), pBestPlot->getY(), pBestPlot->isRoute(), GC.getInfo(eBestBuild).getDescription(), szFollowupBuild,
 			AI_getGroup()->AI_getMissionAIType(), getGroup()->getLengthMissionQueue(), getMoves(), movesLeft());
 	}
 	return true;
