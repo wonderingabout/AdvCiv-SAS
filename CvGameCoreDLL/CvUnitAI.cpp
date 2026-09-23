@@ -18,7 +18,7 @@
 #include "CitySiteEvaluator.h" // <!-- custom: First-settler scoring keeps starting weights without all-seeing evaluation and provides compact diagnostics. (GPT-5.5) -->
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 #include "SASGameRecordLog.h" // <!-- custom: Record compact factual AI fog-control/map-control assignments separately from detailed BBAI movement reasoning. (ChatGPT-5.6-Sol) -->
-#include <memory> // <!-- custom: Own the optional level-3 omniscient city-site evaluator across every early-Settler diagnostic candidate. (GPT-5-Codex) -->
+#include <memory> // <!-- custom: Own the optional level-3 omniscient city-site evaluator across every early-Settler diagnostic candidate. (GPT-5.6-Sol) -->
 #include <queue> // <!-- custom: Needed by the least-cost owned-plot search for deterministic source-to-target Worker irrigation chains. (GPT-5.6-Sol) -->
 
 //#define FOUND_RANGE (7) // advc: unused
@@ -805,7 +805,7 @@ static void SAS_logFirstCityCandidateBFCDiagnostics(CitySiteEvaluator const& kEv
 	{
 		CvString szOmniscientBreakdown;
 		const int iOmniscientValue = SAS_evaluateFirstCityFoundValue(*pOmniscientEvaluator, kCityPlot, &szOmniscientBreakdown);
-		// <!-- custom: Player-known values explain the AI decision; diagnostic omniscience reveals whether fogged terrain or technology-hidden bonuses made that decision fortunate or costly. Keep the comparison out of all selection logic. (GPT-5-Codex) -->
+		// <!-- custom: Player-known values explain the AI decision; diagnostic omniscience reveals whether fogged terrain or technology-hidden bonuses made that decision fortunate or costly. Keep the comparison out of all selection logic. (GPT-5.6-Sol) -->
 		logBBAI("        FOUND_VALUE_BREAKDOWN perspective=omniscient playerKnownValue=%d omniscientValue=%d delta=%+d %s", iBreakdownValue, iOmniscientValue, iOmniscientValue - iBreakdownValue, szOmniscientBreakdown.GetCString());
 	}
 	bool const bOceanCoastal = kCityPlot.isCoastalLand(GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN));
@@ -820,7 +820,7 @@ static void SAS_logFirstCityCandidateBFCDiagnostics(CitySiteEvaluator const& kEv
 			BonusTypes const eActualBonus = pLoopPlot->getBonusType();
 			TerrainTypes const eActualTerrain = pLoopPlot->getTerrainType();
 			FeatureTypes const eActualFeature = pLoopPlot->getFeatureType();
-			// <!-- custom: The player-known line remains explicitly unrevealed, while level-3 diagnostics retain the true tile underneath so later analysis can tell whether a scouting direction approached food, river terrain or a hidden resource instead of merely revealing more fog. (GPT-5-Codex) -->
+			// <!-- custom: The player-known line remains explicitly unrevealed, while level-3 diagnostics retain the true tile underneath so later analysis can tell whether a scouting direction approached food, river terrain or a hidden resource instead of merely revealing more fog. (GPT-5.6-Sol) -->
 			logBBAI("        bfc[%d] %d,%d unrevealed actualF/P/C=%d/%d/%d actualTerrain=%S actualFeature=%S actualBonus=%S", iCityPlot, pLoopPlot->getX(), pLoopPlot->getY(),
 				pLoopPlot->calculateNatureYield(YIELD_FOOD, NO_TEAM, false), pLoopPlot->calculateNatureYield(YIELD_PRODUCTION, NO_TEAM, false),
 				pLoopPlot->calculateNatureYield(YIELD_COMMERCE, NO_TEAM, false),
@@ -5401,7 +5401,7 @@ bool CvUnitAI::AI_foundFirstCity()
 		const bool bCurrentFirstCityStrongCore = (iCurrentBest6PlotValue >= iGoodEnoughBest6PlotValue);
 		const bool bBestKnownFirstCityStrongCore = (iBestKnownBest6PlotValue >= iGoodEnoughBest6PlotValue);
 		// <!-- custom: Maya started on a Pig+Maize+fresh-water BFC, but the old bad-plot count marked it bad because it also had many plains/tundra/desert tiles; the settler then wandered into tundra and founded a much worse capital when the roam window expired. Food from bonus-specific improvements now directly offsets low-food filler in the shared score, while this strong-food gate remains a conservative stop-roaming safeguard. (GPT-5.5) -->
-		// <!-- custom: Three-map level-3 logs found five one-food scouting cases with bad-food scores 5-9 but strong current best-six plot sums 947-1211. All five Settlers chased fog for several turns, found no better capital and walked back. A capital normally grows beyond six worked plots, but complete found value still evaluates and ranks its whole BFC; best six is only a practical early-core safeguard that stops the coarse whole-BFC food warning from overruling an already productive opening while preserving scouting for genuinely weak low-food starts. (GPT-5-Codex) -->
+		// <!-- custom: Three-map level-3 logs found five one-food scouting cases with bad-food scores 5-9 but strong current best-six plot sums 947-1211. All five Settlers chased fog for several turns, found no better capital and walked back. A capital normally grows beyond six worked plots, but complete found value still evaluates and ranks its whole BFC; best six is only a practical early-core safeguard that stops the coarse whole-BFC food warning from overruling an already productive opening while preserving scouting for genuinely weak low-food starts. (GPT-5.6-Sol) -->
 		const bool bBadCurrentFirstCity = (bCurrentFirstCityFoodPoor && !bCurrentFirstCityStrongCore);
 		const bool bBadBestKnownFirstCity = (bBestKnownFirstCityFoodPoor && !bBestKnownFirstCityStrongCore);
 		const bool bCurrentFirstCityGoodEnoughToStopRoaming = (pBestPlot == plot() || (bBadBestKnownFirstCity && (getPlot().isFreshWater() || (iGoodEnoughFoodBonuses > 0 && iCurrentFoodBonuses >= iGoodEnoughFoodBonuses))));
@@ -5599,7 +5599,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				const int iEndTurnFoundValue = SAS_evaluateFirstCityFoundValue(kFirstCityEvaluator, kEndTurnPlot);
 				const int iFoundValueGain = std::max(0, iEndTurnFoundValue - iBestValue);
 				const int iExploreValue = iEndpointFogValue + iRevealValue + iFoundValueGain;
-				// <!-- custom: First-city scouting is deterministic, but the old total alone hid whether a direction won through entering fog, revealing nearby plots or improving the prospective city site. Separating these components showed Settlers leaving strong known capital sites to chase raw revelation and later walking back; keep both endpoints and the best-known-site comparison visible so a future stopping or direction heuristic can target that waste without guessing. Exact-score ties remain reviewable because the strict first-enumerated winner is intentional. (GPT-5-Codex + GPT-5.6-Sol) -->
+				// <!-- custom: First-city scouting is deterministic, but the old total alone hid whether a direction won through entering fog, revealing nearby plots or improving the prospective city site. Separating these components showed Settlers leaving strong known capital sites to chase raw revelation and later walking back; keep both endpoints and the best-known-site comparison visible so a future stopping or direction heuristic can target that waste without guessing. Exact-score ties remain reviewable because the strict first-enumerated winner is intentional. (GPT-5.6-Sol) -->
 				if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_STEP_CANDIDATE player=%d from=%d,%d endTurn=%d,%d pathTurns=%d endpointFog=%d nearbyReveal=%d foundValue=%d bestKnownFoundValue=%d foundValueGain=%d total=%d",
 					getOwner(), getX(), getY(), kEndTurnPlot.getX(), kEndTurnPlot.getY(), iPathTurns, iEndpointFogValue,
 					iRevealValue, iEndTurnFoundValue, iBestValue, iFoundValueGain, iExploreValue);

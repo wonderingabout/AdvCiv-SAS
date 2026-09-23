@@ -23,7 +23,7 @@ public:
 	int evaluate(int iX, int iY) const;
 	// <!-- custom: Opt-in diagnostic entry point: return the same found value while filling an exact stage-by-stage summary. Callers guard its use behind logging so normal city-site evaluation does no string formatting. (GPT-5.5) -->
 	int evaluateWithBreakdown(CvPlot const& kPlot, CvString& szBreakdown) const;
-	// <!-- custom: First-city roaming can distinguish a genuinely weak site from a food-imperfect site with six strong early workable plots. Compute that narrow decision metric without formatting the diagnostic breakdown. (GPT-5-Codex) -->
+	// <!-- custom: First-city roaming can distinguish a genuinely weak site from a food-imperfect site with six strong early workable plots. Compute that narrow decision metric without formatting the diagnostic breakdown. (GPT-5.6-Sol) -->
 	int evaluateWithBest6PlotValue(CvPlot const& kPlot, int& iBest6PlotValue, int& iSustainableProductivePlotValue) const;
 	int evaluateWithLogging(CvPlot const& kPlot) const; // advc.031c
 	scaled evaluateWorkablePlot(CvPlot const& kPlot) const; // advc.027
@@ -54,7 +54,7 @@ public:
 	bool isAllSeeing() const { return m_bAllSeeing; }
 	// <!-- custom: First-settler roaming needs starting-capital weights without map-generation omniscience. (GPT-5.5) -->
 	void setAllSeeing(bool b) { m_bAllSeeing = b; }
-	// <!-- custom: Level-3 diagnostics can compare the player's actual information with the true map, including technology-hidden bonuses that ordinary starting-location all-seeing intentionally still conceals. This mode is diagnostic only and must not feed AI choices. (GPT-5-Codex) -->
+	// <!-- custom: Level-3 diagnostics can compare the player's actual information with the true map, including technology-hidden bonuses that ordinary starting-location all-seeing intentionally still conceals. This mode is diagnostic only and must not feed AI choices. (GPT-5.6-Sol) -->
 	void setDiagnosticOmniscience(bool b) { m_bDiagnosticOmniscience = b; if (b) m_bAllSeeing = true; }
 	bool isDiagnosticOmniscience() const { return m_bDiagnosticOmniscience; }
 	// some trait information that will influence where we settle ...

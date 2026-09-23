@@ -5458,7 +5458,7 @@ void CvPlayer::found(int iX, int iY)
 	bool const bLogSASCityFounding = (iSASGameRecordLogLevel >= 2 && kGame.isFinalInitialized());
 	SASGameRecordTransactionScope kSASCityFoundingTransaction("CITY_FOUNDING", bLogSASCityFounding);
 	SASGameRecordPlotOwnerChangeCauseScope kSASCityFoundingOwnerCause(SAS_PLOT_OWNER_CAUSE_CITY_FOUNDING, iSASGameRecordLogLevel >= 3 && bLogSASCityFounding);
-	// <!-- custom: Mark every actual city founded on a resource before initCity changes the plot. The following AI found-value trace explains the choice for nonhuman players; this concise row makes human, AI and Barbarian cases searchable and distinguishes a resource the founder could see from an unrevealed one. (GPT-5-Codex) -->
+	// <!-- custom: Mark every actual city founded on a resource before initCity changes the plot. The following AI found-value trace explains the choice for nonhuman players; this concise row makes human, AI and Barbarian cases searchable and distinguishes a resource the founder could see from an unrevealed one. (GPT-5.6-Sol) -->
 	if (gFoundLogLevel > 0)
 	{
 		CvPlot const& kFoundPlot = GC.getMap().getPlot(iX, iY);
