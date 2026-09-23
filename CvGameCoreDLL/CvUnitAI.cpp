@@ -742,6 +742,12 @@ static bool SAS_shouldScoutPromisingFoggedNearbyFoundSite(CvUnitAI& kSettler, Mo
 	return pScoutSite != NULL && pScoutEndTurnPlot != NULL;
 }
 
+static int SAS_getFirstCityReturnTravelValuePerTurn()
+{
+	static const int iReferencePlotPercent = std::max(0, GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_REFERENCE_PLOT_PERCENT"));
+	return (CitySiteEvaluator::getSustainableProductivePlotValue() * iReferencePlotPercent) / 100;
+}
+
 // <!-- custom: Choose where a first-city scout should finish by charging each return turn against the site's current found value. Keep this separate from city-site valuation: the same site retains the same strategic value, but a nearly equal nearby capital can be more efficient than several turns of backtracking.
 // The early deadline can instead protect the best raw-value site, using travel cost only to break exact ties, so wandering cannot progressively replace it with weaker nearby sites.
 // Include the current plot so a strong site such as Aztec (34,24) in save file 431 is not omitted and abandoned for a weaker return target. Caller guards any logging. (GPT-5.5) -->
@@ -5414,6 +5420,8 @@ bool CvUnitAI::AI_foundFirstCity()
 			int iBetterGoodEnoughFirstCityTurn = -1;
 			const int iRemainingFirstCityTurns = std::max(0, iMaxTurnsToFound - kGame.getElapsedGameTurns());
 			const int iGoodEnoughRecheckRange = std::min(2, iRemainingFirstCityTurns);
+			// <!-- custom: Scale the nearby-site travel charge with the shared found-value reference instead of the old fixed 75. Five-eighths of one sustainable productive plot remains exactly 75 at current weights while adapting to XML yield changes. (GPT-5.6-Sol) -->
+			const int iGoodEnoughRecheckTravelValuePerTurn = (5 * CitySiteEvaluator::getSustainableProductivePlotValue()) / 8;
 			for (SquareIter itGoodEnough(*this, iGoodEnoughRecheckRange, false); iGoodEnoughRecheckRange > 0 && itGoodEnough.hasNext(); ++itGoodEnough)
 			{
 				CvPlot& kLoopPlot = *itGoodEnough;
@@ -5424,7 +5432,7 @@ bool CvUnitAI::AI_foundFirstCity()
 					continue;
 				const int iLoopValue = SAS_evaluateFirstCityFoundValue(kFirstCityEvaluator, kLoopPlot);
 				// <!-- custom: Food environment and bonus counts temporarily decide whether more scouting is warranted, but no longer veto or rerank candidates after Berlin's higher-value (33,13) site was excluded in the Berlin test (save file 442). Rank sites only by complete found value and the existing movement cost; that value already includes yields, resources, fresh water, and BFC quality. (GPT-5.5) -->
-				const int iLoopAdjustedValue = iLoopValue - 75 * iLoopPathTurns;
+				const int iLoopAdjustedValue = iLoopValue - iGoodEnoughRecheckTravelValuePerTurn * iLoopPathTurns;
 				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics(kFirstCityEvaluator, pFirstCityOmniscientEvaluator.get(), "good-enough-recheck", kLoopPlot, getOwner(), getTeam(), iLoopValue, iLoopAdjustedValue, iLoopPathTurns);
 				if (iLoopAdjustedValue > iBetterGoodEnoughFirstCityValue)
 				{
@@ -5540,7 +5548,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				}
 				return true;
 			}
-			static const int iFirstCityReturnTravelValuePerTurn = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_VALUE_PER_TURN");
+			const int iFirstCityReturnTravelValuePerTurn = SAS_getFirstCityReturnTravelValuePerTurn();
 			int iBestEarlyReturnRawValue = -MAX_INT;
 			int iBestEarlyReturnAdjustedValue = -MAX_INT;
 			int iBestEarlyReturnPathTurns = -1;
@@ -5683,7 +5691,7 @@ bool CvUnitAI::AI_foundFirstCity()
 	// <!-- custom: Safety fallback after the bounded scouting window: if an active first-city scout still has not founded, rescan revealed reachable sites and return to the best travel-adjusted one instead of founding blindly under the settler. This fixed the save file 360 Karakorum scout ending on weak (52,45) while a much stronger revealed site remained behind it. (GPT-5.5) -->
 	if (!kGame.isScenario() && canMove() && bContinuingFirstCityScout && kGame.getElapsedGameTurns() >= iMaxTurnsToFound)
 	{
-		static const int iFirstCityReturnTravelValuePerTurn = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_VALUE_PER_TURN");
+		const int iFirstCityReturnTravelValuePerTurn = SAS_getFirstCityReturnTravelValuePerTurn();
 		int iBestPostScoutRawValue = -MAX_INT;
 		int iBestPostScoutAdjustedValue = -MAX_INT;
 		int iBestPostScoutPathTurns = -1;

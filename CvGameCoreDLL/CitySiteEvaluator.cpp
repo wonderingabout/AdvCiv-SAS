@@ -239,6 +239,14 @@ int CitySiteEvaluator::evaluateWithBest6PlotValue(CvPlot const& kPlot, int& iBes
 	return foundVal.get();
 }
 
+
+int CitySiteEvaluator::getSustainableProductivePlotValue()
+{
+	static const int iFoodValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_FOOD_VALUE");
+	static const int iProductionValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_PRODUCTION_VALUE");
+	return 10 + GC.getFOOD_CONSUMPTION_PER_POPULATION() * iFoodValue + iProductionValue;
+}
+
 // advc.300:
 void CitySiteEvaluator::discourageBarbarians(int iRange)
 {
@@ -1166,12 +1174,7 @@ int AIFoundValue::evaluate()
 	if (m_piBest6PlotValue != NULL)
 		*m_piBest6PlotValue = aiBreakdownPlotCoreSums[0];
 	if (m_piSustainableProductivePlotValue != NULL)
-	{
-		int aiReferenceYield[NUM_YIELD_TYPES] = {0, 0, 0};
-		aiReferenceYield[YIELD_FOOD] = GC.getFOOD_CONSUMPTION_PER_POPULATION();
-		aiReferenceYield[YIELD_PRODUCTION] = 1;
-		*m_piSustainableProductivePlotValue = evaluateYield(aiReferenceYield, &kPlot, false, false);
-	}
+		*m_piSustainableProductivePlotValue = CitySiteEvaluator::getSustainableProductivePlotValue();
 	iValue += iBreakdownPlots;
 	// A sensible order (CITY_HOME_PLOT first) isn't guaranteed anymore, hence:
 	aiPlotValues.clear();

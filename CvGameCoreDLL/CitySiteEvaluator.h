@@ -25,6 +25,8 @@ public:
 	int evaluateWithBreakdown(CvPlot const& kPlot, CvString& szBreakdown) const;
 	// <!-- custom: First-city roaming can distinguish a genuinely weak site from a food-imperfect site with six strong early workable plots. Compute that narrow decision metric without formatting the diagnostic breakdown. (GPT-5.6-Sol) -->
 	int evaluateWithBest6PlotValue(CvPlot const& kPlot, int& iBest6PlotValue, int& iSustainableProductivePlotValue) const;
+	// <!-- custom: Share one XML-driven scale for heuristics expressed in found-value units. A sustainable productive reference plot supplies the current food consumption per citizen plus 1 Production and uses the same self-sustaining yield weights as ordinary site evaluation. (GPT-5.6-Sol) -->
+	static int getSustainableProductivePlotValue();
 	int evaluateWithLogging(CvPlot const& kPlot) const; // advc.031c
 	scaled evaluateWorkablePlot(CvPlot const& kPlot) const; // advc.027
 	CvPlayerAI const& getPlayer() const { return m_kPlayer; }

@@ -1286,10 +1286,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_UNSCALED_GAMESPEED_TO_FOUND</DefineName>
 		<iDefineIntVal>7</iDefineIntVal>
 	</Define>
-	<!-- custom: When first-city scouting decides whether to keep exploring or return, subtract this value per return-path turn from each currently known site's found value. This does not change city-site valuation itself; it makes a nearly equal nearby capital preferable to several extra turns of backtracking. A value of 150 is intended to keep the full search within SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_UNSCALED_GAMESPEED_TO_FOUND while preserving the stronger Berlin, Karakorum, and Cuzco choices; set to 0 to ignore return time when choosing. (GPT-5.5) -->
+	<!-- custom: When first-city scouting decides whether to keep exploring or return, subtract this percentage of one sustainable productive reference plot per return-path turn from each currently known site's found value. The reference supplies the current food consumption per citizen plus 1 Production and uses the shared self-sustaining yield weights, so the travel cost follows the found-value scale without changing city-site valuation itself. Default 125% currently resolves to the tested 150 per turn that preserved the stronger Berlin, Karakorum, and Cuzco choices; set to 0 to ignore return time when choosing. (GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_VALUE_PER_TURN</DefineName>
-		<iDefineIntVal>150</iDefineIntVal>
+		<DefineName>SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_REFERENCE_PLOT_PERCENT</DefineName>
+		<iDefineIntVal>125</iDefineIntVal>
 	</Define>
 	<!-- custom: In the Berlin test (save file 442), the live first settler preferred fresh-water (35,11), although grass bonus-rich (33,13) site's valuation was higher (4569 vs 3934 before final modifiers), because the old map-generation surroundings adjustment penalized it by -1482 (so 4569 - 1482 < 3934 - 480). Disabling this (0, recommended) fixes this by ranking revealed candidate value without range-6 hidden terrain or other civilizations' assigned starts. Map generation and normalization still use the adjustment to spread assigned starts; but once play begins, whichever best sites AI settlers choose should be their own choice regardless how close or far from rivals. Set to 1 to restore the old base AdvCiv runtime adjustment. See KI#173. (GPT-5.5) -->
 	<Define>
@@ -1373,18 +1373,18 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_GROWTH_WAIT_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
-	<!-- custom: Optional minimum found value for the second city specifically, before the general early/midgame floor below begins. 0 (default) uses normal AdvCiv minimum-found-value logic, which is the first A/B test for one-city lockouts; raise this (e.g. 1200-1500) if that proves too willing to accept genuinely weak second-city sites without restoring the full AdvCiv-SAS 2000 filler-city floor. See KI#181.2. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Optional minimum found value for the second city specifically, expressed as a percentage times 100 of a reference BFC whose non-home plots (currently 20) each provide the current food consumption per citizen plus 1 Production under the shared self-sustaining yield weights. 0 (default) uses normal AdvCiv minimum-found-value logic; e.g. 5000 means 50.00% and currently resolves to 1200, while 6250 means 62.50% and currently resolves to 1500. This scales with XML yield valuation instead of restoring a fixed found-value floor. See KI#181.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_FIRST_EXPANSION_MIN_FOUND_VALUE</DefineName>
+		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_FIRST_EXPANSION_MIN_FOUND_VALUE_REFERENCE_BFC_PERCENT_X100</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Optional AI production floor for trained early/midgame Settlers. Weak Settlers are costly while empires are still small because they pause growth/production, tie up escorts, raise maintenance, and can weaken military tempo before the new city repays the investment. If only poor sites remain, a compact AI may be better off growing, defending, or attacking than forcing a far, slow filler city.
-	Later empires have more cities, production, trade/building/bonus support, and can better absorb added maintenance or slow growth; lower-value filler/resource/denial/colony cities can therefore become worthwhile again, so this floor can stop applying by era. This is an AI build-choice gate only, not a canTrain rule: existing Settlers, humans, scripts, and late opportunistic settling remain legal. Set value to 0 to defer to normal AdvCiv minimum found-value logic. (ChatGPT-5.5) -->
+	<!-- custom: Optional AI production floor for trained early/midgame Settlers, expressed as a percentage times 100 of a reference BFC whose non-home plots (currently 20) each provide the current food consumption per citizen plus 1 Production under the shared self-sustaining yield weights. Weak Settlers are costly while empires are still small because they pause growth/production, tie up escorts, raise maintenance, and can weaken military tempo before the new city repays the investment. If only poor sites remain, a compact AI may be better off growing, defending, or attacking than forcing a far, slow filler city.
+	Later empires have more cities, production, trade/building/bonus support, and can better absorb added maintenance or slow growth; lower-value filler/resource/denial/colony cities can therefore become worthwhile again, so this floor can stop applying by era. Default 8333 means 83.33% and resolves exactly to the previously tested 2000 at current yield weights while scaling automatically if those weights or citizen food consumption change. This is an AI build-choice gate only, not a canTrain rule: existing Settlers, humans, scripts, and late opportunistic settling remain legal. Set value to 0 to defer to normal AdvCiv minimum found-value logic. (ChatGPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE</DefineName>
-		<iDefineIntVal>2000</iDefineIntVal>
+		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_REFERENCE_BFC_PERCENT_X100</DefineName>
+		<iDefineIntVal>8333</iDefineIntVal>
 	</Define>
-	<!-- custom: City-count threshold before the full early/midgame Settler found-value floor applies. Default 2 leaves the crucial second city to normal AdvCiv valuation (plus the optional first-expansion floor above), then applies the stricter 2000 floor from city 2 onward to avoid weak filler expansion. Great Plains logs showed several one-city AIs with ample free land never training a Settler when the full floor started at city 1. Lower to 1 for the old stricter behavior; raise further to leave more early expansion to normal valuation. See KI#181.2. (ChatGPT-5.5 + ChatGPT-5.6-Sol) -->
+	<!-- custom: City-count threshold before the full early/midgame Settler found-value floor applies. Default 2 leaves the crucial second city to normal AdvCiv valuation (plus the optional first-expansion floor above), then applies the stricter currently-2000-equivalent reference-BFC floor from city 2 onward to avoid weak filler expansion. Great Plains logs showed several one-city AIs with ample free land never training a Settler when the full floor started at city 1. Lower to 1 for the old stricter behavior; raise further to leave more early expansion to normal valuation. See KI#181.2. (ChatGPT-5.5 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
