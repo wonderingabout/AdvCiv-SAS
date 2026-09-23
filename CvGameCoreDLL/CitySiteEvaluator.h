@@ -197,7 +197,7 @@ private:
 	int calculateSpecialYieldModifier(int iCultureModifier, bool bEasyAccess, bool bBonus, bool bCanSoonImproveBonus, bool bCanImproveBonus) const;
 	void calculateSpecialYields(CvPlot const& p, int const* aiBonusImprovementYield, int const* aiNatureYield, int iModifier, int* aiSpecialYield, int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const;
 	void calculateBuildingYields(CvPlot const& p, int const* aiNatureYield, int* aiBuildingYield) const;
-	int sumUpPlotValues(std::vector<int>& aiPlotValues) const;
+	int sumUpPlotValues(std::vector<int>& aiPlotValues, int* aiCoreSums = NULL, int* aiCoreCutoffs = NULL, int* piPositivePlots = NULL) const;
 	// <!-- custom: Disabled after XML-tunable SAS bonus-improvement yield valuation made this obscure hardcoded path redundant and retaining both overscored bonus-heavy sites in KI#173 follow-up testing. Kept commented with its implementation for reference. (GPT-5.5) -->
 	// int evaluateSpecialYields(int const* aiSpecialYield, int iSpecialYieldTiles, int iSpecialFoodPlus, int iSpecialFoodMinus) const;
 	// <!-- custom: simplify logic and attempt to spread cities more, currently they are way too crowded which is inefficient -->

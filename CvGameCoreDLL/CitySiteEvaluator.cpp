@@ -613,6 +613,10 @@ int AIFoundValue::evaluate()
 	int iBreakdownSea = 0;
 	int iBreakdownLowFood = 0;
 	int iBreakdownVeryBad = 0;
+	// <!-- custom: Diagnostic-only outputs are fully assigned by sumUpPlotValues when requested; leave them untouched on the normal hot path. (GPT-5.6-Sol) -->
+	int aiBreakdownPlotCoreSums[3];
+	int aiBreakdownPlotCoreCutoffs[3];
+	int iBreakdownPositivePlots;
 
 	IFLOG logBBAI("Evaluate city radius ...");
 	std::vector<int> aiPlotValues(NUM_CITY_PLOTS, 0);
@@ -866,7 +870,8 @@ int AIFoundValue::evaluate()
 		ImprovementTypes eBestPotentialImprovement = NO_IMPROVEMENT;
 		int aiBestPotentialYield[NUM_YIELD_TYPES] = {0, 0, 0};
 		int iPotentialTimingPercent = 0;
-		int const iBestPotentialYieldValue = (eBonus == NO_BONUS ? evaluateBestPotentialPlotYield(p, bCanNeverImprove, eBestPotentialImprovement, aiBestPotentialYield, iPotentialTimingPercent) : iNatureYieldValue);
+		// <!-- custom: Ordinary water has no Build/Improvement outcome to enumerate, and its value depends on whether this candidate city is coastal. Retain the already computed contextual nature value instead of scanning XML or placing a candidate-specific water value in the plot-intrinsic land cache. (GPT-5.6-Sol) -->
+		int const iBestPotentialYieldValue = (eBonus == NO_BONUS && !p.isWater() ? evaluateBestPotentialPlotYield(p, bCanNeverImprove, eBestPotentialImprovement, aiBestPotentialYield, iPotentialTimingPercent) : iNatureYieldValue);
 		// <!-- custom: Resource improvements retain their established strategic/non-yield and dedicated yield valuation for now. For ordinary plots, replace the named terrain/feature bonuses with the strongest XML-valid improvement outcome, including improvements that retain their feature and a discounted share of later-tech or upgrade-chain value. (GPT-5.6-Sol) -->
 		iPlotValue += (eBonus == NO_BONUS && !bHome ? std::max(iNatureYieldValue, iBestPotentialYieldValue) : iNatureYieldValue);
 		IFLOG if(eBonus == NO_BONUS) logBBAI("PLOT_POTENTIAL plot=%d,%d home=%d natureValue=%d potentialValue=%d improvement=%S potentialYields=%dF%dP%dC timing=%d%%",
@@ -1145,7 +1150,8 @@ int AIFoundValue::evaluate()
 
 	if (m_pszBreakdown != NULL)
 		iBreakdownDirect = iValue - iBreakdownBase;
-	iBreakdownPlots = sumUpPlotValues(aiPlotValues);
+	iBreakdownPlots = sumUpPlotValues(aiPlotValues, (m_pszBreakdown == NULL ? NULL : aiBreakdownPlotCoreSums),
+		(m_pszBreakdown == NULL ? NULL : aiBreakdownPlotCoreCutoffs), (m_pszBreakdown == NULL ? NULL : &iBreakdownPositivePlots));
 	iValue += iBreakdownPlots;
 	// A sensible order (CITY_HOME_PLOT first) isn't guaranteed anymore, hence:
 	aiPlotValues.clear();
@@ -1578,8 +1584,11 @@ int AIFoundValue::evaluate()
 	{
 		const int iBreakdownDirectOther = iBreakdownDirect - iBreakdownHomeWater - iBreakdownRiverBFC;
 		const int iBreakdownModifiers = iValue - iBreakdownPreModifiers;
-		*m_pszBreakdown = CvString::format("base=%d directOther=%d homeWater=%d riverBFC=%d plots=%d bonuses=%d(nonYield=%d,bonusImprovementYields=%d) health=%d featureProduction=%d sea=%d lowFood=%d veryBad=%d preModifiers=%d modifiers=%d(nothingSpecial=%d,homeResource=%d,landBoundary=%d,startingSurroundings=%d,distance=%d,culture=%d,citiesPerArea=%d,bonusCount=%d,badHealth=%d,goodies=%d,navalHeavy=%d) final=%d",
-				iBreakdownBase, iBreakdownDirectOther, iBreakdownHomeWater, iBreakdownRiverBFC, iBreakdownPlots, iBreakdownResourcesAdded, iBreakdownNonYieldResources, iBreakdownBonusImprovementYields, iBreakdownHealth, iBreakdownFeatureProduction, iBreakdownSea, iBreakdownLowFood, iBreakdownVeryBad, iBreakdownPreModifiers, iBreakdownModifiers, iBreakdownNothingSpecial, iBreakdownHomeResource, iBreakdownLandBoundary, iBreakdownStartingSurroundings, iBreakdownDistance, iBreakdownCulture, iBreakdownCitiesPerArea, iBreakdownBonusCount, iBreakdownBadHealth, iBreakdownGoodies, iBreakdownNavalHeavy, iValue);
+		*m_pszBreakdown = CvString::format("base=%d directOther=%d homeWater=%d riverBFC=%d plots=%d(core6=%d/%d,core10=%d/%d,core14=%d/%d,positive=%d) bonuses=%d(nonYield=%d,bonusImprovementYields=%d) health=%d featureProduction=%d sea=%d lowFood=%d veryBad=%d preModifiers=%d modifiers=%d(nothingSpecial=%d,homeResource=%d,landBoundary=%d,startingSurroundings=%d,distance=%d,culture=%d,citiesPerArea=%d,bonusCount=%d,badHealth=%d,goodies=%d,navalHeavy=%d) final=%d",
+				iBreakdownBase, iBreakdownDirectOther, iBreakdownHomeWater, iBreakdownRiverBFC, iBreakdownPlots,
+				aiBreakdownPlotCoreSums[0], aiBreakdownPlotCoreCutoffs[0], aiBreakdownPlotCoreSums[1], aiBreakdownPlotCoreCutoffs[1],
+				aiBreakdownPlotCoreSums[2], aiBreakdownPlotCoreCutoffs[2], iBreakdownPositivePlots,
+				iBreakdownResourcesAdded, iBreakdownNonYieldResources, iBreakdownBonusImprovementYields, iBreakdownHealth, iBreakdownFeatureProduction, iBreakdownSea, iBreakdownLowFood, iBreakdownVeryBad, iBreakdownPreModifiers, iBreakdownModifiers, iBreakdownNothingSpecial, iBreakdownHomeResource, iBreakdownLandBoundary, iBreakdownStartingSurroundings, iBreakdownDistance, iBreakdownCulture, iBreakdownCitiesPerArea, iBreakdownBonusCount, iBreakdownBadHealth, iBreakdownGoodies, iBreakdownNavalHeavy, iValue);
 	}
 
 	return iValue;
@@ -3286,16 +3295,18 @@ void AIFoundValue::calculateBuildingYields(CvPlot const& p, int const* aiNatureY
 
 /*	advc.031: Weighted sum. (Using floating-point math until such a time that a
 	logarithm function gets added to ScaledNum.) */
-int AIFoundValue::sumUpPlotValues(std::vector<int>& aiPlotValues) const
+int AIFoundValue::sumUpPlotValues(std::vector<int>& aiPlotValues, int* aiCoreSums, int* aiCoreCutoffs, int* piPositivePlots) const
 {
 	std::sort(aiPlotValues.begin(), aiPlotValues.end(), std::greater<int>());
 	// CITY_HOME_PLOT should have 0 value here, others could have negative values.
 	FAssert(aiPlotValues[NUM_CITY_PLOTS - 1] <= 0);
-	if (gFoundLogLevel >= 3 && AIFoundValue::isLoggingEnabled())
+	bool const bLogDistribution = (gFoundLogLevel >= 3 && AIFoundValue::isLoggingEnabled());
+	if (aiCoreSums != NULL || bLogDistribution)
 	{
-		int iBest6Sum = 0;
-		int iBest10Sum = 0;
-		int iBest14Sum = 0;
+		FAssert((aiCoreSums == NULL) == (aiCoreCutoffs == NULL));
+		FAssert((aiCoreSums == NULL) == (piPositivePlots == NULL));
+		int aiSums[3] = {0, 0, 0};
+		int const aiCoreSizes[3] = {6, 10, 14};
 		int iPositivePlots = 0;
 		FOR_EACH_ENUM(CityPlot)
 		{
@@ -3303,16 +3314,24 @@ int AIFoundValue::sumUpPlotValues(std::vector<int>& aiPlotValues) const
 			if (iPlotValue <= 0)
 				break;
 			iPositivePlots++;
-			if (eLoopCityPlot < 6)
-				iBest6Sum += iPlotValue;
-			if (eLoopCityPlot < 10)
-				iBest10Sum += iPlotValue;
-			if (eLoopCityPlot < 14)
-				iBest14Sum += iPlotValue;
+			for (int iCore = 0; iCore < 3; ++iCore)
+			{
+				if (eLoopCityPlot < aiCoreSizes[iCore])
+					aiSums[iCore] += iPlotValue;
+			}
 		}
-		// <!-- custom: The final weighted total distinguishes stronger plots implicitly, but these unweighted core sums expose the site's practical growth curve. A city works few plots through much of the game, so six strong early plots, ten developed-city plots or fourteen mature-city plots with weak outskirts can be more useful than twenty uniformly average plots; e.g. a fertile river core beside desert can outperform a broad tundra/plains BFC long before either city works every tile. Log all three core sizes, their cutoff values and the positive-plot count to diagnose first-city scouting without changing site valuation. (GPT-5.6-Sol) -->
-		logBBAI("BFC_VALUE_DISTRIBUTION best6Sum=%d best10Sum=%d best14Sum=%d positivePlots=%d sixth=%d tenth=%d fourteenth=%d",
-			iBest6Sum, iBest10Sum, iBest14Sum, iPositivePlots, aiPlotValues[5], aiPlotValues[9], aiPlotValues[13]);
+		if (aiCoreSums != NULL)
+		{
+			for (int iCore = 0; iCore < 3; ++iCore)
+			{
+				aiCoreSums[iCore] = aiSums[iCore];
+				aiCoreCutoffs[iCore] = aiPlotValues[aiCoreSizes[iCore] - 1];
+			}
+			*piPositivePlots = iPositivePlots;
+		}
+		// <!-- custom: The final weighted total distinguishes stronger plots implicitly, but these unweighted core sums expose the site's practical growth curve. A city works few plots through much of the game, so six strong early plots, ten developed-city plots or fourteen mature-city plots with weak outskirts can be more useful than twenty uniformly average plots; e.g. a fertile river core beside desert can outperform a broad tundra/plains BFC long before either city works every tile. Keep all three core sizes, their cutoff values and the positive-plot count in both verbose logs and compact first-city breakdowns so scouting can be tuned from the same evidence without changing site valuation. (GPT-5.6-Sol) -->
+		if (bLogDistribution) logBBAI("BFC_VALUE_DISTRIBUTION best6Sum=%d best10Sum=%d best14Sum=%d positivePlots=%d sixth=%d tenth=%d fourteenth=%d",
+			aiSums[0], aiSums[1], aiSums[2], iPositivePlots, aiPlotValues[5], aiPlotValues[9], aiPlotValues[13]);
 	}
 	double dMaxMultPercent = 153;
 	double dMinMultPercent = 47;
