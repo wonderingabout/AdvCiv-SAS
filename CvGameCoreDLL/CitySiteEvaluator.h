@@ -73,6 +73,19 @@ public:
 	void logSettings() const; // </advc.031c>
 
 private:
+	struct PlotPotentialYield
+	{
+		PlotPotentialYield();
+		int iValue;
+		ImprovementTypes eImprovement;
+		int aiYield[NUM_YIELD_TYPES];
+		int iTimingPercent;
+	};
+	bool getCachedPlotPotentialYield(CvPlot const& kPlot, int& iValue, ImprovementTypes& eImprovement, int* aiYield, int& iTimingPercent) const;
+	void cachePlotPotentialYield(CvPlot const& kPlot, int iValue, ImprovementTypes eImprovement, int const* aiYield, int iTimingPercent) const;
+	bool getCachedImprovementProduction(CvPlot const& kPlot, scaled& rValue) const;
+	void cacheImprovementProduction(CvPlot const& kPlot, scaled rValue) const;
+	friend class AIFoundValue;
 	CvPlayerAI const& m_kPlayer;
 	bool m_bStartingLoc;
 	bool m_bScenario; // advc
@@ -91,6 +104,9 @@ private:
 	bool m_bDefensive;
 	bool m_bSeafaring;
 	bool m_bExpansive;
+	// <!-- custom: AI_updateFoundValues evaluates overlapping BFCs across every revealed map plot. Cache plot-intrinsic XML improvement scans for this evaluator instance so the de-hardcoded logic scans each ordinary plot once, while diagnostic reevaluations may still bypass the cache to emit candidate details. (GPT-5.6-Sol) -->
+	mutable std::map<PlotNumTypes, PlotPotentialYield> m_plotPotentialYieldCache;
+	mutable std::map<PlotNumTypes, scaled> m_improvementProductionCache;
 };
 
 /*  AIFoundValue::evaluate corresponds to K-Mod's CvPlayerAI::AI_foundValue_bulk
@@ -163,8 +179,10 @@ private:
 	bool isNearTech(TechTypes eTech) const;
 	int calculateCultureModifier(CvPlot const& p, bool bForeignOwned, bool bShare, bool bCityRadius, bool bSteal, bool bFlip, bool bOwnExcl, int& iTakenTiles, int& iStealPercent) const;
 	int removableFeatureYieldVal(FeatureTypes eFeature, bool bRemovableFeature, bool bBonus) const;
-	scaled estimateImprovementProduction(CvPlot const& p, bool bPersistentFeature) const;
-	int evaluateYield(int const* aiYield, CvPlot const* p = NULL, bool bCanNeverImprove = false) const;
+	scaled estimateImprovementProduction(CvPlot const& p) const;
+	// <!-- custom: Settler sites now value ordinary plots through XML-valid improvement outcomes rather than named terrain/feature tables. Keep the city-center distinction optional so the home plot's lost workable potential can be evaluated as an ordinary BFC plot. (GPT-5.6-Sol) -->
+	int evaluateYield(int const* aiYield, CvPlot const* p = NULL, bool bCanNeverImprove = false, bool bTreatHomeAsCity = true) const;
+	int evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNeverImprove, ImprovementTypes& eBestImprovement, int* aiBestYield, int& iTimingPercent) const;
 	int evaluateFreshWater(CvPlot const& p, int const* aiYield, bool bSteal, int& iRiverTiles, int& iGreenTiles) const;
 	// <!-- custom: removed and now added inline in parent caller AIFoundValue::evaluate() directly, as it seems to be called only once, and we'd have more parameters to fine tune it further in parent caller rather, it is also clearer this way i think -->
 	//int foundOnResourceValue(int const* aiBonusImprovementYield) const;

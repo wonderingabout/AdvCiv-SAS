@@ -5563,7 +5563,7 @@ bool CvPlot::SAS_isVeryBadBFCPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer,
 		FOR_EACH_ENUM(Yield)
 		{
 			int iYield = calculateNatureYield(eLoopYield, NO_TEAM, bRemoveFeature) +
-					calculateImprovementYieldChange(eImprovement, eLoopYield, ePlayer);
+					calculatePotentialImprovementYieldChange(eImprovement, eLoopYield, ePlayer, NO_BONUS);
 			if (isWater() && eLoopYield == YIELD_FOOD)
 				iYield += iSeaPlotFoodChange;
 			iPotentialYieldScore += aiYieldWeight[eLoopYield] * iYield;
@@ -5612,6 +5612,19 @@ int CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(PlayerTypes ePlayer)
 	they've been obsoleted by K-Mod. Had been used by CvCityAI. */
 int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer) const
 {
+	return calculateImprovementYieldChangeInternal(eImprovement, eYield, ePlayer, false, NO_BONUS);
+}
+
+
+// <!-- custom: City-site evaluation needs the evaluating player's improvement modifiers on plots that a candidate city would claim, not an existing rival owner's modifiers. Keep its explicitly visibility-filtered bonus while sharing every other yield rule with the ordinary calculation. (GPT-5.6-Sol) -->
+int CvPlot::calculatePotentialImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, BonusTypes eVisibleBonus) const
+{
+	return calculateImprovementYieldChangeInternal(eImprovement, eYield, ePlayer, true, eVisibleBonus);
+}
+
+
+int CvPlot::calculateImprovementYieldChangeInternal(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, bool bAssumePlayerOwner, BonusTypes eVisibleBonus) const
+{
 	PROFILE_FUNC();
 
 	CvImprovementInfo const& kImpr = GC.getInfo(eImprovement);
@@ -5627,8 +5640,8 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 	TeamTypes const eObs = (ePlayer == NO_PLAYER ? NO_TEAM : TEAMID(ePlayer));
 	PlayerTypes eRevealedOwner = (eObs == NO_TEAM ? getOwner() :
 			getRevealedOwner(eObs));
-	PlayerTypes eYieldPlayer = (eRevealedOwner == NO_PLAYER ? ePlayer :
-			eRevealedOwner); // </advc.182>
+	PlayerTypes eYieldPlayer = (bAssumePlayerOwner ? ePlayer :
+			(eRevealedOwner == NO_PLAYER ? ePlayer : eRevealedOwner)); // </advc.182>
 	{	// <advc.001i>
 		RouteTypes eRoute = (eObs == NO_TEAM ? getRouteType() :
 				getRevealedRouteType(eObs)); // </advc.001i>
@@ -5674,7 +5687,8 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 	}
 	//if (ePlayer != NO_PLAYER) // advc.182
 	{
-		BonusTypes eBonus = getBonusType(eObs/*TEAMID(ePlayer)*/); // advc.182
+		BonusTypes eBonus = (bAssumePlayerOwner ? eVisibleBonus :
+				getBonusType(eObs/*TEAMID(ePlayer)*/)); // advc.182
 		if (eBonus != NO_BONUS)
 			iYield += kImpr.getImprovementBonusYield(eBonus, eYield);
 	}

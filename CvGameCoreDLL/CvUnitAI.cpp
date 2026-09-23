@@ -5537,17 +5537,21 @@ bool CvUnitAI::AI_foundFirstCity()
 				CvPlot& kEndTurnPlot = getPathEndTurnPlot();
 				if (at(kEndTurnPlot))
 					continue;
-				int iExploreValue = 0;
-				if (!kEndTurnPlot.isRevealed(getTeam()))
-					iExploreValue += 5000;
+				const int iEndpointFogValue = (kEndTurnPlot.isRevealed(getTeam()) ? 0 : 5000);
+				int iRevealValue = 0;
 				const int iFirstCityExploreRevealRange = visibilityRange() + 1;
 				for (SquareIter itReveal(kEndTurnPlot, iFirstCityExploreRevealRange, false); itReveal.hasNext(); ++itReveal)
 				{
 					if (!(*itReveal).isRevealed(getTeam()))
-						iExploreValue += 1000 / std::max(1, stepDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), (*itReveal).getX(), (*itReveal).getY()));
+						iRevealValue += 1000 / std::max(1, stepDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), (*itReveal).getX(), (*itReveal).getY()));
 				}
 				const int iEndTurnFoundValue = SAS_evaluateFirstCityFoundValue(kOwner, kEndTurnPlot);
-				iExploreValue += std::max(0, iEndTurnFoundValue - iBestValue);
+				const int iFoundValueGain = std::max(0, iEndTurnFoundValue - iBestValue);
+				const int iExploreValue = iEndpointFogValue + iRevealValue + iFoundValueGain;
+				// <!-- custom: First-city scouting is deterministic, but the old total alone hid whether a direction won through entering fog, revealing nearby plots or improving the prospective city site. Separating these components showed Settlers leaving strong known capital sites to chase raw revelation and later walking back; keep both endpoints and the best-known-site comparison visible so a future stopping or direction heuristic can target that waste without guessing. Exact-score ties remain reviewable because the strict first-enumerated winner is intentional. (GPT-5-Codex + GPT-5.6-Sol) -->
+				if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_STEP_CANDIDATE player=%d from=%d,%d endTurn=%d,%d pathTurns=%d endpointFog=%d nearbyReveal=%d foundValue=%d bestKnownFoundValue=%d foundValueGain=%d total=%d",
+					getOwner(), getX(), getY(), kEndTurnPlot.getX(), kEndTurnPlot.getY(), iPathTurns, iEndpointFogValue,
+					iRevealValue, iEndTurnFoundValue, iBestValue, iFoundValueGain, iExploreValue);
 				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("explore-step-end", kEndTurnPlot, getOwner(), getTeam(), iEndTurnFoundValue, iExploreValue, iPathTurns);
 				if (iExploreValue > iBestExploreValue)
 				{

@@ -5458,6 +5458,18 @@ void CvPlayer::found(int iX, int iY)
 	bool const bLogSASCityFounding = (iSASGameRecordLogLevel >= 2 && kGame.isFinalInitialized());
 	SASGameRecordTransactionScope kSASCityFoundingTransaction("CITY_FOUNDING", bLogSASCityFounding);
 	SASGameRecordPlotOwnerChangeCauseScope kSASCityFoundingOwnerCause(SAS_PLOT_OWNER_CAUSE_CITY_FOUNDING, iSASGameRecordLogLevel >= 3 && bLogSASCityFounding);
+	// <!-- custom: Mark every actual city founded on a resource before initCity changes the plot. The following AI found-value trace explains the choice for nonhuman players; this concise row makes human, AI and Barbarian cases searchable and distinguishes a resource the founder could see from an unrevealed one. (GPT-5-Codex) -->
+	if (gFoundLogLevel > 0)
+	{
+		CvPlot const& kFoundPlot = GC.getMap().getPlot(iX, iY);
+		BonusTypes const eFoundBonus = kFoundPlot.getBonusType();
+		if (eFoundBonus != NO_BONUS)
+		{
+			logBBAI("CITY_FOUNDED_ON_BONUS turn=%d player=%d civilization=%S barbarian=%d human=%d plot=%d,%d bonus=%S visibleToFounder=%d",
+				kGame.getGameTurn(), getID(), getCivilizationDescription(0), isBarbarian(), isHuman(), iX, iY,
+				GC.getInfo(eFoundBonus).getDescription(), kFoundPlot.getBonusType(getTeam()) == eFoundBonus);
+		}
+	}
 
 	// <advc.031c>
 	if (gFoundLogLevel > 0 && !isHuman() &&

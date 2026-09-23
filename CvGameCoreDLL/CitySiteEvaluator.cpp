@@ -21,6 +21,55 @@ static int const iDEFAULT_BARB_DISCOURAGED_RANGE = 8; // advc.303
 
 #define IFLOG if (gFoundLogLevel > 0 && AIFoundValue::isLoggingEnabled()) // advc.031c
 
+CitySiteEvaluator::PlotPotentialYield::PlotPotentialYield()
+:	iValue(0), eImprovement(NO_IMPROVEMENT), iTimingPercent(0)
+{
+	FOR_EACH_ENUM(Yield)
+		aiYield[eLoopYield] = 0;
+}
+
+
+bool CitySiteEvaluator::getCachedPlotPotentialYield(CvPlot const& kPlot, int& iValue, ImprovementTypes& eImprovement, int* aiYield, int& iTimingPercent) const
+{
+	std::map<PlotNumTypes, PlotPotentialYield>::const_iterator const it = m_plotPotentialYieldCache.find(kPlot.plotNum());
+	if (it == m_plotPotentialYieldCache.end())
+		return false;
+	PlotPotentialYield const& kCached = it->second;
+	iValue = kCached.iValue;
+	eImprovement = kCached.eImprovement;
+	iTimingPercent = kCached.iTimingPercent;
+	FOR_EACH_ENUM(Yield)
+		aiYield[eLoopYield] = kCached.aiYield[eLoopYield];
+	return true;
+}
+
+
+void CitySiteEvaluator::cachePlotPotentialYield(CvPlot const& kPlot, int iValue, ImprovementTypes eImprovement, int const* aiYield, int iTimingPercent) const
+{
+	PlotPotentialYield& kCached = m_plotPotentialYieldCache[kPlot.plotNum()];
+	kCached.iValue = iValue;
+	kCached.eImprovement = eImprovement;
+	kCached.iTimingPercent = iTimingPercent;
+	FOR_EACH_ENUM(Yield)
+		kCached.aiYield[eLoopYield] = aiYield[eLoopYield];
+}
+
+
+bool CitySiteEvaluator::getCachedImprovementProduction(CvPlot const& kPlot, scaled& rValue) const
+{
+	std::map<PlotNumTypes, scaled>::const_iterator const it = m_improvementProductionCache.find(kPlot.plotNum());
+	if (it == m_improvementProductionCache.end())
+		return false;
+	rValue = it->second;
+	return true;
+}
+
+
+void CitySiteEvaluator::cacheImprovementProduction(CvPlot const& kPlot, scaled rValue) const
+{
+	m_improvementProductionCache[kPlot.plotNum()] = rValue;
+}
+
 // Body cut from K-Mod's CvPlayerAI::CvFoundSettings::CvFoundSettings
 CitySiteEvaluator::CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRange, bool bStartingLoc, /* advc.031e: */ bool bNormalize)
 :	m_kPlayer(kPlayer), m_iMinRivalRange(iMinRivalRange), m_bStartingLoc(bStartingLoc),
@@ -525,17 +574,6 @@ int AIFoundValue::evaluate()
 
 	int iCautiousHealthPercent = 0;
 
-	// <!-- custom: attempt to support terrains and feature(s) conditional settling/founding city logic -->
-	static const TerrainTypes eTerrainDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
-	static const TerrainTypes eTerrainSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
-	static const TerrainTypes eTerrainPlains = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PLAINS");
-	static const TerrainTypes eTerrainTundra = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_TUNDRA");
-	static const TerrainTypes eTerrainGrass = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_GRASS");
-
-	static const FeatureTypes eFeatureFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
-	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
-	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
-	static const FeatureTypes eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
 	bFirstColony = isPrioritizeAsFirstColony();
 	IFLOG if(bFirstColony) logBBAI("First colony");
 	// Scope for countBadTiles return parameters
@@ -634,18 +672,6 @@ int AIFoundValue::evaluate()
 	static const int iValueVeryLowFoodOnBonusCommerce = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_ON_BONUS_COMMERCE_VERY_LOW_FOOD");
 	static const int iBaseValueVeryLowFoodOnBonusCommerce = GC.getDefineINT("SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_COMMERCE_VERY_LOW_FOOD");
 
-	static const int iValueHomeFloodPlains = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLOOD_PLAINS");
-	static const int iValueHomeHillDesert = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_HILL_DESERT");
-	static const int iValueHomeFlatlandDesert = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLATLAND_DESERT");
-	static const int iValueHomeHillGrass = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_HILL_GRASS");
-	static const int iValueHomeFlatlandGrass = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLATLAND_GRASS");
-	static const int iValueHomeHillPlains = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_HILL_PLAINS");
-	static const int iValueHomeFlatlandPlains = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLATLAND_PLAINS");
-	static const int iValueHomeHillTundra = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_HILL_TUNDRA");
-	static const int iValueHomeFlatlandTundra = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLATLAND_TUNDRA");
-	static const int iValueHomeHillSnow = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_HILL_SNOW");
-	static const int iValueHomeFlatlandSnow = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLATLAND_SNOW");
-
 	static const int iValueHomeWaterBonusNoCoast = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_WATER_BONUS_NO_COAST");
 	static const int iStartingHomeFreshWaterValue = GC.getDefineINT("SAS_EVALUATE_STARTING_HOME_FRESH_WATER_VALUE");
 	static const int iStartingFoodBonusValuePercent = GC.getDefineINT("SAS_EVALUATE_STARTING_FOOD_BONUS_VALUE_PERCENT");
@@ -657,19 +683,6 @@ int AIFoundValue::evaluate()
 
 	static const int iExtraValueNotHomeAIObjectiveBonusExtraValueMultiplier = GC.getDefineINT("SAS_EVALUATE_EXTRA_VALUE_NOT_HOME_BONUS_IAIOBJECTIVE_MULTIPLIER");
 	static const int iUnownedBonusExtraValue = GC.getDefineINT("SAS_EVALUATE_UNOWNED_BONUS_EXTRA_VALUE");
-
-	static const int iValueNotHomeFloodPlains = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_FLOOD_PLAINS");
-	static const int iValueNotHomeFloodOasis = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_OASIS");
-	static const int iValueNotHomeHillDesert = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_HILL_DESERT");
-	static const int iValueNotHomeFlatlandDesert = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_DESERT");
-	static const int iValueNotHomeHillGrass = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_HILL_GRASS");
-	static const int iValueNotHomeFlatlandGrass = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_GRASS");
-	static const int iValueNotHomeHillPlains = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_HILL_PLAINS");
-	static const int iValueNotHomeFlatlandPlains = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_PLAINS");
-	static const int iValueNotHomeHillTundra = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_HILL_TUNDRA");
-	static const int iValueNotHomeFlatlandTundra = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_TUNDRA");
-	static const int iValueNotHomeHillSnow = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_HILL_SNOW");
-	static const int iValueNotHomeFlatlandSnow = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_SNOW");
 
 	FOR_EACH_ENUM(CityPlot)
 	{
@@ -719,9 +732,6 @@ int AIFoundValue::evaluate()
 				++iGoodEnoughFirstCityBFCTiles;
 		}
 
-		// <!-- custom: optimization as recommended by chatgpt 5 thanks -->
-		const bool pIsHills = p.isHills();
-
 		// advc.035: The own-exclusive-radius rule only helps if the radii don't overlap
 		bool const bOwnExcl = (bGlobalsOwnExclusiveRadius && !bCityRadius && bForeignOwned);
 
@@ -729,7 +739,6 @@ int AIFoundValue::evaluate()
 		bool bPersistentFeature = false; // advc: was "eventuallyRemovable" in K-Mod
 		int iFeatureProduction = 0; // advc.031
 
-		TerrainTypes const eTerrain = p.getTerrainType();
 		FeatureTypes const eFeature = p.getFeatureType();
 
 		bRemovableFeature = isRemovableFeature(p, bPersistentFeature,
@@ -845,7 +854,7 @@ int AIFoundValue::evaluate()
 			if (!bShare)
 				rBaseProduction += aiNatureYield[YIELD_PRODUCTION];
 			if (!bSteal)
-				rBaseProduction += estimateImprovementProduction(p, bPersistentFeature);
+				rBaseProduction += estimateImprovementProduction(p);
 			if (!p.isWater())
 			{
 				// <!-- custom: this is most likely a lie or an omission, i checked other functions and this one for fresh water calls or such, no mention of this for home plot, so added ourselves -->
@@ -853,7 +862,17 @@ int AIFoundValue::evaluate()
 				iPlotValue += evaluateFreshWater(p, aiNatureYield, bSteal, iRiverTiles, iGreenTiles);
 			}
 		}
-		iPlotValue += evaluateYield(aiNatureYield, &p, bCanNeverImprove); // (K-Mod: iTempValue in BtS)
+		int const iNatureYieldValue = evaluateYield(aiNatureYield, &p, bCanNeverImprove); // (K-Mod: iTempValue in BtS)
+		ImprovementTypes eBestPotentialImprovement = NO_IMPROVEMENT;
+		int aiBestPotentialYield[NUM_YIELD_TYPES] = {0, 0, 0};
+		int iPotentialTimingPercent = 0;
+		int const iBestPotentialYieldValue = (eBonus == NO_BONUS ? evaluateBestPotentialPlotYield(p, bCanNeverImprove, eBestPotentialImprovement, aiBestPotentialYield, iPotentialTimingPercent) : iNatureYieldValue);
+		// <!-- custom: Resource improvements retain their established strategic/non-yield and dedicated yield valuation for now. For ordinary plots, replace the named terrain/feature bonuses with the strongest XML-valid improvement outcome, including improvements that retain their feature and a discounted share of later-tech or upgrade-chain value. (GPT-5.6-Sol) -->
+		iPlotValue += (eBonus == NO_BONUS && !bHome ? std::max(iNatureYieldValue, iBestPotentialYieldValue) : iNatureYieldValue);
+		IFLOG if(eBonus == NO_BONUS) logBBAI("PLOT_POTENTIAL plot=%d,%d home=%d natureValue=%d potentialValue=%d improvement=%S potentialYields=%dF%dP%dC timing=%d%%",
+			p.getX(), p.getY(), bHome, iNatureYieldValue, iBestPotentialYieldValue,
+			(eBestPotentialImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eBestPotentialImprovement).getDescription()),
+			aiBestPotentialYield[YIELD_FOOD], aiBestPotentialYield[YIELD_PRODUCTION], aiBestPotentialYield[YIELD_COMMERCE], iPotentialTimingPercent);
 		// <!-- custom: note: bHome means it is the tile where we'll plant our city, which chatgpt 5 confirmed too as the "home plot" but check to be sure -->
 		if (bHome)
 		{
@@ -874,7 +893,8 @@ int AIFoundValue::evaluate()
 			city sites, so it needs to be discouraged a bit. */
 			if (eBonus != NO_BONUS)
 			{
-				const bool bVeryLowFoodBonusPlot = (eTerrain == eTerrainSnow || ((eTerrain == eTerrainDesert) && (eFeature != eFeatureFloodPlains)) || (pIsHills && (eTerrain != eTerrainGrass)));
+				// <!-- custom: The old bonus-settlement exception named Snow, Desert, Flood Plains and Grass Hills. Underlying natural Food <= 0 expresses the intended opportunity-cost distinction directly and remains correct when terrain/feature XML changes. (GPT-5.6-Sol) -->
+				const bool bVeryLowFoodBonusPlot = (p.calculateNatureYield(YIELD_FOOD, NO_TEAM) <= 0);
 
 				// <!-- custom: was -5 for some reason in old code, chatgpt 5 used 0 so going with it -->
 				//int r = -5;
@@ -967,72 +987,21 @@ int AIFoundValue::evaluate()
 				iValue += r;
 				IFLOG logBBAI("Penalty (added to iValue) %d for founding on bonus", r); // adds a negative -> penalty ✅
 			}
-			// <!-- custom: for non-bonus for home plot (i.e. the exact tile where we settle our city if i'm not mistaken) tiles, also add home plot optimization, low-food is juicy (e.g. desert or hill plains better than floodplains or hill grass) -->
+			// <!-- custom: Founding consumes this plot's future worked-tile potential. Compare its best XML-valid improvement outcome with the XML-defined minimum city-center yields: weak plots become attractive city tiles, while strong food/hammer/commerce or feature-preserving plots are better kept in the BFC. The actual city-center yield remains counted twice above for its free and immediate output. (GPT-5.6-Sol) -->
 			else
 			{
-				if (eTerrain == eTerrainDesert)
-				{
-					if (eFeature == eFeatureFloodPlains)
-					{
-						iValue += iValueHomeFloodPlains;
-					}
-					// <!-- custom: if not floodplains (note: as of now we can't settle on oasis so not accounted for in code), consider adding it there if you want to allow it in your modmod and then put a knob/tunable here, not done in advciv-sas as we don't need it, and to avoid errors or such (since or because we don't use it) -->
-					else 
-					{
-						if (pIsHills)
-						{
-							iValue += iValueHomeHillDesert;
-						}
-						else
-						{
-							iValue += iValueHomeFlatlandDesert;
-						}
-					}
-				}
-				else if (eTerrain == eTerrainGrass)
-				{
-					if (pIsHills)
-					{
-						iValue += iValueHomeHillGrass;
-					}
-					else
-					{
-						iValue += iValueHomeFlatlandGrass;
-					}
-				}
-				else if (eTerrain == eTerrainPlains)
-				{
-					if (pIsHills)
-					{
-						iValue += iValueHomeHillPlains;
-					}
-					else
-					{
-						iValue += iValueHomeFlatlandPlains;
-					}
-				}
-				else if (eTerrain == eTerrainTundra)
-				{
-					if (pIsHills)
-					{
-						iValue += iValueHomeHillTundra;
-					}
-					else
-					{
-						iValue += iValueHomeFlatlandTundra;
-					}
-				}
-				else if (eTerrain == eTerrainSnow)
-				{
-					if (pIsHills)
-					{
-						iValue += iValueHomeHillSnow;
-					}
-					else
-					{
-						iValue += iValueHomeFlatlandSnow;
-					}
-				}
+				int aiReferenceCityYield[NUM_YIELD_TYPES];
+				FOR_EACH_ENUM(Yield)
+					aiReferenceCityYield[eLoopYield] = p.calculateCityPlotYieldChange(eLoopYield, 0, 1);
+				int const iReferenceCityYieldValue = evaluateYield(aiReferenceCityYield, &p, false, false);
+				int const iHomeOpportunityValue = iReferenceCityYieldValue - iBestPotentialYieldValue;
+				iValue += iHomeOpportunityValue;
+				IFLOG logBBAI("%d home-plot opportunity value: reference=%d referenceYields=%dF%dP%dC potential=%d improvement=%S potentialYields=%dF%dP%dC timing=%d%%",
+					iHomeOpportunityValue, iReferenceCityYieldValue,
+					aiReferenceCityYield[YIELD_FOOD], aiReferenceCityYield[YIELD_PRODUCTION], aiReferenceCityYield[YIELD_COMMERCE],
+					iBestPotentialYieldValue,
+					(eBestPotentialImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eBestPotentialImprovement).getDescription()),
+					aiBestPotentialYield[YIELD_FOOD], aiBestPotentialYield[YIELD_PRODUCTION], aiBestPotentialYield[YIELD_COMMERCE], iPotentialTimingPercent);
 			}
 		}
 		else
@@ -1130,9 +1099,8 @@ int AIFoundValue::evaluate()
 				IFLOG logBBAI("%d from water resource near non-coastal site", iValueHomeWaterBonusNoCoast);
 			} // </advc.031>
 		}
-		// <!-- custom: A visible bonus does not remove its Forest/Jungle or its real health effect. Accumulate cautious feature health independently of resource valuation instead of exempting every feature+bonus plot through the old else branch.
-		// Do not count Flood Plains: their yield benefit intentionally offsets their unhealthiness in this heuristic. See KI#488. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		if (eFeature == eFeatureJungle || eFeature == eFeatureForest)
+		// <!-- custom: Accumulate cautious health for removable non-home features by XML property rather than naming Forest/Jungle. The city removes its home feature; persistent BFC features such as Flood Plains remain represented by their plot yield instead of receiving a second health penalty here. See KI#488. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (!bHome && eFeature != NO_FEATURE && !bPersistentFeature)
 			iCautiousHealthPercent += GC.getInfo(eFeature).getHealthPercent();
 
 		if (kSet.isStartingLoc() && !bHome && !bSteal && p.isRiver())
@@ -1145,81 +1113,6 @@ int AIFoundValue::evaluate()
 
 		if (!bHome) // (Home plot was handled upfront)
 		{
-			// <!-- custom: Value surrounding terrain separately from home-plot terrain; e.g. settling near Flood Plains or Grass preserves their workable yield, while settling directly on them does not. Apply the same tunable terrain preferences to bonus plots too, so Grass Iron receives the Grass value while Snow Iron receives the Snow value. (GPT-5.5) -->
-			{
-				if (eTerrain == eTerrainDesert)
-				{
-					if (eFeature == eFeatureFloodPlains)
-					{
-						iValue += iValueNotHomeFloodPlains;
-					}
-					else if (eFeature == eFeatureOasis)
-					{
-						iValue += iValueNotHomeFloodOasis;
-					}
-					else 
-					{
-						if (pIsHills)
-						{
-							iValue += iValueNotHomeHillDesert ;
-						}
-						else
-						{
-							// iValue += (-75);
-							// <!-- custom: note: now handled by the verybadtiles code rather as we handle the tolerance for a certain number of tiles and other such things like ice cap, peak that may not possibly be accounted for in this loop there rather directly, so left as 0 here instead as of now -->
-							iValue += iValueNotHomeFlatlandDesert;
-						}
-					}
-				}
-				else if (eTerrain == eTerrainGrass)
-				{
-					if (pIsHills)
-					{
-						iValue += iValueNotHomeHillGrass;
-					}
-					else
-					{
-						iValue += iValueNotHomeFlatlandGrass;
-					}
-				}
-				else if (eTerrain == eTerrainPlains)
-				{
-					if (pIsHills)
-					{
-						iValue += iValueNotHomeHillPlains;
-					}
-					else
-					{
-						iValue += iValueNotHomeFlatlandPlains;
-					}
-				}
-				else if (eTerrain == eTerrainTundra)
-				{
-					if (pIsHills)
-					{
-						iValue += iValueNotHomeHillTundra;
-					}
-					else
-					{
-						iValue += iValueNotHomeFlatlandTundra;
-					}
-				}
-				else if (eTerrain == eTerrainSnow)
-				{
-					if (pIsHills)
-					{
-						iValue += iValueNotHomeHillSnow;
-					}
-					else
-					{
-						// iValue -= 75;
-						// <!-- custom: same as flatland desert for this very bad tile -->
-						iValue += iValueNotHomeFlatlandSnow;
-					}
-				}
-				// <!-- custom: water tiles are considered neutral as of now, ideally we would penalize 0 food ones but left as such for now -->
-				// <!-- custom: note: peak, ice cap are handled in very bad tiles similarly to desert and snow, plus they may not be in the part of the loop where we use this define so maybe best as such and is -->
-			}
 			if (eBonus != NO_BONUS)
 			{
 				// <!-- custom: value iAIObjective bonuses especially more to settle on first, could be critical for our life and death (ideally check if obsolete too). Not having copper or iron may make us die, so really value it more -->
@@ -1327,6 +1220,9 @@ int AIFoundValue::evaluate()
 		if (iGoodEnoughFirstCityBFCTiles + iUnrevealedTiles < iMinRequiredGoodEnoughFirstCityBFCTiles)
 		{
 			// <!-- custom: note: AIFoundValue now stores and returns int, so the old short-overflow workaround is obsolete so removed it (as for previous overflow issue, see KI#44/Moscow). (ChatGPT-5.5) -->
+			IFLOG logBBAI("Site rejected: first-city BFC has %d known good-enough plots + %d unrevealed = %d, below required %d",
+				iGoodEnoughFirstCityBFCTiles, iUnrevealedTiles, iGoodEnoughFirstCityBFCTiles + iUnrevealedTiles,
+				iMinRequiredGoodEnoughFirstCityBFCTiles);
 			return 0;
 		}
 		const int iExcessVeryBadTiles = std::max(0, iVeryBadBFCTiles - iMaxToleratedVeryBadTilesStart);
@@ -1371,7 +1267,8 @@ int AIFoundValue::evaluate()
 	int iBreakdownHomeResource = 0;
 	int iBreakdownLandBoundary = 0;
 	int iBreakdownStartingSurroundings = 0;
-	int iBreakdownDistanceCulture = 0;
+	int iBreakdownDistance = 0;
+	int iBreakdownCulture = 0;
 	int iBreakdownCitiesPerArea = 0;
 	int iBreakdownBonusCount = 0;
 	int iBreakdownBadHealth = 0;
@@ -1434,7 +1331,8 @@ int AIFoundValue::evaluate()
 	// <!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or didn't accommodate/account for food desert bonuses or such. Since i don't like interferences, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details -->
 	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
 	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
-	const int iBeforeDistanceCulture = iValue;
+	const int iBeforeDistance = iValue;
+	int iBeforeCulture = iValue;
 	if (!kSet.isStartingLoc() && !kSet.isNormalizing())
 	{
 		if (!bBarbarian)
@@ -1500,6 +1398,8 @@ int AIFoundValue::evaluate()
 			}
 			// --- end SAS distance shaping ---
 		}
+		iBreakdownDistance = iValue - iBeforeDistance;
+		iBeforeCulture = iValue;
 
 		// <!-- custom: 2) -->
 		// --- SAS: super-simple culture pressure gate (no cheat, cheap) ---
@@ -1569,7 +1469,7 @@ int AIFoundValue::evaluate()
 		}
 		// --- end culture pressure gate ---
 	}
-	iBreakdownDistanceCulture = iValue - iBeforeDistanceCulture;
+	iBreakdownCulture = iValue - iBeforeCulture;
 
 	const int iBeforeCitiesPerArea = iValue;
 	iValue = adjustToCitiesPerArea(iValue);
@@ -1678,8 +1578,8 @@ int AIFoundValue::evaluate()
 	{
 		const int iBreakdownDirectOther = iBreakdownDirect - iBreakdownHomeWater - iBreakdownRiverBFC;
 		const int iBreakdownModifiers = iValue - iBreakdownPreModifiers;
-		*m_pszBreakdown = CvString::format("base=%d directOther=%d homeWater=%d riverBFC=%d plots=%d bonuses=%d(nonYield=%d,bonusImprovementYields=%d) health=%d featureProduction=%d sea=%d lowFood=%d veryBad=%d preModifiers=%d modifiers=%d(nothingSpecial=%d,homeResource=%d,landBoundary=%d,startingSurroundings=%d,distanceCulture=%d,citiesPerArea=%d,bonusCount=%d,badHealth=%d,goodies=%d,navalHeavy=%d) final=%d",
-				iBreakdownBase, iBreakdownDirectOther, iBreakdownHomeWater, iBreakdownRiverBFC, iBreakdownPlots, iBreakdownResourcesAdded, iBreakdownNonYieldResources, iBreakdownBonusImprovementYields, iBreakdownHealth, iBreakdownFeatureProduction, iBreakdownSea, iBreakdownLowFood, iBreakdownVeryBad, iBreakdownPreModifiers, iBreakdownModifiers, iBreakdownNothingSpecial, iBreakdownHomeResource, iBreakdownLandBoundary, iBreakdownStartingSurroundings, iBreakdownDistanceCulture, iBreakdownCitiesPerArea, iBreakdownBonusCount, iBreakdownBadHealth, iBreakdownGoodies, iBreakdownNavalHeavy, iValue);
+		*m_pszBreakdown = CvString::format("base=%d directOther=%d homeWater=%d riverBFC=%d plots=%d bonuses=%d(nonYield=%d,bonusImprovementYields=%d) health=%d featureProduction=%d sea=%d lowFood=%d veryBad=%d preModifiers=%d modifiers=%d(nothingSpecial=%d,homeResource=%d,landBoundary=%d,startingSurroundings=%d,distance=%d,culture=%d,citiesPerArea=%d,bonusCount=%d,badHealth=%d,goodies=%d,navalHeavy=%d) final=%d",
+				iBreakdownBase, iBreakdownDirectOther, iBreakdownHomeWater, iBreakdownRiverBFC, iBreakdownPlots, iBreakdownResourcesAdded, iBreakdownNonYieldResources, iBreakdownBonusImprovementYields, iBreakdownHealth, iBreakdownFeatureProduction, iBreakdownSea, iBreakdownLowFood, iBreakdownVeryBad, iBreakdownPreModifiers, iBreakdownModifiers, iBreakdownNothingSpecial, iBreakdownHomeResource, iBreakdownLandBoundary, iBreakdownStartingSurroundings, iBreakdownDistance, iBreakdownCulture, iBreakdownCitiesPerArea, iBreakdownBonusCount, iBreakdownBadHealth, iBreakdownGoodies, iBreakdownNavalHeavy, iValue);
 	}
 
 	return iValue;
@@ -2389,7 +2289,7 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
 	// <!-- custom: Keep this array as actual improvement yield changes. The caller now applies simple XML-tunable Food/Production/Commerce values once; the older SAS Food x3 and Production x2 preprocessing here was then weighted again by AdvCiv's evaluateSpecialYields and produced extreme resource scores. (GPT-5.5) -->
 	FOR_EACH_ENUM(Yield)
 	{
-		aiYield[eLoopYield] = p.calculateImprovementYieldChange(eBestImprovement, eLoopYield, ePlayer);
+		aiYield[eLoopYield] = p.calculatePotentialImprovementYieldChange(eBestImprovement, eLoopYield, ePlayer, eBonus);
 
 		// <!-- custom: old AdvCiv stop-gap retained for reference; calculateImprovementYieldChange includes the improvement's normal, bonus, hill/river/irrigation, player, and team yield changes directly. (GPT-5.5) -->
 		// aiYield[eLoopYield] = GC.getInfo(eBestImprovement).getImprovementBonusYield(eBonus, eLoopYield);
@@ -2567,41 +2467,24 @@ int AIFoundValue::removableFeatureYieldVal(FeatureTypes eFeature, bool bRemovabl
 	return iR;
 }
 
+
 /*	An estimate of how much production an improvement might add
 	in the medium term if production is prioritized. Precision: times 100.
 	Note: Any additional production from improving a bonus resource
 	is counted as iSpecialProduction elsewhere. This function ignores
 	bonus resources. */
-scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p, bool bPersistentFeature) const
+scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p) const
 {
-	if (p.isWater())
-	{
-		// Tbd.: Should check for water improvements
-		return 0;
-	}
-	//return (p.isHills() ? 200 : 100);
-	/*  <advc.031> The above is pretty bad: We're not going to build
-		Workshops everywhere, and it doesn't check for Peak or Desert. */
-	FeatureTypes eFeature = p.getFeatureType();
-	// If persistent, then production from feature is already counted above.
-	if (eFeature != NO_FEATURE && !bPersistentFeature)
-	{
-		int iProductionChange = GC.getInfo(eFeature).getYieldChange(YIELD_PRODUCTION);
-		if (iProductionChange > 0)
-		{
-			// 0.5 for chopping or Lumbermill (I shouldn't hardcode it like this ...)
-			return iProductionChange + fixp(0.5);
-		}
-	}
-	if (iCities <= 2)
-	{
-		scaled r;
-		if(p.isHills())
-			r += 2;
-		return r;
-	}
+	scaled rCached;
+	if (kSet.getCachedImprovementProduction(p, rCached))
+		return rCached;
+	FeatureTypes const eFeature = p.getFeatureType();
+	BonusTypes const eBonus = getBonus(p);
+	int aiCurrentYield[NUM_YIELD_TYPES];
+	FOR_EACH_ENUM(Yield)
+		aiCurrentYield[eLoopYield] = p.calculateNatureYield(eLoopYield, eBonus == NO_BONUS ? NO_TEAM : eTeam);
 	scaled r;
-	// <!-- custom: Owning one existing improvement is not evidence that the player can build it, and a newly unlocked improvement has no existing copy yet. Scan matching Builds for current technology and plot legality instead; this also handles feature-removal prerequisites without using empire state as a capability proxy. See KI#504. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Owning one existing improvement is not evidence that the player can build it, and a newly unlocked improvement has no existing copy yet. Compare each currently legal Build's resulting XML yields with the unimproved plot; this handles feature removal, water improvements and unusual terrain/feature rules without assuming that every early Hill supplies two future hammers or that a productive feature implies a fixed Lumbermill/chop result. One-time feature-removal production remains valued separately. See KI#504. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	FOR_EACH_ENUM(Build)
 	{
 		CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
@@ -2619,31 +2502,184 @@ scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p, bool bPersis
 		}
 		if (!p.canHaveImprovement(eLoopImprovement, eTeam, false, eLoopBuild, false))
 			continue;
+		bool const bRemoveFeature = (eFeature != NO_FEATURE && kLoopBuild.isFeatureRemove(eFeature));
 		CvImprovementInfo const& kLoopImprovement = GC.getInfo(eLoopImprovement);
-		int iYieldChange = kLoopImprovement.getYieldChange(YIELD_PRODUCTION) +
-				kTeam.getImprovementYieldChange(eLoopImprovement, YIELD_PRODUCTION);
-		// Will be less inclined to build improvement if it hurts other yields
+		int aiResultYield[NUM_YIELD_TYPES];
 		FOR_EACH_ENUM(Yield)
 		{
-			if (eLoopYield == YIELD_PRODUCTION)
-				continue;
-			int iOtherYield = kLoopImprovement.getYieldChange(eLoopYield);
-			if (iOtherYield < 0)
-				iYieldChange += iOtherYield;
+			aiResultYield[eLoopYield] = p.calculateNatureYield(eLoopYield, eBonus == NO_BONUS ? NO_TEAM : eTeam, bRemoveFeature) + p.calculatePotentialImprovementYieldChange(eLoopImprovement, eLoopYield, ePlayer, eBonus);
+			if (eBonus != NO_BONUS)
+				aiResultYield[eLoopYield] -= kLoopImprovement.getImprovementBonusYield(eBonus, eLoopYield);
 		}
-		/*  I'm not bothering with civics and routes here. It's OK to undercount
-			b/c more production is needed by the time railroads become available.
-			A Workshop may also remove a Forest; in that case, we're overcounting. */
+		int iYieldChange = aiResultYield[YIELD_PRODUCTION] - aiCurrentYield[YIELD_PRODUCTION];
+		FOR_EACH_ENUM(Yield)
+		{
+			if (eLoopYield != YIELD_PRODUCTION)
+				iYieldChange += std::min(0, aiResultYield[eLoopYield] - aiCurrentYield[eLoopYield]);
+		}
 		if (iYieldChange <= 0)
 			continue;
-		FAssertMsg(iYieldChange <= 3, "is this much production possible?");
 		r.increaseTo(iYieldChange);
 	}
+	kSet.cacheImprovementProduction(p, r);
 	return r; // </advc.031>
 }
 
 
-int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p, bool bCanNeverImprove) const
+// <!-- custom: Score the strongest plausible worked-tile outcome by enumerating Build/Improvement XML instead of naming Farm, Mine, Cottage, terrain or features.
+// Immediate improvement yields receive two-thirds weight and the final XML upgrade one-third, so growth chains matter without treating a new first-stage improvement as fully mature. Builds available now retain full value, near-researchable Builds retain 75%, and later Builds retain 50% of their gain over the unimproved plot; this lets sites retain long-term potential without allowing late infrastructure to erase early terrain differences. (GPT-5.6-Sol) -->
+int AIFoundValue::evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNeverImprove, ImprovementTypes& eBestImprovement, int* aiBestYield, int& iTimingPercent) const
+{
+	bool const bLogCandidates = (gFoundLogLevel >= 2 && AIFoundValue::isLoggingEnabled());
+	bool const bLogCandidateDetails = (gFoundLogLevel >= 3 && AIFoundValue::isLoggingEnabled());
+	int iCachedValue = 0;
+	if (!bLogCandidates && kSet.getCachedPlotPotentialYield(p, iCachedValue, eBestImprovement, aiBestYield, iTimingPercent))
+		return iCachedValue;
+	eBestImprovement = NO_IMPROVEMENT;
+	iTimingPercent = 0;
+	int const iExtraYield = GC.getDefineINT(CvGlobals::EXTRA_YIELD);
+	int aiUnimprovedYield[NUM_YIELD_TYPES];
+	FOR_EACH_ENUM(Yield)
+	{
+		aiUnimprovedYield[eLoopYield] = p.calculateNatureYield(eLoopYield, NO_TEAM);
+		if (!kSet.isStartingLoc())
+		{
+			int const iExtraYieldThreshold = kPlayer.getExtraYieldThreshold(eLoopYield);
+			if (iExtraYieldThreshold > 0 && aiUnimprovedYield[eLoopYield] >= iExtraYieldThreshold)
+				aiUnimprovedYield[eLoopYield] += iExtraYield;
+			int const iNaturalThreshold = kPlayer.getExtraYieldNaturalThreshold(eLoopYield);
+			if (iNaturalThreshold > 0 && aiUnimprovedYield[eLoopYield] + 1 >= iNaturalThreshold)
+				aiUnimprovedYield[eLoopYield] += iExtraYield;
+		}
+		aiBestYield[eLoopYield] = aiUnimprovedYield[eLoopYield];
+	}
+	int const iUnimprovedValue = evaluateYield(aiUnimprovedYield, &p, bCanNeverImprove, false);
+	int iBestValue = iUnimprovedValue;
+	FeatureTypes const eFeature = p.getFeatureType();
+	// <!-- custom: Found level 2 records the three strongest legal Build outcomes for each inspected plot. Level 3 expands those same three with immediate/final yields and feature-removal state, enough to distinguish XML, maturation and timing effects without logging every rejected Build. (GPT-5.6-Sol) -->
+	BuildTypes aeTopBuild[3] = {NO_BUILD, NO_BUILD, NO_BUILD};
+	int aiTopBuildValue[3] = {MIN_INT, MIN_INT, MIN_INT};
+	int aiTopBuildTimingPercent[3] = {0, 0, 0};
+	int aiTopBuildImmediateValue[3] = {0, 0, 0};
+	int aiTopBuildFinalValue[3] = {0, 0, 0};
+	int aiTopBuildMaturedValue[3] = {0, 0, 0};
+	bool abTopBuildRemovesFeature[3] = {false, false, false};
+	int aaiTopBuildImmediateYield[3][NUM_YIELD_TYPES] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+	int aaiTopBuildFinalYield[3][NUM_YIELD_TYPES] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+	int iCandidateCount = 0;
+	FOR_EACH_ENUM(Build)
+	{
+		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
+		ImprovementTypes const eImprovement = kBuild.getImprovement();
+		if (eImprovement == NO_IMPROVEMENT || GC.getInfo(eImprovement).isActsAsCity() || !p.canHaveImprovement(eImprovement, eTeam, true, eLoopBuild, false))
+			continue;
+
+		bool const bRemoveFeature = (eFeature != NO_FEATURE && kBuild.isFeatureRemove(eFeature));
+		ImprovementTypes const eFinalImprovement = CvImprovementInfo::finalUpgrade(eImprovement);
+		int aaiStageYield[2][NUM_YIELD_TYPES];
+		int aiPotentialNatureYield[NUM_YIELD_TYPES];
+		FOR_EACH_ENUM(Yield)
+		{
+			int const iNatureYield = p.calculateNatureYield(eLoopYield, NO_TEAM, bRemoveFeature);
+			aiPotentialNatureYield[eLoopYield] = iNatureYield;
+			aaiStageYield[0][eLoopYield] = iNatureYield + p.calculatePotentialImprovementYieldChange(eImprovement, eLoopYield, ePlayer, NO_BONUS);
+			aaiStageYield[1][eLoopYield] = iNatureYield + p.calculatePotentialImprovementYieldChange(eFinalImprovement == NO_IMPROVEMENT ? eImprovement : eFinalImprovement, eLoopYield, ePlayer, NO_BONUS);
+		}
+		if (!kSet.isStartingLoc())
+		{
+			for (int iStage = 0; iStage < 2; ++iStage)
+			{
+				FOR_EACH_ENUM(Yield)
+				{
+					int const iExtraYieldThreshold = kPlayer.getExtraYieldThreshold(eLoopYield);
+					if (iExtraYieldThreshold > 0 && aaiStageYield[iStage][eLoopYield] >= iExtraYieldThreshold)
+						aaiStageYield[iStage][eLoopYield] += iExtraYield;
+					int const iNaturalThreshold = kPlayer.getExtraYieldNaturalThreshold(eLoopYield);
+					if (iNaturalThreshold > 0 && aiPotentialNatureYield[eLoopYield] + 1 >= iNaturalThreshold)
+						aaiStageYield[iStage][eLoopYield] += iExtraYield;
+				}
+			}
+		}
+		int const iImmediateValue = evaluateYield(aaiStageYield[0], &p, false, false);
+		int const iFinalValue = evaluateYield(aaiStageYield[1], &p, false, false);
+		int const iMaturedValue = (2 * iImmediateValue + iFinalValue) / 3;
+		TechTypes const eBuildTech = kBuild.getTechPrereq();
+		TechTypes const eFeatureTech = (eFeature == NO_FEATURE ? NO_TECH : kBuild.getFeatureTech(eFeature));
+		bool const bAvailableNow = ((eBuildTech == NO_TECH || kTeam.isHasTech(eBuildTech)) && (eFeatureTech == NO_TECH || kTeam.isHasTech(eFeatureTech)));
+		bool const bAvailableSoon = (isNearTech(eBuildTech) && isNearTech(eFeatureTech));
+		int const iCandidateTimingPercent = (bAvailableNow ? 100 : (bAvailableSoon ? 75 : 50));
+		int const iCandidateValue = iUnimprovedValue + ((iMaturedValue - iUnimprovedValue) * iCandidateTimingPercent) / 100;
+		if (bLogCandidates)
+		{
+			++iCandidateCount;
+			for (int iRank = 0; iRank < 3; ++iRank)
+			{
+				if (iCandidateValue <= aiTopBuildValue[iRank])
+					continue;
+				for (int iShift = 2; iShift > iRank; --iShift)
+				{
+					aeTopBuild[iShift] = aeTopBuild[iShift - 1];
+					aiTopBuildValue[iShift] = aiTopBuildValue[iShift - 1];
+					aiTopBuildTimingPercent[iShift] = aiTopBuildTimingPercent[iShift - 1];
+					aiTopBuildImmediateValue[iShift] = aiTopBuildImmediateValue[iShift - 1];
+					aiTopBuildFinalValue[iShift] = aiTopBuildFinalValue[iShift - 1];
+					aiTopBuildMaturedValue[iShift] = aiTopBuildMaturedValue[iShift - 1];
+					abTopBuildRemovesFeature[iShift] = abTopBuildRemovesFeature[iShift - 1];
+					FOR_EACH_ENUM(Yield)
+					{
+						aaiTopBuildImmediateYield[iShift][eLoopYield] = aaiTopBuildImmediateYield[iShift - 1][eLoopYield];
+						aaiTopBuildFinalYield[iShift][eLoopYield] = aaiTopBuildFinalYield[iShift - 1][eLoopYield];
+					}
+				}
+				aeTopBuild[iRank] = eLoopBuild;
+				aiTopBuildValue[iRank] = iCandidateValue;
+				aiTopBuildTimingPercent[iRank] = iCandidateTimingPercent;
+				aiTopBuildImmediateValue[iRank] = iImmediateValue;
+				aiTopBuildFinalValue[iRank] = iFinalValue;
+				aiTopBuildMaturedValue[iRank] = iMaturedValue;
+				abTopBuildRemovesFeature[iRank] = bRemoveFeature;
+				FOR_EACH_ENUM(Yield)
+				{
+					aaiTopBuildImmediateYield[iRank][eLoopYield] = aaiStageYield[0][eLoopYield];
+					aaiTopBuildFinalYield[iRank][eLoopYield] = aaiStageYield[1][eLoopYield];
+				}
+				break;
+			}
+		}
+		if (iCandidateValue <= iBestValue)
+			continue;
+		iBestValue = iCandidateValue;
+		eBestImprovement = eImprovement;
+		iTimingPercent = iCandidateTimingPercent;
+		FOR_EACH_ENUM(Yield)
+			aiBestYield[eLoopYield] = (2 * aaiStageYield[0][eLoopYield] + aaiStageYield[1][eLoopYield]) / 3;
+	}
+	if (bLogCandidates) logBBAI("PLOT_POTENTIAL_CANDIDATES plot=%d,%d home=%d unimproved=%d candidates=%d best=%S/%d/%d%% second=%S/%d/%d%% third=%S/%d/%d%%",
+		p.getX(), p.getY(), isHome(p), iUnimprovedValue, iCandidateCount,
+		(aeTopBuild[0] == NO_BUILD ? L"-" : GC.getInfo(aeTopBuild[0]).getDescription()), (aeTopBuild[0] == NO_BUILD ? 0 : aiTopBuildValue[0]), aiTopBuildTimingPercent[0],
+		(aeTopBuild[1] == NO_BUILD ? L"-" : GC.getInfo(aeTopBuild[1]).getDescription()), (aeTopBuild[1] == NO_BUILD ? 0 : aiTopBuildValue[1]), aiTopBuildTimingPercent[1],
+		(aeTopBuild[2] == NO_BUILD ? L"-" : GC.getInfo(aeTopBuild[2]).getDescription()), (aeTopBuild[2] == NO_BUILD ? 0 : aiTopBuildValue[2]), aiTopBuildTimingPercent[2]);
+	if (bLogCandidateDetails)
+	{
+		for (int iRank = 0; iRank < 3 && aeTopBuild[iRank] != NO_BUILD; ++iRank)
+		{
+			ImprovementTypes const eImprovement = GC.getInfo(aeTopBuild[iRank]).getImprovement();
+			ImprovementTypes const eFinalImprovement = CvImprovementInfo::finalUpgrade(eImprovement);
+			logBBAI("PLOT_POTENTIAL_CANDIDATE_DETAIL plot=%d,%d home=%d rank=%d build=%S improvement=%S final=%S removeFeature=%d timing=%d%% immediate=%dF%dP%dC/%d finalYields=%dF%dP%dC/%d matured=%d candidate=%d",
+				p.getX(), p.getY(), isHome(p), iRank + 1, GC.getInfo(aeTopBuild[iRank]).getDescription(), GC.getInfo(eImprovement).getDescription(),
+				(eFinalImprovement == NO_IMPROVEMENT ? GC.getInfo(eImprovement).getDescription() : GC.getInfo(eFinalImprovement).getDescription()),
+				abTopBuildRemovesFeature[iRank], aiTopBuildTimingPercent[iRank],
+				aaiTopBuildImmediateYield[iRank][YIELD_FOOD], aaiTopBuildImmediateYield[iRank][YIELD_PRODUCTION], aaiTopBuildImmediateYield[iRank][YIELD_COMMERCE], aiTopBuildImmediateValue[iRank],
+				aaiTopBuildFinalYield[iRank][YIELD_FOOD], aaiTopBuildFinalYield[iRank][YIELD_PRODUCTION], aaiTopBuildFinalYield[iRank][YIELD_COMMERCE], aiTopBuildFinalValue[iRank], aiTopBuildMaturedValue[iRank], aiTopBuildValue[iRank]);
+		}
+	}
+	if (!bLogCandidates)
+		kSet.cachePlotPotentialYield(p, iBestValue, eBestImprovement, aiBestYield, iTimingPercent);
+	return iBestValue;
+}
+
+
+int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p, bool bCanNeverImprove, bool bTreatHomeAsCity) const
 {
 	int r = 0;
 	static const int iDefaultFoodValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_DEFAULT_FOOD_VALUE");
@@ -2655,11 +2691,11 @@ int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p, bool bCanNe
 	static const int iOneFoodShortFoodValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_ONE_FOOD_SHORT_FOOD_VALUE");
 	static const int iOneFoodShortProductionValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_ONE_FOOD_SHORT_PRODUCTION_VALUE");
 	static const int iOneFoodShortCommerceValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_ONE_FOOD_SHORT_COMMERCE_VALUE");
-	// <!-- custom: Externalize AdvCiv's nature-yield weights so Food/Production/Commerce priorities can be tuned without recompiling. Nature yield applies to every plot and includes terrain, retained feature, and revealed bonus-intrinsic XML yield, but not the separate improvement yield valued by SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_*. (GPT-5.5) -->
+	// <!-- custom: Externalize AdvCiv's plot-yield weights so Food/Production/Commerce priorities can be tuned without recompiling. Natural yields and ordinary improvement outcomes use these weights; resource-improvement yield remains separately valued by SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_*. (GPT-5.5 + GPT-5.6-Sol) -->
 	int aiWeight[NUM_YIELD_TYPES] = {iDefaultFoodValue, iDefaultProductionValue, iDefaultCommerceValue};
 	// (note: these numbers have been adjusted for K-Mod)
 	if (p != NULL && !p->isWater() && // advc.031: Exclude seafood
-		(isHome(*p) || aiYield[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION())) 
+		((bTreatHomeAsCity && isHome(*p)) || aiYield[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION()))
 	{
 		r += 10;
 		aiWeight[YIELD_FOOD] = iSelfSustainingFoodValue;
@@ -3255,6 +3291,29 @@ int AIFoundValue::sumUpPlotValues(std::vector<int>& aiPlotValues) const
 	std::sort(aiPlotValues.begin(), aiPlotValues.end(), std::greater<int>());
 	// CITY_HOME_PLOT should have 0 value here, others could have negative values.
 	FAssert(aiPlotValues[NUM_CITY_PLOTS - 1] <= 0);
+	if (gFoundLogLevel >= 3 && AIFoundValue::isLoggingEnabled())
+	{
+		int iBest6Sum = 0;
+		int iBest10Sum = 0;
+		int iBest14Sum = 0;
+		int iPositivePlots = 0;
+		FOR_EACH_ENUM(CityPlot)
+		{
+			int const iPlotValue = aiPlotValues[eLoopCityPlot];
+			if (iPlotValue <= 0)
+				break;
+			iPositivePlots++;
+			if (eLoopCityPlot < 6)
+				iBest6Sum += iPlotValue;
+			if (eLoopCityPlot < 10)
+				iBest10Sum += iPlotValue;
+			if (eLoopCityPlot < 14)
+				iBest14Sum += iPlotValue;
+		}
+		// <!-- custom: The final weighted total distinguishes stronger plots implicitly, but these unweighted core sums expose the site's practical growth curve. A city works few plots through much of the game, so six strong early plots, ten developed-city plots or fourteen mature-city plots with weak outskirts can be more useful than twenty uniformly average plots; e.g. a fertile river core beside desert can outperform a broad tundra/plains BFC long before either city works every tile. Log all three core sizes, their cutoff values and the positive-plot count to diagnose first-city scouting without changing site valuation. (GPT-5.6-Sol) -->
+		logBBAI("BFC_VALUE_DISTRIBUTION best6Sum=%d best10Sum=%d best14Sum=%d positivePlots=%d sixth=%d tenth=%d fourteenth=%d",
+			iBest6Sum, iBest10Sum, iBest14Sum, iPositivePlots, aiPlotValues[5], aiPlotValues[9], aiPlotValues[13]);
+	}
 	double dMaxMultPercent = 153;
 	double dMinMultPercent = 47;
 	if (iCities <= 0) // Capital will grow large

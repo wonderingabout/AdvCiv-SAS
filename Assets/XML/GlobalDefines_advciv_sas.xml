@@ -1029,68 +1029,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 
 
 
-	<!-- custom: Long_Comments_XML.txt #204 -->
-	<!-- custom: don't settle here, unless locally extremely good otherwise, made it even lower as some AIs still didn't listen -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_HOME_FLOOD_PLAINS</DefineName>
-		<iDefineIntVal>-150</iDefineIntVal>
-	</Define>
-	<!-- custom: if not floodplains (note: as of now we can't settle on oasis so not accounted for in code), consider adding it there if you want to allow it in your modmod and then put a knob/tunable here, not done in advciv-sas as we don't need it -->
-	<!-- custom: then if not floodplains -->
-	<!-- custom: still good as is low-food, although not as good as settling on hill plains ideally -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_DESERT</DefineName>
-		<iDefineIntVal>50</iDefineIntVal>
-	</Define>
-	<!-- custom: locally optimal if we can, but don't devalue otherwise nice tile -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_DESERT</DefineName>
-		<iDefineIntVal>50</iDefineIntVal>
-	</Define>
-	<!-- custom: even more valuable than flatland grass, the hammer yield for low food cost is extremely good, early and even later in game too still quite good, absolutely avoid settling on this unless really the best locally otherwise -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_GRASS</DefineName>
-		<iDefineIntVal>-75</iDefineIntVal>
-	</Define>
-	<!-- custom: very valuable, better avoid settling on this plot if we can unless otherwise the best or very good locally -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_GRASS</DefineName>
-		<iDefineIntVal>-50</iDefineIntVal>
-	</Define>
-	<!-- custom: extremely good, we remove a low-food tile and get a free extra hammer, plus defensive bonus, ideal starting plot when it comes to terrain; one minus than fresh water, would be as good otherwise; now trying a higher value as some cities still did't listen before it, not too high as 10 plains + settle on hill plains is not better than 10 grass + settle on grass -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_PLAINS</DefineName>
-		<iDefineIntVal>250</iDefineIntVal>
-	</Define>
-	<!-- custom: still quite good, we remove a bad low food tile after all, but not too good to overlook otherwise good local other plot concurrents -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_PLAINS</DefineName>
-		<iDefineIntVal>50</iDefineIntVal>
-	</Define>
-	<!-- custom: quite good similarly, just not as good as say hill plains but very good otherwise as a starter -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_TUNDRA</DefineName>
-		<iDefineIntVal>50</iDefineIntVal>
-	</Define>
-	<!-- custom: still good, especially in low food environments where every food yield counts, and maybe there is grass near us to not settle on or similar -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_TUNDRA</DefineName>
-		<iDefineIntVal>25</iDefineIntVal>
-	</Define>
-	<!-- custom: note: snow is ice sheet (i.e. ice (terrain)) -->
-	<!-- custom: quite good similarly, just not as good as say hill plains but very good otherwise as a starter -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_SNOW</DefineName>
-		<iDefineIntVal>50</iDefineIntVal>
-	</Define>
-	<!-- custom: same as desert, low food tile, try hard to settle on it rather unless extremely good otherwise to do else -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_SNOW</DefineName>
-		<iDefineIntVal>50</iDefineIntVal>
-	</Define>
-
-
-
 	<!-- custom: AI still often / quite often ignores water bonus in range and settles as a non-coastal city rather, so try to enforce or strengthen this bonus, especially considering water bonuses are often if not entirely food yield related in advciv-sas -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_HOME_WATER_BONUS_NO_COAST</DefineName>
@@ -1162,7 +1100,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_SPECIAL_BUILDING_HAPPY_HEALTH_MAX_VALUE</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
-	<!-- custom: Base AdvCiv weights now tunable: every plot starts with its natural XML yields: terrain, retained feature, and any revealed bonus's intrinsic yield, but not improvement yield handled by SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_*. The code then selects exactly one value set: SELF_SUSTAINING, ONE_FOOD_SHORT, or DEFAULT. (GPT-5.5) -->
+	<!-- custom: Shared found-value yield weights. Natural terrain, retained feature, and revealed bonus yields use them directly; ordinary non-resource plots now also enumerate XML-valid improvements and use these same weights for the best timing-discounted outcome, while resource-improvement yield remains handled by SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_*. The code selects exactly one value set: SELF_SUSTAINING, ONE_FOOD_SHORT, or DEFAULT. (GPT-5.5 + GPT-5.6-Sol) -->
 	<!-- custom: SELF_SUSTAINING applies to a land home plot or land plot with at least the 2 Food consumed by one citizen. E.g. 2F1P contributes the fixed 10-point self-sustaining bonus + 2 * 40 + 1 * 30 = 120 before other plot adjustments. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_FOOD_VALUE</DefineName>
@@ -1231,77 +1169,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_EVALUATE_UNOWNED_BONUS_EXTRA_VALUE</DefineName>
 		<iDefineIntVal>250</iDefineIntVal>
 	</Define>
-
-
-
-	<!-- custom: non-bonus non-home tiles (note: home plot/tile is the tile where we will settle on if we choose this site -->
-	<!-- custom: Long_Comments_XML.txt #159 -->
-	<!-- custom: high food and great cottage candidate, very strong -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLOOD_PLAINS</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
-	</Define>
-	<!-- custom: can't grow as much as flood plains with a cottage as it cannot be improved, but we have no health penalty, and we get the extra commerce yield immediately, plus it provides fresh water as well. I assume (hope) fresh water code is handled elsewhere that supports oasis too hopefully, but even if not and in all cases, maybe this valorization can help. -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_OASIS</DefineName>
-		<iDefineIntVal>90</iDefineIntVal>
-	</Define>
-	<!-- custom: then if not flood plains nor oasis -->
-	<!-- custom: low food but at least we can mine it, avoid but not like flatland desert, defensive bonus is locally not too bad maybe as well if someone invades us (but harder to attack them there as well so so so) -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_DESERT</DefineName>
-		<iDefineIntVal>-25</iDefineIntVal>
-	</Define>
-	<!-- custom: low food and cannot be improve, strongly avoid -->
-	<!-- custom: note: now handled by the verybadtiles code rather as we handle the tolerance for a certain number of tiles and other such things like ice cap, peak that may not possibly be accounted for in the loop that handles this, so handled there rather directly, so left as 0 here instead as of now -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_DESERT</DefineName>
-		<iDefineIntVal>0</iDefineIntVal>
-	</Define>
-	<!-- custom: very good, low food cost high hammer, a tile we'd want to mine very early for high yields even in stone age, very high value tile to have in city radius; even if it's not as strong late game, most cities are settled early/mid-game so this gives a significant advantage for minimal food cost so value it -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_GRASS</DefineName>
-		<iDefineIntVal>80</iDefineIntVal>
-	</Define>
-	<!-- custom: very valuable for flatland as well, a great tile to start near in our city radius, slightly worse than floodplains, but since it doesn't have health penalty maybe we can count it as about the same; it can also be irrigated and be a very nice food source especially late game. -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_GRASS</DefineName>
-		<iDefineIntVal>65</iDefineIntVal>
-	</Define>
-	<!-- custom: quite good tile with hammer yield but food is really too low, value but not a lot, we want to grow most after all, but this is not too bad either -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_PLAINS</DefineName>
-		<iDefineIntVal>15</iDefineIntVal>
-	</Define>
-	<!-- custom: low-food, has a base hammer though, but we'd need to irrigate it to get the equivalent of a grass tile, and if we cottage it it drains our food growth. This is quite good later in the game with workshops that don't cost food or such, but assume it to be bad as a general rule as most game and cities are settled early anyway -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_PLAINS</DefineName>
-		<iDefineIntVal>-20</iDefineIntVal>
-	</Define>
-	<!-- custom: worse than plains hill yield for same low-food food, this is really bad, especially in a tundra environment where food is scarce already, but if needed the hammer yield is not too bad -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_TUNDRA</DefineName>
-		<iDefineIntVal>-30</iDefineIntVal>
-	</Define>
-	<!-- custom: not too bad with as of now the tundra base commerce yield buff we added, still weaker than a base hammer of the plains, avoid more than flatland plains -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_TUNDRA</DefineName>
-		<iDefineIntVal>-25</iDefineIntVal>
-	</Define>
-	<!-- custom: note: snow is ice sheet (i.e. ice (terrain)) -->
-	<!-- custom: same as tundra hill, this is really not great, and i am not sure the less base commerce yield makes too much of a difference. We could mine it though maybe or some other improvements maybe too although i didn't check, but it would be costly in food, so not a great choice to have in our city radius (great to settle on though otherwise but is not handled here, as we are in the non-home-plot code) -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_SNOW</DefineName>
-		<iDefineIntVal>-35</iDefineIntVal>
-	</Define>
-	<!-- custom: low-food same as desert, i am not sure we can do anything with this in our city radius, maybe find a way to buff in our mod somehow, but for now if not always or not, this is really low value tile to have in our city radius, better avoid -->
-	<!-- custom: same as flatland desert for this very bad tile -->
-	<Define>
-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_SNOW</DefineName>
-		<iDefineIntVal>0</iDefineIntVal>
-	</Define>
-	<!-- custom: water tiles are considered neutral as of now, ideally we would penalize 0 food ones but left as such for now -->
-	<!-- custom: note: peak, ice cap are handled in very bad tiles similarly to desert and snow, plus they may not be in the part of the loop where we use this define so maybe best as such -->
 
 
 
@@ -1677,7 +1544,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_BBAI_SETTLER_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Base AdvCiv LOG_FOUND_VALUE default: when enabled: 1; when disabled: 0. (GPT-5.5?) -->
+	<!-- custom: Detailed city-site scoring calculations, separate from Settler-unit movement/security diagnostics. Level 1 logs the selected site plus next-best and adjacent alternatives with verbose plot/component calculations; level 2 also logs their compact stage breakdowns and the top three XML-valid improvement outcomes per ordinary plot; level 3 expands those three with immediate/final yields, feature removal, maturation and timing details. Level 3 is the highest implemented level. Base AdvCiv LOG_FOUND_VALUE default: when enabled: 1; when disabled: 0. (GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_BBAI_FOUND_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
