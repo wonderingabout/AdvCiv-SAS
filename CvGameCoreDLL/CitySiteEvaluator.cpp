@@ -87,6 +87,7 @@ CitySiteEvaluator::CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRan
 	m_bEasyCulture = (kPlayer.getNumCities() <= 0 || // advc.108: from MNAI (was =bStartingLoc)
 			m_bAdvancedStart); // advc.031
 	m_bAllSeeing = (bStartingLoc || bNormalize || kPlayer.isBarbarian());
+	m_bDiagnosticOmniscience = false;
 	// advc.031e: No longer use StartingLoc logic for normalization
 	FAssert(!bNormalize || !bStartingLoc);
 
@@ -226,6 +227,15 @@ int CitySiteEvaluator::evaluate(int iX, int iY) const
 int CitySiteEvaluator::evaluateWithBreakdown(CvPlot const& kPlot, CvString& szBreakdown) const
 {
 	AIFoundValue foundVal(kPlot, *this, &szBreakdown);
+	return foundVal.get();
+}
+
+
+int CitySiteEvaluator::evaluateWithBest6PlotValue(CvPlot const& kPlot, int& iBest6PlotValue, int& iSustainableProductivePlotValue) const
+{
+	iBest6PlotValue = 0;
+	iSustainableProductivePlotValue = 0;
+	AIFoundValue foundVal(kPlot, *this, NULL, true, &iBest6PlotValue, &iSustainableProductivePlotValue);
 	return foundVal.get();
 }
 
@@ -496,7 +506,7 @@ void AIFoundValue::setLoggingEnabled(bool b)
 } // </advc.031c>
 
 // <!-- custom: Keep ordinary callers evaluating immediately, while allowing SPI's separate workable-plot precomputation to skip the unused full result. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-AIFoundValue::AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown, bool bEvaluateSite) : m_iResult(0), m_pszBreakdown(pszBreakdown), kPlot(kPlot), kArea(kPlot.getArea()), kSet(kSettings), kPlayer(kSet.getPlayer()), ePlayer(kPlayer.getID()), eTeam(kPlayer.getTeam()), kTeam(GET_TEAM(eTeam)), kGame(GC.getGame()), iX(kPlot.getX()), iY(kPlot.getY())
+AIFoundValue::AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown, bool bEvaluateSite, int* piBest6PlotValue, int* piSustainableProductivePlotValue) : m_iResult(0), m_pszBreakdown(pszBreakdown), m_piBest6PlotValue(piBest6PlotValue), m_piSustainableProductivePlotValue(piSustainableProductivePlotValue), kPlot(kPlot), kArea(kPlot.getArea()), kSet(kSettings), kPlayer(kSet.getPlayer()), ePlayer(kPlayer.getID()), eTeam(kPlayer.getTeam()), kTeam(GET_TEAM(eTeam)), kGame(GC.getGame()), iX(kPlot.getX()), iY(kPlot.getY())
 {
 	PROFILE_FUNC();
 	if (!kPlayer.canFound(kPlot, false,
@@ -1150,8 +1160,18 @@ int AIFoundValue::evaluate()
 
 	if (m_pszBreakdown != NULL)
 		iBreakdownDirect = iValue - iBreakdownBase;
-	iBreakdownPlots = sumUpPlotValues(aiPlotValues, (m_pszBreakdown == NULL ? NULL : aiBreakdownPlotCoreSums),
-		(m_pszBreakdown == NULL ? NULL : aiBreakdownPlotCoreCutoffs), (m_pszBreakdown == NULL ? NULL : &iBreakdownPositivePlots));
+	bool const bNeedPlotDistribution = (m_pszBreakdown != NULL || m_piBest6PlotValue != NULL);
+	iBreakdownPlots = sumUpPlotValues(aiPlotValues, (bNeedPlotDistribution ? aiBreakdownPlotCoreSums : NULL),
+		(bNeedPlotDistribution ? aiBreakdownPlotCoreCutoffs : NULL), (bNeedPlotDistribution ? &iBreakdownPositivePlots : NULL));
+	if (m_piBest6PlotValue != NULL)
+		*m_piBest6PlotValue = aiBreakdownPlotCoreSums[0];
+	if (m_piSustainableProductivePlotValue != NULL)
+	{
+		int aiReferenceYield[NUM_YIELD_TYPES] = {0, 0, 0};
+		aiReferenceYield[YIELD_FOOD] = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+		aiReferenceYield[YIELD_PRODUCTION] = 1;
+		*m_piSustainableProductivePlotValue = evaluateYield(aiReferenceYield, &kPlot, false, false);
+	}
 	iValue += iBreakdownPlots;
 	// A sensible order (CITY_HOME_PLOT first) isn't guaranteed anymore, hence:
 	aiPlotValues.clear();
@@ -1298,7 +1318,7 @@ int AIFoundValue::evaluate()
 	iBreakdownNothingSpecial = iValue - iBeforeNothingSpecial;
 	/*  advc.108: Obsoletion check added. Probably better not to let players start on a hidden resource; i.e. don't check this->getBonus(kPlot) != NO_BONUS. */
 	const int iBeforeHomeResource = iValue;
-	if (kPlot.getNonObsoleteBonusType(eTeam) != NO_BONUS)
+	if ((kSet.isDiagnosticOmniscience() ? kPlot.getBonusType() : kPlot.getNonObsoleteBonusType(eTeam)) != NO_BONUS)
 	{
 		int iModifier = 100;
 		if (kSet.isStartingLoc())
@@ -1321,7 +1341,7 @@ int AIFoundValue::evaluate()
 	static const bool bRuntimeStartingSurroundings = GC.getDefineBOOL("SAS_AI_FOUND_FIRST_CITY_RUNTIME_STARTING_SURROUNDINGS_ADJUSTMENT_ENABLE");
 	// <!-- custom: adjustToStartingSurroundings uses range-6 terrain and every assigned starting plot to spread civilizations during all-seeing map generation/normalization, so isAllSeeing keeps that use enabled.
 	// Once play begins, the live first settler should choose its best revealed site even if that moves nearer to or farther from a neighbor; only the opt-in SAS define restores this modifier at runtime. In the Berlin test (save file 442), (33,13) led (35,11) by 4569 to 3934 beforehand, but its -1482 adjustment reversed the choice. See KI#173. (GPT-5.5) -->
-	if ((kSet.isStartingLoc() || /* advc.031e: */ kSet.isNormalizing()) && (kSet.isAllSeeing() || bRuntimeStartingSurroundings))
+	if ((kSet.isStartingLoc() || /* advc.031e: */ kSet.isNormalizing()) && ((kSet.isAllSeeing() && !kSet.isDiagnosticOmniscience()) || bRuntimeStartingSurroundings))
 	{	// <advc.027
 		if (kSet.isIgnoreStartingSurroundings())
 			iValue = adjustToStartingChoices(iValue);
@@ -2191,6 +2211,8 @@ BonusTypes AIFoundValue::getBonus(CvPlot const& p) const
 	BonusTypes const eBonus = p.getBonusType();
 	if (eBonus == NO_BONUS)
 		return NO_BONUS;
+	if (kSet.isDiagnosticOmniscience())
+		return eBonus;
 	// <advc.108>
 	if (kSet.isStartingLoc() /* advc.031e: */ || kSet.isNormalizing())
 	{

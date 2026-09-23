@@ -23,6 +23,8 @@ public:
 	int evaluate(int iX, int iY) const;
 	// <!-- custom: Opt-in diagnostic entry point: return the same found value while filling an exact stage-by-stage summary. Callers guard its use behind logging so normal city-site evaluation does no string formatting. (GPT-5.5) -->
 	int evaluateWithBreakdown(CvPlot const& kPlot, CvString& szBreakdown) const;
+	// <!-- custom: First-city roaming can distinguish a genuinely weak site from a food-imperfect site with six strong early workable plots. Compute that narrow decision metric without formatting the diagnostic breakdown. (GPT-5-Codex) -->
+	int evaluateWithBest6PlotValue(CvPlot const& kPlot, int& iBest6PlotValue, int& iSustainableProductivePlotValue) const;
 	int evaluateWithLogging(CvPlot const& kPlot) const; // advc.031c
 	scaled evaluateWorkablePlot(CvPlot const& kPlot) const; // advc.027
 	CvPlayerAI const& getPlayer() const { return m_kPlayer; }
@@ -52,6 +54,9 @@ public:
 	bool isAllSeeing() const { return m_bAllSeeing; }
 	// <!-- custom: First-settler roaming needs starting-capital weights without map-generation omniscience. (GPT-5.5) -->
 	void setAllSeeing(bool b) { m_bAllSeeing = b; }
+	// <!-- custom: Level-3 diagnostics can compare the player's actual information with the true map, including technology-hidden bonuses that ordinary starting-location all-seeing intentionally still conceals. This mode is diagnostic only and must not feed AI choices. (GPT-5-Codex) -->
+	void setDiagnosticOmniscience(bool b) { m_bDiagnosticOmniscience = b; if (b) m_bAllSeeing = true; }
+	bool isDiagnosticOmniscience() const { return m_bDiagnosticOmniscience; }
 	// some trait information that will influence where we settle ...
 	// easy for us to pop the culture to the 2nd border
 	bool isEasyCulture() const { return m_bEasyCulture; }
@@ -96,6 +101,7 @@ private:
 	bool m_bAdvancedStart; // advc
 	bool m_bDebug; // advc.007
 	bool m_bAllSeeing;
+	bool m_bDiagnosticOmniscience;
 	int m_iClaimThreshold;
 	bool m_bEasyCulture;
 	bool m_bAmbitious;
@@ -116,7 +122,7 @@ class AIFoundValue
 public:
 	// <!-- custom: A non-null breakdown output enables diagnostic accounting; normal evaluation passes NULL and keeps that work disabled. (GPT-5.5) -->
 	// <!-- custom: Let SPI construct the shared workable-plot context without also running and discarding a complete city-site evaluation. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown = NULL, bool bEvaluateSite = true);
+	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown = NULL, bool bEvaluateSite = true, int* piBest6PlotValue = NULL, int* piSustainableProductivePlotValue = NULL);
 	int get() const { return m_iResult; }
 	scaled evaluateWorkablePlot(CvPlot const& p) const; // advc.027
 
@@ -127,6 +133,8 @@ public:
 private:
 	int m_iResult;
 	CvString* m_pszBreakdown;
+	int* m_piBest6PlotValue;
+	int* m_piSustainableProductivePlotValue;
 	/*  The rest aren't prefixed with "m_"; too awkward. Note that the order of
 		the reference members needs to match their order in the ctor initalizer list. */
 	CvPlot const& kPlot;
