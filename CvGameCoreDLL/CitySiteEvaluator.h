@@ -123,7 +123,7 @@ class AIFoundValue
 {
 public:
 	// <!-- custom: A non-null breakdown output enables diagnostic accounting; normal evaluation passes NULL and keeps that work disabled. (GPT-5.5) -->
-	// <!-- custom: Let SPI construct the shared workable-plot context without also running and discarding a complete city-site evaluation. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Let SPI construct the shared workable-plot context without also running and discarding a complete city-site evaluation. Optional output pointers expose decision components already computed during the same pass. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown = NULL, bool bEvaluateSite = true, int* paiGrowthCorePlotValues = NULL, int* piSustainableProductivePlotValue = NULL);
 	int get() const { return m_iResult; }
 	scaled evaluateWorkablePlot(CvPlot const& p) const; // advc.027
@@ -216,7 +216,8 @@ private:
 	int evaluateLongTermHealth(int& iHealthPercent) const;
 	int evaluateFeatureProduction(int iProduction) const;
 	int evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionModifier, int iLandTiles) const;
-	// int evaluateDefense() const;
+	// <!-- custom: Pass the remaining workable-plot value so inherent post-founding defense remains a proportional economic tiebreaker instead of AdvCiv's flat hill bonus or a multiplier on unrelated site rewards. (GPT-5.6-Sol) -->
+	int evaluateDefense(int iWorkablePlotValue) const;
 	int evaluateGoodies(int iGoodies) const;
 	int adjustToLandAreaBoundary(int iValue) const;
 	int adjustToStartingSurroundings(int iValue) const;
