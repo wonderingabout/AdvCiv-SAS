@@ -231,11 +231,14 @@ int CitySiteEvaluator::evaluateWithBreakdown(CvPlot const& kPlot, CvString& szBr
 }
 
 
-int CitySiteEvaluator::evaluateWithBest6PlotValue(CvPlot const& kPlot, int& iBest6PlotValue, int& iSustainableProductivePlotValue) const
+// <!-- custom: Expand the prior best-six output with best ten so first-city decisions can compare both early and developed worked-plot cores in one evaluation; finer best-1/2/3 and mature best-14 values remain diagnostic only. (GPT-5.6-Sol) -->
+int CitySiteEvaluator::evaluateWithGrowthCorePlotValues(CvPlot const& kPlot, int& iBest6PlotValue, int& iBest10PlotValue, int& iSustainableProductivePlotValue) const
 {
-	iBest6PlotValue = 0;
+	int aiGrowthCorePlotValues[2] = {0, 0};
 	iSustainableProductivePlotValue = 0;
-	AIFoundValue foundVal(kPlot, *this, NULL, true, &iBest6PlotValue, &iSustainableProductivePlotValue);
+	AIFoundValue foundVal(kPlot, *this, NULL, true, aiGrowthCorePlotValues, &iSustainableProductivePlotValue);
+	iBest6PlotValue = aiGrowthCorePlotValues[0];
+	iBest10PlotValue = aiGrowthCorePlotValues[1];
 	return foundVal.get();
 }
 
@@ -566,8 +569,8 @@ void AIFoundValue::setLoggingEnabled(bool b)
 	bLoggingEnabled = b;
 } // </advc.031c>
 
-// <!-- custom: Keep ordinary callers evaluating immediately, while allowing SPI's separate workable-plot precomputation to skip the unused full result. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-AIFoundValue::AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown, bool bEvaluateSite, int* piBest6PlotValue, int* piSustainableProductivePlotValue) : m_iResult(0), m_pszBreakdown(pszBreakdown), m_piBest6PlotValue(piBest6PlotValue), m_piSustainableProductivePlotValue(piSustainableProductivePlotValue), kPlot(kPlot), kArea(kPlot.getArea()), kSet(kSettings), kPlayer(kSet.getPlayer()), ePlayer(kPlayer.getID()), eTeam(kPlayer.getTeam()), kTeam(GET_TEAM(eTeam)), kGame(GC.getGame()), iX(kPlot.getX()), iY(kPlot.getY())
+// <!-- custom: Keep ordinary callers evaluating immediately, while allowing SPI's separate workable-plot precomputation to skip the unused full result. The optional two-entry growth-core array exposes best-6/10 sums already computed by sumUpPlotValues without diagnostic string formatting or repeated site evaluations. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+AIFoundValue::AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown, bool bEvaluateSite, int* paiGrowthCorePlotValues, int* piSustainableProductivePlotValue) : m_iResult(0), m_pszBreakdown(pszBreakdown), m_paiGrowthCorePlotValues(paiGrowthCorePlotValues), m_piSustainableProductivePlotValue(piSustainableProductivePlotValue), kPlot(kPlot), kArea(kPlot.getArea()), kSet(kSettings), kPlayer(kSet.getPlayer()), ePlayer(kPlayer.getID()), eTeam(kPlayer.getTeam()), kTeam(GET_TEAM(eTeam)), kGame(GC.getGame()), iX(kPlot.getX()), iY(kPlot.getY())
 {
 	PROFILE_FUNC();
 	if (!kPlayer.canFound(kPlot, false,
@@ -684,9 +687,9 @@ int AIFoundValue::evaluate()
 	int iBreakdownSea = 0;
 	int iBreakdownLowFood = 0;
 	int iBreakdownVeryBad = 0;
-	// <!-- custom: Diagnostic-only outputs are fully assigned by sumUpPlotValues when requested; leave them untouched on the normal hot path. (GPT-5.6-Sol) -->
-	int aiBreakdownPlotCoreSums[3];
-	int aiBreakdownPlotCoreCutoffs[3];
+	// <!-- custom: Diagnostic-only outputs are fully assigned by sumUpPlotValues when requested; leave them untouched on the normal hot path. Best-1/2/3 reveal whether an opening depends on one exceptional resource or several strong plots, while best-6/10/14 remain the broader growth stages used by first-city decisions. (GPT-5.6-Sol) -->
+	int aiBreakdownPlotCoreSums[6];
+	int aiBreakdownPlotCoreCutoffs[6];
 	int iBreakdownPositivePlots;
 
 	IFLOG logBBAI("Evaluate city radius ...");
@@ -1221,11 +1224,14 @@ int AIFoundValue::evaluate()
 
 	if (m_pszBreakdown != NULL)
 		iBreakdownDirect = iValue - iBreakdownBase;
-	bool const bNeedPlotDistribution = (m_pszBreakdown != NULL || m_piBest6PlotValue != NULL);
+	bool const bNeedPlotDistribution = (m_pszBreakdown != NULL || m_paiGrowthCorePlotValues != NULL);
 	iBreakdownPlots = sumUpPlotValues(aiPlotValues, (bNeedPlotDistribution ? aiBreakdownPlotCoreSums : NULL),
 		(bNeedPlotDistribution ? aiBreakdownPlotCoreCutoffs : NULL), (bNeedPlotDistribution ? &iBreakdownPositivePlots : NULL));
-	if (m_piBest6PlotValue != NULL)
-		*m_piBest6PlotValue = aiBreakdownPlotCoreSums[0];
+	if (m_paiGrowthCorePlotValues != NULL)
+	{
+		for (int iCore = 0; iCore < 2; ++iCore)
+			m_paiGrowthCorePlotValues[iCore] = aiBreakdownPlotCoreSums[iCore + 3];
+	}
 	if (m_piSustainableProductivePlotValue != NULL)
 		*m_piSustainableProductivePlotValue = CitySiteEvaluator::getSustainableProductivePlotValue();
 	iValue += iBreakdownPlots;
@@ -1660,10 +1666,11 @@ int AIFoundValue::evaluate()
 	{
 		const int iBreakdownDirectOther = iBreakdownDirect - iBreakdownHomeWater - iBreakdownRiverBFC;
 		const int iBreakdownModifiers = iValue - iBreakdownPreModifiers;
-		*m_pszBreakdown = CvString::format("base=%d directOther=%d homeWater=%d riverBFC=%d plots=%d(core6=%d/%d,core10=%d/%d,core14=%d/%d,positive=%d) bonuses=%d(nonYield=%d,bonusImprovementYields=%d) health=%d featureProduction=%d sea=%d lowFood=%d veryBad=%d preModifiers=%d modifiers=%d(nothingSpecial=%d,homeResource=%d,landBoundary=%d,startingSurroundings=%d,distance=%d,culture=%d,citiesPerArea=%d,bonusCount=%d,badHealth=%d,goodies=%d,navalHeavy=%d) final=%d",
+		*m_pszBreakdown = CvString::format("base=%d directOther=%d homeWater=%d riverBFC=%d plots=%d(core1=%d/%d,core2=%d/%d,core3=%d/%d,core6=%d/%d,core10=%d/%d,core14=%d/%d,positive=%d) bonuses=%d(nonYield=%d,bonusImprovementYields=%d) health=%d featureProduction=%d sea=%d lowFood=%d veryBad=%d preModifiers=%d modifiers=%d(nothingSpecial=%d,homeResource=%d,landBoundary=%d,startingSurroundings=%d,distance=%d,culture=%d,citiesPerArea=%d,bonusCount=%d,badHealth=%d,goodies=%d,navalHeavy=%d) final=%d",
 				iBreakdownBase, iBreakdownDirectOther, iBreakdownHomeWater, iBreakdownRiverBFC, iBreakdownPlots,
 				aiBreakdownPlotCoreSums[0], aiBreakdownPlotCoreCutoffs[0], aiBreakdownPlotCoreSums[1], aiBreakdownPlotCoreCutoffs[1],
-				aiBreakdownPlotCoreSums[2], aiBreakdownPlotCoreCutoffs[2], iBreakdownPositivePlots,
+				aiBreakdownPlotCoreSums[2], aiBreakdownPlotCoreCutoffs[2], aiBreakdownPlotCoreSums[3], aiBreakdownPlotCoreCutoffs[3],
+				aiBreakdownPlotCoreSums[4], aiBreakdownPlotCoreCutoffs[4], aiBreakdownPlotCoreSums[5], aiBreakdownPlotCoreCutoffs[5], iBreakdownPositivePlots,
 				iBreakdownResourcesAdded, iBreakdownNonYieldResources, iBreakdownBonusImprovementYields, iBreakdownHealth, iBreakdownFeatureProduction, iBreakdownSea, iBreakdownLowFood, iBreakdownVeryBad, iBreakdownPreModifiers, iBreakdownModifiers, iBreakdownNothingSpecial, iBreakdownHomeResource, iBreakdownLandBoundary, iBreakdownStartingSurroundings, iBreakdownDistance, iBreakdownCulture, iBreakdownCitiesPerArea, iBreakdownBonusCount, iBreakdownBadHealth, iBreakdownGoodies, iBreakdownNavalHeavy, iValue);
 	}
 
@@ -3383,8 +3390,8 @@ int AIFoundValue::sumUpPlotValues(std::vector<int>& aiPlotValues, int* aiCoreSum
 	{
 		FAssert((aiCoreSums == NULL) == (aiCoreCutoffs == NULL));
 		FAssert((aiCoreSums == NULL) == (piPositivePlots == NULL));
-		int aiSums[3] = {0, 0, 0};
-		int const aiCoreSizes[3] = {6, 10, 14};
+		int aiSums[6] = {0, 0, 0, 0, 0, 0};
+		int const aiCoreSizes[6] = {1, 2, 3, 6, 10, 14};
 		int iPositivePlots = 0;
 		FOR_EACH_ENUM(CityPlot)
 		{
@@ -3392,7 +3399,7 @@ int AIFoundValue::sumUpPlotValues(std::vector<int>& aiPlotValues, int* aiCoreSum
 			if (iPlotValue <= 0)
 				break;
 			iPositivePlots++;
-			for (int iCore = 0; iCore < 3; ++iCore)
+			for (int iCore = 0; iCore < 6; ++iCore)
 			{
 				if (eLoopCityPlot < aiCoreSizes[iCore])
 					aiSums[iCore] += iPlotValue;
@@ -3400,16 +3407,16 @@ int AIFoundValue::sumUpPlotValues(std::vector<int>& aiPlotValues, int* aiCoreSum
 		}
 		if (aiCoreSums != NULL)
 		{
-			for (int iCore = 0; iCore < 3; ++iCore)
+			for (int iCore = 0; iCore < 6; ++iCore)
 			{
 				aiCoreSums[iCore] = aiSums[iCore];
 				aiCoreCutoffs[iCore] = aiPlotValues[aiCoreSizes[iCore] - 1];
 			}
 			*piPositivePlots = iPositivePlots;
 		}
-		// <!-- custom: The final weighted total distinguishes stronger plots implicitly, but these unweighted core sums expose the site's practical growth curve. A city works few plots through much of the game, so six strong early plots, ten developed-city plots or fourteen mature-city plots with weak outskirts can be more useful than twenty uniformly average plots; e.g. a fertile river core beside desert can outperform a broad tundra/plains BFC long before either city works every tile. Keep all three core sizes, their cutoff values and the positive-plot count in both verbose logs and compact first-city breakdowns so scouting can be tuned from the same evidence without changing site valuation. (GPT-5.6-Sol) -->
-		if (bLogDistribution) logBBAI("BFC_VALUE_DISTRIBUTION best6Sum=%d best10Sum=%d best14Sum=%d positivePlots=%d sixth=%d tenth=%d fourteenth=%d",
-			aiSums[0], aiSums[1], aiSums[2], iPositivePlots, aiPlotValues[5], aiPlotValues[9], aiPlotValues[13]);
+		// <!-- custom: The final weighted total distinguishes stronger plots implicitly, but these unweighted core sums expose the site's practical growth curve. Best 1/2/3 distinguish one exceptional opening resource from several strong early plots for diagnosis only; first-city decisions deliberately remain on best 6/10 so one resource cannot drive the cure. In the Wang Kon test, the original and chosen capitals tied at best-1=210, while best-2/3 separated 380/550 from 420/630; this showed that both had one equally strong anchor but the chosen site had the stronger immediate supporting plots. A city works few plots through much of the game, so six strong early plots, ten developed-city plots or fourteen mature-city plots with weak outskirts can be more useful than twenty uniformly average plots; e.g. a fertile river core beside desert can outperform a broad tundra/plains BFC long before either city works every tile. Keep the sums, cutoff values and positive-plot count in both verbose logs and compact first-city breakdowns so scouting can be tuned from the same evidence without changing site valuation. (GPT-5.6-Sol) -->
+		if (bLogDistribution) logBBAI("BFC_VALUE_DISTRIBUTION best1Sum=%d best2Sum=%d best3Sum=%d best6Sum=%d best10Sum=%d best14Sum=%d positivePlots=%d first=%d second=%d third=%d sixth=%d tenth=%d fourteenth=%d",
+			aiSums[0], aiSums[1], aiSums[2], aiSums[3], aiSums[4], aiSums[5], iPositivePlots, aiPlotValues[0], aiPlotValues[1], aiPlotValues[2], aiPlotValues[5], aiPlotValues[9], aiPlotValues[13]);
 	}
 	double dMaxMultPercent = 153;
 	double dMinMultPercent = 47;
