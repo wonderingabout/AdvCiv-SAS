@@ -5476,7 +5476,9 @@ void CvPlayer::found(int iX, int iY)
 		// (advc.108 forces founding in place in scenarios)
 		(getNumCities() > 0 || !kGame.isScenario()))
 	{
-		AI().logFoundValue(GC.getMap().getPlot(iX, iY));
+		// <!-- custom: Runtime capital logging previously reconstructed the chosen site with ordinary later-city weights, producing false seafood/value reversals against the starting-capital decision. Pass both the first-city scoring context and the founder-known information scope; the pregame starting-plot logger remains omniscient. (GPT-5.6-Sol) -->
+		const bool bFirstCity = (getNumCities() <= 0);
+		AI().logFoundValue(GC.getMap().getPlot(iX, iY), bFirstCity, bFirstCity);
 	} // </advc.031c>
 	// <!-- custom: SASGameRecord keeps only the already-cached strategic site list/value context here, before initCity changes the plot and surrounding city state.
 	// Detailed CitySiteEvaluator component reasoning remains in Found/BBAI diagnostics. (ChatGPT-5.6-Sol) -->

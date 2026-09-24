@@ -427,6 +427,8 @@ static bool SAS_isFoundValueClearlyBetter(int iCurrentFoundValue, int iBetterFou
 	return iValueDiff >= iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF && 100 * iValueDiff >= iCurrentFoundValue * iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF;
 }
 
+// <!-- custom: pBetterEndTurnPlot is returned alongside pBetterFoundPlot so callers keep the end-turn plot belonging to the same successful winning path query.
+// Do not reconstruct it with getPathEndTurnPlot() after this helper returns: later candidate generatePath calls reuse and may replace or clear the shared pathfinder endpoint. See KI#180.2. (ChatGPT-5.6-Sol) -->
 static bool SAS_shouldDelayFoundInPlaceForBetterReachableSite(CvUnitAI& kSettler, MovementFlags eMoveFlags, CvPlot const& kCurrentPlot, int iCurrentFoundValue, CvPlot const*& pBetterFoundPlot, CvPlot const*& pBetterEndTurnPlot, int& iBetterFoundValue, int& iBetterPathTurns)
 {
 	pBetterFoundPlot = NULL;

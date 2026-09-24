@@ -27,6 +27,8 @@ public:
 	int evaluateWithGrowthCorePlotValues(CvPlot const& kPlot, int& iBest6PlotValue, int& iBest10PlotValue, int& iSustainableProductivePlotValue) const;
 	// <!-- custom: Share one XML-driven scale for heuristics expressed in found-value units. A sustainable productive reference plot supplies the current food consumption per citizen plus 1 Production and uses the same self-sustaining yield weights as ordinary site evaluation. (GPT-5.6-Sol) -->
 	static int getSustainableProductivePlotValue();
+	// <!-- custom: Share the settlement-specific known-seafood count between selected-site and city-site-list diagnostics so both use the founder's information and non-obsolete resources. Diagnostic callers keep the BFC scan behind Found logging gates. (GPT-5.6-Sol) -->
+	static int countKnownWaterBonuses(CvPlot const& kCityPlot, TeamTypes eTeam);
 	int evaluateWithLogging(CvPlot const& kPlot) const; // advc.031c
 	scaled evaluateWorkablePlot(CvPlot const& kPlot) const; // advc.027
 	CvPlayerAI const& getPlayer() const { return m_kPlayer; }

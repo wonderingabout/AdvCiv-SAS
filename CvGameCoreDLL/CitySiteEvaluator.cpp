@@ -342,8 +342,8 @@ void CitySiteEvaluator::logComparedSiteBreakdown(char const* szLabel, CvPlot con
 }
 
 
-// <!-- custom: Founding logs explained seafood only when that site happened to be the selected, next-best, or adjacent comparison. Count water bonuses visible to this AI so a separate listed-candidate audit can distinguish low valuation from the site never surviving into the maintained candidate list. Diagnostic only. (GPT-5.6-Sol) -->
-static int SAS_countKnownWaterBonuses(CvPlot const& kCityPlot, TeamTypes eTeam)
+// <!-- custom: Founding logs explained seafood only when that site happened to be the selected, next-best, or adjacent comparison. Count water bonuses visible to this AI so selected-site and city-site-list diagnostics can distinguish low valuation from a site never surviving into the maintained candidate list. Diagnostic only. (GPT-5.6-Sol) -->
+int CitySiteEvaluator::countKnownWaterBonuses(CvPlot const& kCityPlot, TeamTypes eTeam)
 {
 	int iKnownWaterBonuses = 0;
 	for (CityPlotIter it(kCityPlot, false); it.hasNext(); ++it)
@@ -505,7 +505,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 			CvPlot const& kLoopPlot = getPlayer().AI_getCitySite(i);
 			if (&kLoopPlot == &kPlot || !kLoopPlot.isCoastalLand(iMinWaterSizeForOcean))
 				continue;
-			int const iKnownWaterBonuses = SAS_countKnownWaterBonuses(kLoopPlot, getPlayer().getTeam());
+			int const iKnownWaterBonuses = countKnownWaterBonuses(kLoopPlot, getPlayer().getTeam());
 			if (iKnownWaterBonuses <= 0)
 				continue;
 			int const iValue = evaluate(kLoopPlot);
@@ -517,7 +517,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 			}
 		}
 		bool const bSelectedCoastal = kPlot.isCoastalLand(iMinWaterSizeForOcean);
-		int const iSelectedKnownWaterBonuses = (bSelectedCoastal ? SAS_countKnownWaterBonuses(kPlot, getPlayer().getTeam()) : 0);
+		int const iSelectedKnownWaterBonuses = (bSelectedCoastal ? countKnownWaterBonuses(kPlot, getPlayer().getTeam()) : 0);
 		if (pBestKnownWaterBonusSite == NULL)
 		{
 			logBBAI("\nListed coastal water-bonus site audit: selectedCoastal=%d selectedKnownWaterBonuses=%d alternative=NONE citySites=%d",
