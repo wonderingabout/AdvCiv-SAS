@@ -31756,12 +31756,15 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
 		CvPlot const* pBestFoundPlot = NULL;
 		CvPlot const* pBestKnownWaterBonusPlot = NULL;
 		int iBestKnownWaterBonusRawValue = -MAX_INT;
+		int iBestKnownWaterBonusAreaFactor = 0;
+		int iBestKnownWaterBonusAreaAdjustedValue = 0;
 		int iBestKnownWaterBonusSelectionValue = 0;
 		int iBestKnownWaterBonuses = 0;
 		bool bBestKnownWaterBonusAboveMin = false;
 		bool bBestKnownWaterBonusAlreadyListed = false;
 		CvPlot const* pBestEligibleWaterBonusPlot = NULL;
 		int iBestEligibleWaterBonusRawValue = 0;
+		int iBestEligibleWaterBonusAreaFactor = 0;
 		int iBestEligibleWaterBonusSelectionValue = 0;
 		int iBestEligibleWaterBonuses = 0;
 		int iKnownWaterBonusSites = 0;
@@ -31778,11 +31781,20 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
 			// <!-- custom: Preserve the old cheap short-circuit when diagnostics are disabled; only the level-3 audit asks whether a below-threshold seafood site was already listed. (GPT-5.6-Sol) -->
 			const bool bAlreadyListed = ((bAboveMin || bLogFoundLevel3) && AI_isPlotCitySite(kPlot));
 			const bool bEligible = (bAboveMin && !bAlreadyListed);
+			int iAreaUnownedTiles = -1;
+			int iAreaFactor = 0;
+			int iAreaAdjustedValue = 0;
+			// <!-- custom: Preserve the gameplay hot path: area data was historically queried only for eligible sites; level-3 Found diagnostics also need it for otherwise-filtered seafood competitors. (ChatGPT-5.6-Sol) -->
+			if (bEligible || bLogFoundLevel3)
+			{
+				iAreaUnownedTiles = kPlot.getArea().getNumUnownedTiles();
+				iAreaFactor = std::min(NUM_CITY_PLOTS * 2, iAreaUnownedTiles + 1);
+				iAreaAdjustedValue = iRawValue * iAreaFactor;
+			}
 			int iSelectionValue = 0;
 			if (bEligible)
 			{
-				iSelectionValue = iRawValue * std::min(NUM_CITY_PLOTS * 2, kPlot.getArea().getNumUnownedTiles()
-						+ 1); /* advc.031: Just b/c all tiles in the area are
+				iSelectionValue = iAreaAdjustedValue; /* advc.031: Just b/c all tiles in the area are
 								 owned doesn't mean we can't ever settle there.
 								 Probably an oversight; tagging advc.001. */
 				if (iSelectionValue > iBestFoundValue)
@@ -31795,7 +31807,7 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
 			{
 				int& iKnownWaterBonuses = aiKnownWaterBonusCounts[iI];
 				if (iKnownWaterBonuses < 0)
-					iKnownWaterBonuses = (kPlot.isCoastalLand(iMinWaterSizeForOcean) ? CitySiteEvaluator::countKnownWaterBonuses(kPlot, getTeam()) : 0);
+					iKnownWaterBonuses = (kPlot.isCoastalLand(iMinWaterSizeForOcean) ? CitySiteEvaluator::countWaterBonuses(kPlot, getTeam(), false) : 0);
 				if (iKnownWaterBonuses > 0)
 				{
 					++iKnownWaterBonusSites;
@@ -31803,6 +31815,8 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
 					{
 						pBestKnownWaterBonusPlot = &kPlot;
 						iBestKnownWaterBonusRawValue = iRawValue;
+						iBestKnownWaterBonusAreaFactor = iAreaFactor;
+						iBestKnownWaterBonusAreaAdjustedValue = iAreaAdjustedValue;
 						iBestKnownWaterBonusSelectionValue = iSelectionValue;
 						iBestKnownWaterBonuses = iKnownWaterBonuses;
 						bBestKnownWaterBonusAboveMin = (iRawValue > iMinFoundValueThreshold);
@@ -31815,6 +31829,7 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
 						{
 							pBestEligibleWaterBonusPlot = &kPlot;
 							iBestEligibleWaterBonusRawValue = iRawValue;
+							iBestEligibleWaterBonusAreaFactor = iAreaFactor;
 							iBestEligibleWaterBonusSelectionValue = iSelectionValue;
 							iBestEligibleWaterBonuses = iKnownWaterBonuses;
 						}
@@ -31823,16 +31838,21 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
 			}
 		}
 		// <!-- custom: A selected-site seafood audit cannot tell whether no seafood site existed or whether one was filtered before the maintained top-four list. At Found level 3, report the actual list-building winner beside both the highest raw known-seafood site and the highest eligible seafood competitor on every pass. All BFC scans and diagnostic bookkeeping remain behind the logging gate. (GPT-5.6-Sol) -->
-		if (bLogFoundLevel3) logBBAI("CITY_SITE_LIST_SEAFOOD_AUDIT player=%d pass=%d minFoundValue=%d knownWaterBonusSites=%d eligibleWaterBonusSites=%d winner=%d,%d winnerRawValue=%d winnerSelectionValue=%d winnerKnownWaterBonuses=%d bestKnown=%d,%d bestKnownRawValue=%d bestKnownSelectionValue=%d bestKnownWaterBonuses=%d bestKnownAboveMin=%d bestKnownAlreadyListed=%d bestEligible=%d,%d bestEligibleRawValue=%d bestEligibleSelectionValue=%d bestEligibleWaterBonuses=%d bestEligibleWon=%d",
-			getID(), iPass, iMinFoundValueThreshold, iKnownWaterBonusSites, iEligibleWaterBonusSites,
+		if (bLogFoundLevel3) logBBAI("CITY_SITE_LIST_SEAFOOD_AUDIT turn=%d player=%d pass=%d minFoundValue=%d knownWaterBonusSites=%d eligibleWaterBonusSites=%d winner=%d,%d winnerRawValue=%d winnerAreaUnownedTiles=%d winnerAreaFactor=%d winnerSelectionValue=%d winnerKnownWaterBonuses=%d bestKnown=%d,%d bestKnownRawValue=%d bestKnownAreaUnownedTiles=%d bestKnownAreaFactor=%d bestKnownAreaAdjustedValue=%d bestKnownSelectionValue=%d bestKnownWaterBonuses=%d bestKnownAboveMin=%d bestKnownAlreadyListed=%d bestEligible=%d,%d bestEligibleRawValue=%d bestEligibleAreaUnownedTiles=%d bestEligibleAreaFactor=%d bestEligibleSelectionValue=%d bestEligibleWaterBonuses=%d bestEligibleWon=%d",
+			GC.getGame().getGameTurn(), getID(), iPass, iMinFoundValueThreshold, iKnownWaterBonusSites, iEligibleWaterBonusSites,
 			(pBestFoundPlot == NULL ? -1 : pBestFoundPlot->getX()), (pBestFoundPlot == NULL ? -1 : pBestFoundPlot->getY()),
-			(pBestFoundPlot == NULL ? 0 : pBestFoundPlot->getFoundValue(getID())), iBestFoundValue,
+			(pBestFoundPlot == NULL ? 0 : pBestFoundPlot->getFoundValue(getID())),
+			(pBestFoundPlot == NULL ? -1 : pBestFoundPlot->getArea().getNumUnownedTiles()),
+			(pBestFoundPlot == NULL ? 0 : std::min(NUM_CITY_PLOTS * 2, pBestFoundPlot->getArea().getNumUnownedTiles() + 1)), iBestFoundValue,
 			(pBestFoundPlot == NULL ? 0 : aiKnownWaterBonusCounts[pBestFoundPlot->plotNum()]),
 			(pBestKnownWaterBonusPlot == NULL ? -1 : pBestKnownWaterBonusPlot->getX()), (pBestKnownWaterBonusPlot == NULL ? -1 : pBestKnownWaterBonusPlot->getY()),
-			(pBestKnownWaterBonusPlot == NULL ? 0 : iBestKnownWaterBonusRawValue), iBestKnownWaterBonusSelectionValue, iBestKnownWaterBonuses,
+			(pBestKnownWaterBonusPlot == NULL ? 0 : iBestKnownWaterBonusRawValue),
+			(pBestKnownWaterBonusPlot == NULL ? -1 : pBestKnownWaterBonusPlot->getArea().getNumUnownedTiles()),
+			iBestKnownWaterBonusAreaFactor, iBestKnownWaterBonusAreaAdjustedValue, iBestKnownWaterBonusSelectionValue, iBestKnownWaterBonuses,
 			bBestKnownWaterBonusAboveMin, bBestKnownWaterBonusAlreadyListed,
 			(pBestEligibleWaterBonusPlot == NULL ? -1 : pBestEligibleWaterBonusPlot->getX()), (pBestEligibleWaterBonusPlot == NULL ? -1 : pBestEligibleWaterBonusPlot->getY()),
-			iBestEligibleWaterBonusRawValue, iBestEligibleWaterBonusSelectionValue, iBestEligibleWaterBonuses,
+			iBestEligibleWaterBonusRawValue, (pBestEligibleWaterBonusPlot == NULL ? -1 : pBestEligibleWaterBonusPlot->getArea().getNumUnownedTiles()),
+			iBestEligibleWaterBonusAreaFactor, iBestEligibleWaterBonusSelectionValue, iBestEligibleWaterBonuses,
 			pBestEligibleWaterBonusPlot != NULL && pBestEligibleWaterBonusPlot == pBestFoundPlot);
 		if (pBestFoundPlot != NULL)
 		{

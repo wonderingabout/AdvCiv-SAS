@@ -27,7 +27,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=125 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=126 ...
 ```
 
 After this, each qualifying SASGameRecord update increments `SAS_GAME_RECORD_REVISION` by one and adds one short latest-first entry to this file in the same commit. The revision is only a downstream-update signal; exact runtime source identity remains in `GAME_RECORD_SOURCE_CONTEXT`.
@@ -52,6 +52,18 @@ This is why the original reconstruction produced 67 revisions through practical 
 Because this numbering is reconstructed after the fact, the descriptions are concise summaries of the canonical commit diffs/messages rather than claims that these revision numbers were emitted by historical builds.
 
 ## History (latest first)
+
+### Revision 126 - SAS practical pending
+
+- **Date:** 2026-09-24
+- **Git commit:** pending
+- **Change:** Expanded broad settlement, vassal-freedom and exact-battle context without copying detailed BBAI decision spam.
+
+At level 2+, new `GAME_RECORD_CITY_SITE_QUALITY` rows describe only the site actually founded: coastal/known-versus-omniscient-seafood/area/nearest-city context plus player-known and diagnostic-omniscient founding-time rescored values and `best1/2/3/6/10/14` BFC quality. The existing `GAME_RECORD_CITY_SITE_CHOICE` remains authoritative for the cached shortlist/rank context that led to founding.
+
+One-per-session `GAME_RECORD_VASSAL_RULES` records the loaded freedom thresholds and native master-land semantics. `GAME_RECORD_VASSAL_STATUS` records active relationships at creation and periodic team snapshots with current/stamped land, population ratios, capitulation state and the native relative-size/loss-rule results.
+
+At level 3, exact lethal/nonlethal battle rows also retain the attacker's pre-combat origin and separate river-crossing/amphibious condition-versus-penalty facts. Level-2 luck-only tracking performs no extra tactical-context work.
 
 ### Revision 125 - SAS practical pending
 

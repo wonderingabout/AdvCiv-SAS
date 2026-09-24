@@ -243,6 +243,21 @@ int CitySiteEvaluator::evaluateWithGrowthCorePlotValues(CvPlot const& kPlot, int
 }
 
 
+// <!-- custom: Expose the complete 1/2/3/6/10/14 plot-value distribution only to guarded diagnostics such as SASGameRecord city founding.
+// AIFoundValue already computes these values in the ordinary site pass; returning them here avoids a second BFC valuation or text parsing. (ChatGPT-5.6-Sol) -->
+int CitySiteEvaluator::evaluateWithPlotValueDistribution(CvPlot const& kPlot, int* aiCoreSums, int& iPositivePlots, int& iSustainableProductivePlotValue) const
+{
+	FAssert(aiCoreSums != NULL);
+	int aiCoreCutoffs[6] = {0, 0, 0, 0, 0, 0};
+	for (int iCore = 0; iCore < 6; ++iCore)
+		aiCoreSums[iCore] = 0;
+	iPositivePlots = 0;
+	iSustainableProductivePlotValue = 0;
+	AIFoundValue foundVal(kPlot, *this, NULL, true, NULL, &iSustainableProductivePlotValue, aiCoreSums, aiCoreCutoffs, &iPositivePlots);
+	return foundVal.get();
+}
+
+
 int CitySiteEvaluator::getSustainableProductivePlotValue()
 {
 	static const int iFoodValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_FOOD_VALUE");
@@ -342,16 +357,16 @@ void CitySiteEvaluator::logComparedSiteBreakdown(char const* szLabel, CvPlot con
 }
 
 
-// <!-- custom: Founding logs explained seafood only when that site happened to be the selected, next-best, or adjacent comparison. Count water bonuses visible to this AI so selected-site and city-site-list diagnostics can distinguish low valuation from a site never surviving into the maintained candidate list. Diagnostic only. (GPT-5.6-Sol) -->
-int CitySiteEvaluator::countKnownWaterBonuses(CvPlot const& kCityPlot, TeamTypes eTeam)
+// <!-- custom: Founding logs explained seafood only when that site happened to be the selected, next-best, or adjacent comparison. Count either founder-known non-obsolete water bonuses or true-map water bonuses so diagnostics can distinguish low valuation, hidden resources and a site never surviving into the maintained candidate list. Diagnostic only. (GPT-5.6-Sol) -->
+int CitySiteEvaluator::countWaterBonuses(CvPlot const& kCityPlot, TeamTypes eTeam, bool bDiagnosticOmniscience)
 {
-	int iKnownWaterBonuses = 0;
+	int iWaterBonuses = 0;
 	for (CityPlotIter it(kCityPlot, false); it.hasNext(); ++it)
 	{
-		if (it->isWater() && it->getNonObsoleteBonusType(eTeam) != NO_BONUS)
-			iKnownWaterBonuses++;
+		if (it->isWater() && (bDiagnosticOmniscience ? it->getBonusType() : it->getNonObsoleteBonusType(eTeam)) != NO_BONUS)
+			iWaterBonuses++;
 	}
-	return iKnownWaterBonuses;
+	return iWaterBonuses;
 }
 
 
@@ -505,7 +520,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 			CvPlot const& kLoopPlot = getPlayer().AI_getCitySite(i);
 			if (&kLoopPlot == &kPlot || !kLoopPlot.isCoastalLand(iMinWaterSizeForOcean))
 				continue;
-			int const iKnownWaterBonuses = countKnownWaterBonuses(kLoopPlot, getPlayer().getTeam());
+			int const iKnownWaterBonuses = countWaterBonuses(kLoopPlot, getPlayer().getTeam(), false);
 			if (iKnownWaterBonuses <= 0)
 				continue;
 			int const iValue = evaluate(kLoopPlot);
@@ -517,7 +532,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 			}
 		}
 		bool const bSelectedCoastal = kPlot.isCoastalLand(iMinWaterSizeForOcean);
-		int const iSelectedKnownWaterBonuses = (bSelectedCoastal ? countKnownWaterBonuses(kPlot, getPlayer().getTeam()) : 0);
+		int const iSelectedKnownWaterBonuses = (bSelectedCoastal ? countWaterBonuses(kPlot, getPlayer().getTeam(), false) : 0);
 		if (pBestKnownWaterBonusSite == NULL)
 		{
 			logBBAI("\nListed coastal water-bonus site audit: selectedCoastal=%d selectedKnownWaterBonuses=%d alternative=NONE citySites=%d",
@@ -570,7 +585,11 @@ void AIFoundValue::setLoggingEnabled(bool b)
 } // </advc.031c>
 
 // <!-- custom: Keep ordinary callers evaluating immediately, while allowing SPI's separate workable-plot precomputation to skip the unused full result. Optional outputs expose best-6/10 sums, the shared productive-plot reference and defense adjustment already computed in the same pass without diagnostic string formatting or repeated site evaluations. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-AIFoundValue::AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown, bool bEvaluateSite, int* paiGrowthCorePlotValues, int* piSustainableProductivePlotValue) : m_iResult(0), m_pszBreakdown(pszBreakdown), m_paiGrowthCorePlotValues(paiGrowthCorePlotValues), m_piSustainableProductivePlotValue(piSustainableProductivePlotValue), kPlot(kPlot), kArea(kPlot.getArea()), kSet(kSettings), kPlayer(kSet.getPlayer()), ePlayer(kPlayer.getID()), eTeam(kPlayer.getTeam()), kTeam(GET_TEAM(eTeam)), kGame(GC.getGame()), iX(kPlot.getX()), iY(kPlot.getY())
+AIFoundValue::AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown, bool bEvaluateSite, int* paiGrowthCorePlotValues, int* piSustainableProductivePlotValue, int* paiPlotCoreSums, int* paiPlotCoreCutoffs, int* piPositivePlots) :
+	m_iResult(0), m_pszBreakdown(pszBreakdown), m_paiGrowthCorePlotValues(paiGrowthCorePlotValues), m_piSustainableProductivePlotValue(piSustainableProductivePlotValue),
+	m_paiPlotCoreSums(paiPlotCoreSums), m_paiPlotCoreCutoffs(paiPlotCoreCutoffs), m_piPositivePlots(piPositivePlots), kPlot(kPlot),
+	kArea(kPlot.getArea()), kSet(kSettings), kPlayer(kSet.getPlayer()), ePlayer(kPlayer.getID()),
+	eTeam(kPlayer.getTeam()), kTeam(GET_TEAM(eTeam)), kGame(GC.getGame()), iX(kPlot.getX()), iY(kPlot.getY())
 {
 	PROFILE_FUNC();
 	if (!kPlayer.canFound(kPlot, false,
@@ -1240,13 +1259,23 @@ int AIFoundValue::evaluate()
 
 	if (m_pszBreakdown != NULL)
 		iBreakdownDirect = iValue - iBreakdownBase;
-	bool const bNeedPlotDistribution = (m_pszBreakdown != NULL || m_paiGrowthCorePlotValues != NULL);
+	bool const bNeedPlotDistribution = (m_pszBreakdown != NULL || m_paiGrowthCorePlotValues != NULL || m_paiPlotCoreSums != NULL);
 	iBreakdownPlots = sumUpPlotValues(aiPlotValues, (bNeedPlotDistribution ? aiBreakdownPlotCoreSums : NULL),
 		(bNeedPlotDistribution ? aiBreakdownPlotCoreCutoffs : NULL), (bNeedPlotDistribution ? &iBreakdownPositivePlots : NULL));
 	if (m_paiGrowthCorePlotValues != NULL)
 	{
 		for (int iCore = 0; iCore < 2; ++iCore)
 			m_paiGrowthCorePlotValues[iCore] = aiBreakdownPlotCoreSums[iCore + 3];
+	}
+	if (m_paiPlotCoreSums != NULL)
+	{
+		FAssert(m_paiPlotCoreCutoffs != NULL && m_piPositivePlots != NULL);
+		for (int iCore = 0; iCore < 6; ++iCore)
+		{
+			m_paiPlotCoreSums[iCore] = aiBreakdownPlotCoreSums[iCore];
+			m_paiPlotCoreCutoffs[iCore] = aiBreakdownPlotCoreCutoffs[iCore];
+		}
+		*m_piPositivePlots = iBreakdownPositivePlots;
 	}
 	if (m_piSustainableProductivePlotValue != NULL)
 		*m_piSustainableProductivePlotValue = CitySiteEvaluator::getSustainableProductivePlotValue();

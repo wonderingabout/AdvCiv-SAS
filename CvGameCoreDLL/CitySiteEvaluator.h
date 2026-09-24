@@ -25,10 +25,13 @@ public:
 	int evaluateWithBreakdown(CvPlot const& kPlot, CvString& szBreakdown) const;
 	// <!-- custom: First-city roaming can distinguish a genuinely weak site from a food-imperfect site with strong practical worked-plot cores. Compute the best-6/10 decision metrics without formatting the finer best-1/2/3 or mature best-14 diagnostics. (GPT-5.6-Sol) -->
 	int evaluateWithGrowthCorePlotValues(CvPlot const& kPlot, int& iBest6PlotValue, int& iBest10PlotValue, int& iSustainableProductivePlotValue) const;
+	// <!-- custom: SASGameRecord founding snapshots can reuse the same plot-value distribution already computed inside AIFoundValue without parsing BBAI text or rescanning the BFC afterward.
+	// Core sums use sizes 1/2/3/6/10/14; positive-plot count describes the same sorted potential-plot values. Diagnostic only. (ChatGPT-5.6-Sol) -->
+	int evaluateWithPlotValueDistribution(CvPlot const& kPlot, int* aiCoreSums, int& iPositivePlots, int& iSustainableProductivePlotValue) const;
 	// <!-- custom: Share one XML-driven scale for heuristics expressed in found-value units. A sustainable productive reference plot supplies the current food consumption per citizen plus 1 Production and uses the same self-sustaining yield weights as ordinary site evaluation. (GPT-5.6-Sol) -->
 	static int getSustainableProductivePlotValue();
-	// <!-- custom: Share the settlement-specific known-seafood count between selected-site and city-site-list diagnostics so both use the founder's information and non-obsolete resources. Diagnostic callers keep the BFC scan behind Found logging gates. (GPT-5.6-Sol) -->
-	static int countKnownWaterBonuses(CvPlot const& kCityPlot, TeamTypes eTeam);
+	// <!-- custom: Share settlement-specific seafood counts between selected-site, city-site-list and broad founding diagnostics. Ordinary diagnostics use the founder's information and non-obsolete resources; SASGameRecord can additionally request the true-map count to explain hidden seafood at the site actually founded. Callers keep the BFC scan behind diagnostic gates. (GPT-5.6-Sol) -->
+	static int countWaterBonuses(CvPlot const& kCityPlot, TeamTypes eTeam, bool bDiagnosticOmniscience);
 	int evaluateWithLogging(CvPlot const& kPlot) const; // advc.031c
 	scaled evaluateWorkablePlot(CvPlot const& kPlot) const; // advc.027
 	CvPlayerAI const& getPlayer() const { return m_kPlayer; }
@@ -126,7 +129,7 @@ class AIFoundValue
 public:
 	// <!-- custom: A non-null breakdown output enables diagnostic accounting; normal evaluation passes NULL and keeps that work disabled. (GPT-5.5) -->
 	// <!-- custom: Let SPI construct the shared workable-plot context without also running and discarding a complete city-site evaluation. Optional output pointers expose decision components already computed during the same pass. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown = NULL, bool bEvaluateSite = true, int* paiGrowthCorePlotValues = NULL, int* piSustainableProductivePlotValue = NULL);
+	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown = NULL, bool bEvaluateSite = true, int* paiGrowthCorePlotValues = NULL, int* piSustainableProductivePlotValue = NULL, int* paiPlotCoreSums = NULL, int* paiPlotCoreCutoffs = NULL, int* piPositivePlots = NULL);
 	int get() const { return m_iResult; }
 	scaled evaluateWorkablePlot(CvPlot const& p) const; // advc.027
 
@@ -139,6 +142,9 @@ private:
 	CvString* m_pszBreakdown;
 	int* m_paiGrowthCorePlotValues;
 	int* m_piSustainableProductivePlotValue;
+	int* m_paiPlotCoreSums;
+	int* m_paiPlotCoreCutoffs;
+	int* m_piPositivePlots;
 	/*  The rest aren't prefixed with "m_"; too awkward. Note that the order of
 		the reference members needs to match their order in the ctor initalizer list. */
 	CvPlot const& kPlot;
