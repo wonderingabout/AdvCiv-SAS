@@ -5506,7 +5506,8 @@ bool CvUnitAI::AI_foundFirstCity()
 				const int iGoodEnoughUnrevealedBFC = SAS_countUnrevealedNonHomeBFCPlots(*pGoodEnoughFirstCityPlot, getTeam());
 				if (((!bContinuingFirstCityScout || !bCurrentImprovesScoutOrigin) && bBadCurrentFirstCity) || iGoodEnoughUnrevealedBFC > 0)
 				{
-					// <!-- custom: Do not found the current recovery tile while it remains classified as bad or part of its BFC is still fogged during the bounded first-city roam window.
+					// <!-- custom: The historical save-file examples below require the matching old AdvCiv-SAS build and no longer load in the current-version-only save format. For current Settler-AI audits, several freshly generated short autoplays on varied maps using SAS48, the largest world size as of now, are more efficient: they exercise 48 independent first-city decisions, while capital founding only needs an opening run that ends just after a useful periodic SASGameRecord interval (e.g. turn 21, 31 or 41 depending on the investigation), so completing those large games and relying on the narrower player sample of the general-purpose historical saves are unnecessary.
+					// Do not found the current recovery tile while it remains classified as bad or part of its BFC is still fogged during the bounded first-city roam window.
 					// In the Berlin test (save file 442), the fully revealed (35,11) site otherwise founded immediately while the stronger (33,13) candidate remained undervalued by six unrevealed plots.
 					// In the Karakorum test, 49,43 looked best from known tiles and immediately founded, blocking the existing scout-step branch from revealing the stronger pig/river area toward 51,41/52,41. Fully revealed non-bad Cuzco at 42,44 still founds immediately.
 					// Why this fixed the two cases (different save files/maps): Based on BBAI Logging analysis:
@@ -5585,7 +5586,16 @@ bool CvUnitAI::AI_foundFirstCity()
 			}
 			CvPlot* pBestExploreStep = NULL;
 			int iBestExploreValue = 0;
+			const int iSustainablePlotValue = CitySiteEvaluator::getSustainableProductivePlotValue();
 			MovementFlags const eFirstCityExploreFlags = (MOVE_NO_ENEMY_TERRITORY | MOVE_AVOID_DANGER);
+			const int iScoutReferenceValue = (bContinuingFirstCityScout ? iFirstCityScoutOriginValue : SAS_evaluateFirstCityFoundValue(kFirstCityEvaluator, getPlot()));
+			CvPlot* pBestKnownApproachStep = NULL;
+			if (pBestPlot != NULL && pBestPlot != plot() && iBestValue > iScoutReferenceValue)
+			{
+				int iBestKnownPathTurns = 0;
+				if (generatePath(*pBestPlot, eFirstCityExploreFlags, true, &iBestKnownPathTurns, std::max(1, iRemainingFirstCityTurns)) && iBestKnownPathTurns <= iRemainingFirstCityTurns)
+					pBestKnownApproachStep = &getPathEndTurnPlot();
+			}
 			FOR_EACH_ADJ_PLOT(getPlot())
 			{
 				if (!AI_plotValid(*pAdj) || pAdj->isVisibleEnemyUnit(this))
@@ -5596,21 +5606,27 @@ bool CvUnitAI::AI_foundFirstCity()
 				CvPlot& kEndTurnPlot = getPathEndTurnPlot();
 				if (at(kEndTurnPlot))
 					continue;
-				const int iEndpointFogValue = (kEndTurnPlot.isRevealed(getTeam()) ? 0 : 5000);
+				const int iEndpointFogValue = (kEndTurnPlot.isRevealed(getTeam()) ? 0 : 5 * iSustainablePlotValue);
 				int iRevealValue = 0;
 				const int iFirstCityExploreRevealRange = visibilityRange() + 1;
 				for (SquareIter itReveal(kEndTurnPlot, iFirstCityExploreRevealRange, false); itReveal.hasNext(); ++itReveal)
 				{
-					if (!(*itReveal).isRevealed(getTeam()))
-						iRevealValue += 1000 / std::max(1, stepDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), (*itReveal).getX(), (*itReveal).getY()));
+					if (!(*itReveal).isRevealed(getTeam()) && kEndTurnPlot.canSeePlot(&*itReveal, getTeam(), visibilityRange()))
+						iRevealValue += iSustainablePlotValue / std::max(1, stepDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), (*itReveal).getX(), (*itReveal).getY()));
 				}
 				const int iEndTurnFoundValue = SAS_evaluateFirstCityFoundValue(kFirstCityEvaluator, kEndTurnPlot);
 				const int iFoundValueGain = std::max(0, iEndTurnFoundValue - iBestValue);
-				const int iExploreValue = iEndpointFogValue + iRevealValue + iFoundValueGain;
-				// <!-- custom: First-city scouting is deterministic, but the old total alone hid whether a direction won through entering fog, revealing nearby plots or improving the prospective city site. Separating these components showed Settlers leaving strong known capital sites to chase raw revelation and later walking back; keep both endpoints and the best-known-site comparison visible so a future stopping or direction heuristic can target that waste without guessing. Exact-score ties remain reviewable because the strict first-enumerated winner is intentional. (GPT-5.6-Sol) -->
-				if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_STEP_CANDIDATE player=%d from=%d,%d endTurn=%d,%d pathTurns=%d endpointFog=%d nearbyReveal=%d foundValue=%d bestKnownFoundValue=%d foundValueGain=%d total=%d",
+				const int iInformationValue = iEndpointFogValue + iRevealValue;
+				const int iKnownProspectValue = (iInformationValue <= 0 ? 0 : std::max(0, iEndTurnFoundValue));
+				const int iExploreValueWithoutKnownTarget = iInformationValue + iKnownProspectValue + iFoundValueGain;
+				const int iKnownTargetApproachValue = (&kEndTurnPlot == pBestKnownApproachStep ? std::max(0, iBestValue - iExploreValueWithoutKnownTarget) : 0);
+				const int iExploreValue = iExploreValueWithoutKnownTarget + iKnownTargetApproachValue;
+				// <!-- custom: Five fresh high-player-count test maps exposed three first Settlers that followed the largest fog frontier for several turns and then returned to their original capital, alongside a Zulu counterexample where scouting found a genuinely stronger site. The old arbitrary 1000 points per revealed plot dwarfed complete capital values, so direction choice ignored whether the already visible part of that direction looked habitable. Value new information in shared XML-derived sustainable-plot units and add the endpoint's nonnegative player-known city-site value only when the step can actually reveal something; checking canSeePlot is essential because an earlier test counted line-of-sight-blocked outer-ring plots repeatedly and made Byzantine and Benin Settlers oscillate.
+				// A subsequent Persian test already knew a promising partly fogged site east of the scout, but generic revelation sent it west for four turns before it returned across the map. When a known site beats the remembered scout origin, raise the safe path step toward it to at least that site's value; this guides information gathering toward evidence the normal evaluator already found without committing to the site or bypassing the existing bad/fog founding guards. Unrelated exploration can still win with a higher score. These rules favour promising rivers, yields and bonuses without naming any XML asset. Keep the components separate in level-3 logging for further tuning. (GPT-5.6-Sol) -->
+				if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_STEP_CANDIDATE player=%d from=%d,%d endTurn=%d,%d pathTurns=%d endpointFog=%d nearbyReveal=%d informationValue=%d foundValue=%d knownProspectValue=%d bestKnownPlot=%d,%d bestKnownFoundValue=%d knownTargetApproachValue=%d foundValueGain=%d total=%d",
 					getOwner(), getX(), getY(), kEndTurnPlot.getX(), kEndTurnPlot.getY(), iPathTurns, iEndpointFogValue,
-					iRevealValue, iEndTurnFoundValue, iBestValue, iFoundValueGain, iExploreValue);
+					iRevealValue, iInformationValue, iEndTurnFoundValue, iKnownProspectValue, (pBestPlot == NULL ? -1 : pBestPlot->getX()),
+					(pBestPlot == NULL ? -1 : pBestPlot->getY()), iBestValue, iKnownTargetApproachValue, iFoundValueGain, iExploreValue);
 				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics(kFirstCityEvaluator, pFirstCityOmniscientEvaluator.get(), "explore-step-end", kEndTurnPlot, getOwner(), getTeam(), iEndTurnFoundValue, iExploreValue, iPathTurns);
 				if (iExploreValue > iBestExploreValue)
 				{
