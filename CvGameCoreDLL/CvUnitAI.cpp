@@ -761,6 +761,7 @@ static int SAS_getFirstCityReturnTravelValuePerTurn()
 // Include the current plot so a strong site such as Aztec (34,24) in save file 431 is not omitted and abandoned for a weaker return target. Caller guards any logging. (GPT-5.5) -->
 static CvPlot* SAS_chooseFirstCityReturnPlot(CvUnitAI const& kSettler, CitySiteEvaluator const& kEvaluator, int iSearchRange, int iTravelValuePerTurn, bool bPrioritizeRawValue, int& iRawValue, int& iAdjustedValue, int& iPathTurns, CvPlot const* pGrowthCoreReference = NULL, int* piGrowthCoreValue = NULL)
 {
+	static const int iGrowthCoreImprovementValuePercent = std::max(0, GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_GROWTH_CORE_IMPROVEMENT_VALUE_PERCENT"));
 	CvPlot* pBestPlot = NULL;
 	iRawValue = -MAX_INT;
 	iAdjustedValue = -MAX_INT;
@@ -787,7 +788,7 @@ static CvPlot* SAS_chooseFirstCityReturnPlot(CvUnitAI const& kSettler, CitySiteE
 		int iLoopReferencePlotValue = -1;
 		const int iLoopRawValue = (pGrowthCoreReference == NULL ? SAS_evaluateFirstCityFoundValue(kEvaluator, kLoopPlot) : kEvaluator.evaluateWithGrowthCorePlotValues(kLoopPlot, iLoopBest6PlotValue, iLoopBest10PlotValue, iLoopReferencePlotValue));
 		const bool bStrongerGrowthCore = (pGrowthCoreReference != NULL && iLoopBest6PlotValue > iReferenceBest6PlotValue && iLoopBest10PlotValue > iReferenceBest10PlotValue);
-		const int iLoopGrowthCoreValue = (bStrongerGrowthCore ? iLoopBest6PlotValue - iReferenceBest6PlotValue + iLoopBest10PlotValue - iReferenceBest10PlotValue : 0);
+		const int iLoopGrowthCoreValue = (bStrongerGrowthCore ? ((iLoopBest6PlotValue - iReferenceBest6PlotValue + iLoopBest10PlotValue - iReferenceBest10PlotValue) * iGrowthCoreImprovementValuePercent) / 100 : 0);
 		const int iLoopAdjustedValue = iLoopRawValue + iLoopGrowthCoreValue - iTravelValuePerTurn * iLoopPathTurns;
 		const bool bBetterSite = (bPrioritizeRawValue ? (iLoopRawValue > iRawValue || (iLoopRawValue == iRawValue && iLoopAdjustedValue > iAdjustedValue)) : iLoopAdjustedValue > iAdjustedValue);
 		if (gSettlerLogLevel >= 3) logBBAI("FIRST_CITY_RETURN_CANDIDATE player=%d from=%d,%d candidate=%d,%d rawValue=%d coreGrowthValue=%d travelValuePerTurn=%d pathTurns=%d adjustedValue=%d prioritizeRawValue=%d bestBeforeRaw=%d bestBeforeAdjusted=%d selected=%d",
@@ -5415,6 +5416,9 @@ bool CvUnitAI::AI_foundFirstCity()
 		static const int iGoodEnoughFoodBonuses = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_FOOD_BONUSES");
 		static const int iBadFoodEnvironmentScoreThreshold = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE");
 		static const int iGoodEnoughBest6ReferencePercent = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_BEST_6_PLOT_REFERENCE_PERCENT");
+		static const int iLocalRecheckMaxPathTurns = std::max(0, GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_LOCAL_RECHECK_MAX_PATH_TURNS_UNSCALED_GAMESPEED"));
+		static const int iGrowthCoreImprovementValuePercent = std::max(0, GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_GROWTH_CORE_IMPROVEMENT_VALUE_PERCENT"));
+		static const int iScoutUnrevealedEndpointReferencePlotMultiplier = std::max(0, GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_SCOUT_UNREVEALED_ENDPOINT_REFERENCE_PLOT_MULTIPLIER"));
 		int iCurrentFoodBonuses = 0;
 		int iCurrentFoodEnvironmentScore = 0;
 		int iCurrentCitizenUnworkablePlots = 0;
@@ -5488,8 +5492,8 @@ bool CvUnitAI::AI_foundFirstCity()
 			int iLoggedBestGoodEnoughAlternativeCoreGrowthValue = 0;
 			int iLoggedBestGoodEnoughAlternativePathTurns = -1;
 			const int iRemainingFirstCityTurns = std::max(0, iMaxTurnsToFound - kGame.getElapsedGameTurns());
-			const int iGoodEnoughRecheckRange = std::min(2, iRemainingFirstCityTurns);
-			// <!-- custom: This recheck is already restricted to at most two path turns, inside SAS's larger penalty-free first-city window. Prefer the best complete nearby site value without charging movement again: Aachen's adjacent Desert site was slightly stronger, but the old -75 charge for its pathTurns=1 route made it found immediately on Grassland; the fixed replay moved and still founded on turn 0. Longer travel remains bounded by the separate scouting/return logic. See KI#144. (GPT-5.6-Sol) -->
+			const int iGoodEnoughRecheckRange = std::min(iLocalRecheckMaxPathTurns, iRemainingFirstCityTurns);
+			// <!-- custom: This recheck defaults to at most two path turns, inside SAS's larger penalty-free first-city window. Prefer the best complete nearby site value without charging movement again: Aachen's adjacent Desert site was slightly stronger, but the old -75 charge for its pathTurns=1 route made it found immediately on Grassland; the fixed replay moved and still founded on turn 0. Longer travel remains bounded by the separate scouting/return logic. See KI#144. (GPT-5.6-Sol) -->
 			for (SquareIter itGoodEnough(*this, iGoodEnoughRecheckRange, false); iGoodEnoughRecheckRange > 0 && itGoodEnough.hasNext(); ++itGoodEnough)
 			{
 				CvPlot& kLoopPlot = *itGoodEnough;
@@ -5511,7 +5515,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				FAssert(iLoopReferencePlotValue == iSustainableProductivePlotValue);
 				// <!-- custom: A growth-core lead starts one bounded information-gathering excursion from the original turn-0 capital candidate. Tiny Islands retesting showed that applying the same bonus again after returning could repeat the identical trip; later turns retain ordinary full-value movement and the core-aware fallback below instead. (GPT-5.6-Sol) -->
 				const bool bStrongerGrowthCore = (kGame.getElapsedGameTurns() == 0 && iLoopBest6PlotValue > iCurrentBest6PlotValue && iLoopBest10PlotValue > iCurrentBest10PlotValue);
-				const int iLoopCoreGrowthValue = (bStrongerGrowthCore ? iLoopBest6PlotValue - iCurrentBest6PlotValue + iLoopBest10PlotValue - iCurrentBest10PlotValue : 0);
+				const int iLoopCoreGrowthValue = (bStrongerGrowthCore ? ((iLoopBest6PlotValue - iCurrentBest6PlotValue + iLoopBest10PlotValue - iCurrentBest10PlotValue) * iGrowthCoreImprovementValuePercent) / 100 : 0);
 				// <!-- custom: Wang Kon's known starting Grass Hill site scored 4345 overall and therefore founded immediately, consuming a strong workable plot. One river step north scored only 4192 overall but already had stronger best-6 (1045 vs 956) and best-10 (1622 vs 1482) cores; moving there revealed a productive direction while preserving the hill. Let a nearby site that improves both early and developed worked-plot cores add those two gains to its complete found value. This only investigates evidence already visible to the player, remains yield/XML-driven rather than preferring rivers or named terrain, and requires both growth stages to improve so one exceptional tile cannot conceal a weaker broader core. Follow-up testing explored from 51,23 and founded Seoul at 47,25 on turn 5: complete value 4535 vs 4345, best-6 1154 vs 956, best-10 1800 vs 1482, and two food bonuses. (GPT-5.6-Sol) -->
 				const int iLoopAdjustedValue = iLoopValue + iLoopCoreGrowthValue;
 				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics(kFirstCityEvaluator, pFirstCityOmniscientEvaluator.get(), "good-enough-recheck", kLoopPlot, getOwner(), getTeam(), iLoopValue, iLoopAdjustedValue, iLoopPathTurns);
@@ -5742,7 +5746,7 @@ bool CvUnitAI::AI_foundFirstCity()
 					if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_STEP_REJECT player=%d from=%d,%d candidate=%d,%d reason=NO_MOVEMENT", getOwner(), getX(), getY(), pAdj->getX(), pAdj->getY());
 					continue;
 				}
-				const int iEndpointFogValue = (kEndTurnPlot.isRevealed(getTeam()) ? 0 : 5 * iSustainablePlotValue);
+				const int iEndpointFogValue = (kEndTurnPlot.isRevealed(getTeam()) ? 0 : iScoutUnrevealedEndpointReferencePlotMultiplier * iSustainablePlotValue);
 				int iRevealValue = 0;
 				const int iFirstCityExploreRevealRange = visibilityRange() + 1;
 				for (SquareIter itReveal(kEndTurnPlot, iFirstCityExploreRevealRange, false); itReveal.hasNext(); ++itReveal)

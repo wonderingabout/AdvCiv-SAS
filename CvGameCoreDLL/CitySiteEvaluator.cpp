@@ -19,6 +19,21 @@
 
 static int const iDEFAULT_BARB_DISCOURAGED_RANGE = 8; // advc.303
 
+// <!-- custom: Keep the three top-level Settler yield-emphasis percentages shared by ordinary plot potential, resource-improvement value, home-plot opportunity and XML-derived scouting references. (GPT-5.6-Sol) -->
+static int getSASEvaluateYieldValuePercent(YieldTypes eYield)
+{
+	static const int iFoodPercent = std::max(0, GC.getDefineINT("SAS_EVALUATE_YIELD_FOOD_VALUE_PERCENT"));
+	static const int iProductionPercent = std::max(0, GC.getDefineINT("SAS_EVALUATE_YIELD_PRODUCTION_VALUE_PERCENT"));
+	static const int iCommercePercent = std::max(0, GC.getDefineINT("SAS_EVALUATE_YIELD_COMMERCE_VALUE_PERCENT"));
+	switch (eYield)
+	{
+	case YIELD_FOOD: return iFoodPercent;
+	case YIELD_PRODUCTION: return iProductionPercent;
+	case YIELD_COMMERCE: return iCommercePercent;
+	default: FErrorMsg("Unexpected yield type"); return 100;
+	}
+}
+
 #define IFLOG if (gFoundLogLevel > 0 && AIFoundValue::isLoggingEnabled()) // advc.031c
 
 CitySiteEvaluator::PlotPotentialYield::PlotPotentialYield()
@@ -260,9 +275,10 @@ int CitySiteEvaluator::evaluateWithPlotValueDistribution(CvPlot const& kPlot, in
 
 int CitySiteEvaluator::getSustainableProductivePlotValue()
 {
+	static const int iExtraValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_EXTRA_VALUE");
 	static const int iFoodValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_FOOD_VALUE");
 	static const int iProductionValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_PRODUCTION_VALUE");
-	return 10 + GC.getFOOD_CONSUMPTION_PER_POPULATION() * iFoodValue + iProductionValue;
+	return iExtraValue + (GC.getFOOD_CONSUMPTION_PER_POPULATION() * iFoodValue * getSASEvaluateYieldValuePercent(YIELD_FOOD)) / 100 + (iProductionValue * getSASEvaluateYieldValuePercent(YIELD_PRODUCTION)) / 100;
 }
 
 // advc.300:
@@ -1097,7 +1113,10 @@ int AIFoundValue::evaluate()
 				static const int iFoodValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_FOOD_VALUE");
 				static const int iProductionValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_PRODUCTION_VALUE");
 				static const int iCommerceValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_COMMERCE_VALUE");
-				int const aiYieldValue[NUM_YIELD_TYPES] = {iFoodValue, iProductionValue, iCommerceValue};
+				int const aiYieldValue[NUM_YIELD_TYPES] = {
+					(iFoodValue * getSASEvaluateYieldValuePercent(YIELD_FOOD)) / 100,
+					(iProductionValue * getSASEvaluateYieldValuePercent(YIELD_PRODUCTION)) / 100,
+					(iCommerceValue * getSASEvaluateYieldValuePercent(YIELD_COMMERCE)) / 100};
 				int iCityCenterYieldValue = 0;
 				int iWorkedPotentialYieldValue = 0;
 				FOR_EACH_ENUM(Yield)
@@ -1107,11 +1126,12 @@ int AIFoundValue::evaluate()
 					iWorkedPotentialYieldValue += iUnimprovedYield * aiYieldValue[eLoopYield] + ((aiBestPotentialYield[eLoopYield] - iUnimprovedYield) * aiYieldValue[eLoopYield] * iPotentialTimingPercent) / 100;
 				}
 				int const iHomeOpportunityDelta = iCityCenterYieldValue - iWorkedPotentialYieldValue;
-				const int iWeakPlotWorkPercent = 40;
-				int const iHomeOpportunityValue = (iHomeOpportunityDelta < 0 ? 2 * iHomeOpportunityDelta : (iHomeOpportunityDelta * iWeakPlotWorkPercent) / 100);
+				static const int iStrongPlotOpportunityValuePercent = std::max(0, GC.getDefineINT("SAS_EVALUATE_HOME_STRONG_PLOT_OPPORTUNITY_VALUE_PERCENT"));
+				static const int iWeakPlotOpportunityValuePercent = std::max(0, GC.getDefineINT("SAS_EVALUATE_HOME_WEAK_PLOT_OPPORTUNITY_VALUE_PERCENT"));
+				int const iHomeOpportunityValue = (iHomeOpportunityDelta < 0 ? (iHomeOpportunityDelta * iStrongPlotOpportunityValuePercent) / 100 : (iHomeOpportunityDelta * iWeakPlotOpportunityValuePercent) / 100);
 				iValue += iHomeOpportunityValue;
-				IFLOG logBBAI("%d home-plot opportunity value: delta=%d weakPlotWorkPercent=%d cityCenter=%d cityCenterYields=%dF%dP%dC workedPotential=%d improvement=%S potentialYields=%dF%dP%dC timing=%d%%",
-					iHomeOpportunityValue, iHomeOpportunityDelta, iWeakPlotWorkPercent, iCityCenterYieldValue,
+				IFLOG logBBAI("%d home-plot opportunity value: delta=%d strongPlotPercent=%d weakPlotPercent=%d cityCenter=%d cityCenterYields=%dF%dP%dC workedPotential=%d improvement=%S potentialYields=%dF%dP%dC timing=%d%%",
+					iHomeOpportunityValue, iHomeOpportunityDelta, iStrongPlotOpportunityValuePercent, iWeakPlotOpportunityValuePercent, iCityCenterYieldValue,
 					aiNatureYield[YIELD_FOOD], aiNatureYield[YIELD_PRODUCTION], aiNatureYield[YIELD_COMMERCE],
 					iWorkedPotentialYieldValue,
 					(eBestPotentialImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eBestPotentialImprovement).getDescription()),
@@ -1237,7 +1257,7 @@ int AIFoundValue::evaluate()
 
 				// <!-- custom: AdvCiv's aggregated special-yield formula applied hardcoded weights, nonlinear power, and a second food modifier after older SAS logic had already weighted Food x3 and Production x2. This made six resources contribute 5015 points to Karakorum's low-food (49,43) candidate and overwhelm the stronger Pig + Maize river-grass site at (52,40) (save file 360).
 				// Value only the actual improvement yield changes once through simple XML-tunable Food/Production/Commerce values; non-yield health, happiness, strategic, duplicate, and trade value remains separate. (GPT-5.5) -->
-				const int iBonusImprovementYieldValue = aiBonusImprovementYield[YIELD_FOOD] * iBFCBonusImprovementFoodValue + aiBonusImprovementYield[YIELD_PRODUCTION] * iBFCBonusImprovementProductionValue + aiBonusImprovementYield[YIELD_COMMERCE] * iBFCBonusImprovementCommerceValue;
+				const int iBonusImprovementYieldValue = (aiBonusImprovementYield[YIELD_FOOD] * iBFCBonusImprovementFoodValue * getSASEvaluateYieldValuePercent(YIELD_FOOD)) / 100 + (aiBonusImprovementYield[YIELD_PRODUCTION] * iBFCBonusImprovementProductionValue * getSASEvaluateYieldValuePercent(YIELD_PRODUCTION)) / 100 + (aiBonusImprovementYield[YIELD_COMMERCE] * iBFCBonusImprovementCommerceValue * getSASEvaluateYieldValuePercent(YIELD_COMMERCE)) / 100;
 				iResourceValue += iBonusImprovementYieldValue;
 				iBreakdownBonusImprovementYields += iBonusImprovementYieldValue;
 				iBonusScoreYield = iBonusImprovementYieldValue;
@@ -2681,11 +2701,16 @@ scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p) const
 
 
 // <!-- custom: Score the strongest plausible worked-tile outcome by enumerating Build/Improvement XML instead of naming Farm, Mine, Cottage, terrain or features.
-// Immediate improvement yields receive two-thirds weight and the final XML upgrade one-third, so growth chains matter without treating a new first-stage improvement as fully mature. Builds available now retain full value, near-researchable Builds retain 75%, and later Builds retain 50% of their gain over the unimproved plot; this lets sites retain long-term potential without allowing late infrastructure to erase early terrain differences. (GPT-5.6-Sol) -->
+// The XML defaults give immediate improvement yields two-thirds weight and the final upgrade one-third, so growth chains matter without treating a new first-stage improvement as fully mature. Builds available now retain full value; the XML defaults retain 75% for near-researchable Builds and 50% for later Builds. This lets sites retain tunable long-term potential without allowing late infrastructure to erase early terrain differences. (GPT-5.6-Sol) -->
 int AIFoundValue::evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNeverImprove, ImprovementTypes& eBestImprovement, int* aiBestYield, int& iTimingPercent) const
 {
 	bool const bLogCandidates = (gFoundLogLevel >= 2 && AIFoundValue::isLoggingEnabled());
 	bool const bLogCandidateDetails = (gFoundLogLevel >= 3 && AIFoundValue::isLoggingEnabled());
+	static const int iImmediateImprovementWeight = std::max(0, GC.getDefineINT("SAS_EVALUATE_PLOT_POTENTIAL_IMMEDIATE_IMPROVEMENT_WEIGHT"));
+	static const int iFinalUpgradeWeight = std::max(0, GC.getDefineINT("SAS_EVALUATE_PLOT_POTENTIAL_FINAL_UPGRADE_WEIGHT"));
+	static const int iImprovementStageWeight = iImmediateImprovementWeight + iFinalUpgradeWeight;
+	static const int iNearTechValuePercent = std::max(0, std::min(100, GC.getDefineINT("SAS_EVALUATE_PLOT_POTENTIAL_NEAR_TECH_VALUE_PERCENT")));
+	static const int iLaterTechValuePercent = std::max(0, std::min(100, GC.getDefineINT("SAS_EVALUATE_PLOT_POTENTIAL_LATER_TECH_VALUE_PERCENT")));
 	int iCachedValue = 0;
 	if (!bLogCandidates && kSet.getCachedPlotPotentialYield(p, iCachedValue, eBestImprovement, aiBestYield, iTimingPercent))
 		return iCachedValue;
@@ -2756,12 +2781,12 @@ int AIFoundValue::evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNever
 		}
 		int const iImmediateValue = evaluateYield(aaiStageYield[0], &p, false, false);
 		int const iFinalValue = evaluateYield(aaiStageYield[1], &p, false, false);
-		int const iMaturedValue = (2 * iImmediateValue + iFinalValue) / 3;
+		int const iMaturedValue = (iImprovementStageWeight <= 0 ? iUnimprovedValue : (iImmediateImprovementWeight * iImmediateValue + iFinalUpgradeWeight * iFinalValue) / iImprovementStageWeight);
 		TechTypes const eBuildTech = kBuild.getTechPrereq();
 		TechTypes const eFeatureTech = (eFeature == NO_FEATURE ? NO_TECH : kBuild.getFeatureTech(eFeature));
 		bool const bAvailableNow = ((eBuildTech == NO_TECH || kTeam.isHasTech(eBuildTech)) && (eFeatureTech == NO_TECH || kTeam.isHasTech(eFeatureTech)));
 		bool const bAvailableSoon = (isNearTech(eBuildTech) && isNearTech(eFeatureTech));
-		int const iCandidateTimingPercent = (bAvailableNow ? 100 : (bAvailableSoon ? 75 : 50));
+		int const iCandidateTimingPercent = (bAvailableNow ? 100 : (bAvailableSoon ? iNearTechValuePercent : iLaterTechValuePercent));
 		int const iCandidateValue = iUnimprovedValue + ((iMaturedValue - iUnimprovedValue) * iCandidateTimingPercent) / 100;
 		if (bLogCandidates)
 		{
@@ -2806,7 +2831,7 @@ int AIFoundValue::evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNever
 		eBestImprovement = eImprovement;
 		iTimingPercent = iCandidateTimingPercent;
 		FOR_EACH_ENUM(Yield)
-			aiBestYield[eLoopYield] = (2 * aaiStageYield[0][eLoopYield] + aaiStageYield[1][eLoopYield]) / 3;
+			aiBestYield[eLoopYield] = (iImprovementStageWeight <= 0 ? aiUnimprovedYield[eLoopYield] : (iImmediateImprovementWeight * aaiStageYield[0][eLoopYield] + iFinalUpgradeWeight * aaiStageYield[1][eLoopYield]) / iImprovementStageWeight);
 	}
 	if (bLogCandidates) logBBAI("PLOT_POTENTIAL_CANDIDATES plot=%d,%d home=%d unimproved=%d candidates=%d best=%S/%d/%d%% second=%S/%d/%d%% third=%S/%d/%d%%",
 		p.getX(), p.getY(), isHome(p), iUnimprovedValue, iCandidateCount,
@@ -2836,6 +2861,7 @@ int AIFoundValue::evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNever
 int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p, bool bCanNeverImprove, bool bTreatHomeAsCity) const
 {
 	int r = 0;
+	static const int iSelfSustainingExtraValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_EXTRA_VALUE");
 	static const int iDefaultFoodValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_DEFAULT_FOOD_VALUE");
 	static const int iDefaultProductionValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_DEFAULT_PRODUCTION_VALUE");
 	static const int iDefaultCommerceValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_DEFAULT_COMMERCE_VALUE");
@@ -2851,7 +2877,7 @@ int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p, bool bCanNe
 	if (p != NULL && !p->isWater() && // advc.031: Exclude seafood
 		((bTreatHomeAsCity && isHome(*p)) || aiYield[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION()))
 	{
-		r += 10;
+		r += iSelfSustainingExtraValue;
 		aiWeight[YIELD_FOOD] = iSelfSustainingFoodValue;
 		aiWeight[YIELD_PRODUCTION] = iSelfSustainingProductionValue;
 		aiWeight[YIELD_COMMERCE] = iSelfSustainingCommerceValue;
@@ -2879,7 +2905,8 @@ int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p, bool bCanNe
 	// } // </advc.303>
 	FOR_EACH_ENUM(Yield)
 	{
-		FAssert(aiWeight[eLoopYield] > 0); // advc.303
+		aiWeight[eLoopYield] = (aiWeight[eLoopYield] * getSASEvaluateYieldValuePercent(eLoopYield)) / 100;
+		FAssert(aiWeight[eLoopYield] >= 0); // advc.303
 		int iYieldValue = aiYield[eLoopYield] * aiWeight[eLoopYield];
 		/*	<advc.031> Mined resources (-1 production) get a too low value otherwise.
 			See the comment at the end of getBonusImprovement. */
@@ -3753,18 +3780,20 @@ int AIFoundValue::evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionMod
 	return iR;
 }
 
-// <!-- custom: Value the defense that remains after founding rather than the pre-city plot's feature/improvement defense, because current city creation removes both. The first proportional version scaled the whole site and redirected several tested opening choices toward hills; scaling by one tenth of the combat-defense percent against only the remaining workable-plot economy makes an ordinary 25% hill worth +2.5% of that economy (+5% for a defensive personality) without carrying resource and other non-plot rewards into defense. XML terrain defense and HILLS_EXTRA_DEFENSE remain authoritative, so a mod-added 50% defensible founding terrain receives +5% naturally. Do not exclude Barbarians: defensible sites benefit them and later conquerors without lowering local yield quality. (GPT-5.6-Sol) -->
+// <!-- custom: Value the defense that remains after founding rather than the pre-city plot's feature/improvement defense, because current city creation removes both. The first proportional version scaled the whole site and redirected several tested opening choices toward hills; the XML default scales by one tenth of the combat-defense percent against only the remaining workable-plot economy, making an ordinary 25% hill worth +2.5% of that economy (+5% for a defensive personality) without carrying resource and other non-plot rewards into defense. XML terrain defense and HILLS_EXTRA_DEFENSE remain authoritative, so a mod-added 50% defensible founding terrain receives +5% naturally. Do not exclude Barbarians: defensible sites benefit them and later conquerors without lowering local yield quality. (GPT-5.6-Sol) -->
 int AIFoundValue::evaluateDefense(int iWorkablePlotValue) const
 {
+	static const int iDefenseValuePercent = std::max(0, GC.getDefineINT("SAS_EVALUATE_CITY_SITE_DEFENSE_WORKABLE_VALUE_PERCENT_PER_100_DEFENSE"));
+	static const int iDefensivePersonalityValuePercent = std::max(0, GC.getDefineINT("SAS_EVALUATE_CITY_SITE_DEFENSIVE_PERSONALITY_VALUE_PERCENT"));
 	int iDefenseModifier = GC.getInfo(kPlot.getTerrainType()).getDefenseModifier();
 	if (kPlot.isHills())
 		iDefenseModifier += GC.getDefineINT(CvGlobals::HILLS_EXTRA_DEFENSE);
 	if (iDefenseModifier == 0 || iWorkablePlotValue <= 0)
 		return 0;
 
-	scaled rValue = per1000(iDefenseModifier) * iWorkablePlotValue;
+	scaled rValue = per10000(iDefenseModifier * iDefenseValuePercent) * iWorkablePlotValue;
 	if (kSet.isDefensive())
-		rValue *= 2;
+		rValue *= per100(iDefensivePersonalityValuePercent);
 	int const iValue = rValue.round();
 	IFLOG logBBAI("CITY_SITE_DEFENSE modifier=%d defensivePersonality=%d workablePlotValue=%d adjustment=%+d", iDefenseModifier, kSet.isDefensive(), iWorkablePlotValue, iValue);
 	return iValue;
