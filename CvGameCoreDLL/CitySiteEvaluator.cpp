@@ -339,6 +339,19 @@ void CitySiteEvaluator::logComparedSiteBreakdown(char const* szLabel, CvPlot con
 }
 
 
+// <!-- custom: Founding logs explained seafood only when that site happened to be the selected, next-best, or adjacent comparison. Count water bonuses visible to this AI so a separate listed-candidate audit can distinguish low valuation from the site never surviving into the maintained candidate list. Diagnostic only. (GPT-5.6-Sol) -->
+static int SAS_countKnownWaterBonuses(CvPlot const& kCityPlot, TeamTypes eTeam)
+{
+	int iKnownWaterBonuses = 0;
+	for (CityPlotIter it(kCityPlot, false); it.hasNext(); ++it)
+	{
+		if (it->isWater() && it->getNonObsoleteBonusType(eTeam) != NO_BONUS)
+			iKnownWaterBonuses++;
+	}
+	return iKnownWaterBonuses;
+}
+
+
 void CitySiteEvaluator::log(CvPlot const& kPlot)
 {
 	/*  Important to ignore other city sites. Because, when CvPlayerAI::
@@ -455,29 +468,69 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 		}
 		return;
 	}
+	CvPlot const* pNextBestSite = NULL;
+	int iNextBestValue = 0;
+	for (int i = 0; i < getPlayer().AI_getNumCitySites(); i++)
 	{
-		CvPlot const* pNextBestSite = NULL;
-		int iBest = 0;
+		CvPlot const& kLoopPlot = getPlayer().AI_getCitySite(i);
+		if (&kLoopPlot == &kPlot)
+			continue;
+		int const iValue = evaluate(kLoopPlot);
+		if (iValue > iNextBestValue)
+		{
+			pNextBestSite = &kLoopPlot;
+			iNextBestValue = iValue;
+		}
+	}
+	if (pNextBestSite != NULL)
+	{
+		int const iNextX = pNextBestSite->getX();
+		int const iNextY = pNextBestSite->getY();
+		logBBAI("\nNext best site compared with selected (%d,%d): selected=%d next=%d delta=%+d (%d,%d)",
+			kPlot.getX(), kPlot.getY(), iCurrentValue, iNextBestValue, iNextBestValue - iCurrentValue, iNextX, iNextY);
+		evaluateWithLogging(*pNextBestSite);
+		if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Next best site", *pNextBestSite);
+	}
+	if (bLogComparedSiteBreakdown)
+	{
+		const int iMinWaterSizeForOcean = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
+		CvPlot const* pBestKnownWaterBonusSite = NULL;
+		int iBestKnownWaterBonusSiteValue = 0;
+		int iBestKnownWaterBonuses = 0;
 		for (int i = 0; i < getPlayer().AI_getNumCitySites(); i++)
 		{
 			CvPlot const& kLoopPlot = getPlayer().AI_getCitySite(i);
-			if (&kLoopPlot == &kPlot)
+			if (&kLoopPlot == &kPlot || !kLoopPlot.isCoastalLand(iMinWaterSizeForOcean))
 				continue;
-			int iValue = evaluate(kLoopPlot);
-			if (iValue > iBest)
+			int const iKnownWaterBonuses = SAS_countKnownWaterBonuses(kLoopPlot, getPlayer().getTeam());
+			if (iKnownWaterBonuses <= 0)
+				continue;
+			int const iValue = evaluate(kLoopPlot);
+			if (iValue > iBestKnownWaterBonusSiteValue)
 			{
-				pNextBestSite = &kLoopPlot;
-				iBest = iValue;
+				pBestKnownWaterBonusSite = &kLoopPlot;
+				iBestKnownWaterBonusSiteValue = iValue;
+				iBestKnownWaterBonuses = iKnownWaterBonuses;
 			}
 		}
-		if (pNextBestSite != NULL)
+		bool const bSelectedCoastal = kPlot.isCoastalLand(iMinWaterSizeForOcean);
+		int const iSelectedKnownWaterBonuses = (bSelectedCoastal ? SAS_countKnownWaterBonuses(kPlot, getPlayer().getTeam()) : 0);
+		if (pBestKnownWaterBonusSite == NULL)
 		{
-			int iNextX = pNextBestSite->getX();
-			int iNextY = pNextBestSite->getY();
-			logBBAI("\nNext best site compared with selected (%d,%d): selected=%d next=%d delta=%+d (%d,%d)",
-				kPlot.getX(), kPlot.getY(), iCurrentValue, iBest, iBest - iCurrentValue, iNextX, iNextY);
-			evaluateWithLogging(*pNextBestSite);
-			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Next best site", *pNextBestSite);
+			logBBAI("\nListed coastal water-bonus site audit: selectedCoastal=%d selectedKnownWaterBonuses=%d alternative=NONE citySites=%d",
+				bSelectedCoastal, iSelectedKnownWaterBonuses, getPlayer().AI_getNumCitySites());
+		}
+		else
+		{
+			bool const bSameAsNextBest = (pBestKnownWaterBonusSite == pNextBestSite);
+			logBBAI("\nListed coastal water-bonus site audit: selectedCoastal=%d selectedKnownWaterBonuses=%d selected=%d alternative=%d delta=%+d (%d,%d) alternativeKnownWaterBonuses=%d sameAsNextBest=%d citySites=%d",
+				bSelectedCoastal, iSelectedKnownWaterBonuses, iCurrentValue, iBestKnownWaterBonusSiteValue,
+				iBestKnownWaterBonusSiteValue - iCurrentValue, pBestKnownWaterBonusSite->getX(), pBestKnownWaterBonusSite->getY(), iBestKnownWaterBonuses, bSameAsNextBest, getPlayer().AI_getNumCitySites());
+			if (!bSameAsNextBest)
+			{
+				evaluateWithLogging(*pBestKnownWaterBonusSite);
+				logComparedSiteBreakdown("Best listed coastal water-bonus site", *pBestKnownWaterBonusSite);
+			}
 		}
 	}
 	{
