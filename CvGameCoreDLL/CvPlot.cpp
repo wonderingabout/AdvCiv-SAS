@@ -5539,9 +5539,11 @@ bool CvPlot::SAS_isVeryBadBFCPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer,
 
 	TeamTypes const eTeam = TEAMID(ePlayer);
 	int const aiYieldWeight[NUM_YIELD_TYPES] = {4, 2, 1};
+	int aiCurrentNatureYield[NUM_YIELD_TYPES];
 	FOR_EACH_ENUM(Yield)
 	{
-		int iYield = calculateNatureYield(eLoopYield, NO_TEAM);
+		aiCurrentNatureYield[eLoopYield] = calculateNatureYield(eLoopYield, NO_TEAM);
+		int iYield = aiCurrentNatureYield[eLoopYield];
 		if (isWater() && eLoopYield == YIELD_FOOD)
 			iYield += iSeaPlotFoodChange;
 		iBestPotentialYieldScore += aiYieldWeight[eLoopYield] * iYield;
@@ -5549,6 +5551,8 @@ bool CvPlot::SAS_isVeryBadBFCPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer,
 	if (iBestPotentialYieldScore >= iMinPotentialYieldScore)
 		return false;
 
+	int aiRemovedFeatureNatureYield[NUM_YIELD_TYPES];
+	bool bRemovedFeatureNatureYieldCached = false;
 	FOR_EACH_ENUM(Build)
 	{
 		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
@@ -5559,10 +5563,18 @@ bool CvPlot::SAS_isVeryBadBFCPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer,
 			continue;
 		}
 		bool const bRemoveFeature = (isFeature() && kBuild.isFeatureRemove(getFeatureType()));
+		// <!-- custom: All legal Builds share the current natural yields or the same feature-removed yields.
+		// Compute the latter once lazily instead of repeating the terrain/feature calculation for each Build. (GPT-5.6-Sol) -->
+		if (bRemoveFeature && !bRemovedFeatureNatureYieldCached)
+		{
+			FOR_EACH_ENUM(Yield)
+				aiRemovedFeatureNatureYield[eLoopYield] = calculateNatureYield(eLoopYield, NO_TEAM, true);
+			bRemovedFeatureNatureYieldCached = true;
+		}
 		int iPotentialYieldScore = 0;
 		FOR_EACH_ENUM(Yield)
 		{
-			int iYield = calculateNatureYield(eLoopYield, NO_TEAM, bRemoveFeature) +
+			int iYield = (bRemoveFeature ? aiRemovedFeatureNatureYield[eLoopYield] : aiCurrentNatureYield[eLoopYield]) +
 					calculatePotentialImprovementYieldChange(eImprovement, eLoopYield, ePlayer, NO_BONUS);
 			if (isWater() && eLoopYield == YIELD_FOOD)
 				iYield += iSeaPlotFoodChange;

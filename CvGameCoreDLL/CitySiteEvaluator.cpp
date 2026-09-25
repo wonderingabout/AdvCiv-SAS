@@ -1281,7 +1281,8 @@ int AIFoundValue::evaluate()
 				// Value only the actual improvement yield changes once through simple XML-tunable Food/Production/Commerce values; non-yield health, happiness, strategic, duplicate, and trade value remains separate. (GPT-5.5) -->
 				const int iBonusImprovementYieldValue = (aiBonusImprovementYield[YIELD_FOOD] * iBFCBonusImprovementFoodValue * getSASEvaluateYieldValuePercent(YIELD_FOOD)) / 100 + (aiBonusImprovementYield[YIELD_PRODUCTION] * iBFCBonusImprovementProductionValue * getSASEvaluateYieldValuePercent(YIELD_PRODUCTION)) / 100 + (aiBonusImprovementYield[YIELD_COMMERCE] * iBFCBonusImprovementCommerceValue * getSASEvaluateYieldValuePercent(YIELD_COMMERCE)) / 100;
 				iResourceValue += iBonusImprovementYieldValue;
-				iBreakdownBonusImprovementYields += iBonusImprovementYieldValue;
+				if (m_pszBreakdown != NULL)
+					iBreakdownBonusImprovementYields += iBonusImprovementYieldValue;
 				iBonusScoreYield = iBonusImprovementYieldValue;
 				IFLOG if(iBonusImprovementYieldValue != 0) logBBAI("%d from tunable bonus improvement yields %dF%dP%dC (%S)",
 					iBonusImprovementYieldValue, aiBonusImprovementYield[YIELD_FOOD], aiBonusImprovementYield[YIELD_PRODUCTION],
@@ -2754,10 +2755,12 @@ int AIFoundValue::evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNever
 	eBestImprovement = NO_IMPROVEMENT;
 	iTimingPercent = 0;
 	int const iExtraYield = GC.getDefineINT(CvGlobals::EXTRA_YIELD);
+	int aiCurrentNatureYield[NUM_YIELD_TYPES];
 	int aiUnimprovedYield[NUM_YIELD_TYPES];
 	FOR_EACH_ENUM(Yield)
 	{
-		aiUnimprovedYield[eLoopYield] = p.calculateNatureYield(eLoopYield, NO_TEAM);
+		aiCurrentNatureYield[eLoopYield] = p.calculateNatureYield(eLoopYield, NO_TEAM);
+		aiUnimprovedYield[eLoopYield] = aiCurrentNatureYield[eLoopYield];
 		if (!kSet.isStartingLoc())
 		{
 			int const iExtraYieldThreshold = kPlayer.getExtraYieldThreshold(eLoopYield);
@@ -2784,6 +2787,8 @@ int AIFoundValue::evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNever
 	int aaiTopBuildImmediateYield[3][NUM_YIELD_TYPES] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 	int aaiTopBuildFinalYield[3][NUM_YIELD_TYPES] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 	int iCandidateCount = 0;
+	int aiRemovedFeatureNatureYield[NUM_YIELD_TYPES];
+	bool bRemovedFeatureNatureYieldCached = false;
 	FOR_EACH_ENUM(Build)
 	{
 		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
@@ -2795,12 +2800,21 @@ int AIFoundValue::evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNever
 		ImprovementTypes const eFinalImprovement = CvImprovementInfo::finalUpgrade(eImprovement);
 		int aaiStageYield[2][NUM_YIELD_TYPES];
 		int aiPotentialNatureYield[NUM_YIELD_TYPES];
+		// <!-- custom: Every legal Build on this plot sees one of only two natural-yield states: retain the feature or remove it.
+		// Reuse the current state and compute the removed-feature state once lazily instead of repeating calculateNatureYield for every Build and Yield. (GPT-5.6-Sol) -->
+		if (bRemoveFeature && !bRemovedFeatureNatureYieldCached)
+		{
+			FOR_EACH_ENUM(Yield)
+				aiRemovedFeatureNatureYield[eLoopYield] = p.calculateNatureYield(eLoopYield, NO_TEAM, true);
+			bRemovedFeatureNatureYieldCached = true;
+		}
 		FOR_EACH_ENUM(Yield)
 		{
-			int const iNatureYield = p.calculateNatureYield(eLoopYield, NO_TEAM, bRemoveFeature);
+			int const iNatureYield = (bRemoveFeature ? aiRemovedFeatureNatureYield[eLoopYield] : aiCurrentNatureYield[eLoopYield]);
 			aiPotentialNatureYield[eLoopYield] = iNatureYield;
 			aaiStageYield[0][eLoopYield] = iNatureYield + p.calculatePotentialImprovementYieldChange(eImprovement, eLoopYield, ePlayer, NO_BONUS);
-			aaiStageYield[1][eLoopYield] = iNatureYield + p.calculatePotentialImprovementYieldChange(eFinalImprovement == NO_IMPROVEMENT ? eImprovement : eFinalImprovement, eLoopYield, ePlayer, NO_BONUS);
+			// <!-- custom: A non-growing improvement's final stage is its immediate stage; avoid repeating the same full route/technology/civic yield calculation. (GPT-5.6-Sol) -->
+			aaiStageYield[1][eLoopYield] = (eFinalImprovement == NO_IMPROVEMENT ? aaiStageYield[0][eLoopYield] : iNatureYield + p.calculatePotentialImprovementYieldChange(eFinalImprovement, eLoopYield, ePlayer, NO_BONUS));
 		}
 		if (!kSet.isStartingLoc())
 		{
