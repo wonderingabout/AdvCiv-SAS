@@ -12623,6 +12623,32 @@ int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled,
 
 /*	Value sans corporation
 	(K-Mod note: very vague units. roughly 4x gold / turn / city.) */
+static void appendSASBonusValueContributor(CvString& szContributors, char const* szType, scaled rValue)
+{
+	if (!rValue.isPositive() && !rValue.isNegative())
+		return;
+	CvString szItem;
+	szItem.Format(szContributors.empty() ? "%s:%d" : ",%s:%d", szType, rValue.getPercent());
+	szContributors += szItem;
+}
+
+static bool shouldLogSASBonusValueChange(CvString const& szKey, CvString const& szSignature)
+{
+	// <!-- custom: Bonus valuation is queried repeatedly while assembling trade tables. Keep one row per changed result instead of producing hundreds of thousands of identical rows; clear the diagnostic-only cache for every new/load BBAI session. (GPT-5.6-Sol) -->
+	static int iSessionSequence = -1;
+	static std::map<CvString, CvString> aLastSignatures;
+	if (iSessionSequence != getSASBBAILogSessionSequence())
+	{
+		iSessionSequence = getSASBBAILogSessionSequence();
+		aLastSignatures.clear();
+	}
+	std::map<CvString, CvString>::iterator it = aLastSignatures.find(szKey);
+	if (it != aLastSignatures.end() && it->second == szSignature)
+		return false;
+	aLastSignatures[szKey] = szSignature;
+	return true;
+}
+
 int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade) const
 {
 	//recalculate if not defined
@@ -12732,6 +12758,7 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade) 
 				AI_getHealthWeight(iHealth, iExtraPop2));
 	}
 	rValue *= rExtraPopFactor;
+	scaled const rHappyHealthValue = rValue;
 	// </advc.036>
 
 	CvCity const* pCapital = getCapital();
@@ -12761,8 +12788,8 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade) 
 
 	// advc: Unit, building, project, route evaluation moved into subroutines ...
 
+	scaled rUnitValue;
 	{
-		scaled rUnitValue;
 		int iUnitsEnabled = 0; // advc.036b
 		for (int i = 0; i < kCiv.getNumUnits(); i++)
 		{
@@ -12781,8 +12808,8 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade) 
 			rUnitValue /= scaled(iUnitsEnabled).pow(fixp(1/8.));
 		rValue += rUnitValue;
 	}
+	scaled rBuildingValue;
 	{
-		scaled rBuildingValue;
 		int iBuildingsEnabled = 0; // advc.036b
 		for (int i = 0; i < kCiv.getNumBuildings(); i++)
 		{
@@ -12799,30 +12826,80 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade) 
 			rBuildingValue /= scaled(iBuildingsEnabled).pow(fixp(1/9.)); // </advc.036b>
 		rValue += rBuildingValue;
 	}
+	scaled rProjectValue;
 	FOR_EACH_ENUM(Project)
 	{
-		rValue += AI_baseBonusProjectVal(eBonus, eLoopProject, bTrade);
+		scaled const rLoopValue = AI_baseBonusProjectVal(eBonus, eLoopProject, bTrade);
+		rProjectValue += rLoopValue;
 	}
+	rValue += rProjectValue;
 	RouteTypes eBestRoute = getBestRoute();
+	scaled rRouteValue;
 	FOR_EACH_ENUM(Build)
 	{
 		RouteTypes eRoute =  GC.getInfo(eLoopBuild).getRoute();
 		if (eRoute != NO_ROUTE)
 		{
-			rValue += AI_baseBonusRouteVal(eBonus, eRoute, eBestRoute,
-					GC.getInfo(eLoopBuild).getTechPrereq(), bTrade);
+			scaled const rLoopValue = AI_baseBonusRouteVal(eBonus, eRoute, eBestRoute, GC.getInfo(eLoopBuild).getTechPrereq(), bTrade);
+			rRouteValue += rLoopValue;
 		}
 	}
+	rValue += rRouteValue;
 
 	/*int iCorporationValue = AI_corporationBonusVal(eBonus);
 	iValue += iCorporationValue;
 	if (iCorporationValue <= 0 && getNumAvailableBonuses(eBonus) > 0)
 		iValue /= 3;*/
 
+	// <!-- custom: Preserve the inherited dynamic valuation as explicit reusable components before replacing SAS's later named-resource modifiers. This first checkpoint does not alter their arithmetic; dedicated BBAI rows expose which civilization-specific XML assets actually give each bonus value. (GPT-5.6-Sol) -->
+	scaled const rDynamicValueBeforeDivisor = rValue;
 	rValue /= 10;
 	// <advc.036>
 	int iValue = rValue.round();
 	iValue = std::max(0, iValue);
+	if (gBonusLogLevel >= 2 && (iValue > 0 || GC.getInfo(eBonus).getAIObjective() != 0))
+	{
+		CvString szUnitContributors;
+		CvString szBuildingContributors;
+		CvString szProjectContributors;
+		CvString szRouteContributors;
+		if (gBonusLogLevel >= 3)
+		{
+			// <!-- custom: Rescan contributors only inside level-3 diagnostics. This keeps disabled logging allocation-free while identifying the raw XML inputs before the inherited unit/building redundancy divisors. (GPT-5.6-Sol) -->
+			for (int i = 0; i < kCiv.getNumUnits(); i++)
+				appendSASBonusValueContributor(szUnitContributors, GC.getInfo(kCiv.unitAt(i)).getType(), AI_baseBonusUnitVal(eBonus, kCiv.unitAt(i), pCapital, pCoastalCity, bTrade));
+			for (int i = 0; i < kCiv.getNumBuildings(); i++)
+				appendSASBonusValueContributor(szBuildingContributors, GC.getInfo(kCiv.buildingAt(i)).getType(), AI_baseBonusBuildingVal(eBonus, kCiv.buildingAt(i), iCities, iCoastalCities, bTrade));
+			FOR_EACH_ENUM(Project)
+				appendSASBonusValueContributor(szProjectContributors, GC.getInfo(eLoopProject).getType(), AI_baseBonusProjectVal(eBonus, eLoopProject, bTrade));
+			FOR_EACH_ENUM(Build)
+			{
+				RouteTypes const eRoute = GC.getInfo(eLoopBuild).getRoute();
+				if (eRoute != NO_ROUTE)
+					appendSASBonusValueContributor(szRouteContributors, GC.getInfo(eLoopBuild).getType(), AI_baseBonusRouteVal(eBonus, eRoute, eBestRoute, GC.getInfo(eLoopBuild).getTechPrereq(), bTrade));
+			}
+		}
+		CvString szDiagnosticKey;
+		szDiagnosticKey.Format("D|%d|%d|%d", getID(), eBonus, bTrade);
+		CvString szDiagnosticSignature;
+		szDiagnosticSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d|%s|%s|%s|%s", getNumAvailableBonuses(eBonus), getCurrentEra(),
+			rHappyHealthValue.getPercent(), rUnitValue.getPercent(), rBuildingValue.getPercent(), rProjectValue.getPercent(), rRouteValue.getPercent(),
+			rDynamicValueBeforeDivisor.getPercent(), iValue, szUnitContributors.GetCString(), szBuildingContributors.GetCString(), szProjectContributors.GetCString(), szRouteContributors.GetCString());
+		if (shouldLogSASBonusValueChange(szDiagnosticKey, szDiagnosticSignature))
+		{
+			logBBAI("BONUS_DYNAMIC_VALUE turn=%d player=%d civilization=%s bonus=%s trade=%d available=%d era=%s happyHealthX100=%d unitsX100=%d buildingsX100=%d projectsX100=%d routesX100=%d totalBeforeDivisorX100=%d finalValue=%d aiObjective=%d",
+				GC.getGame().getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), GC.getInfo(eBonus).getType(), bTrade,
+				getNumAvailableBonuses(eBonus), GC.getInfo(getCurrentEra()).getType(), rHappyHealthValue.getPercent(), rUnitValue.getPercent(),
+				rBuildingValue.getPercent(), rProjectValue.getPercent(), rRouteValue.getPercent(), rDynamicValueBeforeDivisor.getPercent(), iValue, GC.getInfo(eBonus).getAIObjective());
+			if (gBonusLogLevel >= 3)
+			{
+				logBBAI("BONUS_DYNAMIC_CONTRIBUTORS turn=%d player=%d bonus=%s trade=%d unitInputs=%s buildingInputs=%s projectInputs=%s routeInputs=%s",
+					GC.getGame().getGameTurn(), getID(), GC.getInfo(eBonus).getType(), bTrade,
+					(szUnitContributors.empty() ? "-" : szUnitContributors.GetCString()), (szBuildingContributors.empty() ? "-" : szBuildingContributors.GetCString()),
+					(szProjectContributors.empty() ? "-" : szProjectContributors.GetCString()), (szRouteContributors.empty() ? "-" : szRouteContributors.GetCString()));
+			}
+		}
+	}
 	/*  To address karadoc's "@*#!" comment in the middle of this function;
 		coupled with a change in AI_updateBonusValue(BonusTypes). */
 	if (!GC.getGame().isNetworkMultiPlayer())
@@ -13241,6 +13318,8 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 	scaled rOurVal = (bUseOurBonusVal ? AI_bonusVal(eBonus, iChange, false, true) :
 			// Use FromPlayer's value as a substitute
 			kFromPlayer.AI_bonusVal(eBonus, 0, false, true));
+	scaled const rDynamicOurVal = rOurVal;
+	int const iLoggedCorporationValue = (gBonusLogLevel >= 2 ? (bUseOurBonusVal ? AI_corporationBonusVal(eBonus, true) : kFromPlayer.AI_corporationBonusVal(eBonus, true)) : 0);
 	if(!isHuman() && kFromPlayer.isHuman())
 	{
 		/*  For now, only address the case of a human civ receiving two health
@@ -13388,10 +13467,12 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		// <!-- custom: 0.5 leads to a bit too low prices upon testing, increase it a bit but not too much so prices are not ridiculously high nor too low -->
 		rOurVal *= fixp(0.75);
 	}
+	scaled const rAfterMultiEffectVal = rOurVal;
 
 	// <!-- custom: also add support for valuing more iAIObjective bonuses (as of now iron, copper, camel, horse, etc.), AI would be quite dumb to sell them very cheap to a rival that would then crush them or simply not get max gold out of it; code provided by chatgpt 5 thanks to my prompts or such, check if accurate -->
 	// --- 1) Generic AIObjective bump (broad rule) ---
 	static const bool bValueMoreAIObjectiveBonuses = GC.getDefineBOOL("SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES");
+	int iAIObjectivePercent = 100;
 
 	if (bValueMoreAIObjectiveBonuses)
 	{
@@ -13404,11 +13485,13 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 			// Each AIObjective point adds X%, capped at Y%
 			const int perPt = iAIObjectivePerPointPercent;
 			const int maxPct = iAIObjectiveMaxPercent;
-			int pct = 100 + (obj * perPt);
-			if (pct > maxPct) pct = maxPct;
-			rOurVal *= per100(pct);
+			iAIObjectivePercent = 100 + (obj * perPt);
+			if (iAIObjectivePercent > maxPct)
+				iAIObjectivePercent = maxPct;
+			rOurVal *= per100(iAIObjectivePercent);
 		}
 	}
+	scaled const rAfterAIObjectiveVal = rOurVal;
 
 	// <!-- custom: update: don't apply iAIObjective relative extra valuation between master and their vassals, as it's in their interest that each other is stronger and to trade these to each other preferentially if needed, code added with the help of chatgpt 5.1 and then claude sonnet's 4.5 review thanks; check if accurate -->
 	// With the current AI_bonusTradeVal logic:
@@ -13445,6 +13528,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 
 	// --- 2) Simple substitute multipliers for key strategics (edge rules) ---
 	static const bool bValueMoreIronCopperHorseCamelRelatively = GC.getDefineBOOL("SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY");
+	int iNamedRelativePercent = 100;
 
 	// GATE THE ENTIRE BLOCK with your cluster check:
 	if (!bBonusTradeInMasterVassalCluster && bValueMoreIronCopperHorseCamelRelatively)
@@ -13628,7 +13712,9 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		{
 			rOurVal *= per100(pct);
 		}
+		iNamedRelativePercent = pct;
 	}
+	scaled const rAfterNamedRelativeVal = rOurVal;
 
 	rOurVal *= getNumCities(); // bonusVal is per city
 	/*  Don't pay fully b/c trade doesn't give us permanent access to the
@@ -13715,6 +13801,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 	}
 	if(!isHuman()) // Never pay more than it's worth to us
 		r.decreaseTo(rOurVal);
+	scaled const rBlendedValue = r;
 	r *= per100(std::max(0, GC.getInfo(eBonus).getAITradeModifier() + 100));
 	// <!-- custom: Replacing eFromPlayer with the existing eTheirTeam here and in the commented gold-trading check below was rejected as a semantic no-op because the AI GET_TEAM overload resolves PlayerTypes through TEAMID. See KI#311. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if(GET_TEAM(eFromPlayer).isVassal(eOurTeam) &&
@@ -13733,7 +13820,25 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		iR = r.roundToMultiple(4);
 	}
 	else iR = r.round();
-	return iR *  GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH);
+	int const iTradeValue = iR * GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH);
+	if (gBonusLogLevel >= 2)
+	{
+		CvString szDiagnosticKey;
+		szDiagnosticKey.Format("T|%d|%d|%d|%d|%d", getID(), eFromPlayer, eBonus, iChange, bExtraHappyOrHealth);
+		CvString szDiagnosticSignature;
+		// <!-- custom: Raw market/blended fractions drift frequently without changing the rounded deal value. Keep them in emitted rows for explanation, but deduplicate on the strategic stages and actual price so irrelevant fractional churn does not recreate the 689 MB diagnostic run. (GPT-5.6-Sol) -->
+		szDiagnosticSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d", bUseOurBonusVal, bBonusTradeInMasterVassalCluster,
+			rDynamicOurVal.getPercent(), rAfterMultiEffectVal.getPercent(), iAIObjectivePercent, rAfterAIObjectiveVal.getPercent(), iNamedRelativePercent,
+			rAfterNamedRelativeVal.getPercent(), iLoggedCorporationValue, iR, iTradeValue);
+		if (shouldLogSASBonusValueChange(szDiagnosticKey, szDiagnosticSignature))
+		{
+			logBBAI("BONUS_TRADE_VALUE turn=%d buyer=%d seller=%d bonus=%s change=%d useBuyerValue=%d masterVassalCluster=%d dynamicOurValX100=%d corporationValue=%d multiEffectOurValX100=%d aiObjectivePercent=%d aiObjectiveOurValX100=%d namedRelativePercent=%d namedRelativeOurValX100=%d cityScaledOurValX100=%d marketValX100=%d blendedBeforeTradeModifierX100=%d aiTradeModifier=%d finalPerTurnX100=%d roundedPerTurn=%d finalTradeValue=%d",
+				GC.getGame().getGameTurn(), getID(), eFromPlayer, GC.getInfo(eBonus).getType(), iChange, bUseOurBonusVal, bBonusTradeInMasterVassalCluster,
+				rDynamicOurVal.getPercent(), iLoggedCorporationValue, rAfterMultiEffectVal.getPercent(), iAIObjectivePercent, rAfterAIObjectiveVal.getPercent(), iNamedRelativePercent,
+				rAfterNamedRelativeVal.getPercent(), rOurVal.getPercent(), rMarketVal.getPercent(), rBlendedValue.getPercent(), GC.getInfo(eBonus).getAITradeModifier(), r.getPercent(), iR, iTradeValue);
+		}
+	}
+	return iTradeValue;
 }
 
 
@@ -13770,6 +13875,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer, 
 		static const BonusTypes B_HORSE = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_1"));
 		static const BonusTypes B_CAMEL = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_2"));
 		static const BonusTypes B_ELEPHANTS = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_3"));
+		bool const bNamedStrategic = (eBonus == B_COPPER || eBonus == B_IRON || eBonus == B_HORSE || eBonus == B_CAMEL || eBonus == B_ELEPHANTS);
 
 		const bool bHaveCopper = (B_COPPER != NO_BONUS && kPlayer.getNumAvailableBonuses(B_COPPER) > 0);
 		const bool bHaveIron = (B_IRON != NO_BONUS && kPlayer.getNumAvailableBonuses(B_IRON) > 0);
@@ -13795,32 +13901,73 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer, 
 		const bool bClassicalToRenaissance = (bClassical || bMedieval || bRenaissance);
 
 		bool bDominated = false;
+		char const* szDominatedReason = "NONE";
 		// <!-- custom: Classical: mounted/elephants substitute for metals, so deny buying Iron/Copper if buyer already has mounted or Elephants. (GPT-5.3-Codex) -->
 		if ((eBonus == B_IRON || eBonus == B_COPPER) && bClassical && (bHaveAnyMount || bHaveElephants))
+		{
 			bDominated = true;
+			szDominatedReason = "CLASSICAL_METAL_WITH_MOUNT";
+		}
 		// <!-- custom: Classical: metals substitute for mounted/elephants, so deny buying Horse/Camel/Elephants if buyer already has Iron/Copper. (GPT-5.3-Codex) -->
 		else if ((eBonus == B_HORSE || eBonus == B_CAMEL || eBonus == B_ELEPHANTS) && bClassical && bHaveAnyMetal)
+		{
 			bDominated = true;
+			szDominatedReason = "CLASSICAL_MOUNT_WITH_METAL";
+		}
 		// <!-- custom: Classical-Medieval-Renaissance: Camel and Horse are interchangeable, so deny duplicate Horse buy when Camel exists. (GPT-5.3-Codex) -->
 		else if (eBonus == B_HORSE && bClassicalToRenaissance && bHaveCamel)
+		{
 			bDominated = true;
+			szDominatedReason = "HORSE_WITH_CAMEL";
+		}
 		// <!-- custom: Classical-Medieval-Renaissance: Horse and Camel are interchangeable, so deny duplicate Camel buy when Horse exists. (GPT-5.3-Codex) -->
 		else if (eBonus == B_CAMEL && bClassicalToRenaissance && bHaveHorse)
+		{
 			bDominated = true;
+			szDominatedReason = "CAMEL_WITH_HORSE";
+		}
 		// <!-- custom: Industrial (pre-Modern): Horse line is stronger (Cavalry), so deny Camel buy when Horse exists. (GPT-5.3-Codex) -->
 		else if (eBonus == B_CAMEL && bIndustrialPlus && !bModernPlus && bHaveHorse)
+		{
 			bDominated = true;
+			szDominatedReason = "INDUSTRIAL_CAMEL_WITH_HORSE";
+		}
 		// <!-- custom: Iron dominates Copper when both exist, but era alone does not: the Medieval generic Privateer accepts Copper OR Iron. See KI#240. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		else if (eBonus == B_COPPER && bHaveIron)
+		{
 			bDominated = true;
+			szDominatedReason = "COPPER_WITH_IRON";
+		}
 		// <!-- custom: Medieval+: War Elephants are too weak for this buy heuristic, so deny Elephant buy. (GPT-5.3-Codex) -->
 		else if (eBonus == B_ELEPHANTS && bMedievalPlus)
+		{
 			bDominated = true;
+			szDominatedReason = "MEDIEVAL_PLUS_ELEPHANT";
+		}
 		// <!-- custom: Modern+: Horse/Camel are obsolete in this heuristic, so deny buying either. (GPT-5.3-Codex) -->
 		else if ((eBonus == B_HORSE || eBonus == B_CAMEL) && bModernPlus)
+		{
 			bDominated = true;
+			szDominatedReason = "MODERN_PLUS_MOUNT";
+		}
 		// <!-- custom: A strategically substitutable resource can still have positive corporation value; let ordinary recipient valuation handle it instead of hard-denying the trade. See KI#240. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		if (bDominated && kPlayer.AI_corporationBonusVal(eBonus, true) <= 0)
+		int const iCorporationValue = (bDominated ? kPlayer.AI_corporationBonusVal(eBonus, true) : 0);
+		if (bNamedStrategic && gBonusLogLevel >= 2 && (bDominated || gBonusLogLevel >= 3))
+		{
+			CvString szDiagnosticKey;
+			szDiagnosticKey.Format("G|%d|%d|%d|%d", getID(), eToPlayer, eBonus, iChange);
+			CvString szDiagnosticSignature;
+			szDiagnosticSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%s|%d", eCurrentEra, iAvailThem, bHaveCopper, bHaveIron, bHaveHorse,
+				bHaveCamel, bHaveElephants, bDominated, szDominatedReason, iCorporationValue);
+			if (shouldLogSASBonusValueChange(szDiagnosticKey, szDiagnosticSignature))
+			{
+				logBBAI("BONUS_TRADE_DOMINATED_GATE turn=%d seller=%d buyer=%d bonus=%s era=%s change=%d buyerAvailable=%d haveCopper=%d haveIron=%d haveHorse=%d haveCamel=%d haveElephants=%d dominated=%d reason=%s corporationValue=%d denial=%s",
+					GC.getGame().getGameTurn(), getID(), eToPlayer, GC.getInfo(eBonus).getType(), GC.getInfo(eCurrentEra).getType(), iChange,
+					iAvailThem, bHaveCopper, bHaveIron, bHaveHorse, bHaveCamel, bHaveElephants, bDominated, szDominatedReason,
+					iCorporationValue, (bDominated && iCorporationValue <= 0 ? "DENIAL_JOKING" : "CONTINUE"));
+			}
+		}
+		if (bDominated && iCorporationValue <= 0)
 			return DENIAL_JOKING;
 	}
 	// advc.036: Moved this clause up

@@ -1647,6 +1647,11 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_BBAI_DEAL_CANCEL_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: Shared dynamic bonus-value and resource-trade diagnostics. Level 2 logs changed happiness/health, unit, building, project and route component totals; level 3 also identifies the XML assets contributing to those totals and traces later SAS manual multipliers. Worker and Found logs retain their consumer-specific plot decisions. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_BBAI_BONUS_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: BBAI player score-detail log interval in turns. Only used when SAS_BBAI_PLAYER_LOG_LEVEL > 0; clamped to at least 1 to avoid invalid modulo. Base AdvCiv BBAILog.h default: LOG_AI enabled 100; disabled fallback effectively 10000; advc.007 says this was hardcoded to 25 in CvPlayer::onTurnLogging before BBAILog.h. (GPT-5.5?) -->
 	<Define>
 		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED</DefineName>
