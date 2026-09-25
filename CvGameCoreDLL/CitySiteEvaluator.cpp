@@ -1184,6 +1184,8 @@ int AIFoundValue::evaluate()
 			continue;
 		}
 
+		// <!-- custom: Keep these diagnostic locals explicitly zero-initialized.
+		// Guarding both initialization and reads with bLogBonusScore still triggered VC++ 2003 C4701 under /WX; eight trivial zero stores are preferable to fragile compiler-flow micro-optimization. (GPT-5.6-Sol) -->
 		int iBonusScoreHappyHealth = 0;
 		int iBonusScoreBuildingHappyHealth = 0;
 		int iBonusScoreAdjustPercent = 0;
