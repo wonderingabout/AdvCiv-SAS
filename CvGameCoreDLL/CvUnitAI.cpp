@@ -751,6 +751,7 @@ static bool SAS_shouldScoutPromisingFoggedNearbyFoundSite(CvUnitAI& kSettler, Mo
 	return pScoutSite != NULL && pScoutEndTurnPlot != NULL;
 }
 
+// <!-- custom: Express first-city return travel cost as a tunable percentage of the same XML-derived sustainable productive plot used by site evaluation, so yield/XML changes scale the cost instead of reviving an arbitrary raw found-value constant. (GPT-5.6-Sol) -->
 static int SAS_getFirstCityReturnTravelValuePerTurn()
 {
 	static const int iReferencePlotPercent = std::max(0, GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_REFERENCE_PLOT_PERCENT"));

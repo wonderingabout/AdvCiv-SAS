@@ -88,6 +88,8 @@ public:
 	void logSettings() const; // </advc.031c>
 
 private:
+	// <!-- custom: Cache the best XML-valid improvement outcome for each plot across the many overlapping candidate BFCs evaluated by one CitySiteEvaluator.
+	// AIFoundValue performs the plot scoring, so grant it access to these private cache helpers instead of exposing their internals publicly. (GPT-5.6-Sol) -->
 	struct PlotPotentialYield
 	{
 		PlotPotentialYield();
@@ -111,6 +113,7 @@ private:
 	bool m_bAdvancedStart; // advc
 	bool m_bDebug; // advc.007
 	bool m_bAllSeeing;
+	// <!-- custom: True only for the level-3 true-map comparison evaluator; an evaluator whose result can drive an AI decision must leave this false. (GPT-5.6-Sol) -->
 	bool m_bDiagnosticOmniscience;
 	int m_iClaimThreshold;
 	bool m_bEasyCulture;
@@ -144,6 +147,8 @@ public:
 private:
 	int m_iResult;
 	CvString* m_pszBreakdown;
+	// <!-- custom: Optional caller-owned outputs reuse results already computed by this evaluation.
+	// Growth-core returns the best-6 and best-10 values for first-city logic; the productive-plot output shares its reference threshold; the broader diagnostic outputs return the best-1/2/3/6/10/14 sums and cutoffs plus the positive-plot count. (GPT-5.6-Sol) -->
 	int* m_paiGrowthCorePlotValues;
 	int* m_piSustainableProductivePlotValue;
 	int* m_paiPlotCoreSums;
@@ -201,10 +206,12 @@ private:
 	bool isNearTech(TechTypes eTech) const;
 	int calculateCultureModifier(CvPlot const& p, bool bForeignOwned, bool bShare, bool bCityRadius, bool bSteal, bool bFlip, bool bOwnExcl, int& iTakenTiles, int& iStealPercent) const;
 	int removableFeatureYieldVal(FeatureTypes eFeature, bool bRemovableFeature, bool bBonus) const;
+	// <!-- custom: The XML-driven replacement for AdvCiv's earlier fixed improvement-production estimate no longer accepts bPersistentFeature: feature retention or removal depends on each legal Build candidate and is derived inside the function. (GPT-5.6-Sol) -->
 	scaled estimateImprovementProduction(CvPlot const& p) const;
 	// <!-- custom: Settler sites now value ordinary plots through XML-valid improvement outcomes rather than named terrain/feature tables.
 	// Keep the city-center distinction optional so the home plot's lost workable potential can be evaluated as an ordinary BFC plot. (GPT-5.6-Sol) -->
 	int evaluateYield(int const* aiYield, CvPlot const* p = NULL, bool bCanNeverImprove = false, bool bTreatHomeAsCity = true) const;
+	// <!-- custom: Return both the best XML-valid Build outcome and the weighted yield/timing details needed by the caller and diagnostics; this replaces separate terrain-, feature- and named-improvement assumptions. (GPT-5.6-Sol) -->
 	int evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNeverImprove, ImprovementTypes& eBestImprovement, int* aiBestYield, int& iTimingPercent) const;
 	int evaluateFreshWater(CvPlot const& p, int const* aiYield, bool bSteal, int& iRiverTiles, int& iGreenTiles) const;
 	// <!-- custom: removed and now added inline in parent caller AIFoundValue::evaluate() directly, as it seems to be called only once, and we'd have more parameters to fine tune it further in parent caller rather, it is also clearer this way i think -->
@@ -220,6 +227,7 @@ private:
 	int calculateSpecialYieldModifier(int iCultureModifier, bool bEasyAccess, bool bBonus, bool bCanSoonImproveBonus, bool bCanImproveBonus) const;
 	void calculateSpecialYields(CvPlot const& p, int const* aiBonusImprovementYield, int const* aiNatureYield, int iModifier, int* aiSpecialYield, int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const;
 	void calculateBuildingYields(CvPlot const& p, int const* aiNatureYield, int* aiBuildingYield) const;
+	// <!-- custom: The weighted site total still uses the complete sorted BFC, while optional outputs expose best-1/2/3/6/10/14 sums, their cutoff plots and the positive-plot count from that same sort without rescanning or changing the score. (GPT-5.6-Sol) -->
 	int sumUpPlotValues(std::vector<int>& aiPlotValues, int* aiCoreSums = NULL, int* aiCoreCutoffs = NULL, int* piPositivePlots = NULL) const;
 	// <!-- custom: Disabled after XML-tunable SAS bonus-improvement yield valuation made this obscure hardcoded path redundant and retaining both overscored bonus-heavy sites in KI#173 follow-up testing. Kept commented with its implementation for reference. (GPT-5.5) -->
 	// int evaluateSpecialYields(int const* aiSpecialYield, int iSpecialYieldTiles, int iSpecialFoodPlus, int iSpecialFoodMinus) const;
@@ -229,7 +237,7 @@ private:
 	int evaluateLongTermHealth(int& iHealthPercent) const;
 	int evaluateFeatureProduction(int iProduction) const;
 	int evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionModifier, int iLandTiles) const;
-	// <!-- custom: Pass the remaining workable-plot value so inherent post-founding defense remains a proportional economic tiebreaker instead of AdvCiv's flat hill bonus or a multiplier on unrelated site rewards. (GPT-5.6-Sol) -->
+	// <!-- custom: Pass the remaining workable-plot value so inherent post-founding defense remains a proportional economic tiebreaker instead of AdvCiv's fixed Hill-only bonus or a multiplier on unrelated site rewards. (GPT-5.6-Sol) -->
 	int evaluateDefense(int iWorkablePlotValue) const;
 	int evaluateGoodies(int iGoodies) const;
 	int adjustToLandAreaBoundary(int iValue) const;
@@ -240,7 +248,7 @@ private:
 	// 		int iGreenTiles) const;
 	// <!-- custom: see code comment there for details -->
 	// int adjustToProduction(int iValue, scaled rBaseProduction) const;
-	// <!-- custom: same -->
+	// <!-- custom: Barbarian spawning already requires eligible fogged land; disable Base AdvCiv's additional penalty against a new Barbarian city near an existing city because it could make a stronger nearby tile lose to a weaker farther one. This never controlled normal Settlers avoiding Barbarian cities. (GPT-5.6-Sol) -->
 	//int adjustToBarbarianSurroundings(int iValue) const;
 	// <!-- custom: this adjustToCivSurroundings caused a bug of AI settler settling on bonus camel desert which is very bad in a desert surroudning even worse, it is seemingly called only once in AIFoundValue::evaluate, may as well disable it since it is so complicated and who knows where the bugs is(/are?) and instead migrate only a very simplified version of the logic we want directly inline in its only caller so in AIFoundValue::evaluate, done so with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details -->
 	// int adjustToCivSurroundings(int iValue, int iStealPercent) const;

@@ -618,6 +618,7 @@ public:
 	static void setMaxVisibilityRangeCache();
 
 protected:
+	// <!-- custom: Keep the established yield calculation and the candidate-city assumed-owner variant on one implementation path; bAssumePlayerOwner changes only ownership-sensitive modifiers and eVisibleBonus remains explicitly filtered by the caller's information. (GPT-5.6-Sol) -->
 	int calculateImprovementYieldChangeInternal(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, bool bAssumePlayerOwner, BonusTypes eVisibleBonus) const;
 	/*	advc (note): Should keep the data members in an order that optimizes
 		the memory layout (packing, locality). While enum types can be declared

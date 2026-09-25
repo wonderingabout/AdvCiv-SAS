@@ -1422,7 +1422,7 @@ int AIFoundValue::evaluate()
 		}
 	}
 
-	// <!-- custom: SAS's former named home/non-home terrain values substantially reduced the observed AdvCiv-era tendency to found on valuable workable plots such as Grassland Hills; that direct table already encoded both yield opportunity and defensible-terrain preferences, so SAS disabled AdvCiv's separate flat hill-defense bonus as potentially interfering rather than as a separately proven cause.
+	// <!-- custom: SAS's former named home/non-home terrain values substantially reduced the observed AdvCiv-era tendency to found on valuable workable plots such as Grassland Hills; that direct table already encoded both yield opportunity and defensible-terrain preferences, so SAS disabled AdvCiv's separate fixed Hill-only defense bonus as potentially interfering rather than as a separately proven cause.
 	// After replacing the terrain table with generic XML-valid yield potential, restore defense generically too: XML terrain defense plus the global hill defense modifies only the value of the productive plots that remain around the city.
 	// Resources, coast, fresh water and the consumed home plot therefore cannot enlarge the defense adjustment merely because the founding terrain is defensible. (GPT-5.6-Sol) -->
 	int const iBreakdownDefense = evaluateDefense(iBreakdownPlots);
@@ -1439,6 +1439,7 @@ int AIFoundValue::evaluate()
 	// }
 
 	rBaseProduction += aiSpecialYield[YIELD_PRODUCTION]; // K-Mod
+	// <!-- custom: Level-2 compact breakdowns report this checkpoint as preModifiers, superseding the old disabled standalone "total before modifiers" IFLOG line without duplicating output. (GPT-5.6-Sol) -->
 	const int iBreakdownPreModifiers = iValue;
 	int iBreakdownNothingSpecial = 0;
 	int iBreakdownHomeResource = 0;
@@ -2668,6 +2669,9 @@ int AIFoundValue::removableFeatureYieldVal(FeatureTypes eFeature, bool bRemovabl
 }
 
 
+// <!-- custom: This replaces the old AdvCiv 031 block rather than extending its fixed Hill/feature heuristic.
+// AdvCiv itself called the earlier Hills=200/other=100 shortcut "pretty bad" because it assumed Workshops and ignored Peaks and Deserts; any fixed Hill value is also unsuitable when a mod-mod can change Hill yields and legal improvements.
+// The removed bPersistentFeature parameter was a plot-wide approximation; the replacement derives feature removal separately for every legal XML Build, while one-time feature-removal production remains valued elsewhere. (GPT-5.6-Sol) -->
 /*	An estimate of how much production an improvement might add
 	in the medium term if production is prioritized. Precision: times 100.
 	Note: Any additional production from improving a bonus resource
@@ -2685,7 +2689,9 @@ scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p) const
 		aiCurrentYield[eLoopYield] = p.calculateNatureYield(eLoopYield, eBonus == NO_BONUS ? NO_TEAM : eTeam);
 	scaled r;
 	// <!-- custom: Owning one existing improvement is not evidence that the player can build it, and a newly unlocked improvement has no existing copy yet.
-	// Compare each currently legal Build's resulting XML yields with the unimproved plot; this handles feature removal, water improvements and unusual terrain/feature rules without assuming that every early Hill supplies two future hammers or that a productive feature implies a fixed Lumbermill/chop result.
+	// Compare each currently legal Build's resulting XML yields with the unimproved plot; the shared yield helper includes applicable route, technology and player/team modifiers, including civic-derived changes, unlike the old shortcut that intentionally omitted civics and routes.
+	// Bonus-specific improvement yield is removed here because it is valued separately.
+	// This handles feature removal, water improvements and unusual terrain/feature rules without assuming that every early Hill supplies two future hammers or that a productive feature implies a fixed Lumbermill/chop result.
 	// One-time feature-removal production remains valued separately. See KI#504. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	FOR_EACH_ENUM(Build)
 	{
@@ -2714,6 +2720,7 @@ scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p) const
 				aiResultYield[eLoopYield] -= kLoopImprovement.getImprovementBonusYield(eBonus, eLoopYield);
 		}
 		int iYieldChange = aiResultYield[YIELD_PRODUCTION] - aiCurrentYield[YIELD_PRODUCTION];
+		// Will be less inclined to build improvement if it hurts other yields
 		FOR_EACH_ENUM(Yield)
 		{
 			if (eLoopYield != YIELD_PRODUCTION)
@@ -2721,10 +2728,11 @@ scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p) const
 		}
 		if (iYieldChange <= 0)
 			continue;
+		// <!-- custom: Do not retain AdvCiv's iYieldChange <= 3 assertion: XML, route, technology and player/team modifiers can legitimately exceed that old fixed-yield assumption. (GPT-5.6-Sol) -->
 		r.increaseTo(iYieldChange);
 	}
 	kSet.cacheImprovementProduction(p, r);
-	return r; // </advc.031>
+	return r;
 }
 
 
@@ -2888,6 +2896,7 @@ int AIFoundValue::evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNever
 }
 
 
+// <!-- custom: bTreatHomeAsCity preserves the usual city-center self-sustaining treatment by default, but evaluateBestPotentialPlotYield disables it when measuring the workable yield sacrificed by founding on the home plot. (GPT-5.6-Sol) -->
 int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p, bool bCanNeverImprove, bool bTreatHomeAsCity) const
 {
 	int r = 0;
@@ -3498,6 +3507,7 @@ void AIFoundValue::calculateBuildingYields(CvPlot const& p, int const* aiNatureY
 	}
 }
 
+// <!-- custom: Optional distribution outputs reuse the vector sorted by this function for first-city decisions and diagnostics; they do not replace or alter AdvCiv's complete weighted sum. (GPT-5.6-Sol) -->
 /*	advc.031: Weighted sum. (Using floating-point math until such a time that a
 	logarithm function gets added to ScaledNum.) */
 int AIFoundValue::sumUpPlotValues(std::vector<int>& aiPlotValues, int* aiCoreSums, int* aiCoreCutoffs, int* piPositivePlots) const
@@ -3818,7 +3828,8 @@ int AIFoundValue::evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionMod
 }
 
 // <!-- custom: Value the defense that remains after founding rather than the pre-city plot's feature/improvement defense, because current city creation removes both.
-// The first proportional version scaled the whole site and redirected several tested opening choices toward hills; the XML default scales by one tenth of the combat-defense percent against only the remaining workable-plot economy, making an ordinary 25% hill worth +2.5% of that economy (+5% for a defensive personality) without carrying resource and other non-plot rewards into defense.
+// This replaces BtS's flat 200, K-Mod's 100+100 and old SAS's disabled 75+75 defense constants.
+// The first proportional version scaled the whole site and redirected several tested opening choices toward hills; the XML default instead scales by one tenth of the combat-defense percent against only the remaining workable-plot economy, making an ordinary 25% hill worth +2.5% of that economy (+5% for a defensive personality) without carrying resource and other non-plot rewards into defense.
 // XML terrain defense and HILLS_EXTRA_DEFENSE remain authoritative, so a mod-added 50% defensible founding terrain receives +5% naturally.
 // Do not exclude Barbarians: defensible sites benefit them and later conquerors without lowering local yield quality. (GPT-5.6-Sol) -->
 int AIFoundValue::evaluateDefense(int iWorkablePlotValue) const
@@ -4080,7 +4091,7 @@ int AIFoundValue::adjustToStartingChoices(int iValue) const
 // }
 
 
-// <!-- custom: i want AI to take best city spots even if there are barbarians there, do not have this interferring logic that may produce unexpected results or lead to weaker AI -->
+// <!-- custom: CvGame::createBarbarianCity already allows a new Barbarian city only on land not currently visible to any civilization team, subject to normal founding/spacing rules. Base AdvCiv additionally used this function to lower the score of otherwise eligible fogged tiles close to any existing city, using a randomized distance range to spread Barbarian cities out and discourage touching borders. It did not make normal civilization Settlers avoid Barbarian cities. Disable only this extra penalty: a stronger nearby fogged site can now beat a weaker farther one, leaving a better city for both the Barbarians and whoever later captures it. (GPT-5.6-Sol) -->
 // int AIFoundValue::adjustToBarbarianSurroundings(int iValue) const
 // {
 // 	int r = iValue;

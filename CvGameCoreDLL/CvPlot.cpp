@@ -5624,6 +5624,7 @@ int CvPlot::calculatePotentialImprovementYieldChange(ImprovementTypes eImproveme
 }
 
 
+// <!-- custom: Share all original route, technology, civic and bonus-yield rules between normal plot yield and hypothetical candidate-city yield; only the owner/visible-bonus inputs differ. (GPT-5.6-Sol) -->
 int CvPlot::calculateImprovementYieldChangeInternal(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, bool bAssumePlayerOwner, BonusTypes eVisibleBonus) const
 {
 	PROFILE_FUNC();
@@ -5639,10 +5640,8 @@ int CvPlot::calculateImprovementYieldChangeInternal(ImprovementTypes eImprovemen
 	/*	<advc.182> Compute the yield of the plot owner. Fall back on ePlayer
 		only for (apparently) unowned tiles. Use the map knowledge of ePlayer. */
 	TeamTypes const eObs = (ePlayer == NO_PLAYER ? NO_TEAM : TEAMID(ePlayer));
-	PlayerTypes eRevealedOwner = (eObs == NO_TEAM ? getOwner() :
-			getRevealedOwner(eObs));
-	PlayerTypes eYieldPlayer = (bAssumePlayerOwner ? ePlayer :
-			(eRevealedOwner == NO_PLAYER ? ePlayer : eRevealedOwner)); // </advc.182>
+	PlayerTypes eRevealedOwner = (eObs == NO_TEAM ? getOwner() : getRevealedOwner(eObs));
+	PlayerTypes eYieldPlayer = (bAssumePlayerOwner ? ePlayer : (eRevealedOwner == NO_PLAYER ? ePlayer : eRevealedOwner)); // </advc.182>
 	{	// <advc.001i>
 		RouteTypes eRoute = (eObs == NO_TEAM ? getRouteType() :
 				getRevealedRouteType(eObs)); // </advc.001i>
@@ -5688,8 +5687,7 @@ int CvPlot::calculateImprovementYieldChangeInternal(ImprovementTypes eImprovemen
 	}
 	//if (ePlayer != NO_PLAYER) // advc.182
 	{
-		BonusTypes eBonus = (bAssumePlayerOwner ? eVisibleBonus :
-				getBonusType(eObs/*TEAMID(ePlayer)*/)); // advc.182
+		BonusTypes eBonus = (bAssumePlayerOwner ? eVisibleBonus : getBonusType(eObs/*TEAMID(ePlayer)*/)); // advc.182
 		if (eBonus != NO_BONUS)
 			iYield += kImpr.getImprovementBonusYield(eBonus, eYield);
 	}

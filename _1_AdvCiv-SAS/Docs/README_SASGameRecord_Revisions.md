@@ -53,9 +53,9 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 126 - SAS practical pending
+### Revision 126 - SAS practical 6568
 
-- **Date:** 2026-09-24
+- **Date:** 2026-09-25
 - **Git commit:** pending
 - **Change:** Expanded broad settlement, vassal-freedom and exact-battle context without copying detailed BBAI decision spam.
 
@@ -65,10 +65,10 @@ One-per-session `GAME_RECORD_VASSAL_RULES` records the loaded freedom thresholds
 
 At level 3, exact lethal/nonlethal battle rows also retain the attacker's pre-combat origin and separate river-crossing/amphibious condition-versus-penalty facts. Level-2 luck-only tracking performs no extra tactical-context work.
 
-### Revision 125 - SAS practical pending
+### Revision 125 - SAS practical 6566
 
 - **Date:** 2026-09-23
-- **Git commit:** pending
+- **Git commit:** `0565c8170251f3d4d3c3a629b04bf2a29389a68b`
 - **Change:** Routed final SASGameRecord emission through the shared literal-safe diagnostic log boundary so already-formatted percent signs cannot be reinterpreted by Civ4's EXE logger.
 
 `emitSASGameRecordLine` now uses `logSASDiagnosticLiteralLine`, shared with BBAI. The helper doubles each literal `%` only after the recorder's own `CvString::formatv`/row assembly is complete, so dynamic text or future fields containing percent signs reach the log literally rather than becoming a second printf conversion.

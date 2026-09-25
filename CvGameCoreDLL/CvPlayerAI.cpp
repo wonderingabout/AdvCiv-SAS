@@ -31795,9 +31795,9 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
 			int iSelectionValue = 0;
 			if (bEligible)
 			{
-				iSelectionValue = iAreaAdjustedValue; /* advc.031: Just b/c all tiles in the area are
-								 owned doesn't mean we can't ever settle there.
-								 Probably an oversight; tagging advc.001. */
+				// advc.031: Just b/c all tiles in the area are owned doesn't mean we can't ever settle there.
+				// Probably an oversight; tagging advc.001.
+				iSelectionValue = iAreaAdjustedValue;
 				if (iSelectionValue > iBestFoundValue)
 				{
 					iBestFoundValue = iSelectionValue;
@@ -33682,6 +33682,7 @@ void CvPlayerAI::AI_setHuman(bool b)
 }
 
 // advc.031c:
+// <!-- custom: Add bPlayerKnown so runtime first-city logs can use starting-capital weights without the omniscience reserved for map-generation starting-plot logs; the assertion keeps that narrower mode confined to starting-capital evaluation. (GPT-5.6-Sol) -->
 void CvPlayerAI::logFoundValue(CvPlot const& kPlot, bool bStartingLoc, bool bPlayerKnown) const
 {
 	// <!-- custom: most callers already check this; keep the guard here too so the helper never constructs the found-value logger when disabled. (ChatGPT 5.5) -->
