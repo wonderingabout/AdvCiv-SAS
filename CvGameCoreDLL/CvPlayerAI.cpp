@@ -31743,7 +31743,8 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
 		return; // don't bother trying to pick a secondary spot
 	}
 	// K-Mod end
-	// <!-- custom: Level-3 city-site construction revisits every revealed plot for up to four selection passes. Cache each plot's diagnostic BFC seafood count across those passes; normal gameplay allocates or computes none of this. (GPT-5.6-Sol) -->
+	// <!-- custom: Level-3 city-site construction revisits every revealed plot for up to four selection passes.
+	// Cache each plot's diagnostic BFC seafood count across those passes; normal gameplay allocates or computes none of this. (GPT-5.6-Sol) -->
 	std::vector<int> aiKnownWaterBonusCounts;
 	if (bLogFoundLevel3)
 		aiKnownWaterBonusCounts.assign(GC.getMap().numPlots(), -1);
@@ -31837,7 +31838,9 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
 				}
 			}
 		}
-		// <!-- custom: A selected-site seafood audit cannot tell whether no seafood site existed or whether one was filtered before the maintained top-four list. At Found level 3, report the actual list-building winner beside both the highest raw known-seafood site and the highest eligible seafood competitor on every pass. All BFC scans and diagnostic bookkeeping remain behind the logging gate. (GPT-5.6-Sol) -->
+		// <!-- custom: A selected-site seafood audit cannot tell whether no seafood site existed or whether one was filtered before the maintained top-four list.
+		// At Found level 3, report the actual list-building winner beside both the highest raw known-seafood site and the highest eligible seafood competitor on every pass.
+		// All BFC scans and diagnostic bookkeeping remain behind the logging gate. (GPT-5.6-Sol) -->
 		if (bLogFoundLevel3) logBBAI("CITY_SITE_LIST_SEAFOOD_AUDIT turn=%d player=%d pass=%d minFoundValue=%d knownWaterBonusSites=%d eligibleWaterBonusSites=%d winner=%d,%d winnerRawValue=%d winnerAreaUnownedTiles=%d winnerAreaFactor=%d winnerSelectionValue=%d winnerKnownWaterBonuses=%d bestKnown=%d,%d bestKnownRawValue=%d bestKnownAreaUnownedTiles=%d bestKnownAreaFactor=%d bestKnownAreaAdjustedValue=%d bestKnownSelectionValue=%d bestKnownWaterBonuses=%d bestKnownAboveMin=%d bestKnownAlreadyListed=%d bestEligible=%d,%d bestEligibleRawValue=%d bestEligibleAreaUnownedTiles=%d bestEligibleAreaFactor=%d bestEligibleSelectionValue=%d bestEligibleWaterBonuses=%d bestEligibleWon=%d",
 			GC.getGame().getGameTurn(), getID(), iPass, iMinFoundValueThreshold, iKnownWaterBonusSites, iEligibleWaterBonusSites,
 			(pBestFoundPlot == NULL ? -1 : pBestFoundPlot->getX()), (pBestFoundPlot == NULL ? -1 : pBestFoundPlot->getY()),
@@ -33690,7 +33693,8 @@ void CvPlayerAI::logFoundValue(CvPlot const& kPlot, bool bStartingLoc, bool bPla
 	static const int iMIN_BARBARIAN_CITY_STARTING_DISTANCE = GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE");
 	CitySiteEvaluator eval(*this, isBarbarian() ?
 			iMIN_BARBARIAN_CITY_STARTING_DISTANCE : -1, bStartingLoc);
-	// <!-- custom: The actual first-city decision uses starting-capital weights without all-seeing map information. Preserve omniscience for pregame starting-plot generation logs, but make the runtime founding trace reproduce the value that the Settler knew and used; ordinary later-city logging is unchanged. (GPT-5.6-Sol) -->
+	// <!-- custom: The actual first-city decision uses starting-capital weights without all-seeing map information.
+	// Preserve omniscience for pregame starting-plot generation logs, but make the runtime founding trace reproduce the value that the Settler knew and used; ordinary later-city logging is unchanged. (GPT-5.6-Sol) -->
 	if (bPlayerKnown)
 	{
 		eval.setAllSeeing(false);

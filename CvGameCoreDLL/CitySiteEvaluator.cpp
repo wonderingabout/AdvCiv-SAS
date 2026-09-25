@@ -373,7 +373,8 @@ void CitySiteEvaluator::logComparedSiteBreakdown(char const* szLabel, CvPlot con
 }
 
 
-// <!-- custom: Founding logs explained seafood only when that site happened to be the selected, next-best, or adjacent comparison. Count either founder-known non-obsolete water bonuses or true-map water bonuses so diagnostics can distinguish low valuation, hidden resources and a site never surviving into the maintained candidate list. Diagnostic only. (GPT-5.6-Sol) -->
+// <!-- custom: Founding logs explained seafood only when that site happened to be the selected, next-best, or adjacent comparison.
+// Count either founder-known non-obsolete water bonuses or true-map water bonuses so diagnostics can distinguish low valuation, hidden resources and a site never surviving into the maintained candidate list; diagnostic only. (GPT-5.6-Sol) -->
 int CitySiteEvaluator::countWaterBonuses(CvPlot const& kCityPlot, TeamTypes eTeam, bool bDiagnosticOmniscience)
 {
 	int iWaterBonuses = 0;
@@ -600,7 +601,8 @@ void AIFoundValue::setLoggingEnabled(bool b)
 	bLoggingEnabled = b;
 } // </advc.031c>
 
-// <!-- custom: Keep ordinary callers evaluating immediately, while allowing SPI's separate workable-plot precomputation to skip the unused full result. Optional outputs expose best-6/10 sums, the shared productive-plot reference and defense adjustment already computed in the same pass without diagnostic string formatting or repeated site evaluations. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+// <!-- custom: Keep ordinary callers evaluating immediately, while allowing SPI's separate workable-plot precomputation to skip the unused full result.
+// Optional outputs expose best-6/10 sums, the shared productive-plot reference and defense adjustment already computed in the same pass without diagnostic string formatting or repeated site evaluations. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 AIFoundValue::AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown, bool bEvaluateSite, int* paiGrowthCorePlotValues, int* piSustainableProductivePlotValue, int* paiPlotCoreSums, int* paiPlotCoreCutoffs, int* piPositivePlots) :
 	m_iResult(0), m_pszBreakdown(pszBreakdown), m_paiGrowthCorePlotValues(paiGrowthCorePlotValues), m_piSustainableProductivePlotValue(piSustainableProductivePlotValue),
 	m_paiPlotCoreSums(paiPlotCoreSums), m_paiPlotCoreCutoffs(paiPlotCoreCutoffs), m_piPositivePlots(piPositivePlots), kPlot(kPlot),
@@ -722,7 +724,8 @@ int AIFoundValue::evaluate()
 	int iBreakdownSea = 0;
 	int iBreakdownLowFood = 0;
 	int iBreakdownVeryBad = 0;
-	// <!-- custom: Diagnostic-only outputs are fully assigned by sumUpPlotValues when requested; leave them untouched on the normal hot path. Best-1/2/3 reveal whether an opening depends on one exceptional resource or several strong plots, while best-6/10/14 remain the broader growth stages used by first-city decisions. (GPT-5.6-Sol) -->
+	// <!-- custom: Diagnostic-only outputs are fully assigned by sumUpPlotValues when requested; leave them untouched on the normal hot path.
+	// Best-1/2/3 reveal whether an opening depends on one exceptional resource or several strong plots, while best-6/10/14 remain the broader growth stages used by first-city decisions. (GPT-5.6-Sol) -->
 	int aiBreakdownPlotCoreSums[6];
 	int aiBreakdownPlotCoreCutoffs[6];
 	int iBreakdownPositivePlots;
@@ -979,10 +982,14 @@ int AIFoundValue::evaluate()
 		ImprovementTypes eBestPotentialImprovement = NO_IMPROVEMENT;
 		int aiBestPotentialYield[NUM_YIELD_TYPES] = {0, 0, 0};
 		int iPotentialTimingPercent = 0;
-		// <!-- custom: Ordinary water has no Build/Improvement outcome to enumerate, and its value depends on whether this candidate city is coastal. Retain the already computed contextual nature value instead of scanning XML or placing a candidate-specific water value in the plot-intrinsic land cache. (GPT-5.6-Sol) -->
+		// <!-- custom: Ordinary water has no Build/Improvement outcome to enumerate, and its value depends on whether this candidate city is coastal.
+		// Retain the already computed contextual nature value instead of scanning XML or placing a candidate-specific water value in the plot-intrinsic land cache. (GPT-5.6-Sol) -->
 		int const iBestPotentialYieldValue = (eBonus == NO_BONUS && !p.isWater() ? evaluateBestPotentialPlotYield(p, bCanNeverImprove, eBestPotentialImprovement, aiBestPotentialYield, iPotentialTimingPercent) : iNatureYieldValue);
-		// <!-- custom: Resource improvements retain their established strategic/non-yield and dedicated yield valuation for now. For ordinary plots, replace the named terrain/feature bonuses with the strongest XML-valid improvement outcome, including improvements that retain their feature and a discounted share of later-tech or upgrade-chain value.
-		// Old SAS added a separate terrain adjustment on top of the inherited yield score: e.g. Flood Plains +100, Grassland Hill +80, flat Grassland +65, Plains Hill +15, flat Plains -20 and Desert Hill -25. Current-rule diagnostic examples instead produced complete ordinary-plot values of flat Desert 0, Desert Hill 45, flat Plains 83, flat Grassland 134, Forest Grassland 144 and River Grassland 172. Those new totals are contextual and will change with XML, player modifiers and improvement timing; they are not direct replacements for the old additive constants, and the strongest plots receive further core weighting when the BFC is summed. (GPT-5.6-Sol) -->
+		// <!-- custom: Resource improvements retain their established strategic/non-yield and dedicated yield valuation for now.
+		// For ordinary plots, replace the named terrain/feature bonuses with the strongest XML-valid improvement outcome, including improvements that retain their feature and a discounted share of later-tech or upgrade-chain value.
+		// Old SAS added a separate terrain adjustment on top of the inherited yield score: e.g. Flood Plains +100, Grassland Hill +80, flat Grassland +65, Plains Hill +15, flat Plains -20 and Desert Hill -25.
+		// Current-rule diagnostic examples instead produced complete ordinary-plot values of flat Desert 0, Desert Hill 45, flat Plains 83, flat Grassland 134, Forest Grassland 144 and River Grassland 172.
+		// Those new totals are contextual and will change with XML, player modifiers and improvement timing; they are not direct replacements for the old additive constants, and the strongest plots receive further core weighting when the BFC is summed. (GPT-5.6-Sol) -->
 		iPlotValue += (eBonus == NO_BONUS && !bHome ? std::max(iNatureYieldValue, iBestPotentialYieldValue) : iNatureYieldValue);
 		IFLOG if(eBonus == NO_BONUS) logBBAI("PLOT_POTENTIAL plot=%d,%d home=%d natureValue=%d potentialValue=%d improvement=%S potentialYields=%dF%dP%dC timing=%d%%",
 			p.getX(), p.getY(), bHome, iNatureYieldValue, iBestPotentialYieldValue,
@@ -991,8 +998,13 @@ int AIFoundValue::evaluate()
 		// <!-- custom: note: bHome means it is the tile where we'll plant our city, which chatgpt 5 confirmed too as the "home plot" but check to be sure -->
 		if (bHome)
 		{
-			// <!-- custom: Old SAS introduced a named terrain/feature table after repeatedly observing Base AdvCiv settle on productive Grassland, Grassland Hills or Flood Plains even when a nearby weak Desert or other low-Food plot could host the city without consuming a valuable workable plot. That table substantially reduced the behavior, but its empirical values condensed free city-center output, lost worked-improvement potential, resource loss and defensive preference into one XML-specific adjustment that became brittle when yields or terrain rules changed.
-			// Keep those concerns separate in the generic model. The actual XML city-center output below is free every turn: it needs no citizen or Food allocation, receives the minimum city yields, retains eligible natural/resource yields and is therefore counted twice for immediate availability. Founding permanently consumes the plot's worked-improvement potential; the resource and ordinary-plot branches below measure that opportunity separately. Inherent post-founding terrain defense is evaluated later and never changes either yield comparison. This lets e.g. a low-Food Plains Hill gain free city-center Food/Production while preserving a productive Grassland Hill for a citizen, without naming either terrain and while adapting automatically to XML/modmod changes. (GPT-5.6-Sol) -->
+			// <!-- custom: Old SAS introduced a named terrain/feature table after repeatedly observing Base AdvCiv settle on productive Grassland, Grassland Hills or Flood Plains even when a nearby weak Desert or other low-Food plot could host the city without consuming a valuable workable plot.
+			// That table substantially reduced the behavior, but its empirical values condensed free city-center output, lost worked-improvement potential, resource loss and defensive preference into one XML-specific adjustment that became brittle when yields or terrain rules changed.
+			// Keep those concerns separate in the generic model.
+			// The actual XML city-center output below is free every turn: it needs no citizen or Food allocation, receives the minimum city yields, retains eligible natural/resource yields and is therefore counted twice for immediate availability.
+			// Founding permanently consumes the plot's worked-improvement potential; the resource and ordinary-plot branches below measure that opportunity separately.
+			// Inherent post-founding terrain defense is evaluated later and never changes either yield comparison.
+			// This lets e.g. a low-Food Plains Hill gain free city-center Food/Production while preserving a productive Grassland Hill for a citizen, without naming either terrain and while adapting automatically to XML/modmod changes. (GPT-5.6-Sol) -->
 			// <advc.031> Count home plot yield twice b/c it's immediately available
 			iPlotValue *= 2;
 			iValue += iPlotValue;
@@ -1010,8 +1022,10 @@ int AIFoundValue::evaluate()
 			city sites, so it needs to be discouraged a bit. */
 			if (eBonus != NO_BONUS)
 			{
-				// <!-- custom: Resource home plots retain a separate policy: city-center scoring above rewards eligible natural bonus yields kept for free, while this branch discourages losing the bonus-specific improvement yields and relaxes Production/Commerce penalties on intrinsically zero-Food plots. This preserves the useful old SAS distinction without also applying the ordinary-plot opportunity comparison and double-counting the loss. (GPT-5.6-Sol) -->
-				// <!-- custom: The old bonus-settlement exception named Snow, Desert, Flood Plains and Grass Hills. Underlying natural Food <= 0 expresses the intended opportunity-cost distinction directly and remains correct when terrain/feature XML changes. (GPT-5.6-Sol) -->
+				// <!-- custom: Resource home plots retain a separate policy: city-center scoring above rewards eligible natural bonus yields kept for free, while this branch discourages losing the bonus-specific improvement yields and relaxes Production/Commerce penalties on intrinsically zero-Food plots.
+				// This preserves the useful old SAS distinction without also applying the ordinary-plot opportunity comparison and double-counting the loss. (GPT-5.6-Sol) -->
+				// <!-- custom: The old bonus-settlement exception named Snow, Desert, Flood Plains and Grass Hills.
+				// Underlying natural Food <= 0 expresses the intended opportunity-cost distinction directly and remains correct when terrain/feature XML changes. (GPT-5.6-Sol) -->
 				const bool bVeryLowFoodBonusPlot = (p.calculateNatureYield(YIELD_FOOD, NO_TEAM) <= 0);
 
 				// <!-- custom: was -5 for some reason in old code, chatgpt 5 used 0 so going with it -->
@@ -1105,9 +1119,16 @@ int AIFoundValue::evaluate()
 				iValue += r;
 				IFLOG logBBAI("Penalty (added to iValue) %d for founding on bonus", r); // adds a negative -> penalty ✅
 			}
-			// <!-- custom: Founding consumes this plot's future worked-tile potential. The first generic replacement compared two nonlinear evaluateYield totals: with current XML weights, a 2F1P city center scored 120 but a valuable 1F3P Grassland Hill Mine only 105, so consuming the strong Hill could be rewarded instead of discouraged. Compare the actual city-center yields with the timing-adjusted best XML-valid improvement under one consistent set of marginal yield weights. This preserves the old SAS home/non-home table's economic intent without terrain names: weak Plains/Desert Hills gain free Food and sometimes Production as city centers, while productive Grassland Hills, Flood Plains and growing improvements are better preserved for citizens; XML yield, improvement, feature or city-minimum changes automatically alter the result.
-			// Old SAS applied fixed home adjustments including Flood Plains -150, Grassland Hill -75, flat Grassland -50, Plains Hill +250, flat Plains +50 and flat or hilly barren Desert +50. Under the new opportunity comparison, current-rule examples instead produce River Grassland Hill -40, ordinary flat Grassland +4 and barren flat Desert/Ice Sheet +52. A strong plot is likely to belong to the early worked core, so apply its permanent loss at the same doubled scale as the home plot. Conversely, removing a weak marginal plot helps only if the city would eventually have worked it, while its free city-center output was already counted twice above; provisional 40% represents roughly eight of twenty non-home BFC plots.
-			// The Aachen test at (137,72) demonstrates why the home adjustment must remain one component rather than force settling on the weakest tile: the neighboring Oil Desert at (136,72), hidden and therefore evaluated as ordinary barren Desert, gained +52 instead of the Grassland home's +4 and brought Cattle into the BFC instead of Sugar. It was 16 points stronger raw (5408 vs 5392) and gained another +38 from its slightly stronger core. The old local-recheck travel charge nevertheless subtracted 75 because the adjacent route reported pathTurns=1 and made Aachen consume the Grassland; the fixed replay moved to the Desert and still founded on turn 0, so this did not represent a lost capital turn. Removing that contradictory charge lets the strictly two-turn local recheck select the better complete site while the broader scouting logic still limits long delays. See KI#144. (GPT-5.6-Sol) -->
+			// <!-- custom: Founding consumes this plot's future worked-tile potential; the first generic replacement compared two nonlinear evaluateYield totals: with current XML weights, a 2F1P city center scored 120 but a valuable 1F3P Grassland Hill Mine only 105, so consuming the strong Hill could be rewarded instead of discouraged.
+			// Compare the actual city-center yields with the timing-adjusted best XML-valid improvement under one consistent set of marginal yield weights.
+			// This preserves the old SAS home/non-home table's economic intent without terrain names: weak Plains/Desert Hills gain free Food and sometimes Production as city centers, while productive Grassland Hills, Flood Plains and growing improvements are better preserved for citizens; XML yield, improvement, feature or city-minimum changes automatically alter the result.
+			// Old SAS applied fixed home adjustments including Flood Plains -150, Grassland Hill -75, flat Grassland -50, Plains Hill +250, flat Plains +50 and flat or hilly barren Desert +50.
+			// Under the new opportunity comparison, current-rule examples instead produce River Grassland Hill -40, ordinary flat Grassland +4 and barren flat Desert/Ice Sheet +52. A strong plot is likely to belong to the early worked core, so apply its permanent loss at the same doubled scale as the home plot.
+			// Conversely, removing a weak marginal plot helps only if the city would eventually have worked it, while its free city-center output was already counted twice above; provisional 40% represents roughly eight of twenty non-home BFC plots.
+			// The Aachen test at (137,72) demonstrates why the home adjustment must remain one component rather than force settling on the weakest tile: the neighboring Oil Desert at (136,72), hidden and therefore evaluated as ordinary barren Desert, gained +52 instead of the Grassland home's +4 and brought Cattle into the BFC instead of Sugar.
+			// It was 16 points stronger raw (5408 vs 5392) and gained another +38 from its slightly stronger core.
+			// The old local-recheck travel charge nevertheless subtracted 75 because the adjacent route reported pathTurns=1 and made Aachen consume the Grassland; the fixed replay moved to the Desert and still founded on turn 0, so this did not represent a lost capital turn.
+			// Removing that contradictory charge lets the strictly two-turn local recheck select the better complete site while the broader scouting logic still limits long delays. See KI#144. (GPT-5.6-Sol) -->
 			else
 			{
 				static const int iFoodValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_FOOD_VALUE");
@@ -1233,7 +1254,8 @@ int AIFoundValue::evaluate()
 				IFLOG logBBAI("%d from water resource near non-coastal site", iValueHomeWaterBonusNoCoast);
 			} // </advc.031>
 		}
-		// <!-- custom: Accumulate cautious health for removable non-home features by XML property rather than naming Forest/Jungle. The city removes its home feature; persistent BFC features such as Flood Plains remain represented by their plot yield instead of receiving a second health penalty here. See KI#488. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		// <!-- custom: Accumulate cautious health for removable non-home features by XML property rather than naming Forest/Jungle.
+		// The city removes its home feature; persistent BFC features such as Flood Plains remain represented by their plot yield instead of receiving a second health penalty here. See KI#488. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (!bHome && eFeature != NO_FEATURE && !bPersistentFeature)
 			iCautiousHealthPercent += GC.getInfo(eFeature).getHealthPercent();
 
@@ -1400,7 +1422,9 @@ int AIFoundValue::evaluate()
 		}
 	}
 
-	// <!-- custom: SAS's former named home/non-home terrain values substantially reduced the observed AdvCiv-era tendency to found on valuable workable plots such as Grassland Hills; that direct table already encoded both yield opportunity and defensible-terrain preferences, so SAS disabled AdvCiv's separate flat hill-defense bonus as potentially interfering rather than as a separately proven cause. After replacing the terrain table with generic XML-valid yield potential, restore defense generically too: XML terrain defense plus the global hill defense modifies only the value of the productive plots that remain around the city. Resources, coast, fresh water and the consumed home plot therefore cannot enlarge the defense adjustment merely because the founding terrain is defensible. (GPT-5.6-Sol) -->
+	// <!-- custom: SAS's former named home/non-home terrain values substantially reduced the observed AdvCiv-era tendency to found on valuable workable plots such as Grassland Hills; that direct table already encoded both yield opportunity and defensible-terrain preferences, so SAS disabled AdvCiv's separate flat hill-defense bonus as potentially interfering rather than as a separately proven cause.
+	// After replacing the terrain table with generic XML-valid yield potential, restore defense generically too: XML terrain defense plus the global hill defense modifies only the value of the productive plots that remain around the city.
+	// Resources, coast, fresh water and the consumed home plot therefore cannot enlarge the defense adjustment merely because the founding terrain is defensible. (GPT-5.6-Sol) -->
 	int const iBreakdownDefense = evaluateDefense(iBreakdownPlots);
 	iValue += iBreakdownDefense;
 
@@ -1743,7 +1767,9 @@ int AIFoundValue::evaluate()
 	{
 		const int iBreakdownDirectOther = iBreakdownDirect - iBreakdownHomeWater - iBreakdownRiverBFC;
 		const int iBreakdownModifiers = iValue - iBreakdownPreModifiers;
-		// <!-- custom: A zero distance adjustment was ambiguous: it could mean no existing city or a candidate inside the neutral distance window. Eight independent turn-100/150 tests across SAS48 Pangaea/Continents and Huge Archipelago/Pangaea applied distance reductions to 148 of 731 selected sites that had an existing own city; distance also reversed the selected/next site's pre-distance ordering in 103 of 727 paired comparisons. Include the already-computed nearest-city coordinates, raw distance, neutral window, pre-distance value and applied percent so compact comparisons expose this material spacing decision without another map scan. Diagnostic only. (GPT-5.6-Sol) -->
+		// <!-- custom: A zero distance adjustment was ambiguous: it could mean no existing city or a candidate inside the neutral distance window.
+		// Eight independent turn-100/150 tests across SAS48 Pangaea/Continents and Huge Archipelago/Pangaea applied distance reductions to 148 of 731 selected sites that had an existing own city; distance also reversed the selected/next site's pre-distance ordering in 103 of 727 paired comparisons.
+		// Include the already-computed nearest-city coordinates, raw distance, neutral window, pre-distance value and applied percent so compact comparisons expose this material spacing decision without another map scan; diagnostic only. (GPT-5.6-Sol) -->
 		*m_pszBreakdown = CvString::format("base=%d directOther=%d homeWater=%d riverBFC=%d plots=%d(core1=%d/%d,core2=%d/%d,core3=%d/%d,core6=%d/%d,core10=%d/%d,core14=%d/%d,positive=%d) bonuses=%d(nonYield=%d,bonusImprovementYields=%d) health=%d featureProduction=%d sea=%d defense=%d lowFood=%d veryBad=%d preModifiers=%d modifiers=%d(nothingSpecial=%d,homeResource=%d,landBoundary=%d,startingSurroundings=%d,distance=%d(before=%d,nearest=%d,%d,raw=%d,neutral=%d..%d,percent=%d),culture=%d,citiesPerArea=%d,bonusCount=%d,badHealth=%d,goodies=%d,navalHeavy=%d) final=%d",
 				iBreakdownBase, iBreakdownDirectOther, iBreakdownHomeWater, iBreakdownRiverBFC, iBreakdownPlots,
 				aiBreakdownPlotCoreSums[0], aiBreakdownPlotCoreCutoffs[0], aiBreakdownPlotCoreSums[1], aiBreakdownPlotCoreCutoffs[1],
@@ -2658,7 +2684,9 @@ scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p) const
 	FOR_EACH_ENUM(Yield)
 		aiCurrentYield[eLoopYield] = p.calculateNatureYield(eLoopYield, eBonus == NO_BONUS ? NO_TEAM : eTeam);
 	scaled r;
-	// <!-- custom: Owning one existing improvement is not evidence that the player can build it, and a newly unlocked improvement has no existing copy yet. Compare each currently legal Build's resulting XML yields with the unimproved plot; this handles feature removal, water improvements and unusual terrain/feature rules without assuming that every early Hill supplies two future hammers or that a productive feature implies a fixed Lumbermill/chop result. One-time feature-removal production remains valued separately. See KI#504. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Owning one existing improvement is not evidence that the player can build it, and a newly unlocked improvement has no existing copy yet.
+	// Compare each currently legal Build's resulting XML yields with the unimproved plot; this handles feature removal, water improvements and unusual terrain/feature rules without assuming that every early Hill supplies two future hammers or that a productive feature implies a fixed Lumbermill/chop result.
+	// One-time feature-removal production remains valued separately. See KI#504. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	FOR_EACH_ENUM(Build)
 	{
 		CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
@@ -2701,7 +2729,8 @@ scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p) const
 
 
 // <!-- custom: Score the strongest plausible worked-tile outcome by enumerating Build/Improvement XML instead of naming Farm, Mine, Cottage, terrain or features.
-// The XML defaults give immediate improvement yields two-thirds weight and the final upgrade one-third, so growth chains matter without treating a new first-stage improvement as fully mature. Builds available now retain full value; the XML defaults retain 75% for near-researchable Builds and 50% for later Builds. This lets sites retain tunable long-term potential without allowing late infrastructure to erase early terrain differences. (GPT-5.6-Sol) -->
+// The XML defaults give immediate improvement yields two-thirds weight and the final upgrade one-third, so growth chains matter without treating a new first-stage improvement as fully mature.
+// Builds available now retain full value; the XML defaults retain 75% for near-researchable Builds and 50% for later Builds; this lets sites retain tunable long-term potential without allowing late infrastructure to erase early terrain differences. (GPT-5.6-Sol) -->
 int AIFoundValue::evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNeverImprove, ImprovementTypes& eBestImprovement, int* aiBestYield, int& iTimingPercent) const
 {
 	bool const bLogCandidates = (gFoundLogLevel >= 2 && AIFoundValue::isLoggingEnabled());
@@ -2735,7 +2764,8 @@ int AIFoundValue::evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNever
 	int const iUnimprovedValue = evaluateYield(aiUnimprovedYield, &p, bCanNeverImprove, false);
 	int iBestValue = iUnimprovedValue;
 	FeatureTypes const eFeature = p.getFeatureType();
-	// <!-- custom: Found level 2 records the three strongest legal Build outcomes for each inspected plot. Level 3 expands those same three with immediate/final yields and feature-removal state, enough to distinguish XML, maturation and timing effects without logging every rejected Build. (GPT-5.6-Sol) -->
+	// <!-- custom: Found level 2 records the three strongest legal Build outcomes for each inspected plot.
+	// Level 3 expands those same three with immediate/final yields and feature-removal state, enough to distinguish XML, maturation and timing effects without logging every rejected Build. (GPT-5.6-Sol) -->
 	BuildTypes aeTopBuild[3] = {NO_BUILD, NO_BUILD, NO_BUILD};
 	int aiTopBuildValue[3] = {MIN_INT, MIN_INT, MIN_INT};
 	int aiTopBuildTimingPercent[3] = {0, 0, 0};
@@ -2871,7 +2901,8 @@ int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p, bool bCanNe
 	static const int iOneFoodShortFoodValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_ONE_FOOD_SHORT_FOOD_VALUE");
 	static const int iOneFoodShortProductionValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_ONE_FOOD_SHORT_PRODUCTION_VALUE");
 	static const int iOneFoodShortCommerceValue = GC.getDefineINT("SAS_EVALUATE_NATURE_YIELD_ONE_FOOD_SHORT_COMMERCE_VALUE");
-	// <!-- custom: Externalize AdvCiv's plot-yield weights so Food/Production/Commerce priorities can be tuned without recompiling. Natural yields and ordinary improvement outcomes use these weights; resource-improvement yield remains separately valued by SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_*. (GPT-5.5 + GPT-5.6-Sol) -->
+	// <!-- custom: Externalize AdvCiv's plot-yield weights so Food/Production/Commerce priorities can be tuned without recompiling.
+	// Natural yields and ordinary improvement outcomes use these weights; resource-improvement yield remains separately valued by SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_*. (GPT-5.5 + GPT-5.6-Sol) -->
 	int aiWeight[NUM_YIELD_TYPES] = {iDefaultFoodValue, iDefaultProductionValue, iDefaultCommerceValue};
 	// (note: these numbers have been adjusted for K-Mod)
 	if (p != NULL && !p->isWater() && // advc.031: Exclude seafood
@@ -2923,7 +2954,9 @@ int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p, bool bCanNe
 			r += 8 * (aiYield[YIELD_COMMERCE] + aiYield[YIELD_PRODUCTION]);
 		}
 		else r /= 3;
-		// <!-- custom: disable non coastal penalty, let ai decide if it wants coast or not and not induce a bias in it. With our changes to how ai evaluate terrains and features in evaluate function, AIs should be able to properly assess is coast is better (as of now for low-food environments or if there are water bonuses nearby which they were not so good if not at all able to do before), and if not able we'd better do it there rather than here and complexify formula. Also, generally coastal start is a bit weaker, so give AI a chance to go for land starter with more plots to grow, perhaps more forests to chop, unless it assesses it best to not do otherwise. -->
+		// <!-- custom: disable non coastal penalty, let ai decide if it wants coast or not and not induce a bias in it.
+		// With our changes to how ai evaluate terrains and features in evaluate function, AIs should be able to properly assess is coast is better (as of now for low-food environments or if there are water bonuses nearby which they were not so good if not at all able to do before), and if not able we'd better do it there rather than here and complexify formula.
+		// Also, generally coastal start is a bit weaker, so give AI a chance to go for land starter with more plots to grow, perhaps more forests to chop, unless it assesses it best to not do otherwise. -->
 		// if (kSet.isStartingLoc() && !bCoastal)
 		// {
 		// 	r -= 75; // advc.031: was -400 in BtS, -120 in K-Mod
@@ -3501,7 +3534,11 @@ int AIFoundValue::sumUpPlotValues(std::vector<int>& aiPlotValues, int* aiCoreSum
 			}
 			*piPositivePlots = iPositivePlots;
 		}
-		// <!-- custom: The final weighted total distinguishes stronger plots implicitly, but these unweighted core sums expose the site's practical growth curve. Best 1/2/3 distinguish one exceptional opening resource from several strong early plots for diagnosis only; first-city decisions deliberately remain on best 6/10 so one resource cannot drive the cure. In the Wang Kon test, the original and chosen capitals tied at best-1=210, while best-2/3 separated 380/550 from 420/630; this showed that both had one equally strong anchor but the chosen site had the stronger immediate supporting plots. A city works few plots through much of the game, so six strong early plots, ten developed-city plots or fourteen mature-city plots with weak outskirts can be more useful than twenty uniformly average plots; e.g. a fertile river core beside desert can outperform a broad tundra/plains BFC long before either city works every tile. Keep the sums, cutoff values and positive-plot count in both verbose logs and compact first-city breakdowns so scouting can be tuned from the same evidence without changing site valuation. (GPT-5.6-Sol) -->
+		// <!-- custom: The final weighted total distinguishes stronger plots implicitly, but these unweighted core sums expose the site's practical growth curve.
+		// Best 1/2/3 distinguish one exceptional opening resource from several strong early plots for diagnosis only; first-city decisions deliberately remain on best 6/10 so one resource cannot drive the cure.
+		// In the Wang Kon test, the original and chosen capitals tied at best-1=210, while best-2/3 separated 380/550 from 420/630; this showed that both had one equally strong anchor but the chosen site had the stronger immediate supporting plots.
+		// A city works few plots through much of the game, so six strong early plots, ten developed-city plots or fourteen mature-city plots with weak outskirts can be more useful than twenty uniformly average plots; e.g. a fertile river core beside desert can outperform a broad tundra/plains BFC long before either city works every tile.
+		// Keep the sums, cutoff values and positive-plot count in both verbose logs and compact first-city breakdowns so scouting can be tuned from the same evidence without changing site valuation. (GPT-5.6-Sol) -->
 		if (bLogDistribution) logBBAI("BFC_VALUE_DISTRIBUTION best1Sum=%d best2Sum=%d best3Sum=%d best6Sum=%d best10Sum=%d best14Sum=%d positivePlots=%d first=%d second=%d third=%d sixth=%d tenth=%d fourteenth=%d",
 			aiSums[0], aiSums[1], aiSums[2], aiSums[3], aiSums[4], aiSums[5], iPositivePlots, aiPlotValues[0], aiPlotValues[1], aiPlotValues[2], aiPlotValues[5], aiPlotValues[9], aiPlotValues[13]);
 	}
@@ -3780,7 +3817,10 @@ int AIFoundValue::evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionMod
 	return iR;
 }
 
-// <!-- custom: Value the defense that remains after founding rather than the pre-city plot's feature/improvement defense, because current city creation removes both. The first proportional version scaled the whole site and redirected several tested opening choices toward hills; the XML default scales by one tenth of the combat-defense percent against only the remaining workable-plot economy, making an ordinary 25% hill worth +2.5% of that economy (+5% for a defensive personality) without carrying resource and other non-plot rewards into defense. XML terrain defense and HILLS_EXTRA_DEFENSE remain authoritative, so a mod-added 50% defensible founding terrain receives +5% naturally. Do not exclude Barbarians: defensible sites benefit them and later conquerors without lowering local yield quality. (GPT-5.6-Sol) -->
+// <!-- custom: Value the defense that remains after founding rather than the pre-city plot's feature/improvement defense, because current city creation removes both.
+// The first proportional version scaled the whole site and redirected several tested opening choices toward hills; the XML default scales by one tenth of the combat-defense percent against only the remaining workable-plot economy, making an ordinary 25% hill worth +2.5% of that economy (+5% for a defensive personality) without carrying resource and other non-plot rewards into defense.
+// XML terrain defense and HILLS_EXTRA_DEFENSE remain authoritative, so a mod-added 50% defensible founding terrain receives +5% naturally.
+// Do not exclude Barbarians: defensible sites benefit them and later conquerors without lowering local yield quality. (GPT-5.6-Sol) -->
 int AIFoundValue::evaluateDefense(int iWorkablePlotValue) const
 {
 	static const int iDefenseValuePercent = std::max(0, GC.getDefineINT("SAS_EVALUATE_CITY_SITE_DEFENSE_WORKABLE_VALUE_PERCENT_PER_100_DEFENSE"));

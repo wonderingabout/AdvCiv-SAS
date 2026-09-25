@@ -5458,7 +5458,8 @@ void CvPlayer::found(int iX, int iY)
 	bool const bLogSASCityFounding = (iSASGameRecordLogLevel >= 2 && kGame.isFinalInitialized());
 	SASGameRecordTransactionScope kSASCityFoundingTransaction("CITY_FOUNDING", bLogSASCityFounding);
 	SASGameRecordPlotOwnerChangeCauseScope kSASCityFoundingOwnerCause(SAS_PLOT_OWNER_CAUSE_CITY_FOUNDING, iSASGameRecordLogLevel >= 3 && bLogSASCityFounding);
-	// <!-- custom: Mark every actual city founded on a resource before initCity changes the plot. The following AI found-value trace explains the choice for nonhuman players; this concise row makes human, AI and Barbarian cases searchable and distinguishes a resource the founder could see from an unrevealed one. (GPT-5.6-Sol) -->
+	// <!-- custom: Mark every actual city founded on a resource before initCity changes the plot.
+	// The following AI found-value trace explains the choice for nonhuman players; this concise row makes human, AI and Barbarian cases searchable and distinguishes a resource the founder could see from an unrevealed one. (GPT-5.6-Sol) -->
 	if (gFoundLogLevel > 0)
 	{
 		CvPlot const& kFoundPlot = GC.getMap().getPlot(iX, iY);
@@ -5476,7 +5477,8 @@ void CvPlayer::found(int iX, int iY)
 		// (advc.108 forces founding in place in scenarios)
 		(getNumCities() > 0 || !kGame.isScenario()))
 	{
-		// <!-- custom: Runtime capital logging previously reconstructed the chosen site with ordinary later-city weights, producing false seafood/value reversals against the starting-capital decision. Pass both the first-city scoring context and the founder-known information scope; the pregame starting-plot logger remains omniscient. (GPT-5.6-Sol) -->
+		// <!-- custom: Runtime capital logging previously reconstructed the chosen site with ordinary later-city weights, producing false seafood/value reversals against the starting-capital decision.
+		// Pass both the first-city scoring context and the founder-known information scope; the pregame starting-plot logger remains omniscient. (GPT-5.6-Sol) -->
 		const bool bFirstCity = (getNumCities() <= 0);
 		AI().logFoundValue(GC.getMap().getPlot(iX, iY), bFirstCity, bFirstCity);
 	} // </advc.031c>

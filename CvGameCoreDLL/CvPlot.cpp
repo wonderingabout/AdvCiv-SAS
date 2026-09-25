@@ -5616,7 +5616,8 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 }
 
 
-// <!-- custom: City-site evaluation needs the evaluating player's improvement modifiers on plots that a candidate city would claim, not an existing rival owner's modifiers. Keep its explicitly visibility-filtered bonus while sharing every other yield rule with the ordinary calculation. (GPT-5.6-Sol) -->
+// <!-- custom: City-site evaluation needs the evaluating player's improvement modifiers on plots that a candidate city would claim, not an existing rival owner's modifiers.
+// Keep its explicitly visibility-filtered bonus while sharing every other yield rule with the ordinary calculation. (GPT-5.6-Sol) -->
 int CvPlot::calculatePotentialImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, BonusTypes eVisibleBonus) const
 {
 	return calculateImprovementYieldChangeInternal(eImprovement, eYield, ePlayer, true, eVisibleBonus);

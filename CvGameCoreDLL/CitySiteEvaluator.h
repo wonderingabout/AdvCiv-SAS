@@ -21,16 +21,19 @@ public:
 	// <!-- custom: found-value path uses int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
 	int evaluate(CvPlot const& kPlot) const;
 	int evaluate(int iX, int iY) const;
-	// <!-- custom: Opt-in diagnostic entry point: return the same found value while filling an exact stage-by-stage summary. Callers guard its use behind logging so normal city-site evaluation does no string formatting. (GPT-5.5) -->
+	// <!-- custom: Opt-in diagnostic entry point: return the same found value while filling an exact stage-by-stage summary; callers guard its use behind logging so normal city-site evaluation does no string formatting. (GPT-5.5) -->
 	int evaluateWithBreakdown(CvPlot const& kPlot, CvString& szBreakdown) const;
-	// <!-- custom: First-city roaming can distinguish a genuinely weak site from a food-imperfect site with strong practical worked-plot cores. Compute the best-6/10 decision metrics without formatting the finer best-1/2/3 or mature best-14 diagnostics. (GPT-5.6-Sol) -->
+	// <!-- custom: First-city roaming can distinguish a genuinely weak site from a food-imperfect site with strong practical worked-plot cores.
+	// Compute the best-6/10 decision metrics without formatting the finer best-1/2/3 or mature best-14 diagnostics. (GPT-5.6-Sol) -->
 	int evaluateWithGrowthCorePlotValues(CvPlot const& kPlot, int& iBest6PlotValue, int& iBest10PlotValue, int& iSustainableProductivePlotValue) const;
 	// <!-- custom: SASGameRecord founding snapshots can reuse the same plot-value distribution already computed inside AIFoundValue without parsing BBAI text or rescanning the BFC afterward.
-	// Core sums use sizes 1/2/3/6/10/14; positive-plot count describes the same sorted potential-plot values. Diagnostic only. (ChatGPT-5.6-Sol) -->
+	// Core sums use sizes 1/2/3/6/10/14; positive-plot count describes the same sorted potential-plot values; diagnostic only. (ChatGPT-5.6-Sol) -->
 	int evaluateWithPlotValueDistribution(CvPlot const& kPlot, int* aiCoreSums, int& iPositivePlots, int& iSustainableProductivePlotValue) const;
-	// <!-- custom: Share one XML-driven scale for heuristics expressed in found-value units. A sustainable productive reference plot supplies the current food consumption per citizen plus 1 Production and uses the same self-sustaining yield weights as ordinary site evaluation. (GPT-5.6-Sol) -->
+	// <!-- custom: Share one XML-driven scale for heuristics expressed in found-value units.
+	// A sustainable productive reference plot supplies the current food consumption per citizen plus 1 Production and uses the same self-sustaining yield weights as ordinary site evaluation. (GPT-5.6-Sol) -->
 	static int getSustainableProductivePlotValue();
-	// <!-- custom: Share settlement-specific seafood counts between selected-site, city-site-list and broad founding diagnostics. Ordinary diagnostics use the founder's information and non-obsolete resources; SASGameRecord can additionally request the true-map count to explain hidden seafood at the site actually founded. Callers keep the BFC scan behind diagnostic gates. (GPT-5.6-Sol) -->
+	// <!-- custom: Share settlement-specific seafood counts between selected-site, city-site-list and broad founding diagnostics.
+	// Ordinary diagnostics use the founder's information and non-obsolete resources; SASGameRecord can additionally request the true-map count to explain hidden seafood at the site actually founded; callers keep the BFC scan behind diagnostic gates. (GPT-5.6-Sol) -->
 	static int countWaterBonuses(CvPlot const& kCityPlot, TeamTypes eTeam, bool bDiagnosticOmniscience);
 	int evaluateWithLogging(CvPlot const& kPlot) const; // advc.031c
 	scaled evaluateWorkablePlot(CvPlot const& kPlot) const; // advc.027
@@ -61,7 +64,7 @@ public:
 	bool isAllSeeing() const { return m_bAllSeeing; }
 	// <!-- custom: First-settler roaming needs starting-capital weights without map-generation omniscience. (GPT-5.5) -->
 	void setAllSeeing(bool b) { m_bAllSeeing = b; }
-	// <!-- custom: Level-3 diagnostics can compare the player's actual information with the true map, including technology-hidden bonuses that ordinary starting-location all-seeing intentionally still conceals. This mode is diagnostic only and must not feed AI choices. (GPT-5.6-Sol) -->
+	// <!-- custom: Level-3 diagnostics can compare the player's actual information with the true map, including technology-hidden bonuses that ordinary starting-location all-seeing intentionally still conceals; this mode is diagnostic only and must not feed AI choices. (GPT-5.6-Sol) -->
 	void setDiagnosticOmniscience(bool b) { m_bDiagnosticOmniscience = b; if (b) m_bAllSeeing = true; }
 	bool isDiagnosticOmniscience() const { return m_bDiagnosticOmniscience; }
 	// some trait information that will influence where we settle ...
@@ -117,7 +120,8 @@ private:
 	bool m_bDefensive;
 	bool m_bSeafaring;
 	bool m_bExpansive;
-	// <!-- custom: AI_updateFoundValues evaluates overlapping BFCs across every revealed map plot. Cache plot-intrinsic XML improvement scans for this evaluator instance so the de-hardcoded logic scans each ordinary plot once, while diagnostic reevaluations may still bypass the cache to emit candidate details. (GPT-5.6-Sol) -->
+	// <!-- custom: AI_updateFoundValues evaluates overlapping BFCs across every revealed map plot.
+	// Cache plot-intrinsic XML improvement scans for this evaluator instance so the de-hardcoded logic scans each ordinary plot once, while diagnostic reevaluations may still bypass the cache to emit candidate details. (GPT-5.6-Sol) -->
 	mutable std::map<PlotNumTypes, PlotPotentialYield> m_plotPotentialYieldCache;
 	mutable std::map<PlotNumTypes, scaled> m_improvementProductionCache;
 };
@@ -128,7 +132,7 @@ class AIFoundValue
 {
 public:
 	// <!-- custom: A non-null breakdown output enables diagnostic accounting; normal evaluation passes NULL and keeps that work disabled. (GPT-5.5) -->
-	// <!-- custom: Let SPI construct the shared workable-plot context without also running and discarding a complete city-site evaluation. Optional output pointers expose decision components already computed during the same pass. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Let SPI construct the shared workable-plot context without also running and discarding a complete city-site evaluation; optional output pointers expose decision components already computed during the same pass. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown = NULL, bool bEvaluateSite = true, int* paiGrowthCorePlotValues = NULL, int* piSustainableProductivePlotValue = NULL, int* paiPlotCoreSums = NULL, int* paiPlotCoreCutoffs = NULL, int* piPositivePlots = NULL);
 	int get() const { return m_iResult; }
 	scaled evaluateWorkablePlot(CvPlot const& p) const; // advc.027
@@ -198,7 +202,8 @@ private:
 	int calculateCultureModifier(CvPlot const& p, bool bForeignOwned, bool bShare, bool bCityRadius, bool bSteal, bool bFlip, bool bOwnExcl, int& iTakenTiles, int& iStealPercent) const;
 	int removableFeatureYieldVal(FeatureTypes eFeature, bool bRemovableFeature, bool bBonus) const;
 	scaled estimateImprovementProduction(CvPlot const& p) const;
-	// <!-- custom: Settler sites now value ordinary plots through XML-valid improvement outcomes rather than named terrain/feature tables. Keep the city-center distinction optional so the home plot's lost workable potential can be evaluated as an ordinary BFC plot. (GPT-5.6-Sol) -->
+	// <!-- custom: Settler sites now value ordinary plots through XML-valid improvement outcomes rather than named terrain/feature tables.
+	// Keep the city-center distinction optional so the home plot's lost workable potential can be evaluated as an ordinary BFC plot. (GPT-5.6-Sol) -->
 	int evaluateYield(int const* aiYield, CvPlot const* p = NULL, bool bCanNeverImprove = false, bool bTreatHomeAsCity = true) const;
 	int evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNeverImprove, ImprovementTypes& eBestImprovement, int* aiBestYield, int& iTimingPercent) const;
 	int evaluateFreshWater(CvPlot const& p, int const* aiYield, bool bSteal, int& iRiverTiles, int& iGreenTiles) const;

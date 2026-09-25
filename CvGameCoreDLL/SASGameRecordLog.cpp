@@ -2239,7 +2239,7 @@ static void logSASGameRecordTechCapabilitySources()
 		getSASDiagnosticOrDash(szVassalStateTrading).GetCString());
 }
 
-// <!-- custom: Vassal freedom thresholds are loaded-rule context, not changing relationship state. Emit them once per GameRecord session instead of repeating the same values on every periodic vassal row.
+// <!-- custom: Vassal freedom thresholds are loaded-rule context, not changing relationship state; emit them once per GameRecord session instead of repeating the same values on every periodic vassal row.
 // This cold helper runs only when a new-game or loaded-save GameRecord file opens, so direct define lookups intentionally avoid persistent cache state for values that are read just once per session. (ChatGPT-5.6-Sol) -->
 static void logSASGameRecordVassalRules()
 {
