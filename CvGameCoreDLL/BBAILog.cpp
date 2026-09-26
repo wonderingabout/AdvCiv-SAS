@@ -88,7 +88,7 @@ static CvString getSASBBAILogName()
 
 static void rollSASBBAILog(const char* szContext)
 {
-	// <!-- custom: Refresh session identity for both filename modes; fixed-name logs intentionally share a file, but each new/load header still needs its own current UTC. See KI#629. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Refresh session identity for both filename modes; the sequence also invalidates diagnostic deduplication caches on every new/load, even when fixed-name logs share one file; only filename context formatting depends on timestamped filenames; each header still needs its own current UTC. See KI#629. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	g_szSASBBAILogTimestamp = createSASUtcTimestamp();
 	g_iSASBBAILogSequence++;
 	if (isSASBBAILogTimestampedFilenameEnabled())

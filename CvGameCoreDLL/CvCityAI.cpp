@@ -244,7 +244,10 @@ static void logSASMilitaryProductionConcreteReject(CvCityAI const& kCity, UnitTy
 		(eUnit == NO_UNIT ? "-" : GC.getInfo(eUnit).getType()), (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), szReason, szMetricA, iValueA, szMetricB, iValueB);
 }
 
-// <!-- custom: The early siege-cap exception is meant for a city whose practical attackers are otherwise too weak, not for a hardcoded Copper/Iron/Horse/Camel/Elephants list. Find a currently trainable non-siege land attacker directly from civilization XML; this recognizes civilization-specific and mod-added units, resource alternatives, and no-resource units such as Muskets. A modest relative-strength floor preserves Spearmen as useful Catapult-era alternatives without letting obsolete Warriors suppress the exception. Full-autoplay validation found useful alternatives in 63 of 90 checks, including civilization-specific Ballista Elephants; the other 27 checks retained the relaxed cap. (GPT-5.6-Sol) -->
+// <!-- custom: The early siege-cap exception is meant for a city whose practical attackers are otherwise too weak, not for a hardcoded Copper/Iron/Horse/Camel/Elephants list.
+// Find a currently trainable non-siege land attacker directly from civilization XML; this recognizes civilization-specific and mod-added units, resource alternatives, and no-resource units such as Muskets.
+// A modest relative-strength floor preserves Spearmen as useful Catapult-era alternatives without letting obsolete Warriors suppress the exception.
+// Full-autoplay validation found useful alternatives in 63 of 90 checks, including civilization-specific Ballista Elephants; the other 27 checks retained the relaxed cap. (GPT-5.6-Sol) -->
 static UnitTypes SAS_bestUsefulNonSiegeLandAttacker(CvCityAI const& kCity, UnitCombatTypes eSiegeCombat, int iSiegeStrength, int iMinStrengthPercent, int* piBestStrength)
 {
 	UnitTypes eBestUnit = NO_UNIT;
@@ -270,7 +273,8 @@ static UnitTypes SAS_bestUsefulNonSiegeLandAttacker(CvCityAI const& kCity, UnitC
 	return eBestUnit;
 }
 
-// <!-- custom: Targeted diagnostics for possible AI Work Boat overproduction. City logs showed many Work Boat pushes/finishes after the earlier iLookAhead=0 fix, so log every worker-sea production source plus the exact worker-sea target bonuses when worker-sea logging is high. No behavior change. See KI#157. (GPT-5.5) -->
+// <!-- custom: Targeted diagnostics for possible AI Work Boat overproduction.
+// City logs showed many Work Boat pushes/finishes after the earlier iLookAhead=0 fix, so log every worker-sea production source plus the exact worker-sea target bonuses when worker-sea logging is high. No behavior change. See KI#157. (GPT-5.5) -->
 static void logSASWorkerSeaChooseDetail(char const* szBranch, CvCityAI const& kCity, CvArea const* pRelevantWaterArea, int iCityPopulation, int iNeededSeaWorkers, int iExistingSeaWorkers, bool bWaterDanger, bool bFinancialTrouble)
 {
 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
@@ -7236,7 +7240,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 						}
 					}
 				}
-				// <!-- custom: else let city handle what it wants, it is unclear that going early for barracks is the better choice, especially if low on hammer, we won't produce any units with it or barely any units, so leave free choice rather here (e.g. a granary could be better, as we grow faster so more tiles to work so more units indirectly stronger army as we want if we can grow or we'd slow more, or a library could be better so we unlock next offensive or defensive unit that will save us or make us win or gain big advantage or gain a longtemr scientific advantage/gain overall maybe too), so don't always favour barracks-like buildings, except in cases where we expect significant and quite reliable gains in this case at least i mean -->
+				// <!-- custom: Else let city handle what it wants, it is unclear that going early for barracks is the better choice, especially if low on hammer, we won't produce any units with it or barely any units, so leave free choice rather here (e.g. a granary could be better, as we grow faster so more tiles to work so more units indirectly stronger army as we want if we can grow or we'd slow more.
+				// Or a library could be better so we unlock next offensive or defensive unit that will save us or make us win or gain big advantage or gain a longtemr scientific advantage/gain overall maybe too), so don't always favour barracks-like buildings, except in cases where we expect significant and quite reliable gains in this case at least i mean -->
 			}
 
 			// <!-- custom: Don't build the configured specialized unit-experience building without a unit that can use it. (GPT-5.6-Sol) -->
@@ -7246,7 +7251,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 			if (bBuildingClassStable)
 			{
-				// <!-- custom: The prior Stable gate named Horse, Camel, Elephants and one mounted technology, so XML changes or civilization-specific units could make it reject a useful building or accept a useless one. Check this civilization's units against the building's actual UnitCombat experience and call canTrain only for matching units; this derives all technology, resource, obsolescence and local-network requirements from the normal rules. (GPT-5.6-Sol) -->
+				// <!-- custom: The prior Stable gate named Horse, Camel, Elephants and one mounted technology, so XML changes or civilization-specific units could make it reject a useful building or accept a useless one.
+				// Check this civilization's units against the building's actual UnitCombat experience and call canTrain only for matching units; this derives all technology, resource, obsolescence and local-network requirements from the normal rules. (GPT-5.6-Sol) -->
 				bool bCanTrainBenefitingUnit = false;
 				CvCivilization const& kCiv = getCivilization();
 				for (int i = 0; i < kCiv.getNumUnits(); i++)

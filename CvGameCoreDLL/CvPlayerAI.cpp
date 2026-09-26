@@ -12634,7 +12634,8 @@ static void appendSASBonusValueContributor(CvString& szContributors, char const*
 
 static bool shouldLogSASBonusValueChange(CvString const& szKey, CvString const& szSignature)
 {
-	// <!-- custom: Bonus valuation is queried repeatedly while assembling trade tables. Keep one row per changed result instead of producing hundreds of thousands of identical rows; clear the diagnostic-only cache for every new/load BBAI session. (GPT-5.6-Sol) -->
+	// <!-- custom: Bonus valuation is queried repeatedly while assembling trade tables.
+	// Keep one row per changed result instead of producing hundreds of thousands of identical rows; clear the diagnostic-only cache for every new/load BBAI session. (GPT-5.6-Sol) -->
 	static int iSessionSequence = -1;
 	static std::map<CvString, CvString> aLastSignatures;
 	if (iSessionSequence != getSASBBAILogSessionSequence())
@@ -12651,7 +12652,8 @@ static bool shouldLogSASBonusValueChange(CvString const& szKey, CvString const& 
 
 int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade) const
 {
-	// <!-- custom: Cache dynamic bonus values per player and current game state, not as timeless per-era tables. Technology progress, owned alternative resources, available replacement units, constructed buildings, corporations and city health/happiness needs can change the correct value within one era; AI_doTurnPre clears all entries each turn, while resource, technology/team and relevant civic changes also invalidate them immediately. (GPT-5.6-Sol) -->
+	// <!-- custom: Cache dynamic bonus values per player and current game state, not as timeless per-era tables.
+	// Technology progress, owned alternative resources, available replacement units, constructed buildings, corporations and city health/happiness needs can change the correct value within one era; AI_doTurnPre clears all entries each turn, while resource, technology/team and relevant civic changes also invalidate them immediately. (GPT-5.6-Sol) -->
 	//recalculate if not defined
 	if (!bTrade && // advc.036
 		m_aiBonusValue[eBonus] != -1)
@@ -12827,26 +12829,23 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade) 
 			rBuildingValue /= scaled(iBuildingsEnabled).pow(fixp(1/9.)); // </advc.036b>
 		rValue += rBuildingValue;
 	}
+	// <!-- custom: Base AdvCiv already valued bonus production modifiers for Projects; keep that gameplay arithmetic, but accumulate an explicit Project subtotal for the new component diagnostics. (GPT-5.6-Sol) -->
 	scaled rProjectValue;
 	FOR_EACH_ENUM(Project)
-	{
-		scaled const rLoopValue = AI_baseBonusProjectVal(eBonus, eLoopProject, bTrade);
-		rProjectValue += rLoopValue;
-	}
+		rProjectValue += AI_baseBonusProjectVal(eBonus, eLoopProject, bTrade);
 	rValue += rProjectValue;
+	// <!-- custom: Base AdvCiv also valued resources that enable Routes; keep an explicit Route subtotal for diagnostics; AI_baseBonusRouteVal separately adds this rework's dynamic treatment of already owned XML alternatives. (GPT-5.6-Sol) -->
 	RouteTypes eBestRoute = getBestRoute();
 	scaled rRouteValue;
 	FOR_EACH_ENUM(Build)
 	{
 		RouteTypes eRoute =  GC.getInfo(eLoopBuild).getRoute();
 		if (eRoute != NO_ROUTE)
-		{
-			scaled const rLoopValue = AI_baseBonusRouteVal(eBonus, eRoute, eBestRoute, GC.getInfo(eLoopBuild).getTechPrereq(), bTrade);
-			rRouteValue += rLoopValue;
-		}
+			rRouteValue += AI_baseBonusRouteVal(eBonus, eRoute, eBestRoute, GC.getInfo(eLoopBuild).getTechPrereq(), bTrade);
 	}
 	rValue += rRouteValue;
-	// <!-- custom: Keep BonusInfo iAIObjective as an optional author/mod-mod policy adjustment rather than a primary strategic label. Each point adds one final shared bonus-value unit, so a nonzero XML value consistently affects trade, Settler, Worker and strategic consumers after the dynamic unit/building/project/route/health/happiness calculation; AdvCiv-SAS leaves every current bonus at 0 because its ordinary importance is derived from XML and player state. (GPT-5.6-Sol) -->
+	// <!-- custom: Keep BonusInfo iAIObjective as an optional author/mod-mod policy adjustment rather than a primary strategic label.
+	// Each point adds one final shared bonus-value unit, so a nonzero XML value consistently affects trade, Settler, Worker and strategic consumers after the dynamic unit/building/project/route/health/happiness calculation; AdvCiv-SAS leaves every current bonus at 0 because its ordinary importance is derived from XML and player state. (GPT-5.6-Sol) -->
 	scaled const rManualObjectiveValue = 10 * GC.getInfo(eBonus).getAIObjective();
 	rValue += rManualObjectiveValue;
 
@@ -12855,7 +12854,8 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade) 
 	if (iCorporationValue <= 0 && getNumAvailableBonuses(eBonus) > 0)
 		iValue /= 3;*/
 
-	// <!-- custom: Preserve the inherited dynamic valuation as explicit reusable components before replacing SAS's later named-resource modifiers. This first checkpoint does not alter their arithmetic; dedicated BBAI rows expose which civilization-specific XML assets actually give each bonus value. (GPT-5.6-Sol) -->
+	// <!-- custom: Preserve the inherited dynamic valuation as explicit reusable components before replacing SAS's later named-resource modifiers.
+	// This first checkpoint does not alter their arithmetic; dedicated BBAI rows expose which civilization-specific XML assets actually give each bonus value. (GPT-5.6-Sol) -->
 	scaled const rDynamicValueBeforeDivisor = rValue;
 	rValue /= 10;
 	// <advc.036>
@@ -12869,7 +12869,8 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade) 
 		CvString szRouteContributors;
 		if (gBonusLogLevel >= 3)
 		{
-			// <!-- custom: Rescan contributors only inside level-3 diagnostics. This keeps disabled logging allocation-free while identifying the raw XML inputs before the inherited unit/building redundancy divisors. (GPT-5.6-Sol) -->
+			// <!-- custom: Rescan contributors only inside level-3 diagnostics.
+			// This keeps disabled logging allocation-free while identifying the raw XML inputs before the inherited unit/building redundancy divisors. (GPT-5.6-Sol) -->
 			for (int i = 0; i < kCiv.getNumUnits(); i++)
 				appendSASBonusValueContributor(szUnitContributors, GC.getInfo(kCiv.unitAt(i)).getType(), AI_baseBonusUnitVal(eBonus, kCiv.unitAt(i), pCapital, pCoastalCity, bTrade));
 			for (int i = 0; i < kCiv.getNumBuildings(); i++)
@@ -13057,7 +13058,8 @@ int CvPlayerAI::AI_baseBonusBuildingVal(BonusTypes eBonus, BuildingTypes eBuildi
 	bool bOrBonus = false;
 	for (int i = 0; i < kBuilding.getNumPrereqOrBonuses(); i++)
 		bOrBonus = (bOrBonus || kBuilding.getPrereqOrBonuses(i) == eBonus);
-	// <!-- custom: An OR-prerequisite still has supply-resilience value when another option is available, but it no longer unlocks the building by itself. Divide the inherited enabling value among the already owned alternatives; current SAS has no such building, but this keeps the shared evaluator correct for XML/mod-mod additions. (GPT-5.6-Sol) -->
+	// <!-- custom: An OR-prerequisite still has supply-resilience value when another option is available, but it no longer unlocks the building by itself.
+	// Divide the inherited enabling value among the already owned alternatives; current SAS has no such building, but this keeps the shared evaluator correct for XML/mod-mod additions. (GPT-5.6-Sol) -->
 	if (bOrBonus)
 	{
 		int iOrBonusesWeHave = 0;
@@ -13205,7 +13207,8 @@ int CvPlayerAI::AI_baseBonusRouteVal(BonusTypes eBonus, RouteTypes eRoute, Route
 	bool bOrBonus = false;
 	for(int i = 0; i < kRoute.getNumPrereqOrBonuses(); i++)
 		bOrBonus = (bOrBonus || kRoute.getPrereqOrBonus(i) == eBonus);
-	// <!-- custom: Coal and Oil both enable the current Railroad. Preserve the full route value when this bonus is needed, but divide that component among already owned XML alternatives so acquiring or retaining a redundant option is useful mainly as supply insurance. (GPT-5.6-Sol) -->
+	// <!-- custom: Coal and Oil both enable the current Railroad.
+	// Preserve the full route value when this bonus is needed, but divide that component among already owned XML alternatives so acquiring or retaining a redundant option is useful mainly as supply insurance. (GPT-5.6-Sol) -->
 	if (bOrBonus)
 	{
 		int iOrBonusesWeHave = 0;
@@ -13513,7 +13516,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		itThird.hasNext(); ++itThird)
 	{
 		CvPlayerAI const& kThird = *itThird;
-		// <!-- custom: Passing eFromPlayer directly is intentional: the AI GET_TEAM overload accepts PlayerTypes and resolves the player's actual team through TEAMID. KI#387 records the parallel non-AI CvGamePlay overload. See KI#311. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		// <!-- custom: Passing eFromPlayer directly is intentional: the AI GET_TEAM overload accepts PlayerTypes and resolves the player's actual team through TEAMID; KI#387 records the parallel non-AI CvGamePlay overload. See KI#311. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (!GET_TEAM(eFromPlayer).isHasMet(kThird.getTeam()))
 			continue;
 		/*  The trade partners don't necessarily know all those cities, but the
@@ -13581,7 +13584,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		r.decreaseTo(rOurVal);
 	scaled const rBlendedValue = r;
 	r *= per100(std::max(0, GC.getInfo(eBonus).getAITradeModifier() + 100));
-	// <!-- custom: Passing eFromPlayer directly here and in the commented gold-trading check below is intentional because the AI GET_TEAM overload resolves PlayerTypes through TEAMID. See KI#311. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Passing eFromPlayer directly here and in the commented gold-trading check below is intentional because the AI GET_TEAM overload resolves PlayerTypes through TEAMID;  See KI#311. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if(GET_TEAM(eFromPlayer).isVassal(eOurTeam) &&
 		!GET_TEAM(eFromPlayer).isCapitulated())
 	{
@@ -13604,7 +13607,8 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		CvString szDiagnosticKey;
 		szDiagnosticKey.Format("T|%d|%d|%d|%d|%d", getID(), eFromPlayer, eBonus, iChange, bExtraHappyOrHealth);
 		CvString szDiagnosticSignature;
-		// <!-- custom: Raw market/blended fractions drift frequently without changing the rounded deal value. Keep them in emitted rows for explanation, but deduplicate on the strategic stages and actual price so irrelevant fractional churn does not recreate the 689 MB diagnostic run. (GPT-5.6-Sol) -->
+		// <!-- custom: Raw market/blended fractions drift frequently without changing the rounded deal value.
+		// Keep them in emitted rows for explanation, but deduplicate on the strategic stages and actual price so irrelevant fractional churn does not recreate the 689 MB diagnostic run. (GPT-5.6-Sol) -->
 		szDiagnosticSignature.Format("%d|%d|%d|%d|%d|%d", bUseOurBonusVal, rDynamicOurVal.getPercent(), rAfterMultiEffectVal.getPercent(), iLoggedCorporationValue, iR, iTradeValue);
 		if (shouldLogSASBonusValueChange(szDiagnosticKey, szDiagnosticSignature))
 		{
@@ -13640,6 +13644,8 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer, 
 	} // </advc.036>
 	// advc.133:
 	int iAvailThem = kPlayer.getNumAvailableBonuses(eBonus);
+	// <!-- custom: The former named-resource hard denial was AI-recipient-only after KI#239 and preserved corporation uses after KI#240, but still encoded brittle era/substitute assumptions.
+	// Shared dynamic recipient valuation now reduces only the uses actually replaced, so remove that gate rather than carrying its special cases forward. See KI#239 and KI#240. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	// advc.036: Moved this clause up
 	if (iAvailThem + iChange > 1 && kPlayer.AI_corporationBonusVal(eBonus, true) <= 0)
 		return DENIAL_JOKING;
@@ -13672,7 +13678,8 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer, 
 	if(iChange >= 0)
 	{
 		iValueForThem = kPlayer.AI_bonusVal(eBonus, iChange, false, true);
-		// <!-- custom: Trace the existing technology-readiness gate separately from price calculation so named strategic-resource rules can be replaced and audited. A full autoplay distinguished unusable first copies from currently useful ones (e.g. early Iron value 1 and later Iron value 10) without hardcoded resource names. (GPT-5.6-Sol) -->
+		// <!-- custom: Trace the existing technology-readiness gate separately from price calculation so named strategic-resource rules can be replaced and audited.
+		// A full autoplay distinguished unusable first copies from currently useful ones (e.g. early Iron value 1 and later Iron value 10) without hardcoded resource names. (GPT-5.6-Sol) -->
 		if (!bPlayerHuman && gBonusLogLevel >= 2 && (iValueForThem < iTradeValThresh || gBonusLogLevel >= 3))
 		{
 			CvString szDiagnosticKey;

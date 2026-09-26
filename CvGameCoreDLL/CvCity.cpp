@@ -672,7 +672,8 @@ bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass, bool* pb
 
 bool CvCity::SASTryEmergencySeaYieldBuilding(YieldTypes eYield)
 {
-	// <!-- custom: The previous emergency rules named Harbor and Port classes. Select among this civilization's currently constructible buildings by their actual sea-plot yield instead, prioritizing more yield per hammer and then the cheaper building; unique replacements and mod-added buildings therefore work without another define. (GPT-5.6-Sol) -->
+	// <!-- custom: The previous emergency rules named Harbor and Port classes.
+	// Select among this civilization's currently constructible buildings by their actual sea-plot yield instead, prioritizing more yield per hammer and then the cheaper building; unique replacements and mod-added buildings therefore work without another define. (GPT-5.6-Sol) -->
 	BuildingClassTypes eBestBuildingClass = NO_BUILDINGCLASS;
 	int iBestYieldChange = 0;
 	int iBestCost = MAX_INT;
@@ -770,8 +771,10 @@ void CvCity::doTurn()
 	// <!-- custom: add this to make sure we don't overlap our previously chosen emergency building with some other logic -->
 	bool bEmergencyBuilding = false;
 
-	// <!-- custom: A positive sea-food building is top priority if a coastal city has low food per turn; stagnant coastal tundra cities otherwise remained small for dozens of turns. The building itself is now selected from the civilization's XML effects rather than a named Harbor class. (ChatGPT 5 + GPT-5.6-Sol) -->
-	// 	<!-- custom: update: the harbor is more likely to be useful than walls for a coastal city, plus a harbor would help us build our walls or such faster anyway, so risk weaker defenses to make sure we get the very important harbor first rather. We would also be slow to build units, and even if we do, there is a chance they may not be useful if city is an island or some isolated place so focus on economy rather should help in most of these cases of +/- coastal/watery cities or low hammer so as of now do not follow through with emergency defense buildings nor emegency units for these cities -->
+	// <!-- custom: A positive sea-food building is top priority if a coastal city has low food per turn; stagnant coastal tundra cities otherwise remained small for dozens of turns.
+	// The building itself is now selected from the civilization's XML effects rather than a named Harbor class. (ChatGPT 5 + GPT-5.6-Sol) -->
+	// 	<!-- custom: update: the harbor is more likely to be useful than walls for a coastal city, plus a harbor would help us build our walls or such faster anyway, so risk weaker defenses to make sure we get the very important harbor first rather.
+	// We would also be slow to build units, and even if we do, there is a chance they may not be useful if city is an island or some isolated place so focus on economy rather should help in most of these cases of +/- coastal/watery cities or low hammer so as of now do not follow through with emergency defense buildings nor emegency units for these cities -->
 	// --- SAS: force Harbor ASAP if coastal & buildable (no era/pop checks) ---
 	static const bool bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING = GC.getDefineBOOL("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING");
 

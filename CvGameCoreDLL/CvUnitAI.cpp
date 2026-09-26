@@ -4619,7 +4619,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				}
 			}
 
-			// <!-- custom: Prioritize useful bonus Builds through the owner's marginal dynamic value rather than a static BonusInfo AIObjective. First copies therefore reflect this civilization's currently relevant units/buildings/projects/routes, while available substitutes and extra copies naturally reduce urgency. (GPT-5.6-Sol) -->
+			// <!-- custom: Prioritize useful bonus Builds through the owner's marginal dynamic value rather than a static BonusInfo AIObjective.
+			// First copies therefore reflect this civilization's currently relevant units/buildings/projects/routes, while available substitutes and extra copies naturally reduce urgency. (GPT-5.6-Sol) -->
 			int const iDynamicBonusValue = GET_PLAYER(getOwner()).AI_bonusVal(eBonus, 1, true);
 			if (iValue >= iSAS_WORKER_AI_BONUS_DYNAMIC_VALUE_APPLY_MIN_VALUE)
 				iValue += iSAS_WORKER_AI_BONUS_DYNAMIC_VALUE_MULTIPLIER * iDynamicBonusValue;
@@ -25148,9 +25149,11 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
             continue;
 		}
 
-		// <!-- custom: Workers heavily improved unused Dortmund tundra while Cologne/Chengdu lacked valuable Grass Hill Mines until very late. Rank work across all cities by the shared per-plot build value, scaled proportionally only while a city lacks enough completed or already-assigned improvements for its population; counting assigned workers prevents dogpiling while preserving one-worker-per-plot reservations. This avoids both the old high-population penalty and arbitrary additive/working-plot bonuses, while leaving candidate valuation responsible for Food-vs-Production tradeoffs. Distance remains a modest efficiency cost. (GPT-5.5) -->
-	static const int iPathTurnValuePenalty = GC.getDefineINT("SAS_AI_WORKER_CITY_JOB_PATH_TURN_VALUE_PENALTY");
-	static const int iBonusDynamicValueMultiplier = GC.getDefineINT("SAS_AI_WORKER_CITY_JOB_BONUS_DYNAMIC_VALUE_MULTIPLIER");
+		// <!-- custom: Workers heavily improved unused Dortmund tundra while Cologne/Chengdu lacked valuable Grass Hill Mines until very late.
+		// Rank work across all cities by the shared per-plot build value, scaled proportionally only while a city lacks enough completed or already-assigned improvements for its population; counting assigned workers prevents dogpiling while preserving one-worker-per-plot reservations.
+		// This avoids both the old high-population penalty and arbitrary additive/working-plot bonuses, while leaving candidate valuation responsible for Food-vs-Production tradeoffs. Distance remains a modest efficiency cost. (GPT-5.5) -->
+		static const int iPathTurnValuePenalty = GC.getDefineINT("SAS_AI_WORKER_CITY_JOB_PATH_TURN_VALUE_PENALTY");
+		static const int iBonusDynamicValueMultiplier = GC.getDefineINT("SAS_AI_WORKER_CITY_JOB_BONUS_DYNAMIC_VALUE_MULTIPLIER");
 		bool const bWorkedPlot = pLoopCity->isWorkingPlot(*pPlot);
 		int const iImprovedPlots = countImprovedTiles(pLoopCity);
 		int const iAssignedWorkers = std::max(0, pLoopCity->AI_getWorkersHave() - (pLoopCity == pCity ? 1 : 0));

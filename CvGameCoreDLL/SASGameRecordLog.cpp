@@ -12989,7 +12989,8 @@ static void getSASGameRecordBonusChoiceFacts(CvPlayerAI const& kBuyer, CvPlayerA
 	kFacts.iBonusHealth = (eBonus == NO_BONUS ? 0 : GC.getInfo(eBonus).getHealth());
 	kFacts.iBonusHappiness = (eBonus == NO_BONUS ? 0 : GC.getInfo(eBonus).getHappiness());
 	kFacts.iBonusAIObjective = (eBonus == NO_BONUS ? 0 : GC.getInfo(eBonus).getAIObjective());
-	// <!-- custom: Record the same player-specific marginal valuation now shared by trade, Settler, Worker and strategic AI instead of static AIObjective and named metal/mount flags. The ordinary value assumes the bonus is enabled for long-term planning; the trade value keeps the existing short-term technology-readiness discount. (GPT-5.6-Sol) -->
+	// <!-- custom: Record the same player-specific marginal valuation now shared by trade, Settler, Worker and strategic AI instead of static AIObjective and named metal/mount flags.
+	// The ordinary value assumes the bonus is enabled for long-term planning; the trade value keeps the existing short-term technology-readiness discount. (GPT-5.6-Sol) -->
 	kFacts.iBuyerDynamicValue = (eBonus == NO_BONUS ? -1 : kBuyer.AI_bonusVal(eBonus, 1, true, false));
 	kFacts.iBuyerDynamicTradeValue = (eBonus == NO_BONUS ? -1 : kBuyer.AI_bonusVal(eBonus, 1, false, true));
 	CvTeamAI const& kBuyerTeam = GET_TEAM(kBuyer.getTeam());

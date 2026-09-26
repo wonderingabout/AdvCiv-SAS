@@ -5604,7 +5604,8 @@ bool CvPlot::SAS_isGoodEnoughFirstCityBFCPlot(BonusTypes eVisibleBonus, PlayerTy
 
 int CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(PlayerTypes ePlayer)
 {
-	// <!-- custom: Candidate-city and Worker valuation need a practical long-term sea-food baseline before a city exists. The previous configured Harbor class is replaced by the civilization's most hammer-efficient positive sea-food building, with lower cost breaking equal efficiency; this preserves cheap early infrastructure while supporting unique replacements and mod-added XML. (GPT-5.5 + ChatGPT-5.5 review + GPT-5.6-Sol) -->
+	// <!-- custom: Candidate-city and Worker valuation need a practical long-term sea-food baseline before a city exists.
+	// The previous configured Harbor class is replaced by the civilization's most hammer-efficient positive sea-food building, with lower cost breaking equal efficiency; this preserves cheap early infrastructure while supporting unique replacements and mod-added XML. (GPT-5.5 + ChatGPT-5.5 review + GPT-5.6-Sol) -->
 	FAssert(ePlayer != NO_PLAYER);
 	if (ePlayer == NO_PLAYER)
 		return 0;
@@ -5613,7 +5614,8 @@ int CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(PlayerTypes ePlayer)
 	FAssert(eCivilization != NO_CIVILIZATION);
 	if (eCivilization == NO_CIVILIZATION)
 		return 0;
-	// <!-- custom: This helper is called repeatedly for Settler and Worker plot valuation, while civilization Building mappings and base costs are immutable after XML load. Cache by civilization rather than player/session; normal non-wonder building cost scaling is common to every candidate and therefore cannot change the yield-per-hammer ordering. (GPT-5.6-Sol) -->
+	// <!-- custom: This helper is called repeatedly for Settler and Worker plot valuation, while civilization Building mappings and base costs are immutable after XML load.
+	// Cache by civilization rather than player/session; normal non-wonder building cost scaling is common to every candidate and therefore cannot change the yield-per-hammer ordering. (GPT-5.6-Sol) -->
 	static std::vector<int> aiCivilizationFoodChange(GC.getNumCivilizationInfos(), -1);
 	if (aiCivilizationFoodChange[eCivilization] >= 0)
 		return aiCivilizationFoodChange[eCivilization];

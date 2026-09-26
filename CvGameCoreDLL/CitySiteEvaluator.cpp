@@ -1273,7 +1273,8 @@ int AIFoundValue::evaluate()
 		{
 			if (eBonus != NO_BONUS)
 			{
-				// <!-- custom: Replace the static BonusInfo AIObjective label with the player's cached dynamic bonus value. Units, buildings, projects, routes, obsolescence, current alternatives and civilization-specific XML can therefore make the same resource important to one civilization or era and unimportant to another; e.g. Renaissance Copper remains useful to a civilization whose unit accepts it instead of Iron. (GPT-5.6-Sol) -->
+				// <!-- custom: Replace the static BonusInfo AIObjective label with the player's cached dynamic bonus value.
+				// Units, buildings, projects, routes, obsolescence, current alternatives and civilization-specific XML can therefore make the same resource important to one civilization or era and unimportant to another; e.g. Renaissance Copper remains useful to a civilization whose unit accepts it instead of Iron. (GPT-5.6-Sol) -->
 				int const iDynamicBonusValue = GET_PLAYER(ePlayer).AI_baseBonusVal(eBonus);
 				iBonusScoreDynamicValue = iExtraValueNotHomeDynamicBonusValueMultiplier * iDynamicBonusValue;
 				iValue += iBonusScoreDynamicValue;
@@ -3256,8 +3257,10 @@ int AIFoundValue::calculateBonusConnectionEra(BonusTypes eBonus, CvPlot const& p
 
 int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bEasyAccess, bool bCoastal, std::vector<int>* paiBonusCount, int iCultureModifier, int* piHappyHealthValue, int* piBuildingHappyHealthValue, int* piAdjustPercent, int* piWaterPenalty) const
 {
-	// <!-- custom: In save file 450, the old broad AI_bonusVal path made Elephants at (20,41) greatly outscore nearby Crab, pushing Shaka's uMgungundlovu toward the weaker (18,40) site over the Crab and greener (17,40) alternative; this is wrong because Crab is locally a valuable high food source, and its empire health gain remains useful especially later, while Elephants are mostly classical-era pressure with some happiness. Settlement scoring cares less about immediate current-era trade value than about long-term health and happiness city-site value, which can be very different.
-	// Score explicit new health/happiness, ordinary building effects, and conservatively estimated special-building effects here. The old first-growth/luxury extra is removed because explicit health/happiness already represents that empire-wide effect. Diversity, dynamic bonus importance, and improvement yields are handled separately by the caller. See KI#178. (GPT-5.5 + GPT-5.6-Sol) -->
+	// <!-- custom: In save file 450, the old broad AI_bonusVal path made Elephants at (20,41) greatly outscore nearby Crab, pushing Shaka's uMgungundlovu toward the weaker (18,40) site over the Crab and greener (17,40) alternative; this is wrong because Crab is locally a valuable high food source, and its empire health gain remains useful especially later, while Elephants are mostly classical-era pressure with some happiness.
+	// Settlement scoring cares less about immediate current-era trade value than about long-term health and happiness city-site value, which can be very different.
+	// Score explicit new health/happiness, ordinary building effects, and conservatively estimated special-building effects here. The old first-growth/luxury extra is removed because explicit health/happiness already represents that empire-wide effect.
+	// Diversity, dynamic bonus importance, and improvement yields are handled separately by the caller. See KI#178. (GPT-5.5 + GPT-5.6-Sol) -->
 	// int r = kPlayer.AI_bonusVal(eBonus, 1, true) * (!kSet.isStartingLoc() && kPlayer.getNumTradeableBonuses(eBonus) == 0 && aiBonusCount[eBonus] == 1 ? 80 : 20); // BtS
 	// int iCount = kPlayer.getNumTradeableBonuses(eBonus) == 0 + aiBonusCount[eBonus];
 	// int r = AI_bonusVal(eBonus, 0, true) * 80 / (1 + 2*iCount); // K-Mod
@@ -3268,7 +3271,8 @@ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bC
 	// (note): Instead of special treatment just for the early game, the multiplier should arguably be based on an estimate of how many cities we'll have in some medium term - b/c AI_bonusVal is per city.
 	// (cf. getBonusImprovement)
 	// AI_bonusValue can check for tech requirements, but it can't check requirements for building the improvement. Hence bAssumeEnabled=true is used in the AI_bonusValue call above and we take care of tech requirements ourselves.
-	// <!-- custom: The old coefficient, early-game modifier, strategic-resource dampening, and AI_bonusValue/bAssumeEnabled tech-requirement handling belonged to the old AI_bonusVal path commented out below. That path was replaced with explicit health/happiness settlement value; dynamic strategic need is added separately by the caller, and improvement availability remains handled through getBonusImprovement and separate bonus-yield scoring. See KI#178. (GPT-5.5 + GPT-5.6-Sol) -->
+	// <!-- custom: The old coefficient, early-game modifier, strategic-resource dampening, and AI_bonusValue/bAssumeEnabled tech-requirement handling belonged to the old AI_bonusVal path commented out below.
+	// That path was replaced with explicit health/happiness settlement value; dynamic strategic need is added separately by the caller, and improvement availability remains handled through getBonusImprovement and separate bonus-yield scoring. See KI#178. (GPT-5.5 + GPT-5.6-Sol) -->
 	static const int iHealthValue = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_HEALTH_VALUE");
 	static const int iHappinessValue = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_HAPPINESS_VALUE");
 	static const int iConnectionEraValueLossPercent = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_CONNECTION_ERA_VALUE_LOSS_PERCENT");
