@@ -7054,6 +7054,49 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 	int iHealthGood = 0, iHealthBad = 0;
 	int const iHealthGain = kCity.getAdditionalHealthByBuilding(eBuilding, iHealthGood, iHealthBad, true);
 	int const iHappyGain = AI_strictAdditionalHappy(kCity, eBuilding);
+
+	// <!-- custom: Once a neutral inherited-value row survives deduplication, spend extra level-3-only work to expose how the same candidate scores under each inherited focus and the raw health/happiness need mechanics.
+	// This avoids adding component bookkeeping to ordinary AI_buildingValue calls while giving the building-rework audit enough attribution to distinguish weak need valuation from competing economic/military value. (ChatGPT-5.6-Sol) -->
+	int const iFocusHealth = kCity.AI_buildingValue(eBuilding, BUILDINGFOCUS_HEALTHY, 0, true);
+	int const iFocusHappy = kCity.AI_buildingValue(eBuilding, BUILDINGFOCUS_HAPPY, 0, true);
+	int const iFocusMaintenance = kCity.AI_buildingValue(eBuilding, BUILDINGFOCUS_MAINTENANCE, 0, true);
+	int const iFocusDefense = kCity.AI_buildingValue(eBuilding, BUILDINGFOCUS_DEFENSE, 0, true);
+	int const iFocusExperience = kCity.AI_buildingValue(eBuilding, BUILDINGFOCUS_EXPERIENCE, 0, true);
+	int const iFocusDomainSea = kCity.AI_buildingValue(eBuilding, BUILDINGFOCUS_DOMAINSEA, 0, true);
+	int const iFocusFood = kCity.AI_buildingValue(eBuilding, BUILDINGFOCUS_FOOD, 0, true);
+	int const iFocusProduction = kCity.AI_buildingValue(eBuilding, BUILDINGFOCUS_PRODUCTION, 0, true);
+	int const iFocusGold = kCity.AI_buildingValue(eBuilding, BUILDINGFOCUS_GOLD, 0, true);
+	int const iFocusResearch = kCity.AI_buildingValue(eBuilding, BUILDINGFOCUS_RESEARCH, 0, true);
+	int const iFocusCulture = kCity.AI_buildingValue(eBuilding, BUILDINGFOCUS_CULTURE, 0, true);
+	int const iFocusEspionage = kCity.AI_buildingValue(eBuilding, BUILDINGFOCUS_ESPIONAGE, 0, true);
+	int const iFocusSpecialist = kCity.AI_buildingValue(eBuilding, BUILDINGFOCUS_SPECIALIST, 0, true);
+
+	int const iHappinessLevel = iHappySurplus + kCity.getEspionageHappinessCounter() / 2 - kCity.getMilitaryHappiness() / 2;
+	int iHappyGood = 0, iHappyBad = 0;
+	int const iActualHappyGain = kCity.getAdditionalHappinessByBuilding(eBuilding, iHappyGood, iHappyBad);
+	int const iAngerBefore = std::max(0, -iHappinessLevel);
+	int const iAngerAfter = std::max(0, -(iHappinessLevel + iActualHappyGain));
+	int const iAngerDelta = iAngerAfter - iAngerBefore;
+
+	int const iHealthLevel = iHealthSurplus;
+	int iFutureHealthLevel = iHealthLevel;
+	if (kOwner.getCurrentEra() >= CvEraInfo::AI_getAgeOfPollution() && !kCity.isPower())
+		iFutureHealthLevel += GC.getDefineINT(CvGlobals::POWER_HEALTH_CHANGE) / 2;
+	int const iWasteBefore = std::max(0, -iFutureHealthLevel);
+	int const iWasteAfter = std::max(0, -iFutureHealthLevel - iHealthGain);
+	int const iWasteDelta = iWasteAfter - iWasteBefore;
+	int const iFoodDeficitBefore = std::max(0, -(iFoodSurplus + iFutureHealthLevel - iHealthLevel));
+	int const iFoodDeficitAfter = std::max(0, -(iFoodSurplus - iWasteDelta));
+
+	logBBAI("BUILDING_VALUE_INHERITED_FOCUS turn=%d player=%d city=%S cityId=%d building=%s neutral=%d health=%d happy=%d maintenance=%d defense=%d experience=%d domainSea=%d food=%d production=%d gold=%d research=%d culture=%d espionage=%d specialist=%d happinessLevel=%d actualHappyGain=%d angerBefore=%d angerAfter=%d angerDelta=%d healthLevel=%d futureHealthLevel=%d actualHealthGain=%d wasteBefore=%d wasteAfter=%d wasteDelta=%d foodDeficitBefore=%d foodDeficitAfter=%d maintenanceTimes100=%d freeExperience=%d landExperience=%d seaExperience=%d militaryProductionModifier=%d landProductionModifier=%d seaProductionModifier=%d",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(), iValue,
+		iFocusHealth, iFocusHappy, iFocusMaintenance, iFocusDefense, iFocusExperience, iFocusDomainSea, iFocusFood, iFocusProduction,
+		iFocusGold, iFocusResearch, iFocusCulture, iFocusEspionage, iFocusSpecialist, iHappinessLevel, iActualHappyGain, iAngerBefore,
+		iAngerAfter, iAngerDelta, iHealthLevel, iFutureHealthLevel, iHealthGain, iWasteBefore, iWasteAfter, iWasteDelta,
+		iFoodDeficitBefore, iFoodDeficitAfter, kCity.getMaintenanceTimes100(), kBuilding.getFreeExperience(),
+		kBuilding.getDomainFreeExperience(DOMAIN_LAND), kBuilding.getDomainFreeExperience(DOMAIN_SEA), kBuilding.getMilitaryProductionModifier(),
+		kBuilding.getDomainProductionModifier(DOMAIN_LAND), kBuilding.getDomainProductionModifier(DOMAIN_SEA));
+
 	logBBAI("BUILDING_VALUE_INHERITED turn=%d player=%d %S city=%S cityId=%d building=%s value=%d priorityFactor=%d researchingObsoleteTech=%d comparisonValue=%d era=%d pop=%d healthSurplus=%d happySurplus=%d foodSurplus=%d baseProduction=%d stored=%d needed=%d remaining=%d turnsLeft=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d financialTrouble=%d healthGain=%d happyGain=%d foodKept=%d defenseModifier=%d maintenanceModifier=%d productionModifier=%d seaFood=%d tradeRoutes=%d goldFlat=%d goldModifier=%d researchFlat=%d researchModifier=%d cultureFlat=%d cultureModifier=%d espionageFlat=%d espionageModifier=%d",
 		GC.getGame().getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(), iValue, iPriorityFactor, bResearchingObsoleteTech, iComparisonValue,
 		kOwner.getCurrentEra(), kCity.getPopulation(), iHealthSurplus, iHappySurplus, iFoodSurplus, kCity.getBaseYieldRate(YIELD_PRODUCTION), iStored, iNeeded, std::max(0, iNeeded - iStored), iTurnsLeft,
