@@ -2746,18 +2746,18 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 
 
 
-	<!-- custom: enable hard "do not buy dominated or equivalent strategic bonus" rules; Long_Comments_XML.txt #362. (GPT-5.3-Codex) -->
+	<!-- custom: The hard named-resource "do not buy dominated or equivalent strategic bonus" rules are disabled. The ordinary recipient-value threshold now rejects resources the buyer cannot use yet, while the XML-derived, civilization-specific value preserves genuinely useful alternatives without a brittle Iron/Copper/Horse/Camel list. Long_Comments_XML.txt #362. (GPT-5.3-Codex + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_BONUS_TRADE_ZERO_DOMINATED_STRATEGIC_BUYS</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 
 
-	<!-- custom: Long_Comments_XML.txt #206 -->
+	<!-- custom: AIObjective trade markup is disabled because the dynamic base value already measures the units, buildings, projects, routes, happiness and health that this civilization actually gains from the bonus. Retain the knobs while other AIObjective consumers are audited separately. Long_Comments_XML.txt #206. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_BONUS_TRADE_AI_OBJECTIVE_PER_POINT_PERCENT</DefineName>
@@ -2767,12 +2767,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_BONUS_TRADE_AI_OBJECTIVE_MAX_PERCENT</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
-	<!--
-	// - 2) Simple substitute multipliers for key strategics (edge rules) -
-	-->
+	<!-- custom: Named era/resource trade multipliers are disabled. Dynamic XML-derived value plus the buyer's technology readiness replaces their hardcoded assumptions while remaining responsive to civilization and mod-mod rule changes; retain the subordinate knobs for comparison while their code path remains switchable. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: here is the logic i drafted (updated bit but refer to below code comments per define rather for clarity with updated values there as well) to chatgpt 5 after some back and forth and consideration: -->
 	<!-- custom: Long_Comments_XML.txt #109 -->

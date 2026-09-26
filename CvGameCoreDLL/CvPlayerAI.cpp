@@ -14002,6 +14002,20 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer, 
 	if(iChange >= 0)
 	{
 		iValueForThem = kPlayer.AI_bonusVal(eBonus, iChange, false, true);
+		// <!-- custom: Trace the existing technology-readiness gate separately from price calculation so named strategic-resource rules can be replaced and audited. A full autoplay distinguished unusable first copies from currently useful ones (e.g. early Iron value 1 and later Iron value 10) without hardcoded resource names. (GPT-5.6-Sol) -->
+		if (!bPlayerHuman && gBonusLogLevel >= 2 && (iValueForThem < iTradeValThresh || gBonusLogLevel >= 3))
+		{
+			CvString szDiagnosticKey;
+			szDiagnosticKey.Format("N|%d|%d|%d|%d", getID(), eToPlayer, eBonus, iChange);
+			CvString szDiagnosticSignature;
+			szDiagnosticSignature.Format("%d|%d", iValueForThem, iTradeValThresh);
+			if (shouldLogSASBonusValueChange(szDiagnosticKey, szDiagnosticSignature))
+			{
+				logBBAI("BONUS_TRADE_DYNAMIC_NEED turn=%d seller=%d buyer=%d bonus=%s change=%d buyerAvailable=%d recipientValue=%d threshold=%d outcome=%s",
+					GC.getGame().getGameTurn(), getID(), eToPlayer, GC.getInfo(eBonus).getType(), iChange, iAvailThem,
+					iValueForThem, iTradeValThresh, (iValueForThem < iTradeValThresh ? "DENIAL_NO_GAIN" : "CONTINUE"));
+			}
+		}
 	// </advc.036>
 		if (isHuman() &&
 			/*  advc.036: No deal if they (AI) don't need the resource, but
