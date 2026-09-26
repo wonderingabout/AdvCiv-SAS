@@ -7025,7 +7025,7 @@ static void SAS_logBuildingValuePolicyDecision(CvCityAI const& kCity, BuildingTy
 }
 
 // <!-- custom: When the SAS regular-building prefilter is disabled, expose every computed neutral-focus inherited value rather than only the winning focus candidates. Include its deterministic turns/progress-adjusted comparison value and the main XML/city inputs so the inherited policy can be audited before replacing or tuning it. Call only behind the cached level-3 gate. (GPT-5.6-Sol) -->
-static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor)
+static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor, int iDefenseDelta, int iEspionageDefenseDelta, int iHappinessDelta, int iHealthDelta, int iExperienceDelta, int iDomainSeaDelta, int iMaintenanceDelta, int iSpecialistDelta, int iTradeDelta, int iGeneralDelta, int iYieldDelta, int iCommerceGlobalDelta, int iAirCapacityDelta, int iMilitaryProductionDelta, int iDomainProductionDelta)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kCity.getTeam());
@@ -7096,6 +7096,15 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 		iFoodDeficitBefore, iFoodDeficitAfter, kCity.getMaintenanceTimes100(), kBuilding.getFreeExperience(),
 		kBuilding.getDomainFreeExperience(DOMAIN_LAND), kBuilding.getDomainFreeExperience(DOMAIN_SEA), kBuilding.getMilitaryProductionModifier(),
 		kBuilding.getDomainProductionModifier(DOMAIN_LAND), kBuilding.getDomainProductionModifier(DOMAIN_SEA));
+
+	// <!-- custom: Exact before/after deltas from the inherited neutral pass complement the focus probes above. These measure what each contiguous valuation block actually added before later global scaling/flavour adjustments; residual keeps the unmatched/scaled remainder explicit instead of pretending the buckets are perfectly additive. Diagnostic-only. (ChatGPT-5.6-Sol) -->
+	int const iAccountedDelta = iDefenseDelta + iEspionageDefenseDelta + iHappinessDelta + iHealthDelta + iExperienceDelta + iDomainSeaDelta + iMaintenanceDelta + iSpecialistDelta + iTradeDelta + iGeneralDelta + iYieldDelta + iCommerceGlobalDelta;
+	int const iResidualDelta = iValue - iAccountedDelta;
+	logBBAI("BUILDING_VALUE_INHERITED_COMPONENTS turn=%d player=%d city=%S cityId=%d building=%s final=%d defense=%d espionageDefense=%d happiness=%d health=%d experience=%d domainSea=%d maintenance=%d specialist=%d trade=%d general=%d yield=%d commerceGlobal=%d airCapacityWithinGeneral=%d militaryProductionWithinGeneral=%d domainProductionWithinGeneral=%d accounted=%d residual=%d",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(), iValue,
+		iDefenseDelta, iEspionageDefenseDelta, iHappinessDelta, iHealthDelta, iExperienceDelta, iDomainSeaDelta, iMaintenanceDelta,
+		iSpecialistDelta, iTradeDelta, iGeneralDelta, iYieldDelta, iCommerceGlobalDelta, iAirCapacityDelta, iMilitaryProductionDelta,
+		iDomainProductionDelta, iAccountedDelta, iResidualDelta);
 
 	logBBAI("BUILDING_VALUE_INHERITED turn=%d player=%d %S city=%S cityId=%d building=%s value=%d priorityFactor=%d researchingObsoleteTech=%d comparisonValue=%d era=%d pop=%d healthSurplus=%d happySurplus=%d foodSurplus=%d baseProduction=%d stored=%d needed=%d remaining=%d turnsLeft=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d financialTrouble=%d healthGain=%d happyGain=%d foodKept=%d defenseModifier=%d maintenanceModifier=%d productionModifier=%d seaFood=%d tradeRoutes=%d goldFlat=%d goldModifier=%d researchFlat=%d researchModifier=%d cultureFlat=%d cultureModifier=%d espionageFlat=%d espionageModifier=%d",
 		GC.getGame().getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(), iValue, iPriorityFactor, bResearchingObsoleteTech, iComparisonValue,
@@ -8859,6 +8868,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
 
 	int iValue = 0;
+	// <!-- custom: Exact inherited-value block attribution for the building rework audit. Keep every diagnostic Before/Delta local explicitly initialized: VC++ Toolkit 2003 otherwise emits C4701 (treated as an error here) because it cannot prove our logging guards initialize them on every path. Only level-3 neutral evaluations otherwise touch/read them, so ordinary gameplay still adds only cheap Boolean probes and no logging-only queries, strings or duplicate valuation work. (ChatGPT-5.6-Sol) -->
+	int iDiagDefenseDelta = 0, iDiagEspionageDefenseDelta = 0, iDiagHappinessDelta = 0, iDiagHealthDelta = 0, iDiagExperienceDelta = 0, iDiagDomainSeaDelta = 0;
+	int iDiagMaintenanceDelta = 0, iDiagSpecialistDelta = 0, iDiagTradeDelta = 0, iDiagGeneralDelta = 0, iDiagYieldDelta = 0, iDiagCommerceGlobalDelta = 0;
+	int iDiagAirCapacityDelta = 0, iDiagMilitaryProductionDelta = 0, iDiagDomainProductionDelta = 0;
+	int iDiagDefenseBefore = 0, iDiagEspionageDefenseBefore = 0, iDiagHappinessBefore = 0, iDiagHealthBefore = 0, iDiagExperienceBefore = 0, iDiagDomainSeaBefore = 0;
+	int iDiagMaintenanceBefore = 0, iDiagSpecialistBefore = 0, iDiagTradeBefore = 0, iDiagGeneralBefore = 0, iDiagYieldBefore = 0, iDiagCommerceGlobalBefore = 0;
+	int iDiagAirCapacityBefore = 0, iDiagMilitaryProductionBefore = 0, iDiagDomainProductionBefore = 0;
 	for (int iPass = 0; iPass < 2; iPass++)
 	{
 		/*	K-Mod. This entire block was originally wrapped with the following condition:
@@ -8866,18 +8882,23 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			I've moved this condition to the end of the block
 			and tweaked it for better readability. */
 
+		if (bLogBuildingValueDetails && iPass > 0) iDiagDefenseBefore = iValue;
 		if ((iFocusFlags & BUILDINGFOCUS_DEFENSE) || iPass > 0)
 		{
 			// <advc> Moved into new function
 			iValue += AI_defensiveBuildingValue(eBuilding, bAreaAlone, bWarPlan,
 					iNumCities, iNumCitiesInArea, bRemove, bObsolete); // </advc>
 		}
+		if (bLogBuildingValueDetails && iPass > 0) iDiagDefenseDelta += iValue - iDiagDefenseBefore;
 
+		if (bLogBuildingValueDetails && iPass > 0) iDiagEspionageDefenseBefore = iValue;
 		if ((iFocusFlags & BUILDINGFOCUS_ESPIONAGE) || iPass > 0)
 		{
 			iValue += kBuilding.getEspionageDefenseModifier() / 8;
 		}
+		if (bLogBuildingValueDetails && iPass > 0) iDiagEspionageDefenseDelta += iValue - iDiagEspionageDefenseBefore;
 
+		if (bLogBuildingValueDetails && iPass > 0) iDiagHappinessBefore = iValue;
 		if (((iFocusFlags & BUILDINGFOCUS_HAPPY) || iPass > 0) && !isNoUnhappiness())
 		{
 			int iBestHappy = 0;
@@ -8974,7 +8995,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 						kOwner.getBuildingClassCount(perBuildingClassVal.first) * 8);
 			}
 		}
+		if (bLogBuildingValueDetails && iPass > 0) iDiagHappinessDelta += iValue - iDiagHappinessBefore;
 
+		if (bLogBuildingValueDetails && iPass > 0) iDiagHealthBefore = iValue;
 		if ((iFocusFlags & BUILDINGFOCUS_HEALTHY) || iPass > 0)
 			//&& !isNoUnhealthyPopulation() // K-Mod: commented out
 		{
@@ -9033,7 +9056,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			iValue += kBuilding.getAreaHealth() * (iNumCitiesInArea-1) * 4;
 			iValue += kBuilding.getGlobalHealth() * iNumCities * 4;
 		}
+		if (bLogBuildingValueDetails && iPass > 0) iDiagHealthDelta += iValue - iDiagHealthBefore;
 
+		if (bLogBuildingValueDetails && iPass > 0) iDiagExperienceBefore = iValue;
 		if (iFocusFlags & BUILDINGFOCUS_EXPERIENCE || iPass > 0)
 		{
 			/*	K-Mod (note). currently this new code matches the functionality
@@ -9080,8 +9105,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			}
 			// K-Mod end
 		}
+		if (bLogBuildingValueDetails && iPass > 0) iDiagExperienceDelta += iValue - iDiagExperienceBefore;
 
 		// since this duplicates BUILDINGFOCUS_EXPERIENCE checks, do not repeat on pass 1
+		if (bLogBuildingValueDetails && iPass > 0) iDiagDomainSeaBefore = iValue;
 		if ((iFocusFlags & BUILDINGFOCUS_DOMAINSEA))
 		{
 			iValue += (iFreeExperience * (iHasMetCount > 0 ? 16 : 8));
@@ -9111,6 +9138,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				iValue += (kBuilding.getDomainProductionModifier(DOMAIN_SEA) / 4);
 		}
 
+		if (bLogBuildingValueDetails && iPass > 0) iDiagDomainSeaDelta += iValue - iDiagDomainSeaBefore;
+
+		if (bLogBuildingValueDetails && iPass > 0) iDiagMaintenanceBefore = iValue;
 		if ((iFocusFlags & BUILDINGFOCUS_MAINTENANCE) ||
 			(iFocusFlags & BUILDINGFOCUS_GOLD) || (iPass > 0))
 		{
@@ -9142,7 +9172,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			}
 			// K-Mod end
 		}
+		if (bLogBuildingValueDetails && iPass > 0) iDiagMaintenanceDelta += iValue - iDiagMaintenanceBefore;
 
+		if (bLogBuildingValueDetails && iPass > 0) iDiagSpecialistBefore = iValue;
 		if (/* advc.121b: */ !bIgnoreSpecialists &&
 			((iFocusFlags & BUILDINGFOCUS_SPECIALIST) || iPass > 0))
 		{
@@ -9183,7 +9215,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				iValue += iSpecialistsValue;
 			// K-Mod end
 		}
+		if (bLogBuildingValueDetails && iPass > 0) iDiagSpecialistDelta += iValue - iDiagSpecialistBefore;
 
+		if (bLogBuildingValueDetails && iPass > 0) iDiagTradeBefore = iValue;
 		if ((iFocusFlags & (BUILDINGFOCUS_GOLD | BUILDINGFOCUS_RESEARCH)) || iPass > 0)
 		{
 			// trade routes
@@ -9252,7 +9286,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 			iValue += iTempValue;
 		}
+		if (bLogBuildingValueDetails && iPass > 0) iDiagTradeDelta += iValue - iDiagTradeBefore;
 
+		if (bLogBuildingValueDetails && iPass > 0) iDiagGeneralBefore = iValue;
 		if (iPass > 0)
 		{
 			/*	K-Mod. The value of golden age buildings.
@@ -9472,9 +9508,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			iValue += (-(kBuilding.getNukeModifier()) / ((iHasMetCount > 0) ? 10 : 20));*/ // BtS
 			// (This stuff is already counted in the defense section.)
 			// <K-Mod>
+			if (bLogBuildingValueDetails && iPass > 0) iDiagAirCapacityBefore = iValue;
 			iValue += std::max(0, kBuilding.getAirUnitCapacity() -
 					getPlot().airUnitSpaceAvailable(getTeam())/2) *
 					(iPop + 12); // </K-Mod>
+			if (bLogBuildingValueDetails && iPass > 0) iDiagAirCapacityDelta += iValue - iDiagAirCapacityBefore;
 
 			/*iValue += (kBuilding.getFreeSpecialist() * 16);
 			iValue += (kBuilding.getAreaFreeSpecialist() * iNumCitiesInArea * 12);
@@ -9507,6 +9545,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			iValue += ((kBuilding.getWorkerSpeedModifier() *
 					kOwner.AI_getNumAIUnits(UNITAI_WORKER)) / 10);
 
+			if (bLogBuildingValueDetails && iPass > 0) iDiagMilitaryProductionBefore = iValue;
 			if (iHasMetCount > 0 && iMilitaryProductionModifier > 0)
 			{
 				// either not a wonder, or a wonder and we are a high production city
@@ -9540,6 +9579,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							iProductionRank) / 5;
 				}
 			}
+			if (bLogBuildingValueDetails && iPass > 0) iDiagMilitaryProductionDelta += iValue - iDiagMilitaryProductionBefore;
 
 			iValue += (kBuilding.getSpaceProductionModifier() / 5);
 			iValue += ((kBuilding.getGlobalSpaceProductionModifier() * iNumCities) / 20);
@@ -9647,12 +9687,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 						perImprovementVal.second;
 				iTotalImprFreeSpecialists += perImprovementVal.second; // advc.131
 			}
+			if (bLogBuildingValueDetails && iPass > 0) iDiagDomainProductionBefore = iValue;
 			FOR_EACH_ENUM(Domain)
 			{
 				iValue += (kBuilding.getDomainProductionModifier(eLoopDomain) / 5);
 				if (bHighProductionCity)
 					iValue += kBuilding.getDomainProductionModifier(eLoopDomain) / 5;
 			}
+			if (bLogBuildingValueDetails && iPass > 0) iDiagDomainProductionDelta += iValue - iDiagDomainProductionBefore;
 
 			FOR_EACH_ENUM(Unit)
 			{
@@ -10033,7 +10075,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// BETTER_BTS_AI_MOD: END
 			}
 		}
+		if (bLogBuildingValueDetails && iPass > 0) iDiagGeneralDelta += iValue - iDiagGeneralBefore;
 
+		if (bLogBuildingValueDetails && iPass > 0) iDiagYieldBefore = iValue;
 		if (iPass > 0)
 		{
 			/*	K-Mod, I've moved this from inside the yield types loop;
@@ -10255,6 +10299,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				iValue += iTempValue;
 			}
 		}
+		if (bLogBuildingValueDetails && iPass > 0) iDiagYieldDelta += iValue - iDiagYieldBefore;
+		if (bLogBuildingValueDetails && iPass > 0) iDiagCommerceGlobalBefore = iValue;
 		if (iPass > 0)
 		{
 			FOR_EACH_ENUM(Commerce)
@@ -10897,6 +10943,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// BETTER_BTS_AI_MOD: END
 			}
 		}
+		if (bLogBuildingValueDetails && iPass > 0) iDiagCommerceGlobalDelta += iValue - iDiagCommerceGlobalBefore;
 
 		/*if ((iThreshold > 0) && (iPass == 0))
 		{
@@ -10982,7 +11029,12 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		m_aiConstructionValue[eBuildingClass] = iValue;
 	// K-Mod end
 	if (bLogBuildingValueDetails && !bWonder)
-		SAS_logInheritedBuildingValue(*this, eBuilding, iValue, iPriorityFactor);
+	{
+		SAS_logInheritedBuildingValue(*this, eBuilding, iValue, iPriorityFactor, iDiagDefenseDelta, iDiagEspionageDefenseDelta,
+			iDiagHappinessDelta, iDiagHealthDelta, iDiagExperienceDelta, iDiagDomainSeaDelta, iDiagMaintenanceDelta, iDiagSpecialistDelta,
+			iDiagTradeDelta, iDiagGeneralDelta, iDiagYieldDelta, iDiagCommerceGlobalDelta, iDiagAirCapacityDelta, iDiagMilitaryProductionDelta,
+			iDiagDomainProductionDelta);
+	}
 
 	return iValue;
 }
