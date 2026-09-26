@@ -2050,7 +2050,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</Define>
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: knob common to all wonders, see below for more specific ones alternatively i mean. -->
 	<Define>
