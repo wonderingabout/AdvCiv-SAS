@@ -7025,7 +7025,7 @@ static void SAS_logBuildingValuePolicyDecision(CvCityAI const& kCity, BuildingTy
 }
 
 // <!-- custom: When the SAS regular-building prefilter is disabled, expose every computed neutral-focus inherited value rather than only the winning focus candidates. Include its deterministic turns/progress-adjusted comparison value and the main XML/city inputs so the inherited policy can be audited before replacing or tuning it. Call only behind the cached level-3 gate. (GPT-5.6-Sol) -->
-static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor, int iDefenseDelta, int iEspionageDefenseDelta, int iHappinessDelta, int iHealthDelta, int iExperienceDelta, int iDomainSeaDelta, int iMaintenanceDelta, int iSpecialistDelta, int iTradeDelta, int iGeneralDelta, int iYieldDelta, int iCommerceGlobalDelta, int iAirCapacityDelta, int iMilitaryProductionDelta, int iDomainProductionDelta)
+static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor, int iDefenseDelta, int iEspionageDefenseDelta, int iHappinessDelta, int iHealthDelta, int iExperienceDelta, int iDomainSeaDelta, int iMaintenanceDelta, int iSpecialistDelta, int iTradeDelta, int iGeneralDelta, int iYieldDelta, int iCommerceGlobalDelta, int iAirCapacityDelta, int iMilitaryProductionDelta, int iDomainProductionDelta, int iHealthSeverityUrgencyBonus, int iHealthStarvationUrgencyBonus)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kCity.getTeam());
@@ -7100,11 +7100,11 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 	// <!-- custom: Exact before/after deltas from the inherited neutral pass complement the focus probes above. These measure what each contiguous valuation block actually added before later global scaling/flavour adjustments; residual keeps the unmatched/scaled remainder explicit instead of pretending the buckets are perfectly additive. Diagnostic-only. (ChatGPT-5.6-Sol) -->
 	int const iAccountedDelta = iDefenseDelta + iEspionageDefenseDelta + iHappinessDelta + iHealthDelta + iExperienceDelta + iDomainSeaDelta + iMaintenanceDelta + iSpecialistDelta + iTradeDelta + iGeneralDelta + iYieldDelta + iCommerceGlobalDelta;
 	int const iResidualDelta = iValue - iAccountedDelta;
-	logBBAI("BUILDING_VALUE_INHERITED_COMPONENTS turn=%d player=%d city=%S cityId=%d building=%s final=%d defense=%d espionageDefense=%d happiness=%d health=%d experience=%d domainSea=%d maintenance=%d specialist=%d trade=%d general=%d yield=%d commerceGlobal=%d airCapacityWithinGeneral=%d militaryProductionWithinGeneral=%d domainProductionWithinGeneral=%d accounted=%d residual=%d",
+	logBBAI("BUILDING_VALUE_INHERITED_COMPONENTS turn=%d player=%d city=%S cityId=%d building=%s final=%d defense=%d espionageDefense=%d happiness=%d health=%d healthSeverityUrgency=%d healthStarvationUrgency=%d experience=%d domainSea=%d maintenance=%d specialist=%d trade=%d general=%d yield=%d commerceGlobal=%d airCapacityWithinGeneral=%d militaryProductionWithinGeneral=%d domainProductionWithinGeneral=%d accounted=%d residual=%d",
 		GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(), iValue,
-		iDefenseDelta, iEspionageDefenseDelta, iHappinessDelta, iHealthDelta, iExperienceDelta, iDomainSeaDelta, iMaintenanceDelta,
-		iSpecialistDelta, iTradeDelta, iGeneralDelta, iYieldDelta, iCommerceGlobalDelta, iAirCapacityDelta, iMilitaryProductionDelta,
-		iDomainProductionDelta, iAccountedDelta, iResidualDelta);
+		iDefenseDelta, iEspionageDefenseDelta, iHappinessDelta, iHealthDelta, iHealthSeverityUrgencyBonus, iHealthStarvationUrgencyBonus,
+		iExperienceDelta, iDomainSeaDelta, iMaintenanceDelta, iSpecialistDelta, iTradeDelta, iGeneralDelta, iYieldDelta, iCommerceGlobalDelta,
+		iAirCapacityDelta, iMilitaryProductionDelta, iDomainProductionDelta, iAccountedDelta, iResidualDelta);
 
 	logBBAI("BUILDING_VALUE_INHERITED turn=%d player=%d %S city=%S cityId=%d building=%s value=%d priorityFactor=%d researchingObsoleteTech=%d comparisonValue=%d era=%d pop=%d healthSurplus=%d happySurplus=%d foodSurplus=%d baseProduction=%d stored=%d needed=%d remaining=%d turnsLeft=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d financialTrouble=%d healthGain=%d happyGain=%d foodKept=%d defenseModifier=%d maintenanceModifier=%d productionModifier=%d seaFood=%d tradeRoutes=%d goldFlat=%d goldModifier=%d researchFlat=%d researchModifier=%d cultureFlat=%d cultureModifier=%d espionageFlat=%d espionageModifier=%d",
 		GC.getGame().getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(), iValue, iPriorityFactor, bResearchingObsoleteTech, iComparisonValue,
@@ -8872,6 +8872,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	int iDiagDefenseDelta = 0, iDiagEspionageDefenseDelta = 0, iDiagHappinessDelta = 0, iDiagHealthDelta = 0, iDiagExperienceDelta = 0, iDiagDomainSeaDelta = 0;
 	int iDiagMaintenanceDelta = 0, iDiagSpecialistDelta = 0, iDiagTradeDelta = 0, iDiagGeneralDelta = 0, iDiagYieldDelta = 0, iDiagCommerceGlobalDelta = 0;
 	int iDiagAirCapacityDelta = 0, iDiagMilitaryProductionDelta = 0, iDiagDomainProductionDelta = 0;
+	int iDiagHealthSeverityUrgencyBonus = 0, iDiagHealthStarvationUrgencyBonus = 0;
 	int iDiagDefenseBefore = 0, iDiagEspionageDefenseBefore = 0, iDiagHappinessBefore = 0, iDiagHealthBefore = 0, iDiagExperienceBefore = 0, iDiagDomainSeaBefore = 0;
 	int iDiagMaintenanceBefore = 0, iDiagSpecialistBefore = 0, iDiagTradeBefore = 0, iDiagGeneralBefore = 0, iDiagYieldBefore = 0, iDiagCommerceGlobalBefore = 0;
 	int iDiagAirCapacityBefore = 0, iDiagMilitaryProductionBefore = 0, iDiagDomainProductionBefore = 0;
@@ -9034,6 +9035,26 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				(this is a positive change bias) */
 			if (iWasteDelta < 0 && iHappinessLevel > 0)
 				iValue -= iCitizenValue * iWasteDelta;
+
+			// <!-- custom: Strengthen local health relief smoothly with the severity of the actual unhealthy population instead of restoring the old SAS hard health-building gate.
+			// Each point of waste removed gains 10% of one citizen value per average unhealthy citizen across the before/after state; this is near-zero for mild sickness but increasingly important in deeply unhealthy cities.
+			// If the city is already losing food, add one further citizen value only for the health points that directly close that current food deficit. This targets depopulation without classifying buildings by name/category or forcing an absolute priority. (ChatGPT-5.6-Sol) -->
+			if (iWasteDelta < 0)
+			{
+				int const iHealthRelief = -iWasteDelta;
+				int const iHealthDeficitBefore = std::max(0, -iFutureHealthLevel);
+				int const iHealthDeficitAfter = std::max(0, -(iFutureHealthLevel + iBuildingActualHealth));
+				int const iHealthSeverityUrgencyBonus = iCitizenValue * iHealthRelief * (iHealthDeficitBefore + iHealthDeficitAfter) / 20;
+				int const iStarvationRelief = std::min(iHealthRelief, std::max(0, -iFoodDifference));
+				int const iHealthStarvationUrgencyBonus = iCitizenValue * iStarvationRelief;
+				iValue += iHealthSeverityUrgencyBonus + iHealthStarvationUrgencyBonus;
+				if (bLogBuildingValueDetails && iPass > 0)
+				{
+					iDiagHealthSeverityUrgencyBonus += iHealthSeverityUrgencyBonus;
+					iDiagHealthStarvationUrgencyBonus += iHealthStarvationUrgencyBonus;
+				}
+			}
+
 			// finally, a little bit of value for health which gives us some padding
 			// advc.001h: Reduced first factor from 10 to 8 (minor balancing)
 			iValue += 8 * iCitizenValue * std::max(0, iBuildingActualHealth)/
@@ -11033,7 +11054,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		SAS_logInheritedBuildingValue(*this, eBuilding, iValue, iPriorityFactor, iDiagDefenseDelta, iDiagEspionageDefenseDelta,
 			iDiagHappinessDelta, iDiagHealthDelta, iDiagExperienceDelta, iDiagDomainSeaDelta, iDiagMaintenanceDelta, iDiagSpecialistDelta,
 			iDiagTradeDelta, iDiagGeneralDelta, iDiagYieldDelta, iDiagCommerceGlobalDelta, iDiagAirCapacityDelta, iDiagMilitaryProductionDelta,
-			iDiagDomainProductionDelta);
+			iDiagDomainProductionDelta, iDiagHealthSeverityUrgencyBonus, iDiagHealthStarvationUrgencyBonus);
 	}
 
 	return iValue;
