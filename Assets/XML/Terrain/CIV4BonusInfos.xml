@@ -29,7 +29,7 @@
 			</YieldChanges>
 			<!-- advc.036: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<!-- custom: AdvCiv-SAS intentionally keeps iAIObjective at 0 for every bonus. The shared player-specific dynamic valuation now derives importance from current units, buildings, projects, routes, era/technology readiness, obsolescence, substitutes, corporations and health/happiness instead of fixed XML labels; retain the field only for schema and mod-mod compatibility. (GPT-5.6-Sol) -->
+			<!-- custom: AdvCiv-SAS keeps iAIObjective at 0 for every current bonus because shared player-specific valuation derives ordinary importance from units, buildings, projects, routes, era/technology readiness, obsolescence, substitutes, corporations and health/happiness. Authors/mod-mods can set a nonzero value as an additive manual adjustment to that shared result; each point adds one final bonus-value unit consistently for trade, Settler, Worker and strategic consumers. (GPT-5.6-Sol) -->
 			<iAIObjective>0</iAIObjective>
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>

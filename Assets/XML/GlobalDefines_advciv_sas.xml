@@ -2043,30 +2043,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY</DefineName>
 		<iDefineIntVal>2200</iDefineIntVal>
 	</Define>
-	<Define>
-		<DefineName>SAS_KEY_STRATEGIC_METAL_BONUS_NAME_1</DefineName>
-		<DefineTextVal>BONUS_COPPER</DefineTextVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_KEY_STRATEGIC_METAL_BONUS_NAME_2</DefineName>
-		<DefineTextVal>BONUS_IRON</DefineTextVal>
-	</Define>
-
-
-
-	<!-- custom: used in various places in the advciv-sas added AI code, adjust as per your XML -->
-	<Define>
-		<DefineName>SAS_MOUNTED_UNITS_BONUS_NAME_1</DefineName>
-		<DefineTextVal>BONUS_HORSE</DefineTextVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_MOUNTED_UNITS_BONUS_NAME_2</DefineName>
-		<DefineTextVal>BONUS_CAMEL</DefineTextVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_MOUNTED_UNITS_BONUS_NAME_3</DefineName>
-		<DefineTextVal>BONUS_ELEPHANTS</DefineTextVal>
-	</Define>
 	<!-- custom: Long_Comments_XML.txt #198 -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_OPTIMIZE</DefineName>

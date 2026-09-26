@@ -12846,6 +12846,9 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade) 
 		}
 	}
 	rValue += rRouteValue;
+	// <!-- custom: Keep BonusInfo iAIObjective as an optional author/mod-mod policy adjustment rather than a primary strategic label. Each point adds one final shared bonus-value unit, so a nonzero XML value consistently affects trade, Settler, Worker and strategic consumers after the dynamic unit/building/project/route/health/happiness calculation; AdvCiv-SAS leaves every current bonus at 0 because its ordinary importance is derived from XML and player state. (GPT-5.6-Sol) -->
+	scaled const rManualObjectiveValue = 10 * GC.getInfo(eBonus).getAIObjective();
+	rValue += rManualObjectiveValue;
 
 	/*int iCorporationValue = AI_corporationBonusVal(eBonus);
 	iValue += iCorporationValue;
@@ -12883,15 +12886,15 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade) 
 		CvString szDiagnosticKey;
 		szDiagnosticKey.Format("D|%d|%d|%d", getID(), eBonus, bTrade);
 		CvString szDiagnosticSignature;
-		szDiagnosticSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d|%s|%s|%s|%s", getNumAvailableBonuses(eBonus), getCurrentEra(),
+		szDiagnosticSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%s|%s|%s|%s", getNumAvailableBonuses(eBonus), getCurrentEra(),
 			rHappyHealthValue.getPercent(), rUnitValue.getPercent(), rBuildingValue.getPercent(), rProjectValue.getPercent(), rRouteValue.getPercent(),
-			rDynamicValueBeforeDivisor.getPercent(), iValue, szUnitContributors.GetCString(), szBuildingContributors.GetCString(), szProjectContributors.GetCString(), szRouteContributors.GetCString());
+			rManualObjectiveValue.getPercent(), rDynamicValueBeforeDivisor.getPercent(), iValue, szUnitContributors.GetCString(), szBuildingContributors.GetCString(), szProjectContributors.GetCString(), szRouteContributors.GetCString());
 		if (shouldLogSASBonusValueChange(szDiagnosticKey, szDiagnosticSignature))
 		{
-			logBBAI("BONUS_DYNAMIC_VALUE turn=%d player=%d civilization=%s bonus=%s trade=%d available=%d era=%s happyHealthX100=%d unitsX100=%d buildingsX100=%d projectsX100=%d routesX100=%d totalBeforeDivisorX100=%d finalValue=%d",
+			logBBAI("BONUS_DYNAMIC_VALUE turn=%d player=%d civilization=%s bonus=%s trade=%d available=%d era=%s happyHealthX100=%d unitsX100=%d buildingsX100=%d projectsX100=%d routesX100=%d manualObjectiveX100=%d totalBeforeDivisorX100=%d finalValue=%d",
 				GC.getGame().getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), GC.getInfo(eBonus).getType(), bTrade,
 				getNumAvailableBonuses(eBonus), GC.getInfo(getCurrentEra()).getType(), rHappyHealthValue.getPercent(), rUnitValue.getPercent(),
-				rBuildingValue.getPercent(), rProjectValue.getPercent(), rRouteValue.getPercent(), rDynamicValueBeforeDivisor.getPercent(), iValue);
+				rBuildingValue.getPercent(), rProjectValue.getPercent(), rRouteValue.getPercent(), rManualObjectiveValue.getPercent(), rDynamicValueBeforeDivisor.getPercent(), iValue);
 			if (gBonusLogLevel >= 3)
 			{
 				logBBAI("BONUS_DYNAMIC_CONTRIBUTORS turn=%d player=%d bonus=%s trade=%d unitInputs=%s buildingInputs=%s projectInputs=%s routeInputs=%s",
