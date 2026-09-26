@@ -13054,10 +13054,20 @@ int CvPlayerAI::AI_baseBonusBuildingVal(BonusTypes eBonus, BuildingTypes eBuildi
 	if(kBuilding.getPrereqAndBonus() == eBonus)
 		iValue += 25; // advc.036: was 30
 
+	bool bOrBonus = false;
 	for (int i = 0; i < kBuilding.getNumPrereqOrBonuses(); i++)
+		bOrBonus = (bOrBonus || kBuilding.getPrereqOrBonuses(i) == eBonus);
+	// <!-- custom: An OR-prerequisite still has supply-resilience value when another option is available, but it no longer unlocks the building by itself. Divide the inherited enabling value among the already owned alternatives; current SAS has no such building, but this keeps the shared evaluator correct for XML/mod-mod additions. (GPT-5.6-Sol) -->
+	if (bOrBonus)
 	{
-		if (kBuilding.getPrereqOrBonuses(i) == eBonus)
-			iValue += 15; // advc.036: was 20
+		int iOrBonusesWeHave = 0;
+		for (int i = 0; i < kBuilding.getNumPrereqOrBonuses(); i++)
+		{
+			BonusTypes const ePrereqBonus = kBuilding.getPrereqOrBonuses(i);
+			if (ePrereqBonus != eBonus && getNumAvailableBonuses(ePrereqBonus) > 0)
+				iOrBonusesWeHave++;
+		}
+		iValue += 15 / (1 + iOrBonusesWeHave); // advc.036: base was 20
 	}
 	iValue += kBuilding.getBonusProductionModifier(eBonus) / 10;
 
@@ -13188,13 +13198,24 @@ int CvPlayerAI::AI_baseBonusProjectVal(BonusTypes eBonus, ProjectTypes eProject,
 
 int CvPlayerAI::AI_baseBonusRouteVal(BonusTypes eBonus, RouteTypes eRoute, RouteTypes eBestRoute, TechTypes eBuildTech, bool bTrade) const
 {
+	CvRouteInfo const& kRoute = GC.getInfo(eRoute);
 	int iValue = 0;
-	if(GC.getInfo(eRoute).getPrereqBonus() == eBonus)
+	if(kRoute.getPrereqBonus() == eBonus)
 		iValue += 80;
-	for(int i = 0; i < GC.getInfo(eRoute).getNumPrereqOrBonuses(); i++)
+	bool bOrBonus = false;
+	for(int i = 0; i < kRoute.getNumPrereqOrBonuses(); i++)
+		bOrBonus = (bOrBonus || kRoute.getPrereqOrBonus(i) == eBonus);
+	// <!-- custom: Coal and Oil both enable the current Railroad. Preserve the full route value when this bonus is needed, but divide that component among already owned XML alternatives so acquiring or retaining a redundant option is useful mainly as supply insurance. (GPT-5.6-Sol) -->
+	if (bOrBonus)
 	{
-		if(GC.getInfo(eRoute).getPrereqOrBonus(i) == eBonus)
-			iValue += 40;
+		int iOrBonusesWeHave = 0;
+		for (int i = 0; i < kRoute.getNumPrereqOrBonuses(); i++)
+		{
+			BonusTypes const ePrereqBonus = kRoute.getPrereqOrBonus(i);
+			if (ePrereqBonus != eBonus && getNumAvailableBonuses(ePrereqBonus) > 0)
+				iOrBonusesWeHave++;
+		}
+		iValue += 40 / (1 + iOrBonusesWeHave);
 	}
 	// <advc.036> The usual tech checks
 	if(eBuildTech != NO_TECH && !GET_TEAM(getTeam()).isHasTech(eBuildTech))
@@ -13210,7 +13231,7 @@ int CvPlayerAI::AI_baseBonusRouteVal(BonusTypes eBonus, RouteTypes eRoute, Route
 	if (eBestRoute == NO_ROUTE ||
 		/*  advc.opt: Was GC.getInfo(getBestRoute()), which iterates
 			through all builds. */
-		GC.getInfo(eBestRoute).getValue() > GC.getInfo(eRoute).getValue())
+		GC.getInfo(eBestRoute).getValue() > kRoute.getValue())
 	{
 		iValue /= 2;
 	}
