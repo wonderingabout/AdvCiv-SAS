@@ -7836,8 +7836,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				}
 			}
 		}
+		// <!-- custom: When regular-building optimization was disabled for an inherited-policy audit, ordinary buildings still entered this branch and were rejected as "unknown wonders" (e.g. a Granary at turn 0). Require an actual world or national wonder so the regular-building toggle cleanly restores inherited valuation. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 		// <!-- custom: wonders (i.e. world + national) -->
-		else if (bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
+		else if (bWonder && bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
 		{
 			// <!-- custom: no great wall or any wonder with the barbarian blocking at borders after a certain era (e.g. medieval or higher, not much barbarians left if at all then, not worth the hammer) feature as it is pointless then -->
 			// Barbarian-barrier WW special-case (Great Wall: bBorderObstacle=1)
