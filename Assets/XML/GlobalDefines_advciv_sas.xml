@@ -3353,20 +3353,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 
 
 
-	<!-- custom: whichever XML name is for the water food building class (in advciv-sas the harbor buildings give +1 food on water tile, adjust based on your building info xml to prioritize building this if low food and coastal if you want to) -->
-	<Define>
-		<DefineName>SAS_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME</DefineName>
-		<DefineTextVal>BUILDINGCLASS_HARBOR</DefineTextVal>
-	</Define>
-	<!-- custom: similarly, XML name of the water hammer building class, adjust based on your xml names/assets (e.g. if it's no longer the port class in your mod) -->
-	<Define>
-		<DefineName>SAS_WATER_HAMMER_BUILDING_BUILDINGCLASS_FULL_NAME</DefineName>
-		<DefineTextVal>BUILDINGCLASS_PORT</DefineTextVal>
-	</Define>
-
-
-
-	<!-- custom: water food building (as of now building_harbor) emergency/force production choice for a city if it is low food and coastal. Set to 1 to enable (recommended, fixes AI cities in autoplay stagnant for dozen turns while being coastal and surrounded by tundra, but never building a harbor (or whatever building the water food building is)), 0 to disable it -->
+	<!-- custom: Emergency/force the most hammer-efficient currently constructible building with a positive sea-plot food change when a coastal city has low food. Set to 1 to enable; this fixed coastal tundra AI cities that otherwise remained stagnant for dozens of turns. The building is discovered from civilization-specific XML rather than a configured class name. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -3376,7 +3363,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_FOOD_THRESHOLD</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: force the water hammer building class above (Port in AdvCiv-SAS) for non-human coastal cities that are big enough but still have low production or low food surplus. Port can take significant time, but these cities are not likely to contribute much short-term production anyway; if not in immediate danger, making their water tiles produce hammer first should make them much more useful later. Defense emergencies still run earlier in CvCity::doTurn, so Castle/defense can still go before Port when needed. (GPT-5.5) -->
+	<!-- custom: Force the most hammer-efficient currently constructible building with a positive sea-plot production change for non-human coastal cities that are big enough but still have low production or low food surplus. Such a building can take significant time, but these cities are not likely to contribute much short-term production anyway; if not in immediate danger, making their water plots produce hammers first should make them much more useful later. Defense emergencies still run earlier in CvCity::doTurn. The building is discovered from civilization-specific XML rather than a configured class name. (GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
