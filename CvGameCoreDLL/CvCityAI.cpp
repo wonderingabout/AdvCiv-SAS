@@ -7213,64 +7213,38 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// <!-- custom: else let city handle what it wants, it is unclear that going early for barracks is the better choice, especially if low on hammer, we won't produce any units with it or barely any units, so leave free choice rather here (e.g. a granary could be better, as we grow faster so more tiles to work so more units indirectly stronger army as we want if we can grow or we'd slow more, or a library could be better so we unlock next offensive or defensive unit that will save us or make us win or gain big advantage or gain a longtemr scientific advantage/gain overall maybe too), so don't always favour barracks-like buildings, except in cases where we expect significant and quite reliable gains in this case at least i mean -->
 			}
 
-			// --- Hard rule: don't build Stables without horses/camels <!-- custom: or elephants as it noticed and suggested itself while i had forgotten as in overlooked it rather as i didn't think of it at all xd in this case -->--------------------
+			// <!-- custom: Don't build the configured specialized unit-experience building without a unit that can use it. (GPT-5.6-Sol) -->
 			static const BuildingClassTypes eBuildingClassStable = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_AI_BUILDING_VALUE_MOUNTED_UNITS_EXP_BUILDINGCLASS_NAME"));
 
 			const bool bBuildingClassStable = (eBuildingClassStable != NO_BUILDINGCLASS && eBuildingClass == eBuildingClassStable);
 
 			if (bBuildingClassStable)
 			{
-				static const BonusTypes B_HORSE  = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_1"));
-				static const BonusTypes B_CAMEL  = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_2"));
-				static const BonusTypes B_ELEPHANTS  = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_3"));
-				// <!-- custom: note: using city's `hasBonus(` instead of `getNumAvailableBonuses(` in other places in the code, as recommended by chatgpt 5, check if accurate -->
-				//
-				// pCity->hasBonus(eBonus)
-				// - City-level connectivity: “Is this specific city’s plot-group connected to ≥1 of eBonus?"
-				// - Internally this is essentially city.plot().getOwnerPlotGroup()->getNumBonuses(eBonus) > 0 (null-safe).
-				// - Use this to gate a building in this city (e.g., Stable in this city).
-				//
-				// kOwner.hasBonus(eBonus)
-				// - Any connected city: loops all cities and returns true if any city’s plot-group has the bonus.
-				// - Good for empire-level boolean (“can we build mounted somewhere?"), but not for a specific city gate.
-				//
-				// kOwner.getNumAvailableBonuses(eBonus)
-				// - Capital plot-group only: counts copies on the capital’s network.
-				// - Fast O(1), but misses disconnected networks (overseas before Sailing, blockades, pillaged roads, etc.).
-				// - Don’t use this to decide if “the empire has it somewhere"; it will false-negative when a non-capital network has the resource.
-				//
-				const bool bCityHasHorse = (B_HORSE != NO_BONUS && hasBonus(B_HORSE));
-				const bool bCityHasCamel = (B_CAMEL != NO_BONUS && hasBonus(B_CAMEL));
-				const bool bCityHasElephants = (B_ELEPHANTS != NO_BONUS && hasBonus(B_ELEPHANTS));
-
-				// Mounted line tech gate (simple + cheap).
-				static const TechTypes eTechMountedCombat = (TechTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_TECH_NAME"));
-
-				if (eTechMountedCombat != NO_TECH && kTeam.isHasTech(eTechMountedCombat))
+				// <!-- custom: The prior Stable gate named Horse, Camel, Elephants and one mounted technology, so XML changes or civilization-specific units could make it reject a useful building or accept a useless one. Check this civilization's units against the building's actual UnitCombat experience and call canTrain only for matching units; this derives all technology, resource, obsolescence and local-network requirements from the normal rules. (GPT-5.6-Sol) -->
+				bool bCanTrainBenefitingUnit = false;
+				CvCivilization const& kCiv = getCivilization();
+				for (int i = 0; i < kCiv.getNumUnits(); i++)
 				{
-					// No mounts<!-- custom: -unlocking bonuses -->connected to this city ⇒ Stable is wasted; skip it.
-					if (!bCityHasHorse && !bCityHasCamel && !bCityHasElephants)
-					{
-						return 0;
-					}
-					else
-					{
-						if (bEnemyStrong)
-						{
-							// <!-- custom: even if we can build advanced mounted units like the horse archer or such, we probably don't have the hammer to spare and simply don't want to die, go for short term immediate units / benefits in this case, at least value lowly such a building(i hope this is interpreted elsewhere as not building it rather than last else may be worse xd) -->
-							return 0;
-						}
-						else if (bAtWarAndEnemyWeak || bWarPlan)
-						{
-							// <!-- custom: if we're strong (i.e. if ennemy(ies) is weak) and we can build advanced mounted units like the horse archer or the war elephant (if not more advanced ones, maybe a check on has tech tech_mounted_combat is simplest?), consider urgently/strongly going/to gofor a stable first, we can afford to spend the time doing so, and can expect higher benefits short-mid and long term, should be much better than not building it -->
-							return AI_BUILDING_ALWAYS_PICK_FIRST;
-						}
-					}
+					UnitTypes const eUnit = kCiv.unitAt(i);
+					UnitCombatTypes const eUnitCombat = GC.getInfo(eUnit).getUnitCombatType();
+					if (eUnitCombat == NO_UNITCOMBAT || kBuilding.getUnitCombatFreeExperience(eUnitCombat) <= 0 || !canTrain(eUnit))
+						continue;
+					bCanTrainBenefitingUnit = true;
+					break;
 				}
-				// <!-- custom: no point to build it at least not yet, reevaluate later in this caseand use the hammer for more meaningful or relevant tasks -->
-				else
-				{
+
+				// <!-- custom: No currently trainable unit receives this building's specialized experience, so spend the hammers elsewhere and reevaluate when the city's technology or connected resources change. (GPT-5.6-Sol) -->
+				if (!bCanTrainBenefitingUnit)
 					return 0;
+				if (bEnemyStrong)
+				{
+					// <!-- custom: Even when a matching unit is available, a city facing a stronger enemy needs immediate units rather than delayed experience. (GPT-5.6-Sol) -->
+					return 0;
+				}
+				if (bAtWarAndEnemyWeak || bWarPlan)
+				{
+					// <!-- custom: When preparing a war or already winning one, build the specialized experience building first because repeated production of matching units can repay the delay. (GPT-5.6-Sol) -->
+					return AI_BUILDING_ALWAYS_PICK_FIRST;
 				}
 			}
 

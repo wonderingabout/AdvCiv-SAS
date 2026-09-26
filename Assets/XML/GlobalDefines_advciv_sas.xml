@@ -2062,13 +2062,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_MOUNTED_UNITS_BONUS_NAME_3</DefineName>
 		<DefineTextVal>BONUS_ELEPHANTS</DefineTextVal>
 	</Define>
-	<Define>
-		<DefineName>SAS_MOUNTED_UNITS_TECH_NAME</DefineName>
-		<DefineTextVal>TECH_MOUNTED_COMBAT</DefineTextVal>
-	</Define>
-
-
-
 	<!-- custom: Long_Comments_XML.txt #198 -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_OPTIMIZE</DefineName>
