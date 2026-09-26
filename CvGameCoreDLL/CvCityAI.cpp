@@ -244,6 +244,32 @@ static void logSASMilitaryProductionConcreteReject(CvCityAI const& kCity, UnitTy
 		(eUnit == NO_UNIT ? "-" : GC.getInfo(eUnit).getType()), (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), szReason, szMetricA, iValueA, szMetricB, iValueB);
 }
 
+// <!-- custom: The early siege-cap exception is meant for a city whose practical attackers are otherwise too weak, not for a hardcoded Copper/Iron/Horse/Camel/Elephants list. Find a currently trainable non-siege land attacker directly from civilization XML; this recognizes civilization-specific and mod-added units, resource alternatives, and no-resource units such as Muskets. A modest relative-strength floor preserves Spearmen as useful Catapult-era alternatives without letting obsolete Warriors suppress the exception. Full-autoplay validation found useful alternatives in 63 of 90 checks, including civilization-specific Ballista Elephants; the other 27 checks retained the relaxed cap. (GPT-5.6-Sol) -->
+static UnitTypes SAS_bestUsefulNonSiegeLandAttacker(CvCityAI const& kCity, UnitCombatTypes eSiegeCombat, int iSiegeStrength, int iMinStrengthPercent, int* piBestStrength)
+{
+	UnitTypes eBestUnit = NO_UNIT;
+	int iBestStrength = 0;
+	CvCivilization const& kCivilization = GET_PLAYER(kCity.getOwner()).getCivilization();
+	for (int i = 0; i < kCivilization.getNumUnits(); i++)
+	{
+		UnitTypes const eLoopUnit = kCivilization.unitAt(i);
+		CvUnitInfo const& kLoopUnit = GC.getInfo(eLoopUnit);
+		UnitAITypes const eDefaultUnitAI = kLoopUnit.getDefaultUnitAIType();
+		bool const bMainAttacker = (eDefaultUnitAI == UNITAI_ATTACK || eDefaultUnitAI == UNITAI_ATTACK_CITY || eDefaultUnitAI == UNITAI_COUNTER);
+		if (!bMainAttacker || kLoopUnit.getDomainType() != DOMAIN_LAND || kLoopUnit.getCombat() <= 0 || kLoopUnit.getUnitCombatType() == eSiegeCombat || !kCity.canTrain(eLoopUnit))
+			continue;
+		if (100 * kLoopUnit.getCombat() < std::max(1, iMinStrengthPercent) * std::max(1, iSiegeStrength))
+			continue;
+		if (kLoopUnit.getCombat() > iBestStrength)
+		{
+			eBestUnit = eLoopUnit;
+			iBestStrength = kLoopUnit.getCombat();
+		}
+	}
+	if (piBestStrength != NULL) *piBestStrength = iBestStrength;
+	return eBestUnit;
+}
+
 // <!-- custom: Targeted diagnostics for possible AI Work Boat overproduction. City logs showed many Work Boat pushes/finishes after the earlier iLookAhead=0 fix, so log every worker-sea production source plus the exact worker-sea target bonuses when worker-sea logging is high. No behavior change. See KI#157. (GPT-5.5) -->
 static void logSASWorkerSeaChooseDetail(char const* szBranch, CvCityAI const& kCity, CvArea const* pRelevantWaterArea, int iCityPopulation, int iNeededSeaWorkers, int iExistingSeaWorkers, bool bWaterDanger, bool bFinancialTrouble)
 {
@@ -14899,9 +14925,20 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 
 					static const bool bNoExcessTrebuchetsLike = GC.getDefineBOOL("SAS_NO_EXCESS_TREBUCHETS_LIKE");
 
-					static const int iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER = GC.getDefineINT("SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER");
+					static const int iNoUsefulNonSiegeAttackerModifier = GC.getDefineINT("SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_USEFUL_NON_SIEGE_ATTACKER_MODIFIER");
+					static const int iUsefulNonSiegeMinStrengthPercent = GC.getDefineINT("SAS_NO_EXCESS_SIEGES_USEFUL_NON_SIEGE_MIN_STRENGTH_PERCENT");
 
 					static const bool bNoExcessSiegesAll = GC.getDefineBOOL("SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL");
+					bool const bNeedEarlySiegeAlternative = (!bRenaissancePlus && iNoUsefulNonSiegeAttackerModifier != 0 && ((bTrebuchetLike && bNoExcessTrebuchetsLike) || bNoExcessSiegesAll));
+					int iUsefulNonSiegeStrength = 0;
+					UnitTypes const eUsefulNonSiegeUnit = (bNeedEarlySiegeAlternative ? SAS_bestUsefulNonSiegeLandAttacker(*this, eUnitCombatSiege, pUnitInfo->getCombat(), iUsefulNonSiegeMinStrengthPercent, &iUsefulNonSiegeStrength) : NO_UNIT);
+					bool const bHaveUsefulNonSiegeAttacker = (!bNeedEarlySiegeAlternative || eUsefulNonSiegeUnit != NO_UNIT);
+					if (bLogDetailedMilitaryProduction && bNeedEarlySiegeAlternative)
+					{
+						logBBAI("MILITARY_PRODUCTION_SIEGE_ALTERNATIVE turn=%d player=%d %S city=%S cityId=%d siege=%s siegeStrength=%d usefulNonSiege=%s usefulNonSiegeStrength=%d minStrengthPercent=%d",
+							GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), GC.getInfo(eChangedUnit).getType(), pUnitInfo->getCombat(),
+							(bHaveUsefulNonSiegeAttacker ? GC.getInfo(eUsefulNonSiegeUnit).getType() : "-"), iUsefulNonSiegeStrength, iUsefulNonSiegeMinStrengthPercent);
+					}
 
 					// Trebuchet-like stricter rule
 					if (bTrebuchetLike && bNoExcessTrebuchetsLike)
@@ -14936,12 +14973,9 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 
 						if (!bRenaissancePlus)
 						{
-							// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities, so save some computation if we can; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean)-->
-							const bool bHaveAnyKeyEarlyStrategicBonuses = kPlayer.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
-
-							if (!bHaveAnyKeyEarlyStrategicBonuses)
+							if (!bHaveUsefulNonSiegeAttacker)
 							{
-								iCapTrebs += (iCapTrebs * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
+								iCapTrebs += (iCapTrebs * iNoUsefulNonSiegeAttackerModifier) / 100;
 							}
 						}
 
@@ -14981,12 +15015,9 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 								iCapSiegesAll = 10; // <!-- custom: avoid adding too much--> narrow-purpose siege when not stronger
 							}
 
-							// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities, so save some computation if we can; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean)-->
-							const bool bHaveAnyKeyEarlyStrategicBonuses = kPlayer.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
-
-							if (!bHaveAnyKeyEarlyStrategicBonuses)
+							if (!bHaveUsefulNonSiegeAttacker)
 							{
-								iCapSiegesAll += (iCapSiegesAll * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
+								iCapSiegesAll += (iCapSiegesAll * iNoUsefulNonSiegeAttackerModifier) / 100;
 							}
 
 							// <!-- custom: pre renaissance, be wary to not overproduce siege, they are not useful at defense for AIs -->

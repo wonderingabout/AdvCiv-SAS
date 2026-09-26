@@ -2507,10 +2507,15 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: we need more siege units early if we don't have key strategic bonuses; Long_Comments_XML.txt #181 -->
+	<!-- custom: Percent by which to raise the pre-Renaissance siege-share caps when the producing city has no currently trainable non-siege main attacker meeting the relative-strength floor below. The former Copper/Iron/Horse/Camel/Elephants test could miss civilization-specific, mod-added, and no-resource alternatives while treating an inaccessible capital-network resource as universally useful. 100 doubles the ordinary cap; 0 gives no exception. Long_Comments_XML.txt #181. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER</DefineName>
+		<DefineName>SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_USEFUL_NON_SIEGE_ATTACKER_MODIFIER</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum combat strength of a currently trainable non-siege main attacker, as percent of the candidate siege unit's strength, for keeping the ordinary early siege cap. 80 counts a strength-4 Spearman against a strength-5 Catapult, matching the useful alternatives recognized by the former named-resource test, while an obsolete strength-2 Warrior cannot suppress the no-alternative exception. Minimum 1. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_NO_EXCESS_SIEGES_USEFUL_NON_SIEGE_MIN_STRENGTH_PERCENT</DefineName>
+		<iDefineIntVal>80</iDefineIntVal>
 	</Define>
 	<!-- custom: general toggle for trebuchet-like units (any siege unit that has as of now >= 50% city attack modifier is guessed to be weak in other areas and so to be a trebuchet for us). -->
 	<Define>
