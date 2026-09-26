@@ -6966,6 +6966,115 @@ static int AI_strictAdditionalHappy(CvCity const& c, BuildingTypes eB)
     return iHappy;
 }
 
+// <!-- custom: The SAS regular-building prefilter can reject or force a candidate before inherited adaptive building valuation runs.
+// Record only changed level-3 gate states so baseline autoplays reveal those hidden decisions without adding RNG calls or gameplay work when Building Production logging is disabled. (GPT-5.6-Sol) -->
+static bool SAS_shouldLogBuildingValueGateChange(CvCityAI const& kCity, BuildingTypes eBuilding, char const* szGate, CvString const& szSignature)
+{
+	static int iSessionSequence = -1;
+	static std::map<CvString, CvString> aLastSignatures;
+	if (iSessionSequence != getSASBBAILogSessionSequence())
+	{
+		iSessionSequence = getSASBBAILogSessionSequence();
+		aLastSignatures.clear();
+	}
+	CvString szKey;
+	szKey.Format("%d|%d|%d|%s", kCity.getOwner(), kCity.getID(), eBuilding, szGate);
+	std::map<CvString, CvString>::iterator it = aLastSignatures.find(szKey);
+	if (it != aLastSignatures.end() && it->second == szSignature)
+		return false;
+	aLastSignatures[szKey] = szSignature;
+	return true;
+}
+
+// <!-- custom: Expose every hard SAS building-prefilter return through one compact level-3 row so we can audit which policy overrides inherited adaptive valuation and whether the final production result justifies it.
+// Call only behind the level/focus gate at each return site; this helper is therefore entirely absent from ordinary disabled-logging work and adds no RNG calls. (GPT-5.6-Sol) -->
+static void SAS_logBuildingValuePolicyDecision(CvCityAI const& kCity, BuildingTypes eBuilding, char const* szGate, char const* szResult, int iReturnValue)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
+	CvTeamAI const& kTeam = GET_TEAM(kCity.getTeam());
+	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+	int iTurnsLeft = kCity.getProductionTurnsLeft(eBuilding, 0);
+	if (iTurnsLeft == MAX_INT)
+		iTurnsLeft = -1;
+	int const iHealthSurplus = kCity.goodHealth() - kCity.badHealth() + kCity.getEspionageHealthCounter() / 2;
+	int const iHappySurplus = kCity.happyLevel() - kCity.unhappyLevel();
+	int const iFoodSurplus = kCity.foodDifference(false, true);
+	bool const bAtWar = (kTeam.getNumWars() > 0);
+	bool const bWarPlan = kOwner.AI_isFocusWar();
+	bool const bDanger = kCity.AI_isDanger();
+	int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
+	CvString szSignature;
+	szSignature.Format("%s|%d|%d|%d|%d|%d|%d|%d|%d|%d", szResult, iReturnValue, iHealthSurplus, iHappySurplus, iFoodSurplus, iTurnsLeft, bAtWar, bWarPlan, bDanger, iEnemyPowerPercent);
+	if (!SAS_shouldLogBuildingValueGateChange(kCity, eBuilding, szGate, szSignature))
+		return;
+	int const iStored = kCity.getBuildingProduction(eBuilding);
+	int const iNeeded = kCity.getProductionNeeded(eBuilding);
+	int iHealthGood = 0, iHealthBad = 0;
+	int const iHealthGain = kCity.getAdditionalHealthByBuilding(eBuilding, iHealthGood, iHealthBad, true);
+	int const iHappyGain = AI_strictAdditionalHappy(kCity, eBuilding);
+	logBBAI("BUILDING_VALUE_SAS_POLICY turn=%d player=%d %S city=%S cityId=%d building=%s gate=%s result=%s returnValue=%d era=%d pop=%d healthSurplus=%d happySurplus=%d foodSurplus=%d baseProduction=%d stored=%d needed=%d remaining=%d turnsLeft=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d healthGain=%d happyGain=%d foodKept=%d defenseModifier=%d maintenanceModifier=%d productionModifier=%d seaFood=%d tradeRoutes=%d goldFlat=%d goldModifier=%d researchFlat=%d researchModifier=%d cultureFlat=%d cultureModifier=%d espionageFlat=%d espionageModifier=%d limited=%d worldWonder=%d nationalWonder=%d",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(), szGate, szResult, iReturnValue,
+		kOwner.getCurrentEra(), kCity.getPopulation(), iHealthSurplus, iHappySurplus, iFoodSurplus, kCity.getBaseYieldRate(YIELD_PRODUCTION), iStored, iNeeded,
+		std::max(0, iNeeded - iStored), iTurnsLeft, bAtWar, bWarPlan, bDanger, iEnemyPowerPercent, iHealthGain, iHappyGain, kBuilding.getFoodKept(), kBuilding.getDefenseModifier(),
+		kBuilding.getMaintenanceModifier(), kBuilding.getYieldModifier(YIELD_PRODUCTION), kBuilding.getSeaPlotYieldChange(YIELD_FOOD), kBuilding.getTradeRoutes(),
+		kBuilding.getCommerceChange(COMMERCE_GOLD) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_GOLD), kBuilding.getCommerceModifier(COMMERCE_GOLD),
+		kBuilding.getCommerceChange(COMMERCE_RESEARCH) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_RESEARCH), kBuilding.getCommerceModifier(COMMERCE_RESEARCH),
+		kBuilding.getCommerceChange(COMMERCE_CULTURE) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE), kBuilding.getCommerceModifier(COMMERCE_CULTURE),
+		kBuilding.getCommerceChange(COMMERCE_ESPIONAGE) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_ESPIONAGE), kBuilding.getCommerceModifier(COMMERCE_ESPIONAGE),
+		kBuilding.isLimited(), kBuilding.isWorldWonder(), kBuilding.isNationalWonder());
+}
+
+// <!-- custom: When the SAS regular-building prefilter is disabled, expose every computed neutral-focus inherited value rather than only the winning focus candidates. Include its deterministic turns/progress-adjusted comparison value and the main XML/city inputs so the inherited policy can be audited before replacing or tuning it. Call only behind the cached level-3 gate. (GPT-5.6-Sol) -->
+static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
+	CvTeamAI const& kTeam = GET_TEAM(kCity.getTeam());
+	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+	int const iStored = kCity.getBuildingProduction(eBuilding);
+	int const iNeeded = kCity.getProductionNeeded(eBuilding);
+	int iTurnsLeft = kCity.getProductionTurnsLeft(eBuilding, 0);
+	TechTypes const eObsoleteTech = kBuilding.getObsoleteTech();
+	TechTypes const eSpecialObsoleteTech = (kBuilding.getSpecialBuildingType() == NO_SPECIALBUILDING ? NO_TECH : GC.getInfo(kBuilding.getSpecialBuildingType()).getObsoleteTech());
+	bool const bResearchingObsoleteTech = ((eObsoleteTech != NO_TECH && kOwner.getCurrentResearch() == eObsoleteTech) || (eSpecialObsoleteTech != NO_TECH && kOwner.getCurrentResearch() == eSpecialObsoleteTech));
+	int const iObsolescenceAdjustedValue = (bResearchingObsoleteTech ? iValue / 2 : iValue);
+	int const iComparisonValue = (iTurnsLeft == MAX_INT ? 0 : (iObsolescenceAdjustedValue + iStored / 4) * 1000 / std::max(1, iTurnsLeft + 3));
+	if (iTurnsLeft == MAX_INT)
+		iTurnsLeft = -1;
+	int const iHealthSurplus = kCity.goodHealth() - kCity.badHealth() + kCity.getEspionageHealthCounter() / 2;
+	int const iHappySurplus = kCity.happyLevel() - kCity.unhappyLevel();
+	int const iFoodSurplus = kCity.foodDifference(false, true);
+	bool const bAtWar = (kTeam.getNumWars() > 0);
+	bool const bWarPlan = kOwner.AI_isFocusWar();
+	bool const bDanger = kCity.AI_isDanger();
+	int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
+	CvString szSignature;
+	szSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d", iValue, iPriorityFactor, iComparisonValue, iTurnsLeft, iHealthSurplus, iHappySurplus, iFoodSurplus, iStored, bAtWar, bWarPlan, bDanger, iEnemyPowerPercent);
+	if (!SAS_shouldLogBuildingValueGateChange(kCity, eBuilding, "INHERITED_VALUE", szSignature))
+		return;
+	int iHealthGood = 0, iHealthBad = 0;
+	int const iHealthGain = kCity.getAdditionalHealthByBuilding(eBuilding, iHealthGood, iHealthBad, true);
+	int const iHappyGain = AI_strictAdditionalHappy(kCity, eBuilding);
+	logBBAI("BUILDING_VALUE_INHERITED turn=%d player=%d %S city=%S cityId=%d building=%s value=%d priorityFactor=%d researchingObsoleteTech=%d comparisonValue=%d era=%d pop=%d healthSurplus=%d happySurplus=%d foodSurplus=%d baseProduction=%d stored=%d needed=%d remaining=%d turnsLeft=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d financialTrouble=%d healthGain=%d happyGain=%d foodKept=%d defenseModifier=%d maintenanceModifier=%d productionModifier=%d seaFood=%d tradeRoutes=%d goldFlat=%d goldModifier=%d researchFlat=%d researchModifier=%d cultureFlat=%d cultureModifier=%d espionageFlat=%d espionageModifier=%d",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(), iValue, iPriorityFactor, bResearchingObsoleteTech, iComparisonValue,
+		kOwner.getCurrentEra(), kCity.getPopulation(), iHealthSurplus, iHappySurplus, iFoodSurplus, kCity.getBaseYieldRate(YIELD_PRODUCTION), iStored, iNeeded, std::max(0, iNeeded - iStored), iTurnsLeft,
+		bAtWar, bWarPlan, bDanger, iEnemyPowerPercent, kOwner.AI_isFinancialTrouble(), iHealthGain, iHappyGain, kOwner.getFoodKept(eBuilding), kBuilding.getDefenseModifier(), kBuilding.getMaintenanceModifier(), kBuilding.getYieldModifier(YIELD_PRODUCTION),
+		kBuilding.getSeaPlotYieldChange(YIELD_FOOD), kBuilding.getTradeRoutes(), kBuilding.getCommerceChange(COMMERCE_GOLD) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_GOLD),
+		kBuilding.getCommerceModifier(COMMERCE_GOLD), kBuilding.getCommerceChange(COMMERCE_RESEARCH) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_RESEARCH), kBuilding.getCommerceModifier(COMMERCE_RESEARCH),
+		kBuilding.getCommerceChange(COMMERCE_CULTURE) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE), kBuilding.getCommerceModifier(COMMERCE_CULTURE),
+		kBuilding.getCommerceChange(COMMERCE_ESPIONAGE) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_ESPIONAGE), kBuilding.getCommerceModifier(COMMERCE_ESPIONAGE));
+}
+
+// <!-- custom: Complement the inherited-value rows with named early vetoes; otherwise a missing candidate is indistinguishable from a cache omission during the regular-building policy audit. Call only behind the cached level-3 gate. (GPT-5.6-Sol) -->
+static void SAS_logInheritedBuildingValueRejection(CvCityAI const& kCity, BuildingTypes eBuilding, char const* szReason)
+{
+	CvString szSignature(szReason);
+	if (!SAS_shouldLogBuildingValueGateChange(kCity, eBuilding, "INHERITED_REJECT", szSignature))
+		return;
+	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
+	logBBAI("BUILDING_VALUE_INHERITED_REJECT turn=%d player=%d %S city=%S cityId=%d building=%s reason=%s",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), GC.getInfo(eBuilding).getType(), szReason);
+}
+
 // (I don't see the point of this function being separate to the "threshold" version)
 /*int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags) const {
 	return AI_buildingValueThreshold(eBuilding, iFocusFlags, 0);
@@ -6988,6 +7097,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	// <!-- custom: use this pattern i found somewhere in the code, in case it is safer, and cache repetitive calls for performance optimization. Note: also cache GET_TEAM(getTeam()) to kTeam. Note 2: we had issues in the past in AdvCiv-SAS when caching these to a CvTeam cast (i don't know too much about these, check if accurate), that were solved using a CvTeamAI cast rather, so preferring this whenever it seems safe enough (check if accurate). I applied this to all GET_TEAM calls i spotted in this file +/- additional kOwner or kPlayer extra caching when needed, and after specifically testing this in autoplay, we get the exact same outcome vs before (t341 win, exact same score at scores it seems as well, so this also looks good to merge) -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 	CvGame const& kGame = GC.getGame();
+	// <!-- custom: One explicit pre-gate protects both SAS-policy and inherited-value diagnostics; logger arguments and strings are evaluated only inside enabled level-3 neutral-focus calls. (GPT-5.6-Sol) -->
+	bool const bLogBuildingValueDetails = (gBuildingProductionLogLevel >= 3 && iFocusFlags == 0);
 
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
 	BuildingClassTypes const eBuildingClass = kBuilding.getBuildingClassType();
@@ -7172,7 +7283,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			const int iWaterFoodBuildingFirstMinEnoughFood = 2;
 			if (bWaterFoodBuilding && (iFoodDifference < iWaterFoodBuildingFirstMinEnoughFood) && !isFoodProduction())
 			{
-				return AI_BUILDING_ALWAYS_PICK_FIRST;
+				const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
+				if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WATER_FOOD", "FORCE_LOW_FOOD", iPolicyReturn);
+				return iPolicyReturn;
 			}
 			// --- end fast path ---
 
@@ -7190,19 +7303,25 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// No immediate pressure? Don’t sink hammers into static defense.
 				if (!bAtWar)
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "DEFENSE", "REJECT_PEACE", iPolicyReturn);
+					return iPolicyReturn;
 				}
 				else
 				{
 					// At war (or danger) but we’re clearly stronger and this city isn’t in danger? Skip.
 					if (bAtWarAndEnemyWeak && !bDanger)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "DEFENSE", "REJECT_WINNING_SAFE_WAR", iPolicyReturn);
+						return iPolicyReturn;
 					}
 					// If they’re actually scary (≥120%), <!-- custom: build walls with highest priority, we are likely to get attacked, walls or castle or such would help a lot more than any other building, but not for wonders unfortunately as it is unlikely we complete them on time before war ends or we die or we make any advantage of them (worst case we'd be building it for them, invest that hammer in units or last ditch efforts rather that may help more maybe i would say); note: the else if is a bit redundant hopefully clearer as such maybe or not or yes or etc-->
 					else if (bEnemyStrong)
 					{
-						return AI_BUILDING_ALWAYS_PICK_FIRST;
+						const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "DEFENSE", "FORCE_STRONG_ENEMY", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 			}
@@ -7221,22 +7340,30 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 						// <!-- custom: no time or hammer for this, try to build an extra or 2 units rather, may save our city, especially if we build a longbowman rather or such similar defensive unit, pointless to build barracks or such similar building if we're dead anyway -->
 						if (bEnemyStrong)
 						{
-							return 0;
+							const int iPolicyReturn = 0;
+							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "LAND_EXPERIENCE", "REJECT_STRONG_ENEMY", iPolicyReturn);
+							return iPolicyReturn;
 						}
 						// <!-- custom: i don't know if we can trust this boolean's corresponding function, but assuming it is, if we're threatened, prepare units rather in case or something else, no point if we get surprised attacked while building this and get captured without ever barely any units xd, build units rather in such cases at least simplify as such here, should most often help AI hopefully-->
 						if (bDanger)
 						{
-							return 0;
+							const int iPolicyReturn = 0;
+							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "LAND_EXPERIENCE", "REJECT_DANGER", iPolicyReturn);
+							return iPolicyReturn;
 						}
 						// <!-- custom: planning war warrants building barrack like buildings as well, since we're going to pump units anyway, and i assume guessedly that we'd only plan war if we're stronger, so build the barracks or similar building first and profit on having stronger units, it shouldn't be too expensive at this stage of the game but should make a big difference -->
 						else if (bWarPlan)
 						{
-							return AI_BUILDING_ALWAYS_PICK_FIRST;
+							const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
+							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "LAND_EXPERIENCE", "FORCE_WAR_PLAN", iPolicyReturn);
+							return iPolicyReturn;
 						}
 						// <!-- custom: spend the time to build this instead of pumping units, we are already strong, and would rather have stronger land units as well as not cripple our unit cost further short term -->
 						else if (bAtWarAndEnemyWeak)
 						{
-							return AI_BUILDING_ALWAYS_PICK_FIRST;
+							const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
+							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "LAND_EXPERIENCE", "FORCE_WINNING_WAR", iPolicyReturn);
+							return iPolicyReturn;
 						}
 					}
 				}
@@ -7267,16 +7394,24 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 				// <!-- custom: No currently trainable unit receives this building's specialized experience, so spend the hammers elsewhere and reevaluate when the city's technology or connected resources change. (GPT-5.6-Sol) -->
 				if (!bCanTrainBenefitingUnit)
-					return 0;
+				{
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "SPECIALIZED_EXPERIENCE", "REJECT_NO_BENEFITING_UNIT", iPolicyReturn);
+					return iPolicyReturn;
+				}
 				if (bEnemyStrong)
 				{
 					// <!-- custom: Even when a matching unit is available, a city facing a stronger enemy needs immediate units rather than delayed experience. (GPT-5.6-Sol) -->
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "SPECIALIZED_EXPERIENCE", "REJECT_STRONG_ENEMY", iPolicyReturn);
+					return iPolicyReturn;
 				}
 				if (bAtWarAndEnemyWeak || bWarPlan)
 				{
 					// <!-- custom: When preparing a war or already winning one, build the specialized experience building first because repeated production of matching units can repay the delay. (GPT-5.6-Sol) -->
-					return AI_BUILDING_ALWAYS_PICK_FIRST;
+					const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "SPECIALIZED_EXPERIENCE", "FORCE_MILITARY_USE", iPolicyReturn);
+					return iPolicyReturn;
 				}
 			}
 
@@ -7302,7 +7437,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					// <!-- custom: a coastal check as originally done by chatgpt 5may cause weird issues with maps that are only coast separated from other land parts/pieces, but we still want to block lake drydocks as they should be quite pointless, unless weird map with giant lake. Take a probability approach, let's build it even in lakes to cover most cases, especially giant lakes xd, as for coastal check i assume/hope the function or something handles it so we don't build an impossible building somehow, as for us just skip this check,, check if accurate as this is just a guess from me and is also to simplify, as we cover enough edge cases below to save hammer in most cases anyway, leave some leeway otherwise -->
 
 					// <!-- custom: otherwise super simple check, don't build it, save the hammer, we don't want to wate or spend too much hammer and can just build naval units slower, we want to build less of them on these maps anyway. If map is unclear, assume is not land heavy and proceed normally without this rule instead for versatility and safety, otherwise most maps should be properly excluded if our code works as intended. We'd have +/- 1 extra tank almost or 1.5 rifleman equivalent of extra hammers, in all affected cities, not negligible and nice to have, plus less as in no as of nowunhealthiness which is very important-->
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NAVAL_EXPERIENCE", "REJECT_LAND_HEAVY_MAPNAME", iPolicyReturn);
+					return iPolicyReturn;
 				}
 			}
 
@@ -7313,14 +7450,18 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			{
 				if (iMaintenanceTimes100 < iSAS_AI_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS) // < 6 gpt => not worth it yet
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "MAINTENANCE", "REJECT_LOW_MAINTENANCE", iPolicyReturn);
+					return iPolicyReturn;
 				}
 				// <!-- custom: if at war and threatened, no question to stop this -->
 				else if (bAtWar)
 				{
 					if (bEnemyStrong)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "MAINTENANCE", "REJECT_STRONG_ENEMY", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 			}
@@ -7337,20 +7478,26 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				const int iFoodKeptMaxHighHappinessEffectiveFoodSurplus = 3;
 				if (iHappinessSurplus < iFoodKeptMinLowHappinessSurplus)
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "FOOD_KEPT", "REJECT_LOW_HAPPINESS_HEADROOM", iPolicyReturn);
+					return iPolicyReturn;
 				}
 				// <!-- custom: if at war and threatened, no question to stop this -->
 				else if (bAtWar)
 				{
 					if (bEnemyStrong)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "FOOD_KEPT", "REJECT_STRONG_ENEMY", iPolicyReturn);
+						return iPolicyReturn;
 					}
 					// <!-- custom: else even if enemy is weak, food kept buildings could be useful to slave or grow so we have more tiles to work, either for our military goals, or simply to grow since we have no reason to go hard on war, so no reason to hard reject here in this case -->
 				}
 				else if ((iHappinessSurplus > iFoodKeptMaxHighHappinessSurplus) && iEffectiveFood > iFoodKeptMaxHighHappinessEffectiveFoodSurplus)
 				{
-					return AI_BUILDING_ALWAYS_PICK_FIRST;
+					const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "FOOD_KEPT", "FORCE_FAST_GROWTH", iPolicyReturn);
+					return iPolicyReturn;
 				}
 			}
 
@@ -7370,7 +7517,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				const int iHealthLevelEnoughWithFoodMinFood = 2;
 				if (iHealthLevel > iTooHealthyLevel || (iHealthLevel > iHealthLevelEnoughWithFood && iEffectiveFood < iHealthLevelEnoughWithFoodMinFood))
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "HEALTH", "REJECT_NOT_NEEDED", iPolicyReturn);
+					return iPolicyReturn;
 				}
 				// 2) Badly need health OR about to use it → build first (unless it’s a wonder).
 				//   - current unhealth (<= -1) → urgent
@@ -7381,13 +7530,17 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				{
 					if (bEnemyStrong)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "HEALTH", "REJECT_STRONG_ENEMY", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 				// <!-- custom: note: the pick first cause is "always" after the return 0, no pun if i may say or maybe yes... -->
 				else if (iHealthLevel <= 1 && iHappinessSurplus >= 2 && iEffectiveFood >= 2)
 				{
-					return AI_BUILDING_ALWAYS_PICK_FIRST;
+					const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "HEALTH", "FORCE_GROWTH_HEADROOM", iPolicyReturn);
+					return iPolicyReturn;
 				}
 			}
 
@@ -7439,7 +7592,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				{
 					if (bLowHammerProduction && bLowGrowthProduction && bWeakHappinessBoost)
 					{
-						return 0; // let units/settlers/other buildings take priority
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "PRODUCTION", "REJECT_EARLY_LOW_RETURN", iPolicyReturn);
+						return iPolicyReturn;
 					}
 					// <!-- custom: else/otherwise no strong rule, just prevent city from building it if really not best move -->
 				}
@@ -7448,7 +7603,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				{
 					if (bEnemyStrong)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "PRODUCTION", "REJECT_STRONG_ENEMY", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 			}
@@ -7466,14 +7623,18 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				const int iHappinessBuildingEnoughFoodDiff = 2;
 				if (iHappinessSurplus > iHappinessBuildingEnoughHappinessSurplus && (iFoodDifference < iHappinessBuildingEnoughFoodDiff))
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "HAPPINESS", "REJECT_NOT_NEEDED", iPolicyReturn);
+					return iPolicyReturn;
 				}
 				// <!-- custom: a bit harder to tell if short term would unlock us much needed yields, but favour survivability rather, should be better and more efficient for AIs in most cases, but upon further consideration, if we are strong enough we probably don't need it as much and may be fine developping our cities rather as per previous rule of happiness buildings, also not to sink our unit costs xd, however if we're losing it's no question to skip everything else not giga or ultra mandatory if i may say in this caseto build more units ideally so we don't die (at least not more buildings), we can look at / worry about happiness later after the war (if we don't die), else commit all efforts into surviving if i may say in this case, don't build a colosseum xd, hopefully helps AI be more efficient and strategic at handling war if not already done-->
 				else if (bAtWar)
 				{
 					if (bEnemyStrong)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "HAPPINESS", "REJECT_STRONG_ENEMY", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 				// If we’re at/over the cap and can actually use the happy soon, strongly prefer it
@@ -7483,7 +7644,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				const int iHappinessBuildingNeedFoodGain = 1;
 				if ((iHappinessSurplus < iHappinessBuildingNeedHappinessSurplus) && (iStrictHappinessGain > iHappinessBuildingNeedHappinessGain) && (iEffectiveFoodAfterBuiltHappy > iHappinessBuildingNeedFoodGain))
 				{
-					return AI_BUILDING_ALWAYS_PICK_FIRST; // optional: comment out if you want “no force"
+					const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "HAPPINESS", "FORCE_ANGER_RELIEF", iPolicyReturn);
+					return iPolicyReturn; // optional: comment out if you want “no force"
 				}
 			}
 
@@ -7505,19 +7668,25 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				if (bAtWar)
 				{
 					// <!-- custom: no time for this, try to survive rather and instead or do whatever is more urgent, and even if we are stronger, still press on other war urgent matters rather although maybe not always best but hopefully often enough for AIs i mean -->
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "SCIENCE", "REJECT_WAR", iPolicyReturn);
+					return iPolicyReturn;
 				}
 				// <!-- custom: similar reasoning even if out of war, if urgent enough to skip it-->
 				else
 				{
 					if (bDanger)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "SCIENCE", "REJECT_DANGER", iPolicyReturn);
+						return iPolicyReturn;
 					}
 					// <!-- custom: else it is hard to tell really but consider delaying, should help especially early let's try that and see how our AI behave, hopefully it would improve early rushing potential at the cos tfo slightly slower science prgoession mid game, but maybe gaining an extra city or not losing one offsets that especially long term, and not just in science gains terms-->
 					else if (bWarPlan)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "SCIENCE", "REJECT_WAR_PLAN", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 			}
@@ -7565,19 +7734,25 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				if (bAtWar)
 				{
 					// <!-- custom: no time for this, try to survive rather and instead or do whatever is more urgent, and even if we are stronger, still press on other war urgent matters rather although maybe not always best but hopefully often enough for AIs i mean -->
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ECONOMY", "REJECT_WAR", iPolicyReturn);
+					return iPolicyReturn;
 				}
 				// <!-- custom: similar reasoning even if out of war, if urgent enough to skip it-->
 				else
 				{
 					if (bDanger)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ECONOMY", "REJECT_DANGER", iPolicyReturn);
+						return iPolicyReturn;
 					}
 					// <!-- custom: else it is hard to tell really but consider delaying, should help especially early let's try that and see how our AI behave, hopefully it would improve early rushing potential at the cos tfo slightly slower science prgoession mid game, but maybe gaining an extra city or not losing one offsets that especially long term, and not just in science gains terms-->
 					else if (bWarPlan)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ECONOMY", "REJECT_WAR_PLAN", iPolicyReturn);
+						return iPolicyReturn;
 					}
 					else
 					{
@@ -7590,7 +7765,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							const int iMinCityGoldRate = 6;
 							if (iCityGoldRate < iMinCityGoldRate)
 							{
-								return 0;
+								const int iPolicyReturn = 0;
+								if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ECONOMY", "REJECT_LOW_GOLD_RATE", iPolicyReturn);
+								return iPolicyReturn;
 							}
 						}
 						// <!-- custom: else flat gold per turn is fine if all other/previous conditions don't make it low priority -->
@@ -7634,7 +7811,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// 0) War / danger: same policy as other econ/science
 				if (bAtWar || bDanger || bWarPlan)
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "TRADE", "REJECT_MILITARY_PRESSURE", iPolicyReturn);
+					return iPolicyReturn;
 				}
 
 				// 1) Foreign % only helps if we actually have foreign trade in THIS city <!-- custom: and if no routes are added otherwise as chatgpt 5 added after i asked it about it hehe thanks still but really i mean thanks anwyays etc hehe thanks -->
@@ -7643,7 +7822,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// Right now you use iHasMetCount > 0. That doesn’t guarantee foreign trade (you still need connection / open borders). You already computed bForeignTrade earlier—use it.
 				if (bHasAnyForeignTradeRouteModifier && !bForeignTrade && !bTradeRouteAdder)
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "TRADE", "REJECT_NO_FOREIGN_ROUTE", iPolicyReturn);
+					return iPolicyReturn;
 				}
 
 				// 2) Flat “don’t bother if there’s basically no trade here"
@@ -7676,7 +7857,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 						int iRequired = ((iBase == iMinTradeRoutesBase) ? iMinTradeRoutesBaseNeedIfClose : iMinTradeRoutesBaseNeedIfFar); // ==3 needs +1, <=2 needs +2
 						if (iTotalTradeRoutesAdded < iRequired)
 						{
-							return 0; // skip for now
+							const int iPolicyReturn = 0;
+							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "TRADE", "REJECT_LOW_ROUTE_GAIN", iPolicyReturn);
+							return iPolicyReturn;
 						}
 					}
 				}
@@ -7725,18 +7908,24 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				if (bAtWar)
 				{
 					// <!-- custom: no time for this, try to survive rather and instead or do whatever is more urgent, and even if we are stronger, still press on other war urgent matters rather although maybe not always best but hopefully often enough for AIs i mean -->
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ESPIONAGE", "REJECT_WAR", iPolicyReturn);
+					return iPolicyReturn;
 				}
 				// <!-- custom: similar reasoning even if out of war, if urgent enough to skip it-->
 				else
 				{
 					if (bDanger)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ESPIONAGE", "REJECT_DANGER", iPolicyReturn);
+						return iPolicyReturn;
 					}
 					else if (bWarPlan)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ESPIONAGE", "REJECT_WAR_PLAN", iPolicyReturn);
+						return iPolicyReturn;
 					}
 					// <!-- custom: at higher difficulties (from say immortal+, as emperor is maybe doable without relying too much if at all (source: me xd) on spying), AIs don't need to worry too much about espionage as they have handicap advantages, but they need to thwart human espionage attempts and perhaps of other AI players to a bigger extent as well maybe too so to have good espionage defense buildings; as for lower difficulties (say chieftain and below), AIs need to engage more in spying to compensate their penalties so no spy defense buildings (nothing to steal xd they should be behind in tech for most at least not urgent or skip entirely to simplify) but spy offensive buildings should help-->
 					else
@@ -7763,7 +7952,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							if (bHighEnoughEspionageDefenseModifier)
 							{
 								// <!-- custom: in case other buildings are tied e.g. the acqueduct and we need it just as much, then build the acqueduct first -->
-								return AI_BUILDING_ALWAYS_PICK_FIRST - 1000 ;
+								const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST - 1000;
+								if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ESPIONAGE", "FORCE_CHEAP_DEFENSE", iPolicyReturn);
+								return iPolicyReturn;
 							}
 						}
 						else if (bWePayMuchMoreForResearch)
@@ -7771,7 +7962,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							if (bEspionageSourceBuilding)
 							{
 								// <!-- custom: in case other buildings are tied e.g. the acqueduct and we need it just as much, then build the acqueduct first -->
-								return AI_BUILDING_ALWAYS_PICK_FIRST - 1000;
+								const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST - 1000;
+								if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ESPIONAGE", "FORCE_CHEAP_OUTPUT", iPolicyReturn);
+								return iPolicyReturn;
 							}
 						}
 					}
@@ -7817,7 +8010,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 						// delay fluff culture; let units/settlers/other buildings through
 						if (bEnoughEarlyCulturePerTurn)
 						{
-							return 0;
+							const int iPolicyReturn = 0;
+							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "CULTURE", "REJECT_ENOUGH_EARLY_CULTURE", iPolicyReturn);
+							return iPolicyReturn;
 						}
 					}
 				}
@@ -7828,11 +8023,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// <!-- custom: military rules in particular may even ovveride our BFC needs in times of urgency (being at war, on the defensive in particular, and even more so if we are weaker, but even just being at war is enough to warrant skipping these i would say, strongly redirect towards unit or such, at least do not value this building here if it also excludes it from choosing it at all (i didn't check if it does) -->
 				if (bAtWar || bEnemyStrong || bDanger)
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNCLASSIFIED_REGULAR", "REJECT_MILITARY_PRESSURE", iPolicyReturn);
+					return iPolicyReturn;
 				}
 				else if (bWarPlan)
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNCLASSIFIED_REGULAR", "REJECT_WAR_PLAN", iPolicyReturn);
+					return iPolicyReturn;
 				}
 			}
 		}
@@ -7851,7 +8050,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 					if (iCurrentEra > iSAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_MAX_ERA)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WONDER_ANTI_BARBARIAN", "REJECT_LATE_ERA", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 			}
@@ -7897,7 +8098,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					// <!-- custom: minimal danger check since the risk is worth it as the wonder is so cheap -->
 					if (!bDanger)
 					{
-						return AI_BUILDING_ALWAYS_PICK_FIRST + 3000;
+						const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST + 3000;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WORLD_WONDER", "FORCE_CHEAP_SAFE", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 
@@ -7906,7 +8109,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 				if (iBaseHammersPerTurn < (iMinBaseHammers + (iCurrentEra * iMinExtraHammersPerEra)))
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WORLD_WONDER", "REJECT_LOW_PRODUCTION", iPolicyReturn);
+					return iPolicyReturn;
 				}
 			}
 			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
@@ -7916,7 +8121,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 				if (iBaseHammersPerTurn < (iMinBaseHammers + (iCurrentEra * iMinExtraHammersPerEra)))
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NATIONAL_WONDER", "REJECT_LOW_PRODUCTION", iPolicyReturn);
+					return iPolicyReturn;
 				}
 			}
 			else if (!bWorldWonder && !bNationalWonder && bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
@@ -7926,7 +8133,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 				if (iBaseHammersPerTurn < (iMinBaseHammers + (iCurrentEra * iMinExtraHammersPerEra)))
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNKNOWN_WONDER", "REJECT_LOW_PRODUCTION", iPolicyReturn);
+					return iPolicyReturn;
 				}
 			}
 
@@ -7977,7 +8186,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			// If it's going to sit in the queue forever, skip.
 			if (iTurnsWW > iSoftTurnCapAdjusted)
 			{
-				return 0;
+				const int iPolicyReturn = 0;
+				if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WONDER_COMMON", "REJECT_TOO_SLOW", iPolicyReturn);
+				return iPolicyReturn;
 			}
 
 			// <!-- custom: may save a lot of computation by checking this early and forwarding the early rejects (note: make sure to not push ahead / forward the always pick first blocks else it may alter history (unless is as you want it)), since we'll reject anyway later (especialyl for the loop code). -->
@@ -7991,7 +8202,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				{
 					if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WONDER_COMMON", "REJECT_MILITARY_PRESSURE", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 				else
@@ -7999,7 +8212,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					// <!-- custom: world wonders are generally costlier, so don't build them if danger but also if at war -->
 					if (bAtWar || bDanger)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WONDER_MILITARY", "REJECT_IMMEDIATE_PRESSURE", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 
@@ -8013,7 +8228,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					// <!-- custom: our rivals will beat us (most likely, but assume so for efficiency) to it, better build something else than end up with a lot of wasted hammer -->
 					if (iProductionModifier < 25) // no stone/marble/trait/religion oomph? skip
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WORLD_WONDER", "REJECT_LOW_PRODUCTION_MODIFIER", iPolicyReturn);
+						return iPolicyReturn;
 					}
 					// <!-- custom: else don't incentivize it either, wonders are not necessarily the better choice, keep as is as per AI selection in other parts of the code wherever it is handled at least as of now-->
 				}
@@ -8046,7 +8263,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					const int iMinCoastalCitiesCoastalWonder = 3;
 					if (iCoastalCities < iMinCoastalCitiesCoastalWonder)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "COASTAL_WONDER", "REJECT_FEW_COASTAL_CITIES", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 			}
@@ -8068,14 +8287,18 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					// Don’t invest if we’re about to get rolled
 					if (bEnemyStrong || bDanger)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NATIONAL_WONDER", "REJECT_PRESSURE_NONMILITARY", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 				else
 				{
 					if (bDanger)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NATIONAL_WONDER", "REJECT_DANGER_MILITARY", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 			}
@@ -8086,14 +8309,18 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					// Don’t invest if we’re about to get rolled
 					if (bEnemyStrong || bDanger)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNKNOWN_WONDER", "REJECT_PRESSURE_NONMILITARY", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 				else
 				{
 					if (bDanger)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNKNOWN_WONDER", "REJECT_DANGER_MILITARY", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 			}
@@ -8109,7 +8336,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// Don’t do this under pressure
 				if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNHEALTHINESS_REDUCER_WONDER", "REJECT_MILITARY_PRESSURE", iPolicyReturn);
+					return iPolicyReturn;
 				}
 
 				// <!-- custom: ideally we could use for some of this computation the `rank(` helpers, as according to grok ai they compare cities in our empire only, and according to which ranking is not shared among all players unlike what chatgpt 5 claimed, check if accurate -->
@@ -8122,13 +8351,17 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				const int iUnhealthinessReducerWonderMinPop = 12;
 				if ((iPop < iUnhealthinessReducerWonderMinPop) || !bTop2Population)
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNHEALTHINESS_REDUCER_WONDER", "REJECT_LOW_POPULATION_PRIORITY", iPolicyReturn);
+					return iPolicyReturn;
 				}
 				const int iUnhealthinessReducerWonderMaxHealthLevel = 1;
 				// <!-- custom: city is healthy enough for now, no need to build this -->
 				if (iHealthLevel > iUnhealthinessReducerWonderMaxHealthLevel)
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNHEALTHINESS_REDUCER_WONDER", "REJECT_HEALTHY", iPolicyReturn);
+					return iPolicyReturn;
 				}
 				// else: let normal scoring handle it <!-- custom: (don't prioritize here, just make sure we don't build it when inefficient) -->
 			}
@@ -8205,7 +8438,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// <!-- custom: for scaling hammer wonders (world and national), pick best or among best hammer cities for best scaling of benefits -->
 				if (!bTop2HammerLeeway)
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "PRODUCTION_WONDER", "REJECT_NOT_TOP_PRODUCTION", iPolicyReturn);
+					return iPolicyReturn;
 				}
 			}
 
@@ -8223,7 +8458,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 				if (!bExpansionPhaseAdjusted && !bTop2HammerLeeway)
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WORLD_WONDER", "REJECT_NOT_TOP_PRODUCTION", iPolicyReturn);
+					return iPolicyReturn;
 				}
 
 				// <!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code; note: in autoplay i did notice wonder races, i don't know if far from completing them rivals would attempt them or if it's only for close calls, but adding an extra safety to prevent inefficient ones just in case -->
@@ -8250,7 +8487,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							if (GET_TEAM(eRival).isHasTech(eAndTech))    // has the gate tech
 							{
 								if (++iRivalsWhoCanStart >= iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM)            // simple fixed cap
-									return 0;
+								{
+									const int iPolicyReturn = 0;
+									if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WORLD_WONDER", "REJECT_HOT_RACE", iPolicyReturn);
+									return iPolicyReturn;
+								}
 							}
 						}
 					}
@@ -8261,7 +8502,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// <!-- custom: for national wonders, no risk to lose the race, use top 2 or top 3 as base or such depending on if the national wonder is a scaling one or not -->
 				if (!bTop3HammerLeeway)
 				{
-					return 0;
+					const int iPolicyReturn = 0;
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NATIONAL_WONDER", "REJECT_NOT_TOP_PRODUCTION", iPolicyReturn);
+					return iPolicyReturn;
 				}
 
 				// <!-- custom: military national wonders, in particular heroic epic, etc if any more -->
@@ -8270,7 +8513,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					// <!-- custom: this is one of the scaling national wonders where we really want top hammer to take best benefits from it, so use tighter requirement with some leeway-->
 					if (!bTop2HammerLeeway)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "MILITARY_NATIONAL_WONDER", "REJECT_NOT_TOP_PRODUCTION", iPolicyReturn);
+						return iPolicyReturn;
 					}
 
 					if (bWarPlan || bAtWarAndEnemyWeak)
@@ -8278,7 +8523,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 						if (bTop2Hammer)
 						{
 							// commit when pressing <!-- custom: with a positive nudge to really motivate for it as we expect nice rewards from it -->
-							return AI_BUILDING_ALWAYS_PICK_FIRST + 1000;
+							const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST + 1000;
+							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "MILITARY_NATIONAL_WONDER", "FORCE_WAR_USE", iPolicyReturn);
+							return iPolicyReturn;
 						}
 					}
 
@@ -8303,18 +8550,24 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							// Empire needs to be somewhat large; tiny empires rarely benefit.
 							if (iNumCities < iMinNumCitiesPalace)
 							{
-								return 0;
+								const int iPolicyReturn = 0;
+								if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "GOVERNMENT_CENTER", "REJECT_SMALL_EMPIRE", iPolicyReturn);
+								return iPolicyReturn;
 							}
 							// <!-- custom: note since chatgpt 5 asks about it many times: the code seems to not/never at least sometimes not check for null here so we don't, no need to complicate in this case, if there is an error they'll run into it as well, if not fine, and we don't risk causing any weird behavioru as such maybe -->
 							// don’t drop it in the capital; almost no benefit
 							if (isCapital())
 							{
-								return 0;
+								const int iPolicyReturn = 0;
+								if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "GOVERNMENT_CENTER", "REJECT_CAPITAL", iPolicyReturn);
+								return iPolicyReturn;
 							}
 							// still respect pressure gates
 							if (bAtWar || bWarPlan || bDanger)
 							{
-								return 0;
+								const int iPolicyReturn = 0;
+								if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "GOVERNMENT_CENTER", "REJECT_MILITARY_PRESSURE", iPolicyReturn);
+								return iPolicyReturn;
 							}
 
 							// <!-- custom: Maintenance changes immediately when earlier cities grow during the same player's turn, so a turn/city-count cache can become stale before later cities choose production. This government-center gate is rare and already behind strict candidate checks; scan the live city values here. See KI#306. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -8344,7 +8597,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 								if (iMaintenanceTimes100 >= iSecondBestMaintenanceTimes100)
 								{
 									// <!-- custom: small negative nudge as tie breaker as this is a long to build building (redundant word) -->
-									return AI_BUILDING_ALWAYS_PICK_FIRST - 1000;
+									const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST - 1000;
+									if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "GOVERNMENT_CENTER", "FORCE_HIGH_MAINTENANCE", iPolicyReturn);
+									return iPolicyReturn;
 								}
 							}
 						}
@@ -8354,7 +8609,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					{
 						if (bAtWar || bWarPlan || bDanger || bEnemyStrong)
 						{
-							return 0; // don’t mess with this under pressure
+							const int iPolicyReturn = 0;
+							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "PALACE", "REJECT_MILITARY_PRESSURE", iPolicyReturn);
+							return iPolicyReturn; // don’t mess with this under pressure
 						}
 
 						// <!-- custom: don't build palace too early, focus on early invasion or growth rather; also it should be way faster to build later, use the hammer early for something else -->
@@ -8384,12 +8641,16 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 								if (!bBeatsCurrentCapitalHammers || !bBeatsCurrentCapitalBeakers)
 								{
-									return 0;
+									const int iPolicyReturn = 0;
+									if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "PALACE", "REJECT_INSUFFICIENT_OUTPUT", iPolicyReturn);
+									return iPolicyReturn;
 								}
 								else
 								{
 									// Gentle <!-- custom: negative --> nudge so it can win ties without steamrolling urgent stuff
-									return AI_BUILDING_ALWAYS_PICK_FIRST - 500;
+									const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST - 500;
+									if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "PALACE", "FORCE_SUPERIOR_OUTPUT", iPolicyReturn);
+									return iPolicyReturn;
 								}
 							}
 						}
@@ -8408,7 +8669,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					// <!-- custom: fallback to war heuristics general checks otherwise -->
 					if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNKNOWN_WONDER_FALLBACK", "REJECT_MILITARY_PRESSURE", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 				else
@@ -8416,7 +8679,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					// <!-- custom: this code should never be reached if i'm not mistaken, i think, but just in case-->
 					if (bAtWar || bDanger)
 					{
-						return 0;
+						const int iPolicyReturn = 0;
+						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNKNOWN_WONDER_FALLBACK", "REJECT_IMMEDIATE_PRESSURE", iPolicyReturn);
+						return iPolicyReturn;
 					}
 				}
 			}
@@ -8502,7 +8767,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	}
 
 	if (kBuilding.isCapital())
+	{
+		if (bLogBuildingValueDetails && !bWonder)
+			SAS_logInheritedBuildingValueRejection(*this, eBuilding, "CAPITAL_BUILDING");
 		return 0;
+	}
 
 	// <advc.014>
 	if(GET_TEAM(eOwner).isCapitulated() && bWorldWonder &&
@@ -8516,6 +8785,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		if (perReligionVal.second > 0 &&
 			!kTeam.hasHolyCity(perReligionVal.first))
 		{
+			if (bLogBuildingValueDetails && !bWonder)
+				SAS_logInheritedBuildingValueRejection(*this, eBuilding, "MISSING_HOLY_CITY");
 			return 0;
 		}
 	}
@@ -10667,6 +10938,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	if (bUseConstructionValueCache && !bConstCache)
 		m_aiConstructionValue[eBuildingClass] = iValue;
 	// K-Mod end
+	if (bLogBuildingValueDetails && !bWonder)
+		SAS_logInheritedBuildingValue(*this, eBuilding, iValue, iPriorityFactor);
 
 	return iValue;
 }
