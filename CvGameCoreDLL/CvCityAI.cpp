@@ -1828,7 +1828,20 @@ public:
 		int iTurnsLeft = kCity.getProductionTurnsLeft(eBestBuilding, 0);
 		if (iTurnsLeft == MAX_INT) iTurnsLeft = -1;
 		int const iMaxUnitSpending = kPlayer.AI_maxUnitCostPerMil(&kCity.getArea(), iBuildUnitProb);
-		logBBAI("BUILDING_PRODUCTION_OPPORTUNITY turn=%d player=%d %S city=%S cityId=%d era=%d pop=%d baseProd=%d bestBuilding=%s rawValue=%d adjustedValue=%d stored=%d needed=%d remaining=%d turnsLeft=%d buildingToMilitaryAvgPercent=%d remainingToMilitaryAvgPercent=%d buildingToMilitaryAvgTurnsPercent=%d militaryAvgCost=%d militaryMinCost=%d militaryMaxCost=%d militaryAvgTurns=%d militaryUniqueUnits=%d happySurplus=%d healthSurplus=%d foodSurplus=%d maintenanceTimes100=%d danger=%d atWar=%d warPlan=%d landWar=%d assault=%d warPrep=%d financialTrouble=%d buildUnitProb=%d unitSpending=%d maxUnitSpending=%d spendingGap=%d limited=%d worldWonder=%d nationalWonder=%d",
+		// <!-- custom: Cross-category military-pressure audit: put the best inherited building beside the actual strategic pressure and local defensive stock before AI_chooseProduction's later branches decide whether to keep it or switch to units/processes.
+		// Keep every added query inside this already-armed BUILDING_PRODUCTION diagnostic scope so ordinary gameplay pays no cost. This is intended to test whether the old per-category and unclassified strong-enemy vetoes should be replaced by one central opportunity-cost rule, or removed entirely if the inherited chooser already reacts well enough. (ChatGPT-5.6-Sol) -->
+		int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
+		static const int iEnemyStrongPowerThreshold = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD");
+		bool const bEnemyStrong = (iEnemyPowerPercent >= iEnemyStrongPowerThreshold);
+		int const iCityDefenders = kCity.getPlot().getNumDefenders(kCity.getOwner());
+		int const iNeededDefenders = kCity.AI_neededDefenders();
+		int const iAreaMilitaryStock = SAS_getMainLandMilitaryStock(kPlayer, kCity.getArea());
+		int const iProductionRank = kCity.findYieldRateRank(YIELD_PRODUCTION);
+		int const iNumCities = kPlayer.getNumCities();
+		bool const bAtWar = (kTeam.getNumWars() > 0);
+		bool const bWarPlan = kPlayer.AI_isFocusWar();
+		bool const bOldSASMilitaryPressureCore = (bDanger || bAtWar || bEnemyStrong || bWarPlan);
+		logBBAI("BUILDING_PRODUCTION_OPPORTUNITY turn=%d player=%d %S city=%S cityId=%d era=%d pop=%d baseProd=%d bestBuilding=%s rawValue=%d adjustedValue=%d stored=%d needed=%d remaining=%d turnsLeft=%d buildingToMilitaryAvgPercent=%d remainingToMilitaryAvgPercent=%d buildingToMilitaryAvgTurnsPercent=%d militaryAvgCost=%d militaryMinCost=%d militaryMaxCost=%d militaryAvgTurns=%d militaryUniqueUnits=%d happySurplus=%d healthSurplus=%d foodSurplus=%d maintenanceTimes100=%d danger=%d atWar=%d warPlan=%d landWar=%d assault=%d warPrep=%d enemyPowerPercent=%d enemyStrong=%d cityDefenders=%d neededDefenders=%d underDefended=%d areaMilitaryStock=%d productionRank=%d numCities=%d areaAI=%d oldSASMilitaryPressureCore=%d financialTrouble=%d buildUnitProb=%d unitSpending=%d maxUnitSpending=%d spendingGap=%d limited=%d worldWonder=%d nationalWonder=%d",
 			GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(),
 			kPlayer.getCurrentEra(), kCity.getPopulation(), kCity.getBaseYieldRate(YIELD_PRODUCTION), kBuilding.getType(), iRawValue,
 			iAdjustedValue, iStored, iNeeded, std::max(0, iNeeded - iStored), iTurnsLeft,
@@ -1837,7 +1850,9 @@ public:
 			iRepresentativeMilitaryTurns <= 0 || iTurnsLeft < 0 ? -1 : (100 * iTurnsLeft) / iRepresentativeMilitaryTurns,
 			iRepresentativeMilitaryCost, iMilitaryMinCost, iMilitaryMaxCost, iRepresentativeMilitaryTurns, iMilitaryUniqueUnits,
 			kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.foodDifference(false, true),
-			kCity.getMaintenanceTimes100(), bDanger, kTeam.getNumWars() > 0, kPlayer.AI_isFocusWar(), bLandWar, bAssault, bWarPrep,
+			kCity.getMaintenanceTimes100(), bDanger, bAtWar, bWarPlan, bLandWar, bAssault, bWarPrep,
+			iEnemyPowerPercent, bEnemyStrong, iCityDefenders, iNeededDefenders, iCityDefenders < iNeededDefenders,
+			iAreaMilitaryStock, iProductionRank, iNumCities, kCity.getArea().getAreaAIType(kCity.getTeam()), bOldSASMilitaryPressureCore,
 			bFinancialTrouble, iBuildUnitProb, iUnitSpending, iMaxUnitSpending, iMaxUnitSpending - iUnitSpending, kBuilding.isLimited(),
 			kBuilding.isWorldWonder(), kBuilding.isNationalWonder());
 	}
