@@ -638,7 +638,7 @@ bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass, bool* pb
 		if (bNavalDanger)
 			bShelteredDefense = false;
 		*pbDefenseBlockedByShelter = bShelteredDefense;
-		if (gMilitaryProductionLogLevel >= 2 && !isHuman() && !isBarbarian())
+		if ((gMilitaryProductionLogLevel >= 2 || gBuildingProductionLogLevel >= 2) && !isHuman() && !isBarbarian())
 		{
 			bool const bAlreadyQueued = (getProductionBuilding() == eBuilding);
 			char const* szDecision = (*pbDefenseBlockedByShelter ? (bAlreadyQueued ? "RELEASE_EMERGENCY_PRIORITY" : "BLOCK_NEW_ORDER") : (bAlreadyQueued ? "KEEP_EMERGENCY_PRIORITY" : "FORCE_NEW_ORDER"));
@@ -771,6 +771,43 @@ void CvCity::doTurn()
 	// <!-- custom: add this to make sure we don't overlap our previously chosen emergency building with some other logic -->
 	bool bEmergencyBuilding = false;
 
+	// <!-- custom: Audit the hard CvCity::doTurn emergency-building overrides against the target normal production logic had already chosen.
+	// Snapshot the displaced target and its invested production while it is still the live pre-override order; exact value/turn work is diagnostic-only and therefore runs only when the dedicated building/military forensic logger is armed.
+	// This distinguishes a genuinely useful panic correction from Harbor/Port/Walls/Castle rules that merely overwrite or shield a reasonable normal choice after inherited building valuation has already improved. Diagnostic-only; no RNG calls. (ChatGPT-5.6-Sol) -->
+	bool const bLogEmergencyBuildingAudit = ((gBuildingProductionLogLevel >= 2 || gMilitaryProductionLogLevel >= 2) && !bHuman && !isBarbarian());
+	UnitTypes const ePreEmergencyUnit = (bLogEmergencyBuildingAudit ? getProductionUnit() : NO_UNIT);
+	BuildingTypes const ePreEmergencyBuilding = (bLogEmergencyBuildingAudit ? getProductionBuilding() : NO_BUILDING);
+	ProjectTypes const ePreEmergencyProject = (bLogEmergencyBuildingAudit ? getProductionProject() : NO_PROJECT);
+	ProcessTypes const ePreEmergencyProcess = (bLogEmergencyBuildingAudit ? getProductionProcess() : NO_PROCESS);
+	int iPreEmergencyStored = 0;
+	int iPreEmergencyNeeded = 0;
+	int iPreEmergencyTurnsLeft = -1;
+	int iPreEmergencyBuildingValue = -1;
+	if (bLogEmergencyBuildingAudit)
+	{
+		if (ePreEmergencyUnit != NO_UNIT)
+		{
+			iPreEmergencyStored = getUnitProduction(ePreEmergencyUnit);
+			iPreEmergencyNeeded = getProductionNeeded(ePreEmergencyUnit);
+			iPreEmergencyTurnsLeft = getProductionTurnsLeft(ePreEmergencyUnit, 0);
+		}
+		else if (ePreEmergencyBuilding != NO_BUILDING)
+		{
+			iPreEmergencyStored = getBuildingProduction(ePreEmergencyBuilding);
+			iPreEmergencyNeeded = getProductionNeeded(ePreEmergencyBuilding);
+			iPreEmergencyTurnsLeft = getProductionTurnsLeft(ePreEmergencyBuilding, 0);
+			iPreEmergencyBuildingValue = AI().AI_buildingValue(ePreEmergencyBuilding, 0, 0, true);
+		}
+		else if (ePreEmergencyProject != NO_PROJECT)
+		{
+			iPreEmergencyStored = getProjectProduction(ePreEmergencyProject);
+			iPreEmergencyNeeded = getProductionNeeded(ePreEmergencyProject);
+			iPreEmergencyTurnsLeft = getProductionTurnsLeft(ePreEmergencyProject, 0);
+		}
+		if (iPreEmergencyTurnsLeft == MAX_INT) iPreEmergencyTurnsLeft = -1;
+	}
+	char const* szEmergencyBuildingReason = "-";
+
 	// <!-- custom: A positive sea-food building is top priority if a coastal city has low food per turn; stagnant coastal tundra cities otherwise remained small for dozens of turns.
 	// The building itself is now selected from the civilization's XML effects rather than a named Harbor class. (ChatGPT 5 + GPT-5.6-Sol) -->
 	// 	<!-- custom: update: the harbor is more likely to be useful than walls for a coastal city, plus a harbor would help us build our walls or such faster anyway, so risk weaker defenses to make sure we get the very important harbor first rather.
@@ -800,6 +837,7 @@ void CvCity::doTurn()
 				if (SASTryEmergencySeaYieldBuilding(YIELD_FOOD))
 				{
 					bEmergencyBuilding = true;
+					szEmergencyBuildingReason = "SEA_FOOD";
 				}
 			}
 		}
@@ -883,6 +921,7 @@ void CvCity::doTurn()
 						if (SASTryEmergencyBuilding(eWallsClass, &bDefenseBlockedByShelter, bDanger))
 						{
 							bEmergencyBuilding = true;
+							szEmergencyBuildingReason = "DEFENSE_WALLS";
 						}
 					}
 				}
@@ -903,6 +942,7 @@ void CvCity::doTurn()
 						if (SASTryEmergencyBuilding(eCastleClass, &bDefenseBlockedByShelter, bDanger))
 						{
 							bEmergencyBuilding = true;
+							szEmergencyBuildingReason = "DEFENSE_CASTLE";
 						}
 					}
 				}
@@ -932,10 +972,55 @@ void CvCity::doTurn()
 					if (SASTryEmergencySeaYieldBuilding(YIELD_PRODUCTION))
 					{
 						bEmergencyBuilding = true;
+						szEmergencyBuildingReason = "SEA_PRODUCTION";
 						if (gCityLogLevel >= 2) logBBAI("      City %S forces water hammer building. pop %d/%d, base hammers %d, food surplus %d/%d",
 							getName().GetCString(), iCityPopulation, iMinPopulation, iBaseHammersPerTurn, iFoodDiff, iFoodSurplusThreshold);
 					}
 				}
+			}
+		}
+
+		if (bLogEmergencyBuildingAudit && bEmergencyBuilding)
+		{
+			BuildingTypes const eEmergencyBuilding = getProductionBuilding();
+			if (eEmergencyBuilding != NO_BUILDING)
+			{
+				char const* szPreKind = "EMPTY";
+				char const* szPreTarget = "-";
+				if (ePreEmergencyUnit != NO_UNIT)
+				{
+					szPreKind = "UNIT";
+					szPreTarget = GC.getInfo(ePreEmergencyUnit).getType();
+				}
+				else if (ePreEmergencyBuilding != NO_BUILDING)
+				{
+					szPreKind = "BUILDING";
+					szPreTarget = GC.getInfo(ePreEmergencyBuilding).getType();
+				}
+				else if (ePreEmergencyProject != NO_PROJECT)
+				{
+					szPreKind = "PROJECT";
+					szPreTarget = GC.getInfo(ePreEmergencyProject).getType();
+				}
+				else if (ePreEmergencyProcess != NO_PROCESS)
+				{
+					szPreKind = "PROCESS";
+					szPreTarget = GC.getInfo(ePreEmergencyProcess).getType();
+				}
+				char const* szResult = (ePreEmergencyBuilding == eEmergencyBuilding ? "ALREADY_TARGET" :
+					(ePreEmergencyUnit == NO_UNIT && ePreEmergencyBuilding == NO_BUILDING && ePreEmergencyProject == NO_PROJECT && ePreEmergencyProcess == NO_PROCESS ? "FILL_EMPTY" : "OVERRIDE"));
+				CvBuildingInfo const& kEmergencyBuilding = GC.getInfo(eEmergencyBuilding);
+				int const iEmergencyValue = AI().AI_buildingValue(eEmergencyBuilding, 0, 0, true);
+				int const iStored = getBuildingProduction(eEmergencyBuilding);
+				int const iNeeded = getProductionNeeded(eEmergencyBuilding);
+				int iTurnsLeft = getProductionTurnsLeft(eEmergencyBuilding, 0);
+				if (iTurnsLeft == MAX_INT) iTurnsLeft = -1;
+				logBBAI("BUILDING_PRODUCTION_DOTURN_EMERGENCY_AUDIT turn=%d player=%d %S city=%S cityId=%d reason=%s result=%s preKind=%s preTarget=%s preBuildingValue=%d preStored=%d preNeeded=%d preRemaining=%d preTurnsLeft=%d forcedBuilding=%s forcedValue=%d stored=%d needed=%d remaining=%d turnsLeft=%d seaFood=%d seaProduction=%d pop=%d targetPopulation=%d foodSurplus=%d baseProduction=%d danger=%d atWar=%d enemyPowerPercent=%d mostlyWater=%d disorder=%d occupationTimer=%d",
+					kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), szEmergencyBuildingReason, szResult,
+					szPreKind, szPreTarget, iPreEmergencyBuildingValue, iPreEmergencyStored, iPreEmergencyNeeded, std::max(0, iPreEmergencyNeeded - iPreEmergencyStored), iPreEmergencyTurnsLeft,
+					kEmergencyBuilding.getType(), iEmergencyValue, iStored, iNeeded, std::max(0, iNeeded - iStored), iTurnsLeft,
+					kEmergencyBuilding.getSeaPlotYieldChange(YIELD_FOOD), kEmergencyBuilding.getSeaPlotYieldChange(YIELD_PRODUCTION),
+					getPopulation(), AI().AI_getTargetPopulation(), foodDifference(), getBaseYieldRate(YIELD_PRODUCTION), bDanger, bAtWar, iEnemyPowerPercent, bInnerRingMostlyWaterNonPeak, isDisorder(), getOccupationTimer());
 			}
 		}
 
