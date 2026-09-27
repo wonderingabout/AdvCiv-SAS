@@ -7026,7 +7026,7 @@ static void SAS_logBuildingValuePolicyDecision(CvCityAI const& kCity, BuildingTy
 
 // <!-- custom: When the SAS regular-building prefilter is disabled, expose every computed neutral-focus inherited value rather than only the winning focus candidates.
 // Include its deterministic turns/progress-adjusted comparison value and the main XML/city inputs so the inherited policy can be audited before replacing or tuning it; call only behind the cached level-3 gate. (GPT-5.6-Sol) -->
-static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor, int iDefenseDelta, int iEspionageDefenseDelta, int iHappinessDelta, int iHealthDelta, int iExperienceDelta, int iDomainSeaDelta, int iMaintenanceDelta, int iSpecialistDelta, int iTradeDelta, int iGeneralDelta, int iYieldDelta, int iCommerceGlobalDelta, int iAirCapacityDelta, int iMilitaryProductionDelta, int iDomainProductionDelta, int iHealthSeverityUrgencyBonus, int iHealthStarvationUrgencyBonus, int iMaintenanceCurrentTimes100, int iMaintenanceEstimatedBaseTimes100, int iMaintenanceNewUpkeepTimes100, int iMaintenanceSavedTimes100, int iMaintenancePreInflationValue, int iMaintenanceInflatedValue, int iMaintenanceFinalValue)
+static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor, int iDefenseDelta, int iEspionageDefenseDelta, int iHappinessDelta, int iHealthDelta, int iExperienceDelta, int iDomainSeaDelta, int iMaintenanceDelta, int iSpecialistDelta, int iTradeDelta, int iGeneralDelta, int iYieldDelta, int iCommerceGlobalDelta, int iAirCapacityDelta, int iMilitaryProductionDelta, int iDomainProductionDelta, int iHealthSeverityUrgencyBonus, int iHealthStarvationUrgencyBonus, int iMaintenanceCurrentTimes100, int iMaintenanceEstimatedBaseTimes100, int iMaintenanceNewUpkeepTimes100, int iMaintenanceSavedTimes100, int iMaintenancePreInflationValue, int iMaintenanceInflatedValue, int iMaintenanceFinalValue, int iValueBeforePriority, int iValueAfterPriority, int iValueBeforeAIWeight, int iValueAfterAIWeight, int iFlavorMatchExact, int iValueAfterFlavor)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kCity.getTeam());
@@ -7168,6 +7168,119 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 				iInterceptionFactorTimes10000, iPostInterceptionValue, iNukeDangerDivisor, iFinalNukeDefenseValue, bDanger, bWarPlan, bAtWar);
 		}
 	}
+
+	// <!-- custom: Military-infrastructure migration audit: expose the raw training effects, the exact final generic value transforms, and enough strategic context to judge whether SAS's old military-building encouragement should survive as dynamic logic rather than unconditional whole-building priority.
+	// Run only after the existing level-3 neutral row survives deduplication; all canTrain/unit-option scans and force-context queries therefore remain diagnostic-only. (ChatGPT-5.6-Sol) -->
+	int iUnitCombatExperienceSum = 0;
+	FOR_EACH_NON_DEFAULT_PAIR(kBuilding.getUnitCombatFreeExperience(), UnitCombat, int)
+		iUnitCombatExperienceSum += std::max(0, perUnitCombatVal.second);
+	int const iLandExperience = kBuilding.getDomainFreeExperience(DOMAIN_LAND);
+	int const iSeaExperience = kBuilding.getDomainFreeExperience(DOMAIN_SEA);
+	int const iAirExperience = kBuilding.getDomainFreeExperience(DOMAIN_AIR);
+	int const iMilitaryProductionModifier = kBuilding.getMilitaryProductionModifier();
+	int const iLandProductionModifier = kBuilding.getDomainProductionModifier(DOMAIN_LAND);
+	int const iSeaProductionModifier = kBuilding.getDomainProductionModifier(DOMAIN_SEA);
+	int const iAirProductionModifier = kBuilding.getDomainProductionModifier(DOMAIN_AIR);
+	int const iAirUnitCapacity = kBuilding.getAirUnitCapacity();
+	bool const bHasMilitaryInfrastructureEffect =
+			(iExperienceDelta != 0 || iMilitaryProductionDelta != 0 || iDomainProductionDelta != 0 || iAirCapacityDelta != 0 ||
+			kBuilding.getFreeExperience() > 0 || iUnitCombatExperienceSum > 0 || iLandExperience > 0 || iSeaExperience > 0 || iAirExperience > 0 ||
+			iMilitaryProductionModifier > 0 || iLandProductionModifier != 0 || iSeaProductionModifier != 0 || iAirProductionModifier != 0 || iAirUnitCapacity > 0);
+	if (bHasMilitaryInfrastructureEffect)
+	{
+		int const iProductionRank = kCity.findBaseYieldRateRank(YIELD_PRODUCTION);
+		int const iNumCities = kOwner.getNumCities();
+		bool const bHighProductionCity = (iProductionRank <= std::max(3, iNumCities / 2));
+		int const iHasMetCount = kTeam.getHasMetCivCount(true);
+		int const iSettlers = kOwner.AI_getNumAIUnits(UNITAI_SETTLE);
+		int const iNumCitySites = kOwner.AI_getNumCitySites();
+		bool const bSettlerGateReady = (kOwner.isBarbarian() || iNumCities > 1 || iSettlers > 0 || iNumCitySites <= 0);
+		int iExperienceWeight = 12;
+		iExperienceWeight /= (iHasMetCount > 0 ? 1 : 2);
+		iExperienceWeight /= (bWarPlan || (bHighProductionCity && bSettlerGateReady) ? 1 : 4);
+		bool const bCoastal = kCity.isCoastal(GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN) * 2);
+
+		// <!-- custom: Count every currently trainable combat unit that would actually receive XP from this building. The earlier audit counted only UnitCombat-specific XP, which understated domain-wide buildings such as Barracks. (ChatGPT-5.6-Sol) -->
+		int iTrainableXpAffectedUnits = 0;
+		int iTrainableXpAffectedLand = 0, iTrainableXpAffectedSea = 0, iTrainableXpAffectedAir = 0;
+		int iAffectedStrengthMax = 0, iAffectedLandStrengthMax = 0, iBestTrainableLandStrength = 0;
+		int iAffectedCostSum = 0, iAffectedTurnSum = 0, iAffectedTurnSamples = 0, iAffectedMinTurns = MAX_INT;
+		bool const bHasTrainingXpEffect = (kBuilding.getFreeExperience() > 0 || iUnitCombatExperienceSum > 0 || iLandExperience > 0 || iSeaExperience > 0 || iAirExperience > 0);
+		if (bHasTrainingXpEffect)
+		{
+			FOR_EACH_ENUM(Unit)
+			{
+				CvUnitInfo const& kLoopUnit = GC.getInfo(eLoopUnit);
+				if (!kCity.canTrain(eLoopUnit))
+					continue;
+				int const iStrength = std::max(kLoopUnit.getCombat(), kLoopUnit.getAirCombat());
+				if (kLoopUnit.getDomainType() == DOMAIN_LAND && iStrength > 0)
+					iBestTrainableLandStrength = std::max(iBestTrainableLandStrength, iStrength);
+				UnitCombatTypes const eCombat = kLoopUnit.getUnitCombatType();
+				int iGrantedExperience = kBuilding.getFreeExperience() + kBuilding.getDomainFreeExperience(kLoopUnit.getDomainType());
+				if (eCombat != NO_UNITCOMBAT)
+					iGrantedExperience += kBuilding.getUnitCombatFreeExperience(eCombat);
+				if (iGrantedExperience <= 0 || iStrength <= 0)
+					continue;
+				iTrainableXpAffectedUnits++;
+				iAffectedStrengthMax = std::max(iAffectedStrengthMax, iStrength);
+				if (kLoopUnit.getDomainType() == DOMAIN_LAND)
+				{
+					iTrainableXpAffectedLand++;
+					iAffectedLandStrengthMax = std::max(iAffectedLandStrengthMax, iStrength);
+				}
+				else if (kLoopUnit.getDomainType() == DOMAIN_SEA) iTrainableXpAffectedSea++;
+				else if (kLoopUnit.getDomainType() == DOMAIN_AIR) iTrainableXpAffectedAir++;
+				iAffectedCostSum += kCity.getProductionNeeded(eLoopUnit);
+				int const iTurns = kCity.getProductionTurnsLeft(eLoopUnit, 0);
+				if (iTurns > 0 && iTurns < MAX_INT)
+				{
+					iAffectedTurnSum += iTurns;
+					iAffectedTurnSamples++;
+					iAffectedMinTurns = std::min(iAffectedMinTurns, iTurns);
+				}
+			}
+		}
+		int const iAffectedAverageCost = (iTrainableXpAffectedUnits <= 0 ? 0 : iAffectedCostSum / iTrainableXpAffectedUnits);
+		int const iAffectedAverageTurns = (iAffectedTurnSamples <= 0 ? -1 : iAffectedTurnSum / iAffectedTurnSamples);
+		if (iAffectedMinTurns == MAX_INT) iAffectedMinTurns = -1;
+		int const iAffectedLandStrengthPercent = (iBestTrainableLandStrength <= 0 ? 0 : 100 * iAffectedLandStrengthMax / iBestTrainableLandStrength);
+
+		// <!-- custom: Exact final transforms: unlike the old final-minus-components residual, these compare values on the same scale and show how much priority, XML AIWeight and flavour actually added. (ChatGPT-5.6-Sol) -->
+		int const iPriorityDelta = iValueAfterPriority - iValueBeforePriority;
+		int const iAIWeightDelta = iValueAfterAIWeight - iValueBeforeAIWeight;
+		int const iFlavorDelta = iValueAfterFlavor - iValueAfterAIWeight;
+		int const iComponentAccounted = iDefenseDelta + iEspionageDefenseDelta + iHappinessDelta + iHealthDelta + iExperienceDelta + iDomainSeaDelta +
+			iMaintenanceDelta + iSpecialistDelta + iTradeDelta + iGeneralDelta + iYieldDelta + iCommerceGlobalDelta;
+		int const iPreFinalResidual = iValueBeforePriority - iComponentAccounted;
+		int const iMilitaryCoreDelta = iExperienceDelta + iMilitaryProductionDelta + iDomainProductionDelta + iAirCapacityDelta;
+
+		int const iAreaCities = kCity.getArea().getCitiesPerPlayer(kCity.getOwner());
+		int const iAreaTiles = kCity.getArea().getNumTiles();
+		// <!-- custom: Reuse the existing land-area-local military-stock helper from the peaceful saturation gate; it is role-based and includes units already being trained, so this diagnostic measures the same stock the production policy already reasons about. (ChatGPT-5.6-Sol) -->
+		int const iAreaMilitaryStock = SAS_getMainLandMilitaryStock(kOwner, kCity.getArea());
+		bool const bPrimaryArea = kOwner.AI_isPrimaryArea(kCity.getArea());
+		bool const bAreaAlone = kOwner.AI_isAreaAlone(kCity.getArea());
+		int const iUnitSpending = kOwner.AI_unitCostPerMil();
+		CvLeaderHeadInfo const& kPersonality = GC.getInfo(kOwner.getPersonalityType());
+
+		logBBAI("BUILDING_VALUE_INHERITED_MILITARY_INFRA turn=%d player=%d city=%S cityId=%d building=%s final=%d preFinalValue=%d componentAccounted=%d preFinalResidual=%d priorityDelta=%d aiWeight=%d aiWeightDelta=%d flavorMatch=%d flavorDelta=%d postFlavorValue=%d militaryCoreDelta=%d experienceDelta=%d experienceFocus=%d domainSeaFocus=%d militaryProductionDelta=%d domainProductionDelta=%d airCapacityDelta=%d freeExperience=%d unitCombatExperienceSum=%d trainableXpAffectedUnits=%d affectedLand=%d affectedSea=%d affectedAir=%d affectedStrengthMax=%d affectedLandStrengthMax=%d bestTrainableLandStrength=%d affectedLandStrengthPercent=%d affectedAverageCost=%d affectedAverageTurns=%d affectedMinTurns=%d landExperience=%d seaExperience=%d airExperience=%d militaryProductionModifier=%d landProductionModifier=%d seaProductionModifier=%d airProductionModifier=%d airUnitCapacity=%d cityFreeExperience=%d citySpecialistFreeExperience=%d cityProductionExperience=%d cityLandExperience=%d citySeaExperience=%d cityAirExperience=%d cityMilitaryProductionModifier=%d airSpaceAvailable=%d productionRank=%d numCities=%d highProductionCity=%d baseProduction=%d hasMetCount=%d experienceWeight=%d settlerGateReady=%d settlers=%d citySites=%d coastal=%d areaCities=%d areaTiles=%d primaryArea=%d areaAlone=%d areaMilitaryStock=%d playerUnits=%d militarySupportUnits=%d playerPower=%d unitSpending=%d personalityBuildUnitProb=%d economyFocus=%d getBetterUnits=%d dagger=%d crush=%d turtle=%d alert1=%d alert2=%d finalWar=%d warPlan=%d atWar=%d landWar=%d danger=%d enemyPowerPercent=%d areaAI=%d",
+			GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(), iValue,
+			iValueBeforePriority, iComponentAccounted, iPreFinalResidual, iPriorityDelta, kBuilding.getAIWeight(), iAIWeightDelta, iFlavorMatchExact, iFlavorDelta, iValueAfterFlavor,
+			iMilitaryCoreDelta, iExperienceDelta, iFocusExperience, iFocusDomainSea, iMilitaryProductionDelta, iDomainProductionDelta, iAirCapacityDelta,
+			kBuilding.getFreeExperience(), iUnitCombatExperienceSum, iTrainableXpAffectedUnits, iTrainableXpAffectedLand, iTrainableXpAffectedSea, iTrainableXpAffectedAir,
+			iAffectedStrengthMax, iAffectedLandStrengthMax, iBestTrainableLandStrength, iAffectedLandStrengthPercent, iAffectedAverageCost, iAffectedAverageTurns, iAffectedMinTurns,
+			iLandExperience, iSeaExperience, iAirExperience, iMilitaryProductionModifier, iLandProductionModifier, iSeaProductionModifier, iAirProductionModifier, iAirUnitCapacity,
+			kCity.getFreeExperience(), kCity.getSpecialistFreeExperience(), kCity.getProductionExperience(), kCity.getDomainFreeExperience(DOMAIN_LAND),
+			kCity.getDomainFreeExperience(DOMAIN_SEA), kCity.getDomainFreeExperience(DOMAIN_AIR), kCity.getMilitaryProductionModifier(), kCity.getPlot().airUnitSpaceAvailable(kCity.getTeam()),
+			iProductionRank, iNumCities, bHighProductionCity, kCity.getBaseYieldRate(YIELD_PRODUCTION), iHasMetCount, iExperienceWeight, bSettlerGateReady, iSettlers, iNumCitySites, bCoastal,
+			iAreaCities, iAreaTiles, bPrimaryArea, bAreaAlone, iAreaMilitaryStock, kOwner.getNumUnits(), kOwner.getNumMilitaryUnits(), kOwner.getPower(), iUnitSpending,
+			kPersonality.getBuildUnitProb(), kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS), kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS),
+			kOwner.AI_isDoStrategy(AI_STRATEGY_DAGGER), kOwner.AI_isDoStrategy(AI_STRATEGY_CRUSH), kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE),
+			kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT1), kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT2), kOwner.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR),
+			bWarPlan, bAtWar, kOwner.AI_isLandWar(kCity.getArea()), bDanger, iEnemyPowerPercent, kCity.getArea().getAreaAIType(kCity.getTeam()));
+	}
+
 
 	logBBAI("BUILDING_VALUE_INHERITED turn=%d player=%d %S city=%S cityId=%d building=%s value=%d priorityFactor=%d researchingObsoleteTech=%d comparisonValue=%d era=%d pop=%d healthSurplus=%d happySurplus=%d foodSurplus=%d baseProduction=%d stored=%d needed=%d remaining=%d turnsLeft=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d financialTrouble=%d healthGain=%d happyGain=%d foodKept=%d defenseModifier=%d maintenanceModifier=%d productionModifier=%d seaFood=%d tradeRoutes=%d goldFlat=%d goldModifier=%d researchFlat=%d researchModifier=%d cultureFlat=%d cultureModifier=%d espionageFlat=%d espionageModifier=%d",
 		GC.getGame().getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(), iValue, iPriorityFactor, bResearchingObsoleteTech, iComparisonValue,
@@ -8939,6 +9052,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	// <!-- custom: Keep these explicitly initialized for VC++ Toolkit 2003 C4701 checks; they are populated only by the level-3 neutral maintenance pass. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int iDiagMaintenanceCurrentTimes100 = 0, iDiagMaintenanceEstimatedBaseTimes100 = 0, iDiagMaintenanceNewUpkeepTimes100 = 0, iDiagMaintenanceSavedTimes100 = 0;
 	int iDiagMaintenancePreInflationValue = 0, iDiagMaintenanceInflatedValue = 0, iDiagMaintenanceFinalValue = 0;
+	// <!-- custom: Exact final generic transforms for the building-value migration audit; initialize explicitly for VC++ Toolkit 2003 C4701 checks. (ChatGPT-5.6-Sol) -->
+	int iDiagValueBeforePriority = 0, iDiagValueAfterPriority = 0, iDiagValueBeforeAIWeight = 0, iDiagValueAfterAIWeight = 0, iDiagFlavorMatch = 0, iDiagValueAfterFlavor = 0;
 	int iDiagDefenseBefore = 0, iDiagEspionageDefenseBefore = 0, iDiagHappinessBefore = 0, iDiagHealthBefore = 0, iDiagExperienceBefore = 0, iDiagDomainSeaBefore = 0;
 	int iDiagMaintenanceBefore = 0, iDiagSpecialistBefore = 0, iDiagTradeBefore = 0, iDiagGeneralBefore = 0, iDiagYieldBefore = 0, iDiagCommerceGlobalBefore = 0;
 	int iDiagAirCapacityBefore = 0, iDiagMilitaryProductionBefore = 0, iDiagDomainProductionBefore = 0;
@@ -11067,6 +11182,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	// K-Mod
 	if (iValue > 0)
 	{
+		if (bLogBuildingValueDetails) iDiagValueBeforePriority = iValue;
 		// priority factor
 		if (bWorldWonder)
 		{
@@ -11079,11 +11195,18 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			iValue *= iPriorityFactor;
 			iValue /= 100;
 		}
+		if (bLogBuildingValueDetails)
+		{
+			iDiagValueAfterPriority = iValue;
+			iDiagValueBeforeAIWeight = iValue;
+			iDiagValueAfterAIWeight = iValue;
+		}
 
 		// flavour factor. (original flavour code deleted)
 		if (!isHuman())
 		{
 			iValue += kBuilding.getAIWeight();
+			if (bLogBuildingValueDetails) iDiagValueAfterAIWeight = iValue;
 			if (iValue > 0 &&
 				// K-Mod. Only use flavour adjustments for constructing ordinary buildings.
 				iXMLCost > 0 && !bRemove)
@@ -11097,11 +11220,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					iFlavour += std::min(kOwner.AI_getFlavorValue(perFlavorVal.first),
 							perFlavorVal.second); // </K-Mod>
 				}
+				if (bLogBuildingValueDetails) iDiagFlavorMatch = iFlavour;
 				// K-Mod. (This will give +100% for 10-10 flavour matchups.)
 				//iValue = iValue * (10 + iFlavour) / 10;
 				iValue = iValue * (8 + iFlavour) / 12; // advc.020
 			}
 		}
+		if (bLogBuildingValueDetails) iDiagValueAfterFlavor = iValue;
 	} // <advc.131>
 	if (iValue > 0 &&
 		bNationalWonder && isCapital() &&
@@ -11141,7 +11266,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			iDiagTradeDelta, iDiagGeneralDelta, iDiagYieldDelta, iDiagCommerceGlobalDelta, iDiagAirCapacityDelta, iDiagMilitaryProductionDelta,
 			iDiagDomainProductionDelta, iDiagHealthSeverityUrgencyBonus, iDiagHealthStarvationUrgencyBonus,
 			iDiagMaintenanceCurrentTimes100, iDiagMaintenanceEstimatedBaseTimes100, iDiagMaintenanceNewUpkeepTimes100, iDiagMaintenanceSavedTimes100,
-			iDiagMaintenancePreInflationValue, iDiagMaintenanceInflatedValue, iDiagMaintenanceFinalValue);
+			iDiagMaintenancePreInflationValue, iDiagMaintenanceInflatedValue, iDiagMaintenanceFinalValue,
+			iDiagValueBeforePriority, iDiagValueAfterPriority, iDiagValueBeforeAIWeight, iDiagValueAfterAIWeight, iDiagFlavorMatch, iDiagValueAfterFlavor);
 	}
 
 	return iValue;
