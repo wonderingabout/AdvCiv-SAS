@@ -7026,7 +7026,7 @@ static void SAS_logBuildingValuePolicyDecision(CvCityAI const& kCity, BuildingTy
 
 // <!-- custom: When the SAS regular-building prefilter is disabled, expose every computed neutral-focus inherited value rather than only the winning focus candidates.
 // Include its deterministic turns/progress-adjusted comparison value and the main XML/city inputs so the inherited policy can be audited before replacing or tuning it; call only behind the cached level-3 gate. (GPT-5.6-Sol) -->
-static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor, int iDefenseDelta, int iEspionageDefenseDelta, int iHappinessDelta, int iHealthDelta, int iExperienceDelta, int iDomainSeaDelta, int iMaintenanceDelta, int iSpecialistDelta, int iTradeDelta, int iGeneralDelta, int iYieldDelta, int iCommerceGlobalDelta, int iAirCapacityDelta, int iMilitaryProductionDelta, int iDomainProductionDelta, int iHealthSeverityUrgencyBonus, int iHealthStarvationUrgencyBonus, int iMaintenanceCurrentTimes100, int iMaintenanceEstimatedBaseTimes100, int iMaintenanceNewUpkeepTimes100, int iMaintenanceSavedTimes100, int iMaintenancePreInflationValue, int iMaintenanceInflatedValue, int iMaintenanceFinalValue, int iValueBeforePriority, int iValueAfterPriority, int iValueBeforeAIWeight, int iValueAfterAIWeight, int iFlavorMatchExact, int iValueAfterFlavor, int iCultureDelta, int iCultureClaimValue, int iCulturePriorityBoost, int iCultureBeforeWeight, int iCultureAfterWeight)
+static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor, int iDefenseDelta, int iEspionageDefenseDelta, int iHappinessDelta, int iHealthDelta, int iExperienceDelta, int iDomainSeaDelta, int iMaintenanceDelta, int iSpecialistDelta, int iTradeDelta, int iGeneralDelta, int iYieldDelta, int iCommerceGlobalDelta, int iAirCapacityDelta, int iMilitaryProductionDelta, int iDomainProductionDelta, int iHealthSeverityUrgencyBonus, int iHealthStarvationUrgencyBonus, int iMaintenanceCurrentTimes100, int iMaintenanceEstimatedBaseTimes100, int iMaintenanceNewUpkeepTimes100, int iMaintenanceSavedTimes100, int iMaintenancePreInflationValue, int iMaintenanceInflatedValue, int iMaintenanceFinalValue, int iValueBeforePriority, int iValueAfterPriority, int iValueBeforeAIWeight, int iValueAfterAIWeight, int iFlavorMatchExact, int iValueAfterFlavor, int iResearchDelta, int iResearchBeforeWeight, int iResearchAfterWeight, int iCultureDelta, int iCultureClaimValue, int iCulturePriorityBoost, int iCultureBeforeWeight, int iCultureAfterWeight)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kCity.getTeam());
@@ -7109,6 +7109,38 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 		iMaintenanceSavedTimes100, iMaintenancePreInflationValue, iMaintenanceInflatedValue, iMaintenanceFinalValue,
 		iSpecialistDelta, iTradeDelta, iGeneralDelta, iYieldDelta, iCommerceGlobalDelta,
 		iAirCapacityDelta, iMilitaryProductionDelta, iDomainProductionDelta, iAccountedDelta, iResidualDelta);
+
+	// <!-- custom: Science migration audit: isolate the inherited research-commerce contribution and reconstruct SAS's old Library-style whole-building military-pressure veto. Log only buildings that match that old science classification so level-3 BBAI stays focused; specialist value remains separate because a Scientist slot can matter even when the direct research-commerce delta is small. (ChatGPT-5.6-Sol) -->
+	int const iResearchFlat = kBuilding.getCommerceChange(COMMERCE_RESEARCH) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_RESEARCH);
+	int const iResearchModifier = kBuilding.getCommerceModifier(COMMERCE_RESEARCH);
+	int const iGlobalResearchModifier = kBuilding.getGlobalCommerceModifier(COMMERCE_RESEARCH);
+	int const iSpecialistExtraResearch = kBuilding.getSpecialistExtraCommerce(COMMERCE_RESEARCH);
+	static const SpecialistTypes eScientistForAudit = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST", true);
+	int const iScientistSlots = (eScientistForAudit == NO_SPECIALIST ? 0 : kBuilding.getSpecialistCount(eScientistForAudit));
+	int const iFreeScientists = (eScientistForAudit == NO_SPECIALIST ? 0 : kBuilding.getFreeSpecialistCount(eScientistForAudit));
+	bool const bOldSASScienceClassified = (iResearchModifier >= 20 || iResearchFlat > 0 || iScientistSlots > 0 || iFreeScientists > 0);
+	if (bOldSASScienceClassified)
+	{
+		bool const bOldSASRejectWar = bAtWar;
+		bool const bOldSASRejectDanger = (!bAtWar && bDanger);
+		bool const bOldSASRejectWarPlan = (!bAtWar && !bDanger && bWarPlan);
+		bool const bOldSASRejectMilitaryPressure = (bOldSASRejectWar || bOldSASRejectDanger || bOldSASRejectWarPlan);
+		int iRepresentativeUnitMinCost = 0, iRepresentativeUnitMaxCost = 0, iRepresentativeUnitAverageTurns = 0, iRepresentativeUnitCount = 0;
+		int const iRepresentativeUnitAverageCost = SAS_getRepresentativeLandMilitaryProductionCost(kCity, iRepresentativeUnitMinCost,
+				iRepresentativeUnitMaxCost, iRepresentativeUnitAverageTurns, iRepresentativeUnitCount);
+		int const iOtherPreFinalWithoutResearch = iValueBeforePriority - iResearchDelta;
+		logBBAI("BUILDING_VALUE_INHERITED_SCIENCE turn=%d player=%d city=%S cityId=%d building=%s final=%d preFinal=%d researchDelta=%d otherPreFinalWithoutResearch=%d specialistDelta=%d researchFocus=%d researchBeforeWeight=%d researchAfterWeight=%d researchFlat=%d researchModifier=%d globalResearchModifier=%d specialistExtraResearch=%d scientistSlots=%d freeScientists=%d cityResearchRate=%d cityBaseResearchRate=%d researchPercent=%d researchWeight=%d researchRank=%d space1=%d economyFocus=%d financialTrouble=%d baseHammersPerTurn=%d productionRank=%d representativeUnitAverageCost=%d representativeUnitMinCost=%d representativeUnitMaxCost=%d representativeUnitAverageTurns=%d representativeUnitCount=%d stored=%d needed=%d turnsLeft=%d oldSASRejectWar=%d oldSASRejectDanger=%d oldSASRejectWarPlan=%d oldSASRejectMilitaryPressure=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d",
+			GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(),
+			iValue, iValueBeforePriority, iResearchDelta, iOtherPreFinalWithoutResearch, iSpecialistDelta, iFocusResearch,
+			iResearchBeforeWeight, iResearchAfterWeight, iResearchFlat, iResearchModifier, iGlobalResearchModifier, iSpecialistExtraResearch,
+			iScientistSlots, iFreeScientists, kCity.getCommerceRate(COMMERCE_RESEARCH), kCity.getBaseCommerceRate(COMMERCE_RESEARCH),
+			kOwner.getCommercePercent(COMMERCE_RESEARCH), kOwner.AI_commerceWeight(COMMERCE_RESEARCH, &kCity), kCity.findCommerceRateRank(COMMERCE_RESEARCH),
+			kOwner.AI_atVictoryStage(AI_VICTORY_SPACE1), kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS), kOwner.AI_isFinancialTrouble(),
+			kCity.getBaseYieldRate(YIELD_PRODUCTION), kCity.findBaseYieldRateRank(YIELD_PRODUCTION),
+			iRepresentativeUnitAverageCost, iRepresentativeUnitMinCost, iRepresentativeUnitMaxCost, iRepresentativeUnitAverageTurns, iRepresentativeUnitCount,
+			iStored, iNeeded, iTurnsLeft, bOldSASRejectWar, bOldSASRejectDanger, bOldSASRejectWarPlan, bOldSASRejectMilitaryPressure,
+			bAtWar, bWarPlan, bDanger, iEnemyPowerPercent);
+	}
 
 
 	// <!-- custom: Culture migration audit: separate the inherited culture contribution from a multipurpose building's other value, then log the exact BFC-expansion boost and local culture context that motivated SAS's old early "enough culture" veto. The old SAS timing flag below intentionally reproduces only that veto's core BFC/turn/rate condition, not its earlier whole-building classification; this keeps the audit effect-based and modmod-safe. Compute the extra ownership/pressure context only after the level-3 neutral row survives deduplication. (ChatGPT-5.6-Sol) -->
@@ -9178,7 +9210,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	int iDiagDefenseDelta = 0, iDiagEspionageDefenseDelta = 0, iDiagHappinessDelta = 0, iDiagHealthDelta = 0, iDiagExperienceDelta = 0, iDiagDomainSeaDelta = 0;
 	int iDiagMaintenanceDelta = 0, iDiagSpecialistDelta = 0, iDiagTradeDelta = 0, iDiagGeneralDelta = 0, iDiagYieldDelta = 0, iDiagCommerceGlobalDelta = 0;
 	int iDiagAirCapacityDelta = 0, iDiagMilitaryProductionDelta = 0, iDiagDomainProductionDelta = 0;
-	// <!-- custom: Culture-specific nested attribution inside the broad commerce block; initialize explicitly for VC++ Toolkit 2003 C4701 checks. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Research/culture-specific nested attribution inside the broad commerce block; initialize explicitly for VC++ Toolkit 2003 C4701 checks. Research lets the regular-building migration audit separate a Library-style building's actual research value from its specialist/culture/other effects instead of judging the whole building by category. (ChatGPT-5.6-Sol) -->
+	int iDiagResearchDelta = 0, iDiagResearchBeforeWeight = 0, iDiagResearchAfterWeight = 0;
 	int iDiagCultureDelta = 0, iDiagCultureClaimValue = 0, iDiagCulturePriorityBoost = 0, iDiagCultureBeforeWeight = 0, iDiagCultureAfterWeight = 0;
 	int iDiagHealthSeverityUrgencyBonus = 0, iDiagHealthStarvationUrgencyBonus = 0;
 	// <!-- custom: Keep these explicitly initialized for VC++ Toolkit 2003 C4701 checks; they are populated only by the level-3 neutral maintenance pass. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -10983,6 +11016,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				{
 					if (bFinancialTrouble && eLoopCommerce == COMMERCE_GOLD)
 						iTempValue *= 2;
+						if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_RESEARCH) iDiagResearchBeforeWeight = iTempValue;
 					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_CULTURE) iDiagCultureBeforeWeight = iTempValue;
 					/*	advc.192: Culture weight doesn't account for additional
 						workable plots. If that's what we're after, we should
@@ -10992,6 +11026,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 						iTempValue *= kOwner.AI_commerceWeight(eLoopCommerce, this);
 						iTempValue = intdiv::uceil(iTempValue, 100);
 					}
+					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_RESEARCH) iDiagResearchAfterWeight = iTempValue;
 					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_CULTURE) iDiagCultureAfterWeight = iTempValue;
 					/*	if this is a limited wonder, and we are not in the top 4
 						of this category, subtract the value - we do _not_ want this here
@@ -11030,6 +11065,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							iTempValue *= -1;
 						}
 					} // K-Mod end
+					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_RESEARCH) iDiagResearchDelta = iTempValue;
 					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_CULTURE) iDiagCultureDelta = iTempValue;
 					iValue += iTempValue;
 				}
@@ -11405,6 +11441,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			iDiagMaintenanceCurrentTimes100, iDiagMaintenanceEstimatedBaseTimes100, iDiagMaintenanceNewUpkeepTimes100, iDiagMaintenanceSavedTimes100,
 			iDiagMaintenancePreInflationValue, iDiagMaintenanceInflatedValue, iDiagMaintenanceFinalValue,
 			iDiagValueBeforePriority, iDiagValueAfterPriority, iDiagValueBeforeAIWeight, iDiagValueAfterAIWeight, iDiagFlavorMatch, iDiagValueAfterFlavor,
+			iDiagResearchDelta, iDiagResearchBeforeWeight, iDiagResearchAfterWeight,
 			iDiagCultureDelta, iDiagCultureClaimValue, iDiagCulturePriorityBoost, iDiagCultureBeforeWeight, iDiagCultureAfterWeight);
 	}
 
