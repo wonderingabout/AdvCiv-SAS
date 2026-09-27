@@ -7142,6 +7142,56 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 			bAtWar, bWarPlan, bDanger, iEnemyPowerPercent);
 	}
 
+	// <!-- custom: Trade-route migration audit: isolate the inherited trade contribution and expose the core conditions behind SAS's old Customs House / route-building vetoes without recreating the sequential whole-building classifier. Recompute foreign-route availability only inside the deduplicated level-3 path, and log only buildings that actually add routes or trade modifiers so BBAI stays focused. (ChatGPT-5.6-Sol) -->
+	int const iTradeRoutesAdded = kBuilding.getTradeRoutes() + kBuilding.getCoastalTradeRoutes() + kBuilding.getAreaTradeRoutes();
+	int const iTradeRouteModifier = kBuilding.getTradeRouteModifier();
+	int const iForeignTradeRouteModifier = kBuilding.getForeignTradeRouteModifier();
+	bool const bOldSASTradeLike = (iTradeRoutesAdded > 0 || iTradeRouteModifier > 0 || iForeignTradeRouteModifier > 0);
+	if (bOldSASTradeLike)
+	{
+		int const iNumTradeRoutes = kCity.getTradeRoutes();
+		bool bForeignTradeForAudit = false;
+		for (int i = 0; i < iNumTradeRoutes; i++)
+		{
+			CvCity const* pTradeCity = kCity.getTradeCity(i);
+			if (pTradeCity == NULL)
+				continue;
+			if (TEAMID(pTradeCity->getOwner()) != kCity.getTeam() || !kCity.sameArea(*pTradeCity))
+			{
+				bForeignTradeForAudit = true;
+				break;
+			}
+		}
+
+		bool const bTradeRouteAdder = (iTradeRoutesAdded > 0);
+		bool const bHasAnyEffectiveTradeRouteModifier = (iTradeRouteModifier > 0 || (iForeignTradeRouteModifier > 0 && bForeignTradeForAudit));
+		int const iTradeYield = kCity.getTradeYield(YIELD_COMMERCE);
+		bool const bOldSASMilitaryPressure = (bAtWar || bDanger || bWarPlan);
+		bool const bOldSASNoForeignRouteCore = (iForeignTradeRouteModifier > 0 && !bForeignTradeForAudit && !bTradeRouteAdder);
+		int iOldSASRouteBase = iTradeYield;
+		if (bHasAnyEffectiveTradeRouteModifier)
+			iOldSASRouteBase++;
+		int iOldSASRequiredAddedRoutes = 0;
+		if (iTradeYield < 4 && iOldSASRouteBase < 4)
+			iOldSASRequiredAddedRoutes = (iOldSASRouteBase == 3 ? 1 : 2);
+		bool const bOldSASLowRouteGainCore = (iOldSASRequiredAddedRoutes > 0 && iTradeRoutesAdded < iOldSASRequiredAddedRoutes);
+
+		int iRepresentativeUnitMinCost = 0, iRepresentativeUnitMaxCost = 0, iRepresentativeUnitAverageTurns = 0, iRepresentativeUnitCount = 0;
+		int const iRepresentativeUnitAverageCost = SAS_getRepresentativeLandMilitaryProductionCost(kCity, iRepresentativeUnitMinCost,
+				iRepresentativeUnitMaxCost, iRepresentativeUnitAverageTurns, iRepresentativeUnitCount);
+		int const iOtherPreFinalWithoutTrade = iValueBeforePriority - iTradeDelta;
+		logBBAI("BUILDING_VALUE_INHERITED_TRADE turn=%d player=%d city=%S cityId=%d building=%s final=%d preFinal=%d tradeDelta=%d otherPreFinalWithoutTrade=%d tradeRoutesAdded=%d tradeRouteModifier=%d foreignTradeRouteModifier=%d numTradeRoutes=%d tradeYield=%d foreignTrade=%d noForeignTrade=%d coastal=%d coastalCities=%d areaCities=%d financialTrouble=%d baseHammersPerTurn=%d productionRank=%d representativeUnitAverageCost=%d representativeUnitMinCost=%d representativeUnitMaxCost=%d representativeUnitAverageTurns=%d representativeUnitCount=%d stored=%d needed=%d turnsLeft=%d oldSASMilitaryPressure=%d oldSASNoForeignRouteCore=%d oldSASRouteBase=%d oldSASRequiredAddedRoutes=%d oldSASLowRouteGainCore=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d",
+			GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(),
+			iValue, iValueBeforePriority, iTradeDelta, iOtherPreFinalWithoutTrade,
+			iTradeRoutesAdded, iTradeRouteModifier, iForeignTradeRouteModifier, iNumTradeRoutes, iTradeYield,
+			bForeignTradeForAudit, kOwner.isNoForeignTrade(), kCity.isCoastal(), kOwner.countNumCoastalCities(), kCity.getArea().getCitiesPerPlayer(kCity.getOwner()),
+			kOwner.AI_isFinancialTrouble(), kCity.getBaseYieldRate(YIELD_PRODUCTION), kCity.findBaseYieldRateRank(YIELD_PRODUCTION),
+			iRepresentativeUnitAverageCost, iRepresentativeUnitMinCost, iRepresentativeUnitMaxCost, iRepresentativeUnitAverageTurns, iRepresentativeUnitCount,
+			iStored, iNeeded, iTurnsLeft, bOldSASMilitaryPressure, bOldSASNoForeignRouteCore,
+			iOldSASRouteBase, iOldSASRequiredAddedRoutes, bOldSASLowRouteGainCore,
+			bAtWar, bWarPlan, bDanger, iEnemyPowerPercent);
+	}
+
 	// <!-- custom: Science migration audit: isolate the inherited research-commerce contribution and reconstruct SAS's old Library-style whole-building military-pressure veto. Log only buildings that match that old science classification so level-3 BBAI stays focused; specialist value remains separate because a Scientist slot can matter even when the direct research-commerce delta is small. (ChatGPT-5.6-Sol) -->
 	int const iResearchFlat = kBuilding.getCommerceChange(COMMERCE_RESEARCH) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_RESEARCH);
 	int const iResearchModifier = kBuilding.getCommerceModifier(COMMERCE_RESEARCH);
