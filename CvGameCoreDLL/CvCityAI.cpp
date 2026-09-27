@@ -7505,8 +7505,8 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 			iRaiseDefense, kBuilding.getAllCityDefenseModifier(), kBuilding.getAirlift(), iAirDefense, kTeam.AI_getRivalAirPower(), kTeam.AI_getAirPower(),
 			iNukeDefense, kTeam.getNukeInterception(), bBestLandIgnoresBuildingDefense);
 
-		// <!-- custom: Nuke-defense sub-audit: the kekm.16 Bomb Shelter term can dominate otherwise modest defensive value, so mirror its runtime arithmetic here after the existing level-3 dedup gate and expose each ingredient separately.
-		// This is diagnostic-only and intentionally does not alter or classify the building; if the runtime formula changes, keep this mirror in sync until the audit is retired. See KI#48.5. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		// <!-- custom: Nuke-defense sub-audit: mirror the kekm.16 runtime arithmetic after the existing level-3 dedup gate and expose each ingredient separately without changing behavior.
+		// Keep this diagnostic mirror in sync with the runtime formula until the audit is retired. See KI#48.7 and the broader audit in KI#48.5. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (iNukeDefense > 0)
 		{
 			int iNukeEvasionProbability = 0;
@@ -7861,6 +7861,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		// <!-- custom: also account for the base production modifiers (e.g. that the forge or factory has) to asses the building's worth/value as a production modifier building (here national wonder) type-->
 		const int iTotalHammersModifier = iHammersModifier + iTotalBonusHammersModifier;
 
+		// <!-- custom: September 2026: this historical regular-building hard prefilter is disabled by default and superseded by the audited additive approach in KI#48.5.
+		// Retain it temporarily for migration/reference only; new regular-building policy should normally adjust the relevant marginal inherited value rather than add another whole-building force/reject gate. (ChatGPT-5.6-Sol) -->
 		static const bool bSAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE");
 		static const bool bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE");
 		// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it, everything else being the same. See SAS defines XML code comments for details about it and its sub options -->
@@ -8637,7 +8639,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				}
 			}
 		}
-		// <!-- custom: When regular-building optimization was disabled for an inherited-policy audit, ordinary buildings still entered this branch and were rejected as "unknown wonders" (e.g. a Granary at turn 0). Require an actual world or national wonder so the regular-building toggle cleanly restores inherited valuation. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+		// <!-- custom: When regular-building optimization was disabled for the KI#48.5 inherited-policy audit, ordinary buildings still entered this branch and were rejected as "unknown wonders" (e.g. a Granary at turn 0).
+		// Require an actual world or national wonder so the regular-building toggle cleanly restores inherited valuation. See KI#48.5. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 		// <!-- custom: wonders (i.e. world + national) -->
 		else if (bWonder && bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
 		{
@@ -9491,7 +9494,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			int iBuildingActualHappiness = getAdditionalHappinessByBuilding(
 					eBuilding,iGood,iBad);
 			// K-Mod
-			// <!-- custom: AdvC accidentally lost the negation around the post-building happiness level, so positive happiness could increase computed anger and reduce building value; restore K-Mod's runtime-consistent sign. See KI#880. (ChatGPT-5.6-Sol) -->
+			// <!-- custom: AdvC accidentally lost the negation around the post-building happiness level, so positive happiness could increase computed anger and reduce building value; restore K-Mod's runtime-consistent sign. See KI#880 and the broader audit in KI#48.5. (ChatGPT-5.6-Sol) -->
 			int iAngerDelta = std::max(0, -(iHappinessLevel + iBuildingActualHappiness)) - std::max(0, -iHappinessLevel);
 			// High value for any immediate change in anger.
 			iValue -= iAngerDelta * 4 * iCitizenValue;
@@ -9598,13 +9601,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			if (iWasteDelta < 0 && iHappinessLevel > 0)
 				iValue -= iCitizenValue * iWasteDelta;
 
-			// <!-- custom: Strengthen local health relief smoothly with the severity of the actual unhealthy population instead of restoring the old SAS hard health-building gate.
-			// Each point of waste removed gains 10% of one citizen value per average unhealthy citizen across the before/after state; this is near-zero for mild sickness but increasingly important in deeply unhealthy cities.
-			// If the city is already losing food, add one further citizen value only for the health points that directly close that current food deficit. This targets depopulation without classifying buildings by name/category or forcing an absolute priority.
-			// Deliberately do not suppress culture, science, gold or other building effects here: stronger urgent needs should outcompete less urgent value additively, while any later culture/economic tuning should scale that effect's own marginal usefulness rather than reject an entire multipurpose building.
-			// Likewise, do not hardcode future TECH/CIVIC names or assumed health/happiness penalties here. Preventive preparation can be added separately when a future city-state change is generically and reliably predictable, with its own BBAI attribution. (ChatGPT-5.6-Sol) -->
-			// <!-- custom: In one divergent full-autoplay calibration, post-turn-300 negative-health snapshots fell from 54.6% to 41.3% and mean health surplus rose from -0.82 to +1.10.
-			// Urgency affected only about 12,700 of 255,700 candidate rows; the median nonzero bonus was about +1 at -1 health and +24 at -10 or worse, supporting a smooth marginal correction rather than a hard building gate. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			// <!-- custom: Strengthen only health relief that removes actual unhealthy-food waste: scale it smoothly with current severity, then add one citizen value only for relief that directly closes an existing food deficit.
+			// Keep the building's other effects additive rather than restoring the old whole-building health gate. See KI#48.6 and the broader audit in KI#48.5. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			if (iWasteDelta < 0)
 			{
 				int const iHealthRelief = -iWasteDelta;
@@ -11777,8 +11775,8 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding, bool bAreaAlone
 	}
 	//r += -kBuilding.getNukeModifier() / (g.isNukesValid() && !g.isNoNukes() ? 4 : 40);
 	// K-Mod end
-	// <!-- custom: In 21,345 audited defense-valued candidates, the median contribution was +7 in safe/no-war-plan cities versus +15 in immediate danger; selected safe Walls, Castles and Bunkers had medians of +6, +12 and +9.
-	// Retain this inherited marginal conventional-defense valuation instead of restoring SAS's old whole-building safe-city rejection; the separate nuke-defense outlier is tracked in KI#48.5. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: September 2026 audit confirmed inherited conventional-defense value is already modest/contextual outside real danger, so do not restore SAS's old whole-building safe-city rejection.
+	// See KI#48.5 for the audit and KI#48.7 for the separate nuclear-defense outlier/fix. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	// <kekm.16> Replacing the line above.
 	// DarkLunaPhantom - "Bomb Shelters should be of much higher value, I copied and adjusted rough estimates from AI_projectValue()."
 	int iNukeDefense = -kBuilding.getNukeModifier();
@@ -11800,12 +11798,8 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding, bool bAreaAlone
 		int iTargetValue = AI_nukeEplosionValue();
 		/*  "Lazy attempt to estimate the value of the strongest
 			unit stack this shelter might defend." */
-		// <!-- custom: The kekm.16 estimate used 35% of all team power in the area independently for every city, which our building-value audit showed can make each Bomb Shelter act as though it protects the same continental army.
-		// Preserve that estimate as an upper bound, but on larger areas cap it at the average team power per team city in the area.
-		// A first candidate capped it at twice that average; this greatly reduced the overcount, but the remaining stack term still dominated selected safe-city Bomb Shelter values.
-		// The final turn-500 validation reduced the safe selected-city median to +189 without suppressing construction: 123 Bomb Shelters completed, versus 120 in the candidate-1 turn-474 run.
-		// This keeps the old value on very small areas without repeatedly assigning a huge share of area-wide military power to every city.
-		// Generic by actual area power/city count; no Bomb Shelter, tech or era names are hardcoded. See KI#48.5. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		// <!-- custom: kekm.16 credited each city with 35% of all team power in the area, repeatedly making every Bomb Shelter act as though it protected the same continental army.
+		// Keep that estimate as an upper bound but cap the protected stack at average team power per team city in the area; generic by actual area power/city count. See KI#48.7 and the broader audit in KI#48.5. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		int iAreaTeamPower = 0;
 		for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
 		{

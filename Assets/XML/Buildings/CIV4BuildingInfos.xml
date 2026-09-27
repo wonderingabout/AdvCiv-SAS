@@ -1383,7 +1383,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: SAS regular-building migration audit: the old +70 AIWeight was added to encourage Barracks before unit pumping, but level-3 autoplay attribution showed that this unconditional whole-building bonus dominated K-Mod's already-contextual XP value (safe selected Barracks: about +9 XP versus +70 AIWeight) and can amplify unrelated unique-building effects. Restore 0 and let actual XP usefulness, city military context and flavour compete additively; if Barracks become too rare again, prefer a contextual bonus rather than another unconditional whole-building weight. Was 70. (ChatGPT-5.6-Sol) -->
+			<!-- custom: September 2026 audit: restore Barracks to iAIWeight 0. K-Mod already values applicable XP contextually; the old +70 whole-building bonus could dominate that context and amplify unrelated unique-building effects. See KI#48.5. Was 70. (ChatGPT-5.6-Sol) -->
 			<iAIWeight>0</iAIWeight>
 			<iCost>50</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -1559,7 +1559,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: SAS regular-building migration audit: follow the Barracks-class AIWeight rollback so this unique replacement is valued through its actual XP and other effects plus flavour instead of an unconditional whole-building bonus. Was 75. (ChatGPT-5.6-Sol) -->
+			<!-- custom: Follow the September 2026 Barracks-class iAIWeight rollback: value actual XP/other effects plus flavour instead of an unconditional whole-building bonus. See KI#48.5. Was 75. (ChatGPT-5.6-Sol) -->
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: The city maintenance effect is not that strong early, and the military effect not so strong, but increasing cost makes Shaka significantly less competitive militarily, especially early, so do not increase cost. -->
 			<iCost>50</iCost>
@@ -1740,7 +1740,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: SAS regular-building migration audit: follow the Barracks-class AIWeight rollback so this unique replacement is valued through its actual XP and other effects plus flavour instead of an unconditional whole-building bonus. Was 75. (ChatGPT-5.6-Sol) -->
+			<!-- custom: Follow the September 2026 Barracks-class iAIWeight rollback: value actual XP/other effects plus flavour instead of an unconditional whole-building bonus. See KI#48.5. Was 75. (ChatGPT-5.6-Sol) -->
 			<iAIWeight>0</iAIWeight>
 			<iCost>50</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -2101,7 +2101,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: SAS regular-building migration audit: follow the Barracks-class AIWeight rollback so this unique replacement is valued through its actual XP and other effects plus flavour instead of an unconditional whole-building bonus. Was 70. (ChatGPT-5.6-Sol) -->
+			<!-- custom: Follow the September 2026 Barracks-class iAIWeight rollback: value actual XP/other effects plus flavour instead of an unconditional whole-building bonus. See KI#48.5. Was 70. (ChatGPT-5.6-Sol) -->
 			<iAIWeight>0</iAIWeight>
 			<iCost>50</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -2273,7 +2273,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: SAS regular-building migration audit: the old +75 AIWeight was paired with SAS's former hard Stable gate that rejected the whole building when no currently trainable unit could use its specialized XP. With that regular-building prefilter disabled, autoplay attribution showed the unconditional weight can instead inflate unrelated Stable effects even when no trainable unit benefits. Restore 0 and let actual specialized-XP usefulness and other effects compete additively; if Stables become too rare, prefer contextual encouragement tied to units that can really use them. Was 75. (ChatGPT-5.6-Sol) -->
+			<!-- custom: September 2026 audit: restore Stable to iAIWeight 0. The old +75 was coupled to the former hard Stable gate; without it, the unconditional bonus could inflate unrelated effects even when no trainable unit benefited from the XP. See KI#48.5. Was 75. (ChatGPT-5.6-Sol) -->
 			<iAIWeight>0</iAIWeight>
 			<iCost>60</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -2448,7 +2448,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: SAS regular-building migration audit: follow the Stable-class AIWeight rollback so this unique replacement is valued through units that can actually use its XP and through its other real effects, rather than an unconditional whole-building bonus. Was 80. (ChatGPT-5.6-Sol) -->
+			<!-- custom: Follow the September 2026 Stable-class iAIWeight rollback: value units that can actually use its XP and its other real effects instead of an unconditional whole-building bonus. See KI#48.5. Was 80. (ChatGPT-5.6-Sol) -->
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 70; return to the generic Stable cost while shifting some of the Ger's raw XP advantage into a pastoral Cattle benefit. (ChatGPT-5.6-Sol) -->
 			<iCost>60</iCost>
@@ -2637,7 +2637,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: SAS regular-building migration audit: follow the Stable-class AIWeight rollback so this unique replacement is valued through units that can actually use its XP and through its other real effects, rather than an unconditional whole-building bonus. Was 75. (ChatGPT-5.6-Sol) -->
+			<!-- custom: Follow the September 2026 Stable-class iAIWeight rollback: value units that can actually use its XP and its other real effects instead of an unconditional whole-building bonus. See KI#48.5. Was 75. (ChatGPT-5.6-Sol) -->
 			<iAIWeight>0</iAIWeight>
 			<iCost>60</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
@@ -2832,7 +2832,7 @@
 			<bNukeImmune>0</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: SAS regular-building migration audit: follow the Stable-class AIWeight rollback so this unique replacement is valued through units that can actually use its XP and through its other real effects, rather than an unconditional whole-building bonus. Was 75. (ChatGPT-5.6-Sol) -->
+			<!-- custom: Follow the September 2026 Stable-class iAIWeight rollback: value units that can actually use its XP and its other real effects instead of an unconditional whole-building bonus. See KI#48.5. Was 75. (ChatGPT-5.6-Sol) -->
 			<iAIWeight>0</iAIWeight>
 			<iCost>60</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>

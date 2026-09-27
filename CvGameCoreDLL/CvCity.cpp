@@ -771,9 +771,8 @@ void CvCity::doTurn()
 	// <!-- custom: add this to make sure we don't overlap our previously chosen emergency building with some other logic -->
 	bool bEmergencyBuilding = false;
 
-	// <!-- custom: Audit the hard CvCity::doTurn emergency-building overrides against the target normal production logic had already chosen.
-	// Snapshot the displaced target and its invested production while it is still the live pre-override order; exact value/turn work is diagnostic-only and therefore runs only when the dedicated building/military forensic logger is armed.
-	// This distinguishes a genuinely useful panic correction from Harbor/Port/Walls/Castle rules that merely overwrite or shield a reasonable normal choice after inherited building valuation has already improved. Diagnostic-only; no RNG calls. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Audit the hard post-doProduction Harbor/Port/Walls/Castle overrides against the target normal production already chose, including displaced invested production.
+	// Diagnostic-only and RNG-free. See KI#48.5 for the broader override audit; the distinct disorder-time override defect exposed by it is KI#51.2. (ChatGPT-5.6-Sol) -->
 	bool const bLogEmergencyBuildingAudit = ((gBuildingProductionLogLevel >= 2 || gMilitaryProductionLogLevel >= 2) && !bHuman && !isBarbarian());
 	UnitTypes const ePreEmergencyUnit = (bLogEmergencyBuildingAudit ? getProductionUnit() : NO_UNIT);
 	BuildingTypes const ePreEmergencyBuilding = (bLogEmergencyBuildingAudit ? getProductionBuilding() : NO_BUILDING);

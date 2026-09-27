@@ -81,14 +81,17 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#45 - (Addressed / Patched / Worked around) AI cities assigning too soon or too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-45)\
 [KI#46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46)\
 [KI#47 - (Fixed / Addressed / Enhanced) AI choosing poorly promotions for its units: now added a set of hard rules in which case some promotions are not good and to ignore as is most efificient in most times, and rarely cases where some promotions are best to always go first](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-47)\
-[KI#48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or always build first logic depending on building type or such; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48)\
-[KI#48.2 - (Greatly Enhanced and Fixed) Kish city of gilgamesh AI building a theatre instead of a hindu temple despite having unhappy citizens (and health room to grow otherwise), and theatre not giving any reliable happiness (almost anything else would have been much better), fixed by fixed by correcting the happiness building formula in our pre-check in CvCityAI::AI_buildingValue, and in particular replacing the too broad and unreliable CvCity::getAdditionalHappinessByBuilding with our own AI_strictAdditionalHappy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.2)\
+[KI#48 - (Historical first SAS building-value rework; regular-building hard gates superseded by KI#48.5, Wonder policy retained pending re-audit) AI building walls when already safe/strong, Wonders while weak/in danger, and related hard building-policy rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48)\
+[KI#48.2 - (Historical SAS happiness-prefilter enhancement; regular-building hard gate superseded by KI#48.5) Kish built a Theatre instead of immediately useful happiness infrastructure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.2)\
 [KI#48.3 - (Fixed AdvCiv-SAS bug) Building prefilter double-counted unhealthy food loss](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.3)\
 [KI#48.4 - (Fixed AdvCiv-SAS performance-optimization crash) Corporation HQ valuation used an exhausted commerce-loop index](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.4)\
-[KI#48.5 - (Fixed inherited Kek-Mod AI valuation defect) Every Bomb Shelter protected the same continental army](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.5)\
+[KI#48.5 - (Greatly Reworked/Enhanced, WIP) September 2026 AI regular-building valuation: replace hard SAS category gates with audited inherited additive valuation and targeted evidence-backed corrections](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.5)\
+[KI#48.6 - (Improved inherited K-Mod/AdvC AI valuation weakness) Severe unhealthiness did not gain enough relative urgency against ordinary infrastructure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.6)\
+[KI#48.7 - (Fixed inherited Kek-Mod AI valuation defect) Every Bomb Shelter protected the same continental army](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.7)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
+[KI#51.2 - (Confirmed AdvCiv-SAS post-production override defect; fix pending) Emergency building rules can override intentional disorder no-production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51.2)\
 [KI#52 - (Beyond Tremendously improved) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-52)\
 [KI#53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or of more importantly building galleons and privateers in droves and excess, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53)\
 [KI#53.2 - (Fixed and enhanced) Joao AI building way too many defenders (36 longbowmen at turn 130!! Almost all with UNITAI_CITY_DEFENSE or similar) while being boxed in with only 3 cities, instead of making about half of these offense units or versatile ones to punish overextending thin neighbour, fixed by having an early phase "we have expectedly too few cities at this stage of the game, no need to overbuild anymore denders at this stage of the game, switch to offense or versatile UNITAI rather" and "our military composition has way too many defender UNITAIs, switch to offense or versatile UNITAIs", which seemingly fix the issue](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.2)\
@@ -994,11 +997,11 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#874 - (Provisional Pending AdvCiv-SAS specialist-state defect) Temporary border Artist can remain forced](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-874)\
 [KI#875 - (Provisional Pending inherited production-selection defect) A combat ship can stand in for a land garrison](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-875)\
 [KI#876 - (Provisional Pending AdvCiv-SAS caller-scope regression) City war focus silently uses the capital area](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-876)\
-[KI#877 - (Provisional Pending AdvCiv-SAS building-prefilter defect) Maintenance classification uses the wrong sign](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-877)\
-[KI#878 - (Provisional Pending AdvCiv-SAS building-prefilter defect) Miscellaneous wartime tail is attached too broadly](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-878)\
+[KI#877 - (Retired/Superseded dormant AdvCiv-SAS building-prefilter defect) Maintenance classification uses the wrong sign](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-877)\
+[KI#878 - (Retired/Superseded dormant AdvCiv-SAS building-prefilter defect) Miscellaneous wartime tail is attached too broadly](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-878)\
 [KI#879 - (Provisional Pending inherited building-value defect) Overseas domestic trade is treated as foreign trade](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-879)\
 [KI#880 - (Fixed inherited AdvC sign regression) Immediate anger reversed building value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-880)\
-[KI#881 - (Provisional Pending AdvCiv-SAS handicap-scope defect) Regular-building skew reads the AI handicap](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-881)\
+[KI#881 - (Retired/Superseded dormant AdvCiv-SAS handicap-scope defect) Regular-building skew reads the AI handicap](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-881)\
 [KI#882 - (Provisional Pending inherited production-upgrade defect) Destination hammers are overwritten](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-882)\
 [KI#883 - (Provisional Pending AdvCiv/BULL decay-preview defect) Fractional thresholds are one turn late](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-883)\
 [KI#884 - (Provisional Pending AdvCiv building-preview regression) Trade-yield modifiers truncate before multiplication](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-884)\
@@ -3045,7 +3048,7 @@ Thanks to these, i hope AI is now stronger and i would say saner. I didn't test 
 
 <a id="ki-48"></a>
 
-## KI#48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or always build first logic depending on building type or such; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused
+## KI#48 - (Historical first SAS building-value rework; regular-building hard gates superseded by KI#48.5, Wonder policy retained pending re-audit) AI building walls when already safe/strong, Wonders while weak/in danger, and related hard building-policy rules
 
 Screenshots/files for this issue:
 
@@ -3254,9 +3257,27 @@ Thanks to chatgpt 5 for the table again hehe thanks:
 | 100 | 45.3 s | 40.5 s |
 | 150 | 91.2 s | 87.5 s |
 
+### September 2026 update: regular-building hard gates superseded by KI#48.5
+
+This KI remains useful as the historical record of the first major SAS building-policy rework, especially its original gameplay observations and the still-active/pending Wonder-policy rationale. However, the **regular-building** half is no longer the current design.
+
+The original regular-building rules were developed mainly from gross visual/autoplay observations before SASGameRecord and the later level-3 BBAI building-value attribution existed.
+
+Those observations frequently identified real strategic questions, but the solution used a long ordered prefilter of named categories, fixed thresholds, whole-building `return 0` rejections and `AI_BUILDING_ALWAYS_PICK_FIRST`-style forces.
+
+That made the result brittle for multipurpose/unique buildings and could make whichever condition happened to run first dominate unrelated effects.
+
+The September 2026 rework in **KI#48.5** therefore disabled the old regular-building hard prefilter and audited its concerns one by one against inherited K-Mod/AdvC additive valuation instead of merely trusting either the old SAS policy or the inherited system.
+
+Exact BBAI component deltas and SASGameRecord run comparison were used to retain inherited behavior where the data supported it and add narrower corrections where it did not.
+
+That audit also found distinct inherited issues now tracked separately: the immediate-happiness sign regression in **KI#880**, insufficient relative urgency for severe unhealthiness in **KI#48.6**, and the repeated continental-army Bomb Shelter estimate in **KI#48.7**.
+
+The **Wonder** half of this KI is not declared superseded yet. It remains enabled and is intentionally scheduled for its own later audit within the still-active KI#48.5 PR.
+
 <a id="ki-48.2"></a>
 
-## KI#48.2 - (Greatly Enhanced and Fixed) Kish city of gilgamesh AI building a theatre instead of a hindu temple despite having unhappy citizens (and health room to grow otherwise), and theatre not giving any reliable happiness (almost anything else would have been much better), fixed by fixed by correcting the happiness building formula in our pre-check in CvCityAI::AI_buildingValue, and in particular replacing the too broad and unreliable CvCity::getAdditionalHappinessByBuilding with our own AI_strictAdditionalHappy
+## KI#48.2 - (Historical SAS happiness-prefilter enhancement; regular-building hard gate superseded by KI#48.5) Kish built a Theatre instead of immediately useful happiness infrastructure
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1xNaTDpRHsdh4YBG176V6pPtnGnbMvL7D?usp=sharing).
 
@@ -3281,6 +3302,16 @@ After the changes (existing screenshots between 279 and 280), we instead build a
 Thanks to these it seems, kish city is now pop 13 instead at turn 150 (resuming from same save file at turn 100)!!! Which is tremendously better, both very nice hill grassland tiles are worked and improved since we have the population to accommodate them(/these?), and interesting thing is kish city switched from 3 scientists ebfore changes at pop 10 to now 3 merchants at pop 13 (the slider is 100% commerce too), so some code written by someone or many people or not xd leverages the market being built and goes for merchants which is more efficient than scientists here since we have no library after our changes but have a market so better use it!! I would have never thought of skipping library to build a market to gain happiness and then switch to merchant economy xd, that's super smart!!! Our production is still good, but city much better, and much better longterm potential even if we have slightly less untis as a result but are still the military leader at turn 150 (would be worth even if we lost quite a bit of power but is fine in such case).
 
 So all in all seems like a very good safe and balanced change that should make AI much stronger especially at middle game and city growing!! But check to be sure.
+
+### September 2026 update: historical prefilter cure superseded by additive valuation
+
+This fix was useful in the old SAS prefilter architecture, but its regular-building force/reject path is now historical together with the rest of that prefilter. KI#48.5 deliberately starts from inherited additive valuation instead of trying to identify a whole building as a `happiness building` and force/reject it as one category.
+
+The new audit first corrected the separate inherited AdvC happiness-sign regression in **KI#880**, then measured the resulting happiness contribution directly. Among selected happiness-like buildings, median inherited happiness value was about **+16 with no angry citizen, +96 with 1-3 angry citizens, +271 with 4+ and +310 with 6+**.
+
+The old force-anger-relief condition occurred **14,372** times; without the old force sentinel, inherited valuation still made the candidate best **1,510** times and it survived to final production **452** times. Conversely, among **103** selected buildings that would have matched the old `happiness not needed` rejection, median happiness value was only about **+7** versus roughly **+71** from their other effects.
+
+So the old Kish observation remains valuable historical evidence, but the current correction is no longer a stricter whole-building happiness classifier. Happiness is now allowed to compete additively with the building's other effects, and after KI#880 the audit found no need for an additional severe-unhappiness multiplier.
 
 <a id="ki-48.3"></a>
 
@@ -3308,11 +3339,619 @@ The fix restores that lookup to the positive headquarters-commerce branch inside
 
 <a id="ki-48.5"></a>
 
-## KI#48.5 - (Fixed inherited Kek-Mod AI valuation defect) Every Bomb Shelter protected the same continental army
+## KI#48.5 - (Greatly Reworked/Enhanced, WIP) September 2026 AI regular-building valuation: replace hard SAS category gates with audited inherited additive valuation and targeted evidence-backed corrections
+
+### September 2026 second rework: audit the old regular-building policy instead of mechanically translating it
+
+Following the September 2026 Worker AI, Settler AI and bonus-value reworks, regular-building valuation became the next major AdvCiv-SAS AI rework target.
+
+The old SAS building policy had been created for real observed gameplay problems. It tried to stop or force such things as peaceful Walls, Stables without useful mounted units, weak early culture/economic infrastructure, badly timed Forges, unnecessary maintenance buildings, slow science/economy buildings during military pressure, and delayed health, happiness, Granary or coastal infrastructure.
+
+The observations were often reasonable. The main problem was the architecture used to enforce them.
+
+The regular-building layer classified the entire building into sequential categories and then often returned a hard rejection or force-first value. This had several weaknesses:
+
+- A building could be rejected because one effect was weak even when another effect was excellent.
+- A unique or multipurpose building was especially vulnerable: a Stable replacement can also provide health; Walls can provide happiness; Castles combine defense and trade; Markets, Grocers and Supermarkets combine economy with happiness/health; Libraries combine research, culture and specialists.
+- The result could depend on which category happened to claim the building first. A mild earlier condition could therefore end the evaluation before a much more serious later need was considered.
+- Fixed thresholds created cliffs instead of continuously valuing the magnitude of the need and the amount of relief.
+- Named building classes, resources, technologies and assumptions about current SAS balance made some rules brittle against later SAS changes and modmods.
+- `AI_BUILDING_ALWAYS_PICK_FIRST`-style results could overwhelm ordinary opportunity-cost comparison rather than merely strengthen the relevant marginal effect.
+- Some later XML tuning had become implicitly coupled to the hard prefilter around it, so removing only one half of the old policy could expose previously masked overvaluation.
+- The original SAS tuning was empirical but predated SASGameRecord and the much more detailed level-3 BBAI forensic logging now available. We could observe bad outcomes but could not reliably attribute why inherited `AI_buildingValue` had valued a candidate.
+
+The September 2026 rework therefore deliberately did not translate the old SAS table into another equivalent table, and did not blindly revert everything to inherited K-Mod/AdvC behavior either.
+
+Instead, the regular SAS prefilter was disabled and each old rationale was audited against the inherited additive evaluator. Where inherited valuation already handled the concern well, the old SAS rule was removed without replacement. Where the audit found a concrete inherited weakness, the responsible marginal effect was corrected narrowly and generically.
+
+The separate Wonder policy remains enabled for its own later audit.
+
+### Fixed SAS defect found during migration: missing Wonder classification guard
+
+The first attempted `regular SAS off` candidate immediately exposed a latent AdvCiv-SAS classification bug.
+
+With:
+
+```text
+SAS regular-building optimization = off
+SAS Wonder optimization           = on
+```
+
+ordinary buildings no longer entered the regular branch, but the following `else if` tested only whether Wonder optimization was enabled. It did not require the candidate itself to be a Wonder.
+
+The result was not a clean inherited run: ordinary Granaries, Barracks, Harbors and other buildings entered the Wonder policy and could be rejected as `UNKNOWN_WONDER`.
+
+The diagnostic run recorded this **163,084 times**, including a Granary at turn 0.
+
+This had normally remained silent because, with the regular SAS system enabled, ordinary buildings were caught by the preceding regular-building branch and never reached the faulty Wonder branch.
+
+The fix made the branch explicitly require an actual Wonder:
+
+```cpp
+else if (bWonder && bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
+```
+
+The original SAS-on baseline therefore did not need to be rerun. The inherited candidate did need to be recompiled and rerun, after which ordinary buildings reaching the accidental `UNKNOWN_WONDER` path fell to zero.
+
+This is a concrete SAS bug discovered by the migration itself, but it is kept in the parent KI#48 rework history rather than split into another sub-KI because it was a toggle/classification defect exposed while preparing the comparison, not a separate inherited valuation defect.
+
+### Baseline and clean inherited comparison
+
+After the Wonder-branch classification fix, the SAS-on baseline and clean inherited candidate established the broad effect of removing the regular hard prefilter:
+
+- AI production-target switches: **1,611 -> 1,320**
+- invested-production target changes: **855 -> 718**
+- parked production: **45,185 -> 31,012**
+- inherited ordinary-building evaluations: about **179,823**
+- ordinary buildings reaching `UNKNOWN_WONDER`: **0**
+- old `100000` sentinel focus rows: **17,962 -> 0**
+- Colosseums: **93 -> 6**
+- Theatres: **86 -> 6**
+- Granaries: **109 -> 126**
+- Libraries: **62 -> 88**
+- Universities: **20 -> 46**
+- Banks: **44 -> 76**
+- Forges: **82 -> 94**
+- Supermarkets: **25 -> 54**
+
+Two important concerns also appeared and were deliberately investigated instead of being used as reasons to restore the old gates:
+
+- after turn 300, negative-happiness snapshots rose from about **43.6% to 63.1%**, with average happiness surplus moving from about **-0.08 to -1.03**;
+- several military/infrastructure buildings increased sharply, including Airport **39 -> 95**, Drydock **15 -> 64**, Bunker **13 -> 35** and Castle **23 -> 43**.
+
+This became the starting point for the layer-by-layer audit below.
+
+### Diagnostic method: move from category labels to exact inherited attribution
+
+The initial comparison could show that a Hospital, Bank, Airport or Stable had a high inherited score, but not which part of the inherited evaluator had produced it.
+
+Focused `AI_buildingValue` probes were useful for exploration but were not additive components: a HEALTH focus value could still contain unrelated valuation. The audit therefore moved to exact before/after deltas around major inherited valuation blocks.
+
+The level-3 BBAI logger eventually attributed or exposed:
+
+- conventional and nuclear defense;
+- happiness and anger relief;
+- health and unhealthy-food relief;
+- military experience and affected trainable units;
+- maintenance savings;
+- specialist effects;
+- trade;
+- production/yield effects;
+- research, gold, culture and espionage;
+- sea-tile food, production and commerce;
+- air capacity and domain/military production;
+- final priority transform;
+- XML `iAIWeight`;
+- flavour transform;
+- an explicit residual rather than pretending every later transform had been decomposed.
+
+The first broad exact-component run produced about **198,700 attribution rows**.
+
+BBAI level 3 is intentionally allowed to be the large forensic microscope because it is normally disabled. SASGameRecord remains the compact run-level chronology and deterministic comparison tool. This also lets divergent full autoplays be interpreted carefully: exact component attribution and concrete production transitions are stronger causal evidence than comparing late-game aggregate outcomes after history has diverged.
+
+### Inherited happiness defect found before adding any new happiness policy
+
+The first major inherited finding was the AdvC sign regression now documented separately as **KI#880**.
+
+AdvC had changed K-Mod's post-building anger expression so that positive building happiness could increase the computed anger delta and reduce the value of curing it.
+
+That bug became especially visible after the SAS happiness force/reject layer stopped masking inherited valuation.
+
+The sign was fixed first, and only then was happiness re-audited. The later audit showed that inherited happiness value already rises very strongly with actual angry citizens, so no additional severe-unhappiness multiplier was needed.
+
+See KI#880 for the inherited correctness defect itself.
+
+### Inherited finding: severe health was noticed but not strongly enough relative to optional infrastructure
+
+The health audit found a subtler inherited weakness.
+
+Inherited K-Mod/AdvC was not blind to severe unhealthiness. Among buildings that actually supplied positive health, median exact health contribution rose approximately from **+40 at -1 health** to **+110 at -10 or worse**, with an average around **+137** in the most severe group and some candidates reaching approximately +360.
+
+The problem was relative urgency. At health <= -5, health-positive candidates had median total inherited value around **116**, while candidates with no direct health still had median value around **122**. In the particularly revealing subset with health <= -5 but happiness already >= -1, only about **51 of 126** correlated final selections directly supplied health.
+
+The cure therefore strengthened only the marginal value of health that actually removes unhealthy-food waste, with an additional bonus only for relief that directly closes a current food deficit. It did not restore a named Hospital/Aqueduct/Grocer rule, a fixed health threshold, a whole-building multiplier or a force-first sentinel.
+
+The first full-autoplay calibration moved post-turn-300 negative-health snapshots from about **54.6% to 41.3%** and mean late health surplus from about **-0.82 to +1.10**, while the median added severity bonus remained only about +1 at -1 health and about +24 at -10 or worse.
+
+This inherited valuation weakness is documented separately as **KI#48.6** so the parent PR digest can remain concise.
+
+### Maintenance: inherited proportional valuation already handled the old SAS concern
+
+The old SAS rule tried to avoid Courthouse-like infrastructure when there was too little maintenance to save.
+
+The audit recorded **7,739 maintenance-valued candidates**:
+
+- median current city maintenance: about **3.30 gold/turn**
+- median actual saving: about **1.66 gold/turn**
+- median inherited maintenance contribution: about **+10**
+- savings <=0.50 gold/turn generally contributed only about **+1**
+
+Financial trouble already increases the value dynamically.
+
+The edge cases also showed why rejecting the whole building is unsafe. A Courthouse with very small maintenance savings could still be selected mostly for specialist or other value.
+
+Conclusion: the old strategic concern was legitimate, but inherited K-Mod already solves it proportionally. No replacement maintenance rule was added.
+
+### Conventional defense: inherited value was already modest outside real danger
+
+Across about **21,345 defense-valued candidates**:
+
+- safe/no-war-plan median conventional-defense contribution: about **+7**
+- immediate-danger median: about **+15**
+
+Among selected buildings in safe cities:
+
+- Walls: about **+6** median defense value
+- Castles: about **+12**
+- Bunkers: about **+9**
+
+A representative peaceful Walls evaluation in Beijing had final value around 65, but only about +6 came from defense while roughly +54 came from happiness.
+
+This directly demonstrated the multipurpose-building problem in the old SAS whole-building defense rejection.
+
+Conclusion: conventional inherited defense already responds enough to threat and does not need the old blanket rejection.
+
+### Inherited finding: nuclear defense repeatedly credited the same continental army
+
+Bomb Shelters behaved unlike normal Walls, Castles and Bunkers.
+
+The dedicated nuke-defense audit found that Kek-Mod's `kekm.16` term could independently credit every city with protection of 35% of the entire team's military power in the land area. The same continental army was therefore repeatedly treated as protected by each city's Bomb Shelter.
+
+The audit recorded **1,162** nuke-defense candidates with median contribution around **+239** overall, **+360** among selected Bomb Shelters, and about **+272** even among selected safe/no-war/no-war-plan cities.
+
+The fix preserved the old 35% estimate as an upper bound but capped the protected-stack estimate at average team military power per team city in the area. The final calibration reduced median values to about **+131 overall**, **+167 among selected buildings** and **+189 among safe selected cities**, while retaining strong response when a relevant rival was actually estimated to own nuclear weapons.
+
+This distinct inherited defect is documented separately as **KI#48.7**.
+
+### SAS policy coupling exposed: Barracks/Stable XML `iAIWeight` became excessive once its hard-gate safeguards were removed
+
+The military-infrastructure audit initially showed suspiciously high Barracks and Stable scores.
+
+The exact attribution found that inherited K-Mod experience value itself was already contextual:
+
+- safe selected Barracks: median XP contribution about **+9**
+- war-context Barracks: about **+36**
+- safe selected Stable: about **+3**
+- war-context Stable: about **+12**
+
+The dominant extra value came from SAS XML:
+
+- Barracks family: roughly **+70 `iAIWeight`**
+- Stable family: roughly **+75 `iAIWeight`**
+
+An important implementation nuance is that these weights were not globally inactive under the old SAS system. `iAIWeight` is applied later in inherited `AI_buildingValue`, so it still affected candidates that fell through the SAS prefilter. However, any old SAS hard `return 0` or force-first return ended evaluation before that later transform.
+
+This meant the large XML weights had become **implicitly coupled to the old hard gates**.
+
+The Stable case showed the problem most clearly. The old SAS Stable gate could reject the building when no useful mounted unit was available, so the unconditional +75 never reached the final value in those cases. Once the regular prefilter was disabled, the +75 became exposed to every Stable candidate and amplified the entire building, including unrelated unique-building effects.
+
+In the diagnostic run, **56 of 204 selected Stables** had zero currently trainable units that would benefit from their XP, including 19 completely safe selections. In all 56, pre-final value came from health, with median around **+30**, and then the unrelated military +75 weight boosted the whole building.
+
+Small one-/two-city island examples with `affectedLand=0` also appeared, confirming the earlier observed Archipelago/tiny-island concern.
+
+Barracks were less pathological because K-Mod's first-Settler protection already worked well: only **2 of 386** selected Barracks occurred before `settlerGateReady`.
+
+The normal Barracks/Stable-family `iAIWeight`s were therefore restored to 0 and tested before inventing any new dynamic SAS bonus.
+
+Results:
+
+- Barracks-family matched selections: **434 -> 299**
+- Stable-family selections: **233 -> 74**
+- selected Stables with zero currently benefiting trainable units: **68 -> 6**
+- Barracks before turn 100: **62 -> 21**
+- Stables before turn 100: **6 -> 0**
+- first Barracks: turn **25 -> 39**
+- first Stable: turn **89 -> 112**
+
+There was an expected early aggregate-power reduction, roughly 13% around turn 100 and 11% around turn 150, narrowing to around 5% by turn 200. Later histories were too divergent for their power ordering to be treated causally.
+
+Conclusion: remove the unconditional normal Barracks/Stable-family XML weights and add no replacement unless later evidence shows training infrastructure has genuinely become too rare. The Barbarian Barracks special weight remains separate.
+
+This was a SAS design/coupling issue exposed by the migration, not an inherited K-Mod defect and not accurately described as `iAIWeight never worked under SAS`.
+
+### Culture: inherited valuation already separates first-border need from later culture fluff
+
+When the city still needed culture for its workable BFC, selected culture buildings had median `cultureDelta` around **+42.5**, and the inherited +25 border-expansion priority boost was active in all **32** matched selections.
+
+When BFC expansion was no longer needed, median culture contribution among selected buildings fell to about **+3**.
+
+In secure, non-victory, uncontested cities, selected buildings had median culture contribution about **+2** versus roughly **+97.5** other pre-final value.
+
+The core old SAS `BFC already secured + early/midgame + >=2 culture/turn` condition matched **2,954** candidate evaluations, but only **26** corresponding buildings were finally selected. **25 of 26** were selected mainly for non-culture effects.
+
+Conclusion: no culture cure and no restoration of the blanket old veto.
+
+### Food-kept / Granary logic: both old hard directions were unnecessary
+
+The old SAS policy could reject food-kept buildings when happiness headroom was low and force them under strong growth.
+
+Inherited K-Mod already incorporates target population, food surplus, growth limits and pop-rush value.
+
+Of **862** evaluations matching the old low-happiness rejection, inherited K-Mod naturally reduced **350** to zero food-kept value. Nevertheless, **57** matching Granary-style buildings were ultimately selected in plausible growth situations, typically around population 6, target population 7, +3 food and +1 happiness, with median food-kept value around +50.
+
+The opposite force rule was also redundant. Fast-growth candidates already received median food-kept value around **+90**, and selected ones around **+110**, typically in cities near population 4, target 10, +6 food and +7 happiness.
+
+Conclusion: no food-kept correction and no restoration of either hard gate.
+
+### Production multipliers: inherited value was almost perfectly proportional to actual hammer output
+
+For Forge/Factory/Smithy-style candidates, base city hammers and inherited production contribution had correlation approximately **0.9999**.
+
+Approximate medians:
+
+| Base hammers/turn | Inherited production contribution |
+| --- | ---: |
+| 0-3 | +9 |
+| 4-6 | +15 |
+| 7-9 | +22 |
+| 10-12 | +29 |
+| 13-15 | +36 |
+| 16-19 | +43 |
+| 20-29 | +59 |
+| 30+ | +86 |
+
+The old early `<13 hpt` rejection matched **239** evaluations but only **10** became final selections. Those selected buildings had median final value about +81.5, only about +19 from production, roughly +41.5 from other pre-final effects and about nine turns to complete.
+
+The old production-specific strong-enemy condition matched **702** evaluations and only **31** selections. Those survivors were generally high-value and/or quick, with median final value around +203, production contribution +95, base production 20 hammers/turn and roughly five turns remaining.
+
+Questionable wartime cases were preserved for the later cross-category military-pressure audit rather than used to restore a Forge-specific veto.
+
+Conclusion: no production-specific cure.
+
+### Science: ordinary military pressure already suppresses science buildings heavily
+
+The old SAS science rule could reject a science-like building merely for war, danger or a war plan.
+
+The audit found **22,345** science-like evaluations under those conditions, but only **58**, about **0.26%**, became final selections. The breakdown was:
+
+- immediate danger: **107 evaluations, 0 selected**;
+- at war: **17,335 evaluations, 28 selected**;
+- war plan without current war/danger: **4,903 evaluations, 30 selected**.
+
+Those 58 survivors were generally substantial and quick rather than marginal science spam: median `researchDelta` was about **+59**, median final value about **62.5**, median building time about **4 turns**, versus about **5 turns** for the representative land unit. Roughly **73%** of both ordinary at-war and war-plan selections finished no slower than that representative unit.
+
+Six of the 28 at-war selected `science buildings` had `researchDelta=0` and were being chosen for other effects rather than science, another direct example of why whole-building category rejection is unsafe.
+
+Only **4 of the 28** at-war selections occurred with `enemyPowerPercent >= 120`. Two of those cities had no representative trainable land unit at all. The remaining two useful strong-enemy specimens were approximately **5 building turns vs 5 unit turns at enemy power 220% with researchDelta +31**, and **5 Library turns vs 3 unit turns at enemy power 178% with researchDelta +55**. These cases were preserved for the later central military-opportunity-cost audit rather than used to restore a science-specific veto.
+
+Conclusion: no science-specific cure.
+
+### Economy / gold: inherited value already scales smoothly with actual city gold
+
+Approximate median inherited gold contribution:
+
+| Current city gold/turn | Median gold contribution |
+| --- | ---: |
+| 0 | +2 |
+| 1 | +2 |
+| 2-3 | +5 |
+| 4-5 | +7 |
+| 6-9 | +11 |
+| 10-19 | +19 |
+| 20-49 | +36.5 |
+| 50+ | +78 |
+
+The old low-gold condition occurred **2,382** times and only **5** such candidates became final production. Those five were selected mainly for other effects such as health, happiness and yields.
+
+Under immediate danger there were **479** economy-like evaluations and only **4** selections, again primarily driven by non-gold effects.
+
+Conclusion: no economy-specific cure.
+
+### Trade routes: inherited value already tracks actual route yield and applicability
+
+For ordinary +25% trade-route-modifier buildings, median inherited trade contribution rose smoothly with current trade yield, from 0 at zero trade yield to about +25 at 20+.
+
+Correlation between current trade yield and inherited trade value was about **0.94**.
+
+The old `no foreign route` condition matched **768** evaluations. All 768 had `tradeDelta=0`, exactly as desired, and only one such building was selected; that Custom House was two turns from completion and had roughly +67 value from other effects.
+
+The old low-route-gain condition matched **2,290** evaluations but only **44** selections. Median trade contribution was only about +2 versus roughly +72.5 other value, and none was trade-dominated.
+
+Conclusion: no trade-specific cure.
+
+### Espionage: ordinary behavior was selective; the difficulty-force rules still need targeted testing
+
+Across the normal autoplay:
+
+- espionage-like evaluations: **65,506**
+- selections: **528**, about 0.8%
+- war/danger/war-plan evaluations: **40,199**
+- selections under that pressure: **335**, about 0.83%
+
+Among selected buildings under military pressure, **102** had zero non-espionage pre-final value; **88 of those 102** were built while `AI_STRATEGY_ESPIONAGE_ECONOMY` was active.
+
+Under immediate danger there were **1,026** evaluations and only **12** selections. Four were pure espionage buildings; all four belonged to an Espionage Economy, and the diagnostic found no representative trainable land unit in those cities.
+
+This strongly argues against restoring an espionage-specific wartime whole-building veto.
+
+The old difficulty/research-cost-gap force rules remain unresolved because the normal autoplay did not exercise their thresholds. With the current handicap table, the historical thresholds are effectively close to Rookie-only on the low-research side and Deity/Deity+ on the high-research side.
+
+A related provisional issue already exists as KI#881: the regular-building difficulty skew reads the AI player's handicap while the relevant research-cost setting comes from the game handicap. If the old force rules are removed entirely after targeted testing, that provisional issue may become moot rather than needing an independent behavioral cure.
+
+Conclusion for now: ordinary espionage valuation needs no replacement veto; targeted Rookie and Deity/Deity+ runs remain pending.
+
+### Final happiness audit after KI#880: no severe-unhappiness multiplier needed
+
+After fixing KI#880, positive happiness already received very strong inherited marginal value when it cured real angry citizens.
+
+Among finally selected happiness-like buildings, approximate median happiness contribution was:
+
+| Current anger | Median happiness contribution |
+| --- | ---: |
+| no angry citizen | +16 |
+| 1-3 angry citizens | +96 |
+| 4+ angry citizens | +271 |
+| 6+ angry citizens | +310 |
+
+The old force-anger-relief condition occurred **14,372** times. Without a force-first sentinel, the candidate still became the best inherited building **1,510** times and survived to final production **452** times; those selected cases had median happiness surplus around -2, roughly two angry citizens and happiness contribution around +112.
+
+Conversely, among **103** final selections that would have matched the old `happiness not needed` rejection, median happiness value was only about +7 while median other value was about +71.
+
+The health-versus-happiness interaction was also checked directly. Among 56 final choices with at least four angry citizens and health <= -4:
+
+- 28 supplied both health and happiness
+- 17 were health-only
+- 9 were happiness-only
+- 2 were other buildings
+
+No fixed `health beats happiness` or `happiness beats health` ordering was justified.
+
+Temporary hurry/conscript/defy anger remains a possible timing edge case, but only six final happiness-like selections in the run had one of those temporary anger sources active, with only about three plausible cases where it might expire before completion. That was too little evidence to justify predictive complexity.
+
+Conclusion: happiness after KI#880 already has the severity response that health lacked. No extra severe-unhappiness urgency was added.
+
+### Coastal food and production: the smooth generic mechanism already existed
+
+The old SAS Harbor/Port concern was important because weak coastal and island cities had historically delayed useful water infrastructure.
+
+The audit showed that inherited K-Mod already implements the smooth mechanism we were considering through `AI_buildingSeaYieldChangeWeight(...)`.
+
+Approximate median inherited sea-food contribution rose from about +22 with 0-2 useful water plots to +60 with 7-8 and +112 with 13+.
+
+Sea-production contribution similarly rose from about +11 to +74 and +114.
+
+Among selected buildings, Harbor-style sea food had median value around +60, Port-style sea production around +90 and Lighthouse-style sea commerce around +28.
+
+The old low-food Harbor condition occurred **330** times. Harbor naturally became the best inherited building **55** times and final production **19** times without force-first behavior.
+
+When a normal production decision overrode an already-best Harbor, common winners included Culture processes, Work Boats, Workers, units and Granaries. In a young coastal city, a Work Boat or first-border expansion can genuinely be a prerequisite for exploiting the water tiles, so forcing Harbor first can worsen rather than improve timing.
+
+Conclusion: do not add a duplicate coastal-yield multiplier and do not restore the ordinary regular-building Harbor force-first rule.
+
+This conclusion does not yet settle the separate `CvCity::doTurn` emergency Harbor/Port override, which is currently being audited below.
+
+### Cross-category military pressure: the central chooser already shifts materially toward units
+
+Questionable wartime Forge, science, economy and trade examples were accumulated instead of restoring one veto per category.
+
+A later central production-opportunity audit found:
+
+- no old-SAS military-pressure condition: **5,950 opportunities**
+- war/war-plan/strong-enemy/local-danger pressure: **8,279 opportunities**
+
+The final production target became a unit:
+
+- without pressure: **53.3%**
+- under pressure: **60.7%**
+
+The initially best inherited building survived unchanged:
+
+- without pressure: **34.3%**
+- under pressure: **25.3%**
+
+There were **1,028 underdefended-city opportunities under military pressure**. Only **30** cases remained where the same building survived, a representative land unit existed and the building took longer than that unit.
+
+Of those 30:
+
+- **0** occurred under immediate city danger
+- **20** were already above the normal military-spending budget
+- several belonged to extremely low-production cities where neither the building nor the unit could provide a quick response
+
+The clearest ordinary outlier was effectively the same 1-hammer Argos Forge on two consecutive turns during a bad war; even there the unit itself still required roughly 37-42 turns versus about 76-77 for the Forge.
+
+The other extreme outlier was Heroic Epic and belongs to the later Wonder audit.
+
+Conclusion: do not replace the removed category-specific `enemy strong -> reject building` rules with another broad central hard veto. Existing production competition already moves meaningfully toward units under pressure.
+
+The diagnostic run also reproduced the same turn-487 Space victory and core SASGameRecord state fingerprints as the preceding diagnostic run, providing strong confirmation that the added logging itself did not perturb behavior.
+
+### Completed audit: separate `CvCity::doTurn` emergency-building overrides
+
+The next audit examined a second policy layer that runs **after** normal production selection. `CvCity::doTurn` can still force Harbor, Port, Walls or Castle even after `AI_chooseProduction` has chosen another unit, building or Project.
+
+The completed diagnostic distinguished three outcomes and preserved the displaced target while it was still live:
+
+| Result | Count |
+|---|---:|
+| Actual replacement (`OVERRIDE`) | **316** |
+| Empty queue filled (`FILL_EMPTY`) | **16** |
+| Emergency building already normal target (`ALREADY_TARGET`) | **0** |
+| Total emergency actions | **332** |
+| `SEA_FOOD` successes | **0** |
+
+The zero `ALREADY_TARGET` and zero `SEA_FOOD` results resolve the earlier Harbor ambiguity: in this autoplay the sea-food emergency path neither overrode another target nor merely shielded a Harbor that inherited production had already selected.
+
+The diagnostic itself remained behavior-neutral. Against the immediately preceding run, **492/492 core-state checkpoints** and **492/492 RNG checkpoints** retained identical gameplay/RNG state, call counts and stream fingerprints; only source-location provenance changed because lines were added. The game again ended with the same turn-487 Space victory.
+
+The hard defensive overrides were much more concerning than ordinary inherited defensive valuation:
+
+- **166 real Walls overrides** displaced **97 units, 58 buildings and 11 Projects**.
+- **10 of the 11 displaced Projects were spaceship components**. Examples included an SS Engine at **1601/1880 production, 5 turns left -> Walls value 0**, and an SS Casing at **982/1128, 1 turn left -> Walls value 2**.
+- **56/58** building->Walls replacements displaced a building with a higher inherited value than the Walls.
+- Walls still had median inherited value only about **7**; **101/168** total Walls activations had value <=10 and **11** had value 0.
+- Castle was rarer but similar: among **12** building->Castle overrides, **10** displaced a higher-value building and the other two were equal.
+
+Port was much stronger economically, with median inherited value around **124**, but it still hard-replaced **116** normal targets: **61 units and 55 buildings**. In **23/55** building cases, the displaced normal building had the higher inherited value.
+
+Across all **316** true replacements, **212** interrupted targets with positive invested production and **87** displaced targets that were at most two turns from completion. This confirms that the post-chooser layer can bypass both additive valuation and invested-production continuity even when the normal chooser has already reached a defensible decision.
+
+The audit also exposed a distinct AdvCiv-SAS correctness defect: **23/332 emergency actions happened while `isDisorder()` was true**. Sixteen filled an intentionally empty queue and seven replaced an existing target; 17 occurred during occupation/resistance and six during other disorder.
+
+Replacements included a Settler with 34 stored production and an Airport with 100. This is tracked separately as **KI#51.2** because it violates the intentional no-production boundary already established by KI#51, independent of whether an emergency rule is strategically desirable outside disorder.
+
+### Remaining planned work before closing the regular-building / Wonder PR
+
+Still intentionally unresolved:
+
+- fix and validate **KI#51.2** so post-`doProduction` emergency logic cannot override intentional disorder no-production;
+- rework **Walls/Castle** hard forcing so genuine local danger can still matter without blindly bypassing additive value, invested production and spaceship/project continuity;
+- reassess **Port** after the disorder fix;
+- likely retire the `SEA_FOOD`/Harbor emergency path if its zero-success result remains representative after the cleanup;
+- audit naval-infrastructure rejection on explicitly land-heavy maps, because the standard Snaky Continents test is naval-heavy and cannot validate that rule;
+- targeted Rookie and Deity/Deity+ testing of the old espionage difficulty/research-gap force rules;
+- any genuinely unclassified regular-building tail found during final cleanup;
+- the separate SAS Wonder layer.
+
+The Wonder layer should be audited rather than assumed correct. Some safeguards against very slow Wonder sinks or building Wonders while militarily exposed may remain useful; others may turn out to have the same whole-building/classification problems found in the regular layer.
+
+### Overall September 2026 conclusion so far
+
+The old SAS observations often identified legitimate strategic questions.
+
+What generally did not survive the audit was the architectural answer:
+
+```text
+classify the whole building as category X
++ cross threshold Y
+-> reject the whole building or force it first
+```
+
+Inherited K-Mod/AdvC already handled maintenance, conventional defense, contextual military XP, culture, food-kept growth, production multipliers, science, economy, trade, happiness after KI#880 and coastal yields more proportionally than the old hard gates, while preserving the independent value of multipurpose and unique buildings.
+
+Where concrete weaknesses were found, the rework corrected the responsible source instead of rebuilding the classifier:
+
+- a missing `bWonder` guard in SAS was fixed so disabling the regular prefilter genuinely restores inherited valuation;
+- inherited happiness arithmetic was corrected in KI#880;
+- severe-health relief received a smooth severity and current-food-deficit urgency correction documented in KI#48.6;
+- Kek-Mod's repeated continental-army Bomb Shelter estimate was corrected in KI#48.7;
+- unconditional Barracks/Stable-family XML `iAIWeight`s were removed after the hard SAS safeguards that had partly masked them were retired.
+- the separate post-`doProduction` emergency-building layer was shown to bypass additive valuation and invested-production continuity; its disorder-time correctness defect is tracked as KI#51.2 while Walls/Castle/Port policy remains under active rework.
+
+The resulting direction is:
+
+```text
+inherited additive valuation
++ narrowly evidenced proportional corrections
++ normal central production competition
++ exceptional override only where a dedicated emergency audit proves it useful
+```
+
+rather than another large ordered table of named building categories and fixed `0 / ALWAYS_PICK_FIRST` results.
+
+This is also more robust for future AdvCiv-SAS balance changes, unique buildings and modmods because each real effect competes on its own value rather than inheriting the policy label of the building that happens to contain it.
+
+The September 2026 audit/rework was carried out iteratively with level-3 BBAI forensic attribution, SASGameRecord comparison and deterministic-state checking, repeated compile/autoplay validation, and review/collaboration between wonderingabout, ChatGPT-5.6-Sol, GPT-5.6-Sol/Codex and other review assistants where noted in the source/commit history, thanks.
+
+<a id="ki-48.6"></a>
+
+## KI#48.6 - (Improved inherited K-Mod/AdvC AI valuation weakness) Severe unhealthiness did not gain enough relative urgency against ordinary infrastructure
+
+During the September 2026 AdvCiv-SAS regular-building valuation rework in KI#48.5, the old SAS whole-building health force/reject layer was disabled and inherited K-Mod/AdvC `AI_buildingValue` was instrumented with exact before/after component attribution.
+
+The audit showed that inherited health valuation was already substantially better than the old binary SAS classifier. It responds continuously to current health deficit, unhealthy-food waste, current food deficit, growth enablement and spare-health padding.
+
+Among buildings that actually supplied positive health, median exact inherited health contribution rose approximately as follows:
+
+| Current health surplus | Median inherited health contribution |
+| --- | ---: |
+| -1 | +40 |
+| -2 to -3 | +58 |
+| -4 to -5 | +64 |
+| -6 to -9 | +88 |
+| -10 or worse | +110 |
+
+At -10 or worse, the average contribution was about **+137**, with some candidates reaching approximately **+360**.
+
+The inherited weakness was therefore not that AdvC failed to notice severe unhealthiness.
+
+The problem was **relative urgency when severe unhealthy-food waste competed against useful but optional infrastructure**.
+
+At health <= -5:
+
+- health-positive candidates had median total inherited value around **116**;
+- candidates with no direct health still had median total inherited value around **122**.
+
+In the particularly revealing subset with health <= -5 but happiness already >= -1, only about **51 of 126** correlated final building selections directly supplied health. Banks, Universities, Libraries, Jails, Airports and other useful infrastructure could therefore remain roughly competitive while severe sickness was already consuming food.
+
+The same diagnostic run recorded **556 starvation/population-loss events** in its population-flow windows. Because full autoplays diverge, this count by itself is not controlled causal evidence, but it confirmed that starvation/depopulation was common enough to treat as a real optimization problem rather than a theoretical edge case.
+
+The correction deliberately preserves the inherited health formula and adds only generic **marginal urgency when a candidate actually removes unhealthy-food waste**.
+
+For each point of health relief that removes current unhealthy-food waste, the severity bonus is proportional to the average before/after health deficit:
+
+```cpp
+citizenValue
+* healthRelief
+* (healthDeficitBefore + healthDeficitAfter)
+/ 20
+```
+
+The `/ 20` corresponds to roughly 10% of one citizen value per point of average unhealthy population for each point of actual health relief.
+
+If the city is already losing food, only the health points that directly close that current food deficit receive an additional starvation/depopulation term:
+
+```cpp
+citizenValue
+* min(healthRelief, currentFoodDeficit)
+```
+
+For example, if a city is losing 2 food and a building removes 4 unhealthy-food waste, only 2 of those health points receive the additional current-starvation value.
+
+The correction deliberately contains:
+
+- no Hospital/Aqueduct/Grocer or other building-class check;
+- no named technology, civic or era;
+- no fixed `health < X -> force` threshold;
+- no whole-building multiplier;
+- no absolute `AI_BUILDING_ALWAYS_PICK_FIRST` sentinel.
+
+Research, culture, gold, production, military and other unrelated building effects retain their independent inherited values.
+
+This also makes the correction naturally modmod-safe: any future building that genuinely removes current unhealthy-food waste receives the same proportional treatment.
+
+The first full-autoplay calibration remained conservative:
+
+- post-turn-300 negative-health snapshots: about **54.6% -> 41.3%**;
+- mean late health surplus: about **-0.82 -> +1.10**;
+- only about **12,700 of 255,700** evaluated building rows received either new urgency term;
+- median nonzero severity bonus at -1 health: about **+1**;
+- median affected severity bonus at -10 health or worse: about **+24**.
+
+The candidate run also grew more aggressively. Raw starvation/population-loss events rose from 556 over 360 turns to 857 over 394 turns, but population gains rose from 2251 to 2771 and final total population from 1651 to 1726. Because the histories had substantially diverged, these aggregate event counts are supporting context rather than a controlled regression; the direct attribution and improved late health state are the stronger validation.
+
+No equivalent severe-unhappiness bonus was added. After the inherited happiness sign correction in KI#880, selected happiness-building value already rose sharply with real angry citizens, reaching about +271 median at 4+ angry citizens and about +310 at 6+.
+
+The repair is intentionally reactive rather than speculative. Future health/happiness penalties from technologies, civics or other transitions should not be hardcoded by name here. If a future city-state change can be predicted reliably and generically, preventive preparation can be implemented separately and measured with its own BBAI attribution.
+
+Found and corrected during the September 2026 AdvCiv-SAS regular-building valuation rework with the help of ChatGPT-5.6-Sol, using level-3 BBAI component attribution and SASGameRecord autoplay comparison, then compile/runtime tested with the help of wonderingabout, thanks.
+
+<a id="ki-48.7"></a>
+
+## KI#48.7 - (Fixed inherited Kek-Mod AI valuation defect) Every Bomb Shelter protected the same continental army
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1A7xq6H7PVOsECMy3KQ0NIBEjdbccXcH-?usp=sharing).
 
-During the AdvCiv-SAS regular-building AI rework, the old SAS whole-building prefilter was disabled so ordinary buildings could use the inherited additive K-Mod/AdvCiv valuation instead. Level-3 BBAI attribution was added before deciding whether any old SAS rejection rationale still needed a narrower replacement.
+During the AdvCiv-SAS regular-building AI rework in KI#48.5, the old SAS whole-building prefilter was disabled so ordinary buildings could use the inherited additive K-Mod/AdvCiv valuation instead. Level-3 BBAI attribution was added before deciding whether any old SAS rejection rationale still needed a narrower replacement.
 
 Conventional defensive-building value proved modest and threat-responsive, but the new diagnostics exposed a separate inherited outlier in Kek-Mod's `kekm.16` nuke-defense term, originally adopted into AdvCiv as DarkLunaPhantom's `dlph.16` change for Bomb Shelter AI.
 
@@ -3430,6 +4069,29 @@ Cleanup: remove the entire post-`doProduction` no-production fallback and its fa
 Post-cleanup new-DLL validation: two further broad runs reached turn-436 and turn-394 victories. Dedicated BBAI recorded **619** expected-disorder chooser returns (**274** occupation/resistance, **345** other disorder), **zero** abnormal `FINAL_FALLTHROUGH` rows and **zero** non-disorder `PRODUCTION_NO_TARGET_BOUNDARY` rows; SASGameRecord likewise recorded **zero** `CITY_PRODUCTION_NO_TARGET` outcomes. The ordinary 10-turn snapshots still contained **36** apparently non-disorder empty-production city rows, while the control-path-aware boundary recorded none. This confirms that coarse snapshots can observe transient post-disorder/turn-order states without demonstrating a production stall, and strengthens the evidence for removing the old fallback.
 
 The historical human-player observation is not claimed resolved by the AI controls: several human cities displayed no production while other cities worked normally, reportedly sometimes for up to five consecutive turns. The removed fallback was AI-only, and a human city's manual/UI/automation production path can differ; the new all-city turn-boundary tripwire deliberately covers that path without assuming it shares the AI cause. Its `gameState` field is important because the documented human example occurred after victory and may have been a distinct post-victory UI state.
+
+<a id="ki-51.2"></a>
+
+## KI#51.2 - (Confirmed AdvCiv-SAS post-production override defect; fix pending) Emergency building rules can override intentional disorder no-production
+
+During KI#48.5's completed post-`doProduction` emergency-building audit, **23 of 332** emergency actions occurred while `isDisorder()` was true.
+
+- **16** filled an intentionally empty production queue.
+- **7** replaced an existing production target.
+- **17** occurred during occupation/resistance (`occupationTimer > 0`).
+- **6** occurred during other disorder.
+
+The replacements were not merely empty bookkeeping writes: reproduced examples included a Settler with **34 stored production**, an Airport with **100 stored production**, and several Harbor -> Port replacements.
+
+The root is a control-boundary mismatch. K-Mod's normal `AI_chooseProduction` / `doProduction` path deliberately stops or leaves production empty during disorder, but the later AdvCiv-SAS Harbor/Port/Walls/Castle emergency layer still runs afterward and can push or replace production anyway.
+
+This is the same general class of problem that KI#51 established for the removed old no-production fallback: later outer logic must not reinterpret an **intentional** no-production state as a failure requiring recovery. It is distinct from the strategic question of whether the emergency-building rules themselves should survive outside disorder.
+
+The intended repair is deliberately small: share one eligibility gate across the emergency-building entry paths so they run only for an AI city that is **not in disorder**, preserving the existing behavior everywhere else. A confirming autoplay should then show zero emergency-audit rows with `disorder=1` before the wider Walls/Castle/Port policy is changed.
+
+See **KI#48.5** for the broader emergency-override audit and its production-continuity evidence.
+
+Found during the September 2026 building-value rework with the help of ChatGPT-5.6-Sol and SASGameRecord/BBAI deterministic diagnostics, thanks.
 
 <a id="ki-52"></a>
 
@@ -18075,19 +18737,23 @@ Found as F553 during ChatGPT-5.6-Sol's C031-WIP328 audit; reconciled into Known 
 
 <a id="ki-877"></a>
 
-## KI#877 - (Provisional Pending AdvCiv-SAS building-prefilter defect) Maintenance classification uses the wrong sign
+## KI#877 - (Retired/Superseded dormant AdvCiv-SAS building-prefilter defect) Maintenance classification uses the wrong sign
 
 The SAS regular-building prefilter classifies maintenance buildings with the opposite sign, so every current maintenance-reducing building bypasses the authored gate. Test the actual maintenance-reduction direction.
 
 Found as F554 during ChatGPT-5.6-Sol's C031-WIP329 audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
+**September 2026 disposition:** mechanically confirmed in the retained historical prefilter, but KI#48.5 disabled/superseded the whole regular-building hard-gate layer before a local repair was warranted. This no longer affects default regular-building valuation; retain it as source archaeology and as a warning if the historical prefilter is ever re-enabled.
+
 <a id="ki-878"></a>
 
-## KI#878 - (Provisional Pending AdvCiv-SAS building-prefilter defect) Miscellaneous wartime tail is attached too broadly
+## KI#878 - (Retired/Superseded dormant AdvCiv-SAS building-prefilter defect) Miscellaneous wartime tail is attached too broadly
 
 The final unknown/miscellaneous-building wartime rejection is attached to `!bCultureOnlyBuilding`, causing it to reject almost every previously classified regular building during war or danger. Restrict the tail to the genuinely unclassified category.
 
 Found as F555 during ChatGPT-5.6-Sol's C031-WIP330 audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+**September 2026 disposition:** mechanically confirmed in the retained historical prefilter, but KI#48.5 disabled/superseded the whole regular-building hard-gate layer before a local repair was warranted. This no longer affects default regular-building valuation; retain it as source archaeology and as a warning if the historical prefilter is ever re-enabled.
 
 <a id="ki-879"></a>
 
@@ -18111,15 +18777,17 @@ This became especially visible after disabling the AdvCiv-SAS regular-building h
 
 Keeping this as a separate correction lets the next comparison run measure the inherited evaluator with its intended happiness arithmetic before adding any new urgency heuristic.
 
-Found as F557 during ChatGPT-5.6-Sol's C031-WIP333 audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks. Fixed during the inherited-versus-SAS building-valuation rework.
+Found as F557 during ChatGPT-5.6-Sol's C031-WIP333 audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks. Fixed during the inherited-versus-SAS building-valuation rework. See **KI#48.5** for the broader September 2026 regular-building audit that exposed and validated this correction.
 
 <a id="ki-881"></a>
 
-## KI#881 - (Provisional Pending AdvCiv-SAS handicap-scope defect) Regular-building skew reads the AI handicap
+## KI#881 - (Retired/Superseded dormant AdvCiv-SAS handicap-scope defect) Regular-building skew reads the AI handicap
 
 The SAS regular-building difficulty skew reads the AI player's handicap while the relevant AI research-cost setting comes from the game handicap. Use the authoritative game-handicap source.
 
 Found as F558 during ChatGPT-5.6-Sol's C031-WIP334 audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+**September 2026 disposition:** mechanically confirmed in the retained historical prefilter, but KI#48.5 disabled/superseded the regular-building hard-gate layer before a local repair was warranted. This no longer affects default regular-building valuation; retain it as source archaeology and as a warning if the historical prefilter is ever re-enabled. The inherited KI#879 and KI#880 findings remain independent of this retirement.
 <a id="ki-882"></a>
 
 ## KI#882 - (Provisional Pending inherited production-upgrade defect) Destination hammers are overwritten
