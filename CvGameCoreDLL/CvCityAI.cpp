@@ -7168,6 +7168,36 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 			kBuilding.isLimited(), kBuilding.isWorldWonder(), kBuilding.isNationalWonder());
 	}
 
+
+	// <!-- custom: Food-kept migration audit: mirror the inherited K-Mod Granary-style food-storage term and log the growth / pop-rush context behind it. SAS's old regular-building layer could reject these buildings solely for low current happiness or force them during fast growth; keep this diagnostic effect-based so we can test whether the inherited target-population and pop-rush scaling already supplies the needed context without hard-gating a multipurpose building. This runs only after the existing level-3 neutral-value dedup gate. (ChatGPT-5.6-Sol) -->
+	int const iFoodKeptBuilding = kOwner.getFoodKept(eBuilding);
+	if (iFoodKeptBuilding != 0)
+	{
+		int const iPopulation = kCity.getPopulation();
+		int const iTargetPopulation = kCity.AI_getTargetPopulation();
+		bool const bCanPopRush = kCity.canPopRush();
+		int const iGrowthNeedTerm = std::max(0,
+				2 * (std::max(4, iTargetPopulation) - iPopulation) +
+				(bCanPopRush ? 3 : 1));
+		int const iFoodKeptValue = (iFoodSurplus > 0 ?
+				iGrowthNeedTerm * iFoodKeptBuilding / 4 : 0);
+		int const iFoodToGrow = std::max(0, kCity.growthThreshold() - kCity.getFood());
+		int const iApproxTurnsToGrow = (iFoodSurplus > 0 ?
+				(iFoodToGrow + iFoodSurplus - 1) / iFoodSurplus : -1);
+		bool const bOldSASFoodKeptClassified = (iFoodKeptBuilding >= 25);
+		bool const bOldSASRejectLowHappiness = (bOldSASFoodKeptClassified && iHappySurplus < 2);
+		bool const bOldSASForceFastGrowth = (bOldSASFoodKeptClassified &&
+				iHappySurplus > 3 && iFoodSurplus > 3);
+		int const iOtherPreFinalValue = iValueBeforePriority - iFoodKeptValue;
+		logBBAI("BUILDING_VALUE_INHERITED_FOOD_KEPT turn=%d player=%d city=%S cityId=%d building=%s final=%d preFinal=%d foodKeptValue=%d otherPreFinal=%d foodFocus=%d yieldDelta=%d foodKeptBuilding=%d currentFoodKeptPercent=%d population=%d targetPopulation=%d growthNeedTerm=%d foodSurplus=%d healthSurplus=%d happySurplus=%d foodStored=%d growthThreshold=%d foodToGrow=%d approxTurnsToGrow=%d canPopRush=%d hurryAngerTimer=%d oldSASFoodKeptClassified=%d oldSASRejectLowHappiness=%d oldSASForceFastGrowth=%d atWar=%d warPlan=%d danger=%d turnsLeft=%d limited=%d worldWonder=%d nationalWonder=%d",
+			GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(),
+			iValue, iValueBeforePriority, iFoodKeptValue, iOtherPreFinalValue, iFocusFood, iYieldDelta, iFoodKeptBuilding,
+			kCity.getMaxFoodKeptPercent(), iPopulation, iTargetPopulation, iGrowthNeedTerm, iFoodSurplus, iHealthSurplus, iHappySurplus,
+			kCity.getFood(), kCity.growthThreshold(), iFoodToGrow, iApproxTurnsToGrow, bCanPopRush, kCity.getHurryAngerTimer(),
+			bOldSASFoodKeptClassified, bOldSASRejectLowHappiness, bOldSASForceFastGrowth, bAtWar, bWarPlan, bDanger, iTurnsLeft,
+			kBuilding.isLimited(), kBuilding.isWorldWonder(), kBuilding.isNationalWonder());
+	}
+
 	// <!-- custom: Defense migration audit: log the concrete threat and defensive-effect inputs behind the exact inherited defense delta. Compute this only after the level-3 neutral row survives deduplication; no defensive heuristic or extra query is added to normal gameplay. This lets us test SAS's old "already strong / no threat" rationale without rejecting a multipurpose building merely because one of its effects is defensive. (ChatGPT-5.6-Sol) -->
 	int const iRaiseDefense = kBuilding.get(CvBuildingInfo::RaiseDefense);
 	int const iAirDefense = -kBuilding.getAirModifier();
