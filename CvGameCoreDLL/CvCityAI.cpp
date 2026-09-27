@@ -7128,6 +7128,40 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 			kCity.getBuildingBombardDefense(), kOwner.getCityDefenseModifier(), kBuilding.getDefenseModifier(), kBuilding.getBombardDefenseModifier(),
 			iRaiseDefense, kBuilding.getAllCityDefenseModifier(), kBuilding.getAirlift(), iAirDefense, kTeam.AI_getRivalAirPower(), kTeam.AI_getAirPower(),
 			iNukeDefense, kTeam.getNukeInterception(), bBestLandIgnoresBuildingDefense);
+
+		// <!-- custom: Nuke-defense sub-audit: the kekm.16 Bomb Shelter term can dominate otherwise modest defensive value, so mirror its runtime arithmetic here after the existing level-3 dedup gate and expose each ingredient separately. This is diagnostic-only and intentionally does not alter or classify the building; if the runtime formula changes, keep this mirror in sync until the audit is retired. (ChatGPT-5.6-Sol) -->
+		if (iNukeDefense > 0)
+		{
+			int iNukeEvasionProbability = 0;
+			int iNukeUnitTypes = 0;
+			FOR_EACH_ENUM(Unit)
+			{
+				CvUnitInfo const& kLoopUnit = GC.getInfo(eLoopUnit);
+				if (kLoopUnit.isNuke() && kLoopUnit.getProductionCost() > 0)
+				{
+					iNukeEvasionProbability += kLoopUnit.getEvasionProbability();
+					iNukeUnitTypes++;
+				}
+			}
+			iNukeEvasionProbability /= std::max(1, iNukeUnitTypes);
+
+			int const iTargetValue = 10 + (kCity.getYieldRate(YIELD_PRODUCTION) * 5 + kCity.getYieldRate(YIELD_COMMERCE) * 3) / 2;
+			int iAreaTeamPower = 0;
+			for (MemberIter itMember(kCity.getTeam()); itMember.hasNext(); ++itMember)
+				iAreaTeamPower += kCity.getArea().getPower(itMember->getID());
+			int const iStackValue = iAreaTeamPower * 7 / 20;
+			int const iRawProtectedValue = iNukeDefense * (iStackValue + iTargetValue) / 100;
+			int const iInterceptionFactorTimes10000 = 10000 - kTeam.getNukeInterception() * (100 - iNukeEvasionProbability);
+			int const iPostInterceptionValue = iRawProtectedValue * iInterceptionFactorTimes10000 / 10000;
+			int const iNukeDangerDivisor = kOwner.AI_nukeDangerDivisor();
+			int const iFinalNukeDefenseValue = iPostInterceptionValue / iNukeDangerDivisor;
+
+			logBBAI("BUILDING_VALUE_INHERITED_NUKE_DEFENSE turn=%d player=%d city=%S cityId=%d building=%s defenseDelta=%d nukeDefense=%d nukesValid=%d noNukes=%d nukeUnitTypes=%d avgNukeEvasion=%d nukeInterception=%d cityProduction=%d cityCommerce=%d targetValue=%d areaTeamPower=%d stackValue=%d rawProtectedValue=%d interceptionFactorTimes10000=%d postInterceptionValue=%d nukeDangerDivisor=%d finalNukeDefenseValue=%d danger=%d warPlan=%d atWar=%d",
+				GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(), iDefenseDelta,
+				iNukeDefense, GC.getGame().isNukesValid(), GC.getGame().isNoNukes(), iNukeUnitTypes, iNukeEvasionProbability, kTeam.getNukeInterception(),
+				kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), iTargetValue, iAreaTeamPower, iStackValue, iRawProtectedValue,
+				iInterceptionFactorTimes10000, iPostInterceptionValue, iNukeDangerDivisor, iFinalNukeDefenseValue, bDanger, bWarPlan, bAtWar);
+		}
 	}
 
 	logBBAI("BUILDING_VALUE_INHERITED turn=%d player=%d %S city=%S cityId=%d building=%s value=%d priorityFactor=%d researchingObsoleteTech=%d comparisonValue=%d era=%d pop=%d healthSurplus=%d happySurplus=%d foodSurplus=%d baseProduction=%d stored=%d needed=%d remaining=%d turnsLeft=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d financialTrouble=%d healthGain=%d happyGain=%d foodKept=%d defenseModifier=%d maintenanceModifier=%d productionModifier=%d seaFood=%d tradeRoutes=%d goldFlat=%d goldModifier=%d researchFlat=%d researchModifier=%d cultureFlat=%d cultureModifier=%d espionageFlat=%d espionageModifier=%d",
