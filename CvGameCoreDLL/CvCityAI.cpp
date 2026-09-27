@@ -7026,7 +7026,7 @@ static void SAS_logBuildingValuePolicyDecision(CvCityAI const& kCity, BuildingTy
 
 // <!-- custom: When the SAS regular-building prefilter is disabled, expose every computed neutral-focus inherited value rather than only the winning focus candidates.
 // Include its deterministic turns/progress-adjusted comparison value and the main XML/city inputs so the inherited policy can be audited before replacing or tuning it; call only behind the cached level-3 gate. (GPT-5.6-Sol) -->
-static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor, int iDefenseDelta, int iEspionageDefenseDelta, int iHappinessDelta, int iHealthDelta, int iExperienceDelta, int iDomainSeaDelta, int iMaintenanceDelta, int iSpecialistDelta, int iTradeDelta, int iGeneralDelta, int iYieldDelta, int iCommerceGlobalDelta, int iAirCapacityDelta, int iMilitaryProductionDelta, int iDomainProductionDelta, int iHealthSeverityUrgencyBonus, int iHealthStarvationUrgencyBonus, int iMaintenanceCurrentTimes100, int iMaintenanceEstimatedBaseTimes100, int iMaintenanceNewUpkeepTimes100, int iMaintenanceSavedTimes100, int iMaintenancePreInflationValue, int iMaintenanceInflatedValue, int iMaintenanceFinalValue, int iValueBeforePriority, int iValueAfterPriority, int iValueBeforeAIWeight, int iValueAfterAIWeight, int iFlavorMatchExact, int iValueAfterFlavor, int iGoldDelta, int iGoldBeforeWeight, int iGoldAfterWeight, int iResearchDelta, int iResearchBeforeWeight, int iResearchAfterWeight, int iCultureDelta, int iCultureClaimValue, int iCulturePriorityBoost, int iCultureBeforeWeight, int iCultureAfterWeight)
+static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor, int iDefenseDelta, int iEspionageDefenseDelta, int iHappinessDelta, int iHealthDelta, int iExperienceDelta, int iDomainSeaDelta, int iMaintenanceDelta, int iSpecialistDelta, int iTradeDelta, int iGeneralDelta, int iYieldDelta, int iCommerceGlobalDelta, int iAirCapacityDelta, int iMilitaryProductionDelta, int iDomainProductionDelta, int iHealthSeverityUrgencyBonus, int iHealthStarvationUrgencyBonus, int iMaintenanceCurrentTimes100, int iMaintenanceEstimatedBaseTimes100, int iMaintenanceNewUpkeepTimes100, int iMaintenanceSavedTimes100, int iMaintenancePreInflationValue, int iMaintenanceInflatedValue, int iMaintenanceFinalValue, int iValueBeforePriority, int iValueAfterPriority, int iValueBeforeAIWeight, int iValueAfterAIWeight, int iFlavorMatchExact, int iValueAfterFlavor, int iGoldDelta, int iGoldBeforeWeight, int iGoldAfterWeight, int iResearchDelta, int iResearchBeforeWeight, int iResearchAfterWeight, int iCultureDelta, int iCultureClaimValue, int iCulturePriorityBoost, int iCultureBeforeWeight, int iCultureAfterWeight, int iEspionageDelta, int iEspionageBeforeWeight, int iEspionageAfterWeight)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kCity.getTeam());
@@ -7190,6 +7190,45 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 			iStored, iNeeded, iTurnsLeft, bOldSASMilitaryPressure, bOldSASNoForeignRouteCore,
 			iOldSASRouteBase, iOldSASRequiredAddedRoutes, bOldSASLowRouteGainCore,
 			bAtWar, bWarPlan, bDanger, iEnemyPowerPercent);
+	}
+
+
+	// <!-- custom: Espionage migration audit: separate inherited EP output and espionage-defense value from the rest of each building, then expose the war/danger and difficulty-skew conditions behind SAS's old Jail / Intelligence Agency / Security Bureau hard rules. Keep all extra state inside the deduplicated level-3 path and log only buildings with actual espionage output, Spy slots or espionage defense. (ChatGPT-5.6-Sol) -->
+	int const iEspionageFlat = kBuilding.getCommerceChange(COMMERCE_ESPIONAGE) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_ESPIONAGE);
+	int const iEspionageModifier = kBuilding.getCommerceModifier(COMMERCE_ESPIONAGE);
+	int const iEspionageDefenseModifier = kBuilding.getEspionageDefenseModifier();
+	static const SpecialistTypes eSpecialistSpyAudit = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SPY", true);
+	int const iSpySlots = (eSpecialistSpyAudit == NO_SPECIALIST ? 0 : kBuilding.getSpecialistCount(eSpecialistSpyAudit));
+	int const iFreeSpies = (eSpecialistSpyAudit == NO_SPECIALIST ? 0 : kBuilding.getFreeSpecialistCount(eSpecialistSpyAudit));
+	bool const bEspionageSourceLike = (iEspionageFlat > 0 || iEspionageModifier >= 20 || iSpySlots > 0 || iFreeSpies > 0);
+	bool const bEspionageDefenseLike = (iEspionageDefenseModifier >= 20);
+	bool const bOldSASEspionageLike = (bEspionageSourceLike || bEspionageDefenseLike);
+	if (bOldSASEspionageLike)
+	{
+		CvHandicapInfo const& kHumanHandicap = GC.getInfo(GC.getGame().getHandicapType());
+		CvHandicapInfo const& kAIHandicap = GC.getInfo(kOwner.getHandicapType());
+		int const iHumanResearchPercent = kHumanHandicap.getResearchPercent();
+		int const iAIResearchPercent = kAIHandicap.getAIResearchPercent();
+		int const iResearchPercentGap = iHumanResearchPercent - iAIResearchPercent;
+		bool const bOldSASDifficultyDefenseCore = (iResearchPercentGap >= 30 && bEspionageDefenseLike);
+		bool const bOldSASDifficultyOutputCore = (iResearchPercentGap <= -20 && bEspionageSourceLike);
+		bool const bOldSASMilitaryPressure = (bAtWar || bDanger || bWarPlan);
+		int iRepresentativeUnitMinCost = 0, iRepresentativeUnitMaxCost = 0, iRepresentativeUnitAverageTurns = 0, iRepresentativeUnitCount = 0;
+		int const iRepresentativeUnitAverageCost = SAS_getRepresentativeLandMilitaryProductionCost(kCity, iRepresentativeUnitMinCost,
+				iRepresentativeUnitMaxCost, iRepresentativeUnitAverageTurns, iRepresentativeUnitCount);
+		int const iOtherPreFinalWithoutEspionage = iValueBeforePriority - iEspionageDelta - iEspionageDefenseDelta;
+		logBBAI("BUILDING_VALUE_INHERITED_ESPIONAGE turn=%d player=%d city=%S cityId=%d building=%s final=%d preFinal=%d espionageDelta=%d espionageDefenseDelta=%d otherPreFinalWithoutEspionage=%d espionageBeforeWeight=%d espionageAfterWeight=%d espionageFlat=%d espionageModifier=%d espionageDefenseModifier=%d spySlots=%d freeSpies=%d cityEspionageRate=%d cityBaseEspionageRate=%d espionagePercent=%d espionageWeight=%d espionageRank=%d noEspionage=%d espionageEconomy=%d humanResearchPercent=%d aiResearchPercent=%d researchPercentGap=%d oldSASSourceLike=%d oldSASDefenseLike=%d oldSASMilitaryPressure=%d oldSASDifficultyDefenseCore=%d oldSASDifficultyOutputCore=%d baseHammersPerTurn=%d productionRank=%d representativeUnitAverageCost=%d representativeUnitMinCost=%d representativeUnitMaxCost=%d representativeUnitAverageTurns=%d representativeUnitCount=%d stored=%d needed=%d turnsLeft=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d",
+			GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(),
+			iValue, iValueBeforePriority, iEspionageDelta, iEspionageDefenseDelta, iOtherPreFinalWithoutEspionage,
+			iEspionageBeforeWeight, iEspionageAfterWeight, iEspionageFlat, iEspionageModifier, iEspionageDefenseModifier, iSpySlots, iFreeSpies,
+			kCity.getCommerceRate(COMMERCE_ESPIONAGE), kCity.getBaseCommerceRate(COMMERCE_ESPIONAGE), kOwner.getCommercePercent(COMMERCE_ESPIONAGE),
+			kOwner.AI_commerceWeight(COMMERCE_ESPIONAGE, &kCity), kCity.findCommerceRateRank(COMMERCE_ESPIONAGE),
+			GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE), kOwner.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY),
+			iHumanResearchPercent, iAIResearchPercent, iResearchPercentGap, bEspionageSourceLike, bEspionageDefenseLike,
+			bOldSASMilitaryPressure, bOldSASDifficultyDefenseCore, bOldSASDifficultyOutputCore,
+			kCity.getBaseYieldRate(YIELD_PRODUCTION), kCity.findBaseYieldRateRank(YIELD_PRODUCTION),
+			iRepresentativeUnitAverageCost, iRepresentativeUnitMinCost, iRepresentativeUnitMaxCost, iRepresentativeUnitAverageTurns, iRepresentativeUnitCount,
+			iStored, iNeeded, iTurnsLeft, bAtWar, bWarPlan, bDanger, iEnemyPowerPercent);
 	}
 
 	// <!-- custom: Science migration audit: isolate the inherited research-commerce contribution and reconstruct SAS's old Library-style whole-building military-pressure veto. Log only buildings that match that old science classification so level-3 BBAI stays focused; specialist value remains separate because a Scientist slot can matter even when the direct research-commerce delta is small. (ChatGPT-5.6-Sol) -->
@@ -9296,6 +9335,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	int iDiagGoldDelta = 0, iDiagGoldBeforeWeight = 0, iDiagGoldAfterWeight = 0;
 	int iDiagResearchDelta = 0, iDiagResearchBeforeWeight = 0, iDiagResearchAfterWeight = 0;
 	int iDiagCultureDelta = 0, iDiagCultureClaimValue = 0, iDiagCulturePriorityBoost = 0, iDiagCultureBeforeWeight = 0, iDiagCultureAfterWeight = 0;
+	int iDiagEspionageDelta = 0, iDiagEspionageBeforeWeight = 0, iDiagEspionageAfterWeight = 0;
 	int iDiagHealthSeverityUrgencyBonus = 0, iDiagHealthStarvationUrgencyBonus = 0;
 	// <!-- custom: Keep these explicitly initialized for VC++ Toolkit 2003 C4701 checks; they are populated only by the level-3 neutral maintenance pass. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int iDiagMaintenanceCurrentTimes100 = 0, iDiagMaintenanceEstimatedBaseTimes100 = 0, iDiagMaintenanceNewUpkeepTimes100 = 0, iDiagMaintenanceSavedTimes100 = 0;
@@ -11102,6 +11142,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_GOLD) iDiagGoldBeforeWeight = iTempValue;
 					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_RESEARCH) iDiagResearchBeforeWeight = iTempValue;
 					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_CULTURE) iDiagCultureBeforeWeight = iTempValue;
+					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_ESPIONAGE) iDiagEspionageBeforeWeight = iTempValue;
 					/*	advc.192: Culture weight doesn't account for additional
 						workable plots. If that's what we're after, we should
 						ignore the weight (which is going to be small). */
@@ -11113,6 +11154,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_GOLD) iDiagGoldAfterWeight = iTempValue;
 					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_RESEARCH) iDiagResearchAfterWeight = iTempValue;
 					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_CULTURE) iDiagCultureAfterWeight = iTempValue;
+					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_ESPIONAGE) iDiagEspionageAfterWeight = iTempValue;
 					/*	if this is a limited wonder, and we are not in the top 4
 						of this category, subtract the value - we do _not_ want this here
 						(unless the value was small anyway) */
@@ -11153,6 +11195,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_GOLD) iDiagGoldDelta = iTempValue;
 					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_RESEARCH) iDiagResearchDelta = iTempValue;
 					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_CULTURE) iDiagCultureDelta = iTempValue;
+					if (bLogBuildingValueDetails && eLoopCommerce == COMMERCE_ESPIONAGE) iDiagEspionageDelta = iTempValue;
 					iValue += iTempValue;
 				}
 			}
@@ -11529,7 +11572,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			iDiagValueBeforePriority, iDiagValueAfterPriority, iDiagValueBeforeAIWeight, iDiagValueAfterAIWeight, iDiagFlavorMatch, iDiagValueAfterFlavor,
 			iDiagGoldDelta, iDiagGoldBeforeWeight, iDiagGoldAfterWeight,
 			iDiagResearchDelta, iDiagResearchBeforeWeight, iDiagResearchAfterWeight,
-			iDiagCultureDelta, iDiagCultureClaimValue, iDiagCulturePriorityBoost, iDiagCultureBeforeWeight, iDiagCultureAfterWeight);
+			iDiagCultureDelta, iDiagCultureClaimValue, iDiagCulturePriorityBoost, iDiagCultureBeforeWeight, iDiagCultureAfterWeight,
+			iDiagEspionageDelta, iDiagEspionageBeforeWeight, iDiagEspionageAfterWeight);
 	}
 
 	return iValue;
