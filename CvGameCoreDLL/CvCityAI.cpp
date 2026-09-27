@@ -7198,6 +7198,48 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 			kBuilding.isLimited(), kBuilding.isWorldWonder(), kBuilding.isNationalWonder());
 	}
 
+	// <!-- custom: Production-modifier migration audit: expose the inherited production focus / yield contribution and the exact context behind SAS's old early Forge-style veto. Keep the audit effect-based and after the existing level-3 neutral-value dedup gate, and only emit the dedicated row for candidates that match the old production-building classification; this preserves the evidence while avoiding hundreds of thousands of irrelevant BBAI rows. (ChatGPT-5.6-Sol) -->
+	int const iBaseProductionModifier = kBuilding.getYieldModifier(YIELD_PRODUCTION);
+	int iXMLBonusProductionModifier = 0;
+	int iActiveBonusProductionModifier = 0;
+	FOR_EACH_ENUM(Bonus)
+	{
+		int const iBonusProductionModifier = kBuilding.getBonusYieldModifier(eLoopBonus, YIELD_PRODUCTION);
+		iXMLBonusProductionModifier += iBonusProductionModifier;
+		if (iBonusProductionModifier != 0 && kCity.hasBonus(eLoopBonus))
+			iActiveBonusProductionModifier += iBonusProductionModifier;
+	}
+	int const iOldSASTotalProductionModifier = iBaseProductionModifier + iXMLBonusProductionModifier;
+	int const iActiveProductionModifier = iBaseProductionModifier + iActiveBonusProductionModifier;
+	bool const bOldSASProductionClassified = (iOldSASTotalProductionModifier >= 20);
+	if (bOldSASProductionClassified)
+	{
+		int const iElapsedTurns = GC.getGame().getElapsedGameTurns();
+		int const iConstructPercent = GC.getInfo(GC.getGame().getGameSpeedType()).getConstructPercent();
+		int const iOldSASEarlyTurnsAdjusted = 100 * iConstructPercent / 100;
+		bool const bOldSASEarlyWindow = (iElapsedTurns < iOldSASEarlyTurnsAdjusted);
+		int const iBaseHammersPerTurn = kCity.getBaseYieldRate(YIELD_PRODUCTION);
+		int const iStrictHappinessGain = AI_strictAdditionalHappy(kCity, eBuilding);
+		bool const bOldSASLowHammers = (iBaseHammersPerTurn < 13);
+		bool const bOldSASLowGrowth = (iFoodSurplus < 2 || iHappySurplus < 1);
+		bool const bOldSASWeakHappinessBoost = (iStrictHappinessGain < 3);
+		bool const bOldSASRejectEarlyLowReturn = (bOldSASProductionClassified && bOldSASEarlyWindow &&
+				bOldSASLowHammers && bOldSASLowGrowth && bOldSASWeakHappinessBoost);
+		bool const bEnemyStrongForOldSAS = (iEnemyPowerPercent >= GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"));
+		bool const bOldSASRejectStrongEnemy = (bOldSASProductionClassified && !bOldSASEarlyWindow &&
+				bAtWar && bEnemyStrongForOldSAS);
+		int const iOtherPreFinalWithoutYield = iValueBeforePriority - iYieldDelta;
+		logBBAI("BUILDING_VALUE_INHERITED_PRODUCTION turn=%d player=%d city=%S cityId=%d building=%s final=%d preFinal=%d productionFocus=%d yieldDelta=%d otherPreFinalWithoutYield=%d militaryProductionDelta=%d domainProductionDelta=%d baseProductionModifier=%d xmlBonusProductionModifier=%d activeBonusProductionModifier=%d oldSASTotalProductionModifier=%d activeProductionModifier=%d baseHammersPerTurn=%d productionRank=%d population=%d targetPopulation=%d foodSurplus=%d healthSurplus=%d happySurplus=%d strictHappinessGain=%d healthGain=%d providesPower=%d cityHasPower=%d powerProductionModifier=%d currentPowerProductionModifier=%d stored=%d needed=%d turnsLeft=%d oldSASProductionClassified=%d oldSASEarlyWindow=%d oldSASLowHammers=%d oldSASLowGrowth=%d oldSASWeakHappinessBoost=%d oldSASRejectEarlyLowReturn=%d oldSASRejectStrongEnemy=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d limited=%d worldWonder=%d nationalWonder=%d",
+			GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(),
+			iValue, iValueBeforePriority, iFocusProduction, iYieldDelta, iOtherPreFinalWithoutYield, iMilitaryProductionDelta, iDomainProductionDelta,
+			iBaseProductionModifier, iXMLBonusProductionModifier, iActiveBonusProductionModifier, iOldSASTotalProductionModifier, iActiveProductionModifier,
+			iBaseHammersPerTurn, kCity.findBaseYieldRateRank(YIELD_PRODUCTION), kCity.getPopulation(), kCity.AI_getTargetPopulation(),
+			iFoodSurplus, iHealthSurplus, iHappySurplus, iStrictHappinessGain, iHealthGain, kBuilding.isPower(), kCity.isPower(),
+			kBuilding.getPowerYieldModifier(YIELD_PRODUCTION), kCity.getPowerYieldRateModifier(YIELD_PRODUCTION), iStored, iNeeded, iTurnsLeft,
+			bOldSASProductionClassified, bOldSASEarlyWindow, bOldSASLowHammers, bOldSASLowGrowth, bOldSASWeakHappinessBoost,
+			bOldSASRejectEarlyLowReturn, bOldSASRejectStrongEnemy, bAtWar, bWarPlan, bDanger, iEnemyPowerPercent,
+			kBuilding.isLimited(), kBuilding.isWorldWonder(), kBuilding.isNationalWonder());
+	}
 	// <!-- custom: Defense migration audit: log the concrete threat and defensive-effect inputs behind the exact inherited defense delta. Compute this only after the level-3 neutral row survives deduplication; no defensive heuristic or extra query is added to normal gameplay. This lets us test SAS's old "already strong / no threat" rationale without rejecting a multipurpose building merely because one of its effects is defensive. (ChatGPT-5.6-Sol) -->
 	int const iRaiseDefense = kBuilding.get(CvBuildingInfo::RaiseDefense);
 	int const iAirDefense = -kBuilding.getAirModifier();
