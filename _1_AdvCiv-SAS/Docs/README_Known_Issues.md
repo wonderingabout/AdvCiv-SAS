@@ -85,6 +85,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.2 - (Greatly Enhanced and Fixed) Kish city of gilgamesh AI building a theatre instead of a hindu temple despite having unhappy citizens (and health room to grow otherwise), and theatre not giving any reliable happiness (almost anything else would have been much better), fixed by fixed by correcting the happiness building formula in our pre-check in CvCityAI::AI_buildingValue, and in particular replacing the too broad and unreliable CvCity::getAdditionalHappinessByBuilding with our own AI_strictAdditionalHappy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.2)\
 [KI#48.3 - (Fixed AdvCiv-SAS bug) Building prefilter double-counted unhealthy food loss](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.3)\
 [KI#48.4 - (Fixed AdvCiv-SAS performance-optimization crash) Corporation HQ valuation used an exhausted commerce-loop index](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.4)\
+[KI#48.5 - (Fixed inherited Kek-Mod AI valuation defect) Every Bomb Shelter protected the same continental army](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.5)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
@@ -3304,6 +3305,34 @@ A turn-250 full-memory crash dump with matching private symbols failed in `CvCit
 AdvCiv-SAS practical 5086 moved `findCommerceRateRank(eLoopCommerce)` immediately before the corporation-headquarters commerce loop as a performance optimization. At that location, `eLoopCommerce` survived from an earlier completed `FOR_EACH_ENUM(Commerce)` loop and held its terminal sentinel rather than a valid commerce type. The Base AdvCiv implementation correctly performs the rank lookup inside the later loop for its current commerce type.
 
 The fix restores that lookup to the positive headquarters-commerce branch inside the valid loop. This also avoids calculating ranks for commerce types that contribute no headquarters value, while preserving the original corporation valuation formula. The exact dump path and invalid index are resolved by the source correction; the crash did not recur later in the same testing sequence, and a dedicated rebuilt-DLL reproduction was not needed for this rare path. Diagnosed and fixed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-48.5"></a>
+
+## KI#48.5 - (Fixed inherited Kek-Mod AI valuation defect) Every Bomb Shelter protected the same continental army
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1A7xq6H7PVOsECMy3KQ0NIBEjdbccXcH-?usp=sharing).
+
+During the AdvCiv-SAS regular-building AI rework, the old SAS whole-building prefilter was disabled so ordinary buildings could use the inherited additive K-Mod/AdvCiv valuation instead. Level-3 BBAI attribution was added before deciding whether any old SAS rejection rationale still needed a narrower replacement.
+
+Conventional defensive-building value proved modest and threat-responsive, but the new diagnostics exposed a separate inherited outlier in Kek-Mod's `kekm.16` nuke-defense term, originally adopted into AdvCiv as DarkLunaPhantom's `dlph.16` change for Bomb Shelter AI.
+
+That term replaces K-Mod's older modest nuke-defense modifier with an estimate of the city and a strong unit stack protected by a Bomb Shelter. It sums the whole team's military power in the city's land area, takes 35%, and independently assigns that same estimate to every city in the area.
+
+Once `AI_nukeDangerDivisor()` reaches 1 because a known potential enemy is estimated to own nuclear weapons, this repeated area-wide stack estimate can dominate ordinary building and defense value even in safe peace-time cities.
+
+The level-3 BBAI building-value audit recorded 1,162 nuke-defense candidates. Their median nuke-defense contribution was +239 overall and +360 among selected Bomb Shelters; selected cities with no immediate danger, war or war plan still had a +272 median.
+
+In safe rows, the median repeated stack estimate was 765 versus only 163 for the city target itself, with individual nuke-defense contributions including +809, +536 and +494.
+
+The fix preserves the inherited 35% estimate as an upper bound, but caps the protected stack on larger areas at the average team military power per team city in that area. A first candidate capped it at twice the average; this reduced the overall median nuke-defense value from about +239 to +178, but selected safe-city Bomb Shelters still had a +314 median because the remaining stack term dominated their city-target value. The final one-times-average cap reduced the overall median to +131, the selected-building median to +167 and the safe selected-city median to +189.
+
+The calculation remains generic by actual area power and city count, without hardcoding Bomb Shelter, technology or era names. It also leaves the broader nuclear-threat policy unchanged: in the final run, remote threats with `nukeDangerDivisor=10` produced only 9 matched selections at about +19 median value, while 182 divisor-1 selections had about +177 median value; 41 of 42 safe matched selections occurred only when a relevant rival was estimated to own nuclear weapons. The turn-500 validation completed 123 Bomb Shelters versus 120 in the candidate-1 turn-474 run, so the lower valuation corrected the repeated continental-army overcount without suppressing actual construction.
+
+The earlier source-only C++ File Audit Album had correctly closed `AI_nukeEplosionValue()` itself as a bounded rough local estimate and verified that the nuke-danger divisor stays positive.
+
+It did not identify this distinct cross-city heuristic overcount in the caller; the later BBAI audit supplied the behavioral and numerical evidence needed to isolate it.
+
+Found during the AdvCiv-SAS regular-building valuation rework by ChatGPT-5.6-Sol and reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-49"></a>
 

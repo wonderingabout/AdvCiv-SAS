@@ -7129,7 +7129,8 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 			iRaiseDefense, kBuilding.getAllCityDefenseModifier(), kBuilding.getAirlift(), iAirDefense, kTeam.AI_getRivalAirPower(), kTeam.AI_getAirPower(),
 			iNukeDefense, kTeam.getNukeInterception(), bBestLandIgnoresBuildingDefense);
 
-		// <!-- custom: Nuke-defense sub-audit: the kekm.16 Bomb Shelter term can dominate otherwise modest defensive value, so mirror its runtime arithmetic here after the existing level-3 dedup gate and expose each ingredient separately. This is diagnostic-only and intentionally does not alter or classify the building; if the runtime formula changes, keep this mirror in sync until the audit is retired. (ChatGPT-5.6-Sol) -->
+		// <!-- custom: Nuke-defense sub-audit: the kekm.16 Bomb Shelter term can dominate otherwise modest defensive value, so mirror its runtime arithmetic here after the existing level-3 dedup gate and expose each ingredient separately.
+		// This is diagnostic-only and intentionally does not alter or classify the building; if the runtime formula changes, keep this mirror in sync until the audit is retired. See KI#48.5. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (iNukeDefense > 0)
 		{
 			int iNukeEvasionProbability = 0;
@@ -7149,17 +7150,19 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 			int iAreaTeamPower = 0;
 			for (MemberIter itMember(kCity.getTeam()); itMember.hasNext(); ++itMember)
 				iAreaTeamPower += kCity.getArea().getPower(itMember->getID());
-			int const iStackValue = iAreaTeamPower * 7 / 20;
+			int const iTeamCitiesInArea = std::max(1, kTeam.countNumCitiesByArea(kCity.getArea()));
+			int const iOldStackValue = iAreaTeamPower * 7 / 20;
+			int const iStackValue = std::min(iOldStackValue, iAreaTeamPower / iTeamCitiesInArea);
 			int const iRawProtectedValue = iNukeDefense * (iStackValue + iTargetValue) / 100;
 			int const iInterceptionFactorTimes10000 = 10000 - kTeam.getNukeInterception() * (100 - iNukeEvasionProbability);
 			int const iPostInterceptionValue = iRawProtectedValue * iInterceptionFactorTimes10000 / 10000;
 			int const iNukeDangerDivisor = kOwner.AI_nukeDangerDivisor();
 			int const iFinalNukeDefenseValue = iPostInterceptionValue / iNukeDangerDivisor;
 
-			logBBAI("BUILDING_VALUE_INHERITED_NUKE_DEFENSE turn=%d player=%d city=%S cityId=%d building=%s defenseDelta=%d nukeDefense=%d nukesValid=%d noNukes=%d nukeUnitTypes=%d avgNukeEvasion=%d nukeInterception=%d cityProduction=%d cityCommerce=%d targetValue=%d areaTeamPower=%d stackValue=%d rawProtectedValue=%d interceptionFactorTimes10000=%d postInterceptionValue=%d nukeDangerDivisor=%d finalNukeDefenseValue=%d danger=%d warPlan=%d atWar=%d",
+			logBBAI("BUILDING_VALUE_INHERITED_NUKE_DEFENSE turn=%d player=%d city=%S cityId=%d building=%s defenseDelta=%d nukeDefense=%d nukesValid=%d noNukes=%d nukeUnitTypes=%d avgNukeEvasion=%d nukeInterception=%d cityProduction=%d cityCommerce=%d targetValue=%d areaTeamPower=%d teamCitiesInArea=%d oldStackValue=%d stackValue=%d rawProtectedValue=%d interceptionFactorTimes10000=%d postInterceptionValue=%d nukeDangerDivisor=%d finalNukeDefenseValue=%d danger=%d warPlan=%d atWar=%d",
 				GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(), iDefenseDelta,
 				iNukeDefense, GC.getGame().isNukesValid(), GC.getGame().isNoNukes(), iNukeUnitTypes, iNukeEvasionProbability, kTeam.getNukeInterception(),
-				kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), iTargetValue, iAreaTeamPower, iStackValue, iRawProtectedValue,
+				kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), iTargetValue, iAreaTeamPower, iTeamCitiesInArea, iOldStackValue, iStackValue, iRawProtectedValue,
 				iInterceptionFactorTimes10000, iPostInterceptionValue, iNukeDangerDivisor, iFinalNukeDefenseValue, bDanger, bWarPlan, bAtWar);
 		}
 	}
@@ -11230,6 +11233,8 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding, bool bAreaAlone
 	}
 	//r += -kBuilding.getNukeModifier() / (g.isNukesValid() && !g.isNoNukes() ? 4 : 40);
 	// K-Mod end
+	// <!-- custom: In 21,345 audited defense-valued candidates, the median contribution was +7 in safe/no-war-plan cities versus +15 in immediate danger; selected safe Walls, Castles and Bunkers had medians of +6, +12 and +9.
+	// Retain this inherited marginal conventional-defense valuation instead of restoring SAS's old whole-building safe-city rejection; the separate nuke-defense outlier is tracked in KI#48.5. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	// <kekm.16> Replacing the line above.
 	// DarkLunaPhantom - "Bomb Shelters should be of much higher value, I copied and adjusted rough estimates from AI_projectValue()."
 	int iNukeDefense = -kBuilding.getNukeModifier();
@@ -11251,13 +11256,20 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding, bool bAreaAlone
 		int iTargetValue = AI_nukeEplosionValue();
 		/*  "Lazy attempt to estimate the value of the strongest
 			unit stack this shelter might defend." */
-		int iStackValue = 0;
+		// <!-- custom: The kekm.16 estimate used 35% of all team power in the area independently for every city, which our building-value audit showed can make each Bomb Shelter act as though it protects the same continental army.
+		// Preserve that estimate as an upper bound, but on larger areas cap it at the average team power per team city in the area.
+		// A first candidate capped it at twice that average; this greatly reduced the overcount, but the remaining stack term still dominated selected safe-city Bomb Shelter values.
+		// The final turn-500 validation reduced the safe selected-city median to +189 without suppressing construction: 123 Bomb Shelters completed, versus 120 in the candidate-1 turn-474 run.
+		// This keeps the old value on very small areas without repeatedly assigning a huge share of area-wide military power to every city.
+		// Generic by actual area power/city count; no Bomb Shelter, tech or era names are hardcoded. See KI#48.5. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int iAreaTeamPower = 0;
 		for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
 		{
-				iStackValue += getArea().getPower(itMember->getID());
+			iAreaTeamPower += getArea().getPower(itMember->getID());
 		}
-		iStackValue *= 7;
-		iStackValue /= 20;
+		int const iTeamCitiesInArea = std::max(1, kTeam.countNumCitiesByArea(getArea()));
+		int const iOldStackValue = iAreaTeamPower * 7 / 20;
+		int const iStackValue = std::min(iOldStackValue, iAreaTeamPower / iTeamCitiesInArea);
 		int iTempValue = iNukeDefense * (iStackValue + iTargetValue);
 		iTempValue /= 100;
 		iTempValue *= 10000 - kTeam.getNukeInterception() *
