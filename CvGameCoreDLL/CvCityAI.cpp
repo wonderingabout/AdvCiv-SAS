@@ -7108,6 +7108,28 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 		iSpecialistDelta, iTradeDelta, iGeneralDelta, iYieldDelta, iCommerceGlobalDelta,
 		iAirCapacityDelta, iMilitaryProductionDelta, iDomainProductionDelta, iAccountedDelta, iResidualDelta);
 
+	// <!-- custom: Defense migration audit: log the concrete threat and defensive-effect inputs behind the exact inherited defense delta. Compute this only after the level-3 neutral row survives deduplication; no defensive heuristic or extra query is added to normal gameplay. This lets us test SAS's old "already strong / no threat" rationale without rejecting a multipurpose building merely because one of its effects is defensive. (ChatGPT-5.6-Sol) -->
+	int const iRaiseDefense = kBuilding.get(CvBuildingInfo::RaiseDefense);
+	int const iAirDefense = -kBuilding.getAirModifier();
+	int const iNukeDefense = -kBuilding.getNukeModifier();
+	bool const bHasDefenseEffect = (iDefenseDelta != 0 || kBuilding.getDefenseModifier() != 0 || kBuilding.getBombardDefenseModifier() != 0 ||
+		iRaiseDefense > 0 || kBuilding.getAllCityDefenseModifier() != 0 || kBuilding.getAirlift() != 0 || iAirDefense > 0 || iNukeDefense > 0);
+	if (bHasDefenseEffect)
+	{
+		CvTeamAI const& kTeam = GET_TEAM(kCity.getTeam());
+		int const iCityDefenders = kCity.getPlot().getNumDefenders(kCity.getOwner());
+		int const iNeededDefenders = kCity.AI_neededDefenders();
+		UnitTypes const eBestLandUnit = GC.getGame().getBestLandUnit();
+		bool const bBestLandIgnoresBuildingDefense = (eBestLandUnit != NO_UNIT && GC.getInfo(eBestLandUnit).isIgnoreBuildingDefense());
+		logBBAI("BUILDING_VALUE_INHERITED_DEFENSE turn=%d player=%d city=%S cityId=%d building=%s defenseDelta=%d danger=%d warPlan=%d atWar=%d landWar=%d areaAlone=%d cityDefenders=%d neededDefenders=%d underDefended=%d naturalDefense=%d totalDefense=%d buildingBombardDefense=%d ownerCityDefenseModifier=%d buildingDefenseModifier=%d bombardDefenseModifier=%d raiseDefense=%d allCityDefenseModifier=%d airlift=%d airDefense=%d rivalAirPower=%d ownAirPower=%d nukeDefense=%d nukeInterception=%d bestLandIgnoresBuildingDefense=%d",
+			GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(), iDefenseDelta,
+			bDanger, bWarPlan, bAtWar, kOwner.AI_isLandWar(kCity.getArea()), kOwner.AI_isAreaAlone(kCity.getArea()),
+			iCityDefenders, iNeededDefenders, iCityDefenders < iNeededDefenders, kCity.getNaturalDefense(), kCity.getTotalDefense(false),
+			kCity.getBuildingBombardDefense(), kOwner.getCityDefenseModifier(), kBuilding.getDefenseModifier(), kBuilding.getBombardDefenseModifier(),
+			iRaiseDefense, kBuilding.getAllCityDefenseModifier(), kBuilding.getAirlift(), iAirDefense, kTeam.AI_getRivalAirPower(), kTeam.AI_getAirPower(),
+			iNukeDefense, kTeam.getNukeInterception(), bBestLandIgnoresBuildingDefense);
+	}
+
 	logBBAI("BUILDING_VALUE_INHERITED turn=%d player=%d %S city=%S cityId=%d building=%s value=%d priorityFactor=%d researchingObsoleteTech=%d comparisonValue=%d era=%d pop=%d healthSurplus=%d happySurplus=%d foodSurplus=%d baseProduction=%d stored=%d needed=%d remaining=%d turnsLeft=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d financialTrouble=%d healthGain=%d happyGain=%d foodKept=%d defenseModifier=%d maintenanceModifier=%d productionModifier=%d seaFood=%d tradeRoutes=%d goldFlat=%d goldModifier=%d researchFlat=%d researchModifier=%d cultureFlat=%d cultureModifier=%d espionageFlat=%d espionageModifier=%d",
 		GC.getGame().getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(), iValue, iPriorityFactor, bResearchingObsoleteTech, iComparisonValue,
 		kOwner.getCurrentEra(), kCity.getPopulation(), iHealthSurplus, iHappySurplus, iFoodSurplus, kCity.getBaseYieldRate(YIELD_PRODUCTION), iStored, iNeeded, std::max(0, iNeeded - iStored), iTurnsLeft,
@@ -9177,6 +9199,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				(note. ideally we'd use "calculateBaseMaintenanceTimes100",
 				and that would a avoid problem caused by "we love the X day".
 				but doing it this way is slightly faster.) */
+			// <!-- custom: SAS regular-building migration audit: full-autoplay diagnostics showed that this inherited K-Mod path already scales maintenance value proportionally with actual savings, inflation and financial trouble. Small savings stayed small while multipurpose buildings could still be worthwhile for their other effects, so keep this additive valuation unchanged instead of restoring SAS's old whole-building "too soon" maintenance rejection. (ChatGPT-5.6-Sol) -->
 			if (kBuilding.getMaintenanceModifier())
 			{
 				int iBaseMaintenance = 100 * iMaintenanceTimes100 /
