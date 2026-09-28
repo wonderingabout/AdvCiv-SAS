@@ -9,6 +9,7 @@
 class CvPlot;
 class CvCity;
 class CvCityAI; // advc.003u
+class CvTeamAI; // <!-- custom: SASWarPowerContext accepts a team-AI reference; forward-declare it instead of making this widely included utility header pull in the full CvTeamAI definition. (GPT-5.6-Sol) -->
 class CvUnit;
 class CvUnitAI; // advc.003u
 class CvSelectionGroup;
@@ -179,6 +180,24 @@ namespace hotkeyDescr
 
 bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);												// Exposed to Python
 //isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam); // advc: Use CvTeamAI::AI_mayAttack instead
+// <!-- custom: Share the XML thresholds, classifications and current/chosen-enemy snapshot used by SAS military-pressure policies across city, player, team and unit AI.
+// AI_getEnemyPowerPercent(true) is an aggregate comparison against known current/chosen enemies and returns 0 when none applies; a raw weak result therefore includes that sentinel, while relative-superiority callers must use the nonzero or at-war forms.
+// Keep player-level focus-war state and city/area danger separate because they are different strategic/tactical signals and have different scopes. (ChatGPT-5 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+struct SASWarPowerContext
+{
+	explicit SASWarPowerContext(CvTeamAI const& kTeam);
+	static int enemyStrongThreshold();
+	static int enemyWeakThreshold();
+	static bool isEnemyStrong(int iEnemyPowerPercent);
+	static bool isEnemyWeak(int iEnemyPowerPercent);
+
+	int iEnemyPowerPercent;
+	bool bAtWar;
+	bool bEnemyStrong;
+	bool bEnemyWeakRaw;
+	bool bEnemyWeakNonZero;
+	bool bAtWarAndEnemyWeak;
+};
 char const* getSASDiploEventType(DiploEventTypes eDiploEvent); // <!-- custom: Shared raw enum-token text for DiploEventTypes because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
 char const* getSASContactType(ContactTypes eContact); // <!-- custom: Shared raw enum-token text for ContactTypes so diplomacy diagnostics can describe proactive contact classes without opaque enum integers. (ChatGPT-5.6-Sol) -->
 char const* getSASTradeItemType(TradeableItems eItem); // <!-- custom: Shared raw enum-token text for TradeableItems because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->

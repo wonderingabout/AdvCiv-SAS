@@ -1137,6 +1137,37 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
 	return (eTeamA != NO_TEAM && eTeamB != NO_TEAM && GET_TEAM(eTeamA).isAtWar(eTeamB));
 }
 
+SASWarPowerContext::SASWarPowerContext(CvTeamAI const& kTeam)
+:	iEnemyPowerPercent(kTeam.AI_getEnemyPowerPercent(true)),
+	bAtWar(kTeam.getNumWars() > 0),
+	bEnemyStrong(isEnemyStrong(iEnemyPowerPercent)),
+	bEnemyWeakRaw(isEnemyWeak(iEnemyPowerPercent)),
+	bEnemyWeakNonZero(iEnemyPowerPercent > 0 && bEnemyWeakRaw),
+	bAtWarAndEnemyWeak(bAtWar && bEnemyWeakRaw)
+{}
+
+int SASWarPowerContext::enemyStrongThreshold()
+{
+	static int const iThreshold = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+	return iThreshold;
+}
+
+int SASWarPowerContext::enemyWeakThreshold()
+{
+	static int const iThreshold = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
+	return iThreshold;
+}
+
+bool SASWarPowerContext::isEnemyStrong(int iEnemyPowerPercent)
+{
+	return (iEnemyPowerPercent >= enemyStrongThreshold());
+}
+
+bool SASWarPowerContext::isEnemyWeak(int iEnemyPowerPercent)
+{
+	return (iEnemyPowerPercent <= enemyWeakThreshold());
+}
+
 char const* getSASDiploEventType(DiploEventTypes eDiploEvent)
 {
 	switch (eDiploEvent)

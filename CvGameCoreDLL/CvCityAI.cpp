@@ -29,54 +29,6 @@ static bool SAS_cityTouchesWaterArea(CvCity const& kCity, CvArea const& kWaterAr
 	return (kCity.waterArea(true) == &kWaterArea || kCity.secondWaterArea() == &kWaterArea);
 }
 
-// <!-- custom: Centralize the SAS team/player-wide war-power snapshot used by production heuristics.
-// AI_getEnemyPowerPercent(true) sums weighted power from known current enemies and chosen-war targets, discounting distant, minor and multi-front rivals, then compares it with averaged own/master power; it is an aggregate, not the strongest single enemy.
-// With no current or chosen enemy, it returns 0: this means no applicable comparison, not military superiority.
-// Keep raw weak for exact legacy semantics, use nonzero weak when relative advantage is required, and use at-war weak when the policy specifically requires an active war.
-// Do not fold city-local bDanger, area-local bLandWar or other pressure signals into this helper: they answer different questions and are already cached where appropriate. (ChatGPT-5 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-struct SASWarPowerContext
-{
-	SASWarPowerContext(CvTeamAI const& kTeam, bool bFocusWar)
-	: iEnemyPowerPercent(kTeam.AI_getEnemyPowerPercent(true)),
-	  bAtWar(kTeam.getNumWars() > 0),
-	  bWarPlan(bFocusWar),
-	  bEnemyStrong(isEnemyStrong(iEnemyPowerPercent)),
-	  bEnemyWeakRaw(isEnemyWeak(iEnemyPowerPercent)),
-	  bEnemyWeakNonZero(iEnemyPowerPercent > 0 && bEnemyWeakRaw),
-	  bAtWarAndEnemyWeak(bAtWar && bEnemyWeakRaw)
-	{}
-
-	static int enemyStrongThreshold()
-	{
-		static int const iThreshold = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
-		return iThreshold;
-	}
-
-	static int enemyWeakThreshold()
-	{
-		static int const iThreshold = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
-		return iThreshold;
-	}
-
-	static bool isEnemyStrong(int iEnemyPowerPercent)
-	{
-		return (iEnemyPowerPercent >= enemyStrongThreshold());
-	}
-
-	static bool isEnemyWeak(int iEnemyPowerPercent)
-	{
-		return (iEnemyPowerPercent <= enemyWeakThreshold());
-	}
-
-	int iEnemyPowerPercent;
-	bool bAtWar;
-	bool bWarPlan;
-	bool bEnemyStrong;
-	bool bEnemyWeakRaw;
-	bool bEnemyWeakNonZero;
-	bool bAtWarAndEnemyWeak;
-};
-
 // <!-- custom: Ordinary land improvements are selected by CvUnitAI::AI_bestCityBuild rather than the legacy city best-build cache.
 // Test whether an owned land plot has any currently legal improvement that raises a yield or connects its visible bonus so city/area Worker demand sees the same class of useful work without hardcoding terrain, feature or improvement names. (GPT-5.6-Sol) -->
 static bool SAS_hasCurrentWorkerImprovement(CvCityAI const& kCity, CvPlot const& kPlot)
@@ -2274,7 +2226,7 @@ public:
 		// <!-- custom: Cross-category military-pressure audit: put the best inherited building beside the actual strategic pressure and local defensive stock before AI_chooseProduction's later branches decide whether to keep it or switch to units/processes.
 		// Keep every added query inside this already-armed BUILDING_PRODUCTION diagnostic scope so ordinary gameplay pays no cost.
 		// This is intended to test whether the old per-category and unclassified strong-enemy vetoes should be replaced by one central opportunity-cost rule, or removed entirely if the inherited chooser already reacts well enough. (ChatGPT-5.6-Sol) -->
-		SASWarPowerContext const kWarPower(kTeam, kPlayer.AI_isFocusWar());
+		SASWarPowerContext const kWarPower(kTeam);
 		int const iEnemyPowerPercent = kWarPower.iEnemyPowerPercent;
 		bool const bEnemyStrong = kWarPower.bEnemyStrong;
 		int const iCityDefenders = kCity.getPlot().getNumDefenders(kCity.getOwner());
@@ -2283,7 +2235,7 @@ public:
 		int const iProductionRank = kCity.findYieldRateRank(YIELD_PRODUCTION);
 		int const iNumCities = kPlayer.getNumCities();
 		bool const bAtWar = kWarPower.bAtWar;
-		bool const bWarPlan = kWarPower.bWarPlan;
+		bool const bWarPlan = kPlayer.AI_isFocusWar();
 		bool const bOldSASMilitaryPressureCore = (bDanger || bAtWar || bEnemyStrong || bWarPlan);
 		logBBAI("BUILDING_PRODUCTION_OPPORTUNITY turn=%d player=%d %S city=%S cityId=%d era=%d pop=%d baseProd=%d bestBuilding=%s rawValue=%d adjustedValue=%d stored=%d needed=%d remaining=%d turnsLeft=%d buildingToMilitaryAvgPercent=%d remainingToMilitaryAvgPercent=%d buildingToMilitaryAvgTurnsPercent=%d militaryAvgCost=%d militaryMinCost=%d militaryMaxCost=%d militaryAvgTurns=%d militaryUniqueUnits=%d happySurplus=%d healthSurplus=%d foodSurplus=%d maintenanceTimes100=%d danger=%d atWar=%d warPlan=%d landWar=%d assault=%d warPrep=%d enemyPowerPercent=%d enemyStrong=%d cityDefenders=%d neededDefenders=%d underDefended=%d areaMilitaryStock=%d productionRank=%d numCities=%d areaAI=%d oldSASMilitaryPressureCore=%d financialTrouble=%d buildUnitProb=%d unitSpending=%d maxUnitSpending=%d spendingGap=%d limited=%d worldWonder=%d nationalWonder=%d",
 			GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(),
@@ -2553,13 +2505,13 @@ void CvCityAI::AI_chooseProduction()
 					std::max(1, getProductionNeeded(eProductionBuilding));
 
 				// <!-- custom: Situation read (ChatGPT-5) -->
-				SASWarPowerContext const kWarPower(kTeam, kPlayer.AI_isFocusWar());
-				bool const bWarPlan = kWarPower.bWarPlan;
+				SASWarPowerContext const kWarPower(kTeam);
+				bool const bWarPlan = kPlayer.AI_isFocusWar();
 				// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate -->
 				bool const bAtWar = kWarPower.bAtWar;
 				bool const bEnemyStrong = kWarPower.bEnemyStrong;
-				// <!-- custom: Centralize the SAS team/player-wide war-power snapshot used by production heuristics.
-				// AI_getEnemyPowerPercent(true) is meaningful for current/chosen enemies but returns 0 when there is no such enemy; keep raw weak, nonzero weak and at-war weak distinct so callers preserve their existing semantics instead of accidentally treating peaceful 0% as military superiority. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: Centralize the SAS team-wide enemy-power and active-war snapshot used by production heuristics; keep player-level focus-war state separate.
+				// AI_getEnemyPowerPercent(true) is meaningful for current/chosen enemies but returns 0 when there is no such enemy; keep raw weak, nonzero weak and at-war weak distinct so callers preserve their existing semantics instead of accidentally treating peaceful 0% as military superiority. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				bool const bAtWarAndEnemyWeak = kWarPower.bAtWarAndEnemyWeak;
 
 				// Keep a baseline threshold so peaceful wonder builds don’t auto-stick at 0%. 
@@ -2689,8 +2641,9 @@ void CvCityAI::AI_chooseProduction()
 	bool const bLogDetailedMilitaryProduction = (gMilitaryProductionLogLevel >= 3);
 	bool const bLogOverseasTransport = (gOverseasTransportLogLevel >= 2);
 	bool const bLogDetailedOverseasTransport = (gOverseasTransportLogLevel >= 3);
-	// <!-- custom: Cache the stable team/player-wide war-power snapshot once for this chooser call; bDanger is already cached at function entry; bLandWar and other area-local modes stay separate because their scope/semantics differ. (ChatGPT-5.6-Sol) -->
-	SASWarPowerContext const kWarPower(kTeam, kPlayer.AI_isFocusWar());
+	// <!-- custom: Cache the stable team-wide enemy-power/active-war snapshot once for this chooser call, and cache player-level AI_isFocusWar separately; bDanger is already cached at function entry, while bLandWar and other area-local modes stay separate because their scope/semantics differ. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	SASWarPowerContext const kWarPower(kTeam);
+	bool const bWarPlan = kPlayer.AI_isFocusWar();
 
 	CvArea* pWaterArea = waterArea(true);
 	bool bMaybeWaterArea = false;
@@ -3870,7 +3823,7 @@ void CvCityAI::AI_chooseProduction()
 				perhaps it was intended to, if so, I think it's far off the mark.
 				It might be helpful for giving the AI an appetite for warfare, so
 				I'm going to keep it. Now, to at least sometimes conquer Barbarians: */
-			if (!kWarPower.bWarPlan)
+			if (!bWarPlan)
 			{
 				int iNeededCityAtt = (kPlayer.AI_neededCityAttackersVsBarbarians()
 						/*	Safety margin; some may well be guarding cities or
@@ -4123,9 +4076,7 @@ void CvCityAI::AI_chooseProduction()
 
 		// CvArea* pWaterArea = waterArea(true);
 
-		// <!-- custom: AI_isFocusWar is a player-level strategic focus, distinct from team chosen-war/preparation flags below; reuse the chooser's cached snapshot rather than querying it again. (ChatGPT-5.6-Sol) -->
-		bool const bWarPlan = kWarPower.bWarPlan; // advc.105
-				//(kTeam.getAnyWarPlanCount(true) > 0);
+		// <!-- custom: AI_isFocusWar is a player-level strategic focus, distinct from team chosen-war/preparation flags below; reuse the chooser's cached bWarPlan snapshot rather than querying it again. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		bool const bDefense = (getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
 		bLandWar = (bDefense || (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (getArea().getAreaAIType(getTeam()) == AREAAI_MASSING));
 		// bool const bLandWar = kOwner.AI_isLandWar(getArea()); // K-Mod
@@ -4662,7 +4613,7 @@ void CvCityAI::AI_chooseProduction()
 	if ((bProductionCapacityBaseContextEligible && iNavalTargetPercent > 0) || bLogDetailedMilitaryProduction) iNavalCapacityPercent = SAS_getMilitaryProductionCapacityPercent(kPlayer, pWaterArea, iNavalBaseProduction, iNavalTotalBaseProduction, iNavalProductionCities, iNavalProductiveCities);
 	// <!-- custom: The naval floor is a production-share minimum, not a reason for a peaceful secured empire to accumulate ships forever.
 	// Cap only this forced floor when no war/assault preparation is active; ordinary AI logic can still build beyond the stock guard. See KI#197.11. (ChatGPT-5.6-Sol) -->
-	bool const bNavalProjectionActive = (bWarPrep || bAssault || bTotalWar || kWarPower.bWarPlan);
+	bool const bNavalProjectionActive = (bWarPrep || bAssault || bTotalWar || bWarPlan);
 	int iNavalPortCities = 0;
 	int iNavalTrackedStock = 0;
 	if (pWaterArea != NULL && (bUseSecuredNavalProfile || bLogDetailedMilitaryProduction))
@@ -6527,7 +6478,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 		bool const bPeaceAloneLikely = (bAreaAlone || iHasMetCount <= 0);
 		// <!-- custom: note: according to chatgpt 5 from it reading the function's code there, if we have 2 ennemies that have 80% vs us, then iEnemyPowerPercent would be 160 if i understood it correctly, and if at peace it would be 0, check to be sure if accurate but as for me i'll use this as an assumption to be true i mean (i didn't check too much if at all but fed it the actual real function and a few other bits of code if i may say in this case) -->
 		// <!-- custom: note: seems redundant to do (a & b) || a, which it is, but testing just b (e.g. >= 130) results in this always being true even at peace, as AIs don't build any settlers at all due to bOffenseMode <= 70 being always true, didn't seem necessary from the >=130 check that was false in the first 100 turns it seems for most if not all civs so not added -->
-		SASWarPowerContext const kWarPower(kTeam, bWarPlan);
+		SASWarPowerContext const kWarPower(kTeam);
 
 		// <!-- custom: test to reduce this a bit more as recommended by chatgpt 5 but done in my own way/own values, as it's a bit too late to defend when too behind maybe indeed-->
 		bool const bDefenseMode = ((kWarPower.bEnemyStrong /*||  bWarPossible ||*/ || bAnyPlannedWar || bAnyRealWar || bDanger || bDefense) && !bPeaceAloneLikely);
@@ -8315,7 +8266,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 		// <!-- custom: Quick threat read. (ChatGPT-5) -->
 		bool const bDanger = AI_isDanger();
-		SASWarPowerContext const kWarPower(kTeam, bWarPlan);
+		SASWarPowerContext const kWarPower(kTeam);
 		bool const bAtWar = kWarPower.bAtWar;
 
 		// <!-- custom: This block needs only the shared strong and at-war-weak classifications.
@@ -16393,10 +16344,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 				static const int iERA_RENAISSANCE  = static_cast<int>(eERA_RENAISSANCE);
 
 				// <!-- custom: Situation read (ChatGPT-5) -->
-				SASWarPowerContext const kWarPower(kTeam, kPlayer.AI_isFocusWar());
-				bool const bWarPlan = kWarPower.bWarPlan;
+				SASWarPowerContext const kWarPower(kTeam);
+				bool const bWarPlan = kPlayer.AI_isFocusWar();
 				bool const bDanger = AI_isDanger();
-				// <!-- custom: enemy power and war/focus-war state are team/player-wide; city-local danger remains separate. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: Enemy power and active-war state come from the shared team snapshot; AI_isFocusWar remains a separate player-level signal, and city-local danger remains separate again. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				bool const bAtWar = kWarPower.bAtWar;
 				int const iEnemyPowerPercent = kWarPower.iEnemyPowerPercent;
 				bool const bEnemyStrong = kWarPower.bEnemyStrong;

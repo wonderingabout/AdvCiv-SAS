@@ -2899,8 +2899,7 @@ void CvPlayerAI::AI_updateCommerceWeights()
 		CvTeamAI const& kTeam = GET_TEAM(getTeam());
 		bool const bAtWar = (kTeam.getNumWars() > 0);
 		int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
-		static int const iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD");
-		bool const bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+		bool const bEnemyStrong = SASWarPowerContext::isEnemyStrong(iEnemyPowerPercent);
 		VictoryTypes const eSpaceVictory = kGame.getSpaceVictory();
 		int const iSpaceCountdown = (eSpaceVictory == NO_VICTORY ? -1 : GET_TEAM(getTeam()).getVictoryCountdown(eSpaceVictory));
 		int iSpacePartsBuilt = 0;
@@ -6863,8 +6862,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 	if (bSAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE && iValue > 0 && eFromPlayer == NO_PLAYER) // only for our own research choice
 	{
 		const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
-		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
-		const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+		const bool bEnemyStrong = SASWarPowerContext::isEnemyStrong(iEnemyPowerPercent);
 
 		if (bEnemyStrong)
 		{
@@ -19935,8 +19933,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	// <!-- custom: compute these once as computationally more efficient-->
 	// <!-- custom: Situation read (ChatGPT-5) --> (player scope; cheap and robust)
 	const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
-	static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
-	const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+	const bool bEnemyStrong = SASWarPowerContext::isEnemyStrong(iEnemyPowerPercent);
 	const bool bNeedHammers = bEnemyStrong;
 	const int iAverageGreatPeopleMultiplier = AI_averageGreatPeopleMultiplier();
 
@@ -23945,11 +23942,10 @@ void CvPlayerAI::AI_doDiplo()
 						// If either side has 0 power (just founded / crippled), skip the bias
 						if (iOurPower > 0 && iTheirPower > 0)
 						{
-							static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
-							const bool bTheyAreStronger = (100 * iTheirPower > iSAS_ENEMY_STRONG_POWER_THRESHOLD * iOurPower);
-
-							static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
-							const bool bTheyAreWeaker = (100 * iTheirPower < iSAS_ENEMY_WEAK_POWER_THRESHOLD * iOurPower);
+							// <!-- custom: This is a direct pairwise power ratio rather than the aggregate current/chosen-enemy snapshot.
+							// Reuse its shared XML thresholds while preserving the original strict cross-multiplication and avoiding integer-division boundary changes. (GPT-5.6-Sol) -->
+							const bool bTheyAreStronger = (100 * iTheirPower > SASWarPowerContext::enemyStrongThreshold() * iOurPower);
+							const bool bTheyAreWeaker = (100 * iTheirPower < SASWarPowerContext::enemyWeakThreshold() * iOurPower);
 
 							if (bTheyAreStronger)
 							{
@@ -27516,8 +27512,7 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 	// Postpone that investment when current or chosen war enemies exceed our shared strong-enemy power threshold; retain Culture 1/local border culture, and preserve Culture 3/4 when all required cities already have credible high-culture countdowns so a close late win is not abandoned. (GPT-5.5) -->
 	CvTeamAI const& kTeam = GET_TEAM(getTeam());
 	int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
-	static int const iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD");
-	bool const bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+	bool const bEnemyStrong = SASWarPowerContext::isEnemyStrong(iEnemyPowerPercent);
 	if (!isHuman() && bEnemyStrong && iHighCultureCount < iVictoryCities)
 	{
 		if (bLogCultureStage)
@@ -27526,7 +27521,7 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 			bool const bAtWar = (kTeam.getNumWars() > 0);
 			logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=strongWarEnemy warPlan=%d atWar=%d enemyPowerPercent=%d strongEnemyThreshold=%d high=%d close=%d legendary=%d needed=%d foundationProgressPercent=%d foundationRaceRank=%d/%d",
 				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, bWarPlan, bAtWar, iEnemyPowerPercent,
-				iSAS_ENEMY_STRONG_POWER_THRESHOLD, iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities,
+				SASWarPowerContext::enemyStrongThreshold(), iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities,
 				iCultureFoundationProgressPercent, iCultureFoundationRaceRank, iCultureFoundationRacePlayers);
 		}
 		return 1;
