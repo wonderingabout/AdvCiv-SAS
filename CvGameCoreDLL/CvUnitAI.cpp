@@ -15405,7 +15405,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		static const PromotionTypes ePromotionRetreat1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_RETREAT1", true);
 		static const PromotionTypes ePromotionRetreat2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_RETREAT2", true);
 
-		// Situation read
+		// <!-- custom: Situation read (ChatGPT-5) -->
 		// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate -->
 		// bool const bWarPlan = kOwner.AI_isFocusWar();
 

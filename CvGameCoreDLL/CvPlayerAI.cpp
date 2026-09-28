@@ -19933,7 +19933,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	int iTotal = 0;
 
 	// <!-- custom: compute these once as computationally more efficient-->
-	// Situation read (player scope; cheap and robust)
+	// <!-- custom: Situation read (ChatGPT-5) --> (player scope; cheap and robust)
 	const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
 	static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
 	const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
@@ -27512,7 +27512,8 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 			return 1;
 		}
 	}
-	// <!-- custom: Reuse the player-wide SAS situation read here; city danger is intentionally absent because one threatened city should not veto an empire-wide victory strategy. Culture 2 diverts buildings, specialists, commerce, and production while the AI still needs to establish a plausible cultural win. Postpone that investment when current or chosen war enemies exceed our shared strong-enemy power threshold; retain Culture 1/local border culture, and preserve Culture 3/4 when all required cities already have credible high-culture countdowns so a close late win is not abandoned. (GPT-5.5) -->
+	// <!-- custom: Reuse the player-wide SAS situation read here; city danger is intentionally absent because one threatened city should not veto an empire-wide victory strategy. Culture 2 diverts buildings, specialists, commerce, and production while the AI still needs to establish a plausible cultural win.
+	// Postpone that investment when current or chosen war enemies exceed our shared strong-enemy power threshold; retain Culture 1/local border culture, and preserve Culture 3/4 when all required cities already have credible high-culture countdowns so a close late win is not abandoned. (GPT-5.5) -->
 	CvTeamAI const& kTeam = GET_TEAM(getTeam());
 	int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
 	static int const iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD");
@@ -32400,7 +32401,6 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
-	// <!-- custom: note: if i remember it correctly, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough, thankfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such -->
 	// <!-- custom: update issue is now solved by patching globally the canScrap, and below approach didn't solve anything, so i'll comment it out, enable it if need or want and see for related info known issue as of now 52 -->
 	// // B) Patch AI_disbandValue to strongly de-prefer scrapping new combat units & live garrisons
 	// // (You already boost value for MISSIONAI_GUARD_CITY; the check above covers plain defenders without that mission tag.)
