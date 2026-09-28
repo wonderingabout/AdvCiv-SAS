@@ -1778,6 +1778,308 @@ static BuildingTypes SAS_findCheapHighReturnInfrastructureForUnit(CvCityAI const
 
 // <!-- custom: Level-3 building diagnostics inspect focused alternatives without changing production.
 // Const-cache evaluation keeps the diagnostic scans out of mutable AI caches; AI_bestBuildingThreshold randomization is explicitly disabled so diagnostics add no RNG calls. (ChatGPT-5.6-Sol) -->
+
+
+// <!-- custom: Diagnostic-only helper for Walls/Castle-style fortification urgency.
+// Keep the proactive trigger restricted to visible hostile land attackers that can actually capture a city; this avoids treating animals, naval transports or unrelated visible enemies as a land-fortification approach.
+// Use the same predicate in the detailed timing scan so the trigger and logged attacker counts share one definition. (ChatGPT-5.6-Sol) -->
+static bool SAS_isVisibleEnemyLandCityAttackerForDefenseAudit(CvCityAI const& kCity, CvUnit const& kUnit, CvPlot const& kUnitPlot)
+{
+	// <!-- custom: Keep isAnimal separate from isNoCityCapture: BtS/AdvC animal XML can use bAnimal=1 with bNoCapture=0 (e.g. Bears), even though animal movement cannot capture cities. Do not let fog animals create false proactive fortification approaches. (ChatGPT-5.6-Sol) -->
+	if (kUnit.getDomainType() != DOMAIN_LAND || !kUnit.canAttack() || kUnit.isAnimal() || kUnit.isNoCityCapture() ||
+		kUnit.getUnitInfo().isMostlyDefensive())
+		return false;
+	if (kUnit.isInvisible(kCity.getTeam(), false))
+		return false;
+	return kUnit.isEnemy(kCity.getTeam(), kUnitPlot);
+}
+
+static bool SAS_hasVisibleEnemyLandCityAttackerForDefenseAudit(CvCityAI const& kCity, int iRange)
+{
+	for (SquareIter itPlot(kCity.getPlot(), iRange); itPlot.hasNext(); ++itPlot)
+	{
+		CvPlot const& kLoopPlot = *itPlot;
+		if (!kLoopPlot.isVisible(kCity.getTeam()))
+			continue;
+		FOR_EACH_UNITAI_IN(pLoopUnit, kLoopPlot)
+		{
+			if (SAS_isVisibleEnemyLandCityAttackerForDefenseAudit(kCity, *pLoopUnit, kLoopPlot))
+				return true;
+		}
+	}
+	return false;
+}
+
+// <!-- custom: The inherited BUILDINGFOCUS_DEFENSE pool also contains late air/nuclear-defense infrastructure such as Bunkers, Airports and Bomb Shelters.
+// For the land-invasion follow-up, separately shadow the best constructible <=20-turn building with an actual city-fortification effect (city defense floor/modifier or bombard resistance), i.e. Walls/Castle-style defenses.
+// Score deterministically with the inherited focused value and its usual time preference; diagnostic only. (ChatGPT-5.6-Sol) -->
+static BuildingTypes SAS_findBestFortificationForDefenseAudit(CvCityAI const& kCity, int iMaxTurns)
+{
+	CvCivilization const& kCiv = kCity.getCivilization();
+	int const iScaledMaxTurns = GC.AI_getGame().AI_turnsPercent(iMaxTurns, GC.getInfo(GC.getGame().getGameSpeedType()).getConstructPercent());
+	int iBestScore = 0;
+	BuildingTypes eBestBuilding = NO_BUILDING;
+	for (int i = 0; i < kCiv.getNumBuildings(); i++)
+	{
+		BuildingClassTypes const eLoopClass = kCiv.buildingClassAt(i);
+		if (GC.getInfo(eLoopClass).isLimited())
+			continue;
+		BuildingTypes const eLoopBuilding = kCiv.buildingAt(i);
+		CvBuildingInfo const& kBuilding = GC.getInfo(eLoopBuilding);
+		if (kBuilding.getDefenseModifier() <= 0 && kBuilding.getBombardDefenseModifier() <= 0 &&
+			kBuilding.get(CvBuildingInfo::RaiseDefense) <= 0)
+		{
+			continue;
+		}
+		if (!kCity.canConstruct(eLoopBuilding))
+			continue;
+		int const iTurnsLeft = kCity.getProductionTurnsLeft(eLoopBuilding, 0);
+		if (iTurnsLeft == MAX_INT || iTurnsLeft > iScaledMaxTurns)
+			continue;
+		int iValue = kCity.AI_buildingValue(eLoopBuilding, BUILDINGFOCUS_DEFENSE, 0, true);
+		if (iValue <= 0)
+			continue;
+		iValue += kCity.getBuildingProduction(eLoopBuilding) / 4;
+		int const iScore = (iValue * 1000) / std::max(1, iTurnsLeft + 3);
+		if (iScore > iBestScore)
+		{
+			iBestScore = iScore;
+			eBestBuilding = eLoopBuilding;
+		}
+	}
+	return eBestBuilding;
+}
+
+// <!-- custom: Diagnostic-only shadow audit for the post-emergency-layer defense follow-up.
+// When a city is in immediate danger or has a visible hostile land city-attacker within 5 plots, snapshot the current production target before AI_chooseProduction's continuity returns and shadow the best <=20-turn Walls/Castle-style fortification using inherited BUILDINGFOCUS_DEFENSE value.
+// Keep the later inherited generic BUILDINGFOCUS_DEFENSE stage logged separately for comparison; all shadow scans are deterministic and const-cache. See the broader building rework audit in KI#48.5. (ChatGPT-5.6-Sol) -->
+static void SAS_logDefenseProductionOpportunity(CvCityAI const& kCity, BuildingTypes eDefenseBuilding, HurryTypes ePopHurry, int iPopHurryPopulation, int iPopHurryAngerLength, HurryTypes eGoldHurry, int iGoldHurryCost, bool bImmediateDanger, bool bVisibleApproachThreat)
+{
+
+	char const* szCurrentKind = "-";
+	char const* szCurrentTarget = "-";
+	int iCurrentStored = 0;
+	int iCurrentNeeded = 0;
+	int iCurrentTurnsLeft = -1;
+	UnitTypes const eCurrentUnit = kCity.getProductionUnit();
+	BuildingTypes const eCurrentBuilding = kCity.getProductionBuilding();
+	ProjectTypes const eCurrentProject = kCity.getProductionProject();
+	ProcessTypes const eCurrentProcess = kCity.getProductionProcess();
+	if (eCurrentUnit != NO_UNIT)
+	{
+		szCurrentKind = "UNIT";
+		szCurrentTarget = GC.getInfo(eCurrentUnit).getType();
+		iCurrentStored = kCity.getUnitProduction(eCurrentUnit);
+		iCurrentNeeded = kCity.getProductionNeeded(eCurrentUnit);
+		iCurrentTurnsLeft = kCity.getProductionTurnsLeft(eCurrentUnit, 0);
+	}
+	else if (eCurrentBuilding != NO_BUILDING)
+	{
+		szCurrentKind = "BUILDING";
+		szCurrentTarget = GC.getInfo(eCurrentBuilding).getType();
+		iCurrentStored = kCity.getBuildingProduction(eCurrentBuilding);
+		iCurrentNeeded = kCity.getProductionNeeded(eCurrentBuilding);
+		iCurrentTurnsLeft = kCity.getProductionTurnsLeft(eCurrentBuilding, 0);
+	}
+	else if (eCurrentProject != NO_PROJECT)
+	{
+		szCurrentKind = "PROJECT";
+		szCurrentTarget = GC.getInfo(eCurrentProject).getType();
+		iCurrentStored = kCity.getProjectProduction(eCurrentProject);
+		iCurrentNeeded = kCity.getProductionNeeded(eCurrentProject);
+		iCurrentTurnsLeft = kCity.getProductionTurnsLeft(eCurrentProject, 0);
+	}
+	else if (eCurrentProcess != NO_PROCESS)
+	{
+		szCurrentKind = "PROCESS";
+		szCurrentTarget = GC.getInfo(eCurrentProcess).getType();
+	}
+	if (iCurrentTurnsLeft == MAX_INT) iCurrentTurnsLeft = -1;
+
+	char const* szDefenseBuilding = "-";
+	int iDefenseNeutralValue = 0;
+	int iDefenseFocusValue = 0;
+	int iDefenseStored = 0;
+	int iDefenseNeeded = 0;
+	int iDefenseTurnsLeft = -1;
+	int iDefenseModifier = 0;
+	int iBombardDefenseModifier = 0;
+	int iRaiseDefense = 0;
+	if (eDefenseBuilding != NO_BUILDING)
+	{
+		CvBuildingInfo const& kDefenseBuilding = GC.getInfo(eDefenseBuilding);
+		szDefenseBuilding = kDefenseBuilding.getType();
+		iDefenseNeutralValue = kCity.AI_buildingValue(eDefenseBuilding, 0, 0, true);
+		iDefenseFocusValue = kCity.AI_buildingValue(eDefenseBuilding, BUILDINGFOCUS_DEFENSE, 0, true);
+		iDefenseStored = kCity.getBuildingProduction(eDefenseBuilding);
+		iDefenseNeeded = kCity.getProductionNeeded(eDefenseBuilding);
+		iDefenseTurnsLeft = kCity.getProductionTurnsLeft(eDefenseBuilding, 0);
+		if (iDefenseTurnsLeft == MAX_INT) iDefenseTurnsLeft = -1;
+		iDefenseModifier = kDefenseBuilding.getDefenseModifier();
+		iBombardDefenseModifier = kDefenseBuilding.getBombardDefenseModifier();
+		iRaiseDefense = kDefenseBuilding.get(CvBuildingInfo::RaiseDefense);
+	}
+
+	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
+	CvTeamAI const& kTeam = GET_TEAM(kCity.getTeam());
+	int const iCityDefenders = kCity.getPlot().getNumDefenders(kCity.getOwner());
+	int const iNeededDefenders = kCity.AI_neededDefenders();
+
+	// <!-- custom: A threatened city's useful defense window can be longer than one turn: an offensive stack may still be several plots away, may be waiting for one-move/siege units, and may need time to bombard city defenses.
+	// Record only visible/local timing context rather than trying to predict the battle: K-Mod plot-danger/local-strength measures, current city-defense damage, visible hostile attacker/bombarder distances, whether those attackers ignore building defense, slow-unit presence, and whether adjacent attack plots cross a river.
+	// These are diagnostic clues for comparing defenseBuildingTurnsLeft and hurry options against the plausible attack/bombard window; they deliberately do not create a synthetic ETA or alter pathfinding/RNG. (ChatGPT-5.6-Sol) -->
+	int iLocalAttackersR1 = 0;
+	int iLocalAttackersR3 = 0;
+	int const iLocalAttackStrengthR1 = kOwner.AI_localAttackStrength(kCity.plot(), NO_TEAM, DOMAIN_LAND, 1, true, false, false, &iLocalAttackersR1);
+	int const iLocalAttackStrengthR3 = kOwner.AI_localAttackStrength(kCity.plot(), NO_TEAM, DOMAIN_LAND, 3, true, false, false, &iLocalAttackersR3);
+	int const iLocalDefenseStrengthR3 = kOwner.AI_localDefenceStrength(kCity.plot(), kCity.getTeam(), DOMAIN_LAND, 3, true, true, false, true);
+	int const iPlotDangerR1 = kOwner.AI_getPlotDanger(kCity.getPlot(), 1, false);
+	int const iPlotDangerR2 = kOwner.AI_getPlotDanger(kCity.getPlot(), 2, false);
+	int const iPlotDangerR3 = kOwner.AI_getPlotDanger(kCity.getPlot(), 3, false);
+
+	int iNearestVisibleAttackerDistance = -1;
+	int iNearestVisibleBombarderDistance = -1;
+	int iNearestVisibleSlowAttackerDistance = -1;
+	int iVisibleAttackersR1 = 0, iVisibleAttackersR2 = 0, iVisibleAttackersR3 = 0, iVisibleAttackersR5 = 0;
+	int iVisibleAttackersIgnoreBuildingDefenseR3 = 0, iVisibleAttackersIgnoreBuildingDefenseR5 = 0;
+	int iVisibleAttackersAffectedByBuildingDefenseR3 = 0, iVisibleAttackersAffectedByBuildingDefenseR5 = 0;
+	int iVisibleBombardersR1 = 0, iVisibleBombardersR2 = 0, iVisibleBombardersR3 = 0, iVisibleBombardersR5 = 0;
+	int iVisibleSlowAttackersR3 = 0, iVisibleSlowAttackersR5 = 0;
+	int iVisibleBombardRateR1 = 0, iVisibleBombardRateR3 = 0;
+	int iAdjacentEnemyAttackPlots = 0, iAdjacentNoRiverAttackPlots = 0, iAdjacentRiverAttackPlots = 0;
+	for (SquareIter itPlot(kCity.getPlot(), 5); itPlot.hasNext(); ++itPlot)
+	{
+		CvPlot const& kEnemyPlot = *itPlot;
+		if (!kEnemyPlot.isVisible(kCity.getTeam()))
+			continue;
+		int const iDistance = stepDistance(kCity.plot(), &kEnemyPlot);
+		bool bAttackPlot = false;
+		FOR_EACH_UNITAI_IN(pEnemyUnit, kEnemyPlot)
+		{
+			if (!SAS_isVisibleEnemyLandCityAttackerForDefenseAudit(kCity, *pEnemyUnit, kEnemyPlot))
+				continue;
+			bAttackPlot = true;
+			if (iNearestVisibleAttackerDistance < 0 || iDistance < iNearestVisibleAttackerDistance)
+				iNearestVisibleAttackerDistance = iDistance;
+			if (iDistance <= 1) iVisibleAttackersR1++;
+			if (iDistance <= 2) iVisibleAttackersR2++;
+			if (iDistance <= 3) iVisibleAttackersR3++;
+			iVisibleAttackersR5++;
+			if (pEnemyUnit->ignoreBuildingDefense())
+			{
+				if (iDistance <= 3) iVisibleAttackersIgnoreBuildingDefenseR3++;
+				iVisibleAttackersIgnoreBuildingDefenseR5++;
+			}
+			else
+			{
+				if (iDistance <= 3) iVisibleAttackersAffectedByBuildingDefenseR3++;
+				iVisibleAttackersAffectedByBuildingDefenseR5++;
+			}
+
+			if (pEnemyUnit->baseMoves() <= 1)
+			{
+				if (iNearestVisibleSlowAttackerDistance < 0 || iDistance < iNearestVisibleSlowAttackerDistance)
+					iNearestVisibleSlowAttackerDistance = iDistance;
+				if (iDistance <= 3) iVisibleSlowAttackersR3++;
+				iVisibleSlowAttackersR5++;
+			}
+
+			int const iBombardRate = pEnemyUnit->bombardRate();
+			if (iBombardRate > 0)
+			{
+				if (iNearestVisibleBombarderDistance < 0 || iDistance < iNearestVisibleBombarderDistance)
+					iNearestVisibleBombarderDistance = iDistance;
+				if (iDistance <= 1)
+				{
+					iVisibleBombardersR1++;
+					iVisibleBombardRateR1 += iBombardRate;
+				}
+				if (iDistance <= 2) iVisibleBombardersR2++;
+				if (iDistance <= 3)
+				{
+					iVisibleBombardersR3++;
+					iVisibleBombardRateR3 += iBombardRate;
+				}
+				iVisibleBombardersR5++;
+			}
+		}
+		if (iDistance == 1 && bAttackPlot)
+		{
+			iAdjacentEnemyAttackPlots++;
+			if (kEnemyPlot.isRiverCrossing(directionXY(kEnemyPlot, kCity.getPlot())))
+				iAdjacentRiverAttackPlots++;
+			else iAdjacentNoRiverAttackPlots++;
+		}
+	}
+
+	// <!-- custom: A defense building's ordinary turns-to-completion can be misleading in an emergency if it can be hurried now.
+	// Record the real current-civic population/gold hurry feasibility for the shadow candidate, and separately expose whether a legal zero-anarchy civic switch could enable population rushing this turn.
+	// Actual hurries and civic switches are already preserved by SASGameRecord; this row supplies only the missing counterfactual opportunity context. Diagnostic only. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Current-civic shadow hurry feasibility/costs are precomputed by AI_chooseProduction, where CvCityAI may legally access the inherited protected CvCity hurry helpers.
+	// Pass the resulting diagnostic values into this free logger instead of widening CvCity's API or duplicating hurry formulas here. (ChatGPT-5.6-Sol) -->
+
+	CivicTypes eZeroAnarchyPopRushCivic = NO_CIVIC;
+	int iZeroAnarchyPopRushCivicValueDelta = 0;
+	if (!kOwner.canPopRush())
+	{
+		CivicMap aeCurrentCivics;
+		kOwner.getCivics(aeCurrentCivics);
+		FOR_EACH_ENUM2(Civic, eCivic)
+		{
+			CvCivicInfo const& kCivic = GC.getInfo(eCivic);
+			bool bEnablesPopRush = false;
+			FOR_EACH_ENUM2(Hurry, eHurry)
+			{
+				if (kCivic.isHurry(eHurry) && GC.getInfo(eHurry).getProductionPerPopulation() > 0)
+				{
+					bEnablesPopRush = true;
+					break;
+				}
+			}
+			if (!bEnablesPopRush || !kOwner.canDoCivics(eCivic))
+				continue;
+			CivicOptionTypes const eOption = kCivic.getCivicOptionType();
+			CivicTypes const eCurrentCivic = aeCurrentCivics.get(eOption);
+			if (eCurrentCivic == eCivic)
+				continue;
+			CivicMap aeTestCivics(aeCurrentCivics);
+			aeTestCivics.set(eOption, eCivic);
+			if (kOwner.getCivicAnarchyLength(aeTestCivics) != 0 || !kOwner.canRevolution(aeTestCivics))
+				continue;
+			int const iValueDelta = kOwner.AI_civicValue(eCivic) - kOwner.AI_civicValue(eCurrentCivic);
+			if (eZeroAnarchyPopRushCivic == NO_CIVIC || iValueDelta > iZeroAnarchyPopRushCivicValueDelta)
+			{
+				eZeroAnarchyPopRushCivic = eCivic;
+				iZeroAnarchyPopRushCivicValueDelta = iValueDelta;
+			}
+		}
+	}
+
+	logBBAI("BUILDING_PRODUCTION_DEFENSE_URGENCY turn=%d player=%d %S city=%S cityId=%d x=%d y=%d stage=ENTRY currentKind=%s currentTarget=%s currentStored=%d currentNeeded=%d currentTurnsLeft=%d defenseBuilding=%s defenseNeutralValue=%d defenseFocusValue=%d defenseStored=%d defenseNeeded=%d defenseTurnsLeft=%d cityNaturalDefense=%d cityTotalDefense=%d cityBombardDefense=%d buildingDefenseModifier=%d buildingBombardDefenseModifier=%d buildingRaiseDefense=%d cityDefenders=%d neededDefenders=%d underDefended=%d population=%d happyBalance=%d hurryAngerTimer=%d canPopRushNow=%d popHurry=%s popHurryPopulation=%d popHurryAngerLength=%d goldHurry=%s goldHurryCost=%d zeroAnarchyPopRushCivic=%s zeroAnarchyPopRushCivicValueDelta=%d civicTimer=%d revolutionTimer=%d goldenAgeTurns=%d maxAnarchyTurns=%d atWar=%d warPlan=%d landWar=%d enemyPowerPercent=%d immediateDanger=%d visibleApproachThreat=%d",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kCity.getX(), kCity.getY(),
+		szCurrentKind, szCurrentTarget, iCurrentStored, iCurrentNeeded, iCurrentTurnsLeft, szDefenseBuilding,
+		iDefenseNeutralValue, iDefenseFocusValue, iDefenseStored, iDefenseNeeded, iDefenseTurnsLeft,
+		kCity.getNaturalDefense(), kCity.getTotalDefense(false), kCity.getBuildingBombardDefense(), iDefenseModifier, iBombardDefenseModifier, iRaiseDefense,
+		iCityDefenders, iNeededDefenders, iCityDefenders < iNeededDefenders, kCity.getPopulation(), kCity.happyLevel() - kCity.unhappyLevel(),
+		kCity.getHurryAngerTimer(), kCity.canPopRush(), (ePopHurry == NO_HURRY ? "-" : GC.getInfo(ePopHurry).getType()), iPopHurryPopulation, iPopHurryAngerLength,
+		(eGoldHurry == NO_HURRY ? "-" : GC.getInfo(eGoldHurry).getType()), iGoldHurryCost,
+		(eZeroAnarchyPopRushCivic == NO_CIVIC ? "-" : GC.getInfo(eZeroAnarchyPopRushCivic).getType()), iZeroAnarchyPopRushCivicValueDelta,
+		kOwner.AI_getCivicTimer(), kOwner.getRevolutionTimer(), kOwner.getGoldenAgeTurns(), kOwner.getMaxAnarchyTurns(),
+		kTeam.getNumWars() > 0, kOwner.AI_isFocusWar(), kOwner.AI_isLandWar(kCity.getArea()), kTeam.AI_getEnemyPowerPercent(true), bImmediateDanger, bVisibleApproachThreat);
+
+	logBBAI("BUILDING_PRODUCTION_DEFENSE_TIMING turn=%d player=%d %S city=%S cityId=%d x=%d y=%d defenseBuilding=%s defenseTurnsLeft=%d citySafety=%d cityValuePercent=%d capital=%d cityTotalDefense=%d cityDefenseModifier=%d cityDefenseDamage=%d cityLastDefenseDamage=%d cityBombardDefense=%d cityBombarded=%d plotDangerR1=%d plotDangerR2=%d plotDangerR3=%d localAttackStrengthR1=%d localAttackersR1=%d localAttackStrengthR3=%d localAttackersR3=%d localDefenseStrengthR3=%d nearestVisibleAttackerDistance=%d nearestVisibleSlowAttackerDistance=%d nearestVisibleBombarderDistance=%d visibleAttackersR1=%d visibleAttackersR2=%d visibleAttackersR3=%d visibleAttackersR5=%d visibleAttackersIgnoreBuildingDefenseR3=%d visibleAttackersIgnoreBuildingDefenseR5=%d visibleAttackersAffectedByBuildingDefenseR3=%d visibleAttackersAffectedByBuildingDefenseR5=%d visibleSlowAttackersR3=%d visibleSlowAttackersR5=%d visibleBombardersR1=%d visibleBombardersR2=%d visibleBombardersR3=%d visibleBombardersR5=%d visibleBombardRateR1=%d visibleBombardRateR3=%d adjacentEnemyAttackPlots=%d adjacentNoRiverAttackPlots=%d adjacentRiverAttackPlots=%d maxHurryPopulation=%d",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kCity.getX(), kCity.getY(),
+		szDefenseBuilding, iDefenseTurnsLeft, kCity.AI_getSafety(), kCity.AI_getCityValPercent(), kCity.isCapital(),
+		kCity.getTotalDefense(false), kCity.getDefenseModifier(false), kCity.getDefenseDamage(), kCity.getLastDefenseDamage(), kCity.getBuildingBombardDefense(), kCity.isBombarded(),
+		iPlotDangerR1, iPlotDangerR2, iPlotDangerR3, iLocalAttackStrengthR1, iLocalAttackersR1, iLocalAttackStrengthR3, iLocalAttackersR3, iLocalDefenseStrengthR3,
+		iNearestVisibleAttackerDistance, iNearestVisibleSlowAttackerDistance, iNearestVisibleBombarderDistance,
+		iVisibleAttackersR1, iVisibleAttackersR2, iVisibleAttackersR3, iVisibleAttackersR5,
+		iVisibleAttackersIgnoreBuildingDefenseR3, iVisibleAttackersIgnoreBuildingDefenseR5, iVisibleAttackersAffectedByBuildingDefenseR3, iVisibleAttackersAffectedByBuildingDefenseR5,
+		iVisibleSlowAttackersR3, iVisibleSlowAttackersR5,
+		iVisibleBombardersR1, iVisibleBombardersR2, iVisibleBombardersR3, iVisibleBombardersR5, iVisibleBombardRateR1, iVisibleBombardRateR3,
+		iAdjacentEnemyAttackPlots, iAdjacentNoRiverAttackPlots, iAdjacentRiverAttackPlots, kCity.maxHurryPopulation());
+}
+
 static void SAS_logBuildingProductionFocusCandidate(CvCityAI const& kCity, int iFocusFlags, char const* szFocus)
 {
 	BuildingTypes const eBuilding = kCity.AI_bestBuildingThreshold(iFocusFlags, 0, 0, true, NO_ADVISOR, false);
@@ -1930,6 +2232,49 @@ void CvCityAI::AI_chooseProduction()
 
 	// <!-- custom: performance optimizations -->
 	CvPlot const& kPlot = getPlot();
+
+	// <!-- custom: Shadow urgent/proactive fortification opportunities before current-production continuity can return. Immediate bDanger covers the close threat; visible hostile land city attackers within 5 plots cover the multi-turn approach/bombard window discussed in KI#48.5. Logging only; no pathfinding or synthetic ETA. (ChatGPT-5.6-Sol) -->
+	bool const bLogDefenseProductionBase = (gBuildingProductionLogLevel >= 3 && !isHuman() && !isBarbarian());
+	bool const bVisibleApproachThreat = (bLogDefenseProductionBase && SAS_hasVisibleEnemyLandCityAttackerForDefenseAudit(*this, 5));
+	bool const bLogDefenseUrgencyProduction = (bLogDefenseProductionBase && (bDanger || bVisibleApproachThreat));
+	if (bLogDefenseUrgencyProduction)
+	{
+		BuildingTypes const eShadowDefenseBuilding = SAS_findBestFortificationForDefenseAudit(*this, 20);
+		HurryTypes eShadowPopHurry = NO_HURRY;
+		HurryTypes eShadowGoldHurry = NO_HURRY;
+		int iShadowPopHurryPopulation = -1;
+		int iShadowPopHurryAngerLength = -1;
+		int iShadowGoldHurryCost = -1;
+		// <!-- custom: CvCity hurry-cost helpers are protected. Compute the shadow candidate's hurry feasibility here in CvCityAI member context, then pass only the resulting diagnostic values to the free logger.
+		// This keeps the audit behavior-neutral without widening CvCity's public API solely for logging. (ChatGPT-5.6-Sol) -->
+		if (eShadowDefenseBuilding != NO_BUILDING)
+		{
+			FOR_EACH_ENUM2(Hurry, eHurry)
+			{
+				CvHurryInfo const& kHurry = GC.getInfo(eHurry);
+				if (kHurry.getProductionPerPopulation() > 0 && canHurryBuilding(eHurry, eShadowDefenseBuilding, false))
+				{
+					int const iPopulation = getHurryPopulation(eHurry, getHurryCost(true, eShadowDefenseBuilding, false));
+					if (eShadowPopHurry == NO_HURRY || iPopulation < iShadowPopHurryPopulation)
+					{
+						eShadowPopHurry = eHurry;
+						iShadowPopHurryPopulation = iPopulation;
+						iShadowPopHurryAngerLength = hurryAngerLength(eHurry);
+					}
+				}
+				if (kHurry.getGoldPerProduction() > 0 && canHurryBuilding(eHurry, eShadowDefenseBuilding, false))
+				{
+					int const iGold = getHurryGold(eHurry, getHurryCost(false, eShadowDefenseBuilding, false));
+					if (eShadowGoldHurry == NO_HURRY || iGold < iShadowGoldHurryCost)
+					{
+						eShadowGoldHurry = eHurry;
+						iShadowGoldHurryCost = iGold;
+					}
+				}
+			}
+		}
+		SAS_logDefenseProductionOpportunity(*this, eShadowDefenseBuilding, eShadowPopHurry, iShadowPopHurryPopulation, iShadowPopHurryAngerLength, eShadowGoldHurry, iShadowGoldHurryCost, bDanger, bVisibleApproachThreat);
+	}
 
 	if (isProduction())
 	{
@@ -5352,7 +5697,15 @@ void CvCityAI::AI_chooseProduction()
 			}
 		}
 
-		if (AI_chooseBuilding(BUILDINGFOCUS_DEFENSE, 20, 0, bDanger ? -1 : 3 * iCityPopulation))
+		bool const bDefenseBuildingChosen = AI_chooseBuilding(BUILDINGFOCUS_DEFENSE, 20, 0, bDanger ? -1 : 3 * iCityPopulation);
+		if (bLogDefenseUrgencyProduction)
+		{
+			BuildingTypes const eChosenDefenseBuilding = (bDefenseBuildingChosen ? getProductionBuilding() : NO_BUILDING);
+			logBBAI("BUILDING_PRODUCTION_DEFENSE_URGENCY turn=%d player=%d %S city=%S cityId=%d x=%d y=%d stage=REACHED chosen=%d building=%s",
+				kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), getX(), getY(), bDefenseBuildingChosen,
+				(eChosenDefenseBuilding == NO_BUILDING ? "-" : GC.getInfo(eChosenDefenseBuilding).getType()));
+		}
+		if (bDefenseBuildingChosen)
 		{
 			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses special BUILDINGFOCUS_DEFENSE", sCityName); // advc
 			return;
