@@ -91,7 +91,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
-[KI#51.2 - (Confirmed AdvCiv-SAS post-production override defect; fix pending) Emergency building rules can override intentional disorder no-production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51.2)\
+[KI#51.2 - (Fixed AdvCiv-SAS post-production override defect; host emergency subsystem later retired) Emergency building rules could override intentional disorder no-production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51.2)\
 [KI#52 - (Beyond Tremendously improved) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-52)\
 [KI#53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or of more importantly building galleons and privateers in droves and excess, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53)\
 [KI#53.2 - (Fixed and enhanced) Joao AI building way too many defenders (36 longbowmen at turn 130!! Almost all with UNITAI_CITY_DEFENSE or similar) while being boxed in with only 3 cities, instead of making about half of these offense units or versatile ones to punish overextending thin neighbour, fixed by having an early phase "we have expectedly too few cities at this stage of the game, no need to overbuild anymore denders at this stage of the game, switch to offense or versatile UNITAI rather" and "our military composition has way too many defender UNITAIs, switch to offense or versatile UNITAIs", which seemingly fix the issue](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.2)\
@@ -411,7 +411,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#308 - (Fixed AdvCiv-SAS bug) City Screen Specialist Breakdown inferred inaccurate Great Person modifiers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-308)\
 [KI#308.2 - (Fixed AdvCiv-SAS bug) City Screen Culture Breakdown inferred its modifier from a truncated base rate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-308.2)\
 [KI#309 - (Fixed AdvCiv-SAS bug) AI religion value counted full team and vassal-bloc power once per non-vassal team member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-309)\
-[KI#310 - (Fixed AdvCiv-SAS bug) Water-heavy AI city fallback could leave production empty](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-310)\
+[KI#310 - (Retired fixed AdvCiv-SAS bug; host no-production fallback later retired under KI#51) Water-heavy AI city fallback could leave production empty](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-310)\
 [KI#311 - (Rejected archaeology finding) GET_TEAM(PlayerTypes) correctly resolves the player's team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-311)\
 [KI#312 - (Fixed AdvCiv-SAS bug) Master/vassal technology preferences treated legally unavailable knowledge as supply](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-312)\
 [KI#312.2 - (Fixed AdvCiv-SAS follow-up bug) Progress-tech purchases bypassed master/vassal cluster-first sourcing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-312.2)\
@@ -436,7 +436,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#330 - (Fixed AdvCiv-SAS bug) Master/vassal tech-contact power-bias exemption depended on an unrelated toggle](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-330)\
 [KI#331 - (Fixed AdvCiv-SAS-only scrap-contract regression) Restrictive AI scrapping could veto removal while callers reported success](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-331)\
 [KI#332 - (Fixed inherited BUG/Base AdvCiv UI bug, broadened by AdvCiv-SAS) Leader hovers resolved trait production through Arabia instead of the displayed civilization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-332)\
-[KI#333 - (Fixed AdvCiv-SAS priority-order regression) Emergency Port could preempt stronger strategic defense](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-333)\
+[KI#333 - (Retired fixed AdvCiv-SAS priority-order regression; host emergency-building subsystem later retired under KI#48.5) Emergency Port could preempt stronger strategic defense](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-333)\
 [KI#334 - (Fixed inherited AdvCiv information leak amplified by AdvCiv-SAS) Great General death reports could reveal an unknown killer civilization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-334)\
 [KI#335 - (Fixed AdvCiv-SAS bug) Military Advisor Battles vassal perspective could expose hidden battle locations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-335)\
 [KI#336 - (Fixed AdvCiv-SAS lifecycle bug) Dynamic map heaviness was cached before starting plots existed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-336)\
@@ -2131,6 +2131,8 @@ Also, skewing too much the values will make us forsake very good sites just to o
 
 Update 2: the very-bad classification no longer hardcodes Peak, Ice Cap, flat Desert, and flat Snow names. Impassable plots always count; other non-home plots without a visible bonus count only when their best natural or XML-valid improved yield remains below a tunable threshold. This preserves the original intent while making terrain and improvement changes automatically affect the result. Visible bonuses on usable plots remain exempt because their specialized value is evaluated separately.
 
+Related implementation/review PR: [#41 - Settler AI yield refactor/rework](https://github.com/wonderingabout/AdvCiv-SAS/pull/41).
+
 Update 3 during the XML-driven Settler site-valuation rework (2026-09-24): the fixed terrain/feature tables documented above are now historical and no longer execute. They had materially improved the observed Base AdvCiv behavior, especially by preserving strong Grass/Hill Grass/Flood Plains plots and consuming weak Desert/Snow/Plains alternatives, but encoded the current XML balance twice and could become wrong when a terrain, feature, improvement, upgrade chain, or yield changed.
 
 The replacement enumerates the plot's real XML-valid Build/Improvement outcomes, retained or removed feature, immediate yield, final upgrade yield, and technology timing. It separately compares guaranteed city-center yield against the best worked-plot opportunity: losing a strong potential plot receives the full configured opportunity cost, while replacing a weak plot receives a smaller reward so one attractive home plot cannot override the complete BFC.
@@ -2224,6 +2226,8 @@ Also not shown but no farms on flatland grass anymore since we're not starving t
 Disabling it entirely throws off workboats that use this too, then they stay parked in city, so updated this to disable it functionally only for land workers as we want them to use our optimized AI worker logic, but as for sea workers, fine if they do as such as long as works-functions
 
 ### Update 4: AdvCiv-SAS 6564 XML-driven Worker valuation (2026-09-23)
+
+Related implementation/review PR: [#40 - Worker AI yield rework](https://github.com/wonderingabout/AdvCiv-SAS/pull/40).
 
 The earlier AdvCiv-SAS rewrite was much stronger than the inherited logic in its motivating games, but its explicit terrain, feature and improvement branches created a maintenance weakness: XML yield changes, newly useful Watermills/Lumbermills/Forest Preserves, or a mod-added terrain/feature could require several matching C++ edits. It could also miss combinations that had never been anticipated when the table was written.
 
@@ -3341,6 +3345,8 @@ The fix restores that lookup to the positive headquarters-commerce branch inside
 
 ## KI#48.5 - (Greatly Reworked/Enhanced, WIP) September 2026 AI regular-building valuation: replace hard SAS category gates with audited inherited additive valuation and targeted evidence-backed corrections
 
+Current implementation/review PR: [#43 - Codex/building value health rework](https://github.com/wonderingabout/AdvCiv-SAS/pull/43). This follows the September 2026 [Worker AI rework PR #40](https://github.com/wonderingabout/AdvCiv-SAS/pull/40), [Settler AI rework PR #41](https://github.com/wonderingabout/AdvCiv-SAS/pull/41), and [dynamic bonus-value PR #42](https://github.com/wonderingabout/AdvCiv-SAS/pull/42).
+
 ### September 2026 second rework: audit the old regular-building policy instead of mechanically translating it
 
 Following the September 2026 Worker AI, Settler AI and bonus-value reworks, regular-building valuation became the next major AdvCiv-SAS AI rework target.
@@ -3669,7 +3675,7 @@ The old low-route-gain condition matched **2,290** evaluations but only **44** s
 
 Conclusion: no trade-specific cure.
 
-### Espionage: ordinary behavior was selective; the difficulty-force rules still need targeted testing
+### Espionage: ordinary behavior was selective; the old handicap hard-force rules remain retired with the prefilter
 
 Across the normal autoplay:
 
@@ -3684,11 +3690,11 @@ Under immediate danger there were **1,026** evaluations and only **12** selectio
 
 This strongly argues against restoring an espionage-specific wartime whole-building veto.
 
-The old difficulty/research-cost-gap force rules remain unresolved because the normal autoplay did not exercise their thresholds. With the current handicap table, the historical thresholds are effectively close to Rookie-only on the low-research side and Deity/Deity+ on the high-research side.
+The historical difficulty/research-cost-gap force branches were not exercised by the normal autoplay: with the current handicap table their thresholds were effectively close to Rookie-only on the low-research side and Deity/Deity+ on the high-research side. Earlier in the audit this was left as a targeted-test TODO. The broader architectural result now makes preserving those hard force branches unnecessary: they live only in the disabled historical regular-building prefilter, and the related KI#881 is correspondingly retired/superseded rather than awaiting an independent cure.
 
-A related provisional issue already exists as KI#881: the regular-building difficulty skew reads the AI player's handicap while the relevant research-cost setting comes from the game handicap. If the old force rules are removed entirely after targeted testing, that provisional issue may become moot rather than needing an independent behavioral cure.
+This does **not** prove that handicap context can never matter for espionage. It means a future reproduced Rookie/Deity espionage weakness should be solved from the actual city/empire situation through additive/contextual valuation rather than by reviving an unconditional whole-building force tied to handicap thresholds.
 
-Conclusion for now: ordinary espionage valuation needs no replacement veto; targeted Rookie and Deity/Deity+ runs remain pending.
+Conclusion: ordinary inherited espionage behavior needs no replacement veto, and no targeted run is required merely to preserve the retired hard-force policy.
 
 ### Final happiness audit after KI#880: no severe-unhappiness multiplier needed
 
@@ -3738,7 +3744,7 @@ When a normal production decision overrode an already-best Harbor, common winner
 
 Conclusion: do not add a duplicate coastal-yield multiplier and do not restore the ordinary regular-building Harbor force-first rule.
 
-This conclusion does not yet settle the separate `CvCity::doTurn` emergency Harbor/Port override, which is currently being audited below.
+The separate `CvCity::doTurn` emergency Harbor/Port layer was subsequently audited and retired entirely; see the completed post-production audit below. Coastal diagnostics remain available so any future weakness can be corrected in additive valuation instead of restoring the hard override.
 
 ### Cross-category military pressure: the central chooser already shifts materially toward units
 
@@ -3775,54 +3781,101 @@ Conclusion: do not replace the removed category-specific `enemy strong -> reject
 
 The diagnostic run also reproduced the same turn-487 Space victory and core SASGameRecord state fingerprints as the preceding diagnostic run, providing strong confirmation that the added logging itself did not perturb behavior.
 
-### Completed audit: separate `CvCity::doTurn` emergency-building overrides
+### Completed audit and retirement: the separate post-`doProduction` emergency-building subsystem
 
-The next audit examined a second policy layer that runs **after** normal production selection. `CvCity::doTurn` can still force Harbor, Port, Walls or Castle even after `AI_chooseProduction` has chosen another unit, building or Project.
+A second SAS policy layer lived outside `AI_buildingValue` and the normal production chooser. After `doProduction()` had already selected a target and applied that turn's hammers, `CvCity::doTurn` could rewrite the queue again for Harbor, Port, Walls or Castle.
 
-The completed diagnostic distinguished three outcomes and preserved the displaced target while it was still live:
+The first complete audit immediately showed why this architecture needed its own investigation. Before the later helper corrections, **316** true replacements and **16** empty-queue fills were visible. The defensive half could interrupt units, higher-valued buildings and heavily invested Projects; for example, **10 of 11** Projects displaced by Walls in one run were spaceship components, including an SS Engine at **1601/1880 production with 5 turns left -> Walls value 0** and an SS Casing at **982/1128 with 1 turn left -> Walls value 2**.
 
-| Result | Count |
-|---|---:|
-| Actual replacement (`OVERRIDE`) | **316** |
-| Empty queue filled (`FILL_EMPTY`) | **16** |
-| Emergency building already normal target (`ALREADY_TARGET`) | **0** |
-| Total emergency actions | **332** |
-| `SEA_FOOD` successes | **0** |
+The audit itself then exposed three independent correctness/observability problems before policy tuning continued:
 
-The zero `ALREADY_TARGET` and zero `SEA_FOOD` results resolve the earlier Harbor ambiguity: in this autoplay the sea-food emergency path neither overrode another target nor merely shielded a Harbor that inherited production had already selected.
+1. **Disorder boundary violation (KI#51.2).** **23/332** emergency actions happened while `isDisorder()` was true: 16 filled intentionally empty queues and 7 replaced existing targets. The fix made the outer emergency paths respect K-Mod's disorder boundary. In the validating same-seed run, all **226/226** remaining emergency actions had `disorder=0`, and the first core-state divergence occurred at turn 70 in disordered Cuzco: old SAS had preselected Harbor with stored production while the fixed run correctly left the queue untouched. RNG did not diverge until turn 73. See KI#51.2 for the exact scope and the important distinction that this never granted free disorder-time hammers.
+2. **Harbor audit scope bug.** The first logger sat inside the later defense/Port wrapper, so a successful `SEA_FOOD` path set the emergency flag and skipped its own logger. Moving the final audit outside that wrapper exposed **185 Harbor overrides** while preserving the preceding fixed run exactly: **386/386** game-state and RNG-stream checkpoints matched.
+3. **Continuation semantics bug.** `SASTryEmergencyBuilding` and the sea-yield selector called `canConstruct(..., bContinue=false, ...)` before checking whether the requested building was already the current target. Civ4 therefore rejected the queued building before the helper could reach its intended `already doing it` branch. After using continuation legality only for the already-queued same building, the formerly impossible states became active: **1,126 `ALREADY_TARGET`** cases (685 Port, 313 Harbor, 66 Walls, 62 Castle), **128 `KEEP_EMERGENCY_PRIORITY`** and 14 `RELEASE_EMERGENCY_PRIORITY` decisions. Direct Harbor<->Port emergency cross-overrides fell from **10 to 0**. The first same-seed state divergence was exactly the corrected turn-216 Oxhuitza case where Harbor remained the active higher-priority emergency instead of being replaced by Walls.
 
-The diagnostic itself remained behavior-neutral. Against the immediately preceding run, **492/492 core-state checkpoints** and **492/492 RNG checkpoints** retained identical gameplay/RNG state, call counts and stream fingerprints; only source-location provenance changed because lines were added. The game again ended with the same turn-487 Space victory.
+Correcting those bugs did not rescue the architecture itself. Because the layer ran after `doProduction()`, the normal chooser could select and invest in one target, then SAS would rewrite the queue afterward; on the next turn the normal chooser could switch back before production was applied. Every observed consecutive repeated force showed the emergency building making **zero progress** between interventions: **23/23 Harbor pairs, 19/19 Port pairs and 16/16 Walls pairs**.
 
-The hard defensive overrides were much more concerning than ordinary inherited defensive valuation:
+#### Harbor/Port controlled removal
 
-- **166 real Walls overrides** displaced **97 units, 58 buildings and 11 Projects**.
-- **10 of the 11 displaced Projects were spaceship components**. Examples included an SS Engine at **1601/1880 production, 5 turns left -> Walls value 0**, and an SS Casing at **982/1128, 1 turn left -> Walls value 2**.
-- **56/58** building->Walls replacements displaced a building with a higher inherited value than the Walls.
-- Walls still had median inherited value only about **7**; **101/168** total Walls activations had value <=10 and **11** had value 0.
-- Castle was rarer but similar: among **12** building->Castle overrides, **10** displaced a higher-value building and the other two were equal.
+The two sea emergency policies were first disabled without deleting code. Comparing both histories through the same turn-372 horizon:
 
-Port was much stronger economically, with median inherited value around **124**, but it still hard-replaced **116** normal targets: **61 units and 55 buildings**. In **23/55** building cases, the displaced normal building had the higher inherited value.
+| Metric through T372 | Sea emergencies ON | OFF | Change |
+| --- | ---: | ---: | ---: |
+| Harbors completed | 106 | **102** | -3.8% |
+| Ports completed | 83 | **89** | +7.2% |
+| AI target switches | 1,558 | **1,478** | -5.1% |
+| Invested target changes | 818 | **724** | -11.5% |
+| Parked production | 46,288 | **31,076** | **-32.9%** |
+| Target resumes | 782 | **585** | -25.2% |
+| Production resumed | 45,388 | **29,251** | **-35.6%** |
 
-Across all **316** true replacements, **212** interrupted targets with positive invested production and **87** displaced targets that were at most two turns from completion. This confirms that the post-chooser layer can bypass both additive valuation and invested-production continuity even when the normal chooser has already reached a defensible decision.
+So removing the hard sea forcing did not stop the AI from building Harbor or Port. Harbor completion was nearly unchanged and Port completion was actually higher in the divergent history, while production churn and parked investment fell substantially.
 
-The audit also exposed a distinct AdvCiv-SAS correctness defect: **23/332 emergency actions happened while `isDisorder()` was true**. Sixteen filled an intentionally empty queue and seven replaced an existing target; 17 occurred during occupation/resistance and six during other disorder.
+The severe low-food Harbor snapshots also argued against restoring the classifier. Of 44 severe `foodSurplus <= -5` snapshots in the sea-emergency-off run, **35** also had negative happiness, **27** negative health, **25** both, and **24** were working **zero water tiles**. Harbor was the inherited best building in only 17/44 and normal production chose Harbor in 6. Many old `force Harbor` cases were therefore broader city-state problems rather than proof that Harbor itself was the right answer.
 
-Replacements included a Settler with 34 stored production and an Airport with 100. This is tracked separately as **KI#51.2** because it violates the intentional no-production boundary already established by KI#51, independent of whether an emergency rule is strategically desirable outside disorder.
+The Harbor/Port post-production subsystem was then removed rather than left disabled. The cleanup reproduced the disabled-policy control exactly across **377/377 core-state checkpoints**, the corresponding RNG streams and **45/45 run-status checkpoints**. This became practical **6605** (`Retire post-production sea-yield building overrides`).
+
+#### Walls/Castle controlled removal
+
+The remaining defensive override was tested separately instead of being deleted by analogy.
+
+With forcing disabled, the AI still naturally completed **92 Walls and 42 Castles** by victory versus 128/58 with forcing, and the normal chooser recorded **125 Walls and 62 Castles as final chosen targets**. Through turn 372, combat losses were essentially identical (**1,879 with forcing vs 1,878 without**); player-vs-player city captures were also close (**90 vs 93**) despite the histories containing different amounts of warfare.
+
+The first controlled state divergence was itself illustrative. On turn 82 endangered Antium normally kept a Forge valued **82** with **10/90** hammers invested; the legacy layer replaced it with Walls valued **5**. RNG stayed identical until turn 86, and Antium was captured on turn 118 with the emergency rule versus turn 121 without it. One city cannot prove that Walls never help, but it reproduced the broader pattern: a legitimate defensive concern had become a coarse post-production override.
+
+The disabled policy was therefore removed entirely. The cleanup matched its control with **379/379 identical core-state checkpoints, 379/379 identical RNG-stream checkpoints and 45/45 identical run-status checkpoints**. This became practical **6606** (`Retire post-production emergency defense building overrides`).
+
+The result is that the entire legacy post-`doProduction` emergency-building subsystem is now gone. Harbor, Port, Walls and Castle are again decided through normal production flow rather than by a second queue-rewriting policy after hammers have already been spent.
+
+### Current replacement audit: proactive Walls/Castle opportunity inside normal production
+
+Retiring the old emergency layer does **not** mean its underlying observation was wrong. In particular, a timely Castle or Walls can plausibly buy enough bombardment/assault time to save a threatened city. The current follow-up therefore asks whether inherited/normal production gives real fortifications an opportunity **early enough**, before production is applied, rather than whether another post-production override should return.
+
+A land-heavy Pangaea stress test was chosen specifically for this question. Although only about 31.5% of the 94x64 map was land, **1,816 of 1,893 land plots (about 96%)** belonged to the main continent. The run reached turn 461 and ended by Domination, with **127 city acquisitions** and **315 siege bombard actions**, providing much denser invasion/fortification evidence than the preceding Archipelago tests.
+
+The tightened shadow logger remained behavior-neutral: **466/466 state checkpoints, 466/466 RNG-stream checkpoints and 55/55 run-status checkpoints** matched the preceding Pangaea run.
+
+After deduplicating repeated calls to one city-turn, it found roughly:
+
+- **1,001 Walls opportunities**;
+- **70 Castle opportunities**;
+- **414 immediate-danger city-turns**;
+- many additional proactive opportunities while visible land attackers were still several tiles away.
+
+The existing late `BUILDINGFOCUS_DEFENSE` stage was reached only **134** times across the raw shadow calls and selected a defensive building only **21** times; only **8 Walls and 2 Castles** were among those selections. This supports a more specific timing diagnosis than the old hard override: inherited valuation can understand fortifications, but the explicit defense-building opportunity occurs too late in `AI_chooseProduction()` to matter in many threatened-city cases.
+
+Pangaea finally supplied useful Castle timing examples as well. York had a roughly **7-turn Castle** while visible attackers were 3-4 plots away; bombardment began about 12 turns after the first shadow opportunity and the city fell roughly 14 turns later. Several other at-war Castle-threat episodes that ended in capture within 20 turns likewise had a Castle that could naturally have completed before the city fell, yet normal production never selected it during the window.
+
+The current staged diagnostic is deliberately still observational. Pangaea exposed and corrected two scope issues before any gameplay rule is added: units that cannot capture cities (for example animals) are excluded through `isNoCityCapture()`, and the logger now distinguishes approaching attackers that **ignore building defense** from those actually **affected by it**. This prevents a one-turn Walls from looking urgent against a stack for which Walls provide no meaningful protection.
+
+The candidate replacement direction is therefore increasingly narrow and pre-production rather than a resurrection of the old subsystem:
+
+```text
+credible visible land invasion
++ real Walls/Castle-style fortification
++ meaningful against the actual attackers
++ completion/hurry window plausibly precedes assault
++ city not already hopeless
++ current target not clearly more urgent
+-> give the fortification an earlier normal-production opportunity
+```
+
+No new KI number is assigned to this candidate yet because the behavioral enhancement has not been implemented or validated. If the final shadow run confirms the diagnosis and a cure survives testing, it can be documented as a distinct inherited/production-opportunity improvement while KI#48.5 remains the umbrella rework.
 
 ### Remaining planned work before closing the regular-building / Wonder PR
 
 Still intentionally unresolved:
 
-- fix and validate **KI#51.2** so post-`doProduction` emergency logic cannot override intentional disorder no-production;
-- rework **Walls/Castle** hard forcing so genuine local danger can still matter without blindly bypassing additive value, invested production and spaceship/project continuity;
-- reassess **Port** after the disorder fix;
-- likely retire the `SEA_FOOD`/Harbor emergency path if its zero-success result remains representative after the cleanup;
-- audit naval-infrastructure rejection on explicitly land-heavy maps, because the standard Snaky Continents test is naval-heavy and cannot validate that rule;
-- targeted Rookie and Deity/Deity+ testing of the old espionage difficulty/research-gap force rules;
-- any genuinely unclassified regular-building tail found during final cleanup;
-- the separate SAS Wonder layer.
+- finish the final Pangaea fortification shadow pass and, if the evidence remains strong, implement/validate an earlier Walls/Castle opportunity inside `AI_chooseProduction()` rather than after `doProduction()`;
+- revisit the old `enemyStrong` concern on the same land-heavy Pangaea testbed once fortification timing is settled, without assuming that the old whole-building veto was the right cure;
+- continue to watch Harbor/Port through the retained coastal diagnostics and add a dynamic additive enhancement only if a reproduced coastal weakness remains after removal of the hard overrides;
+- audit any remaining land-heavy/naval-infrastructure rationale that is not already subsumed by the current production-pressure work;
+- remove or archive any genuinely dead regular-building prefilter code only after the active migration no longer needs it as a comparison reference;
+- audit the separate SAS Wonder layer.
 
-The Wonder layer should be audited rather than assumed correct. Some safeguards against very slow Wonder sinks or building Wonders while militarily exposed may remain useful; others may turn out to have the same whole-building/classification problems found in the regular layer.
+The old espionage difficulty-force branches are **not** a remaining preservation test: ordinary inherited espionage behavior was already selective, and the host hard prefilter is retired. If a future handicap-specific weakness is reproduced, it should receive a contextual/additive solution rather than reviving the old force sentinel.
+
+The Wonder layer should still be audited rather than assumed correct. Some safeguards against very slow Wonder sinks or building Wonders while militarily exposed may remain useful; others may turn out to have the same whole-building/classification problems found in the regular layer.
 
 ### Overall September 2026 conclusion so far
 
@@ -3845,7 +3898,7 @@ Where concrete weaknesses were found, the rework corrected the responsible sourc
 - severe-health relief received a smooth severity and current-food-deficit urgency correction documented in KI#48.6;
 - Kek-Mod's repeated continental-army Bomb Shelter estimate was corrected in KI#48.7;
 - unconditional Barracks/Stable-family XML `iAIWeight`s were removed after the hard SAS safeguards that had partly masked them were retired.
-- the separate post-`doProduction` emergency-building layer was shown to bypass additive valuation and invested-production continuity; its disorder-time correctness defect is tracked as KI#51.2 while Walls/Castle/Port policy remains under active rework.
+- the separate post-`doProduction` Harbor/Port/Walls/Castle subsystem was audited, its disorder and continuation defects were corrected, and the entire hard-override layer was then retired through controlled A/B tests; the remaining defensive question is now being investigated as an earlier normal-production fortification opportunity rather than another queue rewrite.
 
 The resulting direction is:
 
@@ -4070,11 +4123,19 @@ Post-cleanup new-DLL validation: two further broad runs reached turn-436 and tur
 
 The historical human-player observation is not claimed resolved by the AI controls: several human cities displayed no production while other cities worked normally, reportedly sometimes for up to five consecutive turns. The removed fallback was AI-only, and a human city's manual/UI/automation production path can differ; the new all-city turn-boundary tripwire deliberately covers that path without assuming it shares the AI cause. Its `gameState` field is important because the documented human example occurred after victory and may have been a distinct post-victory UI state.
 
+### September 2026 follow-up: the separate emergency-building layer was later retired too
+
+At the time of the KI#51 cleanup, the distinct Harbor/Port/Walls/Castle emergency-building rules were intentionally left untouched because they represented strategic policy rather than the old empty-queue fallback. KI#48.5 later audited that second post-`doProduction` layer independently.
+
+That audit first exposed and fixed KI#51.2, where the emergency layer could mutate the queue during intentional disorder. After its continuation and logging semantics were corrected, controlled A/B runs showed that the remaining post-production hard overrides created substantial target churn and could displace higher-valued or nearly completed production after hammers had already been applied. The Harbor/Port half was retired in practical 6605 and the Walls/Castle half in practical 6606.
+
+So the current architecture no longer has either of the old outer production-policy systems: the KI#51 no-production fallback is gone, and the later emergency-building subsystem is gone as well. Any new Harbor/Port/fortification enhancement is being investigated inside normal `AI_chooseProduction` / additive valuation instead. See KI#48.5.
+
 <a id="ki-51.2"></a>
 
-## KI#51.2 - (Confirmed AdvCiv-SAS post-production override defect; fix pending) Emergency building rules can override intentional disorder no-production
+## KI#51.2 - (Fixed AdvCiv-SAS post-production override defect; host emergency subsystem later retired) Emergency building rules could override intentional disorder no-production
 
-During KI#48.5's completed post-`doProduction` emergency-building audit, **23 of 332** emergency actions occurred while `isDisorder()` was true.
+During KI#48.5's completed post-`doProduction` emergency-building audit, **23 of 332** initially visible emergency actions occurred while `isDisorder()` was true.
 
 - **16** filled an intentionally empty production queue.
 - **7** replaced an existing production target.
@@ -4083,15 +4144,29 @@ During KI#48.5's completed post-`doProduction` emergency-building audit, **23 of
 
 The replacements were not merely empty bookkeeping writes: reproduced examples included a Settler with **34 stored production**, an Airport with **100 stored production**, and several Harbor -> Port replacements.
 
-The root is a control-boundary mismatch. K-Mod's normal `AI_chooseProduction` / `doProduction` path deliberately stops or leaves production empty during disorder, but the later AdvCiv-SAS Harbor/Port/Walls/Castle emergency layer still runs afterward and can push or replace production anyway.
+The root was a control-boundary mismatch. K-Mod's normal `AI_chooseProduction` / `doProduction` path deliberately stops during disorder, but the later AdvCiv-SAS Harbor/Port/Walls/Castle emergency layer still ran afterward and could clear, replace or preselect production anyway.
 
-This is the same general class of problem that KI#51 established for the removed old no-production fallback: later outer logic must not reinterpret an **intentional** no-production state as a failure requiring recovery. It is distinct from the strategic question of whether the emergency-building rules themselves should survive outside disorder.
+`CvCity::isDisorder()` covers both **local occupation/resistance** and **owner-wide anarchy**. This therefore created an AI-only queue-control asymmetry during those states, but it did **not** grant free production or make a no-anarchy trait such as Spiritual effectively universal. `doProduction()` had already declined to add disorder-time hammers. The bug only let SAS manipulate what the AI would build once production resumed, while the normal K-Mod production path intentionally refused to make that decision during disorder. Non-Spiritual AIs still lost their anarchy production turns.
 
-The intended repair is deliberately small: share one eligibility gate across the emergency-building entry paths so they run only for an AI city that is **not in disorder**, preserving the existing behavior everywhere else. A confirming autoplay should then show zero emergency-audit rows with `disorder=1` before the wider Walls/Castle/Port policy is changed.
+The fix introduced one shared eligibility condition for the emergency-building entry paths so the AI-only override could run only when the city was **not in disorder**. Outside disorder, policy behavior remained unchanged for that validation step.
 
-See **KI#48.5** for the broader emergency-override audit and its production-continuity evidence.
+The same-seed autoplay gave unusually direct confirmation:
 
-Found during the September 2026 building-value rework with the help of ChatGPT-5.6-Sol and SASGameRecord/BBAI deterministic diagnostics, thanks.
+- previous audited run: **332** visible emergency actions, including 23 in disorder;
+- fixed run: **226** visible emergency actions, **226/226 with `disorder=0`**;
+- `FILL_EMPTY` fell to **0**;
+- the first core-state divergence occurred on **turn 70** and only the city fingerprint differed;
+- old Cuzco, while disordered, had `production=BUILDING_HARBOR` with **5 stored production**;
+- fixed Cuzco correctly had no production target and **0 stored production**;
+- the actual RNG stream did not diverge until turn **73**.
+
+That is a direct reproduction of the intended causal change rather than a later divergent-history inference.
+
+The fix was committed as AdvCiv-SAS practical **6602**. The host emergency-building subsystem was then audited further and ultimately retired entirely in practical **6605** (Harbor/Port) and **6606** (Walls/Castle). KI#51.2 therefore remains useful as a distinct correctness finding even though the code path that once contained it no longer exists.
+
+See **KI#48.5** for the broader emergency-override audit, retirement evidence and current pre-production fortification follow-up.
+
+Found during the September 2026 building-value rework with the help of ChatGPT-5.6-Sol and SASGameRecord/BBAI deterministic diagnostics, fixed and validated with the help of ChatGPT-5.6-Sol and wonderingabout, thanks.
 
 <a id="ki-52"></a>
 
@@ -6756,6 +6831,8 @@ Historical fix (superseded):
 - These are explicit current-balance rules rather than relationships derived automatically from every XML unit. Modmods that substantially change strategic-resource prerequisites or their useful eras should review the rules or disable `SAS_AI_BONUS_TRADE_ZERO_DOMINATED_STRATEGIC_BUYS`; see KI#239 and KI#240 for the human-recipient, corporation-value and Medieval Copper corrections.
 
 ### Update (AdvCiv-SAS practical 6576)
+
+Related implementation/review PR: [#42 - Add dynamic bonus valuation and trade diagnostics](https://github.com/wonderingabout/AdvCiv-SAS/pull/42).
 
 This first fix greatly reduced the observed waste, but remained tied to current names, eras and unit balance; KI#239 and KI#240 record two later corrections needed by that approach.
 
@@ -12379,13 +12456,19 @@ This is an AdvCiv-SAS AI religion-valuation regression introduced with power wei
 
 <a id="ki-310"></a>
 
-## KI#310 - (Fixed AdvCiv-SAS bug) Water-heavy AI city fallback could leave production empty
+## KI#310 - (Retired fixed AdvCiv-SAS bug; host no-production fallback later retired under KI#51) Water-heavy AI city fallback could leave production empty
 
 AdvCiv-SAS's hard AI-production safety net normally replaces an empty or invalid queue with a restricted military fallback unit. Mostly-water inner-ring cities were excluded from that branch so they could prefer three configured economic building classes instead: currently Harbor, Port and Lighthouse. If all three buildings were unavailable or already present, the water branch logged `WATER_BUILDING_NONE` and ended without selecting anything. This was reachable both before the required technologies and after a city owned all three buildings, leaving the exact empty-production state that the safety net exists to prevent.
 
 The fix tries the three water buildings first. If one is constructible, the economic preference is preserved; if none can be queued, `WATER_BUILDING_NONE_CONTINUE` records the fallthrough and the city uses the same already-audited safe unit fallback as every other empty AI city. Its cost, role, siege and Settler-veto safeguards remain unchanged. Explicitly disabling the general fallback define still disables that final unit rescue.
 
 This is an AdvCiv-SAS AI production-fallback control-flow regression introduced by the water-heavy-city exception. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and compile/runtime-smoke-tested with the help of wonderingabout, thanks.
+
+### September 2026 update: host fallback retired
+
+This fix remains historically correct for the old safety-net architecture, but that architecture is no longer active. KI#51 later instrumented the true end of `AI_chooseProduction` and the all-city turn boundary and found that the apparent AI empty-production cases were intentional disorder returns rather than a normal chooser exhausting its options. The entire post-`doProduction` water-building/unit fallback, including the branch repaired here, was therefore removed.
+
+KI#310 is retained as the record of a real control-flow bug in the former fallback, not as current production policy.
 
 <a id="ki-311"></a>
 
@@ -12661,7 +12744,7 @@ This is an inherited BUG/Base AdvCiv UI defect broadened by later AdvCiv-SAS UI 
 
 <a id="ki-333"></a>
 
-## KI#333 - (Fixed AdvCiv-SAS priority-order regression) Emergency Port could preempt stronger strategic defense
+## KI#333 - (Retired fixed AdvCiv-SAS priority-order regression; host emergency-building subsystem later retired under KI#48.5) Emergency Port could preempt stronger strategic defense
 
 AdvCiv-SAS practical 5919 added an emergency Port-class water-hammer rule for mature ocean-coastal AI cities with low production or food surplus. Its XML and Main Changes Guide contract stated that the broader strategic-defense rule would still run first, allowing Walls or Castle to precede Port when an ongoing war or stronger enemy justified defense even without immediate local danger. The implementation instead inserted Port between the deliberately higher-priority Harbor rule and the older defense branch.
 
@@ -12672,6 +12755,12 @@ The fix moves the Port attempt after the existing Walls/Castle branch. Harbor re
 After compilation, a Large Hub autoplay completed normally at the turn-500 Time Victory with 105 cities still present. This broadly exercised long-running AI city production; the exact old overlapping Port/defense choice remains source-verified rather than deterministically reproduced.
 
 This is an AdvCiv-SAS practical-5919 insertion-order regression, not an inherited BtS, K-Mod or AdvCiv defect. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+### September 2026 update: host emergency subsystem retired
+
+The ordering repair remains historically correct, but KI#48.5 later audited the entire post-`doProduction` Harbor/Port/Walls/Castle subsystem with detailed BBAI attribution and SASGameRecord continuity data. The broader problem was architectural: even correctly ordered emergency rules could rewrite a queue after the normal chooser had already selected a target and that turn's hammers had been applied, repeatedly interrupting invested or higher-valued production.
+
+Controlled A/B testing first retired Harbor/Port forcing and then Walls/Castle forcing; the code was removed in practicals **6605** and **6606** respectively. The current follow-up preserves the underlying defensive concern by investigating an earlier Walls/Castle opportunity inside normal `AI_chooseProduction` rather than restoring this outer priority chain. See KI#48.5.
 
 <a id="ki-334"></a>
 
