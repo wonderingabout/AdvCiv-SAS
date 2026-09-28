@@ -1002,7 +1002,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#878 - (Retired/Superseded dormant AdvCiv-SAS building-prefilter defect) Miscellaneous wartime tail is attached too broadly](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-878)\
 [KI#879 - (Provisional Pending inherited building-value defect) Overseas domestic trade is treated as foreign trade](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-879)\
 [KI#880 - (Fixed inherited AdvC sign regression) Immediate anger reversed building value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-880)\
-[KI#881 - (Retired/Superseded dormant AdvCiv-SAS handicap-scope defect) Regular-building skew reads the AI handicap](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-881)\
+[KI#881 - (Retired/Superseded dormant AdvCiv-SAS espionage handicap-force defect) Regular-building espionage strategy was forced from handicap research costs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-881)\
 [KI#882 - (Provisional Pending inherited production-upgrade defect) Destination hammers are overwritten](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-882)\
 [KI#883 - (Provisional Pending AdvCiv/BULL decay-preview defect) Fractional thresholds are one turn late](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-883)\
 [KI#884 - (Provisional Pending AdvCiv building-preview regression) Trade-yield modifiers truncate before multiplication](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-884)\
@@ -3132,7 +3132,7 @@ It only documents logic that exists in the code we just reviewed (no speculation
 | **Science** | Research % ≥20 **or** flat beakers **or** (Scientist slots/free) | If **at war** **or** **danger** **or** **war plan** → **skip**. | — | Don’t pause survival or momentum for beakers. |
 | **Economy (Gold)** | Gold % ≥20 **or** flat gold **or** (Merchant slots/free) and **not** previously classified | Same war/danger/war‑plan **skip**. If %‑only and city **gold rate < 6** → **skip**. | — | ROI gate for early banks/markets. |
 | **Trade‑route econ** | Adds routes **or** has trade route % (incl. foreign) | If war/danger/war‑plan → **skip**. If **foreign %** but **no foreign routes** and **doesn’t add routes** → **skip**. If **tiny base trade** (`iTradeYield ≤3`) then require **+routes**: base 3→ +1, base ≤2→ +2; otherwise **skip**. | Uses current `iTradeYield` in this city; counts "virtual" route when % mods present. | Build CH/Harbor where trade exists or where added routes will matter. |
-| **Espionage** | EP % ≥20 **or** flat EP/Spy slots/free **or** EP defense ≥20 | War/danger/war‑plan → **skip**. Difficulty skew: if **human pays much less for tech** (AI advantage, gap ≥ +30) and **EP defense** → **ALWAYS_PICK_FIRST −1000**. If **AI pays much more** (gap ≤ −20) and **EP source** → **ALWAYS_PICK_FIRST −1000**. | Gap: `iHumanResearchPercent − iAIResearchPercent`. | Hedge vs human EP when ahead; lean EP offense when behind on costs. |
+| **Espionage** | EP % ≥20 **or** flat EP/Spy slots/free **or** EP defense ≥20 | In the disabled prefilter, war/danger/war‑plan → **skip** pending removal with the remaining old SAS layer. The handicap-based **ALWAYS_PICK_FIRST −1000** offense/defense forces were removed. | The removed forces used `iHumanResearchPercent − iAIResearchPercent` thresholds of −20/+30. | Handicap and current strength do not imply one reliable espionage strategy; use actual city/empire valuation and `AI_STRATEGY_ESPIONAGE_ECONOMY`. Note: as of now now removed following the September 2026 Building Value AI rework, updated for exhaustiveness but no longer active ingame now, see KI#48.5. |
 | **Culture‑only** | Flat culture **or** culture % (and not classified earlier) | If **BFC not needed** and **early‑mid window** and **existing culture ≥2** → **skip**. | Early‑mid ≈ first ~125 turns @ Normal (scaled). | Don’t overbuild fluff culture once borders are workable. |
 | **Unknown / misc** | Anything not matched above | If **war**/**danger**/**enemy strong** **or** **war plan** → **skip**. | — | Conservative default during pressure. |
 
@@ -3693,7 +3693,13 @@ Under immediate danger there were **1,026** evaluations and only **12** selectio
 
 This strongly argues against restoring an espionage-specific wartime whole-building veto.
 
-The historical difficulty/research-cost-gap force branches were not exercised by the normal autoplay: with the current handicap table their thresholds were effectively close to Rookie-only on the low-research side and Deity/Deity+ on the high-research side. Earlier in the audit this was left as a targeted-test TODO. The broader architectural result now makes preserving those hard force branches unnecessary: they live only in the disabled historical regular-building prefilter, and the related KI#881 is correspondingly retired/superseded rather than awaiting an independent cure.
+The historical difficulty/research-cost-gap force branches were not exercised by the normal autoplay: with the current handicap table their thresholds were effectively close to Rookie-only on the low-research side and Deity/Deity+ on the high-research side.
+
+Earlier in the audit this was left as a targeted-test TODO.
+
+The broader architectural result makes preserving those hard force branches unnecessary: handicap and current strength do not point espionage in one reliable direction, so actual city/empire valuation and `AI_STRATEGY_ESPIONAGE_ECONOMY` should decide.
+
+The obsolete branches were removed from the disabled historical regular-building prefilter; the dedicated BBAI row remains useful for ordinary contextual espionage attribution, not as a preservation test. The related KI#881 is retired/superseded rather than awaiting an independent cure.
 
 This does **not** prove that handicap context can never matter for espionage. It means a future reproduced Rookie/Deity espionage weakness should be solved from the actual city/empire situation through additive/contextual valuation rather than by reviving an unconditional whole-building force tied to handicap thresholds.
 
@@ -18953,13 +18959,15 @@ Found as F557 during ChatGPT-5.6-Sol's C031-WIP333 audit; reconciled into Known 
 
 <a id="ki-881"></a>
 
-## KI#881 - (Retired/Superseded dormant AdvCiv-SAS handicap-scope defect) Regular-building skew reads the AI handicap
+## KI#881 - (Retired/Superseded dormant AdvCiv-SAS espionage handicap-force defect) Regular-building espionage strategy was forced from handicap research costs
 
 The SAS regular-building difficulty skew reads the AI player's handicap while the relevant AI research-cost setting comes from the game handicap. Use the authoritative game-handicap source.
 
 Found as F558 during ChatGPT-5.6-Sol's C031-WIP334 audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
-**September 2026 disposition:** mechanically confirmed in the retained historical prefilter, but KI#48.5 disabled/superseded the regular-building hard-gate layer before a local repair was warranted. This no longer affects default regular-building valuation; retain it as source archaeology and as a warning if the historical prefilter is ever re-enabled. The inherited KI#879 and KI#880 findings remain independent of this retirement.
+**September 2026 disposition:** mechanically confirmed in the historical prefilter, but KI#48.5 disabled/superseded the regular-building hard-gate layer before a local repair was warranted. The faulty handicap-force branches were subsequently removed rather than corrected because handicap does not imply one reliable espionage strategy.
+
+The dedicated BBAI espionage row remains as general contextual attribution and now reads the authoritative game-handicap research cost. The data-masked world-wonder sibling was aligned with `CvPlayer::getProductionNeeded`. Retain KI#881 as source archaeology; the inherited KI#879 and KI#880 findings remain independent of this retirement.
 <a id="ki-882"></a>
 
 ## KI#882 - (Provisional Pending inherited production-upgrade defect) Destination hammers are overwritten

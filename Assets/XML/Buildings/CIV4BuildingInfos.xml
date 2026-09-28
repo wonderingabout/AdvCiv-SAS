@@ -239,7 +239,6 @@
 			<bNukeImmune>1</bNukeImmune>
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
-			<!-- custom: building it first priority enforced in the DLL in as of now CvCityAI::AI_buildingValue, check there for details if i didn't change it since then and didn't update this note -->
 			<iAIWeight>0</iAIWeight>
 			<iCost>5</iCost>
 			<iHurryCostModifier>50</iHurryCostModifier>
