@@ -770,9 +770,12 @@ void CvCity::doTurn()
 
 	// <!-- custom: add this to make sure we don't overlap our previously chosen emergency building with some other logic -->
 	bool bEmergencyBuilding = false;
+	// <!-- custom: K-Mod deliberately stops normal AI production selection/production while a city is in disorder (occupation/resistance or owner anarchy).
+	// Do not let this later SAS post-doProduction layer clear or preselect the queue anyway. This is a control-boundary fix only; emergency policy outside disorder is unchanged. See KI#51.2. (ChatGPT-5.6-Sol) -->
+	bool const bAllowEmergencyBuildingOverride = (!bHuman && !isDisorder());
 
 	// <!-- custom: Audit the hard post-doProduction Harbor/Port/Walls/Castle overrides against the target normal production already chose, including displaced invested production.
-	// Diagnostic-only and RNG-free. See KI#48.5 for the broader override audit; the distinct disorder-time override defect exposed by it is KI#51.2. (ChatGPT-5.6-Sol) -->
+	// Diagnostic-only and RNG-free. See KI#48.5 for the dedicated override-policy audit; the distinct disorder-time override defect exposed by it is KI#51.2. (ChatGPT-5.6-Sol) -->
 	bool const bLogEmergencyBuildingAudit = ((gBuildingProductionLogLevel >= 2 || gMilitaryProductionLogLevel >= 2) && !bHuman && !isBarbarian());
 	UnitTypes const ePreEmergencyUnit = (bLogEmergencyBuildingAudit ? getProductionUnit() : NO_UNIT);
 	BuildingTypes const ePreEmergencyBuilding = (bLogEmergencyBuildingAudit ? getProductionBuilding() : NO_BUILDING);
@@ -816,7 +819,7 @@ void CvCity::doTurn()
 
 	// Optional (recommended) war–danger gate
 	// Don’t cancel a critical unit in a besieged city:
-	if (bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING && !bHuman && !bEmergencyBuilding && !bDanger)
+	if (bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING && bAllowEmergencyBuildingOverride && !bEmergencyBuilding && !bDanger)
 	{
 		// The low-food gate matches your original intent (fix tundra coasts that stagnate), while leaving healthy coastals alone.
 		const int iOceanThresh = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
@@ -877,7 +880,7 @@ void CvCity::doTurn()
 	// Your pattern is fine: keep variables as EraTypes for comparisons and cast to int only when doing arithmetic.
 	const int iCurrentEra = static_cast<int>(eCurrentEra);
 
-	if (!bEmergencyBuilding && !bHuman)
+	if (!bEmergencyBuilding && bAllowEmergencyBuildingOverride)
 	{
 		// <!-- custom: emergency buildings to build if we are at war and weaker, or some similar risky situation where we may be backstabbed and it is advisable to have some defense buildings in our city: it takes some time to build walls and a castle, but it is better than having our city taken, especially if the risk of such is high enough (see the main changes guide or code for details), however trying not to overdo it as they are quite costly and may hurt our growth if overbuilt or built too often. All in all, i'd recommend to set this to 1 to enable it as it is a nice AI boost in limited / conservative cases situations where it may most likely help, or if you prefer/want 0 to disable. Note: tune as per xml (as of now is BUILDINGCLASS_WALLS and BUILDINGCLASS_CASTLE if i'm not mistaken) -->
 		// Your guards use getNumBuilding(...) (not “active"), which is exactly what we want for “do we already have one?"—and canConstruct(...) will handle obsolescence (e.g., Castle after Economics). Good.
