@@ -3209,60 +3209,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 
 
 
-	<!-- custom: classify "mostly water inner ring" cities in CvCity::doTurn. If the 8 inner BFC tiles (excluding the city) have <= this many non-water, non-peak tiles, we treat the city as hammer-poor, low-risk island/peninsula for the emergency-defense rule (Walls/Castle). Example: 2 means 0, 1, or 2 land tiles. -->
-	<Define>
-		<DefineName>SAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY</DefineName>
-		<iDefineIntVal>2</iDefineIntVal>
-	</Define>
-	<!-- custom: e.g. if city has 4 base hammers (base production before any modifier is applied) and we are at era 1 (era_classical.), then if city has less than 5 * 1 + 2 = 7 base hammers at classical, it will be considered a low hammer city and won't do the emergency defense-building override (as of now Walls/Castle); these low-hammer or watery cities are usually better left to economic development instead. -->
-	<Define>
-		<DefineName>SAS_DO_TURN_LOW_BASE_HAMMERS_BASE_THRESHOLD</DefineName>
-		<iDefineIntVal>3</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_DO_TURN_LOW_BASE_HAMMERS_PER_ERA_THRESHOLD</DefineName>
-		<iDefineIntVal>2</iDefineIntVal>
-	</Define>
-
-
-
-	<!-- custom: emergency buildings to build if we are at war and weaker, or some similar risky situation where we may be backstabbed and it is advisable to have some defense buildings in our city; Long_Comments_XML.txt #172 -->
-	<!-- // Your broader trigger: strong enemy, or we’re at war and they aren’t weak, or city flagged in danger -->
-	<Define>
-		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<!-- custom: 1 skips emergency defense (e.g. so far Walls/Castle) overrides in sheltered cities: no immediate land danger and no known current/chosen-war land border in the BFC plus its one-tile perimeter. Ocean-coastal cities remain eligible during an active overseas/non-land-area war, or when the existing AI water-danger check sees a nearby enemy naval unit within 2 tiles. Ordinary building choices and existing production are unaffected. 0 restores the previous emergency location policy for comparison; restart Civ4 after changing this cached define. (GPT-6 + ChatGPT-5.6-Sol) -->
-	<Define>
-		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_SKIP_SHELTERED_ENABLE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<!-- custom: adjust as per your xml if your defense buildings to urgently build are not the walls and the castle -->
-	<Define>
-		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_BUILDINGCLASS_FULL_NAME</DefineName>
-		<DefineTextVal>BUILDINGCLASS_WALLS</DefineTextVal>
-	</Define>
-	<!-- custom: don't force walls or whichever building you set too soon, threats are not high, and we risk halting key settler units. Turn 100 at normal is for example turn 100 * 1.5 = turn 150 at gamespeed epic -->
-	<Define>
-		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL_GAMESPEED</DefineName>
-		<iDefineIntVal>80</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_BUILDINGCLASS_FULL_NAME</DefineName>
-		<DefineTextVal>BUILDINGCLASS_CASTLE</DefineTextVal>
-	</Define>
-	<!-- custom: don't force castle or whichever building you set too soon similarly -->
-	<Define>
-		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL_GAMESPEED</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
-	</Define>
-	<!-- custom: note 3: higher increments like 3, 4, 5, etc. are not supported in current code, implement logic in .cpp or such files if you want such defines in your mod mod if you have extra building class defense buildings you want AIs to build urgently when needed -->
-
-
-
-
-
-
 	<!-- custom: enable (1, recommended) / disable (0) to toggle advciv-sas smart unit promotions optimization (e.g. as of now pick city raider for UNITAI_ATTACK_CITY units first if not in danger or enemy is strong, or don't pick medic or woodsman promotions (inefficient), etc.) -->
 	<Define>
 		<DefineName>SAS_AI_PROMOTION_VALUE_OPTIMIZE</DefineName>
