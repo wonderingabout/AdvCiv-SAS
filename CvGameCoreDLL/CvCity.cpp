@@ -566,7 +566,6 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 
 // Helper: attempts to force-construct a single building
 // Returns true if we set an emergency building order (or one was already queued)
-// <!-- custom: code comments use Harbor building since it's the building whose code was used here, based on previously working code that was directly in CvCity::doTurn. Credit: Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
 bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass, bool* pbDefenseBlockedByShelter, bool bLandDanger)
 {
 	if (eBuildingClass == NO_BUILDINGCLASS)
@@ -581,9 +580,7 @@ bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass, bool* pb
 	// When to use each
 	// - getNumBuilding(eBuilding): counts even if obsolete. Good to answer “do we already have this?" regardless of techs.
 	// - getNumActiveBuilding(eBuilding): zero if obsolete. Good when you care about “is it still providing effects?"
-	// For your emergencies:
-	// - Harbor: use getNumBuilding(...) (harbors don’t obsolete anyway; this avoids any edge weirdness).
-	// - Walls/Castle: also fine with getNumBuilding(...) for the “already have it?" guard; canConstruct(...) will block obsolete castle builds.
+	// For the remaining Walls/Castle emergency, getNumBuilding(...) is appropriate for the “already have it?" guard; canConstruct(...) will block obsolete castle builds.
 	if (getNumBuilding(eBuilding) != 0)
 		return false;
 
@@ -595,7 +592,7 @@ bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass, bool* pb
 	// <!-- custom: Empire-wide war/power triggers forced defense buildings in sheltered cities, delaying economic development; only restrict this emergency override, leaving ordinary building choices available.
 	// Check shelter only after an emergency building is otherwise legal; callers have already applied their turn, war, hammer and water-share gates.
 	// The earlier doTurn location scan also ran when both buildings were already built, unavailable or too early, producing misleading counts of skipped city-turns.
-	// A non-NULL result pointer opts the defense callers into this filter and lets a sheltered Walls rejection skip Castle too, without a second location scan. Harbor/Port callers keep their existing behavior.
+	// A non-NULL result pointer opts the defense callers into this filter and lets a sheltered Walls rejection skip Castle too, without a second location scan.
 	// The BFC-only test missed Persian enemy land immediately outside Mound City's BFC corner. Include the BFC and every adjacent plot (the 7x7 square except its four far corners), but only known current/chosen-war territory in the city's land area; nearby islands across water do not establish a land border.
 	// Use revealed ownership so fogged culture/city changes do not leak information. A chosen-war border matters too because the broad enemy-power trigger already treats planned targets as strategically relevant.
 	// Ocean-coastal cities are not treated as sheltered during an active war when this area is not a land-war area; otherwise an overseas war could make every inland city look exposed while the actually reachable coastal cities are suppressed.
@@ -663,46 +660,13 @@ bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass, bool* pb
 	{
 		// Otherwise: force it to the front of the queue
 		clearOrderQueue();                     // hard override
-		pushOrder(ORDER_CONSTRUCT, eBuilding); // put Harbor at head
+		pushOrder(ORDER_CONSTRUCT, eBuilding); // put emergency building at head
 		setChooseProductionDirty(false);       // don't clear it next turn
 		// <!-- custom: don't overwrite urgent building -->
 		return true;                           // done
 	}
 }
 
-
-bool CvCity::SASTryEmergencySeaYieldBuilding(YieldTypes eYield)
-{
-	// <!-- custom: The previous emergency rules named Harbor and Port classes.
-	// Select among this civilization's currently constructible buildings by their actual sea-plot yield instead, prioritizing more yield per hammer and then the cheaper building; unique replacements and mod-added buildings therefore work without another define. (GPT-5.6-Sol) -->
-	BuildingClassTypes eBestBuildingClass = NO_BUILDINGCLASS;
-	int iBestYieldChange = 0;
-	int iBestCost = MAX_INT;
-	BuildingTypes const eCurrentBuilding = getProductionBuilding();
-	CvCivilization const& kCiv = getCivilization();
-	for (int i = 0; i < kCiv.getNumBuildings(); i++)
-	{
-		BuildingTypes const eBuilding = kCiv.buildingAt(i);
-		CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
-		BuildingClassTypes const eBuildingClass = kCiv.buildingClassAt(i);
-		int const iYieldChange = kBuilding.getSeaPlotYieldChange(eYield);
-		// <!-- custom: Emergency infrastructure must not commandeer a limited wonder or a GP/free-only building merely because it also changes sea yields. (GPT-5.6-Sol) -->
-		// <!-- custom: Preserve an already-queued sea-yield emergency candidate by using continuation legality for that one building. Otherwise canConstruct(..., bContinue=false, ...) rejects the queued order and a lower-priority emergency can immediately replace it on the next turn. (ChatGPT-5.6-Sol) -->
-		bool const bContinue = (eBuilding == eCurrentBuilding);
-		if (iYieldChange <= 0 || kBuilding.getProductionCost() <= 0 || kBuilding.isLimited() ||
-			getNumBuilding(eBuilding) != 0 || !canConstruct(eBuilding, bContinue, false, true))
-			continue;
-		int const iCost = std::max(1, getProductionNeeded(eBuilding));
-		if (eBestBuildingClass == NO_BUILDINGCLASS || iYieldChange * iBestCost > iBestYieldChange * iCost ||
-			(iYieldChange * iBestCost == iBestYieldChange * iCost && iCost < iBestCost))
-		{
-			eBestBuildingClass = eBuildingClass;
-			iBestYieldChange = iYieldChange;
-			iBestCost = iCost;
-		}
-	}
-	return SASTryEmergencyBuilding(eBestBuildingClass);
-}
 
 void CvCity::doTurn()
 {
@@ -778,7 +742,7 @@ void CvCity::doTurn()
 	// Do not let this later SAS post-doProduction layer clear or preselect the queue anyway. This is a control-boundary fix only; emergency policy outside disorder is unchanged. See KI#51.2. (ChatGPT-5.6-Sol) -->
 	bool const bAllowEmergencyBuildingOverride = (!bHuman && !isDisorder());
 
-	// <!-- custom: Audit the hard post-doProduction Harbor/Port/Walls/Castle overrides against the target normal production already chose, including displaced invested production.
+	// <!-- custom: Audit the remaining hard post-doProduction Walls/Castle overrides against the target normal production already chose, including displaced invested production.
 	// Diagnostic-only and RNG-free. See KI#48.5 for the dedicated override-policy audit; the distinct disorder-time override defect exposed by it is KI#51.2. (ChatGPT-5.6-Sol) -->
 	bool const bLogEmergencyBuildingAudit = ((gBuildingProductionLogLevel >= 2 || gMilitaryProductionLogLevel >= 2) && !bHuman && !isBarbarian());
 	UnitTypes const ePreEmergencyUnit = (bLogEmergencyBuildingAudit ? getProductionUnit() : NO_UNIT);
@@ -814,42 +778,6 @@ void CvCity::doTurn()
 	}
 	char const* szEmergencyBuildingReason = "-";
 
-	// <!-- custom: A positive sea-food building is top priority if a coastal city has low food per turn; stagnant coastal tundra cities otherwise remained small for dozens of turns.
-	// The building itself is now selected from the civilization's XML effects rather than a named Harbor class. (ChatGPT 5 + GPT-5.6-Sol) -->
-	// 	<!-- custom: update: the harbor is more likely to be useful than walls for a coastal city, plus a harbor would help us build our walls or such faster anyway, so risk weaker defenses to make sure we get the very important harbor first rather.
-	// We would also be slow to build units, and even if we do, there is a chance they may not be useful if city is an island or some isolated place so focus on economy rather should help in most of these cases of +/- coastal/watery cities or low hammer so as of now do not follow through with emergency defense buildings nor emegency units for these cities -->
-	// --- SAS: force Harbor ASAP if coastal & buildable (no era/pop checks) ---
-	static const bool bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING = GC.getDefineBOOL("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING");
-
-	// Optional (recommended) war–danger gate
-	// Don’t cancel a critical unit in a besieged city:
-	if (bSAS_DO_TURN_FORCE_WATER_FOOD_BUILDING && bAllowEmergencyBuildingOverride && !bEmergencyBuilding && !bDanger)
-	{
-		// The low-food gate matches your original intent (fix tundra coasts that stagnate), while leaving healthy coastals alone.
-		const int iOceanThresh = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
-		const bool bOceanCoastal = isCoastal(iOceanThresh); // excludes lakes
-
-		// <!-- custom: save some computation, don't run what's next unless we have a coastal city, which should remove most but is just a guess so check to be sure -->
-		if (bOceanCoastal && !isFoodProduction())
-		{
-			// Threshold: 1 = low food or worse.
-			static const int iFoodThresh = GC.getDefineINT("SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_FOOD_THRESHOLD"); // e.g. 1
-			const int iFoodDiff = foodDifference();
-			const bool bLowFood = (iFoodDiff <= iFoodThresh);
-
-			if (bLowFood)
-			{
-				// <!-- custom: note: this helper also pushes an emergency building if it returns true -->
-				if (SASTryEmergencySeaYieldBuilding(YIELD_FOOD))
-				{
-					bEmergencyBuilding = true;
-					szEmergencyBuildingReason = "SEA_FOOD";
-				}
-			}
-		}
-	}
-	// --- end SAS rule ---
-
 	// --- SAS: classify "mostly water inner ring" hammer-poor cities ---
 	// treat cities with very few inner-ring land tiles (non-water, non-peak) as hammer-poor, low-invasion-risk islands / peninsulas. These are usually bad places for forced Walls/Castles; we may want to focus them on economy instead.
 	static const int iSAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY = GC.getDefineINT("SAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY"); // e.g. 2
@@ -884,7 +812,7 @@ void CvCity::doTurn()
 	// Your pattern is fine: keep variables as EraTypes for comparisons and cast to int only when doing arithmetic.
 	const int iCurrentEra = static_cast<int>(eCurrentEra);
 
-	if (!bEmergencyBuilding && bAllowEmergencyBuildingOverride)
+	if (bAllowEmergencyBuildingOverride)
 	{
 		// <!-- custom: emergency buildings to build if we are at war and weaker, or some similar risky situation where we may be backstabbed and it is advisable to have some defense buildings in our city: it takes some time to build walls and a castle, but it is better than having our city taken, especially if the risk of such is high enough (see the main changes guide or code for details), however trying not to overdo it as they are quite costly and may hurt our growth if overbuilt or built too often. All in all, i'd recommend to set this to 1 to enable it as it is a nice AI boost in limited / conservative cases situations where it may most likely help, or if you prefer/want 0 to disable. Note: tune as per xml (as of now is BUILDINGCLASS_WALLS and BUILDINGCLASS_CASTLE if i'm not mistaken) -->
 		// Your guards use getNumBuilding(...) (not “active"), which is exactly what we want for “do we already have one?"—and canConstruct(...) will handle obsolescence (e.g., Castle after Economics). Good.
@@ -956,42 +884,12 @@ void CvCity::doTurn()
 		}
 		// --- end SAS defense rule ---
 
-		// <!-- custom: The Port-class water-hammer rule was inserted before the older strategic-defense rule, so a mature coastal city could force Port and suppress eligible Walls/Castle despite the feature's documented priority. Keep Harbor first, but try strategic defense before Port; if defense does not qualify or cannot be built, Port remains the next economic fallback. See KI#333. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		static const bool bSAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING = GC.getDefineBOOL("SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING");
-		if (bSAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING && !bEmergencyBuilding && !bDanger)
-		{
-			const int iOceanThresh = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
-			const bool bOceanCoastal = isCoastal(iOceanThresh);
-			if (bOceanCoastal)
-			{
-				static const int iMinPopulation = GC.getDefineINT("SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_MIN_POPULATION");
-				static const int iMaxProductionPerPop100 = GC.getDefineINT("SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_MAX_PRODUCTION_PER_POP_100");
-				static const int iFoodSurplusThreshold = GC.getDefineINT("SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_FOOD_SURPLUS_THRESHOLD");
-				const int iCityPopulation = getPopulation();
-				const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
-				const int iFoodDiff = foodDifference();
-				// <!-- custom: Production-per-pop is stored per 100 to keep XML integer-only tuning precise enough: 300 means 3 hammers/pop. Port can take significant time, but low-yield coastal cities are not likely to contribute much short-term production anyway; if not in immediate danger, making their water tiles produce hammer first should make them more useful later. (GPT-5.5) -->
-				const bool bMatureLowYieldCoast = (iCityPopulation >= iMinPopulation && (iBaseHammersPerTurn * 100 < iCityPopulation * iMaxProductionPerPop100 || iFoodDiff < iFoodSurplusThreshold));
-
-				if (bMatureLowYieldCoast)
-				{
-					if (SASTryEmergencySeaYieldBuilding(YIELD_PRODUCTION))
-					{
-						bEmergencyBuilding = true;
-						szEmergencyBuildingReason = "SEA_PRODUCTION";
-						if (gCityLogLevel >= 2) logBBAI("      City %S forces water hammer building. pop %d/%d, base hammers %d, food surplus %d/%d",
-							getName().GetCString(), iCityPopulation, iMinPopulation, iBaseHammersPerTurn, iFoodDiff, iFoodSurplusThreshold);
-					}
-				}
-			}
-		}
-
 		// <!-- custom: Cleanup of old SAS code: the former post-doProduction water-building/unit safety net was removed after two broad fallback-off controls produced 364 empty -> empty AI_chooseProduction calls and every one was an intentional isDisorder() return (260 occupation/resistance, 104 other disorder), with zero genuine final chooser fall-throughs.
 		// Keeping a second production policy here could preselect arbitrary post-disorder production and duplicate AI_chooseProduction/AI_chooseUnit rules.
 		// Future abnormal non-disorder no-target outcomes are recorded at the appropriate all-city turn boundary, with exact AI chooser paths left to dedicated BBAI diagnostics. See KI#51. (ChatGPT-5.6-Sol) -->
 	}
 
-	// <!-- custom: Keep the final emergency-building logging outside the later defense/Port wrapper: SEA_FOOD can succeed first and set bEmergencyBuilding, which intentionally skips that wrapper. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Log the final post-doProduction emergency-building result after the defense policy block. (ChatGPT-5.6-Sol) -->
 	if (bLogEmergencyBuildingAudit && bEmergencyBuilding)
 	{
 		BuildingTypes const eEmergencyBuilding = getProductionBuilding();
@@ -1027,11 +925,10 @@ void CvCity::doTurn()
 			int const iNeeded = getProductionNeeded(eEmergencyBuilding);
 			int iTurnsLeft = getProductionTurnsLeft(eEmergencyBuilding, 0);
 			if (iTurnsLeft == MAX_INT) iTurnsLeft = -1;
-			logBBAI("BUILDING_PRODUCTION_DOTURN_EMERGENCY_AUDIT turn=%d player=%d %S city=%S cityId=%d reason=%s result=%s preKind=%s preTarget=%s preBuildingValue=%d preStored=%d preNeeded=%d preRemaining=%d preTurnsLeft=%d forcedBuilding=%s forcedValue=%d stored=%d needed=%d remaining=%d turnsLeft=%d seaFood=%d seaProduction=%d pop=%d targetPopulation=%d foodSurplus=%d baseProduction=%d danger=%d atWar=%d enemyPowerPercent=%d mostlyWater=%d disorder=%d occupationTimer=%d",
+			logBBAI("BUILDING_PRODUCTION_DOTURN_EMERGENCY_AUDIT turn=%d player=%d %S city=%S cityId=%d reason=%s result=%s preKind=%s preTarget=%s preBuildingValue=%d preStored=%d preNeeded=%d preRemaining=%d preTurnsLeft=%d forcedBuilding=%s forcedValue=%d stored=%d needed=%d remaining=%d turnsLeft=%d pop=%d targetPopulation=%d foodSurplus=%d baseProduction=%d danger=%d atWar=%d enemyPowerPercent=%d mostlyWater=%d disorder=%d occupationTimer=%d",
 				kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), szEmergencyBuildingReason, szResult,
 				szPreKind, szPreTarget, iPreEmergencyBuildingValue, iPreEmergencyStored, iPreEmergencyNeeded, std::max(0, iPreEmergencyNeeded - iPreEmergencyStored), iPreEmergencyTurnsLeft,
 				kEmergencyBuilding.getType(), iEmergencyValue, iStored, iNeeded, std::max(0, iNeeded - iStored), iTurnsLeft,
-				kEmergencyBuilding.getSeaPlotYieldChange(YIELD_FOOD), kEmergencyBuilding.getSeaPlotYieldChange(YIELD_PRODUCTION),
 				getPopulation(), AI().AI_getTargetPopulation(), foodDifference(), getBaseYieldRate(YIELD_PRODUCTION), bDanger, bAtWar, iEnemyPowerPercent, bInnerRingMostlyWaterNonPeak, isDisorder(), getOccupationTimer());
 		}
 	}

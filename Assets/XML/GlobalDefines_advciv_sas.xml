@@ -3209,39 +3209,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 
 
 
-	<!-- custom: Emergency/force the most hammer-efficient currently constructible building with a positive sea-plot food change when a coastal city has low food. Set to 1 to enable; this fixed coastal tundra AI cities that otherwise remained stagnant for dozens of turns. The building is discovered from civilization-specific XML rather than a configured class name. (GPT-5.6-Sol) -->
-	<Define>
-		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<!-- custom: if food per turn in city is <= 1 food per turn and city is coastal, then force harbor as we would stagnate soon anyway -->
-	<Define>
-		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_FOOD_THRESHOLD</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<!-- custom: Force the most hammer-efficient currently constructible building with a positive sea-plot production change for non-human coastal cities that are big enough but still have low production or low food surplus. Such a building can take significant time, but these cities are not likely to contribute much short-term production anyway; if not in immediate danger, making their water plots produce hammers first should make them much more useful later. Defense emergencies still run earlier in CvCity::doTurn. The building is discovered from civilization-specific XML rather than a configured class name. (GPT-5.5 + GPT-5.6-Sol) -->
-	<Define>
-		<DefineName>SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_MIN_POPULATION</DefineName>
-		<iDefineIntVal>6</iDefineIntVal>
-	</Define>
-	<!-- custom: Production-per-pop is stored per 100: 300 means 3 hammers/pop. Set enable to 0 to disable. (GPT-5.5) -->
-	<Define>
-		<DefineName>SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_MAX_PRODUCTION_PER_POP_100</DefineName>
-		<iDefineIntVal>300</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_FOOD_SURPLUS_THRESHOLD</DefineName>
-		<iDefineIntVal>4</iDefineIntVal>
-	</Define>
-
-
-
-	<!-- custom: update: the harbor is more likely to be useful than walls for a coastal city, plus a harbor would help us build our walls or such faster anyway, so risk weaker defenses to make sure we get the very important harbor first rather; Long_Comments_XML.txt #173 -->
-	<!-- classify "mostly water inner ring" cities in CvCity::doTurn. If the 8 inner BFC tiles (excluding the city) have <= this many non-water, non-peak tiles, we treat the city as hammer-poor, low-risk island/peninsula for emergency economic/defense rules (notably Harbor/Port and Walls/Castle). Example: 2 means 0, 1, or 2 land tiles. -->
+	<!-- custom: classify "mostly water inner ring" cities in CvCity::doTurn. If the 8 inner BFC tiles (excluding the city) have <= this many non-water, non-peak tiles, we treat the city as hammer-poor, low-risk island/peninsula for the emergency-defense rule (Walls/Castle). Example: 2 means 0, 1, or 2 land tiles. -->
 	<Define>
 		<DefineName>SAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
