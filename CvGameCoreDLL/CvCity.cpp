@@ -587,7 +587,9 @@ bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass, bool* pb
 	if (getNumBuilding(eBuilding) != 0)
 		return false;
 
-	if (!canConstruct(eBuilding, false, false, true))
+	// <!-- custom: If this emergency building is already at the head of the queue, test whether it can continue rather than treating its own queued order as a reason it cannot be constructed. With bContinue=false, CvCity::canConstruct rejects any building already present in the order queue before this helper can reach its intended "already doing it" path. (ChatGPT-5.6-Sol) -->
+	bool const bAlreadyQueued = (getProductionBuilding() == eBuilding);
+	if (!canConstruct(eBuilding, bAlreadyQueued, false, true))
 		return false;
 
 	// <!-- custom: Empire-wide war/power triggers forced defense buildings in sheltered cities, delaying economic development; only restrict this emergency override, leaving ordinary building choices available.
@@ -640,7 +642,6 @@ bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass, bool* pb
 		*pbDefenseBlockedByShelter = bShelteredDefense;
 		if ((gMilitaryProductionLogLevel >= 2 || gBuildingProductionLogLevel >= 2) && !isHuman() && !isBarbarian())
 		{
-			bool const bAlreadyQueued = (getProductionBuilding() == eBuilding);
 			char const* szDecision = (*pbDefenseBlockedByShelter ? (bAlreadyQueued ? "RELEASE_EMERGENCY_PRIORITY" : "BLOCK_NEW_ORDER") : (bAlreadyQueued ? "KEEP_EMERGENCY_PRIORITY" : "FORCE_NEW_ORDER"));
 			logBBAI("EMERGENCY_DEFENSE_BUILDING turn=%d player=%d city=%S cityId=%d building=%s decision=%s reason=%s filterEnabled=%d alreadyQueued=%d oceanCoastal=%d landDanger=%d strategicNavalExposure=%d navalDangerChecked=%d navalDanger=%d enemyLandX=%d enemyLandY=%d enemyLandTeam=%d",
 				GC.getGame().getGameTurn(), getOwner(), getName().GetCString(), getID(), GC.getInfo(eBuilding).getType(), szDecision,
@@ -654,7 +655,7 @@ bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass, bool* pb
 	}
 
 	// already doing it
-	if (getProductionBuilding() == eBuilding)
+	if (bAlreadyQueued)
 	{
 		return true;
 	}
@@ -677,6 +678,7 @@ bool CvCity::SASTryEmergencySeaYieldBuilding(YieldTypes eYield)
 	BuildingClassTypes eBestBuildingClass = NO_BUILDINGCLASS;
 	int iBestYieldChange = 0;
 	int iBestCost = MAX_INT;
+	BuildingTypes const eCurrentBuilding = getProductionBuilding();
 	CvCivilization const& kCiv = getCivilization();
 	for (int i = 0; i < kCiv.getNumBuildings(); i++)
 	{
@@ -685,8 +687,10 @@ bool CvCity::SASTryEmergencySeaYieldBuilding(YieldTypes eYield)
 		BuildingClassTypes const eBuildingClass = kCiv.buildingClassAt(i);
 		int const iYieldChange = kBuilding.getSeaPlotYieldChange(eYield);
 		// <!-- custom: Emergency infrastructure must not commandeer a limited wonder or a GP/free-only building merely because it also changes sea yields. (GPT-5.6-Sol) -->
+		// <!-- custom: Preserve an already-queued sea-yield emergency candidate by using continuation legality for that one building. Otherwise canConstruct(..., bContinue=false, ...) rejects the queued order and a lower-priority emergency can immediately replace it on the next turn. (ChatGPT-5.6-Sol) -->
+		bool const bContinue = (eBuilding == eCurrentBuilding);
 		if (iYieldChange <= 0 || kBuilding.getProductionCost() <= 0 || kBuilding.isLimited() ||
-			getNumBuilding(eBuilding) != 0 || !canConstruct(eBuilding, false, false, true))
+			getNumBuilding(eBuilding) != 0 || !canConstruct(eBuilding, bContinue, false, true))
 			continue;
 		int const iCost = std::max(1, getProductionNeeded(eBuilding));
 		if (eBestBuildingClass == NO_BUILDINGCLASS || iYieldChange * iBestCost > iBestYieldChange * iCost ||
