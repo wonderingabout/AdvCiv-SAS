@@ -7501,7 +7501,7 @@ static void SAS_logBuildingValuePolicyDecision(CvCityAI const& kCity, BuildingTy
 
 // <!-- custom: When the SAS regular-building prefilter is disabled, expose every computed neutral-focus inherited value rather than only the winning focus candidates.
 // Include its deterministic turns/progress-adjusted comparison value and the main XML/city inputs so the inherited policy can be audited before replacing or tuning it; call only behind the cached level-3 gate. (GPT-5.6-Sol) -->
-static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor, int iDefenseDelta, int iEspionageDefenseDelta, int iHappinessDelta, int iHealthDelta, int iExperienceDelta, int iDomainSeaDelta, int iMaintenanceDelta, int iSpecialistDelta, int iTradeDelta, int iGeneralDelta, int iYieldDelta, int iCommerceGlobalDelta, int iAirCapacityDelta, int iMilitaryProductionDelta, int iDomainProductionDelta, int iHealthSeverityUrgencyBonus, int iHealthStarvationUrgencyBonus, int iMaintenanceCurrentTimes100, int iMaintenanceEstimatedBaseTimes100, int iMaintenanceNewUpkeepTimes100, int iMaintenanceSavedTimes100, int iMaintenancePreInflationValue, int iMaintenanceInflatedValue, int iMaintenanceFinalValue, int iValueBeforePriority, int iValueAfterPriority, int iValueBeforeAIWeight, int iValueAfterAIWeight, int iFlavorMatchExact, int iValueAfterFlavor, int iGoldDelta, int iGoldBeforeWeight, int iGoldAfterWeight, int iResearchDelta, int iResearchBeforeWeight, int iResearchAfterWeight, int iCultureDelta, int iCultureClaimValue, int iCulturePriorityBoost, int iCultureBeforeWeight, int iCultureAfterWeight, int iEspionageDelta, int iEspionageBeforeWeight, int iEspionageAfterWeight, int iSeaFoodDelta, int iSeaProductionDelta, int iSeaCommerceDelta, int iSeaYieldPlotWeight)
+static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor, int iDefenseDelta, int iEspionageDefenseDelta, int iHappinessDelta, int iHealthDelta, int iExperienceDelta, int iDomainSeaDelta, int iMaintenanceDelta, int iSpecialistDelta, int iTradeDelta, int iGeneralDelta, int iYieldDelta, int iCommerceGlobalDelta, int iAirCapacityDelta, int iMilitaryProductionDelta, int iDomainProductionDelta, int iHealthSeverityUrgencyBonus, int iHealthStarvationUrgencyBonus, int iMaintenanceCurrentTimes100, int iMaintenanceEstimatedBaseTimes100, int iMaintenanceNewUpkeepTimes100, int iMaintenanceSavedTimes100, int iMaintenancePreInflationValue, int iMaintenanceInflatedValue, int iMaintenanceFinalValue, int iValueBeforePriority, int iValueAfterPriority, int iValueBeforeAIWeight, int iValueAfterAIWeight, int iFlavorMatchExact, int iValueAfterFlavor, int iGoldDelta, int iGoldBeforeWeight, int iGoldAfterWeight, int iResearchDelta, int iResearchBeforeWeight, int iResearchAfterWeight, int iCultureDelta, int iCultureClaimValue, int iCulturePriorityBoost, int iCultureBeforeWeight, int iCultureAfterWeight, int iEspionageDelta, int iEspionageBeforeWeight, int iEspionageAfterWeight, int iSeaFoodDelta, int iSeaProductionDelta, int iSeaCommerceDelta, int iSeaYieldPlotWeight, int iYieldProductionPriorityRaw, int iYieldProductionPriorityApplied)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kCity.getTeam());
@@ -7636,17 +7636,38 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 		bool const bOldSASForceLowFood = (bOldSASWaterFoodBuilding && iFoodSurplus < 2 && !kCity.isFoodProduction());
 		int const iSeaYieldDelta = iSeaFoodDelta + iSeaProductionDelta + iSeaCommerceDelta;
 		int const iOtherPreFinalWithoutSeaYield = iValueBeforePriority - iSeaYieldDelta;
-		logBBAI("BUILDING_VALUE_INHERITED_COASTAL_YIELD turn=%d player=%d city=%S cityId=%d building=%s final=%d preFinal=%d seaYieldDelta=%d seaFoodDelta=%d seaProductionDelta=%d seaCommerceDelta=%d otherPreFinalWithoutSeaYield=%d foodFocus=%d productionFocus=%d seaYieldPlotWeight=%d seaFoodChange=%d seaProductionChange=%d seaCommerceChange=%d globalSeaFoodChange=%d globalSeaProductionChange=%d globalSeaCommerceChange=%d waterPlots=%d workedWaterPlots=%d unworkedWaterPlots=%d waterFood=%d waterProduction=%d waterCommerce=%d workedWaterFood=%d workedWaterProduction=%d workedWaterCommerce=%d population=%d targetPopulation=%d foodSurplus=%d healthSurplus=%d happySurplus=%d angryPopulation=%d baseHammersPerTurn=%d isFoodProduction=%d oldSASWaterFoodBuilding=%d oldSASForceLowFood=%d stored=%d needed=%d turnsLeft=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d",
+
+		// <!-- custom: For Port-style sea-production buildings, expose the immediate worked-water hammer gain and a simple remaining-cost payback horizon beside inherited value.
+		// This is diagnostic only: it tests whether hammer-poor water cities already receive enough priority from K-Mod's production-value/priority scaling before adding any new valuation rule. (ChatGPT-5.6-Sol) -->
+		int const iSeaProductionChange = kBuilding.getSeaPlotYieldChange(YIELD_PRODUCTION);
+		int const iImmediateSeaProductionBaseGain = std::max(0, iSeaProductionChange) * iWorkedWaterPlots;
+		int const iPotentialSeaProductionBaseGain = std::max(0, iSeaProductionChange) * iWaterPlots;
+		int const iBaseProduction = kCity.getBaseYieldRate(YIELD_PRODUCTION);
+		int const iBaseProductionModifier = kCity.getBaseYieldRateModifier(YIELD_PRODUCTION);
+		int const iImmediateSeaProductionModifiedGain = (iImmediateSeaProductionBaseGain * iBaseProductionModifier) / 100;
+		int const iImmediateSeaProductionBoostPercent = (100 * iImmediateSeaProductionBaseGain) / std::max(1, iBaseProduction);
+		int const iRemaining = std::max(0, iNeeded - iStored);
+		int const iRemainingPaybackTurns = (iImmediateSeaProductionModifiedGain <= 0 ? -1 :
+			(iRemaining + iImmediateSeaProductionModifiedGain - 1) / iImmediateSeaProductionModifiedGain);
+		int const iFullPaybackTurns = (iImmediateSeaProductionModifiedGain <= 0 ? -1 :
+			(iNeeded + iImmediateSeaProductionModifiedGain - 1) / iImmediateSeaProductionModifiedGain);
+		int const iSimpleBreakEvenTurns = (iTurnsLeft < 0 || iRemainingPaybackTurns < 0 ? -1 :
+			iTurnsLeft + iRemainingPaybackTurns);
+		int const iYieldProductionPriorityClipped = std::max(0, iYieldProductionPriorityRaw - iYieldProductionPriorityApplied);
+
+		logBBAI("BUILDING_VALUE_INHERITED_COASTAL_YIELD turn=%d player=%d city=%S cityId=%d building=%s final=%d preFinal=%d postPriority=%d priorityFactor=%d yieldProductionPriorityRaw=%d yieldProductionPriorityApplied=%d yieldProductionPriorityClipped=%d seaYieldDelta=%d seaFoodDelta=%d seaProductionDelta=%d seaCommerceDelta=%d otherPreFinalWithoutSeaYield=%d foodFocus=%d productionFocus=%d seaYieldPlotWeight=%d seaFoodChange=%d seaProductionChange=%d seaCommerceChange=%d globalSeaFoodChange=%d globalSeaProductionChange=%d globalSeaCommerceChange=%d waterPlots=%d workedWaterPlots=%d unworkedWaterPlots=%d waterFood=%d waterProduction=%d waterCommerce=%d workedWaterFood=%d workedWaterProduction=%d workedWaterCommerce=%d immediateSeaProductionBaseGain=%d potentialSeaProductionBaseGain=%d baseProductionModifier=%d immediateSeaProductionModifiedGain=%d immediateSeaProductionBoostPercent=%d remainingPaybackTurns=%d fullPaybackTurns=%d simpleBreakEvenTurns=%d population=%d targetPopulation=%d foodSurplus=%d healthSurplus=%d happySurplus=%d angryPopulation=%d baseHammersPerTurn=%d isFoodProduction=%d oldSASWaterFoodBuilding=%d oldSASForceLowFood=%d stored=%d needed=%d remaining=%d turnsLeft=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d",
 			GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(),
-			iValue, iValueBeforePriority, iSeaYieldDelta, iSeaFoodDelta, iSeaProductionDelta, iSeaCommerceDelta, iOtherPreFinalWithoutSeaYield,
+			iValue, iValueBeforePriority, iValueAfterPriority, iPriorityFactor, iYieldProductionPriorityRaw, iYieldProductionPriorityApplied, iYieldProductionPriorityClipped, iSeaYieldDelta, iSeaFoodDelta, iSeaProductionDelta, iSeaCommerceDelta, iOtherPreFinalWithoutSeaYield,
 			iFocusFood, iFocusProduction, iSeaYieldPlotWeight,
-			kBuilding.getSeaPlotYieldChange(YIELD_FOOD), kBuilding.getSeaPlotYieldChange(YIELD_PRODUCTION), kBuilding.getSeaPlotYieldChange(YIELD_COMMERCE),
+			kBuilding.getSeaPlotYieldChange(YIELD_FOOD), iSeaProductionChange, kBuilding.getSeaPlotYieldChange(YIELD_COMMERCE),
 			kBuilding.getGlobalSeaPlotYieldChange(YIELD_FOOD), kBuilding.getGlobalSeaPlotYieldChange(YIELD_PRODUCTION), kBuilding.getGlobalSeaPlotYieldChange(YIELD_COMMERCE),
 			iWaterPlots, iWorkedWaterPlots, iUnworkedWaterPlots, iWaterFood, iWaterProduction, iWaterCommerce,
 			iWorkedWaterFood, iWorkedWaterProduction, iWorkedWaterCommerce,
+			iImmediateSeaProductionBaseGain, iPotentialSeaProductionBaseGain, iBaseProductionModifier, iImmediateSeaProductionModifiedGain,
+			iImmediateSeaProductionBoostPercent, iRemainingPaybackTurns, iFullPaybackTurns, iSimpleBreakEvenTurns,
 			kCity.getPopulation(), kCity.AI_getTargetPopulation(), iFoodSurplus, iHealthSurplus, iHappySurplus, kCity.angryPopulation(),
-			kCity.getBaseYieldRate(YIELD_PRODUCTION), kCity.isFoodProduction(), bOldSASWaterFoodBuilding, bOldSASForceLowFood,
-			iStored, iNeeded, iTurnsLeft, bAtWar, bWarPlan, bDanger, iEnemyPowerPercent);
+			iBaseProduction, kCity.isFoodProduction(), bOldSASWaterFoodBuilding, bOldSASForceLowFood,
+			iStored, iNeeded, iRemaining, iTurnsLeft, bAtWar, bWarPlan, bDanger, iEnemyPowerPercent);
 	}
 
 	// <!-- custom: Exact before/after deltas from the inherited neutral pass complement the focus probes above.
@@ -8321,6 +8342,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		static const bool bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE");
 		static const bool bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE");
 		static const bool bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE");
+
+		// <!-- custom: Keep the retired land-heavy naval-infrastructure rule observable without reviving its whole-building veto.
+		// When level-3 Building Production logging is enabled, record where the old SAS policy would have rejected genuine sea-unit production/experience infrastructure; normal inherited valuation still decides production. (ChatGPT-5.6-Sol) -->
+		if (bLogBuildingValueDetails)
+		{
+			bool const bSASLandHeavyNavalInfrastructureLegacyAudit = (!bWonder && isCoastal() && kGame.isLandHeavyMapnameCached() &&
+				(kBuilding.getDomainFreeExperience(DOMAIN_SEA) > 0 || kBuilding.getDomainProductionModifier(DOMAIN_SEA) > 0));
+			if (bSASLandHeavyNavalInfrastructureLegacyAudit) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NAVAL_EXPERIENCE_LEGACY", "WOULD_REJECT_LAND_HEAVY_MAP", 0);
+		}
 
 		static const int iSAS_AI_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS = GC.getDefineINT("SAS_AI_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS");
 		static const int iSAS_AI_BUILDING_VALUE_GATE_M100_WONDERS = GC.getDefineINT("SAS_AI_BUILDING_VALUE_GATE_M100_WONDERS");
@@ -9884,6 +9914,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	int iDiagEspionageDelta = 0, iDiagEspionageBeforeWeight = 0, iDiagEspionageAfterWeight = 0;
 	// <!-- custom: Isolate local/global sea-tile yield value for the coastal-growth timing audit; these are populated only by the level-3 neutral pass so normal gameplay gains no extra plot scans or duplicate valuation work. (ChatGPT-5.6-Sol) -->
 	int iDiagSeaFoodDelta = 0, iDiagSeaProductionDelta = 0, iDiagSeaCommerceDelta = 0, iDiagSeaYieldPlotWeight = 0;
+	// <!-- custom: Preserve the exact pre-cap and applied K-Mod production-priority increment for level-3 coastal/payback analysis; this shows whether the +100 priority cap is materially flattening very high-return Port-style production gains without changing valuation. (ChatGPT-5.6-Sol) -->
+	int iDiagYieldProductionPriorityRaw = 0, iDiagYieldProductionPriorityApplied = 0;
 	int iDiagHealthSeverityUrgencyBonus = 0, iDiagHealthStarvationUrgencyBonus = 0;
 	// <!-- custom: Keep these explicitly initialized for VC++ Toolkit 2003 C4701 checks; they are populated only by the level-3 neutral maintenance pass. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int iDiagMaintenanceCurrentTimes100 = 0, iDiagMaintenanceEstimatedBaseTimes100 = 0, iDiagMaintenanceNewUpkeepTimes100 = 0, iDiagMaintenanceSavedTimes100 = 0;
@@ -11254,8 +11286,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					if (eLoopYield == YIELD_PRODUCTION)
 					{
 						// priority += 2.4% per 1% in production increase. roughly. More when at war.
-						iPriorityFactor += std::min(100, (bWarPlan ? 280 : 240) *
-								iTempValue/std::max(1, 4*getYieldRate(YIELD_PRODUCTION)));
+						int const iYieldProductionPriorityRaw = (bWarPlan ? 280 : 240) *
+								iTempValue/std::max(1, 4*getYieldRate(YIELD_PRODUCTION));
+						int const iYieldProductionPriorityApplied = std::min(100, iYieldProductionPriorityRaw);
+						iPriorityFactor += iYieldProductionPriorityApplied;
+						if (bLogBuildingValueDetails && iPass > 0)
+						{
+							iDiagYieldProductionPriorityRaw += iYieldProductionPriorityRaw;
+							iDiagYieldProductionPriorityApplied += iYieldProductionPriorityApplied;
+						}
 					} // K-Mod end
 					int const iYieldWeight = kOwner.AI_yieldWeight(eLoopYield, this);
 					if (bLogBuildingValueDetails && iPass > 0 && (iDiagSeaLocalRawValue != 0 || iDiagSeaGlobalRawValue != 0))
@@ -12130,7 +12169,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			iDiagResearchDelta, iDiagResearchBeforeWeight, iDiagResearchAfterWeight,
 			iDiagCultureDelta, iDiagCultureClaimValue, iDiagCulturePriorityBoost, iDiagCultureBeforeWeight, iDiagCultureAfterWeight,
 			iDiagEspionageDelta, iDiagEspionageBeforeWeight, iDiagEspionageAfterWeight,
-			iDiagSeaFoodDelta, iDiagSeaProductionDelta, iDiagSeaCommerceDelta, iDiagSeaYieldPlotWeight);
+			iDiagSeaFoodDelta, iDiagSeaProductionDelta, iDiagSeaCommerceDelta, iDiagSeaYieldPlotWeight,
+			iDiagYieldProductionPriorityRaw, iDiagYieldProductionPriorityApplied);
 	}
 
 	return iValue;
