@@ -2188,6 +2188,34 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 
 
 
+	<!-- custom: Enable the evidence-driven proactive Walls/Castle-style fortification opportunity inside AI_chooseProduction. The removed legacy CvCity::doTurn emergency layer rewrote production after hammers were spent; this replacement acts through the normal production flow only after current-target continuity, no-defender production and strike recovery have had priority. 1 enables; 0 disables. See KI#48.8. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Absolute cap in actual game turns for the proactive fortification window. This deliberately is not game-speed scaled: invading units still move in map turns, so slower production speeds should make a fortification harder, not equally easy, to finish before the assault. Keep TURNS_UNSCALED_GAMESPEED in the name; the turn-define CI caught the initially ambiguous name and this classification prevents later accidental scaling. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_MAX_TURNS_UNSCALED_GAMESPEED</DefineName>
+		<iDefineIntVal>8</iDefineIntVal>
+	</Define>
+	<!-- custom: Base unscaled construction turns per plot to the nearest visible city-capturing land attacker before the maximum above. 2 leaves room for slow-stack assembly and siege/bombardment without inventing a synthetic pathfinding ETA; fast-only visible threats are tightened in code. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_TURNS_UNSCALED_GAMESPEED_PER_DISTANCE</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum AI city-value percentage when inherited city safety is still SAFE/PERFECT. Capitals are always considered valuable enough; only genuinely THREATENED/EVACUATING immediate-danger cities bypass this value gate. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_MIN_CITY_VALUE_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum visible city-capturing land attackers for a proactive approach to count as meaningful without siege. The code also requires at least twice the city's current defender count, whichever threshold is higher; a visible bombarder can lower this only to a still-real stack of at least 3 attackers and at least one more attacker than the current defender count. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_MIN_VISIBLE_ATTACKERS</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: if unit has enough city attack, it can be assumed the rest of its stats are otherwise bad, else would be broken for balance. Use to detect as of now trebuchet units, but also similar profile of high city bombard but weak otherwise type of units -->
 	<!-- custom: hopefully enough just with the modifier that trebuchets use as of now -->
 	<Define>

@@ -1778,12 +1778,10 @@ static BuildingTypes SAS_findCheapHighReturnInfrastructureForUnit(CvCityAI const
 
 // <!-- custom: Level-3 building diagnostics inspect focused alternatives without changing production.
 // Const-cache evaluation keeps the diagnostic scans out of mutable AI caches; AI_bestBuildingThreshold randomization is explicitly disabled so diagnostics add no RNG calls. (ChatGPT-5.6-Sol) -->
-
-
-// <!-- custom: Diagnostic-only helper for Walls/Castle-style fortification urgency.
+// <!-- custom: Shared Walls/Castle-style fortification threat predicate.
 // Keep the proactive trigger restricted to visible hostile land attackers that can actually capture a city; this avoids treating animals, naval transports or unrelated visible enemies as a land-fortification approach.
 // Use the same predicate in the detailed timing scan so the trigger and logged attacker counts share one definition. (ChatGPT-5.6-Sol) -->
-static bool SAS_isVisibleEnemyLandCityAttackerForDefenseAudit(CvCityAI const& kCity, CvUnit const& kUnit, CvPlot const& kUnitPlot)
+static bool SAS_isVisibleEnemyLandCityAttackerForFortification(CvCityAI const& kCity, CvUnit const& kUnit, CvPlot const& kUnitPlot)
 {
 	// <!-- custom: Keep isAnimal separate from isNoCityCapture: BtS/AdvC animal XML can use bAnimal=1 with bNoCapture=0 (e.g. Bears), even though animal movement cannot capture cities. Do not let fog animals create false proactive fortification approaches. (ChatGPT-5.6-Sol) -->
 	if (kUnit.getDomainType() != DOMAIN_LAND || !kUnit.canAttack() || kUnit.isAnimal() || kUnit.isNoCityCapture() ||
@@ -1794,7 +1792,7 @@ static bool SAS_isVisibleEnemyLandCityAttackerForDefenseAudit(CvCityAI const& kC
 	return kUnit.isEnemy(kCity.getTeam(), kUnitPlot);
 }
 
-static bool SAS_hasVisibleEnemyLandCityAttackerForDefenseAudit(CvCityAI const& kCity, int iRange)
+static bool SAS_hasVisibleEnemyLandCityAttackerForFortification(CvCityAI const& kCity, int iRange)
 {
 	for (SquareIter itPlot(kCity.getPlot(), iRange); itPlot.hasNext(); ++itPlot)
 	{
@@ -1803,7 +1801,7 @@ static bool SAS_hasVisibleEnemyLandCityAttackerForDefenseAudit(CvCityAI const& k
 			continue;
 		FOR_EACH_UNITAI_IN(pLoopUnit, kLoopPlot)
 		{
-			if (SAS_isVisibleEnemyLandCityAttackerForDefenseAudit(kCity, *pLoopUnit, kLoopPlot))
+			if (SAS_isVisibleEnemyLandCityAttackerForFortification(kCity, *pLoopUnit, kLoopPlot))
 				return true;
 		}
 	}
@@ -1812,11 +1810,12 @@ static bool SAS_hasVisibleEnemyLandCityAttackerForDefenseAudit(CvCityAI const& k
 
 // <!-- custom: The inherited BUILDINGFOCUS_DEFENSE pool also contains late air/nuclear-defense infrastructure such as Bunkers, Airports and Bomb Shelters.
 // For the land-invasion follow-up, separately shadow the best constructible <=20-turn building with an actual city-fortification effect (city defense floor/modifier or bombard resistance), i.e. Walls/Castle-style defenses.
-// Score deterministically with the inherited focused value and its usual time preference; diagnostic only. (ChatGPT-5.6-Sol) -->
-static BuildingTypes SAS_findBestFortificationForDefenseAudit(CvCityAI const& kCity, int iMaxTurns)
+// Score deterministically with the inherited focused value and its usual time preference; the same helper is shared by the level-3 shadow audit and the evidence-driven proactive production opportunity below.
+// The diagnostic's inherited-style max-turn window is game-speed scaled; the runtime urgency window is already expressed in actual map turns and must not be scaled a second time. (ChatGPT-5.6-Sol) -->
+static BuildingTypes SAS_findBestFortification(CvCityAI const& kCity, int iMaxTurns, bool bScaleMaxTurns)
 {
 	CvCivilization const& kCiv = kCity.getCivilization();
-	int const iScaledMaxTurns = GC.AI_getGame().AI_turnsPercent(iMaxTurns, GC.getInfo(GC.getGame().getGameSpeedType()).getConstructPercent());
+	int const iEffectiveMaxTurns = (bScaleMaxTurns ? GC.AI_getGame().AI_turnsPercent(iMaxTurns, GC.getInfo(GC.getGame().getGameSpeedType()).getConstructPercent()) : iMaxTurns);
 	int iBestScore = 0;
 	BuildingTypes eBestBuilding = NO_BUILDING;
 	for (int i = 0; i < kCiv.getNumBuildings(); i++)
@@ -1834,7 +1833,7 @@ static BuildingTypes SAS_findBestFortificationForDefenseAudit(CvCityAI const& kC
 		if (!kCity.canConstruct(eLoopBuilding))
 			continue;
 		int const iTurnsLeft = kCity.getProductionTurnsLeft(eLoopBuilding, 0);
-		if (iTurnsLeft == MAX_INT || iTurnsLeft > iScaledMaxTurns)
+		if (iTurnsLeft == MAX_INT || iTurnsLeft > iEffectiveMaxTurns)
 			continue;
 		int iValue = kCity.AI_buildingValue(eLoopBuilding, BUILDINGFOCUS_DEFENSE, 0, true);
 		if (iValue <= 0)
@@ -1850,9 +1849,103 @@ static BuildingTypes SAS_findBestFortificationForDefenseAudit(CvCityAI const& kC
 	return eBestBuilding;
 }
 
+
+struct SASProactiveFortificationThreat
+{
+	SASProactiveFortificationThreat() : iNearestAttackerDistance(-1), iVisibleAttackers(0), iVisibleSlowAttackers(0), iVisibleBombarders(0), iAffectedByBuildingDefense(0), iIgnoreBuildingDefense(0) {}
+	int iNearestAttackerDistance;
+	int iVisibleAttackers;
+	int iVisibleSlowAttackers;
+	int iVisibleBombarders;
+	int iAffectedByBuildingDefense;
+	int iIgnoreBuildingDefense;
+};
+
+// <!-- custom: Compact runtime counterpart to the detailed defense shadow logger. Scan only the visible city-capturing land attackers needed to decide whether a Walls/Castle-style building deserves an early production opportunity; do not run pathfinding or invent an ETA. (ChatGPT-5.6-Sol) -->
+static bool SAS_getProactiveFortificationThreat(CvCityAI const& kCity, int iRange, SASProactiveFortificationThreat& kThreat)
+{
+	for (SquareIter itPlot(kCity.getPlot(), iRange); itPlot.hasNext(); ++itPlot)
+	{
+		CvPlot const& kLoopPlot = *itPlot;
+		if (!kLoopPlot.isVisible(kCity.getTeam()))
+			continue;
+		int const iDistance = stepDistance(kCity.plot(), &kLoopPlot);
+		FOR_EACH_UNITAI_IN(pLoopUnit, kLoopPlot)
+		{
+			if (!SAS_isVisibleEnemyLandCityAttackerForFortification(kCity, *pLoopUnit, kLoopPlot))
+				continue;
+			kThreat.iVisibleAttackers++;
+			if (kThreat.iNearestAttackerDistance < 0 || iDistance < kThreat.iNearestAttackerDistance)
+				kThreat.iNearestAttackerDistance = iDistance;
+			if (pLoopUnit->baseMoves() <= 1)
+				kThreat.iVisibleSlowAttackers++;
+			if (pLoopUnit->bombardRate() > 0)
+				kThreat.iVisibleBombarders++;
+			if (pLoopUnit->ignoreBuildingDefense())
+				kThreat.iIgnoreBuildingDefense++;
+			else kThreat.iAffectedByBuildingDefense++;
+		}
+	}
+	return (kThreat.iVisibleAttackers > 0);
+}
+
+// <!-- custom: Evidence-driven replacement for the removed post-doProduction Walls/Castle force.
+// The old layer rewrote the queue after hammers were already spent and repeatedly displaced invested/high-value production; the Pangaea shadow audit instead found many genuine multi-turn fortification windows before bombard/capture.
+// Give a real fortification one deterministic early opportunity only after ordinary current-production continuity has already released the queue and after the no-defender/strike emergencies below.
+// Immediate danger must be locally serious; proactive range-5 approaches require a valuable city plus a meaningful visible stack or bombarder.
+// Actual-turn completion is compared with actual map-distance pressure, so this intentionally is not game-speed scaled. See KI#48.8. (ChatGPT-5.6-Sol) -->
+static BuildingTypes SAS_getProactiveFortification(CvCityAI const& kCity, bool bImmediateDanger, int iCityDefenders, int iNeededDefenders, int& iMaxUsefulTurns, SASProactiveFortificationThreat& kThreat)
+{
+	static const bool bOptimize = GC.getDefineBOOL("SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_OPTIMIZE");
+	// <!-- custom: Keep these tactical windows explicitly named UNSCALED_GAMESPEED: the turn-define CI caught the initially ambiguous names, and scaling them would grant more map turns even though invading units do not move more slowly on longer game speeds. (GPT-5.6-Sol) -->
+	static const int iConfiguredMaxTurns = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_MAX_TURNS_UNSCALED_GAMESPEED"));
+	static const int iTurnsPerDistance = std::max(1, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_TURNS_UNSCALED_GAMESPEED_PER_DISTANCE"));
+	static const int iMinCityValuePercent = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_MIN_CITY_VALUE_PERCENT"));
+	static const int iMinVisibleAttackers = std::max(1, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_MIN_VISIBLE_ATTACKERS"));
+	if (!bOptimize || iConfiguredMaxTurns <= 0)
+		return NO_BUILDING;
+	// <!-- custom: Avoid the range-5 unit scan in ordinary peace. Immediate local danger still allows barbarian/other non-player threats; proactive range-5 scanning is reserved for an actual player war. (ChatGPT-5.6-Sol) -->
+	if (!bImmediateDanger && GET_TEAM(kCity.getTeam()).getNumWars() <= 0)
+		return NO_BUILDING;
+
+	CitySafetyTypes const eSafety = kCity.AI_getSafety();
+	bool const bSeriousImmediateThreat = (bImmediateDanger && eSafety <= CITYSAFETY_THREATENED);
+	bool const bValuableCity = (kCity.isCapital() || kCity.AI_getCityValPercent() >= iMinCityValuePercent);
+	// <!-- custom: Raw bDanger can be raised by a weak/barbarian contact even when inherited city safety still says SAFE/PERFECT. Only THREATENED/EVACUATING bypass the city-value gate; otherwise require the same valuable-city + meaningful-stack evidence as a proactive approach. Besides avoiding overreaction (e.g. the turn-70 Timbuktu two-barbarian case), this cheap gate skips the range-5 scan for low-value safe cities. (ChatGPT-5.6-Sol) -->
+	if (!bSeriousImmediateThreat && !bValuableCity)
+		return NO_BUILDING;
+	if (!SAS_getProactiveFortificationThreat(kCity, 5, kThreat))
+		return NO_BUILDING;
+
+	// <!-- custom: If most visible attackers ignore building defense, a fortification is the wrong emergency response. (ChatGPT-5.6-Sol) -->
+	if (kThreat.iAffectedByBuildingDefense <= kThreat.iIgnoreBuildingDefense)
+		return NO_BUILDING;
+
+	bool const bUnderDefended = (iCityDefenders < iNeededDefenders);
+	// <!-- custom: A visible bombarder lowers the ordinary stack-size threshold, but matching the current defender count alone was still too permissive (e.g. turn-129 Damascus: 2 attackers vs 2 defenders, locally very safe). Require at least 3 attackers and a numerical attacker advantage before the siege shortcut can trigger. (ChatGPT-5.6-Sol) -->
+	bool const bMeaningfulApproach = (kThreat.iVisibleAttackers >= std::max(iMinVisibleAttackers, 2 * iCityDefenders) ||
+		(kThreat.iVisibleBombarders > 0 && kThreat.iVisibleAttackers >= std::max(3, iCityDefenders + 1)));
+	if (!bSeriousImmediateThreat && !bMeaningfulApproach)
+		return NO_BUILDING;
+
+	iMaxUsefulTurns = std::min(iConfiguredMaxTurns,
+		std::max(1, iTurnsPerDistance * std::max(1, kThreat.iNearestAttackerDistance)));
+	// <!-- custom: A stack without visible slow/bombard components can hit faster; do not grant it a speculative siege-time buffer. (ChatGPT-5.6-Sol) -->
+	if (kThreat.iVisibleSlowAttackers <= 0 && kThreat.iVisibleBombarders <= 0)
+		iMaxUsefulTurns = std::min(iMaxUsefulTurns, std::max(1, kThreat.iNearestAttackerDistance));
+	// <!-- custom: When defenders themselves are already short, allow only a nearly-complete fortification before returning to unit priorities. (ChatGPT-5.6-Sol) -->
+	if (bUnderDefended)
+		iMaxUsefulTurns = std::min(iMaxUsefulTurns, 2);
+	// <!-- custom: EVACUATING means the assault is already too advanced for a slow construction project. (ChatGPT-5.6-Sol) -->
+	if (eSafety == CITYSAFETY_EVACUATING)
+		iMaxUsefulTurns = std::min(iMaxUsefulTurns, 1);
+
+	return SAS_findBestFortification(kCity, iMaxUsefulTurns, false);
+}
+
 // <!-- custom: Diagnostic-only shadow audit for the post-emergency-layer defense follow-up.
 // When a city is in immediate danger or has a visible hostile land city-attacker within 5 plots, snapshot the current production target before AI_chooseProduction's continuity returns and shadow the best <=20-turn Walls/Castle-style fortification using inherited BUILDINGFOCUS_DEFENSE value.
-// Keep the later inherited generic BUILDINGFOCUS_DEFENSE stage logged separately for comparison; all shadow scans are deterministic and const-cache. See the broader building rework audit in KI#48.5. (ChatGPT-5.6-Sol) -->
+// Keep the later inherited generic BUILDINGFOCUS_DEFENSE stage logged separately for comparison; all shadow scans are deterministic and const-cache. See KI#48.8. (ChatGPT-5.6-Sol) -->
 static void SAS_logDefenseProductionOpportunity(CvCityAI const& kCity, BuildingTypes eDefenseBuilding, HurryTypes ePopHurry, int iPopHurryPopulation, int iPopHurryAngerLength, HurryTypes eGoldHurry, int iGoldHurryCost, bool bImmediateDanger, bool bVisibleApproachThreat)
 {
 
@@ -1956,7 +2049,7 @@ static void SAS_logDefenseProductionOpportunity(CvCityAI const& kCity, BuildingT
 		bool bAttackPlot = false;
 		FOR_EACH_UNITAI_IN(pEnemyUnit, kEnemyPlot)
 		{
-			if (!SAS_isVisibleEnemyLandCityAttackerForDefenseAudit(kCity, *pEnemyUnit, kEnemyPlot))
+			if (!SAS_isVisibleEnemyLandCityAttackerForFortification(kCity, *pEnemyUnit, kEnemyPlot))
 				continue;
 			bAttackPlot = true;
 			if (iNearestVisibleAttackerDistance < 0 || iDistance < iNearestVisibleAttackerDistance)
@@ -2233,13 +2326,14 @@ void CvCityAI::AI_chooseProduction()
 	// <!-- custom: performance optimizations -->
 	CvPlot const& kPlot = getPlot();
 
-	// <!-- custom: Shadow urgent/proactive fortification opportunities before current-production continuity can return. Immediate bDanger covers the close threat; visible hostile land city attackers within 5 plots cover the multi-turn approach/bombard window discussed in KI#48.5. Logging only; no pathfinding or synthetic ETA. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Shadow urgent/proactive fortification opportunities before current-production continuity can return.
+	// Immediate bDanger covers the close threat; visible hostile land city attackers within 5 plots cover the multi-turn approach/bombard window documented; logging only; no pathfinding or synthetic ETA. See KI#48.8. (ChatGPT-5.6-Sol) -->
 	bool const bLogDefenseProductionBase = (gBuildingProductionLogLevel >= 3 && !isHuman() && !isBarbarian());
-	bool const bVisibleApproachThreat = (bLogDefenseProductionBase && SAS_hasVisibleEnemyLandCityAttackerForDefenseAudit(*this, 5));
+	bool const bVisibleApproachThreat = (bLogDefenseProductionBase && SAS_hasVisibleEnemyLandCityAttackerForFortification(*this, 5));
 	bool const bLogDefenseUrgencyProduction = (bLogDefenseProductionBase && (bDanger || bVisibleApproachThreat));
 	if (bLogDefenseUrgencyProduction)
 	{
-		BuildingTypes const eShadowDefenseBuilding = SAS_findBestFortificationForDefenseAudit(*this, 20);
+		BuildingTypes const eShadowDefenseBuilding = SAS_findBestFortification(*this, 20, true);
 		HurryTypes eShadowPopHurry = NO_HURRY;
 		HurryTypes eShadowGoldHurry = NO_HURRY;
 		int iShadowPopHurryPopulation = -1;
@@ -2962,6 +3056,30 @@ void CvCityAI::AI_chooseProduction()
 		if (AI_chooseBuilding())
 		{
 			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses strike building (w/o flags)", sCityName);
+			return;
+		}
+	}
+
+
+	// <!-- custom: Proactive fortification opportunity after current-target continuity, no-defender production and strike recovery have already had priority.
+	// This is intentionally before the ordinary economic/military branches that almost always prevented the inherited late BUILDINGFOCUS_DEFENSE stage from being reached in the Pangaea audit.
+	// Unlike the removed CvCity::doTurn emergency layer, this choice happens inside normal AI production before the turn's hammers are applied. See KI#48.8. (ChatGPT-5.6-Sol) -->
+	{
+		int const iNeededDefenders = AI_neededDefenders();
+		int iMaxUsefulFortificationTurns = 0;
+		SASProactiveFortificationThreat kFortificationThreat;
+		BuildingTypes const eFortification = SAS_getProactiveFortification(*this, bDanger, iCityDefenders, iNeededDefenders, iMaxUsefulFortificationTurns, kFortificationThreat);
+		if (eFortification != NO_BUILDING)
+		{
+			if (gBuildingProductionLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)
+				logBBAI("BUILDING_PRODUCTION_PROACTIVE_FORTIFICATION turn=%d player=%d %S city=%S cityId=%d building=%s turnsLeft=%d maxUsefulTurns=%d immediateDanger=%d citySafety=%d cityValuePercent=%d defenders=%d neededDefenders=%d visibleAttackers=%d visibleSlowAttackers=%d visibleBombarders=%d affectedByBuildingDefense=%d ignoreBuildingDefense=%d nearestAttackerDistance=%d enemyPowerPercent=%d",
+					kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(),
+					GC.getInfo(eFortification).getType(), getProductionTurnsLeft(eFortification, 0), iMaxUsefulFortificationTurns,
+					bDanger, AI_getSafety(), AI_getCityValPercent(), iCityDefenders, iNeededDefenders,
+					kFortificationThreat.iVisibleAttackers, kFortificationThreat.iVisibleSlowAttackers, kFortificationThreat.iVisibleBombarders,
+					kFortificationThreat.iAffectedByBuildingDefense, kFortificationThreat.iIgnoreBuildingDefense,
+					kFortificationThreat.iNearestAttackerDistance, kTeam.AI_getEnemyPowerPercent(true));
+			pushOrder(ORDER_CONSTRUCT, eFortification);
 			return;
 		}
 	}
@@ -5697,6 +5815,8 @@ void CvCityAI::AI_chooseProduction()
 			}
 		}
 
+		// <!-- custom: Retain the inherited late generic defense-building opportunity as an ordinary fallback.
+		// Documented why narrowly qualified Walls/Castle-style fortifications also receive an earlier normal-production opportunity during visible land invasions. See KI#48.8. (ChatGPT-5.6-Sol) -->
 		bool const bDefenseBuildingChosen = AI_chooseBuilding(BUILDINGFOCUS_DEFENSE, 20, 0, bDanger ? -1 : 3 * iCityPopulation);
 		if (bLogDefenseUrgencyProduction)
 		{

@@ -88,6 +88,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.5 - (Greatly Reworked/Enhanced, WIP) September 2026 AI regular-building valuation: replace hard SAS category gates with audited inherited additive valuation and targeted evidence-backed corrections](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.5)\
 [KI#48.6 - (Improved inherited K-Mod/AdvC AI valuation weakness) Severe unhealthiness did not gain enough relative urgency against ordinary infrastructure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.6)\
 [KI#48.7 - (Fixed inherited Kek-Mod AI valuation defect) Every Bomb Shelter protected the same continental army](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.7)\
+[KI#48.8 - (Improved inherited K-Mod/AdvC AI production-timing weakness) Walls/Castles could be valued but were considered too late to finish before visible land assaults](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.8)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
@@ -3275,7 +3276,9 @@ The September 2026 rework in **KI#48.5** therefore disabled the old regular-buil
 
 Exact BBAI component deltas and SASGameRecord run comparison were used to retain inherited behavior where the data supported it and add narrower corrections where it did not.
 
-That audit also found distinct inherited issues now tracked separately: the immediate-happiness sign regression in **KI#880**, insufficient relative urgency for severe unhealthiness in **KI#48.6**, and the repeated continental-army Bomb Shelter estimate in **KI#48.7**.
+That audit also found distinct inherited issues now tracked separately: the immediate-happiness sign regression in **KI#880**, insufficient relative urgency for severe unhealthiness in **KI#48.6**, the repeated continental-army Bomb Shelter estimate in **KI#48.7**, and the late fortification-production opportunity in **KI#48.8**.
+
+The original Walls/Castle concern therefore was not simply discarded. Detailed logging showed that the old SAS post-production hard force was the wrong implementation, while a narrower inherited timing weakness remained: useful fortifications can be valued correctly yet never receive a timely production opportunity before earlier branches return. KI#48.8 tracks the evidence-driven pre-production replacement.
 
 The **Wonder** half of this KI is not declared superseded yet. It remains enabled and is intentionally scheduled for its own later audit within the still-active KI#48.5 PR.
 
@@ -3813,7 +3816,7 @@ So removing the hard sea forcing did not stop the AI from building Harbor or Por
 
 The severe low-food Harbor snapshots also argued against restoring the classifier. Of 44 severe `foodSurplus <= -5` snapshots in the sea-emergency-off run, **35** also had negative happiness, **27** negative health, **25** both, and **24** were working **zero water tiles**. Harbor was the inherited best building in only 17/44 and normal production chose Harbor in 6. Many old `force Harbor` cases were therefore broader city-state problems rather than proof that Harbor itself was the right answer.
 
-The Harbor/Port post-production subsystem was then removed rather than left disabled. The cleanup reproduced the disabled-policy control exactly across **377/377 core-state checkpoints**, the corresponding RNG streams and **45/45 run-status checkpoints**. This became practical **6605** (`Retire post-production sea-yield building overrides`).
+The Harbor/Port post-production subsystem was then removed rather than left disabled. The cleanup reproduced the disabled-policy control exactly across **377/377 core-state checkpoints**, the corresponding RNG streams and **45/45 run-status checkpoints**, confirming that the source cleanup itself preserved the already-tested disabled behavior.
 
 #### Walls/Castle controlled removal
 
@@ -3823,51 +3826,31 @@ With forcing disabled, the AI still naturally completed **92 Walls and 42 Castle
 
 The first controlled state divergence was itself illustrative. On turn 82 endangered Antium normally kept a Forge valued **82** with **10/90** hammers invested; the legacy layer replaced it with Walls valued **5**. RNG stayed identical until turn 86, and Antium was captured on turn 118 with the emergency rule versus turn 121 without it. One city cannot prove that Walls never help, but it reproduced the broader pattern: a legitimate defensive concern had become a coarse post-production override.
 
-The disabled policy was therefore removed entirely. The cleanup matched its control with **379/379 identical core-state checkpoints, 379/379 identical RNG-stream checkpoints and 45/45 identical run-status checkpoints**. This became practical **6606** (`Retire post-production emergency defense building overrides`).
+The disabled policy was therefore removed entirely. The cleanup matched its control with **379/379 identical core-state checkpoints, 379/379 identical RNG-stream checkpoints and 45/45 identical run-status checkpoints**, confirming that deleting the retired source preserved the already-tested disabled behavior.
 
 The result is that the entire legacy post-`doProduction` emergency-building subsystem is now gone. Harbor, Port, Walls and Castle are again decided through normal production flow rather than by a second queue-rewriting policy after hammers have already been spent.
 
-### Current replacement audit: proactive Walls/Castle opportunity inside normal production
+### Inherited Walls/Castle production-timing weakness (KI#48.8)
 
-Retiring the old emergency layer does **not** mean its underlying observation was wrong. In particular, a timely Castle or Walls can plausibly buy enough bombardment/assault time to save a threatened city. The current follow-up therefore asks whether inherited/normal production gives real fortifications an opportunity **early enough**, before production is applied, rather than whether another post-production override should return.
+Retiring the old post-`doProduction` Walls/Castle force did **not** invalidate its strategic concern. The follow-up Pangaea audit found a distinct inherited K-Mod/AdvC production-opportunity weakness: fortifications could receive sensible inherited value, but the dedicated `BUILDINGFOCUS_DEFENSE` opportunity sat late enough in `AI_chooseProduction()` that many useful pre-siege windows were never reached.
 
-A land-heavy Pangaea stress test was chosen specifically for this question. Although only about 31.5% of the 94x64 map was land, **1,816 of 1,893 land plots (about 96%)** belonged to the main continent. The run reached turn 461 and ended by Domination, with **127 city acquisitions** and **315 siege bombard actions**, providing much denser invasion/fortification evidence than the preceding Archipelago tests.
+Lineage review confirmed the same late `AI_chooseBuilding(BUILDINGFOCUS_DEFENSE, 20, ...)` stage in both K-Mod 1.46 and AdvCiv 1.14, so this timing weakness was not introduced by the SAS emergency layer.
 
-The tightened shadow logger remained behavior-neutral: **466/466 state checkpoints, 466/466 RNG-stream checkpoints and 55/55 run-status checkpoints** matched the preceding Pangaea run.
+The final cleaned behavior-neutral Pangaea shadow sample found **962 distinct Walls opportunity city-turns** and **70 Castle opportunities**. The inherited late defense stage was reached on only **36/962 Walls** opportunities and **2/70 Castles**.
 
-After deduplicating repeated calls to one city-turn, it found roughly:
+Among at-war opportunities followed by city capture within 20 turns, the fortification could naturally finish before capture in **168/222 Walls** cases and **14/24 Castle** cases. Captured-within-20 opportunities also occurred under much greater strategic pressure: median enemy power was about **240% versus 70%** for Walls and **185% versus 69%** for Castles.
 
-- **1,001 Walls opportunities**;
-- **70 Castle opportunities**;
-- **414 immediate-danger city-turns**;
-- many additional proactive opportunities while visible land attackers were still several tiles away.
+The replacement therefore stays inside normal `AI_chooseProduction()`: after ordinary current-target continuity, no-defender production and strike recovery, but before the many later branches that can prevent the inherited defense stage from being reached.
 
-The existing late `BUILDINGFOCUS_DEFENSE` stage was reached only **134** times across the raw shadow calls and selected a defensive building only **21** times; only **8 Walls and 2 Castles** were among those selections. This supports a more specific timing diagnosis than the old hard override: inherited valuation can understand fortifications, but the explicit defense-building opportunity occurs too late in `AI_chooseProduction()` to matter in many threatened-city cases.
+It is deliberately narrow to real Walls/Castle-style effects and visible city-capturing land threats rather than restoring the old whole-building/post-production force.
 
-Pangaea finally supplied useful Castle timing examples as well. York had a roughly **7-turn Castle** while visible attackers were 3-4 plots away; bombardment began about 12 turns after the first shadow opportunity and the city fell roughly 14 turns later. Several other at-war Castle-threat episodes that ended in capture within 20 turns likewise had a Castle that could naturally have completed before the city fell, yet normal production never selected it during the window.
-
-The current staged diagnostic is deliberately still observational. Pangaea exposed and corrected two scope issues before any gameplay rule is added: units that cannot capture cities (for example animals) are excluded through `isNoCityCapture()`, and the logger now distinguishes approaching attackers that **ignore building defense** from those actually **affected by it**. This prevents a one-turn Walls from looking urgent against a stack for which Walls provide no meaningful protection.
-
-The candidate replacement direction is therefore increasingly narrow and pre-production rather than a resurrection of the old subsystem:
-
-```text
-credible visible land invasion
-+ real Walls/Castle-style fortification
-+ meaningful against the actual attackers
-+ completion/hurry window plausibly precedes assault
-+ city not already hopeless
-+ current target not clearly more urgent
--> give the fortification an earlier normal-production opportunity
-```
-
-No new KI number is assigned to this candidate yet because the behavioral enhancement has not been implemented or validated. If the final shadow run confirms the diagnosis and a cure survives testing, it can be documented as a distinct inherited/production-opportunity improvement while KI#48.5 remains the umbrella rework.
+The full finding, lineage evidence, thresholds, tuning iterations and final validation are tracked in **KI#48.8**. KI#48.5 remains the umbrella regular-building rework.
 
 ### Remaining planned work before closing the regular-building / Wonder PR
 
 Still intentionally unresolved:
 
-- finish the final Pangaea fortification shadow pass and, if the evidence remains strong, implement/validate an earlier Walls/Castle opportunity inside `AI_chooseProduction()` rather than after `doProduction()`;
-- revisit the old `enemyStrong` concern on the same land-heavy Pangaea testbed once fortification timing is settled, without assuming that the old whole-building veto was the right cure;
+- revisit the old `enemyStrong` concern on the same land-heavy Pangaea testbed, without assuming that the old whole-building veto was the right cure;
 - continue to watch Harbor/Port through the retained coastal diagnostics and add a dynamic additive enhancement only if a reproduced coastal weakness remains after removal of the hard overrides;
 - audit any remaining land-heavy/naval-infrastructure rationale that is not already subsumed by the current production-pressure work;
 - remove or archive any genuinely dead regular-building prefilter code only after the active migration no longer needs it as a comparison reference;
@@ -3898,7 +3881,7 @@ Where concrete weaknesses were found, the rework corrected the responsible sourc
 - severe-health relief received a smooth severity and current-food-deficit urgency correction documented in KI#48.6;
 - Kek-Mod's repeated continental-army Bomb Shelter estimate was corrected in KI#48.7;
 - unconditional Barracks/Stable-family XML `iAIWeight`s were removed after the hard SAS safeguards that had partly masked them were retired.
-- the separate post-`doProduction` Harbor/Port/Walls/Castle subsystem was audited, its disorder and continuation defects were corrected, and the entire hard-override layer was then retired through controlled A/B tests; the remaining defensive question is now being investigated as an earlier normal-production fortification opportunity rather than another queue rewrite.
+- the separate post-`doProduction` Harbor/Port/Walls/Castle subsystem was audited, its disorder and continuation defects were corrected, and the entire hard-override layer was retired through controlled A/B tests; the surviving defensive concern was isolated as the inherited production-timing weakness now tracked in KI#48.8 rather than another queue rewrite.
 
 The resulting direction is:
 
@@ -4026,6 +4009,104 @@ It did not identify this distinct cross-city heuristic overcount in the caller; 
 
 Found during the AdvCiv-SAS regular-building valuation rework by ChatGPT-5.6-Sol and reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
+<a id="ki-48.8"></a>
+
+## KI#48.8 - (Improved inherited K-Mod/AdvC AI production-timing weakness) Walls/Castles could be valued but were considered too late to finish before visible land assaults
+
+This issue was isolated during the September 2026 regular-building rework in KI#48.5 after the old AdvCiv-SAS post-`doProduction` emergency Walls/Castle force was retired.
+
+The old system had identified a real strategic concern - timely fortifications can matter greatly during an approaching land invasion - but enforced it through the wrong architecture.
+
+### Why the old SAS solution was retired
+
+The legacy emergency layer ran after `doProduction()`, after the normal chooser had already selected a target and that turn's hammers had been applied. Detailed BBAI attribution showed that this could rewrite the queue over invested or higher-valued production.
+
+In one audited history, **166 real Walls overrides** displaced 97 units, 58 buildings and 11 Projects; **10 of those 11 Projects were spaceship components**, and **56/58** displaced normal buildings had a higher inherited value than the Walls.
+
+Even after continuation semantics were repaired, every observed consecutive repeated Walls force (**16/16**) made zero progress on Walls between interventions because normal production switched elsewhere before hammers were applied.
+
+Controlled A/B testing therefore retired the outer Walls/Castle force rather than trying to tune its thresholds. The important follow-up question was whether the underlying strategic observation had been wrong, or whether inherited normal production still had a narrower timing weakness.
+
+### The weakness is inherited from K-Mod/AdvC production ordering
+
+Source-lineage review confirms that both **K-Mod 1.46** and **AdvCiv 1.14** place the dedicated defense-building opportunity late in `CvCityAI::AI_chooseProduction()`:
+
+```cpp
+AI_chooseBuilding(BUILDINGFOCUS_DEFENSE, 20, 0, bDanger ? -1 : 3 * getPopulation())
+```
+
+It appears after many earlier production opportunities and immediately before the final last-chance building short-circuit. AdvCiv-SAS inherited that placement.
+
+The problem therefore is not that inherited `AI_buildingValue` cannot understand Walls or Castles; earlier KI#48.5 attribution had already shown conventional defense value to be modest and threat-responsive.
+
+The problem is that the explicit opportunity to choose a defense building can arrive too late in the chooser for a useful fortification to be considered before another branch returns.
+
+### Clean Pangaea shadow audit
+
+A land-heavy Pangaea stress test was used because it produced far denser land invasions and siege activity than the preceding Archipelago runs.
+
+The final tightened shadow logger was behavior-neutral against its control: **466/466 core-state checkpoints, 466/466 real RNG-stream checkpoints and 55/55 run-status checkpoints matched**.
+
+After removing diagnostic false positives such as animals and separating attackers that ignore building defense from those actually affected by it, the clean sample contained:
+
+- **962 distinct Walls opportunity city-turns**, including 810 during player wars;
+- **70 distinct Castle opportunities**, including 45 during player wars;
+- the inherited late `BUILDINGFOCUS_DEFENSE` stage reached on only **36/962 Walls** opportunities and **2/70 Castles**.
+
+The timing evidence was especially important. Among at-war fortification opportunities followed by city capture within 20 turns, natural construction could have completed before capture in **168/222 Walls** cases and **14/24 Castle** cases.
+
+These were not simply random weak-city snapshots: captured-within-20 opportunities had median `enemyPowerPercent` around **240% versus 70%** for Walls and about **185% versus 69%** for Castles that were not captured within 20 turns.
+
+Pangaea also supplied concrete multi-turn examples. York, for example, had a roughly **7-turn Castle** while visible attackers were still 3-4 plots away; bombardment did not begin until about 12 turns after the first shadow opportunity and the city fell roughly 14 turns later.
+
+The old post-production force was too coarse, but simply waiting for the inherited late defense stage could also miss a plausible pre-siege construction window.
+
+### Replacement design: an earlier normal-production opportunity, not another hard outer override
+
+The replacement gives a real Walls/Castle-style fortification one earlier opportunity **inside** `AI_chooseProduction()`, after ordinary current-target continuity, no-defender production and strike recovery have already had priority, but before the many ordinary economic/military branches that often prevented the inherited late defense stage from being reached.
+
+The implementation remains deliberately contextual:
+
+- only visible hostile **land** attackers that can genuinely capture a city count; animals, naval transports and non-capturing units are excluded;
+- only actual city-fortification buildings are considered, rather than the broader `BUILDINGFOCUS_DEFENSE` pool that also contains Bunkers, Airports and nuclear-defense infrastructure;
+- visible attackers affected by building defense must outnumber those that ignore it;
+- raw `AI_isDanger()` is not sufficient by itself when inherited city safety still says `SAFE` or `PERFECT`; only `THREATENED`/`EVACUATING` immediate danger bypasses the city-value gate;
+- otherwise the city must be valuable enough and face a meaningful visible approach;
+- without visible bombarders, that approach currently requires at least the configured four attackers and at least twice the current defender count;
+- a visible bombarder lowers the ordinary stack threshold only when there are still at least **3 attackers** and at least **one more attacker than current defenders**;
+- the maximum useful construction window is expressed in actual map turns, currently **2 turns per nearest-attacker plot capped at 8 turns**, rather than being game-speed scaled a second time;
+- fast-only visible threats lose the speculative siege-time buffer; under-defended cities allow at most a nearly complete **2-turn** fortification; an `EVACUATING` city allows only **1 turn**.
+
+This placement also preserves the inherited current-target continuity logic first, specifically to avoid recreating the old emergency layer's habit of discarding nearly completed production.
+
+No emergency Slavery switch or new hurry policy is part of this implementation; those can be evaluated separately only if natural construction still proves too slow in otherwise good cases.
+
+### Iterative tuning and validation
+
+The first behavior candidate produced **87 proactive fortification selections** (75 Walls, 12 Castles). Its first deterministic divergence was a weak `SAFE` Timbuktu contact - only two visible attackers against two defenders - showing that raw `bDanger` was too permissive.
+
+Requiring `THREATENED`/`EVACUATING` for the immediate-danger bypass reduced the next run to **58 selections** (47 Walls, 11 Castles), with only four interventions displacing a target that already held production.
+
+That second run exposed one remaining edge case: a `PERFECT` Damascus could qualify for a six-turn Castle solely because the bombarder shortcut accepted two attackers against two defenders despite overwhelmingly favorable local defense and only 57% enemy power.
+
+Tightening that shortcut to at least three attackers and a one-unit numerical attacker advantage removed the weak two-attacker cases; the final run contained no `SAFE`/`PERFECT` selection with three or fewer visible attackers.
+
+The final implementation made **66 selections**: 48 Walls and 18 Castles, comprising 51 proactive approaches and 15 immediate-danger cases.
+
+Grouping repeated selections of the same fortification during one threat episode produced 53 distinct episodes; the selected fortification completed before capture in **43/53** of them, including 33/41 Walls and 10/12 Castles.
+
+Against the final diagnostics-only control, state and actual RNG remained identical through turn 136 and first diverged at the intended turn-137 Prague decision. Nine visible slow city-capturing attackers, all affected by building defense and five plots away, gave a six-turn Castle an early opportunity instead of the baseline Great Wall choice.
+
+Ordinary production remained authoritative: Prague temporarily switched to a one-turn Spearman on the following turn, then resumed and completed the Castle on turn 158 rather than being hard-locked into it.
+
+Current-target continuity was also preserved. Of the 66 fortification selections, 47 began with no current target and only six genuinely switched away from a different invested target; every such target still required at least four turns, while the inherited rule retaining targets with three or fewer turns had priority first.
+
+This confirms that the replacement supplies the missing timely opportunity without recreating the retired emergency layer's queue-rewriting behavior.
+
+This is an inherited K-Mod/AdvC production-opportunity weakness exposed through the KI#48.5 rework, not a reason to restore the retired SAS post-production emergency architecture. See **KI#48.5** for the umbrella building-value audit and **KI#333 / KI#51.2** for two distinct defects found in the retired outer emergency subsystem.
+
+Investigated and iteratively refined with the help of ChatGPT-5.6-Sol, BBAI forensic logging and SASGameRecord deterministic comparisons, with testing and review by wonderingabout, thanks.
+
 <a id="ki-49"></a>
 
 ## KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders
@@ -4127,7 +4208,7 @@ The historical human-player observation is not claimed resolved by the AI contro
 
 At the time of the KI#51 cleanup, the distinct Harbor/Port/Walls/Castle emergency-building rules were intentionally left untouched because they represented strategic policy rather than the old empty-queue fallback. KI#48.5 later audited that second post-`doProduction` layer independently.
 
-That audit first exposed and fixed KI#51.2, where the emergency layer could mutate the queue during intentional disorder. After its continuation and logging semantics were corrected, controlled A/B runs showed that the remaining post-production hard overrides created substantial target churn and could displace higher-valued or nearly completed production after hammers had already been applied. The Harbor/Port half was retired in practical 6605 and the Walls/Castle half in practical 6606.
+That audit first exposed and fixed KI#51.2, where the emergency layer could mutate the queue during intentional disorder. After its continuation and logging semantics were corrected, controlled A/B runs showed that the remaining post-production hard overrides created substantial target churn and could displace higher-valued or nearly completed production after hammers had already been applied. Harbor/Port and then Walls/Castle forcing were therefore retired. The surviving strategic fortification concern is now handled separately as the inherited normal-production timing investigation in **KI#48.8**.
 
 So the current architecture no longer has either of the old outer production-policy systems: the KI#51 no-production fallback is gone, and the later emergency-building subsystem is gone as well. Any new Harbor/Port/fortification enhancement is being investigated inside normal `AI_chooseProduction` / additive valuation instead. See KI#48.5.
 
@@ -4162,9 +4243,9 @@ The same-seed autoplay gave unusually direct confirmation:
 
 That is a direct reproduction of the intended causal change rather than a later divergent-history inference.
 
-The fix was committed as AdvCiv-SAS practical **6602**. The host emergency-building subsystem was then audited further and ultimately retired entirely in practical **6605** (Harbor/Port) and **6606** (Walls/Castle). KI#51.2 therefore remains useful as a distinct correctness finding even though the code path that once contained it no longer exists.
+The host emergency-building subsystem was then audited further and ultimately retired entirely: first Harbor/Port forcing, then Walls/Castle forcing. KI#51.2 therefore remains useful as a distinct correctness finding even though the code path that once contained it no longer exists.
 
-See **KI#48.5** for the broader emergency-override audit, retirement evidence and current pre-production fortification follow-up.
+See **KI#48.5** for the broader emergency-override audit and retirement evidence, and **KI#48.8** for the inherited pre-production fortification timing weakness that survived after the old Walls/Castle force was removed.
 
 Found during the September 2026 building-value rework with the help of ChatGPT-5.6-Sol and SASGameRecord/BBAI deterministic diagnostics, fixed and validated with the help of ChatGPT-5.6-Sol and wonderingabout, thanks.
 
@@ -12760,7 +12841,9 @@ This is an AdvCiv-SAS practical-5919 insertion-order regression, not an inherite
 
 The ordering repair remains historically correct, but KI#48.5 later audited the entire post-`doProduction` Harbor/Port/Walls/Castle subsystem with detailed BBAI attribution and SASGameRecord continuity data. The broader problem was architectural: even correctly ordered emergency rules could rewrite a queue after the normal chooser had already selected a target and that turn's hammers had been applied, repeatedly interrupting invested or higher-valued production.
 
-Controlled A/B testing first retired Harbor/Port forcing and then Walls/Castle forcing; the code was removed in practicals **6605** and **6606** respectively. The current follow-up preserves the underlying defensive concern by investigating an earlier Walls/Castle opportunity inside normal `AI_chooseProduction` rather than restoring this outer priority chain. See KI#48.5.
+Controlled A/B testing first retired Harbor/Port forcing and then Walls/Castle forcing. Subsequent Pangaea shadow logging showed that the strategic concern behind the old defense priority was nevertheless real: inherited K-Mod/AdvC can value Walls/Castles, but its dedicated defense-building opportunity sits late enough in `AI_chooseProduction()` that many fortifications capable of finishing before capture never receive a timely chance.
+
+So this KI's ordering repair remains historically correct, while the host priority chain itself is retired. The replacement stays inside normal pre-production flow and is tracked as the inherited timing weakness in **KI#48.8**; see **KI#48.5** for the broader building-policy audit.
 
 <a id="ki-334"></a>
 
