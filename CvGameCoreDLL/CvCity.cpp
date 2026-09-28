@@ -982,61 +982,62 @@ void CvCity::doTurn()
 			}
 		}
 
-		if (bLogEmergencyBuildingAudit && bEmergencyBuilding)
-		{
-			BuildingTypes const eEmergencyBuilding = getProductionBuilding();
-			if (eEmergencyBuilding != NO_BUILDING)
-			{
-				char const* szPreKind = "EMPTY";
-				char const* szPreTarget = "-";
-				if (ePreEmergencyUnit != NO_UNIT)
-				{
-					szPreKind = "UNIT";
-					szPreTarget = GC.getInfo(ePreEmergencyUnit).getType();
-				}
-				else if (ePreEmergencyBuilding != NO_BUILDING)
-				{
-					szPreKind = "BUILDING";
-					szPreTarget = GC.getInfo(ePreEmergencyBuilding).getType();
-				}
-				else if (ePreEmergencyProject != NO_PROJECT)
-				{
-					szPreKind = "PROJECT";
-					szPreTarget = GC.getInfo(ePreEmergencyProject).getType();
-				}
-				else if (ePreEmergencyProcess != NO_PROCESS)
-				{
-					szPreKind = "PROCESS";
-					szPreTarget = GC.getInfo(ePreEmergencyProcess).getType();
-				}
-				char const* szResult = (ePreEmergencyBuilding == eEmergencyBuilding ? "ALREADY_TARGET" :
-					(ePreEmergencyUnit == NO_UNIT && ePreEmergencyBuilding == NO_BUILDING && ePreEmergencyProject == NO_PROJECT && ePreEmergencyProcess == NO_PROCESS ? "FILL_EMPTY" : "OVERRIDE"));
-				CvBuildingInfo const& kEmergencyBuilding = GC.getInfo(eEmergencyBuilding);
-				int const iEmergencyValue = AI().AI_buildingValue(eEmergencyBuilding, 0, 0, true);
-				int const iStored = getBuildingProduction(eEmergencyBuilding);
-				int const iNeeded = getProductionNeeded(eEmergencyBuilding);
-				int iTurnsLeft = getProductionTurnsLeft(eEmergencyBuilding, 0);
-				if (iTurnsLeft == MAX_INT) iTurnsLeft = -1;
-				logBBAI("BUILDING_PRODUCTION_DOTURN_EMERGENCY_AUDIT turn=%d player=%d %S city=%S cityId=%d reason=%s result=%s preKind=%s preTarget=%s preBuildingValue=%d preStored=%d preNeeded=%d preRemaining=%d preTurnsLeft=%d forcedBuilding=%s forcedValue=%d stored=%d needed=%d remaining=%d turnsLeft=%d seaFood=%d seaProduction=%d pop=%d targetPopulation=%d foodSurplus=%d baseProduction=%d danger=%d atWar=%d enemyPowerPercent=%d mostlyWater=%d disorder=%d occupationTimer=%d",
-					kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), szEmergencyBuildingReason, szResult,
-					szPreKind, szPreTarget, iPreEmergencyBuildingValue, iPreEmergencyStored, iPreEmergencyNeeded, std::max(0, iPreEmergencyNeeded - iPreEmergencyStored), iPreEmergencyTurnsLeft,
-					kEmergencyBuilding.getType(), iEmergencyValue, iStored, iNeeded, std::max(0, iNeeded - iStored), iTurnsLeft,
-					kEmergencyBuilding.getSeaPlotYieldChange(YIELD_FOOD), kEmergencyBuilding.getSeaPlotYieldChange(YIELD_PRODUCTION),
-					getPopulation(), AI().AI_getTargetPopulation(), foodDifference(), getBaseYieldRate(YIELD_PRODUCTION), bDanger, bAtWar, iEnemyPowerPercent, bInnerRingMostlyWaterNonPeak, isDisorder(), getOccupationTimer());
-			}
-		}
-
-		if (bLogMilitaryProduction && bEmergencyBuilding)
-		{
-			BuildingTypes const eEmergencyBuilding = getProductionBuilding();
-			logBBAI("MILITARY_PRODUCTION_DOTURN_EMERGENCY_BUILDING turn=%d player=%d %S city=%S cityId=%d result=FORCED building=%s danger=%d atWar=%d enemyPowerPercent=%d mostlyWater=%d",
-				kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
-				(eEmergencyBuilding == NO_BUILDING ? "-" : GC.getInfo(eEmergencyBuilding).getType()), bDanger, bAtWar, iEnemyPowerPercent, bInnerRingMostlyWaterNonPeak);
-		}
-
 		// <!-- custom: Cleanup of old SAS code: the former post-doProduction water-building/unit safety net was removed after two broad fallback-off controls produced 364 empty -> empty AI_chooseProduction calls and every one was an intentional isDisorder() return (260 occupation/resistance, 104 other disorder), with zero genuine final chooser fall-throughs.
 		// Keeping a second production policy here could preselect arbitrary post-disorder production and duplicate AI_chooseProduction/AI_chooseUnit rules.
 		// Future abnormal non-disorder no-target outcomes are recorded at the appropriate all-city turn boundary, with exact AI chooser paths left to dedicated BBAI diagnostics. See KI#51. (ChatGPT-5.6-Sol) -->
+	}
+
+	// <!-- custom: Keep the final emergency-building logging outside the later defense/Port wrapper: SEA_FOOD can succeed first and set bEmergencyBuilding, which intentionally skips that wrapper. (ChatGPT-5.6-Sol) -->
+	if (bLogEmergencyBuildingAudit && bEmergencyBuilding)
+	{
+		BuildingTypes const eEmergencyBuilding = getProductionBuilding();
+		if (eEmergencyBuilding != NO_BUILDING)
+		{
+			char const* szPreKind = "EMPTY";
+			char const* szPreTarget = "-";
+			if (ePreEmergencyUnit != NO_UNIT)
+			{
+				szPreKind = "UNIT";
+				szPreTarget = GC.getInfo(ePreEmergencyUnit).getType();
+			}
+			else if (ePreEmergencyBuilding != NO_BUILDING)
+			{
+				szPreKind = "BUILDING";
+				szPreTarget = GC.getInfo(ePreEmergencyBuilding).getType();
+			}
+			else if (ePreEmergencyProject != NO_PROJECT)
+			{
+				szPreKind = "PROJECT";
+				szPreTarget = GC.getInfo(ePreEmergencyProject).getType();
+			}
+			else if (ePreEmergencyProcess != NO_PROCESS)
+			{
+				szPreKind = "PROCESS";
+				szPreTarget = GC.getInfo(ePreEmergencyProcess).getType();
+			}
+			char const* szResult = (ePreEmergencyBuilding == eEmergencyBuilding ? "ALREADY_TARGET" :
+				(ePreEmergencyUnit == NO_UNIT && ePreEmergencyBuilding == NO_BUILDING && ePreEmergencyProject == NO_PROJECT && ePreEmergencyProcess == NO_PROCESS ? "FILL_EMPTY" : "OVERRIDE"));
+			CvBuildingInfo const& kEmergencyBuilding = GC.getInfo(eEmergencyBuilding);
+			int const iEmergencyValue = AI().AI_buildingValue(eEmergencyBuilding, 0, 0, true);
+			int const iStored = getBuildingProduction(eEmergencyBuilding);
+			int const iNeeded = getProductionNeeded(eEmergencyBuilding);
+			int iTurnsLeft = getProductionTurnsLeft(eEmergencyBuilding, 0);
+			if (iTurnsLeft == MAX_INT) iTurnsLeft = -1;
+			logBBAI("BUILDING_PRODUCTION_DOTURN_EMERGENCY_AUDIT turn=%d player=%d %S city=%S cityId=%d reason=%s result=%s preKind=%s preTarget=%s preBuildingValue=%d preStored=%d preNeeded=%d preRemaining=%d preTurnsLeft=%d forcedBuilding=%s forcedValue=%d stored=%d needed=%d remaining=%d turnsLeft=%d seaFood=%d seaProduction=%d pop=%d targetPopulation=%d foodSurplus=%d baseProduction=%d danger=%d atWar=%d enemyPowerPercent=%d mostlyWater=%d disorder=%d occupationTimer=%d",
+				kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), szEmergencyBuildingReason, szResult,
+				szPreKind, szPreTarget, iPreEmergencyBuildingValue, iPreEmergencyStored, iPreEmergencyNeeded, std::max(0, iPreEmergencyNeeded - iPreEmergencyStored), iPreEmergencyTurnsLeft,
+				kEmergencyBuilding.getType(), iEmergencyValue, iStored, iNeeded, std::max(0, iNeeded - iStored), iTurnsLeft,
+				kEmergencyBuilding.getSeaPlotYieldChange(YIELD_FOOD), kEmergencyBuilding.getSeaPlotYieldChange(YIELD_PRODUCTION),
+				getPopulation(), AI().AI_getTargetPopulation(), foodDifference(), getBaseYieldRate(YIELD_PRODUCTION), bDanger, bAtWar, iEnemyPowerPercent, bInnerRingMostlyWaterNonPeak, isDisorder(), getOccupationTimer());
+		}
+	}
+
+	if (bLogMilitaryProduction && bEmergencyBuilding)
+	{
+		BuildingTypes const eEmergencyBuilding = getProductionBuilding();
+		logBBAI("MILITARY_PRODUCTION_DOTURN_EMERGENCY_BUILDING turn=%d player=%d %S city=%S cityId=%d result=FORCED building=%s danger=%d atWar=%d enemyPowerPercent=%d mostlyWater=%d",
+			kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+			(eEmergencyBuilding == NO_BUILDING ? "-" : GC.getInfo(eEmergencyBuilding).getType()), bDanger, bAtWar, iEnemyPowerPercent, bInnerRingMostlyWaterNonPeak);
 	}
 
 	doDecay();
