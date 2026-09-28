@@ -2043,14 +2043,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY</DefineName>
 		<iDefineIntVal>2200</iDefineIntVal>
 	</Define>
-	<!-- custom: Long_Comments_XML.txt #198 -->
+	<!-- custom: Master switch for the remaining SAS Wonder prefilter. The KI#48.5 audit retired the regular-building prefilter; keep this switch until the separate Wonder audit is complete. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE</DefineName>
-		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: knob common to all wonders, see below for more specific ones alternatively i mean. -->
 	<Define>
@@ -2158,22 +2154,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</Define>
 
 
-
-	<!-- custom: if higher than this value, count this city as a city with high maintenance per turn where we would favour building maintenance per turn reducer building(s) in this city. E.g. if value is 600 (6 gpt) or higher, consider building the courthouse class building (or civ-specific variants) in this city -->
-	<!-- // < 6 gpt => not worth it yet -->
-	<Define>
-		<DefineName>SAS_AI_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS</DefineName>
-		<iDefineIntVal>600</iDefineIntVal>
-	</Define>
 	<!-- custom: if higher than this value, count this city as a city with high maintenance per turn where we may favour building maintenance per turn reducer wonder(s) in this city. E.g. if value is 600 (6 gpt) or higher, consider building the forbidden palace class building (or civ-specific variants) in this city -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_GATE_M100_WONDERS</DefineName>
 		<iDefineIntVal>600</iDefineIntVal>
-	</Define>
-	<!-- custom: e.g. as of now in advciv-sas, "stable" class buildings (including civ-specific variants) to give XP to mounted untis such as horse knights, chariots, camel cuirassiers, war elephants, etc.). Adjust as per your xml. -->
-	<Define>
-		<DefineName>SAS_AI_BUILDING_VALUE_MOUNTED_UNITS_EXP_BUILDINGCLASS_NAME</DefineName>
-		<DefineTextVal>BUILDINGCLASS_STABLE</DefineTextVal>
 	</Define>
 	<!-- custom: e.g. as of now in advciv-sas is as such; adjust as per your xml. -->
 	<Define>

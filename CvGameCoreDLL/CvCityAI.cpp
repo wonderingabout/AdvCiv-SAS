@@ -7441,8 +7441,8 @@ static int AI_strictAdditionalHappy(CvCity const& c, BuildingTypes eB)
     return iHappy;
 }
 
-// <!-- custom: The SAS regular-building prefilter can reject or force a candidate before inherited adaptive building valuation runs.
-// Record only changed level-3 gate states so baseline autoplays reveal those hidden decisions without adding RNG calls or gameplay work when Building Production logging is disabled. (GPT-5.6-Sol) -->
+// <!-- custom: Deduplicate unchanged level-3 Wonder-policy and inherited-valuation diagnostics so long autoplays retain decision changes without repeating identical rows.
+// This helper is called only behind the cached Building Production logging gate, so ordinary gameplay adds no signature construction or map work. (GPT-5.6-Sol) -->
 static bool SAS_shouldLogBuildingValueGateChange(CvCityAI const& kCity, BuildingTypes eBuilding, char const* szGate, CvString const& szSignature)
 {
 	static int iSessionSequence = -1;
@@ -7499,8 +7499,8 @@ static void SAS_logBuildingValuePolicyDecision(CvCityAI const& kCity, BuildingTy
 		kBuilding.isLimited(), kBuilding.isWorldWonder(), kBuilding.isNationalWonder());
 }
 
-// <!-- custom: When the SAS regular-building prefilter is disabled, expose every computed neutral-focus inherited value rather than only the winning focus candidates.
-// Include its deterministic turns/progress-adjusted comparison value and the main XML/city inputs so the inherited policy can be audited before replacing or tuning it; call only behind the cached level-3 gate. (GPT-5.6-Sol) -->
+// <!-- custom: The KI#48.5 audit exposed every computed neutral-focus inherited value rather than only the winning focus candidates while the SAS regular-building prefilter was disabled.
+// Retain this attribution after removing that prefilter: include its deterministic turns/progress-adjusted comparison value and the main XML/city inputs, and call only behind the cached level-3 gate. (GPT-5.6-Sol) -->
 static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor, int iDefenseDelta, int iEspionageDefenseDelta, int iHappinessDelta, int iHealthDelta, int iExperienceDelta, int iDomainSeaDelta, int iMaintenanceDelta, int iSpecialistDelta, int iTradeDelta, int iGeneralDelta, int iYieldDelta, int iCommerceGlobalDelta, int iAirCapacityDelta, int iMilitaryProductionDelta, int iDomainProductionDelta, int iHealthSeverityUrgencyBonus, int iHealthStarvationUrgencyBonus, int iMaintenanceCurrentTimes100, int iMaintenanceEstimatedBaseTimes100, int iMaintenanceNewUpkeepTimes100, int iMaintenanceSavedTimes100, int iMaintenancePreInflationValue, int iMaintenanceInflatedValue, int iMaintenanceFinalValue, int iValueBeforePriority, int iValueAfterPriority, int iValueBeforeAIWeight, int iValueAfterAIWeight, int iFlavorMatchExact, int iValueAfterFlavor, int iGoldDelta, int iGoldBeforeWeight, int iGoldAfterWeight, int iResearchDelta, int iResearchBeforeWeight, int iResearchAfterWeight, int iCultureDelta, int iCultureClaimValue, int iCulturePriorityBoost, int iCultureBeforeWeight, int iCultureAfterWeight, int iEspionageDelta, int iEspionageBeforeWeight, int iEspionageAfterWeight, int iSeaFoodDelta, int iSeaProductionDelta, int iSeaCommerceDelta, int iSeaYieldPlotWeight, int iYieldProductionPriorityRaw, int iYieldProductionPriorityApplied)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
@@ -7765,7 +7765,7 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 	}
 
 
-	// <!-- custom: Espionage migration audit: separate inherited EP output and espionage-defense value from the rest of each building, then expose the war/danger and difficulty-skew conditions behind SAS's old Jail / Intelligence Agency / Security Bureau hard rules. Keep all extra state inside the deduplicated level-3 path and log only buildings with actual espionage output, Spy slots or espionage defense. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Espionage migration audit: separate inherited EP output and espionage-defense value from the rest of each building, then expose the war/danger and difficulty-skew conditions behind SAS's old Jail / Intelligence Agency / Security Bureau hard rules. Retain this contextual attribution after removing the handicap-based force rule; keep all extra state inside the deduplicated level-3 path and log only buildings with actual espionage output, Spy slots or espionage defense. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int const iEspionageFlat = kBuilding.getCommerceChange(COMMERCE_ESPIONAGE) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_ESPIONAGE);
 	int const iEspionageModifier = kBuilding.getCommerceModifier(COMMERCE_ESPIONAGE);
 	int const iEspionageDefenseModifier = kBuilding.getEspionageDefenseModifier();
@@ -7777,10 +7777,9 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 	bool const bOldSASEspionageLike = (bEspionageSourceLike || bEspionageDefenseLike);
 	if (bOldSASEspionageLike)
 	{
-		CvHandicapInfo const& kHumanHandicap = GC.getInfo(GC.getGame().getHandicapType());
-		CvHandicapInfo const& kAIHandicap = GC.getInfo(kOwner.getHandicapType());
-		int const iHumanResearchPercent = kHumanHandicap.getResearchPercent();
-		int const iAIResearchPercent = kAIHandicap.getAIResearchPercent();
+		CvHandicapInfo const& kGameHandicap = GC.getInfo(GC.getGame().getHandicapType());
+		int const iHumanResearchPercent = kGameHandicap.getResearchPercent();
+		int const iAIResearchPercent = kGameHandicap.getAIResearchPercent() + GC.getGame().AIHandicapAdjustment();
 		int const iResearchPercentGap = iHumanResearchPercent - iAIResearchPercent;
 		bool const bOldSASDifficultyDefenseCore = (iResearchPercentGap >= 30 && bEspionageDefenseLike);
 		bool const bOldSASDifficultyOutputCore = (iResearchPercentGap <= -20 && bEspionageSourceLike);
@@ -8211,10 +8210,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			//kTeam.getAnyWarPlanCount(true) > 0; // K-Mod
 
 	int const iFoodKept = kOwner.getFoodKept(eBuilding); // advc.912d
-	// <!-- custom: foodDifference(false, true) already subtracts health-adjusted foodConsumption, so subtracting negative iHealthLevel again double-counted unhealthiness and could make this growth signal negative. Use the nonnegative net food once, with the existing happiness-cap gate. See KI#48.3. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	int const iEffectiveFood = (iHappinessSurplus <= 0 ? 0 :
-			std::max(0, iFoodDifference));
-
 	bool bForeignTrade = false;
 
 	// <!-- custom: removed extra scope, and reused it in this function since we do reuse it several times and even outside our advciv-sas added code-->
@@ -8247,21 +8242,27 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	const int iFreeExperience = kBuilding.getFreeExperience();
 	const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
 
-	// <!-- custom: add some sanity / optimization rules of when to not build and sometimes when to always build some buildings rather than others. For example, walls are a waste of hammer at peace, or we are stronger than our ennemies, these could be used to produce almost 2 more axemen or half a settler or a worker as of now more or less, and similarly for many buildings there is a time when they are most relevant and other times when they really aren't yet AI inefficiently builds them anyway. Added these rules with chatgpt 5 thanks to my prompts and adjustments too, check if accurate, it somehow seems strongly passionate if i may say in these/its code comments hehe, sometimes mentionning K-Mod when i am not sure it is K-Mod, check if accurate xd and maybe enjoy or not or yes or etc, hopefully this makes AI a lot stronger or sharperwith its best building management, and is similarly done to how we fine-tuned with a set or pre-rules the promotions AI would choose in CvUnitAI::AI_promotionValue -->
-	const bool bMinor = kOwner.isMinorCiv();
-	const bool bBarbarian = kOwner.isBarbarian();
-
+	// <!-- custom: Keep the remaining SAS Wonder prefilter pending its separate KI#48.5 audit; the audited regular-building category prefilter has been removed. (GPT-5.6-Sol) -->
 	static const bool bSAS_AI_BUILDING_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_OPTIMIZE");
 
 	// <!-- custom: in autoplay AI doesn't build shrines (Mahabodhi, Pagan Shrine, etc.) until late game after world wonders ASAP fix. Shrines/corporations have iCost=-1, so no point trying to save hammers. Skip viability gates for iCost=-1; handle only buildable buildings (iCost>0), similar to CvUnitAI::AI_ChooseUnit. In autoplay this leads to more wonders by turn 300. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
 	// <!-- custom: performance optimization - cache iXMLCost for later calls in this function. (Claude code Sonnet 4.5 (summarized)) -->
 	const int iXMLCost = kBuilding.getProductionCost(); // XML base cost (unscaled)
 	// -1 (GP-built) or weird 0-cost
-	// Only apply "hammer/turns/top-hammer-city" viability gates to normal, buildable buildings.
-	if ((iXMLCost > 0) && !bBarbarian && !bMinor && bSAS_AI_BUILDING_VALUE_OPTIMIZE)
+	// <!-- custom: Keep the retired land-heavy naval-infrastructure rule observable without reviving its whole-building veto.
+	// When level-3 Building Production logging is enabled, record where the old SAS policy would have rejected genuine sea-unit production/experience infrastructure; normal inherited valuation still decides production. (ChatGPT-5.6-Sol) -->
+	if (bLogBuildingValueDetails && !bWonder)
+	{
+		bool const bSASLandHeavyNavalInfrastructureLegacyAudit = (isCoastal() && kGame.isLandHeavyMapnameCached() &&
+			(kBuilding.getDomainFreeExperience(DOMAIN_SEA) > 0 || kBuilding.getDomainProductionModifier(DOMAIN_SEA) > 0));
+		if (bSASLandHeavyNavalInfrastructureLegacyAudit) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NAVAL_EXPERIENCE_LEGACY", "WOULD_REJECT_LAND_HEAVY_MAP", 0);
+	}
+
+	// Only apply the remaining "hammer/turns/top-hammer-city" viability gates to normal, buildable Wonders.
+	if (bWonder && (iXMLCost > 0) && !kOwner.isBarbarian() && !kOwner.isMinorCiv() && bSAS_AI_BUILDING_VALUE_OPTIMIZE)
 	{
 		// <!-- custom: per-player, per-turn cache to avoid recomputing top city scans at every call. In autoplay, leads to exact same outcome vs before (win at 341, same scores at all savepoints). Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
-		// <!-- custom: cache scope limited to bSAS_AI_BUILDING_VALUE_OPTIMIZE block; move to function scope if reused elsewhere. (Claude code Sonnet 4.5 (summarized)) -->
+		// <!-- custom: cache scope limited to the remaining SAS Wonder-policy block; move to function scope if reused elsewhere. (Claude code Sonnet 4.5 (summarized)) -->
 		// Is this “safe enough"?
 		// 	- For Civ4’s normal single-threaded AI: yes.
 		// 	- If you ever truly run building evaluation in parallel threads: function-static caches are not thread-safe. Your current use of bConstCache strongly suggests “async mode" should not mutate caches anyway, so the pattern above is aligned with that.
@@ -8313,8 +8314,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		const int iBeakersPerTurn = getCommerceRate(COMMERCE_RESEARCH);
 
 		// <!-- custom: adjust the AI's building priorities based on handicap -->
-		CvHandicapInfo const& hGame = GC.getInfo(kGame.getHandicapType());       // human’s level
-		CvHandicapInfo const& hAI   = GC.getInfo(kOwner.getHandicapType());     // this AI’s level
+		CvHandicapInfo const& hGame = GC.getInfo(kGame.getHandicapType());
 
 		const int iGameSpeedMultiplier = GC.getInfo(kGame.getGameSpeedType()).getConstructPercent(); // 100, 150, 200...
 
@@ -8334,797 +8334,17 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		// <!-- custom: also account for the base production modifiers (e.g. that the forge or factory has) to asses the building's worth/value as a production modifier building (here national wonder) type-->
 		const int iTotalHammersModifier = iHammersModifier + iTotalBonusHammersModifier;
 
-		// <!-- custom: September 2026: this historical regular-building hard prefilter is disabled by default and superseded by the audited additive approach in KI#48.5.
-		// Retain it temporarily for migration/reference only; new regular-building policy should normally adjust the relevant marginal inherited value rather than add another whole-building force/reject gate. (ChatGPT-5.6-Sol) -->
-		static const bool bSAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE");
 		static const bool bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE");
 		// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it, everything else being the same. See SAS defines XML code comments for details about it and its sub options -->
 		static const bool bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE");
 		static const bool bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE");
 		static const bool bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE");
 
-		// <!-- custom: Keep the retired land-heavy naval-infrastructure rule observable without reviving its whole-building veto.
-		// When level-3 Building Production logging is enabled, record where the old SAS policy would have rejected genuine sea-unit production/experience infrastructure; normal inherited valuation still decides production. (ChatGPT-5.6-Sol) -->
-		if (bLogBuildingValueDetails)
-		{
-			bool const bSASLandHeavyNavalInfrastructureLegacyAudit = (!bWonder && isCoastal() && kGame.isLandHeavyMapnameCached() &&
-				(kBuilding.getDomainFreeExperience(DOMAIN_SEA) > 0 || kBuilding.getDomainProductionModifier(DOMAIN_SEA) > 0));
-			if (bSASLandHeavyNavalInfrastructureLegacyAudit) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NAVAL_EXPERIENCE_LEGACY", "WOULD_REJECT_LAND_HEAVY_MAP", 0);
-		}
-
-		static const int iSAS_AI_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS = GC.getDefineINT("SAS_AI_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS");
 		static const int iSAS_AI_BUILDING_VALUE_GATE_M100_WONDERS = GC.getDefineINT("SAS_AI_BUILDING_VALUE_GATE_M100_WONDERS");
 
-		if (!bWonder && bSAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE)
-		{
-			const bool bCoastalBuilding = isCoastal();
-			// <!-- custom: 0); always build the harbor (or whichever buildings give food) no matter what. I have noticed many cities being stagnant and low food, or even if growing they could greatly benefit from it. Including one tile or 2 tile island cities building a needless worker or such. I don't know if our logic prevents that, but at least in very simple terms, build the harbor or any building (not wonders as hammer costly, at least if we'd add them we'd handle them elsewhere but as of now not handled specifically meaning AI will not reject them with same rules as other wonders as of now) with such an effect asap if city can, don't complicate logic with needless things otherwise. This may help island cities 1-2 tiles in particular quickly reach their potential and not astray in particular if i may say but not only the cities i mean in this case. Also ignore even war checks or conditions as AIs produce too much units as of now which is good but it is also good that this helps them mitigate it even if a bit and to not go bankrupt too soon with unit excess-->
-			// --- Fast path: water-food buildings (Harbor in AdvCiv-SAS) always first ---
-			const bool bWaterFoodBuilding = (
-				bCoastalBuilding &&
-				((kBuilding.getSeaPlotYieldChange(YIELD_FOOD) > 0) ||
-				(kBuilding.getGlobalSeaPlotYieldChange(YIELD_FOOD) > 0))
-			);
-
-			const int iWaterFoodBuildingFirstMinEnoughFood = 2;
-			if (bWaterFoodBuilding && (iFoodDifference < iWaterFoodBuildingFirstMinEnoughFood) && !isFoodProduction())
-			{
-				const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
-				if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WATER_FOOD", "FORCE_LOW_FOOD", iPolicyReturn);
-				return iPolicyReturn;
-			}
-			// --- end fast path ---
-
-			// Is this building primarily defensive in cities (local or global) <!-- custom: e.g. walls, castle, chichen itza of the base civ4 for example too; also use a value threshold of 25 or such to remove false positives, in case a building gives small defense modifier but is not actually a defense building (e.g. not directly related to this but similar: ikhanda gives maybe like 10-15% maintenance reduction but is a military building, and skipping it based on economic criteria may be bad, so using a similar logic here with a quite high base threshold to make sure we flag actually defensive buildings) --> ?
-			const bool bDefenseBuilding = (
-				(kBuilding.getDefenseModifier() >= 25) ||
-				(kBuilding.getBombardDefenseModifier() >= 20) ||
-				(kBuilding.get(CvBuildingInfo::RaiseDefense) >= 15) ||
-				(kBuilding.getAllCityDefenseModifier() >= 10)
-			);
-
-			// 1) Defense-ish buildings: skip in peacetime; also skip in war if we <!-- custom: are stronger -->
-			if (bDefenseBuilding)
-			{
-				// No immediate pressure? Don’t sink hammers into static defense.
-				if (!bAtWar)
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "DEFENSE", "REJECT_PEACE", iPolicyReturn);
-					return iPolicyReturn;
-				}
-				else
-				{
-					// At war (or danger) but we’re clearly stronger and this city isn’t in danger? Skip.
-					if (bAtWarAndEnemyWeak && !bDanger)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "DEFENSE", "REJECT_WINNING_SAFE_WAR", iPolicyReturn);
-						return iPolicyReturn;
-					}
-					// If they’re actually scary (≥120%), <!-- custom: build walls with highest priority, we are likely to get attacked, walls or castle or such would help a lot more than any other building, but not for wonders unfortunately as it is unlikely we complete them on time before war ends or we die or we make any advantage of them (worst case we'd be building it for them, invest that hammer in units or last ditch efforts rather that may help more maybe i would say); note: the else if is a bit redundant hopefully clearer as such maybe or not or yes or etc-->
-					else if (bEnemyStrong)
-					{
-						const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "DEFENSE", "FORCE_STRONG_ENEMY", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
-			}
-
-			// --- Barracks-like (land XP / land production) -------------------------------
-			if (bLandUnitsBuilding)
-			{
-				// Production thresholds
-				const int iPumpGate = 8;  // min hpt to justify Barracks in war/pre-war
-				const bool bLowHammerLandUnits = (iBaseHammersPerTurn < iPumpGate);
-
-				if (!bLowHammerLandUnits)
-				{
-					if (bAtWar)
-					{
-						// <!-- custom: no time or hammer for this, try to build an extra or 2 units rather, may save our city, especially if we build a longbowman rather or such similar defensive unit, pointless to build barracks or such similar building if we're dead anyway -->
-						if (bEnemyStrong)
-						{
-							const int iPolicyReturn = 0;
-							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "LAND_EXPERIENCE", "REJECT_STRONG_ENEMY", iPolicyReturn);
-							return iPolicyReturn;
-						}
-						// <!-- custom: i don't know if we can trust this boolean's corresponding function, but assuming it is, if we're threatened, prepare units rather in case or something else, no point if we get surprised attacked while building this and get captured without ever barely any units xd, build units rather in such cases at least simplify as such here, should most often help AI hopefully-->
-						if (bDanger)
-						{
-							const int iPolicyReturn = 0;
-							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "LAND_EXPERIENCE", "REJECT_DANGER", iPolicyReturn);
-							return iPolicyReturn;
-						}
-						// <!-- custom: planning war warrants building barrack like buildings as well, since we're going to pump units anyway, and i assume guessedly that we'd only plan war if we're stronger, so build the barracks or similar building first and profit on having stronger units, it shouldn't be too expensive at this stage of the game but should make a big difference -->
-						else if (bWarPlan)
-						{
-							const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
-							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "LAND_EXPERIENCE", "FORCE_WAR_PLAN", iPolicyReturn);
-							return iPolicyReturn;
-						}
-						// <!-- custom: spend the time to build this instead of pumping units, we are already strong, and would rather have stronger land units as well as not cripple our unit cost further short term -->
-						else if (bAtWarAndEnemyWeak)
-						{
-							const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
-							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "LAND_EXPERIENCE", "FORCE_WINNING_WAR", iPolicyReturn);
-							return iPolicyReturn;
-						}
-					}
-				}
-				// <!-- custom: Else let city handle what it wants, it is unclear that going early for barracks is the better choice, especially if low on hammer, we won't produce any units with it or barely any units, so leave free choice rather here (e.g. a granary could be better, as we grow faster so more tiles to work so more units indirectly stronger army as we want if we can grow or we'd slow more.
-				// Or a library could be better so we unlock next offensive or defensive unit that will save us or make us win or gain big advantage or gain a longtemr scientific advantage/gain overall maybe too), so don't always favour barracks-like buildings, except in cases where we expect significant and quite reliable gains in this case at least i mean -->
-			}
-
-			// <!-- custom: Don't build the configured specialized unit-experience building without a unit that can use it. (GPT-5.6-Sol) -->
-			static const BuildingClassTypes eBuildingClassStable = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_AI_BUILDING_VALUE_MOUNTED_UNITS_EXP_BUILDINGCLASS_NAME"));
-
-			const bool bBuildingClassStable = (eBuildingClassStable != NO_BUILDINGCLASS && eBuildingClass == eBuildingClassStable);
-
-			if (bBuildingClassStable)
-			{
-				// <!-- custom: The prior Stable gate named Horse, Camel, Elephants and one mounted technology, so XML changes or civilization-specific units could make it reject a useful building or accept a useless one.
-				// Check this civilization's units against the building's actual UnitCombat experience and call canTrain only for matching units; this derives all technology, resource, obsolescence and local-network requirements from the normal rules. (GPT-5.6-Sol) -->
-				bool bCanTrainBenefitingUnit = false;
-				CvCivilization const& kCiv = getCivilization();
-				for (int i = 0; i < kCiv.getNumUnits(); i++)
-				{
-					UnitTypes const eUnit = kCiv.unitAt(i);
-					UnitCombatTypes const eUnitCombat = GC.getInfo(eUnit).getUnitCombatType();
-					if (eUnitCombat == NO_UNITCOMBAT || kBuilding.getUnitCombatFreeExperience(eUnitCombat) <= 0 || !canTrain(eUnit))
-						continue;
-					bCanTrainBenefitingUnit = true;
-					break;
-				}
-
-				// <!-- custom: No currently trainable unit receives this building's specialized experience, so spend the hammers elsewhere and reevaluate when the city's technology or connected resources change. (GPT-5.6-Sol) -->
-				if (!bCanTrainBenefitingUnit)
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "SPECIALIZED_EXPERIENCE", "REJECT_NO_BENEFITING_UNIT", iPolicyReturn);
-					return iPolicyReturn;
-				}
-				if (bEnemyStrong)
-				{
-					// <!-- custom: Even when a matching unit is available, a city facing a stronger enemy needs immediate units rather than delayed experience. (GPT-5.6-Sol) -->
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "SPECIALIZED_EXPERIENCE", "REJECT_STRONG_ENEMY", iPolicyReturn);
-					return iPolicyReturn;
-				}
-				if (bAtWarAndEnemyWeak || bWarPlan)
-				{
-					// <!-- custom: When preparing a war or already winning one, build the specialized experience building first because repeated production of matching units can repay the delay. (GPT-5.6-Sol) -->
-					const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "SPECIALIZED_EXPERIENCE", "FORCE_MILITARY_USE", iPolicyReturn);
-					return iPolicyReturn;
-				}
-			}
-
-			const bool bNavalUnitsBuilding = (
-				bCoastalBuilding &&
-				((kBuilding.getDomainFreeExperience(DOMAIN_SEA) > 0) ||
-				(kBuilding.getDomainProductionModifier(DOMAIN_SEA) > 0))
-			);
-
-			if (bNavalUnitsBuilding)
-			{
-				// <!-- custom: be careful to not make this static in case reloads would cause us to treat old pangea map of last save to a pangea in new archipelago loaded or started map but check to be sure -->
-				// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think) -->
-				bool const bLandHeavyMapname = kGame.isLandHeavyMapnameCached();
-				// bool bNavalHeavyMapname = false;
-				// if (!bLandHeavyMapname)
-				// {
-				// 	bNavalHeavyMapname = kGame.isNavalHeavyMapnameCached();
-				// }
-
-				if (bLandHeavyMapname)
-				{
-					// <!-- custom: a coastal check as originally done by chatgpt 5may cause weird issues with maps that are only coast separated from other land parts/pieces, but we still want to block lake drydocks as they should be quite pointless, unless weird map with giant lake. Take a probability approach, let's build it even in lakes to cover most cases, especially giant lakes xd, as for coastal check i assume/hope the function or something handles it so we don't build an impossible building somehow, as for us just skip this check,, check if accurate as this is just a guess from me and is also to simplify, as we cover enough edge cases below to save hammer in most cases anyway, leave some leeway otherwise -->
-
-					// <!-- custom: otherwise super simple check, don't build it, save the hammer, we don't want to wate or spend too much hammer and can just build naval units slower, we want to build less of them on these maps anyway. If map is unclear, assume is not land heavy and proceed normally without this rule instead for versatility and safety, otherwise most maps should be properly excluded if our code works as intended. We'd have +/- 1 extra tank almost or 1.5 rifleman equivalent of extra hammers, in all affected cities, not negligible and nice to have, plus less as in no as of nowunhealthiness which is very important-->
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NAVAL_EXPERIENCE", "REJECT_LAND_HEAVY_MAPNAME", iPolicyReturn);
-					return iPolicyReturn;
-				}
-			}
-
-			// <!-- custom: not 0 (but higher value instead) to exclude false positives like ikhanda or such, see as of now above code comments for details -->
-			const bool bCityMaintenanceBuilding = (kBuilding.getMaintenanceModifier() >= 25);
-
-			if (bCityMaintenanceBuilding)
-			{
-				if (iMaintenanceTimes100 < iSAS_AI_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS) // < 6 gpt => not worth it yet
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "MAINTENANCE", "REJECT_LOW_MAINTENANCE", iPolicyReturn);
-					return iPolicyReturn;
-				}
-				// <!-- custom: if at war and threatened, no question to stop this -->
-				else if (bAtWar)
-				{
-					if (bEnemyStrong)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "MAINTENANCE", "REJECT_STRONG_ENEMY", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
-			}
-
-			// <!-- custom: extra rules in case as we still sometimes do not build much needed health buildings when we need, or build them when we shouldn't or not urgently and should rather invest our hammer elsewhere-->
-			const bool bFoodKeptBuilding = (iFoodKept >= 25);
-
-			if (bFoodKeptBuilding)
-			{
-				// <!-- custom: if we don't have enough happiness reserve, no point to build it, the food stored won't be much used (but be careful to not overdo it as with slavery we still want the combo even if seemingly close to end of city growth due to unhappiness, the granary would still help slave better / faster, but hopefully the rule is narrow enough already as in it applies to so few cities already that this simplification is most likely and hopefully fine; we only want for most to add hard rules, not the full logic, to patch cases where it's in most cases better not to build these or on the contrary highly so to do -->
-				const int iFoodKeptMinLowHappinessSurplus = 2;
-				// <!-- custom: on the contrary, if we expect a high growth, fine to give a nudge towards building it asap -->
-				const int iFoodKeptMaxHighHappinessSurplus = 3;
-				const int iFoodKeptMaxHighHappinessEffectiveFoodSurplus = 3;
-				if (iHappinessSurplus < iFoodKeptMinLowHappinessSurplus)
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "FOOD_KEPT", "REJECT_LOW_HAPPINESS_HEADROOM", iPolicyReturn);
-					return iPolicyReturn;
-				}
-				// <!-- custom: if at war and threatened, no question to stop this -->
-				else if (bAtWar)
-				{
-					if (bEnemyStrong)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "FOOD_KEPT", "REJECT_STRONG_ENEMY", iPolicyReturn);
-						return iPolicyReturn;
-					}
-					// <!-- custom: else even if enemy is weak, food kept buildings could be useful to slave or grow so we have more tiles to work, either for our military goals, or simply to grow since we have no reason to go hard on war, so no reason to hard reject here in this case -->
-				}
-				else if ((iHappinessSurplus > iFoodKeptMaxHighHappinessSurplus) && iEffectiveFood > iFoodKeptMaxHighHappinessEffectiveFoodSurplus)
-				{
-					const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "FOOD_KEPT", "FORCE_FAST_GROWTH", iPolicyReturn);
-					return iPolicyReturn;
-				}
-			}
-
-			// <!-- custom: i have noticed cities low in health, high or medium in happiness so growth potential, overlooking critical happiness buildings for much less relevant things like a customs house or such. To address this, if we have too much health, don't waste time building this and use the hammer for more important and urgent/effective tasks (at least other buildings maybe), and inversely if we badly need the health and can grow or can grow enough at least, rush as in favour heavily as in for us force it as best to simplify, but try to not overdo it to not kill versatility or most importantly versatility in case other strategies (war, etc) are locally better(e.g. aqueduct as of now buffed in our mod so quite good in helping a city grow quite a bit more, grocer, etc if any more) -->
-			// <!-- custom: note: if i'm not mistaken, as per chatgpt 5's explanation, iGood and iBad are returned as outer parameters by the below function, check if accurate -->
-			int iHealthGood = 0, iHealthBad = 0;
-			// NOTE: getAdditionalHealthByBuilding returns the NET health this building would give
-			// *for THIS city*, considering local bonuses, power penalties (bFuture=true), etc.
-			int const iHealthGain = getAdditionalHealthByBuilding(eBuilding, iHealthGood, iHealthBad, /*bFuture=*/true);
-			const bool bHealthBuilding = (iHealthGain > 0);
-
-			if (bHealthBuilding)
-			{
-				// 1) Too healthy (or not growing soon) → skip the health building for now.
-				const int iTooHealthyLevel = 1;
-				const int iHealthLevelEnoughWithFood = -1;
-				const int iHealthLevelEnoughWithFoodMinFood = 2;
-				if (iHealthLevel > iTooHealthyLevel || (iHealthLevel > iHealthLevelEnoughWithFood && iEffectiveFood < iHealthLevelEnoughWithFoodMinFood))
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "HEALTH", "REJECT_NOT_NEEDED", iPolicyReturn);
-					return iPolicyReturn;
-				}
-				// 2) Badly need health OR about to use it → build first (unless it’s a wonder).
-				//   - current unhealth (<= -1) → urgent
-				//   - or we have headroom to grow and the building gives meaningful health (>=2)
-				// <!-- custom: hopefully this is not too strict to be too exxcesive(ly built) nor too lax to not be relevant when needed: we want health when needed, else we don't want it and do something else in short as explained before -->
-				// <!-- custom: if at war and threatened, no question to stop this -->
-				else if (bAtWar)
-				{
-					if (bEnemyStrong)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "HEALTH", "REJECT_STRONG_ENEMY", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
-				// <!-- custom: note: the pick first cause is "always" after the return 0, no pun if i may say or maybe yes... -->
-				else if (iHealthLevel <= 1 && iHappinessSurplus >= 2 && iEffectiveFood >= 2)
-				{
-					const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "HEALTH", "FORCE_GROWTH_HEADROOM", iPolicyReturn);
-					return iPolicyReturn;
-				}
-			}
-
-			const bool bProductionBuilding = (
-				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example), so account for that as well -->
-				// <!-- custom: for now only tweak the early game as is most important and where most gains can be made i think, later production should be high enough and civilization developped enough to be able to more freely choose without too much consequences -->
-				//kBuilding.isPower() ||                                  // Plant gives power
-				//kBuilding.isAreaCleanPower()
-			);
-
-			// <!-- custom: don't build a theatre instead of a much better hindu temple if city is unhappy (generic theatre (i.e. non-civ-specific ones) doesn't give reliable happiness) see code comment at AI_strictAdditionalHappy for details -->
-			// // Expected local happiness the building would add (includes resource synergies).
-			// int iHappyGood=0, iHappyBad=0;
-			// const int iHappinessGain = getAdditionalHappinessByBuilding(eBuilding, iHappyGood, iHappyBad);
-			//
-			const int iStrictHappinessGain = AI_strictAdditionalHappy(*this, eBuilding);
-
-			// <!-- custom: now also account for unhappy citizens that would become happy after the building is built (inspired from our code in bestcitybuild (with variable as of now named iFoodConsumedBySpecialistOrAngryCitizens) that uncounts food consumed by unhappy citizens), as kish city was unhappy and stagnant so the effective food check as of now >= 2 would block the happiness building being built, even if we'd gain food from freeing unhappiness into more workable happy citizen tiles (not guaranteed to be grass land or 2 food tiles but assumed as such to simplify and favour a bit happiness buildings when relevant at least not prevent it), so remove from food effective food the food consumed by unhappy citizens which would then become happy after the happiness building is built -->
-			// <!-- custom: results: extremely good!!! Now resuming from same save file at turn 100, Kish city of gilgamesh ai is now pop 13 at turn 150 instead of pop 10, and has built walls (that give 1 happiness in our mod since gilgamesh is protective if i'm not mistaken, so it's great AIs can now dynamically (i.e. they adapt to this xml change we made not in hardcoded way hehe super nice) leverage this!!), which is great too because we sent a signal to not build walls if stronger, which gilgamesh ai is (strongest military power at turn 150 so i'd guess so at turn 100 although i didn't check), as well as a colosseum and a market (since gilgamesh has some of the matching bonuses i guess). His military power didn't suffer too much as he is still strongest after these changes now but with more mid and late game potential (so the small short term cost is probably much less important than long term gain), see known issue as of now 48.2 for details -->
-			// ---- Effective food AFTER curing anger with this building -------------------
-			const int iFoodPerPop   = GC.getFOOD_CONSUMPTION_PER_POPULATION();
-			const int iAngryNow     = angryPopulation(); // (= max(0, -iHappinessSurplus)) in practice
-			const int iCuredAngry   = std::min(iAngryNow, iStrictHappinessGain);
-			// Simple regain: give back their food
-			const int iEffectiveFoodAfterBuiltHappy = iEffectiveFood + (iCuredAngry * iFoodPerPop);
-
-			if (bProductionBuilding)
-			{
-				// <!-- custom: don't build a forge early if our city has low hammer and can't be expected to grow, except if a lot of happiness can be gained from it and we have enough food to make it matter; else don't be too strict, this only to prevent early stunting growth builds, and early game is the critical part to best optimize in order to have an as smooth as possible late game; the 3 extra swordsmen and some more hammer can be a matter of life and death, do not give them up unless strong reward otherwise -->
-				// Early window (scaled to speed)
-				const int iEarlyTurnsProductionNormal = 100; // @Normal
-				const int iEarlyTurnsProductionAdjusted = iEarlyTurnsProductionNormal * iGameSpeedMultiplier / 100;
-				const bool bEarlyTurnsProduction = (iElapsedTurns < iEarlyTurnsProductionAdjusted);
-
-				// ✅ Rule:
-				// If the city is low-production (≤12 hpt)
-				// AND it can't really grow soon (food ≤1 OR no happy headroom)
-				// AND the building adds little/no happiness (≤2)
-				// → skip it for now.
-				const int iMinHammerProduction = 13;
-				const int iMinGrowthProductionFoodDiff = 2;
-				const int iMinGrowthProductionHappinessSurplus = 1;
-				const int iMinHappinessBoost = 3;
-				const bool bLowHammerProduction = (iBaseHammersPerTurn < iMinHammerProduction);
-				const bool bLowGrowthProduction = (iFoodDifference < iMinGrowthProductionFoodDiff || iHappinessSurplus < iMinGrowthProductionHappinessSurplus);
-				const bool bWeakHappinessBoost = (iStrictHappinessGain < iMinHappinessBoost);
-
-				if (bEarlyTurnsProduction)
-				{
-					if (bLowHammerProduction && bLowGrowthProduction && bWeakHappinessBoost)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "PRODUCTION", "REJECT_EARLY_LOW_RETURN", iPolicyReturn);
-						return iPolicyReturn;
-					}
-					// <!-- custom: else/otherwise no strong rule, just prevent city from building it if really not best move -->
-				}
-				// <!-- custom: if at war and threatened, no question to stop this -->
-				else if (bAtWar)
-				{
-					if (bEnemyStrong)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "PRODUCTION", "REJECT_STRONG_ENEMY", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
-			}
-
-			// <!-- custom: if a building gives happiness to all cities, purposely let it slip through our net, perhaps it is good to build it, especially and here only handling it if it is not a wonder (so would be fast to build in this case i mean) -->
-			const bool bHappinessBuilding = (
-				(iStrictHappinessGain > 0)
-			);
-
-			if (bHappinessBuilding)
-			{
-				// If we’re already comfortably happy and not growing fast, skip the extra happy.
-				// (Prevents monuments/temples/colosseums <!-- custom: and etc as really it's a rule we can apply the whole game, always better to have one more rifleman than uneeded happiness building--> when we have plenty of headroom.)
-				const int iHappinessBuildingEnoughHappinessSurplus = 2;
-				const int iHappinessBuildingEnoughFoodDiff = 2;
-				if (iHappinessSurplus > iHappinessBuildingEnoughHappinessSurplus && (iFoodDifference < iHappinessBuildingEnoughFoodDiff))
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "HAPPINESS", "REJECT_NOT_NEEDED", iPolicyReturn);
-					return iPolicyReturn;
-				}
-				// <!-- custom: a bit harder to tell if short term would unlock us much needed yields, but favour survivability rather, should be better and more efficient for AIs in most cases, but upon further consideration, if we are strong enough we probably don't need it as much and may be fine developping our cities rather as per previous rule of happiness buildings, also not to sink our unit costs xd, however if we're losing it's no question to skip everything else not giga or ultra mandatory if i may say in this caseto build more units ideally so we don't die (at least not more buildings), we can look at / worry about happiness later after the war (if we don't die), else commit all efforts into surviving if i may say in this case, don't build a colosseum xd, hopefully helps AI be more efficient and strategic at handling war if not already done-->
-				else if (bAtWar)
-				{
-					if (bEnemyStrong)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "HAPPINESS", "REJECT_STRONG_ENEMY", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
-				// If we’re at/over the cap and can actually use the happy soon, strongly prefer it
-				// (but don’t force for wonders).
-				const int iHappinessBuildingNeedHappinessSurplus = 1;
-				const int iHappinessBuildingNeedHappinessGain = 0;
-				const int iHappinessBuildingNeedFoodGain = 1;
-				if ((iHappinessSurplus < iHappinessBuildingNeedHappinessSurplus) && (iStrictHappinessGain > iHappinessBuildingNeedHappinessGain) && (iEffectiveFoodAfterBuiltHappy > iHappinessBuildingNeedFoodGain))
-				{
-					const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "HAPPINESS", "FORCE_ANGER_RELIEF", iPolicyReturn);
-					return iPolicyReturn; // optional: comment out if you want “no force"
-				}
-			}
-
-			const int iFlatBeakersPerTurnFromBuilding = (kBuilding.getCommerceChange(COMMERCE_RESEARCH) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_RESEARCH));
-
-			static const SpecialistTypes eScientist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST", true);
-
-			// --- Science-like (research %) ------------------------------------------------
-			const bool bScienceBuilding = (
-				(kBuilding.getCommerceModifier(COMMERCE_RESEARCH) >= 20) ||
-				(iFlatBeakersPerTurnFromBuilding > 0) ||
-				(kBuilding.getSpecialistCount(eScientist) > 0) ||
-				(kBuilding.getFreeSpecialistCount(eScientist) > 0)
-			);
-
-			// <!-- custom: science buildings can be very important, and it is hard to gauge how important they can be, maybe we'll gain a longterm science or economic or such advantage, or we'll unlock our most important offensive or defensive unit to save us or help us win, maybe we need the culture as well even though has been reduced as of now in our mod but also indirectly through new buildings or wonders. Do not limit this too hard, as it is unclear if opening with a granary is always better than say a library, let the function or whichever codes is responsible for this choose, but as for us add the edge cases where it's really not the priority, most important of them being being at war (repetition xd but i think it is gramatically correct) or about to be or something similar, then we'd rather have 3 axemen than a library in a city we'd lose anyway, or to help us win our rush
-			if (bScienceBuilding)
-			{
-				if (bAtWar)
-				{
-					// <!-- custom: no time for this, try to survive rather and instead or do whatever is more urgent, and even if we are stronger, still press on other war urgent matters rather although maybe not always best but hopefully often enough for AIs i mean -->
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "SCIENCE", "REJECT_WAR", iPolicyReturn);
-					return iPolicyReturn;
-				}
-				// <!-- custom: similar reasoning even if out of war, if urgent enough to skip it-->
-				else
-				{
-					if (bDanger)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "SCIENCE", "REJECT_DANGER", iPolicyReturn);
-						return iPolicyReturn;
-					}
-					// <!-- custom: else it is hard to tell really but consider delaying, should help especially early let's try that and see how our AI behave, hopefully it would improve early rushing potential at the cos tfo slightly slower science prgoession mid game, but maybe gaining an extra city or not losing one offsets that especially long term, and not just in science gains terms-->
-					else if (bWarPlan)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "SCIENCE", "REJECT_WAR_PLAN", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
-			}
-
-			// <!-- custom: note: among remaining buildings, the effects get more often intertwinned if i may say in this case, so i meanexecute this before last such buildings (but before the final unknown or uncovered buildings tail after it) so that we don't classify other buildings as cultural ones for example (e.g. as of now the spain civ-specific castle) if they happen to have culture in them as many buildings do but it would not be their main function and may interfere with our previous rules, so do these last and excluding previously covered ones just to be safe about this -->
-			const bool bPreviousBuildings = (
-				bWaterFoodBuilding ||
-				bDefenseBuilding ||
-				bCityMaintenanceBuilding ||
-				bFoodKeptBuilding ||
-				bHealthBuilding ||
-				bProductionBuilding ||
-				bHappinessBuilding ||
-				bNavalUnitsBuilding ||
-				bLandUnitsBuilding ||
-				bScienceBuilding ||
-				// <!-- custom: even if is building class we can still check the boolean i think for our purpose of excluding previously processed buildings -->
-				bBuildingClassStable
-			);
-
-			// --- Economic (gold) buildings ------------------------------------------------
-			// Market/Grocer/Bank tier
-
-			const int iFlatGoldPerTurnFromBuilding = kBuilding.getCommerceChange(COMMERCE_GOLD) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_GOLD);
-
-			const bool bHighEnoughGoldModifier = (kBuilding.getCommerceModifier(COMMERCE_GOLD) >= 20);
-
-			static const SpecialistTypes eSpecialistMerchant = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT", true);
-
-			const bool bEconomyBuilding = (
-				bHighEnoughGoldModifier ||
-				(iFlatGoldPerTurnFromBuilding > 0) ||
-				(kBuilding.getSpecialistCount(eSpecialistMerchant) > 0) ||
-				(kBuilding.getFreeSpecialistCount(eSpecialistMerchant) > 0)
-			);
-
-			const bool bEconomyOnlyBuilding = (
-				bEconomyBuilding &&
-				!bPreviousBuildings
-			);
-
-			// <!-- custom: similarly hard to tell long term effects of which, especially if these have nested effects like health or such, but we handled excluding misclassified e.g. health buildings like the grocer that happen to give gold, and we treated them as health buildings to assess their importance to build or reject them, so now for economy buildings not handled before, use an about same logic as for/inscience ones, but with a bit more leeway, as short term is a bit stronger to consider as an alternative vs only more gold right now (unlike vs science which is stronger) -->
-			if (bEconomyOnlyBuilding)
-			{
-				if (bAtWar)
-				{
-					// <!-- custom: no time for this, try to survive rather and instead or do whatever is more urgent, and even if we are stronger, still press on other war urgent matters rather although maybe not always best but hopefully often enough for AIs i mean -->
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ECONOMY", "REJECT_WAR", iPolicyReturn);
-					return iPolicyReturn;
-				}
-				// <!-- custom: similar reasoning even if out of war, if urgent enough to skip it-->
-				else
-				{
-					if (bDanger)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ECONOMY", "REJECT_DANGER", iPolicyReturn);
-						return iPolicyReturn;
-					}
-					// <!-- custom: else it is hard to tell really but consider delaying, should help especially early let's try that and see how our AI behave, hopefully it would improve early rushing potential at the cos tfo slightly slower science prgoession mid game, but maybe gaining an extra city or not losing one offsets that especially long term, and not just in science gains terms-->
-					else if (bWarPlan)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ECONOMY", "REJECT_WAR_PLAN", iPolicyReturn);
-						return iPolicyReturn;
-					}
-					else
-					{
-						if (bHighEnoughGoldModifier)
-						{
-							// City’s actual gold/turn (slider + tiles + specialists etc.)
-							const int iCityGoldRate = getCommerceRate(COMMERCE_GOLD);
-
-							// <!-- custom: low ROI expected, go for something else at least for now then reevaluate later (note: the happiness part, e.g. of the market, or the health part for example, e.g. of the grocer, have been evaluated before, now we're only evaluating remaining building on economic criteria), let this function or others hadnle more fine-grained cases, as for us we only want to cover most blatant ones but anyways (building a bank with 1 city gold rate for example), hopefully helps the AI while being versatile and reliable, to be stronger and sharper in its building choices-->
-							const int iMinCityGoldRate = 6;
-							if (iCityGoldRate < iMinCityGoldRate)
-							{
-								const int iPolicyReturn = 0;
-								if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ECONOMY", "REJECT_LOW_GOLD_RATE", iPolicyReturn);
-								return iPolicyReturn;
-							}
-						}
-						// <!-- custom: else flat gold per turn is fine if all other/previous conditions don't make it low priority -->
-					}
-				}
-			}
-
-			// --- Trade-route economy (Customs House / <!-- custom: Lighthouse with our changes as of now-->-like) --------------------
-
-			// <!-- custom: a bit weird coding but i think is simple and effective in making sure we don't forget to check previous ones from not being checked again at the ambiguous remaining buildings stage such as below as well-->
-			const bool bPreviousBuildings2 = (
-				// <!-- custom: note: bNot etc... is already a negative boolean, don't renegae it unless needed -->
-				bPreviousBuildings ||
-				bEconomyBuilding
-			);
-
-			const int iTradeYield = getTradeYield(YIELD_COMMERCE); // current trade commerce in THIS city
-
-			const int iTotalTradeRoutesAdded = (kBuilding.getTradeRoutes() + kBuilding.getCoastalTradeRoutes() + kBuilding.getAreaTradeRoutes());
-			const bool bTradeRouteAdder = (iTotalTradeRoutesAdded > 0);
-
-			const bool bTradeRouteModifier = (kBuilding.getTradeRouteModifier() > 0);
-			const bool bHasAnyForeignTradeRouteModifier = (kBuilding.getForeignTradeRouteModifier() > 0);
-			const bool bHasAnyTradeRouteModifier = (
-				bTradeRouteModifier ||
-				bHasAnyForeignTradeRouteModifier
-			);
-
-			const bool bTradeBuilding = (
-				bTradeRouteAdder ||
-				bHasAnyTradeRouteModifier
-			);
-
-			const bool bTradeOnlyBuilding = (
-				bTradeBuilding &&
-				!bPreviousBuildings2
-			);
-
-			if (bTradeOnlyBuilding)
-			{
-				// 0) War / danger: same policy as other econ/science
-				if (bAtWar || bDanger || bWarPlan)
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "TRADE", "REJECT_MILITARY_PRESSURE", iPolicyReturn);
-					return iPolicyReturn;
-				}
-
-				// 1) Foreign % only helps if we actually have foreign trade in THIS city <!-- custom: and if no routes are added otherwise as chatgpt 5 added after i asked it about it hehe thanks still but really i mean thanks anwyays etc hehe thanks -->
-				// ...but don't veto here if the building ALSO adds routes; let ROI check handle it.
-				// <!-- custom: reuse bForeignTrade as recommended by chatgpt 5 (in another thread but thanks still), as indeed we can know people but not have open borders with them, so no trade then. I'm a bit reluctant to use it in case it is inaccurate, but may as well do so and whatever happens xd, at worse we won't reject the building so shouldn't harm too much ideally -->
-				// Right now you use iHasMetCount > 0. That doesn’t guarantee foreign trade (you still need connection / open borders). You already computed bForeignTrade earlier—use it.
-				if (bHasAnyForeignTradeRouteModifier && !bForeignTrade && !bTradeRouteAdder)
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "TRADE", "REJECT_NO_FOREIGN_ROUTE", iPolicyReturn);
-					return iPolicyReturn;
-				}
-
-				// 2) Flat “don’t bother if there’s basically no trade here"
-				//    (lets genuine trade cities build them; starved cities skip)
-				bool const bHasAnyEffectiveTradeRouteModifier = (
-					bTradeRouteModifier ||
-					(bHasAnyForeignTradeRouteModifier && bForeignTrade)
-				);
-
-				// <!-- custom: low ROI, better skip -->
-				// pure % mods with tiny base are weak
-				// <!-- custom: update: also take to be added by this building trade yield as part of the ROI calculation as well as recommended nicely thanks by chatgpt 5 (from another thread xd but thanks still, also check if accurate) -->
-				// If the building adds routes (bTradeRouteAdder), a low current iTradeYield is precisely when it can be good.
-				// <!-- custom: small correction, beyond >= 3 (say from 4+), we are already beyond ROI so no need to early reject the building here anymore -->
-				const int iMinTradeYield = 4;
-				if (iTradeYield < iMinTradeYield)
-				{
-					int iBase = iTradeYield;
-					if (bHasAnyEffectiveTradeRouteModifier)
-					{
-						iBase += 1; // ‘virtual’ route from % mods
-					}
-
-					// If base >= 4, ROI is already fine → no veto here.
-					if (iBase < iMinTradeYield)
-					{
-						const int iMinTradeRoutesBase = 3;
-						const int iMinTradeRoutesBaseNeedIfClose = 1;
-						const int iMinTradeRoutesBaseNeedIfFar = 2;
-						int iRequired = ((iBase == iMinTradeRoutesBase) ? iMinTradeRoutesBaseNeedIfClose : iMinTradeRoutesBaseNeedIfFar); // ==3 needs +1, <=2 needs +2
-						if (iTotalTradeRoutesAdded < iRequired)
-						{
-							const int iPolicyReturn = 0;
-							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "TRADE", "REJECT_LOW_ROUTE_GAIN", iPolicyReturn);
-							return iPolicyReturn;
-						}
-					}
-				}
-			}
-
-			// --- Espionage (Jail / Intelligence Agency / Security Bureau) ----------------
-
-			const bool bPreviousBuildings3 = (
-				// <!-- custom: note: bNot etc... is already a negative boolean, don't renegae it unless needed -->
-				bPreviousBuildings2 ||
-				bTradeOnlyBuilding
-			);
-
-			const int iFlatEspionagePerTurnFromBuilding = kBuilding.getCommerceChange(COMMERCE_ESPIONAGE) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_ESPIONAGE);
-
-			const bool bHighEnoughEspionageModifier = (kBuilding.getCommerceModifier(COMMERCE_ESPIONAGE) >= 20);
-
-			static const SpecialistTypes eSpecialistSpy = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SPY", true);
-
-			const bool bMostEspionageSourcesBuilding = (
-				(iFlatEspionagePerTurnFromBuilding > 0) ||
-				(kBuilding.getSpecialistCount(eSpecialistSpy) > 0) ||
-				(kBuilding.getFreeSpecialistCount(eSpecialistSpy) > 0)
-			);
-
-			const bool bEspionageSourceBuilding = (
-				bHighEnoughEspionageModifier ||
-				bMostEspionageSourcesBuilding
-			);
-
-			const bool bHighEnoughEspionageDefenseModifier = (kBuilding.getEspionageDefenseModifier() >= 20);
-
-			const bool bEspionageBuilding = (
-				bEspionageSourceBuilding ||
-				bHighEnoughEspionageDefenseModifier
-			);
-
-			const bool bEspionageOnlyBuilding = (
-				bEspionageBuilding &&
-				!bPreviousBuildings3
-			);
-
-			// <!-- custom: similar reasoning than for economy buildings but with more leeway, as espionage and here espionage buildings are less important relatively, and may be valuable in different times; as for AI at higher difficulties they don't need to spend so much on spying, they can just coast ahead due to their handicap advantages at higher difficulties, but at lower difficulties, they may have to -->
-			if (bEspionageOnlyBuilding)
-			{
-				if (bAtWar)
-				{
-					// <!-- custom: no time for this, try to survive rather and instead or do whatever is more urgent, and even if we are stronger, still press on other war urgent matters rather although maybe not always best but hopefully often enough for AIs i mean -->
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ESPIONAGE", "REJECT_WAR", iPolicyReturn);
-					return iPolicyReturn;
-				}
-				// <!-- custom: similar reasoning even if out of war, if urgent enough to skip it-->
-				else
-				{
-					if (bDanger)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ESPIONAGE", "REJECT_DANGER", iPolicyReturn);
-						return iPolicyReturn;
-					}
-					else if (bWarPlan)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ESPIONAGE", "REJECT_WAR_PLAN", iPolicyReturn);
-						return iPolicyReturn;
-					}
-					// <!-- custom: at higher difficulties (from say immortal+, as emperor is maybe doable without relying too much if at all (source: me xd) on spying), AIs don't need to worry too much about espionage as they have handicap advantages, but they need to thwart human espionage attempts and perhaps of other AI players to a bigger extent as well maybe too so to have good espionage defense buildings; as for lower difficulties (say chieftain and below), AIs need to engage more in spying to compensate their penalties so no spy defense buildings (nothing to steal xd they should be behind in tech for most at least not urgent or skip entirely to simplify) but spy offensive buildings should help-->
-					else
-					{
-						// --- Difficulty skew (research cost gap: human% - this AI%) --------------------
-						// Positive => AI advantage (human pays more); Negative => AI disadvantage.
-						const int iHumanResearchPercent = hGame.getResearchPercent();
-						const int iAIResearchPercent    = hAI.getAIResearchPercent();
-
-						const int iResearchPercentGap = iHumanResearchPercent - iAIResearchPercent; // +: AI advantage, −: AI disadvantage
-
-						// Tunables
-						const int iEPOffGap = -20; // AI pays ≥20% more → lean into EP offense
-						const int iEPDefGap =  30; // human pays ≥30% more → hedge against human EP (defense)
-
-						// Convenience flags
-						const bool bWePayMuchMoreForResearch = (iResearchPercentGap <= iEPOffGap);
-						const bool bWePayMuchLessForResearch = (iResearchPercentGap >= iEPDefGap);
-
-						// Difficulty-skewed priorities (AI-centric)
-						// Offense: we’re paying more for tech → EP can help compensate.
-						if (bWePayMuchLessForResearch)
-						{
-							if (bHighEnoughEspionageDefenseModifier)
-							{
-								// <!-- custom: in case other buildings are tied e.g. the acqueduct and we need it just as much, then build the acqueduct first -->
-								const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST - 1000;
-								if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ESPIONAGE", "FORCE_CHEAP_DEFENSE", iPolicyReturn);
-								return iPolicyReturn;
-							}
-						}
-						else if (bWePayMuchMoreForResearch)
-						{
-							if (bEspionageSourceBuilding)
-							{
-								// <!-- custom: in case other buildings are tied e.g. the acqueduct and we need it just as much, then build the acqueduct first -->
-								const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST - 1000;
-								if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "ESPIONAGE", "FORCE_CHEAP_OUTPUT", iPolicyReturn);
-								return iPolicyReturn;
-							}
-						}
-					}
-				}
-			}
-
-			// <!-- custom: then for culture buildings (e.g. monument, theatre, coliseum, etc if any more), we only want to strongly discourage and tell the AI to really not build thme i case it is clearly detrimental to do so. In other cases, being too harsh with these may result in too low culture, or it is uncertain whether other buildings are better. We only want, here, to reserve the hammer for more urgent buildings, and perhaps units incases where it is more urgent to do so, especially early. A collosseum is +/- 3 swordsmen, so if we don't strongly need it, consider ditching it for efficiency for example. If we have have our BFC already, we're about good for the early game, look at other priorities or better use of the hammer when relevant or more urgent to do so -->
-
-			const bool bPreviousBuildings4 = (
-				bPreviousBuildings3 ||
-				bEspionageBuilding
-			);
-
-			const int iFlatCulturePerTurnFromBuilding = kBuilding.getCommerceChange(COMMERCE_CULTURE) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE);
-
-			const bool bCultureBuilding = (
-				(iFlatCulturePerTurnFromBuilding > 0) ||
-				(kBuilding.getCommerceModifier(COMMERCE_CULTURE) > 0)
-			);
-
-			// “Pure" culture (don’t touch if it was already classified elsewhere)
-			const bool bCultureOnlyBuilding = (
-				bCultureBuilding &&
-				!bPreviousBuildings4
-			);
-
-			if (bCultureOnlyBuilding)
-			{
-				// <!-- custom: use a larger window than some previous buildings as culture buildings can be more often and longer in terms of game turns not urgent, and freeing the hammer in such cases may be more important for more turns, especially if we're not chasing a cultural victory, nor are we badly pressed at our borders, consider the short term value of the hammers as well hehe -->
-				const int iEarlyMidTurnsCultureNormal = 125; // @Normal
-				const int iEarlyMidTurnsCultureAdjusted = iEarlyMidTurnsCultureNormal * iGameSpeedMultiplier / 100;
-				const bool bEarlyMidTurnsCulture = (iElapsedTurns < iEarlyMidTurnsCultureAdjusted);
-
-				// Do we still need the BFC? (K-Mod already boosts such buildings later.)
-				const bool bNeedCultureForBFC = AI_needsCultureToWorkFullRadius();
-
-				if (!bNeedCultureForBFC)
-				{
-					if (bEarlyMidTurnsCulture)
-					{
-						const int iEnoughEarlyCulturePerTurn = 2;
-						const bool bEnoughEarlyCulturePerTurn = (getCommerceRate(COMMERCE_CULTURE) >= iEnoughEarlyCulturePerTurn);
-						// delay fluff culture; let units/settlers/other buildings through
-						if (bEnoughEarlyCulturePerTurn)
-						{
-							const int iPolicyReturn = 0;
-							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "CULTURE", "REJECT_ENOUGH_EARLY_CULTURE", iPolicyReturn);
-							return iPolicyReturn;
-						}
-					}
-				}
-			}
-			// <!-- custom: unknown or uncovered building (no wonders here, they are below), assume it's a useless building, at least in terms of war, skip it during war or war-like times; note: this doesn't handle previously covered buildings which should have their own war rules for better flexibility (some buildings are very good at war, some not at all, some so so, some depend, so adjust there rather and keep the final war-tail here as chatgpt 5 calls it and which i like the name of xd -->
-			else
-			{
-				// <!-- custom: military rules in particular may even ovveride our BFC needs in times of urgency (being at war, on the defensive in particular, and even more so if we are weaker, but even just being at war is enough to warrant skipping these i would say, strongly redirect towards unit or such, at least do not value this building here if it also excludes it from choosing it at all (i didn't check if it does) -->
-				if (bAtWar || bEnemyStrong || bDanger)
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNCLASSIFIED_REGULAR", "REJECT_MILITARY_PRESSURE", iPolicyReturn);
-					return iPolicyReturn;
-				}
-				else if (bWarPlan)
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNCLASSIFIED_REGULAR", "REJECT_WAR_PLAN", iPolicyReturn);
-					return iPolicyReturn;
-				}
-			}
-		}
-		// <!-- custom: When regular-building optimization was disabled for the KI#48.5 inherited-policy audit, ordinary buildings still entered this branch and were rejected as "unknown wonders" (e.g. a Granary at turn 0).
-		// Require an actual world or national wonder so the regular-building toggle cleanly restores inherited valuation. See KI#48.5. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
-		// <!-- custom: wonders (i.e. world + national) -->
-		else if (bWonder && bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
+		// <!-- custom: The September 2026 KI#48.5 audit retired the SAS regular-building category prefilter after testing its concerns individually against inherited additive valuation.
+		// Keep the separate Wonder policy until its own audit; ordinary buildings now proceed directly to inherited valuation and targeted evidence-backed corrections. (GPT-5.6-Sol) -->
+		if (bWonder && bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
 		{
 			// <!-- custom: no great wall or any wonder with the barbarian blocking at borders after a certain era (e.g. medieval or higher, not much barbarians left if at all then, not worth the hammer) feature as it is pointless then -->
 			// Barbarian-barrier WW special-case (Great Wall: bBorderObstacle=1)
@@ -9256,7 +8476,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			// AdvCiv: no human WCP <!-- custom: at least i didn't find it easily with a global search vs code so hopefully accurate enough as such as provided by chatgpt 5 but check if accurate and if my guess of doing as such as well is fine as i didn't check further-->; treat as 100%
 			const int iHumanWCPDefine = 100;
 			int const iHumanWCP = iHumanWCPDefine;
-			int const iAIWCP    = hAI.getAIWorldConstructPercent();
+			// <!-- custom: Match CvPlayer::getProductionNeeded: AI world-wonder cost uses the game handicap plus its time adjustment, not the AI player's normally Noble handicap. This data-masked sibling of the removed espionage branch was found during the same receiver audit. See KI#881. (GPT-5.6-Sol) -->
+			int const iAIWCP = hGame.getAIWorldConstructPercent() + kGame.AIHandicapAdjustment();
 			// Gap is "human% - ai%". Bigger positive => AI has bigger production edge.
 			int const iConstructGap = iHumanWCP - iAIWCP;
 			// <!-- custom: e.g. iHuman 100, iAI 68, so 32% higher costs for AI (maybe this is immortal or some higher difficulty (imaginary numbers)) -->

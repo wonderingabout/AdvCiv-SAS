@@ -3132,7 +3132,7 @@ It only documents logic that exists in the code we just reviewed (no speculation
 | **Science** | Research % ≥20 **or** flat beakers **or** (Scientist slots/free) | If **at war** **or** **danger** **or** **war plan** → **skip**. | — | Don’t pause survival or momentum for beakers. |
 | **Economy (Gold)** | Gold % ≥20 **or** flat gold **or** (Merchant slots/free) and **not** previously classified | Same war/danger/war‑plan **skip**. If %‑only and city **gold rate < 6** → **skip**. | — | ROI gate for early banks/markets. |
 | **Trade‑route econ** | Adds routes **or** has trade route % (incl. foreign) | If war/danger/war‑plan → **skip**. If **foreign %** but **no foreign routes** and **doesn’t add routes** → **skip**. If **tiny base trade** (`iTradeYield ≤3`) then require **+routes**: base 3→ +1, base ≤2→ +2; otherwise **skip**. | Uses current `iTradeYield` in this city; counts "virtual" route when % mods present. | Build CH/Harbor where trade exists or where added routes will matter. |
-| **Espionage** | EP % ≥20 **or** flat EP/Spy slots/free **or** EP defense ≥20 | In the disabled prefilter, war/danger/war‑plan → **skip** pending removal with the remaining old SAS layer. The handicap-based **ALWAYS_PICK_FIRST −1000** offense/defense forces were removed. | The removed forces used `iHumanResearchPercent − iAIResearchPercent` thresholds of −20/+30. | Handicap and current strength do not imply one reliable espionage strategy; use actual city/empire valuation and `AI_STRATEGY_ESPIONAGE_ECONOMY`. Note: as of now now removed following the September 2026 Building Value AI rework, updated for exhaustiveness but no longer active ingame now, see KI#48.5. |
+| **Espionage** | EP % ≥20 **or** flat EP/Spy slots/free **or** EP defense ≥20 | As as of now for the other retired changes in these sections, the retired prefilter skipped these buildings during war/danger/war plans and could force them from handicap research costs. | The removed forces used `iHumanResearchPercent − iAIResearchPercent` thresholds of −20/+30. | Handicap and current strength do not imply one reliable espionage strategy; actual city/empire valuation and `AI_STRATEGY_ESPIONAGE_ECONOMY` now decide. See KI#48.5. |
 | **Culture‑only** | Flat culture **or** culture % (and not classified earlier) | If **BFC not needed** and **early‑mid window** and **existing culture ≥2** → **skip**. | Early‑mid ≈ first ~125 turns @ Normal (scaled). | Don’t overbuild fluff culture once borders are workable. |
 | **Unknown / misc** | Anything not matched above | If **war**/**danger**/**enemy strong** **or** **war plan** → **skip**. | — | Conservative default during pressure. |
 
@@ -3272,7 +3272,7 @@ Those observations frequently identified real strategic questions, but the solut
 
 That made the result brittle for multipurpose/unique buildings and could make whichever condition happened to run first dominate unrelated effects.
 
-The September 2026 rework in **KI#48.5** therefore disabled the old regular-building hard prefilter and audited its concerns one by one against inherited K-Mod/AdvC additive valuation instead of merely trusting either the old SAS policy or the inherited system.
+The September 2026 rework in **KI#48.5** therefore disabled the old regular-building hard prefilter for controlled comparison, audited its concerns one by one against inherited K-Mod/AdvC additive valuation, and removed the prefilter after the audit was complete.
 
 Exact BBAI component deltas and SASGameRecord run comparison were used to retain inherited behavior where the data supported it and add narrower corrections where it did not.
 
@@ -3699,7 +3699,7 @@ Earlier in the audit this was left as a targeted-test TODO.
 
 The broader architectural result makes preserving those hard force branches unnecessary: handicap and current strength do not point espionage in one reliable direction, so actual city/empire valuation and `AI_STRATEGY_ESPIONAGE_ECONOMY` should decide.
 
-The obsolete branches were removed from the disabled historical regular-building prefilter; the dedicated BBAI row remains useful for ordinary contextual espionage attribution, not as a preservation test. The related KI#881 is retired/superseded rather than awaiting an independent cure.
+The obsolete branches and ultimately the entire historical regular-building prefilter were removed; the dedicated BBAI row remains useful for ordinary contextual espionage attribution, not as a preservation test. The related KI#881 is retired/superseded rather than awaiting an independent cure.
 
 This does **not** prove that handicap context can never matter for espionage. It means a future reproduced Rookie/Deity espionage weakness should be solved from the actual city/empire situation through additive/contextual valuation rather than by reviving an unconditional whole-building force tied to handicap thresholds.
 
@@ -3854,13 +3854,9 @@ The full finding, lineage evidence, thresholds, tuning iterations and final vali
 
 ### Remaining planned work before closing the regular-building / Wonder PR
 
-Still intentionally unresolved:
+The regular-building audit is complete. The `enemyStrong`, Harbor/Port, land-heavy naval-infrastructure and espionage-handicap concerns did not justify restoring their old whole-building gates; the historical regular-building prefilter and its exclusive XML knobs were removed after they were no longer needed as comparison references.
 
-- revisit the old `enemyStrong` concern on the same land-heavy Pangaea testbed, without assuming that the old whole-building veto was the right cure;
-- continue to watch Harbor/Port through the retained coastal diagnostics and add a dynamic additive enhancement only if a reproduced coastal weakness remains after removal of the hard overrides;
-- audit any remaining land-heavy/naval-infrastructure rationale that is not already subsumed by the current production-pressure work;
-- remove or archive any genuinely dead regular-building prefilter code only after the active migration no longer needs it as a comparison reference;
-- audit the separate SAS Wonder layer.
+The separate SAS Wonder layer remains intentionally unresolved and should be audited next.
 
 The old espionage difficulty-force branches are **not** a remaining preservation test: ordinary inherited espionage behavior was already selective, and the host hard prefilter is retired. If a future handicap-specific weakness is reproduced, it should receive a contextual/additive solution rather than reviving the old force sentinel.
 
@@ -3908,7 +3904,7 @@ The September 2026 audit/rework was carried out iteratively with level-3 BBAI fo
 
 ## KI#48.6 - (Improved inherited K-Mod/AdvC AI valuation weakness) Severe unhealthiness did not gain enough relative urgency against ordinary infrastructure
 
-During the September 2026 AdvCiv-SAS regular-building valuation rework in KI#48.5, the old SAS whole-building health force/reject layer was disabled and inherited K-Mod/AdvC `AI_buildingValue` was instrumented with exact before/after component attribution.
+During the September 2026 AdvCiv-SAS regular-building valuation rework in KI#48.5, the old SAS whole-building health force/reject layer was disabled for comparison and inherited K-Mod/AdvC `AI_buildingValue` was instrumented with exact before/after component attribution. The old prefilter was removed after the completed audit.
 
 The audit showed that inherited health valuation was already substantially better than the old binary SAS classifier. It responds continuously to current health deficit, unhealthy-food waste, current food deficit, growth enablement and spare-health padding.
 
@@ -3993,7 +3989,7 @@ Found and corrected during the September 2026 AdvCiv-SAS regular-building valuat
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1A7xq6H7PVOsECMy3KQ0NIBEjdbccXcH-?usp=sharing).
 
-During the AdvCiv-SAS regular-building AI rework in KI#48.5, the old SAS whole-building prefilter was disabled so ordinary buildings could use the inherited additive K-Mod/AdvCiv valuation instead. Level-3 BBAI attribution was added before deciding whether any old SAS rejection rationale still needed a narrower replacement.
+During the AdvCiv-SAS regular-building AI rework in KI#48.5, the old SAS whole-building prefilter was disabled so ordinary buildings could use the inherited additive K-Mod/AdvCiv valuation instead. Level-3 BBAI attribution was added before deciding whether any old SAS rejection rationale still needed a narrower replacement; the prefilter was removed after that audit completed.
 
 Conventional defensive-building value proved modest and threat-responsive, but the new diagnostics exposed a separate inherited outlier in Kek-Mod's `kekm.16` nuke-defense term, originally adopted into AdvCiv as DarkLunaPhantom's `dlph.16` change for Bomb Shelter AI.
 
