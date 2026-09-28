@@ -1485,30 +1485,19 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist, int* piYi
 		if (iProductionRank <= iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_CITY_THRESHOLD)
 		{
 			static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING");
-
-			// <!-- custom: performance optimization: compute this only once if i'm not mistaken; e.g. "BUILDINGCLASS_HARBOR", check defines for string value -->
-			static const BuildingClassTypes eHeroicEpicEffectBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME"));
-			static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME_EXTRA_VALUING = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME_EXTRA_VALUING");
-			const CvCivilizationInfo& kCivInfo = GC.getInfo(kPlayer.getCivilizationType());
-			BuildingTypes eHeroicEpicEffectBuilding = NO_BUILDING;
-			if (eHeroicEpicEffectBuildingClass != NO_BUILDINGCLASS)
-			{
-				eHeroicEpicEffectBuilding = (BuildingTypes)kCivInfo.getCivilizationBuildings(eHeroicEpicEffectBuildingClass);
-			}
-			int iHeroicEffectBuildingExtraAddedExtraValue = 0;
-			if (eHeroicEpicEffectBuilding != NO_BUILDING)
-			{
-				const bool bHasHeroicEffectBuilding = (getNumBuilding(eHeroicEpicEffectBuilding) > 0);
-				const bool bBuildingHeroicEffectBuilding = (getProductionBuilding() == eHeroicEpicEffectBuilding);
-				if (bHasHeroicEffectBuilding || bBuildingHeroicEffectBuilding)
-				{
-					iHeroicEffectBuildingExtraAddedExtraValue = iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME_EXTRA_VALUING;
-				}
-			}
+			static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_MILITARY_PRODUCTION_MODIFIER_EXTRA_VALUING = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_MILITARY_PRODUCTION_MODIFIER_EXTRA_VALUING");
+			const BuildingTypes eProductionBuilding = getProductionBuilding();
+			const int iProductionBuildingMilitaryModifier = (eProductionBuilding == NO_BUILDING ? 0 : std::max(0, GC.getInfo(eProductionBuilding).getMilitaryProductionModifier()));
+			const int iMilitaryProductionBuildingModifier = std::max(0, getMilitaryProductionModifier()) + iProductionBuildingMilitaryModifier;
+			// <!-- custom: The old rule named Heroic Epic through a SAS string define, so XML replacements or additional military-production buildings received no proportional recognition.
+			// Derive the synergy from the city's active building modifier plus a positive modifier on its currently constructed building instead.
+			// This reuses CvCity's maintained aggregate rather than rescanning BuildingInfos whenever specialist value is queried.
+			// At current XML values, Heroic Epic's +50 and the per-point value 10 preserve the old +500 bonus, while smaller, stacked, or mod-added effects scale naturally. (GPT-5.6-Sol) -->
+			const int iMilitaryProductionBuildingExtraValue = iMilitaryProductionBuildingModifier * iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_MILITARY_PRODUCTION_MODIFIER_EXTRA_VALUING;
 
 			// <!-- custom: the higher the rank the more we value it -->
-			// <!-- custom: extra value if city has or is building the heroic epic, it will be top hammer for military anyway -->
-			const int iMilitaryInstructorExtraValue = (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING - (10 * iProductionRank) + iHeroicEffectBuildingExtraAddedExtraValue);
+			// <!-- custom: Extra value for built or currently constructed military-production buildings, which make a top-hammer city an efficient place to concentrate Military Instructors. (GPT-5.6-Sol) -->
+			const int iMilitaryInstructorExtraValue = (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING - (10 * iProductionRank) + iMilitaryProductionBuildingExtraValue);
 			iTempValue += 100 * iExperience * iMilitaryInstructorExtraValue;
 		}
 		iTempValue += (getMilitaryProductionModifier() * iExperience * 6); // was * 8

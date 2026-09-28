@@ -3259,15 +3259,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING</DefineName>
 		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
-	<!-- custom: if city has or is building this buildingclass, increase the above value by this number (adjust as per your xml for which building it is) -->
+	<!-- custom: Add this value for each positive military-unit Production percentage point supplied by the city's active buildings and current building production. This replaces the hardcoded Heroic Epic building-class name and fixed +500 value. With 10, Heroic Epic's current +50 still adds 500, while civ-specific, mod-added, smaller, and stacked building effects scale automatically. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME</DefineName>
-		<DefineTextVal>BUILDINGCLASS_HEROIC_EPIC</DefineTextVal>
-	</Define>
-	<!-- custom: Long_Comments_XML.txt #235 -->
-	<Define>
-		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME_EXTRA_VALUING</DefineName>
-		<iDefineIntVal>500</iDefineIntVal>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_MILITARY_PRODUCTION_MODIFIER_EXTRA_VALUING</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 	<!-- custom: was 1 in base advciv -->
 	<!-- High iMaxCount means we don't care about existing instructors -->
