@@ -8588,14 +8588,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		// Is this “safe enough"?
 		// 	- For Civ4’s normal single-threaded AI: yes.
 		// 	- If you ever truly run building evaluation in parallel threads: function-static caches are not thread-safe. Your current use of bConstCache strongly suggests “async mode" should not mutate caches anyway, so the pattern above is aligned with that.
-		// --- SAS: per-player, per-turn cache for empire-wide top-production-city scans used in some gates.
+		// --- SAS: per-player, per-turn cache for empire-wide top-two production-city scans used in the remaining Wonder gates.
 		// Updated only when !bConstCache (async/const-eval stays side-effect free).
 		static bool s_abTopHptValid[MAX_PLAYERS];
 		static int  s_aiTopHptTurn[MAX_PLAYERS];
 		static int  s_aiTopHptNumCities[MAX_PLAYERS];
 		static int  s_aiBestHpt[MAX_PLAYERS];
 		static int  s_aiSecondBestHpt[MAX_PLAYERS];
-		static int  s_aiThirdBestHpt[MAX_PLAYERS];
 
 		// <!-- custom: always pick these first if in this specific case especially relevant-->
 		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, everything else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure) -->
@@ -8721,15 +8720,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			}
 			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
-				static const int iMinBaseHammers = GC.getDefineINT("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_BASE_HAMMERS");
-				static const int iMinExtraHammersPerEra = GC.getDefineINT("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA");
-
-				if (iBaseHammersPerTurn < (iMinBaseHammers + (iCurrentEra * iMinExtraHammersPerEra)))
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NATIONAL_WONDER", "REJECT_LOW_PRODUCTION", iPolicyReturn);
-					return iPolicyReturn;
-				}
+				// <!-- custom: KI#48.5 National-Wonder audit: retire the fixed era-scaled base-hammer veto. The shared time-to-build gate already captures whether this city would tie up production for too long, while National Wonders cannot lose a race and often belong in a specialized city rather than one that merely clears a raw-hammer floor. Level-3 policy diagnostics keep the former threshold visible as counterfactual evidence. (ChatGPT-5.6-Sol) -->
 			}
 			else if (!bWorldWonder && !bNationalWonder && bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
 			{
@@ -8965,7 +8956,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			// <!-- custom: add cache to avoid recomputation at every call with the help of chatgpt 5.2 thanks -->
 			const int iCurrentTurn = kGame.getGameTurn();
 
-			int iBestHpt = 0, iSecondBestHpt = 0, iThirdBestHpt = 0;
+			int iBestHpt = 0, iSecondBestHpt = 0;
 
 			const bool bHammerCacheValid =
 				bProductionRankCacheWasValid &&
@@ -8977,20 +8968,18 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			{
 				iBestHpt = s_aiBestHpt[eOwner];
 				iSecondBestHpt = s_aiSecondBestHpt[eOwner];
-				iThirdBestHpt = s_aiThirdBestHpt[eOwner];
 			}
 			else
 			{
-				int b1 = 0, b2 = 0, b3 = 0;
+				int b1 = 0, b2 = 0;
 				FOR_EACH_CITY(pLoopCity, kOwner)
 				{
 					const int h = pLoopCity->getBaseYieldRate(YIELD_PRODUCTION);
-					if (h > b1) { b3 = b2; b2 = b1; b1 = h; }
-					else if (h > b2) { b3 = b2; b2 = h; }
-					else if (h > b3) { b3 = h; }
+					if (h > b1) { b2 = b1; b1 = h; }
+					else if (h > b2) { b2 = h; }
 				}
 
-				iBestHpt = b1; iSecondBestHpt = b2; iThirdBestHpt = b3;
+				iBestHpt = b1; iSecondBestHpt = b2;
 
 				if (!bConstCache)
 				{
@@ -8999,7 +8988,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					s_aiTopHptNumCities[eOwner] = iNumCities;
 					s_aiBestHpt[eOwner] = b1;
 					s_aiSecondBestHpt[eOwner] = b2;
-					s_aiThirdBestHpt[eOwner] = b3;
 				}
 			}
 			// const bool bTop2Hammer = (iBaseHammersPerTurn >= iSecondBestHpt);
@@ -9013,7 +9001,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			// <!-- custom: e.g. if top city is 60 hammers, then our city candidate needs to have at least 60 hammers * 70 / 100  = 42 hammers (i.e. 70% of best hammer city hammers) strictly, so at least 43 hammers, which is good enough to replace our best cities if previous fail -->
 			const bool bEnoughHammersVsTop1Hammers = ((iBaseHammersPerTurn * 100) > (iBestHpt * iMinPercentOfTop1HammerSlack));
 			const bool bTop2HammerLeeway = ((iBaseHammersPerTurn + iTopHammerLeeway >= iSecondBestHpt) || bEnoughHammersVsTop1Hammers);
-			const bool bTop3HammerLeeway = ((iBaseHammersPerTurn + iTopHammerLeeway >= iThirdBestHpt) || bEnoughHammersVsTop1Hammers);
 
 			// <!-- custom: for production modifier wonders (e.g city increases by +25% hammer or such), only do so in top cities. Note: could handle other yields but would be tedious and we don't necessarily have too many if at all such wonders -->
 			const bool bProductionWonder = (
@@ -9057,13 +9044,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			}
 			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
-				// <!-- custom: for national wonders, no risk to lose the race, use top 2 or top 3 as base or such depending on if the national wonder is a scaling one or not -->
-				if (!bTop3HammerLeeway)
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NATIONAL_WONDER", "REJECT_NOT_TOP_PRODUCTION", iPolicyReturn);
-					return iPolicyReturn;
-				}
+				// <!-- custom: KI#48.5 National-Wonder audit: retire the blanket top-3-hammer veto. National Epic, Wall Street, National Park and other specialized National Wonders can be strongest outside the empire's raw-production leaders; keep only narrower placement rules whose effect actually scales with production, such as the military-National-Wonder top-2 rule below and the shared production-Wonder check above. The old top-3 result remains visible in level-3 diagnostics. (ChatGPT-5.6-Sol) -->
 
 				// <!-- custom: military national wonders, in particular heroic epic, etc if any more -->
 				if (bLandUnitsBuilding)
