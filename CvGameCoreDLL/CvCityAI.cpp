@@ -399,6 +399,38 @@ static int SAS_getHighestKnownFreeRivalBlocPower(CvPlayerAI const& kPlayer)
 	return iHighestRivalPower;
 }
 
+// <!-- custom: Shared factual local-area rival snapshot for callers that need the same geography/power facts but intentionally apply different policy thresholds.
+// Do not collapse this into an "area safe" boolean: AI_isAreaAlone is a narrower knowledge-sensitive isolation test, while AI_feelsSafe answers a broader/global strategic question; KI#53.5 land-unit saturation requires overwhelming local security, whereas World-Wonder investment only needs to judge whether local exposure makes the opportunity cost reckless.
+// The global-rival fields are retained only as comparison context beside the local bloc data. Barbarians, city danger/defenders, land-unit stock and other caller-specific facts remain outside this snapshot. (ChatGPT-5.6-Sol) -->
+struct SASLocalAreaRivalContext
+{
+	int iIndependentRivalTeams;
+	int iUnknownIndependentRivalTeams;
+	int iIndependentRivalCities;
+	int iCombinedKnownLocalRivalBlocPower;
+	int iHighestKnownLocalRivalBlocPower;
+	int iOurBlocPower;
+	int iLocalPowerAdvantagePercent;
+	int iHighestKnownGlobalRivalBlocPower;
+	int iGlobalPowerAdvantagePercent;
+
+	SASLocalAreaRivalContext(CvPlayerAI const& kPlayer, CvArea const& kArea)
+	{
+		iIndependentRivalCities = 0;
+		iUnknownIndependentRivalTeams = 0;
+		iCombinedKnownLocalRivalBlocPower = 0;
+		iHighestKnownLocalRivalBlocPower = 0;
+		iIndependentRivalTeams = SAS_countIndependentRivalTeamsInArea(kPlayer, kArea, iIndependentRivalCities,
+				&iUnknownIndependentRivalTeams, &iCombinedKnownLocalRivalBlocPower, &iHighestKnownLocalRivalBlocPower);
+		iOurBlocPower = GET_TEAM(kPlayer.getTeam()).getPower(true);
+		iLocalPowerAdvantagePercent = (iCombinedKnownLocalRivalBlocPower <= 0 ? -1 :
+				(100 * iOurBlocPower) / iCombinedKnownLocalRivalBlocPower);
+		iHighestKnownGlobalRivalBlocPower = SAS_getHighestKnownFreeRivalBlocPower(kPlayer);
+		iGlobalPowerAdvantagePercent = (iHighestKnownGlobalRivalBlocPower <= 0 ? -1 :
+				(100 * iOurBlocPower) / iHighestKnownGlobalRivalBlocPower);
+	}
+};
+
 // <!-- custom: Rank naval-floor roles for the relevant water area; the CvCityAI member caller performs the protected AI_chooseUnit call. AI_totalWaterAreaUnitAIs includes ships at sea, in ports and queued there. (ChatGPT-5.6-Sol) -->
 static void SAS_rankNavalProductionUnitAIs(CvPlayerAI const& kPlayer, CvArea const& kWaterArea, int iAssaultWeight, int iEscortWeight, int iAttackWeight, std::vector<UnitAITypes>& aeUnitAIs)
 {
@@ -7509,18 +7541,7 @@ static void SAS_logWorldWonderStrategicAudit(CvCityAI const& kCity, BuildingType
 	int const iRevealedAreaTiles = kArea.getNumRevealedTiles(kCity.getTeam());
 	int const iUnrevealedAreaTiles = kArea.getNumUnrevealedTiles(kCity.getTeam());
 
-	int iIndependentRivalCitiesInArea = 0;
-	int iUnknownIndependentRivalTeamsInArea = 0;
-	int iCombinedKnownLocalRivalBlocPower = 0;
-	int iHighestKnownLocalRivalBlocPower = 0;
-	int const iIndependentRivalTeamsInArea = SAS_countIndependentRivalTeamsInArea(kOwner, kArea, iIndependentRivalCitiesInArea,
-			&iUnknownIndependentRivalTeamsInArea, &iCombinedKnownLocalRivalBlocPower, &iHighestKnownLocalRivalBlocPower);
-	int const iOurBlocPower = kTeam.getPower(true);
-	int const iLocalPowerAdvantagePercent = (iCombinedKnownLocalRivalBlocPower <= 0 ? -1 :
-			(100 * iOurBlocPower) / iCombinedKnownLocalRivalBlocPower);
-	int const iHighestKnownGlobalRivalBlocPower = SAS_getHighestKnownFreeRivalBlocPower(kOwner);
-	int const iGlobalPowerAdvantagePercent = (iHighestKnownGlobalRivalBlocPower <= 0 ? -1 :
-			(100 * iOurBlocPower) / iHighestKnownGlobalRivalBlocPower);
+	SASLocalAreaRivalContext const kLocalRivals(kOwner, kArea);
 
 	bool abCountedEnemyMasterTeams[MAX_TEAMS] = { false };
 	int iEnemyTeamsInArea = 0;
@@ -7560,9 +7581,9 @@ static void SAS_logWorldWonderStrategicAudit(CvCityAI const& kCity, BuildingType
 		kGame.getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(),
 		bSASPolicyMasterEnabled, kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), kArea.getID(), iAreaTiles,
 		iRevealedAreaTiles, iUnrevealedAreaTiles, bAreaAlone, bPrimaryArea, iAreaAI, bLandWar, iOwnCitiesInArea,
-		iIndependentRivalTeamsInArea, iUnknownIndependentRivalTeamsInArea, iIndependentRivalCitiesInArea,
-		iEnemyTeamsInArea, iEnemyCitiesInArea, iOurBlocPower, iCombinedKnownLocalRivalBlocPower, iHighestKnownLocalRivalBlocPower,
-		iLocalPowerAdvantagePercent, iHighestKnownGlobalRivalBlocPower, iGlobalPowerAdvantagePercent, iMainLandMilitaryStock,
+		kLocalRivals.iIndependentRivalTeams, kLocalRivals.iUnknownIndependentRivalTeams, kLocalRivals.iIndependentRivalCities,
+		iEnemyTeamsInArea, iEnemyCitiesInArea, kLocalRivals.iOurBlocPower, kLocalRivals.iCombinedKnownLocalRivalBlocPower, kLocalRivals.iHighestKnownLocalRivalBlocPower,
+		kLocalRivals.iLocalPowerAdvantagePercent, kLocalRivals.iHighestKnownGlobalRivalBlocPower, kLocalRivals.iGlobalPowerAdvantagePercent, iMainLandMilitaryStock,
 		iMainLandMilitaryPerCityX100, iCitySafety, iCityDefenders, kWarPower.bAtWar,
 		bWarPlan, bDanger, kWarPower.iEnemyPowerPercent, kWarPower.bEnemyStrong, bAreaBorderObstacle,
 		bNoBarbarians, iBarbarianAreaCities, iBarbarianAreaUnits, bLegacyAntiBarbarianLateEnableRaw,
@@ -8647,23 +8668,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		// Keep the separate Wonder policy until its own audit; ordinary buildings now proceed directly to inherited valuation and targeted evidence-backed corrections. (GPT-5.6-Sol) -->
 		if (bWonder && bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
 		{
-			// <!-- custom: no great wall or any wonder with the barbarian blocking at borders after a certain era (e.g. medieval or higher, not much barbarians left if at all then, not worth the hammer) feature as it is pointless then -->
-			// Barbarian-barrier WW special-case (Great Wall: bBorderObstacle=1)
-			static const bool bSAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE");
-			if (!kGame.isOption(GAMEOPTION_NO_BARBARIANS) && !bSAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE)
-			{
-				if (kBuilding.isAreaBorderObstacle())
-				{
-					static const int iSAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_MAX_ERA = GC.getDefineINT("SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_MAX_ERA");
-
-					if (iCurrentEra > iSAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_MAX_ERA)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WONDER_ANTI_BARBARIAN", "REJECT_LATE_ERA", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
-			}
+			// <!-- custom: KI#48.5 World-Wonder audit: retire the era-only anti-Barbarian border-Wonder veto. Inherited valuation already considers local Barbarian relevance, while the level-3 Wonder audit keeps the former era condition as counterfactual evidence. (ChatGPT-5.6-Sol) -->
 
 			const int iCost = getProductionNeeded(eBuilding);
 
@@ -8712,15 +8717,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					}
 				}
 
-				static const int iMinBaseHammers = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_BASE_HAMMERS");
-				static const int iMinExtraHammersPerEra = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA");
-
-				if (iBaseHammersPerTurn < (iMinBaseHammers + (iCurrentEra * iMinExtraHammersPerEra)))
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WORLD_WONDER", "REJECT_LOW_PRODUCTION", iPolicyReturn);
-					return iPolicyReturn;
-				}
+				// <!-- custom: KI#48.5 World-Wonder audit: retire the fixed era-scaled base-hammer veto. The surviving time-to-build and relative-production checks express the underlying opportunity/race concern more directly, and the level-3 audit keeps the former threshold visible. (ChatGPT-5.6-Sol) -->
 			}
 			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
@@ -8827,23 +8824,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					}
 				}
 
-				// <!-- custom: even if we don't have bonuses early, we may get a lucky stonehenge if rivals have not connected their stone yet or we got lucky with our start that would have high production maybe so give it a try in these early turns for wonders cases, else don't risk wasting precious early hammer on incompleted wonder vs say units or anything else instead (a granary + barracks + worker for example more or less); note: modifiers are not only bonuses, a civic or religion modifier may be equal or even stronger than the bonus one, even if we don't have the bonus, so look rather at the final modifier no matetr where it comes from -->
-				// Early window (scaled to speed)
-				const int iEarlyTurnsNoModifierNormal = 35; // @Normal
-				const int iEarlyTurnsNoModifierAdjusted = iEarlyTurnsNoModifierNormal * iGameSpeedMultiplier / 100;
-				const bool bEarlyTurnsNoModifier = (iElapsedTurns < iEarlyTurnsNoModifierAdjusted);
-				if (!bEarlyTurnsNoModifier)
-				{
-					// <!-- custom: our rivals will beat us (most likely, but assume so for efficiency) to it, better build something else than end up with a lot of wasted hammer -->
-					if (iProductionModifier < 25) // no stone/marble/trait/religion oomph? skip
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WORLD_WONDER", "REJECT_LOW_PRODUCTION_MODIFIER", iPolicyReturn);
-						return iPolicyReturn;
-					}
-					// <!-- custom: else don't incentivize it either, wonders are not necessarily the better choice, keep as is as per AI selection in other parts of the code wherever it is handled at least as of now-->
-				}
-
+				// <!-- custom: KI#48.5 World-Wonder audit: retire the post-opening requirement for a +25% build-time modifier. In the inherited-only Snaky baseline this hard proxy did not predict race success; actual construction time and city production competitiveness remain active safeguards. The audit row still records the former condition. (ChatGPT-5.6-Sol) -->
 				// <!-- custom: note: cannot try to save computation by checking bCoastalBuilding, as in some weird xml mod mods or such (or maybe we would too or would not), maybe a non-coastal city would give a coastal cities scaling effect, so do not check bCoastalBuilding to avoid overlooking these as chatgpt 5 advised/noted if i understood it correctly -->
 				// --- Naval / Coastal-scaling WW: require a real coastline -----------------
 				// // 1) City-local coastal wonders (benefit tied to THIS city’s water/naval use)
@@ -9072,39 +9053,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					return iPolicyReturn;
 				}
 
-				// <!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code; note: in autoplay i did notice wonder races, i don't know if far from completing them rivals would attempt them or if it's only for close calls, but adding an extra safety to prevent inefficient ones just in case -->
-				// “Race pressure" (how many rivals can build it?)
-				// Super-simple "are rivals eligible already?" gate.
-				// If >=3 MET rival teams have the core (AND) tech, assume a hot race and skip.
-				// <!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks). -->
-				static const bool bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH");
-				if (bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH)
-				{
-					TechTypes eAndTech = NO_TECH;
-					eAndTech = kBuilding.getPrereqAndTech();
-
-					if (eAndTech != NO_TECH)
-					{
-						// <!-- custom: to simplify don't check if the or additional prereqs in the XML's TechTypes in tech info is/are met or not, check if accurate or is best or satisfying enough and effective enough approach, it was simplest for me to write with chatgpt 5's help hehe and my limited understanding or rather as well knowledge of this if i may say for most -->
-						int iRivalsWhoCanStart = 0;
-						static const int iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM");
-						// Only teams we've actually met (cheap + avoids false positives)
-						for (TeamIter<CIV_ALIVE,KNOWN_TO> it(getTeam()); it.hasNext(); ++it)
-						{
-							TeamTypes eRival = it->getID();
-							if (eRival == getTeam()) continue;            // skip us
-							if (GET_TEAM(eRival).isHasTech(eAndTech))    // has the gate tech
-							{
-								if (++iRivalsWhoCanStart >= iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM)            // simple fixed cap
-								{
-									const int iPolicyReturn = 0;
-									if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WORLD_WONDER", "REJECT_HOT_RACE", iPolicyReturn);
-									return iPolicyReturn;
-								}
-							}
-						}
-					}
-				}
+				// <!-- custom: KI#48.5 World-Wonder audit: retire the hard "N met rivals know the prerequisite tech" veto. That eligibility count was a weak race proxy in the inherited-only baseline; retain it only in the level-3 policy audit while stronger time/production safeguards remain active. (ChatGPT-5.6-Sol) -->
 			}
 			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
@@ -16951,15 +16900,16 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 					{
 						iMainLandMilitaryStock = SAS_getMainLandMilitaryStock(kOwner, getArea());
 						iMainLandMilitaryPerCityX100 = (100 * iMainLandMilitaryStock) / std::max(1, iAreaCities);
-						iIndependentRivalCitiesInArea = 0;
-						iUnknownIndependentRivalTeamsInArea = 0;
-						iCombinedKnownLocalRivalBlocPower = 0;
-						iHighestKnownLocalRivalBlocPower = 0;
-						iIndependentRivalTeamsInArea = SAS_countIndependentRivalTeamsInArea(kOwner, getArea(), iIndependentRivalCitiesInArea, &iUnknownIndependentRivalTeamsInArea, &iCombinedKnownLocalRivalBlocPower, &iHighestKnownLocalRivalBlocPower);
-						iHighestKnownGlobalRivalBlocPower = SAS_getHighestKnownFreeRivalBlocPower(kOwner);
-						iOurBlocPower = kOwnerTeam.getPower(true);
-						iLocalPowerAdvantagePercent = (iCombinedKnownLocalRivalBlocPower <= 0 ? -1 : (100 * iOurBlocPower) / iCombinedKnownLocalRivalBlocPower);
-						iGlobalPowerAdvantagePercent = (iHighestKnownGlobalRivalBlocPower <= 0 ? -1 : (100 * iOurBlocPower) / iHighestKnownGlobalRivalBlocPower);
+						SASLocalAreaRivalContext const kLocalRivals(kOwner, getArea());
+						iIndependentRivalCitiesInArea = kLocalRivals.iIndependentRivalCities;
+						iUnknownIndependentRivalTeamsInArea = kLocalRivals.iUnknownIndependentRivalTeams;
+						iCombinedKnownLocalRivalBlocPower = kLocalRivals.iCombinedKnownLocalRivalBlocPower;
+						iHighestKnownLocalRivalBlocPower = kLocalRivals.iHighestKnownLocalRivalBlocPower;
+						iIndependentRivalTeamsInArea = kLocalRivals.iIndependentRivalTeams;
+						iHighestKnownGlobalRivalBlocPower = kLocalRivals.iHighestKnownGlobalRivalBlocPower;
+						iOurBlocPower = kLocalRivals.iOurBlocPower;
+						iLocalPowerAdvantagePercent = kLocalRivals.iLocalPowerAdvantagePercent;
+						iGlobalPowerAdvantagePercent = kLocalRivals.iGlobalPowerAdvantagePercent;
 					}
 					bool const bLocalPowerAdvantage = (iIndependentRivalTeamsInArea == 0 || iCombinedKnownLocalRivalBlocPower <= 0 || iLocalPowerAdvantagePercent >= iMinPowerAdvantagePercent);
 					bool const bWouldReject = (bLocallySafeEligible && iIndependentRivalTeamsInArea <= iMaxIndependentRivalTeamsInArea && iUnknownIndependentRivalTeamsInArea == 0 && iMainLandMilitaryPerCityX100 >= 100 * iMinLandUnitsPerCity && bLocalPowerAdvantage);

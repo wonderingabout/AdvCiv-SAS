@@ -2053,8 +2053,9 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: KI#48.5 audit-only legacy thresholds: the live era-only anti-Barbarian veto is retired, but level-3 diagnostics still use these values to report what the old rule would have done. Remove these defines when the Wonder audit no longer needs that counterfactual. (ChatGPT-5.6-Sol) -->
 	<!-- custom: Long_Comments_XML.txt #162 -->
-	<!-- custom: if value is 0 (disabled), we won't build great wall after specified era index (e.g. 2, so from era 3 = medieval era, we won't build great wall. We assume this is all a wonder has else said wonder would be op so no need to check other things) -->
+	<!-- custom: Historical rule: if value is 0 (disabled), the old SAS policy rejected Great-Wall-style border Wonders after the specified era index. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -2098,8 +2099,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_FUTURE_NORMAL</DefineName>
 		<iDefineIntVal>350</iDefineIntVal>
 	</Define>
-	<!-- Min base-hammers gate for wonders (used in CvCityAI::AI_buildingValue)
-	Formula: reject if iBaseHammersPerTurn < (MIN_BASE + iCurrentEra * EXTRA_PER_ERA) -->
+	<!-- custom: KI#48.5 audit note: the World-Wonder base-hammer pair below is now legacy diagnostic input only; National/unknown Wonder gates still use their own pairs. Historical formula: reject if iBaseHammersPerTurn < (MIN_BASE + iCurrentEra * EXTRA_PER_ERA). (ChatGPT-5.6-Sol) -->
 
 	<!-- custom: Long_Comments_XML.txt #102 -->
 	<Define>
@@ -2132,7 +2132,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL_GAMESPEED</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code -->
+	<!-- custom: Historical rule: reject a World Wonder once enough met rivals know its core prerequisite tech; retained temporarily only as audit archaeology. -->
+	<!-- custom: KI#48.5 audit-only legacy race proxy: the live hard veto is retired, while the numeric threshold remains useful to label the former condition in level-3 Wonder diagnostics. The enable knob is retained temporarily with the historical configuration until final Wonder-policy cleanup. (ChatGPT-5.6-Sol) -->
 	<!-- custom: Long_Comments_XML.txt #182 -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH</DefineName>
