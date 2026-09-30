@@ -1575,7 +1575,8 @@ void CvCity::verifyProduction()
 
 
 // advc.001b <!-- custom: hoisted from multiline signature between `bCheckAirUnitCap` and `eAssumeAvailable` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades, bool bCheckAirUnitCap, BonusTypes eAssumeAvailable) const // advc.001u
+// <!-- custom: eAssumeTech is normally NO_TECH and forwards one prospective technology to player-level unit legality, which also recognizes its guaranteed XML prerequisites. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades, bool bCheckAirUnitCap, BonusTypes eAssumeAvailable, TechTypes eAssumeTech) const // advc.001u
 {
 	//PROFILE_FUNC(); // advc.003o
 	FAssert(eUnit != NO_UNIT); // advc
@@ -1586,7 +1587,8 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 		return true;
 	}
 
-	if(!GET_PLAYER(getOwner()).canTrain(eUnit, bContinue, bTestVisible, bIgnoreCost))
+	// <!-- custom: Forward only the optional technology-path assumption; city/plot religion, resource, location and other legality checks below remain authoritative. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if(!GET_PLAYER(getOwner()).canTrain(eUnit, bContinue, bTestVisible, bIgnoreCost, eAssumeTech))
 		return false;
 
 	if(!getPlot().canTrain(eUnit, bContinue, bTestVisible, /* advc.001b: */ bCheckAirUnitCap,

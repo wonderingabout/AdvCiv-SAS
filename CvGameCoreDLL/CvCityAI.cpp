@@ -8598,6 +8598,20 @@ static void SAS_logInheritedBuildingValueRejection(CvCityAI const& kCity, Buildi
 		GC.getGame().getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), GC.getInfo(eBuilding).getType(), szReason);
 }
 
+// <!-- custom: DomainProductionModifier accelerates every unit in its domain, including civilians. Test the civilization's concrete units through ordinary city legality; ignore only transient air capacity.
+// eAssumeTech lets player-level legality recognize the prospective candidate and its guaranteed prerequisites. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static bool SAS_canTrainDomainUnit(CvCityAI const& kCity, DomainTypes eDomain, TechTypes eAssumeTech)
+{
+	CvCivilization const& kCiv = kCity.getCivilization();
+	for (int i = 0; i < kCiv.getNumUnits(); i++)
+	{
+		UnitTypes const eUnit = kCiv.unitAt(i);
+		if (GC.getInfo(eUnit).getDomainType() == eDomain && kCity.canTrain(eUnit, false, false, false, false, false, NO_BONUS, eAssumeTech))
+			return true;
+	}
+	return false;
+}
+
 // (I don't see the point of this function being separate to the "threshold" version)
 /*int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags) const {
 	return AI_buildingValueThreshold(eBuilding, iFocusFlags, 0);
@@ -8610,7 +8624,8 @@ static void SAS_logInheritedBuildingValueRejection(CvCityAI const& kCity, Buildi
 /*	This function has been heavily edited for K-Mod
 	Scale is roughly 4 = 1 commerce / turn */
 // advc.121b <!-- custom: hoisted from multiline signature between `bIgnoreSpecialists` and `bObsolete` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iThreshold, bool bConstCache, bool bAllowRecursion, bool bIgnoreSpecialists, bool bObsolete) const // advc.004c
+// <!-- custom: eAssumeTech is NO_TECH for current production and the candidate technology for AI_techBuildingValue; player-level unit legality also recognizes its guaranteed prerequisites. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iThreshold, bool bConstCache, bool bAllowRecursion, bool bIgnoreSpecialists, bool bObsolete, TechTypes eAssumeTech) const // advc.004c
 {
 	PROFILE_FUNC();
 
@@ -8621,7 +8636,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 	CvGame const& kGame = GC.getGame();
 	// <!-- custom: One explicit pre-gate protects both SAS-policy and inherited-value diagnostics; logger arguments and strings are evaluated only inside enabled level-3 neutral-focus calls. (GPT-5.6-Sol) -->
-	bool const bLogBuildingValueDetails = (gBuildingProductionLogLevel >= 3 && iFocusFlags == 0);
+	bool const bLogBuildingValueDetails = (gBuildingProductionLogLevel >= 3 && iFocusFlags == 0 && eAssumeTech == NO_TECH);
+	bool const bLogProspectiveDomainApplicability = (gBuildingProductionLogLevel >= 3 && iFocusFlags == 0 && eAssumeTech != NO_TECH);
 
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
 	BuildingClassTypes const eBuildingClass = kBuilding.getBuildingClassType();
@@ -8688,6 +8704,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	static const bool bLandProductionThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_LAND_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE");
 	static const bool bSeaProductionThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_SEA_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE");
 	static const bool bSeaExperienceThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT_OPTIMIZE");
+	static const bool bDomainProductionApplicabilityOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_PRODUCTION_MODIFIER_APPLICABILITY_OPTIMIZE");
 	bool const bNeedLandThroughputContext = (bLandProductionThroughputOptimize && kBuilding.getDomainProductionModifier(DOMAIN_LAND) != 0);
 	bool const bNeedSeaThroughputContext =
 			(bSeaProductionThroughputOptimize && kBuilding.getDomainProductionModifier(DOMAIN_SEA) != 0) ||
@@ -9497,7 +9514,37 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		the final value - and so cache should not be disabled by those flags. */
 	bool const bNeutralFlags = (iFocusFlags &
 			~(BUILDINGFOCUS_WONDEROK | BUILDINGFOCUS_WORLDWONDER)) == 0;
-	bool const bUseConstructionValueCache = (bNeutralFlags && iThreshold == 0);
+	bool abDomainProductionApplicable[NUM_DOMAIN_TYPES];
+	bool abCurrentDomainProductionApplicable[NUM_DOMAIN_TYPES];
+	bool bProspectiveDomainApplicabilityChange = false;
+	FOR_EACH_ENUM(Domain)
+	{
+		abDomainProductionApplicable[eLoopDomain] = true;
+		abCurrentDomainProductionApplicable[eLoopDomain] = true;
+		int const iDomainProductionModifier = kBuilding.getDomainProductionModifier(eLoopDomain);
+		if (eAssumeTech == NO_TECH || iDomainProductionModifier == 0 ||
+			(!bDomainProductionApplicabilityOptimize && !bLogProspectiveDomainApplicability))
+		{
+			continue;
+		}
+		abCurrentDomainProductionApplicable[eLoopDomain] = SAS_canTrainDomainUnit(*this, eLoopDomain, NO_TECH);
+		abDomainProductionApplicable[eLoopDomain] = SAS_canTrainDomainUnit(*this, eLoopDomain, eAssumeTech);
+		if (bDomainProductionApplicabilityOptimize &&
+			abCurrentDomainProductionApplicable[eLoopDomain] != abDomainProductionApplicable[eLoopDomain])
+		{
+			bProspectiveDomainApplicabilityChange = true;
+		}
+		if (bLogProspectiveDomainApplicability)
+		{
+			logBBAI("BUILDING_VALUE_DOMAIN_PRODUCTION_PROSPECTIVE_APPLICABILITY turn=%d player=%d city=%S cityId=%d building=%s domain=%d modifier=%d assumedTech=%s currentApplicable=%d prospectiveApplicable=%d",
+				kGame.getGameTurn(), eOwner, getName().GetCString(), getID(), kBuilding.getType(), eLoopDomain, iDomainProductionModifier,
+				GC.getInfo(eAssumeTech).getType(), abCurrentDomainProductionApplicable[eLoopDomain], abDomainProductionApplicable[eLoopDomain]);
+		}
+	}
+	// <!-- custom: The first prospective implementation bypassed this cache for every candidate technology.
+	// In validated runs, 1,050 prospective rows contained no applicability change, yet that blanket recomputation diverged from both controls at turns 76/172.
+	// Reuse the authoritative current value unless this building's domain component actually changes; only a real change needs an uncached prospective evaluation. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bUseConstructionValueCache = (bNeutralFlags && iThreshold == 0 && !bProspectiveDomainApplicabilityChange);
 	if (bUseConstructionValueCache && m_aiConstructionValue[eBuildingClass] != -1)
 		return m_aiConstructionValue[eBuildingClass];
 	// </K-Mod>
@@ -9516,6 +9563,18 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// <!-- custom: code/performance optimization: hoist -->
 	static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+
+	// <!-- custom: Current-state cache misses compute applicability once rather than once in each focus pass; prospective calls already computed both states above to decide whether the ordinary cache remains authoritative.
+	// Buildings without a domain-production modifier perform no unit scan. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (eAssumeTech == NO_TECH)
+	{
+		FOR_EACH_ENUM(Domain)
+		{
+			bool const bNeedsApplicability = (kBuilding.getDomainProductionModifier(eLoopDomain) != 0 && bDomainProductionApplicabilityOptimize);
+			abDomainProductionApplicable[eLoopDomain] = (!bNeedsApplicability || SAS_canTrainDomainUnit(*this, eLoopDomain, NO_TECH));
+			abCurrentDomainProductionApplicable[eLoopDomain] = abDomainProductionApplicable[eLoopDomain];
+		}
+	}
 
 	int iValue = 0;
 	// <!-- custom: Exact inherited-value block attribution for the building rework audit. Keep every diagnostic Before/Delta local explicitly initialized: VC++ Toolkit 2003 otherwise emits C4701 (treated as an error here) because it cannot prove our logging guards initialize them on every path. Only level-3 neutral evaluations otherwise touch/read them, so ordinary gameplay still adds only cheap Boolean probes and no logging-only queries, strings or duplicate valuation work. (ChatGPT-5.6-Sol) -->
@@ -10436,6 +10495,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			FOR_EACH_ENUM(Domain)
 			{
 				int const iDomainProductionModifier = kBuilding.getDomainProductionModifier(eLoopDomain);
+				if (bDomainProductionApplicabilityOptimize && !abDomainProductionApplicable[eLoopDomain])
+				{
+					// <!-- custom: Remove only the unusable domain-production component, not the whole multipurpose building.
+					// AI_techBuildingValue passes its prospective technology and guaranteed prerequisites so a unit unlocked before/by the building technology keeps the component applicable; ordinary production uses current trainability. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					if (bLogBuildingValueDetails && iPass > 0)
+						logBBAI("BUILDING_VALUE_DOMAIN_PRODUCTION_INAPPLICABLE turn=%d player=%d city=%S cityId=%d building=%s domain=%d modifier=%d assumedTech=%d",
+							kGame.getGameTurn(), eOwner, getName().GetCString(), getID(), kBuilding.getType(), eLoopDomain, iDomainProductionModifier, eAssumeTech);
+					continue;
+				}
 				if (bLandProductionThroughputOptimize && eLoopDomain == DOMAIN_LAND && iDomainProductionModifier != 0)
 				{
 					// <!-- custom: Inherited DOMAIN_LAND valuation is a fixed modifier/5 plus a binary high-production-city bonus.
@@ -10539,8 +10607,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							other cities will probably build it themselves
 							before they get the freebie!
 							(that's why I reduce the city count below) */
+						// <!-- custom: Prospective domain applicability belongs to the building directly enabled by the valued technology.
+						// Keep recursively valued free buildings on authoritative current-state/cache semantics. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 						int iFreeBuildingValue = std::min(
-								AI_buildingValue(eFreeBuilding, 0, 0, bConstCache, false),
+								AI_buildingValue(eFreeBuilding, 0, 0, bConstCache, false, false, false, NO_TECH),
 								kOwner.getProductionNeeded(eFreeBuilding) / 2);
 						iValue += iFreeBuildingValue *
 								(std::max(iCitiesTarget, iNumCities*2/3) -
@@ -10596,8 +10666,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 						if (iXMLCost > 0 &&
 							iLoopXMLCost > 0)
 						{
+						// <!-- custom: Keep recursive prerequisite-building value on current-state/cache semantics; the candidate technology applies only to the directly evaluated building. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 							int iTempValue = AI_buildingValue(
-									eLoopBuilding, 0, 0, bConstCache, false);
+									eLoopBuilding, 0, 0, bConstCache, false, false, false, NO_TECH);
 							if (iTempValue > 0)
 							{
 								/*	scale the bonus value by a rough approximation of
@@ -10648,9 +10719,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							"This is a minor flaw in the AI.") */
 							pLoopCity->canConstruct(eLoopBuilding, false, true))
 						{
+						// <!-- custom: Keep cross-city recursive value on current-state/cache semantics; the candidate technology applies only to the directly evaluated building. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 							iHighestValue = std::max(
 									pLoopCity->AI_buildingValue(
-									eLoopBuilding, 0, 0, bConstCache, false),
+									eLoopBuilding, 0, 0, bConstCache, false, false, false, NO_TECH),
 									iHighestValue);
 						}
 					}

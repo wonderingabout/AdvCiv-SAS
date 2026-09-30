@@ -7016,12 +7016,13 @@ int CvPlayerAI::AI_techBuildingValue(TechTypes eTech, bool bConstCache, bool& bE
 				(kLoopBuilding.isNationalWonder() &&
 				!relevant_cities[j]->isNationalWondersMaxed())) // advc.131
 			{
+				// <!-- custom: Pass the technology being valued to both limited and ordinary building evaluation so applicability includes units unlocked by it or its guaranteed prerequisites, while unrelated missing prerequisites remain enforced. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				if (bLimitedBuilding) // TODO: don't assume 'limited' means 'only one'.
 				{
 					iBuildingValue = std::max(iBuildingValue,
-							relevant_cities[j]->AI_buildingValue(eLoopBuilding, 0, 0, bConstCache));
+							relevant_cities[j]->AI_buildingValue(eLoopBuilding, 0, 0, bConstCache, true, false, false, eTech));
 				}
-				else iBuildingValue += relevant_cities[j]->AI_buildingValue(eLoopBuilding, 0, 0, bConstCache);
+				else iBuildingValue += relevant_cities[j]->AI_buildingValue(eLoopBuilding, 0, 0, bConstCache, true, false, false, eTech);
 			}
 		}
 		if (iBuildingValue > 0)

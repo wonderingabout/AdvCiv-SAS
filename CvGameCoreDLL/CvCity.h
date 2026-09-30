@@ -74,7 +74,8 @@ public:
 
 	void verifyProduction(); // advc.064d: public wrapper for doCheckProduction
 	// advc.001b <!-- custom: hoisted from multiline signature between `bCheckAirUnitCap` and `eAssumeVailable` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUpgrades = false, bool bCheckAirUnitCap = true, BonusTypes eAssumeVailable = NO_BONUS) const; // advc.001u; Exposed to Python
+	// <!-- custom: eAssumeTech passes one prospective technology through ordinary city/player legality; player-level checks also recognize its guaranteed XML prerequisites. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUpgrades = false, bool bCheckAirUnitCap = true, BonusTypes eAssumeVailable = NO_BONUS, TechTypes eAssumeTech = NO_TECH) const; // advc.001u; Exposed to Python
 	bool canUpgradeTo(UnitTypes eUnit) const; // advc.001b
 	bool canTrain(UnitCombatTypes eUnitCombat) const;
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreTech = false) const; // K-Mod; Exposed to Python

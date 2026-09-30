@@ -94,7 +94,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.11 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_SEA production modifiers were almost geography-blind instead of following expected naval throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.11)\
 [KI#48.12 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_SEA free experience used a fixed coastal multiplier instead of expected naval throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.12)\
 [KI#48.13 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_LAND production modifiers were fixed/rank-based instead of following expected land throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.13)\
-[KI#48.14 - (Confirmed inherited K-Mod/AdvC AI valuation/applicability weakness; correction WIP) Domain-production value can be awarded where the city cannot train any affected unit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.14)\
+[KI#48.14 - (Fixed inherited K-Mod/AdvC AI valuation/applicability defect) Domain-production value could be awarded where the city could not train any affected unit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.14)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
@@ -4228,15 +4228,14 @@ Pangaea/Tiny-Islands validation restored meaningful differences between strong a
 
 The same laboratory also clarified that `DomainProductionModifier` is not equivalent to Heroic Epic's ordinary military-only modifier: it accelerates **all** units of a domain, including Workers/Settlers and other civilians. LAND/SEA Heroic-Epic scopes therefore remain diagnostic instruments rather than an accepted permanent Wonder redesign.
 
-A follow-up SEA laboratory exposed a separate inherited correctness issue tracked in KI#48.14: a city can receive substantial domain-production value even when it cannot train any unit in that domain.
+A follow-up SEA laboratory exposed the separate inherited correctness issue fixed in KI#48.14: a city could receive substantial domain-production value even when it could not train any unit in that domain.
 
-The behavior-neutral `BUILDING_VALUE_DOMAIN_APPLICABILITY` logger is retained, but the behavioral guard is deliberately deferred because `AI_techBuildingValue()` also reuses `AI_buildingValue()` prospectively. Current production and hypothetical future-tech valuation need explicit semantics rather than a central evaluator guessing why it was called.
+The retained applicability diagnostics established the required distinction between current production and hypothetical future-tech valuation. KI#48.14 now passes that context explicitly and preserves the ordinary building-value cache unless prospective applicability actually changes.
 
 ### Remaining Wonder work
 
 The current direction is gradual migration rather than another monolithic replacement:
 
-- finish KI#48.14's domain-production applicability correction with explicit current-production versus prospective-tech semantics; keep the current commit's applicability logger behavior-neutral until that interface question is settled;
 - restore Heroic Epic from the temporary LAND/SEA laboratory scopes to its actual military-only production semantics, then re-audit whether any dedicated Heroic-Epic urgency/placement policy is still needed after KI#48.10's generic military-throughput correction;
 - resume the remaining National/World-Wonder policy: shared slow/payback protection, military-pressure rules, relative/top-production placement, coastal-Wonder scaling, production-Wonder placement, Government Center/Forbidden Palace and Palace relocation;
 - retain KI#48.13's tested `DOMAIN_LAND` throughput support as generic/modmod-safe infrastructure even if current SAS has no permanent land-domain production consumer; `DOMAIN_AIR` throughput amount and domain-specific AIR XP remain separate future audits rather than symmetry-driven changes;
@@ -4620,9 +4619,9 @@ See **KI#48.10** for generic military-production throughput, **KI#48.11** for `D
 
 <a id="ki-48.14"></a>
 
-## KI#48.14 - (Confirmed inherited K-Mod/AdvC AI valuation/applicability weakness; correction WIP) Domain-production value can be awarded where the city cannot train any affected unit
+## KI#48.14 - (Fixed inherited K-Mod/AdvC AI valuation/applicability defect) Domain-production value could be awarded where the city could not train any affected unit
 
-The LAND/SEA laboratory work for KI#48.13 exposed a distinct inherited problem that should not be hidden inside the throughput formulas themselves. `AI_buildingValue()` can award value for a nonzero `DomainProductionModifier` without first establishing that the **current city can train any unit in that domain**.
+The LAND/SEA laboratory work for KI#48.13 exposed a distinct inherited problem that should not be hidden inside the throughput formulas themselves. `AI_buildingValue()` could award value for a nonzero `DomainProductionModifier` without first establishing that the **current city could train any unit in that domain**.
 
 This is a component-level correctness issue, not evidence for another whole-building reject. If a building has unrelated health, happiness, XP, trade or other useful effects, those effects should continue to compete normally even when one domain-production component is currently unusable.
 
@@ -4650,7 +4649,7 @@ The throughput formula was correctly answering its own question -- this empire h
 
 Ordinary production competition prevented the false component from producing a demonstrated bad Heroic-Epic completion in these histories. The traced Heroic-Epic best-building opportunities/completions were in usable naval cities. This is therefore a confirmed valuation defect, not evidence for a force/veto at whole-building level.
 
-### Behavior-neutral applicability instrumentation
+### Applicability diagnostics
 
 `BUILDING_VALUE_DOMAIN_APPLICABILITY` now records the relevant LAND/SEA/AIR context for regular buildings and Wonders without changing valuation. It distinguishes:
 
@@ -4663,11 +4662,11 @@ Ordinary production competition prevented the false component from producing a d
 
 This also established an important Civ4 semantic difference: `DomainProductionModifier` accelerates **all** units of the domain, while `MilitaryProductionModifier` only accelerates units flagged `isMilitaryProduction()`.
 
-A future applicability correction for domain production must therefore treat a trainable Work Boat, Worker or Settler as literal applicability when the XML effect really does accelerate it, even if a separate military-specialization policy may care about combat units.
+The applicability correction therefore treats a trainable Work Boat, Worker or Settler as literal applicability when the XML effect really does accelerate it, even if a separate military-specialization policy may care about combat units.
 
-### Why the first obvious guard is not ready to commit
+### Implemented component-level correction
 
-The obvious current-state correction is narrow:
+The correction remains deliberately narrow:
 
 ```text
 nonzero DOMAIN_X production modifier
@@ -4675,13 +4674,13 @@ nonzero DOMAIN_X production modifier
 -> give only that domain-production component zero current value
 ```
 
-A SEA-laboratory A/B showed that this removes the impossible component without broadly destabilizing decisions; candidate/control histories remained identical until roughly turn **426 on Tiny Islands** and turn **252 on Pangaea**.
+A temporary unrestricted `DOMAIN_SEA +50%` Heroic Epic laboratory exercised the correction heavily: the final complete runs recorded **271** unique inapplicable evaluations on Tiny Islands and roughly **4,349** on Pangaea. The building could still win from its unrelated residual value, confirming that only the unusable domain component was removed.
 
-However, K-Mod/AdvC also reuses `AI_buildingValue()` from `AI_techBuildingValue()` for **prospective technology valuation**. In that context, current trainability is not necessarily the right question: the technology being evaluated may itself unlock the first unit of the affected domain.
+K-Mod/AdvC also reuses `AI_buildingValue()` from `AI_techBuildingValue()` for **prospective technology valuation**. In that context, current trainability is not necessarily the right question: the technology being evaluated may itself unlock the first unit of the affected domain.
 
 A central guard based only on today's city state can therefore underestimate a future building while evaluating the very technology that would make its modifier usable.
 
-This creates two legitimate semantic contexts:
+The implementation therefore distinguishes two legitimate semantic contexts:
 
 ```text
 current production valuation
@@ -4691,22 +4690,30 @@ prospective technology valuation
 -> current inability may be resolved by the assumed future technology
 ```
 
-The current checkpoint deliberately does **not** contort the ordinary evaluator to infer its caller from `canConstruct` or other indirect state. Nor does it commit an API expansion merely to pass hypothetical-tech state before the exact interface is satisfactory.
+`AI_techBuildingValue()` passes an explicit optional assumed technology through ordinary city/player unit legality. A unit unlocked by the candidate itself or by one of its **guaranteed** prerequisites can make the component prospectively applicable without mutating team state.
 
-The behavioral guard/helper are therefore left out of the KI#48.13 checkpoint while the applicability logger remains as evidence and regression support.
+Every AND prerequisite is guaranteed; an OR ancestor counts only when every still-possible alternative requires it, so mutually alternative research branches are not treated as simultaneously known.
 
-### Requirements for the follow-up correction
+Other missing technologies, resources, religion, location and ordinary city legality remain authoritative. Unit `ObsoleteTech` is evaluated in the same prospective context.
 
-The eventual KI#48.14 implementation should preserve the constraints already established by the audit:
+The ordinary construction-value cache remains authoritative whenever current and prospective applicability agree. Only a real applicability change bypasses that cache.
 
-- actual/current building valuation should not credit a domain-production component that affects no currently trainable unit in that city;
-- hypothetical technology valuation should not be pessimistically zeroed when the assumed technology itself can make the domain effect usable;
-- only the unusable domain-production **component** should be affected, never the whole multipurpose building;
-- applicability should follow the actual XML semantics of `DomainProductionModifier`, including civilians where relevant;
-- LAND/SEA/AIR should share the same generic applicability concept rather than accumulating map- or era-specific hardcodes;
-- `DOMAIN_AIR` production does not need a separate artificial laboratory merely to prove this structural issue, although AIR throughput magnitude and AIR-specific XP remain separate future calibration questions.
+Recursive free/prerequisite-building valuation stays on current-state/cache semantics because the assumed technology belongs to the building directly being evaluated.
 
-The exact caller/prospective-context architecture remains WIP and should be handled as a focused follow-up commit rather than mixed into the already-validated KI#48.13 throughput checkpoint.
+This boundary matters: the first implementation bypassed the cache for every prospective building evaluation and caused unrelated deterministic divergence at turns **172** and **76** despite **1,050** prospective rows containing no applicability flip.
+
+### Validation and remaining coverage boundary
+
+The corrected candidate exactly matched the previously validated current-state guard through two complete same-seed games:
+
+- Tiny Islands remained identical through the turn-486 Space Race victory;
+- Pangaea remained identical through the turn-403 Space Race victory;
+- game state, every recorded AI research choice, authoritative RNG state/call count and RNG stream fingerprints all matched;
+- both candidates retained the intended first divergence from the no-applicability-guard control at turn **426** on Tiny Islands and turn **252** on Pangaea.
+
+The final runs contained **616** prospective evaluations on Tiny Islands and **433** on Pangaea, all `0 -> 0` or `1 -> 1`. Current SAS therefore contains no natural case where the candidate technology flips applicability, so the positive `0 -> 1` future/modmod path remains instrumented but not empirically exercised. This does not weaken the validated current-game correction: when applicability did not change, the prospective machinery was behaviorally invisible across both complete games.
+
+The fix is generic across LAND/SEA/AIR and civilization/modmod unit rosters, follows the actual XML meaning that `DomainProductionModifier` also accelerates civilian units, and never rejects the whole building. `DOMAIN_AIR` throughput magnitude and AIR-specific XP remain separate possible calibration questions rather than reasons to delay this correctness fix.
 
 See **KI#48.13** for the validated land-throughput branch, **KI#48.11** for the validated sea-production branch, **KI#48.12** for sea XP, **KI#48.10** for generic military throughput and **KI#48.9** for the broader Wonder migration that exposed these inherited valuation assumptions.
 

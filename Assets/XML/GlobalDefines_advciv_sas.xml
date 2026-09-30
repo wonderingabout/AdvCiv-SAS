@@ -2048,6 +2048,11 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_BUILDING_VALUE_MILITARY_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: 1 removes a domain-production component when this city cannot train any affected unit; prospective technology valuation includes the candidate's XML prerequisite ancestry. 0 preserves inherited unconditional applicability. See KI#48.14. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_DOMAIN_PRODUCTION_MODIFIER_APPLICABILITY_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: 1 replaces inherited fixed/rank-based DOMAIN_LAND scoring with city-production throughput weighted by military and contextual land demand; 0 preserves inherited valuation for regression comparison. See KI#48.13. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_DOMAIN_LAND_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE</DefineName>

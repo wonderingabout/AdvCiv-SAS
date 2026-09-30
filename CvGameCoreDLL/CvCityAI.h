@@ -40,7 +40,8 @@ public:
 	/* int AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags = 0) const;
 	int AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags = 0, int iThreshold = 0) const; */
 	// advc.121b <!-- custom: hoisted from multiline signature between `bIgnoreSpecialists` and `bObsolete` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-	int AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags = 0, int iThreshold = 0, bool bConstCache = false, bool bAllowRecursion = true, bool bIgnoreSpecialists = false, bool bObsolete = false) const; // advc.004c
+	// <!-- custom: eAssumeTech distinguishes current-state valuation from AI_techBuildingValue's candidate technology and guaranteed-prerequisite context. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags = 0, int iThreshold = 0, bool bConstCache = false, bool bAllowRecursion = true, bool bIgnoreSpecialists = false, bool bObsolete = false, TechTypes eAssumeTech = NO_TECH) const; // advc.004c
 	// <advc.179>
 	scaled AI_estimateReligionBuildings(PlayerTypes ePlayer, ReligionTypes eReligion, std::vector<BuildingTypes> const& aeBuildings) const; // </advc.179>
 	ProjectTypes AI_bestProject(int* piBestValue = 0, /* advc.001n: */ bool bAsync = false) const;
