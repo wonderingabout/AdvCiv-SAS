@@ -2048,9 +2048,14 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_BUILDING_VALUE_MILITARY_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Inherited K-Mod/AdvC DOMAIN_SEA production valuation A/B. 1 replaces the fixed modifier/5 plus high-production-city rank bonus with expected naval throughput: actual city base production * AI_buildUnitProb total military demand * AI_calculateWaterWorldPercent sea-demand share. 0 preserves the inherited rank-based domain formula. This currently changes only DOMAIN_SEA; land/air remain legacy until separately audited. Drydock sea-XP valuation is intentionally unchanged. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Inherited K-Mod/AdvC DOMAIN_SEA production valuation optimization. 1 replaces the fixed modifier/5 plus high-production-city rank bonus with expected naval throughput: actual city base production * AI_buildUnitProb total military demand * AI_calculateWaterWorldPercent sea-demand share. 0 preserves the inherited rank-based domain formula for regression comparison. This currently changes only DOMAIN_SEA; land/air remain legacy until separately audited. DOMAIN_SEA XP is controlled independently below. See KI#48.11. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_DOMAIN_SEA_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Inherited K-Mod/AdvC DOMAIN_SEA free-experience valuation optimization. 1 replaces the fixed sea-XP * 7 contribution with a continuous weight derived from the same AI_buildUnitProb * AI_calculateWaterWorldPercent expected naval-production share used by the validated sea-production cure. Full generic XP weight is reached when roughly half of city production is expected to be naval; 0 preserves the inherited fixed value for regression comparison. This changes only DOMAIN_SEA free experience and leaves generic/unit-combat/land/air XP unchanged. See KI#48.12. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Master switch for the remaining SAS Wonder prefilter. The KI#48.5 audit retired the regular-building prefilter; keep this switch until the separate Wonder audit is complete. (GPT-5.6-Sol) -->

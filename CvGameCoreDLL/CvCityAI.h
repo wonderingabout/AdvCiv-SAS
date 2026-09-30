@@ -128,7 +128,7 @@ public:
 	int AI_countOvergrownBonuses(FeatureTypes eFeature) const; // advc.129
 
 	int AI_splitEmpireValue() const; // advc.ctr: Renamed from AI_cityValue
-	// <!-- custom: inherited sea-production valuation: logically read-only; const lets building valuation reuse the existing water-world demand estimate directly. See KI#48.11. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: inherited sea-throughput valuation: logically read-only; const lets building valuation reuse the existing water-world demand estimate directly for production and free-experience context. See KI#48.11 and KI#48.12. (ChatGPT-5.6-Sol) -->
 	int AI_calculateWaterWorldPercent() const;
 	int AI_getCityImportance(bool bEconomy, bool bMilitary);
 

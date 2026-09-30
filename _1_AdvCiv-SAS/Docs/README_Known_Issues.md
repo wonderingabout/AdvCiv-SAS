@@ -92,6 +92,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.9 - (WIP AdvCiv-SAS Wonder-policy rework) Replace monolithic World/National Wonder hard gates with audited inherited valuation and evidence-backed safeguards](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.9)\
 [KI#48.10 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) Generic military-production modifiers were valued mostly by fixed/rank rules instead of expected production throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.10)\
 [KI#48.11 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_SEA production modifiers were almost geography-blind instead of following expected naval throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.11)\
+[KI#48.12 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_SEA free experience used a fixed coastal multiplier instead of expected naval throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.12)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
@@ -4211,18 +4212,18 @@ The National-Wonder audit exposed an inherited K-Mod/AdvC valuation shape that w
 
 That result also clarified the separation of concerns. The inherited rank formula had been supplying some hidden Heroic-Epic urgency, so removing it reduced Heroic-Epic completions in the clean A/B. However, an independent AdvC 1.14 run did not show a general Heroic-Epic lateness problem. Heroic-Epic placement/urgency therefore remains a separate limited-Wonder/domain-specialization question rather than a reason to distort the generic military-production formula.
 
-### Inherited detour continued: `DOMAIN_SEA` production valuation (KI#48.11)
+### Inherited detour continued: `DOMAIN_SEA` production and XP valuation (KI#48.11 / KI#48.12)
 
-The next inherited domain-production audit used Drydock as a clean ordinary-building case, avoiding National-Wonder policy entirely. K-Mod/AdvC gave a +50% sea-production modifier essentially a fixed `+10`, doubled only for a binary high-production-city classification. Pangaea and Tiny Islands therefore received nearly the same inherited contribution despite radically different naval workload.
+The next inherited domain audit used Drydock as a clean ordinary-building case, avoiding National-Wonder policy entirely. K-Mod/AdvC gave a +50% sea-production modifier essentially a fixed `+10`, doubled only for a binary high-production-city classification, while Drydock's +3 naval XP was separately multiplied by a fixed coastal weight of 7 into about `+21`. Pangaea and Tiny Islands therefore received surprisingly similar inherited naval-infrastructure contributions despite radically different expected fleet workload.
 
-KI#48.11 replaces only the `DOMAIN_SEA` production-modifier term with expected naval throughput derived from actual city production, dynamic military demand and K-Mod's existing geographic `AI_calculateWaterWorldPercent()` estimate. The Pangaea/Tiny-Islands validation strongly separated naval share and value without restoring the retired `land-heavy map -> reject Drydock` rule. Drydock's separate naval-XP value and `DOMAIN_LAND`/`DOMAIN_AIR` production remain intentionally untouched for later audits.
+KI#48.11 replaces the `DOMAIN_SEA` production-modifier term with expected naval throughput derived from actual city production, dynamic military demand and K-Mod's existing geographic `AI_calculateWaterWorldPercent()` estimate. KI#48.12 then applies the same expected naval-production share to `DOMAIN_SEA` free experience instead of retaining the fixed coastal multiplier. The paired Pangaea/Tiny-Islands validations strongly separate both production and XP value without restoring the retired `land-heavy map -> reject Drydock` rule.
 
 ### Remaining Wonder work
 
 The current direction is gradual migration rather than another monolithic replacement:
 
 - resume the National-Wonder policy against the corrected KI#48.10 inherited baseline and validate the generic-gate retirements together with specialized Heroic-Epic/government-center/Palace logic;
-- carry the domain audit forward from KI#48.11: `DOMAIN_SEA` production throughput is now contextual, but Drydock's separate naval-XP contribution remains to be audited and `DOMAIN_LAND` / `DOMAIN_AIR` production still use the inherited fixed/rank shape;
+- carry the domain audit forward from KI#48.11 / KI#48.12: `DOMAIN_SEA` production and free XP are now contextual, while `DOMAIN_LAND` / `DOMAIN_AIR` production and domain-specific XP remain inherited until separately justified and audited;
 - only after the relevant land-domain valuation is understood, consider the intended Heroic-Epic land-only balance/placement change so a special limited Wonder is not used to compensate for a generic evaluator weakness;
 - re-audit the surviving shared/World concerns one by one: construction-time horizon, relative production competitiveness, military exposure using factual local context, cheap-Wonder priority, coastal scaling and production-Wonder placement;
 - remove audit-only legacy thresholds/diagnostics only when they are no longer needed as counterfactual evidence.
@@ -4311,9 +4312,9 @@ KI#48.10 is therefore considered an **improved inherited valuation correction**,
 
 The next inherited question was deliberately separated rather than folded into this formula. K-Mod/AdvC's `DomainProductionModifier` valuation used fixed increments and another binary `bHighProductionCity` bonus, with little direct connection to actual domain-specific need or throughput.
 
-The first real consumer, Drydock's `DOMAIN_SEA` +50% production modifier, is now audited and improved in **KI#48.11**. `DOMAIN_LAND`, `DOMAIN_AIR` and domain-specific free-experience valuation remain separate questions; Heroic-Epic-specific land-only semantics, placement and urgency should be judged only after the relevant domain valuation is understood.
+The first real consumer, Drydock's `DOMAIN_SEA` +50% production modifier, is audited and improved in **KI#48.11**; its separate +3 naval free-experience value is now contextualized in **KI#48.12**. `DOMAIN_LAND`, `DOMAIN_AIR` and their domain-specific XP remain separate questions; Heroic-Epic-specific land-only semantics, placement and urgency should be judged only after the relevant land-domain valuation is understood.
 
-See **KI#48.9** for the broader World/National-Wonder migration that exposed this inherited evaluator issue and **KI#48.11** for the first domain-specific continuation.
+See **KI#48.9** for the broader World/National-Wonder migration that exposed this inherited evaluator issue, **KI#48.11** for `DOMAIN_SEA` production throughput and **KI#48.12** for `DOMAIN_SEA` free-experience throughput.
 
 
 <a id="ki-48.11"></a>
@@ -4410,14 +4411,92 @@ Candidate and legacy histories diverged naturally after the changed valuation be
 
 KI#48.11 changes only `DOMAIN_SEA` **production-modifier** valuation. The inherited formula remains available behind `SAS_AI_BUILDING_VALUE_DOMAIN_SEA_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE` for regression and modmod comparison.
 
-Several adjacent questions are intentionally not folded into this cure:
+Several adjacent questions are intentionally not folded into this production cure:
 
-- Drydock's separate **+3 `DOMAIN_SEA` free experience** still receives a largely geography-blind inherited contribution (the diagnostics repeatedly showed about `+21` on both map types). This is the most natural next domain audit.
+- Drydock's separate **+3 `DOMAIN_SEA` free experience** was audited next and is now contextualized independently in **KI#48.12**. Keeping separate toggles preserves a clean distinction between naval-production throughput and naval-XP value while both reuse the same expected-sea-share context.
 - `DOMAIN_LAND` and `DOMAIN_AIR` production modifiers remain on inherited valuation until real consumers/context justify separate changes.
-- Heroic Epic remains a generic `MilitaryProductionModifier` National Wonder for now. Any future conversion to land-only production should follow, not precede, a sensible `DOMAIN_LAND` evaluator.
+- Heroic Epic remains a generic `MilitaryProductionModifier` National Wonder in the committed baseline. Its planned land-only scope experiment is deliberately separate from both sea-domain fixes.
 - A bad upstream decision to overproduce ships is a military-production-policy problem, not something building valuation should amplify or independently solve.
 
-See **KI#48.5** for the retired land-heavy Drydock hard veto, **KI#48.10** for the generic military-throughput correction, and **KI#48.9** for the Wonder/domain-specialization work that led into this inherited audit.
+See **KI#48.5** for the retired land-heavy Drydock hard veto, **KI#48.10** for the generic military-throughput correction, **KI#48.12** for the separate naval-XP continuation, and **KI#48.9** for the Wonder/domain-specialization work that led into this inherited audit.
+
+<a id="ki-48.12"></a>
+
+## KI#48.12 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_SEA free experience used a fixed coastal multiplier instead of expected naval throughput
+
+This issue is the deliberately separate second half of the Drydock audit begun in KI#48.11. After `DOMAIN_SEA` production-modifier value was corrected to follow expected naval throughput, Drydock's +3 naval free experience still used the inherited K-Mod/AdvC special case:
+
+```cpp
+if (isCoastal(...))
+    iDomainXPValue *= 7;
+```
+
+For Drydock this turned `+3 DOMAIN_SEA XP` into about **+21 value** in every qualifying coastal city. The special case avoided using the ordinary generic-XP weight because K-Mod considered the high-production-city requirement too strict for sea infrastructure, but the replacement was still almost geography-blind: a Pangaea coastal city with little expected naval workload and a Tiny-Islands fleet center received the same fixed multiplier.
+
+### Why XP should follow expected naval workload too
+
+The strategic value of naval-only experience depends on how much naval production the city is actually expected to perform. This is the same context already validated for KI#48.11's sea-production modifier:
+
+```text
+totalMilitaryProductionShare = AI_buildUnitProb()
+waterWorldPercent = AI_calculateWaterWorldPercent()
+seaProductionShare = totalMilitaryProductionShare * waterWorldPercent / 100
+```
+
+This is intentionally not a map-script rule and does not reward historical ship spam. `AI_buildUnitProb()` expresses current overall military-production demand, while `AI_calculateWaterWorldPercent()` supplies the inherited geographic estimate of how naval that demand is likely to be. A genuinely naval Pangaea theater can therefore still receive high value, while a nominally coastal city on a land-war-heavy map no longer receives `+21` merely for being coastal.
+
+The implementation shares this context with KI#48.11 instead of recalculating the two helper values separately when a building has both sea-production and sea-XP effects.
+
+### Replacement: continuous naval-XP weight
+
+The contextual sea-XP weight is:
+
+```text
+experienceWeight = min(12, (12 * seaProductionShare + 25) / 50)
+throughputValue = seaExperience * experienceWeight
+```
+
+The ordinary full generic-XP weight of 12 is reached at roughly **50% expected sea-production share**. Lower naval shares scale down continuously; stronger naval specialization is capped at 12 so a domain-only XP effect cannot grow without bound and dominate unrelated building effects.
+
+The inherited `* 7` path remains available behind `SAS_AI_BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT_OPTIMIZE = 0` for regression and modmod comparison.
+
+Only `DOMAIN_SEA` free experience changes. Generic free experience, unit-combat-specific experience, land XP and air XP are untouched.
+
+### Tiny Islands and Pangaea validation
+
+The same-seed paired runs produced the intended contextual separation:
+
+| Diagnostic | Tiny Islands | Pangaea |
+| --- | ---: | ---: |
+| Median expected sea-production share | about 41% | about 5% |
+| Median contextual XP weight | 10 | 1 |
+| Drydock +3 XP inherited value | +21 | +21 |
+| Drydock +3 XP contextual value | about +30 | about +3 |
+
+The Pangaea result is not a hard suppression. Individual cities with strong naval context still reached the full **weight 12 / +36** contribution. This is the intended replacement for the old binary idea: naval-only XP is valuable when the city genuinely expects to produce fleets, regardless of map label.
+
+The first normal production divergences appeared around **turn 145 on Tiny Islands** and **turn 139 on Pangaea**, rather than as an immediate unexplained RNG disturbance.
+
+By common comparison horizons, Drydock counts also showed no sign of a naval-infrastructure spam regression: Tiny Islands had **141 candidate versus 148 control** completions by turn 411, while Pangaea had **25 versus 39** by turn 313. Those totals come from already-divergent histories and are therefore only broad sanity checks, not causal effect sizes.
+
+### Diagnostic cleanup
+
+The first level-3 logger emitted the new row for every qualifying coastal building even when `DOMAIN_SEA` free experience was zero. That produced roughly **499,000 Tiny-Islands rows and 153,000 Pangaea rows**, while only about **13,200 / 4,800** respectively represented nonzero Drydock-style sea-XP evaluations.
+
+The logger is now gated by `iDomainXPValue != 0`. This is behavior-neutral because zero sea XP remains zero; it only removes forensic log spam and avoids needless formatting/output work when detailed logging is enabled. No additional autoplay was needed for that cleanup.
+
+### Scope and next domain step
+
+KI#48.12 completes the currently demonstrated `DOMAIN_SEA` pair:
+
+- **KI#48.11:** sea-production modifiers follow expected naval throughput;
+- **KI#48.12:** sea-only free experience follows the same expected naval share with its own bounded XP weight.
+
+The next experiment is intentionally different rather than another Drydock tweak: Heroic Epic can be scoped from generic `MilitaryProductionModifier +50%` to `DOMAIN_LAND ProductionModifier +50%` and tested against the still-inherited land-domain formula. That scope test should establish the real `DOMAIN_LAND` consumer before designing any land-throughput cure.
+
+If a land evaluator is then warranted, `SASLocalAreaRivalContext` and overseas/invasion context can be considered there rather than forced into the already-working sea estimator. `DOMAIN_AIR` remains later and separate.
+
+See **KI#48.11** for the sea-production half, **KI#48.10** for the generic military-throughput correction, and **KI#48.9** for the broader Wonder/domain-specialization migration.
 
 <a id="ki-49"></a>
 
