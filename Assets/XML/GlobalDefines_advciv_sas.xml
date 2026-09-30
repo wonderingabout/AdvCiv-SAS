@@ -2043,6 +2043,11 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY</DefineName>
 		<iDefineIntVal>2200</iDefineIntVal>
 	</Define>
+	<!-- custom: Inherited K-Mod/AdvC military-production valuation A/B. 1 values generic MilitaryProductionModifier effects from actual city base-production throughput weighted by the city's authoritative AI_buildUnitProb demand estimate, so financial/economic pressure, XP specialization, era pacing, military power/throttling and SAS under-strength response can all affect the expected payoff; also handles negative modifiers and pre-contact contexts. 0 preserves the inherited fixed/rank-based positive-only formula for comparison. This is independent from the SAS Wonder prefilter so inherited valuation can be tested with National-Wonder policy disabled. See KI#48.5. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_MILITARY_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: Master switch for the remaining SAS Wonder prefilter. The KI#48.5 audit retired the regular-building prefilter; keep this switch until the separate Wonder audit is complete. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_OPTIMIZE</DefineName>

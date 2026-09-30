@@ -256,8 +256,9 @@ protected:
 	// <advc>
 	int AI_defensiveBuildingValue(BuildingTypes eBuilding, bool bAreaAlone, bool bWarPlan, int iNumCities, int iNumCitiesInArea, bool bRemove, /* advc.004c: */ bool bObsolete) const; // </advc>
 
-	int AI_experienceWeight();
-	int AI_buildUnitProb(/* advc.017: */ bool bDraft = false);
+	// <!-- custom: logically read-only helpers made const so const building valuation can reuse the authoritative dynamic unit-production-demand estimate without a proxy or const_cast. See KI#48.10. (ChatGPT-5.6-Sol) -->
+	int AI_experienceWeight() const;
+	int AI_buildUnitProb(/* advc.017: */ bool bDraft = false) const;
 	bool AI_emphasizeIrrigatingPlot(CvPlot const& kPlot) const; // advc
 	void AI_bestPlotBuild(CvPlot const& kPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop, int iHappyAdjust, int iHealthAdjust, int iDesiredFoodChange) const;
 

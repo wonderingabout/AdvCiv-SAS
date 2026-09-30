@@ -401,7 +401,7 @@ static int SAS_getHighestKnownFreeRivalBlocPower(CvPlayerAI const& kPlayer)
 
 // <!-- custom: Shared factual local-area rival snapshot for callers that need the same geography/power facts but intentionally apply different policy thresholds.
 // Do not collapse this into an "area safe" boolean: AI_isAreaAlone is a narrower knowledge-sensitive isolation test, while AI_feelsSafe answers a broader/global strategic question; KI#53.5 land-unit saturation requires overwhelming local security, whereas World-Wonder investment only needs to judge whether local exposure makes the opportunity cost reckless.
-// The global-rival fields are retained only as comparison context beside the local bloc data. Barbarians, city danger/defenders, land-unit stock and other caller-specific facts remain outside this snapshot. (ChatGPT-5.6-Sol) -->
+// The global-rival fields are retained only as comparison context beside the local bloc data. Barbarians, city danger/defenders, land-unit stock and other caller-specific facts remain outside this snapshot. See KI#48.9 and KI#53.5. (ChatGPT-5.6-Sol) -->
 struct SASLocalAreaRivalContext
 {
 	int iIndependentRivalTeams;
@@ -8560,7 +8560,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	const int iFreeExperience = kBuilding.getFreeExperience();
 	const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
 
-	// <!-- custom: Keep the remaining SAS Wonder prefilter pending its separate KI#48.5 audit; the audited regular-building category prefilter has been removed. (GPT-5.6-Sol) -->
+	// <!-- custom: Keep the remaining SAS Wonder prefilter pending the separate KI#48.9 audit; the audited regular-building category prefilter was completed in KI#48.5. (GPT-5.6-Sol) -->
 	static const bool bSAS_AI_BUILDING_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_OPTIMIZE");
 
 	// <!-- custom: in autoplay AI doesn't build shrines (Mahabodhi, Pagan Shrine, etc.) until late game after world wonders ASAP fix. Shrines/corporations have iCost=-1, so no point trying to save hammers. Skip viability gates for iCost=-1; handle only buildable buildings (iCost>0), similar to CvUnitAI::AI_ChooseUnit. In autoplay this leads to more wonders by turn 300. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
@@ -8588,7 +8588,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		// Is this “safe enough"?
 		// 	- For Civ4’s normal single-threaded AI: yes.
 		// 	- If you ever truly run building evaluation in parallel threads: function-static caches are not thread-safe. Your current use of bConstCache strongly suggests “async mode" should not mutate caches anyway, so the pattern above is aligned with that.
-		// --- SAS: per-player, per-turn cache for empire-wide top-two production-city scans used in the remaining Wonder gates.
+		// --- SAS: per-player, per-turn cache for empire-wide top-production-city scans used in some gates.
 		// Updated only when !bConstCache (async/const-eval stays side-effect free).
 		static bool s_abTopHptValid[MAX_PLAYERS];
 		static int  s_aiTopHptTurn[MAX_PLAYERS];
@@ -8663,11 +8663,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 		static const int iSAS_AI_BUILDING_VALUE_GATE_M100_WONDERS = GC.getDefineINT("SAS_AI_BUILDING_VALUE_GATE_M100_WONDERS");
 
-		// <!-- custom: The September 2026 KI#48.5 audit retired the SAS regular-building category prefilter after testing its concerns individually against inherited additive valuation.
+		// <!-- custom: The September 2026 KI#48.5 audit retired the SAS regular-building category prefilter after testing its concerns individually against inherited additive valuation; the separate Wonder-policy migration is tracked in KI#48.9.
 		// Keep the separate Wonder policy until its own audit; ordinary buildings now proceed directly to inherited valuation and targeted evidence-backed corrections. (GPT-5.6-Sol) -->
 		if (bWonder && bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
 		{
-			// <!-- custom: KI#48.5 World-Wonder audit: retire the era-only anti-Barbarian border-Wonder veto. Inherited valuation already considers local Barbarian relevance, while the level-3 Wonder audit keeps the former era condition as counterfactual evidence. (ChatGPT-5.6-Sol) -->
+			// <!-- custom: KI#48.9 World-Wonder audit: retire the era-only anti-Barbarian border-Wonder veto. Inherited valuation already considers local Barbarian relevance, while the level-3 Wonder audit keeps the former era condition as counterfactual evidence. (ChatGPT-5.6-Sol) -->
 
 			const int iCost = getProductionNeeded(eBuilding);
 
@@ -8716,11 +8716,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					}
 				}
 
-				// <!-- custom: KI#48.5 World-Wonder audit: retire the fixed era-scaled base-hammer veto. The surviving time-to-build and relative-production checks express the underlying opportunity/race concern more directly, and the level-3 audit keeps the former threshold visible. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: KI#48.9 World-Wonder audit: retire the fixed era-scaled base-hammer veto. The surviving time-to-build and relative-production checks express the underlying opportunity/race concern more directly, and the level-3 audit keeps the former threshold visible. (ChatGPT-5.6-Sol) -->
 			}
 			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
-				// <!-- custom: KI#48.5 National-Wonder audit: retire the fixed era-scaled base-hammer veto. The shared time-to-build gate already captures whether this city would tie up production for too long, while National Wonders cannot lose a race and often belong in a specialized city rather than one that merely clears a raw-hammer floor. Level-3 policy diagnostics keep the former threshold visible as counterfactual evidence. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: KI#48.9 National-Wonder audit: retire the fixed era-scaled base-hammer veto. The shared time-to-build gate already captures whether this city would tie up production for too long, while National Wonders cannot lose a race and often belong in a specialized city rather than one that merely clears a raw-hammer floor. Level-3 policy diagnostics keep the former threshold visible as counterfactual evidence. (ChatGPT-5.6-Sol) -->
 			}
 			else if (!bWorldWonder && !bNationalWonder && bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
 			{
@@ -8815,7 +8815,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					}
 				}
 
-				// <!-- custom: KI#48.5 World-Wonder audit: retire the post-opening requirement for a +25% build-time modifier. In the inherited-only Snaky baseline this hard proxy did not predict race success; actual construction time and city production competitiveness remain active safeguards. The audit row still records the former condition. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: KI#48.9 World-Wonder audit: retire the post-opening requirement for a +25% build-time modifier. In the inherited-only Snaky baseline this hard proxy did not predict race success; actual construction time and city production competitiveness remain active safeguards. The audit row still records the former condition. (ChatGPT-5.6-Sol) -->
 				// <!-- custom: note: cannot try to save computation by checking bCoastalBuilding, as in some weird xml mod mods or such (or maybe we would too or would not), maybe a non-coastal city would give a coastal cities scaling effect, so do not check bCoastalBuilding to avoid overlooking these as chatgpt 5 advised/noted if i understood it correctly -->
 				// --- Naval / Coastal-scaling WW: require a real coastline -----------------
 				// // 1) City-local coastal wonders (benefit tied to THIS city’s water/naval use)
@@ -9040,11 +9040,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					return iPolicyReturn;
 				}
 
-				// <!-- custom: KI#48.5 World-Wonder audit: retire the hard "N met rivals know the prerequisite tech" veto. That eligibility count was a weak race proxy in the inherited-only baseline; retain it only in the level-3 policy audit while stronger time/production safeguards remain active. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: KI#48.9 World-Wonder audit: retire the hard "N met rivals know the prerequisite tech" veto. That eligibility count was a weak race proxy in the inherited-only baseline; retain it only in the level-3 policy audit while stronger time/production safeguards remain active. (ChatGPT-5.6-Sol) -->
 			}
 			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
-				// <!-- custom: KI#48.5 National-Wonder audit: retire the blanket top-3-hammer veto. National Epic, Wall Street, National Park and other specialized National Wonders can be strongest outside the empire's raw-production leaders; keep only narrower placement rules whose effect actually scales with production, such as the military-National-Wonder top-2 rule below and the shared production-Wonder check above. The old top-3 result remains visible in level-3 diagnostics. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: KI#48.9 National-Wonder audit: retire the blanket top-3-hammer veto. National Epic, Wall Street, National Park and other specialized National Wonders can be strongest outside the empire's raw-production leaders; keep only narrower placement rules whose effect actually scales with production, such as the military-National-Wonder top-2 rule below and the shared production-Wonder check above. The old top-3 result remains visible in level-3 diagnostics. (ChatGPT-5.6-Sol) -->
 
 				// <!-- custom: military national wonders, in particular heroic epic, etc if any more -->
 				if (bLandUnitsBuilding)
@@ -10082,8 +10082,32 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					kOwner.AI_getNumAIUnits(UNITAI_WORKER)) / 10);
 
 			if (bLogBuildingValueDetails && iPass > 0) iDiagMilitaryProductionBefore = iValue;
-			if (iHasMetCount > 0 && iMilitaryProductionModifier > 0)
+			static const bool bMilitaryProductionThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_MILITARY_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE");
+			if (bMilitaryProductionThroughputOptimize && iMilitaryProductionModifier != 0)
 			{
+				// <!-- custom: K-Mod/AdvC valued a positive MilitaryProductionModifier mostly by modifier size and ordinal production rank, which cannot distinguish nearly equal 100/99/98/97-hammer cities from 100/10/3/1 and also ignores negative modifiers and pre-contact positive value.
+				// Use expected throughput instead: K-Mod's ordinary yield-modifier scale is modifier * (base production + 2) / 25, and AI_buildUnitProb is a percentage, so the combined denominator is 2500 = 25 * 100; the +2 allows near-term growth.
+				// Reuse AI_buildUnitProb because a cheaper proxy correlated only about 0.32 across 5,748 same-turn snapshots; the authoritative estimate already includes financial pressure, XP specialization, era pacing, military power/throttling and SAS under-strength response.
+				// Only buildings with a generic MilitaryProductionModifier pay for that extra evaluation, and a clean Pangaea A/B found no measurable per-turn regression.
+				// Preserve free-experience synergy separately and audit Heroic-Epic/domain placement independently; retain the legacy toggle for comparison. See KI#48.10. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				int const iMilitaryProductionShare = AI_buildUnitProb();
+				int const iMilitaryProductionBaseRate = iBaseHammersPerTurn + 2; // <!-- custom: Mirror K-Mod's ordinary yield-modifier allowance for near-term growth. (ChatGPT-5.6-Sol) -->
+				int const iMilitaryProductionThroughputValue = (iMilitaryProductionModifier * iMilitaryProductionBaseRate * iMilitaryProductionShare) / 2500;
+				iValue += iMilitaryProductionThroughputValue;
+				if (iMilitaryProductionModifier > 0)
+				{
+					iValue += (iMilitaryProductionModifier * (getFreeExperience() + getSpecialistFreeExperience())) / 10;
+				}
+				if (bLogBuildingValueDetails && iPass > 0)
+				{
+					logBBAI("BUILDING_VALUE_MILITARY_PRODUCTION_THROUGHPUT turn=%d player=%d city=%S cityId=%d building=%s modifier=%d baseProduction=%d baseRateWithGrowth=%d unitProductionShare=%d throughputValue=%d productionRank=%d numCities=%d limited=%d hasMetCount=%d",
+						kGame.getGameTurn(), eOwner, getName().GetCString(), getID(), kBuilding.getType(), iMilitaryProductionModifier, iBaseHammersPerTurn,
+						iMilitaryProductionBaseRate, iMilitaryProductionShare, iMilitaryProductionThroughputValue, iProductionRank, iNumCities, bLimitedWonder, iHasMetCount);
+				}
+			}
+			else if (!bMilitaryProductionThroughputOptimize && iHasMetCount > 0 && iMilitaryProductionModifier > 0)
+			{
+				// <!-- custom: Legacy K-Mod/AdvC valuation retained for controlled A/B testing. (ChatGPT-5.6-Sol) -->
 				// either not a wonder, or a wonder and we are a high production city
 				if (!bLimitedWonder || bHighProductionCity)
 				{
@@ -19765,7 +19789,9 @@ int CvCityAI::AI_growthValuePerFood() const
 }
 
 
-int CvCityAI::AI_experienceWeight()
+// <!-- custom: inherited military-production valuation: this helper is logically read-only.
+// Mark it const because const AI_buildingValue now reuses the authoritative AI_buildUnitProb demand estimate for generic MilitaryProductionModifier throughput instead of a weaker proxy or const_cast. See KI#48.10. (ChatGPT-5.6-Sol) -->
+int CvCityAI::AI_experienceWeight() const
 {
 	//return ((getProductionExperience() + getDomainFreeExperience(DOMAIN_SEA)) * 2);
 	// K-Mod
@@ -19778,7 +19804,8 @@ int CvCityAI::AI_experienceWeight()
 }
 
 // BBAI / K-Mod // <advc.017> Draft param added; count XP weight only half then.
-int CvCityAI::AI_buildUnitProb(bool bDraft)
+// <!-- custom: inherited military-production valuation: AI_buildUnitProb only reads city/player/team AI state, so make that contract explicit with const and allow const building valuation to reuse this existing dynamic unit-production-demand estimate directly. See KI#48.10. (ChatGPT-5.6-Sol) -->
+int CvCityAI::AI_buildUnitProb(bool bDraft) const
 {
 	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
