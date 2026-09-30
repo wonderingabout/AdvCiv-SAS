@@ -10248,11 +10248,39 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				iTotalImprFreeSpecialists += perImprovementVal.second; // advc.131
 			}
 			if (bLogBuildingValueDetails && iPass > 0) iDiagDomainProductionBefore = iValue;
+			static const bool bSeaProductionThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_SEA_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE");
 			FOR_EACH_ENUM(Domain)
 			{
-				iValue += (kBuilding.getDomainProductionModifier(eLoopDomain) / 5);
-				if (bHighProductionCity)
-					iValue += kBuilding.getDomainProductionModifier(eLoopDomain) / 5;
+				int const iDomainProductionModifier = kBuilding.getDomainProductionModifier(eLoopDomain);
+				if (bSeaProductionThroughputOptimize && eLoopDomain == DOMAIN_SEA && iDomainProductionModifier != 0)
+				{
+					// <!-- custom: K-Mod/AdvC values DOMAIN_SEA production as modifier/5, doubled only by a binary high-production-city flag.
+					// Pangaea vs Tiny-Islands audit found almost the same Drydock adoption (~40% vs ~43%) and only a small inherited contribution difference (~13 vs ~15), despite post-Drydock sea units consuming ~10% vs ~41% of military-unit production respectively.
+					// Reuse the generic military-throughput scale, but multiply total military demand by K-Mod's existing AI_calculateWaterWorldPercent estimate so sea-production value follows both actual city hammers and the strategic need to produce naval units.
+					// Preserve other domains and Drydock's separate sea-XP valuation for later audits. See KI#48.11. (ChatGPT-5.6-Sol) -->
+					int const iTotalMilitaryProductionShare = AI_buildUnitProb();
+					int const iWaterWorldPercent = AI_calculateWaterWorldPercent();
+					int const iSeaProductionShare = (iTotalMilitaryProductionShare * iWaterWorldPercent) / 100;
+					int const iSeaProductionBaseRate = iBaseHammersPerTurn + 2;
+					int const iSeaProductionThroughputValue = (iDomainProductionModifier * iSeaProductionBaseRate * iSeaProductionShare) / 2500;
+					iValue += iSeaProductionThroughputValue;
+					if (bLogBuildingValueDetails && iPass > 0)
+					{
+						int iLegacyDomainProductionValue = iDomainProductionModifier / 5;
+						if (bHighProductionCity)
+							iLegacyDomainProductionValue += iDomainProductionModifier / 5;
+						logBBAI("BUILDING_VALUE_DOMAIN_SEA_PRODUCTION_THROUGHPUT turn=%d player=%d city=%S cityId=%d building=%s modifier=%d baseProduction=%d baseRateWithGrowth=%d totalMilitaryProductionShare=%d waterWorldPercent=%d seaProductionShare=%d throughputValue=%d legacyValue=%d productionRank=%d numCities=%d highProductionCity=%d",
+							kGame.getGameTurn(), eOwner, getName().GetCString(), getID(), kBuilding.getType(), iDomainProductionModifier,
+							iBaseHammersPerTurn, iSeaProductionBaseRate, iTotalMilitaryProductionShare, iWaterWorldPercent, iSeaProductionShare,
+							iSeaProductionThroughputValue, iLegacyDomainProductionValue, iProductionRank, iNumCities, bHighProductionCity);
+					}
+				}
+				else
+				{
+					iValue += iDomainProductionModifier / 5;
+					if (bHighProductionCity)
+						iValue += iDomainProductionModifier / 5;
+				}
 			}
 			if (bLogBuildingValueDetails && iPass > 0) iDiagDomainProductionDelta += iValue - iDiagDomainProductionBefore;
 
@@ -20916,7 +20944,9 @@ void CvCityAI::AI_barbChooseProduction()
 }
 
 
-int CvCityAI::AI_calculateWaterWorldPercent()
+// <!-- custom: inherited sea-production valuation: this helper is logically read-only.
+// Mark it const so const AI_buildingValue can reuse the existing K-Mod water-world demand estimate for DOMAIN_SEA production throughput without a proxy or const_cast. See KI#48.11. (ChatGPT-5.6-Sol) -->
+int CvCityAI::AI_calculateWaterWorldPercent() const
 {
 	int iFriendlyCities = 0;
 	// <advc> Count sibling vassals too

@@ -91,6 +91,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.8 - (Improved inherited K-Mod/AdvC AI production-timing weakness) Walls/Castles could be valued but were considered too late to finish before visible land assaults](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.8)\
 [KI#48.9 - (WIP AdvCiv-SAS Wonder-policy rework) Replace monolithic World/National Wonder hard gates with audited inherited valuation and evidence-backed safeguards](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.9)\
 [KI#48.10 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) Generic military-production modifiers were valued mostly by fixed/rank rules instead of expected production throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.10)\
+[KI#48.11 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_SEA production modifiers were almost geography-blind instead of following expected naval throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.11)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
@@ -3876,6 +3877,8 @@ In the audited history **61 Drydocks** completed; 60 could be correlated with su
 
 So `land-heavy map -> reject naval infrastructure` discards real local naval roles together with genuine low-payoff cases. The gameplay veto stayed retired. Its old condition was preserved only as dormant level-3 legacy audit evidence so future code archaeology can still ask what the old SAS rule would have done without changing valuation.
 
+The later cross-map audit in **KI#48.11** then found the inherited reason this old concern had seemed plausible: K-Mod/AdvC's actual `DOMAIN_SEA` production-modifier contribution was itself almost geography-blind. That inherited value is now handled proportionally from expected naval throughput rather than restoring the old map-wide rejection.
+
 #### Tiny-Islands Port and Harbor stress test
 
 The final coastal audit deliberately switched to Tiny Islands, where water-heavy cities and very weak native production make Port/Harbor timing unusually important. It completed **125 Ports, 166 Harbors and 82 Drydocks**, giving a much stronger coastal stress environment than the earlier mixed maps.
@@ -3924,7 +3927,7 @@ Where concrete weaknesses were found, the rework corrected the responsible sourc
 - Kek-Mod's repeated continental-army Bomb Shelter estimate was corrected in KI#48.7;
 - unconditional Barracks/Stable-family XML `iAIWeight`s were removed after the hard SAS safeguards that had partly masked them were retired;
 - the central `enemyStrong` audit found that normal production already shifted strongly toward units under pressure, with only a tiny heterogeneous tail surviving unit-availability, spending, timing and continuity checks, so no new blanket military-pressure veto was added;
-- the land-heavy naval-infrastructure veto stayed retired after Pangaea showed both genuinely low-payoff Drydocks and many cities that later used Drydock for substantial naval production;
+- the land-heavy naval-infrastructure veto stayed retired after Pangaea showed both genuinely low-payoff Drydocks and real local naval roles; KI#48.11 later replaced the inherited almost geography-blind `DOMAIN_SEA` production value with expected naval-throughput valuation rather than reintroducing a global map veto;
 - Tiny-Islands stress testing showed that inherited Port value already responds strongly to hammer-poor coastal development and that Harbor urgency rises with genuine starvation, so neither coastal building received a new force-first rule;
 - the old handicap-based espionage force was retired as architecture because handicap direction does not itself determine whether espionage is strategically useful;
 - the separate post-`doProduction` Harbor/Port/Walls/Castle subsystem was audited, its disorder and continuation defects were corrected, and the entire hard-override layer was retired through controlled A/B tests; the surviving defensive concern was isolated as the inherited production-timing weakness now tracked in KI#48.8 rather than another queue rewrite.
@@ -4208,13 +4211,19 @@ The National-Wonder audit exposed an inherited K-Mod/AdvC valuation shape that w
 
 That result also clarified the separation of concerns. The inherited rank formula had been supplying some hidden Heroic-Epic urgency, so removing it reduced Heroic-Epic completions in the clean A/B. However, an independent AdvC 1.14 run did not show a general Heroic-Epic lateness problem. Heroic-Epic placement/urgency therefore remains a separate limited-Wonder/domain-specialization question rather than a reason to distort the generic military-production formula.
 
+### Inherited detour continued: `DOMAIN_SEA` production valuation (KI#48.11)
+
+The next inherited domain-production audit used Drydock as a clean ordinary-building case, avoiding National-Wonder policy entirely. K-Mod/AdvC gave a +50% sea-production modifier essentially a fixed `+10`, doubled only for a binary high-production-city classification. Pangaea and Tiny Islands therefore received nearly the same inherited contribution despite radically different naval workload.
+
+KI#48.11 replaces only the `DOMAIN_SEA` production-modifier term with expected naval throughput derived from actual city production, dynamic military demand and K-Mod's existing geographic `AI_calculateWaterWorldPercent()` estimate. The Pangaea/Tiny-Islands validation strongly separated naval share and value without restoring the retired `land-heavy map -> reject Drydock` rule. Drydock's separate naval-XP value and `DOMAIN_LAND`/`DOMAIN_AIR` production remain intentionally untouched for later audits.
+
 ### Remaining Wonder work
 
 The current direction is gradual migration rather than another monolithic replacement:
 
 - resume the National-Wonder policy against the corrected KI#48.10 inherited baseline and validate the generic-gate retirements together with specialized Heroic-Epic/government-center/Palace logic;
-- audit the inherited `DomainProductionModifier` valuation next: land, sea and air production modifiers are still valued with fixed increments and another binary `bHighProductionCity` bonus rather than actual city throughput or domain-specific demand;
-- only after domain production valuation is understood, consider the intended Heroic-Epic land-only balance/placement change so a special limited Wonder is not used to compensate for a generic evaluator weakness;
+- carry the domain audit forward from KI#48.11: `DOMAIN_SEA` production throughput is now contextual, but Drydock's separate naval-XP contribution remains to be audited and `DOMAIN_LAND` / `DOMAIN_AIR` production still use the inherited fixed/rank shape;
+- only after the relevant land-domain valuation is understood, consider the intended Heroic-Epic land-only balance/placement change so a special limited Wonder is not used to compensate for a generic evaluator weakness;
 - re-audit the surviving shared/World concerns one by one: construction-time horizon, relative production competitiveness, military exposure using factual local context, cheap-Wonder priority, coastal scaling and production-Wonder placement;
 - remove audit-only legacy thresholds/diagnostics only when they are no longer needed as counterfactual evidence.
 
@@ -4300,9 +4309,115 @@ Runtime cost was effectively unchanged in this test: throughput autoplay was abo
 
 KI#48.10 is therefore considered an **improved inherited valuation correction**, not a Heroic-Epic-specific force. The default throughput path should remain enabled, while the legacy formula stays available behind the SAS define for regression testing and modmod comparison.
 
-The next inherited question is deliberately separate: K-Mod/AdvC's `DomainProductionModifier` valuation for land, sea and air production still uses fixed increments and another binary `bHighProductionCity` bonus, with little direct connection to actual domain-specific need or throughput. That should be audited before using Heroic Epic or another limited Wonder to compensate for domain-valuation weaknesses. Only after that should Heroic-Epic-specific land-only semantics, placement and urgency be judged as Wonder policy.
+The next inherited question was deliberately separated rather than folded into this formula. K-Mod/AdvC's `DomainProductionModifier` valuation used fixed increments and another binary `bHighProductionCity` bonus, with little direct connection to actual domain-specific need or throughput.
 
-See **KI#48.9** for the broader World/National-Wonder migration that exposed this inherited evaluator issue.
+The first real consumer, Drydock's `DOMAIN_SEA` +50% production modifier, is now audited and improved in **KI#48.11**. `DOMAIN_LAND`, `DOMAIN_AIR` and domain-specific free-experience valuation remain separate questions; Heroic-Epic-specific land-only semantics, placement and urgency should be judged only after the relevant domain valuation is understood.
+
+See **KI#48.9** for the broader World/National-Wonder migration that exposed this inherited evaluator issue and **KI#48.11** for the first domain-specific continuation.
+
+
+<a id="ki-48.11"></a>
+
+## KI#48.11 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_SEA production modifiers were almost geography-blind instead of following expected naval throughput
+
+This issue continues the inherited valuation archaeology from KI#48.10, but it is deliberately separate. KI#48.10 corrected a generic `MilitaryProductionModifier` by expected total military throughput; `DomainProductionModifier` still had its own K-Mod/AdvC formula:
+
+```cpp
+FOR_EACH_ENUM(Domain)
+{
+    iValue += kBuilding.getDomainProductionModifier(eLoopDomain) / 5;
+    if (bHighProductionCity)
+        iValue += kBuilding.getDomainProductionModifier(eLoopDomain) / 5;
+}
+```
+
+For a +50% domain-production modifier this is normally `+10`, or `+20` when the city crosses the inherited binary high-production-city threshold. It does not directly know the city's actual hammer throughput, whether the empire expects to spend much military production in that domain, or whether geography makes that domain strategically important.
+
+Current AdvCiv-SAS supplied a clean real-world test without modifying Wonder rules: **Drydock** has `DOMAIN_SEA +50%` production and is an ordinary building. `DOMAIN_LAND` and `DOMAIN_AIR` had no equivalent current building consumer, so sea production could be audited first without using Heroic Epic as temporary laboratory equipment.
+
+### Why the retired Pangaea Drydock veto was the wrong cure
+
+The old SAS regular-building prefilter had noticed a real strategic concern: naval infrastructure can be wasteful on land-heavy maps. But its cure was global and binary: a land-heavy map could reject the whole naval-pump building.
+
+Earlier KI#48.5 archaeology already showed why that was too coarse. Some Pangaea Drydocks were followed by little or no naval production, while other coastal cities went on to become substantial fleet producers. A map-script classification therefore could not distinguish a strategically irrelevant Drydock from a locally useful naval-production city.
+
+There is also an important causal distinction: **building many ships after a Drydock does not prove that building the Drydock was strategically correct**. Base/inherited AI could itself overproduce naval units on Pangaea; a Drydock can efficiently accelerate a bad naval-production policy. The replacement should therefore not reward historical ship spam directly. It should estimate expected naval workload from strategic demand and geography.
+
+### Pangaea versus Tiny Islands exposed the inherited mismatch
+
+The clean cross-map comparison made the inherited formula's weakness visible. The old `DOMAIN_SEA` production contribution remained nearly the same while actual naval workload differed dramatically:
+
+| Metric | Pangaea | Tiny Islands |
+| --- | ---: | ---: |
+| Cities evaluating Drydock | 87 | 190 |
+| Started Drydock | 46 (52.9%) | 106 (55.8%) |
+| Completed Drydock | 35 (40.2%) | 82 (43.2%) |
+| Median inherited +50% sea-production contribution | +10 | +10 |
+| Subsequent sea share of military-production cost | about 9.6% | about 40.6% |
+| Sea share in an equal first-50-turn post-Drydock window | about 12.0% | about 36.3% |
+
+The exact future unit mix is not used as the gameplay formula; it is retrospective evidence that the inherited `+10 / +20` shape was poorly connected to the strategic workload the building served.
+
+### Replacement: expected naval throughput, not map hardcoding
+
+The new `DOMAIN_SEA` path follows the same continuous-throughput principle as KI#48.10, but derives only the expected **sea** share of military production:
+
+```text
+totalMilitaryProductionShare = AI_buildUnitProb()
+waterWorldPercent = AI_calculateWaterWorldPercent()
+seaProductionShare = totalMilitaryProductionShare * waterWorldPercent / 100
+
+value = domainSeaProductionModifier
+      * (baseProduction + 2)
+      * seaProductionShare
+      / 2500
+```
+
+This intentionally reuses existing K-Mod/AdvC concepts instead of hardcoding map scripts:
+
+- actual city base production measures how many hammers the modifier can multiply;
+- `AI_buildUnitProb()` supplies dynamic total military-unit demand;
+- `AI_calculateWaterWorldPercent()` supplies an inherited geographic naval-demand estimate based on local/remote city distribution and land-area context.
+
+`AI_calculateWaterWorldPercent()` is logically read-only and was made `const` so `AI_buildingValue` can reuse it directly without a proxy or `const_cast`.
+
+The richer `SASLocalAreaRivalContext` was deliberately **not** added here. It is useful for land-security and rival-power questions, but the narrower sea-share question is already closer to what `AI_calculateWaterWorldPercent()` estimates. Adding local enemy-power pressure as another multiplier would also risk counting military urgency twice because `AI_buildUnitProb()` already carries much of that demand.
+
+### Cross-map validation
+
+The candidate differentiated the two environments strongly without turning either one into an absolute rule:
+
+| Diagnostic | Pangaea | Tiny Islands |
+| --- | ---: | ---: |
+| Median `waterWorldPercent` | 13% | 100% |
+| Median derived sea-production share | 5% | 41% |
+| Mean derived sea-production share | 17% | 43% |
+| Median +50% sea-production throughput value | +1 | +9 |
+| Mean throughput value | +2.9 | +11.9 |
+
+Individual Pangaea cities can still receive high naval value when their actual geographic context supports it. This is the key improvement over the retired SAS rule: **Pangaea does not mean `no Drydock`; expected naval throughput decides.**
+
+A useful retrospective sanity check compared the predicted naval share before Drydock completion with the next 50 turns of military-production workload where a complete window was available:
+
+- Tiny Islands: predicted mean about **40.8%**, subsequent naval share about **46.0%**;
+- Pangaea: predicted mean about **9.8%**, subsequent naval share about **14.6%**.
+
+The city-by-city relationship is not perfect and is not treated as a target-fitting exercise, but the inherited helper estimates the correct strategic order of magnitude across very different geography.
+
+Candidate and legacy histories diverged naturally after the changed valuation began affecting choices: roughly turn **157** on Tiny Islands and turn **135** on Pangaea. Pangaea runtime was effectively unchanged at about **1.862 seconds/turn** for the candidate versus **1.868 seconds/turn** for the inherited branch, so reuse of the existing water-world calculation showed no meaningful performance regression in this test.
+
+### Scope and remaining domain work
+
+KI#48.11 changes only `DOMAIN_SEA` **production-modifier** valuation. The inherited formula remains available behind `SAS_AI_BUILDING_VALUE_DOMAIN_SEA_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE` for regression and modmod comparison.
+
+Several adjacent questions are intentionally not folded into this cure:
+
+- Drydock's separate **+3 `DOMAIN_SEA` free experience** still receives a largely geography-blind inherited contribution (the diagnostics repeatedly showed about `+21` on both map types). This is the most natural next domain audit.
+- `DOMAIN_LAND` and `DOMAIN_AIR` production modifiers remain on inherited valuation until real consumers/context justify separate changes.
+- Heroic Epic remains a generic `MilitaryProductionModifier` National Wonder for now. Any future conversion to land-only production should follow, not precede, a sensible `DOMAIN_LAND` evaluator.
+- A bad upstream decision to overproduce ships is a military-production-policy problem, not something building valuation should amplify or independently solve.
+
+See **KI#48.5** for the retired land-heavy Drydock hard veto, **KI#48.10** for the generic military-throughput correction, and **KI#48.9** for the Wonder/domain-specialization work that led into this inherited audit.
 
 <a id="ki-49"></a>
 

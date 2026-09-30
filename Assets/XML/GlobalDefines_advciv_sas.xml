@@ -2048,6 +2048,11 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_BUILDING_VALUE_MILITARY_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Inherited K-Mod/AdvC DOMAIN_SEA production valuation A/B. 1 replaces the fixed modifier/5 plus high-production-city rank bonus with expected naval throughput: actual city base production * AI_buildUnitProb total military demand * AI_calculateWaterWorldPercent sea-demand share. 0 preserves the inherited rank-based domain formula. This currently changes only DOMAIN_SEA; land/air remain legacy until separately audited. Drydock sea-XP valuation is intentionally unchanged. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_DOMAIN_SEA_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: Master switch for the remaining SAS Wonder prefilter. The KI#48.5 audit retired the regular-building prefilter; keep this switch until the separate Wonder audit is complete. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_OPTIMIZE</DefineName>
