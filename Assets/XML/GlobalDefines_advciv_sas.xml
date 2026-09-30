@@ -2048,7 +2048,12 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_BUILDING_VALUE_MILITARY_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Inherited K-Mod/AdvC DOMAIN_SEA production valuation optimization. 1 replaces the fixed modifier/5 plus high-production-city rank bonus with expected naval throughput: actual city base production * AI_buildUnitProb total military demand * AI_calculateWaterWorldPercent sea-demand share. 0 preserves the inherited rank-based domain formula for regression comparison. This currently changes only DOMAIN_SEA; land/air remain legacy until separately audited. DOMAIN_SEA XP is controlled independently below. See KI#48.11. (ChatGPT-5.6-Sol) -->
+	<!-- custom: 1 replaces inherited fixed/rank-based DOMAIN_LAND scoring with city-production throughput weighted by military and contextual land demand; 0 preserves inherited valuation for regression comparison. See KI#48.13. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_DOMAIN_LAND_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 replaces inherited fixed/rank-based DOMAIN_SEA scoring with city-production throughput weighted by military and water-world demand; 0 preserves inherited valuation. LAND is controlled above, sea XP below, and AIR remains inherited. See KI#48.11. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_DOMAIN_SEA_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

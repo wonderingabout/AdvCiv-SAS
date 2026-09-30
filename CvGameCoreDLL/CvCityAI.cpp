@@ -7776,6 +7776,126 @@ static void SAS_logWonderPolicyAudit(CvCityAI const& kCity, BuildingTypes eBuild
 	}
 }
 
+// <!-- custom: Domain-applicability audit shared by Wonders and regular buildings.
+// A DomainProductionModifier applies to every unit in that domain, while MilitaryProductionModifier applies only to UnitInfo::isMilitaryProduction units; count both literal and military applicability so a Worker/Settler cannot make a land-military pump look meaningfully usable.
+// Keep this level-3-only and behavior-neutral: it records whether the current city can actually train units affected by LAND/SEA/AIR production or XP effects, plus the same hammer/demand/geography context used by the throughput audits. See KI#48.14. (ChatGPT-5.6-Sol) -->
+static void SAS_logDomainApplicability(CvCityAI const& kCity, BuildingTypes eBuilding, int iProductionRank, int iNumCities, bool bHighProductionCity, int iDomainTotalMilitaryProductionShare, int iDomainWaterWorldPercent, int iLandDemandPercent, int iLandProductionShare, int iSeaProductionShare)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
+	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+	int const iLandExperience = kBuilding.getDomainFreeExperience(DOMAIN_LAND);
+	int const iSeaExperience = kBuilding.getDomainFreeExperience(DOMAIN_SEA);
+	int const iAirExperience = kBuilding.getDomainFreeExperience(DOMAIN_AIR);
+	int const iLandProductionModifier = kBuilding.getDomainProductionModifier(DOMAIN_LAND);
+	int const iSeaProductionModifier = kBuilding.getDomainProductionModifier(DOMAIN_SEA);
+	int const iAirProductionModifier = kBuilding.getDomainProductionModifier(DOMAIN_AIR);
+	bool const bHasDomainSpecificEffect = (iLandExperience != 0 || iSeaExperience != 0 || iAirExperience != 0 ||
+			iLandProductionModifier != 0 || iSeaProductionModifier != 0 || iAirProductionModifier != 0);
+	if (!bHasDomainSpecificEffect)
+		return;
+
+	int iUnitCombatExperienceSum = 0;
+	FOR_EACH_NON_DEFAULT_PAIR(kBuilding.getUnitCombatFreeExperience(), UnitCombat, int)
+		iUnitCombatExperienceSum += std::max(0, perUnitCombatVal.second);
+	bool const bHasTrainingXpEffect = (kBuilding.getFreeExperience() > 0 || iUnitCombatExperienceSum > 0 ||
+			iLandExperience > 0 || iSeaExperience > 0 || iAirExperience > 0);
+
+	int iTrainableDomainLand = 0, iTrainableDomainSea = 0, iTrainableDomainAir = 0;
+	int iTrainableDomainMilitaryLand = 0, iTrainableDomainMilitarySea = 0, iTrainableDomainMilitaryAir = 0;
+	int iTrainableXpAffectedUnits = 0;
+	int iTrainableXpAffectedLand = 0, iTrainableXpAffectedSea = 0, iTrainableXpAffectedAir = 0;
+	FOR_EACH_ENUM(Unit)
+	{
+		CvUnitInfo const& kLoopUnit = GC.getInfo(eLoopUnit);
+		if (!kCity.canTrain(eLoopUnit))
+			continue;
+
+		DomainTypes const eUnitDomain = kLoopUnit.getDomainType();
+		if (eUnitDomain == DOMAIN_LAND)
+		{
+			iTrainableDomainLand++;
+			if (kLoopUnit.isMilitaryProduction())
+				iTrainableDomainMilitaryLand++;
+		}
+		else if (eUnitDomain == DOMAIN_SEA)
+		{
+			iTrainableDomainSea++;
+			if (kLoopUnit.isMilitaryProduction())
+				iTrainableDomainMilitarySea++;
+		}
+		else if (eUnitDomain == DOMAIN_AIR)
+		{
+			iTrainableDomainAir++;
+			if (kLoopUnit.isMilitaryProduction())
+				iTrainableDomainMilitaryAir++;
+		}
+
+		if (!bHasTrainingXpEffect)
+			continue;
+		UnitCombatTypes const eCombat = kLoopUnit.getUnitCombatType();
+		int iGrantedExperience = kBuilding.getFreeExperience() + kBuilding.getDomainFreeExperience(eUnitDomain);
+		if (eCombat != NO_UNITCOMBAT)
+			iGrantedExperience += kBuilding.getUnitCombatFreeExperience(eCombat);
+		int const iStrength = std::max(kLoopUnit.getCombat(), kLoopUnit.getAirCombat());
+		if (iGrantedExperience <= 0 || iStrength <= 0)
+			continue;
+		iTrainableXpAffectedUnits++;
+		if (eUnitDomain == DOMAIN_LAND) iTrainableXpAffectedLand++;
+		else if (eUnitDomain == DOMAIN_SEA) iTrainableXpAffectedSea++;
+		else if (eUnitDomain == DOMAIN_AIR) iTrainableXpAffectedAir++;
+	}
+
+	int iTrainableProductionAffectedUnits = 0;
+	int iTrainableProductionAffectedMilitaryUnits = 0;
+	if (iLandProductionModifier != 0)
+	{
+		iTrainableProductionAffectedUnits += iTrainableDomainLand;
+		iTrainableProductionAffectedMilitaryUnits += iTrainableDomainMilitaryLand;
+	}
+	if (iSeaProductionModifier != 0)
+	{
+		iTrainableProductionAffectedUnits += iTrainableDomainSea;
+		iTrainableProductionAffectedMilitaryUnits += iTrainableDomainMilitarySea;
+	}
+	if (iAirProductionModifier != 0)
+	{
+		iTrainableProductionAffectedUnits += iTrainableDomainAir;
+		iTrainableProductionAffectedMilitaryUnits += iTrainableDomainMilitaryAir;
+	}
+	int const iTrainableProductionAffectedNonMilitaryUnits = iTrainableProductionAffectedUnits - iTrainableProductionAffectedMilitaryUnits;
+
+	CvString szSignature;
+	szSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d",
+		iLandProductionModifier, iSeaProductionModifier, iAirProductionModifier,
+		iLandExperience, iSeaExperience, iAirExperience,
+		iTrainableDomainLand, iTrainableDomainSea, iTrainableDomainAir,
+		iTrainableDomainMilitaryLand, iTrainableDomainMilitarySea, iTrainableDomainMilitaryAir,
+		iTrainableProductionAffectedUnits, iTrainableProductionAffectedMilitaryUnits,
+		iTrainableXpAffectedUnits, iProductionRank);
+	if (!SAS_shouldLogBuildingValueGateChange(kCity, eBuilding, "DOMAIN_APPLICABILITY", szSignature))
+		return;
+
+	int const iApplicabilityAreaAI = kCity.getArea().getAreaAIType(kCity.getTeam());
+	bool const bApplicabilityLandWar = (iApplicabilityAreaAI == AREAAI_OFFENSIVE || iApplicabilityAreaAI == AREAAI_MASSING || iApplicabilityAreaAI == AREAAI_DEFENSIVE);
+	bool const bApplicabilityAssault = (iApplicabilityAreaAI == AREAAI_ASSAULT || iApplicabilityAreaAI == AREAAI_ASSAULT_MASSING || iApplicabilityAreaAI == AREAAI_ASSAULT_ASSIST);
+	SASLocalAreaRivalContext const kLocalRivals(kOwner, kCity.getArea());
+	int const iAreaMilitaryStock = SAS_getMainLandMilitaryStock(kOwner, kCity.getArea());
+	logBBAI("BUILDING_VALUE_DOMAIN_APPLICABILITY turn=%d player=%d city=%S cityId=%d building=%s landProductionModifier=%d seaProductionModifier=%d airProductionModifier=%d landExperience=%d seaExperience=%d airExperience=%d trainableLand=%d trainableSea=%d trainableAir=%d trainableMilitaryLand=%d trainableMilitarySea=%d trainableMilitaryAir=%d trainableProductionAffectedUnits=%d trainableProductionAffectedMilitaryUnits=%d trainableProductionAffectedNonMilitaryUnits=%d hasTrainableProductionAffectedUnit=%d hasTrainableProductionAffectedMilitaryUnit=%d onlyNonMilitaryProductionApplicability=%d trainableXpAffectedUnits=%d trainableXpAffectedLand=%d trainableXpAffectedSea=%d trainableXpAffectedAir=%d coastal=%d baseProduction=%d productionRank=%d numCities=%d highProductionCity=%d totalMilitaryProductionShare=%d waterWorldPercent=%d landDemandPercent=%d landProductionShare=%d seaProductionShare=%d areaAI=%d landWar=%d assault=%d areaCities=%d areaMilitaryStock=%d independentRivalTeamsInArea=%d unknownIndependentRivalTeamsInArea=%d independentRivalCitiesInArea=%d localPowerAdvantagePercent=%d",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(),
+		iLandProductionModifier, iSeaProductionModifier, iAirProductionModifier, iLandExperience, iSeaExperience, iAirExperience,
+		iTrainableDomainLand, iTrainableDomainSea, iTrainableDomainAir, iTrainableDomainMilitaryLand, iTrainableDomainMilitarySea, iTrainableDomainMilitaryAir,
+		iTrainableProductionAffectedUnits, iTrainableProductionAffectedMilitaryUnits, iTrainableProductionAffectedNonMilitaryUnits,
+		iTrainableProductionAffectedUnits > 0, iTrainableProductionAffectedMilitaryUnits > 0,
+		(iTrainableProductionAffectedUnits > 0 && iTrainableProductionAffectedMilitaryUnits <= 0),
+		iTrainableXpAffectedUnits, iTrainableXpAffectedLand, iTrainableXpAffectedSea, iTrainableXpAffectedAir,
+		kCity.isCoastal(GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN) * 2), kCity.getBaseYieldRate(YIELD_PRODUCTION),
+		iProductionRank, iNumCities, bHighProductionCity, iDomainTotalMilitaryProductionShare, iDomainWaterWorldPercent,
+		iLandDemandPercent, iLandProductionShare, iSeaProductionShare, iApplicabilityAreaAI, bApplicabilityLandWar, bApplicabilityAssault,
+		kCity.getArea().getCitiesPerPlayer(kCity.getOwner()), iAreaMilitaryStock,
+		kLocalRivals.iIndependentRivalTeams, kLocalRivals.iUnknownIndependentRivalTeams,
+		kLocalRivals.iIndependentRivalCities, kLocalRivals.iLocalPowerAdvantagePercent);
+}
+
 // <!-- custom: Unlike the regular-building attribution, Wonder inherited values need a slim dedicated row.
 // The regular KI#48.5 logger intentionally excludes bWonder and also performs recursive focus probes; this row records only the already-computed neutral inherited result/components, so a master-Wonder-policy-off A/B stays deterministic and cheap enough for level-3 forensic use. (ChatGPT-5.6-Sol) -->
 static void SAS_logInheritedWonderValue(CvCityAI const& kCity, BuildingTypes eBuilding, int iValue, int iPriorityFactor,
@@ -8372,7 +8492,8 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 		iExperienceWeight /= (bWarPlan || (bHighProductionCity && bSettlerGateReady) ? 1 : 4);
 		bool const bCoastal = kCity.isCoastal(GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN) * 2);
 
-		// <!-- custom: Count every currently trainable combat unit that would actually receive XP from this building. The earlier audit counted only UnitCombat-specific XP, which understated domain-wide buildings such as Barracks. (ChatGPT-5.6-Sol) -->
+		// <!-- custom: Keep the inherited military-infrastructure row's XP applicability scan separate from the shared DOMAIN_APPLICABILITY audit above.
+		// This scan feeds the existing strength/cost/turn diagnostics only; domain production applicability is logged once by SAS_logDomainApplicability for both Wonders and regular buildings. See KI#48.14. (ChatGPT-5.6-Sol) -->
 		int iTrainableXpAffectedUnits = 0;
 		int iTrainableXpAffectedLand = 0, iTrainableXpAffectedSea = 0, iTrainableXpAffectedAir = 0;
 		int iAffectedStrengthMax = 0, iAffectedLandStrengthMax = 0, iBestTrainableLandStrength = 0;
@@ -8385,24 +8506,26 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 				CvUnitInfo const& kLoopUnit = GC.getInfo(eLoopUnit);
 				if (!kCity.canTrain(eLoopUnit))
 					continue;
+
+				DomainTypes const eUnitDomain = kLoopUnit.getDomainType();
 				int const iStrength = std::max(kLoopUnit.getCombat(), kLoopUnit.getAirCombat());
-				if (kLoopUnit.getDomainType() == DOMAIN_LAND && iStrength > 0)
+				if (eUnitDomain == DOMAIN_LAND && iStrength > 0)
 					iBestTrainableLandStrength = std::max(iBestTrainableLandStrength, iStrength);
 				UnitCombatTypes const eCombat = kLoopUnit.getUnitCombatType();
-				int iGrantedExperience = kBuilding.getFreeExperience() + kBuilding.getDomainFreeExperience(kLoopUnit.getDomainType());
+				int iGrantedExperience = kBuilding.getFreeExperience() + kBuilding.getDomainFreeExperience(eUnitDomain);
 				if (eCombat != NO_UNITCOMBAT)
 					iGrantedExperience += kBuilding.getUnitCombatFreeExperience(eCombat);
 				if (iGrantedExperience <= 0 || iStrength <= 0)
 					continue;
 				iTrainableXpAffectedUnits++;
 				iAffectedStrengthMax = std::max(iAffectedStrengthMax, iStrength);
-				if (kLoopUnit.getDomainType() == DOMAIN_LAND)
+				if (eUnitDomain == DOMAIN_LAND)
 				{
 					iTrainableXpAffectedLand++;
 					iAffectedLandStrengthMax = std::max(iAffectedLandStrengthMax, iStrength);
 				}
-				else if (kLoopUnit.getDomainType() == DOMAIN_SEA) iTrainableXpAffectedSea++;
-				else if (kLoopUnit.getDomainType() == DOMAIN_AIR) iTrainableXpAffectedAir++;
+				else if (eUnitDomain == DOMAIN_SEA) iTrainableXpAffectedSea++;
+				else if (eUnitDomain == DOMAIN_AIR) iTrainableXpAffectedAir++;
 				iAffectedCostSum += kCity.getProductionNeeded(eLoopUnit);
 				int const iTurns = kCity.getProductionTurnsLeft(eLoopUnit, 0);
 				if (iTurns > 0 && iTurns < MAX_INT)
@@ -8560,21 +8683,44 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	const int iFreeExperience = kBuilding.getFreeExperience();
 	const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
 
-	// <!-- custom: DOMAIN_SEA building effects share one expected-naval-throughput context so Drydock-style production and XP valuation do not independently repeat AI_buildUnitProb / AI_calculateWaterWorldPercent.
-	// Keep sea production and sea XP separately switchable for regression comparison against their inherited formulas. See KI#48.11 and KI#48.12. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Domain-limited military-production effects share the authoritative AI_buildUnitProb demand estimate and K-Mod water-world context.
+	// Drydock-style sea production/XP keep their validated formulas; DOMAIN_LAND was validated with temporarily land-scoped Heroic Epic laboratory XML. See KI#48.11-KI#48.13. (ChatGPT-5.6-Sol) -->
+	static const bool bLandProductionThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_LAND_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE");
 	static const bool bSeaProductionThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_SEA_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE");
 	static const bool bSeaExperienceThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT_OPTIMIZE");
+	bool const bNeedLandThroughputContext = (bLandProductionThroughputOptimize && kBuilding.getDomainProductionModifier(DOMAIN_LAND) != 0);
 	bool const bNeedSeaThroughputContext =
 			(bSeaProductionThroughputOptimize && kBuilding.getDomainProductionModifier(DOMAIN_SEA) != 0) ||
 			(bSeaExperienceThroughputOptimize && kBuilding.getDomainFreeExperience(DOMAIN_SEA) != 0);
-	int iSeaTotalMilitaryProductionShare = 0;
-	int iSeaWaterWorldPercent = 0;
+	int iDomainTotalMilitaryProductionShare = 0;
+	int iDomainWaterWorldPercent = 0;
+	if (bNeedLandThroughputContext || bNeedSeaThroughputContext)
+	{
+		iDomainTotalMilitaryProductionShare = AI_buildUnitProb();
+		iDomainWaterWorldPercent = AI_calculateWaterWorldPercent();
+	}
 	int iSeaProductionShare = 0;
 	if (bNeedSeaThroughputContext)
+		iSeaProductionShare = (iDomainTotalMilitaryProductionShare * iDomainWaterWorldPercent) / 100;
+
+	int iLandDemandPercent = 0;
+	int iLandProductionShare = 0;
+	int iLandAreaAI = -1;
+	bool bLandWar = false;
+	bool bAssault = false;
+	if (bNeedLandThroughputContext)
 	{
-		iSeaTotalMilitaryProductionShare = AI_buildUnitProb();
-		iSeaWaterWorldPercent = AI_calculateWaterWorldPercent();
-		iSeaProductionShare = (iSeaTotalMilitaryProductionShare * iSeaWaterWorldPercent) / 100;
+		iLandAreaAI = getArea().getAreaAIType(getTeam());
+		bLandWar = (iLandAreaAI == AREAAI_OFFENSIVE || iLandAreaAI == AREAAI_MASSING || iLandAreaAI == AREAAI_DEFENSIVE);
+		bAssault = (iLandAreaAI == AREAAI_ASSAULT || iLandAreaAI == AREAAI_ASSAULT_MASSING || iLandAreaAI == AREAAI_ASSAULT_ASSIST);
+		// <!-- custom: AI_calculateWaterWorldPercent is a naval-importance proxy, not a literal partition of military production; using 100-water would incorrectly reduce land demand to zero on strongly insular maps.
+		// Keep a 50% baseline for defenders/expeditionary land forces, while active land war restores full land relevance and assault preparation keeps at least 75%. See KI#48.13. (ChatGPT-5.6-Sol) -->
+		iLandDemandPercent = 100 - iDomainWaterWorldPercent / 2;
+		if (bLandWar)
+			iLandDemandPercent = 100;
+		else if (bAssault)
+			iLandDemandPercent = std::max(75, iLandDemandPercent);
+		iLandProductionShare = (iDomainTotalMilitaryProductionShare * iLandDemandPercent) / 100;
 	}
 
 	// <!-- custom: Keep the remaining SAS Wonder prefilter pending the separate KI#48.9 audit; the audited regular-building category prefilter was completed in KI#48.5. (GPT-5.6-Sol) -->
@@ -9645,7 +9791,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							{
 								logBBAI("BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT turn=%d player=%d city=%S cityId=%d building=%s seaExperience=%d totalMilitaryProductionShare=%d waterWorldPercent=%d seaProductionShare=%d experienceWeight=%d throughputValue=%d legacyValue=%d baseProduction=%d productionRank=%d numCities=%d highProductionCity=%d",
 									kGame.getGameTurn(), eOwner, getName().GetCString(), getID(), kBuilding.getType(), iSeaExperience,
-									iSeaTotalMilitaryProductionShare, iSeaWaterWorldPercent, iSeaProductionShare, iSeaExperienceWeight,
+									iDomainTotalMilitaryProductionShare, iDomainWaterWorldPercent, iSeaProductionShare, iSeaExperienceWeight,
 									iSeaExperienceThroughputValue, iLegacySeaExperienceValue, iBaseHammersPerTurn, iProductionRank, iNumCities, bHighProductionCity);
 							}
 						}
@@ -10290,12 +10436,34 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			FOR_EACH_ENUM(Domain)
 			{
 				int const iDomainProductionModifier = kBuilding.getDomainProductionModifier(eLoopDomain);
-				if (bSeaProductionThroughputOptimize && eLoopDomain == DOMAIN_SEA && iDomainProductionModifier != 0)
+				if (bLandProductionThroughputOptimize && eLoopDomain == DOMAIN_LAND && iDomainProductionModifier != 0)
+				{
+					// <!-- custom: Inherited DOMAIN_LAND valuation is a fixed modifier/5 plus a binary high-production-city bonus.
+					// The Heroic-Epic scope audit showed that this flattens city specialization: e.g. a 15-hammer Pangaea pump with ~67% unit demand fell from generic-throughput value 22 to fixed domain value 20, while a 6-hammer city rose from 10 to the same 20.
+					// Use the same base-throughput scale as generic military production, but only for the contextual land-demand share above. See KI#48.13. (ChatGPT-5.6-Sol) -->
+					int const iLandProductionBaseRate = iBaseHammersPerTurn + 2;
+					int const iLandProductionThroughputValue = (iDomainProductionModifier * iLandProductionBaseRate * iLandProductionShare) / 2500;
+					iValue += iLandProductionThroughputValue;
+					if (bLogBuildingValueDetails && iPass > 0)
+					{
+						int iLegacyDomainProductionValue = iDomainProductionModifier / 5;
+						if (bHighProductionCity)
+							iLegacyDomainProductionValue += iDomainProductionModifier / 5;
+						SASLocalAreaRivalContext const kLocalRivals(kOwner, getArea());
+						logBBAI("BUILDING_VALUE_DOMAIN_LAND_PRODUCTION_THROUGHPUT turn=%d player=%d city=%S cityId=%d building=%s modifier=%d baseProduction=%d baseRateWithGrowth=%d totalMilitaryProductionShare=%d waterWorldPercent=%d landDemandPercent=%d landProductionShare=%d areaAI=%d landWar=%d assault=%d throughputValue=%d legacyValue=%d productionRank=%d numCities=%d highProductionCity=%d independentRivalTeamsInArea=%d unknownIndependentRivalTeamsInArea=%d independentRivalCitiesInArea=%d localPowerAdvantagePercent=%d",
+							kGame.getGameTurn(), eOwner, getName().GetCString(), getID(), kBuilding.getType(), iDomainProductionModifier,
+							iBaseHammersPerTurn, iLandProductionBaseRate, iDomainTotalMilitaryProductionShare, iDomainWaterWorldPercent,
+							iLandDemandPercent, iLandProductionShare, iLandAreaAI, bLandWar, bAssault, iLandProductionThroughputValue,
+							iLegacyDomainProductionValue, iProductionRank, iNumCities, bHighProductionCity, kLocalRivals.iIndependentRivalTeams,
+							kLocalRivals.iUnknownIndependentRivalTeams, kLocalRivals.iIndependentRivalCities, kLocalRivals.iLocalPowerAdvantagePercent);
+					}
+				}
+				else if (bSeaProductionThroughputOptimize && eLoopDomain == DOMAIN_SEA && iDomainProductionModifier != 0)
 				{
 					// <!-- custom: K-Mod/AdvC values DOMAIN_SEA production as modifier/5, doubled only by a binary high-production-city flag.
 					// Pangaea vs Tiny-Islands audit found almost the same Drydock adoption (~40% vs ~43%) and only a small inherited contribution difference (~13 vs ~15), despite post-Drydock sea units consuming ~10% vs ~41% of military-unit production respectively.
 					// Reuse the generic military-throughput scale, but multiply total military demand by K-Mod's existing AI_calculateWaterWorldPercent estimate so sea-production value follows both actual city hammers and the strategic need to produce naval units.
-					// Preserve other domains; DOMAIN_SEA XP is valued separately above and remains independently switchable. See KI#48.11. (ChatGPT-5.6-Sol) -->
+					// Preserve other domains except the separately switchable DOMAIN_LAND throughput audit; DOMAIN_SEA XP is valued separately above and remains independently switchable. See KI#48.11. (ChatGPT-5.6-Sol) -->
 					int const iSeaProductionBaseRate = iBaseHammersPerTurn + 2;
 					int const iSeaProductionThroughputValue = (iDomainProductionModifier * iSeaProductionBaseRate * iSeaProductionShare) / 2500;
 					iValue += iSeaProductionThroughputValue;
@@ -10306,7 +10474,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							iLegacyDomainProductionValue += iDomainProductionModifier / 5;
 						logBBAI("BUILDING_VALUE_DOMAIN_SEA_PRODUCTION_THROUGHPUT turn=%d player=%d city=%S cityId=%d building=%s modifier=%d baseProduction=%d baseRateWithGrowth=%d totalMilitaryProductionShare=%d waterWorldPercent=%d seaProductionShare=%d throughputValue=%d legacyValue=%d productionRank=%d numCities=%d highProductionCity=%d",
 							kGame.getGameTurn(), eOwner, getName().GetCString(), getID(), kBuilding.getType(), iDomainProductionModifier,
-							iBaseHammersPerTurn, iSeaProductionBaseRate, iSeaTotalMilitaryProductionShare, iSeaWaterWorldPercent, iSeaProductionShare,
+							iBaseHammersPerTurn, iSeaProductionBaseRate, iDomainTotalMilitaryProductionShare, iDomainWaterWorldPercent, iSeaProductionShare,
 							iSeaProductionThroughputValue, iLegacyDomainProductionValue, iProductionRank, iNumCities, bHighProductionCity);
 					}
 				}
@@ -11695,28 +11863,18 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	if (bUseConstructionValueCache && !bConstCache)
 		m_aiConstructionValue[eBuildingClass] = iValue;
 	// K-Mod end
+	if (bLogBuildingValueDetails) SAS_logDomainApplicability(*this, eBuilding, iProductionRank, iNumCities, bHighProductionCity, iDomainTotalMilitaryProductionShare, iDomainWaterWorldPercent, iLandDemandPercent, iLandProductionShare, iSeaProductionShare);
 	if (bLogBuildingValueDetails && bWonder)
-
 	{
-
 		SAS_logInheritedWonderValue(*this, eBuilding, iValue, iPriorityFactor,
-
 			iDiagValueBeforePriority, iDiagValueAfterPriority, iDiagValueBeforeAIWeight, iDiagValueAfterAIWeight, iDiagFlavorMatch, iDiagValueAfterFlavor,
-
 			iDiagDefenseDelta, iDiagEspionageDefenseDelta, iDiagHappinessDelta, iDiagHealthDelta, iDiagExperienceDelta, iDiagDomainSeaDelta,
-
 			iDiagMaintenanceDelta, iDiagSpecialistDelta, iDiagTradeDelta, iDiagGeneralDelta, iDiagYieldDelta, iDiagCommerceGlobalDelta,
-
 			iDiagAirCapacityDelta, iDiagMilitaryProductionDelta, iDiagDomainProductionDelta, iDiagGoldDelta, iDiagResearchDelta,
-
 			iDiagCultureDelta, iDiagEspionageDelta, iDiagSeaFoodDelta, iDiagSeaProductionDelta, iDiagSeaCommerceDelta);
-
 	}
-
 	else if (bLogBuildingValueDetails && !bWonder)
-
 	{
-
 		SAS_logInheritedBuildingValue(*this, eBuilding, iValue, iPriorityFactor, iDiagDefenseDelta, iDiagEspionageDefenseDelta,
 			iDiagHappinessDelta, iDiagHealthDelta, iDiagExperienceDelta, iDiagDomainSeaDelta, iDiagMaintenanceDelta, iDiagSpecialistDelta,
 			iDiagTradeDelta, iDiagGeneralDelta, iDiagYieldDelta, iDiagCommerceGlobalDelta, iDiagAirCapacityDelta, iDiagMilitaryProductionDelta,
@@ -11731,7 +11889,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			iDiagSeaFoodDelta, iDiagSeaProductionDelta, iDiagSeaCommerceDelta, iDiagSeaYieldPlotWeight,
 			iDiagYieldProductionPriorityRaw, iDiagYieldProductionPriorityApplied);
 	}
-
 	return iValue;
 }
 
@@ -20979,8 +21136,8 @@ void CvCityAI::AI_barbChooseProduction()
 }
 
 
-// <!-- custom: inherited sea-production valuation: this helper is logically read-only.
-// Mark it const so const AI_buildingValue can reuse the existing K-Mod water-world demand estimate for DOMAIN_SEA production and free-experience throughput without a proxy or const_cast. See KI#48.11 and KI#48.12. (ChatGPT-5.6-Sol) -->
+// <!-- custom: inherited domain-production valuation: this helper is logically read-only.
+// Mark it const so const AI_buildingValue can reuse the existing K-Mod water-world demand estimate for contextual DOMAIN_SEA production/free-experience and DOMAIN_LAND production throughput without a proxy or const_cast. See KI#48.11-48.13. (ChatGPT-5.6-Sol) -->
 int CvCityAI::AI_calculateWaterWorldPercent() const
 {
 	int iFriendlyCities = 0;

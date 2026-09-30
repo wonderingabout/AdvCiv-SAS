@@ -93,6 +93,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.10 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) Generic military-production modifiers were valued mostly by fixed/rank rules instead of expected production throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.10)\
 [KI#48.11 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_SEA production modifiers were almost geography-blind instead of following expected naval throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.11)\
 [KI#48.12 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_SEA free experience used a fixed coastal multiplier instead of expected naval throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.12)\
+[KI#48.13 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_LAND production modifiers were fixed/rank-based instead of following expected land throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.13)\
+[KI#48.14 - (Confirmed inherited K-Mod/AdvC AI valuation/applicability weakness; correction WIP) Domain-production value can be awarded where the city cannot train any affected unit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.14)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
@@ -4218,15 +4220,27 @@ The next inherited domain audit used Drydock as a clean ordinary-building case, 
 
 KI#48.11 replaces the `DOMAIN_SEA` production-modifier term with expected naval throughput derived from actual city production, dynamic military demand and K-Mod's existing geographic `AI_calculateWaterWorldPercent()` estimate. KI#48.12 then applies the same expected naval-production share to `DOMAIN_SEA` free experience instead of retaining the fixed coastal multiplier. The paired Pangaea/Tiny-Islands validations strongly separate both production and XP value without restoring the retired `land-heavy map -> reject Drydock` rule.
 
+### Inherited detour continued: `DOMAIN_LAND` throughput and generic domain applicability (KI#48.13 / KI#48.14)
+
+A temporary Heroic-Epic `DOMAIN_LAND +50%` laboratory then exposed the same inherited fixed/rank weakness on land. KI#48.13 replaces that component with contextual land throughput: actual city production multiplied by `AI_buildUnitProb()` and a land-demand share that remains substantial on island maps, rises to full relevance during local land war and is kept high during assault preparation.
+
+Pangaea/Tiny-Islands validation restored meaningful differences between strong and weak hammer pumps without another top-city hard gate.
+
+The same laboratory also clarified that `DomainProductionModifier` is not equivalent to Heroic Epic's ordinary military-only modifier: it accelerates **all** units of a domain, including Workers/Settlers and other civilians. LAND/SEA Heroic-Epic scopes therefore remain diagnostic instruments rather than an accepted permanent Wonder redesign.
+
+A follow-up SEA laboratory exposed a separate inherited correctness issue tracked in KI#48.14: a city can receive substantial domain-production value even when it cannot train any unit in that domain.
+
+The behavior-neutral `BUILDING_VALUE_DOMAIN_APPLICABILITY` logger is retained, but the behavioral guard is deliberately deferred because `AI_techBuildingValue()` also reuses `AI_buildingValue()` prospectively. Current production and hypothetical future-tech valuation need explicit semantics rather than a central evaluator guessing why it was called.
+
 ### Remaining Wonder work
 
 The current direction is gradual migration rather than another monolithic replacement:
 
-- resume the National-Wonder policy against the corrected KI#48.10 inherited baseline and validate the generic-gate retirements together with specialized Heroic-Epic/government-center/Palace logic;
-- carry the domain audit forward from KI#48.11 / KI#48.12: `DOMAIN_SEA` production and free XP are now contextual, while `DOMAIN_LAND` / `DOMAIN_AIR` production and domain-specific XP remain inherited until separately justified and audited;
-- only after the relevant land-domain valuation is understood, consider the intended Heroic-Epic land-only balance/placement change so a special limited Wonder is not used to compensate for a generic evaluator weakness;
-- re-audit the surviving shared/World concerns one by one: construction-time horizon, relative production competitiveness, military exposure using factual local context, cheap-Wonder priority, coastal scaling and production-Wonder placement;
-- remove audit-only legacy thresholds/diagnostics only when they are no longer needed as counterfactual evidence.
+- finish KI#48.14's domain-production applicability correction with explicit current-production versus prospective-tech semantics; keep the current commit's applicability logger behavior-neutral until that interface question is settled;
+- restore Heroic Epic from the temporary LAND/SEA laboratory scopes to its actual military-only production semantics, then re-audit whether any dedicated Heroic-Epic urgency/placement policy is still needed after KI#48.10's generic military-throughput correction;
+- resume the remaining National/World-Wonder policy: shared slow/payback protection, military-pressure rules, relative/top-production placement, coastal-Wonder scaling, production-Wonder placement, Government Center/Forbidden Palace and Palace relocation;
+- retain KI#48.13's tested `DOMAIN_LAND` throughput support as generic/modmod-safe infrastructure even if current SAS has no permanent land-domain production consumer; `DOMAIN_AIR` throughput amount and domain-specific AIR XP remain separate future audits rather than symmetry-driven changes;
+- remove dead old-SAS gates, defines, classifiers and caches only when their final evidence-backed consumer disappears, while preserving useful forensic diagnostics until the migration is closed.
 
 The long-term target mirrors KI#48.5: inherited additive valuation plus narrow contextual safeguards whose underlying concern survives measurement, rather than a large ordered table of hard Wonder vetoes and force-first sentinels.
 
@@ -4306,16 +4320,17 @@ Heroic Epic also exposed why this generic cure must stay conceptually separate f
 
 Runtime cost was effectively unchanged in this test: throughput autoplay was about **1.87 seconds/turn** versus about **1.86 seconds/turn** for the legacy branch. The richer reuse of `AI_buildUnitProb()` therefore showed no meaningful per-turn performance regression here.
 
-### Result and scope
+### Result and scope (KI#48.10)
 
 KI#48.10 is therefore considered an **improved inherited valuation correction**, not a Heroic-Epic-specific force. The default throughput path should remain enabled, while the legacy formula stays available behind the SAS define for regression testing and modmod comparison.
 
 The next inherited question was deliberately separated rather than folded into this formula. K-Mod/AdvC's `DomainProductionModifier` valuation used fixed increments and another binary `bHighProductionCity` bonus, with little direct connection to actual domain-specific need or throughput.
 
-The first real consumer, Drydock's `DOMAIN_SEA` +50% production modifier, is audited and improved in **KI#48.11**; its separate +3 naval free-experience value is now contextualized in **KI#48.12**. `DOMAIN_LAND`, `DOMAIN_AIR` and their domain-specific XP remain separate questions; Heroic-Epic-specific land-only semantics, placement and urgency should be judged only after the relevant land-domain valuation is understood.
+The first real consumer, Drydock's `DOMAIN_SEA` +50% production modifier, is audited and improved in **KI#48.11**; its separate +3 naval free-experience value is contextualized in **KI#48.12**. `DOMAIN_LAND` production is now separately audited and improved in **KI#48.13**, using a temporary Heroic-Epic scope only as laboratory equipment.
 
-See **KI#48.9** for the broader World/National-Wonder migration that exposed this inherited evaluator issue, **KI#48.11** for `DOMAIN_SEA` production throughput and **KI#48.12** for `DOMAIN_SEA` free-experience throughput.
+`DOMAIN_AIR` throughput amount remains inherited until a real consumer justifies calibration, while the generic city-local applicability problem shared by domain-production effects is tracked separately in **KI#48.14**.
 
+See **KI#48.9** for the broader World/National-Wonder migration that exposed this inherited evaluator issue, **KI#48.11** for `DOMAIN_SEA` production throughput, **KI#48.12** for `DOMAIN_SEA` free-experience throughput, **KI#48.13** for `DOMAIN_LAND` production throughput and **KI#48.14** for the domain-applicability follow-up.
 
 <a id="ki-48.11"></a>
 
@@ -4414,11 +4429,12 @@ KI#48.11 changes only `DOMAIN_SEA` **production-modifier** valuation. The inheri
 Several adjacent questions are intentionally not folded into this production cure:
 
 - Drydock's separate **+3 `DOMAIN_SEA` free experience** was audited next and is now contextualized independently in **KI#48.12**. Keeping separate toggles preserves a clean distinction between naval-production throughput and naval-XP value while both reuse the same expected-sea-share context.
-- `DOMAIN_LAND` and `DOMAIN_AIR` production modifiers remain on inherited valuation until real consumers/context justify separate changes.
-- Heroic Epic remains a generic `MilitaryProductionModifier` National Wonder in the committed baseline. Its planned land-only scope experiment is deliberately separate from both sea-domain fixes.
+- `DOMAIN_LAND` production valuation was subsequently audited and improved in **KI#48.13**; `DOMAIN_AIR` throughput amount remains inherited until a real consumer justifies separate calibration.
+- Heroic Epic remains a generic `MilitaryProductionModifier` National Wonder in the committed baseline. Temporary LAND/SEA scopes were useful laboratory instruments, but `DomainProductionModifier` affects civilian units as well as military units and is therefore not automatically the right permanent Heroic-Epic semantic.
+- KI#48.14 separately tracks the generic city-local applicability defect exposed by the SEA laboratory: domain production can receive value even where the city cannot train an affected unit.
 - A bad upstream decision to overproduce ships is a military-production-policy problem, not something building valuation should amplify or independently solve.
 
-See **KI#48.5** for the retired land-heavy Drydock hard veto, **KI#48.10** for the generic military-throughput correction, **KI#48.12** for the separate naval-XP continuation, and **KI#48.9** for the Wonder/domain-specialization work that led into this inherited audit.
+See **KI#48.5** for the retired land-heavy Drydock hard veto, **KI#48.10** for the generic military-throughput correction, **KI#48.12** for the separate naval-XP continuation, **KI#48.13** for land throughput, **KI#48.14** for domain applicability, and **KI#48.9** for the Wonder/domain-specialization work that led into this inherited audit.
 
 <a id="ki-48.12"></a>
 
@@ -4492,11 +4508,207 @@ KI#48.12 completes the currently demonstrated `DOMAIN_SEA` pair:
 - **KI#48.11:** sea-production modifiers follow expected naval throughput;
 - **KI#48.12:** sea-only free experience follows the same expected naval share with its own bounded XP weight.
 
-The next experiment is intentionally different rather than another Drydock tweak: Heroic Epic can be scoped from generic `MilitaryProductionModifier +50%` to `DOMAIN_LAND ProductionModifier +50%` and tested against the still-inherited land-domain formula. That scope test should establish the real `DOMAIN_LAND` consumer before designing any land-throughput cure.
+The planned temporary Heroic-Epic `DOMAIN_LAND +50%` scope experiment was subsequently completed and produced **KI#48.13**. It validated a contextual land-throughput replacement, but also established an important semantic boundary: `DomainProductionModifier` applies to civilian units of that domain too, unlike Heroic Epic's current military-only modifier.
 
-If a land evaluator is then warranted, `SASLocalAreaRivalContext` and overseas/invasion context can be considered there rather than forced into the already-working sea estimator. `DOMAIN_AIR` remains later and separate.
+The laboratory scope is therefore evidence for the evaluator, not an automatic permanent Heroic-Epic redesign.
 
-See **KI#48.11** for the sea-production half, **KI#48.10** for the generic military-throughput correction, and **KI#48.9** for the broader Wonder/domain-specialization migration.
+The follow-up LAND/SEA applicability instrumentation then exposed the separate generic issue tracked in **KI#48.14**: a domain-production component can be valued in a city that cannot currently train any affected unit.
+
+That correction is intentionally deferred until current production and prospective technology valuation can be represented without conflating their semantics. `DOMAIN_AIR` production throughput amount and AIR-specific XP remain later/separate audits.
+
+See **KI#48.11** for the sea-production half, **KI#48.10** for the generic military-throughput correction, **KI#48.13** for land throughput, **KI#48.14** for domain applicability, and **KI#48.9** for the broader Wonder/domain-specialization migration.
+
+<a id="ki-48.13"></a>
+
+## KI#48.13 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_LAND production modifiers were fixed/rank-based instead of following expected land throughput
+
+This issue continues the inherited production-modifier archaeology from KI#48.10-KI#48.12. K-Mod/AdvC valued every positive `DomainProductionModifier` with the same fixed/rank structure used before the `DOMAIN_SEA` correction:
+
+```cpp
+value += modifier / 5;
+if (bHighProductionCity)
+    value += modifier / 5;
+```
+
+For a +50% land-production modifier this therefore became broadly `+10` or `+20`, regardless of whether the city had 6 base hammers or 60, how much military production the AI currently wanted, whether the area was in a land war, or whether the empire was preparing an overseas assault.
+
+Current AdvCiv-SAS had no permanent `DOMAIN_LAND` production building, so Heroic Epic was temporarily changed from generic `MilitaryProductionModifier +50%` to `DOMAIN_LAND ProductionModifier +50%` as **laboratory equipment**.
+
+This experiment is not itself a final Heroic-Epic design: Civ4's `DomainProductionModifier` applies to every unit in the domain, including Workers, Settlers, missionaries and other civilians, while Heroic Epic's normal `MilitaryProductionModifier` applies only to units flagged for military production.
+
+### The inherited flattening was directly reproduced
+
+The clearest same-turn Pangaea example occurred before history divergence:
+
+```text
+Nidaros
+base production = 15
+AI_buildUnitProb ~= 67%
+generic military-throughput value = +22
+inherited DOMAIN_LAND value = +20
+
+Uppsala
+base production = 6
+AI_buildUnitProb ~= 67%
+generic military-throughput value = +10
+inherited DOMAIN_LAND value = +20
+```
+
+The inherited domain formula therefore made the weak and strong hammer pumps equally attractive for the same +50% modifier. This is the same underlying rank/throughput problem corrected generically in KI#48.10 and for sea production in KI#48.11.
+
+### Contextual land-throughput replacement
+
+The replacement keeps the same throughput scale already validated for generic military production, but applies only the expected **land** share of military demand:
+
+```text
+totalMilitaryProductionShare = AI_buildUnitProb()
+landDemandPercent = 100 - waterWorldPercent / 2
+if local land war:
+    landDemandPercent = 100
+else if assault / invasion area AI:
+    landDemandPercent = max(75, landDemandPercent)
+
+landProductionShare = totalMilitaryProductionShare * landDemandPercent / 100
+value = modifier * (baseProduction + 2) * landProductionShare / 2500
+```
+
+`AI_calculateWaterWorldPercent()` is deliberately **not** treated as a literal `SEA share = X, LAND share = 100-X` partition. A Tiny-Islands empire with `waterWorldPercent=100` still needs defenders and expeditionary land forces, so the baseline retains 50-100% land relevance.
+
+Active local land war restores 100%, while assault/massing context keeps at least 75%.
+
+The independently switchable `SAS_AI_BUILDING_VALUE_DOMAIN_LAND_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE` define preserves the inherited formula for regression/modmod comparison.
+
+### Pangaea and Tiny-Islands validation
+
+The paired laboratory runs produced the intended contextual separation:
+
+| Diagnostic | Pangaea | Tiny Islands |
+| --- | ---: | ---: |
+| Median `waterWorldPercent` | 13% | 100% |
+| Median land-demand percent | 98% | 75% |
+| Median derived land-production share | 43% | 30% |
+| Median +50% contextual LAND value | +19 | +11 |
+| Median inherited +50% LAND value | +20 | +20 |
+
+Pangaea can still reach full land demand during real land war. Tiny Islands retains meaningful land value instead of collapsing to zero, but no longer treats every +50% land-production building as if naval geography were irrelevant.
+
+The central chooser also continued to compete normally rather than turning the laboratory Heroic Epic into another force-first rule. The Pangaea inherited-domain control produced no Heroic Epic through turn 404; the throughput candidate produced one at turn 315.
+
+On Tiny Islands the control had two completions by the common turn-408 horizon, one barbarian, while the candidate had two normal-AI completions. These already-divergent completion totals are sanity checks rather than causal effect sizes.
+
+The completed Pangaea Heroic Epic occurred in Dublin at turn 315: production rank 11/16 but **31 base hammers**, only about **3 turns** to build, **57%** total military demand, **52%** derived land-production share and two currently trainable land military units.
+
+Its land-throughput contribution was about **+34** versus inherited **+10**, illustrating why actual throughput can be more informative than ordinal rank alone.
+
+### Applicability diagnostics do not justify another LAND gate
+
+The accompanying level-3 applicability audit also counted whether the city could currently train units affected by the temporary LAND modifier. Purely civilian-only applicability was rare: **1 / 4,592** Heroic-Epic snapshots on Pangaea and **27 / 5,714 (~0.5%)** on Tiny Islands had trainable land units but no trainable military land unit.
+
+None of the demonstrated Heroic-Epic selections/completions belonged to that class.
+
+That result argues against adding another LAND-specific hard gate merely because the theoretical edge case exists. It also helped reveal the more general domain-production applicability defect tracked separately in KI#48.14.
+
+### Result and scope (KI#48.13)
+
+KI#48.13 is considered an **improved inherited valuation correction**. The contextual `DOMAIN_LAND` branch is generic, separately toggleable, tested on both land-heavy and highly naval maps, and dormant when no building has a land-domain production modifier.
+
+It can therefore remain useful for future SAS balance changes and modmods even if current SAS ultimately has no permanent `DOMAIN_LAND` production building.
+
+The temporary Heroic-Epic LAND scope is **not** part of this conclusion. Before resuming specialized Heroic-Epic urgency/placement policy, Heroic Epic should return to its actual military-only production semantics unless a later dedicated design change deliberately says otherwise.
+
+See **KI#48.10** for generic military-production throughput, **KI#48.11** for `DOMAIN_SEA` production throughput, **KI#48.14** for the domain-production applicability issue exposed by the laboratories, and **KI#48.9** for the broader Wonder migration.
+
+<a id="ki-48.14"></a>
+
+## KI#48.14 - (Confirmed inherited K-Mod/AdvC AI valuation/applicability weakness; correction WIP) Domain-production value can be awarded where the city cannot train any affected unit
+
+The LAND/SEA laboratory work for KI#48.13 exposed a distinct inherited problem that should not be hidden inside the throughput formulas themselves. `AI_buildingValue()` can award value for a nonzero `DomainProductionModifier` without first establishing that the **current city can train any unit in that domain**.
+
+This is a component-level correctness issue, not evidence for another whole-building reject. If a building has unrelated health, happiness, XP, trade or other useful effects, those effects should continue to compete normally even when one domain-production component is currently unusable.
+
+### SEA laboratory proves the structural defect
+
+A temporary unrestricted Heroic-Epic `DOMAIN_SEA +50%` scope created a deliberately adversarial test because, unlike Drydock, Heroic Epic itself does not require a suitable coastal city.
+
+The applicability logger found examples such as:
+
+```text
+Carthage, Tiny Islands
+coastal = 0
+trainable SEA units = 0
+trainable military SEA units = 0
+base production = 60
+production rank = 1
+expected sea-production share ~= 59%
+contextual +50% DOMAIN_SEA value = +73
+inherited DOMAIN_SEA value = +20
+```
+
+Pangaea showed the same structure at lower magnitude; inland Hariharalaya could receive roughly **+35** of sea-production value despite being unable to train any sea unit.
+
+The throughput formula was correctly answering its own question -- this empire has substantial naval demand and this city has strong hammers -- but it lacked the separate applicability fact: **this city cannot turn any of those hammers into a unit affected by the modifier.**
+
+Ordinary production competition prevented the false component from producing a demonstrated bad Heroic-Epic completion in these histories. The traced Heroic-Epic best-building opportunities/completions were in usable naval cities. This is therefore a confirmed valuation defect, not evidence for a force/veto at whole-building level.
+
+### Behavior-neutral applicability instrumentation
+
+`BUILDING_VALUE_DOMAIN_APPLICABILITY` now records the relevant LAND/SEA/AIR context for regular buildings and Wonders without changing valuation. It distinguishes:
+
+- currently trainable units in each domain;
+- currently trainable **military** units in each domain;
+- production-affected units, military units and non-military units;
+- whether only civilian applicability exists;
+- trainable units that would actually receive the building's XP effects;
+- base production/rank, military demand, water-world/land-demand shares, area AI and local-rival context.
+
+This also established an important Civ4 semantic difference: `DomainProductionModifier` accelerates **all** units of the domain, while `MilitaryProductionModifier` only accelerates units flagged `isMilitaryProduction()`.
+
+A future applicability correction for domain production must therefore treat a trainable Work Boat, Worker or Settler as literal applicability when the XML effect really does accelerate it, even if a separate military-specialization policy may care about combat units.
+
+### Why the first obvious guard is not ready to commit
+
+The obvious current-state correction is narrow:
+
+```text
+nonzero DOMAIN_X production modifier
++ city can currently train zero DOMAIN_X units
+-> give only that domain-production component zero current value
+```
+
+A SEA-laboratory A/B showed that this removes the impossible component without broadly destabilizing decisions; candidate/control histories remained identical until roughly turn **426 on Tiny Islands** and turn **252 on Pangaea**.
+
+However, K-Mod/AdvC also reuses `AI_buildingValue()` from `AI_techBuildingValue()` for **prospective technology valuation**. In that context, current trainability is not necessarily the right question: the technology being evaluated may itself unlock the first unit of the affected domain.
+
+A central guard based only on today's city state can therefore underestimate a future building while evaluating the very technology that would make its modifier usable.
+
+This creates two legitimate semantic contexts:
+
+```text
+current production valuation
+-> current city applicability should be authoritative
+
+prospective technology valuation
+-> current inability may be resolved by the assumed future technology
+```
+
+The current checkpoint deliberately does **not** contort the ordinary evaluator to infer its caller from `canConstruct` or other indirect state. Nor does it commit an API expansion merely to pass hypothetical-tech state before the exact interface is satisfactory.
+
+The behavioral guard/helper are therefore left out of the KI#48.13 checkpoint while the applicability logger remains as evidence and regression support.
+
+### Requirements for the follow-up correction
+
+The eventual KI#48.14 implementation should preserve the constraints already established by the audit:
+
+- actual/current building valuation should not credit a domain-production component that affects no currently trainable unit in that city;
+- hypothetical technology valuation should not be pessimistically zeroed when the assumed technology itself can make the domain effect usable;
+- only the unusable domain-production **component** should be affected, never the whole multipurpose building;
+- applicability should follow the actual XML semantics of `DomainProductionModifier`, including civilians where relevant;
+- LAND/SEA/AIR should share the same generic applicability concept rather than accumulating map- or era-specific hardcodes;
+- `DOMAIN_AIR` production does not need a separate artificial laboratory merely to prove this structural issue, although AIR throughput magnitude and AIR-specific XP remain separate future calibration questions.
+
+The exact caller/prospective-context architecture remains WIP and should be handled as a focused follow-up commit rather than mixed into the already-validated KI#48.13 throughput checkpoint.
+
+See **KI#48.13** for the validated land-throughput branch, **KI#48.11** for the validated sea-production branch, **KI#48.12** for sea XP, **KI#48.10** for generic military throughput and **KI#48.9** for the broader Wonder migration that exposed these inherited valuation assumptions.
 
 <a id="ki-49"></a>
 
