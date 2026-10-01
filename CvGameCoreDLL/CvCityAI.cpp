@@ -8742,6 +8742,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 	// <!-- custom: Keep the remaining SAS Wonder prefilter pending the separate KI#48.9 audit; the audited regular-building category prefilter was completed in KI#48.5. (GPT-5.6-Sol) -->
 	static const bool bSAS_AI_BUILDING_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_OPTIMIZE");
+	static const bool bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE");
 
 	// <!-- custom: in autoplay AI doesn't build shrines (Mahabodhi, Pagan Shrine, etc.) until late game after world wonders ASAP fix. Shrines/corporations have iCost=-1, so no point trying to save hammers. Skip viability gates for iCost=-1; handle only buildable buildings (iCost>0), similar to CvUnitAI::AI_ChooseUnit. In autoplay this leads to more wonders by turn 300. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
 	// <!-- custom: performance optimization - cache iXMLCost for later calls in this function. (Claude code Sonnet 4.5 (summarized)) -->
@@ -8758,7 +8759,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 	// <!-- custom: Log World and National Wonder policy inputs separately before the retiring SAS gate can return. The final inherited result is logged later only if valuation actually reaches it. (ChatGPT-5.6-Sol) -->
 	if (bLogBuildingValueDetails && bWonder && (iXMLCost > 0) && !kOwner.isBarbarian() && !kOwner.isMinorCiv())
-		SAS_logWonderPolicyAudit(*this, eBuilding, bSAS_AI_BUILDING_VALUE_OPTIMIZE);
+		SAS_logWonderPolicyAudit(*this, eBuilding, bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE);
 
 	// Only apply the remaining "hammer/turns/top-hammer-city" viability gates to normal, buildable Wonders.
 	if (bWonder && (iXMLCost > 0) && !kOwner.isBarbarian() && !kOwner.isMinorCiv() && bSAS_AI_BUILDING_VALUE_OPTIMIZE)
@@ -8832,7 +8833,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		// <!-- custom: also account for the base production modifiers (e.g. that the forge or factory has) to asses the building's worth/value as a production modifier building (here national wonder) type-->
 		const int iTotalHammersModifier = iHammersModifier + iTotalBonusHammersModifier;
 
-		static const bool bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE");
 		// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it, everything else being the same. See SAS defines XML code comments for details about it and its sub options -->
 		static const bool bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE");
 		static const bool bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE");
@@ -8916,32 +8916,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			// Inherited building/production competition already discounts long investments contextually, while the old current-city turn cap also leaked into prospective technology valuation and could reject successful long World/National Wonder starts.
 			// Level-3 Wonder-policy diagnostics retain estimated build time and the former cap as counterfactual evidence while the remaining pressure/race policies are audited separately. (ChatGPT-5.6-Sol) -->
 
-			// <!-- custom: may save a lot of computation by checking this early and forwarding the early rejects (note: make sure to not push ahead / forward the always pick first blocks else it may alter history (unless is as you want it)), since we'll reject anyway later (especialyl for the loop code). -->
-			// <!-- custom: more early checks to save computation before the loop computation -->
-			// <!-- custom: especially if losing, don't build wonder for our ennemies, do something else instead useful to help us survive. Note: there is a code somewhere that i saw that tells the AI to not ditch a wonder being built if >= a certain percentage of completion, which i think is 50%, if i find it heavily tighten it as well, even at 50% completion, we can still produce several longbowmen or such instead that may increase our odds a lot, ideally don't start the wonder at all, but if didn't see it (surprise war, etc), then don't continue building it somewhere as well if i find where again, as for this code only handles new buildings to start, and tightening it heavily here in war or war-related context; update: i found it and tweaked it there as well, it's as of now in CvCityAI::AI_chooseProduction (ctrl+f "completion" to find it xd luckily found it again thankfully maybe rather i should say to myself xd or chatgpt 5 i'm tlaking to in this case) -->
-			// hard skips: don’t throw the game to build a shiny thing
-			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
-			{
-				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness. Chatgpt 5 also suggests this or something similar so doing as such -->
-				if (!bLandUnitsBuilding)
-				{
-					if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WONDER_COMMON", "REJECT_MILITARY_PRESSURE", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
-				else
-				{
-					// <!-- custom: world wonders are generally costlier, so don't build them if danger but also if at war -->
-					if (bAtWar || bDanger)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WONDER_MILITARY", "REJECT_IMMEDIATE_PRESSURE", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
+			// <!-- custom: KI#48.x World-Wonder audit: retire the old hard military-pressure veto.
+			// Paired Tiny-Islands/Pangaea tests showed that normal production competition already redirected pressured cities toward units, while the hard building-value veto fired mostly for broad war-plan/at-war states rather than immediate danger and could suppress short, successful Wonders (for example an 8-turn Pyramids build by a stronger Rome).
+			// Keep war/danger/power facts in level-3 diagnostics for future evidence without zeroing the whole Wonder. (ChatGPT-5.6-Sol) -->
 
 				// <!-- custom: KI#48.9 World-Wonder audit: retire the post-opening requirement for a +25% build-time modifier. In the inherited-only Snaky baseline this hard proxy did not predict race success; actual construction time and city production competitiveness remain active safeguards. The audit row still records the former condition. (ChatGPT-5.6-Sol) -->
 				// <!-- custom: note: cannot try to save computation by checking bCoastalBuilding, as in some weird xml mod mods or such (or maybe we would too or would not), maybe a non-coastal city would give a coastal cities scaling effect, so do not check bCoastalBuilding to avoid overlooking these as chatgpt 5 advised/noted if i understood it correctly -->
@@ -9352,7 +9329,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					}
 				}
 			}
-		}
+	// <!-- custom: Retiring the nested World-Wonder pressure block also removes its inner closing brace; retaining both old closers ended AI_buildingValue here and produced the subsequent global-scope compile cascade. This remaining brace closes the common SAS Wonder-policy block. See KI#48.9. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	}
 
 	// <!-- custom: moved these below our pre-checks / pre-filtering out since we don't use them and they may interfere with our logic or cost performance needlessly -->
