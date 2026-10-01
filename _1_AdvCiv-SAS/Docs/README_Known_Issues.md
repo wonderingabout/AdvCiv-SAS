@@ -949,7 +949,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#818 - (Provisional Pending AdvCiv city-acquisition regression) Cross-civilization unique buildings can disappear](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-818)\
 [KI#819 - (Provisional Pending inherited BtS corporation-commerce cache defect) Suppression civics leave foreign HQ commerce stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-819)\
 [KI#820 - (Fixed AdvCiv bonus-value cache regression) Domestic resource changes left substitute values stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-820)\
-[KI#821 - (Provisional Pending inherited K-Mod construction-value cache defect) Later policy changes reuse pre-research values](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-821)\
+[KI#821 - (Pending / Partially Fixed inherited K-Mod construction-value cache-lifetime defect) Cached construction values can outlive their inputs or be primed by speculative callers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-821)\
 [KI#822 - (Provisional Pending inherited K-Mod available-income cache defect) GPT changes trigger commerce from stale income](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-822)\
 [KI#823 - (Provisional Pending inherited BtS deal transaction-ordering defect) GPT can trigger commerce during a partial bundle](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-823)\
 [KI#824 - (Provisional Pending inherited BtS zero-anarchy ordering defect) Commerce sliders precede civic and religion changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-824)\
@@ -4753,25 +4753,52 @@ Another eligible own city must still exceed the current city's placement value b
 
 The disabled migration mode was exactly deterministic-equivalent to the earlier true gate-off control, confirming that the A/B plumbing itself was inert.
 
-On Pangaea, the three complete divergent histories produced:
+The first Pangaea migration run initially looked substantially better than inherited placement on aggregate failed/invalidated production, but that result still contained the speculative cross-city cache side effect described below. The later const-cache replay therefore supersedes those pre-fix aggregate numbers as the final evidence.
 
-| Policy | Starts/resumes | Global completions | Fail-gold events | Failed investment | Fail gold | Invalidated production |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Old gate retired; inherited placement | 22 | 39 | 55 | 8,463 | 4,217 | 42 |
-| Historical SAS relative-production gate | 13 | 39 | 45 | 6,428 | 3,203 | 127 |
-| Completion-time-aware inherited placement | 15 | 39 | 38 | 6,168 | 3,076 | 151 |
+Through the inherited control's turn-319 Pangaea horizon, the corrected comparison was:
 
-The starts/resumes column counts SASGameRecord production-target events and is not by itself a complete construction history.
+| Metric | Inherited control | Final const-cache migration |
+| --- | ---: | ---: |
+| Starts/resumes | 22 | 14 |
+| Global World Wonders completed | 39 | 39 |
+| Failed-race events | 55 | 44 |
+| Failed investment | 8,463 | 8,046 |
+| Invalidated production | 42 | 495 |
+| Failed + invalidated production | 8,505 | 8,541 |
 
-Completion-time-aware placement therefore retained **39** global World-Wonder completions while reducing failed plus invalidated investment from about **8,505 to 6,319 hammers** (roughly 26%). Its combined total was also slightly below the old SAS hard gate's approximately 6,555 hammers. Because the histories diverged, these totals are supporting outcome evidence rather than a claim that every difference was caused directly by placement.
+The starts/resumes column counts SASGameRecord production-target events and is not by itself a complete construction history. After removing the cache side effect, Pangaea is therefore approximately **neutral** on this crude aggregate waste measure rather than showing the earlier apparent universal reduction.
 
-The placement decisions were not mostly marginal ties. Across **883** distinct city/turn/Wonder rejections, the median rejected city needed about **25 turns**, the preferred own city about **12**, and the preferred median placement score was about four times larger. Representative comparisons included a 200-turn versus 25-turn Statue of Zeus and a 63-turn versus 12-turn Pyramids.
+It still completes the same **39** World Wonders, starts/resumes fewer Wonder attempts, produces fewer failed-race events and retains the continuous actual-completion-time placement logic instead of ordinal production hard gates.
 
-Tiny Islands tested the main design risk: the preferred city might be occupied by something important, so rejecting the current city could suppress a Wonder rather than relocate it. Through the common turn-408 horizon, global World-Wonder completions instead remained **39 -> 39**, failed investment fell **8,427 -> 5,737 hammers** (roughly 32%), fail gold fell **4,204 -> 2,861**, invalidated production fell **530 -> 337 hammers**, and periodic World-Wonder snapshots above 20 turns fell **5 -> 2**.
+Tiny Islands provides the stronger independent outcome evidence. Through the common turn-408 horizon:
 
-These paired maps strongly support the inherited placement correction rather than restoring the old SAS gate: the AI preserved the completed Wonder set while spending substantially less production on failed races, and lower-ranked cities remained eligible whenever their real completion time and value were competitive.
+| Metric | Inherited control | Pre-fix migration | Final const-cache migration |
+| --- | ---: | ---: | ---: |
+| Global World Wonders completed | 39 | 39 | 39 |
+| Failed investment | 8,427 | 5,737 | 5,688 |
+| Fail gold | 4,204 | 2,861 | 2,837 |
+| Invalidated production | 530 | 337 | 104 |
+| Periodic Wonder snapshots above 20 turns | 6 | 2 | 2 |
 
-See **KI#48.9** for the parent Wonder-policy migration.
+The placement decisions themselves were not mostly marginal ties. Across **883** distinct city/turn/Wonder rejections in the migration diagnostics, the median rejected city needed about **25 turns**, the preferred own city about **12**, and the preferred median placement score was about four times larger. Representative comparisons included a 200-turn versus 25-turn Statue of Zeus and a 63-turn versus 12-turn Pyramids.
+
+Together, the paired maps support the inherited placement correction without restoring the old SAS gate: lower-ranked cities remain eligible whenever their real completion time and value are competitive, Tiny Islands shows a large reduction in failed and invalidated investment, and corrected Pangaea preserves the completed Wonder set with fewer attempts/race failures even though its aggregate wasted hammers are roughly neutral. Divergent final victory outcomes are not treated as direct balance scores.
+
+### Inherited cache-lifetime follow-up
+
+The first Tiny migration candidate drew attention to a separate inherited cache-lifetime hazard because its city-state fingerprint diverged at turn **74** while logged production actions still matched and the authoritative RNG stream did not diverge until turn **82**.
+
+Source inspection showed that the expanded cross-city placement comparison could indeed populate another city's mutable construction-value cache merely because the current city considered whether that city would be a better Wonder location.
+
+That path was initially suspected to explain the turn-74 anomaly, but the confirming replay disproved that attribution. With the const-cache safeguard, Tiny Islands still first diverged from inherited control at turn **74** and Pangaea at turn **81**.
+
+More directly, the pre-fix migration and const-cache migration remained state-identical through **turn 274 on Tiny Islands** and **turn 106 on Pangaea**, then first separated at **turn 275 / turn 107**. The speculative cache write therefore did **not** cause the earlier migration-versus-control split.
+
+It was nevertheless behaviorally consequential later. Pangaea supplied a concrete case: a Great Wall placement comparison reused a previously primed value of **45** for Mutal, while the side-effect-free evaluation produced **20**, changing whether Chichen Itza was rejected as the Wonder location. This is exactly the kind of hidden evaluation-order dependence tracked by **F498 / KI#821**.
+
+The final caller-side safeguard therefore remains: speculative World-Wonder cross-city placement evaluation may still read an existing inherited cache entry, but a cache miss is evaluated without writing a new value into the other city's mutable construction cache. This **partially fixes KI#821 at this producer**; it does not certify existing entries as fresh and does not repair the broader inherited cache lifetime.
+
+See **KI#48.9** for the parent Wonder-policy migration and **KI#821** for the still-open construction-value cache-lifetime defect that this implementation exposed and selectively mitigates.
 
 <a id="ki-49"></a>
 
@@ -19081,11 +19108,31 @@ Found as F497 during ChatGPT-5.6-Sol's C031-WIP240 `CvPlayer.cpp` deep re-audit;
 
 <a id="ki-821"></a>
 
-## KI#821 - (Provisional Pending inherited K-Mod construction-value cache defect) Later policy changes reuse pre-research values
+## KI#821 - (Pending / Partially Fixed inherited K-Mod construction-value cache-lifetime defect) Cached construction values can outlive their inputs or be primed by speculative callers
 
-K-Mod clears city construction values before research selection, but later same-turn commerce, civic and religion changes can alter their inputs. A newly completed technology can then let city production reuse stale values cached during research or Great Person valuation. Invalidate after those state transitions or move the authoritative cache boundary after them.
+K-Mod caches neutral `AI_buildingValue()` results in each city's `m_aiConstructionValue`. The cache is cleared before research selection, but later same-turn commerce, civic and religion changes can alter valuation inputs before city production consumes the cache.
 
-Found as F498 during ChatGPT-5.6-Sol's C031-WIP242-WIP243 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+A newly completed technology can likewise make a value computed during research or Great Person valuation stale before later production logic reuses it. The original KI#821 root is therefore broader than one bad caller: the cache lifetime can outlive some of the state it summarizes.
+
+The KI#48.15 World-Wonder placement migration exposed a second concrete manifestation of that same lifetime problem. K-Mod's one-copy-building placement loop evaluates the candidate building in other eligible own cities. An ordinary non-const evaluation on a cache miss could therefore populate another city's mutable construction-value cache merely because the current city considered whether that city would be a better Wonder location.
+
+An early Tiny-Islands migration run first drew attention to this path because city-state fingerprints diverged at turn **74** while logged production decisions and the authoritative RNG stream still matched. Source inspection showed that speculative cross-city cache priming was genuinely possible, and it was initially suspected to explain that anomaly.
+
+The confirming replay corrected that attribution. Adding the const-cache safeguard did **not** remove the original migration-versus-control divergence: Tiny Islands still first diverged from inherited control at turn **74**, and Pangaea at turn **81**.
+
+Comparing the pre-fix migration directly against the const-cache migration was more decisive: they remained state-identical through **turn 274 on Tiny Islands** and **turn 106 on Pangaea**, then first separated at **turn 275 / turn 107**. The speculative cache write therefore did **not** cause the earlier turn-74 anomaly.
+
+It was nevertheless behaviorally consequential later. Pangaea provided a concrete example: a Great Wall placement comparison reused a previously primed value of **45** for Mutal, while a side-effect-free evaluation produced **20**, changing whether Chichen Itza was rejected as the Wonder location.
+
+KI#48.15 therefore **partially fixes KI#821 at this caller**. Speculative World-Wonder cross-city placement evaluation now uses const-cache behavior: an existing inherited cache entry may still be read, but a cache miss is evaluated without writing a new value into the other city's mutable construction cache. This prevents that placement scan from becoming a new cache producer while preserving the rest of the inherited placement behavior.
+
+This is intentionally not a complete KI#821 repair. Existing cache entries are not guaranteed fresh merely because this caller no longer creates them, and the original same-turn lifetime problem remains.
+
+A full fix still requires the broader cache lifecycle to be made safe: relevant state transitions must invalidate or move the authoritative construction-value cache boundary, and other meaningful producers/consumers of `m_aiConstructionValue` must not reuse values after their inputs have changed. That broader repair should then be validated deterministically before KI#821 is marked fully Fixed.
+
+See **KI#48.15** for the World-Wonder placement migration that exposed and selectively fixed this additional cache producer.
+
+Found as F498 during ChatGPT-5.6-Sol's C031-WIP242-WIP243 `CvPlayer.cpp` deep re-audit; later partially fixed and further characterized during the KI#48.15 building-value/Wonder migration with BBAI diagnostics and SASGameRecord deterministic comparison, with testing and review by wonderingabout, thanks.
 
 <a id="ki-822"></a>
 

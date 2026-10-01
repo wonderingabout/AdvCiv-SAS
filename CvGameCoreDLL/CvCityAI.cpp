@@ -7300,7 +7300,10 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 				{
 					if (pLoopCity->canConstruct(eLoopBuilding))
 					{
-						int iLoopValue = pLoopCity->AI_buildingValue(eLoopBuilding, 0, 0, bAsync);
+						// <!-- custom: World-Wonder cross-city placement comparison must not prime another city's mutable construction-value cache; an existing inherited cache entry may still be read, but keep a miss side-effect free.
+						// This selectively fixes one KI#821 cache producer exposed by KI#48.15; it does not make the broader inherited cache lifetime fresh or authoritative. See KI#48.15 and KI#821. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+						bool const bLoopConstCache = ((bWorldWonderCompletionTimePlacementABTest && kBuilding.isWorldWonder()) || bAsync);
+						int iLoopValue = pLoopCity->AI_buildingValue(eLoopBuilding, 0, 0, bLoopConstCache);
 						if (kBuilding.isNationalWonder() && iMaxNumWonders != -1)
 						{
 							iLoopValue *= iMaxNumWonders + 1 - pLoopCity->getNumNationalWonders();
