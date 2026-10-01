@@ -7155,6 +7155,8 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 {
 	PROFILE_FUNC(); // advc.opt
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
+	// <!-- custom: Development-only A/B selector, not part of the permanent policy; share it with AI_buildingValue so one DLL can compare inherited control (0) against completion-time-aware placement (1). Retain through the pending cache/album validation, then remove separately. See KI#48.15. See also KI#821. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	static const bool bWorldWonderCompletionTimePlacementABTest = GC.getDefineBOOL("SAS_TEMPORARY_WORLD_WONDER_COMPLETION_TIME_PLACEMENT_A_B_TEST");
 
 	bool bAreaAlone = kOwner.AI_isAreaAlone(getArea());
 	int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
@@ -7260,7 +7262,8 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 		/*	Block construction of limited buildings in bad places
 			(the value check is just for efficiency.
 			1250 accounts for the possible +25 random boost) */
-		if (iFocusFlags == 0 && /* advc.004x: */ iTurnsLeft < MAX_INT &&
+		bool const bWorldWonderPlacementFocus = (bWorldWonderCompletionTimePlacementABTest && (iFocusFlags & BUILDINGFOCUS_WORLDWONDER));
+		if ((iFocusFlags == 0 || bWorldWonderPlacementFocus) && /* advc.004x: */ iTurnsLeft < MAX_INT &&
 			iValue * 1250 / std::max(1, iTurnsLeft + 3) >= iBestValue)
 		{
 			int iLimit = GC.getInfo(eLoopClass).getLimit();
@@ -7303,10 +7306,39 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 							iLoopValue *= iMaxNumWonders + 1 - pLoopCity->getNumNationalWonders();
 							iLoopValue /= iMaxNumWonders + 1;
 						}
-						if (80 * iLoopValue > 100 * iValue)
+						bool bBetterPlacement = false;
+						int iThisPlacementValue = -1;
+						int iLoopPlacementValue = -1;
+						int iLoopTurnsLeft = -1;
+						if (bWorldWonderCompletionTimePlacementABTest && kBuilding.isWorldWonder())
+						{
+							// <!-- custom: World-Wonder race placement should compare the same value-per-completion-time shape used by the inherited final building chooser, not raw intrinsic value alone.
+							// This moves the useful relative-production signal into K-Mod's existing one-copy-building placement mechanism and naturally credits stored production and all city-specific construction modifiers. See KI#48.15. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+							iLoopTurnsLeft = pLoopCity->getProductionTurnsLeft(eLoopBuilding, 0);
+							if (iLoopTurnsLeft < MAX_INT)
+							{
+								FAssert(MAX_INT / 1000 > iValue);
+								FAssert(MAX_INT / 1000 > iLoopValue);
+								iThisPlacementValue = iValue * 1000 / std::max(1, iTurnsLeft + 3);
+								iLoopPlacementValue = iLoopValue * 1000 / std::max(1, iLoopTurnsLeft + 3);
+								bBetterPlacement = (80 * iLoopPlacementValue > 100 * iThisPlacementValue);
+							}
+						}
+						else
+						{
+							bBetterPlacement = (80 * iLoopValue > 100 * iValue);
+						}
+						if (bBetterPlacement)
 						{
 							if (--iLimit <= 0)
 							{
+								if (bWorldWonderCompletionTimePlacementABTest && kBuilding.isWorldWonder() && gBuildingProductionLogLevel >= 3)
+								{
+									logBBAI("WORLD_WONDER_INHERITED_PLACEMENT turn=%d player=%d %S city=%S cityId=%d building=%s action=REJECT_FOR_BETTER_CITY currentRawValue=%d currentTurns=%d currentPlacementValue=%d betterCity=%S betterCityId=%d betterRawValue=%d betterTurns=%d betterPlacementValue=%d",
+										GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), kBuilding.getType(),
+										iValue, iTurnsLeft, iThisPlacementValue, pLoopCity->getName().GetCString(), pLoopCity->getID(),
+										iLoopValue, iLoopTurnsLeft, iLoopPlacementValue);
+								}
 								iValue = 0;
 								break;
 							}
@@ -8743,6 +8775,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	// <!-- custom: Keep the remaining SAS Wonder prefilter pending its separate audit; the regular-building category prefilter audit was completed in KI#48.5. See KI#48.9. (GPT-5.6-Sol) -->
 	static const bool bSAS_AI_BUILDING_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_OPTIMIZE");
 	static const bool bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE");
+	// <!-- custom: Development-only A/B selector, not part of the permanent policy. 0 keeps inherited AdvC/K-Mod World-Wonder placement with the old SAS veto retired; 1 tests completion-time-aware inherited placement. Retain through the pending cache/album validation, then remove separately. See KI#48.15. See also KI#821. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	static const bool bWorldWonderCompletionTimePlacementABTest = GC.getDefineBOOL("SAS_TEMPORARY_WORLD_WONDER_COMPLETION_TIME_PLACEMENT_A_B_TEST");
+
 	// <!-- custom: in autoplay AI doesn't build shrines (Mahabodhi, Pagan Shrine, etc.) until late game after world wonders ASAP fix. Shrines/corporations have iCost=-1, so no point trying to save hammers. Skip viability gates for iCost=-1; handle only buildable buildings (iCost>0), similar to CvUnitAI::AI_ChooseUnit. In autoplay this leads to more wonders by turn 300. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
 	// <!-- custom: performance optimization - cache iXMLCost for later calls in this function. (Claude code Sonnet 4.5 (summarized)) -->
 	const int iXMLCost = kBuilding.getProductionCost(); // XML base cost (unscaled)
@@ -9392,13 +9427,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		they've just been moved. */
 	if (iFocusFlags & BUILDINGFOCUS_WORLDWONDER)
 	{
-		// <!-- custom: K-Mod 1030 moved the old top-three-production-city World Wonder condition into this early veto but kept the original <= 3 comparison, accidentally rejecting the cities it previously accepted. See KI#205. (ChatGPT-5.6-Sol) -->
-		if (!bWorldWonder || iProductionRank > 3) // advc.001 (from SAS): was <=
-		{
-			/*	Note / TODO: the production condition is from the original BtS code.
-				I intend to remove / change that condition in the future. */
+		// <!-- custom: Migration mode 0 preserves the corrected inherited top-three focus restriction; mode 1 removes that second production-rank hard gate so World-Wonder placement is decided by the inherited limited-building comparison below instead. K-Mod already marked this original BtS production condition for future replacement. See KI#48.15. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (!bWorldWonder || (!bWorldWonderCompletionTimePlacementABTest && iProductionRank > 3))
 			return 0;
-		}
 	}
 
 	if (kBuilding.isCapital())

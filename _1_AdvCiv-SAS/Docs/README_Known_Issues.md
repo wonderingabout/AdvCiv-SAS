@@ -95,6 +95,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.12 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_SEA free experience used a fixed coastal multiplier instead of expected naval throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.12)\
 [KI#48.13 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_LAND production modifiers were fixed/rank-based instead of following expected land throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.13)\
 [KI#48.14 - (Fixed inherited K-Mod/AdvC AI valuation/applicability defect) Domain-production value could be awarded where the city could not train any affected unit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.14)\
+[KI#48.15 - (Improved inherited K-Mod/AdvC AI limited-building-placement weakness) World Wonders used raw value and ordinal production gates instead of completion-time-aware placement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.15)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
@@ -4244,14 +4245,15 @@ The hard World-Wonder military-pressure veto was then retired through paired Pan
 
 Finally, a corrected isolated Pangaea test found that the old SAS relative-production concern had real signal: normal production competition redirected 8 of 18 affected opportunities to units, but the remaining 10 opportunities became 9 lower-production Wonder episodes with **0 completions** and roughly **880 invested hammers** before abandonment, invalidation or race loss. The first attempted isolation had accidentally left the historical gate active through its narrower nested scope and then added a second candidate gate: control/candidate diagnostics showed roughly **7,892 / 11,395** rejections and a false turn-67 divergence. Removing the actual historical gate produced the valid comparison (**0 / 7,157** rejections and identical state through turn 75). This audit pitfall matters because otherwise the duplicate veto could have been mistaken for evidence in favor of the candidate.
 
-The corrected result did not justify retaining the old SAS `return 0` formula. Instead, it exposed an inherited limited-building placement weakness for a separate follow-up.
+The corrected result did not justify retaining the old SAS `return 0` formula. Instead, it exposed the inherited limited-building placement weakness improved separately in **KI#48.15**.
 
 ### Remaining Wonder work
 
 The current direction is gradual migration rather than another monolithic replacement:
 
 - restore Heroic Epic from the temporary LAND/SEA laboratory scopes to its actual military-only production semantics, then re-audit whether any dedicated Heroic-Epic urgency/placement policy is still needed after KI#48.10's generic military-throughput correction;
-- resume the remaining National/World-Wonder policy: shared slow/payback protection, military-pressure rules, relative/top-production placement, coastal-Wonder scaling, production-Wonder placement, Government Center/Forbidden Palace and Palace relocation;
+- finish the KI#48.15 cleanup of completion-time-aware inherited World-Wonder placement, then resume coastal-Wonder scaling and production-Wonder placement;
+- resume specialized National-Wonder policy: Heroic-Epic forcing/placement, Government Center/Forbidden Palace and Palace relocation;
 - retain KI#48.13's tested `DOMAIN_LAND` throughput support as generic/modmod-safe infrastructure even if current SAS has no permanent land-domain production consumer; `DOMAIN_AIR` throughput amount and domain-specific AIR XP remain separate future audits rather than symmetry-driven changes;
 - remove dead old-SAS gates, defines, classifiers and caches only when their final evidence-backed consumer disappears, while preserving useful forensic diagnostics until the migration is closed.
 
@@ -4730,6 +4732,46 @@ The final runs contained **616** prospective evaluations on Tiny Islands and **4
 The fix is generic across LAND/SEA/AIR and civilization/modmod unit rosters, follows the actual XML meaning that `DomainProductionModifier` also accelerates civilian units, and never rejects the whole building. `DOMAIN_AIR` throughput magnitude and AIR-specific XP remain separate possible calibration questions rather than reasons to delay this correctness fix.
 
 See **KI#48.13** for the validated land-throughput branch, **KI#48.11** for the validated sea-production branch, **KI#48.12** for sea XP, **KI#48.10** for generic military throughput and **KI#48.9** for the broader Wonder migration that exposed these inherited valuation assumptions.
+
+<a id="ki-48.15"></a>
+
+## KI#48.15 - (Improved inherited K-Mod/AdvC AI limited-building-placement weakness) World Wonders used raw value and ordinal production gates instead of completion-time-aware placement
+
+The KI#48.9 audit established that relative production competitiveness matters for World-Wonder races, but also that the old SAS implementation was the wrong architectural layer. In a true gate-off Pangaea control, 18 best-World-Wonder opportunities failed the historical production threshold. Normal central production competition redirected 8 to units; the remaining 10 opportunities became 9 lower-production Wonder episodes with **0 completions** and roughly **880 invested hammers** before abandonment, invalidation or race loss.
+
+The old SAS gate represented that useful signal through top-two production rank, a fixed five-hammer allowance, 70% of the empire's best base production and an early expansion exemption. It returned zero before inherited valuation could compare the complete opportunity. The inherited BtS/K-Mod focused-Wonder path had its own ordinal hard restriction: cities outside the top three production ranks were rejected even though K-Mod's source comment already marked that condition for eventual replacement.
+
+K-Mod's existing one-copy-building placement mechanism supplied a better shared layer, but compared cities only by raw `AI_buildingValue()`. For a World-Wonder race, raw intrinsic value cannot distinguish an 8-turn city from a 25-turn city. KI#48.15 therefore replaces both ordinal gates with the inherited placement comparison using:
+
+```text
+placement value = AI_buildingValue * 1000 / (actual turns left + 3)
+```
+
+Another eligible own city must still exceed the current city's placement value by the inherited 25% margin. Actual turns naturally include stored production and city-specific trait, resource and building construction modifiers. Focused World-Wonder searches now reach the same placement mechanism instead of stopping at the inherited top-three rank cliff.
+
+### Paired Pangaea and Tiny Islands evidence
+
+The disabled migration mode was exactly deterministic-equivalent to the earlier true gate-off control, confirming that the A/B plumbing itself was inert.
+
+On Pangaea, the three complete divergent histories produced:
+
+| Policy | Starts/resumes | Global completions | Fail-gold events | Failed investment | Fail gold | Invalidated production |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Old gate retired; inherited placement | 22 | 39 | 55 | 8,463 | 4,217 | 42 |
+| Historical SAS relative-production gate | 13 | 39 | 45 | 6,428 | 3,203 | 127 |
+| Completion-time-aware inherited placement | 15 | 39 | 38 | 6,168 | 3,076 | 151 |
+
+The starts/resumes column counts SASGameRecord production-target events and is not by itself a complete construction history.
+
+Completion-time-aware placement therefore retained **39** global World-Wonder completions while reducing failed plus invalidated investment from about **8,505 to 6,319 hammers** (roughly 26%). Its combined total was also slightly below the old SAS hard gate's approximately 6,555 hammers. Because the histories diverged, these totals are supporting outcome evidence rather than a claim that every difference was caused directly by placement.
+
+The placement decisions were not mostly marginal ties. Across **883** distinct city/turn/Wonder rejections, the median rejected city needed about **25 turns**, the preferred own city about **12**, and the preferred median placement score was about four times larger. Representative comparisons included a 200-turn versus 25-turn Statue of Zeus and a 63-turn versus 12-turn Pyramids.
+
+Tiny Islands tested the main design risk: the preferred city might be occupied by something important, so rejecting the current city could suppress a Wonder rather than relocate it. Through the common turn-408 horizon, global World-Wonder completions instead remained **39 -> 39**, failed investment fell **8,427 -> 5,737 hammers** (roughly 32%), fail gold fell **4,204 -> 2,861**, invalidated production fell **530 -> 337 hammers**, and periodic World-Wonder snapshots above 20 turns fell **5 -> 2**.
+
+These paired maps strongly support the inherited placement correction rather than restoring the old SAS gate: the AI preserved the completed Wonder set while spending substantially less production on failed races, and lower-ranked cities remained eligible whenever their real completion time and value were competitive.
+
+See **KI#48.9** for the parent Wonder-policy migration.
 
 <a id="ki-49"></a>
 
