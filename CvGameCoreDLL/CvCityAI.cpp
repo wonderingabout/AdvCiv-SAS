@@ -8825,10 +8825,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		SASWarPowerContext const kWarPower(kTeam);
 		bool const bAtWar = kWarPower.bAtWar;
 
-		// <!-- custom: This block needs only the shared strong and at-war-weak classifications.
-		// Do not unpack the raw enemy-power percentage unless it is logged or used in arithmetic: VC++ 2003 treats the resulting C4189 unused-local warning as a build error, which the initial context refactor exposed here. (GPT-5.6-Sol) -->
+		// <!-- custom: After retiring the KI#48.16 FORCE_WAR_USE sentinel, this block needs only the shared strong-enemy classification.
+		// Do not unpack unused war-power fields: VC++ 2003 promotes C4189 to a build error in this project. (GPT-5.6-Sol) -->
 		bool const bEnemyStrong = kWarPower.bEnemyStrong;
-		bool const bAtWarAndEnemyWeak = kWarPower.bAtWarAndEnemyWeak;
 
 		const bool bLandXp = (
 			(iFreeExperience >= 2) ||
@@ -9086,9 +9085,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 			// <!-- custom: ideally we could use for some of this computation the `rank(` helpers, as according to grok ai they compare cities in our empire only, and according to which ranking is not shared among all players unlike what chatgpt 5 claimed, check if accurate -->
 			// Research suggests that these rank calculation methods are empire-wide, meaning they compare cities only within the same player's control. It seems likely that this design supports AI decision-making focused on internal empire management rather than global comparisons.
-			// const bool bTop1Hammer = (iProductionRank == 1);
-			const bool bTop2Hammer = (iProductionRank <= 2);
-			// const bool bTop3Hammer = (iProductionRank <= 3);
+			// <!-- custom: The exact top-2 production-rank boolean was used only by the retired KI#48.16 FORCE_WAR_USE sentinel; surviving placement checks use the continuous bTop2HammerLeeway below. (GPT-5.6-Sol) -->
 
 			// <!-- custom: add cache to avoid recomputation at every call with the help of chatgpt 5.2 thanks -->
 			const int iCurrentTurn = kGame.getGameTurn();
@@ -9186,16 +9183,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 						return iPolicyReturn;
 					}
 
-					if (bWarPlan || bAtWarAndEnemyWeak)
-					{
-						if (bTop2Hammer)
-						{
-							// commit when pressing <!-- custom: with a positive nudge to really motivate for it as we expect nice rewards from it -->
-							const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST + 1000;
-							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "MILITARY_NATIONAL_WONDER", "FORCE_WAR_USE", iPolicyReturn);
-							return iPolicyReturn;
-						}
-					}
+					// <!-- custom: KI#48.16: Retire the old FORCE_WAR_USE sentinel.
+					// Corrected inherited military-production valuation and ordinary AI_chooseProduction competition now decide when this National Wonder is worth taking over immediate units or infrastructure.
+					// Keep the separate placement rule for its own audit. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 
 					// otherwise, let normal scoring decide
 				}
