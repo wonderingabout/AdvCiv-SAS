@@ -8814,9 +8814,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 		const int iBeakersPerTurn = getCommerceRate(COMMERCE_RESEARCH);
 
-		// <!-- custom: adjust the AI's building priorities based on handicap -->
-		CvHandicapInfo const& hGame = GC.getInfo(kGame.getHandicapType());
-
 		const int iGameSpeedMultiplier = GC.getInfo(kGame.getGameSpeedType()).getConstructPercent(); // 100, 150, 200...
 
 		// <!-- custom: then after considering building time, let's consider our expected gains, hammer modifiers (e.g forge gives +25% hammer after it is built), this is not related to modifiers that reduce time to build the forge for example, but modifiers we gain in city after city is built, as chatgpt 5 explained to me after i made the mistake so i hope this comment is helpful-->
@@ -8915,58 +8912,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				}
 			}
 
-			// <!-- custom: e.g. building our build 25% faster with stone (not related to yields/hammers gained after building is completed!) -->
-			// Full production modifier (traits, resources, state religion, etc.)
-			const int iProductionModifier = getProductionModifier(eBuilding);
-			// “Can we realistically <!-- custom: build as i assume this is about starting new buildings --> it?" (turn cap)
-			// Use a simple time-to-build gate rather than only a flat hpt cut. It auto-scales with cost and modifiers.
-			int const iWWMul100  = 100 + iProductionModifier; // 100 + (traits/stone/marble/religion/etc.)
-			// Estimated turns (ceil): cost / (hpt * (1+mods))
-			/*
-			Examples:
-			A) cost=300, hpt=10, modifier=+25% (iWWMul100=125)
-			Turns = ceil(300 / (10*1.25)) = ceil(300/12.5) = ceil(24.0) = 24
-			Integer: (300*100 + 10*125 - 1) / (10*125) = (30000+1250-1)/1250 = 31249/1250 = 24
-			//
-			B) cost=275, hpt=8, modifier=0% (iWWMul100=100)
-			Turns = ceil(275 / (8*1.0)) = ceil(34.375) = 35
-			Integer: (27500 + 800 - 1) / (800) = 28300/800 = 35
-			//
-			C) cost=450, hpt=15, modifier=+50% (iWWMul100=150)
-			Turns = ceil(450 / (15*1.5)) = ceil(450/22.5) = 20
-			Integer: (45000 + 15*150 - 1) / (2250) = (45000+2250-1)/2250 = 47249/2250 = 20
-			*/
-			int const iTurnsWW = (iCost * 100 + iBaseHammersPerTurn * iWWMul100 - 1) / (std::max(1, iBaseHammersPerTurn) * iWWMul100);
-			// Window scales by speed a bit
-			// <!-- custom: 20 turns at normal seem fine, any time more and we may spend too much time on it instead of doing something else, or a rival may beat us to it -->
-			static const int iSAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_GAMESPEED_TO_BUILD = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_GAMESPEED_TO_BUILD");  // @Normal
-			int iSoftTurnCapNormal = iSAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_GAMESPEED_TO_BUILD; // @Normal
-			// <!-- custom: adjust based on game difficulty: on lower difficulties, we have penalties, so unlikely we compete with the human players, so use our hammers conservatively and more towards self-preservation, so do not increase turn time allowed to complete this, but at higher difficulties, we have more leeway and enough discounts, unlikely the human can compete with us, however it would be strange that we would spend too much time on wonders despite our discounts, which would mean most likely we are doing something inefficient or wrong, so don't build the wonder with a tighter window if is beyond this window -->
-			// AdvCiv: no human WCP <!-- custom: at least i didn't find it easily with a global search vs code so hopefully accurate enough as such as provided by chatgpt 5 but check if accurate and if my guess of doing as such as well is fine as i didn't check further-->; treat as 100%
-			const int iHumanWCPDefine = 100;
-			int const iHumanWCP = iHumanWCPDefine;
-			// <!-- custom: Match CvPlayer::getProductionNeeded: AI world-wonder cost uses the game handicap plus its time adjustment, not the AI player's normally Noble handicap. This data-masked sibling of the removed espionage branch was found during the same receiver audit. See KI#881. (GPT-5.6-Sol) -->
-			int const iAIWCP = hGame.getAIWorldConstructPercent() + kGame.AIHandicapAdjustment();
-			// Gap is "human% - ai%". Bigger positive => AI has bigger production edge.
-			int const iConstructGap = iHumanWCP - iAIWCP;
-			// <!-- custom: e.g. iHuman 100, iAI 68, so 32% higher costs for AI (maybe this is immortal or some higher difficulty (imaginary numbers)) -->
-			const int iMaxConstructGap = 20;
-			const int iMaxConstructGapMult = 9;
-			const int iMaxConstructGapDiv = std::max(1, 10);
-			if (iConstructGap >= iMaxConstructGap)
-			{
-				iSoftTurnCapNormal = (iSoftTurnCapNormal * iMaxConstructGapMult) / iMaxConstructGapDiv;
-			}
-			// <!-- custom: then in all cases adjust based on game speed -->
-			int const iSoftTurnCapAdjusted = iSoftTurnCapNormal * iGameSpeedMultiplier / 100;
-			// <!-- custom: note: this also handles turn to build calculation for production bonus based wonders if i'm not mistakensuch as the ironworks -->
-			// If it's going to sit in the queue forever, skip.
-			if (iTurnsWW > iSoftTurnCapAdjusted)
-			{
-				const int iPolicyReturn = 0;
-				if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WONDER_COMMON", "REJECT_TOO_SLOW", iPolicyReturn);
-				return iPolicyReturn;
-			}
+			// <!-- custom: KI#48.x Wonder audit: retire the shared hard >20-Normal-turn rejection.
+			// Inherited building/production competition already discounts long investments contextually, while the old current-city turn cap also leaked into prospective technology valuation and could reject successful long World/National Wonder starts.
+			// Level-3 Wonder-policy diagnostics retain estimated build time and the former cap as counterfactual evidence while the remaining pressure/race policies are audited separately. (ChatGPT-5.6-Sol) -->
 
 			// <!-- custom: may save a lot of computation by checking this early and forwarding the early rejects (note: make sure to not push ahead / forward the always pick first blocks else it may alter history (unless is as you want it)), since we'll reject anyway later (especialyl for the loop code). -->
 			// <!-- custom: more early checks to save computation before the loop computation -->
