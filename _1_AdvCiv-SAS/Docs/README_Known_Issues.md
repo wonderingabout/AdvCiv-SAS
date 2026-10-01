@@ -949,7 +949,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#818 - (Provisional Pending AdvCiv city-acquisition regression) Cross-civilization unique buildings can disappear](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-818)\
 [KI#819 - (Provisional Pending inherited BtS corporation-commerce cache defect) Suppression civics leave foreign HQ commerce stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-819)\
 [KI#820 - (Fixed AdvCiv bonus-value cache regression) Domestic resource changes left substitute values stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-820)\
-[KI#821 - (Pending / Partially Fixed inherited K-Mod construction-value cache-lifetime defect) Cached construction values can outlive their inputs or be primed by speculative callers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-821)\
+[KI#821 - (Fixed inherited K-Mod construction-value cache-lifetime defect) Cached construction values could outlive their inputs or be primed by speculative callers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-821)\
 [KI#822 - (Provisional Pending inherited K-Mod available-income cache defect) GPT changes trigger commerce from stale income](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-822)\
 [KI#823 - (Provisional Pending inherited BtS deal transaction-ordering defect) GPT can trigger commerce during a partial bundle](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-823)\
 [KI#824 - (Provisional Pending inherited BtS zero-anarchy ordering defect) Commerce sliders precede civic and religion changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-824)\
@@ -4796,9 +4796,11 @@ More directly, the pre-fix migration and const-cache migration remained state-id
 
 It was nevertheless behaviorally consequential later. Pangaea supplied a concrete case: a Great Wall placement comparison reused a previously primed value of **45** for Mutal, while the side-effect-free evaluation produced **20**, changing whether Chichen Itza was rejected as the Wonder location. This is exactly the kind of hidden evaluation-order dependence tracked by **F498 / KI#821**.
 
-The final caller-side safeguard therefore remains: speculative World-Wonder cross-city placement evaluation may still read an existing inherited cache entry, but a cache miss is evaluated without writing a new value into the other city's mutable construction cache. This **partially fixes KI#821 at this producer**; it does not certify existing entries as fresh and does not repair the broader inherited cache lifetime.
+The caller-side safeguard became the first partial repair of KI#821: speculative World-Wonder cross-city placement may still read an existing inherited cache entry, but a cache miss is evaluated without writing a new value into the other city's mutable construction cache.
 
-See **KI#48.9** for the parent Wonder-policy migration and **KI#821** for the still-open construction-value cache-lifetime defect that this implementation exposed and selectively mitigates.
+A subsequent dedicated KI#821 audit then fixed the broader demonstrated lifetime problem as well. It added fresh cache boundaries before periodic Great-Person weighting and immediately before city production, retained K-Mod's independent pre-research clear, and made the remaining known speculative cross-city limited-building/prerequisite probes side-effect free. Paired same-seed Tiny-Islands and Pangaea A/B runs validated that broader repair before the temporary selectors were removed.
+
+See **KI#48.9** for the parent Wonder-policy migration and **KI#821** for the now-fixed inherited construction-value cache-lifetime defect that this implementation helped expose.
 
 <a id="ki-49"></a>
 
@@ -19108,31 +19110,49 @@ Found as F497 during ChatGPT-5.6-Sol's C031-WIP240 `CvPlayer.cpp` deep re-audit;
 
 <a id="ki-821"></a>
 
-## KI#821 - (Pending / Partially Fixed inherited K-Mod construction-value cache-lifetime defect) Cached construction values can outlive their inputs or be primed by speculative callers
+## KI#821 - (Fixed inherited K-Mod construction-value cache-lifetime defect) Cached construction values could outlive their inputs or be primed by speculative callers
 
-K-Mod caches neutral `AI_buildingValue()` results in each city's `m_aiConstructionValue`. The cache is cleared before research selection, but later same-turn commerce, civic and religion changes can alter valuation inputs before city production consumes the cache.
+K-Mod caches neutral `AI_buildingValue()` results in each city's `m_aiConstructionValue`. The original cache lifetime was not aligned with every consumer or state transition that can affect those values, so a value could remain valid as cached data after the state it summarized had already changed.
 
-A newly completed technology can likewise make a value computed during research or Great Person valuation stale before later production logic reuses it. The original KI#821 root is therefore broader than one bad caller: the cache lifetime can outlive some of the state it summarizes.
+This issue was originally album-found as **F498** during ChatGPT-5.6-Sol's C031-WIP242-WIP243 `CvPlayer.cpp` deep re-audit. It was rediscovered concretely during the PR #43 AI building-value / Wonder-policy rework, when KI#48.15's World-Wonder placement migration made speculative cross-city building evaluation much easier to observe.
 
-The KI#48.15 World-Wonder placement migration exposed a second concrete manifestation of that same lifetime problem. K-Mod's one-copy-building placement loop evaluates the candidate building in other eligible own cities. An ordinary non-const evaluation on a cache miss could therefore populate another city's mutable construction-value cache merely because the current city considered whether that city would be a better Wonder location.
+### Confirmed lifetime failure modes
 
-An early Tiny-Islands migration run first drew attention to this path because city-state fingerprints diverged at turn **74** while logged production decisions and the authoritative RNG stream still matched. Source inspection showed that speculative cross-city cache priming was genuinely possible, and it was initially suspected to explain that anomaly.
+The audit identified three concrete forms of the same inherited lifetime defect:
 
-The confirming replay corrected that attribution. Adding the const-cache safeguard did **not** remove the original migration-versus-control divergence: Tiny Islands still first diverged from inherited control at turn **74**, and Pangaea at turn **81**.
+- **Previous-turn cache -> periodic Great-Person valuation.** City production and other late-turn callers could leave neutral construction values cached into the next player turn, while `AI_updateGreatPersonWeights()` can run before K-Mod's ordinary pre-research clear.
+- **Research/prospective cache -> later same-turn production.** K-Mod clears before AI research, but research valuation can populate the cache. `AI_doCommerce()`, civic/religion processing and related state can then change valuation inputs; actual `doResearch()` can also complete the newly valued technology before city production later consumes building values.
+- **Speculative cross-city evaluation -> another city's mutable cache.** One city's limited-building placement or prerequisite-building probe could populate another city's construction-value cache merely by considering that city. KI#48.15 first proved this path for World-Wonder placement.
 
-Comparing the pre-fix migration directly against the const-cache migration was more decisive: they remained state-identical through **turn 274 on Tiny Islands** and **turn 106 on Pangaea**, then first separated at **turn 275 / turn 107**. The speculative cache write therefore did **not** cause the earlier turn-74 anomaly.
+The KI#48.15 investigation also supplied an important causal correction. A Tiny-Islands city-state divergence at turn **74** initially drew attention to speculative cross-city cache priming, but the const-cache replay still diverged from inherited control at the same point. Direct pre-fix-versus-const-cache comparison instead remained identical through **turn 274 on Tiny Islands** and **turn 106 on Pangaea**, then separated at **turn 275 / turn 107**. The speculative write was therefore real and behaviorally consequential, but it did **not** cause the earlier turn-74 migration divergence. A concrete Pangaea example later showed a Great Wall comparison reusing a primed Mutal value of **45** where a side-effect-free evaluation produced **20**.
 
-It was nevertheless behaviorally consequential later. Pangaea provided a concrete example: a Great Wall placement comparison reused a previously primed value of **45** for Mutal, while a side-effect-free evaluation produced **20**, changing whether Chichen Itza was rejected as the Wonder location.
+### Permanent repair
 
-KI#48.15 therefore **partially fixes KI#821 at this caller**. Speculative World-Wonder cross-city placement evaluation now uses const-cache behavior: an existing inherited cache entry may still be read, but a cache miss is evaluated without writing a new value into the other city's mutable construction cache. This prevents that placement scan from becoming a new cache producer while preserving the rest of the inherited placement behavior.
+The validated repair makes the lifetime boundaries explicit rather than trying to remove K-Mod's useful cache:
 
-This is intentionally not a complete KI#821 repair. Existing cache entries are not guaranteed fresh merely because this caller no longer creates them, and the original same-turn lifetime problem remains.
+- clear construction values immediately before periodic Great-Person weighting when that consumer runs, preventing late previous-turn values from reaching the next turn's GP evaluation;
+- retain K-Mod's existing independent clear before AI research, so prospective research valuation still begins from a fresh cache;
+- clear construction values again immediately before city turns, after the intervening player-level commerce/civic/religion/research/technology-processing window, so production cannot consume earlier prospective values after their inputs have changed;
+- make cross-city limited-building placement probes const-cache, so an evaluation miss in another city cannot become mutable state merely because this city considered the same limited building there;
+- apply the same side-effect-free treatment to speculative cross-city prerequisite-building valuation.
 
-A full fix still requires the broader cache lifecycle to be made safe: relevant state transitions must invalidate or move the authoritative construction-value cache boundary, and other meaningful producers/consumers of `m_aiConstructionValue` must not reuse values after their inputs have changed. That broader repair should then be validated deterministically before KI#821 is marked fully Fixed.
+KI#48.15's already-validated completion-time-aware World-Wonder placement is now permanent as well, and both development-only A/B selectors used to validate the placement/cache work have been removed.
 
-See **KI#48.15** for the World-Wonder placement migration that exposed and selectively fixed this additional cache producer.
+### Paired deterministic validation
 
-Found as F498 during ChatGPT-5.6-Sol's C031-WIP242-WIP243 `CvPlayer.cpp` deep re-audit; later partially fixed and further characterized during the KI#48.15 building-value/Wonder migration with BBAI diagnostics and SASGameRecord deterministic comparison, with testing and review by wonderingabout, thanks.
+The broader lifecycle repair was tested with paired same-seed **Tiny Islands** and **Pangaea** control/candidate autoplays. The evidence was deliberately judged at the first causal differences rather than by divergent endgame results.
+
+On Tiny Islands, control and candidate remained identical in core state and synchronized RNG through **turn 103**; all **323 AI research-decision rows** through that point were also identical. Earlier fresh-cache evaluations could already differ without perturbing the game. At turn **104**, New York's Walls value changed from **33 to 28** under the fresh boundary, and the first real production split followed: the control built Walls while the candidate trained a Spearman.
+
+On Pangaea, the runs remained identical through **turn 99** in core state, city state and RNG state/call count, including **275 identical AI research decisions**. At turn **100**, Berlin's Walls value changed from **17 to 13** while the competing Library value remained **29**; the control ultimately trained a Longbowman while the fresh-cache candidate selected the Library.
+
+Across both maps the pattern was therefore consistent: cache freshness changed valuations where expected, but did not create arbitrary early RNG/state/research divergence; history separated only when a corrected value became decision-relevant. Both runs completed normally, and later victory-date differences are treated only as butterfly effects rather than evidence about cache quality.
+
+The demonstrated **construction-value cache-lifetime defect is therefore fixed**. This does not claim that every hypothetical semantic cache-key collision is impossible. `m_aiConstructionValue` is still keyed by building class while `AI_buildingValue()` has semantic parameters such as recursion/specialist handling; no shipped collision from those parameters was proven during this investigation, so that remains only a separate robustness question unless future evidence demonstrates a concrete defect.
+
+See **KI#48.15** for the World-Wonder placement migration that rediscovered and first partially repaired this inherited cache-lifetime issue.
+
+Found as F498 during ChatGPT-5.6-Sol's C031-WIP242-WIP243 `CvPlayer.cpp` deep re-audit; rediscovered, instrumented, partially fixed and then fully validated/fixed for the demonstrated lifetime defect during the PR #43 AI building-value / Wonder-policy rework with BBAI diagnostics and SASGameRecord deterministic comparison, with testing and review by wonderingabout, thanks.
 
 <a id="ki-822"></a>
 
