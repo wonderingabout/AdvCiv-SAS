@@ -401,7 +401,7 @@ static int SAS_getHighestKnownFreeRivalBlocPower(CvPlayerAI const& kPlayer)
 
 // <!-- custom: Shared factual local-area rival snapshot for callers that need the same geography/power facts but intentionally apply different policy thresholds.
 // Do not collapse this into an "area safe" boolean: AI_isAreaAlone is a narrower knowledge-sensitive isolation test, while AI_feelsSafe answers a broader/global strategic question; KI#53.5 land-unit saturation requires overwhelming local security, whereas World-Wonder investment only needs to judge whether local exposure makes the opportunity cost reckless.
-// The global-rival fields are retained only as comparison context beside the local bloc data. Barbarians, city danger/defenders, land-unit stock and other caller-specific facts remain outside this snapshot. See KI#48.9 and KI#53.5. (ChatGPT-5.6-Sol) -->
+// The global-rival fields are retained only as comparison context beside the local bloc data. Barbarians, city danger/defenders, land-unit stock and other caller-specific facts remain outside this snapshot. See KI#48.9. See also KI#53.5. (ChatGPT-5.6-Sol) -->
 struct SASLocalAreaRivalContext
 {
 	int iIndependentRivalTeams;
@@ -8740,10 +8740,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		iLandProductionShare = (iDomainTotalMilitaryProductionShare * iLandDemandPercent) / 100;
 	}
 
-	// <!-- custom: Keep the remaining SAS Wonder prefilter pending the separate KI#48.9 audit; the audited regular-building category prefilter was completed in KI#48.5. (GPT-5.6-Sol) -->
+	// <!-- custom: Keep the remaining SAS Wonder prefilter pending its separate audit; the regular-building category prefilter audit was completed in KI#48.5. See KI#48.9. (GPT-5.6-Sol) -->
 	static const bool bSAS_AI_BUILDING_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_OPTIMIZE");
 	static const bool bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE");
-
 	// <!-- custom: in autoplay AI doesn't build shrines (Mahabodhi, Pagan Shrine, etc.) until late game after world wonders ASAP fix. Shrines/corporations have iCost=-1, so no point trying to save hammers. Skip viability gates for iCost=-1; handle only buildable buildings (iCost>0), similar to CvUnitAI::AI_ChooseUnit. In autoplay this leads to more wonders by turn 300. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
 	// <!-- custom: performance optimization - cache iXMLCost for later calls in this function. (Claude code Sonnet 4.5 (summarized)) -->
 	const int iXMLCost = kBuilding.getProductionCost(); // XML base cost (unscaled)
@@ -8840,11 +8839,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 		static const int iSAS_AI_BUILDING_VALUE_GATE_M100_WONDERS = GC.getDefineINT("SAS_AI_BUILDING_VALUE_GATE_M100_WONDERS");
 
-		// <!-- custom: The September 2026 KI#48.5 audit retired the SAS regular-building category prefilter after testing its concerns individually against inherited additive valuation; the separate Wonder-policy migration is tracked in KI#48.9.
-		// Keep the separate Wonder policy until its own audit; ordinary buildings now proceed directly to inherited valuation and targeted evidence-backed corrections. (GPT-5.6-Sol) -->
+		// <!-- custom: The September 2026 KI#48.5 audit retired the SAS regular-building category prefilter after testing its concerns individually against inherited additive valuation.
+		// Keep the separate Wonder policy until its own audit; ordinary buildings now proceed directly to inherited valuation and targeted evidence-backed corrections. See KI#48.9. (GPT-5.6-Sol) -->
 		if (bWonder && bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
 		{
-			// <!-- custom: KI#48.9 World-Wonder audit: retire the era-only anti-Barbarian border-Wonder veto. Inherited valuation already considers local Barbarian relevance, while the level-3 Wonder audit keeps the former era condition as counterfactual evidence. (ChatGPT-5.6-Sol) -->
+			// <!-- custom: Retire the era-only anti-Barbarian border-Wonder veto. Inherited valuation already considers local Barbarian relevance, while the level-3 Wonder audit keeps the former era condition as counterfactual evidence. See KI#48.9. (ChatGPT-5.6-Sol) -->
 
 			const int iCost = getProductionNeeded(eBuilding);
 
@@ -8893,11 +8892,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					}
 				}
 
-				// <!-- custom: KI#48.9 World-Wonder audit: retire the fixed era-scaled base-hammer veto. The surviving time-to-build and relative-production checks express the underlying opportunity/race concern more directly, and the level-3 audit keeps the former threshold visible. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: Retire the fixed era-scaled base-hammer veto. The surviving time-to-build and relative-production checks express the underlying opportunity/race concern more directly, and the level-3 audit keeps the former threshold visible. See KI#48.9. (ChatGPT-5.6-Sol) -->
 			}
 			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
-				// <!-- custom: KI#48.9 National-Wonder audit: retire the fixed era-scaled base-hammer veto. The shared time-to-build gate already captures whether this city would tie up production for too long, while National Wonders cannot lose a race and often belong in a specialized city rather than one that merely clears a raw-hammer floor. Level-3 policy diagnostics keep the former threshold visible as counterfactual evidence. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: Retire the fixed era-scaled base-hammer veto. The shared time-to-build gate already captures whether this city would tie up production for too long, while National Wonders cannot lose a race and often belong in a specialized city rather than one that merely clears a raw-hammer floor. Level-3 policy diagnostics keep the former threshold visible as counterfactual evidence. See KI#48.9. (ChatGPT-5.6-Sol) -->
 			}
 			else if (!bWorldWonder && !bNationalWonder && bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
 			{
@@ -8912,15 +8911,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				}
 			}
 
-			// <!-- custom: KI#48.x Wonder audit: retire the shared hard >20-Normal-turn rejection.
+			// <!-- custom: Retire the shared hard >20-Normal-turn rejection.
 			// Inherited building/production competition already discounts long investments contextually, while the old current-city turn cap also leaked into prospective technology valuation and could reject successful long World/National Wonder starts.
-			// Level-3 Wonder-policy diagnostics retain estimated build time and the former cap as counterfactual evidence while the remaining pressure/race policies are audited separately. (ChatGPT-5.6-Sol) -->
+			// Level-3 Wonder-policy diagnostics retain estimated build time and the former cap as counterfactual evidence while the remaining pressure/race policies are audited separately. See KI#48.9. (ChatGPT-5.6-Sol) -->
 
-			// <!-- custom: KI#48.x World-Wonder audit: retire the old hard military-pressure veto.
+			// <!-- custom: Retire the old hard military-pressure veto.
 			// Paired Tiny-Islands/Pangaea tests showed that normal production competition already redirected pressured cities toward units, while the hard building-value veto fired mostly for broad war-plan/at-war states rather than immediate danger and could suppress short, successful Wonders (for example an 8-turn Pyramids build by a stronger Rome).
-			// Keep war/danger/power facts in level-3 diagnostics for future evidence without zeroing the whole Wonder. (ChatGPT-5.6-Sol) -->
+			// Keep war/danger/power facts in level-3 diagnostics for future evidence without zeroing the whole Wonder. See KI#48.9. (ChatGPT-5.6-Sol) -->
 
-				// <!-- custom: KI#48.9 World-Wonder audit: retire the post-opening requirement for a +25% build-time modifier. In the inherited-only Snaky baseline this hard proxy did not predict race success; actual construction time and city production competitiveness remain active safeguards. The audit row still records the former condition. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: Retire the post-opening requirement for a +25% build-time modifier. In the inherited-only Snaky baseline this hard proxy did not predict race success; actual construction time and city production competitiveness remain active safeguards. The audit row still records the former condition. See KI#48.9. (ChatGPT-5.6-Sol) -->
 				// <!-- custom: note: cannot try to save computation by checking bCoastalBuilding, as in some weird xml mod mods or such (or maybe we would too or would not), maybe a non-coastal city would give a coastal cities scaling effect, so do not check bCoastalBuilding to avoid overlooking these as chatgpt 5 advised/noted if i understood it correctly -->
 				// --- Naval / Coastal-scaling WW: require a real coastline -----------------
 				// // 1) City-local coastal wonders (benefit tied to THIS city’s water/naval use)
@@ -9134,22 +9133,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			{
 				// <!-- custom: for world wonders, make sure we win the race, use top 2 as base -->
 				// <!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks). -->
-				static const int iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL_GAMESPEED = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL_GAMESPEED");
-				const int iTurnExpansionPhaseAdjusted = (iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL_GAMESPEED * iGameSpeedMultiplier) / 100;
-				const bool bExpansionPhaseAdjusted = (iElapsedTurns < iTurnExpansionPhaseAdjusted);
+				// <!-- custom: Retire the old SAS post-opening top-production hard veto here.
+				// Its race/placement concern is tested instead through K-Mod's inherited one-copy-building placement comparison in AI_bestBuildingThreshold, using actual city-specific completion time rather than a separate ordered SAS return-0 gate. The level-3 Wonder audit retains the historical expansion-phase condition as counterfactual evidence. See KI#48.15. (ChatGPT-5.6-Sol) -->
 
-				if (!bExpansionPhaseAdjusted && !bTop2HammerLeeway)
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WORLD_WONDER", "REJECT_NOT_TOP_PRODUCTION", iPolicyReturn);
-					return iPolicyReturn;
-				}
-
-				// <!-- custom: KI#48.9 World-Wonder audit: retire the hard "N met rivals know the prerequisite tech" veto. That eligibility count was a weak race proxy in the inherited-only baseline; retain it only in the level-3 policy audit while stronger time/production safeguards remain active. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: Retire the hard "N met rivals know the prerequisite tech" veto. That eligibility count was a weak race proxy in the inherited-only baseline; retain it only in the level-3 policy audit while stronger time/production safeguards remain active. See KI#48.9. (ChatGPT-5.6-Sol) -->
 			}
 			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
-				// <!-- custom: KI#48.9 National-Wonder audit: retire the blanket top-3-hammer veto. National Epic, Wall Street, National Park and other specialized National Wonders can be strongest outside the empire's raw-production leaders; keep only narrower placement rules whose effect actually scales with production, such as the military-National-Wonder top-2 rule below and the shared production-Wonder check above. The old top-3 result remains visible in level-3 diagnostics. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: Retire the blanket top-3-hammer veto. National Epic, Wall Street, National Park and other specialized National Wonders can be strongest outside the empire's raw-production leaders; keep only narrower placement rules whose effect actually scales with production, such as the military-National-Wonder top-2 rule below and the shared production-Wonder check above. The old top-3 result remains visible in level-3 diagnostics. See KI#48.9. (ChatGPT-5.6-Sol) -->
 
 				// <!-- custom: military national wonders, in particular heroic epic, etc if any more -->
 				if (bLandUnitsBuilding)
