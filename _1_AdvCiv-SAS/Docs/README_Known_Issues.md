@@ -96,6 +96,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.13 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_LAND production modifiers were fixed/rank-based instead of following expected land throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.13)\
 [KI#48.14 - (Fixed inherited K-Mod/AdvC AI valuation/applicability defect) Domain-production value could be awarded where the city could not train any affected unit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.14)\
 [KI#48.15 - (Improved inherited K-Mod/AdvC AI limited-building-placement weakness) World Wonders used raw value and ordinal production gates instead of completion-time-aware placement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.15)\
+[KI#48.16 - (Improved old SAS/K-Mod/AdvC AI National-Wonder specialization policy) Heroic Epic force-first distorted research; useful specialization migrated into additive throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.16)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
@@ -4207,7 +4208,9 @@ National Wonders cannot lose a race and often belong in a specialized city rathe
 
 The gameplay top-three-hammer cache was correspondingly simplified to top two after its generic National-Wonder consumer disappeared. A separate level-3 counterfactual still computes the retired top-three condition so the audit can measure what the old rule would have done without keeping a gameplay dependency alive.
 
-Specialized Heroic-Epic/military-National-Wonder logic, government-center/Forbidden-Palace logic, Palace relocation, shared construction-time protection and other dedicated rules remain under review. The generic National-Wonder retirements were checkpointed as WIP rather than declared final because their integrated policy-ON behavior still needs to be revisited after the inherited generic military-production valuation issue below is settled.
+Specialized Heroic-Epic/military-National-Wonder logic, government-center/Forbidden-Palace logic, Palace relocation, shared construction-time protection and other dedicated rules remain under review.
+
+The generic National-Wonder retirements were checkpointed as WIP rather than declared final while the inherited generic military-production valuation and Heroic-Epic-specific policy were audited separately. KI#48.10 repaired the generic throughput shape; KI#48.16 then retired the Heroic-Epic force-first sentinel and migrated its useful specialization signal into additive valuation. The remaining military-National-Wonder question is placement, not another force.
 
 ### Inherited detour resolved: generic military-production valuation (KI#48.10)
 
@@ -4247,13 +4250,27 @@ Finally, a corrected isolated Pangaea test found that the old SAS relative-produ
 
 The corrected result did not justify retaining the old SAS `return 0` formula. Instead, it exposed the inherited limited-building placement weakness improved separately in **KI#48.15**.
 
+### Military National Wonders: force-first retired, specialization migrated (KI#48.16)
+
+With KI#48.10's generic military-production throughput and KI#821's cache-lifetime repair underneath it, the Heroic-Epic audit could finally isolate the old SAS `FORCE_WAR_USE` policy cleanly.
+
+The sentinel failed at the architectural level: enabling it changed Rome's turn-22 research path from Bronze Working at roughly 418 to Literature at roughly 1979, while the first actual current-production force event did not occur until turn 107. Broad war-plan state was therefore leaking a production override into prospective technology valuation rather than merely expressing immediate military opportunity cost.
+
+Retiring the force exposed a narrower legitimate signal. The generic `AI_buildUnitProb()` share correctly describes ordinary military-production demand, but a one-per-player +50% military-production National Wonder is itself a decision to designate a specialist military city. KI#48.16 therefore migrated that useful idea into additive valuation instead of restoring another override.
+
+A 0/75/100 calibration on the same Pangaea seed selected the full 100% specialist-city assumption. Heroic Epic moved from three very late baseline completions (T307/T353/T362) to eight natural completions beginning at T178, while ordinary `AI_chooseProduction()` still rejected 26 of 34 logged Heroic-Epic opportunities in favor of immediate units.
+
+All eight accepted starts were short 1-6-turn builds, and matched prospective research values moved only modestly rather than reproducing the old Literature spike.
+
+The remaining Heroic-Epic policy question is therefore the separate hard top-production placement rejection, not force-first urgency.
+
 ### Remaining Wonder work
 
 The current direction is gradual migration rather than another monolithic replacement:
 
-- restore Heroic Epic from the temporary LAND/SEA laboratory scopes to its actual military-only production semantics, then re-audit whether any dedicated Heroic-Epic urgency/placement policy is still needed after KI#48.10's generic military-throughput correction;
-- finish the KI#48.15 cleanup of completion-time-aware inherited World-Wonder placement, then resume coastal-Wonder scaling and production-Wonder placement;
-- resume specialized National-Wonder policy: Heroic-Epic forcing/placement, Government Center/Forbidden Palace and Palace relocation;
+- keep Heroic Epic on its actual military-only production semantics; KI#48.16 has retired its force-first war sentinel and migrated the useful specialization signal into additive throughput valuation, so the remaining Heroic-Epic audit is the separate top-production placement rejection;
+- keep KI#48.15's completion-time-aware inherited World-Wonder placement as the validated relative-production replacement, then resume coastal-Wonder scaling and production-Wonder placement;
+- resume specialized National-Wonder policy from the remaining placement layer: Heroic-Epic top-production placement, Government Center/Forbidden Palace and Palace relocation;
 - retain KI#48.13's tested `DOMAIN_LAND` throughput support as generic/modmod-safe infrastructure even if current SAS has no permanent land-domain production consumer; `DOMAIN_AIR` throughput amount and domain-specific AIR XP remain separate future audits rather than symmetry-driven changes;
 - remove dead old-SAS gates, defines, classifiers and caches only when their final evidence-backed consumer disappears, while preserving useful forensic diagnostics until the migration is closed.
 
@@ -4345,7 +4362,7 @@ The first real consumer, Drydock's `DOMAIN_SEA` +50% production modifier, is aud
 
 `DOMAIN_AIR` throughput amount remains inherited until a real consumer justifies calibration, while the generic city-local applicability problem shared by domain-production effects is tracked separately in **KI#48.14**.
 
-See **KI#48.9** for the broader World/National-Wonder migration that exposed this inherited evaluator issue, **KI#48.11** for `DOMAIN_SEA` production throughput, **KI#48.12** for `DOMAIN_SEA` free-experience throughput, **KI#48.13** for `DOMAIN_LAND` production throughput and **KI#48.14** for the domain-applicability follow-up.
+See **KI#48.9** for the broader World/National-Wonder migration that exposed this inherited evaluator issue, **KI#48.11** for `DOMAIN_SEA` production throughput, **KI#48.12** for `DOMAIN_SEA` free-experience throughput, **KI#48.13** for `DOMAIN_LAND` production throughput, **KI#48.14** for the domain-applicability follow-up and **KI#48.16** for the Heroic-Epic/National-Wonder specialization signal deliberately kept separate from the generic formula.
 
 <a id="ki-48.11"></a>
 
@@ -4801,6 +4818,144 @@ The caller-side safeguard became the first partial repair of KI#821: speculative
 A subsequent dedicated KI#821 audit then fixed the broader demonstrated lifetime problem as well. It added fresh cache boundaries before periodic Great-Person weighting and immediately before city production, retained K-Mod's independent pre-research clear, and made the remaining known speculative cross-city limited-building/prerequisite probes side-effect free. Paired same-seed Tiny-Islands and Pangaea A/B runs validated that broader repair before the temporary selectors were removed.
 
 See **KI#48.9** for the parent Wonder-policy migration and **KI#821** for the now-fixed inherited construction-value cache-lifetime defect that this implementation helped expose.
+
+<a id="ki-48.16"></a>
+
+## KI#48.16 - (Improved old SAS/K-Mod/AdvC AI National-Wonder specialization policy) Heroic Epic force-first distorted research; useful specialization migrated into additive throughput
+
+The KI#48.9 military-National-Wonder audit separated two concerns that the old SAS Heroic-Epic policy had bundled together:
+
+1. **Current urgency:** during war, should Heroic Epic override ordinary units/infrastructure?
+2. **Specialization value:** once a one-per-player +50% military-production National Wonder is selected for a city, should that city be valued like an ordinary city that happens to spend only part of its production on units?
+
+The historical answer to the first question was a force-first sentinel. The inherited/generic answer to the second, after KI#48.10, was `AI_buildUnitProb()`: a useful dynamic estimate of ordinary military-production share, but not necessarily the right post-specialization assumption for the city chosen to host Heroic Epic.
+
+The final migration therefore retires the hard current-production override while preserving the useful specialization idea as a smooth additive input to the corrected throughput formula.
+
+### The old `FORCE_WAR_USE` sentinel was the wrong layer
+
+The isolated Pangaea audit restored only the historical military-National-Wonder force condition while the broader common/National Wonder policy remained disabled.
+
+The old condition effectively said:
+
+```text
+land-military National Wonder
++ exact top-production eligibility
++ war plan or favorable active war
+-> AI_BUILDING_ALWAYS_PICK_FIRST + 1000
+```
+
+This was structurally unsafe because `AI_buildingValue()` is also reused by prospective technology valuation. The first decisive difference occurred **before Heroic Epic was ever forced in current city production**:
+
+```text
+Rome, turn 22
+
+force off:
+aim technology = Bronze Working
+path value ~= 418
+
+force on:
+aim technology = Literature
+path value ~= 1979
+```
+
+Core game state diverged on turn **23**. The first logged current-production `FORCE_WAR_USE` event did not occur until turn **107**.
+
+The force was therefore not merely saying "build Heroic Epic now if this city can spare the hammers." It was leaking a current-production override into general research valuation and making Literature look overwhelmingly attractive whenever the broad war condition was true.
+
+The current-production evidence was poor as well. The force-on run contained **229 distinct city/turn force contexts**, including Heroic-Epic estimates around **20-180 turns**, cities in immediate danger and wars where enemy power substantially exceeded the AI's. The ordinary central chooser often resisted even the huge forced building value and selected units instead.
+
+The divergent force-on history produced many early Heroic-Epic completions/rebuilds, while the force-off baseline produced only three late completions (turns **307, 353 and 362**). That did not justify preserving the force: the histories had diverged on turn 23, and the early research contamination itself made the comparison unsuitable as an adoption target.
+
+The force-first branch was therefore retired. Corrected inherited valuation plus ordinary `AI_chooseProduction()` now decides immediate competition with units/infrastructure.
+
+### The force-off baseline exposed a real specialization-value gap
+
+Retiring the force did reveal a narrower legitimate concern.
+
+All 16 AIs were already evaluating Heroic Epic by roughly turn 107, but early generic-throughput values were often small. Representative same-history examples included:
+
+| City / turn | Base production | `AI_buildUnitProb()` | Generic military-throughput contribution | Final Heroic-Epic value |
+| --- | ---: | ---: | ---: | ---: |
+| Timbuktu T91 | 12 | 34% | +9 | 14 |
+| Utica T96 | 14 | 38% | +12 | 35 |
+| Cahokia T99 | 12 | 43% | +12 | 19 |
+
+KI#48.10 intentionally uses `AI_buildUnitProb()` for ordinary generic military-production effects because it answers a sensible question:
+
+> what share of this city's/empire's ordinary future production is expected to go into units?
+
+For Heroic Epic, however, that can become circular. Building a one-per-player +50% military-production National Wonder is itself a decision to create a military-production specialist city. Valuing the specialization as though the city will continue behaving like an ordinary 34%-unit city can therefore understate the modifier precisely because the building changes how the city is intended to be used.
+
+This useful idea belonged inside additive valuation, not in another sentinel.
+
+### 0 / 75 / 100 specialization calibration
+
+A temporary integer A/B parameter tested a minimum expected military-production share for positive `MilitaryProductionModifier` National Wonders while leaving regular buildings and other effects unchanged.
+
+The same Pangaea seed produced a clear progression:
+
+| Effective military-production share | First Heroic-Epic best-building opportunity | Heroic-Epic completions |
+| --- | ---: | --- |
+| ordinary `AI_buildUnitProb()` (`0` floor) | T237 | T307, T353, T362 |
+| 75% | T218 | T284, T291, T324 |
+| **100%** | **T172** | **T178, T227, T231, T248, T250, T252, T286, T292** |
+
+The 75% candidate passed the architecture test but was too conservative. It modestly raised early Heroic-Epic values without distorting research, yet still produced only three completions and no completion before turn 284.
+
+The 100% candidate supplied the missing specialization signal without becoming another force.
+
+Across **34** logged Heroic-Epic building opportunities, the central chooser accepted Heroic Epic only **8** times and rejected it **26** times, every rejection in favor of an immediate unit. The accepted builds were all short: estimated construction times were **3, 3, 3, 6, 3, 1, 2 and 1 turns**, with no accepted start in immediate danger or underdefended state.
+
+Mound City around turns 172-173 was especially useful: Heroic Epic had become the best building, but the chooser still selected Longbowmen twice before finally starting the three-turn Epic. The specialization signal therefore makes the building worth considering without taking control away from ordinary military urgency.
+
+### Prospective research remains proportional instead of sentinel-driven
+
+The stronger specialization assumption did not recreate the old `FORCE_WAR_USE` technology distortion.
+
+Against the generic `0` baseline, the common pre-divergence history contained **253 matched research decisions** with:
+
+- **zero immediate requested-technology changes**;
+- largest matched research-path increase only about **+17**;
+- one downstream `aimTech` difference while the actual requested technology remained Sailing.
+
+The 75% and 100% histories remained exactly equivalent through turn **135**. Across **352 matched research decisions** through that point:
+
+- **zero requested-technology changes**;
+- maximum path-value increase from 75% to 100% about **+22**;
+- again only one downstream aim-path difference.
+
+That is qualitatively different from the retired sentinel's roughly **418 -> 1979** research-path jump.
+
+### Permanent implementation
+
+The validated permanent rule is intentionally small:
+
+```text
+ordinary positive MilitaryProductionModifier
+-> use normal AI_buildUnitProb()
+
+positive MilitaryProductionModifier on a National Wonder
+-> use at least the configured expected military-production share (100% by default)
+```
+
+In code this remains part of KI#48.10's production-throughput calculation. It does **not** add a rank bonus, whole-building multiplier, hard rejection or `AI_BUILDING_ALWAYS_PICK_FIRST`.
+
+Current SAS effectively exercises this through Heroic Epic. The rule is nevertheless expressed generically for a positive military-production National Wonder so compatible modmods do not require a named-building exception.
+
+The tested calibration is retained as `SAS_AI_BUILDING_VALUE_MILITARY_NATIONAL_WONDER_UNIT_PRODUCTION_SHARE_FLOOR_PERCENT`: `0` preserves ordinary dynamic `AI_buildUnitProb()` weighting, `75` is the validated conservative alternative that improved timing but remained too weak, and the default `100` applies the validated full-specialization assumption.
+
+The value is clamped to 0-100 and remains a floor, so it never lowers a larger dynamic unit-production share.
+
+### Remaining military-National-Wonder question
+
+The separate old `MILITARY_NATIONAL_WONDER / REJECT_NOT_TOP_PRODUCTION` rule remains intentionally outside this fix.
+
+The 100% run already suggests that placement gate may now be redundant for current production: **0 of 33** Heroic-Epic best-building opportunities would have failed the old `bTop2HammerLeeway` test, and all **8** actual starts passed it, including a production-rank-3 city that qualified through the relative-production leeway.
+
+Because the rule is still a hard `return 0` inside `AI_buildingValue()`, its more important remaining risk may be prospective technology suppression in cities that fail the hammer test. That is the next isolated KI#48.9 audit rather than a reason to broaden KI#48.16.
+
+See **KI#48.9** for the parent Wonder-policy migration, **KI#48.10** for the corrected generic military-production throughput formula and **KI#821** for the construction-value cache-lifetime repair that supplied the clean baseline for this final Heroic-Epic policy audit.
 
 <a id="ki-49"></a>
 

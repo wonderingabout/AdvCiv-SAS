@@ -8825,8 +8825,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		SASWarPowerContext const kWarPower(kTeam);
 		bool const bAtWar = kWarPower.bAtWar;
 
-		// <!-- custom: After retiring the KI#48.16 FORCE_WAR_USE sentinel, this block needs only the shared strong-enemy classification.
-		// Do not unpack unused war-power fields: VC++ 2003 promotes C4189 to a build error in this project. (GPT-5.6-Sol) -->
+		// <!-- custom: After retiring the FORCE_WAR_USE sentinel, this block needs only the shared strong-enemy classification.
+		// Do not unpack unused war-power fields: VC++ 2003 promotes C4189 to a build error in this project. See KI#48.16. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		bool const bEnemyStrong = kWarPower.bEnemyStrong;
 
 		const bool bLandXp = (
@@ -9084,7 +9084,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			}
 
 			// <!-- custom: ideally we could use for some of this computation the `rank(` helpers, as according to grok ai they compare cities in our empire only, and according to which ranking is not shared among all players unlike what chatgpt 5 claimed, check if accurate -->
-			// Research suggests that these rank calculation methods are empire-wide, meaning they compare cities only within the same player's control. It seems likely that this design supports AI decision-making focused on internal empire management rather than global comparisons.
+			// Research suggests that these rank calculation methods are empire-wide, meaning they compare cities only within the same player's control.
+			// It seems likely that this design supports AI decision-making focused on internal empire management rather than global comparisons.
 			// <!-- custom: The exact top-2 production-rank boolean was used only by the retired KI#48.16 FORCE_WAR_USE sentinel; surviving placement checks use the continuous bTop2HammerLeeway below. (GPT-5.6-Sol) -->
 
 			// <!-- custom: add cache to avoid recomputation at every call with the help of chatgpt 5.2 thanks -->
@@ -10270,8 +10271,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// Only buildings with a generic MilitaryProductionModifier pay for that extra evaluation, and a clean Pangaea A/B found no measurable per-turn regression.
 				// Preserve free-experience synergy separately and audit Heroic-Epic/domain placement independently; retain the legacy toggle for comparison. See KI#48.10. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				int const iMilitaryProductionShare = AI_buildUnitProb();
+				// <!-- custom: A one-per-player positive military-production National Wonder is itself a specialization decision, so the empire-wide ordinary unit-production share understates how heavily its chosen city will use the modifier after construction.
+				// The KI#48.16 0/75/100 Pangaea validation found the full-specialization default moved Heroic Epic into useful production cities much earlier while every accepted build remained 1-6 turns and ordinary production competition still rejected most opportunities.
+				// Keep the tested floor XML-tunable and additive rather than reviving the old rank bonus or force-first sentinel. See KI#48.16. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				static const int iMilitaryNationalWonderUnitShareFloorPercent = range(GC.getDefineINT("SAS_AI_BUILDING_VALUE_MILITARY_NATIONAL_WONDER_UNIT_PRODUCTION_SHARE_FLOOR_PERCENT"), 0, 100);
+				int const iEffectiveMilitaryProductionShare = (bNationalWonder && iMilitaryProductionModifier > 0 ? std::max(iMilitaryProductionShare, iMilitaryNationalWonderUnitShareFloorPercent) : iMilitaryProductionShare);
 				int const iMilitaryProductionBaseRate = iBaseHammersPerTurn + 2; // <!-- custom: Mirror K-Mod's ordinary yield-modifier allowance for near-term growth. (ChatGPT-5.6-Sol) -->
-				int const iMilitaryProductionThroughputValue = (iMilitaryProductionModifier * iMilitaryProductionBaseRate * iMilitaryProductionShare) / 2500;
+				int const iMilitaryProductionThroughputValue = (iMilitaryProductionModifier * iMilitaryProductionBaseRate * iEffectiveMilitaryProductionShare) / 2500;
 				iValue += iMilitaryProductionThroughputValue;
 				if (iMilitaryProductionModifier > 0)
 				{
@@ -10279,9 +10285,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				}
 				if (bLogBuildingValueDetails && iPass > 0)
 				{
-					logBBAI("BUILDING_VALUE_MILITARY_PRODUCTION_THROUGHPUT turn=%d player=%d city=%S cityId=%d building=%s modifier=%d baseProduction=%d baseRateWithGrowth=%d unitProductionShare=%d throughputValue=%d productionRank=%d numCities=%d limited=%d hasMetCount=%d",
+					logBBAI("BUILDING_VALUE_MILITARY_PRODUCTION_THROUGHPUT turn=%d player=%d city=%S cityId=%d building=%s modifier=%d baseProduction=%d baseRateWithGrowth=%d unitProductionShare=%d effectiveUnitProductionShare=%d throughputValue=%d productionRank=%d numCities=%d limited=%d nationalWonder=%d hasMetCount=%d",
 						kGame.getGameTurn(), eOwner, getName().GetCString(), getID(), kBuilding.getType(), iMilitaryProductionModifier, iBaseHammersPerTurn,
-						iMilitaryProductionBaseRate, iMilitaryProductionShare, iMilitaryProductionThroughputValue, iProductionRank, iNumCities, bLimitedWonder, iHasMetCount);
+						iMilitaryProductionBaseRate, iMilitaryProductionShare, iEffectiveMilitaryProductionShare, iMilitaryProductionThroughputValue, iProductionRank, iNumCities, bLimitedWonder, bNationalWonder, iHasMetCount);
 				}
 			}
 			else if (!bMilitaryProductionThroughputOptimize && iHasMetCount > 0 && iMilitaryProductionModifier > 0)
