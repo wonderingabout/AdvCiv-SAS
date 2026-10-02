@@ -9171,25 +9171,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			}
 			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
-				// <!-- custom: Retire the blanket top-3-hammer veto. National Epic, Wall Street, National Park and other specialized National Wonders can be strongest outside the empire's raw-production leaders; keep only narrower placement rules whose effect actually scales with production, such as the military-National-Wonder top-2 rule below and the shared production-Wonder check above. The old top-3 result remains visible in level-3 diagnostics. See KI#48.9. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: Retire the blanket top-3-hammer veto. National Epic, Wall Street, National Park and other specialized National Wonders can be strongest outside the empire's raw-production leaders; keep only narrower placement rules whose effect survives measurement, such as the separately audited shared production-Wonder check above. The old top-3 result remains visible in level-3 diagnostics. See KI#48.9. (ChatGPT-5.6-Sol) -->
 
-				// <!-- custom: military national wonders, in particular heroic epic, etc if any more -->
-				if (bLandUnitsBuilding)
-				{
-					// <!-- custom: this is one of the scaling national wonders where we really want top hammer to take best benefits from it, so use tighter requirement with some leeway-->
-					if (!bTop2HammerLeeway)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "MILITARY_NATIONAL_WONDER", "REJECT_NOT_TOP_PRODUCTION", iPolicyReturn);
-						return iPolicyReturn;
-					}
-
-					// <!-- custom: KI#48.16: Retire the old FORCE_WAR_USE sentinel.
-					// Corrected inherited military-production valuation and ordinary AI_chooseProduction competition now decide when this National Wonder is worth taking over immediate units or infrastructure.
-					// Keep the separate placement rule for its own audit. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-
-					// otherwise, let normal scoring decide
-				}
+				// <!-- custom: KI#48.9: Retire the remaining military-National-Wonder top-production hard rejection.
+				// With KI#48.16 additive specialization active, the isolated Pangaea audit recorded 17,573 historical gate hits but zero overlap with 50 Heroic-Epic best-building opportunities; enabling the gate changed no state, RNG, research, Heroic-Epic action or final outcome.
+				// Let inherited limited-building placement, completion time, additive military-production value and ordinary AI_chooseProduction competition decide the city and timing instead of returning 0 from weak side-city evaluations. (ChatGPT-5.6-Sol) -->
 
 				// --- Government Center (Forbidden Palace <!-- custom: etc if any more (as of now versailles is a world wonder and does not even have this effect anymore so not included here -->) -----------------------
 				// <!-- custom: cover the one city empire case as chatgpt 5 nicely advised and that i thought of hehe but then forgot xd or didn't know how to easily do or forgot to do itthanks; in that case no need to move our government center since we only have one city and are already at government center unless mod mods change the logic/buildings somehow then they should also change this as well -->
