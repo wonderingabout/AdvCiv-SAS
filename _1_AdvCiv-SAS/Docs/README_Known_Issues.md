@@ -97,6 +97,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.14 - (Fixed inherited K-Mod/AdvC AI valuation/applicability defect) Domain-production value could be awarded where the city could not train any affected unit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.14)\
 [KI#48.15 - (Improved inherited K-Mod/AdvC AI limited-building-placement weakness) World Wonders used raw value and ordinal production gates instead of completion-time-aware placement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.15)\
 [KI#48.16 - (Improved old SAS/K-Mod/AdvC AI National-Wonder specialization policy) Heroic Epic force-first distorted research; useful specialization migrated into additive throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.16)\
+[KI#48.17 - (Improved inherited K-Mod/AdvC AI Government Center valuation weakness) A local maintenance proxy missed the best empire-wide placement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.17)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
@@ -4208,7 +4209,7 @@ National Wonders cannot lose a race and often belong in a specialized city rathe
 
 The gameplay top-three-hammer cache was correspondingly simplified to top two after its generic National-Wonder consumer disappeared. A separate level-3 counterfactual still computes the retired top-three condition so the audit can measure what the old rule would have done without keeping a gameplay dependency alive.
 
-Specialized Heroic-Epic/military-National-Wonder logic, government-center/Forbidden-Palace logic, Palace relocation, shared construction-time protection and other dedicated rules remain under review.
+Heroic-Epic specialization was subsequently completed in KI#48.16 and its remaining redundant placement gate was retired in this parent audit; government-center/Forbidden-Palace logic was completed in KI#48.17. Palace relocation, shared construction-time protection and other dedicated rules remain under review.
 
 The generic National-Wonder retirements were checkpointed as WIP rather than declared final while the inherited generic military-production valuation and Heroic-Epic-specific policy were audited separately. KI#48.10 repaired the generic throughput shape; KI#48.16 then retired the Heroic-Epic force-first sentinel and migrated its useful specialization signal into additive valuation. The remaining military-National-Wonder question is placement, not another force.
 
@@ -4262,15 +4263,39 @@ A 0/75/100 calibration on the same Pangaea seed selected the full 100% specialis
 
 All eight accepted starts were short 1-6-turn builds, and matched prospective research values moved only modestly rather than reproducing the old Literature spike.
 
-The remaining Heroic-Epic policy question is therefore the separate hard top-production placement rejection, not force-first urgency.
+The remaining Heroic-Epic top-production rejection was then isolated separately. It fired 17,573 times but overlapped none of 50 actual Heroic-Epic best-building opportunities, and enabling it changed no state checkpoint, RNG checkpoint, research row, Heroic-Epic action or outcome through turn 428. It was therefore retired as redundant rather than migrated into another placement rule.
+
+### Government Centers: local proxy and force-first policy replaced by empire-wide projected savings (KI#48.17)
+
+The Forbidden-Palace audit found both an inherited valuation weakness and an overcorrection in the old SAS policy. K-Mod estimated a Government Center mainly from the candidate city's own rounded distance maintenance multiplied by area city count. The old SAS branch instead required a sufficiently large empire, rejected capital and military-pressure contexts, then returned a roughly `99000` force-first sentinel in one of the highest-current-maintenance cities.
+
+A correctly isolated A/B showed the concern was real: inherited coarse valuation completed **zero Forbidden Palaces**, while the old force produced six by turn 295 plus one short-lived abandoned attempt. The force was nevertheless measuring the wrong city property and suppressing ordinary production competition.
+
+KI#48.17 replaces both with projected empire-wide distance-maintenance savings. For each candidate location, it compares every own city's current distance to its nearest Government Center against its distance to the candidate, sums the resulting maintenance reduction and converts that saving through inherited maintenance-building scaling.
+
+This directly measures the candidate that reduces combined empire maintenance most; it does not simply prefer the city with the highest local GPT. Build speed and urgent competing production remain separate concerns handled by ordinary building value, limited-building placement and `AI_chooseProduction()`.
+
+Corrected same-seed validation produced **one natural Pangaea completion** and **three Tiny-Islands completions**, versus zero in both inherited controls. Guangzhou was especially revealing: its own maintenance was only about **6.24 GPT**, far below the empire's roughly **21.45 GPT** second-highest value, but its location projected about **23.67 GPT** of empire-wide distance-maintenance savings.
+
+The old SAS rank/peace conditions would not have selected it; additive valuation let it first finish a one-turn Monastery, then build the Forbidden Palace in about six turns once the projected saving had grown.
+
+Tiny Islands confirmed the geography-sensitive result. Cashel projected roughly **19.49 GPT** of savings despite only **4.88 GPT** local maintenance and production rank 12/16, while Scythian completed a four-turn Forbidden Palace during war, a war plan and assault preparation that the old military-pressure veto would have rejected.
+
+Conversely, Manp'o later valued Forbidden Palace highly but selected an immediate Destroyer while underdefended and facing a strong enemy, confirming that the new additive value does not become another force.
+
+The first projected A/B was accidentally masked because the old National-Wonder master remained enabled and returned `99000` in both branches. The raw-value diagnostics exposed the mistake; corrected controls disabled that layer in both variants and changed only the projected-maintenance selector. This prevents the duplicate-force pitfall from being mistaken for evidence about the new formula.
+
+The permanent correction intentionally omits the secondary colony-maintenance-cap benefit. The naval/fragmented Tiny-Islands stress test already produced three sensible natural completions without it, so no unvalidated extra value was added.
+
+Any XML building marked as a Government Center uses the generic calculation; current SAS Versailles no longer has that effect, while Palace relocation remains a separate investigation because inherited valuation explicitly treats capital buildings differently.
 
 ### Remaining Wonder work
 
 The current direction is gradual migration rather than another monolithic replacement:
 
-- keep Heroic Epic on its actual military-only production semantics; KI#48.16 has retired its force-first war sentinel and migrated the useful specialization signal into additive throughput valuation, so the remaining Heroic-Epic audit is the separate top-production placement rejection;
+- keep Heroic Epic on its actual military-only production semantics; KI#48.16 retired its force-first war sentinel and migrated useful specialization into additive throughput valuation, while the subsequent top-production gate audit proved redundant and was retired;
 - keep KI#48.15's completion-time-aware inherited World-Wonder placement as the validated relative-production replacement, then resume coastal-Wonder scaling and production-Wonder placement;
-- resume specialized National-Wonder policy from the remaining placement layer: Heroic-Epic top-production placement, Government Center/Forbidden Palace and Palace relocation;
+- continue specialized National-Wonder policy from Palace relocation after KI#48.17 replaced the completed Government Center/Forbidden Palace branch;
 - retain KI#48.13's tested `DOMAIN_LAND` throughput support as generic/modmod-safe infrastructure even if current SAS has no permanent land-domain production consumer; `DOMAIN_AIR` throughput amount and domain-specific AIR XP remain separate future audits rather than symmetry-driven changes;
 - remove dead old-SAS gates, defines, classifiers and caches only when their final evidence-backed consumer disappears, while preserving useful forensic diagnostics until the migration is closed.
 
@@ -4947,15 +4972,74 @@ The tested calibration is retained as `SAS_AI_BUILDING_VALUE_MILITARY_NATIONAL_W
 
 The value is clamped to 0-100 and remains a floor, so it never lowers a larger dynamic unit-production share.
 
-### Remaining military-National-Wonder question
+### Subsequent military-National-Wonder placement audit
 
-The separate old `MILITARY_NATIONAL_WONDER / REJECT_NOT_TOP_PRODUCTION` rule remains intentionally outside this fix.
+The separate old `MILITARY_NATIONAL_WONDER / REJECT_NOT_TOP_PRODUCTION` rule intentionally remained outside the initial KI#48.16 cure, then received its own isolated KI#48.9 test.
 
-The 100% run already suggests that placement gate may now be redundant for current production: **0 of 33** Heroic-Epic best-building opportunities would have failed the old `bTop2HammerLeeway` test, and all **8** actual starts passed it, including a production-rank-3 city that qualified through the relative-production leeway.
+The old condition fired **17,573** times but had zero overlap with **50** actual Heroic-Epic best-building opportunities. Gate-on and gate-off histories remained identical through turn 428 across **433 state checkpoints, 433 RNG checkpoints, 1,490 research rows and 63 Heroic-Epic SASGameRecord rows**; all eight actual Heroic-Epic choices and the final outcome also matched.
 
-Because the rule is still a hard `return 0` inside `AI_buildingValue()`, its more important remaining risk may be prospective technology suppression in cities that fail the hammer test. That is the next isolated KI#48.9 audit rather than a reason to broaden KI#48.16.
+The gate was therefore redundant after additive specialization and inherited limited-building placement, and was retired without replacement. This closes the Heroic-Epic branch: force-first urgency was removed, useful specialization was migrated into additive throughput, and the remaining hard placement rejection was proven unnecessary.
 
 See **KI#48.9** for the parent Wonder-policy migration, **KI#48.10** for the corrected generic military-production throughput formula and **KI#821** for the construction-value cache-lifetime repair that supplied the clean baseline for this final Heroic-Epic policy audit.
+
+<a id="ki-48.17"></a>
+
+## KI#48.17 - (Improved inherited K-Mod/AdvC AI Government Center valuation weakness) A local maintenance proxy missed the best empire-wide placement
+
+The KI#48.9 Forbidden-Palace audit found a real weakness beneath the old SAS hard policy. Inherited K-Mod/AdvC did value non-capital Government Centers, but its coarse estimate was based mainly on the candidate city's rounded current distance maintenance multiplied by the number of cities in its area, with an extra colony-area multiplier.
+
+That did not directly estimate what the building changes: the reduction in distance maintenance across every city that could use the new Government Center.
+
+The old SAS response was much stronger but equally indirect. It rejected small empires, capital placement and military-pressure contexts, ranked cities by their own current maintenance, and returned roughly `99000` for a qualifying high-maintenance city.
+
+This could make Forbidden Palace exist where inherited valuation built none, but it could not distinguish a genuinely central location from an expensive peripheral city and could override useful immediate production.
+
+### Corrected force and projected-value A/B evidence
+
+The isolated old-force comparison established that the underlying concern was genuine: with the force disabled, inherited valuation completed **zero Forbidden Palaces**; with it enabled, the AI completed **six by turn 295** and briefly started another. The sentinel was therefore not merely dead code, but reproducing its number or current-maintenance rank was not a suitable cure.
+
+The replacement evaluates each possible Government Center location directly:
+
+```text
+for each own city:
+    compare distance to its current nearest Government Center
+    with distance to the candidate location
+    project the corresponding distance-maintenance reduction
+
+sum the reductions across the empire
+convert the saving through inherited maintenance-building value,
+inflation and financial-trouble weighting
+```
+
+The first projected-maintenance experiment was accidentally masked: `SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE` remained enabled in both variants, so the historical `FORCE_HIGH_MAINTENANCE` branch still returned `99000` in both supposedly different runs. Level-3 raw values exposed the duplicate force. The corrected comparison disabled the broader National-Wonder policy in both variants and changed only inherited coarse versus projected valuation.
+
+On Pangaea, inherited coarse valuation again completed **zero Forbidden Palaces**. Projected valuation produced one natural completion in Guangzhou, starting around turn 345 and finishing around turn 351. At selection time:
+
+- Guangzhou's own maintenance was only about **6.24 GPT**, versus roughly **21.45 GPT** for the empire's second-highest-maintenance city;
+- placing the Government Center there projected about **23.67 GPT** of combined empire-wide distance-maintenance savings;
+- inherited Government Center value was about **+96**, versus projected value about **+204**;
+- the city was at war/under a war plan, which the old SAS pressure veto would have rejected;
+- ordinary competition first selected a one-turn Christian Monastery, then selected the roughly six-turn Forbidden Palace only after its projected benefit grew.
+
+Tiny Islands provided the geography-sensitive cross-check. Inherited coarse valuation again completed **zero**, while projected valuation completed **three**: Mycenian on turn 333, Cashel on turn 335 and Scythian on turn 348.
+
+Cashel showed why local maintenance and raw production rank are inadequate placement proxies. Its own maintenance was only about **4.88 GPT**, but the location projected about **19.49 GPT** of empire-wide savings; inherited value was about **+16**, projected value about **+161**, and a production-rank-12/16 city completed the estimated 11-turn build in about nine turns.
+
+Scythian completed its approximately four-turn build while at war, under a war plan and preparing an assault. Later, Manp'o still selected an immediate Destroyer instead of its best-building Forbidden Palace while underdefended and facing a strong enemy, showing that ordinary production competition remained authoritative.
+
+### Permanent correction and scope
+
+The permanent formula replaces the inherited coarse Government Center term with projected combined distance-maintenance savings. It is generic to `isGovernmentCenter()` rather than named for Forbidden Palace, so compatible XML or modmod Government Centers reuse it automatically. Current SAS Versailles no longer has the Government Center effect; if that effect is restored or assigned elsewhere, the same valuation applies.
+
+Construction speed is intentionally not multiplied into the maintenance term. Completion time, city production and immediate military/infrastructure alternatives already compete through limited-building placement and normal production choice.
+
+Mixing them into the economic benefit would double-count those concerns and obscure the distinction between **where the building helps most** and **whether this is the right time/city to spend the hammers**.
+
+The calculation conservatively includes only projected distance-maintenance savings. Government Centers can also affect the colony-maintenance cap indirectly, but the fragmented Tiny-Islands stress test already produced three sensible completions without that secondary benefit. It remains a targeted future extension only if later evidence shows systematic colony-heavy underbuilding.
+
+The parent KI#48.9 cleanup removes the old SAS `REJECT_SMALL_EMPIRE`, `REJECT_CAPITAL`, `REJECT_MILITARY_PRESSURE` and `FORCE_HIGH_MAINTENANCE` branch, its `AI_BUILDING_ALWAYS_PICK_FIRST - 1000` sentinel, the temporary A/B selector and the dead high-maintenance threshold/audit fields. Palace relocation remains separate: inherited code explicitly returns zero for capital buildings, so it requires its own architectural audit rather than being folded into this Government Center correction.
+
+Investigated and validated with the help of ChatGPT-5.6-Sol and GPT-5.6-Sol, using corrected same-seed Pangaea and Tiny-Islands BBAI/SASGameRecord comparisons and testing by wonderingabout, thanks.
 
 <a id="ki-49"></a>
 

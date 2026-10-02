@@ -7641,7 +7641,6 @@ static void SAS_logWonderPolicyAudit(CvCityAI const& kCity, BuildingTypes eBuild
 	static const int iWorldMinExtraHammersPerEra = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA");
 	static const int iNationalMinBaseHammers = GC.getDefineINT("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_BASE_HAMMERS");
 	static const int iNationalMinExtraHammersPerEra = GC.getDefineINT("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA");
-	static const int iHighMaintenanceThreshold = GC.getDefineINT("SAS_AI_BUILDING_VALUE_GATE_M100_WONDERS");
 	static const int iHotRaceThreshold = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM");
 	static const int iExpansionPhaseTurnNormal = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL_GAMESPEED");
 	static const bool bAntiBarbarianLateEnable = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE");
@@ -7680,7 +7679,6 @@ static void SAS_logWonderPolicyAudit(CvCityAI const& kCity, BuildingTypes eBuild
 
 	int iBestHpt = 0, iSecondBestHpt = 0, iThirdBestHpt = 0, iProductionRank = 1;
 	int iSecondBestPop = 0, iBestPop = 0;
-	int iSecondBestMaintenance = 0, iBestMaintenance = 0, iHighMaintenanceCities = 0;
 	int iCoastalCities = 0;
 	FOR_EACH_CITY(pLoopCity, kOwner)
 	{
@@ -7695,10 +7693,6 @@ static void SAS_logWonderPolicyAudit(CvCityAI const& kCity, BuildingTypes eBuild
 		if (iLoopPop > iBestPop) { iSecondBestPop = iBestPop; iBestPop = iLoopPop; }
 		else if (iLoopPop > iSecondBestPop) iSecondBestPop = iLoopPop;
 
-		int const iLoopMaintenance = pLoopCity->getMaintenanceTimes100();
-		if (iLoopMaintenance > iBestMaintenance) { iSecondBestMaintenance = iBestMaintenance; iBestMaintenance = iLoopMaintenance; }
-		else if (iLoopMaintenance > iSecondBestMaintenance) iSecondBestMaintenance = iLoopMaintenance;
-		if (iLoopMaintenance >= iHighMaintenanceThreshold) ++iHighMaintenanceCities;
 		if (pLoopCity->isCoastal()) ++iCoastalCities;
 	}
 
@@ -7796,15 +7790,14 @@ static void SAS_logWonderPolicyAudit(CvCityAI const& kCity, BuildingTypes eBuild
 		int const iCapitalBaseHpt = (pCapital == NULL ? -1 : pCapital->getBaseYieldRate(YIELD_PRODUCTION));
 		int const iCapitalBeakers = (pCapital == NULL ? -1 : pCapital->getCommerceRate(COMMERCE_RESEARCH));
 		int const iCityBeakers = kCity.getCommerceRate(COMMERCE_RESEARCH);
-		logBBAI("BUILDING_VALUE_NATIONAL_WONDER_POLICY_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s sasPolicyMaster=%d era=%d pop=%d baseProduction=%d productionRank=%d numCities=%d stored=%d needed=%d remaining=%d turnsLeft=%d buildTimeModifier=%d estimatedTurns=%d softTurnCap=%d minBaseHammers=%d lowProduction=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d enemyStrong=%d atWarEnemyWeak=%d landUnitsWonder=%d productionWonder=%d postBuildProductionModifier=%d bestHpt=%d secondBestHpt=%d thirdBestHpt=%d top2HammerRank=%d top2HammerLeeway=%d top3HammerLeeway=%d unhealthinessReducer=%d healthSurplus=%d top2Population=%d governmentCenter=%d maintenanceTimes100=%d secondBestMaintenanceTimes100=%d highMaintenanceCities=%d palace=%d cityBeakers=%d capitalBaseProduction=%d capitalBeakers=%d",
+		logBBAI("BUILDING_VALUE_NATIONAL_WONDER_POLICY_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s sasPolicyMaster=%d era=%d pop=%d baseProduction=%d productionRank=%d numCities=%d stored=%d needed=%d remaining=%d turnsLeft=%d buildTimeModifier=%d estimatedTurns=%d softTurnCap=%d minBaseHammers=%d lowProduction=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d enemyStrong=%d atWarEnemyWeak=%d landUnitsWonder=%d productionWonder=%d postBuildProductionModifier=%d bestHpt=%d secondBestHpt=%d thirdBestHpt=%d top2HammerRank=%d top2HammerLeeway=%d top3HammerLeeway=%d unhealthinessReducer=%d healthSurplus=%d top2Population=%d governmentCenter=%d maintenanceTimes100=%d palace=%d cityBeakers=%d capitalBaseProduction=%d capitalBeakers=%d",
 			kGame.getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(),
 			bSASPolicyMasterEnabled, iEra, kCity.getPopulation(), iBaseHpt, iProductionRank, kOwner.getNumCities(), iStored, iNeeded, iRemaining,
 			iTurnsLeft, iBuildTimeModifier, iEstimatedTurns, iSoftTurnCap, iMinBaseHpt, iBaseHpt < iMinBaseHpt,
 			kWarPower.bAtWar, bWarPlan, bDanger, kWarPower.iEnemyPowerPercent, kWarPower.bEnemyStrong, kWarPower.bAtWarAndEnemyWeak,
 			bLandUnitsWonder, bProductionWonder, iPostBuildProductionModifier, iBestHpt, iSecondBestHpt, iThirdBestHpt,
 			bTop2HammerRank, bTop2HammerLeeway, bTop3HammerLeeway, bUnhealthinessReducer, iHealthLevel,
-			kCity.getPopulation() >= iSecondBestPop, bGovernmentCenter, kCity.getMaintenanceTimes100(), iSecondBestMaintenance,
-			iHighMaintenanceCities, bPalace, iCityBeakers, iCapitalBaseHpt, iCapitalBeakers);
+			kCity.getPopulation() >= iSecondBestPop, bGovernmentCenter, kCity.getMaintenanceTimes100(), bPalace, iCityBeakers, iCapitalBaseHpt, iCapitalBeakers);
 	}
 }
 
@@ -8869,7 +8862,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		static const bool bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE");
 		static const bool bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE");
 
-		static const int iSAS_AI_BUILDING_VALUE_GATE_M100_WONDERS = GC.getDefineINT("SAS_AI_BUILDING_VALUE_GATE_M100_WONDERS");
 
 		// <!-- custom: The September 2026 KI#48.5 audit retired the SAS regular-building category prefilter after testing its concerns individually against inherited additive valuation.
 		// Keep the separate Wonder policy until its own audit; ordinary buildings now proceed directly to inherited valuation and targeted evidence-backed corrections. See KI#48.9. (GPT-5.6-Sol) -->
@@ -9177,80 +9169,18 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// With KI#48.16 additive specialization active, the isolated Pangaea audit recorded 17,573 historical gate hits but zero overlap with 50 Heroic-Epic best-building opportunities; enabling the gate changed no state, RNG, research, Heroic-Epic action or final outcome.
 				// Let inherited limited-building placement, completion time, additive military-production value and ordinary AI_chooseProduction competition decide the city and timing instead of returning 0 from weak side-city evaluations. (ChatGPT-5.6-Sol) -->
 
-				// --- Government Center (Forbidden Palace <!-- custom: etc if any more (as of now versailles is a world wonder and does not even have this effect anymore so not included here -->) -----------------------
-				// <!-- custom: cover the one city empire case as chatgpt 5 nicely advised and that i thought of hehe but then forgot xd or didn't know how to easily do or forgot to do itthanks; in that case no need to move our government center since we only have one city and are already at government center unless mod mods change the logic/buildings somehow then they should also change this as well -->
+				// --- Government Center (Forbidden Palace etc.) ----------------------------------------------
+				// <!-- custom: KI#48.9 retires the old Forbidden-Palace small-empire/capital/pressure/high-maintenance hard-policy branch.
+				// Its legitimate placement concern now lives in inherited additive valuation below, where each candidate city is valued by projected empire-wide distance-maintenance savings.
+				// Pangaea and Tiny-Islands A/B tests showed the inherited coarse estimate built none, while projected valuation produced natural competitive builds without FORCE_HIGH_MAINTENANCE; one Tiny-Islands completion even occurred during war/war-plan pressure that the old branch would have rejected.
+				// Keep Palace relocation separate for its own audit. See KI#48.17. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				// <!-- custom: palace moving logic: if a city has >= 1.5x base hammers per turn or >= 1.5x base beakers per turn, we should maybe move our palace there, but there is a risk of oscillation if city A is higher hammer while city B is higher beaker, so require both conditions rather.
+				// To begin with, capital locations are gnerally very good, and if not as of now we told AI settlers to move to a better location even if takes several turns, so the new capital needs to be significantly better on both ends, else probably not so worth it to move anyway (considering the cost of such as well and possible unintended consequences) (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				if (iNumCities > 1)
 				{
-					const bool bGovCenter = kBuilding.isGovernmentCenter();
-					// <!-- custom: note: this is not the barbarian block so fine but check to be sure -->
 					static const BuildingClassTypes eBuildingClassPalace = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_AI_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME"));
 					const bool bPalaceBuildingClass = (eBuildingClass == eBuildingClassPalace);
-
-					if (!bPalaceBuildingClass)
-					{
-						if (bGovCenter)
-						{
-							const int iMinNumCitiesPalace = 7;
-							const int iMinNumCitiesHighM100 = 2;
-							// Empire needs to be somewhat large; tiny empires rarely benefit.
-							if (iNumCities < iMinNumCitiesPalace)
-							{
-								const int iPolicyReturn = 0;
-								if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "GOVERNMENT_CENTER", "REJECT_SMALL_EMPIRE", iPolicyReturn);
-								return iPolicyReturn;
-							}
-							// <!-- custom: note since chatgpt 5 asks about it many times: the code seems to not/never at least sometimes not check for null here so we don't, no need to complicate in this case, if there is an error they'll run into it as well, if not fine, and we don't risk causing any weird behavioru as such maybe -->
-							// don’t drop it in the capital; almost no benefit
-							if (isCapital())
-							{
-								const int iPolicyReturn = 0;
-								if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "GOVERNMENT_CENTER", "REJECT_CAPITAL", iPolicyReturn);
-								return iPolicyReturn;
-							}
-							// still respect pressure gates
-							if (bAtWar || bWarPlan || bDanger)
-							{
-								const int iPolicyReturn = 0;
-								if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "GOVERNMENT_CENTER", "REJECT_MILITARY_PRESSURE", iPolicyReturn);
-								return iPolicyReturn;
-							}
-
-							// <!-- custom: Maintenance changes immediately when earlier cities grow during the same player's turn, so a turn/city-count cache can become stale before later cities choose production. This government-center gate is rare and already behind strict candidate checks; scan the live city values here. See KI#306. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-							int iBestMaintenanceTimes100 = 0;
-							int iSecondBestMaintenanceTimes100 = 0;
-							int iNumCitiesHighMaintenance = 0;
-							FOR_EACH_CITY(pLoopCity, kOwner)
-							{
-								const int iLoopMaintenanceTimes100 = pLoopCity->getMaintenanceTimes100();
-								if (iLoopMaintenanceTimes100 > iBestMaintenanceTimes100)
-								{
-									iSecondBestMaintenanceTimes100 = iBestMaintenanceTimes100;
-									iBestMaintenanceTimes100 = iLoopMaintenanceTimes100;
-								}
-								else if (iLoopMaintenanceTimes100 > iSecondBestMaintenanceTimes100)
-								{
-									iSecondBestMaintenanceTimes100 = iLoopMaintenanceTimes100;
-								}
-								if (iLoopMaintenanceTimes100 >= iSAS_AI_BUILDING_VALUE_GATE_M100_WONDERS)
-									++iNumCitiesHighMaintenance;
-							}
-
-							if (iNumCitiesHighMaintenance > iMinNumCitiesHighM100)
-							{
-								// <!-- custom: don't build in highest hammer cities, they may already be low maintenance so no need especially if capital, build instead in highest maintenance city -->
-								// <!-- custom: note: capital not in these checks as should be naturally excluded due to having lowest maintenance but just in case, and also as advised by chatgpt 5 as well, we could have handled mods reverting logic (e.g. capital causing higher costs) but maybe tedious, so i hope if some mod someday is based on ours and somehow implements this, they remember to change building picking logic or rather pre-picking logic -->
-								if (iMaintenanceTimes100 >= iSecondBestMaintenanceTimes100)
-								{
-									// <!-- custom: small negative nudge as tie breaker as this is a long to build building (redundant word) -->
-									const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST - 1000;
-									if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "GOVERNMENT_CENTER", "FORCE_HIGH_MAINTENANCE", iPolicyReturn);
-									return iPolicyReturn;
-								}
-							}
-						}
-					}
-					// <!-- custom: palace moving logic: if a city has >= 1.5x base hammers per turn or >= 1.5x base beakers per turn, we should maybe move our palace there, but there is a risk of oscillation if city A is higher hammer while city B is higher beaker, so require both conditions rather. To begin with, capital locations are gnerally very good, and if not as of now we told AI settlers to move to a better location even if takes several turns, so the new capital needs to be significantly better on both ends, else probably not so worth it to move anyway (considering the cost of such as well and possible unintended consequences) -->
-					else
+					if (bPalaceBuildingClass)
 					{
 						if (bAtWar || bWarPlan || bDanger || bEnemyStrong)
 						{
@@ -10076,12 +10006,35 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			if (kBuilding.isGovernmentCenter())
 			{
 				FAssert(!kBuilding.isCapital());
-				//iValue += ((calculateDistanceMaintenance() - 3) * iNumCitiesInArea);
-				// K-mod. More bonus for colonies, because it reduces that extra maintenance too.
-				int iTempValue = 2*(calculateDistanceMaintenance() - 2) * iNumCitiesInArea;
-				if (!kOwner.hasCapital() || !sameArea(*kOwner.getCapital()))
-					iTempValue *= 2;
-				iValue += iTempValue;
+				// <!-- custom: KI#48.17 replaces K-Mod's coarse candidate-city distance-maintenance proxy with projected empire-wide distance-maintenance savings; the parent KI#48.9 audit retires SAS's 99000 FORCE_HIGH_MAINTENANCE policy.
+				// For every own city, compare its current distance to the nearest government center with its distance to this candidate, project only the distance-maintenance reduction this new center would cause, and convert that GPT saving through the same /22, inflation and financial-trouble scale used by inherited maintenance-building valuation.
+				// This remains additive, lets ordinary production competition decide timing, and can favor geographically useful cities even when their own current maintenance or hammer rank is unremarkable.
+				// The secondary colony-maintenance-cap benefit is intentionally omitted: Tiny Islands already produced several natural Forbidden Palaces without it, so retaining the conservative measured component avoids adding unvalidated extra value. See KI#48.17. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				int iDistanceMaintenanceSavingsTimes100 = 0;
+				FOR_EACH_CITY(pGovernmentCenterCity, kOwner)
+				{
+					int const iCurrentDistance = CvCity::calculateMaintenanceDistance(pGovernmentCenterCity->plot(), eOwner);
+					if (iCurrentDistance <= 0)
+						continue;
+					int const iCandidateDistance = plotDistance(pGovernmentCenterCity->plot(), plot());
+					if (iCandidateDistance >= iCurrentDistance)
+						continue;
+
+					int const iCurrentDistanceMaintenanceTimes100 = pGovernmentCenterCity->calculateDistanceMaintenanceTimes100();
+					int const iProjectedDistanceMaintenanceTimes100 =
+							(iCurrentDistanceMaintenanceTimes100 * iCandidateDistance) / iCurrentDistance;
+					int iSavedDistanceMaintenanceTimes100 = iCurrentDistanceMaintenanceTimes100 - iProjectedDistanceMaintenanceTimes100;
+					iSavedDistanceMaintenanceTimes100 *= std::max(0, 100 + pGovernmentCenterCity->getMaintenanceModifier());
+					iSavedDistanceMaintenanceTimes100 /= 100;
+					iDistanceMaintenanceSavingsTimes100 += iSavedDistanceMaintenanceTimes100;
+				}
+
+				int iGovernmentCenterValue = iDistanceMaintenanceSavingsTimes100 / 22;
+				iGovernmentCenterValue *= 100 + kOwner.calculateInflationRate();
+				iGovernmentCenterValue /= 100;
+				if (bFinancialTrouble)
+					iGovernmentCenterValue *= 2;
+				iValue += iGovernmentCenterValue;
 				// K-Mod end
 			}
 
