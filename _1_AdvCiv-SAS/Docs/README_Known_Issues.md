@@ -4280,13 +4280,41 @@ The permanent correction intentionally omits the secondary colony-maintenance-ca
 
 Any XML building marked as a Government Center uses the generic calculation; current SAS Versailles no longer has that effect, while Palace relocation remains a separate investigation because inherited valuation explicitly treats capital buildings differently.
 
+### Government Center National-Wonder placement follow-up: retain inherited raw placement
+
+The projected-maintenance result prompted a narrower follow-up: inherited National-Wonder cross-city placement compares raw building value, whereas KI#48.15's World-Wonder placement compares value per completion time. A focused Tiny-Islands audit recorded **1,520 disagreement rows / 567 unique placement disagreements** between those two formulas.
+
+Of those, **225** had raw placement suppressing the current city while completion-time placement considered it competitive; **342** disagreed in the opposite direction.
+
+Some pairwise examples looked severe. Tlatelolco offered value 38 in six turns while raw placement preferred value 64 in 99-turn Kassite; Seattle offered value 20 in two turns while raw placement preferred value 37 in 17-turn New York.
+
+At turn 316, Corihuayrachina's value-38, two-turn Forbidden Palace was pairwise-suppressed by Machu Picchu's value-49, ten-turn candidate.
+
+That counterfactual evidence was not enough to establish a gameplay defect. The isolated completion-time-placement A/B exercised the selector and changed the disagreement trace from **1,520 rows / 567 unique disagreements** to **1,459 / 542**, but produced **395/395 identical core-state fingerprints, 395/395 identical RNG checkpoints, 1,648/1,648 identical research rows and 11,922/11,922 byte-identical building-opportunity/final-target rows**.
+
+Both modes completed the same Forbidden Palaces in Mycenian on turn 333, Cashel on turn 335 and Scythian on turn 348, with identical final history.
+
+The Corihuayrachina example also ended with the Security Bureau as its best building and Robotic Infantry as actual production in both modes. Changing one pairwise city comparison therefore did not make Forbidden Palace survive the complete limited-building scan and ordinary production competition.
+
+Retain inherited raw National-Wonder placement unchanged; remove the temporary logger/selector and add no completion-time Government Center exception.
+
+### Next Palace question: audit the live relocation route before changing value
+
+Runtime and source inspection showed that actual Palace relocation can bypass ordinary `AI_buildingValue()`. `BUILDINGFOCUS_CAPITAL` takes an early `AI_bestBuildingThreshold()` path that scans constructible capital buildings and returns one within the turn limit, and inherited production callers request that focus directly.
+
+In both Tiny-Islands A/B modes, San Francisco's ordinary logged best building was Bank on turn 383, yet final production was Palace and it completed on turn 385; the detailed run contained zero Palace policy evaluations through `AI_buildingValue()`.
+
+The old SAS Palace branch inside `AI_buildingValue()` may therefore be dead for actual relocation while still affecting prospective/direct callers such as technology valuation.
+
+The next audit should first distinguish current-production, prospective-technology and inherited `BUILDINGFOCUS_CAPITAL` paths, then decide whether the SAS branch has any live purpose. This evidence does not yet justify deleting it or inventing a replacement Palace-value formula.
+
 ### Remaining Wonder work
 
 The current direction is gradual migration rather than another monolithic replacement:
 
 - keep Heroic Epic on its actual military-only production semantics; KI#48.16 retired its force-first war sentinel and migrated useful specialization into additive throughput valuation, while the subsequent top-production gate audit proved redundant and was retired;
 - keep KI#48.15's completion-time-aware inherited World-Wonder placement as the validated relative-production replacement, then resume coastal-Wonder scaling and production-Wonder placement;
-- continue specialized National-Wonder policy from Palace relocation after KI#48.17 replaced the completed Government Center/Forbidden Palace branch;
+- continue specialized National-Wonder policy from Palace relocation after KI#48.17 replaced the completed Government Center/Forbidden Palace branch and the completion-time placement follow-up proved behaviorally unnecessary;
 - retain KI#48.13's tested `DOMAIN_LAND` throughput support as generic/modmod-safe infrastructure even if current SAS has no permanent land-domain production consumer; `DOMAIN_AIR` throughput amount and domain-specific AIR XP remain separate future audits rather than symmetry-driven changes;
 - remove dead old-SAS gates, defines, classifiers and caches only when their final evidence-backed consumer disappears, while preserving useful forensic diagnostics until the migration is closed.
 
@@ -5018,6 +5046,20 @@ Cashel showed why local maintenance and raw production rank are inadequate place
 
 Scythian completed its approximately four-turn build while at war, under a war plan and preparing an assault. Later, Manp'o still selected an immediate Destroyer instead of its best-building Forbidden Palace while underdefended and facing a strong enemy, showing that ordinary production competition remained authoritative.
 
+### Post-fix cross-city placement audit: no additional cure
+
+Because inherited National-Wonder placement compares candidate cities by raw value, a follow-up logger contrasted it with KI#48.15's World-Wonder value-per-completion-time shape. The Tiny-Islands run produced **1,520 disagreement rows / 567 unique disagreements**: **225** where raw placement suppressed the current city but completion-time placement did not, and **342** in the opposite direction.
+
+Extreme counterfactuals included a value-38 six-turn candidate suppressed for value 64 in a 99-turn city, and a value-20 two-turn candidate suppressed for value 37 in a 17-turn city.
+
+The isolated behavioral A/B nevertheless changed nothing consequential. The selector demonstrably executed, changing the disagreement trace to **1,459 rows / 542 unique disagreements**, but both modes matched across **395 core-state checkpoints, 395 RNG checkpoints, 1,648 research rows and 11,922 building-opportunity/final-target rows**. Both completed Forbidden Palace in exactly Mycenian T333, Cashel T335 and Scythian T348, and their final histories were identical.
+
+The initially persuasive Corihuayrachina case also remained unchanged: although completion-time comparison favored its value-38 two-turn Forbidden Palace over Machu Picchu's value-49 ten-turn alternative, both modes still chose Security Bureau as the best building and Robotic Infantry as actual production.
+
+Pairwise mathematical disagreement did not establish that raw placement blocked a real production opportunity after the full limited-building scan and ordinary chooser.
+
+The completion-time override and diagnostic were therefore retired without a gameplay commit. The validated projected-maintenance formula remains the entire Government Center cure; inherited raw National-Wonder cross-city placement remains unchanged.
+
 ### Permanent correction and scope
 
 The permanent formula replaces the inherited coarse Government Center term with projected combined distance-maintenance savings. It is generic to `isGovernmentCenter()` rather than named for Forbidden Palace, so compatible XML or modmod Government Centers reuse it automatically. Current SAS Versailles no longer has the Government Center effect; if that effect is restored or assigned elsewhere, the same valuation applies.
@@ -5028,7 +5070,9 @@ Mixing them into the economic benefit would double-count those concerns and obsc
 
 The calculation conservatively includes only projected distance-maintenance savings. Government Centers can also affect the colony-maintenance cap indirectly, but the fragmented Tiny-Islands stress test already produced three sensible completions without that secondary benefit. It remains a targeted future extension only if later evidence shows systematic colony-heavy underbuilding.
 
-The parent KI#48.9 cleanup removes the old SAS `REJECT_SMALL_EMPIRE`, `REJECT_CAPITAL`, `REJECT_MILITARY_PRESSURE` and `FORCE_HIGH_MAINTENANCE` branch, its `AI_BUILDING_ALWAYS_PICK_FIRST - 1000` sentinel, the temporary A/B selector and the dead high-maintenance threshold/audit fields. Palace relocation remains separate: inherited code explicitly returns zero for capital buildings, so it requires its own architectural audit rather than being folded into this Government Center correction.
+The parent KI#48.9 cleanup removes the old SAS `REJECT_SMALL_EMPIRE`, `REJECT_CAPITAL`, `REJECT_MILITARY_PRESSURE` and `FORCE_HIGH_MAINTENANCE` branch, its `AI_BUILDING_ALWAYS_PICK_FIRST - 1000` sentinel, the temporary A/B selector and the dead high-maintenance threshold/audit fields.
+
+Palace relocation remains separate: actual inherited relocation can use the early `BUILDINGFOCUS_CAPITAL` route rather than ordinary `AI_buildingValue()`, so the old SAS Palace branch requires a caller/liveness audit before any valuation redesign.
 
 Investigated and validated with the help of ChatGPT-5.6-Sol and GPT-5.6-Sol, using corrected same-seed Pangaea and Tiny-Islands BBAI/SASGameRecord comparisons and testing by wonderingabout, thanks.
 
