@@ -4298,15 +4298,23 @@ The Corihuayrachina example also ended with the Security Bureau as its best buil
 
 Retain inherited raw National-Wonder placement unchanged; remove the temporary logger/selector and add no completion-time Government Center exception.
 
-### Next Palace question: audit the live relocation route before changing value
+### Palace `AI_buildingValue` liveness follow-up: retire the old SAS policy
 
 Runtime and source inspection showed that actual Palace relocation can bypass ordinary `AI_buildingValue()`. `BUILDINGFOCUS_CAPITAL` takes an early `AI_bestBuildingThreshold()` path that scans constructible capital buildings and returns one within the turn limit, and inherited production callers request that focus directly.
 
-In both Tiny-Islands A/B modes, San Francisco's ordinary logged best building was Bank on turn 383, yet final production was Palace and it completed on turn 385; the detailed run contained zero Palace policy evaluations through `AI_buildingValue()`.
+An isolated Tiny-Islands liveness A/B then recorded **199 old SAS Palace-policy hits in each mode**. All 199 were prospective evaluations assuming Code of Laws; none represented current production.
 
-The old SAS Palace branch inside `AI_buildingValue()` may therefore be dead for actual relocation while still affecting prospective/direct callers such as technology valuation.
+Of those, 186 merely fell through during the early/small-empire window and 13 returned zero under military pressure. No case reached the insufficient-output rejection or the `AI_BUILDING_ALWAYS_PICK_FIRST - 500` superior-output force.
 
-The next audit should first distinguish current-production, prospective-technology and inherited `BUILDINGFOCUS_CAPITAL` paths, then decide whether the SAS branch has any live purpose. This evidence does not yet justify deleting it or inventing a replacement Palace-value formula.
+Disabling the branch preserved **395/395 core-state checkpoints, 395/395 RNG checkpoints and 1,648/1,648 research decisions**. Actual Palace relocation was also identical: inherited `BUILDINGFOCUS_CAPITAL` made six attempts in each mode, rejected five on its buildability/completion-time test, then selected San Francisco's three-turn Palace on turn 383; it completed on turn 385 in both modes.
+
+The old SAS `AI_buildingValue()` branch therefore did not control actual relocation and was behaviorally redundant in its only observed prospective caller. Its military-pressure veto, T100/four-city window, dual 150% production/research comparison, force-first return, temporary selector and Palace building-class define were removed together.
+
+Retain the level-3 diagnostics for inherited capital-value rejection and the actual capital-focus selection route as evidence for the remaining Palace-placement audit.
+
+The live inherited caller passes `3 * own cities in the candidate area` as `AI_chooseBuilding`'s `iMaxTurns`; despite the local name `iOdds`, the real odds argument remains its default `-1`, so a Palace that passes the turn limit is chosen deterministically.
+
+This may be intentional inherited behavior rather than a defect. The next audit should assess its area/population, production-rank, war-state, build-time and centrality results before changing Palace relocation.
 
 ### Remaining Wonder work
 
@@ -4314,7 +4322,7 @@ The current direction is gradual migration rather than another monolithic replac
 
 - keep Heroic Epic on its actual military-only production semantics; KI#48.16 retired its force-first war sentinel and migrated useful specialization into additive throughput valuation, while the subsequent top-production gate audit proved redundant and was retired;
 - keep KI#48.15's completion-time-aware inherited World-Wonder placement as the validated relative-production replacement, then resume coastal-Wonder scaling and production-Wonder placement;
-- continue specialized National-Wonder policy from Palace relocation after KI#48.17 replaced the completed Government Center/Forbidden Palace branch and the completion-time placement follow-up proved behaviorally unnecessary;
+- continue specialized National-Wonder policy from the live inherited Palace relocation route after KI#48.17 replaced the Government Center/Forbidden Palace branch, its completion-time placement follow-up proved unnecessary and the separate old SAS Palace-value policy proved redundant;
 - retain KI#48.13's tested `DOMAIN_LAND` throughput support as generic/modmod-safe infrastructure even if current SAS has no permanent land-domain production consumer; `DOMAIN_AIR` throughput amount and domain-specific AIR XP remain separate future audits rather than symmetry-driven changes;
 - remove dead old-SAS gates, defines, classifiers and caches only when their final evidence-backed consumer disappears, while preserving useful forensic diagnostics until the migration is closed.
 
@@ -5072,7 +5080,9 @@ The calculation conservatively includes only projected distance-maintenance savi
 
 The parent KI#48.9 cleanup removes the old SAS `REJECT_SMALL_EMPIRE`, `REJECT_CAPITAL`, `REJECT_MILITARY_PRESSURE` and `FORCE_HIGH_MAINTENANCE` branch, its `AI_BUILDING_ALWAYS_PICK_FIRST - 1000` sentinel, the temporary A/B selector and the dead high-maintenance threshold/audit fields.
 
-Palace relocation remains separate: actual inherited relocation can use the early `BUILDINGFOCUS_CAPITAL` route rather than ordinary `AI_buildingValue()`, so the old SAS Palace branch requires a caller/liveness audit before any valuation redesign.
+Palace relocation remains separate. Its caller/liveness A/B found 199 old SAS `AI_buildingValue()` policy hits in each mode, all prospective Code-of-Laws evaluations and none current production. Disabling that branch preserved every compared state, RNG and research row plus the identical San Francisco turn-383 Palace selection and turn-385 completion, so the redundant old SAS policy and its define were retired.
+
+Actual relocation remains on inherited `BUILDINGFOCUS_CAPITAL`: the caller's misleadingly named `iOdds` local is passed as a maximum-turn limit equal to three times the candidate area's own-city count, while the real odds parameter remains `-1`. Retained level-3 diagnostics will support a separate evidence-based audit of that live route rather than importing the deleted SAS output heuristic into it without proof.
 
 Investigated and validated with the help of ChatGPT-5.6-Sol and GPT-5.6-Sol, using corrected same-seed Pangaea and Tiny-Islands BBAI/SASGameRecord comparisons and testing by wonderingabout, thanks.
 

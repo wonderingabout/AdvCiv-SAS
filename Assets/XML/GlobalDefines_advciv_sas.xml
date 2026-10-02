@@ -2183,11 +2183,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: e.g. as of now in advciv-sas is as such; adjust as per your xml. -->
-	<Define>
-		<DefineName>SAS_AI_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME</DefineName>
-		<DefineTextVal>BUILDINGCLASS_PALACE</DefineTextVal>
-	</Define>
 	<!-- custom: Long_Comments_XML.txt #205 -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_GAMESPEED_TO_BUILD</DefineName>

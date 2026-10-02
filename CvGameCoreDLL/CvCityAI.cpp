@@ -7183,6 +7183,18 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 			}
 		}
 
+		// <!-- custom: Retain level-3 diagnostics for the live inherited Palace-relocation route after KI#48.9 retired the separate old SAS AI_buildingValue policy.
+		// This focus bypasses ordinary building valuation, so these rare rows are the direct evidence for which Palace passes the completion-time limit. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (gBuildingProductionLogLevel >= 3)
+		{
+			CvCityAI const* pCapitalForLog = kOwner.AI_getCapital();
+			logBBAI("PALACE_CAPITAL_FOCUS_AUDIT turn=%d player=%d %S city=%S cityId=%d selected=%s selectedTurns=%d maxTurns=%d minThreshold=%d baseProduction=%d beakers=%d cityArea=%d currentCapitalCityId=%d currentCapitalArea=%d",
+				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+				(eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()), (eBestBuilding == NO_BUILDING ? -1 : iBestTurnsLeft),
+				iMaxTurns, iMinThreshold, getBaseYieldRate(YIELD_PRODUCTION), getCommerceRate(COMMERCE_RESEARCH), getArea().getID(),
+				(pCapitalForLog == NULL ? -1 : pCapitalForLog->getID()), (pCapitalForLog == NULL ? -1 : pCapitalForLog->getArea().getID()));
+		}
+
 		return eBestBuilding;
 	}
 
@@ -8835,9 +8847,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		// <!-- custom: general modifier not significant enough to consider it -->
 		const bool bLandUnitsBuilding = (bLandXp || bLandProd);
 
-		const int iElapsedTurns = kGame.getElapsedGameTurns();
-
-		const int iBeakersPerTurn = getCommerceRate(COMMERCE_RESEARCH);
+		// <!-- custom: Retiring the old SAS Palace policy also removed the only consumers of elapsed turns and city beakers in this scope.
+		// Do not leave those locals behind: VC++ 2003 promotes their C4189 unused-variable warnings to build errors. See KI#48.9. (GPT-5.6-Sol) -->
 
 		const int iGameSpeedMultiplier = GC.getInfo(kGame.getGameSpeedType()).getConstructPercent(); // 100, 150, 200...
 
@@ -9173,64 +9184,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// <!-- custom: KI#48.9 retires the old Forbidden-Palace small-empire/capital/pressure/high-maintenance hard-policy branch.
 				// Its legitimate placement concern now lives in inherited additive valuation below, where each candidate city is valued by projected empire-wide distance-maintenance savings.
 				// Pangaea and Tiny-Islands A/B tests showed the inherited coarse estimate built none, while projected valuation produced natural competitive builds without FORCE_HIGH_MAINTENANCE; one Tiny-Islands completion even occurred during war/war-plan pressure that the old branch would have rejected.
-				// Keep Palace relocation separate for its own audit. See KI#48.17. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-				// <!-- custom: palace moving logic: if a city has >= 1.5x base hammers per turn or >= 1.5x base beakers per turn, we should maybe move our palace there, but there is a risk of oscillation if city A is higher hammer while city B is higher beaker, so require both conditions rather.
-				// To begin with, capital locations are gnerally very good, and if not as of now we told AI settlers to move to a better location even if takes several turns, so the new capital needs to be significantly better on both ends, else probably not so worth it to move anyway (considering the cost of such as well and possible unintended consequences) (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-				if (iNumCities > 1)
-				{
-					static const BuildingClassTypes eBuildingClassPalace = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_AI_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME"));
-					const bool bPalaceBuildingClass = (eBuildingClass == eBuildingClassPalace);
-					if (bPalaceBuildingClass)
-					{
-						if (bAtWar || bWarPlan || bDanger || bEnemyStrong)
-						{
-							const int iPolicyReturn = 0;
-							if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "PALACE", "REJECT_MILITARY_PRESSURE", iPolicyReturn);
-							return iPolicyReturn; // don’t mess with this under pressure
-						}
-
-						// <!-- custom: don't build palace too early, focus on early invasion or growth rather; also it should be way faster to build later, use the hammer early for something else -->
-						// Early window (scaled to speed)
-						const int iEarlyTurnsPalaceNormal = 100; // @Normal
-						const int iEarlyTurnsPalaceAdjusted = iEarlyTurnsPalaceNormal * iGameSpeedMultiplier / 100;
-						const bool bEarlyTurnsPalace = (iElapsedTurns < iEarlyTurnsPalaceAdjusted);
-
-						const int iEnoughCitiesToConsiderPalace = 4;
-						const bool bEnoughCitiesToConsiderPalace = (iNumCities >= iEnoughCitiesToConsiderPalace);
-
-						if (bEnoughCitiesToConsiderPalace && !bEarlyTurnsPalace)
-						{
-							CvCityAI const* pCapital = kOwner.AI_getCapital();
-
-							if (pCapital != NULL)
-							{
-								// Raw bases (no multipliers)
-								int const iCapitalBaseHammersPerTurn  = pCapital->getBaseYieldRate(YIELD_PRODUCTION);
-								int const iCapitalBeakersPerTurn  = pCapital->getCommerceRate(COMMERCE_RESEARCH);
-
-								// Require BOTH to be clearly better (1.5×). This kills oscillation.
-								const int iPalaceHammersBetterPer100 = 150;
-								const int iPalaceHammersBeakersPer100 = 150;
-								bool const bBeatsCurrentCapitalHammers = ((iBaseHammersPerTurn * 100) >= (iCapitalBaseHammersPerTurn * iPalaceHammersBetterPer100));
-								bool const bBeatsCurrentCapitalBeakers = ((iBeakersPerTurn * 100) >= (iCapitalBeakersPerTurn * iPalaceHammersBeakersPer100));
-
-								if (!bBeatsCurrentCapitalHammers || !bBeatsCurrentCapitalBeakers)
-								{
-									const int iPolicyReturn = 0;
-									if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "PALACE", "REJECT_INSUFFICIENT_OUTPUT", iPolicyReturn);
-									return iPolicyReturn;
-								}
-								else
-								{
-									// Gentle <!-- custom: negative --> nudge so it can win ties without steamrolling urgent stuff
-									const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST - 500;
-									if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "PALACE", "FORCE_SUPERIOR_OUTPUT", iPolicyReturn);
-									return iPolicyReturn;
-								}
-							}
-						}
-					}
-				}
+				// Palace relocation is handled separately by inherited BUILDINGFOCUS_CAPITAL.
+				// An isolated liveness A/B found 199 old SAS Palace AI_buildingValue hits, all prospective Code-of-Laws evaluations; disabling the branch changed no state, RNG, research or actual Palace relocation.
+				// Remove the redundant value-policy layer rather than letting it distort hypothetical technology valuation. See KI#48.9. (ChatGPT-5.6-Sol) -->
 
 				// <!-- custom: note: ironworks like buildings (bonus based production modifiers) already handled as part of the generic all wonders (world + national) production modifier calculation as of now above in the common wonder scope/block -->
 				// <!-- custom: note 2: same for national park so not handled here see before/above -->
@@ -9339,6 +9295,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 	if (kBuilding.isCapital())
 	{
+		// <!-- custom: Keep this level-3 row after removing the old SAS Palace policy: inherited capital-building rejection remains live for direct/prospective callers and is distinct from actual BUILDINGFOCUS_CAPITAL relocation. (GPT-5.6-Sol) -->
+		if (gBuildingProductionLogLevel >= 3)
+		{
+			logBBAI("PALACE_INHERITED_BUILDING_VALUE_REJECT turn=%d player=%d %S city=%S cityId=%d building=%s focusFlags=%d prospective=%d assumeTech=%s",
+				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), kBuilding.getType(),
+				iFocusFlags, eAssumeTech != NO_TECH, (eAssumeTech == NO_TECH ? "-" : GC.getInfo(eAssumeTech).getType()));
+		}
 		if (bLogBuildingValueDetails && !bWonder)
 			SAS_logInheritedBuildingValueRejection(*this, eBuilding, "CAPITAL_BUILDING");
 		return 0;
@@ -17550,6 +17513,7 @@ bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseCha
 bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThreshold, int iOdds) // BBAI
 {
 	bool const bLogDetailedMilitaryProduction = (gMilitaryProductionLogLevel >= 3 && !isHuman() && !isBarbarian());
+	bool const bLogPalaceFocus = (gBuildingProductionLogLevel >= 3 && (iFocusFlags & BUILDINGFOCUS_CAPITAL) != 0);
 	BuildingTypes eBestBuilding = NO_BUILDING; // advc
 	eBestBuilding = AI_bestBuildingThreshold(iFocusFlags, iMaxTurns, iMinThreshold);
 	if (eBestBuilding != NO_BUILDING)
@@ -17588,6 +17552,12 @@ bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThresho
 					iProductionNeededForLog, iProgressOddsBonusForLog, iOdds < 0 ? -1 : iOdds + iProgressOddsBonusForLog,
 					iOdds < 0 ? -1 : iRand, iOdds < 0);
 			}
+			if (bLogPalaceFocus)
+			{
+				logBBAI("PALACE_CAPITAL_FOCUS_CHOICE turn=%d player=%d %S city=%S cityId=%d building=%s chosen=1 baseOdds=%d rand=%d productionStored=%d productionNeeded=%d",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
+					GC.getInfo(eBestBuilding).getType(), iOdds, (iOdds < 0 ? -1 : iRand), getBuildingProduction(eBestBuilding), getProductionNeeded(eBestBuilding));
+			}
 			pushOrder(ORDER_CONSTRUCT, eBestBuilding);
 			return true;
 		}
@@ -17601,10 +17571,21 @@ bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThresho
 				getID(), iFocusFlags, iMaxTurns, iMinThreshold, GC.getInfo(eBestBuilding).getType(), iOdds, iProductionStoredForLog,
 				iProductionNeededForLog, iProgressOddsBonusForLog, iOdds + iProgressOddsBonusForLog, iRand);
 		}
+		if (bLogPalaceFocus)
+		{
+			logBBAI("PALACE_CAPITAL_FOCUS_CHOICE turn=%d player=%d %S city=%S cityId=%d building=%s chosen=0 baseOdds=%d rand=%d productionStored=%d productionNeeded=%d",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
+				GC.getInfo(eBestBuilding).getType(), iOdds, (iOdds < 0 ? -1 : iRand), getBuildingProduction(eBestBuilding), getProductionNeeded(eBestBuilding));
+		}
 	}
 	else if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_BUILDING_CHOICE turn=%d player=%d %S city=%S cityId=%d focusFlags=%d maxTurns=%d minThreshold=%d building=- baseOdds=%d productionStored=0 productionNeeded=0 progressBonus=0 effectiveOdds=%d rand=-1 forced=%d chosen=0",
 		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
 		iFocusFlags, iMaxTurns, iMinThreshold, iOdds, iOdds, iOdds < 0);
+	if (bLogPalaceFocus && eBestBuilding == NO_BUILDING)
+	{
+		logBBAI("PALACE_CAPITAL_FOCUS_CHOICE turn=%d player=%d %S city=%S cityId=%d building=- chosen=0 baseOdds=%d rand=-1 productionStored=0 productionNeeded=0",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), iOdds);
+	}
 
 	return false;
 }
