@@ -2129,7 +2129,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_FUTURE_NORMAL</DefineName>
 		<iDefineIntVal>350</iDefineIntVal>
 	</Define>
-	<!-- custom: KI#48.5 audit note: the World-Wonder base-hammer pair below is now legacy diagnostic input only; National/unknown Wonder gates still use their own pairs. Historical formula: reject if iBaseHammersPerTurn < (MIN_BASE + iCurrentEra * EXTRA_PER_ERA). (ChatGPT-5.6-Sol) -->
+	<!-- custom: KI#48.9 audit note: the World- and National-Wonder base-hammer pairs below are now legacy diagnostic input only. Their live hard vetoes are retired; retain the thresholds temporarily for level-3 counterfactual Wonder-policy rows until final audit cleanup. (ChatGPT-5.6-Sol) -->
 
 	<!-- custom: Long_Comments_XML.txt #102 -->
 	<Define>
@@ -2146,14 +2146,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</Define>
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA</DefineName>
-		<iDefineIntVal>2</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_MIN_BASE_HAMMERS</DefineName>
-		<iDefineIntVal>6</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: Long_Comments_XML.txt #183 -->
@@ -2176,11 +2168,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</Define>
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<!-- custom: if somehow a building is a wonder but not a world wonder nor a national wonder, enable/disable this to specifically enable advciv-sas optimizations for this type of building if it ever exists (i don't think it does, but i don't know too much to tell, so added the knob to be safe and for exhaustiveness i mean) -->
-	<Define>
-		<DefineName>SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Long_Comments_XML.txt #205 -->

@@ -9114,7 +9114,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it, everything else being the same. See SAS defines XML code comments for details about it and its sub options -->
 		static const bool bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE");
 		static const bool bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE");
-		static const bool bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE");
 
 
 		// <!-- custom: The September 2026 KI#48.5 audit retired the SAS regular-building category prefilter after testing its concerns individually against inherited additive valuation.
@@ -9139,18 +9138,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			{
 				// <!-- custom: Retire the fixed era-scaled base-hammer veto. The shared time-to-build gate already captures whether this city would tie up production for too long, while National Wonders cannot lose a race and often belong in a specialized city rather than one that merely clears a raw-hammer floor. Level-3 policy diagnostics keep the former threshold visible as counterfactual evidence. See KI#48.9. (ChatGPT-5.6-Sol) -->
 			}
-			else if (!bWorldWonder && !bNationalWonder && bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
-			{
-				static const int iMinBaseHammers = GC.getDefineINT("SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_MIN_BASE_HAMMERS");
-				static const int iMinExtraHammersPerEra = GC.getDefineINT("SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA");
-
-				if (iBaseHammersPerTurn < (iMinBaseHammers + (iCurrentEra * iMinExtraHammersPerEra)))
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNKNOWN_WONDER", "REJECT_LOW_PRODUCTION", iPolicyReturn);
-					return iPolicyReturn;
-				}
-			}
 
 			// <!-- custom: Retire the shared hard >20-Normal-turn rejection.
 			// Inherited building/production competition already discounts long investments contextually, while the old current-city turn cap also leaked into prospective technology valuation and could reject successful long World/National Wonder starts.
@@ -9166,61 +9153,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// In the isolated Tiny A/B, removing the hard cliff let a 2-coastal-city Greece consider a 9-turn Great Lighthouse but did not make one-coastal-city or 30-150-turn candidates into actual starts; the Wonder completed three turns earlier overall (T97 vs T100).
 				// One Greek 30-hammer attempt was later invalidated after switching away, but the control also accumulated losing-Wonder investment, so ordinary race/production competition is the appropriate layer rather than an empire-size return-0 cliff. See KI#48.9. (ChatGPT-5.6-Sol) -->
 			}
-			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
-			{
-				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness. Chatgpt 5 also suggests this or something similar so doing as such -->
-				// <!-- custom: as a side effect, may indirectly reduce early spam in favour of betting on a higher unit production late game, where multipliers help more, economy is stronger to sustain it, tech lead higher to not fall behind if we produce a bit more units maybe, and scaling is important to face rivals. It may also indirectly slightly improve early economy and reduce bankruptcy risk / imrpvoe economical performance. If one AI is running away, it may give it an extra lead while rivals build heroic epics, possibly (i guess and happened in autoplay map i tried it on it seems), however if the game is closer, this should improve mid and late game performance and competitiveness of the AI (i think/guess). And if an AI is running away, not sure avoiding the heroic epic would ultimately help prevent that, although a short term patch-up strategy may help salvage things sometimes possibly, but generally i think encouraging AIs to build more often and earlier heroic epics (or whichever wonder in your xml) should generally, in theory help, but i didn't test it too much to be sure, check if accurate -->
-				// Short version: I agree with the direction. Earlier HE in the right city usually improves mid-/late-game military tempo and doesn’t hurt runaways (your war/danger caps already prevent self-sabotage). I’d just tone down a couple causal claims in the comment.
-				// What I agree with
-				// 	- Tradeoff is real: a short early tempo dip (hammers into HE) for higher sustained unit throughput later. That’s the key benefit.
-				// 	- Economy side-effect: if it replaces early unit spam, upkeep pressure eases a bit. That’s a side-effect, not a guarantee.
-				// 	- Runaway leader: this change won’t stop one; it’s mostly neutral there because of your danger/enemy-strong skips.
-				// 	- Closer games: more AIs placing HE early in real pump cities raises their floor. Net effect: tougher midgame wars.
-				// What I’d soften in the comment
-				// 	- “tech lead higher" and “economy stronger to sustain it" aren’t direct effects of HE; they’re contingent on building fewer early units or getting safer growth windows. I’d state those as may and keep the mechanism explicit: fewer early units → lower upkeep → sometimes more budget for research.
-				// <!-- custom: after testing it ingame, it seems effect is very good and impressive: despite being behind early, we still build an early heroic epic, and stay relevant despite enemy being stronger, until they win, but our empire didnt collapse and bounced back multiple times (they delayed a bit their heroic epics but there are enough among other rivals' empires). I don't know how much randomness influences this, but in this other autoplay map i autoplayed (redundant), it seems to greatly help so left as such, hopefully helps other AIs as well-->
-				if (!bLandUnitsBuilding)
-				{
-					// Don’t invest if we’re about to get rolled
-					if (bEnemyStrong || bDanger)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NATIONAL_WONDER", "REJECT_PRESSURE_NONMILITARY", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
-				else
-				{
-					if (bDanger)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NATIONAL_WONDER", "REJECT_DANGER_MILITARY", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
-			}
-			else if (!bWorldWonder && !bNationalWonder && bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
-			{
-				if (!bLandUnitsBuilding)
-				{
-					// Don’t invest if we’re about to get rolled
-					if (bEnemyStrong || bDanger)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNKNOWN_WONDER", "REJECT_PRESSURE_NONMILITARY", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
-				else
-				{
-					if (bDanger)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNKNOWN_WONDER", "REJECT_DANGER_MILITARY", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
-			}
+			// <!-- custom: KI#48.9 source cleanup: remove the generic National-Wonder pressure branch that sat in an `else if` after the common `if (bWonder && SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)` block.
+			// With the normal Wonder master enabled, every National Wonder is already consumed by the first branch, so the later pressure branch is unreachable.
+			// A same-build Pangaea mode-0/mode-1 audit produced zero live branch rows and identical state/RNG/research/production through T344 despite 9,848 counterfactual pressure states in the earlier policy audit.
+			// Removing it also makes disabling the common Wonder master actually disable this stale subpolicy instead of unexpectedly activating it.
+			// The adjacent unknown-Wonder branch was impossible because this whole scope already requires bWonder == (bWorldWonder || bNationalWonder). (ChatGPT-5.6-Sol) -->
 
 			// <!-- custom: common logic for unhealthiness removing wonders (world + national) -->
 			// --- National Park style (skip when already healthy / too small ) -------------
@@ -9415,31 +9352,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// <!-- custom: note: ironworks like buildings (bonus based production modifiers) already handled as part of the generic all wonders (world + national) production modifier calculation as of now above in the common wonder scope/block -->
 				// <!-- custom: note 2: same for national park so not handled here see before/above -->
 			}
-			// <!-- custom: if we somehow still don't know what this unidentified building is, not a normal building that is not a world wonder nor a national wonder, nor a world wonder, nor a national wonder, and somehow still have to decide about this unidentified building, then proceed with base war heuristics just in case i.e. to not build it if in danger or and such, i don't think we should ever land here or extremely rarely if at all, but just in case; i may be mistaken about the need for this as i don't know too much about these, check if accurate. -->
-			else if (!bWorldWonder && !bNationalWonder && bSAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE)
-			{
-				// <!-- custom: don't be too strict here, we need the heroic epic still even if enemy is strong, so save some computation but not at the cost of worse gameplay or competitiveness. Chatgpt 5 also suggests this or something similar so doing as such -->
-				if (!bLandUnitsBuilding)
-				{
-					// <!-- custom: fallback to war heuristics general checks otherwise -->
-					if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNKNOWN_WONDER_FALLBACK", "REJECT_MILITARY_PRESSURE", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
-				else
-				{
-					// <!-- custom: this code should never be reached if i'm not mistaken, i think, but just in case-->
-					if (bAtWar || bDanger)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNKNOWN_WONDER_FALLBACK", "REJECT_IMMEDIATE_PRESSURE", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
-			}
+			// <!-- custom: KI#48.9 source cleanup: remove the old UNKNOWN_WONDER fallback.
+			// This code is inside the outer `if (bWonder ...)` scope, so `!bWorldWonder && !bNationalWonder` is structurally impossible. (ChatGPT-5.6-Sol) -->
+			
 	// <!-- custom: Retiring the nested World-Wonder pressure block also removes its inner closing brace; retaining both old closers ended AI_buildingValue here and produced the subsequent global-scope compile cascade. This remaining brace closes the common SAS Wonder-policy block. See KI#48.9. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	}
 
