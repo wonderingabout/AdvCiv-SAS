@@ -9260,7 +9260,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 				// <!-- custom: worth considering the health gains if city is big enough and has enough unhealthiness from population already; also note: as clarified to chatgpt 5, this logic is a bit too simplistic in case population doesn't provide enough some unheathiness in some mod or scenairo or such to justify building this, but htis should still be a fine approximation, as high enough pop cities should generally have other sources of unheathiness that may make this a recommendable building to build. As for us not suggesting such here, but making sure we don't build it if not efficient, else let other functions handle that -->
 				// <!-- custom: unlikely to have enough gains if we build this in our city size 12 when we have a city size 20 that could build it instead, at least in most cases so go with this; also note: < not <= so if city 3 or city 4 exactly have same pop as city 2 or city 1, then build in any as i clarified to chatgpt 5 hehe, don't reject these cities -->
-				const int iUnhealthinessReducerWonderMinPop = 12;
+				// <!-- custom: Historical population-12 threshold retained only as counterfactual level-3 diagnostic context after KI#48.9 retired the live hard floor. (ChatGPT-5.6-Sol) -->
+				const int iHistoricalNationalParkMinPop = 12;
 				const int iUnhealthinessReducerWonderMaxHealthLevel = 1;
 
 				// <!-- custom: KI#48.9 National-Park placement/resilience audit.
@@ -9285,7 +9286,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					szNationalParkCandidateSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d",
 						iPop, iPopulationRank, iHealthLevel, iPopulationUnhealth, iHealthFoodLoss, iPopulationUnhealthFoodRelief,
 						iFoodDifference, getFood(), iImprovementFreeSpecialistPlots, iImprovementFreeSpecialistCount,
-						(iPop < iUnhealthinessReducerWonderMinPop), !bTop2Population,
+						(iPop < iHistoricalNationalParkMinPop), !bTop2Population,
 						(iHealthLevel > iUnhealthinessReducerWonderMaxHealthLevel));
 					if (SAS_shouldLogBuildingValueGateChange(*this, eBuilding, "NATIONAL_PARK_CANDIDATE", szNationalParkCandidateSignature))
 					{
@@ -9294,20 +9295,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							kBuilding.getType(), (eAssumeTech != NO_TECH), eAssumeTech, canConstruct(eBuilding),
 							iPop, iPopulationRank, iHealthLevel, iPopulationUnhealth, iHealthFoodLoss, iPopulationUnhealthFoodRelief,
 							iFoodDifference, getFood(), growthThreshold(), iImprovementFreeSpecialistPlots, iImprovementFreeSpecialistCount,
-							(iPop < iUnhealthinessReducerWonderMinPop), !bTop2Population,
+							(iPop < iHistoricalNationalParkMinPop), !bTop2Population,
 							(iHealthLevel > iUnhealthinessReducerWonderMaxHealthLevel),
 							getProductionTurnsLeft(eBuilding, 0), iBaseHammersPerTurn, getBuildingProduction(eBuilding));
 					}
 				}
-				// <!-- custom: KI#48.9: Retire the hard top-2-population requirement for National-Park-style Wonders.
-				// The Tiny A/B let rank-3 to rank-7 cities reach inherited valuation and cross-city limited-building placement; several such cities were selected as the inherited best destination and successfully completed National Park, while ordinary production still rejected even very high Park values when military production was preferable.
-				// Keep only the separate minimum-population floor here for the next isolated audit; population rank remains diagnostic context rather than an eligibility cliff. (ChatGPT-5.6-Sol) -->
-				if (iPop < iUnhealthinessReducerWonderMinPop)
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNHEALTHINESS_REDUCER_WONDER", "REJECT_LOW_POPULATION", iPolicyReturn);
-					return iPolicyReturn;
-				}
+				// <!-- custom: KI#48.9: Retire the fixed population-12 National-Park eligibility floor.
+				// The Tiny A/B exposed thousands of sub-12 candidates but only two actually started National Park; both were sensible inherited-placement winners (Uzbek with 4 Preserve specialists, Ligurian with 3) while ordinary valuation/placement/production rejected the rest.
+				// This also avoids the self-defeating case where a health-stressed city shrinks below the threshold and becomes ineligible for the building that could halt further population-unhealth food loss.
+				// Keep the historical threshold only in the level-3 candidate audit above. (ChatGPT-5.6-Sol) -->
 				// <!-- custom: city is healthy enough for now, no need to build this -->
 				if (iHealthLevel > iUnhealthinessReducerWonderMaxHealthLevel)
 				{
