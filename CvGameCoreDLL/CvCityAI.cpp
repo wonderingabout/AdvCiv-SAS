@@ -4071,6 +4071,7 @@ void CvCityAI::AI_chooseProduction()
 			{
 				// <!-- custom: AdvC advc.131 named this local iOdds after replacing K-Mod's flat 15-turn limit, but the value is passed as AI_chooseBuilding's iMaxTurns while the actual odds argument defaults to -1.
 				// Name the completion-time limit accurately so this deterministic Palace choice is not mistaken for a probability. See KI#768.2. (GPT-5.6-Sol) -->
+				// <!-- custom: Retain the inherited 3 * candidate-area-city limit: raising the minimum 2-city allowance from 6 to 9 turns let Snaketown start an economically attractive Palace, but deteriorating war/production context abandoned it at 58/144 hammers four turns later. See KI#48.18. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				int const iMaxPalaceTurns = 3 * kArea.getCitiesPerPlayer(getOwner()); // advc.131: was 15 flat
 
 				// <!-- custom: The inherited area-population heuristic relocated the Palace to San Francisco despite a projected +2.44 GPT raw maintenance cost (about +5.12 GPT after inflation), with no capital-specific yield/commerce modifier to justify accepting that loss.
@@ -7356,6 +7357,8 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 	if (iFocusFlags & BUILDINGFOCUS_CAPITAL)
 	{
 		int iBestTurnsLeft = (iMaxTurns > 0 ? iMaxTurns : MAX_INT);
+		BuildingTypes eFastestCapitalBuilding = NO_BUILDING;
+		int iFastestCapitalTurns = MAX_INT;
 		CvCivilization const& kCiv = getCivilization(); // advc.003w
 		for (int i = 0; i < kCiv.getNumBuildings(); i++)
 		{
@@ -7365,6 +7368,11 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 				if (canConstruct(eLoopBuilding))
 				{
 					int iTurnsLeft = getProductionTurnsLeft(eLoopBuilding, 0);
+					if (gBuildingProductionLogLevel >= 3 && iTurnsLeft < iFastestCapitalTurns)
+					{
+						eFastestCapitalBuilding = eLoopBuilding;
+						iFastestCapitalTurns = iTurnsLeft;
+					}
 					if (iTurnsLeft <= iBestTurnsLeft)
 					{
 						eBestBuilding = eLoopBuilding;
@@ -7379,10 +7387,15 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 		if (gBuildingProductionLogLevel >= 3)
 		{
 			CvCityAI const* pCapitalForLog = kOwner.AI_getCapital();
-			logBBAI("PALACE_CAPITAL_FOCUS_AUDIT turn=%d player=%d %S city=%S cityId=%d selected=%s selectedTurns=%d maxTurns=%d minThreshold=%d baseProduction=%d beakers=%d cityDistanceSum=%d cityArea=%d currentCapitalCityId=%d capitalBaseProduction=%d capitalBeakers=%d capitalDistanceSum=%d currentCapitalArea=%d",
+			// <!-- custom: Expose the fastest constructible Palace even when advc.131's inherited max-turn limit rejects it.
+			// This distinguished maintenance-positive 9-turn candidates from a later 16-turn case and remains diagnostic-only with no selection or RNG change. See KI#48.18. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			logBBAI("PALACE_CAPITAL_FOCUS_AUDIT turn=%d player=%d %S city=%S cityId=%d selected=%s selectedTurns=%d maxTurns=%d uncapped=%s uncappedTurns=%d rejectedOnlyByTurnLimit=%d minThreshold=%d baseProduction=%d beakers=%d cityDistanceSum=%d cityArea=%d currentCapitalCityId=%d capitalBaseProduction=%d capitalBeakers=%d capitalDistanceSum=%d currentCapitalArea=%d",
 				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
 				(eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()), (eBestBuilding == NO_BUILDING ? -1 : iBestTurnsLeft),
-				iMaxTurns, iMinThreshold, getBaseYieldRate(YIELD_PRODUCTION), getCommerceRate(COMMERCE_RESEARCH), SAS_getOwnCityDistanceSum(*this), getArea().getID(),
+				iMaxTurns, (eFastestCapitalBuilding == NO_BUILDING ? "-" : GC.getInfo(eFastestCapitalBuilding).getType()),
+				(eFastestCapitalBuilding == NO_BUILDING ? -1 : iFastestCapitalTurns),
+				(eBestBuilding == NO_BUILDING && eFastestCapitalBuilding != NO_BUILDING && iMaxTurns > 0 && iFastestCapitalTurns > iMaxTurns),
+				iMinThreshold, getBaseYieldRate(YIELD_PRODUCTION), getCommerceRate(COMMERCE_RESEARCH), SAS_getOwnCityDistanceSum(*this), getArea().getID(),
 				(pCapitalForLog == NULL ? -1 : pCapitalForLog->getID()), (pCapitalForLog == NULL ? -1 : pCapitalForLog->getBaseYieldRate(YIELD_PRODUCTION)),
 				(pCapitalForLog == NULL ? -1 : pCapitalForLog->getCommerceRate(COMMERCE_RESEARCH)),
 				(pCapitalForLog == NULL ? -1 : SAS_getOwnCityDistanceSum(*pCapitalForLog)),

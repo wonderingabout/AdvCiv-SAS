@@ -4204,9 +4204,13 @@ The gameplay top-three-hammer cache was correspondingly simplified to top two af
 
 Heroic-Epic specialization was subsequently completed in KI#48.16 and its remaining redundant placement gate was retired in this parent audit; government-center/Forbidden-Palace logic was completed in KI#48.17.
 
-KI#48.18 then added a narrow economic floor to inherited Palace relocation after proving that its area-population heuristic could select a move that increased empire maintenance. The inherited Palace completion-time limit, shared construction-time protection and other dedicated rules remain under review.
+KI#48.18 then added a narrow economic floor to inherited Palace relocation after proving that its area-population heuristic could select a move that increased empire maintenance.
 
-The generic National-Wonder retirements were checkpointed as WIP rather than declared final while the inherited generic military-production valuation and Heroic-Epic-specific policy were audited separately. KI#48.10 repaired the generic throughput shape; KI#48.16 then retired the Heroic-Epic force-first sentinel and migrated its useful specialization signal into additive valuation. The remaining military-National-Wonder question is placement, not another force.
+Its inherited completion-time limit was subsequently audited and retained after a narrow relaxation produced abandoned Palace investment; shared construction-time protection and other dedicated rules remain under review.
+
+The generic National-Wonder retirements were checkpointed as WIP rather than declared final while the inherited generic military-production valuation and Heroic-Epic-specific policy were audited separately.
+
+KI#48.10 repaired the generic throughput shape; KI#48.16 then retired the Heroic-Epic force-first sentinel and migrated its useful specialization signal into additive valuation. The remaining military-National-Wonder question is placement, not another force.
 
 ### Inherited detour resolved: generic military-production valuation (KI#48.10)
 
@@ -4326,7 +4330,11 @@ KI#48.18 therefore adds only a do-no-harm floor to this inherited route: when no
 
 The same-seed candidate remained identical through turn 382, rejected San Francisco on turn 383, and later allowed Boston's economically positive two-turn Palace on turn 388. This fixes the demonstrated placement defect without replacing inherited geography, war, production-rank or completion-time policy.
 
-The next Palace audit is narrower: positive Native-American candidates were still rejected by the inherited `3 * candidate-area cities` maximum-turn rule, but the current diagnostics did not yet expose their uncapped Palace build times. That limit remains under investigation rather than being changed together with the validated maintenance floor.
+The retained level-3 diagnostic then exposed several economically positive Native-American candidates requiring nine Palace turns against a six-turn limit, plus a later 16-turn case. A narrow A/B raised only the minimum two-city candidate-area allowance from six to nine turns while leaving areas with three or more cities unchanged.
+
+The candidate immediately let Snaketown start its nine-turn Palace on turn 319, but deteriorating war and production context caused it to abandon the build on turn 323 after investing **58 of 144 hammers**. It never resumed or completed the Palace. The control avoided that parked production entirely.
+
+The inherited `3 * candidate-area cities` completion-time rule is therefore retained. It acts as useful commitment-risk protection rather than merely rejecting a favorable maintenance snapshot, while the permanent uncapped-time diagnostic preserves evidence if later rules or map conditions justify reopening the question.
 
 ### Remaining Wonder work
 
@@ -4334,7 +4342,6 @@ The current direction is gradual migration rather than another monolithic replac
 
 - keep Heroic Epic on its actual military-only production semantics; KI#48.16 retired its force-first war sentinel and migrated useful specialization into additive throughput valuation, while the subsequent top-production gate audit proved redundant and was retired;
 - keep KI#48.15's completion-time-aware inherited World-Wonder placement as the validated relative-production replacement, then resume coastal-Wonder scaling and production-Wonder placement;
-- continue the live inherited Palace-relocation audit after KI#48.18 fixed its demonstrated negative-maintenance move; specifically measure the uncapped Palace build times behind positive Native-American candidates before deciding whether the inherited `3 * candidate-area cities` completion-time limit needs adjustment;
 - retain KI#48.13's tested `DOMAIN_LAND` throughput support as generic/modmod-safe infrastructure even if current SAS has no permanent land-domain production consumer; `DOMAIN_AIR` throughput amount and domain-specific AIR XP remain separate future audits rather than symmetry-driven changes;
 - remove dead old-SAS gates, defines, classifiers and caches only when their final evidence-backed consumer disappears, while preserving useful forensic diagnostics until the migration is closed.
 
@@ -5129,11 +5136,11 @@ On turn 388 the AI naturally selected Boston instead. Boston projected about **+
 
 Both histories still reached the same turn-390 Space Race victory; that common endpoint is only a safety result, while the turn-383 causal split and later positive relocation establish the guard's intended behavior.
 
-The candidate also allowed all observed positive Native-American projections, roughly **+2.57 to +4.73 GPT**, but inherited completion-time handling still rejected their Palaces.
+The candidate also allowed all observed positive Native-American maintenance projections, roughly **+2.57 to +4.73 GPT**, but inherited completion-time handling rejected their Palaces. The permanent level-3 audit subsequently established that several of those candidates required nine turns against the six-turn allowance for a two-city candidate area; a later case required 16 turns.
 
-This demonstrates that the correction is not a disguised no-relocation rule and isolates the remaining question cleanly: the six-turn cap for those two-city candidate areas may be appropriate or too sharp, but their uncapped Palace build times were not yet logged.
+A narrow A/B changed only the minimum two-city allowance from six to nine turns. Snaketown immediately started the now-eligible nine-turn Palace on turn 319, but by turn 323 worsening war and production context caused it to abandon the build after investing **58 of 144 hammers**. The Palace never resumed or completed, while the control made no such parked investment.
 
-That completion-time policy remains a separate KI#48.9 follow-up rather than being changed together with this validated economic floor.
+The inherited `3 * candidate-area cities` limit is therefore retained as commitment-risk protection. The rejected test demonstrates why an economically attractive relocation snapshot is insufficient when completion is slow enough for strategic priorities to change; the uncapped Palace timing remains in level-3 diagnostics for future regression evidence.
 
 This is an inherited K-Mod/AdvC Palace-relocation blind spot exposed during the KI#48.9 SAS Wonder-policy rework. The projected-maintenance audit and narrow permanent safeguard were developed and analyzed with the help of ChatGPT-5.6-Sol and GPT-5.6-Sol, using BBAI diagnostics and deterministic SASGameRecord comparison, with testing and review by wonderingabout, thanks.
 
