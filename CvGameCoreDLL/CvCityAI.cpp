@@ -9299,10 +9299,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							getProductionTurnsLeft(eBuilding, 0), iBaseHammersPerTurn, getBuildingProduction(eBuilding));
 					}
 				}
-				if ((iPop < iUnhealthinessReducerWonderMinPop) || !bTop2Population)
+				// <!-- custom: KI#48.9: Retire the hard top-2-population requirement for National-Park-style Wonders.
+				// The Tiny A/B let rank-3 to rank-7 cities reach inherited valuation and cross-city limited-building placement; several such cities were selected as the inherited best destination and successfully completed National Park, while ordinary production still rejected even very high Park values when military production was preferable.
+				// Keep only the separate minimum-population floor here for the next isolated audit; population rank remains diagnostic context rather than an eligibility cliff. (ChatGPT-5.6-Sol) -->
+				if (iPop < iUnhealthinessReducerWonderMinPop)
 				{
 					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNHEALTHINESS_REDUCER_WONDER", "REJECT_LOW_POPULATION_PRIORITY", iPolicyReturn);
+					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNHEALTHINESS_REDUCER_WONDER", "REJECT_LOW_POPULATION", iPolicyReturn);
 					return iPolicyReturn;
 				}
 				// <!-- custom: city is healthy enough for now, no need to build this -->
