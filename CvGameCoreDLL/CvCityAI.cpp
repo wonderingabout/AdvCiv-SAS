@@ -7335,6 +7335,10 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
 	return eBestUnit;
 }
 
+// <!-- custom: AI_bestBuildingThreshold's National-Park placement audit is above the shared diagnostic helper definition.
+// Declare it here because VC++ 2003 otherwise reports the early call as unknown and then misdiagnoses the later definition as a redefinition. (GPT-5.6-Sol) -->
+static bool SAS_shouldLogBuildingValueGateChange(CvCityAI const& kCity, BuildingTypes eBuilding, char const* szGate, CvString const& szSignature);
+
 
 BuildingTypes CvCityAI::AI_bestBuilding(int iFocusFlags, int iMaxTurns, bool bAsync, AdvisorTypes eIgnoreAdvisor) const
 {
@@ -7513,6 +7517,13 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 					iValue *= iMaxNumWonders + 1 - getNumNationalWonders();
 					iValue /= iMaxNumWonders + 1;
 				}
+				// <!-- custom: Expose inherited National-Wonder placement for National-Park-style buildings without recomputing candidate-city values only for logging; collect the best values while the existing cross-city loop already evaluates them. See KI#48.9. (GPT-5.6-Sol) -->
+				const bool bNationalParkPlacementAudit = (gBuildingProductionLogLevel >= 3 && kBuilding.isNationalWonder() && kBuilding.getUnhealthyPopulationModifier() <= -50);
+				const int iNationalParkCurrentPlacementValue = iValue;
+				CvCityAI const* pNationalParkBestPlacementCity = this;
+				int iNationalParkBestPlacementValue = iValue;
+				int iNationalParkBestPlacementTurns = iTurnsLeft;
+				bool bNationalParkRejectedForBetterCity = false;
 				FOR_EACH_CITYAI(pLoopCity, kOwner)
 				{
 					if (pLoopCity->canConstruct(eLoopBuilding))
@@ -7524,6 +7535,12 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 						{
 							iLoopValue *= iMaxNumWonders + 1 - pLoopCity->getNumNationalWonders();
 							iLoopValue /= iMaxNumWonders + 1;
+						}
+						if (bNationalParkPlacementAudit && iLoopValue > iNationalParkBestPlacementValue)
+						{
+							pNationalParkBestPlacementCity = pLoopCity;
+							iNationalParkBestPlacementValue = iLoopValue;
+							iNationalParkBestPlacementTurns = pLoopCity->getProductionTurnsLeft(eLoopBuilding, 0);
 						}
 						bool bBetterPlacement = false;
 						int iThisPlacementValue = -1;
@@ -7551,7 +7568,9 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 						{
 							if (--iLimit <= 0)
 							{
-								if (kBuilding.isWorldWonder() && gBuildingProductionLogLevel >= 3)
+								if (bNationalParkPlacementAudit)
+									bNationalParkRejectedForBetterCity = true;
+								if (gBuildingProductionLogLevel >= 3 && kBuilding.isWorldWonder())
 								{
 									logBBAI("WORLD_WONDER_INHERITED_PLACEMENT turn=%d player=%d %S city=%S cityId=%d building=%s action=REJECT_FOR_BETTER_CITY currentRawValue=%d currentTurns=%d currentPlacementValue=%d betterCity=%S betterCityId=%d betterRawValue=%d betterTurns=%d betterPlacementValue=%d",
 										GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), kBuilding.getType(),
@@ -7562,6 +7581,25 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 								break;
 							}
 						}
+					}
+				}
+				if (bNationalParkPlacementAudit)
+				{
+					const int iBestVsCurrentPercent = (iNationalParkCurrentPlacementValue <= 0 ? -1 :
+							(100 * iNationalParkBestPlacementValue) / iNationalParkCurrentPlacementValue);
+					CvString szNationalParkPlacementSignature;
+					szNationalParkPlacementSignature.Format("%d|%d|%d|%d|%d|%d|%d",
+						iNationalParkCurrentPlacementValue, iTurnsLeft, pNationalParkBestPlacementCity->getID(),
+						iNationalParkBestPlacementValue, iNationalParkBestPlacementTurns, iBestVsCurrentPercent,
+						bNationalParkRejectedForBetterCity);
+					if (SAS_shouldLogBuildingValueGateChange(*this, eLoopBuilding, "NATIONAL_PARK_INHERITED_PLACEMENT", szNationalParkPlacementSignature))
+					{
+						logBBAI("NATIONAL_PARK_INHERITED_PLACEMENT_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s currentValue=%d currentTurns=%d bestCity=%S bestCityId=%d bestValue=%d bestTurns=%d bestVsCurrentPercent=%d rejectedForBetterCity=%d limit=%d",
+							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+							kBuilding.getType(), iNationalParkCurrentPlacementValue, iTurnsLeft,
+							pNationalParkBestPlacementCity->getName().GetCString(), pNationalParkBestPlacementCity->getID(),
+							iNationalParkBestPlacementValue, iNationalParkBestPlacementTurns, iBestVsCurrentPercent,
+							bNationalParkRejectedForBetterCity, GC.getInfo(eLoopClass).getLimit());
 					}
 				}
 				// Subtract some points from wonder value, just to stop us from wasting it
@@ -9223,13 +9261,50 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// <!-- custom: worth considering the health gains if city is big enough and has enough unhealthiness from population already; also note: as clarified to chatgpt 5, this logic is a bit too simplistic in case population doesn't provide enough some unheathiness in some mod or scenairo or such to justify building this, but htis should still be a fine approximation, as high enough pop cities should generally have other sources of unheathiness that may make this a recommendable building to build. As for us not suggesting such here, but making sure we don't build it if not efficient, else let other functions handle that -->
 				// <!-- custom: unlikely to have enough gains if we build this in our city size 12 when we have a city size 20 that could build it instead, at least in most cases so go with this; also note: < not <= so if city 3 or city 4 exactly have same pop as city 2 or city 1, then build in any as i clarified to chatgpt 5 hehe, don't reject these cities -->
 				const int iUnhealthinessReducerWonderMinPop = 12;
+				const int iUnhealthinessReducerWonderMaxHealthLevel = 1;
+
+				// <!-- custom: KI#48.9 National-Park placement/resilience audit.
+				// Before changing placement, expose the generic city facts that can make a population-unhealthiness remover valuable under any temporary or persistent health shock: population unhealthiness, actual health food loss, current food balance/buffer, and improvement-granted free specialists.
+				// Do not hardcode Depopulation or any era/event name; future plagues, civics, technologies and scenarios should naturally appear through these city-state values.
+				// Detailed work is fully pre-gated at building-production log level 3. See KI#48.9. (ChatGPT-5.6-Sol) -->
+				if (gBuildingProductionLogLevel >= 3)
+				{
+					int iImprovementFreeSpecialistPlots = 0;
+					int iImprovementFreeSpecialistCount = 0;
+					FOR_EACH_NON_DEFAULT_PAIR(kBuilding.getImprovementFreeSpecialist(), Improvement, int)
+					{
+						const int iImprovedPlots = countNumImprovedPlots(perImprovementVal.first, true);
+						iImprovementFreeSpecialistPlots += iImprovedPlots;
+						iImprovementFreeSpecialistCount += iImprovedPlots * perImprovementVal.second;
+					}
+					const int iPopulationUnhealth = unhealthyPopulation();
+					const int iHealthFoodLoss = std::max(0, -healthRate());
+					const int iPopulationUnhealthFoodRelief = std::min(iPopulationUnhealth, iHealthFoodLoss);
+					const int iFoodDifference = foodDifference(false, true);
+					CvString szNationalParkCandidateSignature;
+					szNationalParkCandidateSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d",
+						iPop, iPopulationRank, iHealthLevel, iPopulationUnhealth, iHealthFoodLoss, iPopulationUnhealthFoodRelief,
+						iFoodDifference, getFood(), iImprovementFreeSpecialistPlots, iImprovementFreeSpecialistCount,
+						(iPop < iUnhealthinessReducerWonderMinPop), !bTop2Population,
+						(iHealthLevel > iUnhealthinessReducerWonderMaxHealthLevel));
+					if (SAS_shouldLogBuildingValueGateChange(*this, eBuilding, "NATIONAL_PARK_CANDIDATE", szNationalParkCandidateSignature))
+					{
+						logBBAI("NATIONAL_PARK_CANDIDATE_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s prospective=%d assumeTech=%d canConstructNow=%d pop=%d populationRank=%d healthLevel=%d populationUnhealth=%d healthFoodLoss=%d populationUnhealthFoodRelief=%d foodDifference=%d foodStored=%d growthThreshold=%d improvementFreeSpecialistPlots=%d improvementFreeSpecialistCount=%d lowPopulation=%d outsideTop2Population=%d healthyGate=%d turnsLeft=%d baseProduction=%d stored=%d",
+							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+							kBuilding.getType(), (eAssumeTech != NO_TECH), eAssumeTech, canConstruct(eBuilding),
+							iPop, iPopulationRank, iHealthLevel, iPopulationUnhealth, iHealthFoodLoss, iPopulationUnhealthFoodRelief,
+							iFoodDifference, getFood(), growthThreshold(), iImprovementFreeSpecialistPlots, iImprovementFreeSpecialistCount,
+							(iPop < iUnhealthinessReducerWonderMinPop), !bTop2Population,
+							(iHealthLevel > iUnhealthinessReducerWonderMaxHealthLevel),
+							getProductionTurnsLeft(eBuilding, 0), iBaseHammersPerTurn, getBuildingProduction(eBuilding));
+					}
+				}
 				if ((iPop < iUnhealthinessReducerWonderMinPop) || !bTop2Population)
 				{
 					const int iPolicyReturn = 0;
 					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNHEALTHINESS_REDUCER_WONDER", "REJECT_LOW_POPULATION_PRIORITY", iPolicyReturn);
 					return iPolicyReturn;
 				}
-				const int iUnhealthinessReducerWonderMaxHealthLevel = 1;
 				// <!-- custom: city is healthy enough for now, no need to build this -->
 				if (iHealthLevel > iUnhealthinessReducerWonderMaxHealthLevel)
 				{

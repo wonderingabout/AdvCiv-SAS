@@ -4358,6 +4358,38 @@ The direct production tradeoff was measured rather than hidden. With two coastal
 
 Normal valuation did not turn one-coastal-city or extremely slow 30-150-turn theoretical candidates into actual starts. Every genuinely constructible under-three-city opportunity involved two coastal cities, and ordinary race risk, production competition and completion-time-aware placement remained active. The flat fewer-than-three-coastal-cities rejection, temporary A/B selector and duplicate dedicated logger were therefore removed. The permanent World-Wonder policy audit still records the former coastal-scaling classification and coastal-city count as counterfactual context, while inherited/additive value and actual production-choice diagnostics preserve the live decision evidence.
 
+### National Park military pressure: replace the blanket veto with a narrow safety floor
+
+The National-Park-style branch historically returned zero under any war, war plan, immediate city danger or materially stronger enemy. Tiny-Islands evidence showed that this was too broad: useful Parks could complete during ordinary war planning, while normal production competition already redirected genuinely urgent cities toward units. A fully permissive Pangaea test confirmed that behavior in **36 of 46** pressured best-building opportunities, and Guangzhou, Aachen and York completed useful Parks under broad war or war-plan state.
+
+Full removal nevertheless exposed one concrete failure. Maya's underdefended Uxmal faced `enemyPowerPercent=1213`, had already invested **93/216 hammers** in a Mechanized Infantry with about six turns remaining, but switched to a 13-turn National Park. It later resumed and completed the Park, delaying the defender until turn 320 while its empire contracted from five cities to three.
+
+This demonstrated useful safety signal in `bEnemyStrong`; immediate `bDanger` was retained as the correspondingly local conservative condition.
+
+A three-way Pangaea test therefore compared no veto, the historical blanket veto and a narrow `bDanger || bEnemyStrong` candidate. The narrow candidate matched the permissive history through turn 216 and first diverged on turn 217 when the strong-enemy condition became relevant, while it already escaped the historical blanket policy on turns 188/189.
+
+Of **6,974** currently constructible pressured evaluations, it allowed **6,083 (about 87%)** and rejected only **891** danger/strong-enemy cases. Nine National Parks completed, including several under ordinary war/war-plan state, with zero National-Park production-invalidated losses; a severely pressured later Uxmal instead selected Mechanized Infantry.
+
+The permanent rule consequently removes `bAtWar` and `bWarPlan` from the hard rejection while retaining `bDanger || bEnemyStrong`. Detailed level-3 diagnostics remain to distinguish flexible wartime construction from the narrow safety floor without adding work when building-production logging is disabled.
+
+### National Park resilience and inherited-placement diagnostics
+
+A follow-up examined whether National Park needed a new SAS rule reserving it for the city that would benefit most. Instead of adding another heuristic first, level-3 diagnostics now record population unhealthiness, actual health food loss, immediately recoverable food, current food balance/buffer and improvement-granted free specialists.
+
+A second row exposes the inherited limited-National-Wonder cross-city comparison while reusing values the existing loop already computes; both rows deduplicate unchanged state.
+
+The Tiny-Islands run produced **7,555 candidate rows**. Its initial **566 placement rows represented only about 236 distinct placement states**, motivating permanent deduplication. More importantly, inherited placement already handled both major National Park benefits sensibly when candidates reached it.
+
+Benin's Ugbini had four Forest-Preserve specialists and value 180 versus Ughoton's two specialists and value 122, so inherited placement rejected Ughoton and Ugbini later completed the Park. In Germany, severely starving Sapele had population 19, health -10, recoverable health-food loss 10, food difference -30 and value 570; inherited placement rejected Cologne's value 154 in favor of Sapele.
+
+The evidence therefore does not support another strongest-city reservation layer. It instead exposes the earlier SAS eligibility gates as the likely bottleneck. Among **7,064** currently constructible candidate states, **5,986** were outside the top-two population rank, **3,668** were below population 12 and **3,843** had health above +1. Of 89 unique states with at least eight recoverable food and a negative food balance, 52 were outside the top two.
+
+Spain supplied a direct tie-boundary example: Madrid, Barcelona and Toledo were all population 20 but received ranks 1, 2 and 3. Toledo was health -14, losing nine food per turn and could build National Park in three turns, yet the hard top-two rule prevented inherited placement from comparing it; rank-4 Seville and other severely unhealthy cities were similarly excluded.
+
+The separate health rule is also suspect: **1,377** currently constructible healthy-gate states still had at least one improvement-granted specialist, including **511** with at least three.
+
+Keep these diagnostics as generic evidence rather than hardcoding Depopulation, plague or any other source of a health shock. The next isolated audit removes only the top-two population rejection while retaining minimum population 12, the health gate, the narrow pressure safeguard, inherited cross-city placement and ordinary production competition.
+
 ### Remaining Wonder work
 
 The current direction is gradual migration rather than another monolithic replacement:
