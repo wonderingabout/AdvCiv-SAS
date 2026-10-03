@@ -98,6 +98,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.15 - (Improved inherited K-Mod/AdvC AI limited-building-placement weakness) World Wonders used raw value and ordinal production gates instead of completion-time-aware placement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.15)\
 [KI#48.16 - (Improved old SAS/K-Mod/AdvC AI National-Wonder specialization policy) Heroic Epic force-first distorted research; useful specialization migrated into additive throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.16)\
 [KI#48.17 - (Improved inherited K-Mod/AdvC AI Government Center valuation weakness) A local maintenance proxy missed the best empire-wide placement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.17)\
+[KI#48.18 - (Fixed inherited K-Mod/AdvC AI Palace-relocation economic defect) Area-population heuristics could move the Palace while increasing empire maintenance](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.18)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
@@ -4201,7 +4202,9 @@ National Wonders cannot lose a race and often belong in a specialized city rathe
 
 The gameplay top-three-hammer cache was correspondingly simplified to top two after its generic National-Wonder consumer disappeared. A separate level-3 counterfactual still computes the retired top-three condition so the audit can measure what the old rule would have done without keeping a gameplay dependency alive.
 
-Heroic-Epic specialization was subsequently completed in KI#48.16 and its remaining redundant placement gate was retired in this parent audit; government-center/Forbidden-Palace logic was completed in KI#48.17. Palace relocation, shared construction-time protection and other dedicated rules remain under review.
+Heroic-Epic specialization was subsequently completed in KI#48.16 and its remaining redundant placement gate was retired in this parent audit; government-center/Forbidden-Palace logic was completed in KI#48.17.
+
+KI#48.18 then added a narrow economic floor to inherited Palace relocation after proving that its area-population heuristic could select a move that increased empire maintenance. The inherited Palace completion-time limit, shared construction-time protection and other dedicated rules remain under review.
 
 The generic National-Wonder retirements were checkpointed as WIP rather than declared final while the inherited generic military-production valuation and Heroic-Epic-specific policy were audited separately. KI#48.10 repaired the generic throughput shape; KI#48.16 then retired the Heroic-Epic force-first sentinel and migrated its useful specialization signal into additive valuation. The remaining military-National-Wonder question is placement, not another force.
 
@@ -4279,7 +4282,7 @@ The first projected A/B was accidentally masked because the old National-Wonder 
 
 The permanent correction intentionally omits the secondary colony-maintenance-cap benefit. The naval/fragmented Tiny-Islands stress test already produced three sensible natural completions without it, so no unvalidated extra value was added.
 
-Any XML building marked as a Government Center uses the generic calculation; current SAS Versailles no longer has that effect, while Palace relocation remains a separate investigation because inherited valuation explicitly treats capital buildings differently.
+Any XML building marked as a Government Center uses the generic calculation; current SAS Versailles no longer has that effect. Palace relocation remains a separate `BUILDINGFOCUS_CAPITAL` route rather than another consumer of this additive building value; its demonstrated negative-maintenance blind spot is fixed in KI#48.18.
 
 ### Government Center National-Wonder placement follow-up: retain inherited raw placement
 
@@ -4315,7 +4318,15 @@ Retain the level-3 diagnostics for inherited capital-value rejection and the act
 
 The live inherited caller passes `3 * own cities in the candidate area` as `AI_chooseBuilding`'s `iMaxTurns`; despite the local name `iOdds`, the real odds argument remains its default `-1`, so a Palace that passes the turn limit is chosen deterministically.
 
-This may be intentional inherited behavior rather than a defect. The next audit should assess its area/population, production-rank, war-state, build-time and centrality results before changing Palace relocation.
+The first direct audit showed that relocation itself is conservative: 290 cities reached the outer larger-non-capital-area context, only eight passed the area-population test, six also passed the production-rank/war gates, and only San Francisco could produce the Palace within the inherited turn limit. The selection was nevertheless economically harmful.
+
+San Francisco matched the old capital's 28 base production, had lower research output (12 versus 15), was less central by simple own-city distance sum (100 versus 92), and projected **-2.44 GPT** raw maintenance savings (about **-5.12 GPT after inflation**) while every logged player-level capital-specific yield/commerce modifier was zero.
+
+KI#48.18 therefore adds only a do-no-harm floor to this inherited route: when no capital-specific player modifier makes maintenance an incomplete proxy, a proposed Palace move must reduce projected empire-wide distance plus colony maintenance.
+
+The same-seed candidate remained identical through turn 382, rejected San Francisco on turn 383, and later allowed Boston's economically positive two-turn Palace on turn 388. This fixes the demonstrated placement defect without replacing inherited geography, war, production-rank or completion-time policy.
+
+The next Palace audit is narrower: positive Native-American candidates were still rejected by the inherited `3 * candidate-area cities` maximum-turn rule, but the current diagnostics did not yet expose their uncapped Palace build times. That limit remains under investigation rather than being changed together with the validated maintenance floor.
 
 ### Remaining Wonder work
 
@@ -4323,7 +4334,7 @@ The current direction is gradual migration rather than another monolithic replac
 
 - keep Heroic Epic on its actual military-only production semantics; KI#48.16 retired its force-first war sentinel and migrated useful specialization into additive throughput valuation, while the subsequent top-production gate audit proved redundant and was retired;
 - keep KI#48.15's completion-time-aware inherited World-Wonder placement as the validated relative-production replacement, then resume coastal-Wonder scaling and production-Wonder placement;
-- continue specialized National-Wonder policy from the live inherited Palace relocation route after KI#48.17 replaced the Government Center/Forbidden Palace branch, its completion-time placement follow-up proved unnecessary and the separate old SAS Palace-value policy proved redundant;
+- continue the live inherited Palace-relocation audit after KI#48.18 fixed its demonstrated negative-maintenance move; specifically measure the uncapped Palace build times behind positive Native-American candidates before deciding whether the inherited `3 * candidate-area cities` completion-time limit needs adjustment;
 - retain KI#48.13's tested `DOMAIN_LAND` throughput support as generic/modmod-safe infrastructure even if current SAS has no permanent land-domain production consumer; `DOMAIN_AIR` throughput amount and domain-specific AIR XP remain separate future audits rather than symmetry-driven changes;
 - remove dead old-SAS gates, defines, classifiers and caches only when their final evidence-backed consumer disappears, while preserving useful forensic diagnostics until the migration is closed.
 
@@ -5083,9 +5094,48 @@ The parent KI#48.9 cleanup removes the old SAS `REJECT_SMALL_EMPIRE`, `REJECT_CA
 
 Palace relocation remains separate. Its caller/liveness A/B found 199 old SAS `AI_buildingValue()` policy hits in each mode, all prospective Code-of-Laws evaluations and none current production. Disabling that branch preserved every compared state, RNG and research row plus the identical San Francisco turn-383 Palace selection and turn-385 completion, so the redundant old SAS policy and its define were retired.
 
-Actual relocation remains on inherited `BUILDINGFOCUS_CAPITAL`: the caller's misleadingly named `iOdds` local is passed as a maximum-turn limit equal to three times the candidate area's own-city count, while the real odds parameter remains `-1`. Retained level-3 diagnostics will support a separate evidence-based audit of that live route rather than importing the deleted SAS output heuristic into it without proof.
+Actual relocation remains on inherited `BUILDINGFOCUS_CAPITAL`: KI#768.2 clarified that the former `iOdds` local is a maximum-turn limit equal to three times the candidate area's own-city count, while the real odds parameter remains `-1`. The subsequent direct audit found and KI#48.18 fixed a separate negative-maintenance relocation defect without importing the deleted SAS output heuristic into this route.
 
 Investigated and validated with the help of ChatGPT-5.6-Sol and GPT-5.6-Sol, using corrected same-seed Pangaea and Tiny-Islands BBAI/SASGameRecord comparisons and testing by wonderingabout, thanks.
+
+<a id="ki-48.18"></a>
+
+## KI#48.18 - (Fixed inherited K-Mod/AdvC AI Palace-relocation economic defect) Area-population heuristics could move the Palace while increasing empire maintenance
+
+The KI#48.9 cleanup established that the old SAS Palace `AI_buildingValue()` policy never controlled real relocation.
+
+Actual moves use inherited `BUILDINGFOCUS_CAPITAL`, whose outer caller favors a safe city on a larger non-capital landmass, requires sufficient candidate-area population and a sufficiently high production rank, and then accepts a constructible Palace within `3 * own cities in the candidate area` turns. KI#768.2 separately corrected that completion-time local's misleading `iOdds` name to `iMaxPalaceTurns`.
+
+Those inherited gates made relocation rare, but they did not evaluate its actual economic result. A Tiny-Islands audit found 290 cities reaching the larger-non-capital-area context, eight passing the area-population test, six also passing the production-rank and war gates, and only one actual Palace selection. That one selection moved the Palace to San Francisco on turn 383 even though:
+
+- candidate and old capital both had **28 base production**;
+- San Francisco had **12 research output versus 15** in the old capital;
+- its own-city distance sum was worse, **100 versus 92**;
+- projected distance maintenance worsened by about **3.83 GPT**, while colony maintenance improved by only about **1.39 GPT**;
+- the net move therefore projected **-2.44 GPT raw savings**, or an approximately **5.12 GPT increase after inflation**;
+- every logged player-level capital-specific production, commerce-yield and research modifier was zero, so no Bureaucracy-style player modifier supplied an unmeasured benefit.
+
+The Palace's local building effects move with the building, and capital-specific player modifiers can make maintenance alone an incomplete relocation score. The correction therefore does not replace inherited placement with a new comprehensive formula.
+
+It adds a conservative floor only when those player-level modifiers are absent: project the move across every own city with the current Palace removed as a Government Center, the candidate added, and all other Government Centers preserved; then require combined distance plus colony maintenance savings to be positive before entering `BUILDINGFOCUS_CAPITAL`.
+
+Every inherited geography, war-success, production-rank, buildability and completion-time rule remains authoritative. If any capital-specific yield or commerce modifier is active, inherited relocation remains unchanged rather than pretending the maintenance projection captures the whole move.
+
+### Deterministic validation
+
+The same-seed control and candidate remained identical through turn 382. On turn 383 the guard rejected San Francisco's **-2.44 GPT** projected move, producing the first intended behavioral difference; San Francisco built a Destroyer instead. The AI continued reconsidering relocation rather than entering a permanent veto, rejecting San Francisco again while its projected savings remained negative.
+
+On turn 388 the AI naturally selected Boston instead. Boston projected about **+1.92 GPT raw / +4.07 GPT after inflation**, was more central (**87 versus 101** own-city distance sum), had stronger base production (**33 versus 25**) and could complete the Palace in two turns. Seattle's approximately **-5.77 GPT** alternative was rejected on the same turn.
+
+Both histories still reached the same turn-390 Space Race victory; that common endpoint is only a safety result, while the turn-383 causal split and later positive relocation establish the guard's intended behavior.
+
+The candidate also allowed all observed positive Native-American projections, roughly **+2.57 to +4.73 GPT**, but inherited completion-time handling still rejected their Palaces.
+
+This demonstrates that the correction is not a disguised no-relocation rule and isolates the remaining question cleanly: the six-turn cap for those two-city candidate areas may be appropriate or too sharp, but their uncapped Palace build times were not yet logged.
+
+That completion-time policy remains a separate KI#48.9 follow-up rather than being changed together with this validated economic floor.
+
+This is an inherited K-Mod/AdvC Palace-relocation blind spot exposed during the KI#48.9 SAS Wonder-policy rework. The projected-maintenance audit and narrow permanent safeguard were developed and analyzed with the help of ChatGPT-5.6-Sol and GPT-5.6-Sol, using BBAI diagnostics and deterministic SASGameRecord comparison, with testing and review by wonderingabout, thanks.
 
 <a id="ki-49"></a>
 

@@ -4047,8 +4047,7 @@ void CvCityAI::AI_chooseProduction()
 				int iColonySavingsTimes100 = 0;
 				int iCandidateAreaColonySavingsTimes100 = 0;
 				int iOldCapitalAreaColonyCostTimes100 = 0;
-				int const iMaintenanceSavingsTimes100 = SAS_getProjectedPalaceMaintenanceSavingsTimes100(*this, pCapital,
-					iDistanceSavingsTimes100, iColonySavingsTimes100, iCandidateAreaColonySavingsTimes100, iOldCapitalAreaColonyCostTimes100);
+				int const iMaintenanceSavingsTimes100 = SAS_getProjectedPalaceMaintenanceSavingsTimes100(*this, pCapital, iDistanceSavingsTimes100, iColonySavingsTimes100, iCandidateAreaColonySavingsTimes100, iOldCapitalAreaColonyCostTimes100);
 				int const iInflatedMaintenanceSavingsTimes100 =
 					(iMaintenanceSavingsTimes100 * (100 + kPlayer.calculateInflationRate())) / 100;
 				logBBAI("PALACE_RELOCATION_MAINTENANCE_AUDIT turn=%d player=%d %S city=%S cityId=%d currentCapitalCityId=%d distanceSavingsTimes100=%d colonySavingsTimes100=%d totalSavingsTimes100=%d inflatedSavingsTimes100=%d candidateAreaColonySavingsTimes100=%d oldCapitalAreaColonyCostTimes100=%d inflationRate=%d capitalProductionModifier=%d capitalCommerceYieldModifier=%d capitalResearchModifier=%d candidateBaseCommerce=%d capitalBaseCommerce=%d",
@@ -4073,7 +4072,51 @@ void CvCityAI::AI_chooseProduction()
 				// <!-- custom: AdvC advc.131 named this local iOdds after replacing K-Mod's flat 15-turn limit, but the value is passed as AI_chooseBuilding's iMaxTurns while the actual odds argument defaults to -1.
 				// Name the completion-time limit accurately so this deterministic Palace choice is not mistaken for a probability. See KI#768.2. (GPT-5.6-Sol) -->
 				int const iMaxPalaceTurns = 3 * kArea.getCitiesPerPlayer(getOwner()); // advc.131: was 15 flat
-				if (AI_chooseBuilding(BUILDINGFOCUS_CAPITAL, iMaxPalaceTurns))
+
+				// <!-- custom: The inherited area-population heuristic relocated the Palace to San Francisco despite a projected +2.44 GPT raw maintenance cost (about +5.12 GPT after inflation), with no capital-specific yield/commerce modifier to justify accepting that loss.
+				// An isolated Tiny-Islands A/B blocked that move and later still allowed Boston, whose relocation projected +1.92 GPT raw savings and had stronger production/centrality.
+				// Preserve every inherited geography, war, production-rank and completion-time gate; only when capital-specific player modifiers do not make maintenance an incomplete proxy, require the projected distance + colony maintenance change to be strictly beneficial before entering BUILDINGFOCUS_CAPITAL. See KI#48.18. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				bool bProjectedMaintenanceAllowsRelocation = true;
+				if (pCapital != NULL)
+				{
+					bool bHasCapitalSpecificModifier = false;
+					FOR_EACH_ENUM(Yield)
+					{
+						if (kPlayer.getCapitalYieldRateModifier(eLoopYield) != 0)
+						{
+							bHasCapitalSpecificModifier = true;
+							break;
+						}
+					}
+					if (!bHasCapitalSpecificModifier)
+					{
+						FOR_EACH_ENUM(Commerce)
+						{
+							if (kPlayer.getCapitalCommerceRateModifier(eLoopCommerce) != 0)
+							{
+								bHasCapitalSpecificModifier = true;
+								break;
+							}
+						}
+					}
+					if (!bHasCapitalSpecificModifier)
+					{
+						int iDistanceSavingsTimes100 = 0;
+						int iColonySavingsTimes100 = 0;
+						int iCandidateAreaColonySavingsTimes100 = 0;
+						int iOldCapitalAreaColonyCostTimes100 = 0;
+						int const iMaintenanceSavingsTimes100 = SAS_getProjectedPalaceMaintenanceSavingsTimes100(*this, pCapital, iDistanceSavingsTimes100, iColonySavingsTimes100, iCandidateAreaColonySavingsTimes100, iOldCapitalAreaColonyCostTimes100);
+						bProjectedMaintenanceAllowsRelocation = (iMaintenanceSavingsTimes100 > 0);
+						if (gBuildingProductionLogLevel >= 3)
+						{
+							logBBAI("PALACE_RELOCATION_MAINTENANCE_GUARD turn=%d player=%d %S city=%S cityId=%d currentCapitalCityId=%d maintenanceSavingsTimes100=%d distanceSavingsTimes100=%d colonySavingsTimes100=%d pass=%d maxPalaceTurns=%d",
+								GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), pCapital->getID(),
+								iMaintenanceSavingsTimes100, iDistanceSavingsTimes100, iColonySavingsTimes100,
+								bProjectedMaintenanceAllowsRelocation, iMaxPalaceTurns);
+						}
+					}
+				}
+				if (bProjectedMaintenanceAllowsRelocation && AI_chooseBuilding(BUILDINGFOCUS_CAPITAL, iMaxPalaceTurns))
 					return;
 			}
 		}
