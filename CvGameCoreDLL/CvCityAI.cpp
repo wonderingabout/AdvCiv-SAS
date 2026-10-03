@@ -9192,8 +9192,23 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if it is unhealthiness reducer as intended as per this check, if i understand it correctly (so add a bLandUnitsBuilding exclusion i mean to avoid that)-->
 			if (bUnhealthinessReducerWonder && !bLandUnitsBuilding)
 			{
-				// Don’t do this under pressure
-				if (bAtWar || bDanger || bWarPlan || bEnemyStrong)
+				// <!-- custom: KI#48.9: Narrow the old blanket National-Park-style pressure veto to concrete danger or a materially stronger enemy.
+				// Tiny and Pangaea A/Bs showed ordinary production competition safely handles broad at-war/war-plan states and permits useful Parks in unhealthy cities, while the fully disabled veto let collapsing Maya Uxmal divert from a partly built Mechanized Infantry into a 13-turn National Park under enemyPowerPercent=1213 and underdefense.
+				// A three-way Pangaea follow-up preserved the full-off history through T216, then diverged exactly when enemyStrong became relevant; keep bDanger || bEnemyStrong as the conservative safety floor. (ChatGPT-5.6-Sol) -->
+				const bool bHistoricalUnhealthinessReducerPressure = (bAtWar || bDanger || bWarPlan || bEnemyStrong);
+				const bool bUnhealthinessReducerSafetyPressure = (bDanger || bEnemyStrong);
+				if (gBuildingProductionLogLevel >= 3 && bHistoricalUnhealthinessReducerPressure)
+				{
+					// <!-- custom: Retain cheap forensic evidence for future National-Park regressions.
+					// Expensive current constructibility/rank/turn context is collected only at building-production log level 3. (ChatGPT-5.6-Sol) -->
+					logBBAI("UNHEALTHINESS_REDUCER_WONDER_PRESSURE_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s rejectNow=%d prospective=%d assumeTech=%d canConstructNow=%d pop=%d populationRank=%d healthLevel=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d enemyStrong=%d turnsLeft=%d baseProduction=%d stored=%d",
+						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+						kBuilding.getType(), bUnhealthinessReducerSafetyPressure, (eAssumeTech != NO_TECH), eAssumeTech,
+						canConstruct(eBuilding), iPop, findPopulationRank(), iHealthLevel,
+						bAtWar, bWarPlan, bDanger, kWarPower.iEnemyPowerPercent, bEnemyStrong,
+						getProductionTurnsLeft(eBuilding, 0), iBaseHammersPerTurn, getBuildingProduction(eBuilding));
+				}
+				if (bUnhealthinessReducerSafetyPressure)
 				{
 					const int iPolicyReturn = 0;
 					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNHEALTHINESS_REDUCER_WONDER", "REJECT_MILITARY_PRESSURE", iPolicyReturn);
