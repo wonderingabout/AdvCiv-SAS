@@ -9057,8 +9057,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		// <!-- custom: Retiring the old SAS Palace policy also removed the only consumers of elapsed turns and city beakers in this scope.
 		// Do not leave those locals behind: VC++ 2003 promotes their C4189 unused-variable warnings to build errors. See KI#48.9. (GPT-5.6-Sol) -->
 
-		const int iGameSpeedMultiplier = GC.getInfo(kGame.getGameSpeedType()).getConstructPercent(); // 100, 150, 200...
-
 		// <!-- custom: then after considering building time, let's consider our expected gains, hammer modifiers (e.g forge gives +25% hammer after it is built), this is not related to modifiers that reduce time to build the forge for example, but modifiers we gain in city after city is built, as chatgpt 5 explained to me after i made the mistake so i hope this comment is helpful-->
 		// 1) Identify “ironworks-like": sum BonusYieldModifiers for PRODUCTION
 		int iTotalBonusHammersModifier = 0;
@@ -9087,52 +9085,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		{
 			// <!-- custom: Retire the era-only anti-Barbarian border-Wonder veto. Inherited valuation already considers local Barbarian relevance, while the level-3 Wonder audit keeps the former era condition as counterfactual evidence. See KI#48.9. (ChatGPT-5.6-Sol) -->
 
-			const int iCost = getProductionNeeded(eBuilding);
-
 			// <!-- custom: save some computation by processing this early-on -->
 			// too weak to justify any wonder now
 			// <!-- custom: see SAS defines to specifically tune its suboptions rather. Code added with the help of chatgpt 5.2 thanks -->
 			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
 			{
-				// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it. As for later wonders, thanks to our era based very cheap world wonder checks, we eventually catch up later and build most, just not early when hammer is most valuable).
-				// Default advciv-sas behaviour (enabled) allows to maximize hammer efficiency early, while disabling this or alternatively its sub-knob(s) rather restores a more base AdvCiv-like heavy world wonder building profile. Adjust as you see fit. Code added with the help of chatgpt 5.2 thanks -->
-				// Cheap World Wonder grab policy: per-era Normal-speed iCost caps. getProductionNeeded already scales iCost by ConstructPercent, so scale the Normal-speed cap by the same game-speed factor. See KI#205.
-				// Era index assumed: 0=Ancient, 1=Classical, 2=Medieval, 3=Renaissance, 4=Industrial, 5=Modern, 6=Future. (ChatGPT-5.6-Sol) -->
-
-				static const int iCheapWWCapAncientNormal     = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_ANCIENT_NORMAL");
-				static const int iCheapWWCapClassicalNormal   = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_CLASSICAL_NORMAL");
-				static const int iCheapWWCapMedievalNormal    = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_MEDIEVAL_NORMAL");
-				static const int iCheapWWCapRenaissanceNormal = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_RENAISSANCE_NORMAL");
-				static const int iCheapWWCapIndustrialNormal  = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_INDUSTRIAL_NORMAL");
-				static const int iCheapWWCapModernNormal      = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_MODERN_NORMAL");
-				static const int iCheapWWCapFutureNormal      = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_FUTURE_NORMAL");
-
-				int iCheapWWCapNormal = iCheapWWCapFutureNormal;
-				switch (iCurrentEra)
-				{
-					case 0: iCheapWWCapNormal = iCheapWWCapAncientNormal; break;
-					case 1: iCheapWWCapNormal = iCheapWWCapClassicalNormal; break;
-					case 2: iCheapWWCapNormal = iCheapWWCapMedievalNormal; break;
-					case 3: iCheapWWCapNormal = iCheapWWCapRenaissanceNormal; break;
-					case 4: iCheapWWCapNormal = iCheapWWCapIndustrialNormal; break;
-					case 5: iCheapWWCapNormal = iCheapWWCapModernNormal; break;
-					default: iCheapWWCapNormal = iCheapWWCapFutureNormal; break; // includes era 6 and any later eras
-				}
-
-				const int iCheapWWCapAdjusted = iCheapWWCapNormal * iGameSpeedMultiplier / 100;
-				// Final flag: cheap enough to consider as "grab it"
-				const bool bCheapWorldWonder = (iCost <= iCheapWWCapAdjusted);
-				// If cheap, push it hard (so it doesn't get ignored by other builds).
-				if (bCheapWorldWonder)
-				{
-					// <!-- custom: minimal danger check since the risk is worth it as the wonder is so cheap -->
-					if (!bDanger)
-					{
-						const int iPolicyReturn = AI_BUILDING_ALWAYS_PICK_FIRST + 3000;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "WORLD_WONDER", "FORCE_CHEAP_SAFE", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
+				// <!-- custom: Retire the old era-cost-based FORCE_CHEAP_SAFE sentinel.
+				// In the isolated Tiny A/B, all 67 historical force hits were for World Wonders already completed globally; the same was true for all 68 hits in the earlier Pangaea run.
+				// Disabling the 103000 return changed AI research valuation before any production/state divergence, including real requested-tech changes on turn 180, while the successful early Wonder completions were already identical before the force began firing.
+				// Keep the cheap-Wonder cap only in level-3 counterfactual diagnostics; if a genuinely constructible cheap leftover Wonder later proves undervalued, address that with evidence-backed additive valuation rather than a force-first sentinel. See KI#48.9 and KI#205. (ChatGPT-5.6-Sol) -->
 
 				// <!-- custom: Retire the fixed era-scaled base-hammer veto. The surviving time-to-build and relative-production checks express the underlying opportunity/race concern more directly, and the level-3 audit keeps the former threshold visible. See KI#48.9. (ChatGPT-5.6-Sol) -->
 			}
