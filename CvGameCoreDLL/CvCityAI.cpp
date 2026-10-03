@@ -9262,7 +9262,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// <!-- custom: unlikely to have enough gains if we build this in our city size 12 when we have a city size 20 that could build it instead, at least in most cases so go with this; also note: < not <= so if city 3 or city 4 exactly have same pop as city 2 or city 1, then build in any as i clarified to chatgpt 5 hehe, don't reject these cities -->
 				// <!-- custom: Historical population-12 threshold retained only as counterfactual level-3 diagnostic context after KI#48.9 retired the live hard floor. (ChatGPT-5.6-Sol) -->
 				const int iHistoricalNationalParkMinPop = 12;
-				const int iUnhealthinessReducerWonderMaxHealthLevel = 1;
+				// <!-- custom: Historical +1-health threshold retained only as counterfactual level-3 diagnostic context after KI#48.9 retired the live health hard gate. (ChatGPT-5.6-Sol) -->
+				const int iHistoricalNationalParkMaxHealthLevel = 1;
 
 				// <!-- custom: KI#48.9 National-Park placement/resilience audit.
 				// Before changing placement, expose the generic city facts that can make a population-unhealthiness remover valuable under any temporary or persistent health shock: population unhealthiness, actual health food loss, current food balance/buffer, and improvement-granted free specialists.
@@ -9287,7 +9288,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 						iPop, iPopulationRank, iHealthLevel, iPopulationUnhealth, iHealthFoodLoss, iPopulationUnhealthFoodRelief,
 						iFoodDifference, getFood(), iImprovementFreeSpecialistPlots, iImprovementFreeSpecialistCount,
 						(iPop < iHistoricalNationalParkMinPop), !bTop2Population,
-						(iHealthLevel > iUnhealthinessReducerWonderMaxHealthLevel));
+						(iHealthLevel > iHistoricalNationalParkMaxHealthLevel));
 					if (SAS_shouldLogBuildingValueGateChange(*this, eBuilding, "NATIONAL_PARK_CANDIDATE", szNationalParkCandidateSignature))
 					{
 						logBBAI("NATIONAL_PARK_CANDIDATE_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s prospective=%d assumeTech=%d canConstructNow=%d pop=%d populationRank=%d healthLevel=%d populationUnhealth=%d healthFoodLoss=%d populationUnhealthFoodRelief=%d foodDifference=%d foodStored=%d growthThreshold=%d improvementFreeSpecialistPlots=%d improvementFreeSpecialistCount=%d lowPopulation=%d outsideTop2Population=%d healthyGate=%d turnsLeft=%d baseProduction=%d stored=%d",
@@ -9296,22 +9297,17 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							iPop, iPopulationRank, iHealthLevel, iPopulationUnhealth, iHealthFoodLoss, iPopulationUnhealthFoodRelief,
 							iFoodDifference, getFood(), growthThreshold(), iImprovementFreeSpecialistPlots, iImprovementFreeSpecialistCount,
 							(iPop < iHistoricalNationalParkMinPop), !bTop2Population,
-							(iHealthLevel > iUnhealthinessReducerWonderMaxHealthLevel),
+							(iHealthLevel > iHistoricalNationalParkMaxHealthLevel),
 							getProductionTurnsLeft(eBuilding, 0), iBaseHammersPerTurn, getBuildingProduction(eBuilding));
 					}
 				}
 				// <!-- custom: KI#48.9: Retire the fixed population-12 National-Park eligibility floor.
 				// The Tiny A/B exposed thousands of sub-12 candidates but only two actually started National Park; both were sensible inherited-placement winners (Uzbek with 4 Preserve specialists, Ligurian with 3) while ordinary valuation/placement/production rejected the rest.
-				// This also avoids the self-defeating case where a health-stressed city shrinks below the threshold and becomes ineligible for the building that could halt further population-unhealth food loss.
-				// Keep the historical threshold only in the level-3 candidate audit above. (ChatGPT-5.6-Sol) -->
-				// <!-- custom: city is healthy enough for now, no need to build this -->
-				if (iHealthLevel > iUnhealthinessReducerWonderMaxHealthLevel)
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "UNHEALTHINESS_REDUCER_WONDER", "REJECT_HEALTHY", iPolicyReturn);
-					return iPolicyReturn;
-				}
-				// else: let normal scoring handle it <!-- custom: (don't prioritize here, just make sure we don't build it when inefficient) -->
+				// This also avoids the self-defeating case where a health-stressed city shrinks below the threshold and becomes ineligible for the building that could halt further population-unhealth food loss. Keep the historical threshold only in the level-3 candidate audit above. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: KI#48.9: Retire the final current-health National-Park eligibility cliff.
+				// The Tiny A/B exposed 1,734 current healthy constructible states (774 with Preserve specialists, 263 with at least three), but none became a final National-Park production opportunity and none of the 12 actual Park production choices were healthy.
+				// Inherited valuation already prices both population-health relief and ImprovementFreeSpecialists, cross-city limited-building placement reserves the strongest destination, and normal production competition filters healthy low-return cities without a return-0 gate.
+				// Keep the historical +1 threshold only in the level-3 resilience audit above. (ChatGPT-5.6-Sol) -->
 			}
 
 			// <!-- custom: ideally we could use for some of this computation the `rank(` helpers, as according to grok ai they compare cities in our empire only, and according to which ranking is not shared among all players unlike what chatgpt 5 claimed, check if accurate -->
