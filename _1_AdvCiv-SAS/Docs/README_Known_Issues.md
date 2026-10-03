@@ -4388,16 +4388,90 @@ Spain supplied a direct tie-boundary example: Madrid, Barcelona and Toledo were 
 
 The separate health rule is also suspect: **1,377** currently constructible healthy-gate states still had at least one improvement-granted specialist, including **511** with at least three.
 
-Keep these diagnostics as generic evidence rather than hardcoding Depopulation, plague or any other source of a health shock. The next isolated audit removes only the top-two population rejection while retaining minimum population 12, the health gate, the narrow pressure safeguard, inherited cross-city placement and ordinary production competition.
+Keep these diagnostics as generic evidence rather than hardcoding Depopulation, plague or any other source of a health shock.
 
-### Remaining Wonder work
+### National Park eligibility follow-up: retire the top-two-population gate
+
+The first isolated follow-up removed only the requirement that a National-Park-style Wonder be valued in one of the empire's two most populous cities. The population-12 and health gates, the narrow `danger || enemyStrong` safeguard, inherited cross-city placement and ordinary production competition remained unchanged.
+
+The control and candidate remained behaviorally identical through turn 207; state and actual synchronized RNG first diverged on turn 208, when the newly visible National Park values began affecting research planning. By turn 370 the candidate had completed 12 National Parks.
+
+Seven had initially started in population-rank 3-7 cities: Ugbini, Banteay Kdei, Uzbek, Vilcas, Tlatelolco, Burgundian and Khazak.
+
+Inherited limited-National-Wonder placement independently identified six of those seven cities as their empire's strongest current destination. The exception, Vilcas, had value 594 against Huamanga's 719, remaining within the inherited 25% placement tolerance.
+
+Ordinary production competition also remained effective: Toledo and Barcelona selected Mechanized Infantry despite high exposed National Park values, and the candidate recorded zero National Park production-invalidated losses.
+
+Vilcas further demonstrated why a smooth placement layer is preferable to an ordinal population gate. It began National Park at population 13 with health -12 and 45 hammers invested, then correctly paused when Huamanga became 39% better.
+
+After Vilcas shrank to population 11, however, the separate population-12 floor prevented it from competing again until it regrew. The top-two gate was therefore retired without replacement.
+
+### National Park eligibility follow-up: retire the population-12 floor
+
+The next A/B removed only the fixed population-12 eligibility floor. The first National-Park-related research-value difference appeared on turn 164, the first CORE-state divergence on turn 204, and the first semantic synchronized-RNG and requested-technology divergence on turn 211.
+
+Removing the floor exposed **3,182** current constructible sub-12 candidate states, but only two actual sub-12 National Park starts. Uzbek began at population 9 with health -1, four Preserve specialists, inherited value 223 and an initial 27-turn build; inherited placement selected Uzbek itself as the best destination, and it completed the Park on turn 362.
+
+Ligurian began at population 8 with health -3, three Preserve specialists, inherited value 210 and an eight-turn build; inherited placement likewise selected Ligurian itself, although the game ended two turns later.
+
+The thousands of other exposed low-population evaluations did not become production starts, and neither history recorded a National Park production-invalidated loss.
+
+Inherited valuation, cross-city placement and ordinary production competition therefore supplied the useful filtering without the self-defeating case where health-driven population loss makes a city ineligible for the building that could halt further population-unhealth food loss. Population 12 remains only as counterfactual diagnostic context.
+
+### National Park eligibility follow-up: retire the current-health cliff
+
+The final National-Park-specific eligibility test removed only the rule that returned zero above health +1. The candidate exposed **1,734** current healthy constructible states, including **774** with at least one Preserve specialist and **263** with at least three.
+
+National Park became the best building opportunity on 27 occasions, but none involved a healthy city; all 12 final production choices that selected it had health +1 or lower.
+
+No city switched away from an invested National Park because of the retirement, and the candidate again recorded zero National Park production-invalidated losses.
+
+The first research-value difference appeared on turn 200, while CORE state and semantic synchronized RNG first diverged on turn 206 and requested technology on turn 208.
+
+This completes retirement of the old top-two-population, population-12 and current-health eligibility cliffs.
+
+Inherited valuation can price both population-health relief and improvement-granted free specialists, inherited cross-city placement reserves a substantially stronger destination, and ordinary production competition rejects low-return opportunities. The separately validated `danger || enemyStrong` safety floor remains active.
+
+### Dead generic National-Wonder and unknown-Wonder branches
+
+The proposed generic National-Wonder pressure A/B unexpectedly produced no live audit or rejection rows in either Pangaea run, despite the earlier policy audit recording **9,848** counterfactual pressure states: 4,213 Forbidden Palace, 3,394 Wall Street, 796 National Park, 768 National Epic, 574 Iron Works and 103 Heroic Epic states.
+
+Source review established the structural cause. With the normal Wonder master enabled, every National Wonder already enters the common `if (bWonder && ...)` branch, so the later `else if (bNationalWonder && ...)` branch is unreachable.
+
+The adjacent unknown-Wonder branches are impossible because their surrounding scope already requires a World or National Wonder. Disabling the common master could otherwise have exposed the stale National-Wonder subpolicy unexpectedly.
+
+The same-build mode-0/mode-1 histories remained identical through turn 344: all 349 RNG checkpoints, 349 CORE fingerprints, 1,003 research decisions, 541 production-pipeline rows, 529 production-flow rows and 410 parked-production snapshots matched.
+
+The dead pressure branch, impossible unknown-Wonder branches, unused selector and three dead XML knobs were removed. National Park's independently validated safety floor was unaffected.
+
+### Production-Wonder placement follow-up: retire the top-HPT hard gate
+
+The last live generic placement return restricted Iron-Works-style production Wonders to cities within the SAS top-production leeway. The historical Pangaea control recorded **1,352** live rejections.
+
+With that gate disabled, the candidate exposed 960 counterfactual states, including 411 current constructible off-leeway Iron Works states and 97 with positive inherited value.
+
+Only one off-leeway state made Iron Works the best building opportunity: Munich on turn 397, where final production still selected a Work Boat. Across all 20 final production decisions that selected Iron Works, none occurred outside the historical leeway.
+
+Rome supplied a direct placement example on turn 200: it exposed a reasonable value 564 and 16-turn Iron Works outside the old leeway, but inherited placement correctly kept the Wonder in Antium, with value 721, 12 turns and 62/720 hammers already invested.
+
+The candidate recorded no Iron Works production-invalidated loss. Berlin's later 359/720 parked Iron Works was also not caused by removing the gate: Berlin began or resumed it while inside the historical allowance and fell outside only after relative city production changed.
+
+The first actual planning, CORE-state and synchronized-RNG divergence occurred on turn 202, when the newly visible prospective value changed Native America's immediate research choice from Corporation to Steam Power while both paths still aimed for Assembly Line.
+
+The gate was thus affecting planning without preventing any demonstrated bad production choice.
+
+Retire the hard return and rely on inherited limited-building placement plus ordinary production competition. Its temporary selector/logger, live production-modifier scan and per-player/per-turn top-HPT cache were removed from the gameplay hot path; the permanent level-3 Wonder audit retains independent historical top-city context.
+
+### Final cleanup and regression work
 
 The current direction is gradual migration rather than another monolithic replacement:
 
 - keep Heroic Epic on its actual military-only production semantics; KI#48.16 retired its force-first war sentinel and migrated useful specialization into additive throughput valuation, while the subsequent top-production gate audit proved redundant and was retired;
-- keep KI#48.15's completion-time-aware inherited World-Wonder placement as the validated relative-production replacement; the separate hard coastal-city minimum is now retired, while production-Wonder placement remains to be audited;
+- keep KI#48.15's completion-time-aware inherited World-Wonder placement as the validated relative-production replacement; both the separate hard coastal-city minimum and the production-Wonder top-HPT placement gate are now retired;
 - retain KI#48.13's tested `DOMAIN_LAND` throughput support as generic/modmod-safe infrastructure even if current SAS has no permanent land-domain production consumer; `DOMAIN_AIR` throughput amount and domain-specific AIR XP remain separate future audits rather than symmetry-driven changes;
-- remove dead old-SAS gates, defines, classifiers and caches only when their final evidence-backed consumer disappears, while preserving useful forensic diagnostics until the migration is closed.
+- retain National Park's narrow `danger || enemyStrong` safety floor, while relying on inherited valuation and placement instead of the retired population-rank, minimum-population and current-health cliffs;
+- finish focused source/configuration cleanup of empty retired branches, stale selectors/defines/comments and sentinel remnants, verifying that every remaining `SAS_AI_BUILDING_VALUE_*WONDER*` define has a real consumer;
+- preserve useful level-3 forensic diagnostics, then run one integrated Tiny-Islands and one Pangaea regression under permanent settings before closing the migration.
 
 The long-term target mirrors KI#48.5: inherited additive valuation plus narrow contextual safeguards whose underlying concern survives measurement, rather than a large ordered table of hard Wonder vetoes and force-first sentinels.
 

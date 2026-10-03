@@ -9126,10 +9126,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			// With the normal Wonder master enabled, every National Wonder is already consumed by the first branch, so the later pressure branch is unreachable.
 			// A same-build Pangaea mode-0/mode-1 audit produced zero live branch rows and identical state/RNG/research/production through T344 despite 9,848 counterfactual pressure states in the earlier policy audit.
 			// Removing it also makes disabling the common Wonder master actually disable this stale subpolicy instead of unexpectedly activating it.
-			// The adjacent unknown-Wonder branch was impossible because this whole scope already requires bWonder == (bWorldWonder || bNationalWonder). (ChatGPT-5.6-Sol) -->
+			// The adjacent unknown-Wonder branch was impossible because this whole scope already requires bWonder == (bWorldWonder || bNationalWonder). See KI#48.9. (ChatGPT-5.6-Sol) -->
 
-			// <!-- custom: common logic for unhealthiness removing wonders (world + national) -->
-			// --- National Park style (skip when already healthy / too small ) -------------
+			// <!-- custom: National-Park-style Wonders retain a narrow danger/enemy-strength safety floor and detailed resilience diagnostics; population rank, fixed population and current health no longer impose hard eligibility cliffs. See KI#48.9. (GPT-5.6-Sol) -->
 			// Detect NP by either “no pop unhealthiness"
 			const bool bUnhealthinessReducerWonder = kBuilding.getUnhealthyPopulationModifier() <= -50;
 
@@ -9138,7 +9137,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			{
 				// <!-- custom: KI#48.9: Narrow the old blanket National-Park-style pressure veto to concrete danger or a materially stronger enemy.
 				// Tiny and Pangaea A/Bs showed ordinary production competition safely handles broad at-war/war-plan states and permits useful Parks in unhealthy cities, while the fully disabled veto let collapsing Maya Uxmal divert from a partly built Mechanized Infantry into a 13-turn National Park under enemyPowerPercent=1213 and underdefense.
-				// A three-way Pangaea follow-up preserved the full-off history through T216, then diverged exactly when enemyStrong became relevant; keep bDanger || bEnemyStrong as the conservative safety floor. (ChatGPT-5.6-Sol) -->
+				// A three-way Pangaea follow-up preserved the full-off history through T216, then diverged exactly when enemyStrong became relevant; keep bDanger || bEnemyStrong as the conservative safety floor. See KI#48.9. (ChatGPT-5.6-Sol) -->
 				const bool bHistoricalUnhealthinessReducerPressure = (bAtWar || bDanger || bWarPlan || bEnemyStrong);
 				const bool bUnhealthinessReducerSafetyPressure = (bDanger || bEnemyStrong);
 				if (gBuildingProductionLogLevel >= 3 && bHistoricalUnhealthinessReducerPressure)
@@ -9159,16 +9158,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					return iPolicyReturn;
 				}
 
-				// <!-- custom: ideally we could use for some of this computation the `rank(` helpers, as according to grok ai they compare cities in our empire only, and according to which ranking is not shared among all players unlike what chatgpt 5 claimed, check if accurate -->
-				// Research suggests that these rank calculation methods are empire-wide, meaning they compare cities only within the same player's control. It seems likely that this design supports AI decision-making focused on internal empire management rather than global comparisons.
+				// <!-- custom: Historical top-two-population threshold retained only as counterfactual level-3 context after KI#48.9 retired the live gate.
+				// Rank-3 through rank-7 cities completed useful Parks in the isolated test, while inherited placement and ordinary production competition rejected weak opportunities. See KI#48.9. (GPT-5.6-Sol) -->
 				const int iPopulationRank = findPopulationRank();
 				const bool bTop2Population = (iPopulationRank <= 2);
 
-				// <!-- custom: worth considering the health gains if city is big enough and has enough unhealthiness from population already; also note: as clarified to chatgpt 5, this logic is a bit too simplistic in case population doesn't provide enough some unheathiness in some mod or scenairo or such to justify building this, but htis should still be a fine approximation, as high enough pop cities should generally have other sources of unheathiness that may make this a recommendable building to build. As for us not suggesting such here, but making sure we don't build it if not efficient, else let other functions handle that -->
-				// <!-- custom: unlikely to have enough gains if we build this in our city size 12 when we have a city size 20 that could build it instead, at least in most cases so go with this; also note: < not <= so if city 3 or city 4 exactly have same pop as city 2 or city 1, then build in any as i clarified to chatgpt 5 hehe, don't reject these cities -->
-				// <!-- custom: Historical population-12 threshold retained only as counterfactual level-3 diagnostic context after KI#48.9 retired the live hard floor. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: Historical population-12 threshold retained only as counterfactual level-3 diagnostic context after KI#48.9 retired the live hard floor. See KI#48.9. (ChatGPT-5.6-Sol) -->
 				const int iHistoricalNationalParkMinPop = 12;
-				// <!-- custom: Historical +1-health threshold retained only as counterfactual level-3 diagnostic context after KI#48.9 retired the live health hard gate. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: Historical +1-health threshold retained only as counterfactual level-3 diagnostic context after KI#48.9 retired the live health hard gate. See KI#48.9. (ChatGPT-5.6-Sol) -->
 				const int iHistoricalNationalParkMaxHealthLevel = 1;
 
 				// <!-- custom: KI#48.9 National-Park placement/resilience audit.
@@ -9209,22 +9206,20 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				}
 				// <!-- custom: KI#48.9: Retire the fixed population-12 National-Park eligibility floor.
 				// The Tiny A/B exposed thousands of sub-12 candidates but only two actually started National Park; both were sensible inherited-placement winners (Uzbek with 4 Preserve specialists, Ligurian with 3) while ordinary valuation/placement/production rejected the rest.
-				// This also avoids the self-defeating case where a health-stressed city shrinks below the threshold and becomes ineligible for the building that could halt further population-unhealth food loss. Keep the historical threshold only in the level-3 candidate audit above. (ChatGPT-5.6-Sol) -->
+				// This also avoids the self-defeating case where a health-stressed city shrinks below the threshold and becomes ineligible for the building that could halt further population-unhealth food loss.
+				// Keep the historical threshold only in the level-3 candidate audit above. See KI#48.9. (ChatGPT-5.6-Sol) -->
 				// <!-- custom: KI#48.9: Retire the final current-health National-Park eligibility cliff.
 				// The Tiny A/B exposed 1,734 current healthy constructible states (774 with Preserve specialists, 263 with at least three), but none became a final National-Park production opportunity and none of the 12 actual Park production choices were healthy.
 				// Inherited valuation already prices both population-health relief and ImprovementFreeSpecialists, cross-city limited-building placement reserves the strongest destination, and normal production competition filters healthy low-return cities without a return-0 gate.
-				// Keep the historical +1 threshold only in the level-3 resilience audit above. (ChatGPT-5.6-Sol) -->
+				// Keep the historical +1 threshold only in the level-3 resilience audit above. See KI#48.9. (ChatGPT-5.6-Sol) -->
 			}
 
-			// <!-- custom: ideally we could use for some of this computation the `rank(` helpers, as according to grok ai they compare cities in our empire only, and according to which ranking is not shared among all players unlike what chatgpt 5 claimed, check if accurate -->
-			// Research suggests that these rank calculation methods are empire-wide, meaning they compare cities only within the same player's control.
-			// It seems likely that this design supports AI decision-making focused on internal empire management rather than global comparisons.
 			// <!-- custom: KI#48.9: Retire the shared production-Wonder top-HPT hard placement gate.
 			// In the Pangaea candidate, removing the gate exposed 411 current constructible off-leeway Iron Works states; 97 reached positive inherited value, but none of the 20 actual Iron Works production-choice rows occurred outside the historical leeway.
 			// Only one off-leeway city ever made Iron Works the best building opportunity, and ordinary production still chose a Work Boat.
 			// Inherited limited-building placement already kept high-value alternatives such as Rome behind the stronger Antium placement.
 			// The old gate therefore added prospective/research distortion without demonstrated production safety.
-			// Its per-player/per-turn top-HPT cache and production-modifier scan are removed from the live hot path; the level-3 Wonder-policy audit retains independent historical top-city context. (ChatGPT-5.6-Sol) -->
+			// Its per-player/per-turn top-HPT cache and production-modifier scan are removed from the live hot path; the level-3 Wonder-policy audit retains independent historical top-city context. See KI#48.9. (ChatGPT-5.6-Sol) -->
 
 			// <!-- custom: note: ideally should handle commerce modifier wonders, but hopefully the hammer minimum requirements filter out most of the cities, still it is possible that a city is low hammer and high gold for example or vice versa, in such case it would be bad to build the wrong of each, but left as is for now if not always or not as bit tedious; there is also a risk they may never be built since we are already restricting enough, hopefully commerce and hammer overlap nicely or nicely enough, else maybe fine all in all considered to leave as such -->
 
