@@ -8975,8 +8975,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	// <!-- custom: renamed iExistingUpkeep to iMaintenanceTimes100 -->
 	const int iMaintenanceTimes100 = getMaintenanceTimes100();
 	// <!-- custom: performance optimizations -->
-	// <!-- custom: Preserve whether AdvCiv's authoritative production ranks were invalid before findBaseYieldRateRank refreshes them; the SAS top-three cache must refresh in the same evaluation too. See KI#306. (GPT-5.6-Sol) -->
-	const bool bProductionRankCacheWasValid = m_abBaseYieldRankValid.get(YIELD_PRODUCTION);
 	const int iProductionRank = findBaseYieldRateRank(YIELD_PRODUCTION);
 	const int iFreeExperience = kBuilding.getFreeExperience();
 	const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
@@ -9046,19 +9044,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	// Only apply the remaining "hammer/turns/top-hammer-city" viability gates to normal, buildable Wonders.
 	if (bWonder && (iXMLCost > 0) && !kOwner.isBarbarian() && !kOwner.isMinorCiv() && bSAS_AI_BUILDING_VALUE_OPTIMIZE)
 	{
-		// <!-- custom: per-player, per-turn cache to avoid recomputing top city scans at every call. In autoplay, leads to exact same outcome vs before (win at 341, same scores at all savepoints). Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
-		// <!-- custom: cache scope limited to the remaining SAS Wonder-policy block; move to function scope if reused elsewhere. (Claude code Sonnet 4.5 (summarized)) -->
-		// Is this “safe enough"?
-		// 	- For Civ4’s normal single-threaded AI: yes.
-		// 	- If you ever truly run building evaluation in parallel threads: function-static caches are not thread-safe. Your current use of bConstCache strongly suggests “async mode" should not mutate caches anyway, so the pattern above is aligned with that.
-		// --- SAS: per-player, per-turn cache for empire-wide top-production-city scans used in some gates.
-		// Updated only when !bConstCache (async/const-eval stays side-effect free).
-		static bool s_abTopHptValid[MAX_PLAYERS];
-		static int  s_aiTopHptTurn[MAX_PLAYERS];
-		static int  s_aiTopHptNumCities[MAX_PLAYERS];
-		static int  s_aiBestHpt[MAX_PLAYERS];
-		static int  s_aiSecondBestHpt[MAX_PLAYERS];
-
 		// <!-- custom: always pick these first if in this specific case especially relevant-->
 		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, everything else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure) -->
 		// Good news / bad news: your dump is actually screaming “integer blow-up → bogus index" rather than a bad pointer to game data.
@@ -9094,22 +9079,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 		// <!-- custom: Retiring the old SAS Palace policy also removed the only consumers of elapsed turns and city beakers in this scope.
 		// Do not leave those locals behind: VC++ 2003 promotes their C4189 unused-variable warnings to build errors. See KI#48.9. (GPT-5.6-Sol) -->
-
-		// <!-- custom: then after considering building time, let's consider our expected gains, hammer modifiers (e.g forge gives +25% hammer after it is built), this is not related to modifiers that reduce time to build the forge for example, but modifiers we gain in city after city is built, as chatgpt 5 explained to me after i made the mistake so i hope this comment is helpful-->
-		// 1) Identify “ironworks-like": sum BonusYieldModifiers for PRODUCTION
-		int iTotalBonusHammersModifier = 0;
-		FOR_EACH_ENUM(Bonus)
-		{
-			int m = kBuilding.getBonusYieldModifier(eLoopBonus, YIELD_PRODUCTION);
-			if (m != 0)
-			{
-				// e.g. Coal +50, Iron +50 => 100 total
-				iTotalBonusHammersModifier += m;
-			}
-		}
-
-		// <!-- custom: also account for the base production modifiers (e.g. that the forge or factory has) to asses the building's worth/value as a production modifier building (here national wonder) type-->
-		const int iTotalHammersModifier = iHammersModifier + iTotalBonusHammersModifier;
 
 		// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it, everything else being the same. See SAS defines XML code comments for details about it and its sub options -->
 		static const bool bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE");
@@ -9250,75 +9219,12 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			// <!-- custom: ideally we could use for some of this computation the `rank(` helpers, as according to grok ai they compare cities in our empire only, and according to which ranking is not shared among all players unlike what chatgpt 5 claimed, check if accurate -->
 			// Research suggests that these rank calculation methods are empire-wide, meaning they compare cities only within the same player's control.
 			// It seems likely that this design supports AI decision-making focused on internal empire management rather than global comparisons.
-			// <!-- custom: The exact top-2 production-rank boolean was used only by the retired KI#48.16 FORCE_WAR_USE sentinel; surviving placement checks use the continuous bTop2HammerLeeway below. (GPT-5.6-Sol) -->
-
-			// <!-- custom: add cache to avoid recomputation at every call with the help of chatgpt 5.2 thanks -->
-			const int iCurrentTurn = kGame.getGameTurn();
-
-			int iBestHpt = 0, iSecondBestHpt = 0;
-
-			const bool bHammerCacheValid =
-				bProductionRankCacheWasValid &&
-				s_abTopHptValid[eOwner] &&
-				s_aiTopHptTurn[eOwner] == iCurrentTurn &&
-				s_aiTopHptNumCities[eOwner] == iNumCities;
-
-			if (bHammerCacheValid)
-			{
-				iBestHpt = s_aiBestHpt[eOwner];
-				iSecondBestHpt = s_aiSecondBestHpt[eOwner];
-			}
-			else
-			{
-				int b1 = 0, b2 = 0;
-				FOR_EACH_CITY(pLoopCity, kOwner)
-				{
-					const int h = pLoopCity->getBaseYieldRate(YIELD_PRODUCTION);
-					if (h > b1) { b2 = b1; b1 = h; }
-					else if (h > b2) { b2 = h; }
-				}
-
-				iBestHpt = b1; iSecondBestHpt = b2;
-
-				if (!bConstCache)
-				{
-					s_abTopHptValid[eOwner] = true;
-					s_aiTopHptTurn[eOwner] = iCurrentTurn;
-					s_aiTopHptNumCities[eOwner] = iNumCities;
-					s_aiBestHpt[eOwner] = b1;
-					s_aiSecondBestHpt[eOwner] = b2;
-				}
-			}
-			// const bool bTop2Hammer = (iBaseHammersPerTurn >= iSecondBestHpt);
-			// <!-- custom: note: if we have only one city, second best is 0, handle that as per your own logic depending on what you want to do -->
-
-			// <!-- custom: if we have top 1 hammer city at 200 hammers somehow for example, and top 2 city at 90 hammers + top 3 city at 85 hammers, then top 4 city at 84 hammers, then the top 4 city is still good enough, so use the leeway formula of a top as an alternative (frees top city for unit production if it is busy or prioritizing doing so or unavailable for some reason or another (helps versatiltiy i guess / would say)) -->
-			const int iTopHammerLeeway = 5;
-			// <!-- custom: min percent of top1hammer -->
-			const int iMinPercentOfTop1HammerSlack = 70;
-			// <!-- custom: cover the case where cities are less than iHammerLeeway from best to worst, don't reject good cities if they are just 1-2 hammer apart, use an alternative condition for that case as well -->
-			// <!-- custom: e.g. if top city is 60 hammers, then our city candidate needs to have at least 60 hammers * 70 / 100  = 42 hammers (i.e. 70% of best hammer city hammers) strictly, so at least 43 hammers, which is good enough to replace our best cities if previous fail -->
-			const bool bEnoughHammersVsTop1Hammers = ((iBaseHammersPerTurn * 100) > (iBestHpt * iMinPercentOfTop1HammerSlack));
-			const bool bTop2HammerLeeway = ((iBaseHammersPerTurn + iTopHammerLeeway >= iSecondBestHpt) || bEnoughHammersVsTop1Hammers);
-
-			// <!-- custom: for production modifier wonders (e.g city increases by +25% hammer or such), only do so in top cities. Note: could handle other yields but would be tedious and we don't necessarily have too many if at all such wonders -->
-			const bool bProductionWonder = (
-				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example), so account for that as well -->
-				// <!-- custom: for now only tweak the early game as is most important and where most gains can be made i think, later production should be high enough and civilization developped enough to be able to more freely choose without too much consequences -->
-				//kBuilding.isPower() ||                                  // Plant gives power
-				//kBuilding.isAreaCleanPower()
-			);
-			// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if it is unhealthiness reducer as intended as per this check, if i understand it correctly (so add a bLandUnitsBuilding exclusion i mean to avoid that)-->
-			if (bProductionWonder && !bLandUnitsBuilding)
-			{
-				// <!-- custom: for scaling hammer wonders (world and national), pick best or among best hammer cities for best scaling of benefits -->
-				if (!bTop2HammerLeeway)
-				{
-					const int iPolicyReturn = 0;
-					if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "PRODUCTION_WONDER", "REJECT_NOT_TOP_PRODUCTION", iPolicyReturn);
-					return iPolicyReturn;
-				}
-			}
+			// <!-- custom: KI#48.9: Retire the shared production-Wonder top-HPT hard placement gate.
+			// In the Pangaea candidate, removing the gate exposed 411 current constructible off-leeway Iron Works states; 97 reached positive inherited value, but none of the 20 actual Iron Works production-choice rows occurred outside the historical leeway.
+			// Only one off-leeway city ever made Iron Works the best building opportunity, and ordinary production still chose a Work Boat.
+			// Inherited limited-building placement already kept high-value alternatives such as Rome behind the stronger Antium placement.
+			// The old gate therefore added prospective/research distortion without demonstrated production safety.
+			// Its per-player/per-turn top-HPT cache and production-modifier scan are removed from the live hot path; the level-3 Wonder-policy audit retains independent historical top-city context. (ChatGPT-5.6-Sol) -->
 
 			// <!-- custom: note: ideally should handle commerce modifier wonders, but hopefully the hammer minimum requirements filter out most of the cities, still it is possible that a city is low hammer and high gold for example or vice versa, in such case it would be bad to build the wrong of each, but left as is for now if not always or not as bit tedious; there is also a risk they may never be built since we are already restricting enough, hopefully commerce and hammer overlap nicely or nicely enough, else maybe fine all in all considered to leave as such -->
 
