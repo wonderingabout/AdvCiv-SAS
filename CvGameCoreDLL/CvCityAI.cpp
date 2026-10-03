@@ -399,6 +399,112 @@ static int SAS_getHighestKnownFreeRivalBlocPower(CvPlayerAI const& kPlayer)
 	return iHighestRivalPower;
 }
 
+// <!-- custom: KI#48.9 Palace-relocation audit: compact geometric centrality context for the inherited BUILDINGFOCUS_CAPITAL path.
+// Sum plot distance from one candidate city to every own city.
+// This is diagnostic context only, not a maintenance formula or gameplay heuristic; the follow-up audit uses it beside area population, production rank, output and actual Palace build time before deciding whether inherited relocation needs any cure. See KI#48.9. (ChatGPT-5.6-Sol) -->
+static int SAS_getOwnCityDistanceSum(CvCity const& kCity)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
+	int iDistanceSum = 0;
+	FOR_EACH_CITY(pLoopCity, kOwner)
+		iDistanceSum += plotDistance(kCity.plot(), pLoopCity->plot());
+	return iDistanceSum;
+}
+
+// <!-- custom: KI#48.9 Palace-relocation audit: project the maintenance effect of moving, rather than adding, the Palace.
+// Replace the current Palace as a government center with the candidate, preserve any other government centers, and reproduce the inherited distance + colony-maintenance arithmetic without mutating game state.
+// This is diagnostic-only and is evaluated only for candidates that already pass the inherited war/area-population/production-rank gates. (ChatGPT-5.6-Sol) -->
+static int SAS_getPalaceRelocationMaintenanceDistance(CvCity const& kCity, CvCity const& kCandidate, CvCity const* pCurrentCapital)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
+	int iLongestDist = 0;
+	int iShortestGovernment = MAX_INT;
+	FOR_EACH_CITY(pLoopCity, kOwner)
+	{
+		int const iDist = plotDistance(kCity.plot(), pLoopCity->plot());
+		iLongestDist = std::max(iLongestDist, iDist);
+		int iGovernmentCenters = pLoopCity->getGovernmentCenterCount();
+		if (pLoopCity == pCurrentCapital)
+			iGovernmentCenters--;
+		if (pLoopCity == &kCandidate)
+			iGovernmentCenters++;
+		if (iGovernmentCenters > 0)
+			iShortestGovernment = std::min(iShortestGovernment, iDist);
+	}
+	int const iDistance = std::min(iLongestDist, iShortestGovernment);
+	return std::min(iDistance, GC.getMap().maxMaintenanceDistance());
+}
+
+static int SAS_getDistanceMaintenanceTimes100ForDistance(CvCity const& kCity, int iMaintenanceDistance, bool bNoPlayerModifiers)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
+	int iMaintenance = 100 * GC.getDefineINT(CvGlobals::MAX_DISTANCE_CITY_MAINTENANCE) * iMaintenanceDistance;
+	iMaintenance *= kCity.getPopulation() + 7;
+	iMaintenance /= 10;
+	if (!bNoPlayerModifiers)
+	{
+		iMaintenance *= std::max(0, kOwner.getDistanceMaintenanceModifier() + 100);
+		iMaintenance /= 100;
+		iMaintenance *= GC.getInfo(kOwner.getHandicapType()).getDistanceMaintenancePercent();
+		iMaintenance /= 100;
+	}
+	iMaintenance *= GC.getInfo(GC.getMap().getWorldSize()).getDistanceMaintenancePercent();
+	iMaintenance /= 100;
+	iMaintenance /= GC.getMap().maxTypicalDistance();
+	return iMaintenance;
+}
+
+static int SAS_getPalaceRelocationColonyMaintenanceTimes100(CvCity const& kCity, CvCity const& kCandidate, int iProjectedMaintenanceDistance)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
+	if (GC.getGame().isOption(GAMEOPTION_NO_VASSAL_STATES) || kCity.isArea(kCandidate.getArea()))
+		return 0;
+	HandicapTypes const eOwnerHandicap = kOwner.getHandicapType();
+	int iNumCitiesPercent = 100;
+	iNumCitiesPercent *= kCity.getPopulation() + 17;
+	iNumCitiesPercent /= 18;
+	iNumCitiesPercent *= GC.getInfo(GC.getMap().getWorldSize()).getColonyMaintenancePercent();
+	iNumCitiesPercent /= 100;
+	iNumCitiesPercent *= GC.getInfo(eOwnerHandicap).getColonyMaintenancePercent();
+	iNumCitiesPercent /= 100;
+	int const iNumCities = (kCity.getArea().getCitiesPerPlayer(kCity.getOwner()) - 1) * iNumCitiesPercent;
+	int iMaintenance = SQR(iNumCities) / 100;
+	int iMaintenanceCap = GC.getDefineINT(CvGlobals::MAX_DISTANCE_CITY_MAINTENANCE) *
+			SAS_getDistanceMaintenanceTimes100ForDistance(kCity, iProjectedMaintenanceDistance, true);
+	iMaintenanceCap *= GC.getInfo(eOwnerHandicap).getMaxColonyMaintenance();
+	iMaintenanceCap /= 100;
+	iMaintenanceCap *= std::max(0, kOwner.getColonyMaintenanceModifier() + 100);
+	iMaintenanceCap /= 100;
+	return std::min(iMaintenance, iMaintenanceCap);
+}
+
+static int SAS_getProjectedPalaceMaintenanceSavingsTimes100(CvCity const& kCandidate, CvCity const* pCurrentCapital, int& iDistanceSavingsTimes100, int& iColonySavingsTimes100, int& iCandidateAreaColonySavingsTimes100, int& iOldCapitalAreaColonyCostTimes100)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kCandidate.getOwner());
+	iDistanceSavingsTimes100 = 0;
+	iColonySavingsTimes100 = 0;
+	iCandidateAreaColonySavingsTimes100 = 0;
+	iOldCapitalAreaColonyCostTimes100 = 0;
+	FOR_EACH_CITY(pLoopCity, kOwner)
+	{
+		int const iProjectedDistance = SAS_getPalaceRelocationMaintenanceDistance(*pLoopCity, kCandidate, pCurrentCapital);
+		int const iCurrentDistanceMaintenance = pLoopCity->calculateDistanceMaintenanceTimes100();
+		int const iProjectedDistanceMaintenance = SAS_getDistanceMaintenanceTimes100ForDistance(*pLoopCity, iProjectedDistance, false);
+		int const iCurrentColonyMaintenance = pLoopCity->calculateColonyMaintenanceTimes100();
+		int const iProjectedColonyMaintenance = SAS_getPalaceRelocationColonyMaintenanceTimes100(*pLoopCity, kCandidate, iProjectedDistance);
+		int const iMaintenanceModifier = std::max(0, 100 + pLoopCity->getMaintenanceModifier());
+		int const iDistanceSaving = ((iCurrentDistanceMaintenance - iProjectedDistanceMaintenance) * iMaintenanceModifier) / 100;
+		int const iColonySaving = ((iCurrentColonyMaintenance - iProjectedColonyMaintenance) * iMaintenanceModifier) / 100;
+		iDistanceSavingsTimes100 += iDistanceSaving;
+		iColonySavingsTimes100 += iColonySaving;
+		if (pLoopCity->isArea(kCandidate.getArea()))
+			iCandidateAreaColonySavingsTimes100 += iColonySaving;
+		if (pCurrentCapital != NULL && pLoopCity->isArea(pCurrentCapital->getArea()))
+			iOldCapitalAreaColonyCostTimes100 -= iColonySaving;
+	}
+	return iDistanceSavingsTimes100 + iColonySavingsTimes100;
+}
+
 // <!-- custom: Shared factual local-area rival snapshot for callers that need the same geography/power facts but intentionally apply different policy thresholds.
 // Do not collapse this into an "area safe" boolean: AI_isAreaAlone is a narrower knowledge-sensitive isolation test, while AI_feelsSafe answers a broader/global strategic question; KI#53.5 land-unit saturation requires overwhelming local security, whereas World-Wonder investment only needs to judge whether local exposure makes the opportunity cost reckless.
 // The global-rival fields are retained only as comparison context beside the local bloc data. Barbarians, city danger/defenders, land-unit stock and other caller-specific facts remain outside this snapshot. See KI#48.9. See also KI#53.5. (ChatGPT-5.6-Sol) -->
@@ -3914,6 +4020,46 @@ void CvCityAI::AI_chooseProduction()
 	if (!bDanger && !bCapitalArea &&
 		kArea.getCitiesPerPlayer(getOwner()) > iNumCapitalAreaCities)
 	{
+		// <!-- custom: KI#48.9 Palace-relocation audit: the retired SAS AI_buildingValue Palace policy never controlled real relocation; trace the inherited BUILDINGFOCUS_CAPITAL gate itself before changing it.
+		// After the initial safe/non-capital/larger-area filter passes, record the remaining area-population inertia, production-rank and war gates, the actual second-argument max-turn threshold, current/candidate output and simple geometric centrality; diagnostic-only; no RNG or selection changes. See KI#48.9. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (gBuildingProductionLogLevel >= 3)
+		{
+			int const iCandidateAreaCities = kArea.getCitiesPerPlayer(getOwner());
+			int const iCandidateAreaPopulation = kArea.getPopulationPerPlayer(getOwner());
+			int const iCapitalAreaPopulation = (pCapital == NULL ? -1 : pCapital->getArea().getPopulationPerPlayer(getOwner()));
+			int const iProductionRank = findBaseYieldRateRank(YIELD_PRODUCTION);
+			int const iProductionRankLimit = iNumCities / 2;
+			int const iMaxPalaceTurns = 3 * iCandidateAreaCities;
+			bool const bPassWar = (!bLandWar || iWarSuccessRating > -30);
+			bool const bPassAreaPopulation = (pCapital == NULL || 4 * iCandidateAreaPopulation > 5 * iCapitalAreaPopulation);
+			bool const bPassProductionRank = (pCapital == NULL || iProductionRank <= iProductionRankLimit);
+			logBBAI("PALACE_RELOCATION_GATE_AUDIT turn=%d player=%d %S city=%S cityId=%d numCities=%d candidateArea=%d candidateAreaCities=%d capitalAreaCities=%d candidateAreaPopulation=%d capitalAreaPopulation=%d areaPopulationRatioX100=%d productionRank=%d productionRankLimit=%d baseProduction=%d beakers=%d cityDistanceSum=%d maxPalaceTurns=%d landWar=%d warSuccess=%d passWar=%d passAreaPopulation=%d passProductionRank=%d currentCapitalCityId=%d capitalBaseProduction=%d capitalBeakers=%d capitalDistanceSum=%d",
+				GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), iNumCities,
+				kArea.getID(), iCandidateAreaCities, iNumCapitalAreaCities, iCandidateAreaPopulation, iCapitalAreaPopulation,
+				(iCapitalAreaPopulation <= 0 ? -1 : (100 * iCandidateAreaPopulation) / iCapitalAreaPopulation),
+				iProductionRank, iProductionRankLimit, getBaseYieldRate(YIELD_PRODUCTION), getCommerceRate(COMMERCE_RESEARCH),
+				SAS_getOwnCityDistanceSum(*this), iMaxPalaceTurns, bLandWar, iWarSuccessRating, bPassWar, bPassAreaPopulation, bPassProductionRank,
+				(pCapital == NULL ? -1 : pCapital->getID()), (pCapital == NULL ? -1 : pCapital->getBaseYieldRate(YIELD_PRODUCTION)),
+				(pCapital == NULL ? -1 : pCapital->getCommerceRate(COMMERCE_RESEARCH)), (pCapital == NULL ? -1 : SAS_getOwnCityDistanceSum(*pCapital)));
+			if (pCapital != NULL && bPassWar && bPassAreaPopulation && bPassProductionRank)
+			{
+				int iDistanceSavingsTimes100 = 0;
+				int iColonySavingsTimes100 = 0;
+				int iCandidateAreaColonySavingsTimes100 = 0;
+				int iOldCapitalAreaColonyCostTimes100 = 0;
+				int const iMaintenanceSavingsTimes100 = SAS_getProjectedPalaceMaintenanceSavingsTimes100(*this, pCapital,
+					iDistanceSavingsTimes100, iColonySavingsTimes100, iCandidateAreaColonySavingsTimes100, iOldCapitalAreaColonyCostTimes100);
+				int const iInflatedMaintenanceSavingsTimes100 =
+					(iMaintenanceSavingsTimes100 * (100 + kPlayer.calculateInflationRate())) / 100;
+				logBBAI("PALACE_RELOCATION_MAINTENANCE_AUDIT turn=%d player=%d %S city=%S cityId=%d currentCapitalCityId=%d distanceSavingsTimes100=%d colonySavingsTimes100=%d totalSavingsTimes100=%d inflatedSavingsTimes100=%d candidateAreaColonySavingsTimes100=%d oldCapitalAreaColonyCostTimes100=%d inflationRate=%d capitalProductionModifier=%d capitalCommerceYieldModifier=%d capitalResearchModifier=%d candidateBaseCommerce=%d capitalBaseCommerce=%d",
+					GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), pCapital->getID(),
+					iDistanceSavingsTimes100, iColonySavingsTimes100, iMaintenanceSavingsTimes100, iInflatedMaintenanceSavingsTimes100,
+					iCandidateAreaColonySavingsTimes100, iOldCapitalAreaColonyCostTimes100, kPlayer.calculateInflationRate(),
+					kPlayer.getCapitalYieldRateModifier(YIELD_PRODUCTION), kPlayer.getCapitalYieldRateModifier(YIELD_COMMERCE),
+					kPlayer.getCapitalCommerceRateModifier(COMMERCE_RESEARCH), getBaseYieldRate(YIELD_COMMERCE), pCapital->getBaseYieldRate(YIELD_COMMERCE));
+			}
+		}
+
 		// BBAI TODO: Should be handled by CvPlayer, not CvCity. And optimize placement.
 		// If losing badly in war, don't build big things.
 		if (!bLandWar || iWarSuccessRating > -30)
@@ -7186,15 +7332,18 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 		}
 
 		// <!-- custom: Retain level-3 diagnostics for the live inherited Palace-relocation route after KI#48.9 retired the separate old SAS AI_buildingValue policy.
-		// This focus bypasses ordinary building valuation, so these rare rows are the direct evidence for which Palace passes the completion-time limit. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		// This focus bypasses ordinary building valuation, so these rare rows are the direct evidence for which Palace passes the completion-time limit; the follow-up audit adds output and geometric-centrality context without changing selection. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (gBuildingProductionLogLevel >= 3)
 		{
 			CvCityAI const* pCapitalForLog = kOwner.AI_getCapital();
-			logBBAI("PALACE_CAPITAL_FOCUS_AUDIT turn=%d player=%d %S city=%S cityId=%d selected=%s selectedTurns=%d maxTurns=%d minThreshold=%d baseProduction=%d beakers=%d cityArea=%d currentCapitalCityId=%d currentCapitalArea=%d",
+			logBBAI("PALACE_CAPITAL_FOCUS_AUDIT turn=%d player=%d %S city=%S cityId=%d selected=%s selectedTurns=%d maxTurns=%d minThreshold=%d baseProduction=%d beakers=%d cityDistanceSum=%d cityArea=%d currentCapitalCityId=%d capitalBaseProduction=%d capitalBeakers=%d capitalDistanceSum=%d currentCapitalArea=%d",
 				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
 				(eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()), (eBestBuilding == NO_BUILDING ? -1 : iBestTurnsLeft),
-				iMaxTurns, iMinThreshold, getBaseYieldRate(YIELD_PRODUCTION), getCommerceRate(COMMERCE_RESEARCH), getArea().getID(),
-				(pCapitalForLog == NULL ? -1 : pCapitalForLog->getID()), (pCapitalForLog == NULL ? -1 : pCapitalForLog->getArea().getID()));
+				iMaxTurns, iMinThreshold, getBaseYieldRate(YIELD_PRODUCTION), getCommerceRate(COMMERCE_RESEARCH), SAS_getOwnCityDistanceSum(*this), getArea().getID(),
+				(pCapitalForLog == NULL ? -1 : pCapitalForLog->getID()), (pCapitalForLog == NULL ? -1 : pCapitalForLog->getBaseYieldRate(YIELD_PRODUCTION)),
+				(pCapitalForLog == NULL ? -1 : pCapitalForLog->getCommerceRate(COMMERCE_RESEARCH)),
+				(pCapitalForLog == NULL ? -1 : SAS_getOwnCityDistanceSum(*pCapitalForLog)),
+				(pCapitalForLog == NULL ? -1 : pCapitalForLog->getArea().getID()));
 		}
 
 		return eBestBuilding;
@@ -17556,9 +17705,10 @@ bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThresho
 			}
 			if (bLogPalaceFocus)
 			{
-				logBBAI("PALACE_CAPITAL_FOCUS_CHOICE turn=%d player=%d %S city=%S cityId=%d building=%s chosen=1 baseOdds=%d rand=%d productionStored=%d productionNeeded=%d",
+				logBBAI("PALACE_CAPITAL_FOCUS_CHOICE turn=%d player=%d %S city=%S cityId=%d building=%s chosen=1 maxTurns=%d baseOdds=%d rand=%d productionStored=%d productionNeeded=%d",
 					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
-					GC.getInfo(eBestBuilding).getType(), iOdds, (iOdds < 0 ? -1 : iRand), getBuildingProduction(eBestBuilding), getProductionNeeded(eBestBuilding));
+					GC.getInfo(eBestBuilding).getType(), iMaxTurns, iOdds, (iOdds < 0 ? -1 : iRand),
+					getBuildingProduction(eBestBuilding), getProductionNeeded(eBestBuilding));
 			}
 			pushOrder(ORDER_CONSTRUCT, eBestBuilding);
 			return true;
@@ -17575,9 +17725,9 @@ bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThresho
 		}
 		if (bLogPalaceFocus)
 		{
-			logBBAI("PALACE_CAPITAL_FOCUS_CHOICE turn=%d player=%d %S city=%S cityId=%d building=%s chosen=0 baseOdds=%d rand=%d productionStored=%d productionNeeded=%d",
+			logBBAI("PALACE_CAPITAL_FOCUS_CHOICE turn=%d player=%d %S city=%S cityId=%d building=%s chosen=0 maxTurns=%d baseOdds=%d rand=%d productionStored=%d productionNeeded=%d",
 				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
-				GC.getInfo(eBestBuilding).getType(), iOdds, (iOdds < 0 ? -1 : iRand), getBuildingProduction(eBestBuilding), getProductionNeeded(eBestBuilding));
+				GC.getInfo(eBestBuilding).getType(), iMaxTurns, iOdds, (iOdds < 0 ? -1 : iRand), getBuildingProduction(eBestBuilding), getProductionNeeded(eBestBuilding));
 		}
 	}
 	else if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_BUILDING_CHOICE turn=%d player=%d %S city=%S cityId=%d focusFlags=%d maxTurns=%d minThreshold=%d building=- baseOdds=%d productionStored=0 productionNeeded=0 progressBonus=0 effectiveOdds=%d rand=-1 forced=%d chosen=0",
@@ -17585,8 +17735,8 @@ bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThresho
 		iFocusFlags, iMaxTurns, iMinThreshold, iOdds, iOdds, iOdds < 0);
 	if (bLogPalaceFocus && eBestBuilding == NO_BUILDING)
 	{
-		logBBAI("PALACE_CAPITAL_FOCUS_CHOICE turn=%d player=%d %S city=%S cityId=%d building=- chosen=0 baseOdds=%d rand=-1 productionStored=0 productionNeeded=0",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), iOdds);
+		logBBAI("PALACE_CAPITAL_FOCUS_CHOICE turn=%d player=%d %S city=%S cityId=%d building=- chosen=0 maxTurns=%d baseOdds=%d rand=-1 productionStored=0 productionNeeded=0",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), iMaxTurns, iOdds);
 	}
 
 	return false;
