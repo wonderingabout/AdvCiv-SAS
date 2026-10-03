@@ -2073,12 +2073,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Master switch for the remaining SAS Wonder prefilter. The KI#48.5 audit retired the regular-building prefilter; keep this switch until the separate Wonder audit is complete. See KI#48.9. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	<Define>
-		<DefineName>SAS_AI_BUILDING_VALUE_OPTIMIZE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<!-- custom: knob common to all wonders, see below for more specific ones alternatively i mean. -->
+	<!-- custom: Master switch for the remaining live SAS Wonder-value safety policy. 1 keeps the evidence-backed National-Park danger/enemy-strong safeguard; 0 leaves Wonder valuation entirely to inherited logic. Historical policy diagnostics can still report retired-rule context at level 3. See KI#48.9. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -2094,13 +2089,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_MAX_ERA</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
-	<!-- custom: knob common to all world wonders, see below for more specific ones alternatively i mean. -->
-	<!-- custom: Long_Comments_XML.txt #164 -->
-	<Define>
-		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<!-- custom: this ignores following SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE related rejects: if a world wonder is cheap enough, grab it ASAP. These are Normal-speed caps and are scaled by game-speed ConstructPercent to match getProductionNeeded; see Long_Comments_XML.txt #163 and KI#205. -->
+	<!-- custom: KI#48.9 counterfactual-only cheap World-Wonder era caps retained for level-3 Wonder-policy diagnostics; the live FORCE_CHEAP_SAFE sentinel is retired. These Normal-speed caps are scaled by game-speed ConstructPercent to match getProductionNeeded. See Long_Comments_XML.txt #163 and KI#205. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_ANCIENT_NORMAL</DefineName>
 		<iDefineIntVal>60</iDefineIntVal>
@@ -2158,10 +2147,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
-	</Define>
-	<Define>
-		<DefineName>SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Long_Comments_XML.txt #205 -->
 	<Define>

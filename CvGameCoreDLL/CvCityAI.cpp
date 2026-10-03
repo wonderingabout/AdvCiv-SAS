@@ -9020,8 +9020,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		iLandProductionShare = (iDomainTotalMilitaryProductionShare * iLandDemandPercent) / 100;
 	}
 
-	// <!-- custom: Keep the remaining SAS Wonder prefilter pending its separate audit; the regular-building category prefilter audit was completed in KI#48.5. See KI#48.9. (GPT-5.6-Sol) -->
-	static const bool bSAS_AI_BUILDING_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_OPTIMIZE");
+	// <!-- custom: After KI#48.5/KI#48.9 retired the broad regular/Wonder prefilters, keep one Wonder-specific master for the surviving targeted National-Park safety layer and its historical policy context. (ChatGPT-5.6-Sol) -->
 	static const bool bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE");
 
 	// <!-- custom: in autoplay AI doesn't build shrines (Mahabodhi, Pagan Shrine, etc.) until late game after world wonders ASAP fix. Shrines/corporations have iCost=-1, so no point trying to save hammers. Skip viability gates for iCost=-1; handle only buildable buildings (iCost>0), similar to CvUnitAI::AI_ChooseUnit. In autoplay this leads to more wonders by turn 300. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
@@ -9041,116 +9040,42 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	if (bLogBuildingValueDetails && bWonder && (iXMLCost > 0) && !kOwner.isBarbarian() && !kOwner.isMinorCiv())
 		SAS_logWonderPolicyAudit(*this, eBuilding, bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE);
 
-	// Only apply the remaining "hammer/turns/top-hammer-city" viability gates to normal, buildable Wonders.
-	if (bWonder && (iXMLCost > 0) && !kOwner.isBarbarian() && !kOwner.isMinorCiv() && bSAS_AI_BUILDING_VALUE_OPTIMIZE)
+	// <!-- custom: KI#48.9 leaves one live SAS Wonder-value safeguard after the empirical migration: National-Park-style population-unhealthiness reducers still reject immediate danger or a materially stronger enemy.
+	// All former generic World/National Wonder hammer, timing, pressure, race and placement hard gates are retired; their historical inputs remain available through the level-3 Wonder-policy audit while useful. (ChatGPT-5.6-Sol) -->
+	if (bWonder && (iXMLCost > 0) && !kOwner.isBarbarian() && !kOwner.isMinorCiv() &&
+		bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
 	{
-		// <!-- custom: always pick these first if in this specific case especially relevant-->
-		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, everything else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure) -->
-		// Good news / bad news: your dump is actually screaming “integer blow-up → bogus index" rather than a bad pointer to game data.
-		// Why I’m confident:
-		// - EIP is inside CvGameCoreDLL at +0x4E043 and WinDbg labels it CvCity::cheat+0x15B3, but the instruction is mov eax, [ebp+eax*4]. That pattern is classic for indexing a small local jump/lookup table with eax. Your eax is 0x618063D8 (!), so the index is astronomically out of range → AV.
-		// - Your recent edits introduce sentinel returns like AI_BUILDING_ALWAYS_PICK_FIRST = 999999 and several return AI_BUILDING_ALWAYS_PICK_FIRST +/- …;. Downstream code multiplies building values by weights and divides by small turn counts. With a 32-bit signed int, it’s easy to overflow (wrap negative) and then use the result as an index / size / switch key. The heap frames in your stack (_heap_alloc) are consistent with “someone tried to allocate/size something absurd after overflow".
-		// - This also explains why you can reproduce the crash even after removing the cache: the oversized return path still fires.
-		//
-		// Your giant sentinel (999,999) is overflowing downstream math (multiplied/divided by tiny denominators), producing a wild index that ends up as [ebp+eax*4] → AV. Cap the value (e.g., 50k), clamp the final iValue to ±200k, prefer return iThreshold+1 when you only need to “win", and fix the small inverted world-wonder filter. That should make this crash disappear.*]()
-		static const int AI_BUILDING_ALWAYS_PICK_FIRST = 100000;
-
-		// <!-- custom: Quick threat read. (ChatGPT-5) -->
-		bool const bDanger = AI_isDanger();
-		SASWarPowerContext const kWarPower(kTeam);
-		bool const bAtWar = kWarPower.bAtWar;
-
-		// <!-- custom: After retiring the FORCE_WAR_USE sentinel, this block needs only the shared strong-enemy classification.
-		// Do not unpack unused war-power fields: VC++ 2003 promotes C4189 to a build error in this project. See KI#48.16. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		bool const bEnemyStrong = kWarPower.bEnemyStrong;
-
-		const bool bLandXp = (
-			(iFreeExperience >= 2) ||
-			(kBuilding.getDomainFreeExperience(DOMAIN_LAND) >= 2)
-		);
-
-		const bool bLandProd = (
-			(iMilitaryProductionModifier >= 20) ||
-			(kBuilding.getDomainProductionModifier(DOMAIN_LAND) >= 20)
-		);
-
-		// <!-- custom: general modifier not significant enough to consider it -->
-		const bool bLandUnitsBuilding = (bLandXp || bLandProd);
-
-		// <!-- custom: Retiring the old SAS Palace policy also removed the only consumers of elapsed turns and city beakers in this scope.
-		// Do not leave those locals behind: VC++ 2003 promotes their C4189 unused-variable warnings to build errors. See KI#48.9. (GPT-5.6-Sol) -->
-
-		// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it, everything else being the same. See SAS defines XML code comments for details about it and its sub options -->
-		static const bool bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE");
-		static const bool bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE");
-
-
-		// <!-- custom: The September 2026 KI#48.5 audit retired the SAS regular-building category prefilter after testing its concerns individually against inherited additive valuation.
-		// Keep the separate Wonder policy until its own audit; ordinary buildings now proceed directly to inherited valuation and targeted evidence-backed corrections. See KI#48.9. (GPT-5.6-Sol) -->
-		if (bWonder && bSAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)
+		const bool bUnhealthinessReducerWonder = (kBuilding.getUnhealthyPopulationModifier() <= -50);
+		if (bUnhealthinessReducerWonder)
 		{
-			// <!-- custom: Retire the era-only anti-Barbarian border-Wonder veto. Inherited valuation already considers local Barbarian relevance, while the level-3 Wonder audit keeps the former era condition as counterfactual evidence. See KI#48.9. (ChatGPT-5.6-Sol) -->
-
-			// <!-- custom: save some computation by processing this early-on -->
-			// too weak to justify any wonder now
-			// <!-- custom: see SAS defines to specifically tune its suboptions rather. Code added with the help of chatgpt 5.2 thanks -->
-			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
+			// <!-- custom: Preserve the historical exclusion for a hypothetical population-unhealthiness-reducing Wonder that is itself major land-military infrastructure. Compute it only for this rare Wonder class now that the generic Wonder gates are retired. (ChatGPT-5.6-Sol) -->
+			const bool bLandUnitsBuilding =
+				(iFreeExperience >= 2 || kBuilding.getDomainFreeExperience(DOMAIN_LAND) >= 2 ||
+				iMilitaryProductionModifier >= 20 || kBuilding.getDomainProductionModifier(DOMAIN_LAND) >= 20);
+			if (!bLandUnitsBuilding)
 			{
-				// <!-- custom: Retire the old era-cost-based FORCE_CHEAP_SAFE sentinel.
-				// In the isolated Tiny A/B, all 67 historical force hits were for World Wonders already completed globally; the same was true for all 68 hits in the earlier Pangaea run.
-				// Disabling the 103000 return changed AI research valuation before any production/state divergence, including real requested-tech changes on turn 180, while the successful early Wonder completions were already identical before the force began firing.
-				// Keep the cheap-Wonder cap only in level-3 counterfactual diagnostics; if a genuinely constructible cheap leftover Wonder later proves undervalued, address that with evidence-backed additive valuation rather than a force-first sentinel. See KI#48.9 and KI#205. (ChatGPT-5.6-Sol) -->
-
-				// <!-- custom: Retire the fixed era-scaled base-hammer veto. The surviving time-to-build and relative-production checks express the underlying opportunity/race concern more directly, and the level-3 audit keeps the former threshold visible. See KI#48.9. (ChatGPT-5.6-Sol) -->
-			}
-			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
-			{
-				// <!-- custom: Retire the fixed era-scaled base-hammer veto. The shared time-to-build gate already captures whether this city would tie up production for too long, while National Wonders cannot lose a race and often belong in a specialized city rather than one that merely clears a raw-hammer floor. Level-3 policy diagnostics keep the former threshold visible as counterfactual evidence. See KI#48.9. (ChatGPT-5.6-Sol) -->
-			}
-
-			// <!-- custom: Retire the shared hard >20-Normal-turn rejection.
-			// Inherited building/production competition already discounts long investments contextually, while the old current-city turn cap also leaked into prospective technology valuation and could reject successful long World/National Wonder starts.
-			// Level-3 Wonder-policy diagnostics retain estimated build time and the former cap as counterfactual evidence while the remaining pressure/race policies are audited separately. See KI#48.9. (ChatGPT-5.6-Sol) -->
-
-			// <!-- custom: Retire the old hard military-pressure veto.
-			// Paired Tiny-Islands/Pangaea tests showed that normal production competition already redirected pressured cities toward units, while the hard building-value veto fired mostly for broad war-plan/at-war states rather than immediate danger and could suppress short, successful Wonders (for example an 8-turn Pyramids build by a stronger Rome).
-			// Keep war/danger/power facts in level-3 diagnostics for future evidence without zeroing the whole Wonder. See KI#48.9. (ChatGPT-5.6-Sol) -->
-
-				// <!-- custom: Retire the post-opening requirement for a +25% build-time modifier. In the inherited-only Snaky baseline this hard proxy did not predict race success; actual construction time and city production competitiveness remain active safeguards. The audit row still records the former condition. See KI#48.9. (ChatGPT-5.6-Sol) -->
-				// <!-- custom: Retire the flat fewer-than-3-coastal-cities World-Wonder rejection.
-				// K-Mod/AdvC already values CoastalTradeRoutes continuously from current coastal cities plus projected coastal city sites, and global sea-plot yields scale with the empire's actual water use.
-				// In the isolated Tiny A/B, removing the hard cliff let a 2-coastal-city Greece consider a 9-turn Great Lighthouse but did not make one-coastal-city or 30-150-turn candidates into actual starts; the Wonder completed three turns earlier overall (T97 vs T100).
-				// One Greek 30-hammer attempt was later invalidated after switching away, but the control also accumulated losing-Wonder investment, so ordinary race/production competition is the appropriate layer rather than an empire-size return-0 cliff. See KI#48.9. (ChatGPT-5.6-Sol) -->
-			}
-			// <!-- custom: KI#48.9 source cleanup: remove the generic National-Wonder pressure branch that sat in an `else if` after the common `if (bWonder && SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE)` block.
-			// With the normal Wonder master enabled, every National Wonder is already consumed by the first branch, so the later pressure branch is unreachable.
-			// A same-build Pangaea mode-0/mode-1 audit produced zero live branch rows and identical state/RNG/research/production through T344 despite 9,848 counterfactual pressure states in the earlier policy audit.
-			// Removing it also makes disabling the common Wonder master actually disable this stale subpolicy instead of unexpectedly activating it.
-			// The adjacent unknown-Wonder branch was impossible because this whole scope already requires bWonder == (bWorldWonder || bNationalWonder). See KI#48.9. (ChatGPT-5.6-Sol) -->
-
-			// <!-- custom: National-Park-style Wonders retain a narrow danger/enemy-strength safety floor and detailed resilience diagnostics; population rank, fixed population and current health no longer impose hard eligibility cliffs. See KI#48.9. (GPT-5.6-Sol) -->
-			// Detect NP by either “no pop unhealthiness"
-			const bool bUnhealthinessReducerWonder = kBuilding.getUnhealthyPopulationModifier() <= -50;
-
-			// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if it is unhealthiness reducer as intended as per this check, if i understand it correctly (so add a bLandUnitsBuilding exclusion i mean to avoid that)-->
-			if (bUnhealthinessReducerWonder && !bLandUnitsBuilding)
-			{
-				// <!-- custom: KI#48.9: Narrow the old blanket National-Park-style pressure veto to concrete danger or a materially stronger enemy.
-				// Tiny and Pangaea A/Bs showed ordinary production competition safely handles broad at-war/war-plan states and permits useful Parks in unhealthy cities, while the fully disabled veto let collapsing Maya Uxmal divert from a partly built Mechanized Infantry into a 13-turn National Park under enemyPowerPercent=1213 and underdefense.
-				// A three-way Pangaea follow-up preserved the full-off history through T216, then diverged exactly when enemyStrong became relevant; keep bDanger || bEnemyStrong as the conservative safety floor. See KI#48.9. (ChatGPT-5.6-Sol) -->
-				const bool bHistoricalUnhealthinessReducerPressure = (bAtWar || bDanger || bWarPlan || bEnemyStrong);
+				// <!-- custom: KI#48.9: Tiny/Pangaea A/Bs support only the narrow danger/enemy-strong safety floor; broad at-war/war-plan states remain ordinary production competition. (ChatGPT-5.6-Sol) -->
+				const bool bDanger = AI_isDanger();
+				SASWarPowerContext const kWarPower(kTeam);
+				const bool bEnemyStrong = kWarPower.bEnemyStrong;
 				const bool bUnhealthinessReducerSafetyPressure = (bDanger || bEnemyStrong);
-				if (gBuildingProductionLogLevel >= 3 && bHistoricalUnhealthinessReducerPressure)
+
+				int iNationalParkPopulationRank = -1;
+				if (gBuildingProductionLogLevel >= 3)
 				{
-					// <!-- custom: Retain cheap forensic evidence for future National-Park regressions.
-					// Expensive current constructibility/rank/turn context is collected only at building-production log level 3. (ChatGPT-5.6-Sol) -->
-					logBBAI("UNHEALTHINESS_REDUCER_WONDER_PRESSURE_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s rejectNow=%d prospective=%d assumeTech=%d canConstructNow=%d pop=%d populationRank=%d healthLevel=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d enemyStrong=%d turnsLeft=%d baseProduction=%d stored=%d",
-						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
-						kBuilding.getType(), bUnhealthinessReducerSafetyPressure, (eAssumeTech != NO_TECH), eAssumeTech,
-						canConstruct(eBuilding), iPop, findPopulationRank(), iHealthLevel,
-						bAtWar, bWarPlan, bDanger, kWarPower.iEnemyPowerPercent, bEnemyStrong,
-						getProductionTurnsLeft(eBuilding, 0), iBaseHammersPerTurn, getBuildingProduction(eBuilding));
+					iNationalParkPopulationRank = findPopulationRank();
+					const bool bHistoricalUnhealthinessReducerPressure = (kWarPower.bAtWar || bDanger || bWarPlan || bEnemyStrong);
+					if (bHistoricalUnhealthinessReducerPressure)
+					{
+						logBBAI("UNHEALTHINESS_REDUCER_WONDER_PRESSURE_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s rejectNow=%d prospective=%d assumeTech=%d canConstructNow=%d pop=%d populationRank=%d healthLevel=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d enemyStrong=%d turnsLeft=%d baseProduction=%d stored=%d",
+							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+							kBuilding.getType(), bUnhealthinessReducerSafetyPressure, (eAssumeTech != NO_TECH), eAssumeTech,
+							canConstruct(eBuilding), iPop, iNationalParkPopulationRank, iHealthLevel,
+							kWarPower.bAtWar, bWarPlan, bDanger, kWarPower.iEnemyPowerPercent, bEnemyStrong,
+							getProductionTurnsLeft(eBuilding, 0), iBaseHammersPerTurn, getBuildingProduction(eBuilding));
+					}
 				}
+
 				if (bUnhealthinessReducerSafetyPressure)
 				{
 					const int iPolicyReturn = 0;
@@ -9158,22 +9083,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					return iPolicyReturn;
 				}
 
-				// <!-- custom: Historical top-two-population threshold retained only as counterfactual level-3 context after KI#48.9 retired the live gate.
-				// Rank-3 through rank-7 cities completed useful Parks in the isolated test, while inherited placement and ordinary production competition rejected weak opportunities. See KI#48.9. (GPT-5.6-Sol) -->
-				const int iPopulationRank = findPopulationRank();
-				const bool bTop2Population = (iPopulationRank <= 2);
-
-				// <!-- custom: Historical population-12 threshold retained only as counterfactual level-3 diagnostic context after KI#48.9 retired the live hard floor. See KI#48.9. (ChatGPT-5.6-Sol) -->
-				const int iHistoricalNationalParkMinPop = 12;
-				// <!-- custom: Historical +1-health threshold retained only as counterfactual level-3 diagnostic context after KI#48.9 retired the live health hard gate. See KI#48.9. (ChatGPT-5.6-Sol) -->
-				const int iHistoricalNationalParkMaxHealthLevel = 1;
-
-				// <!-- custom: KI#48.9 National-Park placement/resilience audit.
-				// Before changing placement, expose the generic city facts that can make a population-unhealthiness remover valuable under any temporary or persistent health shock: population unhealthiness, actual health food loss, current food balance/buffer, and improvement-granted free specialists.
-				// Do not hardcode Depopulation or any era/event name; future plagues, civics, technologies and scenarios should naturally appear through these city-state values.
-				// Detailed work is fully pre-gated at building-production log level 3. See KI#48.9. (ChatGPT-5.6-Sol) -->
 				if (gBuildingProductionLogLevel >= 3)
 				{
+					const int iPopulationRank = iNationalParkPopulationRank;
+					// <!-- custom: Long-term resilience evidence stays effect-based rather than hardcoding Depopulation/plague/era names. All ranking, food, specialist and string work is level-3-only. (ChatGPT-5.6-Sol) -->
+					const int iHistoricalNationalParkMinPop = 12;
+					const int iHistoricalNationalParkMaxHealthLevel = 1;
+					const bool bTop2Population = (iPopulationRank <= 2);
 					int iImprovementFreeSpecialistPlots = 0;
 					int iImprovementFreeSpecialistCount = 0;
 					FOR_EACH_NON_DEFAULT_PAIR(kBuilding.getImprovementFreeSpecialist(), Improvement, int)
@@ -9185,11 +9101,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					const int iPopulationUnhealth = unhealthyPopulation();
 					const int iHealthFoodLoss = std::max(0, -healthRate());
 					const int iPopulationUnhealthFoodRelief = std::min(iPopulationUnhealth, iHealthFoodLoss);
-					const int iFoodDifference = foodDifference(false, true);
+					const int iNationalParkFoodDifference = foodDifference(false, true);
 					CvString szNationalParkCandidateSignature;
 					szNationalParkCandidateSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d",
 						iPop, iPopulationRank, iHealthLevel, iPopulationUnhealth, iHealthFoodLoss, iPopulationUnhealthFoodRelief,
-						iFoodDifference, getFood(), iImprovementFreeSpecialistPlots, iImprovementFreeSpecialistCount,
+						iNationalParkFoodDifference, getFood(), iImprovementFreeSpecialistPlots, iImprovementFreeSpecialistCount,
 						(iPop < iHistoricalNationalParkMinPop), !bTop2Population,
 						(iHealthLevel > iHistoricalNationalParkMaxHealthLevel));
 					if (SAS_shouldLogBuildingValueGateChange(*this, eBuilding, "NATIONAL_PARK_CANDIDATE", szNationalParkCandidateSignature))
@@ -9198,65 +9114,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
 							kBuilding.getType(), (eAssumeTech != NO_TECH), eAssumeTech, canConstruct(eBuilding),
 							iPop, iPopulationRank, iHealthLevel, iPopulationUnhealth, iHealthFoodLoss, iPopulationUnhealthFoodRelief,
-							iFoodDifference, getFood(), growthThreshold(), iImprovementFreeSpecialistPlots, iImprovementFreeSpecialistCount,
+							iNationalParkFoodDifference, getFood(), growthThreshold(), iImprovementFreeSpecialistPlots, iImprovementFreeSpecialistCount,
 							(iPop < iHistoricalNationalParkMinPop), !bTop2Population,
 							(iHealthLevel > iHistoricalNationalParkMaxHealthLevel),
 							getProductionTurnsLeft(eBuilding, 0), iBaseHammersPerTurn, getBuildingProduction(eBuilding));
 					}
 				}
-				// <!-- custom: KI#48.9: Retire the fixed population-12 National-Park eligibility floor.
-				// The Tiny A/B exposed thousands of sub-12 candidates but only two actually started National Park; both were sensible inherited-placement winners (Uzbek with 4 Preserve specialists, Ligurian with 3) while ordinary valuation/placement/production rejected the rest.
-				// This also avoids the self-defeating case where a health-stressed city shrinks below the threshold and becomes ineligible for the building that could halt further population-unhealth food loss.
-				// Keep the historical threshold only in the level-3 candidate audit above. See KI#48.9. (ChatGPT-5.6-Sol) -->
-				// <!-- custom: KI#48.9: Retire the final current-health National-Park eligibility cliff.
-				// The Tiny A/B exposed 1,734 current healthy constructible states (774 with Preserve specialists, 263 with at least three), but none became a final National-Park production opportunity and none of the 12 actual Park production choices were healthy.
-				// Inherited valuation already prices both population-health relief and ImprovementFreeSpecialists, cross-city limited-building placement reserves the strongest destination, and normal production competition filters healthy low-return cities without a return-0 gate.
-				// Keep the historical +1 threshold only in the level-3 resilience audit above. See KI#48.9. (ChatGPT-5.6-Sol) -->
 			}
-
-			// <!-- custom: KI#48.9: Retire the shared production-Wonder top-HPT hard placement gate.
-			// In the Pangaea candidate, removing the gate exposed 411 current constructible off-leeway Iron Works states; 97 reached positive inherited value, but none of the 20 actual Iron Works production-choice rows occurred outside the historical leeway.
-			// Only one off-leeway city ever made Iron Works the best building opportunity, and ordinary production still chose a Work Boat.
-			// Inherited limited-building placement already kept high-value alternatives such as Rome behind the stronger Antium placement.
-			// The old gate therefore added prospective/research distortion without demonstrated production safety.
-			// Its per-player/per-turn top-HPT cache and production-modifier scan are removed from the live hot path; the level-3 Wonder-policy audit retains independent historical top-city context. See KI#48.9. (ChatGPT-5.6-Sol) -->
-
-			// <!-- custom: note: ideally should handle commerce modifier wonders, but hopefully the hammer minimum requirements filter out most of the cities, still it is possible that a city is low hammer and high gold for example or vice versa, in such case it would be bad to build the wrong of each, but left as is for now if not always or not as bit tedious; there is also a risk they may never be built since we are already restricting enough, hopefully commerce and hammer overlap nicely or nicely enough, else maybe fine all in all considered to leave as such -->
-
-			// <!-- custom: note: cultural wonders (world and national) not handled, let AI decide if it wants them or not; may skew too much the balance or gameplay otherwise, and is less code to code (repetition) too (not that i would mind too much had purpose in this case i mean) -->
-
-			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
-			{
-				// <!-- custom: for world wonders, make sure we win the race, use top 2 as base -->
-				// <!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks). -->
-				// <!-- custom: Retire the old SAS post-opening top-production hard veto here.
-				// Its race/placement concern is tested instead through K-Mod's inherited one-copy-building placement comparison in AI_bestBuildingThreshold, using actual city-specific completion time rather than a separate ordered SAS return-0 gate. The level-3 Wonder audit retains the historical expansion-phase condition as counterfactual evidence. See KI#48.15. (ChatGPT-5.6-Sol) -->
-
-				// <!-- custom: Retire the hard "N met rivals know the prerequisite tech" veto. That eligibility count was a weak race proxy in the inherited-only baseline; retain it only in the level-3 policy audit while stronger time/production safeguards remain active. See KI#48.9. (ChatGPT-5.6-Sol) -->
-			}
-			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
-			{
-				// <!-- custom: Retire the blanket top-3-hammer veto. National Epic, Wall Street, National Park and other specialized National Wonders can be strongest outside the empire's raw-production leaders; keep only narrower placement rules whose effect survives measurement, such as the separately audited shared production-Wonder check above. The old top-3 result remains visible in level-3 diagnostics. See KI#48.9. (ChatGPT-5.6-Sol) -->
-
-				// <!-- custom: KI#48.9: Retire the remaining military-National-Wonder top-production hard rejection.
-				// With KI#48.16 additive specialization active, the isolated Pangaea audit recorded 17,573 historical gate hits but zero overlap with 50 Heroic-Epic best-building opportunities; enabling the gate changed no state, RNG, research, Heroic-Epic action or final outcome.
-				// Let inherited limited-building placement, completion time, additive military-production value and ordinary AI_chooseProduction competition decide the city and timing instead of returning 0 from weak side-city evaluations. (ChatGPT-5.6-Sol) -->
-
-				// --- Government Center (Forbidden Palace etc.) ----------------------------------------------
-				// <!-- custom: KI#48.9 retires the old Forbidden-Palace small-empire/capital/pressure/high-maintenance hard-policy branch.
-				// Its legitimate placement concern now lives in inherited additive valuation below, where each candidate city is valued by projected empire-wide distance-maintenance savings.
-				// Pangaea and Tiny-Islands A/B tests showed the inherited coarse estimate built none, while projected valuation produced natural competitive builds without FORCE_HIGH_MAINTENANCE; one Tiny-Islands completion even occurred during war/war-plan pressure that the old branch would have rejected.
-				// Palace relocation is handled separately by inherited BUILDINGFOCUS_CAPITAL.
-				// An isolated liveness A/B found 199 old SAS Palace AI_buildingValue hits, all prospective Code-of-Laws evaluations; disabling the branch changed no state, RNG, research or actual Palace relocation.
-				// Remove the redundant value-policy layer rather than letting it distort hypothetical technology valuation. See KI#48.9. (ChatGPT-5.6-Sol) -->
-
-				// <!-- custom: note: ironworks like buildings (bonus based production modifiers) already handled as part of the generic all wonders (world + national) production modifier calculation as of now above in the common wonder scope/block -->
-				// <!-- custom: note 2: same for national park so not handled here see before/above -->
-			}
-			// <!-- custom: KI#48.9 source cleanup: remove the old UNKNOWN_WONDER fallback.
-			// This code is inside the outer `if (bWonder ...)` scope, so `!bWorldWonder && !bNationalWonder` is structurally impossible. (ChatGPT-5.6-Sol) -->
-			
-	// <!-- custom: Retiring the nested World-Wonder pressure block also removes its inner closing brace; retaining both old closers ended AI_buildingValue here and produced the subsequent global-scope compile cascade. This remaining brace closes the common SAS Wonder-policy block. See KI#48.9. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		}
 	}
 
 	// <!-- custom: moved these below our pre-checks / pre-filtering out since we don't use them and they may interfere with our logic or cost performance needlessly -->
