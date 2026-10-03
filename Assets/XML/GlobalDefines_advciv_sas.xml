@@ -2154,13 +2154,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL_GAMESPEED</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Historical rule: reject a World Wonder once enough met rivals know its core prerequisite tech; retained temporarily only as audit archaeology. -->
-	<!-- custom: KI#48.5 audit-only legacy race proxy: the live hard veto is retired, while the numeric threshold remains useful to label the former condition in level-3 Wonder diagnostics. The enable knob is retained temporarily with the historical configuration until final Wonder-policy cleanup. (ChatGPT-5.6-Sol) -->
-	<!-- custom: Long_Comments_XML.txt #182 -->
-	<Define>
-		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
 	<!-- custom: specific the number of rivals we max tolerate before we give up on the idea of building this wonder. Note: if we are already (see below for completion percent to keep building it) building it, then ignore this. E.g. if value is 3, it means if 3 or more rivals know (as of now) TECH_CALENDAR, then we won't build the oracle. -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM</DefineName>
