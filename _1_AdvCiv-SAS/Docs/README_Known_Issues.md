@@ -4348,12 +4348,22 @@ Retire `FORCE_CHEAP_SAFE` and its live era-cost calculation. Genuinely available
 
 If a future constructible leftover Wonder proves undervalued, use evidence-backed additive value rather than another force-first sentinel. See also KI#205.
 
+### Coastal-scaling World-Wonder minimum follow-up: retire the two-versus-three-city cliff
+
+The remaining coastal-scaling rule returned zero for Great-Lighthouse-style World Wonders whenever the empire had fewer than three coastal cities. This was an abrupt eligibility cliff layered over inherited K-Mod/AdvC valuation, which already scales `CoastalTradeRoutes` continuously from current coastal cities plus weighted prospective coastal settlement; global sea-plot yields likewise scale with the empire's actual water use.
+
+A same-build Tiny-Islands A/B changed only this minimum. With the gate disabled, the Great Lighthouse completed on **turn 97** instead of **turn 100** in the control. Core/RNG state first diverged on turn 70 and the first requested-technology difference appeared on turn 71, before the first currently constructible under-three-coastal-city case on turn 77. The hard rule was therefore affecting broader planning before it represented a real current production opportunity.
+
+The direct production tradeoff was measured rather than hidden. With two coastal cities, Athens considered a nine-turn Great Lighthouse on turn 82 and switched away two turns later after investing **30 hammers**; those hammers were lost when another civilization completed the Wonder. Across the histories, however, the gate-off run had **110 + 32 hammers** converted to fail-gold plus those 30 lost hammers, while the control had **71 + 42 hammers** converted to fail-gold and completed the Wonder three turns later.
+
+Normal valuation did not turn one-coastal-city or extremely slow 30-150-turn theoretical candidates into actual starts. Every genuinely constructible under-three-city opportunity involved two coastal cities, and ordinary race risk, production competition and completion-time-aware placement remained active. The flat fewer-than-three-coastal-cities rejection, temporary A/B selector and duplicate dedicated logger were therefore removed. The permanent World-Wonder policy audit still records the former coastal-scaling classification and coastal-city count as counterfactual context, while inherited/additive value and actual production-choice diagnostics preserve the live decision evidence.
+
 ### Remaining Wonder work
 
 The current direction is gradual migration rather than another monolithic replacement:
 
 - keep Heroic Epic on its actual military-only production semantics; KI#48.16 retired its force-first war sentinel and migrated useful specialization into additive throughput valuation, while the subsequent top-production gate audit proved redundant and was retired;
-- keep KI#48.15's completion-time-aware inherited World-Wonder placement as the validated relative-production replacement, then resume coastal-Wonder scaling and production-Wonder placement;
+- keep KI#48.15's completion-time-aware inherited World-Wonder placement as the validated relative-production replacement; the separate hard coastal-city minimum is now retired, while production-Wonder placement remains to be audited;
 - retain KI#48.13's tested `DOMAIN_LAND` throughput support as generic/modmod-safe infrastructure even if current SAS has no permanent land-domain production consumer; `DOMAIN_AIR` throughput amount and domain-specific AIR XP remain separate future audits rather than symmetry-driven changes;
 - remove dead old-SAS gates, defines, classifiers and caches only when their final evidence-backed consumer disappears, while preserving useful forensic diagnostics until the migration is closed.
 

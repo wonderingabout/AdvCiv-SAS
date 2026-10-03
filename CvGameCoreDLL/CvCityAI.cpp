@@ -9123,39 +9123,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			// Keep war/danger/power facts in level-3 diagnostics for future evidence without zeroing the whole Wonder. See KI#48.9. (ChatGPT-5.6-Sol) -->
 
 				// <!-- custom: Retire the post-opening requirement for a +25% build-time modifier. In the inherited-only Snaky baseline this hard proxy did not predict race success; actual construction time and city production competitiveness remain active safeguards. The audit row still records the former condition. See KI#48.9. (ChatGPT-5.6-Sol) -->
-				// <!-- custom: note: cannot try to save computation by checking bCoastalBuilding, as in some weird xml mod mods or such (or maybe we would too or would not), maybe a non-coastal city would give a coastal cities scaling effect, so do not check bCoastalBuilding to avoid overlooking these as chatgpt 5 advised/noted if i understood it correctly -->
-				// --- Naval / Coastal-scaling WW: require a real coastline -----------------
-				// // 1) City-local coastal wonders (benefit tied to THIS city’s water/naval use)
-				// const bool bCoastalLeaningWonder = (
-				// 	(kBuilding.getSeaPlotYieldChange(YIELD_FOOD) > 0) ||
-				// 	(kBuilding.getSeaPlotYieldChange(YIELD_PRODUCTION) > 0) ||
-				// 	(kBuilding.getSeaPlotYieldChange(YIELD_COMMERCE) > 0) ||
-				// 	(kBuilding.getDomainFreeExperience(DOMAIN_SEA) > 0) ||
-				// 	(kBuilding.getDomainProductionModifier(DOMAIN_SEA) > 0)
-				// );
-				// Why this helps
-				// - Colossus-type (city-local): allowed even with a single coastal city, as long as that city really leverages water tiles.
-				// - Great-Lighthouse-type (empire-scaling): requires multiple coastal cities; otherwise it’s usually a trap.
-				// 2) Empire-scaling coastal wonders (benefit grows with # of coastal cities)
-				const bool bCoastalScalingWonder = (
-					((kBuilding.getCoastalTradeRoutes() > 0) ||
-					(kBuilding.getGlobalSeaPlotYieldChange(YIELD_FOOD) > 0) ||
-					(kBuilding.getGlobalSeaPlotYieldChange(YIELD_PRODUCTION) > 0) ||
-					(kBuilding.getGlobalSeaPlotYieldChange(YIELD_COMMERCE) > 0))
-				);
-				// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if coastal leaning if i understand it correctly-->
-				if (bCoastalScalingWonder && !bLandUnitsBuilding)
-				{
-					// Flat rule: need at least 3 coastal cities empire-wide <!-- custom: regardless of map size, should be easier as such and covering most cases, although a bit inaccurate for small map sizes but maybe fine as naval wonders should overall be less important in most cases unless we have many naval cities which hopefully overlaps fine or fine enough with this; also in our mod moai or such are not critical anymore at least for moai, as the port replaces this per city as an individual building as of now, and moai appear much later -->.
-					const int iCoastalCities = kOwner.countNumCoastalCities();
-					const int iMinCoastalCitiesCoastalWonder = 3;
-					if (iCoastalCities < iMinCoastalCitiesCoastalWonder)
-					{
-						const int iPolicyReturn = 0;
-						if (bLogBuildingValueDetails) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "COASTAL_WONDER", "REJECT_FEW_COASTAL_CITIES", iPolicyReturn);
-						return iPolicyReturn;
-					}
-				}
+				// <!-- custom: Retire the flat fewer-than-3-coastal-cities World-Wonder rejection.
+				// K-Mod/AdvC already values CoastalTradeRoutes continuously from current coastal cities plus projected coastal city sites, and global sea-plot yields scale with the empire's actual water use.
+				// In the isolated Tiny A/B, removing the hard cliff let a 2-coastal-city Greece consider a 9-turn Great Lighthouse but did not make one-coastal-city or 30-150-turn candidates into actual starts; the Wonder completed three turns earlier overall (T97 vs T100).
+				// One Greek 30-hammer attempt was later invalidated after switching away, but the control also accumulated losing-Wonder investment, so ordinary race/production competition is the appropriate layer rather than an empire-size return-0 cliff. See KI#48.9. (ChatGPT-5.6-Sol) -->
 			}
 			else if (bNationalWonder && bSAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE)
 			{
