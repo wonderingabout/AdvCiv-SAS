@@ -8922,9 +8922,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	// <!-- custom: use this pattern i found somewhere in the code, in case it is safer, and cache repetitive calls for performance optimization. Note: also cache GET_TEAM(getTeam()) to kTeam. Note 2: we had issues in the past in AdvCiv-SAS when caching these to a CvTeam cast (i don't know too much about these, check if accurate), that were solved using a CvTeamAI cast rather, so preferring this whenever it seems safe enough (check if accurate). I applied this to all GET_TEAM calls i spotted in this file +/- additional kOwner or kPlayer extra caching when needed, and after specifically testing this in autoplay, we get the exact same outcome vs before (t341 win, exact same score at scores it seems as well, so this also looks good to merge) -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 	CvGame const& kGame = GC.getGame();
-	// <!-- custom: One explicit pre-gate protects both SAS-policy and inherited-value diagnostics; logger arguments and strings are evaluated only inside enabled level-3 neutral-focus calls. (GPT-5.6-Sol) -->
-	bool const bLogBuildingValueDetails = (gBuildingProductionLogLevel >= 3 && iFocusFlags == 0 && eAssumeTech == NO_TECH);
-	bool const bLogProspectiveDomainApplicability = (gBuildingProductionLogLevel >= 3 && iFocusFlags == 0 && eAssumeTech != NO_TECH);
+	// <!-- custom: One explicit pre-gate protects both SAS-policy and inherited-value diagnostics; cache the level-3 test once in this hot function so neutral/current and prospective diagnostics do not repeatedly reload the global level. Logger arguments and strings are evaluated only inside the derived enabled branches. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+	bool const bBuildingProductionLogLevel3 = (gBuildingProductionLogLevel >= 3);
+	bool const bLogBuildingValueDetails = (bBuildingProductionLogLevel3 && iFocusFlags == 0 && eAssumeTech == NO_TECH);
+	bool const bLogProspectiveDomainApplicability = (bBuildingProductionLogLevel3 && iFocusFlags == 0 && eAssumeTech != NO_TECH);
 
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
 	BuildingClassTypes const eBuildingClass = kBuilding.getBuildingClassType();
@@ -8934,96 +8935,12 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	const bool bNationalWonder = kBuilding.isNationalWonder();
 	const bool bWonder = (bWorldWonder || bNationalWonder);
 
-	/*	K-Mod note: I've set this to ignore "food is production"
-		so that building value is not distorted by that effect. */
-	int const iFoodDifference = foodDifference(false, true);
-
-	// <!-- custom: add these by chatgpt 5 and refactor formatting or such a bit; also short term is fine -->
-	const int iHappinessSurplus = happyLevel() - unhappyLevel();
-
-	// Reduce reaction to temporary happy/health problems
-	// K-Mod
-	int const iHealthLevel = goodHealth() - badHealth() + getEspionageHealthCounter()/2;
-	// K-Mod end
-
+	// <!-- custom: Construction-cache hits still refresh the inherited production-rank cache exactly as before; defer only context that has no required pre-cache side effect. This keeps the first perf pass conservative while removing the clearly unnecessary scans/calculations from cache hits. (ChatGPT-5.6-Sol) -->
 	int const iNumCities = kOwner.getNumCities();
-
-	// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate -->
-	// bool const bWarPlan = kOwner.AI_isFocusWar(area()); // advc.105
-	bool const bWarPlan = kOwner.AI_isFocusWar();
-			//kTeam.getAnyWarPlanCount(true) > 0; // K-Mod
-
-	int const iFoodKept = kOwner.getFoodKept(eBuilding); // advc.912d
-	bool bForeignTrade = false;
-
-	// <!-- custom: removed extra scope, and reused it in this function since we do reuse it several times and even outside our advciv-sas added code-->
-	int const iNumTradeRoutes = getTradeRoutes();
-	for (int i = 0; i < iNumTradeRoutes; i++)
-	{
-		CvCity* pTradeCity = getTradeCity(i);
-		if (pTradeCity == NULL)
-			continue;
-		if (TEAMID(pTradeCity->getOwner()) != getTeam() ||
-			!sameArea(*pTradeCity))
-		{
-			bForeignTrade = true;
-			break;
-		}
-	}
-
-	// <!-- custom: moved here and added const, for reuse -->
-	const int iPop = getPopulation();
-	const int iMilitaryProductionModifier = kBuilding.getMilitaryProductionModifier();
-	const int iHammersModifier = kBuilding.getYieldModifier(YIELD_PRODUCTION);
-	// <!-- custom: rename iOwnerEra to iCurrentEra for consistency with other parts of our code -->
-	int const iCurrentEra = kOwner.getCurrentEra();
-	// <!-- custom: renamed iExistingUpkeep to iMaintenanceTimes100 -->
-	const int iMaintenanceTimes100 = getMaintenanceTimes100();
 	// <!-- custom: performance optimizations -->
 	const int iProductionRank = findBaseYieldRateRank(YIELD_PRODUCTION);
-	const int iFreeExperience = kBuilding.getFreeExperience();
-	const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
-
-	// <!-- custom: Domain-limited military-production effects share the authoritative AI_buildUnitProb demand estimate and K-Mod water-world context.
-	// Drydock-style sea production/XP keep their validated formulas; DOMAIN_LAND was validated with temporarily land-scoped Heroic Epic laboratory XML. See KI#48.11-KI#48.13. (ChatGPT-5.6-Sol) -->
-	static const bool bLandProductionThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_LAND_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE");
-	static const bool bSeaProductionThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_SEA_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE");
-	static const bool bSeaExperienceThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT_OPTIMIZE");
+	// <!-- custom: Prospective domain applicability can invalidate the ordinary construction-value cache, so this one domain-policy switch must remain available before the cache decision. (ChatGPT-5.6-Sol) -->
 	static const bool bDomainProductionApplicabilityOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_PRODUCTION_MODIFIER_APPLICABILITY_OPTIMIZE");
-	bool const bNeedLandThroughputContext = (bLandProductionThroughputOptimize && kBuilding.getDomainProductionModifier(DOMAIN_LAND) != 0);
-	bool const bNeedSeaThroughputContext =
-			(bSeaProductionThroughputOptimize && kBuilding.getDomainProductionModifier(DOMAIN_SEA) != 0) ||
-			(bSeaExperienceThroughputOptimize && kBuilding.getDomainFreeExperience(DOMAIN_SEA) != 0);
-	int iDomainTotalMilitaryProductionShare = 0;
-	int iDomainWaterWorldPercent = 0;
-	if (bNeedLandThroughputContext || bNeedSeaThroughputContext)
-	{
-		iDomainTotalMilitaryProductionShare = AI_buildUnitProb();
-		iDomainWaterWorldPercent = AI_calculateWaterWorldPercent();
-	}
-	int iSeaProductionShare = 0;
-	if (bNeedSeaThroughputContext)
-		iSeaProductionShare = (iDomainTotalMilitaryProductionShare * iDomainWaterWorldPercent) / 100;
-
-	int iLandDemandPercent = 0;
-	int iLandProductionShare = 0;
-	int iLandAreaAI = -1;
-	bool bLandWar = false;
-	bool bAssault = false;
-	if (bNeedLandThroughputContext)
-	{
-		iLandAreaAI = getArea().getAreaAIType(getTeam());
-		bLandWar = (iLandAreaAI == AREAAI_OFFENSIVE || iLandAreaAI == AREAAI_MASSING || iLandAreaAI == AREAAI_DEFENSIVE);
-		bAssault = (iLandAreaAI == AREAAI_ASSAULT || iLandAreaAI == AREAAI_ASSAULT_MASSING || iLandAreaAI == AREAAI_ASSAULT_ASSIST);
-		// <!-- custom: AI_calculateWaterWorldPercent is a naval-importance proxy, not a literal partition of military production; using 100-water would incorrectly reduce land demand to zero on strongly insular maps.
-		// Keep a 50% baseline for defenders/expeditionary land forces, while active land war restores full land relevance and assault preparation keeps at least 75%. See KI#48.13. (ChatGPT-5.6-Sol) -->
-		iLandDemandPercent = 100 - iDomainWaterWorldPercent / 2;
-		if (bLandWar)
-			iLandDemandPercent = 100;
-		else if (bAssault)
-			iLandDemandPercent = std::max(75, iLandDemandPercent);
-		iLandProductionShare = (iDomainTotalMilitaryProductionShare * iLandDemandPercent) / 100;
-	}
 
 	// <!-- custom: in autoplay AI doesn't build shrines (Mahabodhi, Pagan Shrine, etc.) until late game after world wonders ASAP fix. Shrines/corporations have iCost=-1, so no point trying to save hammers. Skip viability gates for iCost=-1; handle only buildable buildings (iCost>0), similar to CvUnitAI::AI_ChooseUnit. In autoplay this leads to more wonders by turn 300. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
 	// <!-- custom: performance optimization - cache iXMLCost for later calls in this function. (Claude code Sonnet 4.5 (summarized)) -->
@@ -9197,6 +9114,93 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		return iCachedInheritedValue;
 	}
 	// </K-Mod>
+
+	// <!-- custom: Construction-cache miss only: the following food/health/trade/building/domain-throughput context is consumed solely by the full inherited calculation below. Keeping it after the authoritative cache return avoids needless work on repeated cache hits without changing the calculation itself. (ChatGPT-5.6-Sol) -->
+	/*	K-Mod note: I've set this to ignore "food is production"
+		so that building value is not distorted by that effect. */
+	int const iFoodDifference = foodDifference(false, true);
+
+	// <!-- custom: add these by chatgpt 5 and refactor formatting or such a bit; also short term is fine -->
+	const int iHappinessSurplus = happyLevel() - unhappyLevel();
+
+	// Reduce reaction to temporary happy/health problems
+	// K-Mod
+	int const iHealthLevel = goodHealth() - badHealth() + getEspionageHealthCounter()/2;
+	// K-Mod end
+
+	// <!-- custom: Use the broader player-wide focus-war test instead of AdvC's area-specific variant.
+	// K-Mod used kTeam.getAnyWarPlanCount(true) > 0. (GPT-5.6-Sol) -->
+	bool const bWarPlan = kOwner.AI_isFocusWar();
+
+	int const iFoodKept = kOwner.getFoodKept(eBuilding); // advc.912d
+	bool bForeignTrade = false;
+
+	// <!-- custom: Unlike Base AdvC's scoped foreign-trade scan, keep the route count for the later trade-route valuation and avoid a second getTradeRoutes call. (GPT-5.6-Sol) -->
+	int const iNumTradeRoutes = getTradeRoutes();
+	for (int i = 0; i < iNumTradeRoutes; i++)
+	{
+		CvCity* pTradeCity = getTradeCity(i);
+		if (pTradeCity == NULL)
+			continue;
+		if (TEAMID(pTradeCity->getOwner()) != getTeam() ||
+			!sameArea(*pTradeCity))
+		{
+			bForeignTrade = true;
+			break;
+		}
+	}
+
+	// <!-- custom: moved here and added const, for reuse -->
+	const int iPop = getPopulation();
+	const int iMilitaryProductionModifier = kBuilding.getMilitaryProductionModifier();
+	const int iHammersModifier = kBuilding.getYieldModifier(YIELD_PRODUCTION);
+	// <!-- custom: rename iOwnerEra to iCurrentEra for consistency with other parts of our code -->
+	int const iCurrentEra = kOwner.getCurrentEra();
+	// <!-- custom: renamed iExistingUpkeep to iMaintenanceTimes100 -->
+	const int iMaintenanceTimes100 = getMaintenanceTimes100();
+	const int iFreeExperience = kBuilding.getFreeExperience();
+	const int iBaseHammersPerTurn = getBaseYieldRate(YIELD_PRODUCTION);
+
+	// <!-- custom: Domain-limited military-production effects share the authoritative AI_buildUnitProb demand estimate and K-Mod water-world context.
+	// Drydock-style sea production/XP keep their validated formulas; DOMAIN_LAND was validated with temporarily land-scoped Heroic Epic laboratory XML. See KI#48.11-KI#48.13. (ChatGPT-5.6-Sol) -->
+	static const bool bLandProductionThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_LAND_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE");
+	static const bool bSeaProductionThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_SEA_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE");
+	static const bool bSeaExperienceThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT_OPTIMIZE");
+	bool const bNeedLandThroughputContext = (bLandProductionThroughputOptimize && kBuilding.getDomainProductionModifier(DOMAIN_LAND) != 0);
+	bool const bNeedSeaThroughputContext =
+			(bSeaProductionThroughputOptimize && kBuilding.getDomainProductionModifier(DOMAIN_SEA) != 0) ||
+			(bSeaExperienceThroughputOptimize && kBuilding.getDomainFreeExperience(DOMAIN_SEA) != 0);
+	int iDomainTotalMilitaryProductionShare = 0;
+	int iDomainWaterWorldPercent = 0;
+	if (bNeedLandThroughputContext || bNeedSeaThroughputContext)
+	{
+		iDomainTotalMilitaryProductionShare = AI_buildUnitProb();
+		iDomainWaterWorldPercent = AI_calculateWaterWorldPercent();
+	}
+	int iSeaProductionShare = 0;
+	if (bNeedSeaThroughputContext)
+		iSeaProductionShare = (iDomainTotalMilitaryProductionShare * iDomainWaterWorldPercent) / 100;
+
+	int iLandDemandPercent = 0;
+	int iLandProductionShare = 0;
+	int iLandAreaAI = -1;
+	bool bLandWar = false;
+	bool bAssault = false;
+	if (bNeedLandThroughputContext)
+	{
+		iLandAreaAI = getArea().getAreaAIType(getTeam());
+		bLandWar = (iLandAreaAI == AREAAI_OFFENSIVE || iLandAreaAI == AREAAI_MASSING || iLandAreaAI == AREAAI_DEFENSIVE);
+		bAssault = (iLandAreaAI == AREAAI_ASSAULT || iLandAreaAI == AREAAI_ASSAULT_MASSING || iLandAreaAI == AREAAI_ASSAULT_ASSIST);
+		// <!-- custom: AI_calculateWaterWorldPercent is a naval-importance proxy, not a literal partition of military production; using 100-water would incorrectly reduce land demand to zero on strongly insular maps.
+		// Keep a 50% baseline for defenders/expeditionary land forces, while active land war restores full land relevance and assault preparation keeps at least 75%. See KI#48.13. (ChatGPT-5.6-Sol) -->
+		iLandDemandPercent = 100 - iDomainWaterWorldPercent / 2;
+		if (bLandWar)
+			iLandDemandPercent = 100;
+		else if (bAssault)
+			iLandDemandPercent = std::max(75, iLandDemandPercent);
+		iLandProductionShare = (iDomainTotalMilitaryProductionShare * iLandDemandPercent) / 100;
+	}
+
 
 	ReligionTypes const eStateReligion = kOwner.getStateReligion();
 
