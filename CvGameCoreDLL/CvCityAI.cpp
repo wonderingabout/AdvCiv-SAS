@@ -8819,13 +8819,67 @@ static bool SAS_canTrainDomainUnit(CvCityAI const& kCity, DomainTypes eDomain, T
 }
 
 
+static bool SAS_isNationalParkStyleWonder(CvBuildingInfo const& kBuilding)
+{
+	if ((!kBuilding.isWorldWonder() && !kBuilding.isNationalWonder()) || kBuilding.getProductionCost() <= 0 || kBuilding.getUnhealthyPopulationModifier() > -50)
+		return false;
+	// <!-- custom: Preserve the historical exclusion for a hypothetical population-unhealthiness-reducing Wonder that is itself major land-military infrastructure. (ChatGPT-5.6-Sol) -->
+	return (kBuilding.getFreeExperience() < 2 && kBuilding.getDomainFreeExperience(DOMAIN_LAND) < 2 &&
+		kBuilding.getMilitaryProductionModifier() < 20 && kBuilding.getDomainProductionModifier(DOMAIN_LAND) < 20);
+}
+
+// <!-- custom: Keep National-Park-style resilience and military-pressure context in one level-3 diagnostic unit rather than interleaving logging with gameplay setup.
+// The retired population, rank and health-gate counterfactuals are documented in KI#48.9; this permanent row retains the live health-food, improvement-specialist and military context needed to interpret inherited and adjusted values. (GPT-5.6-Sol) -->
+static void SAS_logNationalParkStyleWonderContext(CvCityAI const& kCity, BuildingTypes eBuilding)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
+	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+	SASWarPowerContext const kWarPower(GET_TEAM(kCity.getTeam()));
+	bool const bDanger = kCity.AI_isDanger();
+	bool const bWarPlan = kOwner.AI_isFocusWar();
+	int const iPopulationRank = kCity.findPopulationRank();
+	int iImprovementFreeSpecialistPlots = 0;
+	int iImprovementFreeSpecialistCount = 0;
+	FOR_EACH_NON_DEFAULT_PAIR(kBuilding.getImprovementFreeSpecialist(), Improvement, int)
+	{
+		int const iImprovedPlots = kCity.countNumImprovedPlots(perImprovementVal.first, true);
+		iImprovementFreeSpecialistPlots += iImprovedPlots;
+		iImprovementFreeSpecialistCount += iImprovedPlots * perImprovementVal.second;
+	}
+	int const iPopulationUnhealth = kCity.unhealthyPopulation();
+	int const iHealthFoodLoss = std::max(0, -kCity.healthRate());
+	int const iPopulationUnhealthFoodRelief = std::min(iPopulationUnhealth, iHealthFoodLoss);
+	int const iFoodDifference = kCity.foodDifference(false, true);
+	CvString szSignature;
+	szSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d",
+		kCity.getPopulation(), iPopulationRank, kCity.goodHealth() - kCity.badHealth() + kCity.getEspionageHealthCounter() / 2,
+		iPopulationUnhealth, iHealthFoodLoss, iPopulationUnhealthFoodRelief, iFoodDifference, kCity.getFood(),
+		iImprovementFreeSpecialistPlots, iImprovementFreeSpecialistCount, kWarPower.bAtWar, bWarPlan,
+		bDanger, kWarPower.iEnemyPowerPercent, kWarPower.bEnemyStrong);
+	if (!SAS_shouldLogBuildingValueGateChange(kCity, eBuilding, "NATIONAL_PARK_CONTEXT", szSignature))
+		return;
+	logBBAI("NATIONAL_PARK_CONTEXT turn=%d player=%d %S city=%S cityId=%d building=%s pop=%d populationRank=%d healthLevel=%d populationUnhealth=%d healthFoodLoss=%d populationUnhealthFoodRelief=%d foodDifference=%d foodStored=%d growthThreshold=%d improvementFreeSpecialistPlots=%d improvementFreeSpecialistCount=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d enemyStrong=%d turnsLeft=%d baseProduction=%d stored=%d",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(),
+		kCity.getPopulation(), iPopulationRank, kCity.goodHealth() - kCity.badHealth() + kCity.getEspionageHealthCounter() / 2,
+		iPopulationUnhealth, iHealthFoodLoss, iPopulationUnhealthFoodRelief, iFoodDifference, kCity.getFood(), kCity.growthThreshold(),
+		iImprovementFreeSpecialistPlots, iImprovementFreeSpecialistCount, kWarPower.bAtWar, bWarPlan, bDanger,
+		kWarPower.iEnemyPowerPercent, kWarPower.bEnemyStrong, kCity.getProductionTurnsLeft(eBuilding, 0), kCity.getBaseYieldRate(YIELD_PRODUCTION), kCity.getBuildingProduction(eBuilding));
+}
+
 // <!-- custom: KI#48.19 translates the useful concern behind the last live old-SAS Wonder hard gate into inherited valuation.
 // Apply transient military opportunity cost only to the current National-Park-style value returned to production selection; do not put danger/enemy strength into K-Mod's reusable construction-value cache or prospective technology valuation.
 // In the Pangaea A/B, 660 pressured evaluations produced no pressured National Park among 62 best-building opportunities or 22 final National Park choices; Mayapan naturally switched its 47/270 invested Park to SAM Infantry when enemy strength rose.
 // The discount is deliberately continuous: long, uninvested builds under immediate danger/strong-enemy pressure lose much more value, while short or heavily invested builds retain most of their inherited value and still compete normally. See KI#48.19. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-static int SAS_adjustUnhealthinessReducerWonderForMilitaryPressure(CvCityAI const& kCity, BuildingTypes eBuilding, int iInheritedValue, bool bDanger, bool bEnemyStrong, int iEnemyPowerPercent)
+static int SAS_adjustUnhealthinessReducerWonderForMilitaryPressure(CvCityAI const& kCity, BuildingTypes eBuilding, int iInheritedValue)
 {
-	if (iInheritedValue <= 0 || (!bDanger && !bEnemyStrong))
+	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
+	if (iInheritedValue <= 0 || !SAS_isNationalParkStyleWonder(kBuilding) || kOwner.isBarbarian() || kOwner.isMinorCiv())
+		return iInheritedValue;
+	bool const bDanger = kCity.AI_isDanger();
+	SASWarPowerContext const kWarPower(GET_TEAM(kCity.getTeam()));
+	bool const bEnemyStrong = kWarPower.bEnemyStrong;
+	if (!bDanger && !bEnemyStrong)
 		return iInheritedValue;
 
 	int const iStored = kCity.getBuildingProduction(eBuilding);
@@ -8851,14 +8905,14 @@ static int SAS_adjustUnhealthinessReducerWonderForMilitaryPressure(CvCityAI cons
 	{
 		CvString szSignature;
 		szSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d",
-			iInheritedValue, iAdjustedValue, bDanger, bEnemyStrong, iEnemyPowerPercent,
+			iInheritedValue, iAdjustedValue, bDanger, bEnemyStrong, kWarPower.iEnemyPowerPercent,
 			iTurnsForPressure, iStored, iCompletionPercent, iAppliedPenaltyPercent);
 		if (SAS_shouldLogBuildingValueGateChange(kCity, eBuilding, "NATIONAL_PARK_PRESSURE_VALUE", szSignature))
 		{
 			logBBAI("NATIONAL_PARK_PRESSURE_VALUE_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s inheritedValue=%d adjustedValue=%d danger=%d enemyStrong=%d enemyPowerPercent=%d turnsLeft=%d stored=%d needed=%d completionPercent=%d rawPenaltyPercent=%d appliedPenaltyPercent=%d",
 				GC.getGame().getGameTurn(), kCity.getOwner(), GET_PLAYER(kCity.getOwner()).getCivilizationDescription(0),
 				kCity.getName().GetCString(), kCity.getID(), GC.getInfo(eBuilding).getType(),
-				iInheritedValue, iAdjustedValue, bDanger, bEnemyStrong, iEnemyPowerPercent,
+				iInheritedValue, iAdjustedValue, bDanger, bEnemyStrong, kWarPower.iEnemyPowerPercent,
 				(iTurnsLeft == MAX_INT ? -1 : iTurnsLeft), iStored, iNeeded, iCompletionPercent,
 				iRawPenaltyPercent, iAppliedPenaltyPercent);
 		}
@@ -8992,114 +9046,25 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		iLandProductionShare = (iDomainTotalMilitaryProductionShare * iLandDemandPercent) / 100;
 	}
 
-	bool bNationalParkPressureAdjustment = false;
-	bool bNationalParkPressureDanger = false;
-	bool bNationalParkPressureEnemyStrong = false;
-	int iNationalParkPressureEnemyPowerPercent = 0;
-
 	// <!-- custom: in autoplay AI doesn't build shrines (Mahabodhi, Pagan Shrine, etc.) until late game after world wonders ASAP fix. Shrines/corporations have iCost=-1, so no point trying to save hammers. Skip viability gates for iCost=-1; handle only buildable buildings (iCost>0), similar to CvUnitAI::AI_ChooseUnit. In autoplay this leads to more wonders by turn 300. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
 	// <!-- custom: performance optimization - cache iXMLCost for later calls in this function. (Claude code Sonnet 4.5 (summarized)) -->
 	const int iXMLCost = kBuilding.getProductionCost(); // XML base cost (unscaled)
 	// -1 (GP-built) or weird 0-cost
-	// <!-- custom: Keep the retired land-heavy naval-infrastructure rule observable without reviving its whole-building veto.
-	// When level-3 Building Production logging is enabled, record where the old SAS policy would have rejected genuine sea-unit production/experience infrastructure; normal inherited valuation still decides production. (ChatGPT-5.6-Sol) -->
-	if (bLogBuildingValueDetails && !bWonder)
+	// <!-- custom: Keep diagnostic-only retired-policy and National-Park context together behind one explicit pre-gate; gameplay adjustments remain in the self-contained value postprocessor at the cached and calculated inherited exits below. (GPT-5.6-Sol) -->
+	if (bLogBuildingValueDetails)
 	{
-		bool const bSASLandHeavyNavalInfrastructureLegacyAudit = (isCoastal() && kGame.isLandHeavyMapnameCached() &&
-			(kBuilding.getDomainFreeExperience(DOMAIN_SEA) > 0 || kBuilding.getDomainProductionModifier(DOMAIN_SEA) > 0));
-		if (bSASLandHeavyNavalInfrastructureLegacyAudit) SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NAVAL_EXPERIENCE_LEGACY", "WOULD_REJECT_LAND_HEAVY_MAP", 0);
-	}
-
-	// <!-- custom: Keep the retired World and National Wonder policy inputs observable at level 3 while useful; the final inherited result is logged separately below. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	if (bLogBuildingValueDetails && bWonder && (iXMLCost > 0) && !kOwner.isBarbarian() && !kOwner.isMinorCiv())
-		SAS_logWonderPolicyAudit(*this, eBuilding);
-
-	// <!-- custom: KI#48.9 retired every generic World/National Wonder hammer, timing, pressure, race and placement hard gate.
-	// KI#48.19 translates the valid National-Park-style military-pressure concern into a continuous adjustment of current-production value only; historical Wonder-policy inputs remain available through the level-3 audit while useful. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	if (bWonder && (iXMLCost > 0) && !kOwner.isBarbarian() && !kOwner.isMinorCiv())
-	{
-		const bool bUnhealthinessReducerWonder = (kBuilding.getUnhealthyPopulationModifier() <= -50);
-		if (bUnhealthinessReducerWonder)
+		if (!bWonder)
 		{
-			// <!-- custom: Preserve the historical exclusion for a hypothetical population-unhealthiness-reducing Wonder that is itself major land-military infrastructure. Compute it only for this rare Wonder class now that the generic Wonder gates are retired. (ChatGPT-5.6-Sol) -->
-			const bool bLandUnitsBuilding =
-				(iFreeExperience >= 2 || kBuilding.getDomainFreeExperience(DOMAIN_LAND) >= 2 ||
-				iMilitaryProductionModifier >= 20 || kBuilding.getDomainProductionModifier(DOMAIN_LAND) >= 20);
-			if (!bLandUnitsBuilding)
-			{
-				// <!-- custom: KI#48.19: Tiny/Pangaea A/Bs support using only immediate danger/enemy strength as the transient pressure signal; broad at-war/war-plan states remain ordinary production competition. (ChatGPT-5.6-Sol) -->
-				const bool bDanger = AI_isDanger();
-				SASWarPowerContext const kWarPower(kTeam);
-				const bool bEnemyStrong = kWarPower.bEnemyStrong;
-				const bool bUnhealthinessReducerSafetyPressure = (bDanger || bEnemyStrong);
-
-				int iNationalParkPopulationRank = -1;
-				if (gBuildingProductionLogLevel >= 3)
-				{
-					iNationalParkPopulationRank = findPopulationRank();
-					const bool bHistoricalUnhealthinessReducerPressure = (kWarPower.bAtWar || bDanger || bWarPlan || bEnemyStrong);
-					if (bHistoricalUnhealthinessReducerPressure)
-					{
-						logBBAI("UNHEALTHINESS_REDUCER_WONDER_PRESSURE_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s rejectNow=%d prospective=%d assumeTech=%d canConstructNow=%d pop=%d populationRank=%d healthLevel=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d enemyStrong=%d turnsLeft=%d baseProduction=%d stored=%d",
-							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
-							kBuilding.getType(), bUnhealthinessReducerSafetyPressure, (eAssumeTech != NO_TECH), eAssumeTech,
-							canConstruct(eBuilding), iPop, iNationalParkPopulationRank, iHealthLevel,
-							kWarPower.bAtWar, bWarPlan, bDanger, kWarPower.iEnemyPowerPercent, bEnemyStrong,
-							getProductionTurnsLeft(eBuilding, 0), iBaseHammersPerTurn, getBuildingProduction(eBuilding));
-					}
-				}
-
-				if (bUnhealthinessReducerSafetyPressure)
-				{
-					// <!-- custom: Preserve the ordinary inherited/cached value, then discount only the value returned to current production below.
-					// Prospective technology evaluation deliberately receives no transient pressure penalty; the Pangaea A/B restored Biology planning without causing a state or synchronized-RNG divergence until turn 205. See KI#48.19. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-					if (eAssumeTech == NO_TECH)
-					{
-						bNationalParkPressureAdjustment = true;
-						bNationalParkPressureDanger = bDanger;
-						bNationalParkPressureEnemyStrong = bEnemyStrong;
-						iNationalParkPressureEnemyPowerPercent = kWarPower.iEnemyPowerPercent;
-					}
-				}
-
-				if (gBuildingProductionLogLevel >= 3)
-				{
-					const int iPopulationRank = iNationalParkPopulationRank;
-					// <!-- custom: Long-term resilience evidence stays effect-based rather than hardcoding Depopulation/plague/era names. All ranking, food, specialist and string work is level-3-only. (ChatGPT-5.6-Sol) -->
-					const int iHistoricalNationalParkMinPop = 12;
-					const int iHistoricalNationalParkMaxHealthLevel = 1;
-					const bool bTop2Population = (iPopulationRank <= 2);
-					int iImprovementFreeSpecialistPlots = 0;
-					int iImprovementFreeSpecialistCount = 0;
-					FOR_EACH_NON_DEFAULT_PAIR(kBuilding.getImprovementFreeSpecialist(), Improvement, int)
-					{
-						const int iImprovedPlots = countNumImprovedPlots(perImprovementVal.first, true);
-						iImprovementFreeSpecialistPlots += iImprovedPlots;
-						iImprovementFreeSpecialistCount += iImprovedPlots * perImprovementVal.second;
-					}
-					const int iPopulationUnhealth = unhealthyPopulation();
-					const int iHealthFoodLoss = std::max(0, -healthRate());
-					const int iPopulationUnhealthFoodRelief = std::min(iPopulationUnhealth, iHealthFoodLoss);
-					const int iNationalParkFoodDifference = foodDifference(false, true);
-					CvString szNationalParkCandidateSignature;
-					szNationalParkCandidateSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d",
-						iPop, iPopulationRank, iHealthLevel, iPopulationUnhealth, iHealthFoodLoss, iPopulationUnhealthFoodRelief,
-						iNationalParkFoodDifference, getFood(), iImprovementFreeSpecialistPlots, iImprovementFreeSpecialistCount,
-						(iPop < iHistoricalNationalParkMinPop), !bTop2Population,
-						(iHealthLevel > iHistoricalNationalParkMaxHealthLevel));
-					if (SAS_shouldLogBuildingValueGateChange(*this, eBuilding, "NATIONAL_PARK_CANDIDATE", szNationalParkCandidateSignature))
-					{
-						logBBAI("NATIONAL_PARK_CANDIDATE_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s prospective=%d assumeTech=%d canConstructNow=%d pop=%d populationRank=%d healthLevel=%d populationUnhealth=%d healthFoodLoss=%d populationUnhealthFoodRelief=%d foodDifference=%d foodStored=%d growthThreshold=%d improvementFreeSpecialistPlots=%d improvementFreeSpecialistCount=%d lowPopulation=%d outsideTop2Population=%d healthyGate=%d turnsLeft=%d baseProduction=%d stored=%d",
-							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
-							kBuilding.getType(), (eAssumeTech != NO_TECH), eAssumeTech, canConstruct(eBuilding),
-							iPop, iPopulationRank, iHealthLevel, iPopulationUnhealth, iHealthFoodLoss, iPopulationUnhealthFoodRelief,
-							iNationalParkFoodDifference, getFood(), growthThreshold(), iImprovementFreeSpecialistPlots, iImprovementFreeSpecialistCount,
-							(iPop < iHistoricalNationalParkMinPop), !bTop2Population,
-							(iHealthLevel > iHistoricalNationalParkMaxHealthLevel),
-							getProductionTurnsLeft(eBuilding, 0), iBaseHammersPerTurn, getBuildingProduction(eBuilding));
-					}
-				}
-			}
+			bool const bSASLandHeavyNavalInfrastructureLegacyAudit = (isCoastal() && kGame.isLandHeavyMapnameCached() &&
+				(kBuilding.getDomainFreeExperience(DOMAIN_SEA) > 0 || kBuilding.getDomainProductionModifier(DOMAIN_SEA) > 0));
+			if (bSASLandHeavyNavalInfrastructureLegacyAudit)
+				SAS_logBuildingValuePolicyDecision(*this, eBuilding, "NAVAL_EXPERIENCE_LEGACY", "WOULD_REJECT_LAND_HEAVY_MAP", 0);
+		}
+		else if (iXMLCost > 0 && !kOwner.isBarbarian() && !kOwner.isMinorCiv())
+		{
+			SAS_logWonderPolicyAudit(*this, eBuilding);
+			if (SAS_isNationalParkStyleWonder(kBuilding))
+				SAS_logNationalParkStyleWonderContext(*this, eBuilding);
 		}
 	}
 
@@ -9247,8 +9212,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	if (bUseConstructionValueCache && m_aiConstructionValue[eBuildingClass] != -1)
 	{
 		int const iCachedInheritedValue = m_aiConstructionValue[eBuildingClass];
-		if (bNationalParkPressureAdjustment)
-			return SAS_adjustUnhealthinessReducerWonderForMilitaryPressure(*this, eBuilding, iCachedInheritedValue, bNationalParkPressureDanger, bNationalParkPressureEnemyStrong, iNationalParkPressureEnemyPowerPercent);
+		// <!-- custom: The cached and calculated exits both use the same self-contained KI#48.19 current-production postprocessor; prospective technology calls deliberately bypass transient military pressure. (GPT-5.6-Sol) -->
+		if (eAssumeTech == NO_TECH)
+			return SAS_adjustUnhealthinessReducerWonderForMilitaryPressure(*this, eBuilding, iCachedInheritedValue);
 		return iCachedInheritedValue;
 	}
 	// </K-Mod>
@@ -11694,8 +11660,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			iDiagSeaFoodDelta, iDiagSeaProductionDelta, iDiagSeaCommerceDelta, iDiagSeaYieldPlotWeight,
 			iDiagYieldProductionPriorityRaw, iDiagYieldProductionPriorityApplied);
 	}
-	if (bNationalParkPressureAdjustment)
-		iValue = SAS_adjustUnhealthinessReducerWonderForMilitaryPressure(*this, eBuilding, iValue, bNationalParkPressureDanger, bNationalParkPressureEnemyStrong, iNationalParkPressureEnemyPowerPercent);
+	if (eAssumeTech == NO_TECH)
+		iValue = SAS_adjustUnhealthinessReducerWonderForMilitaryPressure(*this, eBuilding, iValue);
 	return iValue;
 }
 
