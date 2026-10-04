@@ -7785,12 +7785,8 @@ static void SAS_logWorldWonderStrategicAudit(CvCityAI const& kCity, BuildingType
 	int const iBarbarianAreaUnits = kArea.getUnitsPerPlayer(BARBARIAN_PLAYER);
 	bool const bNoBarbarians = kGame.isOption(GAMEOPTION_NO_BARBARIANS);
 	bool const bAreaBorderObstacle = kBuilding.isAreaBorderObstacle();
-	static const bool bLegacyAntiBarbarianLateEnableRaw = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE");
-	static const int iLegacyAntiBarbarianLateMaxEra = GC.getDefineINT("SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_MAX_ERA");
-	bool const bLegacyAntiBarbarianLateRuleActive = (!bNoBarbarians && !bLegacyAntiBarbarianLateEnableRaw && bAreaBorderObstacle);
-	bool const bLegacyAntiBarbarianLateWouldReject = (bLegacyAntiBarbarianLateRuleActive && kOwner.getCurrentEra() > iLegacyAntiBarbarianLateMaxEra);
 
-	logBBAI("BUILDING_VALUE_WORLD_WONDER_STRATEGIC_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s landHeavyMap=%d navalHeavyMap=%d area=%d areaTiles=%d revealedAreaTiles=%d unrevealedAreaTiles=%d areaAlone=%d primaryArea=%d areaAI=%d landWar=%d ownCitiesInArea=%d independentRivalTeamsInArea=%d unknownIndependentRivalTeamsInArea=%d independentRivalCitiesInArea=%d enemyTeamsInArea=%d enemyCitiesInArea=%d ourBlocPower=%d combinedKnownLocalRivalBlocPower=%d highestKnownLocalRivalBlocPower=%d localPowerAdvantagePercent=%d highestKnownGlobalRivalBlocPower=%d globalPowerAdvantagePercent=%d mainLandMilitaryStock=%d mainLandMilitaryPerCityX100=%d citySafety=%d cityDefenders=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d enemyStrong=%d areaBorderObstacle=%d noBarbarians=%d barbarianAreaCities=%d barbarianAreaUnits=%d legacyAntiBarbarianLateEnableRaw=%d legacyAntiBarbarianLateRuleActive=%d legacyAntiBarbarianLateMaxEra=%d legacyAntiBarbarianLateWouldReject=%d",
+	logBBAI("BUILDING_VALUE_WORLD_WONDER_STRATEGIC_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s landHeavyMap=%d navalHeavyMap=%d area=%d areaTiles=%d revealedAreaTiles=%d unrevealedAreaTiles=%d areaAlone=%d primaryArea=%d areaAI=%d landWar=%d ownCitiesInArea=%d independentRivalTeamsInArea=%d unknownIndependentRivalTeamsInArea=%d independentRivalCitiesInArea=%d enemyTeamsInArea=%d enemyCitiesInArea=%d ourBlocPower=%d combinedKnownLocalRivalBlocPower=%d highestKnownLocalRivalBlocPower=%d localPowerAdvantagePercent=%d highestKnownGlobalRivalBlocPower=%d globalPowerAdvantagePercent=%d mainLandMilitaryStock=%d mainLandMilitaryPerCityX100=%d citySafety=%d cityDefenders=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d enemyStrong=%d areaBorderObstacle=%d noBarbarians=%d barbarianAreaCities=%d barbarianAreaUnits=%d",
 		kGame.getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(),
 		kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), kArea.getID(), iAreaTiles,
 		iRevealedAreaTiles, iUnrevealedAreaTiles, bAreaAlone, bPrimaryArea, iAreaAI, bLandWar, iOwnCitiesInArea,
@@ -7799,13 +7795,11 @@ static void SAS_logWorldWonderStrategicAudit(CvCityAI const& kCity, BuildingType
 		kLocalRivals.iLocalPowerAdvantagePercent, kLocalRivals.iHighestKnownGlobalRivalBlocPower, kLocalRivals.iGlobalPowerAdvantagePercent, iMainLandMilitaryStock,
 		iMainLandMilitaryPerCityX100, iCitySafety, iCityDefenders, kWarPower.bAtWar,
 		bWarPlan, bDanger, kWarPower.iEnemyPowerPercent, kWarPower.bEnemyStrong, bAreaBorderObstacle,
-		bNoBarbarians, iBarbarianAreaCities, iBarbarianAreaUnits, bLegacyAntiBarbarianLateEnableRaw,
-		bLegacyAntiBarbarianLateRuleActive, iLegacyAntiBarbarianLateMaxEra, bLegacyAntiBarbarianLateWouldReject);
+		bNoBarbarians, iBarbarianAreaCities, iBarbarianAreaUnits);
 }
 
-// <!-- custom: Wonder-policy audit inputs are logged separately for World and National Wonders so the retiring SAS prefilter can be reviewed gate-by-gate without coupling the permanent BBAI vocabulary to one giant legacy row.
-// All fixed XML thresholds are static-cached here because XML defines are immutable after load and this diagnostic can execute many thousands of times at level 3.
-// If the audited SAS policy/defines are later deleted, prune or relabel the corresponding legacy fields rather than keeping dead XML dependencies. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Wonder-policy audit inputs are logged separately for World and National Wonders so the retired SAS prefilter can be reviewed gate-by-gate without coupling the permanent BBAI vocabulary to one giant retired-policy row.
+// Its thresholds are local constants because they are immutable historical comparators, not live XML policy. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 static void SAS_logWonderPolicyAudit(CvCityAI const& kCity, BuildingTypes eBuilding)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
@@ -7816,23 +7810,17 @@ static void SAS_logWonderPolicyAudit(CvCityAI const& kCity, BuildingTypes eBuild
 	bool const bNationalWonder = kBuilding.isNationalWonder();
 	if (!bWorldWonder && !bNationalWonder)
 		return;
-
-	static const int iSoftTurnCapNormalBase = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_GAMESPEED_TO_BUILD");
-	static const int iWorldMinBaseHammers = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_BASE_HAMMERS");
-	static const int iWorldMinExtraHammersPerEra = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA");
-	static const int iNationalMinBaseHammers = GC.getDefineINT("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_BASE_HAMMERS");
-	static const int iNationalMinExtraHammersPerEra = GC.getDefineINT("SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA");
-	static const int iHotRaceThreshold = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM");
-	static const int iExpansionPhaseTurnNormal = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL_GAMESPEED");
-	static const bool bAntiBarbarianLateEnable = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE");
-	static const int iAntiBarbarianLateMaxEra = GC.getDefineINT("SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_MAX_ERA");
-	static const int iCheapWWCapAncientNormal = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_ANCIENT_NORMAL");
-	static const int iCheapWWCapClassicalNormal = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_CLASSICAL_NORMAL");
-	static const int iCheapWWCapMedievalNormal = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_MEDIEVAL_NORMAL");
-	static const int iCheapWWCapRenaissanceNormal = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_RENAISSANCE_NORMAL");
-	static const int iCheapWWCapIndustrialNormal = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_INDUSTRIAL_NORMAL");
-	static const int iCheapWWCapModernNormal = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_MODERN_NORMAL");
-	static const int iCheapWWCapFutureNormal = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_FUTURE_NORMAL");
+	// <!-- custom: These values reproduce retired SAS Wonder gates only in this pre-gated level-3 counterfactual logger. Keeping immutable historical comparators in XML made them look like live player-facing tuning; the era caps are ordered Ancient through Future, and later modmod eras retain the retired Future fallback. See KI#48.9. (GPT-5.6-Sol) -->
+	bool const bRetiredSASAntiBarbarianLateVetoEnabled = true;
+	int const iRetiredSASAntiBarbarianLateMaxEra = 2;
+	int const aiRetiredSASCheapWorldWonderCostCapNormal[] = { 60, 90, 150, 200, 250, 300, 350 };
+	int const iRetiredSASWorldWonderMinBaseHammers = 6;
+	int const iRetiredSASWorldWonderMinExtraHammersPerEra = 3;
+	int const iRetiredSASNationalWonderMinBaseHammers = 6;
+	int const iRetiredSASNationalWonderMinExtraHammersPerEra = 2;
+	int const iRetiredSASWorldWonderExpansionPhaseTurnNormal = 0;
+	int const iRetiredSASWorldWonderHotRaceThreshold = 3;
+	int const iRetiredSASWonderSoftTurnCapNormal = 20;
 
 	int const iEra = kOwner.getCurrentEra();
 	int const iBaseHpt = kCity.getBaseYieldRate(YIELD_PRODUCTION);
@@ -7849,14 +7837,14 @@ static void SAS_logWonderPolicyAudit(CvCityAI const& kCity, BuildingTypes eBuild
 	int const iGameSpeedMultiplier = GC.getInfo(kGame.getGameSpeedType()).getConstructPercent();
 
 	CvHandicapInfo const& hGame = GC.getInfo(kGame.getHandicapType());
-	int iSoftTurnCapNormal = iSoftTurnCapNormalBase;
+	int iSoftTurnCapNormal = iRetiredSASWonderSoftTurnCapNormal;
 	int const iConstructGap = 100 - (hGame.getAIWorldConstructPercent() + kGame.AIHandicapAdjustment());
 	if (iConstructGap >= 20)
 		iSoftTurnCapNormal = (iSoftTurnCapNormal * 9) / 10;
 	int const iSoftTurnCap = iSoftTurnCapNormal * iGameSpeedMultiplier / 100;
 	int const iMinBaseHpt = (bWorldWonder ?
-			iWorldMinBaseHammers + iEra * iWorldMinExtraHammersPerEra :
-			iNationalMinBaseHammers + iEra * iNationalMinExtraHammersPerEra);
+			iRetiredSASWorldWonderMinBaseHammers + iEra * iRetiredSASWorldWonderMinExtraHammersPerEra :
+			iRetiredSASNationalWonderMinBaseHammers + iEra * iRetiredSASNationalWonderMinExtraHammersPerEra);
 
 	int iBestHpt = 0, iSecondBestHpt = 0, iThirdBestHpt = 0, iProductionRank = 1;
 	int iSecondBestPop = 0, iBestPop = 0;
@@ -7913,17 +7901,8 @@ static void SAS_logWonderPolicyAudit(CvCityAI const& kCity, BuildingTypes eBuild
 
 	if (bWorldWonder)
 	{
-		int iCheapWWCapNormal = iCheapWWCapFutureNormal;
-		switch (iEra)
-		{
-			case 0: iCheapWWCapNormal = iCheapWWCapAncientNormal; break;
-			case 1: iCheapWWCapNormal = iCheapWWCapClassicalNormal; break;
-			case 2: iCheapWWCapNormal = iCheapWWCapMedievalNormal; break;
-			case 3: iCheapWWCapNormal = iCheapWWCapRenaissanceNormal; break;
-			case 4: iCheapWWCapNormal = iCheapWWCapIndustrialNormal; break;
-			case 5: iCheapWWCapNormal = iCheapWWCapModernNormal; break;
-			default: break;
-		}
+		int const iLastRetiredSASWonderEra = (int)(sizeof(aiRetiredSASCheapWorldWonderCostCapNormal) / sizeof(aiRetiredSASCheapWorldWonderCostCapNormal[0])) - 1;
+		int const iCheapWWCapNormal = aiRetiredSASCheapWorldWonderCostCapNormal[std::min(iLastRetiredSASWonderEra, std::max(0, iEra))];
 		int const iCheapWWCap = iCheapWWCapNormal * iGameSpeedMultiplier / 100;
 		bool const bCheapWorldWonder = (iNeeded <= iCheapWWCap);
 		bool const bCoastalScalingWonder = (kBuilding.getCoastalTradeRoutes() > 0 ||
@@ -7941,26 +7920,26 @@ static void SAS_logWonderPolicyAudit(CvCityAI const& kCity, BuildingTypes eBuild
 					++iRivalsWithAndTech;
 			}
 		}
-		int const iExpansionPhaseTurn = iExpansionPhaseTurnNormal * iGameSpeedMultiplier / 100;
+		int const iExpansionPhaseTurn = iRetiredSASWorldWonderExpansionPhaseTurnNormal * iGameSpeedMultiplier / 100;
 		bool const bExpansionPhase = (kGame.getElapsedGameTurns() < iExpansionPhaseTurn);
 		bool const bNoBarbarians = kGame.isOption(GAMEOPTION_NO_BARBARIANS);
 		bool const bAreaBorderObstacle = kBuilding.isAreaBorderObstacle();
-		bool const bLegacyAntiBarbarianLateReject = (!bNoBarbarians && !bAntiBarbarianLateEnable &&
-				bAreaBorderObstacle && iEra > iAntiBarbarianLateMaxEra);
+		bool const bRetiredSASAntiBarbarianLateReject = (!bNoBarbarians && bRetiredSASAntiBarbarianLateVetoEnabled &&
+				bAreaBorderObstacle && iEra > iRetiredSASAntiBarbarianLateMaxEra);
 		int const iUnrevealedAreaTiles = kCity.getArea().getNumUnrevealedTiles(kCity.getTeam());
 		int const iBarbarianAreaCities = kCity.getArea().getCitiesPerPlayer(BARBARIAN_PLAYER);
 		int const iBarbarianAreaUnits = kCity.getArea().getUnitsPerPlayer(BARBARIAN_PLAYER);
 
-		logBBAI("BUILDING_VALUE_WORLD_WONDER_POLICY_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s era=%d pop=%d baseProduction=%d productionRank=%d numCities=%d stored=%d needed=%d remaining=%d turnsLeft=%d buildTimeModifier=%d estimatedTurns=%d softTurnCap=%d minBaseHammers=%d lowProduction=%d cheapWWCap=%d cheapWorldWonder=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d enemyStrong=%d landUnitsWonder=%d productionWonder=%d postBuildProductionModifier=%d bestHpt=%d secondBestHpt=%d thirdBestHpt=%d top2HammerRank=%d top2HammerLeeway=%d top3HammerLeeway=%d expansionPhase=%d lowBuildTimeModifier=%d coastalScalingWonder=%d coastalCities=%d fewCoastalCities=%d prereqAndTech=%d rivalsWithAndTech=%d hotRaceThreshold=%d hotRace=%d areaBorderObstacle=%d noBarbarians=%d antiBarbarianLateEnable=%d antiBarbarianLateMaxEra=%d legacyAntiBarbarianLateReject=%d unrevealedAreaTiles=%d barbarianAreaCities=%d barbarianAreaUnits=%d unhealthinessReducer=%d healthSurplus=%d top2Population=%d",
+		logBBAI("BUILDING_VALUE_WORLD_WONDER_POLICY_AUDIT turn=%d player=%d %S city=%S cityId=%d building=%s era=%d pop=%d baseProduction=%d productionRank=%d numCities=%d stored=%d needed=%d remaining=%d turnsLeft=%d buildTimeModifier=%d estimatedTurns=%d softTurnCap=%d minBaseHammers=%d lowProduction=%d cheapWWCap=%d cheapWorldWonder=%d atWar=%d warPlan=%d danger=%d enemyPowerPercent=%d enemyStrong=%d landUnitsWonder=%d productionWonder=%d postBuildProductionModifier=%d bestHpt=%d secondBestHpt=%d thirdBestHpt=%d top2HammerRank=%d top2HammerLeeway=%d top3HammerLeeway=%d expansionPhase=%d lowBuildTimeModifier=%d coastalScalingWonder=%d coastalCities=%d fewCoastalCities=%d prereqAndTech=%d rivalsWithAndTech=%d retiredSASHotRaceThreshold=%d retiredSASHotRace=%d areaBorderObstacle=%d noBarbarians=%d retiredSASAntiBarbarianLateVetoEnabled=%d retiredSASAntiBarbarianLateMaxEra=%d retiredSASAntiBarbarianLateReject=%d unrevealedAreaTiles=%d barbarianAreaCities=%d barbarianAreaUnits=%d unhealthinessReducer=%d healthSurplus=%d top2Population=%d",
 			kGame.getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kBuilding.getType(),
 			iEra, kCity.getPopulation(), iBaseHpt, iProductionRank, kOwner.getNumCities(), iStored, iNeeded, iRemaining,
 			iTurnsLeft, iBuildTimeModifier, iEstimatedTurns, iSoftTurnCap, iMinBaseHpt, iBaseHpt < iMinBaseHpt, iCheapWWCap, bCheapWorldWonder,
 			kWarPower.bAtWar, bWarPlan, bDanger, kWarPower.iEnemyPowerPercent, kWarPower.bEnemyStrong, bLandUnitsWonder, bProductionWonder,
 			iPostBuildProductionModifier, iBestHpt, iSecondBestHpt, iThirdBestHpt, bTop2HammerRank, bTop2HammerLeeway, bTop3HammerLeeway,
 			bExpansionPhase, (!bExpansionPhase && iBuildTimeModifier < 25), bCoastalScalingWonder, iCoastalCities,
-			(bCoastalScalingWonder && iCoastalCities < 3), eAndTech, iRivalsWithAndTech, iHotRaceThreshold,
-			(eAndTech != NO_TECH && iRivalsWithAndTech >= iHotRaceThreshold), bAreaBorderObstacle, bNoBarbarians, bAntiBarbarianLateEnable,
-			iAntiBarbarianLateMaxEra, bLegacyAntiBarbarianLateReject, iUnrevealedAreaTiles, iBarbarianAreaCities, iBarbarianAreaUnits,
+			(bCoastalScalingWonder && iCoastalCities < 3), eAndTech, iRivalsWithAndTech, iRetiredSASWorldWonderHotRaceThreshold,
+			(eAndTech != NO_TECH && iRivalsWithAndTech >= iRetiredSASWorldWonderHotRaceThreshold), bAreaBorderObstacle, bNoBarbarians, bRetiredSASAntiBarbarianLateVetoEnabled,
+			iRetiredSASAntiBarbarianLateMaxEra, bRetiredSASAntiBarbarianLateReject, iUnrevealedAreaTiles, iBarbarianAreaCities, iBarbarianAreaUnits,
 			bUnhealthinessReducer, iHealthLevel, kCity.getPopulation() >= iSecondBestPop);
 	}
 	else

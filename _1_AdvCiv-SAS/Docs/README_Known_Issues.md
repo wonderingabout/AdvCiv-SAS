@@ -4507,7 +4507,7 @@ The current direction is gradual migration rather than another monolithic replac
 - keep KI#48.15's completion-time-aware inherited World-Wonder placement as the validated relative-production replacement; both the separate hard coastal-city minimum and the production-Wonder top-HPT placement gate are now retired;
 - retain KI#48.13's tested `DOMAIN_LAND` throughput support as generic/modmod-safe infrastructure even if current SAS has no permanent land-domain production consumer; `DOMAIN_AIR` throughput amount and domain-specific AIR XP remain separate future audits rather than symmetry-driven changes;
 - retain KI#48.19's continuous National Park current-production military-pressure adjustment, while leaving inherited/cached and prospective technology value unchanged and relying on inherited placement instead of the retired population-rank, minimum-population and current-health cliffs;
-- finish focused source/configuration cleanup of empty retired branches, stale selectors/defines/comments and sentinel remnants, verifying that every remaining `SAS_AI_BUILDING_VALUE_*WONDER*` define has a real consumer;
+- finish focused source/configuration cleanup of empty retired branches, stale selectors/defines/comments and sentinel remnants: the retired Wonder-policy thresholds used only for level-3 counterfactual rows are now compact DLL-local constants rather than misleading XML tuning, and every remaining `SAS_AI_BUILDING_VALUE_*WONDER*` define has a live gameplay consumer;
 - preserve useful level-3 forensic diagnostics, then run one integrated Tiny-Islands and one Pangaea regression under permanent settings before closing the migration.
 
 The long-term target mirrors KI#48.5: inherited additive valuation plus narrow contextual safeguards whose underlying concern survives measurement, rather than a large ordered table of hard Wonder vetoes and force-first sentinels.
@@ -12401,7 +12401,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 
 The investigation found two independent World-Wonder AI defects:
 
-- **Fixed AdvCiv-SAS game-speed regression in the cheap-Wonder catch-up gate:** `CvCityAI::AI_buildingValue` compares `getProductionNeeded(eBuilding)` against era-based `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_*_NORMAL` thresholds. The cost returned by `getProductionNeeded` is not raw XML cost: `CvPlayer::getProductionNeeded(BuildingTypes)` multiplies building cost by the current game speed's `ConstructPercent` (along with the existing start-era/handicap adjustments).
+- **Fixed AdvCiv-SAS game-speed regression in the cheap-Wonder catch-up gate:** `CvCityAI::AI_buildingValue` compared `getProductionNeeded(eBuilding)` against the then-XML-tunable era-based cheap-Wonder thresholds. The cost returned by `getProductionNeeded` is not raw XML cost: `CvPlayer::getProductionNeeded(BuildingTypes)` multiplies building cost by the current game speed's `ConstructPercent` (along with the existing start-era/handicap adjustments).
 
 The cap therefore has to be scaled by the same game-speed factor to preserve the intended Normal-speed threshold.
 
@@ -12427,7 +12427,7 @@ The two corrections remain conceptually separable: the game-speed fix leaves Nor
 
 The later KI#48.9 Wonder-policy rework re-audited the cheap-Wonder catch-up mechanism itself. All 67 force hits in an isolated Tiny control and all 68 in earlier Pangaea evidence referred to Wonders already completed globally; disabling the `103000` force return preserved every successful early Wonder through turn 116, while its first demonstrated effect was distortion of research-path valuation and requested technologies.
 
-The force-first return and its live era-cost calculation were therefore retired. This does not restore the old no-Wonder failure: KI#205's inherited production-rank correction remains active, and genuinely available Wonders continue through inherited/additive valuation, normal production competition and completion-time-aware placement. Era-cost caps remain only in level-3 counterfactual diagnostics.
+The force-first return and its live era-cost calculation were therefore retired. This does not restore the old no-Wonder failure: KI#205's inherited production-rank correction remains active, and genuinely available Wonders continue through inherited/additive valuation, normal production competition and completion-time-aware placement. Era-cost caps remain only as compact DLL-local constants for level-3 counterfactual diagnostics, not XML tuning.
 
 Fixed/improved, validated in repeat Slow/Donut and Tiny-Islands autoplays, and documented with the help of ChatGPT-5.6-Sol and GPT-5.6-Sol, thanks.
 
