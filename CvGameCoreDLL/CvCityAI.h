@@ -34,8 +34,9 @@ public:
 
 	BuildingTypes AI_bestBuilding(int iFocusFlags = 0, int iMaxTurns = 0, bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR) const;
 	// <!-- custom: bRandomize preserves the inherited random wonder bonus and final 100-124% building-value multiplier by default.
-	// Pass false only for deterministic diagnostics/behavioral gates that must not consume ASyncRand or synchronized game RNG. See KI#197.13. (ChatGPT-5.6-Sol) -->
-	BuildingTypes AI_bestBuildingThreshold(int iFocusFlags = 0, int iMaxTurns = 0, int iMinThreshold = 0, bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR, bool bRandomize = true) const;
+	// Pass false only for deterministic diagnostics/behavioral gates that must not consume ASyncRand or synchronized game RNG.
+	// The optional output returns the winning same-pass post-turn selection score so a pre-gated realized-choice recorder does not rerun randomized valuation. See KI#197.13. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	BuildingTypes AI_bestBuildingThreshold(int iFocusFlags = 0, int iMaxTurns = 0, int iMinThreshold = 0, bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR, bool bRandomize = true, int* piBestValue = NULL) const;
 
 	/* int AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags = 0) const;
 	int AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags = 0, int iThreshold = 0) const; */

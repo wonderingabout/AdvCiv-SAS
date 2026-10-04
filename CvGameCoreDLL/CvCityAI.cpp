@@ -1715,24 +1715,79 @@ static int SAS_getMinimumSpaceshipComponentContinuityRank(CvCityAI const& kCity,
 	return iRank;
 }
 
-#define BUILDINGFOCUS_FOOD					(1 << 1)
-#define BUILDINGFOCUS_PRODUCTION			(1 << 2)
-#define BUILDINGFOCUS_GOLD					(1 << 3)
-#define BUILDINGFOCUS_RESEARCH				(1 << 4)
-#define BUILDINGFOCUS_CULTURE				(1 << 5)
-#define BUILDINGFOCUS_DEFENSE				(1 << 6)
-#define BUILDINGFOCUS_HAPPY					(1 << 7)
-#define BUILDINGFOCUS_HEALTHY				(1 << 8)
-#define BUILDINGFOCUS_EXPERIENCE			(1 << 9)
-#define BUILDINGFOCUS_MAINTENANCE			(1 << 10)
-#define BUILDINGFOCUS_SPECIALIST			(1 << 11)
-#define BUILDINGFOCUS_ESPIONAGE				(1 << 12)
-#define BUILDINGFOCUS_BIGCULTURE			(1 << 13)
-//#define BUILDINGFOCUS_WORLDWONDER			(1 << 14)
-#define BUILDINGFOCUS_WORLDWONDER			(1 << 14 | 1 << 16) // K-Mod (WORLDWONDER implies WONDEROK)
-#define BUILDINGFOCUS_DOMAINSEA				(1 << 15)
-#define BUILDINGFOCUS_WONDEROK				(1 << 16)
-#define BUILDINGFOCUS_CAPITAL				(1 << 17)
+// <!-- custom: While adding exact SASGameRecord building-choice provenance, replace the inherited BUILDINGFOCUS_* preprocessor constants with an ordinary local enum, paralleling the earlier AI-strategy diagnostic cleanup that replaced log_strat macros with type-safe C++.
+// Preserve every inherited bit exactly, including K-Mod's composite WORLDWONDER request, while the distinct internal bit lets multi-focus formatting name WORLDWONDER without mislabeling an ordinary WONDEROK request. Keep the type local because no subsystem outside CvCityAI owns or consumes this building-specific request mask. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+enum BuildingFocusTypes
+{
+	BUILDINGFOCUS_FOOD = (1 << 1),
+	BUILDINGFOCUS_PRODUCTION = (1 << 2),
+	BUILDINGFOCUS_GOLD = (1 << 3),
+	BUILDINGFOCUS_RESEARCH = (1 << 4),
+	BUILDINGFOCUS_CULTURE = (1 << 5),
+	BUILDINGFOCUS_DEFENSE = (1 << 6),
+	BUILDINGFOCUS_HAPPY = (1 << 7),
+	BUILDINGFOCUS_HEALTHY = (1 << 8),
+	BUILDINGFOCUS_EXPERIENCE = (1 << 9),
+	BUILDINGFOCUS_MAINTENANCE = (1 << 10),
+	BUILDINGFOCUS_SPECIALIST = (1 << 11),
+	BUILDINGFOCUS_ESPIONAGE = (1 << 12),
+	BUILDINGFOCUS_BIGCULTURE = (1 << 13),
+	BUILDINGFOCUS_WORLDWONDER_DISTINCT = (1 << 14),
+	BUILDINGFOCUS_DOMAINSEA = (1 << 15),
+	BUILDINGFOCUS_WONDEROK = (1 << 16),
+	BUILDINGFOCUS_WORLDWONDER = (BUILDINGFOCUS_WORLDWONDER_DISTINCT | BUILDINGFOCUS_WONDEROK),
+	BUILDINGFOCUS_CAPITAL = (1 << 17)
+};
+
+struct BuildingFocusDescriptor
+{
+	BuildingFocusTypes eFocus;
+	char const* szName;
+};
+
+// <!-- custom: C++ cannot reflect over this private bitmask. Keep its diagnostic iteration order and canonical names in one table so a future focus requires one new row rather than synchronized switch and array edits. (GPT-5.6-Sol) -->
+static BuildingFocusDescriptor const aBuildingFocusDescriptors[] =
+{
+	{ BUILDINGFOCUS_FOOD, "FOOD" },
+	{ BUILDINGFOCUS_PRODUCTION, "PRODUCTION" },
+	{ BUILDINGFOCUS_GOLD, "GOLD" },
+	{ BUILDINGFOCUS_RESEARCH, "RESEARCH" },
+	{ BUILDINGFOCUS_CULTURE, "CULTURE" },
+	{ BUILDINGFOCUS_DEFENSE, "DEFENSE" },
+	{ BUILDINGFOCUS_HAPPY, "HAPPY" },
+	{ BUILDINGFOCUS_HEALTHY, "HEALTHY" },
+	{ BUILDINGFOCUS_EXPERIENCE, "EXPERIENCE" },
+	{ BUILDINGFOCUS_MAINTENANCE, "MAINTENANCE" },
+	{ BUILDINGFOCUS_SPECIALIST, "SPECIALIST" },
+	{ BUILDINGFOCUS_ESPIONAGE, "ESPIONAGE" },
+	{ BUILDINGFOCUS_BIGCULTURE, "BIGCULTURE" },
+	{ BUILDINGFOCUS_WORLDWONDER_DISTINCT, "WORLDWONDER" },
+	{ BUILDINGFOCUS_DOMAINSEA, "DOMAINSEA" },
+	{ BUILDINGFOCUS_WONDEROK, "WONDEROK" },
+	{ BUILDINGFOCUS_CAPITAL, "CAPITAL" }
+};
+
+static char const* SAS_getBuildingFocusType(int iFocusFlag)
+{
+	for (int iI = 0; iI < (int)(sizeof(aBuildingFocusDescriptors) / sizeof(aBuildingFocusDescriptors[0])); iI++)
+	{
+		if (iFocusFlag == aBuildingFocusDescriptors[iI].eFocus)
+			return aBuildingFocusDescriptors[iI].szName;
+	}
+	return "-";
+}
+
+// <!-- custom: Decode combined focus requests through the canonical local descriptor table; shared GameCoreUtils owns only generic token-list assembly. (GPT-5.6-Sol) -->
+static CvString SAS_getBuildingFocusNames(int iFocusFlags)
+{
+	CvString szFocus;
+	for (int iI = 0; iI < (int)(sizeof(aBuildingFocusDescriptors) / sizeof(aBuildingFocusDescriptors[0])); iI++)
+	{
+		if (iFocusFlags & aBuildingFocusDescriptors[iI].eFocus)
+			appendSASDiagnosticListValue(szFocus, aBuildingFocusDescriptors[iI].szName, "|");
+	}
+	return (szFocus.empty() ? CvString("NONE") : szFocus);
+}
 
 // <!-- custom: Diagnostic-only representative contemporary land-military cost for building-vs-unit opportunity analysis.
 // Sample the best trainable unit for several common combat roles, deduplicate units that serve multiple roles, and average their city-specific production costs.
@@ -2432,9 +2487,13 @@ void CvCityAI::AI_chooseProduction()
 {
 	PROFILE_FUNC();
 
+	int const iSASGameRecordLogLevel = gGameRecordLogLevel;
+	bool const bLogSASBuildingChoices = (iSASGameRecordLogLevel >= 2 && !isHuman() && !isBarbarian());
+	bool const bLogDetailedSASBuildingChoices = (bLogSASBuildingChoices && iSASGameRecordLogLevel >= 3);
+	// <!-- custom: SASGameRecord building-choice emitters intentionally trust caller-side log-level gating: level 0/1 pays no focus formatting or recorder call, and the readable focus list is built only for level 3. Keep this explicit contract rather than hiding a second log-level check/assert inside the emitter. (ChatGPT-5.6-Sol) -->
 	// <!-- custom: One scope observes the authoritative entry/final head target across every early return.
 	// Only civilization AI cities at SASGameRecord level 2+ capture state; ordinary completion -> fresh next selection is suppressed as non-churn. (ChatGPT-5.6-Sol) -->
-	SASGameRecordAIProductionChoiceScope kSASGameRecordProductionChoiceScope(*this, gGameRecordLogLevel >= 2 && !isHuman() && !isBarbarian());
+	SASGameRecordAIProductionChoiceScope kSASGameRecordProductionChoiceScope(*this, bLogSASBuildingChoices);
 	SASSpaceProductionReevaluationLogScope kSASSpaceProductionReevaluationLogScope(*this, gSpaceProductionLogLevel >= 2);
 	SASLimitedProjectProductionReevaluationLogScope kSASLimitedProjectProductionReevaluationLogScope(*this, gLimitedProjectProductionLogLevel >= 2);
 	bool bWasFoodProduction = isFoodProduction();
@@ -3020,6 +3079,7 @@ void CvCityAI::AI_chooseProduction()
 			if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d %S city=%S stage=BORDER_CULTURE_SWIFT building=%s buildingValue=%d turns=%d chosen=1",
 				kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, GC.getInfo(eBestBuilding).getType(),
 				iBestBuildingValue, iProductionTurns);
+			if (bLogSASBuildingChoices) logSASGameRecordAIBuildingChoice(*this, eBestBuilding, SAS_AI_BUILDING_CHOICE_BORDER_CULTURE_SWIFT, BUILDINGFOCUS_CULTURE, bLogDetailedSASBuildingChoices, bLogDetailedSASBuildingChoices ? SAS_getBuildingFocusNames(BUILDINGFOCUS_CULTURE).GetCString() : NULL, -1, -1, iBestBuildingValue, -1, -1);
 			pushOrder(ORDER_CONSTRUCT, eBestBuilding);
 			return;
 		} // K-Mod end
@@ -3035,6 +3095,7 @@ void CvCityAI::AI_chooseProduction()
 			if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d %S city=%S stage=BORDER_CULTURE_SLOW building=%s buildingValue=%d turns=%d pop=%d chosen=1",
 				kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, GC.getInfo(eBestBuilding).getType(),
 				iBestBuildingValue, iProductionTurns, iCityPopulation);
+			if (bLogSASBuildingChoices) logSASGameRecordAIBuildingChoice(*this, eBestBuilding, SAS_AI_BUILDING_CHOICE_BORDER_CULTURE_SLOW, BUILDINGFOCUS_CULTURE, bLogDetailedSASBuildingChoices, bLogDetailedSASBuildingChoices ? SAS_getBuildingFocusNames(BUILDINGFOCUS_CULTURE).GetCString() : NULL, -1, -1, iBestBuildingValue, -1, -1);
 			pushOrder(ORDER_CONSTRUCT, eBestBuilding);
 			return;
 		} // </advc.192>
@@ -3131,6 +3192,7 @@ void CvCityAI::AI_chooseProduction()
 					kFortificationThreat.iVisibleAttackers, kFortificationThreat.iVisibleSlowAttackers, kFortificationThreat.iVisibleBombarders,
 					kFortificationThreat.iAffectedByBuildingDefense, kFortificationThreat.iIgnoreBuildingDefense,
 					kFortificationThreat.iNearestAttackerDistance, kWarPower.iEnemyPowerPercent);
+			if (bLogSASBuildingChoices) logSASGameRecordAIBuildingChoice(*this, eFortification, SAS_AI_BUILDING_CHOICE_PROACTIVE_FORTIFICATION, BUILDINGFOCUS_DEFENSE, bLogDetailedSASBuildingChoices, bLogDetailedSASBuildingChoices ? SAS_getBuildingFocusNames(BUILDINGFOCUS_DEFENSE).GetCString() : NULL, -1, -1, -1, -1, -1);
 			pushOrder(ORDER_CONSTRUCT, eFortification);
 			return;
 		}
@@ -4850,6 +4912,7 @@ void CvCityAI::AI_chooseProduction()
 				if (eBestWonder != NO_BUILDING && iBestWonderValue >= iBestBuildingValue)
 				{
 					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses opportunistic wonder build 2", sCityName);
+					if (bLogSASBuildingChoices) logSASGameRecordAIBuildingChoice(*this, eBestWonder, SAS_AI_BUILDING_CHOICE_OPPORTUNISTIC_WONDER, BUILDINGFOCUS_WORLDWONDER, bLogDetailedSASBuildingChoices, bLogDetailedSASBuildingChoices ? SAS_getBuildingFocusNames(BUILDINGFOCUS_WORLDWONDER).GetCString() : NULL, -1, -1, iBestWonderValue, -1, -1);
 					pushOrder(ORDER_CONSTRUCT, eBestWonder);
 					return;
 				} // K-Mod end
@@ -7270,10 +7333,12 @@ BuildingTypes CvCityAI::AI_bestBuilding(int iFocusFlags, int iMaxTurns, bool bAs
 }
 
 // <!-- custom: bRandomize=true retains AI_bestBuildingThreshold's inherited random wonder bonus and final value multiplier.
-// Deterministic callers pass false so logging and production vetoes neither depend on non-synchronized ASyncRand nor perturb the synchronized game RNG stream. See KI#197.13. (ChatGPT-5.6-Sol) -->
-BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns, int iMinThreshold, bool bAsync, AdvisorTypes eIgnoreAdvisor, bool bRandomize) const
+// Deterministic callers pass false so logging and production vetoes neither depend on non-synchronized ASyncRand nor perturb the synchronized game RNG stream.
+// piBestValue optionally exposes the same-pass post-turn winning score without repeating valuation or RNG; the distinct fastest-capital path has no comparable score and leaves -1. See KI#197.13. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns, int iMinThreshold, bool bAsync, AdvisorTypes eIgnoreAdvisor, bool bRandomize, int* piBestValue) const
 {
 	PROFILE_FUNC(); // advc.opt
+	if (piBestValue != NULL) *piBestValue = -1;
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
 
 	bool bAreaAlone = kOwner.AI_isAreaAlone(getArea());
@@ -7623,6 +7688,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 			}
 		}
 	}
+	if (piBestValue != NULL) *piBestValue = iBestValue;
 	return eBestBuilding;
 }
 
@@ -17006,16 +17072,13 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 					bool const bNeededWouldReject = (eNeededBuilding != NO_BUILDING);
 					if (gBuildingProductionLogLevel >= 2)
 					{
-						char const* szFocus = (iNeededFocusFlags == BUILDINGFOCUS_HEALTHY ? "HEALTH" :
-							iNeededFocusFlags == BUILDINGFOCUS_HAPPY ? "HAPPINESS" :
-							iNeededFocusFlags == BUILDINGFOCUS_MAINTENANCE ? "MAINTENANCE" : "-");
 						logBBAI("BUILDING_PRODUCTION_CHEAP_NEED_GATE turn=%d player=%d %S city=%S cityId=%d enabled=%d wouldReject=%d actualReject=%d unit=%s unitAI=%s unitTurns=%d unitSpending=%d maxUnitSpending=%d spendingGap=%d minSpendingOverMax=%d building=%s focus=%s buildingValue=%d buildingTurns=%d buildingToUnitTurnsPercent=%d maxBuildingToUnitProductionTimePercent=%d happySurplus=%d healthSurplus=%d maintenanceTimes100=%d minMaintenanceTimes100=%d minMaintenanceValue=%d primaryArea=%d areaAI=%d atWar=%d anyWarPlan=%d danger=%d defenders=%d neededDefenders=%d underDefended=%d settlerEscortContext=%d militaryVictoryPush=%d militaryStrategyPush=%d vassal=%d",
 							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
 							bSASCheapNeededInfrastructureOptimize, bNeededWouldReject,
 							bSASCheapNeededInfrastructureOptimize && bNeededWouldReject, GC.getInfo(eChangedUnit).getType(),
 							GC.getInfo(eChangedUnitAI).getType(), iNeededUnitTurns, iUnitSpending, iMaxUnitSpending,
 							iMaxUnitSpending - iUnitSpending, iNeededMinUnitSpendingOverMax,
-							(eNeededBuilding == NO_BUILDING ? "-" : GC.getInfo(eNeededBuilding).getType()), szFocus, iNeededBuildingValue,
+							(eNeededBuilding == NO_BUILDING ? "-" : GC.getInfo(eNeededBuilding).getType()), SAS_getBuildingFocusType(iNeededFocusFlags), iNeededBuildingValue,
 							iNeededBuildingTurns,
 							(iNeededUnitTurns <= 0 || iNeededBuildingTurns < 0 ? -1 : (100 * iNeededBuildingTurns) / iNeededUnitTurns),
 							iNeededMaxBuildingToUnitProductionTimePercent, happyLevel() - unhappyLevel(), goodHealth() - badHealth(),
@@ -17046,17 +17109,13 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 					bool const bHighReturnWouldReject = (eHighReturnBuilding != NO_BUILDING);
 					if (gBuildingProductionLogLevel >= 2)
 					{
-						char const* szFocus = (iHighReturnFocusFlags == BUILDINGFOCUS_FOOD ? "FOOD" :
-							iHighReturnFocusFlags == BUILDINGFOCUS_PRODUCTION ? "PRODUCTION" :
-							iHighReturnFocusFlags == BUILDINGFOCUS_GOLD ? "GOLD" :
-							iHighReturnFocusFlags == BUILDINGFOCUS_RESEARCH ? "RESEARCH" : "-");
 						logBBAI("BUILDING_PRODUCTION_CHEAP_HIGH_RETURN_GATE turn=%d player=%d %S city=%S cityId=%d enabled=%d wouldReject=%d actualReject=%d unit=%s unitAI=%s unitTurns=%d unitSpending=%d maxUnitSpending=%d spendingOverMax=%d minSpendingOverMax=%d building=%s focus=%s focusedValue=%d baseValue=%d focusValueGain=%d minFocusedValue=%d minFocusValueGain=%d buildingTurns=%d buildingToUnitTurnsPercent=%d maxBuildingToUnitProductionTimePercent=%d primaryArea=%d areaAI=%d atWar=%d anyWarPlan=%d danger=%d defenders=%d neededDefenders=%d underDefended=%d settlerEscortContext=%d militaryVictoryPush=%d militaryStrategyPush=%d vassal=%d",
 							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
 							bSASCheapHighReturnInfrastructureOptimize, bHighReturnWouldReject,
 							bSASCheapHighReturnInfrastructureOptimize && bHighReturnWouldReject, GC.getInfo(eChangedUnit).getType(),
 							GC.getInfo(eChangedUnitAI).getType(), iHighReturnUnitTurns, iUnitSpending, iMaxUnitSpending,
 							iUnitSpending - iMaxUnitSpending, iHighReturnMinUnitSpendingOverMax,
-							(eHighReturnBuilding == NO_BUILDING ? "-" : GC.getInfo(eHighReturnBuilding).getType()), szFocus,
+							(eHighReturnBuilding == NO_BUILDING ? "-" : GC.getInfo(eHighReturnBuilding).getType()), SAS_getBuildingFocusType(iHighReturnFocusFlags),
 							iHighReturnFocusedValue, iHighReturnBaseValue, iHighReturnFocusValueGain, iHighReturnMinFocusedBuildingValue,
 							iHighReturnMinFocusValueGain, iHighReturnBuildingTurns,
 							(iHighReturnUnitTurns <= 0 || iHighReturnBuildingTurns < 0 ? -1 : (100 * iHighReturnBuildingTurns) / iHighReturnUnitTurns),
@@ -17371,8 +17430,14 @@ bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThresho
 {
 	bool const bLogDetailedMilitaryProduction = (gMilitaryProductionLogLevel >= 3 && !isHuman() && !isBarbarian());
 	bool const bLogPalaceFocus = (gBuildingProductionLogLevel >= 3 && (iFocusFlags & BUILDINGFOCUS_CAPITAL) != 0);
+	int const iSASGameRecordLogLevel = gGameRecordLogLevel;
+	bool const bLogSASBuildingChoice = (iSASGameRecordLogLevel >= 2 && !isHuman() && !isBarbarian());
+	bool const bLogDetailedSASBuildingChoice = (bLogSASBuildingChoice && iSASGameRecordLogLevel >= 3);
+	// <!-- custom: Match AI_chooseProduction's recorder contract: level 2 gates the realized-choice hook and optional winning-score output once; only level 3 formats the private BUILDINGFOCUS_* names. The emitter deliberately trusts these caller-side gates. (ChatGPT-5.6-Sol) -->
+	int iBestBuildingSelectionScore = -1;
 	BuildingTypes eBestBuilding = NO_BUILDING; // advc
-	eBestBuilding = AI_bestBuildingThreshold(iFocusFlags, iMaxTurns, iMinThreshold);
+	// <!-- custom: The optional output only stores the winning score from this already-required randomized pass; SASGameRecord never repeats building valuation or RNG. (GPT-5.6-Sol) -->
+	eBestBuilding = AI_bestBuildingThreshold(iFocusFlags, iMaxTurns, iMinThreshold, false, NO_ADVISOR, true, bLogSASBuildingChoice ? &iBestBuildingSelectionScore : NULL);
 	if (eBestBuilding != NO_BUILDING)
 	{
 		// <!-- custom: try to prevent barbarians from building world wonders, their purpose is to fight not to compete for wonders no matter how well they are developped, at least in advciv-sas, increasing iBuildUnitProb to 100 and using NONE in civilizations info xml file seem to be no good or not always reliable/consistent as they still build world wonders in some cases and quite often, so patching the DLL rather hopefully helps reliably solve this, with chatgpt's help thanks. -->
@@ -17397,6 +17462,7 @@ bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThresho
 			std::max(1, getProductionNeeded(eBestBuilding)))
 		// K-Mod end
 		{
+			if (bLogSASBuildingChoice) logSASGameRecordAIBuildingChoice(*this, eBestBuilding, SAS_AI_BUILDING_CHOICE_HELPER, iFocusFlags, bLogDetailedSASBuildingChoice, bLogDetailedSASBuildingChoice ? SAS_getBuildingFocusNames(iFocusFlags).GetCString() : NULL, iMaxTurns, iMinThreshold, iBestBuildingSelectionScore, iOdds, iRand);
 			if (bLogDetailedMilitaryProduction)
 			{
 				int const iProductionStoredForLog = getBuildingProduction(eBestBuilding);

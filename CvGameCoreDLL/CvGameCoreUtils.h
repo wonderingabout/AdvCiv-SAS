@@ -116,7 +116,10 @@ CvWString getSASDiagnosticQuoted(wchar const* szValue);
 CvString getSASDiagnosticOrDash(CvString const& szValue);
 // <!-- custom: Serialize one integer for shared diagnostic fields without recorder-specific wrappers. (ChatGPT-5.6-Sol) -->
 CvString getSASDiagnosticIntText(int iValue);
-// <!-- custom: Append one integer to a comma-separated diagnostic list without duplicating list plumbing across logs. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Append one already-decoded diagnostic token with a caller-selected separator.
+// Keep semantic translators near the subsystem that owns their enum/bit layout; only this generic list plumbing belongs in shared GameCoreUtils. (ChatGPT-5.6-Sol) -->
+void appendSASDiagnosticListValue(CvString& szList, char const* szValue, char const* szSeparator = ",");
+// <!-- custom: Append one integer to a comma-separated diagnostic list through the shared token-list helper. (ChatGPT-5.6-Sol) -->
 void appendSASDiagnosticIntListValue(CvString& szList, int iValue);
 // <!-- custom: Construct the common timestamp/context/active-player diagnostic filename while each log retains its own rollover/session state. (ChatGPT-5.6-Sol) -->
 CvString getSASDiagnosticLogName(char const* szBaseName, CvString const& szTimestamp, CvString const& szContext, bool bTimestamped);
@@ -210,6 +213,14 @@ char const* getSASTechAcquisitionCause(TechAcquisitionCause eCause); // <!-- cus
 char const* getSASResearchTargetChangeCause(ResearchTargetChangeCause eCause); // <!-- custom: Shared stable labels for factual research-target redirection causes so SASGameRecord and later diagnostics can reuse one vocabulary. (ChatGPT-5.6-Sol) -->
 char const* getSASAutoPlayEndCause(SASAutoPlayEndCause eCause); // <!-- custom: Shared stable labels for explicit AI Auto Play completion causes so later diagnostics can reuse the enum without depending on SASGameRecord. See KI#203. (GPT-5.6-Sol) -->
 char const* getSASMemoryType(MemoryTypes eMemory); // <!-- custom: Shared raw enum-token text for diplomatic memories because static enum values have no CvInfo type strings. (GPT-5.6-Sol) -->
+// <!-- custom: One shared iterable AIStrategy value/name vocabulary replaces both preprocessor/range-based iteration and duplicated diagnostic naming; friendly UI prose remains separate. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+struct SASAIStrategyDescriptor
+{
+	AIStrategy eStrategy;
+	char const* szType;
+};
+int getSASAIStrategyDescriptorCount();
+SASAIStrategyDescriptor const& getSASAIStrategyDescriptor(int iIndex);
 char const* getSASAIStrategyType(AIStrategy eStrategy); // <!-- custom: Shared raw enum-token text for AIStrategy because the static bitfield enum has no CvInfo type strings; BBAI and SASGameRecord use one diagnostic vocabulary without preprocessor stringification. (ChatGPT-5.6-Sol) -->
 char const* getSASAreaAIType(AreaAITypes eAreaAI); // <!-- custom: Shared raw enum-token text for AreaAITypes so SASGameRecord and detailed AI diagnostics can describe theater posture without opaque enum integers. (ChatGPT-5.6-Sol) -->
 int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4); // <!-- custom: Shared victory-stage bitfield helper for compact AI victory diagnostics without repeating AI_atVictoryStage checks. (GPT-5.5) -->
