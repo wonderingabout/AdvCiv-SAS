@@ -99,6 +99,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.16 - (Improved old SAS/K-Mod/AdvC AI National-Wonder specialization policy) Heroic Epic force-first distorted research; useful specialization migrated into additive throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.16)\
 [KI#48.17 - (Improved inherited K-Mod/AdvC AI Government Center valuation weakness) A local maintenance proxy missed the best empire-wide placement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.17)\
 [KI#48.18 - (Fixed inherited K-Mod/AdvC AI Palace-relocation economic defect) Area-population heuristics could move the Palace while increasing empire maintenance](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.18)\
+[KI#48.19 - (Improved inherited K-Mod/AdvC AI Wonder opportunity-cost weakness and fixed old-SAS planning defect) National Park military pressure was either ignored or hard-zeroed across current and prospective valuation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.19)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
@@ -4370,7 +4371,7 @@ A three-way Pangaea test therefore compared no veto, the historical blanket veto
 
 Of **6,974** currently constructible pressured evaluations, it allowed **6,083 (about 87%)** and rejected only **891** danger/strong-enemy cases. Nine National Parks completed, including several under ordinary war/war-plan state, with zero National-Park production-invalidated losses; a severely pressured later Uxmal instead selected Mechanized Infantry.
 
-The permanent rule consequently removes `bAtWar` and `bWarPlan` from the hard rejection while retaining `bDanger || bEnemyStrong`. Detailed level-3 diagnostics remain to distinguish flexible wartime construction from the narrow safety floor without adding work when building-production logging is disabled.
+The rule tested at this stage consequently removed `bAtWar` and `bWarPlan` from the hard rejection while retaining `bDanger || bEnemyStrong`. Detailed level-3 diagnostics distinguished flexible wartime construction from the narrow safety floor without adding work when building-production logging was disabled. KI#48.19 subsequently translated that remaining hard rejection into a continuous current-production value adjustment.
 
 ### National Park resilience and inherited-placement diagnostics
 
@@ -4430,7 +4431,7 @@ The first research-value difference appeared on turn 200, while CORE state and s
 
 This completes retirement of the old top-two-population, population-12 and current-health eligibility cliffs.
 
-Inherited valuation can price both population-health relief and improvement-granted free specialists, inherited cross-city placement reserves a substantially stronger destination, and ordinary production competition rejects low-return opportunities. The separately validated `danger || enemyStrong` safety floor remains active.
+Inherited valuation can price both population-health relief and improvement-granted free specialists, inherited cross-city placement reserves a substantially stronger destination, and ordinary production competition rejects low-return opportunities. The separately validated `danger || enemyStrong` signal remained active at this stage; KI#48.19 subsequently retained the signal while replacing its hard rejection with contextual value.
 
 ### Dead generic National-Wonder and unknown-Wonder branches
 
@@ -4442,7 +4443,7 @@ The adjacent unknown-Wonder branches are impossible because their surrounding sc
 
 The same-build mode-0/mode-1 histories remained identical through turn 344: all 349 RNG checkpoints, 349 CORE fingerprints, 1,003 research decisions, 541 production-pipeline rows, 529 production-flow rows and 410 parked-production snapshots matched.
 
-The dead pressure branch, impossible unknown-Wonder branches, unused selector and three dead XML knobs were removed. National Park's independently validated safety floor was unaffected.
+The dead pressure branch, impossible unknown-Wonder branches, unused selector and three dead XML knobs were removed. National Park's independently validated safety floor was unaffected by this cleanup and was subsequently translated into contextual value by KI#48.19.
 
 ### Production-Wonder placement follow-up: retire the top-HPT hard gate
 
@@ -4462,6 +4463,30 @@ The gate was thus affecting planning without preventing any demonstrated bad pro
 
 Retire the hard return and rely on inherited limited-building placement plus ordinary production competition. Its temporary selector/logger, live production-modifier scan and per-player/per-turn top-HPT cache were removed from the gameplay hot path; the permanent level-3 Wonder audit retains independent historical top-city context.
 
+### National Park military-pressure follow-up: translate the final hard rejection into contextual value (KI#48.19)
+
+The earlier audit retained `bDanger || bEnemyStrong` as a narrow hard safety floor after a fully permissive candidate let underdefended Uxmal abandon an invested Mechanized Infantry for a 13-turn National Park.
+
+That protected the demonstrated failure, but still made a useful building worth exactly zero, suppressed prospective Biology/National Park value whenever current military pressure happened to be present and bypassed ordinary production competition.
+
+The final Pangaea A/B replaced only that hard rejection with a transient current-production discount. The ordinary inherited K-Mod/AdvC construction value and reusable cache remain unchanged; prospective technology evaluation deliberately receives no current military-pressure penalty.
+
+For actual production, the discount rises continuously with remaining turns and danger/enemy strength, while already-invested production reduces the penalty. The raw penalty remains below 100%, and a positive inherited value is clamped to at least 1 after integer arithmetic so truncation cannot silently recreate the retired zero gate.
+
+Candidate mode recorded **660 pressured National Park value adjustments**. None of the candidate's **62 National Park best-building opportunities** or **22 final National Park production choices** occurred under `bDanger || bEnemyStrong`, showing that inherited placement and normal production competition still rejected the pressured builds without categorical erasure.
+
+Mayapan supplied a direct transition. It legitimately started a seven-turn National Park while health was -6 and no military-pressure condition applied. One turn later, after storing **47/270 hammers**, enemy power rose to 276% and `bEnemyStrong` became true.
+
+Its inherited value 220 was discounted to 118; Public Transportation became the better building opportunity and final production switched naturally to SAM Infantry. The invested hammers softened rather than defeated the pressure response.
+
+Uxmal likewise received repeated meaningful but discounted values under `bEnemyStrong` (including **84 -> 47**, **107 -> 59**, **248 -> 148** and **180 -> 86**) while actual production continued to choose Cannon, SAM Infantry, Cuirassiers and Infantry instead of reproducing the earlier dangerous diversion.
+
+The prospective-planning correction was independently visible. On turn 179, while CORE state and synchronized RNG still matched, Carthage's candidate path could see Biology with value 459 whereas the control's hard gate redirected the future aim to Chemistry with value 450.
+
+The immediate requested technology remained Gunpowder in both histories; the first CORE-state and semantic RNG divergence occurred only on turn 205 and the first different requested technology on turn 206.
+
+The old `return 0`, its temporary A/B selector and the final SAS Wonder-policy master are therefore removed. National Park retains an evidence-backed military opportunity-cost response, but now through contextual inherited value rather than a hard gate. Permanent pressure/resilience diagnostics remain available for future audits. See KI#48.19. (ChatGPT-5.6-Sol + GPT-5.6-Sol)
+
 ### Final cleanup and regression work
 
 The current direction is gradual migration rather than another monolithic replacement:
@@ -4469,7 +4494,7 @@ The current direction is gradual migration rather than another monolithic replac
 - keep Heroic Epic on its actual military-only production semantics; KI#48.16 retired its force-first war sentinel and migrated useful specialization into additive throughput valuation, while the subsequent top-production gate audit proved redundant and was retired;
 - keep KI#48.15's completion-time-aware inherited World-Wonder placement as the validated relative-production replacement; both the separate hard coastal-city minimum and the production-Wonder top-HPT placement gate are now retired;
 - retain KI#48.13's tested `DOMAIN_LAND` throughput support as generic/modmod-safe infrastructure even if current SAS has no permanent land-domain production consumer; `DOMAIN_AIR` throughput amount and domain-specific AIR XP remain separate future audits rather than symmetry-driven changes;
-- retain National Park's narrow `danger || enemyStrong` safety floor, while relying on inherited valuation and placement instead of the retired population-rank, minimum-population and current-health cliffs;
+- retain KI#48.19's continuous National Park current-production military-pressure adjustment, while leaving inherited/cached and prospective technology value unchanged and relying on inherited placement instead of the retired population-rank, minimum-population and current-health cliffs;
 - finish focused source/configuration cleanup of empty retired branches, stale selectors/defines/comments and sentinel remnants, verifying that every remaining `SAS_AI_BUILDING_VALUE_*WONDER*` define has a real consumer;
 - preserve useful level-3 forensic diagnostics, then run one integrated Tiny-Islands and one Pangaea regression under permanent settings before closing the migration.
 
@@ -5271,6 +5296,34 @@ A narrow A/B changed only the minimum two-city allowance from six to nine turns.
 The inherited `3 * candidate-area cities` limit is therefore retained as commitment-risk protection. The rejected test demonstrates why an economically attractive relocation snapshot is insufficient when completion is slow enough for strategic priorities to change; the uncapped Palace timing remains in level-3 diagnostics for future regression evidence.
 
 This is an inherited K-Mod/AdvC Palace-relocation blind spot exposed during the KI#48.9 SAS Wonder-policy rework. The projected-maintenance audit and narrow permanent safeguard were developed and analyzed with the help of ChatGPT-5.6-Sol and GPT-5.6-Sol, using BBAI diagnostics and deterministic SASGameRecord comparison, with testing and review by wonderingabout, thanks.
+
+<a id="ki-48.19"></a>
+
+## KI#48.19 - (Improved inherited K-Mod/AdvC AI Wonder opportunity-cost weakness and fixed old-SAS planning defect) National Park military pressure was either ignored or hard-zeroed across current and prospective valuation
+
+The KI#48.9 Wonder-policy audit exposed opposite weaknesses in inherited K-Mod/AdvC valuation and the old SAS correction. Inherited valuation had no National-Park-specific military opportunity cost, while old SAS returned zero under broad war states and ultimately under the narrower `danger || enemyStrong` signal. The inherited route could therefore pursue a long Park while urgently needing defenders; the old SAS route prevented that failure only by erasing all current and prospective value instead of letting the building compete at an appropriate discount.
+
+The failure was causal, not theoretical. In a fully permissive Pangaea test, underdefended Uxmal faced enemy power at 1,213%, had **93/216 hammers** invested in a Mechanized Infantry with about six turns remaining, yet switched to a 13-turn National Park. It later resumed and completed the Park, delayed the defender until turn 320 and contracted from five cities to three. This established that immediate danger and materially stronger enemies carry real Wonder opportunity cost.
+
+The first SAS refinement retained those two signals as a hard safety floor while removing ordinary war and war-plan state from the rejection. That prevented Uxmal's failure, but the surviving `return 0` still bypassed normal production competition and suppressed prospective Biology/National Park value whenever transient current pressure happened to be present.
+
+The permanent correction preserves inherited construction value and its reusable cache, then applies a continuous military-pressure discount only when returning a current production value. Remaining turns and immediate danger/enemy strength increase the penalty; stored production reduces it so that a nearly completed Park is not abandoned merely because pressure appeared this turn. The penalty stays below 100%, and a positive inherited value is clamped to at least 1 after integer arithmetic because a fractional penalty could otherwise truncate a small value to zero and silently recreate the retired gate. Prospective technology evaluation receives no transient current-production penalty.
+
+### Deterministic validation
+
+The Pangaea candidate recorded **660 pressured National Park value adjustments**. None of its **62 National Park best-building opportunities** or **22 final National Park production choices** occurred under `danger || enemyStrong`, demonstrating that inherited placement and ordinary production competition still rejected the pressured builds without categorical erasure.
+
+Mayapan legitimately began a seven-turn National Park at health -6 without military pressure. One turn later, after storing **47/270 hammers**, enemy power rose to 276% and `enemyStrong` became true. Its inherited value 220 was discounted to 118; Public Transportation became the better building opportunity, and final production switched naturally to SAM Infantry. The invested hammers softened rather than defeated the pressure response.
+
+Uxmal likewise retained meaningful but discounted values under strong-enemy pressure, including **84 -> 47**, **107 -> 59**, **248 -> 148** and **180 -> 86**, while actual production selected Cannon, SAM Infantry, Cuirassiers and Infantry rather than reproducing the dangerous diversion.
+
+The positive-value clamp affected 12 pressured evaluations that integer arithmetic would otherwise have reduced to zero, including Agra **14 -> 1**, Cuman **14 -> 1** and Chicago **12 -> 1**. This verified that the implementation remained a smooth valuation adjustment even at low inherited values.
+
+The planning correction was independently visible before gameplay diverged. On turn 179, while CORE state and synchronized RNG still matched, Carthage's candidate path could value Biology at 459 whereas the hard-gate control aimed for Chemistry at 450. Both still requested Gunpowder immediately; CORE state and semantic synchronized RNG first diverged only on turn 205, and the first requested-technology difference occurred on turn 206.
+
+The result improves inherited K-Mod/AdvC current-production opportunity cost while fixing old SAS's current/prospective hard-zero planning defect. It does not restore the retired monolithic Wonder policy: broad war state remains ordinary production competition, inherited placement remains authoritative, and the pressure adjustment is confined to the demonstrated National-Park-style case.
+
+This inherited weakness and old-SAS overcorrection were isolated during the KI#48.9 Wonder-policy rework. The correction and deterministic A/B analysis were developed with the help of ChatGPT-5.6-Sol and GPT-5.6-Sol, using BBAI diagnostics and SASGameRecord comparison, with testing and review by wonderingabout, thanks.
 
 <a id="ki-49"></a>
 

@@ -2073,11 +2073,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Master switch for the remaining live SAS Wonder-value safety policy. 1 keeps the evidence-backed National-Park danger/enemy-strong safeguard; 0 leaves Wonder valuation entirely to inherited logic. Historical policy diagnostics can still report retired-rule context at level 3. See KI#48.9. (ChatGPT-5.6-Sol) -->
-	<Define>
-		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
 	<!-- custom: KI#48.5 audit-only legacy thresholds: the live era-only anti-Barbarian veto is retired, but level-3 diagnostics still use these values to report what the old rule would have done. Remove these defines when the Wonder audit no longer needs that counterfactual. (ChatGPT-5.6-Sol) -->
 	<!-- custom: Long_Comments_XML.txt #162 -->
 	<!-- custom: Historical rule: if value is 0 (disabled), the old SAS policy rejected Great-Wall-style border Wonders after the specified era index. (ChatGPT-5.6-Sol) -->
