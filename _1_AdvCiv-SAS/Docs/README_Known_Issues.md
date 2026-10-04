@@ -4487,6 +4487,18 @@ The immediate requested technology remained Gunpowder in both histories; the fir
 
 The old `return 0`, its temporary A/B selector and the final SAS Wonder-policy master are therefore removed. National Park retains an evidence-backed military opportunity-cost response, but now through contextual inherited value rather than a hard gate. Permanent pressure/resilience diagnostics remain available for future audits. See KI#48.19. (ChatGPT-5.6-Sol + GPT-5.6-Sol)
 
+### Invested-Wonder continuation follow-up: restore the inherited threshold
+
+The remaining old SAS policy replaced K-Mod's invested-limited-building continuation formula with separate World/National-Wonder thresholds for immediate danger, war plans, current war and relative enemy power. This matrix was not consistently more or less conservative: depending on its branch, it could interrupt a World Wonder that inherited logic retained or continue National Wonders that inherited land-war logic released.
+
+A same-build Pangaea A/B logged both outcomes while selecting one rule. The histories first diverged on turn 66 at their first disagreement: Beijing was in immediate danger with **71/150 hammers** invested in Oracle, 47% complete with four turns remaining. The inherited threshold was 25% and continued it; the old SAS danger threshold was 70% and released it.
+
+The inherited control safely completed Oracle on turn 69. Old SAS instead parked its 71 hammers, completed an attacking Longbowman on turn 68, completed a Worker on turn 71, then resumed Oracle and completed it on turn 76. Beijing survived in the inherited control, so the observed seven-turn delay did not prevent a safety failure.
+
+The later histories diverged too widely for their common team-7 Space victories on turns 318 and 394 to measure this policy's independent strength. The causal opening nevertheless provided no evidence that the larger SAS matrix corrected an inherited weakness, while directly reproducing unnecessary production interruption and making continuation direction depend on several unrelated cliffs.
+
+Restore K-Mod/AdvC's simpler threshold: 25% base, +40 percentage points during land war, +25 during Turtle strategy and +10 for a non-World limited building. Remove the temporary selector and old SAS matrix. A compact level-3 `INVESTED_WONDER_CONTINUATION` row retains the actual completion, threshold and contextual inputs for future regression evidence without computing the retired counterfactual policy. (GPT-5.6-Sol)
+
 ### Final cleanup and regression work
 
 The current direction is gradual migration rather than another monolithic replacement:

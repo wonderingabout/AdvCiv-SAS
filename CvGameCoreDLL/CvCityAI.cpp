@@ -2607,108 +2607,32 @@ void CvCityAI::AI_chooseProduction()
 						return;
 				}
 			}
-			// // if we are building a wonder, do not cancel, keep building it (if no danger)
-			// /*BuildingTypes eProductionBuilding = getProductionBuilding();
-			// if (!bDanger && eProductionBuilding != NO_BUILDING && CvBuildingInfo::isLimited(eProductionBuilding))
-			// 	return;*/ // BtS
-			// <!-- custom: we definitely want to tighten this, if we are weak, don't build wonders for our ennemies when they conquer us, ditch current building production and try to produce a few longbowmen or such rather, and if strong and at war, maybe urgency is not world wonders as well but making sure we are effective in our war, so adjust thresholds for this; code written by chatgpt 5 with my adjustments or such, check if accurate -->
-			// // K-Mod. same idea, but with a few more conditions
-			BuildingTypes eProductionBuilding = getProductionBuilding();
+			BuildingTypes const eProductionBuilding = getProductionBuilding();
 			if (eProductionBuilding != NO_BUILDING && GC.getInfo(eProductionBuilding).isLimited())
-			// {
-			// 	int iCompletion = 100*getBuildingProduction(eProductionBuilding) /
-			// 			std::max(1, getProductionNeeded(eProductionBuilding));
-			// 	int iThreshold = 25;
-			// 	iThreshold += kPlayer.AI_isLandWar(kArea) ? 40 : 0;
-			// 	iThreshold += kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE) ? 25 : 0; // (in addition to land war)
-			// 	iThreshold += !GC.getInfo(eProductionBuilding).isWorldWonder() ? 10 : 0;
-			// 	if (iCompletion >= iThreshold)
-			// 		return;
-			// }
-			// // K-Mod end
 			{
-				// % complete of the current wonder
-				const int iCompletion = 100 * getBuildingProduction(eProductionBuilding) /
-					std::max(1, getProductionNeeded(eProductionBuilding));
-
-				// <!-- custom: Situation read (ChatGPT-5) -->
-				SASWarPowerContext const kWarPower(kTeam);
-				bool const bWarPlan = kPlayer.AI_isFocusWar();
-				// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate -->
-				bool const bAtWar = kWarPower.bAtWar;
-				bool const bEnemyStrong = kWarPower.bEnemyStrong;
-				// <!-- custom: Centralize the SAS team-wide enemy-power and active-war snapshot used by production heuristics; keep player-level focus-war state separate.
-				// AI_getEnemyPowerPercent(true) is meaningful for current/chosen enemies but returns 0 when there is no such enemy; keep raw weak, nonzero weak and at-war weak distinct so callers preserve their existing semantics instead of accidentally treating peaceful 0% as military superiority. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-				bool const bAtWarAndEnemyWeak = kWarPower.bAtWarAndEnemyWeak;
-
-				// Keep a baseline threshold so peaceful wonder builds don’t auto-stick at 0%. 
-				int iThreshold = 25;
-
-				if (GC.getInfo(eProductionBuilding).isWorldWonder())
+				// <!-- custom: BtS kept any invested limited building when the city was safe.
+				// K-Mod replaced that blanket rule with completion thresholds raised by land war, Turtle strategy and non-World-Wonder status.
+				// An A/B restored this inherited rule after the old SAS danger/war/power matrix interrupted Beijing's safe 47%-complete, four-turn Oracle for a Longbowman and Worker; inherited continuation completed it seven turns earlier without a safety failure. See KI#48.9. (GPT-5.6-Sol) -->
+				CvBuildingInfo const& kProductionBuilding = GC.getInfo(eProductionBuilding);
+				int const iStored = getBuildingProduction(eProductionBuilding);
+				int const iNeeded = getProductionNeeded(eProductionBuilding);
+				int const iCompletionPercent = 100 * iStored / std::max(1, iNeeded);
+				bool const bLandWar = kPlayer.AI_isLandWar(kArea);
+				bool const bTurtle = kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE);
+				int const iInheritedThreshold = 25 + (bLandWar ? 40 : 0) + (bTurtle ? 25 : 0) + (!kProductionBuilding.isWorldWonder() ? 10 : 0);
+				bool const bInheritedWouldKeep = (iCompletionPercent >= iInheritedThreshold);
+				if (gBuildingProductionLogLevel >= 3)
 				{
-					if (bAtWar)
-					{
-						// <!-- custom: don't build the world wonder for our enemy when they conquer us (as for national wonders, more generally read after bracket as well), attempt to build a few longbowmen with the hammer rather or anything else -->
-						if (bEnemyStrong)
-						{
-							iThreshold = 80;
-						}
-						else if (bAtWarAndEnemyWeak)
-						{
-							iThreshold = 50;
-						}
-						else
-						{
-							iThreshold = 60;
-						}
-					}
-					// <!-- custom: similar reasoning than if at war and enemy is strong -->
-					else if (bDanger)
-					{
-						iThreshold = 70;
-					}
-					// <!-- custom: this assumes we're strong i guess, but not sure this is just a guess from me, check if accurate; in all cases we don't want to build too long a world wonder if we're plotting an invasion, consider ditching it quite strongly -->
-					else if (bWarPlan)
-					{
-						iThreshold = 50;
-					}
+					int iTurnsLeft = getProductionTurnsLeft(eProductionBuilding, 0);
+					if (iTurnsLeft == MAX_INT)
+						iTurnsLeft = -1;
+					logBBAI("INVESTED_WONDER_CONTINUATION turn=%d player=%d %S city=%S cityId=%d building=%s worldWonder=%d nationalWonder=%d stored=%d needed=%d completionPercent=%d turnsLeft=%d danger=%d landWar=%d turtle=%d inheritedThreshold=%d inheritedWouldKeep=%d",
+						kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), kProductionBuilding.getType(),
+						kProductionBuilding.isWorldWonder(), kProductionBuilding.isNationalWonder(), iStored, iNeeded,
+						iCompletionPercent, iTurnsLeft, bDanger, bLandWar, bTurtle, iInheritedThreshold, bInheritedWouldKeep);
 				}
-				// <!-- custom: be a more lenient towards national wonders, they should cost a bit less, and finish a bit faster expectedly -->
-				else if (GC.getInfo(eProductionBuilding).isNationalWonder())
-				{
-					if (bAtWar)
-					{
-						// <!-- custom: don't build the world wonder for our enemy when they conquer us (as for national wonders, more generally read after bracket as well), attempt to build a few longbowmen with the hammer rather or anything else -->
-						if (bEnemyStrong)
-						{
-							iThreshold = 65;
-						}
-						else if (bAtWarAndEnemyWeak)
-						{
-							iThreshold = 35;
-						}
-						else
-						{
-							iThreshold = 45;
-						}
-					}
-					// <!-- custom: similar reasoning than if at war and enemy is strong -->
-					else if (bDanger)
-					{
-						iThreshold = 55;
-					}
-					// <!-- custom: this assumes we're strong i guess, but not sure this is just a guess from me, check if accurate; in all cases we don't want to build too long a world wonder if we're plotting an invasion, consider ditching it quite strongly -->
-					else if (bWarPlan)
-					{
-						iThreshold = 35;
-					}
-				}
-
-				// If we’ve already invested at least the threshold, keep building; else allow switch.
-				if (iCompletion >= iThreshold)
-				{
+				if (bInheritedWouldKeep)
 					return;
-				}
 			}
 		}
 		if (gLimitedProjectProductionLogLevel >= 2)
