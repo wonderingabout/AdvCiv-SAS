@@ -9416,12 +9416,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			// Keep the building's other effects additive rather than restoring the old whole-building health gate. See KI#48.6 and the broader audit in KI#48.5. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			if (iWasteDelta < 0)
 			{
+				// <!-- custom: These immutable XML weights are cached lazily inside the exercised health-relief path. The severity percentage applies to the average before/after deficit, while starvation relief is measured as a percentage of one citizen value per food deficit directly closed. Defaults 10 and 100 exactly preserve the validated KI#48.6 formula; 0 disables the corresponding added urgency without removing inherited health value. (GPT-5.6-Sol) -->
+				static int const iHealthSeverityUrgencyPercent = std::max(0, GC.getDefineINT("SAS_AI_BUILDING_VALUE_HEALTH_RELIEF_AVERAGE_DEFICIT_URGENCY_PERCENT"));
+				static int const iHealthStarvationUrgencyPercent = std::max(0, GC.getDefineINT("SAS_AI_BUILDING_VALUE_HEALTH_RELIEF_STARVATION_CITIZEN_VALUE_PERCENT"));
 				int const iHealthRelief = -iWasteDelta;
 				int const iHealthDeficitBefore = std::max(0, -iFutureHealthLevel);
 				int const iHealthDeficitAfter = std::max(0, -(iFutureHealthLevel + iBuildingActualHealth));
-				int const iHealthSeverityUrgencyBonus = iCitizenValue * iHealthRelief * (iHealthDeficitBefore + iHealthDeficitAfter) / 20;
+				int const iHealthSeverityUrgencyBonus = iCitizenValue * iHealthRelief * (iHealthDeficitBefore + iHealthDeficitAfter) * iHealthSeverityUrgencyPercent / 200;
 				int const iStarvationRelief = std::min(iHealthRelief, std::max(0, -iFoodDifference));
-				int const iHealthStarvationUrgencyBonus = iCitizenValue * iStarvationRelief;
+				int const iHealthStarvationUrgencyBonus = iCitizenValue * iStarvationRelief * iHealthStarvationUrgencyPercent / 100;
 				iValue += iHealthSeverityUrgencyBonus + iHealthStarvationUrgencyBonus;
 				if (bLogBuildingValueDetails && iPass > 0)
 				{

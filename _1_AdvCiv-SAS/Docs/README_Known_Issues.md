@@ -3988,19 +3988,22 @@ For each point of health relief that removes current unhealthy-food waste, the s
 citizenValue
 * healthRelief
 * (healthDeficitBefore + healthDeficitAfter)
-/ 20
+* SAS_AI_BUILDING_VALUE_HEALTH_RELIEF_AVERAGE_DEFICIT_URGENCY_PERCENT
+/ 200
 ```
 
-The `/ 20` corresponds to roughly 10% of one citizen value per point of average unhealthy population for each point of actual health relief.
+The validated default percentage is 10, exactly reproducing the initially tested `/ 20` formula. It corresponds to 10% of one citizen value per point of average unhealthy population for each point of actual health relief; 0 disables only this added severity term.
 
 If the city is already losing food, only the health points that directly close that current food deficit receive an additional starvation/depopulation term:
 
 ```cpp
 citizenValue
 * min(healthRelief, currentFoodDeficit)
+* SAS_AI_BUILDING_VALUE_HEALTH_RELIEF_STARVATION_CITIZEN_VALUE_PERCENT
+/ 100
 ```
 
-For example, if a city is losing 2 food and a building removes 4 unhealthy-food waste, only 2 of those health points receive the additional current-starvation value.
+The validated default percentage is 100. For example, if a city is losing 2 food and a building removes 4 unhealthy-food waste, only 2 of those health points receive the additional full citizen value; 0 disables only this added starvation/depopulation term.
 
 The correction deliberately contains:
 
