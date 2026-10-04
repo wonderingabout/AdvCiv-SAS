@@ -89,7 +89,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.6 - (Improved inherited K-Mod/AdvC AI valuation weakness) Severe unhealthiness did not gain enough relative urgency against ordinary infrastructure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.6)\
 [KI#48.7 - (Fixed inherited Kek-Mod AI valuation defect) Every Bomb Shelter protected the same continental army](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.7)\
 [KI#48.8 - (Improved inherited K-Mod/AdvC AI production-timing weakness) Walls/Castles could be valued but were considered too late to finish before visible land assaults](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.8)\
-[KI#48.9 - (WIP AdvCiv-SAS Wonder-policy rework) Replace monolithic World/National Wonder hard gates with audited inherited valuation and evidence-backed safeguards](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.9)\
+[KI#48.9 - (Improved AdvCiv-SAS Wonder policy) Replaced monolithic World/National Wonder hard gates with audited inherited valuation and evidence-backed safeguards](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.9)\
 [KI#48.10 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) Generic military-production modifiers were valued mostly by fixed/rank rules instead of expected production throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.10)\
 [KI#48.11 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_SEA production modifiers were almost geography-blind instead of following expected naval throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.11)\
 [KI#48.12 - (Improved inherited K-Mod/AdvC AI valuation-shape weakness) DOMAIN_SEA free experience used a fixed coastal multiplier instead of expected naval throughput](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.12)\
@@ -4161,7 +4161,7 @@ Investigated and iteratively refined with the help of ChatGPT-5.6-Sol, BBAI fore
 
 <a id="ki-48.9"></a>
 
-## KI#48.9 - (WIP AdvCiv-SAS Wonder-policy rework) Replace monolithic World/National Wonder hard gates with audited inherited valuation and evidence-backed safeguards
+## KI#48.9 - (Improved AdvCiv-SAS Wonder policy) Replaced monolithic World/National Wonder hard gates with audited inherited valuation and evidence-backed safeguards
 
 KI#48.5 deliberately separated Wonders from the completed regular-building migration because the old AdvCiv-SAS Wonder layer has different mechanics: World-Wonder race risk, National-Wonder specialization, construction-time limits, production-city placement, cheap-Wonder catch-up, coastal scaling and military-pressure policy.
 
@@ -4200,9 +4200,9 @@ The overall first-attempt profile sat between the extremes:
 
 So the goal is not simply `more Wonders` or `fewer Wonders`: it is to keep selectivity where the underlying opportunity/race cost is evidenced, while removing hard proxies that eliminate too many good races.
 
-### National Wonders: generic production gates are being dismantled separately
+### National Wonders: generic production gates retired separately
 
-National Wonders cannot lose a race and often belong in a specialized city rather than a raw hammer leader. The current WIP therefore retires the generic era-scaled minimum-production veto and blanket top-three production-city restriction, while preserving narrower placement rules whose effect really does depend on production or strategy.
+National Wonders cannot lose a race and often belong in a specialized city rather than a raw hammer leader. The rework therefore retired the generic era-scaled minimum-production veto and blanket top-three production-city restriction, while preserving or translating narrower placement rules whose underlying production or strategic concern survived testing.
 
 The gameplay top-three-hammer cache was correspondingly simplified to top two after its generic National-Wonder consumer disappeared. A separate level-3 counterfactual still computes the retired top-three condition so the audit can measure what the old rule would have done without keeping a gameplay dependency alive.
 
@@ -4210,9 +4210,9 @@ Heroic-Epic specialization was subsequently completed in KI#48.16 and its remain
 
 KI#48.18 then added a narrow economic floor to inherited Palace relocation after proving that its area-population heuristic could select a move that increased empire maintenance.
 
-Its inherited completion-time limit was subsequently audited and retained after a narrow relaxation produced abandoned Palace investment; shared construction-time protection and other dedicated rules remain under review.
+Its inherited completion-time limit was subsequently audited and retained after a narrow relaxation produced abandoned Palace investment. The shared construction-time hard rejection and the other dedicated rules were then audited in the later steps below rather than being retained merely because they already existed.
 
-The generic National-Wonder retirements were checkpointed as WIP rather than declared final while the inherited generic military-production valuation and Heroic-Epic-specific policy were audited separately.
+The generic National-Wonder retirements were initially checkpointed as WIP while the inherited generic military-production valuation and Heroic-Epic-specific policy were audited separately; the later steps below complete that work.
 
 KI#48.10 repaired the generic throughput shape; KI#48.16 then retired the Heroic-Epic force-first sentinel and migrated its useful specialization signal into additive valuation. The remaining military-National-Wonder question is placement, not another force.
 
@@ -4502,16 +4502,24 @@ The later histories diverged too widely for their common team-7 Space victories 
 
 Restore K-Mod/AdvC's simpler threshold: 25% base, +40 percentage points during land war, +25 during Turtle strategy and +10 for a non-World limited building. Remove the temporary selector and old SAS matrix. A compact level-3 `INVESTED_WONDER_CONTINUATION` row retains the actual completion, threshold and contextual inputs for future regression evidence without computing the retired counterfactual policy. (GPT-5.6-Sol)
 
-### Final cleanup and regression work
+### Final cleanup, integrated regression and closing observation
 
-The current direction is gradual migration rather than another monolithic replacement:
+The completed direction is gradual migration rather than another monolithic replacement:
 
 - keep Heroic Epic on its actual military-only production semantics; KI#48.16 retired its force-first war sentinel and migrated useful specialization into additive throughput valuation, while the subsequent top-production gate audit proved redundant and was retired;
 - keep KI#48.15's completion-time-aware inherited World-Wonder placement as the validated relative-production replacement; both the separate hard coastal-city minimum and the production-Wonder top-HPT placement gate are now retired;
 - retain KI#48.13's tested `DOMAIN_LAND` throughput support as generic/modmod-safe infrastructure even if current SAS has no permanent land-domain production consumer; `DOMAIN_AIR` throughput amount and domain-specific AIR XP remain separate future audits rather than symmetry-driven changes;
 - retain KI#48.19's continuous National Park current-production military-pressure adjustment, while leaving inherited/cached and prospective technology value unchanged and relying on inherited placement instead of the retired population-rank, minimum-population and current-health cliffs;
-- finish focused source/configuration cleanup of empty retired branches, stale selectors/defines/comments and sentinel remnants: the retired Wonder-policy thresholds used only for level-3 counterfactual rows are now compact DLL-local constants rather than misleading XML tuning, and every remaining `SAS_AI_BUILDING_VALUE_*WONDER*` define has a live gameplay consumer;
-- preserve useful level-3 forensic diagnostics, then run one integrated Tiny-Islands and one Pangaea regression under permanent settings before closing the migration.
+- focused source/configuration cleanup removed empty retired branches, stale selectors/defines/comments and sentinel remnants; thresholds retained only for level-3 counterfactual evidence are compact DLL-local constants rather than misleading XML tuning, and every remaining `SAS_AI_BUILDING_VALUE_*WONDER*` define has a live gameplay consumer;
+- useful level-3 forensic diagnostics were preserved, and final integrated Pangaea and naval-heavy Archipelago autoplays completed under permanent gameplay settings before the migration was closed.
+
+One closing side observation supports the intended goal without proving that every individual Wonder choice is optimal. The older Snaky-Continents baseline completed **24 World Wonders and 37 National Wonders** by turn 341; the final Pangaea and naval-heavy Archipelago runs each completed **all 39 current World-Wonder building types**, alongside 36 and 29 National Wonders respectively.
+
+Raw World-Wonder XML costs represented roughly **1.1%** of completed unit-plus-building production in the older run and **2.7% / 2.6%** in the final runs, so collective World-Wonder construction genuinely increased after the hard gates were retired.
+
+That increase was not winner-level Wonder spam: the older winner completed 14 World Wonders, while the two final winners completed 12 and 11. The comparison is across different maps and divergent histories, so it is balance evidence rather than a controlled causal measurement. It nevertheless supports keeping the audited opportunity-cost model instead of restoring a blanket target of fewer Wonders.
+
+Future evidence of threatened or weak empires sacrificing urgent units for low-return Wonders should be addressed through smooth completion-time, military-pressure and marginal-value adjustments, not by assuming that either more or fewer Wonders is inherently efficient.
 
 The long-term target mirrors KI#48.5: inherited additive valuation plus narrow contextual safeguards whose underlying concern survives measurement, rather than a large ordered table of hard Wonder vetoes and force-first sentinels.
 
@@ -5296,7 +5304,7 @@ It adds a conservative floor only when those player-level modifiers are absent: 
 
 Every inherited geography, war-success, production-rank, buildability and completion-time rule remains authoritative. If any capital-specific yield or commerce modifier is active, inherited relocation remains unchanged rather than pretending the maintenance projection captures the whole move.
 
-### Deterministic validation
+### Deterministic validation (KI#48.18)
 
 The same-seed control and candidate remained identical through turn 382. On turn 383 the guard rejected San Francisco's **-2.44 GPT** projected move, producing the first intended behavioral difference; San Francisco built a Destroyer instead. The AI continued reconsidering relocation rather than entering a permanent veto, rejecting San Francisco again while its projected savings remained negative.
 
@@ -5324,7 +5332,7 @@ The first SAS refinement retained those two signals as a hard safety floor while
 
 The permanent correction preserves inherited construction value and its reusable cache, then applies a continuous military-pressure discount only when returning a current production value. Remaining turns and immediate danger/enemy strength increase the penalty; stored production reduces it so that a nearly completed Park is not abandoned merely because pressure appeared this turn. The penalty stays below 100%, and a positive inherited value is clamped to at least 1 after integer arithmetic because a fractional penalty could otherwise truncate a small value to zero and silently recreate the retired gate. Prospective technology evaluation receives no transient current-production penalty.
 
-### Deterministic validation
+### Deterministic validation (KI#48.19)
 
 The Pangaea candidate recorded **660 pressured National Park value adjustments**. None of its **62 National Park best-building opportunities** or **22 final National Park production choices** occurred under `danger || enemyStrong`, demonstrating that inherited placement and ordinary production competition still rejected the pressured builds without categorical erasure.
 

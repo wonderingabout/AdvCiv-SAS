@@ -1582,7 +1582,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Dedicated building-production diagnostics for comparing useful infrastructure opportunities with actual production choices, including the hard-needed and high-return cheap-infrastructure efficiency gates. Level 2 records the best general building opportunity and the final production target; level 3 also records health, happiness, maintenance, food, production, gold, and research-focused building candidates plus representative land-military unit costs. Diagnostic-only and adds no RNG calls. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Dedicated building-production diagnostics for comparing useful infrastructure opportunities with actual production choices, including the hard-needed and high-return cheap-infrastructure efficiency gates. Level 2 notably records the best general building opportunity and the final production target; level 3 also notably records health, happiness, maintenance, food, production, gold, and research-focused building candidates plus representative land-military unit costs. Diagnostic-only and adds no RNG calls. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
