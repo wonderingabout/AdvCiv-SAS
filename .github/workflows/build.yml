@@ -54,8 +54,7 @@ jobs:
       - run: python .github/workflows/build/wonder_cost_columns.py
       - run: python .github/workflows/build/wonder_culture_gpp_columns.py
       - run: python .github/workflows/build/asset_tech_prereq_redundancy.py
-      # <!-- custom: Keep the building-value test baseline's resource XML unchanged. Defer only resource trade alignment until the nine mainline unlock changes are deliberately adopted; primary unit/building checks and generic resource fixtures remain active. (GPT-6.1-Sol) -->
-      - run: python .github/workflows/build/asset_primary_tech.py --skip-resource-trade
+      - run: python .github/workflows/build/asset_primary_tech.py
       - run: python .github/workflows/build/civ_specific_assets.py
       - run: python .github/workflows/build/civ_specific_not_weaker.py
       - run: python .github/workflows/build/define_tag_refs.py

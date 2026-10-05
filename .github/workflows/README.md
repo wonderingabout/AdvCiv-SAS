@@ -398,8 +398,6 @@ Checks all mod-local `CIV4ArtDefines_*.xml` files for the `Civ4ArtDefines` root,
 
 ### `build/asset_primary_tech.py`
 
-The building-value branch explicitly runs `--skip-resource-trade` to preserve its existing resource timing during ongoing tests. This defers only resource alignment; primary unit/building prerequisite checks and synthetic resource-graph regression tests remain active. Remove that workflow flag and restore full live-tree regression checking when the nine mainline resource XML changes are deliberately adopted. The checker defaults to enforcing both rules.
-
 Requires the effective primary unit/building prerequisite to be in the latest required `iGridX` column. Religious buildings and Bomb Shelters may use their shared SpecialBuilding prerequisite; direct `PrereqTech=NONE` is valid there. Both units and buildings store additional prerequisites in `TechTypes`. Equal-column alternatives remain allowed for display timing.
 
 For resource-specific connecting improvements, checks that the resource's `TechCityTrade` is guaranteed by its reveal and Build prerequisite paths. This catches the six plantation resources retaining Calendar after the Build moved to Agriculture, even though Calendar and Agriculture share a column. City-like Forts are excluded. The rule applies to every resource with an XML-defined connecting improvement, without named resource exceptions; unknown or unguaranteed trade requirements fail. Trade unlocks were aligned to the current reveal/Build prerequisites, including the former Marble, Stone and Uranium delays. Changing or renaming resources, builds or technologies needs no checker allowlist update.

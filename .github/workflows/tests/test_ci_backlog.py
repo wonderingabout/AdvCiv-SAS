@@ -152,8 +152,7 @@ class TechTests(XmlFixture):
         self.assertEqual(tech.check(self.repo), [])
 
     def test_current_mod_rules(self):
-        # <!-- custom: This branch preserves pre-merge resource timing for building-value tests. Validate live primary prerequisites here; resource graph behavior remains covered by synthetic fixtures and the full checker is re-enabled when its XML balance changes are adopted. (GPT-6.1-Sol) -->
-        self.assertEqual(tech.check(ROOT, check_resource_trade=False), [])
+        self.assertEqual(tech.check(ROOT), [])
 
     def test_later_additional_unit_requirement(self):
         self.replace('Assets/XML/Units/CIV4UnitInfos.xml', '<TechTypes/>', '<TechTypes><PrereqTech>TECH_CI_LATER</PrereqTech></TechTypes>')
@@ -162,13 +161,6 @@ class TechTests(XmlFixture):
     def test_same_column_independent_trade_requirement(self):
         self.replace('Assets/XML/Terrain/CIV4BonusInfos.xml', '<TechCityTrade>TECH_CI_PRIMARY</TechCityTrade>', '<TechCityTrade>TECH_CI_PARALLEL</TechCityTrade>')
         self.assertTrue(any('not guaranteed' in e for e in tech.check(self.repo)))
-
-    def test_resource_deferral_does_not_disable_primary_asset_checks(self):
-        self.replace('Assets/XML/Terrain/CIV4BonusInfos.xml', '<TechCityTrade>TECH_CI_PRIMARY</TechCityTrade>', '<TechCityTrade>TECH_CI_LATER</TechCityTrade>')
-        self.assertTrue(tech.check(self.repo))
-        self.assertEqual(tech.check(self.repo, check_resource_trade=False), [])
-        self.replace('Assets/XML/Units/CIV4UnitInfos.xml', '<TechTypes/>', '<TechTypes><PrereqTech>TECH_CI_LATER</PrereqTech></TechTypes>')
-        self.assertTrue(any('precedes required TECH_CI_LATER' in error for error in tech.check(self.repo, check_resource_trade=False)))
 
     def test_delayed_trade_requirement_for_any_resource(self):
         self.replace('Assets/XML/Terrain/CIV4BonusInfos.xml', '<TechCityTrade>TECH_CI_PRIMARY</TechCityTrade>', '<TechCityTrade>TECH_CI_LATER</TechCityTrade>')

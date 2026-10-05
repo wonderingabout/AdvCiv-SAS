@@ -20,7 +20,7 @@ def value(node, key):
 def nodes(repo, path, kind):
     return [n for n in ET.parse(repo / ("Assets/XML/" + path)).getroot().iter() if tag(n) == kind]
 
-def check(repo, check_resource_trade=True):
+def check(repo):
     techs = {value(n, "Type"): int(value(n, "iGridX")) for n in nodes(repo, "Technologies/CIV4TechInfos.xml", "TechInfo")}
     errors = []
     def column(tech, owner):
@@ -42,8 +42,6 @@ def check(repo, check_resource_trade=True):
             for tech in additional:
                 if column(tech, owner) > primary_column:
                     errors.append(f"{owner}: primary {primary} (column {primary_column}) precedes required {tech} (column {techs[tech]})")
-    if not check_resource_trade:
-        return errors
     graph, _ = read_techs(repo, read_era_order(repo))
     cache = {}
     def guaranteed(tech):
@@ -79,12 +77,8 @@ def check(repo, check_resource_trade=True):
 def main():
     parser = argparse.ArgumentParser(description="Check primary asset prerequisites and bonus trade unlock timing.")
     parser.add_argument("--repo-root", type=Path, default=ROOT)
-    parser.add_argument("--skip-resource-trade", action="store_true", help="Explicitly defer resource trade alignment while keeping primary unit/building checks")
-    args = parser.parse_args()
-    errors = check(args.repo_root, check_resource_trade=not args.skip_resource_trade)
+    errors = check(parser.parse_args().repo_root)
     print("FAIL asset tech timing" if errors else "PASS asset tech timing")
-    if args.skip_resource_trade:
-        print("  Resource trade alignment deferred by explicit --skip-resource-trade; primary asset checks remain active.")
     for error in errors:
         print("  - " + error)
     return int(bool(errors))
