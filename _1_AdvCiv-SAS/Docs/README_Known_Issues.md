@@ -100,6 +100,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.17 - (Improved inherited K-Mod/AdvC AI Government Center valuation weakness) A local maintenance proxy missed the best empire-wide placement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.17)\
 [KI#48.18 - (Fixed inherited K-Mod/AdvC AI Palace-relocation economic defect) Area-population heuristics could move the Palace while increasing empire maintenance](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.18)\
 [KI#48.19 - (Improved inherited K-Mod/AdvC AI Wonder opportunity-cost weakness and fixed old-SAS planning defect) National Park military pressure was either ignored or hard-zeroed across current and prospective valuation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.19)\
+[KI#48.20 - (Improved inherited K-Mod/AdvC AI World-Wonder opportunity-cost weakness) Locally exposed AIs could over-invest in World Wonders after the old hard military-pressure policy was retired](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.20)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
@@ -5348,6 +5349,75 @@ The planning correction was independently visible before gameplay diverged. On t
 The result improves inherited K-Mod/AdvC current-production opportunity cost while fixing old SAS's current/prospective hard-zero planning defect. It does not restore the retired monolithic Wonder policy: broad war state remains ordinary production competition, inherited placement remains authoritative, and the pressure adjustment is confined to the demonstrated National-Park-style case.
 
 This inherited weakness and old-SAS overcorrection were isolated during the KI#48.9 Wonder-policy rework. The correction and deterministic A/B analysis were developed with the help of ChatGPT-5.6-Sol and GPT-5.6-Sol, using BBAI diagnostics and SASGameRecord comparison, with testing and review by wonderingabout, thanks.
+
+<a id="ki-48.20"></a>
+
+## KI#48.20 - (Improved inherited K-Mod/AdvC AI World-Wonder opportunity-cost weakness) Locally exposed AIs could over-invest in World Wonders after the old hard military-pressure policy was retired
+
+Near the final KI#48.9 closeout, the old "be stingy with Wonders" goal was reconsidered separately from the old implementation. The earlier audit correctly retired the monolithic World-Wonder gates and the era-cost `FORCE_CHEAP_SAFE` sentinel: broad war/war-plan rejection discarded useful Wonders, fixed hammer/turn/technology-race proxies were weak predictors, and the 103,000 cheap-Wonder force polluted technology planning without demonstrating a useful constructible rescue. That does not imply that World-Wonder opportunity cost is strategically irrelevant.
+
+The same audit retained a real signal. Old SAS achieved 23 wins from 46 first Wonder attempts (50%), the first cured candidate achieved 29/65 (44.6%), and a fully inherited policy achieved 28/83 (33.7%). The corrected relative-production audit also showed substantial abandoned or lost production when weak cities pursued races, while the military-pressure audit showed why a global `atWar || warPlan -> return 0` rule was much too coarse. The intended missing question is narrower: when a civilization still shares its landmass with a serious rival and does not clearly dominate that rival, should a fresh World Wonder compete at full value against units, Settlers and infrastructure?
+
+This is especially different across map shapes. A civilization that has secured or dominates its Tiny-Islands landmass can often afford Wonder investment even while distant overseas rivals exist. On a shared continent or Snaky-Continents landmass, a roughly equal or stronger local rival creates a much more immediate opportunity cost: the same hammers could expand, defend or conquer locally. Conversely, local safety does not guarantee winning the global Wonder race, so the candidate deliberately removes value only under exposure rather than adding a force/bonus when safe.
+
+The existing `SASLocalAreaRivalContext` already stores both **combined known local rival-bloc power** and **highest known local rival-bloc power**. Those are intentionally different facts. KI#53.5's peaceful military-saturation policy asks whether another land unit is excessive against the whole remaining local rival set and therefore uses combined local power. This World-Wonder question asks whether any single rival sharing the landmass is strong enough to make discretionary Wonder investment costly, so the candidate adds a derived our-power-versus-strongest-local-rival percentage while preserving the existing combined percentage unchanged.
+
+A read-only classification pass over the latest revision-130 Pangaea/Tiny-Islands logs supports this as a useful map-sensitive discriminator before changing behavior. Among first realized player/Wonder pairs that could be matched to the existing strategic audit, a 125% strongest-local-rival dominance threshold would classify **82/90 Pangaea** attempts as locally exposed but only **13/57 Tiny-Islands** attempts. Using combined local rival power changes those counts only modestly to **83/90** and **15/57**. This is not causal evidence for the percentage cure, but it shows that the condition separates the intended map situations strongly; because it would touch most Pangaea attempts, the first multiplier is kept conservative at 80% rather than immediately trying 60-70%.
+
+### First candidate
+
+The first candidate deliberately avoids rebuilding the old per-era hammer table. It operates only in `AI_bestBuildingThreshold`, after a World Wonder is actually constructible, so it cannot recreate the retired `AI_buildingValue` technology-planning pollution.
+
+- `SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_EAGERNESS_PERCENT = 100` is a global AI Wonder-eagerness knob. `100` preserves normal eagerness; a player who wants a generally more military/infrastructure-heavy game can lower it even on secure islands, e.g. toward `60`, without changing the local-security model.
+- `SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_EXPOSURE_OPTIMIZE = 1` enables the local-area adjustment and can be set to `0` for the exact local-policy control.
+- `SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_EXPOSURE_VALUE_PERCENT = 80` is the first conservative test value when exposure applies. This is a smooth multiplier, never another categorical rejection.
+- `SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_DOMINANCE_MIN_POWER_PERCENT = 125` exempts a landmass with no independent local rival, or with no unknown local rival bloc and at least a 25% power lead over the strongest known local rival bloc. Unknown local rivals prevent the dominance exemption rather than being assumed harmless.
+
+The candidate applies the combined eagerness/local-exposure percentage to the actual World-Wonder candidate after inherited/personality/random value has been assembled but **before** K-Mod's stored-production continuation credit is added. Fresh exposed Wonders therefore pay the intended opportunity cost, while an already-invested Wonder retains its inherited continuity advantage and is less likely to become another abandoned-production machine. KI#48.15's cross-city World-Wonder placement comparison uses each candidate city's own percentage as well, so a fast but exposed city does not automatically disqualify a somewhat slower secure city before final production selection.
+
+The first candidate intentionally does **not** add per-era percentages. Current evidence supports geography/power exposure, while separate Ancient/Classical/Medieval/etc. penalties would add tuning dimensions without evidence. If the A/B shows a repeatable early-versus-late mismatch, the single percentage can later be extended to era-specific values without changing the policy shape.
+
+Level-3 BBAI adds `WORLD_WONDER_LOCAL_OPPORTUNITY_COST`, recording before/after value, global eagerness, local exposure percentage, whether exposure applied, the dominance threshold, local rival counts, our/combined/highest local power, both combined and strongest-rival power ratios, stored production and turns remaining. No SASGameRecord revision is needed for this exploratory candidate.
+
+### First A/B: strong signal, then a zero-value preservation correction
+
+The first synchronized test used the same candidate DLL for a Pangaea control (`LOCAL_EXPOSURE_OPTIMIZE=0`) and 80% candidate (`=1`), followed by the 80% candidate on the existing Tiny-Islands save. The Pangaea control reproduced the previous revision-130 baseline exactly through the comparable core-state checkpoints, synchronized RNG state/call counts/stream fingerprints, run-status checkpoints and final T318 Team-7 Space victory. This validates the added diagnostics and disabled local-policy path as observational for that history.
+
+The preliminary Pangaea candidate produced a strong selectivity signal. Distinct first realized World-Wonder attempts fell from **99 to 57**, while **26** of those first attempts eventually completed in both histories, moving the crude first-attempt success rate from **26.3% to 45.6%**. Recorder-wide failed invested production/fail-gold fell from **9,635 / 4,807** to **3,113 / 1,551**. The first core/RNG divergence occurred at the end of turn 66. At that decision point, exposed Mali had only two cities, 15 independent rival teams on the Pangaea landmass, nine still unknown locally, and about 90% of its strongest known local rival's bloc power. The control's best building opportunity was an 18-turn Artemis and its realized target became the 11-turn Mali Mint; with the 80% local penalty, the best building opportunity became a four-turn already-invested Library and the realized target became a five-turn Barracks. This is qualitatively the intended kind of opportunity-cost change rather than a broad `atWar` veto.
+
+Tiny Islands supplies a complementary regression check. Against the previous revision-130 Tiny control, the candidate remains core-state identical through turn 155; all **39** first World-Wonder attempts before turn 156 are identical. The first state divergence is Spain on a landmass it shares with America, with Spain at only about **91%** of that known local rival's power and no unknown local rival. The control's best building opportunity was a 12-turn Hermitage and its realized target a three-turn Grocer; the candidate's best building opportunity became that Grocer and the realized target a one-turn Missionary. Thus the first Tiny divergence occurs in a deliberately exposed/equal-rival case, not because the rule penalized an isolated or clearly dominant island empire. The much later final histories diverge heavily and are not treated as a controlled measure of this one production decision.
+
+Before accepting those behavioral results, the new level-3 row exposed a small but real implementation defect: the first multiplier used `std::max(1, value * percent / 100)` even when inherited raw value was zero. This produced many diagnostic `valueBefore=0 valueAfter=1` rows. Although the Pangaea control still reproduced the old gameplay exactly, promoting zero before K-Mod's later completion-time normalization is not a faithful percentage reduction and could make an otherwise zero-valued candidate spuriously competitive. The cross-city placement copy had the same shape. The corrected candidate now preserves every nonpositive inherited value exactly and applies the minimum-1 rounding floor only to an originally positive value. Consequently `EAGERNESS_PERCENT=100` with local exposure disabled is value-preserving by construction, not merely empirically neutral in the first control.
+
+The **80% exposure value and 125% strongest-local-rival dominance threshold were retained unchanged for the correction retest** so the zero-preservation fix could be isolated from calibration.
+
+### Corrected retest and retained default
+
+The corrected candidate reproduced the first candidate's gameplay exactly on both maps. All **308/308 Pangaea** and **505/505 Tiny-Islands/Archipelago** core-state checkpoints matched their corresponding first-candidate runs, and the run-status histories matched as well.
+
+Map and synchronized RNG states, call counts and stream fingerprints also matched; only the diagnostic call-site fingerprint differed across the rebuilt source. The zero-preservation correction therefore changed no gameplay outcome in either tested history.
+
+The corrected level-3 rows confirm that the implementation defect itself is gone. Pangaea had **1,215** rows that the first build had logged as `valueBefore=0 valueAfter=1`; all now remain **0 -> 0**. Tiny Islands had **2,131** such rows; all likewise remain **0 -> 0**. A full row audit found no major-civilization mismatch between the configured exposure predicate and `localExposureApplies`, and no mismatch between the configured percentage and the resulting positive candidate value.
+
+The corrected Pangaea candidate therefore retains the original behavioral result: first realized World-Wonder attempts fall from **99 to 57**, while the number of eventual wins among those first attempts remains **26 in each history**. These are not necessarily the same player/Wonder winners after the histories diverge, so the comparison is a count rather than an identity claim.
+
+The crude first-attempt win rate rises from **26.3% to 45.6%**. Failed invested Wonder production falls from **9,635 to 3,113 hammers**, and fail-gold from **4,807 to 1,551 gold**. All of the control's measured failed-Wonder investment had already occurred by turn 302, so the candidate's earlier T302 Space victory does not explain that reduction by truncating late failures.
+
+The common winner remains Team 7; the T302 candidate versus T318 control victory timing is path-dependent and is not treated as proof of the policy by itself.
+
+The corrected Tiny-Islands candidate also preserves the intended regression result. It remains core-state identical to the revision-130 control through the end of turn **155**, and all **39** first World-Wonder attempts through that point occur for the same player/Wonder pairs on the same turns.
+
+The first divergence remains turn 156 in Spain's shared landmass with America, where Spain is only about **91%** of its strongest known local rival's power. Later histories diverge too strongly for the candidate's eventual T500 Time victory versus the control's T344 Space victory to be interpreted as a controlled policy metric.
+
+Direct policy rows remain the stronger regression evidence: locally secure/dominant candidates retain 100% local value, while only shared/non-dominant landmasses receive the 80% multiplier.
+
+The tested defaults are therefore retained: global eagerness **100%**, exposed local value **80%**, and no-penalty local dominance at **125%** of the strongest known independent rival bloc on the landmass, with unknown local rival blocs preventing the dominance exemption.
+
+No per-era Wonder table is added: the current evidence supports the geography/power distinction, and the single smooth percentage already supplies the intended selectivity without restoring the old hard-gate architecture. The separate global eagerness setting remains available for players or modmods that intentionally want fewer Wonders even on secure islands.
+
+This completes KI#48.20 as the final general World-Wonder opportunity-cost follow-up under KI#48.9.
+
+Reopened and designed before the KI#48.9 merge closeout through discussion between wonderingabout and ChatGPT-5.6-Sol; implemented and iteratively reviewed with ChatGPT-5.6-Sol, and compile/autoplay-tested and synchronized by wonderingabout, thanks.
 
 <a id="ki-49"></a>
 

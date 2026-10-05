@@ -2083,6 +2083,26 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<DefineName>SAS_AI_BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: World-Wonder selection eagerness percentage applied only inside AI_bestBuildingThreshold after inherited/personality/random candidate value is known and before stored-production continuation is added. 100 preserves ordinary eagerness; lower values make all AI empires more militarily/infrastructure-oriented even when locally secure (e.g. 60 for a deliberately low-Wonder game); values are clamped to 0-200. This does not modify AI_buildingValue and therefore cannot recreate the retired FORCE_CHEAP_SAFE technology-planning pollution. See KI#48.20. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_EAGERNESS_PERCENT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: Enable the KI#48.20 local-area World-Wonder opportunity-cost adjustment. A landmass with no independent rival, or with no unknown local rival bloc and at least the configured power lead over its strongest known local rival, keeps full local value; otherwise the percentage below applies. This is deliberately a soft candidate-value multiplier rather than a hard veto. 1 enables; 0 disables only the local-exposure part while the global eagerness percentage above remains available. See KI#48.20. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_EXPOSURE_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Percentage of normal World-Wonder candidate value retained when the local-exposure rule above applies. Default 80 is the first deliberately conservative calibration candidate: strong enough to create meaningful military/infrastructure opportunity cost without making an exceptional or nearly completed Wonder impossible. Values are clamped to 0-100. See KI#48.20. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_EXPOSURE_VALUE_PERCENT</DefineName>
+		<iDefineIntVal>80</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum our-bloc power as a percentage of the strongest known independent rival bloc with cities on this landmass for the no-penalty local-dominance exemption. Default 125 means a clear 25% lead; unknown local rival blocs suppress the exemption rather than being assumed harmless. This strongest-rival comparison intentionally coexists with KI#53.5's combined-local-rival percentage because the two policies ask different questions. See KI#48.20 and KI#53.5. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_DOMINANCE_MIN_POWER_PERCENT</DefineName>
+		<iDefineIntVal>125</iDefineIntVal>
+	</Define>
 
 
 

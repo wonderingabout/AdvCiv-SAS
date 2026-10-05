@@ -517,10 +517,11 @@ struct SASLocalAreaRivalContext
 	int iHighestKnownLocalRivalBlocPower;
 	int iOurBlocPower;
 	int iLocalPowerAdvantagePercent;
+	int iHighestLocalPowerAdvantagePercent;
 	int iHighestKnownGlobalRivalBlocPower;
 	int iGlobalPowerAdvantagePercent;
 
-	SASLocalAreaRivalContext(CvPlayerAI const& kPlayer, CvArea const& kArea)
+	SASLocalAreaRivalContext(CvPlayerAI const& kPlayer, CvArea const& kArea, bool bIncludeGlobalRivalContext = true)
 	{
 		iIndependentRivalCities = 0;
 		iUnknownIndependentRivalTeams = 0;
@@ -529,13 +530,54 @@ struct SASLocalAreaRivalContext
 		iIndependentRivalTeams = SAS_countIndependentRivalTeamsInArea(kPlayer, kArea, iIndependentRivalCities,
 				&iUnknownIndependentRivalTeams, &iCombinedKnownLocalRivalBlocPower, &iHighestKnownLocalRivalBlocPower);
 		iOurBlocPower = GET_TEAM(kPlayer.getTeam()).getPower(true);
+		// <!-- custom: Preserve both local comparisons explicitly: KI#53.5 asks whether our army is excessive against the whole remaining local rival set, while KI#48.20 asks whether any single local rival is strong enough to make fresh World-Wonder investment strategically expensive. (ChatGPT-5.6-Sol) -->
 		iLocalPowerAdvantagePercent = (iCombinedKnownLocalRivalBlocPower <= 0 ? -1 :
 				(100 * iOurBlocPower) / iCombinedKnownLocalRivalBlocPower);
-		iHighestKnownGlobalRivalBlocPower = SAS_getHighestKnownFreeRivalBlocPower(kPlayer);
+		iHighestLocalPowerAdvantagePercent = (iHighestKnownLocalRivalBlocPower <= 0 ? -1 :
+				(100 * iOurBlocPower) / iHighestKnownLocalRivalBlocPower);
+		// <!-- custom: Some gameplay consumers need only landmass-local facts; let them skip the separate global-rival scan while retaining the historical default for existing diagnostics/consumers. (ChatGPT-5.6-Sol) -->
+		iHighestKnownGlobalRivalBlocPower = (bIncludeGlobalRivalContext ? SAS_getHighestKnownFreeRivalBlocPower(kPlayer) : -1);
 		iGlobalPowerAdvantagePercent = (iHighestKnownGlobalRivalBlocPower <= 0 ? -1 :
 				(100 * iOurBlocPower) / iHighestKnownGlobalRivalBlocPower);
 	}
 };
+
+// <!-- custom: World-Wonder eagerness belongs in actual constructible-building selection rather than AI_buildingValue, where the retired FORCE_CHEAP_SAFE sentinel proved that a production override can pollute technology planning long before a real build opportunity exists.
+// The global percentage is a simple player-facing tuning knob even on secure islands; the local-exposure percentage is applied only when this landmass still contains an independent rival and we are not clearly dominant over the strongest known local rival. Unknown local rival blocs deliberately prevent the dominance exemption.
+// Keep this as a smooth candidate-value multiplier rather than another return-0 gate. Existing completion-time scoring, normal unit/Settler/building competition and stored-production continuation remain authoritative. See KI#48.20. (ChatGPT-5.6-Sol) -->
+static int SAS_getWorldWonderSelectionValuePercent(CvCityAI const& kCity, int* piLocalExposurePercent = NULL, bool* pbLocalExposureApplies = NULL)
+{
+	static int const iEagernessPercent = std::max(0, std::min(200, GC.getDefineINT("SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_EAGERNESS_PERCENT")));
+	static bool const bLocalExposureOptimize = GC.getDefineBOOL("SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_EXPOSURE_OPTIMIZE");
+	static int const iLocalExposurePercent = std::max(0, std::min(100, GC.getDefineINT("SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_EXPOSURE_VALUE_PERCENT")));
+	static int const iDominanceMinPowerPercent = std::max(0, GC.getDefineINT("SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_DOMINANCE_MIN_POWER_PERCENT"));
+
+	int iAppliedLocalExposurePercent = 100;
+	bool bLocalExposureApplies = false;
+	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
+	// <!-- custom: These knobs tune AI production policy only; do not alter human manual/advisor/governor valuation or special players. (ChatGPT-5.6-Sol) -->
+	if (kOwner.isHuman() || kOwner.isBarbarian() || kOwner.isMinorCiv())
+	{
+		if (piLocalExposurePercent != NULL) *piLocalExposurePercent = 100;
+		if (pbLocalExposureApplies != NULL) *pbLocalExposureApplies = false;
+		return 100;
+	}
+	if (bLocalExposureOptimize)
+	{
+		SASLocalAreaRivalContext const kLocalRivals(kOwner, kCity.getArea(), false);
+		bool const bClearlyDominant = (kLocalRivals.iIndependentRivalTeams <= 0 ||
+				(kLocalRivals.iUnknownIndependentRivalTeams == 0 && kLocalRivals.iHighestLocalPowerAdvantagePercent >= iDominanceMinPowerPercent));
+		if (!bClearlyDominant)
+		{
+			bLocalExposureApplies = true;
+			iAppliedLocalExposurePercent = iLocalExposurePercent;
+		}
+	}
+
+	if (piLocalExposurePercent != NULL) *piLocalExposurePercent = iAppliedLocalExposurePercent;
+	if (pbLocalExposureApplies != NULL) *pbLocalExposureApplies = bLocalExposureApplies;
+	return (iEagernessPercent * iAppliedLocalExposurePercent) / 100;
+}
 
 // <!-- custom: Rank naval-floor roles for the relevant water area; the CvCityAI member caller performs the protected AI_chooseUnit call. AI_totalWaterAreaUnitAIs includes ships at sea, in ports and queued there. (ChatGPT-5.6-Sol) -->
 static void SAS_rankNavalProductionUnitAIs(CvPlayerAI const& kPlayer, CvArea const& kWaterArea, int iAssaultWeight, int iEscortWeight, int iAttackWeight, std::vector<UnitAITypes>& aeUnitAIs)
@@ -7343,6 +7385,10 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 
 	bool bAreaAlone = kOwner.AI_isAreaAlone(getArea());
 	int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+	// <!-- custom: Compute the KI#48.20 World-Wonder selection multiplier lazily only if a constructible World Wonder reaches this chooser. Most AI_bestBuildingThreshold calls therefore pay no local-rival scan. (ChatGPT-5.6-Sol) -->
+	int iWorldWonderSelectionValuePercent = -1;
+	int iWorldWonderLocalExposurePercent = 100;
+	bool bWorldWonderLocalExposureApplies = false;
 
 	int iBestValue = 0;
 	BuildingTypes eBestBuilding = NO_BUILDING;
@@ -7468,6 +7514,11 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 
 		int const iTurnsLeft = getProductionTurnsLeft(eLoopBuilding, 0);
 
+		if (kBuilding.isWorldWonder() && iWorldWonderSelectionValuePercent < 0)
+		{
+			iWorldWonderSelectionValuePercent = SAS_getWorldWonderSelectionValuePercent(*this, &iWorldWonderLocalExposurePercent, &bWorldWonderLocalExposureApplies);
+		}
+
 		// K-Mod
 		/*	Block construction of limited buildings in bad places
 			(the value check is just for efficiency.
@@ -7538,14 +7589,21 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 						if (kBuilding.isWorldWonder())
 						{
 							// <!-- custom: World-Wonder race placement should compare the same value-per-completion-time shape used by the inherited final building chooser, not raw intrinsic value alone.
-							// This moves the useful relative-production signal into K-Mod's existing one-copy-building placement mechanism and naturally credits stored production and all city-specific construction modifiers. See KI#48.15. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+							// KI#48.20 additionally applies each candidate city's own World-Wonder eagerness/local-exposure percentage here, so an exposed fast city does not automatically disqualify a somewhat slower secure city before the final chooser sees the same opportunity-cost policy. Stored production remains handled later by the inherited final selection path. See also KI#48.15. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 							iLoopTurnsLeft = pLoopCity->getProductionTurnsLeft(eLoopBuilding, 0);
 							if (iLoopTurnsLeft < MAX_INT)
 							{
-								FAssert(MAX_INT / 1000 > iValue);
-								FAssert(MAX_INT / 1000 > iLoopValue);
-								iThisPlacementValue = iValue * 1000 / std::max(1, iTurnsLeft + 3);
-								iLoopPlacementValue = iLoopValue * 1000 / std::max(1, iLoopTurnsLeft + 3);
+								int const iLoopWorldWonderSelectionValuePercent = (pLoopCity->getArea().getID() == getArea().getID() ?
+										iWorldWonderSelectionValuePercent : SAS_getWorldWonderSelectionValuePercent(*pLoopCity));
+								// <!-- custom: Preserve inherited nonpositive values exactly. The first KI#48.20 test used max(1, ...) unconditionally for a positive percentage, which turned raw zero-value Wonders into 1 before the inherited completion-time normalization and could therefore make them more attractive than the control. Only positive values may receive the minimum-1 rounding floor. (ChatGPT-5.6-Sol) -->
+								int const iThisPlacementRawValue = (iValue <= 0 ? iValue :
+										(iWorldWonderSelectionValuePercent <= 0 ? 0 : std::max(1, (iValue * iWorldWonderSelectionValuePercent) / 100)));
+								int const iLoopPlacementRawValue = (iLoopValue <= 0 ? iLoopValue :
+										(iLoopWorldWonderSelectionValuePercent <= 0 ? 0 : std::max(1, (iLoopValue * iLoopWorldWonderSelectionValuePercent) / 100)));
+								FAssert(MAX_INT / 1000 > iThisPlacementRawValue);
+								FAssert(MAX_INT / 1000 > iLoopPlacementRawValue);
+								iThisPlacementValue = iThisPlacementRawValue * 1000 / std::max(1, iTurnsLeft + 3);
+								iLoopPlacementValue = iLoopPlacementRawValue * 1000 / std::max(1, iLoopTurnsLeft + 3);
 								bBetterPlacement = (80 * iLoopPlacementValue > 100 * iThisPlacementValue);
 							}
 						}
@@ -7648,6 +7706,45 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 				iValue *= 100 + syncRand().get(25, "AI Best Building",
 						eLoopClass, m_iID); // advc.007
 				iValue /= 100;
+			}
+		}
+
+		if (kBuilding.isWorldWonder())
+		{
+			if (iWorldWonderSelectionValuePercent < 0)
+				iWorldWonderSelectionValuePercent = SAS_getWorldWonderSelectionValuePercent(*this, &iWorldWonderLocalExposurePercent, &bWorldWonderLocalExposureApplies);
+			int const iValueBeforeSASWorldWonderOpportunityCost = iValue;
+			// <!-- custom: Preserve inherited zero/negative candidate value instead of promoting it to 1 merely because the percentage is positive. This also makes eagerness=100 + local optimize=0 an exact value-preserving control. See the first KI#48.20 A/B correction in the Known Issues entry. (ChatGPT-5.6-Sol) -->
+			if (iValue > 0)
+			{
+				if (iWorldWonderSelectionValuePercent <= 0)
+					iValue = 0;
+				else
+					iValue = std::max(1, (iValue * iWorldWonderSelectionValuePercent) / 100);
+			}
+
+			if (gBuildingProductionLogLevel >= 3)
+			{
+				SASLocalAreaRivalContext const kLocalRivals(kOwner, getArea(), false);
+				static int const iEagernessPercent = std::max(0, std::min(200, GC.getDefineINT("SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_EAGERNESS_PERCENT")));
+				static int const iDominanceMinPowerPercent = std::max(0, GC.getDefineINT("SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_DOMINANCE_MIN_POWER_PERCENT"));
+				CvString szSignature;
+				szSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d",
+					iValueBeforeSASWorldWonderOpportunityCost, iValue, iWorldWonderSelectionValuePercent, iWorldWonderLocalExposurePercent,
+					bWorldWonderLocalExposureApplies, kLocalRivals.iIndependentRivalTeams, kLocalRivals.iUnknownIndependentRivalTeams,
+					kLocalRivals.iOurBlocPower, kLocalRivals.iCombinedKnownLocalRivalBlocPower, kLocalRivals.iHighestKnownLocalRivalBlocPower,
+					kLocalRivals.iLocalPowerAdvantagePercent, kLocalRivals.iHighestLocalPowerAdvantagePercent);
+				if (SAS_shouldLogBuildingValueGateChange(*this, eLoopBuilding, "WORLD_WONDER_LOCAL_OPPORTUNITY_COST", szSignature))
+				{
+					logBBAI("WORLD_WONDER_LOCAL_OPPORTUNITY_COST turn=%d player=%d %S city=%S cityId=%d building=%s valueBefore=%d valueAfter=%d selectionPercent=%d eagernessPercent=%d localExposurePercent=%d localExposureApplies=%d dominanceMinPowerPercent=%d area=%d areaAlone=%d independentRivalTeamsInArea=%d unknownIndependentRivalTeamsInArea=%d independentRivalCitiesInArea=%d ourBlocPower=%d combinedKnownLocalRivalBlocPower=%d highestKnownLocalRivalBlocPower=%d combinedLocalPowerAdvantagePercent=%d highestLocalPowerAdvantagePercent=%d stored=%d needed=%d turnsLeft=%d",
+						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), kBuilding.getType(),
+						iValueBeforeSASWorldWonderOpportunityCost, iValue, iWorldWonderSelectionValuePercent, iEagernessPercent, iWorldWonderLocalExposurePercent,
+						bWorldWonderLocalExposureApplies, iDominanceMinPowerPercent, getArea().getID(), bAreaAlone, kLocalRivals.iIndependentRivalTeams,
+						kLocalRivals.iUnknownIndependentRivalTeams, kLocalRivals.iIndependentRivalCities, kLocalRivals.iOurBlocPower,
+						kLocalRivals.iCombinedKnownLocalRivalBlocPower, kLocalRivals.iHighestKnownLocalRivalBlocPower, kLocalRivals.iLocalPowerAdvantagePercent,
+						kLocalRivals.iHighestLocalPowerAdvantagePercent, getBuildingProduction(eLoopBuilding), getProductionNeeded(eLoopBuilding),
+						(iTurnsLeft == MAX_INT ? -1 : iTurnsLeft));
+				}
 			}
 		}
 
