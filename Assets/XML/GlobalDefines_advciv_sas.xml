@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- 
+<!--
 AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 -->
@@ -2710,7 +2710,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</Define>
 	<!-- (2) Vassal: devalue techs that our "cluster" already knows -->
 	<!-- custom: if our master knows the tech, devalue researching it, we can get it from them rather. -->
-	<!-- // Master -->  
+	<!-- // Master -->
 	<Define>
 		<DefineName>SAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
