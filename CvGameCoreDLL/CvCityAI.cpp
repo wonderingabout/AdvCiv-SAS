@@ -2502,7 +2502,7 @@ void CvCityAI::AI_chooseProduction()
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	// <advc>
 
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 	CvTeamAI const& kTeam = GET_TEAM(kPlayer.getTeam()); // kekm.16
 
 	CvGame const& kGame = GC.getGame();
@@ -6290,7 +6290,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
 
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
 	// <!-- custom: performance optimizations -->
@@ -9033,7 +9033,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	// <!-- custom: cache as eOwner as per chatgpt 5.2's recommendation to avoid reuse (not applied to things like ->getOwner() though as they look like method calls and not variables). -->
 	PlayerTypes const eOwner = getOwner();
 	CvPlayerAI const& kOwner = GET_PLAYER(eOwner);
-	// <!-- custom: use this pattern i found somewhere in the code, in case it is safer, and cache repetitive calls for performance optimization. Note: also cache GET_TEAM(getTeam()) to kTeam. Note 2: we had issues in the past in AdvCiv-SAS when caching these to a CvTeam cast (i don't know too much about these, check if accurate), that were solved using a CvTeamAI cast rather, so preferring this whenever it seems safe enough (check if accurate). I applied this to all GET_TEAM calls i spotted in this file +/- additional kOwner or kPlayer extra caching when needed, and after specifically testing this in autoplay, we get the exact same outcome vs before (t341 win, exact same score at scores it seems as well, so this also looks good to merge) -->
+	// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 	CvGame const& kGame = GC.getGame();
 	// <!-- custom: One explicit pre-gate protects both SAS-policy and inherited-value diagnostics; cache the level-3 test once in this hot function so neutral/current and prospective diagnostics do not repeatedly reload the global level. Logger arguments and strings are evaluated only inside the derived enabled branches. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
@@ -11740,7 +11740,7 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding, bool bAreaAlone
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
@@ -11869,7 +11869,6 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding, bool bAreaAlone
 // This function has been significantly modified for K-Mod
 ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bAsync) /* advc: */ const
 {
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
@@ -12098,7 +12097,7 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam());
 	CvProjectInfo const& kProject = GC.getInfo(eProject);
 	// <!-- custom: performance optimization: cache repetitive calls -->
@@ -12714,7 +12713,7 @@ int CvCityAI::AI_neededDefenders(/* advc.139: */ bool bIgnoreEvac, bool bConstCa
 	CvGameAI const& kGame = GC.AI_getGame();
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
 	int iDefenders = 1;
@@ -13056,7 +13055,6 @@ void CvCityAI::AI_updateSafety(bool bUpdatePerfectSafety)
 	if(kOwner.getNumCities() <= 1)
 		return;
 
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
 	/*  iRange = 1 b/c I want to be sure that an attack is imminent. Won't work
@@ -13470,7 +13468,6 @@ int CvCityAI::AI_clearFeatureValue(CityPlotTypes ePlot) const
 	CvPlot const& kPlot = *plotCity(getX(), getY(), ePlot);
 	CvFeatureInfo const& kFeature = GC.getInfo(kPlot.getFeatureType());
 
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
@@ -13978,7 +13975,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
@@ -14968,8 +14965,7 @@ void CvCityAI::AI_doDraft(bool bForce)
 		}
 	}
 
-	// // <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
-	// CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+	// <!-- custom: If this disabled cache is restored, keep CvTeamAI because the draft code calls AI_getOurPlotStrength. See KI#311.2. (ChatGPT-5.6-Sol) -->
 
 	if (bWait && bDanger)
 	{
@@ -15902,7 +15898,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 
 			// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well))) but just in case -->
 			CvPlayerAI const& kPlayer = GET_PLAYER(getOwner());
-			// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+			// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 			CvTeamAI const& kTeam = GET_TEAM(kPlayer.getTeam()); // kekm.16
 
 			// <!-- custom: performance optimization: cache repetitive calls -->
@@ -18559,7 +18555,6 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove, 
 
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
 	//const int iBaseProductionValue = 9; // (K-Mod: was 7 before I removed the averageCommerceExchange factor from the commerce values.)
@@ -19743,7 +19738,6 @@ int CvCityAI::AI_specialPlotImprovementValue(CvPlot const& kPlot) const
 	if (eImprovement == NO_IMPROVEMENT)
 		return 0;
 
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
@@ -19885,7 +19879,7 @@ int CvCityAI::AI_experienceWeight() const
 // <!-- custom: inherited military-production valuation: AI_buildUnitProb only reads city/player/team AI state, so make that contract explicit with const and allow const building valuation to reuse this existing dynamic unit-production-demand estimate directly. See KI#48.10. (ChatGPT-5.6-Sol) -->
 int CvCityAI::AI_buildUnitProb(bool bDraft) const
 {
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 	int iHighestRivalPowForLog = -1;
@@ -20773,7 +20767,7 @@ void CvCityAI::AI_barbChooseProduction()
 
 	const CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 	CvTeamAI const& kTeam = GET_TEAM(kPlayer.getTeam()); // kekm.16
 
 	// <!-- custom: performance optimizations -->
@@ -21406,7 +21400,7 @@ void CvCityAI::AI_updateSpecialYieldMultiplier()
 
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
 	AreaAITypes const eAreaAIType = getArea().getAreaAIType(getTeam());
@@ -21778,7 +21772,7 @@ int CvCityAI::AI_cityThreat(/*bool bDangerPercent*/) const // advc: param unused
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
 	int iTotalThreat = 0; // was (iValue)
@@ -22012,8 +22006,7 @@ int CvCityAI::AI_calculateSettlerPriority(int iAreaSites, int iBestAreaFoundValu
 	int iPriority = 20;
 
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
-	// CvTeam const& kTeam = GET_TEAM(getTeam());
-	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
+	// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
 	int iMinFoundValue = std::max(1, kOwner.AI_getMinFoundValue());

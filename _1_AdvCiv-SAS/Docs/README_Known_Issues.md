@@ -417,6 +417,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#309 - (Fixed AdvCiv-SAS bug) AI religion value counted full team and vassal-bloc power once per non-vassal team member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-309)\
 [KI#310 - (Retired fixed AdvCiv-SAS bug; host no-production fallback later retired under KI#51) Water-heavy AI city fallback could leave production empty](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-310)\
 [KI#311 - (Rejected archaeology finding) GET_TEAM(PlayerTypes) correctly resolves the player's team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-311)\
+[KI#311.2 - (Documented AdvCiv-SAS source-maintenance pitfall; no gameplay effect) Narrowing cached CvTeamAI references can hide required AI-only team interfaces](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-311.2)\
 [KI#312 - (Fixed AdvCiv-SAS bug) Master/vassal technology preferences treated legally unavailable knowledge as supply](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-312)\
 [KI#312.2 - (Fixed AdvCiv-SAS follow-up bug) Progress-tech purchases bypassed master/vassal cluster-first sourcing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-312.2)\
 [KI#313 - (Fixed AdvCiv-SAS bug) Human BFC Artist cleanup could remove manually forced Artists](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-313)\
@@ -13821,6 +13822,87 @@ Deeper lineage and accessor review rejected that diagnosis. In AI source, AdvCiv
 The proposed explicit conversions were semantic no-ops and were removed before compilation. KI#311 is retained as a rejected entry so future audits can find the overload evidence instead of rediscovering the same false positive. This is neither a BtS bug nor an AdvCiv/SAS bug.
 
 Initially identified through the systematic archaeology with the help of ChatGPT-5.6-Sol; rejected and documented after local source/accessor/lineage review with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-311.2"></a>
+
+## KI#311.2 - (Documented AdvCiv-SAS source-maintenance pitfall; no gameplay effect) Narrowing cached CvTeamAI references can hide required AI-only team interfaces
+
+AdvCiv-SAS practical 5282 / commit `1f9b99fd95` cached many repeated `GET_TEAM(...)` lookups in `CvCityAI` for hot-path performance.
+
+In AI translation units, AdvCiv's overloaded `CoreAI::getTeam` accessor returns a `CvTeamAI&`. C++ permits binding that object to a `CvTeam const&`, but doing so deliberately narrows the static interface: inherited `CvTeam` members remain available, while `CvTeamAI`-only methods and helpers that require `CvTeamAI const&` no longer compile.
+
+The distinction is per consumer, not per accessor. A direct test changed the cached team in `CvCityAI::AI_bestProject` from `CvTeamAI const&` to `CvTeam const&`; it compiled at the first attempt because that function only uses base-team operations such as project counts/making and `isHuman`.
+
+Repeating the same narrowing in `CvCityAI::AI_chooseProduction` failed during compilation. The Visual C++ 2003 build reported, among other diagnostics:
+
+```log
+         CvCity.cpp
+         CvCityAI.cpp
+     1>..\CvCityAI.cpp(2755): error C2664: 'SASWarPowerContext::SASWarPowerContext(const CvTeamAI &)' : cannot convert parameter 1 from 'const CvTeam' to 'const CvTeamAI &'
+                 Reason: cannot convert from 'const CvTeam' to 'const CvTeamAI'
+                 No constructor could take the source type, or constructor overload resolution was ambiguous
+     1>..\CvCityAI.cpp(2765): error C2039: 'AI_isWaterAreaRelevant' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(2772): error C2039: 'AI_isSneakAttackPreparing' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(2775): error C2039: 'AI_getNumWarPlans' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(2777): error C2039: 'AI_getNumWarPlans' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(2794): error C2039: 'AI_getWarSuccessRating' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(2811): error C2039: 'AI_isMasterPlanningLandWar' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(2813): error C2039: 'AI_isMasterPlanningSeaWar' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(2820): error C2039: 'AI_isWarPossible' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(4301): error C2039: 'AI_isAnyChosenWar' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(4619): error C2039: 'AI_getNumWarPlans' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(4621): error C2039: 'AI_getNumWarPlans' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(5069): error C2039: 'AI_isAnyWarPlan' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(5099): error C2039: 'AI_isAnyWarPlan' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(5106): error C2039: 'AI_getWarPlan' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(5118): error C2039: 'AI_isHasPathToEnemyCity' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(5132): error C2039: 'AI_isAnyWarPlan' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>..\CvCityAI.cpp(5195): error C2039: 'AI_getWarPlan' : is not a member of 'CvTeam'
+                 c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
+     1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
+         Stop.
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.MakeFile.Targets(38,5): error MSB3073: The command "set TARGET=Debug-opt
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.MakeFile.Targets(38,5): error MSB3073: nmake source_list /NOLOGO
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.MakeFile.Targets(38,5): error MSB3073: nmake fastdep /NOLOGO
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.MakeFile.Targets(38,5): error MSB3073: nmake dll /NOLOGO" exited with code 2.
+     1>Done Building Project "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\AdvCiv.vcxproj" (build target(s)) -- FAILED.
+```
+
+The same experiment produced further `C2039` errors for other AI-only team methods in `AI_chooseProduction`; the build then stopped with `NMAKE ... return code '0x2'`. This is compile-time static typing, not a cast/runtime-safety defect and not a gameplay bug.
+
+Therefore the practical result is intentionally not a blanket type rule. Some of these practical-5282 cache sites do compile when narrowed to `CvTeam const&`: `CvCityAI::AI_bestProject` was directly changed and successfully compiled at the first attempt because that consumer only needs inherited/base-team operations.
+
+Other sites demonstrably do not compile when narrowed: the corresponding `CvCityAI::AI_chooseProduction` experiment produced both a `C2664` failure when passing `const CvTeam` to `SASWarPowerContext(const CvTeamAI&)` and multiple `C2039` failures because `AI_isWaterAreaRelevant`, `AI_isSneakAttackPreparing`, `AI_getNumWarPlans`, `AI_getWarSuccessRating`, `AI_isMasterPlanningLandWar`, `AI_isMasterPlanningSeaWar`, `AI_isWarPossible` and other AI-only members are not members of `CvTeam`.
+
+AdvCiv-SAS nevertheless keeps `CvTeamAI const&` for all of the related practical-5282 `GET_TEAM` cache sites that carried this maintenance breadcrumb, including individual sites that could technically be narrowed to `CvTeam`.
+
+`CoreAI::getTeam` already returns `CvTeamAI&`, so retaining the concrete type is valid at every such site; testing and maintaining a separate base/AI type choice for each cache would add review and maintenance tedium without a practical benefit.
+
+In short: some compile as `CvTeam`, some do not, and the family is deliberately kept uniformly `CvTeamAI` for simplicity.
+
+This uniformity policy is scoped to that practical-5282 cache family, not to every team reference in `CvCityAI`. Unrelated or newer code that genuinely needs only inherited `CvTeam` operations may still use `CvTeam const&`; for example, `SAS_countIndependentRivalTeamsInArea` intentionally keeps its narrow base-team reference because it only needs `isHasMet`.
+
+The same practical-5282 cleanup also cached `GET_PLAYER(getOwner())` as `kOwner`/`kPlayer` at several sites and then derived the team cache from that existing player reference.
+
+Stale commented-out `CvTeam` alternatives are not retained as documentation; KI#311.2 records the tested distinction instead. Source comments now preserve the key “some compile / some fail / keep the family uniform to avoid tedium” rationale directly.
+
+Identified while cleaning the practical-5282 team caches during the AI building valuation PR, and runtime-tested through contrasting successful/failing compile experiments by wonderingabout, with source/lineage review and documentation by ChatGPT-5.6-Sol, thanks.
 
 <a id="ki-312"></a>
 
