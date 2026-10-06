@@ -810,7 +810,8 @@ enum SASGameRecordAIHurryReason
 };
 // <!-- custom: Preserve only the live realized AI_doHurry comparison that the following CITY_HURRIED mutation cannot reconstruct; callers pre-gate at level 2 immediately before hurry(), so no logging-only hurry valuation or city-state lookup is paid on ordinary no-hurry turns. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIHurryDecision(CvCity const& kCity, HurryTypes eHurry, SASGameRecordAIHurryReason eReason, UnitAITypes eUnitAI, int iHappyBalance, int iHappyDiff, int iFoodDifference, int iPopCost, int iGoldCost, int iDecisionValue, int iOverflowValue, int iDecisionMargin);
-// <!-- custom: Closed recorder-only origins distinguish the inherited helper from the few realized AI building commitments that bypass it. This keeps broad production evidence complete without copying rejected-candidate BBAI traces. (GPT-5.6-Sol) -->
+// <!-- custom: Closed recorder-only origins distinguish the inherited helper from the few realized AI building commitments that bypass it.
+// This keeps broad production evidence complete without copying rejected-candidate BBAI traces. (GPT-5.6-Sol) -->
 enum SASGameRecordAIBuildingChoiceOrigin
 {
 	SAS_AI_BUILDING_CHOICE_HELPER,
@@ -820,7 +821,7 @@ enum SASGameRecordAIBuildingChoiceOrigin
 	SAS_AI_BUILDING_CHOICE_OPPORTUNISTIC_WONDER,
 	NUM_SAS_AI_BUILDING_CHOICE_ORIGINS
 };
-// <!-- custom: Overlapping effect families summarize why realized building commitments matter without widening GAME_RECORD_PRODUCTION_FLOW by one scalar per future building mechanic. A single choice may increment several families. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Overlapping effect families summarize why realized building commitments matter without widening GAME_RECORD_PRODUCTION_FLOW by one scalar per future building mechanic; a single choice may increment several families. (ChatGPT-5.6-Sol) -->
 enum SASGameRecordAIBuildingChoiceEffect
 {
 	SAS_AI_BUILDING_EFFECT_HEALTH_FOOD_RELIEF,
@@ -840,7 +841,8 @@ enum SASGameRecordAIBuildingChoiceEffect
 	NUM_SAS_AI_BUILDING_CHOICE_EFFECTS
 };
 // <!-- custom: Caller contract: pre-gate every realized choice at SASGameRecord level 2+, pass bDetailed only from a caller-side level-3 gate, and build szFocus only when bDetailed is true.
-// The emitter intentionally performs no hidden logging-level check/assert, so ordinary disabled paths remain grep-visible and cheap; only invariant assertions remain. Helper-only max-turn/threshold/odds fields use -1 on direct chooser origins. (ChatGPT-5.6-Sol) -->
+// The emitter intentionally performs no hidden logging-level check/assert, so ordinary disabled paths remain grep-visible and cheap; only invariant assertions remain.
+// Helper-only max-turn/threshold/odds fields use -1 on direct chooser origins. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIBuildingChoice(CvCityAI const& kCity, BuildingTypes eBuilding, SASGameRecordAIBuildingChoiceOrigin eOrigin, int iFocusFlags, bool bDetailed, char const* szFocus, int iHelperMaxTurns, int iHelperMinThreshold, int iDecisionValue, int iHelperBaseOdds, int iHelperRandomRoll);
 // <!-- custom: Preserve consequential factual city/unit actions that otherwise disappear between periodic snapshots: hurrying, natural growth/starvation, culture expansion, pillage attribution/economic gain, naval blockade lifecycle/plunder, unit gifting, religion/corporation membership changes, and circumnavigation.
 // These hooks record only realized gameplay outcomes at level 2+; routine natural population changes are interval-compacted unless level 3 requests exact city transitions.

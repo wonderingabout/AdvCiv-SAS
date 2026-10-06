@@ -2,7 +2,9 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
-# <!-- custom: A Git object can survive an amend/rebase while no longer belonging to the canonical default-branch history. Validate finalized hashes against that history rather than a feature-branch HEAD; abstain from the ancestry check when the default branch is unavailable locally. Also verify explicit revision markers against the referenced source. The latest pending entry avoids an impossible self-referential commit hash. (GPT-6.1-Sol) -->
+# <!-- custom: A Git object can survive an amend/rebase while no longer belonging to the canonical default-branch history.
+# Validate finalized hashes against that history rather than a feature-branch HEAD; abstain from the ancestry check when the default branch is unavailable locally.
+# Also verify explicit revision markers against the referenced source. The latest pending entry avoids an impossible self-referential commit hash. (GPT-6.1-Sol) -->
 import argparse
 from pathlib import Path
 import re

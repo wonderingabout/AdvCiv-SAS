@@ -543,7 +543,8 @@ struct SASLocalAreaRivalContext
 };
 
 // <!-- custom: World-Wonder eagerness belongs in actual constructible-building selection rather than AI_buildingValue, where the retired FORCE_CHEAP_SAFE sentinel proved that a production override can pollute technology planning long before a real build opportunity exists.
-// The global percentage is a simple player-facing tuning knob even on secure islands; the local-exposure percentage is applied only when this landmass still contains an independent rival and we are not clearly dominant over the strongest known local rival. Unknown local rival blocs deliberately prevent the dominance exemption.
+// The global percentage is a simple player-facing tuning knob even on secure islands; the local-exposure percentage is applied only when this landmass still contains an independent rival and we are not clearly dominant over the strongest known local rival.
+// Unknown local rival blocs deliberately prevent the dominance exemption.
 // Keep this as a smooth candidate-value multiplier rather than another return-0 gate. Existing completion-time scoring, normal unit/Settler/building competition and stored-production continuation remain authoritative. See KI#48.20. (ChatGPT-5.6-Sol) -->
 static int SAS_getWorldWonderSelectionValuePercent(CvCityAI const& kCity, int* piLocalExposurePercent = NULL, bool* pbLocalExposureApplies = NULL)
 {
@@ -1758,7 +1759,8 @@ static int SAS_getMinimumSpaceshipComponentContinuityRank(CvCityAI const& kCity,
 }
 
 // <!-- custom: While adding exact SASGameRecord building-choice provenance, replace the inherited BUILDINGFOCUS_* preprocessor constants with an ordinary local enum, paralleling the earlier AI-strategy diagnostic cleanup that replaced log_strat macros with type-safe C++.
-// Preserve every inherited bit exactly, including K-Mod's composite WORLDWONDER request, while the distinct internal bit lets multi-focus formatting name WORLDWONDER without mislabeling an ordinary WONDEROK request. Keep the type local because no subsystem outside CvCityAI owns or consumes this building-specific request mask. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+// Preserve every inherited bit exactly, including K-Mod's composite WORLDWONDER request, while the distinct internal bit lets multi-focus formatting name WORLDWONDER without mislabeling an ordinary WONDEROK request.
+// Keep the type local because no subsystem outside CvCityAI owns or consumes this building-specific request mask. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 enum BuildingFocusTypes
 {
 	BUILDINGFOCUS_FOOD = (1 << 1),
@@ -1787,7 +1789,7 @@ struct BuildingFocusDescriptor
 	char const* szName;
 };
 
-// <!-- custom: C++ cannot reflect over this private bitmask. Keep its diagnostic iteration order and canonical names in one table so a future focus requires one new row rather than synchronized switch and array edits. (GPT-5.6-Sol) -->
+// <!-- custom: C++ cannot reflect over this private bitmask; keep its diagnostic iteration order and canonical names in one table so a future focus requires one new row rather than synchronized switch and array edits. (GPT-5.6-Sol) -->
 static BuildingFocusDescriptor const aBuildingFocusDescriptors[] =
 {
 	{ BUILDINGFOCUS_FOOD, "FOOD" },
@@ -2085,7 +2087,7 @@ struct SASProactiveFortificationThreat
 	int iIgnoreBuildingDefense;
 };
 
-// <!-- custom: Compact runtime counterpart to the detailed defense shadow logger. Scan only the visible city-capturing land attackers needed to decide whether a Walls/Castle-style building deserves an early production opportunity; do not run pathfinding or invent an ETA. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Compact runtime counterpart to the detailed defense shadow logger; scan only the visible city-capturing land attackers needed to decide whether a Walls/Castle-style building deserves an early production opportunity; do not run pathfinding or invent an ETA. (ChatGPT-5.6-Sol) -->
 static bool SAS_getProactiveFortificationThreat(CvCityAI const& kCity, int iRange, SASProactiveFortificationThreat& kThreat)
 {
 	for (SquareIter itPlot(kCity.getPlot(), iRange); itPlot.hasNext(); ++itPlot)
@@ -2532,7 +2534,8 @@ void CvCityAI::AI_chooseProduction()
 	int const iSASGameRecordLogLevel = gGameRecordLogLevel;
 	bool const bLogSASBuildingChoices = (iSASGameRecordLogLevel >= 2 && !isHuman() && !isBarbarian());
 	bool const bLogDetailedSASBuildingChoices = (bLogSASBuildingChoices && iSASGameRecordLogLevel >= 3);
-	// <!-- custom: SASGameRecord building-choice emitters intentionally trust caller-side log-level gating: level 0/1 pays no focus formatting or recorder call, and the readable focus list is built only for level 3. Keep this explicit contract rather than hiding a second log-level check/assert inside the emitter. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: SASGameRecord building-choice emitters intentionally trust caller-side log-level gating: level 0/1 pays no focus formatting or recorder call, and the readable focus list is built only for level 3.
+	// Keep this explicit contract rather than hiding a second log-level check/assert inside the emitter. (ChatGPT-5.6-Sol) -->
 	// <!-- custom: One scope observes the authoritative entry/final head target across every early return.
 	// Only civilization AI cities at SASGameRecord level 2+ capture state; ordinary completion -> fresh next selection is suppressed as non-churn. (ChatGPT-5.6-Sol) -->
 	SASGameRecordAIProductionChoiceScope kSASGameRecordProductionChoiceScope(*this, bLogSASBuildingChoices);
@@ -2793,7 +2796,8 @@ void CvCityAI::AI_chooseProduction()
 	bool const bLogDetailedMilitaryProduction = (gMilitaryProductionLogLevel >= 3);
 	bool const bLogOverseasTransport = (gOverseasTransportLogLevel >= 2);
 	bool const bLogDetailedOverseasTransport = (gOverseasTransportLogLevel >= 3);
-	// <!-- custom: Cache the stable team-wide enemy-power/active-war snapshot once for this chooser call, and cache player-level AI_isFocusWar separately; bDanger is already cached at function entry, while bLandWar and other area-local modes stay separate because their scope/semantics differ. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Cache the stable team-wide enemy-power/active-war snapshot once for this chooser call, and cache player-level AI_isFocusWar separately.
+	// bDanger is already cached at function entry, while bLandWar and other area-local modes stay separate because their scope/semantics differ. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	SASWarPowerContext const kWarPower(kTeam);
 	bool const bWarPlan = kPlayer.AI_isFocusWar();
 
@@ -7385,7 +7389,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 
 	bool bAreaAlone = kOwner.AI_isAreaAlone(getArea());
 	int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
-	// <!-- custom: Compute the KI#48.20 World-Wonder selection multiplier lazily only if a constructible World Wonder reaches this chooser. Most AI_bestBuildingThreshold calls therefore pay no local-rival scan. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Compute the KI#48.20 World-Wonder selection multiplier lazily only if a constructible World Wonder reaches this chooser; most AI_bestBuildingThreshold calls therefore pay no local-rival scan. (ChatGPT-5.6-Sol) -->
 	int iWorldWonderSelectionValuePercent = -1;
 	int iWorldWonderLocalExposurePercent = 100;
 	bool bWorldWonderLocalExposureApplies = false;
@@ -7558,7 +7562,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 					iValue /= iMaxNumWonders + 1;
 				}
 				// <!-- custom: Expose inherited National-Wonder placement for National-Park-style buildings without recomputing candidate-city values only for logging; collect the best values while the existing cross-city loop already evaluates them. See KI#48.9. (GPT-5.6-Sol) -->
-				const bool bNationalParkPlacementAudit = (gBuildingProductionLogLevel >= 3 && kBuilding.isNationalWonder() && kBuilding.getUnhealthyPopulationModifier() <= -50);
+				const bool bLogNationalParkPlacementAudit = (gBuildingProductionLogLevel >= 3 && kBuilding.isNationalWonder() && kBuilding.getUnhealthyPopulationModifier() <= -50);
 				const int iNationalParkCurrentPlacementValue = iValue;
 				CvCityAI const* pNationalParkBestPlacementCity = this;
 				int iNationalParkBestPlacementValue = iValue;
@@ -7576,7 +7580,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 							iLoopValue *= iMaxNumWonders + 1 - pLoopCity->getNumNationalWonders();
 							iLoopValue /= iMaxNumWonders + 1;
 						}
-						if (bNationalParkPlacementAudit && iLoopValue > iNationalParkBestPlacementValue)
+						if (bLogNationalParkPlacementAudit && iLoopValue > iNationalParkBestPlacementValue)
 						{
 							pNationalParkBestPlacementCity = pLoopCity;
 							iNationalParkBestPlacementValue = iLoopValue;
@@ -7589,13 +7593,16 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 						if (kBuilding.isWorldWonder())
 						{
 							// <!-- custom: World-Wonder race placement should compare the same value-per-completion-time shape used by the inherited final building chooser, not raw intrinsic value alone.
-							// KI#48.20 additionally applies each candidate city's own World-Wonder eagerness/local-exposure percentage here, so an exposed fast city does not automatically disqualify a somewhat slower secure city before the final chooser sees the same opportunity-cost policy. Stored production remains handled later by the inherited final selection path. See also KI#48.15. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+							// KI#48.20 additionally applies each candidate city's own World-Wonder eagerness/local-exposure percentage here, so an exposed fast city does not automatically disqualify a somewhat slower secure city before the final chooser sees the same opportunity-cost policy.
+							// Stored production remains handled later by the inherited final selection path. See also KI#48.15. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 							iLoopTurnsLeft = pLoopCity->getProductionTurnsLeft(eLoopBuilding, 0);
 							if (iLoopTurnsLeft < MAX_INT)
 							{
 								int const iLoopWorldWonderSelectionValuePercent = (pLoopCity->getArea().getID() == getArea().getID() ?
 										iWorldWonderSelectionValuePercent : SAS_getWorldWonderSelectionValuePercent(*pLoopCity));
-								// <!-- custom: Preserve inherited nonpositive values exactly. The first KI#48.20 test used max(1, ...) unconditionally for a positive percentage, which turned raw zero-value Wonders into 1 before the inherited completion-time normalization and could therefore make them more attractive than the control. Only positive values may receive the minimum-1 rounding floor. (ChatGPT-5.6-Sol) -->
+								// <!-- custom: Preserve inherited nonpositive values exactly.
+								// The first KI#48.20 test used max(1, ...) unconditionally for a positive percentage, which turned raw zero-value Wonders into 1 before the inherited completion-time normalization and could therefore make them more attractive than the control.
+								// Only positive values may receive the minimum-1 rounding floor. (ChatGPT-5.6-Sol) -->
 								int const iThisPlacementRawValue = (iValue <= 0 ? iValue :
 										(iWorldWonderSelectionValuePercent <= 0 ? 0 : std::max(1, (iValue * iWorldWonderSelectionValuePercent) / 100)));
 								int const iLoopPlacementRawValue = (iLoopValue <= 0 ? iLoopValue :
@@ -7615,7 +7622,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 						{
 							if (--iLimit <= 0)
 							{
-								if (bNationalParkPlacementAudit)
+								if (bLogNationalParkPlacementAudit)
 									bNationalParkRejectedForBetterCity = true;
 								if (gBuildingProductionLogLevel >= 3 && kBuilding.isWorldWonder())
 								{
@@ -7630,7 +7637,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 						}
 					}
 				}
-				if (bNationalParkPlacementAudit)
+				if (bLogNationalParkPlacementAudit)
 				{
 					const int iBestVsCurrentPercent = (iNationalParkCurrentPlacementValue <= 0 ? -1 :
 							(100 * iNationalParkBestPlacementValue) / iNationalParkCurrentPlacementValue);
@@ -7896,8 +7903,10 @@ static void SAS_logBuildingValuePolicyDecision(CvCityAI const& kCity, BuildingTy
 		kBuilding.isLimited(), kBuilding.isWorldWonder(), kBuilding.isNationalWonder());
 }
 
-// <!-- custom: Keep strategic exposure separate from the old World-Wonder policy knobs. The September 2026 audit needs to distinguish a globally warring empire from a Wonder city that is locally secure on an isolated/dominant landmass.
-// SASGameRecord caught deterministic game-state/RNG divergence after an earlier "logging-only" version added extra AI evaluators here; merely switching one suspected cache call did not restore equivalence, while reducing the row to factual getters/shared helpers plus parent-computed war context restored exact core-state and actual RNG-stream equivalence to the clean control. Keep future audit/refactor additions similarly observational. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Keep strategic exposure separate from the old World-Wonder policy knobs.
+// The September 2026 audit needs to distinguish a globally warring empire from a Wonder city that is locally secure on an isolated/dominant landmass.
+// SASGameRecord caught deterministic game-state/RNG divergence after an earlier "logging-only" version added extra AI evaluators here; merely switching one suspected cache call did not restore equivalence, while reducing the row to factual getters/shared helpers plus parent-computed war context restored exact core-state and actual RNG-stream equivalence to the clean control.
+// Keep future audit/refactor additions similarly observational. (ChatGPT-5.6-Sol) -->
 static void SAS_logWorldWonderStrategicAudit(CvCityAI const& kCity, BuildingTypes eBuilding, SASWarPowerContext const& kWarPower, bool bWarPlan, bool bDanger)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
@@ -7973,7 +7982,8 @@ static void SAS_logWonderPolicyAudit(CvCityAI const& kCity, BuildingTypes eBuild
 	bool const bNationalWonder = kBuilding.isNationalWonder();
 	if (!bWorldWonder && !bNationalWonder)
 		return;
-	// <!-- custom: These values reproduce retired SAS Wonder gates only in this pre-gated level-3 counterfactual logger. Keeping immutable historical comparators in XML made them look like live player-facing tuning; the era caps are ordered Ancient through Future, and later modmod eras retain the retired Future fallback. See KI#48.9. (GPT-5.6-Sol) -->
+	// <!-- custom: These values reproduce retired SAS Wonder gates only in this pre-gated level-3 counterfactual logger.
+	// Keeping immutable historical comparators in XML made them look like live player-facing tuning; the era caps are ordered Ancient through Future, and later modmod eras retain the retired Future fallback. See KI#48.9. (GPT-5.6-Sol) -->
 	bool const bRetiredSASAntiBarbarianLateVetoEnabled = true;
 	int const iRetiredSASAntiBarbarianLateMaxEra = 2;
 	int const aiRetiredSASCheapWorldWonderCostCapNormal[] = { 60, 90, 150, 200, 250, 300, 350 };
@@ -8058,7 +8068,8 @@ static void SAS_logWonderPolicyAudit(CvCityAI const& kCity, BuildingTypes eBuild
 	if (!SAS_shouldLogBuildingValueGateChange(kCity, eBuilding, szAuditKey, szSignature))
 		return;
 
-	// <!-- custom: Strategic World-Wonder context shares the already-existing World-Wonder policy audit emission gate instead of maintaining a second diagnostic state map. This keeps the logs separate/easy to grep while minimizing observational work and heap/state perturbation risk. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Strategic World-Wonder context shares the already-existing World-Wonder policy audit emission gate instead of maintaining a second diagnostic state map.
+	// This keeps the logs separate/easy to grep while minimizing observational work and heap/state perturbation risk. (ChatGPT-5.6-Sol) -->
 	if (bWorldWonder)
 		SAS_logWorldWonderStrategicAudit(kCity, eBuilding, kWarPower, bWarPlan, bDanger);
 
@@ -8359,7 +8370,8 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 		kBuilding.getDomainFreeExperience(DOMAIN_LAND), kBuilding.getDomainFreeExperience(DOMAIN_SEA), kBuilding.getMilitaryProductionModifier(),
 		kBuilding.getDomainProductionModifier(DOMAIN_LAND), kBuilding.getDomainProductionModifier(DOMAIN_SEA));
 
-	// <!-- custom: Growth-bottleneck audit: expose the exact inherited happiness contribution beside current angry citizens, reliable building happiness, temporary anger timers and the health/food state it competes with. This tests whether the old SAS reject/force rules or a new severe-unhappiness correction are needed without changing behavior. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Growth-bottleneck audit: expose the exact inherited happiness contribution beside current angry citizens, reliable building happiness, temporary anger timers and the health/food state it competes with.
+	// This tests whether the old SAS reject/force rules or a new severe-unhappiness correction are needed without changing behavior. (ChatGPT-5.6-Sol) -->
 	bool const bHappinessAuditLike = (iHappyGain > 0 || iActualHappyGain > 0 || iHappinessDelta != 0 ||
 			kBuilding.isNoUnhappiness() || kBuilding.getHurryAngerModifier() != 0 || kBuilding.getWarWearinessModifier() != 0);
 	if (bHappinessAuditLike)
@@ -8390,7 +8402,8 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 			iStored, iNeeded, iTurnsLeft, bAtWar, bWarPlan, bDanger, iEnemyPowerPercent);
 	}
 
-	// <!-- custom: Coastal-growth audit: isolate the exact inherited value attributable to local/global sea-tile food, production and commerce, then expose how many water plots are actually worked or available. This tests whether the old Harbor-style force-first rule should become a smooth urgency boost, and whether sea production deserves similar treatment, before adding any emergency override. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Coastal-growth audit: isolate the exact inherited value attributable to local/global sea-tile food, production and commerce, then expose how many water plots are actually worked or available.
+	// This tests whether the old Harbor-style force-first rule should become a smooth urgency boost, and whether sea production deserves similar treatment, before adding any emergency override. (ChatGPT-5.6-Sol) -->
 	bool const bCoastalYieldAuditLike = (
 			kBuilding.getSeaPlotYieldChange(YIELD_FOOD) != 0 || kBuilding.getSeaPlotYieldChange(YIELD_PRODUCTION) != 0 ||
 			kBuilding.getSeaPlotYieldChange(YIELD_COMMERCE) != 0 || kBuilding.getGlobalSeaPlotYieldChange(YIELD_FOOD) != 0 ||
@@ -8468,7 +8481,8 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 		iSpecialistDelta, iTradeDelta, iGeneralDelta, iYieldDelta, iCommerceGlobalDelta,
 		iAirCapacityDelta, iMilitaryProductionDelta, iDomainProductionDelta, iAccountedDelta, iResidualDelta);
 
-	// <!-- custom: Economy migration audit: isolate inherited gold-commerce value from a multipurpose building's other effects, then expose the core military-pressure and low-city-gold conditions behind SAS's old Market/Bank-style veto. Log only buildings with a gold modifier, flat gold or Merchant capacity so level-3 BBAI stays focused; keep the prior-category distinction visible through exact component deltas rather than reintroducing the old sequential whole-building classifier. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Economy migration audit: isolate inherited gold-commerce value from a multipurpose building's other effects, then expose the core military-pressure and low-city-gold conditions behind SAS's old Market/Bank-style veto.
+	// Log only buildings with a gold modifier, flat gold or Merchant capacity so level-3 BBAI stays focused; keep the prior-category distinction visible through exact component deltas rather than reintroducing the old sequential whole-building classifier. (ChatGPT-5.6-Sol) -->
 	int const iGoldFlat = kBuilding.getCommerceChange(COMMERCE_GOLD) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_GOLD);
 	int const iGoldModifier = kBuilding.getCommerceModifier(COMMERCE_GOLD);
 	int const iGlobalGoldModifier = kBuilding.getGlobalCommerceModifier(COMMERCE_GOLD);
@@ -8500,7 +8514,8 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 			bAtWar, bWarPlan, bDanger, iEnemyPowerPercent);
 	}
 
-	// <!-- custom: Trade-route migration audit: isolate the inherited trade contribution and expose the core conditions behind SAS's old Customs House / route-building vetoes without recreating the sequential whole-building classifier. Recompute foreign-route availability only inside the deduplicated level-3 path, and log only buildings that actually add routes or trade modifiers so BBAI stays focused. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Trade-route migration audit: isolate the inherited trade contribution and expose the core conditions behind SAS's old Customs House / route-building vetoes without recreating the sequential whole-building classifier.
+	// Recompute foreign-route availability only inside the deduplicated level-3 path, and log only buildings that actually add routes or trade modifiers so BBAI stays focused. (ChatGPT-5.6-Sol) -->
 	int const iTradeRoutesAdded = kBuilding.getTradeRoutes() + kBuilding.getCoastalTradeRoutes() + kBuilding.getAreaTradeRoutes();
 	int const iTradeRouteModifier = kBuilding.getTradeRouteModifier();
 	int const iForeignTradeRouteModifier = kBuilding.getForeignTradeRouteModifier();
@@ -8551,7 +8566,8 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 	}
 
 
-	// <!-- custom: Espionage migration audit: separate inherited EP output and espionage-defense value from the rest of each building, then expose the war/danger and difficulty-skew conditions behind SAS's old Jail / Intelligence Agency / Security Bureau hard rules. Retain this contextual attribution after removing the handicap-based force rule; keep all extra state inside the deduplicated level-3 path and log only buildings with actual espionage output, Spy slots or espionage defense. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Espionage migration audit: separate inherited EP output and espionage-defense value from the rest of each building, then expose the war/danger and difficulty-skew conditions behind SAS's old Jail / Intelligence Agency / Security Bureau hard rules.
+	// Retain this contextual attribution after removing the handicap-based force rule; keep all extra state inside the deduplicated level-3 path and log only buildings with actual espionage output, Spy slots or espionage defense. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int const iEspionageFlat = kBuilding.getCommerceChange(COMMERCE_ESPIONAGE) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_ESPIONAGE);
 	int const iEspionageModifier = kBuilding.getCommerceModifier(COMMERCE_ESPIONAGE);
 	int const iEspionageDefenseModifier = kBuilding.getEspionageDefenseModifier();
@@ -8588,7 +8604,8 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 			iStored, iNeeded, iTurnsLeft, bAtWar, bWarPlan, bDanger, iEnemyPowerPercent);
 	}
 
-	// <!-- custom: Science migration audit: isolate the inherited research-commerce contribution and reconstruct SAS's old Library-style whole-building military-pressure veto. Log only buildings that match that old science classification so level-3 BBAI stays focused; specialist value remains separate because a Scientist slot can matter even when the direct research-commerce delta is small. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Science migration audit: isolate the inherited research-commerce contribution and reconstruct SAS's old Library-style whole-building military-pressure veto.
+	// Log only buildings that match that old science classification so level-3 BBAI stays focused; specialist value remains separate because a Scientist slot can matter even when the direct research-commerce delta is small. (ChatGPT-5.6-Sol) -->
 	int const iResearchFlat = kBuilding.getCommerceChange(COMMERCE_RESEARCH) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_RESEARCH);
 	int const iResearchModifier = kBuilding.getCommerceModifier(COMMERCE_RESEARCH);
 	int const iGlobalResearchModifier = kBuilding.getGlobalCommerceModifier(COMMERCE_RESEARCH);
@@ -8621,7 +8638,9 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 	}
 
 
-	// <!-- custom: Culture migration audit: separate the inherited culture contribution from a multipurpose building's other value, then log the exact BFC-expansion boost and local culture context that motivated SAS's old early "enough culture" veto. The old SAS timing flag below intentionally reproduces only that veto's core BFC/turn/rate condition, not its earlier whole-building classification; this keeps the audit effect-based and modmod-safe. Compute the extra ownership/pressure context only after the level-3 neutral row survives deduplication. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Culture migration audit: separate the inherited culture contribution from a multipurpose building's other value, then log the exact BFC-expansion boost and local culture context that motivated SAS's old early "enough culture" veto.
+	// The old SAS timing flag below intentionally reproduces only that veto's core BFC/turn/rate condition, not its earlier whole-building classification; this keeps the audit effect-based and modmod-safe.
+	// Compute the extra ownership/pressure context only after the level-3 neutral row survives deduplication. (ChatGPT-5.6-Sol) -->
 	int const iCultureFlat = kBuilding.getCommerceChange(COMMERCE_CULTURE) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE);
 	int const iCultureModifier = kBuilding.getCommerceModifier(COMMERCE_CULTURE);
 	int const iGlobalCultureModifier = kBuilding.getGlobalCommerceModifier(COMMERCE_CULTURE);
@@ -8679,7 +8698,9 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 	}
 
 
-	// <!-- custom: Food-kept migration audit: mirror the inherited K-Mod Granary-style food-storage term and log the growth / pop-rush context behind it. SAS's old regular-building layer could reject these buildings solely for low current happiness or force them during fast growth; keep this diagnostic effect-based so we can test whether the inherited target-population and pop-rush scaling already supplies the needed context without hard-gating a multipurpose building. This runs only after the existing level-3 neutral-value dedup gate. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Food-kept migration audit: mirror the inherited K-Mod Granary-style food-storage term and log the growth / pop-rush context behind it.
+	// SAS's old regular-building layer could reject these buildings solely for low current happiness or force them during fast growth; keep this diagnostic effect-based so we can test whether the inherited target-population and pop-rush scaling already supplies the needed context without hard-gating a multipurpose building.
+	// This runs only after the existing level-3 neutral-value dedup gate. (ChatGPT-5.6-Sol) -->
 	int const iFoodKeptBuilding = kOwner.getFoodKept(eBuilding);
 	if (iFoodKeptBuilding != 0)
 	{
@@ -8708,7 +8729,8 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 			kBuilding.isLimited(), kBuilding.isWorldWonder(), kBuilding.isNationalWonder());
 	}
 
-	// <!-- custom: Production-modifier migration audit: expose the inherited production focus / yield contribution and the exact context behind SAS's old early Forge-style veto. Keep the audit effect-based and after the existing level-3 neutral-value dedup gate, and only emit the dedicated row for candidates that match the old production-building classification; this preserves the evidence while avoiding hundreds of thousands of irrelevant BBAI rows. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Production-modifier migration audit: expose the inherited production focus / yield contribution and the exact context behind SAS's old early Forge-style veto.
+	// Keep the audit effect-based and after the existing level-3 neutral-value dedup gate, and only emit the dedicated row for candidates that match the old production-building classification; this preserves the evidence while avoiding hundreds of thousands of irrelevant BBAI rows. (ChatGPT-5.6-Sol) -->
 	int const iBaseProductionModifier = kBuilding.getYieldModifier(YIELD_PRODUCTION);
 	int iXMLBonusProductionModifier = 0;
 	int iActiveBonusProductionModifier = 0;
@@ -8750,7 +8772,9 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 			bOldSASRejectEarlyLowReturn, bOldSASRejectStrongEnemy, bAtWar, bWarPlan, bDanger, iEnemyPowerPercent,
 			kBuilding.isLimited(), kBuilding.isWorldWonder(), kBuilding.isNationalWonder());
 	}
-	// <!-- custom: Defense migration audit: log the concrete threat and defensive-effect inputs behind the exact inherited defense delta. Compute this only after the level-3 neutral row survives deduplication; no defensive heuristic or extra query is added to normal gameplay. This lets us test SAS's old "already strong / no threat" rationale without rejecting a multipurpose building merely because one of its effects is defensive. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Defense migration audit: log the concrete threat and defensive-effect inputs behind the exact inherited defense delta.
+	// Compute this only after the level-3 neutral row survives deduplication; no defensive heuristic or extra query is added to normal gameplay.
+	// This lets us test SAS's old "already strong / no threat" rationale without rejecting a multipurpose building merely because one of its effects is defensive. (ChatGPT-5.6-Sol) -->
 	int const iRaiseDefense = kBuilding.get(CvBuildingInfo::RaiseDefense);
 	int const iAirDefense = -kBuilding.getAirModifier();
 	int const iNukeDefense = -kBuilding.getNukeModifier();
@@ -8935,7 +8959,7 @@ static void SAS_logInheritedBuildingValue(CvCityAI const& kCity, BuildingTypes e
 		kBuilding.getCommerceChange(COMMERCE_ESPIONAGE) + kBuilding.getObsoleteSafeCommerceChange(COMMERCE_ESPIONAGE), kBuilding.getCommerceModifier(COMMERCE_ESPIONAGE));
 }
 
-// <!-- custom: Complement the inherited-value rows with named early vetoes; otherwise a missing candidate is indistinguishable from a cache omission during the regular-building policy audit. Call only behind the cached level-3 gate. (GPT-5.6-Sol) -->
+// <!-- custom: Complement the inherited-value rows with named early vetoes; otherwise a missing candidate is indistinguishable from a cache omission during the regular-building policy audit; call only behind the cached level-3 gate. (GPT-5.6-Sol) -->
 static void SAS_logInheritedBuildingValueRejection(CvCityAI const& kCity, BuildingTypes eBuilding, char const* szReason)
 {
 	CvString szSignature(szReason);
@@ -8946,7 +8970,8 @@ static void SAS_logInheritedBuildingValueRejection(CvCityAI const& kCity, Buildi
 		GC.getGame().getGameTurn(), kCity.getOwner(), kOwner.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), GC.getInfo(eBuilding).getType(), szReason);
 }
 
-// <!-- custom: DomainProductionModifier accelerates every unit in its domain, including civilians. Test the civilization's concrete units through ordinary city legality; ignore only transient air capacity.
+// <!-- custom: DomainProductionModifier accelerates every unit in its domain, including civilians.
+// Test the civilization's concrete units through ordinary city legality; ignore only transient air capacity.
 // eAssumeTech lets player-level legality recognize the prospective candidate and its guaranteed prerequisites. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 static bool SAS_canTrainDomainUnit(CvCityAI const& kCity, DomainTypes eDomain, TechTypes eAssumeTech)
 {
@@ -9133,10 +9158,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 	CvGame const& kGame = GC.getGame();
-	// <!-- custom: One explicit pre-gate protects both SAS-policy and inherited-value diagnostics; cache the level-3 test once in this hot function so neutral/current and prospective diagnostics do not repeatedly reload the global level. Logger arguments and strings are evaluated only inside the derived enabled branches. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
-	bool const bBuildingProductionLogLevel3 = (gBuildingProductionLogLevel >= 3);
-	bool const bLogBuildingValueDetails = (bBuildingProductionLogLevel3 && iFocusFlags == 0 && eAssumeTech == NO_TECH);
-	bool const bLogProspectiveDomainApplicability = (bBuildingProductionLogLevel3 && iFocusFlags == 0 && eAssumeTech != NO_TECH);
+	// <!-- custom: One explicit pre-gate protects both SAS-policy and inherited-value diagnostics; cache the level-3 test once in this hot function so neutral/current and prospective diagnostics do not repeatedly reload the global level.
+	// Logger arguments and strings are evaluated only inside the derived enabled branches. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+	bool const bLogBuildingProductionLevel3 = (gBuildingProductionLogLevel >= 3);
+	bool const bLogBuildingValueDetails = (bLogBuildingProductionLevel3 && iFocusFlags == 0 && eAssumeTech == NO_TECH);
+	bool const bLogProspectiveDomainApplicability = (bLogBuildingProductionLevel3 && iFocusFlags == 0 && eAssumeTech != NO_TECH);
 
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
 	BuildingClassTypes const eBuildingClass = kBuilding.getBuildingClassType();
@@ -9149,7 +9175,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	// <!-- custom: Prospective domain applicability can invalidate the ordinary construction-value cache, so this one domain-policy switch must remain available before the cache decision. (ChatGPT-5.6-Sol) -->
 	static const bool bDomainProductionApplicabilityOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_PRODUCTION_MODIFIER_APPLICABILITY_OPTIMIZE");
 
-	// <!-- custom: in autoplay AI doesn't build shrines (Mahabodhi, Pagan Shrine, etc.) until late game after world wonders ASAP fix. Shrines/corporations have iCost=-1, so no point trying to save hammers. Skip viability gates for iCost=-1; handle only buildable buildings (iCost>0), similar to CvUnitAI::AI_ChooseUnit. In autoplay this leads to more wonders by turn 300. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
+	// <!-- custom: in autoplay AI doesn't build shrines (Mahabodhi, Pagan Shrine, etc.) until late game after world wonders ASAP fix.
+	// Shrines/corporations have iCost=-1, so no point trying to save hammers.
+	// Skip viability gates for iCost=-1; handle only buildable buildings (iCost>0), similar to CvUnitAI::AI_ChooseUnit.
+	// In autoplay this leads to more wonders by turn 300. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
 	// <!-- custom: performance optimization - cache iXMLCost for later calls in this function. (Claude code Sonnet 4.5 (summarized)) -->
 	const int iXMLCost = kBuilding.getProductionCost(); // XML base cost (unscaled)
 	// <!-- custom: Keep the inherited obsolete/removal caller invariant before the construction-cache return.
@@ -9187,7 +9216,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	if (kBuilding.isCapital())
 	{
 		// <!-- custom: Keep this level-3 row after removing the old SAS Palace policy: inherited capital-building rejection remains live for direct/prospective callers and is distinct from actual BUILDINGFOCUS_CAPITAL relocation. (GPT-5.6-Sol) -->
-		if (bBuildingProductionLogLevel3)
+		if (bLogBuildingProductionLevel3)
 		{
 			logBBAI("PALACE_INHERITED_BUILDING_VALUE_REJECT turn=%d player=%d %S city=%S cityId=%d building=%s focusFlags=%d prospective=%d assumeTech=%s",
 				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), kBuilding.getType(),
@@ -9222,7 +9251,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			~(BUILDINGFOCUS_WONDEROK | BUILDINGFOCUS_WORLDWONDER)) == 0;
 	bool abDomainProductionApplicable[NUM_DOMAIN_TYPES];
 	bool bProspectiveDomainApplicabilityChange = false;
-	// <!-- custom: Only prospective technology calls need applicability before the cache decision. Current-state cache hits return without touching this array; current-state cache misses initialize it once below for the actual domain valuation. (GPT-5.6-Sol) -->
+	// <!-- custom: Only prospective technology calls need applicability before the cache decision.
+	// Current-state cache hits return without touching this array; current-state cache misses initialize it once below for the actual domain valuation. (GPT-5.6-Sol) -->
 	if (eAssumeTech != NO_TECH)
 	{
 		FOR_EACH_ENUM(Domain)
@@ -9264,7 +9294,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	// </K-Mod>
 
 	// <!-- custom: Construction-cache miss only: all remaining city, empire, victory, ranking, food/health/trade and domain-throughput context is consumed solely by the full inherited calculation below.
-	// The earlier partial move left many unrelated queries above the cache. Rank helpers only fill deterministic lazy caches and have no gameplay-relevant side effect, so deferring them too avoids needless city sorting on an authoritative cache hit. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// The earlier partial move left many unrelated queries above the cache.
+	// Rank helpers only fill deterministic lazy caches and have no gameplay-relevant side effect, so deferring them too avoids needless city sorting on an authoritative cache hit. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int const iProductionRank = findBaseYieldRateRank(YIELD_PRODUCTION);
 	int const iCitizenValue = AI_citizenValue(); // advc
 	int const iLimitedWonderLimit = GC.getInfo(eBuildingClass).getLimit();
@@ -9430,29 +9461,29 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	SASBuildingValueDiagnosticsScope kDiagnostics(bLogBuildingValueDetails);
 	for (int iPass = 0; iPass < 2; iPass++)
 	{
-		bool const bCollectBuildingValueDetails = (bLogBuildingValueDetails && iPass > 0);
+		bool const bLogBuildingValueDetailsThisPass = (bLogBuildingValueDetails && iPass > 0);
 		/*	K-Mod. This entire block was originally wrapped with the following condition:
 			if ((iFocusFlags == 0) || (iValue > 0) || (iPass == 0))
 			I've moved this condition to the end of the block
 			and tweaked it for better readability. */
 
-		if (bCollectBuildingValueDetails) kDiagnostics->iDefenseBefore = iValue;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iDefenseBefore = iValue;
 		if ((iFocusFlags & BUILDINGFOCUS_DEFENSE) || iPass > 0)
 		{
 			// <advc> Moved into new function
 			iValue += AI_defensiveBuildingValue(eBuilding, bAreaAlone, bWarPlan,
 					iNumCities, iNumCitiesInArea, bRemove, bObsolete); // </advc>
 		}
-		if (bCollectBuildingValueDetails) kDiagnostics->iDefenseDelta += iValue - kDiagnostics->iDefenseBefore;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iDefenseDelta += iValue - kDiagnostics->iDefenseBefore;
 
-		if (bCollectBuildingValueDetails) kDiagnostics->iEspionageDefenseBefore = iValue;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iEspionageDefenseBefore = iValue;
 		if ((iFocusFlags & BUILDINGFOCUS_ESPIONAGE) || iPass > 0)
 		{
 			iValue += kBuilding.getEspionageDefenseModifier() / 8;
 		}
-		if (bCollectBuildingValueDetails) kDiagnostics->iEspionageDefenseDelta += iValue - kDiagnostics->iEspionageDefenseBefore;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iEspionageDefenseDelta += iValue - kDiagnostics->iEspionageDefenseBefore;
 
-		if (bCollectBuildingValueDetails) kDiagnostics->iHappinessBefore = iValue;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iHappinessBefore = iValue;
 		if (((iFocusFlags & BUILDINGFOCUS_HAPPY) || iPass > 0) && !isNoUnhappiness())
 		{
 			int iBestHappy = 0;
@@ -9549,9 +9580,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 						kOwner.getBuildingClassCount(perBuildingClassVal.first) * 8);
 			}
 		}
-		if (bCollectBuildingValueDetails) kDiagnostics->iHappinessDelta += iValue - kDiagnostics->iHappinessBefore;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iHappinessDelta += iValue - kDiagnostics->iHappinessBefore;
 
-		if (bCollectBuildingValueDetails) kDiagnostics->iHealthBefore = iValue;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iHealthBefore = iValue;
 		if ((iFocusFlags & BUILDINGFOCUS_HEALTHY) || iPass > 0)
 			//&& !isNoUnhealthyPopulation() // K-Mod: commented out
 		{
@@ -9593,7 +9624,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			// Keep the building's other effects additive rather than restoring the old whole-building health gate. See KI#48.6 and the broader audit in KI#48.5. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			if (iWasteDelta < 0)
 			{
-				// <!-- custom: These immutable XML weights are cached lazily inside the exercised health-relief path. The severity percentage applies to the average before/after deficit, while starvation relief is measured as a percentage of one citizen value per food deficit directly closed. Defaults 10 and 100 exactly preserve the validated KI#48.6 formula; 0 disables the corresponding added urgency without removing inherited health value. (GPT-5.6-Sol) -->
+				// <!-- custom: These immutable XML weights are cached lazily inside the exercised health-relief path.
+				// The severity percentage applies to the average before/after deficit, while starvation relief is measured as a percentage of one citizen value per food deficit directly closed.
+				// Defaults 10 and 100 exactly preserve the validated KI#48.6 formula; 0 disables the corresponding added urgency without removing inherited health value. (GPT-5.6-Sol) -->
 				static int const iHealthSeverityUrgencyPercent = std::max(0, GC.getDefineINT("SAS_AI_BUILDING_VALUE_HEALTH_RELIEF_AVERAGE_DEFICIT_URGENCY_PERCENT"));
 				static int const iHealthStarvationUrgencyPercent = std::max(0, GC.getDefineINT("SAS_AI_BUILDING_VALUE_HEALTH_RELIEF_STARVATION_CITIZEN_VALUE_PERCENT"));
 				int const iHealthRelief = -iWasteDelta;
@@ -9603,7 +9636,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				int const iStarvationRelief = std::min(iHealthRelief, std::max(0, -iFoodDifference));
 				int const iHealthStarvationUrgencyBonus = iCitizenValue * iStarvationRelief * iHealthStarvationUrgencyPercent / 100;
 				iValue += iHealthSeverityUrgencyBonus + iHealthStarvationUrgencyBonus;
-				if (bCollectBuildingValueDetails)
+				if (bLogBuildingValueDetailsThisPass)
 				{
 					kDiagnostics->iHealthSeverityUrgencyBonus += iHealthSeverityUrgencyBonus;
 					kDiagnostics->iHealthStarvationUrgencyBonus += iHealthStarvationUrgencyBonus;
@@ -9632,9 +9665,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			iValue += kBuilding.getAreaHealth() * (iNumCitiesInArea-1) * 4;
 			iValue += kBuilding.getGlobalHealth() * iNumCities * 4;
 		}
-		if (bCollectBuildingValueDetails) kDiagnostics->iHealthDelta += iValue - kDiagnostics->iHealthBefore;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iHealthDelta += iValue - kDiagnostics->iHealthBefore;
 
-		if (bCollectBuildingValueDetails) kDiagnostics->iExperienceBefore = iValue;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iExperienceBefore = iValue;
 		if (iFocusFlags & BUILDINGFOCUS_EXPERIENCE || iPass > 0)
 		{
 			/*	K-Mod (note). currently this new code matches the functionality
@@ -9679,7 +9712,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							int const iSeaExperienceThroughputValue = iSeaExperience * iSeaExperienceWeight;
 							int const iLegacySeaExperienceValue = iSeaExperience * 7;
 							iDomainXPValue = iSeaExperienceThroughputValue;
-							if (bCollectBuildingValueDetails)
+							if (bLogBuildingValueDetailsThisPass)
 							{
 								logBBAI("BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT turn=%d player=%d city=%S cityId=%d building=%s seaExperience=%d totalMilitaryProductionShare=%d waterWorldPercent=%d seaProductionShare=%d experienceWeight=%d throughputValue=%d legacyValue=%d baseProduction=%d productionRank=%d numCities=%d highProductionCity=%d",
 									kGame.getGameTurn(), eOwner, getName().GetCString(), getID(), kBuilding.getType(), iSeaExperience,
@@ -9703,10 +9736,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			}
 			// K-Mod end
 		}
-		if (bCollectBuildingValueDetails) kDiagnostics->iExperienceDelta += iValue - kDiagnostics->iExperienceBefore;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iExperienceDelta += iValue - kDiagnostics->iExperienceBefore;
 
 		// since this duplicates BUILDINGFOCUS_EXPERIENCE checks, do not repeat on pass 1
-		if (bCollectBuildingValueDetails) kDiagnostics->iDomainSeaBefore = iValue;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iDomainSeaBefore = iValue;
 		if ((iFocusFlags & BUILDINGFOCUS_DOMAINSEA))
 		{
 			iValue += (iFreeExperience * (iHasMetCount > 0 ? 16 : 8));
@@ -9736,9 +9769,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				iValue += (kBuilding.getDomainProductionModifier(DOMAIN_SEA) / 4);
 		}
 
-		if (bCollectBuildingValueDetails) kDiagnostics->iDomainSeaDelta += iValue - kDiagnostics->iDomainSeaBefore;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iDomainSeaDelta += iValue - kDiagnostics->iDomainSeaBefore;
 
-		if (bCollectBuildingValueDetails) kDiagnostics->iMaintenanceBefore = iValue;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iMaintenanceBefore = iValue;
 		if ((iFocusFlags & BUILDINGFOCUS_MAINTENANCE) ||
 			(iFocusFlags & BUILDINGFOCUS_GOLD) || (iPass > 0))
 		{
@@ -9747,7 +9780,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				(note. ideally we'd use "calculateBaseMaintenanceTimes100",
 				and that would a avoid problem caused by "we love the X day".
 				but doing it this way is slightly faster.) */
-			// <!-- custom: SAS regular-building migration audit: full-autoplay diagnostics showed that this inherited K-Mod path already scales maintenance value proportionally with actual savings, inflation and financial trouble. Small savings stayed small while multipurpose buildings could still be worthwhile for their other effects, so keep this additive valuation unchanged instead of restoring SAS's old whole-building "too soon" maintenance rejection. (ChatGPT-5.6-Sol) -->
+			// <!-- custom: SAS regular-building migration audit: full-autoplay diagnostics showed that this inherited K-Mod path already scales maintenance value proportionally with actual savings, inflation and financial trouble.
+			// Small savings stayed small while multipurpose buildings could still be worthwhile for their other effects, so keep this additive valuation unchanged instead of restoring SAS's old whole-building "too soon" maintenance rejection. (ChatGPT-5.6-Sol) -->
 			if (kBuilding.getMaintenanceModifier())
 			{
 				int iBaseMaintenance = 100 * iMaintenanceTimes100 /
@@ -9769,7 +9803,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				if (bFinancialTrouble)
 					iTempValue = iTempValue*2;
 
-				if (bCollectBuildingValueDetails)
+				if (bLogBuildingValueDetailsThisPass)
 				{
 					// <!-- custom: The audit retained this inherited K-Mod path: across 7,739 candidates, median estimated savings were 1.66 gold per turn and the median maintenance contribution was +10, while savings of at most 0.50 usually contributed only about +1.
 					// Record each valuation stage; the reconstructed base is explicitly labeled estimated because the faster inherited calculation can be distorted by We Love the King Day. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -9785,9 +9819,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			}
 			// K-Mod end
 		}
-		if (bCollectBuildingValueDetails) kDiagnostics->iMaintenanceDelta += iValue - kDiagnostics->iMaintenanceBefore;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iMaintenanceDelta += iValue - kDiagnostics->iMaintenanceBefore;
 
-		if (bCollectBuildingValueDetails) kDiagnostics->iSpecialistBefore = iValue;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iSpecialistBefore = iValue;
 		if (/* advc.121b: */ !bIgnoreSpecialists &&
 			((iFocusFlags & BUILDINGFOCUS_SPECIALIST) || iPass > 0))
 		{
@@ -9828,9 +9862,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				iValue += iSpecialistsValue;
 			// K-Mod end
 		}
-		if (bCollectBuildingValueDetails) kDiagnostics->iSpecialistDelta += iValue - kDiagnostics->iSpecialistBefore;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iSpecialistDelta += iValue - kDiagnostics->iSpecialistBefore;
 
-		if (bCollectBuildingValueDetails) kDiagnostics->iTradeBefore = iValue;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iTradeBefore = iValue;
 		if ((iFocusFlags & (BUILDINGFOCUS_GOLD | BUILDINGFOCUS_RESEARCH)) || iPass > 0)
 		{
 			// trade routes
@@ -9899,9 +9933,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 			iValue += iTempValue;
 		}
-		if (bCollectBuildingValueDetails) kDiagnostics->iTradeDelta += iValue - kDiagnostics->iTradeBefore;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iTradeDelta += iValue - kDiagnostics->iTradeBefore;
 
-		if (bCollectBuildingValueDetails) kDiagnostics->iGeneralBefore = iValue;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iGeneralBefore = iValue;
 		if (iPass > 0)
 		{
 			/*	K-Mod. The value of golden age buildings.
@@ -10144,11 +10178,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			iValue += (-(kBuilding.getNukeModifier()) / ((iHasMetCount > 0) ? 10 : 20));*/ // BtS
 			// (This stuff is already counted in the defense section.)
 			// <K-Mod>
-			if (bCollectBuildingValueDetails) kDiagnostics->iAirCapacityBefore = iValue;
+			if (bLogBuildingValueDetailsThisPass) kDiagnostics->iAirCapacityBefore = iValue;
 			iValue += std::max(0, kBuilding.getAirUnitCapacity() -
 					getPlot().airUnitSpaceAvailable(getTeam())/2) *
 					(iPop + 12); // </K-Mod>
-			if (bCollectBuildingValueDetails) kDiagnostics->iAirCapacityDelta += iValue - kDiagnostics->iAirCapacityBefore;
+			if (bLogBuildingValueDetailsThisPass) kDiagnostics->iAirCapacityDelta += iValue - kDiagnostics->iAirCapacityBefore;
 
 			/*iValue += (kBuilding.getFreeSpecialist() * 16);
 			iValue += (kBuilding.getAreaFreeSpecialist() * iNumCitiesInArea * 12);
@@ -10181,7 +10215,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			iValue += ((kBuilding.getWorkerSpeedModifier() *
 					kOwner.AI_getNumAIUnits(UNITAI_WORKER)) / 10);
 
-			if (bCollectBuildingValueDetails) kDiagnostics->iMilitaryProductionBefore = iValue;
+			if (bLogBuildingValueDetailsThisPass) kDiagnostics->iMilitaryProductionBefore = iValue;
 			static const bool bMilitaryProductionThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_MILITARY_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE");
 			if (bMilitaryProductionThroughputOptimize && iMilitaryProductionModifier != 0)
 			{
@@ -10196,14 +10230,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// Keep the tested floor XML-tunable and additive rather than reviving the old rank bonus or force-first sentinel. See KI#48.16. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				static const int iMilitaryNationalWonderUnitShareFloorPercent = range(GC.getDefineINT("SAS_AI_BUILDING_VALUE_MILITARY_NATIONAL_WONDER_UNIT_PRODUCTION_SHARE_FLOOR_PERCENT"), 0, 100);
 				int const iEffectiveMilitaryProductionShare = (bNationalWonder && iMilitaryProductionModifier > 0 ? std::max(iMilitaryProductionShare, iMilitaryNationalWonderUnitShareFloorPercent) : iMilitaryProductionShare);
-				int const iMilitaryProductionBaseRate = iBaseHammersPerTurn + 2; // <!-- custom: Mirror K-Mod's ordinary yield-modifier allowance for near-term growth. (ChatGPT-5.6-Sol) -->
+				// <!-- custom: Mirror K-Mod's ordinary yield-modifier allowance for near-term growth. (ChatGPT-5.6-Sol) -->
+				int const iMilitaryProductionBaseRate = iBaseHammersPerTurn + 2;
 				int const iMilitaryProductionThroughputValue = (iMilitaryProductionModifier * iMilitaryProductionBaseRate * iEffectiveMilitaryProductionShare) / 2500;
 				iValue += iMilitaryProductionThroughputValue;
 				if (iMilitaryProductionModifier > 0)
 				{
 					iValue += (iMilitaryProductionModifier * (getFreeExperience() + getSpecialistFreeExperience())) / 10;
 				}
-				if (bCollectBuildingValueDetails)
+				if (bLogBuildingValueDetailsThisPass)
 				{
 					logBBAI("BUILDING_VALUE_MILITARY_PRODUCTION_THROUGHPUT turn=%d player=%d city=%S cityId=%d building=%s modifier=%d baseProduction=%d baseRateWithGrowth=%d unitProductionShare=%d effectiveUnitProductionShare=%d throughputValue=%d productionRank=%d numCities=%d limited=%d nationalWonder=%d hasMetCount=%d",
 						kGame.getGameTurn(), eOwner, getName().GetCString(), getID(), kBuilding.getType(), iMilitaryProductionModifier, iBaseHammersPerTurn,
@@ -10244,7 +10279,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 							iProductionRank) / 5;
 				}
 			}
-			if (bCollectBuildingValueDetails) kDiagnostics->iMilitaryProductionDelta += iValue - kDiagnostics->iMilitaryProductionBefore;
+			if (bLogBuildingValueDetailsThisPass) kDiagnostics->iMilitaryProductionDelta += iValue - kDiagnostics->iMilitaryProductionBefore;
 
 			iValue += (kBuilding.getSpaceProductionModifier() / 5);
 			iValue += ((kBuilding.getGlobalSpaceProductionModifier() * iNumCities) / 20);
@@ -10352,7 +10387,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 						perImprovementVal.second;
 				iTotalImprFreeSpecialists += perImprovementVal.second; // advc.131
 			}
-			if (bCollectBuildingValueDetails) kDiagnostics->iDomainProductionBefore = iValue;
+			if (bLogBuildingValueDetailsThisPass) kDiagnostics->iDomainProductionBefore = iValue;
 			FOR_EACH_ENUM(Domain)
 			{
 				int const iDomainProductionModifier = kBuilding.getDomainProductionModifier(eLoopDomain);
@@ -10360,7 +10395,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				{
 					// <!-- custom: Remove only the unusable domain-production component, not the whole multipurpose building.
 					// AI_techBuildingValue passes its prospective technology and guaranteed prerequisites so a unit unlocked before/by the building technology keeps the component applicable; ordinary production uses current trainability. See KI#48.14. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-					if (bCollectBuildingValueDetails)
+					if (bLogBuildingValueDetailsThisPass)
 						logBBAI("BUILDING_VALUE_DOMAIN_PRODUCTION_INAPPLICABLE turn=%d player=%d city=%S cityId=%d building=%s domain=%d modifier=%d assumedTech=%d",
 							kGame.getGameTurn(), eOwner, getName().GetCString(), getID(), kBuilding.getType(), eLoopDomain, iDomainProductionModifier, eAssumeTech);
 					continue;
@@ -10373,7 +10408,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					int const iLandProductionBaseRate = iBaseHammersPerTurn + 2;
 					int const iLandProductionThroughputValue = (iDomainProductionModifier * iLandProductionBaseRate * iLandProductionShare) / 2500;
 					iValue += iLandProductionThroughputValue;
-					if (bCollectBuildingValueDetails)
+					if (bLogBuildingValueDetailsThisPass)
 					{
 						int iLegacyDomainProductionValue = iDomainProductionModifier / 5;
 						if (bHighProductionCity)
@@ -10396,7 +10431,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					int const iSeaProductionBaseRate = iBaseHammersPerTurn + 2;
 					int const iSeaProductionThroughputValue = (iDomainProductionModifier * iSeaProductionBaseRate * iSeaProductionShare) / 2500;
 					iValue += iSeaProductionThroughputValue;
-					if (bCollectBuildingValueDetails)
+					if (bLogBuildingValueDetailsThisPass)
 					{
 						int iLegacyDomainProductionValue = iDomainProductionModifier / 5;
 						if (bHighProductionCity)
@@ -10414,7 +10449,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 						iValue += iDomainProductionModifier / 5;
 				}
 			}
-			if (bCollectBuildingValueDetails) kDiagnostics->iDomainProductionDelta += iValue - kDiagnostics->iDomainProductionBefore;
+			if (bLogBuildingValueDetailsThisPass) kDiagnostics->iDomainProductionDelta += iValue - kDiagnostics->iDomainProductionBefore;
 
 			FOR_EACH_ENUM(Unit)
 			{
@@ -10800,9 +10835,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// BETTER_BTS_AI_MOD: END
 			}
 		}
-		if (bCollectBuildingValueDetails) kDiagnostics->iGeneralDelta += iValue - kDiagnostics->iGeneralBefore;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iGeneralDelta += iValue - kDiagnostics->iGeneralBefore;
 
-		if (bCollectBuildingValueDetails) kDiagnostics->iYieldBefore = iValue;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iYieldBefore = iValue;
 		if (iPass > 0)
 		{
 			/*	K-Mod, I've moved this from inside the yield types loop;
@@ -10885,11 +10920,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// advc.131: was >
 				if (kBuilding.getSeaPlotYieldChange(eLoopYield) != 0)
 				{
-					int const iSeaYieldPlotWeight = AI_buildingSeaYieldChangeWeight(eBuilding,
-							iFoodDifference > 0 && iHappinessLevel > 0);
+					int const iSeaYieldPlotWeight = AI_buildingSeaYieldChangeWeight(eBuilding, iFoodDifference > 0 && iHappinessLevel > 0);
 					iDiagSeaLocalRawValue = kBuilding.getSeaPlotYieldChange(eLoopYield) * iSeaYieldPlotWeight;
 					iRawYieldValue += iDiagSeaLocalRawValue;
-					if (bCollectBuildingValueDetails)
+					if (bLogBuildingValueDetailsThisPass)
 						kDiagnostics->iSeaYieldPlotWeight = iSeaYieldPlotWeight;
 					bAnySeaPlotYieldChange = true; // advc.131
 				}
@@ -10927,18 +10961,17 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					if (eLoopYield == YIELD_PRODUCTION)
 					{
 						// priority += 2.4% per 1% in production increase. roughly. More when at war.
-						int const iYieldProductionPriorityRaw = (bWarPlan ? 280 : 240) *
-								iTempValue/std::max(1, 4*getYieldRate(YIELD_PRODUCTION));
+						int const iYieldProductionPriorityRaw = (bWarPlan ? 280 : 240) * iTempValue/std::max(1, 4*getYieldRate(YIELD_PRODUCTION));
 						int const iYieldProductionPriorityApplied = std::min(100, iYieldProductionPriorityRaw);
 						iPriorityFactor += iYieldProductionPriorityApplied;
-						if (bCollectBuildingValueDetails)
+						if (bLogBuildingValueDetailsThisPass)
 						{
 							kDiagnostics->iYieldProductionPriorityRaw += iYieldProductionPriorityRaw;
 							kDiagnostics->iYieldProductionPriorityApplied += iYieldProductionPriorityApplied;
 						}
 					} // K-Mod end
 					int const iYieldWeight = kOwner.AI_yieldWeight(eLoopYield, this);
-					if (bCollectBuildingValueDetails && (iDiagSeaLocalRawValue != 0 || iDiagSeaGlobalRawValue != 0))
+					if (bLogBuildingValueDetailsThisPass && (iDiagSeaLocalRawValue != 0 || iDiagSeaGlobalRawValue != 0))
 					{
 						int iDiagSeaValue = iDiagSeaLocalRawValue * iYieldMultiplier / 100 + iDiagSeaGlobalRawValue;
 						iDiagSeaValue = iDiagSeaValue * iYieldWeight / 100;
@@ -11044,8 +11077,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				iValue += iTempValue;
 			}
 		}
-		if (bCollectBuildingValueDetails) kDiagnostics->iYieldDelta += iValue - kDiagnostics->iYieldBefore;
-		if (bCollectBuildingValueDetails) kDiagnostics->iCommerceGlobalBefore = iValue;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iYieldDelta += iValue - kDiagnostics->iYieldBefore;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iCommerceGlobalBefore = iValue;
 		if (iPass > 0)
 		{
 			FOR_EACH_ENUM(Commerce)
@@ -11702,7 +11735,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// BETTER_BTS_AI_MOD: END
 			}
 		}
-		if (bCollectBuildingValueDetails) kDiagnostics->iCommerceGlobalDelta += iValue - kDiagnostics->iCommerceGlobalBefore;
+		if (bLogBuildingValueDetailsThisPass) kDiagnostics->iCommerceGlobalDelta += iValue - kDiagnostics->iCommerceGlobalBefore;
 
 		/*if ((iThreshold > 0) && (iPass == 0))
 		{
@@ -11967,6 +12000,7 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding, bool bAreaAlone
 ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bAsync) /* advc: */ const
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	// <!-- custom: Keep this practical-5282 GET_TEAM cache as CvTeamAI: some sibling cache sites compile when narrowed to CvTeam, while others fail because they use AI-only team members or helpers requiring CvTeamAI; retain CvTeamAI across this cache family to avoid tedious per-site type exceptions. See KI#311.2. (ChatGPT-5.6-Sol) -->
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 
 	// <advc.014>
@@ -17526,7 +17560,7 @@ bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThresho
 	int const iSASGameRecordLogLevel = gGameRecordLogLevel;
 	bool const bLogSASBuildingChoice = (iSASGameRecordLogLevel >= 2 && !isHuman() && !isBarbarian());
 	bool const bLogDetailedSASBuildingChoice = (bLogSASBuildingChoice && iSASGameRecordLogLevel >= 3);
-	// <!-- custom: Match AI_chooseProduction's recorder contract: level 2 gates the realized-choice hook and optional winning-score output once; only level 3 formats the private BUILDINGFOCUS_* names. The emitter deliberately trusts these caller-side gates. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Match AI_chooseProduction's recorder contract: level 2 gates the realized-choice hook and optional winning-score output once; only level 3 formats the private BUILDINGFOCUS_* names; the emitter deliberately trusts these caller-side gates. (ChatGPT-5.6-Sol) -->
 	int iBestBuildingSelectionScore = -1;
 	BuildingTypes eBestBuilding = NO_BUILDING; // advc
 	// <!-- custom: The optional output only stores the winning score from this already-required randomized pass; SASGameRecord never repeats building valuation or RNG. (GPT-5.6-Sol) -->

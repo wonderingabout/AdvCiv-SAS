@@ -434,7 +434,8 @@ void CvPlayerAI::AI_doTurnPre()
 	if (bUpdateGreatPersonWeights)
 	{
 		// <!-- custom: City production and other late-turn callers can leave neutral construction values cached into the next player turn.
-		// Great-Person weights run before K-Mod's ordinary pre-research clear, so clear first when that periodic consumer is about to run. Keep the existing clear below as the separate fresh boundary for research valuation. See KI#821. (ChatGPT-5.6-Sol) -->
+		// Great-Person weights run before K-Mod's ordinary pre-research clear, so clear first when that periodic consumer is about to run.
+		// Keep the existing clear below as the separate fresh boundary for research valuation. See KI#821. (ChatGPT-5.6-Sol) -->
 		AI_ClearConstructionValueCache();
 		AI_updateGreatPersonWeights();
 	}

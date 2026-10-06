@@ -1434,7 +1434,8 @@ char const* getSASAutoPlayEndCause(SASAutoPlayEndCause eCause)
 }
 
 // <!-- custom: Keep one iterable source of truth for the static AIStrategy bitfield values and their machine-readable names.
-// SASGameRecord previously repeated a lowest/highest-bit shift range beside this translator; a descriptor table prevents a future strategy addition or gap from silently disappearing from hashes, checkpoints or transition rows. Player-facing widget labels remain separate translated/prose presentation. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+// SASGameRecord previously repeated a lowest/highest-bit shift range beside this translator; a descriptor table prevents a future strategy addition or gap from silently disappearing from hashes, checkpoints or transition rows.
+// Player-facing widget labels remain separate translated/prose presentation. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 static SASAIStrategyDescriptor const aSASAIStrategyDescriptors[] =
 {
 	{ AI_DEFAULT_STRATEGY, "AI_DEFAULT_STRATEGY" },
