@@ -30,7 +30,7 @@ All in all, this simplifies gameplay to some extent, but greatly increases depth
 
 Also most importantly LLMs like GPT Thinking (i.e. ChatGPT), GPT Codex, Claude code, Gemini AI, Deepseek AI, Grok AI, have helped me a lot to do this, and i probably would not have completed (or extremely harder) without them and all i mean so thanks again and thanks a lot!
 
-For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+For license and reuse terms, including project-specific restrictions and expressly permitted derivatives, see [License and reuse](/README.md#license-and-reuse).
 
 <a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
 
@@ -102,6 +102,9 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 [Credits](/README.md#credits)\
 [Some Useful tools while doing this](/README.md#some-useful-tools-while-doing-this)\
 [License and reuse](/README.md#license-and-reuse)\
+&emsp;[RFC Dawn of Civilization and Leoreth-controlled project restrictions](/README.md#rfc-dawn-of-civilization-and-leoreth-controlled-project-restrictions)\
+&emsp;[Expressly permitted RFC Dawn of Civilization derivatives](/README.md#expressly-permitted-rfc-dawn-of-civilization-derivatives)\
+&emsp;[Requests, exceptions, and future terms](/README.md#requests-exceptions-and-future-terms)\
 [Authors](/README.md#authors)\
 
 ## Tech Tree
@@ -503,7 +506,7 @@ One of the main and most significant Sevopedia changes in AdvCiv-SAS is the new 
 
 As always, ChatGPT is a key co-author and main code contributor and with the help of other AIs (See [Authors](/README.md#authors)) thanks.
 
-Another significant contribution from our AI helpers is the new Traits Charts, that are 2 sortable Traits Charts that show all trait pairs and their representation among all leaders, using as of now a "++++" kind of ranking and clickable leader buttons in the charts. Also, the Leaders'panel's header has been enhanced with similar info, as of now for example "Leader 12/53 (22%)", and other enhancements such as new txt keys that are fairly mod-agnostic (added with the help of ChatGPT 5.2 thanks a lot). Implementation with the help of Claude code Opus 4.5 and GPT-5.2-Codex thanks a lot. Also added similar charts such as the Starting and Untradeable Techs Charts (pairs and combinations).
+Another significant contribution from our AI/LLM helpers is the new Traits Charts, that are 2 sortable Traits Charts that show all trait pairs and their representation among all leaders, using as of now a "++++" kind of ranking and clickable leader buttons in the charts. Also, the Leaders'panel's header has been enhanced with similar info, as of now for example "Leader 12/53 (22%)", and other enhancements such as new txt keys that are fairly mod-agnostic (added with the help of ChatGPT 5.2 thanks a lot). Implementation with the help of Claude code Opus 4.5 and GPT-5.2-Codex thanks a lot. Also added similar charts such as the Starting and Untradeable Techs Charts (pairs and combinations).
 
 Based on it, we notably also made, in Sevopedia Improvement, a new sortable Improvement Weights (Leaders) Chart, showing Weights, Count per Weight, and clickable Leader buttons for each weight and improvement.
 
@@ -1234,21 +1237,66 @@ See [Some Useful tools while doing this](/_1_AdvCiv-SAS/Docs/README_References.m
 
 ## License and reuse
 
-You can reuse our work in your projects on the condition that you credit us. Example of credit:
+AdvCiv-SAS generally allows reuse of AdvCiv-SAS-original work, on the condition that the project credits AdvCiv-SAS. Example of credit:
 
 ```txt
-the AdvCiv-SAS mod by wonderingabout and AI helpers
+the AdvCiv-SAS mod by wonderingabout and AI/LLM helpers
 ```
 
-The original authors are listed in the [README authors section](/README.md#authors), including myself, ChatGPT, and Claude AI, and other AI helpers.
+The original authors are listed in the [README authors section](/README.md#authors), including myself and AI/LLM helpers such as ChatGPT, GPT models through Codex, and Claude.
+
+For this section, **AdvCiv-SAS-original work** means copyrightable material created for AdvCiv-SAS for which the AdvCiv-SAS maintainer controls the relevant reuse rights, including code, documentation, scripts, images or other artwork, configuration/data files, and other original project content.
+
+This can also include externally hosted project content (for example, an AdvCiv-SAS-maintained album or Google Drive material) when it is explicitly identified as AdvCiv-SAS-original work. A link or URL by itself is not the linked content and does not grant rights over third-party material. Upstream or third-party material included in, linked from, or credited by AdvCiv-SAS remains subject to its own applicable rights and terms.
+
+### RFC Dawn of Civilization and Leoreth-controlled project restrictions
+
+RFC Dawn of Civilization as maintained by Leoreth, other projects authored, maintained, or controlled by Leoreth, and projects derived from RFC Dawn of Civilization may not copy, port, adapt, or otherwise incorporate AdvCiv-SAS-original work directly from AdvCiv-SAS unless an explicit exception is granted below or separately by the AdvCiv-SAS maintainer.
+
+For this section, an **RFC Dawn of Civilization-derived project** means a project based on, forked from, or substantially incorporating RFC Dawn of Civilization as its codebase. Merely reusing an isolated asset, idea, or unrelated component does not by itself make a project RFC Dawn of Civilization-derived.
+
+This restriction concerns direct reuse from AdvCiv-SAS by restricted projects. It does not prevent a restricted project from later receiving AdvCiv-SAS-derived work through an independently permitted project that is **not itself derived from RFC Dawn of Civilization** and that has legitimately incorporated that work under the normal AdvCiv-SAS reuse terms, such as AdvCiv.
+
+Examples:
+
+- `AdvCiv-SAS -> AdvCiv -> RFC Dawn of Civilization`: allowed by this downstream-inheritance rule.
+- `AdvCiv-SAS -> RFC Dawn of Civilization: Aeons -> RFC Dawn of Civilization`: not allowed for the AdvCiv-SAS-original portion unless separately and explicitly permitted.
+
+This downstream-inheritance allowance does **not** apply through RFC Dawn of Civilization-derived projects, including those expressly permitted below. Permission granted to an RFC Dawn of Civilization derivative is limited to that permitted project and does not authorize AdvCiv-SAS-original work incorporated under that exception to be transferred, sublicensed, merged, or otherwise incorporated into RFC Dawn of Civilization itself, another restricted project, or another RFC Dawn of Civilization derivative without separate explicit permission from the AdvCiv-SAS maintainer.
+
+A temporary or contribution fork whose purpose is to submit work directly to a restricted project is not, by itself, an independently permitted project for purposes of the downstream-inheritance allowance.
+
+### Expressly permitted RFC Dawn of Civilization derivatives
+
+The following independent RFC Dawn of Civilization derivatives are currently permitted to reuse AdvCiv-SAS-original work under the normal AdvCiv-SAS attribution requirement:
+
+- Dawn of Civilization: America
+- RFC Dawn of Civilization: Aeons
+- RFC Dawn of Chungus
+
+Independent projects authored or maintained by Fresol (`Fre-sol`) are also permitted under the normal reuse terms. This standing exception does not make RFC Dawn of Civilization itself permitted merely because Fresol contributes to it.
+
+Exceptions for RFC Dawn of Civilization derivatives are project-specific, non-transferable, and non-transitive: permission given to one project does not pass onward to another project. Permission for a listed or separately approved project does not extend to its forks, modmods, derivatives, or other distinct projects based on it unless the AdvCiv-SAS maintainer explicitly says otherwise. It also does not authorize the permitted project to pass AdvCiv-SAS-original work into RFC Dawn of Civilization itself or another restricted project.
+
+Such downstream projects remain subject to the RFC Dawn of Civilization restriction even when their immediate parent or source project is expressly permitted. Ordinary updates or releases of the same expressly permitted project remain covered by that project-specific exception unless explicitly stated otherwise.
+
+All other RFC Dawn of Civilization-derived projects remain subject to the restriction above unless the AdvCiv-SAS maintainer explicitly grants an exception.
+
+### Requests, exceptions, and future terms
+
+If there is any doubt about whether a project is permitted, its author or maintainer may contact the AdvCiv-SAS maintainer for clarification or to request an exception. Any exception is granted solely at the maintainer's discretion and must be given explicitly. The maintainer is under no obligation to grant an exception or to respond. Silence, lack of a response, or absence of an objection does not constitute permission.
+
+The AdvCiv-SAS maintainer may also, at their sole discretion, approve, excuse, waive, or choose not to enforce any requirement or restriction in these reuse terms in a particular case, including an attribution requirement.
+
+Any such decision applies only to the specific person, project, use, and circumstances concerned unless explicitly stated otherwise. It does not amend these terms generally, establish a precedent, waive the same requirement in another case, or entitle another person or project to equivalent treatment. Prior tolerance, non-enforcement, silence, or a discretionary exception in one case does not by itself constitute permission or waiver in another case.
+
+The AdvCiv-SAS maintainer may change the reuse terms or the list of expressly permitted projects for future AdvCiv-SAS releases and contributions, including by adding, limiting, or removing future exceptions or restrictions.
 
 ## Authors
 
 Here are a short info about the authors.
 
 Note: may not list all versions of such models/ais used.
-
-Note 2: for crediting us or reusing our work, see [License and reuse](/README.md#license-and-reuse).
 
 ### me, wonderingabout
 
