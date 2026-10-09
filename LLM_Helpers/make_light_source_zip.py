@@ -133,6 +133,7 @@ GENERATED_GIT_IGNORED_TREE_NAME = f"{GENERATED_CONTEXT_DIR}/git_ignored_paths_tr
 GENERATED_STAGED_DIFF_NAME = f"{GENERATED_CONTEXT_DIR}/staged_changes_no_eol.diff"
 GENERATED_UNSTAGED_DIFF_NAME = f"{GENERATED_CONTEXT_DIR}/unstaged_changes_no_eol.diff"
 GENERATED_BRANCH_DIFF_NAME = f"{GENERATED_CONTEXT_DIR}/branch_changes_no_eol.diff"
+GENERATED_COMMITTED_BRANCH_DIFF_NAME = f"{GENERATED_CONTEXT_DIR}/branch_committed_changes_no_eol.diff"
 GENERATED_BRANCH_LOG_NAME = f"{GENERATED_CONTEXT_DIR}/branch_comparison_log.txt"
 GENERATED_INCREMENTAL_GIT_LOG_NAME = f"{GENERATED_CONTEXT_DIR}/git_log_since_tracked_advciv_sas_log.txt"
 # <!-- custom: Generate commit history freshly for the archive at its canonical shared repository path rather than duplicating it under _SNAPSHOT_CONTEXT. (GPT-5.6-Sol) -->
@@ -826,8 +827,10 @@ def build_git_diff(repo_root: Path, cached: bool) -> bytes:
     return raw.encode("utf-8")
 
 
-def build_branch_diff(repo_root: Path, repository_state: str) -> tuple[bytes, list[str]]:
+def build_branch_diff(repo_root: Path, repository_state: str, *, committed_only: bool = False) -> tuple[bytes, list[str]]:
     # <!-- custom: Compare the shared ancestor with the current tracked working tree so one patch covers committed, staged and unstaged feature work without reversing newer default-only commits. Pin both tips from snapshot metadata; unrelated histories or multiple merge bases are reported rather than selecting an arbitrary base. (GPT-6.1-Sol) -->
+    # <!-- custom: Also export merge base -> captured HEAD separately, so reviewers can distinguish committed feature work from the combined working snapshot using identical base selection and EOL filtering. (GPT-6.1-Sol) -->
+    # <!-- custom: The no_eol patches ignore CRLF/LF and trailing-whitespace differences to avoid whole-file review churn; they retain meaningful indentation and content changes and do not normalize the source files. (GPT-6.1-Sol) -->
     fields = dict(line.split(": ", 1) for line in repository_state.splitlines() if line.startswith(("HEAD: ", "Default HEAD: ", "Default comparison ref: ")))
     head = fields.get("HEAD")
     default_head = fields.get("Default HEAD")
@@ -841,14 +844,15 @@ def build_branch_diff(repo_root: Path, repository_state: str) -> tuple[bytes, li
         error = f"expected one merge base, found {len(base_list)} ({error or ', '.join(base_list)})"
         return f"# Cumulative branch diff unavailable: {error}\n".encode("utf-8"), [f"Branch diff: unavailable ({error})"]
     base = base_list[0]
-    raw, error = run_git(repo_root, "diff", "--no-ext-diff", "--no-textconv", "--no-color", "--ignore-space-at-eol", "--ignore-cr-at-eol", base, "--", *commit_diff_pathspec_args())
+    raw, error = run_git(repo_root, "diff", "--no-ext-diff", "--no-textconv", "--no-color", "--ignore-space-at-eol", "--ignore-cr-at-eol", base, *([head] if committed_only else []), "--", *commit_diff_pathspec_args())
     if raw is None:
         return f"# Cumulative branch diff unavailable: {error}\n".encode("utf-8"), [f"Branch diff: unavailable ({error})"]
     summary = [
-        f"Branch diff: {GENERATED_BRANCH_DIFF_NAME}",
+        f"Branch diff: {GENERATED_COMMITTED_BRANCH_DIFF_NAME if committed_only else GENERATED_BRANCH_DIFF_NAME}",
         f"Branch diff default ref: {default_ref} ({default_head})",
         f"Branch diff current HEAD: {head}",
         f"Branch diff merge base: {base}",
+        "Branch diff scope: merge base -> captured HEAD (committed only; excludes generated history context)." if committed_only else
         "Branch diff scope: merge base -> tracked working tree (committed + staged + unstaged; excludes untracked files and generated history context).",
     ]
     header = "\n".join(f"# {line}" for line in summary) + "\n\n"
@@ -2050,6 +2054,11 @@ def build_snapshot_context_readme() -> str:
         "  Current-only and default-only commit histories, oldest -> newest, with full SHAs, parents, messages\n"
         "  and per-commit practical counts; shared merge-base SHA/count anchors both sides. Emails are hidden.\n"
         "  Counts can repeat across branches; SHAs identify commits. Default-only commits are not current source.\n\n"
+        "Review-diff filtering: no_eol means CRLF/LF and trailing-whitespace differences are ignored.\n"
+        "  Meaningful indentation/content changes remain visible; source files are not normalized.\n\n"
+        "branch_committed_changes_no_eol.diff\n"
+        "  One cumulative diff from the same current/default merge base to captured HEAD (committed changes only).\n"
+        "  Uses the same EOL filtering and generated-history exclusions as the combined working-tree patch below.\n\n"
         "branch_changes_no_eol.diff\n"
         "  One cumulative EOL-noise-filtered diff from the current/default merge base to the tracked working tree.\n"
         "  Covers committed, staged and unstaged changes; does not reverse newer default-only commits.\n"
@@ -2110,6 +2119,8 @@ def build_generated_context(repo_root: Path, selected_files: Iterable[Path], com
     dll_context, dll_summary = build_omitted_dll_context(repo_root, repository_state)
     uncommitted_files, uncommitted_summary = build_uncommitted_file_context(repo_root, repository_state)
     branch_diff, branch_summary = build_branch_diff(repo_root, repository_state)
+    committed_branch_diff, committed_summary = build_branch_diff(repo_root, repository_state, committed_only=True)
+    branch_summary.extend(line.replace("Branch diff:", "Branch committed diff:", 1).replace("Branch diff scope:", "Branch committed diff scope:", 1) for line in committed_summary if line.startswith(("Branch diff:", "Branch diff scope:")))
     branch_log, branch_log_summary = build_branch_comparison_log(repo_root, branch_summary)
     branch_summary.extend(branch_log_summary)
     default_files, default_files_summary = build_default_branch_file_context(repo_root, repository_state, branch_summary)
@@ -2125,6 +2136,7 @@ def build_generated_context(repo_root: Path, selected_files: Iterable[Path], com
         GENERATED_STAGED_DIFF_NAME: build_git_diff(repo_root, cached=True),
         GENERATED_UNSTAGED_DIFF_NAME: build_git_diff(repo_root, cached=False),
         GENERATED_BRANCH_DIFF_NAME: branch_diff,
+        GENERATED_COMMITTED_BRANCH_DIFF_NAME: committed_branch_diff,
         GENERATED_BRANCH_LOG_NAME: branch_log,
         GENERATED_INCREMENTAL_GIT_LOG_NAME: build_incremental_git_log(repo_root).encode("utf-8"),
     }
@@ -2314,7 +2326,7 @@ def main() -> int:
     compression_mode = "ZIP_STORED / no compression" if args.compression_level <= 0 else f"ZIP_DEFLATED / compression level {args.compression_level}"
 
     state_summary = [line for line in generated_context[GENERATED_GIT_STATE_NAME].decode("utf-8").splitlines()
-                     if line.startswith(("Branch:", "HEAD:", "Commit count:", "Default ", "Current-only /", "Branch diff", "Branch changed", "Branch compar", "Branch commit", "Default file copies", "Uncommitted ", "Omitted DLL", "Git error:"))]
+                     if line.startswith(("Branch:", "HEAD:", "Commit count:", "Default ", "Current-only /", "Branch diff", "Branch committed diff", "Branch changed", "Branch compar", "Branch commit", "Default file copies", "Uncommitted ", "Omitted DLL", "Git error:"))]
     change_summary = working_tree_summary_lines(repo_root)
     runtime_summary = runtime_process_summary_lines()
     history_summary = ["History:"]

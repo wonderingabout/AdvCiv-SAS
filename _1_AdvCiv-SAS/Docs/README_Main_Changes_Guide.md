@@ -171,6 +171,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - CI collects all filename/path violations before failing.
   - See [repository hygiene CI](/.github/workflows/README.md#buildrepository_hygienepy).
 - **Light source archive helper:**
+  - (Requires AdvCiv-SAS 6607+) Separate cumulative patches show committed branch work and the complete working snapshot, including staged/unstaged edits, against the same shared ancestor with the detected default branch. Both filter CRLF/LF and trailing-whitespace noise so reviewers can focus on meaningful changes.
   - added [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), which creates a timestamped compressed AdvCiv-SAS source/data/docs archive under the mod root or a chosen output folder.
   - A small tracked Git file-tree manifest is also bundled so ZIP-only LLMs can see repository paths intentionally omitted from the archive.
   - The archive now also includes generated `_SNAPSHOT_CONTEXT` with the current Git/repository state plus useful filtered textual diffs across the current HEAD's K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history, including later upstream AdvCiv commits merged into that branch, making offline/ZIP-only LLM review and historical investigation much more complete without including the full `.git` repository or historical source trees.

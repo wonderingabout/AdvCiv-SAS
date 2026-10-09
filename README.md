@@ -1020,6 +1020,8 @@ See [`.github/workflows/README.md`](/.github/workflows/README.md#python-24-compi
 
 ### Light-source ZIP
 
+Light-source archives include separate cumulative review patches for committed branch changes and the full tracked working snapshot, including staged/unstaged edits. Both use the same shared ancestor with the detected default branch and filter CRLF/LF and trailing-whitespace noise; see the [snapshot context details](/LLM_Helpers/README.md#make_light_source_zippy).
+
 Or notably also [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), that creates a timestamped compressed light source archive for quick local/LLM review handoffs (e.g., to ChatGPT) without manually selecting and tediously creating an updated ZIP of each file/folder each time.
 
 It also generates a small archive-only `_SNAPSHOT_CONTEXT/` folder containing the tracked Git file manifest, a compact ignored-path tree, a separate repository-state file (branch/HEAD, commit count, locally known upstream/ahead-behind state, tracked short status, and ZIP-selected untracked files), staged and unstaged diffs with line-ending-only noise ignored, and incremental committed history since the newest commit already recorded in the repository's AdvCiv-SAS Git-log file, or other similar data.

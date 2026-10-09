@@ -1170,6 +1170,8 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
     - Together with current source, the cumulative branch patch and the separate staged/unstaged diffs, these baseline files let ZIP-only reviewers inspect the overall change and its before/after code without reconstructing whole files from historical patches or guessing which branch version they have. This supports source review; compilation and runtime validation remain separate.
     - These copies represent the default tip, whereas the cumulative patch below starts at the merge base. Those commits can differ; `default_branch_files_manifest.txt` records the exact tip, copied paths and omissions. Deleted/renamed original paths are included when a default counterpart exists.
     - Binary/excluded files, missing default counterparts and files exceeding 2 MiB each or the 16 MiB combined budget are recorded rather than copied. The console and packaging summary show the cumulative changed-path count and names up to 100 entries, plus the copy count and manifest path.
+  - The `no_eol` review patches ignore CRLF/LF line-ending differences and trailing whitespace, preventing line-ending conversions from producing giant whole-file diffs. Meaningful indentation and content changes remain visible; generating these patches does not normalize or rewrite source files.
+  - `branch_committed_changes_no_eol.diff`: one cumulative review patch from the same merge base to captured HEAD, containing committed changes only. Compare this with the working-tree patch below to review the committed PR separately from ongoing edits; both use the same EOL filtering and generated-history exclusions.
   - `branch_changes_no_eol.diff`: one cumulative review patch from the merge base of current HEAD and the detected default-branch comparison tip to the current tracked working tree, covering committed, staged and unstaged changes together while ignoring end-of-line whitespace noise.
     - Using the shared ancestor avoids presenting newer default-only commits as deletions. The patch header, repository state and console summary identify the exact default/current tips, merge-base SHA and scope. This is a feature-review patch, not a direct diff against the latest default tree.
     - Untracked files and generated history context are excluded; selected untracked files remain available separately in the ZIP. Unavailable default metadata, unrelated histories or multiple merge bases produce an explicit unavailable message instead of a guessed comparison.
@@ -1267,38 +1269,58 @@ python ./LLM_Helpers/make_light_source_zip.py --fetch-upstream --output-dir "C:\
 
 #### Example of output (light_source ZIP) (Git Bash)
 
+This command-output example is short enough to keep here beside the usage instructions rather than in the examples/outputs folders. It illustrates the packaging report; the generated artifact is the light-source ZIP itself.
+
 ```text
-Started:   2026-10-09T09:34:42.106Z
+Started:   2026-10-09T14:05:35.097Z
 History preparation: inspecting reachable commits and reusable patches...
 History cache: reusing entries from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_6be79479a47b
-History preparation complete: all 6610 selected patches reused; no patch regeneration needed. Continuing snapshot preparation.
+History cache miss: no reusable patch for a8604aafcd4e034d077c856b793729f1fbe1034c; regenerating missing/new/rewritten entries under the current policy.
+History preparation: many missing patches can take several minutes or more; subsequent runs normally reuse them rather than rebuilding everything.
+History preparation complete: 6 patches regenerated, 6617 reused. Continuing snapshot preparation.
 Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
 Branch: codex/uwai-structured-diagnostics
-HEAD: d74d40f333fd8f5ecb3520feb2328837bc319d29
-Commit count: 6610
+HEAD: a8604aafcd4e034d077c856b793729f1fbe1034c
+Commit count: 6623
 Default branch: main (locally known origin/HEAD; no fetch)
 Default comparison ref: refs/heads/main
-Default HEAD: 75295ecf03ce483352054757b2553c8f57bc094f
-Default commit count: 6605
-Default remote commit count: 6605 (refs/remotes/origin/main; may be stale)
-Current-only / default-only commits: 6 / 1
+Default HEAD: fe8b16962fb39d60225657e9ec587716f6d87b24
+Default commit count: 6606
+Default remote commit count: 6606 (refs/remotes/origin/main; may be stale)
+Current-only / default-only commits: 19 / 2
 Branch diff: _SNAPSHOT_CONTEXT/branch_changes_no_eol.diff
-Branch diff default ref: refs/heads/main (75295ecf03ce483352054757b2553c8f57bc094f)
-Branch diff current HEAD: d74d40f333fd8f5ecb3520feb2328837bc319d29
+Branch diff default ref: refs/heads/main (fe8b16962fb39d60225657e9ec587716f6d87b24)
+Branch diff current HEAD: a8604aafcd4e034d077c856b793729f1fbe1034c
 Branch diff merge base: a16df9cc4420fe4c8332692d87b56020f9ff1de9
 Branch diff scope: merge base -> tracked working tree (committed + staged + unstaged; excludes untracked files and generated history context).
+Branch committed diff: _SNAPSHOT_CONTEXT/branch_committed_changes_no_eol.diff
+Branch committed diff scope: merge base -> captured HEAD (committed only; excludes generated history context).
 Branch comparison log: _SNAPSHOT_CONTEXT/branch_comparison_log.txt
 Branch comparison shared ancestor: 6604 / a16df9cc4420fe4c8332692d87b56020f9ff1de9
-Branch commits CURRENT-ONLY: 6 (practical count / SHA / title below; full messages and parents in branch_comparison_log.txt)
+Branch commits CURRENT-ONLY: 19 (practical count / SHA / title below; full messages and parents in branch_comparison_log.txt)
 Branch commit CURRENT-ONLY: 6605 / df69134e02b71bbd76a7050dbf6351a2974bcf5a / Structure UWAI scenario-analysis diagnostics
 Branch commit CURRENT-ONLY: 6606 / a19cee3d26e4edaf81ac744691fd07fed7de8ef9 / Expose light-source branch, change and runtime context
 Branch commit CURRENT-ONLY: 6607 / 2baad35905ef1f2c3f5fd9e67cdfc4345e3612d4 / Structure UWAI InvasionGraph topology diagnostics
 Branch commit CURRENT-ONLY: 6608 / 034253c9105e89b198b6ae0d467237cb92807391 / Add branch review diffs, baseline files and history to light-source ZIPs
 Branch commit CURRENT-ONLY: 6609 / 41ff29feaa234fded9cfb4394244df9ac5286d35 / Structure UWAI InvasionGraph combat diagnostics
 Branch commit CURRENT-ONLY: 6610 / d74d40f333fd8f5ecb3520feb2328837bc319d29 / Preserve pre-edit source references and show history-cache progress
-Branch commits DEFAULT-ONLY: 1 (practical count / SHA / title below; full messages and parents in branch_comparison_log.txt)
+Branch commit CURRENT-ONLY: 6611 / 968e9eea10e519cc21c0b2987fa6e7c84deb56fb / Report omitted DLL identity and clarify light-source history summaries
+Branch commit CURRENT-ONLY: 6612 / fb79023cfc683745764f14d613f3676c9305bcd4 / Structure UWAI war-plan lifecycle diagnostics
+Branch commit CURRENT-ONLY: 6613 / 6dc5650deabc126bb4b2aa7222a738b40b673c1d / Structure UWAI peace and capitulation diagnostics
+Branch commit CURRENT-ONLY: 6614 / 6c1df4cda1e28ce39801653da776896a51a529e3 / Make light-source packaging documentation easier to scan
+Branch commit CURRENT-ONLY: 6615 / 5bc5c8d03c4f00f11bac3a1b1c7ce6b0c8748754 / Structure remaining UWAI Agent decision diagnostics
+Branch commit CURRENT-ONLY: 6616 / abfd0ff21df40d35513ed1e763f60d8d9724359a / Structure core UWAI war-utility diagnostics
+Branch commit CURRENT-ONLY: 6617 / a77100ff26ff8366798524f82a90bb9467ae65bc / Clarify persistent MSBuild workers in light-source process reports
+Branch commit CURRENT-ONLY: 6618 / ded27960d9a31268d9313609467d4aff79fe0d17 / Structure and consolidate UWAI material-gain diagnostics
+Branch commit CURRENT-ONLY: 6619 / 41de8c75f4ffb62852e16d21adf15d834be4049d / Structure UWAI loathing and military-victory diagnostics
+Branch commit CURRENT-ONLY: 6620 / ddd906d131814f77ba128ac10f9e0e9222e9bd04 / Structure and consolidate UWAI assistance and diplomacy diagnostics
+Branch commit CURRENT-ONLY: 6621 / 49e520e5c458d080077c3713691ac68693073dc8 / Structure and consolidate UWAI strategic-threat diagnostics
+Branch commit CURRENT-ONLY: 6622 / 8b2df59cbe5e97e1eed72ce41f82d9761c4b5b86 / Structure and consolidate UWAI effort, risk and ill-will diagnostics
+Branch commit CURRENT-ONLY: 6623 / a8604aafcd4e034d077c856b793729f1fbe1034c / Structure and consolidate UWAI social and fairness diagnostics
+Branch commits DEFAULT-ONLY: 2 (practical count / SHA / title below; full messages and parents in branch_comparison_log.txt)
 Branch commit DEFAULT-ONLY: 6605 / 75295ecf03ce483352054757b2553c8f57bc094f / Make light-source ZIPs self-contained for branch review
-Branch changed files: 13 (diff: _SNAPSHOT_CONTEXT/branch_changes_no_eol.diff; names listed below)
+Branch commit DEFAULT-ONLY: 6606 / fe8b16962fb39d60225657e9ec587716f6d87b24 / Preserve pre-edit source context and report omitted DLL identity in light-source ZIPs
+Branch changed files: 14 (diff: _SNAPSHOT_CONTEXT/branch_changes_no_eol.diff; names listed below)
 Branch changed: AGENTS.md
 Branch changed: Assets/CvGameCoreDLL.dll
 Branch changed: Assets/XML/GlobalDefines_advciv_sas.xml
@@ -1308,58 +1330,59 @@ Branch changed: CvGameCoreDLL/InvasionGraph.h
 Branch changed: CvGameCoreDLL/MilitaryAnalyst.cpp
 Branch changed: CvGameCoreDLL/UWAIAgent.cpp
 Branch changed: CvGameCoreDLL/WarEvaluator.cpp
+Branch changed: CvGameCoreDLL/WarUtilityAspect.cpp
 Branch changed: LLM_Helpers/README.md
 Branch changed: LLM_Helpers/make_light_source_zip.py
 Branch changed: README.md
 Branch changed: _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
-Default file copies: 12 text files in _SNAPSHOT_CONTEXT/default_branch_files/ (1673111 bytes)
+Default file copies: 13 text files in _SNAPSHOT_CONTEXT/default_branch_files/ (1927206 bytes)
 Default file copies manifest: _SNAPSHOT_CONTEXT/default_branch_files_manifest.txt
-Uncommitted HEAD file copies: 5 files for 6 affected paths in _SNAPSHOT_CONTEXT/head_files/ (1250252 bytes)
+Uncommitted HEAD file copies: 4 files for 5 affected paths in _SNAPSHOT_CONTEXT/head_files/ (776845 bytes)
 Uncommitted HEAD manifest: _SNAPSHOT_CONTEXT/head_files_manifest.txt
-Uncommitted INDEX file copies: 3 files for 4 affected paths in _SNAPSHOT_CONTEXT/index_files/ (601668 bytes)
+Uncommitted INDEX file copies: 4 files for 5 affected paths in _SNAPSHOT_CONTEXT/index_files/ (780567 bytes)
 Uncommitted INDEX manifest: _SNAPSHOT_CONTEXT/index_files_manifest.txt
 Omitted DLL comparison: 1 tracked DLL paths; report: _SNAPSHOT_CONTEXT/omitted_dll_comparison.txt
-Omitted DLL Assets/CvGameCoreDLL.dll: HEAD -> WORKING BYTE-DIFFERENT; sizeDeltaBytes=+5824512
-Staged files: 3 (diff: _SNAPSHOT_CONTEXT/staged_changes_no_eol.diff; names listed below)
-  Staged: LLM_Helpers/README.md
-  Staged: LLM_Helpers/make_light_source_zip.py
-  Staged: _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
-Unstaged tracked files: 4 (diff: _SNAPSHOT_CONTEXT/unstaged_changes_no_eol.diff; names listed below)
+Omitted DLL Assets/CvGameCoreDLL.dll: HEAD -> WORKING BYTE-DIFFERENT; sizeDeltaBytes=+5828608
+Staged files: 1 (diff: _SNAPSHOT_CONTEXT/staged_changes_no_eol.diff; names listed below)
+  Staged: CvGameCoreDLL/WarUtilityAspect.cpp
+Unstaged tracked files: 5 (diff: _SNAPSHOT_CONTEXT/unstaged_changes_no_eol.diff; names listed below)
   Unstaged tracked: Assets/CvGameCoreDLL.dll
   Unstaged tracked: Assets/XML/GlobalDefines_advciv_sas.xml
-  Unstaged tracked: CvGameCoreDLL/UWAIAgent.cpp
+  Unstaged tracked: CvGameCoreDLL/WarUtilityAspect.cpp
+  Unstaged tracked: LLM_Helpers/README.md
   Unstaged tracked: LLM_Helpers/make_light_source_zip.py
 A partially staged file counts in both lists; untracked files are excluded (selected untracked paths are in git_repository_state.txt).
-Runtime process check: 2026-10-09T09:34:48.343Z
-Civ4BeyondSword.exe running: yes (PID=2028)
+Runtime process check: 2026-10-09T14:05:42.067Z
+Civ4BeyondSword.exe running: no
 VCExpress.exe running: no
 devenv.exe running: no
-MSBuild.exe running: no
+MSBuild.exe running: yes (PID=28204)
 nmake.exe running: no
 cl.exe running: no
 link.exe running: no
 Process presence is a point-in-time observation, not proof of active autoplay or compilation; processes may start or exit during packaging.
+MSBuild.exe workers can persist after compilation when node reuse is enabled (/nr); their presence alone does not identify an active build.
 Mod name:  AdvCiv-SAS
 Prefix:    AdvCiv-SAS_light_source
-Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20261009T113442.zip
-Files:     1366 selected + 6650 generated context files
-Size:      453,256,017 bytes before ZIP container overhead
+Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20261009T160535.zip
+Files:     1366 selected + 6665 generated context files
+Size:      454,151,963 bytes before ZIP container overhead
 Mode:      ZIP_DEFLATED / compression level 6
 History:
-  commit diffs: 6610 included (SASBranch:2267,AdvCivPreSAS:3094,KMod:1249)
-  6610 private-cache hit(s)
+  commit diffs: 6623 included (SASBranch:2280,AdvCivPreSAS:3094,KMod:1249)
+  6617 private-cache hit(s)
   0 local-mirror hit(s)
-  0 rendered
+  6 rendered
   0 not cached
   versions=dag-from-one-log
   cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_6be79479a47b
   pending upstream: no fetched release-like ref detected
 ZIP build: writing selected source files and prepared snapshot/history context...
-Context:   refreshed LLM_Helpers/context/commit_diffs (added=0, updated=0, removed=0, unchanged=6612)
-Wrote:     8016 file(s)
-ZIP size:  144,828,442 bytes
-Duration:  17,303 ms total (6,024 ms generated context; 9,470 ms ZIP write; 1,310 ms local-context refresh)
-Finished:  2026-10-09T09:34:59.409Z
+Context:   refreshed LLM_Helpers/context/commit_diffs (added=6, updated=2, removed=0, unchanged=6617)
+Wrote:     8031 file(s)
+ZIP size:  145,033,357 bytes
+Duration:  18,010 ms total (6,771 ms generated context; 9,314 ms ZIP write; 1,466 ms local-context refresh)
+Finished:  2026-10-09T14:05:53.094Z
 ```
 
 #### Notes (light_source ZIP)
