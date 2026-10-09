@@ -2863,8 +2863,6 @@ int Effort::preEvaluate()
 			/*	Can't be sure that this won't lead to a change in civics
 				(though it shouldn't); therefore not 0 cost. */
 			rUtility += 2;
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("All targets are short work; only %d for wartime economy",
-					rUtility.uround());
 		}
 		else
 		{
@@ -2874,12 +2872,14 @@ int Effort::preEvaluate()
 					((bAllWarsLongDist ? 10 : 7) +
 					// Workers not much of a concern later on
 					kWe.AI_getCurrEraFactor() / 2);
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cost for wartime economy and ravages: %d%s", rUtility.uround(),
-					(bAllWarsLongDist ? " (reduced b/c of distance)" : ""));
 		}
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_EFFORT_WARTIME_ECONOMY turn=%d agentPlayer=%d targetTeam=%d allPushOver=%d allLongDistance=%d cost=%d",
+				GC.getGame().getGameTurn(), eWe, m_kParams.getTarget(), bAllPushOver,
+				bAllWarsLongDist, rUtility.round());
 	}
 	scaled rGoldPerProduction = ourCache().goldValueOfProduction();
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("1 production valued as %.2f gold", rGoldPerProduction.getFloat());
+	// <!-- custom: Preserve the baseline conversion rate so the final effort row can show any inherited long-war adjustment separately from the value actually used. (ChatGPT-5.6-Sol) -->
+	scaled const rBaseGoldPerProduction = rGoldPerProduction;
 	// Rather use the max over all wars?
 	int const iDuration = kOurTeam.AI_getAtWarCounter(m_kParams.getTarget());
 	/*	How powerful are we relative to our rivals at the end of the simulation?
@@ -2968,12 +2968,8 @@ int Effort::preEvaluate()
 			(1 - rFutureUse) * (m_kParams.isTotal() ? fixp(1.1) : 1) *
 			// Future use of transports is a long shot
 			(m_kParams.isNaval() ? fixp(1.2) : 1);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Production value of lost units: %d, invested production: %d,"
-			" multiplier for future use of trained units: %d percent, "
-			"adjusted production value of build-up and losses: %d",
-			rOurLostProductionInUnits.uround(), rInvested.uround(),
-			rFutureUse.getPercent(), rOurLostProduction.uround());
 	scaled rSupplyCost; // Assume none if we're losing (i.e. on the defensive)
+	scaled rSupplyCostBeforeAmortization;
 	if (militAnalyst().lostCities(eWe).empty() && rOurLostUnits > 0)
 	{
 		/*	Use rOurLostUnits as a measure of the number of active fighters.
@@ -2986,9 +2982,8 @@ int Effort::preEvaluate()
 		{	// Not clear that we're on the offensive
 			rSupplyCost /= 2;
 		}
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Estimated gold for supply: %d (%d turns simulated, %d units lost)",
-				rSupplyCost.uround(), militAnalyst().turnsSimulated(),
-				rOurLostUnits.uround());
+		// <!-- custom: Preserve the pre-amortization supply estimate so the consolidated result can distinguish the simulation estimate from the discounted cost actually used. (ChatGPT-5.6-Sol) -->
+		rSupplyCostBeforeAmortization = rSupplyCost;
 		rSupplyCost *= kWeAI.amortizationMultiplier();
 	}
 	/*	If the war has been going on for a long time, increase rGoldPerProduction
@@ -3004,16 +2999,16 @@ int Effort::preEvaluate()
 		rGoldPerProduction = scaled::min(5, rGoldPerProduction *
 				(1 + rVagueOpportunityWeight * fixp(0.025) *
 				std::min(iExtraDuration, 40) / rGameSpeedDiv));
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Gold per production adjusted to %.2f based on war duration (%d turns)",
-				rGoldPerProduction.getFloat(), iDuration);
 	}
 	scaled rTradeVal = rSupplyCost + rGoldPerProduction * rOurLostProduction;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Trade value of build-up and war effort: %d", rTradeVal.uround());
 	rUtility += kWeAI.tradeValToUtility(rTradeVal);
 	/*	Nukes are included in army, and therefore already covered by the costs above.
 		But these don't take into account that nukes are always lost when used.
 		Therefore add some extra cost. */
 	scaled const rFired = militAnalyst().getNukesFiredBy(eWe);
+	// <!-- custom: Moved the inherited nuke-production and nuke-cost values outside the fired-nuke branch so the final effort row can report them; both default to zero when that branch adds no cost. (GPT-6.1-Sol) -->
+	scaled rNukeProduction;
+	scaled rNukeCost;
 	MilitaryBranch const& kNukeBranch = *ourCache().getPowerValues()[NUCLEAR];
 	UnitTypes const eNuke = kNukeBranch.getTypicalUnit();
 	if (eNuke != NO_UNIT && rFired > 0)
@@ -3021,13 +3016,23 @@ int Effort::preEvaluate()
 		/*	Not clear that we have to replace the fired nukes.
 			Reduce the lost production to about a third for that reason,
 			and b/c already partially covered by army losses. */
-		scaled rNukeProduction = fixp(0.3) * rFired * kNukeBranch.getTypicalCost();
-		scaled rNukeCost = kWeAI.tradeValToUtility(rGoldPerProduction * rNukeProduction);
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Extra cost for fired nukes: %d; lost prod: %d",
-				rNukeCost.uround(), rNukeProduction.uround());
+		rNukeProduction = fixp(0.3) * rFired * kNukeBranch.getTypicalCost();
+		rNukeCost = kWeAI.tradeValToUtility(rGoldPerProduction * rNukeProduction);
 		rUtility += rNukeCost;
 	}
-	return -std::min(200, rUtility.round());
+	// <!-- custom: Apply and log the same rounded/capped effort cost so diagnostics cannot drift from the returned utility while still exposing the inherited component stages. (ChatGPT-5.6-Sol) -->
+	int const iCostBeforeCap = rUtility.round();
+	int const iCost = std::min(200, iCostBeforeCap);
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_EFFORT_RESULT turn=%d agentPlayer=%d targetTeam=%d baseGoldPerProductionPercent=%d finalGoldPerProductionPercent=%d lostUnitProduction=%d investedProduction=%d futureUsePercent=%d adjustedLostProduction=%d lostUnits=%d supplyCostBeforeAmortization=%d supplyCost=%d turnsSimulated=%d warDuration=%d tradeValue=%d nukesFiredX100=%d nukeProduction=%d nukeCost=%d costBeforeCap=%d cost=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, m_kParams.getTarget(),
+			rBaseGoldPerProduction.getPercent(), rGoldPerProduction.getPercent(),
+			rOurLostProductionInUnits.round(), rInvested.round(), rFutureUse.getPercent(),
+			rOurLostProduction.round(), rOurLostUnits.round(),
+			rSupplyCostBeforeAmortization.round(), rSupplyCost.round(),
+			militAnalyst().turnsSimulated(), iDuration, rTradeVal.round(),
+			rFired.getPercent(), rNukeProduction.round(), rNukeCost.round(),
+			iCostBeforeCap, iCost, -iCost);
+	return -iCost;
 }
 
 
@@ -3116,6 +3121,7 @@ int Risk::preEvaluate()
 
 	// Handle potential losses of our vassals here
 	scaled rUtility; // (Positive value, gets subtracted in the end.)
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (PlayerIter<ALIVE,VASSAL_OF> itVassal(eOurTeam); itVassal.hasNext(); ++itVassal)
 	{
 		PlayerTypes const eVassal = itVassal->getID();
@@ -3123,9 +3129,10 @@ int Risk::preEvaluate()
 		// OK to peek into our vassal's cache
 		UWAICache const& kVassalCache = kVassal.uwai().getCache();
 		scaled rRelativeVassalLoss = 1;
+		// <!-- custom: Moved the inherited lost-assets accumulator outside the surviving-vassal branch so the consolidated row can read it afterward. scaled defaults to zero; for eliminated vassals this sum is not calculated, while the inherited relative-loss value remains 100 percent. (GPT-6.1-Sol) -->
+		scaled rLostVassalAssets;
 		if (!militAnalyst().isEliminated(eVassal))
 		{
-			scaled rLostVassalAssets;
 			CitySet const& kLostCities = militAnalyst().lostCities(eVassal);
 			for (CitySetIter it = kLostCities.begin(); it != kLostCities.end(); ++it)
 			{
@@ -3145,9 +3152,9 @@ int Risk::preEvaluate()
 			FAssert(rRelativeVassalLoss <= 1);
 			rRelativeVassalLoss.decreaseTo(1);
 			rVassalCost = rRelativeVassalLoss * 33;
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cost for losses of vassal %S: %d", GET_PLAYER(eVassal).getName(0),
-					rVassalCost.uround());
 		}
+		// <!-- custom: Moved the inherited break-away cost outside its conditional branch so the final vassal row reports the exact added component; its default zero means no break-away cost was applied. (GPT-6.1-Sol) -->
+		scaled rBreakAwayCost;
 		if (!GET_TEAM(eVassal).isCapitulated())
 		{
 			scaled rRelativePow =
@@ -3158,15 +3165,14 @@ int Risk::preEvaluate()
 			rRelativePow -= fixp(0.9);
 			if (rRelativePow > 0)
 			{
-				scaled rBreakAwayCost = scaled::min(20, rRelativePow.sqrt() * 40);
-				if (rBreakAwayCost >= fixp(0.5))
-				{
-					if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cost for %S breaking free: %d", GET_PLAYER(eVassal).getName(0),
-							rBreakAwayCost.uround());
-				}
+				rBreakAwayCost = scaled::min(20, rRelativePow.sqrt() * 40);
 				rVassalCost += rBreakAwayCost;
 			}
 		}
+		if (bLogWarUtilityDetail && rVassalCost >= fixp(0.5)) logBBAI("UWAI_WAR_UTILITY_RISK_VASSAL turn=%d agentPlayer=%d vassalPlayer=%d eliminated=%d capitulated=%d lostAssets=%d relativeLossPercent=%d breakAwayCost=%d totalCost=%d",
+				GC.getGame().getGameTurn(), eWe, eVassal, militAnalyst().isEliminated(eVassal),
+				GET_TEAM(eVassal).isCapitulated(), rLostVassalAssets.round(),
+				rRelativeVassalLoss.getPercent(), rBreakAwayCost.round(), rVassalCost.round());
 		rUtility += rVassalCost;
 	}
 	return -rUtility.round();
@@ -3185,6 +3191,7 @@ void Risk::evaluate()
 	bool const bCulture4 = bCulture3 && kWe.AI_atVictoryStage(AI_VICTORY_CULTURE4);
 	scaled rLostAssets;
 	CitySet const& kWeLose = militAnalyst().lostCities(eWe);
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (CitySetIter it = kWeLose.begin(); it != kWeLose.end(); ++it)
 	{
 		/*	It doesn't matter here whom the city is lost to, but looking at
@@ -3193,11 +3200,16 @@ void Risk::evaluate()
 			continue;
 		City const& kCacheCity = *ourCache().lookupCity(*it);
 		scaled rAssetScore = kCacheCity.getAssetScore();
+		scaled const rBaseAssetScore = rAssetScore;
+		int iVictoryAssetBonus = 0;
 		CvCity const& kCity = kCacheCity.city();
 		if (bSpace4)
 		{
 			if (kCity.isCapital() && kWe.AI_atVictoryStage(AI_VICTORY_SPACE4))
+			{
 				rAssetScore += 15;
+				iVictoryAssetBonus += 15;
+			}
 		}
 		if (bCulture3)
 		{
@@ -3205,11 +3217,14 @@ void Risk::evaluate()
 			if (2 * kCity.getCulture(kCity.getOwner()) >=
 				kCity.getCultureThreshold(m_kGame.culturalVictoryCultureLevel()))
 			{
-				rAssetScore += (bCulture4 ? 15 : 8);
+				int const iCultureVictoryBonus = (bCulture4 ? 15 : 8);
+				rAssetScore += iCultureVictoryBonus;
+				iVictoryAssetBonus += iCultureVictoryBonus;
 			}
 		}
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%S: %d lost assets%s", (kCity).getName().GetCString(), rAssetScore.round(),
-				(bCulture3 || bSpace4 ? " (important for victory)" : ""));
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_RISK_LOST_CITY turn=%d agentPlayer=%d rivalPlayer=%d cityPlot=%d baseAssetScore=%d victoryAssetBonus=%d assetScore=%d spaceStage4=%d cultureStage3=%d cultureStage4=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, kCity.plotNum(), rBaseAssetScore.round(),
+				iVictoryAssetBonus, rAssetScore.round(), bSpace4, bCulture3, bCulture4);
 		rLostAssets += rAssetScore;
 	}
 	rLostAssets.increaseTo(0); // Per-city score can be negative (maintenance)
@@ -3220,36 +3235,35 @@ void Risk::evaluate()
 	rFromBlockade.increaseTo(0);
 	rUtility += rFromBlockade;
 	scaled rFromNukes = 400 * lossesFromNukes(eWe, eThey);
+	scaled const rNukeCostBeforeScare = rFromNukes;
+	bool bNukeScareFloorApplied = false;
 	int const iScareCost = 26;
 	if (kThey.getNumNukeUnits() > 0 &&
 		militAnalyst().getWarsDeclaredBy(eWe).count(eThey) > 0 &&
 		kTheirTeam.getNumWars() <= 0 && rFromNukes <= iScareCost)
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Nuke cost raised to %d for fear", iScareCost);
 		rFromNukes = iScareCost;
+		bNukeScareFloorApplied = true;
 	}
 	rUtility += rFromNukes;
 	/*	advc.035 (comment): Don't consider lossFromFlippedTiles here. We might
 		capture the very cities that steal our tiles by continuing the war. */
 	rUtility /= rTotalAssets;
-	if (rUtility >= fixp(0.5))
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && (rFromBlockade / rTotalAssets >= fixp(0.5))) logBBAI("From naval blockade: %d", (rFromBlockade / rTotalAssets).uround());
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && (rFromNukes / rTotalAssets >= fixp(0.5))) logBBAI("From nukes: %d", (rFromNukes / rTotalAssets).uround());
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cost for lost assets: %d (loss: %d, present: %d)",
-				rUtility.round(), rLostAssets.uround(), rTotalAssets.uround());
-	}
-	if (militAnalyst().getCapitulationsAccepted(eTheirTeam).count(eOurTeam) > 0)
+	// <!-- custom: Preserve the normalized asset-risk cost before capitulation/elimination adjustments so the consolidated result exposes the same inherited stages that feed the final utility. (ChatGPT-5.6-Sol) -->
+	scaled const rAssetRiskCost = rUtility;
+	bool const bCapitulationAccepted = (militAnalyst().getCapitulationsAccepted(eTheirTeam).count(eOurTeam) > 0);
+	int iCapitulationCost = 0;
+	if (bCapitulationAccepted)
 	{	/*	Counting lost cities in addition to capitulation might make us too
 			afraid of decisively lost wars. Then again, perhaps one can never be too
 			afraid of those? */
 		rUtility /= 2;
-		int const iCostForCapitulation = 100;
-		rUtility += iCostForCapitulation;
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cost halved because of capitulation; %d added", iCostForCapitulation);
+		iCapitulationCost = 100;
+		rUtility += iCapitulationCost;
 	}
 	/*	Count something extra for elimination just to make sure that peace is
 		sought even when fighting multiple hopeless wars. */
+	int iEliminationCost = 0;
 	if (militAnalyst().isEliminated(eWe) && militAnalyst().isWar(eWe, eThey) &&
 		/*	Don't require them to conquer any cities in the military analysis.
 			Another war enemy may get to us much faster, but it's still good
@@ -3259,9 +3273,17 @@ void Risk::evaluate()
 			just to extract some reparations. */
 		kTheirTeam.AI_getWarSuccess(eOurTeam) >= GC.getWAR_SUCCESS_CITY_CAPTURING())
 	{
-		rUtility += kThey.getNumCities(); // a little arbitrary ...
+		iEliminationCost = kThey.getNumCities(); // a little arbitrary ...
+		rUtility += iEliminationCost;
 	}
-	m_iU -= rUtility.round();
+	// <!-- custom: Apply and report the same rounded risk cost while keeping the inherited blockade, nuke, capitulation and elimination stages explicit in one result event. (ChatGPT-5.6-Sol) -->
+	int const iUtility = rUtility.round();
+	if (bLogWarUtilityDetail && iUtility != 0) logBBAI("UWAI_WAR_UTILITY_RISK_RESULT turn=%d agentPlayer=%d rivalPlayer=%d lostAssets=%d totalAssets=%d blockadeCost=%d nukeCostBeforeScare=%d nukeScareFloorApplied=%d nukeCost=%d assetRiskCost=%d capitulationAccepted=%d capitulationCost=%d eliminationCost=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rLostAssets.round(), rTotalAssets.round(),
+			(rFromBlockade / rTotalAssets).round(), (rNukeCostBeforeScare / rTotalAssets).round(),
+			bNukeScareFloorApplied, (rFromNukes / rTotalAssets).round(), rAssetRiskCost.round(),
+			bCapitulationAccepted, iCapitulationCost, iEliminationCost, -iUtility);
+	m_iU -= iUtility;
 }
 
 
@@ -3311,10 +3333,14 @@ void IllWill::evaluate()
 	scaled rCitiesWeNuked = militAnalyst().getNukedCities(eWe, eThey);
 	if (rCitiesWeNuked > 0)
 		rNukeCost = nukeCost(rCitiesWeNuked);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && (rNukeCost >= fixp(0.5))) logBBAI("Diplo cost for nukes: %d", rNukeCost.round());
 	// NB: Subroutines have added to m_rCost
 	m_rCost += rNukeCost;
-	m_iU -= m_rCost.round();
+	// <!-- custom: Apply and report the same rounded aggregate ill-will cost; detailed subevents remain available for the partner, revenge, third-party and nuke contributors. (ChatGPT-5.6-Sol) -->
+	int const iCost = m_rCost.round();
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && iCost != 0) logBBAI("UWAI_WAR_UTILITY_ILL_WILL_RESULT turn=%d agentPlayer=%d rivalPlayer=%d nukedCitiesX100=%d nukeCost=%d totalCost=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rCitiesWeNuked.getPercent(),
+			rNukeCost.round(), iCost, -iCost);
+	m_iU -= iCost;
 }
 
 
@@ -3328,6 +3354,7 @@ scaled IllWill::nukeCost(scaled rCitiesWeNuked) const
 		return 0;
 	}
 	scaled rNukeCost;
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (PlayerAIIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itThird(eOurTeam);
 		itThird.hasNext(); ++itThird)
 	{
@@ -3345,9 +3372,12 @@ scaled IllWill::nukeCost(scaled rCitiesWeNuked) const
 			about other civs as war allies or enemies. */
 		if (kThirdPlayer.AI_getAttitude(eWe) >= ATTITUDE_PLEASED)
 			rAttitudeFactor /= 2;
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Diplo penalty from %S: %d times %.2f", GET_PLAYER(kThirdPlayer.getID()).getName(0),
-				rAttitudeFactor.round(), rCitiesWeNuked.getFloat());
-		rNukeCost += rAttitudeFactor * rCitiesWeNuked;
+		// <!-- custom: Name the exact per-partner contribution so the structured row and the accumulated nuke cost consume the same value. (ChatGPT-5.6-Sol) -->
+		scaled const rContribution = rAttitudeFactor * rCitiesWeNuked;
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_ILL_WILL_NUKE_THIRD_PARTY turn=%d agentPlayer=%d rivalPlayer=%d thirdPlayer=%d attitudeFactorPercent=%d nukedCitiesX100=%d contribution=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, kThirdPlayer.getID(),
+				rAttitudeFactor.getPercent(), rCitiesWeNuked.getPercent(), rContribution.round());
+		rNukeCost += rContribution;
 	}
 	rNukeCost.decreaseTo(40);
 	return rNukeCost;
@@ -3400,7 +3430,9 @@ void IllWill::evalLostPartner()
 		scaled rReconciliationUtility =
 				4 * (m_rAltPartnerFactor / rDiploDiv) *
 				kWeAI.amortizationMultiplier();
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%d for the possibility of reconciliation",
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_ILL_WILL_RECONCILIATION turn=%d agentPlayer=%d rivalPlayer=%d capitulated=%d diploDivPercent=%d alternativePartnerPercent=%d amortizationPercent=%d utility=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, bTheyCapitulated, rDiploDiv.getPercent(),
+				m_rAltPartnerFactor.getPercent(), kWeAI.amortizationMultiplier().getPercent(),
 				rReconciliationUtility.round());
 		m_rCost -= rReconciliationUtility;
 		return;
@@ -3415,25 +3447,27 @@ void IllWill::evalLostPartner()
 	// Halved because can still enter their borders by force.
 	if (kOurTeam.isOpenBorders(eTheirTeam))
 		rPartnerUtil += iPartnerUtilFromOB / (bTheyCapitulated ? 4 : 2);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Base partner utility from %S: %d", GET_PLAYER(eThey).getName(0),
-			rPartnerUtil.round());
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Modifier for alt. partners: %d percent", m_rAltPartnerFactor.getPercent());
 	scaled rUtility = rPartnerUtil * m_rAltPartnerFactor;
+	// <!-- custom: Moved the inherited gift utility outside the help-memory branch so the consolidated partner row retains this component; its default zero records that no gift utility was added. (GPT-6.1-Sol) -->
+	scaled rGiftUtility;
 	// They may help us again in the future (if we don't go to war with them)
 	if (kWe.AI_getMemoryCount(eThey, MEMORY_GIVE_HELP) > 0)
 	{
-		scaled rGiftUtility = 5 * kWeAI.amortizationMultiplier();
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%d for given help", rGiftUtility.round());
+		rGiftUtility = 5 * kWeAI.amortizationMultiplier();
 		rUtility += rGiftUtility;
 	}
 	scaled const rHumanMult = fixp(0.81);
+	// <!-- custom: Preserve the pre-human-adjustment utility so one result row can expose the inherited partner, alternative-partner, gift and human-forgiveness stages without recomputing them. (ChatGPT-5.6-Sol) -->
+	scaled const rUtilityBeforeHuman = rUtility;
 	if (kThey.isHuman())
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Lost-partner cost reduced b/c humans are forgiving");
 		rUtility *= rHumanMult;
-	}
 	if (kWe.isHuman())
 		rUtility *= rHumanMult;
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && rUtility.abs() >= fixp(0.5)) logBBAI("UWAI_WAR_UTILITY_ILL_WILL_LOST_PARTNER turn=%d agentPlayer=%d rivalPlayer=%d capitulated=%d openBorders=%d partnerUtility=%d alternativePartnerPercent=%d giftUtility=%d utilityBeforeHuman=%d rivalHuman=%d agentHuman=%d humanMultiplierPercent=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, bTheyCapitulated, kOurTeam.isOpenBorders(eTheirTeam),
+			rPartnerUtil.round(), m_rAltPartnerFactor.getPercent(), rGiftUtility.round(),
+			rUtilityBeforeHuman.round(), kThey.isHuman(), kWe.isHuman(), rHumanMult.getPercent(),
+			rUtility.round());
 	m_rCost += rUtility;
 }
 
@@ -3477,7 +3511,9 @@ void IllWill::evalRevenge()
 			/*scaled rMult(kOurTeam.AI_getWarSuccessRating(), -10);
 			rMult.clamp(3, fixp(6.5));*/ // Instead of the 5.5?
 			scaled rHopelessStalemateCost = (1 - kWe.uwai().prideRating()) * fixp(5.5);
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cost for hopeless stalemate: %d", rHopelessStalemateCost.uround());
+			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_ILL_WILL_HOPELESS_STALEMATE turn=%d agentPlayer=%d rivalPlayer=%d powerRatioPercent=%d pridePercent=%d cost=%d",
+					GC.getGame().getGameTurn(), eWe, eThey, rTheirToOurPow.getPercent(),
+					kWe.uwai().prideRating().getPercent(), rHopelessStalemateCost.round());
 			m_rCost += rHopelessStalemateCost;
 		}
 		return;
@@ -3500,11 +3536,9 @@ void IllWill::evalRevenge()
 	scaled rPowRatioMult = rTheirToOurPow - 1;
 	rPowRatioMult.clamp(0, 1);
 	rRevengeCost += rPowRatioMult * 28 * rAttitudeMult;
-	if (rRevengeCost >= fixp(0.5))
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cost for possible revenge: %d (attitude mult.: %d percent)",
-				rRevengeCost.round(), rAttitudeMult.getPercent());
-	}
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && rRevengeCost >= fixp(0.5)) logBBAI("UWAI_WAR_UTILITY_ILL_WILL_REVENGE turn=%d agentPlayer=%d rivalPlayer=%d powerRatioPercent=%d attitudeMultiplierPercent=%d powerMultiplierPercent=%d cost=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rTheirToOurPow.getPercent(),
+			rAttitudeMult.getPercent(), rPowRatioMult.getPercent(), rRevengeCost.round());
 	m_rCost += rRevengeCost;
 }
 
@@ -3522,8 +3556,6 @@ scaled IllWill::theirToOurPowerRatio() const
 	if (kWe.isHuman())
 		rTheirPow *= kThey.uwai().confidenceAgainstHuman();
 	scaled r = rTheirPow / scaled::max(10, rOurPow);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Power ratio %S:%S after military analysis: %d percent",
-			GET_PLAYER(eThey).getName(0), GET_PLAYER(eWe).getName(0), r.getPercent());
 	return r;
 }
 
@@ -3542,6 +3574,7 @@ void IllWill::evalAngeredPartners()
 	// <!-- custom: MilitaryAnalyst represents one declaration against a team through all of its player members, while the real war-on-friend memory is recorded once per victim team.
 	// Deduplicate only that victim side; distinct defensive-pact target teams remain separate. See KI#462. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	TeamSet countedVictimTeams;
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (PlyrSetIter it = kWeDecl.begin(); it != kWeDecl.end(); ++it)
 	{
 		TeamTypes const eVictimTeam = TEAMID(*it);
@@ -3553,7 +3586,8 @@ void IllWill::evalAngeredPartners()
 		//if (kThey.AI_getAttitude(*it) >= ATTITUDE_PLEASED)
 		if (kThey.AI_disapprovesOfDoW(eOurTeam, eVictimTeam)) // advc.130h
 		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("-%d relations with %S for DoW on %S", rPenaltyPerDoW.floor(), GET_PLAYER(eThey).getName(0), GET_PLAYER(*it).getName(0));
+			if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_ILL_WILL_ANGERED_PARTNER_DOW turn=%d agentPlayer=%d rivalPlayer=%d victimPlayer=%d victimTeam=%d relationPenalty=%d",
+					GC.getGame().getGameTurn(), eWe, eThey, *it, eVictimTeam, rPenaltyPerDoW.floor());
 			rPenalties += rPenaltyPerDoW;
 		}
 	}
@@ -3566,22 +3600,28 @@ void IllWill::evalAngeredPartners()
 	scaled rCostPerPenalty = partnerUtilFromTrade() + partnerUtilFromTech() + partnerUtilFromMilitary() + (kOurTeam.isOpenBorders(eTheirTeam) ? iPartnerUtilFromOB : 0) + (bWillDisplease ? std::min(fixp(14.5), 9 * SQR(rTheirToOurPow)) : 0);
 	// Don't worry quite as much about diplo in team games. AI DoW aren't as dynamic, and it's sufficient for tech trading if some team members get along.
 	rCostPerPenalty /= ((bWillDisplease && towardUs() >= ATTITUDE_CAUTIOUS) ? fixp(3.75) : fixp(5.25)) * scaled(kOurTeam.getNumMembers()).sqrt();
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cost per -1 relations: %d", rCostPerPenalty.uround());
 	// costPerPenalty already adjusted to game progress, but want to dilute the impact of leader personality in addition to that. diploWeight is mostly about trading, and trading becomes less relevant in the latem_kGame.
 	scaled rDiploWeight = 1 + (kWeAI.diploWeight() - 1) * kWeAI.amortizationMultiplier();
 	// The bad diplo hurts us, but our anger at eThey is difficult to contain.
 	if (!kWe.isHuman() && towardThem() <= ATTITUDE_FURIOUS)
 		rDiploWeight /= 2;
 	// We've actually one partner less b/c we're considering alternatives to a partner that (probably) isn't counted by preEvaluate as hostile.
-	m_rCost += rCostPerPenalty * rPenalties * rDiploWeight * m_rAltPartnerFactor;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Diplo weight: %d percent, alt.-partner factor: %d percent", rDiploWeight.getPercent(), m_rAltPartnerFactor.getPercent());
+	// <!-- custom: Name the exact partner and diplomatic-victory costs so the consolidated result reports the values added to m_rCost rather than recomputing them for logging. (ChatGPT-5.6-Sol) -->
+	scaled const rPartnerCost = rCostPerPenalty * rPenalties * rDiploWeight * m_rAltPartnerFactor;
+	m_rCost += rPartnerCost;
+	// <!-- custom: Moved the inherited diplomatic-victory cost outside its eligibility branch so the consolidated row can report it alongside partner cost; its default zero means no victory cost was added. (GPT-6.1-Sol) -->
+	scaled rVictoryCost;
 	if (towardUs() >= ATTITUDE_PLEASED && kWe.AI_atVictoryStage(AI_VICTORY_DIPLOMACY4 | AI_VICTORY_DIPLOMACY3))
 	{
 		scaled rVictoryFactor(kThey.getTotalPopulation(), std::max(1, m_kGame.getTotalPopulation()));
-		scaled rVictoryCost = 25 * rVictoryFactor * rPenalties;
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("-%d for jeopardizing diplo victory", rVictoryCost.round());
+		rVictoryCost = 25 * rVictoryFactor * rPenalties;
 		m_rCost += rVictoryCost;
 	}
+	if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_ILL_WILL_ANGERED_PARTNER_RESULT turn=%d agentPlayer=%d rivalPlayer=%d relationPenalties=%d willDisplease=%d powerRatioPercent=%d costPerPenalty=%d diploWeightPercent=%d alternativePartnerPercent=%d partnerCost=%d victoryCost=%d totalAddedCost=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rPenalties.round(), bWillDisplease,
+			rTheirToOurPow.getPercent(), rCostPerPenalty.round(), rDiploWeight.getPercent(),
+			m_rAltPartnerFactor.getPercent(), rPartnerCost.round(), rVictoryCost.round(),
+			(rPartnerCost + rVictoryCost).round());
 }
 
 
