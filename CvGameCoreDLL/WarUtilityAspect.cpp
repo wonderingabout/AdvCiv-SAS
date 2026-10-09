@@ -4436,8 +4436,12 @@ void Bellicosity::evaluate()
 	// A good war is one that we win, and that occupies many of our eager warriors.
 	scaled rGloryRate = rOurMinusTheirLostPow / rCurrentAggrPow;
 	rGloryRate.decreaseTo(1);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Difference in lost power: %d; present aggressive power: %d; bellicosity: %d", rOurMinusTheirLostPow.uround(), rCurrentAggrPow.uround(), iBellicosity);
-	m_iU += (2 * iBellicosity * rGloryRate).round();
+	// <!-- custom: Store the rounded contribution once so the structured result reports the exact bellicosity utility applied below. (ChatGPT-5.6-Sol) -->
+	int const iUtility = (2 * iBellicosity * rGloryRate).round();
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_BELLICOSITY_RESULT turn=%d agentPlayer=%d rivalPlayer=%d rivalTeam=%d lostPowerAdvantage=%d aggressivePower=%d bellicosity=%d gloryPercent=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, eTheirTeam, rOurMinusTheirLostPow.uround(),
+			rCurrentAggrPow.uround(), iBellicosity, rGloryRate.getPercent(), iUtility);
+	m_iU += iUtility;
 }
 
 
@@ -4558,13 +4562,15 @@ void TacticalSituation::evalEngagement()
 			}
 		}
 	}
+	// <!-- custom: Record whether the inherited pushover branch multiplied the mission score by 3/2, so the combined engagement row retains that explanation without a separate prose row. The flag does not control scoring. (GPT-6.1-Sol) -->
+	bool bPushoverMissionBoost = false;
 	if (iOurMissions > 0 && kOurTeam.AI_isPushover(eTheirTeam))
 	{
 		/*	If the target is weak, even a small fraction of our military en route
 			could have a big impact once it arrives. */
 		iOurMissions *= 3;
 		iOurMissions /= 2;
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Mission count increased b/c target is short work");
+		bPushoverMissionBoost = true;
 	}
 	/*	So long as we check canMoveInto with bAttack=true above, this here
 		probably won't save time. */
@@ -4662,17 +4668,18 @@ void TacticalSituation::evalEngagement()
 				kWe.getTotalPopulation() + kThey.getTotalPopulation());
 	}
 	rUtility += rRecentlyLostPopPortion * 100;
+	int iUtility = 0;
 	if (rUtility.abs() >= fixp(0.5))
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Their exposed units: %d, ours: %d; entanglement: %d; "
-				"their evacuating population: %d, ours: %d; our missions: %d; "
-				"our total milit. units: %d; our population: %d; "
-				"recently lost population: %d (%d percent)",
-				iTheirExposed, iOurExposed, iEntangled, iTheirEvac,
-				iOurEvac, iOurMissions, iOurTotal, kWe.getTotalPopulation(),
-				iRecentlyLostPop, rRecentlyLostPopPortion.getPercent());
-		m_iU += rUtility.round();
+		iUtility = rUtility.round();
+		m_iU += iUtility;
 	}
+	// <!-- custom: The inherited mission-boost sentence and engagement summary describe one tactical state. Emit one row when either the boost occurred or a utility contribution was actually applied. (ChatGPT-5.6-Sol) -->
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && (bPushoverMissionBoost || iUtility != 0)) logBBAI("UWAI_WAR_UTILITY_TACTICAL_ENGAGEMENT_RESULT turn=%d agentPlayer=%d rivalPlayer=%d pushoverMissionBoost=%d theirExposed=%d ourExposed=%d entangled=%d theirEvacPopulation=%d ourEvacPopulation=%d missionScore=%d totalMilitaryUnits=%d agentPopulation=%d recentlyLostPopulation=%d recentlyLostPercent=%d initiativePercent=%d eraMultiplierPercent=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, bPushoverMissionBoost, iTheirExposed,
+			iOurExposed, iEntangled, iTheirEvac, iOurEvac, iOurMissions, iOurTotal,
+			kWe.getTotalPopulation(), iRecentlyLostPop, rRecentlyLostPopPortion.getPercent(),
+			rInitiativeMult.getPercent(), rEraMult.getPercent(), iUtility);
 }
 
 
@@ -4830,23 +4837,19 @@ void TacticalSituation::evalOperational()
 		rPassedPortion = 1 - scaled::min(1, scaled(iRemainingTime, iInitialPrepTime));
 	if (rPassedPortion <= 0)
 		return;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && (bCanBombard)) logBBAI("Extra attackers needed for mixed siege/attack stacks");
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Readiness %d percent (%d of %d attackers, %d of %d cargo, "
-			"%d of %d escort); %d of %d turns for preparation remain",
-			rReadiness.getPercent(), iAttackers, rTargetAttackers.round(),
-			rCargo.uround(), rTargetCargo.uround(), iEscort, rTargetEscort.uround(),
-			iRemainingTime, iInitialPrepTime);
-	int iUnreadinessCost = (100 * rPassedPortion.pow(fixp(1.5)) *
+	int const iUnreadinessCost = (100 * rPassedPortion.pow(fixp(1.5)) *
 			(1 - rReadiness.pow(fixp(3.7)))).uround();
-	if (iUnreadinessCost == 0)
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cost for lack of readiness vs. %S negligible",
-				GET_PLAYER(eThey).getName(0));
-	}
+	// <!-- custom: The inherited bombardment/readiness/negligible-cost messages all describe this one operational-readiness calculation; keep its force inputs and exact applied cost together. (ChatGPT-5.6-Sol) -->
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_TACTICAL_OPERATIONAL_RESULT turn=%d agentPlayer=%d rivalPlayer=%d targetTeam=%d naval=%d totalWar=%d canBombard=%d readinessPercent=%d attackers=%d targetAttackers=%d cargo=%d targetCargo=%d escort=%d targetEscort=%d remainingPrepTurns=%d initialPrepTurns=%d passedPrepPercent=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, eTheirTeam, m_kParams.isNaval(), m_kParams.isTotal(),
+			bCanBombard, rReadiness.getPercent(), iAttackers, rTargetAttackers.round(),
+			rCargo.uround(), rTargetCargo.uround(), iEscort, rTargetEscort.uround(),
+			iRemainingTime, iInitialPrepTime, rPassedPortion.getPercent(), -iUnreadinessCost);
 	m_iU -= iUnreadinessCost;
 }
 
 
+// <!-- custom: LoveOfPeace had no inherited UWAI diagnostic prose to convert. Keep its valuation unchanged without adding diagnostic rows merely for symmetry with the other aspects. (GPT-6.1-Sol) -->
 void LoveOfPeace::evaluate()
 {
 	int iLoPCost = kOurPersonality.getLoveOfPeace();
@@ -4977,16 +4980,23 @@ void ThirdPartyIntervention::evaluate()
 		}
 		if (bAllPushOver)
 		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Not considering 3rd-party interventions b/c all enemies are weak");
+			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_THIRD_PARTY_SKIP_WEAK_ENEMIES turn=%d agentPlayer=%d rivalPlayer=%d targetTeam=%d lostDefensivePowerPercent=%d",
+					GC.getGame().getGameTurn(), eWe, eThey, eTarget, rOurLostPowRatio.getPercent());
 			return;
 		}
 	}
+	// <!-- custom: Keep the alternative probability inputs as zero/sentinel-default state so whichever branch is used can report one truthful structured result without reproducing its narration. (ChatGPT-5.6-Sol) -->
+	bool bOverseasDeployment = false;
+	scaled rUtilityVsUs;
+	scaled rNoise;
+	int iParanoia = 0;
+	int iDogpileWarRand = -1;
 	// Sending troops abroad is dangerous; will take long to redeploy.
 	if (!militAnalyst().isPeaceScenario() && eTarget != NO_TEAM &&
 		!kOurTeam.uwai().isLandTarget(eTarget) &&
 		!GET_TEAM(eTarget).AI_hasSharedPrimaryArea(eTheirTeam))
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Losses treated as higher b/c of overseas deployment");
+		bOverseasDeployment = true;
 		rOurLostPowRatio *= 2;
 		rOurLostPowRatio.decreaseTo(fixp(0.6));
 	}
@@ -5000,18 +5010,16 @@ void ThirdPartyIntervention::evaluate()
 			war utility against us. No worries if that utility is 0.
 			Not sure if war utility _including_ Distraction would be better here;
 			well, that's not cached and it shouldn't matter much. */
-		scaled rUtilityVsUs = kThey.uwai().getCache().
+		rUtilityVsUs = kThey.uwai().getCache().
 				warUtilityIgnoringDistraction(eOurTeam);
 		/*	We're not supposed to know everything that enters their war utility
 			calculation. Add some noise. Hashing rank should result in a somewhat
 			stable error. */
-		scaled rNoise = 30 *
+		rNoise = 30 *
 				(scaled::hash(m_kGame.getPlayerRank(eWe), eWe) - fixp(0.5));
 		rUtilityVsUs += rNoise;
 		if (rUtilityVsUs > 0)
 		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Their war utility: %d (%d from noise)",
-					rUtilityVsUs.uround(), rNoise.round());
 			rUtilityVsUs.decreaseTo(94);
 			rInterventionProb = fixp(0.8) * rUtilityVsUs / 100;
 		}
@@ -5022,30 +5030,35 @@ void ThirdPartyIntervention::evaluate()
 			the AI cheat more. Better just rely on paranoia. */
 		int iOurDefPow = kOurTeam.getDefensivePower();
 		iOurDefPow = (iOurDefPow * (1 - rOurLostPowRatio)).uround();
-		int iParanoia = kWe.AI_paranoiaRating(eThey, iOurDefPow, false, true);
+		iParanoia = kWe.AI_paranoiaRating(eThey, iOurDefPow, false, true);
 		iParanoia = std::min(iParanoia, 210);
 		rInterventionProb = scaled(iParanoia - 28, 233);
-		if (rInterventionProb > 0)
+		if (rInterventionProb > 0 && !kTheirTeam.isHuman() &&
+			!m_kGame.isOption(GAMEOPTION_RANDOM_PERSONALITIES))
 		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Our paranoia rating: %d", iParanoia);
-			if (!kTheirTeam.isHuman() &&
-				!m_kGame.isOption(GAMEOPTION_RANDOM_PERSONALITIES))
-			{
-				scaled rWarRand = kTheirTeam.AI_dogpileWarRand();
-				if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Adjusting paranoia based on DogpileWarRand=%d", rWarRand.floor());
-				rWarRand.mulDiv(4, 3);
-				rWarRand.clamp(25, 200);
-				// War rands matter less when war utility is high
-				rInterventionProb /= (rWarRand / 100 + 5 * rInterventionProb) /
-						(5 * rInterventionProb + 1);
-			}
+			scaled rWarRand = kTheirTeam.AI_dogpileWarRand();
+			iDogpileWarRand = rWarRand.floor();
+			rWarRand.mulDiv(4, 3);
+			rWarRand.clamp(25, 200);
+			// War rands matter less when war utility is high
+			rInterventionProb /= (rWarRand / 100 + 5 * rInterventionProb) /
+					(5 * rInterventionProb + 1);
 		}
 	}
 	if (rInterventionProb < per100(1))
+	{
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_THIRD_PARTY_PROBABILITY_REJECT_INITIAL turn=%d agentPlayer=%d rivalPlayer=%d targetTeam=%d consideringPeace=%d overseasDeployment=%d lostDefensivePowerPercent=%d rivalWarUtility=%d noise=%d paranoia=%d dogpileWarRand=%d interventionProbabilityPercent=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, eTarget, m_kParams.isConsideringPeace(),
+				bOverseasDeployment, rOurLostPowRatio.getPercent(), rUtilityVsUs.round(), rNoise.round(),
+				iParanoia, iDogpileWarRand, rInterventionProb.getPercent());
 		return;
+	}
 	/*	(Would be nice to do this also when there has been no war, but there
 		is no counter for the number of turns that we've been considering
 		war against the target or have been afraid of an intervention.) */
+	// <!-- custom: Retain the normalized peace duration and applied decay for the combined intervention row: -1 means the prior-war-memory branch was skipped; multiplier 1 means no decay. Only the diagnostic duration is rounded; the KI#438 calculation below keeps its scaled precision. (GPT-6.1-Sol) -->
+	int iNormalizedPeaceTurns = -1;
+	scaled rPeaceDecayMult = 1;
 	if (kWe.AI_getMemoryCount(eThey, MEMORY_DECLARED_WAR) +
 		kThey.AI_getMemoryCount(eWe, MEMORY_DECLARED_WAR) > 0)
 	{	// Avoid stalemates: don't be afraid of interventions forever
@@ -5054,14 +5067,15 @@ void ThirdPartyIntervention::evaluate()
 		// <!-- custom: AdvCiv computed a game-speed-normalized peace duration but discarded it, then gated and decayed intervention fear in raw turns. Use the prepared duration consistently for both operations. See KI#438. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		scaled const rAtPeaceTurns = fixp(1.5) * iAtPeaceTurns /
 				(per100(m_kSpeed.getGoldenAgePercent()) + fixp(0.5));
+		iNormalizedPeaceTurns = rAtPeaceTurns.round();
 		if (rAtPeaceTurns > iThresh)
 		{
-			scaled const rMult = std::max(fixp(1/3.), 1 - (rAtPeaceTurns - iThresh) / 30);
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Taking intervention prob times %d percent b/c peace has lasted %d turns",
-					rMult.getPercent(), rAtPeaceTurns.round());
-			rInterventionProb *= rMult;
+			rPeaceDecayMult = std::max(fixp(1/3.), 1 - (rAtPeaceTurns - iThresh) / 30);
+			rInterventionProb *= rPeaceDecayMult;
 		}
 	}
+	// <!-- custom: Capture the personality war-randomness average before its inherited 25..200 clamp; -1 marks the skipped human/random-personalities branch. Gameplay still uses the scaled, clamped value below. (GPT-6.1-Sol) -->
+	int iWarRand = -1;
 	if (!kTheirTeam.isHuman() &&
 		!m_kGame.isOption(GAMEOPTION_RANDOM_PERSONALITIES))
 	{	/*	(DogpileWarRand is already accounted for above;
@@ -5069,13 +5083,20 @@ void ThirdPartyIntervention::evaluate()
 		int iLimitedWarRand = kTheirTeam.AI_limitedWarRand();
 		scaled rWarRand(iLimitedWarRand +
 				std::min(iLimitedWarRand, kTheirTeam.AI_maxWarRand()), 2);
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Adjusting intervention prob based on WarRand=%d", rWarRand.round());
+		iWarRand = rWarRand.round();
 		rWarRand.clamp(25, 200);
 		rInterventionProb /= (rWarRand / 100 + 5 * rInterventionProb) /
 				(5 * rInterventionProb + 1);
 	}
 	if (rInterventionProb < per100(1))
+	{
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_THIRD_PARTY_PROBABILITY_REJECT_ADJUSTED turn=%d agentPlayer=%d rivalPlayer=%d targetTeam=%d consideringPeace=%d overseasDeployment=%d lostDefensivePowerPercent=%d rivalWarUtility=%d noise=%d paranoia=%d dogpileWarRand=%d normalizedPeaceTurns=%d peaceDecayPercent=%d warRand=%d interventionProbabilityPercent=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, eTarget, m_kParams.isConsideringPeace(),
+				bOverseasDeployment, rOurLostPowRatio.getPercent(), rUtilityVsUs.round(), rNoise.round(),
+				iParanoia, iDogpileWarRand, iNormalizedPeaceTurns, rPeaceDecayMult.getPercent(),
+				iWarRand, rInterventionProb.getPercent());
 		return;
+	}
 	/*	(Would be nice to anticipate war trades, but the request frequency is the
 		same for almost all leaders anyway, and checking attitude thresholds -
 		not to mention trade items - gets pretty complicated, especially
@@ -5085,8 +5106,6 @@ void ThirdPartyIntervention::evaluate()
 	/*if (militAnalyst().isOnOurSide(eTheirTeam))
 		rInterventionProb *= fixp(2/3.);*/
 	rInterventionProb.decreaseTo(fixp(0.85));
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Probability of intervention by %S: %d percent", GET_PLAYER(eThey).getName(0),
-			rInterventionProb.getPercent());
 	scaled rTheirPow = kThey.uwai().getCache().
 			getPowerValues()[ARMY]->power();
 	if (kWe.isHuman())
@@ -5117,17 +5136,17 @@ void ThirdPartyIntervention::evaluate()
 		rOurPow *= kWeAI.confidenceAgainstHuman();
 	rOurPow *= 1 - rOurLostPowRatio;
 	scaled rTheirPowToOurs = rTheirPow / rOurPow;
+	// <!-- custom: Snapshot the projected power ratio before the inherited nonlinear cost transformation mutates it, so the final row reports the original ratio of the two projected power values. (GPT-6.1-Sol) -->
+	scaled const rProjectedPowRatio = rTheirPowToOurs;
 	scaled const rPowRatioFloor = fixp(0.5);
 	if (rTheirPowToOurs <= rPowRatioFloor)
 		return;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Our loss ratio from fighting 2nd parties: %d percent",
-			rOurLostPowRatio.getPercent());
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Power ratio (they:we) %d:%d=%d percent", rTheirPow.uround(),
-			rOurPow.uround(), rTheirPowToOurs.getPercent());
 	/*	Proportional to the square of our losses (which are in the unit interval,
 		hence sqrt). We want to avoid any tough fights with 2nd parties, when a
 		dangerous 3rd-party intervention looms. */
 	scaled rCost = rInterventionProb * 85 * rOurLostPowRatio.sqrt();
+	// <!-- custom: Keep the inherited high-power reduction available for the one final intervention result row; 1 means the current-power threshold did not trigger a reduction. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	scaled rVeryPowerfulMult = 1;
 	{	// These formulas are a bit of a mess
 		scaled const rPowRatioThresh = 2;
 		if (rTheirPowToOurs > rPowRatioThresh)
@@ -5144,39 +5163,37 @@ void ThirdPartyIntervention::evaluate()
 			win, us being able to put up a fight may dissuade them on the
 			bottom line. Important only to look at current power values for
 			this - to avoid an incentive for incurring greater losses. */
-		scaled rThresh = fixp(5/3.);
+		scaled const rThresh = fixp(5/3.);
 		if (rTheirCurPowToOurs > rThresh)
 		{
-			scaled rMult = rThresh / rTheirCurPowToOurs;
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cost reduced by a factor of %d percent b/c 3rd party very powerful",
-					rMult.getPercent());
-			rCost *= rMult;
+			rVeryPowerfulMult = rThresh / rTheirCurPowToOurs;
+			rCost *= rVeryPowerfulMult;
 		}
 	}
+	// <!-- custom: Retain the AI distrust input for the final row; -1 marks the human branch, which instead applies the inherited fixed 2/3 multiplier. (GPT-6.1-Sol) -->
+	int iDistrustPercent = -1;
 	if (kOurTeam.isHuman())
 	{	// Humans tend to not worry much about being backstabbed
 		rCost *= fixp(2/3.);
 	}
 	else
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Our distrust rating: %d percent", kWeAI.distrustRating().getPercent());
+		iDistrustPercent = kWeAI.distrustRating().getPercent();
 		rCost *= kWeAI.distrustRating().sqrt();
 	}
-	if (kWe.hasCapital() && kThey.hasCapital() &&
-		!kWe.getCapital()->sameArea(*kThey.getCapital()))
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cost decreased for differing capital areas");
+	bool const bDifferentCapitalAreas = (kWe.hasCapital() && kThey.hasCapital() &&
+			!kWe.getCapital()->sameArea(*kThey.getCapital()));
+	if (bDifferentCapitalAreas)
 		rCost /= 2;
-	}
-	if (!militAnalyst().getWarsDeclaredBy(eWe).empty() &&
-		!kOurTeam.AI_isSneakAttackPreparing())
+	bool const bOurDoWBoost = (!militAnalyst().getWarsDeclaredBy(eWe).empty() &&
+			!kOurTeam.AI_isSneakAttackPreparing());
+	if (bOurDoWBoost)
 	{	/*	Not starting war preparations should be less of an inconvenience
 			than abandoning preparations or ending an ongoing war. */
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cost increased for our DoW");
 		rCost *= fixp(4/3.);
 	}
 	{
-		int iThresh = 35;
+		int const iThresh = 35;
 		if (rCost > iThresh)
 			rCost = iThresh + (rCost - iThresh).sqrt();
 	}
@@ -5184,8 +5201,22 @@ void ThirdPartyIntervention::evaluate()
 		rCost *= 2;
 		rCost /= (kOurTeam.getNumMembers() + kTheirTeam.getNumMembers());
 	}
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && (rCost < fixp(0.5))) logBBAI("(Not a relevant threat: %S)", GET_PLAYER(eThey).getName(0));
-	else m_iU -= rCost.uround();
+	int iUtility = 0;
+	if (rCost >= fixp(0.5))
+	{
+		iUtility = rCost.uround();
+		m_iU -= iUtility;
+	}
+	// <!-- custom: Consolidate the inherited probability, power-ratio and cost-adjustment narration into one final threat result using the exact utility applied above. (ChatGPT-5.6-Sol) -->
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_THIRD_PARTY_RESULT turn=%d agentPlayer=%d rivalPlayer=%d targetTeam=%d consideringPeace=%d overseasDeployment=%d lostDefensivePowerPercent=%d rivalWarUtility=%d noise=%d paranoia=%d dogpileWarRand=%d normalizedPeaceTurns=%d peaceDecayPercent=%d warRand=%d interventionProbabilityPercent=%d rivalCurrentPowerRatioPercent=%d rivalProjectedPower=%d agentProjectedPower=%d rivalProjectedPowerRatioPercent=%d veryPowerfulReductionPercent=%d distrustPercent=%d differentCapitalAreas=%d ourDoWBoost=%d cost=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, eTarget, m_kParams.isConsideringPeace(),
+			bOverseasDeployment, rOurLostPowRatio.getPercent(), rUtilityVsUs.round(), rNoise.round(),
+			iParanoia, iDogpileWarRand, iNormalizedPeaceTurns, rPeaceDecayMult.getPercent(),
+			iWarRand, rInterventionProb.getPercent(), rTheirCurPowToOurs.getPercent(),
+			rTheirPow.uround(), rOurPow.uround(), rProjectedPowRatio.getPercent(),
+			rVeryPowerfulMult.getPercent(), iDistrustPercent, bDifferentCapitalAreas,
+			bOurDoWBoost, rCost.round(), -iUtility);
+
 }
 
 
@@ -5224,6 +5255,8 @@ int DramaticArc::preEvaluate()
 		aiPeaceCounters.push_back(std::min(iMaxPeaceCounter, iLoopMinCounter));
 	}
 	int const iMinPeaceCounter = stats::min(aiPeaceCounters);
+	// <!-- custom: Hoist the mean for the combined tension row without computing it in the all-at-peace branch, which uses the minimum instead. -1 marks that unused mean; ongoing-war evaluation still computes and uses the inherited mean below. (GPT-6.1-Sol) -->
+	int iMeanPeaceCounter = -1;
 	scaled rTension;
 	if (iMinPeaceCounter > 0) // No wars ongoing
 	{
@@ -5246,7 +5279,7 @@ int DramaticArc::preEvaluate()
 	else
 	{
 		// Mean of the per-team minima
-		int const iMeanPeaceCounter = stats::mean(aiPeaceCounters);
+		iMeanPeaceCounter = stats::mean(aiPeaceCounters);
 		rTension = 1 - scaled(iMeanPeaceCounter, iMaxPeaceCounter) * rSpeedMult;
 		rTension.increaseTo(0);
 		// There is at least one war, so let's not go below 0.5.
@@ -5260,8 +5293,9 @@ int DramaticArc::preEvaluate()
 	m_rTensionIncrease = (rTensionTarget - rTension) *
 			scaled(iOtherKnown).sqrt() / 2;
 	m_rTensionIncrease.clamp(-1, 1);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Seeking to adjust tension (overall warfare) by %d percent",
-			m_rTensionIncrease.getPercent());
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_DRAMATIC_ARC_TENSION turn=%d agentPlayer=%d knownOtherTeams=%d minimumPeaceTurns=%d meanPeaceTurns=%d tensionPercent=%d targetTensionPercent=%d adjustmentPercent=%d",
+			GC.getGame().getGameTurn(), eWe, iOtherKnown, iMinPeaceCounter, iMeanPeaceCounter,
+			rTension.getPercent(), rTensionTarget.getPercent(), m_rTensionIncrease.getPercent());
 	return 0;
 }
 
@@ -5302,6 +5336,12 @@ void DramaticArc::evaluate()
 		}
 	}
 	// Tension in team games is jumpy, don't try too hard to steer it.
-	rUtil /= scaled(kOurTeam.getNumMembers() + kTheirTeam.getNumMembers(), 2);
-	m_iU += rUtil.round();
+	int const iTeamMemberSum = kOurTeam.getNumMembers() + kTheirTeam.getNumMembers();
+	rUtil /= scaled(iTeamMemberSum, 2);
+	// <!-- custom: Store the rounded dramatic-arc contribution once so the result row and gameplay use the same final tension adjustment. (ChatGPT-5.6-Sol) -->
+	int const iUtility = rUtil.round();
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && iUtility != 0) logBBAI("UWAI_WAR_UTILITY_DRAMATIC_ARC_RESULT turn=%d agentPlayer=%d rivalPlayer=%d willBeAtWar=%d currentlyAtWar=%d tensionAdjustmentPercent=%d teamMemberSum=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, bWillBeAtWar, kOurTeam.isAtWar(eTheirTeam),
+			m_rTensionIncrease.getPercent(), iTeamMemberSum, iUtility);
+	m_iU += iUtility;
 }
