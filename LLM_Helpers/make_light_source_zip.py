@@ -580,6 +580,7 @@ def runtime_process_summary_lines() -> list[str]:
         details = ", ".join(str(pid) for pid in pids)
         lines.append(f"{name}.exe running: {'yes (PID=' + details + ')' if pids else 'no'}")
     lines.append("Process presence is a point-in-time observation, not proof of active autoplay or compilation; processes may start or exit during packaging.")
+    lines.append("MSBuild.exe workers can persist after compilation when node reuse is enabled (/nr); their presence alone does not identify an active build.")
     return lines
 
 

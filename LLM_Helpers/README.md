@@ -1123,6 +1123,7 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
     - Changed-file names appear when the combined staged and unstaged lists contain at most 100 entries. A partially staged file counts in both lists; general untracked files are excluded. Full tracked status remains available in `git_repository_state.txt`.
     - On Windows, the console and this summary also record a timestamped check for `Civ4BeyondSword.exe`, `VCExpress.exe` (Visual C++ 2010 Express), `devenv.exe`, `MSBuild.exe`, `nmake.exe`, `cl.exe` and `link.exe`, with matching PIDs.
     - This is a point-in-time observation, not proof of active autoplay or compilation, and does not prevent processes from starting or exiting during packaging. Unsupported or failed checks are explicitly reported as unavailable.
+    - `MSBuild.exe` workers can persist after compilation when node reuse is enabled (`/nr`), as observed locally. The console and archived summary explain that their presence alone does not identify an active build.
     - Local testing indicates light-source creation succeeds during Civ4 autoplay.
     - With Visual C++ 2010 Express open, however, one attempt failed with `PermissionError` while reading `CvGameCoreDLL/Project/AdvCiv.opensdf`, even without compilation running.
     - For that specific failure, close the IDE and retry; these observations do not guarantee access to every file during future runs.
