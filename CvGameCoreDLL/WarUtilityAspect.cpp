@@ -684,20 +684,22 @@ void GreedForAssets::evaluate()
 	scaled const rConqScore = conqAssetScore(false);
 	if (rConqScore <= 0)
 		return;
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	scaled const rPresentScore = ourCache().totalAssetScore();
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Score for present assets: %d", rPresentScore.round());
 	/*	(Count non-wonder buildings for rPresentScore? May construct those
 		in the conquered cities too eventually ...) */
 	scaled rUtility = scaled::min(650, 350 * rConqScore /
 			scaled::max(rPresentScore, 1));
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Base utility from assets: %d", rUtility.round());
+	// <!-- custom: The inherited present-score and base-utility lines describe one calculation; keep them in one structured event instead of repeating the same context. (ChatGPT-5.6-Sol) -->
+	if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_GREED_ASSETS_BASE turn=%d agentPlayer=%d rivalPlayer=%d conquestAssetScore=%d presentAssetScore=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rConqScore.round(), rPresentScore.round(), rUtility.round());
 	scaled const rTeamSzMult = teamSizeMultiplier();
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && (rTeamSzMult != 1)) logBBAI("Team size multiplier: %d percent", rTeamSzMult.getPercent());
 	scaled const rCompetitionMult = competitionMultiplier();
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && (rCompetitionMult != 1)) logBBAI("Competition multiplier: %d percent", rCompetitionMult.getPercent());
 	scaled const rOverextensionMult = overextensionMult();
 	scaled const rDefensibilityMult = defensibilityMult();
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cost modifiers: %d percent for overextension, %d for defensibility",
+	// <!-- custom: These four multipliers are applied together to the same base utility; one row preserves the full adjustment state without four near-duplicate context prefixes. (ChatGPT-5.6-Sol) -->
+	if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_GREED_ASSETS_MODIFIERS turn=%d agentPlayer=%d rivalPlayer=%d teamSizePercent=%d competitionPercent=%d overextensionPercent=%d defensibilityPercent=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rTeamSzMult.getPercent(), rCompetitionMult.getPercent(),
 			rOverextensionMult.getPercent(), rDefensibilityMult.getPercent());
 	rUtility *= rCompetitionMult * rTeamSzMult *
 			(1 - rOverextensionMult - rDefensibilityMult);
@@ -708,14 +710,16 @@ void GreedForAssets::evaluate()
 		if (rUtility > iCap)
 		{
 			rUtility = iCap;
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Greed capped at %d b/c of peace-weight", iCap);
+			if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_GREED_ASSETS_PEACE_WEIGHT_CAP turn=%d agentPlayer=%d rivalPlayer=%d peaceWeight=%d utilityCap=%d",
+					GC.getGame().getGameTurn(), eWe, eThey, kWe.AI_getPeaceWeight(), iCap);
 		}
 	}
 	int const iLoveOfPeace = kOurPersonality.getLoveOfPeace();
 	if (iLoveOfPeace > 0)
 	{
 		rUtility *= std::max(fixp(0.1), 1 - per100(iLoveOfPeace));
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Greed reduced by %d percent b/c of love of peace", iLoveOfPeace);
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_GREED_ASSETS_LOVE_OF_PEACE_REDUCTION turn=%d agentPlayer=%d rivalPlayer=%d percent=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, iLoveOfPeace);
 	}
 	/*	Cap utility per conquered city. Relevant mostly for One-City
 		Challenge, but may also matter on dense maps in the early game. */
@@ -738,12 +742,13 @@ scaled GreedForAssets::overextensionMult() const
 		scaled rOurMaintenance = per100(kWe.calculateInflationRate() + 100) *
 				(kWe.getTotalMaintenance() + kWe.getCivicUpkeep(NULL, true));
 		r += rOurMaintenance / rOurIncome;
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Rel. maint. = %d / %d = %d percent",
-				rOurMaintenance.uround(), rOurIncome.uround(),
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_GREED_ASSETS_OVEREXTENSION turn=%d agentPlayer=%d rivalPlayer=%d maintenance=%d income=%d maintenancePercent=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, rOurMaintenance.uround(), rOurIncome.uround(),
 				(rOurMaintenance / rOurIncome).getPercent());
 	}
 	// Can happen in later-era start if a civ immediately changes civics/ religion
-	else if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Failed to estimate income");
+	else if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_GREED_ASSETS_OVEREXTENSION_INCOME_UNAVAILABLE turn=%d agentPlayer=%d rivalPlayer=%d",
+			GC.getGame().getGameTurn(), eWe, eThey);
 	return scaled::max(0, r);
 }
 
@@ -757,6 +762,7 @@ scaled GreedForAssets::defensibilityMult() const
 	{
 		rThreatFactor += threatToCities(it->getID(), rRemoteness);
 	}
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	if (rRemoteness > 5 && !m_kGame.isOption(GAMEOPTION_NO_BARBARIANS) &&
 		m_rGameEraAIFactor < fixp(1.5))
 	{
@@ -767,8 +773,8 @@ scaled GreedForAssets::defensibilityMult() const
 		rBarbarianThreat.decreaseTo(fixp(0.25));
 		if (rBarbarianThreat >= fixp(0.005))
 		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Threat factor from barbarians: %d percent",
-					rBarbarianThreat.getPercent());
+			if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_GREED_ASSETS_DEFENSIBILITY_BARBARIAN_THREAT turn=%d agentPlayer=%d rivalPlayer=%d percent=%d",
+					GC.getGame().getGameTurn(), eWe, eThey, rBarbarianThreat.getPercent());
 		}
 		rThreatFactor += rBarbarianThreat;
 	}
@@ -784,8 +790,8 @@ scaled GreedForAssets::defensibilityMult() const
 		iPersonalityPercent /= 2;
 	if (iMaxWarMinAdjLand >= 3)
 		iPersonalityPercent += 5;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Personality factor %d (MaxWarMinAdjLand %d); threat factor %d",
-			iPersonalityPercent, iMaxWarMinAdjLand, rThreatFactor.getPercent());
+	if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_GREED_ASSETS_DEFENSIBILITY_SUMMARY turn=%d agentPlayer=%d rivalPlayer=%d personalityPercent=%d maxWarMinAdjacentLandPercent=%d threatPercent=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, iPersonalityPercent, iMaxWarMinAdjLand, rThreatFactor.getPercent());
 	return std::min(fixp(0.5), rThreatFactor.sqrt() * per100(iPersonalityPercent));
 }
 
@@ -819,9 +825,8 @@ scaled GreedForAssets::threatToCities(PlayerTypes ePlayer, scaled rRemoteness) c
 	scaled rPlayerDist = medianDistFromOurConquests(ePlayer);
 	if (5 * rPlayerDist >= 4 * rRemoteness || rPlayerDist > 10)
 		return 0;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Dangerous civ near our conquests: %S (dist. ratio %d/%d)",
-			GET_PLAYER(kPlayer.getID()).getName(0),
-			rPlayerDist.uround(), rRemoteness.uround());
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_GREED_ASSETS_DEFENSIBILITY_RIVAL turn=%d agentPlayer=%d rivalPlayer=%d threateningPlayer=%d threateningDistance=%d agentDistance=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, kPlayer.getID(), rPlayerDist.uround(), rRemoteness.uround());
 	scaled rPowerRatio = scaled::max(0,
 			rPlayerPower / scaled::max(10, rOurPower) - fixp(0.1));
 	return SQR(rPowerRatio);
@@ -918,27 +923,23 @@ void GreedForVassals::evaluate()
 	{
 		return;
 	}
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	scaled rOurIncome = kOurTeam.AI_estimateYieldRate(eWe, YIELD_COMMERCE);
 	rOurIncome.increaseTo(8);
 	/*	Their commerce may be lower than now at the end of the war.
 		(Don't try to estimate our own post-war commerce though.) */
 	scaled const rTheirCityRatio = remainingCityRatio(eThey);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Ratio of cities kept by the vassal: cr=%d percent",
-			rTheirCityRatio.getPercent());
 	// Vassal commerce to account for tech they might research for us
 	scaled const rVassalIncome = kOurTeam.AI_estimateYieldRate(eThey, YIELD_COMMERCE);
 	scaled const rVassalToOurIncome = rVassalIncome * rTheirCityRatio / rOurIncome;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Rel. income of vassal %S = %d percent = cr * %d / %d",
-			GET_PLAYER(eThey).getName(0), rVassalToOurIncome.getPercent(),
-			rVassalIncome.uround(), rOurIncome.uround());
 	scaled rUtilityFromTechTrade = 100 * rVassalToOurIncome;
 	// Tech they already have
 	scaled const rTechScore = ourCache().vassalTechScore(eThey);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Vassal score from tech they have in advance of us: %d",
-			rTechScore.uround());
 	rUtilityFromTechTrade += kWeAI.tradeValToUtility(rTechScore);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Utility from vassal tech and income (still to be reduced): %d",
-			rUtilityFromTechTrade.uround());
+	// <!-- custom: City retention, relative income and existing tech jointly form the same pre-cap technology/income value; log that state once instead of as four consecutive rows. (ChatGPT-5.6-Sol) -->
+	if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_GREED_VASSAL_TECH_INCOME turn=%d agentPlayer=%d rivalPlayer=%d cityRatioPercent=%d vassalIncome=%d agentIncome=%d incomeRatioPercent=%d techScore=%d utilityBeforeCap=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rTheirCityRatio.getPercent(), rVassalIncome.uround(), rOurIncome.uround(),
+			rVassalToOurIncome.getPercent(), rTechScore.uround(), rUtilityFromTechTrade.uround());
 	/*	If they're much more advanced than us, we won't be able to trade for
 		all their tech. */
 	rUtilityFromTechTrade.decreaseTo(100);
@@ -947,10 +948,11 @@ void GreedForVassals::evaluate()
 	scaled rUtility = (kOurTeam.isHuman() ? fixp(0.5) : fixp(0.35)) *
 			rUtilityFromTechTrade;
 	scaled rUtilityFromResources = ourCache().vassalResourceScore(eThey);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Resource score: %d", rUtilityFromResources.uround());
 	// Expect just +1.5 commerce per each of their cities from trade routes
 	scaled rUtilityFromTR = fixp(1.5) * kThey.getNumCities() / rOurIncome;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Trade route score: %d", rUtilityFromTR.uround());
+	// <!-- custom: Resources and trade routes are combined immediately below as the same passive vassal-trade contribution, so keep their component scores on one row. (ChatGPT-5.6-Sol) -->
+	if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_GREED_VASSAL_PASSIVE_TRADE turn=%d agentPlayer=%d rivalPlayer=%d resourceScore=%d tradeRouteScore=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rUtilityFromResources.uround(), rUtilityFromTR.uround());
 	// These trades are pretty safe bets; treated as 75% probable
 	rUtility += fixp(0.75) * rTheirCityRatio * (rUtilityFromResources + rUtilityFromTR);
 	int iOurVassalPlayers = PlayerIter<ALIVE,VASSAL_OF>::count(eOurTeam);
@@ -986,15 +988,17 @@ void GreedForVassals::evaluate()
 	}
 	scaled const rTheirPower = kThey.uwai().getCache().getPowerValues()[ARMY]->power();
 	scaled const rOurPower = ourCache().getPowerValues()[ARMY]->power();
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Their army/ ours: %d/%d", rTheirPower.round(), rOurPower.round());
 	// Multiplier reflects coordination problems and lack of commitment
 	scaled rUtilityFromMilitary = 45 * rTheirCityRatio * rTheirPower /
 			scaled::max(rOurPower, 10);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Base utility from military: %d", rUtilityFromMilitary.uround());
+	// <!-- custom: The power ratio exists only to derive this military base utility; keep both inputs and the resulting utility in one event. (ChatGPT-5.6-Sol) -->
+	if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_GREED_VASSAL_MILITARY_BASE turn=%d agentPlayer=%d rivalPlayer=%d vassalPower=%d agentPower=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rTheirPower.round(), rOurPower.round(), rUtilityFromMilitary.uround());
 	if (!bUsefulArea)
 	{
 		rUtilityFromMilitary /= 2;
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Utility halved b/c vassal not in a useful area");
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_GREED_VASSAL_MILITARY_AREA_REDUCTION turn=%d agentPlayer=%d rivalPlayer=%d percent=50",
+				GC.getGame().getGameTurn(), eWe, eThey);
 	}
 	rUtilityFromMilitary.decreaseTo(30);
 	rUtility += rUtilityFromMilitary;
@@ -1004,7 +1008,8 @@ void GreedForVassals::evaluate()
 	if (iLoveOfPeace > 0)
 	{
 		rUtility *= std::max(fixp(0.1), 1 - per100(iLoveOfPeace));
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Greed reduced by %d percent b/c of love of peace", iLoveOfPeace);
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_GREED_VASSAL_LOVE_OF_PEACE_REDUCTION turn=%d agentPlayer=%d rivalPlayer=%d percent=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, iLoveOfPeace);
 	}
 	m_iU += std::max(0, rUtility.round());
 }
@@ -1105,7 +1110,8 @@ void GreedForSpace::evaluate()
 	scaled rUtility = (40 * rIncr * kWeAI.amortizationMultiplier());
 	if (rUtility.abs() >= fixp(0.5))
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Their orphaned sites: %d, our current sites: %d, our current cities: %d", iTheirSites, iOurSites, iOurCities);
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_GREED_SPACE_SITE_GAIN turn=%d agentPlayer=%d rivalPlayer=%d orphanedSites=%d currentSites=%d currentCities=%d utility=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, iTheirSites, iOurSites, iOurCities, rUtility.round());
 		m_iU += rUtility.round();
 	}
 }
@@ -1132,7 +1138,8 @@ void GreedForCash::evaluate()
 				return;
 		}
 	}
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Adding utility for future reparations");
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_GREED_CASH_REPARATIONS turn=%d agentPlayer=%d rivalPlayer=%d",
+			GC.getGame().getGameTurn(), eWe, eThey);
 	m_iU += normalizeUtility(4).uround(); // Only one team member will pay
 }
 
