@@ -3680,6 +3680,8 @@ void Affection::evaluate()
 		return;
 	int iNoWarPercent = kOurTeam.AI_noWarProbAdjusted(eTheirTeam);
 	scaled rUtility; // (Positive value; gets subtracted in the end.)
+	// <!-- custom: Keep the applied vassal reduction and uncertainty adjustment as named components so one result row can report the exact affection calculation without separate prose messages. (ChatGPT-5.6-Sol) -->
+	int iVassalPenalty = 0;
 	if (iNoWarPercent > 0) // for efficiency
 	{
 		/*	Capitulated vassals don't interest us, but a voluntary vassal can
@@ -3701,13 +3703,9 @@ void Affection::evaluate()
 			if (iDelta > 0)
 				rVassalPenalty += scaled(iDelta, 10);
 		}
-		int const iVassalPenalty = rVassalPenalty.uround();
+		iVassalPenalty = rVassalPenalty.uround();
 		if (iVassalPenalty > 0)
-		{
 			iNoWarPercent = std::max(iNoWarPercent / 2, iNoWarPercent - iVassalPenalty);
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("No-war-chance for %S reduced by %d b/c of peace vassals",
-					GET_PLAYER(eThey).getName(0), iVassalPenalty);
-		}
 		//rUtility = per100(iNoWarPercent).pow(fixp(5.5)) * 75;
 		// ^That progression is a bit too steep
 		// The new formula would go toward infinity for high iNoWarPercent
@@ -3732,6 +3730,8 @@ void Affection::evaluate()
 	if (bHiredAgainstFriend)
 		rUtility = 50;
 	rUtility *= rLinkedWarMult * rWarImminentMult * m_rGameProgressFactor;
+	// <!-- custom: Moved the inherited uncertainty adjustment outside its branch so the final affection row reports the exact signed amount added; scaled defaults to zero when no uncertainty adjustment applies. (GPT-6.1-Sol) -->
+	scaled rUncertainVal;
 	// When there's supposed to be uncertainty
 	if (!bIgnDistr && ((iNoWarPercent > 0 && iNoWarPercent < 100) || bHiredAgainstFriend))
 	{
@@ -3742,13 +3742,8 @@ void Affection::evaluate()
 		aiInputs.push_back(kThey.AI_getMemoryCount(eWe, MEMORY_DECLARED_WAR));
 		scaled rHashVal = scaled::hash(aiInputs, eWe);
 		scaled const rUncertaintyBound = 12;
-		scaled rUncertainVal = rHashVal * std::min(2 * rUncertaintyBound, rUtility) -
+		rUncertainVal = rHashVal * std::min(2 * rUncertaintyBound, rUtility) -
 				std::min(rUncertaintyBound, fixp(0.5) * rUtility);
-		if (rUncertainVal.abs() >= fixp(0.5))
-		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%d %s for uncertainty", rUncertainVal.abs().round(),
-					(rUncertainVal > 0 ? "added" : "subtracted"));
-		}
 		rUtility += rUncertainVal;
 		FAssert(rUtility >= 0);
 	}
@@ -3756,14 +3751,18 @@ void Affection::evaluate()
 		pairwise conquests; need to correct that a bit. */
 	if (kOurTeam.getNumMembers() > 1)
 		rUtility = normalizeUtility(rUtility) * kOurTeam.getNumMembers() * fixp(2/3.);
+	// <!-- custom: Keep the inherited >= 0.5 application threshold: iUtility remains zero when no penalty is applied, so the consolidated row can report other adjustments without implying that their rounded result changed gameplay. (GPT-6.1-Sol) -->
+	int iUtility = 0;
 	if (rUtility >= fixp(0.5))
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("NoWarAttProb: %d percent, our attitude: %d, for linked war: %d percent,"
-				" for direct war plan: %d percent, for game turn: %d percent",
-				iNoWarPercent, towardThem(), rLinkedWarMult.getPercent(),
-				rWarImminentMult.getPercent(), m_rGameProgressFactor.getPercent());
-		m_iU -= rUtility.round();
+		iUtility = rUtility.round();
+		m_iU -= iUtility;
 	}
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && (iVassalPenalty > 0 || rUncertainVal.abs() >= fixp(0.5) || iUtility != 0)) logBBAI("UWAI_WAR_UTILITY_AFFECTION_RESULT turn=%d agentPlayer=%d rivalPlayer=%d warPlan=%d attitude=%d noWarPercent=%d vassalPenalty=%d hiredAgainstFriend=%d linkedWarPercent=%d imminentWarPercent=%d gameProgressPercent=%d uncertainty=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, eWP, towardThem(), iNoWarPercent,
+			iVassalPenalty, bHiredAgainstFriend, rLinkedWarMult.getPercent(),
+			rWarImminentMult.getPercent(), m_rGameProgressFactor.getPercent(),
+			rUncertainVal.round(), -iUtility);
 }
 
 
@@ -3797,7 +3796,8 @@ void Distraction::evaluate()
 	}
 	if (!bCanReach)
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("No distraction from %S b/c neither side can reach the other", GET_TEAM(eTheirTeam).getName().GetCString());
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_DISTRACTION_UNREACHABLE turn=%d agentPlayer=%d rivalPlayer=%d rivalTeam=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, eTheirTeam);
 		return;
 	}
 	FAssert(!m_kParams.isIgnoreDistraction());
@@ -3808,6 +3808,7 @@ void Distraction::evaluate()
 	int iAltWars = 0;
 	scaled rTotalOpportunityCost;
 	scaled rHighestOpportunityCost;
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (TeamIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itAltTarget(eOurTeam);
 		itAltTarget.hasNext(); ++itAltTarget)
 	{
@@ -3823,8 +3824,8 @@ void Distraction::evaluate()
 				ourCache().warUtilityIgnoringDistraction(eAltTarget), eAltTarget);
 		if (rWarUtilityVsAlt >= 50 && kOurTeam.isAtWar(eTheirTeam))
 		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Distraction unproblematic b/c war utility against %S is high (%d)",
-					GET_TEAM(eAltTarget).getName().GetCString(), rWarUtilityVsAlt.round());
+			if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_DISTRACTION_ALT_HIGH_UTILITY turn=%d agentPlayer=%d rivalPlayer=%d alternativeTeam=%d alternativeUtility=%d",
+					GC.getGame().getGameTurn(), eWe, eThey, eAltTarget, rWarUtilityVsAlt.round());
 			continue;
 		}
 		/*	The war against eThey distracts us from our war against eAltTarget.
@@ -3834,13 +3835,13 @@ void Distraction::evaluate()
 			Needs a little extra nudge. */
 		if (kOurTeam.AI_getWarPlan(eAltTarget) != NO_WARPLAN)
 		{
-			rDistractionCost += fixp(5.5);
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("War plan against %S distracts us from (actual)"
-					" war plan against %S", GET_TEAM(eTheirTeam).getName().GetCString(),
-					GET_TEAM(eAltTarget).getName().GetCString());
+			scaled const rPlanBaseCost = fixp(5.5);
+			rDistractionCost += rPlanBaseCost;
 			/*	The cached value is for limited war in 5 turns, which isn't
 				necessarily the best war plan against eAltTarget. */
 			rWarUtilityVsAlt += fixp(7.5);
+			// <!-- custom: Keep the optional preparation-only increment outside its branch so the consolidated active-plan row can report zero when it did not apply. (ChatGPT-5.6-Sol) -->
+			scaled rPreparationExtraCost;
 			if (rWarUtilityVsAlt >= fixp(0.5) &&
 				!militAnalyst().isOnTheirSide(eAltTarget, true) &&
 				!kOurTeam.isAtWar(eAltTarget))
@@ -3849,9 +3850,13 @@ void Distraction::evaluate()
 				and we're considering peace with eThey; or there's a special offer
 				(sponsored or diplo vote) to declare war on eThey. (Not possible:
 				preparations against eAltTarget and eThey at the same time.) */
-				rDistractionCost += rWarUtilityVsAlt;
-				if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%d extra cost for distraction from war in preparation", rWarUtilityVsAlt.uround());
+				rPreparationExtraCost = rWarUtilityVsAlt;
+				rDistractionCost += rPreparationExtraCost;
 			}
+			if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_DISTRACTION_ALT_ACTIVE_PLAN turn=%d agentPlayer=%d rivalPlayer=%d alternativeTeam=%d adjustedAlternativeUtility=%d basePlanCost=%d preparationExtraCost=%d totalAddedCost=%d",
+					GC.getGame().getGameTurn(), eWe, eThey, eAltTarget, rWarUtilityVsAlt.round(),
+					rPlanBaseCost.round(), rPreparationExtraCost.round(),
+					(rPlanBaseCost + rPreparationExtraCost).round());
 			// NB: Imminent war against eAltTarget is covered by UWAI::Team::considerPeace
 		}
 		/*	eAltTarget as a potential alternative war target. rOurWarUtility is the
@@ -3874,49 +3879,45 @@ void Distraction::evaluate()
 			if (rOpportunityCost >= fixp(0.5))
 			{
 				rOpportunityCost.decreaseTo(15);
-				if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("War against %S (%d turns) distracts us from potential war plan "
-						"against %S. Current utilities: %d/%d; Distraction cost: %d",
-						GET_TEAM(eTheirTeam).getName().GetCString(), iWarDuration,
-						GET_TEAM(eAltTarget).getName().GetCString(), rWarUtilityVsThem.round(),
-						rWarUtilityVsAlt.round(), rOpportunityCost.uround());
+				if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_DISTRACTION_ALT_OPPORTUNITY turn=%d agentPlayer=%d rivalPlayer=%d alternativeTeam=%d warDuration=%d currentWarUtility=%d alternativeUtility=%d opportunityCost=%d",
+						GC.getGame().getGameTurn(), eWe, eThey, eAltTarget, iWarDuration,
+						rWarUtilityVsThem.round(), rWarUtilityVsAlt.round(), rOpportunityCost.round());
 				rHighestOpportunityCost.increaseTo(rOpportunityCost);
 				rTotalOpportunityCost += rOpportunityCost;
 				iAltWars++;
 			}
 		}
 	}
+	// <!-- custom: Keep the combined opportunity cost available for the final distraction row; scaled defaults to zero when no alternative war contributes. (ChatGPT-5.6-Sol) -->
+	scaled rOverallOpportunityCost;
 	if (iAltWars > 0)
 	{
 		/*	We're going start at most one of the potential wars, but having
 			several candidates should be an extra incentive for freeing our hands. */
-		scaled rOverallOpportunityCost = rHighestOpportunityCost +
+		rOverallOpportunityCost = rHighestOpportunityCost +
 				(rTotalOpportunityCost - rHighestOpportunityCost) /
 				scaled(iAltWars).sqrt();
 		if (rOverallOpportunityCost >= fixp(0.5))
-		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Adjusted cost for all (%d) potential wars: %d", iAltWars,
-					rOverallOpportunityCost.uround());
 			rDistractionCost += rOverallOpportunityCost;
-		}
 	}
 	// <!-- custom: Base AdvCiv UWAI could abandon a decisively successful war because alternative-war opportunities outweighed the current war.
 	// In save file 452, Mali still had 7 cities vs Maya's 3, 891 vs 397 power and an 83-point war-success lead, while the current war remained profitable before Distraction; nevertheless, a new India preparation raised Distraction from -18 to -96 and caused immediate peace.
 	// The first prototype capped only the preparation-specific portion, reducing Distraction to -75, but Mali still accepted peace on the next turn. A 50-percent cap on the whole cost kept Mali at war long enough to capture another city, but its turn-161 review remained negative and only skipped peace by chance. When the current enemy is clearly weaker and losing, apply the stricter tunable cap relative to the cached positive value of the current war; effort, risk, war weariness and emergency multi-war peace remain unchanged. (GPT-5.6-Sol) -->
+	// <!-- custom: Retain the optional winning-war and almost-finished adjustments as named result components so the final row reports the exact path to the applied distraction cost. (ChatGPT-5.6-Sol) -->
+	int iTargetPowerPercent = -1;
+	scaled rWarSuccessLead;
+	scaled rCostBeforeWinningCap = rDistractionCost;
+	bool bWinningCapApplied = false;
 	if (rDistractionCost > 0 && rWarUtilityVsThem > 0 && kOurTeam.getNumCities() > kTheirTeam.getNumCities())
 	{
 		static int const iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_DISTRACTION_WINNING_WAR_MAX_TARGET_POWER_PERCENT");
 		static int const iMaxCostPercent = GC.getDefineINT("SAS_UWAI_DISTRACTION_WINNING_WAR_MAX_COST_PERCENT");
-		int const iTargetPowerPercent = 100 * kTheirTeam.getPower(true) / std::max(1, kOurTeam.getPower(true));
-		scaled const rWarSuccessLead = kOurTeam.AI_getWarSuccess(eTheirTeam) - kTheirTeam.AI_getWarSuccess(eOurTeam);
+		iTargetPowerPercent = 100 * kTheirTeam.getPower(true) / std::max(1, kOurTeam.getPower(true));
+		rWarSuccessLead = kOurTeam.AI_getWarSuccess(eTheirTeam) - kTheirTeam.AI_getWarSuccess(eOurTeam);
 		if (iTargetPowerPercent <= iMaxTargetPowerPercent && rWarSuccessLead >= GC.getWAR_SUCCESS_CITY_CAPTURING())
 		{
-			scaled const rOldDistractionCost = rDistractionCost;
 			rDistractionCost.decreaseTo(rWarUtilityVsThem * per100(iMaxCostPercent));
-			if (rDistractionCost < rOldDistractionCost)
-			{
-				if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Distraction reduced from %d to %d: current war utility %d, target power %d percent, war-success lead %d",
-						rOldDistractionCost.round(), rDistractionCost.round(), rWarUtilityVsThem.round(), iTargetPowerPercent, rWarSuccessLead.round());
-			}
+			bWinningCapApplied = (rDistractionCost < rCostBeforeWinningCap);
 		}
 	}
 	/*	If we expect to knock them out, the current war may be over before the
@@ -3935,17 +3936,23 @@ void Distraction::evaluate()
 			break;
 		}
 	}
+	// <!-- custom: Moved the inherited almost-finished multiplier outside its branch for the final result row. Record the applied factor: 1 means unchanged cost, including cases where the candidate factor is >= 1 and the inherited code applies no reduction. (GPT-6.1-Sol) -->
+	scaled rAlmostDoneMult = 1;
 	if (rDistractionCost > 0 && (bTheirTeamEliminated || militAnalyst().getCapitulationsAccepted(eOurTeam).count(eTheirTeam) > 0))
 	{
-		scaled rAlmostDoneMult(kTheirTeam.getNumCities(), 3);
+		rAlmostDoneMult = scaled(kTheirTeam.getNumCities(), 3);
 		if (rAlmostDoneMult < 1)
-		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Distraction cost reduced to %d percent b/c we're almost done with %S",
-					rAlmostDoneMult.getPercent(), GET_TEAM(eTheirTeam).getName().GetCString());
 			rDistractionCost *= rAlmostDoneMult;
-		}
+		else rAlmostDoneMult = 1;
 	}
-	m_iU -= rDistractionCost.round();
+	int const iUtility = rDistractionCost.round();
+	if (bLogWarUtilityDetail && iUtility != 0) logBBAI("UWAI_WAR_UTILITY_DISTRACTION_RESULT turn=%d agentPlayer=%d rivalPlayer=%d rivalTeam=%d warDuration=%d currentWarUtility=%d alternativeWarCount=%d overallOpportunityCost=%d costBeforeWinningCap=%d winningCapApplied=%d targetPowerPercent=%d warSuccessLead=%d teamEliminated=%d capitulationExpected=%d almostDonePercent=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, eTheirTeam, iWarDuration, rWarUtilityVsThem.round(),
+			iAltWars, rOverallOpportunityCost.round(), rCostBeforeWinningCap.round(), bWinningCapApplied,
+			iTargetPowerPercent, rWarSuccessLead.round(), bTheirTeamEliminated,
+			militAnalyst().getCapitulationsAccepted(eOurTeam).count(eTheirTeam) > 0,
+			rAlmostDoneMult.getPercent(), -iUtility);
+	m_iU -= iUtility;
 }
 
 
@@ -3974,8 +3981,6 @@ void PublicOpposition::evaluate()
 	scaled rWWAnger = ourCache().angerFromWarWeariness(eThey);
 	if (rWWAnger + rFaithAnger <= 0)
 		return;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Angry citizens from religion: %d, from ww: %d; total citizens: %d",
-			rFaithAnger.uround(), rWWAnger.uround(), iTotalPop);
 	// Assume that more WW is coming, and especially if we take the fight to them.
 	WarPlanTypes const eWarPlan = kOurTeam.AI_getWarPlan(eTheirTeam);
 	bool bTotal = (eWarPlan == WARPLAN_PREPARING_TOTAL || eWarPlan == WARPLAN_TOTAL);
@@ -3984,12 +3989,7 @@ void PublicOpposition::evaluate()
 	scaled rExtraAngerPortion = (bTotal ? fixp(0.5) : fixp(0.35));
 	rExtraAngerPortion += (fixp(1.5) * ourConquestsFromThem().size()) /
 			std::max(kWe.getNumCities(), 1);
-	if (rWWAnger > 0)
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Expected increase in WW: %d percent (%d conquered cities, %s war)",
-				rExtraAngerPortion.getPercent(), (int)ourConquestsFromThem().size(),
-				(bTotal ? "total" : "limited"));
-	}
+	// <!-- custom: Keep the inherited war-weariness forecast as an explicit component of the final opposition result instead of a separate prose line. (ChatGPT-5.6-Sol) -->
 	scaled const rAngerRate = (rWWAnger * (1 + rExtraAngerPortion) + rFaithAnger) /
 			iTotalPop;
 	if (rAngerRate <= 0)
@@ -4003,16 +4003,25 @@ void PublicOpposition::evaluate()
 		the PublicOpposition isn't quite working out, I think, b/c the
 		latter aspect is being overvalued so that it can serve as a safeguard
 		against interminable wars.) */
+	// <!-- custom: Track the product of the inherited stage-3/stage-4 divisors for the result row while keeping the original sequential scaled divisions, whose rounding need not equal one division by their product. (GPT-6.1-Sol) -->
+	int iMilitaryVictoryDivisor = 1;
 	if (kWe.AI_atVictoryStage(AI_VICTORY_MILITARY3))
 	{
 		int const iDiv = (kWe.isHuman() ? 3 : 2); // Humans are especially goal-driven
+		iMilitaryVictoryDivisor *= iDiv;
 		rAngerCost /= iDiv;
 		if (kWe.AI_atVictoryStage(AI_VICTORY_MILITARY4))
+		{
+			iMilitaryVictoryDivisor *= iDiv;
 			rAngerCost /= iDiv;
+		}
 	}
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("War anger rate: %d percent%s", rAngerRate.getPercent(),
-			(rAngerCost <= fixp(0.5) ? " (negligible)" : ""));
-	m_iU -= rAngerCost.round();
+	int const iUtility = rAngerCost.round();
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_PUBLIC_OPPOSITION_RESULT turn=%d agentPlayer=%d rivalPlayer=%d faithAnger=%d warWearinessAnger=%d totalPopulation=%d totalWar=%d conqueredCities=%d extraWarWearinessPercent=%d angerRatePercent=%d militaryVictoryDivisor=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rFaithAnger.round(), rWWAnger.round(),
+			iTotalPop, bTotal, (int)ourConquestsFromThem().size(), rExtraAngerPortion.getPercent(),
+			rAngerRate.getPercent(), iMilitaryVictoryDivisor, -iUtility);
+	m_iU -= iUtility;
 }
 
 
@@ -4023,6 +4032,7 @@ int Revolts::preEvaluate()
 	scaled rLossesFromRevolts;
 	int iTotalAssets = 0;
 	std::set<PlotNumTypes> countedCities;
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (PlayerIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itRival(eOurTeam); itRival.hasNext(); ++itRival)
 	{
 		CvPlayerAI const& kRival = GET_PLAYER(itRival->getID());
@@ -4060,14 +4070,19 @@ int Revolts::preEvaluate()
 					then it's probably not mainly a matter of distracted units. */
 				if (pCity->getNumRevolts() > GC.getDefineINT(CvGlobals::NUM_WARNING_REVOLTS))
 				{
-					if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%S skipped as hopeless", (*pCity).getName().GetCString());
+					if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_REVOLT_CITY_SKIPPED turn=%d agentPlayer=%d cityPlot=%d revoltPercent=%d assetScore=%d revoltCount=%d warningRevoltThreshold=%d reason=HOPELESS",
+							GC.getGame().getGameTurn(), eWe, pCity->plotNum(), rRevoltProb.getPercent(),
+							iCityAssets, pCity->getNumRevolts(), GC.getDefineINT(CvGlobals::NUM_WARNING_REVOLTS));
 					continue;
 				}
 				scaled rLossMult = 5 * std::min(fixp(0.1), rRevoltProb);
 				if (rLossMult > 0)
 				{
-					if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%S in danger of revolt (%d percent; assets: %d)", (*pCity).getName().GetCString(), rRevoltProb.getPercent(), iCityAssets);
-					rLossesFromRevolts += iCityAssets * rLossMult;
+					scaled const rExpectedLoss = iCityAssets * rLossMult;
+					if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_REVOLT_CITY_RISK turn=%d agentPlayer=%d cityPlot=%d revoltPercent=%d assetScore=%d lossMultiplierPercent=%d expectedLoss=%d",
+							GC.getGame().getGameTurn(), eWe, pCity->plotNum(), rRevoltProb.getPercent(),
+							iCityAssets, rLossMult.getPercent(), rExpectedLoss.round());
+					rLossesFromRevolts += rExpectedLoss;
 				}
 			}
 		}
@@ -4110,8 +4125,11 @@ void UlteriorMotives::evaluate()
 			we should ask for sth. extra. And don't want to make it too easy
 			for humans to avoid wars. */
 		FAssert(!m_kParams.isIgnoreDistraction()); // Sponsor should be NO_PLAYER then
-		int iUtilityVsThem = ourCache().warUtilityIgnoringDistraction(eTheirTeam);
-		m_iU -= std::max(5, iUtilityVsThem / 2);
+		int const iUtilityVsThem = ourCache().warUtilityIgnoringDistraction(eTheirTeam);
+		int const iUtility = std::max(5, iUtilityVsThem / 2);
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_ULTERIOR_MOTIVES_DEFLECTION turn=%d agentPlayer=%d sponsorPlayer=%d sponsorTeam=%d sponsorWarUtility=%d utility=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, eTheirTeam, iUtilityVsThem, -iUtility);
+		m_iU -= iUtility;
 		return;
 	}
 	TeamTypes const eTarget = m_kParams.getTarget();
@@ -4139,8 +4157,10 @@ void UlteriorMotives::evaluate()
 		iMotivesCost /= 2;
 	if (iMotivesCost > 0)
 	{
-		// <!-- custom: AdvCiv's UWAI report format requested the DeclareWarRefuseAttitudeThreshold but omitted its vararg, producing undefined output when reporting was enabled. See KI#431. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Attitude level towards %S: %d, refusal thresh: %d", GET_PLAYER(eThey).getName(0), towardThem(), kOurPersonality.getDeclareWarRefuseAttitudeThreshold());
+		// <!-- custom: Keep the refusal threshold and suspicion inputs in the same structured row as the exact motives cost they produce. AdvCiv's report omitted the refusal-threshold vararg, producing undefined output when reporting was enabled; preserve the corrected argument. See KI#431. (ChatGPT-5.6-Sol + GPT-5.6-Sol + GPT-6.1-Sol) -->
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_ULTERIOR_MOTIVES_SUSPICION turn=%d agentPlayer=%d sponsorPlayer=%d targetTeam=%d jointWar=%d hotWar=%d attitude=%d refusalThreshold=%d suspicionFactor=%d sponsorHuman=%d utility=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, eTarget, bJointWar, bHot, towardThem(),
+				kOurPersonality.getDeclareWarRefuseAttitudeThreshold(), iSuspicionFactor, kThey.isHuman(), -iMotivesCost);
 		m_iU -= iMotivesCost;
 	}
 }
@@ -4169,6 +4189,7 @@ void FairPlay::evaluate()
 	scaled rOtherEnemies; // Apart from us
 	int iPotentialOtherEnemies = 0;
 	int const iTheirRank = m_kGame.getPlayerRank(eThey);
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (PlayerAIIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itOther(eOurTeam);
 		itOther.hasNext(); ++itOther)
 	{
@@ -4181,9 +4202,13 @@ void FairPlay::evaluate()
 				militAnalyst().getWarsDeclaredBy(kOther.getID()).count(eThey) > 0);
 		int const iTheirWarMemoryAttitude = kThey.AI_getMemoryAttitude(kOther.getID(),
 				MEMORY_DECLARED_WAR);
+		// <!-- custom: Keep the mutually compatible third-party adjustments as separate zero-default components so one row can show the exact contribution from this player without repeated prose. (ChatGPT-5.6-Sol) -->
+		scaled rEnemyWeight;
+		scaled rAllyReduction;
+		scaled rPriorAttackReduction;
 		if (bWar || iTheirWarMemoryAttitude <= -2)
 		{
-			scaled rEnemyWeight = fixp(1.15);
+			rEnemyWeight = fixp(1.15);
 			if (!bWar)
 			{
 				rEnemyWeight *= fixp(0.73);
@@ -4195,27 +4220,30 @@ void FairPlay::evaluate()
 			if (iTheirRank < iOtherRank)
 				rEnemyWeight *= scaled(iTheirRank + 1, iOtherRank + 1);
 			rOtherEnemies += rEnemyWeight;
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Another enemy of %S: %S; increment: %d percent",
-					GET_PLAYER(eThey).getName(0),
-					GET_PLAYER(kOther.getID()).getName(0),
-					rEnemyWeight.getPercent());
 		}
 		else if (kTheirTeam.AI_shareWar(kOther.getTeam()))
 		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("An ally of %S: %S", GET_PLAYER(eThey).getName(0),
-					GET_PLAYER(kOther.getID()).getName(0));
-			rOtherEnemies -= scaled(1,
+			rAllyReduction = scaled(1,
 					std::max(1, GET_TEAM(kOther.getTeam()).getNumWars(true, true)));
+			rOtherEnemies -= rAllyReduction;
 		}
 		if (kOther.AI_getMemoryAttitude(eThey, MEMORY_DECLARED_WAR) <= -2)
 		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("They've attacked %S before", GET_PLAYER(kOther.getID()).getName(0));
-			rOtherEnemies -= fixp(0.5);
+			rPriorAttackReduction = fixp(0.5);
+			rOtherEnemies -= rPriorAttackReduction;
 		}
+		if (bLogWarUtilityDetail && (rEnemyWeight > 0 || rAllyReduction > 0 || rPriorAttackReduction > 0)) logBBAI("UWAI_WAR_UTILITY_FAIR_PLAY_THIRD_PARTY turn=%d agentPlayer=%d rivalPlayer=%d otherPlayer=%d atWar=%d rivalWarMemory=%d enemyWeightPercent=%d allyReductionPercent=%d priorAttackReductionPercent=%d runningOtherEnemiesPercent=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, kOther.getID(), bWar,
+				iTheirWarMemoryAttitude, rEnemyWeight.getPercent(), rAllyReduction.getPercent(),
+				rPriorAttackReduction.getPercent(), rOtherEnemies.getPercent());
 	}
+	// <!-- custom: Keep the inherited dogpile cost and optional sneak-attack multiplier available after their branches for the consolidated result. The defaults mean zero computed cost, no multiplier adjustment and zero applied penalty; preserve the original > 0.1 calculation and >= 0.5 application thresholds. (GPT-6.1-Sol) -->
+	scaled rFromOtherEnemies;
+	scaled rPotentialEnemyMult = 1;
+	int iOtherEnemiesUtility = 0;
 	if (rOtherEnemies > fixp(0.1))
 	{
-		scaled rFromOtherEnemies = 30 * ((rOtherEnemies + scaled(std::max(0,
+		rFromOtherEnemies = 30 * ((rOtherEnemies + scaled(std::max(0,
 				/*	The number of cities we expect them to lose to others.
 					The subtracted conquests of ours could include cities of
 					other civs, but, in that case, we're apparently busy with
@@ -4230,15 +4258,23 @@ void FairPlay::evaluate()
 			enforcing fairness only before and during preparations isn't enough. */
 		if (kOurTeam.AI_isSneakAttackReady(eTheirTeam))
 		{
-			scaled rPotentialEnemyMult(iPotentialOtherEnemies, 10);
+			rPotentialEnemyMult = scaled(iPotentialOtherEnemies, 10);
 			rPotentialEnemyMult.clamp(fixp(0.25), fixp(0.75));
 			rFromOtherEnemies *= rPotentialEnemyMult;
 		}
 		if (rFromOtherEnemies >= fixp(0.5))
 		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("From other enemies: %d", rFromOtherEnemies.uround());
-			m_iU -= rFromOtherEnemies.uround();
+			iOtherEnemiesUtility = rFromOtherEnemies.uround();
+			m_iU -= iOtherEnemiesUtility;
 		}
+	}
+	if (bLogWarUtilityDetail && (rOtherEnemies.abs() >= fixp(0.01) || iOtherEnemiesUtility != 0))
+	{
+		logBBAI("UWAI_WAR_UTILITY_FAIR_PLAY_DOGPILE_RESULT turn=%d agentPlayer=%d rivalPlayer=%d potentialOtherEnemies=%d otherEnemiesPercent=%d lostRivalCities=%d agentConquests=%d sneakAttackReady=%d potentialEnemyMultiplierPercent=%d cost=%d utility=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, iPotentialOtherEnemies,
+				rOtherEnemies.getPercent(), (int)militAnalyst().lostCities(eThey).size(),
+				(int)militAnalyst().conqueredCities(eWe).size(), kOurTeam.AI_isSneakAttackReady(eTheirTeam),
+				rPotentialEnemyMult.getPercent(), rFromOtherEnemies.round(), -iOtherEnemiesUtility);
 	}
 	// The rest of this function deals with the early game
 	/*	Assume that early AI-on-AI wars are always fair b/c they have the same
@@ -4283,55 +4319,60 @@ void FairPlay::evaluate()
 	iTargetTurn = (iTargetTurn * ((1 + fixp(1.5) * scaled(m_kGame.getRecommendedPlayers(), m_kGame.getCivPlayersEverAlive())) / fixp(2.5))).uround();
 	int const iElapsed = (m_kGame.getElapsedGameTurns() / rTrainMod).uround();
 	int iTurnsRemaining = iTargetTurn - iElapsed - iStartPercent;
+	bool const bGameEraAdvanced = (m_eGameEra > eStartEra);
+	bool const bRivalEraAdvanced = (kThey.getCurrentEra() > eStartEra);
+	// <!-- custom: Preserve both the raw score comparison and the inherited shifted/clamped multiplier so the early-fairness row reports the actual adjustment stage rather than recomputing it. (ChatGPT-5.6-Sol) -->
+	scaled rScoreRatioRaw;
+	scaled rScoreRatioApplied = 1;
 	if (iTurnsRemaining > 0)
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Fair-play turns remaining: %d", iTurnsRemaining);
 		rFairnessCost += scaled(iTurnsRemaining, 2).pow(fixp(1.28));
-		if (m_eGameEra > eStartEra)
-		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("The game era has surpassed the start era");
+		if (bGameEraAdvanced)
 			rFairnessCost *= fixp(3/4.);
-		}
-		if (kThey.getCurrentEra() > eStartEra)
-		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Their era has surpassed the start era");
+		if (bRivalEraAdvanced)
 			rFairnessCost *= fixp(3/4.);
-		}
-		scaled scoreRatio(m_kGame.getPlayerScore(eWe), m_kGame.getPlayerScore(eThey));
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Score ratio: %s", scoreRatio.str(100).c_str());
-		scoreRatio -= fixp(0.1);
-		scoreRatio.clamp(fixp(0.4), fixp(5/3.));
-		rFairnessCost *= scoreRatio;
+		rScoreRatioRaw = scaled(m_kGame.getPlayerScore(eWe), m_kGame.getPlayerScore(eThey));
+		rScoreRatioApplied = rScoreRatioRaw - fixp(0.1);
+		rScoreRatioApplied.clamp(fixp(0.4), fixp(5/3.));
+		rFairnessCost *= rScoreRatioApplied;
 	}
 	if (m_rGameEraAIFactor > fixp(1.5)) // Dogpiling remains an issue in the Classical era
+	{
+		if (bLogWarUtilityDetail && iTurnsRemaining > 0) logBBAI("UWAI_WAR_UTILITY_FAIR_PLAY_EARLY_ERA_SKIP turn=%d agentPlayer=%d rivalPlayer=%d turnsRemaining=%d gameEraAdvanced=%d rivalEraAdvanced=%d scoreRatioPercent=%d appliedScoreRatioPercent=%d preliminaryCost=%d gameEraAIFactorPercent=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, iTurnsRemaining, bGameEraAdvanced,
+				bRivalEraAdvanced, rScoreRatioRaw.getPercent(), rScoreRatioApplied.getPercent(),
+				rFairnessCost.round(), m_rGameEraAIFactor.getPercent());
 		return;
+	}
 	// Don't dogpile when human has lost cities in the early game
 	int const iCitiesTheyFounded = kThey.getPlayerRecord()->getNumCitiesBuilt();
 	int const iCitiesTheyHave = kThey.getNumCities();
 	scaled rFromCityLoss;
 	if (iCitiesTheyFounded > 0 && iCitiesTheyHave < iCitiesTheyFounded)
 		rFromCityLoss = 100 * (1 - scaled(iCitiesTheyHave, iCitiesTheyFounded)).pow(fixp(0.85));
+	// <!-- custom: Moved the inherited recent-declaration cost outside its branch so the final fairness row reports it alongside city-loss cost; zero means this alternative contribution was not added. (GPT-6.1-Sol) -->
+	int iFromRecentDoW = 0;
 	if (rFromCityLoss >= fixp(0.5))
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("From lost human cities: %d", rFromCityLoss.uround());
 		rFairnessCost += rFromCityLoss;
-	}
 	// If no cities gained nor lost, at least don't DoW in quick succession.
 	else if (kThey.getNumCities() == iCitiesTheyFounded)
 	{
-		int iFromRecentDoW = 35 * kTheirTeam.AI_getNumWarPlans(WARPLAN_ATTACKED_RECENT);
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("From recent DoW: %d", iFromRecentDoW);
+		iFromRecentDoW = 35 * kTheirTeam.AI_getNumWarPlans(WARPLAN_ATTACKED_RECENT);
 		rFairnessCost += iFromRecentDoW;
 	}
 	int iAttitudeDiv = 3 - towardThem() +
 			kWe.AI_getMemoryAttitude(eThey, MEMORY_REJECTED_DEMAND); // negative
 	if (iAttitudeDiv > 1)
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Divided by %d because of attitude", iAttitudeDiv);
 		rFairnessCost /= iAttitudeDiv;
-	}
-	m_iU -= std::max(0, rFairnessCost.round());
+	int const iUtility = std::max(0, rFairnessCost.round());
+	if (bLogWarUtilityDetail && (iTurnsRemaining > 0 || rFromCityLoss >= fixp(0.5) || iFromRecentDoW != 0 || iAttitudeDiv > 1 || iUtility != 0)) logBBAI("UWAI_WAR_UTILITY_FAIR_PLAY_EARLY_RESULT turn=%d agentPlayer=%d rivalPlayer=%d startEra=%d targetTurn=%d elapsedTurns=%d turnsRemaining=%d gameEraAdvanced=%d rivalEraAdvanced=%d scoreRatioPercent=%d appliedScoreRatioPercent=%d foundedCities=%d currentCities=%d cityLossCost=%d recentDoWCost=%d attitudeDivisor=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, eStartEra, iTargetTurn, iElapsed,
+			iTurnsRemaining, bGameEraAdvanced, bRivalEraAdvanced, rScoreRatioRaw.getPercent(),
+			rScoreRatioApplied.getPercent(), iCitiesTheyFounded, iCitiesTheyHave,
+			rFromCityLoss.round(), iFromRecentDoW, iAttitudeDiv, -iUtility);
+	m_iU -= iUtility;
 }
+
 
 // (no longer used)
 /*int FairPlay::initialMilitaryUnits(PlayerTypes ePlayer)
