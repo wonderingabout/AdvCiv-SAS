@@ -28,6 +28,14 @@ The checks are fairly straightforward as of now and notably include launch-guard
 
 Release preparation: when preparing a stable release or substantial release update, use the living [AdvCiv-SAS Release Preparation and Release Checklist](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Release_Process.md). It is intended for both the user and AI/LLM helpers; do not create/push tags or publish release pages unless the user explicitly asks.
 
+## Commit message writing
+
+- Do not wrap commit-message text at an arbitrary character/word count; use logical paragraphs and bullets. This keeps Git logs easier to read and follows our general preference against needless fixed-width wrapping.
+- Do not include practical commit numbers in commit messages: they can change across branches, rebases, merges and squashes.
+- When an explicitly authorized commit changes a tracked `.dll`, include the exact phrase `Update DLL` in its title or body (e.g. `- Update DLL`); the DLL commit-message CI check requires it.
+  - This catches accidental inclusion of local test/Debug-opt binaries when the shipped Release DLL is updated less frequently than source commits.
+  - The marker does not authorize a binary update by itself.
+
 ## Source analysis
 
 Use these specialized records for inherited regressions, suspicious behavior changes, provenance questions, or systematic audits; routine coding tasks should normally start from current source and Git.
@@ -205,9 +213,6 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
 - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
 - Leave compiled `.dll` files, especially local Debug-opt builds, out of source/docs commits unless the user explicitly asks to include the DLL. General commit approval alone does not include compiled binaries; inspect the staged file list before committing.
-- When an explicitly authorized commit changes a tracked `.dll`, include the exact phrase `Update DLL` in its title or body (e.g. `- Update DLL`); the DLL commit-message CI check requires it.
-  - This catches accidental inclusion of local test/Debug-opt binaries when the shipped Release DLL is updated less frequently than source commits.
-  - The marker does not authorize a binary update by itself.
 - Note: for the collapse multiline to singleline bullets below, such a refactor would be extensive, so if we need to, do it as we go rather than all in one-go throughout our whole codebase.
   - It's a low-priority nicety — don't go out of your way for it during unrelated tasks; only apply it to code you're already editing, or if it seems relevant/related to your current task, or when explicitly asked to do a collapse pass.
 - Try to make one liner code whenever possible, for example a line like `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)` is much easier to scan or grep through/compare throughout our codebase than a multiline mostly needlessly stylized version of it.
@@ -361,6 +366,22 @@ These are general guidelines, not irrevocable requirements; adjust based on task
   - For structured SASGameRecord fields, continue preferring names such as `Percent`/`X100` when they are clearer for parsers, but do not rely on that naming convention for safety.
   - The `diagnostic_log_safety.py` build check guards this contract.
   - See KI#375.3.
+- In `.cpp` definitions as well as headers, comment new functions and changes to existing functions, explaining what changed from the previous implementation and why. Keep the rationale near the affected definition or logic; a header comment alone does not replace implementation context.
+
+Example based on the inherited `WarEvaluator::evaluate(WarPlanTypes, bool, int)`: its implementation moved into `evaluateScenario` with a new diagnostic-only parameter. The original public overload remains a gameplay wrapper; the comment explains both the change and why the new parameter is internal.
+
+```cpp
+// <!-- custom: Extracted the inherited fixed-naval evaluate implementation into evaluateScenario and added bDiagnosticOnly for logging-only reruns; the original public evaluate overload remains a gameplay wrapper passing false.
+// Diagnostic passes bypass evaluator caches. Keep this mode internal so ordinary callers cannot accidentally use a diagnostic pass as a gameplay evaluator. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime)
+```
+
+### C++ header changes (.h)
+
+- Always comment each new or changed header `#include`, explaining which dependency needs it and why a forward declaration is insufficient where that distinction matters. Apply this when editing the dependency; do not bulk-annotate unrelated inherited includes.
+- Treat headers as a concise summary of the interface and its evolution: always document new functions and changes to existing functions, including renamed functions, changed parameters/defaults/return types, or changed responsibilities. Explain the previous versus current contract and why it changed beside the declaration, so readers can understand the change without a historical diff; document new or changed structural members similarly.
+  - Preserve relevant inherited comments and credits; add a separate custom comment rather than silently rewriting upstream history. Follow the general comment format and exact KI references where applicable.
+- If implementation encounters a compilation failure, preserve the verified pitfall and working correction in a concise nearby custom comment, including the exact API/type/toolchain constraint when useful. Put it beside the affected header declaration/include or implementation as appropriate; do not claim an untested theory as the cause.
 
 ### DLL compilation
 

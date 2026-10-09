@@ -620,11 +620,14 @@ int InvasionGraph::Node::remainingCitiesInArea(CvArea const& kArea) const
 }
 
 
-// For calculating threat values when breaking cycles. Attacks against lightly defended cities shouldn't result in larger threat values. <!-- custom: hoisted from multiline signature between `bClashOnly` and `bUniformGarrisons` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// For calculating threat values when breaking cycles. Attacks against lightly defended cities shouldn't result in larger threat values.
+// <!-- custom: hoisted from multiline signature between `bClashOnly` and `bUniformGarrisons` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rArmyPortionAttacker, bool bClashOnly, bool bUniformGarrisons) const
 {
 	PROFILE_FUNC();
 	UWAICache::City const* const pCacheCity = (bClashOnly ? NULL : targetCity());
+	bool const bLogInvasionSummary = (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted());
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	if (pCacheCity == NULL && !bClashOnly)
 	{
 		// <!-- custom: A missing target city ends the simulated invasion before Fleet, Logistics or city-combat strength can matter.
@@ -664,28 +667,30 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 	FAssert(!bClashOnly || (targetCity() != NULL && kDefender.targetCity() != NULL));
 	if (bClashOnly)
 	{
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Clash of %S and %S",
-				GET_PLAYER(m_ePlayer).getName(0),
-				GET_PLAYER(kDefender.m_ePlayer).getName(0));
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_COMBAT_BEGIN turn=%d agentPlayer=%d attacker=%d defender=%d mode=CLASH",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer);
 	}
 	else
 	{
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Attack on %S by %S",
-				(*pCity).getName().GetCString(), GET_PLAYER(m_ePlayer).getName(0));
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_COMBAT_BEGIN_CITY turn=%d agentPlayer=%d attacker=%d defender=%d mode=CITY_ATTACK cityX=%d cityY=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+				pCity->getX(), pCity->getY());
 	}
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Employing %d (%S) and %d (%S) percent of armies",
-			rArmyPortionAttacker.getPercent(), GET_PLAYER(m_ePlayer).getName(0),
-			rArmyPortionDefender.getPercent(), GET_PLAYER(kDefender.m_ePlayer).getName(0));
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_ARMY_PORTIONS turn=%d agentPlayer=%d attacker=%d defender=%d attackerPercent=%d defenderPercent=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+			rArmyPortionAttacker.getPercent(), rArmyPortionDefender.getPercent());
 	// Only log if portions are non-trivial
 	if (rArmyPortionDefender != 0 && rArmyPortionDefender != 1 && rConfAlliesAtt != 1)
 	{
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Confidence in allies of %S: %d percent",
-				GET_PLAYER(m_ePlayer).getName(0), rConfAlliesAtt.getPercent());
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_ALLY_CONFIDENCE_ATTACKER turn=%d agentPlayer=%d attacker=%d defender=%d percent=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+				rConfAlliesAtt.getPercent());
 	}
 	if (rArmyPortionAttacker != 0 && rArmyPortionAttacker != 1 && rConfAlliesDef != 1)
 	{
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Confidence in allies of %S: %d percent",
-				GET_PLAYER(kDefender.m_ePlayer).getName(0), rConfAlliesDef.getPercent());
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_ALLY_CONFIDENCE_DEFENDER turn=%d agentPlayer=%d attacker=%d defender=%d percent=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+				rConfAlliesDef.getPercent());
 	}
 	SimulationStep& kStep = *new SimulationStep(m_ePlayer, pCacheCity);
 	scaled rArmyPowRaw = m_military[ARMY]->power() - m_arLostPower[ARMY];
@@ -792,9 +797,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		rConfAttPers *= GET_PLAYER(m_ePlayer).uwai().confidenceAgainstHuman();
 	if (rConfAttPers != 1 || rConfDefPers != 1)
 	{
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Personal confidence (%S/%S): %d/%d percent",
-				GET_PLAYER(m_ePlayer).getName(0),
-				GET_PLAYER(kDefender.m_ePlayer).getName(0),
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_PERSONAL_CONFIDENCE turn=%d agentPlayer=%d attacker=%d defender=%d attackerPercent=%d defenderPercent=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 				rConfAttPers.getPercent(), rConfDefPers.getPercent());
 	}
 	scaled rConfAtt = rConfAttPers;
@@ -813,11 +817,9 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			rConfDefLearned = (GET_PLAYER(kDefender.m_ePlayer).uwai().
 					warConfidenceLearned(m_ePlayer, false) - 1);
 		}
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Learned confidence (%S/%S): %d/%d percent",
-					GET_PLAYER(m_ePlayer).getName(0),
-					GET_PLAYER(kDefender.m_ePlayer).getName(0),
-					rConfAttLearned.getPercent() + 100,
-					rConfDefLearned.getPercent() + 100);
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_LEARNED_CONFIDENCE turn=%d agentPlayer=%d attacker=%d defender=%d attackerPercent=%d defenderPercent=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+					rConfAttLearned.getPercent() + 100, rConfDefLearned.getPercent() + 100);
 		/*	To avoid extreme bias, don't multiply with rConf...Pers unless
 			learned and personal confidence contradict each other. */
 		if ((rConfAttLearned < 0) != (rConfAtt < 1) &&
@@ -876,7 +878,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		{
 			rLossesAtt = rrLossesWL.second / rConfAtt;
 			rLossesDef = rrLossesWL.first / rConfDef;
-			if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Sea bombardment averted");
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_SEA_BOMBARDMENT_AVERTED turn=%d agentPlayer=%d attacker=%d defender=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer);
 			bCanBombardFromSea = false;
 		}
 		kStep.reducePower(m_ePlayer, FLEET, rLossesAtt);
@@ -885,7 +888,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		rDefLogisticsLosses.decreaseTo(kDefender.m_military[LOGISTICS]->power()
 				- kDefender.m_arLostPower[LOGISTICS]);
 		kStep.reducePower(kDefender.m_ePlayer, LOGISTICS, rDefLogisticsLosses);
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Losses from sea battle (A/D): %d/%d",
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_SEA_BATTLE_LOSSES_FLEET turn=%d agentPlayer=%d attacker=%d defender=%d attackerLoss=%d defenderLoss=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 				rLossesAtt.round(), rLossesDef.round());
 	}
 	if (bCanBombardFromSea)
@@ -899,12 +903,10 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 	if (!bClashOnly)
 	{
 		if (bCavalryAttack)
-		{
 			rArmyPow = rCavPow;
-			if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cavalry attack assumed; power: %d", rArmyPow.round());
-		}
-		else if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Attacker power: %d", rArmyPow.round());
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Defending army's power: %d", rDefArmyPow.round());
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_FIELD_ARMY_POWER turn=%d agentPlayer=%d attacker=%d defender=%d attackerPower=%d defenderPower=%d cavalryAttack=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+				rArmyPow.round(), rDefArmyPow.round(), bCavalryAttack);
 	}
 	bool const bSneakAttack = isSneakAttack(kDefender, bClashOnly);
 	bool const bAttackerUnprepared = kDefender.isSneakAttack(*this, false);
@@ -950,7 +952,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 				rDeploymentDistAttacker *= fixp(0.6);
 				// Will have to wait for some units to heal then though
 				iHealTurns += 2;
-				if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Deployment distance reduced b/c of prior conquest");
+				if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_DEPLOYMENT_DISTANCE_REDUCED turn=%d agentPlayer=%d attacker=%d defender=%d reason=PRIOR_CONQUEST",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer);
 			}
 		}
 	}
@@ -1014,16 +1017,14 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		iDeployTurns = (fixp(0.6) * iDeployTurns).uround();
 		rDeploymentDistAttacker *= fixp(0.75);
 	}
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Deployment distances (%S/%S): %d/%d",
-				GET_PLAYER(m_ePlayer).getName(0),
-				GET_PLAYER(kDefender.m_ePlayer).getName(0),
-				rDeploymentDistAttacker.uround(),
-				rDeploymentDistDefender.uround());
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_DEPLOYMENT_DISTANCE turn=%d agentPlayer=%d attacker=%d defender=%d attackerDistance=%d defenderDistance=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+				rDeploymentDistAttacker.uround(), rDeploymentDistDefender.uround());
 	if (!bClashOnly) // Duration has no bearing on clashes
 	{
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Deployment duration: %d%s", iDeployTurns,
-				(bSneakAttack ? " (sneak attack)" :
-				(bAttackerUnprepared ? " (attacker unprepared)" : "")));
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_DEPLOYMENT_DURATION turn=%d agentPlayer=%d attacker=%d defender=%d turns=%d sneakAttack=%d attackerUnprepared=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+				iDeployTurns, bSneakAttack, bAttackerUnprepared);
 	}
 	// Sea battle about naval landing
 	if (bNaval)
@@ -1115,7 +1116,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 				rCargoSize.increaseTo(0);
 				rCargoSize *= rRepeatTripFactor;
 				rSASSurvivingCargo = rCargoSize;
-				if (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted()) logBBAI("Naval landing succeeds with %d surviving cargo",
+				if (bLogInvasionSummary) logBBAI("UWAI_INVASION_GRAPH_NAVAL_LANDING_SUCCESS turn=%d agentPlayer=%d attacker=%d defender=%d survivingCargo=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 						rCargoSize.round());
 				if (rArmySize > 0)
 				{
@@ -1124,7 +1126,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 					rNavalLandingRatio = rLandingRatio;
 					rArmyPow *= rLandingRatio;
 					rCavPow *= rLandingRatio;
-					if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Power of landing party: %d", rArmyPow.uround());
+					if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_NAVAL_LANDING_POWER turn=%d agentPlayer=%d attacker=%d defender=%d power=%d",
+							GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer, rArmyPow.uround());
 				}
 			}
 		}
@@ -1146,7 +1149,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 				kStep.reducePower(m_ePlayer, ARMY, rDrowned);
 				if (rArmyPow > 0)
 					kStep.reducePower(m_ePlayer, CAVALRY, rDrowned * rCavPow / rArmyPow);
-				if (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted()) logBBAI("Naval landing repelled");
+				if (bLogInvasionSummary) logBBAI("UWAI_INVASION_GRAPH_NAVAL_LANDING_REPELLED turn=%d agentPlayer=%d attacker=%d defender=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer);
 			}
 			kStep.setSuccess(false);
 			kStep.setDuration(iDeployTurns + (bSneakAttack ? 0 : 2));
@@ -1161,7 +1165,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		}
 		if (rLossesAtt > 0 || rLossesDef > 0)
 		{
-			if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Losses from sea battle (A/D): %d/%d",
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_SEA_BATTLE_LOSSES_LANDING turn=%d agentPlayer=%d attacker=%d defender=%d attackerLoss=%d defenderLoss=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 					rLossesAtt.uround(), rLossesDef.uround());
 		}
 	}
@@ -1238,7 +1243,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			}
 			if (rAreaWeightAtt < 1)
 			{
-				if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Area weight attacker: %d percent", rAreaWeightAtt.getPercent());
+				if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_AREA_WEIGHT_ATTACKER turn=%d agentPlayer=%d attacker=%d defender=%d percent=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer, rAreaWeightAtt.getPercent());
 				// <!-- custom: Cavalry is an overlapping Army sub-branch. AdvCiv weighted only the attacker's Army by battle area, breaking Cavalry <= Army even though its defender-side sibling was fixed. Scale both together. See KI#583. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				rArmyPow *= rAreaWeightAtt;
 				rCavPow *= rAreaWeightAtt;
@@ -1259,7 +1265,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			rAreaWeightDef.clamp(fixp(1/3.), 1);
 			if (rAreaWeightDef != 1)
 			{
-				if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Area weight defender: %d percent",
+				if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_AREA_WEIGHT_DEFENDER turn=%d agentPlayer=%d attacker=%d defender=%d percent=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 						rAreaWeightDef.getPercent());
 				rDefArmyPow *= rAreaWeightDef;
 				rDefCavPow *= rAreaWeightDef;
@@ -1293,7 +1300,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 	if (!bDefenderOutnumbered || bClashOnly)
 	{
 		bool const bAttWin = (rArmyPowModified > rDefArmyPowModified);
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Army clash with modified power (A/D): %d/%d",
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CLASH_POWER turn=%d agentPlayer=%d attacker=%d defender=%d attackerPower=%d defenderPower=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 				rArmyPowModified.uround(), rDefArmyPowModified.uround());
 		std::pair<scaled,scaled> rrLossesWL = clashLossesWinnerLoser(
 				rArmyPowModified, rDefArmyPowModified, !bClashOnly, false);
@@ -1336,7 +1344,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			kStep.reducePower(kDefender.m_ePlayer, CAVALRY, rLossesLoser * rDefCavRatio);
 			if (!bClashOnly)
 			{
-				if (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted()) logBBAI("Defending army defeated; losses (A/D): %d/%d",
+				if (bLogInvasionSummary) logBBAI("UWAI_INVASION_GRAPH_FIELD_BATTLE_DEFENDER_DEFEATED turn=%d agentPlayer=%d attacker=%d defender=%d attackerLoss=%d defenderLoss=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 						rLossesWinner.round(), rLossesLoser.round());
 			}
 			else
@@ -1360,8 +1369,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			kStep.setSuccess(false);
 			if (!bClashOnly)
 			{
-				if (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted()) logBBAI("Attack repelled by defending army; "
-						"losses (A/D): %d/%d",
+				if (bLogInvasionSummary) logBBAI("UWAI_INVASION_GRAPH_FIELD_BATTLE_ATTACK_REPELLED turn=%d agentPlayer=%d attacker=%d defender=%d attackerLoss=%d defenderLoss=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 						rLossesLoser.uround(), rLossesWinner.uround());
 			}
 			return &kStep;
@@ -1490,7 +1499,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		rPlotDef -= rBombDmg;
 	}
 	// Don't log bCanSoften - it's usually implied
-	else if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Can't bomb down defenses");
+	else if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_BOMBARDMENT_UNAVAILABLE turn=%d agentPlayer=%d attacker=%d defender=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer);
 	// Assume 20 damage per turn
 	scaled rBombTurns = (bCanBombard ? rBombDmg / rBombPerTurn : 0);
 	/*	Walls and Castle slow down bombardment.
@@ -1528,7 +1538,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		/*	If their army hasn't been engaged yet, expect the bulk of it to be
 			rallied to any attacked city */
 		rDefArmyPortion = std::max(rDefArmyPortion, fixp(0.75));
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Assuming high portion of defending army b/c not clashed yet");
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_DEFENDER_PORTION_RAISED turn=%d agentPlayer=%d attacker=%d defender=%d reason=NO_PRIOR_CLASH minimumPercent=75",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer);
 	}
 	if (bDefenderOutnumbered)
 	{
@@ -1549,16 +1560,16 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		rPowFromDefAdvantage /= fixp(1.55);
 	rGarrisonPow += rPowFromDefAdvantage;
 	scaled rDefenderPow = rGarrisonPow + rDefendingArmyPow;
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("City defender power: %d (%d from local garrisons, "
-			"%d from rallied garrisons, %d from retreated army"
-			" (%d percent), %d from defender advantage)",
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CITY_DEFENSE_POWER turn=%d agentPlayer=%d attacker=%d defender=%d totalPower=%d localGarrisonPower=%d ralliedGarrisonPower=%d mobileArmyPower=%d mobileArmyPercent=%d defenderAdvantagePower=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
 			rDefenderPow.uround(), rLocalGarrisonPow.uround(),
 			rRalliedGarrisonPow.uround(), rDefendingArmyPow.uround(),
 			rDefArmyPortion.getPercent(), rPowFromDefAdvantage.uround());
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Besieger power: %d", rArmyPowModified.uround());
 	scaled rPowRatio = rArmyPowModified / scaled::max(1, rDefenderPow);
 	scaled rThreat = rPowRatio;
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Power ratio (A/D): %d percent", rPowRatio.getPercent());
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CITY_ATTACK_POWER turn=%d agentPlayer=%d attacker=%d defender=%d besiegerPower=%d defenderPower=%d ratioPercent=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
+			rArmyPowModified.uround(), rDefenderPow.uround(), rPowRatio.getPercent());
 	/*	Attacks on important cities may result in greater distraction for
 		the defender -- or perhaps not; attacks on remote cities could
 		be equally distracting ... */
@@ -1570,7 +1581,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 	if (bCanBombard || bCanSoften)
 		rBombTurns += iDeployTurns * fixp(0.2);
 	int const iBombTurns = (rBombTurns / std::max(fixp(0.75), rPowRatio)).round();
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted() && iBombTurns > 0) logBBAI("Bombardment assumed to take %d turns", iBombTurns);
+	if (bLogInvasionDetail && iBombTurns > 0) logBBAI("UWAI_INVASION_GRAPH_BOMBARDMENT_DURATION turn=%d agentPlayer=%d attacker=%d defender=%d turns=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer, iBombTurns);
 	// Faster conquest when defenders outnumbered
 	kStep.setDuration(iBombTurns + kStep.getDuration());
 	FAssert(rArmyModAttCorr > 0 && rConfAtt > 0);
@@ -1727,6 +1739,8 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 {
 	Node& kAttacker = *m_kOuter.m_nodeMap[kStep.getAttacker()];
 	bool bReportedLosses = false;
+	bool const bLogInvasionSummary = (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted());
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (int i = 0; i < NUM_BRANCHES; i++)
 	{
 		MilitaryBranchTypes const eBranch = (MilitaryBranchTypes)i;
@@ -1734,10 +1748,9 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 		scaled rLostPowerDef = kStep.getLostPower(m_ePlayer, eBranch);
 		if (rLostPowerAtt >= fixp(0.5) || rLostPowerDef >= fixp(0.5))
 		{
-			if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Losses in branch %s: %d (%S), %d (%S)",
-					m_military[eBranch]->str(),
-					rLostPowerAtt.uround(), GET_PLAYER(kAttacker.m_ePlayer).getName(0),
-					rLostPowerDef.uround(), GET_PLAYER(m_ePlayer).getName(0));
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_APPLY_BRANCH_LOSS turn=%d agentPlayer=%d attacker=%d defender=%d branch=%s attackerLoss=%d defenderLoss=%d",
+					GC.getGame().getGameTurn(), m_eAgent, kAttacker.m_ePlayer, m_ePlayer,
+					m_military[eBranch]->str(), rLostPowerAtt.uround(), rLostPowerDef.uround());
 			bReportedLosses = true;
 		}
 		applyPowerLoss(eBranch, rLostPowerDef);
@@ -1751,10 +1764,12 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 		m_rTempArmyLosses += rTempLosses;
 	if (rTempLosses >= fixp(0.5))
 	{
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Temporary army losses (damaged): %d", rTempLosses.uround());
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_APPLY_TEMP_LOSS turn=%d agentPlayer=%d attacker=%d defender=%d power=%d",
+				GC.getGame().getGameTurn(), m_eAgent, kAttacker.m_ePlayer, m_ePlayer, rTempLosses.uround());
 		bReportedLosses = true;
 	}
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted() && !bReportedLosses) logBBAI("(no loss of milit. power on either side)");
+	if (bLogInvasionDetail && !bReportedLosses) logBBAI("UWAI_INVASION_GRAPH_APPLY_NO_POWER_LOSS turn=%d agentPlayer=%d attacker=%d defender=%d",
+			GC.getGame().getGameTurn(), m_eAgent, kAttacker.m_ePlayer, m_ePlayer);
 	if (kStep.isAttackerSuccessful())
 	{
 		if (kStep.isClashOnly())
@@ -1793,7 +1808,8 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 			scaled rPowLeftBehind = rUnitsLeftBehind * kAttacker.m_military[ARMY]->getTypicalPower(TEAMID(m_eAgent));
 			rPowLeftBehind.decreaseTo(kAttacker.m_military[ARMY]->power()
 					- kAttacker.m_arLostPower[ARMY]);
-			if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%d army power assumed to be left behind for defense", rPowLeftBehind.uround());
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_GARRISON_LEFT_BEHIND turn=%d agentPlayer=%d attacker=%d defender=%d power=%d",
+					GC.getGame().getGameTurn(), m_eAgent, kAttacker.m_ePlayer, m_ePlayer, rPowLeftBehind.uround());
 			kAttacker.m_arLostPower[ARMY] += rPowLeftBehind;
 			/*	Don't want to add the power to guard b/c the newly conquered city
 				can't be attacked by third parties (nor reconquered) and doesn't
@@ -1849,9 +1865,8 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 					if (iConqueredByAtt >= rCapitulationThresh.uround())
 					{
 						setCapitulated(TEAMID(kAttacker.m_ePlayer));
-						if (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted()) logBBAI("%S has capitulated to %S",
-								GET_PLAYER(m_ePlayer).getName(0),
-								GET_PLAYER(kAttacker.m_ePlayer).getName(0));
+						if (bLogInvasionSummary) logBBAI("UWAI_INVASION_GRAPH_CAPITULATION turn=%d agentPlayer=%d vassalPlayer=%d masterPlayer=%d",
+								GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kAttacker.m_ePlayer);
 					}
 				}
 			}
@@ -1866,8 +1881,8 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 						m_military[HOME_GUARD]->getTypicalPower(TEAMID(m_eAgent)) *
 						scaled(kStep.getDuration(),
 						GET_PLAYER(m_ePlayer).getMaxConscript() > 0 ? 2 : 3);
-				if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Emergency defender power for %S: %d",
-						GET_PLAYER(m_ePlayer).getName(0), m_rEmergencyDefPow.round());
+				if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_EMERGENCY_DEFENDER_POWER turn=%d agentPlayer=%d player=%d power=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, m_rEmergencyDefPow.round());
 			}
 		}
 	}
@@ -1876,13 +1891,15 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 	// Remove link if army eliminated
 	if (m_military[ARMY]->power() <= m_arLostPower[ARMY] && m_pPrimaryTarget != NULL)
 	{
-		if (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted()) logBBAI("Army of %S eliminated", GET_PLAYER(m_ePlayer).getName(0));
+		if (bLogInvasionSummary) logBBAI("UWAI_INVASION_GRAPH_ARMY_ELIMINATED_DEFENDER turn=%d agentPlayer=%d player=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer);
 		changePrimaryTarget(NULL);
 	}
 	if (kAttacker.m_military[ARMY]->power() <= kAttacker.m_arLostPower[ARMY] &&
 		kAttacker.m_pPrimaryTarget != NULL)
 	{
-		if (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted()) logBBAI("Army of %S eliminated", GET_PLAYER(kAttacker.m_ePlayer).getName(0));
+		if (bLogInvasionSummary) logBBAI("UWAI_INVASION_GRAPH_ARMY_ELIMINATED_ATTACKER turn=%d agentPlayer=%d player=%d",
+				GC.getGame().getGameTurn(), m_eAgent, kAttacker.m_ePlayer);
 		kAttacker.changePrimaryTarget(NULL);
 	}
 	kAttacker.m_bHasClashed = true;

@@ -496,7 +496,8 @@ void WarEvaluator::evaluateForDiagnostics(WarPlanTypes eWarPlan, bool bNaval, in
 }
 
 
-// <!-- custom: Shared implementation for gameplay evaluation and the explicitly diagnostic-only selected-scenario rerun. bDiagnosticOnly is internal so ordinary callers cannot accidentally use a diagnostic pass as a gameplay evaluator. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Extracted the inherited fixed-naval evaluate implementation into evaluateScenario and added bDiagnosticOnly for logging-only reruns; the original public evaluate overload remains a gameplay wrapper passing false.
+// Diagnostic passes bypass evaluator caches. Keep this mode internal so ordinary callers cannot accidentally use a diagnostic pass as a gameplay evaluator. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime)
 {
 	PROFILE_FUNC(); // All war evaluation goes through here
