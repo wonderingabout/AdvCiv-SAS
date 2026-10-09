@@ -11,11 +11,13 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import re
 import shlex
 import shutil
 import subprocess
-from datetime import datetime
+import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from time import perf_counter
 from typing import Iterable, Iterator
@@ -553,6 +555,85 @@ def build_git_manifest(repo_root: Path) -> str:
         *rows,
     ]
     return "\n".join(lines) + "\n"
+def utc_timestamp() -> str:
+    # <!-- custom: Use UTC with millisecond precision and the Z suffix for readable timing context consistent with millisecond duration units. Elapsed durations still use perf_counter so wall-clock adjustments do not affect them. (GPT-6.1-Sol) -->
+    return datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+
+def runtime_process_summary_lines() -> list[str]:
+    # <!-- custom: Record only relevant process names/PIDs, not window titles or unrelated processes. This point-in-time check helps explain active-game/build constraints and file locks; it cannot establish autoplay or compilation activity. (GPT-6.1-Sol) -->
+    lines = [f"Runtime process check: {utc_timestamp()}"]
+    if sys.platform != "win32":
+        return lines + ["Runtime processes: unavailable (Windows process check only)"]
+    command = "ConvertTo-Json -Compress -InputObject @(Get-Process -Name Civ4BeyondSword,VCExpress,devenv,MSBuild,nmake,cl,link -ErrorAction SilentlyContinue | Select-Object ProcessName,Id)"
+    try:
+        result = subprocess.run(["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", command], capture_output=True, text=True, timeout=10, check=True)
+        processes = json.loads(result.stdout)
+        if isinstance(processes, dict):
+            processes = [processes]
+    except (OSError, subprocess.SubprocessError, ValueError) as exc:
+        return lines + [f"Runtime processes: unavailable ({exc})"]
+    for name in ("Civ4BeyondSword", "VCExpress", "devenv", "MSBuild", "nmake", "cl", "link"):
+        pids = sorted(process["Id"] for process in processes if process["ProcessName"].lower() == name.lower())
+        details = ", ".join(str(pid) for pid in pids)
+        lines.append(f"{name}.exe running: {'yes (PID=' + details + ')' if pids else 'no'}")
+    lines.append("Process presence is a point-in-time observation, not proof of active autoplay or compilation; processes may start or exit during packaging.")
+    return lines
+
+
+def working_tree_summary_lines(repo_root: Path) -> list[str]:
+    # <!-- custom: Count staged and unstaged tracked-file changes separately; a partially staged file belongs to both lists. NUL-separated Git paths preserve spaces and rename destinations. Keep large lists in the existing full repository-state context instead of flooding the console. (GPT-6.1-Sol) -->
+    groups: list[tuple[str, list[str] | None, str | None]] = []
+    for label, extra_args in (("Staged", ("--cached",)), ("Unstaged tracked", ())):
+        raw, error = run_git(repo_root, "diff", *extra_args, "--name-only", "-z", "--no-ext-diff", "--")
+        paths = [path for path in raw.split("\0") if path] if raw is not None else None
+        groups.append((label, paths, error))
+    show_names = sum(len(paths) for _, paths, _ in groups if paths is not None) <= 100
+    lines = []
+    for label, paths, error in groups:
+        if paths is None:
+            lines.append(f"{label} files: unavailable ({error})")
+            continue
+        name_note = "names listed below" if paths and show_names else ("names omitted; see git_repository_state.txt" if paths else "none")
+        diff_path = GENERATED_STAGED_DIFF_NAME if label == "Staged" else GENERATED_UNSTAGED_DIFF_NAME
+        lines.append(f"{label} files: {len(paths)} (diff: {diff_path}; {name_note})")
+        if show_names:
+            lines.extend(f"  {label}: {path!r}" if "\n" in path or "\r" in path else f"  {label}: {path}" for path in paths)
+    if not show_names:
+        lines.append("Changed-file names omitted above 100 combined entries; see git_repository_state.txt for full status.")
+    lines.append("A partially staged file counts in both lists; untracked files are excluded (selected untracked paths are in git_repository_state.txt).")
+    return lines
+
+
+def default_branch_state_lines(repo_root: Path) -> list[str]:
+    # <!-- custom: Detect the default from locally known origin/HEAD, not a hardcoded branch name. Compare against the local default branch when present so its practical count is distinct from feature-branch history; report the remote count too because it may lag local work. No fetch is performed. (GPT-6.1-Sol) -->
+    remote_raw, error = run_git(repo_root, "symbolic-ref", "--quiet", "refs/remotes/origin/HEAD")
+    if not remote_raw:
+        return [f"Default branch: unavailable (locally known origin/HEAD missing: {error})"]
+    remote_ref = remote_raw.strip()
+    branch = remote_ref.removeprefix("refs/remotes/origin/")
+    local_ref = f"refs/heads/{branch}"
+    local_head, _ = run_git(repo_root, "rev-parse", "--verify", f"{local_ref}^{{commit}}")
+    comparison_ref = local_ref if local_head else remote_ref
+    default_head, head_error = run_git(repo_root, "rev-parse", "--verify", f"{comparison_ref}^{{commit}}")
+    default_count, count_error = run_git(repo_root, "rev-list", "--count", comparison_ref)
+    remote_count, remote_error = run_git(repo_root, "rev-list", "--count", remote_ref)
+    divergence, divergence_error = run_git(repo_root, "rev-list", "--left-right", "--count", f"HEAD...{comparison_ref}")
+    lines = [
+        f"Default branch: {branch} (locally known origin/HEAD; no fetch)",
+        f"Default comparison ref: {comparison_ref}",
+        f"Default HEAD: {default_head.strip() if default_head else 'unavailable: ' + str(head_error)}",
+        f"Default commit count: {default_count.strip() if default_count else 'unavailable: ' + str(count_error)}",
+        f"Default remote commit count: {remote_count.strip() if remote_count else 'unavailable: ' + str(remote_error)} ({remote_ref}; may be stale)",
+    ]
+    if divergence:
+        current_only, default_only = divergence.split()
+        lines.append(f"Current-only / default-only commits: {current_only} / {default_only}")
+    else:
+        lines.append(f"Current-only / default-only commits: unavailable ({divergence_error})")
+    return lines
+
+
 def build_git_repository_state(repo_root: Path, selected_files: Iterable[Path], explicit_upstream_refs: Iterable[str] = ()) -> str:
     """Build compact repository, upstream, tracked-worktree, and selected-untracked state."""
     branch_raw, branch_error = run_git(repo_root, "rev-parse", "--abbrev-ref", "HEAD")
@@ -611,6 +692,7 @@ def build_git_repository_state(repo_root: Path, selected_files: Iterable[Path], 
         f"HEAD: {head}",
         f"Commit count: {commit_count}",
     ]
+    lines.extend(default_branch_state_lines(repo_root))
     if upstream:
         lines.append(f"Upstream: {upstream}")
         if ahead is not None and behind is not None:
@@ -1654,8 +1736,13 @@ def build_snapshot_context_readme() -> str:
         "  Canonical tracked Git paths from git ls-files, each prefixed by its exact current working-tree byte size.\n"
         "  This includes size context for tracked binaries/assets intentionally omitted from the light ZIP; missing tracked\n"
         "  working-tree paths are marked MISSING.\n\n"
+        "packaging_summary.txt\n"
+        "  Start/context-preparation timestamps (UTC), current/default branch counts, staged/unstaged tracked-file counts\n"
+        "  and names (up to 100 combined entries), Windows game/IDE/build process observations, archive options and history summary.\n"
+        "  This is a pre-write snapshot, not a completion receipt; final ZIP size and completion time are console-only.\n\n"
         "git_repository_state.txt\n"
-        "  Current branch/HEAD, commit count, locally known upstream/ahead-behind state, active MERGE_HEAD/target\n"
+        "  Current branch/HEAD, commit count, locally known default branch and current/default reachability counts,\n"
+        "  tracking upstream/ahead-behind state, active MERGE_HEAD/target\n"
         "  when merging, tracked git status --short output, and ZIP-selected files that are not tracked by Git. X is\n"
         "  staged/index state; Y is unstaged/working-tree state (for example M<space>, <space>M, and MM).\n"
         "  AdvCiv-SAS commonly uses Commit count as its practical version number (for example X in\n"
@@ -1892,6 +1979,8 @@ def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path], compressio
 def main() -> int:
     total_start_time = perf_counter()
     args = parse_args()
+    started_at = utc_timestamp()
+    print(f"Started:   {started_at}", flush=True)
     repo_root = find_repo_root(args.repo_root)
     if args.fetch_upstream:
         fetch_upstream_or_fail(repo_root)
@@ -1902,10 +1991,34 @@ def main() -> int:
     context_start_time = perf_counter()
     generated_context, commit_diff_summary = build_generated_context(repo_root, files, args.commit_diff_count, write_cache=not args.dry_run, explicit_upstream_refs=args.upstream_ref)
     context_duration_ms = int((perf_counter() - context_start_time) * 1000)
-    total_bytes = sum(path.stat().st_size for path in files) + sum(data.stat().st_size if isinstance(data, Path) else len(data) for data in generated_context.values())
     compression_mode = "ZIP_STORED / no compression" if args.compression_level <= 0 else f"ZIP_DEFLATED / compression level {args.compression_level}"
 
+    state_summary = [line for line in generated_context[GENERATED_GIT_STATE_NAME].decode("utf-8").splitlines()
+                     if line.startswith(("Branch:", "HEAD:", "Commit count:", "Default ", "Current-only /", "Git error:"))]
+    change_summary = working_tree_summary_lines(repo_root)
+    runtime_summary = runtime_process_summary_lines()
+    packaging_summary = [
+        f"Started: {started_at}",
+        f"Snapshot context prepared: {utc_timestamp()}",
+        *state_summary,
+        *change_summary,
+        *runtime_summary,
+        f"Archive filename: {zip_path.name}",
+        f"Mod name: {mod_name}",
+        f"History commit limit: {args.commit_diff_count} (-1 = all reachable; 0 = disabled; positive = newest N)",
+        f"Files: {len(files)} selected + {len(generated_context) + 1} generated context files",
+        f"Mode: {compression_mode}",
+        f"History: {commit_diff_summary}",
+        "Scope: current HEAD ancestry and selected working-tree files; counts do not include uncommitted changes.",
+        "Current-only/default-only are reachability counts, not necessarily a contiguous tail or an additive practical-version offset.",
+        "Completion time and final ZIP size are reported only in the console after the archive closes.",
+    ]
+    generated_context[f"{GENERATED_CONTEXT_DIR}/packaging_summary.txt"] = ("\n".join(packaging_summary) + "\n").encode("utf-8")
+    total_bytes = sum(path.stat().st_size for path in files) + sum(data.stat().st_size if isinstance(data, Path) else len(data) for data in generated_context.values())
+
     print(f"Repo root: {repo_root}")
+    for line in (*state_summary, *change_summary, *runtime_summary):
+        print(line)
     print(f"Mod name:  {mod_name}")
     print(f"Prefix:    {prefix}")
     print(f"Archive:   {zip_path}")
@@ -1920,6 +2033,7 @@ def main() -> int:
         for rel in sorted(generated_context):
             print(f"(generated) {rel}")
         print("Dry run only; no archive written.")
+        print(f"Finished:  {utc_timestamp()}")
         return 0
 
     zip_start_time = perf_counter()
@@ -1944,6 +2058,7 @@ def main() -> int:
     print(f"ZIP size:  {zip_path.stat().st_size:,} bytes")
     if not args.no_duration:
         print(f"Duration:  {total_duration_ms:,} ms total ({context_duration_ms:,} ms generated context; {zip_duration_ms:,} ms ZIP write; {refresh_duration_ms:,} ms local-context refresh)")
+    print(f"Finished:  {utc_timestamp()}")
     return 0
 
 
