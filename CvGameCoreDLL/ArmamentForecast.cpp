@@ -46,20 +46,18 @@ ArmamentForecast::ArmamentForecast(PlayerTypes ePlayer, MilitaryAnalyst const& k
 	rProductionEstimate += iHurryProductionPerCity * GET_PLAYER(ePlayer).getNumCities();
 	/*	Civs will often change civics when war is declared. For now, the AI makes
 		no effort to anticipate this. Will have to adapt once it happens. */
-	if (bLogArmamentForecastDetail) logBBAI("UWAI_ARMAMENT_FORECAST_PRODUCTION_RATE turn=%d player=%d hammersPerTurn=%d",
-		GC.getGame().getGameTurn(), ePlayer, rProductionEstimate.round());
+	// <!-- custom: Preserve the pre-loss production only when detail logging is active so the combined production-input row adds no diagnostic-only rounding/setup cost when disabled. (ChatGPT-5.6-Sol) -->
+	int iLoggedBaseProduction = 0;
+	if (bLogArmamentForecastDetail) iLoggedBaseProduction = rProductionEstimate.round();
 	rProductionEstimate *= rProductionPortion;
-	if (rProductionPortion != 1)
-	{
-		if (bLogArmamentForecastDetail) logBBAI("UWAI_ARMAMENT_FORECAST_PRODUCTION_AFTER_CITY_LOSS turn=%d player=%d hammersPerTurn=%d",
-			GC.getGame().getGameTurn(), ePlayer, rProductionEstimate.uround());
-	}
 	// Express upgrades in terms of differences in production costs
 	scaled rProductionFromUpgrades = 0;
 	if (!bNoUpgrading)
 		rProductionFromUpgrades = productionFromUpgrades();
-	if (bLogArmamentForecastDetail && rProductionFromUpgrades > 0) logBBAI("UWAI_ARMAMENT_FORECAST_PRODUCTION_FROM_UPGRADES turn=%d player=%d hammers=%d",
-		GC.getGame().getGameTurn(), ePlayer, rProductionFromUpgrades.uround());
+	// <!-- custom: Base production, post-loss production and upgrade production feed the same forecast; report them once instead of as three adjacent rows. (ChatGPT-5.6-Sol) -->
+	if (bLogArmamentForecastDetail) logBBAI("UWAI_ARMAMENT_FORECAST_PRODUCTION_INPUTS turn=%d player=%d baseHammersPerTurn=%d productionPortionPercent=%d effectiveHammersPerTurn=%d upgradeHammers=%d upgradingDisabled=%d",
+		GC.getGame().getGameTurn(), ePlayer, iLoggedBaseProduction, rProductionPortion.getPercent(),
+		rProductionEstimate.uround(), rProductionFromUpgrades.uround(), bNoUpgrading);
 
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
 	TeamTypes const eTeam = kPlayer.getTeam();

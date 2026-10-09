@@ -1283,16 +1283,12 @@ bool UWAI::Team::considerCapitulation(TeamTypes eMaster, int iAgentWarUtility, i
 		if (iAgentCities <= 2)
 			rSkipProb -= fixp(0.25);
 	}
-	if (bLogAgentDetail) logBBAI("UWAI_AGENT_CAPITULATION_DELAY_PROBABILITY turn=%d agentTeam=%d masterTeam=%d percent=%d masterPeaceReluctance=%d cities=%d",
-			GC.getGame().getGameTurn(), m_eAgent, eMaster, rSkipProb.getPercent(), iMasterReluctancePeace, iAgentCities);
-	if (SyncRandSuccess(rSkipProb))
-	{
-		if (bLogAgentDetail) logBBAI("UWAI_AGENT_CAPITULATION_DELAYED turn=%d agentTeam=%d masterTeam=%d percent=%d",
-			GC.getGame().getGameTurn(), m_eAgent, eMaster, rSkipProb.getPercent());
+	// <!-- custom: The skip probability and its random outcome are one capitulation-delay decision; store the same roll result used by gameplay and report it once. (ChatGPT-5.6-Sol) -->
+	bool const bDelayed = SyncRandSuccess(rSkipProb);
+	if (bLogAgentDetail) logBBAI("UWAI_AGENT_CAPITULATION_DELAY_ROLL turn=%d agentTeam=%d masterTeam=%d percent=%d masterPeaceReluctance=%d cities=%d delayed=%d",
+			GC.getGame().getGameTurn(), m_eAgent, eMaster, rSkipProb.getPercent(), iMasterReluctancePeace, iAgentCities, bDelayed);
+	if (bDelayed)
 		return true;
-	}
-	if (bLogAgentDetail && rSkipProb.isPositive()) logBBAI("UWAI_AGENT_CAPITULATION_DELAY_PASSED turn=%d agentTeam=%d masterTeam=%d percent=%d",
-		GC.getGame().getGameTurn(), m_eAgent, eMaster, rSkipProb.getPercent());
 	/*  Since capitulation trade denial is decided at the team level, it doesn't matter
 		which team members are used. */
 	CvPlayerAI const& kAgentLeader = GET_PLAYER(GET_TEAM(m_eAgent).getLeaderID());
@@ -2998,6 +2994,7 @@ DenialTypes UWAI::Team::acceptVassal(TeamTypes eVassal) const
 		I'm using only the cached part of that computation. */
 	bool const bMuteLog = kAgent.isHuman();
 	UWAILogMuteState logMuteState(bMuteLog);
+	bool const bLogAgentSummary = (gUWAIAgentLogLevel >= 1 && !logMuteState.isMuted());
 	bool const bLogAgentDetail = (gUWAIAgentLogLevel >= 2 && !logMuteState.isMuted());
 	if (bLogAgentDetail)
 	{
@@ -3019,10 +3016,10 @@ DenialTypes UWAI::Team::acceptVassal(TeamTypes eVassal) const
 		iTechScore += leaderCache().vassalTechScore(
 				itVassalMember->getID());
 	}
+	// <!-- custom: Name the inherited tech-score conversion once for both the gameplay sum and the consolidated result row; unlike resourceScore, the tech score must first be converted to utility. This adds no second conversion for logging. (GPT-6.1-Sol) -->
 	// resourceScore is already utility
-	scaled rVassalUtility = tradeValToUtility(iTechScore) + iResourceScore;
-	if (bLogAgentDetail) logBBAI("UWAI_AGENT_VASSAL_ACCEPTANCE_BASE_UTILITY turn=%d agentTeam=%d vassalTeam=%d resourceUtility=%d techUtility=%d",
-		GC.getGame().getGameTurn(), kAgent.getID(), eVassal, iResourceScore, (rVassalUtility - iResourceScore).round());
+	scaled const rTechUtility = tradeValToUtility(iTechScore);
+	scaled rVassalUtility = rTechUtility + iResourceScore;
 	rVassalUtility += scaled(GET_TEAM(eVassal).getNumCities() * 30,
 			kAgent.getNumCities() + 1);
 	if (kAgent.AI_anyMemberAtVictoryStage(
@@ -3041,34 +3038,27 @@ DenialTypes UWAI::Team::acceptVassal(TeamTypes eVassal) const
 		military build-up.
 		Except, maybe, if we're Friendly toward the vassal (see below). */
 	rVassalUtility.decreaseTo(25);
-	if (bLogAgentDetail) logBBAI("UWAI_AGENT_VASSAL_ACCEPTANCE_VALUE turn=%d agentTeam=%d vassalTeam=%d utility=%d",
-		GC.getGame().getGameTurn(), kAgent.getID(), eVassal, rVassalUtility.round());
 	/*  CvTeamAI::AI_vassalTrade already does an attitude check - we know we don't
 		_dislike_ the vassal */
-	if (kAgent.AI_getAttitude(eVassal) >= ATTITUDE_FRIENDLY)
-	{
+	bool const bFriendlyBonus = (kAgent.AI_getAttitude(eVassal) >= ATTITUDE_FRIENDLY);
+	if (bFriendlyBonus)
 		rVassalUtility += 5;
-		if (bLogAgentDetail) logBBAI("UWAI_AGENT_VASSAL_ACCEPTANCE_FRIENDLY_BONUS turn=%d agentTeam=%d vassalTeam=%d bonus=5 utility=%d",
-			GC.getGame().getGameTurn(), kAgent.getID(), eVassal, rVassalUtility.round());
-	}
 	//UWAILogMuteState silentLogMuteState(true); // use this one for fewer details
 	WarEvalParameters params(kAgent.getID(), aeWarEnemies[0], logMuteState);
 	for (size_t i = 1; i < aeWarEnemies.size(); i++)
 		params.addExtraTarget(aeWarEnemies[i]);
 	params.setImmediateDoW(true);
 	WarEvaluator eval(params);
-	int iWarUtility = eval.evaluate(WARPLAN_LIMITED);
-	if (bLogAgentDetail) logBBAI("UWAI_AGENT_VASSAL_ACCEPTANCE_WAR_UTILITY turn=%d agentTeam=%d vassalTeam=%d warUtility=%d",
-		GC.getGame().getGameTurn(), kAgent.getID(), eVassal, iWarUtility);
-	int iTotalUtility = rVassalUtility.round() + iWarUtility;
-	if (iTotalUtility > 0)
-	{
-		if (gUWAIAgentLogLevel >= 1 && !logMuteState.isMuted()) logBBAI("UWAI_AGENT_VASSAL_ACCEPTANCE_ACCEPTED turn=%d agentTeam=%d vassalTeam=%d totalUtility=%d",
-			GC.getGame().getGameTurn(), kAgent.getID(), eVassal, iTotalUtility);
+	int const iWarUtility = eval.evaluate(WARPLAN_LIMITED);
+	int const iVassalUtility = rVassalUtility.round();
+	int const iTotalUtility = iVassalUtility + iWarUtility;
+	bool const bAccepted = (iTotalUtility > 0);
+	// <!-- custom: Resource/tech value, the capped vassal contribution, Friendly bonus, war utility and acceptance are one decision result. Keep the enemy list above one-to-many, but avoid five adjacent scalar narration rows here. (ChatGPT-5.6-Sol) -->
+	if (bLogAgentDetail || (bLogAgentSummary && bAccepted)) logBBAI("UWAI_AGENT_VASSAL_ACCEPTANCE_RESULT turn=%d agentTeam=%d vassalTeam=%d resourceUtility=%d techUtility=%d friendlyBonus=%d vassalUtility=%d warUtility=%d totalUtility=%d accepted=%d",
+			GC.getGame().getGameTurn(), kAgent.getID(), eVassal, iResourceScore, rTechUtility.round(),
+			bFriendlyBonus ? 5 : 0, iVassalUtility, iWarUtility, iTotalUtility, bAccepted);
+	if (bAccepted)
 		return NO_DENIAL;
-	}
-	if (bLogAgentDetail) logBBAI("UWAI_AGENT_VASSAL_ACCEPTANCE_REJECTED turn=%d agentTeam=%d vassalTeam=%d totalUtility=%d",
-		GC.getGame().getGameTurn(), kAgent.getID(), eVassal, iTotalUtility);
 	// Doesn't matter which denial; no one gets to read this.
 	return DENIAL_POWER_THEM;
 }

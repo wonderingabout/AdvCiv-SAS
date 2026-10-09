@@ -538,17 +538,14 @@ void InvasionGraph::Node::logTypicalUnits()
 		CvUnitInfo const& kUnit = GC.getInfo(eUnit);
 		int const iActualCost = kUnit.getProductionCost();
 		int const iActualPow = kBranch.getTypicalPower().round();
-		logBBAI("UWAI_INVASION_GRAPH_TYPICAL_UNIT turn=%d agentPlayer=%d player=%d branch=%s power=%d unit=%S cost=%d",
-				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kBranch.str(), iActualPow, GC.getInfo(eUnit).getDescription(), iActualCost);
-		int iAgentCost = kBranch.getTypicalCost(TEAMID(m_eAgent)).round();
-		int iAgentPow = kBranch.getTypicalPower(TEAMID(m_eAgent)).round();
-		if (iAgentPow != iActualPow)
-		{
-			/*	(iAgentCost and iActualCost often won't match b/c iActualCost here
-				ignores handicap) */
-			logBBAI("UWAI_INVASION_GRAPH_TYPICAL_UNIT_AGENT_ESTIMATE turn=%d agentPlayer=%d player=%d branch=%s cost=%d power=%d",
-					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kBranch.str(), iAgentCost, iAgentPow);
-		}
+		int const iAgentCost = kBranch.getTypicalCost(TEAMID(m_eAgent)).round();
+		int const iAgentPow = kBranch.getTypicalPower(TEAMID(m_eAgent)).round();
+		/*	(iAgentCost and iActualCost often won't match b/c iActualCost here
+			ignores handicap) */
+		// <!-- custom: The branch's actual typical unit and the agent-view estimate describe one model input; keep both on one row instead of emitting a second row only when power differs. (ChatGPT-5.6-Sol) -->
+		logBBAI("UWAI_INVASION_GRAPH_TYPICAL_UNIT turn=%d agentPlayer=%d player=%d branch=%s unit=%S actualCost=%d actualPower=%d agentEstimatedCost=%d agentEstimatedPower=%d estimatePowerDiffers=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kBranch.str(), GC.getInfo(eUnit).getDescription(),
+				iActualCost, iActualPow, iAgentCost, iAgentPow, iAgentPow != iActualPow);
 	}
 }
 
@@ -626,8 +623,6 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 {
 	PROFILE_FUNC();
 	UWAICache::City const* const pCacheCity = (bClashOnly ? NULL : targetCity());
-	bool const bLogInvasionSummary = (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted());
-	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	if (pCacheCity == NULL && !bClashOnly)
 	{
 		// <!-- custom: A missing target city ends the simulated invasion before Fleet, Logistics or city-combat strength can matter.
@@ -665,6 +660,9 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			rConfAlliesDef);
 	// No clash w/o mutual reachability
 	FAssert(!bClashOnly || (targetCity() != NULL && kDefender.targetCity() != NULL));
+	// <!-- custom: The UWAI gates are not needed by the missing-target terminal path above; cache them after that early return, immediately before the first combat diagnostic block rather than before its gameplay setup. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool const bLogInvasionSummary = (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted());
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	if (bClashOnly)
 	{
 		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_COMBAT_BEGIN turn=%d agentPlayer=%d attacker=%d defender=%d mode=CLASH",
@@ -1560,16 +1558,14 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		rPowFromDefAdvantage /= fixp(1.55);
 	rGarrisonPow += rPowFromDefAdvantage;
 	scaled rDefenderPow = rGarrisonPow + rDefendingArmyPow;
-	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CITY_DEFENSE_POWER turn=%d agentPlayer=%d attacker=%d defender=%d totalPower=%d localGarrisonPower=%d ralliedGarrisonPower=%d mobileArmyPower=%d mobileArmyPercent=%d defenderAdvantagePower=%d",
-			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
-			rDefenderPow.uround(), rLocalGarrisonPow.uround(),
-			rRalliedGarrisonPow.uround(), rDefendingArmyPow.uround(),
-			rDefArmyPortion.getPercent(), rPowFromDefAdvantage.uround());
 	scaled rPowRatio = rArmyPowModified / scaled::max(1, rDefenderPow);
 	scaled rThreat = rPowRatio;
-	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CITY_ATTACK_POWER turn=%d agentPlayer=%d attacker=%d defender=%d besiegerPower=%d defenderPower=%d ratioPercent=%d",
+	// <!-- custom: Defender composition and attacker/defender ratio are one city-combat power state; emit one row rather than repeating the same participants and defender total. (ChatGPT-5.6-Sol) -->
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CITY_COMBAT_POWER turn=%d agentPlayer=%d attacker=%d defender=%d besiegerPower=%d defenderPower=%d localGarrisonPower=%d ralliedGarrisonPower=%d mobileArmyPower=%d mobileArmyPercent=%d defenderAdvantagePower=%d ratioPercent=%d",
 			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kDefender.m_ePlayer,
-			rArmyPowModified.uround(), rDefenderPow.uround(), rPowRatio.getPercent());
+			rArmyPowModified.uround(), rDefenderPow.uround(), rLocalGarrisonPow.uround(),
+			rRalliedGarrisonPow.uround(), rDefendingArmyPow.uround(), rDefArmyPortion.getPercent(),
+			rPowFromDefAdvantage.uround(), rPowRatio.getPercent());
 	/*	Attacks on important cities may result in greater distraction for
 		the defender -- or perhaps not; attacks on remote cities could
 		be equally distracting ... */
@@ -2336,10 +2332,9 @@ void InvasionGraph::simulateComponent(Node& kStart)
 		the root.) If an edge is removed from the cycle, the remaining dag
 		has a single sink (out-degree 0). */
 	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
-	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_COMPONENT_BEGIN turn=%d agentPlayer=%d startPlayer=%d",
-			GC.getGame().getGameTurn(), m_eAgent, kStart.getPlayer());
-	if (bLogInvasionDetail && kStart.isIsolated()) logBBAI("UWAI_INVASION_GRAPH_COMPONENT_ISOLATED turn=%d agentPlayer=%d player=%d",
-			GC.getGame().getGameTurn(), m_eAgent, kStart.getPlayer());
+	// <!-- custom: Isolation is an attribute of this component start, not a separate event; keep it on the begin row to avoid duplicate context. (ChatGPT-5.6-Sol) -->
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_COMPONENT_BEGIN turn=%d agentPlayer=%d startPlayer=%d isolated=%d",
+			GC.getGame().getGameTurn(), m_eAgent, kStart.getPlayer(), kStart.isIsolated());
 	vector<Node*> apForwardPath;
 	size_t uiStartOfCycle = kStart.findCycle(apForwardPath);
 	vector<Node*> aCycle;
