@@ -1740,41 +1740,35 @@ void Assistance::evaluate()
 		return;
 	}
 	scaled rAssistRatio = assistanceRatio();
-	if (rAssistRatio > 0)
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Expecting them to lose %d percent of their assets",
-				rAssistRatio.getPercent());
-	}
-	else return;
+	if (rAssistRatio <= 0)
+		return;
 	scaled rTradeUtility = rAssistRatio * partnerUtilFromTrade();
 	// Tech trade and military support are more sensitive to losses than trade
 	scaled rOtherUtility = rAssistRatio.sqrt() *
 			(partnerUtilFromTech() + partnerUtilFromMilitary());
-	if (rTradeUtility > 0 || rOtherUtility > 0)
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Utility for trade: %d, tech/military: %d, both weighted by saved assets",
-				rTradeUtility.uround(), rOtherUtility.uround());
-	}
 	scaled rUtility = rTradeUtility + rOtherUtility;
+	// <!-- custom: Keep the optional affection and open-borders floors explicit so the consolidated result row shows which inherited lower bound constrained utility. (ChatGPT-5.6-Sol) -->
+	scaled rPureAffectionUtility;
 	if (!kWe.isHuman() && towardThem() >= ATTITUDE_FRIENDLY)
 	{
-		scaled rPureAffectionUtility = rAssistRatio * 20;
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Utility raised to %d for pure affection", rPureAffectionUtility.round());
+		rPureAffectionUtility = rAssistRatio * 20;
 		rUtility.increaseTo(rPureAffectionUtility);
 	}
 	scaled rOBUtil;
 	if (kOurTeam.isOpenBorders(eTheirTeam))
 		rOBUtil = iPartnerUtilFromOB * rAssistRatio;
 	if (rUtility < rOBUtil && rOBUtil > 0)
-	{
 		rUtility = rOBUtil;
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Utility raised to %d for strategic value of OB", rUtility.round());
-	}
 	scaled rPersonalityMult = kWeAI.protectiveInstinct();
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Personality multiplier: %d percent", rPersonalityMult.getPercent());
+	// <!-- custom: Apply the same stored rounded penalty that the structured result reports instead of recomputing the final expression. (ChatGPT-5.6-Sol) -->
+	int const iUtilityPenalty = (rUtility * rPersonalityMult).round();
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_ASSISTANCE_RESULT turn=%d agentPlayer=%d rivalPlayer=%d assetLossPercent=%d capitulated=%d tradeUtility=%d techMilitaryUtility=%d affectionFloor=%d openBordersFloor=%d personalityPercent=%d utilityBeforePersonality=%d utilityPenalty=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rAssistRatio.getPercent(), militAnalyst().hasCapitulated(eTheirTeam),
+			rTradeUtility.round(), rOtherUtility.round(), rPureAffectionUtility.round(), rOBUtil.round(),
+			rPersonalityMult.getPercent(), rUtility.round(), iUtilityPenalty);
 	/*	Assistance really counts the negative utility from losses
 		that our partner suffers */
-	m_iU -= (rUtility * rPersonalityMult).round();
+	m_iU -= iUtilityPenalty;
 }
 
 
@@ -1797,7 +1791,6 @@ scaled Assistance::assistanceRatio() const
 	{
 		// Count capitulation as a 50% devaluation of their remaining assets
 		r += fixp(0.5) * (1 - r);
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%S capitulates", GET_PLAYER(eThey).getName(0));
 	}
 	return r;
 }
@@ -1812,6 +1805,7 @@ void Reconquista::evaluate()
 			(int)(kWeConquer.size() - militAnalyst().lostCities(eWe).size());
 	scaled const rBaseReconqVal = scaled::max(5, scaled(90, iProjectedCities + 2));
 	scaled rUtility;
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (CitySetIter it = kWeConquer.begin(); it != kWeConquer.end(); ++it)
 	{
 		if (militAnalyst().lostCities(eThey).count(*it) <= 0)
@@ -1821,13 +1815,14 @@ void Reconquista::evaluate()
 			continue;
 		/*	Lower the utility if our culture is small; suggests that we only
 			held the city briefly or long ago. */
-		scaled rReconqMult = (scaled::min(1,
-				scaled(kCity.getPlot().calculateCulturePercent(eWe), 50)
-				)).sqrt();
-		rUtility += rBaseReconqVal * rReconqMult;
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Reconquering %S; base val %d, modifier %d percent",
-				(kCity).getName().GetCString(),
-				rBaseReconqVal.uround(), rReconqMult.getPercent());
+		// <!-- custom: Name the culture input and per-city result so the consolidated row reports the exact values used by the inherited multiplier. (ChatGPT-5.6-Sol) -->
+		int const iCulturePercent = kCity.getPlot().calculateCulturePercent(eWe);
+		scaled rReconqMult = (scaled::min(1, scaled(iCulturePercent, 50))).sqrt();
+		scaled const rCityUtility = rBaseReconqVal * rReconqMult;
+		rUtility += rCityUtility;
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_RECONQUISTA_CITY turn=%d agentPlayer=%d rivalPlayer=%d cityPlot=%d culturePercent=%d baseValue=%d modifierPercent=%d utility=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, kCity.plotNum(), iCulturePercent,
+				rBaseReconqVal.uround(), rReconqMult.getPercent(), rCityUtility.round());
 	}
 	m_iU += rUtility.round();
 }
@@ -1835,6 +1830,8 @@ void Reconquista::evaluate()
 
 void Rebuke::evaluate()
 {
+	// <!-- custom: Rejected-peace context and the later rebuke outcome can both log in one call, so reuse one level/mute gate. (ChatGPT-5.6-Sol) -->
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	/*	<advc.134a> More reluctant to make peace when they (human)
 		have recently turned down a peace offer */
 	if (kWe.AI_getContactTimer(eThey, CONTACT_PEACE_TREATY) > 0)
@@ -1843,7 +1840,8 @@ void Rebuke::evaluate()
 			capitulation is offered */
 		int iRejectedPeaceCost = intdiv::uround(
 				kOurPersonality.getContactDelay(CONTACT_PEACE_TREATY), 5);
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("+%d for rejected peace offer", iRejectedPeaceCost);
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_REBUKE_REJECTED_PEACE turn=%d agentPlayer=%d rivalPlayer=%d utility=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, iRejectedPeaceCost);
 		m_iU += iRejectedPeaceCost;
 	} // </advc.134a>
 	// Don't expect humans to follow through on rejected demands
@@ -1853,7 +1851,8 @@ void Rebuke::evaluate()
 		return;
 	if (militAnalyst().getCapitulationsAccepted(eOurTeam).count(eTheirTeam) > 0)
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%S capitulates to us after rebuke", GET_PLAYER(eThey).getName(0));
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_REBUKE_CAPITULATION turn=%d agentPlayer=%d rivalPlayer=%d rebukeDiplo=%d utility=30",
+				GC.getGame().getGameTurn(), eWe, eThey, iRebukeDiplo);
 		/*	OK to count this multiple times for members of the same team; typically,
 			only some member pairs are going to have a rebuke memory. */
 		m_iU += 30;
@@ -1872,10 +1871,11 @@ void Rebuke::evaluate()
 			conqAssetScore() / scaled::max(10, ourCache().totalAssetScore()));
 	if (rPunishmentRatio <= 0)
 		return;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Punishment ratio: %d percent, rebuke diplo: %d",
-			rPunishmentRatio.getPercent(), iRebukeDiplo);
-	m_iU += std::min(30,
+	int const iUtility = std::min(30,
 			(scaled(iRebukeDiplo).sqrt() * 100 * rPunishmentRatio).round());
+	if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_REBUKE_PUNISHMENT turn=%d agentPlayer=%d rivalPlayer=%d rebukeDiplo=%d punishmentPercent=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, iRebukeDiplo, rPunishmentRatio.getPercent(), iUtility);
+	m_iU += iUtility;
 }
 
 
@@ -1892,7 +1892,8 @@ void Fidelity::evaluate()
 	/*	Check if we still like the "friend" and if they're still at war.
 		Unless attacked recently, we can't tell who started it, but that's
 		just as well; let's not fuss over water under the bridge. */
-	bool bWarOngoing = false;
+	// <!-- custom: Retain the qualifying friend instead of only a boolean so the consolidated result identifies which relationship triggered Fidelity. (ChatGPT-5.6-Sol) -->
+	PlayerTypes eAttackedFriend = NO_PLAYER;
 	for (PlayerIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itPartner(eOurTeam);
 		itPartner.hasNext(); ++itPartner)
 	{
@@ -1912,13 +1913,11 @@ void Fidelity::evaluate()
 			which is the same for Pleased and Friendly. */
 		if (eOurAttitude >= ATTITUDE_PLEASED)
 		{
-			bWarOngoing = true;
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%S recently attacked our friend %S", GET_PLAYER(eThey).getName(0),
-					GET_PLAYER(ePartner).getName(0));
+			eAttackedFriend = ePartner;
 			break;
 		}
 	}
-	if (!bWarOngoing)
+	if (eAttackedFriend == NO_PLAYER)
 		return;
 	scaled rLeaderFactor = 1;
 	if (!kWe.isHuman())
@@ -1931,7 +1930,10 @@ void Fidelity::evaluate()
 			return;
 		rLeaderFactor = (-rLeaderFactor).sqrt();
 	}
-	m_iU += (rLeaderFactor * 10).round();
+	int const iUtility = (rLeaderFactor * 10).round();
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_FIDELITY_RESULT turn=%d agentPlayer=%d rivalPlayer=%d attackedFriendPlayer=%d leaderFactorPercent=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, eAttackedFriend, rLeaderFactor.getPercent(), iUtility);
+	m_iU += iUtility;
 }
 
 
@@ -1962,7 +1964,6 @@ void HiredHand::evaluate()
 		// Between Annoyed and Pleased; has to be strictly better to allow sponsorship. If it becomes strictly worse, we bail.
 		if (eSponsor != NO_PLAYER && iOriginalUtility > 0 && GET_PLAYER(eSponsor).isAlive() && kOurTeam.AI_getAttitude(TEAMID(eSponsor)) >= kOurPersonality.getDeclareWarRefuseAttitudeThreshold())
 		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("We've been hired by %S; original utility of payment: %d", GET_PLAYER(eSponsor).getName(0), iOriginalUtility);
 			// Inclined to fight for 20 turns
 			rUtility += eval(eSponsor, iOriginalUtility, 20);
 			int iDeniedHelpDiplo = 0;
@@ -1970,8 +1971,9 @@ void HiredHand::evaluate()
 				iDeniedHelpDiplo -= kWe.AI_getMemoryAttitude(itSponsorMember->getID(), MEMORY_DENIED_JOIN_WAR);
 			if (iDeniedHelpDiplo > 0) // (The above normally subtracts a negative value)
 			{
-				if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Utility reduced b/c of denied help");
 				rUtility /= scaled(iDeniedHelpDiplo).sqrt();
+				if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_HIRED_HAND_SPONSOR_ADJUSTMENT turn=%d agentPlayer=%d rivalPlayer=%d sponsorPlayer=%d deniedHelpDiplo=%d adjustedUtility=%d",
+						GC.getGame().getGameTurn(), eWe, eThey, eSponsor, iDeniedHelpDiplo, rUtility.round());
 			}
 		}
 	}
@@ -2001,12 +2003,11 @@ void HiredHand::evaluate()
 					and eThey is the war we've asked the ally to declare, but that's OK. */
 				bTargetRecordsHire))
 			{
-				if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("We've hired %S for war against %S",
-						GET_PLAYER(kAlly.getID()).getName(0),
-						GET_PLAYER(eThey).getName(0));
-				if (kWe.AI_getAttitude(kAlly.getID()) <= ATTITUDE_ANNOYED)
+				int const iAttitude = kWe.AI_getAttitude(kAlly.getID());
+				if (iAttitude <= ATTITUDE_ANNOYED)
 				{
-					if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("... but we don't like our hireling enough to care");
+					if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_HIRED_HAND_ALLY_REJECTED turn=%d agentPlayer=%d rivalPlayer=%d allyPlayer=%d attitude=%d",
+							GC.getGame().getGameTurn(), eWe, eThey, kAlly.getID(), iAttitude);
 					continue;
 				}
 				/*	Behave as if someone had paid us the equivalent of 25 utility;
@@ -2037,7 +2038,8 @@ scaled HiredHand::eval(PlayerTypes eAlly, int iOriginalUtility, int iObligationT
 		kOurTeam.AI_getWorstEnemy() == TEAMID(eAlly) ||
 		GET_TEAM(eAlly).isAVassal()))
 	{ // Don't feel obliged to vassals
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("We don't feel obliged to fight for %S", GET_PLAYER(eAlly).getName(0));
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_HIRED_HAND_OBLIGATION_INELIGIBLE turn=%d agentPlayer=%d rivalPlayer=%d allyPlayer=%d originalUtility=%d thresholdTurns=%d utility=0",
+				GC.getGame().getGameTurn(), eWe, eThey, eAlly, iOriginalUtility, iObligationThresh);
 		return 0;
 	}
 	int const iOurAtWarCounter = (kOurTeam.isAtWar(eTheirTeam) ?
@@ -2047,23 +2049,19 @@ scaled HiredHand::eval(PlayerTypes eAlly, int iOriginalUtility, int iObligationT
 			MAX_INT : GET_TEAM(eAlly).AI_getAtWarCounter(eTheirTeam));
 	// Whoever has been hired must have the smaller AtWarCounter
 	int iTurnsFought = std::min(iOurAtWarCounter, iAllyAtWarCounter);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Hired team has fought %d turns against %S", iTurnsFought,
-			GET_PLAYER(eThey).getName(0));
 	if (iTurnsFought >= iObligationThresh)
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Fought long enough");
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_HIRED_HAND_OBLIGATION_COMPLETE turn=%d agentPlayer=%d rivalPlayer=%d allyPlayer=%d originalUtility=%d thresholdTurns=%d turnsFought=%d utility=0",
+				GC.getGame().getGameTurn(), eWe, eThey, eAlly, iOriginalUtility, iObligationThresh, iTurnsFought);
 		return 0;
 	}
 	scaled rObligationRatio(iObligationThresh - iTurnsFought, iObligationThresh);
 	/*	Count the value of the sponsorship double initially to make relatively sure
 		that we don't make peace right away due to some change in circumstance. */
 	scaled rUtility = 2 * SQR(rObligationRatio) * iOriginalUtility;
-	if (rUtility >= fixp(0.5))
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Utility for sticking with %S: %d", eAlly == NO_PLAYER ?
-				L"our historical role" : GET_PLAYER(eAlly).getName(0),
-				rUtility.round());
-	}
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_HIRED_HAND_OBLIGATION_ACTIVE turn=%d agentPlayer=%d rivalPlayer=%d allyPlayer=%d originalUtility=%d thresholdTurns=%d turnsFought=%d obligationPercent=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, eAlly, iOriginalUtility, iObligationThresh,
+			iTurnsFought, rObligationRatio.getPercent(), rUtility.round());
 	return rUtility;
 }
 
@@ -2094,23 +2092,27 @@ void BorderDisputes::evaluate()
 	}
 	if (militAnalyst().getCapitulationsAccepted(eOurTeam).count(eTheirTeam) > 0)
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("They capitulate; shared-borders diplo%s: %d",
-				kWe.isHuman() ? " (human)" : "", iDiploPenalty);
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_BORDER_DISPUTE_CAPITULATION turn=%d agentPlayer=%d rivalPlayer=%d human=%d diploPenalty=%d utility=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, kWe.isHuman(), iDiploPenalty, iDiploPenalty * 8);
 		m_iU += iDiploPenalty * 8;
 		return;
 	}
 	scaled rUtility;
 	CitySet const& kTheyLose = militAnalyst().lostCities(eThey);
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (CitySetIter itCity = kTheyLose.begin(); itCity != kTheyLose.end(); ++itCity)
 	{
 		CvCity const& kCity = ourCache().lookupCity(*itCity)->city();
 		int const iOurPlotCulturePercent = kCity.getPlot().calculateCulturePercent(eWe);
 		scaled rNewOwnerMultiplier = 0;
+		// <!-- custom: Keep the actual conqueror outside the search loop so the consolidated city result can report who receives it. (ChatGPT-5.6-Sol) -->
+		// <!-- custom: The initial logging refactor assigned each candidate to eConquerer before checking its conquests; if no player matched, the result falsely named the last player searched as the conqueror. Assign only after a match so unmatched cities retain NO_PLAYER. (GPT-6.1-Sol) -->
+		PlayerTypes eConquerer = NO_PLAYER;
 		for (PlayerIter<MAJOR_CIV> itConqueror; itConqueror.hasNext(); ++itConqueror)
 		{
-			PlayerTypes const eConquerer = itConqueror->getID();
-			if (militAnalyst().conqueredCities(eConquerer).count(*itCity) <= 0)
+			if (militAnalyst().conqueredCities(itConqueror->getID()).count(*itCity) <= 0)
 				continue;
+			eConquerer = itConqueror->getID();
 			// Conquests by our vassals (or by us) help us fully
 			if (GET_PLAYER(eConquerer).getMasterTeam() == eOurTeam)
 				rNewOwnerMultiplier = 1;
@@ -2122,20 +2124,19 @@ void BorderDisputes::evaluate()
 						75 - kCity.getPlot().calculateCulturePercent(eConquerer));
 				rNewOwnerMultiplier.increaseTo(0);
 			}
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%S possible border city; our culture: %d percent",
-					(kCity).getName().GetCString(), iOurPlotCulturePercent);
 			/*	If we have very little culture there and we don't conquer it,
 				assume that the city is far away from our border. */
 			if (eConquerer != eWe && iOurPlotCulturePercent < 1)
 			{
 				rNewOwnerMultiplier = 0;
-				if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Skipped b/c conquered by third party and "
-						"our culture very small");
+				if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_BORDER_DISPUTE_CITY_SKIP_THIRD_PARTY turn=%d agentPlayer=%d rivalPlayer=%d cityPlot=%d conquerorPlayer=%d ourCulturePercent=%d utility=0",
+						GC.getGame().getGameTurn(), eWe, eThey, kCity.plotNum(), eConquerer, iOurPlotCulturePercent);
 			}
 			else if (kCity.getPlot().getCulture(eWe) <= 0)
 			{
 				rNewOwnerMultiplier = 0;
-				if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Skipped b/c we have 0 culture there");
+				if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_BORDER_DISPUTE_CITY_SKIP_ZERO_CULTURE turn=%d agentPlayer=%d rivalPlayer=%d cityPlot=%d conquerorPlayer=%d ourCulturePercent=%d utility=0",
+						GC.getGame().getGameTurn(), eWe, eThey, kCity.plotNum(), eConquerer, iOurPlotCulturePercent);
 			}
 			break;
 		}
@@ -2154,10 +2155,11 @@ void BorderDisputes::evaluate()
 		}
 		else dOurCultureMultiplier = 1;
 		scaled rOurCultureModifier = scaled::fromDouble(dOurCultureMultiplier);
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Multiplier for our rel. tile culture: %d percent",
-				rOurCultureModifier.getPercent());
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Diplo penalty from border dispute: %d", iDiploPenalty);
-		rUtility += 5 * rNewOwnerMultiplier * rOurCultureModifier * iDiploPenalty;
+		scaled const rCityUtility = 5 * rNewOwnerMultiplier * rOurCultureModifier * iDiploPenalty;
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_BORDER_DISPUTE_CITY_COUNTED turn=%d agentPlayer=%d rivalPlayer=%d cityPlot=%d conquerorPlayer=%d ourCulturePercent=%d newOwnerPercent=%d cultureModifierPercent=%d diploPenalty=%d utility=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, kCity.plotNum(), eConquerer, iOurPlotCulturePercent,
+				rNewOwnerMultiplier.getPercent(), rOurCultureModifier.getPercent(), iDiploPenalty, rCityUtility.round());
+		rUtility += rCityUtility;
 	}
 	m_iU += rUtility.round();
 }
@@ -2218,18 +2220,21 @@ void SuckingUp::evaluate()
 	int const iMaxDiplo = (m_kGame.isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 4 :
 			GC.getInfo(kThey.getPersonalityType()).getShareWarAttitudeChangeLimit());
 	scaled rUtility = fixp(1.6) * iMaxDiplo; // Should iSharedWars have an impact?
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Sharing a war with %S; up to +%d diplo",
-			GET_PLAYER(eThey).getName(0), iMaxDiplo);
 	int const iCivPlayersAlive = m_kGame.countCivPlayersAlive();
+	// <!-- custom: Store the optional diplo-victory bonus separately so the consolidated result exposes whether it contributed. (ChatGPT-5.6-Sol) -->
+	int iDiploVictoryBonus = 0;
 	if (towardUs() == ATTITUDE_PLEASED &&
 		kWe.AI_atVictoryStage(AI_VICTORY_DIPLOMACY3) && iCivPlayersAlive > 2)
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Bonus utility for them being pleased and us close to diplo victory");
-		rUtility += 5;
+		iDiploVictoryBonus = 5;
+		rUtility += iDiploVictoryBonus;
 	}
 	/*	Diplo bonus with just one civ less important in large games, but also in
 		very small games or when there are few civs left. */
-	m_iU += (rUtility / scaled(std::max(4, iCivPlayersAlive)).sqrt()).round();
+	int const iUtility = (rUtility / scaled(std::max(4, iCivPlayersAlive)).sqrt()).round();
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_SUCKING_UP_RESULT turn=%d agentPlayer=%d rivalPlayer=%d sharedWars=%d ourWars=%d maxDiplo=%d diploVictoryBonus=%d civPlayersAlive=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, iSharedWars, iOurWars, iMaxDiplo, iDiploVictoryBonus, iCivPlayersAlive, iUtility);
+	m_iU += iUtility;
 }
 
 
