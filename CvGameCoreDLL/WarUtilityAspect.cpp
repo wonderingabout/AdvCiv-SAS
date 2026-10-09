@@ -2342,27 +2342,26 @@ void PreEmptiveWar::evaluate()
 	rTheirEdge.clamp(fixp(-0.5), fixp(0.5));
 	if (rTheirEdge == 0)
 		return;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Long-term threat rating for %S: %d percent", GET_PLAYER(eThey).getName(0),
-			rCurrThreat.getPercent());
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Our cities (now/predicted) and theirs: %d/%d, %d/%d",
-			rOurCurrentCities.uround(), rOurPredictedCities.uround(),
-			rTheirCurrentCities.uround(), rTheirPredictedCities.uround());
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Their gain in power: %d percent", rTheirEdge.getPercent());
 	// Shifts in power tend to affect the threat disproportionately
 	scaled rThreatChange = rTheirEdge.abs().sqrt();
 	if (rTheirEdge < 0)
 		rThreatChange.flipSign();
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Change in threat: %d percent", rThreatChange.getPercent());
 	scaled rUtility = -90 * rCurrThreat * rThreatChange;
 	// Kingmaking should handle the endgame (but not quite there yet)
-	if (rUtility.abs().uround() >= 1 && kTheirTeam.AI_anyMemberAtVictoryStage3())
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Util from pre-emptive war reduced b/c they're close to victory");
+	bool const bVictoryReduction = (rUtility.abs().uround() >= 1 &&
+			kTheirTeam.AI_anyMemberAtVictoryStage3());
+	if (bVictoryReduction)
 		rUtility *= fixp(0.6);
-	}
 	scaled rDistrustFactor = kWeAI.distrustRating();
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Our distrust: %d percent", rDistrustFactor.getPercent());
-	m_iU += (rUtility * rDistrustFactor).round();
+	// <!-- custom: Store the exact rounded value applied to m_iU so the consolidated threat row reports the same result as gameplay. (ChatGPT-5.6-Sol) -->
+	int const iUtility = (rUtility * rDistrustFactor).round();
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_PREEMPTIVE_RESULT turn=%d agentPlayer=%d rivalPlayer=%d currentThreatPercent=%d ourCurrentCities=%d ourPredictedCities=%d theirCurrentCities=%d theirPredictedCities=%d theirEdgePercent=%d threatChangePercent=%d victoryReduction=%d utilityBeforeDistrust=%d distrustPercent=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rCurrThreat.getPercent(),
+			rOurCurrentCities.uround(), rOurPredictedCities.uround(),
+			rTheirCurrentCities.uround(), rTheirPredictedCities.uround(),
+			rTheirEdge.getPercent(), rThreatChange.getPercent(), bVictoryReduction,
+			rUtility.round(), rDistrustFactor.getPercent(), iUtility);
+	m_iU += iUtility;
 }
 
 scaled const KingMaking::m_rScoreMargin = fixp(0.25);
@@ -2396,8 +2395,11 @@ int KingMaking::preEvaluate()
 		kOurTeam.AI_isChosenWar(m_kParams.getTarget()) ||
 		!kOurTeam.AI_isAvoidWar(m_kParams.getTarget(), true)))
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("We'll be the only winners; peace weight: %d", iPeaceWeight);
-		return (rEraFactor * (iVeryHighPeaceWeight - iPeaceWeight)).round();
+		int const iUtility = (rEraFactor * (iVeryHighPeaceWeight - iPeaceWeight)).round();
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_KINGMAKING_SOLE_WINNER turn=%d agentPlayer=%d peaceWeight=%d veryHighPeaceWeight=%d eraFactorPercent=%d futureWinnerCount=%d utility=%d",
+				GC.getGame().getGameTurn(), eWe, iPeaceWeight, iVeryHighPeaceWeight,
+				rEraFactor.getPercent(), (int)m_winningFuture.size(), iUtility);
+		return iUtility;
 	}
 	return 0;
 }
@@ -2686,8 +2688,6 @@ void KingMaking::evaluate()
 				back in competition. */
 			rCaughtUpPremium += rCatchUpVal;
 			bCaughtUp = true;
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%d for catching up with %S", rCaughtUpPremium.round(),
-					GET_PLAYER(eThey).getName(0));
 		}
 		else
 		{
@@ -2703,20 +2703,28 @@ void KingMaking::evaluate()
 		rCaughtUpPremium -= rCatchUpVal;
 		// Be more reckless when falling behind
 		rAttitudeMult += fixp(0.25);
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%d for falling behind %S", rCaughtUpPremium.round(),
-				GET_PLAYER(eThey).getName(0));
 	}
 	if (rAttitudeMult <= 0)
 	{
-		m_iU += rCaughtUpPremium.round();
+		int const iUtility = rCaughtUpPremium.round();
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_KINGMAKING_NONPOSITIVE_ATTITUDE turn=%d agentPlayer=%d rivalPlayer=%d attitude=%d caughtUp=%d catchUpPremium=%d futureWinnerCount=%d winningRivals=%d utility=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, iAttitude, bCaughtUp,
+				rCaughtUpPremium.round(), (int)m_winningFuture.size(), iWinningRivals, iUtility);
+		m_iU += iUtility;
 		return;
 	}
 	/*	If they (or their vassals) make a net asset gain, we incur a cost;
 		if they make a net asset loss, that's our gain. */
 	scaled rTheirLoss = theirRelativeLoss();
-	if (rTheirLoss.abs() < fixp(0.01)) // Don't pollute the log then
+	// <!-- custom: Keep the inherited negligible-asset-change early return, but replace its obsolete "Don't pollute the log" note: this branch now reports its catch-up-only result in one structured row. (GPT-6.1-Sol) -->
+	if (rTheirLoss.abs() < fixp(0.01))
 	{
-		m_iU += rCaughtUpPremium.round();
+		int const iUtility = rCaughtUpPremium.round();
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_KINGMAKING_NEGLIGIBLE_ASSET_CHANGE turn=%d agentPlayer=%d rivalPlayer=%d attitude=%d caughtUp=%d catchUpPremium=%d futureWinnerCount=%d winningRivals=%d theirLossPercent=%d utility=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, iAttitude, bCaughtUp,
+				rCaughtUpPremium.round(), (int)m_winningFuture.size(), iWinningRivals,
+				rTheirLoss.getPercent(), iUtility);
+		m_iU += iUtility;
 		return;
 	}
 	scaled rWeight(10,3); // So that 30% loss correspond to 100 utility
@@ -2727,7 +2735,8 @@ void KingMaking::evaluate()
 		rWeight = (bCaughtUp ? 2 : 3);
 	}
 	scaled rUtility = rTheirLoss * 100 * rWeight;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%d base utility for change in asset ratio", rUtility.round());
+	// <!-- custom: Preserve the pre-clamp asset-shift utility so the consolidated row can distinguish the raw effect from the inherited [-100, 100] cap. (ChatGPT-5.6-Sol) -->
+	scaled const rBaseUtility = rUtility;
 	scaled rCompetitionMult;
 	{
 		/*	Over the course of the game, we become more willing to take out rivals
@@ -2737,14 +2746,19 @@ void KingMaking::evaluate()
 		scaled rDiv = 1 + SQR(rProgressFactor * iWinningRivals);
 		rCompetitionMult = 1 / rDiv;
 	}
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Winning teams: %d (%d rivals)", (int)m_winningFuture.size(), iWinningRivals);
 	rUtility.clamp(-100, 100);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Attitude multiplier: %d percent, competition multiplier: %d percent",
-			rAttitudeMult.getPercent(), rCompetitionMult.getPercent());
+	// <!-- custom: Preserve the post-clamp, pre-personality utility so the consolidated row exposes each stage of the inherited adjustment without recomputing it. (ChatGPT-5.6-Sol) -->
+	scaled const rClampedUtility = rUtility;
 	rUtility *= rAttitudeMult * rCompetitionMult;
-	if (rUtility.abs() < fixp(0.5)) // Report confusing to read w/o this
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("(Kingmaking gain from %S negligibly small)", GET_PLAYER(eThey).getName(0));
-	m_iU += (rUtility + rCaughtUpPremium).round();
+	// <!-- custom: The inherited < 0.5 check emitted a separate "negligibly small" explanation so earlier base-utility rows would not mislead readers. Preserve that exact test as negligible in the consolidated row alongside adjustedUtility and the applied utility; no separate prose row is needed. (GPT-6.1-Sol) -->
+	int const iUtility = (rUtility + rCaughtUpPremium).round();
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_KINGMAKING_ASSET_SHIFT turn=%d agentPlayer=%d rivalPlayer=%d attitude=%d caughtUp=%d catchUpPremium=%d futureWinnerCount=%d winningRivals=%d theirLossPercent=%d weightPercent=%d baseUtility=%d clampedUtility=%d attitudePercent=%d competitionPercent=%d adjustedUtility=%d negligible=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, iAttitude, bCaughtUp,
+			rCaughtUpPremium.round(), (int)m_winningFuture.size(), iWinningRivals,
+			rTheirLoss.getPercent(), rWeight.getPercent(), rBaseUtility.round(), rClampedUtility.round(),
+			rAttitudeMult.getPercent(), rCompetitionMult.getPercent(), rUtility.round(),
+			rUtility.abs() < fixp(0.5), iUtility);
+	m_iU += iUtility;
 }
 
 
@@ -2760,6 +2774,7 @@ scaled KingMaking::theirRelativeLoss() const
 	TeamSet const& kCapitulationsAccepted = militAnalyst().getCapitulationsAccepted(eTheirTeam);
 	scaled rTheirLostAssets;
 	scaled rTheirAssets;
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (PlayerIter<MAJOR_CIV> itTheirAlly; itTheirAlly.hasNext(); ++itTheirAlly)
 	{	// Them or a teammate or vassal of them
 		PlayerTypes const eTheirAlly = itTheirAlly->getID();
@@ -2773,8 +2788,12 @@ scaled KingMaking::theirRelativeLoss() const
 			{
 				scaled rAssets;
 				netLostAssetScore(eTheirAlly, NO_PLAYER, &rAssets);
-				scaled rTheirGain = rVassalFactor * remainingCityRatio(eTheirAlly) * rAssets;
-				if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Gained from new vassal: %d", rTheirGain.round());
+				// <!-- custom: Name the remaining-city ratio so the structured vassal row reports the same factor used in the gain calculation. (ChatGPT-5.6-Sol) -->
+				scaled const rRemainingCityRatio = remainingCityRatio(eTheirAlly);
+				scaled const rTheirGain = rVassalFactor * rRemainingCityRatio * rAssets;
+				if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_KINGMAKING_NEW_VASSAL_GAIN turn=%d agentPlayer=%d rivalPlayer=%d vassalPlayer=%d vassalFactorPercent=%d remainingCityPercent=%d assets=%d gain=%d",
+						GC.getGame().getGameTurn(), eWe, eThey, eTheirAlly, rVassalFactor.getPercent(),
+						rRemainingCityRatio.getPercent(), rAssets.round(), rTheirGain.round());
 				rTheirLostAssets -= rTheirGain;
 			}
 			continue;
