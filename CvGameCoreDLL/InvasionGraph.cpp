@@ -33,14 +33,16 @@ InvasionGraph::InvasionGraph(MilitaryAnalyst& kMilitaryAnalyst, PlyrSet const& k
 	m_bLossesDone(false), m_bAllWarPartiesKnown(false), m_bFirstSimulateCall(true),
 	m_iTimeLimit(-1), m_eAgent(m_kMA.getAgentPlayer())
 {
-	if (gUWAIInvasionGraphLogLevel >= 2 && !m_kLogMuteState.isMuted()) logBBAI("Constructing invasion graph");
+	if (gUWAIInvasionGraphLogLevel >= 2 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_BEGIN turn=%d agentPlayer=%d scenario=%s warPartyCount=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_bPeaceScenario ? "PEACE" : "WAR", (int)kWarParties.size());
 	// (Barbarians and dead players will remain NULL)
 	m_nodeMap.resize(MAX_PLAYERS, NULL);
 	for (PlyrSetIter it = kWarParties.begin(); it != kWarParties.end(); ++it)
 		m_nodeMap[*it] = new Node(*it, *this);
 	for (PlyrSetIter it = kWarParties.begin(); it != kWarParties.end(); ++it)
 		m_nodeMap[*it]->findAndLinkTarget();
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted() && kWarParties.empty()) logBBAI("(no civs are currently at war)");
+	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted() && kWarParties.empty()) logBBAI("UWAI_INVASION_GRAPH_NO_WAR_PARTIES turn=%d agentPlayer=%d scenario=%s",
+			GC.getGame().getGameTurn(), m_eAgent, m_bPeaceScenario ? "PEACE" : "WAR");
 }
 
 
@@ -74,7 +76,8 @@ void InvasionGraph::addFutureWarParties(PlyrSet const& kOurSide, PlyrSet const& 
 	/*	Finding targets for the new nodes doesn't necessarily suffice b/c
 		phase 1 may have erased edges which may become valid again after
 		the armament forecast. */
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Done adding war parties");
+	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_FUTURE_WAR_PARTIES_ADDED turn=%d agentPlayer=%d ourSideCount=%d futureOpponentCount=%d",
+			GC.getGame().getGameTurn(), m_eAgent, (int)kOurSide.size(), (int)kOurFutureOpponents.size());
 	updateTargets();
 }
 
@@ -96,7 +99,8 @@ void InvasionGraph::removeWar(PlyrSet const& kOurSide, PlyrSet const& kTheirSide
 		if (m_nodeMap[*it] != NULL)
 			m_nodeMap[*it]->removeWarOpponents(kOurSide);
 	}
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Done removing war parties");
+	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_WAR_REMOVED turn=%d agentPlayer=%d ourSideCount=%d theirSideCount=%d",
+			GC.getGame().getGameTurn(), m_eAgent, (int)kOurSide.size(), (int)kTheirSide.size());
 	updateTargets();
 	/*	Don't delete any nodes; even if no longer a war party, may want to
 		know their (peacetime) armament forecast. */
@@ -105,7 +109,8 @@ void InvasionGraph::removeWar(PlyrSet const& kOurSide, PlyrSet const& kTheirSide
 
 void InvasionGraph::updateTargets()
 {
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("War parties (may) have changed; reassigning targets");
+	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_TARGET_REASSIGN_BEGIN turn=%d agentPlayer=%d",
+			GC.getGame().getGameTurn(), m_eAgent);
 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 	{
 		if (m_nodeMap[it->getID()] != NULL)
@@ -161,7 +166,7 @@ InvasionGraph::Node::Node(PlayerTypes ePlayer, InvasionGraph const& kOuter)
 	for (int i = 0; i < NUM_BRANCHES; i++)
 		m_arLostPower[i] = m_arShiftedPower[i] = 0;
 	initMilitary();
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logPower("Present power");
+	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logPower("CURRENT");
 }
 
 
@@ -239,7 +244,8 @@ void InvasionGraph::Node::removeWarOpponents(PlyrSet const& kWarOpponents)
 }
 
 
-void InvasionGraph::Node::logPower(char const* szMsg) const
+// <!-- custom: szStage is emitted as the structured stage= field so callers pass stable tokens rather than prose prefixes. (ChatGPT-5.6-Sol) -->
+void InvasionGraph::Node::logPower(char const* szStage) const
 {
 	FAssert(gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	int iLogged = 0;
@@ -252,12 +258,12 @@ void InvasionGraph::Node::logPower(char const* szMsg) const
 			FAssertMsg(iPow > -5, "More lost power than there was to begin with");
 			continue;
 		}
-		logBBAI("%s: player=%d name=%S branch=%s power=%d", szMsg, m_ePlayer,
-				GET_PLAYER(m_ePlayer).getName(0), m_military[i]->str(), iPow);
+		logBBAI("UWAI_INVASION_GRAPH_POWER turn=%d agentPlayer=%d player=%d stage=%s branch=%s power=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, szStage, m_military[i]->str(), iPow);
 		iLogged++;
 	}
-	if (iLogged == 0) logBBAI("%s: player=%d name=%S power=0", szMsg, m_ePlayer,
-			GET_PLAYER(m_ePlayer).getName(0));
+	if (iLogged == 0) logBBAI("UWAI_INVASION_GRAPH_POWER_NONE turn=%d agentPlayer=%d player=%d stage=%s",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, szStage);
 }
 
 
@@ -266,19 +272,22 @@ void InvasionGraph::Node::findAndLinkTarget()
 	PROFILE_FUNC();
 	PlayerTypes eTarget = NO_PLAYER;
 	bool bCanHaveTarget = true;
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	if (isEliminated() || hasCapitulated())
 	{
 		bCanHaveTarget = false;
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("(%S defeated in phase I)", GET_PLAYER(m_ePlayer).getName(0));
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_TARGET_UNAVAILABLE turn=%d agentPlayer=%d player=%d reason=DEFEATED_OR_CAPITULATED",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer);
 	}
 	if (bCanHaveTarget)
 	{
 		eTarget = findTarget();
 		if (eTarget == NO_PLAYER)
 		{
-			if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted() && m_warOpponents.empty()) logBBAI("%S has no war opponents.", GET_PLAYER(m_ePlayer).getName(0));
-			else if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%S can't reach any of his/her war opponents.",
-				GET_PLAYER(m_ePlayer).getName(0));
+			if (bLogInvasionDetail && m_warOpponents.empty()) logBBAI("UWAI_INVASION_GRAPH_TARGET_NONE_NO_WAR_OPPONENTS turn=%d agentPlayer=%d player=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer);
+			else if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_TARGET_NONE_UNREACHABLE turn=%d agentPlayer=%d player=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer);
 		}
 	}
 	if (eTarget == NO_PLAYER)
@@ -286,26 +295,26 @@ void InvasionGraph::Node::findAndLinkTarget()
 		if (m_pPrimaryTarget != NULL)
 		{
 			m_pPrimaryTarget->m_targetedBy.erase(m_ePlayer);
-			if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("(no longer targeting %S)",
-					GET_PLAYER(m_pPrimaryTarget->m_ePlayer).getName(0));
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_TARGET_CLEARED turn=%d agentPlayer=%d player=%d oldTarget=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, m_pPrimaryTarget->m_ePlayer);
 			m_pPrimaryTarget = NULL;
 		}
 		return;
 	}
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%S assumes %S to be the target of %S.",
-				GET_PLAYER(m_eAgent).getName(0), GET_PLAYER(eTarget).getName(0),
-				GET_PLAYER(m_ePlayer).getName(0));
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_TARGET_ASSUMED turn=%d agentPlayer=%d player=%d target=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, eTarget);
 	if (m_pPrimaryTarget != NULL && m_pPrimaryTarget->m_ePlayer != eTarget)
 	{
 		m_pPrimaryTarget->m_targetedBy.erase(m_ePlayer);
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("(switching from %S)", GET_PLAYER(m_pPrimaryTarget->m_ePlayer).getName(0));
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_TARGET_SWITCH turn=%d agentPlayer=%d player=%d oldTarget=%d newTarget=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, m_pPrimaryTarget->m_ePlayer, eTarget);
 	}
 	m_pPrimaryTarget = m_kOuter.m_nodeMap[eTarget];
 	if (m_pPrimaryTarget == NULL)
 	{
 		FAssert(!GET_TEAM(m_eAgent).isHasMet(TEAMID(eTarget)));
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%S hasn't met the above target yet, ignores it.",
-				GET_PLAYER(m_eAgent).getName(0));
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_TARGET_IGNORED_UNMET turn=%d agentPlayer=%d player=%d target=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, eTarget);
 	}
 	else m_pPrimaryTarget->m_targetedBy.insert(m_ePlayer);
 }
@@ -371,8 +380,8 @@ PlayerTypes InvasionGraph::Node::findTarget(TeamTypes eExtra) const
 	}
 	if (eMostMissions != NO_PLAYER)
 	{
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Target of %S determined based on unit missions.",
-				GET_PLAYER(m_ePlayer).getName(0));
+		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_TARGET_FROM_UNIT_MISSIONS turn=%d agentPlayer=%d player=%d target=%d missionCount=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, eMostMissions, iMaxMissions);
 		return eMostMissions;
 	}
 	// Fall back on bestTarget.
@@ -415,8 +424,8 @@ PlayerTypes InvasionGraph::Node::findBestTarget(TeamTypes eExtra) const
 	}
 	if (iSkipped > 0)
 	{
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Skipped %d third-party cities (bias toward %S being targeted)",
-				iSkipped, GET_PLAYER(m_eAgent).getName(0));
+		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_TARGET_BIAS_SKIP turn=%d agentPlayer=%d player=%d skippedCities=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, iSkipped);
 	}
 	return eBestTarget;
 }
@@ -478,10 +487,9 @@ void InvasionGraph::Node::resolveLossesRec()
 
 void InvasionGraph::Node::addConquest(UWAICache::City const& kConqCity)
 {
-	if (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted()) logBBAI("%S (%S) assumed to be conquered by %S",
-			(kConqCity.city()).getName().GetCString(),
-			GET_PLAYER(kConqCity.city().getOwner()).getName(0),
-			GET_PLAYER(m_ePlayer).getName(0));
+	if (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_CITY_CONQUERED turn=%d agentPlayer=%d attacker=%d defender=%d city=%S cityX=%d cityY=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kConqCity.city().getOwner(), kConqCity.city().getName().GetCString(),
+			kConqCity.city().getX(), kConqCity.city().getY());
 	m_conquests.push_back(&kConqCity);
 	// Advance cache index past the city just conquered
 	while (m_iCacheIndex < m_kCache.numCities())
@@ -530,17 +538,16 @@ void InvasionGraph::Node::logTypicalUnits()
 		CvUnitInfo const& kUnit = GC.getInfo(eUnit);
 		int const iActualCost = kUnit.getProductionCost();
 		int const iActualPow = kBranch.getTypicalPower().round();
-		logBBAI("Typical unit: player=%d name=%S branch=%s power=%d unit=%S cost=%d", m_ePlayer,
-				GET_PLAYER(m_ePlayer).getName(0), kBranch.str(), iActualPow,
-				GC.getInfo(eUnit).getDescription(), iActualCost);
+		logBBAI("UWAI_INVASION_GRAPH_TYPICAL_UNIT turn=%d agentPlayer=%d player=%d branch=%s power=%d unit=%S cost=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kBranch.str(), iActualPow, GC.getInfo(eUnit).getDescription(), iActualCost);
 		int iAgentCost = kBranch.getTypicalCost(TEAMID(m_eAgent)).round();
 		int iAgentPow = kBranch.getTypicalPower(TEAMID(m_eAgent)).round();
 		if (iAgentPow != iActualPow)
 		{
 			/*	(iAgentCost and iActualCost often won't match b/c iActualCost here
 				ignores handicap) */
-			logBBAI("Typical unit agent estimate: agent=%d player=%d branch=%s cost=%d power=%d",
-					m_eAgent, m_ePlayer, kBranch.str(), iAgentCost, iAgentPow);
+			logBBAI("UWAI_INVASION_GRAPH_TYPICAL_UNIT_AGENT_ESTIMATE turn=%d agentPlayer=%d player=%d branch=%s cost=%d power=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kBranch.str(), iAgentCost, iAgentPow);
 		}
 	}
 }
@@ -548,9 +555,11 @@ void InvasionGraph::Node::logTypicalUnits()
 
 void InvasionGraph::Node::predictArmament(int iTurns, bool bNoUpgrading)
 {
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	if (isEliminated())
 	{
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("No armament for %S (eliminated)", GET_PLAYER(m_ePlayer).getName(0));
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_ARMAMENT_SKIPPED turn=%d agentPlayer=%d player=%d reason=ELIMINATED",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer);
 		return;
 	}
 	// Target city assumed for the forecast (to decide on naval build-up)
@@ -577,7 +586,7 @@ void InvasionGraph::Node::predictArmament(int iTurns, bool bNoUpgrading)
 			!m_kOuter.m_bLossesDone, m_kOuter.m_bAllWarPartiesKnown,
 			pTargetCity, productionPortion());
 	m_rProductionInvested += forec.getProductionInvested();
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logPower("Predicted power");
+	if (bLogInvasionDetail) logPower("PREDICTED");
 }
 
 
@@ -1961,10 +1970,13 @@ UWAICache::City const* InvasionGraph::Node::targetCity(PlayerTypes eTargetOwner)
 
 void InvasionGraph::Node::resolveLosses()
 {
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Resolving losses of %S", GET_PLAYER(m_ePlayer).getName(0));
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_RESOLVE_LOSSES_BEGIN turn=%d agentPlayer=%d player=%d targetedByCount=%d",
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, (int)m_targetedBy.size());
 	if (m_targetedBy.empty())
 	{
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Targeted by no one - no losses");
+		if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_RESOLVE_LOSSES_NONE turn=%d agentPlayer=%d player=%d reason=NO_ATTACKERS",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer);
 		return;
 	}
 	vector<SimulationStep*> apSteps(MAX_PLAYERS, NULL);
@@ -1988,14 +2000,16 @@ void InvasionGraph::Node::resolveLosses()
 			if (abHorizonExcluded[*it])
 				continue;
 			InvasionGraph::Node& kInvader = *m_kOuter.m_nodeMap[*it];
-			if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Assessing invasion priority (att. duration) of %S",
-					GET_PLAYER(kInvader.m_ePlayer).getName(0));
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_PRIORITY_ASSESS turn=%d agentPlayer=%d defender=%d attacker=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kInvader.m_ePlayer);
 			m_kLogMuteState.pushMute();
 			apSteps[*it] = m_kOuter.m_nodeMap[*it]->step(0,
 					1 - (rInvaderDistractionMult * kInvader.m_rDistractionByDefense));
 			m_kLogMuteState.popMute();
-			if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted() && apSteps[*it] != NULL) logBBAI("Priority duration %d", apSteps[*it]->getDuration());
-			else if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Can't reach any city");
+			if (bLogInvasionDetail && apSteps[*it] != NULL) logBBAI("UWAI_INVASION_GRAPH_PRIORITY_REACHABLE turn=%d agentPlayer=%d defender=%d attacker=%d duration=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, *it, apSteps[*it]->getDuration());
+			else if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_PRIORITY_UNREACHABLE turn=%d agentPlayer=%d defender=%d attacker=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, *it);
 			abTargetingThis[*it] = true;
 		}
 		int iShortestDuration = MAX_INT;
@@ -2080,9 +2094,8 @@ void InvasionGraph::Node::resolveLosses()
 				rPastThreat = rNextInvaderThreat;
 			else rPastThreat = 0;
 			aiTurnsSimulated[eNextInvader] += iActualDuration;
-			if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Now simulated %d invasion turns of %S",
-					aiTurnsSimulated[eNextInvader],
-					GET_PLAYER(eNextInvader).getName(0));
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_STEP_APPLIED turn=%d agentPlayer=%d defender=%d attacker=%d simulatedTurns=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, eNextInvader, aiTurnsSimulated[eNextInvader]);
 			delete &kNextStep;
 		}
 		else
@@ -2090,7 +2103,8 @@ void InvasionGraph::Node::resolveLosses()
 			delete &kNextStep;
 			// <!-- custom: Exclude only this over-horizon step for the current defender; continue scheduling other invaders whose actual steps may still fit. See KI#577. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			abHorizonExcluded[eNextInvader] = true;
-			if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Simulation step exceeds time limit; invader excluded");
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_STEP_EXCLUDED turn=%d agentPlayer=%d defender=%d attacker=%d reason=TIME_LIMIT timeLimit=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, eNextInvader, m_kOuter.m_iTimeLimit);
 		}
 	} while (!isEliminated());
 }
@@ -2100,17 +2114,18 @@ void InvasionGraph::Node::changePrimaryTarget(Node* pNewTarget)
 {
 	Node* const pOldTarget = m_pPrimaryTarget;
 	m_pPrimaryTarget = pNewTarget;
+	bool const bLogInvasionTargetChanges = (gUWAIInvasionGraphLogLevel >= 2 && !m_kLogMuteState.isMuted());
 	if (pNewTarget != NULL)
 	{
 		pNewTarget->m_targetedBy.insert(m_ePlayer);
-		if (gUWAIInvasionGraphLogLevel >= 2 && !m_kLogMuteState.isMuted()) logBBAI("%S now targets %S", GET_PLAYER(m_ePlayer).getName(0),
-				GET_PLAYER(pNewTarget->m_ePlayer).getName(0));
+		if (bLogInvasionTargetChanges) logBBAI("UWAI_INVASION_GRAPH_TARGET_SET turn=%d agentPlayer=%d player=%d target=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, pNewTarget->m_ePlayer);
 	}
 	if (pOldTarget != NULL)
 	{
 		pOldTarget->m_targetedBy.erase(m_ePlayer);
-		if (gUWAIInvasionGraphLogLevel >= 2 && !m_kLogMuteState.isMuted()) logBBAI("%S no longer targets %S", GET_PLAYER(m_ePlayer).getName(0),
-				GET_PLAYER(pOldTarget->m_ePlayer).getName(0));
+		if (bLogInvasionTargetChanges) logBBAI("UWAI_INVASION_GRAPH_TARGET_UNSET turn=%d agentPlayer=%d player=%d target=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, pOldTarget->m_ePlayer);
 	}
 }
 
@@ -2234,16 +2249,18 @@ void InvasionGraph::simulate(int iTurns)
 		and subsequent steps underestimated. */
 	int const iInitialBuildUpTurns = intdiv::uround(iTurns, 2);
 	int const iConcurrentBuildUpTurns = iTurns - iInitialBuildUpTurns;
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 	{
 		PlayerTypes const ePlayer = it->getID();
 		if (m_nodeMap[ePlayer] != NULL)
 		{
-			if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) m_nodeMap[ePlayer]->logTypicalUnits();
+			if (bLogInvasionDetail) m_nodeMap[ePlayer]->logTypicalUnits();
 			m_nodeMap[ePlayer]->prepareForSimulation();
 		}
 	}
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Simulating initial build-up (%d turns)", iInitialBuildUpTurns);
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_BUILDUP_INITIAL turn=%d agentPlayer=%d turns=%d",
+			GC.getGame().getGameTurn(), m_eAgent, iInitialBuildUpTurns);
 	// Assume that upgrades are done in the prolog, if any, and only in phase I.
 	simulateArmament(iInitialBuildUpTurns, !m_bFirstSimulateCall);
 	m_bFirstSimulateCall = false;
@@ -2254,7 +2271,8 @@ void InvasionGraph::simulate(int iTurns)
 		m_bLossesDone = true;
 	/*	Needed for estimating the war effort. Assumes reduced production output if
 		cities have been lost. */
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Simulating concurrent build-up (%d turns)", iConcurrentBuildUpTurns);
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_BUILDUP_CONCURRENT turn=%d agentPlayer=%d turns=%d",
+			GC.getGame().getGameTurn(), m_eAgent, iConcurrentBuildUpTurns);
 	m_kLogMuteState.pushMute(); // Some more build-up isn't very interesting
 	simulateArmament(iConcurrentBuildUpTurns, true);
 	m_kLogMuteState.popMute();
@@ -2300,9 +2318,11 @@ void InvasionGraph::simulateComponent(Node& kStart)
 		each rooted at a node within the cycle. (The edges point towards
 		the root.) If an edge is removed from the cycle, the remaining dag
 		has a single sink (out-degree 0). */
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Simulating graph component starting at %S",
-			GET_PLAYER(kStart.getPlayer()).getName(0));
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted() && kStart.isIsolated()) logBBAI("Isolated node; nothing to do for this component");
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_COMPONENT_BEGIN turn=%d agentPlayer=%d startPlayer=%d",
+			GC.getGame().getGameTurn(), m_eAgent, kStart.getPlayer());
+	if (bLogInvasionDetail && kStart.isIsolated()) logBBAI("UWAI_INVASION_GRAPH_COMPONENT_ISOLATED turn=%d agentPlayer=%d player=%d",
+			GC.getGame().getGameTurn(), m_eAgent, kStart.getPlayer());
 	vector<Node*> apForwardPath;
 	size_t uiStartOfCycle = kStart.findCycle(apForwardPath);
 	vector<Node*> aCycle;
@@ -2315,14 +2335,14 @@ void InvasionGraph::simulateComponent(Node& kStart)
 	}
 	if(!aCycle.empty())
 	{
-		if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted())
+		if (bLogInvasionDetail)
 		{
 			for (size_t i = 0; i < aCycle.size(); i++)
 			{
 				PlayerTypes const eFrom = aCycle[i]->getPlayer();
 				PlayerTypes const eTo = aCycle[(i + 1) % aCycle.size()]->getPlayer();
-				logBBAI("Cycle edge: player=%d name=%S target=%d targetName=%S", eFrom,
-						GET_PLAYER(eFrom).getName(0), eTo, GET_PLAYER(eTo).getName(0));
+				logBBAI("UWAI_INVASION_GRAPH_CYCLE_EDGE turn=%d agentPlayer=%d player=%d target=%d",
+						GC.getGame().getGameTurn(), m_eAgent, eFrom, eTo);
 			}
 		}
 		breakCycle(aCycle);
@@ -2333,7 +2353,9 @@ void InvasionGraph::simulateComponent(Node& kStart)
 
 void InvasionGraph::breakCycle(vector<Node*> const& kCycle)
 {
-	if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Breaking a cycle of length %d", kCycle.size());
+	bool const bLogInvasionDetail = (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted());
+	if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CYCLE_BREAK turn=%d agentPlayer=%d length=%d",
+			GC.getGame().getGameTurn(), m_eAgent, (int)kCycle.size());
 	/*	Treat the simplest case upfront: two nodes targeting each other,
 		and no further nodes involved. */
 	if (kCycle.size() == 2 && kCycle[0]->getTargetedBy().size() == 1 &&
@@ -2360,11 +2382,8 @@ void InvasionGraph::breakCycle(vector<Node*> const& kCycle)
 		PlyrSet const& kTargetedBy = kNode.getTargetedBy();
 		for (PlyrSetIter it = kTargetedBy.begin(); it != kTargetedBy.end(); ++it)
 		{
-			wchar const* szNodeName = GET_PLAYER(kNode.getPlayer()).getName(0);
-			if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Assessing threat of %S's army to %S's garrisons "
-					"(ignoring army of %S)",
-					GET_PLAYER(m_nodeMap[*it]->getPlayer()).getName(0),
-					szNodeName, szNodeName);
+			if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CYCLE_THREAT_ASSESS turn=%d agentPlayer=%d attacker=%d defender=%d ignoreDefenderArmy=1",
+					GC.getGame().getGameTurn(), m_eAgent, m_nodeMap[*it]->getPlayer(), kNode.getPlayer());
 			m_kLogMuteState.pushMute();
 			SimulationStep* pStep = m_nodeMap[*it]->step(0, 1, false, true);
 			m_kLogMuteState.popMute();
@@ -2387,10 +2406,11 @@ void InvasionGraph::breakCycle(vector<Node*> const& kCycle)
 					willingness(m_nodeMap[*it]->getPlayer(), kNode.getPlayer());
 			if (!rThreat.approxEquals(rBaseThreat, fixp(0.005)))
 			{
-				if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Threat set to %d/%d percent (base/adjusted)",
-						rBaseThreat.getPercent(), rThreat.getPercent());
+				if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CYCLE_THREAT_ADJUSTED turn=%d agentPlayer=%d attacker=%d defender=%d basePercent=%d adjustedPercent=%d",
+						GC.getGame().getGameTurn(), m_eAgent, m_nodeMap[*it]->getPlayer(), kNode.getPlayer(), rBaseThreat.getPercent(), rThreat.getPercent());
 			}
-			else if (gUWAIInvasionGraphLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Threat set to %d percent", rThreat.getPercent());
+			else if (bLogInvasionDetail) logBBAI("UWAI_INVASION_GRAPH_CYCLE_THREAT_UNCHANGED turn=%d agentPlayer=%d attacker=%d defender=%d basePercent=%d adjustedPercent=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_nodeMap[*it]->getPlayer(), kNode.getPlayer(), rBaseThreat.getPercent(), rThreat.getPercent());
 			rSumOfEnemyThreat += rThreat;
 			// Only relevant for kCycle.size() == 2
 			if (pStep->getAttacker() == kNode.getPrimaryTarget()->getPlayer())
