@@ -79,6 +79,7 @@ int WarUtilityAspect::evaluate(MilitaryAnalyst const& kMilitaryAnalyst)
 
 	int iOverallUtility = preEvaluate();
 	bool const bOnlyWarParties = concernsOnlyWarParties();
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	for (PlayerIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itRival(eOurTeam);
 		itRival.hasNext(); ++itRival)
 	{
@@ -87,20 +88,22 @@ int WarUtilityAspect::evaluate(MilitaryAnalyst const& kMilitaryAnalyst)
 		int iPerRivalUtility = evaluate(itRival->getID());
 		if (iPerRivalUtility != 0)
 		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%s from %S: %d", aspectName(),
-					GET_PLAYER(itRival->getID()).getName(0), iPerRivalUtility);
+			if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_ASPECT_RIVAL_RESULT turn=%d agentPlayer=%d rivalPlayer=%d aspect=%s utility=%d",
+					GC.getGame().getGameTurn(), eWe, itRival->getID(), aspectName(), iPerRivalUtility);
 		}
 	}
 	if (iOverallUtility != 0)
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%s (from no one in particular): %d", aspectName(), iOverallUtility);
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_ASPECT_OVERALL_RESULT turn=%d agentPlayer=%d aspect=%s utility=%d",
+				GC.getGame().getGameTurn(), eWe, aspectName(), iOverallUtility);
 		m_iU += iOverallUtility;
 	}
 	int iMemberUtility = m_iU - iPriorUtility;
 	scaled const rXMLAdjust = getUWAI().aspectWeight(xmlID());
 	if (iMemberUtility != 0 && rXMLAdjust != 1)
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Adjustment from XML: %d percent", rXMLAdjust.getPercent());
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_ASPECT_XML_ADJUSTMENT turn=%d agentPlayer=%d aspect=%s percent=%d",
+				GC.getGame().getGameTurn(), eWe, aspectName(), rXMLAdjust.getPercent());
 		iMemberUtility = (iMemberUtility * rXMLAdjust).round();
 		m_iU = iPriorUtility + iMemberUtility;
 	}
@@ -347,9 +350,8 @@ scaled WarUtilityAspect::lossesFromNukes(PlayerTypes eVictim, PlayerTypes eSourc
 			rLossRate - fixp(0.05) : rLossRate + fixp(0.05)) * rScorePerCity;
 	if (r >= fixp(0.5))
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Lost score of %S for cities hit: %d; assets per city: %d; "
-				"cities hit: %.2f; ", GET_PLAYER(eVictim).getName(0),
-				r.round(), rScorePerCity.uround(), rHits.getFloat());
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_NUKE_ASSET_LOSS turn=%d agentPlayer=%d victimPlayer=%d sourcePlayer=%d lostScore=%d assetsPerCity=%d citiesHit=%f",
+				GC.getGame().getGameTurn(), eWe, eVictim, eSource, r.round(), rScorePerCity.uround(), rHits.getFloat());
 	}
 	return r;
 }
@@ -416,12 +418,10 @@ scaled WarUtilityAspect::conqAssetScore(bool bMute) const
 	/*	A little extra for buildings that may survive and things that are there
 		but invisible to us. */
 	r *= fixp(1.1);
-	if (!bMute)
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%d cities conquered from %S", (int)ourConquestsFromThem().size(),
-				GET_PLAYER(eThey).getName(0));
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Total asset score: %d", r.round());
-	}
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && !bMute);
+	// <!-- custom: Combine the inherited city-count and asset-score rows into one event: both describe this same pre-culture-adjustment result, so separate rows only repeat their context. (GPT-6.1-Sol) -->
+	if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_CONQUEST_ASSET_TOTAL turn=%d agentPlayer=%d rivalPlayer=%d cityCount=%d assetScore=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, (int)ourConquestsFromThem().size(), r.round());
 	/*	Reduce score to account for culture pressure from the current owner unless
 		we expect that civ to eliminated or to be our vassal.
 		Tbd.: Would better to apply this per area, i.e. no culture pressure if we
@@ -436,14 +436,16 @@ scaled WarUtilityAspect::conqAssetScore(bool bMute) const
 			based on how much of them remains. Then shift that toward 1 a little. */
 		r *= (4 * (1 - (scaled(1, 1 + (int)ourConquestsFromThem().size()) +
 				scaled(iTheirRemainingCities, kThey.getNumCities())) / 2) + 1) / 5;
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && (!bMute)) logBBAI("Asset score reduced to %d due to culture pressure", r.round());
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_CONQUEST_ASSET_CULTURE_PRESSURE turn=%d agentPlayer=%d rivalPlayer=%d assetScore=%d remainingRivalCities=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, r.round(), iTheirRemainingCities);
 	}
 	else
 	{
 		/*	The penalties for the owner's culture applied by asset score are a
 			bit high in this case. */
 		r *= fixp(1.2);
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && (!bMute)) logBBAI("Asset score increased to %d b/c enemy culture neutralized", r.round());
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_CONQUEST_ASSET_CULTURE_NEUTRALIZED turn=%d agentPlayer=%d rivalPlayer=%d assetScore=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, r.round());
 	}
 	return r;
 }
@@ -466,10 +468,12 @@ scaled WarUtilityAspect::partnerUtilFromTech() const
 	// How good our and their attitude needs to be at least to allow tech trade
 	AttitudeTypes eOurAttitudeThresh = techRefuseThresh(eWe);
 	AttitudeTypes eTheirAttitudeThresh = techRefuseThresh(eThey);
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	if (!kThey.isHuman() && !kWe.isHuman() &&
 		(towardThem() < eOurAttitudeThresh || towardUs() < eTheirAttitudeThresh))
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("No tech trade b/c of attitude");
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_PARTNER_TECH_REJECT_ATTITUDE turn=%d agentPlayer=%d rivalPlayer=%d ourAttitude=%d ourThreshold=%d rivalAttitude=%d rivalThreshold=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, towardThem(), eOurAttitudeThresh, towardUs(), eTheirAttitudeThresh);
 		return 0;
 	}
 	int iWeCanOffer = 0;
@@ -490,7 +494,8 @@ scaled WarUtilityAspect::partnerUtilFromTech() const
 	if ((iWeCanOffer == 0 || iTheyCanOffer == 0) &&
 		std::abs(iWeCanOffer - iTheyCanOffer) > 4)
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("No utility from tech trade b/c progress too far apart");
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_PARTNER_TECH_REJECT_PROGRESS turn=%d agentPlayer=%d rivalPlayer=%d weCanOffer=%d theyCanOffer=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, iWeCanOffer, iTheyCanOffer);
 		return 0;
 	}
 	// Humans are good at making tech trades work
@@ -499,7 +504,8 @@ scaled WarUtilityAspect::partnerUtilFromTech() const
 		iHumanExtra += 3;
 	if (kThey.isHuman())
 		iHumanExtra += 3;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && (iHumanExtra > 0)) logBBAI("Tech trade bonus for human civs: %d", iHumanExtra);
+	if (bLogWarUtilityDetail && iHumanExtra > 0) logBBAI("UWAI_WAR_UTILITY_PARTNER_TECH_HUMAN_BONUS turn=%d agentPlayer=%d rivalPlayer=%d bonus=%d",
+		GC.getGame().getGameTurn(), eWe, eThey, iHumanExtra);
 	// Use their commerce to determine potential for future tech trade
 	scaled rTheyToUsCommerceRatio = kOurTeam.AI_estimateYieldRate(eThey, YIELD_COMMERCE) /
 			(kOurTeam.AI_estimateYieldRate(eWe, YIELD_COMMERCE) + scaled::epsilon());
@@ -509,19 +515,22 @@ scaled WarUtilityAspect::partnerUtilFromTech() const
 	scaled rNearFutureTrades = std::min(iWeCanOffer, iTheyCanOffer);
 	if (rNearFutureTrades > 1) // Just 1 isn't likely to result in a trade
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Added utility for %d foreseeable trades", rNearFutureTrades.floor());
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_PARTNER_TECH_FORESEEABLE_TRADES turn=%d agentPlayer=%d rivalPlayer=%d tradeCount=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rNearFutureTrades.floor());
 		// Humans tend to make trades immediately, and avoid certain techs entirely.
 		if (kThey.isHuman())
 			rNearFutureTrades /= 2;
 		r += fixp(10/3.) * scaled::min(3, rNearFutureTrades);
 	}
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && (r > 0)) logBBAI("Tech trade utility: %d", r.round());
+	if (bLogWarUtilityDetail && r > 0) logBBAI("UWAI_WAR_UTILITY_PARTNER_TECH_UTILITY turn=%d agentPlayer=%d rivalPlayer=%d utility=%d",
+		GC.getGame().getGameTurn(), eWe, eThey, r.round());
 	/*	The above assumes that tech trade is only inhibited by overlapping research
 		and diverging tech rates. If there's also AI distrust, it's worse. */
 	if ((!kWe.isHuman() && towardThem() != ATTITUDE_FRIENDLY) ||
 		(!kThey.isHuman() && towardUs() != ATTITUDE_FRIENDLY))
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Tech trade utility halved for distrust");
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_PARTNER_TECH_DISTRUST_PENALTY turn=%d agentPlayer=%d rivalPlayer=%d",
+			GC.getGame().getGameTurn(), eWe, eThey);
 		r /= 2;
 	}
 	if (m_kGame.isOption(GAMEOPTION_NO_TECH_BROKERING))
@@ -548,6 +557,7 @@ scaled WarUtilityAspect::partnerUtilFromTrade() const
 	scaled rTradeValFromGold;
 	int iResourceTrades = 0;
 	int const iDefaultTimeHorizon = 25;
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	FOR_EACH_DEAL(pDeal)
 	{
 		if (!pDeal->isBetween(eWe, eThey) || !pDeal->isEverCancelable(eWe))
@@ -581,7 +591,8 @@ scaled WarUtilityAspect::partnerUtilFromTrade() const
 			// <!-- custom: AdvCiv documented a four-resource cap but its post-increment >= check discarded the fourth trade too. Skip only trades beyond the cap. See KI#427. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			if (iResourceTrades > iMaxResourceTrades)
 			{
-				if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Skipped resource trades in excess of %d", iMaxResourceTrades);
+				if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_PARTNER_TRADE_RESOURCE_CAP turn=%d agentPlayer=%d rivalPlayer=%d maxResourceTrades=%d",
+					GC.getGame().getGameTurn(), eWe, eThey, iMaxResourceTrades);
 				continue;
 			}
 		}
@@ -594,13 +605,14 @@ scaled WarUtilityAspect::partnerUtilFromTrade() const
 			int const iMaxTradeValFromGold = 40;
 			if (rTradeValFromGold + rDealVal > iMaxTradeValFromGold)
 			{
-				if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Trade value from gold capped at %d", iMaxTradeValFromGold);
+				if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_PARTNER_TRADE_GOLD_CAP turn=%d agentPlayer=%d rivalPlayer=%d maxGoldTradeValue=%d",
+					GC.getGame().getGameTurn(), eWe, eThey, iMaxTradeValFromGold);
 				rDealVal = iMaxTradeValFromGold - rTradeValFromGold;
 			}
 			rTradeValFromGold += rDealVal;
 		}
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("GPT value for a %s trade: %d", (bWeReceiveResource ? "resource" : "gold"),
-				rDealVal.round());
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_PARTNER_TRADE_DEAL turn=%d agentPlayer=%d rivalPlayer=%d kind=%s perTurnValue=%d gift=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, (bWeReceiveResource ? "RESOURCE" : "GOLD"), rDealVal.round(), bGift);
 		/*	Similar approach in CvPlayerAI::AI_stopTradingTradeVal, which
 			doubles the trade values of gifts. */
 		if (!bGift)
@@ -612,12 +624,12 @@ scaled WarUtilityAspect::partnerUtilFromTrade() const
 		if (iTurnsToCancel > 0)
 		{
 			rTimeHorizon = scaled(iTurnsToCancel + 10, 2);
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Reduced time horizon for recent deal: %d", rTimeHorizon.round());
+			if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_PARTNER_TRADE_RECENT_DEAL_HORIZON turn=%d agentPlayer=%d rivalPlayer=%d turnsToCancel=%d timeHorizon=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, iTurnsToCancel, rTimeHorizon.round());
 		}
 		rDealVal *= rTimeHorizon;
 		rGoldVal += rDealVal;
 	}
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Net gold value of resource and gold: %d", rGoldVal.round());
 	// Based on TradeUtil::calculateTradeRoutes (Python)
 	scaled rTradeRouteProfit;
 	FOR_EACH_CITY(pCity, kWe)
@@ -637,11 +649,13 @@ scaled WarUtilityAspect::partnerUtilFromTrade() const
 	int const iTradeRouteProfitCap = 40;
 	if (rTradeRouteProfit > iTradeRouteProfitCap)
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Per-turn Trade route profit capped at %d", iTradeRouteProfitCap);
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_PARTNER_TRADE_ROUTE_CAP turn=%d agentPlayer=%d rivalPlayer=%d maxPerTurnProfit=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, iTradeRouteProfitCap);
 		rTradeRouteProfit = iTradeRouteProfitCap;
 	}
-	else if (rTradeRouteProfit > 0)
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Per-turn trade route profit: %d", rTradeRouteProfit.uround());
+	// <!-- custom: Report the inherited net-gold and trade-route components together once both are known, avoiding repeated context while retaining the separate cap/deal diagnostics above. (GPT-6.1-Sol) -->
+	if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_PARTNER_TRADE_COMPONENTS turn=%d agentPlayer=%d rivalPlayer=%d netGoldValue=%d perTurnRouteProfit=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rGoldVal.round(), rTradeRouteProfit.uround());
 	return kWeAI.tradeValToUtility(rGoldVal + rTradeRouteProfit * iDefaultTimeHorizon) *
 			kWeAI.amortizationMultiplier();
 }
@@ -656,7 +670,8 @@ scaled WarUtilityAspect::partnerUtilFromMilitary() const
 	}
 	scaled r = kThey.uwai().getCache().getPowerValues()[ARMY]->power() /
 			(ourCache().getPowerValues()[ARMY]->power() + scaled::epsilon());
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Their military relative to ours: %d percent", r.getPercent());
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_PARTNER_MILITARY_RATIO turn=%d agentPlayer=%d rivalPlayer=%d percent=%d",
+		GC.getGame().getGameTurn(), eWe, eThey, r.getPercent());
 	/*	Only count their future military support as 10% b/c there are a lot of ifs
 		despite friendship/ DP */
 	return scaled::min(r * 10, 10);
