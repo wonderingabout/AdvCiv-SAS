@@ -1168,7 +1168,8 @@ void Loathing::evaluate()
 	int const iVengefulness = kWeAI.vengefulness();
 	if (iVengefulness == 0)
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("No loathing b/c of our leader's personality");
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_LOATHING_DISABLED turn=%d agentPlayer=%d rivalPlayer=%d reason=NO_VENGEFULNESS",
+				GC.getGame().getGameTurn(), eWe, eThey);
 		return;
 	}
 	scaled rLossRating = lossRating();
@@ -1176,8 +1177,9 @@ void Loathing::evaluate()
 	if (rLossRating.abs() <= 0)
 		return;
 	rLossRating *= 100;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Loss rating for %S: %d", GET_PLAYER(eThey).getName(0), rLossRating.round());
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Our vengefulness: %d", iVengefulness);
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
+	if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_LOATHING_BASE turn=%d agentPlayer=%d rivalPlayer=%d lossRatingPercent=%d vengefulness=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rLossRating.round(), iVengefulness);
 	// Utility proportional to iVengefulness and rLossRating would be too extreme
 	scaled rFromLosses = fixp(10/3.) * (iVengefulness * rLossRating.abs()).sqrt();
 	if (rLossRating.isNegative())
@@ -1190,7 +1192,8 @@ void Loathing::evaluate()
 	{
 		if (kWarsDeclaredOnThem.count(itAlly->getID()) > 0)
 		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Joint DoW by %S", GET_PLAYER(itAlly->getID()).getName(0));
+			if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_LOATHING_JOINT_DOW turn=%d agentPlayer=%d rivalPlayer=%d allyPlayer=%d",
+					GC.getGame().getGameTurn(), eWe, eThey, itAlly->getID());
 			iJointDoW++;
 		}
 	}
@@ -1201,11 +1204,13 @@ void Loathing::evaluate()
 	/*	Obsessing over one enemy is unwise if there are many potential enemies.
 		Rounded down b/c it would be a bit too high otherwise. */
 	int const iFreeCivDivisor = scaled(std::max(1, iFreeCivPlayers)).sqrt().floor();
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Divisor from number of free rival players (%d): %d",
-			iFreeCivPlayers, iFreeCivDivisor);
-	m_iU += ((rFromLosses + rFromDiplo) /
+	int const iUtility = ((rFromLosses + rFromDiplo) /
 			// Count Loathing only once per team member
 			(iFreeCivDivisor * kOurTeam.getNumMembers())).round();
+	if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_LOATHING_RESULT turn=%d agentPlayer=%d rivalPlayer=%d lossUtility=%d jointDoWCount=%d diplomacyUtility=%d freeRivalPlayers=%d divisor=%d teamMembers=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rFromLosses.round(), iJointDoW, rFromDiplo.round(), iFreeCivPlayers,
+			iFreeCivDivisor, kOurTeam.getNumMembers(), iUtility);
+	m_iU += iUtility;
 }
 
 /*	How much they're losing compared with what we have. I.e. we don't much care
@@ -1215,7 +1220,8 @@ scaled Loathing::lossRating() const
 	if (militAnalyst().isEliminated(eThey) ||
 		militAnalyst().hasCapitulated(eTheirTeam))
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Loss rating based on score");
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_LOATHING_LOSS_RATING_SCORE turn=%d agentPlayer=%d rivalPlayer=%d rivalScore=%d agentScore=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, m_kGame.getPlayerScore(eThey), m_kGame.getPlayerScore(eWe));
 		return scaled(m_kGame.getPlayerScore(eThey),
 				std::max(10, m_kGame.getPlayerScore(eWe)));
 	}
@@ -1240,13 +1246,10 @@ scaled Loathing::lossRating() const
 	scaled const rOurAssets = scaled::max(1, ourCache().totalAssetScore());
 	scaled rTheirAssetsToOurs = scaled::min(rTheirLostAssets / rOurAssets,
 			3 * rTheirLostAssets / rTheirAssets);
-	if (rTheirAssetsToOurs >= fixp(0.005))
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Their lost assets: %d; their present assets: %d;"
-				" our present assets: %d; asset ratio: %d percent",
-				rTheirLostAssets.uround(), rTheirAssets.uround(),
-				rOurAssets.uround(), rTheirAssetsToOurs.getPercent());
-	}
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
+	if (bLogWarUtilityDetail && rTheirAssetsToOurs >= fixp(0.005)) logBBAI("UWAI_WAR_UTILITY_LOATHING_LOSS_RATING_ASSETS turn=%d agentPlayer=%d rivalPlayer=%d rivalLostAssets=%d rivalPresentAssets=%d agentPresentAssets=%d assetRatioPercent=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rTheirLostAssets.uround(), rTheirAssets.uround(), rOurAssets.uround(),
+			rTheirAssetsToOurs.getPercent());
 	/*	This is mostly about their losses, and not ours, but we shouldn't be
 		satisfied to have weakened their army if ours fares far worse.
 		Slightly weird side-effect: Peace scenario can have higher
@@ -1270,13 +1273,9 @@ scaled Loathing::lossRating() const
 	scaled const rTheirLostPowRatio = std::min(
 			rTheirMinusOurLostPower / (rOurPower + scaled::epsilon()),
 			3 * rTheirMinusOurLostPower / (rTheirPower + scaled::epsilon()));
-	if (rTheirLostPowRatio.abs() > fixp(0.005))
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Difference in lost power (adjusted): %d; their projected power: %d;"
-				" our projected power: %d; lost pow percentage: %d",
-				rTheirMinusOurLostPower.round(), rTheirPower.round(),
-				rOurPower.round(), rTheirLostPowRatio.getPercent());
-	}
+	if (bLogWarUtilityDetail && rTheirLostPowRatio.abs() > fixp(0.005)) logBBAI("UWAI_WAR_UTILITY_LOATHING_LOSS_RATING_POWER turn=%d agentPlayer=%d rivalPlayer=%d adjustedRivalMinusAgentLostPower=%d rivalProjectedPower=%d agentProjectedPower=%d lostPowerRatioPercent=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rTheirMinusOurLostPower.round(), rTheirPower.round(), rOurPower.round(),
+			rTheirLostPowRatio.getPercent());
 	/*	rTheirLostPowRatio is less important, and also tends to be high b/c peace-time
 		armies (rOurPower, rTheirPower) are often small compared to war-time armies. */
 	return (2 * rTheirAssetsToOurs +
@@ -1319,11 +1318,9 @@ void MilitaryVictory::evaluate()
 	}
 	FAssert(rMaxProgress >= 0);
 	int const iFreeRivals = countFreeRivals<false>();
-	if (rTotalProgressRating > 0)
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Rivals remaining: %d", iFreeRivals);
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Pursued mil. victory conditions: %d", (int)arProgressRatings.size());
-	}
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
+	if (bLogWarUtilityDetail && rTotalProgressRating > 0) logBBAI("UWAI_WAR_UTILITY_MILITARY_VICTORY_CONTEXT turn=%d agentPlayer=%d rivalPlayer=%d freeRivals=%d victoryConditionCount=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, iFreeRivals, (int)arProgressRatings.size());
 	if (iFreeRivals <= 0)
 		return;
 	/*	Division by (sqrt of) iVictories because it's not so useful to pursue
@@ -1365,9 +1362,8 @@ void MilitaryVictory::evaluate()
 		{
 			FErrorMsg("Just sth. to take a look at b/c it seems to come up"
 					" very rarely if ever - peaceful victory discouraging nuclear war");
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Nuclear war jeopardizes peaceful victory: %d "
-					"(%d percent population loss expected)",
-					rVoteCost.round(), rPopLossRate.getPercent());
+			if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_MILITARY_VICTORY_NUKE_COST turn=%d agentPlayer=%d rivalPlayer=%d utilityCost=%d expectedPopulationLossPercent=%d",
+					GC.getGame().getGameTurn(), eWe, eThey, rVoteCost.round(), rPopLossRate.getPercent());
 		}
 	}
 	rUtility -= rVoteCost;
@@ -1389,7 +1385,8 @@ scaled MilitaryVictory::progressRatingConquest() const
 	if (militAnalyst().isEliminated(eThey) ||
 		militAnalyst().getCapitulationsAccepted(eOurTeam).count(eTheirTeam))
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("They're conquered entirely");
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_MILITARY_VICTORY_CONQUEST_COMPLETE turn=%d agentPlayer=%d rivalPlayer=%d",
+				GC.getGame().getGameTurn(), eWe, eThey);
 		return 1;
 	}
 	// If we don't take them out entirely - how much do they lose
@@ -1407,7 +1404,8 @@ scaled MilitaryVictory::progressRatingConquest() const
 		return 0;
 	scaled r = rTheirLostAssets / rTheirScore;
 	r.decreaseTo(1);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Their loss ratio: %d percent", r.getPercent());
+	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_MILITARY_VICTORY_CONQUEST_PROGRESS turn=%d agentPlayer=%d rivalPlayer=%d lostAssetRatioPercent=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, r.getPercent());
 	/*	Reduced because we can't be sure that we'll eventually finish them off.
 		In particular, they could become someone else's vassal. */
 	return fixp(2/3.) * r;
@@ -1487,20 +1485,18 @@ scaled MilitaryVictory::progressRatingDomination() const
 		{
 			iTheirPopRemaining -= ourCache().lookupCity(*it)->city().getPopulation();
 		}
-		if (iTheirCitiesRemaining > 0)
-		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%d vassal pop gained, and %d cities",
-					iTheirPopRemaining, iTheirCitiesRemaining);
-		}
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted() && iTheirCitiesRemaining > 0) logBBAI("UWAI_WAR_UTILITY_MILITARY_VICTORY_DOMINATION_VASSAL_GAIN turn=%d agentPlayer=%d rivalPlayer=%d populationGained=%d citiesGained=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, iTheirPopRemaining, iTheirCitiesRemaining);
 		rCitiesGained += fixp(0.5) * iTheirCitiesRemaining;
 		rPopGained += fixp(0.5) * iTheirPopRemaining;
 	}
 	if (rCitiesGained == 0)
 		return 0;
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%d population-to-go for domination, %d cities",
-			rPopGained.uround(), rCitiesToGo.round());
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
+	// <!-- custom: The inherited report labeled rPopGained as population-to-go. Record the actual threshold remainder and gained values explicitly in one structured row. (ChatGPT-5.6-Sol) -->
+	if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_MILITARY_VICTORY_DOMINATION_INPUTS turn=%d agentPlayer=%d rivalPlayer=%d populationToGo=%d citiesToGo=%d populationGained=%d citiesGained=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, iPopToGo, rCitiesToGo.round(), rPopGained.uround(), rCitiesGained.uround());
 	FAssert(rPopGained > 0);
-	if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("%d pop gained, and %d cities", rPopGained.uround(), rCitiesGained.uround());
 	// No use in population beyond the victory threshold
 	rPopGained.decreaseTo(iPopToGo);
 	// <!-- custom: The to-go values can be non-positive. For rCitiesToGo, relatively sparse city borders make it unclear whether the land threshold is truly complete; for iPopToGo, CvGame accepts exact equality with the population threshold.
@@ -1513,7 +1509,8 @@ scaled MilitaryVictory::progressRatingDomination() const
 		int const iMinCitiesToGo = 4;
 		if (rCitiesToGo < iMinCitiesToGo)
 		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Cities-to-go set to lower bound: %d", iMinCitiesToGo);
+			if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_MILITARY_VICTORY_DOMINATION_CITY_FLOOR turn=%d agentPlayer=%d rivalPlayer=%d minimumCitiesToGo=%d",
+					GC.getGame().getGameTurn(), eWe, eThey, iMinCitiesToGo);
 			rCitiesToGo = iMinCitiesToGo;
 		}
 		rCitiesGained.decreaseTo(rCitiesToGo);
@@ -1526,7 +1523,8 @@ scaled MilitaryVictory::progressRatingDomination() const
 			// Assume that we have enough land.
 			return rPopGained / iPopToGo;
 		}
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Progress towards domination based on both gained cities and population");
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_MILITARY_VICTORY_DOMINATION_MODE turn=%d agentPlayer=%d rivalPlayer=%d mode=BOTH_CITY_AND_POPULATION",
+				GC.getGame().getGameTurn(), eWe, eThey);
 		return fixp(0.5) * (rCitiesGained / rCitiesToGo + rPopGained / iPopToGo);
 	}
 }
@@ -1536,13 +1534,15 @@ scaled MilitaryVictory::progressRatingDiplomacy() const
 {
 	if (m_bEnoughVotes)
 	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Votes for diplo victory already secured");
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_MILITARY_VICTORY_DIPLOMACY_ENOUGH_VOTES turn=%d agentPlayer=%d rivalPlayer=%d",
+				GC.getGame().getGameTurn(), eWe, eThey);
 		return 0;
 	}
 	VoteSourceTypes const eVS = kOurTeam.AI_getLatestVictoryVoteSource();
 	if (eVS == NO_VOTESOURCE)
 	{	// DIPLO3 should normally rule that out (at the call site)
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("No vote source yet");
+		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_UTILITY_MILITARY_VICTORY_DIPLOMACY_NO_VOTE_SOURCE turn=%d agentPlayer=%d rivalPlayer=%d",
+				GC.getGame().getGameTurn(), eWe, eThey);
 		return 0;
 	}
 	ReligionTypes const eVSReligion = m_kGame.getVoteSourceReligion(eVS);
@@ -1584,13 +1584,14 @@ scaled MilitaryVictory::progressRatingDiplomacy() const
 			iReligionObstaclesRemoved++;
 	}
 	scaled rObstacleProgress;
+	bool const bLogWarUtilityDetail = (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted());
 	if (iReligionObstacles > 0)
 	{
 		rObstacleProgress = scaled(iReligionObstaclesRemoved, iReligionObstacles);
 		if (rObstacleProgress > 0)
 		{
-			if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Progress on AP obstacles: %d percent",
-					rObstacleProgress.getPercent());
+			if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_MILITARY_VICTORY_DIPLOMACY_OBSTACLE_PROGRESS turn=%d agentPlayer=%d rivalPlayer=%d obstacles=%d removed=%d progressPercent=%d",
+					GC.getGame().getGameTurn(), eWe, eThey, iReligionObstacles, iReligionObstaclesRemoved, rObstacleProgress.getPercent());
 		}
 	}
 	if (bSecular || kThey.isVotingMember(eVS))
@@ -1632,8 +1633,8 @@ scaled MilitaryVictory::progressRatingDiplomacy() const
 		}
 		if (!bSecular && !kCacheCity.city().isHasReligion(eVSReligion))
 			rPop *= fixp(0.5); // Not 0 b/c religion can still be spread
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Votes expected from %S: %d", (kCacheCity.city()).getName().GetCString(),
-				rPop.uround());
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_MILITARY_VICTORY_DIPLOMACY_CITY_VOTES turn=%d agentPlayer=%d rivalPlayer=%d cityOwner=%d cityPlot=%d expectedVotes=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, eCityOwner, kCacheCity.city().plotNum(), rPop.uround());
 		rPopGained += rPop;
 	}
 	if (militAnalyst().getCapitulationsAccepted(eOurTeam).count(eTheirTeam) > 0)
@@ -1661,15 +1662,12 @@ scaled MilitaryVictory::progressRatingDiplomacy() const
 			else if (towardUs() == ATTITUDE_PLEASED)
 				rNewVassalVotes *= fixp(2/3.);
 		}
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Votes expected from capitulated cities of %S: %d",
-				GET_PLAYER(eThey).getName(0), rNewVassalVotes.uround());
+		if (bLogWarUtilityDetail) logBBAI("UWAI_WAR_UTILITY_MILITARY_VICTORY_DIPLOMACY_VASSAL_VOTES turn=%d agentPlayer=%d rivalPlayer=%d expectedVotes=%d",
+				GC.getGame().getGameTurn(), eWe, eThey, rNewVassalVotes.uround());
 		rPopGained += rNewVassalVotes;
 	}
-	if (rPopGained >= fixp(0.5))
-	{
-		if (gUWAIWarUtilityLogLevel >= 3 && !m_kLogMuteState.isMuted()) logBBAI("Total expected votes: %d, current votes-to-go: %d",
-				rPopGained.uround(), m_iVotesToGo);
-	}
+	if (bLogWarUtilityDetail && rPopGained >= fixp(0.5)) logBBAI("UWAI_WAR_UTILITY_MILITARY_VICTORY_DIPLOMACY_TOTAL turn=%d agentPlayer=%d rivalPlayer=%d expectedVotes=%d votesToGo=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, rPopGained.uround(), m_iVotesToGo);
 	FAssert(m_iVotesToGo > 0);
 	rPopGained.decreaseTo(m_iVotesToGo);
 	scaled rProgress = rPopGained / m_iVotesToGo;
