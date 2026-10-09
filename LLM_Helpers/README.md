@@ -1144,6 +1144,8 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
   - `branch_comparison_log.txt`: the committed history unique to each side of the current/default comparison, with full SHAs, parent SHAs, author names (emails hidden), dates, full messages and per-commit practical counts. The shared merge-base SHA/count anchors the two sides; each list is ordered oldest to newest topologically.
     - The console and packaging summary also list each side's commit count and, up to 100 commits per side, practical count/SHA/title. The ordinary current-HEAD history remains available separately; default-only commits are context, not part of current source.
     - A practical number is the total number of commits reachable from that SHA, not a branch-relative sequence or unique identity. Divergent commits can share a number; merges and squashes affect counts. Parent SHAs establish ancestry, while cherry-pick origin notes preserved in full messages document copied changes without making the original commit a parent.
+  - `omitted_dll_comparison.txt`: exact byte sizes and SHA-256 hashes for tracked DLLs at the default tip, HEAD, captured index and current working-file state, with byte-identity results and signed size deltas. DLL payloads remain excluded; the console and packaging summary show a concise HEAD/working comparison.
+    - Working-file modification timestamps are informational, not proof of content age. Equal sizes do not prove equal bytes, and different bytes do not establish a functional change or Release/Debug-opt configuration. Unavailable baselines, read failures and detected changes during hashing are explicit.
   - `head_files/` and `index_files/`: immediate pre-edit reference files for reviewing uncommitted work without reconstructing whole files from patches. HEAD copies cover paths affected by staged or unstaged edits; index copies cover paths with unstaged edits, including partially staged files. Together with current source in the ZIP, these provide the `HEAD -> index -> working tree` layers.
     - Original filenames, extensions, repo-relative paths and Git blob bytes are preserved. `head_files_manifest.txt` identifies the exact HEAD commit; `index_files_manifest.txt` records captured stage-0 index blob IDs. These are Git snapshots, not a history of every intermediate editing step.
     - New files may have no HEAD counterpart; staged deletions or unresolved merges may have no stage-0 index counterpart. Manifests report missing blobs, excluded binaries and size limits (2 MiB/file, 16 MiB per reference layer). Untracked files, generated history and EOL-noise-only changes are excluded; selected untracked files remain included separately by the normal source exporter.
@@ -1250,30 +1252,37 @@ python ./LLM_Helpers/make_light_source_zip.py --fetch-upstream --output-dir "C:\
 #### Example of output (light_source ZIP) (Git Bash)
 
 ```text
+Started:   2026-10-09T09:34:42.106Z
+History preparation: inspecting reachable commits and reusable patches...
+History cache: reusing entries from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_6be79479a47b
+History preparation complete: all 6610 selected patches reused; no patch regeneration needed. Continuing snapshot preparation.
 Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
 Branch: codex/uwai-structured-diagnostics
-HEAD: 2baad35905ef1f2c3f5fd9e67cdfc4345e3612d4
-Commit count: 6607
+HEAD: d74d40f333fd8f5ecb3520feb2328837bc319d29
+Commit count: 6610
 Default branch: main (locally known origin/HEAD; no fetch)
 Default comparison ref: refs/heads/main
-Default HEAD: e6bfde3b127b86e6b5f479acf6842f0bc78b0d66
+Default HEAD: 75295ecf03ce483352054757b2553c8f57bc094f
 Default commit count: 6605
 Default remote commit count: 6605 (refs/remotes/origin/main; may be stale)
-Current-only / default-only commits: 3 / 1
+Current-only / default-only commits: 6 / 1
 Branch diff: _SNAPSHOT_CONTEXT/branch_changes_no_eol.diff
-Branch diff default ref: refs/heads/main (e6bfde3b127b86e6b5f479acf6842f0bc78b0d66)
-Branch diff current HEAD: 2baad35905ef1f2c3f5fd9e67cdfc4345e3612d4
+Branch diff default ref: refs/heads/main (75295ecf03ce483352054757b2553c8f57bc094f)
+Branch diff current HEAD: d74d40f333fd8f5ecb3520feb2328837bc319d29
 Branch diff merge base: a16df9cc4420fe4c8332692d87b56020f9ff1de9
 Branch diff scope: merge base -> tracked working tree (committed + staged + unstaged; excludes untracked files and generated history context).
 Branch comparison log: _SNAPSHOT_CONTEXT/branch_comparison_log.txt
 Branch comparison shared ancestor: 6604 / a16df9cc4420fe4c8332692d87b56020f9ff1de9
-Branch commits CURRENT-ONLY: 3 (practical count / SHA / title below; full messages and parents in branch_comparison_log.txt)
+Branch commits CURRENT-ONLY: 6 (practical count / SHA / title below; full messages and parents in branch_comparison_log.txt)
 Branch commit CURRENT-ONLY: 6605 / df69134e02b71bbd76a7050dbf6351a2974bcf5a / Structure UWAI scenario-analysis diagnostics
 Branch commit CURRENT-ONLY: 6606 / a19cee3d26e4edaf81ac744691fd07fed7de8ef9 / Expose light-source branch, change and runtime context
 Branch commit CURRENT-ONLY: 6607 / 2baad35905ef1f2c3f5fd9e67cdfc4345e3612d4 / Structure UWAI InvasionGraph topology diagnostics
+Branch commit CURRENT-ONLY: 6608 / 034253c9105e89b198b6ae0d467237cb92807391 / Add branch review diffs, baseline files and history to light-source ZIPs
+Branch commit CURRENT-ONLY: 6609 / 41ff29feaa234fded9cfb4394244df9ac5286d35 / Structure UWAI InvasionGraph combat diagnostics
+Branch commit CURRENT-ONLY: 6610 / d74d40f333fd8f5ecb3520feb2328837bc319d29 / Preserve pre-edit source references and show history-cache progress
 Branch commits DEFAULT-ONLY: 1 (practical count / SHA / title below; full messages and parents in branch_comparison_log.txt)
-Branch commit DEFAULT-ONLY: 6605 / e6bfde3b127b86e6b5f479acf6842f0bc78b0d66 / Expose light-source branch, change and runtime context
-Branch changed files: 12 (diff: _SNAPSHOT_CONTEXT/branch_changes_no_eol.diff; names listed below)
+Branch commit DEFAULT-ONLY: 6605 / 75295ecf03ce483352054757b2553c8f57bc094f / Make light-source ZIPs self-contained for branch review
+Branch changed files: 13 (diff: _SNAPSHOT_CONTEXT/branch_changes_no_eol.diff; names listed below)
 Branch changed: AGENTS.md
 Branch changed: Assets/CvGameCoreDLL.dll
 Branch changed: Assets/XML/GlobalDefines_advciv_sas.xml
@@ -1281,25 +1290,32 @@ Branch changed: CvGameCoreDLL/ArmamentForecast.cpp
 Branch changed: CvGameCoreDLL/InvasionGraph.cpp
 Branch changed: CvGameCoreDLL/InvasionGraph.h
 Branch changed: CvGameCoreDLL/MilitaryAnalyst.cpp
+Branch changed: CvGameCoreDLL/UWAIAgent.cpp
 Branch changed: CvGameCoreDLL/WarEvaluator.cpp
 Branch changed: LLM_Helpers/README.md
 Branch changed: LLM_Helpers/make_light_source_zip.py
 Branch changed: README.md
 Branch changed: _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
-Default file copies: 11 text files in _SNAPSHOT_CONTEXT/default_branch_files/ (1455783 bytes)
+Default file copies: 12 text files in _SNAPSHOT_CONTEXT/default_branch_files/ (1673111 bytes)
 Default file copies manifest: _SNAPSHOT_CONTEXT/default_branch_files_manifest.txt
-Staged files: 4 (diff: _SNAPSHOT_CONTEXT/staged_changes_no_eol.diff; names listed below)
+Uncommitted HEAD file copies: 5 files for 6 affected paths in _SNAPSHOT_CONTEXT/head_files/ (1250252 bytes)
+Uncommitted HEAD manifest: _SNAPSHOT_CONTEXT/head_files_manifest.txt
+Uncommitted INDEX file copies: 3 files for 4 affected paths in _SNAPSHOT_CONTEXT/index_files/ (601668 bytes)
+Uncommitted INDEX manifest: _SNAPSHOT_CONTEXT/index_files_manifest.txt
+Omitted DLL comparison: 1 tracked DLL paths; report: _SNAPSHOT_CONTEXT/omitted_dll_comparison.txt
+Omitted DLL Assets/CvGameCoreDLL.dll: HEAD -> WORKING BYTE-DIFFERENT; sizeDeltaBytes=+5824512
+Staged files: 3 (diff: _SNAPSHOT_CONTEXT/staged_changes_no_eol.diff; names listed below)
   Staged: LLM_Helpers/README.md
   Staged: LLM_Helpers/make_light_source_zip.py
-  Staged: README.md
   Staged: _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
-Unstaged tracked files: 3 (diff: _SNAPSHOT_CONTEXT/unstaged_changes_no_eol.diff; names listed below)
+Unstaged tracked files: 4 (diff: _SNAPSHOT_CONTEXT/unstaged_changes_no_eol.diff; names listed below)
   Unstaged tracked: Assets/CvGameCoreDLL.dll
   Unstaged tracked: Assets/XML/GlobalDefines_advciv_sas.xml
-  Unstaged tracked: CvGameCoreDLL/InvasionGraph.cpp
+  Unstaged tracked: CvGameCoreDLL/UWAIAgent.cpp
+  Unstaged tracked: LLM_Helpers/make_light_source_zip.py
 A partially staged file counts in both lists; untracked files are excluded (selected untracked paths are in git_repository_state.txt).
-Runtime process check: 2026-10-09T08:35:13.421Z
-Civ4BeyondSword.exe running: no
+Runtime process check: 2026-10-09T09:34:48.343Z
+Civ4BeyondSword.exe running: yes (PID=2028)
 VCExpress.exe running: no
 devenv.exe running: no
 MSBuild.exe running: no
@@ -1309,16 +1325,25 @@ link.exe running: no
 Process presence is a point-in-time observation, not proof of active autoplay or compilation; processes may start or exit during packaging.
 Mod name:  AdvCiv-SAS
 Prefix:    AdvCiv-SAS_light_source
-Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20261009T103508.zip
-Files:     1366 selected + 6635 generated context files
-Size:      450,978,488 bytes before ZIP container overhead
+Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20261009T113442.zip
+Files:     1366 selected + 6650 generated context files
+Size:      453,256,017 bytes before ZIP container overhead
 Mode:      ZIP_DEFLATED / compression level 6
-History:   commit diffs: 6607 included (SASBranch:2264,AdvCivPreSAS:3094,KMod:1249), 6607 private-cache hit(s), 0 local-mirror hit(s), 0 rendered, 0 not cached; versions=dag-from-one-log; cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_6be79479a47b; pending upstream: no fetched release-like ref detected
-Context:   refreshed LLM_Helpers/context/commit_diffs (added=0, updated=0, removed=0, unchanged=6609)
-Wrote:     8001 file(s)
-ZIP size:  144,173,800 bytes
-Duration:  16,380 ms total (5,179 ms generated context; 9,447 ms ZIP write; 1,323 ms local-context refresh)
-Finished:  2026-10-09T08:35:24.421Z
+History:
+  commit diffs: 6610 included (SASBranch:2267,AdvCivPreSAS:3094,KMod:1249)
+  6610 private-cache hit(s)
+  0 local-mirror hit(s)
+  0 rendered
+  0 not cached
+  versions=dag-from-one-log
+  cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_6be79479a47b
+  pending upstream: no fetched release-like ref detected
+ZIP build: writing selected source files and prepared snapshot/history context...
+Context:   refreshed LLM_Helpers/context/commit_diffs (added=0, updated=0, removed=0, unchanged=6612)
+Wrote:     8016 file(s)
+ZIP size:  144,828,442 bytes
+Duration:  17,303 ms total (6,024 ms generated context; 9,470 ms ZIP write; 1,310 ms local-context refresh)
+Finished:  2026-10-09T09:34:59.409Z
 ```
 
 #### Notes (light_source ZIP)

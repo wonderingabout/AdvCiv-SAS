@@ -895,6 +895,85 @@ def build_branch_comparison_log(repo_root: Path, branch_summary: list[str]) -> t
     return ("\n".join(lines) + "\n").encode("utf-8"), summary
 
 
+def build_omitted_dll_context(repo_root: Path, repository_state: str) -> tuple[dict[str, bytes], list[str]]:
+    # <!-- custom: Shipped/test DLLs are omitted from the light ZIP, so source reference copies cannot establish binary identity. Report exact sizes and SHA-256 for default/HEAD/index/working bytes without bundling DLLs; timestamps are informational, and identity/size do not establish build configuration or gameplay equivalence. (GPT-6.1-Sol) -->
+    report_path = f"{GENERATED_CONTEXT_DIR}/omitted_dll_comparison.txt"
+    fields = dict(line.split(": ", 1) for line in repository_state.splitlines() if line.startswith(("HEAD: ", "Default HEAD: ")))
+    raw, error = run_git(repo_root, "ls-files", "--stage", "-z")
+    if raw is None:
+        message = f"Omitted DLL comparison: unavailable ({error})"
+        return {report_path: (message + "\n").encode("utf-8")}, [message]
+    index_blobs: dict[str, str | None] = {}
+    for entry in raw.split("\0"):
+        if entry:
+            metadata, rel = entry.split("\t", 1)
+            _, sha, stage = metadata.split()
+            if Path(rel).suffix.lower() == ".dll":
+                index_blobs.setdefault(rel, None)
+                if stage == "0":
+                    index_blobs[rel] = sha
+    for field in ("HEAD", "Default HEAD"):
+        revision = fields.get(field, "")
+        if re.fullmatch(r"[0-9a-f]{40,64}", revision):
+            committed_paths, _ = run_git(repo_root, "ls-tree", "-r", "--name-only", "-z", revision)
+            if committed_paths is not None:
+                for rel in committed_paths.split("\0"):
+                    if rel and Path(rel).suffix.lower() == ".dll":
+                        index_blobs.setdefault(rel, None)
+    report = ["# Omitted tracked DLL byte comparison", f"Observed: {utc_timestamp()}",
+              f"HEAD commit: {fields.get('HEAD', 'unavailable')}", f"Default tip: {fields.get('Default HEAD', 'unavailable')}",
+              "DLL payloads are not included. SHA-256 compares exact bytes; equal sizes alone do not prove identity.",
+              "File modification times are informational, not version ordering. No build configuration or gameplay equivalence is inferred.", ""]
+    summary = [f"Omitted DLL comparison: {len(index_blobs)} tracked DLL paths; report: {report_path}"]
+    blob_cache: dict[str, tuple[int, str] | None] = {}
+    for rel, index_blob in sorted(index_blobs.items()):
+        report.append(f"[FILE] {rel}")
+        identities: dict[str, tuple[int, str] | None] = {}
+        for label, revision in (("DEFAULT", fields.get("Default HEAD")), ("HEAD", fields.get("HEAD")), ("INDEX", None)):
+            blob = index_blob if label == "INDEX" else None
+            if label != "INDEX" and revision and re.fullmatch(r"[0-9a-f]{40,64}", revision):
+                resolved, _ = run_git(repo_root, "rev-parse", "--verify", f"{revision}:{rel}")
+                blob = resolved.strip() if resolved else None
+            if not blob:
+                identities[label] = None
+                report.append(f"{label}: unavailable (no baseline/stage-0 blob)")
+                continue
+            if blob not in blob_cache:
+                result = subprocess.run(["git", "cat-file", "blob", blob], cwd=repo_root, capture_output=True, check=False)
+                blob_cache[blob] = (len(result.stdout), hashlib.sha256(result.stdout).hexdigest()) if result.returncode == 0 else None
+            identity = blob_cache[blob]
+            identities[label] = identity
+            report.append(f"{label}: bytes={identity[0]} sha256={identity[1]} gitBlob={blob}" if identity else f"{label}: unavailable (Git blob read failed: {blob})")
+        path = repo_root / rel
+        try:
+            before = path.stat()
+            digest = hashlib.sha256()
+            size = 0
+            with path.open("rb") as handle:
+                for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                    size += len(chunk)
+                    digest.update(chunk)
+            after = path.stat()
+            timestamp = datetime.fromtimestamp(after.st_mtime, timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+            if (before.st_size, before.st_mtime_ns, before.st_ino) != (after.st_size, after.st_mtime_ns, after.st_ino) or size != after.st_size:
+                identities["WORKING"] = None
+                report.append("WORKING: unavailable (file changed while being read)")
+            else:
+                identities["WORKING"] = (size, digest.hexdigest())
+                report.append(f"WORKING: bytes={size} sha256={digest.hexdigest()} modified={timestamp}")
+        except OSError as exc:
+            identities["WORKING"] = None
+            report.append(f"WORKING: unavailable ({exc})")
+        for old, new in (("DEFAULT", "WORKING"), ("HEAD", "INDEX"), ("INDEX", "WORKING"), ("HEAD", "WORKING")):
+            first, second = identities[old], identities[new]
+            comparison = f"{'BYTE-IDENTICAL' if first == second else 'BYTE-DIFFERENT'}; sizeDeltaBytes={second[0] - first[0]:+d}" if first and second else "unavailable"
+            report.append(f"{old} -> {new}: {comparison}")
+            if old == "HEAD" and new == "WORKING":
+                summary.append(f"Omitted DLL {rel}: HEAD -> WORKING {comparison}")
+        report.append("")
+    return {report_path: ("\n".join(report) + "\n").encode("utf-8")}, summary
+
+
 def copy_git_reference_blobs(repo_root: Path, blobs: list[tuple[str, str | None, bool]], folder: str, manifest: list[str]) -> tuple[dict[str, bytes], int]:
     # <!-- custom: Share byte-preserving reference extraction across default-tip, HEAD and index snapshots. Read immutable Git blobs rather than working files; record every omission and preserve the existing compact-source size/binary limits. (GPT-6.1-Sol) -->
     context: dict[str, bytes] = {}
@@ -1954,6 +2033,9 @@ def build_snapshot_context_readme() -> str:
         "  Compact ASCII tree of paths ignored by Git's effective standard ignore rules. Entire ignored\n"
         "  directories can be collapsed to one entry, so this adds useful local context without listing\n"
         "  every generated/build file beneath them.\n\n"
+        "omitted_dll_comparison.txt\n"
+        "  Exact sizes/SHA-256 and byte-identity/size-delta comparisons for tracked DLLs at default, HEAD, index and working state.\n"
+        "  Working-file modification times are informational; DLL payloads remain excluded. Unreadable/changing files are explicit.\n\n"
         "head_files/ + head_files_manifest.txt; index_files/ + index_files_manifest.txt\n"
         "  Immediate pre-edit references: HEAD copies for staged/unstaged affected paths, index copies for unstaged paths.\n"
         "  Compare HEAD -> index -> current working tree directly without reconstructing files from patches.\n"
@@ -2024,6 +2106,7 @@ def build_generated_context(repo_root: Path, selected_files: Iterable[Path], com
     """Return snapshot-only metadata plus freshly generated canonical history keyed by ZIP-relative path."""
     selected_files = list(selected_files)
     repository_state = build_git_repository_state(repo_root, selected_files, explicit_upstream_refs)
+    dll_context, dll_summary = build_omitted_dll_context(repo_root, repository_state)
     uncommitted_files, uncommitted_summary = build_uncommitted_file_context(repo_root, repository_state)
     branch_diff, branch_summary = build_branch_diff(repo_root, repository_state)
     branch_log, branch_log_summary = build_branch_comparison_log(repo_root, branch_summary)
@@ -2032,6 +2115,7 @@ def build_generated_context(repo_root: Path, selected_files: Iterable[Path], com
     branch_summary.extend(default_files_summary)
     repository_state += "\n[CUMULATIVE BRANCH DIFF]\n" + "\n".join(branch_summary) + "\n"
     repository_state += "\n[UNCOMMITTED REFERENCE FILES]\n" + "\n".join(uncommitted_summary) + "\n"
+    repository_state += "\n[OMITTED DLL BYTE COMPARISON]\n" + "\n".join(dll_summary) + "\n"
     context: dict[str, bytes | Path] = {
         GENERATED_CONTEXT_README_NAME: build_snapshot_context_readme().encode("utf-8"),
         GENERATED_GIT_MANIFEST_NAME: build_git_manifest(repo_root).encode("utf-8"),
@@ -2045,6 +2129,7 @@ def build_generated_context(repo_root: Path, selected_files: Iterable[Path], com
     }
     context.update(default_files)
     context.update(uncommitted_files)
+    context.update(dll_context)
     commit_context, commit_diff_summary = build_commit_diff_history_context(repo_root, commit_diff_count, write_cache)
     context.update(commit_context)
     pending_context, pending_summary = build_pending_upstream_context(repo_root, explicit_upstream_refs)
@@ -2228,9 +2313,12 @@ def main() -> int:
     compression_mode = "ZIP_STORED / no compression" if args.compression_level <= 0 else f"ZIP_DEFLATED / compression level {args.compression_level}"
 
     state_summary = [line for line in generated_context[GENERATED_GIT_STATE_NAME].decode("utf-8").splitlines()
-                     if line.startswith(("Branch:", "HEAD:", "Commit count:", "Default ", "Current-only /", "Branch diff", "Branch changed", "Branch compar", "Branch commit", "Default file copies", "Uncommitted ", "Git error:"))]
+                     if line.startswith(("Branch:", "HEAD:", "Commit count:", "Default ", "Current-only /", "Branch diff", "Branch changed", "Branch compar", "Branch commit", "Default file copies", "Uncommitted ", "Omitted DLL", "Git error:"))]
     change_summary = working_tree_summary_lines(repo_root)
     runtime_summary = runtime_process_summary_lines()
+    history_summary = ["History:"]
+    for field in commit_diff_summary.split("; "):
+        history_summary.extend("  " + part for part in re.split(r", (?=\d+ (?:private-cache hit|local-mirror hit|rendered|not cached))", field))
     packaging_summary = [
         f"Started: {started_at}",
         f"Snapshot context prepared: {utc_timestamp()}",
@@ -2242,7 +2330,7 @@ def main() -> int:
         f"History commit limit: {args.commit_diff_count} (-1 = all reachable; 0 = disabled; positive = newest N)",
         f"Files: {len(files)} selected + {len(generated_context) + 1} generated context files",
         f"Mode: {compression_mode}",
-        f"History: {commit_diff_summary}",
+        *history_summary,
         "Scope: current HEAD ancestry and selected working-tree files; counts do not include uncommitted changes.",
         "Current-only/default-only are reachability counts, not necessarily a contiguous tail or an additive practical-version offset.",
         "Completion time and final ZIP size are reported only in the console after the archive closes.",
@@ -2259,7 +2347,8 @@ def main() -> int:
     print(f"Files:     {len(files)} selected + {len(generated_context)} generated context files")
     print(f"Size:      {total_bytes:,} bytes before ZIP container overhead")
     print(f"Mode:      {compression_mode}")
-    print(f"History:   {commit_diff_summary}")
+    for line in history_summary:
+        print(line)
 
     if args.dry_run:
         for path in files:
