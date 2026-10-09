@@ -1123,7 +1123,9 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
     - Changed-file names appear when the combined staged and unstaged lists contain at most 100 entries. A partially staged file counts in both lists; general untracked files are excluded. Full tracked status remains available in `git_repository_state.txt`.
     - On Windows, the console and this summary also record a timestamped check for `Civ4BeyondSword.exe`, `VCExpress.exe` (Visual C++ 2010 Express), `devenv.exe`, `MSBuild.exe`, `nmake.exe`, `cl.exe` and `link.exe`, with matching PIDs.
     - This is a point-in-time observation, not proof of active autoplay or compilation, and does not prevent processes from starting or exiting during packaging. Unsupported or failed checks are explicitly reported as unavailable.
-    - Local testing indicates light-source creation succeeds during Civ4 autoplay. With Visual C++ 2010 Express open, however, one attempt failed with `PermissionError` while reading `CvGameCoreDLL/Project/AdvCiv.opensdf`, even without compilation running. For that specific failure, close the IDE and retry; these observations do not guarantee access to every file during future runs.
+    - Local testing indicates light-source creation succeeds during Civ4 autoplay.
+    - With Visual C++ 2010 Express open, however, one attempt failed with `PermissionError` while reading `CvGameCoreDLL/Project/AdvCiv.opensdf`, even without compilation running.
+    - For that specific failure, close the IDE and retry; these observations do not guarantee access to every file during future runs.
     - This is not a verbatim transcript of the whole command. Completion time, elapsed durations, final ZIP size and local-context refresh results are console-only because they are known after the snapshot is prepared or the ZIP closes.
   - `repo_file_manifest.txt`: every tracked path from `git ls-files` (including files intentionally omitted from the light ZIP), with the exact current working-tree byte size before each path.
     - This is deliberately only tracked-file inventory/state, so an external/ZIP-only reviewer can distinguish "not included in this light archive" from "not present in the local repository" and can still see useful size clues for omitted binaries such as `Assets/CvGameCoreDLL.dll`.
@@ -1131,7 +1133,10 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
     - Tracked paths preserve Git's canonical path spelling/casing.
     - Untracked paths are intentionally not enumerated to avoid exposing unrelated local filenames; selected untracked source files can still be included normally by the exporter.
   - `git_repository_state.txt`: current branch/HEAD, total commit count, locally known upstream plus ahead/behind counts, active `MERGE_HEAD`/matched merge target when applicable, tracked `git status --short --untracked-files=no` output, and any files already selected for the ZIP that are not tracked by Git.
-    - The default branch is detected from locally known `origin/HEAD`, without hardcoding `main` or fetching. Its local branch is used for comparison when available; otherwise the remote-tracking ref is used. The remote count is shown separately and may be stale. Missing default-branch metadata is reported as unavailable.
+    - The default branch is detected from locally known `origin/HEAD`, without hardcoding `main` or fetching.
+    - Its local branch is used for comparison when available; otherwise the remote-tracking ref is used.
+    - The remote count is shown separately and may be stale.
+    - Missing default-branch metadata is reported as unavailable.
     - Current-only/default-only counts describe commits reachable from only one side. They distinguish feature-branch progress from the default branch, but merges and squashes mean they are not necessarily a contiguous tail or a simple practical-version offset. Uncommitted changes do not contribute to commit counts.
     - AdvCiv-SAS commonly uses that total commit count as its practical version number in documentation (e.g. the `X` in `requires AdvCiv-SAS X+`), while `HEAD` is the exact source-state identifier.
     - Git short status uses two columns (`X` = index/staged state, `Y` = working-tree/unstaged state), e.g. `M ` for staged modification, ` M` for unstaged modification, and `MM` for a staged file modified again afterward.
@@ -1141,14 +1146,24 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
   - `git_ignored_paths_tree.txt`: compact ASCII tree of paths ignored by Git's effective standard ignore rules.
     - Entire ignored directories can be collapsed to one entry, so it can reveal useful local/generated/build context that is absent from the tracked manifest without exploding into a list of every file underneath those directories.
     - It is separate from `repo_file_manifest.txt` because ignored paths are local repository state, not tracked repository contents.
-  - `branch_comparison_log.txt`: the committed history unique to each side of the current/default comparison, with full SHAs, parent SHAs, author names (emails hidden), dates, full messages and per-commit practical counts. The shared merge-base SHA/count anchors the two sides; each list is ordered oldest to newest topologically.
+  - `branch_comparison_log.txt`: the committed history unique to each side of the current/default comparison, with full SHAs, parent SHAs, author names (emails hidden), dates, full messages and per-commit practical counts.
+    - The shared merge-base SHA/count anchors the two sides; each list is ordered oldest to newest topologically.
     - The console and packaging summary also list each side's commit count and, up to 100 commits per side, practical count/SHA/title. The ordinary current-HEAD history remains available separately; default-only commits are context, not part of current source.
     - A practical number is the total number of commits reachable from that SHA, not a branch-relative sequence or unique identity. Divergent commits can share a number; merges and squashes affect counts. Parent SHAs establish ancestry, while cherry-pick origin notes preserved in full messages document copied changes without making the original commit a parent.
-  - `omitted_dll_comparison.txt`: exact byte sizes and SHA-256 hashes for tracked DLLs at the default tip, HEAD, captured index and current working-file state, with byte-identity results and signed size deltas. DLL payloads remain excluded; the console and packaging summary show a concise HEAD/working comparison.
-    - Working-file modification timestamps are informational, not proof of content age. Equal sizes do not prove equal bytes, and different bytes do not establish a functional change or Release/Debug-opt configuration. Unavailable baselines, read failures and detected changes during hashing are explicit.
-  - `head_files/` and `index_files/`: immediate pre-edit reference files for reviewing uncommitted work without reconstructing whole files from patches. HEAD copies cover paths affected by staged or unstaged edits; index copies cover paths with unstaged edits, including partially staged files. Together with current source in the ZIP, these provide the `HEAD -> index -> working tree` layers.
-    - Original filenames, extensions, repo-relative paths and Git blob bytes are preserved. `head_files_manifest.txt` identifies the exact HEAD commit; `index_files_manifest.txt` records captured stage-0 index blob IDs. These are Git snapshots, not a history of every intermediate editing step.
-    - New files may have no HEAD counterpart; staged deletions or unresolved merges may have no stage-0 index counterpart. Manifests report missing blobs, excluded binaries and size limits (2 MiB/file, 16 MiB per reference layer). Untracked files, generated history and EOL-noise-only changes are excluded; selected untracked files remain included separately by the normal source exporter.
+  - `omitted_dll_comparison.txt`: exact byte sizes and SHA-256 hashes for tracked DLLs at the default tip, HEAD, captured index and current working-file state, with byte-identity results and signed size deltas.
+    - DLL payloads remain excluded; the console and packaging summary show a concise HEAD/working comparison.
+    - Working-file modification timestamps are informational, not proof of content age.
+    - Equal sizes do not prove equal bytes, and different bytes do not establish a functional change or Release/Debug-opt configuration.
+    - Unavailable baselines, read failures and detected changes during hashing are explicit.
+  - `head_files/` and `index_files/`: immediate pre-edit reference files for reviewing uncommitted work without reconstructing whole files from patches.
+    - HEAD copies cover paths affected by staged or unstaged edits; index copies cover paths with unstaged edits, including partially staged files.
+    - Together with current source in the ZIP, these provide the `HEAD -> index -> working tree` layers.
+    - Original filenames, extensions, repo-relative paths and Git blob bytes are preserved.
+    - `head_files_manifest.txt` identifies the exact HEAD commit; `index_files_manifest.txt` records captured stage-0 index blob IDs.
+    - These are Git snapshots, not a history of every intermediate editing step.
+    - New files may have no HEAD counterpart; staged deletions or unresolved merges may have no stage-0 index counterpart.
+    - Manifests report missing blobs, excluded binaries and size limits (2 MiB/file, 16 MiB per reference layer).
+    - Untracked files, generated history and EOL-noise-only changes are excluded; selected untracked files remain included separately by the normal source exporter.
   - `default_branch_files/`: reference copies of changed text files from the exact default-branch comparison tip, retaining repository-relative paths (for example `_SNAPSHOT_CONTEXT/default_branch_files/CvGameCoreDLL/InvasionGraph.cpp`). They support side-by-side review or copying an explicitly chosen baseline, without replacing the current source files elsewhere in the ZIP.
     - Source/configuration/documentation files such as `.cpp`, `.h`, `.xml`, `.py` and `.md` retain their original filenames, extensions, encoding and exact Git blob bytes; they are not converted to `.txt`.
     - Together with current source, the cumulative branch patch and the separate staged/unstaged diffs, these baseline files let ZIP-only reviewers inspect the overall change and its before/after code without reconstructing whole files from historical patches or guessing which branch version they have. This supports source review; compilation and runtime validation remain separate.
@@ -1348,7 +1363,14 @@ Finished:  2026-10-09T09:34:59.409Z
 
 #### Notes (light_source ZIP)
 
-- Light-source ZIP creation is usually quick because historical commit patches are cached. The console announces history preparation, the observed cache namespace and the first missing reusable patch, then reports processed/cache-hit/mirror-hit/regenerated counts roughly every 10 seconds during patch processing. A missing cache or changed format/policy can require several minutes or more when many patches need regeneration; subsequent runs normally reuse them. New or rewritten commits need their own entries but do not invalidate unchanged SHA entries. When all selected patches are reusable, the console explicitly reports that no patch regeneration was needed; this does not claim the branch/history itself is unchanged. ZIP writing is announced separately after snapshot preparation. Dry runs or unavailable cache writes do not persist regenerated patches. Progress is reported between commits, so a single slow patch can exceed the reporting interval.
+- Light-source ZIP creation is usually quick because historical commit patches are cached.
+  - The console announces history preparation, the observed cache namespace and the first missing reusable patch, then reports processed/cache-hit/mirror-hit/regenerated counts roughly every 10 seconds during patch processing.
+  - A missing cache or changed format/policy can require several minutes or more when many patches need regeneration; subsequent runs normally reuse them.
+  - New or rewritten commits need their own entries but do not invalidate unchanged SHA entries.
+  - When all selected patches are reusable, the console explicitly reports that no patch regeneration was needed; this does not claim the branch/history itself is unchanged.
+  - ZIP writing is announced separately after snapshot preparation.
+  - Dry runs or unavailable cache writes do not persist regenerated patches.
+  - Progress is reported between commits, so a single slow patch can exceed the reporting interval.
 - During development with LLMs, as of now, we do not necessarily generate compact light-source ZIP at each prompt: for example, we may use a command like `git diff --staged --ignore-space-at-eol > "uncommitted_staged_changes_no_eol_$(date +%Y%m%dT%H%M%S).diff"` to give the LLM the difference (staged e.g. with the help of VS Code's UI thanks) since a light-source ZIP, for example during an intermediate implementation/review step, saving on upload costs/time.
 
 ### `refresh_commit_diffs.py`
