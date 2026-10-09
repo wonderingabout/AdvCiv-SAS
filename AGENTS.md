@@ -366,6 +366,10 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 
 - By default, let the user compile the DLL; the local legacy Civ4 SDK toolchain is configured, and the user generally prefers to handle compilation to save agent time/tokens. Do not compile merely for routine verification when the user has said they will do it.
 - If compilation is needed or the user is fine with the agent doing it, follow the tested [AdvCiv-SAS DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md).
+- The user compiles the DLL with Microsoft Visual C++ 2010 Express, not VS Code. Check for the IDE and build processes with PowerShell: `Get-Process -Name VCExpress,MSBuild,nmake,cl,link -ErrorAction SilentlyContinue`.
+  - An open `VCExpress` window does not prove compilation is active; if unsure, leave DLL build files untouched until the user confirms the build has finished.
+  - While compilation is running, do not modify C++ source/headers, project/build files, intermediates or DLL/PDB outputs. Documentation edits are safe.
+  - Light-source ZIP creation currently seems to fail with `PermissionError` while reading `CvGameCoreDLL/Project/AdvCiv.opensdf` with Visual C++ 2010 Express open, even without compilation running. This IDE database can remain locked while the IDE is open; close the IDE before retrying this packaging failure.
 - Core safety rule: before every full compile attempt or retry, delete that configuration's exact `CvGameCoreDLL/Project/temp_files/<target>` folder so the accepted DLL never resumes from stale or partial intermediates.
   - Target folders are isolated, so a retained Debug-opt folder does not affect a clean Release build.
   - After a successful Debug-opt build, retain its ignored folder while its installed DLL is relevant so WinDbg can find the exact matching PDB path embedded in that DLL; delete it before the next Debug-opt build.
@@ -374,8 +378,12 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 
 ### Editing while an autoplay is running
 
-- While a validation autoplay is running, documentation and C++ source/header edits are safe because the live game does not reload them.
-- Do not edit runtime-sensitive files like XML or Python files during the run: as of now, this has produced live XML errors and Python errors/crashes.
+- Before editing runtime-sensitive files, check whether Civ4 is open with PowerShell: `Get-Process -Name Civ4BeyondSword -ErrorAction SilentlyContinue`. A running process confirms the game is open, not that autoplay is active; treat runtime-sensitive files as in use until the user confirms it is safe to edit them.
+
+- While a validation autoplay is running:
+  - Documentation and C++ source/header edits are safe because the live game does not reload them.
+  - Do not edit runtime-sensitive files like XML or Python files during the run: as of now, this has produced live XML errors and Python errors/crashes.
+  - Active BBAI, SASGameRecord and other logs may still be growing, buffered or temporarily locked. Reading might work, but the visible contents, final row and reported size may be incomplete or change between reads; do not infer corruption or a completed run from an active file alone. Use a completed, closed log for final size measurements and full-run comparisons.
 - Note: these boundaries describe the current Civ4 runtime and can be revised if later testing proves different behavior.
 
 ### Docs
