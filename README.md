@@ -1026,6 +1026,8 @@ It also generates a small archive-only `_SNAPSHOT_CONTEXT/` folder containing th
 
 The command also prints a compact packaging summary and includes it as `_SNAPSHOT_CONTEXT/packaging_summary.txt`, identifying current versus default-branch progress, staged/unstaged tracked-file counts and diff paths, UTC timestamps, and observed game/IDE/build processes. This helps reviewers identify the development state behind a snapshot; final completion time and ZIP size remain console-only. See the [output example](/LLM_Helpers/README.md#example-of-output-light_source-zip-git-bash).
 
+For branch review, the archive also pairs a cumulative committed/staged/unstaged diff with default-branch reference copies of changed source/configuration/docs files, preserving their original names and repo paths. ZIP-only reviewers can compare baseline and current code directly; exact comparison commits and any omitted reference files are documented inside the snapshot.
+
 The folder is general snapshot context rather than repository content or LLM-specific data; it lets ZIP-only reviewers distinguish tracked, ignored, omitted, and selected-untracked files and inspect recent committed or working-tree changes without bundling `.git`.
 
 It also includes the core useful source/data/docs/helper files, including [LLM_Helpers](/LLM_Helpers/) itself, plus selected screenshot folders useful for UI and rendered `SASGameRecord` map text review: local agentic tools like Codex can inspect screenshots directly, while external/ZIP-only LLMs like ChatGPT can only see them if the archive includes them. The `SASGameRecord_map_text` screenshots are included because an LLM may read the raw text-map characters without reconstructing the visual/geographical layout as easily.
