@@ -7,8 +7,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 The value was split into numbered parts; global_define_lengths CI checks shipped define names and text values against that capacity. See KI#1001. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 <!-- custom: Following that finding, a separate name-length audit confirmed that, as suspected, SAS names greatly exceeded AdvCiv's naming scale, reaching 114 bytes; no in-game defect was demonstrated from their length.
 KI#1001.2 introduced shorter names and a desired 42-byte ceiling matching AdvCiv's maximum, enforced across shipped GlobalDefines and PythonCallbackDefines by global_define_name_style CI. See KI#1001.2 for the rationale and historical rename mappings. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
-<!-- custom: Turn-valued SAS integer defines state game-speed semantics in the name: TURN(S)_NORMAL_GAMESPEED means the XML value is expressed at Normal speed and must be scaled in code; TURN(S)_UNSCALED_GAMESPEED means literal game/path turns intentionally stay unchanged across speeds.
-Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
+<!-- custom: Turn-valued SAS integer defines state game-speed semantics in the name: T_NORM_GS means the XML value is expressed at Normal speed and must be scaled in code; T_UNSCALED_GS means literal game/path turns intentionally stay unchanged across speeds.
+The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESPEED and TURN(S)_UNSCALED_GAMESPEED forms with the same meanings. (GPT-5.6 Thinking + GPT-6.1-Sol) -->
 <!-- custom: Long_Comments_XML.txt #131, #195 -->
 <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
 	<!-- custom: Main AdvCiv-SAS name shown by runtime UI/logging code. Change this value when rebranding the mod. This does not rename or locate the installed mod folder: BtS/AdvCiv detects the folder actually loaded at runtime, so e.g. an "AdvCiv-SAS Test" folder can still display as "AdvCiv-SAS".
@@ -1612,7 +1612,7 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	Completed unguarded Settlers still request the missing defender.
 	0 restores inherited sequencing. See KI#179.2 and KI#179.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SETTLER_ESCORT_COORDINATION_OPTIMIZE</DefineName>
+		<DefineName>SAS_PROD_SETTLER_ESCORT_COORD_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Maximum Normal-speed-equivalent turns worth spending on a city defender before the first trained Settler.
@@ -1620,7 +1620,7 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	Default 5 means a cheap/near-finished defender may be prepared first so the Settler can leave promptly, but a weak-production capital will not postpone expansion for a defender needing e.g. 15-20 turns; it trains the Settler and falls back to the post-completion escort repair.
 	Set to 0 to disable only the pre-Settler preparation while keeping completed-Settler repair active. See KI#179.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_ESCORT_PREPARATION_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
+		<DefineName>SAS_PROD_1ST_SETTLER_ESCORT_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- custom: Do not found immediately on a valid plot when another reachable site is clearly better by raw found value.
@@ -1660,7 +1660,7 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	Default 5 preserves the old preferred population without its all-or-nothing waiting behavior.
 	Set to 0 to disable the population preference. See KI#181.2. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_PREFERRED_MIN_POPULATION</DefineName>
+		<DefineName>SAS_PROD_1ST_SETTLER_MIN_POP</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- custom: Maximum normal-speed turns to the next population growth that justify delaying the first trained Settler while below the preferred population.
@@ -1668,7 +1668,7 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	E.g. 5 waits for a citizen due within about 5 Normal-speed turns, but does not hold a good Settler opportunity for +1-food growth that is still 15-20 turns away.
 	Set to 0 to never wait for growth before the first trained Settler. See KI#181.2. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_GROWTH_WAIT_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
+		<DefineName>SAS_PROD_1ST_SETTLER_GROW_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- custom: Optional second-city floor as percent times 100 of a reference BFC whose 20 non-home plots each provide citizen food consumption + 1 Production under shared yield weights.
@@ -2645,32 +2645,32 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	The removed legacy CvCity::doTurn emergency layer rewrote production after hammers were spent; this replacement acts through the normal production flow only after current-target continuity, no-defender production and strike recovery have had priority.
 	1 enables; 0 disables. See KI#48.8. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_OPTIMIZE</DefineName>
+		<DefineName>SAS_PROD_PROACTIVE_FORT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Absolute cap in actual game turns for the proactive fortification window.
 	This deliberately is not game-speed scaled: invading units still move in map turns, so slower production speeds should make a fortification harder, not equally easy, to finish before the assault.
 	Keep TURNS_UNSCALED_GAMESPEED in the name; the turn-define CI caught the initially ambiguous name and this classification prevents later accidental scaling. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_MAX_TURNS_UNSCALED_GAMESPEED</DefineName>
+		<DefineName>SAS_PROD_FORT_MAX_T_UNSCALED_GS</DefineName>
 		<iDefineIntVal>8</iDefineIntVal>
 	</Define>
 	<!-- custom: Base unscaled construction turns per plot to the nearest visible city-capturing land attacker before the maximum above.
 	2 leaves room for slow-stack assembly and siege/bombardment without inventing a synthetic pathfinding ETA; fast-only visible threats are tightened in code. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_TURNS_UNSCALED_GAMESPEED_PER_DISTANCE</DefineName>
+		<DefineName>SAS_PROD_FORT_T_UNSCALED_GS_PER_DIST</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum AI city-value percentage when inherited city safety is still SAFE/PERFECT.
 	Capitals are always considered valuable enough; only genuinely THREATENED/EVACUATING immediate-danger cities bypass this value gate. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_MIN_CITY_VALUE_PERCENT</DefineName>
+		<DefineName>SAS_PROD_FORT_MIN_CITY_VALUE_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum visible city-capturing land attackers for a proactive approach to count as meaningful without siege.
 	The code also requires at least twice the city's current defender count, whichever threshold is higher; a visible bombarder can lower this only to a still-real stack of at least 3 attackers and at least one more attacker than the current defender count. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_MIN_VISIBLE_ATTACKERS</DefineName>
+		<DefineName>SAS_PROD_FORT_MIN_VISIBLE_ATK</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 
@@ -2712,31 +2712,31 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	Existing Worker, Settler, explorer, panic-defense, culture-victory, financial-trouble, wait-for-better-units, and other earlier priority logic remains intact.
 	Each value is clamped to 0-100; set every era to 0 to disable. See KI#197.9 and KI#197.10. (GPT-5.6 Thinking + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_PROD_OFFENSE_FLOOR_ANCIENT_PCT</DefineName>
+		<DefineName>SAS_PROD_MIN_ATK_ANCIENT_PCT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_OFFENSE_FLOOR_CLASSICAL_PCT</DefineName>
+		<DefineName>SAS_PROD_MIN_ATK_CLASSICAL_PCT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_OFFENSE_FLOOR_MEDIEVAL_PCT</DefineName>
+		<DefineName>SAS_PROD_MIN_ATK_MEDIEVAL_PCT</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_OFFENSE_FLOOR_RENAISSANCE_PCT</DefineName>
+		<DefineName>SAS_PROD_MIN_ATK_RENAISSANCE_PCT</DefineName>
 		<iDefineIntVal>30</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_OFFENSE_FLOOR_INDUSTRIAL_PCT</DefineName>
+		<DefineName>SAS_PROD_MIN_ATK_INDUSTRIAL_PCT</DefineName>
 		<iDefineIntVal>35</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_OFFENSE_FLOOR_MODERN_PCT</DefineName>
+		<DefineName>SAS_PROD_MIN_ATK_MODERN_PCT</DefineName>
 		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_OFFENSE_FLOOR_FUTURE_PCT</DefineName>
+		<DefineName>SAS_PROD_MIN_ATK_FUTURE_PCT</DefineName>
 		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 	<!-- custom: Enable the alternate military-production profile once the AI's primary landmass is locally secured: no independent rival master-team city, Barbarian city, land war or defensive war remains there.
@@ -2744,38 +2744,38 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	On e.g. Continents, securing the continent lowers the forced land-attacker floor so normal economy/building/other production can take over; on naval-heavy maps, part of the released floor is redirected to invasion transports, escorts and warships.
 	1 enables; 0 always uses the normal full land floor. See KI#197.11. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_PROFILE_ON</DefineName>
+		<DefineName>SAS_PROD_SECURED_PROFILE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum share of empire base production that the secured profile still forces into UNITAI_ATTACK / UNITAI_ATTACK_CITY by era.
 	Higher values keep a stronger land buildup even after the local landmass is safe; lower values free more production for the AI's normal economy, buildings, wonders, naval choices, etc. E.g. 20 means the floor tries to keep at least 20% of current base-production capacity on those land-offense roles.
 	Ordinary AI logic can always build more. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_LAND_ANCIENT_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_LAND_MIN_ANCIENT_PCT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_LAND_CLASSICAL_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_LAND_MIN_CLASSICAL_PCT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_LAND_MEDIEVAL_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_LAND_MIN_MEDIEVAL_PCT</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_LAND_RENAISSANCE_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_LAND_MIN_RENAISSANCE_PCT</DefineName>
 		<iDefineIntVal>15</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_LAND_INDUSTRIAL_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_LAND_MIN_INDUSTRIAL_PCT</DefineName>
 		<iDefineIntVal>15</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_LAND_MODERN_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_LAND_MIN_MODERN_PCT</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_LAND_FUTURE_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_LAND_MIN_FUTURE_PCT</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum secured-profile naval production share by era.
@@ -2783,31 +2783,31 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	Higher values force more invasion/naval buildup after the local landmass is safe; lower values return more production to ordinary AI choices.
 	Defaults complement the secured land values so the total Medieval+ floor remains 20 / 30 / 35 / 40 / 40 on naval-heavy maps, but shifts part of it from land attackers to usable overseas logistics. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_NAVAL_ANCIENT_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_NAVAL_MIN_ANCIENT_PCT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_NAVAL_CLASSICAL_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_NAVAL_MIN_CLASSICAL_PCT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_NAVAL_MEDIEVAL_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_NAVAL_MIN_MEDIEVAL_PCT</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_NAVAL_RENAISSANCE_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_NAVAL_MIN_RENAISSANCE_PCT</DefineName>
 		<iDefineIntVal>15</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_NAVAL_INDUSTRIAL_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_NAVAL_MIN_INDUSTRIAL_PCT</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_NAVAL_MODERN_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_NAVAL_MIN_MODERN_PCT</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_NAVAL_FUTURE_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_NAVAL_MIN_FUTURE_PCT</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<!-- custom: Scale the secured naval floor on maps not classified naval-heavy, e.g. Continents.
@@ -2815,7 +2815,7 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	Raise this if you want more AI overseas/naval buildup on Continents-like maps.
 	Existing non-naval-heavy ship caps still apply. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_NAVAL_OTHER_MULT_PCT</DefineName>
+		<DefineName>SAS_PROD_SECURED_NAVAL_NON_NAVAL_MULT_PCT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Peaceful stock guard for the secured naval floor.
@@ -2824,7 +2824,7 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	Ordinary AI logic can still build ships, and active war/assault projection lifts the guard.
 	Default 5 was confirmed to stop excessive peaceful accumulation in KI#197.11. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_NAVAL_PEACE_MAX_PORT</DefineName>
+		<DefineName>SAS_PROD_SECURED_NAVAL_PEACE_MAX_PER_PORT</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- custom: Relative role weights when the secured naval floor asks for a ship; these are selection weights, not production percentages.
@@ -2832,15 +2832,15 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	Higher weight makes that role more preferred relative to the others; 0 disables that role from this floor.
 	Defaults 100 / 75 / 50 prioritize lift first, then protection, then extra attack ships. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_NAVAL_ASSAULT_WEIGHT</DefineName>
+		<DefineName>SAS_PROD_SECURED_NAVAL_ASSAULT_WEIGHT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_NAVAL_ESCORT_WEIGHT</DefineName>
+		<DefineName>SAS_PROD_SECURED_NAVAL_ESCORT_WEIGHT</DefineName>
 		<iDefineIntVal>75</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_PROD_SECURED_NAVAL_ATTACK_WEIGHT</DefineName>
+		<DefineName>SAS_PROD_SECURED_NAVAL_ATTACK_WEIGHT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 
@@ -2850,28 +2850,28 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	A safe city keeps a still-positively-valued active copy only when it is genuinely near completion or already substantially invested with a reasonable remaining time; danger, zero/negative strategic value, and low-progress assignments remain free to reevaluate.
 	1 enables the optimization; 0 restores inherited Project reevaluation. See KI#174.2. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_OPTIMIZE</DefineName>
+		<DefineName>SAS_PROD_PROJ_1COPY_CONT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Near-term maximum in Normal-speed-equivalent Project turns for one-copy Project continuity, scaled by CreatePercent.
 	Default 10 came from present-source control/candidate testing: 20 turns would suppress too many ordinary low-progress switches, while 10 consistently protects the clearest almost-finished cases.
 	0 disables only this near-term gate. See KI#174.2. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
+		<DefineName>SAS_PROD_PROJ_1COPY_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum completion percentage for the heavier-investment one-copy Project continuity fallback.
 	Default 40 follows the enabled-run evidence: 50% still allowed a safe positive-value Apollo at 650/1504 production (43%, 14 turns) to hop to another city and later lose all 650 stored hammers, while rechecking the two accidental controls showed that 40% would have intercepted only one additional release per full run.
 	This fallback also requires the separate maximum remaining time below and positive current AI_projectValue. See KI#174.2. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_HEAVY_INVESTMENT_MIN_COMPLETION_PERCENT</DefineName>
+		<DefineName>SAS_PROD_PROJ_1COPY_INV_MIN_COMPLETE_PCT</DefineName>
 		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 	<!-- custom: Maximum remaining Normal-speed-equivalent Project turns for the heavier-investment one-copy Project continuity fallback, scaled by CreatePercent.
 	Default 20 combines with the 40% threshold above to protect substantial committed production without broadly locking fresh or slow assignments.
 	0 disables this fallback. See KI#174.2. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_HEAVY_INVESTMENT_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
+		<DefineName>SAS_PROD_PROJ_1COPY_INV_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 
@@ -2881,14 +2881,14 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	When several cities simultaneously build the same component, the DLL ranks eligible copies by remaining turns, stored production, then stable city identity and protects only as many as the still-missing minimum launch requirement; optional duplicates remain fully flexible.
 	1 enables the optimization; 0 restores inherited project reevaluation. See KI#184.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_OPTIMIZE</DefineName>
+		<DefineName>SAS_PROD_SPACE3_COMP_CONT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Near-term continuity maximum, expressed in Normal-speed-equivalent project turns and scaled by CreatePercent.
 	Default 25 covers the motivating Docking Bay interruptions at 18, 15, 7 and 5 turns and the reproduced Stasis Chamber interruption at 22 turns without locking a fresh poor 30-40-turn assignment.
 	0 disables only this near-term gate; the heavier-investment gate below can still apply. See KI#184.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
+		<DefineName>SAS_PROD_SPACE3_COMP_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum completion percentage for the heavier-investment continuity fallback.
@@ -2896,14 +2896,14 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	Default 40 is evidence-driven: a refined replay still parked Rome's mandatory Stasis Chamber at 44%-49% completion and 32-33 turns remaining for an optional Thruster and then a 2-turn Jail.
 	0 removes the completion-percentage requirement; 100 requires a fully stored project and therefore practically disables this fallback before completion. See KI#184.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_HEAVY_INVESTMENT_MIN_COMPLETION_PERCENT</DefineName>
+		<DefineName>SAS_PROD_SPACE3_COMP_INV_MIN_COMPLETE_PCT</DefineName>
 		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 	<!-- custom: Maximum remaining build time, expressed in Normal-speed-equivalent project turns and scaled by CreatePercent, for the heavier-investment fallback above.
 	Default 40 protects substantially invested launch-gating components just outside the 25-turn near-term gate while still allowing genuinely slow assignments to be reconsidered.
 	0 disables the heavier-investment fallback. See KI#184.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_HEAVY_INVESTMENT_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
+		<DefineName>SAS_PROD_SPACE3_COMP_INV_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 
@@ -2911,14 +2911,14 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	<!-- custom: How strongly normal AI build-unit probability reduces the early "short-circuit 1" base building chance while the normal +15 military-spending allowance still permits more units.
 	100 means BuildUnitProb 80 reduces this gate's base odds by 80%; the inherited production-progress preference inside AI_chooseBuilding remains unchanged, and 0 restores the Base AdvCiv/K-Mod short-circuit 1 odds. See KI#197.7. (GPT-5.6 Thinking) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_1_BUILD_UNIT_PROB_WEIGHT_PERCENT</DefineName>
+		<DefineName>SAS_PROD_SC1_UNIT_PROB_WEIGHT_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: How strongly normal AI build-unit probability reduces the final "short-circuit 3" building chance immediately before generic unit production, while the normal +15 military-spending gate still allows more units.
 	50 means BuildUnitProb 80 reduces this gate's base building odds by 40% (80 * 50% = 40%); existing production-progress preference inside AI_chooseBuilding remains unchanged.
 	Set to 0 to restore the Base AdvCiv/K-Mod short-circuit 3 odds. See KI#197.2. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_3_BUILD_UNIT_PROB_WEIGHT_PERCENT</DefineName>
+		<DefineName>SAS_PROD_SC3_UNIT_PROB_WEIGHT_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 

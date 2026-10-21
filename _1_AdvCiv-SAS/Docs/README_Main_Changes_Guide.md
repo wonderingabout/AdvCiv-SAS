@@ -2375,7 +2375,7 @@ Assuming the calculation is correct and reliable, the higher the drive, the more
   - See [KI#189.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-189.2).
 - **AI offensive production rises progressively by era, preserving early growth and strategic variety while correcting weak middle and late armies:**
   - the old AdvCiv-SAS 5055 stable release could produce very large AI armies, while later releases generally favored economic efficiency but produced substantially fewer offensive units, especially late in the game.
-  - AdvCiv-SAS therefore measures the share of each empire's **base production currently committed to `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` units** and, when it is below an XML-tunable minimum (the `SAS_AI_PROD_OFFENSE_FLOOR_*_PCT` SAS defines), asks an eligible city to help fill the shortfall before opportunistic wonders and broader later building choices.
+  - AdvCiv-SAS therefore measures the share of each empire's **base production currently committed to `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` units** and, when it is below an XML-tunable minimum (the `SAS_PROD_MIN_ATK_*_PCT` SAS defines), asks an eligible city to help fill the shortfall before opportunistic wonders and broader later building choices.
   - This is a production-capacity floor rather than a fixed unit count, unit-production cap or military-upkeep target, so productive cities contribute proportionally more and personalities, wars, danger, defense and composition logic can always produce more units when needed.
   - Worker, Settler, Explorer, panic, financial, culture and other earlier priorities still take precedence.
   - The default Ancient-to-Future curve as of now is **`0 / 0 / 20 / 30 / 35 / 40 / 40`**: it leaves the Ancient and Classical eras entirely to ordinary AI logic, then deliberately strengthens from the Medieval era onward as foundational growth and infrastructure have less remaining time to compound and military urgency increases.
@@ -2392,7 +2392,7 @@ Assuming the calculation is correct and reliable, the higher the drive, the more
   - The first Archipelago validation showed Korea and China switch profiles immediately after clearing their local landmasses and later conduct overseas conquests.
   - A confirming same-map run also validated the peaceful fleet-stock guard: once a secured five-port Byzantium reached its 25 tracked invasion-role-ship allowance, the extra naval floor stopped; it automatically reopened when real naval-war/projection state began and closed again afterwards.
   - Players can independently tune the secured land/naval era curves, enable some of the naval redirect on Continents-like maps, change the naval role mix, or allow smaller/larger peaceful reserve fleets.
-  - This new behaviour is tunable via the `SAS_AI_PROD_SECURED_` SAS defines.
+  - This new behaviour is tunable via the `SAS_PROD_SECURED_` SAS defines.
   - See [KI#197.11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.11).
 
 #### Military - Land (AI)

@@ -12,7 +12,7 @@ The current evidence supports separating three different concerns:
 - **Variable-system capacity:** after loading, the name is stored as a `std::string` key in `stdext::hash_map<std::string, FVariable*>`. No smaller semantic key-length limit is visible in the DLL source.
 - **Naming policy:** current SAS names are much longer than inherited names, but none approaches the 255-byte loader boundary. Any lower limit would therefore be a readability/headroom convention, not an established Civ4 correctness requirement.
 
-The current longest shipped name is 114 bytes. The longest name in the current inherited XML files shipped by AdvCiv-SAS is 42 bytes, while the stock BtS XML represented by Civ4CE reaches 46 bytes.
+The recorded post-first-batch snapshot below has a longest shipped name of 114 bytes. The longest name in the current inherited XML files shipped by AdvCiv-SAS is 42 bytes, while the stock BtS XML represented by Civ4CE reaches 46 bytes.
 
 Targeted public searches did not find a documented Civ4 `DefineName` failure threshold below the loader's visible 256-byte scratch buffer. Absence of a forum report is not proof of safety; the source-derived 255-byte repository limit remains the stronger contract.
 
@@ -24,7 +24,7 @@ C031-WIP555 / F680, later KI#1001, found a concrete shipped `DefineTextVal` viol
 
 The same album pass also noticed `char szName[256]`. Its then-current data census measured the largest SAS `DefineName` at 126 bytes and explicitly classified define-name capacity as a preventive hardening surface rather than part of F680. The Queue-052 final raw-buffer census again found no second current capacity root.
 
-The current tree has since fallen from that 126-byte historical maximum to 114 bytes. This review therefore extends the preventive question without changing the completed album record or claiming another demonstrated defect.
+The recorded post-first-batch census measured 114 bytes, below that earlier 126-byte historical maximum. This review therefore extends the preventive question without changing the completed album record or claiming another demonstrated defect.
 
 ## Loader and lookup mechanics
 
@@ -50,11 +50,11 @@ The public Civ IV Wiki describes GlobalDefines as `DefineName` paired with typed
 
 Those public references are useful corroboration, but the local SDK source remains the stronger evidence for the exact implementation used by SAS.
 
-## Current AdvCiv-SAS census
+## Recorded AdvCiv-SAS census
 
-2026-10-21 trial snapshot by GPT-6.1-Sol: the mod ships 977 unique names across nine GlobalDefines/PythonCallbackDefines files, comprising 667 SAS and 310 inherited names. After the representative rename and the 27-key production-capacity batch, 431 names exceed the desired 42-byte maximum; the longest remains 114 bytes.
+2026-10-21 snapshot after the first 27-key production-capacity batch, by GPT-6.1-Sol: the mod shipped 977 unique names across nine GlobalDefines/PythonCallbackDefines files, comprising 667 SAS and 310 inherited names. In that snapshot, 431 names exceeded the desired 42-byte maximum and the longest was 114 bytes.
 
-The pre-cleanup census and rationale are preserved in [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2). These tables describe the current trial state, rather than reserving space for an assumed final outcome. All current names are ASCII, so bytes equal characters.
+The pre-cleanup census and rationale are preserved in [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2). These tables describe that recorded snapshot, not each subsequent rename batch. Its names are ASCII, so bytes equal characters.
 
 Bands span five bytes; Share counts only that band, while the cumulative column includes every name through its upper bound. Examples show actual lengths; empty bands explicitly label the nearest example from the same group. This follows the filename-length review approach.
 
@@ -144,7 +144,7 @@ The 42-byte rule is preventive and deliberately separate from KI#1001's hard 255
 
 The first representative rename abbreviates INCREMENT to INCR and PERCENT to PCT while retaining plural SLIDERS, the button-step meaning and the percentage unit. Its old-to-new mapping and size reduction are recorded in [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2).
 
-After the 27-key production-capacity batch, 431 names remain above 42 bytes, so the style check still fails on those names. The current census above records this snapshot; the historical baseline and batch mappings remain in KI#1001.2.
+The snapshot above records 431 names above 42 bytes after the first production-capacity batch. The original baseline and subsequent batch mappings remain in KI#1001.2.
 
 ## Performance considerations
 
@@ -170,7 +170,7 @@ The cleanup workflow is:
 2. Trial the 42-byte AdvCiv-scale desired maximum through the separate style checker.
 3. Rename coherent families or functional groups in reviewable batches rather than mechanically abbreviating every key at once.
 4. Keep important old-to-new mappings in KI#1001.2 and commit history so historical logs/code remain searchable.
-5. Refresh the current census when useful progress warrants it, retaining the historical baseline in KI#1001.2.
+5. Refresh the recorded census when worthwhile; no per-batch refresh is required. Preserve the historical starting baseline in KI#1001.2.
 
 If 42 bytes repeatedly harms clarity, revise the desired maximum explicitly rather than introducing cryptic abbreviations.
 

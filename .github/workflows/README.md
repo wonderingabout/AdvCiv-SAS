@@ -459,7 +459,9 @@ Verifies `GlobalDefines_advciv_sas.xml` integer values stay within `[-100000, 10
 
 #### `build/xml/turn_define_gamespeed.py`
 
-Verifies turn-valued integer `SAS_*` defines make their game-speed semantics explicit in the define name. `TURN(S)_NORMAL_GAMESPEED` means the XML value is expressed at Normal speed and code must scale it with the appropriate game-speed percentage; `TURN(S)_UNSCALED_GAMESPEED` means literal game/path turns are intentionally kept unchanged across game speeds.
+Verifies turn-valued integer `SAS_*` defines make their game-speed semantics explicit in the define name. `T_NORM_GS` means the XML value is expressed at Normal speed and code must scale it with the appropriate game-speed percentage; `T_UNSCALED_GS` means literal game/path turns are intentionally kept unchanged across game speeds.
+
+The existing longer `TURN(S)_NORMAL_GAMESPEED` and `TURN(S)_UNSCALED_GAMESPEED` forms retain those same meanings. Standalone `T` is checked alongside `TURN`/`TURNS`, so shortening the unit cannot silently bypass the classification check. Tests cover both spellings, missing/malformed/mixed classifications and non-duration uses.
 
 The check ignores non-duration uses such as `SAS_DO_TURN_*` function-scope names, `...PER_TURN` rates, and `...PATH_TURN_VALUE...` score weights. It also recognizes legacy-looking maximum countdown, minimum/maximum age, and log-interval names so those cannot silently evade the convention.
 

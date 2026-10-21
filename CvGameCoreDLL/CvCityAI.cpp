@@ -2150,12 +2150,12 @@ static bool SAS_getProactiveFortificationThreat(CvCityAI const& kCity, int iRang
 // Actual-turn completion is compared with actual map-distance pressure, so this intentionally is not game-speed scaled. See KI#48.8. (ChatGPT-5.6-Sol) -->
 static BuildingTypes SAS_getProactiveFortification(CvCityAI const& kCity, bool bImmediateDanger, int iCityDefenders, int iNeededDefenders, int& iMaxUsefulTurns, SASProactiveFortificationThreat& kThreat)
 {
-	static const bool bOptimize = GC.getDefineBOOL("SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_OPTIMIZE");
+	static const bool bOptimize = GC.getDefineBOOL("SAS_PROD_PROACTIVE_FORT_ON");
 	// <!-- custom: Keep these tactical windows explicitly named UNSCALED_GAMESPEED: the turn-define CI caught the initially ambiguous names, and scaling them would grant more map turns even though invading units do not move more slowly on longer game speeds. (GPT-5.6-Sol) -->
-	static const int iConfiguredMaxTurns = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_MAX_TURNS_UNSCALED_GAMESPEED"));
-	static const int iTurnsPerDistance = std::max(1, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_TURNS_UNSCALED_GAMESPEED_PER_DISTANCE"));
-	static const int iMinCityValuePercent = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_MIN_CITY_VALUE_PERCENT"));
-	static const int iMinVisibleAttackers = std::max(1, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_MIN_VISIBLE_ATTACKERS"));
+	static const int iConfiguredMaxTurns = std::max(0, GC.getDefineINT("SAS_PROD_FORT_MAX_T_UNSCALED_GS"));
+	static const int iTurnsPerDistance = std::max(1, GC.getDefineINT("SAS_PROD_FORT_T_UNSCALED_GS_PER_DIST"));
+	static const int iMinCityValuePercent = std::max(0, GC.getDefineINT("SAS_PROD_FORT_MIN_CITY_VALUE_PCT"));
+	static const int iMinVisibleAttackers = std::max(1, GC.getDefineINT("SAS_PROD_FORT_MIN_VISIBLE_ATK"));
 	if (!bOptimize || iConfiguredMaxTurns <= 0)
 		return NO_BUILDING;
 	// <!-- custom: Avoid the range-5 unit scan in ordinary peace.
@@ -2646,10 +2646,10 @@ void CvCityAI::AI_chooseProduction()
 			// The SPACE3/25-turn refinement fixed both edges, then another replay still parked Rome's mandatory Stasis at 44%-49% completion with 32-33 turns remaining for an optional Thruster and a 2-turn Jail.
 			// Keep the 25-turn near-term gate, add a separate heavier-investment gate instead of simply widening it for fresh projects, and rank simultaneously eligible copies so only the best copies still needed for the minimum launch set become sticky.
 			// Optional duplicates remain reevaluable and immediate city danger still overrides. See KI#184.3. (ChatGPT-5.6-Sol) -->
-			static const bool bSASSpace3MinimumComponentContinuity = GC.getDefineBOOL("SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_OPTIMIZE");
-			static const int iSASSpace3MinimumComponentContinuityMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_MAX_TURNS_NORMAL_GAMESPEED"));
-			static const int iSASSpace3MinimumComponentContinuityHeavyMinPercent = range(GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_HEAVY_INVESTMENT_MIN_COMPLETION_PERCENT"), 0, 100);
-			static const int iSASSpace3MinimumComponentContinuityHeavyMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_HEAVY_INVESTMENT_MAX_TURNS_NORMAL_GAMESPEED"));
+			static const bool bSASSpace3MinimumComponentContinuity = GC.getDefineBOOL("SAS_PROD_SPACE3_COMP_CONT_ON");
+			static const int iSASSpace3MinimumComponentContinuityMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_SPACE3_COMP_MAX_T_NORM_GS"));
+			static const int iSASSpace3MinimumComponentContinuityHeavyMinPercent = range(GC.getDefineINT("SAS_PROD_SPACE3_COMP_INV_MIN_COMPLETE_PCT"), 0, 100);
+			static const int iSASSpace3MinimumComponentContinuityHeavyMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_SPACE3_COMP_INV_MAX_T_NORM_GS"));
 			ProjectTypes const eCurrentProject = getProductionProject();
 			if (bSASSpace3MinimumComponentContinuity && !bDanger && eCurrentProject != NO_PROJECT &&
 				kPlayer.AI_atVictoryStage(AI_VICTORY_SPACE3) && GC.getInfo(eCurrentProject).isSpaceship())
@@ -2696,10 +2696,10 @@ void CvCityAI::AI_chooseProduction()
 			// Preserve a still-valued, safe active copy only when it is genuinely near-term or already substantially invested with a reasonable remaining time.
 			// Current testing settled on <=10 Normal-speed-equivalent turns, or >=40% complete with <=20 turns; low-progress assignments, immediate danger and nonpositive project value remain free to reevaluate.
 			// This intentionally covers only Manhattan, Internet, SDI and Apollo; spaceship components keep their separate minimum-component policy above. See KI#174.2. (ChatGPT-5.6-Sol) -->
-			static const bool bSASOneCopyProjectContinuity = GC.getDefineBOOL("SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_OPTIMIZE");
-			static const int iSASOneCopyProjectContinuityMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_MAX_TURNS_NORMAL_GAMESPEED"));
-			static const int iSASOneCopyProjectContinuityHeavyMinPercent = range(GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_HEAVY_INVESTMENT_MIN_COMPLETION_PERCENT"), 0, 100);
-			static const int iSASOneCopyProjectContinuityHeavyMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_HEAVY_INVESTMENT_MAX_TURNS_NORMAL_GAMESPEED"));
+			static const bool bSASOneCopyProjectContinuity = GC.getDefineBOOL("SAS_PROD_PROJ_1COPY_CONT_ON");
+			static const int iSASOneCopyProjectContinuityMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_PROJ_1COPY_MAX_T_NORM_GS"));
+			static const int iSASOneCopyProjectContinuityHeavyMinPercent = range(GC.getDefineINT("SAS_PROD_PROJ_1COPY_INV_MIN_COMPLETE_PCT"), 0, 100);
+			static const int iSASOneCopyProjectContinuityHeavyMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_PROJ_1COPY_INV_MAX_T_NORM_GS"));
 			ProjectTypes const eCurrentLimitedProject = getProductionProject();
 			if (bSASOneCopyProjectContinuity && !bDanger && eCurrentLimitedProject != NO_PROJECT && SAS_isOneCopyNonSpaceshipProject(eCurrentLimitedProject) && canCreate(eCurrentLimitedProject, true))
 			{
@@ -3342,7 +3342,7 @@ void CvCityAI::AI_chooseProduction()
 		// <!-- custom: Save-file 454 investigation exposed fresh short-circuit 1 buildings starting at 0 production despite BuildUnitProb=100, severe relative military understrength, and ample unit-spending headroom (for example Birka choosing a Jail, Temple, and Factory).
 		// Unlike later short-circuits, this inherited early building gate ignored the already-computed military pressure entirely. Reduce only its base odds while the normal +15 spending allowance still permits more units; AI_chooseBuilding's inherited production-progress bonus remains untouched, so an already-started important building can still win on continuity.
 		// The spending threshold remains only a permission gate, not a target army size: being below it does not itself force unit production. See KI#197.7. (GPT-5.6 Thinking) -->
-		static const int iShortCircuit1BuildUnitProbWeightPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_1_BUILD_UNIT_PROB_WEIGHT_PERCENT")));
+		static const int iShortCircuit1BuildUnitProbWeightPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SC1_UNIT_PROB_WEIGHT_PCT")));
 		int const iShortCircuit1MaxUnitSpending = kPlayer.AI_maxUnitCostPerMil(&kArea, iBuildUnitProb);
 		bool const bShortCircuit1MilitaryPressureAllowed = (iUnitSpending < iShortCircuit1MaxUnitSpending + 15);
 		int const iShortCircuit1OddsReductionPercent = (bShortCircuit1MilitaryPressureAllowed ? (iBuildUnitProb * iShortCircuit1BuildUnitProbWeightPercent) / 100 : 0);
@@ -3399,7 +3399,7 @@ void CvCityAI::AI_chooseProduction()
 	// <!-- custom: Match production to the SAS city-escort attachment safety rule.
 	// Logs showed completed Settlers waiting 15-20+ turns with two healthy defenders: movement correctly refused to take one because two must remain, while this older production check saw 2 defenders > 1 Settler and built no missing escort.
 	// Count only unguarded local Settlers for the SAS shortage and request one more defender without weakening the movement-side safety rule. See KI#179.2. (ChatGPT-5.6-Sol) -->
-	static const bool bSASSettlerEscortCoordinationOptimize = GC.getDefineBOOL("SAS_AI_CHOOSE_PRODUCTION_SETTLER_ESCORT_COORDINATION_OPTIMIZE");
+	static const bool bSASSettlerEscortCoordinationOptimize = GC.getDefineBOOL("SAS_PROD_SETTLER_ESCORT_COORD_ON");
 	static const int iSASSettlerEscortMinHealthyDefendersLeft = std::max(0, GC.getDefineINT("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT"));
 	int iPlotUnguardedSettlerCount = 0;
 	int iPlotHealthyDefenderCount = 0;
@@ -4406,8 +4406,8 @@ void CvCityAI::AI_chooseProduction()
 		// Great Plains logs showed that this can lose a good second-city site and then strand a one-city AI behind the stricter site floor.
 		// For the first trained Settler only, use a soft preferred population: wait for growth only when the next citizen is actually close.
 		// The old hard first-Settler path is removed after same-save Great Plains A/B testing; established empires keep the separate conservative low-population rule below. (ChatGPT-5.6-Sol) -->
-		static const int iSASFirstSettlerPreferredMinPopulation = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_PREFERRED_MIN_POPULATION"));
-		static const int iSASFirstSettlerGrowthWaitMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_GROWTH_WAIT_MAX_TURNS_NORMAL_GAMESPEED"));
+		static const int iSASFirstSettlerPreferredMinPopulation = std::max(0, GC.getDefineINT("SAS_PROD_1ST_SETTLER_MIN_POP"));
+		static const int iSASFirstSettlerGrowthWaitMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_1ST_SETTLER_GROW_MAX_T_NORM_GS"));
 		int const iSASFirstSettlerGrowthWaitMaxTurns = (iSASFirstSettlerGrowthWaitMaxTurnsNormal * GC.getInfo(kGame.getGameSpeedType()).getGrowthPercent() + 99) / 100;
 		// <!-- custom: Use completed Settlers rather than AI_totalUnitAIs here because that total includes units currently being trained.
 		// Otherwise the soft rule would turn itself off on the turn after the first Settler starts and could recreate production churn. (ChatGPT-5.6-Sol) -->
@@ -4574,7 +4574,7 @@ void CvCityAI::AI_chooseProduction()
 					SAS_countLocalSettlerEscortState(kPlot, getOwner(), iUnguardedSettlers, iHealthyDefenders);
 					if (iHealthyDefenders <= iSASSettlerEscortMinHealthyDefendersLeft)
 					{
-						static const int iSASFirstSettlerEscortPreparationMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_ESCORT_PREPARATION_MAX_TURNS_NORMAL_GAMESPEED"));
+						static const int iSASFirstSettlerEscortPreparationMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_1ST_SETTLER_ESCORT_MAX_T_NORM_GS"));
 						int const iSASFirstSettlerEscortPreparationMaxTurns = (iSASFirstSettlerEscortPreparationMaxTurnsNormal <= 0 ? 0 : std::max(1, (iSASFirstSettlerEscortPreparationMaxTurnsNormal * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() + 50) / 100));
 						UnitTypes const eBestEscortPreparationUnit = (iSASFirstSettlerEscortPreparationMaxTurns > 0 ? AI_bestUnitAI(UNITAI_CITY_DEFENSE) : NO_UNIT);
 						int const iEscortPreparationTurns = (eBestEscortPreparationUnit == NO_UNIT ? -1 : getProductionTurnsLeft(eBestEscortPreparationUnit, 0));
@@ -4824,39 +4824,39 @@ void CvCityAI::AI_chooseProduction()
 
 	// <!-- custom: Adapt the tested era military floor after the primary landmass is secured.
 	// Local rivals/Barbarians/land war keep the full land floor; otherwise lower it and normally redirect the released share to naval logistics on naval-heavy maps. See KI#197.11. (GPT-5.6 Thinking + ChatGPT-5.6-Sol) -->
-	static bool const bSASSecuredPrimaryAreaProfile = GC.getDefineBOOL("SAS_AI_PROD_SECURED_PROFILE_ON");
+	static bool const bSASSecuredPrimaryAreaProfile = GC.getDefineBOOL("SAS_PROD_SECURED_PROFILE_ON");
 	static const int aiSASMinOffensiveProductionCapacityPercent[] = {
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_OFFENSE_FLOOR_ANCIENT_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_OFFENSE_FLOOR_CLASSICAL_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_OFFENSE_FLOOR_MEDIEVAL_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_OFFENSE_FLOOR_RENAISSANCE_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_OFFENSE_FLOOR_INDUSTRIAL_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_OFFENSE_FLOOR_MODERN_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_OFFENSE_FLOOR_FUTURE_PCT")))
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_MIN_ATK_ANCIENT_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_MIN_ATK_CLASSICAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_MIN_ATK_MEDIEVAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_MIN_ATK_RENAISSANCE_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_MIN_ATK_INDUSTRIAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_MIN_ATK_MODERN_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_MIN_ATK_FUTURE_PCT")))
 	};
 	static const int aiSASSecuredLandOffensiveProductionCapacityPercent[] = {
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_LAND_ANCIENT_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_LAND_CLASSICAL_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_LAND_MEDIEVAL_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_LAND_RENAISSANCE_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_LAND_INDUSTRIAL_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_LAND_MODERN_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_LAND_FUTURE_PCT")))
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SECURED_LAND_MIN_ANCIENT_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SECURED_LAND_MIN_CLASSICAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SECURED_LAND_MIN_MEDIEVAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SECURED_LAND_MIN_RENAISSANCE_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SECURED_LAND_MIN_INDUSTRIAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SECURED_LAND_MIN_MODERN_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SECURED_LAND_MIN_FUTURE_PCT")))
 	};
 	static const int aiSASSecuredNavalOffensiveProductionCapacityPercent[] = {
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_ANCIENT_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_CLASSICAL_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_MEDIEVAL_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_RENAISSANCE_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_INDUSTRIAL_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_MODERN_PCT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_FUTURE_PCT")))
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_MIN_ANCIENT_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_MIN_CLASSICAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_MIN_MEDIEVAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_MIN_RENAISSANCE_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_MIN_INDUSTRIAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_MIN_MODERN_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_MIN_FUTURE_PCT")))
 	};
-	static int const iSASSecuredNavalAssaultWeight = std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_ASSAULT_WEIGHT"));
-	static int const iSASSecuredNavalEscortWeight = std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_ESCORT_WEIGHT"));
-	static int const iSASSecuredNavalAttackWeight = std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_ATTACK_WEIGHT"));
-	static int const iSASSecuredNavalNonNavalHeavyTargetMultiplierPercent = std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_OTHER_MULT_PCT"));
-	static int const iSASSecuredNavalPeacefulMaxTrackedUnitsPerPortCity = std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_PEACE_MAX_PORT"));
+	static int const iSASSecuredNavalAssaultWeight = std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_ASSAULT_WEIGHT"));
+	static int const iSASSecuredNavalEscortWeight = std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_ESCORT_WEIGHT"));
+	static int const iSASSecuredNavalAttackWeight = std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_ATTACK_WEIGHT"));
+	static int const iSASSecuredNavalNonNavalHeavyTargetMultiplierPercent = std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_NON_NAVAL_MULT_PCT"));
+	static int const iSASSecuredNavalPeacefulMaxTrackedUnitsPerPortCity = std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_PEACE_MAX_PER_PORT"));
 	int const iLastConfiguredEra = (int)(sizeof(aiSASMinOffensiveProductionCapacityPercent) / sizeof(aiSASMinOffensiveProductionCapacityPercent[0])) - 1;
 	int const iCurrentEra = std::min(iLastConfiguredEra, std::max(0, (int)kPlayer.getCurrentEra()));
 	bool const bProductionCapacityBaseContextEligible = (bPrimaryArea && !bFinancialTrouble && !bDanger && !bAlwaysPeace && !bGetBetterUnits && !bCultureCity && !bUnitExempt);
@@ -6124,7 +6124,7 @@ void CvCityAI::AI_chooseProduction()
 		// This avoids making SC3 less likely once military spending is already above the same +15 spending threshold used by the generic unit-production gate; later role-specific unit exceptions remain unchanged.
 		// Full runs from save files 458 and 457 repeatedly showed strongly under-strength AIs reaching this gate with high BuildUnitProb and still choosing ordinary buildings, almost always while this spending headroom remained available.
 		// In the final save-file 458 validation, 375 of 640 SC3 evaluations were already over budget and kept Base odds; severe under-strength cases with headroom fell from 48.4% average base odds to 32.9%. See KI#197.2. (ChatGPT-5.6-Sol) -->
-		static const int iBuildUnitProbWeightPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_3_BUILD_UNIT_PROB_WEIGHT_PERCENT")));
+		static const int iBuildUnitProbWeightPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_PROD_SC3_UNIT_PROB_WEIGHT_PCT")));
 		bool const bShortCircuit3MilitaryPressureAllowed = (iUnitSpending < iMaxUnitSpending + 15);
 		int const iOddsReductionPercent = (bShortCircuit3MilitaryPressureAllowed ? (iBuildUnitProb * iBuildUnitProbWeightPercent) / 100 : 0);
 		int const iOdds = (iBaseOdds * (100 - iOddsReductionPercent)) / 100;
@@ -16272,14 +16272,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 						const int iMilitaryUnits = kPlayer.getNumMilitaryUnits();
 						// <!-- custom: Explicit Settler-escort preparation/repair requests must survive this lower anti-excess-defender optimizer.
 						// KI#179.2 showed that a correctly requested defender could otherwise be replaced with offensive siege; KI#179.3 extends the same preservation to the defender intentionally prepared before the first Settler is trained. (ChatGPT-5.6-Sol) -->
-						static const bool bSASSettlerEscortCoordinationOptimize = GC.getDefineBOOL("SAS_AI_CHOOSE_PRODUCTION_SETTLER_ESCORT_COORDINATION_OPTIMIZE");
+						static const bool bSASSettlerEscortCoordinationOptimize = GC.getDefineBOOL("SAS_PROD_SETTLER_ESCORT_COORD_ON");
 						static const int iSASSettlerEscortMinHealthyDefendersLeft = std::max(0, GC.getDefineINT("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT"));
 						int iPlotUnguardedSettlers = 0;
 						int iPlotHealthyDefenders = 0;
 						if (bCityDefenseRequest && bSASSettlerEscortCoordinationOptimize)
 							SAS_countLocalSettlerEscortState(getPlot(), getOwner(), iPlotUnguardedSettlers, iPlotHealthyDefenders);
 						bool const bSASExistingSettlerEscortShortage = (bCityDefenseRequest && bSASSettlerEscortCoordinationOptimize && iPlotSettlers > 0 && iPlotUnguardedSettlers > 0 && iPlotHealthyDefenders <= iSASSettlerEscortMinHealthyDefendersLeft);
-						static const int iSASFirstSettlerEscortPreparationMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_ESCORT_PREPARATION_MAX_TURNS_NORMAL_GAMESPEED"));
+						static const int iSASFirstSettlerEscortPreparationMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_1ST_SETTLER_ESCORT_MAX_T_NORM_GS"));
 						int const iSASFirstSettlerEscortPreparationMaxTurns = (iSASFirstSettlerEscortPreparationMaxTurnsNormal <= 0 ? 0 : std::max(1, (iSASFirstSettlerEscortPreparationMaxTurnsNormal * iTrainPct + 50) / 100));
 						int const iSASRequestedDefenderTurns = (bCityDefenseRequest && eChangedUnit != NO_UNIT ? getProductionTurnsLeft(eChangedUnit, 0) : -1);
 						bool const bSASFirstSettlerEscortPreparationNeed = (bCityDefenseRequest && bSASSettlerEscortCoordinationOptimize && isCapital() && iNumCities == 1 &&
