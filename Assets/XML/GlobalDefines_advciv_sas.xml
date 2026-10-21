@@ -3526,12 +3526,12 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 	<!-- custom: how much more we'd value switching to a civic that gives anger to us if other rivals have it; Long_Comments_XML.txt #189 -->
 	<Define>
-		<DefineName>SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY</DefineName>
+		<DefineName>SAS_CIVICVAL_ANGER_UNHAPPY_SCALE_PCT</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<!-- custom: The higher the value, the more we want to switch to this civic for each of our cities that are happy (no need to change to such a civic if city is happy). -->
 	<Define>
-		<DefineName>SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY</DefineName>
+		<DefineName>SAS_CIVICVAL_ANGER_HAPPY_SCALE_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 
@@ -3539,47 +3539,47 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 	<!-- custom: how much we value each civic's unlimited specialist based on their yield(s) -->
 	<Define>
-		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_FOOD_VALUE</DefineName>
+		<DefineName>SAS_CIVICVAL_UNLIM_SPEC_FOOD_VALUE</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE</DefineName>
+		<DefineName>SAS_CIVICVAL_UNLIM_SPEC_HAMMER_VALUE</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<!-- custom: if we need hammers urgently, increase hammer value; Long_Comments_XML.txt #13 -->
 	<Define>
-		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE_NEED_MULTIPLIER</DefineName>
+		<DefineName>SAS_CIVICVAL_UNLIM_SPEC_HAMMER_NEED_MULT</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_GOLD_VALUE</DefineName>
+		<DefineName>SAS_CIVICVAL_UNLIM_SPEC_YLD_COMMERCE_VALUE</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<!-- custom: how much we value each civic's unlimited specialist based on their commerce(s) -->
 	<Define>
-		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_BEAKERS_VALUE</DefineName>
+		<DefineName>SAS_CIVICVAL_UNLIM_SPEC_COM_RESEARCH_VALUE</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_GOLD_VALUE</DefineName>
+		<DefineName>SAS_CIVICVAL_UNLIM_SPEC_COM_GOLD_VALUE</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_VALUE</DefineName>
+		<DefineName>SAS_CIVICVAL_UNLIM_SPEC_COM_CULTURE_VALUE</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: by how much we multiply culture valuing if we urgently need culture (going for a culture need, bfc, etc.); Long_Comments_XML.txt #188 -->
 	<Define>
-		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_NEED_MULTIPLIER</DefineName>
+		<DefineName>SAS_CIVICVAL_UNLIM_SPEC_COM_CULT_NEED_MULT</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_ESPIONAGE_VALUE</DefineName>
+		<DefineName>SAS_CIVICVAL_UNLIM_SPEC_COM_ESP_VALUE</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<!-- custom: Long_Comments_XML.txt #191 -->
 	<Define>
-		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_TOTAL_VALUE_LOSS_PCT_PER_ANARCHY_TURN</DefineName>
+		<DefineName>SAS_CIVICVAL_UNLIM_SPEC_ANARCHY_PCT_PER_T</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 
@@ -3590,7 +3590,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Adding this with the help of chatgpt 5 thanks. -->
 	<!-- custom: Long_Comments_XML.txt #168 -->
 	<Define>
-		<DefineName>SAS_AI_CIVIC_VALUE_SPEC_COMMERCE_WEIGHT_TO_MULT_TONING_DOWN_PERCENT</DefineName>
+		<DefineName>SAS_CIVICVAL_SPEC_COM_WEIGHT_SCALE_PCT</DefineName>
 		<iDefineIntVal>45</iDefineIntVal>
 	</Define>
 

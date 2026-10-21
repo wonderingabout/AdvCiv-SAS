@@ -34224,6 +34224,30 @@ The 15 formerly over-limit names now fit the 42-byte target, reducing the intent
 | `SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT` | 57 | `SAS_TECHTRADE_LOCUS_KNOWN_PCT` | 29 | 28 | 49.12% |
 | `SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT` | 50 | `SAS_TECHTRADE_REL_STRENGTH_EFFECT_PCT` | 37 | 13 | 26.00% |
 
+### 2026-10-21 civic-valuation family batch
+
+This cleanup renames all 13 `SAS_AI_CIVIC_VALUE_*` tuning keys under the shared `SAS_CIVICVAL_` family. The shorter family prefix leaves room to keep civic-scoring distinctions such as anger state, unlimited specialists, `PCT`, commerce type and need multipliers without embedding the full function-shaped prefix.
+
+XML values and gameplay logic are unchanged. The two anger-pressure cache identifiers that mechanically copied their define names move with the keys; descriptive helper locals remain unchanged. Two replacement names also make existing code semantics explicit: the former yield-level `GOLD` key is the `YIELD_COMMERCE` baseline, and the former `BEAKERS` key indexes `COMMERCE_RESEARCH`.
+
+All 13 formerly over-limit names now fit the 42-byte target, reducing the intentional style-check tail from 367 to 354 names. (ChatGPT-5.6-Sol)
+
+| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
+| --- | ---: | --- | ---: | ---: | ---: |
+| `SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY` | 68 | `SAS_CIVICVAL_ANGER_UNHAPPY_SCALE_PCT` | 36 | 32 | 47.06% |
+| `SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY` | 66 | `SAS_CIVICVAL_ANGER_HAPPY_SCALE_PCT` | 34 | 32 | 48.48% |
+| `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_FOOD_VALUE` | 56 | `SAS_CIVICVAL_UNLIM_SPEC_FOOD_VALUE` | 34 | 22 | 39.29% |
+| `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE` | 58 | `SAS_CIVICVAL_UNLIM_SPEC_HAMMER_VALUE` | 36 | 22 | 37.93% |
+| `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE_NEED_MULTIPLIER` | 74 | `SAS_CIVICVAL_UNLIM_SPEC_HAMMER_NEED_MULT` | 40 | 34 | 45.95% |
+| `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_GOLD_VALUE` | 56 | `SAS_CIVICVAL_UNLIM_SPEC_YLD_COMMERCE_VALUE` | 42 | 14 | 25.00% |
+| `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_BEAKERS_VALUE` | 62 | `SAS_CIVICVAL_UNLIM_SPEC_COM_RESEARCH_VALUE` | 42 | 20 | 32.26% |
+| `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_GOLD_VALUE` | 59 | `SAS_CIVICVAL_UNLIM_SPEC_COM_GOLD_VALUE` | 38 | 21 | 35.59% |
+| `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_VALUE` | 62 | `SAS_CIVICVAL_UNLIM_SPEC_COM_CULTURE_VALUE` | 41 | 21 | 33.87% |
+| `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_NEED_MULTIPLIER` | 72 | `SAS_CIVICVAL_UNLIM_SPEC_COM_CULT_NEED_MULT` | 42 | 30 | 41.67% |
+| `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_ESPIONAGE_VALUE` | 64 | `SAS_CIVICVAL_UNLIM_SPEC_COM_ESP_VALUE` | 37 | 27 | 42.19% |
+| `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_TOTAL_VALUE_LOSS_PCT_PER_ANARCHY_TURN` | 77 | `SAS_CIVICVAL_UNLIM_SPEC_ANARCHY_PCT_PER_T` | 41 | 36 | 46.75% |
+| `SAS_AI_CIVIC_VALUE_SPEC_COMMERCE_WEIGHT_TO_MULT_TONING_DOWN_PERCENT` | 67 | `SAS_CIVICVAL_SPEC_COM_WEIGHT_SCALE_PCT` | 38 | 29 | 43.28% |
+
 <a id="ki-1002"></a>
 
 ## KI#1002 - (Fixed AdvCiv initialization regression) FirstContactData could contain uninitialized plot coordinates

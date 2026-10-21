@@ -18681,12 +18681,12 @@ static inline int SAS_SpecYieldBaseWeight(YieldTypes eY, const bool bNeedHammers
 	// Read once per process (static init); assumes defines exist (non-zero).
 	// If you want defensive fallbacks, replace each with a small getter that
 	// returns a default when GC.getDefineINT(...) == 0.
-	static const int iFOOD   = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_FOOD_VALUE");    // e.g. 300
-	static const int iHAMMER = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE");  // e.g. 200
-	static const int iGOLDY  = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_GOLD_VALUE");    // used for YIELD_COMMERCE baseline (e.g. 100)
+	static const int iFOOD   = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_FOOD_VALUE");    // e.g. 300
+	static const int iHAMMER = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_HAMMER_VALUE");  // e.g. 200
+	static const int iGOLDY  = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_YLD_COMMERCE_VALUE");    // used for YIELD_COMMERCE baseline (e.g. 100)
 
 	// Culture push multiplier (applied only when we “need culture")
-	static const int iHAMMER_NEED_MULT = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE_NEED_MULTIPLIER");               // e.g. 2
+	static const int iHAMMER_NEED_MULT = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_HAMMER_NEED_MULT");               // e.g. 2
 
 	int w = 100;
 	switch (eY)
@@ -18710,13 +18710,13 @@ static inline int SAS_SpecYieldBaseWeight(YieldTypes eY, const bool bNeedHammers
 static inline int SAS_SpecCommerceBaseWeight(const CvPlayerAI& kPlayer, CommerceTypes eC, const bool bAnyCityNeedsBFC)
 {
 	// Base per-commerce weights from knobs
-	static const int iSCI   = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_BEAKERS_VALUE");   // e.g. 300
-	static const int iGOLD  = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_GOLD_VALUE");      // e.g. 300
-	static const int iCULT  = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_VALUE");   // e.g. 100
-	static const int iESP   = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_ESPIONAGE_VALUE"); // e.g. 200
+	static const int iSCI   = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_COM_RESEARCH_VALUE");   // e.g. 300
+	static const int iGOLD  = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_COM_GOLD_VALUE");      // e.g. 300
+	static const int iCULT  = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_COM_CULTURE_VALUE");   // e.g. 100
+	static const int iESP   = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_COM_ESP_VALUE"); // e.g. 200
 
 	// Culture push multiplier (applied only when we “need culture")
-	static const int iCULT_NEED_MULT = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_NEED_MULTIPLIER");               // e.g. 3
+	static const int iCULT_NEED_MULT = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_COM_CULT_NEED_MULT");               // e.g. 3
 
 	int w = 100;
 	switch (eC)
@@ -19512,8 +19512,8 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 			int iTotal = 0;
 			const int D = GC.getPERCENT_ANGER_DIVISOR();
 
-			static const int iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY = GC.getDefineINT("SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY");
-			static const int iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY = GC.getDefineINT("SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY");
+			static const int iSAS_CIVICVAL_ANGER_UNHAPPY_SCALE_PCT = GC.getDefineINT("SAS_CIVICVAL_ANGER_UNHAPPY_SCALE_PCT");
+			static const int iSAS_CIVICVAL_ANGER_HAPPY_SCALE_PCT = GC.getDefineINT("SAS_CIVICVAL_ANGER_HAPPY_SCALE_PCT");
 
 			FOR_EACH_CITYAI(pCity, *this)
 			{
@@ -19530,7 +19530,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 				const int iAngryCitizenChange = iChangedAngry - iCurrentAngry;
 				if (iAngryCitizenChange == 0)
 					continue;
-				const int iPressureScale = (iChangedAngry > 0 ? iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY : iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY);
+				const int iPressureScale = (iChangedAngry > 0 ? iSAS_CIVICVAL_ANGER_UNHAPPY_SCALE_PCT : iSAS_CIVICVAL_ANGER_HAPPY_SCALE_PCT);
 				// <!-- custom: iAngryCitizenChange is the welfare result of hypothetically adopting or dropping this civic.
 				// Convert that directional change through iS so anger prevented by an already-active civic remains positive value for keeping it. See KI#648. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				const int iCityVal = -12 * iAngryCitizenChange * iS;
@@ -19854,7 +19854,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	// <!-- custom: following our rework to give commerce yields to specialists as of now in civic_representation (beakers, gold, culture), the civic is still very underpicked, almost never, even though it should be quite attractive.
 	// Commerce value may be underestimated by AI.
 	// Adding this with the help of chatgpt 5 thanks i mean to see if it helps, check if accurate -->
-	static const int iSASCommerceToningDownPercent = GC.getDefineINT("SAS_AI_CIVIC_VALUE_SPEC_COMMERCE_WEIGHT_TO_MULT_TONING_DOWN_PERCENT");
+	static const int iSASCommerceToningDownPercent = GC.getDefineINT("SAS_CIVICVAL_SPEC_COM_WEIGHT_SCALE_PCT");
 	FOR_EACH_ENUM2(Commerce, eCommerce)
 	{
 		// K-Mod
@@ -20139,7 +20139,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 
 		if (iAnTurns > 0)
 		{
-			static const int iStep = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_TOTAL_VALUE_LOSS_PCT_PER_ANARCHY_TURN"); // e.g. 10
+			static const int iStep = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_ANARCHY_PCT_PER_T"); // e.g. 10
 			// Scale: 100% -> (100 - step*turns)%, clamped to [0..100]
 			int iFactor = std::max(0, 100 - iStep * iAnTurns);
 			iTotal = (iTotal * iFactor) / 100;
