@@ -25,7 +25,10 @@ HISTORY = Path("_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md")
 HEADER = "CvGameCoreDLL/SASGameRecordLog.h"
 DEFINES = "Assets/XML/GlobalDefines_advciv_sas.xml"
 DEFINE_FIRST_REVISION = 153
-REVISION_DEFINE = "SAS_GAME_RECORD_REVISION"
+REVISION_DEFINE = "SAS_SGR_REVISION"
+# <!-- custom: Read the former spelling in historical XML/enum snapshots as well as the shortened live key; renaming a Define does not rewrite its recorded Git history. (GPT-6.1-Sol) -->
+REVISION_NAMES = {REVISION_DEFINE, "SAS_GAME_RECORD_REVISION"}
+SOURCE_REVISION_RE = re.compile(rb"(?:SAS_GAME_RECORD_REVISION|SAS_SGR_REVISION)\s*=\s*(\d+)")
 
 # <!-- custom: Dedicated implementation/checker/helper files always count; tests/docs validate or describe the implementation but do not independently create a revision. (ChatGPT-5.6-Sol) -->
 DEDICATED_QUALIFYING = {
@@ -40,7 +43,7 @@ DEDICATED_QUALIFYING = {
     "LLM_Helpers/expand_sasgamerecord_city_deltas.py",
 }
 IGNORED_SUFFIXES = {".md", ".txt", ".log", ".zip", ".png", ".jpg", ".jpeg", ".gif"}
-MARKER = re.compile(r"SASGameRecord|SAS_GAME_RECORD|GAME_RECORD_")
+MARKER = re.compile(r"SASGameRecord|SAS_GAME_RECORD|SAS_SGR_|GAME_RECORD_")
 
 
 def revision_define(xml_bytes):
@@ -60,7 +63,7 @@ def revision_define(xml_bytes):
                 name = (child.text or "").strip()
             elif local == "iDefineIntVal":
                 value = (child.text or "").strip()
-        if name == REVISION_DEFINE:
+        if name in REVISION_NAMES:
             try:
                 values.append(int(value))
             except (TypeError, ValueError):
@@ -79,7 +82,7 @@ def sas_game_record_define_values(xml_bytes):
             continue
         children = [(child.tag.rsplit("}", 1)[-1], (child.text or "").strip()) for child in list(define)]
         name = next((value for tag, value in children if tag == "DefineName"), None)
-        if name and name.startswith("SAS_GAME_RECORD_") and name != REVISION_DEFINE:
+        if name and name.startswith(("SAS_GAME_RECORD_", "SAS_SGR_")) and name not in REVISION_NAMES:
             values[name] = tuple((tag, value) for tag, value in children if tag != "DefineName")
     return values
 
@@ -111,7 +114,7 @@ def commit_revision(repo, commit):
             return value
     header = git_show(repo, commit, HEADER)
     if header is not None:
-        marker = re.search(rb"SAS_GAME_RECORD_REVISION\s*=\s*(\d+)", header)
+        marker = SOURCE_REVISION_RE.search(header)
         if marker is not None:
             return int(marker.group(1))
     return None
@@ -285,7 +288,7 @@ def check_history(repo, default_branch_ref=None):
                 errors.append(f"revision {revision}: {commit} does not contain matching {REVISION_DEFINE}={revision}")
         elif revision >= 69:
             source = git_show(repo, commit, HEADER)
-            marker = None if source is None else re.search(rb"SAS_GAME_RECORD_REVISION\s*=\s*(\d+)", source)
+            marker = None if source is None else SOURCE_REVISION_RE.search(source)
             if marker is None or int(marker.group(1)) != revision:
                 errors.append(f"revision {revision}: {commit} does not contain its matching explicit source marker")
     return errors

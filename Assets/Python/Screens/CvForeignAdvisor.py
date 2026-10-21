@@ -346,7 +346,7 @@ class CvForeignAdvisor:
 		# Use compact single-line rows instead of pagination so all targets remain in one scroll list.
 		# Both layouts omit the repeated espionage commerce glyph; standard rows use that space for a larger leader portrait and move +/- beside it, while compact rows enlarge the portrait within the existing row.
 		# Compact rows also omit the per-row "Weight:" and cost labels because their meaning is clear from context; the wider column anchors keep weight, EPs, and per-turn text separated. (GPT-5.5-Thinking + GPT-5.5? + GPT-5.5) -->
-		self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD = None
+		self.SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH = None
 		self.ESP_COMPACT_LEADER_ICON_SIZE = 28
 		self.ESP_COMPACT_BUTTON_SIZE = 20
 		self.ESP_COMPACT_ROW_X_ICON = 4
@@ -1595,7 +1595,7 @@ class CvForeignAdvisor:
 		# <!-- custom: build ordered column list for pagination (Claude Code Sonnet 4.6) -->
 		self.ltGlanceColumns = [i for i in range(gc.getMAX_PLAYERS()) if self.ltPlayerMet[i] and i != self.iActiveLeader]
 		if self.GLANCE_MAX_PLAYERS_PER_PAGE is None:
-			self.GLANCE_MAX_PLAYERS_PER_PAGE = gc.getDefineINT("SAS_CV_FOREIGN_ADVISOR_GLANCE_MAX_PLAYERS_PER_PAGE")
+			self.GLANCE_MAX_PLAYERS_PER_PAGE = gc.getDefineINT("SAS_FOREIGN_UI_GLANCE_MAX_PLAYERS_PER_PAGE")
 		nPageCols = min(len(self.ltGlanceColumns), self.GLANCE_MAX_PLAYERS_PER_PAGE)
 		self.iGlanceNumPages = max(1, (len(self.ltGlanceColumns) + self.GLANCE_MAX_PLAYERS_PER_PAGE - 1) / self.GLANCE_MAX_PLAYERS_PER_PAGE)
 		# <!-- custom: preserve last page across reopens; clamp in case player count changed. (Claude Code Sonnet 4.6) -->
@@ -2786,9 +2786,9 @@ class CvForeignAdvisor:
 		return SASTextScale.sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(szPerTurn)) + SASTextScale.SAS_FONT_TAG_CLOSE
 
 	def useCompactEspionageRows(self):
-		if self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD is None:
-			self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD = gc.getDefineINT("SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD")
-		return (self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD <= 0 or len(self.ESP_aiKnownPlayers) > self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD)
+		if self.SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH is None:
+			self.SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH = gc.getDefineINT("SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH")
+		return (self.SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH <= 0 or len(self.ESP_aiKnownPlayers) > self.SAS_FOREIGN_UI_ESP_COMPACT_ROWS_THRESH)
 
 	def getCompactEspionageRowColumns(self):
 		iCompactXAmount = min(self.ESP_COMPACT_ROW_X_AMOUNT, self.ESP_W_SCROLL - self.ESP_COMPACT_ROW_RIGHT_MARGIN)

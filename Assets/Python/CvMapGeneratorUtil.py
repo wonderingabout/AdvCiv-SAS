@@ -24,17 +24,17 @@ import sys
 # - Bob Thomas	September 23, 2005
 
 # advc.129c: Master switch for turning off all my terrain changes (they're not extensive enough to justify new subclasses)
-# <!-- custom: SAS_MAP_ADVCIV_STANDARD_TERRAIN_ENABLE makes this base AdvCiv choice independently tunable through XML while retaining bEarthlike for map-script and mod-mod compatibility. (GPT-5.6-Sol) -->
+# <!-- custom: SAS_MAP_STANDARD_TERRAIN_ON makes this base AdvCiv choice independently tunable through XML while retaining bEarthlike for map-script and mod-mod compatibility. (GPT-5.6-Sol) -->
 bEarthlike = True
 
 # advc.tsl: Consult the DLL for this
-SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE = None
+SAS_MAP_LATITUDE_TERRAIN_ON = None
 
 def isSASAdvCivLatitudeTerrainEnabled():
-	global SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE
-	if SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE is None:
-		SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE = (CyGlobalContext().getDefineINT("SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE") > 0)
-	return SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE
+	global SAS_MAP_LATITUDE_TERRAIN_ON
+	if SAS_MAP_LATITUDE_TERRAIN_ON is None:
+		SAS_MAP_LATITUDE_TERRAIN_ON = (CyGlobalContext().getDefineINT("SAS_MAP_LATITUDE_TERRAIN_ON") > 0)
+	return SAS_MAP_LATITUDE_TERRAIN_ON
 
 def latitudeAtPlot(map, iX, iY, iHeight):
 	# <!-- custom: The optional BTS profile uses the original row-based latitude calculation; cache the define because terrain and feature generators call this for every plot. (GPT-5.6-Sol) -->
@@ -125,7 +125,7 @@ class FractalWorld:
 		self.hillGroupTwoRange = self.gc.getClimateInfo(self.map.getClimate()).getHillRange()
 		# <advc.129c>
 		global bEarthlike
-		if bEarthlike and self.gc.getDefineINT("SAS_MAP_ADVCIV_STANDARD_TERRAIN_ENABLE") > 0:
+		if bEarthlike and self.gc.getDefineINT("SAS_MAP_STANDARD_TERRAIN_ON") > 0:
 			self.hillGroupTwoRange += 1
 		# </advc.129c>
 		self.hillGroupTwoBase = 75
@@ -267,7 +267,7 @@ class FractalWorld:
 		self.checkForOverrideDefaultUserInputVariances()
 		# <!-- custom: Use centralized defaults only when a map script does not supply its own water percentage or hills/Peaks grain. (GPT-5.6-Sol) -->
 		if water_percent is None:
-			water_percent = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_WATER_PERCENT")
+			water_percent = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_WATER_PCT")
 		if grain_amount is None:
 			grain_amount = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_HILLS_GRAIN")
 
@@ -292,7 +292,7 @@ class FractalWorld:
 		iHillsBottom2 = self.hillsFrac.getHeightFromPercent(max((self.hillGroupTwoBase - self.hillGroupTwoRange), 0))
 		iHillsTop2 = self.hillsFrac.getHeightFromPercent(min((self.hillGroupTwoBase + self.hillGroupTwoRange), 100))
 		# advc.030: *8/7 to compensate for the removal of coastal peaks
-		bSASAdvCivCoastalPeakReduction = (self.gc.getDefineINT("SAS_MAP_ADVCIV_COASTAL_PEAK_REDUCTION_ENABLE") > 0)
+		bSASAdvCivCoastalPeakReduction = (self.gc.getDefineINT("SAS_MAP_COASTAL_PEAK_REDUCTION_ON") > 0)
 		if bSASAdvCivCoastalPeakReduction:
 			iPeakPercent = (self.peakPercent * 8) / 7
 		else:
@@ -933,7 +933,7 @@ class MultilayeredFractal:
 		iHillsBottom2 = regionHillsFrac.getHeightFromPercent(max((75 - self.gc.getClimateInfo(self.map.getClimate()).getHillRange()), 0))
 		iHillsTop2 = regionHillsFrac.getHeightFromPercent(min((75 + self.gc.getClimateInfo(self.map.getClimate()).getHillRange()), 100))
 		# advc.030: *8/7
-		bSASAdvCivCoastalPeakReduction = (self.gc.getDefineINT("SAS_MAP_ADVCIV_COASTAL_PEAK_REDUCTION_ENABLE") > 0)
+		bSASAdvCivCoastalPeakReduction = (self.gc.getDefineINT("SAS_MAP_COASTAL_PEAK_REDUCTION_ON") > 0)
 		if bSASAdvCivCoastalPeakReduction:
 			iPeakPercent = (8*self.gc.getClimateInfo(self.map.getClimate()).getPeakPercent())/7
 		else:
@@ -1180,19 +1180,19 @@ class TerrainGenerator:
 		# <!-- custom: Preserve explicit map-script terrain percentages and latitude thresholds; use the centralized defaults only when the caller omits them.
 		# Divide integer percentages by 100.0 for Python 2.4 floating-point division. (GPT-5.6-Sol) -->
 		if iDesertPercent is None:
-			iDesertPercent = self.gc.getDefineINT("SAS_MAP_STANDARD_DESERT_PERCENT")
+			iDesertPercent = self.gc.getDefineINT("SAS_MAP_STANDARD_DESERT_PCT")
 		if iPlainsPercent is None:
-			iPlainsPercent = self.gc.getDefineINT("SAS_MAP_STANDARD_PLAINS_PERCENT")
+			iPlainsPercent = self.gc.getDefineINT("SAS_MAP_STANDARD_PLAINS_PCT")
 		if fSnowLatitude is None:
-			fSnowLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_SNOW_LATITUDE_PERCENT") / 100.0
+			fSnowLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_SNOW_LAT_PCT") / 100.0
 		if fTundraLatitude is None:
-			fTundraLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_TUNDRA_LATITUDE_PERCENT") / 100.0
+			fTundraLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_TUNDRA_LAT_PCT") / 100.0
 		if fGrassLatitude is None:
-			fGrassLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_GRASS_LATITUDE_PERCENT") / 100.0
+			fGrassLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_GRASS_LAT_PCT") / 100.0
 		if fDesertBottomLatitude is None:
-			fDesertBottomLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_DESERT_BOTTOM_LATITUDE_PERCENT") / 100.0
+			fDesertBottomLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_DESERT_BOTTOM_LAT_PCT") / 100.0
 		if fDesertTopLatitude is None:
-			fDesertTopLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_DESERT_TOP_LATITUDE_PERCENT") / 100.0
+			fDesertTopLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_DESERT_TOP_LAT_PCT") / 100.0
 		# <advc.129c>
 		self.processCustomizations()
 		if self.bEarthlike:
@@ -1395,7 +1395,7 @@ class TerrainGenerator:
 		global bEarthlike
 		# <!-- custom: Map-script subclasses may replace __init__ without setting self.gc.
 		# Reading this once-per-generation define locally preserves that inherited compatibility contract. See KI#284.2. (GPT-5.6-Sol) -->
-		if not bEarthlike or CyGlobalContext().getDefineINT("SAS_MAP_ADVCIV_STANDARD_TERRAIN_ENABLE") <= 0:
+		if not bEarthlike or CyGlobalContext().getDefineINT("SAS_MAP_STANDARD_TERRAIN_ON") <= 0:
 			return
 		self.bEarthlike = True
 		# Everything except getLatitudeAtPlot is essential
@@ -1423,9 +1423,9 @@ class FeatureGenerator:
 		if forest_grain is None:
 			forest_grain = self.gc.getDefineINT("SAS_MAP_STANDARD_FOREST_GRAIN")
 		if iJunglePercent is None:
-			iJunglePercent = self.gc.getDefineINT("SAS_MAP_STANDARD_JUNGLE_PERCENT")
+			iJunglePercent = self.gc.getDefineINT("SAS_MAP_STANDARD_JUNGLE_PCT")
 		if iForestPercent is None:
-			iForestPercent = self.gc.getDefineINT("SAS_MAP_STANDARD_FOREST_PERCENT")
+			iForestPercent = self.gc.getDefineINT("SAS_MAP_STANDARD_FOREST_PCT")
 		self.mapRand = self.gc.getGame().getMapRand()
 		self.jungles = CyFractal()
 		self.forests = CyFractal()
@@ -1475,7 +1475,7 @@ class FeatureGenerator:
 		# Keep BTS coordinate-order traversal available independently. (GPT-5.6-Sol) -->
 		# <!-- custom: Map-script subclasses may replace __init__ without setting self.gc.
 		# Reading this once-per-generation define locally preserves that inherited compatibility contract. See KI#284.2. (GPT-5.6-Sol) -->
-		if CyGlobalContext().getDefineINT("SAS_MAP_ADVCIV_FEATURE_PLACEMENT_ORDER_ENABLE") <= 0:
+		if CyGlobalContext().getDefineINT("SAS_MAP_FEATURE_PLACEMENT_ORDER_ON") <= 0:
 			for iX in range(self.iGridW):
 				for iY in range(self.iGridH):
 					self.addFeaturesAtPlot(iX, iY)

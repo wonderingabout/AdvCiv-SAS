@@ -49,8 +49,8 @@ The files below do not belong to one logging framework. Civ4 accumulated several
 | `StartingPos.log` | AdvCiv | AdvCiv's Starting Position Iteration work began publicly on 2020-05-27 as a fairer-start algorithm; this log traces that subsystem when enabled. | Algorithm trace, not general diagnostics. Header/run context is preferable to verbose per-line timestamps. |
 | `juggle_log.txt`, `combat.txt` | K-Mod/AdvCiv developer diagnostics | Compile-time specialist diagnostics: citizen-assignment efficiency and combat-odds verification respectively. Exact first introduction was not established here. | Preserve as experiment datasets. A small metadata header is safer than making every record verbose. |
 | `uwai<turn>.log` | AdvCiv `UWAIReport` | Separate war-evaluation reports, with Textile markup, turn-number filenames and report interval/threshold controls. Writers include `UWAIAgent`, `MilitaryAnalyst`, `InvasionGraph`, `ArmamentForecast`, `WarEvaluator` and `WarUtilityAspect`. | Historical in SAS: the standalone report files/logger were retired in favor of five independently controlled BBAI categories; see [UWAI diagnostics comparison](#uwai-diagnostics-standalone-advciv-reports-vs-current-bbai-records). |
-| `SASGameRecord_*.log` | AdvCiv-SAS | A new structured game record, complementing inherited BBAI decision traces with run context, periodic state, gameplay history and reproduction evidence. | Independent `SAS_GAME_RECORD_LOG_LEVEL`; its [revision history](revisions/SASGameRecord.md) documents recorder changes. |
-| `SASRuntimeStatus.json`, `SASRuntimeHistory_*.jsonl` | AdvCiv-SAS | Latest runtime observation and per-process transition history, including process/DLL identity and new/load/autoplay activity. | Independent `SAS_RUNTIME_STATUS_ENABLE`; its [revision history](revisions/SASRuntime.md) documents runtime-recorder changes. |
+| `SASGameRecord_*.log` | AdvCiv-SAS | A new structured game record, complementing inherited BBAI decision traces with run context, periodic state, gameplay history and reproduction evidence. | Independent `SAS_SGR_LOG_LEVEL`; its [revision history](revisions/SASGameRecord.md) documents recorder changes. |
+| `SASRuntimeStatus.json`, `SASRuntimeHistory_*.jsonl` | AdvCiv-SAS | Latest runtime observation and per-process transition history, including process/DLL identity and new/load/autoplay activity. | Independent `SAS_RUNTIME_STATUS_ON`; its [revision history](revisions/SASRuntime.md) documents runtime-recorder changes. |
 
 ### Modernization principles
 
@@ -199,12 +199,12 @@ Source commit identifiers in these documentation examples are mapped to the rewr
 
 ### SASGameRecord
 
-Enable `SAS_GAME_RECORD_LOG_LEVEL` in [`GlobalDefines_advciv_sas.xml`](../../Assets/XML/GlobalDefines_advciv_sas.xml); `0` disables the recorder independently of BBAI. `SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME` selects per-session `SASGameRecord_*.log` files or the fixed `SASGameRecord.log` name.
+Enable `SAS_SGR_LOG_LEVEL` in [`GlobalDefines_advciv_sas.xml`](../../Assets/XML/GlobalDefines_advciv_sas.xml); `0` disables the recorder independently of BBAI. `SAS_SGR_LOG_USE_TIMESTAMPED_FILENAME` selects per-session `SASGameRecord_*.log` files or the fixed `SASGameRecord.log` name.
 
 The record brings together map/geography context, settings and provenance, economy/expansion, city and battle history, diplomacy and military composition. It also records exact AI strategy/victory-stage transitions, RNG evidence and shared diagnostic-writer health according to the selected level and supporting switches.
 
 - Search examples include `GAME_RECORD_SOURCE_CONTEXT`, `GAME_RECORD_DLL_CONTEXT`, `GAME_RECORD_AI_STRATEGY_CHANGE`, `GAME_RECORD_AI_VICTORY_STAGE_CHANGE` and `GAME_RECORD_DIAGNOSTIC_WRITER`.
-- `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED` controls periodic snapshots; with interval 10 they occur at completed turns 10, 20, 30 and so on, while turn 0 has separate initial context. Chronicle actions can appear between snapshots.
+- `SAS_SGR_INTERVAL_T_UNSCALED_GS` controls periodic snapshots; with interval 10 they occur at completed turns 10, 20, 30 and so on, while turn 0 has separate initial context. Chronicle actions can appear between snapshots.
 - This is an all-player diagnostic and can contain spoilers. Use the [Main Changes Guide's SASGameRecord section](README_Main_Changes_Guide.md#sasgamerecord-log) and [recorder revision history](revisions/SASGameRecord.md) for coverage/controls, and the [representative raw record](examples/sasgamerecord/SASGameRecord_example.log) for actual output.
 
 #### SASGameRecord session header example
@@ -289,17 +289,17 @@ BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 
 
 Base AdvCiv's `BBAILog.h` used compile-time `LOG_AI` / `LOG_FOUND_VALUE` switches and fixed category levels. Its `logBBAI` wrote `BBAI.log`, or `BBAI<player>.log` in network multiplayer. SAS exposes the settings through XML and caches them after define loading, so diagnostic levels can be changed before launch without rebuilding the DLL.
 
-Enable `SAS_BBAI_LOG_ENABLE` and select the relevant category levels. `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME` chooses new/load session files instead of fixed-name appending; ordinary diagnostic categories ship disabled. The XML comments describe exact levels and supporting controls; the table below is a subject index, not a claim that every category emits the same detail at each level.
+Enable `SAS_BBAI_LOG_ON` and select the relevant category levels. `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME` chooses new/load session files instead of fixed-name appending; ordinary diagnostic categories ship disabled. The XML comments describe exact levels and supporting controls; the table below is a subject index, not a claim that every category emits the same detail at each level.
 
 These controls all select categories within the same BBAI output, including the UWAI controls below; they do not create separate files such as `Settler.log` or `MilitaryAnalyst.log`.
 
 | Current control | Diagnostic subject / search examples |
 | --- | --- |
 | `SAS_BBAI_PLAYER_LOG_LEVEL`, `SAS_BBAI_TEAM_LOG_LEVEL`, `SAS_BBAI_WAR_LOG_LEVEL` | General player/team decisions and dedicated war-plan/target decisions. |
-| `SAS_BBAI_CITY_LOG_LEVEL`, `SAS_BBAI_PRODUCTION_NO_TARGET_LOG_LEVEL` | General city decisions and missing-production-target/chooser-path diagnostics. |
-| `SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL`, `SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL` | Military-unit versus infrastructure opportunities and production decisions. |
-| `SAS_BBAI_SPACE_PRODUCTION_LOG_LEVEL`, `SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL` | Spaceship projects and one-copy non-spaceship projects. |
-| `SAS_BBAI_CITIZEN_LOG_LEVEL`, `SAS_BBAI_CULTURE_LOG_LEVEL` | Citizen assignments and culture-victory decisions. |
+| `SAS_BBAI_CITY_LOG_LEVEL`, `SAS_BBAI_PROD_NO_TARGET_LOG_LEVEL` | General city decisions and missing-production-target/chooser-path diagnostics. |
+| `SAS_BBAI_MIL_PROD_LOG_LEVEL`, `SAS_BBAI_BLDG_PROD_LOG_LEVEL` | Military-unit versus infrastructure opportunities and production decisions. |
+| `SAS_BBAI_SPACE_PROD_LOG_LEVEL`, `SAS_BBAI_LIMITED_PROJECT_PROD_LOG_LEVEL` | Spaceship projects and one-copy non-spaceship projects. |
+| `SAS_BBAI_CITIZEN_LOG_LEVEL`, `SAS_BBAI_CULT_LOG_LEVEL` | Citizen assignments and culture-victory decisions. |
 | `SAS_BBAI_UNIT_LOG_LEVEL`, `SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL`, `SAS_BBAI_GREAT_GENERAL_LOG_LEVEL` | General unit behavior, transport/cargo decisions and Great General actions. |
 | `SAS_BBAI_SETTLER_LOG_LEVEL` | Movement, target decisions, founding, parking and escorts; examples include `SETTLER_MISSION_DECISION`, `SETTLER_PARKED` and `SETTLER_CITY_ESCORT_POOL`. |
 | `SAS_BBAI_FOUND_LOG_LEVEL` | City-site scoring and selection; examples include `FOUND_SITE_SELECTED` and `FOUND_SITE_STORED`. |
@@ -341,7 +341,7 @@ The war-planning subsystems now write directly to BBAI under the following five 
 | Current control | Explicit source / responsibility | Search examples in BBAI |
 | --- | --- | --- |
 | `SAS_BBAI_UWAI_AGENT_LOG_LEVEL` | `UWAIAgent.cpp`: top-level team war planning and negotiation flow. | `UWAI_AGENT_` |
-| `SAS_BBAI_UWAI_MILITARY_ANALYST_LOG_LEVEL` | `MilitaryAnalyst.cpp`: scenario participants, phases and projected war/capitulation/elimination outcomes. | `UWAI_MILITARY_ANALYSIS_` |
+| `SAS_BBAI_UWAI_MIL_ANALYST_LOG_LEVEL` | `MilitaryAnalyst.cpp`: scenario participants, phases and projected war/capitulation/elimination outcomes. | `UWAI_MILITARY_ANALYSIS_` |
 | `SAS_BBAI_UWAI_INVASION_GRAPH_LOG_LEVEL` | `InvasionGraph.cpp`: invasion targets, deployment, clashes and conquest simulation. | `UWAI_INVASION_` |
 | `SAS_BBAI_UWAI_ARMAMENT_FORECAST_LOG_LEVEL` | `ArmamentForecast.cpp`: predicted military production, upgrades and power increases. | `UWAI_ARMAMENT_` |
 | `SAS_BBAI_UWAI_WAR_UTILITY_LOG_LEVEL` | `WarEvaluator.cpp` and `WarUtilityAspect.cpp`: war/peace scenario totals and individual utility contributions. | `UWAI_WAR_` |

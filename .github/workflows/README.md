@@ -679,17 +679,17 @@ The regression tests cover multiple commits, missed increments, jumps/regression
 
 Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. Every integer `SAS_BBAI_*` define is discovered automatically and required to be `0`, so dedicated categories such as Citizen, Culture, Evacuation, Worker, and Worker-sea logging cannot be omitted from the check when categories are added.
 
-The only explicit nonzero exceptions are `SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=100` and `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1`; these configure how enabled logging behaves but do not enable logging themselves.
+The only explicit nonzero exceptions are `SAS_BBAI_SCORE_LOG_INTERVAL_T_UNSCALED_GS=100` and `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1`; these configure how enabled logging behaves but do not enable logging themselves.
 
 #### `build/diagnostics/sas_game_record_log.py`
 
 Keeps the blocking SASGameRecord CI intentionally small:
 
-- `SAS_GAME_RECORD_LOG_LEVEL` must be `0` in committed defaults.
-- `SAS_GAME_RECORD_ACTION_TRACE_ENABLE` must be `1`, and `SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL` must be `2`.
+- `SAS_SGR_LOG_LEVEL` must be `0` in committed defaults.
+- `SAS_SGR_ACTION_TRACE_ON` must be `1`, and `SAS_SGR_SYSTEM_CONTEXT_LEVEL` must be `2`.
 - Hardware identity, exact paths and process-context opt-ins must each be `0`; these checks catch accidentally committed diagnostic test overrides.
-- `SAS_GAME_RECORD_BUG_STRING_VALUES_ENABLE` must be `0`, keeping reviewed BUG strings redacted by default.
-- `SAS_GAME_RECORD_REVISION` in `GlobalDefines_advciv_sas.xml` is the single monotonically increasing implementation-update label; it must match the newest maintained revision-history heading.
+- `SAS_SGR_BUG_STRING_VALS_ON` must be `0`, keeping reviewed BUG strings redacted by default.
+- `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` is the single monotonically increasing implementation-update label; it must match the newest maintained revision-history heading.
 - The source-context row must still read and emit that Define directly. The revision is not a compatibility switch and runtime code does not branch on it; build/source/DLL provenance separately describes stale or mixed binaries.
 - The history/progression checker additionally enforces the commit rule when Git history is available: a mechanically recognizable qualifying SASGameRecord implementation commit increments exactly once, the revision never regresses or jumps by more than one, and unrelated commits do not increment it.
 
@@ -705,7 +705,7 @@ Automated historical provenance and current-branch progression check. Validates 
 
 Callers may pass an explicit canonical branch; otherwise local runs discover `origin/HEAD`, `origin/main` or `main`, and abstain from ancestry validation when none is available.
 
-Revisions 69-152 verify their historical compiled-header marker; revision 153+ verifies the single `SAS_GAME_RECORD_REVISION` GlobalDefine stored by that commit. Only the newest entry may say `pending`: a commit cannot store its own final hash, but older entries must be finalized.
+Revisions 69-152 verify their historical compiled-header marker; revision 153+ verifies the single `SAS_SGR_REVISION` GlobalDefine stored by that commit. Only the newest entry may say `pending`: a commit cannot store its own final hash, but older entries must be finalized.
 
 When the default-branch range is available, the checker also inspects current branch commits individually. Dedicated recorder/checker/helper files always qualify; other source/config bridge changes qualify when their diff exposes SASGameRecord markers. This is intentionally conservative automation around the written policy rather than an attempt to infer every semantic dependency.
 
@@ -745,7 +745,7 @@ Practical predump workflow:
 1. The normal checker run reconstructs the expected AIP cache outside Civ4 and compares it with the committed `SevoPediaLeaderCachePredumped.py`. CI runs this automatically on commits/PRs, so a failure usually means the committed predump is stale relative to leader XML or shared AIP display logic.
 2. The `Refresh AIP predump cache` workflow can refresh the predump from GitHub. It runs automatically after pushes to known AIP dependency files and can also be started manually from the Actions tab. When the generated file changes, it opens or updates a bot PR containing only `SevoPediaLeaderCachePredumped.py`.
 3. To refresh locally without launching Civ4, run `python .github/workflows/build/runtime/aip_predump_values.py --write`, review the diff, then rerun the checker.
-4. The old manual fallback still works: temporarily set `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED = 0` and `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun this checker.
+4. The old manual fallback still works: temporarily set `SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED = 0` and `SAS_SEVO_LEADER_AI_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun this checker.
 
 The generated file intentionally has no timestamp. This keeps no-op `--write` runs byte-identical when cache data is unchanged, avoiding false diffs and future bot/maintenance churn.
 

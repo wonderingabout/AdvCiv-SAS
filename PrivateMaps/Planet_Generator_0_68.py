@@ -338,10 +338,10 @@ def getDescription():
 worldTypes = []
 chosenWorldType = -1
 
-# <!-- custom: Scale WorldInfo terrain cells through SAS_PLANET_GENERATOR_GRID_PERCENT, but retain the smallest default-supported 6x4 terrain-cell grid so low percentages cannot produce zero dimensions or four-plot-high edge seeds. See KI#260. (GPT-5.3-Codex; ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+# <!-- custom: Scale WorldInfo terrain cells through SAS_PLANET_GENERATOR_GRID_PCT, but retain the smallest default-supported 6x4 terrain-cell grid so low percentages cannot produce zero dimensions or four-plot-high edge seeds. See KI#260. (GPT-5.3-Codex; ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 def getPlanetScaledGridSize(iWidth, iHeight):
 	cgc = CyGlobalContext()
-	iGridPercent = cgc.getDefineINT("SAS_PLANET_GENERATOR_GRID_PERCENT")
+	iGridPercent = cgc.getDefineINT("SAS_PLANET_GENERATOR_GRID_PCT")
 	if iGridPercent < 1:
 		iGridPercent = 1
 	elif iGridPercent > 100:

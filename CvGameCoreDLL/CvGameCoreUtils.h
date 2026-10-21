@@ -109,7 +109,7 @@ enum SASRuntimeStatusReason
 };
 
 // <!-- custom: Optional external-agent current-state artifact.
-// These transition-driven helpers update the compact JSON and append timed activity intervals to a per-process JSONL timeline only when SAS_RUNTIME_STATUS_ENABLE is on; detailed UI/action evidence remains in SASGameRecord. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+// These transition-driven helpers update the compact JSON and append timed activity intervals to a per-process JSONL timeline only when SAS_RUNTIME_STATUS_ON is on; detailed UI/action evidence remains in SASGameRecord. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 // <!-- custom: Caller pre-gates skip status-only arguments/setup; publication remains independently default-off and does not use Civ4 INI logging masters. (GPT-6.1-Sol) -->
 // <!-- custom: Native lifecycle callers pre-gate these notifications; recorder entry guards additionally protect direct entry without collecting state or publishing while disabled.
 // The Python WorldBuilder bridge passes only a literal visibility bool and gates native queries inside CyGame; shutdown checks the cached flag directly to avoid a first XML read during teardown. (GPT-6.1-Sol) -->

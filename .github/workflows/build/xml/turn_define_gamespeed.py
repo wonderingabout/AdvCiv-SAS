@@ -39,8 +39,8 @@ def has_temporal_turn_token(name: str) -> bool:
 		if token in {"T", "TURN"} and index > 1 and tokens[index - 2:index] == ["PER", "ANARCHY"]:
 			continue
 
-		# e.g. PATH_TURN_VALUE_PENALTY: TURN describes the unit of a score penalty.
-		if token in {"T", "TURN"} and index + 1 < len(tokens) and tokens[index + 1] == "VALUE":
+		# <!-- custom: PATH_TURN_VAL_PENALTY (formerly PATH_TURN_VALUE_PENALTY) names a score's unit, not elapsed turns. Accept both spellings for the same rate semantics. (GPT-6.1-Sol) -->
+		if token in {"T", "TURN"} and index + 1 < len(tokens) and tokens[index + 1] in {"VALUE", "VAL"}:
 			continue
 
 		return True

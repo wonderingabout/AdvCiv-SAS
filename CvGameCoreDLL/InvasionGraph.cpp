@@ -1230,7 +1230,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 				// Apply only to the evaluating team and scale the allowance by the simulated landing ratio, so weak lift still preserves most of the inherited caution. (ChatGPT-5.6-Sol) -->
 				else if (TEAMID(m_ePlayer) == TEAMID(m_eAgent))
 				{
-					static const bool bSASNavalLogisticsDeploymentOptimize = GC.getDefineBOOL("SAS_UWAI_INVASION_GRAPH_NAVAL_LOGISTICS_DEPLOYMENT_OPTIMIZE");
+					static const bool bSASNavalLogisticsDeploymentOptimize = GC.getDefineBOOL("SAS_UWAI_NAVAL_LOGISTICS_DEPLOYMENT_ON");
 					if (bSASNavalLogisticsDeploymentOptimize)
 					{
 						scaled const rOldAreaWeight = rAreaWeightAtt;

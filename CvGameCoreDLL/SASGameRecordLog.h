@@ -19,7 +19,7 @@ class CvPlayer;
 // This is not a classic BBAI diagnostic category: it has its own XML defines, its own SASGameRecord_*.log files, and its own lightweight public header.
 // Call sites should still gate before invoking helpers so disabled logging does not compute logging-only arguments.
 // Pointer-only hooks use forward declarations here to avoid pulling city/unit headers into ordinary game files. (ChatGPT-5.5 + GPT-5.5) -->
-// <!-- custom: SAS_GAME_RECORD_LOG_LEVEL is copied once after all GlobalDefines/module overrides finish loading.
+// <!-- custom: SAS_SGR_LOG_LEVEL is copied once after all GlobalDefines/module overrides finish loading.
 // Keep the steady-state hot gate as a direct integer read: SASGameRecord hooks are intentionally widespread, and an out-of-line getter would impose a cross-translation-unit function call even at level 0 in ordinary non-LTCG Release builds.
 // Before XML setup completes the zero-initialized cache safely means disabled.
 // Callers must treat the cache as read-only and continue using gGameRecordLogLevel/getSASGameRecordLogLevel; only cacheSASGameRecordLogLevel writes it during GlobalDefines setup. (ChatGPT-5.6-Sol) -->

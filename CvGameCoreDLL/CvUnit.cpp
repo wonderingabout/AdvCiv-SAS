@@ -3377,26 +3377,26 @@ bool CvUnit::canScrap() const
 	// 	return false;
 	// return true;
 
-	static const bool bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE = GC.getDefineBOOL("SAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE");
+	static const bool bSAS_SCRAP_ABSOLUTELY_DISABLE = GC.getDefineBOOL("SAS_SCRAP_ABSOLUTELY_DISABLE");
 	// <!-- custom: Absolute AI scrap kill switch for experiments and player preference.
 	// Scrapping is hammer-inefficient when a produced unit could instead defend, pressure rivals, or be spent in war; war also removes excess units naturally while potentially gaining cities, unit support, economy, and long-term growth.
-	// Keep this separate from SAS_CAN_SCRAP_OPTIMIZE so disabling optimization never re-enables broad scrapping. (GPT-5.5 + ChatGPT-5.5) -->
-	if (bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE && !isHuman())
+	// Keep this separate from SAS_SCRAP_ON so disabling optimization never re-enables broad scrapping. (GPT-5.5 + ChatGPT-5.5) -->
+	if (bSAS_SCRAP_ABSOLUTELY_DISABLE && !isHuman())
 	{
 		return false;
 	}
 
-	static const bool bSAS_CAN_SCRAP_OPTIMIZE = GC.getDefineBOOL("SAS_CAN_SCRAP_OPTIMIZE");
+	static const bool bSAS_SCRAP_ON = GC.getDefineBOOL("SAS_SCRAP_ON");
 
-	if (bSAS_CAN_SCRAP_OPTIMIZE && !isHuman())
+	if (bSAS_SCRAP_ON && !isHuman())
 	{
 		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or updated info known issue as of now 52 or other related docs)
 		const CvUnitInfo& kUnitInfo = getUnitInfo();
 		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently; allow a global toggle for no-obsolete-scrap experiments. (GPT-5.2-Codex) -->
-		static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");
+		static const bool bSAS_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_SCRAP_OBSOLETE_TECH");
 		TechTypes const eObsoleteTech = kUnitInfo.getObsoleteTech();
-		static const bool bSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE = GC.getDefineBOOL("SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE");
-		if (bSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE)
+		static const bool bSAS_SCRAP_OBSOLETE_ON = GC.getDefineBOOL("SAS_SCRAP_OBSOLETE_ON");
+		if (bSAS_SCRAP_OBSOLETE_ON)
 		{
 			// <!-- custom: Softer near-absolute AI scrap mode: keep normal units and allow only units with ObsoleteTech that are old enough by obsolete-era delay.
 			// Cargo-capable units are kept because an obsolete transport can still be our only practical way to move units.
@@ -3406,26 +3406,26 @@ bool CvUnit::canScrap() const
 			{
 				return false;
 			}
-			if (!bSAS_CAN_SCRAP_OBSOLETE_TECH || eObsoleteTech == NO_TECH || !GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
+			if (!bSAS_SCRAP_OBSOLETE_TECH || eObsoleteTech == NO_TECH || !GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
 			{
 				return false;
 			}
-			static const int iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE = GC.getDefineINT("SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE");
-			static const int iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS = GC.getDefineINT("SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS");
+			static const int iSAS_SCRAP_OBSOLETE_PRE_REN_MIN_ERA_DELAY = GC.getDefineINT("SAS_SCRAP_OBSOLETE_PRE_REN_MIN_ERA_DELAY");
+			static const int iSAS_SCRAP_OBSOLETE_REN_PLUS_MIN_ERA_DELAY = GC.getDefineINT("SAS_SCRAP_OBSOLETE_REN_PLUS_MIN_ERA_DELAY");
 			static const EraTypes eERA_RENAISSANCE = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
 			int const iObsoleteEra = GC.getInfo(eObsoleteTech).getEra();
-			int const iObsoleteEraDelay = (iObsoleteEra >= eERA_RENAISSANCE ? iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS : iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE);
+			int const iObsoleteEraDelay = (iObsoleteEra >= eERA_RENAISSANCE ? iSAS_SCRAP_OBSOLETE_REN_PLUS_MIN_ERA_DELAY : iSAS_SCRAP_OBSOLETE_PRE_REN_MIN_ERA_DELAY);
 			if (GET_PLAYER(getOwner()).getCurrentEra() < iObsoleteEra + iObsoleteEraDelay)
 			{
 				return false;
 			}
 			return true;
 		}
-		if (bSAS_CAN_SCRAP_OBSOLETE_TECH && eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
+		if (bSAS_SCRAP_OBSOLETE_TECH && eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
 		{
-			// <!-- custom: Legacy fallback for experiments with SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE disabled.
+			// <!-- custom: Legacy fallback for experiments with SAS_SCRAP_OBSOLETE_ON disabled.
 			// Keep cargo-capable obsolete units, but otherwise allow obsolete-unit cleanup directly.
-			// Normal recommended play keeps SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE enabled above. (ChatGPT-5.5) -->
+			// Normal recommended play keeps SAS_SCRAP_OBSOLETE_ON enabled above. (ChatGPT-5.5) -->
 			if (getCargo() > 0 || cargoSpace() > 0)
 			{
 				return false;
@@ -3657,9 +3657,9 @@ bool CvUnit::canScrap() const
 			CvGame const& kGame = GC.getGame();
 			const int iCurrentTurn = kGame.getGameTurn();
 
-			static const int iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL_GAMESPEED = GC.getDefineINT("SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL_GAMESPEED");
+			static const int iSAS_SCRAP_NO_DISBAND_T_NORM_GS = GC.getDefineINT("SAS_SCRAP_NO_DISBAND_T_NORM_GS");
 			// <!-- custom: no static for the below, they may change in another save file or new map or such maybe (check to be sure as this is just a guess from me) -->
-			const int iNoDisbandAtAllTurnsAdjusted = iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL_GAMESPEED * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
+			const int iNoDisbandAtAllTurnsAdjusted = iSAS_SCRAP_NO_DISBAND_T_NORM_GS * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
 			const bool bNoDisbandAtAllPhase = (iCurrentTurn < iNoDisbandAtAllTurnsAdjusted);
 
 			if (bNoDisbandAtAllPhase)
@@ -3726,8 +3726,8 @@ bool CvUnit::scrap()
 bool CvUnit::scrapForced(bool bMandatoryGameRule)
 {
 	if (getPlot().isFighting()) return false;
-	static const bool bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE = GC.getDefineBOOL("SAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE");
-	if (!bMandatoryGameRule && bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE && !isHuman()) return false;
+	static const bool bSAS_SCRAP_ABSOLUTELY_DISABLE = GC.getDefineBOOL("SAS_SCRAP_ABSOLUTELY_DISABLE");
+	if (!bMandatoryGameRule && bSAS_SCRAP_ABSOLUTELY_DISABLE && !isHuman()) return false;
 	scrapInternal();
 	return true;
 }
@@ -7429,8 +7429,8 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	// <!-- custom: tune unit upgrade costs, as i have found them to be too expensive.
 	// This applies to both human and AI players.
 	// Note: as of now in advciv-sas iAIUnitUpgradePercent has been increased from 50 to 100 (so AIs and humans have the same upgrade cost, no longer half cheaper to AIs). -->
-	static const int iSAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT = std::max(0, GC.getDefineINT("SAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT"));
-	iPrice = (iPrice * iSAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT) / 100;
+	static const int iSAS_UPGRADE_PRICE_PCT = std::max(0, GC.getDefineINT("SAS_UPGRADE_PRICE_PCT"));
+	iPrice = (iPrice * iSAS_UPGRADE_PRICE_PCT) / 100;
 
 	iPrice -= (iPrice * getUpgradeDiscount()) / 100;
 
@@ -7495,8 +7495,8 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible, bool bUpgradeCityKno
 		// <!-- custom: note: war gates not implemented as it is not always certain they would be beneficial and may backfire, see for details known issue of as now 88 for details. -->
 		if (!isHuman())
 		{
-			static const int iSAS_CAN_UPGRADE_OPTIMIZE = GC.getDefineINT("SAS_CAN_UPGRADE_OPTIMIZE");
-			if (iSAS_CAN_UPGRADE_OPTIMIZE > 0)
+			static const int iSAS_UPGRADE_ON = GC.getDefineINT("SAS_UPGRADE_ON");
+			if (iSAS_UPGRADE_ON > 0)
 			{
 				CvUnitInfo const& kFromUnit = GC.getInfo(getUnitType());
 				CvUnitInfo const& kToUnit   = GC.getInfo(eUnit);
@@ -7513,13 +7513,13 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible, bool bUpgradeCityKno
 					CvGame const& kGame = GC.getGame();
 					if (kGame.isLandHeavyMapnameCached() && getDomainType() == DOMAIN_SEA)
 					{
-						static const int iSAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT = GC.getDefineINT("SAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT");
-						iDomainPricePercent = std::max(100, iSAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT);
+						static const int iSAS_UPGRADE_LAND_HEAVY_SEA_PRICE_PCT = GC.getDefineINT("SAS_UPGRADE_LAND_HEAVY_SEA_PRICE_PCT");
+						iDomainPricePercent = std::max(100, iSAS_UPGRADE_LAND_HEAVY_SEA_PRICE_PCT);
 					}
 					else if (kGame.isNavalHeavyMapnameCached() && getDomainType() == DOMAIN_LAND)
 					{
-						static const int iSAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT = GC.getDefineINT("SAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT");
-						iDomainPricePercent = std::max(100, iSAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT);
+						static const int iSAS_UPGRADE_NAVAL_HEAVY_LAND_PRICE_PCT = GC.getDefineINT("SAS_UPGRADE_NAVAL_HEAVY_LAND_PRICE_PCT");
+						iDomainPricePercent = std::max(100, iSAS_UPGRADE_NAVAL_HEAVY_LAND_PRICE_PCT);
 					}
 					if (iDomainPricePercent != 100)
 					{
@@ -7540,13 +7540,13 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible, bool bUpgradeCityKno
 
 					// Gate 1: gold per 10% strength gain.
 					{
-						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH");
-						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP");
-						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP");
+						static const int iSAS_UPGRADE_MAX_GOLD_PER_10PCT_STR = GC.getDefineINT("SAS_UPGRADE_MAX_GOLD_PER_10PCT_STR");
+						static const int iSAS_UPGRADE_GOLD_PER_10PCT_STR_PER_XP = GC.getDefineINT("SAS_UPGRADE_GOLD_PER_10PCT_STR_PER_XP");
+						static const int iSAS_UPGRADE_MAX_GOLD_PER_10PCT_STR_CAP = GC.getDefineINT("SAS_UPGRADE_MAX_GOLD_PER_10PCT_STR_CAP");
 
-						int iMaxGoldPer10Pct = iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH + iExp * iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP;
-						if (iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP > 0)
-							iMaxGoldPer10Pct = std::min(iMaxGoldPer10Pct, iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP);
+						int iMaxGoldPer10Pct = iSAS_UPGRADE_MAX_GOLD_PER_10PCT_STR + iExp * iSAS_UPGRADE_GOLD_PER_10PCT_STR_PER_XP;
+						if (iSAS_UPGRADE_MAX_GOLD_PER_10PCT_STR_CAP > 0)
+							iMaxGoldPer10Pct = std::min(iMaxGoldPer10Pct, iSAS_UPGRADE_MAX_GOLD_PER_10PCT_STR_CAP);
 
 						int const iPercentStrengthGain = (iStrengthGain * 100) / iFromStrength;
 						if (iPercentStrengthGain > 0)
@@ -7567,13 +7567,13 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible, bool bUpgradeCityKno
 
 					// Gate 2: gold per +1 flat strength gain.
 					{
-						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH");
-						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP");
-						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP");
+						static const int iSAS_UPGRADE_MAX_GOLD_PER_FLAT_STR = GC.getDefineINT("SAS_UPGRADE_MAX_GOLD_PER_FLAT_STR");
+						static const int iSAS_UPGRADE_GOLD_PER_STR_PER_XP = GC.getDefineINT("SAS_UPGRADE_GOLD_PER_STR_PER_XP");
+						static const int iSAS_UPGRADE_MAX_GOLD_PER_FLAT_STR_CAP = GC.getDefineINT("SAS_UPGRADE_MAX_GOLD_PER_FLAT_STR_CAP");
 
-						int iMaxGoldPerFlatStr = iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH + iExp * iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP;
-						if (iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP > 0)
-							iMaxGoldPerFlatStr = std::min(iMaxGoldPerFlatStr, iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP);
+						int iMaxGoldPerFlatStr = iSAS_UPGRADE_MAX_GOLD_PER_FLAT_STR + iExp * iSAS_UPGRADE_GOLD_PER_STR_PER_XP;
+						if (iSAS_UPGRADE_MAX_GOLD_PER_FLAT_STR_CAP > 0)
+							iMaxGoldPerFlatStr = std::min(iMaxGoldPerFlatStr, iSAS_UPGRADE_MAX_GOLD_PER_FLAT_STR_CAP);
 
 						// allowed gold = (gold per +1 flat strength) * (flat strength gain)
 						int const iAllowedGold = iMaxGoldPerFlatStr * iStrengthGain;

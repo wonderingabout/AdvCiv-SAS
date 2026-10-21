@@ -20,7 +20,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Check the shipped runtime-recording default.")
     parser.add_argument("--repo-root", type=Path, default=get_default_repo_root())
     args = parser.parse_args()
-    failures = require_int_values(read_global_define_ints(args.repo_root), {"SAS_RUNTIME_STATUS_ENABLE": 0})
+    failures = require_int_values(read_global_define_ints(args.repo_root), {"SAS_RUNTIME_STATUS_ON": 0})
     if failures:
         print("FAIL SAS runtime-status default")
         for failure in failures:

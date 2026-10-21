@@ -10,10 +10,17 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## History
 
+### Revision 6 - SAS practical 6675
+
+- **Date:** 2026-10-21
+- **Git commit:** pending
+- **Change:** Rename the enable setting to `SAS_RUNTIME_STATUS_ON` with the GlobalDefine naming review (KI#1001.2). Its default, cached enable check and runtime observations are unchanged.
+
+
 ### Revision 5 - SAS practical 6646
 
 - **Date:** 2026-10-19
-- **Git commit:** pending
+- **Git commit:** `61c86a8949e29f1c6f0cd0379c563c70596d54ca`
 - **Change:** Add stronger event-driven menu and initialization observations where the Python/UI interfaces expose state, while keeping unavailable EXE presentation facts explicitly unresolved.
   - `MAIN_MENU_STATE_OBSERVED` records the first positive `CyInterface().isInMainMenu()` sample in a no-game interval, but only when an explicit menu-capable Python screen entry point already runs. `mainMenuStateObservedUtc` therefore proves menu state at that callback; it is not claimed as the initial rendered-menu arrival time.
   - Civilopedia visibility distinguishes `MAIN_MENU` and `IN_GAME` context in both the current JSON and history. The top-level entry covers standard Civilopedia/Sevopedia; Sevopedia's shared screen-creation hook also covers direct in-game page links.

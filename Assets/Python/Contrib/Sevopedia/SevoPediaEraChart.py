@@ -28,12 +28,12 @@ class SevoPediaEraChart:
 		self.ROW_H = CHART_TABLE_ROW_H
 		self.W_ICON = CHART_TABLE_W_ICON
 		self.W_FIELD = 290
-		self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS") > 0)
-		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT")
+		self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVO_ERA_CHART_HEADER_ICONS") > 0)
+		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVO_ERA_CHART_FILL_PCT")
 		if self.TABLE_FILL_PERCENT <= 0:
-			raise ValueError("[FATAL] SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT must be >= 1.")
+			raise ValueError("[FATAL] SAS_SEVO_ERA_CHART_FILL_PCT must be >= 1.")
 		# <!-- custom: Toggle to show/hide era button row above the table. (Claude Opus 4.5) -->
-		self.SHOW_ERA_BUTTONS = (gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_SHOW_ERA_BUTTONS") > 0)
+		self.SHOW_ERA_BUTTONS = (gc.getDefineINT("SAS_SEVO_ERA_CHART_SHOW_ERA_BUTTONS") > 0)
 
 		# <!-- custom: Cache emoji icon path for performance. (GPT-5.2-Codex (summarized)) -->
 
@@ -64,7 +64,7 @@ class SevoPediaEraChart:
 		tableX = x + self.MARGIN
 		tableW = w - (self.MARGIN * 2)
 		totalW = (tableW * self.TABLE_FILL_PERCENT) / 100
-		if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
+		if self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS:
 			remainingW = max(0, totalW - self.W_ICON - self.W_FIELD)
 			value_cols = nCols - 2
 		else:
@@ -84,7 +84,7 @@ class SevoPediaEraChart:
 			# Position for button row: inside inner panel
 			buttonRowY = y + self.MARGIN + 8
 			# Calculate X offset for first era column
-			if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
+			if self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS:
 				buttonRowStartX = tableX + self.W_ICON + self.W_FIELD
 			else:
 				buttonRowStartX = tableX + self.W_FIELD
@@ -128,9 +128,9 @@ class SevoPediaEraChart:
 		setCell = screen.setTableText
 
 		for iCol in range(nCols):
-			if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS and iCol == 0:
+			if self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS and iCol == 0:
 				colW = self.W_ICON
-			elif (self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS and iCol == 0):
+			elif (self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS and iCol == 0):
 				colW = self.W_FIELD
 			else:
 				colW = wNum
@@ -145,7 +145,7 @@ class SevoPediaEraChart:
 					cell = u""
 
 				# Icon column: cell is (text, buttonPath) tuple
-				if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS and iCol == 0:
+				if self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS and iCol == 0:
 					if isinstance(cell, tuple):
 						text = cell[0]
 						icon_button = cell[1]
@@ -157,7 +157,7 @@ class SevoPediaEraChart:
 					setCell(table, iCol, iRow, text, icon_button, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				# Field column (left)
-				elif (self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS and iCol == 0):
+				elif (self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS and iCol == 0):
 					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				# Value columns (center)
@@ -332,7 +332,7 @@ class SevoPediaEraChart:
 				parsed_data[era_type]["Techs"] = ""
 
 		header = []
-		if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
+		if self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS:
 			header.append(u"")
 			header.append(chart_font2("Field"))
 		else:
@@ -349,7 +349,7 @@ class SevoPediaEraChart:
 				tech_rows = self._expandTechRows(field_name, era_types, parsed_data, techs_per_cell, none_text)
 				for tech_row in tech_rows:
 					display_text = tech_row["Field"]
-					if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
+					if self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS:
 						icon_key = tech_row.get("IconKey", "")
 						row = [icon_cell_for_key(icon_key, row_index), chart_font2(display_text)]
 					else:
@@ -362,7 +362,7 @@ class SevoPediaEraChart:
 
 			szFieldName = display_label_by_key.get(field_name, chart_beautify_field_name(field_name))
 
-			if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
+			if self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS:
 				row = [icon_cell_for_key(field_name, row_index), chart_font2(szFieldName)]
 			else:
 				row = [chart_font2(szFieldName)]

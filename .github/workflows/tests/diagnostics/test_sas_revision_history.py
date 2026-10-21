@@ -26,7 +26,7 @@ def fixture_git(repo):
 def write_revision_define(repo, value):
     path = repo / history.DEFINES
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text('<Civ4Defines><Define><DefineName>SAS_GAME_RECORD_REVISION</DefineName><iDefineIntVal>%d</iDefineIntVal></Define></Civ4Defines>' % value, 'utf-8')
+    path.write_text('<Civ4Defines><Define><DefineName>SAS_SGR_REVISION</DefineName><iDefineIntVal>%d</iDefineIntVal></Define></Civ4Defines>' % value, 'utf-8')
     # <!-- custom: Ordinary progression fixtures include the bump's explanation; missing-entry/blurb tests deliberately replace this small document. (GPT-6.1-Sol) -->
     history_path = repo / history.HISTORY
     history_path.parent.mkdir(parents=True, exist_ok=True)
@@ -40,6 +40,19 @@ def commit_fixture(repo, message):
 
 
 class RevisionHistoryTests(unittest.TestCase):
+    # <!-- custom: Historical commits retain the former name after the live SGR rename; both forms must remain readable without accepting duplicate revision declarations. (GPT-6.1-Sol) -->
+    def test_revision_rename_preserves_historical_sources(self):
+        def xml(*names):
+            return ('<Civ4Defines>' + ''.join(
+                '<Define><DefineName>%s</DefineName><iDefineIntVal>161</iDefineIntVal></Define>' % name
+                for name in names
+            ) + '</Civ4Defines>').encode()
+
+        for name in history.REVISION_NAMES:
+            self.assertEqual(history.revision_define(xml(name)), 161)
+            self.assertEqual(history.sas_game_record_define_values(xml(name)), {})
+        self.assertIsNone(history.revision_define(xml(*history.REVISION_NAMES)))
+
     def test_feature_rewrite_does_not_replace_default_branch_commit(self):
         with tempfile.TemporaryDirectory() as temp:
             repo = Path(temp)
@@ -79,7 +92,7 @@ class RevisionHistoryTests(unittest.TestCase):
             target.write_text('### Revision 153 - fixture\n- **Git commit:** `' + committed + '`\n- **Change:** Fixture change.\n', 'utf-8')
             self.assertEqual(history.check_history(repo, "main"), [])
             target.write_text(target.read_text().replace('Revision 153', 'Revision 154'))
-            self.assertTrue(any('SAS_GAME_RECORD_REVISION=154' in e for e in history.check_history(repo, "main")))
+            self.assertTrue(any('SAS_SGR_REVISION=154' in e for e in history.check_history(repo, "main")))
 
     def test_progression_requires_exactly_one_increment_for_qualifying_commit(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -179,11 +192,11 @@ class RevisionHistoryTests(unittest.TestCase):
             fixture_git(repo)
             defines = repo / history.DEFINES
             defines.parent.mkdir(parents=True, exist_ok=True)
-            defines.write_text('<Civ4Defines><Define><DefineName>SAS_GAME_RECORD_REVISION</DefineName><iDefineIntVal>153</iDefineIntVal></Define><Define><DefineName>SAS_GAME_RECORD_LOG_LEVEL</DefineName><iDefineIntVal>0</iDefineIntVal></Define></Civ4Defines>', 'utf-8')
+            defines.write_text('<Civ4Defines><Define><DefineName>SAS_SGR_REVISION</DefineName><iDefineIntVal>153</iDefineIntVal></Define><Define><DefineName>SAS_SGR_LOG_LEVEL</DefineName><iDefineIntVal>0</iDefineIntVal></Define></Civ4Defines>', 'utf-8')
             commit_fixture(repo, 'base')
             git(repo, 'branch', 'main')
             git(repo, 'switch', '-qc', 'feature')
-            defines.write_text('<Civ4Defines><Define><DefineName>SAS_GAME_RECORD_REVISION</DefineName><iDefineIntVal>154</iDefineIntVal></Define><Define><DefineName>SAS_GAME_RECORD_LOG_LEVEL</DefineName><iDefineIntVal>1</iDefineIntVal></Define></Civ4Defines>', 'utf-8')
+            defines.write_text('<Civ4Defines><Define><DefineName>SAS_SGR_REVISION</DefineName><iDefineIntVal>154</iDefineIntVal></Define><Define><DefineName>SAS_SGR_LOG_LEVEL</DefineName><iDefineIntVal>1</iDefineIntVal></Define></Civ4Defines>', 'utf-8')
             document = repo / history.HISTORY
             document.parent.mkdir(parents=True, exist_ok=True)
             document.write_text('### Revision 154\n- **Change:** Updated recorder configuration.\n', 'utf-8')
@@ -252,7 +265,7 @@ class RevisionHistoryTests(unittest.TestCase):
         for path, content in (
             ('Assets/Python/BUG/BugEventManager.py', 'SASGameRecordSettings.logSessionSettings("GAME_START")'),
             ('.github/workflows/build/diagnostics/sas_revision_history.py', '# revised checker implementation'),
-            ('Assets/SASGameRecordConfig.json', '{"SAS_GAME_RECORD_LOG_LEVEL":1}'),
+            ('Assets/SASGameRecordConfig.json', '{"SAS_SGR_LOG_LEVEL":1}'),
         ):
             with self.subTest(path=path), tempfile.TemporaryDirectory() as temp:
                 repo = Path(temp)

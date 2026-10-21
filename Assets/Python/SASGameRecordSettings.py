@@ -600,8 +600,8 @@ def _findCiv4Ini():
 def _collectConfiguredFiles():
 	groups = {}
 	gc = CyGlobalContext()
-	bPrivateValuesEnabled = gc.getDefineINT("SAS_GAME_RECORD_INI_PRIVATE_VALUES_ENABLE") != 0
-	bNetworkValuesEnabled = gc.getDefineINT("SAS_GAME_RECORD_INI_NETWORK_VALUES_ENABLE") != 0
+	bPrivateValuesEnabled = gc.getDefineINT("SAS_SGR_INI_PRIVATE_VALS_ON") != 0
+	bNetworkValuesEnabled = gc.getDefineINT("SAS_SGR_INI_NETWORK_VALS_ON") != 0
 
 	civ4Path, civ4Source = _findCiv4Ini()
 	civ4Values, civ4Found = _readIniValues(

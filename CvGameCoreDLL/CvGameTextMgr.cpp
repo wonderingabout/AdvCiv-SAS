@@ -3680,8 +3680,8 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
 		} // UNOFFICIAL_PATCH: END
 	}
 	// <!-- custom: Show raw map coordinates as the last ordinary plot hover line so screenshots and BBAI.log entries like 63,46 can be matched directly in-game without debug-only helpers. (GPT-5.5) -->
-	static const bool bSAS_PLOT_HELP_COORDINATES_ENABLE = GC.getDefineBOOL("SAS_PLOT_HELP_COORDINATES_ENABLE");
-	if (bSAS_PLOT_HELP_COORDINATES_ENABLE)
+	static const bool bSAS_PLOT_HELP_COORDINATES_ON = GC.getDefineBOOL("SAS_PLOT_HELP_COORDINATES_ON");
+	if (bSAS_PLOT_HELP_COORDINATES_ON)
 	{
 		szString.append(NEWLINE);
 		szString.append(gDLL->getText("TXT_KEY_SAS_PLOT_HELP_COORDINATES", kPlot.getX(), kPlot.getY()));

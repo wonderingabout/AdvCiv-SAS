@@ -448,10 +448,10 @@ class CvInfoScreen:
 		self.sCityWonders = BugUtil.getPlainText("TXT_KEY_WONDER_CITY")
 
 		# <!-- custom: not strictly for text but use this to compute cheaply our sas defines once -->
-		self.IS_SAS_CV_INFO_SCREEN_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE") > 0)
+		self.IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") > 0)
 		# <!-- custom: cache toggle; when disabled, timeline entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
-		self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE") > 0)
-		self.SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD = gc.getDefineINT("SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD")
+		self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_CACHE_ON") > 0)
+		self.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH = gc.getDefineINT("SAS_INFO_UI_SCORE_MAX_RENDER_THRESH")
 
 	def reset(self):
 
@@ -889,7 +889,7 @@ class CvInfoScreen:
 		iNumMessages = replayInfo.getNumReplayMessages()
 		iGameTurn = CyGame().getGameTurn()
 
-		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
+		if self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON:
 			# Check if cache is still valid
 			# <!-- custom: Include game turn so spoiler-filtered Timeline entries can refresh later even when replay-message count is unchanged; tested from turn 0, where "founded in an unknown city" later updated to a known city name, while same-turn reuse remains intact. (GPT-5.5) -->
 			if not bForceRebuild and self.timelineCacheEntries is not None and self.timelineCacheActivePlayer == self.iActivePlayer and self.timelineCacheBRevealAll == self.bRevealAll and self.timelineCacheNumMessages == iNumMessages and self.timelineCacheGameTurn == iGameTurn:
@@ -900,7 +900,7 @@ class CvInfoScreen:
 		entries = []
 
 		if iNumMessages <= 0:
-			if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
+			if self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON:
 				self.timelineCacheEntries = entries
 				self.timelineCacheActivePlayer = self.iActivePlayer
 				self.timelineCacheBRevealAll = self.bRevealAll
@@ -1035,7 +1035,7 @@ class CvInfoScreen:
 			szFormattedText = localText.changeTextColor(SASTextScale.sasFontTagLabel + szEventDate + u": " + szText + SASTextScale.SAS_FONT_TAG_CLOSE, eColor)
 			entries.append(szFormattedText)
 
-		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
+		if self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON:
 			# Store in instance vars (faster than dict)
 			self.timelineCacheEntries = entries
 			self.timelineCacheActivePlayer = self.iActivePlayer
@@ -1046,10 +1046,10 @@ class CvInfoScreen:
 
 	def drawTimelineTab(self):
 		screen = self.getScreen()
-		aEntries = self.buildTimelineCache(not self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE)
+		aEntries = self.buildTimelineCache(not self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON)
 		timelineTableCacheKey = self.getTimelineTableCacheKey(aEntries)
 
-		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE:
+		if self.IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON:
 			self.szTimelineDbgLogPrettySummaryButton = self.getNextWidgetName()
 			szLabel = SASTextScale.sasFontTagLabel + self.TEXT_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON.upper() + SASTextScale.SAS_FONT_TAG_CLOSE
 			screen.setButtonGFC(self.szTimelineDbgLogPrettySummaryButton, szLabel, "", self.X_TIMELINE_TABLE_LOG_BUTTON, self.Y_TIMELINE_TABLE_LOG_BUTTON, self.W_TIMELINE_TABLE_LOG_BUTTON, self.H_TIMELINE_TABLE_LOG_BUTTON, WidgetTypes.WIDGET_GENERAL, 1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
@@ -1057,12 +1057,12 @@ class CvInfoScreen:
 		# <!-- custom: Timeline entry caching avoids replay parsing, but rebuilding hundreds of rows was still slow.
 		# Preserving the old ListBox helped tab switches, but not Info Screen close/reopen; convert it to a one-column table so we can verify/reuse it with getTableNumRows like Military Advisor's Battles table.
 		# Rebuild when player/reveal/turn/language/layout/history signature changes so spoiler filtering can refresh at turn boundaries. (GPT-5.5) -->
-		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE and self.TIMELINE_TABLE_CACHE_KEY == timelineTableCacheKey and self.canReuseTimelineTableWidget(screen, aEntries):
+		if self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON and self.TIMELINE_TABLE_CACHE_KEY == timelineTableCacheKey and self.canReuseTimelineTableWidget(screen, aEntries):
 			screen.show(self.TIMELINE_TABLE_ID)
 			screen.moveToFront(self.TIMELINE_TABLE_ID)
 			return
 		screen.deleteWidget(self.TIMELINE_TABLE_ID)
-		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
+		if self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON:
 			self.TIMELINE_TABLE_CACHE_KEY = timelineTableCacheKey
 		else:
 			self.TIMELINE_TABLE_CACHE_KEY = None
@@ -1546,7 +1546,7 @@ class CvInfoScreen:
 		placeAdvisorLegendLink(self, "CONCEPT_SAS_SCORE_TAB_COLUMNS", iTableX + iTableW - 6, self.Y_TITLE)
 
 	def dbgLogPrettySummary(self):
-		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
+		if self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON:
 			aEntries = self.timelineCacheEntries
 		else:
 			aEntries = self.buildTimelineCache(True)

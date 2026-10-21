@@ -43,13 +43,13 @@ diplo = CyDiplomacy()
 
 # <!-- custom: Lazy-cache the SASGameRecord level because BUG diplomacy can be imported during Python startup before XML GlobalDefines are safely loaded; an eager module-level getDefineINT can cache an incorrect startup value.
 # Resolve only on first use and then reuse the integer so level 0/1 users avoid repeated Python->DLL define lookups as well as all rejected-offer bridge work. (ChatGPT-5.6-Sol) -->
-_SAS_GAME_RECORD_LOG_LEVEL = None
+_SAS_SGR_LOG_LEVEL = None
 
 def _getSASGameRecordLogLevel():
-	global _SAS_GAME_RECORD_LOG_LEVEL
-	if _SAS_GAME_RECORD_LOG_LEVEL is None:
-		_SAS_GAME_RECORD_LOG_LEVEL = gc.getDefineINT("SAS_GAME_RECORD_LOG_LEVEL")
-	return _SAS_GAME_RECORD_LOG_LEVEL
+	global _SAS_SGR_LOG_LEVEL
+	if _SAS_SGR_LOG_LEVEL is None:
+		_SAS_SGR_LOG_LEVEL = gc.getDefineINT("SAS_SGR_LOG_LEVEL")
+	return _SAS_SGR_LOG_LEVEL
 
 # comment-type -> ( event-type , trade-type )
 g_eventsByCommentType = {}

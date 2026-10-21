@@ -33,7 +33,7 @@ class TurnDefineGameSpeedTests(unittest.TestCase):
         errors, normal, unscaled = self.check_names(
             "SAS_PROD_SETTLER_MAX_T_NORM_GS",
             "SAS_PROD_SETTLER_MAX_TURNS_NORMAL_GAMESPEED",
-            "SAS_PROD_FORT_T_UNSCALED_GS_PER_DIST",
+            "SAS_PROD_DEF_BLDG_T_UNSCALED_GS_PER_DIST",
             "SAS_PROD_FORT_TURNS_UNSCALED_GAMESPEED_PER_DIST",
         )
         self.assertEqual((errors, normal, unscaled), ([], 2, 2))
@@ -62,6 +62,7 @@ class TurnDefineGameSpeedTests(unittest.TestCase):
             "SAS_PROD_PER_T_VALUE",
             "SAS_PROD_PER_TURN_LIMIT",
             "SAS_PROD_PATH_T_VALUE_PENALTY",
+            "SAS_WORKER_CITY_JOB_PATH_TURN_VAL_PENALTY",
             "SAS_PROD_SETTLER_ON",
         ), ([], 0, 0))
 

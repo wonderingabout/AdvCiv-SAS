@@ -156,9 +156,9 @@ class CvMainInterface:
 		self.screen.setPanelSize(szName, lRect.x(), lRect.y(), lRect.width(), lRect.height())
 
 	def _scoreboardFastScrollStep(self):
-		if self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST is None:
-			self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST = gc.getDefineINT("SAS_SCOREBOARD_SCROLL_INCREMENT_FAST")
-		return self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST
+		if self.iSAS_SCOREBOARD_SCROLL_FAST_INCR is None:
+			self.iSAS_SCOREBOARD_SCROLL_FAST_INCR = gc.getDefineINT("SAS_SCOREBOARD_SCROLL_FAST_INCR")
+		return self.iSAS_SCOREBOARD_SCROLL_FAST_INCR
 
 	# <!-- custom: shared scoreboard traversal for normal drawing, scroll slicing, and active-player scroll centering.
 	# Passing scores also preserves the old BUG aligned-scoreboard side effects by filling teams/players and calling playerScoreString; the isShowTeamScore/isShowPlayerScore checks are the advc.085 static helpers that used to be called inline in updateScoreStrings. (ChatGPT-5.5 + GPT-5.5) -->
@@ -620,12 +620,12 @@ class CvMainInterface:
 		self.iBarExtraHeightExtraManualAdjust = None
 		self.iCityScreenBlueRibbonExtraLift = None
 		# <!-- custom: cached resolution-scaled width adjustment for the left-side default help text area; positive widens, negative narrows. (Claude code Opus 4.7) -->
-		self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT = None
+		self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ = None
 		# <!-- custom: cached resolution-scaled offsets for the map-view unit selection bar (PlotListPanel). (Claude code Opus 4.7) -->
-		self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET = None
-		self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET = None
+		self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET = None
+		self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET = None
 		# <!-- custom: cached HARD-px width adjustment for the unit bar's available row width; negative shrinks (fewer buttons per row, avoids overflow into scoreboard / off-screen). (Claude code Opus 4.7) -->
-		self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT = None
+		self.iSAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ = None
 		# <!-- custom: fix production chooser bar auto-scrolling when clicking lower rows; it is distracting and unnecessary since the player can scroll. Credit: ChatGPT 5.2. (GPT-5.2-Codex (summarized)) -->
 		# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
 		# Minimal fix: "pin" the top visible row, and only change it via the tab/scroll buttons
@@ -638,18 +638,18 @@ class CvMainInterface:
 		self.buildFilterBtnNational = "BuildFilter2"
 		self.buildFilterBtnWorld = "BuildFilter3"
 		# <!-- custom: add buttons in the city screen production queue elements. Credit: Claude Opus 4.5. (GPT-5.2-Codex (summarized)) -->
-		self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = None
+		self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS = None
 		# <!-- custom: optional UI convenience: hide the unit plot list bar while a city is selected to avoid overlapping with multi-row build bars. (ChatGPT-5.2 Thinking) -->
-		self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN = None
+		self.IS_SAS_MAIN_UI_CITY_HIDE_PLOT_LIST = None
 		# <!-- custom: city-screen bonus rendering mode: 0 = old text glyphs, 1 = base AdvCiv-style framed image buttons, 2 = frameless DDS icons. (GPT-5.5) -->
-		self.SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE = None
+		self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE = None
 		self.iCityBonusPreferredBtnSize = BTNSZ(40)
 		self.iCityBonusMinBtnSize = BTNSZ(20)
 		self.iCityBonusShrinkStep = BTNSZ(5)
 		# <!-- custom: optional unit info button in the map view unit panel. (GPT-5.2-Codex) -->
-		self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = None
+		self.IS_SAS_MAIN_UI_UNIT_INFO_BUTTON = None
 		# <!-- custom: optional top-left flag and left-side text spacing shift (e.g. treasury) for the main interface. (GPT-5.3-Codex (summarized)) -->
-		self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = None
+		self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT = None
 		# <!-- custom: cached commerce block position and alignment defines for city-screen and map views. (Claude code Sonnet 4.6) -->
 		self.iSAS_COMMERCE_CITY_X_OFFSET = None
 		self.iSAS_COMMERCE_CITY_Y_OFFSET = None
@@ -659,7 +659,7 @@ class CvMainInterface:
 		self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT = None
 		# <!-- custom: the optional second (Min/Max) pair now does a fast +/- step from a SAS define instead of snapping to 0/100; lazily cached. (Claude code Opus 4.7) -->
 		self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT = None
-		self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST = None
+		self.iSAS_SCOREBOARD_SCROLL_FAST_INCR = None
 		self.iDEFAULT_SPECIALIST = None
 		self.iMAX_TRADE_ROUTES = None
 		self.IS_USE_KMOD_TRADE_CULTURE = None
@@ -667,11 +667,11 @@ class CvMainInterface:
 		# <!-- custom: scoreboard scroll offset; 0 = show bottom of list (highest-ranked), increases to show lower-ranked players.
 		# Reset when the scoreboard is rebuilt. (Claude code Sonnet 4.6) -->
 		self.iScoreScrollOffset = 0
-		self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED = None
+		self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ON = None
 		# <!-- custom: always-expand scoreboard toggle; when True, expanded columns shown without hovering.
 		# Initial state is seeded once, and the in-game lock button still toggles it normally. (Claude code Sonnet 4.6 + ChatGPT-5.5) -->
 		self.bScoreAlwaysExpand = None
-		self.iSAS_SCOREBOARD_SCROLL_AUTOCENTER_ACTIVE_PLAYER_DEFAULT_ENABLED = None
+		self.iSAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON = None
 		# <!-- custom: scoreboard scroll autocenter toggle; when True, redraws keep the scroll slice centered on the active player.
 		# Manual scroll buttons turn it off so deliberate strongest/weakest watching is preserved. (ChatGPT-5.5) -->
 		self.bScoreScrollAutocenterActivePlayer = None
@@ -895,9 +895,9 @@ class CvMainInterface:
 		lBUGOptBtn.move(gRect("TurnLogButton").size() + HSPACE(4), 0)
 		gSetRectangle("BUGOptionsScreenWidget", lBUGOptBtn)
 		iLeftTopTextX = (gRect("TurnLogButton").x() * 2) / 3
-		bTopLeftFlagAndLeftSideTextShift = self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT
+		bTopLeftFlagAndLeftSideTextShift = self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT
 		if bTopLeftFlagAndLeftSideTextShift is None:
-			bTopLeftFlagAndLeftSideTextShift = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT") > 0)
+			bTopLeftFlagAndLeftSideTextShift = (gc.getDefineINT("SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT") > 0)
 		if bTopLeftFlagAndLeftSideTextShift:
 			# <!-- custom: when this define is off, no flag is drawn here, so the left text (e.g. treasury) keeps its base position (no extra room needed). (GPT-5.3-Codex) -->
 			iLeftTopTextX += HSPACE(18)
@@ -1054,18 +1054,18 @@ class CvMainInterface:
 		iPlotListUnitBtnSz = self.plotListUnitButtonSize()
 		# <!-- custom: lazy-cache HARD-px unit-bar width adjustment; no resolution scaling because scoreboard width is font-driven, not resolution-scaled.
 		# Negative shrinks row (fewer buttons per row), helping avoid scoreboard / off-screen overflow on multi-row stacks. See KI#124. (Claude code Opus 4.7) -->
-		if self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT is None:
-			self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT")
-		self.m_iNumPlotListButtonsPerRow = ((gRect("BottomButtonMaxSpace").width() + self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT - 2 * iPlotListUnitBtnSz) / iPlotListUnitBtnSz)
+		if self.iSAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ is None:
+			self.iSAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ = gc.getDefineINT("SAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ")
+		self.m_iNumPlotListButtonsPerRow = ((gRect("BottomButtonMaxSpace").width() + self.iSAS_MAIN_UI_PLOT_LIST_WIDTH_ADJ - 2 * iPlotListUnitBtnSz) / iPlotListUnitBtnSz)
 		# <!-- custom: cache resolution-scaled width adjustment for the left-side help text area; HLEN asserts on negatives, so dispatch via sign. (Claude code Opus 4.7) -->
-		if self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT is None:
-			iHelpAreaWidthAdjustRaw = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT")
+		if self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ is None:
+			iHelpAreaWidthAdjustRaw = gc.getDefineINT("SAS_MAIN_UI_HELP_AREA_WIDTH_ADJ")
 			if iHelpAreaWidthAdjustRaw > 0:
-				self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT = HLEN(iHelpAreaWidthAdjustRaw)
+				self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ = HLEN(iHelpAreaWidthAdjustRaw)
 			elif iHelpAreaWidthAdjustRaw < 0:
-				self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT = -HLEN(-iHelpAreaWidthAdjustRaw)
+				self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ = -HLEN(-iHelpAreaWidthAdjustRaw)
 			else:
-				self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT = 0
+				self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ = 0
 		# (Also used for the PLE Info Pane)
 		# (The center bottom panel doesn't fully scale up, so we shouldn't use that as our point of reference.)
 		#-(VSPACE(5) + gRect("CenterBottomPanel").height() + self.plotListUnitButtonSize())
@@ -1073,7 +1073,7 @@ class CvMainInterface:
 		# The subtrahend should account for decorations on the corner panel; for visual alignment.
 		#gRect("LowerLeftCornerPanel").width() - 21,
 		# The help text really doesn't use that much width; it's been kept short with the original width in mind. So ...
-		gSetRect("DefaultHelpArea", "Top", HSPACE(7), gRect("LowerLeftCornerBackgr").y(), max(280, gRect("LowerLeftCornerPanel").width() - HLEN(0.12 * gRect("LowerLeftCornerPanel").width())) + self.iSAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT, 0)
+		gSetRect("DefaultHelpArea", "Top", HSPACE(7), gRect("LowerLeftCornerBackgr").y(), max(280, gRect("LowerLeftCornerPanel").width() - HLEN(0.12 * gRect("LowerLeftCornerPanel").width())) + self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ, 0)
 		# As in BtS; pretty arbitrary and overlaps the unit pane.
 		gSetRect("DefaultHelpAreaMin", "Top", HSPACE(7), -VSPACE(50), gRect("DefaultHelpArea").width(), 0)
 		# advc.092: Moved down so that PLE can access the above
@@ -1230,17 +1230,17 @@ class CvMainInterface:
 		iColumnW = iBtnSize + iHSpacing
 		if CyInterface().isCityScreenUp():
 			if self.iSAS_COMMERCE_CITY_X_OFFSET is None:
-				self.iSAS_COMMERCE_CITY_X_OFFSET = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_X_OFFSET")
-				self.iSAS_COMMERCE_CITY_Y_OFFSET = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_Y_OFFSET")
-				self.IS_SAS_COMMERCE_CITY_ANCHOR_RIGHT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_CITY_SCREEN_ANCHOR_RIGHT") > 0)
+				self.iSAS_COMMERCE_CITY_X_OFFSET = gc.getDefineINT("SAS_MAIN_UI_CITY_COMMERCE_RIGHT_X_OFFSET")
+				self.iSAS_COMMERCE_CITY_Y_OFFSET = gc.getDefineINT("SAS_MAIN_UI_CITY_COMMERCE_RIGHT_Y_OFFSET")
+				self.IS_SAS_COMMERCE_CITY_ANCHOR_RIGHT = (gc.getDefineINT("SAS_MAIN_UI_CITY_COMMERCE_ANCHOR_RIGHT") > 0)
 			iRightCommerceBlockXOffset = self.iSAS_COMMERCE_CITY_X_OFFSET
 			iRightCommerceBlockYOffset = self.iSAS_COMMERCE_CITY_Y_OFFSET
 			bCommerceBlockAnchorRight = self.IS_SAS_COMMERCE_CITY_ANCHOR_RIGHT
 		else:
 			if self.iSAS_COMMERCE_MAP_X_OFFSET is None:
-				self.iSAS_COMMERCE_MAP_X_OFFSET = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET")
-				self.iSAS_COMMERCE_MAP_Y_OFFSET = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_Y_OFFSET")
-				self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_MAP_ANCHOR_RIGHT") > 0)
+				self.iSAS_COMMERCE_MAP_X_OFFSET = gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET")
+				self.iSAS_COMMERCE_MAP_Y_OFFSET = gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_RIGHT_Y_OFFSET")
+				self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT = (gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT") > 0)
 			iRightCommerceBlockXOffset = self.iSAS_COMMERCE_MAP_X_OFFSET
 			iRightCommerceBlockYOffset = self.iSAS_COMMERCE_MAP_Y_OFFSET
 			bCommerceBlockAnchorRight = self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT
@@ -1439,7 +1439,7 @@ class CvMainInterface:
 		# Doesn't quite look properly centered
 		gRect("SelectedUnitPanel").move(-2, 2)
 		iUnitInfoBtnSize = BTNSZ(24)
-		if self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON is None or self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON:
+		if self.IS_SAS_MAIN_UI_UNIT_INFO_BUTTON is None or self.IS_SAS_MAIN_UI_UNIT_INFO_BUTTON:
 			gSetSquare("SelectedUnitInfoButton", "SelectedUnitPanel", HSPACE(2), VSPACE(2), iUnitInfoBtnSize)
 		else:
 			iUnitInfoBtnSize = 0
@@ -1617,24 +1617,24 @@ class CvMainInterface:
 		# <!-- custom: compute cheaply once so it is cheaper.
 		# Note: done here rather than in init since it somehow doesn't work unlike in some other files -->
 		if self.iBarExtraRows is None:
-			self.iBarExtraRows = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS")
-			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST")
+			self.iBarExtraRows = gc.getDefineINT("SAS_MAIN_UI_CITY_BAR_EXTRA_ROWS")
+			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_MAIN_UI_CITY_BAR_EXTRA_ROWS_ADJ")
 		if self.iBarExtraHeightExtraManualAdjust is None:
-			self.iBarExtraHeightExtraManualAdjust = VSPACE(gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_HEIGHT_EXTRA_MANUAL_ADJUST"))
+			self.iBarExtraHeightExtraManualAdjust = VSPACE(gc.getDefineINT("SAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ"))
 		if self.iCityScreenBlueRibbonExtraLift is None:
-			self.iCityScreenBlueRibbonExtraLift = VSPACE(gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BLUE_RIBBON_EXTRA_LIFT"))
-		if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS is None:
-			self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS") > 0)
-		if self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN is None:
-			self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN") > 0)
-		if self.SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE is None:
-			self.SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE")
-			if self.SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE < 0 or self.SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE > 2:
-				raise RuntimeError("SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE must be 0, 1, or 2")
-		if self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON is None:
-			self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON") > 0)
-		if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT is None:
-			self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT") > 0)
+			self.iCityScreenBlueRibbonExtraLift = VSPACE(gc.getDefineINT("SAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT"))
+		if self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS is None:
+			self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS = (gc.getDefineINT("SAS_MAIN_UI_PROD_QUEUE_BUTTONS") > 0)
+		if self.IS_SAS_MAIN_UI_CITY_HIDE_PLOT_LIST is None:
+			self.IS_SAS_MAIN_UI_CITY_HIDE_PLOT_LIST = (gc.getDefineINT("SAS_MAIN_UI_CITY_HIDE_PLOT_LIST") > 0)
+		if self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE is None:
+			self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE = gc.getDefineINT("SAS_MAIN_UI_CITY_BONUS_ICON_MODE")
+			if self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE < 0 or self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE > 2:
+				raise RuntimeError("SAS_MAIN_UI_CITY_BONUS_ICON_MODE must be 0, 1, or 2")
+		if self.IS_SAS_MAIN_UI_UNIT_INFO_BUTTON is None:
+			self.IS_SAS_MAIN_UI_UNIT_INFO_BUTTON = (gc.getDefineINT("SAS_MAIN_UI_UNIT_INFO_BUTTON") > 0)
+		if self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT is None:
+			self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT = (gc.getDefineINT("SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT") > 0)
 		lTop = gRect("Top")
 
 		self.setDefaultHelpTextArea()
@@ -2167,29 +2167,29 @@ class CvMainInterface:
 		iRows = self.numPlotListRows()
 		iCols = self.numPlotListButtonsPerRow()
 		# <!-- custom: lazy-cache resolution-scaled unit-bar offsets; HLEN/VLEN assert on negatives, so dispatch via sign. (Claude code Opus 4.7) -->
-		if self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET is None:
-			iRawPLPX = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET")
+		if self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET is None:
+			iRawPLPX = gc.getDefineINT("SAS_MAIN_UI_PLOT_LIST_X_OFFSET")
 			if iRawPLPX > 0:
-				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET = HLEN(iRawPLPX)
+				self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET = HLEN(iRawPLPX)
 			elif iRawPLPX < 0:
-				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET = -HLEN(-iRawPLPX)
+				self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET = -HLEN(-iRawPLPX)
 			else:
-				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET = 0
-		if self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET is None:
-			iRawPLPY = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET")
+				self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET = 0
+		if self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET is None:
+			iRawPLPY = gc.getDefineINT("SAS_MAIN_UI_PLOT_LIST_Y_OFFSET")
 			if iRawPLPY > 0:
-				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET = VLEN(iRawPLPY)
+				self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET = VLEN(iRawPLPY)
 			elif iRawPLPY < 0:
-				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET = -VLEN(-iRawPLPY)
+				self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET = -VLEN(-iRawPLPY)
 			else:
-				self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET = 0
+				self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET = 0
 		for j in range(iRows):
 			szPanelName = "PlotListPanel" + str(j)
 			# <!-- custom: move unit bar ("PlotListPanel") more to the left so it is as of now aligned with where production chooser buttons start.
 			# Done with the help of GPT-5.2-Codex thanks a lot, was 6 -->
 			plotListPanelWGap = 0
 			# (Don't want these margins to scale fully)
-			gSetRect(szPanelName, "Top", gRect("LowerLeftCornerPanel").xRight() + HSPACE(2) + plotListPanelWGap + self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET, gRect("CenterBottomPanel").y() - VSPACE(2) - 4 + (j - iRows) * iBtnSize + self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET, iCols * iBtnSize + HSPACE(3), iBtnSize + VSPACE(1))
+			gSetRect(szPanelName, "Top", gRect("LowerLeftCornerPanel").xRight() + HSPACE(2) + plotListPanelWGap + self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET, gRect("CenterBottomPanel").y() - VSPACE(2) - 4 + (j - iRows) * iBtnSize + self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET, iCols * iBtnSize + HSPACE(3), iBtnSize + VSPACE(1))
 			self.addPanel(szPanelName, PanelStyles.PANEL_STYLE_EMPTY)
 			for i in range(iCols):
 				k = j * iCols + i
@@ -2428,7 +2428,7 @@ class CvMainInterface:
 			CyInterface().setDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT, False)
 		if (CyInterface().isDirty(InterfaceDirtyBits.Flag_DIRTY_BIT)):
 			# <!-- custom: changed from unconditional refresh to define-gated refresh so this optional UI feature stays no-op when disabled. (GPT-5.3-Codex) -->
-			if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT:
+			if self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT:
 				self.updateFlag()
 			CyInterface().setDirty(InterfaceDirtyBits.Flag_DIRTY_BIT, False)
 		if (CyInterface().isDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT)):
@@ -2674,7 +2674,7 @@ class CvMainInterface:
 		# Because this mod moves it to a small top-left slot, it no longer interferes with city-action buttons; therefore keeping it visible in city screen is useful (traits hover + capital jump) rather than intrusive.
 		# This remains an optional behavior. (GPT-5.3-Codex) -->
 		if (eUIVis == InterfaceVisibility.INTERFACE_SHOW):
-			if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT:
+			if self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT:
 				self.updateFlag()
 			if bCityScreen:
 				screen.hide("InterfaceHelpButton")
@@ -2936,7 +2936,7 @@ class CvMainInterface:
 
 		# <!-- custom: optionally hide the unit plot list bar only while a city is selected (ChatGPT-5.2 Thinking) -->
 		# This avoids overlap when the city build bar is configured to show extra rows.
-		if (self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN and kInterface.isCitySelection()):
+		if (self.IS_SAS_MAIN_UI_CITY_HIDE_PLOT_LIST and kInterface.isCitySelection()):
 			# Make sure any navigation arrows are hidden too (they are shown only in the draw methods).
 			screen.hide("PlotListMinus")
 			screen.hide("PlotListPlus")
@@ -4225,7 +4225,7 @@ class CvMainInterface:
 			researchCost = kTeam.getResearchCost(iTech)
 			bTickMarks = MainOpt.isShowBarTickMarks() # advc.078
 			researchRate = pPlayer.calculateResearchRate(-1)
-			if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
+			if self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS:
 				szTechName = gc.getTechInfo(iTech).getDescription()
 				iTurns = pPlayer.getResearchTurnsLeft(iTech, True)
 				szTechBtn = gc.getTechInfo(iTech).getButton()
@@ -4236,7 +4236,7 @@ class CvMainInterface:
 				szText = CyGameTextMgr().getResearchStr(ePlayer)
 		if szText:
 			szText = SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
-			if (self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS and not bAnarchy and iTech != -1 and szTechBtn):
+			if (self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS and not bAnarchy and iTech != -1 and szTechBtn):
 				# <!-- custom: setImageButton pins its top-left to the given Y, unlike <img> tags which the engine centers automatically.
 				# Offset so the icon's center matches the bar's center rather than sitting pinned near the bar's top edge. (Claude code Sonnet 4.6) -->
 				iResearchIconYDownlift = VSPACE(1)
@@ -4248,7 +4248,7 @@ class CvMainInterface:
 			# advc.004x: Always show ResearchText (i.e. anarchy turns)
 			#if not bAnarchy:
 			screen.show("ResearchText")
-			if (self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS and not bAnarchy and iTech != -1 and szTechBtn):
+			if (self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS and not bAnarchy and iTech != -1 and szTechBtn):
 				screen.show("ResearchIconText")
 			else:
 				screen.hide("ResearchIconText")
@@ -4827,7 +4827,7 @@ class CvMainInterface:
 					if iProdNeed > 0:
 						szBuffer = "%s - %d / %d" % (szBuffer, iProdCur, iProdNeed)
 			# <!-- custom: show current production icon in the production text (SAS define gated). (GPT-5.2-Codex) -->
-			if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
+			if self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS:
 				szProdBtn = ""
 				iOrderType = CyInterface().getOrderNodeType(0)
 				iOrderData = CyInterface().getOrderNodeData1(0)
@@ -4839,7 +4839,7 @@ class CvMainInterface:
 					szProdBtn = gc.getProjectInfo(iOrderData).getButton()
 				elif iOrderType == OrderTypes.ORDER_MAINTAIN:
 					szProdBtn = gc.getProcessInfo(iOrderData).getButton()
-			if (self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS and szProdBtn):
+			if (self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS and szProdBtn):
 				iImgSize = BTNSZ(25)
 				iProductionTextOffset = self.stackBarDefaultTextOffset()
 				iProductionIconYDownlift = VSPACE(1)
@@ -5228,7 +5228,7 @@ class CvMainInterface:
 				aCityBonusColumnCounts[1] += 1
 			else:
 				aCityBonusColumnCounts[0] += 1
-		bUseCityBonusButtons = (self.bCityBonusButtons and self.SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE > 0)
+		bUseCityBonusButtons = (self.bCityBonusButtons and self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE > 0)
 		iMaxCityBonusRows = 0
 		for iCount in aCityBonusColumnCounts:
 			if iCount > iMaxCityBonusRows:
@@ -5244,7 +5244,7 @@ class CvMainInterface:
 			self.useCityBonusButtonSize(iCityBonusBtnSize)
 		# <advc.092>
 		# <!-- custom: The old button fallback used total XML bonus count, which made AdvCiv-SAS fall back to small font icons even when the selected city's actual bonus rows fit. Check the selected city's per-column row counts instead; use the preferred 40px-ish buttons when they fit, shrink in explicit 5px-ish DDS steps only for real selected-city overflow, and keep text glyphs as legacy/debug mode or last-resort overflow fallback. Mode 0 forces at least label-size text so bonus glyphs are not tinier than nearby UI, but does not hardcode font=4 because that also enlarges amount/effect text; testing showed even font=4 text glyphs remain much smaller than image-button rendering, so larger bonus icons need mode 1 or 2. (GPT-5.5) -->
-		if (bUseCityBonusButtons or gRect("Top").height() > 900 + max(0, gc.getNumBonusInfos() - 35) * 12) or self.SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE == 0:
+		if (bUseCityBonusButtons or gRect("Top").height() > 900 + max(0, gc.getNumBonusInfos() - 35) * 12) or self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE == 0:
 			szFontStart = SASTextScale.sasFontTagLabel
 		else:
 			szFontStart = SASTextScale.sasFontTagTiny # (2 doesn't really increase the size of icons)
@@ -5818,7 +5818,7 @@ class CvMainInterface:
 		# <!-- custom: Use plain bonus widget data here, not obsolete-bonus widget data.
 		# We considered obsolete bonuses because of the previous Tech Chooser obsolete-widget issue, but testing Germany with Environmentalism and an obsolete Elephant resource in Munich showed Elephants do not appear in this panel.
 		# The code path matches that result because the city list is filtered by pHeadSelectedCity.hasBonus, and connected map bonuses are added through CvPlot::updatePlotGroupBonus using getNonObsoleteBonusType; therefore this row does not need obsolete-bonus support. (GPT-5.5) -->
-		if self.SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE == 2:
+		if self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE == 2:
 			self.addDDS(szButtonName, gc.getBonusInfo(iBonus), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS_TRADE, iBonus, -1)
 		else:
 			self.setImageButton(szButtonName, gc.getBonusInfo(iBonus).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS_TRADE, iBonus, -1)
@@ -5839,7 +5839,7 @@ class CvMainInterface:
 		screen.hide("SelectedUnitPanel")
 
 		self.setImageButton("SelectedUnitInfoButton", "INTERFACE_GENERAL_CIVILOPEDIA_ICON", WidgetTypes.WIDGET_HELP_SELECTED, -1, -1)
-		if self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON:
+		if self.IS_SAS_MAIN_UI_UNIT_INFO_BUTTON:
 			screen.hide("SelectedUnitInfoButton")
 		else:
 			screen.hide("SelectedUnitInfoButton")
@@ -5885,7 +5885,7 @@ class CvMainInterface:
 				iOrderNodeData = kInterface.getOrderNodeData1(i)
 				if (eOrderNodeType == OrderTypes.ORDER_TRAIN):
 					szLeftBuffer = gc.getUnitInfo(iOrderNodeData).getDescription()
-					if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
+					if self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS:
 						szButton = gc.getUnitInfo(iOrderNodeData).getButton()
 					iProductionTurns = pHeadSelectedCity.getUnitProductionTurnsLeft(iOrderNodeData, i)
 					if iProductionTurns > 0: # advc.004x
@@ -5912,7 +5912,7 @@ class CvMainInterface:
 # BUG - Production Decay - end
 				elif (eOrderNodeType == OrderTypes.ORDER_CONSTRUCT):
 					szLeftBuffer = gc.getBuildingInfo(iOrderNodeData).getDescription()
-					if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
+					if self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS:
 						szButton = gc.getBuildingInfo(iOrderNodeData).getButton()
 					iProductionTurns = pHeadSelectedCity.getBuildingProductionTurnsLeft(iOrderNodeData, i)
 					if iProductionTurns > 0: # advc.004x
@@ -5937,7 +5937,7 @@ class CvMainInterface:
 # BUG - Production Decay - end
 				elif (eOrderNodeType == OrderTypes.ORDER_CREATE):
 					szLeftBuffer = gc.getProjectInfo(iOrderNodeData).getDescription()
-					if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
+					if self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS:
 						szButton = gc.getProjectInfo(iOrderNodeData).getButton()
 					iProductionTurns = pHeadSelectedCity.getProjectProductionTurnsLeft(iOrderNodeData, i)
 					if iProductionTurns > 0: # advc.004x
@@ -5950,7 +5950,7 @@ class CvMainInterface:
 # BUG - Production Started - end
 				elif (eOrderNodeType == OrderTypes.ORDER_MAINTAIN):
 					szLeftBuffer = gc.getProcessInfo(iOrderNodeData).getDescription()
-					if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
+					if self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS:
 						szButton = gc.getProcessInfo(iOrderNodeData).getButton()
 				# <!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 -->
 				iRow = self._appendSelectedInfoPaneTextRow(screen, "SelectedCityText", iRow, szLeftBuffer, szRightBuffer, szButton, i)
@@ -5960,7 +5960,7 @@ class CvMainInterface:
 		if (not pHeadSelectedUnit or kInterface.getShowInterface() != InterfaceVisibility.INTERFACE_SHOW):
 			screen.hide("SelectedUnitInfoButton")
 			return # </advc>
-		if self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON:
+		if self.IS_SAS_MAIN_UI_UNIT_INFO_BUTTON:
 			self.setImageButton("SelectedUnitInfoButton", pHeadSelectedUnit.getButton(), WidgetTypes.WIDGET_HELP_SELECTED, -1, -1)
 			screen.show("SelectedUnitInfoButton")
 		else:
@@ -6048,7 +6048,7 @@ class CvMainInterface:
 							szLeftBuffer = gc.getUnitInfo(i).getDescription()
 							# <!-- custom: add buttons to unit selection panel in the main map view (Claude code Sonnet 4.5) -->
 							szButton = ""
-							if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS:
+							if self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS:
 								szButton = gc.getUnitInfo(i).getButton()
 							if (iCount > 1):
 								szRightBuffer = u"(" + str(iCount) + u")"
@@ -6247,7 +6247,7 @@ class CvMainInterface:
 		# <!-- custom: position scroll buttons at runtime below the panel.
 		# GlobeToggle.y() is 0 at init so buttons must be placed here instead. (Claude code Sonnet 4.6) -->
 		# <!-- custom: row layout right->left is [BgStyle][Lock][AutoCenter] | gap | [-fast][-][Center][+][+fast].
-		# Normal scroll moves one row; fast scroll uses SAS_SCOREBOARD_SCROLL_INCREMENT_FAST; manual scroll disables autocenter so deliberate strongest/weakest watching is preserved. (Claude code Opus 4.7 + ChatGPT-5.5 + GPT-5.5) -->
+		# Normal scroll moves one row; fast scroll uses SAS_SCOREBOARD_SCROLL_FAST_INCR; manual scroll disables autocenter so deliberate strongest/weakest watching is preserved. (Claude code Opus 4.7 + ChatGPT-5.5 + GPT-5.5) -->
 		iSRight = gPoint("ScoreTextLowerRight").x()
 		iSGap = HSPACE(6)  # gap separating the fixed buttons from the scroll/center cluster
 		screen.moveItem("ScoreBgStyle", iSRight - 1 * iSScrollBtnSz, iSScrollY, -0.3)
@@ -6260,9 +6260,9 @@ class CvMainInterface:
 		screen.moveItem("ScoreScrollUpFast", iSRight - 8 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
 		# <!-- custom: seed the lock-hover default once, close to the first real scoreboard use; handleInput only toggles after this button exists. (ChatGPT-5.5) -->
 		if self.bScoreAlwaysExpand is None:
-			if self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED is None:
-				self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED = gc.getDefineINT("SAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED")
-			self.bScoreAlwaysExpand = (self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED > 0)
+			if self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ON is None:
+				self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ON = gc.getDefineINT("SAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ON")
+			self.bScoreAlwaysExpand = (self.iSAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ON > 0)
 		screen.setState("ScoreExpandToggle", self.bScoreAlwaysExpand)
 		# <!-- custom: swap emoji per state. (Claude code Opus 4.7) -->
 		if self.bScoreAlwaysExpand:
@@ -6273,9 +6273,9 @@ class CvMainInterface:
 		# <!-- custom: seed the scoreboard scroll autocenter default once.
 		# The in-game toggle controls runtime behavior afterward; manual scroll buttons turn it off. (ChatGPT-5.5) -->
 		if self.bScoreScrollAutocenterActivePlayer is None:
-			if self.iSAS_SCOREBOARD_SCROLL_AUTOCENTER_ACTIVE_PLAYER_DEFAULT_ENABLED is None:
-				self.iSAS_SCOREBOARD_SCROLL_AUTOCENTER_ACTIVE_PLAYER_DEFAULT_ENABLED = gc.getDefineINT("SAS_SCOREBOARD_SCROLL_AUTOCENTER_ACTIVE_PLAYER_DEFAULT_ENABLED")
-			self.bScoreScrollAutocenterActivePlayer = (self.iSAS_SCOREBOARD_SCROLL_AUTOCENTER_ACTIVE_PLAYER_DEFAULT_ENABLED > 0)
+			if self.iSAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON is None:
+				self.iSAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON = gc.getDefineINT("SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON")
+			self.bScoreScrollAutocenterActivePlayer = (self.iSAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON > 0)
 		screen.setState("ScoreScrollAutocenterActivePlayerToggle", self.bScoreScrollAutocenterActivePlayer)
 		if self.bScoreScrollAutocenterActivePlayer:
 			screen.changeImageButton("ScoreScrollAutocenterActivePlayerToggle", SASVisuals.InterfaceArt.SAS_EMOJI_COMPASS_3)

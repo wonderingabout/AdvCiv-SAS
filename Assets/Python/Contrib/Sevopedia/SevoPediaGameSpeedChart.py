@@ -27,24 +27,24 @@ class SevoPediaGameSpeedChart:
 		self.W_ICON = CHART_TABLE_W_ICON
 		iLabelFont = SASTextScale.getSASUIFontLabel()
 		if iLabelFont <= 1:
-			self.W_FIELD = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_1")
+			self.W_FIELD = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_1")
 		elif iLabelFont == 2:
-			self.W_FIELD = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_2")
+			self.W_FIELD = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_2")
 		elif iLabelFont == 3:
-			self.W_FIELD = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_3")
+			self.W_FIELD = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_3")
 		else:
-			self.W_FIELD = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_4")
+			self.W_FIELD = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_4")
 		if self.W_FIELD <= 0:
-			raise ValueError("[FATAL] SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_* must be >= 1.")
-		iNoReduceMinWidth = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_NO_REDUCE_MIN_WIDTH")
+			raise ValueError("[FATAL] SAS_SEVO_SPEED_FIELD_COL_WIDTH_FONT_* must be >= 1.")
+		iNoReduceMinWidth = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_FULL_MIN_WIDTH")
 		if (iNoReduceMinWidth > 0) and (self.top.getScreen().getXResolution() >= iNoReduceMinWidth):
-			self.W_FIELD = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_NO_REDUCE")
+			self.W_FIELD = gc.getDefineINT("SAS_SEVO_SPEED_FIELD_FULL_COL_WIDTH")
 			if self.W_FIELD <= 0:
-				raise ValueError("[FATAL] SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_NO_REDUCE must be >= 1.")
-		self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS") > 0)
-		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_TABLE_FILL_PERCENT")
+				raise ValueError("[FATAL] SAS_SEVO_SPEED_FIELD_FULL_COL_WIDTH must be >= 1.")
+		self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVO_SPEED_CHART_HEADER_ICONS") > 0)
+		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVO_SPEED_CHART_FILL_PCT")
 		if self.TABLE_FILL_PERCENT <= 0:
-			raise ValueError("[FATAL] SAS_SEVOPEDIA_GAME_SPEED_CHART_TABLE_FILL_PERCENT must be >= 1.")
+			raise ValueError("[FATAL] SAS_SEVO_SPEED_CHART_FILL_PCT must be >= 1.")
 
 	def interfaceScreen(self):
 		screen = self.top.getScreen()
@@ -77,7 +77,7 @@ class SevoPediaGameSpeedChart:
 			return
 
 		totalW = (tableW * self.TABLE_FILL_PERCENT) / 100
-		if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
+		if self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS:
 			remainingW = max(0, totalW - self.W_ICON - self.W_FIELD)
 			value_cols = nCols - 2
 		else:
@@ -97,9 +97,9 @@ class SevoPediaGameSpeedChart:
 		setCell = screen.setTableText
 
 		for iCol in range(nCols):
-			if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS and iCol == 0:
+			if self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS and iCol == 0:
 				colW = self.W_ICON
-			elif (self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS and iCol == 0):
+			elif (self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS and iCol == 0):
 				colW = self.W_FIELD
 			else:
 				colW = wNum
@@ -114,7 +114,7 @@ class SevoPediaGameSpeedChart:
 					cell = u""
 
 				# Icon column: cell is (text, buttonPath) tuple
-				if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS and iCol == 0:
+				if self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS and iCol == 0:
 					if isinstance(cell, tuple):
 						text = cell[0]
 						icon_button = cell[1]
@@ -126,7 +126,7 @@ class SevoPediaGameSpeedChart:
 					setCell(table, iCol, iRow, text, icon_button, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				# Field column (left)
-				elif (self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS and iCol == 0):
+				elif (self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS and iCol == 0):
 					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				# Value columns (center)
@@ -444,7 +444,7 @@ class SevoPediaGameSpeedChart:
 		# Build table
 		table = []
 		header = [""]
-		if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
+		if self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS:
 			header.append("")
 		for sz in speed_labels:
 			header.append(chart_font2(sz))
@@ -456,7 +456,7 @@ class SevoPediaGameSpeedChart:
 			if derived_field_keys.get(field):
 				szFieldName += u"*"
 
-			if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
+			if self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS:
 				row = [icon_cell_for_key(field, row_index), chart_font2(szFieldName)]
 			else:
 				row = [chart_font2(szFieldName)]
@@ -472,7 +472,7 @@ class SevoPediaGameSpeedChart:
 			info = gc.getCultureLevelInfo(iLevel)
 			szName = localText.getText(str(info.getTextKey()), ())
 
-			if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
+			if self.IS_SAS_SEVO_SPEED_CHART_HEADER_ICONS:
 				row = [icon_cell_for_key("iCulturePercent", row_index), chart_font2(szName)]
 			else:
 				row = [chart_font2(szName)]

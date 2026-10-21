@@ -2,7 +2,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md).
 #
 # <!-- custom: Purpose: Scales CITYBILLBOARD_SCALE values in CIV4DetailManager.xml based on the active SAS_UI_FONT_BODY level.
-# The multiplier percent for each font level (1..4) is read from SAS_BILLBOARD_SCALE_PERCENT_FONT_<N> defines.
+# The multiplier percent for each font level (1..4) is read from SAS_BILLBOARD_SCALE_PCT_FONT_<N> defines.
 # The XML file is rewritten on game load so the engine picks up the new values on the fly (the engine re-reads DetailManager without restart). (Claude code Opus 4.6) -->
 
 import os
@@ -24,10 +24,10 @@ _BASE_BILLBOARD_KEYS = [(500, 1.72), (2500, 1.18), (3800, 1.06), (6000, 0.81), (
 _DETAIL_MANAGER_REL_PATH = os.path.join("Assets", "XML", "Misc", "CIV4DetailManager.xml")
 
 def _getMultiplierPercent(iFontBody):
-	# read SAS_BILLBOARD_SCALE_PERCENT_FONT_<N> for the given font level.
+	# <!-- custom: Read SAS_BILLBOARD_SCALE_PCT_FONT_<N> for the given font level. (GPT-6.1-Sol) -->
 	if iFontBody < 1 or iFontBody > 4:
 		return 100
-	szDefine = "SAS_BILLBOARD_SCALE_PERCENT_FONT_%d" % iFontBody
+	szDefine = "SAS_BILLBOARD_SCALE_PCT_FONT_%d" % iFontBody
 	iPercent = gc.getDefineINT(szDefine)
 	if iPercent < 10 or iPercent > 500:
 		BugUtil.warn("SASBillboardScale: %s=%d out of range [10..500], using 100", szDefine, iPercent)

@@ -80,7 +80,7 @@ Locally our project is a git repo too, generally with a fresh commit for each ne
 
 - Generally leave staging/unstaging to the user during review; preserve the existing index and leave new edits unstaged unless asked otherwise or an explicitly approved commit is ready for final preparation.
   - The staged/unstaged split supports iterative review of the same commit candidate, for example sharing only Codex's subsequent edits with ChatGPT, or vice versa. An already-staged file is not permission to stage its newer edits.
-  - Some changes are intentionally kept unstaged and are never meant for the commit. For example, `SAS_GAME_RECORD_LOG_LEVEL=3` and `SAS_RUNTIME_STATUS_ENABLE=1` are usually left enabled during development cycles, while shipped defaults are `0` to avoid unnecessary diagnostic overhead for regular users.
+  - Some changes are intentionally kept unstaged and are never meant for the commit. For example, `SAS_SGR_LOG_LEVEL=3` and `SAS_RUNTIME_STATUS_ON=1` are usually left enabled during development cycles, while shipped defaults are `0` to avoid unnecessary diagnostic overhead for regular users.
     - CI helps catch accidentally committed development settings; shipping defaults can be checked in the staged XML or a temporary snapshot.
     - Temporarily changing local settings is fine when needed, but restore them before handing back for user testing unless there is a specific reason to leave them disabled. Make that exception clear to the user, who may otherwise forget or not notice that diagnostics are off.
 - Do not commit changes without explicit user approval; leave the completed candidate for review first.
@@ -552,6 +552,9 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 
 - Prefer SAS defines for new AI toggles to allow quick testing without recompiles; avoid adding them for tiny features unlikely to need tuning.
   - Name defines `SAS_<family>_<effect>` within the desired 42-byte maximum drawn from AdvCiv, rather than mechanically embedding the full function name. To that end, use shorter words or clear abbreviations such as `1ST` for `FIRST`, while preserving meaning and key technical terms such as `PCT`, `MIN` and `MAX`. See KI#1001.2.
+  - Preserve Civ4 concepts when shortening names; abbreviate or omit less informative wording before changing a meaningful term.
+    - For example, distinguish `BuildTypes` worker actions from `BuildingTypes` buildings (`BLDG`), and avoid using `FORT` for Walls/Castle-style defensive-building production when it could suggest the Fort improvement.
+    - Keep shorthand tied to its meaning: `DEF` means defense, so health deficit needs a distinct word or abbreviation.
   - Use consistent terms for greppability, so one grep finds related SAS defines: for example, keep `PWR` consistent instead of mixing it with `POWER`. Keep `SETTLER` consistent and retain `PROD` throughout its family unless necessary. Omit implicit qualifiers such as `AI` when the family is clear, and separate words with `_` when space permits.
     - Other established short forms in reviewed families include `ATK` (attack), `VAL` (value), `CULT` (culture) and `DIST` (distance); reuse them for the same meanings.
 - Turn-valued SAS integer defines must make game-speed semantics explicit: use `T_NORM_GS` when the XML value is expressed at Normal speed and code scales it with the appropriate game-speed percentage, or `T_UNSCALED_GS` for intentional literal game/path turns such as movement distance.
@@ -578,7 +581,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
   - This avoids errors too.
   - Same reasoning with `kPlayer` and `kOwner`, etc.
 - In C++, recurring or hot-path string-backed GlobalDefine reads such as `GC.getDefineINT("...")` / `GC.getDefineBOOL("...")` should normally use a function-local `static const` when the define is intended to stay fixed for the process; this avoids repeated name lookup while keeping cache scope local.
-  - Example: `static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");`.
+  - Example: `static const bool bSAS_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_SCRAP_OBSOLETE_TECH");`.
 - If a recurring string-backed Define lookup intentionally remains uncached, leave a short nearby reason; one-shot setup/snapshot reads and already-cached enum access do not need blanket cache-exemption comments.
 - Do not add another function-local cache around enum-backed `GC.getDefineINT(CvGlobals::...)`: that overload already reads the global integer define cache. Likewise, do not cache one-shot reads or values intentionally expected to change during runtime/setup; read those directly so the code reflects their semantics.
 
@@ -627,7 +630,7 @@ int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, 
 
 ### SASGameRecord
 
-- SASGameRecord revision maintenance: every intentional SASGameRecord-related code change, including implementation/checker/bridge/configuration code comments or header-only edits, increments `SAS_GAME_RECORD_REVISION` and adds the matching latest-first entry to [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) in the same commit.
+- SASGameRecord revision maintenance: every intentional SASGameRecord-related code change, including implementation/checker/bridge/configuration code comments or header-only edits, increments `SAS_SGR_REVISION` and adds the matching latest-first entry to [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) in the same commit.
   - Edit the XML Define in `Assets/XML/GlobalDefines_advciv_sas.xml`. The DLL reports its first-use cached value as `GAME_RECORD_SOURCE_CONTEXT recordRevision`; Python-only updates do not require a DLL rebuild just to advance this label.
   - Do not debate compatibility; the revision is only a downstream-update signal.
   - Standalone docs/history/example-log/package refreshes do not require a bump.

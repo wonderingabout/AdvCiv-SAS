@@ -961,9 +961,9 @@ static bool SAS_isRemoteCapturedAttackCityTrap(CvCity const& kCity, PlayerTypes 
 	if (piNearestCoreCityDistanceSameArea != NULL)
 		*piNearestCoreCityDistanceSameArea = iNearestCoreCityDistanceSameArea;
 	bool const bForeignCapturedCity = (kCity.getPreviousOwner() != NO_PLAYER && kCity.getOriginalOwner() != eOwner);
-	static int const iMinCoreDistance = GC.getDefineINT("SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE");
-	static int const iMinMilitaryPercent = GC.getDefineINT("SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_MIN_MILITARY_PERCENT");
-	static int const iMinStackUnits = GC.getDefineINT("SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_MIN_STACK_UNITS");
+	static int const iMinCoreDistance = GC.getDefineINT("SAS_CITY_ATK_REMOTE_CORE_DIST");
+	static int const iMinMilitaryPercent = GC.getDefineINT("SAS_CITY_ATK_REMOTE_MIN_MIL_PCT");
+	static int const iMinStackUnits = GC.getDefineINT("SAS_CITY_ATK_REMOTE_MIN_STACK_UNITS");
 	bool const bRemoteFromCore = (iMinCoreDistance <= 0 || iNearestCoreCityDistanceSameArea < 0 || iNearestCoreCityDistanceSameArea >= iMinCoreDistance);
 	bool const bLargeStack = ((iMinMilitaryPercent > 0 && iGroupMilitaryPercent >= iMinMilitaryPercent) || (iMinStackUnits > 0 && iGroupUnits >= iMinStackUnits));
 	return (bForeignCapturedCity && bRemoteFromCore && bLargeStack);
@@ -1005,7 +1005,7 @@ static UnitTypes SAS_getBestUpgradeForLog(CvUnit const& kUnit)
 static bool SAS_isDistantDisposableBarbarianTarget(CvUnitAI& kUnit, CvCity const& kCity, MovementFlags eMoveFlags, int iMaxPathTurns, char const* szContext, int iKnownPathTurns = -1)
 {
 	if (!kCity.isBarbarian()) return false;
-	static int const iMaxDisposablePathTurns = std::max(0, GC.getDefineINT("SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS_UNSCALED_GAMESPEED"));
+	static int const iMaxDisposablePathTurns = std::max(0, GC.getDefineINT("SAS_BARB_EXPEDITION_MAX_PATH_T_UNSCALED_GS"));
 	if (iMaxDisposablePathTurns <= 0) return false;
 	int iPathTurns = iKnownPathTurns;
 	bool const bPathable = (iKnownPathTurns >= 0 || kUnit.generatePath(kCity.getPlot(), eMoveFlags, true, &iPathTurns, iMaxPathTurns));
@@ -1132,13 +1132,13 @@ static void SAS_countGroupCityAttackCapability(CvSelectionGroup const& kGroup, i
 // Keep its dynamic garrison-based intent while exposing the multiplier for tuning; the attackers-needed estimate remains the minimum useful expedition even when the estimates overlap. See KI#188. (GPT-5.6-Sol) -->
 static int SAS_getBarbarianCityExpeditionMaxUnits(int iBarbarianGarrison, int iBarbarianAttackersNeeded)
 {
-	static int const iGarrisonMultiplier = std::max(1, GC.getDefineINT("SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_GARRISON_MULTIPLIER"));
+	static int const iGarrisonMultiplier = std::max(1, GC.getDefineINT("SAS_BARB_CITY_EXPEDITION_MAX_GARRISON_MULT"));
 	return std::max(std::max(1, iBarbarianAttackersNeeded), iGarrisonMultiplier * std::max(0, iBarbarianGarrison) - 1);
 }
 
 static int SAS_getTargetlessPeacetimeAttackCityRetainedUnits(CvPlayerAI const& kOwner)
 {
-	static int const iRetainedUnits = std::max(1, GC.getDefineINT("SAS_AI_TARGETLESS_PEACEFUL_ATTACK_CITY_GROUP_MIN_UNITS"));
+	static int const iRetainedUnits = std::max(1, GC.getDefineINT("SAS_CITY_ATK_TARGETLESS_PEACE_MIN_UNITS"));
 	return std::max(iRetainedUnits, kOwner.AI_neededCityAttackersVsBarbarians().ceil());
 }
 
@@ -1404,7 +1404,7 @@ static void SAS_logAttackDefenseReinforcementCandidate(CvUnitAI& kUnit, CvPlayer
 // AI_setUnitAIType detaches that unit so it can become the attack-city group leader and recruit the remaining broad attacker roles through the normal grouping logic. See KI#188. (GPT-5.6-Sol) -->
 static bool SAS_createMissingBarbarianCityExpeditionLeader(CvUnitAI& kUnit)
 {
-	static bool const bEnabled = GC.getDefineBOOL("SAS_AI_BARBARIAN_CITY_EXPEDITION_CREATE_MISSING_LEADER_ENABLE");
+	static bool const bEnabled = GC.getDefineBOOL("SAS_BARB_CITY_EXPEDITION_MISSING_LEADER_ON");
 	if (!bEnabled || kUnit.isBarbarian() || kUnit.AI_getUnitAIType() != UNITAI_ATTACK || !kUnit.canAttack() || kUnit.isNoCityCapture() || kUnit.getUnitInfo().isMostlyDefensive())
 		return false;
 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
@@ -2708,10 +2708,10 @@ static int SAS_getWorkerPhase0EffectiveFeatureProduction(CvCityAI const& kCity, 
 static bool SAS_isWorkerPhase0ProductiveFeatureEconomicContext(CvCityAI const& kCity, int iFeatureProduction)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
-	static const int iMaxEra = GC.getDefineINT("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_MAX_ERA");
-	static const int iMaxPlayerCities = GC.getDefineINT("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_MAX_PLAYER_CITIES");
-	static const int iMinProductionTurnsNormalX100 = GC.getDefineINT("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_MIN_PRODUCTION_TURNS_NORMAL_GAMESPEED_WORTH_X100");
-	static const int iCoreFoodUnitMinRemainingTurnsNormal = GC.getDefineINT("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_CORE_FOOD_UNIT_MIN_REMAINING_TURNS_NORMAL_GAMESPEED");
+	static const int iMaxEra = GC.getDefineINT("SAS_WORKER_CHOP_MAX_ERA");
+	static const int iMaxPlayerCities = GC.getDefineINT("SAS_WORKER_CHOP_MAX_PLAYER_CITIES");
+	static const int iMinProductionTurnsNormalX100 = GC.getDefineINT("SAS_WORKER_CHOP_MIN_T_NORM_GS_WORTH_X100");
+	static const int iCoreFoodUnitMinRemainingTurnsNormal = GC.getDefineINT("SAS_WORKER_CHOP_FOOD_MIN_LEFT_T_NORM_GS");
 	CvGameSpeedInfo const& kGameSpeed = GC.getInfo(GC.getGame().getGameSpeedType());
 	int const iMinProductionTurnsWorthX100 = (iMinProductionTurnsNormalX100 <= 0 ? 0 :
 		std::max(1, (iMinProductionTurnsNormalX100 * kGameSpeed.getFeatureProductionPercent() + 50) / 100));
@@ -2870,14 +2870,14 @@ static void SAS_countWorkerPhase0ProductiveFeatures(CvUnitAI const& kUnit, CvCit
 
 static int SAS_getWorkerPhase0MinEligiblePlots(CvCityAI const& kCity)
 {
-	static const int iCoreFoodUnitMinEligible = std::max(1, GC.getDefineINT("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_CORE_FOOD_UNIT_MIN_ELIGIBLE_PLOTS"));
-	static const int iNormalMinEligible = std::max(1, GC.getDefineINT("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_NORMAL_MIN_ELIGIBLE_PLOTS"));
+	static const int iCoreFoodUnitMinEligible = std::max(1, GC.getDefineINT("SAS_WORKER_CHOP_FOOD_UNIT_MIN_PLOTS"));
+	static const int iNormalMinEligible = std::max(1, GC.getDefineINT("SAS_WORKER_CHOP_NORMAL_MIN_PLOTS"));
 	return (SAS_isWorkerPhase0CoreFoodProduction(kCity) ? iCoreFoodUnitMinEligible : iNormalMinEligible);
 }
 
 static bool SAS_shouldWorkerPhase0ProductiveFeatureChop(CvUnitAI const& kUnit, CvCityAI const& kCity, CvPlot const* pIgnorePlot, int& iEligible, int& iTargeted, bool& bPressureReliefOnly)
 {
-	static const bool bEnable = GC.getDefineBOOL("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE");
+	static const bool bEnable = GC.getDefineBOOL("SAS_WORKER_CHOP_ON");
 	int const iMinEligible = SAS_getWorkerPhase0MinEligiblePlots(kCity);
 	if (!bEnable)
 	{
@@ -3031,8 +3031,8 @@ struct SASWorkerYieldLogState
 // Bounded adjustments keep transient city state from overwhelming a long-lived improvement decision. (GPT-5.6-Sol) -->
 static SASWorkerYieldWeights SAS_getWorkerYieldWeights(CvCityAI const& kCity, int iAdjustedFoodDifference, int iStructuralFoodPressure, int iStructuralProductionPressure)
 {
-	static const int iStrongProductionPressureValuePerMissingPlot = std::max(0, GC.getDefineINT("SAS_WORKER_AI_STRONG_PRODUCTION_PRESSURE_VALUE_PER_MISSING_PLOT"));
-	static const int iStrongProductionPressureMaxValue = std::max(0, GC.getDefineINT("SAS_WORKER_AI_STRONG_PRODUCTION_PRESSURE_MAX_VALUE"));
+	static const int iStrongProductionPressureValuePerMissingPlot = std::max(0, GC.getDefineINT("SAS_WORKER_PROD_PRESSURE_VAL_PER_MISS_PLOT"));
+	static const int iStrongProductionPressureMaxValue = std::max(0, GC.getDefineINT("SAS_WORKER_PROD_PRESSURE_MAX_VAL"));
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
 	int const iGameProgressPercent = (100 * GC.getGame().gameTurnProgress()).uround();
 	SASWorkerYieldWeights kWeights;
@@ -3846,11 +3846,11 @@ static BuildTypes SAS_getWorkerActivelyCommittedImprovementBuild(CvPlot const& k
 // Pre-credit live improvement assignments so parallel Workers do not all respond to the same shortage; retain productive specialist food demand but discount temporary angry-citizen consumption. (GPT-5.6-Sol) -->
 static SASWorkerCityYieldAnalysis SAS_getWorkerCityYieldAnalysis(CvUnitAI const& kUnit, CvCityAI const& kCity)
 {
-	static const int iStrongProductionPlotMinYield = std::max(0, GC.getDefineINT("SAS_WORKER_AI_STRONG_PRODUCTION_PLOT_MIN_YIELD"));
-	static const int iStrongProductionPopulationPerTarget = std::max(1, GC.getDefineINT("SAS_WORKER_AI_STRONG_PRODUCTION_POPULATION_PER_TARGET"));
-	static const int iStrongProductionMaxTarget = std::max(0, GC.getDefineINT("SAS_WORKER_AI_STRONG_PRODUCTION_MAX_TARGET"));
-	static const int iLowFoodBFCCityThreshold = GC.getDefineINT("SAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH");
-	static const int iFoodSupportTargetSurplus = GC.getDefineINT("SAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS");
+	static const int iStrongProductionPlotMinYield = std::max(0, GC.getDefineINT("SAS_WORKER_STRONG_PROD_PLOT_MIN_YIELD"));
+	static const int iStrongProductionPopulationPerTarget = std::max(1, GC.getDefineINT("SAS_WORKER_STRONG_PROD_POP_PER_TARGET"));
+	static const int iStrongProductionMaxTarget = std::max(0, GC.getDefineINT("SAS_WORKER_STRONG_PROD_MAX_TARGET"));
+	static const int iLowFoodBFCCityThreshold = GC.getDefineINT("SAS_WORKER_CITY_BUILD_LOW_FOOD_BFC_THRESH");
+	static const int iFoodSupportTargetSurplus = GC.getDefineINT("SAS_WORKER_FOOD_SUPPORT_TARGET_SURPLUS");
 	int const iFoodConsumptionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
 
 	SASWorkerCityYieldAnalysis kResult;
@@ -4018,7 +4018,7 @@ static bool SAS_findWorkerIrrigationChainStep(CvUnitAI const& kUnit, CvPlot& kTa
 	int const iStatesPerPlot = iMaxPlots + 1;
 	int const iSearchStateCount = kMap.numPlots() * iStatesPerPlot;
 	// <!-- custom: Cost and route length are independent constraints.
-	// A cheaper long route to one plot previously discarded a costlier short route that could be the only one able to reach irrigation within SAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS.
+	// A cheaper long route to one plot previously discarded a costlier short route that could be the only one able to reach irrigation within SAS_WORKER_IRRIG_MAX_PLOTS.
 	// Keep one best cost per (plot, steps) state; the small route limit bounds memory, and generation stamps still initialize only reached states during repeated Worker-city evaluation. See KI#214. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	static std::vector<int> aiBestCost;
 	static std::vector<unsigned int> aiCostGeneration;
@@ -4241,19 +4241,19 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	if (pbIrrigationChainStep) *pbIrrigationChainStep = false;
 	// ... PHASE 1 builds candidates ...
 
-	static const bool bSAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE");
-	static const int iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE");
-	static const int iSAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE");
-	static const int iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD = GC.getDefineINT("SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD");
-	static const int iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION = GC.getDefineINT("SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION");
-	static const int iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE = GC.getDefineINT("SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE");
-	static const int iSAS_WORKER_AI_BONUS_DYNAMIC_VALUE_APPLY_MIN_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_DYNAMIC_VALUE_APPLY_MIN_VALUE");
-	static const int iSAS_WORKER_AI_BONUS_DYNAMIC_VALUE_MULTIPLIER = GC.getDefineINT("SAS_WORKER_AI_BONUS_DYNAMIC_VALUE_MULTIPLIER");
-	static const int iSAS_WORKER_AI_BONUS_FOOD_FALLBACK_MIN_RESULT_FOOD = GC.getDefineINT("SAS_WORKER_AI_BONUS_FOOD_FALLBACK_MIN_RESULT_FOOD");
-	static const int iSAS_WORKER_AI_BONUS_FOOD_FALLBACK_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FOOD_FALLBACK_VALUE");
-	static const int iSAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE = GC.getDefineINT("SAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE");
-	static const bool bSAS_WORKER_AI_BONUS_FOOD_FALLBACK_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_BONUS_FOOD_FALLBACK_ENABLE");
-	static const EraTypes eSAS_WORKER_AI_BONUS_FOOD_FALLBACK_MIN_BUILD_TECH_ERA = (EraTypes)GC.getDefineINT("SAS_WORKER_AI_BONUS_FOOD_FALLBACK_MIN_BUILD_TECH_ERA");
+	static const bool bSAS_WORKER_CHOP_ON = GC.getDefineBOOL("SAS_WORKER_CHOP_ON");
+	static const int iSAS_WORKER_BONUS_FEATURE_STEP_VAL = GC.getDefineINT("SAS_WORKER_BONUS_FEATURE_STEP_VAL");
+	static const int iSAS_WORKER_BONUS_SPECIFIC_BUILD_BASE_VAL = GC.getDefineINT("SAS_WORKER_BONUS_SPECIFIC_BUILD_BASE_VAL");
+	static const int iSAS_WORKER_BONUS_YLD_VAL_PER_FOOD = GC.getDefineINT("SAS_WORKER_BONUS_YLD_VAL_PER_FOOD");
+	static const int iSAS_WORKER_BONUS_YLD_VAL_PER_PROD = GC.getDefineINT("SAS_WORKER_BONUS_YLD_VAL_PER_PROD");
+	static const int iSAS_WORKER_BONUS_YLD_VAL_PER_COM = GC.getDefineINT("SAS_WORKER_BONUS_YLD_VAL_PER_COM");
+	static const int iSAS_WORKER_BONUS_DYNAMIC_VAL_APPLY_MIN_VAL = GC.getDefineINT("SAS_WORKER_BONUS_DYNAMIC_VAL_APPLY_MIN_VAL");
+	static const int iSAS_WORKER_BONUS_DYNAMIC_VAL_MULT = GC.getDefineINT("SAS_WORKER_BONUS_DYNAMIC_VAL_MULT");
+	static const int iSAS_WORKER_BONUS_FOOD_FALLBACK_MIN_FOOD = GC.getDefineINT("SAS_WORKER_BONUS_FOOD_FALLBACK_MIN_FOOD");
+	static const int iSAS_WORKER_BONUS_FOOD_FALLBACK_VAL = GC.getDefineINT("SAS_WORKER_BONUS_FOOD_FALLBACK_VAL");
+	static const int iSAS_WORKER_FEATURE_REMOVE_FOLLOWUP_MIN_VAL = GC.getDefineINT("SAS_WORKER_FEATURE_REMOVE_FOLLOWUP_MIN_VAL");
+	static const bool bSAS_WORKER_BONUS_FOOD_FALLBACK_ON = GC.getDefineBOOL("SAS_WORKER_BONUS_FOOD_FALLBACK_ON");
+	static const EraTypes eSAS_WORKER_BONUS_FOOD_FALLBACK_MIN_ERA = (EraTypes)GC.getDefineINT("SAS_WORKER_BONUS_FOOD_FALLBACK_MIN_ERA");
 
 	/*	K-Mod. hack: For the AI, I want to use the standard pathfinder, CvUnit::generatePath.
 		but this function is also used to give action recommendations for the player
@@ -4287,9 +4287,9 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	SASWorkerYieldWeights const& kWorkerYieldWeights = kWorkerYieldContext.kCurrentWeights;
 	int const iCityPopulation = kCityYieldAnalysis.iCityPopulation;
 	int const iFoodConsumptionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
-	static const bool bSAS_WORKER_AI_IRRIGATION_CHAIN_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_IRRIGATION_CHAIN_ENABLE");
-	static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_MATURATION_LEVEL_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_MATURATION_LEVEL_OVERWRITE_PENALTY");
-	static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY");
+	static const bool bSAS_WORKER_IRRIG_ON = GC.getDefineBOOL("SAS_WORKER_IRRIG_ON");
+	static const int iSAS_WORKER_IRRIG_MATURE_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_IRRIG_MATURE_OVERWRITE_PENALTY");
+	static const int iSAS_WORKER_IRRIG_OTHER_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_IRRIG_OTHER_OVERWRITE_PENALTY");
 	if (gWorkerLogLevel >= 3 && SAS_shouldLogWorkerYieldContext(kCity, kWorkerYieldContext))
 	{
 		// <!-- custom: The full Tiny Islands continuation still showed late Lagos Farm/Workshop reversals with gains well above the replacement margin while its Food weight repeatedly moved between roughly 180 and 340.
@@ -4316,7 +4316,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	int iSASPhase0Eligible = 0;
 	int iSASPhase0Targeted = 0;
 	bool bSASPhase0PressureReliefOnly = false;
-	bool const bSASPhase0Active = bSAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE &&
+	bool const bSASPhase0Active = bSAS_WORKER_CHOP_ON &&
 			SAS_shouldWorkerPhase0ProductiveFeatureChop(*this, kCity, pIgnorePlot, iSASPhase0Eligible, iSASPhase0Targeted, bSASPhase0PressureReliefOnly);
 	int const iSASPhase0Uncommitted = std::max(0, iSASPhase0Eligible - iSASPhase0Targeted);
 
@@ -4360,7 +4360,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					if (eBonusBuild != NO_BUILD && canBuild(kPlot, eBonusBuild) && GC.getInfo(eBonusBuild).getImprovement() != NO_IMPROVEMENT && GC.getInfo(eBonusBuild).isFeatureRemove(kPlot.getFeatureType()))
 					{
 						ePhase0FollowupBuild = eBonusBuild;
-						iPhase0FollowupValue = iSAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE;
+						iPhase0FollowupValue = iSAS_WORKER_BONUS_SPECIFIC_BUILD_BASE_VAL;
 					}
 				}
 				else
@@ -4373,7 +4373,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 						iPhase0FollowupValue = iYieldBuildValue;
 					}
 				}
-				if (iPhase0FollowupValue < iSAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE)
+				if (iPhase0FollowupValue < iSAS_WORKER_FEATURE_REMOVE_FOLLOWUP_MIN_VAL)
 				{
 					ePhase0FollowupBuild = NO_BUILD;
 					iPhase0FollowupValue = 0;
@@ -4433,9 +4433,9 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	std::set<PlotNumTypes> aePendingIrrigationProviderPlots;
 
 	// <!-- custom: An exact-plot transport query asks whether its destination itself has worthwhile work; an irrigation step elsewhere cannot justify unloading a Worker there. (GPT-5.6-Sol) -->
-	if (pOnlyPlot == NULL && bSAS_WORKER_AI_IRRIGATION_CHAIN_ENABLE && GET_TEAM(getTeam()).isIrrigation())
+	if (pOnlyPlot == NULL && bSAS_WORKER_IRRIG_ON && GET_TEAM(getTeam()).isIrrigation())
 	{
-		static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS");
+		static const int iSAS_WORKER_IRRIG_MAX_PLOTS = GC.getDefineINT("SAS_WORKER_IRRIG_MAX_PLOTS");
 		for (WorkablePlotIter itBFC(kCity, false); itBFC.hasNext(); ++itBFC)
 		{
 			CvPlot& kTargetPlot = *itBFC;
@@ -4458,7 +4458,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			int iRouteOverwritePenalty = 0;
 			SASWorkerIrrigationSearchDiagnostics kRouteDiagnostics;
 			SASWorkerIrrigationSearchDiagnostics* pRouteDiagnostics = (gWorkerLogLevel >= 3 ? &kRouteDiagnostics : NULL);
-			bool const bFoundChainStep = SAS_findWorkerIrrigationChainStep(*this, kTargetPlot, pIgnorePlot, kWorkerYieldWeights, iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS, iSAS_WORKER_AI_IRRIGATION_CHAIN_MATURATION_LEVEL_OVERWRITE_PENALTY, iSAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY, pChainStepPlot, eChainStepBuild, iRoutePlots, iRouteOverwritePenalty, pRouteDiagnostics);
+			bool const bFoundChainStep = SAS_findWorkerIrrigationChainStep(*this, kTargetPlot, pIgnorePlot, kWorkerYieldWeights, iSAS_WORKER_IRRIG_MAX_PLOTS, iSAS_WORKER_IRRIG_MATURE_OVERWRITE_PENALTY, iSAS_WORKER_IRRIG_OTHER_OVERWRITE_PENALTY, pChainStepPlot, eChainStepBuild, iRoutePlots, iRouteOverwritePenalty, pRouteDiagnostics);
 			int const iChainStepValue = (bFoundChainStep ? (bTargetDryCarrier ? 11500 : 8500) - (350 * std::max(0, iRoutePlots - 1)) - iRouteOverwritePenalty : 0);
 			if (bFoundChainStep && iChainStepValue > 0)
 			{
@@ -4516,7 +4516,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 						(eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription()), bTargetDryCarrier,
 						iTargetIrrigationFoodGain, iTargetIrrigationProductionGain, iTargetIrrigationCommerceGain, iTargetIrrigationUtilityGain,
 						kTargetPlot.isIrrigated(), kTargetPlot.isIrrigationAvailable(true), iRoutePlots,
-						iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS, iRouteOverwritePenalty, iChainStepValue, kCityYieldAnalysis.iCityFoodSupportPressure,
+						iSAS_WORKER_IRRIG_MAX_PLOTS, iRouteOverwritePenalty, iChainStepValue, kCityYieldAnalysis.iCityFoodSupportPressure,
 						kRouteDiagnostics.szRoute.empty() ? "-" : kRouteDiagnostics.szRoute.c_str());
 				}
 				candidatePlots.push_back(kChainStep);
@@ -4540,7 +4540,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					iTargetIrrigationFoodGain, iTargetIrrigationProductionGain, iTargetIrrigationCommerceGain, iTargetIrrigationUtilityGain,
 					kTargetPlot.isIrrigated(), kTargetPlot.isIrrigationAvailable(true), bFoundChainStep,
 					iRoutePlots, iRouteOverwritePenalty, iChainStepValue, kCityYieldAnalysis.iCityFoodSupportPressure,
-					iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS, kRouteDiagnostics.iVisitedStates, kRouteDiagnostics.iDeepestRoute,
+					iSAS_WORKER_IRRIG_MAX_PLOTS, kRouteDiagnostics.iVisitedStates, kRouteDiagnostics.iDeepestRoute,
 					kRouteDiagnostics.iRouteLimitStops, kRouteDiagnostics.iMapEdgeOrIgnoredRejects, kRouteDiagnostics.iUnownedRejects,
 					kRouteDiagnostics.iForeignOwnedRejects, kRouteDiagnostics.iDifferentAreaRejects, kRouteDiagnostics.iWaterRejects,
 					kRouteDiagnostics.iNoPotentialIrrigationRejects, kRouteDiagnostics.iBonusRejects,
@@ -4608,7 +4608,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			if (eFeature != NO_FEATURE && bCanBuildBonusSpecificBeforeFeatureRemoval && (bBonusSpecificImprovementUsesFeatureValidity || iFeatureRemovalValue <= 0))
 			{
 				eBestSupposedBuild = eBonusSpecificBuild;
-				iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
+				iValue += iSAS_WORKER_BONUS_FEATURE_STEP_VAL;
 			}
 			else if (eFeature != NO_FEATURE)
 			{
@@ -4617,7 +4617,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					eBestSupposedBuild = eFeatureRemovalBuild;
 					if (bCanBuildBonusSpecific && GC.getInfo(eBonusSpecificBuild).getImprovement() != NO_IMPROVEMENT)
 						eFeatureRemovalFollowupBuild = eBonusSpecificBuild;
-					iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE + std::max(0, iFeatureRemovalValue);
+					iValue += iSAS_WORKER_BONUS_FEATURE_STEP_VAL + std::max(0, iFeatureRemovalValue);
 				}
 			}
 			if (eBestSupposedBuild == NO_BUILD)
@@ -4642,34 +4642,34 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					int const bonusProductionYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_PRODUCTION);
 
 					// <!-- custom: Bonus-specific build priorities now use SAS defines, preserving the old strong base bonus value and food/production/commerce ordering while making the weights tunable from XML. (GPT-5.5) -->
-					iValue += iSAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE;
+					iValue += iSAS_WORKER_BONUS_SPECIFIC_BUILD_BASE_VAL;
 
 					// <!-- custom: the more food the higher priority hehe (not in real life or why not but quality maybe bit too), so multiply it even further than the base any unimproved bonus multiplier -->
 					// Give an even bigger multiplier if the bonus is a FOOD bonus.
 					if (bonusFoodYieldChange > 0)
-						iValue += iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD * bonusFoodYieldChange;
+						iValue += iSAS_WORKER_BONUS_YLD_VAL_PER_FOOD * bonusFoodYieldChange;
 					// <!-- custom: then also valorize hammer/production less, i'd prefer to improve iron before gold i mean, although this is debatable, handle as such, i hope in most cases it would make AI more efficient -->
 					if (bonusProductionYieldChange > 0)
-						iValue += iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION * bonusProductionYieldChange;
+						iValue += iSAS_WORKER_BONUS_YLD_VAL_PER_PROD * bonusProductionYieldChange;
 					// <!-- custom: if there is a lot of commerce, it may make sense to go for this one first maybe, but it needs to be a lot and more generally i would say -->
 					if (bonusCommerceYieldChange > 0)
-						iValue += iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE * bonusCommerceYieldChange;
+						iValue += iSAS_WORKER_BONUS_YLD_VAL_PER_COM * bonusCommerceYieldChange;
 				}
 				// The bonus-specific improvement is not yet available and there was no feature to remove.
 				// <!-- custom: A temporary food-increasing improvement can be worthwhile when the real bonus Build unlocks many eras later.
 				// Select it from actual legal XML Builds rather than assuming Farm, but still require an immediate food gain and the configured minimum resulting plot food so Workers do not overwrite the bonus for cosmetic output. (GPT-5.5 + GPT-5.6-Sol) -->
-				else if (bSAS_WORKER_AI_BONUS_FOOD_FALLBACK_ENABLE)
+				else if (bSAS_WORKER_BONUS_FOOD_FALLBACK_ON)
 				{
 					BuildTypes eTemporaryFoodBuild = NO_BUILD;
 					int iTemporaryResultFood = 0;
-					bool const bHasTemporaryFoodBuild = SAS_pickWorkerTemporaryFoodBuild(*this, kPlot, kWorkerYieldWeights, iSAS_WORKER_AI_BONUS_FOOD_FALLBACK_MIN_RESULT_FOOD, eTemporaryFoodBuild, iTemporaryResultFood);
+					bool const bHasTemporaryFoodBuild = SAS_pickWorkerTemporaryFoodBuild(*this, kPlot, kWorkerYieldWeights, iSAS_WORKER_BONUS_FOOD_FALLBACK_MIN_FOOD, eTemporaryFoodBuild, iTemporaryResultFood);
 					TechTypes const eBonusSpecificBuildTech = GC.getInfo(eBonusSpecificBuild).getTechPrereq();
-					bool const bBonusSpecificBuildUnlocksLateEnough = (eBonusSpecificBuildTech != NO_TECH && GC.getInfo(eBonusSpecificBuildTech).getEra() >= eSAS_WORKER_AI_BONUS_FOOD_FALLBACK_MIN_BUILD_TECH_ERA);
+					bool const bBonusSpecificBuildUnlocksLateEnough = (eBonusSpecificBuildTech != NO_TECH && GC.getInfo(eBonusSpecificBuildTech).getEra() >= eSAS_WORKER_BONUS_FOOD_FALLBACK_MIN_ERA);
 
 					if (bBonusSpecificBuildUnlocksLateEnough && bHasTemporaryFoodBuild)
 					{
 						eBestSupposedBuild = eTemporaryFoodBuild;
-						iValue += iSAS_WORKER_AI_BONUS_FOOD_FALLBACK_VALUE;
+						iValue += iSAS_WORKER_BONUS_FOOD_FALLBACK_VAL;
 						if (gWorkerLogLevel >= 3) logBBAI("    WORKER_BONUS_TEMPORARY_FOOD_BUILD turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) bonus=%S build=%S improvement=%S resultFood=%d realBuild=%S realBuildTech=%S",
 							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), kCity.getName().GetCString(),
 							kPlot.getX(), kPlot.getY(), GC.getInfo(eBonus).getDescription(), GC.getInfo(eTemporaryFoodBuild).getDescription(),
@@ -4692,8 +4692,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			// <!-- custom: Prioritize useful bonus Builds through the owner's marginal dynamic value rather than a static BonusInfo AIObjective.
 			// First copies therefore reflect this civilization's currently relevant units/buildings/projects/routes, while available substitutes and extra copies naturally reduce urgency. (GPT-5.6-Sol) -->
 			int const iDynamicBonusValue = GET_PLAYER(getOwner()).AI_bonusVal(eBonus, 1, true);
-			if (iValue >= iSAS_WORKER_AI_BONUS_DYNAMIC_VALUE_APPLY_MIN_VALUE)
-				iValue += iSAS_WORKER_AI_BONUS_DYNAMIC_VALUE_MULTIPLIER * iDynamicBonusValue;
+			if (iValue >= iSAS_WORKER_BONUS_DYNAMIC_VAL_APPLY_MIN_VAL)
+				iValue += iSAS_WORKER_BONUS_DYNAMIC_VAL_MULT * iDynamicBonusValue;
 
 			// <!-- custom: Level 3 exposes bonus-build availability and both the current raw-BonusInfo yield score and the actual improved-plot yield score.
 			// This notably distinguishes a true priority problem from a near-tech scheduling case; e.g. the Cuzco Tiny Islands run mined Gold while Animal Husbandry was still one turn away, then Pastured Pig immediately after it unlocked. (ChatGPT-5.6-Sol) -->
@@ -4712,13 +4712,13 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 						aiPotentialResultYields[eLoopYield] = SAS_getWorkerBuildEffectiveYield(kPlot, eBonusSpecificBuild, eLoopYield);
 				}
 				int const iRawYieldValue =
-					iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD * kBonusInfo.getYieldChange(YIELD_FOOD) +
-					iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION * kBonusInfo.getYieldChange(YIELD_PRODUCTION) +
-					iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE * kBonusInfo.getYieldChange(YIELD_COMMERCE);
+					iSAS_WORKER_BONUS_YLD_VAL_PER_FOOD * kBonusInfo.getYieldChange(YIELD_FOOD) +
+					iSAS_WORKER_BONUS_YLD_VAL_PER_PROD * kBonusInfo.getYieldChange(YIELD_PRODUCTION) +
+					iSAS_WORKER_BONUS_YLD_VAL_PER_COM * kBonusInfo.getYieldChange(YIELD_COMMERCE);
 				int const iPotentialResultYieldValue =
-					iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD * aiPotentialResultYields[YIELD_FOOD] +
-					iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION * aiPotentialResultYields[YIELD_PRODUCTION] +
-					iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE * aiPotentialResultYields[YIELD_COMMERCE];
+					iSAS_WORKER_BONUS_YLD_VAL_PER_FOOD * aiPotentialResultYields[YIELD_FOOD] +
+					iSAS_WORKER_BONUS_YLD_VAL_PER_PROD * aiPotentialResultYields[YIELD_PRODUCTION] +
+					iSAS_WORKER_BONUS_YLD_VAL_PER_COM * aiPotentialResultYields[YIELD_COMMERCE];
 				logBBAI("    WORKER_BONUS_CANDIDATE turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) worked=%d bonus=%S specificBuild=%S canBuildNow=%d buildTech=%S buildTechKnown=%d buildTechTurnsIfCurrent=%d featureTech=%S featureTechKnown=%d currentResearch=%S rawBonusYields=(%d,%d,%d) potentialResultYields=(%d,%d,%d) weights=(%d,%d,%d) rawYieldValue=%d potentialResultYieldValue=%d dynamicBonusValue=%d selectedBuild=%S selectedValue=%d",
 					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), kCity.getName().GetCString(),
 					kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot), kBonusInfo.getDescription(),
@@ -4728,7 +4728,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					(eCurrentResearch == NO_TECH ? L"-" : GC.getInfo(eCurrentResearch).getDescription()),
 					kBonusInfo.getYieldChange(YIELD_FOOD), kBonusInfo.getYieldChange(YIELD_PRODUCTION), kBonusInfo.getYieldChange(YIELD_COMMERCE),
 					aiPotentialResultYields[YIELD_FOOD], aiPotentialResultYields[YIELD_PRODUCTION], aiPotentialResultYields[YIELD_COMMERCE],
-					iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD, iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION, iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE,
+					iSAS_WORKER_BONUS_YLD_VAL_PER_FOOD, iSAS_WORKER_BONUS_YLD_VAL_PER_PROD, iSAS_WORKER_BONUS_YLD_VAL_PER_COM,
 					iRawYieldValue, iPotentialResultYieldValue, iDynamicBonusValue,
 					(eBestSupposedBuild == NO_BUILD ? L"-" : GC.getInfo(eBestSupposedBuild).getDescription()), iValue);
 			}
@@ -4761,14 +4761,14 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			if (bSelectedBuildRemovesFeature && ePureFeatureRemovalBuild != NO_BUILD)
 			{
 				eBestSupposedBuild = ePureFeatureRemovalBuild;
-				if (iPreFeatureRemovalBuildValue >= iSAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE)
+				if (iPreFeatureRemovalBuildValue >= iSAS_WORKER_FEATURE_REMOVE_FOLLOWUP_MIN_VAL)
 					eFeatureRemovalFollowupBuild = ePreFeatureRemovalBuild;
 			}
 			else if (iRemovalValue > 0 && !bSelectedImprovementUsesFeatureValidity)
 			{
 				eBestSupposedBuild = ePureFeatureRemovalBuild;
 				iValue += iRemovalValue;
-				if (bHasYieldBuild && iPreFeatureRemovalBuildValue >= iSAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE)
+				if (bHasYieldBuild && iPreFeatureRemovalBuildValue >= iSAS_WORKER_FEATURE_REMOVE_FOLLOWUP_MIN_VAL)
 					eFeatureRemovalFollowupBuild = ePreFeatureRemovalBuild;
 			}
 			else if (!bHasYieldBuild)
@@ -4796,7 +4796,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		// Ordinary carrier improvements otherwise compete through the shared yield/hysteresis formula; the deterministic route pass separately creates missing connectors. (GPT-5.6-Sol) -->
 		ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
 		ImprovementTypes const eSupposedImprovement = GC.getInfo(eBestSupposedBuild).getImprovement();
-		if (bSAS_WORKER_AI_IRRIGATION_CHAIN_ENABLE && GET_TEAM(getTeam()).isIrrigation() && eBonus == NO_BONUS && eSupposedImprovement != NO_IMPROVEMENT && !SAS_isWorkerIrrigationCarrierImprovement(eSupposedImprovement) && !kPlot.isWater() && !kPlot.isCity() && kPlot.canHavePotentialIrrigation())
+		if (bSAS_WORKER_IRRIG_ON && GET_TEAM(getTeam()).isIrrigation() && eBonus == NO_BONUS && eSupposedImprovement != NO_IMPROVEMENT && !SAS_isWorkerIrrigationCarrierImprovement(eSupposedImprovement) && !kPlot.isWater() && !kPlot.isCity() && kPlot.canHavePotentialIrrigation())
 		{
 			bool const bPendingChainProvider = (aePendingIrrigationProviderPlots.find(kPlot.plotNum()) != aePendingIrrigationProviderPlots.end());
 			CvPlot const* pDependentCarrier = NULL;
@@ -5005,7 +5005,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			ImprovementTypes const eCandidateImprovement = GC.getInfo(eB).getImprovement();
 			BonusTypes const eCandidateBonus = pB->getNonObsoleteBonusType(getTeam());
 			bool const bIrrigationCarrierReplacement = (
-				bSAS_WORKER_AI_IRRIGATION_CHAIN_ENABLE &&
+				bSAS_WORKER_IRRIG_ON &&
 				SAS_isWorkerIrrigationCarrierImprovement(eCandidateImprovement) &&
 				GET_TEAM(getTeam()).isIrrigation() &&
 				!pB->isWater() && !pB->isCity() &&
@@ -5624,8 +5624,8 @@ void CvUnitAI::AI_animalMove()
 bool CvUnitAI::AI_scrapSettlerWithNoValidSite(bool bDanger, MovementFlags eMoveFlags)
 {
 	FAssertMsg(!isHuman() && AI_getUnitAIType() == UNITAI_SETTLE, "No-valid-site cleanup is only valid for an AI Settler");
-	static const bool bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE = GC.getDefineBOOL("SAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE");
-	if (isHuman() || AI_getUnitAIType() != UNITAI_SETTLE || bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE || getPlot().isFighting()) return false;
+	static const bool bSAS_SCRAP_ABSOLUTELY_DISABLE = GC.getDefineBOOL("SAS_SCRAP_ABSOLUTELY_DISABLE");
+	if (isHuman() || AI_getUnitAIType() != UNITAI_SETTLE || bSAS_SCRAP_ABSOLUTELY_DISABLE || getPlot().isFighting()) return false;
 	// <!-- custom: SAS protects Settlers from costly produce/scrap loops, but save files 449 and 450 exposed the inherited no-valid-site cleanup silently failing for up to 262 turns while each Settler kept two useful military escorts trapped.
 	// This named operation applies only after AI_settleMove has proven that an AI Settler older than 20 turns has no valid site and no pending transport pickup.
 	// Log the still-attached group for diagnosis, then detach the Settler so delayed deletion cannot hold its escorts.
@@ -7008,8 +7008,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	// This is the high-tempo case where chop hammers directly accelerate the key civilian unit and can justify delaying even a bonus.
 	// A below-threshold removal that directly relieves current unhealth/unhappiness may also use this early path.
 	// Normal productive-feature chopping is handled later, after AI_improveBonus, so ordinary cities can improve bonuses and avoid the v3 "chop everything first" overcorrection. See KI#33.2. (ChatGPT-5.6-Sol) -->
-	static const bool bSAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE");
-	const bool bNotBarbPhase0 = (!isBarbarian() && bSAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE);
+	static const bool bSAS_WORKER_CHOP_ON = GC.getDefineBOOL("SAS_WORKER_CHOP_ON");
+	const bool bNotBarbPhase0 = (!isBarbarian() && bSAS_WORKER_CHOP_ON);
 	if (bNotBarbPhase0)
 	{
 		FOR_EACH_CITYAI(pPhase0City, kOwner)
@@ -7236,9 +7236,9 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		// Do not use this rule to declare medium/large cities "done"; they still benefit from improved BFC options
 		// for food/hammer rotation, and logs/screenshots showed size-12 cities with strong blank plots left unimproved while
 		// workers elsewhere oscillated Mine<->Windmill or Cottage<->Farm. (ChatGPT-5.5) -->
-		static const int iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION = GC.getDefineINT("SAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION");
-		if (iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION > 0 &&
-			iCityPopulation <= iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION &&
+		static const int iSAS_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POP = GC.getDefineINT("SAS_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POP");
+		if (iSAS_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POP > 0 &&
+			iCityPopulation <= iSAS_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POP &&
 			(countImprovedTiles(pCity) >= (iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities)))
 		{
 			// <!-- custom: Keep the early-leave rule from making a worker abandon useful work it is already standing on.
@@ -7246,10 +7246,10 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			// With this define enabled, the shortcut is bypassed only when the current plot is this same city's non-home workable BFC plot and AI_bestCityBuild selects it as the current best local build.
 			// This preserves the broader city-rotation behavior while preventing the "stand on useful local work, road it, then walk away" pattern without hardcoding a separate build-priority list that could drift from worker valuation. (ChatGPT-5.5 + GPT-5.5) -->
 			// <!-- custom: empricially fixed Beijing and Persepolis having unimproved forests (but roaded only sometimes or not at all) by T200, and reduced it in other cities, so looks like a very nice change worth keeping (also based on diagnostic logging (now removed for concision and so code is lighter and as is unneeded now it seems)) -->
-			static const int iSAS_AI_WORKER_OVERIMPROVE_SKIP_KEEP_CURRENT_UNIMPROVED_BFC_PLOT = GC.getDefineINT("SAS_AI_WORKER_OVERIMPROVE_SKIP_KEEP_CURRENT_UNIMPROVED_BFC_PLOT");
+			static const int iSAS_WORKER_OVERIMPROVE_KEEP_BFC_PLOT = GC.getDefineINT("SAS_WORKER_OVERIMPROVE_KEEP_BFC_PLOT");
 			bool bKeepCurrentUnimprovedBFCPlot = false;
 			BuildTypes eKeepCurrentBuild = NO_BUILD;
-			if (iSAS_AI_WORKER_OVERIMPROVE_SKIP_KEEP_CURRENT_UNIMPROVED_BFC_PLOT > 0)
+			if (iSAS_WORKER_OVERIMPROVE_KEEP_BFC_PLOT > 0)
 			{
 				CvPlot const& kWorkerPlot = getPlot();
 				CityPlotTypes const eWorkerCityPlot = pCity->getCityPlotIndex(kWorkerPlot);
@@ -7276,7 +7276,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 					logBBAI("    %S worker stays in small improved-enough city %S to handle current useful BFC plot: pop=%d improved=%d target=%d maxPop=%d plot=(%d,%d) build=%S",
 						GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), iCityPopulation,
 						countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities,
-						iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION, kWorkerPlot.getX(), kWorkerPlot.getY(),
+						iSAS_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POP, kWorkerPlot.getX(), kWorkerPlot.getY(),
 						GC.getInfo(eKeepCurrentBuild).getDescription());
 				}
 			}
@@ -7285,7 +7285,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				if (gWorkerLogLevel >= 2) logBBAI("    %S worker leaves small improved-enough city %S: pop=%d improved=%d target=%d maxPop=%d",
 					GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), iCityPopulation,
 					countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities,
-					iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION);
+					iSAS_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POP);
 				if (AI_nextCityToImprove(pCity))   // go pick city B right now
 					return;
 				// If we couldn't find a better city, work here anyway
@@ -7351,7 +7351,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	// These forts usually spend worker turns for meagre defensive/airbase/canal benefits, can block future irrigation-chain paths, and cities usually serve aircraft better.
 	// Default-disable the old branch through the corresponding SAS define rather than just lowering its odds; if a future caller reaches AI_fortTerritory while the define is disabled, that function logs the attempted path. (GPT-5.5) -->
 	//if (SyncRandSuccess100(20))
-	static const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL("SAS_AI_WORKER_FORT_AIRBASE_ENABLE");
+	static const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL("SAS_WORKER_FORT_AIRBASE_ON");
 	if (bAllowFortAirbaseWorkers && SyncRandSuccess100(10)) // Only 10% chance to even try Fort logic
 	{
 		//bool bCanal = ((100 * getArea().getNumCities()) / std::max(1, GC.getGame().getNumCities()) < 85);
@@ -8679,7 +8679,7 @@ void CvUnitAI::AI_attackCityMove()
 	{
 		int const iGroupSz = getGroup()->getNumUnits();
 		iWarStackNeeded = AI_stackOfDoomExtra();
-		static int const iSASMinStackSize = GC.getDefineINT("SAS_MIN_ATTACK_CITY_STACK_UNITS");
+		static int const iSASMinStackSize = GC.getDefineINT("SAS_MIN_ATK_CITY_STACK_UNITS");
 		iMinStackSize = iSASMinStackSize;
 		iBarbarianGarrison = kOwner.AI_estimateBarbarianGarrisonSize();
 		if ((eAreaAI != AREAAI_DEFENSIVE && eAreaAI != AREAAI_OFFENSIVE && !bAlert1) || iBarbarianGarrison < 2 * kOwner.AI_getCurrEraFactor()) bHuntBarbs = true;
@@ -8844,7 +8844,7 @@ void CvUnitAI::AI_attackCityMove()
 	// <!-- custom: Base AdvCiv/K-Mod reinforcement waits otherwise return before a targetless peaceful army can release its excess units.
 	// Only wait for more joiners when the group has selected a city or has a real war plan; otherwise continue to the safe release below. See KI#188.3. (GPT-5.6-Sol) -->
 	bool const bHasTargetOrWarPlan = (pTargetCity != NULL || bAnyWarPlan);
-	static bool const bSpaceVictoryDenialCapitalRushEnable = GC.getDefineBOOL("SAS_AI_SPACE_VICTORY_DENIAL_CAPITAL_RUSH_ENABLE");
+	static bool const bSpaceVictoryDenialCapitalRushEnable = GC.getDefineBOOL("SAS_SPACE_VICT_DENY_CAPITAL_RUSH_ON");
 	VictoryTypes const eSpaceVictory = GC.getGame().getSpaceVictory();
 	bool const bLaunchedSpaceCapitalTarget = (bSpaceVictoryDenialCapitalRushEnable && eSpaceVictory != NO_VICTORY && pTargetCity != NULL && pTargetCity->isCapital());
 	int const iSpaceCapitalCountdown = (bLaunchedSpaceCapitalTarget ? GET_TEAM(pTargetCity->getTeam()).getVictoryCountdown(eSpaceVictory) : -1);
@@ -9454,11 +9454,11 @@ void CvUnitAI::AI_attackCityMove()
 						}
 						int iTargetPathTurns = -1;
 						generatePath(pTargetCity->getPlot(), eMoveFlags, true, &iTargetPathTurns);
-						static const bool bSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE = (GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE") > 0);
-						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS"));
-						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT"));
-						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS_UNSCALED_GAMESPEED = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS_UNSCALED_GAMESPEED"));
-						bool const bSkipUpgradeWaitForReadyAttack = (bSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE && bReadyToAttack && !bTargetTooStrong && iCanUpgradeNowUnits <= 0 && (kGroup.getNumUnits() >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS || iGroupMilitaryPercent >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT) && iTargetPathTurns >= 0 && iTargetPathTurns <= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS_UNSCALED_GAMESPEED);
+						static const bool bSAS_CITY_ATK_SKIP_UPG_WAIT_ON = (GC.getDefineINT("SAS_CITY_ATK_SKIP_UPG_WAIT_ON") > 0);
+						static const int iSAS_CITY_ATK_SKIP_UPG_WAIT_MIN_STACK_UNITS = std::max(0, GC.getDefineINT("SAS_CITY_ATK_SKIP_UPG_WAIT_MIN_STACK_UNITS"));
+						static const int iSAS_CITY_ATK_SKIP_UPG_WAIT_MIN_MIL_PCT = std::max(0, GC.getDefineINT("SAS_CITY_ATK_SKIP_UPG_WAIT_MIN_MIL_PCT"));
+						static const int iSAS_CITY_ATK_UPG_MAX_PATH_T_UNSCALED_GS = std::max(0, GC.getDefineINT("SAS_CITY_ATK_UPG_MAX_PATH_T_UNSCALED_GS"));
+						bool const bSkipUpgradeWaitForReadyAttack = (bSAS_CITY_ATK_SKIP_UPG_WAIT_ON && bReadyToAttack && !bTargetTooStrong && iCanUpgradeNowUnits <= 0 && (kGroup.getNumUnits() >= iSAS_CITY_ATK_SKIP_UPG_WAIT_MIN_STACK_UNITS || iGroupMilitaryPercent >= iSAS_CITY_ATK_SKIP_UPG_WAIT_MIN_MIL_PCT) && iTargetPathTurns >= 0 && iTargetPathTurns <= iSAS_CITY_ATK_UPG_MAX_PATH_T_UNSCALED_GS);
 						if (bLogAttackCityParking)
 						{
 							if (!bSkipUpgradeWaitForReadyAttack) SAS_logAttackCityParking(*this, pTargetCity, "wait_upgrade", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNeedUpgradeCount, iTargetPathTurns, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
@@ -11016,25 +11016,25 @@ void CvUnitAI::AI_generalMove()
 		GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(),
 		getArea().getAreaAIType(getTeam()));
 
-	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT");
-	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA");
+	static const int iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT = GC.getDefineINT("SAS_GG_INSTRUCTOR_MOVE_MAX_COUNT");
+	static const int iSAS_GG_INSTRUCTOR_PREFER_1ST_THROUGH_ERA = GC.getDefineINT("SAS_GG_INSTRUCTOR_PREFER_1ST_THROUGH_ERA");
 	static const EraTypes eERA_FUTURE = (EraTypes)GC.getInfoTypeForString("ERA_FUTURE");
 	FAssertMsg((eERA_FUTURE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
-	bool const bSASPreferMilitaryInstructorFirst = (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA >= 0 && (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA >= eERA_FUTURE || kOwner.getCurrentEra() <= iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA));
+	bool const bSASPreferMilitaryInstructorFirst = (iSAS_GG_INSTRUCTOR_PREFER_1ST_THROUGH_ERA >= 0 && (iSAS_GG_INSTRUCTOR_PREFER_1ST_THROUGH_ERA >= eERA_FUTURE || kOwner.getCurrentEra() <= iSAS_GG_INSTRUCTOR_PREFER_1ST_THROUGH_ERA));
 	// <!-- custom: Mirror AI_construct's inherited K-Mod default explicitly so SASGameRecord can report the live threshold without changing gameplay. (ChatGPT-5.6-Sol) -->
 	int const iGreatGeneralConstructValueThreshold = 15;
 	// <!-- custom: Recorder context stays unknown until the inherited late 1-in-3 construct gate is actually reached, then preserves its existing 0/1 result without another RNG call. (ChatGPT-5.6-Sol) -->
 	int iRandomConstructRoll = -1;
-	if (pSASGreatGeneralChoice != NULL) pSASGreatGeneralChoice->initialize(pSASGreatGeneralDecisionPlot, iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA, bSASPreferMilitaryInstructorFirst, ePreviousMissionAI, pPreviousMissionPlot);
+	if (pSASGreatGeneralChoice != NULL) pSASGreatGeneralChoice->initialize(pSASGreatGeneralDecisionPlot, iSAS_GG_INSTRUCTOR_PREFER_1ST_THROUGH_ERA, bSASPreferMilitaryInstructorFirst, ePreviousMissionAI, pPreviousMissionPlot);
 	// <!-- custom: SAS previously still tried the first Military Academy before its preferred Military Instructor use.
 	// Make Instructor-first behavior era-tunable as a SAS balance policy; if joining is unavailable, retain the existing Academy/attachment/retreat fallback chain rather than wasting or indefinitely parking the General.
 	// The upstream Great-General safety problems corrected below are documented separately in KI#204. (ChatGPT-5.6-Sol) -->
-	if (bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_PREFERRED_INSTRUCTOR, iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, -1, -1, -1, iRandomConstructRoll)))
+	if (bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_PREFERRED_INSTRUCTOR, iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT, -1, -1, -1, iRandomConstructRoll)))
 	{
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=preferred-first era=%d preferThroughEra=%d",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(),
-			iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, kOwner.getCurrentEra(),
-			iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA);
+			iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT, kOwner.getCurrentEra(),
+			iSAS_GG_INSTRUCTOR_PREFER_1ST_THROUGH_ERA);
 		return;
 	}
 
@@ -11050,18 +11050,18 @@ void CvUnitAI::AI_generalMove()
 
 	// NEW: Try joining FIRST <!-- custom: legacy fallback order when Instructor-first preference is disabled; before and instead of any great general leader, but after we have our academy (if we can). (ChatGPT-5.6-Sol) --> (allow multiple instructors per city)
 	// “Try to settle as Military Instructor if our empire currently has fewer than X already settled."
-	if (!bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_FIRST_INSTRUCTOR, iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, -1, -1, -1, iRandomConstructRoll)))
+	if (!bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_FIRST_INSTRUCTOR, iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT, -1, -1, -1, iRandomConstructRoll)))
 	{
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=first",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(),
-			iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT);
+			iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT);
 		return;
 	}
 
 	std::vector<UnitAITypes> aeUnitAITypes;
 	bool const bOffenseWar = (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE);
-	static const int iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE = GC.getDefineINT("SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE");
-	static const int iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING = GC.getDefineINT("SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING");
+	static const int iSAS_GG_ATTACH_MIN_STR_SCORE = GC.getDefineINT("SAS_GG_ATTACH_MIN_STR_SCORE");
+	static const int iSAS_GG_ATTACH_MIN_HEALING = GC.getDefineINT("SAS_GG_ATTACH_MIN_HEALING");
 
 	if (kOwner.AI_isAnyPlotDanger(getPlot(), 2))
 	{
@@ -11070,7 +11070,7 @@ void CvUnitAI::AI_generalMove()
 		aeUnitAITypes.push_back(UNITAI_COUNTER);
 		// <!-- custom: BBAI save-file 450 testing showed the inherited plot-danger Great General unit-attachment branch attaching to a low-value Longbowman after AI_join rejected all cities for safety/path reasons.
 		// Keep this path XML-tunable, but default the gate high enough that Military Academy or Military Instructor remains the normal AdvCiv-SAS Great General use. (GPT-5.5) -->
-		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_LEAD, SAS_AI_GREAT_GENERAL_DANGER_LEAD, -1, -1, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING, iRandomConstructRoll)))
+		if (AI_lead(aeUnitAITypes, iSAS_GG_ATTACH_MIN_STR_SCORE, iSAS_GG_ATTACH_MIN_HEALING, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_LEAD, SAS_AI_GREAT_GENERAL_DANGER_LEAD, -1, -1, iSAS_GG_ATTACH_MIN_STR_SCORE, iSAS_GG_ATTACH_MIN_HEALING, iRandomConstructRoll)))
 		{
 			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=plotDanger roles=ATTACK,COUNTER",
 				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
@@ -11086,7 +11086,7 @@ void CvUnitAI::AI_generalMove()
 	{
 		aeUnitAITypes.clear();
 		aeUnitAITypes.push_back(UNITAI_ATTACK_CITY);
-		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_LEAD, SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK_CITY, -1, -1, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING, iRandomConstructRoll)))
+		if (AI_lead(aeUnitAITypes, iSAS_GG_ATTACH_MIN_STR_SCORE, iSAS_GG_ATTACH_MIN_HEALING, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_LEAD, SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK_CITY, -1, -1, iSAS_GG_ATTACH_MIN_STR_SCORE, iSAS_GG_ATTACH_MIN_HEALING, iRandomConstructRoll)))
 		{
 			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK_CITY",
 				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
@@ -11095,7 +11095,7 @@ void CvUnitAI::AI_generalMove()
 
 		aeUnitAITypes.clear();
 		aeUnitAITypes.push_back(UNITAI_ATTACK);
-		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_LEAD, SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK, -1, -1, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING, iRandomConstructRoll)))
+		if (AI_lead(aeUnitAITypes, iSAS_GG_ATTACH_MIN_STR_SCORE, iSAS_GG_ATTACH_MIN_HEALING, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_LEAD, SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK, -1, -1, iSAS_GG_ATTACH_MIN_STR_SCORE, iSAS_GG_ATTACH_MIN_HEALING, iRandomConstructRoll)))
 		{
 			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK",
 				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
@@ -11689,8 +11689,8 @@ void CvUnitAI::AI_greatPersonMove()
 				{
 					// <!-- custom: BBAI logs showed some Great People held for 29-32 turns because Golden Age partner reservation kept blocking weaker but useful actions.
 					// After the XML cap, stop raising the wait threshold for that reason and let the existing sorted mission list pick the best non-Golden action. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
-					static const int iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED = GC.getDefineINT("SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED");
-					if (iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED <= 0 || iGreatPersonAgeNormal <= iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED)
+					static const int iSAS_GP_MAX_GOLDEN_AGE_WAIT_T_NORM_GS = GC.getDefineINT("SAS_GP_MAX_GOLDEN_AGE_WAIT_T_NORM_GS");
+					if (iSAS_GP_MAX_GOLDEN_AGE_WAIT_T_NORM_GS <= 0 || iGreatPersonAgeNormal <= iSAS_GP_MAX_GOLDEN_AGE_WAIT_T_NORM_GS)
 					{
 						int iRelativeWaitTime = iMinTurns + iGreatPersonAge;
 						iRelativeWaitTime *= 100;
@@ -11704,7 +11704,7 @@ void CvUnitAI::AI_greatPersonMove()
 						GET_PLAYER(getOwner()).getCivilizationDescription(0),
 						getID(), getName(0).GetCString(),
 						iGreatPersonAge, iGreatPersonAgeNormal,
-						iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED,
+						iSAS_GP_MAX_GOLDEN_AGE_WAIT_T_NORM_GS,
 						it->first, iScoreThreshold);
 				}
 			}
@@ -13933,7 +13933,7 @@ void CvUnitAI::AI_assaultSeaMove()
 		// <!-- custom: Save-file 450 transport diagnostics showed reinforcement/invasion thresholds of 13/26 blocking a Galley whose full capacity was only 3, even when nearby Barbarian cities reached zero defenders.
 		// Keep the broad thresholds for assembling normal invasions, but let the existing target-specific strength evaluation launch any smaller military cargo that can already take a real target.
 		// Existing safety, escort, and imminent-loading waits above still run first. See KI#193. (GPT-5.6-Sol) -->
-		static bool const bOpportunisticTargetEnable = GC.getDefineBOOL("SAS_AI_ASSAULT_SEA_OPPORTUNISTIC_TARGET_ENABLE");
+		static bool const bOpportunisticTargetEnable = GC.getDefineBOOL("SAS_SEA_ASSAULT_OPPORTUNITY_TARGET_ON");
 		// <!-- custom: Generic stranded rescue can load civilians onto this assault group; require attack-capable cargo before KI#193 bypasses broad assembly thresholds. See KI#529. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (bOpportunisticTargetEnable && getGroup()->getCargoThatCanAttack() > 0 && iCargo < iTargetReinforcementSize)
 		{
@@ -15522,9 +15522,9 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	// <!-- custom: cache once since we reuse it as is done in other parts of this as of now .cpp file -->
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
-	static const bool bSAS_AI_PROMOTION_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_PROMOTION_VALUE_OPTIMIZE");
+	static const bool bSAS_PROMOTION_VAL_ON = GC.getDefineBOOL("SAS_PROMOTION_VAL_ON");
 
-	if (bSAS_AI_PROMOTION_VALUE_OPTIMIZE && (ePromotion != NO_PROMOTION))
+	if (bSAS_PROMOTION_VAL_ON && (ePromotion != NO_PROMOTION))
 	{
 		// <!-- custom: similarly to AI specialists in CvCityAI::AI_jobChangeValue, block some promotions for AI as they're too weak (e.g. Woodsman ineffective in cities even with mod buff) or too situational to be reliably good.
 		// Helps AI pick better promotions without killing versatility.
@@ -15532,9 +15532,9 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		// <!-- custom: note: as of now this mostly, except for some strict unitais where it seems beneficial to do so, doesn't incentivize anything, only forbids some promotions, otherwise mostly (minus these exceptions) keeping AI choices the same; hopefully this leads to saner and more effective AI promotion choices, while patching the core issues of flawed to sometimes very flawed AI promotion choices while keeping at least as of now otherwise most of the base advciv behaviour that we attempt to enhance with these rules -->
 		// === HARD BLOCK: promos that can’t possibly help this unit right now ===
 		// decisively low, far from overflow/underflow
-		static const int AI_PROMOTION_FORBIDDEN = GC.getDefineINT("SAS_AI_PROMOTION_VALUE_AI_PROMOTION_FORBIDDEN");
+		static const int AI_PROMOTION_FORBIDDEN = GC.getDefineINT("SAS_PROMOTION_VAL_FORBIDDEN");
 		// <!-- custom: always pick these first if in this specific case especially relevant -->
-		static const int AI_PROMOTION_ALWAYS_PICK_FIRST = GC.getDefineINT("SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_1ST");
+		static const int AI_PROMOTION_ALWAYS_PICK_FIRST = GC.getDefineINT("SAS_PROMOTION_VAL_ALWAYS_PICK_1ST");
 
 		static const PromotionTypes ePromotionAmphibious = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_AMPHIBIOUS", true);
 
@@ -19440,7 +19440,7 @@ bool CvUnitAI::AI_join(int iMaxCount, SASGreatGeneralChoiceContext* pSASChoiceCo
 		{
 			// <!-- custom: AI goes for Great General units while Military Instructor is much better, especially in top hammer cities with Heroic Epic. Credit: ChatGPT 5; Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
 			// 3. Optional: Remove the stacking check in AI_join()
-			// <!-- custom: but since we pass now an extremely high for this purpose value of iMaxCount in as of now SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, then it's fine to allow this gating for flexibility and in case players want to customize it as they prefer in sas defines.
+			// <!-- custom: but since we pass now an extremely high for this purpose value of iMaxCount in as of now SAS_GG_INSTRUCTOR_MOVE_MAX_COUNT, then it's fine to allow this gating for flexibility and in case players want to customize it as they prefer in sas defines.
 			// As of now, value of 999 is so high this will never be reached during a game and so effectively it will be always ignored and allowed to stack military instructors in same city, so no change is needed here it seems -->
 			bool bDoesJoin = false;
 			if (getUnitInfo().getGreatPeoples(eLoopSpecialist))
@@ -20712,7 +20712,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 	// BBAI save-file 450 testing confirmed that a hard pre-launch override made armies chase England's successive capitals while its spaceship progress remained intact.
 	// When enabled, keep one separately ranked reachable capital objective after launch, when its capture can actually stop the imminent Space victory.
 	// Base AdvCiv's ordinary pre-launch capital preference remains unchanged, and its existing enough-offence-en-route check can leave additional armies available for other targets. See KI#190. (GPT-5.6-Sol) -->
-	static bool const bSpaceVictoryDenialCapitalRushEnable = GC.getDefineBOOL("SAS_AI_SPACE_VICTORY_DENIAL_CAPITAL_RUSH_ENABLE");
+	static bool const bSpaceVictoryDenialCapitalRushEnable = GC.getDefineBOOL("SAS_SPACE_VICT_DENY_CAPITAL_RUSH_ON");
 	VictoryTypes const eSpaceVictory = GC.getGame().getSpaceVictory();
 	bool const bSpaceCapitalRush = (bSpaceVictoryDenialCapitalRushEnable && eSpaceVictory != NO_VICTORY && !isHuman() && !isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_CITY);
 	bool const bLogSpaceTargetChoice = (gWarLogLevel >= 2 && !isHuman() && !isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_CITY);
@@ -21856,8 +21856,8 @@ bool CvUnitAI::AI_evacuateCity()
 	if(!kCity.AI_isEvacuating())
 		return false;
 
-	static const bool bSAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE = GC.getDefineBOOL("SAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE");
-	if (bSAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE)
+	static const bool bSAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON = GC.getDefineBOOL("SAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON");
+	if (bSAS_CITY_EVACUATE_ALL_LAND_WHEN_DOOMED_ON)
 	{
 		// <!-- custom: if we have determined city is doomed, evacuate each and any single unit, splitting forces is worse than staying with all units or leaving with all units. Leaving with all units is the best since city will fall or has been determined to anyway, so do not care about anything else and simply evacuate all (it may drag the game a bit longer but is best for the AI and its competitiveness), see known issue as of now 62 for details and issue this attempts to fix -->
 		// <!-- custom: important note!!
@@ -25432,8 +25432,8 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 		// Rank work across all cities by the shared per-plot build value, scaled proportionally only while a city lacks enough completed or already-assigned improvements for its population; counting assigned workers prevents dogpiling while preserving one-worker-per-plot reservations.
 		// This avoids both the old high-population penalty and arbitrary additive/working-plot bonuses, while leaving candidate valuation responsible for Food-vs-Production tradeoffs.
 		// Distance remains a modest efficiency cost. (GPT-5.5) -->
-		static const int iPathTurnValuePenalty = GC.getDefineINT("SAS_AI_WORKER_CITY_JOB_PATH_TURN_VALUE_PENALTY");
-		static const int iBonusDynamicValueMultiplier = GC.getDefineINT("SAS_AI_WORKER_CITY_JOB_BONUS_DYNAMIC_VALUE_MULTIPLIER");
+		static const int iPathTurnValuePenalty = GC.getDefineINT("SAS_WORKER_CITY_JOB_PATH_TURN_VAL_PENALTY");
+		static const int iBonusDynamicValueMultiplier = GC.getDefineINT("SAS_WORKER_CITY_JOB_BONUS_DYNAMIC_VAL_MULT");
 		bool const bWorkedPlot = pLoopCity->isWorkingPlot(*pPlot);
 		int const iImprovedPlots = countImprovedTiles(pLoopCity);
 		int const iAssignedWorkers = std::max(0, pLoopCity->AI_getWorkersHave() - (pLoopCity == pCity ? 1 : 0));
@@ -25707,7 +25707,7 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
 
 	// <!-- custom: Keep AI fort construction disabled at the fort helper too when the corresponding SAS define is 0, not only at the worker-move callers.
 	// Late-game outside-BFC fort-airbase selection reappeared after more workers were available; if another path calls this helper while the define is disabled, log the attempted source instead of silently building forts that spend worker turns for weak practical value or block irrigation chains. (GPT-5.5) -->
-	static const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL("SAS_AI_WORKER_FORT_AIRBASE_ENABLE");
+	static const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL("SAS_WORKER_FORT_AIRBASE_ON");
 	if (!bAllowFortAirbaseWorkers && (bCanal || bAirbase))
 	{
 		if (gWorkerLogLevel >= 2) logBBAI("    %S worker skips disabled fort-territory path: canal=%d airbase=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), bCanal, bAirbase);
@@ -25841,7 +25841,7 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 	CvPlot const* pBestPlot = NULL;
 	int iBestValue = 0;
 	bool bCanRoute = canBuildRoute();
-	static const int iSAS_WORKER_AI_IMPROVE_BONUS_DYNAMIC_VALUE_MULTIPLIER = GC.getDefineINT("SAS_WORKER_AI_IMPROVE_BONUS_DYNAMIC_VALUE_MULTIPLIER");
+	static const int iSAS_WORKER_IMPROVE_BONUS_DYNAMIC_VAL_MULT = GC.getDefineINT("SAS_WORKER_IMPROVE_BONUS_DYNAMIC_VAL_MULT");
 	bool const bDetailedBonusLogging = (gWorkerLogLevel >= 3);
 	std::map<int,SASWorkerCityYieldAnalysis> akCityYieldAnalysis;
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
@@ -26040,7 +26040,7 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 			}
 		}
 		// <!-- custom: Scale the already-computed marginal dynamic value into AI_improveBonus's much larger pre-path score instead of layering a static AIObjective on top. (GPT-5.6-Sol) -->
-		int const iDynamicBonusPriorityValue = std::max(0, iSAS_WORKER_AI_IMPROVE_BONUS_DYNAMIC_VALUE_MULTIPLIER * iBaseBonusValue);
+		int const iDynamicBonusPriorityValue = std::max(0, iSAS_WORKER_IMPROVE_BONUS_DYNAMIC_VAL_MULT * iBaseBonusValue);
 		iValue += iDynamicBonusPriorityValue;
 
 		bool const bNoTradeableBonus = (kOwner.getNumTradeableBonuses(eNonObsoleteBonus) == 0);

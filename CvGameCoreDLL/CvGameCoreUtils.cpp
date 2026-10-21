@@ -1849,13 +1849,13 @@ SASWarPowerContext::SASWarPowerContext(CvTeamAI const& kTeam)
 
 int SASWarPowerContext::enemyStrongThreshold()
 {
-	static int const iThreshold = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+	static int const iThreshold = GC.getDefineINT("SAS_ENEMY_STRONG_PWR_THRESH"); // e.g. 120
 	return iThreshold;
 }
 
 int SASWarPowerContext::enemyWeakThreshold()
 {
-	static int const iThreshold = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
+	static int const iThreshold = GC.getDefineINT("SAS_ENEMY_WEAK_PWR_THRESH"); // e.g. 80
 	return iThreshold;
 }
 

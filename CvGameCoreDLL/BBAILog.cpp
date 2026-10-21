@@ -33,11 +33,11 @@ static SASBBAILogCategoryDescriptor const aSASBBAILogCategories[] =
 	{ "SAS_BBAI_TEAM_LOG_LEVEL", &SASBBAILogSettings::iTeamLogLevel },
 	{ "SAS_BBAI_WAR_LOG_LEVEL", &SASBBAILogSettings::iWarLogLevel },
 	{ "SAS_BBAI_CITY_LOG_LEVEL", &SASBBAILogSettings::iCityLogLevel },
-	{ "SAS_BBAI_PRODUCTION_NO_TARGET_LOG_LEVEL", &SASBBAILogSettings::iProductionNoTargetLogLevel },
-	{ "SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL", &SASBBAILogSettings::iMilitaryProductionLogLevel },
-	{ "SAS_BBAI_SPACE_PRODUCTION_LOG_LEVEL", &SASBBAILogSettings::iSpaceProductionLogLevel },
-	{ "SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL", &SASBBAILogSettings::iLimitedProjectProductionLogLevel },
-	{ "SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL", &SASBBAILogSettings::iBuildingProductionLogLevel },
+	{ "SAS_BBAI_PROD_NO_TARGET_LOG_LEVEL", &SASBBAILogSettings::iProductionNoTargetLogLevel },
+	{ "SAS_BBAI_MIL_PROD_LOG_LEVEL", &SASBBAILogSettings::iMilitaryProductionLogLevel },
+	{ "SAS_BBAI_SPACE_PROD_LOG_LEVEL", &SASBBAILogSettings::iSpaceProductionLogLevel },
+	{ "SAS_BBAI_LIMITED_PROJECT_PROD_LOG_LEVEL", &SASBBAILogSettings::iLimitedProjectProductionLogLevel },
+	{ "SAS_BBAI_BLDG_PROD_LOG_LEVEL", &SASBBAILogSettings::iBuildingProductionLogLevel },
 	{ "SAS_BBAI_CITIZEN_LOG_LEVEL", &SASBBAILogSettings::iCitizenLogLevel },
 	{ "SAS_BBAI_UNIT_LOG_LEVEL", &SASBBAILogSettings::iUnitLogLevel },
 	{ "SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL", &SASBBAILogSettings::iOverseasTransportLogLevel },
@@ -50,9 +50,9 @@ static SASBBAILogCategoryDescriptor const aSASBBAILogCategories[] =
 	{ "SAS_BBAI_MAP_LOG_LEVEL", &SASBBAILogSettings::iMapLogLevel },
 	{ "SAS_BBAI_DEAL_CANCEL_LOG_LEVEL", &SASBBAILogSettings::iDealCancelLogLevel },
 	{ "SAS_BBAI_BONUS_LOG_LEVEL", &SASBBAILogSettings::iBonusLogLevel },
-	{ "SAS_BBAI_CULTURE_LOG_LEVEL", &SASBBAILogSettings::iCultureLogLevel },
+	{ "SAS_BBAI_CULT_LOG_LEVEL", &SASBBAILogSettings::iCultureLogLevel },
 	{ "SAS_BBAI_UWAI_AGENT_LOG_LEVEL", &SASBBAILogSettings::iUWAIAgentLogLevel },
-	{ "SAS_BBAI_UWAI_MILITARY_ANALYST_LOG_LEVEL", &SASBBAILogSettings::iUWAIMilitaryAnalystLogLevel },
+	{ "SAS_BBAI_UWAI_MIL_ANALYST_LOG_LEVEL", &SASBBAILogSettings::iUWAIMilitaryAnalystLogLevel },
 	{ "SAS_BBAI_UWAI_INVASION_GRAPH_LOG_LEVEL", &SASBBAILogSettings::iUWAIInvasionGraphLogLevel },
 	{ "SAS_BBAI_UWAI_ARMAMENT_FORECAST_LOG_LEVEL", &SASBBAILogSettings::iUWAIArmamentForecastLogLevel },
 	{ "SAS_BBAI_UWAI_WAR_UTILITY_LOG_LEVEL", &SASBBAILogSettings::iUWAIWarUtilityLogLevel }
@@ -71,7 +71,7 @@ SASBBAILogSettings gSASBBAILogSettings;
 void cacheSASBBAILogSettings()
 {
 	SASBBAILogSettings& kSettings = gSASBBAILogSettings;
-	bool const bMasterEnabled = (GC.getDefineINT("SAS_BBAI_LOG_ENABLE") > 0);
+	bool const bMasterEnabled = (GC.getDefineINT("SAS_BBAI_LOG_ON") > 0);
 	kSettings.bMasterEnabled = bMasterEnabled;
 	bool bAnyCategoryEnabled = false;
 	int const iCategoryCount = getSASBBAILogCategoryCount();
@@ -90,7 +90,7 @@ void cacheSASBBAILogSettings()
 // These are not category levels: the score interval is clamped to at least one, the timestamp/Food-support switches are booleans, and the high-war-utility threshold remains an integer. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static int getSASBBAIScoreLogIntervalConfigured()
 {
-	return std::max(1, GC.getDefineINT("SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED"));
+	return std::max(1, GC.getDefineINT("SAS_BBAI_SCORE_LOG_INTERVAL_T_UNSCALED_GS"));
 }
 
 static int getSASBBAITimestampedFilenameConfigured()
@@ -100,14 +100,14 @@ static int getSASBBAITimestampedFilenameConfigured()
 
 static int getSASBBAIFoodSupportAuditConfigured()
 {
-	return GC.getDefineBOOL("SAS_BBAI_FOUND_LATER_CITY_FOOD_SUPPORT_AUDIT_ENABLE");
+	return GC.getDefineBOOL("SAS_BBAI_FOUND_LATER_FOOD_SUPPORT_AUDIT_ON");
 }
 
 // <!-- custom: The high-war-utility threshold controls potentially large WAR level-3 scenario/component output; zero disables it independently of the category.
 // Share this reader with the diagnostic profile while preserving the evaluator's first-use cache and threshold semantics. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static int getSASBBAIHighWarUtilityThresholdConfigured()
 {
-	return GC.getDefineINT("SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD");
+	return GC.getDefineINT("SAS_UWAI_HIGH_UTILITY_LOG_THRESH");
 }
 
 int getSASBBAIHighWarUtilityLogThreshold()
@@ -317,7 +317,7 @@ static void logSASBBAILogSettings()
 		szCategorySettings += CvString::format(" %s=%d", kCategory.szDefineName,
 				gSASBBAILogSettings.*(kCategory.pLogLevel));
 	}
-	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d%s SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d",
+	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ON=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d%s SAS_BBAI_SCORE_LOG_INTERVAL_T_UNSCALED_GS=%d",
 		isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), szCategorySettings.GetCString(), gScoreLogInterval);
 	// <!-- custom: Reuse the same supporting-option fields as SASGameRecord while preserving the existing BBAI_LOG_SETTINGS row. (GPT-6.1-Sol) -->
 	logBBAI("BBAI_LOG_SUPPORTING_SETTINGS %s", getSASBBAILogSupportingProfileFields().GetCString());
