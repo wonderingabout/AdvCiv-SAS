@@ -24,7 +24,7 @@ jobs:
       - name: XML tags referenced by defines
         run: python .github/workflows/build/xml/define_tag_refs.py
 
-      - name: Nonempty global defines
+      - name: Global define content and uniqueness
         run: python .github/workflows/build/xml/global_defines_nonempty.py
 
       - name: Global define fixed-buffer lengths

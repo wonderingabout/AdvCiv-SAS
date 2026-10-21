@@ -418,7 +418,11 @@ Inherited AdvCiv/BUG/BULL text remains outside the blocking unused-key check bec
 
 #### `build/xml/global_defines_nonempty.py`
 
-Verifies GlobalDefines XML files under `Assets/XML` have `<Define>` entries with non-empty `<DefineName>` values, unique define names within each file, and exactly one non-empty value field (normally `iDefineIntVal`, `fDefineFloatVal`, or `DefineTextVal`). This preventively catches accidental blank define values.
+Verifies shipped root GlobalDefines/PythonCallbackDefines and modular `*_GlobalDefines.xml` / `*_PythonCallbackDefines.xml` files have non-empty `<DefineName>` values, globally unique names across those files, and exactly one non-empty value field (normally `iDefineIntVal`, `fDefineFloatVal`, or `DefineTextVal`).
+
+All shipped names share the check, including inherited and SAS names. Duplicate declarations fail even if their values match; diagnostics report both files and declaration indexes, and collect all collisions in one run. Shortened SAS names can otherwise collide despite their common `SAS_` prefix.
+
+The engine permits overrides, but this check requires uniqueness within the shipped files rather than silently accepting load-order-dependent duplicates. It does not compare against unshipped base-game files or separately installed mods; an intentional override within the shipped set requires explicit review of the check.
 
 We check this because we suspect they may possibly cause unclear errors; for intentional "empty" string-like behavior, explicit values such as `NONE` are clearer and more reliable.
 

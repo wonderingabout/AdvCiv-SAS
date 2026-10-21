@@ -14,8 +14,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 
 from xml_defines import get_default_repo_root, local_name, child_text_by_local_name
 
+# <!-- custom: Share shipped-file discovery with the loader-capacity check so callback and modular defines participate in the same uniqueness check as root GlobalDefines. (GPT-6.1-Sol) -->
+from global_define_lengths import loaded_define_paths
 
-GLOBAL_DEFINES_RELATIVE_GLOB = "Assets/XML/*GlobalDefines*.xml"
+
 # <!-- custom: Civ4 usually stores boolean defines as integer 0/1 values, but keep this here so a future schema/helper variant fails cleanly instead of looking value-less. (ChatGPT-5.5) -->
 VALUE_FIELD_NAMES = ("iDefineIntVal", "fDefineFloatVal", "DefineTextVal", "bDefineBoolVal")
 
@@ -32,7 +34,9 @@ def direct_child_values_by_local_name(node: ET.Element, child_name: str) -> list
 	return values
 
 
-def check_global_defines_file(relative_path: Path, absolute_path: Path) -> list[str]:
+# <!-- custom: Share declaration locations across files to catch renamed SAS keys colliding with another shipped setting, not just duplicates inside one XML file.
+# Keep the optional standalone-file call; report both locations even when values match, since a repeated key hides independent settings behind load order. (GPT-6.1-Sol) -->
+def check_global_defines_file(relative_path: Path, absolute_path: Path, seen_names: dict[str, tuple[Path, int]] | None = None) -> list[str]:
 	failures: list[str] = []
 
 	try:
@@ -45,7 +49,8 @@ def check_global_defines_file(relative_path: Path, absolute_path: Path) -> list[
 		failures.append(f"{relative_path}: no <Define> entries found")
 		return failures
 
-	seen_names: dict[str, int] = {}
+	if seen_names is None:
+		seen_names = {}
 
 	for index, define in enumerate(define_nodes, 1):
 		name = child_text_by_local_name(define, "DefineName")
@@ -54,11 +59,12 @@ def check_global_defines_file(relative_path: Path, absolute_path: Path) -> list[
 		if not name:
 			failures.append(f"{relative_path}: <Define> #{index} has empty or missing <DefineName>")
 		else:
-			previous_index = seen_names.get(name)
-			if previous_index is not None:
-				failures.append(f"{relative_path}: {name} duplicate <DefineName> also used by <Define> #{previous_index}")
+			previous = seen_names.get(name)
+			if previous is not None:
+				previous_path, previous_index = previous
+				failures.append(f"{relative_path}: <Define> #{index}: {name} duplicate <DefineName>; first declared in {previous_path}: <Define> #{previous_index}")
 			else:
-				seen_names[name] = index
+				seen_names[name] = (relative_path, index)
 
 		present_value_fields: list[str] = []
 		nonempty_value_fields: list[str] = []
@@ -84,31 +90,32 @@ def check_global_defines_file(relative_path: Path, absolute_path: Path) -> list[
 
 def check_global_defines_nonempty(repo_root: Path) -> list[str]:
 	failures: list[str] = []
-	paths = sorted(repo_root.glob(GLOBAL_DEFINES_RELATIVE_GLOB))
+	paths = loaded_define_paths(repo_root)
 
 	if not paths:
-		return [f"{GLOBAL_DEFINES_RELATIVE_GLOB}: no GlobalDefines XML files found"]
+		return ["no shipped GlobalDefines/PythonCallbackDefines XML files found"]
 
+	seen_names: dict[str, tuple[Path, int]] = {}
 	for path in paths:
-		failures.extend(check_global_defines_file(path.relative_to(repo_root), path))
+		failures.extend(check_global_defines_file(path.relative_to(repo_root), path, seen_names))
 
 	return failures
 
 
 def main() -> int:
-	parser = argparse.ArgumentParser(description="Check that AdvCiv-SAS GlobalDefines XML entries have non-empty names and values.")
+	parser = argparse.ArgumentParser(description="Check shipped GlobalDefines/PythonCallbackDefines for non-empty entries and globally unique names.")
 	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
 	args = parser.parse_args()
 
 	failures = check_global_defines_nonempty(args.repo_root)
 
 	if failures:
-		print("FAIL GlobalDefines non-empty entries")
+		print("FAIL GlobalDefines content/uniqueness")
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
 
-	print("PASS GlobalDefines non-empty entries")
+	print("PASS GlobalDefines content/uniqueness")
 	return 0
 
 
