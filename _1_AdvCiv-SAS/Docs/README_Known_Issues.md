@@ -34035,7 +34035,7 @@ At this pre-policy stage, 96 bytes and 80 bytes were considered as gentler possi
 
 The initial review also cautioned that adopting the inherited 42-46-byte scale directly would rename hundreds of otherwise understandable SAS settings. The later policy discussion deliberately chose to test Base AdvCiv's 42-byte maximum anyway, using actual renames to decide whether that stricter direct-parent baseline preserves clarity well enough.
 
-The cleanup also replaces the old blanket `SAS_<func_name>_<effect>` guidance with a concise `SAS_<family>_<effect>` rule. Exact function ownership belongs in nearby rationale when useful; names should retain meaningful units and game-speed semantics.
+The trial replaced the old blanket `SAS_<func_name>_<effect>` guidance with `SAS_<family>_<effect>`. General naming guidance is maintained in [AGENTS.md](/AGENTS.md#defines-and-ai-behavior), rather than in this issue history.
 
 Pending family-by-family renames until the 42-byte trial checker passes, followed by a refreshed current census in the living source-analysis document. Historical old-to-new names remain searchable here, in Git history and in commit messages.
 
@@ -34046,6 +34046,44 @@ This comparison records the first trial only; the XML value remains 50 and Pytho
 | Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
 | --- | ---: | --- | ---: | ---: | ---: |
 | `SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT` | 43 | `SAS_COMMERCE_SLIDERS_FAST_INCR_PCT` | 34 | 9 | 20.93% |
+
+### 2026-10-21 AI production-capacity family batch
+
+The first larger cleanup batch keeps one `CvCityAI::AI_chooseProduction` tuning family together: the normal offensive production floor, the secured land/naval profile, map scaling, peaceful naval cap and naval role weights. Only define names change; XML values, C++ variables and gameplay logic remain unchanged.
+
+All 27 replacement names fit the 42-byte trial target. The style checker therefore falls from 458 to 431 remaining violations after this batch.
+
+| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
+| --- | ---: | --- | ---: | ---: | ---: |
+| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_ANCIENT_PERCENT` | 74 | `SAS_AI_PROD_OFFENSE_FLOOR_ANCIENT_PCT` | 37 | 37 | 50.00% |
+| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_CLASSICAL_PERCENT` | 76 | `SAS_AI_PROD_OFFENSE_FLOOR_CLASSICAL_PCT` | 39 | 37 | 48.68% |
+| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MEDIEVAL_PERCENT` | 75 | `SAS_AI_PROD_OFFENSE_FLOOR_MEDIEVAL_PCT` | 38 | 37 | 49.33% |
+| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_RENAISSANCE_PERCENT` | 78 | `SAS_AI_PROD_OFFENSE_FLOOR_RENAISSANCE_PCT` | 41 | 37 | 47.44% |
+| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_INDUSTRIAL_PERCENT` | 77 | `SAS_AI_PROD_OFFENSE_FLOOR_INDUSTRIAL_PCT` | 40 | 37 | 48.05% |
+| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MODERN_PERCENT` | 73 | `SAS_AI_PROD_OFFENSE_FLOOR_MODERN_PCT` | 36 | 37 | 50.68% |
+| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_FUTURE_PERCENT` | 73 | `SAS_AI_PROD_OFFENSE_FLOOR_FUTURE_PCT` | 36 | 37 | 50.68% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_PRIMARY_AREA_PROFILE_ENABLE` | 60 | `SAS_AI_PROD_SECURED_PROFILE_ON` | 30 | 30 | 50.00% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_ANCIENT_PERCENT` | 70 | `SAS_AI_PROD_SECURED_LAND_ANCIENT_PCT` | 36 | 34 | 48.57% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_CLASSICAL_PERCENT` | 72 | `SAS_AI_PROD_SECURED_LAND_CLASSICAL_PCT` | 38 | 34 | 47.22% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_MEDIEVAL_PERCENT` | 71 | `SAS_AI_PROD_SECURED_LAND_MEDIEVAL_PCT` | 37 | 34 | 47.89% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_RENAISSANCE_PERCENT` | 74 | `SAS_AI_PROD_SECURED_LAND_RENAISSANCE_PCT` | 40 | 34 | 45.95% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_INDUSTRIAL_PERCENT` | 73 | `SAS_AI_PROD_SECURED_LAND_INDUSTRIAL_PCT` | 39 | 34 | 46.58% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_MODERN_PERCENT` | 69 | `SAS_AI_PROD_SECURED_LAND_MODERN_PCT` | 35 | 34 | 49.28% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_FUTURE_PERCENT` | 69 | `SAS_AI_PROD_SECURED_LAND_FUTURE_PCT` | 35 | 34 | 49.28% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_ANCIENT_PERCENT` | 71 | `SAS_AI_PROD_SECURED_NAVAL_ANCIENT_PCT` | 37 | 34 | 47.89% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_CLASSICAL_PERCENT` | 73 | `SAS_AI_PROD_SECURED_NAVAL_CLASSICAL_PCT` | 39 | 34 | 46.58% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_MEDIEVAL_PERCENT` | 72 | `SAS_AI_PROD_SECURED_NAVAL_MEDIEVAL_PCT` | 38 | 34 | 47.22% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_RENAISSANCE_PERCENT` | 75 | `SAS_AI_PROD_SECURED_NAVAL_RENAISSANCE_PCT` | 41 | 34 | 45.33% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_INDUSTRIAL_PERCENT` | 74 | `SAS_AI_PROD_SECURED_NAVAL_INDUSTRIAL_PCT` | 40 | 34 | 45.95% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_MODERN_PERCENT` | 70 | `SAS_AI_PROD_SECURED_NAVAL_MODERN_PCT` | 36 | 34 | 48.57% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_FUTURE_PERCENT` | 70 | `SAS_AI_PROD_SECURED_NAVAL_FUTURE_PCT` | 36 | 34 | 48.57% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_NON_NAVAL_HEAVY_TARGET_MULTIPLIER_PERCENT` | 80 | `SAS_AI_PROD_SECURED_NAVAL_OTHER_MULT_PCT` | 40 | 40 | 50.00% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_PEACEFUL_MAX_TRACKED_UNITS_PER_PORT_CITY` | 79 | `SAS_AI_PROD_SECURED_NAVAL_PEACE_MAX_PORT` | 40 | 39 | 49.37% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ASSAULT_SEA_WEIGHT` | 57 | `SAS_AI_PROD_SECURED_NAVAL_ASSAULT_WEIGHT` | 40 | 17 | 29.82% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ESCORT_SEA_WEIGHT` | 56 | `SAS_AI_PROD_SECURED_NAVAL_ESCORT_WEIGHT` | 39 | 17 | 30.36% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ATTACK_SEA_WEIGHT` | 56 | `SAS_AI_PROD_SECURED_NAVAL_ATTACK_WEIGHT` | 39 | 17 | 30.36% |
+
+The production-profile toggle uses `_ON` instead of `_ENABLE` to shorten the key without changing its 0/1 meaning or value. (GPT-6.1-Sol)
 
 <a id="ki-1002"></a>
 

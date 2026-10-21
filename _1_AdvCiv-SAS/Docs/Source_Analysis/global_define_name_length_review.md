@@ -52,7 +52,7 @@ Those public references are useful corroboration, but the local SDK source remai
 
 ## Current AdvCiv-SAS census
 
-2026-10-21 trial snapshot by GPT-6.1-Sol: the mod ships 977 unique names across nine GlobalDefines/PythonCallbackDefines files, comprising 667 SAS and 310 inherited names. After the representative rename, 458 names exceed the desired 42-byte maximum; the longest remains 114 bytes.
+2026-10-21 trial snapshot by GPT-6.1-Sol: the mod ships 977 unique names across nine GlobalDefines/PythonCallbackDefines files, comprising 667 SAS and 310 inherited names. After the representative rename and the 27-key production-capacity batch, 431 names exceed the desired 42-byte maximum; the longest remains 114 bytes.
 
 The pre-cleanup census and rationale are preserved in [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2). These tables describe the current trial state, rather than reserving space for an assumed final outcome. All current names are ASCII, so bytes equal characters.
 
@@ -67,17 +67,17 @@ Bands span five bytes; Share counts only that band, while the cumulative column 
 | 11-15 | 0 | 0.00% | 0.00% | `SAS_UI_FONT_BODY` (nearest; outside band) | 16 |
 | 16-20 | 8 | 1.20% | 1.20% | `SAS_BBAI_LOG_ENABLE` | 19 |
 | 21-25 | 16 | 2.40% | 3.60% | `SAS_BBAI_CITY_LOG_LEVEL` | 23 |
-| 26-30 | 22 | 3.30% | 6.90% | `SAS_LAUNCH_GUARD_TEST_STRING` | 28 |
-| 31-35 | 50 | 7.50% | 14.39% | `SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK` | 33 |
-| 36-40 | 75 | 11.24% | 25.64% | `SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL` | 38 |
-| 41-45 | 99 | 14.84% | 40.48% | `SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE` | 43 |
-| 46-50 | 93 | 13.94% | 54.42% | `SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE` | 48 |
-| 51-55 | 73 | 10.94% | 65.37% | `SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP` | 53 |
-| 56-60 | 64 | 9.60% | 74.96% | `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE` | 58 |
-| 61-65 | 46 | 6.90% | 81.86% | `SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_PREFERRED_MIN_POPULATION` | 63 |
-| 66-70 | 32 | 4.80% | 86.66% | `SAS_AI_BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT_OPTIMIZE` | 68 |
-| 71-75 | 46 | 6.90% | 93.55% | `SAS_AI_BUILDING_VALUE_DOMAIN_LAND_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE` | 73 |
-| 76-80 | 19 | 2.85% | 96.40% | `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_RENAISSANCE_PERCENT` | 78 |
+| 26-30 | 23 | 3.45% | 7.05% | `SAS_LAUNCH_GUARD_TEST_STRING` | 28 |
+| 31-35 | 52 | 7.80% | 14.84% | `SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK` | 33 |
+| 36-40 | 97 | 14.54% | 29.39% | `SAS_AI_PROD_OFFENSE_FLOOR_MEDIEVAL_PCT` | 38 |
+| 41-45 | 101 | 15.14% | 44.53% | `SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE` | 43 |
+| 46-50 | 93 | 13.94% | 58.47% | `SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE` | 48 |
+| 51-55 | 73 | 10.94% | 69.42% | `SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP` | 53 |
+| 56-60 | 60 | 9.00% | 78.41% | `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE` | 58 |
+| 61-65 | 46 | 6.90% | 85.31% | `SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_PREFERRED_MIN_POPULATION` | 63 |
+| 66-70 | 27 | 4.05% | 89.36% | `SAS_AI_BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT_OPTIMIZE` | 68 |
+| 71-75 | 33 | 4.95% | 94.30% | `SAS_AI_BUILDING_VALUE_DOMAIN_LAND_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE` | 73 |
+| 76-80 | 14 | 2.10% | 96.40% | `SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_FOCUSED_BUILDING_VALUE` | 78 |
 | 81-85 | 5 | 0.75% | 97.15% | `SAS_AI_BUILDING_VALUE_MILITARY_NATIONAL_WONDER_UNIT_PRODUCTION_SHARE_FLOOR_PERCENT` | 82 |
 | 86-90 | 6 | 0.90% | 98.05% | `SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_MAX_INDEPENDENT_RIVAL_TEAMS_IN_AREA` | 88 |
 | 91-95 | 5 | 0.75% | 98.80% | `SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_MIN_PRODUCTION_TURNS_NORMAL_GAMESPEED_WORTH_X100` | 93 |
@@ -144,7 +144,7 @@ The 42-byte rule is preventive and deliberately separate from KI#1001's hard 255
 
 The first representative rename abbreviates INCREMENT to INCR and PERCENT to PCT while retaining plural SLIDERS, the button-step meaning and the percentage unit. Its old-to-new mapping and size reduction are recorded in [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2).
 
-The CI is expected to remain red after this one migration because the historical tail is intentionally being cleaned in later family-by-family batches. The current census above records the actual trial state; refresh it when further progress makes an updated comparison worthwhile.
+After the 27-key production-capacity batch, 431 names remain above 42 bytes, so the style check still fails on those names. The current census above records this snapshot; the historical baseline and batch mappings remain in KI#1001.2.
 
 ## Performance considerations
 

@@ -4824,39 +4824,39 @@ void CvCityAI::AI_chooseProduction()
 
 	// <!-- custom: Adapt the tested era military floor after the primary landmass is secured.
 	// Local rivals/Barbarians/land war keep the full land floor; otherwise lower it and normally redirect the released share to naval logistics on naval-heavy maps. See KI#197.11. (GPT-5.6 Thinking + ChatGPT-5.6-Sol) -->
-	static bool const bSASSecuredPrimaryAreaProfile = GC.getDefineBOOL("SAS_AI_CHOOSE_PRODUCTION_SECURED_PRIMARY_AREA_PROFILE_ENABLE");
+	static bool const bSASSecuredPrimaryAreaProfile = GC.getDefineBOOL("SAS_AI_PROD_SECURED_PROFILE_ON");
 	static const int aiSASMinOffensiveProductionCapacityPercent[] = {
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_ANCIENT_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_CLASSICAL_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MEDIEVAL_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_RENAISSANCE_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_INDUSTRIAL_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MODERN_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_FUTURE_PERCENT")))
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_OFFENSE_FLOOR_ANCIENT_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_OFFENSE_FLOOR_CLASSICAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_OFFENSE_FLOOR_MEDIEVAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_OFFENSE_FLOOR_RENAISSANCE_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_OFFENSE_FLOOR_INDUSTRIAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_OFFENSE_FLOOR_MODERN_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_OFFENSE_FLOOR_FUTURE_PCT")))
 	};
 	static const int aiSASSecuredLandOffensiveProductionCapacityPercent[] = {
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_ANCIENT_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_CLASSICAL_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_MEDIEVAL_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_RENAISSANCE_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_INDUSTRIAL_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_MODERN_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_FUTURE_PERCENT")))
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_LAND_ANCIENT_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_LAND_CLASSICAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_LAND_MEDIEVAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_LAND_RENAISSANCE_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_LAND_INDUSTRIAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_LAND_MODERN_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_LAND_FUTURE_PCT")))
 	};
 	static const int aiSASSecuredNavalOffensiveProductionCapacityPercent[] = {
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_ANCIENT_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_CLASSICAL_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_MEDIEVAL_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_RENAISSANCE_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_INDUSTRIAL_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_MODERN_PERCENT"))),
-		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_FUTURE_PERCENT")))
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_ANCIENT_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_CLASSICAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_MEDIEVAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_RENAISSANCE_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_INDUSTRIAL_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_MODERN_PCT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_FUTURE_PCT")))
 	};
-	static int const iSASSecuredNavalAssaultWeight = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ASSAULT_SEA_WEIGHT"));
-	static int const iSASSecuredNavalEscortWeight = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ESCORT_SEA_WEIGHT"));
-	static int const iSASSecuredNavalAttackWeight = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ATTACK_SEA_WEIGHT"));
-	static int const iSASSecuredNavalNonNavalHeavyTargetMultiplierPercent = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_NON_NAVAL_HEAVY_TARGET_MULTIPLIER_PERCENT"));
-	static int const iSASSecuredNavalPeacefulMaxTrackedUnitsPerPortCity = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_PEACEFUL_MAX_TRACKED_UNITS_PER_PORT_CITY"));
+	static int const iSASSecuredNavalAssaultWeight = std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_ASSAULT_WEIGHT"));
+	static int const iSASSecuredNavalEscortWeight = std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_ESCORT_WEIGHT"));
+	static int const iSASSecuredNavalAttackWeight = std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_ATTACK_WEIGHT"));
+	static int const iSASSecuredNavalNonNavalHeavyTargetMultiplierPercent = std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_OTHER_MULT_PCT"));
+	static int const iSASSecuredNavalPeacefulMaxTrackedUnitsPerPortCity = std::max(0, GC.getDefineINT("SAS_AI_PROD_SECURED_NAVAL_PEACE_MAX_PORT"));
 	int const iLastConfiguredEra = (int)(sizeof(aiSASMinOffensiveProductionCapacityPercent) / sizeof(aiSASMinOffensiveProductionCapacityPercent[0])) - 1;
 	int const iCurrentEra = std::min(iLastConfiguredEra, std::max(0, (int)kPlayer.getCurrentEra()));
 	bool const bProductionCapacityBaseContextEligible = (bPrimaryArea && !bFinancialTrouble && !bDanger && !bAlwaysPeace && !bGetBetterUnits && !bCultureCity && !bUnitExempt);
