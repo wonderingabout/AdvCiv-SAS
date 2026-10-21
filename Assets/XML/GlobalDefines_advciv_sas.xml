@@ -1675,7 +1675,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	0 (default) uses normal AdvCiv logic; with current weights, 5000 = 50.00% = 1200 and 6250 = 62.50% = 1500.
 	This scales with XML yields instead of fixing an absolute value. See KI#181.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_FIRST_EXPANSION_MIN_FOUND_VALUE_REFERENCE_BFC_PERCENT_X100</DefineName>
+		<DefineName>SAS_UNITSEL_1ST_SETTLER_MIN_BFC_PCT_X100</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Optional early/midgame Settler production floor as percent times 100 of the same 20-plot sustainable reference BFC.
@@ -1684,7 +1684,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	This is an AI build-choice gate, not canTrain: humans, scripts, existing Settlers/queues, and later expansion remain legal.
 	0 restores normal AdvCiv minimum found value. (ChatGPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_REFERENCE_BFC_PERCENT_X100</DefineName>
+		<DefineName>SAS_UNITSEL_EARLY_SETTLER_MIN_BFC_PCT_X100</DefineName>
 		<iDefineIntVal>8333</iDefineIntVal>
 	</Define>
 	<!-- custom: City count before the full early/midgame floor applies.
@@ -1692,13 +1692,13 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Great Plains logs found several one-city AIs never training a Settler when the full floor began at 1.
 	Lower to restore that stricter behavior; raise to exempt more early expansion. See KI#181.2. (ChatGPT-5.5 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES</DefineName>
+		<DefineName>SAS_UNITSEL_EARLY_SETTLER_MIN_CITIES</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: Highest player era index where the early/midgame Settler found-value floor applies; default 2 corresponds to Medieval in the normal Civ4 era order, so Renaissance+ expansion returns to normal AdvCiv valuation.
 	Set to -1 to ignore era and keep the floor active whenever the city-count threshold is met. (ChatGPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MAX_ERA</DefineName>
+		<DefineName>SAS_UNITSEL_EARLY_SETTLER_MAX_ERA</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: Great People can productively wait a few turns for Golden Age partners (i.e. another GP type necessary to start a Golden Age), but BBAI logs showed Persia holding some for 29-32 turns because Golden Age value kept blocking lower but usable actions.
@@ -2350,7 +2350,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	A slower city normally defers to the preferred same-area food/hammer pump, but if every city is slow the preferred available city still builds instead of waiting.
 	0 disables this allocation optimization. See KI#198.2. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
+		<DefineName>SAS_UNITSEL_FOOD_PROD_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
 	<!-- custom: Population tolerance for preferring a currently stagnant city over the largest eligible same-area city when a slow AI city delegates a non-combat food-production unit.
@@ -2359,7 +2359,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	If no stagnant city is this close to the largest candidate, highest population wins.
 	0 disables the stagnant-city preference. (GPT-5.6 Thinking) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_STAGNANT_POPULATION_GAP</DefineName>
+		<DefineName>SAS_UNITSEL_FOOD_PROD_STAGNANT_POP_GAP</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 	<!-- custom: Allow the first and only capital, when not in danger, to produce one immediately useful Work Boat or required land Worker before filling an empty city garrison.
@@ -2926,7 +2926,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 	<!-- custom: see code comment at SAS_CAN_SCRAP_OPTIMIZE -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_OPTIMIZE</DefineName>
+		<DefineName>SAS_UNITSEL_OPT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Central pre-push safety net for fresh land combat units when an AI master is peacefully and clearly over-militarized.
@@ -2935,38 +2935,38 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	On crowded/Pangaea landmasses, multiple independent local rival blocs keep this brake off by default, while any war or war plan immediately restores normal land-unit production.
 	Level-3 military-production logging records the same conditions for validation. See KI#53.5. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_OPTIMIZE</DefineName>
+		<DefineName>SAS_UNITSEL_PEACE_LAND_SAT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Do not apply the peaceful land-military saturation gate to tiny primary land areas.
 	The code compares this threshold with the AI city count on the current primary landmass, not distant colonies; this is a stockpile brake for an established local position, not an early minimum-defense rule. See KI#53.5. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_MIN_CITIES</DefineName>
+		<DefineName>SAS_UNITSEL_PEACE_LAND_SAT_MIN_CITIES</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 	<!-- custom: Base number of existing-or-training main land military UnitAIs required per city on this primary land area before the peaceful saturation gate can reject another fresh land combat unit.
 	The code adds the per-era value below and the Aggressive AI extra when applicable; armies on other landmasses do not count toward this stock threshold. See KI#53.5. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_BASE_UNITS_PER_CITY</DefineName>
+		<DefineName>SAS_UNITSEL_PEACE_LAND_SAT_BASE_PER_CITY</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 	<!-- custom: Additional main land military units per city required for each current era index.
 	With base 4, this gives 4/5/6/7/8/9/10 before the Aggressive AI adjustment from Ancient through Future, making saturation possible in every era but increasingly conservative as armies naturally grow. See KI#53.5. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_UNITS_PER_CITY_PER_ERA</DefineName>
+		<DefineName>SAS_UNITSEL_PEACE_LAND_SAT_PER_CITY_ERA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Extra main land military units per city required before the saturation gate can activate under the Aggressive AI game option.
 	This preserves the option's intended higher military posture while still allowing truly extreme stockpiles to stop growing forever. See KI#53.5. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_AGGRESSIVE_AI_EXTRA_UNITS_PER_CITY</DefineName>
+		<DefineName>SAS_UNITSEL_PEACE_LAND_SAT_AGGR_PER_CITY</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum power of our master-team bloc, as a percentage of the combined known independent rival master-team blocs that still own cities on this primary land area, before the peaceful saturation gate can reject a fresh land combat unit.
 	125 requires a clear 25% local-continent lead; when no independent rival bloc remains on the landmass, this power condition is already satisfied once the separate very-large-stock and peace/safety gates pass.
 	A stronger overseas rival does not by itself require still more home-continent land units and is instead relevant to naval/air/projection decisions. See KI#53.5. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_MIN_LOCAL_RIVAL_POWER_ADVANTAGE_PERCENT</DefineName>
+		<DefineName>SAS_UNITSEL_PEACE_LAND_SAT_MIN_PWR_ADV_PCT</DefineName>
 		<iDefineIntVal>125</iDefineIntVal>
 	</Define>
 	<!-- custom: Maximum number of independent rival master-team blocs allowed to still own cities in this city's land area when the peaceful saturation gate activates.
@@ -2974,40 +2974,40 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Vassals in the same master bloc count together.
 	The default 1 also keeps this optimization naturally inactive on crowded/Pangaea landmasses with two or more independent local blocs, preserving room for dogpiles and multi-front threats until the strategic situation is genuinely consolidated. See KI#53.5. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_PEACEFUL_LAND_MILITARY_SATURATION_MAX_INDEPENDENT_RIVAL_TEAMS_IN_AREA</DefineName>
+		<DefineName>SAS_UNITSEL_PEACE_LAND_SAT_MAX_RIVAL_TEAMS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Central efficiency brake for fresh discretionary land-combat units when a safe peaceful primary-area city has genuinely needed non-limited infrastructure that can finish no slower than the unit and empire military spending is already clearly above its normal allowance.
 	This complements KI#53.5: saturation handles huge army stock, while this rule asks whether one more offensive unit is a worse marginal purchase than cheap health/happiness/maintenance infrastructure.
 	It only vetoes the unit and lets the existing AI_chooseProduction search continue; it does not force a particular building. See KI#197.12. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_OPTIMIZE</DefineName>
+		<DefineName>SAS_UNITSEL_NEED_INFRA_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Maximum city-specific construction time of a qualifying needed building as a percentage of the exact fresh discretionary land-combat unit being considered.
 	100 means the building must finish in the same number of turns or faster.
 	Turn comparison is preferred to nominal XML hammer cost because trait/resource/building modifiers can make infrastructure much cheaper in practice. See KI#197.12. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MAX_BUILDING_TO_UNIT_PRODUCTION_TIME_PERCENT</DefineName>
+		<DefineName>SAS_UNITSEL_NEED_INFRA_MAX_BUILD_TIME_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: Require current unit spending to exceed the central AI_maxUnitCostPerMil estimate by at least this many points before cheap infrastructure may veto another discretionary offensive land unit.
 	15 deliberately matches the common K-Mod/SAS +15 military-production tolerance, so under-strength or merely normally-funded armies remain untouched. See KI#197.12. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MIN_UNIT_SPENDING_OVER_MAX</DefineName>
+		<DefineName>SAS_UNITSEL_NEED_INFRA_MIN_SPEND_OVER_MAX</DefineName>
 		<iDefineIntVal>15</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum current city maintenance, in hundredths of gold per turn, before an actual maintenance-reducing building can qualify for the cheap-needed-infrastructure gate.
 	300 = 3.00 gold/turn.
 	Health and happiness use direct local deficits instead and do not use this threshold. See KI#197.12. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MIN_CITY_MAINTENANCE_TIMES100</DefineName>
+		<DefineName>SAS_UNITSEL_NEED_INFRA_MIN_CITY_MAINT_X100</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum focused AI_buildingValue required for a maintenance-reducing building to qualify.
 	This avoids using a low-value Courthouse-like building merely because it is cheap; health/happiness candidates instead require an actual local deficit. See KI#197.12. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_NEEDED_INFRASTRUCTURE_MIN_MAINTENANCE_BUILDING_VALUE</DefineName>
+		<DefineName>SAS_UNITSEL_NEED_INFRA_MIN_MAINT_BUILD_VAL</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<!-- custom: Follow-up efficiency brake for fresh discretionary land-combat units when a safe peaceful primary-area city has cheap high-return FOOD/PRODUCTION/GOLD/RESEARCH infrastructure.
@@ -3015,39 +3015,39 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	It only vetoes the unit and lets normal AI_chooseProduction continue; it does not force a building.
 	Validated on Huge naval-heavy Archipelago and land-heavy Custom Continents controls/candidates; enabled by default. See KI#197.13. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_OPTIMIZE</DefineName>
+		<DefineName>SAS_UNITSEL_HI_RETURN_INFRA_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Maximum city-specific construction time of a qualifying FOOD/PRODUCTION/GOLD/RESEARCH building as a percentage of the exact fresh discretionary land-combat unit being considered.
 	75 means the building must finish in at most three quarters of the unit's production time.
 	This is deliberately stricter than the 100% hard-need rule because these economic opportunities do not represent an immediate local deficit. See KI#197.13. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MAX_BUILDING_TO_UNIT_PRODUCTION_TIME_PERCENT</DefineName>
+		<DefineName>SAS_UNITSEL_HI_RETURN_MAX_BUILD_TIME_PCT</DefineName>
 		<iDefineIntVal>75</iDefineIntVal>
 	</Define>
 	<!-- custom: Require current unit spending to exceed AI_maxUnitCostPerMil by at least this many points before a cheap high-return economic building may veto another discretionary offensive land unit.
 	15 matches the validated hard-needed-infrastructure gate and the common SAS/K-Mod military-production tolerance. See KI#197.13. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_UNIT_SPENDING_OVER_MAX</DefineName>
+		<DefineName>SAS_UNITSEL_HI_RETURN_MIN_SPEND_OVER_MAX</DefineName>
 		<iDefineIntVal>15</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum focused AI_buildingValue for a FOOD/PRODUCTION/GOLD/RESEARCH candidate.
 	50 filters out minor opportunities before the separate focus-value-gain test asks whether that economic focus materially strengthens the case for this exact building. See KI#197.13. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_FOCUSED_BUILDING_VALUE</DefineName>
+		<DefineName>SAS_UNITSEL_HI_RETURN_MIN_FOCUS_BUILD_VAL</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum increase in AI_buildingValue when evaluating the candidate under its FOOD/PRODUCTION/GOLD/RESEARCH focus instead of ordinary zero-focus evaluation.
 	20 prevents a broadly useful building from qualifying merely because it happened to win a focused scan; the focus itself must add meaningful strategic value. See KI#197.13. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_FOCUS_VALUE_GAIN</DefineName>
+		<DefineName>SAS_UNITSEL_HI_RETURN_MIN_FOCUS_VAL_GAIN</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 
 	<!-- custom: set this to enable advciv-sas anti excess siege code (via one of the AI_ChooseUnit functions).
 	1 to enabled (recommended), 0 to disabled (disables it entirely, if you want to selectively disable some features, consider tweaking one or a few of the sub configure options below instead); Long_Comments_XML.txt #167 -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES</DefineName>
+		<DefineName>SAS_UNITSEL_SIEGE_CAP_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Percent by which to raise the pre-Renaissance siege-share caps when the producing city has no currently trainable non-siege main attacker meeting the relative-strength floor below.
@@ -3071,17 +3071,17 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 	<!-- custom: extra min cap on top of the computed max trebuchets-like units allowed if we are restricting trebuchets-like units; Long_Comments_XML.txt #166 -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP</DefineName>
+		<DefineName>SAS_UNITSEL_TREBLIKE_MIN_EXTRA_CAP</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: this is the general toggle for all sieges units, including trebuchets-like units but not only (catapults, trebuchets, cannons (note: from rennaisance onwards, thresholds are more generous, as cannons are versatile and strong, but we still avoid overbuilding them, just with more generous thresholds), etc.) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL</DefineName>
+		<DefineName>SAS_UNITSEL_SIEGE_ALL_CAP_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: always useful to have some minimal extra threshold, just don't overdo it -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP</DefineName>
+		<DefineName>SAS_UNITSEL_SIEGE_ALL_MIN_EXTRA_CAP</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 
@@ -3097,22 +3097,22 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Note: sometimes this is not effective, although quite often is and gives good results ingame, but seems to be overriden by some other logic sometimes.
 	I still recommend to keep it enabled though but adjust or test as you see fit -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS</DefineName>
+		<DefineName>SAS_UNITSEL_STRICT_DEF_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Long_Comments_XML.txt #210 -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT</DefineName>
+		<DefineName>SAS_UNITSEL_STRICT_DEF_REJECT_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Long_Comments_XML.txt #209 -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT</DefineName>
+		<DefineName>SAS_UNITSEL_STRICT_DEF_REPLACE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: if no good candidate, attempt to hijack the unitai rather; Long_Comments_XML.txt #187 -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI</DefineName>
+		<DefineName>SAS_UNITSEL_STRICT_DEF_HIJACK_UNITAI_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
@@ -3123,7 +3123,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	6 -> 350.
 	This used to share the removed CvCity::doTurn no-production fallback cap; keep the still-live replacement policy independently named now that KI#51 retires that fallback. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_REPLACEMENT_MAX_UNIT_HAMMER_COST_PER_ERA</DefineName>
+		<DefineName>SAS_UNITSEL_STRICT_DEF_REPL_MAX_HAMMER_ERA</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 
