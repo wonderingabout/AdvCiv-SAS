@@ -238,8 +238,9 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	<!-- custom: commerce sliders second (Min/Max) + + and - - pair step size (e.g., setting it to 50 makes it require 2 clicks to go from 0% to 100% (0->50->100) and vice versa for - -).
 	Keep in [1,100].
 	Base AdvCiv value: 100. (Claude code Opus 4.7) -->
+	<!-- custom: Rename SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT to SAS_COMMERCE_SLIDERS_FAST_INCR_PCT for the 42-byte naming trial; INCR and PCT abbreviate INCREMENT and PERCENT without changing plural SLIDERS, the button-step meaning, the percentage unit or the value. See KI#1001.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
-		<DefineName>SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT</DefineName>
+		<DefineName>SAS_COMMERCE_SLIDERS_FAST_INCR_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 

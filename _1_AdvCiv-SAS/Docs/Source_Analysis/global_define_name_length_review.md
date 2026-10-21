@@ -1,6 +1,6 @@
 # GlobalDefine name-length review
 
-Reviewed on 2026-10-21 by ChatGPT-5.6-Sol after the KI#1001 DefineTextVal capacity mitigation. This is a focused source/data review of `DefineName` length; it does not rename defines, change gameplay, add a stricter style CI limit, or resume the C++ File Audit Album.
+Reviewed on 2026-10-21 by ChatGPT-5.6-Sol after the KI#1001 DefineTextVal capacity mitigation, then continued through KI#1001.2 as a living naming-policy reference. The current cleanup trials a 42-byte desired maximum and representative renames without changing gameplay or resuming the C++ File Audit Album.
 
 ## Scope and conclusion
 
@@ -24,7 +24,7 @@ C031-WIP555 / F680, later KI#1001, found a concrete shipped `DefineTextVal` viol
 
 The same album pass also noticed `char szName[256]`. Its then-current data census measured the largest SAS `DefineName` at 126 bytes and explicitly classified define-name capacity as a preventive hardening surface rather than part of F680. The Queue-052 final raw-buffer census again found no second current capacity root.
 
-The current tree has since fallen from that 126-byte historical maximum to 114 bytes. This review therefore extends the preventive question without changing the completed album record or claiming another KI.
+The current tree has since fallen from that 126-byte historical maximum to 114 bytes. This review therefore extends the preventive question without changing the completed album record or claiming another demonstrated defect.
 
 ## Loader and lookup mechanics
 
@@ -52,44 +52,11 @@ Those public references are useful corroboration, but the local SDK source remai
 
 ## Current AdvCiv-SAS census
 
-The current mod folder contains 977 defines across the nine root GlobalDefines/PythonCallbackDefines files checked by the loader-safety CI.
+2026-10-21 trial snapshot by GPT-6.1-Sol: the mod ships 977 unique names across nine GlobalDefines/PythonCallbackDefines files, comprising 667 SAS and 310 inherited names. After the representative rename, 458 names exceed the desired 42-byte maximum; the longest remains 114 bytes.
 
-| Current file | Defines | Longest `DefineName` bytes | Longest name |
-| --- | ---: | ---: | --- |
-| `GlobalDefines_advciv_sas.xml` | 667 | 114 | `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_HEAVY_INVESTMENT_MAX_TURNS_NORMAL_GAMESPEED` |
-| `GlobalDefines_advc.xml` | 134 | 42 | `WE_LOVE_THE_KING_POPULATION_MIN_POPULATION` |
-| `PythonCallbackDefines.xml` | 62 | 38 | `USE_CAN_FOUND_CITIES_ON_WATER_CALLBACK` |
-| `GlobalDefinesAlt.xml` | 40 | 41 | `WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT` |
-| `AI_Variables_GlobalDefines.xml` | 38 | 36 | `UWAI_WEIGHT_THIRD_PARTY_INTERVENTION` |
-| `LeadFromBehind_GlobalDefines.xml` | 10 | 23 | `LFB_DEFENSIVEADJUSTMENT` |
-| `GlobalDefines_devel.xml` | 9 | 30 | `PER_PLAYER_MESSAGE_CONTROL_LOG` |
-| `BBAI_Game_Options_GlobalDefines.xml` | 9 | 32 | `BBAI_VICTORY_STRATEGY_DOMINATION` |
-| `TechDiffusion_GlobalDefines.xml` | 8 | 37 | `TECH_COST_FIRST_KNOWN_PREREQ_MODIFIER` |
+The pre-cleanup census and rationale are preserved in [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2). These tables describe the current trial state, rather than reserving space for an assumed final outcome. All current names are ASCII, so bytes equal characters.
 
-The eight non-SAS files total 310 defines and top out at 42 bytes. The large difference therefore comes from SAS's intentionally descriptive naming convention rather than a gradual inherited trend toward long keys.
-
-## External inherited/reference census
-
-The local `sources_refs` archives provide additional comparison points outside the current mod folder. Counts below reflect the GlobalDefines/PythonCallbackDefines files actually present in each supplied reference archive; mod archives can omit unchanged stock files, so the counts are not intended as total engine-wide define counts.
-
-| Reference | Defines scanned | Longest `DefineName` bytes | Longest name |
-| --- | ---: | ---: | --- |
-| AdvCiv 1.14 | 312 | 42 | `WE_LOVE_THE_KING_POPULATION_MIN_POPULATION` |
-| K-Mod 1.46 | 111 | 41 | `WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT` |
-| Civ4CE BtS stock XML | 430 | 46 | `INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT` |
-| Civ4CE Warlords stock XML | 311 | 46 | `INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT` |
-| Civ4CE Civ4 stock XML | 295 | 46 | `INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT` |
-| Taurus 1.04 | 34 | 30 | `GLOBAL_WARMING_UNHEALTH_WEIGHT` |
-
-These references reinforce two points: inherited naming is substantially shorter than current SAS naming, but the observed inherited maxima do not themselves establish an engine limit. In particular, using 42 or 46 bytes as a hard SAS rule would be a style decision rather than a source-supported safety requirement.
-
-## Name-length distributions and possible style ceilings
-
-2026-10-21 census by GPT-6.1-Sol: the 977 shipped names are unique and all ASCII, so byte and character lengths coincide. The tables separate the 667 `SAS_` names from the 310 inherited names shipped in the mod; the external reference archives above are outside these distributions.
-
-Each band spans five bytes. Share is the percentage in that band; the cumulative column gives the percentage at or below its upper bound. Each example is a real name from that band, with its exact length. Empty bands use the closest name from the same group, explicitly labelled as outside the band.
-
-This mirrors SAS's filename-length review approach: compare the distribution in five-unit bands alongside real examples to choose a useful desired maximum, while keeping that naming preference distinct from technical capacity limits.
+Bands span five bytes; Share counts only that band, while the cumulative column includes every name through its upper bound. Examples show actual lengths; empty bands explicitly label the nearest example from the same group. This follows the filename-length review approach.
 
 ### SAS names
 
@@ -101,9 +68,9 @@ This mirrors SAS's filename-length review approach: compare the distribution in 
 | 16-20 | 8 | 1.20% | 1.20% | `SAS_BBAI_LOG_ENABLE` | 19 |
 | 21-25 | 16 | 2.40% | 3.60% | `SAS_BBAI_CITY_LOG_LEVEL` | 23 |
 | 26-30 | 22 | 3.30% | 6.90% | `SAS_LAUNCH_GUARD_TEST_STRING` | 28 |
-| 31-35 | 49 | 7.35% | 14.24% | `SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK` | 33 |
-| 36-40 | 75 | 11.24% | 25.49% | `SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL` | 38 |
-| 41-45 | 100 | 14.99% | 40.48% | `SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE` | 43 |
+| 31-35 | 50 | 7.50% | 14.39% | `SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK` | 33 |
+| 36-40 | 75 | 11.24% | 25.64% | `SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL` | 38 |
+| 41-45 | 99 | 14.84% | 40.48% | `SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE` | 43 |
 | 46-50 | 93 | 13.94% | 54.42% | `SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE` | 48 |
 | 51-55 | 73 | 10.94% | 65.37% | `SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP` | 53 |
 | 56-60 | 64 | 9.60% | 74.96% | `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE` | 58 |
@@ -133,22 +100,34 @@ This mirrors SAS's filename-length review approach: compare the distribution in 
 | 36-40 | 17 | 5.48% | 99.03% | `REVOLT_DEFENSE_STATE_RELIGION_MODIFIER` | 38 |
 | 41-45 | 3 | 0.97% | 100.00% | `WE_LOVE_THE_KING_POPULATION_MIN_POPULATION` | 42 |
 
-The SAS median is 49 bytes; its nearest-rank 95th percentile is 77 bytes and its maximum is 114. An 80-byte ceiling accommodates 96.40% of current SAS names and leaves 24 above it; every inherited name already fits, with a maximum of 42 bytes.
+## External inherited/reference census
 
-### Possible style ceilings
+The local `sources_refs` archives provide additional comparison points outside the current mod folder. Counts below reflect the GlobalDefines/PythonCallbackDefines files actually present in each supplied reference archive; mod archives can omit unchanged stock files, so the counts are not intended as total engine-wide define counts.
 
-The four names above 96 bytes are:
+| Reference | Defines scanned | Longest `DefineName` bytes | Longest name |
+| --- | ---: | ---: | --- |
+| AdvCiv 1.14 | 312 | 42 | `WE_LOVE_THE_KING_POPULATION_MIN_POPULATION` |
+| K-Mod 1.46 | 111 | 41 | `WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT` |
+| Civ4CE BtS stock XML | 430 | 46 | `INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT` |
+| Civ4CE Warlords stock XML | 311 | 46 | `INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT` |
+| Civ4CE Civ4 stock XML | 295 | 46 | `INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT` |
+| Taurus 1.04 | 34 | 30 | `GLOBAL_WARMING_UNHEALTH_WEIGHT` |
 
-| Bytes | Current name |
-| ---: | --- |
-| 114 | `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_HEAVY_INVESTMENT_MAX_TURNS_NORMAL_GAMESPEED` |
-| 110 | `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_HEAVY_INVESTMENT_MIN_COMPLETION_PERCENT` |
-| 102 | `SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MIN_CHOP_BASE_PRODUCTION_TURNS_NORMAL_GAMESPEED_EQUIVALENT` |
-| 97 | `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_MAX_TURNS_NORMAL_GAMESPEED` |
+These references reinforce two points: inherited naming is substantially shorter than current SAS naming, but the observed inherited maxima do not themselves establish an engine limit. In particular, using 42 or 46 bytes as a hard SAS rule would be a style decision rather than a source-supported safety requirement.
 
-A possible later style rule around 96 bytes would therefore target only four current outliers while leaving 159 bytes of loader headroom. A lower rule such as 80 bytes would be a broader naming cleanup affecting 24 current SAS keys. Neither number is an engine requirement, and this review deliberately does not choose or enforce one.
+## Desired naming maximum and cleanup policy
 
-The inherited 42-46-byte range is useful as a comparison baseline, but adopting it directly would rename hundreds of otherwise understandable SAS settings. That would create substantial churn for little demonstrated benefit.
+The pre-cleanup five-byte distribution that informed this decision is preserved in [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2), alongside the historical 114-byte maximum and 459 names that exceeded 42 bytes.
+
+The current trial target is **42 UTF-8 bytes**, matching Base AdvCiv 1.14's longest supplied define name. AdvCiv is the direct parent and therefore the most relevant style baseline; stock BtS reaching 46 bytes remains useful external context rather than the chosen target.
+
+This mirrors SAS's filename-length review approach: inspect the empirical distribution and real names, then test the desired maximum against actual cleanup quality instead of treating a round number as self-justifying.
+
+The 42-byte rule is preventive and deliberately separate from KI#1001's hard 255-byte loader-safety boundary. If the cleanup repeatedly needs obscure abbreviations or would lose important units/semantics, revise the desired maximum rather than hiding meaning.
+
+The first representative rename abbreviates INCREMENT to INCR and PERCENT to PCT while retaining plural SLIDERS, the button-step meaning and the percentage unit. Its old-to-new mapping and size reduction are recorded in [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2).
+
+The CI is expected to remain red after this one migration because the historical tail is intentionally being cleaned in later family-by-family batches. The current census above records the actual trial state; refresh it when further progress makes an updated comparison worthwhile.
 
 ## Performance considerations
 
@@ -166,16 +145,17 @@ A pure rename that preserves the value and behavior should not require save conv
 
 Behavioral redesigns should remain separate. In particular, the later map-heaviness idea—treating map-script identity as indicative while also evaluating each player's actual geography—changes AI/gameplay interpretation and is not part of a define-name cleanup.
 
-## Possible follow-up workflow
+## Cleanup workflow
 
-A possible low-risk continuation would be:
+The cleanup workflow is:
 
 1. Keep the existing 255-byte loader-safety CI as the hard correctness boundary.
-2. If a lower style ceiling is desired, test it against one representative long define first and review whether the shorter name remains clear.
-3. Rename coherent families or functional groups in separate reviewable batches rather than mechanically abbreviating every key at once.
-4. Maintain an old-to-new mapping while renames are in progress so historical commits, logs and documentation remain searchable.
+2. Trial the 42-byte AdvCiv-scale desired maximum through the separate style checker.
+3. Rename coherent families or functional groups in reviewable batches rather than mechanically abbreviating every key at once.
+4. Keep important old-to-new mappings in KI#1001.2 and commit history so historical logs/code remain searchable.
+5. Refresh the current census when useful progress warrants it, retaining the historical baseline in KI#1001.2.
 
-If a lower style ceiling is eventually adopted, append the chosen rationale and conversion mapping here rather than rewriting the historical measurements above.
+If 42 bytes repeatedly harms clarity, revise the desired maximum explicitly rather than introducing cryptic abbreviations.
 
 ## Evidence and references
 

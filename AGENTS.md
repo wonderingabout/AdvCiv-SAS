@@ -549,7 +549,10 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 
 #### Defines and AI behavior
 
-- Prefer SAS defines for new AI toggles; use `SAS_<func_name>_<effect>` naming and a boolean-style enable/disable flag (int in XML, bool in C++). Rationale: toggles allow quick testing without recompiles; avoid overusing defines when the feature is tiny or unlikely to need tuning.
+- Prefer SAS defines for new AI toggles; use a concise, recognizable `SAS_<family>_<effect>` name rather than mechanically embedding the full function name, and use a boolean-style enable/disable flag (int in XML, bool in C++).
+  - Keep `DefineName` at or below the current 42-byte desired maximum. If that would require obscure abbreviations or lose important units/semantics, review the naming policy instead of hiding meaning.
+  - Prefer clear, consistent abbreviations such as `INCR` for `INCREMENT` and `PCT` for `PERCENT` where helpful, retaining plural scope and meaningful units rather than changing them merely to save characters.
+  - Put exact function ownership in nearby rationale comments when useful. Concise keys follow the direct AdvCiv naming scale while toggles still allow quick testing without recompiles; avoid overusing defines when the feature is tiny or unlikely to need tuning. See KI#1001.2.
 - Turn-valued SAS integer defines must make game-speed semantics explicit: use `TURN(S)_NORMAL_GAMESPEED` when the XML value is expressed at Normal speed and code scales it with the appropriate game-speed percentage, or `TURN(S)_UNSCALED_GAMESPEED` for intentional literal game/path turns such as movement distance.
   - Do not apply this to `SAS_DO_TURN_*` scope names or per-turn rate/value defines.
   - The automated [`turn_define_gamespeed.py`](/.github/workflows/build/xml/turn_define_gamespeed.py) check flags inconsistent turn-unit naming/semantics.

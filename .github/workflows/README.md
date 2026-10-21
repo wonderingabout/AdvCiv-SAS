@@ -439,6 +439,16 @@ One logical value uses an unsuffixed name. When split across two or more defines
 - A lone numbered key fails and should use the unsuffixed name; `EXAMPLE_LIST` plus `EXAMPLE_LIST_PART_2` also fails because a split family must number every member.
 - Names are grouped across shipped files, allowing repeated override declarations; this checks naming, not whether a consumer reads every part.
 
+#### `build/xml/global_define_name_style.py`
+
+Enforces the preventive desired `DefineName` maximum of 42 UTF-8 bytes across the same shipped GlobalDefines/PythonCallbackDefines surface as the fixed-buffer checker.
+
+The 42-byte target comes from Base AdvCiv 1.14, SAS's direct parent, whose supplied define names top out at 42 bytes. It is a readability/headroom naming policy, not a Civ4 engine limit; KI#1001's separate 255-byte checker remains the hard loader-safety boundary.
+
+The cleanup branch intentionally fails this check until the pre-existing SAS tail tracked by KI#1001.2 is shortened. If clear names consistently cannot fit 42 bytes without obscure abbreviations or loss of important units/semantics, review the policy rather than hiding meaning.
+
+Regression tests cover the exact 42/43-byte boundary, UTF-8 byte counting, inherited names, `PythonCallbackDefines.xml`, and modular define files.
+
 #### `build/xml/launch_guard.py`
 
 Verifies `SASDefineGuard.py` exists and its int/string sentinel constants match `GlobalDefines_advciv_sas.xml`.

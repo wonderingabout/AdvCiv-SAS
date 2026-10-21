@@ -1478,7 +1478,7 @@ Future Python, XML or other analysis albums can extend the same source-analysis 
 
 ### Focused source and data reviews
 
-[`global_define_name_length_review.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/global_define_name_length_review.md) compares SAS GlobalDefine names with inherited Civ4/mod definitions, distinguishes loader-safety limits from optional naming policy, and examines lookup, caching and save implications before choosing whether to shorten names.
+[`global_define_name_length_review.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/global_define_name_length_review.md) tracks SAS GlobalDefine naming cleanup against the direct AdvCiv scale, distinguishes the 42-byte desired maximum from loader safety, and records lookup, caching and save implications.
 
 ## Known issues that may be fixed or not fixed in base AdvCiv or Civ4
 

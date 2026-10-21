@@ -12,6 +12,6 @@ These tracked development records preserve resumable LLM-assisted source investi
 
 ## Focused reviews
 
-[`global_define_name_length_review.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/global_define_name_length_review.md) compares current SAS GlobalDefine key lengths with inherited/reference XML, separates the hard 255-byte loader boundary from optional shorter naming policy, and records the lookup/performance/save-compatibility evidence for any later rename work.
+[`global_define_name_length_review.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/global_define_name_length_review.md) tracks the living GlobalDefine naming policy and current census, compares it with inherited/reference XML, and separates the 42-byte desired naming maximum from KI#1001's hard 255-byte loader boundary.
 
 Keep canonical filenames stable across checkpoints. Preserve each audit's completed results, false positives and exact continuation cursor; reconcile provisional KI numbers against current Known Issues before promotion.
