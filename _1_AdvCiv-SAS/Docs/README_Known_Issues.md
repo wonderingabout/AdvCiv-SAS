@@ -34037,61 +34037,27 @@ The initial review also cautioned that adopting the inherited 42-46-byte scale d
 
 The trial replaced the old blanket `SAS_<func_name>_<effect>` guidance with `SAS_<family>_<effect>`. General naming guidance is maintained in [AGENTS.md](/AGENTS.md#defines-and-ai-behavior), rather than in this issue history.
 
-Pending family-by-family renames until the 42-byte trial checker passes, followed by a refreshed current census in the living source-analysis document. Historical old-to-new names remain searchable here, in Git history and in commit messages.
+The consolidated tables below map each changed define once, from its original name at PR branch start (`8aae7bd1e3b0a765b8897e3aa121ea90920a5f4a`) directly to its current reviewed name. Git history retains intermediate review spellings.
 
-### 2026-10-21 representative rename comparison
+### 2026-10-21 representative rename trial
 
-This comparison records the first trial only; the XML value remains 50 and Python retains its existing lazy cache. Both names are ASCII, so byte and character counts coincide; percentage saved is relative to the old name length.
+The cleanup began with one just-over-limit Python key to test whether the 42-byte direct-parent scale could stay readable in real SAS naming. The XML value remains 50 and Python retains its existing lazy cache; this first rename reduces the pre-cleanup style tail from 459 to 458 names.
 
-| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
+Both names in the trial are ASCII, so byte and character counts coincide; percentage saved is relative to the original name length. (ChatGPT-5.6-Sol + GPT-6.1-Sol)
+
+| Original name | Original bytes | Final reviewed name | Final bytes | Bytes saved | Reduction |
 | --- | ---: | --- | ---: | ---: | ---: |
 | `SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT` | 43 | `SAS_COMMERCE_SLIDERS_FAST_INCR_PCT` | 34 | 9 | 20.93% |
 
-### 2026-10-21 AI production-capacity family batch
+### 2026-10-21 AI production family cleanup
 
-The first larger cleanup batch keeps one `CvCityAI::AI_chooseProduction` tuning family together: the normal offensive production floor, the secured land/naval profile, map scaling, peaceful naval cap and naval role weights. Only define names change; XML values, C++ variables and gameplay logic remain unchanged.
+This consolidated `CvCityAI::AI_chooseProduction` cleanup covers all 46 renamed production controls: first-Settler coordination, proactive fortification, offensive production floors, secured land/naval profiles, peaceful fleet limits and weights, one-copy Project continuity, Space-victory component continuity, and short-circuit unit-pressure weights.
 
-All 27 replacement names fit the 42-byte trial target. The style checker therefore falls from 458 to 431 remaining violations after this batch.
+The review settled on the shared `SAS_PROD_` family and removed the redundant implicit `AI` qualifier while retaining `SETTLER`, `MIN`, `MAX` and `PCT` where useful. `T_NORM_GS` and `T_UNSCALED_GS` preserve turn/game-speed semantics with CI coverage. A later readability pass used available byte headroom to keep word boundaries such as `1_COPY` and `SPACE_3` instead of glued tokens.
 
-| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
-| --- | ---: | --- | ---: | ---: | ---: |
-| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_ANCIENT_PERCENT` | 74 | `SAS_AI_PROD_OFFENSE_FLOOR_ANCIENT_PCT` | 37 | 37 | 50.00% |
-| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_CLASSICAL_PERCENT` | 76 | `SAS_AI_PROD_OFFENSE_FLOOR_CLASSICAL_PCT` | 39 | 37 | 48.68% |
-| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MEDIEVAL_PERCENT` | 75 | `SAS_AI_PROD_OFFENSE_FLOOR_MEDIEVAL_PCT` | 38 | 37 | 49.33% |
-| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_RENAISSANCE_PERCENT` | 78 | `SAS_AI_PROD_OFFENSE_FLOOR_RENAISSANCE_PCT` | 41 | 37 | 47.44% |
-| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_INDUSTRIAL_PERCENT` | 77 | `SAS_AI_PROD_OFFENSE_FLOOR_INDUSTRIAL_PCT` | 40 | 37 | 48.05% |
-| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MODERN_PERCENT` | 73 | `SAS_AI_PROD_OFFENSE_FLOOR_MODERN_PCT` | 36 | 37 | 50.68% |
-| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_FUTURE_PERCENT` | 73 | `SAS_AI_PROD_OFFENSE_FLOOR_FUTURE_PCT` | 36 | 37 | 50.68% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_PRIMARY_AREA_PROFILE_ENABLE` | 60 | `SAS_AI_PROD_SECURED_PROFILE_ON` | 30 | 30 | 50.00% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_ANCIENT_PERCENT` | 70 | `SAS_AI_PROD_SECURED_LAND_ANCIENT_PCT` | 36 | 34 | 48.57% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_CLASSICAL_PERCENT` | 72 | `SAS_AI_PROD_SECURED_LAND_CLASSICAL_PCT` | 38 | 34 | 47.22% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_MEDIEVAL_PERCENT` | 71 | `SAS_AI_PROD_SECURED_LAND_MEDIEVAL_PCT` | 37 | 34 | 47.89% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_RENAISSANCE_PERCENT` | 74 | `SAS_AI_PROD_SECURED_LAND_RENAISSANCE_PCT` | 40 | 34 | 45.95% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_INDUSTRIAL_PERCENT` | 73 | `SAS_AI_PROD_SECURED_LAND_INDUSTRIAL_PCT` | 39 | 34 | 46.58% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_MODERN_PERCENT` | 69 | `SAS_AI_PROD_SECURED_LAND_MODERN_PCT` | 35 | 34 | 49.28% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_FUTURE_PERCENT` | 69 | `SAS_AI_PROD_SECURED_LAND_FUTURE_PCT` | 35 | 34 | 49.28% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_ANCIENT_PERCENT` | 71 | `SAS_AI_PROD_SECURED_NAVAL_ANCIENT_PCT` | 37 | 34 | 47.89% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_CLASSICAL_PERCENT` | 73 | `SAS_AI_PROD_SECURED_NAVAL_CLASSICAL_PCT` | 39 | 34 | 46.58% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_MEDIEVAL_PERCENT` | 72 | `SAS_AI_PROD_SECURED_NAVAL_MEDIEVAL_PCT` | 38 | 34 | 47.22% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_RENAISSANCE_PERCENT` | 75 | `SAS_AI_PROD_SECURED_NAVAL_RENAISSANCE_PCT` | 41 | 34 | 45.33% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_INDUSTRIAL_PERCENT` | 74 | `SAS_AI_PROD_SECURED_NAVAL_INDUSTRIAL_PCT` | 40 | 34 | 45.95% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_MODERN_PERCENT` | 70 | `SAS_AI_PROD_SECURED_NAVAL_MODERN_PCT` | 36 | 34 | 48.57% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_FUTURE_PERCENT` | 70 | `SAS_AI_PROD_SECURED_NAVAL_FUTURE_PCT` | 36 | 34 | 48.57% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_NON_NAVAL_HEAVY_TARGET_MULTIPLIER_PERCENT` | 80 | `SAS_AI_PROD_SECURED_NAVAL_OTHER_MULT_PCT` | 40 | 40 | 50.00% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_PEACEFUL_MAX_TRACKED_UNITS_PER_PORT_CITY` | 79 | `SAS_AI_PROD_SECURED_NAVAL_PEACE_MAX_PORT` | 40 | 39 | 49.37% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ASSAULT_SEA_WEIGHT` | 57 | `SAS_AI_PROD_SECURED_NAVAL_ASSAULT_WEIGHT` | 40 | 17 | 29.82% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ESCORT_SEA_WEIGHT` | 56 | `SAS_AI_PROD_SECURED_NAVAL_ESCORT_WEIGHT` | 39 | 17 | 30.36% |
-| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ATTACK_SEA_WEIGHT` | 56 | `SAS_AI_PROD_SECURED_NAVAL_ATTACK_WEIGHT` | 39 | 17 | 30.36% |
+Every original production name exceeded 42 bytes and every final name fits the target, reducing the intentional style tail from 458 to 412 after this family. XML values, C++ caching and gameplay logic are unchanged. (ChatGPT-5.6-Sol + GPT-6.1-Sol)
 
-The production-profile toggle uses `_ON` instead of `_ENABLE` to shorten the key without changing its 0/1 meaning or value. (GPT-6.1-Sol)
-
-### 2026-10-21 remaining AI_chooseProduction family batch
-
-This second `CvCityAI::AI_chooseProduction` cleanup batch covers the remaining over-limit keys owned by that production path: first-Settler coordination, proactive fortification, one-copy Project continuity, SPACE3 minimum-component continuity, and short-circuit 1/3 unit-pressure weights. Only define names change; XML values, C++ variables and gameplay logic remain unchanged.
-
-All 19 replacement names fit the 42-byte trial target. The style checker therefore falls from 431 to 412 remaining violations after this batch. The compact T_NORM_GS and T_UNSCALED_GS forms retain the turn/game-speed classifications, with matching CI coverage; XML/source comments retain the behavior rationale.
-
-| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
+| Original name | Original bytes | Final reviewed name | Final bytes | Bytes saved | Reduction |
 | --- | ---: | --- | ---: | ---: | ---: |
 | `SAS_AI_CHOOSE_PRODUCTION_SETTLER_ESCORT_COORDINATION_OPTIMIZE` | 61 | `SAS_PROD_SETTLER_ESCORT_COORD_ON` | 32 | 29 | 47.54% |
 | `SAS_AI_CHOOSE_PRODUCTION_FIRST_SETTLER_ESCORT_PREPARATION_MAX_TURNS_NORMAL_GAMESPEED` | 84 | `SAS_PROD_1ST_SETTLER_ESCORT_MAX_T_NORM_GS` | 41 | 43 | 51.19% |
@@ -34102,62 +34068,53 @@ All 19 replacement names fit the 42-byte trial target. The style checker therefo
 | `SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_TURNS_UNSCALED_GAMESPEED_PER_DISTANCE` | 86 | `SAS_PROD_FORT_T_UNSCALED_GS_PER_DIST` | 36 | 50 | 58.14% |
 | `SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_MIN_CITY_VALUE_PERCENT` | 71 | `SAS_PROD_FORT_MIN_CITY_VALUE_PCT` | 32 | 39 | 54.93% |
 | `SAS_AI_CHOOSE_PRODUCTION_PROACTIVE_FORTIFICATION_MIN_VISIBLE_ATTACKERS` | 70 | `SAS_PROD_FORT_MIN_VISIBLE_ATK` | 29 | 41 | 58.57% |
-| `SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_OPTIMIZE` | 61 | `SAS_PROD_PROJ_1COPY_CONT_ON` | 27 | 34 | 55.74% |
-| `SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_MAX_TURNS_NORMAL_GAMESPEED` | 79 | `SAS_PROD_PROJ_1COPY_MAX_T_NORM_GS` | 33 | 46 | 58.23% |
-| `SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_HEAVY_INVESTMENT_MIN_COMPLETION_PERCENT` | 92 | `SAS_PROD_PROJ_1COPY_INV_MIN_COMPLETE_PCT` | 40 | 52 | 56.52% |
-| `SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_HEAVY_INVESTMENT_MAX_TURNS_NORMAL_GAMESPEED` | 96 | `SAS_PROD_PROJ_1COPY_INV_MAX_T_NORM_GS` | 37 | 59 | 61.46% |
-| `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_OPTIMIZE` | 79 | `SAS_PROD_SPACE3_COMP_CONT_ON` | 28 | 51 | 64.56% |
-| `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_MAX_TURNS_NORMAL_GAMESPEED` | 97 | `SAS_PROD_SPACE3_COMP_MAX_T_NORM_GS` | 34 | 63 | 64.95% |
-| `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_HEAVY_INVESTMENT_MIN_COMPLETION_PERCENT` | 110 | `SAS_PROD_SPACE3_COMP_INV_MIN_COMPLETE_PCT` | 41 | 69 | 62.73% |
-| `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_HEAVY_INVESTMENT_MAX_TURNS_NORMAL_GAMESPEED` | 114 | `SAS_PROD_SPACE3_COMP_INV_MAX_T_NORM_GS` | 38 | 76 | 66.67% |
+| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_ANCIENT_PERCENT` | 74 | `SAS_PROD_MIN_ATK_ANCIENT_PCT` | 28 | 46 | 62.16% |
+| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_CLASSICAL_PERCENT` | 76 | `SAS_PROD_MIN_ATK_CLASSICAL_PCT` | 30 | 46 | 60.53% |
+| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MEDIEVAL_PERCENT` | 75 | `SAS_PROD_MIN_ATK_MEDIEVAL_PCT` | 29 | 46 | 61.33% |
+| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_RENAISSANCE_PERCENT` | 78 | `SAS_PROD_MIN_ATK_RENAISSANCE_PCT` | 32 | 46 | 58.97% |
+| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_INDUSTRIAL_PERCENT` | 77 | `SAS_PROD_MIN_ATK_INDUSTRIAL_PCT` | 31 | 46 | 59.74% |
+| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MODERN_PERCENT` | 73 | `SAS_PROD_MIN_ATK_MODERN_PCT` | 27 | 46 | 63.01% |
+| `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_FUTURE_PERCENT` | 73 | `SAS_PROD_MIN_ATK_FUTURE_PCT` | 27 | 46 | 63.01% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_PRIMARY_AREA_PROFILE_ENABLE` | 60 | `SAS_PROD_SECURED_PROFILE_ON` | 27 | 33 | 55.00% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_ANCIENT_PERCENT` | 70 | `SAS_PROD_SECURED_LAND_MIN_ANCIENT_PCT` | 37 | 33 | 47.14% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_CLASSICAL_PERCENT` | 72 | `SAS_PROD_SECURED_LAND_MIN_CLASSICAL_PCT` | 39 | 33 | 45.83% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_MEDIEVAL_PERCENT` | 71 | `SAS_PROD_SECURED_LAND_MIN_MEDIEVAL_PCT` | 38 | 33 | 46.48% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_RENAISSANCE_PERCENT` | 74 | `SAS_PROD_SECURED_LAND_MIN_RENAISSANCE_PCT` | 41 | 33 | 44.59% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_INDUSTRIAL_PERCENT` | 73 | `SAS_PROD_SECURED_LAND_MIN_INDUSTRIAL_PCT` | 40 | 33 | 45.21% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_MODERN_PERCENT` | 69 | `SAS_PROD_SECURED_LAND_MIN_MODERN_PCT` | 36 | 33 | 47.83% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_FUTURE_PERCENT` | 69 | `SAS_PROD_SECURED_LAND_MIN_FUTURE_PCT` | 36 | 33 | 47.83% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_ANCIENT_PERCENT` | 71 | `SAS_PROD_SECURED_NAVAL_MIN_ANCIENT_PCT` | 38 | 33 | 46.48% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_CLASSICAL_PERCENT` | 73 | `SAS_PROD_SECURED_NAVAL_MIN_CLASSICAL_PCT` | 40 | 33 | 45.21% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_MEDIEVAL_PERCENT` | 72 | `SAS_PROD_SECURED_NAVAL_MIN_MEDIEVAL_PCT` | 39 | 33 | 45.83% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_RENAISSANCE_PERCENT` | 75 | `SAS_PROD_SECURED_NAVAL_MIN_RENAISSANCE_PCT` | 42 | 33 | 44.00% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_INDUSTRIAL_PERCENT` | 74 | `SAS_PROD_SECURED_NAVAL_MIN_INDUSTRIAL_PCT` | 41 | 33 | 44.59% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_MODERN_PERCENT` | 70 | `SAS_PROD_SECURED_NAVAL_MIN_MODERN_PCT` | 37 | 33 | 47.14% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_FUTURE_PERCENT` | 70 | `SAS_PROD_SECURED_NAVAL_MIN_FUTURE_PCT` | 37 | 33 | 47.14% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_NON_NAVAL_HEAVY_TARGET_MULTIPLIER_PERCENT` | 80 | `SAS_PROD_SECURED_NAVAL_NON_NAVAL_MULT_PCT` | 41 | 39 | 48.75% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_PEACEFUL_MAX_TRACKED_UNITS_PER_PORT_CITY` | 79 | `SAS_PROD_SECURED_NAVAL_PEACE_MAX_PER_PORT` | 41 | 38 | 48.10% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ASSAULT_SEA_WEIGHT` | 57 | `SAS_PROD_SECURED_NAVAL_ASSAULT_WEIGHT` | 37 | 20 | 35.09% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ESCORT_SEA_WEIGHT` | 56 | `SAS_PROD_SECURED_NAVAL_ESCORT_WEIGHT` | 36 | 20 | 35.71% |
+| `SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ATTACK_SEA_WEIGHT` | 56 | `SAS_PROD_SECURED_NAVAL_ATTACK_WEIGHT` | 36 | 20 | 35.71% |
+| `SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_OPTIMIZE` | 61 | `SAS_PROD_PROJ_1_COPY_CONT_ON` | 28 | 33 | 54.10% |
+| `SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_MAX_TURNS_NORMAL_GAMESPEED` | 79 | `SAS_PROD_PROJ_1_COPY_MAX_T_NORM_GS` | 34 | 45 | 56.96% |
+| `SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_HEAVY_INVESTMENT_MIN_COMPLETION_PERCENT` | 92 | `SAS_PROD_PROJ_1_COPY_INV_MIN_COMPLETE_PCT` | 41 | 51 | 55.43% |
+| `SAS_AI_CHOOSE_PRODUCTION_ONE_COPY_PROJECT_CONTINUITY_HEAVY_INVESTMENT_MAX_TURNS_NORMAL_GAMESPEED` | 96 | `SAS_PROD_PROJ_1_COPY_INV_MAX_T_NORM_GS` | 38 | 58 | 60.42% |
+| `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_OPTIMIZE` | 79 | `SAS_PROD_SPACE_3_COMP_CONT_ON` | 29 | 50 | 63.29% |
+| `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_MAX_TURNS_NORMAL_GAMESPEED` | 97 | `SAS_PROD_SPACE_3_COMP_MAX_T_NORM_GS` | 35 | 62 | 63.92% |
+| `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_HEAVY_INVESTMENT_MIN_COMPLETION_PERCENT` | 110 | `SAS_PROD_SPACE_3_COMP_INV_MIN_COMPLETE_PCT` | 42 | 68 | 61.82% |
+| `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_HEAVY_INVESTMENT_MAX_TURNS_NORMAL_GAMESPEED` | 114 | `SAS_PROD_SPACE_3_COMP_INV_MAX_T_NORM_GS` | 39 | 75 | 65.79% |
 | `SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_1_BUILD_UNIT_PROB_WEIGHT_PERCENT` | 71 | `SAS_PROD_SC1_UNIT_PROB_WEIGHT_PCT` | 33 | 38 | 53.52% |
 | `SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_3_BUILD_UNIT_PROB_WEIGHT_PERCENT` | 71 | `SAS_PROD_SC3_UNIT_PROB_WEIGHT_PCT` | 33 | 38 | 53.52% |
 
-### 2026-10-21 production-family consistency review
+### 2026-10-21 AI_chooseUnit family cleanup
 
-Review retained `SETTLER` and the shared `SAS_PROD_` prefix throughout these production controls, dropping the implicit `AI` qualifier instead of inconsistently dropping the production family. Compact turn/game-speed suffixes leave room for meaningful names; `MIN`, `MAX` and `PCT` remain explicit where applicable. General naming guidance remains in AGENTS.md.
+This cleanup moves the full 33-key `CvCityAI::AI_chooseUnit` family under `SAS_UNITSEL_`, including three original names that already fit the limit so the subsystem does not retain mixed naming. The family covers Settler found-value gates, non-combat food-production allocation, peaceful land-military saturation, cheap-infrastructure vetoes, siege caps and strict-defender replacement controls.
 
-The second batch's table above records its reviewed names. The following table records the corresponding revisions to the 27 keys from the first committed batch; their earlier spellings remain in that batch's historical table. Values, caching and gameplay logic are unchanged. (GPT-6.1-Sol)
+`SETTLER`, `MIN`, `MAX` and `PCT` remain explicit where useful, `_ON` marks boolean switches, and `T_NORM_GS` retains the established turn classification. The readability review also keeps `TREB_LIKE` as separate words where the byte budget allows it.
 
-| Previous batch name | Old bytes | Reviewed name | New bytes | Bytes saved | Reduction |
-| --- | ---: | --- | ---: | ---: | ---: |
-| `SAS_AI_PROD_OFFENSE_FLOOR_ANCIENT_PCT` | 37 | `SAS_PROD_MIN_ATK_ANCIENT_PCT` | 28 | 9 | 24.32% |
-| `SAS_AI_PROD_OFFENSE_FLOOR_CLASSICAL_PCT` | 39 | `SAS_PROD_MIN_ATK_CLASSICAL_PCT` | 30 | 9 | 23.08% |
-| `SAS_AI_PROD_OFFENSE_FLOOR_MEDIEVAL_PCT` | 38 | `SAS_PROD_MIN_ATK_MEDIEVAL_PCT` | 29 | 9 | 23.68% |
-| `SAS_AI_PROD_OFFENSE_FLOOR_RENAISSANCE_PCT` | 41 | `SAS_PROD_MIN_ATK_RENAISSANCE_PCT` | 32 | 9 | 21.95% |
-| `SAS_AI_PROD_OFFENSE_FLOOR_INDUSTRIAL_PCT` | 40 | `SAS_PROD_MIN_ATK_INDUSTRIAL_PCT` | 31 | 9 | 22.50% |
-| `SAS_AI_PROD_OFFENSE_FLOOR_MODERN_PCT` | 36 | `SAS_PROD_MIN_ATK_MODERN_PCT` | 27 | 9 | 25.00% |
-| `SAS_AI_PROD_OFFENSE_FLOOR_FUTURE_PCT` | 36 | `SAS_PROD_MIN_ATK_FUTURE_PCT` | 27 | 9 | 25.00% |
-| `SAS_AI_PROD_SECURED_PROFILE_ON` | 30 | `SAS_PROD_SECURED_PROFILE_ON` | 27 | 3 | 10.00% |
-| `SAS_AI_PROD_SECURED_LAND_ANCIENT_PCT` | 36 | `SAS_PROD_SECURED_LAND_MIN_ANCIENT_PCT` | 37 | -1 | -2.78% |
-| `SAS_AI_PROD_SECURED_LAND_CLASSICAL_PCT` | 38 | `SAS_PROD_SECURED_LAND_MIN_CLASSICAL_PCT` | 39 | -1 | -2.63% |
-| `SAS_AI_PROD_SECURED_LAND_MEDIEVAL_PCT` | 37 | `SAS_PROD_SECURED_LAND_MIN_MEDIEVAL_PCT` | 38 | -1 | -2.70% |
-| `SAS_AI_PROD_SECURED_LAND_RENAISSANCE_PCT` | 40 | `SAS_PROD_SECURED_LAND_MIN_RENAISSANCE_PCT` | 41 | -1 | -2.50% |
-| `SAS_AI_PROD_SECURED_LAND_INDUSTRIAL_PCT` | 39 | `SAS_PROD_SECURED_LAND_MIN_INDUSTRIAL_PCT` | 40 | -1 | -2.56% |
-| `SAS_AI_PROD_SECURED_LAND_MODERN_PCT` | 35 | `SAS_PROD_SECURED_LAND_MIN_MODERN_PCT` | 36 | -1 | -2.86% |
-| `SAS_AI_PROD_SECURED_LAND_FUTURE_PCT` | 35 | `SAS_PROD_SECURED_LAND_MIN_FUTURE_PCT` | 36 | -1 | -2.86% |
-| `SAS_AI_PROD_SECURED_NAVAL_ANCIENT_PCT` | 37 | `SAS_PROD_SECURED_NAVAL_MIN_ANCIENT_PCT` | 38 | -1 | -2.70% |
-| `SAS_AI_PROD_SECURED_NAVAL_CLASSICAL_PCT` | 39 | `SAS_PROD_SECURED_NAVAL_MIN_CLASSICAL_PCT` | 40 | -1 | -2.56% |
-| `SAS_AI_PROD_SECURED_NAVAL_MEDIEVAL_PCT` | 38 | `SAS_PROD_SECURED_NAVAL_MIN_MEDIEVAL_PCT` | 39 | -1 | -2.63% |
-| `SAS_AI_PROD_SECURED_NAVAL_RENAISSANCE_PCT` | 41 | `SAS_PROD_SECURED_NAVAL_MIN_RENAISSANCE_PCT` | 42 | -1 | -2.44% |
-| `SAS_AI_PROD_SECURED_NAVAL_INDUSTRIAL_PCT` | 40 | `SAS_PROD_SECURED_NAVAL_MIN_INDUSTRIAL_PCT` | 41 | -1 | -2.50% |
-| `SAS_AI_PROD_SECURED_NAVAL_MODERN_PCT` | 36 | `SAS_PROD_SECURED_NAVAL_MIN_MODERN_PCT` | 37 | -1 | -2.78% |
-| `SAS_AI_PROD_SECURED_NAVAL_FUTURE_PCT` | 36 | `SAS_PROD_SECURED_NAVAL_MIN_FUTURE_PCT` | 37 | -1 | -2.78% |
-| `SAS_AI_PROD_SECURED_NAVAL_OTHER_MULT_PCT` | 40 | `SAS_PROD_SECURED_NAVAL_NON_NAVAL_MULT_PCT` | 41 | -1 | -2.50% |
-| `SAS_AI_PROD_SECURED_NAVAL_PEACE_MAX_PORT` | 40 | `SAS_PROD_SECURED_NAVAL_PEACE_MAX_PER_PORT` | 41 | -1 | -2.50% |
-| `SAS_AI_PROD_SECURED_NAVAL_ASSAULT_WEIGHT` | 40 | `SAS_PROD_SECURED_NAVAL_ASSAULT_WEIGHT` | 37 | 3 | 7.50% |
-| `SAS_AI_PROD_SECURED_NAVAL_ESCORT_WEIGHT` | 39 | `SAS_PROD_SECURED_NAVAL_ESCORT_WEIGHT` | 36 | 3 | 7.69% |
-| `SAS_AI_PROD_SECURED_NAVAL_ATTACK_WEIGHT` | 39 | `SAS_PROD_SECURED_NAVAL_ATTACK_WEIGHT` | 36 | 3 | 7.69% |
+Thirty of the 33 original names exceeded 42 bytes, reducing the intentional style tail from 412 to 382. XML values, caching and gameplay logic are unchanged; cache identifiers copied directly from define names follow the final keys, while descriptive variables remain unchanged. (ChatGPT-5.6-Sol + GPT-6.1-Sol)
 
-### 2026-10-21 AI_chooseUnit family batch
-
-This cleanup aligns the full 33-key `CvCityAI::AI_chooseUnit` family under the shared `SAS_UNITSEL_` prefix rather than keeping three already-short keys under the old function-shaped prefix. The family covers Settler found-value gates, non-combat food-production allocation, peaceful land-military saturation, cheap-infrastructure vetoes, siege caps and strict-defender replacement controls.
-
-All replacement names fit the 42-byte trial target. Thirty of the 33 old names exceeded 42 bytes, so the style checker falls from 412 to 382 remaining violations; the other three are renamed only for family consistency.
-
-`SETTLER`, `MIN`, `MAX` and `PCT` remain explicit where useful, `_ON` marks boolean switches, and the existing `T_NORM_GS` turn classification is reused. XML values, caching and gameplay logic are unchanged; three C++ cache identifiers copied directly from old define names follow their renamed keys, while descriptive variables remain unchanged. (GPT-5.6-Sol + GPT-6.1-Sol)
-
-| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
+| Original name | Original bytes | Final reviewed name | Final bytes | Bytes saved | Reduction |
 | --- | ---: | --- | ---: | ---: | ---: |
 | `SAS_AI_CHOOSE_UNIT_SETTLER_FIRST_EXPANSION_MIN_FOUND_VALUE_REFERENCE_BFC_PERCENT_X100` | 85 | `SAS_UNITSEL_1ST_SETTLER_MIN_BFC_PCT_X100` | 40 | 45 | 52.94% |
 | `SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_REFERENCE_BFC_PERCENT_X100` | 75 | `SAS_UNITSEL_EARLY_SETTLER_MIN_BFC_PCT_X100` | 42 | 33 | 44.00% |
@@ -34184,7 +34141,7 @@ All replacement names fit the 42-byte trial target. Thirty of the 33 old names e
 | `SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_FOCUSED_BUILDING_VALUE` | 78 | `SAS_UNITSEL_HI_RETURN_MIN_FOCUS_BUILD_VAL` | 41 | 37 | 47.44% |
 | `SAS_AI_CHOOSE_UNIT_CHEAP_HIGH_RETURN_INFRASTRUCTURE_MIN_FOCUS_VALUE_GAIN` | 72 | `SAS_UNITSEL_HI_RETURN_MIN_FOCUS_VAL_GAIN` | 40 | 32 | 44.44% |
 | `SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES` | 35 | `SAS_UNITSEL_SIEGE_CAP_ON` | 24 | 11 | 31.43% |
-| `SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP` | 65 | `SAS_UNITSEL_TREBLIKE_MIN_EXTRA_CAP` | 34 | 31 | 47.69% |
+| `SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP` | 65 | `SAS_UNITSEL_TREB_LIKE_MIN_EXTRA_CAP` | 35 | 30 | 46.15% |
 | `SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL` | 39 | `SAS_UNITSEL_SIEGE_ALL_CAP_ON` | 28 | 11 | 28.21% |
 | `SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP` | 53 | `SAS_UNITSEL_SIEGE_ALL_MIN_EXTRA_CAP` | 35 | 18 | 33.96% |
 | `SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS` | 53 | `SAS_UNITSEL_STRICT_DEF_ON` | 25 | 28 | 52.83% |
@@ -34193,17 +34150,15 @@ All replacement names fit the 42-byte trial target. Thirty of the 33 old names e
 | `SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI` | 75 | `SAS_UNITSEL_STRICT_DEF_HIJACK_UNITAI_ON` | 39 | 36 | 48.00% |
 | `SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_REPLACEMENT_MAX_UNIT_HAMMER_COST_PER_ERA` | 86 | `SAS_UNITSEL_STRICT_DEF_REPL_MAX_HAMMER_ERA` | 42 | 44 | 51.16% |
 
-### 2026-10-21 tech-value and tech-trade family batch
+### 2026-10-21 tech-value and tech-trade family cleanup
 
-This cleanup renames the complete adjacent technology-valuation families: all 13 `AI_techValue` tuning keys and all 5 technology-trade valuation keys. Three `AI_techValue` names already fit the 42-byte target, but move with their family so the subsystem does not retain mixed old/new naming.
+This cleanup renames the complete adjacent technology-valuation families: all 13 `AI_techValue` tuning keys and all 5 technology-trade valuation keys. Three original `AI_techValue` names already fit the target but move with the family for consistency.
 
-The shared `SAS_TECHVAL_` and `SAS_TECHTRADE_` prefixes drop the implicit `AI`/function wording once, leaving room to preserve distinctions such as `MASTER`, `VASSAL`, `SIBLING`, `MIN`, `PCT`, `REMOVE`, and `T_NORM_GS`.
+The shared `SAS_TECHVAL_` and `SAS_TECHTRADE_` prefixes drop redundant function-shaped wording once, leaving room to preserve distinctions such as `MASTER`, `VASSAL`, `SIBLING`, `MIN`, `PCT`, `REMOVE` and `T_NORM_GS`.
 
-XML values and gameplay logic are unchanged. C++ cache identifiers that mechanically copied an old define spelling follow the renamed key; descriptive locals that express program meaning independently remain unchanged.
+Fifteen original names exceeded 42 bytes, reducing the intentional style tail from 382 to 367. XML values and gameplay logic are unchanged; mechanically mirrored cache identifiers follow the final keys, while independently descriptive locals remain unchanged. (ChatGPT-5.6-Sol)
 
-The 15 formerly over-limit names now fit the 42-byte target, reducing the intentional style-check tail from 382 to 367 names. (ChatGPT-5.6-Sol)
-
-| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
+| Original name | Original bytes | Final reviewed name | Final bytes | Bytes saved | Reduction |
 | --- | ---: | --- | ---: | ---: | ---: |
 | `SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_ENABLE` | 50 | `SAS_TECHVAL_FEAT_REMOVE_ON` | 26 | 24 | 48.00% |
 | `SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MIN_FEATURES_PER_CITY` | 65 | `SAS_TECHVAL_FEAT_REMOVE_MIN_PER_CITY` | 36 | 29 | 44.62% |
@@ -34224,15 +34179,15 @@ The 15 formerly over-limit names now fit the 42-byte target, reducing the intent
 | `SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT` | 57 | `SAS_TECHTRADE_LOCUS_KNOWN_PCT` | 29 | 28 | 49.12% |
 | `SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT` | 50 | `SAS_TECHTRADE_REL_STRENGTH_EFFECT_PCT` | 37 | 13 | 26.00% |
 
-### 2026-10-21 civic-valuation family batch
+### 2026-10-21 civic-valuation family cleanup
 
-This cleanup renames all 13 `SAS_AI_CIVIC_VALUE_*` tuning keys under the shared `SAS_CIVICVAL_` family. The shorter family prefix leaves room to keep civic-scoring distinctions such as anger state, unlimited specialists, `PCT`, commerce type and need multipliers without embedding the full function-shaped prefix.
+This cleanup renames all 13 `SAS_AI_CIVIC_VALUE_*` tuning keys under `SAS_CIVICVAL_`. The shorter family prefix leaves room to preserve anger-state, unlimited-specialist, percentage, commerce-type and need-multiplier distinctions without embedding the full function-shaped prefix.
 
-XML values and gameplay logic are unchanged. The two anger-pressure cache identifiers that mechanically copied their define names move with the keys; descriptive helper locals remain unchanged. Two replacement names also make existing code semantics explicit: the former yield-level `GOLD` key is the `YIELD_COMMERCE` baseline, and the former `BEAKERS` key indexes `COMMERCE_RESEARCH`.
+Two final names also make existing code semantics clearer: the former yield-level `GOLD` setting is the `YIELD_COMMERCE` baseline, and the former `BEAKERS` setting indexes `COMMERCE_RESEARCH`.
 
-All 13 formerly over-limit names now fit the 42-byte target, reducing the intentional style-check tail from 367 to 354 names. (ChatGPT-5.6-Sol)
+All 13 original names exceeded 42 bytes, reducing the intentional style tail from 367 to 354. XML values and gameplay logic are unchanged; mechanically mirrored anger-pressure caches follow the final keys while descriptive helper locals remain unchanged. (ChatGPT-5.6-Sol)
 
-| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
+| Original name | Original bytes | Final reviewed name | Final bytes | Bytes saved | Reduction |
 | --- | ---: | --- | ---: | ---: | ---: |
 | `SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY` | 68 | `SAS_CIVICVAL_ANGER_UNHAPPY_SCALE_PCT` | 36 | 32 | 47.06% |
 | `SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY` | 66 | `SAS_CIVICVAL_ANGER_HAPPY_SCALE_PCT` | 34 | 32 | 48.48% |
@@ -34248,19 +34203,15 @@ All 13 formerly over-limit names now fit the 42-byte target, reducing the intent
 | `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_TOTAL_VALUE_LOSS_PCT_PER_ANARCHY_TURN` | 77 | `SAS_CIVICVAL_UNLIM_SPEC_ANARCHY_PCT_PER_T` | 41 | 36 | 46.75% |
 | `SAS_AI_CIVIC_VALUE_SPEC_COMMERCE_WEIGHT_TO_MULT_TONING_DOWN_PERCENT` | 67 | `SAS_CIVICVAL_SPEC_COM_WEIGHT_SCALE_PCT` | 38 | 29 | 43.28% |
 
-### 2026-10-21 UWAI victory-denial family batch
+### 2026-10-21 UWAI victory-denial family cleanup
 
-This cleanup renames all 17 `SAS_UWAI_VICTORY_DENIAL_*` settings under the shared `SAS_UWAI_VICT_DENY_` family. The shorter family label keeps the subsystem recognizable while leaving room for direct-war, peace-refusal, stage-3 Space, utility, power, distance, percentage and Normal-speed turn distinctions.
+This cleanup renames all 17 `SAS_UWAI_VICTORY_DENIAL_*` settings under `SAS_UWAI_VICT_DENY_`. The shorter family label keeps the subsystem recognizable while leaving room for direct-war, peace-refusal, stage-3 Space, utility, power, distance, percentage and Normal-speed turn distinctions.
 
-XML values and gameplay logic are unchanged. The already-short master toggle moves with its siblings for family consistency.
+The already-short master toggle moves with its siblings for consistency. `S3_SPACE`, `T_NORM_GS`, `PCT` and `_ON` retain the established compact technical meanings; `STAGE4` remains a readable compact stage label and does not need artificial separation.
 
-The directly mirrored `bSASUWAIVictoryDenialEnable` caches become `bSASUWAIVictoryDenialOn`; other descriptive locals remain unchanged.
+Sixteen original names exceeded 42 bytes, reducing the intentional style tail from 354 to 338. XML values and gameplay logic are unchanged; directly mirrored victory-denial caches follow the final toggle name and other descriptive locals remain unchanged. (ChatGPT-5.6-Sol + GPT-6.1-Sol)
 
-The compact `S3_SPACE` form is used only where the surrounding family already identifies stage-3 Space victory pressure. `T_NORM_GS`, `PCT` and `_ON` retain the established naming conventions.
-
-Sixteen formerly over-limit names now fit the 42-byte target, reducing the intentional style-check tail from 354 to 338 names. (ChatGPT-5.6-Sol)
-
-| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
+| Original name | Original bytes | Final reviewed name | Final bytes | Bytes saved | Reduction |
 | --- | ---: | --- | ---: | ---: | ---: |
 | `SAS_UWAI_VICTORY_DENIAL_ENABLE` | 30 | `SAS_UWAI_VICT_DENY_ON` | 21 | 9 | 30.00% |
 | `SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_BOOST` | 66 | `SAS_UWAI_VICT_DENY_BOOST_MAX_T_NORM_GS` | 38 | 28 | 42.42% |
@@ -34280,29 +34231,25 @@ Sixteen formerly over-limit names now fit the 42-byte target, reducing the inten
 | `SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE` | 43 | `SAS_UWAI_VICT_DENY_DIRECT_MAX_DISTANCE` | 38 | 5 | 11.63% |
 | `SAS_UWAI_VICTORY_DENIAL_AVOID_WAR_HESITATION_PERCENT` | 52 | `SAS_UWAI_VICT_DENY_AVOID_HESITATION_PCT` | 39 | 13 | 25.00% |
 
-### 2026-10-21 first-city and Settler family batch
+### 2026-10-21 first-city and Settler family cleanup
 
-This cleanup renames all 18 first-city roaming and Settler founding/scouting settings under two related families: `SAS_1STCITY_` for the special pre-capital roaming/site-quality logic and `SAS_SETTLER_` for ordinary escort, founding-in-place and nearby-fog scouting decisions.
+This cleanup renames all 18 first-city roaming and Settler founding/scouting settings under two related families: `SAS_1ST_CITY_` for special pre-capital roaming/site-quality logic and `SAS_SETTLER_` for ordinary escort, founding-in-place and nearby-fog scouting decisions.
 
-Keeping the two prefixes distinct preserves the existing behavioral boundary while removing the function-shaped `SAS_AI_FOUND_FIRST_CITY_*` and `SAS_AI_SETTLER_*` wording.
+Keeping the two prefixes distinct preserves the existing behavioral boundary while removing function-shaped wording. `MIN`, `MAX`, `PCT`, `BFC`, `_ON` and `T_UNSCALED_GS` retain established compact technical meanings. The readability review uses explicit word boundaries such as `1ST_CITY` and `BEST_6` because the final names still fit comfortably; the longest final first-city key is 40 bytes.
 
-XML values and gameplay logic are unchanged. The already-42-byte city-escort attachment toggle moves with its siblings for family consistency.
+Seventeen original names exceeded 42 bytes, reducing the intentional style tail from 338 to 321. XML values and gameplay logic are unchanged. Cache identifiers mechanically copied from Settler keys follow the final names, while descriptive locals such as first-city return cost, growth-core value and city defender counts remain unchanged. (ChatGPT-5.6-Sol + GPT-6.1-Sol)
 
-Cache identifiers that mechanically copied the old Settler define names move with their keys; descriptive locals such as first-city return cost, growth-core value and city defender counts remain unchanged.
-
-`MIN`, `MAX`, `PCT`, `BFC`, `_ON` and `T_UNSCALED_GS` retain the established compact technical meanings. Seventeen formerly over-limit names now fit the 42-byte target, reducing the intentional style-check tail from 338 to 321 names. (ChatGPT-5.6-Sol)
-
-| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
+| Original name | Original bytes | Final reviewed name | Final bytes | Bytes saved | Reduction |
 | --- | ---: | --- | ---: | ---: | ---: |
-| `SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_UNSCALED_GAMESPEED_TO_FOUND` | 61 | `SAS_1STCITY_FOUND_MAX_T_UNSCALED_GS` | 35 | 26 | 42.62% |
-| `SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_REFERENCE_PLOT_PERCENT` | 60 | `SAS_1STCITY_RETURN_REF_PLOT_PCT` | 31 | 29 | 48.33% |
-| `SAS_AI_FOUND_FIRST_CITY_RUNTIME_STARTING_SURROUNDINGS_ADJUSTMENT_ENABLE` | 71 | `SAS_1STCITY_START_SURROUND_ADJ_ON` | 33 | 38 | 53.52% |
-| `SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_FOOD_BONUSES` | 48 | `SAS_1STCITY_GOOD_FOOD_BONUSES` | 29 | 19 | 39.58% |
-| `SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_BEST_6_PLOT_REFERENCE_PERCENT` | 65 | `SAS_1STCITY_GOOD_BEST6_REF_PCT` | 30 | 35 | 53.85% |
-| `SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE` | 50 | `SAS_1STCITY_BAD_FOOD_ENV_SCORE` | 30 | 20 | 40.00% |
-| `SAS_AI_FOUND_FIRST_CITY_LOCAL_RECHECK_MAX_PATH_TURNS_UNSCALED_GAMESPEED` | 71 | `SAS_1STCITY_RECHECK_MAX_T_UNSCALED_GS` | 37 | 34 | 47.89% |
-| `SAS_AI_FOUND_FIRST_CITY_GROWTH_CORE_IMPROVEMENT_VALUE_PERCENT` | 61 | `SAS_1STCITY_CORE_IMPROVE_VALUE_PCT` | 34 | 27 | 44.26% |
-| `SAS_AI_FOUND_FIRST_CITY_SCOUT_UNREVEALED_ENDPOINT_REFERENCE_PLOT_MULTIPLIER` | 75 | `SAS_1STCITY_SCOUT_FOG_END_REF_PLOT_MULT` | 39 | 36 | 48.00% |
+| `SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_UNSCALED_GAMESPEED_TO_FOUND` | 61 | `SAS_1ST_CITY_FOUND_MAX_T_UNSCALED_GS` | 36 | 25 | 40.98% |
+| `SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_REFERENCE_PLOT_PERCENT` | 60 | `SAS_1ST_CITY_RETURN_REF_PLOT_PCT` | 32 | 28 | 46.67% |
+| `SAS_AI_FOUND_FIRST_CITY_RUNTIME_STARTING_SURROUNDINGS_ADJUSTMENT_ENABLE` | 71 | `SAS_1ST_CITY_START_SURROUND_ADJ_ON` | 34 | 37 | 52.11% |
+| `SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_FOOD_BONUSES` | 48 | `SAS_1ST_CITY_GOOD_FOOD_BONUSES` | 30 | 18 | 37.50% |
+| `SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_BEST_6_PLOT_REFERENCE_PERCENT` | 65 | `SAS_1ST_CITY_GOOD_BEST_6_REF_PCT` | 32 | 33 | 50.77% |
+| `SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE` | 50 | `SAS_1ST_CITY_BAD_FOOD_ENV_SCORE` | 31 | 19 | 38.00% |
+| `SAS_AI_FOUND_FIRST_CITY_LOCAL_RECHECK_MAX_PATH_TURNS_UNSCALED_GAMESPEED` | 71 | `SAS_1ST_CITY_RECHECK_MAX_T_UNSCALED_GS` | 38 | 33 | 46.48% |
+| `SAS_AI_FOUND_FIRST_CITY_GROWTH_CORE_IMPROVEMENT_VALUE_PERCENT` | 61 | `SAS_1ST_CITY_CORE_IMPROVE_VALUE_PCT` | 35 | 26 | 42.62% |
+| `SAS_AI_FOUND_FIRST_CITY_SCOUT_UNREVEALED_ENDPOINT_REFERENCE_PLOT_MULTIPLIER` | 75 | `SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT` | 40 | 35 | 46.67% |
 | `SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE` | 59 | `SAS_SETTLER_EXPOSED_FOUND_ESCORT_ON` | 35 | 24 | 40.68% |
 | `SAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE` | 42 | `SAS_SETTLER_CITY_ESCORT_ATTACH_ON` | 33 | 9 | 21.43% |
 | `SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT` | 65 | `SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT` | 39 | 26 | 40.00% |
@@ -34313,13 +34260,13 @@ Cache identifiers that mechanically copied the old Settler define names move wit
 | `SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_AVERAGE_VALUE_PERCENT` | 73 | `SAS_SETTLER_SCOUT_FOG_MIN_AVG_VALUE_PCT` | 39 | 34 | 46.58% |
 | `SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS_UNSCALED_GAMESPEED` | 87 | `SAS_SETTLER_SCOUT_MAX_EXTRA_T_UNSCALED_GS` | 41 | 46 | 52.87% |
 
-### 2026-10-21 ordinal spelling alignment
+### 2026-10-21 broader ordinal spelling alignment
 
-The reviewed first-city family uses `SAS_1STCITY_`. Eleven other shipped keys also replace `FIRST` with `1ST`, saving two characters per key and matching the existing `1ST_SETTLER` spelling. Matching lookups and identifiers copied from keys follow the new names; descriptive function/local names and ordinary prose remain unchanged.
+The first-city review established `1ST` as a readable compact ordinal, so 11 other shipped keys use the same spelling where `FIRST` means the ordinal. Word boundaries remain explicit, for example `1ST_CITY`; matching lookups and identifiers copied from keys follow the final names, while descriptive function/local names and ordinary prose remain unchanged.
 
-One additional key crosses the 42-byte boundary, bringing the remaining style-check violations to 320 after the first-city/Settler batch; the other ten ordinal-only replacements remain above the target. Values, caching and gameplay logic are unchanged. (GPT-6.1-Sol)
+One of these 11 originals moves within the 42-byte target, reducing the style tail from 321 to 320; the other ten remain above the target. Values, caching and gameplay logic are unchanged. This section intentionally records only the original PR-start spelling and current reviewed spelling; intermediate review forms remain in Git history. (GPT-6.1-Sol)
 
-| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
+| Original name | Original bytes | Final reviewed name | Final bytes | Bytes saved | Reduction |
 | --- | ---: | --- | ---: | ---: | ---: |
 | `SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY` | 49 | `SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_1ST_ONLY` | 47 | 2 | 4.08% |
 | `SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY` | 43 | `SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_1ST_ONLY` | 41 | 2 | 4.65% |
@@ -34332,31 +34279,6 @@ One additional key crosses the 42-byte boundary, bringing the remaining style-ch
 | `SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE` | 64 | `SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_1ST_OPTIMIZE` | 62 | 2 | 3.12% |
 | `SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST` | 53 | `SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_1ST` | 51 | 2 | 3.77% |
 | `SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA` | 65 | `SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA` | 63 | 2 | 3.08% |
-
-### 2026-10-21 word-separator review
-
-Review separated `1ST_CITY`, `BEST_6`, `1_COPY`, `SPACE_3` and `TREB_LIKE` in the affected keys: all 18 replacements fit within 42 bytes, so the glued spellings were unnecessary. The longest first-city key is 40 bytes after separation. XML values, caching and gameplay logic are unchanged; the style-check count remains 320. (GPT-6.1-Sol)
-
-| Previous name | Old bytes | Separated name | New bytes |
-| --- | ---: | --- | ---: |
-| `SAS_1STCITY_FOUND_MAX_T_UNSCALED_GS` | 35 | `SAS_1ST_CITY_FOUND_MAX_T_UNSCALED_GS` | 36 |
-| `SAS_1STCITY_RETURN_REF_PLOT_PCT` | 31 | `SAS_1ST_CITY_RETURN_REF_PLOT_PCT` | 32 |
-| `SAS_1STCITY_START_SURROUND_ADJ_ON` | 33 | `SAS_1ST_CITY_START_SURROUND_ADJ_ON` | 34 |
-| `SAS_1STCITY_GOOD_FOOD_BONUSES` | 29 | `SAS_1ST_CITY_GOOD_FOOD_BONUSES` | 30 |
-| `SAS_1STCITY_GOOD_BEST6_REF_PCT` | 30 | `SAS_1ST_CITY_GOOD_BEST_6_REF_PCT` | 32 |
-| `SAS_1STCITY_BAD_FOOD_ENV_SCORE` | 30 | `SAS_1ST_CITY_BAD_FOOD_ENV_SCORE` | 31 |
-| `SAS_1STCITY_RECHECK_MAX_T_UNSCALED_GS` | 37 | `SAS_1ST_CITY_RECHECK_MAX_T_UNSCALED_GS` | 38 |
-| `SAS_1STCITY_CORE_IMPROVE_VALUE_PCT` | 34 | `SAS_1ST_CITY_CORE_IMPROVE_VALUE_PCT` | 35 |
-| `SAS_1STCITY_SCOUT_FOG_END_REF_PLOT_MULT` | 39 | `SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT` | 40 |
-| `SAS_PROD_PROJ_1COPY_CONT_ON` | 27 | `SAS_PROD_PROJ_1_COPY_CONT_ON` | 28 |
-| `SAS_PROD_PROJ_1COPY_MAX_T_NORM_GS` | 33 | `SAS_PROD_PROJ_1_COPY_MAX_T_NORM_GS` | 34 |
-| `SAS_PROD_PROJ_1COPY_INV_MIN_COMPLETE_PCT` | 40 | `SAS_PROD_PROJ_1_COPY_INV_MIN_COMPLETE_PCT` | 41 |
-| `SAS_PROD_PROJ_1COPY_INV_MAX_T_NORM_GS` | 37 | `SAS_PROD_PROJ_1_COPY_INV_MAX_T_NORM_GS` | 38 |
-| `SAS_PROD_SPACE3_COMP_CONT_ON` | 28 | `SAS_PROD_SPACE_3_COMP_CONT_ON` | 29 |
-| `SAS_PROD_SPACE3_COMP_MAX_T_NORM_GS` | 34 | `SAS_PROD_SPACE_3_COMP_MAX_T_NORM_GS` | 35 |
-| `SAS_PROD_SPACE3_COMP_INV_MIN_COMPLETE_PCT` | 41 | `SAS_PROD_SPACE_3_COMP_INV_MIN_COMPLETE_PCT` | 42 |
-| `SAS_PROD_SPACE3_COMP_INV_MAX_T_NORM_GS` | 38 | `SAS_PROD_SPACE_3_COMP_INV_MAX_T_NORM_GS` | 39 |
-| `SAS_UNITSEL_TREBLIKE_MIN_EXTRA_CAP` | 34 | `SAS_UNITSEL_TREB_LIKE_MIN_EXTRA_CAP` | 35 |
 
 <a id="ki-1002"></a>
 
