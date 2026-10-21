@@ -7555,8 +7555,8 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 			// advc.300, advc.001: Looks like another bug; probably times 1 to 1.5 was intended. (Dividing by 100 doesn't affect pBestPlot, but let's keep iBestValue is on the scale of a regular found value - although it isn't used for anything.) NB: This kind of randomization works mostly locally b/c nearby tiles tend to have similar found values.
 			// <!-- custom: Keep the inherited Barbarian city-site random multiplier tunable.
 			// The old 0..49 percent swing adds variety, but it can override clearly better nearby city sites. (GPT-5.5) -->
-			static const int iSAS_SITE_BARBARIAN_CITY_SITE_RANDOM_PCT = std::max(0, GC.getDefineINT("SAS_SITE_BARBARIAN_CITY_SITE_RANDOM_PCT"));
-			const int iRandomPercent = (iSAS_SITE_BARBARIAN_CITY_SITE_RANDOM_PCT <= 0 ? 0 : SyncRandNum(iSAS_SITE_BARBARIAN_CITY_SITE_RANDOM_PCT));
+			static const int iSAS_SITE_BARB_CITY_SITE_RANDOM_PCT = std::max(0, GC.getDefineINT("SAS_SITE_BARB_CITY_SITE_RANDOM_PCT"));
+			const int iRandomPercent = (iSAS_SITE_BARB_CITY_SITE_RANDOM_PCT <= 0 ? 0 : SyncRandNum(iSAS_SITE_BARB_CITY_SITE_RANDOM_PCT));
 			if (iRandomPercent != 0)
 			{
 				const int iOldValue = iValue;

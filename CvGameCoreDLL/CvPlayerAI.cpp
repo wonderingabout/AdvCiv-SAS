@@ -6898,20 +6898,20 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 	// End - SAS vassalMasterTechResearch
 
 	// SAS techValuePowerDanger: if we're clearly outgunned, bump key military techs
-	static const bool bSAS_TECH_VAL_MIL_DANGER_ON = GC.getDefineBOOL("SAS_TECH_VAL_MIL_DANGER_ON");
-	if (bSAS_TECH_VAL_MIL_DANGER_ON && iValue > 0 && eFromPlayer == NO_PLAYER) // only for our own research choice
+	static const bool bSAS_TECH_VAL_MILIT_DANGER_ON = GC.getDefineBOOL("SAS_TECH_VAL_MILIT_DANGER_ON");
+	if (bSAS_TECH_VAL_MILIT_DANGER_ON && iValue > 0 && eFromPlayer == NO_PLAYER) // only for our own research choice
 	{
 		const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
 		const bool bEnemyStrong = SASWarPowerContext::isEnemyStrong(iEnemyPowerPercent);
 
 		if (bEnemyStrong)
 		{
-			static const int iSAS_TECH_VAL_MIL_FLAVOR_MIN = GC.getDefineINT("SAS_TECH_VAL_MIL_FLAVOR_MIN");
+			static const int iSAS_TECH_VAL_MILIT_FLAVOR_MIN = GC.getDefineINT("SAS_TECH_VAL_MILIT_FLAVOR_MIN");
 
-			if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_TECH_VAL_MIL_FLAVOR_MIN)
+			if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_TECH_VAL_MILIT_FLAVOR_MIN)
 			{
-				static const int iSAS_TECH_VAL_MIL_WEAKER_PCT = GC.getDefineINT("SAS_TECH_VAL_MIL_WEAKER_PCT");
-				iSASPercentModifier += (iSAS_TECH_VAL_MIL_WEAKER_PCT - 100);
+				static const int iSAS_TECH_VAL_MILIT_WEAKER_PCT = GC.getDefineINT("SAS_TECH_VAL_MILIT_WEAKER_PCT");
+				iSASPercentModifier += (iSAS_TECH_VAL_MILIT_WEAKER_PCT - 100);
 			}
 		}
 	}
@@ -18683,7 +18683,7 @@ static inline int SAS_SpecYieldBaseWeight(YieldTypes eY, const bool bNeedHammers
 	// returns a default when GC.getDefineINT(...) == 0.
 	static const int iFOOD   = GC.getDefineINT("SAS_CIVIC_VAL_UNLIM_SPEC_FOOD_VAL");    // e.g. 300
 	static const int iHAMMER = GC.getDefineINT("SAS_CIVIC_VAL_UNLIM_SPEC_HAMMER_VAL");  // e.g. 200
-	static const int iGOLDY  = GC.getDefineINT("SAS_CIVIC_VAL_UNLIM_SPEC_YLD_COMMERCE_VAL");    // used for YIELD_COMMERCE baseline (e.g. 100)
+	static const int iGOLDY  = GC.getDefineINT("SAS_CIVIC_VAL_UNLIM_SPEC_YIELD_COM_VAL");    // used for YIELD_COMMERCE baseline (e.g. 100)
 
 	// Culture push multiplier (applied only when we “need culture")
 	static const int iHAMMER_NEED_MULT = GC.getDefineINT("SAS_CIVIC_VAL_UNLIM_SPEC_HAMMER_NEED_MULT");               // e.g. 2
@@ -21901,9 +21901,9 @@ void CvPlayerAI::AI_doMilitary()
 				// advc.110: Increase iMaxCost when war success rating negative
 				range(2 * GET_TEAM(getTeam()).AI_getWarSuccessRating(), -100, 0);
 		// <!-- custom: allow extra-unit tolerance beyond unit support costs before disbanding; scale by era: mult * (era + 1) + add. (GPT-5.2-Codex) -->
-		static const int iSAS_MIL_MAX_UNIT_COST_EXTRA_UNITS_MULT = GC.getDefineINT("SAS_MIL_MAX_UNIT_COST_EXTRA_UNITS_MULT");
-		static const int iSAS_MIL_MAX_UNIT_COST_EXTRA_UNITS_ADD = GC.getDefineINT("SAS_MIL_MAX_UNIT_COST_EXTRA_UNITS_ADD");
-		int const iExtraUnits = std::max(0, (iSAS_MIL_MAX_UNIT_COST_EXTRA_UNITS_MULT * (getCurrentEra() + 1)) + iSAS_MIL_MAX_UNIT_COST_EXTRA_UNITS_ADD);
+		static const int iSAS_MILIT_MAX_UNIT_COST_EXTRA_UNITS_MULT = GC.getDefineINT("SAS_MILIT_MAX_UNIT_COST_EXTRA_UNITS_MULT");
+		static const int iSAS_MILIT_MAX_UNIT_COST_EXTRA_UNITS_ADD = GC.getDefineINT("SAS_MILIT_MAX_UNIT_COST_EXTRA_UNITS_ADD");
+		int const iExtraUnits = std::max(0, (iSAS_MILIT_MAX_UNIT_COST_EXTRA_UNITS_MULT * (getCurrentEra() + 1)) + iSAS_MILIT_MAX_UNIT_COST_EXTRA_UNITS_ADD);
 		if (iExtraUnits > 0)
 		{
 			int const iUnitCount = getNumUnits();
@@ -31974,7 +31974,7 @@ bool CvPlayerAI::AI_isSASCityLikelyToBenefitUsLongTerm(CvCity const& kCity) cons
 	// Razing makes that rival pay to settle and develop the site.
 	// The default-enabled World-Wonder option protects intrinsic quality but not excessive distance.
 	// Keep the thresholds XML-tunable and log both component results so later autoplay evidence can refine them. See KI#186. (GPT-5.6-Sol) -->
-	static int const iMinPotentialYieldScore = GC.getDefineINT("SAS_SITE_MIN_OUTER_PLOT_POT_YLD_SCORE");
+	static int const iMinPotentialYieldScore = GC.getDefineINT("SAS_SITE_MIN_OUTER_PLOT_POT_YIELD_SCORE");
 	static int const iMaxVeryBadPlots = GC.getDefineINT("SAS_CITY_LONG_TERM_MAX_VERY_BAD_BFC_PLOTS");
 	static int const iMaxLowFoodScore = GC.getDefineINT("SAS_CITY_LONG_TERM_MAX_LOW_FOOD_SCORE");
 	static int const iMaxNearestOwnCityDistanceSameArea = GC.getDefineINT("SAS_CITY_LONG_TERM_MAX_OWN_CITY_DIST");

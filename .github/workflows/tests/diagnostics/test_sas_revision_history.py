@@ -40,6 +40,31 @@ def commit_fixture(repo, message):
 
 
 class RevisionHistoryTests(unittest.TestCase):
+    # <!-- custom: Several recorder steps can precede PR integration; accept their actual lineage while still detecting hashes orphaned by amendment. Existing tests retain canonical-default enforcement for older revisions. (GPT-6.1-Sol) -->
+    def test_finalized_feature_revision_requires_current_lineage(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp)
+            fixture_git(repo)
+            write_revision_define(repo, 153)
+            base = commit_fixture(repo, 'canonical baseline')
+            git(repo, 'branch', 'main')
+            git(repo, 'switch', '-qc', 'feature')
+            write_revision_define(repo, 154)
+            feature = commit_fixture(repo, 'first recorder step')
+            target = repo / history.HISTORY
+
+            def record():
+                target.write_text(
+                    '### Revision 155\n- **Git commit:** pending\n- **Change:** Second step.\n\n'
+                    '### Revision 154\n- **Git commit:** `' + feature + '`\n- **Change:** First step.\n\n'
+                    '### Revision 153\n- **Git commit:** `' + base + '`\n- **Change:** Baseline.\n', 'utf-8')
+
+            record()
+            self.assertEqual(history.check_history(repo, 'main'), [])
+            git(repo, 'commit', '--amend', '-qm', 'rewritten step')
+            record()
+            self.assertTrue(any('ancestry' in error for error in history.check_history(repo, 'main')))
+
     # <!-- custom: Historical commits retain the former name after the live SGR rename; both forms must remain readable without accepting duplicate revision declarations. (GPT-6.1-Sol) -->
     def test_revision_rename_preserves_historical_sources(self):
         def xml(*names):

@@ -686,7 +686,7 @@ The only explicit nonzero exceptions are `SAS_BBAI_SCORE_LOG_INTERVAL_T_UNSCALED
 Keeps the blocking SASGameRecord CI intentionally small:
 
 - `SAS_SGR_LOG_LEVEL` must be `0` in committed defaults.
-- `SAS_SGR_ACTION_TRACE_ON` must be `1`, and `SAS_SGR_SYSTEM_CONTEXT_LEVEL` must be `2`.
+- `SAS_SGR_ACTION_TRACE_ON` must be `1`, and `SAS_SGR_SYSTEM_CONTEXT_LVL` must be `2`.
 - Hardware identity, exact paths and process-context opt-ins must each be `0`; these checks catch accidentally committed diagnostic test overrides.
 - `SAS_SGR_BUG_STRING_VALS_ON` must be `0`, keeping reviewed BUG strings redacted by default.
 - `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` is the single monotonically increasing implementation-update label; it must match the newest maintained revision-history heading.
@@ -702,6 +702,8 @@ Intentional SASGameRecord-related code changes, including checker and code-comme
 #### `build/diagnostics/sas_revision_history.py`
 
 Automated historical provenance and current-branch progression check. Validates every finalized SASGameRecord revision hash against the repository's canonical default-branch ancestry. A stale amended/rebased commit can still exist as a Git object, while a valid mainline commit need not be an ancestor of a feature branch, so neither object existence nor current `HEAD` ancestry is sufficient.
+
+Revisions newer than the default branch's recorder revision may instead identify commits in the current `HEAD` lineage. This permits several recorder commits within one PR without leaving multiple entries pending; an amended/rebased hash outside that lineage still fails. Already integrated revisions retain the canonical default-branch requirement.
 
 Callers may pass an explicit canonical branch; otherwise local runs discover `origin/HEAD`, `origin/main` or `main`, and abstain from ancestry validation when none is available.
 

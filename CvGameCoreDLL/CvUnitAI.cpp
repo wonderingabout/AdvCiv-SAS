@@ -962,7 +962,7 @@ static bool SAS_isRemoteCapturedAttackCityTrap(CvCity const& kCity, PlayerTypes 
 		*piNearestCoreCityDistanceSameArea = iNearestCoreCityDistanceSameArea;
 	bool const bForeignCapturedCity = (kCity.getPreviousOwner() != NO_PLAYER && kCity.getOriginalOwner() != eOwner);
 	static int const iMinCoreDistance = GC.getDefineINT("SAS_CITY_ATK_REMOTE_CORE_DIST");
-	static int const iMinMilitaryPercent = GC.getDefineINT("SAS_CITY_ATK_REMOTE_MIN_MIL_PCT");
+	static int const iMinMilitaryPercent = GC.getDefineINT("SAS_CITY_ATK_REMOTE_MIN_MILIT_PCT");
 	static int const iMinStackUnits = GC.getDefineINT("SAS_CITY_ATK_REMOTE_MIN_STACK_UNITS");
 	bool const bRemoteFromCore = (iMinCoreDistance <= 0 || iNearestCoreCityDistanceSameArea < 0 || iNearestCoreCityDistanceSameArea >= iMinCoreDistance);
 	bool const bLargeStack = ((iMinMilitaryPercent > 0 && iGroupMilitaryPercent >= iMinMilitaryPercent) || (iMinStackUnits > 0 && iGroupUnits >= iMinStackUnits));
@@ -2708,10 +2708,10 @@ static int SAS_getWorkerPhase0EffectiveFeatureProduction(CvCityAI const& kCity, 
 static bool SAS_isWorkerPhase0ProductiveFeatureEconomicContext(CvCityAI const& kCity, int iFeatureProduction)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
-	static const int iMaxEra = GC.getDefineINT("SAS_WORKER_CHOP_MAX_ERA");
-	static const int iMaxPlayerCities = GC.getDefineINT("SAS_WORKER_CHOP_MAX_PLAYER_CITIES");
-	static const int iMinProductionTurnsNormalX100 = GC.getDefineINT("SAS_WORKER_CHOP_MIN_T_NORM_GS_WORTH_X100");
-	static const int iCoreFoodUnitMinRemainingTurnsNormal = GC.getDefineINT("SAS_WORKER_CHOP_FOOD_MIN_LEFT_T_NORM_GS");
+	static const int iMaxEra = GC.getDefineINT("SAS_WORKER_P0_CHOP_MAX_ERA");
+	static const int iMaxPlayerCities = GC.getDefineINT("SAS_WORKER_P0_CHOP_MAX_PLAYER_CITIES");
+	static const int iMinProductionTurnsNormalX100 = GC.getDefineINT("SAS_WORKER_P0_CHOP_MIN_T_NORM_GS_X100");
+	static const int iCoreFoodUnitMinRemainingTurnsNormal = GC.getDefineINT("SAS_WORKER_P0_CHOP_FOOD_MIN_LEFT_T_NORM_GS");
 	CvGameSpeedInfo const& kGameSpeed = GC.getInfo(GC.getGame().getGameSpeedType());
 	int const iMinProductionTurnsWorthX100 = (iMinProductionTurnsNormalX100 <= 0 ? 0 :
 		std::max(1, (iMinProductionTurnsNormalX100 * kGameSpeed.getFeatureProductionPercent() + 50) / 100));
@@ -2870,14 +2870,14 @@ static void SAS_countWorkerPhase0ProductiveFeatures(CvUnitAI const& kUnit, CvCit
 
 static int SAS_getWorkerPhase0MinEligiblePlots(CvCityAI const& kCity)
 {
-	static const int iCoreFoodUnitMinEligible = std::max(1, GC.getDefineINT("SAS_WORKER_CHOP_FOOD_UNIT_MIN_PLOTS"));
-	static const int iNormalMinEligible = std::max(1, GC.getDefineINT("SAS_WORKER_CHOP_NORMAL_MIN_PLOTS"));
+	static const int iCoreFoodUnitMinEligible = std::max(1, GC.getDefineINT("SAS_WORKER_P0_CHOP_FOOD_UNIT_MIN_PLOTS"));
+	static const int iNormalMinEligible = std::max(1, GC.getDefineINT("SAS_WORKER_P0_CHOP_NORMAL_MIN_PLOTS"));
 	return (SAS_isWorkerPhase0CoreFoodProduction(kCity) ? iCoreFoodUnitMinEligible : iNormalMinEligible);
 }
 
 static bool SAS_shouldWorkerPhase0ProductiveFeatureChop(CvUnitAI const& kUnit, CvCityAI const& kCity, CvPlot const* pIgnorePlot, int& iEligible, int& iTargeted, bool& bPressureReliefOnly)
 {
-	static const bool bEnable = GC.getDefineBOOL("SAS_WORKER_CHOP_ON");
+	static const bool bEnable = GC.getDefineBOOL("SAS_WORKER_P0_CHOP_ON");
 	int const iMinEligible = SAS_getWorkerPhase0MinEligiblePlots(kCity);
 	if (!bEnable)
 	{
@@ -4241,12 +4241,12 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	if (pbIrrigationChainStep) *pbIrrigationChainStep = false;
 	// ... PHASE 1 builds candidates ...
 
-	static const bool bSAS_WORKER_CHOP_ON = GC.getDefineBOOL("SAS_WORKER_CHOP_ON");
+	static const bool bSAS_WORKER_P0_CHOP_ON = GC.getDefineBOOL("SAS_WORKER_P0_CHOP_ON");
 	static const int iSAS_WORKER_BONUS_FEATURE_STEP_VAL = GC.getDefineINT("SAS_WORKER_BONUS_FEATURE_STEP_VAL");
 	static const int iSAS_WORKER_BONUS_SPECIFIC_BUILD_BASE_VAL = GC.getDefineINT("SAS_WORKER_BONUS_SPECIFIC_BUILD_BASE_VAL");
-	static const int iSAS_WORKER_BONUS_YLD_VAL_PER_FOOD = GC.getDefineINT("SAS_WORKER_BONUS_YLD_VAL_PER_FOOD");
-	static const int iSAS_WORKER_BONUS_YLD_VAL_PER_PROD = GC.getDefineINT("SAS_WORKER_BONUS_YLD_VAL_PER_PROD");
-	static const int iSAS_WORKER_BONUS_YLD_VAL_PER_COM = GC.getDefineINT("SAS_WORKER_BONUS_YLD_VAL_PER_COM");
+	static const int iSAS_WORKER_BONUS_YIELD_VAL_PER_FOOD = GC.getDefineINT("SAS_WORKER_BONUS_YIELD_VAL_PER_FOOD");
+	static const int iSAS_WORKER_BONUS_YIELD_VAL_PER_PROD = GC.getDefineINT("SAS_WORKER_BONUS_YIELD_VAL_PER_PROD");
+	static const int iSAS_WORKER_BONUS_YIELD_VAL_PER_COM = GC.getDefineINT("SAS_WORKER_BONUS_YIELD_VAL_PER_COM");
 	static const int iSAS_WORKER_BONUS_DYNAMIC_VAL_APPLY_MIN_VAL = GC.getDefineINT("SAS_WORKER_BONUS_DYNAMIC_VAL_APPLY_MIN_VAL");
 	static const int iSAS_WORKER_BONUS_DYNAMIC_VAL_MULT = GC.getDefineINT("SAS_WORKER_BONUS_DYNAMIC_VAL_MULT");
 	static const int iSAS_WORKER_BONUS_FOOD_FALLBACK_MIN_FOOD = GC.getDefineINT("SAS_WORKER_BONUS_FOOD_FALLBACK_MIN_FOOD");
@@ -4316,7 +4316,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	int iSASPhase0Eligible = 0;
 	int iSASPhase0Targeted = 0;
 	bool bSASPhase0PressureReliefOnly = false;
-	bool const bSASPhase0Active = bSAS_WORKER_CHOP_ON &&
+	bool const bSASPhase0Active = bSAS_WORKER_P0_CHOP_ON &&
 			SAS_shouldWorkerPhase0ProductiveFeatureChop(*this, kCity, pIgnorePlot, iSASPhase0Eligible, iSASPhase0Targeted, bSASPhase0PressureReliefOnly);
 	int const iSASPhase0Uncommitted = std::max(0, iSASPhase0Eligible - iSASPhase0Targeted);
 
@@ -4647,13 +4647,13 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					// <!-- custom: the more food the higher priority hehe (not in real life or why not but quality maybe bit too), so multiply it even further than the base any unimproved bonus multiplier -->
 					// Give an even bigger multiplier if the bonus is a FOOD bonus.
 					if (bonusFoodYieldChange > 0)
-						iValue += iSAS_WORKER_BONUS_YLD_VAL_PER_FOOD * bonusFoodYieldChange;
+						iValue += iSAS_WORKER_BONUS_YIELD_VAL_PER_FOOD * bonusFoodYieldChange;
 					// <!-- custom: then also valorize hammer/production less, i'd prefer to improve iron before gold i mean, although this is debatable, handle as such, i hope in most cases it would make AI more efficient -->
 					if (bonusProductionYieldChange > 0)
-						iValue += iSAS_WORKER_BONUS_YLD_VAL_PER_PROD * bonusProductionYieldChange;
+						iValue += iSAS_WORKER_BONUS_YIELD_VAL_PER_PROD * bonusProductionYieldChange;
 					// <!-- custom: if there is a lot of commerce, it may make sense to go for this one first maybe, but it needs to be a lot and more generally i would say -->
 					if (bonusCommerceYieldChange > 0)
-						iValue += iSAS_WORKER_BONUS_YLD_VAL_PER_COM * bonusCommerceYieldChange;
+						iValue += iSAS_WORKER_BONUS_YIELD_VAL_PER_COM * bonusCommerceYieldChange;
 				}
 				// The bonus-specific improvement is not yet available and there was no feature to remove.
 				// <!-- custom: A temporary food-increasing improvement can be worthwhile when the real bonus Build unlocks many eras later.
@@ -4712,13 +4712,13 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 						aiPotentialResultYields[eLoopYield] = SAS_getWorkerBuildEffectiveYield(kPlot, eBonusSpecificBuild, eLoopYield);
 				}
 				int const iRawYieldValue =
-					iSAS_WORKER_BONUS_YLD_VAL_PER_FOOD * kBonusInfo.getYieldChange(YIELD_FOOD) +
-					iSAS_WORKER_BONUS_YLD_VAL_PER_PROD * kBonusInfo.getYieldChange(YIELD_PRODUCTION) +
-					iSAS_WORKER_BONUS_YLD_VAL_PER_COM * kBonusInfo.getYieldChange(YIELD_COMMERCE);
+					iSAS_WORKER_BONUS_YIELD_VAL_PER_FOOD * kBonusInfo.getYieldChange(YIELD_FOOD) +
+					iSAS_WORKER_BONUS_YIELD_VAL_PER_PROD * kBonusInfo.getYieldChange(YIELD_PRODUCTION) +
+					iSAS_WORKER_BONUS_YIELD_VAL_PER_COM * kBonusInfo.getYieldChange(YIELD_COMMERCE);
 				int const iPotentialResultYieldValue =
-					iSAS_WORKER_BONUS_YLD_VAL_PER_FOOD * aiPotentialResultYields[YIELD_FOOD] +
-					iSAS_WORKER_BONUS_YLD_VAL_PER_PROD * aiPotentialResultYields[YIELD_PRODUCTION] +
-					iSAS_WORKER_BONUS_YLD_VAL_PER_COM * aiPotentialResultYields[YIELD_COMMERCE];
+					iSAS_WORKER_BONUS_YIELD_VAL_PER_FOOD * aiPotentialResultYields[YIELD_FOOD] +
+					iSAS_WORKER_BONUS_YIELD_VAL_PER_PROD * aiPotentialResultYields[YIELD_PRODUCTION] +
+					iSAS_WORKER_BONUS_YIELD_VAL_PER_COM * aiPotentialResultYields[YIELD_COMMERCE];
 				logBBAI("    WORKER_BONUS_CANDIDATE turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) worked=%d bonus=%S specificBuild=%S canBuildNow=%d buildTech=%S buildTechKnown=%d buildTechTurnsIfCurrent=%d featureTech=%S featureTechKnown=%d currentResearch=%S rawBonusYields=(%d,%d,%d) potentialResultYields=(%d,%d,%d) weights=(%d,%d,%d) rawYieldValue=%d potentialResultYieldValue=%d dynamicBonusValue=%d selectedBuild=%S selectedValue=%d",
 					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), kCity.getName().GetCString(),
 					kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot), kBonusInfo.getDescription(),
@@ -4728,7 +4728,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					(eCurrentResearch == NO_TECH ? L"-" : GC.getInfo(eCurrentResearch).getDescription()),
 					kBonusInfo.getYieldChange(YIELD_FOOD), kBonusInfo.getYieldChange(YIELD_PRODUCTION), kBonusInfo.getYieldChange(YIELD_COMMERCE),
 					aiPotentialResultYields[YIELD_FOOD], aiPotentialResultYields[YIELD_PRODUCTION], aiPotentialResultYields[YIELD_COMMERCE],
-					iSAS_WORKER_BONUS_YLD_VAL_PER_FOOD, iSAS_WORKER_BONUS_YLD_VAL_PER_PROD, iSAS_WORKER_BONUS_YLD_VAL_PER_COM,
+					iSAS_WORKER_BONUS_YIELD_VAL_PER_FOOD, iSAS_WORKER_BONUS_YIELD_VAL_PER_PROD, iSAS_WORKER_BONUS_YIELD_VAL_PER_COM,
 					iRawYieldValue, iPotentialResultYieldValue, iDynamicBonusValue,
 					(eBestSupposedBuild == NO_BUILD ? L"-" : GC.getInfo(eBestSupposedBuild).getDescription()), iValue);
 			}
@@ -7008,8 +7008,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	// This is the high-tempo case where chop hammers directly accelerate the key civilian unit and can justify delaying even a bonus.
 	// A below-threshold removal that directly relieves current unhealth/unhappiness may also use this early path.
 	// Normal productive-feature chopping is handled later, after AI_improveBonus, so ordinary cities can improve bonuses and avoid the v3 "chop everything first" overcorrection. See KI#33.2. (ChatGPT-5.6-Sol) -->
-	static const bool bSAS_WORKER_CHOP_ON = GC.getDefineBOOL("SAS_WORKER_CHOP_ON");
-	const bool bNotBarbPhase0 = (!isBarbarian() && bSAS_WORKER_CHOP_ON);
+	static const bool bSAS_WORKER_P0_CHOP_ON = GC.getDefineBOOL("SAS_WORKER_P0_CHOP_ON");
+	const bool bNotBarbPhase0 = (!isBarbarian() && bSAS_WORKER_P0_CHOP_ON);
 	if (bNotBarbPhase0)
 	{
 		FOR_EACH_CITYAI(pPhase0City, kOwner)
@@ -9456,9 +9456,9 @@ void CvUnitAI::AI_attackCityMove()
 						generatePath(pTargetCity->getPlot(), eMoveFlags, true, &iTargetPathTurns);
 						static const bool bSAS_CITY_ATK_SKIP_UPG_WAIT_ON = (GC.getDefineINT("SAS_CITY_ATK_SKIP_UPG_WAIT_ON") > 0);
 						static const int iSAS_CITY_ATK_SKIP_UPG_WAIT_MIN_STACK_UNITS = std::max(0, GC.getDefineINT("SAS_CITY_ATK_SKIP_UPG_WAIT_MIN_STACK_UNITS"));
-						static const int iSAS_CITY_ATK_SKIP_UPG_WAIT_MIN_MIL_PCT = std::max(0, GC.getDefineINT("SAS_CITY_ATK_SKIP_UPG_WAIT_MIN_MIL_PCT"));
+						static const int iSAS_CITY_ATK_SKIP_UPG_WAIT_MIN_MILIT_PCT = std::max(0, GC.getDefineINT("SAS_CITY_ATK_SKIP_UPG_WAIT_MIN_MILIT_PCT"));
 						static const int iSAS_CITY_ATK_UPG_MAX_PATH_T_UNSCALED_GS = std::max(0, GC.getDefineINT("SAS_CITY_ATK_UPG_MAX_PATH_T_UNSCALED_GS"));
-						bool const bSkipUpgradeWaitForReadyAttack = (bSAS_CITY_ATK_SKIP_UPG_WAIT_ON && bReadyToAttack && !bTargetTooStrong && iCanUpgradeNowUnits <= 0 && (kGroup.getNumUnits() >= iSAS_CITY_ATK_SKIP_UPG_WAIT_MIN_STACK_UNITS || iGroupMilitaryPercent >= iSAS_CITY_ATK_SKIP_UPG_WAIT_MIN_MIL_PCT) && iTargetPathTurns >= 0 && iTargetPathTurns <= iSAS_CITY_ATK_UPG_MAX_PATH_T_UNSCALED_GS);
+						bool const bSkipUpgradeWaitForReadyAttack = (bSAS_CITY_ATK_SKIP_UPG_WAIT_ON && bReadyToAttack && !bTargetTooStrong && iCanUpgradeNowUnits <= 0 && (kGroup.getNumUnits() >= iSAS_CITY_ATK_SKIP_UPG_WAIT_MIN_STACK_UNITS || iGroupMilitaryPercent >= iSAS_CITY_ATK_SKIP_UPG_WAIT_MIN_MILIT_PCT) && iTargetPathTurns >= 0 && iTargetPathTurns <= iSAS_CITY_ATK_UPG_MAX_PATH_T_UNSCALED_GS);
 						if (bLogAttackCityParking)
 						{
 							if (!bSkipUpgradeWaitForReadyAttack) SAS_logAttackCityParking(*this, pTargetCity, "wait_upgrade", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNeedUpgradeCount, iTargetPathTurns, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);

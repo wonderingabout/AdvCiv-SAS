@@ -147,7 +147,7 @@ class CvVictoryScreen:
 
 		# <!-- custom: language tracking for initText, based on Info Screen pattern (claude opus 4.5) -->
 		self.iLanguageLoaded = -1
-		self.SAS_VICTORY_UI_SHOW_AI_MAP_HEAVINESS = None
+		self.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS = None
 
 		# <!-- custom: keep screen-independent advisor edge constants in init; compute runtime resolution-dependent bounds in interfaceScreen through shared SASUtils helpers. (GPT-5.3-Codex) -->
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
@@ -1244,9 +1244,9 @@ class CvVictoryScreen:
 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_CLIMATE", (gc.getClimateInfo(m.getClimate()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (gc.getSeaLevelInfo(m.getSeaLevel()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# <!-- custom: Show the same cached landHeavy/navalHeavy AI map-heaviness flags used by DLL behavior and BBAI_GAME_SETTINGS, so they can be checked in-game without enabling logs. (GPT-5.5) -->
-		if self.SAS_VICTORY_UI_SHOW_AI_MAP_HEAVINESS is None:
-			self.SAS_VICTORY_UI_SHOW_AI_MAP_HEAVINESS = (gc.getDefineINT("SAS_VICTORY_UI_SHOW_AI_MAP_HEAVINESS") > 0)
-		if self.SAS_VICTORY_UI_SHOW_AI_MAP_HEAVINESS:
+		if self.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS is None:
+			self.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS = (gc.getDefineINT("SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS") > 0)
+		if self.SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS:
 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SAS_VICTORY_SETTINGS_AI_MAP_HEAVINESS", (int(g.isLandHeavyMapnameCached()), int(g.isNavalHeavyMapnameCached()))), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# <advc.190b>
 		for i in range(m.getNumCustomMapOptions()):

@@ -2181,21 +2181,21 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnore
 		// 	- to your master,
 		// 	- in peace deals that might call with bIgnoreDiscount = true,
 		// then I’d move your block outside the if (!bIgnoreDiscount && !isVassal…) guard
-		static const bool bSAS_TECH_TRADE_MIL_DANGER_ON = GC.getDefineBOOL("SAS_TECH_TRADE_MIL_DANGER_ON");
-		if (bSAS_TECH_TRADE_MIL_DANGER_ON)
+		static const bool bSAS_TECH_TRADE_MILIT_DANGER_ON = GC.getDefineBOOL("SAS_TECH_TRADE_MILIT_DANGER_ON");
+		if (bSAS_TECH_TRADE_MILIT_DANGER_ON)
 		{
 			const int iEnemyPowerPercent = AI_getEnemyPowerPercent(true);
 			const bool bEnemyStrong = SASWarPowerContext::isEnemyStrong(iEnemyPowerPercent);
 
 			if (bEnemyStrong)
 			{
-				static const int iSAS_TECH_VAL_MIL_FLAVOR_MIN = GC.getDefineINT("SAS_TECH_VAL_MIL_FLAVOR_MIN");
+				static const int iSAS_TECH_VAL_MILIT_FLAVOR_MIN = GC.getDefineINT("SAS_TECH_VAL_MILIT_FLAVOR_MIN");
 
-				if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_TECH_VAL_MIL_FLAVOR_MIN)
+				if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_TECH_VAL_MILIT_FLAVOR_MIN)
 				{
-					static const int iSAS_TECH_TRADE_MIL_WEAKER_PCT = GC.getDefineINT("SAS_TECH_TRADE_MIL_WEAKER_PCT");
+					static const int iSAS_TECH_TRADE_MILIT_WEAKER_PCT = GC.getDefineINT("SAS_TECH_TRADE_MILIT_WEAKER_PCT");
 					// e.g. 130 => +30% trade value, 150 => +50%, etc.
-					rValue *= per100(iSAS_TECH_TRADE_MIL_WEAKER_PCT);
+					rValue *= per100(iSAS_TECH_TRADE_MILIT_WEAKER_PCT);
 				}
 			}
 		}

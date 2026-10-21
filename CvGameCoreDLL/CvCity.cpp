@@ -624,19 +624,19 @@ void CvCity::doTurn()
 
 	// <!-- custom: force an artist if we don't have our BFC and city's culture per turn is low -->
 	// --- BEGIN: SAS hard patch: force 1 Artist for fast BFC when culture/turn is low ---
-	static const bool bSAS_ARTIST_NO_BFC_LOW_CULT_ON = GC.getDefineBOOL("SAS_ARTIST_NO_BFC_LOW_CULT_ON");
-	if (bSAS_ARTIST_NO_BFC_LOW_CULT_ON)
+	static const bool bSAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON = GC.getDefineBOOL("SAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON");
+	if (bSAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON)
 	{
 		static const SpecialistTypes eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
 
 		if (eArtist != NO_SPECIALIST)
 		{
-			static const int iLowCpt = GC.getDefineINT("SAS_ARTIST_NO_BFC_MIN_CULT_PER_T");
+			static const int iLowCpt = GC.getDefineINT("SAS_FORCE_ARTIST_NO_BFC_MIN_CULT_PER_T");
 			// "No BFC yet" = still at the initial culture level (pre-10 culture)
-			static const int iSAS_ARTIST_NO_BFC_MIN_CULT_LEVEL = GC.getDefineINT("SAS_ARTIST_NO_BFC_MIN_CULT_LEVEL");
-			const bool bNoCultureLevelReqYet = (getCultureLevel() < iSAS_ARTIST_NO_BFC_MIN_CULT_LEVEL);
+			static const int iSAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL = GC.getDefineINT("SAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL");
+			const bool bNoCultureLevelReqYet = (getCultureLevel() < iSAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL);
 			// <!-- custom: also give the option for human players to have it for their convenience -->
-			static const bool bSAS_HUMAN_ARTIST_NO_BFC_LOW_CULT_ON = GC.getDefineBOOL("SAS_HUMAN_ARTIST_NO_BFC_LOW_CULT_ON");
+			static const bool bSAS_HUMAN_FORCE_ARTIST_NO_BFC_LOW_CULT_ON = GC.getDefineBOOL("SAS_HUMAN_FORCE_ARTIST_NO_BFC_LOW_CULT_ON");
 
 			if (!bHuman)
 			{
@@ -661,7 +661,7 @@ void CvCity::doTurn()
 				}
 				// <!-- custom: else let CvCityAI::AI_jobChangeValue handle the unassignment as it is maybe (check if accurate as this is a guess of mine and i don't know too much about these) easier as such -->
 			}
-			else if (bHuman && bSAS_HUMAN_ARTIST_NO_BFC_LOW_CULT_ON)
+			else if (bHuman && bSAS_HUMAN_FORCE_ARTIST_NO_BFC_LOW_CULT_ON)
 			{
 				// <!-- custom: The old cleanup guessed that any forced Artist in a narrow post-BFC culture window belonged to this helper.
 				// Record ownership when we add one, and let any manual Artist adjustment permanently transfer control to the human instead. See KI#313. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -692,8 +692,8 @@ void CvCity::doTurn()
 				{
 					const int iCityCulture = getCulture(getOwner());
 					// <!-- custom: this way we're adjusted to game speed such as BFC being as of now at 10 in normal, 20 in marathon, 6 in quick -->
-					const int iBFCThreshold = GC.getGame().getCultureThreshold((CultureLevelTypes)iSAS_ARTIST_NO_BFC_MIN_CULT_LEVEL);
-					static const int iEnoughSanity = GC.getDefineINT("SAS_HUMAN_ARTIST_NO_BFC_STOP_ENOUGH_ON");
+					const int iBFCThreshold = GC.getGame().getCultureThreshold((CultureLevelTypes)iSAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL);
+					static const int iEnoughSanity = GC.getDefineINT("SAS_HUMAN_FORCE_ARTIST_STOP_WHEN_ENOUGH_ON");
 
 					const bool bFarEnoughFromBFC = (iCityCulture > iBFCThreshold + iEnoughSanity);
 					if (bFarEnoughFromBFC)

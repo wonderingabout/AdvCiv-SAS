@@ -23,7 +23,7 @@ def getLogLevel():
 def getSystemContextLevel():
 	global _g_systemContextLevel
 	if _g_systemContextLevel is None:
-		_g_systemContextLevel = max(0, min(3, CyGlobalContext().getDefineINT("SAS_SGR_SYSTEM_CONTEXT_LEVEL")))
+		_g_systemContextLevel = max(0, min(3, CyGlobalContext().getDefineINT("SAS_SGR_SYSTEM_CONTEXT_LVL")))
 	return _g_systemContextLevel
 
 

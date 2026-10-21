@@ -128,13 +128,13 @@ class CvMilitaryAdvisor:
 		self.H_GREAT_GENERAL_BAR = 30
 		self.X_GREAT_GENERAL_BAR = 20
 
-		self.iSAS_MIL_UI_DEFAULT_TAB = None
-		self.IS_SAS_MIL_UI_UNIT_COMBATS_UNITS_ICONS = None
-		self.iSAS_MIL_UI_BASE_ICON_SIZE = None
-		self.iSAS_MIL_UI_HI_RES_ICON_MIN_HEIGHT = None
-		self.iSAS_MIL_UI_HI_RES_ICON_SIZE = None
-		self.IS_SAS_MIL_UI_BATTLE_PLOT_CONTEXT_ON = None
-		self.IS_SAS_MIL_UI_BATTLES_LOG_BUTTON_ON = None
+		self.iSAS_MILIT_UI_DEFAULT_TAB = None
+		self.IS_SAS_MILIT_UI_UNIT_COMBATS_UNITS_ICONS = None
+		self.iSAS_MILIT_UI_BASE_ICON_SIZE = None
+		self.iSAS_MILIT_UI_HI_RES_ICON_MIN_HEIGHT = None
+		self.iSAS_MILIT_UI_HI_RES_ICON_SIZE = None
+		self.IS_SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON = None
+		self.IS_SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON = None
 		self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = None
 		self.iNUM_BUILDING_AND_TECH_PREREQS = None
 		# <!-- custom: cache Summary-tab military-building groups per civilization.
@@ -156,22 +156,22 @@ class CvMilitaryAdvisor:
 		# Changing defines while Civ4 was running could then produce crashy behaviour similar to hot-changing Python, unlike the Tech Chooser/Main Interface lazy/sentinel pattern used here.
 		# Cache once after screen setup starts; empirically, this helper pattern fixed that crashy behaviour so runtime XML changes simply have no effect until the required Civ4 restart.
 		# Check each cached define's sentinel instead of only the first one for cheap exhaustive safety. See KI#128. (GPT-5.5) -->
-		if self.iSAS_MIL_UI_DEFAULT_TAB is None:
-			self.iSAS_MIL_UI_DEFAULT_TAB = gc.getDefineINT("SAS_MIL_UI_DEFAULT_TAB")
-			if self.iSAS_MIL_UI_DEFAULT_TAB not in self.PAGE_IDS:
-				raise ValueError("SAS_MIL_UI_DEFAULT_TAB must be a zero-based tab position from 0 to %d" % (len(self.PAGE_IDS) - 1))
-		if self.IS_SAS_MIL_UI_UNIT_COMBATS_UNITS_ICONS is None:
-			self.IS_SAS_MIL_UI_UNIT_COMBATS_UNITS_ICONS = (gc.getDefineINT("SAS_MIL_UI_UNIT_COMBATS_UNITS_ICONS") > 0)
-		if self.iSAS_MIL_UI_BASE_ICON_SIZE is None:
-			self.iSAS_MIL_UI_BASE_ICON_SIZE = gc.getDefineINT("SAS_MIL_UI_BASE_ICON_SIZE")
-		if self.iSAS_MIL_UI_HI_RES_ICON_MIN_HEIGHT is None:
-			self.iSAS_MIL_UI_HI_RES_ICON_MIN_HEIGHT = gc.getDefineINT("SAS_MIL_UI_HI_RES_ICON_MIN_HEIGHT")
-		if self.iSAS_MIL_UI_HI_RES_ICON_SIZE is None:
-			self.iSAS_MIL_UI_HI_RES_ICON_SIZE = gc.getDefineINT("SAS_MIL_UI_HI_RES_ICON_SIZE")
-		if self.IS_SAS_MIL_UI_BATTLE_PLOT_CONTEXT_ON is None:
-			self.IS_SAS_MIL_UI_BATTLE_PLOT_CONTEXT_ON = (gc.getDefineINT("SAS_MIL_UI_BATTLE_PLOT_CONTEXT_ON") > 0)
-		if self.IS_SAS_MIL_UI_BATTLES_LOG_BUTTON_ON is None:
-			self.IS_SAS_MIL_UI_BATTLES_LOG_BUTTON_ON = (gc.getDefineINT("SAS_MIL_UI_BATTLES_LOG_BUTTON_ON") > 0)
+		if self.iSAS_MILIT_UI_DEFAULT_TAB is None:
+			self.iSAS_MILIT_UI_DEFAULT_TAB = gc.getDefineINT("SAS_MILIT_UI_DEFAULT_TAB")
+			if self.iSAS_MILIT_UI_DEFAULT_TAB not in self.PAGE_IDS:
+				raise ValueError("SAS_MILIT_UI_DEFAULT_TAB must be a zero-based tab position from 0 to %d" % (len(self.PAGE_IDS) - 1))
+		if self.IS_SAS_MILIT_UI_UNIT_COMBATS_UNITS_ICONS is None:
+			self.IS_SAS_MILIT_UI_UNIT_COMBATS_UNITS_ICONS = (gc.getDefineINT("SAS_MILIT_UI_UNIT_COMBATS_UNITS_ICONS") > 0)
+		if self.iSAS_MILIT_UI_BASE_ICON_SIZE is None:
+			self.iSAS_MILIT_UI_BASE_ICON_SIZE = gc.getDefineINT("SAS_MILIT_UI_BASE_ICON_SIZE")
+		if self.iSAS_MILIT_UI_HI_RES_ICON_MIN_HEIGHT is None:
+			self.iSAS_MILIT_UI_HI_RES_ICON_MIN_HEIGHT = gc.getDefineINT("SAS_MILIT_UI_HI_RES_ICON_MIN_HEIGHT")
+		if self.iSAS_MILIT_UI_HI_RES_ICON_SIZE is None:
+			self.iSAS_MILIT_UI_HI_RES_ICON_SIZE = gc.getDefineINT("SAS_MILIT_UI_HI_RES_ICON_SIZE")
+		if self.IS_SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON is None:
+			self.IS_SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON = (gc.getDefineINT("SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON") > 0)
+		if self.IS_SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON is None:
+			self.IS_SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON = (gc.getDefineINT("SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON") > 0)
 		if self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT is None:
 			self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = gc.getDefineINT("INITIAL_OUTSIDE_UNIT_GOLD_PERCENT")
 		if self.iNUM_BUILDING_AND_TECH_PREREQS is None:
@@ -193,7 +193,7 @@ class CvMilitaryAdvisor:
 			self.BATTLE_HILL_PEAK_COL_ID = -1
 			self.BATTLE_TERRAIN_COL_ID = -1
 			self.BATTLE_FEATURE_COL_ID = -1
-			if self.IS_SAS_MIL_UI_BATTLE_PLOT_CONTEXT_ON:
+			if self.IS_SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON:
 				self.BATTLE_HILL_PEAK_COL_ID = 22
 				self.BATTLE_TERRAIN_COL_ID = self.BATTLE_HILL_PEAK_COL_ID + 1
 				self.BATTLE_FEATURE_COL_ID = self.BATTLE_HILL_PEAK_COL_ID + 2
@@ -367,9 +367,9 @@ class CvMilitaryAdvisor:
 		self.W_GREAT_GENERAL_BAR = self.W_MAP_MINIMAP
 
 		# <!-- custom: inline icon size is resolution-dependent (vertical room), so compute once in runtime layout and reuse during row rendering. (GPT-5.3-Codex) -->
-		self.iInlineIconSize = self.iSAS_MIL_UI_BASE_ICON_SIZE
-		if self.iSAS_MIL_UI_HI_RES_ICON_MIN_HEIGHT > 0 and screen.getYResolution() >= self.iSAS_MIL_UI_HI_RES_ICON_MIN_HEIGHT:
-			self.iInlineIconSize = self.iSAS_MIL_UI_HI_RES_ICON_SIZE
+		self.iInlineIconSize = self.iSAS_MILIT_UI_BASE_ICON_SIZE
+		if self.iSAS_MILIT_UI_HI_RES_ICON_MIN_HEIGHT > 0 and screen.getYResolution() >= self.iSAS_MILIT_UI_HI_RES_ICON_MIN_HEIGHT:
+			self.iInlineIconSize = self.iSAS_MILIT_UI_HI_RES_ICON_SIZE
 		# <!-- custom: Increase expanded-row promotion icons from the old DLL-hardcoded size 16 to our new Military Advisor row unit-icon size.
 		# The row already has this height, so promotion icons become more readable without increasing row height. (GPT-5.5) -->
 		self.iPromotionInlineIconSize = self.iInlineIconSize
@@ -430,7 +430,7 @@ class CvMilitaryAdvisor:
 		# <!-- custom: Reapplying the XML default on every real opening discarded the user's last selected tab.
 		# Use it only on the first opening; this advisor object then retains later tab selections across close/reopen. See KI#129 (Update). (GPT-5.6-Sol) -->
 		if self.iActivePage is None:
-			self.iActivePage = self.iSAS_MIL_UI_DEFAULT_TAB
+			self.iActivePage = self.iSAS_MILIT_UI_DEFAULT_TAB
 		self.initText()
 		self.updateRuntimeLayout(screen)
 		self.bMapMinimapInitDone = False
@@ -791,7 +791,7 @@ class CvMilitaryAdvisor:
 			entryFirst = aEntries[0]
 			entryLast = aEntries[-1]
 		# <!-- custom: Observer identity and debug mode control battle-location privacy, so include both in the preserved table's cache key rather than reusing rows built under another visibility context. See KI#335. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		return (self.iActivePlayer, CyGame().getActivePlayer(), CyGame().isDebugMode(), CyGame().getCurrentLanguage(), self.IS_SAS_MIL_UI_BATTLE_PLOT_CONTEXT_ON, self.BATTLE_NUM_COLS, iTableX, iTableY, iTableW, iTableH, len(aEntries), entryFirst, entryLast)
+		return (self.iActivePlayer, CyGame().getActivePlayer(), CyGame().isDebugMode(), CyGame().getCurrentLanguage(), self.IS_SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON, self.BATTLE_NUM_COLS, iTableX, iTableY, iTableW, iTableH, len(aEntries), entryFirst, entryLast)
 
 	def canReuseBattleTableWidget(self, screen, aEntries):
 		# <!-- custom: Cache keys can survive Military Advisor close/reopen even when the table widget is gone; verify the preserved table still has enough rows before using the fast show/moveToFront path. (GPT-5.5) -->
@@ -811,7 +811,7 @@ class CvMilitaryAdvisor:
 		screen.addPanel(self.UNIT_PANEL_ID, "", "", True, True, iX, iY, iW, iH, PanelStyles.PANEL_STYLE_MAIN)
 		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
 		battleTableCacheKey = self.getBattleTableCacheKey(aEntries, iTableX, iTableY, iTableW, iTableH)
-		if self.IS_SAS_MIL_UI_BATTLES_LOG_BUTTON_ON:
+		if self.IS_SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON:
 			screen.setButtonGFC(self.BATTLE_LOG_BUTTON_ID, SASTextScale.sasFontTagLabel + self.TEXT_BATTLES_LOG_BUTTON.upper() + SASTextScale.SAS_FONT_TAG_CLOSE, "", self.X_EXIT - 110, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
 		placeAdvisorLegendLink(self, "CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
 		# <!-- custom: Late-game Battles tab opened slowly in a sample with 710+ rows.
@@ -846,7 +846,7 @@ class CvMilitaryAdvisor:
 		iTerrainColW = 0
 		iFeatureColW = 0
 		iHillPeakColW = 0
-		if self.IS_SAS_MIL_UI_BATTLE_PLOT_CONTEXT_ON:
+		if self.IS_SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON:
 			iTerrainColW = 35
 			iFeatureColW = 35
 			iHillPeakColW = 35
@@ -879,7 +879,7 @@ class CvMilitaryAdvisor:
 		# <!-- custom: show captured unit type as a compact pedia icon rather than text.
 		# The stored row supports one captured unit type; if a future mod allows one combat to create multiple captured types, expand this column/model then. (GPT-5.5) -->
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 21, "", iCaptureUnitColW)
-		if self.IS_SAS_MIL_UI_BATTLE_PLOT_CONTEXT_ON:
+		if self.IS_SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON:
 			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, self.TEXT_BATTLE_HILL_PEAK, iHillPeakColW)
 			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_TERRAIN_COL_ID, self.TEXT_BATTLE_TERRAIN, iTerrainColW)
 			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_FEATURE_COL_ID, self.TEXT_BATTLE_FEATURE, iFeatureColW)
@@ -935,7 +935,7 @@ class CvMilitaryAdvisor:
 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 19, iRow, str(iTheirPlayer), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 20, iRow, self.getBattleCaptureCountText(iCapturedCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 21, iRow, getAdvisorIconSortKey(iCapturedUnit + 1, iRow), self.getBattleCaptureUnitButton(iCapturedCount, iCapturedUnit), eCapturedUnitWidget, iCapturedUnit, -1, CvUtil.FONT_CENTER_JUSTIFY)
-		if self.IS_SAS_MIL_UI_BATTLE_PLOT_CONTEXT_ON:
+		if self.IS_SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON:
 			self.setBattleHillPeakCell(screen, iRow, iHillPeakTerrain)
 			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_TERRAIN_COL_ID, iTerrain, True)
 			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_FEATURE_COL_ID, iFeature, False)
@@ -2277,7 +2277,7 @@ class CvMilitaryAdvisor:
 		# Extra text-indent is only needed when icons are disabled.
 		szUnitIndentSpace = u"  "  # <!-- custom: level 1: unit-type rows (e.g. Warrior (3)) (GPT-5.3-Codex) -->
 		szDetailIndentSpace = u"      "  # <!-- custom: level 2: individual unit detail rows (expanded view) (GPT-5.3-Codex) -->
-		if self.IS_SAS_MIL_UI_UNIT_COMBATS_UNITS_ICONS:
+		if self.IS_SAS_MILIT_UI_UNIT_COMBATS_UNITS_ICONS:
 			# <!-- custom: with inline icons enabled, remove legacy text-side indents so icon indent/gap can be tuned independently; otherwise icon-indent edits would drag icon and text together.
 			# This notably lets us keep unit icons close to unit text for readability instead of forcing a wide icon->text gap. (GPT-5.3-Codex) -->
 			szUnitIndentSpace = u" "
@@ -2290,7 +2290,7 @@ class CvMilitaryAdvisor:
 
 		def formatListRowText(szText, szButton, iIndentLevel):
 			szLabelText = SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
-			if self.IS_SAS_MIL_UI_UNIT_COMBATS_UNITS_ICONS and szButton:
+			if self.IS_SAS_MILIT_UI_UNIT_COMBATS_UNITS_ICONS and szButton:
 				# <!-- custom: note: inline <img> icon paths are stricter than icon-slot rendering; avoid risky button filenames (spaces/parentheses) to prevent magenta icons. See KI#118. (GPT-5.3-Codex) -->
 				return u"%s<img=%s size=%d></img>%s%s" % (szIconIndentByLevel.get(iIndentLevel, u""), szButton, self.iInlineIconSize, szIconGapByLevel.get(iIndentLevel, u" "), szLabelText)
 			return szLabelText

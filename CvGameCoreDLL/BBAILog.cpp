@@ -34,7 +34,7 @@ static SASBBAILogCategoryDescriptor const aSASBBAILogCategories[] =
 	{ "SAS_BBAI_WAR_LOG_LEVEL", &SASBBAILogSettings::iWarLogLevel },
 	{ "SAS_BBAI_CITY_LOG_LEVEL", &SASBBAILogSettings::iCityLogLevel },
 	{ "SAS_BBAI_PROD_NO_TARGET_LOG_LEVEL", &SASBBAILogSettings::iProductionNoTargetLogLevel },
-	{ "SAS_BBAI_MIL_PROD_LOG_LEVEL", &SASBBAILogSettings::iMilitaryProductionLogLevel },
+	{ "SAS_BBAI_MILIT_PROD_LOG_LEVEL", &SASBBAILogSettings::iMilitaryProductionLogLevel },
 	{ "SAS_BBAI_SPACE_PROD_LOG_LEVEL", &SASBBAILogSettings::iSpaceProductionLogLevel },
 	{ "SAS_BBAI_LIMITED_PROJECT_PROD_LOG_LEVEL", &SASBBAILogSettings::iLimitedProjectProductionLogLevel },
 	{ "SAS_BBAI_BLDG_PROD_LOG_LEVEL", &SASBBAILogSettings::iBuildingProductionLogLevel },
@@ -52,7 +52,7 @@ static SASBBAILogCategoryDescriptor const aSASBBAILogCategories[] =
 	{ "SAS_BBAI_BONUS_LOG_LEVEL", &SASBBAILogSettings::iBonusLogLevel },
 	{ "SAS_BBAI_CULT_LOG_LEVEL", &SASBBAILogSettings::iCultureLogLevel },
 	{ "SAS_BBAI_UWAI_AGENT_LOG_LEVEL", &SASBBAILogSettings::iUWAIAgentLogLevel },
-	{ "SAS_BBAI_UWAI_MIL_ANALYST_LOG_LEVEL", &SASBBAILogSettings::iUWAIMilitaryAnalystLogLevel },
+	{ "SAS_BBAI_UWAI_MILIT_ANALYST_LOG_LEVEL", &SASBBAILogSettings::iUWAIMilitaryAnalystLogLevel },
 	{ "SAS_BBAI_UWAI_INVASION_GRAPH_LOG_LEVEL", &SASBBAILogSettings::iUWAIInvasionGraphLogLevel },
 	{ "SAS_BBAI_UWAI_ARMAMENT_FORECAST_LOG_LEVEL", &SASBBAILogSettings::iUWAIArmamentForecastLogLevel },
 	{ "SAS_BBAI_UWAI_WAR_UTILITY_LOG_LEVEL", &SASBBAILogSettings::iUWAIWarUtilityLogLevel }

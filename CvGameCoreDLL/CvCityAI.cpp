@@ -1700,7 +1700,7 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist, int* piYi
 		if (iProductionRank <= iSAS_GG_INSTRUCTOR_TOP_N_PROD_CITY_THRESH)
 		{
 			static const int iSAS_GG_INSTRUCTOR_TOP_N_PROD_EXTRA_VAL = GC.getDefineINT("SAS_GG_INSTRUCTOR_TOP_N_PROD_EXTRA_VAL");
-			static const int iSAS_GG_INSTRUCTOR_TOP_N_PROD_MIL_MOD_VAL = GC.getDefineINT("SAS_GG_INSTRUCTOR_TOP_N_PROD_MIL_MOD_VAL");
+			static const int iSAS_GG_INSTRUCTOR_TOP_N_PROD_MILIT_MOD_VAL = GC.getDefineINT("SAS_GG_INSTRUCTOR_TOP_N_PROD_MILIT_MOD_VAL");
 			const BuildingTypes eProductionBuilding = getProductionBuilding();
 			const int iProductionBuildingMilitaryModifier = (eProductionBuilding == NO_BUILDING ? 0 : std::max(0, GC.getInfo(eProductionBuilding).getMilitaryProductionModifier()));
 			const int iMilitaryProductionBuildingModifier = std::max(0, getMilitaryProductionModifier()) + iProductionBuildingMilitaryModifier;
@@ -1708,7 +1708,7 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist, int* piYi
 			// Derive the synergy from the city's active building modifier plus a positive modifier on its currently constructed building instead.
 			// This reuses CvCity's maintained aggregate rather than rescanning BuildingInfos whenever specialist value is queried.
 			// At current XML values, Heroic Epic's +50 and the per-point value 10 preserve the old +500 bonus, while smaller, stacked, or mod-added effects scale naturally. (GPT-5.6-Sol) -->
-			const int iMilitaryProductionBuildingExtraValue = iMilitaryProductionBuildingModifier * iSAS_GG_INSTRUCTOR_TOP_N_PROD_MIL_MOD_VAL;
+			const int iMilitaryProductionBuildingExtraValue = iMilitaryProductionBuildingModifier * iSAS_GG_INSTRUCTOR_TOP_N_PROD_MILIT_MOD_VAL;
 
 			// <!-- custom: the higher the rank the more we value it -->
 			// <!-- custom: Extra value for built or currently constructed military-production buildings, which make a top-hammer city an efficient place to concentrate Military Instructors. (GPT-5.6-Sol) -->
@@ -10237,7 +10237,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					kOwner.AI_getNumAIUnits(UNITAI_WORKER)) / 10);
 
 			if (bLogBuildingValueDetailsThisPass) kDiagnostics->iMilitaryProductionBefore = iValue;
-			static const bool bMilitaryProductionThroughputOptimize = GC.getDefineBOOL("SAS_BLDG_VAL_MIL_PROD_THROUGHPUT_ON");
+			static const bool bMilitaryProductionThroughputOptimize = GC.getDefineBOOL("SAS_BLDG_VAL_MILIT_PROD_THROUGHPUT_ON");
 			if (bMilitaryProductionThroughputOptimize && iMilitaryProductionModifier != 0)
 			{
 				// <!-- custom: K-Mod/AdvC valued a positive MilitaryProductionModifier mostly by modifier size and ordinal production rank, which cannot distinguish nearly equal 100/99/98/97-hammer cities from 100/10/3/1 and also ignores negative modifiers and pre-contact positive value.
@@ -10249,7 +10249,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// <!-- custom: A one-per-player positive military-production National Wonder is itself a specialization decision, so the empire-wide ordinary unit-production share understates how heavily its chosen city will use the modifier after construction.
 				// The KI#48.16 0/75/100 Pangaea validation found the full-specialization default moved Heroic Epic into useful production cities much earlier while every accepted build remained 1-6 turns and ordinary production competition still rejected most opportunities.
 				// Keep the tested floor XML-tunable and additive rather than reviving the old rank bonus or force-first sentinel. See KI#48.16. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-				static const int iMilitaryNationalWonderUnitShareFloorPercent = range(GC.getDefineINT("SAS_BLDG_VAL_MIL_NW_UNIT_SHARE_MIN_PCT"), 0, 100);
+				static const int iMilitaryNationalWonderUnitShareFloorPercent = range(GC.getDefineINT("SAS_BLDG_VAL_MILIT_NW_UNIT_SHARE_MIN_PCT"), 0, 100);
 				int const iEffectiveMilitaryProductionShare = (bNationalWonder && iMilitaryProductionModifier > 0 ? std::max(iMilitaryProductionShare, iMilitaryNationalWonderUnitShareFloorPercent) : iMilitaryProductionShare);
 				// <!-- custom: Mirror K-Mod's ordinary yield-modifier allowance for near-term growth. (ChatGPT-5.6-Sol) -->
 				int const iMilitaryProductionBaseRate = iBaseHammersPerTurn + 2;
@@ -13384,7 +13384,7 @@ int CvCityAI::SAS_AI_directArtistCultureValuePercent() const
 		return iCachedPercent;
 
 	int iAnswer = 100;
-	static int const iCleanNonVictoryPercent = range(GC.getDefineINT("SAS_ARTIST_CULT_CLEAN_NON_VICTORY_PCT"), 0, 100);
+	static int const iCleanNonVictoryPercent = range(GC.getDefineINT("SAS_ARTIST_CULT_CLEAN_NON_VICT_PCT"), 0, 100);
 	if (iCleanNonVictoryPercent < 100 && !isHuman())
 	{
 		CvPlayerAI const& kOwner = GET_PLAYER(eOwner);
@@ -19450,12 +19450,12 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 		// --- Simple BFC Artist precheck ---------------------------------------------
 		// If we don't have BFC yet (level < 1) and city culture is very low (<3),
 		// force-pick exactly one Artist; and don't drop it until BFC is reached.
-		static const bool bSAS_ARTIST_NO_BFC_LOW_CULT_ON = GC.getDefineBOOL("SAS_ARTIST_NO_BFC_LOW_CULT_ON");
+		static const bool bSAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON = GC.getDefineBOOL("SAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON");
 
-		static const int iSAS_ARTIST_NO_BFC_MIN_CULT_LEVEL = GC.getDefineINT("SAS_ARTIST_NO_BFC_MIN_CULT_LEVEL");
-		const bool bBelowCultureLevel = (getCultureLevel() < iSAS_ARTIST_NO_BFC_MIN_CULT_LEVEL);
+		static const int iSAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL = GC.getDefineINT("SAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL");
+		const bool bBelowCultureLevel = (getCultureLevel() < iSAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL);
 
-		const bool bWantBFCArtist = (bBelowCultureLevel && bSAS_ARTIST_NO_BFC_LOW_CULT_ON);
+		const bool bWantBFCArtist = (bBelowCultureLevel && bSAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON);
 
 		if (!bHuman && !bWantBFCArtist && (eArtist != NO_SPECIALIST))
 		{

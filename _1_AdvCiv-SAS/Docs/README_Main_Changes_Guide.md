@@ -678,7 +678,7 @@ See [README_Logging_Inventory.md](README_Logging_Inventory.md#before-and-after-s
 - (Requires AdvCiv-SAS 6455+) **Dedicated no-production BBAI logging:**
   - `SAS_BBAI_PROD_NO_TARGET_LOG_LEVEL` isolates KI#51 investigation from broad city and military-production logging.
   - Level 2 records any civilization city that reaches its control-path-aware turn boundary without a production target outside disorder; level 3 adds legal units/buildings/Projects/Processes and strategic context, plus exact AI chooser reasons (`EXPECTED_DISORDER` versus an abnormal `FINAL_FALLTHROUGH`).
-- **Dedicated AI military-production BBAI logging**: added `SAS_BBAI_MIL_PROD_LOG_LEVEL` notably to isolate production diagnostics without enabling broad city logging.
+- **Dedicated AI military-production BBAI logging**: added `SAS_BBAI_MILIT_PROD_LOG_LEVEL` notably to isolate production diagnostics without enabling broad city logging.
   - Higher detail notably records unit-build probability, spending limits, building/nonunit gates, unit selection and rejection reasons, and (Requires AdvCiv-SAS 6584+) proactive-fortification decisions.
 - (Requires AdvCiv-SAS 6584+) **Dedicated building-production BBAI forensic audit:**
   - AdvCiv-SAS adds `SAS_BBAI_BLDG_PROD_LOG_LEVEL` to link candidate value, contextual policy and the production target ultimately selected.

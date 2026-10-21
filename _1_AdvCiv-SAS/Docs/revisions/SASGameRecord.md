@@ -77,10 +77,17 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 162 - SAS practical 6675
+### Revision 163 - SAS practical 6676
 
 - **Date:** 2026-10-21
 - **Git commit:** pending
+- **Change:** Polish shared setting names for consistent terminology, including `NAT`, `MILIT` and `LVL`, without changing values or recording behavior. Permit finalized new revision entries to reference the current feature-branch lineage while preserving canonical default-branch ancestry for existing revisions. See KI#1001.2.
+
+
+### Revision 162 - SAS practical 6675
+
+- **Date:** 2026-10-21
+- **Git commit:** `dcd6d2357a803a8ccf3a13c866142200d13c71e9`
 - **Change:** Shorten the SASGameRecord configuration family to `SAS_SGR_*` and use the reviewed shorter keys when recording other SAS settings. Values, recording conditions and caching remain unchanged; historical captures retain their original key spellings. See KI#1001.2.
 
 

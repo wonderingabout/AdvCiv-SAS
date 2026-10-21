@@ -117,7 +117,7 @@ static bool isSASGameRecordTradeMarketAITechValuesEnabled()
 
 static int getSASGameRecordSystemContextLevel()
 {
-	static const int iLevel = std::min(3, std::max(0, GC.getDefineINT("SAS_SGR_SYSTEM_CONTEXT_LEVEL")));
+	static const int iLevel = std::min(3, std::max(0, GC.getDefineINT("SAS_SGR_SYSTEM_CONTEXT_LVL")));
 	return iLevel;
 }
 
@@ -2466,7 +2466,7 @@ static CvString getSASGameRecordLogSettingFields()
 		{ "SAS_SGR_MAP_ASCII_NATIVE_GEOGRAPHY_ON", isSASGameRecordMapAsciiNativeGeographyEnabled() },
 		{ "SAS_SGR_MAP_ASCII_GEOGRAPHY_ON", isSASGameRecordMapAsciiGeographyEnabled() },
 		{ "SAS_SGR_MAP_ASCII_TERRAIN_ON", isSASGameRecordMapAsciiTerrainEnabled() },
-		{ "SAS_SGR_MAP_UPPER_MIN_NATURE_FOOD_SURPLUS", GC.getDefineINT("SAS_SGR_MAP_UPPER_MIN_NATURE_FOOD_SURPLUS") },
+		{ "SAS_SGR_MAP_UPPER_MIN_NAT_FOOD_SURPLUS", GC.getDefineINT("SAS_SGR_MAP_UPPER_MIN_NAT_FOOD_SURPLUS") },
 		{ "SAS_SGR_MAP_ASCII_RIVER_ON", isSASGameRecordMapAsciiRiversEnabled() },
 		{ "SAS_SGR_MAP_ASCII_BONUS_ON", isSASGameRecordMapAsciiBonusesEnabled() },
 		{ "SAS_SGR_MAP_ASCII_FEATURE_ON", isSASGameRecordMapAsciiFeaturesEnabled() },
@@ -2476,7 +2476,7 @@ static CvString getSASGameRecordLogSettingFields()
 		{ "SAS_SGR_TRADE_MARKET_AI_TECH_VALS_ON", isSASGameRecordTradeMarketAITechValuesEnabled() },
 		{ "SAS_SGR_ACTION_TRACE_ON", isSASGameRecordActionTraceEnabled() },
 		{ "SAS_SGR_PERFORMANCE_METRICS_ON", isSASGameRecordPerformanceMetricsEnabled() },
-		{ "SAS_SGR_SYSTEM_CONTEXT_LEVEL", getSASGameRecordSystemContextLevel() },
+		{ "SAS_SGR_SYSTEM_CONTEXT_LVL", getSASGameRecordSystemContextLevel() },
 		{ "SAS_SGR_HARDWARE_IDENTITY_ON", isSASGameRecordHardwareIdentityEnabled() },
 		{ "SAS_SGR_EXACT_PATHS_ON", isSASGameRecordExactPathsEnabled() },
 		{ "SAS_SGR_PROCESS_CONTEXT_ON", isSASGameRecordProcessContextEnabled() },
@@ -6235,7 +6235,7 @@ static SASGameRecordMapAsciiPalette const& getSASGameRecordMapAsciiPalette()
 	kPalette.acTerrain.resize(GC.getNumTerrainInfos() + 1);
 	kPalette.acFeatures.resize(GC.getNumFeatureInfos() + 2);
 	kPalette.acBonuses.resize(GC.getNumBonusInfos() + 3);
-	kPalette.iTerrainUppercaseMinNatureFoodSurplus = GC.getDefineINT("SAS_SGR_MAP_UPPER_MIN_NATURE_FOOD_SURPLUS");
+	kPalette.iTerrainUppercaseMinNatureFoodSurplus = GC.getDefineINT("SAS_SGR_MAP_UPPER_MIN_NAT_FOOD_SURPLUS");
 	kPalette.iFoodPerPopulation = GC.getFOOD_CONSUMPTION_PER_POPULATION();
 	if (!parseSASGameRecordMapAsciiPaletteDefine("SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS", SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, kPalette.acGeography, kPalette.szGeographyDefine, kPalette.szError) ||
 			!parseSASGameRecordMapAsciiPaletteDefine("SAS_SGR_MAP_ASCII_RIVER_SYMBOLS", SAS_MAP_ASCII_RIVER_SYMBOL_COUNT, kPalette.acRivers, kPalette.szRiverDefine, kPalette.szError) ||

@@ -297,7 +297,7 @@ These controls all select categories within the same BBAI output, including the 
 | --- | --- |
 | `SAS_BBAI_PLAYER_LOG_LEVEL`, `SAS_BBAI_TEAM_LOG_LEVEL`, `SAS_BBAI_WAR_LOG_LEVEL` | General player/team decisions and dedicated war-plan/target decisions. |
 | `SAS_BBAI_CITY_LOG_LEVEL`, `SAS_BBAI_PROD_NO_TARGET_LOG_LEVEL` | General city decisions and missing-production-target/chooser-path diagnostics. |
-| `SAS_BBAI_MIL_PROD_LOG_LEVEL`, `SAS_BBAI_BLDG_PROD_LOG_LEVEL` | Military-unit versus infrastructure opportunities and production decisions. |
+| `SAS_BBAI_MILIT_PROD_LOG_LEVEL`, `SAS_BBAI_BLDG_PROD_LOG_LEVEL` | Military-unit versus infrastructure opportunities and production decisions. |
 | `SAS_BBAI_SPACE_PROD_LOG_LEVEL`, `SAS_BBAI_LIMITED_PROJECT_PROD_LOG_LEVEL` | Spaceship projects and one-copy non-spaceship projects. |
 | `SAS_BBAI_CITIZEN_LOG_LEVEL`, `SAS_BBAI_CULT_LOG_LEVEL` | Citizen assignments and culture-victory decisions. |
 | `SAS_BBAI_UNIT_LOG_LEVEL`, `SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL`, `SAS_BBAI_GREAT_GENERAL_LOG_LEVEL` | General unit behavior, transport/cargo decisions and Great General actions. |
@@ -341,7 +341,7 @@ The war-planning subsystems now write directly to BBAI under the following five 
 | Current control | Explicit source / responsibility | Search examples in BBAI |
 | --- | --- | --- |
 | `SAS_BBAI_UWAI_AGENT_LOG_LEVEL` | `UWAIAgent.cpp`: top-level team war planning and negotiation flow. | `UWAI_AGENT_` |
-| `SAS_BBAI_UWAI_MIL_ANALYST_LOG_LEVEL` | `MilitaryAnalyst.cpp`: scenario participants, phases and projected war/capitulation/elimination outcomes. | `UWAI_MILITARY_ANALYSIS_` |
+| `SAS_BBAI_UWAI_MILIT_ANALYST_LOG_LEVEL` | `MilitaryAnalyst.cpp`: scenario participants, phases and projected war/capitulation/elimination outcomes. | `UWAI_MILITARY_ANALYSIS_` |
 | `SAS_BBAI_UWAI_INVASION_GRAPH_LOG_LEVEL` | `InvasionGraph.cpp`: invasion targets, deployment, clashes and conquest simulation. | `UWAI_INVASION_` |
 | `SAS_BBAI_UWAI_ARMAMENT_FORECAST_LOG_LEVEL` | `ArmamentForecast.cpp`: predicted military production, upgrades and power increases. | `UWAI_ARMAMENT_` |
 | `SAS_BBAI_UWAI_WAR_UTILITY_LOG_LEVEL` | `WarEvaluator.cpp` and `WarUtilityAspect.cpp`: war/peace scenario totals and individual utility contributions. | `UWAI_WAR_` |

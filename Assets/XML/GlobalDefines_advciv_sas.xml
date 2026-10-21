@@ -285,39 +285,39 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 	<!-- custom: Zero-based position of the Military Advisor tab shown on its first opening in a Civ4 session: 0 is the first tab (as of now Summary), then add 1 for each following tab (as of now Map is one tab after Summary, so Map = 1). Map is the most useful initial view for locating and reviewing current units; subsequent close/reopen retains the last selected tab. See KI#129 (Update). (GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MIL_UI_DEFAULT_TAB</DefineName>
+		<DefineName>SAS_MILIT_UI_DEFAULT_TAB</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: enable icons (images) for unit-combat and unit rows in Military Advisor). (GPT-5.3-Codex) -->
 	<Define>
-		<DefineName>SAS_MIL_UI_UNIT_COMBATS_UNITS_ICONS</DefineName>
+		<DefineName>SAS_MILIT_UI_UNIT_COMBATS_UNITS_ICONS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: base inline icon size (px) for Military Advisor (F5) unit list rows. (GPT-5.3-Codex) -->
 	<Define>
-		<DefineName>SAS_MIL_UI_BASE_ICON_SIZE</DefineName>
+		<DefineName>SAS_MILIT_UI_BASE_ICON_SIZE</DefineName>
 		<iDefineIntVal>24</iDefineIntVal>
 	</Define>
 	<!-- custom: if current game resolution height is >= this value, Military Advisor uses the high-res inline icon size below. <=0 disables the high-res switch. (GPT-5.3-Codex) -->
 	<Define>
-		<DefineName>SAS_MIL_UI_HI_RES_ICON_MIN_HEIGHT</DefineName>
+		<DefineName>SAS_MILIT_UI_HI_RES_ICON_MIN_HEIGHT</DefineName>
 		<iDefineIntVal>1440</iDefineIntVal>
 	</Define>
 	<!-- custom: high-res inline icon size (px) used by Military Advisor when resolution height reaches the threshold above. (GPT-5.3-Codex) -->
 	<Define>
-		<DefineName>SAS_MIL_UI_HI_RES_ICON_SIZE</DefineName>
+		<DefineName>SAS_MILIT_UI_HI_RES_ICON_SIZE</DefineName>
 		<iDefineIntVal>32</iDefineIntVal>
 	</Define>
 	<!-- custom: max saved battle-history rows per player for Military Advisor Battles tab.
 	0 disables recording; -1 keeps all future entries. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_MIL_UI_BATTLE_HISTORY_MAX_ENTRIES</DefineName>
+		<DefineName>SAS_MILIT_UI_BATTLE_HISTORY_MAX_ENTRIES</DefineName>
 		<iDefineIntVal>-1</iDefineIntVal>
 	</Define>
 	<!-- custom: show compact hill-or-peak/terrain/feature context columns in the Military Advisor Battles tab.
 	Battle history always stores this snapshot so changing the define after a Civ4 restart can display already-recorded rows. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_MIL_UI_BATTLE_PLOT_CONTEXT_ON</DefineName>
+		<DefineName>SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
@@ -620,7 +620,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 	<!-- custom: show the Military Advisor Battles tab "Log" button; click to write the current battle history rows to PythonDbg.log. (Claude code Opus 4.7) -->
 	<Define>
-		<DefineName>SAS_MIL_UI_BATTLES_LOG_BUTTON_ON</DefineName>
+		<DefineName>SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: dev playground: show "STYLE: <name> (i/n)" + PREV/NEXT buttons in the Sevopedia expanded text overlay header to live-cycle through every PanelStyles enum value.
@@ -647,7 +647,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: show the DLL's cached landHeavy/navalHeavy AI map-heaviness flags in Victory Screen > Settings near the other map information.
 	This matches BBAI_GAME_SETTINGS and avoids requiring logs to verify the active classification. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_VICTORY_UI_SHOW_AI_MAP_HEAVINESS</DefineName>
+		<DefineName>SAS_VICT_UI_SHOW_AI_MAP_HEAVINESS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
@@ -790,190 +790,190 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	0 uses the retained BTS paths for those adjustments.
 	This does not override terrain generators supplied by individual map scripts. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_STANDARD_TERRAIN_ON</DefineName>
+		<DefineName>SAS_MAPGEN_STANDARD_TERRAIN_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Default source-fractal width exponent.
 	AdvCiv uses -1 so the DLL chooses for the map dimensions; BTS hardcoded 7.
 	A map script that supplies fracXExp keeps its value. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_FRACTAL_DEFAULT_X_EXP</DefineName>
+		<DefineName>SAS_MAPGEN_FRACTAL_DEFAULT_X_EXP</DefineName>
 		<iDefineIntVal>-1</iDefineIntVal>
 	</Define>
 	<!-- custom: Default source-fractal height exponent.
 	AdvCiv uses -1 so the DLL chooses for the map dimensions; BTS hardcoded 6.
 	A map script that supplies fracYExp keeps its value. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_FRACTAL_DEFAULT_Y_EXP</DefineName>
+		<DefineName>SAS_MAPGEN_FRACTAL_DEFAULT_Y_EXP</DefineName>
 		<iDefineIntVal>-1</iDefineIntVal>
 	</Define>
 	<!-- custom: Default landmass grain.
 	Higher values produce more and smaller landmasses.
 	Both BTS and AdvCiv use 2; explicit map-script continent_grain remains independent. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_FRACTAL_DEFAULT_CONTINENT_GRAIN</DefineName>
+		<DefineName>SAS_MAPGEN_FRACTAL_DEFAULT_CONTINENT_GRAIN</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: Default grain for forced rift-water strips; -1 disables rifts.
 	Both BTS and AdvCiv use 2; explicit map-script rift_grain remains independent. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_FRACTAL_DEFAULT_RIFT_GRAIN</DefineName>
+		<DefineName>SAS_MAPGEN_FRACTAL_DEFAULT_RIFT_GRAIN</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: Default shared hills grain; Peaks use this value + 1.
 	Higher values produce smaller highland patches.
 	Both BTS and AdvCiv use 3; explicit map-script grain_amount remains independent. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_FRACTAL_DEFAULT_HILLS_GRAIN</DefineName>
+		<DefineName>SAS_MAPGEN_FRACTAL_DEFAULT_HILLS_GRAIN</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 	<!-- custom: Default water percentage for shared FractalWorld plot generation before the selected sea-level adjustment.
 	AdvCiv changed 78 to 77; use 78 for BTS.
 	A map script that supplies its own water_percent keeps that value. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_FRACTAL_DEFAULT_WATER_PCT</DefineName>
+		<DefineName>SAS_MAPGEN_FRACTAL_DEFAULT_WATER_PCT</DefineName>
 		<iDefineIntVal>77</iDefineIntVal>
 	</Define>
 	<!-- custom: 1 uses AdvCiv's coastal-Peak reduction in the shared FractalWorld and MultilayeredFractal generators: half the otherwise eligible coastal Peaks become Hills, while the Peak threshold is raised by 8/7 to compensate.
 	0 restores BTS's original Peak threshold and allows every eligible coastal Peak.
 	A map script can still alter Peaks afterward. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_COASTAL_PEAK_REDUCTION_ON</DefineName>
+		<DefineName>SAS_MAPGEN_COASTAL_PEAK_REDUCTION_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: 1 uses AdvCiv's shared latitude algorithm: DLL plot latitudes, less terrain-latitude variation, and the True Starts sparse-equator and coastal-temperate adjustments.
 	0 restores BTS row-based latitude and the original variation.
 	Snow and Tundra thresholds are independently tunable below; explicit thresholds and getLatitudeAtPlot overrides supplied by map scripts remain independent. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_LATITUDE_TERRAIN_ON</DefineName>
+		<DefineName>SAS_MAPGEN_LATITUDE_TERRAIN_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: The shared TerrainGenerator inputs below apply only when a map script omits them.
 	Latitude percentages are divided by 100.0 in Python 2.4. (GPT-5.6-Sol) -->
-	<!-- custom: Approximate base Desert share before Climate adjustments and AdvCiv's terrain compensation. Both BTS and AdvCiv start from 32; for the BTS algorithm use 32 with SAS_MAP_STANDARD_TERRAIN_ON=0. (GPT-5.6-Sol) -->
+	<!-- custom: Approximate base Desert share before Climate adjustments and AdvCiv's terrain compensation. Both BTS and AdvCiv start from 32; for the BTS algorithm use 32 with SAS_MAPGEN_STANDARD_TERRAIN_ON=0. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_STANDARD_DESERT_PCT</DefineName>
+		<DefineName>SAS_MAPGEN_STANDARD_DESERT_PCT</DefineName>
 		<iDefineIntVal>32</iDefineIntVal>
 	</Define>
-	<!-- custom: Approximate base Plains share. Both BTS and AdvCiv start from 18; the AdvCiv terrain algorithm then adds 2 and uses differently grained Plains fractals. Use 18 with SAS_MAP_STANDARD_TERRAIN_ON=0 for BTS, or keep 18 with it enabled for current AdvCiv-SAS behavior. (GPT-5.6-Sol) -->
+	<!-- custom: Approximate base Plains share. Both BTS and AdvCiv start from 18; the AdvCiv terrain algorithm then adds 2 and uses differently grained Plains fractals. Use 18 with SAS_MAPGEN_STANDARD_TERRAIN_ON=0 for BTS, or keep 18 with it enabled for current AdvCiv-SAS behavior. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_STANDARD_PLAINS_PCT</DefineName>
+		<DefineName>SAS_MAPGEN_STANDARD_PLAINS_PCT</DefineName>
 		<iDefineIntVal>18</iDefineIntVal>
 	</Define>
 	<!-- custom: Base grain for Desert, Plains, and latitude variation.
 	Higher values produce smaller patches.
 	Both BTS and AdvCiv use 4; WorldInfo TerrainGrainChange is added afterward, and explicit map-script grain_amount remains independent. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_STANDARD_TERRAIN_GRAIN</DefineName>
+		<DefineName>SAS_MAPGEN_STANDARD_TERRAIN_GRAIN</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
-	<!-- custom: Latitude below this percentage is guaranteed Grassland before Climate adjustment. The base is 10 in both BTS and AdvCiv. Use 10 with SAS_MAP_STANDARD_TERRAIN_ON=0 for BTS; with it enabled, AdvCiv subtracts 10, so 10 removes the belt and 20 restores an effective 10% belt while retaining the other AdvCiv terrain changes. (GPT-5.6-Sol) -->
+	<!-- custom: Latitude below this percentage is guaranteed Grassland before Climate adjustment. The base is 10 in both BTS and AdvCiv. Use 10 with SAS_MAPGEN_STANDARD_TERRAIN_ON=0 for BTS; with it enabled, AdvCiv subtracts 10, so 10 removes the belt and 20 restores an effective 10% belt while retaining the other AdvCiv terrain changes. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_STANDARD_GRASS_LAT_PCT</DefineName>
+		<DefineName>SAS_MAPGEN_STANDARD_GRASS_LAT_PCT</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 	<!-- custom: Lowest latitude where Desert may appear before Climate adjustment, on a 0 equator to 100 poles scale.
 	Both BTS and AdvCiv use 20; lowering it permits Desert closer to the equator. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_STANDARD_DESERT_BOTTOM_LAT_PCT</DefineName>
+		<DefineName>SAS_MAPGEN_STANDARD_DESERT_BOTTOM_LAT_PCT</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<!-- custom: Upper latitude limit for Desert before Climate adjustment, on the same scale.
 	Both BTS and AdvCiv use 50; raising it permits Desert farther toward the poles. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_STANDARD_DESERT_TOP_LAT_PCT</DefineName>
+		<DefineName>SAS_MAPGEN_STANDARD_DESERT_TOP_LAT_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
-	<!-- custom: Default Snow boundary before Climate adjustment, on the same scale. AdvCiv uses 78; BTS uses 70. A higher value confines Snow closer to the poles. For the full BTS latitude profile, use 70 with SAS_MAP_LATITUDE_TERRAIN_ON=0. (GPT-5.6-Sol) -->
+	<!-- custom: Default Snow boundary before Climate adjustment, on the same scale. AdvCiv uses 78; BTS uses 70. A higher value confines Snow closer to the poles. For the full BTS latitude profile, use 70 with SAS_MAPGEN_LATITUDE_TERRAIN_ON=0. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_STANDARD_SNOW_LAT_PCT</DefineName>
+		<DefineName>SAS_MAPGEN_STANDARD_SNOW_LAT_PCT</DefineName>
 		<iDefineIntVal>78</iDefineIntVal>
 	</Define>
-	<!-- custom: Default Tundra boundary before Climate adjustment, on the same scale. AdvCiv uses 64; BTS uses 60. A higher value confines Tundra closer to the poles. For the full BTS latitude profile, use 60 with SAS_MAP_LATITUDE_TERRAIN_ON=0. (GPT-5.6-Sol) -->
+	<!-- custom: Default Tundra boundary before Climate adjustment, on the same scale. AdvCiv uses 64; BTS uses 60. A higher value confines Tundra closer to the poles. For the full BTS latitude profile, use 60 with SAS_MAPGEN_LATITUDE_TERRAIN_ON=0. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_STANDARD_TUNDRA_LAT_PCT</DefineName>
+		<DefineName>SAS_MAPGEN_STANDARD_TUNDRA_LAT_PCT</DefineName>
 		<iDefineIntVal>64</iDefineIntVal>
 	</Define>
 	<!-- custom: Width of the FeatureGenerator's Jungle fractal acceptance band; higher values make more eligible plots receive Jungle.
 	Both BTS and AdvCiv use 80; latitude, Climate, terrain eligibility, and map-script overrides still apply. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_STANDARD_JUNGLE_PCT</DefineName>
+		<DefineName>SAS_MAPGEN_STANDARD_JUNGLE_PCT</DefineName>
 		<iDefineIntVal>80</iDefineIntVal>
 	</Define>
 	<!-- custom: Base Jungle grain; higher values produce smaller Jungle patches.
 	Both BTS and AdvCiv use 5; WorldInfo FeatureGrainChange is added afterward, and explicit map-script jungle_grain remains independent. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_STANDARD_JUNGLE_GRAIN</DefineName>
+		<DefineName>SAS_MAPGEN_STANDARD_JUNGLE_GRAIN</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- custom: Base Forest grain; higher values produce smaller Forest patches.
 	Both BTS and AdvCiv use 6; WorldInfo FeatureGrainChange is added afterward, and explicit map-script forest_grain remains independent. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_STANDARD_FOREST_GRAIN</DefineName>
+		<DefineName>SAS_MAPGEN_STANDARD_FOREST_GRAIN</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
 	<!-- custom: Default iForestPercent threshold for the shared FeatureGenerator; a lower value produces more Forest.
 	AdvCiv uses 57 to compensate for reduced starting-position Forest normalization; use 60 for BTS.
 	A map script that supplies its own threshold keeps that value. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_STANDARD_FOREST_PCT</DefineName>
+		<DefineName>SAS_MAPGEN_STANDARD_FOREST_PCT</DefineName>
 		<iDefineIntVal>57</iDefineIntVal>
 	</Define>
 	<!-- custom: 1 uses AdvCiv's randomized river-source traversal and symmetrical river-direction scoring with slightly stronger attraction to water, which made rivers somewhat shorter.
 	0 restores the retained BTS traversal and direction-scoring paths. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_RIVER_ROUTING_ON</DefineName>
+		<DefineName>SAS_MAPGEN_RIVER_ROUTING_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Random upper bound added to each river-direction score; a larger value makes routing less predictable. AdvCiv changed the BTS value from 10 to 20 to add randomness without materially changing the score scale. Default 20 preserves AdvCiv-SAS; use 10 with SAS_MAP_RIVER_ROUTING_ON=0 for the complete BTS-style routing profile. (GPT-5.6-Sol) -->
+	<!-- custom: Random upper bound added to each river-direction score; a larger value makes routing less predictable. AdvCiv changed the BTS value from 10 to 20 to add randomness without materially changing the score scale. Default 20 preserves AdvCiv-SAS; use 10 with SAS_MAPGEN_RIVER_ROUTING_ON=0 for the complete BTS-style routing profile. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_RIVER_DIRECTION_RANDOMNESS</DefineName>
+		<DefineName>SAS_MAPGEN_RIVER_DIRECTION_RANDOMNESS</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<!-- custom: 1 randomizes the order of resource types that share an XML PlacementOrder, preventing later XML entries from always losing on crowded maps.
 	0 restores BTS XML-order tie resolution.
 	The ordinal loop itself remains optimized because processing only PlacementOrder values that exist is functionally equivalent and also supports values above the number of bonus types. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_BONUS_TIE_RANDOMIZATION_ON</DefineName>
+		<DefineName>SAS_MAPGEN_BONUS_TIE_RANDOMIZATION_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: 1 uses AdvCiv's OneArea resource distribution: prefer landmasses with suitable tiles, reduce the influence of area size as the target is approached, and limit the first allocation on each area so excess copies can spread elsewhere.
 	0 restores BTS selection by total area size divided by the number of unique resource types already assigned there, allowing stronger concentration on one landmass. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_ONE_AREA_BONUS_DISTRIBUTION_ON</DefineName>
+		<DefineName>SAS_MAPGEN_ONE_AREA_BONUS_DISTRIBUTION_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: 1 uses AdvCiv's less-dense clustering: prevent more than two adjacent copies, keep clustered precious-resource groups apart, randomize a circular GroupRange, and reduce GroupRand after each placed copy.
 	0 restores BTS's fixed-order square GroupRange with the full XML GroupRand chance for every eligible tile. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_BONUS_CLUSTERING_ON</DefineName>
+		<DefineName>SAS_MAPGEN_BONUS_CLUSTERING_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: 1 uses AdvCiv's nonlinear PercentPerPlayer component: equal to BTS at 8 players, somewhat higher below 8, and lower above 8.
 	0 restores BTS linear player-count scaling.
 	This is independent of the eligible-tile component controlled by SUBLINEAR_BONUS_QUANTITIES in GlobalDefines_advc.xml. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_BONUS_PLAYER_COUNT_SCALING_ON</DefineName>
+		<DefineName>SAS_MAPGEN_BONUS_PLAYER_COUNT_SCALING_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Relative probability for a desert candidate to receive a lake compared with other eligible terrain; the algorithm compensates to preserve the overall expected lake count.
 	AdvCiv uses 25 to make desert lakes rarer; BTS used 100.
 	Use a positive value. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_DESERT_LAKE_RELATIVE_PCT</DefineName>
+		<DefineName>SAS_MAPGEN_DESERT_LAKE_RELATIVE_PCT</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
 	<!-- custom: 0 preserves AdvCiv's rule that random lakes cannot replace Peaks.
 	1 restores BTS behavior allowing an otherwise eligible Peak to become a lake. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_LAKE_PEAK_REPLACEMENT_ON</DefineName>
+		<DefineName>SAS_MAPGEN_LAKE_PEAK_REPLACEMENT_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: 1 uses AdvCiv's randomized standard FeatureGenerator traversal, removing fixed coordinate-order bias for bNoAdjacent features such as Oasis.
 	0 restores BTS coordinate-order traversal.
 	Custom map scripts that override feature generation retain their own behavior. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_MAP_FEATURE_PLACEMENT_ORDER_ON</DefineName>
+		<DefineName>SAS_MAPGEN_FEATURE_PLACEMENT_ORDER_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
@@ -1062,7 +1062,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: A usable non-home BFC plot without a visible bonus is very bad when its best natural or XML-valid improved yield remains below this `4 * food + 2 * production + commerce` score; impassable plots always count.
 	A score of 4 keeps a basic one-food Tundra plot, while barren plots remain below the threshold and productive hills exceed it. (ChatGPT-5.5) -->
 	<Define>
-		<DefineName>SAS_SITE_MIN_OUTER_PLOT_POT_YLD_SCORE</DefineName>
+		<DefineName>SAS_SITE_MIN_OUTER_PLOT_POT_YIELD_SCORE</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 	<!-- custom: Tunable thresholds for whether an acquired city is likely to benefit its recipient long-term.
@@ -1255,15 +1255,15 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 	<!-- custom: Top-level Settler yield emphasis, applied after the detailed plot-class weights and to resource-improvement yields. Raising Production above 100 therefore favors hammer-rich BFCs consistently instead of editing four values. Defaults 100 preserve tested balance. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_SITE_YLD_FOOD_VAL_PCT</DefineName>
+		<DefineName>SAS_SITE_YIELD_FOOD_VAL_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_SITE_YLD_PROD_VAL_PCT</DefineName>
+		<DefineName>SAS_SITE_YIELD_PROD_VAL_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_SITE_YLD_COM_VAL_PCT</DefineName>
+		<DefineName>SAS_SITE_YIELD_COM_VAL_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: Shared found-value weights for natural terrain, retained features, revealed bonuses, and the best timing-discounted XML-valid improvement on ordinary plots; resource-improvement gains use SAS_SITE_BFC_BONUS_IMPROVE_*.
@@ -1272,47 +1272,47 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: SELF_SUSTAINING applies to a land home plot or land plot that feeds its citizen.
 	With default weights, 2F1P contributes 10 + 2 * 40 + 1 * 30 = 120 before other adjustments. (GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_SITE_NATURE_YLD_SELF_FEED_EXTRA_VAL</DefineName>
+		<DefineName>SAS_SITE_NAT_YIELD_SELF_FEED_EXTRA_VAL</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_SITE_NATURE_YLD_SELF_FEED_FOOD_VAL</DefineName>
+		<DefineName>SAS_SITE_NAT_YIELD_SELF_FEED_FOOD_VAL</DefineName>
 		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_SITE_NATURE_YLD_SELF_FEED_PROD_VAL</DefineName>
+		<DefineName>SAS_SITE_NAT_YIELD_SELF_FEED_PROD_VAL</DefineName>
 		<iDefineIntVal>30</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_SITE_NATURE_YLD_SELF_FEED_COM_VAL</DefineName>
+		<DefineName>SAS_SITE_NAT_YIELD_SELF_FEED_COM_VAL</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<!-- custom: ONE_FOOD_SHORT applies to any plot with exactly 1 Food.
 	E.g. 1F2P is worth 1 * 30 + 2 * 25 = 80 before other plot adjustments. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_SITE_NATURE_YLD_1_FOOD_SHORT_FOOD_VAL</DefineName>
+		<DefineName>SAS_SITE_NAT_YIELD_1_FOOD_SHORT_FOOD_VAL</DefineName>
 		<iDefineIntVal>30</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_SITE_NATURE_YLD_1_FOOD_SHORT_PROD_VAL</DefineName>
+		<DefineName>SAS_SITE_NAT_YIELD_1_FOOD_SHORT_PROD_VAL</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_SITE_NATURE_YLD_1_FOOD_SHORT_COM_VAL</DefineName>
+		<DefineName>SAS_SITE_NAT_YIELD_1_FOOD_SHORT_COM_VAL</DefineName>
 		<iDefineIntVal>12</iDefineIntVal>
 	</Define>
 	<!-- custom: DEFAULT covers everything else, notably 0-Food land and most water plots.
 	E.g. 0F2P is worth 2 * 15 = 30 before other plot adjustments. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_SITE_NATURE_YLD_DEFAULT_FOOD_VAL</DefineName>
+		<DefineName>SAS_SITE_NAT_YIELD_DEFAULT_FOOD_VAL</DefineName>
 		<iDefineIntVal>15</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_SITE_NATURE_YLD_DEFAULT_PROD_VAL</DefineName>
+		<DefineName>SAS_SITE_NAT_YIELD_DEFAULT_PROD_VAL</DefineName>
 		<iDefineIntVal>15</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_SITE_NATURE_YLD_DEFAULT_COM_VAL</DefineName>
+		<DefineName>SAS_SITE_NAT_YIELD_DEFAULT_COM_VAL</DefineName>
 		<iDefineIntVal>8</iDefineIntVal>
 	</Define>
 	<!-- custom: Relative weights for an ordinary improvement's immediate and final-upgrade yields.
@@ -1370,20 +1370,20 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	AdvCiv-SAS makes it tunable because we do not want a Barbarian-only coastal push to outweigh stronger long-term city sites, especially when these cities often become future captured player cities.
 	Default 350 preserves base behavior for now because coastal Barbarian cities can maintain Galley/naval pressure from lone islands and still threaten player land; change this value to adjust this Barbarian-only coastal push. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_SITE_BARBARIAN_COASTAL_EXTRA_VAL</DefineName>
+		<DefineName>SAS_SITE_BARB_COASTAL_EXTRA_VAL</DefineName>
 		<iDefineIntVal>350</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv/K-Mod Barbarian city scoring mainly considers adjacent/inner plots, which can ignore seafood and other valuable outer-BFC plots that matter once the city is captured by a major civilization.
 	Default 0 preserves base behavior; set to 1 to use normal full-BFC scoring for Barbarian city placement. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_SITE_BARBARIAN_FULL_BFC_ON</DefineName>
+		<DefineName>SAS_SITE_BARB_FULL_BFC_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv/K-Mod adds random variation to Barbarian city-site values, but this can override clearly stronger sites.
 	The random bonus is +0..N-1 percent: for example, 50 changes value 1000 to 1000..1490, 5 changes it to 1000..1040, 1 leaves it at 1000 so effectively disables it but still calls the random path, however 0 disables the random path entirely (value would stay 1000 the same though but cleaner/simpler code).
 	Base behavior is 50. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_SITE_BARBARIAN_CITY_SITE_RANDOM_PCT</DefineName>
+		<DefineName>SAS_SITE_BARB_CITY_SITE_RANDOM_PCT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Flat city-site extra value for each distinct bonus in a candidate BFC that the AI does not already own from its own empire.
@@ -1736,7 +1736,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 	<!-- custom: i reduced it from GPT-5.5's value of 30 (same reasoning) -->
 	<Define>
-		<DefineName>SAS_CITY_ATK_SKIP_UPG_WAIT_MIN_MIL_PCT</DefineName>
+		<DefineName>SAS_CITY_ATK_SKIP_UPG_WAIT_MIN_MILIT_PCT</DefineName>
 		<iDefineIntVal>15</iDefineIntVal>
 	</Define>
 	<!-- custom: Maximum target path turns for bypassing upgrade waiting. Higher value = bypass upgrade waiting for farther targets too, more aggressive. Lower value = only bypass upgrade waiting for very close targets, more conservative. (ChatGPT-5.5 + GPT-5.5); i increased it it from GPT-5.5's value of 8 (same reasoning) -->
@@ -1755,7 +1755,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	100 restores old behavior; 50 halves that direct culture value; 0 ignores it.
 	Cultural-victory cities, first-ring expansion, revolt/disorder cases, and cities with unowned, foreign-owned, or culture-contested BFC plots retain full value. (ChatGPT-5.5 + GPT-5.5 review) -->
 	<Define>
-		<DefineName>SAS_ARTIST_CULT_CLEAN_NON_VICTORY_PCT</DefineName>
+		<DefineName>SAS_ARTIST_CULT_CLEAN_NON_VICT_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<!-- custom: Once another victory route reaches at least this AI victory-strategy stage, postpone Culture 2 investment until all required culture cities have credible high-culture countdowns.
@@ -1830,7 +1830,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Level 1 records major war/capitulation/elimination outcomes; level 2 adds scenario membership, city and power detail.
 	Level 3 currently includes the same Military Analyst detail as level 2. See KI#505.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_UWAI_MIL_ANALYST_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_UWAI_MILIT_ANALYST_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: UWAI invasion/deployment simulation.
@@ -1867,7 +1867,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: Dedicated AI military-production diagnostics.
 	Level 2 notably reuses the existing AI_chooseProduction branch-choice messages without requiring broad CITY logging; level 3 notably adds structured production context and major military/nonmilitary gates, including spending, generic rolls, unit selection, and forced emergency-building decisions. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_MIL_PROD_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_MILIT_PROD_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Dedicated spaceship-production diagnostics.
@@ -2133,7 +2133,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: Minimum natural food minus FOOD_CONSUMPTION_PER_POPULATION for uppercase terrain letters.
 	0 marks plots that feed the population point working them. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_SGR_MAP_UPPER_MIN_NATURE_FOOD_SURPLUS</DefineName>
+		<DefineName>SAS_SGR_MAP_UPPER_MIN_NAT_FOOD_SURPLUS</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Directional river-map symbols in this order: open water without a river edge, lake without a river edge, land without a river edge, river on the plot's southern boundary, river on its eastern boundary, then both boundaries. Blank ocean, visible lakes and quiet dotted land preserve landmass and inland-water outlines; river symbols take priority over that background. The default = and ! make both river orientations substantially heavier than dotted land, while | remains reserved for the picture frame. Civ4 exposes the two stored boundaries as isNOfRiver and isWOfRiver because the plot is respectively north or west of the river. This preserves which orthogonal movement/attack crosses a river at native resolution instead of merely marking riverside plots; resampled cells report whether either orientation occurs anywhere within them. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -2190,7 +2190,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	No per-turn hardware polling is added.
 	Clamped to 0..3; independent from dynamic performance metrics and inactive while SAS_SGR_LOG_LEVEL is 0. (GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
-		<DefineName>SAS_SGR_SYSTEM_CONTEXT_LEVEL</DefineName>
+		<DefineName>SAS_SGR_SYSTEM_CONTEXT_LVL</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: At system-context level 3, opt into CPU vendor/model and Windows-enumerated display-adapter vendors/models/counts.
@@ -2240,7 +2240,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>162</iDefineIntVal>
+		<iDefineIntVal>163</iDefineIntVal>
 	</Define>
 
 
@@ -2401,32 +2401,37 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	The rule stays active while the uncommitted count is >= the threshold; below it, the generic yield/feature evaluator inspects every plot rather than protecting the remaining stock as an invisible reserve.
 	Current unhealth/unhappiness relief bypasses all economic gates and can still remove the feature. See KI#33.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_WORKER_CHOP_ON</DefineName>
+		<DefineName>SAS_WORKER_P0_CHOP_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_WORKER_CHOP_FOOD_UNIT_MIN_PLOTS</DefineName>
+		<DefineName>SAS_WORKER_P0_CHOP_FOOD_UNIT_MIN_PLOTS</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_WORKER_CHOP_NORMAL_MIN_PLOTS</DefineName>
+		<DefineName>SAS_WORKER_P0_CHOP_NORMAL_MIN_PLOTS</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
-	<!-- custom: MAX_ERA=2 means through Medieval, MAX_PLAYER_CITIES=6 stops it once the empire is already broad, MIN_T_NORM_GS_WORTH_X100=300 requires the chop's effective contribution after the current city/order production modifier to be worth at least 3.00 Normal-speed-equivalent turns of the city's current effective production (food counts when the current order uses food production), and FOOD_MIN_LEFT_T_NORM_GS=6 avoids hard-chopping for a Worker/Settler already near completion. CvUnitAI scales those two turn thresholds by FeatureProductionPercent and TrainPercent respectively; Normal-speed behavior is unchanged. Set MAX_ERA below 0, or any other numeric gate to 0, to disable that individual limit. See KI#33.2. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Phase 0 (P0) chopping gates:
+	- MAX_ERA=2 means through Medieval; MAX_PLAYER_CITIES=6 stops it once the empire is already broad.
+	- MIN_T_NORM_GS_X100=300 requires the chop's effective contribution after the current city/order production modifier to be worth at least 3.00 Normal-speed-equivalent turns of the city's current effective production. Food counts when the current order uses food production.
+	- FOOD_MIN_LEFT_T_NORM_GS=6 avoids hard-chopping for a Worker/Settler already near completion.
+	CvUnitAI scales those two turn thresholds by FeatureProductionPercent and TrainPercent respectively; Normal-speed behavior is unchanged.
+	Set MAX_ERA below 0, or any other numeric gate to 0, to disable that individual limit. See KI#33.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
-		<DefineName>SAS_WORKER_CHOP_MAX_ERA</DefineName>
+		<DefineName>SAS_WORKER_P0_CHOP_MAX_ERA</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_WORKER_CHOP_MAX_PLAYER_CITIES</DefineName>
+		<DefineName>SAS_WORKER_P0_CHOP_MAX_PLAYER_CITIES</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_WORKER_CHOP_MIN_T_NORM_GS_WORTH_X100</DefineName>
+		<DefineName>SAS_WORKER_P0_CHOP_MIN_T_NORM_GS_X100</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_WORKER_CHOP_FOOD_MIN_LEFT_T_NORM_GS</DefineName>
+		<DefineName>SAS_WORKER_P0_CHOP_FOOD_MIN_LEFT_T_NORM_GS</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
 	<!-- custom: Bonus worker scoring mostly used by CvUnitAI::AI_bestCityBuild.
@@ -2443,15 +2448,15 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>20000</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_WORKER_BONUS_YLD_VAL_PER_FOOD</DefineName>
+		<DefineName>SAS_WORKER_BONUS_YIELD_VAL_PER_FOOD</DefineName>
 		<iDefineIntVal>4000</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_WORKER_BONUS_YLD_VAL_PER_PROD</DefineName>
+		<DefineName>SAS_WORKER_BONUS_YIELD_VAL_PER_PROD</DefineName>
 		<iDefineIntVal>2000</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_WORKER_BONUS_YLD_VAL_PER_COM</DefineName>
+		<DefineName>SAS_WORKER_BONUS_YIELD_VAL_PER_COM</DefineName>
 		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
 	<Define>
@@ -2575,13 +2580,13 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	0 preserves the inherited fixed/rank-based positive-only formula for comparison.
 	This is independent from the SAS Wonder prefilter so inherited valuation can be tested with National-Wonder policy disabled. See KI#48.5. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BLDG_VAL_MIL_PROD_THROUGHPUT_ON</DefineName>
+		<DefineName>SAS_BLDG_VAL_MILIT_PROD_THROUGHPUT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum expected unit-production share for positive MilitaryProductionModifier National Wonders.
 	0 keeps ordinary dynamic AI_buildUnitProb weighting, 75 is the validated conservative specialization alternative, and the tested default 100 treats selecting the one-per-player building as full military-city specialization; values are clamped to 0-100 and act only as a floor. See KI#48.16. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BLDG_VAL_MIL_NW_UNIT_SHARE_MIN_PCT</DefineName>
+		<DefineName>SAS_BLDG_VAL_MILIT_NW_UNIT_SHARE_MIN_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: 1 removes a domain-production component when this city cannot train any affected unit; prospective technology valuation includes the candidate and its guaranteed XML prerequisites.
@@ -3198,11 +3203,11 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 	<!-- custom: extra unit tolerance beyond unit support costs before disbanding starts; scales by era: mult * (era + 1) + add (GPT-5.2-Codex). Useful as we expect to lose a few during war or such, better to have some extra and not become weaker than our rivals. E.g. with 4 mult and 1 add, extra allowed = ((4 * (0 + 1)) + 1 = 5 at ancient, (4 * 2) + 1 = 9 at classical, (4 * 3) + 1 = 13 at medieval. Note: overshooting may lead to bankruptcy though. -->
 	<Define>
-		<DefineName>SAS_MIL_MAX_UNIT_COST_EXTRA_UNITS_MULT</DefineName>
+		<DefineName>SAS_MILIT_MAX_UNIT_COST_EXTRA_UNITS_MULT</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_MIL_MAX_UNIT_COST_EXTRA_UNITS_ADD</DefineName>
+		<DefineName>SAS_MILIT_MAX_UNIT_COST_EXTRA_UNITS_ADD</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: turn until which we won't scrap at all, adjusted to game speed.
@@ -3378,19 +3383,19 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: weaker -->
 	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 	<Define>
-		<DefineName>SAS_TECH_VAL_MIL_DANGER_ON</DefineName>
+		<DefineName>SAS_TECH_VAL_MILIT_DANGER_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- Consider tech "key military" if its FLAVOR_MILITARY is at least this. -->
 	<!-- custom: e.g. if flavor military of a tech is 8, then this is considered a key military tech for our below tech value changes -->
 	<Define>
-		<DefineName>SAS_TECH_VAL_MIL_FLAVOR_MIN</DefineName>
+		<DefineName>SAS_TECH_VAL_MILIT_FLAVOR_MIN</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
 	<!-- When in danger, scale the total value of such techs by this percentage. -->
 	<!-- custom: e.g. 130 means tech value is increased by 30% -->
 	<Define>
-		<DefineName>SAS_TECH_VAL_MIL_WEAKER_PCT</DefineName>
+		<DefineName>SAS_TECH_VAL_MILIT_WEAKER_PCT</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 
@@ -3400,13 +3405,13 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- bias trade valuation toward key military techs when we're clearly outgunned -->
 	<!-- custom: Long_Comments_XML.txt #112 -->
 	<Define>
-		<DefineName>SAS_TECH_TRADE_MIL_DANGER_ON</DefineName>
+		<DefineName>SAS_TECH_TRADE_MILIT_DANGER_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- When in danger, scale the trade value of such techs by this percentage. -->
 	<!-- e.g. 130 = +30%, 150 = +50%. -->
 	<Define>
-		<DefineName>SAS_TECH_TRADE_MIL_WEAKER_PCT</DefineName>
+		<DefineName>SAS_TECH_TRADE_MILIT_WEAKER_PCT</DefineName>
 		<iDefineIntVal>130</iDefineIntVal>
 	</Define>
 
@@ -3552,7 +3557,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_CIVIC_VAL_UNLIM_SPEC_YLD_COMMERCE_VAL</DefineName>
+		<DefineName>SAS_CIVIC_VAL_UNLIM_SPEC_YIELD_COM_VAL</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<!-- custom: how much we value each civic's unlimited specialist based on their commerce(s) -->
@@ -3718,27 +3723,27 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 	<!-- custom: set to 1 to enable the advciv-sas optimization of forcing an artist if no bfc and city's culture per turn is low (0 to disable it) -->
 	<Define>
-		<DefineName>SAS_ARTIST_NO_BFC_LOW_CULT_ON</DefineName>
+		<DefineName>SAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: if city has less than this amount of culture per turn, and still no BFC, force an artist specialist regardless of previous rules (like no specialist if low pop, now ignored). Example: < 3 culture per turn is too slow so we want an artist specialist until we have our BFC. -->
 	<Define>
-		<DefineName>SAS_ARTIST_NO_BFC_MIN_CULT_PER_T</DefineName>
+		<DefineName>SAS_FORCE_ARTIST_NO_BFC_MIN_CULT_PER_T</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 	<!-- custom: Long_Comments_XML.txt #337 -->
 	<Define>
-		<DefineName>SAS_ARTIST_NO_BFC_MIN_CULT_LEVEL</DefineName>
+		<DefineName>SAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: also give the option for human players to auto force an artist until we have our BFC for their convenience (1 to enable (recommended), 0 to disable). -->
 	<Define>
-		<DefineName>SAS_HUMAN_ARTIST_NO_BFC_LOW_CULT_ON</DefineName>
+		<DefineName>SAS_HUMAN_FORCE_ARTIST_NO_BFC_LOW_CULT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Long_Comments_XML.txt #338 -->
 	<Define>
-		<DefineName>SAS_HUMAN_ARTIST_NO_BFC_STOP_ENOUGH_ON</DefineName>
+		<DefineName>SAS_HUMAN_FORCE_ARTIST_STOP_WHEN_ENOUGH_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
@@ -3835,7 +3840,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: Minimum percentage of the player's total military in a remote foreign-captured city stack before bypassing the upgrade wait; Boston-style logs showed 30%+ of the military freezing far from core.
 	Set to 0 to disable this percent gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5's suggested value of around ~25 or ~30 (same reasoning). -->
 	<Define>
-		<DefineName>SAS_CITY_ATK_REMOTE_MIN_MIL_PCT</DefineName>
+		<DefineName>SAS_CITY_ATK_REMOTE_MIN_MILIT_PCT</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<!-- custom: Absolute stack-size fallback for larger empires where a large remote captured-city army can be below the percentage threshold; Houston-style logs showed 28-29 units but only about 24-25% of total military.
@@ -3893,7 +3898,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	This replaces the hardcoded Heroic Epic building-class name and fixed +500 value.
 	With 10, Heroic Epic's current +50 still adds 500, while civ-specific, mod-added, smaller, and stacked building effects scale automatically. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_GG_INSTRUCTOR_TOP_N_PROD_MIL_MOD_VAL</DefineName>
+		<DefineName>SAS_GG_INSTRUCTOR_TOP_N_PROD_MILIT_MOD_VAL</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 	<!-- custom: was 1 in base advciv -->

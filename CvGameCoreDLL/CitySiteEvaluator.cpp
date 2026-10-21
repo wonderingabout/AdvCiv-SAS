@@ -530,9 +530,9 @@ static CvString getSASFirstCityBFCCapacityFields(std::vector<SASFirstCityBFCCapa
 // <!-- custom: Keep the three top-level Settler yield-emphasis percentages shared by ordinary plot potential, resource-improvement value, home-plot opportunity and XML-derived scouting references. (GPT-5.6-Sol) -->
 static int getSASEvaluateYieldValuePercent(YieldTypes eYield)
 {
-	static const int iFoodPercent = std::max(0, GC.getDefineINT("SAS_SITE_YLD_FOOD_VAL_PCT"));
-	static const int iProductionPercent = std::max(0, GC.getDefineINT("SAS_SITE_YLD_PROD_VAL_PCT"));
-	static const int iCommercePercent = std::max(0, GC.getDefineINT("SAS_SITE_YLD_COM_VAL_PCT"));
+	static const int iFoodPercent = std::max(0, GC.getDefineINT("SAS_SITE_YIELD_FOOD_VAL_PCT"));
+	static const int iProductionPercent = std::max(0, GC.getDefineINT("SAS_SITE_YIELD_PROD_VAL_PCT"));
+	static const int iCommercePercent = std::max(0, GC.getDefineINT("SAS_SITE_YIELD_COM_VAL_PCT"));
 	switch (eYield)
 	{
 	case YIELD_FOOD: return iFoodPercent;
@@ -788,9 +788,9 @@ int CitySiteEvaluator::evaluateWithPlotValueDistribution(CvPlot const& kPlot, in
 
 int CitySiteEvaluator::getSustainableProductivePlotValue()
 {
-	static const int iExtraValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_SELF_FEED_EXTRA_VAL");
-	static const int iFoodValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_SELF_FEED_FOOD_VAL");
-	static const int iProductionValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_SELF_FEED_PROD_VAL");
+	static const int iExtraValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_EXTRA_VAL");
+	static const int iFoodValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_FOOD_VAL");
+	static const int iProductionValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_PROD_VAL");
 	return iExtraValue + (GC.getFOOD_CONSUMPTION_PER_POPULATION() * iFoodValue * getSASEvaluateYieldValuePercent(YIELD_FOOD)) / 100 + (iProductionValue * getSASEvaluateYieldValuePercent(YIELD_PRODUCTION)) / 100;
 }
 
@@ -968,7 +968,7 @@ int AIFoundValue::evaluate()
 
 	static const int iMaxToleratedVeryBadTilesStart = GC.getDefineINT("SAS_SITE_MAX_OUTER_BAD_PLOTS_START");
 	static const int iMaxToleratedVeryBadTilesLater = GC.getDefineINT("SAS_SITE_MAX_OUTER_BAD_PLOTS_LATER");
-	static const int iMinAcceptableVeryBadPlotPotentialYieldScore = GC.getDefineINT("SAS_SITE_MIN_OUTER_PLOT_POT_YLD_SCORE");
+	static const int iMinAcceptableVeryBadPlotPotentialYieldScore = GC.getDefineINT("SAS_SITE_MIN_OUTER_PLOT_POT_YIELD_SCORE");
 
 	static const int iBaseValueVeryBadTileStart = GC.getDefineINT("SAS_SITE_BASE_VAL_OUTER_BAD_PLOT_START");
 	static const int iBaseValueVeryBadTileLater = GC.getDefineINT("SAS_SITE_BASE_VAL_OUTER_BAD_PLOT_LATER");
@@ -1483,9 +1483,9 @@ int AIFoundValue::evaluate()
 			// Removing that contradictory charge lets the strictly two-turn local recheck select the better complete site while the broader scouting logic still limits long delays. See KI#144. (GPT-5.6-Sol) -->
 			else
 			{
-				static const int iFoodValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_SELF_FEED_FOOD_VAL");
-				static const int iProductionValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_SELF_FEED_PROD_VAL");
-				static const int iCommerceValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_SELF_FEED_COM_VAL");
+				static const int iFoodValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_FOOD_VAL");
+				static const int iProductionValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_PROD_VAL");
+				static const int iCommerceValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_COM_VAL");
 				int const aiYieldValue[NUM_YIELD_TYPES] = {
 					(iFoodValue * getSASEvaluateYieldValuePercent(YIELD_FOOD)) / 100,
 					(iProductionValue * getSASEvaluateYieldValuePercent(YIELD_PRODUCTION)) / 100,
@@ -2502,12 +2502,12 @@ int AIFoundValue::countBadTiles(/* advc.031: */ int& iInnerRadius, int& iUnrevea
 		if (isHome(*p))
 			continue;
 		// <advc.303>
-		static const bool bSAS_SITE_BARBARIAN_FULL_BFC_ON = GC.getDefineBOOL("SAS_SITE_BARBARIAN_FULL_BFC_ON");
-		if (bBarbarian && !bSAS_SITE_BARBARIAN_FULL_BFC_ON && !adjacentOrSame(*p, kPlot))
+		static const bool bSAS_SITE_BARB_FULL_BFC_ON = GC.getDefineBOOL("SAS_SITE_BARB_FULL_BFC_ON");
+		if (bBarbarian && !bSAS_SITE_BARB_FULL_BFC_ON && !adjacentOrSame(*p, kPlot))
 		{
 			// Rational Barbarians wouldn't mind settling one off the coast, but human players do mind, and some really hate this. Therefore, count the outer ring coast as bad if !bCoastal.
 			// <!-- custom: This is separate from the Barbarian coastal value bonus: it keeps the inherited adjacent/inner-focused Barbarian scoring, which can ignore outer-BFC seafood or other long-term captured-city value.
-			// AdvCiv-SAS makes this toggleable because Barbarian cities should also be useful city sites for themselves and later conquerors; set SAS_SITE_BARBARIAN_FULL_BFC_ON to use normal full-BFC scoring. (GPT-5.5) -->
+			// AdvCiv-SAS makes this toggleable because Barbarian cities should also be useful city sites for themselves and later conquerors; set SAS_SITE_BARB_FULL_BFC_ON to use normal full-BFC scoring. (GPT-5.5) -->
 			if(p != NULL && p->isWater() && !bCoastal && p->calculateBestNatureYield(YIELD_FOOD, eTeam) <= 1)
 			{
 				iBadTiles++;
@@ -2608,8 +2608,8 @@ bool AIFoundValue::isTooManyBadTiles(int iBadTiles, int iInnerBadTiles) const //
 			continue;
 		} // </advc.031>
 		// <advc.303>
-		static const bool bSAS_SITE_BARBARIAN_FULL_BFC_ON = GC.getDefineBOOL("SAS_SITE_BARBARIAN_FULL_BFC_ON");
-		if(bBarbarian && !bSAS_SITE_BARBARIAN_FULL_BFC_ON && !adjacentOrSame(p, kPlot))
+		static const bool bSAS_SITE_BARB_FULL_BFC_ON = GC.getDefineBOOL("SAS_SITE_BARB_FULL_BFC_ON");
+		if(bBarbarian && !bSAS_SITE_BARB_FULL_BFC_ON && !adjacentOrSame(p, kPlot))
 			continue; // </advc.303>
 		if(getRevealedOwner(p) != NO_PLAYER &&
 			// <advc.031>
@@ -2678,9 +2678,9 @@ bool AIFoundValue::isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCi
 	bool const bInnerRing = adjacentOrSame(*p, kPlot);
 	// <advc.303>
 	// <!-- custom: This was the remaining inherited inner-ring-only Barbarian city-site shortcut.
-	// Gate it with SAS_SITE_BARBARIAN_FULL_BFC_ON too, otherwise outer-BFC seafood still gets ignored even when bad-tile checks use full BFC scoring. (GPT-5.5) -->
-	static const bool bSAS_SITE_BARBARIAN_FULL_BFC_ON = GC.getDefineBOOL("SAS_SITE_BARBARIAN_FULL_BFC_ON");
-	if (bBarbarian && !bSAS_SITE_BARBARIAN_FULL_BFC_ON && !bInnerRing)
+	// Gate it with SAS_SITE_BARB_FULL_BFC_ON too, otherwise outer-BFC seafood still gets ignored even when bad-tile checks use full BFC scoring. (GPT-5.5) -->
+	static const bool bSAS_SITE_BARB_FULL_BFC_ON = GC.getDefineBOOL("SAS_SITE_BARB_FULL_BFC_ON");
+	if (bBarbarian && !bSAS_SITE_BARB_FULL_BFC_ON && !bInnerRing)
 		return false; // </advc.303>
 	/*	advc.031: Moved up. If we can't see the tile, we don't really know if it's
 		already taken by a rival. (Will find out when our Settler gets there.) */
@@ -3462,16 +3462,16 @@ int AIFoundValue::evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNever
 int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p, bool bCanNeverImprove, bool bTreatHomeAsCity) const
 {
 	int r = 0;
-	static const int iSelfSustainingExtraValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_SELF_FEED_EXTRA_VAL");
-	static const int iDefaultFoodValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_DEFAULT_FOOD_VAL");
-	static const int iDefaultProductionValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_DEFAULT_PROD_VAL");
-	static const int iDefaultCommerceValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_DEFAULT_COM_VAL");
-	static const int iSelfSustainingFoodValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_SELF_FEED_FOOD_VAL");
-	static const int iSelfSustainingProductionValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_SELF_FEED_PROD_VAL");
-	static const int iSelfSustainingCommerceValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_SELF_FEED_COM_VAL");
-	static const int iOneFoodShortFoodValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_1_FOOD_SHORT_FOOD_VAL");
-	static const int iOneFoodShortProductionValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_1_FOOD_SHORT_PROD_VAL");
-	static const int iOneFoodShortCommerceValue = GC.getDefineINT("SAS_SITE_NATURE_YLD_1_FOOD_SHORT_COM_VAL");
+	static const int iSelfSustainingExtraValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_EXTRA_VAL");
+	static const int iDefaultFoodValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_DEFAULT_FOOD_VAL");
+	static const int iDefaultProductionValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_DEFAULT_PROD_VAL");
+	static const int iDefaultCommerceValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_DEFAULT_COM_VAL");
+	static const int iSelfSustainingFoodValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_FOOD_VAL");
+	static const int iSelfSustainingProductionValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_PROD_VAL");
+	static const int iSelfSustainingCommerceValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_COM_VAL");
+	static const int iOneFoodShortFoodValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_1_FOOD_SHORT_FOOD_VAL");
+	static const int iOneFoodShortProductionValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_1_FOOD_SHORT_PROD_VAL");
+	static const int iOneFoodShortCommerceValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_1_FOOD_SHORT_COM_VAL");
 	// <!-- custom: Externalize AdvCiv's plot-yield weights so Food/Production/Commerce priorities can be tuned without recompiling.
 	// Natural yields and ordinary improvement outcomes use these weights; resource-improvement yield remains separately valued by SAS_SITE_BFC_BONUS_IMPROVE_*. (GPT-5.5 + GPT-5.6-Sol) -->
 	int aiWeight[NUM_YIELD_TYPES] = {iDefaultFoodValue, iDefaultProductionValue, iDefaultCommerceValue};
@@ -4361,9 +4361,9 @@ int AIFoundValue::evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionMod
 	if (bBarbarian)
 	{
 		// <!-- custom: Keep the inherited Barbarian coastal push XML-tunable.
-		// Coastal Barbarian cities can maintain Galley/naval pressure from lone islands, but too much coastal bias can outweigh stronger long-term city sites that Barbarians or later conquerors would use better; adjust SAS_SITE_BARBARIAN_COASTAL_EXTRA_VAL in XML. (GPT-5.5) -->
-		static const int iSAS_SITE_BARBARIAN_COASTAL_EXTRA_VAL = GC.getDefineINT("SAS_SITE_BARBARIAN_COASTAL_EXTRA_VAL");
-		iR += iSAS_SITE_BARBARIAN_COASTAL_EXTRA_VAL;
+		// Coastal Barbarian cities can maintain Galley/naval pressure from lone islands, but too much coastal bias can outweigh stronger long-term city sites that Barbarians or later conquerors would use better; adjust SAS_SITE_BARB_COASTAL_EXTRA_VAL in XML. (GPT-5.5) -->
+		static const int iSAS_SITE_BARB_COASTAL_EXTRA_VAL = GC.getDefineINT("SAS_SITE_BARB_COASTAL_EXTRA_VAL");
+		iR += iSAS_SITE_BARB_COASTAL_EXTRA_VAL;
 		if (gFoundLogLevel >= 3) logBBAIFoundDetail("COASTAL_BARBARIAN_VALUE", "+%d for coastal (Barbarian)", iR);
 		return iR;
 	} // </advc.303>

@@ -26,7 +26,7 @@ EXPECTED_GAME_RECORD_DEFAULTS = {
     # <!-- custom: Ship action tracing ready for deliberately enabled records while the recorder master stays off; catch accidental staging of an actions-off test override. (GPT-6.1-Sol) -->
     "SAS_SGR_ACTION_TRACE_ON": 1,
     # <!-- custom: Keep richer support context opt-in; catch hardware/path/process and private/network INI test settings accidentally staged for shipping. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
-    "SAS_SGR_SYSTEM_CONTEXT_LEVEL": 2,
+    "SAS_SGR_SYSTEM_CONTEXT_LVL": 2,
     "SAS_SGR_HARDWARE_IDENTITY_ON": 0,
     "SAS_SGR_EXACT_PATHS_ON": 0,
     "SAS_SGR_PROCESS_CONTEXT_ON": 0,
