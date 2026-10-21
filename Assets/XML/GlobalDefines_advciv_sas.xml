@@ -1527,28 +1527,28 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: first-city settling may roam this many turns before heavy distance penalties apply.
 	Bad capitals are far more damaging than a few turns of delay; increasing from the hardcoded 5 to 7 gives starts surrounded by plains/tundra/luxuries enough room to reach nearby high-food sites. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_1STCITY_FOUND_MAX_T_UNSCALED_GS</DefineName>
+		<DefineName>SAS_1ST_CITY_FOUND_MAX_T_UNSCALED_GS</DefineName>
 		<iDefineIntVal>7</iDefineIntVal>
 	</Define>
 	<!-- custom: First-city return cost per path turn, as a percentage of one sustainable productive reference plot (citizen food consumption + 1 Production under the shared weights).
 	This follows the found-value scale without altering site valuation; the same one-turn value also serves as the opportunity cost that a new scouting step must beat after its uncertain information gain is discounted by known-capital quality.
 	Default 125% resolves to the tested 150 that preserved Berlin, Karakorum, and Cuzco; 0 ignores return/scouting delay. See also KI#144.2. (GPT-5.5 + GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_1STCITY_RETURN_REF_PLOT_PCT</DefineName>
+		<DefineName>SAS_1ST_CITY_RETURN_REF_PLOT_PCT</DefineName>
 		<iDefineIntVal>125</iDefineIntVal>
 	</Define>
 	<!-- custom: In save file 442, map-generation surroundings penalties reversed Berlin's stronger revealed site: (33,13) scored 4569 then -1482, versus (35,11) at 3934 then -480.
 	Default 0 keeps assigned-start spacing in map generation but removes its hidden range-6 terrain/other-start bias from live Settler choices.
 	Set to 1 for Base AdvCiv runtime behavior. See KI#173. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_1STCITY_START_SURROUND_ADJ_ON</DefineName>
+		<DefineName>SAS_1ST_CITY_START_SURROUND_ADJ_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: during first-city roaming, stop wandering once the current foundable plot has this many revealed food bonuses in its BFC.
 	This prevents the settler from walking through an already strong pig+corn/fresh-water-style capital while chasing more unknown information.
 	Set to 0 to disable. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_1STCITY_GOOD_FOOD_BONUSES</DefineName>
+		<DefineName>SAS_1ST_CITY_GOOD_FOOD_BONUSES</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: A poor whole BFC can still have a strong early core.
@@ -1557,7 +1557,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Five SAS48 tests separated needless scouts with cores 763/800/802 from a useful Zulu scout at 702.
 	0 disables this override. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_1STCITY_GOOD_BEST6_REF_PCT</DefineName>
+		<DefineName>SAS_1ST_CITY_GOOD_BEST_6_REF_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: First-city roaming treats a candidate as bad at this revealed non-home food-deficit score.
@@ -1565,26 +1565,26 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Productive Grass Hills are neutral, food surpluses offset deficits, and citizen-unworkable Peak/Ice adds one extra point for its dead BFC slot.
 	Default 5 reflects bonus food now offsetting the score (was 7). (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_1STCITY_BAD_FOOD_ENV_SCORE</DefineName>
+		<DefineName>SAS_1ST_CITY_BAD_FOOD_ENV_SCORE</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- custom: Local first-city rechecks compare complete site values and worked-plot cores without charging travel twice.
 	Default 2 covers the nearby neighborhood; the separate scouting/return window governs longer travel.
 	Unscaled because path turns already use the active game speed. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_1STCITY_RECHECK_MAX_T_UNSCALED_GS</DefineName>
+		<DefineName>SAS_1ST_CITY_RECHECK_MAX_T_UNSCALED_GS</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: Percentage of the combined best-6 and best-10 worked-plot improvement added when a nearby first-city candidate improves both cores.
 	Default 100 preserves the tested Wang Kon behavior; 0 leaves local rechecks driven only by complete found value. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_1STCITY_CORE_IMPROVE_VALUE_PCT</DefineName>
+		<DefineName>SAS_1ST_CITY_CORE_IMPROVE_VALUE_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: Extra sustainable-reference-plot units for a safe first-city scout step ending in fog; nearby reveals and known site prospects remain separate.
 	Default 5 preserves tested bounded scouting. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_1STCITY_SCOUT_FOG_END_REF_PLOT_MULT</DefineName>
+		<DefineName>SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- custom: Block dangerous exposed post-capital founding by an unescorted Settler group.
@@ -2850,28 +2850,28 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	A safe city keeps a still-positively-valued active copy only when it is genuinely near completion or already substantially invested with a reasonable remaining time; danger, zero/negative strategic value, and low-progress assignments remain free to reevaluate.
 	1 enables the optimization; 0 restores inherited Project reevaluation. See KI#174.2. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_PROD_PROJ_1COPY_CONT_ON</DefineName>
+		<DefineName>SAS_PROD_PROJ_1_COPY_CONT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Near-term maximum in Normal-speed-equivalent Project turns for one-copy Project continuity, scaled by CreatePercent.
 	Default 10 came from present-source control/candidate testing: 20 turns would suppress too many ordinary low-progress switches, while 10 consistently protects the clearest almost-finished cases.
 	0 disables only this near-term gate. See KI#174.2. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_PROD_PROJ_1COPY_MAX_T_NORM_GS</DefineName>
+		<DefineName>SAS_PROD_PROJ_1_COPY_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum completion percentage for the heavier-investment one-copy Project continuity fallback.
 	Default 40 follows the enabled-run evidence: 50% still allowed a safe positive-value Apollo at 650/1504 production (43%, 14 turns) to hop to another city and later lose all 650 stored hammers, while rechecking the two accidental controls showed that 40% would have intercepted only one additional release per full run.
 	This fallback also requires the separate maximum remaining time below and positive current AI_projectValue. See KI#174.2. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_PROD_PROJ_1COPY_INV_MIN_COMPLETE_PCT</DefineName>
+		<DefineName>SAS_PROD_PROJ_1_COPY_INV_MIN_COMPLETE_PCT</DefineName>
 		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 	<!-- custom: Maximum remaining Normal-speed-equivalent Project turns for the heavier-investment one-copy Project continuity fallback, scaled by CreatePercent.
 	Default 20 combines with the 40% threshold above to protect substantial committed production without broadly locking fresh or slow assignments.
 	0 disables this fallback. See KI#174.2. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_PROD_PROJ_1COPY_INV_MAX_T_NORM_GS</DefineName>
+		<DefineName>SAS_PROD_PROJ_1_COPY_INV_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 
@@ -2881,14 +2881,14 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	When several cities simultaneously build the same component, the DLL ranks eligible copies by remaining turns, stored production, then stable city identity and protects only as many as the still-missing minimum launch requirement; optional duplicates remain fully flexible.
 	1 enables the optimization; 0 restores inherited project reevaluation. See KI#184.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_PROD_SPACE3_COMP_CONT_ON</DefineName>
+		<DefineName>SAS_PROD_SPACE_3_COMP_CONT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Near-term continuity maximum, expressed in Normal-speed-equivalent project turns and scaled by CreatePercent.
 	Default 25 covers the motivating Docking Bay interruptions at 18, 15, 7 and 5 turns and the reproduced Stasis Chamber interruption at 22 turns without locking a fresh poor 30-40-turn assignment.
 	0 disables only this near-term gate; the heavier-investment gate below can still apply. See KI#184.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_PROD_SPACE3_COMP_MAX_T_NORM_GS</DefineName>
+		<DefineName>SAS_PROD_SPACE_3_COMP_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum completion percentage for the heavier-investment continuity fallback.
@@ -2896,14 +2896,14 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Default 40 is evidence-driven: a refined replay still parked Rome's mandatory Stasis Chamber at 44%-49% completion and 32-33 turns remaining for an optional Thruster and then a 2-turn Jail.
 	0 removes the completion-percentage requirement; 100 requires a fully stored project and therefore practically disables this fallback before completion. See KI#184.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_PROD_SPACE3_COMP_INV_MIN_COMPLETE_PCT</DefineName>
+		<DefineName>SAS_PROD_SPACE_3_COMP_INV_MIN_COMPLETE_PCT</DefineName>
 		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 	<!-- custom: Maximum remaining build time, expressed in Normal-speed-equivalent project turns and scaled by CreatePercent, for the heavier-investment fallback above.
 	Default 40 protects substantially invested launch-gating components just outside the 25-turn near-term gate while still allowing genuinely slow assignments to be reconsidered.
 	0 disables the heavier-investment fallback. See KI#184.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_PROD_SPACE3_COMP_INV_MAX_T_NORM_GS</DefineName>
+		<DefineName>SAS_PROD_SPACE_3_COMP_INV_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 
@@ -3071,7 +3071,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 	<!-- custom: extra min cap on top of the computed max trebuchets-like units allowed if we are restricting trebuchets-like units; Long_Comments_XML.txt #166 -->
 	<Define>
-		<DefineName>SAS_UNITSEL_TREBLIKE_MIN_EXTRA_CAP</DefineName>
+		<DefineName>SAS_UNITSEL_TREB_LIKE_MIN_EXTRA_CAP</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: this is the general toggle for all sieges units, including trebuchets-like units but not only (catapults, trebuchets, cannons (note: from rennaisance onwards, thresholds are more generous, as cannons are versatile and strong, but we still avoid overbuilding them, just with more generous thresholds), etc.) -->

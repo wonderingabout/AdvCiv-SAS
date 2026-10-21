@@ -1981,7 +1981,7 @@ int AIFoundValue::evaluate()
 		iValue = adjustToLandAreaBoundary(iValue);
 	iBreakdownLandBoundary = iValue - iBeforeLandBoundary;
 	const int iBeforeStartingSurroundings = iValue;
-	static const bool bRuntimeStartingSurroundings = GC.getDefineBOOL("SAS_1STCITY_START_SURROUND_ADJ_ON");
+	static const bool bRuntimeStartingSurroundings = GC.getDefineBOOL("SAS_1ST_CITY_START_SURROUND_ADJ_ON");
 	// <!-- custom: adjustToStartingSurroundings uses range-6 terrain and every assigned starting plot to spread civilizations during all-seeing map generation/normalization, so isAllSeeing keeps that use enabled.
 	// Once play begins, the live first settler should choose its best revealed site even if that moves nearer to or farther from a neighbor; only the opt-in SAS define restores this modifier at runtime.
 	// In the Berlin test (save file 442), (33,13) led (35,11) by 4569 to 3934 beforehand, but its -1482 adjustment reversed the choice. See KI#173. (GPT-5.5) -->

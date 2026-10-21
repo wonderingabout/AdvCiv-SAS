@@ -551,8 +551,8 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 #### Defines and AI behavior
 
 - Prefer SAS defines for new AI toggles to allow quick testing without recompiles; avoid adding them for tiny features unlikely to need tuning.
-  - Name defines `SAS_<family>_<effect>` within the desired 42-byte maximum drawn from AdvCiv, rather than mechanically embedding the full function name. To that end, use shorter words or clear abbreviations while preserving meaning and key technical terms such as `PCT`, `MIN` and `MAX`. See KI#1001.2.
-  - Keep related names consistent: for example, do not alternate `SETTLER` with `SET` or keep `PROD` in only some names unless necessary. Omit implicit qualifiers such as `AI` when the family already makes that context clear.
+  - Name defines `SAS_<family>_<effect>` within the desired 42-byte maximum drawn from AdvCiv, rather than mechanically embedding the full function name. To that end, use shorter words or clear abbreviations such as `1ST` for `FIRST`, while preserving meaning and key technical terms such as `PCT`, `MIN` and `MAX`. See KI#1001.2.
+  - Keep related names consistent: for example, do not alternate `SETTLER` with `SET` or keep `PROD` in only some names unless necessary. Omit implicit qualifiers such as `AI` when the family already makes that context clear. Separate words with `_` when space permits.
 - Turn-valued SAS integer defines must make game-speed semantics explicit: use `T_NORM_GS` when the XML value is expressed at Normal speed and code scales it with the appropriate game-speed percentage, or `T_UNSCALED_GS` for intentional literal game/path turns such as movement distance.
   - Do not apply this to `SAS_DO_TURN_*` scope names or per-turn rate/value defines.
   - The automated [`turn_define_gamespeed.py`](/.github/workflows/build/xml/turn_define_gamespeed.py) check flags inconsistent turn-unit naming/semantics.

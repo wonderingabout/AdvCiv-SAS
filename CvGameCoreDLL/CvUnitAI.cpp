@@ -778,7 +778,7 @@ static bool SAS_shouldScoutPromisingFoggedNearbyFoundSite(CvUnitAI& kSettler, Mo
 // <!-- custom: Express first-city return travel cost as a tunable percentage of the same XML-derived sustainable productive plot used by site evaluation, so yield/XML changes scale the cost instead of reviving an arbitrary raw found-value constant. (GPT-5.6-Sol) -->
 static int SAS_getFirstCityReturnTravelValuePerTurn()
 {
-	static const int iReferencePlotPercent = std::max(0, GC.getDefineINT("SAS_1STCITY_RETURN_REF_PLOT_PCT"));
+	static const int iReferencePlotPercent = std::max(0, GC.getDefineINT("SAS_1ST_CITY_RETURN_REF_PLOT_PCT"));
 	return (CitySiteEvaluator::getSustainableProductivePlotValue() * iReferencePlotPercent) / 100;
 }
 
@@ -805,7 +805,7 @@ static int SAS_getFirstCityScoutRemainingOpportunityPercent(int iBest6PlotValue,
 // Caller guards any logging. (GPT-5.5) -->
 static CvPlot* SAS_chooseFirstCityReturnPlot(CvUnitAI const& kSettler, CitySiteEvaluator const& kEvaluator, int iSearchRange, int iTravelValuePerTurn, bool bPrioritizeRawValue, int& iRawValue, int& iAdjustedValue, int& iPathTurns, CvPlot const* pGrowthCoreReference = NULL, int* piGrowthCoreValue = NULL)
 {
-	static const int iGrowthCoreImprovementValuePercent = std::max(0, GC.getDefineINT("SAS_1STCITY_CORE_IMPROVE_VALUE_PCT"));
+	static const int iGrowthCoreImprovementValuePercent = std::max(0, GC.getDefineINT("SAS_1ST_CITY_CORE_IMPROVE_VALUE_PCT"));
 	CvPlot* pBestPlot = NULL;
 	iRawValue = -MAX_INT;
 	iAdjustedValue = -MAX_INT;
@@ -5964,7 +5964,7 @@ bool CvUnitAI::AI_foundFirstCity()
 	// Lower quality starts may be fine for 3rd city but not for capital, which is key to winning.
 	// Same on all maps (capital is important even at fastest speed). Credit: ChatGPT 5; Claude AI. (Claude code Sonnet 4.5 (summarized)) -->
 	// int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
-	static const int iMaxTurnsToFound = GC.getDefineINT("SAS_1STCITY_FOUND_MAX_T_UNSCALED_GS");
+	static const int iMaxTurnsToFound = GC.getDefineINT("SAS_1ST_CITY_FOUND_MAX_T_UNSCALED_GS");
 	const bool bLogSettlerAILevel2 = (gSettlerLogLevel >= 2);
 	const bool bLogSettlerAILevel3 = (gSettlerLogLevel >= 3);
 	const bool bLogSASSettlerScout = (gGameRecordLogLevel >= 2);
@@ -6181,12 +6181,12 @@ bool CvUnitAI::AI_foundFirstCity()
 		}
 
 		const int iBestKnownFirstCityValue = (pBestPlot == NULL ? SAS_evaluateFirstCityFoundValue(kFirstCityEvaluator, getPlot()) : iBestValue);
-		static const int iGoodEnoughFoodBonuses = GC.getDefineINT("SAS_1STCITY_GOOD_FOOD_BONUSES");
-		static const int iBadFoodEnvironmentScoreThreshold = GC.getDefineINT("SAS_1STCITY_BAD_FOOD_ENV_SCORE");
-		static const int iGoodEnoughBest6ReferencePercent = GC.getDefineINT("SAS_1STCITY_GOOD_BEST6_REF_PCT");
-		static const int iLocalRecheckMaxPathTurns = std::max(0, GC.getDefineINT("SAS_1STCITY_RECHECK_MAX_T_UNSCALED_GS"));
-		static const int iGrowthCoreImprovementValuePercent = std::max(0, GC.getDefineINT("SAS_1STCITY_CORE_IMPROVE_VALUE_PCT"));
-		static const int iScoutUnrevealedEndpointReferencePlotMultiplier = std::max(0, GC.getDefineINT("SAS_1STCITY_SCOUT_FOG_END_REF_PLOT_MULT"));
+		static const int iGoodEnoughFoodBonuses = GC.getDefineINT("SAS_1ST_CITY_GOOD_FOOD_BONUSES");
+		static const int iBadFoodEnvironmentScoreThreshold = GC.getDefineINT("SAS_1ST_CITY_BAD_FOOD_ENV_SCORE");
+		static const int iGoodEnoughBest6ReferencePercent = GC.getDefineINT("SAS_1ST_CITY_GOOD_BEST_6_REF_PCT");
+		static const int iLocalRecheckMaxPathTurns = std::max(0, GC.getDefineINT("SAS_1ST_CITY_RECHECK_MAX_T_UNSCALED_GS"));
+		static const int iGrowthCoreImprovementValuePercent = std::max(0, GC.getDefineINT("SAS_1ST_CITY_CORE_IMPROVE_VALUE_PCT"));
+		static const int iScoutUnrevealedEndpointReferencePlotMultiplier = std::max(0, GC.getDefineINT("SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT"));
 		int iCurrentFoodBonuses = 0;
 		int iCurrentFoodEnvironmentScore = 0;
 		int iCurrentCitizenUnworkablePlots = 0;

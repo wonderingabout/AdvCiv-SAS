@@ -2646,10 +2646,10 @@ void CvCityAI::AI_chooseProduction()
 			// The SPACE3/25-turn refinement fixed both edges, then another replay still parked Rome's mandatory Stasis at 44%-49% completion with 32-33 turns remaining for an optional Thruster and a 2-turn Jail.
 			// Keep the 25-turn near-term gate, add a separate heavier-investment gate instead of simply widening it for fresh projects, and rank simultaneously eligible copies so only the best copies still needed for the minimum launch set become sticky.
 			// Optional duplicates remain reevaluable and immediate city danger still overrides. See KI#184.3. (ChatGPT-5.6-Sol) -->
-			static const bool bSASSpace3MinimumComponentContinuity = GC.getDefineBOOL("SAS_PROD_SPACE3_COMP_CONT_ON");
-			static const int iSASSpace3MinimumComponentContinuityMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_SPACE3_COMP_MAX_T_NORM_GS"));
-			static const int iSASSpace3MinimumComponentContinuityHeavyMinPercent = range(GC.getDefineINT("SAS_PROD_SPACE3_COMP_INV_MIN_COMPLETE_PCT"), 0, 100);
-			static const int iSASSpace3MinimumComponentContinuityHeavyMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_SPACE3_COMP_INV_MAX_T_NORM_GS"));
+			static const bool bSASSpace3MinimumComponentContinuity = GC.getDefineBOOL("SAS_PROD_SPACE_3_COMP_CONT_ON");
+			static const int iSASSpace3MinimumComponentContinuityMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_SPACE_3_COMP_MAX_T_NORM_GS"));
+			static const int iSASSpace3MinimumComponentContinuityHeavyMinPercent = range(GC.getDefineINT("SAS_PROD_SPACE_3_COMP_INV_MIN_COMPLETE_PCT"), 0, 100);
+			static const int iSASSpace3MinimumComponentContinuityHeavyMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_SPACE_3_COMP_INV_MAX_T_NORM_GS"));
 			ProjectTypes const eCurrentProject = getProductionProject();
 			if (bSASSpace3MinimumComponentContinuity && !bDanger && eCurrentProject != NO_PROJECT &&
 				kPlayer.AI_atVictoryStage(AI_VICTORY_SPACE3) && GC.getInfo(eCurrentProject).isSpaceship())
@@ -2696,10 +2696,10 @@ void CvCityAI::AI_chooseProduction()
 			// Preserve a still-valued, safe active copy only when it is genuinely near-term or already substantially invested with a reasonable remaining time.
 			// Current testing settled on <=10 Normal-speed-equivalent turns, or >=40% complete with <=20 turns; low-progress assignments, immediate danger and nonpositive project value remain free to reevaluate.
 			// This intentionally covers only Manhattan, Internet, SDI and Apollo; spaceship components keep their separate minimum-component policy above. See KI#174.2. (ChatGPT-5.6-Sol) -->
-			static const bool bSASOneCopyProjectContinuity = GC.getDefineBOOL("SAS_PROD_PROJ_1COPY_CONT_ON");
-			static const int iSASOneCopyProjectContinuityMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_PROJ_1COPY_MAX_T_NORM_GS"));
-			static const int iSASOneCopyProjectContinuityHeavyMinPercent = range(GC.getDefineINT("SAS_PROD_PROJ_1COPY_INV_MIN_COMPLETE_PCT"), 0, 100);
-			static const int iSASOneCopyProjectContinuityHeavyMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_PROJ_1COPY_INV_MAX_T_NORM_GS"));
+			static const bool bSASOneCopyProjectContinuity = GC.getDefineBOOL("SAS_PROD_PROJ_1_COPY_CONT_ON");
+			static const int iSASOneCopyProjectContinuityMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_PROJ_1_COPY_MAX_T_NORM_GS"));
+			static const int iSASOneCopyProjectContinuityHeavyMinPercent = range(GC.getDefineINT("SAS_PROD_PROJ_1_COPY_INV_MIN_COMPLETE_PCT"), 0, 100);
+			static const int iSASOneCopyProjectContinuityHeavyMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_PROD_PROJ_1_COPY_INV_MAX_T_NORM_GS"));
 			ProjectTypes const eCurrentLimitedProject = getProductionProject();
 			if (bSASOneCopyProjectContinuity && !bDanger && eCurrentLimitedProject != NO_PROJECT && SAS_isOneCopyNonSpaceshipProject(eCurrentLimitedProject) && canCreate(eCurrentLimitedProject, true))
 			{
@@ -16167,7 +16167,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 						}
 
 						// <!-- custom: even if we are stronger or otherwise ok to produce trebuchets, another edge case may be that they are simply even less versatile than other siege units, so apply tighter rules (their only purpose is to bombard city defenses or suicide attacking a city, except for that we don't want too many of them in our unit composition as it may be crippling or detrimental due to lack of versatility -->
-						static const int iTrebuchetsLikeMinExtraCap = GC.getDefineINT("SAS_UNITSEL_TREBLIKE_MIN_EXTRA_CAP");
+						static const int iTrebuchetsLikeMinExtraCap = GC.getDefineINT("SAS_UNITSEL_TREB_LIKE_MIN_EXTRA_CAP");
 
 
 						int const iTrebsShareOff = (100 * iTrebsLike) / std::max(1, iMainAttackers);
