@@ -3186,7 +3186,7 @@ void CvCityAI::AI_chooseProduction()
 	const bool bSafeEconomicWorkerProduction = (!bDanger && !kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE));
 	// <!-- custom: Base AdvCiv immediately filled an empty first-capital garrison even without danger, delaying the first Worker or useful Work Boat and the growth/resources it unlocks.
 	// The tunable exception tries exactly one such economic unit first, then falls through to the unchanged no-defender priority below. (GPT-5.5) -->
-	static const bool bFirstCityEconomicUnitBeforeDefender = GC.getDefineBOOL("SAS_AI_FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER_ENABLE");
+	static const bool bFirstCityEconomicUnitBeforeDefender = GC.getDefineBOOL("SAS_AI_1ST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER_ENABLE");
 	const int iCityDefenders = kPlot.getNumDefenders(getOwner());
 	const int iMinimumAreaWorkers = kPlayer.AI_getSASMinimumAreaWorkers(kArea);
 	const bool bFirstEconomicUnitContext = (bFirstCityEconomicUnitBeforeDefender && isCapital() && iNumCities == 1 && iCityDefenders == 0 && !bDanger && iExistingWorkers == 0 && iAvailableSeaWorkers <= 0);
@@ -3400,7 +3400,7 @@ void CvCityAI::AI_chooseProduction()
 	// Logs showed completed Settlers waiting 15-20+ turns with two healthy defenders: movement correctly refused to take one because two must remain, while this older production check saw 2 defenders > 1 Settler and built no missing escort.
 	// Count only unguarded local Settlers for the SAS shortage and request one more defender without weakening the movement-side safety rule. See KI#179.2. (ChatGPT-5.6-Sol) -->
 	static const bool bSASSettlerEscortCoordinationOptimize = GC.getDefineBOOL("SAS_PROD_SETTLER_ESCORT_COORD_ON");
-	static const int iSASSettlerEscortMinHealthyDefendersLeft = std::max(0, GC.getDefineINT("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT"));
+	static const int iSASSettlerEscortMinHealthyDefendersLeft = std::max(0, GC.getDefineINT("SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT"));
 	int iPlotUnguardedSettlerCount = 0;
 	int iPlotHealthyDefenderCount = 0;
 	bool const bSASExistingSettlerEscortShortage = (bSASSettlerEscortCoordinationOptimize && iPlotSettlerCount > 0 &&
@@ -16273,7 +16273,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 						// <!-- custom: Explicit Settler-escort preparation/repair requests must survive this lower anti-excess-defender optimizer.
 						// KI#179.2 showed that a correctly requested defender could otherwise be replaced with offensive siege; KI#179.3 extends the same preservation to the defender intentionally prepared before the first Settler is trained. (ChatGPT-5.6-Sol) -->
 						static const bool bSASSettlerEscortCoordinationOptimize = GC.getDefineBOOL("SAS_PROD_SETTLER_ESCORT_COORD_ON");
-						static const int iSASSettlerEscortMinHealthyDefendersLeft = std::max(0, GC.getDefineINT("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT"));
+						static const int iSASSettlerEscortMinHealthyDefendersLeft = std::max(0, GC.getDefineINT("SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT"));
 						int iPlotUnguardedSettlers = 0;
 						int iPlotHealthyDefenders = 0;
 						if (bCityDefenseRequest && bSASSettlerEscortCoordinationOptimize)

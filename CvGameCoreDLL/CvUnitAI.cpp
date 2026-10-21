@@ -385,8 +385,8 @@ static bool SAS_tryAttachCityEscortToSettler(CvUnitAI& kSettler, int iAreaBestFo
 	bool const bLogSettlerEscort = (gSettlerLogLevel >= 2);
 	SASSettlerCityEscortPool kPool;
 	SAS_collectSettlerCityEscortPool(kSettler, kPool, bLogSettlerEscort, NULL);
-	static const int iSAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT = GC.getDefineINT("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT");
-	if (kPool.pCity == NULL || kPool.pBestEscort == NULL || kPool.iCityHealthyDefenders <= iSAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT)
+	static const int iSAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT = GC.getDefineINT("SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT");
+	if (kPool.pCity == NULL || kPool.pBestEscort == NULL || kPool.iCityHealthyDefenders <= iSAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT)
 		return false;
 	CvUnit* pEscort = kPool.pBestEscort;
 	int const iOldGroupUnits = pSettlerGroup->getNumUnits();
@@ -425,12 +425,12 @@ static bool SAS_shouldBlockDangerousUnescortedFounding(CvUnitAI const& kSettler,
 // Follow-up T130 testing then founded stronger Zulu cities and Shaka reached rank 2. See KI#180. (GPT-5.5) -->
 static bool SAS_isFoundValueClearlyBetter(int iCurrentFoundValue, int iBetterFoundValue)
 {
-	static const int iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF = GC.getDefineINT("SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF");
-	static const int iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF = GC.getDefineINT("SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF");
-	if (iCurrentFoundValue <= 0 || (iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF <= 0 && iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF <= 0))
+	static const int iSAS_SETTLER_FOUND_BETTER_MIN_VALUE_DIFF = GC.getDefineINT("SAS_SETTLER_FOUND_BETTER_MIN_VALUE_DIFF");
+	static const int iSAS_SETTLER_FOUND_BETTER_MIN_PCT_DIFF = GC.getDefineINT("SAS_SETTLER_FOUND_BETTER_MIN_PCT_DIFF");
+	if (iCurrentFoundValue <= 0 || (iSAS_SETTLER_FOUND_BETTER_MIN_VALUE_DIFF <= 0 && iSAS_SETTLER_FOUND_BETTER_MIN_PCT_DIFF <= 0))
 		return false;
 	int const iValueDiff = iBetterFoundValue - iCurrentFoundValue;
-	return iValueDiff >= iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF && 100 * iValueDiff >= iCurrentFoundValue * iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF;
+	return iValueDiff >= iSAS_SETTLER_FOUND_BETTER_MIN_VALUE_DIFF && 100 * iValueDiff >= iCurrentFoundValue * iSAS_SETTLER_FOUND_BETTER_MIN_PCT_DIFF;
 }
 
 // <!-- custom: pBetterEndTurnPlot is returned alongside pBetterFoundPlot so callers keep the end-turn plot belonging to the same successful winning path query.
@@ -710,12 +710,12 @@ static bool SAS_shouldScoutPromisingFoggedNearbyFoundSite(CvUnitAI& kSettler, Mo
 	iSelectedUnrevealedBFC = SAS_countUnrevealedNonHomeBFCPlots(kSelectedSite, kSettler.getTeam());
 	iScoutRevealedBFC = 0;
 	iScoutUnrevealedBFC = 0;
-	static const int iMinUnrevealedAdvantage = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_UNREVEALED_ADVANTAGE");
+	static const int iMinUnrevealedAdvantage = GC.getDefineINT("SAS_SETTLER_SCOUT_FOG_MIN_UNREVEALED_ADV");
 	if (iMinUnrevealedAdvantage <= 0 || iSelectedFoundValue <= 0)
 		return false;
-	static const int iMinRevealedBFC = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_REVEALED_BFC");
-	static const int iMinAverageValuePercent = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_AVERAGE_VALUE_PERCENT");
-	static const int iMaxExtraPathTurns = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS_UNSCALED_GAMESPEED");
+	static const int iMinRevealedBFC = GC.getDefineINT("SAS_SETTLER_SCOUT_FOG_MIN_REVEALED_BFC");
+	static const int iMinAverageValuePercent = GC.getDefineINT("SAS_SETTLER_SCOUT_FOG_MIN_AVG_VALUE_PCT");
+	static const int iMaxExtraPathTurns = GC.getDefineINT("SAS_SETTLER_SCOUT_MAX_EXTRA_T_UNSCALED_GS");
 	if (iSelectedRevealedBFC < iMinRevealedBFC)
 		return false;
 	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
@@ -778,7 +778,7 @@ static bool SAS_shouldScoutPromisingFoggedNearbyFoundSite(CvUnitAI& kSettler, Mo
 // <!-- custom: Express first-city return travel cost as a tunable percentage of the same XML-derived sustainable productive plot used by site evaluation, so yield/XML changes scale the cost instead of reviving an arbitrary raw found-value constant. (GPT-5.6-Sol) -->
 static int SAS_getFirstCityReturnTravelValuePerTurn()
 {
-	static const int iReferencePlotPercent = std::max(0, GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_REFERENCE_PLOT_PERCENT"));
+	static const int iReferencePlotPercent = std::max(0, GC.getDefineINT("SAS_1STCITY_RETURN_REF_PLOT_PCT"));
 	return (CitySiteEvaluator::getSustainableProductivePlotValue() * iReferencePlotPercent) / 100;
 }
 
@@ -805,7 +805,7 @@ static int SAS_getFirstCityScoutRemainingOpportunityPercent(int iBest6PlotValue,
 // Caller guards any logging. (GPT-5.5) -->
 static CvPlot* SAS_chooseFirstCityReturnPlot(CvUnitAI const& kSettler, CitySiteEvaluator const& kEvaluator, int iSearchRange, int iTravelValuePerTurn, bool bPrioritizeRawValue, int& iRawValue, int& iAdjustedValue, int& iPathTurns, CvPlot const* pGrowthCoreReference = NULL, int* piGrowthCoreValue = NULL)
 {
-	static const int iGrowthCoreImprovementValuePercent = std::max(0, GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_GROWTH_CORE_IMPROVEMENT_VALUE_PERCENT"));
+	static const int iGrowthCoreImprovementValuePercent = std::max(0, GC.getDefineINT("SAS_1STCITY_CORE_IMPROVE_VALUE_PCT"));
 	CvPlot* pBestPlot = NULL;
 	iRawValue = -MAX_INT;
 	iAdjustedValue = -MAX_INT;
@@ -5693,8 +5693,8 @@ void CvUnitAI::AI_settleMove()
 		{
 			if (at(kSite) && canFound(plot()))
 			{
-				static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
-				if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockDangerousUnescortedFounding(*this, getPlot()))
+				static const bool bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON = GC.getDefineBOOL("SAS_SETTLER_EXPOSED_FOUND_ESCORT_ON");
+				if (bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON && SAS_shouldBlockDangerousUnescortedFounding(*this, getPlot()))
 				{
 					if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "DANGEROUS_NO_ESCORT");
 				}
@@ -5824,8 +5824,8 @@ void CvUnitAI::AI_settleMove()
 	}
 	// <!-- custom: Let AI_found make the actual city-site decision first; only park or retreat an unescorted Settler after all currently allowed found missions have been rejected.
 	// Save-file 450 follow-up logs showed this keeps guarded city founding moving while cities that cannot keep enough healthy defenders after giving one to the Settler wait instead of sending lone exposed Settlers. See KI#179. (ChatGPT-5.5) -->
-	static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
-	if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && kOwner.getNumCities() > 0 && getGroup() != NULL && !getGroup()->canDefend() && getInvisibleType() == NO_INVISIBLE)
+	static const bool bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON = GC.getDefineBOOL("SAS_SETTLER_EXPOSED_FOUND_ESCORT_ON");
+	if (bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON && kOwner.getNumCities() > 0 && getGroup() != NULL && !getGroup()->canDefend() && getInvisibleType() == NO_INVISIBLE)
 	{
 		if (getPlot().isCity() && getPlot().getOwner() == getOwner() && iAreaBestFoundValue > 0)
 		{
@@ -5964,7 +5964,7 @@ bool CvUnitAI::AI_foundFirstCity()
 	// Lower quality starts may be fine for 3rd city but not for capital, which is key to winning.
 	// Same on all maps (capital is important even at fastest speed). Credit: ChatGPT 5; Claude AI. (Claude code Sonnet 4.5 (summarized)) -->
 	// int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
-	static const int iMaxTurnsToFound = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_UNSCALED_GAMESPEED_TO_FOUND");
+	static const int iMaxTurnsToFound = GC.getDefineINT("SAS_1STCITY_FOUND_MAX_T_UNSCALED_GS");
 	const bool bLogSettlerAILevel2 = (gSettlerLogLevel >= 2);
 	const bool bLogSettlerAILevel3 = (gSettlerLogLevel >= 3);
 	const bool bLogSASSettlerScout = (gGameRecordLogLevel >= 2);
@@ -6181,12 +6181,12 @@ bool CvUnitAI::AI_foundFirstCity()
 		}
 
 		const int iBestKnownFirstCityValue = (pBestPlot == NULL ? SAS_evaluateFirstCityFoundValue(kFirstCityEvaluator, getPlot()) : iBestValue);
-		static const int iGoodEnoughFoodBonuses = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_FOOD_BONUSES");
-		static const int iBadFoodEnvironmentScoreThreshold = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE");
-		static const int iGoodEnoughBest6ReferencePercent = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_BEST_6_PLOT_REFERENCE_PERCENT");
-		static const int iLocalRecheckMaxPathTurns = std::max(0, GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_LOCAL_RECHECK_MAX_PATH_TURNS_UNSCALED_GAMESPEED"));
-		static const int iGrowthCoreImprovementValuePercent = std::max(0, GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_GROWTH_CORE_IMPROVEMENT_VALUE_PERCENT"));
-		static const int iScoutUnrevealedEndpointReferencePlotMultiplier = std::max(0, GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_SCOUT_UNREVEALED_ENDPOINT_REFERENCE_PLOT_MULTIPLIER"));
+		static const int iGoodEnoughFoodBonuses = GC.getDefineINT("SAS_1STCITY_GOOD_FOOD_BONUSES");
+		static const int iBadFoodEnvironmentScoreThreshold = GC.getDefineINT("SAS_1STCITY_BAD_FOOD_ENV_SCORE");
+		static const int iGoodEnoughBest6ReferencePercent = GC.getDefineINT("SAS_1STCITY_GOOD_BEST6_REF_PCT");
+		static const int iLocalRecheckMaxPathTurns = std::max(0, GC.getDefineINT("SAS_1STCITY_RECHECK_MAX_T_UNSCALED_GS"));
+		static const int iGrowthCoreImprovementValuePercent = std::max(0, GC.getDefineINT("SAS_1STCITY_CORE_IMPROVE_VALUE_PCT"));
+		static const int iScoutUnrevealedEndpointReferencePlotMultiplier = std::max(0, GC.getDefineINT("SAS_1STCITY_SCOUT_FOG_END_REF_PLOT_MULT"));
 		int iCurrentFoodBonuses = 0;
 		int iCurrentFoodEnvironmentScore = 0;
 		int iCurrentCitizenUnworkablePlots = 0;
@@ -11017,15 +11017,15 @@ void CvUnitAI::AI_generalMove()
 		getArea().getAreaAIType(getTeam()));
 
 	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT");
-	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA");
+	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA");
 	static const EraTypes eERA_FUTURE = (EraTypes)GC.getInfoTypeForString("ERA_FUTURE");
 	FAssertMsg((eERA_FUTURE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
-	bool const bSASPreferMilitaryInstructorFirst = (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA >= 0 && (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA >= eERA_FUTURE || kOwner.getCurrentEra() <= iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA));
+	bool const bSASPreferMilitaryInstructorFirst = (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA >= 0 && (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA >= eERA_FUTURE || kOwner.getCurrentEra() <= iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA));
 	// <!-- custom: Mirror AI_construct's inherited K-Mod default explicitly so SASGameRecord can report the live threshold without changing gameplay. (ChatGPT-5.6-Sol) -->
 	int const iGreatGeneralConstructValueThreshold = 15;
 	// <!-- custom: Recorder context stays unknown until the inherited late 1-in-3 construct gate is actually reached, then preserves its existing 0/1 result without another RNG call. (ChatGPT-5.6-Sol) -->
 	int iRandomConstructRoll = -1;
-	if (pSASGreatGeneralChoice != NULL) pSASGreatGeneralChoice->initialize(pSASGreatGeneralDecisionPlot, iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA, bSASPreferMilitaryInstructorFirst, ePreviousMissionAI, pPreviousMissionPlot);
+	if (pSASGreatGeneralChoice != NULL) pSASGreatGeneralChoice->initialize(pSASGreatGeneralDecisionPlot, iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA, bSASPreferMilitaryInstructorFirst, ePreviousMissionAI, pPreviousMissionPlot);
 	// <!-- custom: SAS previously still tried the first Military Academy before its preferred Military Instructor use.
 	// Make Instructor-first behavior era-tunable as a SAS balance policy; if joining is unavailable, retain the existing Academy/attachment/retreat fallback chain rather than wasting or indefinitely parking the General.
 	// The upstream Great-General safety problems corrected below are documented separately in KI#204. (ChatGPT-5.6-Sol) -->
@@ -11034,7 +11034,7 @@ void CvUnitAI::AI_generalMove()
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=preferred-first era=%d preferThroughEra=%d",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(),
 			iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, kOwner.getCurrentEra(),
-			iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA);
+			iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA);
 		return;
 	}
 
@@ -15534,7 +15534,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		// decisively low, far from overflow/underflow
 		static const int AI_PROMOTION_FORBIDDEN = GC.getDefineINT("SAS_AI_PROMOTION_VALUE_AI_PROMOTION_FORBIDDEN");
 		// <!-- custom: always pick these first if in this specific case especially relevant -->
-		static const int AI_PROMOTION_ALWAYS_PICK_FIRST = GC.getDefineINT("SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST");
+		static const int AI_PROMOTION_ALWAYS_PICK_FIRST = GC.getDefineINT("SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_1ST");
 
 		static const PromotionTypes ePromotionAmphibious = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_AMPHIBIOUS", true);
 
@@ -22821,8 +22821,8 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 
 	// <!-- custom: Try to form a defended Settler group before evaluating city-site missions.
 	// Save-file 450 BBAI testing showed cities with enough remaining healthy defenders can reassign one defender as escort, while cities below that threshold wait rather than send exposed lone Settlers. See KI#179. (ChatGPT-5.5) -->
-	static const bool bSAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE");
-	if (bSAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE && kOwner.getNumCities() > 0 && getPlot().isCity() && getPlot().getOwner() == getOwner() && getGroup() != NULL && !getGroup()->canDefend() && getInvisibleType() == NO_INVISIBLE)
+	static const bool bSAS_SETTLER_CITY_ESCORT_ATTACH_ON = GC.getDefineBOOL("SAS_SETTLER_CITY_ESCORT_ATTACH_ON");
+	if (bSAS_SETTLER_CITY_ESCORT_ATTACH_ON && kOwner.getNumCities() > 0 && getPlot().isCity() && getPlot().getOwner() == getOwner() && getGroup() != NULL && !getGroup()->canDefend() && getInvisibleType() == NO_INVISIBLE)
 	{
 		SAS_tryAttachCityEscortToSettler(*this, 0, 0, kOwner.AI_isAnyPlotDanger(getPlot()), eFlags);
 	}
@@ -23044,8 +23044,8 @@ bool CvUnitAI::AI_foundFollow()
 	if (canFound(plot()) && atPlot(AI_getGroup()->AI_getMissionAIPlot()) &&
 		AI_getGroup()->AI_getMissionAIType() == MISSIONAI_FOUND)
 	{
-		static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
-		if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockDangerousUnescortedFounding(*this, getPlot()))
+		static const bool bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON = GC.getDefineBOOL("SAS_SETTLER_EXPOSED_FOUND_ESCORT_ON");
+		if (bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON && SAS_shouldBlockDangerousUnescortedFounding(*this, getPlot()))
 		{
 			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "DANGEROUS_NO_ESCORT");
 			return false;

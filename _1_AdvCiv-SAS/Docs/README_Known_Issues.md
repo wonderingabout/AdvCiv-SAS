@@ -34280,6 +34280,59 @@ Sixteen formerly over-limit names now fit the 42-byte target, reducing the inten
 | `SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE` | 43 | `SAS_UWAI_VICT_DENY_DIRECT_MAX_DISTANCE` | 38 | 5 | 11.63% |
 | `SAS_UWAI_VICTORY_DENIAL_AVOID_WAR_HESITATION_PERCENT` | 52 | `SAS_UWAI_VICT_DENY_AVOID_HESITATION_PCT` | 39 | 13 | 25.00% |
 
+### 2026-10-21 first-city and Settler family batch
+
+This cleanup renames all 18 first-city roaming and Settler founding/scouting settings under two related families: `SAS_1STCITY_` for the special pre-capital roaming/site-quality logic and `SAS_SETTLER_` for ordinary escort, founding-in-place and nearby-fog scouting decisions.
+
+Keeping the two prefixes distinct preserves the existing behavioral boundary while removing the function-shaped `SAS_AI_FOUND_FIRST_CITY_*` and `SAS_AI_SETTLER_*` wording.
+
+XML values and gameplay logic are unchanged. The already-42-byte city-escort attachment toggle moves with its siblings for family consistency.
+
+Cache identifiers that mechanically copied the old Settler define names move with their keys; descriptive locals such as first-city return cost, growth-core value and city defender counts remain unchanged.
+
+`MIN`, `MAX`, `PCT`, `BFC`, `_ON` and `T_UNSCALED_GS` retain the established compact technical meanings. Seventeen formerly over-limit names now fit the 42-byte target, reducing the intentional style-check tail from 338 to 321 names. (ChatGPT-5.6-Sol)
+
+| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
+| --- | ---: | --- | ---: | ---: | ---: |
+| `SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_UNSCALED_GAMESPEED_TO_FOUND` | 61 | `SAS_1STCITY_FOUND_MAX_T_UNSCALED_GS` | 35 | 26 | 42.62% |
+| `SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_REFERENCE_PLOT_PERCENT` | 60 | `SAS_1STCITY_RETURN_REF_PLOT_PCT` | 31 | 29 | 48.33% |
+| `SAS_AI_FOUND_FIRST_CITY_RUNTIME_STARTING_SURROUNDINGS_ADJUSTMENT_ENABLE` | 71 | `SAS_1STCITY_START_SURROUND_ADJ_ON` | 33 | 38 | 53.52% |
+| `SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_FOOD_BONUSES` | 48 | `SAS_1STCITY_GOOD_FOOD_BONUSES` | 29 | 19 | 39.58% |
+| `SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_BEST_6_PLOT_REFERENCE_PERCENT` | 65 | `SAS_1STCITY_GOOD_BEST6_REF_PCT` | 30 | 35 | 53.85% |
+| `SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE` | 50 | `SAS_1STCITY_BAD_FOOD_ENV_SCORE` | 30 | 20 | 40.00% |
+| `SAS_AI_FOUND_FIRST_CITY_LOCAL_RECHECK_MAX_PATH_TURNS_UNSCALED_GAMESPEED` | 71 | `SAS_1STCITY_RECHECK_MAX_T_UNSCALED_GS` | 37 | 34 | 47.89% |
+| `SAS_AI_FOUND_FIRST_CITY_GROWTH_CORE_IMPROVEMENT_VALUE_PERCENT` | 61 | `SAS_1STCITY_CORE_IMPROVE_VALUE_PCT` | 34 | 27 | 44.26% |
+| `SAS_AI_FOUND_FIRST_CITY_SCOUT_UNREVEALED_ENDPOINT_REFERENCE_PLOT_MULTIPLIER` | 75 | `SAS_1STCITY_SCOUT_FOG_END_REF_PLOT_MULT` | 39 | 36 | 48.00% |
+| `SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE` | 59 | `SAS_SETTLER_EXPOSED_FOUND_ESCORT_ON` | 35 | 24 | 40.68% |
+| `SAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE` | 42 | `SAS_SETTLER_CITY_ESCORT_ATTACH_ON` | 33 | 9 | 21.43% |
+| `SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT` | 65 | `SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT` | 39 | 26 | 40.00% |
+| `SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF` | 56 | `SAS_SETTLER_FOUND_BETTER_MIN_VALUE_DIFF` | 39 | 17 | 30.36% |
+| `SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF` | 58 | `SAS_SETTLER_FOUND_BETTER_MIN_PCT_DIFF` | 37 | 21 | 36.21% |
+| `SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_UNREVEALED_ADVANTAGE` | 72 | `SAS_SETTLER_SCOUT_FOG_MIN_UNREVEALED_ADV` | 40 | 32 | 44.44% |
+| `SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_REVEALED_BFC` | 64 | `SAS_SETTLER_SCOUT_FOG_MIN_REVEALED_BFC` | 38 | 26 | 40.62% |
+| `SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_AVERAGE_VALUE_PERCENT` | 73 | `SAS_SETTLER_SCOUT_FOG_MIN_AVG_VALUE_PCT` | 39 | 34 | 46.58% |
+| `SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS_UNSCALED_GAMESPEED` | 87 | `SAS_SETTLER_SCOUT_MAX_EXTRA_T_UNSCALED_GS` | 41 | 46 | 52.87% |
+
+### 2026-10-21 ordinal spelling alignment
+
+The reviewed first-city family uses `SAS_1STCITY_`. Eleven other shipped keys also replace `FIRST` with `1ST`, saving two characters per key and matching the existing `1ST_SETTLER` spelling. Matching lookups and identifiers copied from keys follow the new names; descriptive function/local names and ordinary prose remain unchanged.
+
+One additional key crosses the 42-byte boundary, bringing the remaining style-check violations to 320 after the first-city/Settler batch; the other ten ordinal-only replacements remain above the target. Values, caching and gameplay logic are unchanged. (GPT-6.1-Sol)
+
+| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
+| --- | ---: | --- | ---: | ---: | ---: |
+| `SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY` | 49 | `SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_1ST_ONLY` | 47 | 2 | 4.08% |
+| `SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY` | 43 | `SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_1ST_ONLY` | 41 | 2 | 4.65% |
+| `SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY` | 54 | `SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_1ST_LEADER_ONLY` | 52 | 2 | 3.70% |
+| `SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY` | 48 | `SAS_SEVOPEDIA_MUSIC_LEADER_WAR_1ST_LEADER_ONLY` | 46 | 2 | 4.17% |
+| `SAS_EVALUATE_NAVAL_HEAVY_FIRST_CITY_COASTAL_EXTRA_VALUE` | 55 | `SAS_EVALUATE_NAVAL_HEAVY_1ST_CITY_COASTAL_EXTRA_VALUE` | 53 | 2 | 3.64% |
+| `SAS_EVALUATE_MIN_REQUIRED_GOOD_ENOUGH_FIRST_CITY_BFC_TILES` | 58 | `SAS_EVALUATE_MIN_REQUIRED_GOOD_ENOUGH_1ST_CITY_BFC_TILES` | 56 | 2 | 3.45% |
+| `SAS_AI_WORKER_FIRST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION` | 58 | `SAS_AI_WORKER_1ST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION` | 56 | 2 | 3.45% |
+| `SAS_AI_FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER_ENABLE` | 54 | `SAS_AI_1ST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER_ENABLE` | 52 | 2 | 3.70% |
+| `SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE` | 64 | `SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_1ST_OPTIMIZE` | 62 | 2 | 3.12% |
+| `SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST` | 53 | `SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_1ST` | 51 | 2 | 3.77% |
+| `SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA` | 65 | `SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA` | 63 | 2 | 3.08% |
+
 <a id="ki-1002"></a>
 
 ## KI#1002 - (Fixed AdvCiv initialization regression) FirstContactData could contain uninitialized plot coordinates

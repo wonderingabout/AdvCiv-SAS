@@ -16760,7 +16760,7 @@ int CvPlayerAI::AI_neededWorkers(CvArea const& kArea) const
 		iNeededWorkers = std::max(iNeededWorkers, SAS_minimumAreaWorkerFloor(*this, kArea));
 	// <!-- custom: Several independent production paths deferred to AI_neededWorkers but could still choose a second Worker while the one-city capital was population 1, halting growth.
 	// Keep this as the shared source of truth: until the capital has ever reached the tunable population, the empire needs at most 1 land Worker; normal demand resumes afterward, and losing that Worker still creates a deficit. (GPT-5.5) -->
-	static const int iAdditionalWorkerMinHighestPopulation = std::max(0, GC.getDefineINT("SAS_AI_WORKER_FIRST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION"));
+	static const int iAdditionalWorkerMinHighestPopulation = std::max(0, GC.getDefineINT("SAS_AI_WORKER_1ST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION"));
 	CvCity const* pCapital = getCapital();
 	if (getNumCities() == 1 && pCapital != NULL && pCapital->isArea(kArea) && pCapital->getHighestPopulation() < iAdditionalWorkerMinHighestPopulation)
 		iNeededWorkers = std::min(iNeededWorkers, 1);
@@ -24124,8 +24124,8 @@ void CvPlayerAI::AI_doDiplo()
 
 						// <!-- custom: Prefer a master/vassal-locus source over an outsider only when the shared predicate finds an immediately legal and non-denied internal deal.
 						// This prevents No Tech Trading, non-tradeable and no-broker copies from suppressing a viable outsider offer. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-						static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE");
-						if (bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE && (eBestReceiveTech != NO_TECH || eBestProgressTech != NO_TECH))
+						static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_1ST_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_1ST_OPTIMIZE");
+						if (bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_1ST_OPTIMIZE && (eBestReceiveTech != NO_TECH || eBestProgressTech != NO_TECH))
 						{
 							// <!-- custom: Only re-route when ePlayer is outside our complete master/vassal/sibling-vassal preference locus. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 							if (!kOurTeam.AI_isLocusMember(eTheirTeam))

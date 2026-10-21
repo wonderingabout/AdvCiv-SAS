@@ -540,19 +540,19 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 	<Define>
-		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY</DefineName>
+		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_1ST_ONLY</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY</DefineName>
+		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_1ST_ONLY</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY</DefineName>
+		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_1ST_LEADER_ONLY</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY</DefineName>
+		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_WAR_1ST_LEADER_ONLY</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: set the Sevopedia music item list width in the contents view. (GPT-5.2-Codex).
@@ -1359,7 +1359,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: Optional flat coastal found-value biases on naval-heavy maps.
 	Following the KI#173 scoring changes, save file 420 now chooses the strong Cuzco coastal site with both values at 0, and Japan no longer favored the old tundra-heavy candidates thus a significant naval settling bias no longer seems necessary: keep these disabled by default, or use only a fairly small positive value if an additional strategic preference for coastal access, work boats, contact, trade, galleys, or Moai is wanted. See KI#146. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_EVALUATE_NAVAL_HEAVY_FIRST_CITY_COASTAL_EXTRA_VALUE</DefineName>
+		<DefineName>SAS_EVALUATE_NAVAL_HEAVY_1ST_CITY_COASTAL_EXTRA_VALUE</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<Define>
@@ -1437,7 +1437,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: Minimum number of good-enough non-home BFC slots required before accepting the first-city site.
 	"Good enough" is intentionally weaker than truly good: it includes usable land that is not very bad and reachable/already-improved visible water bonuses, but not ordinary coast/ocean. (ChatGPT-5.5) -->
 	<Define>
-		<DefineName>SAS_EVALUATE_MIN_REQUIRED_GOOD_ENOUGH_FIRST_CITY_BFC_TILES</DefineName>
+		<DefineName>SAS_EVALUATE_MIN_REQUIRED_GOOD_ENOUGH_1ST_CITY_BFC_TILES</DefineName>
 		<iDefineIntVal>13</iDefineIntVal>
 	</Define>
 
@@ -1527,28 +1527,28 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: first-city settling may roam this many turns before heavy distance penalties apply.
 	Bad capitals are far more damaging than a few turns of delay; increasing from the hardcoded 5 to 7 gives starts surrounded by plains/tundra/luxuries enough room to reach nearby high-food sites. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_UNSCALED_GAMESPEED_TO_FOUND</DefineName>
+		<DefineName>SAS_1STCITY_FOUND_MAX_T_UNSCALED_GS</DefineName>
 		<iDefineIntVal>7</iDefineIntVal>
 	</Define>
 	<!-- custom: First-city return cost per path turn, as a percentage of one sustainable productive reference plot (citizen food consumption + 1 Production under the shared weights).
 	This follows the found-value scale without altering site valuation; the same one-turn value also serves as the opportunity cost that a new scouting step must beat after its uncertain information gain is discounted by known-capital quality.
 	Default 125% resolves to the tested 150 that preserved Berlin, Karakorum, and Cuzco; 0 ignores return/scouting delay. See also KI#144.2. (GPT-5.5 + GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_REFERENCE_PLOT_PERCENT</DefineName>
+		<DefineName>SAS_1STCITY_RETURN_REF_PLOT_PCT</DefineName>
 		<iDefineIntVal>125</iDefineIntVal>
 	</Define>
 	<!-- custom: In save file 442, map-generation surroundings penalties reversed Berlin's stronger revealed site: (33,13) scored 4569 then -1482, versus (35,11) at 3934 then -480.
 	Default 0 keeps assigned-start spacing in map generation but removes its hidden range-6 terrain/other-start bias from live Settler choices.
 	Set to 1 for Base AdvCiv runtime behavior. See KI#173. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_FOUND_FIRST_CITY_RUNTIME_STARTING_SURROUNDINGS_ADJUSTMENT_ENABLE</DefineName>
+		<DefineName>SAS_1STCITY_START_SURROUND_ADJ_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: during first-city roaming, stop wandering once the current foundable plot has this many revealed food bonuses in its BFC.
 	This prevents the settler from walking through an already strong pig+corn/fresh-water-style capital while chasing more unknown information.
 	Set to 0 to disable. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_FOOD_BONUSES</DefineName>
+		<DefineName>SAS_1STCITY_GOOD_FOOD_BONUSES</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: A poor whole BFC can still have a strong early core.
@@ -1557,7 +1557,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Five SAS48 tests separated needless scouts with cores 763/800/802 from a useful Zulu scout at 702.
 	0 disables this override. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_BEST_6_PLOT_REFERENCE_PERCENT</DefineName>
+		<DefineName>SAS_1STCITY_GOOD_BEST6_REF_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: First-city roaming treats a candidate as bad at this revealed non-home food-deficit score.
@@ -1565,46 +1565,46 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Productive Grass Hills are neutral, food surpluses offset deficits, and citizen-unworkable Peak/Ice adds one extra point for its dead BFC slot.
 	Default 5 reflects bonus food now offsetting the score (was 7). (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE</DefineName>
+		<DefineName>SAS_1STCITY_BAD_FOOD_ENV_SCORE</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- custom: Local first-city rechecks compare complete site values and worked-plot cores without charging travel twice.
 	Default 2 covers the nearby neighborhood; the separate scouting/return window governs longer travel.
 	Unscaled because path turns already use the active game speed. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_FOUND_FIRST_CITY_LOCAL_RECHECK_MAX_PATH_TURNS_UNSCALED_GAMESPEED</DefineName>
+		<DefineName>SAS_1STCITY_RECHECK_MAX_T_UNSCALED_GS</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: Percentage of the combined best-6 and best-10 worked-plot improvement added when a nearby first-city candidate improves both cores.
 	Default 100 preserves the tested Wang Kon behavior; 0 leaves local rechecks driven only by complete found value. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_FOUND_FIRST_CITY_GROWTH_CORE_IMPROVEMENT_VALUE_PERCENT</DefineName>
+		<DefineName>SAS_1STCITY_CORE_IMPROVE_VALUE_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: Extra sustainable-reference-plot units for a safe first-city scout step ending in fog; nearby reveals and known site prospects remain separate.
 	Default 5 preserves tested bounded scouting. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_FOUND_FIRST_CITY_SCOUT_UNREVEALED_ENDPOINT_REFERENCE_PLOT_MULTIPLIER</DefineName>
+		<DefineName>SAS_1STCITY_SCOUT_FOG_END_REF_PLOT_MULT</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- custom: Block dangerous exposed post-capital founding by an unescorted Settler group.
 	This replaced the old reckless early-settling override after BBAI save-file 450 showed Nobamba founded without a defender and razed; follow-up logs showed guarded founding instead.
 	Save-file 449 later showed that requiring an escort even with no plot danger left a Settler exposed on its valid site for more than 100 turns, so danger-free founding in place remains allowed. See KI#179. (ChatGPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE</DefineName>
+		<DefineName>SAS_SETTLER_EXPOSED_FOUND_ESCORT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Let an unescorted Settler parked in its own city permanently attach one healthy local defender before exposed expansion.
 	Save-file 450 showed this prevents frozen expansion and lone Settlers.
 	The practical safety rule is the remaining-defenders value below: at 2, a city with 3 healthy defenders can lend 1 and keep 2. See KI#179. (ChatGPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE</DefineName>
+		<DefineName>SAS_SETTLER_CITY_ESCORT_ATTACH_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum healthy city defenders to keep behind after reassigning one local defender as escort for an unescorted Settler; if `healthy defenders - 1 < this value`, the Settler waits instead.
 	This remaining-defenders value is the practical safety check even when `AI_neededDefenders` says there is no formal spare defender: a city left with e.g. 2 healthy defenders should usually be safe enough, while founding a guarded city sooner is strategically stronger than parking the Settler indefinitely. See KI#179. (ChatGPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT</DefineName>
+		<DefineName>SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: Coordinate first-Settler production with attachment safety: prepare a spare healthy defender only within the max-turn bound below; slow capitals train the Settler and use post-completion repair.
@@ -1627,32 +1627,32 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	In save file 450, Zulu city 3 founded weak tundra-heavy Nobamba at (10,47) after a Barbarian city shrank its target area despite a much better reachable site.
 	These thresholds prevent that trap without chasing tiny differences; set either very high to disable its check. See KI#180. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF</DefineName>
+		<DefineName>SAS_SETTLER_FOUND_BETTER_MIN_VALUE_DIFF</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF</DefineName>
+		<DefineName>SAS_SETTLER_FOUND_BETTER_MIN_PCT_DIFF</DefineName>
 		<iDefineIntVal>8</iDefineIntVal>
 	</Define>
 	<!-- custom: Post-capital Settlers can be one tile from a promising alternative that currently scores slightly lower only because more of its BFC is still fogged.
 	Instead of founding the barely-higher known site immediately, optionally spend a small extra move as exploration, then let normal city-site scoring recalculate next turn.
 	Set the unrevealed advantage to 0 to disable. See KI#185. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_UNREVEALED_ADVANTAGE</DefineName>
+		<DefineName>SAS_SETTLER_SCOUT_FOG_MIN_UNREVEALED_ADV</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_REVEALED_BFC</DefineName>
+		<DefineName>SAS_SETTLER_SCOUT_FOG_MIN_REVEALED_BFC</DefineName>
 		<iDefineIntVal>12</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_AVERAGE_VALUE_PERCENT</DefineName>
+		<DefineName>SAS_SETTLER_SCOUT_FOG_MIN_AVG_VALUE_PCT</DefineName>
 		<iDefineIntVal>105</iDefineIntVal>
 	</Define>
 	<!-- custom: Maximum extra path turns allowed for this post-capital Settler scouting detour compared with the current selected found target.
 	Default 3 is intentionally local but not one-tile-only: save-file 450 testing preserved the corrected uMgungundlovu (17,40) choice, did not create obvious Settler parking by turn 101, and still requires the other promising-site gates above, so ordinary city founding should not turn into broad wandering. See KI#185. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS_UNSCALED_GAMESPEED</DefineName>
+		<DefineName>SAS_SETTLER_SCOUT_MAX_EXTRA_T_UNSCALED_GS</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 	<!-- custom: Preferred capital population before the first trained Settler.
@@ -2341,7 +2341,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Highest-ever population keeps the limit stable after whipping or starvation.
 	Set to 0 to disable this early one-Worker limit. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_WORKER_FIRST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION</DefineName>
+		<DefineName>SAS_AI_WORKER_1ST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- custom: Maximum fresh build time, expressed in Normal-speed-equivalent turns, that is considered fast enough for an AI city to train a non-combat food-production unit locally.
@@ -2367,7 +2367,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	After this one economic unit, the unchanged Base AdvCiv no-defender priority resumes.
 	Set to 0 to always produce the defender first. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER_ENABLE</DefineName>
+		<DefineName>SAS_AI_1ST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Value subtracted for each estimated travel turn when workers compare the best available jobs across cities.
@@ -3484,7 +3484,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 	<!-- custom: Long_Comments_XML.txt #217 -->
 	<Define>
-		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE</DefineName>
+		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_1ST_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
@@ -3859,7 +3859,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 	<!-- custom: high value so a promotion is ideally always picked first (same) -->
 	<Define>
-		<DefineName>SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST</DefineName>
+		<DefineName>SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_1ST</DefineName>
 		<iDefineIntVal>100000</iDefineIntVal>
 	</Define>
 
@@ -3871,7 +3871,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	If no suitable Instructor join is available, the normal Great General fallback chain remains available.
 	This policy is separate from the inherited AdvCiv safety fixes documented in KI#204. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA</DefineName>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
 	<!-- custom: multiply the valuing of a great general being transformed into a great general by this value (was 4 if met civs, 2 if didn't meet any civ in base advciv (note: new value applies regardless of civs we met to simplify code a bit)) -->

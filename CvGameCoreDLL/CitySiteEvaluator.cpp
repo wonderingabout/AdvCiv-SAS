@@ -1873,7 +1873,7 @@ int AIFoundValue::evaluate()
 	{
 		// <!-- custom: regardless of coastal status, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, lower distance-to-capital maintenance cost, stronger early position for later expansions, etc if any other advantages, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion; as for value we have 20 bfc tiles (minus home plot) if i'm not mistaken, so if it has more than 8 water tiles no bonus, or equivalent, so fewer than the required good-enough first-city BFC tiles changes/rejects the site (ChatGPT-5.5) -->
 
-		static const int iMinRequiredGoodEnoughFirstCityBFCTiles = GC.getDefineINT("SAS_EVALUATE_MIN_REQUIRED_GOOD_ENOUGH_FIRST_CITY_BFC_TILES");
+		static const int iMinRequiredGoodEnoughFirstCityBFCTiles = GC.getDefineINT("SAS_EVALUATE_MIN_REQUIRED_GOOD_ENOUGH_1ST_CITY_BFC_TILES");
 
 		if (iGoodEnoughFirstCityBFCTiles + iUnrevealedTiles < iMinRequiredGoodEnoughFirstCityBFCTiles)
 		{
@@ -1981,7 +1981,7 @@ int AIFoundValue::evaluate()
 		iValue = adjustToLandAreaBoundary(iValue);
 	iBreakdownLandBoundary = iValue - iBeforeLandBoundary;
 	const int iBeforeStartingSurroundings = iValue;
-	static const bool bRuntimeStartingSurroundings = GC.getDefineBOOL("SAS_AI_FOUND_FIRST_CITY_RUNTIME_STARTING_SURROUNDINGS_ADJUSTMENT_ENABLE");
+	static const bool bRuntimeStartingSurroundings = GC.getDefineBOOL("SAS_1STCITY_START_SURROUND_ADJ_ON");
 	// <!-- custom: adjustToStartingSurroundings uses range-6 terrain and every assigned starting plot to spread civilizations during all-seeing map generation/normalization, so isAllSeeing keeps that use enabled.
 	// Once play begins, the live first settler should choose its best revealed site even if that moves nearer to or farther from a neighbor; only the opt-in SAS define restores this modifier at runtime.
 	// In the Berlin test (save file 442), (33,13) led (35,11) by 4569 to 3934 beforehand, but its -1482 adjustment reversed the choice. See KI#173. (GPT-5.5) -->
@@ -2237,7 +2237,7 @@ int AIFoundValue::evaluate()
 	if (!kPlayer.isHuman() && !kSet.isNormalizing() && bCoastal &&
 			kGame.isNavalHeavyMapnameCached() && !kGame.isLandHeavyMapnameCached())
 	{
-		static const int iNavalHeavyFirstCityCoastalExtraValue = GC.getDefineINT("SAS_EVALUATE_NAVAL_HEAVY_FIRST_CITY_COASTAL_EXTRA_VALUE");
+		static const int iNavalHeavyFirstCityCoastalExtraValue = GC.getDefineINT("SAS_EVALUATE_NAVAL_HEAVY_1ST_CITY_COASTAL_EXTRA_VALUE");
 		static const int iNavalHeavyLaterCoastalExtraValue = GC.getDefineINT("SAS_EVALUATE_NAVAL_HEAVY_OTHER_CITIES_COASTAL_EXTRA_VALUE");
 		const int iNavalHeavyCoastalExtraValue = (kSet.isStartingLoc() ?
 				iNavalHeavyFirstCityCoastalExtraValue : iNavalHeavyLaterCoastalExtraValue);
