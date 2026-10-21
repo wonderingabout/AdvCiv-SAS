@@ -559,10 +559,10 @@ struct SASLocalAreaRivalContext
 // Existing completion-time scoring, normal unit/Settler/building competition and stored-production continuation remain authoritative. See KI#48.20. (ChatGPT-5.6-Sol) -->
 static int SAS_getWorldWonderSelectionValuePercent(CvCityAI const& kCity, int* piLocalExposurePercent = NULL, bool* pbLocalExposureApplies = NULL)
 {
-	static int const iEagernessPercent = std::max(0, std::min(200, GC.getDefineINT("SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_EAGERNESS_PERCENT")));
-	static bool const bLocalExposureOptimize = GC.getDefineBOOL("SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_EXPOSURE_OPTIMIZE");
-	static int const iLocalExposurePercent = std::max(0, std::min(100, GC.getDefineINT("SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_EXPOSURE_VALUE_PERCENT")));
-	static int const iDominanceMinPowerPercent = std::max(0, GC.getDefineINT("SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_DOMINANCE_MIN_POWER_PERCENT"));
+	static int const iEagernessPercent = std::max(0, std::min(200, GC.getDefineINT("SAS_BUILD_PICK_WW_EAGERNESS_PCT")));
+	static bool const bLocalExposureOptimize = GC.getDefineBOOL("SAS_BUILD_PICK_WW_LOCAL_EXPOSURE_ON");
+	static int const iLocalExposurePercent = std::max(0, std::min(100, GC.getDefineINT("SAS_BUILD_PICK_WW_LOCAL_EXPOSURE_PCT")));
+	static int const iDominanceMinPowerPercent = std::max(0, GC.getDefineINT("SAS_BUILD_PICK_WW_LOCAL_DOM_MIN_PWR_PCT"));
 
 	int iAppliedLocalExposurePercent = 100;
 	bool bLocalExposureApplies = false;
@@ -7768,8 +7768,8 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 			if (gBuildingProductionLogLevel >= 3)
 			{
 				SASLocalAreaRivalContext const kLocalRivals(kOwner, getArea(), false);
-				static int const iEagernessPercent = std::max(0, std::min(200, GC.getDefineINT("SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_EAGERNESS_PERCENT")));
-				static int const iDominanceMinPowerPercent = std::max(0, GC.getDefineINT("SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_DOMINANCE_MIN_POWER_PERCENT"));
+				static int const iEagernessPercent = std::max(0, std::min(200, GC.getDefineINT("SAS_BUILD_PICK_WW_EAGERNESS_PCT")));
+				static int const iDominanceMinPowerPercent = std::max(0, GC.getDefineINT("SAS_BUILD_PICK_WW_LOCAL_DOM_MIN_PWR_PCT"));
 				CvString szSignature;
 				szSignature.Format("%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d",
 					iValueBeforeSASWorldWonderOpportunityCost, iValue, iWorldWonderSelectionValuePercent, iWorldWonderLocalExposurePercent,
@@ -9203,7 +9203,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 	const bool bWonder = (bWorldWonder || bNationalWonder);
 
 	// <!-- custom: Prospective domain applicability can invalidate the ordinary construction-value cache, so this one domain-policy switch must remain available before the cache decision. (ChatGPT-5.6-Sol) -->
-	static const bool bDomainProductionApplicabilityOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_PRODUCTION_MODIFIER_APPLICABILITY_OPTIMIZE");
+	static const bool bDomainProductionApplicabilityOptimize = GC.getDefineBOOL("SAS_BUILD_VAL_DOMAIN_PROD_APPLIES_ON");
 
 	// <!-- custom: in autoplay AI doesn't build shrines (Mahabodhi, Pagan Shrine, etc.) until late game after world wonders ASAP fix.
 	// Shrines/corporations have iCost=-1, so no point trying to save hammers.
@@ -9414,9 +9414,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 
 	// <!-- custom: Domain-limited military-production effects share the authoritative AI_buildUnitProb demand estimate and K-Mod water-world context.
 	// Drydock-style sea production/XP keep their validated formulas; DOMAIN_LAND was validated with temporarily land-scoped Heroic Epic laboratory XML. See KI#48.11-KI#48.13. (ChatGPT-5.6-Sol) -->
-	static const bool bLandProductionThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_LAND_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE");
-	static const bool bSeaProductionThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_SEA_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE");
-	static const bool bSeaExperienceThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT_OPTIMIZE");
+	static const bool bLandProductionThroughputOptimize = GC.getDefineBOOL("SAS_BUILD_VAL_LAND_PROD_THROUGHPUT_ON");
+	static const bool bSeaProductionThroughputOptimize = GC.getDefineBOOL("SAS_BUILD_VAL_SEA_PROD_THROUGHPUT_ON");
+	static const bool bSeaExperienceThroughputOptimize = GC.getDefineBOOL("SAS_BUILD_VAL_SEA_FREE_XP_THROUGHPUT_ON");
 	bool const bNeedLandThroughputContext = (bLandProductionThroughputOptimize && kBuilding.getDomainProductionModifier(DOMAIN_LAND) != 0);
 	bool const bNeedSeaThroughputContext =
 			(bSeaProductionThroughputOptimize && kBuilding.getDomainProductionModifier(DOMAIN_SEA) != 0) ||
@@ -9649,8 +9649,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// <!-- custom: These immutable XML weights are cached lazily inside the exercised health-relief path.
 				// The severity percentage applies to the average before/after deficit, while starvation relief is measured as a percentage of one citizen value per food deficit directly closed.
 				// Defaults 10 and 100 exactly preserve the validated KI#48.6 formula; 0 disables the corresponding added urgency without removing inherited health value. (GPT-5.6-Sol) -->
-				static int const iHealthSeverityUrgencyPercent = std::max(0, GC.getDefineINT("SAS_AI_BUILDING_VALUE_HEALTH_RELIEF_AVERAGE_DEFICIT_URGENCY_PERCENT"));
-				static int const iHealthStarvationUrgencyPercent = std::max(0, GC.getDefineINT("SAS_AI_BUILDING_VALUE_HEALTH_RELIEF_STARVATION_CITIZEN_VALUE_PERCENT"));
+				static int const iHealthSeverityUrgencyPercent = std::max(0, GC.getDefineINT("SAS_BUILD_VAL_HEALTH_AVG_DEF_URGENCY_PCT"));
+				static int const iHealthStarvationUrgencyPercent = std::max(0, GC.getDefineINT("SAS_BUILD_VAL_HEALTH_STARVE_RELIEF_PCT"));
 				int const iHealthRelief = -iWasteDelta;
 				int const iHealthDeficitBefore = std::max(0, -iFutureHealthLevel);
 				int const iHealthDeficitAfter = std::max(0, -(iFutureHealthLevel + iBuildingActualHealth));
@@ -10237,7 +10237,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					kOwner.AI_getNumAIUnits(UNITAI_WORKER)) / 10);
 
 			if (bLogBuildingValueDetailsThisPass) kDiagnostics->iMilitaryProductionBefore = iValue;
-			static const bool bMilitaryProductionThroughputOptimize = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_MILITARY_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE");
+			static const bool bMilitaryProductionThroughputOptimize = GC.getDefineBOOL("SAS_BUILD_VAL_MIL_PROD_THROUGHPUT_ON");
 			if (bMilitaryProductionThroughputOptimize && iMilitaryProductionModifier != 0)
 			{
 				// <!-- custom: K-Mod/AdvC valued a positive MilitaryProductionModifier mostly by modifier size and ordinal production rank, which cannot distinguish nearly equal 100/99/98/97-hammer cities from 100/10/3/1 and also ignores negative modifiers and pre-contact positive value.
@@ -10249,7 +10249,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 				// <!-- custom: A one-per-player positive military-production National Wonder is itself a specialization decision, so the empire-wide ordinary unit-production share understates how heavily its chosen city will use the modifier after construction.
 				// The KI#48.16 0/75/100 Pangaea validation found the full-specialization default moved Heroic Epic into useful production cities much earlier while every accepted build remained 1-6 turns and ordinary production competition still rejected most opportunities.
 				// Keep the tested floor XML-tunable and additive rather than reviving the old rank bonus or force-first sentinel. See KI#48.16. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-				static const int iMilitaryNationalWonderUnitShareFloorPercent = range(GC.getDefineINT("SAS_AI_BUILDING_VALUE_MILITARY_NATIONAL_WONDER_UNIT_PRODUCTION_SHARE_FLOOR_PERCENT"), 0, 100);
+				static const int iMilitaryNationalWonderUnitShareFloorPercent = range(GC.getDefineINT("SAS_BUILD_VAL_MIL_NW_UNIT_SHARE_MIN_PCT"), 0, 100);
 				int const iEffectiveMilitaryProductionShare = (bNationalWonder && iMilitaryProductionModifier > 0 ? std::max(iMilitaryProductionShare, iMilitaryNationalWonderUnitShareFloorPercent) : iMilitaryProductionShare);
 				// <!-- custom: Mirror K-Mod's ordinary yield-modifier allowance for near-term growth. (ChatGPT-5.6-Sol) -->
 				int const iMilitaryProductionBaseRate = iBaseHammersPerTurn + 2;

@@ -34280,6 +34280,31 @@ One of these 11 originals moves within the 42-byte target, reducing the style ta
 | `SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST` | 53 | `SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_1ST` | 51 | 2 | 3.77% |
 | `SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA` | 65 | `SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_1ST_THROUGH_ERA` | 63 | 2 | 3.08% |
 
+### 2026-10-21 building valuation and selection family cleanup
+
+This cleanup renames 12 related building-evaluation settings under two concise families: `SAS_BUILD_VAL_` for `AI_buildingValue` scoring inputs and `SAS_BUILD_PICK_` for World-Wonder candidate-selection policy. Dropping the implicit `AI` and function-shaped prefixes leaves room to keep the actual distinctions visible.
+
+The health keys retain the average-deficit urgency and starvation-relief roles; military/domain keys keep production throughput, National-Wonder unit-share, applicability and sea free-XP distinctions. World-Wonder selection keeps eagerness, local exposure and local-dominance power semantics.
+
+`PCT`, `MIN`, `XP`, `NW` and `_ON` provide compact technical meaning without changing the underlying policy.
+
+All 12 original names exceeded 42 bytes, reducing the intentional style tail from 320 to 308. XML values, caching and gameplay logic are unchanged. Existing C++ locals remain descriptive rather than being forced to mirror the shortened XML keys. (ChatGPT-5.6-Sol)
+
+| Original name | Original bytes | Final reviewed name | Final bytes | Bytes saved | Reduction |
+| --- | ---: | --- | ---: | ---: | ---: |
+| `SAS_AI_BUILDING_VALUE_HEALTH_RELIEF_AVERAGE_DEFICIT_URGENCY_PERCENT` | 67 | `SAS_BUILD_VAL_HEALTH_AVG_DEF_URGENCY_PCT` | 40 | 27 | 40.30% |
+| `SAS_AI_BUILDING_VALUE_HEALTH_RELIEF_STARVATION_CITIZEN_VALUE_PERCENT` | 68 | `SAS_BUILD_VAL_HEALTH_STARVE_RELIEF_PCT` | 38 | 30 | 44.12% |
+| `SAS_AI_BUILDING_VALUE_MILITARY_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE` | 70 | `SAS_BUILD_VAL_MIL_PROD_THROUGHPUT_ON` | 36 | 34 | 48.57% |
+| `SAS_AI_BUILDING_VALUE_MILITARY_NATIONAL_WONDER_UNIT_PRODUCTION_SHARE_FLOOR_PERCENT` | 82 | `SAS_BUILD_VAL_MIL_NW_UNIT_SHARE_MIN_PCT` | 39 | 43 | 52.44% |
+| `SAS_AI_BUILDING_VALUE_DOMAIN_PRODUCTION_MODIFIER_APPLICABILITY_OPTIMIZE` | 71 | `SAS_BUILD_VAL_DOMAIN_PROD_APPLIES_ON` | 36 | 35 | 49.30% |
+| `SAS_AI_BUILDING_VALUE_DOMAIN_LAND_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE` | 73 | `SAS_BUILD_VAL_LAND_PROD_THROUGHPUT_ON` | 37 | 36 | 49.32% |
+| `SAS_AI_BUILDING_VALUE_DOMAIN_SEA_PRODUCTION_MODIFIER_THROUGHPUT_OPTIMIZE` | 72 | `SAS_BUILD_VAL_SEA_PROD_THROUGHPUT_ON` | 36 | 36 | 50.00% |
+| `SAS_AI_BUILDING_VALUE_DOMAIN_SEA_FREE_EXPERIENCE_THROUGHPUT_OPTIMIZE` | 68 | `SAS_BUILD_VAL_SEA_FREE_XP_THROUGHPUT_ON` | 39 | 29 | 42.65% |
+| `SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_EAGERNESS_PERCENT` | 61 | `SAS_BUILD_PICK_WW_EAGERNESS_PCT` | 31 | 30 | 49.18% |
+| `SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_EXPOSURE_OPTIMIZE` | 67 | `SAS_BUILD_PICK_WW_LOCAL_EXPOSURE_ON` | 35 | 32 | 47.76% |
+| `SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_EXPOSURE_VALUE_PERCENT` | 72 | `SAS_BUILD_PICK_WW_LOCAL_EXPOSURE_PCT` | 36 | 36 | 50.00% |
+| `SAS_AI_BEST_BUILDING_THRESHOLD_WORLD_WONDER_LOCAL_DOMINANCE_MIN_POWER_PERCENT` | 77 | `SAS_BUILD_PICK_WW_LOCAL_DOM_MIN_PWR_PCT` | 39 | 38 | 49.35% |
+
 <a id="ki-1002"></a>
 
 ## KI#1002 - (Fixed AdvCiv initialization regression) FirstContactData could contain uninitialized plot coordinates
