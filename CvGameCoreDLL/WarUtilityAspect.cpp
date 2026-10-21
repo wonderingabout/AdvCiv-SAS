@@ -3118,7 +3118,7 @@ int Risk::preEvaluate()
 			bool const bVictoryDenialContactCandidate = (bOrdinaryHardReject && iMinContact != INT_MAX && !bNoLift);
 			int const iTargetMaxVictoryStage = (bVictoryDenialContactCandidate ? getSASTeamMaxVictoryStage(eTarget) : -1);
 			int const iTargetVictoryCountdown = (bVictoryDenialContactCandidate ? GET_TEAM(eTarget).AI_getLowestVictoryCountdown() : -1);
-			static const bool bStage3SpaceContactBypassEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_CONTACT_BYPASS_ENABLE");
+			static const bool bStage3SpaceContactBypassEnable = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_S3_SPACE_BYPASS_ON");
 			bool const bWiderVictoryDenialContactAllowed = (bStage3SpaceContactBypassEnable || iTargetMaxVictoryStage >= 4 || iTargetVictoryCountdown >= 0);
 			bool const bVictoryDenialContactBypass = (bVictoryDenialContactCandidate && bWiderVictoryDenialContactAllowed && kOurTeam.uwai().isSASVictoryDenialDirectWarAllowed(eTarget, iTargetMaxVictoryStage, bNaval, iMinContact));
 			// <!-- custom: In a confirming save-file 450 run, Holy Rome chose a profitable target at 3 cached path turns, but an Arabian road was pillaged two turns later and raised contact to 4; the hard reject then canceled the direct plan.

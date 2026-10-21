@@ -4075,32 +4075,32 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: Let UWAI treat rivals close to any enabled victory as urgent war targets instead of passively watching them win.
 	BBAI save-file 450 testing showed Egypt/Ramesses winning Space Race at turn 290 while other AIs repeatedly evaluated the threat but never selected a real war plan; this applies to all victory countdowns/stage-4 threats, not only Space Race. See KI#184. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_ENABLE</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Normal-speed countdown window for the victory-denial utility boost, scaled by VictoryDelayPercent to match the victory countdown itself.
 	For example, 20 means 20 turns on Normal and 40 on Marathon (200%); the boost grows as the countdown gets shorter.
 	Stage-4 targets without an active countdown only get the smaller stage-4 boost below. (GPT-5.5 + GPT-5.6 Thinking) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_BOOST</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_BOOST_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<!-- custom: Normal-speed maximum countdown where the victory-denial rule may convert war preparation into direct limited/total war if distance and power gates also pass; scaled by VictoryDelayPercent to preserve the same countdown phase across game speeds.
 	Save-file 450 showed even weak Lincoln nearly winning Space against much stronger top dogs; 20 Normal-speed turns is deliberately enough time for attackers to disrupt a victory. See KI#184. (GPT-5.5 + GPT-5.6 Thinking) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_DIRECT_WAR</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_DIRECT_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<!-- custom: Normal-speed maximum countdown where victory-denial wars refuse ordinary peace, scaled by VictoryDelayPercent to preserve the same countdown phase across game speeds.
 	In save-file 450, anti-spaceship wars fired but ended two turns later through peace treaties, letting Lincoln still threaten Space Race; if a target is still this close to winning, the emergency war should not be peacefully cancelled immediately. See KI#184. (GPT-5.5 + GPT-5.6 Thinking) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_REFUSE_PEACE</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<!-- custom: Also refuse peace with stage-4 victory threats before countdown starts.
 	After earlier victory-denial changes stopped Lincoln, Egypt still won Space because stage-4 anti-spaceship wars ended after 1-2 turns before Egypt's countdown existed; this keeps the emergency war active through the pre-countdown disruption window too. See KI#184. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_REFUSE_STAGE4_PEACE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Space-specific pre-countdown threat threshold.
@@ -4108,75 +4108,75 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Save-file 452 then showed that a raw 10-parts threshold or 75% completion could still fire too late in a fast DeityPlus Space race: Churchill had 8/16 parts by T230 and won on T250.
 	Treat stage-3 Space as an earlier warning once the spaceship is at least this complete; 0 disables this stage-3 Space extension. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_PARTS_PERCENT_THRESHOLD</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_S3_SPACE_MIN_PARTS_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<!-- custom: Stage-3 Space pre-countdown pressure only applies to the Space-progress leader or teams within this many spaceship parts of the leader.
 	This avoids overreacting to every Apollo builder while still catching close multi-contender races like save-file 452, where Egypt and England were both serious threats. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_LEADER_PART_MARGIN</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_S3_SPACE_LEADER_MARGIN</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: Maximum utility added by the countdown part of victory denial.
 	It scales up as the countdown approaches 0; e.g. with max countdown 20 and this set to 600, a 10-turn countdown gives roughly half the boost plus any stage-4 boost. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_COUNTDOWN_UTILITY_BOOST</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_COUNTDOWN_UTILITY_BOOST</DefineName>
 		<iDefineIntVal>600</iDefineIntVal>
 	</Define>
 	<!-- custom: Utility added for any stage-4 victory threat even without an active countdown, so the AI can react before the final countdown while avoiding broad stage-3 dogpiles. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_STAGE4_UTILITY_BOOST</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_STAGE4_UTILITY_BOOST</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<!-- custom: Utility added for stage-3 Space threats that already have high spaceship completion and near-leader Space progress.
 	This is narrower than a generic stage-3 victory boost: save-file 450's Arabia branch showed that direct war at the final countdown could come too late, and save-file 452's Churchill win showed that fast Space races can need pressure even before 10 raw parts. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_UTILITY_BOOST</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_S3_SPACE_UTILITY_BOOST</DefineName>
 		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
 	<!-- custom: Allow direct victory-denial war against weak/near stage-4 targets even before a countdown exists.
 	Save-file 450 showed Lincoln at 11 spaceship parts before launch; waiting for countdown made the later war too late to matter.
 	Power, distance, and land-target gates still apply. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE4_ENABLE</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_DIRECT_STAGE4_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Allow direct victory-denial war against weak/near stage-3 Space threats once the configured Space-completion and leader-gap thresholds are reached.
 	Power, distance, land-target and normal UWAI contact gates still apply by default; this starts a close Arabia/Churchill-style response before the final countdown without making every Space 3 target an automatic war. (GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_ENABLE</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_DIRECT_S3_SPACE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Allow a qualifying stage-3 Space threat to use the wider SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE instead of UWAI's normal contact limit.
+	<!-- custom: Allow a qualifying stage-3 Space threat to use the wider SAS_UWAI_VICT_DENY_DIRECT_MAX_DISTANCE instead of UWAI's normal contact limit.
 	Disabled by default: save-file 449 showed that unlocking this at only 8/16 spaceship parts caused four independent declarations, followed by three vassals joining, and eliminated India before launch.
 	Stage 4 and launched countdowns use the wider emergency distance independently of this setting. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_CONTACT_BYPASS_ENABLE</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_S3_SPACE_BYPASS_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Refuse ordinary peace with stage-3 Space threats once the configured Space-completion and leader-gap thresholds are reached.
 	This complements direct-war pressure; without peace refusal, an earlier emergency war can still be cancelled before countdown/stage-4 gates activate. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE3_SPACE_PEACE_ENABLE</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_REFUSE_S3_SPACE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Direct victory-denial war is only allowed if the target's defensive power is at most this percent of our team power.
 	Higher values make the AI more willing to try desperate disruption wars before losing. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_TARGET_POWER_PERCENT</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_DIRECT_MAX_POWER_PCT</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<!-- custom: Direct victory-denial war is only allowed if nearest cities are within this distance.
 	Farther or naval-heavy threats can still receive the utility boost, but normal preparation remains safer than a blind direct war. (GPT-5.5) -->
 	<!-- custom: The AdvCiv-SAS war-target contact guard also uses this limit in cached path turns for an otherwise eligible emergency, so its normal shorter limit cannot veto the same direct-war policy. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_DIRECT_MAX_DISTANCE</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 	<!-- custom: Percent of normal avoid-war hesitation kept after the victory-denial boost fires.
 	0 means imminent victory threats can ignore personality/friendship hesitation; 100 keeps ordinary UWAI avoid-war hesitation. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_AVOID_WAR_HESITATION_PERCENT</DefineName>
+		<DefineName>SAS_UWAI_VICT_DENY_AVOID_HESITATION_PCT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Additive ordinary target-city value for the capital of an AI at Space victory stage 4 before its launch countdown begins.

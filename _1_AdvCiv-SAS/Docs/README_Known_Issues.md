@@ -34248,6 +34248,38 @@ All 13 formerly over-limit names now fit the 42-byte target, reducing the intent
 | `SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_TOTAL_VALUE_LOSS_PCT_PER_ANARCHY_TURN` | 77 | `SAS_CIVICVAL_UNLIM_SPEC_ANARCHY_PCT_PER_T` | 41 | 36 | 46.75% |
 | `SAS_AI_CIVIC_VALUE_SPEC_COMMERCE_WEIGHT_TO_MULT_TONING_DOWN_PERCENT` | 67 | `SAS_CIVICVAL_SPEC_COM_WEIGHT_SCALE_PCT` | 38 | 29 | 43.28% |
 
+### 2026-10-21 UWAI victory-denial family batch
+
+This cleanup renames all 17 `SAS_UWAI_VICTORY_DENIAL_*` settings under the shared `SAS_UWAI_VICT_DENY_` family. The shorter family label keeps the subsystem recognizable while leaving room for direct-war, peace-refusal, stage-3 Space, utility, power, distance, percentage and Normal-speed turn distinctions.
+
+XML values and gameplay logic are unchanged. The already-short master toggle moves with its siblings for family consistency.
+
+The directly mirrored `bSASUWAIVictoryDenialEnable` caches become `bSASUWAIVictoryDenialOn`; other descriptive locals remain unchanged.
+
+The compact `S3_SPACE` form is used only where the surrounding family already identifies stage-3 Space victory pressure. `T_NORM_GS`, `PCT` and `_ON` retain the established naming conventions.
+
+Sixteen formerly over-limit names now fit the 42-byte target, reducing the intentional style-check tail from 354 to 338 names. (ChatGPT-5.6-Sol)
+
+| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
+| --- | ---: | --- | ---: | ---: | ---: |
+| `SAS_UWAI_VICTORY_DENIAL_ENABLE` | 30 | `SAS_UWAI_VICT_DENY_ON` | 21 | 9 | 30.00% |
+| `SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_BOOST` | 66 | `SAS_UWAI_VICT_DENY_BOOST_MAX_T_NORM_GS` | 38 | 28 | 42.42% |
+| `SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_DIRECT_WAR` | 71 | `SAS_UWAI_VICT_DENY_DIRECT_MAX_T_NORM_GS` | 39 | 32 | 45.07% |
+| `SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_REFUSE_PEACE` | 73 | `SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS` | 39 | 34 | 46.58% |
+| `SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE` | 50 | `SAS_UWAI_VICT_DENY_REFUSE_STAGE4_PEACE_ON` | 41 | 9 | 18.00% |
+| `SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_PARTS_PERCENT_THRESHOLD` | 60 | `SAS_UWAI_VICT_DENY_S3_SPACE_MIN_PARTS_PCT` | 41 | 19 | 31.67% |
+| `SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_LEADER_PART_MARGIN` | 55 | `SAS_UWAI_VICT_DENY_S3_SPACE_LEADER_MARGIN` | 41 | 14 | 25.45% |
+| `SAS_UWAI_VICTORY_DENIAL_COUNTDOWN_UTILITY_BOOST` | 47 | `SAS_UWAI_VICT_DENY_COUNTDOWN_UTILITY_BOOST` | 42 | 5 | 10.64% |
+| `SAS_UWAI_VICTORY_DENIAL_STAGE4_UTILITY_BOOST` | 44 | `SAS_UWAI_VICT_DENY_STAGE4_UTILITY_BOOST` | 39 | 5 | 11.36% |
+| `SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_UTILITY_BOOST` | 50 | `SAS_UWAI_VICT_DENY_S3_SPACE_UTILITY_BOOST` | 41 | 9 | 18.00% |
+| `SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE4_ENABLE` | 44 | `SAS_UWAI_VICT_DENY_DIRECT_STAGE4_ON` | 35 | 9 | 20.45% |
+| `SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_ENABLE` | 50 | `SAS_UWAI_VICT_DENY_DIRECT_S3_SPACE_ON` | 37 | 13 | 26.00% |
+| `SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_CONTACT_BYPASS_ENABLE` | 65 | `SAS_UWAI_VICT_DENY_S3_SPACE_BYPASS_ON` | 37 | 28 | 43.08% |
+| `SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE3_SPACE_PEACE_ENABLE` | 56 | `SAS_UWAI_VICT_DENY_REFUSE_S3_SPACE_ON` | 37 | 19 | 33.93% |
+| `SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_TARGET_POWER_PERCENT` | 55 | `SAS_UWAI_VICT_DENY_DIRECT_MAX_POWER_PCT` | 39 | 16 | 29.09% |
+| `SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE` | 43 | `SAS_UWAI_VICT_DENY_DIRECT_MAX_DISTANCE` | 38 | 5 | 11.63% |
+| `SAS_UWAI_VICTORY_DENIAL_AVOID_WAR_HESITATION_PERCENT` | 52 | `SAS_UWAI_VICT_DENY_AVOID_HESITATION_PCT` | 39 | 13 | 25.00% |
+
 <a id="ki-1002"></a>
 
 ## KI#1002 - (Fixed AdvCiv initialization regression) FirstContactData could contain uninitialized plot coordinates

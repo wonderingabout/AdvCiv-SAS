@@ -26,7 +26,7 @@ namespace
 			return false;
 		if (gWarLogLevel >= 1)
 		{
-			static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_REFUSE_PEACE");
+			static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS");
 			int const iMaxVictoryDenialPeaceCountdown = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxVictoryDenialPeaceCountdownNormal);
 			logBBAI("WAR_TARGET_VICTORY_DENIAL_BLOCK_PEACE_DEAL turn=%d firstTeam=%d secondTeam=%d firstVictoryCountdown=%d secondVictoryCountdown=%d firstMaxVictoryStage=%d secondMaxVictoryStage=%d firstSpaceshipParts=%d secondSpaceshipParts=%d firstSpaceshipPartsPercent=%d secondSpaceshipPartsPercent=%d firstSpaceLeaderPartGap=%d secondSpaceLeaderPartGap=%d maxRefusePeaceCountdown=%d",
 				GC.getGame().getGameTurn(), eFirstTeam, eSecondTeam, iFirstCountdown, iSecondCountdown, iFirstMaxVictoryStage,

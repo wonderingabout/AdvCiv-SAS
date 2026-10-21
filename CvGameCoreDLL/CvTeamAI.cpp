@@ -3890,15 +3890,15 @@ DenialTypes CvTeamAI::AI_makePeaceTrade(TeamTypes ePeaceTeam, TeamTypes eBroker)
 	if (!canChangeWarPeace(ePeaceTeam))
 		return DENIAL_VASSAL;
 
-	static const bool bSASUWAIVictoryDenialEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
-	if (bSASUWAIVictoryDenialEnable)
+	static const bool bSASUWAIVictoryDenialOn = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_ON");
+	if (bSASUWAIVictoryDenialOn)
 	{
 		int const iVictoryCountdown = GET_TEAM(ePeaceTeam).AI_getLowestVictoryCountdown();
 		int const iMaxVictoryStage = getSASTeamMaxVictoryStage(ePeaceTeam);
-		static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_REFUSE_PEACE");
+		static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS");
 		int const iMaxVictoryDenialPeaceCountdown = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxVictoryDenialPeaceCountdownNormal);
-		static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE");
-		static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE3_SPACE_PEACE_ENABLE");
+		static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_REFUSE_STAGE4_PEACE_ON");
+		static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_REFUSE_S3_SPACE_ON");
 		// <!-- custom: Save-file 450 showed victory-denial wars correctly declared against Lincoln, then cancelled by peace treaties two turns later while his spaceship countdown continued.
 		// A later run fixed Lincoln but Egypt still made peace right after stage-4 anti-spaceship wars, before countdown started, then won Space.
 		// The Arabia branch then showed that waiting until countdown 4 could still be too late, and save-file 452 showed raw part count could still fire too late, so stage-3 Space near completion can also be protected if enabled.

@@ -73,26 +73,26 @@ namespace
 
 	int getSASBBAIVictoryDenialUtilityBoost(TeamTypes eTarget, int iTargetMaxVictoryStage)
 	{
-		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
+		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_ON");
 		if (!bEnable)
 			return 0;
 		int iBoost = 0;
 		int const iCountdown = GET_TEAM(eTarget).AI_getLowestVictoryCountdown();
-		static const int iMaxCountdownBoostNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_BOOST");
+		static const int iMaxCountdownBoostNormal = GC.getDefineINT("SAS_UWAI_VICT_DENY_BOOST_MAX_T_NORM_GS");
 		int const iMaxCountdownBoost = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxCountdownBoostNormal);
 		if (iCountdown >= 0 && iCountdown <= iMaxCountdownBoost)
 		{
-			static const int iCountdownUtilityBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_COUNTDOWN_UTILITY_BOOST");
+			static const int iCountdownUtilityBoost = GC.getDefineINT("SAS_UWAI_VICT_DENY_COUNTDOWN_UTILITY_BOOST");
 			iBoost += (iCountdownUtilityBoost * (iMaxCountdownBoost + 1 - iCountdown)) / std::max(1, iMaxCountdownBoost + 1);
 		}
 		if (iTargetMaxVictoryStage >= 4)
 		{
-			static const int iStage4UtilityBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE4_UTILITY_BOOST");
+			static const int iStage4UtilityBoost = GC.getDefineINT("SAS_UWAI_VICT_DENY_STAGE4_UTILITY_BOOST");
 			iBoost += iStage4UtilityBoost;
 		}
 		if (isSASTeamStage3SpaceVictoryThreat(eTarget))
 		{
-			static const int iStage3SpaceUtilityBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_UTILITY_BOOST");
+			static const int iStage3SpaceUtilityBoost = GC.getDefineINT("SAS_UWAI_VICT_DENY_S3_SPACE_UTILITY_BOOST");
 			iBoost += iStage3SpaceUtilityBoost;
 		}
 		return iBoost;
@@ -2289,7 +2289,7 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
 			scaled rAvoidWarHesitation = rTotalDrive / 2;
 			if (aTargets[i].iVictoryDenialBoost > 0)
 			{
-				static const int iVictoryDenialAvoidWarPercent = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_AVOID_WAR_HESITATION_PERCENT");
+				static const int iVictoryDenialAvoidWarPercent = GC.getDefineINT("SAS_UWAI_VICT_DENY_AVOID_HESITATION_PCT");
 				rAvoidWarHesitation *= iVictoryDenialAvoidWarPercent;
 				rAvoidWarHesitation /= 100;
 			}
@@ -3175,24 +3175,24 @@ bool UWAI::Team::canReach(TeamTypes eTarget) const
 bool UWAI::Team::isSASVictoryDenialDirectWarAllowed(TeamTypes eTarget, int iTargetMaxVictoryStage, bool bNaval, int iDistance) const
 {
 	CvTeamAI const& kAgent = GET_TEAM(m_eAgent);
-	static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
+	static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_ON");
 	if (!bEnable)
 		return false;
 	int const iCountdown = GET_TEAM(eTarget).AI_getLowestVictoryCountdown();
-	static const int iMaxCountdownDirectWarNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_DIRECT_WAR");
+	static const int iMaxCountdownDirectWarNormal = GC.getDefineINT("SAS_UWAI_VICT_DENY_DIRECT_MAX_T_NORM_GS");
 	int const iMaxCountdownDirectWar = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxCountdownDirectWarNormal);
-	static const bool bDirectStage4Enable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE4_ENABLE");
-	static const bool bDirectStage3SpaceEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_ENABLE");
+	static const bool bDirectStage4Enable = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_DIRECT_STAGE4_ON");
+	static const bool bDirectStage3SpaceEnable = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_DIRECT_S3_SPACE_ON");
 	bool const bCountdownDirect = (iCountdown >= 0 && iCountdown <= iMaxCountdownDirectWar);
 	bool const bStage4Direct = (bDirectStage4Enable && iTargetMaxVictoryStage >= 4);
 	bool const bStage3SpaceDirect = (bDirectStage3SpaceEnable && isSASTeamStage3SpaceVictoryThreat(eTarget));
 	if (!bCountdownDirect && !bStage4Direct && !bStage3SpaceDirect)
 		return false;
-	static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_TARGET_POWER_PERCENT");
+	static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_VICT_DENY_DIRECT_MAX_POWER_PCT");
 	int const iTargetPowerPercent = 100 * GET_TEAM(eTarget).getDefensivePower(kAgent.getID()) / std::max(1, kAgent.getPower(true));
 	if (iTargetPowerPercent > iMaxTargetPowerPercent)
 		return false;
-	static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE");
+	static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_VICT_DENY_DIRECT_MAX_DISTANCE");
 	if (iDistance < 0 || iDistance > iMaxDistance)
 		return false;
 	return (!bNaval || kAgent.AI_isLandTarget(eTarget));
