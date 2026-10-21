@@ -34193,6 +34193,37 @@ All replacement names fit the 42-byte trial target. Thirty of the 33 old names e
 | `SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI` | 75 | `SAS_UNITSEL_STRICT_DEF_HIJACK_UNITAI_ON` | 39 | 36 | 48.00% |
 | `SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_REPLACEMENT_MAX_UNIT_HAMMER_COST_PER_ERA` | 86 | `SAS_UNITSEL_STRICT_DEF_REPL_MAX_HAMMER_ERA` | 42 | 44 | 51.16% |
 
+### 2026-10-21 tech-value and tech-trade family batch
+
+This cleanup renames the complete adjacent technology-valuation families: all 13 `AI_techValue` tuning keys and all 5 technology-trade valuation keys. Three `AI_techValue` names already fit the 42-byte target, but move with their family so the subsystem does not retain mixed old/new naming.
+
+The shared `SAS_TECHVAL_` and `SAS_TECHTRADE_` prefixes drop the implicit `AI`/function wording once, leaving room to preserve distinctions such as `MASTER`, `VASSAL`, `SIBLING`, `MIN`, `PCT`, `REMOVE`, and `T_NORM_GS`.
+
+XML values and gameplay logic are unchanged. C++ cache identifiers that mechanically copied an old define spelling follow the renamed key; descriptive locals that express program meaning independently remain unchanged.
+
+The 15 formerly over-limit names now fit the 42-byte target, reducing the intentional style-check tail from 382 to 367 names. (ChatGPT-5.6-Sol)
+
+| Old name | Old bytes | New name | New bytes | Bytes saved | Reduction |
+| --- | ---: | --- | ---: | ---: | ---: |
+| `SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_ENABLE` | 50 | `SAS_TECHVAL_FEAT_REMOVE_ON` | 26 | 24 | 48.00% |
+| `SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MIN_FEATURES_PER_CITY` | 65 | `SAS_TECHVAL_FEAT_REMOVE_MIN_PER_CITY` | 36 | 29 | 44.62% |
+| `SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MIN_CHOP_BASE_PRODUCTION_TURNS_NORMAL_GAMESPEED_EQUIVALENT` | 102 | `SAS_TECHVAL_FEAT_REMOVE_MIN_CHOP_T_NORM_GS` | 42 | 60 | 58.82% |
+| `SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_STORED_PRODUCTION_VALUE_PERCENT` | 75 | `SAS_TECHVAL_FEAT_REMOVE_STORED_PROD_PCT` | 39 | 36 | 48.00% |
+| `SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_CAPITAL_VALUE_PERCENT` | 65 | `SAS_TECHVAL_FEAT_REMOVE_CAPITAL_PCT` | 35 | 30 | 46.15% |
+| `SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MAX_TOTAL_VALUE` | 59 | `SAS_TECHVAL_FEAT_REMOVE_MAX_TOTAL` | 33 | 26 | 44.07% |
+| `SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE` | 65 | `SAS_TECHVAL_LOCUS_RESEARCH_ON` | 29 | 36 | 55.38% |
+| `SAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT` | 58 | `SAS_TECHVAL_MASTER_FROM_VASSAL_PCT` | 34 | 24 | 41.38% |
+| `SAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT` | 58 | `SAS_TECHVAL_VASSAL_FROM_MASTER_PCT` | 34 | 24 | 41.38% |
+| `SAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT` | 59 | `SAS_TECHVAL_VASSAL_FROM_SIBLING_PCT` | 35 | 24 | 40.68% |
+| `SAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE` | 41 | `SAS_TECHVAL_MIL_DANGER_ON` | 25 | 16 | 39.02% |
+| `SAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN` | 37 | `SAS_TECHVAL_MIL_FLAVOR_MIN` | 26 | 11 | 29.73% |
+| `SAS_AI_TECH_VALUE_MILITARY_WEAKER_PERCENT` | 41 | `SAS_TECHVAL_MIL_WEAKER_PCT` | 26 | 15 | 36.59% |
+| `SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE` | 45 | `SAS_TECHTRADE_MIL_DANGER_ON` | 27 | 18 | 40.00% |
+| `SAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT` | 45 | `SAS_TECHTRADE_MIL_WEAKER_PCT` | 28 | 17 | 37.78% |
+| `SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE` | 58 | `SAS_TECHTRADE_LOCUS_KNOWN_ON` | 28 | 30 | 51.72% |
+| `SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT` | 57 | `SAS_TECHTRADE_LOCUS_KNOWN_PCT` | 29 | 28 | 49.12% |
+| `SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT` | 50 | `SAS_TECHTRADE_REL_STRENGTH_EFFECT_PCT` | 37 | 13 | 26.00% |
+
 <a id="ki-1002"></a>
 
 ## KI#1002 - (Fixed AdvCiv initialization regression) FirstContactData could contain uninitialized plot coordinates

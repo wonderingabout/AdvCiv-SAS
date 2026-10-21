@@ -3322,53 +3322,53 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Detects the XML FeatureStruct removal tech dynamically, but values the city-specific production CvPlot would actually receive after normal population/game-speed/modifier scaling.
 	No feature or tech names are hardcoded. See KI#33.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_ENABLE</DefineName>
+		<DefineName>SAS_TECHVAL_FEAT_REMOVE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MIN_FEATURES_PER_CITY</DefineName>
+		<DefineName>SAS_TECHVAL_FEAT_REMOVE_MIN_PER_CITY</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 	<!-- custom: Normal-speed-equivalent turns.
 	CvPlayerAI scales this threshold with FeatureProductionPercent, matching the game-speed scaling already applied to CvPlot::getFeatureProduction so the leverage test stays comparable across game speeds. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MIN_CHOP_BASE_PRODUCTION_TURNS_NORMAL_GAMESPEED_EQUIVALENT</DefineName>
+		<DefineName>SAS_TECHVAL_FEAT_REMOVE_MIN_CHOP_T_NORM_GS</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_STORED_PRODUCTION_VALUE_PERCENT</DefineName>
+		<DefineName>SAS_TECHVAL_FEAT_REMOVE_STORED_PROD_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_CAPITAL_VALUE_PERCENT</DefineName>
+		<DefineName>SAS_TECHVAL_FEAT_REMOVE_CAPITAL_PCT</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MAX_TOTAL_VALUE</DefineName>
+		<DefineName>SAS_TECHVAL_FEAT_REMOVE_MAX_TOTAL</DefineName>
 		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
 
 	<!-- custom: Aim to reduce Master-Vassal(s) locus inefficient overlapping research; Long_Comments_XML.txt #190 -->
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE</DefineName>
+		<DefineName>SAS_TECHVAL_LOCUS_RESEARCH_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- (1) Master: devalue techs that our vassals already know; Long_Comments_XML.txt #339 -->
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT</DefineName>
+		<DefineName>SAS_TECHVAL_MASTER_FROM_VASSAL_PCT</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
 	<!-- (2) Vassal: devalue techs that our "cluster" already knows -->
 	<!-- custom: if our master knows the tech, devalue researching it, we can get it from them rather. -->
 	<!-- // Master -->
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT</DefineName>
+		<DefineName>SAS_TECHVAL_VASSAL_FROM_MASTER_PCT</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
 	<!-- custom: if any of our sibling vassals know the tech, devalue researching it, we can get it from them rather. -->
 	<!-- // Sibling vassals of the same master -->
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT</DefineName>
+		<DefineName>SAS_TECHVAL_VASSAL_FROM_SIBLING_PCT</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
 
@@ -3378,19 +3378,19 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: weaker -->
 	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE</DefineName>
+		<DefineName>SAS_TECHVAL_MIL_DANGER_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- Consider tech "key military" if its FLAVOR_MILITARY is at least this. -->
 	<!-- custom: e.g. if flavor military of a tech is 8, then this is considered a key military tech for our below tech value changes -->
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN</DefineName>
+		<DefineName>SAS_TECHVAL_MIL_FLAVOR_MIN</DefineName>
 		<iDefineIntVal>6</iDefineIntVal>
 	</Define>
 	<!-- When in danger, scale the total value of such techs by this percentage. -->
 	<!-- custom: e.g. 130 means tech value is increased by 30% -->
 	<Define>
-		<DefineName>SAS_AI_TECH_VALUE_MILITARY_WEAKER_PERCENT</DefineName>
+		<DefineName>SAS_TECHVAL_MIL_WEAKER_PCT</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 
@@ -3400,13 +3400,13 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- bias trade valuation toward key military techs when we're clearly outgunned -->
 	<!-- custom: Long_Comments_XML.txt #112 -->
 	<Define>
-		<DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE</DefineName>
+		<DefineName>SAS_TECHTRADE_MIL_DANGER_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- When in danger, scale the trade value of such techs by this percentage. -->
 	<!-- e.g. 130 = +30%, 150 = +50%. -->
 	<Define>
-		<DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT</DefineName>
+		<DefineName>SAS_TECHTRADE_MIL_WEAKER_PCT</DefineName>
 		<iDefineIntVal>130</iDefineIntVal>
 	</Define>
 
@@ -3414,12 +3414,12 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 	<!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); Long_Comments_XML.txt #201 -->
 	<Define>
-		<DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE</DefineName>
+		<DefineName>SAS_TECHTRADE_LOCUS_KNOWN_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- If any team in our master–vassal locus already knows the tech and the offering team is outside that locus, multiply tech trade value by this; Long_Comments_XML.txt #175 -->
 	<Define>
-		<DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT</DefineName>
+		<DefineName>SAS_TECHTRADE_LOCUS_KNOWN_PCT</DefineName>
 		<iDefineIntVal>70</iDefineIntVal>
 	</Define>
 
@@ -3431,7 +3431,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	This does not control the separate SAS tech-trade adjustments.
 	AdvCiv-SAS disables this by default instead of guaranteeing the weaker side that advantage. See KI#201. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT</DefineName>
+		<DefineName>SAS_TECHTRADE_REL_STRENGTH_EFFECT_PCT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 

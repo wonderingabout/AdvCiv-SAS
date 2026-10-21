@@ -6020,12 +6020,12 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 
 	// <!-- custom: Keep the inherited first-match XML production semantics below, but independently select a representative removal Build for SAS actual-production valuation.
 	// Prefer a pure removal Build that would be available once the candidate tech is learned, so an unrelated improvement prerequisite does not make the simulation less representative. (ChatGPT-5.6-Sol) -->
-	static const bool bSASProductiveFeatureRemoveTechValue = GC.getDefineBOOL("SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_ENABLE");
-	static const int iSASMinFeaturesPerCity = std::max(1, GC.getDefineINT("SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MIN_FEATURES_PER_CITY"));
-	static const int iSASMinChopTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MIN_CHOP_BASE_PRODUCTION_TURNS_NORMAL_GAMESPEED_EQUIVALENT"));
-	static const int iSASStoredProductionPercent = std::max(0, GC.getDefineINT("SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_STORED_PRODUCTION_VALUE_PERCENT"));
-	static const int iSASCapitalPercent = std::max(0, GC.getDefineINT("SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_CAPITAL_VALUE_PERCENT"));
-	static const int iSASMaxTotalValue = std::max(0, GC.getDefineINT("SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MAX_TOTAL_VALUE"));
+	static const bool bSASProductiveFeatureRemoveTechValue = GC.getDefineBOOL("SAS_TECHVAL_FEAT_REMOVE_ON");
+	static const int iSASMinFeaturesPerCity = std::max(1, GC.getDefineINT("SAS_TECHVAL_FEAT_REMOVE_MIN_PER_CITY"));
+	static const int iSASMinChopTurnsNormal = std::max(0, GC.getDefineINT("SAS_TECHVAL_FEAT_REMOVE_MIN_CHOP_T_NORM_GS"));
+	static const int iSASStoredProductionPercent = std::max(0, GC.getDefineINT("SAS_TECHVAL_FEAT_REMOVE_STORED_PROD_PCT"));
+	static const int iSASCapitalPercent = std::max(0, GC.getDefineINT("SAS_TECHVAL_FEAT_REMOVE_CAPITAL_PCT"));
+	static const int iSASMaxTotalValue = std::max(0, GC.getDefineINT("SAS_TECHVAL_FEAT_REMOVE_MAX_TOTAL"));
 	int iSASProductiveFeatureRemoveTechValue = 0;
 	bool const bSASEvaluateProductiveFeatureRemove = (bSASProductiveFeatureRemoveTechValue && eFromPlayer == NO_PLAYER);
 	int const iSASFeatureProductionPercent = GC.getInfo(kGame.getGameSpeedType()).getFeatureProductionPercent();
@@ -6838,12 +6838,12 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 	// 	- Less “vassal re-researches everything the master has".
 	// 	- <!-- custom: not directly here --> More tech swapping along the master–vassal axis, especially when each has something the other doesn’t.
 	// A. Devalue researching techs that our vassals already know and vice versa.
-	static const bool bSAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE");
+	static const bool bSAS_TECHVAL_LOCUS_RESEARCH_ON = GC.getDefineBOOL("SAS_TECHVAL_LOCUS_RESEARCH_ON");
 	int iSASPercentModifier = 100;
 
 	// <!-- custom: Across the master, vassal and sibling-vassal branches, discount self-research only for knowledge that an internal team can legally transfer.
 	// Present AI reluctance may change later, so this path tests legality without denial. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	if (bSAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE && iValue > 0 && eFromPlayer == NO_PLAYER)
+	if (bSAS_TECHVAL_LOCUS_RESEARCH_ON && iValue > 0 && eFromPlayer == NO_PLAYER)
 	{
 		// (1) Master: devalue techs that our vassals already know
 		if (kTeam.getVassalCount(NO_TEAM) > 0)
@@ -6855,9 +6855,9 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 				if (!kTeam.AI_canTradeTechFrom(eTech, kVassal.getID(), false))
 					continue;
 
-				static const int iSAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT");
+				static const int iSAS_TECHVAL_MASTER_FROM_VASSAL_PCT = GC.getDefineINT("SAS_TECHVAL_MASTER_FROM_VASSAL_PCT");
 
-				iSASPercentModifier += (iSAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT - 100);
+				iSASPercentModifier += (iSAS_TECHVAL_MASTER_FROM_VASSAL_PCT - 100);
 
 				// One vassal is enough – don't stack penalties.
 				break;
@@ -6871,9 +6871,9 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 			// <!-- custom: isHasTech also accepted knowledge the master could not legally transfer; require a legal future source without freezing its current denial. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			if (eMasterTeam != NO_TEAM && kTeam.AI_canTradeTechFrom(eTech, eMasterTeam, false))
 			{
-				static const int iSAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT");
+				static const int iSAS_TECHVAL_VASSAL_FROM_MASTER_PCT = GC.getDefineINT("SAS_TECHVAL_VASSAL_FROM_MASTER_PCT");
 
-				iSASPercentModifier += (iSAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT - 100);
+				iSASPercentModifier += (iSAS_TECHVAL_VASSAL_FROM_MASTER_PCT - 100);
 			}
 			else
 			{
@@ -6887,9 +6887,9 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 					if (!kTeam.AI_canTradeTechFrom(eTech, kSibling.getID(), false))
 						continue;
 
-					static const int iSAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT");
+					static const int iSAS_TECHVAL_VASSAL_FROM_SIBLING_PCT = GC.getDefineINT("SAS_TECHVAL_VASSAL_FROM_SIBLING_PCT");
 
-					iSASPercentModifier += (iSAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT - 100);
+					iSASPercentModifier += (iSAS_TECHVAL_VASSAL_FROM_SIBLING_PCT - 100);
 					break; // one sibling hit is enough
 				}
 			}
@@ -6898,20 +6898,20 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 	// End - SAS vassalMasterTechResearch
 
 	// SAS techValuePowerDanger: if we're clearly outgunned, bump key military techs
-	static const bool bSAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE");
-	if (bSAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE && iValue > 0 && eFromPlayer == NO_PLAYER) // only for our own research choice
+	static const bool bSAS_TECHVAL_MIL_DANGER_ON = GC.getDefineBOOL("SAS_TECHVAL_MIL_DANGER_ON");
+	if (bSAS_TECHVAL_MIL_DANGER_ON && iValue > 0 && eFromPlayer == NO_PLAYER) // only for our own research choice
 	{
 		const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
 		const bool bEnemyStrong = SASWarPowerContext::isEnemyStrong(iEnemyPowerPercent);
 
 		if (bEnemyStrong)
 		{
-			static const int iSAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN = GC.getDefineINT("SAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN");
+			static const int iSAS_TECHVAL_MIL_FLAVOR_MIN = GC.getDefineINT("SAS_TECHVAL_MIL_FLAVOR_MIN");
 
-			if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN)
+			if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_TECHVAL_MIL_FLAVOR_MIN)
 			{
-				static const int iSAS_AI_TECH_VALUE_MILITARY_WEAKER_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_MILITARY_WEAKER_PERCENT");
-				iSASPercentModifier += (iSAS_AI_TECH_VALUE_MILITARY_WEAKER_PERCENT - 100);
+				static const int iSAS_TECHVAL_MIL_WEAKER_PCT = GC.getDefineINT("SAS_TECHVAL_MIL_WEAKER_PCT");
+				iSASPercentModifier += (iSAS_TECHVAL_MIL_WEAKER_PCT - 100);
 			}
 		}
 	}

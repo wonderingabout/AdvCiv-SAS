@@ -1578,7 +1578,7 @@ The aim is that, in many cases, they also benefit vassals (or at least do not cl
   - AdvCiv change 550a makes a weaker recipient value a stronger civilization's technology less, with technology score weighted twice as strongly as military power and a maximum late-game discount of 50%.
   - Because both AI sides use that discounted value, it guarantees the weaker civilization a better price rather than making it decide whether waiting is preferable to paying the ordinary price.
   - This is rubber-banding rather than merely a strategy change because relative standing directly changes the transaction's price and the intervention grows with game progress, regardless of technology urgency, competing sellers or whether accepting less benefits the stronger seller.
-  - `SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT` is therefore now `0` by default (restores BTS behavior for this factor: no rubber-banding).
+  - `SAS_TECHTRADE_REL_STRENGTH_EFFECT_PCT` is therefore now `0` by default (restores BTS behavior for this factor: no rubber-banding).
   - Note: it can be set to `100` to fully restore AdvCiv behavior, or intermediate values like `30` or `50` to soften the effect.
   - Other AdvCiv-SAS technology-trade adjustments remain independent.
   - See [KI#201](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-201).

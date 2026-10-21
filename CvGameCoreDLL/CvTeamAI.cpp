@@ -2119,8 +2119,8 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnore
 	{
 		// <!-- custom: AdvCiv change 550a makes a weaker recipient value a stronger civilization's technology less, imposing the same discounted idea of a fair price on both AI sides rather than risking an ordinary bargaining refusal.
 		// Scale that relative-strength catch-up effect from 0 (BTS behavior for this factor) to 100 (full AdvCiv behavior); keep the independent SAS military-technology valuation below active at 0. See KI#201. (GPT-5.6-Sol) -->
-		static const int iSAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT = range(GC.getDefineINT("SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT"), 0, 100);
-		if (iSAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT > 0)
+		static const int iSAS_TECHTRADE_REL_STRENGTH_EFFECT_PCT = range(GC.getDefineINT("SAS_TECHTRADE_REL_STRENGTH_EFFECT_PCT"), 0, 100);
+		if (iSAS_TECHTRADE_REL_STRENGTH_EFFECT_PCT > 0)
 		{
 			/*  If they're more advanced/powerful, they shouldn't mind giving us
 				a tech, so we lower our tech value, assuming/hoping that we'll be
@@ -2164,7 +2164,7 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnore
 				too much I think. */
 			if(rDiscountModifier < 1)
 			{
-				rDiscountModifier = 1 + (rDiscountModifier - 1) * per100(iSAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT);
+				rDiscountModifier = 1 + (rDiscountModifier - 1) * per100(iSAS_TECHTRADE_REL_STRENGTH_EFFECT_PCT);
 				rValue *= rDiscountModifier;
 			}
 		}
@@ -2181,21 +2181,21 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnore
 		// 	- to your master,
 		// 	- in peace deals that might call with bIgnoreDiscount = true,
 		// then I’d move your block outside the if (!bIgnoreDiscount && !isVassal…) guard
-		static const bool bSAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE");
-		if (bSAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE)
+		static const bool bSAS_TECHTRADE_MIL_DANGER_ON = GC.getDefineBOOL("SAS_TECHTRADE_MIL_DANGER_ON");
+		if (bSAS_TECHTRADE_MIL_DANGER_ON)
 		{
 			const int iEnemyPowerPercent = AI_getEnemyPowerPercent(true);
 			const bool bEnemyStrong = SASWarPowerContext::isEnemyStrong(iEnemyPowerPercent);
 
 			if (bEnemyStrong)
 			{
-				static const int iSAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN = GC.getDefineINT("SAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN");
+				static const int iSAS_TECHVAL_MIL_FLAVOR_MIN = GC.getDefineINT("SAS_TECHVAL_MIL_FLAVOR_MIN");
 
-				if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN)
+				if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_TECHVAL_MIL_FLAVOR_MIN)
 				{
-					static const int iSAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT = GC.getDefineINT("SAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT");
+					static const int iSAS_TECHTRADE_MIL_WEAKER_PCT = GC.getDefineINT("SAS_TECHTRADE_MIL_WEAKER_PCT");
 					// e.g. 130 => +30% trade value, 150 => +50%, etc.
-					rValue *= per100(iSAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT);
+					rValue *= per100(iSAS_TECHTRADE_MIL_WEAKER_PCT);
 				}
 			}
 		}
@@ -2204,11 +2204,11 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnore
 
 	// <!-- custom: Devalue an outsider's technology only when the shared exact predicate finds a legally transferable internal source.
 	// This retains the intended locus preference without discounting for knowledge that cannot actually be supplied. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	static const bool bSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE");
-	if (bSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE && !isHasTech(eTech) && !AI_isLocusMember(eFromTeam) && AI_hasLocusTechTradeSource(eTech, eFromTeam, false))
+	static const bool bSAS_TECHTRADE_LOCUS_KNOWN_ON = GC.getDefineBOOL("SAS_TECHTRADE_LOCUS_KNOWN_ON");
+	if (bSAS_TECHTRADE_LOCUS_KNOWN_ON && !isHasTech(eTech) && !AI_isLocusMember(eFromTeam) && AI_hasLocusTechTradeSource(eTech, eFromTeam, false))
 	{
-		static const int iSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT = GC.getDefineINT("SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT");
-		rValue *= per100(iSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT);
+		static const int iSAS_TECHTRADE_LOCUS_KNOWN_PCT = GC.getDefineINT("SAS_TECHTRADE_LOCUS_KNOWN_PCT");
+		rValue *= per100(iSAS_TECHTRADE_LOCUS_KNOWN_PCT);
 	}
 
 	// <advc.550g>
