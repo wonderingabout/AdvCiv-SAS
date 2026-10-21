@@ -425,12 +425,12 @@ static bool SAS_shouldBlockDangerousUnescortedFounding(CvUnitAI const& kSettler,
 // Follow-up T130 testing then founded stronger Zulu cities and Shaka reached rank 2. See KI#180. (GPT-5.5) -->
 static bool SAS_isFoundValueClearlyBetter(int iCurrentFoundValue, int iBetterFoundValue)
 {
-	static const int iSAS_SETTLER_FOUND_BETTER_MIN_VALUE_DIFF = GC.getDefineINT("SAS_SETTLER_FOUND_BETTER_MIN_VALUE_DIFF");
+	static const int iSAS_SETTLER_FOUND_BETTER_MIN_VAL_DIFF = GC.getDefineINT("SAS_SETTLER_FOUND_BETTER_MIN_VAL_DIFF");
 	static const int iSAS_SETTLER_FOUND_BETTER_MIN_PCT_DIFF = GC.getDefineINT("SAS_SETTLER_FOUND_BETTER_MIN_PCT_DIFF");
-	if (iCurrentFoundValue <= 0 || (iSAS_SETTLER_FOUND_BETTER_MIN_VALUE_DIFF <= 0 && iSAS_SETTLER_FOUND_BETTER_MIN_PCT_DIFF <= 0))
+	if (iCurrentFoundValue <= 0 || (iSAS_SETTLER_FOUND_BETTER_MIN_VAL_DIFF <= 0 && iSAS_SETTLER_FOUND_BETTER_MIN_PCT_DIFF <= 0))
 		return false;
 	int const iValueDiff = iBetterFoundValue - iCurrentFoundValue;
-	return iValueDiff >= iSAS_SETTLER_FOUND_BETTER_MIN_VALUE_DIFF && 100 * iValueDiff >= iCurrentFoundValue * iSAS_SETTLER_FOUND_BETTER_MIN_PCT_DIFF;
+	return iValueDiff >= iSAS_SETTLER_FOUND_BETTER_MIN_VAL_DIFF && 100 * iValueDiff >= iCurrentFoundValue * iSAS_SETTLER_FOUND_BETTER_MIN_PCT_DIFF;
 }
 
 // <!-- custom: pBetterEndTurnPlot is returned alongside pBetterFoundPlot so callers keep the end-turn plot belonging to the same successful winning path query.
@@ -714,7 +714,7 @@ static bool SAS_shouldScoutPromisingFoggedNearbyFoundSite(CvUnitAI& kSettler, Mo
 	if (iMinUnrevealedAdvantage <= 0 || iSelectedFoundValue <= 0)
 		return false;
 	static const int iMinRevealedBFC = GC.getDefineINT("SAS_SETTLER_SCOUT_FOG_MIN_REVEALED_BFC");
-	static const int iMinAverageValuePercent = GC.getDefineINT("SAS_SETTLER_SCOUT_FOG_MIN_AVG_VALUE_PCT");
+	static const int iMinAverageValuePercent = GC.getDefineINT("SAS_SETTLER_SCOUT_FOG_MIN_AVG_VAL_PCT");
 	static const int iMaxExtraPathTurns = GC.getDefineINT("SAS_SETTLER_SCOUT_MAX_EXTRA_T_UNSCALED_GS");
 	if (iSelectedRevealedBFC < iMinRevealedBFC)
 		return false;
@@ -805,7 +805,7 @@ static int SAS_getFirstCityScoutRemainingOpportunityPercent(int iBest6PlotValue,
 // Caller guards any logging. (GPT-5.5) -->
 static CvPlot* SAS_chooseFirstCityReturnPlot(CvUnitAI const& kSettler, CitySiteEvaluator const& kEvaluator, int iSearchRange, int iTravelValuePerTurn, bool bPrioritizeRawValue, int& iRawValue, int& iAdjustedValue, int& iPathTurns, CvPlot const* pGrowthCoreReference = NULL, int* piGrowthCoreValue = NULL)
 {
-	static const int iGrowthCoreImprovementValuePercent = std::max(0, GC.getDefineINT("SAS_1ST_CITY_CORE_IMPROVE_VALUE_PCT"));
+	static const int iGrowthCoreImprovementValuePercent = std::max(0, GC.getDefineINT("SAS_1ST_CITY_CORE_IMPROVE_VAL_PCT"));
 	CvPlot* pBestPlot = NULL;
 	iRawValue = -MAX_INT;
 	iAdjustedValue = -MAX_INT;
@@ -6185,7 +6185,7 @@ bool CvUnitAI::AI_foundFirstCity()
 		static const int iBadFoodEnvironmentScoreThreshold = GC.getDefineINT("SAS_1ST_CITY_BAD_FOOD_ENV_SCORE");
 		static const int iGoodEnoughBest6ReferencePercent = GC.getDefineINT("SAS_1ST_CITY_GOOD_BEST_6_REF_PCT");
 		static const int iLocalRecheckMaxPathTurns = std::max(0, GC.getDefineINT("SAS_1ST_CITY_RECHECK_MAX_T_UNSCALED_GS"));
-		static const int iGrowthCoreImprovementValuePercent = std::max(0, GC.getDefineINT("SAS_1ST_CITY_CORE_IMPROVE_VALUE_PCT"));
+		static const int iGrowthCoreImprovementValuePercent = std::max(0, GC.getDefineINT("SAS_1ST_CITY_CORE_IMPROVE_VAL_PCT"));
 		static const int iScoutUnrevealedEndpointReferencePlotMultiplier = std::max(0, GC.getDefineINT("SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT"));
 		int iCurrentFoodBonuses = 0;
 		int iCurrentFoodEnvironmentScore = 0;

@@ -2154,7 +2154,7 @@ static BuildingTypes SAS_getProactiveFortification(CvCityAI const& kCity, bool b
 	// <!-- custom: Keep these tactical windows explicitly named UNSCALED_GAMESPEED: the turn-define CI caught the initially ambiguous names, and scaling them would grant more map turns even though invading units do not move more slowly on longer game speeds. (GPT-5.6-Sol) -->
 	static const int iConfiguredMaxTurns = std::max(0, GC.getDefineINT("SAS_PROD_FORT_MAX_T_UNSCALED_GS"));
 	static const int iTurnsPerDistance = std::max(1, GC.getDefineINT("SAS_PROD_FORT_T_UNSCALED_GS_PER_DIST"));
-	static const int iMinCityValuePercent = std::max(0, GC.getDefineINT("SAS_PROD_FORT_MIN_CITY_VALUE_PCT"));
+	static const int iMinCityValuePercent = std::max(0, GC.getDefineINT("SAS_PROD_FORT_MIN_CITY_VAL_PCT"));
 	static const int iMinVisibleAttackers = std::max(1, GC.getDefineINT("SAS_PROD_FORT_MIN_VISIBLE_ATK"));
 	if (!bOptimize || iConfiguredMaxTurns <= 0)
 		return NO_BUILDING;
@@ -4854,7 +4854,7 @@ void CvCityAI::AI_chooseProduction()
 	};
 	static int const iSASSecuredNavalAssaultWeight = std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_ASSAULT_WEIGHT"));
 	static int const iSASSecuredNavalEscortWeight = std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_ESCORT_WEIGHT"));
-	static int const iSASSecuredNavalAttackWeight = std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_ATTACK_WEIGHT"));
+	static int const iSASSecuredNavalAtkWeight = std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_ATK_WEIGHT"));
 	static int const iSASSecuredNavalNonNavalHeavyTargetMultiplierPercent = std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_NON_NAVAL_MULT_PCT"));
 	static int const iSASSecuredNavalPeacefulMaxTrackedUnitsPerPortCity = std::max(0, GC.getDefineINT("SAS_PROD_SECURED_NAVAL_PEACE_MAX_PER_PORT"));
 	int const iLastConfiguredEra = (int)(sizeof(aiSASMinOffensiveProductionCapacityPercent) / sizeof(aiSASMinOffensiveProductionCapacityPercent[0])) - 1;
@@ -4914,7 +4914,7 @@ void CvCityAI::AI_chooseProduction()
 		if (bTryNaval)
 		{
 			std::vector<UnitAITypes> aeNavalUnitAIs;
-			SAS_rankNavalProductionUnitAIs(kPlayer, *pWaterArea, iSASSecuredNavalAssaultWeight, iSASSecuredNavalEscortWeight, iSASSecuredNavalAttackWeight, aeNavalUnitAIs);
+			SAS_rankNavalProductionUnitAIs(kPlayer, *pWaterArea, iSASSecuredNavalAssaultWeight, iSASSecuredNavalEscortWeight, iSASSecuredNavalAtkWeight, aeNavalUnitAIs);
 			for (std::vector<UnitAITypes>::const_iterator it = aeNavalUnitAIs.begin(); it != aeNavalUnitAIs.end(); ++it)
 			{
 				if (AI_chooseUnit(*it))

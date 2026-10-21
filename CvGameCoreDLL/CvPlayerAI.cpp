@@ -18681,9 +18681,9 @@ static inline int SAS_SpecYieldBaseWeight(YieldTypes eY, const bool bNeedHammers
 	// Read once per process (static init); assumes defines exist (non-zero).
 	// If you want defensive fallbacks, replace each with a small getter that
 	// returns a default when GC.getDefineINT(...) == 0.
-	static const int iFOOD   = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_FOOD_VALUE");    // e.g. 300
-	static const int iHAMMER = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_HAMMER_VALUE");  // e.g. 200
-	static const int iGOLDY  = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_YLD_COMMERCE_VALUE");    // used for YIELD_COMMERCE baseline (e.g. 100)
+	static const int iFOOD   = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_FOOD_VAL");    // e.g. 300
+	static const int iHAMMER = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_HAMMER_VAL");  // e.g. 200
+	static const int iGOLDY  = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_YLD_COMMERCE_VAL");    // used for YIELD_COMMERCE baseline (e.g. 100)
 
 	// Culture push multiplier (applied only when we “need culture")
 	static const int iHAMMER_NEED_MULT = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_HAMMER_NEED_MULT");               // e.g. 2
@@ -18710,10 +18710,10 @@ static inline int SAS_SpecYieldBaseWeight(YieldTypes eY, const bool bNeedHammers
 static inline int SAS_SpecCommerceBaseWeight(const CvPlayerAI& kPlayer, CommerceTypes eC, const bool bAnyCityNeedsBFC)
 {
 	// Base per-commerce weights from knobs
-	static const int iSCI   = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_COM_RESEARCH_VALUE");   // e.g. 300
-	static const int iGOLD  = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_COM_GOLD_VALUE");      // e.g. 300
-	static const int iCULT  = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_COM_CULTURE_VALUE");   // e.g. 100
-	static const int iESP   = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_COM_ESP_VALUE"); // e.g. 200
+	static const int iSCI   = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_COM_RESEARCH_VAL");   // e.g. 300
+	static const int iGOLD  = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_COM_GOLD_VAL");      // e.g. 300
+	static const int iCULT  = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_COM_CULT_VAL");   // e.g. 100
+	static const int iESP   = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_COM_ESP_VAL"); // e.g. 200
 
 	// Culture push multiplier (applied only when we “need culture")
 	static const int iCULT_NEED_MULT = GC.getDefineINT("SAS_CIVICVAL_UNLIM_SPEC_COM_CULT_NEED_MULT");               // e.g. 3

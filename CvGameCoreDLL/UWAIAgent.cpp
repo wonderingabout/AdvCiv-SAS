@@ -3188,11 +3188,11 @@ bool UWAI::Team::isSASVictoryDenialDirectWarAllowed(TeamTypes eTarget, int iTarg
 	bool const bStage3SpaceDirect = (bDirectStage3SpaceEnable && isSASTeamStage3SpaceVictoryThreat(eTarget));
 	if (!bCountdownDirect && !bStage4Direct && !bStage3SpaceDirect)
 		return false;
-	static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_VICT_DENY_DIRECT_MAX_POWER_PCT");
+	static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_VICT_DENY_DIRECT_MAX_PWR_PCT");
 	int const iTargetPowerPercent = 100 * GET_TEAM(eTarget).getDefensivePower(kAgent.getID()) / std::max(1, kAgent.getPower(true));
 	if (iTargetPowerPercent > iMaxTargetPowerPercent)
 		return false;
-	static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_VICT_DENY_DIRECT_MAX_DISTANCE");
+	static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_VICT_DENY_DIRECT_MAX_DIST");
 	if (iDistance < 0 || iDistance > iMaxDistance)
 		return false;
 	return (!bNaval || kAgent.AI_isLandTarget(eTarget));
