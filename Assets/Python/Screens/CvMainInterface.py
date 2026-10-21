@@ -2562,8 +2562,6 @@ class CvMainInterface:
 			return
 		# <!-- custom: Replace the former screen-instance define cache with one read per commerce-control redraw so explicit runtime increment changes reach both +/- buttons; retain local reuse within this draw. See KI#128.2. (Claude code Sonnet 4.6 + GPT-6.1-Sol) -->
 		iCommercePercentChangeIncrements = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")
-		# <!-- custom: Rename SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT to SAS_COMMERCE_SLIDERS_FAST_INCR_PCT for the 42-byte naming trial.
-		# INCR and PCT abbreviate INCREMENT and PERCENT while retaining plural SLIDERS and the percentage unit; keep the existing lazy cache and value unchanged. See KI#1001.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		if self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT is None:
 			self.iSAS_COMMERCE_SLIDERS_FAST_INCR_PCT = gc.getDefineINT("SAS_COMMERCE_SLIDERS_FAST_INCR_PCT")
 		# <advc.092>

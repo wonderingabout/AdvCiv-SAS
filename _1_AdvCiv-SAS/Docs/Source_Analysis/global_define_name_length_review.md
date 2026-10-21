@@ -88,6 +88,23 @@ Bands span five bytes; Share counts only that band, while the cumulative column 
 
 ### Inherited names shipped in SAS
 
+The 310 inherited names occupy eight shipped files. Their per-file census and length distribution provide the comparison baseline for the SAS naming review.
+
+#### Per-file census
+
+| File | Defines | Longest name (bytes) | Longest name |
+| --- | ---: | ---: | --- |
+| `GlobalDefines_advc.xml` | 134 | 42 | `WE_LOVE_THE_KING_POPULATION_MIN_POPULATION` |
+| `PythonCallbackDefines.xml` | 62 | 38 | `USE_CAN_FOUND_CITIES_ON_WATER_CALLBACK` |
+| `GlobalDefinesAlt.xml` | 40 | 41 | `WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT` |
+| `AI_Variables_GlobalDefines.xml` | 38 | 36 | `UWAI_WEIGHT_THIRD_PARTY_INTERVENTION` |
+| `LeadFromBehind_GlobalDefines.xml` | 10 | 23 | `LFB_DEFENSIVEADJUSTMENT` |
+| `GlobalDefines_devel.xml` | 9 | 30 | `PER_PLAYER_MESSAGE_CONTROL_LOG` |
+| `BBAI_Game_Options_GlobalDefines.xml` | 9 | 32 | `BBAI_VICTORY_STRATEGY_DOMINATION` |
+| `TechDiffusion_GlobalDefines.xml` | 8 | 37 | `TECH_COST_FIRST_KNOWN_PREREQ_MODIFIER` |
+
+#### Five-byte distribution
+
 | Name length (bytes) | Names in band | Share | At/below band maximum | Example | Actual length |
 | --- | ---: | ---: | ---: | --- | ---: |
 | 1-5 | 0 | 0.00% | 0.00% | `LFB_ENABLE` (nearest; outside band) | 10 |

@@ -243,6 +243,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 ## Documentation editing
 
 - Describe current behavior and limits without implying future commitments, for example "Performance was not measured" rather than "Performance has not yet been measured". Mention possible extensions only when useful, using wording such as "A possible extension would be..."; otherwise omit speculative plans.
+- Similarly, in documentation and code comments, prefer durable facts and rationale over vague progress labels such as "in progress" or "not yet". These add maintenance burden: we may forget to update them, as has happened before, and future work may change direction or never happen. When status matters, describe the concrete limitation or use a dated historical note.
 
 ### Examples and historical records
 

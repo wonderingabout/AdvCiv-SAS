@@ -33968,7 +33968,7 @@ KI#1001 exposed a concrete 297-byte `DefineTextVal` capacity violation. The same
 
 This follow-up therefore tracks preventive naming/headroom maintenance, not another proven Civ4 defect.
 
-Base AdvCiv 1.14, SAS's direct parent, tops out at 42-byte define names. The inherited define files currently shipped by SAS also top out at 42 bytes; K-Mod 1.46 reaches 41, Taurus 1.04 reaches 30, while stock BtS XML represented by Civ4CE reaches 46.
+The 42-byte comparison baseline comes from Base AdvCiv 1.14, SAS's direct parent. The inherited-file census and external reference comparisons remain in the linked living review.
 
 On 2026-10-21 the cleanup adopted **42 UTF-8 bytes as a trial desired maximum**, matching Base AdvCiv rather than treating the larger stock-BtS value or KI#1001's 255-byte safety ceiling as the style target. This is deliberately stricter than required for correctness.
 
@@ -33982,27 +33982,9 @@ The first representative migration shortens only one just-over-limit key, preser
 
 The live [`global_define_name_length_review.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/global_define_name_length_review.md) is intended to describe the current/post-cleanup naming state. The detailed pre-cleanup census is preserved here so later readers do not mistake stale measurements for current SAS data.
 
-### Pre-cleanup file census
+### Pre-cleanup SAS five-byte distribution
 
-The pre-cleanup snapshot contains 977 defines across the nine root GlobalDefines/PythonCallbackDefines files checked by the loader-safety CI.
-
-| Pre-cleanup file | Defines | Longest `DefineName` bytes | Longest name |
-| --- | ---: | ---: | --- |
-| `GlobalDefines_advciv_sas.xml` | 667 | 114 | `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_HEAVY_INVESTMENT_MAX_TURNS_NORMAL_GAMESPEED` |
-| `GlobalDefines_advc.xml` | 134 | 42 | `WE_LOVE_THE_KING_POPULATION_MIN_POPULATION` |
-| `PythonCallbackDefines.xml` | 62 | 38 | `USE_CAN_FOUND_CITIES_ON_WATER_CALLBACK` |
-| `GlobalDefinesAlt.xml` | 40 | 41 | `WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT` |
-| `AI_Variables_GlobalDefines.xml` | 38 | 36 | `UWAI_WEIGHT_THIRD_PARTY_INTERVENTION` |
-| `LeadFromBehind_GlobalDefines.xml` | 10 | 23 | `LFB_DEFENSIVEADJUSTMENT` |
-| `GlobalDefines_devel.xml` | 9 | 30 | `PER_PLAYER_MESSAGE_CONTROL_LOG` |
-| `BBAI_Game_Options_GlobalDefines.xml` | 9 | 32 | `BBAI_VICTORY_STRATEGY_DOMINATION` |
-| `TechDiffusion_GlobalDefines.xml` | 8 | 37 | `TECH_COST_FIRST_KNOWN_PREREQ_MODIFIER` |
-
-The eight non-SAS files total 310 defines and top out at 42 bytes. The large difference therefore comes from SAS's intentionally descriptive naming convention rather than a gradual inherited trend toward long keys.
-
-### Pre-cleanup five-byte distribution
-
-2026-10-21 census by GPT-6.1-Sol: the 977 shipped names are unique and all ASCII, so byte and character lengths coincide. The tables separate the 667 `SAS_` names from the 310 inherited names shipped in the mod; the external reference archives compared in the linked source-analysis review are outside these distributions.
+2026-10-21 pre-cleanup census by GPT-6.1-Sol: these 667 SAS-prefixed names are unique and all ASCII, so byte and character lengths coincide. The inherited-name distributions and external reference comparisons remain in the living review.
 
 Each band spans five bytes. Share is the percentage in that band; the cumulative column gives the percentage at or below its upper bound. Each example is a real name from that band, with its exact length. Empty bands use the closest name from the same group, explicitly labelled as outside the band.
 
@@ -34036,21 +34018,7 @@ This mirrors SAS's filename-length review approach: compare the distribution in 
 | 106-110 | 1 | 0.15% | 99.85% | `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_HEAVY_INVESTMENT_MIN_COMPLETION_PERCENT` | 110 |
 | 111-115 | 1 | 0.15% | 100.00% | `SAS_AI_CHOOSE_PRODUCTION_SPACE3_MINIMUM_SPACESHIP_COMPONENT_CONTINUITY_HEAVY_INVESTMENT_MAX_TURNS_NORMAL_GAMESPEED` | 114 |
 
-#### Inherited names shipped in SAS
-
-| Name length (bytes) | Names in band | Share | At/below band maximum | Example | Actual length |
-| --- | ---: | ---: | ---: | --- | ---: |
-| 1-5 | 0 | 0.00% | 0.00% | `LFB_ENABLE` (nearest; outside band) | 10 |
-| 6-10 | 2 | 0.65% | 0.65% | `LFB_ENABLE` | 10 |
-| 11-15 | 20 | 6.45% | 7.10% | `LOG_MAP_STATS` | 13 |
-| 16-20 | 44 | 14.19% | 21.29% | `CAMERA_LOWER_PITCH` | 18 |
-| 21-25 | 91 | 29.35% | 50.65% | `CAMERA_MAX_SCROLL_SPEED` | 23 |
-| 26-30 | 85 | 27.42% | 78.06% | `ALERT_ON_NO_LONGER_WAR_TRADE` | 28 |
-| 31-35 | 48 | 15.48% | 93.55% | `BBAI_SKIP_BOMBARD_MIN_STACK_RATIO` | 33 |
-| 36-40 | 17 | 5.48% | 99.03% | `REVOLT_DEFENSE_STATE_RELIGION_MODIFIER` | 38 |
-| 41-45 | 3 | 0.97% | 100.00% | `WE_LOVE_THE_KING_POPULATION_MIN_POPULATION` | 42 |
-
-The SAS median is 49 bytes; its nearest-rank 95th percentile is 77 bytes and its maximum is 114. An 80-byte ceiling accommodates 96.40% of current SAS names and leaves 24 above it; every inherited name already fits, with a maximum of 42 bytes.
+The pre-cleanup SAS median was 49 bytes, the nearest-rank 95th percentile was 77 bytes and the maximum was 114. An 80-byte ceiling would accommodate 96.40% of that snapshot's SAS names and leave 24 above it.
 
 ### Possible style ceilings
 

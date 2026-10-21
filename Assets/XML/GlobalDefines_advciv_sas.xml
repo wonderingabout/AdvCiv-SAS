@@ -3,6 +3,10 @@
 AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 -->
+<!-- custom: The C++ File Audit Album found a 297-byte DefineTextVal exceeding the inherited XML loader's 256-byte buffer (255 content bytes plus the terminator).
+The value was split into numbered parts; global_define_lengths CI checks shipped define names and text values against that capacity. See KI#1001. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+<!-- custom: Following that finding, a separate name-length audit confirmed that, as suspected, SAS names greatly exceeded AdvCiv's naming scale, reaching 114 bytes; no in-game defect was demonstrated from their length.
+KI#1001.2 introduced shorter names and a desired 42-byte ceiling matching AdvCiv's maximum, enforced across shipped GlobalDefines and PythonCallbackDefines by global_define_name_style CI. See KI#1001.2 for the rationale and historical rename mappings. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 <!-- custom: Turn-valued SAS integer defines state game-speed semantics in the name: TURN(S)_NORMAL_GAMESPEED means the XML value is expressed at Normal speed and must be scaled in code; TURN(S)_UNSCALED_GAMESPEED means literal game/path turns intentionally stay unchanged across speeds.
 Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 <!-- custom: Long_Comments_XML.txt #131, #195 -->
@@ -238,7 +242,6 @@ Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 	<!-- custom: commerce sliders second (Min/Max) + + and - - pair step size (e.g., setting it to 50 makes it require 2 clicks to go from 0% to 100% (0->50->100) and vice versa for - -).
 	Keep in [1,100].
 	Base AdvCiv value: 100. (Claude code Opus 4.7) -->
-	<!-- custom: Rename SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT to SAS_COMMERCE_SLIDERS_FAST_INCR_PCT for the 42-byte naming trial; INCR and PCT abbreviate INCREMENT and PERCENT without changing plural SLIDERS, the button-step meaning, the percentage unit or the value. See KI#1001.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_COMMERCE_SLIDERS_FAST_INCR_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
