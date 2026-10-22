@@ -6,6 +6,19 @@ The clean-target, output-verification, installation, testing and symbol-retentio
 
 By default, AI/LLM helpers should let the user compile unless compilation is needed or the user agrees that the helper may do it.
 
+## Menu
+
+- [Toolchain layout](#toolchain-layout)
+- [Before every full compile attempt](#before-every-full-compile-attempt)
+- [Release compile command](#release-compile-command)
+- [Persistent build reports](#persistent-build-reports)
+  - [Example build output](#example-build-output)
+- [Install, test, and clean](#install-test-and-clean)
+- [Retained Debug-opt crash symbols](#retained-debug-opt-crash-symbols)
+  - [Inspecting a dump from the command line](#inspecting-a-dump-from-the-command-line)
+- [Dependency-scanner access violations](#dependency-scanner-access-violations)
+- [Transient legacy-compiler failures](#transient-legacy-compiler-failures)
+
 ## Toolchain layout
 
 Visual C++ 2010 Express supplies the IDE, `vcvars32.bat` environment, and `nmake.exe` build driver. The actual Civ4 DLL is compiled and linked with Microsoft Visual C++ Toolkit 2003 for Civ4 compatibility.

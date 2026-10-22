@@ -4,6 +4,20 @@ This is a living release checklist for the user and AI/LLM helpers working on Ad
 
 Prefer verifying the current repository state over mechanically following stale version numbers or examples in this document.
 
+## Menu
+
+- [General principles](#general-principles)
+- [1. Establish the release boundaries](#1-establish-the-release-boundaries)
+- [2. If base AdvCiv was updated, finish that integration first](#2-if-base-advciv-was-updated-finish-that-integration-first)
+- [3. Build and technical validation](#3-build-and-technical-validation)
+- [4. Refresh base documentation copies when upstream changed them](#4-refresh-base-documentation-copies-when-upstream-changed-them)
+- [5. Audit current documentation and screenshots](#5-audit-current-documentation-and-screenshots)
+- [6. Build the player-facing cumulative changelog](#6-build-the-player-facing-cumulative-changelog)
+- [7. Prepare Git history/reference updates](#7-prepare-git-historyreference-updates)
+- [8. Final release-candidate review](#8-final-release-candidate-review)
+- [9. Tagging and publication](#9-tagging-and-publication)
+- [10. After release](#10-after-release)
+
 ## General principles
 
 - Treat the current repository, Git history, staged diff, supporting docs, and test results as the source of truth; do not reconstruct a release from memory alone.

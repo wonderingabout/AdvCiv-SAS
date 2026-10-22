@@ -17,6 +17,23 @@ class MarkdownTests(unittest.TestCase):
         for destination in ('README.md', '../README.md', 'revisions/SASRuntime.md#revision-6'):
             self.assertIn('repository-root', links.root_link_error(destination))
 
+    # <!-- custom: Reproduce the missing-menu gap independently of the Inventory filename; exemptions require an explicit documented path/category. (GPT-6.1-Sol) -->
+    def test_menu_required_unless_explicitly_exempt(self):
+        text = '# Guide\n\nIntroduction.\n\n## First\n\nBody.\n\n### Detail\n\nMore.\n'
+        self.assertTrue(markdown.menu_errors(text, document="new/place/guide.md"))
+        self.assertTrue(markdown.menu_errors('# Short\n', document="new.md"))
+        for path in ("LICENSE.md", ".github/workflows/build/README.md", "_1_AdvCiv-SAS/Docs/revisions/log.md"):
+            self.assertEqual(markdown.menu_errors(text, document=path), [])
+            self.assertEqual(markdown.render_menu(text, document=path), text)
+        refreshed = markdown.render_menu(text, document="new/place/guide.md")
+        self.assertEqual(markdown.menu_errors(refreshed, document="new/place/guide.md"), [])
+        self.assertIn('Introduction.\n\n## Menu\n', refreshed)
+        self.assertIn('- [First](#first)\n  - [Detail](#detail)', refreshed)
+        self.assertTrue(refreshed.endswith('## First\n\nBody.\n\n### Detail\n\nMore.\n'))
+        self.assertEqual(markdown.render_menu(refreshed, document="new/place/guide.md"), refreshed)
+        malformed = refreshed.replace('- [First](#first)\n', '')
+        self.assertTrue(markdown.menu_errors(malformed, document="LICENSE.md"))
+
     def test_menu_missing_title_and_hierarchy(self):
         valid = '# Doc\n\n## Menu\n\n[A](#a)\\\n&emsp;[B](#b)\n\n## A\n\n### B\n'
         self.assertEqual(markdown.menu_errors(valid), [])

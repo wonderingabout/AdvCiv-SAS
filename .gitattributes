@@ -77,7 +77,9 @@
 /Assets/Res/Fonts/other_mods/                             export-ignore
 
 # <!-- custom: Include compact documentation examples such as runtime JSON/JSONL and build reports in player/GitHub Download ZIP archives.
-# Exclude the large raw SASGameRecord captures and historical source-comparison files; both remain tracked and available to the dedicated light-source ZIP. (GPT-5.6 + GPT-6.1-Sol) -->
+# Exclude the large raw SASGameRecord/assertion captures and historical source-comparison files; these remain tracked and available to the dedicated light-source ZIP. (GPT-5.6 + GPT-6.1-Sol) -->
+/_1_AdvCiv-SAS/Docs/examples/assertions    export-ignore
+/_1_AdvCiv-SAS/Docs/examples/assertions/**  export-ignore
 /_1_AdvCiv-SAS/Docs/examples/sasgamerecord    export-ignore
 /_1_AdvCiv-SAS/Docs/examples/sasgamerecord/**  export-ignore
 /_1_AdvCiv-SAS/Docs/examples/source_comparison    export-ignore

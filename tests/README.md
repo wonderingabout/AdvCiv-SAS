@@ -4,6 +4,12 @@ These tests exercise mod code outside Civ4 using platform-specific development t
 
 CI describes automatic execution, not a different kind of test. Our [GitHub workflows](/.github/workflows/README.md) run repository checks and [workflow-helper regression tests](/.github/workflows/tests/README.md); those commands can also be run locally. The tests in this folder currently require a separate local setup.
 
+## Menu
+
+- [Diagnostic writer](#diagnostic-writer)
+- [Assertion diagnostic harness](#assertion-diagnostic-harness)
+- [Why this test is local](#why-this-test-is-local)
+
 ## Diagnostic writer
 
 A user or agent explicitly runs this test; Civ4's flushing works independently of it.

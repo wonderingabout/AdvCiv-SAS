@@ -2,6 +2,16 @@
 
 The prompt-write revision-154 candidate was compared with revision 153's EXE logger on the same local machine. Normal logging showed a small timing difference; a diagnostic-heavy SAS48 run took substantially less time with the new writer. These are observed results from one candidate/control pair per workload, not a repeated benchmark or a general gameplay speed claim.
 
+## Menu
+
+- [Builds and workloads](#builds-and-workloads)
+- [Timings](#timings)
+- [Output and live access](#output-and-live-access)
+- [Record integrity and limits](#record-integrity-and-limits)
+- [Local evidence identifiers](#local-evidence-identifiers)
+- [Later test on 2026-10-18: second stress scenario](#later-test-on-2026-10-18-second-stress-scenario)
+  - [Focus and run-order follow-up](#focus-and-run-order-follow-up)
+
 ## Builds and workloads
 
 Both DLLs were freshly built as **Debug-opt** with VC2003. Each pair used the corresponding starting save and matching logging settings, starting at game turn 0. The loaded-DLL context recorded clean build-artifact baselines for both builds.

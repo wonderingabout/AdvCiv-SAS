@@ -1232,6 +1232,8 @@ After GlobalDefines finish loading, `SAS_ASSERT_SILENT_ACTION=1` defaults to aut
 
 See [README_Logging_Inventory.md (SAS assertion diagnostics)](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sas-assertion-diagnostics) for coverage, controls, captured rows and writer details.
 
+Full `SASAssertions_startup_example.log` and `SASAssertions_game_example.log` examples from the same process illustrate manual startup handling, automatic continuation and game-over evidence.
+
 ### DLL Logging
 
 AdvCiv-SAS has two complementary always-optional gameplay/AI log families, both tunable via SAS defines without DLL edits: BBAI and SASGameRecord. See [README_Main_Changes_Guide.md (Logging)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging).

@@ -13,6 +13,95 @@ These files are developer/repository automation, not Civ4 runtime files.
 
 These scripts run outside Civ4, so they may use modern Python 3. They do not need Civ4 Python 2.4 compatibility.
 
+## Menu
+
+- [Features](#features)
+- [AIP predump refresh workflow](#aip-predump-refresh-workflow)
+- [Python Ruff workflow](#python-ruff-workflow)
+- [Markdown lint workflow](#markdown-lint-workflow)
+- [Python 2.4 compile workflow](#python-24-compile-workflow)
+- [Current automated checks](#current-automated-checks)
+- [Helper reference](#helper-reference)
+  - [Repository](#repository)
+    - [`build/repository/temp_files.py`](#buildrepositorytemp_filespy)
+    - [`build/repository/assets_dlls.py`](#buildrepositoryassets_dllspy)
+    - [`build/repository/dll_commit_message.py`](#buildrepositorydll_commit_messagepy)
+    - [`build/repository/dll_define_changes.py`](#buildrepositorydll_define_changespy)
+    - [`build/repository/dll_python_bindings.py`](#buildrepositorydll_python_bindingspy)
+    - [`build/repository/examples_archive_size.py`](#buildrepositoryexamples_archive_sizepy)
+    - [`build/repository/version_metadata.py`](#buildrepositoryversion_metadatapy)
+    - [`build/repository/project_sources.py`](#buildrepositoryproject_sourcespy)
+  - [Hygiene](#hygiene)
+    - [`build/hygiene/line_endings.py`](#buildhygieneline_endingspy)
+    - [`build/hygiene/text_blank_lines.py`](#buildhygienetext_blank_linespy)
+    - [`build/hygiene/repository_hygiene.py`](#buildhygienerepository_hygienepy)
+  - [Documentation](#documentation)
+    - [`build/documentation/markdown_prose_changes.py`](#builddocumentationmarkdown_prose_changespy)
+    - [`build/documentation/known_issues_chronology.py`](#builddocumentationknown_issues_chronologypy)
+    - [`build/documentation/markdown_images.py`](#builddocumentationmarkdown_imagespy)
+    - [`build/documentation/markdown_links.py`](#builddocumentationmarkdown_linkspy)
+    - [`build/documentation/long_comments.py`](#builddocumentationlong_commentspy)
+    - [`build/documentation/generated_docs.py`](#builddocumentationgenerated_docspy)
+    - [`build/documentation/markdown_structure.py`](#builddocumentationmarkdown_structurepy)
+  - [XML and rules](#xml-and-rules)
+    - [`build/xml/sas_text_references.py`](#buildxmlsas_text_referencespy)
+    - [`build/xml/global_defines_nonempty.py`](#buildxmlglobal_defines_nonemptypy)
+    - [`build/xml/global_define_lengths.py`](#buildxmlglobal_define_lengthspy)
+    - [`build/xml/global_define_name_style.py`](#buildxmlglobal_define_name_stylepy)
+    - [`build/xml/retired_global_define_names.py`](#buildxmlretired_global_define_namespy)
+    - [`build/xml/launch_guard.py`](#buildxmllaunch_guardpy)
+    - [`build/xml/define_int_bounds.py`](#buildxmldefine_int_boundspy)
+    - [`build/xml/turn_define_gamespeed.py`](#buildxmlturn_define_gamespeedpy)
+    - [`build/xml/sas_define_usage.py`](#buildxmlsas_define_usagepy)
+    - [`build/xml/xml_comments.py`](#buildxmlxml_commentspy)
+    - [`build/xml/xml_element_only_content.py`](#buildxmlxml_element_only_contentpy)
+    - [`build/xml/xml_suspicious_angle_tags.py`](#buildxmlxml_suspicious_angle_tagspy)
+    - [`build/xml/xml_suspicious_text_chars.py`](#buildxmlxml_suspicious_text_charspy)
+    - [`build/xml/xml_civ4_text_characters.py`](#buildxmlxml_civ4_text_characterspy)
+    - [`build/xml/xml_sas_text_english.py`](#buildxmlxml_sas_text_englishpy)
+    - [`build/xml/xml_text_duplicate_tags.py`](#buildxmlxml_text_duplicate_tagspy)
+    - [`build/xml/xml_parent_duplicate_keys.py`](#buildxmlxml_parent_duplicate_keyspy)
+    - [`build/xml/xml_child_duplicates.py`](#buildxmlxml_child_duplicatespy)
+    - [`build/xml/xml_redundant_defaults.py`](#buildxmlxml_redundant_defaultspy)
+    - [`build/xml/tech_columns.py`](#buildxmltech_columnspy)
+    - [`build/xml/wonder_cost_columns.py`](#buildxmlwonder_cost_columnspy)
+    - [`build/xml/wonder_culture_gpp_columns.py`](#buildxmlwonder_culture_gpp_columnspy)
+    - [`build/xml/asset_tech_prereq_redundancy.py`](#buildxmlasset_tech_prereq_redundancypy)
+    - [`build/xml/civ_specific_assets.py`](#buildxmlciv_specific_assetspy)
+    - [`build/xml/civ_specific_not_weaker.py`](#buildxmlciv_specific_not_weakerpy)
+    - [`build/xml/define_tag_refs.py`](#buildxmldefine_tag_refspy)
+    - [`build/xml/asset_primary_tech.py`](#buildxmlasset_primary_techpy)
+  - [Assets](#assets)
+    - [`build/assets/art_button_paths.py`](#buildassetsart_button_pathspy)
+    - [`build/assets/tech_audio.py`](#buildassetstech_audiopy)
+    - [`build/assets/leader_audio.py`](#buildassetsleader_audiopy)
+    - [`build/assets/opening_music.py`](#buildassetsopening_musicpy)
+    - [`build/assets/fonts.py`](#buildassetsfontspy)
+    - [`build/assets/art_define_structure.py`](#buildassetsart_define_structurepy)
+  - [Diagnostics](#diagnostics)
+    - [`build/diagnostics/diagnostic_log_safety.py`](#builddiagnosticsdiagnostic_log_safetypy)
+    - [`build/diagnostics/runtime_status.py`](#builddiagnosticsruntime_statuspy)
+    - [`build/diagnostics/runtime_revision_history.py`](#builddiagnosticsruntime_revision_historypy)
+    - [`build/diagnostics/bbai_log.py`](#builddiagnosticsbbai_logpy)
+    - [`build/diagnostics/sas_game_record_log.py`](#builddiagnosticssas_game_record_logpy)
+    - [`build/diagnostics/sas_revision_history.py`](#builddiagnosticssas_revision_historypy)
+  - [Runtime](#runtime)
+    - [`build/runtime/detail_manager.py`](#buildruntimedetail_managerpy)
+    - [`build/runtime/aip.py`](#buildruntimeaippy)
+    - [`build/runtime/aip_predump_values.py`](#buildruntimeaip_predump_valuespy)
+    - [`build/runtime/worldsizes.py`](#buildruntimeworldsizespy)
+    - [`build/runtime/mapscripts.py`](#buildruntimemapscriptspy)
+  - [Source](#source)
+    - [`build/source/source_change_provenance.py`](#buildsourcesource_change_provenancepy)
+    - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
+    - [Custom-comment logical reflow](#custom-comment-logical-reflow)
+    - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
+  - [Python compatibility](#python-compatibility)
+    - [`build/python/python24_compile.py`](#buildpythonpython24_compilepy)
+- [Run Locally](#run-locally)
+- [Not currently automated](#not-currently-automated)
+- [Dependabot](#dependabot)
+
 ## Features
 
 According to ChatGPT-5.5:
@@ -411,7 +500,10 @@ To refresh, run `python LLM_Helpers/convert_advciv_manual_to_txt.py` or `python 
 
 #### `build/documentation/markdown_structure.py`
 
-Automated documentation check. Checks maintained Markdown docs in the root, `LLM_Helpers/README.md`, this workflow README, and `_1_AdvCiv-SAS/Docs`. Files declaring a Menu/Contents section must index each following body heading once, in body order, with the same rendered title and indentation: one `&emsp;` or two bullet-list spaces per heading level.
+Automated documentation check. Uses Git to discover maintained Markdown, including nonignored new files during local review; Git-free archives use filesystem discovery instead. Imported reference/context corpora are outside this maintenance scope.
+
+- A Menu/Contents section is required unless a file or category has an explicit, reasoned exemption in the checker. Legal text, short folder indexes, generated examples and historical records have documented exceptions; a new guide elsewhere is checked automatically.
+- Menus must index each following body heading once, in body order, with the same rendered title and indentation: one `&emsp;` or two bullet-list spaces per heading level. A presence exemption does not excuse errors in a menu that exists.
 
 Known Issues indexes numbered level-2 KI entries; internal investigation subheadings remain outside its menu. Standalone links to other documents and menu introductions are retained.
 
@@ -421,7 +513,9 @@ Existing `markdown_links.py` continues to validate destinations and stable KI an
 
 Also rejects unpaired `**` bold markers within a paragraph, excluding fenced code, inline code, HTML comments and escaped literal stars. This is a targeted Markdown guard rather than a full CommonMark parser.
 
-Refresh declared menus with `python .github/workflows/build/documentation/markdown_structure.py --refresh-menus`; the refresh keeps existing destinations, external-document links, body content and dominant line endings.
+Create missing menus or refresh existing ones with `python .github/workflows/build/documentation/markdown_structure.py --refresh-menus`; existing introductions, destinations, external-document links, body content and dominant line endings are preserved. Exempt documents without a menu remain unchanged.
+
+The Logging Inventory reached 55 headings without navigation because the earlier check only validated declared menus. The missing-menu regression now fails for arbitrary new document paths, while fixtures verify exemptions, hierarchy and repeatable generation.
 
 ### XML and rules
 

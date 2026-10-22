@@ -9,6 +9,8 @@ from collections import Counter
 from pathlib import Path
 import re
 import posixpath
+# <!-- custom: Git supplies the maintained Markdown inventory without walking generated/imported trees; archive-only reviews fall back to filesystem discovery. (GPT-6.1-Sol) -->
+import subprocess
 import sys
 from urllib.parse import unquote, urlsplit
 
@@ -18,6 +20,27 @@ import markdown_links as links
 ROOT = Path(__file__).resolve().parents[4]
 HEADING = re.compile(r"^(#{1,6})[ \t]+([^\r\n]+?)[ \t]*$", re.MULTILINE)
 MENU = {"menu", "contents", "table of contents"}
+
+# <!-- custom: The Logging Inventory had 55 headings but no menu; validating only declared menus could not catch that omission.
+# Require navigation by default, with explicit reasons for short indexes, legal text and historical/generated records that should not acquire a parallel maintained index. (GPT-6.1-Sol) -->
+MENU_EXEMPT_FILES = {
+    "LICENSE.md": "legal terms, not a navigation guide",
+    ".github/workflows/build/README.md": "short check-folder index",
+    ".github/workflows/tests/README.md": "short regression-test introduction",
+}
+MENU_EXEMPT_PREFIXES = {
+    "_1_AdvCiv-SAS/Docs/Deprecated/": "historical mappings and their short index",
+    "_1_AdvCiv-SAS/Docs/Source_Analysis/": "investigation records follow their own maintenance process",
+    "_1_AdvCiv-SAS/Docs/changelogs_web/": "published historical release copies",
+    "_1_AdvCiv-SAS/Docs/git_logs/": "historical commit records",
+    "_1_AdvCiv-SAS/Docs/revisions/": "append-oriented subsystem revision histories",
+    "_1_AdvCiv-SAS/Docs/examples/": "generated/captured examples and companion notes",
+}
+UNMAINTAINED_PREFIXES = ("_0_Common_Docs/", "LLM_Helpers/context/", "LLM_Helpers/outputs/", "_SNAPSHOT_CONTEXT/", ".git/")
+
+
+def menu_required(document):
+    return document not in MENU_EXEMPT_FILES and not document.startswith(tuple(MENU_EXEMPT_PREFIXES) + UNMAINTAINED_PREFIXES)
 
 def scan(text):
     return links.strip_html_comments(links.without_fenced_code(text))
@@ -75,6 +98,8 @@ def is_self_link(destination, document):
 def menu_errors(text, known_issues=False, document=None):
     model = menu_model(text, known_issues)
     if model is None:
+        if document is not None and menu_required(document):
+            return ["missing Menu/Contents section; add one or document a menu exemption in markdown_structure.py"]
         return []
     start, end, body = model
     by_anchor = {anchor: h for h in body for anchor in (h[4], h[5])}
@@ -169,11 +194,23 @@ def redundant_hard_break_errors(text):
 
 def render_menu(text, known_issues=False, document=None):
     model = menu_model(text, known_issues)
-    if model is None:
-        return text
+    created = model is None
+    if created:
+        if document is not None and not menu_required(document):
+            return text
+        body = headings(text)[1:]
+        if not body:
+            return text
+        # <!-- custom: Insert navigation after the existing introduction, before the first section; preserve its wording and keep any KI anchor attached to its heading. (GPT-6.1-Sol) -->
+        position = body[0][0]
+        custom = re.search(r'<a (?:id|name)="[^"\n]+"></a>\s*$', scan(text)[:position])
+        if custom:
+            position = custom.start()
+        text = text[:position] + "## Menu\n\n" + text[position:]
+        model = menu_model(text, known_issues)
     start, end, body = model
     base_level = min(h[2] for h in body)
-    bullet = bool(re.search(r"^\s*[-*+] ", text[start:end], re.MULTILINE))
+    bullet = created or bool(re.search(r"^\s*[-*+] ", text[start:end], re.MULTILINE))
     destinations = {}
     external_after = {}
     previous = ""
@@ -209,8 +246,14 @@ def render_menu(text, known_issues=False, document=None):
     return text[:start] + "\n\n" + "\n".join(rows) + "\n\n" + text[end:]
 
 def paths(root):
-    # <!-- custom: Include the local-tests guide alongside the other maintained root/tooling docs after separating executable test programs from helper scripts. (GPT-6.1-Sol) -->
-    return sorted(set([root / "README.md", root / "AGENTS.md", root / "LLM_Helpers/README.md", root / ".github/workflows/README.md"] + list((root / "_1_AdvCiv-SAS/Docs").rglob("*.md")) + list((root / "tests").rglob("*.md"))))
+    # <!-- custom: Cover maintained Markdown wherever a new guide is added, not only a fixed list of familiar folders.
+    # The fallback supports Git-free light-source archives; imported/generated corpora are excluded in either mode. (GPT-6.1-Sol) -->
+    if (root / ".git").exists():
+        result = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z", "--", "*.md"], cwd=root, check=True, stdout=subprocess.PIPE)
+        names = result.stdout.decode("utf-8").split("\0")
+    else:
+        names = [path.relative_to(root).as_posix() for path in root.rglob("*.md")]
+    return sorted({root / name for name in names if name and not name.startswith(UNMAINTAINED_PREFIXES) and (root / name).is_file()})
 
 def main():
     parser = argparse.ArgumentParser(description="Validate Markdown menus, anchors, balanced bold markers and hard-break structure in maintained docs.")

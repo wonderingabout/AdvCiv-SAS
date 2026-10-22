@@ -262,6 +262,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 
 ### Markdown structure and readability
 
+- Give maintained Markdown documents a Menu/Contents section for navigation; the structure checker requires it unless the file/category has a documented exemption. Use `python .github/workflows/build/documentation/markdown_structure.py --refresh-menus` to create or refresh menus, then review the result.
 - Use repository-root links such as `/Assets/XML/GlobalDefines_advciv_sas.xml` for local Markdown destinations; avoid document-relative links such as `../README.md` or `revisions/SASRuntime.md`, which depend on the referring document's location. Moving the referring document then preserves the target; same-page anchors and external URLs are fine.
 - Prefer heading-generated Markdown anchors instead of explicit HTML `<a id="...">` / `<a name="...">` targets; a second naming scheme makes destinations harder to predict and maintain.
   - Numbered `ki-N[.N...]` anchors in `README_Known_Issues.md` are the exception: their short, direct and predictable targets keep issue links stable even when KI heading wording changes.
