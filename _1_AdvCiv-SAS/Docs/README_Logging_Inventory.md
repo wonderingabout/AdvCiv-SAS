@@ -269,7 +269,7 @@ The current examples preserve unchanged startup and gameplay captures from the s
 
 #### Startup example
 
-`SASAssertions_startup_example.log` is reproduced in full below. In this capture, metadata is followed by assertions `1`–`7`: the first is handled manually before the policy cache loads, and later failures use automatic Ignore Once.
+[SASAssertions_startup_example.log](/_1_AdvCiv-SAS/Docs/examples/assertions/SASAssertions_startup_example.log) is reproduced in full below. In this capture, metadata is followed by assertions `1`–`7`: the first is handled manually before the policy cache loads, and later failures use automatic Ignore Once.
 
 ```log
 2026-10-22T11:46:01.022Z record=SAS_ASSERT_METADATA pid=40788 tid=25968 processStartUtc=2026-10-22T11:45:58.906Z session=startup sessionSequence=0 sessionStartUtc=2026-10-22T11:45:58.906Z assertionsEnabled=1 initialSilentMode=-1 initialSilentPolicy=STARTUP_DIALOG writer=OPEN_APPEND_CLOSE liveReadable=1 forcedPhysicalFlush=0 build=Debug-opt moduleFound=1 fileReadable=1 fileSizeBytes=14700544 dllFingerprint=FNV1A64:E2DF645582B673E9 dllLastWriteUtc=20261022T114354.489Z peTimestampRaw=1792669425 peTimestampUtc=20261022T114345Z resourceFileVersion=- resourceProductVersion=- fassertEnabled=1
@@ -291,7 +291,7 @@ The current examples preserve unchanged startup and gameplay captures from the s
 
 #### Gameplay example
 
-`SASAssertions_game_example.log` illustrates gameplay after either creating a new game or loading a save. The current capture is from a loaded game, continuing from startup with assertion `8`.
+[SASAssertions_game_example.log](/_1_AdvCiv-SAS/Docs/examples/assertions/SASAssertions_game_example.log) illustrates gameplay after either creating a new game or loading a save. The current capture is from a loaded game, continuing from startup with assertion `8`.
 
 - In this example, metadata precedes **6,576 failure/choice pairs** (6,260,100 bytes), spanning recorded turns 98–366 and ending in `GAME_OVER`.
 - The excerpt below keeps the metadata and one complete pair from each of the seven distinct assertion sites in this capture. It includes the once-only city-defense failure and both different `InvasionGraph::Node::step` conditions; gaps in assertion numbers omit repeated occurrences.
