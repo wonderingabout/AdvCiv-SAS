@@ -297,7 +297,7 @@ Note: several of the sample examples in this section are now seemingly fixed, bu
 
 #### Gameplay example
 
-[SASAssertions_game_example.log](/_1_AdvCiv-SAS/Docs/examples/assertions/SASAssertions_game_example.log) illustrates gameplay after either creating a new game or loading a save. The current capture is from a loaded game, continuing from startup with assertion `8`.
+[SASAssertions_game_example.log](/_1_AdvCiv-SAS/Docs/examples/assertions/SASAssertions_game_example.log) illustrates gameplay after either creating a new game or loading a save. The current capture is from a loaded game and shares process identity with the startup example.
 
 - In this example, metadata precedes **6,576 failure/choice pairs** (6,260,100 bytes), spanning recorded turns 98–366 and ending in `GAME_OVER`.
 - The excerpt below keeps the metadata and one complete pair from each of the seven distinct assertion sites in this capture. It includes the once-only city-defense failure and both different `InvasionGraph::Node::step` conditions; gaps in assertion numbers omit repeated occurrences.
@@ -320,7 +320,9 @@ Note: several of the sample examples in this section are now seemingly fixed, bu
 2026-10-22T12:01:22.827Z record=SAS_ASSERT_CHOICE assertion=5592 tid=25968 session=load1 sessionSequence=1 activity=GAME_OVER gameObjectAvailable=1 finalInitialized=1 turn=366 elapsed=366 autoPlayRemaining=0 activePlayer=3 activeTeam=3 silentMode=1 silentPolicy=IGNORE_ONCE choice=AUTOMATIC action=IGNORE_ONCE automatic=1 silentFallback=- actionCode=1 dialogShown=0 dialogResult=-1 file="..\\.\\CvReplayInfo.cpp" line=1039 function="CvReplayInfo::checkBounds" expression="m->bDisplayOtherMods || m->iVersionRead < REPLAY_VERSION" message=""
 ```
 
-The full game capture also illustrates how a repeatedly failing check can generate substantial output: silent handling removes popup clicks, but does not repair the failed condition or eliminate its recording cost.
+The full game capture also illustrates how a repeatedly failing check can generate substantial output: silent handling removes popup clicks, but does not repair the failed condition or eliminate its recording cost. Some captured conditions were addressed during subsequent review; notably:
+
+- [KI#486.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486.5) retires the inherited `AI_conquerCity` development probe shown here. It marked preliminary path entry, whereas enabled SASGameRecord/BBAI diagnostics record actual conquest-liberation decisions and KI#486.2 documents a successful transfer replay.
 
 ### Historical comparison
 

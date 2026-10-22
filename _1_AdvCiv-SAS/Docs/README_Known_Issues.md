@@ -619,6 +619,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#486.2 - (Fixed inherited AdvCiv use-after-free crash) Liberating a conquered city dereferenced its destroyed old city object](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486.2)\
 [KI#486.3 - (Fixed inherited AdvCiv conquest-liberation finalization bug) Hostage-withheld liberation skipped the retained-city finalization path](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486.3)\
 [KI#486.4 - (Fixed inherited AdvCiv city-trade source redundancy) AI city-pair scan built the same TradeData twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486.4)\
+[KI#486.5 - (Fixed inherited AdvCiv stale diagnostic assertion) Obsolete conquest-liberation development probe fired during normal play](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486.5)\
 [KI#487 - (Fixed inherited K-Mod/AdvCiv geographic assumption retained by SAS) Cross-area rival culture pressure was discarded](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-487)\
 [KI#488 - (Fixed AdvCiv-SAS cautious-health defect) Resource plots lost Forest/Jungle health](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-488)\
 [KI#489 - (Fixed AdvCiv-SAS regression against AdvCiv Barbarian normalization) First Barbarian city received capital-only gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-489)\
@@ -1385,7 +1386,7 @@ Thanks to chatgpt's help, and following recent as of now DLL changes such as in 
 
 ## KI#3.2 - (Fixed/Strengthened inherited Firaxis readers) SAS Barbarian mapping comments expose missing XML comment skipping
 
-The chronological SAS assertion cleanup exposed five consecutive startup failures in `CvXMLLoadUtility::GetChildXmlVal` (`SASAssertions` assertions 3-7).
+Reviewing the preserved SASAssertions startup capture exposed repeated `CvXMLLoadUtility::GetChildXmlVal` failures.
 
 A source review identified the inherited civilization `Buildings`/`Units` reader as a candidate caller: it can land on direct XML comment siblings and try to descend into them as mapping elements. The captured generic failures do not name the caller, so their precise attribution remains a replay question.
 
@@ -25560,6 +25561,40 @@ The trade type/data and denial test are identical; city-pair selection, cede val
 The issue was found while adding SASGameRecord revision 105 AI city-trade intent provenance; that revision's full autoplay exercised a real free-liberation city transfer and retained the control final state and synchronized RNG value stream.
 
 Found and fixed while adding SASGameRecord revision 105 with the help of ChatGPT-5.6-Sol, thanks.
+
+<a id="ki-486.5"></a>
+
+## KI#486.5 - (Fixed inherited AdvCiv stale diagnostic assertion) Obsolete conquest-liberation development probe fired during normal play
+
+Reviewing the preserved SASAssertions gameplay example exposed an obsolete development probe in `CvPlayerAI::AI_conquerCity`:
+
+> `FErrorMsg("Just to test AI liberation upon conquest")`
+
+This was not a violated gameplay invariant. AdvCiv had deliberately inserted a known-false diagnostic while developing immediate AI city liberation after conquest.
+
+Archaeology traces the probe to AdvC commit `f54cc305502cb61c3a27a6de7f015925a5f1b4c1` (`AI code for initiating city trades`, 2020-04-01), which introduced the conquest-liberation feature and an `FAssertMsg(false, ...)` once `AI_intendsToCede` had accepted the transfer.
+
+AdvC commit `fe3875a1d4c5d436028a8ca3d80512a265d571eb` (`Replace FAssertMsg(false,"...") with FErrorMsg("...")`, 2020-09-08) mechanically converted that deliberate failure to `FErrorMsg` without changing its purpose.
+
+The bundled first-parent commit-diff history shows that by the AdvC 1.07 branch state merged through `40bd5f76d9dc1dca3984bbd75f96c0835a4fb3bd` on 2022-08-12, `AI_intendsToCede` had been temporarily moved out of the outer condition so the probe would fire on the broader preliminary candidate path.
+
+The nearby `advc.test` comment explicitly says the function returns true very rarely, asks to step through the path a few times, and then says to move the check back into the condition.
+
+The preserved SASAssertions capture records this probe during unattended autoplay. It proves that the preliminary conquest-liberation candidate path was reached; because the deliberate failure occurs before the nested `AI_intendsToCede` call, the failure alone does not prove that its city would have been liberated.
+
+The stronger validation already existed elsewhere in SAS history: KI#486.2 captured a real Galway conquest followed immediately by successful AI liberation, then replayed the preserved save through the same rare path after repairing the independent `CvCity::liberate` lifetime crash.
+
+Existing diagnostics supersede the probe's limited purpose without interrupting autoplay:
+
+- At SASGameRecord level 2 or above, `GAME_RECORD_AI_CONQUER_CITY_DECISION` systematically records selected captured-city dispositions, including `outcome=LIBERATE` / `reason=LIBERATION` or `outcome=KEEP` / `reason=LIBERATION_WITHHELD_HOSTAGE`, with the city, owners and `liberationPlayer`.
+- Enabled BBAI conquest diagnostics also report successful liberation decisions alongside the surrounding raze evaluation.
+- These records expose the selected decision and its context; they do not enumerate internal `AI_intendsToCede` rejection reasons or independently prove that a transfer completed. The successful transfer/replay evidence is in KI#486.2. Thus no extra SGR fields are needed to retire a probe that only marked preliminary path entry.
+
+Fixed by restoring `AI_intendsToCede(kCity, eLiberationPlayer, true)` to the outer liberation condition exactly as the AdvC test comment requested, and removing the deliberate `FErrorMsg` plus temporary step-through note.
+
+The gameplay decision is unchanged: after the same preliminary checks, `AI_intendsToCede` is still evaluated once and only accepted candidates enter the hostage/liberation branch. This repair removes obsolete diagnostic noise rather than changing the liberation policy.
+
+Found during a broader review of the preserved assertion examples, which illustrate earlier behavior rather than prescribe a permanent numbered repair sequence. Investigated and repaired with ChatGPT-5.6-Sol; diagnostic coverage and rationale reviewed with GPT-6.1-Sol.
 
 <a id="ki-487"></a>
 

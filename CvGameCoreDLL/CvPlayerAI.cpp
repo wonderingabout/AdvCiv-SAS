@@ -2405,20 +2405,17 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 		if (iRazeValue < 20)
 		{
 			PlayerTypes const eLiberationPlayer = kCity.getLiberationPlayer(true);
+			// <!-- custom: AdvCiv left a deliberate advc.test failure here while temporarily moving AI_intendsToCede into the body so this rare conquest-liberation path could be stepped through.
+			// SASAssertions reached the preliminary candidate path, while KI#486.2 replay-validated a successful conquest liberation.
+			// When enabled, SGR records the selected LIBERATE/KEEP disposition and recipient; BBAI also reports successful liberation decisions, without an interactive tripwire.
+			// Restore AdvCiv's intended condition; this removes a deliberate failure, not a gameplay invariant or the cession decision. See KI#486.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 			if (eLiberationPlayer != NO_PLAYER &&
 				!GET_TEAM(getTeam()).isAtWar(TEAMID(eLiberationPlayer)) &&
 				/*	(Don't check trade denial b/c that includes conditions for refusal
 					by recipient. Recipient has no choice here.) */
-				canTradeItem(eLiberationPlayer, TradeData(TRADE_CITIES, kCity.getID())) /*&&
-				AI_intendsToCede(kCity, eLiberationPlayer, true)*/)
+				canTradeItem(eLiberationPlayer, TradeData(TRADE_CITIES, kCity.getID())) &&
+				AI_intendsToCede(kCity, eLiberationPlayer, true))
 			{
-				FErrorMsg("Just to test AI liberation upon conquest"); // advc.test
-				/*	advc.test: Seems to return true only extremely rarely.
-					Should better step through this a few times to verify that
-					it's working as intended. Should then move this check
-					back into the condition above. */
-				if (AI_intendsToCede(kCity, eLiberationPlayer, true))
-				{
 				bool bLiberate = true;
 				/*	Don't liberate (not for free anyway) if they're
 					holding one of our cities hostage */
@@ -2448,7 +2445,6 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 				// Finalize the KEEP outcome before returning. See KI#486.3. (ChatGPT-5.6-Sol) -->
 				else keepCity(kCity);
 				return;
-				}
 			}
 		} // </advc.ctr>
 		// <!-- custom: AdvCiv keeps the BtS percentage roll specifically for Barbarians, but its later deterministic positive-value gate accidentally overrode failed Barbarian rolls.
