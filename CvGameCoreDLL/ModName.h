@@ -28,8 +28,8 @@ public:
 	char const* getPathInRoot() const { return m_sPathInRoot.c_str(); }
 	// <!-- custom: Keep getName() as the actual loaded mod-folder name detected by AdvCiv/BtS; it may differ from the branded display name after a user renames the installed folder. (ChatGPT-5.6-Sol) -->
 	char const* getName() const { return m_sName.c_str(); }
-	// <!-- custom: Return the branded/project name configured by SAS_MOD_DISPLAY_NAME, falling back to the detected folder name.
-	// Call only after GlobalDefines have been loaded. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Return the branded/project name cached from the loaded mod INI's [CONFIG] Name during update(), before XML/Python startup consumers can ask for it.
+	// Keep this separate from getName(), which is the actual installed folder identity. See KI#110.2. (ChatGPT-5.6-Sol) -->
 	char const* getDisplayName() const;
 
 	// <!-- custom: Resolve source/version metadata lazily from either an exported archive marker or the exact Git checkout rooted at this loaded mod folder.
@@ -52,10 +52,14 @@ private:
 	void resetSourceDetails();
 	void resolveSourceDetails() const;
 	CvString getAbsoluteModPath() const;
+	// <!-- custom: Cache the Civ4 mod INI's [CONFIG] Name from the EXE-derived loaded folder path, avoiding any GlobalDefines dependency during Python/XML startup. See KI#110.2. (ChatGPT-5.6-Sol) -->
+	void cacheDisplayName();
 
 	CvString m_sFullPath;
 	CvString m_sPathInRoot;
 	CvString m_sName;
+	// <!-- custom: Own the early INI-derived branding independently of installation identity; a reported configuration failure stores an explicit unavailable label. See KI#110.2. (GPT-6.1-Sol) -->
+	CvString m_sDisplayName;
 	// <!-- custom: Cache only authoritative source/version facts.
 	// Derived presentation values such as a short SHA are intentionally computed by callers from these primary fields.
 	// mutable allows const UI/log getters to populate the cache once without making source resolution part of ModName's logical identity mutation. (ChatGPT-5.6-Sol) -->

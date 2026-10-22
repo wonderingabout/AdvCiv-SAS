@@ -173,6 +173,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#108 - (Fixed) Base AdvCiv diplomacy inconsistency: AI can refuse "tribute" for pure Vassal/Surrender, then accept the same deal through "What do you want in exchange?" with nothing added](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-108)\
 [KI#109 - (Reworked/Improved) AI bonus trading: dynamic value replaces named dominated-resource exclusions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-109)\
 [KI#110 - (AdvCiv-SAS music shuffle cleanup) Intermittent Python startup/MainInterface errors from early BUG path calls in Sevopedia music path helper](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-110)\
+[KI#110.2 - (AdvCiv-SAS regression) Branded mod-name lookup could run before GlobalDefines during Python/XML startup](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-110.2)\
 [KI#111 - (Reverted this Patch) Sevopedia Index UnicodeDecodeError in build/sort/filter UnicodeDecodeError: 'ascii' codec can't decode byte 0xc8 in position 0](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-111)\
 [KI#112 - (Seemingly Fixed) Base AdvCiv issue of missing getPrereqOrPromotion3 in sevopedia promotion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-112)\
 [KI#113 - (Worked around) WIDGET_PYTHON missing hover text in UI contexts (e.g. Builds in Tech Chooser and Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-113)\
@@ -10445,6 +10446,38 @@ Update 2:
 - To expand on this: the cleaner and sufficient fix for Sevopedia groupings (Music and Media Player) not showing the other opening menu tracks was to fix the XML fetcher path logic itself in `_SAS_findAssetXmlPath()`.
 - In practice, resolving directly from mod path context (current BTS cwd + `CvModName.modName`, then `Mods/<mod>/Assets/...`) restored correct track discovery.
 - So the robust approach was fetcher-path correction rather than adding BUG-path helper calls.
+
+<a id="ki-110.2"></a>
+
+## KI#110.2 - (AdvCiv-SAS regression) Branded mod-name lookup could run before GlobalDefines during Python/XML startup
+
+The new persistent assertion diagnostics exposed this as the first chronological startup assertion in the captured Debug-opt run.
+
+While `CIV4GraphicOptionInfos.xml` was still loading, `CvModName.py` was imported through the early `CvMainInterface` / reminders / autolog chain and executed `gc.getModDisplayName()` at module scope. The C++ accessor then called `GC.getDefineSTRING("SAS_MOD_DISPLAY_NAME")` before `GlobalDefines_advciv_sas.xml` had been loaded.
+
+This was introduced by AdvCiv-SAS commit `66b46c22d2485e744d2703f8c9a9773cb15ae16b` on 2026-08-29 (`Centralize mod display name and loaded-folder handling; Update DLL`). Base AdvCiv 1.14 and K-Mod 1.46 kept `CvModName.py` startup-safe through literal `modName` / `displayName` values, so this startup dependency is SAS-origin rather than inherited.
+
+The C++ File Audit Album did inspect the affected code after the regression existed. C031-WIP674 states that it used a reconciled 2026-09-10 SAS snapshot, and the later C031-WIP729 practical-6326 addendum explicitly concluded that no current consumer called `getDisplayName()` before GlobalDefines.
+
+The assertion capture disproves that particular lifecycle conclusion for the audited state. This does not rewrite the historical album record: the original queue snapshot itself predated the expanded SAS implementation, while the reconciled/current-source audit and repair-side addendum were later.
+
+Fixed by moving the branded-name source above the XML/Python dependency instead of weakening the define accessor or substituting the installed folder name:
+
+- `[CONFIG] Name` in the loaded Civ4 mod INI is now the authoritative branded/project name.
+- `ModName::update()` already receives the EXE-derived loaded mod folder before these startup Python imports. It now locates that folder's matching `<folder>.ini`, reads `[CONFIG] Name` through the bounded Win32 INI API, and caches the result once in `ModName`.
+- `getDisplayName()` reads the cached name without XML access.
+  - If the INI is unreadable or `[CONFIG] Name` is missing/blank, initialization displays a configuration error even in Release, including the attempted INI path and repair instructions.
+  - Continuing uses the explicit `[Mod name unavailable]` label rather than silently substituting the folder name; the user must correct the INI and restart.
+  - Win32 reports the error directly because `CvGlobals::setDLLIFace()` has not assigned `gDLL` when `ModName::update()` runs.
+- `CvModName.py` keeps its long-standing module-level `modName` / `displayName` contract, so BUG settings/search paths continue to use the branded identity exactly as before while the separate folder/path accessors retain actual installation identity.
+- The redundant `SAS_MOD_DISPLAY_NAME` GlobalDefine is removed, eliminating the startup-order dependency rather than special-casing it.
+- The former define comment's rebranding exceptions remain explicit in the Main Changes Guide: the installed folder, matching INI filename, separate INI `Description`, `CIV4ArtDefines_Misc.xml`'s `DEFAULT_THEME_NAME`, and `Resource/Civ4.thm`'s resource/include paths. Reusing the existing INI `Name` removes that duplicated runtime branding value; it does not make folder-based theme paths dynamic.
+
+The `<loaded-folder>.ini` location is not inferred from the branded name: BUG's existing `initNoCustomAssetsSetting()` already uses the same actual-folder convention (`getModFolder() + ".ini"`). This preserves the practical-6326 two-identity design while placing the branded value at a lifecycle point that is actually available when early Python imports request it.
+
+2026-10-22 post-fix replay (15:24 UTC): the rebuilt assert-enabled Debug-opt DLL was identified consistently by the startup assertion metadata and runtime status (`FNV1A64:71A52BC53CCFCF3F`). The original missing `SAS_MOD_DISPLAY_NAME` assertion was absent; the first recorded failure was instead the existing `CvGameSpeedInfo::read` Golden Age modifier assertion.
+
+`PythonErr.log` was empty, and the runtime history/status recorded a loaded game reaching turn 43 before a clean exit; the user reported that the startup test worked. This confirms the tested startup-order repair, without claiming that all remaining startup assertions or renamed-folder/error-dialog cases were resolved or exercised. (ChatGPT-5.6-Sol + GPT-6.1-Sol)
 
 <a id="ki-111"></a>
 

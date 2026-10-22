@@ -7,8 +7,8 @@ from CvPythonExtensions import CyGlobalContext
 
 gc = CyGlobalContext()
 
-# <!-- custom: Keep BUG/BULL's long-standing CvModName API, but source branded/project and source-version details through AdvCiv's central ModName resolver.
-# The actual installed folder remains separate and is exposed by the filesystem getters below. (ChatGPT-5.6-Sol) -->
+# <!-- custom: Keep BUG/BULL's long-standing import-time CvModName API, but source the branded/project name from AdvCiv's central ModName cache.
+# The DLL fills that cache from the mod INI's [CONFIG] Name before Python/XML startup consumers reach this module; the actual installed folder remains separate below. See KI#110.2. (ChatGPT-5.6-Sol) -->
 modName = gc.getModDisplayName() # advc.009
 displayName = modName # advc.009
 civName = "BtS"

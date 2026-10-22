@@ -3,6 +3,10 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- Misc art path information -->
 <Civ4ArtDefines xmlns="x-schema:CIV4ArtDefinesSchema.xml">
 	<MiscArtInfos>
@@ -331,7 +335,7 @@
 			<KFM></KFM>
 		</MiscArtInfo>
 		<!-- advc.002b: Set modified theme as default -->
-		<!-- custom: AdvCiv-SAS Mod rename: DEFAULT_THEME_NAME is a startup filesystem path and cannot consume SAS_MOD_DISPLAY_NAME; update it manually if the installed mod folder is renamed. (ChatGPT-5.6-Sol) -->
+		<!-- custom: AdvCiv-SAS Mod rename: DEFAULT_THEME_NAME is a startup filesystem path tied to the installed folder, not the branded [CONFIG] Name from the mod INI; update it manually if the installed mod folder is renamed. See KI#110.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		<MiscArtInfo>
 			<Type>DEFAULT_THEME_NAME</Type>
 			<Path>Mods/AdvCiv-SAS/Resource/Civ4.thm</Path>

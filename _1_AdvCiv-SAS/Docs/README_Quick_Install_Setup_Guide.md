@@ -152,9 +152,9 @@ If you want to modify AdvCiv-SAS (or whatever this mod is named), the player "do
 
 You'd need to git clone this repo or some similar method so that the exclusion list at [`.gitattributes`](/.gitattributes) is not applied.
 
-If you rebrand/fork AdvCiv-SAS, the runtime display/project name is centralized through `SAS_MOD_DISPLAY_NAME` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+If you rebrand/fork AdvCiv-SAS, the runtime display/project name is centralized through `[CONFIG] Name` in [`AdvCiv-SAS.ini`](/AdvCiv-SAS.ini); see [KI#110.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-110.2) for the startup rationale.
 
-Some startup/theme filesystem paths cannot use that runtime define and must still be changed manually; see the checklist next to the define and [Main Changes Guide: Mod Name/Version](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mod-nameversion).
+The INI filename follows the actual installed mod-folder name, while `[CONFIG] Name` is the branded name shown by runtime UI/logging/replay code. Folder-based theme/resource paths still need manual review when the installed folder is renamed; see [Main Changes Guide: Mod Name/Version](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mod-nameversion).
 
 ## Where to download more/other mods
 

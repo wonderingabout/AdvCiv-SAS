@@ -141,9 +141,14 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 ### Mod Name/Version
 
 - (Requires AdvCiv-SAS 6326+) **Centralized AdvCiv-SAS mod identity:**
-  - The main runtime display/project name is now defined once through `SAS_MOD_DISPLAY_NAME` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml), and shared by runtime UI/logging/replay code through AdvCiv's existing `ModName` / `CvModName` infrastructure.
-  - This display name is intentionally separate from the actual installed mod-folder name, which BtS/AdvCiv detects dynamically.
-  - Known startup/theme paths that cannot use the runtime define are documented next to it as a manual rebranding checklist; a full rename should still search for remaining old-name/path references.
+  - Runtime UI/logging/replay code shares one branded/project identity through AdvCiv's existing `ModName` / `CvModName` infrastructure.
+  - (Requires AdvCiv-SAS 6665+) The name is cached from `AdvCiv-SAS.ini`'s `[CONFIG] Name` before XML/Python startup, fixing the early GlobalDefine lookup exposed by assertion logging. See [KI#110.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-110.2).
+    - An unreadable INI or missing/blank name produces a configuration error even in Release, with an explicit unavailable label if the user continues.
+  - This display name is intentionally separate from the actual installed mod-folder name, which BtS/AdvCiv detects dynamically. The mod INI filename follows that loaded-folder identity; changing only `[CONFIG] Name` does not redirect filesystem lookup.
+  - If you want to rename the mod, changing only the e.g. `Name = AdvCiv-SAS` setting under `[CONFIG]` in `AdvCiv-SAS.ini` is not enough. The following are known places to review manually, especially if you rename the installed mod folder; `AdvCiv-SAS Mod rename` marks related source comments, but search for the old name/path too in case this list may be incomplete:
+    - The installed mod folder and matching `AdvCiv-SAS.ini` filename; `[CONFIG] Name` controls branding, while `Description` is separate text.
+    - [`CIV4ArtDefines_Misc.xml`](/Assets/XML/Art/CIV4ArtDefines_Misc.xml): `DEFAULT_THEME_NAME` points to the installed folder's `Resource/Civ4.thm`.
+    - [`Resource/Civ4.thm`](/Resource/Civ4.thm): `resource_path` and the include path refer to the installed folder, independently of branding.
   - This also provides the structural groundwork used by the automatic runtime version/commit reporting added below; the existing commit-count version-number scheme itself is unchanged.
   - See [root README: Version number](/README.md#version-number) and [Quick Install Guide: Modify the mod (its development version)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#modify-the-mod-its-development-version).
 - (Requires AdvCiv-SAS 6357+) **Automatic runtime version/source details:**

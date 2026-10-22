@@ -332,18 +332,19 @@ void ModName::update(char const* szFullPath, char const* szPathInRoot)
 			And chop off the separator at the end. */
 		m_sName = m_sName.substr(posMods + 5, m_sName.length() - posMods - 6);
 	}
+	// <!-- custom: Resolve branded identity here, while BtS's loaded folder is already known but before XML/Python startup can request the display name.
+	// This keeps the practical-6326 two-identity model without making an early Python import depend on later GlobalDefines. See KI#110.2. (ChatGPT-5.6-Sol) -->
+	cacheDisplayName();
 	// <!-- custom: A refreshed loaded-mod path invalidates any source metadata cached for the previous path. (ChatGPT-5.6-Sol) -->
 	resetSourceDetails();
 }
 
-// <!-- custom: Central branded/project identity.
-// The actual folder/path remains the EXE-derived data cached by update(). (ChatGPT-5.6-Sol) -->
+// <!-- custom: Central branded/project identity cached from the mod INI during update(); never substitute the installed folder because the two identities deliberately may differ.
+// Failed configuration is reported once by cacheDisplayName(), including in Release, with an explicit unavailable label rather than guessed branding. See KI#110.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 char const* ModName::getDisplayName() const
 {
-	char const* szDisplayName = GC.getDefineSTRING("SAS_MOD_DISPLAY_NAME");
-	if (szDisplayName != NULL && szDisplayName[0] != '\0')
-		return szDisplayName;
-	return getName();
+	FAssertMsg(!m_sDisplayName.empty(), "Branded mod name requested before ModName initialization; see KI#110.2");
+	return m_sDisplayName.c_str();
 }
 
 // <!-- custom: Convert AdvCiv/BtS's cached mod path into an absolute filesystem path for the metadata-file/.git checks without changing the public loaded-folder identity. (ChatGPT-5.6-Sol) -->
@@ -368,6 +369,46 @@ CvString ModName::getAbsoluteModPath() const
 	while (path.length() > 3 && (path[path.length() - 1] == '\\' || path[path.length() - 1] == '/'))
 		path.erase(path.length() - 1, 1);
 	return path;
+}
+
+// <!-- custom: Civ4 mod INIs conventionally match the loaded folder name; BUG's own NoCustomAssets reader already uses getModFolder() + ".ini".
+// Read only the branded [CONFIG] Name from that folder-matched INI, with an explicit capacity passed to Win32's INI API; folder/path identity remains independently cached in m_sName/m_sPathInRoot.
+// This runs from update() before the Python import path that exposed assertion #1, and replaces the later SAS_MOD_DISPLAY_NAME dependency introduced by SAS commit 66b46c22d2. See KI#110.2. (ChatGPT-5.6-Sol) -->
+void ModName::cacheDisplayName()
+{
+	m_sDisplayName.clear();
+	CvString const modPath = getAbsoluteModPath();
+	// <!-- custom: A missing INI/key or blank name must be visible in ordinary Release builds too; FAssert alone disappears there and can be ignored automatically in diagnostic builds.
+	// Report once at initialization, not on each getter, and mark subsequent UI/log output explicitly unavailable instead of substituting installation-folder identity.
+	// update() runs before CvGlobals assigns gDLL, so use Win32 directly rather than the EXE message/log interfaces. See KI#110.2. (GPT-6.1-Sol) -->
+	CvString const iniPath = (modPath.empty() || m_sName.empty()) ? "" : modPath + "\\" + m_sName + ".ini";
+	if (!iniPath.empty())
+	{
+		// <!-- custom: Unlike the capacity-less FXML path from KI#1001, GetPrivateProfileStringA receives the destination size.
+		// Grow and retry on its capacity - 1 truncation signal so the central branded value is never silently shortened or constrained by another arbitrary 256-byte contract. See KI#110.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		std::vector<char> displayNameBuffer(256);
+		for (;;)
+		{
+			DWORD const iLength = GetPrivateProfileStringA("CONFIG", "Name", "",
+					&displayNameBuffer[0], static_cast<DWORD>(displayNameBuffer.size()), iniPath.c_str());
+			if (iLength == 0)
+				break;
+			if (iLength < displayNameBuffer.size() - 1)
+			{
+				m_sDisplayName = trimSourceValue(&displayNameBuffer[0]);
+				break;
+			}
+			displayNameBuffer.resize(displayNameBuffer.size() * 2);
+		}
+	}
+	if (!m_sDisplayName.empty())
+		return;
+	m_sDisplayName = "[Mod name unavailable]";
+	CvString message;
+	message.Format("Cannot read a non-empty branded mod name from [CONFIG] Name.\n\nINI path: %s\n\nCheck that this file exists, is readable, and contains [CONFIG] followed by Name = your project name. The INI filename must match the installed mod folder.\n\nIf you continue, runtime branding will show [Mod name unavailable]. Correct the configuration and restart Civilization IV. See KI#110.2.",
+			iniPath.empty() ? "<unresolved loaded mod path>" : iniPath.c_str());
+	OutputDebugStringA(message.c_str());
+	MessageBoxA(NULL, message.c_str(), "Mod identity configuration error", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 }
 
 // <!-- custom: Resolve source provenance lazily once per loaded mod path, then cache it for the rest of the process.

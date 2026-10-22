@@ -4,10 +4,10 @@
     "configuration":  "Release",
     "target":  "Release",
     "request":  "BUILD",
-    "startedUtc":  "2026-10-22T12:36:04.399Z",
+    "startedUtc":  "2026-10-22T15:27:14.791Z",
     "branch":  "main",
-    "commit":  "73fba8f1cf408ebac14cf28c170fbb9090d6f1b7",
-    "workingTreeStatus":  "M  .github/workflows/README.md\nM  .github/workflows/build/documentation/markdown_structure.py\nM  .github/workflows/build/xml/sas_define_usage.py\nM  .github/workflows/checks-documentation.yml\nA  .github/workflows/tests/diagnostics/test_assertion_logging.py\nM  .github/workflows/tests/documentation/test_markdown_structure.py\nM  .github/workflows/tests/xml/test_sas_define_usage.py\nM  AGENTS.md\n M Assets/CvGameCoreDLL.dll\n M Assets/CvGameCoreDLL.dll.build.json\nMM Assets/XML/GlobalDefines_advciv_sas.xml\nM  CvGameCoreDLL/CvGame.cpp\nM  CvGameCoreDLL/CvGameCoreUtils.cpp\nM  CvGameCoreDLL/CvGameCoreUtils.h\nM  CvGameCoreDLL/CvInfo_Misc.cpp\nM  CvGameCoreDLL/CvXMLLoadUtilitySet.cpp\nM  CvGameCoreDLL/FAssert.cpp\nM  CvGameCoreDLL/FAssert.h\n M CvGameCoreDLL/Project/Makefile.project\nM  LLM_Helpers/README.md\nM  README.md\nM  _1_AdvCiv-SAS/Docs/README_Authors.md\nM  _1_AdvCiv-SAS/Docs/README_Logging_Inventory.md\nM  _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md\nM  _1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md\nM  tests/README.md\nA  tests/diagnostics/run_assertion_tests.py\nM  tests/diagnostics/run_writer_tests.py\nA  tests/diagnostics/sas_assertion_harness.cpp",
+    "commit":  "c7a4f984d42eba31b959b26169673290338ee7ea",
+    "workingTreeStatus":  "MM AdvCiv-SAS.ini\n M Assets/CvGameCoreDLL.dll\n M Assets/CvGameCoreDLL.dll.build.json\nM  Assets/Python/Contrib/CvModName.py\nM  Assets/XML/Art/CIV4ArtDefines_Misc.xml\nMM Assets/XML/GlobalDefines_advciv_sas.xml\nM  Assets/XML/Text/AdvCiv-SAS_Core.xml\nMM CvGameCoreDLL/ModName.cpp\nMM CvGameCoreDLL/ModName.h\n M CvGameCoreDLL/Project/Makefile.project\nMM README.md\nMM Resource/Civ4.thm\nMM _1_AdvCiv-SAS/Docs/README_Known_Issues.md\nMM _1_AdvCiv-SAS/Docs/README_Logging_Inventory.md\nMM _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md\nMM _1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md",
     "tempBefore":  {
                        "directoryPresent":  false,
                        "objectCount":  0,
@@ -17,8 +17,8 @@
                    },
     "dllBefore":  {
                       "sizeBytes":  8089600,
-                      "modifiedUtc":  "2026-10-22T08:28:00.858Z",
-                      "sha256":  "B967BD58AE6F9DBD916573A3FC176E3D8E1065D9894E6E0E1B9712887CC12F11"
+                      "modifiedUtc":  "2026-10-22T12:37:52.699Z",
+                      "sha256":  "FA1FDE406E23F739133213B9684D791D5D0A23C438AAE4019DF67C6808B35926"
                   },
     "status":  "SUCCEEDED",
     "logFile":  "AdvCiv.log",
@@ -1844,15 +1844,15 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/ModName.cpp",
-                                  "sizeBytes":  20671,
-                                  "modifiedUtc":  "2026-10-21T05:49:18.675Z",
-                                  "sha256":  "5665B01FA6C334BCE649CE334A760B37603D32D292FDE891CC0F273C9C08027D"
+                                  "sizeBytes":  24052,
+                                  "modifiedUtc":  "2026-10-22T15:19:30.471Z",
+                                  "sha256":  "91F7C0390A5BFB9233E7AB281EB1022C599C1CE60A2DE1F02B25C7314442718C"
                               },
                               {
                                   "path":  "CvGameCoreDLL/ModName.h",
-                                  "sizeBytes":  4238,
-                                  "modifiedUtc":  "2026-10-21T05:49:18.675Z",
-                                  "sha256":  "5BA855EEE022D2307AC2EE6621CC21D19AD9CD1E5F20B403BC633289448B1C34"
+                                  "sizeBytes":  4773,
+                                  "modifiedUtc":  "2026-10-22T15:17:08.828Z",
+                                  "sha256":  "D7186F2086E72B967921906EF06B81B5BA1C24C7510FB588A10DAD0E7BA3E5C1"
                               },
                               {
                                   "path":  "CvGameCoreDLL/PlayerHistory.cpp",
@@ -1935,7 +1935,7 @@
                               {
                                   "path":  "CvGameCoreDLL/Project/Makefile.project",
                                   "sizeBytes":  1878,
-                                  "modifiedUtc":  "2026-10-22T07:41:22.531Z",
+                                  "modifiedUtc":  "2026-10-22T15:17:08.828Z",
                                   "sha256":  "69E6529FC34CF6E6B9365CB2203E08C162F6D029C3D836B5DF42D0D2C8EA3A20"
                               },
                               {
@@ -2242,118 +2242,62 @@
     "sincePreviousBuild":  {
                                "available":  true,
                                "scope":  "PREVIOUS_BUILD_END_TO_CURRENT_BUILD_START",
-                               "previousStartedUtc":  "2026-10-22T08:26:11.131Z",
-                               "previousEndedUtc":  "2026-10-22T08:28:00.901Z",
+                               "previousStartedUtc":  "2026-10-22T12:36:04.399Z",
+                               "previousEndedUtc":  "2026-10-22T12:37:52.738Z",
                                "previousConfiguration":  "Release",
                                "previousRequest":  "BUILD",
                                "previousStatus":  "SUCCEEDED",
-                               "previousCommit":  "aa9e85bc74ea5a2806b49265237abd114966dd59",
+                               "previousCommit":  "73fba8f1cf408ebac14cf28c170fbb9090d6f1b7",
                                "previousFileCount":  362,
                                "currentFileCount":  362,
-                               "changedCount":  7,
+                               "changedCount":  3,
                                "changes":  [
                                                {
-                                                   "path":  "CvGameCoreDLL/CvGame.cpp",
+                                                   "path":  "CvGameCoreDLL/ModName.cpp",
                                                    "change":  "CONTENT_CHANGED",
                                                    "after":  {
-                                                                 "sizeBytes":  401121,
-                                                                 "modifiedUtc":  "2026-10-22T09:27:50.000Z",
-                                                                 "sha256":  "BBD5C6AFD7738A2C7B25A63B158AACD313027E17338EA432429387ED6B44CC68"
+                                                                 "sizeBytes":  24052,
+                                                                 "modifiedUtc":  "2026-10-22T15:19:30.471Z",
+                                                                 "sha256":  "91F7C0390A5BFB9233E7AB281EB1022C599C1CE60A2DE1F02B25C7314442718C"
                                                              },
                                                    "before":  {
-                                                                  "sizeBytes":  400573,
-                                                                  "modifiedUtc":  "2026-10-22T07:41:15.305Z",
-                                                                  "sha256":  "2C07F12FC719E1919EFFFE27501952F26A6634603B5AC6A038B4A479CD52EF50"
+                                                                  "sizeBytes":  20671,
+                                                                  "modifiedUtc":  "2026-10-21T05:49:18.675Z",
+                                                                  "sha256":  "5665B01FA6C334BCE649CE334A760B37603D32D292FDE891CC0F273C9C08027D"
                                                               }
                                                },
                                                {
-                                                   "path":  "CvGameCoreDLL/CvGameCoreUtils.cpp",
+                                                   "path":  "CvGameCoreDLL/ModName.h",
                                                    "change":  "CONTENT_CHANGED",
                                                    "after":  {
-                                                                 "sizeBytes":  137688,
-                                                                 "modifiedUtc":  "2026-10-22T12:07:01.755Z",
-                                                                 "sha256":  "7890FDA915E5E60FE58D4CA930D05E437B5D564171735D848E9474C942C3D94A"
+                                                                 "sizeBytes":  4773,
+                                                                 "modifiedUtc":  "2026-10-22T15:17:08.828Z",
+                                                                 "sha256":  "D7186F2086E72B967921906EF06B81B5BA1C24C7510FB588A10DAD0E7BA3E5C1"
                                                              },
                                                    "before":  {
-                                                                  "sizeBytes":  136585,
-                                                                  "modifiedUtc":  "2026-10-22T07:41:15.305Z",
-                                                                  "sha256":  "E7EC68BED7BA3D8964DF8A4D4095A7E31070B6AF96C285AED9E012496D554899"
+                                                                  "sizeBytes":  4238,
+                                                                  "modifiedUtc":  "2026-10-21T05:49:18.675Z",
+                                                                  "sha256":  "5BA855EEE022D2307AC2EE6621CC21D19AD9CD1E5F20B403BC633289448B1C34"
                                                               }
                                                },
                                                {
-                                                   "path":  "CvGameCoreDLL/CvGameCoreUtils.h",
-                                                   "change":  "CONTENT_CHANGED",
+                                                   "path":  "CvGameCoreDLL/Project/Makefile.project",
+                                                   "change":  "TIMESTAMP_ONLY",
                                                    "after":  {
-                                                                 "sizeBytes":  35182,
-                                                                 "modifiedUtc":  "2026-10-22T10:20:43.000Z",
-                                                                 "sha256":  "AFEEB35B9820D1C3C2BC037ABBE19EE2EBB636954FACF4C7755C9923226AE792"
+                                                                 "sizeBytes":  1878,
+                                                                 "modifiedUtc":  "2026-10-22T15:17:08.828Z",
+                                                                 "sha256":  "69E6529FC34CF6E6B9365CB2203E08C162F6D029C3D836B5DF42D0D2C8EA3A20"
                                                              },
                                                    "before":  {
-                                                                  "sizeBytes":  34788,
-                                                                  "modifiedUtc":  "2026-10-22T07:41:15.305Z",
-                                                                  "sha256":  "403193A8BC278B4F92BA7E9CC5D8F8F62F1C1903E2A91A8F11B56DD7960334B9"
-                                                              }
-                                               },
-                                               {
-                                                   "path":  "CvGameCoreDLL/CvInfo_Misc.cpp",
-                                                   "change":  "CONTENT_CHANGED",
-                                                   "after":  {
-                                                                 "sizeBytes":  51568,
-                                                                 "modifiedUtc":  "2026-10-22T12:07:01.755Z",
-                                                                 "sha256":  "2638AFB29CC1D6C6C392179A6C284BCC71C0A1A04C568DED089A3EF5571CBBB8"
-                                                             },
-                                                   "before":  {
-                                                                  "sizeBytes":  50881,
-                                                                  "modifiedUtc":  "2026-10-22T07:41:15.320Z",
-                                                                  "sha256":  "CE720359F8BFFA76A15706641E59FAB2D6C437782E6008446A22F911B81A0325"
-                                                              }
-                                               },
-                                               {
-                                                   "path":  "CvGameCoreDLL/CvXMLLoadUtilitySet.cpp",
-                                                   "change":  "CONTENT_CHANGED",
-                                                   "after":  {
-                                                                 "sizeBytes":  89897,
-                                                                 "modifiedUtc":  "2026-10-22T09:44:18.372Z",
-                                                                 "sha256":  "8769857A6797F27DCC8DBD4965817D03FB7FA7FE23583561F1FCDC93D9913681"
-                                                             },
-                                                   "before":  {
-                                                                  "sizeBytes":  89442,
-                                                                  "modifiedUtc":  "2026-10-21T05:49:18.668Z",
-                                                                  "sha256":  "F25AFBFBBD9EE4C308FDDF8B3A5C1213C4A23149CF7D407400AC2CDAC04A8AB7"
-                                                              }
-                                               },
-                                               {
-                                                   "path":  "CvGameCoreDLL/FAssert.cpp",
-                                                   "change":  "CONTENT_CHANGED",
-                                                   "after":  {
-                                                                 "sizeBytes":  36989,
-                                                                 "modifiedUtc":  "2026-10-22T09:25:46.000Z",
-                                                                 "sha256":  "E03193842E5292C565C91866EC29337E1CD3E88B3F8498F87C9D3C5266FB8653"
-                                                             },
-                                                   "before":  {
-                                                                  "sizeBytes":  6132,
-                                                                  "modifiedUtc":  "2026-10-13T06:12:52.968Z",
-                                                                  "sha256":  "5B82A8474283CE484A8B4C008F1B0F4235AB0DA9019D2A207E77F2402C5AD6CB"
-                                                              }
-                                               },
-                                               {
-                                                   "path":  "CvGameCoreDLL/FAssert.h",
-                                                   "change":  "CONTENT_CHANGED",
-                                                   "after":  {
-                                                                 "sizeBytes":  4852,
-                                                                 "modifiedUtc":  "2026-10-22T09:19:34.000Z",
-                                                                 "sha256":  "EF0DF8905B9BDDC82DD931DA55F2C878F353DEAA2F37D48913200F013B1E335A"
-                                                             },
-                                                   "before":  {
-                                                                  "sizeBytes":  3380,
-                                                                  "modifiedUtc":  "2026-10-21T05:49:18.673Z",
-                                                                  "sha256":  "14189A9150CC28F35940D668C0F4DDC3BEC401F8D0D5BDE4FF23624EE13563DA"
+                                                                  "sizeBytes":  1878,
+                                                                  "modifiedUtc":  "2026-10-22T07:41:22.531Z",
+                                                                  "sha256":  "69E6529FC34CF6E6B9365CB2203E08C162F6D029C3D836B5DF42D0D2C8EA3A20"
                                                               }
                                                }
                                            ]
                            },
-    "endedUtc":  "2026-10-22T12:37:52.738Z",
-    "durationMilliseconds":  108323,
+    "endedUtc":  "2026-10-22T15:29:02.637Z",
+    "durationMilliseconds":  107824,
     "exitCode":  0,
     "warningCount":  0,
     "errorCount":  0,
@@ -2363,8 +2307,8 @@
     "recognizedErrorLines":  [
 
                              ],
-    "commitAfter":  "73fba8f1cf408ebac14cf28c170fbb9090d6f1b7",
-    "workingTreeStatusAfter":  "M  .github/workflows/README.md\nM  .github/workflows/build/documentation/markdown_structure.py\nM  .github/workflows/build/xml/sas_define_usage.py\nM  .github/workflows/checks-documentation.yml\nA  .github/workflows/tests/diagnostics/test_assertion_logging.py\nM  .github/workflows/tests/documentation/test_markdown_structure.py\nM  .github/workflows/tests/xml/test_sas_define_usage.py\nM  AGENTS.md\n M Assets/CvGameCoreDLL.dll\n M Assets/CvGameCoreDLL.dll.build.json\nMM Assets/XML/GlobalDefines_advciv_sas.xml\nM  CvGameCoreDLL/CvGame.cpp\nM  CvGameCoreDLL/CvGameCoreUtils.cpp\nM  CvGameCoreDLL/CvGameCoreUtils.h\nM  CvGameCoreDLL/CvInfo_Misc.cpp\nM  CvGameCoreDLL/CvXMLLoadUtilitySet.cpp\nM  CvGameCoreDLL/FAssert.cpp\nM  CvGameCoreDLL/FAssert.h\n M CvGameCoreDLL/Project/Makefile.project\nM  LLM_Helpers/README.md\nM  README.md\nM  _1_AdvCiv-SAS/Docs/README_Authors.md\nM  _1_AdvCiv-SAS/Docs/README_Logging_Inventory.md\nM  _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md\nM  _1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md\nM  tests/README.md\nA  tests/diagnostics/run_assertion_tests.py\nM  tests/diagnostics/run_writer_tests.py\nA  tests/diagnostics/sas_assertion_harness.cpp\n?? CvGameCoreDLL/Project/temp_files/Release/",
+    "commitAfter":  "c7a4f984d42eba31b959b26169673290338ee7ea",
+    "workingTreeStatusAfter":  "M  AdvCiv-SAS.ini\n M Assets/CvGameCoreDLL.dll\n M Assets/CvGameCoreDLL.dll.build.json\nM  Assets/Python/Contrib/CvModName.py\nM  Assets/XML/Art/CIV4ArtDefines_Misc.xml\nMM Assets/XML/GlobalDefines_advciv_sas.xml\nM  Assets/XML/Text/AdvCiv-SAS_Core.xml\nM  CvGameCoreDLL/ModName.cpp\nM  CvGameCoreDLL/ModName.h\n M CvGameCoreDLL/Project/Makefile.project\nM  README.md\nM  Resource/Civ4.thm\nM  _1_AdvCiv-SAS/Docs/README_Known_Issues.md\nM  _1_AdvCiv-SAS/Docs/README_Logging_Inventory.md\nM  _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md\nM  _1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md\n?? CvGameCoreDLL/Project/temp_files/Release/",
     "tempAfter":  {
                       "directoryPresent":  true,
                       "objectCount":  169,
@@ -2374,8 +2318,8 @@
                   },
     "dllAfter":  {
                      "sizeBytes":  8089600,
-                     "modifiedUtc":  "2026-10-22T12:37:52.699Z",
-                     "sha256":  "FA1FDE406E23F739133213B9684D791D5D0A23C438AAE4019DF67C6808B35926"
+                     "modifiedUtc":  "2026-10-22T15:29:02.587Z",
+                     "sha256":  "48CCB47185A89043174278E7F9DAE8F61480E6C9B2B524E18944979631A354D9"
                  },
     "buildInputChanges":  [
 

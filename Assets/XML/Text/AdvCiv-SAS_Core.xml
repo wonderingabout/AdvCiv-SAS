@@ -5,7 +5,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 -->
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #30 -->
 <Civ4GameText>
-	<!-- custom: Replay filenames and replay settings now derive the branded name from SAS_MOD_DISPLAY_NAME; the former TXT_KEY_REPLAY_PREFIX duplicate was removed. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Replay filenames and replay settings derive the branded name from the central ModName cache, sourced before XML startup from the mod INI [CONFIG] Name; the former TXT_KEY_REPLAY_PREFIX duplicate was removed. See KI#110.2. (ChatGPT-5.6-Sol) -->
 
 
 	<!-- custom: remove BTS links, unneeded, see CIV4NewConceptInfos.xml for details -->

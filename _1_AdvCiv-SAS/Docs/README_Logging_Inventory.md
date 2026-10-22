@@ -269,7 +269,7 @@ The current examples preserve unchanged startup and gameplay captures from the s
 
 #### Startup example
 
-[SASAssertions_startup_example.log](/_1_AdvCiv-SAS/Docs/examples/assertions/SASAssertions_startup_example.log) is reproduced in full below. In this capture, metadata is followed by assertions `1`–`7`: the first is handled manually before the policy cache loads, and later failures use automatic Ignore Once.
+[SASAssertions_startup_example.log](/_1_AdvCiv-SAS/Docs/examples/assertions/SASAssertions_startup_example.log) is reproduced in full below. In this capture, metadata is followed by several assertions: the first is handled manually before the policy cache loads, and later failures use automatic Ignore Once.
 
 ```log
 2026-10-22T11:46:01.022Z record=SAS_ASSERT_METADATA pid=40788 tid=25968 processStartUtc=2026-10-22T11:45:58.906Z session=startup sessionSequence=0 sessionStartUtc=2026-10-22T11:45:58.906Z assertionsEnabled=1 initialSilentMode=-1 initialSilentPolicy=STARTUP_DIALOG writer=OPEN_APPEND_CLOSE liveReadable=1 forcedPhysicalFlush=0 build=Debug-opt moduleFound=1 fileReadable=1 fileSizeBytes=14700544 dllFingerprint=FNV1A64:E2DF645582B673E9 dllLastWriteUtc=20261022T114354.489Z peTimestampRaw=1792669425 peTimestampUtc=20261022T114345Z resourceFileVersion=- resourceProductVersion=- fassertEnabled=1
@@ -288,6 +288,10 @@ The current examples preserve unchanged startup and gameplay captures from the s
 2026-10-22T11:46:06.204Z record=SAS_ASSERT_FAILURE assertion=7 tid=25968 session=startup sessionSequence=0 activity=UNAVAILABLE gameObjectAvailable=1 finalInitialized=0 turn=-1 elapsed=-1 autoPlayRemaining=-1 activePlayer=-1 activeTeam=-1 silentMode=1 silentPolicy=IGNORE_ONCE file="..\\.\\CvXMLLoadUtilityGet.cpp" line=431 function="CvXMLLoadUtility::GetChildXmlVal" expression="false" message="Error in GetChildXmlVal function, unable to find a child node"
 2026-10-22T11:46:06.204Z record=SAS_ASSERT_CHOICE assertion=7 tid=25968 session=startup sessionSequence=0 activity=UNAVAILABLE gameObjectAvailable=1 finalInitialized=0 turn=-1 elapsed=-1 autoPlayRemaining=-1 activePlayer=-1 activeTeam=-1 silentMode=1 silentPolicy=IGNORE_ONCE choice=AUTOMATIC action=IGNORE_ONCE automatic=1 silentFallback=- actionCode=1 dialogShown=0 dialogResult=-1 file="..\\.\\CvXMLLoadUtilityGet.cpp" line=431 function="CvXMLLoadUtility::GetChildXmlVal" expression="false" message="Error in GetChildXmlVal function, unable to find a child node"
 ```
+
+Note: several of the sample examples in this section are now seemingly fixed, but remain valid/illustrative examples; notably:
+
+- the former (now deleted SAS define) `SAS_MOD_DISPLAY_NAME`-related assertion rows capture the startup-order issue addressed by [KI#110.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-110.2); this example predates the INI-backed name cache.
 
 #### Gameplay example
 

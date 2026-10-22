@@ -4,7 +4,7 @@
    other mods also copy all those files. At least I've gotten rid of the
    copied tga files. */
 
-/* <!-- custom: AdvCiv-SAS Mod rename: these theme filesystem paths are resolved before runtime GlobalDefines can supply SAS_MOD_DISPLAY_NAME; update them manually if the installed mod folder is renamed. (ChatGPT-5.6-Sol) --> */
+/* <!-- custom: AdvCiv-SAS Mod rename: these are startup filesystem paths tied to the installed folder, not the branded [CONFIG] Name from the mod INI; update them manually if the installed mod folder is renamed. See KI#110.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) --> */
 resource_path "Mods\AdvCiv-SAS\Resource";
 /* For some obscure reason, the includes in Civ4Theme.thm can't be moved here
    - both Civ4.thm and Civ4Theme.thm are necessary. */

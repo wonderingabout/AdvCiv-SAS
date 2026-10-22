@@ -1587,9 +1587,9 @@ Non-exhaustive list below:
 
 ### Mod name
 
-AdvCiv-SAS centralizes its runtime display/project name through `SAS_MOD_DISPLAY_NAME` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). This is separate from the actual installed mod-folder name detected by BtS/AdvCiv.
+AdvCiv-SAS centralizes its runtime display/project name through `[CONFIG] Name` in [`AdvCiv-SAS.ini`](/AdvCiv-SAS.ini). AdvCiv's `ModName` cache reads that value before XML/Python startup consumers need it; this branded identity remains separate from the actual installed mod-folder name detected by BtS/AdvCiv.
 
-For rebranding/fork details and the remaining paths that must still be changed manually, see [Main Changes Guide: Mod Name/Version](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mod-nameversion).
+For rebranding/fork details and the remaining paths that must still be changed manually, see [Main Changes Guide: Mod Name/Version](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mod-nameversion); [KI#110.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-110.2) explains the startup dependency and INI-based repair.
 
 ### Version number
 
