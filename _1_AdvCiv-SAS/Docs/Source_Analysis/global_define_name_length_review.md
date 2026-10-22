@@ -125,7 +125,7 @@ Names use concise `SAS_<family>_<effect>` structure rather than mechanically cop
 
 Compact technical vocabulary such as `PCT`, `MIN`, `MAX`, `VAL`, `PROD`, `BLDG`, `PWR`, `ATK`, `MILIT`, `VICT`, `BARB`, `NAT`, `LVL`, `_ON`, `T_NORM_GS` and `T_UNSCALED_GS` is preferred when it remains clear. Word boundaries use `_` when space permits.
 
-The full deprecated/original-to-current mapping is preserved in [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2). Intermediate drafting spellings remain in Git history rather than in the final reference table.
+The [retired-name migration reference](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md) contains the original-to-current conversion table associated with KI#1001.2. Intermediate drafting spellings remain in Git history rather than in the final reference table.
 
 If a future clear setting cannot fit 42 bytes without losing an important distinction, review the policy explicitly rather than introducing an obscure abbreviation solely to satisfy the number.
 
@@ -151,7 +151,7 @@ Behavioral redesigns remain separate. In particular, map-script heaviness versus
 2. Keep the 42-byte style checker passing across all shipped GlobalDefines/PythonCallbackDefines files.
 3. Use the shared naming vocabulary and explicit turn/game-speed units in [AGENTS.md](/AGENTS.md#defines-and-ai-behavior).
 4. Update XML declarations, all runtime lookups and mechanically copied cache/member identifiers together.
-5. Keep KI#1001.2 as the canonical deprecated/original-to-current map for this cleanup; do not duplicate that map in a second hand-maintained list.
+5. Keep one original-to-current map in the [retired-name migration reference](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md), rather than duplicating it in a second hand-maintained list.
 6. Reject retired names in active XML/C++/Python through CI while allowing historical docs, captured logs, changelogs and Git history to retain old spellings.
 7. Rebuild the DLL whenever a native C++ lookup string changes before gameplay testing.
 

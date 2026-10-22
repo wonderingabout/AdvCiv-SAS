@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
-# <!-- custom: Use KI#1001.2's canonical original-to-current table as the single retired-name source, then reject those spellings in active XML/C++/Python so rename cleanup cannot silently regress.
+# <!-- custom: Use the Deprecated migration table associated with KI#1001.2 as the single retired-name source, then reject those spellings in active XML/C++/Python so rename cleanup cannot silently regress.
 # Historical docs/log captures remain searchable because this checker does not scan them. (ChatGPT-5.6-Sol) -->
 
+# <!-- custom: pathlib reads the canonical table and active files; re parses bounded keys/table rows; argparse and sys provide the CLI and exit status. (GPT-6.1-Sol) -->
 from pathlib import Path
 import argparse
 import re
 import sys
 
 
-MAP_FILE = Path("_1_AdvCiv-SAS/Docs/README_Known_Issues.md")
+MAP_FILE = Path("_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md")
 MAP_START = "<!-- KI1001.2_GLOBAL_DEFINE_MAP_START -->"
 MAP_END = "<!-- KI1001.2_GLOBAL_DEFINE_MAP_END -->"
 ROW_RE = re.compile(r"^\| `(?P<old>SAS_[^`]+)` \| `(?P<new>SAS_[^`]+)` \|", re.MULTILINE)
@@ -30,7 +31,9 @@ def load_retired_map(repo_root: Path) -> tuple[dict[str, str], list[str]]:
         return {}, [f"{MAP_FILE}: expected exactly one retired-name map start/end marker"]
 
     start = text.index(MAP_START) + len(MAP_START)
-    end = text.index(MAP_END, start)
+    end = text.find(MAP_END, start)
+    if end < 0:
+        return {}, [f"{MAP_FILE}: retired-name map end marker precedes its start marker"]
     rows = list(ROW_RE.finditer(text[start:end]))
     if not rows:
         return {}, [f"{MAP_FILE}: KI#1001.2 retired-name map contains no SAS conversion rows"]
@@ -98,7 +101,9 @@ def check(repo_root: Path) -> tuple[list[str], dict[str, int]]:
         return errors, {"mapping_count": len(mapping), "file_count": 0, "hit_count": 0}
 
     alternatives = b"|".join(re.escape(name.encode("ascii")) for name in sorted(mapping, key=len, reverse=True))
-    retired_re = re.compile(rb"(?<![A-Z0-9_])(" + alternatives + rb")(?![A-Z0-9_])")
+    # <!-- custom: Copied caches can have lowercase or uppercase prefixes (iSAS_..., IS_SAS_...).
+    # Permit either before the retired spelling, but retain the right boundary so a longer unrelated key is not mistaken for it. (GPT-6.1-Sol) -->
+    retired_re = re.compile(rb"(" + alternatives + rb")(?![A-Z0-9_])")
 
     file_count = 0
     hit_count = 0
@@ -108,7 +113,7 @@ def check(repo_root: Path) -> tuple[list[str], dict[str, int]]:
         for match in retired_re.finditer(data):
             old = match.group(1).decode("ascii")
             line = data.count(b"\n", 0, match.start()) + 1
-            errors.append(f"{path.relative_to(repo_root)}:{line}: retired GlobalDefine name {old}; use {mapping[old]}")
+            errors.append(f"{path.relative_to(repo_root).as_posix()}:{line}: retired GlobalDefine name {old}; use {mapping[old]}")
             hit_count += 1
 
     return errors, {"mapping_count": len(mapping), "file_count": file_count, "hit_count": hit_count}

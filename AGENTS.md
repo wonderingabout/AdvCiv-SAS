@@ -216,6 +216,8 @@ Our AdvCiv-SAS documentation is mostly located here:
 
 For finding key documentation, use grep/search as needed; documentation indexes like `# advc.004y: Restored (comment out to remove traits)` can also point to important details about a change. After finding an index entry, grep the tag itself (e.g. `004y`) in the manual or related docs.
 
+Older identifiers can be looked up through the [Deprecated reference index](/_1_AdvCiv-SAS/Docs/Deprecated/README.md). For example, pre-shortening SAS define names are listed in [`global_define_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md), associated with KI#1001.2; `SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT` became `SAS_COMMERCE_SLIDERS_FAST_INCR_PCT`.
+
 Compile errors (e.g., for a "Debug-opt" build) at:
 
 - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\Debug-opt\AdvCiv.log"
@@ -557,7 +559,6 @@ These are general guidelines, not irrevocable requirements; adjust based on task
     - Keep shorthand tied to its meaning: `DEF` means defense, so health deficit needs a distinct word or abbreviation.
   - Use consistent terms for greppability, so one grep finds related SAS defines: for example, keep `PWR` consistent instead of mixing it with `POWER`. Keep `SETTLER` consistent and retain `PROD` throughout its family unless necessary. Omit implicit qualifiers such as `AI` when the family is clear, and separate words with `_` when space permits.
     - Other established short forms in reviewed families include `ATK` (attack), `VAL` (value), `CULT` (culture) and `DIST` (distance); reuse them for the same meanings.
-  - Treat KI#1001.2's original-to-current table as the canonical retired-name map for the 2026 cleanup. Do not reintroduce a retired name into active XML/C++/Python; CI parses that table directly, while historical docs/log captures may retain old spellings.
 - Turn-valued SAS integer defines must make game-speed semantics explicit: use `T_NORM_GS` when the XML value is expressed at Normal speed and code scales it with the appropriate game-speed percentage, or `T_UNSCALED_GS` for intentional literal game/path turns such as movement distance.
   - Do not apply this to `SAS_DO_TURN_*` scope names or per-turn rate/value defines.
   - The automated [`turn_define_gamespeed.py`](/.github/workflows/build/xml/turn_define_gamespeed.py) check flags inconsistent turn-unit naming/semantics.

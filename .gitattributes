@@ -51,6 +51,10 @@
 /LLM_Helpers/context/                    export-ignore
 /LLM_Helpers/context/**                  export-ignore
 
+# <!-- custom: Deprecated migration references are development/history documentation, like the context tables they locate; keep them out of player archives. (GPT-6.1-Sol) -->
+/_1_AdvCiv-SAS/Docs/Deprecated/          export-ignore
+/_1_AdvCiv-SAS/Docs/Deprecated/**        export-ignore
+
 # <!-- custom: Keep greppable downloaded map-script originals in Git and the dedicated light-source ZIP for inherited-bug archaeology, but exclude this non-runtime third-party corpus from player/GitHub Download ZIP archives.
 # Suppress ordinary diffs/language statistics for the verbatim upstream files while leaving the local README reviewable. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 /LLM_Helpers/context/mapscript_refs/                export-ignore

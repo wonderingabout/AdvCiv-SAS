@@ -48,8 +48,18 @@ class RetiredGlobalDefineNameTests(unittest.TestCase):
         self.assertTrue(any("retired GlobalDefine name SAS_OLD_SETTING" in error for error in self.errors()))
 
     def test_retired_copied_cache_identifier_fails(self):
-        self.write("Assets/Python/Test.py", "self.iSAS_OLD_SETTING = 1\n")
-        self.assertTrue(any("Assets/Python/Test.py" in error for error in self.errors()))
+        for prefix in ("i", "IS_", "g_i"):
+            with self.subTest(prefix=prefix):
+                self.write("Assets/Python/Test.py", "self.%sSAS_OLD_SETTING = 1\n" % prefix)
+                self.assertTrue(any("Assets/Python/Test.py" in error for error in self.errors()))
+
+    def test_longer_unrelated_key_is_not_a_retired_name(self):
+        self.write("Assets/Python/Test.py", 'value = "SAS_OLD_SETTING_EXTRA"\n')
+        self.assertEqual(self.errors(), [])
+
+    def test_reversed_mapping_markers_report_an_error(self):
+        self.write(str(retired.MAP_FILE), retired.MAP_END + "\n" + retired.MAP_START)
+        self.assertTrue(any("precedes" in error for error in self.errors()))
 
     def test_retired_xml_comment_fails(self):
         self.write("Assets/XML/Technologies/Test.xml", "<!-- see SAS_OLD_SETTING -->\n<Root/>\n")

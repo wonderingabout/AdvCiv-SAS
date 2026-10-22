@@ -455,13 +455,15 @@ Regression tests cover the exact 42/43-byte boundary, UTF-8 byte counting, inher
 
 #### `build/xml/retired_global_define_names.py`
 
-Reads KI#1001.2's canonical original-to-current conversion table directly and rejects retired `SAS_*` names in active XML, C++ and Python source. This keeps the documentation table as the single migration map instead of maintaining a second manual retired-name list.
+Reads the original-to-current conversion table associated with KI#1001.2 directly and rejects retired `SAS_*` names in active XML, C++ and Python source.
+
+The checker reads the table directly from the [retired-name migration reference](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md). This keeps one migration map instead of maintaining a second manual retired-name list.
 
 The active scan intentionally includes XML comments and copied cache/member identifiers, so stale explanatory comments and code identifiers cannot silently preserve an obsolete spelling. Historical documentation, captured logs, changelogs, revision compatibility tooling and Git history are outside the scan and may retain old names for archaeology or parser compatibility.
 
 The checker also verifies every mapped current name is still declared in `GlobalDefines_advciv_sas.xml`; a later rename therefore requires updating the existing original-to-current KI row rather than creating an intermediate mapping chain.
 
-Regression tests cover active runtime lookups, copied cache identifiers, XML comments, historical-document exclusion and missing current declarations.
+Regression tests cover active runtime lookups, copied cache identifiers with lowercase/uppercase prefixes, XML comments, historical-document exclusion, missing current declarations, malformed marker order and longer unrelated keys.
 
 #### `build/xml/launch_guard.py`
 

@@ -179,8 +179,6 @@ BBAI and SASGameRecord answer different questions: BBAI explains detailed AI dec
 
 Both can use UTC-stamped new/load filenames, shared source/DLL identity and the live-readable diagnostic writer. These are separate from the Python-stream modernization described below: BBAI and SASGameRecord retain their own compact row formats rather than receiving `record=` or a UTC clock prefix on every row.
 
-The captured October 2026 BBAI/SASGameRecord header examples below predate KI#1001.2's completed GlobalDefine rename and intentionally preserve the setting names actually emitted at capture time. Use the [KI#1001.2 conversion table](README_Known_Issues.md#ki-1001.2) when relating those historical rows to current define names.
-
 ### Session headers and provenance
 
 Both log families place canonical mod/source context and exact loaded-DLL build/binary provenance immediately after the session lifecycle marker.
@@ -196,8 +194,6 @@ With no scoped tracked diff the byte count is `0`; unavailable Git-derived prove
 Identity rows place the stable `processUtc` for one Civ4 launch before plain `utc`; the row type identifies that second timestamp as a new-game, save-load or individual snapshot observation. Timestamped filename counters such as `new1` and `load2` preserve game order within the process.
 
 `dirty` is tri-state: `-1` means unavailable because there is no inspectable Git worktree (for example an extracted GitHub ZIP), `0` means Git verified the tracked tree clean, and `1` means tracked local edits were found.
-
-Source commit identifiers in these documentation examples are mapped to the rewritten Git history; recorded runtime and binary measurements are retained.
 
 <a id="sasgamerecord"></a>
 
@@ -221,7 +217,7 @@ For example, `SASGameRecord_*.log` starts with lifecycle, provenance and run-set
 GAME_RECORD_SAVE_LOADED seq=1 processUtc=20261009T160524Z utc=20261009T160535Z logFile="SASGameRecord_20261009T160535Z_load1.log" turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_INCA activeHandicap=HANDICAP_MONARCH playersDefined=16 playersAlive=16 playersEverAlive=16 humans=1 sessionWallMilliseconds=0
 GAME_RECORD_SESSION_CONTEXT seq=2 gameType=GAME_SP_LOAD gameMode=GAMEMODE_NORMAL newGame=0 savedGame=1 scenario=0 gameMultiplayer=0 networkMultiplayer=0 hotseat=0 pbem=0 pitboss=0 simultaneousTeamTurns=0 mpOptions=-
 GAME_RECORD_GAME_SETTINGS seq=3 mapScript="Archipelago" map=120x84 landHeavy=0 navalHeavy=1 world=WORLDSIZE_HUGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT calendar=CALENDAR_DEFAULT startTurn=0 startYear=-50000 gameHandicap=HANDICAP_MONARCH maxTurns=500 targetScore=0 advancedStartConfiguredPoints=-1 advancedStartXmlDefaultPoints=-1 victories=VICTORY_SCORE,VICTORY_TIME,VICTORY_CONQUEST,VICTORY_DOMINATION,VICTORY_CULTURAL,VICTORY_SPACE_RACE,VICTORY_DIPLOMATIC options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
-GAME_RECORD_WAR_AI_SETTINGS seq=8 warPeaceAI=UWAI uwaiMode=FULL engineAggressiveAI=1 USE_KMOD_AI_NONAGGRESSIVE=0 DISABLE_UWAI=0 UWAI_IN_BACKGROUND=0 SAS_UWAI_INVASION_GRAPH_NAVAL_LOGISTICS_DEPLOYMENT_OPTIMIZE=1
+GAME_RECORD_WAR_AI_SETTINGS seq=8 warPeaceAI=UWAI uwaiMode=FULL engineAggressiveAI=1 USE_KMOD_AI_NONAGGRESSIVE=0 DISABLE_UWAI=0 UWAI_IN_BACKGROUND=0 SAS_UWAI_NAVAL_LOGISTICS_DEPLOYMENT_ON=1
 GAME_RECORD_RUNTIME_CONTEXT seq=9 systemContextLevel=2 win32Runtime=NATIVE_WINDOWS wineVersion=- windowsMajor=10 windowsMinor=0 windowsBuild=19045 windowsUpdateRevision=6466 windowsServicePackMajor=0 windowsServicePackMinor=0 windowsDisplayVersion="22H2" pointerBits=32 processArch=X86 nativeArch=X64 wow64=1 cpuVendor=- logicalProcessors=-1 totalPhysicalMemoryMB=-1
 GAME_RECORD_GAME_RNG seq=10 mapRandState=1378213624 syncRandState=909279002 initialMapRandSeed=13016467 initialSyncRandSeed=13016467
 GAME_RECORD_MOD_CONTEXT seq=11 displayName="AdvCiv-SAS" folderName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
@@ -234,7 +230,9 @@ GAME_RECORD_STATE_CHECKPOINT seq=1006 turn=0 reason=SAVE_LOADED coverage=CORE ev
 GAME_RECORD_ACTION seq=1007 turn=0 type=DEBUG_MODE_CHANGED old=0 new=1 activePlayer=0
 ```
 
-#### SASGameRecord captured example
+<a id="sasgamerecord-captured-example"></a>
+
+#### SASGameRecord gameplay example
 
 These are **30 consecutive, unchanged rows** from `SASGameRecord_20261019T160718Z_load1.log`, lines 11678–11707 (recorder revision 159). They follow the Ottoman player at turn 60 through resources, AI priorities, economy/production, diplomacy and unit composition; this is an excerpt of existing output, not a Before/After comparison with an inherited recorder.
 
@@ -277,7 +275,7 @@ For the full range of record families, including initial map context, city detai
 
 #### BBAI session header example
 
-For example, this save-load header was captured during the iterable-category-registry development test on October 9, 2026, before that change was committed.
+Example save-load header:
 
 Its source identity and Debug-opt DLL describe that test build; they are not the current shipped Release DLL. The settings row includes disabled categories explicitly so zero levels can be distinguished from missing categories:
 
@@ -288,7 +286,7 @@ BBAI_GAME_RNG mapRandState=1378213624 syncRandState=909279002
 BBAI_MOD_CONTEXT displayName="AdvCiv-SAS" folderName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
 BBAI_SOURCE_CONTEXT version="6606" commit="39e40d78917c42d67dfa9c87a1fc92da178ad7dd" shortCommit="39e40d7891" branch="main" commitDate="2026-10-09T17:28:00+02:00" metadataSource="git" dirty=1 dirtyTrackedCount=6 trackedCodeRulesDiffBytes=16408 trackedCodeRulesDiffFingerprint="FNV1A64:F3AD9234EBE21773" dirtyFiles="[MM] .github/workflows/build/xml/sas_define_usage.py; [MM] .github/workflows/tests/test_sas_define_usage.py; [ M] Assets/CvGameCoreDLL.dll; [ M] Assets/XML/GlobalDefines_advciv_sas.xml; [MM] CvGameCoreDLL/BBAILog.cpp; [ M] _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md"
 BBAI_DLL_CONTEXT build=Debug-opt moduleFound=1 fileReadable=1 fileSizeBytes=13774848 dllFingerprint=FNV1A64:97635FA4B4F6CE96 dllLastWriteUtc=20261009T160322.407Z peTimestampRaw=1791561793 peTimestampUtc=20261009T160313Z fassertEnabled=0 debugDefine=0 ndebugDefine=1
-BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=2 SAS_BBAI_TEAM_LOG_LEVEL=2 SAS_BBAI_WAR_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_PRODUCTION_NO_TARGET_LOG_LEVEL=0 SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL=0 SAS_BBAI_SPACE_PRODUCTION_LOG_LEVEL=0 SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL=0 SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=0 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_BONUS_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_UWAI_AGENT_LOG_LEVEL=0 SAS_BBAI_UWAI_MILITARY_ANALYST_LOG_LEVEL=0 SAS_BBAI_UWAI_INVASION_GRAPH_LOG_LEVEL=0 SAS_BBAI_UWAI_ARMAMENT_FORECAST_LOG_LEVEL=0 SAS_BBAI_UWAI_WAR_UTILITY_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=100
+BBAI_LOG_SETTINGS SAS_BBAI_LOG_ON=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=2 SAS_BBAI_TEAM_LOG_LEVEL=2 SAS_BBAI_WAR_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_PROD_NO_TARGET_LOG_LEVEL=0 SAS_BBAI_MILIT_PROD_LOG_LEVEL=0 SAS_BBAI_SPACE_PROD_LOG_LEVEL=0 SAS_BBAI_LIMITED_PROJECT_PROD_LOG_LEVEL=0 SAS_BBAI_BLDG_PROD_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=0 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_BONUS_LOG_LEVEL=0 SAS_BBAI_CULT_LOG_LEVEL=0 SAS_BBAI_UWAI_AGENT_LOG_LEVEL=0 SAS_BBAI_UWAI_MILIT_ANALYST_LOG_LEVEL=0 SAS_BBAI_UWAI_INVASION_GRAPH_LOG_LEVEL=0 SAS_BBAI_UWAI_ARMAMENT_FORECAST_LOG_LEVEL=0 SAS_BBAI_UWAI_WAR_UTILITY_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL_T_UNSCALED_GS=100
 ```
 
 #### Categories and inherited Settler logging
