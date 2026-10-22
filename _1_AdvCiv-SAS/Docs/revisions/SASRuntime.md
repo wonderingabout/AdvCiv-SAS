@@ -10,12 +10,11 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## History
 
-### Revision 6 - SAS practical 6675
+### Revision 6 - SAS practical 6660
 
 - **Date:** 2026-10-21
 - **Git commit:** pending
 - **Change:** Rename the enable setting to `SAS_RUNTIME_STATUS_ON` with the GlobalDefine naming review (KI#1001.2). Its default, cached enable check and runtime observations are unchanged.
-
 
 ### Revision 5 - SAS practical 6646
 

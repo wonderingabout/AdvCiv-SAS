@@ -51,7 +51,11 @@ def git_text(repo: Path, ref: str, path: str) -> str | None:
     result = run_git(repo, "show", "%s:%s" % (ref, path), check=False)
     if result.returncode:
         return None
-    raw = result.stdout
+    return decode_text(result.stdout)
+
+
+# <!-- custom: Use identical legacy decoding for current and historical text so spacing comparisons do not invent edits from encoding differences. (GPT-6.1-Sol) -->
+def decode_text(raw: bytes) -> str:
     for encoding in ("utf-8-sig", "utf-8", "cp1252"):
         try:
             return raw.decode(encoding).replace("\r\n", "\n").replace("\r", "\n")

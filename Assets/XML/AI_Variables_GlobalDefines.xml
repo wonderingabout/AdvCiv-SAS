@@ -280,7 +280,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<Define>
 		<!-- Minimum stack strength ratio at which AI will attack enemy city it is next to, higher means less suicide. BTS default: 120, BBAI: 125, now: 123 -->
 		<!-- custom: many times AI troops are too long to start an attack and keep staring at each other, facilitate a bit more the AI attack to start.
-		Note: see also SAS_MIN_ATK_CITY_STACK_UNITS; was 123. -->
+		Note: see also SAS_MIN_ATK_CITY_STACK_UNITS; was 123. (GPT-6.1-Sol (define-name update)) -->
 		<DefineName>BBAI_ATTACK_CITY_STACK_RATIO</DefineName>
 		<iDefineIntVal>122</iDefineIntVal>
 	</Define>

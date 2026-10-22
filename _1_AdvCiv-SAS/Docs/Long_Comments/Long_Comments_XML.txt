@@ -10,8 +10,6 @@ Initial consolidation and formatting by GPT-5.2-Codex (VS Code extension).
 
 Try to keep them lean and more so in the future so our AI/LLM helpers can easily read the SAS defines, as well as help readability and possibly perf if any gain.
 
-
-
 ===== \Assets\Config\Plot List Enhancements.xml =====
 ----- Comment #1 -----
 <!--option id="MH_Color_Impassable_Terrain" key="Color Impassable Terrain" 

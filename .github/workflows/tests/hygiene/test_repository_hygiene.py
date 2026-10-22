@@ -6,8 +6,7 @@ import sys
 import tempfile
 import unittest
 
-ROOT = Path(__file__).resolve().parents[4]
-sys.path.insert(0, str(ROOT / ".github/workflows/build/hygiene"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / ".github/workflows/build/hygiene"))
 import repository_hygiene as hygiene
 
 

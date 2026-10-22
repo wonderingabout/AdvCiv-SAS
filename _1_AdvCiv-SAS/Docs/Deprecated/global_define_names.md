@@ -12,7 +12,6 @@ Harmonizing historical excerpts to current names was considered for greppability
 
 Prepared by GPT-6.1-Sol, 2026-10-22.
 
-
 <!-- KI1001.2_GLOBAL_DEFINE_MAP_START -->
 | Original name | Current name | Original bytes | Current bytes | Δ bytes |
 | --- | --- | ---: | ---: | ---: | ---: |

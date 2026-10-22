@@ -208,6 +208,8 @@ Adding, removing or renaming an XML define consumed by C++ requires an updated s
 - Intermediate source commits can share a later Release build at the integration head; each binary-changing commit still needs its own `Update DLL` marker and build evidence under the existing intent check.
 - Local/manual runs check the selected head commit; `--base-ref` checks a complete range. Amended pushes inspect the new commit identities without relying on a discarded push-before object.
 
+The DLL rebuild check sends the changed define names to Git as input rather than hundreds of command-line arguments. This avoids Windows' command-length limit while preserving literal, whole-name matching; the complete KI#1001.2 rename set exposed that limit.
+
 This catches an unchanged shipped DLL after structural define changes. It does not compile source or prove that a changed binary contains every source edit; review and a current Release build remain necessary.
 
 ```sh
@@ -293,6 +295,21 @@ But it passed on [GitHub Actions test](https://github.com/wonderingabout/AdvCiv-
 
 To make this clearer, the checker now prints its scan mode and can note when a failing worktree file is already clean in the Git index.
 
+#### `build/hygiene/text_blank_lines.py`
+
+Rejects newly introduced excessive blank separators in maintained configuration, build scripts and plain-text documentation. Source C++/Python/XML already use the source-provenance check, and Markdown uses markdownlint; all share the same intent of preventing patching leftovers without flattening meaningful text.
+
+- Allow one blank separator in Git/configuration formats and prose text; allow two in build-script/code formats such as Makefiles, `.inl`, `.rc`, PowerShell and shell scripts.
+- Preserve string literals, YAML block scalars, shell/PowerShell here-documents, Makefile `define` bodies and archived `Long_Comments` payloads. Frozen history, imported references/assets and captured examples retain their original layout.
+- `--all` audits the current scope for an initial cleanup. Normal CI examines only changed files and reports newly introduced runs, including gaps created by deleting a block between two separators; inherited runs becoming shorter do not fail.
+
+The initial sweep removed leftover separators from the Makefile/resource script and the `Long_Comments` introductions. Recorded text remained intact. Source and supplementary checks reuse `lib/blank_lines.py` for literal protection and blank-row ancestry, avoiding divergent implementations.
+
+```sh
+python .github/workflows/build/hygiene/text_blank_lines.py --all
+python .github/workflows/build/hygiene/text_blank_lines.py --base-ref main
+```
+
 #### `build/hygiene/repository_hygiene.py`
 
 Rejects UTF-8, UTF-16 and UTF-32 BOM signatures in Git-tracked files, including inherited references. Visual Studio `.sln` and `.vcxproj` files may retain UTF-8 BOMs for launcher compatibility; UTF-16/32 BOMs remain rejected everywhere.
@@ -307,7 +324,7 @@ Its exact name is referenced inside `Gilgamesh.kfm`, so a file-only rename would
 
 When introducing this limit, eight music files and one example shortcut were shortened; the music XML paths were updated while original download links and credits were preserved. The checker scans every tracked file and reports all violations before failing.
 
-Only leading signatures are read; binary assets are not decoded.
+Binary assets are inspected only for a leading encoding signature, without decoding their contents.
 
 ### Documentation
 

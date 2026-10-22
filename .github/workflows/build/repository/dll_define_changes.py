@@ -53,8 +53,10 @@ def declared_names(repo, revision):
 def cpp_references(repo, revision, names):
     if revision is None or not names:
         return set()
-    patterns = [arg for name in sorted(names) for arg in ("-e", name)]
-    result = subprocess.run(["git", "grep", "-I", "-l", "-z", "-w", "-F", *patterns, revision, "--", *CPP_PATHS], cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # <!-- custom: The complete define-renaming PR exceeded Windows' command-line limit when each key used a separate -e argument.
+    # Feed the same literal whole-word patterns through stdin so search behavior is unchanged and argument size stays bounded. (GPT-6.1-Sol) -->
+    patterns = ("\n".join(sorted(names)) + "\n").encode("utf-8")
+    result = subprocess.run(["git", "grep", "-I", "-l", "-z", "-w", "-F", "-f", "-", revision, "--", *CPP_PATHS], cwd=repo, input=patterns, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if result.returncode not in (0, 1):
         raise RuntimeError(result.stderr.decode(errors="replace"))
     found = set()

@@ -22,6 +22,7 @@ VISUAL_STUDIO_SUFFIXES = {".sln", ".vcxproj"}
 MAX_FILENAME_UNITS = 56
 BOMS = ((b"\x00\x00\xfe\xff", "UTF-32 BE"), (b"\xff\xfe\x00\x00", "UTF-32 LE"), (b"\xef\xbb\xbf", "UTF-8"), (b"\xff\xfe", "UTF-16 LE"), (b"\xfe\xff", "UTF-16 BE"))
 
+
 def check(root, install_root=INSTALL_ROOT):
     paths = subprocess.check_output(["git", "ls-files", "-z"], cwd=root).decode("utf-8").split("\0")
     errors = []

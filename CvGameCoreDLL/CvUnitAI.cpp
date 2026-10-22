@@ -19441,7 +19441,7 @@ bool CvUnitAI::AI_join(int iMaxCount, SASGreatGeneralChoiceContext* pSASChoiceCo
 			// <!-- custom: AI goes for Great General units while Military Instructor is much better, especially in top hammer cities with Heroic Epic. Credit: ChatGPT 5; Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
 			// 3. Optional: Remove the stacking check in AI_join()
 			// <!-- custom: but since we pass now an extremely high for this purpose value of iMaxCount in as of now SAS_GG_INSTRUCTOR_MOVE_MAX_COUNT, then it's fine to allow this gating for flexibility and in case players want to customize it as they prefer in sas defines.
-			// As of now, value of 999 is so high this will never be reached during a game and so effectively it will be always ignored and allowed to stack military instructors in same city, so no change is needed here it seems -->
+			// As of now, value of 999 is so high this will never be reached during a game and so effectively it will be always ignored and allowed to stack military instructors in same city, so no change is needed here it seems (GPT-6.1-Sol (define-name update)) -->
 			bool bDoesJoin = false;
 			if (getUnitInfo().getGreatPeoples(eLoopSpecialist))
 				bDoesJoin = true;

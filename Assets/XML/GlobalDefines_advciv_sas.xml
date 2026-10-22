@@ -2929,7 +2929,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
-	<!-- custom: see code comment at SAS_SCRAP_ON -->
+	<!-- custom: see code comment at SAS_SCRAP_ON (GPT-6.1-Sol (define-name update)) -->
 	<Define>
 		<DefineName>SAS_UNIT_SEL_OPT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

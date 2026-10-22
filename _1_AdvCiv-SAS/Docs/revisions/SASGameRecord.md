@@ -78,7 +78,7 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 162 - SAS practical 6678
+### Revision 162 - SAS practical 6660
 
 - **Date:** 2026-10-22
 - **Git commit:** pending

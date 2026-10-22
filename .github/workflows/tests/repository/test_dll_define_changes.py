@@ -94,6 +94,15 @@ class DLLDefineChangesTests(unittest.TestCase):
         self.assertTrue(errors)
         self.assertEqual(affected, {"BASE_OPTION"})
 
+    # <!-- custom: The real PR supplied over a thousand old/new keys; this fixture exceeds Windows' argument limit while retaining comment filtering and exact-key matching. (GPT-6.1-Sol) -->
+    def test_large_name_set_uses_stdin_without_changing_matches(self):
+        names = {"SAS_LOOKUP_" + str(i).zfill(5) + "_" + "X" * 40 for i in range(1200)}
+        selected = sorted(names)[0]
+        comment_only = sorted(names)[1]
+        self.write("CvGameCoreDLL/example.cpp", ('getDefineINT("%s");\n// %s\ngetDefineINT("%s_EXTRA");\n' % (selected, comment_only, comment_only)).encode())
+        head = self.commit()
+        self.assertEqual(checker.cpp_references(self.repo, head, names), {selected})
+
     def test_added_cpp_name_requires_release(self):
         head = self.add_cpp_define()
         errors, affected = checker.check(self.repo, [head], head)

@@ -6,8 +6,6 @@ Encoding: UTF-8.
 
 Similar purpose than in the XML equivalent of this file, but for .py file! Make it leaner so our AI/LLM helpers can read it easier and to improve readability and efficiency when possible and relevant!
 
-
-
 ===== \Assets\Python\BUG\configobj.py =====
 ----- Comment #1 -----
 

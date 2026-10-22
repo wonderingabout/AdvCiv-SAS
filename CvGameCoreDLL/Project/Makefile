@@ -104,7 +104,6 @@ CUSTOM_CFLAGS  =
 CUSTOM_LDFLAGS =
 
 
-
 !IF [IF NOT EXIST Makefile.user EXIT 1] != 0
 !IF [ECHO CUSTOM_CFLAGS = > Makefile.user]
 !ENDIF

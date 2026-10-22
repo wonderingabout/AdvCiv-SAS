@@ -9,6 +9,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4] / ".github/workflows/build/xml"))
 
+# <!-- custom: Import the production retired-name guard so fixtures validate its actual source/documentation policy and canonical map parser. (GPT-6.1-Sol) -->
 import retired_global_define_names as retired
 
 
