@@ -7,8 +7,7 @@ import sys
 import tempfile
 import unittest
 
-ROOT = Path(__file__).resolve().parents[4]
-sys.path.insert(0, str(ROOT / ".github/workflows/build/xml"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / ".github/workflows/build/xml"))
 
 # <!-- custom: Exercise the separate 42-byte naming policy directly; the existing global_define_lengths tests continue to own the unrelated 255-byte loader-safety boundary. (ChatGPT-5.6-Sol) -->
 import global_define_name_style as style

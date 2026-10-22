@@ -4,9 +4,8 @@ from pathlib import Path
 import sys
 import unittest
 
-ROOT = Path(__file__).resolve().parents[4]
 # <!-- custom: Restore blocking checks in the automated subject folders; regression fixtures import those same helpers. (GPT-6.1-Sol) -->
-sys.path.insert(0, str(ROOT / ".github/workflows/build/documentation"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / ".github/workflows/build/documentation"))
 import markdown_structure as markdown
 # <!-- custom: Exercise root-anchored destinations through the production link checker, including external and same-page exceptions. (GPT-6.1-Sol) -->
 import markdown_links as links

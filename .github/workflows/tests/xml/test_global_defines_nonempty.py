@@ -7,8 +7,7 @@ import sys
 import tempfile
 import unittest
 
-ROOT = Path(__file__).resolve().parents[4]
-sys.path.insert(0, str(ROOT / ".github/workflows/build/xml"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / ".github/workflows/build/xml"))
 
 # <!-- custom: Run the existing content checker through its expanded shared namespace, rather than maintaining a second uniqueness implementation. (GPT-6.1-Sol) -->
 import global_defines_nonempty as defines

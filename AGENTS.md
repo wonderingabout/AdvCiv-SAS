@@ -259,7 +259,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 
 ### Markdown structure and readability
 
-- Use repository-root links such as `/Assets/XML/GlobalDefines_advciv_sas.xml` for local Markdown destinations; moving the referring document then preserves the target. Same-page anchors and external URLs are fine.
+- Use repository-root links such as `/Assets/XML/GlobalDefines_advciv_sas.xml` for local Markdown destinations; avoid document-relative links such as `../README.md` or `revisions/SASRuntime.md`, which depend on the referring document's location. Moving the referring document then preserves the target; same-page anchors and external URLs are fine.
 
 - For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
 - For long Markdown prose, preserve the wording but prefer semantic structure that also reads clearly in rendered Markdown.
