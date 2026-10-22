@@ -104,6 +104,8 @@ On your end you generally don't need to update them unless our infrastructure ch
 - Keep automated-helper folders and workflow categories aligned: every helper in a subject folder belongs to that category's workflow, with matching names so browsing the folder tells us what that workflow runs.
 - Specialized automation belongs to an explicitly named category too; shared helper reuse is fine, but do not mix unrelated checks into a catch-all workflow. Keep shared code in `lib/`, automated helper tests in matching `tests/<subject>/` folders, and manual-only tooling outside the blocking `build/`/`checks-*.yml` structure.
 - GitHub workflow YAML files must remain directly under `.github/workflows/`; mirror the helper hierarchy through workflow filenames and display names. Give each check a descriptive named step so GitHub shows its progress and result separately.
+- Note: not every CI failure needs a repository fix: a transient failure may pass when unchanged content is submitted again, for example by rerunning the job or amending without content changes to trigger a new SHA/run. Inspect the error before patching; see [KI#38.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.6) for a confirmed identical-tree retry.
+  - Be especially cautious when the same check passes locally but fails on GitHub: inspect the error and differing conditions before changing code. Patching an unconfirmed cause or weakening a check can introduce regressions or hide future defects; a local pass alone does not establish that CI is wrong.
 
 ### Release preparation
 

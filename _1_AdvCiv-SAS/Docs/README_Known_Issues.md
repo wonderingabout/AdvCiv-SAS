@@ -71,6 +71,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#38.3 - (Improved) Parallel Debug-opt compilation used excessive CPU for a small time saving](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.3)\
 [KI#38.4 - (Fixed XML launch failure; confirmed the previous SAS define sentinel/guard is validated) UTF-8 BOM prevented SAS GlobalDefines from loading](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.4)\
 [KI#38.5 - (Fixed/Diagnosed DLL build-tooling defect) fastdep access-violated on a redundant include with a trailing custom comment](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.5)\
+[KI#38.6 - (Observed transient CI failure; cause undetermined) GitHub fixture cleanup failed, then an identical-tree retry passed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.6)\
 [KI#39 - (Seemingly fixed or enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-39)\
 [KI#40 - (Seemingly fixed / addressed) Tremendous/Major Plot allocation improvement 2: If we are high in happiness, favour food tiles much more, and hammer tiles much less if happiness is really high (favour growth dynamically and plot allocation of these the more we can afford it), even if production is slightly reduced short term as a result, it auto corrects at high happiness, with seemingly much stronger AI and developped cities as a result (excluded if food is production (e.g. worker, settler, etc))](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-40)\
 [KI#41 - (Seemingly fixed) Beyond Tremendously Improved AI worker mobility, flexibility, and reliability, now favouring minimal big city improvement (come back to it later but don't delay improving smaller ones), quick moving to smaller ones, and spending longer to improve smaller ones as they grow fast, as well as being braver in our own cultural borders or moving to other cities needing improvements rather than being parked in current city and such other changes to increase AI efficiency reliably, and other changes if any thanks to chatgpt 5 and me too](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-41)\
@@ -3288,6 +3289,70 @@ The practical debugging rule is therefore narrower than "replace fastdep" or "al
 See the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md#dependency-scanner-access-violations) for the concise operational reminder.
 
 Diagnosed and fixed with GPT-6.1-Sol (Codex) and ChatGPT-5.6-Sol, thanks.
+
+<a id="ki-38.6"></a>
+
+## KI#38.6 - (Observed transient CI failure; cause undetermined) GitHub fixture cleanup failed, then an identical-tree retry passed
+
+Observed on 2026-10-22 while checking the SASAssertions/SGR example commit. The diagnostics helper-test job errored during temporary Git-repository cleanup, with `OSError: [Errno 39] Directory not empty` for `.git/objects`; the traceback points to leaving `tempfile.TemporaryDirectory()`, rather than a failed recorder-progression assertion.
+
+The same diagnostic suite passed locally. The user then amended the commit without changing its contents and pushed the new commit identity, which triggered another GitHub Actions run. That run passed without the proposed fixture-maintenance change.
+
+- Failed [commit `f15c16a241f2e44114aff6c88f9e4b2a6ac4c790`](https://github.com/wonderingabout/AdvCiv-SAS/commit/f15c16a241f2e44114aff6c88f9e4b2a6ac4c790): [failed helper-test job](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/39788462320/job/119857781897).
+- Passing [commit `7138914ee5074c1d54791843dafb09c3be21d5ae`](https://github.com/wonderingabout/AdvCiv-SAS/commit/7138914ee5074c1d54791843dafb09c3be21d5ae): [successful helper-test job](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/39789710202/job/119862157575).
+- Both commits have the exact same Git tree, `98fa437d587855678a19a6fc3811b6ecd820d81e`, confirming identical tracked file contents; only the commit identity/metadata changed.
+
+The failing command was:
+
+```sh
+python -m unittest discover -s .github/workflows/tests/diagnostics -t .github/workflows -v
+```
+
+Relevant failure excerpt, verbatim from the captured CI output:
+
+```log
+ERROR: test_progression_recognizes_nonrevision_sas_define_change (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_progression_recognizes_nonrevision_sas_define_change)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/runner/work/AdvCiv-SAS/AdvCiv-SAS/.github/workflows/tests/diagnostics/test_sas_revision_history.py", line 216, in test_progression_recognizes_nonrevision_sas_define_change
+    with tempfile.TemporaryDirectory() as temp:
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/opt/hostedtoolcache/Python/3.15.1/x64/lib/python3.15/tempfile.py", line 1051, in __exit__
+    self.cleanup()
+    ~~~~~~~~~~~~^^
+  File "/opt/hostedtoolcache/Python/3.15.1/x64/lib/python3.15/tempfile.py", line 1055, in cleanup
+    self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.15.1/x64/lib/python3.15/tempfile.py", line 1035, in _rmtree
+    _shutil.rmtree(name, onexc=onexc, dir_fd=dir_fd, _onexc_kwargs=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.15.1/x64/lib/python3.15/shutil.py", line 859, in rmtree
+    _rmtree_impl(path, dir_fd, onexc)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.15.1/x64/lib/python3.15/shutil.py", line 721, in _rmtree_safe_fd
+    _rmtree_safe_fd_step(stack, onexc)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.15.1/x64/lib/python3.15/shutil.py", line 803, in _rmtree_safe_fd_step
+    onexc(func, path, err, direntry=orig_entry, dir_fd=parent_fd)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.15.1/x64/lib/python3.15/shutil.py", line 754, in _rmtree_safe_fd_step
+    os.rmdir(name, dir_fd=dirfd)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 39] Directory not empty: '/tmp/tmpleyej0ag/.git/objects'
+
+----------------------------------------------------------------------
+Ran 51 tests in 2.342s
+
+FAILED (errors=1)
+NOTICE SASGameRecord revision default-branch ancestry unavailable; abstaining from that check
+Error: Process completed with exit code 1.
+```
+
+The cause remains undetermined. Background Git maintenance was considered as a possible writer/cleanup race, but the log does not identify a writer, and a proposed local maintenance-disable patch was discarded rather than required for the passing run. This observation does not establish a Python-version defect or a problem with the example files.
+
+The practical response is to inspect the actual failure before changing source. A failed-job rerun can test unchanged content without rewriting a commit; the no-content amend served that role here. A local pass or successful retry is evidence of intermittency, not permission to dismiss a reproducible GitHub-only failure.
+
+Observed and retried by wonderingabout; identical-tree/job verification and documentation by GPT-6.1-Sol (Codex).
 
 <a id="ki-39"></a>
 
