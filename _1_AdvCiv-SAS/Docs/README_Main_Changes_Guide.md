@@ -323,6 +323,9 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 
 ### Code/Performance optimizations
 
+- (Requires AdvCiv-SAS 6667+) **XML loading correctness and safeguards:** SAS repairs and strengthens affected inherited readers to keep comments separate from data and bound array accesses even when diagnostics are ignored.
+  - Examples include civilization/diplomacy mappings, fixed-size yield/commerce lists and feature/tag-pair keys; valid input retains its values. See [KI#3.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-3.2) and [KI#3.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-3.3).
+
 - (Requires AdvCiv-SAS 6649+) **Shared Python visual resources:** [`SASVisualUtils.py`](/Assets/Python/SASVisualUtils.py) gives UI callers one cached source for font/dynamic symbols, yield/commerce glyphs, colors, art and trait/Great Person/specialist icons, replacing scattered lookups and overlapping caches.
   - Retires `FontUtil.py`, `TraitUtil.py` and `GGUtil.py`; `GPUtil.py` keeps Great Person gameplay/progress logic. Text-scale helpers formerly in `SASFontUtils.py` move to `SASTextScale.py`, while screen-dependent presentation stays with the caller.
 - (Requires AdvCiv-SAS 6648+) **Centralized Python screen IDs:** [CvScreenEnums.py](/Assets/Python/Screens/CvScreenEnums.py) now contains general screens, vanilla Civilopedia pages and Sevopedia pages, making their definitions easier to browse and maintain together.

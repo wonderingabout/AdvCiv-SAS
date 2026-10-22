@@ -134,16 +134,20 @@ public:
 		unchanged - to avoid breaking XML loading code in mod-mods. Such errors
 		would be difficult to debug b/c the parser level is stored in the EXE. */
 	int SetYieldArray(int** ppiYield);
+	// <!-- custom: Preserve the inherited cursor contract, but bound numeric reads/returned counts to the fixed allocation after reporting excess XML children. See KI#3.3. (GPT-6.1-Sol) -->
 	int SetYields(int** ppiYield); // (advc: deprecated)
 	#ifdef _USRDLL
 	// <advc> See comment above
 	template <class T>
 	int SetCommerceArray(T** ppiCommerce); // </advc>
+	// <!-- custom: Like SetYields, an ignored diagnostic must not permit writes or a returned count beyond the fixed commerce allocation. See KI#3.3. (GPT-6.1-Sol) -->
 	template <class T>
 	int SetCommerce(T** ppiCommerce); // (advc: deprecated)
 	#endif
 
+	// <!-- custom: Invalid feature keys are diagnosed and skipped before indexing any output array, even if the user ignores the XML error. See KI#3.3. (GPT-6.1-Sol) -->
 	void SetFeatureStruct(int** ppiFeatureTech, int** ppiFeatureTime, int** ppiFeatureProduction, bool** ppbFeatureRemove);
+	// <!-- custom: Invalid positive bonus keys are diagnosed and skipped before touching the fixed bonus allocation; negative/no-entry handling is retained. See KI#3.3. (GPT-6.1-Sol) -->
 	void SetImprovementBonuses(CvImprovementBonusInfo** ppImprovementBonus);
 
 	static int FindInInfoClass(TCHAR const* szType, bool hideAssert = false);
@@ -225,6 +229,7 @@ public:
 			if (m_aiRates != NULL)
 				delete[] m_aiRates;
 		}
+		// <!-- custom: Reject out-of-range rate slots and restore a flat record's parser level even when its key is rejected, so the following entry remains readable. See KI#3.3. (GPT-6.1-Sol) -->
 		std::pair<int,typename EncodableMap::enc_t> next();
 	private:
 		static int const iENUM_LEN = enum_traits<typename EncodableMap::EnumType>::len;
@@ -252,13 +257,17 @@ public:
 					"Allocating zero or less memory.\nCurrent XML file is: %s",
 					GC.getCurrentXMLFile().GetCString());
 			errorMessage(szMessage);
+			// <!-- custom: Reporting invalid capacity must not proceed into allocation/indexing if the XML error is ignored. See KI#3.3. (GPT-6.1-Sol) -->
+			return;
 		}
 		bool bListModified = (*pptList != NULL); // advc.003t
 		InitList(pptList, iInfoBaseLength, tDefaultListVal);
 		XMLTagPairIterator<T> it(*this, szRootTagName);
 		for (std::pair<int,T> pair = it.next(); pair.first != -1; pair = it.next())
 		{
-			if (pair.first >= iInfoBaseLength)
+			// <!-- custom: The album's Queue 028 recorded that this diagnostic still fell through into an out-of-range write.
+			// Reject the malformed key after reporting it, including in Release or after Ignore Once/Always. See KI#3.3. (GPT-6.1-Sol) -->
+			if (pair.first < 0 || pair.first >= iInfoBaseLength)
 			{
 				FErrorMsg("Key tag out of bounds"); // advc.006
 				char szMessage[1024];
@@ -270,6 +279,7 @@ public:
 						"Key tag out of bounds.\nCurrent XML file is: %s",
 						GC.getCurrentXMLFile().GetCString());
 				errorMessage(szMessage);
+				continue;
 			}
 			(*pptList)[pair.first] = pair.second;
 			// <advc.003t>
@@ -500,9 +510,12 @@ int CvXMLLoadUtility::SetCommerce(T** ppbCommerce)
 	{
 		if (GetChildXmlVal(pbCommerce[0]))
 		{
-			FAssertMsg((iNumSibs <= NUM_COMMERCE_TYPES) , "For loop iterator is greater than array size");
+			// <!-- custom: The inherited assertion alone left the following writes unbounded in Release or after an ignored assertion.
+			// Match SetYields: report malformed input and cap indexing at the allocated commerce capacity in every build. See KI#3.3. (GPT-6.1-Sol) -->
+			if (iNumSibs > NUM_COMMERCE_TYPES)
+				errorMessage(CvString::format("XML commerce array exceeds capacity: children=%d capacity=%d XML=%s; excess values ignored", iNumSibs, NUM_COMMERCE_TYPES, GC.getCurrentXMLFile().GetCString()).c_str());
 			// loop through all the siblings, we start at 1 since we already have the first value
-			for (int i = 1; i < iNumSibs; i++)
+			for (int i = 1; i < std::min(iNumSibs, (int)NUM_COMMERCE_TYPES); i++)
 			{
 				if (!GetNextXmlVal(pbCommerce[i]))
 					break;
@@ -510,7 +523,8 @@ int CvXMLLoadUtility::SetCommerce(T** ppbCommerce)
 			gDLL->getXMLIFace()->SetToParent(m_pFXml);
 		}
 	}
-	return iNumSibs;
+	// <!-- custom: Bound the reported count too, so callers cannot treat an oversized XML child count as the number of allocated commerce slots. See KI#3.3. (GPT-6.1-Sol) -->
+	return std::min(iNumSibs, (int)NUM_COMMERCE_TYPES);
 }
 #endif // _USRDLL
 

@@ -21,6 +21,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1 - Redundant attribute values for all AI Civs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1)\
 [KI#2 - (now fixed) Gandhi's base leaderheadinfo's xml had nowarattitudeprob pleased(110)/pleased(115) duplicated instead of (as i suspect it should be) pleased(110)/friendly(115)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-2)\
 [KI#3 - (now fixed with a DLL patch) Barbarians (cities) building wonders, in particular now fixed i.e. disabled for world wonders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-3)\
+[KI#3.2 - (Fixed/Strengthened inherited Firaxis readers) SAS Barbarian mapping comments expose missing XML comment skipping](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-3.2)\
+[KI#3.3 - (Fixed inherited XML array bounds defects) Ignored yield/commerce/feature errors could permit writes outside the allocation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-3.3)\
 [KI#4 - (now fixed) Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to Sevopedia religion (nothing happens on click)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-4)\
 [KI#5 - (seemingly worked around now) player name same as windows (10's for example) username causes new game screen to be stuck unless a custom name is chosen, if/after/while DLL has been fastdep compiled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-5)\
 [KI#6 - (now worked around) Too long XML code comments cause errors or game crashes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-6)\
@@ -1378,6 +1380,79 @@ Lines such as:
 Were totally ineffective, so i have removed them as well for as of now for wonders i mean.
 
 Thanks to chatgpt's help, and following recent as of now DLL changes such as in [README_Known_Issues.md#ki-24](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-24), it seems to finally be fixed by patching the DLL directly instead in [/CvGameCoreDLL/CvCityAI.cpp](/CvGameCoreDLL/CvCityAI.cpp) in `CvCityAI::AI_chooseBuilding`, as of now only for world wonders (no need to forbid national wonders too strongly as of now at least if not always or not or yes or etc)
+
+<a id="ki-3.2"></a>
+
+## KI#3.2 - (Fixed/Strengthened inherited Firaxis readers) SAS Barbarian mapping comments expose missing XML comment skipping
+
+The chronological SAS assertion cleanup exposed five consecutive startup failures in `CvXMLLoadUtility::GetChildXmlVal` (`SASAssertions` assertions 3-7).
+
+A source review identified the inherited civilization `Buildings`/`Units` reader as a candidate caller: it can land on direct XML comment siblings and try to descend into them as mapping elements. The captured generic failures do not name the caller, so their precise attribution remains a replay question.
+
+The current XML/data shape supports a concrete traversal model. `CIVILIZATION_BARBARIAN` has 38 real `Building` mappings mixed with four direct comments and 25 real `Unit` mappings mixed with two direct comments.
+
+A model that assumes `GetNumChildren()` counts mapping elements while `NextSibling()` visits raw siblings reaches three building comments and two unit comments, matching the five captured assertions. That match is a useful hypothesis, but the generic assertion log does not identify its callers or expose the EXE's child-count semantics.
+
+Under that model, each reached comment consumes a counted iteration and can displace real mappings. This does not establish that the five historical assertions prove lost mappings: the alternate case where the engine counts comments could produce assertion noise without truncating the same tail.
+
+The model predicts missed `NONE` overrides for University, Laboratory, Theatre, Great Engineer and Great Spy; verify the actual loaded values before attributing gameplay behavior to that prediction. `InitBuildingDefaults`/`InitUnitDefaults` start from ordinary class defaults, so a genuinely skipped override would leave that default active.
+
+The reader defect is inherited rather than introduced by SAS. The same `GetNumChildren -> SetToChild -> GetChildXmlVal -> NextSibling` shape exists in Firaxis/Civ4CE and K-Mod 1.46 and remains in Base AdvCiv 1.14. AdvCiv later consolidated the separate building/unit loops without changing this traversal contract.
+
+SAS activated the defect by adding direct comments inside the Barbarian mapping lists. The first such current-lineage building comment appears in SAS commit `bf00d297001c276982c243af9e732915a3dbf0c0` on 2025-05-10 during the major Barbarian rework; further comments were added later.
+
+The C++ File Audit Album deserves an explicit follow-up rather than a rewrite. Its `BARBARIAN XML-COMMENT ITERATOR CONTROL` pass identified this exact interaction but concluded that a comment could consume an iteration without pushing a real mapping beyond the loop.
+
+The source supports correcting comment handling, but the capture alone does not conclusively disprove the album's no-truncation conclusion. Both the exact assertion attribution and loaded tail mappings need runtime confirmation; the album remains unchanged as the historical audit record.
+
+The fix keeps the comments and repairs the generic reader. It walks siblings until the list ends, calling `SkipToNextVal()` before each descent; leading, intervening and trailing comments therefore need no trusted child count. Assertions identify civilization, list, index and XML file when class/target reads or class resolution fail.
+
+An intermediate draft used `NumOfChildrenByTagName()` to avoid ambiguous generic child counts, but review found AdvCiv's existing `advc.006b` warning in `CvXMLLoadUtilityGet.cpp` that this API cannot handle comments. That draft was replaced by count-independent traversal rather than relying on the same uncertain engine behavior through another API.
+
+The related `CvDiplomacyInfo::read()` response loop also walked raw siblings without skipping comments before calling `CvDiplomacyResponse::read()`. It receives the same count-independent traversal, with parent restoration only for levels actually entered, including empty response lists.
+
+- Some response fields enter tag-pair readers that do not normalize a comment parent, so comments could become empty/partial responses and consume the counted loop; comments are skipped before allocation/read.
+- The shipped diplomacy XML has no direct `Responses` comments, so this is a latent source defect rather than a reproduced current-data failure.
+
+The civilization issue prompted a further audit of similar XML readers, rather than stopping at the original loop. Most named getters, `GetNextXmlVal()` and tag-pair iterators already handled comments; the review found the additional diplomacy omission above and the separate yield/commerce/feature bounds defects in KI#3.3. See the source rationale in `CvInfo_Civilization.cpp`.
+
+This finding is related to the Barbarian XML override surface discussed in KI#3, but it does not establish that KI#3's historical world-wonder behavior had this same cause. KI#3's DLL wonder-policy fix remains separate.
+
+An assertion-enabled startup can test whether these changes remove the five `GetChildXmlVal` failures; compare the loaded tail mappings with the previous DLL to distinguish corrected traversal from proven restoration of lost overrides. This does not establish a fix for KI#6's separate long/nested-comment parser behavior. (ChatGPT-5.6-Sol + GPT-6.1-Sol)
+
+- 2026-10-22 runtime replay:
+  - The assertion-enabled Debug-opt build completed with zero warnings/errors and unchanged build inputs. The installed DLL matched that build and all three modified source files matched its recorded input hashes.
+  - Fresh startup and a scheduled 51-turn autoplay through T50 produced no assertion capture, and `PythonErr.log` remained empty.
+  - This confirms that the previous startup failures did not recur in this replay; the five loaded Barbarian tail mappings were not directly captured or compared with the old DLL, so their alleged prior truncation remains unproven. (GPT-6.1-Sol)
+
+<a id="ki-3.3"></a>
+
+## KI#3.3 - (Fixed inherited XML array bounds defects) Ignored yield/commerce/feature errors could permit writes outside the allocation
+
+2026-10-22 follow-up review of sibling readers from KI#3.2 revisited and repaired malformed-XML robustness debt already catalogued by the C++ File Audit Album's Queue 028, including `CvXMLLoadUtility::SetYields()`, templated `SetCommerce()`, feature/bonus structures and tag-pair arrays.
+
+Queue 028 deliberately left these below its current-live-defect threshold because shipped producers were valid. Queue 134 later rechecked the feature path and retained that distinction; this pass strengthens those error paths rather than claiming the findings were new or that the historical safe-data conclusion was wrong. The album itself remains unchanged.
+
+Related existing KIs cover different defects: [KI#71](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-71) concerns an invalid feature passed to a getter, while [KI#979](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-979) concerns mismatched deallocation of XML temporaries. This entry covers reader bounds and parser restoration; their existing fixes remain applicable.
+
+Both numeric readers allocate fixed-size arrays (`NUM_YIELD_TYPES` or `NUM_COMMERCE_TYPES`) but used the XML child count as the write-loop limit. SetYields reported an oversized list and continued; SetCommerce relied on an assertion, which disappears in Release or can be ignored in assertion builds. Neither diagnostic bounded subsequent indexing.
+
+Both numeric-loop shapes are already present in the earliest reachable K-Mod import, commit `2414225e6` dated 2010-12-27, in `CvXMLLoadUtilitySet.cpp` (yields) and `CvXMLLoadUtility.h` (commerce). That is an earliest-repository evidence bound, not a claim that K-Mod introduced them or that their original Firaxis creation date is known.
+
+- Both readers now retain a diagnostic containing the XML filename and reported/capacity counts, but cap writes and returned counts at the actual array allocation in every build.
+- Existing comment-aware value traversal and parser-parent restoration remain in place; valid input keeps the same values and ordering.
+- The nearby inherited `SetFeatureStruct()` path likewise reported an unknown feature index (`-1`) but continued writing through that index. It now reports the bad key and guards both ends of the feature arrays before any writes; invalid records leave initialized defaults intact.
+- The primitive `SetVariableListTagPair(T**...)` error branch now skips an invalid key after reporting it; string/audio siblings guard their upper bounds too, instead of trusting an ignored assertion. Invalid capacities are rejected before allocation, restoring the entered audio-list root where necessary.
+- `SetImprovementBonuses()` retains negative/no-entry handling but rejects positive indices outside the bonus allocation before reading or writing the record's fields.
+- ChatGPT's follow-up review identified the same assertion-only bound in civilization `InitialCivics`, allocated per civic option but filled by XML child count.
+  - It now diagnoses excess entries with civilization/file context and caps writes at the allocation, retaining value traversal and parser restoration.
+  - The album's Queue 034 had verified that all 38 shipped civilizations supply five entries for five options; this repairs malformed-input handling without changing that historical valid-data finding.
+- The follow-up also checked the flat rate iterator: it now bounds the temporary yield/commerce slot and restores the parser level after a rejected outer key, allowing later valid records to be read.
+- A VC2003 extraction check executed the actual old/new numeric readers with assertions disabled: the old yield and commerce loops overwrote guard slots with excess input; the repaired functions preserved guards, valid values and parent restoration across zero through eight entries.
+- A second VC2003 extraction check reproduced the old feature reader writing its negative guard slot after reporting an unknown key; the repaired function preserved guards/defaults for invalid keys and loaded valid entries with the same cursor restoration.
+- Further VC2003 extraction checks reproduced the primitive/string/audio/bonus guard writes and the flat rate iterator's guard write/cursor leak; the repaired readers retained valid entries, skipped malformed indices, and restored their parser levels.
+- A VC2003 extraction check of the actual `InitialCivics` read block preserved guard slots, valid values, diagnostics and parent restoration for capacities zero through five and input counts one through eight.
+- This is conditional on malformed/excess input. No current shipped XML corruption or prior gameplay crash is attributed to it. (ChatGPT-5.6-Sol + GPT-6.1-Sol)
 
 <a id="ki-4"></a>
 
@@ -8769,6 +8844,8 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 WinDbg !analyze -v result viewable in .txt as of now at above link for reference i mean(full dmp with a debug dll (i don't know too much about these so check if accurate and if i did it correctly i mean, with chatgpt 5's help and review as well thanks i mean too)).
 
 See code comments there i.e. in `CvBuildInfo::isFeatureRemove` for details.
+
+2026-10-22 related reader audit: [KI#3.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-3.3) guards malformed feature keys in `CvXMLLoadUtility::SetFeatureStruct()` before array writes. That XML-loading defect is separate from this entry's invalid-feature getter call; the reader guard does not replace the caller-side handling described here. (GPT-6.1-Sol)
 
 <a id="ki-72"></a>
 
@@ -33772,6 +33849,8 @@ K-Mod 1.46, Taurus 1.04 and Civ4CE/BtS do not contain these enum-map temporary w
 Found as F657/provisional KI#979 during ChatGPT-5.6-Sol's C031-WIP515-WIP516 `CvXMLLoadUtilitySet.cpp` audit; reconciled into Known Issues with the help of GPT-5.6-Sol, and revisited/fixed during the crash investigation with the help of ChatGPT-5.6-Sol, thanks.
 
 2026-10-21 post-fix replay: the recurrent Arena/Pangaea -> Huge-save crash still reproduced after KI#979 was applied and before KI#243.2 was applied. KI#979 was therefore not sufficient to resolve that crash sequence; it remains an independently valid memory-safety repair.
+
+2026-10-22 related reader audit: [KI#3.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-3.3) bounds numeric XML reads and the rate iterator's scratch-array indices, and restores the parser level after a rejected flat key. Those protections address parsing/indexing before cleanup; this entry's `delete[]` repair addresses allocation lifetime. Neither substitutes for the other. (GPT-6.1-Sol)
 
 <a id="ki-980"></a>
 

@@ -1607,15 +1607,14 @@ int CvXMLLoadUtility::SetYields(int** ppiYield)
 	if (!GetChildXmlVal(piYield[0]))
 		return 0;
 
-	if(iNumSibs > NUM_YIELD_TYPES)
-	{
-		char szMessage[1024];
-		sprintf(szMessage, "For loop iterator is greater than array size.\nCurrent XML file is: %s",
-				GC.getCurrentXMLFile().GetCString());
-		errorMessage(szMessage);
-	}
+	// <!-- custom: A follow-up audit of XML readers after the civilization comment-handling issue found this separate bounds defect.
+	// The inherited reader reported excess children but continued indexing a NUM_YIELD_TYPES allocation with the unchecked child count.
+	// Keep the XML diagnostic and bound writes in every build, including after Ignore Once/Always; ignored assertions must not turn malformed XML into heap corruption. See KI#3.2 and KI#3.3. (GPT-6.1-Sol) -->
+	if (iNumSibs > NUM_YIELD_TYPES)
+		errorMessage(CvString::format("XML yield array exceeds capacity: children=%d capacity=%d XML=%s; excess values ignored", iNumSibs, NUM_YIELD_TYPES, GC.getCurrentXMLFile().GetCString()).c_str());
+	int const iReadLimit = std::min(iNumSibs, (int)NUM_YIELD_TYPES);
 	// loop through all the siblings, we start at 1 since we already have the first value
-	for (int i = 1; i < iNumSibs; i++)
+	for (int i = 1; i < iReadLimit; i++)
 	{
 		// set the current node to it's first non-comment sibling and
 		// set the parameter to the new node's value
@@ -1623,7 +1622,7 @@ int CvXMLLoadUtility::SetYields(int** ppiYield)
 			break;
 	}
 	gDLL->getXMLIFace()->SetToParent(m_pFXml); // set the current xml node to its parent
-	return iNumSibs;
+	return iReadLimit;
 }
 
 // allocate and set the feature struct variables for the CvBuildInfo class
@@ -1664,17 +1663,18 @@ void CvXMLLoadUtility::SetFeatureStruct(int** ppiFeatureTech, int** ppiFeatureTi
 				{
 					GetChildXmlValByName(szTextVal, "FeatureType");
 					int iFeatureIndex = FindInInfoClass(szTextVal);
-					if(iFeatureIndex == -1)
+					// <!-- custom: The inherited missing-feature diagnostic returned to code that indexed the arrays at -1.
+					// Guard both ends and skip that record's writes after reporting it, so ignoring the error is memory-safe in every build. See KI#3.3. (GPT-6.1-Sol) -->
+					if (iFeatureIndex < 0 || iFeatureIndex >= GC.getNumFeatureInfos())
+						errorMessage(CvString::format("XML FeatureStruct has an invalid feature: type=%s index=%d capacity=%d XML=%s; entry ignored", szTextVal, iFeatureIndex, GC.getNumFeatureInfos(), GC.getCurrentXMLFile().GetCString()).c_str());
+					else
 					{
-						char	szMessage[1024];
-						sprintf(szMessage, "iFeatureIndex is -1 inside SetFeatureStruct function.\nCurrent XML file is: %s", GC.getCurrentXMLFile().GetCString());
-						errorMessage(szMessage);
+						GetChildXmlValByName(szTextVal, "PrereqTech");
+						paiFeatureTech[iFeatureIndex] = FindInInfoClass(szTextVal);
+						GetChildXmlValByName(&paiFeatureTime[iFeatureIndex], "iTime");
+						GetChildXmlValByName(&paiFeatureProduction[iFeatureIndex], "iProduction");
+						GetChildXmlValByName(&pabFeatureRemove[iFeatureIndex], "bRemove");
 					}
-					GetChildXmlValByName(szTextVal, "PrereqTech");
-					paiFeatureTech[iFeatureIndex] = FindInInfoClass(szTextVal);
-					GetChildXmlValByName(&paiFeatureTime[iFeatureIndex], "iTime");
-					GetChildXmlValByName(&paiFeatureProduction[iFeatureIndex], "iProduction");
-					GetChildXmlValByName(&pabFeatureRemove[iFeatureIndex], "bRemove");
 
 					if (!gDLL->getXMLIFace()->NextSibling(m_pFXml))
 					{
@@ -1722,7 +1722,9 @@ void CvXMLLoadUtility::SetImprovementBonuses(CvImprovementBonusInfo** ppImprovem
 						// index of the match in the bonus types list; -1 if no value is found.
 						int iBonusIndex = FindInInfoClass(szNodeVal);
 						// if we found a match we will get the next sibling's boolean value at that match's index
-						if (iBonusIndex >= 0)
+						// <!-- custom: Queue 028 also recorded this malformed-key path; a nonnegative global XML id may still lie outside the bonus allocation.
+						// Retain negative/no-entry handling and reject foreign positive keys before indexing. See KI#3.3. (GPT-6.1-Sol) -->
+						if (iBonusIndex >= 0 && iBonusIndex < GC.getNumBonusInfos())
 						{
 							GetNextXmlVal(paImprovementBonus[iBonusIndex].m_bBonusMakesValid);
 							GetNextXmlVal(paImprovementBonus[iBonusIndex].m_bBonusTrade);
@@ -1737,7 +1739,12 @@ void CvXMLLoadUtility::SetImprovementBonuses(CvImprovementBonusInfo** ppImprovem
 							}
 							else InitList(&paImprovementBonus[iBonusIndex].m_piYieldChange, NUM_YIELD_TYPES);
 						}
-						else gDLL->getXMLIFace()->SetToParent(m_pFXml);
+						else
+						{
+							if (iBonusIndex >= GC.getNumBonusInfos())
+								errorMessage(CvString::format("XML improvement bonus key exceeds capacity: type=%s index=%d capacity=%d XML=%s; entry ignored", szNodeVal, iBonusIndex, GC.getNumBonusInfos(), GC.getCurrentXMLFile().GetCString()).c_str());
+							gDLL->getXMLIFace()->SetToParent(m_pFXml);
+						}
 					}
 					if (!gDLL->getXMLIFace()->NextSibling(m_pFXml))
 						break;
@@ -1899,6 +1906,10 @@ CvXMLLoadUtility::XMLTagPairRateIterator<EncodableMap>::next()
 			m_util.GetChildXmlValByName(m_szTextVal, m_szKeyTagName)))
 		{
 			int iKey = getGlobalEnumFromString(m_szTextVal);
+			// <!-- custom: Flat records have already descended through GetChildXmlVal even when their key is rejected.
+			// Restore that level before advancing, matching the valid-key path and the primitive iterator's cleanup. See KI#3.3. (GPT-6.1-Sol) -->
+			if (iKey < 0 && m_bFlat)
+				setToParent();
 			if (iKey >= 0)
 			{
 				ZeroMemory(m_aiRates, iENUM_LEN * sizeof(int));
@@ -1908,9 +1919,9 @@ CvXMLLoadUtility::XMLTagPairRateIterator<EncodableMap>::next()
 					if (m_util.GetNextXmlVal(m_szTextVal))
 					{
 						int iRateType = FindInInfoClass(m_szTextVal);
-						if (iRateType >= 0)
+						// <!-- custom: The rate iterator's scratch array needs the same real upper bound as the other XML arrays; an ignored assertion alone cannot protect its index. See KI#3.3. (GPT-6.1-Sol) -->
+						if (iRateType >= 0 && iRateType < iENUM_LEN)
 						{
-							FAssert(iRateType < iENUM_LEN);
 							int iRateVal = 0;
 							if (m_util.GetNextXmlVal(iRateVal))
 							{
@@ -1919,6 +1930,8 @@ CvXMLLoadUtility::XMLTagPairRateIterator<EncodableMap>::next()
 									iValuesSet++;
 							}
 						}
+						else if (iRateType >= iENUM_LEN)
+							m_util.errorMessage(CvString::format("XML rate type exceeds capacity: index=%d capacity=%d XML=%s; rate ignored", iRateType, iENUM_LEN, GC.getCurrentXMLFile().GetCString()).c_str());
 					}
 					setToParent();
 				}
@@ -1966,6 +1979,8 @@ void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList, TCHAR const* 
 		sprintf(szMessage, "Allocating zero or less memory.\nCurrent XML file is: %s",
 				GC.getCurrentXMLFile().GetCString());
 		errorMessage(szMessage);
+		// <!-- custom: Do not allocate an invalid tag-pair capacity after its error is ignored. See KI#3.3. (GPT-6.1-Sol) -->
+		return;
 	}
 	bool bListModified = false; // advc.003t, advc.xmldefault
 	InitStringList(ppszList, iInfoBaseLength, szDefaultListVal);
@@ -1994,9 +2009,12 @@ void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList, TCHAR const* 
 							GetChildXmlVal(szTextVal))
 						{	// advc: was FindInfoClass
 							int iIndexVal = getGlobalEnumFromString(szTextVal);
-							if (iIndexVal >= 0)
+							// <!-- custom: Replace the advc.006 assertion-only bound with a real guard, preserving negative/no-entry keys and parser restoration.
+							// The album's Queue 028 identified the string/audio siblings alongside the primitive tag-pair defect. See KI#3.3. (GPT-6.1-Sol) -->
+							if (iIndexVal >= iInfoBaseLength)
+								errorMessage(CvString::format("XML tag-pair key exceeds capacity: list=%s index=%d capacity=%d XML=%s; entry ignored", szRootTagName, iIndexVal, iInfoBaseLength, GC.getCurrentXMLFile().GetCString()).c_str());
+							else if (iIndexVal >= 0)
 							{
-								FAssert(iIndexVal < iInfoBaseLength); // advc.006
 								GetNextXmlVal(pszList[iIndexVal]);
 								/*  <advc.003t> Since bListModified will only matter
 									if szDefaultListVal is an empty string, let's
@@ -2039,6 +2057,9 @@ void CvXMLLoadUtility::SetVariableListTagPairForAudioScripts(int **ppiList, TCHA
 				sprintf(szMessage, "Allocating zero or less memory.\nCurrent XML file is: %s",
 						GC.getCurrentXMLFile().GetCString());
 				errorMessage(szMessage);
+				// <!-- custom: Restore the entered audio-list root before rejecting invalid capacity; ignored diagnostics must not reach allocation. See KI#3.3. (GPT-6.1-Sol) -->
+				gDLL->getXMLIFace()->SetToParent(m_pFXml);
+				return;
 			}
 			InitList(ppiList, iInfoBaseLength, iDefaultListVal);
 			int* piList = *ppiList;
@@ -2060,9 +2081,12 @@ void CvXMLLoadUtility::SetVariableListTagPairForAudioScripts(int **ppiList, TCHA
 							GetChildXmlVal(szTextVal))
 						{	// advc: was FindInfoClass
 							int iIndexVal = getGlobalEnumFromString(szTextVal);
-							if (iIndexVal >= 0)
+							// <!-- custom: Replace the advc.006 assertion-only bound with a real guard, preserving negative/no-entry keys and parser restoration.
+							// The album's Queue 028 identified the string/audio siblings alongside the primitive tag-pair defect. See KI#3.3. (GPT-6.1-Sol) -->
+							if (iIndexVal >= iInfoBaseLength)
+								errorMessage(CvString::format("XML tag-pair key exceeds capacity: list=%s index=%d capacity=%d XML=%s; entry ignored", szRootTagName, iIndexVal, iInfoBaseLength, GC.getCurrentXMLFile().GetCString()).c_str());
+							else if (iIndexVal >= 0)
 							{
-								FAssert(iIndexVal < iInfoBaseLength); // advc.006
 								CvString szTemp;
 								GetNextXmlVal(szTemp);
 								if (szTemp.GetLength() > 0)

@@ -329,25 +329,29 @@ bool CvCivilizationInfo::read(CvXMLLoadUtility* pXML)
 				piUniques = &m_piCivilizationUnits;
 				pXML->InitUnitDefaults(piUniques);
 			}
-			int iNumSibs = gDLL->getXMLIFace()->GetNumChildren(pXML->GetXML());
-			if (iNumSibs > 0 && gDLL->getXMLIFace()->SetToChild(pXML->GetXML()))
+			// <!-- custom: Walk until the siblings end rather than trusting a count whose handling of comments belongs to the closed EXE.
+			// AdvCiv's GetChildXmlValByName rationale also warns against NumOfChildrenByTagName around comments, so neither counting API controls this traversal. See KI#3.2. (GPT-6.1-Sol) -->
+			if (gDLL->getXMLIFace()->SetToChild(pXML->GetXML()))
 			{
-				FAssert(iNumSibs <= (bBuildings ? GC.getNumBuildingClassInfos() : GC.getNumUnitClassInfos()));
 				char szClassVal[256]; // holds the text value of the relevant classinfo
 				CvString szTextVal;
-				for (int j = 0; j < iNumSibs; j++)
+				// <!-- custom: Skip raw comments before each descent, including leading/trailing comment runs; GetChildXmlVal only skips comments after descent.
+				// Read failures retain civilization/list/index context without asserting an unverified expected sibling count. See KI#3.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+				for (int j = 0; pXML->SkipToNextVal(); j++)
 				{
 					if (pXML->GetChildXmlVal(szClassVal))
 					{
 						int iClassIndex = pXML->FindInInfoClass(szClassVal);
-						if (iClassIndex > -1)
+						if (iClassIndex >= 0 && iClassIndex < (bBuildings ? GC.getNumBuildingClassInfos() : GC.getNumUnitClassInfos()))
 						{
-							pXML->GetNextXmlVal(szTextVal);
-							(*piUniques)[iClassIndex] = pXML->FindInInfoClass(szTextVal);
+							if (pXML->GetNextXmlVal(szTextVal))
+								(*piUniques)[iClassIndex] = pXML->FindInInfoClass(szTextVal);
+							else FErrorMsg(CvString::format("Civilization XML mapping target cannot be read: type=%s list=%s class=%s entry=%d XML=%s", getType(), bBuildings ? "Buildings" : "Units", szClassVal, j, GC.getCurrentXMLFile().GetCString()).c_str());
 						}
-						else FAssert(iClassIndex > -1);
+						else FErrorMsg(CvString::format("Civilization XML mapping has an invalid class: type=%s list=%s class=%s entry=%d XML=%s", getType(), bBuildings ? "Buildings" : "Units", szClassVal, j, GC.getCurrentXMLFile().GetCString()).c_str());
 						gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
 					}
+					else FErrorMsg(CvString::format("Civilization XML mapping cannot be read: type=%s list=%s entry=%d XML=%s", getType(), bBuildings ? "Buildings" : "Units", j, GC.getCurrentXMLFile().GetCString()).c_str());
 					if (!gDLL->getXMLIFace()->NextSibling(pXML->GetXML()))
 						break;
 				}
@@ -373,8 +377,13 @@ bool CvCivilizationInfo::read(CvXMLLoadUtility* pXML)
 				CvString szTextVal;
 				if (pXML->GetChildXmlVal(szTextVal))
 				{
-					FAssert(iNumSibs <= GC.getNumCivicOptionInfos());
-					for (int j = 0; j < iNumSibs; j++)
+					// <!-- custom: InitialCivics is allocated per civic option, not per XML child.
+					// Diagnose excess entries but cap writes even in Release or after Ignore Once/Always.
+					// Keep the inherited value traversal and parent restoration for valid lists; the album's Queue 034 established that shipped lists fit. See KI#3.3. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+					if (iNumSibs > GC.getNumCivicOptionInfos())
+						FErrorMsg(CvString::format("Civilization InitialCivics exceeds allocation: type=%s count=%d capacity=%d XML=%s", getType(), iNumSibs, GC.getNumCivicOptionInfos(), GC.getCurrentXMLFile().GetCString()).c_str());
+					int const iReadLimit = std::min(iNumSibs, GC.getNumCivicOptionInfos());
+					for (int j = 0; j < iReadLimit; j++)
 					{
 						m_piCivilizationInitialCivics[j] = pXML->FindInInfoClass(szTextVal);
 						if (!pXML->GetNextXmlVal(szTextVal))
@@ -1620,25 +1629,27 @@ bool CvDiplomacyInfo::read(CvXMLLoadUtility* pXML)
 	if (!CvInfoBase::read(pXML))
 		return false;
 
-	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"Responses"))
+	// <!-- custom: Like civilization mappings, Response siblings need comment skipping before their field readers run.
+	// Preserve the advc.006b comment-handling concern without its NumOfChildrenByTagName dependency: terminate at the actual sibling end instead.
+	// Restore only parser levels that were entered, including an empty Responses list. See KI#3.2. (GPT-6.1-Sol) -->
+	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "Responses"))
 	{
-		int iNewResponses = gDLL->getXMLIFace()->NumOfChildrenByTagName(pXML->GetXML(), "Response");
-		// advc.006b: GetChildXmlValByName can't handle comments
-		FAssertMsg(iNewResponses > 0, "XML comment inside Responses?");
-		gDLL->getXMLIFace()->SetToChild(pXML->GetXML());
-
-		for (int i = 0; i < iNewResponses; i++)
+		if (gDLL->getXMLIFace()->SetToChild(pXML->GetXML()))
 		{
-			CvDiplomacyResponse* pNewResponse = new CvDiplomacyResponse;
-			pNewResponse->read(pXML);
-			m_pResponses.push_back(pNewResponse);
-
-			if (!gDLL->getXMLIFace()->NextSibling(pXML->GetXML()))
-				break;
+			for (int i = 0; pXML->SkipToNextVal(); i++)
+			{
+				CvDiplomacyResponse* pNewResponse = new CvDiplomacyResponse;
+				bool const bRead = pNewResponse->read(pXML);
+				FAssertMsg(bRead, CvString::format("Diplomacy XML response cannot be read: type=%s entry=%d XML=%s", getType(), i, GC.getCurrentXMLFile().GetCString()).c_str());
+				if (bRead)
+					m_pResponses.push_back(pNewResponse);
+				else delete pNewResponse;
+				if (!gDLL->getXMLIFace()->NextSibling(pXML->GetXML()))
+					break;
+			}
+			gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
 		}
 		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
 	}
-	gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
-
 	return true;
 }
