@@ -17086,20 +17086,58 @@ bool CvUnitAI::AI_guardCityBestDefender()
 }
 
 // K-Mod:
+// <!-- custom: Keep K-Mod's singleton behavior, but change gameplay behavior for multi-unit Reserve groups when no outside guard is assigned.
+// Detach one defender and let the remainder continue, instead of potentially parking the whole group or allowing it all to leave.
+// The old singleton-based test could count the group's own guards as outside protection; PUF_isMissionAIType counts units through their shared group mission, so subtract every member of our group when it already has the guard mission.
+// This repairs multi-unit handling while retaining the inherited aim of leaving a guard. See KI#49.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 bool CvUnitAI::AI_guardCityOnlyDefender()
 {
-	FAssert(getGroup()->getNumUnits() == 1);
-
 	CvCity* pPlotCity = getPlot().getPlotCity();
 	if (pPlotCity && pPlotCity->getOwner() == getOwner())
 	{
-		if (getPlot().plotCount(PUF_isMissionAIType, MISSIONAI_GUARD_CITY, -1, getOwner()) <=
-			(AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_CITY ? 1 : 0))
+		CvSelectionGroupAI& kGroup = *AI_getGroup();
+		int const iGroupUnits = kGroup.getNumUnits();
+		MissionAITypes const eGroupMissionAI = kGroup.AI_getMissionAIType();
+		int const iGuardCityUnits = getPlot().plotCount(PUF_isMissionAIType,
+				MISSIONAI_GUARD_CITY, -1, getOwner());
+		int const iOurGuardCityUnits = (eGroupMissionAI ==
+				MISSIONAI_GUARD_CITY ? iGroupUnits : 0);
+		int const iOtherGuardCityUnits = std::max(0,
+				iGuardCityUnits - iOurGuardCityUnits);
+		if (iOtherGuardCityUnits == 0)
 		{
-			getGroup()->pushMission(isFortifyable() ? MISSION_FORTIFY : MISSION_SKIP,
+			CvUnitAI* pGuardUnit = this;
+			if (iGroupUnits > 1)
+			{
+				// <!-- custom: Snapshot logging-only identity before ejection can change the head, and avoid those lookups when Unit logging is disabled. (GPT-6.1-Sol) -->
+				bool const bLogSplit = (gUnitLogLevel >= 2);
+				int const iOldGroupId = (bLogSplit ? kGroup.getID() : -1);
+				CvUnitAI const* pOldHeadUnit = (bLogSplit ? kGroup.AI_getHeadUnit() : NULL);
+				// <!-- custom: K-Mod added this guard under a singleton-group assumption, but the assertion capture shows that this helper can receive a multi-unit group.
+				// Count only guards outside this group, then eject one best city defender to avoid both whole-group parking and self-counting. See KI#49.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+				pGuardUnit = kGroup.AI_ejectBestDefender(&getPlot());
+				if (pGuardUnit == NULL)
+				{
+					FErrorMsg("AI_guardCityOnlyDefender could not select a defender from a non-empty group.");
+					return false;
+				}
+				// <!-- custom: Check the split's actual contract rather than forbidding multi-unit input: one separate guard remains on the city plot, and exactly one member leaves the original group.
+				// These checks diagnose a broken ejection, not whether leaving one guard is strategically optimal. See KI#49.2. (GPT-6.1-Sol) -->
+				FAssertMsg(pGuardUnit->getGroup() != &kGroup && pGuardUnit->getGroup()->getNumUnits() == 1, "AI_guardCityOnlyDefender must detach a singleton guard.");
+				FAssertMsg(pGuardUnit->at(pPlotCity->getPlot()) && pGuardUnit->getOwner() == pPlotCity->getOwner(), "AI_guardCityOnlyDefender must retain an owned guard on the city plot.");
+				FAssertMsg(kGroup.getNumUnits() == iGroupUnits - 1, "AI_guardCityOnlyDefender must remove exactly one unit from the original group.");
+				if (bLogSplit) logBBAI("    RESERVE_ONLY_DEFENDER_SPLIT turn=%d player=%d %S city=%S city=(%d,%d) reserveUnitId=%d guardUnitId=%d guardUnitAI=%s guardWasHead=%d oldGroupId=%d oldGroupUnits=%d oldMissionAI=%d guardCityUnits=%d otherGuardCityUnits=%d action=EJECT_ONE_DEFENDER",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0),
+					pPlotCity->getName().GetCString(), pPlotCity->getX(), pPlotCity->getY(), getID(), pGuardUnit->getID(),
+					SAS_getUnitAITypeName(pGuardUnit->AI_getUnitAIType()), (pGuardUnit == pOldHeadUnit), iOldGroupId, iGroupUnits, eGroupMissionAI,
+					iGuardCityUnits, iOtherGuardCityUnits);
+			}
+			pGuardUnit->getGroup()->pushMission(pGuardUnit->isFortifyable() ? MISSION_FORTIFY : MISSION_SKIP,
 					-1, -1, NO_MOVEMENT_FLAGS, false, false,
-					noDefensiveBonus() ? NO_MISSIONAI : MISSIONAI_GUARD_CITY, 0);
-			return true;
+					pGuardUnit->noDefensiveBonus() ? NO_MISSIONAI : MISSIONAI_GUARD_CITY, 0);
+			// <!-- custom: Stop this unit only if it became the guard; otherwise its remaining group continues AI_reserveMove.
+			// If the old head was detached, AI_unitUpdate can revisit newly created groups through its existing repeat pass. See KI#49.2. (GPT-6.1-Sol) -->
+			return (pGuardUnit == this);
 		}
 	}
 	return false;

@@ -106,6 +106,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.19 - (Improved inherited K-Mod/AdvC AI Wonder opportunity-cost weakness and fixed old-SAS planning defect) National Park military pressure was either ignored or hard-zeroed across current and prospective valuation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.19)\
 [KI#48.20 - (Improved inherited K-Mod/AdvC AI World-Wonder opportunity-cost weakness) Locally exposed AIs could over-invest in World Wonders after the old hard military-pressure policy was retired](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.20)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
+[KI#49.2 - (Fixed inherited K-Mod singleton-group assumption) Multi-unit Reserve groups could trip AI_guardCityOnlyDefender and over-hold the whole group](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49.2)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
 [KI#51.2 - (Fixed AdvCiv-SAS post-production override defect; host emergency subsystem later retired) Emergency building rules could override intentional disorder no-production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51.2)\
@@ -3431,6 +3432,108 @@ The cause remains undetermined. Background Git maintenance was considered as a p
 The practical response is to inspect the actual failure before changing source. A failed-job rerun can test unchanged content without rewriting a commit; the no-content amend served that role here. A local pass or successful retry is evidence of intermittency, not permission to dismiss a reproducible GitHub-only failure.
 
 Observed and retried by wonderingabout; identical-tree/job verification and documentation by GPT-6.1-Sol (Codex).
+
+2026-10-22 recurrence during the conquest-liberation assertion cleanup:
+
+- [Commit `8eb52a1b1baf5f87efd35183cbeef6062bd56169`](https://github.com/wonderingabout/AdvCiv-SAS/commit/8eb52a1b1baf5f87efd35183cbeef6062bd56169) had a [failed helper-test job](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/39847006655/job/120062821649); [commit `46edec7cef5511dc3970d1f75207a49888608781`](https://github.com/wonderingabout/AdvCiv-SAS/commit/46edec7cef5511dc3970d1f75207a49888608781) had a [passing helper-test job](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/39852894083/job/120083463222).
+- Both commits have Git tree `4895e90e132b1f6d7a57e6c2d0cf9d2ace5747bd`, independently verified through GitHub's commit API; tracked contents are identical.
+- The captured traceback again leaves `tempfile.TemporaryDirectory()` in the same test, this time under Python 3.14.8 and while removing `.git` rather than `.git/objects`. The recurrence across these environments does not establish a Python-version cause.
+
+Failure verbatim:
+
+```log
+Run python -m unittest discover -s .github/workflows/tests/diagnostics -t .github/workflows -v
+test_assertion_log_uses_menu_and_game_session_rollovers_without_gating (tests.diagnostics.test_assertion_logging.AssertionLoggingTests.test_assertion_log_uses_menu_and_game_session_rollovers_without_gating) ... ok
+test_failure_is_persisted_before_dialog_or_automatic_resolution (tests.diagnostics.test_assertion_logging.AssertionLoggingTests.test_failure_is_persisted_before_dialog_or_automatic_resolution) ... ok
+test_policy_cache_is_initialized_after_global_define_overrides (tests.diagnostics.test_assertion_logging.AssertionLoggingTests.test_policy_cache_is_initialized_after_global_define_overrides) ... ok
+test_runtime_assert_family_routes_through_fassertdlg (tests.diagnostics.test_assertion_logging.AssertionLoggingTests.test_runtime_assert_family_routes_through_fassertdlg) ... ok
+test_silent_action_define_defaults_to_unattended_ignore_once (tests.diagnostics.test_assertion_logging.AssertionLoggingTests.test_silent_action_define_defaults_to_unattended_ignore_once) ... ok
+test_bridge_does_not_exempt_disk_flush_or_missing_sharing_flags (tests.diagnostics.test_diagnostic_log_safety.DiagnosticSinkPolicyTests.test_bridge_does_not_exempt_disk_flush_or_missing_sharing_flags) ... ok
+test_legacy_bridge_is_allowed_only_in_shared_utils (tests.diagnostics.test_diagnostic_log_safety.DiagnosticSinkPolicyTests.test_legacy_bridge_is_allowed_only_in_shared_utils) ... ok
+test_owned_writer_and_unrelated_function_still_reject_exe_calls (tests.diagnostics.test_diagnostic_log_safety.DiagnosticSinkPolicyTests.test_owned_writer_and_unrelated_function_still_reject_exe_calls) ... ok
+test_strings_and_comments_do_not_change_bridge_boundaries (tests.diagnostics.test_diagnostic_log_safety.DiagnosticSinkPolicyTests.test_strings_and_comments_do_not_change_bridge_boundaries) ... ok
+test_unclosed_bridge_does_not_hide_subsequent_code (tests.diagnostics.test_diagnostic_log_safety.DiagnosticSinkPolicyTests.test_unclosed_bridge_does_not_hide_subsequent_code) ... ok
+test_fenced_or_commented_entries_do_not_count (tests.diagnostics.test_revision_history.RevisionExplanationTests.test_fenced_or_commented_entries_do_not_count) ... ok
+test_metadata_empty_comments_and_empty_bullets_do_not_explain (tests.diagnostics.test_revision_history.RevisionExplanationTests.test_metadata_empty_comments_and_empty_bullets_do_not_explain) ... ok
+test_neighboring_entry_and_template_do_not_supply_missing_text (tests.diagnostics.test_revision_history.RevisionExplanationTests.test_neighboring_entry_and_template_do_not_supply_missing_text) ... ok
+test_single_line_and_continued_explanations (tests.diagnostics.test_revision_history.RevisionExplanationTests.test_single_line_and_continued_explanations) ... ok
+test_checker_only_changes_keep_the_compiled_revision (tests.diagnostics.test_runtime_revision_history.RuntimeRevisionTests.test_checker_only_changes_keep_the_compiled_revision) ... ok
+test_clean_committed_crlf_source_does_not_require_an_increment (tests.diagnostics.test_runtime_revision_history.RuntimeRevisionTests.test_clean_committed_crlf_source_does_not_require_an_increment) ... ok
+test_history_mismatch_and_duplicate_entries_fail (tests.diagnostics.test_runtime_revision_history.RuntimeRevisionTests.test_history_mismatch_and_duplicate_entries_fail) ... ok
+test_introduction_and_documentation_only_commit (tests.diagnostics.test_runtime_revision_history.RuntimeRevisionTests.test_introduction_and_documentation_only_commit) ... ok
+test_jumps_and_regressions_fail (tests.diagnostics.test_runtime_revision_history.RuntimeRevisionTests.test_jumps_and_regressions_fail) ... ok
+test_later_documentation_does_not_hide_missing_committed_blurb (tests.diagnostics.test_runtime_revision_history.RuntimeRevisionTests.test_later_documentation_does_not_hide_missing_committed_blurb) ... ok
+test_missing_change_and_metadata_only_entries_fail (tests.diagnostics.test_runtime_revision_history.RuntimeRevisionTests.test_missing_change_and_metadata_only_entries_fail) ... ok
+test_missing_increment_in_earlier_push_commit_is_not_hidden (tests.diagnostics.test_runtime_revision_history.RuntimeRevisionTests.test_missing_increment_in_earlier_push_commit_is_not_hidden) ... ok
+test_multiple_commits_and_single_pending_draft_increment (tests.diagnostics.test_runtime_revision_history.RuntimeRevisionTests.test_multiple_commits_and_single_pending_draft_increment) ... ok
+test_shared_hook_changes_qualify_but_test_only_changes_do_not (tests.diagnostics.test_runtime_revision_history.RuntimeRevisionTests.test_shared_hook_changes_qualify_but_test_only_changes_do_not) ... ok
+test_squash_checks_aggregate_once_and_rejects_extra_revision (tests.diagnostics.test_runtime_revision_history.RuntimeRevisionTests.test_squash_checks_aggregate_once_and_rejects_extra_revision) ... ok
+test_build_report_metadata_does_not_require_revision (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_build_report_metadata_does_not_require_revision) ... ok
+test_define_era_finalized_entry_uses_single_xml_revision (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_define_era_finalized_entry_uses_single_xml_revision) ... ok
+test_explicit_squash_checks_final_candidate_and_keeps_ordinary_strict (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_explicit_squash_checks_final_candidate_and_keeps_ordinary_strict) ... ok
+test_feature_push_defers_progression_but_default_push_checks_it (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_feature_push_defers_progression_but_default_push_checks_it) ... ok
+test_feature_rewrite_does_not_replace_default_branch_commit (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_feature_rewrite_does_not_replace_default_branch_commit) ... ok
+test_finalized_feature_revision_requires_current_lineage (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_finalized_feature_revision_requires_current_lineage) ... ok
+test_later_documentation_does_not_hide_missing_committed_blurb (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_later_documentation_does_not_hide_missing_committed_blurb) ... ok
+test_missing_default_branch_abstains_from_ancestry (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_missing_default_branch_abstains_from_ancestry) ... ok
+test_missing_event_boundary_or_history_is_reported (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_missing_event_boundary_or_history_is_reported) ... ok
+test_packaging_and_general_ci_mentions_do_not_require_revision (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_packaging_and_general_ci_mentions_do_not_require_revision) ... ok
+test_pr_uses_explicit_head_and_push_keeps_real_merge (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_pr_uses_explicit_head_and_push_keeps_real_merge) ... ok
+test_progression_accepts_unrelated_commit_without_bump (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_progression_accepts_unrelated_commit_without_bump) ... ok
+test_progression_checks_each_commit_since_main (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_progression_checks_each_commit_since_main) ... ok
+test_progression_recognizes_bridge_marker_change (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_progression_recognizes_bridge_marker_change) ... ok
+test_progression_recognizes_nonrevision_sas_define_change (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_progression_recognizes_nonrevision_sas_define_change) ... ERROR
+test_progression_rejects_missing_double_and_regressing_bumps (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_progression_rejects_missing_double_and_regressing_bumps) ... ok
+test_progression_rejects_revision_only_bump (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_progression_rejects_revision_only_bump) ... ok
+test_progression_requires_exactly_one_increment_for_qualifying_commit (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_progression_requires_exactly_one_increment_for_qualifying_commit) ... ok
+test_push_checks_bad_earlier_commit_even_when_main_is_already_at_tip (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_push_checks_bad_earlier_commit_even_when_main_is_already_at_tip) ... ok
+test_report_exclusion_keeps_actual_bridge_checker_and_json_changes (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_report_exclusion_keeps_actual_bridge_checker_and_json_changes) ... ok
+test_revision_rename_preserves_historical_sources (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_revision_rename_preserves_historical_sources) ... ok
+test_current_revision_documentation (tests.diagnostics.test_sasgamerecord_revision.RevisionDocumentationTests.test_current_revision_documentation) ... ok
+test_define_bump_without_history_update (tests.diagnostics.test_sasgamerecord_revision.RevisionDocumentationTests.test_define_bump_without_history_update) ... ok
+test_history_bump_without_define_update (tests.diagnostics.test_sasgamerecord_revision.RevisionDocumentationTests.test_history_bump_without_define_update) ... ok
+test_latest_revision_needs_more_than_date_and_commit (tests.diagnostics.test_sasgamerecord_revision.RevisionDocumentationTests.test_latest_revision_needs_more_than_date_and_commit) ... ok
+test_removed_latest_history_entry (tests.diagnostics.test_sasgamerecord_revision.RevisionDocumentationTests.test_removed_latest_history_entry) ... ok
+
+======================================================================
+ERROR: test_progression_recognizes_nonrevision_sas_define_change (tests.diagnostics.test_sas_revision_history.RevisionHistoryTests.test_progression_recognizes_nonrevision_sas_define_change)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/runner/work/AdvCiv-SAS/AdvCiv-SAS/.github/workflows/tests/diagnostics/test_sas_revision_history.py", line 216, in test_progression_recognizes_nonrevision_sas_define_change
+    with tempfile.TemporaryDirectory() as temp:
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/opt/hostedtoolcache/Python/3.14.8/x64/lib/python3.14/tempfile.py", line 972, in __exit__
+    self.cleanup()
+    ~~~~~~~~~~~~^^
+  File "/opt/hostedtoolcache/Python/3.14.8/x64/lib/python3.14/tempfile.py", line 976, in cleanup
+    self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.14.8/x64/lib/python3.14/tempfile.py", line 956, in _rmtree
+    _shutil.rmtree(name, onexc=onexc)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.14.8/x64/lib/python3.14/shutil.py", line 852, in rmtree
+    _rmtree_impl(path, dir_fd, onexc)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.14.8/x64/lib/python3.14/shutil.py", line 721, in _rmtree_safe_fd
+    _rmtree_safe_fd_step(stack, onexc)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.14.8/x64/lib/python3.14/shutil.py", line 802, in _rmtree_safe_fd_step
+    onexc(func, path, err)
+    ~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.14.8/x64/lib/python3.14/shutil.py", line 753, in _rmtree_safe_fd_step
+    os.rmdir(name, dir_fd=dirfd)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 39] Directory not empty: '/tmp/tmp0ui08e_j/.git'
+
+----------------------------------------------------------------------
+Ran 51 tests in 2.877s
+
+NOTICE SASGameRecord revision default-branch ancestry unavailable; abstaining from that check
+FAILED (errors=1)
+Error: Process completed with exit code 1.
+```
+
+No source fix was needed for the identical-tree run to pass. The cause remains undetermined; this is a second observation of intermittent fixture cleanup failure, not evidence that arbitrary CI failures can be dismissed. Reported/retried by wonderingabout; GitHub tree/job verification and documentation by GPT-6.1-Sol (Codex).
 
 <a id="ki-39"></a>
 
@@ -7027,6 +7130,53 @@ So all in all, the AI should now be stronger as a result of these changes, but c
 Note: i added some extra screenshots that show the current state of our AI, militarily it is very strong and impressive, low focus on wonders but not absolute 0, and very very strong scary in a good way army, in the same drive link related to this issue in a drive folder as well.
 
 Update: since all seems to work well or better, added code to disable it after turn 120 adjusted to game speed, so that it is computationally cheaper now that units are really numberousand since barbarians are less of a threat now if at all at this stage, plus cities should be guarded enough to handle this now without needing our code, or in case it creates later issues (maybe we'd lose some unknown fixes with our code but unlikely even though possible), check code comments for details and chatgpt 5 said it's fine as of now at least but check to be sure.
+
+<a id="ki-49.2"></a>
+
+## KI#49.2 - (Fixed inherited K-Mod singleton-group assumption) Multi-unit Reserve groups could trip `AI_guardCityOnlyDefender` and over-hold the whole group
+
+Reviewing the preserved SASAssertions gameplay capture exposed a failed singleton-group assumption:
+
+```text
+CvUnitAI::AI_guardCityOnlyDefender
+getGroup()->getNumUnits() == 1
+```
+
+This is an inherited K-Mod assumption rather than a SAS-added assertion. K-Mod commit `a7864d54b8c2e6f04e44273efecad78299b0fdb6` on 2012-01-19 (`Reserve units will no longer leave a city completely undefended.`) introduced both `AI_guardCityOnlyDefender()` and its unconditional call at the start of `AI_reserveMove()`. K-Mod 1.46 and Base AdvCiv retain the same singleton assertion.
+
+The helper's gameplay purpose is still useful: when a Reserve is in an owned city and there is no other `MISSIONAI_GUARD_CITY` unit, one unit should remain instead of letting the city become completely unguarded.
+
+K-Mod's grouping machinery supports multi-unit groups: `AI_reserveMove()` can merge into a Settler group with `iMaxGroup=2` and regrouping enabled, while `AI_omniGroup` preserves the inherited/off-by-one maximum-group convention. A singleton caller can therefore merge with an already two-unit target group.
+
+That example does not establish the origin of a Reserve-headed group: `mergeIntoGroup()` tries to preserve the target head's UnitAI. The assertion capture independently proves that a multi-unit group reached this helper in current SAS, but its formation path remains unresolved.
+
+The old ignored-assert behavior was not generalized for the observed multi-unit state. If the multi-unit group had no `MISSIONAI_GUARD_CITY` assignment and no outside guard existed, `pushMission` could park the entire group.
+
+If the current multi-unit group already had `MISSIONAI_GUARD_CITY`, every member counted against the singleton-oriented threshold, so the helper could instead return false without explicitly retaining one member. Both cases diverged from K-Mod's "leave one defender" intent.
+
+This is a behavioral bug fix: multi-unit handling is corrected to serve the inherited last-guard intent, without introducing a new strategic garrison target. The helper is called only by `AI_reserveMove()` for `UNITAI_RESERVE`; naval `UNITAI_RESERVE_SEA` and air-role movement routines do not call it.
+
+The repaired helper now subtracts the current group's own guard-city units from the plot count. When another guard already exists, the Reserve group continues normally.
+
+When no outside guard exists and the Reserve group has multiple units, it uses the existing `CvSelectionGroupAI::AI_ejectBestDefender` ranking to detach exactly one defender for the city. The remaining group can continue normal Reserve movement, while singleton behavior remains the inherited K-Mod behavior.
+
+The replacement assertions check the ejection contract: the chosen guard has a separate singleton group, remains on its owned city plot, and leaves exactly one fewer unit in the original group. These are structural correctness checks, not assertions that one defender is the optimal garrison size.
+
+A level-2 Unit BBAI row, `RESERVE_ONLY_DEFENDER_SPLIT`, records only the unusual multi-unit repair path: original group size/mission, Reserve and selected defender IDs, selected UnitAI, whether the selected defender was the old group head, and the guard-city counts.
+
+This is deliberately BBAI rather than SASGameRecord because it is low-level AI-decision diagnosis rather than durable game-history state.
+
+The C++ File Audit Album's C031-WIP83 `OTHER INHERITED MEMBER CONTROLS` section explicitly reviewed `AI_guardCityBestDefender` / `AI_guardCityOnlyDefender` and found no AdvCiv source-vs-target or counting regression. That static conclusion remains useful for the inspected AdvCiv edits, but it did not establish the inherited singleton precondition.
+
+SASAssertions supplies the missing runtime evidence that the precondition can fail. The album itself remains unchanged as the historical audit record.
+
+Runtime replay should confirm that the singleton assertion no longer occurs. If the same multi-unit condition recurs with Unit BBAI level 2, `RESERVE_ONLY_DEFENDER_SPLIT` should show one defender detached while the rest of the group remains available. No specific captured group composition is claimed until such a replay captures it.
+
+Fixed with the help of ChatGPT-5.6-Sol; logging gates, group-update behavior and documentation reviewed with GPT-6.1-Sol.
+
+- 2026-10-22 replay: the matching assertion-enabled Debug-opt build completed with zero warnings/errors; the loaded DLL identity matched the tested build, whose `CvUnitAI.cpp` input matches this candidate.
+  - A loaded-game autoplay reached victory at T426, with `PythonErr.log` empty and no old singleton or new split-contract failures.
+  - Unit BBAI level 2 produced no `RESERVE_ONLY_DEFENDER_SPLIT` rows, so the multi-unit repair path was not demonstrated by this run. This is smoke-test evidence rather than a reproduction of the original group state. (GPT-6.1-Sol)
 
 <a id="ki-50"></a>
 

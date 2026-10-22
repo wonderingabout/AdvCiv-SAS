@@ -323,6 +323,7 @@ Note: several of the sample examples in this section are now seemingly fixed, bu
 The full game capture also illustrates how a repeatedly failing check can generate substantial output: silent handling removes popup clicks, but does not repair the failed condition or eliminate its recording cost. Some captured conditions were addressed during subsequent review; notably:
 
 - [KI#486.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486.5) retires the inherited `AI_conquerCity` development probe shown here. It marked preliminary path entry, whereas enabled SASGameRecord/BBAI diagnostics record actual conquest-liberation decisions and KI#486.2 documents a successful transfer replay.
+- [KI#49.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49.2) addresses the `AI_guardCityOnlyDefender` singleton assumption illustrated here: a multi-unit Reserve group can leave one defender instead of parking the whole group. Enabled Unit BBAI diagnostics report the split as `RESERVE_ONLY_DEFENDER_SPLIT`.
 
 ### Historical comparison
 
