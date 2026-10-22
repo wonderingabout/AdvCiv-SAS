@@ -292,6 +292,7 @@ The current examples preserve unchanged startup and gameplay captures from the s
 Note: several of the sample examples in this section are now seemingly fixed, but remain valid/illustrative examples; notably:
 
 - the former (now deleted SAS define) `SAS_MOD_DISPLAY_NAME`-related assertion rows capture the startup-order issue addressed by [KI#110.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-110.2); this example predates the INI-backed name cache.
+- The `CvGameSpeedInfo::read` Golden Age assertion rows capture SAS-added Nitro's former 55% Golden Age modifier against its 33% research pace; the inherited AdvCiv check diagnoses this relationship rather than changing gameplay. [KI#92.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-92.2) documents the 40% setting, giving three base Golden Age turns instead of the earlier SAS value's four.
 
 #### Gameplay example
 

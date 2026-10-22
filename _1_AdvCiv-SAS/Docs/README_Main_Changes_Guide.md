@@ -2906,7 +2906,10 @@ Make some of the data-dense advisors use using a **higher constrast background t
 
 - `GAMESPEED_MARATHON` **shortened** total turns **1250 → 1000** (vs base AdvCiv). Adjusted the associated speed modifiers to align with the new length.
 - **New Game Speeds**: `Slow (1500 turns / 300%)` and `Very Slow (2000 turns / 400%)`, **slower than Marathon (1000 turns / 200%)**; and `Turbo (250 turns / 50%)` and `Nitro (165 turns / 33%)`, **faster than Quick (330 turns / 67%)**, that should provide varied experiences.
-  - See full game speed details in the **new Sevopedia Speeds category**.
+  - (Requires AdvCiv-SAS 6666+) Note: **Golden Ages on the SAS-added Nitro speed** last **3 base turns**, to suit its short overall game duration and fast pace (40% of the standard eight turns, rounded down before player bonuses; half Quick's 80% modifier).
+    - Earlier SAS versions used 55%, giving four base turns; reducing that value also satisfies the inherited AdvCiv DLL assertion about research/Golden Age scaling.
+    - The assertion itself only diagnoses unusual values and does not adjust gameplay, while the modifier also serves other game-speed adjustments, but it helped find a more suitable golden age duration here. See [KI#92.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-92.2).
+- See full game speed details in the **new Sevopedia Speeds category**.
 - **Clarified** and made more **outwardly visible** the **Game Speed** information: e.g. `"Normal (500 / 100%)"` bullet; `Epic (750 / 150%)` bullet; `GAME SPEED (50 000 BC - 2105 AD)` header, and clarified other fields.
 - **Reordered** them in XML from fastest to slowest so they appear in this order in the UI (Main Menu)'s **Simple Game** Game Speed section.
 - **Fix base AdvCiv `iExtraFreeOutsideUnits` incorrect default bug:**

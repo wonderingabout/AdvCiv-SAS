@@ -155,6 +155,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#90 - (Fixed) Base AdvCiv bug of Sevopedia Index using the Religion's button instead of the corporations'](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-90)\
 [KI#91 - (Adjusted) iBaseGrowthThresholdPercent scales with handicap but it's not clear what it does and how it should be said](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-91)\
 [KI#92 - (Fixed) Base AdvCiv bug of iExtraFreeOutsideUnits being set to 100 at lower than Marathon game speeds (spotted thanks to the new Sevopedia Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-92)\
+[KI#92.2 - (Fixed AdvCiv-SAS game-speed scaling) Nitro Golden Age scaling violates AdvCiv's inherited game-speed sanity range](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-92.2)\
 [KI#93 - (Enhanced) New optional XML fields (e.g. ObsoleteTech for units) to fix aberrant unit choice or scrapping](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-93)\
 [KI#94 - (Fixed) Base AdvCiv bug of opening last visited category instead of the index (or in AdvCiv-SAS hints category instead of last visited)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-94)\
 [KI#95 - (Fixed) Base AdvCiv issue of Back button not leading back to Hints or Index that we last visited](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-95)\
@@ -10039,6 +10040,31 @@ Now fixed with code comments, and added the `iExtraFreeOutsideUnits` (plus `iUni
 Gameplay change doesn't seem too significant at a glance, check screenshots and save file provided for comparison.
 
 See [commit/6901fd17969c00abada610fbfd2bdf6bf1fc01ea](https://github.com/wonderingabout/AdvCiv-SAS/commit/6901fd17969c00abada610fbfd2bdf6bf1fc01ea).
+
+<a id="ki-92.2"></a>
+
+## KI#92.2 - (Fixed AdvCiv-SAS game-speed scaling) Nitro Golden Age scaling violates AdvCiv's inherited game-speed sanity range
+
+2026-10-22 assertion evidence:
+
+- After KI#110.2 removed the earlier premature mod-name lookup, the first remaining startup assertion was AdvCiv's `CvGameSpeedInfo::read` Golden Age sanity check.
+- The captured XML had `GAMESPEED_NITRO` at `iResearchPercent=33` and `iGoldenAgePercent=55`; it was the only shipped speed that failed the assertion.
+
+Inherited contract and ancestry:
+
+- Below 100% research, the check requires the Golden Age modifier to stay at least as large as research but below four-thirds of research. Nitro therefore permits 33 through 43; 55 is outside the intended range.
+- AdvCiv introduced the assertion in commit `e097767f55` on 2020-09-15 (`Replace most floating-point math in CvPlayerAI`) because `iGoldenAgePercent` is also reused for game-speed adjustments beyond raw Golden Age duration. Commit `b99e6a42b7` on 2021-11-19 later rewrote the first comparison algebraically without changing that contract.
+
+SAS origin and correction:
+
+- SAS introduced Nitro with the 55% value in commit `855d664a31` on 2026-01-05.
+- Practical 5463 / commit `96163add02` on 2026-02-18 later rebuilt Nitro's 165-turn calendar as an exact 2:1 compression of Quick's 330-turn calendar; Quick uses `iGoldenAgePercent=80`.
+- Changing Nitro to 40% follows that current 2:1 design exactly, remains above Nitro's 33% core scaling so Golden Ages are still slightly less compressed, and satisfies the inherited AdvCiv sanity relation. The assertion itself is retained.
+
+Audit context:
+
+- The historical source archaeology review of practical 5296 validated the new speed set, culture thresholds and current speed cardinality.
+- The C++ File Audit Album Queue 035 review validated the game-speed timeline/array lifecycle. Neither review recorded this Golden-Age-versus-research cross-field relation, so the assertion evidence adds a narrower current-data finding rather than invalidating those checks. (ChatGPT-5.6-Sol)
 
 <a id="ki-93"></a>
 
