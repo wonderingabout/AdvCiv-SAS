@@ -14,7 +14,7 @@ from SASUtils import getNewConceptID
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
-IS_SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE") > 0)
+IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") > 0)
 IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
 
 # <!-- custom: constants useful for numTxt under button placement in a grid-like manner, i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe thanks thanks chatgpt etc and me toot thanks; note: these are for non-multilist panels, commented-out if we don't need them but kept for reference still if may serve someday -->
@@ -49,7 +49,7 @@ SAS_PEDIA_PANEL_STYLE_VALUES = None
 SAS_PEDIA_BG_NAMES = None
 g_iSasPediaPanelStyleIdx = None
 g_iSasPediaBgIdx = None
-IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE = None
+IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON = None
 # <!-- custom: index 0 is reserved as a "(default)" sentinel with RGB None so draw_expandable_text_panel can skip the <color=...> wrap and leave any inline color tags inside szText intact. See KI#128 for the deferred-discovery rationale. (Claude code Opus 4.7) -->
 SAS_PEDIA_TEXT_COLOR_NAMES = None
 SAS_PEDIA_TEXT_COLOR_RGBS = None
@@ -105,10 +105,10 @@ def init_sas_pedia_playground_cache():
     global SAS_PEDIA_PANEL_STYLE_NAMES, SAS_PEDIA_PANEL_STYLE_VALUES, SAS_PEDIA_BG_NAMES
     global SAS_PEDIA_TEXT_COLOR_NAMES, SAS_PEDIA_TEXT_COLOR_RGBS
     global g_iSasPediaPanelStyleIdx, g_iSasPediaBgIdx, g_iSasPediaTextColorIdx
-    global IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE
-    if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE is None:
-        IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE = (gc.getDefineINT("SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE") > 0)
-    if not IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE:
+    global IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON
+    if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON is None:
+        IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON = (gc.getDefineINT("SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON") > 0)
+    if not IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON:
         if SAS_PEDIA_PANEL_STYLE_NAMES is None:
             SAS_PEDIA_PANEL_STYLE_NAMES = ()
             SAS_PEDIA_PANEL_STYLE_VALUES = ()
@@ -454,7 +454,7 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 
 		# <!-- custom: pick the underlying full-screen background DDS from the playground cache; index 0 is the "(none)" sentinel which means "skip drawing a background entirely" so a transparent panel style reveals whatever is behind the pedia screen.
 		# When the playground is off, fall back to the previous hardcoded SCREEN_BG_OPAQUE so default behavior is identical to before this feature. (Claude code Opus 4.7) -->
-		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE and len(SAS_PEDIA_BG_NAMES) > 0:
+		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON and len(SAS_PEDIA_BG_NAMES) > 0:
 			sBgArtKey = SAS_PEDIA_BG_NAMES[g_iSasPediaBgIdx]
 		else:
 			sBgArtKey = u"SCREEN_BG_OPAQUE"
@@ -467,7 +467,7 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 			expandedTitle = u"(" + localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()) + u")"
 		panelName = top.getNextWidgetName()
 		# <!-- custom: read the current playground style from the module-level cache so the overlay reflects the user's last PREV/NEXT click; falls back to PANEL_STYLE_MAIN when the playground is disabled or the cache is somehow empty (defensive, not expected). (Claude code Opus 4.7) -->
-		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE and len(SAS_PEDIA_PANEL_STYLE_VALUES) > 0:
+		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON and len(SAS_PEDIA_PANEL_STYLE_VALUES) > 0:
 			ePanelStyle = SAS_PEDIA_PANEL_STYLE_VALUES[g_iSasPediaPanelStyleIdx]
 		else:
 			ePanelStyle = PanelStyles.PANEL_STYLE_MAIN
@@ -476,7 +476,7 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 		# <!-- custom: panel style playground header strip: "[label] [PREV] [NEXT] [CLOSE]" sits on the same row as CLOSE inside the header bar.
 		# iData2 is the signed cycle delta (-1 / +1); a separate widget id (SAS_MAGIC_PEDIA_PYTHON_PANEL_STYLE_CYCLE) keeps the existing iData2 dispatch on HISTORY_EXPAND (0=close, 1=expand) untouched.
 		# The label uses RIGHT_JUSTIFY so it grows leftward without us having to measure the variable-length style name width. (Claude code Opus 4.7) -->
-		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE and len(SAS_PEDIA_PANEL_STYLE_VALUES) > 0:
+		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON and len(SAS_PEDIA_PANEL_STYLE_VALUES) > 0:
 			iCycleBtnW = 28
 			iCycleBtnSpacing = 6
 			iCycleY = iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET
@@ -513,7 +513,7 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW, 
 			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iTextRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_TEXT_COLOR_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
 		# <!-- custom: <color=R,G,B,A> wrap syntax matches BUG/RawYields.py:246. (Claude code Opus 4.7) -->
 		szTextForOverlay = szText
-		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE and len(SAS_PEDIA_TEXT_COLOR_RGBS) > 0:
+		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ON and len(SAS_PEDIA_TEXT_COLOR_RGBS) > 0:
 			tColor = SAS_PEDIA_TEXT_COLOR_RGBS[g_iSasPediaTextColorIdx]
 			if tColor is not None:
 				szTextForOverlay = u"<color=%d,%d,%d,%d>%s</color>" % (tColor[0], tColor[1], tColor[2], tColor[3], szText)
@@ -827,7 +827,7 @@ def chart_format_tech_list(value, return_list, none_text, abbrev_tech_names=None
 	return ", ".join(out)
 
 def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
-	if not IS_SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE:
+	if not IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON:
 		return ""
 
 	# <!-- custom: mirror Timeline LOG sizing: keep compact default, slightly enlarge only when label font is upscaled (4) so "LOG" remains readable. (GPT-5.3-Codex) -->

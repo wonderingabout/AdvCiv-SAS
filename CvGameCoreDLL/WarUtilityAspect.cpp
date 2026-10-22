@@ -3063,9 +3063,9 @@ int Risk::preEvaluate()
 
 	// <!-- custom: we get very very good results with 2, now spain ai (our ai in autoplay) doesn't get baited by faraway ais and finishes off weak nearby one, as a result we don't get targeted by cyrus ai and keep our lead, now trying to extend the range a bit to see if still safe -->
 	// <!-- custom: result: seemingly even better, see known issue as of now 61 for details, not increased further to not risk falling back to old pitfalls, while keeping variety enough in war outcomes with larger window -->
-	static int const iMaxLandTurns = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS_UNSCALED_GAMESPEED"));
-	static int const iMaxSeaTurns = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS_UNSCALED_GAMESPEED"));
-	static int const iExistingPlanTolerance = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_EXISTING_PLAN_CONTACT_TOLERANCE_TURNS_UNSCALED_GAMESPEED"));
+	static int const iMaxLandTurns = std::max(0, GC.getDefineINT("SAS_UWAI_CONTACT_LAND_MAX_T_UNSCALED_GS"));
+	static int const iMaxSeaTurns = std::max(0, GC.getDefineINT("SAS_UWAI_CONTACT_SEA_MAX_T_UNSCALED_GS"));
+	static int const iExistingPlanTolerance = std::max(0, GC.getDefineINT("SAS_UWAI_PLAN_CONTACT_EXTRA_T_UNSCALED_GS"));
 
 	// <!-- custom: The older AdvCiv-SAS hard reject is only a pre-war target guard.
 	// Letting it fire in the recursive peace scenario made mediocre wars look artificially excellent (KI#183).
@@ -3118,7 +3118,7 @@ int Risk::preEvaluate()
 			bool const bVictoryDenialContactCandidate = (bOrdinaryHardReject && iMinContact != INT_MAX && !bNoLift);
 			int const iTargetMaxVictoryStage = (bVictoryDenialContactCandidate ? getSASTeamMaxVictoryStage(eTarget) : -1);
 			int const iTargetVictoryCountdown = (bVictoryDenialContactCandidate ? GET_TEAM(eTarget).AI_getLowestVictoryCountdown() : -1);
-			static const bool bStage3SpaceContactBypassEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_CONTACT_BYPASS_ENABLE");
+			static const bool bStage3SpaceContactBypassEnable = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_S3_SPACE_BYPASS_ON");
 			bool const bWiderVictoryDenialContactAllowed = (bStage3SpaceContactBypassEnable || iTargetMaxVictoryStage >= 4 || iTargetVictoryCountdown >= 0);
 			bool const bVictoryDenialContactBypass = (bVictoryDenialContactCandidate && bWiderVictoryDenialContactAllowed && kOurTeam.uwai().isSASVictoryDenialDirectWarAllowed(eTarget, iTargetMaxVictoryStage, bNaval, iMinContact));
 			// <!-- custom: In a confirming save-file 450 run, Holy Rome chose a profitable target at 3 cached path turns, but an Arabian road was pillaged two turns later and raised contact to 4; the hard reject then canceled the direct plan.
@@ -3935,8 +3935,8 @@ void Distraction::evaluate()
 	bool bWinningCapApplied = false;
 	if (rDistractionCost > 0 && rWarUtilityVsThem > 0 && kOurTeam.getNumCities() > kTheirTeam.getNumCities())
 	{
-		static int const iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_DISTRACTION_WINNING_WAR_MAX_TARGET_POWER_PERCENT");
-		static int const iMaxCostPercent = GC.getDefineINT("SAS_UWAI_DISTRACTION_WINNING_WAR_MAX_COST_PERCENT");
+		static int const iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_DISTRACTION_MAX_TARGET_PWR_PCT");
+		static int const iMaxCostPercent = GC.getDefineINT("SAS_UWAI_DISTRACTION_MAX_COST_PCT");
 		iTargetPowerPercent = 100 * kTheirTeam.getPower(true) / std::max(1, kOurTeam.getPower(true));
 		rWarSuccessLead = kOurTeam.AI_getWarSuccess(eTheirTeam) - kTheirTeam.AI_getWarSuccess(eOurTeam);
 		if (iTargetPowerPercent <= iMaxTargetPowerPercent && rWarSuccessLead >= GC.getWAR_SUCCESS_CITY_CAPTURING())

@@ -80,7 +80,7 @@ Locally our project is a git repo too, generally with a fresh commit for each ne
 
 - Generally leave staging/unstaging to the user during review; preserve the existing index and leave new edits unstaged unless asked otherwise or an explicitly approved commit is ready for final preparation.
   - The staged/unstaged split supports iterative review of the same commit candidate, for example sharing only Codex's subsequent edits with ChatGPT, or vice versa. An already-staged file is not permission to stage its newer edits.
-  - Some changes are intentionally kept unstaged and are never meant for the commit. For example, `SAS_GAME_RECORD_LOG_LEVEL=3` and `SAS_RUNTIME_STATUS_ENABLE=1` are usually left enabled during development cycles, while shipped defaults are `0` to avoid unnecessary diagnostic overhead for regular users.
+  - Some changes are intentionally kept unstaged and are never meant for the commit. For example, `SAS_SGR_LOG=3` and `SAS_RUNTIME_STATUS_ON=1` are usually left enabled during development cycles, while shipped defaults are `0` to avoid unnecessary diagnostic overhead for regular users.
     - CI helps catch accidentally committed development settings; shipping defaults can be checked in the staged XML or a temporary snapshot.
     - Temporarily changing local settings is fine when needed, but restore them before handing back for user testing unless there is a specific reason to leave them disabled. Make that exception clear to the user, who may otherwise forget or not notice that diagnostics are off.
 - Do not commit changes without explicit user approval; leave the completed candidate for review first.
@@ -216,6 +216,8 @@ Our AdvCiv-SAS documentation is mostly located here:
 
 For finding key documentation, use grep/search as needed; documentation indexes like `# advc.004y: Restored (comment out to remove traits)` can also point to important details about a change. After finding an index entry, grep the tag itself (e.g. `004y`) in the manual or related docs.
 
+Older identifiers can be looked up through the [Deprecated reference index](/_1_AdvCiv-SAS/Docs/Deprecated/README.md). For example, pre-shortening SAS define names are listed in [`global_define_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md), associated with KI#1001.2; `SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT` became `SAS_COMMERCE_SLIDERS_FAST_INCR_PCT`.
+
 Compile errors (e.g., for a "Debug-opt" build) at:
 
 - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\Debug-opt\AdvCiv.log"
@@ -243,6 +245,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 ## Documentation editing
 
 - Describe current behavior and limits without implying future commitments, for example "Performance was not measured" rather than "Performance has not yet been measured". Mention possible extensions only when useful, using wording such as "A possible extension would be..."; otherwise omit speculative plans.
+- Similarly, in documentation and code comments, prefer durable facts and rationale over vague progress labels such as "in progress" or "not yet". These add maintenance burden: we may forget to update them, as has happened before, and future work may change direction or never happen. When status matters, describe the concrete limitation or use a dated historical note.
 
 ### Examples and historical records
 
@@ -255,6 +258,8 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
   - Prefer dates for later follow-ups; practical commit-count versions can change across branches/rebases. Reserve those versions for documents that need them, such as the Main Changes Guide and SASGameRecord revision history; omit them from commit messages.
 
 ### Markdown structure and readability
+
+- Use repository-root links such as `/Assets/XML/GlobalDefines_advciv_sas.xml` for local Markdown destinations; avoid document-relative links such as `../README.md` or `revisions/SASRuntime.md`, which depend on the referring document's location. Moving the referring document then preserves the target; same-page anchors and external URLs are fine.
 
 - For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
 - For long Markdown prose, preserve the wording but prefer semantic structure that also reads clearly in rendered Markdown.
@@ -355,7 +360,7 @@ The example preserves strategic reasoning and technical details while grouping c
 ```cpp
 // <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers. This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
 // Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
-// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.3-Codex) -->
+// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_GROUP_ATK_LOW_PWR_MIN_HEALTH_PCT), lower health first. (GPT-5.3-Codex) -->
 ```
 
 Note: as of now multi-line is fine for cpp files, we generally avoid it and prefer single-line for py for example.
@@ -508,7 +513,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
   - SAS define XML edits currently require restarting Civ4, so retaining resolved settings for the session should currently be appropriate.
   - Before choosing this pattern, consider whether caching is safe for the value and its uses; for example, it may not yet be available or may be changed/refreshed during the game. Adjust the approach when needed rather than applying the pattern mechanically.
     - Example: C++ [KI#243](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-243) retained the first map's river defines, altering later generations; `CvMapGenerator::addRivers()` now reads/restores overrides per generation.
-- It seems definebool does not exist in python, so use boolean comparison on int rather; e.g., `IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)`. Does not apply to C++ though that has defineBOOL.
+- It seems definebool does not exist in python, so use boolean comparison on int rather; e.g., `IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") > 0)`. Does not apply to C++ though that has defineBOOL.
 - Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
 - Prefer strict XML lookup helpers from `SASUtils` over raw lookups for static/literal tags: use `getInfoTypeOrFail("TAG")` instead of raw `gc.getInfoTypeForString("TAG")`, and use `findInfoTypeNumOrFail(gc.getXInfo, gc.getNumXInfos, "TAG")` instead of raw `CvUtil.findInfoTypeNum(...)`.
   - This keeps missing or renamed XML tags loud instead of silently returning `-1`; it helped catch incorrect direction-string usage in Planet Generator map (e.g., `getInfoTypeOrFail("DIRECTION_NORTH")` instead of `DirectionTypes.DIRECTION_NORTH*`) and incorrect plot/terrain-style lookups (e.g., `getInfoTypeOrFail("PLOT_PEAK")` instead of `PlotTypes.PLOT_PEAK` in Peirce map).
@@ -549,9 +554,15 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 
 #### Defines and AI behavior
 
-- Prefer SAS defines for new AI toggles; use `SAS_<func_name>_<effect>` naming and a boolean-style enable/disable flag (int in XML, bool in C++). Rationale: toggles allow quick testing without recompiles; avoid overusing defines when the feature is tiny or unlikely to need tuning.
-- Turn-valued SAS integer defines must make game-speed semantics explicit: use `TURN(S)_NORMAL_GAMESPEED` when the XML value is expressed at Normal speed and code scales it with the appropriate game-speed percentage, or `TURN(S)_UNSCALED_GAMESPEED` for intentional literal game/path turns such as movement distance.
-  - Do not apply this to `SAS_DO_TURN_*` scope names or per-turn rate/value defines.
+- Prefer SAS defines for new AI toggles to allow quick testing without recompiles; avoid adding them for tiny features unlikely to need tuning.
+  - Name defines `SAS_<family>_<effect>` within the desired 42-byte maximum drawn from AdvCiv, rather than mechanically embedding the full function name. To that end, use shorter words or clear abbreviations such as `1ST` for `FIRST`, while preserving meaning and key technical terms such as `PCT`, `MIN` and `MAX`. See KI#1001.2.
+  - Preserve Civ4 concepts when shortening names; abbreviate or omit less informative wording before changing a meaningful term.
+    - For example, distinguish `BuildTypes` worker actions from `BuildingTypes` buildings (`BLDG`), and avoid using `FORT` for Walls/Castle-style defensive-building production when it could suggest the Fort improvement.
+    - Keep shorthand tied to its meaning: `DEF` means defense, so health deficit needs a distinct word or abbreviation.
+  - Use consistent terms for greppability, so one grep finds related SAS defines: for example, keep `PWR` consistent instead of mixing it with `POWER`. Keep `SETTLER` consistent and retain `PROD` throughout its family unless necessary. Omit implicit qualifiers such as `AI` when the family is clear, and separate words with `_` when space permits.
+    - Other established short forms in reviewed families include `ATK` (attack), `VAL` (value), `CULT` (culture) and `DIST` (distance); reuse them for the same meanings.
+- Turn-valued SAS integer defines must make game-speed semantics explicit: use `T_NORM_GS` when the XML value is expressed at Normal speed and code scales it with the appropriate game-speed percentage, or `T_UNSCALED_GS` for intentional literal game/path turns such as movement distance.
+  - Per-turn rates and values are not turn counts and do not require these suffixes.
   - The automated [`turn_define_gamespeed.py`](/.github/workflows/build/xml/turn_define_gamespeed.py) check flags inconsistent turn-unit naming/semantics.
 - Prefer minimalistic, simple AI changes that are easy to reason about and compile.
 - Discuss candidate locations and a minimal draft before coding larger AI behavior changes.
@@ -574,7 +585,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
   - This avoids errors too.
   - Same reasoning with `kPlayer` and `kOwner`, etc.
 - In C++, recurring or hot-path string-backed GlobalDefine reads such as `GC.getDefineINT("...")` / `GC.getDefineBOOL("...")` should normally use a function-local `static const` when the define is intended to stay fixed for the process; this avoids repeated name lookup while keeping cache scope local.
-  - Example: `static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");`.
+  - Example: `static const bool bSAS_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_SCRAP_OBSOLETE_TECH");`.
 - If a recurring string-backed Define lookup intentionally remains uncached, leave a short nearby reason; one-shot setup/snapshot reads and already-cached enum access do not need blanket cache-exemption comments.
 - Do not add another function-local cache around enum-backed `GC.getDefineINT(CvGlobals::...)`: that overload already reads the global integer define cache. Likewise, do not cache one-shot reads or values intentionally expected to change during runtime/setup; read those directly so the code reflects their semantics.
 
@@ -621,9 +632,11 @@ int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, 
 
 ## Diagnostic revision maintenance
 
+- For a PR explicitly labeled `revision:squash`, apply revision maintenance once to the complete candidate relative to its base; ordinary PRs retain per-commit maintenance. Both recorder checks accept local `--squash` review.
+
 ### SASGameRecord
 
-- SASGameRecord revision maintenance: every intentional SASGameRecord-related code change, including implementation/checker/bridge/configuration code comments or header-only edits, increments `SAS_GAME_RECORD_REVISION` and adds the matching latest-first entry to [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) in the same commit.
+- SASGameRecord revision maintenance: every intentional SASGameRecord-related code change, including implementation/checker/bridge/configuration code comments or header-only edits, increments `SAS_SGR_REVISION` and adds the matching latest-first entry to [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) in the same commit.
   - Edit the XML Define in `Assets/XML/GlobalDefines_advciv_sas.xml`. The DLL reports its first-use cached value as `GAME_RECORD_SOURCE_CONTEXT recordRevision`; Python-only updates do not require a DLL rebuild just to advance this label.
   - Do not debate compatibility; the revision is only a downstream-update signal.
   - Standalone docs/history/example-log/package refreshes do not require a bump.

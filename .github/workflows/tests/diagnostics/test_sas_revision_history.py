@@ -26,7 +26,7 @@ def fixture_git(repo):
 def write_revision_define(repo, value):
     path = repo / history.DEFINES
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text('<Civ4Defines><Define><DefineName>SAS_GAME_RECORD_REVISION</DefineName><iDefineIntVal>%d</iDefineIntVal></Define></Civ4Defines>' % value, 'utf-8')
+    path.write_text('<Civ4Defines><Define><DefineName>SAS_SGR_REVISION</DefineName><iDefineIntVal>%d</iDefineIntVal></Define></Civ4Defines>' % value, 'utf-8')
     # <!-- custom: Ordinary progression fixtures include the bump's explanation; missing-entry/blurb tests deliberately replace this small document. (GPT-6.1-Sol) -->
     history_path = repo / history.HISTORY
     history_path.parent.mkdir(parents=True, exist_ok=True)
@@ -40,6 +40,45 @@ def commit_fixture(repo, message):
 
 
 class RevisionHistoryTests(unittest.TestCase):
+    # <!-- custom: Several recorder steps can precede PR integration; accept their actual lineage while still detecting hashes orphaned by amendment.
+    # Existing tests retain canonical-default enforcement for older revisions. (GPT-6.1-Sol) -->
+    def test_finalized_feature_revision_requires_current_lineage(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp)
+            fixture_git(repo)
+            write_revision_define(repo, 153)
+            base = commit_fixture(repo, 'canonical baseline')
+            git(repo, 'branch', 'main')
+            git(repo, 'switch', '-qc', 'feature')
+            write_revision_define(repo, 154)
+            feature = commit_fixture(repo, 'first recorder step')
+            target = repo / history.HISTORY
+
+            def record():
+                target.write_text(
+                    '### Revision 155\n- **Git commit:** pending\n- **Change:** Second step.\n\n'
+                    '### Revision 154\n- **Git commit:** `' + feature + '`\n- **Change:** First step.\n\n'
+                    '### Revision 153\n- **Git commit:** `' + base + '`\n- **Change:** Baseline.\n', 'utf-8')
+
+            record()
+            self.assertEqual(history.check_history(repo, 'main'), [])
+            git(repo, 'commit', '--amend', '-qm', 'rewritten step')
+            record()
+            self.assertTrue(any('ancestry' in error for error in history.check_history(repo, 'main')))
+
+    # <!-- custom: Historical commits retain the former name after the live SGR rename; both forms must remain readable without accepting duplicate revision declarations. (GPT-6.1-Sol) -->
+    def test_revision_rename_preserves_historical_sources(self):
+        def xml(*names):
+            return ('<Civ4Defines>' + ''.join(
+                '<Define><DefineName>%s</DefineName><iDefineIntVal>161</iDefineIntVal></Define>' % name
+                for name in names
+            ) + '</Civ4Defines>').encode()
+
+        for name in history.REVISION_NAMES:
+            self.assertEqual(history.revision_define(xml(name)), 161)
+            self.assertEqual(history.sas_game_record_define_values(xml(name)), {})
+        self.assertIsNone(history.revision_define(xml(*history.REVISION_NAMES)))
+
     def test_feature_rewrite_does_not_replace_default_branch_commit(self):
         with tempfile.TemporaryDirectory() as temp:
             repo = Path(temp)
@@ -79,7 +118,7 @@ class RevisionHistoryTests(unittest.TestCase):
             target.write_text('### Revision 153 - fixture\n- **Git commit:** `' + committed + '`\n- **Change:** Fixture change.\n', 'utf-8')
             self.assertEqual(history.check_history(repo, "main"), [])
             target.write_text(target.read_text().replace('Revision 153', 'Revision 154'))
-            self.assertTrue(any('SAS_GAME_RECORD_REVISION=154' in e for e in history.check_history(repo, "main")))
+            self.assertTrue(any('SAS_SGR_REVISION=154' in e for e in history.check_history(repo, "main")))
 
     def test_progression_requires_exactly_one_increment_for_qualifying_commit(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -179,11 +218,11 @@ class RevisionHistoryTests(unittest.TestCase):
             fixture_git(repo)
             defines = repo / history.DEFINES
             defines.parent.mkdir(parents=True, exist_ok=True)
-            defines.write_text('<Civ4Defines><Define><DefineName>SAS_GAME_RECORD_REVISION</DefineName><iDefineIntVal>153</iDefineIntVal></Define><Define><DefineName>SAS_GAME_RECORD_LOG_LEVEL</DefineName><iDefineIntVal>0</iDefineIntVal></Define></Civ4Defines>', 'utf-8')
+            defines.write_text('<Civ4Defines><Define><DefineName>SAS_SGR_REVISION</DefineName><iDefineIntVal>153</iDefineIntVal></Define><Define><DefineName>SAS_SGR_LOG</DefineName><iDefineIntVal>0</iDefineIntVal></Define></Civ4Defines>', 'utf-8')
             commit_fixture(repo, 'base')
             git(repo, 'branch', 'main')
             git(repo, 'switch', '-qc', 'feature')
-            defines.write_text('<Civ4Defines><Define><DefineName>SAS_GAME_RECORD_REVISION</DefineName><iDefineIntVal>154</iDefineIntVal></Define><Define><DefineName>SAS_GAME_RECORD_LOG_LEVEL</DefineName><iDefineIntVal>1</iDefineIntVal></Define></Civ4Defines>', 'utf-8')
+            defines.write_text('<Civ4Defines><Define><DefineName>SAS_SGR_REVISION</DefineName><iDefineIntVal>154</iDefineIntVal></Define><Define><DefineName>SAS_SGR_LOG</DefineName><iDefineIntVal>1</iDefineIntVal></Define></Civ4Defines>', 'utf-8')
             document = repo / history.HISTORY
             document.parent.mkdir(parents=True, exist_ok=True)
             document.write_text('### Revision 154\n- **Change:** Updated recorder configuration.\n', 'utf-8')
@@ -252,7 +291,7 @@ class RevisionHistoryTests(unittest.TestCase):
         for path, content in (
             ('Assets/Python/BUG/BugEventManager.py', 'SASGameRecordSettings.logSessionSettings("GAME_START")'),
             ('.github/workflows/build/diagnostics/sas_revision_history.py', '# revised checker implementation'),
-            ('Assets/SASGameRecordConfig.json', '{"SAS_GAME_RECORD_LOG_LEVEL":1}'),
+            ('Assets/SASGameRecordConfig.json', '{"SAS_SGR_LOG":1}'),
         ):
             with self.subTest(path=path), tempfile.TemporaryDirectory() as temp:
                 repo = Path(temp)
@@ -347,6 +386,49 @@ class RevisionHistoryTests(unittest.TestCase):
             target.parent.mkdir(parents=True)
             target.write_text('### Revision 68 - fixture\n- **Git commit:** `0000000000000000000000000000000000000000`\n- **Change:** Fixture change.\n', 'utf-8')
             self.assertEqual(history.check_history(repo, "refs/remotes/origin/missing"), [])
+
+
+    # <!-- custom: Reproduce the PR's intermediate extra bumps and final consolidation; squash intent changes the comparison boundary, never the required final increment. (GPT-6.1-Sol) -->
+    def test_explicit_squash_checks_final_candidate_and_keeps_ordinary_strict(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp)
+            fixture_git(repo)
+            write_revision_define(repo, 153)
+            source = repo / 'CvGameCoreDLL/SASGameRecordLog.cpp'
+            source.parent.mkdir(parents=True)
+            source.write_text('// base\n')
+            base = commit_fixture(repo, 'base')
+            git(repo, 'branch', 'main')
+            for value in (154, 155, 154):
+                write_revision_define(repo, value)
+                source.write_text('// step %d\n' % value)
+                tip = commit_fixture(repo, 'step')
+            event = {'pull_request': {'base': {'sha': base}, 'head': {'sha': tip}, 'labels': []}}
+            self.assertTrue(history.check_progression(repo, 'main', 'pull_request', event))
+            event['pull_request']['labels'] = [{'name': 'revision:squash'}]
+            self.assertEqual(history.check_progression(repo, 'main', 'pull_request', event), [])
+            self.assertEqual(history.check_progression(repo, 'main', squash=True), [])
+            for invalid in (153, 155):
+                write_revision_define(repo, invalid)
+                self.assertTrue(history.check_progression(repo, 'main', squash=True))
+            write_revision_define(repo, 154)
+            (repo / history.HISTORY).write_text('### Revision 154\n- **Change:** \n')
+            self.assertTrue(any('Change' in e for e in history.check_progression(repo, 'main', squash=True)))
+
+    def test_feature_push_defers_progression_but_default_push_checks_it(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp)
+            fixture_git(repo)
+            write_revision_define(repo, 153)
+            base = commit_fixture(repo, 'base')
+            source = repo / 'CvGameCoreDLL/SASGameRecordLog.cpp'
+            source.parent.mkdir(parents=True)
+            source.write_text('// missing revision increment\n')
+            tip = commit_fixture(repo, 'bad step')
+            event = {'before': base, 'after': tip, 'repository': {'default_branch': 'main'}, 'ref': 'refs/heads/feature'}
+            self.assertEqual(history.check_progression(repo, event_name='push', event_data=event), [])
+            event['ref'] = 'refs/heads/main'
+            self.assertTrue(history.check_progression(repo, event_name='push', event_data=event))
 
 if __name__ == "__main__":
     unittest.main()

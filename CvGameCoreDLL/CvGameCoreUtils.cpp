@@ -1849,13 +1849,13 @@ SASWarPowerContext::SASWarPowerContext(CvTeamAI const& kTeam)
 
 int SASWarPowerContext::enemyStrongThreshold()
 {
-	static int const iThreshold = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+	static int const iThreshold = GC.getDefineINT("SAS_ENEMY_STRONG_PWR_THRESH"); // e.g. 120
 	return iThreshold;
 }
 
 int SASWarPowerContext::enemyWeakThreshold()
 {
-	static int const iThreshold = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
+	static int const iThreshold = GC.getDefineINT("SAS_ENEMY_WEAK_PWR_THRESH"); // e.g. 80
 	return iThreshold;
 }
 
@@ -2273,11 +2273,11 @@ int getSASLeadingSpaceshipPartsBuilt()
 
 bool isSASTeamStage3SpaceVictoryThreat(TeamTypes eTeam)
 {
-	static const int iStage3SpacePercentThreshold = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_PARTS_PERCENT_THRESHOLD");
+	static const int iStage3SpacePercentThreshold = GC.getDefineINT("SAS_UWAI_VICT_DENY_S3_SPACE_MIN_PARTS_PCT");
 	if (iStage3SpacePercentThreshold <= 0 || getSASTeamSpaceVictoryStage(eTeam) < 3)
 		return false;
 	int const iPartsBuilt = getSASTeamSpaceshipPartsBuilt(eTeam);
-	static const int iLeaderPartMargin = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_LEADER_PART_MARGIN");
+	static const int iLeaderPartMargin = GC.getDefineINT("SAS_UWAI_VICT_DENY_S3_SPACE_LEADER_MARGIN");
 	// <!-- custom: Save-file 452 showed raw part count was too crude: England and Egypt were both major Space threats at 8/16 parts, but every Apollo builder should not trigger emergency wars.
 	// Require enough completion and near-leader Space progress. (GPT-5.5) -->
 	return (iPartsBuilt * 100 >= getSASSpaceshipPartsRequired() * iStage3SpacePercentThreshold && getSASLeadingSpaceshipPartsBuilt() - iPartsBuilt <= iLeaderPartMargin);
@@ -2288,10 +2288,10 @@ bool isSASTeamStage3SpaceVictoryThreat(TeamTypes eTeam)
 // Share the exact threat test so UWAI can reject those negotiations before building a deal while CvDeal retains its safety net. (GPT-5.6-Sol) -->
 bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown, int* piMaxVictoryStage)
 {
-	static const bool bSASUWAIVictoryDenialEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
-	if (!bSASUWAIVictoryDenialEnable)
+	static const bool bSASUWAIVictoryDenialOn = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_ON");
+	if (!bSASUWAIVictoryDenialOn)
 		return false;
-	static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_REFUSE_PEACE");
+	static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS");
 	int const iMaxVictoryDenialPeaceCountdown = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxVictoryDenialPeaceCountdownNormal);
 	int const iCountdown = GET_TEAM(eTeam).AI_getLowestVictoryCountdown();
 	int const iMaxVictoryStage = getSASTeamMaxVictoryStage(eTeam);
@@ -2299,8 +2299,8 @@ bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown,
 		*piVictoryCountdown = iCountdown;
 	if (piMaxVictoryStage != NULL)
 		*piMaxVictoryStage = iMaxVictoryStage;
-	static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE");
-	static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE3_SPACE_PEACE_ENABLE");
+	static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_REFUSE_STAGE4_PEACE_ON");
+	static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_REFUSE_S3_SPACE_ON");
 	return (iCountdown >= 0 && iCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4) || (bRefuseStage3SpacePeace && isSASTeamStage3SpaceVictoryThreat(eTeam));
 }
 

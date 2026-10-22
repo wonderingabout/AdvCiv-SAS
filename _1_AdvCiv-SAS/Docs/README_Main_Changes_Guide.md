@@ -10,7 +10,7 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
 
 - **Player-tunable options (SAS defines):**
   - When this guide mentions DLL code locations (for example `CvUnitInfo::getTerrainAttackModifier`), that is just to document where the behavior comes from.
-  - **Players do not need to modify or recompile the DLL** to change the behavior; you can instead change/tune the corresponding **SAS defines** (in the above mentioned **XML** file): for example the `SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS` SAS define can be set to `0` to disable or `1` to enable this option.
+  - **Players do not need to modify or recompile the DLL** to change the behavior; you can instead change/tune the corresponding **SAS defines** (in the above mentioned **XML** file): for example the `SAS_UNIT_XML_TERRAIN_ATK_MODIFIERS` SAS define can be set to `0` to disable or `1` to enable this option.
   - Note: after modifying them, restart Civ4 to apply changes.
 - **Scope note:** The long-term goal is to make more gameplay options player-tunable via SAS defines when it is practical. Some changes are still hardcoded (or not worth exposing) due to complexity, risk, or limited value, so not everything is configurable.
 
@@ -308,7 +308,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
     - Same-second filename collisions receive a numeric suffix rather than overwriting a save.
     - An autoplay victory does not also create a redundant `STOP` save.
     - No existing saves are renamed.
-- (Requires AdvCiv-SAS 6374+) AI Auto Play can additionally prefill its turns popup from the selected game speed's configured total turns + 1 (Normal `501`, Marathon `1001`, etc.); disabling that scaling uses the literal `SAS_AIAUTOPLAY_DEFAULT_TURNS_UNSCALED_GAMESPEED` fallback.
+- (Requires AdvCiv-SAS 6374+) AI Auto Play can additionally prefill its turns popup from the selected game speed's configured total turns + 1 (Normal `501`, Marathon `1001`, etc.); disabling that scaling uses the literal `SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS` fallback.
   - The seed getters are read-only and do not advance RNG state.
   - See [SASFastSave.py](/Assets/Python/SASFastSave.py) and [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
 - **Autoplay runs now continue without being interrupted/paused when the active player dies or other notices:**
@@ -486,11 +486,11 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 
 #### Logging inventory
 
-[README_Logging_Inventory.md](README_Logging_Inventory.md) covers log purposes, controls, historical/mod origins and matched Before/After samples of SAS changes. The [root README's logging inventory overview](/README.md#logging-inventory) introduces the covered files.
+[README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md) covers log purposes, controls, historical/mod origins and matched Before/After samples of SAS changes. The [root README's logging inventory overview](/README.md#logging-inventory) introduces the covered files.
 
 #### Runtime status and history
 
-- (Requires AdvCiv-SAS 6642+) **Optional external-agent runtime status:** lets agents check the latest reported game/session/autoplay state without searching historical logs. `SAS_RUNTIME_STATUS_ENABLE=1` maintains `Logs/SASRuntimeStatus.json` independently from BBAI/SASGameRecord logging; the shipped default is 0.
+- (Requires AdvCiv-SAS 6642+) **Optional external-agent runtime status:** lets agents check the latest reported game/session/autoplay state without searching historical logs. `SAS_RUNTIME_STATUS_ON=1` maintains `Logs/SASRuntimeStatus.json` independently from BBAI/SASGameRecord logging; the shipped default is 0.
   - Both runtime files report one compiled recorder revision, independent of SASGameRecord; its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md) explains the implementation changes.
   - [Runtime-status examples and format guide](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md) explain the current JSON snapshot, append-only JSONL timeline and their timing fields.
   - This complements `CvGameCoreDLL.dll.build.json`, which reports started/completed/failed DLL builds: agents can inspect both compilation and game/autoplay state through the corresponding JSON artifacts.
@@ -530,7 +530,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
       - `NO_GAME` reports a reset; later menu-scene requests and positive Python main-menu samples strengthen presentation evidence but still do not identify the exact first rendered menu frame.
     - Crashes, forced termination and abrupt Windows shutdown can leave stale `RUNNING` status; a vanished process without a recorded shutdown does not identify the cause. A live process can also be unresponsive, so neither its existence nor an unchanged turn snapshot proves it is healthy or hung.
     - A reader that catches the tiny overwrite in progress should retry malformed/partial JSON.
-  - Save filenames/paths, user names and free text are not written. Historical advisor/tab/Sevopedia/control interaction is already available through the existing level-2+ `SAS_GAME_RECORD_ACTION_TRACE_ENABLE` trace, so runtime status deliberately does not duplicate a high-volume clickstream.
+  - Save filenames/paths, user names and free text are not written. Historical advisor/tab/Sevopedia/control interaction is already available through the existing level-2+ `SAS_SGR_ACTION_TRACE_ON` trace, so runtime status deliberately does not duplicate a high-volume clickstream.
 
 #### Python and engine diagnostic logs
 
@@ -560,7 +560,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - File-load rows identify `phase=BEGIN` or `phase=END`, the path and final outcome; other records identify setup stages and unknown XML types. The direct C++ Starting Position Iteration notice in `PythonDbg.log` also receives UTC and `record=STARTING_POSITION_ITERATION`, since it bypasses the Python stream formatter.
   - These changes cover DLL-controlled rows; EXE-owned writers retain their formats.
 
-See [README_Logging_Inventory.md](README_Logging_Inventory.md#before-and-after-shared-python-log-timestamps) for matched Before/After samples, file roles and historical/mod origins, enabling conditions, writer ownership and runtime start/end evidence.
+See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#before-and-after-shared-python-log-timestamps) for matched Before/After samples, file roles and historical/mod origins, enabling conditions, writer ownership and runtime start/end evidence.
 
 #### Logging (Common)
 
@@ -624,7 +624,7 @@ See [README_Logging_Inventory.md](README_Logging_Inventory.md#before-and-after-s
   - Choose level 1 for brief selection/founding records, level 2 for numeric candidate-score breakdowns, or level 3 for detailed plot, resource and improvement explanations. Settling rules are preserved.
   - Related plot details are combined into structured rows, but levels 2/3 still produce very large logs over full autoplays. Use their extra detail when investigating AI behavior; SASGameRecord provides compact whole-game context. See [KI#505.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-505.2) for implementation history, measured log sizes and test results.
 - (Requires AdvCiv-SAS 6604+) **UWAI diagnostics now use the normal caller-pre-gated BBAI infrastructure:**
-  - AdvCiv's separate `UWAIReport.cpp`/`.h` logger and `uwai<turn>.log`/Textile output are retired, consolidating AI diagnostics into one logging system. Agent, Military Analyst, Invasion Graph, Armament Forecast and War Utility diagnostics have independent cached `SAS_BBAI_UWAI_*_LOG_LEVEL` controls and write into the same timestamped BBAI log as other AI diagnostics.
+  - AdvCiv's separate `UWAIReport.cpp`/`.h` logger and `uwai<turn>.log`/Textile output are retired, consolidating AI diagnostics into one logging system. Agent, Military Analyst, Invasion Graph, Armament Forecast and War Utility diagnostics have independent cached `SAS_BBAI_UWAI_*_LOG` controls and write into the same timestamped BBAI log as other AI diagnostics.
   - Disabled categories are checked at their callers before logging-only arguments, string formatting or report-only setup are evaluated; this notably removes inherited muted-call overhead from the very hot War Utility diagnostic path.
   - The replacement `UWAILogMuteState.h` stores only nested mute depth for hypothetical sub-evaluations, so speculative alternatives can stay silent instead of being confused with the selected scenario.
   - Logging-only selected-scenario reruns are observation-only and cannot supply gameplay utility or use WarEvaluator caches. Enabling diagnostics is intended to preserve AI decisions and synchronized RNG, so investigating the AI does not change the behavior being investigated; full-run comparisons are documented in KI#505.3.
@@ -646,10 +646,10 @@ See [README_Logging_Inventory.md](README_Logging_Inventory.md#before-and-after-s
   - First-city scouting, candidate summaries and ordinary Settler actions use stable `FIRST_CITY_*` / `SETTLER_*` event prefixes with named fields instead of prose-only messages.
   - Duplicate target-only prose rows are removed where the structured mission row already preserves that information; log levels and AI decisions remain unchanged.
 - **BBAI worker log split:**
-  - added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions.
+  - added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions.
   - Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
 - **BBAI Settler log split:**
-  - added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently.
+  - added `SAS_BBAI_SETTLER_LOG`, separated from UNIT so Settlers and other units can be inspected independently.
   - This notably covers city-site decisions, Settler movement, scouting, returns, founding, parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations.
   - This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
 - (Requires AdvCiv-SAS 6569+) **Auditable Settler decisions:**
@@ -657,56 +657,56 @@ See [README_Logging_Inventory.md](README_Logging_Inventory.md#before-and-after-s
   - Movement rows distinguish local rechecks, candidate eligibility, scouting directions, cached-site comparisons, returns, escort/security branches, and final founding.
   - The expensive omniscient and string-rich detail is level-3-only and pre-gated, so disabled diagnostics do not add it to ordinary gameplay.
 - **Overseas-transport BBAI diagnostics:**
-  - added `SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL`, separated from CITY and UNIT so overseas settlement and conquest logistics can be inspected without enabling those broad logs.
+  - added `SAS_BBAI_OVERSEAS_TRANSPORT_LOG`, separated from CITY and UNIT so overseas settlement and conquest logistics can be inspected without enabling those broad logs.
   - It notably connects known valuable island sites and cities with their distance and defenders, map type, transport production and cargo capacity, loaded units, units actually available to board, incoming cargo already assigned within 1/3/7 turns, pickup/loading failures, launch thresholds and decisions, naval reachability, and Settler/Worker cargo handling.
 - **BBAI War diagnostics:**
-  - added `SAS_BBAI_WAR_LOG_LEVEL`, separated from TEAM so UWAI war-target choice can be inspected without broad team/diplomacy logs.
+  - added `SAS_BBAI_WAR_LOG`, separated from TEAM so UWAI war-target choice can be inspected without broad team/diplomacy logs.
   - It notably records target utility, limited-vs-total war comparison, naval/preparation context, forced peace, attitude, closeness, city distance, power, selected target, target switches, direct-war adoption, war-plan lifecycle changes, and optional high-utility scenario/aspect breakdowns, which should help investigate problematic faraway wars before changing behavior.
 - **Great General BBAI diagnostics:**
-  - added `SAS_BBAI_GREAT_GENERAL_LOG_LEVEL`, separated from UNIT notably so Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, and target-unit choice can be inspected together without enabling broad unit logs.
+  - added `SAS_BBAI_GREAT_GENERAL_LOG`, separated from UNIT notably so Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, and target-unit choice can be inspected together without enabling broad unit logs.
   - This notably helped isolate a bad France sample where `AI_join` rejected all cities for safety/path reasons, then the plot-danger branch attached a Great General to a low-value Longbowman.
 - **Culture-victory BBAI diagnostics:**
-  - added a new dedicated `SAS_BBAI_CULTURE_LOG_LEVEL` notably for diagnosing premature, uneven, or wasteful AI culture investment without enabling broad player/city logs.
+  - added a new dedicated `SAS_BBAI_CULT_LOG` notably for diagnosing premature, uneven, or wasteful AI culture investment without enabling broad player/city logs.
   - It records for example culture-stage reasons, current/projected Legendary-city countdowns and rival ranking, competing victory progress, actual culture-slider decisions, per-city weights and production, and culture contributed by production processes and assigned specialists.
 - **Citizen-allocation BBAI diagnostics:**
-  - added a dedicated `SAS_BBAI_CITIZEN_LOG_LEVEL` notably for finding worked plots or specialists that the AI's full city-aware comparison would replace, but its faster preliminary selection overlooked.
+  - added a dedicated `SAS_BBAI_CITIZEN_LOG` notably for finding worked plots or specialists that the AI's full city-aware comparison would replace, but its faster preliminary selection overlooked.
   - At the highest level, it also reports suspicious worked/unworked plot pairs under a simple food-first yield check.
-- **Evacuation and retreat BBAI diagnostics:** added `SAS_BBAI_EVACUATION_LOG_LEVEL`. It notably helps investigate evacuation/retreat behavior without broad city or unit logging, for doomed cities, workers, and naval units.
+- **Evacuation and retreat BBAI diagnostics:** added `SAS_BBAI_EVACUATION_LOG`. It notably helps investigate evacuation/retreat behavior without broad city or unit logging, for doomed cities, workers, and naval units.
 - **BBAI logging guard cleanup:**
   - now that BBAI logging is runtime-tunable rather than compile-gated, some older logging-only code paths are **guarded more explicitly** through the relevant log-level defines.
   - This avoids running logging passes or expensive/unneeded evaluation and formatting of **log parameters** that ultimately won't be used when that log category is disabled.
 - (Requires AdvCiv-SAS 6455+) **Dedicated no-production BBAI logging:**
-  - `SAS_BBAI_PRODUCTION_NO_TARGET_LOG_LEVEL` isolates KI#51 investigation from broad city and military-production logging.
+  - `SAS_BBAI_PROD_NO_TARGET_LOG` isolates KI#51 investigation from broad city and military-production logging.
   - Level 2 records any civilization city that reaches its control-path-aware turn boundary without a production target outside disorder; level 3 adds legal units/buildings/Projects/Processes and strategic context, plus exact AI chooser reasons (`EXPECTED_DISORDER` versus an abnormal `FINAL_FALLTHROUGH`).
-- **Dedicated AI military-production BBAI logging**: added `SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL` notably to isolate production diagnostics without enabling broad city logging.
+- **Dedicated AI military-production BBAI logging**: added `SAS_BBAI_MILIT_PROD_LOG` notably to isolate production diagnostics without enabling broad city logging.
   - Higher detail notably records unit-build probability, spending limits, building/nonunit gates, unit selection and rejection reasons, and (Requires AdvCiv-SAS 6584+) proactive-fortification decisions.
 - (Requires AdvCiv-SAS 6584+) **Dedicated building-production BBAI forensic audit:**
-  - AdvCiv-SAS adds `SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL` to link candidate value, contextual policy and the production target ultimately selected.
+  - AdvCiv-SAS adds `SAS_BBAI_BLDG_PROD_LOG` to link candidate value, contextual policy and the production target ultimately selected.
   - Level 3 notably records exact before/delta attribution for happiness/anger, health and unhealthy-food relief, food-kept growth, maintenance, trade, yields/commerce, conventional/nuclear defense, `iAIWeight`/flavor, generic and domain military production/XP, domain applicability, Wonder placement/race/continuation, Government Centers, Palace relocation, National Park pressure and proactive fortification.
   - (Requires AdvCiv-SAS 6584+) The first broad exact-component audit produced about **198,700 attribution rows**, so this deliberately remains an opt-in forensic microscope; expensive scans/formatting are gated behind the log level and diagnostic evaluation adds no chooser RNG.
     - See [KI#48.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.5) and [KI#48.9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.9); see also [KI#880](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-880) for an inherited happiness-arithmetic defect and [KI#821](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-821) for construction-value cache-lifetime/observer-effect correctness exposed by the same audit.
-- (Requires AdvCiv-SAS 6448+) **Dedicated AI space-production BBAI logging**: added `SAS_BBAI_SPACE_PRODUCTION_LOG_LEVEL` category because SASGameRecord could identify the strategic outcome and production switches but could not explain the city-level project valuation and branch that displaced them.
+- (Requires AdvCiv-SAS 6448+) **Dedicated AI space-production BBAI logging**: added `SAS_BBAI_SPACE_PROD_LOG` category because SASGameRecord could identify the strategic outcome and production switches but could not explain the city-level project valuation and branch that displaced them.
   - Level 2 as of now records invested spaceship reevaluation/release/final-target transitions and selected projects; level 3 as of now additionally records every spaceship candidate's legality, production-rank/fit decision and the space-specific project value before and after victory-stage, area-war and production-capacity adjustments.
 - (Requires AdvCiv-SAS 6449+) **Dedicated AI one-copy Project-production BBAI logging:**
-  - added `SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL` for Manhattan, Internet, SDI and Apollo after SASGameRecord exposed large amounts of stored Project production being parked and later invalidated.
+  - added `SAS_BBAI_LIMITED_PROJECT_PROD_LOG` for Manhattan, Internet, SDI and Apollo after SASGameRecord exposed large amounts of stored Project production being parked and later invalidated.
   - Level 2 records reevaluation, release/final-target transitions and selected limited Projects; level 3 additionally records candidate legality, production rank/fit, stored production, team-making counts and final candidate value.
   - This complements SASGameRecord's exact production-loss history by explaining the city-level decision that caused a Project to move.
 
 #### SASGameRecord log
 
-- **Periodic snapshot timing:** `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED` uses game-turn numbers, without game-speed scaling. With interval 10, periodic snapshots occur at the end of turns 10, 20, 30, 40, and so on; turn 0 has separate initial context.
+- **Periodic snapshot timing:** `SAS_SGR_INTERVAL_T_UNSCALED_GS` uses game-turn numbers, without game-speed scaling. With interval 10, periodic snapshots occur at the end of turns 10, 20, 30, 40, and so on; turn 0 has separate initial context.
   - Autoplay counts turn 0 as its first turn. Therefore, when starting at turn 0, request **11 turns** to include the snapshot at the end of turn 10; requesting only 10 stops after turns 0–9.
   - For the same reason, request **41 turns** from turn 0 to include the turn-40 snapshot: the target snapshot turn plus one.
   - Loading a save starts a new recording session but preserves this game-turn schedule; it does not restart the interval count.
 
-- (Requires AdvCiv-SAS 6630+) **Recorder settings are self-maintaining:** `GAME_RECORD_LOG_SETTINGS` is generated from one iterable scalar-setting table rather than a long positional format/argument list; CI requires every integer `SAS_GAME_RECORD_*` XML setting to appear there, while validated palette strings remain specialized map-legend data.
+- (Requires AdvCiv-SAS 6630+) **Recorder settings are self-maintaining:** `GAME_RECORD_LOG_SETTINGS` is generated from one iterable scalar-setting table rather than a long positional format/argument list; CI requires every integer `SAS_SGR_*` XML setting to appear there, while validated palette strings remain specialized map-legend data.
   - Building-focus, AI-strategy and recorder reason/source/action constants share canonical lists with their diagnostic labels, reducing maintenance omissions without changing AI decisions.
 - (Requires AdvCiv-SAS 6629+) **Run diagnostics are easier to interpret and compare:**
   - Each new/load session records the configured and effective BBAI categories, DLL-readable CivilizationIV.ini logging switches, and finalized BUG/Autolog settings, helping explain differences in diagnostic coverage and performance without collecting those settings separately.
   - Shared DLL context identifies the compiler and compiled profiler/ReproTest switches alongside the existing build configuration, while DLL/EXE identity includes actual binary resource versions when available; system-context level 3 with the process-context opt-in also records debugger presence and selected development-tool processes at session start, without treating an open IDE or lingering build process as proof of active compilation.
   - Save-format context distinguishes mod/replay identity and the loaded save's game-stream flag from the current writer markers for core/AI objects and supporting subsystems; the shared writer registry supplies that component context without changing serialized bytes.
 
-(Requires AdvCiv-SAS 6440+) Note: `SASGameRecord` log has its own revision system, see [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for details and miscellanous information.
+(Requires AdvCiv-SAS 6440+) Note: SASGameRecord (SGR; current recorder settings use the `SAS_SGR_*` define family) has its own revision system, see [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for details and miscellanous information.
 
 - (Requires AdvCiv-SAS 6626+) **SASGameRecord helps distinguish attractive city plots from sustainable worked-plot combinations:**
   - At city founding, compact player-known Food budgets show how much surplus remains for small and larger worked-plot cores, both with potential improvements and with features retained before improvements.
@@ -738,7 +738,7 @@ See [README_Logging_Inventory.md](README_Logging_Inventory.md#before-and-after-s
 - (Requires AdvCiv-SAS 6460+) Periodic `GAME_RECORD_NAVAL_ASSAULT_POSTURE` rows make overseas-force readiness visible without copying per-target UWAI/BBAI diagnostics into the game record.
   - They summarize `UNITAI_ASSAULT_SEA` transport stock/training, total and open-ocean-capable lift, actual cargo/utilization and cargo type/UnitAI composition, transport/group loading state, exact AI-base presence via `CvTeam::isBase`, MissionAI/queue/healing state, and grouped sea-combat support.
   - Mixed fleets are counted once per selection group and actual transport cargo is enumerated directly, including same-team passengers; no pathfinding, target search, UWAI reevaluation or RNG is added.
-  - The canonical war-AI settings row also records `SAS_UWAI_INVASION_GRAPH_NAVAL_LOGISTICS_DEPLOYMENT_OPTIMIZE`, while detailed invasion-candidate reasoning remains in BBAI.
+  - The canonical war-AI settings row also records `SAS_UWAI_NAVAL_LOGISTICS_DEPLOYMENT_ON`, while detailed invasion-candidate reasoning remains in BBAI.
 - (Requires AdvCiv-SAS 6468+) **Naval operational intent is more directly reconstructible:**
   - level-3 `GAME_RECORD_NAVAL_ASSAULT_POSTURE` additionally serializes each assault group's already-stored MissionAI destination with current/target coordinates, target team/city, cargo/capacity, grouped sea-combat support, base state and open-ocean capability.
   - Together with the existing lift/loading/cargo fields and war/victory context, this helps distinguish insufficient transport capacity, fleets that never mobilized, and fleets aimed at peripheral or wrong targets without performing any new pathfinding, target search, UWAI evaluation or RNG.
@@ -910,14 +910,14 @@ See [README_Logging_Inventory.md](README_Logging_Inventory.md#before-and-after-s
     - BUG/profile changes use existing application/callback boundaries; configured values are not presented as immediately effective for restart/reload-cached consumers, and no recurring INI parsing, UI polling or per-turn settings polling is added. Cached logging gates skip collection and formatting when the recorder is disabled.
   - (Requires AdvCiv-SAS 6639+) Session support context also records CustomAssets directory presence at system-context level 1+, without paths or file traversal; missing, unreadable and non-directory results are distinct. This does not prove which assets the EXE loaded.
   - (Requires AdvCiv-SAS 6639+) Reviewed BUG scoreboard layout strings use session-local `<REDACTED_0001>` IDs in settings snapshots/changes, allowing equal/changed values to be recognized without recording the text.
-    - IDs reset at each session baseline; the in-memory mapping is not written to the log. Default-off `SAS_GAME_RECORD_BUG_STRING_VALUES_ENABLE` opts into exact values for the reviewed strings only.
-  - (Requires AdvCiv-SAS 6639+) The official SASGameRecord revision label lives in the shared `SAS_GAME_RECORD_REVISION` GlobalDefine rather than a compiled header constant.
+    - IDs reset at each session baseline; the in-memory mapping is not written to the log. Default-off `SAS_SGR_BUG_STRING_VALS_ON` opts into exact values for the reviewed strings only.
+  - (Requires AdvCiv-SAS 6639+) The official SASGameRecord revision label lives in the shared `SAS_SGR_REVISION` GlobalDefine rather than a compiled header constant.
     - One qualifying recorder implementation commit increments it exactly once regardless of whether the change is in C++, Python, bridges or tooling/checkers; runtime code does not branch on the number.
     - This avoids rebuilding an otherwise unchanged DLL merely to update the label. Exact source/build/DLL provenance remains the evidence for stale or mixed binaries.
   - (Requires AdvCiv-SAS 6637+) The `CivilizationIV.ini` baseline is section-aware and preserves actual `[CONFIG]`, `[DEBUG]` and other section/key identities instead of silently searching only `[CONFIG]`.
     - Reviewed non-personal keys preserve their parsed configured text exactly enough for diagnostics, including unusual/invalid-looking values; value shape is not used as a privacy test. Absent reviewed keys are listed separately instead of being invented as zero/defaults, and configured values are not claimed to be effective runtime state.
     - The reviewed catalog includes reproducibility/support, rendering/audio/interface, startup-preference and developer/multiplayer settings. This includes configured map/sync RNG seeds, QuickStart, crash-dump enablement and voice enablement beside the recorder's separate actual game RNG/profile state.
-    - `SAS_GAME_RECORD_INI_PRIVATE_VALUES_ENABLE=0` and `SAS_GAME_RECORD_INI_NETWORK_VALUES_ENABLE=0` ship as privacy-safe defaults: sensitive key identities remain visible with explicit withholding tokens, while raw values require their matching opt-in. `CheatCode` is recorded as a public debug/autoplay setting; unreviewed keys are marked `<UNCLASSIFIED>` rather than exposing unknown text.
+    - `SAS_SGR_INI_PRIVATE_VALS_ON=0` and `SAS_SGR_INI_NETWORK_VALS_ON=0` ship as privacy-safe defaults: sensitive key identities remain visible with explicit withholding tokens, while raw values require their matching opt-in. `CheatCode` is recorded as a public debug/autoplay setting; unreviewed keys are marked `<UNCLASSIFIED>` rather than exposing unknown text.
     - `AdvCiv-SAS.ini` uses the same section-aware baseline. Its ordinary switches are recorded directly, while filename/free-text entries such as `ForceScenario`, `ImageFile`, `Name` and `Description` use the private-value opt-in.
   - (Requires AdvCiv-SAS 6636+) Recorder level 2+ also adds a compact causal user-action/interface trace where the initiating request matters in addition to the resulting game state.
     - Native rows distinguish End Turn/forced End Turn/automoves, save/load requests and selected camera controls from their later outcomes; `accepted` describes the immediate handler gate rather than promising that a later asynchronous operation completed.
@@ -925,7 +925,7 @@ See [README_Logging_Inventory.md](README_Logging_Inventory.md#before-and-after-s
     - The custom scoreboard records its final resolved local state once per new/load/reload session and only real scroll/background/expand/autocenter changes; map-annotation visibility is similarly change-only. Free-text search, player/city names, paths, mouse motion and redraw spam remain deliberately excluded.
     - Action requests remain distinct from settings and resulting state: for example, `END_TURN` requested and an eventual turn-completed observation are intentionally different facts for reproduction and crash investigation.
     - The trace provides context for reproduction and crash investigation; the last buffered rows can still be lost in a crash, so it does not replace a crash dump.
-    - `SAS_GAME_RECORD_ACTION_TRACE_ENABLE` can suppress that level-2+ causal/action/interface family without disabling revision-150 session settings/runtime-view state or unrelated recorder detail.
+    - `SAS_SGR_ACTION_TRACE_ON` can suppress that level-2+ causal/action/interface family without disabling revision-150 session settings/runtime-view state or unrelated recorder detail.
       - The four Boolean camera toggles with authoritative native getters now pair their request rows with change-only `CAMERA` interface-state results. Flying-mode cycling and camera rotation remain request-only; live camera zoom/map position is not polled.
         - Current shortcuts: Ortho (**Alt+O**), Flying (**Ctrl+Alt+F**), Mouse Flying (**Shift+Alt+F**), Satellite/Top-down (**Alt+T**).
         - Flying requires `allowflying = 1` in `CivilizationIV.ini` and a restart; accepted requests alone do not confirm that the engine changed the mode.
@@ -978,7 +978,7 @@ See [README_Logging_Inventory.md](README_Logging_Inventory.md#before-and-after-s
   - Exact source-edge totals accompany the picture; large resampled maps preserve whether either river-edge orientation occurs within each reduced cell, while compact coordinate rows retain every original edge.
   - Rare later river edits are recorded individually too.
 - Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, `SASGameRecord` log should as of now not be treated as a spoiler-free player-advice export.
-  - Note 2: detailed/full snapshots still follow `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED`, so a run ending on T200 can have its last full snapshot at T190; (Requires AdvCiv-SAS 6587+) one tiny `GAME_RECORD_TURN_COMPLETED` row is nevertheless emitted for every fully processed turn at every enabled level, so a truncated/crashed record exposes its last completed turn without forcing another large snapshot.
+  - Note 2: detailed/full snapshots still follow `SAS_SGR_INTERVAL_T_UNSCALED_GS`, so a run ending on T200 can have its last full snapshot at T190; (Requires AdvCiv-SAS 6587+) one tiny `GAME_RECORD_TURN_COMPLETED` row is nevertheless emitted for every fully processed turn at every enabled level, so a truncated/crashed record exposes its last completed turn without forcing another large snapshot.
   - For stronger LLM analysis, also provide compact source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context and full `SASGameRecord` examples while staying compact enough to upload and share.
   - See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log), and [README.md (DLL Logging)](/README.md#dll-logging).
 - (Requires AdvCiv-SAS 6379+) **Additional factual SASGameRecord setup and gameplay boundaries:**
@@ -1238,7 +1238,7 @@ This is why AdvCiv-SAS targets the capital more aggressively as the decisive tar
   - Remaining invalidated Project hammers came from low-progress copies deliberately outside the guard.
   - See [KI#174.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-174.2).
 - **Cultural-victory AI is viability and bottleneck-focused:**
-  - The new `SAS_BBAI_CULTURE_LOG_LEVEL` BBAI logging showed Base AdvCiv could treat an AI raising the culture slider only for happiness or border pressure as evidence that it was pursuing a cultural victory.
+  - The new `SAS_BBAI_CULT_LOG` BBAI logging showed Base AdvCiv could treat an AI raising the culture slider only for happiness or border pressure as evidence that it was pursuing a cultural victory.
   - Even the early preparation stage could then raise culture priorities in every city.
   - As a result, the AI could spend production, specialists, and commerce on cities culturally ranked lower than the cultural-victory target group (i.e., the top 3 cities that must reach Legendary culture), on a target city already much closer to Legendary than another target city, or even on a city that had already become Legendary.
   - This was inefficient and could leave the AI dangerously underinvested in stronger economic, scientific, or military priorities.
@@ -1247,7 +1247,7 @@ This is why AdvCiv-SAS targets the capital more aggressively as the decisive tar
   - Once committed, only the target cities receive victory-specific culture weight, shifted toward the city projected to take longest (no point having a city have 70% legendary culture and another 10% legendary culture only, as several legendary cities are required to win culturally, so have the spread be more even); a city that is already Legendary keeps only independent local-border value.
   - Converting production to culture remains available for first-ring expansion and strongly contested borders, but otherwise only to active target cities.
 - **Hopeless late cultural pursuits are abandoned:**
-  - The new `SAS_BBAI_CULTURE_LOG_LEVEL` BBAI logging also showed a late cultural pursuit in which the least advanced target city was projected hundreds of turns from Legendary when the estimated game had little more than 100 turns remaining (e.g., Future Era at T~400 at Normal game speed), despite likely faster Space or other victory routes.
+  - The new `SAS_BBAI_CULT_LOG` BBAI logging also showed a late cultural pursuit in which the least advanced target city was projected hundreds of turns from Legendary when the estimated game had little more than 100 turns remaining (e.g., Future Era at T~400 at Normal game speed), despite likely faster Space or other victory routes.
   - The AI now returns to preparation when its maximum affordable culture-slider projection misses the estimated deadline beyond the tunable grace or falls too far behind competing cultural contenders, freeing resources for stronger victory routes.
 - **Cultural pursuit gated by strong current or planned war enemies:**
   - no point investing heavily in a future cultural victory if the AI may lose the war first.
@@ -1311,8 +1311,8 @@ This is why AdvCiv-SAS targets the capital more aggressively as the decisive tar
   - K-Mod could keep a weaker worked (i.e. assigned to one population in city) plot because its quick initial estimate overlooked another plot that its full city-aware comparison considered better.
   - If ordinary citizen allocation finds no change, the **AI now rechecks plots that improve at least one yield without reducing any**, **trade some production for a large food/commerce gain**, or otherwise **offer a substantial overall gain without losing food**.
   - It switches **only when** the full city-aware valuation confirms the change is **beneficial**, never when the swap would cause starvation, and does not immediately reverse a plot assigned earlier in the same update.
-  - The newly added `SAS_BBAI_CITIZEN_LOG_LEVEL` BBAI logging test showed this corrected cases such as Karakorum working **2 food / 0 hammers / 1 commerce** instead of the strictly better **2 food / 1 hammer / 1 commerce** plot, made 624 approved swaps through turn 359 at normal game speed, and reduced remaining plot-to-plot contextual misses from 4,187 to 3,229 (about 23%); specialist-related swaps remain a separate target.
-  - Note: for convenience, human cities use the same fallback by default (tunable) through `SAS_CONVENIENCE_HUMAN_CITIZEN_PLOT_FALLBACK_ENABLE`, but only while citizen automation is enabled; manual citizen assignments remain untouched.
+  - The newly added `SAS_BBAI_CITIZEN_LOG` BBAI logging test showed this corrected cases such as Karakorum working **2 food / 0 hammers / 1 commerce** instead of the strictly better **2 food / 1 hammer / 1 commerce** plot, made 624 approved swaps through turn 359 at normal game speed, and reduced remaining plot-to-plot contextual misses from 4,187 to 3,229 (about 23%); specialist-related swaps remain a separate target.
+  - Note: for convenience, human cities use the same fallback by default (tunable) through `SAS_HUMAN_CITIZEN_PLOT_FALLBACK_ON`, but only while citizen automation is enabled; manual citizen assignments remain untouched.
 - **Recheck modest food trades missed by K-Mod's quick plot estimate:**
   - Additionally to the previous change, BBAI logging still found recurring high-value cases such as working **2 food / 1 hammer / 1 commerce** instead of **3 food / 0 hammers / 1 commerce**, or **3 food / 1 hammer / 1 commerce** instead of **4 food / 0 hammers / 1 commerce**.
   - The fallback now also considers an unworked plot that provides at least **+1 food** while losing no more than **1 hammer and 2 commerce**, but reassigns the population only when the full city-aware comparison confirms that the trade is beneficial and the existing starvation/stability safeguards pass.
@@ -1476,7 +1476,7 @@ This is why AdvCiv-SAS targets the capital more aggressively as the decisive tar
 
 - **Barbarians** no longer attempt **world wonders** (prevents hammer sinks). See [KI#3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-3).
 - Barbarians also tend to **target weaker rivals**, and may **raze cities** more than base AdvCiv/Civ4
-- **New World barbarian aggression toggle:** preserve both the old (as of now removed in Base AdvCiv) and the new Base AdvCiv behaviors via the `SAS_AI_BARBARIAN_NEW_WORLD_EARLIER_ATTACK_ENABLE` SAS define: The default `1` as of now uses the newer city/population presence rule that can end the local peace period earlier; the old as of now disabled `0` restores the older peaceable population rule.
+- **New World barbarian aggression toggle:** preserve both the old (as of now removed in Base AdvCiv) and the new Base AdvCiv behaviors via the `SAS_BARB_NEW_WORLD_EARLY_ATK_ON` SAS define: The default `1` as of now uses the newer city/population presence rule that can end the local peace period earlier; the old as of now disabled `0` restores the older peaceable population rule.
 - **Barbarian Workers no longer retreat to the city they are already inside:**
   - When a Barbarian Worker had no useful job and was already safe in a Barbarian city, Base AdvCiv still ordered it to "retreat" to that same city every turn.
   - This trapped it in a pointless retreat/wait loop.
@@ -1578,7 +1578,7 @@ The aim is that, in many cases, they also benefit vassals (or at least do not cl
   - AdvCiv change 550a makes a weaker recipient value a stronger civilization's technology less, with technology score weighted twice as strongly as military power and a maximum late-game discount of 50%.
   - Because both AI sides use that discounted value, it guarantees the weaker civilization a better price rather than making it decide whether waiting is preferable to paying the ordinary price.
   - This is rubber-banding rather than merely a strategy change because relative standing directly changes the transaction's price and the intervention grows with game progress, regardless of technology urgency, competing sellers or whether accepting less benefits the stronger seller.
-  - `SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT` is therefore now `0` by default (restores BTS behavior for this factor: no rubber-banding).
+  - `SAS_TECH_TRADE_REL_STR_EFFECT_PCT` is therefore now `0` by default (restores BTS behavior for this factor: no rubber-banding).
   - Note: it can be set to `100` to fully restore AdvCiv behavior, or intermediate values like `30` or `50` to soften the effect.
   - Other AdvCiv-SAS technology-trade adjustments remain independent.
   - See [KI#201](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-201).
@@ -2159,8 +2159,8 @@ Assuming the calculation is correct and reliable, the higher the drive, the more
   - In save file 450, it forced Sumer to make peace after only 2 turns despite capturing New York with twice Lincoln's power, merely because the next enemy city was beyond the distance limit.
   - It is now restricted to pre-war evaluations, leaving normal UWAI logic to decide when an ongoing war should end.
 - Update 3: the pre-war contact-distance guard is now substantially less restrictive and XML-tunable at a current, to address the issue, for example in save file 459, AIs having an overwhelming military advantage but not attacking much weaker rivals.
-  - The previous `SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS_UNSCALED_GAMESPEED` 3-turn land limit could hard-reject otherwise worthwhile reachable wars before normal UWAI evaluation simply because the army's estimated path to the nearest target city took slightly longer.
-  - To fix this, `SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS_UNSCALED_GAMESPEED` / `SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS_UNSCALED_GAMESPEED` are now changed to much higher defaults of 15 (vs 3 before) approximate path turns for land-reachable wars and 20 (vs 12 before to match this change too) for genuinely naval wars.
+  - The previous `SAS_UWAI_CONTACT_LAND_MAX_T_UNSCALED_GS` 3-turn land limit could hard-reject otherwise worthwhile reachable wars before normal UWAI evaluation simply because the army's estimated path to the nearest target city took slightly longer.
+  - To fix this, `SAS_UWAI_CONTACT_LAND_MAX_T_UNSCALED_GS` / `SAS_UWAI_CONTACT_SEA_MAX_T_UNSCALED_GS` are now changed to much higher defaults of 15 (vs 3 before) approximate path turns for land-reachable wars and 20 (vs 12 before to match this change too) for genuinely naval wars.
   - The wider limits preserve a sanity bound for very remote targets while allowing ordinary UWAI power, utility, diplomacy, closeness and war-state logic to decide whether a reachable target is actually worth attacking.
   - See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-61).
 - **UWAI target choice avoids faraway wars:**
@@ -2375,7 +2375,7 @@ Assuming the calculation is correct and reliable, the higher the drive, the more
   - See [KI#189.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-189.2).
 - **AI offensive production rises progressively by era, preserving early growth and strategic variety while correcting weak middle and late armies:**
   - the old AdvCiv-SAS 5055 stable release could produce very large AI armies, while later releases generally favored economic efficiency but produced substantially fewer offensive units, especially late in the game.
-  - AdvCiv-SAS therefore measures the share of each empire's **base production currently committed to `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` units** and, when it is below an XML-tunable minimum (the `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY` SAS defines), asks an eligible city to help fill the shortfall before opportunistic wonders and broader later building choices.
+  - AdvCiv-SAS therefore measures the share of each empire's **base production currently committed to `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` units** and, when it is below an XML-tunable minimum (the `SAS_PROD_MIN_ATK_*_PCT` SAS defines), asks an eligible city to help fill the shortfall before opportunistic wonders and broader later building choices.
   - This is a production-capacity floor rather than a fixed unit count, unit-production cap or military-upkeep target, so productive cities contribute proportionally more and personalities, wars, danger, defense and composition logic can always produce more units when needed.
   - Worker, Settler, Explorer, panic, financial, culture and other earlier priorities still take precedence.
   - The default Ancient-to-Future curve as of now is **`0 / 0 / 20 / 30 / 35 / 40 / 40`**: it leaves the Ancient and Classical eras entirely to ordinary AI logic, then deliberately strengthens from the Medieval era onward as foundational growth and infrastructure have less remaining time to compound and military urgency increases.
@@ -2392,7 +2392,7 @@ Assuming the calculation is correct and reliable, the higher the drive, the more
   - The first Archipelago validation showed Korea and China switch profiles immediately after clearing their local landmasses and later conduct overseas conquests.
   - A confirming same-map run also validated the peaceful fleet-stock guard: once a secured five-port Byzantium reached its 25 tracked invasion-role-ship allowance, the extra naval floor stopped; it automatically reopened when real naval-war/projection state began and closed again afterwards.
   - Players can independently tune the secured land/naval era curves, enable some of the naval redirect on Continents-like maps, change the naval role mix, or allow smaller/larger peaceful reserve fleets.
-  - This new behaviour is tunable via the `SAS_AI_CHOOSE_PRODUCTION_SECURED_` SAS defines.
+  - This new behaviour is tunable via the `SAS_PROD_SECURED_` SAS defines.
   - See [KI#197.11](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.11).
 
 #### Military - Land (AI)

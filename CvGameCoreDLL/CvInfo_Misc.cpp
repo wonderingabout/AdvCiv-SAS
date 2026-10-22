@@ -1842,12 +1842,12 @@ std::string CvMainMenuInfo::getSceneNoShader() const
 std::string CvMainMenuInfo::getSoundtrack() const
 {
 	// <!-- custom: opening-menu music shuffle toggle; if disabled, preserve vanilla behavior and return XML soundtrack as-is. (GPT-5.3-Codex) -->
-	static const bool bSASMainMenuOpeningMusicShuffleEnable = GC.getDefineBOOL("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_ENABLE");
+	static const bool bSASMainMenuOpeningMusicShuffleEnable = GC.getDefineBOOL("SAS_MENU_MUSIC_SHUFFLE_ON");
 	if (!bSASMainMenuOpeningMusicShuffleEnable)
 		return m_szSoundtrack;
 
 	// <!-- custom: only randomize for the configured trigger script (e.g. AS2D_OPENING_MENU), so other menu profiles keep their own soundtrack untouched. (GPT-5.3-Codex) -->
-	static const CvString szSASMainMenuOpeningMusicShuffleTriggerScript = GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_TRIGGER_SCRIPT");
+	static const CvString szSASMainMenuOpeningMusicShuffleTriggerScript = GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_TRIGGER_SCRIPT");
 	if (m_szSoundtrack != szSASMainMenuOpeningMusicShuffleTriggerScript.c_str())
 		return m_szSoundtrack;
 
@@ -1859,15 +1859,15 @@ std::string CvMainMenuInfo::getSoundtrack() const
 	{
 		const CvString aszCandidates[] =
 		{
-			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_1"),
-			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_2"),
-			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_3"),
-			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_4"),
-			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_5"),
-			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_6"),
-			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_7"),
-			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_8"),
-			GC.getDefineSTRING("SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_9")
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_1"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_2"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_3"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_4"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_5"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_6"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_7"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_8"),
+			GC.getDefineSTRING("SAS_MENU_MUSIC_SHUFFLE_SCRIPT_9")
 		};
 		for (size_t i = 0; i < sizeof(aszCandidates) / sizeof(aszCandidates[0]); i++)
 		{

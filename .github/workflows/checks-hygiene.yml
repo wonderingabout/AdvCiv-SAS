@@ -12,14 +12,24 @@ on:
 jobs:
   hygiene:
     runs-on: ubuntu-latest
+    env:
+      BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
+      EVENT_NAME: ${{ github.event_name }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          # <!-- custom: Diff-only text spacing needs the PR/push base; retain full metadata while filtering historical file blobs. (GPT-6.1-Sol) -->
+          fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-python@v7
         with:
           python-version: "3.x"
 
       - name: BOMs, filename and installation-path limits
         run: python .github/workflows/build/hygiene/repository_hygiene.py
+
+      - name: New text blank separators
+        run: python .github/workflows/build/hygiene/text_blank_lines.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
 
       - name: Text line endings
         run: python .github/workflows/build/hygiene/line_endings.py

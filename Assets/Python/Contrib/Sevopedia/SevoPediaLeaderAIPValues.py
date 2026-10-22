@@ -16,7 +16,7 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") > 0)
+IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = (gc.getDefineINT("SAS_SEVO_LEADER_AI_RAW_XML_NAMES_ON") > 0)
 
 # <!-- custom: Long_Comments_py.txt #8 -->
 IS_DEBUG_LEADER = False
@@ -36,8 +36,8 @@ if IS_DEBUG_LEADER:
 	print("[DEBUG] EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS=%s" % str(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS))
 
 # <!-- custom: Long_Comments_py.txt #12 -->
-IS_USE_PREDUMPED_CACHE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED") > 0)
-IS_DUMP_CACHE_TO_LOG = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG") > 0)
+IS_USE_PREDUMPED_CACHE = (gc.getDefineINT("SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED") > 0)
+IS_DUMP_CACHE_TO_LOG = (gc.getDefineINT("SAS_SEVO_LEADER_AI_CACHE_DUMP_TO_LOG") > 0)
 # Name of the pre-dumped module (without .py extension)
 PREDUMPED_MODULE_NAME = "SevoPediaLeaderCachePredumped"
 
@@ -73,7 +73,7 @@ def try_load_predumped_cache():
 		return leaders_info_cached
 
 	except:
-		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED in XML SAS defines (GlobalDefines_advciv_sas.xml)." % PREDUMPED_MODULE_NAME)
+		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED in XML SAS defines (GlobalDefines_advciv_sas.xml)." % PREDUMPED_MODULE_NAME)
 
 def get_leader_cache_predumped_or_compute(compute_func, excluded_leader_types, is_emoji_enabled, is_raw_xml_names):
 	# Main entry point. Either loads pre-dumped cache or computes it.
@@ -186,5 +186,5 @@ def _compute_leader_cache_internal():
 
 def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
 	# Wrapper that either loads pre-dumped cache or computes it
-	return get_leader_cache_predumped_or_compute(compute_func = _compute_leader_cache_internal, excluded_leader_types = AIP_EXCLUDED_LEADER_TYPES, is_emoji_enabled = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0), is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD)
+	return get_leader_cache_predumped_or_compute(compute_func = _compute_leader_cache_internal, excluded_leader_types = AIP_EXCLUDED_LEADER_TYPES, is_emoji_enabled = (gc.getDefineINT("SAS_SEVO_LEADER_AI_EMOJI_ON") > 0), is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD)
 

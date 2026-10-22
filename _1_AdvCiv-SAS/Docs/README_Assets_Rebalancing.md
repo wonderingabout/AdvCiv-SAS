@@ -297,7 +297,7 @@ Note: water buildings are generally avoided as they are too situational (useless
 
 Terrain/feature combat effects are mostly a new and currently optional AdvCiv-SAS system. They affect generic as well as civ-specific units, so their shared rationale is documented here instead of being repeated through the civ-specific-unit roster.
 
-The four XML categories can be independently enabled or disabled with `SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS`, `SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_DEFENSE_MODIFIERS`, `SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_ATTACK_MODIFIERS`, and `SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_DEFENSE_MODIFIERS` in `GlobalDefines_advciv_sas.xml`.
+The four XML categories can be independently enabled or disabled with `SAS_UNIT_XML_TERRAIN_ATK_MODIFIERS`, `SAS_UNIT_XML_TERRAIN_DEF_MODIFIERS`, `SAS_UNIT_XML_FEATURE_ATK_MODIFIERS`, and `SAS_UNIT_XML_FEATURE_DEF_MODIFIERS` in `GlobalDefines_advciv_sas.xml`.
 
 The goal is historical/thematic identity constrained by gameplay balance: history can suggest *where* a unit should be better or worse, but does not determine an unrestricted numerical bonus. In Civ4 terminology, Grass/Plains/Desert/Tundra/Snow are **terrains**, Forest/Jungle/Flood Plains are **features**, and Hills/Peaks are **plot types**.
 

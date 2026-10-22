@@ -22,17 +22,17 @@ REVISION_DEFINES = Path("Assets/XML/GlobalDefines_advciv_sas.xml")
 REVISION_SOURCE = Path("CvGameCoreDLL/SASGameRecordLog.cpp")
 REVISION_HISTORY = Path("_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md")
 EXPECTED_GAME_RECORD_DEFAULTS = {
-    "SAS_GAME_RECORD_LOG_LEVEL": 0,
+    "SAS_SGR_LOG": 0,
     # <!-- custom: Ship action tracing ready for deliberately enabled records while the recorder master stays off; catch accidental staging of an actions-off test override. (GPT-6.1-Sol) -->
-    "SAS_GAME_RECORD_ACTION_TRACE_ENABLE": 1,
+    "SAS_SGR_ACTION_TRACE_ON": 1,
     # <!-- custom: Keep richer support context opt-in; catch hardware/path/process and private/network INI test settings accidentally staged for shipping. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
-    "SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL": 2,
-    "SAS_GAME_RECORD_HARDWARE_IDENTITY_ENABLE": 0,
-    "SAS_GAME_RECORD_EXACT_PATHS_ENABLE": 0,
-    "SAS_GAME_RECORD_PROCESS_CONTEXT_ENABLE": 0,
-    "SAS_GAME_RECORD_BUG_STRING_VALUES_ENABLE": 0,
-    "SAS_GAME_RECORD_INI_PRIVATE_VALUES_ENABLE": 0,
-    "SAS_GAME_RECORD_INI_NETWORK_VALUES_ENABLE": 0,
+    "SAS_SGR_SYSTEM_CONTEXT_LVL": 2,
+    "SAS_SGR_HARDWARE_IDENTITY_ON": 0,
+    "SAS_SGR_EXACT_PATHS_ON": 0,
+    "SAS_SGR_PROCESS_CONTEXT_ON": 0,
+    "SAS_SGR_BUG_STRING_VALS_ON": 0,
+    "SAS_SGR_INI_PRIVATE_VALS_ON": 0,
+    "SAS_SGR_INI_NETWORK_VALS_ON": 0,
 }
 
 
@@ -60,22 +60,22 @@ def check_revision(repo_root: Path, defines: dict[str, int] | None = None) -> li
         defines = read_global_define_ints(repo_root)
     history = (repo_root / REVISION_HISTORY).read_text(encoding="utf-8", errors="replace")
     source = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
-    revision = defines.get("SAS_GAME_RECORD_REVISION")
+    revision = defines.get("SAS_SGR_REVISION")
     if revision is None:
-        failures.append("SAS_GAME_RECORD_REVISION: missing define")
+        failures.append("SAS_SGR_REVISION: missing define")
     elif revision <= 0:
-        failures.append(f"SAS_GAME_RECORD_REVISION: expected positive revision, found {revision}")
+        failures.append(f"SAS_SGR_REVISION: expected positive revision, found {revision}")
 
     history_revision, errors = latest_history_revision(history)
     failures.extend(errors)
     failures.extend(change_errors(history))
     if revision is not None and history_revision is not None and revision != history_revision:
-        failures.append(f"revision mismatch: SAS_GAME_RECORD_REVISION={revision}, newest history={history_revision}")
+        failures.append(f"revision mismatch: SAS_SGR_REVISION={revision}, newest history={history_revision}")
 
     # <!-- custom: The revision is a label, not compatibility/runtime branching.
     # Keep only the minimal wiring contract that SOURCE_CONTEXT reads that one Define directly. (ChatGPT-5.6-Sol) -->
-    if 'GAME_RECORD_SOURCE_CONTEXT recordRevision=%d %s' not in source or 'GC.getDefineINT("SAS_GAME_RECORD_REVISION")' not in source:
-        failures.append(f"{REVISION_SOURCE}: source-context row no longer emits the shared SAS_GAME_RECORD_REVISION label")
+    if 'GAME_RECORD_SOURCE_CONTEXT recordRevision=%d %s' not in source or 'GC.getDefineINT("SAS_SGR_REVISION")' not in source:
+        failures.append(f"{REVISION_SOURCE}: source-context row no longer emits the shared SAS_SGR_REVISION label")
     return failures
 
 

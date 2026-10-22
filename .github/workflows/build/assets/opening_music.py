@@ -18,9 +18,9 @@ from xml_defines import get_default_repo_root, read_global_define_ints, read_glo
 
 AUDIO_2D_SCRIPTS_RELATIVE_PATH = Path("Assets/XML/Audio/Audio2DScripts.xml")
 
-SHUFFLE_ENABLE_DEFINE = "SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_ENABLE"
-SHUFFLE_TRIGGER_SCRIPT_DEFINE = "SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_TRIGGER_SCRIPT"
-SHUFFLE_SCRIPT_DEFINE_RE = re.compile(r"^SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_(\d+)$")
+SHUFFLE_ENABLE_DEFINE = "SAS_MENU_MUSIC_SHUFFLE_ON"
+SHUFFLE_TRIGGER_SCRIPT_DEFINE = "SAS_MENU_MUSIC_SHUFFLE_TRIGGER_SCRIPT"
+SHUFFLE_SCRIPT_DEFINE_RE = re.compile(r"^SAS_MENU_MUSIC_SHUFFLE_SCRIPT_(\d+)$")
 
 
 def local_name(tag: str) -> str:
@@ -80,7 +80,7 @@ def check_opening_music(repo_root: Path) -> list[str]:
 
 	shuffle_script_defines = read_shuffle_script_defines(define_texts)
 	if not shuffle_script_defines:
-		failures.append("GlobalDefines_advciv_sas.xml: no SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_* defines found")
+		failures.append("GlobalDefines_advciv_sas.xml: no SAS_MENU_MUSIC_SHUFFLE_SCRIPT_* defines found")
 
 	active_shuffle_scripts: list[tuple[str, str]] = []
 	for define_name, script_id in shuffle_script_defines:

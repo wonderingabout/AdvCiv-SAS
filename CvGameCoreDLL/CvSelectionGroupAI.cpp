@@ -453,10 +453,10 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 	CLLNode<IDInfo> const* pUnitNode = headUnitNode();
 	bool const bHuman = (pUnitNode == NULL ? true :
 			GET_PLAYER(::getUnit(pUnitNode->m_data)->getOwner()).isHuman());
-	static const bool bSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE");
+	static const bool bSAS_GROUP_ATK_LOW_PWR_ON = GC.getDefineBOOL("SAS_GROUP_ATK_LOW_PWR_ON");
 	// <!-- custom: SAS's low-power rank uses ordinary land/sea effective strength, while aircraft store their real strength in iAirCombat.
 	// Keep aircraft on the air-aware selection path below instead of asserting in Debug or collapsing their rank to 1 in Release. See KI#532. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	bool const bUseLowPower = (bPreferLowPower && !bHuman && getDomainType() != DOMAIN_AIR && bSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE);
+	bool const bUseLowPower = (bPreferLowPower && !bHuman && getDomainType() != DOMAIN_AIR && bSAS_GROUP_ATK_LOW_PWR_ON);
 	if (bUseLowPower)
 	{
 		iBestValue = 1 << 30;
@@ -493,7 +493,7 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 		// <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers.
 		// This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
 		// Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
-		// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.2-Codex) -->
+		// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_GROUP_ATK_LOW_PWR_MIN_HEALTH_PCT), lower health first. (GPT-5.2-Codex + GPT-6.1-Sol (define-name update)) -->
 		if (bUseLowPower)
 		{
 			int const iOdds = kLoopUnit.AI_attackOdds(pPlot, bPotentialEnemy);
@@ -506,9 +506,9 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 				iValue -= 1000000;
 			int const iXP = kLoopUnit.getExperience();
 			int const iMaxHP = std::max(1, kLoopUnit.maxHitPoints());
-			static const int iSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT");
+			static const int iSAS_GROUP_ATK_LOW_PWR_MIN_HEALTH_PCT = GC.getDefineINT("SAS_GROUP_ATK_LOW_PWR_MIN_HEALTH_PCT");
 			int const iHealthPercent = (100 * (iMaxHP - kLoopUnit.getDamage())) / iMaxHP;
-			int iHealthRank = (iHealthPercent >= iSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT
+			int iHealthRank = (iHealthPercent >= iSAS_GROUP_ATK_LOW_PWR_MIN_HEALTH_PCT
 					? iHealthPercent : 100);
 			if (pBestUnit == NULL || iValue < iBestValue ||
 				(iValue == iBestValue && iXP < iBestXP) ||
@@ -589,15 +589,15 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 			// Obsolete units remain useful as deliberate expenditures: losing them reduces support/upgrade pressure while preserving current units for future wars.
 			// A current unit with very high odds is allowed to attack because it is unlikely to be lost; once the current choice is itself in sacrifice territory, the normal odds-deficit limit can be bypassed and sacrifice value/tactical role become the safeguards.
 			// Do not protect obsolete units merely for XP. See KI#200. (GPT-5.6 Thinking) -->
-			static const bool bSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_OPTIMIZE");
-			static const int iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT");
-			static const int iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT");
-			static const int iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT");
-			static const int iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT");
+			static const bool bSAS_GROUP_ATK_SAC_OBSOLETE_ON = GC.getDefineBOOL("SAS_GROUP_ATK_SAC_OBSOLETE_ON");
+			static const int iSAS_GROUP_ATK_SAC_CURRENT_SAFE_ODDS_PCT = GC.getDefineINT("SAS_GROUP_ATK_SAC_CURRENT_SAFE_ODDS_PCT");
+			static const int iSAS_GROUP_ATK_SAC_DEFICIT_BYPASS_ODDS_PCT = GC.getDefineINT("SAS_GROUP_ATK_SAC_DEFICIT_BYPASS_ODDS_PCT");
+			static const int iSAS_GROUP_ATK_SAC_MAX_ODDS_DEFICIT_PCT = GC.getDefineINT("SAS_GROUP_ATK_SAC_MAX_ODDS_DEFICIT_PCT");
+			static const int iSAS_GROUP_ATK_SAC_MIN_CURRENT_VAL_PCT = GC.getDefineINT("SAS_GROUP_ATK_SAC_MIN_CURRENT_VAL_PCT");
 			iInheritedBestSacrificeOdds = pBestSacrifice->AI_attackOdds(pPlot, bPotentialEnemy);
 			TechTypes const eInheritedObsoleteTech = pBestSacrifice->getUnitInfo().getObsoleteTech();
 			bool const bInheritedObsolete = (eInheritedObsoleteTech != NO_TECH && GET_TEAM(pBestSacrifice->getTeam()).isHasTech(eInheritedObsoleteTech));
-			if (bUseLowPower && bSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_OPTIMIZE && !bInheritedObsolete && iInheritedBestSacrificeOdds < iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT)
+			if (bUseLowPower && bSAS_GROUP_ATK_SAC_OBSOLETE_ON && !bInheritedObsolete && iInheritedBestSacrificeOdds < iSAS_GROUP_ATK_SAC_CURRENT_SAFE_ODDS_PCT)
 			{
 				int const iInheritedSacrificeValue = pBestSacrifice->AI_sacrificeValue(pPlot);
 				bool const bInheritedTacticalSacrifice = (pBestSacrifice->bombardRate() > 0 || pBestSacrifice->collateralDamage() > 0);
@@ -615,9 +615,9 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 					int const iObsoleteOdds = pObsoleteUnit->AI_attackOdds(pPlot, bPotentialEnemy);
 					// <!-- custom: Once the inherited current unit is itself in sacrifice territory, do not reject obsolete candidates merely for having still lower victory odds; the sacrifice-value and tactical-role gates remain the quality safeguards.
 					// Above that risk threshold, retain the normal maximum odds-deficit limit. See KI#200. (GPT-5.6 Thinking) -->
-					if (iInheritedBestSacrificeOdds > iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT && iObsoleteOdds + iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT < iInheritedBestSacrificeOdds) continue;
+					if (iInheritedBestSacrificeOdds > iSAS_GROUP_ATK_SAC_DEFICIT_BYPASS_ODDS_PCT && iObsoleteOdds + iSAS_GROUP_ATK_SAC_MAX_ODDS_DEFICIT_PCT < iInheritedBestSacrificeOdds) continue;
 					int const iObsoleteSacrificeValue = pObsoleteUnit->AI_sacrificeValue(pPlot);
-					if (100 * iObsoleteSacrificeValue < iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT * iInheritedSacrificeValue) continue;
+					if (100 * iObsoleteSacrificeValue < iSAS_GROUP_ATK_SAC_MIN_CURRENT_VAL_PCT * iInheritedSacrificeValue) continue;
 					if (pSASObsoleteSacrifice == NULL || iObsoleteSacrificeValue >= iBestObsoleteSacrificeValue)
 					{
 						pSASObsoleteSacrifice = pObsoleteUnit;
@@ -635,16 +635,16 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 	} // </advc.048>
 	if (gWarLogLevel >= 3 && pSASObsoleteSacrifice != NULL && pInheritedBestSacrifice != NULL)
 	{
-		int const iOddsDeficitBypassMaxCurrentOdds = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT");
+		int const iOddsDeficitBypassMaxCurrentOdds = GC.getDefineINT("SAS_GROUP_ATK_SAC_DEFICIT_BYPASS_ODDS_PCT");
 		logBBAI("WAR_ATTACK_ORDER_OBSOLETE_EXPEND_OVERRIDE turn=%d player=%d group=%d target=(%d,%d) inheritedUnit=%s inheritedUnitId=%d inheritedOdds=%d inheritedSacrificeValue=%d obsoleteUnit=%s obsoleteUnitId=%d obsoleteOdds=%d obsoleteSacrificeValue=%d currentSafeOdds=%d oddsDeficitBypassMaxCurrentOdds=%d oddsDeficitBypassed=%d maxOddsDeficit=%d minValuePercentOfCurrent=%d",
 			GC.getGame().getGameTurn(), pSASObsoleteSacrifice->getOwner(), getID(), pPlot->getX(), pPlot->getY(),
 			GC.getInfo(pInheritedBestSacrifice->getUnitType()).getType(), pInheritedBestSacrifice->getID(), iInheritedBestSacrificeOdds,
 			pInheritedBestSacrifice->AI_sacrificeValue(pPlot), GC.getInfo(pSASObsoleteSacrifice->getUnitType()).getType(),
 			pSASObsoleteSacrifice->getID(), iSASObsoleteSacrificeOdds, pSASObsoleteSacrifice->AI_sacrificeValue(pPlot),
-			GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT"), iOddsDeficitBypassMaxCurrentOdds,
+			GC.getDefineINT("SAS_GROUP_ATK_SAC_CURRENT_SAFE_ODDS_PCT"), iOddsDeficitBypassMaxCurrentOdds,
 			(iInheritedBestSacrificeOdds <= iOddsDeficitBypassMaxCurrentOdds ? 1 : 0),
-			GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT"),
-			GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT"));
+			GC.getDefineINT("SAS_GROUP_ATK_SAC_MAX_ODDS_DEFICIT_PCT"),
+			GC.getDefineINT("SAS_GROUP_ATK_SAC_MIN_CURRENT_VAL_PCT"));
 	}
 	// <!-- custom: Diagnostic only: verify whether the low-power stack ordering spends old/obsolete units, whether the inherited sacrifice fallback replaces that choice, and when the SAS obsolete-expenditure refinement changes the inherited sacrifice.
 	// Compare the exact best obsolete/non-obsolete sacrifice-value and attack-odds alternatives so tuning can remain evidence-based.

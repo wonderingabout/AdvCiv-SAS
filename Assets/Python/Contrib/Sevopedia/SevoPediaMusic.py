@@ -37,10 +37,10 @@ class SevoPediaMusic:
 		self.SAS_musicGroupLastIndex = None
 
 		# Offset for the extra width of Music items list vs base width
-		I_SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
-		if I_SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH <= 0:
-			I_SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = self.top.W_ITEMS
-		iExtraWidth = I_SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH - self.top.W_ITEMS
+		I_SAS_SEVO_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVO_MUSIC_ITEMS_WIDTH")
+		if I_SAS_SEVO_MUSIC_ITEMS_WIDTH <= 0:
+			I_SAS_SEVO_MUSIC_ITEMS_WIDTH = self.top.W_ITEMS
+		iExtraWidth = I_SAS_SEVO_MUSIC_ITEMS_WIDTH - self.top.W_ITEMS
 
 		self.X_HEADER = self.top.X_PEDIA_PAGE + iExtraWidth
 		self.Y_HEADER = self.top.Y_PEDIA_PAGE

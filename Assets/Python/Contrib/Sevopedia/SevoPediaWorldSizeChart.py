@@ -25,10 +25,10 @@ class SevoPediaWorldSizeChart:
 		self.ROW_H = CHART_TABLE_ROW_H
 		self.W_ICON = CHART_TABLE_W_ICON
 		self.W_FIELD = 280
-		self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS") > 0)
-		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_WORLD_SIZE_CHART_TABLE_FILL_PERCENT")
+		self.IS_SAS_SEVO_WORLD_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVO_WORLD_CHART_HEADER_ICONS") > 0)
+		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVO_WORLD_CHART_FILL_PCT")
 		if self.TABLE_FILL_PERCENT <= 0:
-			raise ValueError("[FATAL] SAS_SEVOPEDIA_WORLD_SIZE_CHART_TABLE_FILL_PERCENT must be >= 1.")
+			raise ValueError("[FATAL] SAS_SEVO_WORLD_CHART_FILL_PCT must be >= 1.")
 
 	def interfaceScreen(self):
 		screen = self.top.getScreen()
@@ -61,7 +61,7 @@ class SevoPediaWorldSizeChart:
 			return
 
 		totalW = (tableW * self.TABLE_FILL_PERCENT) / 100
-		if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
+		if self.IS_SAS_SEVO_WORLD_CHART_HEADER_ICONS:
 			remainingW = max(0, totalW - self.W_ICON - self.W_FIELD)
 			value_cols = nCols - 2
 		else:
@@ -81,9 +81,9 @@ class SevoPediaWorldSizeChart:
 		setCell = screen.setTableText
 
 		for iCol in range(nCols):
-			if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS and iCol == 0:
+			if self.IS_SAS_SEVO_WORLD_CHART_HEADER_ICONS and iCol == 0:
 				colW = self.W_ICON
-			elif (self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS and iCol == 0):
+			elif (self.IS_SAS_SEVO_WORLD_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVO_WORLD_CHART_HEADER_ICONS and iCol == 0):
 				colW = self.W_FIELD
 			else:
 				colW = wNum
@@ -98,7 +98,7 @@ class SevoPediaWorldSizeChart:
 					cell = u""
 
 				# Icon column: cell is (text, buttonPath) tuple
-				if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS and iCol == 0:
+				if self.IS_SAS_SEVO_WORLD_CHART_HEADER_ICONS and iCol == 0:
 					if isinstance(cell, tuple):
 						text = cell[0]
 						icon_button = cell[1]
@@ -110,7 +110,7 @@ class SevoPediaWorldSizeChart:
 					setCell(table, iCol, iRow, text, icon_button, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				# Field column (left)
-				elif (self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS and iCol == 0):
+				elif (self.IS_SAS_SEVO_WORLD_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVO_WORLD_CHART_HEADER_ICONS and iCol == 0):
 					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				# Value columns (center)
@@ -321,7 +321,7 @@ class SevoPediaWorldSizeChart:
 				parsed_data[world_type]["CellsPerDefaultPlayer"] = ""
 
 		header = []
-		if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
+		if self.IS_SAS_SEVO_WORLD_CHART_HEADER_ICONS:
 			header.append(u"")
 			header.append(chart_font2("Field"))
 		else:
@@ -335,7 +335,7 @@ class SevoPediaWorldSizeChart:
 		for field_name, display_label, _getter_name, _icon_token in row_specs:
 			szFieldName = display_label_by_key.get(field_name, chart_beautify_field_name(field_name))
 
-			if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
+			if self.IS_SAS_SEVO_WORLD_CHART_HEADER_ICONS:
 				row = [icon_cell_for_key(field_name, row_index), chart_font2(szFieldName)]
 			else:
 				row = [chart_font2(szFieldName)]

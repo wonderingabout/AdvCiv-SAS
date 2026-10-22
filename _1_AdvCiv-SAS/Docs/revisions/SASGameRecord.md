@@ -1,4 +1,4 @@
-# SASGameRecord Revision History
+# SASGameRecord (SGR) Revision History
 
 Historical reconstruction from the AdvCiv-SAS commit-diff corpus, reconciled through practical version 6439 (`03b44b8932a0715be234e8c5332fcb8a1d1cf3b2`).
 
@@ -11,7 +11,8 @@ Historical reconstruction from the AdvCiv-SAS commit-diff corpus, reconciled thr
 - Do **not** spend time deciding whether a change is backward-compatible or behavior-changing. When in doubt, increment.
 - Do not increment for standalone documentation/history edits, refreshed example logs/screenshots/packages, or unrelated gameplay commits that merely used SASGameRecord as validation evidence.
 - Multiple SASGameRecord changes deliberately combined in one Git commit are one revision; this is an update counter, not a hunk/field counter.
-- `SAS_GAME_RECORD_REVISION` in `GlobalDefines_advciv_sas.xml` is the single official revision source.
+  - For an explicitly squash-bound PR (`revision:squash` label), maintain one aggregate revision relative to its base. Ordinary PRs keep per-commit increments.
+- `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` is the single official revision source.
   - The revision is reported as `GAME_RECORD_SOURCE_CONTEXT recordRevision=...` in the SASGameRecord log.
   - The build JSON records build/source/binary evidence separately and has no dedicated recorder-revision field.
   - Treat it as a commit/update label, not a compatibility API: runtime code does not branch on the revision, and Python does not need revision-specific behavior merely because GlobalDefines makes the value accessible.
@@ -37,7 +38,7 @@ Current emitted source-context field:
 GAME_RECORD_SOURCE_CONTEXT recordRevision=160 ...
 ```
 
-After this, each qualifying SASGameRecord commit increments `SAS_GAME_RECORD_REVISION` in `GlobalDefines_advciv_sas.xml` exactly once and adds one short latest-first entry to this file in the same commit. The revision remains a downstream-update signal; exact runtime source/build identity remains separate provenance in `GAME_RECORD_SOURCE_CONTEXT` and the DLL/build context.
+After this, each qualifying SASGameRecord commit increments `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` exactly once and adds one short latest-first entry to this file in the same commit. The revision remains a downstream-update signal; exact runtime source/build identity remains separate provenance in `GAME_RECORD_SOURCE_CONTEXT` and the DLL/build context.
 
 ## Consumer/parser notes
 
@@ -77,10 +78,19 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
+### Revision 162 - SAS practical 6660
+
+- **Date:** 2026-10-22
+- **Git commit:** pending
+- **Change:** Shorten the recorder settings to `SAS_SGR_*` and harmonize the other SAS setting names reported in records as part of KI#1001.2. Values, recording conditions and caching remain unchanged.
+  - Revision validation recognizes former names in historical sources and finalized new revisions in the current feature-branch lineage.
+  - Compact BBAI profiles strip the renamed category keys to their category tokens; configured and effective levels are unchanged.
+  - This entry consolidates the define-renaming PR into one recorder update relative to revision 161.
+
 ### Revision 161 - SAS practical 6654
 
 - **Date:** 2026-10-21
-- **Git commit:** pending
+- **Git commit:** `3f376b79d05d950be651e70803615e8bfcb9d271`
 - **Change:** Correct three recorder accessor misuses exposed by an assertion-enabled Debug-opt run; row layouts are unchanged.
   - Player fingerprints omit the obsolete first-contact field; current contact state is already covered by team fingerprints. Removing that contribution changes player fingerprints.
   - Eliminated-team fingerprints use `NO_ERA` without invoking the era calculation that requires living members.

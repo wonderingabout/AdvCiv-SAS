@@ -85,8 +85,8 @@ def findStartingPlot(argsList):
 	iNumPlayers = gcLocal.getGame().countCivPlayersEverAlive()
 	iBiggestAreaID = map.findBiggestArea(False).getID()
 
-	iAfricaMinPlayers = gcLocal.getDefineINT("SAS_EARTH2_STARTS_POPULATE_AFRICA_MIN_PLAYERS")
-	iFullWorldMinPlayers = gcLocal.getDefineINT("SAS_EARTH2_STARTS_POPULATE_FULL_WORLD_MIN_PLAYERS")
+	iAfricaMinPlayers = gcLocal.getDefineINT("SAS_EARTH2_AFRICA_STARTS_MIN_PLAYERS")
+	iFullWorldMinPlayers = gcLocal.getDefineINT("SAS_EARTH2_WORLD_STARTS_MIN_PLAYERS")
 
 	iAfricaWestX = int(map.getGridWidth() * 0.50)
 	iAfricaEastX = int(map.getGridWidth() * 0.68)

@@ -88,7 +88,7 @@ struct TestGlobals
 	CvGame game;
 	TestMap map;
 	bool isOverwriteLogs() const { return overwrite; }
-	int getDefineINT(char const* name) const { assert(strcmp(name, "SAS_RUNTIME_STATUS_ENABLE") == 0); return runtimeStatus ? 1 : 0; }
+	int getDefineINT(char const* name) const { assert(strcmp(name, "SAS_RUNTIME_STATUS_ON") == 0); return runtimeStatus ? 1 : 0; }
 	CvGame const& getGame() const { return game; }
 	TestMap const& getMap() const { return map; }
 } GC;

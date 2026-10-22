@@ -4,12 +4,19 @@ from pathlib import Path
 import sys
 import unittest
 
-ROOT = Path(__file__).resolve().parents[4]
 # <!-- custom: Restore blocking checks in the automated subject folders; regression fixtures import those same helpers. (GPT-6.1-Sol) -->
-sys.path.insert(0, str(ROOT / ".github/workflows/build/documentation"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / ".github/workflows/build/documentation"))
 import markdown_structure as markdown
+# <!-- custom: Exercise root-anchored destinations through the production link checker, including external and same-page exceptions. (GPT-6.1-Sol) -->
+import markdown_links as links
 
 class MarkdownTests(unittest.TestCase):
+    def test_repository_root_link_policy(self):
+        for destination in ('/README.md', '/Assets/XML/GlobalDefines_advciv_sas.xml#setting', '#menu', 'https://example.org/a', 'mailto:dev@example.org', '//example.org/a'):
+            self.assertIsNone(links.root_link_error(destination), destination)
+        for destination in ('README.md', '../README.md', 'revisions/SASRuntime.md#revision-6'):
+            self.assertIn('repository-root', links.root_link_error(destination))
+
     def test_menu_missing_title_and_hierarchy(self):
         valid = '# Doc\n\n## Menu\n\n[A](#a)\\\n&emsp;[B](#b)\n\n## A\n\n### B\n'
         self.assertEqual(markdown.menu_errors(valid), [])

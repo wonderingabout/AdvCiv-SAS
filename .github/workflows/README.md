@@ -208,6 +208,8 @@ Adding, removing or renaming an XML define consumed by C++ requires an updated s
 - Intermediate source commits can share a later Release build at the integration head; each binary-changing commit still needs its own `Update DLL` marker and build evidence under the existing intent check.
 - Local/manual runs check the selected head commit; `--base-ref` checks a complete range. Amended pushes inspect the new commit identities without relying on a discarded push-before object.
 
+The DLL rebuild check sends the changed define names to Git as input rather than hundreds of command-line arguments. This avoids Windows' command-length limit while preserving literal, whole-name matching; the complete KI#1001.2 rename set exposed that limit.
+
 This catches an unchanged shipped DLL after structural define changes. It does not compile source or prove that a changed binary contains every source edit; review and a current Release build remain necessary.
 
 ```sh
@@ -293,6 +295,21 @@ But it passed on [GitHub Actions test](https://github.com/wonderingabout/AdvCiv-
 
 To make this clearer, the checker now prints its scan mode and can note when a failing worktree file is already clean in the Git index.
 
+#### `build/hygiene/text_blank_lines.py`
+
+Rejects newly introduced excessive blank separators in maintained configuration, build scripts and plain-text documentation. Source C++/Python/XML already use the source-provenance check, and Markdown uses markdownlint; all share the same intent of preventing patching leftovers without flattening meaningful text.
+
+- Allow one blank separator in Git/configuration formats and prose text; allow two in build-script/code formats such as Makefiles, `.inl`, `.rc`, PowerShell and shell scripts.
+- Preserve string literals, YAML block scalars, shell/PowerShell here-documents, Makefile `define` bodies and archived `Long_Comments` payloads. Frozen history, imported references/assets and captured examples retain their original layout.
+- `--all` audits the current scope for an initial cleanup. Normal CI examines only changed files and reports newly introduced runs, including gaps created by deleting a block between two separators; inherited runs becoming shorter do not fail.
+
+The initial sweep removed leftover separators from the Makefile/resource script and the `Long_Comments` introductions. Recorded text remained intact. Source and supplementary checks reuse `lib/blank_lines.py` for literal protection and blank-row ancestry, avoiding divergent implementations.
+
+```sh
+python .github/workflows/build/hygiene/text_blank_lines.py --all
+python .github/workflows/build/hygiene/text_blank_lines.py --base-ref main
+```
+
 #### `build/hygiene/repository_hygiene.py`
 
 Rejects UTF-8, UTF-16 and UTF-32 BOM signatures in Git-tracked files, including inherited references. Visual Studio `.sln` and `.vcxproj` files may retain UTF-8 BOMs for launcher compatibility; UTF-16/32 BOMs remain rejected everywhere.
@@ -307,7 +324,7 @@ Its exact name is referenced inside `Gilgamesh.kfm`, so a file-only rename would
 
 When introducing this limit, eight music files and one example shortcut were shortened; the music XML paths were updated while original download links and credits were preserved. The checker scans every tracked file and reports all violations before failing.
 
-Only leading signatures are read; binary assets are not decoded.
+Binary assets are inspected only for a leading encoding signature, without decoding their contents.
 
 ### Documentation
 
@@ -341,6 +358,8 @@ Repository-root paths and paths relative to each Markdown file are both supporte
 This prevents documentation image links from silently breaking when image folders or files are moved or renamed.
 
 #### `build/documentation/markdown_links.py`
+
+Local file links must begin with `/`; same-page anchors and external URLs remain valid. This prevents a document move from changing its link targets, though moving the target still requires updating links. The existing link-validation pass checks this rule without a separate scan.
 
 Verifies every repository-local file or directory referenced by a Markdown link resolves to an existing repository path, and verifies `#heading` fragments for Markdown targets against GitHub-style heading anchors and explicit HTML anchors.
 
@@ -418,7 +437,11 @@ Inherited AdvCiv/BUG/BULL text remains outside the blocking unused-key check bec
 
 #### `build/xml/global_defines_nonempty.py`
 
-Verifies GlobalDefines XML files under `Assets/XML` have `<Define>` entries with non-empty `<DefineName>` values, unique define names within each file, and exactly one non-empty value field (normally `iDefineIntVal`, `fDefineFloatVal`, or `DefineTextVal`). This preventively catches accidental blank define values.
+Verifies shipped root GlobalDefines/PythonCallbackDefines and modular `*_GlobalDefines.xml` / `*_PythonCallbackDefines.xml` files have non-empty `<DefineName>` values, globally unique names across those files, and exactly one non-empty value field (normally `iDefineIntVal`, `fDefineFloatVal`, or `DefineTextVal`).
+
+All shipped names share the check, including inherited and SAS names. Duplicate declarations fail even if their values match; diagnostics report both files and declaration indexes, and collect all collisions in one run. Shortened SAS names can otherwise collide despite their common `SAS_` prefix.
+
+The engine permits overrides, but this check requires uniqueness within the shipped files rather than silently accepting load-order-dependent duplicates. It does not compare against unshipped base-game files or separately installed mods; an intentional override within the shipped set requires explicit review of the check.
 
 We check this because we suspect they may possibly cause unclear errors; for intentional "empty" string-like behavior, explicit values such as `NONE` are clearer and more reliable.
 
@@ -439,6 +462,34 @@ One logical value uses an unsuffixed name. When split across two or more defines
 - A lone numbered key fails and should use the unsuffixed name; `EXAMPLE_LIST` plus `EXAMPLE_LIST_PART_2` also fails because a split family must number every member.
 - Names are grouped across shipped files, allowing repeated override declarations; this checks naming, not whether a consumer reads every part.
 
+#### `build/xml/global_define_name_style.py`
+
+Enforces the preventive desired `DefineName` maximum of 42 UTF-8 bytes across the same shipped GlobalDefines/PythonCallbackDefines surface as the fixed-buffer checker.
+
+The 42-byte target comes from Base AdvCiv 1.14, SAS's direct parent, whose supplied define names top out at 42 bytes. It is a readability/headroom naming policy, not a Civ4 engine limit; KI#1001's separate 255-byte checker remains the hard loader-safety boundary.
+
+All 977 shipped names currently pass this check, with a maximum of 42 bytes. Future additions and renames must remain within the same target; if a clear name cannot fit without obscure abbreviations or loss of important units/semantics, review the policy rather than hiding meaning.
+
+Regression tests cover the exact 42/43-byte boundary, UTF-8 byte counting, inherited names, `PythonCallbackDefines.xml`, and modular define files.
+
+#### `build/xml/retired_global_define_names.py`
+
+Reads the original-to-current conversion table associated with KI#1001.2 directly and rejects retired `SAS_*` names in active XML, C++, Python and documentation.
+
+The checker reads the table directly from the [retired-name migration reference](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md). This keeps one migration map instead of maintaining a second manual retired-name list.
+
+The active scan intentionally includes XML comments and copied cache/member identifiers, so stale explanatory comments and code identifiers cannot silently preserve an obsolete spelling.
+
+Wildcard references such as `SAS_BBAI_UWAI_*_LOG_LEVEL` also fail when they match retired names but no current declaration; broad patterns shared by old/current names remain valid. The exact-name scan missed these family patterns.
+
+Name-fragment parsers still require source review: the BBAI formatter retained the former suffix matcher after the complete keys were renamed, emitting full keys instead of compact category tokens.
+
+Exceptions preserve the Known Issues investigation, the two frozen audit/archaeology records, published changelogs, Git logs, SGR revision history and its captured example. The migration table is validated separately; AGENTS permits only its explicit old-name search example. Other documentation, including current source-analysis documents, remains checked.
+
+The checker also verifies every mapped current name is still declared in `GlobalDefines_advciv_sas.xml`; a later rename therefore requires updating the existing original-to-current KI row rather than creating an intermediate mapping chain.
+
+Regression tests cover active runtime lookups, copied cache identifiers with lowercase/uppercase prefixes, XML comments, historical-document exclusion, missing current declarations, malformed marker order and longer unrelated keys.
+
 #### `build/xml/launch_guard.py`
 
 Verifies `SASDefineGuard.py` exists and its int/string sentinel constants match `GlobalDefines_advciv_sas.xml`.
@@ -449,7 +500,9 @@ Verifies `GlobalDefines_advciv_sas.xml` integer values stay within `[-100000, 10
 
 #### `build/xml/turn_define_gamespeed.py`
 
-Verifies turn-valued integer `SAS_*` defines make their game-speed semantics explicit in the define name. `TURN(S)_NORMAL_GAMESPEED` means the XML value is expressed at Normal speed and code must scale it with the appropriate game-speed percentage; `TURN(S)_UNSCALED_GAMESPEED` means literal game/path turns are intentionally kept unchanged across game speeds.
+Verifies turn-valued integer `SAS_*` defines make their game-speed semantics explicit in the define name. `T_NORM_GS` means the XML value is expressed at Normal speed and code must scale it with the appropriate game-speed percentage; `T_UNSCALED_GS` means literal game/path turns are intentionally kept unchanged across game speeds.
+
+The existing longer `TURN(S)_NORMAL_GAMESPEED` and `TURN(S)_UNSCALED_GAMESPEED` forms retain those same meanings. Standalone `T` is checked alongside `TURN`/`TURNS`, so shortening the unit cannot silently bypass the classification check. Tests cover both spellings, missing/malformed/mixed classifications and non-duration uses.
 
 The check ignores non-duration uses such as `SAS_DO_TURN_*` function-scope names, `...PER_TURN` rates, and `...PATH_TURN_VALUE...` score weights. It also recognizes legacy-looking maximum countdown, minimum/maximum age, and log-interval names so those cannot silently evade the convention.
 
@@ -636,7 +689,7 @@ The check guards shared-sink presence, reader-sharing flags and the absence of p
 The XML/PythonDbg modernization exposed an overly broad file-level EXE-logger ban: `logSASCiv4LegacyLogRow` shares `CvGameCoreUtils.cpp` with the owned writer but deliberately uses the inherited logger.
 
 - Only that bridge body is excluded from the EXE-call ban; the rest of the utility file and other publishers remain checked. The disk-flush ban still applies inside the bridge.
-- [Checker fixtures](tests/diagnostics/test_diagnostic_log_safety.py) cover both the allowed bridge and rejected fallbacks, including comment/string braces and malformed boundaries.
+- [Checker fixtures](/.github/workflows/tests/diagnostics/test_diagnostic_log_safety.py) cover both the allowed bridge and rejected fallbacks, including comment/string braces and malformed boundaries.
 
 - It does not execute native writes or prove bounded memory/error recovery. The local [diagnostic writer harness](/tests/README.md#diagnostic-writer) exercises the actual writer with normal and injected-failure I/O; it also checks prompt visibility and survival of final rows after abrupt process termination. Game lifecycle and autoplay performance require runtime testing.
 - Already-formatted text is written directly, so literal `%` needs no EXE-boundary doubling; producer format strings still use ordinary printf escaping (`%%` for one intended `%`).
@@ -653,7 +706,7 @@ Function names, JSON field inventories and exact callback statements are not che
 
 Checks the compiled runtime-recorder revision against its [history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md), shared by the current-state JSON and activity JSONL. This label is independent of SASGameRecord's revision.
 
-Reuses SASGameRecord's GitHub push/PR range selection and checks each commit against its first parent: recognized implementation changes require exactly one increment; pure CI/checker, documentation/example and test maintenance leaves it unchanged. Local checks also validate the pending working-tree increment, including new files before staging.
+Reuses SASGameRecord's event boundaries and explicit `revision:squash` policy, checking each ordinary commit or the complete squash candidate: recognized implementation changes require exactly one increment; pure CI/checker, documentation/example and test maintenance leaves it unchanged. Local checks also validate the pending working-tree increment, including new files before staging.
 
 Dedicated runtime files always qualify, including implementation comments. Shared source/configuration changes are recognized by runtime symbols in changed lines; unusual refactors still need manual review.
 
@@ -663,17 +716,17 @@ The regression tests cover multiple commits, missed increments, jumps/regression
 
 Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. Every integer `SAS_BBAI_*` define is discovered automatically and required to be `0`, so dedicated categories such as Citizen, Culture, Evacuation, Worker, and Worker-sea logging cannot be omitted from the check when categories are added.
 
-The only explicit nonzero exceptions are `SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=100` and `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1`; these configure how enabled logging behaves but do not enable logging themselves.
+The only explicit nonzero exceptions are `SAS_BBAI_SCORE_LOG_INTERVAL_T_UNSCALED_GS=100` and `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1`; these configure how enabled logging behaves but do not enable logging themselves.
 
 #### `build/diagnostics/sas_game_record_log.py`
 
 Keeps the blocking SASGameRecord CI intentionally small:
 
-- `SAS_GAME_RECORD_LOG_LEVEL` must be `0` in committed defaults.
-- `SAS_GAME_RECORD_ACTION_TRACE_ENABLE` must be `1`, and `SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL` must be `2`.
+- `SAS_SGR_LOG` must be `0` in committed defaults.
+- `SAS_SGR_ACTION_TRACE_ON` must be `1`, and `SAS_SGR_SYSTEM_CONTEXT_LVL` must be `2`.
 - Hardware identity, exact paths and process-context opt-ins must each be `0`; these checks catch accidentally committed diagnostic test overrides.
-- `SAS_GAME_RECORD_BUG_STRING_VALUES_ENABLE` must be `0`, keeping reviewed BUG strings redacted by default.
-- `SAS_GAME_RECORD_REVISION` in `GlobalDefines_advciv_sas.xml` is the single monotonically increasing implementation-update label; it must match the newest maintained revision-history heading.
+- `SAS_SGR_BUG_STRING_VALS_ON` must be `0`, keeping reviewed BUG strings redacted by default.
+- `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` is the single monotonically increasing implementation-update label; it must match the newest maintained revision-history heading.
 - The source-context row must still read and emit that Define directly. The revision is not a compatibility switch and runtime code does not branch on it; build/source/DLL provenance separately describes stale or mixed binaries.
 - The history/progression checker additionally enforces the commit rule when Git history is available: a mechanically recognizable qualifying SASGameRecord implementation commit increments exactly once, the revision never regresses or jumps by more than one, and unrelated commits do not increment it.
 
@@ -687,18 +740,20 @@ Intentional SASGameRecord-related code changes, including checker and code-comme
 
 Automated historical provenance and current-branch progression check. Validates every finalized SASGameRecord revision hash against the repository's canonical default-branch ancestry. A stale amended/rebased commit can still exist as a Git object, while a valid mainline commit need not be an ancestor of a feature branch, so neither object existence nor current `HEAD` ancestry is sufficient.
 
+Revisions newer than the default branch's recorder revision may instead identify commits in the current `HEAD` lineage. This permits several recorder commits within one PR without leaving multiple entries pending; an amended/rebased hash outside that lineage still fails. Already integrated revisions retain the canonical default-branch requirement.
+
 Callers may pass an explicit canonical branch; otherwise local runs discover `origin/HEAD`, `origin/main` or `main`, and abstain from ancestry validation when none is available.
 
-Revisions 69-152 verify their historical compiled-header marker; revision 153+ verifies the single `SAS_GAME_RECORD_REVISION` GlobalDefine stored by that commit. Only the newest entry may say `pending`: a commit cannot store its own final hash, but older entries must be finalized.
+Revisions 69-152 verify their historical compiled-header marker; revision 153+ verifies the single `SAS_SGR_REVISION` GlobalDefine stored by that commit. Only the newest entry may say `pending`: a commit cannot store its own final hash, but older entries must be finalized.
 
 When the default-branch range is available, the checker also inspects current branch commits individually. Dedicated recorder/checker/helper files always qualify; other source/config bridge changes qualify when their diff exposes SASGameRecord markers. This is intentionally conservative automation around the written policy rather than an attempt to infer every semantic dependency.
 
-Commit selection follows the event being checked:
+Commit selection follows the event and explicit merge intent:
 
-- Push events check the first-parent commits in the actual event's `before..after` range, including earlier commits in a multi-commit push to main.
-- Pull requests use the event's base/head merge base and authored head, independently of the synthetic merge checkout; real pushed merges are checked as real commits.
-- New-branch pushes use the default-branch divergence because their `before` SHA is all zeroes.
-- Local/manual checks compare against the default branch, or check the tip when already on that branch; they do not infer a past push range.
+- Default-branch pushes check the first-parent commits in `before..after`, including earlier commits in a multi-commit push. Feature-branch pushes defer progression to the PR check because their payload does not identify its merge policy; defaults and history validation still run.
+- Ordinary PRs check each authored commit from the base/head merge base, independently of the synthetic merge checkout.
+- A PR labeled `revision:squash` checks the aggregate base-to-head change as one integration commit: qualifying changes require exactly one bump, unrelated changes require none. Intermediate bumps or corrections do not create public revisions; removing the label restores per-commit checks.
+- Local/manual checks retain per-commit behavior; `--squash` explicitly checks the complete working candidate against its default-branch merge base. For example, `python .github/workflows/build/diagnostics/sas_revision_history.py --squash`; the runtime checker accepts the same option.
 
 This history check complements the minimal revision/default synchronization check and runs automatically in `checks-diagnostics.yml`. It needs canonical default-branch history, so that workflow performs a full-history metadata checkout with blob filtering.
 
@@ -729,7 +784,7 @@ Practical predump workflow:
 1. The normal checker run reconstructs the expected AIP cache outside Civ4 and compares it with the committed `SevoPediaLeaderCachePredumped.py`. CI runs this automatically on commits/PRs, so a failure usually means the committed predump is stale relative to leader XML or shared AIP display logic.
 2. The `Refresh AIP predump cache` workflow can refresh the predump from GitHub. It runs automatically after pushes to known AIP dependency files and can also be started manually from the Actions tab. When the generated file changes, it opens or updates a bot PR containing only `SevoPediaLeaderCachePredumped.py`.
 3. To refresh locally without launching Civ4, run `python .github/workflows/build/runtime/aip_predump_values.py --write`, review the diff, then rerun the checker.
-4. The old manual fallback still works: temporarily set `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED = 0` and `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun this checker.
+4. The old manual fallback still works: temporarily set `SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED = 0` and `SAS_SEVO_LEADER_AI_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun this checker.
 
 The generated file intentionally has no timestamp. This keeps no-op `--write` runs byte-identical when cache data is unchanged, avoiding false diffs and future bot/maintenance churn.
 

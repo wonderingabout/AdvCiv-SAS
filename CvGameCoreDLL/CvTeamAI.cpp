@@ -435,9 +435,9 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea const& kArea, bool bPreparin
 
 	if (isBarbarian())
 	{
-		static bool const bSAS_AI_BARBARIAN_NEW_WORLD_EARLIER_ATTACK_ENABLE = GC.getDefineBOOL("SAS_AI_BARBARIAN_NEW_WORLD_EARLIER_ATTACK_ENABLE");
+		static bool const bSAS_BARB_NEW_WORLD_EARLY_ATK_ON = GC.getDefineBOOL("SAS_BARB_NEW_WORLD_EARLY_ATK_ON");
 		// <!-- custom: Preserve both old (SAS define disabled) and and new (SAS define enabled) Base AdvCiv paths instead of merging only the new one and deleting the old as as of now in Base AdvCiv, so players can choose between them. (GPT-5.5) -->
-		if (!bSAS_AI_BARBARIAN_NEW_WORLD_EARLIER_ATTACK_ENABLE)
+		if (!bSAS_BARB_NEW_WORLD_EARLY_ATK_ON)
 		{
 			// advc.300: Relatively peaceable (New World) Barbarians until outnumbered
 			if (kArea.getTotalPopulation() <= kArea.getPopulationPerPlayer(BARBARIAN_PLAYER) * 2)
@@ -2119,8 +2119,8 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnore
 	{
 		// <!-- custom: AdvCiv change 550a makes a weaker recipient value a stronger civilization's technology less, imposing the same discounted idea of a fair price on both AI sides rather than risking an ordinary bargaining refusal.
 		// Scale that relative-strength catch-up effect from 0 (BTS behavior for this factor) to 100 (full AdvCiv behavior); keep the independent SAS military-technology valuation below active at 0. See KI#201. (GPT-5.6-Sol) -->
-		static const int iSAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT = range(GC.getDefineINT("SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT"), 0, 100);
-		if (iSAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT > 0)
+		static const int iSAS_TECH_TRADE_REL_STR_EFFECT_PCT = range(GC.getDefineINT("SAS_TECH_TRADE_REL_STR_EFFECT_PCT"), 0, 100);
+		if (iSAS_TECH_TRADE_REL_STR_EFFECT_PCT > 0)
 		{
 			/*  If they're more advanced/powerful, they shouldn't mind giving us
 				a tech, so we lower our tech value, assuming/hoping that we'll be
@@ -2164,7 +2164,7 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnore
 				too much I think. */
 			if(rDiscountModifier < 1)
 			{
-				rDiscountModifier = 1 + (rDiscountModifier - 1) * per100(iSAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT);
+				rDiscountModifier = 1 + (rDiscountModifier - 1) * per100(iSAS_TECH_TRADE_REL_STR_EFFECT_PCT);
 				rValue *= rDiscountModifier;
 			}
 		}
@@ -2181,21 +2181,21 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnore
 		// 	- to your master,
 		// 	- in peace deals that might call with bIgnoreDiscount = true,
 		// then I’d move your block outside the if (!bIgnoreDiscount && !isVassal…) guard
-		static const bool bSAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE");
-		if (bSAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE)
+		static const bool bSAS_TECH_TRADE_MILIT_DANGER_ON = GC.getDefineBOOL("SAS_TECH_TRADE_MILIT_DANGER_ON");
+		if (bSAS_TECH_TRADE_MILIT_DANGER_ON)
 		{
 			const int iEnemyPowerPercent = AI_getEnemyPowerPercent(true);
 			const bool bEnemyStrong = SASWarPowerContext::isEnemyStrong(iEnemyPowerPercent);
 
 			if (bEnemyStrong)
 			{
-				static const int iSAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN = GC.getDefineINT("SAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN");
+				static const int iSAS_TECH_VAL_MILIT_FLAVOR_MIN = GC.getDefineINT("SAS_TECH_VAL_MILIT_FLAVOR_MIN");
 
-				if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN)
+				if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_TECH_VAL_MILIT_FLAVOR_MIN)
 				{
-					static const int iSAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT = GC.getDefineINT("SAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT");
+					static const int iSAS_TECH_TRADE_MILIT_WEAKER_PCT = GC.getDefineINT("SAS_TECH_TRADE_MILIT_WEAKER_PCT");
 					// e.g. 130 => +30% trade value, 150 => +50%, etc.
-					rValue *= per100(iSAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT);
+					rValue *= per100(iSAS_TECH_TRADE_MILIT_WEAKER_PCT);
 				}
 			}
 		}
@@ -2204,11 +2204,11 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnore
 
 	// <!-- custom: Devalue an outsider's technology only when the shared exact predicate finds a legally transferable internal source.
 	// This retains the intended locus preference without discounting for knowledge that cannot actually be supplied. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	static const bool bSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE");
-	if (bSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE && !isHasTech(eTech) && !AI_isLocusMember(eFromTeam) && AI_hasLocusTechTradeSource(eTech, eFromTeam, false))
+	static const bool bSAS_TECH_TRADE_LOCUS_KNOWN_ON = GC.getDefineBOOL("SAS_TECH_TRADE_LOCUS_KNOWN_ON");
+	if (bSAS_TECH_TRADE_LOCUS_KNOWN_ON && !isHasTech(eTech) && !AI_isLocusMember(eFromTeam) && AI_hasLocusTechTradeSource(eTech, eFromTeam, false))
 	{
-		static const int iSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT = GC.getDefineINT("SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT");
-		rValue *= per100(iSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT);
+		static const int iSAS_TECH_TRADE_LOCUS_KNOWN_PCT = GC.getDefineINT("SAS_TECH_TRADE_LOCUS_KNOWN_PCT");
+		rValue *= per100(iSAS_TECH_TRADE_LOCUS_KNOWN_PCT);
 	}
 
 	// <advc.550g>
@@ -3890,15 +3890,15 @@ DenialTypes CvTeamAI::AI_makePeaceTrade(TeamTypes ePeaceTeam, TeamTypes eBroker)
 	if (!canChangeWarPeace(ePeaceTeam))
 		return DENIAL_VASSAL;
 
-	static const bool bSASUWAIVictoryDenialEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
-	if (bSASUWAIVictoryDenialEnable)
+	static const bool bSASUWAIVictoryDenialOn = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_ON");
+	if (bSASUWAIVictoryDenialOn)
 	{
 		int const iVictoryCountdown = GET_TEAM(ePeaceTeam).AI_getLowestVictoryCountdown();
 		int const iMaxVictoryStage = getSASTeamMaxVictoryStage(ePeaceTeam);
-		static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_REFUSE_PEACE");
+		static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS");
 		int const iMaxVictoryDenialPeaceCountdown = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxVictoryDenialPeaceCountdownNormal);
-		static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE");
-		static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE3_SPACE_PEACE_ENABLE");
+		static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_REFUSE_STAGE4_PEACE_ON");
+		static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_REFUSE_S3_SPACE_ON");
 		// <!-- custom: Save-file 450 showed victory-denial wars correctly declared against Lincoln, then cancelled by peace treaties two turns later while his spaceship countdown continued.
 		// A later run fixed Lincoln but Egypt still made peace right after stage-4 anti-spaceship wars, before countdown started, then won Space.
 		// The Arabia branch then showed that waiting until countdown 4 could still be too late, and save-file 452 showed raw part count could still fire too late, so stage-3 Space near completion can also be protected if enabled.

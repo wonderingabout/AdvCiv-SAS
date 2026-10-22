@@ -364,33 +364,33 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				self.SAS_mainLinkToCategory[szLinkKey] = iEnum
 
 		# <!-- custom: Cache Sevopedia grouping/layout defines on screen construction; shared highlight colors are resolved by SASVisualUtils instead of a screen-owned color cache. (GPT-6.1-Sol) -->
-		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
-		self.SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
-		self.SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH")
-		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1")
-		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
-		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3")
-		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4")
-		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_CIVS_GROUP_BY_ARTSTYLE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVS_GROUP_BY_ARTSTYLE") > 0)
-		self.IS_SAS_SEVOPEDIA_MAIN_LEADERS_GROUP_BY_CIV = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_LEADERS_GROUP_BY_CIV") > 0)
-		self.IS_SAS_SEVOPEDIA_SEARCH_CLICKABLE_SPECIAL_CHARS_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_SEARCH_CLICKABLE_SPECIAL_CHARS_ENABLE") > 0)
-		self.IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE") > 0)
-		self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY") > 0)
-		self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY") > 0)
-		self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY") > 0)
-		self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY") > 0)
+		self.IS_SAS_SEVO_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVO_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
+		self.IS_SAS_SEVO_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_TECHS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVO_BLDGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_BLDGS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVO_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_UNITS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVO_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_CORPORATIONS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVO_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_RELIGIONS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVO_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_PROJECTS_GROUP_BY_ERA") > 0)
+		self.SAS_SEVO_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVO_MUSIC_ITEMS_WIDTH")
+		self.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH")
+		self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1")
+		self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
+		self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3")
+		self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4")
+		self.IS_SAS_SEVO_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVO_SPECIALISTS_GROUP_BY_TYPE") > 0)
+		self.IS_SAS_SEVO_BONUSES_GROUP_BY_IMPROVE = (gc.getDefineINT("SAS_SEVO_BONUSES_GROUP_BY_IMPROVE") > 0)
+		self.IS_SAS_SEVO_IMPROVES_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVO_IMPROVES_GROUP_BY_TERRAIN") > 0)
+		self.IS_SAS_SEVO_BUILDS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVO_BUILDS_GROUP_BY_TYPE") > 0)
+		self.IS_SAS_SEVO_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVO_TERRAINS_GROUP_BY_LAND_WATER") > 0)
+		self.IS_SAS_SEVO_FEATURES_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVO_FEATURES_GROUP_BY_LAND_WATER") > 0)
+		self.IS_SAS_SEVO_CIVS_GROUP_BY_ARTSTYLE = (gc.getDefineINT("SAS_SEVO_CIVS_GROUP_BY_ARTSTYLE") > 0)
+		self.IS_SAS_SEVO_LEADERS_GROUP_BY_CIV = (gc.getDefineINT("SAS_SEVO_LEADERS_GROUP_BY_CIV") > 0)
+		self.IS_SAS_SEVO_SEARCH_SPECIAL_CHAR_LINKS_ON = (gc.getDefineINT("SAS_SEVO_SEARCH_SPECIAL_CHAR_LINKS_ON") > 0)
+		self.IS_SAS_SEVO_LEADER_AI_ON = (gc.getDefineINT("SAS_SEVO_LEADER_AI_ON") > 0)
+		self.IS_SAS_SEVO_MUSIC_LEADER_INTRO_PEACE_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_INTRO_PEACE_1ST_ONLY") > 0)
+		self.IS_SAS_SEVO_MUSIC_LEADER_PEACE_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_PEACE_1ST_ONLY") > 0)
+		self.IS_SAS_SEVO_MUSIC_LEADER_INTRO_WAR_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_INTRO_WAR_1ST_ONLY") > 0)
+		self.IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY = (gc.getDefineINT("SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY") > 0)
 
 	# <!-- custom: search bar helper methods (chatgpt 5.2 + claude opus 4.5) -->
 	def SAS_safeDeleteWidget(self, screen, szWidget):
@@ -466,7 +466,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			iClearY = self.Y_TOP_PANEL + 16
 			screen.setText(self.SAS_CLEAR_SEARCH_ID, "Background", self.SAS_CLEAR_TEXT, CvUtil.FONT_LEFT_JUSTIFY, iClearX, iClearY, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
-		if not self.IS_SAS_SEVOPEDIA_SEARCH_CLICKABLE_SPECIAL_CHARS_ENABLE:
+		if not self.IS_SAS_SEVO_SEARCH_SPECIAL_CHAR_LINKS_ON:
 			self.SAS_bSearchKeyboardVisible = False
 			return
 
@@ -885,7 +885,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: keep Sevopedia layout as restart-based for resolution changes; main interface still needs restart after in-session resolution switches to avoid broken layout, so we don't add dynamic per-resolution reflow across Sevopedia screens. (GPT-5.3-Codex) -->
 		screen = self.getScreen()
 		if iCategory == SevoScreenEnums.PEDIA_MUSIC:
-			iMusicItemsWidth = self.SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH
+			iMusicItemsWidth = self.SAS_SEVO_MUSIC_ITEMS_WIDTH
 			if iMusicItemsWidth <= 0:
 				iMusicItemsWidth = self.SAS_W_ITEMS_BASE
 			self.SAS_setItemsWidth(iMusicItemsWidth)
@@ -1244,7 +1244,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def getTechList(self):
 		if self.SAS_cacheTechsTuple is None:
-			if self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA:
+			if self.IS_SAS_SEVO_TECHS_GROUP_BY_ERA:
 				self.SAS_cacheTechsTuple = tuple(self.SAS_getTechsGroupedByEra())
 			else:
 				# <!-- custom: base advciv's formula, only difference is we cache it now -->
@@ -1266,7 +1266,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getUnitList(self):
 		if self.SAS_cacheUnitsTuple is None:
 			baseList = self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo)
-			if self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA:
+			if self.IS_SAS_SEVO_UNITS_GROUP_BY_ERA:
 				self.SAS_cacheUnitsTuple = tuple(self.SAS_getUnitsGroupedByEra_fromBaseList(baseList))
 			else:
 				self.SAS_cacheUnitsTuple = tuple(baseList)
@@ -1377,7 +1377,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getBuildingList(self):
 		if self.SAS_cacheRegularBuildingsTuple is None:
 			baseList = self.getBuildingSortedList(0)
-			if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
+			if self.IS_SAS_SEVO_BLDGS_GROUP_BY_ERA:
 				self.SAS_cacheRegularBuildingsTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
 			else:
 				self.SAS_cacheRegularBuildingsTuple = tuple(baseList)
@@ -1389,7 +1389,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	# <!-- custom: also group them by era (tech prereq) with the help of chatgpt 5.2 thanks -->
 	def getNationalWonderList(self):
-		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
+		if self.IS_SAS_SEVO_BLDGS_GROUP_BY_ERA:
 			if self.SAS_cacheNationalWondersTuple is None:
 				baseList = self.getBuildingSortedList(1)
 				self.SAS_cacheNationalWondersTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
@@ -1405,7 +1405,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	# <!-- custom: also group them by era (tech prereq) with the help of chatgpt 5.2 thanks -->
 	def getWorldWonderList(self):
-		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
+		if self.IS_SAS_SEVO_BLDGS_GROUP_BY_ERA:
 			if self.SAS_cacheWorldWondersTuple is None:
 				baseList = self.getBuildingSortedList(2)
 				self.SAS_cacheWorldWondersTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
@@ -1440,7 +1440,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getProjectList(self):
 		if self.SAS_cacheProjectsTuple is None:
 			baseList = self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo)
-			if self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA:
+			if self.IS_SAS_SEVO_PROJECTS_GROUP_BY_ERA:
 				self.SAS_cacheProjectsTuple = tuple(self.SAS_getProjectsGroupedByEra_fromBaseList(baseList))
 			else:
 				self.SAS_cacheProjectsTuple = tuple(baseList)
@@ -1457,7 +1457,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def getSpecialistList(self):
 		if self.SAS_cacheSpecialistsTuple is None:
-			if self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE:
+			if self.IS_SAS_SEVO_SPECIALISTS_GROUP_BY_TYPE:
 				self.SAS_cacheSpecialistsTuple = tuple(self.SAS_getSpecialistsGroupedByType())
 			else:
 				self.SAS_cacheSpecialistsTuple = tuple(self.getSortedList(gc.getNumSpecialistInfos(), gc.getSpecialistInfo))
@@ -1475,7 +1475,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# <!-- custom: also show terrain_peak and terrain_hill in sevopedia terrains display even though they are plot types but with the changes in sevopedia terrain (new placeRelevantUnits and placeUnitsImpassable panels as of now), these still provide very valuable info so adding them helps a lot; code provided with the help of chatgpt thanks and previous reworks i did with it or with claude ai or and such -->
 			# Note: TERRAIN_HILL and TERRAIN_PEAK already exist in CIV4TerrainInfos.xml, but have <bGraphicalOnly>1</bGraphicalOnly>, so they are hidden by the normal list. For Sevopedia, we want them visible, so we include GraphicalOnly here.
 			baseList = self.getUnfilteredSortedList(gc.getNumTerrainInfos(), gc.getTerrainInfo)
-			if self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER:
+			if self.IS_SAS_SEVO_TERRAINS_GROUP_BY_LAND_WATER:
 				self.SAS_cacheTerrainsTuple = tuple(self.SAS_getTerrainsGroupedByLandWater_fromBaseList(baseList))
 			else:
 				self.SAS_cacheTerrainsTuple = tuple(baseList)
@@ -1498,7 +1498,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getFeatureList(self):
 		if self.SAS_cacheFeaturesTuple is None:
 			baseList = self.getSortedList(gc.getNumFeatureInfos(), gc.getFeatureInfo)
-			if self.IS_SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER:
+			if self.IS_SAS_SEVO_FEATURES_GROUP_BY_LAND_WATER:
 				self.SAS_cacheFeaturesTuple = tuple(self.SAS_getFeaturesGroupedByLandWater_fromBaseList(baseList))
 			else:
 				self.SAS_cacheFeaturesTuple = tuple(baseList)
@@ -1517,7 +1517,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getBonusList(self):
 		if self.SAS_cacheBonusesTuple is None:
 			baseList = self.getSortedList(gc.getNumBonusInfos(), gc.getBonusInfo)
-			if self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT:
+			if self.IS_SAS_SEVO_BONUSES_GROUP_BY_IMPROVE:
 				self.SAS_cacheBonusesTuple = tuple(self.SAS_getBonusesGroupedByImprovement_fromBaseList(baseList))
 			else:
 				self.SAS_cacheBonusesTuple = tuple(baseList)
@@ -1555,7 +1555,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					baseList.append((descr, i))
 			# </advc.004y>
 
-			if self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN:
+			if self.IS_SAS_SEVO_IMPROVES_GROUP_BY_TERRAIN:
 				self.SAS_cacheImprovementsTuple = tuple(self.SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList))
 			else:
 				self.SAS_cacheImprovementsTuple = tuple(baseList)
@@ -1570,7 +1570,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getBuildList(self):
 		if self.SAS_cacheBuildsTuple is None:
 			baseList = self.getSortedList(gc.getNumBuildInfos(), gc.getBuildInfo)
-			if self.IS_SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE:
+			if self.IS_SAS_SEVO_BUILDS_GROUP_BY_TYPE:
 				self.SAS_cacheBuildsTuple = tuple(self.SAS_getBuildsGroupedByType_fromBaseList(baseList))
 			else:
 				self.SAS_cacheBuildsTuple = tuple(baseList)
@@ -1594,7 +1594,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			#		continue
 			r.append((descr,i))
 
-		if self.IS_SAS_SEVOPEDIA_MAIN_CIVS_GROUP_BY_ARTSTYLE:
+		if self.IS_SAS_SEVO_CIVS_GROUP_BY_ARTSTYLE:
 			return SAS_MainGroupings.SAS_getCivilizationsGroupedByArtStyle(self.isSortLists())
 
 		return r # </advc.004y>
@@ -1606,7 +1606,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# <!-- custom: prebuild the sevopedia leader cache only after we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is needlessly expensive.
 		# After asking chatgpt, it advised me to do this here; note: place it after the list is computed so it doesn't appear to hang before user click on an item.
 		# Update: no longer relevant now that we render the first item right away (no blank item page anymore), but kept as such because works fine as such as well -->
-		if self.IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE and (not self.IS_SEVOPEDIALEADER_CACHE_PREBUILT):
+		if self.IS_SAS_SEVO_LEADER_AI_ON and (not self.IS_SEVOPEDIALEADER_CACHE_PREBUILT):
 			# <!-- custom: when AI personality is disabled by define, skip cache precompute entirely to avoid needless work. (GPT-5.3-Codex) -->
 			SevoPediaLeader.LEADERS_INFO_CACHED = SevoPediaLeader.getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
 			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case), but still before any leader is selected -->
@@ -1615,7 +1615,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			CvUtil.pyPrintRecord("SEVOPEDIA_LEADER_CACHE", "cachePrebuilt=%d" % self.IS_SEVOPEDIALEADER_CACHE_PREBUILT)
 
 	def getLeaderList(self):
-		if self.IS_SAS_SEVOPEDIA_MAIN_LEADERS_GROUP_BY_CIV:
+		if self.IS_SAS_SEVO_LEADERS_GROUP_BY_CIV:
 			return SAS_MainGroupings.SAS_getLeadersGroupedByCivilization(self.isSortLists())
 
 		# <advc.004y>
@@ -1682,7 +1682,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def getCivicList(self):
 		if self.SAS_cacheCivicsTuple is None:
-			if self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES:
+			if self.IS_SAS_SEVO_CIVICS_GROUP_BY_CIVIC_TYPES:
 				self.SAS_cacheCivicsTuple = tuple(self.SAS_getCivicsGroupedByCivicOption())
 			else:
 				self.SAS_cacheCivicsTuple = tuple(self.getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo))
@@ -1712,7 +1712,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	# Code added with the help of chatgpt 5.2 thanks -->
 	def getReligionList(self):
 		if self.SAS_cacheReligionsTuple is None:
-			if self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA:
+			if self.IS_SAS_SEVO_RELIGIONS_GROUP_BY_ERA:
 				# <!-- custom: keep XML order within each era group (e.g. Paganism before Hinduism), so grouped religions follow CIV4ReligionInfo.xml instead of alphabetic sorting. (GPT-5.3-Codex) -->
 				baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo, noSort=True)
 				self.SAS_cacheReligionsTuple = tuple(self.SAS_getReligionsGroupedByEra_fromBaseList(baseList))
@@ -1737,7 +1737,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getCorporationList(self):
 		if self.SAS_cacheCorporationsTuple is None:
 			baseList = self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo)
-			if self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA:
+			if self.IS_SAS_SEVO_CORPORATIONS_GROUP_BY_ERA:
 				self.SAS_cacheCorporationsTuple = tuple(self.SAS_getCorporationsGroupedByEra_fromBaseList(baseList))
 			else:
 				self.SAS_cacheCorporationsTuple = tuple(baseList)
@@ -1874,7 +1874,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def getMusicList(self):
 		# <!-- custom: build music base lists + section headers in groupings module to keep this file clean. (ChatGPT-5.2 Thinking) -->
 		if self.SAS_cacheMusicTuple is None:
-			(listEntries, self.SAS_musicEraTracks, self.SAS_musicLeaderTracks, self.SAS_musicCivTracks, self.SAS_musicScriptTracks, self.SAS_musicScript3DTracks, self.SAS_firstCivScript3DMusicKey) = SAS_MainGroupings.SAS_getMusicListAndTables(self.isSortLists(), self.SAS_packMusicKey, self.SAS_unpackMusicKey, SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH, SAS_MAGIC_PEDIA_MUSIC_TYPE_ERA, SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER, SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV, SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT, SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT_3D, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY, self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY)
+			(listEntries, self.SAS_musicEraTracks, self.SAS_musicLeaderTracks, self.SAS_musicCivTracks, self.SAS_musicScriptTracks, self.SAS_musicScript3DTracks, self.SAS_firstCivScript3DMusicKey) = SAS_MainGroupings.SAS_getMusicListAndTables(self.isSortLists(), self.SAS_packMusicKey, self.SAS_unpackMusicKey, SAS_MAGIC_PEDIA_MUSIC_TYPE_TECH, SAS_MAGIC_PEDIA_MUSIC_TYPE_ERA, SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER, SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV, SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT, SAS_MAGIC_PEDIA_MUSIC_TYPE_SCRIPT_3D, self.IS_SAS_SEVO_MUSIC_LEADER_INTRO_PEACE_1ST_ONLY, self.IS_SAS_SEVO_MUSIC_LEADER_PEACE_1ST_ONLY, self.IS_SAS_SEVO_MUSIC_LEADER_INTRO_WAR_1ST_ONLY, self.IS_SAS_SEVO_MUSIC_LEADER_WAR_1ST_ONLY)
 			self.SAS_cacheMusicTuple = tuple(listEntries)
 		return self.SAS_cacheMusicTuple
 
@@ -2462,7 +2462,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					self.SAS_refreshActiveListView()
 				return 1
 			if inputClass.getFunctionName() == self.SAS_SEARCH_KEYS_TOGGLE_ID:
-				if self.IS_SAS_SEVOPEDIA_SEARCH_CLICKABLE_SPECIAL_CHARS_ENABLE:
+				if self.IS_SAS_SEVO_SEARCH_SPECIAL_CHAR_LINKS_ON:
 					self.SAS_bSearchKeyboardVisible = not self.SAS_bSearchKeyboardVisible
 					self.SAS_syncSearchPanel()
 				return 1
@@ -2608,7 +2608,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			# <!-- custom: route search-key clicks through WIDGET_PYTHON/data2 instead of parsing widget-name suffixes.
 			# Empirically, Civ can strip numeric suffixes from generated names and trigger: ValueError: invalid literal for int(): in SevoPediaMain.handleInput. (GPT-5.5) -->
 			if iData1 == SAS_MAGIC_PEDIA_PYTHON_SEARCH_KEY:
-				if self.IS_SAS_SEVOPEDIA_SEARCH_CLICKABLE_SPECIAL_CHARS_ENABLE and iData2 >= 0 and iData2 < len(self.SAS_SEARCH_KEYBOARD_CHARS):
+				if self.IS_SAS_SEVO_SEARCH_SPECIAL_CHAR_LINKS_ON and iData2 >= 0 and iData2 < len(self.SAS_SEARCH_KEYBOARD_CHARS):
 					return self.SAS_appendSearchCharacter(self.SAS_SEARCH_KEYBOARD_CHARS[iData2])
 				return 1
 			# <!-- custom: chart LOG button is routed through WIDGET_PYTHON/data1 instead of function-name matching because generated widget names can be unstable in Sevopedia; this keeps clicks reliable like Movie/Music actions. (GPT-5.3-Codex) -->
@@ -2720,18 +2720,18 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def SAS_getLeaderItemsWidthByCurrentUIFont(self):
 		# <!-- custom: nonpositive cutoff disables wide-screen reduction; without the positive guard every normal resolution met a 0/-1 cutoff and forced base width, reversing the documented setting. See KI#230. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		if (self.SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH > 0) and (self.getScreen().getXResolution() >= self.SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH):
+		if (self.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH > 0) and (self.getScreen().getXResolution() >= self.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH):
 			return self.SAS_W_ITEMS_BASE
 
 		iLabelFont = SASTextScale.getSASUIFontLabel()
 		if iLabelFont <= 1:
-			iWidth = self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1
+			iWidth = self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1
 		elif iLabelFont == 2:
-			iWidth = self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2
+			iWidth = self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2
 		elif iLabelFont == 3:
-			iWidth = self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3
+			iWidth = self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3
 		else:
-			iWidth = self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4
+			iWidth = self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4
 		if iWidth <= 0:
 			return self.SAS_W_ITEMS_BASE
 		return iWidth

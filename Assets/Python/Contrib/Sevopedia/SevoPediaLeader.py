@@ -35,13 +35,13 @@ ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 # <!-- custom: Leader page display toggle (not part of AI cache module). -->
-IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
-IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE") > 0)
-IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE") > 0)
-IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0)
+IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVO_LEADER_TRAITS_SHOW_ICONS") > 0)
+IS_SAS_SEVO_LEADER_AI_ON = (gc.getDefineINT("SAS_SEVO_LEADER_AI_ON") > 0)
+IS_SAS_SEVO_LEADER_ATTITUDE_EMOJI_ON = (gc.getDefineINT("SAS_SEVO_LEADER_ATTITUDE_EMOJI_ON") > 0)
+IS_SAS_SEVO_LEADER_AI_EMOJI_ON = (gc.getDefineINT("SAS_SEVO_LEADER_AI_EMOJI_ON") > 0)
 # <!-- custom: era art feature gate — mirrors the C++ XML-load define.
 # When False, the era art row in the Sevopedia leader attitude panel is never shown. (Claude code Sonnet 4.6) -->
-IS_SAS_LEADERHEAD_ERA_ART = (gc.getDefineINT("SAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS") > 0)
+IS_SAS_LEADERHEAD_ERA_ART = (gc.getDefineINT("SAS_LEADER_XML_ERA_ART_DEFS") > 0)
 SAS_LEADER_ATTITUDE_PREVIEW_ORDER = (AttitudeTypes.ATTITUDE_FURIOUS, AttitudeTypes.ATTITUDE_ANNOYED, AttitudeTypes.ATTITUDE_CAUTIOUS, AttitudeTypes.ATTITUDE_PLEASED, AttitudeTypes.ATTITUDE_FRIENDLY)
 SAS_LEADER_ACTION_PREVIEW_ORDER = ((LeaderheadAction.NO_LEADERANIM, u"no"), (LeaderheadAction.LEADERANIM_GREETING, u"gr"), (LeaderheadAction.LEADERANIM_AGREE, u"ag"), (LeaderheadAction.LEADERANIM_DISAGREE, u"dg"))
 
@@ -100,30 +100,30 @@ class SevoPediaLeader:
 		# <!-- custom: cache resolved AI categories once at init for this screen instance (runtime Y-resolution aware); no separate header/symbol cache is needed because this already avoids per-draw rebuild cost.
 		# Also only do this when AIP is enabled; otherwise skip needless setup.
 		# We intentionally don't re-resolve on in-session resolution changes: main interface still needs restart after such changes for correct layout, so dynamic Sevopedia-only redraw adds complexity for little practical gain. (GPT-5.3-Codex) -->
-		if IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE:
+		if IS_SAS_SEVO_LEADER_AI_ON:
 			iScreenHeight = self.top.getScreen().getYResolution()
 			self.aiRightCategories, self.aiMiddleCategories, self.aiLeftCategories = self.buildAICategoriesForCurrentResolution(iScreenHeight)
 		else:
 			self.aiRightCategories, self.aiMiddleCategories, self.aiLeftCategories = (), (), ()
 
 		self.N_AI_TABLE_NUM = 3
-		iLeaderItemsWidthFont2 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
+		iLeaderItemsWidthFont2 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
 		if iLeaderItemsWidthFont2 <= 0:
 			iLeaderItemsWidthFont2 = self.top.SAS_W_ITEMS_BASE
 		iLabelFont = SASTextScale.getSASUIFontLabel()
 		if iLabelFont <= 1:
-			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1")
+			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1")
 		elif iLabelFont == 2:
-			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
+			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_2")
 		elif iLabelFont == 3:
-			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3")
+			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_3")
 		else:
-			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4")
+			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_4")
 		if iLeaderItemsWidthCurrentForGain <= 0:
 			iLeaderItemsWidthCurrentForGain = self.top.SAS_W_ITEMS_BASE
 		# <!-- custom: keep AIP panel expansion tied to upscaled font widths, but when item-list reduction is disabled on wide screens, keep page-left anchored at base item width so the rest of the page absorbs the squeeze. (GPT-5.3-Codex) -->
 		iLeaderItemsWidthCurrent = iLeaderItemsWidthCurrentForGain
-		iNoReduceMinWidth = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH")
+		iNoReduceMinWidth = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH")
 		if (iNoReduceMinWidth > 0) and (self.top.getScreen().getXResolution() >= iNoReduceMinWidth):
 			iLeaderItemsWidthCurrent = self.top.SAS_W_ITEMS_BASE
 		iLeaderItemsWidthGain = iLeaderItemsWidthFont2 - iLeaderItemsWidthCurrentForGain
@@ -239,10 +239,10 @@ class SevoPediaLeader:
 
 		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached; Long_Comments_py.txt #10 -->
 		#
-		if IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE and (iLeader not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS):
+		if IS_SAS_SEVO_LEADER_AI_ON and (iLeader not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS):
 			self.placeAIPersonalityPanel(iLeader)
 		else:
-			if IS_DEBUG_LEADER and IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE:
+			if IS_DEBUG_LEADER and IS_SAS_SEVO_LEADER_AI_ON:
 				print("[DEBUG] Leader index iLeader=%d in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS=%s is skipped, leave the place where AI Personality panel was supposed to be entirely empty so we don't get a missing key in leaders_info_cached Error, while signifying clearly enough hopefully that the excluded leader currently selected doesn't have an item in leaders_info_cached and AI Personality Panel at all/is not part of it." % (iLeader, str(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS)))
 		# <!-- custom: normal-mode panels are drawn first; placeHistory() is called last so its expandable overlay remains top-most. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
 		self.placeHistory()
@@ -340,7 +340,7 @@ class SevoPediaLeader:
 		# Keeping inline <img> gives reliable per-button size control despite the minor known vertical lift side effect. (GPT-5.3-Codex) -->
 		for iAttitude in attitudeOrder:
 			szWidget = self.ATTITUDE_BUTTON_WIDGET_BY_ATTITUDE[iAttitude]
-			if IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE:
+			if IS_SAS_SEVO_LEADER_ATTITUDE_EMOJI_ON:
 				szEmojiPath = self.attitudeSelectedEmojiPathByAttitude[iAttitude]
 				iEmojiSize = iUnselectedEmojiSize
 				if iAttitude == self.iSelectedAttitude:
@@ -496,7 +496,7 @@ class SevoPediaLeader:
 		iAttitudeX = iX + (iW - (iAttitudeCount * iAttitudeButtonW + (iAttitudeCount - 1) * iSpacing)) / 2
 
 		for iAttitude in SAS_LEADER_ATTITUDE_PREVIEW_ORDER:
-			if IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE:
+			if IS_SAS_SEVO_LEADER_ATTITUDE_EMOJI_ON:
 				iEmojiSize = self.ATTITUDE_UNSELECTED_EMOJI_SIZE
 				if iAttitude == self.iSelectedAttitude:
 					iEmojiSize = self.ATTITUDE_SELECTED_EMOJI_SIZE
@@ -633,7 +633,7 @@ class SevoPediaLeader:
 				ai_category_x_offset = 0
 			else:
 				header_text = get_header_text(header_key_or_text)
-				if IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI and icon_button_art_key:
+				if IS_SAS_SEVO_LEADER_AI_EMOJI_ON and icon_button_art_key:
 					button_size = 16
 					line_button_txt = u"<img=%s size=%s></img>" % (SASVisuals.InterfaceArt.getPath(icon_button_art_key), str(button_size))
 					ai_category_header_line = u"%s %s" % (line_button_txt, header_text)

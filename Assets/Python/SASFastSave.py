@@ -16,27 +16,27 @@ gc = CyGlobalContext()
 
 _SAVE_EXTENSION = ".CivBeyondSwordSave"
 # <!-- custom: Lazy-cache SAS GlobalDefines because this helper can be imported during Python startup before XML define loading is safely complete. (ChatGPT-5.6-Sol) -->
-_SAS_FAST_SAVE_GAME_START_ENABLE = None
-_SAS_FAST_SAVE_GAME_END_ENABLE = None
-_SAS_FAST_SAVE_AUTOPLAY_STOP_ENABLE = None
+_SAS_FAST_SAVE_GAME_START_ON = None
+_SAS_FAST_SAVE_GAME_END_ON = None
+_SAS_FAST_SAVE_AUTOPLAY_STOP_ON = None
 
 def _isGameStartSaveEnabled():
-	global _SAS_FAST_SAVE_GAME_START_ENABLE
-	if _SAS_FAST_SAVE_GAME_START_ENABLE is None:
-		_SAS_FAST_SAVE_GAME_START_ENABLE = (gc.getDefineINT("SAS_FAST_SAVE_GAME_START_ENABLE") > 0)
-	return _SAS_FAST_SAVE_GAME_START_ENABLE
+	global _SAS_FAST_SAVE_GAME_START_ON
+	if _SAS_FAST_SAVE_GAME_START_ON is None:
+		_SAS_FAST_SAVE_GAME_START_ON = (gc.getDefineINT("SAS_FAST_SAVE_GAME_START_ON") > 0)
+	return _SAS_FAST_SAVE_GAME_START_ON
 
 def _isGameEndSaveEnabled():
-	global _SAS_FAST_SAVE_GAME_END_ENABLE
-	if _SAS_FAST_SAVE_GAME_END_ENABLE is None:
-		_SAS_FAST_SAVE_GAME_END_ENABLE = (gc.getDefineINT("SAS_FAST_SAVE_GAME_END_ENABLE") > 0)
-	return _SAS_FAST_SAVE_GAME_END_ENABLE
+	global _SAS_FAST_SAVE_GAME_END_ON
+	if _SAS_FAST_SAVE_GAME_END_ON is None:
+		_SAS_FAST_SAVE_GAME_END_ON = (gc.getDefineINT("SAS_FAST_SAVE_GAME_END_ON") > 0)
+	return _SAS_FAST_SAVE_GAME_END_ON
 
 def _isAutoPlayStopSaveEnabled():
-	global _SAS_FAST_SAVE_AUTOPLAY_STOP_ENABLE
-	if _SAS_FAST_SAVE_AUTOPLAY_STOP_ENABLE is None:
-		_SAS_FAST_SAVE_AUTOPLAY_STOP_ENABLE = (gc.getDefineINT("SAS_FAST_SAVE_AUTOPLAY_STOP_ENABLE") > 0)
-	return _SAS_FAST_SAVE_AUTOPLAY_STOP_ENABLE
+	global _SAS_FAST_SAVE_AUTOPLAY_STOP_ON
+	if _SAS_FAST_SAVE_AUTOPLAY_STOP_ON is None:
+		_SAS_FAST_SAVE_AUTOPLAY_STOP_ON = (gc.getDefineINT("SAS_FAST_SAVE_AUTOPLAY_STOP_ON") > 0)
+	return _SAS_FAST_SAVE_AUTOPLAY_STOP_ON
 
 def _safeToken(szText, szPrefix="", iMaxLen=24):
 	# Return a short ASCII token suitable for a Windows save filename.

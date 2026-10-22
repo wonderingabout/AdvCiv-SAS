@@ -15,7 +15,7 @@
 // Compile the label into the publisher: an edited XML value must not make an older loaded DLL report a newer implementation; this counter is independent of SASGameRecord and binary-save versions. (GPT-6.1-Sol) -->
 enum SASRuntimeRecorderRevision
 {
-	SAS_RUNTIME_REVISION = 5
+	SAS_RUNTIME_REVISION = 6
 };
 
 #define SAS_RUNTIME_PROCESS_STATES(DO) DO(RUNNING) DO(EXITED_CLEANLY)
@@ -187,7 +187,7 @@ static CvString g_szSASRuntimeWindowCloseRequestObservedUtc = "-";
 bool isSASRuntimeStatusEnabled()
 {
 	if (g_iSASRuntimeStatusEnabled < 0)
-		g_iSASRuntimeStatusEnabled = (GC.getDefineINT("SAS_RUNTIME_STATUS_ENABLE") > 0 ? 1 : 0);
+		g_iSASRuntimeStatusEnabled = (GC.getDefineINT("SAS_RUNTIME_STATUS_ON") > 0 ? 1 : 0);
 	return g_iSASRuntimeStatusEnabled > 0;
 }
 

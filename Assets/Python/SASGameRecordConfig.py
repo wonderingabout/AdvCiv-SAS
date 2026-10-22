@@ -16,14 +16,14 @@ _g_bugStringValuesEnabled = None
 def getLogLevel():
 	global _g_logLevel
 	if _g_logLevel is None:
-		_g_logLevel = max(0, min(3, CyGlobalContext().getDefineINT("SAS_GAME_RECORD_LOG_LEVEL")))
+		_g_logLevel = max(0, min(3, CyGlobalContext().getDefineINT("SAS_SGR_LOG")))
 	return _g_logLevel
 
 
 def getSystemContextLevel():
 	global _g_systemContextLevel
 	if _g_systemContextLevel is None:
-		_g_systemContextLevel = max(0, min(3, CyGlobalContext().getDefineINT("SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL")))
+		_g_systemContextLevel = max(0, min(3, CyGlobalContext().getDefineINT("SAS_SGR_SYSTEM_CONTEXT_LVL")))
 	return _g_systemContextLevel
 
 
@@ -31,7 +31,7 @@ def getSystemContextLevel():
 def getActionTraceEnabled():
 	global _g_actionTraceEnabled
 	if _g_actionTraceEnabled is None:
-		_g_actionTraceEnabled = (CyGlobalContext().getDefineINT("SAS_GAME_RECORD_ACTION_TRACE_ENABLE") > 0)
+		_g_actionTraceEnabled = (CyGlobalContext().getDefineINT("SAS_SGR_ACTION_TRACE_ON") > 0)
 	return _g_actionTraceEnabled
 
 
@@ -39,5 +39,5 @@ def getActionTraceEnabled():
 def getBugStringValuesEnabled():
 	global _g_bugStringValuesEnabled
 	if _g_bugStringValuesEnabled is None:
-		_g_bugStringValuesEnabled = (CyGlobalContext().getDefineINT("SAS_GAME_RECORD_BUG_STRING_VALUES_ENABLE") > 0)
+		_g_bugStringValuesEnabled = (CyGlobalContext().getDefineINT("SAS_SGR_BUG_STRING_VALS_ON") > 0)
 	return _g_bugStringValuesEnabled

@@ -73,26 +73,26 @@ namespace
 
 	int getSASBBAIVictoryDenialUtilityBoost(TeamTypes eTarget, int iTargetMaxVictoryStage)
 	{
-		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
+		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_ON");
 		if (!bEnable)
 			return 0;
 		int iBoost = 0;
 		int const iCountdown = GET_TEAM(eTarget).AI_getLowestVictoryCountdown();
-		static const int iMaxCountdownBoostNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_BOOST");
+		static const int iMaxCountdownBoostNormal = GC.getDefineINT("SAS_UWAI_VICT_DENY_BOOST_MAX_T_NORM_GS");
 		int const iMaxCountdownBoost = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxCountdownBoostNormal);
 		if (iCountdown >= 0 && iCountdown <= iMaxCountdownBoost)
 		{
-			static const int iCountdownUtilityBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_COUNTDOWN_UTILITY_BOOST");
+			static const int iCountdownUtilityBoost = GC.getDefineINT("SAS_UWAI_VICT_DENY_COUNTDOWN_UTILITY_BOOST");
 			iBoost += (iCountdownUtilityBoost * (iMaxCountdownBoost + 1 - iCountdown)) / std::max(1, iMaxCountdownBoost + 1);
 		}
 		if (iTargetMaxVictoryStage >= 4)
 		{
-			static const int iStage4UtilityBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE4_UTILITY_BOOST");
+			static const int iStage4UtilityBoost = GC.getDefineINT("SAS_UWAI_VICT_DENY_STAGE4_UTILITY_BOOST");
 			iBoost += iStage4UtilityBoost;
 		}
 		if (isSASTeamStage3SpaceVictoryThreat(eTarget))
 		{
-			static const int iStage3SpaceUtilityBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_UTILITY_BOOST");
+			static const int iStage3SpaceUtilityBoost = GC.getDefineINT("SAS_UWAI_VICT_DENY_S3_SPACE_UTILITY_BOOST");
 			iBoost += iStage3SpaceUtilityBoost;
 		}
 		return iBoost;
@@ -121,7 +121,7 @@ namespace
 
 	bool isSASBBAIPreferredLocalWarTarget(CvTeamAI const& kAgent, TeamTypes eTarget, scaled rDrive)
 	{
-		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE");
+		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_LOCAL_TARGET_ON");
 		if (!bEnable)
 			return false;
 		// <!-- custom: UWAI sorts by drive, then tests targets probabilistically.
@@ -131,11 +131,11 @@ namespace
 		// Uses team power because UWAI chooses team war plans. See KI#182. (GPT-5.5) -->
 		if (!kAgent.AI_isLandTarget(eTarget) || !GET_TEAM(eTarget).AI_isLandTarget(kAgent.getID()))
 			return false;
-		static const int iMinDrivePercent = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MIN_DRIVE_PERCENT");
-		static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MAX_DISTANCE");
-		static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MAX_TARGET_POWER_PERCENT");
-		static const int iMaxAttitudeValue = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MAX_ATTITUDE_VALUE");
-		static const int iMinCloseness = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MIN_CLOSENESS");
+		static const int iMinDrivePercent = GC.getDefineINT("SAS_UWAI_LOCAL_TARGET_MIN_DRIVE_PCT");
+		static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_LOCAL_TARGET_MAX_DIST");
+		static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_LOCAL_TARGET_MAX_PWR_PCT");
+		static const int iMaxAttitudeValue = GC.getDefineINT("SAS_UWAI_LOCAL_TARGET_MAX_ATTITUDE_VAL");
+		static const int iMinCloseness = GC.getDefineINT("SAS_UWAI_LOCAL_TARGET_MIN_CLOSENESS");
 		return (rDrive.getPercent() >= iMinDrivePercent && getSASBBAINearestCityDistance(kAgent.getID(), eTarget) <= iMaxDistance && getSASBBAITargetPowerPercent(kAgent, eTarget) <= iMaxTargetPowerPercent && kAgent.AI_getAttitudeVal(eTarget) <= iMaxAttitudeValue && kAgent.AI_teamCloseness(eTarget) >= iMinCloseness);
 	}
 
@@ -143,7 +143,7 @@ namespace
 	{
 		if (ePreferredTarget == NO_TEAM || eTarget == ePreferredTarget)
 			return false;
-		static const int iMinDistanceAdvantage = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MIN_DISTANCE_ADVANTAGE");
+		static const int iMinDistanceAdvantage = GC.getDefineINT("SAS_UWAI_LOCAL_TARGET_MIN_DIST_ADV");
 		return (getSASBBAINearestCityDistance(kAgent.getID(), eTarget) >= getSASBBAINearestCityDistance(kAgent.getID(), ePreferredTarget) + iMinDistanceAdvantage);
 	}
 
@@ -518,8 +518,8 @@ bool UWAI::Team::reviewWarPlans(set<TeamTypes>& aeChangedTargets)
 		int iPreferredEmergencyPeaceReluctance = MIN_INT;
 		int const iMajorWars = kAgent.getNumWars(true, true);
 		int const iEnemyPowerPercent = (iMajorWars >= 2 ? kAgent.AI_getEnemyPowerPercent(true) : 0);
-		static int const iEmergencyPeacePowerThreshold = GC.getDefineINT("SAS_UWAI_EMERGENCY_PEACE_ENEMY_POWER_THRESHOLD");
-		static int const iExtraWarThreatPercent = GC.getDefineINT("SAS_UWAI_EMERGENCY_PEACE_EXTRA_WAR_THREAT_PERCENT");
+		static int const iEmergencyPeacePowerThreshold = GC.getDefineINT("SAS_UWAI_EMERG_PEACE_ENEMY_PWR_THRESH");
+		static int const iExtraWarThreatPercent = GC.getDefineINT("SAS_UWAI_EMERG_PEACE_EXTRA_WAR_THREAT_PCT");
 		int const iAdjustedEnemyPowerPercent = iEnemyPowerPercent * (100 + std::max(0, iMajorWars - 2) * iExtraWarThreatPercent) / 100;
 		bool const bEmergencyPeaceMode = (iMajorWars >= 2 && iAdjustedEnemyPowerPercent > iEmergencyPeacePowerThreshold);
 		if (bEmergencyPeaceMode)
@@ -892,7 +892,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iE
 	// <!-- custom: KI#65's SAS rule treated any three wars as an emergency, so save-file 450 Carthage abandoned a four-turn war against two-city Holy Rome despite having 16 cities and all three enemies together contributing only 70% effective power.
 	// Multiply actual combined enemy power by a tunable pressure for each front beyond two instead: several meaningful enemies remain dangerous, but any number of nearly powerless enemies cannot force peace.
 	// The values were computed once in reviewWarPlans and passed through reviewPlan. (GPT-5.6-Sol) -->
-	static int const iEmergencyPeacePowerThreshold = GC.getDefineINT("SAS_UWAI_EMERGENCY_PEACE_ENEMY_POWER_THRESHOLD");
+	static int const iEmergencyPeacePowerThreshold = GC.getDefineINT("SAS_UWAI_EMERG_PEACE_ENEMY_PWR_THRESH");
 	const bool bEmergencyPeaceMode = (iMajorWars >= 2 && iAdjustedEnemyPowerPercent > iEmergencyPeacePowerThreshold);
 	// <!-- custom: The old KI#65 override applied independently to every war.
 	// Fresh Pangaea runs showed Arabia abandoning a profitable war against a 34%-power rival and Shaka making peace with a one-city 16%-power rival because a more dangerous new enemy had appeared.
@@ -1094,7 +1094,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iE
 		// Mali likewise held a -7 dip, but accepted India's request one turn later, so the margin did not prevent later rational peace.
 		// Treat a smaller deficit as insufficient reason to initiate peace, but seek peace immediately once it reaches the tunable decisive margin.
 		// The opponent can still propose an acceptable treaty, and emergency peace remains immediate; human contact retains personality-based pacing. (GPT-5.6-Sol) -->
-		static int const iDecisivePeaceMargin = GC.getDefineINT("SAS_UWAI_AI_PEACE_DECISIVE_UTILITY_MARGIN");
+		static int const iDecisivePeaceMargin = GC.getDefineINT("SAS_UWAI_PEACE_DECISIVE_UTILITY_MARGIN");
 		scaled const rPeaceUtilityDeficit = rPeaceThresh - iU;
 		if (rPeaceUtilityDeficit >= iDecisivePeaceMargin)
 			rPeaceProb = fixp(1);
@@ -1582,8 +1582,8 @@ bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU, int iTur
 	// <!-- custom: The deterministic severity gate initially canceled newly selected plans after only one review when transient UWAI/AreaAI changes briefly drove utility negative.
 	// Save-file 452 then reselected 7 of those targets on the next turn and 11 within three turns.
 	// Give a new preparation two full reviews to settle before severity alone may cancel it; hard deadline and legality failures remain immediate. See KI#189. (GPT-5.6-Sol) -->
-	static int const iMinAge = GC.getDefineINT("SAS_UWAI_PREPARATION_ABANDON_MIN_AGE_TURNS_UNSCALED_GAMESPEED");
-	static int const iMinAbandonSeverityPercent = GC.getDefineINT("SAS_UWAI_PREPARATION_ABANDON_MIN_SEVERITY_PERCENT");
+	static int const iMinAge = GC.getDefineINT("SAS_UWAI_PREP_ABANDON_MIN_T_UNSCALED_GS");
+	static int const iMinAbandonSeverityPercent = GC.getDefineINT("SAS_UWAI_PREP_ABANDON_MIN_SEVERITY_PCT");
 	int const iAge = kAgent.AI_getWarPlanStateCounter(eTarget);
 	bool const bLogAgentDetail = (gUWAIAgentLogLevel >= 2 && !m_kLogMuteState.isMuted());
 	if (iAge < iMinAge)
@@ -1699,7 +1699,7 @@ bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU, int iTurnsRemai
 	}
 	if (bQualms && !bAltQualms)
 		rSwitchAdvantage += fixp(1.8);
-	static int const iMinSwitchAdvantagePercent = GC.getDefineINT("SAS_UWAI_PREPARATION_TARGET_SWITCH_MIN_ADVANTAGE_PERCENT");
+	static int const iMinSwitchAdvantagePercent = GC.getDefineINT("SAS_UWAI_PREP_SWITCH_MIN_ADV_PCT");
 	bool const bSwitch = (rSwitchAdvantage.getPercent() >= iMinSwitchAdvantagePercent);
 	if (bLogAgentDetail) logBBAI("UWAI_AGENT_TARGET_SWITCH_CANDIDATE turn=%d agentTeam=%d oldTargetTeam=%d newTargetTeam=%d warPlan=%s oldUtility=%d newUtility=%d advantagePercent=%d thresholdPercent=%d oldQualms=%d newQualms=%d",
 			GC.getGame().getGameTurn(), kAgent.getID(), eTarget, eBestAltTarget, getSASWarPlanType(eWP), iU, iBestUtility,
@@ -2289,7 +2289,7 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
 			scaled rAvoidWarHesitation = rTotalDrive / 2;
 			if (aTargets[i].iVictoryDenialBoost > 0)
 			{
-				static const int iVictoryDenialAvoidWarPercent = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_AVOID_WAR_HESITATION_PERCENT");
+				static const int iVictoryDenialAvoidWarPercent = GC.getDefineINT("SAS_UWAI_VICT_DENY_AVOID_HESITATION_PCT");
 				rAvoidWarHesitation *= iVictoryDenialAvoidWarPercent;
 				rAvoidWarHesitation /= 100;
 			}
@@ -2312,7 +2312,7 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
 	// The inherited independent rolls mix the chance to prepare any war with target choice.
 	// When enabled, identify the highest final drive after all eligibility/local-target guards, roll only that rival below, and begin no preparation if it fails.
 	// This preserves uncertain timing without randomly substituting a worse target. (GPT-5.6-Sol) -->
-	static bool const bOnlyRollBestEligibleTarget = GC.getDefineBOOL("SAS_UWAI_ONLY_ROLL_BEST_ELIGIBLE_WAR_TARGET_ENABLE");
+	static bool const bOnlyRollBestEligibleTarget = GC.getDefineBOOL("SAS_UWAI_ROLL_BEST_WAR_TARGET_ONLY_ON");
 	TeamTypes eBestEligibleTarget = NO_TEAM;
 	scaled rBestEligibleDrive;
 	int iBestEligibleTargetIndex = -1;
@@ -3175,24 +3175,24 @@ bool UWAI::Team::canReach(TeamTypes eTarget) const
 bool UWAI::Team::isSASVictoryDenialDirectWarAllowed(TeamTypes eTarget, int iTargetMaxVictoryStage, bool bNaval, int iDistance) const
 {
 	CvTeamAI const& kAgent = GET_TEAM(m_eAgent);
-	static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
+	static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_ON");
 	if (!bEnable)
 		return false;
 	int const iCountdown = GET_TEAM(eTarget).AI_getLowestVictoryCountdown();
-	static const int iMaxCountdownDirectWarNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_DIRECT_WAR");
+	static const int iMaxCountdownDirectWarNormal = GC.getDefineINT("SAS_UWAI_VICT_DENY_DIRECT_MAX_T_NORM_GS");
 	int const iMaxCountdownDirectWar = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxCountdownDirectWarNormal);
-	static const bool bDirectStage4Enable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE4_ENABLE");
-	static const bool bDirectStage3SpaceEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_ENABLE");
+	static const bool bDirectStage4Enable = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_DIRECT_STAGE4_ON");
+	static const bool bDirectStage3SpaceEnable = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_DIRECT_S3_SPACE_ON");
 	bool const bCountdownDirect = (iCountdown >= 0 && iCountdown <= iMaxCountdownDirectWar);
 	bool const bStage4Direct = (bDirectStage4Enable && iTargetMaxVictoryStage >= 4);
 	bool const bStage3SpaceDirect = (bDirectStage3SpaceEnable && isSASTeamStage3SpaceVictoryThreat(eTarget));
 	if (!bCountdownDirect && !bStage4Direct && !bStage3SpaceDirect)
 		return false;
-	static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_TARGET_POWER_PERCENT");
+	static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_VICT_DENY_DIRECT_MAX_PWR_PCT");
 	int const iTargetPowerPercent = 100 * GET_TEAM(eTarget).getDefensivePower(kAgent.getID()) / std::max(1, kAgent.getPower(true));
 	if (iTargetPowerPercent > iMaxTargetPowerPercent)
 		return false;
-	static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE");
+	static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_VICT_DENY_DIRECT_MAX_DIST");
 	if (iDistance < 0 || iDistance > iMaxDistance)
 		return false;
 	return (!bNaval || kAgent.AI_isLandTarget(eTarget));

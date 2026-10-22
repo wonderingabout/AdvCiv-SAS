@@ -150,7 +150,7 @@ Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread he
 
 If you want to modify AdvCiv-SAS (or whatever this mod is named), the player "download ZIP" options do not include all files (images, some texts, etc.) as they are not needed just to play yet take significant size needlessly.
 
-You'd need to git clone this repo or some similar method so that the exclusion list at [`.gitattributes`](../../.gitattributes) is not applied.
+You'd need to git clone this repo or some similar method so that the exclusion list at [`.gitattributes`](/.gitattributes) is not applied.
 
 If you rebrand/fork AdvCiv-SAS, the runtime display/project name is centralized through `SAS_MOD_DISPLAY_NAME` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
 

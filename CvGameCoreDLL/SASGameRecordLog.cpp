@@ -67,7 +67,7 @@ static int getClampedSASGameRecordLogLevel(char const* szDefineName)
 }
 
 // <!-- custom: Dedicated structured game-record log for autoplay comparison, general game analysis, and external LLM review.
-// This is independent from SAS_BBAI_LOG_ENABLE because it is a run-report artifact rather than classic AI-decision diagnostics, and writes to SASGameRecord_*.log when enabled.
+// This is independent from SAS_BBAI_LOG_ON because it is a run-report artifact rather than classic AI-decision diagnostics, and writes to SASGameRecord_*.log when enabled.
 // Use ACTION rows rather than generic EVENT rows to avoid confusion with Civ4 random events; dedicated GAME_RECORD_RANDOM_EVENT_* rows are reserved specifically for actual EventTrigger/EventInfo lifecycle boundaries.
 // Keep the recorder portable across Civ4 mods by enumerating loaded XML and using generic field meanings instead of hardcoding AdvCiv-SAS types or copying the full XML.
 // Mod-specific rules can still be named in comments as concrete examples: TECH_DEPOPULATION currently applies negative player-wide health and happiness in AdvCiv-SAS, but the recorder attributes health/happiness from every loaded trait, civic and technology dynamically.
@@ -80,18 +80,18 @@ bool g_bSASGameRecordActionTraceEnabled = false;
 
 void cacheSASGameRecordLogLevel()
 {
-	g_iSASGameRecordLogLevel = getClampedSASGameRecordLogLevel("SAS_GAME_RECORD_LOG_LEVEL");
+	g_iSASGameRecordLogLevel = getClampedSASGameRecordLogLevel("SAS_SGR_LOG");
 }
 
 // <!-- custom: Resolve the revision-151+ action subject once after XML loading; hot control/player/UI call sites then use the cached Boolean without repeated define lookups. (ChatGPT-5.6-Sol) -->
 void cacheSASGameRecordActionTraceEnabled()
 {
-	g_bSASGameRecordActionTraceEnabled = GC.getDefineBOOL("SAS_GAME_RECORD_ACTION_TRACE_ENABLE");
+	g_bSASGameRecordActionTraceEnabled = GC.getDefineBOOL("SAS_SGR_ACTION_TRACE_ON");
 }
 
 static bool isSASGameRecordPerformanceMetricsEnabled()
 {
-	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE") > 0);
+	static const bool bEnabled = (GC.getDefineINT("SAS_SGR_PERFORMANCE_METRICS_ON") > 0);
 	return bEnabled;
 }
 
@@ -99,25 +99,25 @@ static bool isSASGameRecordPerformanceMetricsEnabled()
 // Cache the switch so disabled runs perform no repeated XML lookup or market scan. (ChatGPT-5.6-Sol) -->
 static bool isSASGameRecordTradeMarketEnabled()
 {
-	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_TRADE_MARKET_ENABLE") > 0);
+	static const bool bEnabled = (GC.getDefineINT("SAS_SGR_TRADE_MARKET_ON") > 0);
 	return bEnabled;
 }
 
 static bool isSASGameRecordTradeMarketBonusGPTQuotesEnabled()
 {
-	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_TRADE_MARKET_BONUS_GPT_QUOTES_ENABLE") > 0);
+	static const bool bEnabled = (GC.getDefineINT("SAS_SGR_TRADE_MARKET_BONUS_GPT_QUOTES_ON") > 0);
 	return bEnabled;
 }
 
 static bool isSASGameRecordTradeMarketAITechValuesEnabled()
 {
-	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_TRADE_MARKET_AI_TECH_VALUES_ENABLE") > 0);
+	static const bool bEnabled = (GC.getDefineINT("SAS_SGR_TRADE_MARKET_AI_TECH_VALS_ON") > 0);
 	return bEnabled;
 }
 
 static int getSASGameRecordSystemContextLevel()
 {
-	static const int iLevel = std::min(3, std::max(0, GC.getDefineINT("SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL")));
+	static const int iLevel = std::min(3, std::max(0, GC.getDefineINT("SAS_SGR_SYSTEM_CONTEXT_LVL")));
 	return iLevel;
 }
 
@@ -125,19 +125,19 @@ static int getSASGameRecordSystemContextLevel()
 // Cache independent opt-ins once; callers combine them with the context level before collection, and disabled recorder paths never call these helpers. (GPT-6.1-Sol) -->
 static bool isSASGameRecordHardwareIdentityEnabled()
 {
-	static const bool bEnabled = GC.getDefineBOOL("SAS_GAME_RECORD_HARDWARE_IDENTITY_ENABLE");
+	static const bool bEnabled = GC.getDefineBOOL("SAS_SGR_HARDWARE_IDENTITY_ON");
 	return bEnabled;
 }
 
 static bool isSASGameRecordExactPathsEnabled()
 {
-	static const bool bEnabled = GC.getDefineBOOL("SAS_GAME_RECORD_EXACT_PATHS_ENABLE");
+	static const bool bEnabled = GC.getDefineBOOL("SAS_SGR_EXACT_PATHS_ON");
 	return bEnabled;
 }
 
 static bool isSASGameRecordProcessContextEnabled()
 {
-	static const bool bEnabled = GC.getDefineBOOL("SAS_GAME_RECORD_PROCESS_CONTEXT_ENABLE");
+	static const bool bEnabled = GC.getDefineBOOL("SAS_SGR_PROCESS_CONTEXT_ON");
 	return bEnabled;
 }
 
@@ -145,26 +145,26 @@ int getSASGameRecordTurnInterval()
 {
 	// <!-- custom: Separate snapshot frequency from detail level.
 	// Level 0 disables the game-record rows; the interval is still clamped so modulo callers are safe. (ChatGPT-5.5) -->
-	static const int iInterval = std::max(1, GC.getDefineINT("SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED"));
+	static const int iInterval = std::max(1, GC.getDefineINT("SAS_SGR_INTERVAL_T_UNSCALED_GS"));
 	return iInterval;
 }
 
 // <!-- custom: Cache the tunable preview bounds and horizontal character ratio like the other SASGameRecord settings; 0 for either bound lets level 3 keep its other detail while omitting all text-map layers. (GPT-5.6-Sol) -->
 static int getSASGameRecordMapAsciiMaxWidth()
 {
-	static const int iMaxWidth = std::max(0, GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH"));
+	static const int iMaxWidth = std::max(0, GC.getDefineINT("SAS_SGR_MAP_ASCII_MAX_WIDTH"));
 	return iMaxWidth;
 }
 
 static int getSASGameRecordMapAsciiMaxHeight()
 {
-	static const int iMaxHeight = std::max(0, GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT"));
+	static const int iMaxHeight = std::max(0, GC.getDefineINT("SAS_SGR_MAP_ASCII_MAX_HEIGHT"));
 	return iMaxHeight;
 }
 
 static int getSASGameRecordMapAsciiHorizontalCharsPerCell()
 {
-	static const int iChars = std::min(4, std::max(1, GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL")));
+	static const int iChars = std::min(4, std::max(1, GC.getDefineINT("SAS_SGR_MAP_ASCII_CHARS_PER_CELL")));
 	return iChars;
 }
 
@@ -172,19 +172,19 @@ static int getSASGameRecordMapAsciiHorizontalCharsPerCell()
 // Clamp each percentage to 0..100 so malformed values cannot create oversized drawings; 0 disables that overview. (GPT-5.6-Sol) -->
 static int getSASGameRecordMapAsciiOverview1ScalePercent()
 {
-	static const int iPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_OVERVIEW_1_SCALE_PERCENT")));
+	static const int iPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_SGR_MAP_ASCII_OVERVIEW_1_SCALE_PCT")));
 	return iPercent;
 }
 
 static int getSASGameRecordMapAsciiOverview2ScalePercent()
 {
-	static const int iPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_OVERVIEW_2_SCALE_PERCENT")));
+	static const int iPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_SGR_MAP_ASCII_OVERVIEW_2_SCALE_PCT")));
 	return iPercent;
 }
 
 static bool isSASGameRecordMapAsciiNativeGeographyEnabled()
 {
-	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_NATIVE_GEOGRAPHY_ENABLE") > 0);
+	static const bool bEnabled = (GC.getDefineINT("SAS_SGR_MAP_ASCII_NATIVE_GEOGRAPHY_ON") > 0);
 	return bEnabled;
 }
 
@@ -192,37 +192,37 @@ static bool isSASGameRecordMapAsciiNativeGeographyEnabled()
 // Cache these XML switches like the other recorder settings; width or height 0 remains a convenient master switch for all ASCII maps. (ChatGPT-5.6-Sol) -->
 static bool isSASGameRecordMapAsciiGeographyEnabled()
 {
-	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_ENABLE") > 0);
+	static const bool bEnabled = (GC.getDefineINT("SAS_SGR_MAP_ASCII_GEOGRAPHY_ON") > 0);
 	return bEnabled;
 }
 
 static bool isSASGameRecordMapAsciiTerrainEnabled()
 {
-	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_TERRAIN_ENABLE") > 0);
+	static const bool bEnabled = (GC.getDefineINT("SAS_SGR_MAP_ASCII_TERRAIN_ON") > 0);
 	return bEnabled;
 }
 
 static bool isSASGameRecordMapAsciiRiversEnabled()
 {
-	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_RIVER_ENABLE") > 0);
+	static const bool bEnabled = (GC.getDefineINT("SAS_SGR_MAP_ASCII_RIVER_ON") > 0);
 	return bEnabled;
 }
 
 static bool isSASGameRecordMapAsciiBonusesEnabled()
 {
-	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_BONUS_ENABLE") > 0);
+	static const bool bEnabled = (GC.getDefineINT("SAS_SGR_MAP_ASCII_BONUS_ON") > 0);
 	return bEnabled;
 }
 
 static bool isSASGameRecordMapAsciiFeaturesEnabled()
 {
-	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_FEATURE_ENABLE") > 0);
+	static const bool bEnabled = (GC.getDefineINT("SAS_SGR_MAP_ASCII_FEATURE_ON") > 0);
 	return bEnabled;
 }
 
 static bool isSASGameRecordMapAsciiPoliticalEnabled()
 {
-	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE") > 0);
+	static const bool bEnabled = (GC.getDefineINT("SAS_SGR_MAP_ASCII_POLITICAL_ON") > 0);
 	return bEnabled;
 }
 
@@ -1719,7 +1719,7 @@ static CvString getSASGameRecordLogTimestamp()
 
 static bool isSASGameRecordTimestampedFilenameEnabled()
 {
-	static const bool bUseTimestampedFilename = (GC.getDefineINT("SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME") > 0);
+	static const bool bUseTimestampedFilename = (GC.getDefineINT("SAS_SGR_LOG_USE_TIMESTAMPED_FILENAME") > 0);
 	return bUseTimestampedFilename;
 }
 
@@ -2188,8 +2188,8 @@ static void logSASGameRecordWarAISettings(CvGame const& kGame)
 	const int iUseKModAINonAggressive = GC.getDefineINT("USE_KMOD_AI_NONAGGRESSIVE");
 	const int iDisableUWAI = GC.getDefineINT("DISABLE_UWAI");
 	const int iUWAIInBackground = GC.getDefineINT("UWAI_IN_BACKGROUND");
-	const int iNavalLogisticsDeploymentOptimize = GC.getDefineBOOL("SAS_UWAI_INVASION_GRAPH_NAVAL_LOGISTICS_DEPLOYMENT_OPTIMIZE");
-	logSASGameRecord("GAME_RECORD_WAR_AI_SETTINGS warPeaceAI=%s uwaiMode=%s engineAggressiveAI=%d USE_KMOD_AI_NONAGGRESSIVE=%d DISABLE_UWAI=%d UWAI_IN_BACKGROUND=%d SAS_UWAI_INVASION_GRAPH_NAVAL_LOGISTICS_DEPLOYMENT_OPTIMIZE=%d",
+	const int iNavalLogisticsDeploymentOptimize = GC.getDefineBOOL("SAS_UWAI_NAVAL_LOGISTICS_DEPLOYMENT_ON");
+	logSASGameRecord("GAME_RECORD_WAR_AI_SETTINGS warPeaceAI=%s uwaiMode=%s engineAggressiveAI=%d USE_KMOD_AI_NONAGGRESSIVE=%d DISABLE_UWAI=%d UWAI_IN_BACKGROUND=%d SAS_UWAI_NAVAL_LOGISTICS_DEPLOYMENT_ON=%d",
 			bUWAI ? "UWAI" : "KMOD_LEGACY", szUWAIMode, kGame.isOption(GAMEOPTION_AGGRESSIVE_AI),
 			iUseKModAINonAggressive, iDisableUWAI, iUWAIInBackground, iNavalLogisticsDeploymentOptimize);
 }
@@ -2454,34 +2454,34 @@ static CvString getSASGameRecordLogSettingFields()
 {
 	SASGameRecordLogSetting const aSettings[] =
 	{
-		{ "SAS_GAME_RECORD_LOG_LEVEL", getSASGameRecordLogLevel() },
-		{ "SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED", getSASGameRecordTurnInterval() },
-		{ "SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME", isSASGameRecordTimestampedFilenameEnabled() },
-		{ "SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE", GC.getDefineINT("SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE") },
-		{ "SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH", getSASGameRecordMapAsciiMaxWidth() },
-		{ "SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT", getSASGameRecordMapAsciiMaxHeight() },
-		{ "SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL", getSASGameRecordMapAsciiHorizontalCharsPerCell() },
-		{ "SAS_GAME_RECORD_MAP_ASCII_OVERVIEW_1_SCALE_PERCENT", getSASGameRecordMapAsciiOverview1ScalePercent() },
-		{ "SAS_GAME_RECORD_MAP_ASCII_OVERVIEW_2_SCALE_PERCENT", getSASGameRecordMapAsciiOverview2ScalePercent() },
-		{ "SAS_GAME_RECORD_MAP_ASCII_NATIVE_GEOGRAPHY_ENABLE", isSASGameRecordMapAsciiNativeGeographyEnabled() },
-		{ "SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_ENABLE", isSASGameRecordMapAsciiGeographyEnabled() },
-		{ "SAS_GAME_RECORD_MAP_ASCII_TERRAIN_ENABLE", isSASGameRecordMapAsciiTerrainEnabled() },
-		{ "SAS_GAME_RECORD_MAP_ASCII_TERRAIN_UPPERCASE_MIN_NATURE_FOOD_SURPLUS", GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_TERRAIN_UPPERCASE_MIN_NATURE_FOOD_SURPLUS") },
-		{ "SAS_GAME_RECORD_MAP_ASCII_RIVER_ENABLE", isSASGameRecordMapAsciiRiversEnabled() },
-		{ "SAS_GAME_RECORD_MAP_ASCII_BONUS_ENABLE", isSASGameRecordMapAsciiBonusesEnabled() },
-		{ "SAS_GAME_RECORD_MAP_ASCII_FEATURE_ENABLE", isSASGameRecordMapAsciiFeaturesEnabled() },
-		{ "SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE", isSASGameRecordMapAsciiPoliticalEnabled() },
-		{ "SAS_GAME_RECORD_TRADE_MARKET_ENABLE", isSASGameRecordTradeMarketEnabled() },
-		{ "SAS_GAME_RECORD_TRADE_MARKET_BONUS_GPT_QUOTES_ENABLE", isSASGameRecordTradeMarketBonusGPTQuotesEnabled() },
-		{ "SAS_GAME_RECORD_TRADE_MARKET_AI_TECH_VALUES_ENABLE", isSASGameRecordTradeMarketAITechValuesEnabled() },
-		{ "SAS_GAME_RECORD_ACTION_TRACE_ENABLE", isSASGameRecordActionTraceEnabled() },
-		{ "SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE", isSASGameRecordPerformanceMetricsEnabled() },
-		{ "SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL", getSASGameRecordSystemContextLevel() },
-		{ "SAS_GAME_RECORD_HARDWARE_IDENTITY_ENABLE", isSASGameRecordHardwareIdentityEnabled() },
-		{ "SAS_GAME_RECORD_EXACT_PATHS_ENABLE", isSASGameRecordExactPathsEnabled() },
-		{ "SAS_GAME_RECORD_PROCESS_CONTEXT_ENABLE", isSASGameRecordProcessContextEnabled() },
-		{ "SAS_GAME_RECORD_INI_PRIVATE_VALUES_ENABLE", GC.getDefineBOOL("SAS_GAME_RECORD_INI_PRIVATE_VALUES_ENABLE") },
-		{ "SAS_GAME_RECORD_INI_NETWORK_VALUES_ENABLE", GC.getDefineBOOL("SAS_GAME_RECORD_INI_NETWORK_VALUES_ENABLE") }
+		{ "SAS_SGR_LOG", getSASGameRecordLogLevel() },
+		{ "SAS_SGR_INTERVAL_T_UNSCALED_GS", getSASGameRecordTurnInterval() },
+		{ "SAS_SGR_LOG_USE_TIMESTAMPED_FILENAME", isSASGameRecordTimestampedFilenameEnabled() },
+		{ "SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON", GC.getDefineINT("SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON") },
+		{ "SAS_SGR_MAP_ASCII_MAX_WIDTH", getSASGameRecordMapAsciiMaxWidth() },
+		{ "SAS_SGR_MAP_ASCII_MAX_HEIGHT", getSASGameRecordMapAsciiMaxHeight() },
+		{ "SAS_SGR_MAP_ASCII_CHARS_PER_CELL", getSASGameRecordMapAsciiHorizontalCharsPerCell() },
+		{ "SAS_SGR_MAP_ASCII_OVERVIEW_1_SCALE_PCT", getSASGameRecordMapAsciiOverview1ScalePercent() },
+		{ "SAS_SGR_MAP_ASCII_OVERVIEW_2_SCALE_PCT", getSASGameRecordMapAsciiOverview2ScalePercent() },
+		{ "SAS_SGR_MAP_ASCII_NATIVE_GEOGRAPHY_ON", isSASGameRecordMapAsciiNativeGeographyEnabled() },
+		{ "SAS_SGR_MAP_ASCII_GEOGRAPHY_ON", isSASGameRecordMapAsciiGeographyEnabled() },
+		{ "SAS_SGR_MAP_ASCII_TERRAIN_ON", isSASGameRecordMapAsciiTerrainEnabled() },
+		{ "SAS_SGR_MAP_UPPER_MIN_NAT_FOOD_SURPLUS", GC.getDefineINT("SAS_SGR_MAP_UPPER_MIN_NAT_FOOD_SURPLUS") },
+		{ "SAS_SGR_MAP_ASCII_RIVER_ON", isSASGameRecordMapAsciiRiversEnabled() },
+		{ "SAS_SGR_MAP_ASCII_BONUS_ON", isSASGameRecordMapAsciiBonusesEnabled() },
+		{ "SAS_SGR_MAP_ASCII_FEATURE_ON", isSASGameRecordMapAsciiFeaturesEnabled() },
+		{ "SAS_SGR_MAP_ASCII_POLITICAL_ON", isSASGameRecordMapAsciiPoliticalEnabled() },
+		{ "SAS_SGR_TRADE_MARKET_ON", isSASGameRecordTradeMarketEnabled() },
+		{ "SAS_SGR_TRADE_MARKET_BONUS_GPT_QUOTES_ON", isSASGameRecordTradeMarketBonusGPTQuotesEnabled() },
+		{ "SAS_SGR_TRADE_MARKET_AI_TECH_VALS_ON", isSASGameRecordTradeMarketAITechValuesEnabled() },
+		{ "SAS_SGR_ACTION_TRACE_ON", isSASGameRecordActionTraceEnabled() },
+		{ "SAS_SGR_PERFORMANCE_METRICS_ON", isSASGameRecordPerformanceMetricsEnabled() },
+		{ "SAS_SGR_SYSTEM_CONTEXT_LVL", getSASGameRecordSystemContextLevel() },
+		{ "SAS_SGR_HARDWARE_IDENTITY_ON", isSASGameRecordHardwareIdentityEnabled() },
+		{ "SAS_SGR_EXACT_PATHS_ON", isSASGameRecordExactPathsEnabled() },
+		{ "SAS_SGR_PROCESS_CONTEXT_ON", isSASGameRecordProcessContextEnabled() },
+		{ "SAS_SGR_INI_PRIVATE_VALS_ON", GC.getDefineBOOL("SAS_SGR_INI_PRIVATE_VALS_ON") },
+		{ "SAS_SGR_INI_NETWORK_VALS_ON", GC.getDefineBOOL("SAS_SGR_INI_NETWORK_VALS_ON") }
 	};
 	CvString szFields;
 	for (int iI = 0; iI < (int)(sizeof(aSettings) / sizeof(aSettings[0])); iI++)
@@ -2838,7 +2838,7 @@ static void logSASGameRecordProvenanceContext()
 	// It is reported for downstream review/provenance only; runtime behavior does not branch on it, and stale/mismatched binaries remain a separate build/source-provenance question. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	// <!-- custom: Resolve the loaded XML label on the first enabled provenance snapshot, after XML initialization, and reuse it across new/load runs in the same DLL lifetime.
 	// The label is fixed for that lifetime; restart Civ4 after editing the Define. (GPT-6.1-Sol) -->
-	static const int iRecordRevision = GC.getDefineINT("SAS_GAME_RECORD_REVISION");
+	static const int iRecordRevision = GC.getDefineINT("SAS_SGR_REVISION");
 	logSASGameRecord("GAME_RECORD_SOURCE_CONTEXT recordRevision=%d %s", iRecordRevision, getSASSourceContextFields().GetCString());
 	logSASGameRecord("GAME_RECORD_DLL_CONTEXT %s", getSASDllContextFields().GetCString());
 	// <!-- custom: Fingerprint the actual Civ4 executable separately from install-location labeling: exact bytes remain the durable build/branch identity even when storefront branches share one directory. (ChatGPT-5.6-Sol) -->
@@ -6235,14 +6235,14 @@ static SASGameRecordMapAsciiPalette const& getSASGameRecordMapAsciiPalette()
 	kPalette.acTerrain.resize(GC.getNumTerrainInfos() + 1);
 	kPalette.acFeatures.resize(GC.getNumFeatureInfos() + 2);
 	kPalette.acBonuses.resize(GC.getNumBonusInfos() + 3);
-	kPalette.iTerrainUppercaseMinNatureFoodSurplus = GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_TERRAIN_UPPERCASE_MIN_NATURE_FOOD_SURPLUS");
+	kPalette.iTerrainUppercaseMinNatureFoodSurplus = GC.getDefineINT("SAS_SGR_MAP_UPPER_MIN_NAT_FOOD_SURPLUS");
 	kPalette.iFoodPerPopulation = GC.getFOOD_CONSUMPTION_PER_POPULATION();
-	if (!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_SYMBOLS", SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, kPalette.acGeography, kPalette.szGeographyDefine, kPalette.szError) ||
-			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_RIVER_SYMBOLS", SAS_MAP_ASCII_RIVER_SYMBOL_COUNT, kPalette.acRivers, kPalette.szRiverDefine, kPalette.szError) ||
-			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_POLITICAL_SYMBOLS", SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT, kPalette.acPolitical, kPalette.szPoliticalDefine, kPalette.szError) ||
-			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_TERRAIN_SYMBOLS", (int)kPalette.acTerrain.size(), &kPalette.acTerrain[0], kPalette.szTerrainDefine, kPalette.szError) ||
-			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_FEATURE_SYMBOLS", (int)kPalette.acFeatures.size(), &kPalette.acFeatures[0], kPalette.szFeatureDefine, kPalette.szError) ||
-			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_BONUS_SYMBOLS", (int)kPalette.acBonuses.size(), &kPalette.acBonuses[0], kPalette.szBonusDefine, kPalette.szError))
+	if (!parseSASGameRecordMapAsciiPaletteDefine("SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS", SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, kPalette.acGeography, kPalette.szGeographyDefine, kPalette.szError) ||
+			!parseSASGameRecordMapAsciiPaletteDefine("SAS_SGR_MAP_ASCII_RIVER_SYMBOLS", SAS_MAP_ASCII_RIVER_SYMBOL_COUNT, kPalette.acRivers, kPalette.szRiverDefine, kPalette.szError) ||
+			!parseSASGameRecordMapAsciiPaletteDefine("SAS_SGR_MAP_ASCII_POLITICAL_SYMBOLS", SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT, kPalette.acPolitical, kPalette.szPoliticalDefine, kPalette.szError) ||
+			!parseSASGameRecordMapAsciiPaletteDefine("SAS_SGR_MAP_ASCII_TERRAIN_SYMBOLS", (int)kPalette.acTerrain.size(), &kPalette.acTerrain[0], kPalette.szTerrainDefine, kPalette.szError) ||
+			!parseSASGameRecordMapAsciiPaletteDefine("SAS_SGR_MAP_ASCII_FEATURE_SYMBOLS", (int)kPalette.acFeatures.size(), &kPalette.acFeatures[0], kPalette.szFeatureDefine, kPalette.szError) ||
+			!parseSASGameRecordMapAsciiPaletteDefine("SAS_SGR_MAP_ASCII_BONUS_SYMBOLS", (int)kPalette.acBonuses.size(), &kPalette.acBonuses[0], kPalette.szBonusDefine, kPalette.szError))
 		return kPalette;
 	// <!-- custom: Uppercase is derived rather than configured separately.
 	// Reject a base palette that already uses one of those derived symbols for another terrain, which would make the food distinction ambiguous. (GPT-5.6-Sol) -->
@@ -6253,14 +6253,14 @@ static SASGameRecordMapAsciiPalette const& getSASGameRecordMapAsciiPalette()
 		for (int iSymbol = 0; iSymbol < (int)kPalette.acTerrain.size(); iSymbol++)
 		{
 			if (iSymbol == iTerrain || cUppercase != kPalette.acTerrain[iSymbol]) continue;
-			kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_TERRAIN_SYMBOLS derived uppercase symbol %c for terrain %d reuses symbol %d", cUppercase, iTerrain, iSymbol);
+			kPalette.szError.Format("SAS_SGR_MAP_ASCII_TERRAIN_SYMBOLS derived uppercase symbol %c for terrain %d reuses symbol %d", cUppercase, iTerrain, iSymbol);
 			return kPalette;
 		}
 	}
-	kPalette.szPlayers = GC.getDefineSTRING("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS");
+	kPalette.szPlayers = GC.getDefineSTRING("SAS_SGR_MAP_ASCII_PLAYER_SYMBOLS");
 	if ((int)kPalette.szPlayers.length() != MAX_CIV_PLAYERS)
 	{
-		kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS requires exactly MAX_CIV_PLAYERS=%d characters but has %d", MAX_CIV_PLAYERS, (int)kPalette.szPlayers.length());
+		kPalette.szError.Format("SAS_SGR_MAP_ASCII_PLAYER_SYMBOLS requires exactly MAX_CIV_PLAYERS=%d characters but has %d", MAX_CIV_PLAYERS, (int)kPalette.szPlayers.length());
 		return kPalette;
 	}
 	bool abPlayerSymbols[127] = { false };
@@ -6269,12 +6269,12 @@ static SASGameRecordMapAsciiPalette const& getSASGameRecordMapAsciiPalette()
 		unsigned char const ucSymbol = (unsigned char)kPalette.szPlayers[iPlayer];
 		if (ucSymbol < 33 || ucSymbol > 126 || ucSymbol == '"' || ucSymbol == '\\' || ucSymbol == '|' || ucSymbol == ',' || ucSymbol == ';' || ucSymbol == '=')
 		{
-			kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS player %d uses unsafe ASCII %d", iPlayer, (int)ucSymbol);
+			kPalette.szError.Format("SAS_SGR_MAP_ASCII_PLAYER_SYMBOLS player %d uses unsafe ASCII %d", iPlayer, (int)ucSymbol);
 			return kPalette;
 		}
 		if (abPlayerSymbols[ucSymbol])
 		{
-			kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS repeats symbol ASCII %d", (int)ucSymbol);
+			kPalette.szError.Format("SAS_SGR_MAP_ASCII_PLAYER_SYMBOLS repeats symbol ASCII %d", (int)ucSymbol);
 			return kPalette;
 		}
 		// <!-- custom: Separate layers may reuse intuitive symbols; only political symbols share a picture with player symbols. (GPT-5.6-Sol) -->
@@ -6282,7 +6282,7 @@ static SASGameRecordMapAsciiPalette const& getSASGameRecordMapAsciiPalette()
 		{
 			if (ucSymbol == (unsigned char)kPalette.acPolitical[iSymbol])
 			{
-				kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS player %d reuses political symbol ASCII %d", iPlayer, (int)ucSymbol);
+				kPalette.szError.Format("SAS_SGR_MAP_ASCII_PLAYER_SYMBOLS player %d reuses political symbol ASCII %d", iPlayer, (int)ucSymbol);
 				return kPalette;
 			}
 		}

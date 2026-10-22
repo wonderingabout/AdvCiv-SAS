@@ -60,29 +60,29 @@ class DefineUsageTests(unittest.TestCase):
         self.assertEqual(self.errors(), [])
 
     def test_bbai_iterable_registry_runtime_lookup(self):
-        self.declarations("SAS_BBAI_TEST_LOG_LEVEL")
+        self.declarations("SAS_BBAI_TEST_LOG")
         self.write(usage.BBAI_REGISTRY_PATH, 'struct SASBBAILogSettings { int iTestLogLevel; };\n'
                 'int getClampedSASBBAILogLevel(char const* name) { return GC.getDefineINT(name); }\n'
                 'struct Descriptor { char const* szDefineName; int SASBBAILogSettings::* pLogLevel; };\n'
-                'Descriptor const categories[] = { { "SAS_BBAI_TEST_LOG_LEVEL", &SASBBAILogSettings::iTestLogLevel } };\n'
+                'Descriptor const categories[] = { { "SAS_BBAI_TEST_LOG", &SASBBAILogSettings::iTestLogLevel } };\n'
                 'void cache() { Descriptor const& kCategory = categories[0]; getClampedSASBBAILogLevel(kCategory.szDefineName); }\n')
         self.assertEqual(self.errors(), [])
 
     def test_bbai_registry_string_without_runtime_consumer_is_not_usage(self):
-        self.declarations("SAS_BBAI_TEST_LOG_LEVEL")
+        self.declarations("SAS_BBAI_TEST_LOG")
         self.write(usage.BBAI_REGISTRY_PATH, 'struct SASBBAILogSettings { int iTestLogLevel; };\n'
                 'struct Descriptor { char const* szDefineName; int SASBBAILogSettings::* pLogLevel; };\n'
-                'Descriptor const categories[] = { { "SAS_BBAI_TEST_LOG_LEVEL", &SASBBAILogSettings::iTestLogLevel } };\n')
-        self.assertTrue(any('SAS_BBAI_TEST_LOG_LEVEL has no runtime' in e for e in self.errors()))
+                'Descriptor const categories[] = { { "SAS_BBAI_TEST_LOG", &SASBBAILogSettings::iTestLogLevel } };\n')
+        self.assertTrue(any('SAS_BBAI_TEST_LOG has no runtime' in e for e in self.errors()))
 
     def test_bbai_registry_comment_or_string_consumer_is_not_usage(self):
-        self.declarations("SAS_BBAI_TEST_LOG_LEVEL")
-        registry = 'Descriptor const categories[] = { { "SAS_BBAI_TEST_LOG_LEVEL", &SASBBAILogSettings::iTestLogLevel } };\n'
+        self.declarations("SAS_BBAI_TEST_LOG")
+        registry = 'Descriptor const categories[] = { { "SAS_BBAI_TEST_LOG", &SASBBAILogSettings::iTestLogLevel } };\n'
         lookup = 'getClampedSASBBAILogLevel(kCategory.szDefineName)'
         for fake_consumer in ('// ' + lookup, '/* ' + lookup + ' */', 'char const* note = "' + lookup + '";'):
             with self.subTest(fake_consumer=fake_consumer):
                 self.write(usage.BBAI_REGISTRY_PATH, registry + fake_consumer + '\n')
-                self.assertTrue(any('SAS_BBAI_TEST_LOG_LEVEL has no runtime' in e for e in self.errors()))
+                self.assertTrue(any('SAS_BBAI_TEST_LOG has no runtime' in e for e in self.errors()))
 
     def test_python_forwarding_and_chained_aliases(self):
         self.declarations("SAS_ACTIVE")

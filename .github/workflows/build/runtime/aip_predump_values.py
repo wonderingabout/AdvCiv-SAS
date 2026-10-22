@@ -522,8 +522,8 @@ def main() -> int:
 		weight = 100
 	else:
 		apply_uwai_personality_weight(leaders, weight)
-	is_show_raw_xml_field_names_instead = read_global_define_int(repo_root, "SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") > 0
-	is_emoji_enabled = read_global_define_int(repo_root, "SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0
+	is_show_raw_xml_field_names_instead = read_global_define_int(repo_root, "SAS_SEVO_LEADER_AI_RAW_XML_NAMES_ON") > 0
+	is_emoji_enabled = read_global_define_int(repo_root, "SAS_SEVO_LEADER_AI_EMOJI_ON") > 0
 	expected_cache = build_expected_predump_cache(leaders, shared_helpers, is_show_raw_xml_field_names_instead)
 	if args.write:
 		written_path = write_predump_cache(repo_root, leaders, expected_cache, is_emoji_enabled, is_show_raw_xml_field_names_instead, shared_helpers)

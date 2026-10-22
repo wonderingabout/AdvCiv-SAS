@@ -517,7 +517,7 @@ def get_aip_symbol_scale(score, symbol):
 
 
 def get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, tail_to_trim, abbreviated_tail, label_raw, max_length):
-	# <!-- custom: Shared raw-XML-name label compactor used when SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD is enabled.
+	# <!-- custom: Shared raw-XML-name label compactor used when SAS_SEVO_LEADER_AI_RAW_XML_NAMES_ON is enabled.
 	# Kept byte-for-byte behavior-equivalent to the old runtime-local helper. (ChatGPT-5.5) -->
 	if tail_to_trim:
 		key_or_suffix_with_tail_trimmed = key_or_suffix[:-len(tail_to_trim)]

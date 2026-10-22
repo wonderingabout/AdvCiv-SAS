@@ -30,7 +30,7 @@ Note: they are now optionally written to a new timestamped file for each new gam
 
 Each log begins with the new/load lifecycle marker, shared mod/source commit/version and exact DLL-binary identity, currently active BBAI log levels, and then game settings to help doing that.
 
-A separate `SASGameRecord_*.log` can also be enabled notably for compact autoplay / AI-benchmark review, recording what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, initial map/landmass geography, etc.) or to give more gameplay context to complement BBAI's detailed decision traces.
+A separate SASGameRecord (sometimes called SGR) log, written as `SASGameRecord_*.log`, can also be enabled notably for compact autoplay / AI-benchmark review, recording what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, initial map/landmass geography, etc.) or to give more gameplay context to complement BBAI's detailed decision traces. Current recorder settings use the greppable `SAS_SGR_*` define family.
 
 It notably also preserves exact high-level AI strategy, victory-route stage and team worst-enemy transitions alongside periodic checkpoints, making shifts in long-term AI intent and diplomatic alignment easier to line up with production, diplomacy and war outcomes without enabling every detailed BBAI category.
 
@@ -174,8 +174,10 @@ For license and reuse terms, including project-specific restrictions and express
 &emsp;[Light-source analysis](#light-source-analysis)\
 &emsp;[Historical source archaeology](#historical-source-archaeology)\
 &emsp;[C++ File Audit Album](#c-file-audit-album)\
+&emsp;[Focused source and data reviews](#focused-source-and-data-reviews)\
 [Known issues that may be fixed or not fixed in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4)\
 ["Temporary" crashes](/README.md#temporary-crashes)\
+[Deprecated references](#deprecated-references)\
 [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)\
 [Mod name and Version number](/README.md#mod-name-and-version-number)\
 &emsp;[Mod name](#mod-name)\
@@ -755,7 +757,7 @@ Blurbs with links fully implemented in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGame
 
 If field is missing or set to `NONE` in XML (e.g. `<ObsoleteTech>NONE</ObsoleteTech>`), a default of `NONE` is applied for better inter-mod portability. `NONE` means a unit is never obsolete (e.g. `UNIT_SETTLER`), and so it keeps base AdvCiv/Civ4 behaviour (can always be produced).
 
-If you don't want to use this `ObsoleteTech` feature without having to tediously manually modify each entry one by one in XML, you can, similarly to how was done for unit XML terrain and feature modifiers in AdvCiv-SAS, disable them by toggling to 0 the corresponding SAS define in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)) (as of now `SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH`).
+If you don't want to use this `ObsoleteTech` feature without having to tediously manually modify each entry one by one in XML, you can, similarly to how was done for unit XML terrain and feature modifiers in AdvCiv-SAS, disable them by toggling to 0 the corresponding SAS define in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)) (as of now `SAS_UNIT_XML_OBSOLETE_TECH`).
 
 If disabled (0), the value in XML will be ignored and forced to always NONE so you can easily reenable it in the future as you prefer.
 
@@ -1475,6 +1477,10 @@ The active current-tree [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analys
 
 Future Python, XML or other analysis albums can extend the same source-analysis family.
 
+### Focused source and data reviews
+
+[`global_define_name_length_review.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/global_define_name_length_review.md) documents the completed SAS GlobalDefine naming cleanup against the direct AdvCiv scale, distinguishes the 42-byte desired maximum from loader safety, and records lookup, caching and save implications.
+
 ## Known issues that may be fixed or not fixed in base AdvCiv or Civ4
 
 See the [README_Known_Issues.md](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md).
@@ -1514,6 +1520,13 @@ If not, it might be a bug to fix or something. I don't know too much about these
 As of now AdvCiv-SAS is rather stable so crashes should be rare now. Recently, the [KI#100 that fixed Base AdvCiv major CvSelectionGroup::plot crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-100) may also help address many such cases.
 
 Update: i now seemingly know how to use .pdb files with WindDbg as in [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) and [KI#475.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.3), still it is not guaranteed i'd be able to solve them or available or willing to do so, so the general guidance to seek more expert advice remains, especially if help i may (if i choose to) to offers would happen to fail.
+
+## Deprecated references
+
+The [Deprecated reference index](/_1_AdvCiv-SAS/Docs/Deprecated/README.md) helps translate identifiers found in older source, logs and discussions:
+
+- [`global_define_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md) locates the retired GlobalDefine name conversion table.
+- [`commit_rewrites.md`](/_1_AdvCiv-SAS/Docs/Deprecated/commit_rewrites.md) locates the old-to-canonical SHA table from the one-time `commit_diffs` history cleanup.
 
 ## Not supported in AdvCiv-SAS
 

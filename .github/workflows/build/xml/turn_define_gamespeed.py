@@ -16,15 +16,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 from xml_defines import get_default_repo_root, read_global_define_ints
 
 
-NORMAL_PATTERN = re.compile(r"_(?:TURN|TURNS)_NORMAL_GAMESPEED(?:_|$)")
-UNSCALED_PATTERN = re.compile(r"_(?:TURN|TURNS)_UNSCALED_GAMESPEED(?:_|$)")
+# <!-- custom: Compact game-speed units leave room for meaningful production-family names within the KI#1001.2 naming target.
+# Accept existing long spellings with the same semantics; recognize standalone T below as well, otherwise abbreviated but unclassified turn counts would evade the check. (GPT-6.1-Sol) -->
+NORMAL_PATTERN = re.compile(r"_(?:(?:TURN|TURNS)_NORMAL_GAMESPEED|T_NORM_GS)(?:_|$)")
+UNSCALED_PATTERN = re.compile(r"_(?:(?:TURN|TURNS)_UNSCALED_GAMESPEED|T_UNSCALED_GS)(?:_|$)")
 
 
 def has_temporal_turn_token(name: str) -> bool:
 	"""Return True for standalone turn counts/thresholds, not scopes or per-turn rates."""
 	tokens = name.split("_")
 	for index, token in enumerate(tokens):
-		if token not in {"TURN", "TURNS"}:
+		if token not in {"T", "TURN", "TURNS"}:
 			continue
 
 		# SAS_DO_TURN_* names identify the function/scope, not a turn-valued define.
@@ -32,13 +34,14 @@ def has_temporal_turn_token(name: str) -> bool:
 			continue
 
 		# Values expressed per turn are rates/weights rather than a number of turns.
-		if token == "TURN" and index > 0 and tokens[index - 1] == "PER":
+		if token in {"T", "TURN"} and index > 0 and tokens[index - 1] == "PER":
 			continue
-		if token == "TURN" and index > 1 and tokens[index - 2:index] == ["PER", "ANARCHY"]:
+		if token in {"T", "TURN"} and index > 1 and tokens[index - 2:index] == ["PER", "ANARCHY"]:
 			continue
 
-		# e.g. PATH_TURN_VALUE_PENALTY: TURN describes the unit of a score penalty.
-		if token == "TURN" and index + 1 < len(tokens) and tokens[index + 1] == "VALUE":
+		# <!-- custom: PATH_TURN_VAL_PENALTY (formerly PATH_TURN_VALUE_PENALTY) names a score's unit, not elapsed turns.
+		# Accept both spellings for the same rate semantics. (GPT-6.1-Sol) -->
+		if token in {"T", "TURN"} and index + 1 < len(tokens) and tokens[index + 1] in {"VALUE", "VAL"}:
 			continue
 
 		return True
@@ -63,13 +66,13 @@ def check_turn_define_gamespeed(repo_root: Path) -> tuple[list[str], int, int]:
 		has_normal = NORMAL_PATTERN.search(name) is not None
 		has_unscaled = UNSCALED_PATTERN.search(name) is not None
 		if has_normal and has_unscaled:
-			failures.append(f"{name}: contains both NORMAL_GAMESPEED and UNSCALED_GAMESPEED turn classifications")
+			failures.append(f"{name}: contains both Normal-scaled and unscaled turn classifications")
 		elif has_normal:
 			normal_count += 1
 		elif has_unscaled:
 			unscaled_count += 1
 		else:
-			failures.append(f"{name}: turn-valued define must contain TURN(S)_NORMAL_GAMESPEED or TURN(S)_UNSCALED_GAMESPEED")
+			failures.append(f"{name}: turn-valued define must contain T_NORM_GS or T_UNSCALED_GS (also accepts TURN(S)_NORMAL_GAMESPEED or TURN(S)_UNSCALED_GAMESPEED)")
 
 	return failures, normal_count, unscaled_count
 

@@ -28,10 +28,10 @@ class SevoPediaHandicapChart:
 		self.ROW_H = CHART_TABLE_ROW_H
 		self.W_ICON = CHART_TABLE_W_ICON
 		self.W_FIELD = 380
-		self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS") > 0)
-		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT")
+		self.IS_SAS_SEVO_HANDICAP_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVO_HANDICAP_CHART_HEADER_ICONS") > 0)
+		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVO_HANDICAP_CHART_FILL_PCT")
 		if self.TABLE_FILL_PERCENT <= 0:
-			raise ValueError("[FATAL] SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT must be >= 1.")
+			raise ValueError("[FATAL] SAS_SEVO_HANDICAP_CHART_FILL_PCT must be >= 1.")
 
 	def interfaceScreen(self):
 		screen = self.top.getScreen()
@@ -63,7 +63,7 @@ class SevoPediaHandicapChart:
 			return
 
 		totalW = (tableW * self.TABLE_FILL_PERCENT) / 100
-		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
+		if self.IS_SAS_SEVO_HANDICAP_CHART_HEADER_ICONS:
 			remainingW = max(0, totalW - self.W_ICON - self.W_FIELD)
 			value_cols = nCols - 2
 		else:
@@ -84,9 +84,9 @@ class SevoPediaHandicapChart:
 		setCell = screen.setTableText
 
 		for iCol in range(nCols):
-			if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 0:
+			if self.IS_SAS_SEVO_HANDICAP_CHART_HEADER_ICONS and iCol == 0:
 				colW = self.W_ICON
-			elif (self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 0):
+			elif (self.IS_SAS_SEVO_HANDICAP_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVO_HANDICAP_CHART_HEADER_ICONS and iCol == 0):
 				colW = self.W_FIELD
 			else:
 				colW = wNum
@@ -101,7 +101,7 @@ class SevoPediaHandicapChart:
 					cell = u""
 
 				# Icon column: cell is (text, buttonPath) tuple
-				if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 0:
+				if self.IS_SAS_SEVO_HANDICAP_CHART_HEADER_ICONS and iCol == 0:
 					if isinstance(cell, tuple):
 						text = cell[0]
 						icon_button = cell[1]
@@ -111,7 +111,7 @@ class SevoPediaHandicapChart:
 					setCell(table, iCol, iRow, text, icon_button, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				# Field column (left)
-				elif (self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS and iCol == 0):
+				elif (self.IS_SAS_SEVO_HANDICAP_CHART_HEADER_ICONS and iCol == 1) or (not self.IS_SAS_SEVO_HANDICAP_CHART_HEADER_ICONS and iCol == 0):
 					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				# Value columns (center)
@@ -266,9 +266,9 @@ class SevoPediaHandicapChart:
 					goody_types.append(gt)
 		goody_groups = tuple(goody_groups_list)
 
-		anchor_field = gc.getDefineSTRING("SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD")  # not cached: read once only (table is cached via _cachedTable)
+		anchor_field = gc.getDefineSTRING("SAS_SEVO_HANDICAP_CHART_ANCHOR_FIELD")  # not cached: read once only (table is cached via _cachedTable)
 		if not anchor_field:
-			raise ValueError("[FATAL] Missing SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD define.")
+			raise ValueError("[FATAL] Missing SAS_SEVO_HANDICAP_CHART_ANCHOR_FIELD define.")
 
 		abbrev_tech_names = {
 			"Animal Husbandry": "Animal H.",
@@ -392,7 +392,7 @@ class SevoPediaHandicapChart:
 
 		# One-time render prep (kept local; cache stores only final table cells)
 		icon_cell_for_key = None
-		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
+		if self.IS_SAS_SEVO_HANDICAP_CHART_HEADER_ICONS:
 			game = CyGame()
 			btn_by_name = {}
 
@@ -461,7 +461,7 @@ class SevoPediaHandicapChart:
 				return (chart_sort_key(0, iRowIndex), "")
 
 		# Build header (pre-fonted)
-		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
+		if self.IS_SAS_SEVO_HANDICAP_CHART_HEADER_ICONS:
 			header = [u"", chart_font2("Field")]
 		else:
 			header = [chart_font2("Field")]
@@ -476,7 +476,7 @@ class SevoPediaHandicapChart:
 			field_name = row["Field"]
 			display_field = field_name
 
-			if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
+			if self.IS_SAS_SEVO_HANDICAP_CHART_HEADER_ICONS:
 				icon_key = row.get("IconKey", "")
 				icon_cell = (u"", "")
 				if icon_cell_for_key is not None:

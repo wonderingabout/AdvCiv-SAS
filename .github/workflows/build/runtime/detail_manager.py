@@ -101,7 +101,7 @@ def get_active_billboard_percent(defines: dict[str, int]) -> tuple[int, int]:
 	if font_body < 1 or font_body > 4:
 		raise RuntimeError(f"{font_name}: expected 1..4, found {font_body}")
 
-	percent_name = f"SAS_BILLBOARD_SCALE_PERCENT_FONT_{font_body}"
+	percent_name = f"SAS_BILLBOARD_SCALE_PCT_FONT_{font_body}"
 	if percent_name not in defines:
 		raise RuntimeError(f"{percent_name}: missing define")
 
@@ -153,7 +153,7 @@ def main() -> int:
 
 	if failures:
 		print("FAIL DetailManager CITYBILLBOARD_SCALE")
-		print(f"  - SAS_UI_FONT_BODY={font_body}; SAS_BILLBOARD_SCALE_PERCENT_FONT_{font_body}={percent}")
+		print(f"  - SAS_UI_FONT_BODY={font_body}; SAS_BILLBOARD_SCALE_PCT_FONT_{font_body}={percent}")
 		for failure in failures:
 			print(f"  - {failure}")
 		print("  - expected keys:")

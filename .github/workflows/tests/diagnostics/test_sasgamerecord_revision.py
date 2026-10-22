@@ -34,7 +34,7 @@ class RevisionDocumentationTests(unittest.TestCase):
     def _set_revision(self, value):
         path = self.repo / recorder.REVISION_DEFINES
         text = path.read_text('utf-8')
-        pattern = r'(<DefineName>SAS_GAME_RECORD_REVISION</DefineName>\s*<iDefineIntVal>)\d+(</iDefineIntVal>)'
+        pattern = r'(<DefineName>SAS_SGR_REVISION</DefineName>\s*<iDefineIntVal>)\d+(</iDefineIntVal>)'
         updated, count = re.subn(pattern, r'\g<1>%d\g<2>' % value, text, count=1)
         self.assertEqual(count, 1)
         path.write_text(updated, 'utf-8')

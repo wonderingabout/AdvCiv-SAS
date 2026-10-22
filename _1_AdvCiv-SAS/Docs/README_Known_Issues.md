@@ -1140,6 +1140,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#999 - (Provisional Pending inherited AdvCiv replay-compatibility defect) Taurus version 132 is parsed as AdvC format](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-999)\
 [KI#1000 - (Provisional Pending Base AdvCiv replay-export defect inactive in SAS) Late fallback can retain an empty mod name](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1000)\
 [KI#1001 - (Mitigated in SAS; inherited XML-buffer defect activated by SAS) An overlong GlobalDefine exceeds 256 bytes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001)\
+[KI#1001.2 - (Resolved preventive SAS naming cleanup; no demonstrated runtime defect) GlobalDefine names exceeded the AdvCiv naming scale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2)\
 [KI#1002 - (Fixed AdvCiv initialization regression) FirstContactData could contain uninitialized plot coordinates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1002)\
 [KI#1003 - (Provisional Pending inherited Taurus/AdvC memory leak) Fallback EXE search leaks 512 KiB](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1003)\
 [KI#1004 - (Provisional Pending AdvC memory leak) Rebuilding SPaH settings abandons the prior string](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1004)\
@@ -33956,6 +33957,38 @@ That discussion concerns paths, not GlobalDefine names or values, so it does not
 - Fresh Pangaea Arena reports `landHeavy=1 navalHeavy=0`, exercising a script listed in `_PART_2`; loading the Wang Kon Archipelago save retains `landHeavy=0 navalHeavy=1` and advances through completed T72. The process exits cleanly with an empty final `PythonErr.log`.
 - Joining the two XML values with a comma reproduces the original 297-byte list exactly. The shipped Release DLL was then rebuilt successfully with zero warnings/errors; its binary matches the accompanying build report and contains both renamed keys.
 - The CI command rejects the original 297-byte XML value. Boundary, whitespace and generic numbered-family fixtures pass with the mitigated data; the guard applies to inherited and SAS definitions alike.
+
+2026-10-21 naming-policy follow-up: the preventive DefineName review is tracked separately in KI#1001.2; its shipped names remain below this loader capacity.
+
+<a id="ki-1001.2"></a>
+
+## KI#1001.2 - (Resolved preventive SAS naming cleanup; no demonstrated runtime defect) GlobalDefine names exceeded the AdvCiv naming scale
+
+KI#1001 exposed a concrete inherited fixed-buffer hazard for overlong GlobalDefine text values. The same loader also reads each `<DefineName>` through `char szName[256]`, but SAS never demonstrated a runtime failure from a define name; this follow-up was therefore preventive naming/headroom maintenance rather than another proven Civ4 defect.
+
+The pre-cleanup main baseline (`8aae7bd1e3b0a765b8897e3aa121ea90920a5f4a`) shipped 977 unique names across nine GlobalDefines/PythonCallbackDefines files: 667 SAS names and 310 inherited names. Of the SAS names, 459 exceeded the chosen 42-byte AdvCiv-scale style target and the longest was 114 bytes.
+
+The completed cleanup retains the same 667 SAS declarations, with **all 977 shipped define names now at or below 42 UTF-8 bytes**. A total of 628 SAS names changed and 39 remained unchanged; all 459 originally-over-limit names were shortened, while 169 already-shorter names also moved where family, terminology or grep consistency made that clearer. The final SAS maximum is 42 bytes.
+
+The 42-byte rule is a **desired naming maximum**, not an engine-safety limit. KI#1001's separate 255-byte repository guard remains the conservative correctness boundary for the inherited `char[256]` loader scratch buffers.
+
+The detailed loader analysis, public/reference comparisons and before/after distributions live in [`global_define_name_length_review.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/global_define_name_length_review.md).
+
+### Final naming policy
+
+Current SAS defines use compact `SAS_<family>_<effect>` names rather than mechanically embedding full function names. Repeated concepts use one grep-friendly vocabulary across reviewed families, important units/semantics remain explicit, and word boundaries use `_` when space permits.
+
+Common conventions include `PCT`, `MIN`, `MAX`, `VAL`, `PROD`, `BLDG`, `PWR`, `ATK`, `MILIT`, `VICT`, `BARB`, `NAT`, `LVL`, `_ON`, `T_NORM_GS` and `T_UNSCALED_GS`. `MAPGEN` identifies map-generation controls where useful, while ordinary map classification retains `MAP`; worker phase-0 settings retain `P0`; meaningful context such as `FORCE_ARTIST` is kept when it fits.
+
+SASGameRecord is abbreviated **SGR** in its define family (`SAS_SGR_*`). The full product/tool name remains `SASGameRecord` in prose so both the readable name and greppable configuration prefix stay obvious.
+
+If a future setting cannot fit 42 bytes without obscuring an important distinction, the policy should be reviewed rather than forcing an unclear abbreviation merely to satisfy the number.
+
+### Validation and maintenance
+
+The cleanup changes names, matching lookups and mechanically copied cache/member identifiers without intentionally changing define values or gameplay calculations. Native C++ lookup changes require a rebuilt DLL paired with the renamed XML before gameplay testing.
+
+The name-style checker enforces the 42-byte target; the retired-name checker uses the [original-to-current conversion table](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md) to reject obsolete spellings in active XML, C++ and Python source.
 
 <a id="ki-1002"></a>
 

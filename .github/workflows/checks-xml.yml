@@ -24,7 +24,7 @@ jobs:
       - name: XML tags referenced by defines
         run: python .github/workflows/build/xml/define_tag_refs.py
 
-      - name: Nonempty global defines
+      - name: Global define content and uniqueness
         run: python .github/workflows/build/xml/global_defines_nonempty.py
 
       - name: Global define fixed-buffer lengths
@@ -32,6 +32,9 @@ jobs:
 
       - name: SAS define declarations and use
         run: python .github/workflows/build/xml/sas_define_usage.py
+
+      - name: Retired SAS define names
+        run: python .github/workflows/build/xml/retired_global_define_names.py
 
       - name: Launch-guard sentinels
         run: python .github/workflows/build/xml/launch_guard.py
@@ -92,3 +95,7 @@ jobs:
 
       - name: Civilization replacement baseline strengths
         run: python .github/workflows/build/xml/civ_specific_not_weaker.py
+
+      # <!-- custom: Keep the KI#1001.2 name-length check after the other XML checks so a naming failure does not hide unrelated XML diagnostics. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+      - name: Global define desired name lengths
+        run: python .github/workflows/build/xml/global_define_name_style.py

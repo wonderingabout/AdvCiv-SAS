@@ -160,9 +160,9 @@ class CvTechChooser:
 		self.iX_LEFT_START = self.iSAS_TECH_GRID_LEFT_START
 		self.iX_LEFT_START_OR_PREREQS = self.iX_LEFT_START - 6
 
-		self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH = None
-		self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES = None
-		self.iSAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES = None
+		self.iSAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH = None
+		self.iSAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE = None
+		self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE = None
 		self.PREF_ICON_LEFT = self.iX_LEFT_START + PREF_ICON_LEFT_OFFSET
 		self.PREF_ICON_BOTTOM = 0
 		self.iLanguageLoaded = -1
@@ -201,19 +201,19 @@ class CvTechChooser:
 
 	def updateRuntimeLayout(self, screen):
 		# <!-- custom: runtime geometry wrapper to mirror Info/Foreign advisor structure: keep resolution-dependent bounds in one place and out of init-time setup. (GPT-5.3-Codex) -->
-		if self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH is None:
-			self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH = gc.getDefineINT("SAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH")
-		if self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES is None:
-			self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES = gc.getDefineINT("SAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES")
-		if self.iSAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES is None:
-			self.iSAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES = gc.getDefineINT("SAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES")
+		if self.iSAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH is None:
+			self.iSAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH = gc.getDefineINT("SAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH")
+		if self.iSAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE is None:
+			self.iSAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE = gc.getDefineINT("SAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE")
+		if self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE is None:
+			self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE = gc.getDefineINT("SAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE")
 		iRightSpaceForScoreboard = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
 		iTopSpaceForTechBar = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
 		# <!-- custom: optional right-space replacement for scoreboard; on lower resolutions this lets users render a larger advisor so one more tech-tree column can be visible. (GPT-5.3-Codex) -->
-		if self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH > 0 and screen.getXResolution() < self.iSAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH:
-			iRightSpaceForScoreboard = self.iSAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES
+		if self.iSAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH > 0 and screen.getXResolution() < self.iSAS_TECH_UI_SCOREBOARD_SWAP_MAX_WIDTH:
+			iRightSpaceForScoreboard = self.iSAS_TECH_UI_LOW_RES_SCOREBOARD_RIGHT_SPACE
 			# <!-- custom: optional low-res top-space replacement paired with the low-res width swap; useful to keep map-view advisor buttons accessible when Tech Chooser is widened. (GPT-5.3-Codex) -->
-			iTopSpaceForTechBar = self.iSAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES
+			iTopSpaceForTechBar = self.iSAS_TECH_UI_LOW_RES_TECH_BAR_TOP_SPACE
 		if iRightSpaceForScoreboard < 0:
 			iRightSpaceForScoreboard = 0
 		if iTopSpaceForTechBar < 0:

@@ -49,8 +49,8 @@ The files below do not belong to one logging framework. Civ4 accumulated several
 | `StartingPos.log` | AdvCiv | AdvCiv's Starting Position Iteration work began publicly on 2020-05-27 as a fairer-start algorithm; this log traces that subsystem when enabled. | Algorithm trace, not general diagnostics. Header/run context is preferable to verbose per-line timestamps. |
 | `juggle_log.txt`, `combat.txt` | K-Mod/AdvCiv developer diagnostics | Compile-time specialist diagnostics: citizen-assignment efficiency and combat-odds verification respectively. Exact first introduction was not established here. | Preserve as experiment datasets. A small metadata header is safer than making every record verbose. |
 | `uwai<turn>.log` | AdvCiv `UWAIReport` | Separate war-evaluation reports, with Textile markup, turn-number filenames and report interval/threshold controls. Writers include `UWAIAgent`, `MilitaryAnalyst`, `InvasionGraph`, `ArmamentForecast`, `WarEvaluator` and `WarUtilityAspect`. | Historical in SAS: the standalone report files/logger were retired in favor of five independently controlled BBAI categories; see [UWAI diagnostics comparison](#uwai-diagnostics-standalone-advciv-reports-vs-current-bbai-records). |
-| `SASGameRecord_*.log` | AdvCiv-SAS | A new structured game record, complementing inherited BBAI decision traces with run context, periodic state, gameplay history and reproduction evidence. | Independent `SAS_GAME_RECORD_LOG_LEVEL`; its [revision history](revisions/SASGameRecord.md) documents recorder changes. |
-| `SASRuntimeStatus.json`, `SASRuntimeHistory_*.jsonl` | AdvCiv-SAS | Latest runtime observation and per-process transition history, including process/DLL identity and new/load/autoplay activity. | Independent `SAS_RUNTIME_STATUS_ENABLE`; its [revision history](revisions/SASRuntime.md) documents runtime-recorder changes. |
+| `SASGameRecord_*.log` | AdvCiv-SAS | A new structured game record, complementing inherited BBAI decision traces with run context, periodic state, gameplay history and reproduction evidence. | Independent `SAS_SGR_LOG`; its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) documents recorder changes. |
+| `SASRuntimeStatus.json`, `SASRuntimeHistory_*.jsonl` | AdvCiv-SAS | Latest runtime observation and per-process transition history, including process/DLL identity and new/load/autoplay activity. | Independent `SAS_RUNTIME_STATUS_ON`; its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md) documents runtime-recorder changes. |
 
 ### Modernization principles
 
@@ -195,17 +195,19 @@ Identity rows place the stable `processUtc` for one Civ4 launch before plain `ut
 
 `dirty` is tri-state: `-1` means unavailable because there is no inspectable Git worktree (for example an extracted GitHub ZIP), `0` means Git verified the tracked tree clean, and `1` means tracked local edits were found.
 
-Source commit identifiers in these documentation examples are mapped to the rewritten Git history; recorded runtime and binary measurements are retained.
+<a id="sasgamerecord"></a>
 
-### SASGameRecord
+### SASGameRecord (SGR)
 
-Enable `SAS_GAME_RECORD_LOG_LEVEL` in [`GlobalDefines_advciv_sas.xml`](../../Assets/XML/GlobalDefines_advciv_sas.xml); `0` disables the recorder independently of BBAI. `SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME` selects per-session `SASGameRecord_*.log` files or the fixed `SASGameRecord.log` name.
+SASGameRecord is abbreviated SGR in current recorder define names (`SAS_SGR_*`).
+
+Enable `SAS_SGR_LOG` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml); `0` disables the recorder independently of BBAI. `SAS_SGR_LOG_USE_TIMESTAMPED_FILENAME` selects per-session `SASGameRecord_*.log` files or the fixed `SASGameRecord.log` name.
 
 The record brings together map/geography context, settings and provenance, economy/expansion, city and battle history, diplomacy and military composition. It also records exact AI strategy/victory-stage transitions, RNG evidence and shared diagnostic-writer health according to the selected level and supporting switches.
 
 - Search examples include `GAME_RECORD_SOURCE_CONTEXT`, `GAME_RECORD_DLL_CONTEXT`, `GAME_RECORD_AI_STRATEGY_CHANGE`, `GAME_RECORD_AI_VICTORY_STAGE_CHANGE` and `GAME_RECORD_DIAGNOSTIC_WRITER`.
-- `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED` controls periodic snapshots; with interval 10 they occur at completed turns 10, 20, 30 and so on, while turn 0 has separate initial context. Chronicle actions can appear between snapshots.
-- This is an all-player diagnostic and can contain spoilers. Use the [Main Changes Guide's SASGameRecord section](README_Main_Changes_Guide.md#sasgamerecord-log) and [recorder revision history](revisions/SASGameRecord.md) for coverage/controls, and the [representative raw record](examples/sasgamerecord/SASGameRecord_example.log) for actual output.
+- `SAS_SGR_INTERVAL_T_UNSCALED_GS` controls periodic snapshots; with interval 10 they occur at completed turns 10, 20, 30 and so on, while turn 0 has separate initial context. Chronicle actions can appear between snapshots.
+- This is an all-player diagnostic and can contain spoilers. Use the [Main Changes Guide's SASGameRecord section](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sasgamerecord-log) and [recorder revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for coverage/controls, and the [representative raw record](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log) for actual output.
 
 #### SASGameRecord session header example
 
@@ -215,7 +217,7 @@ For example, `SASGameRecord_*.log` starts with lifecycle, provenance and run-set
 GAME_RECORD_SAVE_LOADED seq=1 processUtc=20261009T160524Z utc=20261009T160535Z logFile="SASGameRecord_20261009T160535Z_load1.log" turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_INCA activeHandicap=HANDICAP_MONARCH playersDefined=16 playersAlive=16 playersEverAlive=16 humans=1 sessionWallMilliseconds=0
 GAME_RECORD_SESSION_CONTEXT seq=2 gameType=GAME_SP_LOAD gameMode=GAMEMODE_NORMAL newGame=0 savedGame=1 scenario=0 gameMultiplayer=0 networkMultiplayer=0 hotseat=0 pbem=0 pitboss=0 simultaneousTeamTurns=0 mpOptions=-
 GAME_RECORD_GAME_SETTINGS seq=3 mapScript="Archipelago" map=120x84 landHeavy=0 navalHeavy=1 world=WORLDSIZE_HUGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT calendar=CALENDAR_DEFAULT startTurn=0 startYear=-50000 gameHandicap=HANDICAP_MONARCH maxTurns=500 targetScore=0 advancedStartConfiguredPoints=-1 advancedStartXmlDefaultPoints=-1 victories=VICTORY_SCORE,VICTORY_TIME,VICTORY_CONQUEST,VICTORY_DOMINATION,VICTORY_CULTURAL,VICTORY_SPACE_RACE,VICTORY_DIPLOMATIC options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
-GAME_RECORD_WAR_AI_SETTINGS seq=8 warPeaceAI=UWAI uwaiMode=FULL engineAggressiveAI=1 USE_KMOD_AI_NONAGGRESSIVE=0 DISABLE_UWAI=0 UWAI_IN_BACKGROUND=0 SAS_UWAI_INVASION_GRAPH_NAVAL_LOGISTICS_DEPLOYMENT_OPTIMIZE=1
+GAME_RECORD_WAR_AI_SETTINGS seq=8 warPeaceAI=UWAI uwaiMode=FULL engineAggressiveAI=1 USE_KMOD_AI_NONAGGRESSIVE=0 DISABLE_UWAI=0 UWAI_IN_BACKGROUND=0 SAS_UWAI_NAVAL_LOGISTICS_DEPLOYMENT_ON=1
 GAME_RECORD_RUNTIME_CONTEXT seq=9 systemContextLevel=2 win32Runtime=NATIVE_WINDOWS wineVersion=- windowsMajor=10 windowsMinor=0 windowsBuild=19045 windowsUpdateRevision=6466 windowsServicePackMajor=0 windowsServicePackMinor=0 windowsDisplayVersion="22H2" pointerBits=32 processArch=X86 nativeArch=X64 wow64=1 cpuVendor=- logicalProcessors=-1 totalPhysicalMemoryMB=-1
 GAME_RECORD_GAME_RNG seq=10 mapRandState=1378213624 syncRandState=909279002 initialMapRandSeed=13016467 initialSyncRandSeed=13016467
 GAME_RECORD_MOD_CONTEXT seq=11 displayName="AdvCiv-SAS" folderName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
@@ -228,7 +230,9 @@ GAME_RECORD_STATE_CHECKPOINT seq=1006 turn=0 reason=SAVE_LOADED coverage=CORE ev
 GAME_RECORD_ACTION seq=1007 turn=0 type=DEBUG_MODE_CHANGED old=0 new=1 activePlayer=0
 ```
 
-#### SASGameRecord captured example
+<a id="sasgamerecord-captured-example"></a>
+
+#### SASGameRecord gameplay example
 
 These are **30 consecutive, unchanged rows** from `SASGameRecord_20261019T160718Z_load1.log`, lines 11678–11707 (recorder revision 159). They follow the Ottoman player at turn 60 through resources, AI priorities, economy/production, diplomacy and unit composition; this is an excerpt of existing output, not a Before/After comparison with an inherited recorder.
 
@@ -265,13 +269,13 @@ GAME_RECORD_UNIT_COMPOSITION seq=10572 turn=60 player=15 unitTypes=UNIT_WORKER:2
 GAME_RECORD_NAVAL_ASSAULT_POSTURE seq=10573 turn=60 player=15 assaultTransports=0 assaultTransportsTraining=0 cargoCapacity=0 loadedCargo=0 cargoUtilizationPercentX100=-1 openOceanTransports=0 openOceanCapacity=0 openOceanLoadedCargo=0 openOceanGroups=0 transportsEmpty=0 transportsPartial=0 transportsFull=0 damagedTransports=0 assaultGroups=0 groupsEmpty=0 groupsPartial=0 groupsFull=0 groupsAtBase=0 groupsEmptyAtBase=0 groupsEmptyNoMissionAIAtBase=0 groupsLoadedAwayFromBase=0 groupsNoMissionAI=0 groupsAssault=0 groupsPickup=0 groupsReinforce=0 groupsOtherMissionAI=0 groupsMissionQueueNonempty=0 groupsHealing=0 groupsWithSeaCombatSupport=0 groupedSeaCombatSupportUnits=0 loadedCargoCanAttack=0 loadedCargoCannotAttack=0 transportUnitTypes=- cargoUnitTypes=- cargoUnitAI=- missionTargets=-
 ```
 
-For the full range of record families, including initial map context, city details and gameplay history, see the [full SASGameRecord example](examples/sasgamerecord/SASGameRecord_example.log). That separate capture retains its own date and revision; it is not the source of this excerpt.
+For the full range of record families, including initial map context, city details and gameplay history, see the [full SASGameRecord example](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log). That separate capture retains its own date and revision; it is not the source of this excerpt.
 
 ### BBAI
 
 #### BBAI session header example
 
-For example, this save-load header was captured during the iterable-category-registry development test on October 9, 2026, before that change was committed.
+Example save-load header:
 
 Its source identity and Debug-opt DLL describe that test build; they are not the current shipped Release DLL. The settings row includes disabled categories explicitly so zero levels can be distinguished from missing categories:
 
@@ -282,29 +286,28 @@ BBAI_GAME_RNG mapRandState=1378213624 syncRandState=909279002
 BBAI_MOD_CONTEXT displayName="AdvCiv-SAS" folderName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
 BBAI_SOURCE_CONTEXT version="6606" commit="39e40d78917c42d67dfa9c87a1fc92da178ad7dd" shortCommit="39e40d7891" branch="main" commitDate="2026-10-09T17:28:00+02:00" metadataSource="git" dirty=1 dirtyTrackedCount=6 trackedCodeRulesDiffBytes=16408 trackedCodeRulesDiffFingerprint="FNV1A64:F3AD9234EBE21773" dirtyFiles="[MM] .github/workflows/build/xml/sas_define_usage.py; [MM] .github/workflows/tests/test_sas_define_usage.py; [ M] Assets/CvGameCoreDLL.dll; [ M] Assets/XML/GlobalDefines_advciv_sas.xml; [MM] CvGameCoreDLL/BBAILog.cpp; [ M] _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md"
 BBAI_DLL_CONTEXT build=Debug-opt moduleFound=1 fileReadable=1 fileSizeBytes=13774848 dllFingerprint=FNV1A64:97635FA4B4F6CE96 dllLastWriteUtc=20261009T160322.407Z peTimestampRaw=1791561793 peTimestampUtc=20261009T160313Z fassertEnabled=0 debugDefine=0 ndebugDefine=1
-BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=2 SAS_BBAI_TEAM_LOG_LEVEL=2 SAS_BBAI_WAR_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_PRODUCTION_NO_TARGET_LOG_LEVEL=0 SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL=0 SAS_BBAI_SPACE_PRODUCTION_LOG_LEVEL=0 SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL=0 SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=0 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_BONUS_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_UWAI_AGENT_LOG_LEVEL=0 SAS_BBAI_UWAI_MILITARY_ANALYST_LOG_LEVEL=0 SAS_BBAI_UWAI_INVASION_GRAPH_LOG_LEVEL=0 SAS_BBAI_UWAI_ARMAMENT_FORECAST_LOG_LEVEL=0 SAS_BBAI_UWAI_WAR_UTILITY_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=100
 ```
 
 #### Categories and inherited Settler logging
 
 Base AdvCiv's `BBAILog.h` used compile-time `LOG_AI` / `LOG_FOUND_VALUE` switches and fixed category levels. Its `logBBAI` wrote `BBAI.log`, or `BBAI<player>.log` in network multiplayer. SAS exposes the settings through XML and caches them after define loading, so diagnostic levels can be changed before launch without rebuilding the DLL.
 
-Enable `SAS_BBAI_LOG_ENABLE` and select the relevant category levels. `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME` chooses new/load session files instead of fixed-name appending; ordinary diagnostic categories ship disabled. The XML comments describe exact levels and supporting controls; the table below is a subject index, not a claim that every category emits the same detail at each level.
+Enable `SAS_BBAI_LOG_ON` and select the relevant category levels. `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME` chooses new/load session files instead of fixed-name appending; ordinary diagnostic categories ship disabled. The XML comments describe exact levels and supporting controls; the table below is a subject index, not a claim that every category emits the same detail at each level.
 
 These controls all select categories within the same BBAI output, including the UWAI controls below; they do not create separate files such as `Settler.log` or `MilitaryAnalyst.log`.
 
 | Current control | Diagnostic subject / search examples |
 | --- | --- |
-| `SAS_BBAI_PLAYER_LOG_LEVEL`, `SAS_BBAI_TEAM_LOG_LEVEL`, `SAS_BBAI_WAR_LOG_LEVEL` | General player/team decisions and dedicated war-plan/target decisions. |
-| `SAS_BBAI_CITY_LOG_LEVEL`, `SAS_BBAI_PRODUCTION_NO_TARGET_LOG_LEVEL` | General city decisions and missing-production-target/chooser-path diagnostics. |
-| `SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL`, `SAS_BBAI_BUILDING_PRODUCTION_LOG_LEVEL` | Military-unit versus infrastructure opportunities and production decisions. |
-| `SAS_BBAI_SPACE_PRODUCTION_LOG_LEVEL`, `SAS_BBAI_LIMITED_PROJECT_PRODUCTION_LOG_LEVEL` | Spaceship projects and one-copy non-spaceship projects. |
-| `SAS_BBAI_CITIZEN_LOG_LEVEL`, `SAS_BBAI_CULTURE_LOG_LEVEL` | Citizen assignments and culture-victory decisions. |
-| `SAS_BBAI_UNIT_LOG_LEVEL`, `SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL`, `SAS_BBAI_GREAT_GENERAL_LOG_LEVEL` | General unit behavior, transport/cargo decisions and Great General actions. |
-| `SAS_BBAI_SETTLER_LOG_LEVEL` | Movement, target decisions, founding, parking and escorts; examples include `SETTLER_MISSION_DECISION`, `SETTLER_PARKED` and `SETTLER_CITY_ESCORT_POOL`. |
-| `SAS_BBAI_FOUND_LOG_LEVEL` | City-site scoring and selection; examples include `FOUND_SITE_SELECTED` and `FOUND_SITE_STORED`. |
-| `SAS_BBAI_EVACUATION_LOG_LEVEL`, `SAS_BBAI_WORKER_LOG_LEVEL`, `SAS_BBAI_WORKER_SEA_LOG_LEVEL` | Retreat/evacuation, land Workers and Work Boats. |
-| `SAS_BBAI_MAP_LOG_LEVEL`, `SAS_BBAI_DEAL_CANCEL_LOG_LEVEL`, `SAS_BBAI_BONUS_LOG_LEVEL` | Map/start context, deal cancellation and resource valuation/trade. |
+| `SAS_BBAI_PLAYER_LOG`, `SAS_BBAI_TEAM_LOG`, `SAS_BBAI_WAR_LOG` | General player/team decisions and dedicated war-plan/target decisions. |
+| `SAS_BBAI_CITY_LOG`, `SAS_BBAI_PROD_NO_TARGET_LOG` | General city decisions and missing-production-target/chooser-path diagnostics. |
+| `SAS_BBAI_MILIT_PROD_LOG`, `SAS_BBAI_BLDG_PROD_LOG` | Military-unit versus infrastructure opportunities and production decisions. |
+| `SAS_BBAI_SPACE_PROD_LOG`, `SAS_BBAI_LIMITED_PROJECT_PROD_LOG` | Spaceship projects and one-copy non-spaceship projects. |
+| `SAS_BBAI_CITIZEN_LOG`, `SAS_BBAI_CULT_LOG` | Citizen assignments and culture-victory decisions. |
+| `SAS_BBAI_UNIT_LOG`, `SAS_BBAI_OVERSEAS_TRANSPORT_LOG`, `SAS_BBAI_GREAT_GENERAL_LOG` | General unit behavior, transport/cargo decisions and Great General actions. |
+| `SAS_BBAI_SETTLER_LOG` | Movement, target decisions, founding, parking and escorts; examples include `SETTLER_MISSION_DECISION`, `SETTLER_PARKED` and `SETTLER_CITY_ESCORT_POOL`. |
+| `SAS_BBAI_FOUND_LOG` | City-site scoring and selection; examples include `FOUND_SITE_SELECTED` and `FOUND_SITE_STORED`. |
+| `SAS_BBAI_EVACUATION_LOG`, `SAS_BBAI_WORKER_LOG`, `SAS_BBAI_WORKER_SEA_LOG` | Retreat/evacuation, land Workers and Work Boats. |
+| `SAS_BBAI_MAP_LOG`, `SAS_BBAI_DEAL_CANCEL_LOG`, `SAS_BBAI_BONUS_LOG` | Map/start context, deal cancellation and resource valuation/trade. |
 
 The inherited `CvUnitAI::AI_found` / `AI_foundFollow` path already logged messages such as `Settler heading for site %d, %d` and `Settler founding at plot %d, %d (follow)` under `gUnitLogLevel >= 2`. SAS separates Settler diagnostics from general UNIT output and adds named fields for decisions, reasons and safety/escort context; FOUND separately follows the scoring used to choose sites.
 
@@ -340,15 +343,15 @@ The war-planning subsystems now write directly to BBAI under the following five 
 
 | Current control | Explicit source / responsibility | Search examples in BBAI |
 | --- | --- | --- |
-| `SAS_BBAI_UWAI_AGENT_LOG_LEVEL` | `UWAIAgent.cpp`: top-level team war planning and negotiation flow. | `UWAI_AGENT_` |
-| `SAS_BBAI_UWAI_MILITARY_ANALYST_LOG_LEVEL` | `MilitaryAnalyst.cpp`: scenario participants, phases and projected war/capitulation/elimination outcomes. | `UWAI_MILITARY_ANALYSIS_` |
-| `SAS_BBAI_UWAI_INVASION_GRAPH_LOG_LEVEL` | `InvasionGraph.cpp`: invasion targets, deployment, clashes and conquest simulation. | `UWAI_INVASION_` |
-| `SAS_BBAI_UWAI_ARMAMENT_FORECAST_LOG_LEVEL` | `ArmamentForecast.cpp`: predicted military production, upgrades and power increases. | `UWAI_ARMAMENT_` |
-| `SAS_BBAI_UWAI_WAR_UTILITY_LOG_LEVEL` | `WarEvaluator.cpp` and `WarUtilityAspect.cpp`: war/peace scenario totals and individual utility contributions. | `UWAI_WAR_` |
+| `SAS_BBAI_UWAI_AGENT_LOG` | `UWAIAgent.cpp`: top-level team war planning and negotiation flow. | `UWAI_AGENT_` |
+| `SAS_BBAI_UWAI_MILIT_ANALYST_LOG` | `MilitaryAnalyst.cpp`: scenario participants, phases and projected war/capitulation/elimination outcomes. | `UWAI_MILITARY_ANALYSIS_` |
+| `SAS_BBAI_UWAI_INVASION_GRAPH_LOG` | `InvasionGraph.cpp`: invasion targets, deployment, clashes and conquest simulation. | `UWAI_INVASION_` |
+| `SAS_BBAI_UWAI_ARMAMENT_FORECAST_LOG` | `ArmamentForecast.cpp`: predicted military production, upgrades and power increases. | `UWAI_ARMAMENT_` |
+| `SAS_BBAI_UWAI_WAR_UTILITY_LOG` | `WarEvaluator.cpp` and `WarUtilityAspect.cpp`: war/peace scenario totals and individual utility contributions. | `UWAI_WAR_` |
 
 Level 1 selects important outcomes, with higher levels exposing more calculation context where implemented; the Agent and Military Analyst currently have the same detail at levels 2 and 3. Caller gates skip disabled diagnostic argument/setup work; shared nested mute state keeps selected internal hypothetical passes silent without changing gameplay calculations.
 
-See [KI#505.3](README_Known_Issues.md#ki-505.3) for the investigation and conversion rationale, and the [Main Changes Guide's BBAI section](README_Main_Changes_Guide.md#bbai-log) for diagnostic behavior and controls. Historical `uwai<turn>.log` files belong to the old report path; absence of those files in current SAS is expected.
+See [KI#505.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-505.3) for the investigation and conversion rationale, and the [Main Changes Guide's BBAI section](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bbai-log) for diagnostic behavior and controls. Historical `uwai<turn>.log` files belong to the old report path; absence of those files in current SAS is expected.
 
 ##### UWAI Before/After: separate prose report to shared BBAI records
 
@@ -386,7 +389,9 @@ The SAS rows retain the analysis/forecast values and make turn, analyst, player,
 
 ### Runtime status and history
 
-`SASRuntimeStatus.json` and `SASRuntimeHistory_*.jsonl` complement gameplay logs: the fixed-name JSON gives the latest observation, while the timestamped JSONL preserves transitions across games/loads in a process. Neither replaces the detailed BBAI/SGR history; see the [runtime examples](examples/runtime_status/README.md) and [runtime revision history](revisions/SASRuntime.md).
+`SASRuntimeStatus.json` and `SASRuntimeHistory_*.jsonl` complement gameplay logs: the fixed-name JSON gives the latest observation, while the timestamped JSONL preserves transitions across games/loads in a process.
+
+Neither replaces the detailed BBAI/SGR history; see the [runtime examples](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md) and [runtime revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md).
 
 ### DLL build reports
 
@@ -398,7 +403,7 @@ These build-level summaries help explain what was compiled and how it finished; 
 
 The companion JSON adds structured detail, including source/project manifests and changes, recognized diagnostic lines and before/after DLL identity. Thus the text log remains readable compiler evidence while the report supports automated checks and comparisons; the JSON is an additional SAS output, not a pre-existing engine log.
 
-For example, these five rows come from the [captured Release compiler log](examples/build_reports/AdvCiv_Release_example.log), dated 2026-10-12 (IDE indentation omitted, intervening rows omitted; `<MOD_ROOT>` is the example's existing path substitution):
+For example, these five rows come from the [captured Release compiler log](/_1_AdvCiv-SAS/Docs/examples/build_reports/AdvCiv_Release_example.log), dated 2026-10-12 (IDE indentation omitted, intervening rows omitted; `<MOD_ROOT>` is the example's existing path substitution):
 
 ```text
 Started UTC: 2026-10-12T21:24:06.628Z
@@ -410,9 +415,9 @@ Build details (JSON): <MOD_ROOT>\CvGameCoreDLL\Project\Release\CvGameCoreDLL.dll
 
 The build pair describes a development process; the runtime JSON/JSONL describes observations from Civ4. They share the goal of identifying ongoing activity and its result, but have different producers and lifetimes.
 
-- The [root README's build-report overview](../../README.md#dll-build-reports) introduces their role alongside other development tools.
-- The [DLL Compilation Guide](Modding_Ressources/README_DLL_Compilation.md#persistent-build-reports) explains generation, fields, replacement on the next attempt and shipping requirements.
-- Complete Release examples: [build JSON](examples/build_reports/AdvCiv_Release_example.build.json) and [compiler log](examples/build_reports/AdvCiv_Release_example.log). The guide also links [Debug-opt examples](Modding_Ressources/README_DLL_Compilation.md#example-build-output).
+- The [root README's build-report overview](/README.md#dll-build-reports) introduces their role alongside other development tools.
+- The [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md#persistent-build-reports) explains generation, fields, replacement on the next attempt and shipping requirements.
+- Complete Release examples: [build JSON](/_1_AdvCiv-SAS/Docs/examples/build_reports/AdvCiv_Release_example.build.json) and [compiler log](/_1_AdvCiv-SAS/Docs/examples/build_reports/AdvCiv_Release_example.log). The guide also links [Debug-opt examples](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md#example-build-output).
 
 ## Python diagnostic messages
 
@@ -949,17 +954,17 @@ building:Art/Structures/Buildings/Levee/Levee.nif does not contain a node called
 
 ### Current/local source
 
-- [DLL logger](../../CvGameCoreDLL/CvDLLLogger.cpp), [RNG initialization](../../CvGameCoreDLL/CvGlobals.cpp), [shared filename builder](../../CvGameCoreDLL/CvGameCoreUtils.cpp).
-- [BBAI category registry and session writer](../../CvGameCoreDLL/BBAILog.cpp), [cached BBAI gates](../../CvGameCoreDLL/BBAILog.h), [Settler decision producers](../../CvGameCoreDLL/CvUnitAI.cpp), [site selection/stored values](../../CvGameCoreDLL/CvPlayerAI.cpp) and [SASGameRecord writer](../../CvGameCoreDLL/SASGameRecordLog.cpp).
+- [DLL logger](/CvGameCoreDLL/CvDLLLogger.cpp), [RNG initialization](/CvGameCoreDLL/CvGlobals.cpp), [shared filename builder](/CvGameCoreDLL/CvGameCoreUtils.cpp).
+- [BBAI category registry and session writer](/CvGameCoreDLL/BBAILog.cpp), [cached BBAI gates](/CvGameCoreDLL/BBAILog.h), [Settler decision producers](/CvGameCoreDLL/CvUnitAI.cpp), [site selection/stored values](/CvGameCoreDLL/CvPlayerAI.cpp) and [SASGameRecord writer](/CvGameCoreDLL/SASGameRecordLog.cpp).
 - UWAI producers and support:
-  - [UWAIAgent](../../CvGameCoreDLL/UWAIAgent.cpp), [MilitaryAnalyst](../../CvGameCoreDLL/MilitaryAnalyst.cpp), [InvasionGraph](../../CvGameCoreDLL/InvasionGraph.cpp), [ArmamentForecast](../../CvGameCoreDLL/ArmamentForecast.cpp), [WarEvaluator](../../CvGameCoreDLL/WarEvaluator.cpp) and [WarUtilityAspect](../../CvGameCoreDLL/WarUtilityAspect.cpp).
-  - [Shared nested mute state](../../CvGameCoreDLL/UWAILogMuteState.h).
-- Inherited comparison: local sibling `AdvCiv/CvGameCoreDLL/BBAILog.h`, `BBAILog.cpp`, `CvUnitAI.cpp`, `UWAIReport.cpp` and `UWAIAgent.cpp` (AdvCiv 1.14); [KI#505.3](README_Known_Issues.md#ki-505.3) preserves the SAS investigation of the retired report path.
-- [BUG generic logging](../../Assets/Python/BUG/BugUtil.py), [shared SAS timestamp/record writer](../../Assets/Python/SASPythonLogging.py), [CvUtil structured-record facade](../../Assets/Python/CvUtil.py), [OOS logger](../../Assets/Python/Contrib/OOSLogger.py) and [Autolog](../../Assets/Python/Contrib/autolog.py).
-- [Inherited-log row formatter](../../CvGameCoreDLL/CvGameCoreUtils.cpp), [XML log producer](../../CvGameCoreDLL/CvXMLLoadUtility.cpp) and [XML setup/cache producers](../../CvGameCoreDLL/CvXMLLoadUtilitySet.cpp).
-- [StatusDump event manager](../../Assets/Python/Contrib/StatusDumpEventManager.py), [older StatusDump helper](../../Assets/Python/Contrib/StatusDump.py), [StatusDump config](../../Assets/Config/StatusDump.xml).
-- [Starting-position iteration](../../CvGameCoreDLL/StartingPositionIteration.cpp), [internal profiler](../../CvGameCoreDLL/FProfiler.cpp), [TSC profiler](../../CvGameCoreDLL/TSCProfiler.cpp).
-- [Inherited AdvCiv manual](../../_0_Common_Docs/AdvCiv_Base_Doc/manual.txt), especially message-control logging and multiplayer debugging.
+  - [UWAIAgent](/CvGameCoreDLL/UWAIAgent.cpp), [MilitaryAnalyst](/CvGameCoreDLL/MilitaryAnalyst.cpp), [InvasionGraph](/CvGameCoreDLL/InvasionGraph.cpp), [ArmamentForecast](/CvGameCoreDLL/ArmamentForecast.cpp), [WarEvaluator](/CvGameCoreDLL/WarEvaluator.cpp) and [WarUtilityAspect](/CvGameCoreDLL/WarUtilityAspect.cpp).
+  - [Shared nested mute state](/CvGameCoreDLL/UWAILogMuteState.h).
+- Inherited comparison: local sibling `AdvCiv/CvGameCoreDLL/BBAILog.h`, `BBAILog.cpp`, `CvUnitAI.cpp`, `UWAIReport.cpp` and `UWAIAgent.cpp` (AdvCiv 1.14); [KI#505.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-505.3) preserves the SAS investigation of the retired report path.
+- [BUG generic logging](/Assets/Python/BUG/BugUtil.py), [shared SAS timestamp/record writer](/Assets/Python/SASPythonLogging.py), [CvUtil structured-record facade](/Assets/Python/CvUtil.py), [OOS logger](/Assets/Python/Contrib/OOSLogger.py) and [Autolog](/Assets/Python/Contrib/autolog.py).
+- [Inherited-log row formatter](/CvGameCoreDLL/CvGameCoreUtils.cpp), [XML log producer](/CvGameCoreDLL/CvXMLLoadUtility.cpp) and [XML setup/cache producers](/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp).
+- [StatusDump event manager](/Assets/Python/Contrib/StatusDumpEventManager.py), [older StatusDump helper](/Assets/Python/Contrib/StatusDump.py), [StatusDump config](/Assets/Config/StatusDump.xml).
+- [Starting-position iteration](/CvGameCoreDLL/StartingPositionIteration.cpp), [internal profiler](/CvGameCoreDLL/FProfiler.cpp), [TSC profiler](/CvGameCoreDLL/TSCProfiler.cpp).
+- [Inherited AdvCiv manual](/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt), especially message-control logging and multiplayer debugging.
 
 ### Historical / external provenance
 

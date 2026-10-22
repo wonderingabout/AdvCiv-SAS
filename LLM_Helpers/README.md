@@ -1261,7 +1261,7 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
   - Unrelated/unmerged branch refs are not included; commits from side branches that were actually merged remain because they genuinely contribute to current `HEAD`.
   - Each commit is compared with its first parent.
   - Repository storage policy: `commit_diffs/` is generated and Git-ignored rather than tracked because it is reproducible from Git ancestry.
-    - The permanent [`context/commit_rewrite_map_6164_6402.tsv`](/LLM_Helpers/context/commit_rewrite_map_6164_6402.tsv) translates pre-rewrite SHAs from the one-time cleanup that removed the formerly tracked generated mirror.
+    - The permanent [`context/commit_rewrite_map_6164_6402.tsv`](/LLM_Helpers/context/commit_rewrite_map_6164_6402.tsv) translates pre-rewrite SHAs from the one-time cleanup that removed the formerly tracked generated mirror; see also the [deprecated commit-identifier reference](/_1_AdvCiv-SAS/Docs/Deprecated/commit_rewrites.md).
   - History segments: `KMod` is the K-Mod history; `AdvCivPreSAS` is the base AdvCiv history before the AdvCiv-SAS branch began; `SASBranch` is the later current-branch history.
   - Post-fork meaning: `SASBranch` is deliberately a history/log segment rather than an authorship label.
     - Upstream AdvCiv development continued after SAS began, so genuine later AdvCiv commits merged/imported into the SAS branch appear there alongside SAS commits.

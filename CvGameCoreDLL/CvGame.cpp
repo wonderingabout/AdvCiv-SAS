@@ -5599,7 +5599,7 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat)
 	{
 		// <!-- custom: Active-player defeat can transfer human control while AI Auto Play still has hundreds of turns remaining.
 		// The EXE's handoff/password call then displays an OK-only "it's your turn" prompt and pauses the run; skip only that no-decision prompt during automation. See KI#203. (GPT-5.6-Sol) -->
-		static const bool bSASAutoDismissAutoPlayInformationalPopups = (GC.getDefineINT("SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE") > 0);
+		static const bool bSASAutoDismissAutoPlayInformationalPopups = (GC.getDefineINT("SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON") > 0);
 		if (!bSASAutoDismissAutoPlayInformationalPopups || getAIAutoPlay() <= 0)
 			gDLL->getPassword(eNewValue);
 		else if (bLogActivePlayerChange) logSASGameRecordAutoPlayPopupDismissed("PLAYER_HANDOFF_PASSWORD");
@@ -5751,7 +5751,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 	// Create its optional victory Fast Save here after winner/victory assignment and before the later end-game transition; other game modes use the BUG victory-event handler. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	else
 	{
-		static const bool bSASFastSaveGameEnd = GC.getDefineBOOL("SAS_FAST_SAVE_GAME_END_ENABLE");
+		static const bool bSASFastSaveGameEnd = GC.getDefineBOOL("SAS_FAST_SAVE_GAME_END_ON");
 		if (bSASFastSaveGameEnd)
 			GC.getPythonCaller()->call("saveGameEnd", "SASFastSave", true, true);
 	}
@@ -5805,7 +5805,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 		// Keep this direct call only for GAMESTATE_OVER without a winner/victory, preserving genuine non-victory END saves without duplicating victories. (ChatGPT-5.6-Sol) -->
 		if (getWinner() == NO_TEAM || getVictory() == NO_VICTORY)
 		{
-			static const bool bSASFastSaveGameEnd = GC.getDefineBOOL("SAS_FAST_SAVE_GAME_END_ENABLE");
+			static const bool bSASFastSaveGameEnd = GC.getDefineBOOL("SAS_FAST_SAVE_GAME_END_ON");
 			if (bSASFastSaveGameEnd)
 				GC.getPythonCaller()->call("saveGameEnd", "SASFastSave", true, true);
 		}
@@ -7555,8 +7555,8 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 			// advc.300, advc.001: Looks like another bug; probably times 1 to 1.5 was intended. (Dividing by 100 doesn't affect pBestPlot, but let's keep iBestValue is on the scale of a regular found value - although it isn't used for anything.) NB: This kind of randomization works mostly locally b/c nearby tiles tend to have similar found values.
 			// <!-- custom: Keep the inherited Barbarian city-site random multiplier tunable.
 			// The old 0..49 percent swing adds variety, but it can override clearly better nearby city sites. (GPT-5.5) -->
-			static const int iSAS_EVALUATE_BARBARIAN_CITY_SITE_RANDOM_PERCENT = std::max(0, GC.getDefineINT("SAS_EVALUATE_BARBARIAN_CITY_SITE_RANDOM_PERCENT"));
-			const int iRandomPercent = (iSAS_EVALUATE_BARBARIAN_CITY_SITE_RANDOM_PERCENT <= 0 ? 0 : SyncRandNum(iSAS_EVALUATE_BARBARIAN_CITY_SITE_RANDOM_PERCENT));
+			static const int iSAS_SITE_BARB_CITY_SITE_RANDOM_PCT = std::max(0, GC.getDefineINT("SAS_SITE_BARB_CITY_SITE_RANDOM_PCT"));
+			const int iRandomPercent = (iSAS_SITE_BARB_CITY_SITE_RANDOM_PCT <= 0 ? 0 : SyncRandNum(iSAS_SITE_BARB_CITY_SITE_RANDOM_PCT));
 			if (iRandomPercent != 0)
 			{
 				const int iOldValue = iValue;

@@ -3042,8 +3042,8 @@ void CvGame::onCityScreenChange()
 		map excerpt on the city screen better. */
 	if (m_bCityScreenUp)
 	{
-		static float const fSASCityScreenCameraNorthBias = GC.getDefineINT("SAS_CITY_SCREEN_CAMERA_NORTH_BIAS_PERCENT") / 100.0f;
-		static float const fSASCityScreenCameraNorthBiasHUDBonus = GC.getDefineINT("SAS_CITY_SCREEN_CAMERA_NORTH_BIAS_HUD_BONUS_PERCENT") / 100.0f;
+		static float const fSASCityScreenCameraNorthBias = GC.getDefineINT("SAS_CITY_CAMERA_NORTH_BIAS_PCT") / 100.0f;
+		static float const fSASCityScreenCameraNorthBiasHUDBonus = GC.getDefineINT("SAS_CITY_CAMERA_NORTH_BIAS_HUD_BONUS_PCT") / 100.0f;
 		CvPlot const* pCityPlot = gDLL->UI().getSelectionPlot();
 		if (pCityPlot != NULL)
 		{

@@ -10,8 +10,6 @@ Initial consolidation and formatting by GPT-5.2-Codex (VS Code extension).
 
 Try to keep them lean and more so in the future so our AI/LLM helpers can easily read the SAS defines, as well as help readability and possibly perf if any gain.
 
-
-
 ===== \Assets\Config\Plot List Enhancements.xml =====
 ----- Comment #1 -----
 <!--option id="MH_Color_Impassable_Terrain" key="Color Impassable Terrain" 
@@ -2163,8 +2161,8 @@ Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings). 
 	new civic is clearly better than the current one by a small "extra lead" called slack.
 
 	How slack is calculated:
-	- slack = max( SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK ,
-				round( abs(current_value) * SAS_AI_DO_CIVICS_SWITCH_SLACK_PERCENT / 100 ) )
+	- slack = max( SAS_CIVIC_SWITCH_MIN_SLACK ,
+				round( abs(current_value) * SAS_CIVIC_SWITCH_SLACK_PCT / 100 ) )
 
 	Examples:
 	- Small numbers (early game): current_value=30, MIN=5, PCT=5%
@@ -2952,17 +2950,17 @@ enable so that even UNITAI_COUNTER default unitai units (e.g. as of now the gree
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #192 -----
 
-Set to 0 if you always want to compute despite it being more costly (for modding, etc.), but don't always want to dump to log as this needlessly crowds the log and is expensive if done every time. Recommended settings: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, the value of SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG here won't matter and is not used (we don't dump to log at all regardless), else if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 0, set this temporarily to 1 only if you specifically need the old PythonDbg.log manual predump copy path. The normal modern path is to let the GitHub AIP predump refresh bot open/update a predump PR, or to run aip_predump_values.py write mode locally outside Civ4, so this logging define is usually unnecessary for predump maintenance.
+Set to 0 if you always want to compute despite it being more costly (for modding, etc.), but don't always want to dump to log as this needlessly crowds the log and is expensive if done every time. Recommended settings: if SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED is set to 1, the value of SAS_SEVO_LEADER_AI_CACHE_DUMP_TO_LOG here won't matter and is not used (we don't dump to log at all regardless), else if SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED is set to 0, set this temporarily to 1 only if you specifically need the old PythonDbg.log manual predump copy path. The normal modern path is to let the GitHub AIP predump refresh bot open/update a predump PR, or to run aip_predump_values.py write mode locally outside Civ4, so this logging define is usually unnecessary for predump maintenance.
 
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #193 -----
 
-, useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to, remember to disable when testing is finished, or use this setting permanently if you prefer; may also be useful if you prefer this setting to stay this way even outside of testing/modding but as part of playing games and such, then no need to disable it; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Displaying the AI attributes in the AI Personality Panel and how to read the tables/panels" section. Note: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.
+, useful when balancing/calibrating leaders xml in particular so no need to remember what each label refers to, remember to disable when testing is finished, or use this setting permanently if you prefer; may also be useful if you prefer this setting to stay this way even outside of testing/modding but as part of playing games and such, then no need to disable it; meaning of these abbreviations is in README_AI_Personality_Panel.md as of now in the "Displaying the AI attributes in the AI Personality Panel and how to read the tables/panels" section. Note: if SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.
 
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #194 -----
 
-. 0 is disabled, any other value e.g. 1 is enabled. Note: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.
+. 0 is disabled, any other value e.g. 1 is enabled. Note: if SAS_SEVO_LEADER_AI_CACHE_USE_PREDUMPED is set to 1, you need to update the predumped file for this change to apply.
 
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #195 -----
@@ -2996,7 +2994,7 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 		Manual assignment still allowed. Off by default. -->
 	<!-- // Key points:
 		// 	- It only runs when bHuman and new_job.first (i.e. we’re hiring or switching to a specialist).
-		// 	- It uses the same iSAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN value as your citizen guard, so these specialists become “last resort” for the governor, same as Citizen.
+		// 	- It uses the same iSAS_JOB_VAL_AI_JOB_FORBIDDEN value as your citizen guard, so these specialists become “last resort” for the governor, same as Citizen.
 		// 	- It doesn’t touch AI behavior at all (all your AI growth rules further down are still under !bHuman).
 		// Manual specialist assignment via the UI is still outside this path (that goes through changeSpecialistCount directly), so players can always override the governor. -->
 

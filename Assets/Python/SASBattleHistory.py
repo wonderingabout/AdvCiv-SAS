@@ -32,7 +32,7 @@ _TERRAIN_HILL = None
 def _getMaxEntries():
 	global _MAX_ENTRIES
 	if _MAX_ENTRIES is None:
-		_MAX_ENTRIES = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLE_HISTORY_MAX_ENTRIES")
+		_MAX_ENTRIES = gc.getDefineINT("SAS_MILIT_UI_BATTLE_HISTORY_MAX_ENTRIES")
 	return _MAX_ENTRIES
 
 def _getPeakTerrain():

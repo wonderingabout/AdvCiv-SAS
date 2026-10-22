@@ -8,8 +8,8 @@ import json
 from pathlib import Path
 import re
 import subprocess
-# <!-- custom: Reuse the established push/PR/default-branch range selection and Git readers so runtime revisions follow the same per-commit boundaries as SASGameRecord. (GPT-6.1-Sol) -->
-from sas_revision_history import ROOT, changed_paths, first_parent, git_show, progression_commits, resolve_default_branch
+# <!-- custom: Reuse the established push/PR/default-branch range selection and Git readers so runtime revisions follow the same commit or explicit squash boundaries as SASGameRecord. (GPT-6.1-Sol) -->
+from sas_revision_history import ROOT, changed_paths, git_show, revision_transitions, resolve_default_branch
 # <!-- custom: SASGameRecord's shared-helper path setup also exposes the common entry parser; both histories require real Change text while retaining their distinct bump policies. (GPT-6.1-Sol) -->
 from revision_history import change_errors, revision_entries
 
@@ -45,7 +45,7 @@ def read(repo, commit, path):
 # <!-- custom: Dedicated recorder edits always qualify, including implementation comments; shared source/config changes qualify through changed runtime symbols.
 # Pure CI, test and documentation maintenance does not change the loaded recorder, so it must not force a compiled revision change and rebuild; unusual shared-code refactors still need manual review. (GPT-6.1-Sol + ChatGPT (review)) -->
 def qualifies(repo, parent, commit):
-    paths = changed_paths(repo, parent, commit) if commit is not None else subprocess.check_output(["git", "diff", "--name-only", "HEAD", "--"], cwd=repo, text=True).splitlines()
+    paths = changed_paths(repo, parent, commit) if commit is not None else subprocess.check_output(["git", "diff", "--name-only", parent, "--"], cwd=repo, text=True).splitlines()
     paths = set(paths)
     if commit is None:
         # <!-- custom: Git's diff handles line-ending normalization; comparing decoded blobs with text-mode working files falsely classified clean CRLF checkouts as implementation edits.
@@ -83,22 +83,27 @@ def transition_errors(repo, parent, commit):
     return errors
 
 
-def check(repo, default_branch_ref=None, event_name="local", event_data=None):
+# <!-- custom: The squash option checks the complete candidate once; ordinary calls retain per-commit and pending-draft validation. (GPT-6.1-Sol) -->
+def check(repo, default_branch_ref=None, event_name="local", event_data=None, squash=False):
     _, base = resolve_default_branch(repo, default_branch_ref)
     errors = []
-    for commit in progression_commits(repo, base, event_name, event_data):
-        errors.extend(f"commit {commit[:12]}: {error}" for error in transition_errors(repo, first_parent(repo, commit), commit))
-    # <!-- custom: Check the draft separately without treating its pending revision as another committed increment; committed progression still checks each commit in the selected range. (GPT-6.1-Sol) -->
-    errors.extend(f"working tree: {error}" for error in transition_errors(repo, "HEAD", None))
+    transitions = revision_transitions(repo, base, event_name, event_data, squash)
+    for parent, commit in transitions:
+        label = commit[:12] if commit else "working-tree"
+        errors.extend(f"commit {label}: {error}" for error in transition_errors(repo, parent, commit))
+    # <!-- custom: Check an ordinary draft separately; squash mode already includes the working candidate in its one aggregate transition. (GPT-6.1-Sol) -->
+    if not any(commit is None for _parent, commit in transitions):
+        errors.extend(f"working tree: {error}" for error in transition_errors(repo, "HEAD", None))
     return errors
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Check runtime recorder revision/history and exactly one increment per implementation commit.")
+    parser = argparse.ArgumentParser(description="Check runtime revision/history per implementation commit or explicit squash candidate.")
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     parser.add_argument("--default-branch-ref")
     parser.add_argument("--event-name", choices=("local", "push", "pull_request", "workflow_dispatch"), default="local")
     parser.add_argument("--event-path", type=Path)
+    parser.add_argument("--squash", action="store_true", help="Locally check the complete squash candidate instead of intermediate commits")
     args = parser.parse_args()
     event = None
     if args.event_name in ("push", "pull_request"):
@@ -108,7 +113,7 @@ def main():
         if not isinstance(event, dict):
             parser.error("revision-check event must be a JSON object")
     try:
-        errors = check(args.repo_root, args.default_branch_ref, args.event_name, event)
+        errors = check(args.repo_root, args.default_branch_ref, args.event_name, event, args.squash)
     except (ValueError, OSError, subprocess.CalledProcessError) as error:
         errors = [str(error)]
     print("FAIL runtime recorder revisions" if errors else "PASS runtime recorder revisions")

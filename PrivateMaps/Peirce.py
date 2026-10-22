@@ -129,7 +129,7 @@ def getGridSize(argsList):
 	kWorld = cgc.getWorldInfo(eWorldSize)
 	iMinWorldSide = min(kWorld.getGridWidth(), kWorld.getGridHeight())
 	# <!-- custom: Peirce uses square grids; scale from selected world-size min side with a global define so Arena..SAS48 can be tuned centrally like Planet Generator. (GPT-5.3-Codex) -->
-	iGridPercent = cgc.getDefineINT("SAS_PEIRCE_GRID_PERCENT")
+	iGridPercent = cgc.getDefineINT("SAS_PEIRCE_GRID_PCT")
 	iGridPercent = max(1, min(200, iGridPercent))
 	iBaseSide = max(8, int((iMinWorldSide * iGridPercent + 50) / 100))
 	# Keep original Peirce-type relative sizing (normalized from old Huge tables).

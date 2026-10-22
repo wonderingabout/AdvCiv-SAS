@@ -16,7 +16,7 @@ from xml_defines import get_default_repo_root, read_global_define_ints, require_
 
 EXPECTED_NONZERO_LOGGING_DEFAULTS = {
 	# These configure enabled logging but do not enable it themselves.
-	"SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED": 100,
+	"SAS_BBAI_SCORE_LOG_INTERVAL_T_UNSCALED_GS": 100,
 	"SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME": 1,
 }
 
@@ -31,7 +31,7 @@ def main() -> int:
 	# Require every integer SAS_BBAI_* define to be 0 automatically, with explicit exceptions only for settings that configure enabled logging without enabling it. (GPT-5.5 + GPT-5.5) -->
 	expected = {name: 0 for name in defines if name.startswith("SAS_BBAI_")}
 	expected.update(EXPECTED_NONZERO_LOGGING_DEFAULTS)
-	expected["SAS_BBAI_LOG_ENABLE"] = 0
+	expected["SAS_BBAI_LOG_ON"] = 0
 	failures = require_int_values(defines, expected)
 	if failures:
 		print("FAIL BBAI diagnostic logging disabled by default")
