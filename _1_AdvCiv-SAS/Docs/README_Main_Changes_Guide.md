@@ -706,7 +706,7 @@ See [README_Logging_Inventory.md](README_Logging_Inventory.md#before-and-after-s
   - Shared DLL context identifies the compiler and compiled profiler/ReproTest switches alongside the existing build configuration, while DLL/EXE identity includes actual binary resource versions when available; system-context level 3 with the process-context opt-in also records debugger presence and selected development-tool processes at session start, without treating an open IDE or lingering build process as proof of active compilation.
   - Save-format context distinguishes mod/replay identity and the loaded save's game-stream flag from the current writer markers for core/AI objects and supporting subsystems; the shared writer registry supplies that component context without changing serialized bytes.
 
-(Requires AdvCiv-SAS 6440+) Note: `SASGameRecord` log has its own revision system, see [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for details and miscellanous information.
+(Requires AdvCiv-SAS 6440+) Note: SASGameRecord (SGR; current recorder settings use the `SAS_SGR_*` define family) has its own revision system, see [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for details and miscellanous information.
 
 - (Requires AdvCiv-SAS 6626+) **SASGameRecord helps distinguish attractive city plots from sustainable worked-plot combinations:**
   - At city founding, compact player-known Food budgets show how much surplus remains for small and larger worked-plot cores, both with potential improvements and with features retained before improvements.

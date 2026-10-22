@@ -449,9 +449,19 @@ Enforces the preventive desired `DefineName` maximum of 42 UTF-8 bytes across th
 
 The 42-byte target comes from Base AdvCiv 1.14, SAS's direct parent, whose supplied define names top out at 42 bytes. It is a readability/headroom naming policy, not a Civ4 engine limit; KI#1001's separate 255-byte checker remains the hard loader-safety boundary.
 
-The cleanup branch intentionally fails this check until the pre-existing SAS tail tracked by KI#1001.2 is shortened. If clear names consistently cannot fit 42 bytes without obscure abbreviations or loss of important units/semantics, review the policy rather than hiding meaning.
+All 977 shipped names currently pass this check, with a maximum of 42 bytes. Future additions and renames must remain within the same target; if a clear name cannot fit without obscure abbreviations or loss of important units/semantics, review the policy rather than hiding meaning.
 
 Regression tests cover the exact 42/43-byte boundary, UTF-8 byte counting, inherited names, `PythonCallbackDefines.xml`, and modular define files.
+
+#### `build/xml/retired_global_define_names.py`
+
+Reads KI#1001.2's canonical original-to-current conversion table directly and rejects retired `SAS_*` names in active XML, C++ and Python source. This keeps the documentation table as the single migration map instead of maintaining a second manual retired-name list.
+
+The active scan intentionally includes XML comments and copied cache/member identifiers, so stale explanatory comments and code identifiers cannot silently preserve an obsolete spelling. Historical documentation, captured logs, changelogs, revision compatibility tooling and Git history are outside the scan and may retain old names for archaeology or parser compatibility.
+
+The checker also verifies every mapped current name is still declared in `GlobalDefines_advciv_sas.xml`; a later rename therefore requires updating the existing original-to-current KI row rather than creating an intermediate mapping chain.
+
+Regression tests cover active runtime lookups, copied cache identifiers, XML comments, historical-document exclusion and missing current declarations.
 
 #### `build/xml/launch_guard.py`
 

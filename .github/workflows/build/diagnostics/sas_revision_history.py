@@ -260,7 +260,9 @@ def check_history(repo, default_branch_ref=None):
     if branch_commit and subprocess.check_output(["git", "rev-parse", "--is-shallow-repository"], cwd=repo).strip() != b"false":
         return ["revision provenance requires full Git history (checkout fetch-depth: 0)"]
     ancestors = None if branch_commit is None else set(subprocess.check_output(["git", "rev-list", branch_commit], cwd=repo).decode().splitlines())
-    # <!-- custom: A feature branch can contain several recorder commits before integration. Finalized new revisions may identify commits in its current HEAD lineage; revisions already on the default branch must retain canonical ancestry. Rebased/orphaned feature hashes still fail. (GPT-6.1-Sol) -->
+    # <!-- custom: A feature branch can contain several recorder commits before integration.
+    # Finalized new revisions may identify commits in its current HEAD lineage; revisions already on the default branch must retain canonical ancestry.
+    # Rebased/orphaned feature hashes still fail. (GPT-6.1-Sol) -->
     default_revision = None if branch_commit is None else commit_revision(repo, branch_commit)
     candidate_ancestors = set() if default_revision is None else set(subprocess.check_output(["git", "rev-list", "HEAD"], cwd=repo).decode().splitlines())
     text = (repo / HISTORY).read_text("utf-8")

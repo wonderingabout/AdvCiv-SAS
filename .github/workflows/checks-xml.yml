@@ -33,6 +33,9 @@ jobs:
       - name: SAS define declarations and use
         run: python .github/workflows/build/xml/sas_define_usage.py
 
+      - name: Retired SAS define names
+        run: python .github/workflows/build/xml/retired_global_define_names.py
+
       - name: Launch-guard sentinels
         run: python .github/workflows/build/xml/launch_guard.py
 

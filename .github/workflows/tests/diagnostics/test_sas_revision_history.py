@@ -40,7 +40,8 @@ def commit_fixture(repo, message):
 
 
 class RevisionHistoryTests(unittest.TestCase):
-    # <!-- custom: Several recorder steps can precede PR integration; accept their actual lineage while still detecting hashes orphaned by amendment. Existing tests retain canonical-default enforcement for older revisions. (GPT-6.1-Sol) -->
+    # <!-- custom: Several recorder steps can precede PR integration; accept their actual lineage while still detecting hashes orphaned by amendment.
+    # Existing tests retain canonical-default enforcement for older revisions. (GPT-6.1-Sol) -->
     def test_finalized_feature_revision_requires_current_lineage(self):
         with tempfile.TemporaryDirectory() as temp:
             repo = Path(temp)

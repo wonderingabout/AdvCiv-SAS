@@ -19342,7 +19342,8 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 		// Originally this code returned 1 as gemini ai did and had suggested in code comment below, but then as per chatgpt 5's review now released hehe with available code samples, and while adding the strict population limit to address AI cities wrongly assigning inefficiently/too early sometimes specialists and then stagnating (see below for details) or such similar or relatded issue, use a lower value to be safe and better cover edge cases, unlike what is written below from gemini ai, kept for exhaustiveness and just in case -->
 		// <!-- custom: it seems we deleted the no citizen logic or it is missing here for some reason, adding it again as recommended by chatgpt 5.1; i adjusted its code by removing some extra other stuff -->
 		// <!-- custom: Citizen guard - only as LAST RESORT.
-		// AI: always active. Humans: active when SAS_HUMAN_NO_AUTO_CITIZEN_SPECIALIST is 1. (GPT-6.1-Sol) -->
+		// AI: always active.
+		// Humans: active when SAS_HUMAN_NO_AUTO_CITIZEN_SPECIALIST is 1. (GPT-6.1-Sol) -->
 		if (eDefaultSpecialist != NO_SPECIALIST && new_job.first && new_job.second == eDefaultSpecialist)
 		{
 			if (!bHuman)

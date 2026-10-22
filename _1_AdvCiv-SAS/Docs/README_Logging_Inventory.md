@@ -179,6 +179,8 @@ BBAI and SASGameRecord answer different questions: BBAI explains detailed AI dec
 
 Both can use UTC-stamped new/load filenames, shared source/DLL identity and the live-readable diagnostic writer. These are separate from the Python-stream modernization described below: BBAI and SASGameRecord retain their own compact row formats rather than receiving `record=` or a UTC clock prefix on every row.
 
+The captured October 2026 BBAI/SASGameRecord header examples below predate KI#1001.2's completed GlobalDefine rename and intentionally preserve the setting names actually emitted at capture time. Use the [KI#1001.2 conversion table](README_Known_Issues.md#ki-1001.2) when relating those historical rows to current define names.
+
 ### Session headers and provenance
 
 Both log families place canonical mod/source context and exact loaded-DLL build/binary provenance immediately after the session lifecycle marker.
@@ -197,7 +199,11 @@ Identity rows place the stable `processUtc` for one Civ4 launch before plain `ut
 
 Source commit identifiers in these documentation examples are mapped to the rewritten Git history; recorded runtime and binary measurements are retained.
 
-### SASGameRecord
+<a id="sasgamerecord"></a>
+
+### SASGameRecord (SGR)
+
+SASGameRecord is abbreviated SGR in current recorder define names (`SAS_SGR_*`).
 
 Enable `SAS_SGR_LOG_LEVEL` in [`GlobalDefines_advciv_sas.xml`](../../Assets/XML/GlobalDefines_advciv_sas.xml); `0` disables the recorder independently of BBAI. `SAS_SGR_LOG_USE_TIMESTAMPED_FILENAME` selects per-session `SASGameRecord_*.log` files or the fixed `SASGameRecord.log` name.
 

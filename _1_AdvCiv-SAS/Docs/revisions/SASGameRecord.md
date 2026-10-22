@@ -1,4 +1,4 @@
-# SASGameRecord Revision History
+# SASGameRecord (SGR) Revision History
 
 Historical reconstruction from the AdvCiv-SAS commit-diff corpus, reconciled through practical version 6439 (`03b44b8932a0715be234e8c5332fcb8a1d1cf3b2`).
 

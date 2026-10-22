@@ -4,7 +4,11 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
-<!-- custom: about FLAVOR_MILITARY in particular, see code comment at as of now SAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
+<!-- custom: about FLAVOR_MILITARY in particular, see code comment at SAS_TECH_VAL_MILIT_FLAVOR_MIN. (ChatGPT-5.6-Sol) -->
 <!-- Tech Infos -->
 <Civ4TechInfos xmlns="x-schema:CIV4TechnologiesSchema.xml">
 	<TechInfos>
