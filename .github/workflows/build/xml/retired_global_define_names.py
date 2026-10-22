@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
-# <!-- custom: Use the Deprecated migration table associated with KI#1001.2 as the single retired-name source, then reject those spellings in active XML/C++/Python so rename cleanup cannot silently regress.
-# Historical docs/log captures remain searchable because this checker does not scan them. (ChatGPT-5.6-Sol) -->
+# <!-- custom: Use the Deprecated migration table associated with KI#1001.2 as the single retired-name source, then reject those spellings in active source and documentation so rename cleanup cannot silently regress.
+# Active documentation is checked too; explicit historical exceptions preserve original evidence and its search vocabulary. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 
 # <!-- custom: pathlib reads the canonical table and active files; re parses bounded keys/table rows; argparse and sys provide the CLI and exit status. (GPT-6.1-Sol) -->
 from pathlib import Path
@@ -55,12 +55,32 @@ def load_retired_map(repo_root: Path) -> tuple[dict[str, str], list[str]]:
     return mapping, errors
 
 
+# <!-- custom: These records preserve dated findings, published history or real captures, so replacing their identifiers would break correspondence with archived source.
+# Keep exceptions tied to their historical purpose rather than exempting all Docs or Source_Analysis; the migration table itself is validated as input. (GPT-6.1-Sol) -->
+HISTORICAL_FILES = {
+    MAP_FILE.as_posix(),
+    "_1_AdvCiv-SAS/Docs/README_Known_Issues.md",
+    "_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt",
+    "_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt",
+    "_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log",
+    "_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md",
+}
+HISTORICAL_DIRECTORIES = ("_1_AdvCiv-SAS/Docs/git_logs/", "_1_AdvCiv-SAS/Docs/changelogs_web/")
+# <!-- custom: AGENTS includes one deliberate old-to-current search example; its other retired spellings must still fail. (GPT-6.1-Sol) -->
+SEARCH_EXAMPLES = {"AGENTS.md": {"SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT"}}
+
+
+def historical_document(relative: str) -> bool:
+    return relative in HISTORICAL_FILES or relative.startswith(HISTORICAL_DIRECTORIES)
+
+
 def active_source_paths(repo_root: Path):
     roots = (
         (Path("Assets/XML"), {".xml"}),
         (Path("Assets/Python"), {".py"}),
         (Path("PrivateMaps"), {".py"}),
         (Path("CvGameCoreDLL"), {".cpp", ".h", ".inl"}),
+        (Path("_1_AdvCiv-SAS/Docs"), {".md", ".txt", ".log"}),
     )
     for relative_root, suffixes in roots:
         base = repo_root / relative_root
@@ -72,7 +92,11 @@ def active_source_paths(repo_root: Path):
             relative = path.relative_to(repo_root)
             if relative.parts[:2] == ("CvGameCoreDLL", "Project"):
                 continue
-            yield path
+            if not historical_document(relative.as_posix()):
+                yield path
+    for name in ("AGENTS.md", "README.md"):
+        if (repo_root / name).is_file():
+            yield repo_root / name
 
 
 def current_sas_names(repo_root: Path) -> set[str]:
@@ -112,6 +136,8 @@ def check(repo_root: Path) -> tuple[list[str], dict[str, int]]:
         data = path.read_bytes()
         for match in retired_re.finditer(data):
             old = match.group(1).decode("ascii")
+            if old in SEARCH_EXAMPLES.get(path.relative_to(repo_root).as_posix(), set()):
+                continue
             line = data.count(b"\n", 0, match.start()) + 1
             errors.append(f"{path.relative_to(repo_root).as_posix()}:{line}: retired GlobalDefine name {old}; use {mapping[old]}")
             hit_count += 1
@@ -120,7 +146,7 @@ def check(repo_root: Path) -> tuple[list[str], dict[str, int]]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Reject KI#1001.2 retired SAS GlobalDefine names in active XML/C++/Python source.")
+    parser = argparse.ArgumentParser(description="Reject KI#1001.2 retired SAS GlobalDefine names in active source and documentation source.")
     parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
     args = parser.parse_args()
 
@@ -131,7 +157,7 @@ def main() -> int:
             print(f"  - {error}")
         return 1
 
-    print(f"PASS retired GlobalDefine names: {stats['mapping_count']} retired names absent across {stats['file_count']} active XML/C++/Python files.")
+    print(f"PASS retired GlobalDefine names: {stats['mapping_count']} retired names absent across {stats['file_count']} active source and documentation files.")
     return 0
 
 

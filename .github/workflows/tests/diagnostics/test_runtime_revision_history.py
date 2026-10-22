@@ -118,5 +118,20 @@ class RuntimeRevisionTests(unittest.TestCase):
         self.assertEqual(self.check_push(self.commit()), [])
 
 
+    # <!-- custom: Both recorders share explicit squash boundaries; runtime still enforces its complete consecutive history and one final increment. (GPT-6.1-Sol) -->
+    def test_squash_checks_aggregate_once_and_rejects_extra_revision(self):
+        self.git("branch", "-f", "main", self.introduction)
+        self.record(2, "first change")
+        self.commit()
+        self.record(3, "intermediate extra bump")
+        self.commit()
+        self.record(2, "consolidated implementation")
+        tip = self.commit()
+        event = {'pull_request': {'base': {'sha': self.introduction}, 'head': {'sha': tip}, 'labels': [{'name': 'revision:squash'}]}}
+        self.assertEqual(history.check(self.repo, 'main', 'pull_request', event), [])
+        self.assertEqual(history.check(self.repo, 'main', squash=True), [])
+        self.record(3, "unnecessary extra bump")
+        self.assertTrue(history.check(self.repo, 'main', squash=True))
+
 if __name__ == "__main__":
     unittest.main()

@@ -11,6 +11,7 @@ Historical reconstruction from the AdvCiv-SAS commit-diff corpus, reconciled thr
 - Do **not** spend time deciding whether a change is backward-compatible or behavior-changing. When in doubt, increment.
 - Do not increment for standalone documentation/history edits, refreshed example logs/screenshots/packages, or unrelated gameplay commits that merely used SASGameRecord as validation evidence.
 - Multiple SASGameRecord changes deliberately combined in one Git commit are one revision; this is an update counter, not a hunk/field counter.
+  - For an explicitly squash-bound PR (`revision:squash` label), maintain one aggregate revision relative to its base. Ordinary PRs keep per-commit increments.
 - `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` is the single official revision source.
   - The revision is reported as `GAME_RECORD_SOURCE_CONTEXT recordRevision=...` in the SASGameRecord log.
   - The build JSON records build/source/binary evidence separately and has no dedicated recorder-revision field.

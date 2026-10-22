@@ -80,7 +80,7 @@ Locally our project is a git repo too, generally with a fresh commit for each ne
 
 - Generally leave staging/unstaging to the user during review; preserve the existing index and leave new edits unstaged unless asked otherwise or an explicitly approved commit is ready for final preparation.
   - The staged/unstaged split supports iterative review of the same commit candidate, for example sharing only Codex's subsequent edits with ChatGPT, or vice versa. An already-staged file is not permission to stage its newer edits.
-  - Some changes are intentionally kept unstaged and are never meant for the commit. For example, `SAS_SGR_LOG_LEVEL=3` and `SAS_RUNTIME_STATUS_ON=1` are usually left enabled during development cycles, while shipped defaults are `0` to avoid unnecessary diagnostic overhead for regular users.
+  - Some changes are intentionally kept unstaged and are never meant for the commit. For example, `SAS_SGR_LOG=3` and `SAS_RUNTIME_STATUS_ON=1` are usually left enabled during development cycles, while shipped defaults are `0` to avoid unnecessary diagnostic overhead for regular users.
     - CI helps catch accidentally committed development settings; shipping defaults can be checked in the staged XML or a temporary snapshot.
     - Temporarily changing local settings is fine when needed, but restore them before handing back for user testing unless there is a specific reason to leave them disabled. Make that exception clear to the user, who may otherwise forget or not notice that diagnostics are off.
 - Do not commit changes without explicit user approval; leave the completed candidate for review first.
@@ -258,6 +258,8 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
   - Prefer dates for later follow-ups; practical commit-count versions can change across branches/rebases. Reserve those versions for documents that need them, such as the Main Changes Guide and SASGameRecord revision history; omit them from commit messages.
 
 ### Markdown structure and readability
+
+- Use repository-root links such as `/Assets/XML/GlobalDefines_advciv_sas.xml` for local Markdown destinations; moving the referring document then preserves the target. Same-page anchors and external URLs are fine.
 
 - For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
 - For long Markdown prose, preserve the wording but prefer semantic structure that also reads clearly in rendered Markdown.
@@ -511,7 +513,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
   - SAS define XML edits currently require restarting Civ4, so retaining resolved settings for the session should currently be appropriate.
   - Before choosing this pattern, consider whether caching is safe for the value and its uses; for example, it may not yet be available or may be changed/refreshed during the game. Adjust the approach when needed rather than applying the pattern mechanically.
     - Example: C++ [KI#243](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-243) retained the first map's river defines, altering later generations; `CvMapGenerator::addRivers()` now reads/restores overrides per generation.
-- It seems definebool does not exist in python, so use boolean comparison on int rather; e.g., `IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)`. Does not apply to C++ though that has defineBOOL.
+- It seems definebool does not exist in python, so use boolean comparison on int rather; e.g., `IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") > 0)`. Does not apply to C++ though that has defineBOOL.
 - Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
 - Prefer strict XML lookup helpers from `SASUtils` over raw lookups for static/literal tags: use `getInfoTypeOrFail("TAG")` instead of raw `gc.getInfoTypeForString("TAG")`, and use `findInfoTypeNumOrFail(gc.getXInfo, gc.getNumXInfos, "TAG")` instead of raw `CvUtil.findInfoTypeNum(...)`.
   - This keeps missing or renamed XML tags loud instead of silently returning `-1`; it helped catch incorrect direction-string usage in Planet Generator map (e.g., `getInfoTypeOrFail("DIRECTION_NORTH")` instead of `DirectionTypes.DIRECTION_NORTH*`) and incorrect plot/terrain-style lookups (e.g., `getInfoTypeOrFail("PLOT_PEAK")` instead of `PlotTypes.PLOT_PEAK` in Peirce map).
@@ -629,6 +631,8 @@ int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, 
 ```
 
 ## Diagnostic revision maintenance
+
+- For a PR explicitly labeled `revision:squash`, apply revision maintenance once to the complete candidate relative to its base; ordinary PRs retain per-commit maintenance. Both recorder checks accept local `--squash` review.
 
 ### SASGameRecord
 

@@ -8,8 +8,8 @@ The process created two games, loaded a save, opened/closed Sevopedia from the m
 
 | File | Meaning |
 | --- | --- |
-| [SASRuntimeStatus_example.json](SASRuntimeStatus_example.json) | One indented JSON object describing the latest observed state, loaded-DLL identity and current/previous activity timing. |
-| [SASRuntimeHistory_example.jsonl](SASRuntimeHistory_example.jsonl) | One complete JSON object per line: run identity, ready-session context and timed transitions. |
+| [SASRuntimeStatus_example.json](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeStatus_example.json) | One indented JSON object describing the latest observed state, loaded-DLL identity and current/previous activity timing. |
+| [SASRuntimeHistory_example.jsonl](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeHistory_example.jsonl) | One complete JSON object per line: run identity, ready-session context and timed transitions. |
 
 The snapshot's `historyFilename` is normalized to the example companion's filename; all other captured fields remain unchanged. The history contains one `run`, three `session` and 35 consecutive `transition` records through the final snapshot's activity serial.
 
@@ -19,7 +19,7 @@ Live output stays in the resolved user root's `Logs` folder, outside the reposit
 
 ## Recorder revision and serials
 
-The current recorder reports `revision` in both files, using one compiled `SAS_RUNTIME_REVISION`. Its [revision history](../../revisions/SASRuntime.md) records implementation changes, including minor changes, once per qualifying commit. This revision is independent of SASGameRecord and binary-save versions.
+The current recorder reports `revision` in both files, using one compiled `SAS_RUNTIME_REVISION`. Its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md) records implementation changes, including minor changes, once per qualifying commit. This revision is independent of SASGameRecord and binary-save versions.
 
 These revision-5 captures include presentation observations, the explicit interval-start distinction and typed JSONL records introduced in revision 3. Its `readyGameTurn` and `readyActivePlayer` describe the first ready-session observation, preserved even if that context is published after a failed write and later game progression.
 

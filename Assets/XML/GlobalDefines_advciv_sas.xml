@@ -1805,17 +1805,17 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: Log levels: 0=None, 1=important decisions only, 2=many decisions, 3=all logging. (GPT-5.5?) -->
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
 	<Define>
-		<DefineName>SAS_BBAI_PLAYER_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_PLAYER_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
 	<Define>
-		<DefineName>SAS_BBAI_TEAM_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_TEAM_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Dedicated war-plan and war-target diagnostics, separated from TEAM so UWAI notably target choice, target power per city and armies committed elsewhere, ranked-candidate rolls, preparation review/cancellation causes and severity, target switches, direct-war adoption, declaration context, peace-review/negotiation causes, and level-3 nearby-overseas war-vs-peace aspect breakdowns can be inspected without broad team/diplomacy logging. (GPT-5.5 + GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_WAR_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_WAR_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: UWAI's inherited separate Textile report logger is replaced by ordinary cached SAS_BBAI categories that write directly to the normal timestamped BBAI log.
@@ -1823,108 +1823,108 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Across UWAI categories: 0=None, 1=important outcomes/summaries, 2=major calculation context, 3=full inherited detail where that subsystem has deeper detail. See KI#505.3. (ChatGPT-5.6-Sol) -->
 	<!-- custom: Top-level UWAI team/war-plan flow. Level 1 records important report actions/outcomes; level 2 adds the inherited planning/negotiation detail. Level 3 currently includes the same Agent detail as level 2. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_UWAI_AGENT_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_UWAI_AGENT_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: UWAI military-scenario analysis.
 	Level 1 records major war/capitulation/elimination outcomes; level 2 adds scenario membership, city and power detail.
 	Level 3 currently includes the same Military Analyst detail as level 2. See KI#505.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_UWAI_MILIT_ANALYST_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_UWAI_MILIT_ANALYST_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: UWAI invasion/deployment simulation.
 	Level 1 records major conquest, landing, army-loss and capitulation outcomes; level 2 adds graph/target transitions; level 3 adds full inherited deployment/clash detail. See KI#505.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_UWAI_INVASION_GRAPH_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_UWAI_INVASION_GRAPH_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: UWAI military-production/armament forecast.
 	Level 1 records forecast cancellation and predicted power changes; level 2 adds horizon/production summaries; level 3 adds full inherited branch/allocation detail. See KI#505.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_UWAI_ARMAMENT_FORECAST_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_UWAI_ARMAMENT_FORECAST_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: UWAI WarEvaluator + WarUtilityAspect chain.
 	Level 1 records chosen bottom-line utilities; level 2 adds evaluator/scenario context and aspect totals; level 3 adds the full inherited per-aspect diagnostic stream.
 	This is the hottest inherited report family, so callers pre-gate before entering log helpers or evaluating their arguments. See KI#505.3. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_UWAI_WAR_UTILITY_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_UWAI_WAR_UTILITY_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
 	<Define>
-		<DefineName>SAS_BBAI_CITY_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_CITY_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Dedicated all-city no-production diagnostics without enabling broad CITY or military-production logging.
 	Level 2 records a city that reaches its appropriate player/city turn boundary without a target outside disorder; level 3 adds legal-target and strategic context plus expected-disorder versus abnormal final AI chooser paths.
 	Diagnostic-only and no RNG calls. See KI#51. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_PROD_NO_TARGET_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_PROD_NO_TARGET_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Dedicated AI military-production diagnostics.
 	Level 2 notably reuses the existing AI_chooseProduction branch-choice messages without requiring broad CITY logging; level 3 notably adds structured production context and major military/nonmilitary gates, including spending, generic rolls, unit selection, and forced emergency-building decisions. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_MILIT_PROD_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_MILIT_PROD_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Dedicated spaceship-production diagnostics.
 	Level 2 records reevaluation/release/final-target transitions for already-invested spaceship projects plus the best project selected by each city; level 3 also records every spaceship candidate's availability, city-fit calculation, and the space-specific value before/after victory-stage, war-area, and production-capacity adjustments.
 	This is diagnostic-only and adds no RNG calls. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_SPACE_PROD_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_SPACE_PROD_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Dedicated one-copy non-spaceship Project diagnostics for Manhattan, Internet, SDI and Apollo.
 	Level 2 records reevaluation/release/final-target transitions plus selected limited projects; level 3 also records candidate legality, production rank/fit, stored production, team-making counts and final candidate value.
 	Diagnostic-only and no RNG calls. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_LIMITED_PROJECT_PROD_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_LIMITED_PROJECT_PROD_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Dedicated building-production diagnostics for comparing useful infrastructure opportunities with actual production choices, including the hard-needed and high-return cheap-infrastructure efficiency gates.
 	Level 2 notably records the best general building opportunity and the final production target; level 3 also notably records health, happiness, maintenance, food, production, gold, and research-focused building candidates plus representative land-military unit costs.
 	Diagnostic-only and adds no RNG calls. (ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_BLDG_PROD_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_BLDG_PROD_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: New dedicated citizen-assignment diagnostics following the shared log-level classification above.
 	Level 3 notably compares final worked/unworked jobs contextually and also reports simple 3F + 2H + 1C raw-yield disagreements, without enabling broad city logs. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_BBAI_CITIZEN_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_CITIZEN_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: New dedicated culture-victory BBAI diagnostics following the shared log-level classification above, without enabling broad player/city logs.
 	Use this to notably diagnose AI cultural-victory overinvestment, uneven Legendary-city targeting, production opportunity costs, and hopeless culture attempts before changing behavior. (ChatGPT-5.5 + GPT-5.5 review) -->
 	<Define>
-		<DefineName>SAS_BBAI_CULT_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_CULT_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
 	<Define>
-		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_UNIT_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Dedicated overseas-transport diagnostics, separated from CITY and UNIT notably so island settlement/conquest opportunities, naval-target reachability, transport production, military cargo capacity, failed army loading, Settler/Worker cargo handling, pickup attempts, and launch decisions can be inspected together without broad logging.
 	Level 3 notably also compares exact empty-island and conquest candidates with BFC resources and follows completed-island Worker pickup and dispatch. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_OVERSEAS_TRANSPORT_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Dedicated Great General diagnostics, separated from UNIT because Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, target-unit choice, safe-path rejection, and Great General deaths are one strategic decision chain rather than ordinary unit movement.
 	Level 3 notably records numeric current/city/path-end danger so KI#204 safety decisions, including whether a trapped General has a strictly safer escape route, can be audited. (GPT-5.5 + ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_GREAT_GENERAL_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_GREAT_GENERAL_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Dedicated Settler-unit diagnostics, separated from UNIT so Settlers and other units can be inspected independently.
 	This notably covers city-site decisions, Settler movement, scouting, returns, founding, parking reasons, danger context, and city escort pools; FOUND separately controls detailed city-site scoring calculations.
 	Level 2 notably logs compact parking/security decisions, and level 3 notably adds city unit-list detail for escort-diversion analysis. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
-		<DefineName>SAS_BBAI_SETTLER_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_SETTLER_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Detailed city-site diagnostics, separate from Settler-unit movement/security diagnostics.
@@ -1935,13 +1935,13 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Levels 2/3 cover candidate sweeps and can produce multi-GB full-autoplay logs; level 1 is compact lifecycle output, while levels 2/3 serve numeric/deep AI audits, often focused on shorter test periods.
 	Base AdvCiv LOG_FOUND_VALUE default: when enabled: 1; when disabled: 0. See KI#505.2. (GPT-5.5 + GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_FOUND_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_FOUND_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Opt-in Found-level-2+ forensic audit for ordinary post-capital city sites.
 	When enabled, compare unconstrained versus Food-feasible worked-value cores of 3/6/10/14 worked non-home plots using ordinary later-city rank weighting; this does not change AI scores.
 	Keep disabled outside focused tests because every surviving later-city candidate needs an additional subset search.
-	Requires SAS_BBAI_FOUND_LOG_LEVEL >= 2 to do any work. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	Requires SAS_BBAI_FOUND_LOG >= 2 to do any work. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_BBAI_FOUND_LATER_FOOD_SUPPORT_AUDIT_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -1949,40 +1949,40 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: Dedicated evacuation/retreat diagnostics, separated from CITY and UNIT so city-side evacuation decisions and affected units can be inspected together without broad logging.
 	This notably covers doomed cities, workers, and naval units. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_BBAI_EVACUATION_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_EVACUATION_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: New Land-worker BBAI log level notably for Worker AI build, movement, improvement-replacement, and idle/parking lifecycle diagnostics.
 	This keeps WORKER_* diagnostics out of the general UNIT category, so UNIT can stay focused on non-worker unit AI. (ChatGPT-5.5 + GPT-5.5 review) -->
 	<Define>
-		<DefineName>SAS_BBAI_WORKER_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_WORKER_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: New Worker-sea/Work Boat BBAI log level for UNITAI_WORKER_SEA, notably for production, target, audit, movement, and sea-improvement diagnostics.
 	This separates noisy Work Boat diagnostics from both CITY and UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
 	<Define>
-		<DefineName>SAS_BBAI_WORKER_SEA_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_WORKER_SEA_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; LOG_FOUND_VALUE changed this to 1 for starting site normalization context (advc.031c); when disabled: 0. (GPT-5.5?) -->
 	<Define>
-		<DefineName>SAS_BBAI_MAP_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_MAP_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 1; when disabled: 0. (GPT-5.5?) -->
 	<Define>
-		<DefineName>SAS_BBAI_DEAL_CANCEL_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_DEAL_CANCEL_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Shared dynamic bonus-value and resource-trade diagnostics.
 	Level 2 logs changed happiness/health, unit, building, project and route component totals; level 3 also identifies the XML assets contributing to those totals and traces the active multi-effect and market-pricing stages.
 	Worker and Found logs retain their consumer-specific plot decisions. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_BONUS_LOG_LEVEL</DefineName>
+		<DefineName>SAS_BBAI_BONUS_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: BBAI player score-detail log interval in turns.
-	Only used when SAS_BBAI_PLAYER_LOG_LEVEL > 0; clamped to at least 1 to avoid invalid modulo.
+	Only used when SAS_BBAI_PLAYER_LOG > 0; clamped to at least 1 to avoid invalid modulo.
 	Base AdvCiv BBAILog.h default: LOG_AI enabled 100; disabled fallback effectively 10000; advc.007 says this was hardcoded to 25 in CvPlayer::onTurnLogging before BBAILog.h. (GPT-5.5?) -->
 	<Define>
 		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL_T_UNSCALED_GS</DefineName>
@@ -2005,7 +2005,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	The record has one overall log-level define: 0 disables it, while higher values enable more detail; subject-specific supporting switches can suppress selected expensive/noisy families without becoming separate recorder masters.
 	The level is cached once after all GlobalDefines/module overrides load so widespread disabled hooks are direct integer checks; change it before launching/reloading the DLL rather than expecting a runtime Define mutation to retune the recorder (the prior implementation also cached its first resolved value). (ChatGPT-5.5 + GPT-5.5 + ChatGPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_SGR_LOG_LEVEL</DefineName>
+		<DefineName>SAS_SGR_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Level-3 periodic snapshots can also mirror the active player's resolved Foreign Advisor trade market: target-specific bonus/technology offerability, exact denial reasons, current pair GPT balance and maximum additional gold/GPT, plus compact strategic willingness for treaties/vassalage, city ceding and Glance-style war-for-hire targets.
@@ -2172,7 +2172,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: Anonymous runtime metrics for SAS game-record performance review.
 	1 records Civ4 process memory, system memory-load percentage, available 32-bit process address space, and foreground/minimized state at full snapshots.
 	0 skips all corresponding operating-system queries and dynamic PSAPI loading while preserving millisecond timing and every gameplay record row; stable fields remain present as -1.
-	This setting has no effect while SAS_SGR_LOG_LEVEL is 0. (GPT-5.6-Sol) -->
+	This setting has no effect while SAS_SGR_LOG is 0. (GPT-5.6-Sol) -->
 	<!-- custom: Keep revision-151+ causal user/action/interface rows independently suppressible at recorder level 2+.
 	Default: 1; preserves End Turn/save-load/control requests, active-human commerce changes, Python screen/Sevopedia events, city-screen transitions, scoreboard/annotation state, and camera results; 0 skips that whole action trace while retaining revision-150 session settings/runtime-view state and all unrelated recorder families.
 	The DLL and Python callers cache this fixed startup setting after XML is ready, so restart/reload the mod after changing it. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
@@ -2188,7 +2188,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Hardware identity, exact paths and process inspection additionally require their separate opt-ins below, so richer diagnostics do not implicitly disclose device models or personal folder names.
 	Profile values are sampled after GameStart/OnLoad; display context waits for graphics initialization.
 	No per-turn hardware polling is added.
-	Clamped to 0..3; independent from dynamic performance metrics and inactive while SAS_SGR_LOG_LEVEL is 0. (GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	Clamped to 0..3; independent from dynamic performance metrics and inactive while SAS_SGR_LOG is 0. (GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_SYSTEM_CONTEXT_LVL</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
@@ -4038,7 +4038,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_UWAI_LOCAL_TARGET_MIN_DIST_ADV</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
-	<!-- custom: With SAS_BBAI_WAR_LOG_LEVEL >= 3, log WAR_UTILITY_HIGH final rows and WAR_UTILITY_SCENARIO_HIGH component rows when UWAI war utility reaches this absolute value.
+	<!-- custom: With SAS_BBAI_WAR_LOG >= 3, log WAR_UTILITY_HIGH final rows and WAR_UTILITY_SCENARIO_HIGH component rows when UWAI war utility reaches this absolute value.
 	Use this to diagnose saturated drive values before tuning UWAI behavior; 0 disables the extra high-utility breakdown.
 	Unlike fixed filters for one targeted diagnostic, this remains tunable because there is no universal "high" utility cutoff, the threshold can greatly change log volume, and 0 independently disables the generic breakdown. (GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>

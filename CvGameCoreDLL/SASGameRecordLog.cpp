@@ -80,7 +80,7 @@ bool g_bSASGameRecordActionTraceEnabled = false;
 
 void cacheSASGameRecordLogLevel()
 {
-	g_iSASGameRecordLogLevel = getClampedSASGameRecordLogLevel("SAS_SGR_LOG_LEVEL");
+	g_iSASGameRecordLogLevel = getClampedSASGameRecordLogLevel("SAS_SGR_LOG");
 }
 
 // <!-- custom: Resolve the revision-151+ action subject once after XML loading; hot control/player/UI call sites then use the cached Boolean without repeated define lookups. (ChatGPT-5.6-Sol) -->
@@ -2454,7 +2454,7 @@ static CvString getSASGameRecordLogSettingFields()
 {
 	SASGameRecordLogSetting const aSettings[] =
 	{
-		{ "SAS_SGR_LOG_LEVEL", getSASGameRecordLogLevel() },
+		{ "SAS_SGR_LOG", getSASGameRecordLogLevel() },
 		{ "SAS_SGR_INTERVAL_T_UNSCALED_GS", getSASGameRecordTurnInterval() },
 		{ "SAS_SGR_LOG_USE_TIMESTAMPED_FILENAME", isSASGameRecordTimestampedFilenameEnabled() },
 		{ "SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON", GC.getDefineINT("SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON") },

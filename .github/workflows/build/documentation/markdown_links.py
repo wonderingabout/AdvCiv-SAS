@@ -409,6 +409,15 @@ def known_issues_menu_errors() -> tuple[list[str], int]:
     return errors, len(issue_set)
 
 
+# <!-- custom: Resolve file links from the repository root so moving the referring Markdown file does not silently retarget them.
+# Same-page anchors and external URLs remain valid; target moves still require updating references.
+# Reuse the existing link-validation traversal rather than introducing another repository scan. (GPT-6.1-Sol) -->
+def root_link_error(destination: str) -> str | None:
+    if is_local(destination) and urlsplit(html.unescape(destination.strip())).path and not destination.startswith("/"):
+        return "use a repository-root link beginning with /: " + destination
+    return None
+
+
 def main() -> int:
     errors: list[str] = []
     checked = 0
@@ -425,6 +434,9 @@ def main() -> int:
         references = list(markdown_links(scan_text)) + list(html_links(scan_text))
         references.sort(key=lambda item: item[0])
         for offset, destination in references:
+            style_error = root_link_error(destination)
+            if style_error:
+                errors.append(f"{md_path.relative_to(ROOT)}:{line_number(scan_text, offset)}: {style_error}")
             target, fragment = resolve_local_link(md_path, destination)
             if target is None:
                 continue

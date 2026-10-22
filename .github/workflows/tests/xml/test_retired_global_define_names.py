@@ -65,8 +65,12 @@ class RetiredGlobalDefineNameTests(unittest.TestCase):
         self.write("Assets/XML/Technologies/Test.xml", "<!-- see SAS_OLD_SETTING -->\n<Root/>\n")
         self.assertTrue(any("Technologies/Test.xml" in error for error in self.errors()))
 
-    def test_historical_document_is_outside_active_scan(self):
-        self.write("README.md", "Historical spelling: SAS_OLD_SETTING\n")
+    def test_current_documentation_fails_but_historical_evidence_passes(self):
+        self.write("_1_AdvCiv-SAS/Docs/README_Current.md", "Use SAS_OLD_SETTING\n")
+        self.assertTrue(any("README_Current.md" in error for error in self.errors()))
+        self.write("_1_AdvCiv-SAS/Docs/README_Current.md", "Use SAS_NEW_SETTING\n")
+        for name in retired.HISTORICAL_FILES - {retired.MAP_FILE.as_posix()}:
+            self.write(name, "Historical spelling: SAS_OLD_SETTING\n")
         self.assertEqual(self.errors(), [])
 
     def test_mapping_current_name_must_exist(self):

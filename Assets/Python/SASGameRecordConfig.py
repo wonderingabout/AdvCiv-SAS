@@ -16,7 +16,7 @@ _g_bugStringValuesEnabled = None
 def getLogLevel():
 	global _g_logLevel
 	if _g_logLevel is None:
-		_g_logLevel = max(0, min(3, CyGlobalContext().getDefineINT("SAS_SGR_LOG_LEVEL")))
+		_g_logLevel = max(0, min(3, CyGlobalContext().getDefineINT("SAS_SGR_LOG")))
 	return _g_logLevel
 
 

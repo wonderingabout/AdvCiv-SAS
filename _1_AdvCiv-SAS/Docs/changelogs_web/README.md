@@ -1,6 +1,6 @@
 # Published AdvCiv-SAS Web Changelogs
 
-This folder archives AdvCiv-SAS release/update text manually copied from the public CivFanatics (CFC) and/or ModDB pages. It preserves how releases were described at publication time and complements the detailed commit history in [`../git_logs/`](../git_logs/) and the current-state [Main Changes Guide](../README_Main_Changes_Guide.md).
+This folder archives AdvCiv-SAS release/update text manually copied from the public CivFanatics (CFC) and/or ModDB pages. It preserves how releases were described at publication time and complements the detailed commit history in [`../git_logs/`](/_1_AdvCiv-SAS/Docs/git_logs) and the current-state [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md).
 
 The changelog files are plain text and named by release version (for example `4986.txt` or `5030.txt`). Preserve the published wording as much as practical rather than rewriting old releases to match current terminology. Keep only minimal provenance above the copied text:
 

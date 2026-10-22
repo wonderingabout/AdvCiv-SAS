@@ -15564,7 +15564,7 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 	UnitAITypes const eRequestedUnitAI = eUnitAI;
 	bool const bLogDetailedMilitaryProduction = (gMilitaryProductionLogLevel >= 3 && !isHuman() && !isBarbarian());
 	bool const bLogRequestedAssaultTransportProduction = (gOverseasTransportLogLevel >= 2 && eUnitAI == UNITAI_ASSAULT_SEA);
-	// <!-- custom: Production-side Settler diagnostics belong to the Settler log category, not the broad city log, so tests with only SAS_BBAI_SETTLER_LOG_LEVEL enabled still show which high- or low-level unit choice path tried to train a Settler.
+	// <!-- custom: Production-side Settler diagnostics belong to the Settler log category, not the broad city log, so tests with only SAS_BBAI_SETTLER_LOG enabled still show which high- or low-level unit choice path tried to train a Settler.
 	// Callers still own the log-level guard before this formatter is invoked. (GPT-5.5-Thinking) -->
 	const bool bRequestedSettler = (eUnitAI == UNITAI_SETTLE);
 	if (bRequestedSettler)

@@ -10,7 +10,7 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
 
 - **Player-tunable options (SAS defines):**
   - When this guide mentions DLL code locations (for example `CvUnitInfo::getTerrainAttackModifier`), that is just to document where the behavior comes from.
-  - **Players do not need to modify or recompile the DLL** to change the behavior; you can instead change/tune the corresponding **SAS defines** (in the above mentioned **XML** file): for example the `SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS` SAS define can be set to `0` to disable or `1` to enable this option.
+  - **Players do not need to modify or recompile the DLL** to change the behavior; you can instead change/tune the corresponding **SAS defines** (in the above mentioned **XML** file): for example the `SAS_UNIT_XML_TERRAIN_ATK_MODIFIERS` SAS define can be set to `0` to disable or `1` to enable this option.
   - Note: after modifying them, restart Civ4 to apply changes.
 - **Scope note:** The long-term goal is to make more gameplay options player-tunable via SAS defines when it is practical. Some changes are still hardcoded (or not worth exposing) due to complexity, risk, or limited value, so not everything is configurable.
 
@@ -486,7 +486,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 
 #### Logging inventory
 
-[README_Logging_Inventory.md](README_Logging_Inventory.md) covers log purposes, controls, historical/mod origins and matched Before/After samples of SAS changes. The [root README's logging inventory overview](/README.md#logging-inventory) introduces the covered files.
+[README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md) covers log purposes, controls, historical/mod origins and matched Before/After samples of SAS changes. The [root README's logging inventory overview](/README.md#logging-inventory) introduces the covered files.
 
 #### Runtime status and history
 
@@ -560,7 +560,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - File-load rows identify `phase=BEGIN` or `phase=END`, the path and final outcome; other records identify setup stages and unknown XML types. The direct C++ Starting Position Iteration notice in `PythonDbg.log` also receives UTC and `record=STARTING_POSITION_ITERATION`, since it bypasses the Python stream formatter.
   - These changes cover DLL-controlled rows; EXE-owned writers retain their formats.
 
-See [README_Logging_Inventory.md](README_Logging_Inventory.md#before-and-after-shared-python-log-timestamps) for matched Before/After samples, file roles and historical/mod origins, enabling conditions, writer ownership and runtime start/end evidence.
+See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#before-and-after-shared-python-log-timestamps) for matched Before/After samples, file roles and historical/mod origins, enabling conditions, writer ownership and runtime start/end evidence.
 
 #### Logging (Common)
 
@@ -646,10 +646,10 @@ See [README_Logging_Inventory.md](README_Logging_Inventory.md#before-and-after-s
   - First-city scouting, candidate summaries and ordinary Settler actions use stable `FIRST_CITY_*` / `SETTLER_*` event prefixes with named fields instead of prose-only messages.
   - Duplicate target-only prose rows are removed where the structured mission row already preserves that information; log levels and AI decisions remain unchanged.
 - **BBAI worker log split:**
-  - added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions.
+  - added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions.
   - Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
 - **BBAI Settler log split:**
-  - added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently.
+  - added `SAS_BBAI_SETTLER_LOG`, separated from UNIT so Settlers and other units can be inspected independently.
   - This notably covers city-site decisions, Settler movement, scouting, returns, founding, parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations.
   - This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
 - (Requires AdvCiv-SAS 6569+) **Auditable Settler decisions:**
@@ -657,38 +657,38 @@ See [README_Logging_Inventory.md](README_Logging_Inventory.md#before-and-after-s
   - Movement rows distinguish local rechecks, candidate eligibility, scouting directions, cached-site comparisons, returns, escort/security branches, and final founding.
   - The expensive omniscient and string-rich detail is level-3-only and pre-gated, so disabled diagnostics do not add it to ordinary gameplay.
 - **Overseas-transport BBAI diagnostics:**
-  - added `SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL`, separated from CITY and UNIT so overseas settlement and conquest logistics can be inspected without enabling those broad logs.
+  - added `SAS_BBAI_OVERSEAS_TRANSPORT_LOG`, separated from CITY and UNIT so overseas settlement and conquest logistics can be inspected without enabling those broad logs.
   - It notably connects known valuable island sites and cities with their distance and defenders, map type, transport production and cargo capacity, loaded units, units actually available to board, incoming cargo already assigned within 1/3/7 turns, pickup/loading failures, launch thresholds and decisions, naval reachability, and Settler/Worker cargo handling.
 - **BBAI War diagnostics:**
-  - added `SAS_BBAI_WAR_LOG_LEVEL`, separated from TEAM so UWAI war-target choice can be inspected without broad team/diplomacy logs.
+  - added `SAS_BBAI_WAR_LOG`, separated from TEAM so UWAI war-target choice can be inspected without broad team/diplomacy logs.
   - It notably records target utility, limited-vs-total war comparison, naval/preparation context, forced peace, attitude, closeness, city distance, power, selected target, target switches, direct-war adoption, war-plan lifecycle changes, and optional high-utility scenario/aspect breakdowns, which should help investigate problematic faraway wars before changing behavior.
 - **Great General BBAI diagnostics:**
-  - added `SAS_BBAI_GREAT_GENERAL_LOG_LEVEL`, separated from UNIT notably so Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, and target-unit choice can be inspected together without enabling broad unit logs.
+  - added `SAS_BBAI_GREAT_GENERAL_LOG`, separated from UNIT notably so Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, and target-unit choice can be inspected together without enabling broad unit logs.
   - This notably helped isolate a bad France sample where `AI_join` rejected all cities for safety/path reasons, then the plot-danger branch attached a Great General to a low-value Longbowman.
 - **Culture-victory BBAI diagnostics:**
-  - added a new dedicated `SAS_BBAI_CULT_LOG_LEVEL` notably for diagnosing premature, uneven, or wasteful AI culture investment without enabling broad player/city logs.
+  - added a new dedicated `SAS_BBAI_CULT_LOG` notably for diagnosing premature, uneven, or wasteful AI culture investment without enabling broad player/city logs.
   - It records for example culture-stage reasons, current/projected Legendary-city countdowns and rival ranking, competing victory progress, actual culture-slider decisions, per-city weights and production, and culture contributed by production processes and assigned specialists.
 - **Citizen-allocation BBAI diagnostics:**
-  - added a dedicated `SAS_BBAI_CITIZEN_LOG_LEVEL` notably for finding worked plots or specialists that the AI's full city-aware comparison would replace, but its faster preliminary selection overlooked.
+  - added a dedicated `SAS_BBAI_CITIZEN_LOG` notably for finding worked plots or specialists that the AI's full city-aware comparison would replace, but its faster preliminary selection overlooked.
   - At the highest level, it also reports suspicious worked/unworked plot pairs under a simple food-first yield check.
-- **Evacuation and retreat BBAI diagnostics:** added `SAS_BBAI_EVACUATION_LOG_LEVEL`. It notably helps investigate evacuation/retreat behavior without broad city or unit logging, for doomed cities, workers, and naval units.
+- **Evacuation and retreat BBAI diagnostics:** added `SAS_BBAI_EVACUATION_LOG`. It notably helps investigate evacuation/retreat behavior without broad city or unit logging, for doomed cities, workers, and naval units.
 - **BBAI logging guard cleanup:**
   - now that BBAI logging is runtime-tunable rather than compile-gated, some older logging-only code paths are **guarded more explicitly** through the relevant log-level defines.
   - This avoids running logging passes or expensive/unneeded evaluation and formatting of **log parameters** that ultimately won't be used when that log category is disabled.
 - (Requires AdvCiv-SAS 6455+) **Dedicated no-production BBAI logging:**
-  - `SAS_BBAI_PROD_NO_TARGET_LOG_LEVEL` isolates KI#51 investigation from broad city and military-production logging.
+  - `SAS_BBAI_PROD_NO_TARGET_LOG` isolates KI#51 investigation from broad city and military-production logging.
   - Level 2 records any civilization city that reaches its control-path-aware turn boundary without a production target outside disorder; level 3 adds legal units/buildings/Projects/Processes and strategic context, plus exact AI chooser reasons (`EXPECTED_DISORDER` versus an abnormal `FINAL_FALLTHROUGH`).
-- **Dedicated AI military-production BBAI logging**: added `SAS_BBAI_MILIT_PROD_LOG_LEVEL` notably to isolate production diagnostics without enabling broad city logging.
+- **Dedicated AI military-production BBAI logging**: added `SAS_BBAI_MILIT_PROD_LOG` notably to isolate production diagnostics without enabling broad city logging.
   - Higher detail notably records unit-build probability, spending limits, building/nonunit gates, unit selection and rejection reasons, and (Requires AdvCiv-SAS 6584+) proactive-fortification decisions.
 - (Requires AdvCiv-SAS 6584+) **Dedicated building-production BBAI forensic audit:**
-  - AdvCiv-SAS adds `SAS_BBAI_BLDG_PROD_LOG_LEVEL` to link candidate value, contextual policy and the production target ultimately selected.
+  - AdvCiv-SAS adds `SAS_BBAI_BLDG_PROD_LOG` to link candidate value, contextual policy and the production target ultimately selected.
   - Level 3 notably records exact before/delta attribution for happiness/anger, health and unhealthy-food relief, food-kept growth, maintenance, trade, yields/commerce, conventional/nuclear defense, `iAIWeight`/flavor, generic and domain military production/XP, domain applicability, Wonder placement/race/continuation, Government Centers, Palace relocation, National Park pressure and proactive fortification.
   - (Requires AdvCiv-SAS 6584+) The first broad exact-component audit produced about **198,700 attribution rows**, so this deliberately remains an opt-in forensic microscope; expensive scans/formatting are gated behind the log level and diagnostic evaluation adds no chooser RNG.
     - See [KI#48.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.5) and [KI#48.9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.9); see also [KI#880](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-880) for an inherited happiness-arithmetic defect and [KI#821](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-821) for construction-value cache-lifetime/observer-effect correctness exposed by the same audit.
-- (Requires AdvCiv-SAS 6448+) **Dedicated AI space-production BBAI logging**: added `SAS_BBAI_SPACE_PROD_LOG_LEVEL` category because SASGameRecord could identify the strategic outcome and production switches but could not explain the city-level project valuation and branch that displaced them.
+- (Requires AdvCiv-SAS 6448+) **Dedicated AI space-production BBAI logging**: added `SAS_BBAI_SPACE_PROD_LOG` category because SASGameRecord could identify the strategic outcome and production switches but could not explain the city-level project valuation and branch that displaced them.
   - Level 2 as of now records invested spaceship reevaluation/release/final-target transitions and selected projects; level 3 as of now additionally records every spaceship candidate's legality, production-rank/fit decision and the space-specific project value before and after victory-stage, area-war and production-capacity adjustments.
 - (Requires AdvCiv-SAS 6449+) **Dedicated AI one-copy Project-production BBAI logging:**
-  - added `SAS_BBAI_LIMITED_PROJECT_PROD_LOG_LEVEL` for Manhattan, Internet, SDI and Apollo after SASGameRecord exposed large amounts of stored Project production being parked and later invalidated.
+  - added `SAS_BBAI_LIMITED_PROJECT_PROD_LOG` for Manhattan, Internet, SDI and Apollo after SASGameRecord exposed large amounts of stored Project production being parked and later invalidated.
   - Level 2 records reevaluation, release/final-target transitions and selected limited Projects; level 3 additionally records candidate legality, production rank/fit, stored production, team-making counts and final candidate value.
   - This complements SASGameRecord's exact production-loss history by explaining the city-level decision that caused a Project to move.
 
@@ -1238,7 +1238,7 @@ This is why AdvCiv-SAS targets the capital more aggressively as the decisive tar
   - Remaining invalidated Project hammers came from low-progress copies deliberately outside the guard.
   - See [KI#174.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-174.2).
 - **Cultural-victory AI is viability and bottleneck-focused:**
-  - The new `SAS_BBAI_CULT_LOG_LEVEL` BBAI logging showed Base AdvCiv could treat an AI raising the culture slider only for happiness or border pressure as evidence that it was pursuing a cultural victory.
+  - The new `SAS_BBAI_CULT_LOG` BBAI logging showed Base AdvCiv could treat an AI raising the culture slider only for happiness or border pressure as evidence that it was pursuing a cultural victory.
   - Even the early preparation stage could then raise culture priorities in every city.
   - As a result, the AI could spend production, specialists, and commerce on cities culturally ranked lower than the cultural-victory target group (i.e., the top 3 cities that must reach Legendary culture), on a target city already much closer to Legendary than another target city, or even on a city that had already become Legendary.
   - This was inefficient and could leave the AI dangerously underinvested in stronger economic, scientific, or military priorities.
@@ -1247,7 +1247,7 @@ This is why AdvCiv-SAS targets the capital more aggressively as the decisive tar
   - Once committed, only the target cities receive victory-specific culture weight, shifted toward the city projected to take longest (no point having a city have 70% legendary culture and another 10% legendary culture only, as several legendary cities are required to win culturally, so have the spread be more even); a city that is already Legendary keeps only independent local-border value.
   - Converting production to culture remains available for first-ring expansion and strongly contested borders, but otherwise only to active target cities.
 - **Hopeless late cultural pursuits are abandoned:**
-  - The new `SAS_BBAI_CULT_LOG_LEVEL` BBAI logging also showed a late cultural pursuit in which the least advanced target city was projected hundreds of turns from Legendary when the estimated game had little more than 100 turns remaining (e.g., Future Era at T~400 at Normal game speed), despite likely faster Space or other victory routes.
+  - The new `SAS_BBAI_CULT_LOG` BBAI logging also showed a late cultural pursuit in which the least advanced target city was projected hundreds of turns from Legendary when the estimated game had little more than 100 turns remaining (e.g., Future Era at T~400 at Normal game speed), despite likely faster Space or other victory routes.
   - The AI now returns to preparation when its maximum affordable culture-slider projection misses the estimated deadline beyond the tunable grace or falls too far behind competing cultural contenders, freeing resources for stronger victory routes.
 - **Cultural pursuit gated by strong current or planned war enemies:**
   - no point investing heavily in a future cultural victory if the AI may lose the war first.
@@ -1311,7 +1311,7 @@ This is why AdvCiv-SAS targets the capital more aggressively as the decisive tar
   - K-Mod could keep a weaker worked (i.e. assigned to one population in city) plot because its quick initial estimate overlooked another plot that its full city-aware comparison considered better.
   - If ordinary citizen allocation finds no change, the **AI now rechecks plots that improve at least one yield without reducing any**, **trade some production for a large food/commerce gain**, or otherwise **offer a substantial overall gain without losing food**.
   - It switches **only when** the full city-aware valuation confirms the change is **beneficial**, never when the swap would cause starvation, and does not immediately reverse a plot assigned earlier in the same update.
-  - The newly added `SAS_BBAI_CITIZEN_LOG_LEVEL` BBAI logging test showed this corrected cases such as Karakorum working **2 food / 0 hammers / 1 commerce** instead of the strictly better **2 food / 1 hammer / 1 commerce** plot, made 624 approved swaps through turn 359 at normal game speed, and reduced remaining plot-to-plot contextual misses from 4,187 to 3,229 (about 23%); specialist-related swaps remain a separate target.
+  - The newly added `SAS_BBAI_CITIZEN_LOG` BBAI logging test showed this corrected cases such as Karakorum working **2 food / 0 hammers / 1 commerce** instead of the strictly better **2 food / 1 hammer / 1 commerce** plot, made 624 approved swaps through turn 359 at normal game speed, and reduced remaining plot-to-plot contextual misses from 4,187 to 3,229 (about 23%); specialist-related swaps remain a separate target.
   - Note: for convenience, human cities use the same fallback by default (tunable) through `SAS_HUMAN_CITIZEN_PLOT_FALLBACK_ON`, but only while citizen automation is enabled; manual citizen assignments remain untouched.
 - **Recheck modest food trades missed by K-Mod's quick plot estimate:**
   - Additionally to the previous change, BBAI logging still found recurring high-value cases such as working **2 food / 1 hammer / 1 commerce** instead of **3 food / 0 hammers / 1 commerce**, or **3 food / 1 hammer / 1 commerce** instead of **4 food / 0 hammers / 1 commerce**.

@@ -57,21 +57,21 @@ The PR-start baseline is main commit `8aae7bd1e3b0a765b8897e3aa121ea90920a5f4a`.
 | Longest name | 114 bytes | 42 bytes |
 | Median name length | 49 bytes | 35 bytes |
 | Nearest-rank 95th percentile | 77 bytes | 41 bytes |
-| Mean name length | 51.13 bytes | 33.68 bytes |
+| Mean name length | 51.13 bytes | 33.43 bytes |
 
-A total of 628 SAS names changed and 39 retained their baseline spelling. The 628 include all 459 originally-over-limit names plus 169 shorter names renamed for family consistency, terminology consistency, word boundaries or clearer scope. Across the renamed keys, aggregate key text is 11,635 bytes shorter; this is a naming/storage observation, not a gameplay-performance claim.
+A total of 648 SAS names changed and 19 retained their baseline spelling. These include all 459 originally-over-limit names plus 189 shorter names renamed for family consistency, terminology consistency, word boundaries or clearer scope. Across the renamed keys, aggregate key text is 11,803 bytes shorter; this is a naming/storage observation, not a gameplay-performance claim.
 
 ### SAS five-byte distribution
 
 | Name length (bytes) | Pre-cleanup SAS names | Current SAS names |
 | --- | ---: | ---: |
-| 11-15 | 0 | 4 |
-| 16-20 | 8 | 13 |
-| 21-25 | 16 | 48 |
-| 26-30 | 22 | 116 |
-| 31-35 | 49 | 183 |
-| 36-40 | 75 | 234 |
-| 41-45 | 100 | 69 |
+| 11-15 | 0 | 5 |
+| 16-20 | 8 | 24 |
+| 21-25 | 16 | 45 |
+| 26-30 | 22 | 110 |
+| 31-35 | 49 | 185 |
+| 36-40 | 75 | 230 |
+| 41-45 | 100 | 68 |
 | 46-50 | 93 | 0 |
 | 51-55 | 73 | 0 |
 | 56-60 | 64 | 0 |

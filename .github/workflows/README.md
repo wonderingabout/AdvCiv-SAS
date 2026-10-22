@@ -342,6 +342,8 @@ This prevents documentation image links from silently breaking when image folder
 
 #### `build/documentation/markdown_links.py`
 
+Local file links must begin with `/`; same-page anchors and external URLs remain valid. This prevents a document move from changing its link targets, though moving the target still requires updating links. The existing link-validation pass checks this rule without a separate scan.
+
 Verifies every repository-local file or directory referenced by a Markdown link resolves to an existing repository path, and verifies `#heading` fragments for Markdown targets against GitHub-style heading anchors and explicit HTML anchors.
 
 It checks normal and explicit reference-style Markdown links plus HTML `<a href="...">` tags, while ignoring external URLs and fenced-code, inline-code, or comment examples. Image references are handled separately by `markdown_images.py`.
@@ -455,11 +457,13 @@ Regression tests cover the exact 42/43-byte boundary, UTF-8 byte counting, inher
 
 #### `build/xml/retired_global_define_names.py`
 
-Reads the original-to-current conversion table associated with KI#1001.2 directly and rejects retired `SAS_*` names in active XML, C++ and Python source.
+Reads the original-to-current conversion table associated with KI#1001.2 directly and rejects retired `SAS_*` names in active XML, C++, Python and documentation.
 
 The checker reads the table directly from the [retired-name migration reference](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md). This keeps one migration map instead of maintaining a second manual retired-name list.
 
-The active scan intentionally includes XML comments and copied cache/member identifiers, so stale explanatory comments and code identifiers cannot silently preserve an obsolete spelling. Historical documentation, captured logs, changelogs, revision compatibility tooling and Git history are outside the scan and may retain old names for archaeology or parser compatibility.
+The active scan intentionally includes XML comments and copied cache/member identifiers, so stale explanatory comments and code identifiers cannot silently preserve an obsolete spelling.
+
+Exceptions preserve the Known Issues investigation, the two frozen audit/archaeology records, published changelogs, Git logs, SGR revision history and its captured example. The migration table is validated separately; AGENTS permits only its explicit old-name search example. Other documentation, including current source-analysis documents, remains checked.
 
 The checker also verifies every mapped current name is still declared in `GlobalDefines_advciv_sas.xml`; a later rename therefore requires updating the existing original-to-current KI row rather than creating an intermediate mapping chain.
 
@@ -664,7 +668,7 @@ The check guards shared-sink presence, reader-sharing flags and the absence of p
 The XML/PythonDbg modernization exposed an overly broad file-level EXE-logger ban: `logSASCiv4LegacyLogRow` shares `CvGameCoreUtils.cpp` with the owned writer but deliberately uses the inherited logger.
 
 - Only that bridge body is excluded from the EXE-call ban; the rest of the utility file and other publishers remain checked. The disk-flush ban still applies inside the bridge.
-- [Checker fixtures](tests/diagnostics/test_diagnostic_log_safety.py) cover both the allowed bridge and rejected fallbacks, including comment/string braces and malformed boundaries.
+- [Checker fixtures](/.github/workflows/tests/diagnostics/test_diagnostic_log_safety.py) cover both the allowed bridge and rejected fallbacks, including comment/string braces and malformed boundaries.
 
 - It does not execute native writes or prove bounded memory/error recovery. The local [diagnostic writer harness](/tests/README.md#diagnostic-writer) exercises the actual writer with normal and injected-failure I/O; it also checks prompt visibility and survival of final rows after abrupt process termination. Game lifecycle and autoplay performance require runtime testing.
 - Already-formatted text is written directly, so literal `%` needs no EXE-boundary doubling; producer format strings still use ordinary printf escaping (`%%` for one intended `%`).
@@ -681,7 +685,7 @@ Function names, JSON field inventories and exact callback statements are not che
 
 Checks the compiled runtime-recorder revision against its [history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md), shared by the current-state JSON and activity JSONL. This label is independent of SASGameRecord's revision.
 
-Reuses SASGameRecord's GitHub push/PR range selection and checks each commit against its first parent: recognized implementation changes require exactly one increment; pure CI/checker, documentation/example and test maintenance leaves it unchanged. Local checks also validate the pending working-tree increment, including new files before staging.
+Reuses SASGameRecord's event boundaries and explicit `revision:squash` policy, checking each ordinary commit or the complete squash candidate: recognized implementation changes require exactly one increment; pure CI/checker, documentation/example and test maintenance leaves it unchanged. Local checks also validate the pending working-tree increment, including new files before staging.
 
 Dedicated runtime files always qualify, including implementation comments. Shared source/configuration changes are recognized by runtime symbols in changed lines; unusual refactors still need manual review.
 
@@ -697,7 +701,7 @@ The only explicit nonzero exceptions are `SAS_BBAI_SCORE_LOG_INTERVAL_T_UNSCALED
 
 Keeps the blocking SASGameRecord CI intentionally small:
 
-- `SAS_SGR_LOG_LEVEL` must be `0` in committed defaults.
+- `SAS_SGR_LOG` must be `0` in committed defaults.
 - `SAS_SGR_ACTION_TRACE_ON` must be `1`, and `SAS_SGR_SYSTEM_CONTEXT_LVL` must be `2`.
 - Hardware identity, exact paths and process-context opt-ins must each be `0`; these checks catch accidentally committed diagnostic test overrides.
 - `SAS_SGR_BUG_STRING_VALS_ON` must be `0`, keeping reviewed BUG strings redacted by default.
@@ -723,12 +727,12 @@ Revisions 69-152 verify their historical compiled-header marker; revision 153+ v
 
 When the default-branch range is available, the checker also inspects current branch commits individually. Dedicated recorder/checker/helper files always qualify; other source/config bridge changes qualify when their diff exposes SASGameRecord markers. This is intentionally conservative automation around the written policy rather than an attempt to infer every semantic dependency.
 
-Commit selection follows the event being checked:
+Commit selection follows the event and explicit merge intent:
 
-- Push events check the first-parent commits in the actual event's `before..after` range, including earlier commits in a multi-commit push to main.
-- Pull requests use the event's base/head merge base and authored head, independently of the synthetic merge checkout; real pushed merges are checked as real commits.
-- New-branch pushes use the default-branch divergence because their `before` SHA is all zeroes.
-- Local/manual checks compare against the default branch, or check the tip when already on that branch; they do not infer a past push range.
+- Default-branch pushes check the first-parent commits in `before..after`, including earlier commits in a multi-commit push. Feature-branch pushes defer progression to the PR check because their payload does not identify its merge policy; defaults and history validation still run.
+- Ordinary PRs check each authored commit from the base/head merge base, independently of the synthetic merge checkout.
+- A PR labeled `revision:squash` checks the aggregate base-to-head change as one integration commit: qualifying changes require exactly one bump, unrelated changes require none. Intermediate bumps or corrections do not create public revisions; removing the label restores per-commit checks.
+- Local/manual checks retain per-commit behavior; `--squash` explicitly checks the complete working candidate against its default-branch merge base. For example, `python .github/workflows/build/diagnostics/sas_revision_history.py --squash`; the runtime checker accepts the same option.
 
 This history check complements the minimal revision/default synchronization check and runs automatically in `checks-diagnostics.yml`. It needs canonical default-branch history, so that workflow performs a full-history metadata checkout with blob filtering.
 

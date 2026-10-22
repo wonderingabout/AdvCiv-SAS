@@ -22,7 +22,7 @@ REVISION_DEFINES = Path("Assets/XML/GlobalDefines_advciv_sas.xml")
 REVISION_SOURCE = Path("CvGameCoreDLL/SASGameRecordLog.cpp")
 REVISION_HISTORY = Path("_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md")
 EXPECTED_GAME_RECORD_DEFAULTS = {
-    "SAS_SGR_LOG_LEVEL": 0,
+    "SAS_SGR_LOG": 0,
     # <!-- custom: Ship action tracing ready for deliberately enabled records while the recorder master stays off; catch accidental staging of an actions-off test override. (GPT-6.1-Sol) -->
     "SAS_SGR_ACTION_TRACE_ON": 1,
     # <!-- custom: Keep richer support context opt-in; catch hardware/path/process and private/network INI test settings accidentally staged for shipping. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
