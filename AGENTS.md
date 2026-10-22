@@ -193,6 +193,9 @@ In particular but not only, these are usually helpful:
   - This is separate from BBAI logging: use it for compact autoplay / AI-benchmark context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, unit composition, city-defense/bombard history, tactical air use, and high-level game state; use BBAI for detailed AI-decision diagnostics.
   - It can also be useful alongside BBAI logs to give an LLM the broader "what happened" context before drilling into decision traces.
   - It is an all-player diagnostic record and can contain spoilers; do not treat it as a spoiler-free player-advice log.
+- If investigating assertions, use `SASAssertions_*.log` in the Civ4 Logs folder: assertion-enabled SAS DLLs record failures and their handling for live inspection instead of requiring manually copied dialogs.
+  - `SAS_ASSERT_SILENT_ACTION=1` automatically chooses Ignore Once after GlobalDefines load; early startup failures remain manual. `0` restores dialogs rather than disabling logging. Normal Release builds compile these assertions out.
+  - See [README_Logging_Inventory.md (SAS assertion diagnostics)](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sas-assertion-diagnostics) for settings, session matching, coverage and examples; continuing after an assertion does not fix its cause.
 - A full raw example is kept at [_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log) for development/LLM review.
 - When comparing two level-3 records, run [`LLM_Helpers/compare_sasgamerecord_rng.py`](/LLM_Helpers/compare_sasgamerecord_rng.py) before manually inspecting RNG rows.
   - It validates each record's checkpoint arithmetic/state progression and reports the first authoritative-RNG or call-provenance divergence; its [maintained example](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/sasgamerecord_rng_compared.txt) shows how to interpret the result.
@@ -260,6 +263,8 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 ### Markdown structure and readability
 
 - Use repository-root links such as `/Assets/XML/GlobalDefines_advciv_sas.xml` for local Markdown destinations; avoid document-relative links such as `../README.md` or `revisions/SASRuntime.md`, which depend on the referring document's location. Moving the referring document then preserves the target; same-page anchors and external URLs are fine.
+- Prefer heading-generated Markdown anchors instead of explicit HTML `<a id="...">` / `<a name="...">` targets; a second naming scheme makes destinations harder to predict and maintain.
+  - Numbered `ki-N[.N...]` anchors in `README_Known_Issues.md` are the exception: their short, direct and predictable targets keep issue links stable even when KI heading wording changes.
 
 - For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
 - For long Markdown prose, preserve the wording but prefer semantic structure that also reads clearly in rendered Markdown.

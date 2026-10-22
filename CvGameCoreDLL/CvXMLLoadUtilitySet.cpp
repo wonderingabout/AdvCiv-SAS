@@ -231,6 +231,11 @@ bool CvXMLLoadUtility::SetGlobalDefines()
 	gDLL->destroyCache(cache);
 	#endif
 	GC.cacheGlobals();
+	// <!-- custom: Activate optional silent assertion handling only after every GlobalDefines/module override has had its final say; earlier startup failures keep the normal dialog and still log.
+	// Match the Windows assertion-dialog build guard so ordinary Release builds need neither this cache nor its initialization call. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	#if defined(FASSERT_ENABLE) && defined(WIN32)
+	cacheSASAssertionSilentPolicy();
+	#endif
 	// <!-- custom: Cache BBAI category levels only after every base/SAS/modular define file has had its final say; before this point the zero-initialized settings safely keep diagnostics disabled. (ChatGPT-5.6-Sol) -->
 	cacheSASBBAILogSettings();
 	// <!-- custom: Do this only after every base/SAS/modular define file has had its final say.

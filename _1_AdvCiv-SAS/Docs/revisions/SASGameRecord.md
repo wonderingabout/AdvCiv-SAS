@@ -78,10 +78,16 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 162 - SAS practical 6660
+### Revision 163 - SAS practical 6661
 
 - **Date:** 2026-10-22
 - **Git commit:** pending
+- **Change:** The shared Unicode diagnostic-root handoff also informs assertion logging in assertion-enabled builds. Assertion output remains independent of recorder settings; SASGameRecord output and recording conditions are unchanged.
+
+### Revision 162 - SAS practical 6660
+
+- **Date:** 2026-10-22
+- **Git commit:** `73fba8f1cf408ebac14cf28c170fbb9090d6f1b7`
 - **Change:** Shorten the recorder settings to `SAS_SGR_*` and harmonize the other SAS setting names reported in records as part of KI#1001.2. Values, recording conditions and caching remain unchanged.
   - Revision validation recognizes former names in historical sources and finalized new revisions in the current feature-branch lineage.
   - Compact BBAI profiles strip the renamed category keys to their category tokens; configured and effective levels are unchanged.

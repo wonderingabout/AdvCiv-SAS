@@ -40,6 +40,18 @@ Presentation cases also compile the actual CyGame screen bridge: disabled record
 
 The harness supplies minimal game scaffolding and simulates failures. Full DLL compilation, Python/EXE lifecycle integration, in-game live log access and autoplay performance still require separate validation.
 
+## Assertion diagnostic harness
+
+[`run_assertion_tests.py`](/tests/diagnostics/run_assertion_tests.py) is a second manual Windows/VC2003 check focused on `FAssert.cpp`. It extracts the current assertion writer/policy helpers into a temporary executable and executes the real startup fallback, post-GlobalDefines policy cache, automatic Ignore Once/Ignore Always/Stop Auto Play resolution, inactive-autoplay fallback, shared dialog/log runtime context, Unicode log path and escaped-field truncation behavior.
+
+Run it from the mod root:
+
+```text
+python tests/diagnostics/run_assertion_tests.py
+```
+
+Like the writer harness, it never builds or installs the Civ4 DLL. The ordinary GitHub diagnostics tests keep only lightweight source/XML wiring guards because the CI runner does not provide VC2003/Win32; behavior belongs in this compiled local harness.
+
 ## Why this test is local
 
 Our current CI check/test workflows use Ubuntu; this harness needs Windows APIs and the configured legacy compiler/SDK. Automating it would require a Windows job with that toolchain provisioned, so no automatic workflow is added for this single specialized test. It can be automated later if that runner setup becomes worthwhile.

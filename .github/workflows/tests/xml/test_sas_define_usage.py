@@ -40,6 +40,11 @@ class DefineUsageTests(unittest.TestCase):
         self.write('Assets/Python/live.py', 'gc.getDefineINT("SAS_ACTIVE")\nwidget = "SAS_WIDGET"\nSAS_LOCAL_CONSTANT = 1\n')
         self.assertEqual(self.errors(), [])
 
+    def test_direct_fvariable_lookup_counts_as_runtime_usage(self):
+        self.declarations("SAS_ACTIVE")
+        self.write('CvGameCoreDLL/live.cpp', 'FVariable const* p = GC.getDefinesVarSystem()->GetVariable("SAS_ACTIVE");\n')
+        self.assertEqual(self.errors(), [])
+
     def test_missing_lookup_declaration(self):
         self.declarations()
         self.write('PrivateMaps/live.py', 'gc.getDefineFLOAT("SAS_MISSING")')

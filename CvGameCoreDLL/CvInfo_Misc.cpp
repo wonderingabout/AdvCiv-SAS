@@ -1829,12 +1829,21 @@ bool CvGraphicOptionInfo::read(CvXMLLoadUtility* pXML)
 
 std::string CvMainMenuInfo::getScene() const
 {
+	// <!-- custom: The EXE-facing scene request is positive opening-menu evidence; unlike CvGame::reset, it is not also a pre-new/load teardown boundary.
+	// Assertion logging deduplicates repeated shader/scene requests within one menu visit and remains lazy when no assertion fails. (ChatGPT-5.6-Sol) -->
+	#if defined(FASSERT_ENABLE) && defined(WIN32)
+	startSASAssertionLogForMainMenu();
+	#endif
 	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusMainMenuSceneRequested();
 	return m_szScene;
 }
 
 std::string CvMainMenuInfo::getSceneNoShader() const
 {
+	// <!-- custom: Track the shaderless opening-menu request too; the shared observer deduplicates it with getScene so one menu visit advances the assertion context only once. (GPT-6.1-Sol) -->
+	#if defined(FASSERT_ENABLE) && defined(WIN32)
+	startSASAssertionLogForMainMenu();
+	#endif
 	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusMainMenuSceneRequested();
 	return m_szSceneNoShader;
 }

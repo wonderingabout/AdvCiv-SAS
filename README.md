@@ -45,7 +45,7 @@ Another significant logging improvement is "flushing":
 
 Python logs (e.g. PythonDbg.log, PythonErr.log, PythonErr2.log) gain UTC timestamps, while debug messages also gain readable names and searchable fields: for example, `99 SCREEN TURNED ON` becomes `2026-10-20T08:16:29.114Z record=SCREEN_TURNED_ON screenId=99 screenType=CvScreenEnums.MAIN_INTERFACE`, showing when it happened and which screen it was.
 
-Additional LLM/agent instrumentation helps users and AI assistants follow Civ4 runs and investigate development:
+Additional LLM/agent instrumentation extends this "open brain" view: users and AI assistants can observe game activity and compilation, then connect what happened to the source and DLL being tested:
 
 - `SASRuntimeStatus.json` gives the latest observed game/session and autoplay state, together with the identity of the DLL reporting it.
 - `SASRuntimeHistory_*.jsonl` keeps a timed history of game creation, save loading and autoplay activity, including why autoplay stopped, across games and loads while Civ4 stays open.
@@ -53,7 +53,14 @@ Additional LLM/agent instrumentation helps users and AI assistants follow Civ4 r
 
 Together with live-readable BBAI and SASGameRecord logs, richer and more searchable UWAI diagnostics integrated into BBAI and controlled through SAS defines, enriched compiler logs and embedded DLL provenance, these make it easier to follow runs, investigate problems, and connect observations to the code and binary being tested.
 
-Other system/tooling convenience enhancements are added to help reduce tedium, notably include SASFastSave (e.g. `ALEXANDER_T0000_HUGE_CUSTOM_CONTINENTS_NORMAL_41500016_41500016_20260909T171232Z_START` or `ALEXANDER_T0459_HUGE_CUSTOM_CONTINENTS_SPACE_ZARA_YAQOB_NORMAL_41500016_41500016_20260910T184208Z`), make save info clearer, and avoid identical filename handling issues, AIAutoPlay runs not being interrupted when the active player dies or other notices so they can continue and complete unattended, or the default number of turns being adjusted to max depending on game speed or tunable (e.g., 501 turns at Normal Gamespeed, 1001 turns at Marathon).
+Alongside this observability, other changes move towards "hands-free" play and testing by removing repeated manual steps:
+
+- AI Auto Play omits unnecessary no-decision notices, including the "it's your turn" popup after the active player dies, so runs can continue unattended. Its default requested duration can also follow game speed (e.g., 501 turns at Normal, 1001 at Marathon).
+- SASFastSave makes save info clearer, especially at a glance, avoids identical filename handling issues, and preserves games you might otherwise forget to save permanently; at game start or when autoplay stops, for example.
+  - For example, `ALEXANDER_T0000_HUGE_CUSTOM_CONTINENTS_NORMAL_41500016_41500016_20260909T171232Z_START` identifies the starting save, while `ALEXANDER_T0459_HUGE_CUSTOM_CONTINENTS_SPACE_ZARA_YAQOB_NORMAL_41500016_41500016_20260910T184208Z` identifies the outcome.
+- Scoreboard scrolling and a height limit support long player lists, such as SAS48 games, so it no longer overflows vertically beyond the top of the screen.
+- On top of this (no pun or yes but anyway), scoreboard autocenter (default as of now ON) automatically keeps the active player in view, so that the new scoreboard scroll feature (up/down with +/- buttons as of now when Scoreboard is full) does not require a manual/tedious user intervention every while or if desired.
+- `SASAssertions_*.log` (for diagnostic DLLs) adds automatic assertion logging and silent handling, so no user intervention is tediously needed to click them all one by one in their popup that pauses autoplay (sometimes ~10,000+ manual clicks per game). Silent option settings are e.g. "Ignore Once", or revert to base behaviour (logs are live-viewable, consistent with the "open-brain" point too).
 
 Another significant part of the project is [LLM-assisted source analysis](/README.md#llm-assisted-source-analysis): completed historical archaeology follows BtS, K-Mod, AdvCiv and AdvCiv-SAS changes through their actual diffs and lineage, while current-tree audit albums review final files and cross-file contracts from complementary angles.
 
@@ -162,6 +169,7 @@ For license and reuse terms, including project-specific restrictions and express
 [Logging and diagnostics](/README.md#logging-and-diagnostics)\
 &emsp;[Logging inventory](#logging-inventory)\
 &emsp;[Python and engine diagnostic logs](#python-and-engine-diagnostic-logs)\
+&emsp;[SASAssertions log](/README.md#sasassertions-log)\
 &emsp;[DLL Logging](/README.md#dll-logging)\
 &emsp;&emsp;[Versioning](/README.md#versioning)\
 &emsp;&emsp;&emsp;[If .git does exist (dev)](#if-git-does-exist-dev)\
@@ -1183,6 +1191,7 @@ Other examples covered there include:
 - BUG Autolog's configurable text/HTML gameplay journal, distinct from error/debug logs.
 - `BBAI_*.log`, including Settler diagnostics and the former independent UWAI reports now merged into BBAI, with `UWAIAgent`, `MilitaryAnalyst`, `InvasionGraph`, `ArmamentForecast`, `WarEvaluator` and `WarUtilityAspect` named explicitly.
 - SAS-created `SASGameRecord_*.log` gameplay/run records, with a captured 30-row excerpt and a full example.
+- `SASAssertions_*.log` for failed internal checks and their handling in assertion-enabled DLLs; see [SASAssertions log](/README.md#sasassertions-log) for unattended diagnostic autoplay and live inspection.
 - `SASRuntimeStatus.json` / `SASRuntimeHistory_*.jsonl` for runtime observations, and compiler `AdvCiv.log` / `CvGameCoreDLL.dll.build.json` for build progress/results, linked to their dedicated guides and tracked example captures.
 
 It also traces outputs such as `bull.log` (BULL), `C2C.log` (Caveman2Cosmos) and `MLF.log` (modular XML loading), and marks uncertain cases such as `ResourceAllocation.log`.
@@ -1207,9 +1216,25 @@ After:
 
 DLL-written `xml.log` rows retain native elapsed timing and add UTC plus fields such as `record=XML_FILE_LOAD phase=END outcome=SUCCEEDED`. The direct C++ Starting Position Iteration notice in `PythonDbg.log` is formatted too; other EXE-written rows keep their original formats.
 
+### SASAssertions log
+
+An assertion is an internal consistency check used in diagnostic DLL builds. Previously, investigating one meant reading or copying its popup, then choosing how to continue; repeated failures could leave autoplay waiting for someone to click Ignore Once each time.
+
+`SASAssertions_*.log` preserves each reached assertion's failed condition, source location and message before handling it, followed by the selected or automatic action. UTC timestamps, assertion numbers and available turn/autoplay/player context let users and AI/LLM agents follow failures as the game runs, including failures during startup.
+
+After GlobalDefines finish loading, `SAS_ASSERT_SILENT_ACTION=1` defaults to automatic Ignore Once. Like SAS's omission of the no-decision "it's your turn" prompt during autoplay, this removes a repeated manual interruption so diagnostic runs can complete unattended while retaining evidence for investigation. Continuing past a failed check does not correct its underlying cause.
+
+- `0` retains manual dialogs; `1` automatically ignores each occurrence once; `2` ignores subsequent occurrences at that assertion site; `3` stops autoplay, or ignores once when autoplay is inactive. Assertions before the policy is available keep the manual dialog.
+- Files are created only when an assertion occurs, using `_startup`, `_newN` or `_loadN` context. Assertion numbers continue across files within the same Civ4 process.
+- Each file's metadata identifies process/session start, initial handling policy and the loaded DLL. Failure and choice rows carry the effective policy and game context at the failure.
+- The log is readable while Civ4 remains open: each row is appended through Windows file sharing and its handle closed. This is a separate writer from BBAI/SASGameRecord's persistent-handle machinery, with no forced physical disk flush.
+- Normal Release builds compile these runtime assertions out. In assertion-enabled builds, recording work occurs only on failure; frequently failing checks can generate substantial output. Assertions already suppressed by Ignore Always are not recorded again.
+
+See [README_Logging_Inventory.md (SAS assertion diagnostics)](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sas-assertion-diagnostics) for coverage, controls, captured rows and writer details.
+
 ### DLL Logging
 
-AdvCiv-SAS has two complementary log families, that are as of now both tunable via SAS defines (i.e. XML) without needing DLL modifications: the BBAI log, and the SASGameRecord log. See [README_Main_Changes_Guide.md (Logging)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging).
+AdvCiv-SAS has two complementary always-optional gameplay/AI log families, both tunable via SAS defines without DLL edits: BBAI and SASGameRecord. See [README_Main_Changes_Guide.md (Logging)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging).
 
 AI strategy is one example of how the two logs complement each other: BBAI keeps detailed K-Mod decision-point strategy transitions and their trigger values, while SASGameRecord records the final complete active strategy set and exact gameplay-effective start/stop history.
 
@@ -1420,7 +1445,7 @@ Brief header preview (selected fields from the same October 9, 2026 capture):
 GAME_RECORD_SAVE_LOADED seq=1 processUtc=20261009T160524Z utc=20261009T160535Z turn=0 activeCivilization=CIVILIZATION_INCA
 ```
 
-See the [full SASGameRecord header and its context](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sasgamerecord-session-header-example); the inventory also includes a [30-row gameplay excerpt](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sasgamerecord-captured-example).
+See the [full SASGameRecord header and its context](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sasgamerecord-session-header-example); the inventory also includes a [30-row gameplay excerpt](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sasgamerecord-gameplay-example).
 
 <img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_example.PNG" alt="SASGameRecord_example.PNG" width="250"></img>
 

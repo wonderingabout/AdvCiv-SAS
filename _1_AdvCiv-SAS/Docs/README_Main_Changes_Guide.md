@@ -35,6 +35,7 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
 &emsp;[Logging](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging)\
 &emsp;&emsp;[Logging inventory](#logging-inventory)\
 &emsp;&emsp;[Runtime status and history](#runtime-status-and-history)\
+&emsp;&emsp;[SAS assertion diagnostics](#sas-assertion-diagnostics)\
 &emsp;&emsp;[Python and engine diagnostic logs](#python-and-engine-diagnostic-logs)\
 &emsp;&emsp;[Logging (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging-common)\
 &emsp;&emsp;[BBAI log](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bbai-log)\
@@ -286,7 +287,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 
 - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-87).
 - (Requires AdvCiv-SAS 6374+) **Permanent automatic saves for ordinary play and AI Auto Play testing:**
-  - keep the beginning and outcome of a game without having to tediously remember to save them yourself.
+  - Keep the beginning and outcome of a game without having to remember to save them yourself; this supports "hands-free" testing by preserving those checkpoints automatically.
   - Tunable `SASFastSave` corresponding defines create ordinary saves at new-game start, actual game end/victory, and an AI Auto Play stop (whether the requested turns finish or you interrupt it manually).
   - These files stay in `My Games/Beyond the Sword/Saves/single`, separate from Civ4's rotating `Autosaves`, so a useful starting position or completed test is not lost as newer autosaves replace older ones.
   - Automatically descriptive names also avoid repeatedly handling generic names such as `PC 50000 BC`, choosing whether to overwrite them, or manually tediously inventing another filename or having to save or remember to save them everytime not to lose them.
@@ -313,7 +314,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - See [SASFastSave.py](/Assets/Python/SASFastSave.py) and [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
 - **Autoplay runs now continue without being interrupted/paused when the active player dies or other notices:**
   - an active player's defeat could transfer human control during an ongoing autoplay and make the EXE pause behind an OK-only "it's your turn" prompt; ordinary informational text notices could also require an unnecessary click and unconveniently pause the run that can no longer complete unattended without user supervision or intervention.
-  - To fix this, an XML-tunable option now omits only these no-decision prompts during autoplay, without accepting or suppressing diplomacy, events, civics, war, launch, production, technology, or other gameplay choices.
+  - To fix this, an XML-tunable option now omits only these no-decision prompts during autoplay, without accepting or suppressing diplomacy, events, civics, war, launch, production, technology, or other gameplay choices. This supports "hands-free" runs by removing notices that otherwise wait for a click.
 
 ### Code/Performance optimizations
 
@@ -531,6 +532,16 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
     - Crashes, forced termination and abrupt Windows shutdown can leave stale `RUNNING` status; a vanished process without a recorded shutdown does not identify the cause. A live process can also be unresponsive, so neither its existence nor an unchanged turn snapshot proves it is healthy or hung.
     - A reader that catches the tiny overwrite in progress should retry malformed/partial JSON.
   - Save filenames/paths, user names and free text are not written. Historical advisor/tab/Sevopedia/control interaction is already available through the existing level-2+ `SAS_SGR_ACTION_TRACE_ON` trace, so runtime status deliberately does not duplicate a high-volume clickstream.
+
+#### SAS assertion diagnostics
+
+- (Requires AdvCiv-SAS 6661+) **Persistent assertion diagnostics:** `SASAssertions_*.log` records failed internal checks and their handling, replacing the need to manually copy each assertion popup for investigation.
+  - The default `SAS_ASSERT_SILENT_ACTION=1` automatically chooses Ignore Once after startup, preserving each reached failure without waiting for a click. This extends "hands-free" autoplay to diagnostic builds, where repeated assertions could otherwise require thousands of manual popup clicks. Early assertions before the setting is available retain manual dialogs.
+  - UTC timestamps, source locations, turn/player context and paired failure/action rows make repeated problems easier to trace. Process/session and loaded-DLL metadata identify the run being investigated; lazy startup, opening-menu, new-game and save-load files separate its stages.
+  - Users and AI/LLM agents can read the output while Civ4 continues running, alongside BBAI and SASGameRecord.
+  - Manual dialogs, Ignore Always and stopping autoplay are also configurable. Continuing past an assertion does not repair its cause, and Ignore Always suppresses later occurrences at that site.
+  - Normal Release builds compile these checks out. In assertion-enabled builds, recording work happens only on failure; repeatedly failing checks can still produce substantial output.
+  - See [README_Logging_Inventory.md (SAS assertion diagnostics)](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sas-assertion-diagnostics) for settings, coverage, writer details and varied captured examples.
 
 #### Python and engine diagnostic logs
 
@@ -2853,8 +2864,8 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - This helps discuss screenshots, review, or compare directly with BBAI logs and DLL diagnostics.
 - **Main Interface ((Map View) Scoreboard)**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+** (up, fast up) and **-** (down, fast down) **scroll buttons** (e.g., 1 by 1, 5 by 5) to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max).
   - Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow.
-  - Add a **Center scoreboard scroll on the active player** button, and a **Toggle autocenter scoreboard scroll on the active player** button (so that it auto does it without having to tediously redo it regularly; note: if the scroll up/down buttons are clicked, it disables autocenter to apply manual scrolling (can be reenabled by reclicking the toggle autocenter button again)) (default state at Civ4 launch as of now optionally ON).
-  - Add a **Toggle lock scoreboard hover button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover), with an **optional default value** (as of now ON, to avoid always tediously clicking it the first time).
+  - Add a **Center scoreboard scroll on the active player** button, and a **Toggle autocenter scoreboard scroll on the active player** button (so that it auto does it without having to tediously redo it regularly; note: if the scroll up/down buttons are clicked, it disables autocenter to apply manual scrolling (can be reenabled by reclicking the toggle autocenter button again)) (default state at Civ4 launch as of now optionally ON); thus contributing to the "hands-free" usability enhancements.
+  - Add a **Toggle lock scoreboard hover button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover), with an **optional default value** (as of now ON, to avoid always tediously clicking it the first time). This contributes to "hands-free" inspection by keeping that information visible without holding the pointer over the scoreboard.
   - Note: in first turns of the game the lock button effectively has no effect since power ratios are not yet visible.
   - Add a **Toggle Background Style button** (AdvCiv **default at each save load/new game kept**; tunable) (e.g., blue panel, black50, empty (transparent)).
   - Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py).

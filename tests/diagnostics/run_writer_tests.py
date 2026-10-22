@@ -69,7 +69,9 @@ def main():
         expected_revision = int(re.search(r"\bSAS_RUNTIME_REVISION\s*=\s*(\d+)", status).group(1))
         status_start = status.index("// <!-- custom: Finite process/game/session states")
         clock_start = source.index("// <!-- custom: SYSTEMTIME is the common")
-        clock_end = source.index("// <!-- custom: SAS diagnostic wall-duration", clock_start)
+        # <!-- custom: Stop after the UTC getter itself; the former comment-to-comment range also captured the later legacy-log bridge and VC2003 failed with C2039 because RuntimeTestDLL has no logMsg.
+        # That EXE logging dependency does not belong to the writer/runtime fixture. (GPT-6.1-Sol) -->
+        clock_end = source.index("\n}", source.index("CvString createSASUtcTimestampMilliseconds()", clock_start)) + 2
         identity_start = source.index("// <!-- custom: The existing processUtc value")
         identity_end = source.index("// <!-- custom: BBAI and SASGameRecord need", identity_start)
         # <!-- custom: Execute the actual CvGame hook condition without compiling the whole game; this catches duplicate countdown publications without maintaining a second predicate. (GPT-6.1-Sol) -->

@@ -114,7 +114,7 @@ enum SASRuntimeStatusReason
 // <!-- custom: Native lifecycle callers pre-gate these notifications; recorder entry guards additionally protect direct entry without collecting state or publishing while disabled.
 // The Python WorldBuilder bridge passes only a literal visibility bool and gates native queries inside CyGame; shutdown checks the cached flag directly to avoid a first XML read during teardown. (GPT-6.1-Sol) -->
 bool isSASRuntimeStatusEnabled();
-// <!-- custom: Both services share native root discovery, while status root migration is independent from historical log append handles. (GPT-6.1-Sol) -->
+// <!-- custom: SAS diagnostic publishers share native root discovery, while assertion/status root handoff remains independent from historical log append handles. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 bool getSASNativeDefaultRootDirectory(std::wstring& szRootDirectory);
 void setSASRuntimeStatusRootDirectory(std::wstring const& szRoot);
 // <!-- custom: Reset has one fixed reason; autoplay accepts a known update-reason enum rather than arbitrary string labels. (GPT-6.1-Sol) -->
@@ -170,6 +170,8 @@ CvString getSASSourceContextFields();
 CvWString getSASCompactSourceVersion(char const* szVersion, char const* szCommitHash, int iDirtyState);
 // <!-- custom: Combine the configured mod display name with the current cached runtime source identity for replay/UI surfaces. (ChatGPT-5.6-Sol) -->
 CvWString getSASRuntimeDisplayNameAndVersion();
+// <!-- custom: Serialize the low-cost loaded-DLL runtime identity used by failure-path diagnostics: build target, exact loaded binary fingerprint/times/version fields, and whether FAssert is compiled in; unlike the full context this does not inspect current build-tree intermediates. (ChatGPT-5.6-Sol) -->
+CvString getSASDllRuntimeContextFields();
 // <!-- custom: Serialize exact loaded-DLL build/binary provenance shared by diagnostic log headers, including numeric file/product resource versions when present plus embedded pre-build facts and independent current build-tree observations; copying only the DLL preserves its build evidence. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 CvString getSASDllContextFields();
 // <!-- custom: Share the cached loaded-module fingerprint/build identity with the standalone runtime JSON without requiring historical logging or exposing local paths. (GPT-6.1-Sol) -->

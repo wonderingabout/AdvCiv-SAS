@@ -29,6 +29,19 @@ class MarkdownTests(unittest.TestCase):
         self.assertIn('<a id="ki-457"></a>', markdown.render_menu(valid, True))
         self.assertTrue(markdown.menu_errors(valid.replace('[KI#457 - title](#ki-457)\n', ''), True))
 
+    def test_explicit_html_anchor_policy(self):
+        self.assertEqual(markdown.explicit_anchor_errors('<a id="ki-457"></a>\n## KI#457 - title\n', True), [])
+        self.assertEqual(markdown.explicit_anchor_errors("<a name='ki-457.2'></a>\n## KI#457.2 - title\n", True), [])
+        for text, known in (
+            ('<a id="custom"></a>\n## Custom\n', False),
+            ('<a name="custom"></a>\n## Custom\n', False),
+            ('<a id="ki-457"></a>\n## Not known issues\n', False),
+            ('<a id="not-a-ki"></a>\n## Known issues\n', True),
+        ):
+            with self.subTest(text=text, known=known):
+                self.assertTrue(markdown.explicit_anchor_errors(text, known))
+        self.assertEqual(markdown.explicit_anchor_errors('`<a id="example"></a>`\n\n```html\n<a id="example"></a>\n```\n'), [])
+
     def test_refresh_preserves_external_links_prose_and_body(self):
         text = '# D\n## Menu\nHere you go:\n[A](#a)\n[Guide](guide.md)\n\n## A\nBody.\n### B\n'
         refreshed = markdown.render_menu(text)

@@ -415,6 +415,8 @@ Automated documentation check. Checks maintained Markdown docs in the root, `LLM
 
 Known Issues indexes numbered level-2 KI entries; internal investigation subheadings remain outside its menu. Standalone links to other documents and menu introductions are retained.
 
+Explicit HTML `<a id="...">` / `<a name="...">` anchors are rejected outside numbered `ki-N[.N...]` targets in `README_Known_Issues.md`. Ordinary links use heading-generated anchors to avoid a confusing second naming scheme; KI targets remain short and stable when issue headings change. Code examples are excluded from this rule.
+
 Existing `markdown_links.py` continues to validate destinations and stable KI anchors.
 
 Also rejects unpaired `**` bold markers within a paragraph, excluding fenced code, inline code, HTML comments and escaped literal stars. This is a targeted Markdown guard rather than a full CommonMark parser.

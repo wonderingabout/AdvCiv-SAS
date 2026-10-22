@@ -136,6 +136,21 @@ def bold_errors(text):
             errors.append(f"line {line}: unpaired ** bold marker in paragraph")
     return errors
 
+def explicit_anchor_errors(text, known_issues=False):
+    # <!-- custom: Prefer one predictable Markdown heading-anchor scheme instead of maintaining parallel HTML ids/names.
+    # Numbered Known-Issues anchors are the deliberate exception because short ki-N[.N...]
+    # targets stay stable when issue titles/status wording changes. (ChatGPT-5.6-Sol) -->
+    clean = links.without_inline_code(scan(text))
+    errors = []
+    for match in links.HTML_ANCHOR_RE.finditer(clean):
+        anchor = next(value for value in match.groups() if value is not None)
+        if known_issues and re.fullmatch(r"ki-\d+(?:\.\d+)*", anchor):
+            continue
+        line = links.line_number(clean, match.start())
+        errors.append(f"line {line}: explicit HTML anchor #{anchor} is disallowed; use the heading-generated Markdown anchor")
+    return errors
+
+
 def redundant_hard_break_errors(text):
     visible = scan(text)
     lines = visible.splitlines()
@@ -198,7 +213,7 @@ def paths(root):
     return sorted(set([root / "README.md", root / "AGENTS.md", root / "LLM_Helpers/README.md", root / ".github/workflows/README.md"] + list((root / "_1_AdvCiv-SAS/Docs").rglob("*.md")) + list((root / "tests").rglob("*.md"))))
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate declared Markdown menus and balanced bold markers in maintained docs.")
+    parser = argparse.ArgumentParser(description="Validate Markdown menus, anchors, balanced bold markers and hard-break structure in maintained docs.")
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     parser.add_argument("--refresh-menus", action="store_true")
     args = parser.parse_args()
@@ -215,7 +230,7 @@ def main():
                 path.write_bytes(updated.replace("\n", newline).encode("utf-8"))
                 text = updated
         try:
-            findings = menu_errors(text, known, document) + bold_errors(text) + redundant_hard_break_errors(text)
+            findings = menu_errors(text, known, document) + explicit_anchor_errors(text, known) + bold_errors(text) + redundant_hard_break_errors(text)
         except ValueError as error:
             findings = [str(error)]
         errors.extend(f"{path.relative_to(args.repo_root)}: {error}" for error in findings)

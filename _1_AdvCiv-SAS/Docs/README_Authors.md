@@ -11,27 +11,27 @@ They are also not necessarily all listed here in this as of now mostly historica
 Here are a short info about the authors (as for LLMs, all may not be listed as said before).
 
 [me, wonderingabout](#me-wonderingabout)\
-[chatgpt web](#chatgpt)\
+[chatgpt web](#chatgpt-web)\
 &emsp;[4o](#4o)\
 &emsp;[o3](#o3)\
 &emsp;[5](#5)\
 &emsp;[5.1](#51)\
 &emsp;[5.2](#52)\
 &emsp;&emsp;[RedX new art button](#redx-new-art-button)\
-[GPT-Codex (VS Code extension)](#codex)\
+[GPT-Codex (VS Code extension)](#gpt-codex-vs-code-extension)\
 &emsp;[Create a new Sevopedia category (e.g. Handicap Chart)](#create-a-new-sevopedia-category-eg-handicap-chart)\
 &emsp;[Long_Comments extracting](#long_comments-extracting)\
 &emsp;[5.3](#53)\
 &emsp;&emsp;[add Irish Empire end to end (with Youtube video)](#add-irish-empire-end-to-end-with-youtube-video)\
 &emsp;&emsp;[add and use LLM_Helpers for speeds calibration and autotuning](#add-and-use-llm_helpers-for-speeds-calibration-and-autotuning)\
 &emsp;[5.4](#54)\
-[Claude AI](#claude)\
+[Claude AI](#claude-ai)\
 &emsp;[Claude (web chat)](#claude-web-chat)\
 &emsp;[Claude code (VS Code extension)](#claude-code-vs-code-extension)\
 &emsp;&emsp;[CuCuGS implementation](#cucugs-implementation)\
 &emsp;&emsp;[Speeds calibration (with autotuner and compare scripts)](#speeds-calibration-with-autotuner-and-compare-scripts)\
 &emsp;&emsp;[Other tasks: e.g. performance optimizations](#other-tasks-eg-performance-optimizations)\
-[Gemini AI](#gemini)\
+[Gemini AI](#gemini-ai)\
 &emsp;[2.5 Flash](#25-flash)\
 &emsp;[2.5 Pro](#25-pro)\
 &emsp;[3 Pro](#3-pro)\
@@ -57,8 +57,6 @@ A significant contribution i made there in particular is the list of things i'd 
 This was in: [summary list of all things i'd want to be reviewed or improved in advciv 1.12 latest as of now at least all i mentioned here and at that time](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814), even though eventually main advciv maintainer f1rpo was not available to do all, still @f1rpo reviewed quite a bit and made quite a few changes related to these, going in depth as i wanted, even fixing some bugs even though most remain to be reviewed, i can take it from there at least for main ones maybe and tweak them as i want as some are more on the domain of personal choice rather than fixing.
 
 Then as for the second author of AdvCiv-SAS, i proudly present xd:
-
-<a id="chatgpt"></a>
 
 ## chatgpt web
 
@@ -112,8 +110,6 @@ Very impressive, useful and now implemented in our new Sevopedia tech (see [exam
 <img src="/_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (5).PNG" alt="chatgpt_5_2_red_x_new_art (5).PNG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (6).PNG" alt="chatgpt_5_2_red_x_new_art (6).PNG" width="250"></img>
 
-<a id="codex"></a>
-
 ## GPT-Codex (VS Code extension)
 
 Note: see also [AGENTS.md](/AGENTS.md).
@@ -162,8 +158,6 @@ GPT-5.4 is bad at coding, at least it's very tedious and exhausting to use. It m
 
 Switching back to GPT-5.3-Codex brought great satisfaction until openai seemingly decided to reroute to GPT-5.4 forcefully, bringiing back all mistakes again. Plus, they have heavily axed usage following their Pro plan release on Plus despite claiming the opposite. Definitely not a good experience.
 
-<a id="claude"></a>
-
 ## Claude AI
 
 ### Claude (web chat)
@@ -199,8 +193,6 @@ Just like [GPT-Codex (VS Code extension)](/_1_AdvCiv-SAS/Docs/README_Authors.md#
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/claude_code_perf_opt (1).PNG" alt="claude_code_perf_opt (1).PNG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/LLM/claude_code_perf_opt (2).PNG" alt="claude_code_perf_opt (2).PNG" width="250"></img>
-
-<a id="gemini"></a>
 
 ## Gemini AI
 

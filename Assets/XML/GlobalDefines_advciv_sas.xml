@@ -1793,6 +1793,17 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
+	<!-- custom: Assertion-enabled DLLs always persist failed FAssert/FAssertMsg diagnostics; this setting controls only whether the modal assertion dialog is shown after GlobalDefines are fully loaded.
+	Default 1 keeps unattended assertion-enabled autoplay moving while preserving every displayed failure/resolution pair: 0 = normal dialog, 1 = automatically Ignore Once, 2 = automatically Ignore Always at that macro site, 3 = automatically Stop Auto Play when autoplay is active and otherwise Ignore Once; other values fall back to the normal dialog.
+	Startup assertions before the post-override cache is initialized still use the normal dialog while retaining assertion logging.
+	Debug and Abort remain available through the dialog but are intentionally not automatic modes: Debug needs interactive debugger handling, while Abort terminates rather than continues an unattended diagnostic run.
+	Normal Release builds compile these runtime assertions out. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_ASSERT_SILENT_ACTION</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
 	<!-- custom: BBAI log levels were hidden in base AdvCiv's CvGameCoreDLL/BBAILog.h, so enabling BBAI logging (LOG_AI / LOG_FOUND_VALUE), disabling it again, or adjusting its detail required a DLL edit and recompile.
 	AdvCiv-SAS exposes them as XML-tunable SAS defines instead, so a DLL modification and recompile are no longer needed; restart Civ4 to apply changes. (GPT-5.5?); Long_Comments_XML.txt #376. -->
 	<!-- custom: Master switch for classic BBAI AI-decision diagnostics.
@@ -2240,7 +2251,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>162</iDefineIntVal>
+		<iDefineIntVal>163</iDefineIntVal>
 	</Define>
 
 

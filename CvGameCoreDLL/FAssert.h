@@ -18,7 +18,19 @@
 
 // advc.006f (from C2C): const char* param added. And changed the two call locations below so that __FUNCTION__ is passed.
 // <!-- custom: hoisted from multiline signature inside multiline signature by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// <!-- custom: Persist runtime FAssert/FAssertMsg failures before their dialog or silent resolution and record the effective action afterward, independently of XML-controlled log enablement; preserve the inherited debug/ignore return contract.
+// FAssertBounds/FAssertBOOL/FErrorMsg route through these macros too; compile-time/static assertions, CRT assert(), EXE/library assertions and already Ignore-Always-suppressed sites are outside this hook. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 bool FAssertDlg(const char*, const char*, const char*, unsigned int, const char*, bool&);
+// <!-- custom: Let BUG's Unicode user/CvAltRoot handoff reach the assertion sink before its first failure.
+// A startup assertion that already wrote output keeps its native fallback root so one process log is not split across directories. (ChatGPT-5.6-Sol) -->
+void setSASAssertionLogRootDirectory(wchar_t const*);
+// <!-- custom: SetGlobalDefines calls this once after all base/SAS/modular overrides finish so failed assertions never query XML/FVariableSystem while resolving their handling policy. (ChatGPT-5.6-Sol) -->
+void cacheSASAssertionSilentPolicy();
+// <!-- custom: Track startup, actual opening-menu visits, and new/load boundaries with assertion-owned lazy session identities.
+// Menu numbering is separate from the shared new/load assertion sequence; independently gated BBAI/SGR suffixes are not required to match. (ChatGPT-5.6-Sol) -->
+void startSASAssertionLogForMainMenu();
+void startSASAssertionLogForNewGame();
+void startSASAssertionLogForLoadedSave();
 
 // <advc.006h>: Evaluate expr once more when debugging
 #ifdef _DEBUG

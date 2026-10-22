@@ -152,7 +152,11 @@ void CvGame::init(HandicapTypes eHandicap)
 	// <!-- custom: Publish the new-session attempt before map generation so an external agent can distinguish loading/generation time from the later native-ready checkpoint. (ChatGPT-5.6-Sol) -->
 	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusSessionStarted(false);
 	// <!-- custom: Start distinct diagnostic/report files before map generation so a new game begun after save-file tests does not continue writing to the last loaded-save logs.
-	// Caller-gated to avoid entering disabled logging helpers. (GPT-5.5) -->
+	// Assertion-enabled builds also advance their lazy session identity here; this creates no file unless an assertion actually fails.
+	// Caller-gate ordinary BBAI/SGR helpers to avoid disabled logging work. (GPT-5.5 + ChatGPT-5.6-Sol) -->
+	#if defined(FASSERT_ENABLE) && defined(WIN32)
+	startSASAssertionLogForNewGame();
+	#endif
 	if (isSASBBAILogEnabled()) startSASBBAILogForNewGame();
 	if (isSASGameRecordLogEnabled()) startSASGameRecordLogForNewGame();
 
@@ -9989,7 +9993,11 @@ void CvGame::onAllGameDataRead()
 	// <!-- custom: Retry previous-session output and close its handles before load rolls to new filenames; BUG reaffirms the user root and the post-handler checkpoint covers any pending startup output. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	if (isSASBBAILogEnabled() || isSASGameRecordLogEnabled()) flushSASDiagnosticLogs(true);
 	// <!-- custom: Start distinct timestamped diagnostic/report logs now that the complete loaded game state is available, before load-finalization code can emit AI diagnostics or summary rows.
-	// Caller-gated to avoid entering disabled logging helpers. (GPT-5.5) -->
+	// Assertion-enabled builds advance their own lazy _loadN identity even when BBAI/SGR are disabled; its numeric suffix is intentionally independent from those separately gated loggers.
+	// Ordinary logging helpers remain caller-gated. (GPT-5.5 + ChatGPT-5.6-Sol) -->
+	#if defined(FASSERT_ENABLE) && defined(WIN32)
+	startSASAssertionLogForLoadedSave();
+	#endif
 	if (isSASBBAILogEnabled()) startSASBBAILogForLoadedSave();
 	if (isSASGameRecordLogEnabled()) startSASGameRecordLogForLoadedSave();
 	// <advc.opt> Savegame compatibility (uiFlag<4)

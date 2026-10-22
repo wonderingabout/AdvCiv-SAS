@@ -34,7 +34,7 @@ jobs:
       - name: Long-comment archive references
         run: python .github/workflows/build/documentation/long_comments.py
 
-      - name: Markdown menus and structure
+      - name: Markdown menus, anchors and structure
         run: python .github/workflows/build/documentation/markdown_structure.py
 
       - name: Markdown list layout and edited prose

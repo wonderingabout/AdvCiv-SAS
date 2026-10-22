@@ -3,7 +3,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 # <!-- custom: Audit XML declarations against actual define lookups rather than all SAS-prefixed tokens: enums, widget names, diagnostics and comments are not configuration consumers.
 # Follow forwarding helpers and local string aliases; expand bounded integer format lookups from their source guards.
-# This checks static references, not runtime reachability. (GPT-6.1-Sol) -->
+# Direct FVariableSystem GetVariable calls also count when code intentionally avoids an asserting typed getter, as in startup-safe assertion handling.
+# This checks static references, not runtime reachability. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 
 import argparse
 from bisect import bisect_right
@@ -21,7 +22,7 @@ from xml_defines import get_default_repo_root, local_name, child_text_by_local_n
 
 DEFINES_PATH = "Assets/XML/GlobalDefines_advciv_sas.xml"
 SOURCE_GLOBS = ("Assets/Python/**/*.py", "PrivateMaps/**/*.py", "CvGameCoreDLL/**/*.cpp", "CvGameCoreDLL/**/*.h")
-GETTER_RE = re.compile(r"getDefine(?:INT(?:External)?|BOOL|FLOAT|STRING)$")
+GETTER_RE = re.compile(r"(?:getDefine(?:INT(?:External)?|BOOL|FLOAT|STRING)|GetVariable)$")
 NAME_RE = re.compile(r"SAS_[A-Z0-9_]+$")
 CPP_LEXER = re.compile(r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|[A-Za-z_]\w*|\d+|[^\s]', re.S)
 # <!-- custom: This existing define is coverage metadata, deliberately consumed by mapscripts.py rather than the game.

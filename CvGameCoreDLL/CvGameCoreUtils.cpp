@@ -178,7 +178,7 @@ static std::wstring getSASDiagnosticExecutableFolder()
 	return szDirectory.substr(iDirectorySlash + 1);
 }
 
-// <!-- custom: Share native user-root discovery between the historical BBAI/SASGameRecord writer and the optional current-status publisher; BUG still supplies the authoritative CvAltRoot later. (GPT-6.1-Sol) -->
+// <!-- custom: Share native user-root discovery across SAS diagnostic publishers, including startup-safe assertion logging; BUG still supplies the authoritative CvAltRoot later. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 bool getSASNativeDefaultRootDirectory(std::wstring& szRootDirectory)
 {
 	wchar_t szDocuments[MAX_PATH];
@@ -407,6 +407,10 @@ void setSASDiagnosticLogRootDirectory(wchar_t const* szRootDirectory)
 	std::wstring const szRoot = trimSASDiagnosticDirectory(szRootDirectory);
 	if (szRoot.empty())
 		return;
+	// <!-- custom: Assertion logging is deliberately independent of BBAI/SASGameRecord/runtime toggles, but it should honor BUG's Unicode/CvAltRoot when that root is known before the first failed assertion. (ChatGPT-5.6-Sol) -->
+	#if defined(FASSERT_ENABLE) && defined(WIN32)
+	setSASAssertionLogRootDirectory(szRoot.c_str());
+	#endif
 	// <!-- custom: Status may replace its current-state root even after the historical log writer has committed to a path; keep these contracts independent. (GPT-6.1-Sol) -->
 	setSASRuntimeStatusRootDirectory(szRoot);
 	// <!-- custom: Changing roots after a successful append would split a logical log; permit BUG to replace a fallback root only before writing starts. (GPT-6.1-Sol) -->
@@ -945,6 +949,21 @@ static CvString getSASDllBuildProvenanceFields(SASBinaryDiagnosticContext const&
 		SAS_BUILD_REQUEST, iObjects, iIncomplete, iPch, szBaseline,
 		bProjectTreePresent, szBuildOutputState, bProjectTreePresent ? (bTempDirPresent ? 1 : 0) : -1, szTempDllState, iTempObjectCount, iTempIncompleteMarkerCount, iTempPchPresent, iTempPdbPresent);
 	return szFields;
+}
+
+// <!-- custom: Assertion failures need exact binary/build identity too, but their exceptional path should not recursively walk temp_files or fingerprint build-output candidates.
+// Reuse the cached loaded-module identity and compile-time target only; the full BBAI/SASGameRecord context below remains richer. (ChatGPT-5.6-Sol) -->
+CvString getSASDllRuntimeContextFields()
+{
+	SASBinaryDiagnosticContext const& kContext = getSASDllDiagnosticContext();
+#ifdef FASSERT_ENABLE
+	int const iFAssertEnabled = 1;
+#else
+	int const iFAssertEnabled = 0;
+#endif
+	CvString szContext;
+	szContext.Format("build=%s %s fassertEnabled=%d", getSASDllBuildConfiguration(), getSASBinaryContextFields(kContext, "dll").GetCString(), iFAssertEnabled);
+	return szContext;
 }
 
 CvString getSASDllContextFields()
