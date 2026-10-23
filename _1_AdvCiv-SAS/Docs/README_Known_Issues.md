@@ -243,6 +243,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#164 - (Fixed) Base Civ4 Oasis map script had shadowed Python callbacks (found by the Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-164)\
 [KI#165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165)\
 [KI#166 - (Fixed/Addressed) Base AdvCiv issue of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): replays no longer try to use vanilla BtS-compatible replay storage after shifted XML enum order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166)\
+[KI#166.2 - (Fixed/Addressed SAS replay-identity follow-up exposed by SASAssertions) AdvCiv's packed replay ID could let incompatible AdvC/legacy shared-ID replays reach current SAS field bounds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.2)\
+[KI#166.3 - (Fixed inherited AdvCiv replay bounds) Valid mod-mod start years were rejected, and invalid final turns did not stop parsing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.3)\
 [KI#167 - (Fixed) Incorrect BBAI logging argument check of `MISSIONAI_TRADE` instead of `MISSIONAI_GREAT_WORK` near `if (AI_doGreatWork(pBestCulturePlot))` (and gate the old `eOldMission` behind a logging guard for per opt)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-167)\
 [KI#168 - (Fixed) K-Mod bug: Great Person Join and direct Construct target selection did not preserve the nearest-path tie-breaker (Bug Found During BBAI Logging Investigation/Code Review)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-168)\
 [KI#169 - (Fixed) Base AdvCiv bug: slow Great Person movement omitted the intended final city from mission-AI target metadata (Mission-State/AI Coordination Bug Exposed by BBAI Logging)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-169)\
@@ -13366,6 +13368,117 @@ Rather than adding a full remapping layer for a compatibility mode that is not n
 - Opening AdvCiv-SAS replay/save data in vanilla BtS, or vanilla BtS data in AdvCiv-SAS, is not a supported goal.
 
 Fixed/documented with the help of ChatGPT-5.5 after a Codex review pointed out that the old `getWorldSize() > 5` BtS replay guard had become stale once `WORLDSIZE_HUGE` moved to XML index `6`.
+
+<a id="ki-166.2"></a>
+
+## KI#166.2 - (Fixed/Addressed SAS replay-identity follow-up exposed by SASAssertions) AdvCiv's packed replay ID could let incompatible AdvC/legacy shared-ID replays reach current SAS field bounds
+
+The 2026-10-23 assertion-enabled victory replay reproduced a large Hall-of-Fame-only diagnostic storm: opening `CvHallOfFameScreen` at 06:25:30 UTC was followed by 994 `CvReplayInfo::checkBounds` failures over the next few seconds, all at game over.
+
+The inherited assertion supplied no field name, rejected value, replay identity, or filename, so those rows alone cannot prove which historical replay fields failed first.
+
+Hall of Fame scans saved `.CivBeyondSwordReplay` files in the shared user `My Games/beyond the sword/Replays` folder, not advisors or unit-information screens.
+
+A file can fail its first unsafe field and the next file can fail the same assertion site for the same incompatibility. More retained incompatible files can therefore increase a scan's repeated failures; elapsed time does not itself corrupt them.
+
+The packed replay identity permits early filtering; the inherited trailing mod-name/path comparison also filters other mods when `HOF_DISPLAY_OTHER_MOD_REPLAYS=0`. Sharing a folder or a packed ID therefore did not imply that base AdvCiv and SAS Hall-of-Fame lists should show the same games.
+
+Source archaeology exposed a SAS identity mismatch before those bounds checks. The separate confirmed defect rejecting SAS's valid start year is documented in [KI#166.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.3); repairing that bound does not require changing replay identity.
+
+AdvCiv commit `efd11afbeb` (f1rpo; authored 2019-02-24, committed 2019-02-27; `Save replays in the BtS format, bugfixes for R&F option`) began packing `SAVE_VERSION * 100 + REPLAY_VERSION` into the first replay integer so a replay could be identified before its mod-name string at the end of the stream.
+
+AdvC's `SAVE_VERSION` is `14223`, encoding A-D-V-C, and its own XML comment explicitly advises mod-mods to use a different value.
+
+SAS had intentionally changed raw XML enum ordering for replay-stored values such as game speed, world size and handicap, and KI#166 therefore disabled the optional BtS-compatible replay writer.
+
+However, SAS still retained `SAVE_VERSION=14223`, so its normal replay writer continued using AdvC's packed replay identity. An AdvC replay or an older SAS replay from a different raw-enum epoch could therefore pass the early same-ID gate and reach current SAS field parsing before the trailing mod name was available to reject it.
+
+A raw enum that is valid in both domains can also be silently reinterpreted rather than necessarily failing a bound.
+
+These are numeric positions of XML info records, not XML Define values or every unit in the replay. For a concrete current-tree comparison, Base AdvCiv 1.14 lists `GAMESPEED_NORMAL` at index `2`, while SAS lists `GAMESPEED_QUICK` at `2` and `GAMESPEED_NORMAL` at `3`. Therefore a stored `2` can pass both bounds checks but describe a different game speed.
+
+The identity/filtering repair gives SAS its own XML-configured mod identity:
+
+- XML `SAVE_VERSION` moves from `GlobalDefines_advc.xml` to `GlobalDefines_advciv_sas.xml` as `SAS_SAVE_VERSION`, changing inherited AdvCiv `14223` to `19119` (S-A-S) and preserving the inherited explanation.
+  - The loader derives the old `SAVE_VERSION` engine/BUG key from that setting after all overrides; no second editable current identity is introduced. Replay reading/writing and SGR metadata share one cached accessor; no second current identity is hardcoded in the DLL.
+  - An XML-only mod-mod can change the identity and restart Civ4. The compiled layout marker still describes the actual serialized format, independently of the mod identity.
+  - Separating a second replay-only ID was considered during drafting to avoid a possible gameplay-save effect, but that effect was not established. Retaining the existing XML source avoids unnecessary duplicate identity settings; an existing gameplay save is included in validation rather than assuming it must fail or must remain compatible.
+- The reader recognizes packed headers from their encoding, retaining the inherited exception for supported Taurus bit-tagged versions. It needs no historical mod-ID threshold in C++. XML `SAS_HOF_LEGACY_MOD_ID` precedes current `SAS_SAVE_VERSION` and ships as `14223`; set it to `0` to disable legacy attempts.
+  - The configured legacy ID is only permission to try reading, not automatic acceptance. With foreign-mod display disabled, legacy candidates must carry the current SAS mod path; a base AdvCiv path or empty mod name is rejected. Because that path is stored at the end, this compatibility route necessarily parses fields before confirming the path.
+- `CvReplayInfo::checkBounds` retains its safety role. If a current-ID/current-version SAS replay itself violates a bound, the assertion now records the semantic field, rejected value, allowed range, replay ID and replay version instead of emitting an anonymous failure. Foreign/legacy rejection no longer needs to masquerade as a current-SAS assertion.
+
+Read-only inspection of the 999 local replay-file tails identified 995 stored `Mods\AdvCiv-SAS\` paths, three AdvCiv paths and one Pie's Ancient Europe path. This explains why a legacy-ID/same-path route can recover SAS results without deliberately displaying other mods.
+
+A matching SAS path still cannot establish that historical XML indexes retain their meaning. Bounds violations reject a candidate; valid-but-reordered indexes can mislabel historical content. This is a limited compatibility attempt, not enum remapping or guaranteed recovery of every older replay.
+
+This does not claim that the identity collision caused every one of the 994 recorded failures; the pre-fix assertion did not preserve enough attribution to prove that.
+
+Validation must cover a newly written current-ID SAS replay, compatible legacy SAS candidates and rejection of other-mod paths; merely hiding historical files would not establish that SAS can read its own output.
+
+SGR records current replay writer identity, layout version and packed header once per enabled new/load session as `GAME_RECORD_REPLAY_FORMAT`, beside its existing save-format context. The values describe the loaded DLL's writer, not an arbitrary replay read by Hall of Fame; field-specific assertion messages remain available for individual read failures.
+
+With SGR enabled, the Hall-of-Fame loader brackets the EXE-owned replay scan and emits `GAME_RECORD_REPLAY_REJECTION_SUMMARY` plus `GAME_RECORD_REPLAY_REJECTION` groups afterward, including in Release builds. Groups count the first rejection of each file by reason/field; value, bounds and replay identity/version describe the first sample in that group, not every rejected file.
+
+Each replay still stops at its first invalid field: continuing through an unsafe stream to discover further errors could misinterpret string lengths or allocation counts. The EXE supplies the stream without a filename, so these summaries cannot attribute individual filenames.
+
+Collection is active only inside an SGR-enabled Hall-of-Fame scan; disabled diagnostics allocate no groups or format output. The bounded reason/field vocabulary has a single enum/string catalog, while individual field names remain static string literals. An automatic scope closes the batch on normal return or ordinary C++ exception unwinding.
+
+The C++ File Audit Album's C031-WIP549-WIP551 / Queue 049 review on 2026-09-09 thoroughly audited `CvReplayInfo.cpp`, including the inherited bound surface and replay compatibility paths, and retained F677/KI#999 and F678/KI#1000 while closing without another supported root.
+
+That historical review did not reconcile the separate `GlobalDefines_advc.xml` mod-mod warning with SAS still sharing AdvC's packed replay ID after KI#166's shifted-enum decision. KI#166.2 records this later cross-file/runtime correction without rewriting the completed album audit.
+
+Testing the new Hall-of-Fame Legend directly from the main menu also exposed an initialization gap: `pediaShowHistorical` raised `AttributeError: 'NoneType' object has no attribute 'pediaHistorical'` because Civilopedia had not been created.
+
+Hall of Fame now calls the existing reusable Civilopedia factory before exposing its Legend and leader/civilization links; opening Civilopedia beforehand is no longer a prerequisite.
+
+Fixed with the help of ChatGPT-5.6-Sol and GPT-6.1-Sol after SASAssertions preserved the Hall-of-Fame rejection storm, source/history review traced the inherited shared replay identity; the related calendar-bound defect is tracked separately in KI#166.3.
+
+<a id="ki-166.3"></a>
+
+## KI#166.3 - (Fixed inherited AdvCiv replay bounds) Valid mod-mod start years were rejected, and invalid final turns did not stop parsing
+
+The Hall-of-Fame investigation in [KI#166.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.2) exposed a separate confirmed reader defect: AdvCiv's hardcoded earliest year was unsuitable for mod-mods using earlier calendars.
+
+SAS's own replay writer records `startYear=-50000`, but the reader rejected anything before `-10000`, so a valid SAS replay could disappear from Hall of Fame independently of its mod identity.
+
+This was introduced by f1rpo in AdvCiv commit `efd11afbeb` (authored 2019-02-24, committed 2019-02-27, `Save replays in the BtS format, bugfixes for R&F option`), rather than inherited unchanged from vanilla Civ4. The inherited checks were:
+
+```cpp
+if(!checkBounds(m_iStartYear, -10000, 100000)) return false; // advc.106i
+checkBounds(m_iFinalTurn, 0, 10000); // advc.106i
+```
+
+The first line assumes a date range without considering the loaded mod's `START_YEAR`. The second calls the validator but ignores its failure, so parsing continues after an invalid final turn.
+
+A default `START_YEAR=-4000` does not make every earlier replay date invalid: scenarios, mod-mods and historical configurations can legitimately use `-8000` or another start year. Rejecting `-4001` would only be correct under a separate contract requiring that exact calendar, which this shared replay reader does not have.
+
+Consequently, the `-10000` threshold neither proves that an accepted date belongs to the replay's calendar nor precisely guards the arithmetic used to display it. The relevant numeric constraints come from the stored start year, calendar conversion and representable integer range, not distance from the current default.
+
+The repair removes the inherited historical-year range rather than moving its boundary. Once the replay's final turn, calendar and game speed are known, the reader derives the safe `startYear` interval from the same signed-`int` month arithmetic used by `getTurnMonthForGame`.
+
+The calculation is performed in `__int64` so the check itself cannot overflow; it covers every calendar type, the full segment-boundary addition performed before clipping a game-speed increment, and the `finalTurn + 1` probe used by default-calendar date formatting.
+
+This is a representation-safety check, not calendar policy. A replay can therefore start at `-100000`, `-8000`, `-4000` or another historical year without matching today's XML `START_YEAR`, provided its date calculations remain representable.
+
+Conversely, an extreme value is rejected only when the current calendar/game-speed arithmetic could overflow or when the negative-year flooring/formatting path would overflow near `MIN_INT`. Foreign-mod display does not relax these arithmetic limits.
+
+The final-turn caller now returns failure when validation fails, matching the neighboring reader checks. This second correction comes from source inspection; it is not presented as the observed cause of the assertion burst.
+
+The read-only wire inspection found `1422306` / `startYear=-50000` / final turn `426` in both recent `Isabella I_AD-2066` captures (`_997` and `_998`), and the same start year in the other four captures inspected.
+
+No specific BC/AD threshold remains. The old `-10000` and `100000` constants had no demonstrated replay-format significance; using `START_YEAR` as a replacement boundary would still reject otherwise valid historical scenarios merely because today's configuration differs.
+
+The new bounds answer only the safety question the reader can establish locally: whether the stored year can pass through Civ4's calendar arithmetic without signed-`int` overflow.
+
+This proves the start-year mismatch, not the individual cause of all 994 historical assertions.
+
+Changing the mod identity cannot fix an overly narrow calendar bound; conversely, admitting the configured year does not establish that a foreign or older SAS replay uses compatible XML indexes. KI#166.2 covers those separate identity/filtering and diagnostic concerns.
+
+The C++ File Audit Album's C031-WIP551 / Queue 049 reader-sanity-check census explicitly recorded the ignored final-turn result, but classified it as malformed/foreign-file robustness rather than a demonstrated self-written replay defect. This patch honors that existing validator as consistency hardening; it does not claim a newly discovered final-turn root.
+
+That replay audit did not identify the `-10000` bound's mismatch with SAS's configured `START_YEAR=-50000`. KI#166.3 records the later cross-file/runtime finding while leaving the completed album audit unchanged.
+
+Investigated and fixed with ChatGPT-5.6-Sol and GPT-6.1-Sol; ChatGPT supplied the dynamic calendar-arithmetic bounds, with subsequent review refining intermediate-overflow coverage and keeping legacy/foreign rejection from triggering current-SAS assertions.
 
 <a id="ki-167"></a>
 

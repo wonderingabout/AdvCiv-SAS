@@ -2,6 +2,12 @@
 
 These tracked development records preserve resumable LLM-assisted source investigations. The folder is excluded from player release archives and generated historical commit patches, but its current files remain included in Git clones and AdvCiv-SAS light-source handoffs.
 
+## Menu
+
+- [Historical source archaeology](#historical-source-archaeology)
+- [Current-tree audit albums](#current-tree-audit-albums)
+- [Focused reviews](#focused-reviews)
+
 ## Historical source archaeology
 
 [`historical_source_archaeology.txt`](/_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt) records the completed commit-oriented BtS, K-Mod, AdvCiv and AdvCiv-SAS lineage sweep and subsequent repair status.

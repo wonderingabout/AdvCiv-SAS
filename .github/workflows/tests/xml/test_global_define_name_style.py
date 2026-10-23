@@ -48,6 +48,19 @@ class GlobalDefineNameStyleTests(unittest.TestCase):
         self.write_define("Assets/XML/GlobalDefinesAlt.xml", "INHERITED_" + "X" * 34)
         self.assertTrue(any("GlobalDefinesAlt.xml" in error for error in self.errors()))
 
+    # <!-- custom: Reproduce the moved SAVE_VERSION namespace mistake, verify its SAS-prefixed replacement, and preserve ordinary inherited-file naming. (GPT-6.1-Sol) -->
+    def test_unprefixed_name_in_sas_file_fails(self):
+        self.write_define("Assets/XML/GlobalDefines_advciv_sas.xml", "SAVE_VERSION")
+        self.assertTrue(any("SAVE_VERSION DefineName must start with SAS_" in error for error in self.errors()))
+
+    def test_prefixed_name_in_sas_file_passes(self):
+        self.write_define("Assets/XML/GlobalDefines_advciv_sas.xml", "SAS_SAVE_VERSION")
+        self.assertEqual(self.errors(), [])
+
+    def test_unprefixed_inherited_name_passes(self):
+        self.write_define("Assets/XML/GlobalDefines_advc.xml", "SAVE_VERSION")
+        self.assertEqual(self.errors(), [])
+
     def test_python_callback_and_modular_files_are_checked(self):
         self.write_define("Assets/XML/PythonCallbackDefines.xml", "P" * 43)
         self.write_define("Assets/Modules/Test/Synthetic_GlobalDefines.xml", "M" * 43)

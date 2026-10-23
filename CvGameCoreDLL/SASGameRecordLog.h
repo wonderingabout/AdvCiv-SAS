@@ -6,6 +6,7 @@
 #ifndef SAS_GAME_RECORD_LOG_H
 #define SAS_GAME_RECORD_LOG_H
 
+#include "CvReplayInfo.h" // <!-- custom: The rejection-collection interface uses the replay-owned enum; include its definition instead of duplicating categories or relying on a nonportable enum forward declaration. See KI#166.2. (GPT-6.1-Sol) -->
 #include "AIStrategies.h" // <!-- custom: Exact AI strategy/victory-stage transition bridges use the native bitfield types while keeping the recorder interface type-safe. (ChatGPT-5.6-Sol) -->
 #include <vector> // <!-- custom: Recorder-owned technology-choice candidates and rare goody-result unit lists use std::vector directly; include its defining header rather than relying on transitive core includes. (ChatGPT-5.6-Sol) -->
 #include <utility> // <!-- custom: Public religion-decision provenance uses std::pair for already-computed candidate religion/value scores; include its defining header directly instead of relying on transitive core includes. (ChatGPT-5.6-Sol) -->
@@ -1269,6 +1270,14 @@ void logSASGameRecordBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, Bon
 
 #define gGameRecordLogLevel g_iSASGameRecordLogLevel // <!-- custom: Startup-cached direct hot-path read; keep disabled SASGameRecord hooks free of accessor calls. (ChatGPT-5.5 + GPT-5.5 + ChatGPT-5.6-Sol) -->
 #define gGameRecordTurnInterval getSASGameRecordTurnInterval() // <!-- custom: Periodic game-record snapshot interval in game turns. (ChatGPT-5.5) -->
+
+// <!-- custom: SGR owns scan-level collection/output, while CvReplayInfo.h owns the shared rejection vocabulary used by the reader and diagnostics.
+// The Hall-of-Fame caller pre-gates batch setup; reader hooks check this read-only active flag before passing primitive facts and static-lifetime field labels. See KI#166.2. (GPT-6.1-Sol) -->
+extern bool g_bSASGameRecordReplayRejectionBatchActive;
+void beginSASGameRecordReplayRejectionBatch();
+void endSASGameRecordReplayRejectionBatch();
+void collectSASGameRecordReplayRejection(SASReplayRejectionReason eReason, char const* szField,
+	int iValue, int iLower, int iUpper, int iModID, int iVersion);
 
 void logSASGameRecord(TCHAR* format, ... );
 

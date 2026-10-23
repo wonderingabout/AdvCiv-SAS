@@ -23,18 +23,19 @@ MENU = {"menu", "contents", "table of contents"}
 
 # <!-- custom: The Logging Inventory had 55 headings but no menu; validating only declared menus could not catch that omission.
 # Require navigation by default, with explicit reasons for short indexes, legal text and historical/generated records that should not acquire a parallel maintained index. (GPT-6.1-Sol) -->
+# <!-- custom: Deprecated/ and examples/ also contain maintained guides; exempt only their short index or generated artifact, so multi-section migration and example documentation still requires navigation. (GPT-6.1-Sol) -->
 MENU_EXEMPT_FILES = {
     "LICENSE.md": "legal terms, not a navigation guide",
     ".github/workflows/build/README.md": "short check-folder index",
     ".github/workflows/tests/README.md": "short regression-test introduction",
+    "_1_AdvCiv-SAS/Docs/Deprecated/README.md": "single-section migration-reference index",
+    "_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_compared.md": "generated comparison artifact",
 }
 MENU_EXEMPT_PREFIXES = {
-    "_1_AdvCiv-SAS/Docs/Deprecated/": "historical mappings and their short index",
     "_1_AdvCiv-SAS/Docs/Source_Analysis/": "investigation records follow their own maintenance process",
     "_1_AdvCiv-SAS/Docs/changelogs_web/": "published historical release copies",
     "_1_AdvCiv-SAS/Docs/git_logs/": "historical commit records",
     "_1_AdvCiv-SAS/Docs/revisions/": "append-oriented subsystem revision histories",
-    "_1_AdvCiv-SAS/Docs/examples/": "generated/captured examples and companion notes",
 }
 UNMAINTAINED_PREFIXES = ("_0_Common_Docs/", "LLM_Helpers/context/", "LLM_Helpers/outputs/", "_SNAPSHOT_CONTEXT/", ".git/")
 

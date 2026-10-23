@@ -4,6 +4,15 @@ These companion files were captured from the user's real Civ4 run on 2026-10-19,
 
 The process created two games, loaded a save, opened/closed Sevopedia from the main menu, in-game and during autoplay, ran scheduled and interrupted autoplay, entered/exited WorldBuilder, returned to the menu twice and exited through the in-game UI. These are functional observations, not a controlled performance comparison.
 
+## Menu
+
+- [Files and purpose](#files-and-purpose)
+- [Recorder revision and serials](#recorder-revision-and-serials)
+- [Why two formats?](#why-two-formats)
+- [Field coverage](#field-coverage)
+- [Reading time and history](#reading-time-and-history)
+- [Real output and test fixtures](#real-output-and-test-fixtures)
+
 ## Files and purpose
 
 | File | Meaning |

@@ -1,6 +1,7 @@
 #include "CvGameCoreDLL.h"
 #include "SASSaveStreamFormat.h" // <!-- custom: Use the same compile-time write markers as the session diagnostic registry, avoiding duplicated version literals. (GPT-6.1-Sol) -->
 #include "CvReplayInfo.h"
+#include "SASGameRecordLog.h" // <!-- custom: Report replay failures through pre-gated recorder hooks; SGR owns aggregation and output independently of assertion availability. See KI#166.2. (GPT-6.1-Sol) -->
 #include "CvPlayer.h"
 #include "CvGameAI.h" // advc.104
 #include "CvInfo_GameOption.h"
@@ -11,8 +12,171 @@
 #include "StartPointsAsHandicap.h" // advc.250b
 #include "CvBugOptions.h" // advc.106i
 
-// <!-- custom: Share the existing replay layout marker with the current-writer diagnostic registry; the SAVE_VERSION-based replay encoding remains unchanged. (GPT-6.1-Sol) -->
+// <!-- custom: Share the replay layout marker with the current-writer diagnostic registry; the mod identity remains XML SAS_SAVE_VERSION, shared by replay reading/writing and diagnostics. See KI#166.2. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 int CvReplayInfo::REPLAY_VERSION = SASSaveStreamFormat::CV_REPLAY_INFO; // advc.707, advc.106i: 4 in BtS
+
+// <!-- custom: Cache the XML SAS_SAVE_VERSION once for all replay readers/writers and SGR metadata instead of hardcoding a second current mod identity in the DLL.
+// XML-only modders can choose their own identity and restart Civ4; the serialized replay layout version remains a separate compiled contract. See KI#166.2. (GPT-6.1-Sol) -->
+int CvReplayInfo::getSASReplayModID()
+{
+	static const int iModID = GC.getDefineINT("SAS_SAVE_VERSION");
+	return iModID;
+}
+
+// <!-- custom: Keep the deprecated candidate identity XML-tunable beside current SAS_SAVE_VERSION; this is an opt-out compatibility attempt, not a claim that older SAS enum domains match.
+// Acceptance also requires the stored mod path to match SAS, unlike the broader inherited foreign-mod display option. See KI#166.2. (GPT-6.1-Sol) -->
+int CvReplayInfo::getSASLegacyReplayModID()
+{
+	static const int iLegacyModID = GC.getDefineINT("SAS_HOF_LEGACY_MOD_ID");
+	return iLegacyModID;
+}
+
+// <!-- custom: Keep these replay-calendar validation helpers file-local with static linkage, without adding members to CvReplayInfo or an enclosing namespace block.
+// SAS replay-specific names also make ownership and purpose explicit when searching; internal linkage prevents collisions without relying on names remaining globally unique.
+// AdvC's inherited -10000..100000 replay-year range was only a heuristic and rejected valid SAS/mod-mod calendars.
+// Derive the accepted start-year interval from the actual signed-int month arithmetic used by getTurnMonthForGame instead: a replay year is acceptable when every displayed turn remains representable.
+// Work in VC2003's __int64 while deriving the interval; CALENDAR_DEFAULT also covers finalTurn+1 because CvGameTextMgr::setDateStr probes the next turn.
+// This is arithmetic safety, not a claim that a historical year must match today's START_YEAR. See KI#166.3. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static void updateSASReplayMonthOffsetRange(__int64 iOffset, __int64& iMinOffset, __int64& iMaxOffset)
+{
+	if(iOffset < iMinOffset)
+		iMinOffset = iOffset;
+	if(iOffset > iMaxOffset)
+		iMaxOffset = iOffset;
+}
+
+static __int64 floorSASReplayDivision(__int64 iDividend, int iPositiveDivisor)
+{
+	FAssert(iPositiveDivisor > 0);
+	__int64 iQuotient = iDividend / iPositiveDivisor;
+	if(iDividend < 0 && iDividend % iPositiveDivisor != 0)
+		iQuotient--;
+	return iQuotient;
+}
+
+static __int64 ceilSASReplayDivision(__int64 iDividend, int iPositiveDivisor)
+{
+	FAssert(iPositiveDivisor > 0);
+	__int64 iQuotient = iDividend / iPositiveDivisor;
+	if(iDividend > 0 && iDividend % iPositiveDivisor != 0)
+		iQuotient++;
+	return iQuotient;
+}
+
+static bool getSASReplayStartYearArithmeticBounds(int iFinalTurn, CalendarTypes eCalendar,
+	GameSpeedTypes eSpeed, int& iLowerYear, int& iUpperYear)
+{
+	FAssert(iFinalTurn >= 0);
+	int const iMonthsPerYear = GC.getNumMonthInfos();
+	if(iMonthsPerYear <= 0)
+		return false;
+	int const iLastDisplayedTurn = iFinalTurn + (eCalendar == CALENDAR_DEFAULT ? 1 : 0);
+	__int64 iMinOffset = 0;
+	__int64 iMaxOffset = 0;
+	__int64 iOffset = 0;
+	switch(eCalendar)
+	{
+	case CALENDAR_DEFAULT:
+	{
+		CvGameSpeedInfo const& kSpeed = GC.getInfo(eSpeed);
+		int const iNumIncrements = kSpeed.getNumTurnIncrements();
+		if(iNumIncrements <= 0)
+			return false;
+		int iTurnsRemaining = iLastDisplayedTurn;
+		int iTurnCount = 0;
+		for(int i = 0; i < iNumIncrements && iTurnsRemaining > 0; i++)
+		{
+			GameTurnInfo const& kIncrement = kSpeed.getGameTurnInfo(i);
+			// <!-- custom: The production branch compares against iTurnCount + the full segment length before clipping to the requested turn.
+			// Validate that int addition too: a short replay can still encounter an overflowing XML segment boundary. See KI#166.3. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			if(kIncrement.iNumGameTurnsPerIncrement < 0 ||
+				(__int64)iTurnCount + kIncrement.iNumGameTurnsPerIncrement > MAX_INT)
+				return false;
+			int const iTurns = std::min(iTurnsRemaining, kIncrement.iNumGameTurnsPerIncrement);
+			__int64 const iDelta = (__int64)kIncrement.iMonthIncrement * iTurns;
+			// <!-- custom: getTurnMonthForGame multiplies as int before adding, so reject an unsafe intermediate rather than relying on a later wide result. See KI#166.3. (ChatGPT-5.6-Sol) -->
+			if(iDelta < MIN_INT || iDelta > MAX_INT)
+				return false;
+			iOffset += iDelta;
+			updateSASReplayMonthOffsetRange(iOffset, iMinOffset, iMaxOffset);
+			iTurnsRemaining -= iTurns;
+			iTurnCount += iTurns;
+		}
+		if(iTurnsRemaining > 0)
+		{
+			__int64 const iDelta = (__int64)kSpeed.getGameTurnInfo(iNumIncrements - 1).iMonthIncrement * iTurnsRemaining;
+			if(iDelta < MIN_INT || iDelta > MAX_INT)
+				return false;
+			iOffset += iDelta;
+			updateSASReplayMonthOffsetRange(iOffset, iMinOffset, iMaxOffset);
+		}
+		break;
+	}
+	case CALENDAR_BI_YEARLY:
+		iOffset = (__int64)2 * iLastDisplayedTurn * iMonthsPerYear;
+		if(iOffset < MIN_INT || iOffset > MAX_INT)
+			return false;
+		updateSASReplayMonthOffsetRange(iOffset, iMinOffset, iMaxOffset);
+		break;
+	case CALENDAR_YEARS:
+	case CALENDAR_TURNS:
+		iOffset = (__int64)iLastDisplayedTurn * iMonthsPerYear;
+		if(iOffset < MIN_INT || iOffset > MAX_INT)
+			return false;
+		updateSASReplayMonthOffsetRange(iOffset, iMinOffset, iMaxOffset);
+		break;
+	case CALENDAR_SEASONS:
+	{
+		int const iNumSeasons = GC.getNumSeasonInfos();
+		// <!-- custom: setDateStr indexes seasons with a raw modulo, so zero seasons are unsafe even though getTurnMonthForGame defensively divides by max(1, count). See KI#166.3. (ChatGPT-5.6-Sol) -->
+		if(iNumSeasons <= 0)
+			return false;
+		__int64 const iProduct = (__int64)iLastDisplayedTurn * iMonthsPerYear;
+		// <!-- custom: The production calendar code multiplies before dividing, so this intermediate must itself fit int. See KI#166.3. (ChatGPT-5.6-Sol) -->
+		if(iProduct < MIN_INT || iProduct > MAX_INT)
+			return false;
+		iOffset = iProduct / iNumSeasons;
+		updateSASReplayMonthOffsetRange(iOffset, iMinOffset, iMaxOffset);
+		break;
+	}
+	case CALENDAR_MONTHS:
+		iOffset = iLastDisplayedTurn;
+		updateSASReplayMonthOffsetRange(iOffset, iMinOffset, iMaxOffset);
+		break;
+	case CALENDAR_WEEKS:
+	{
+		static int const iWeeksPerMonth = GC.getDefineINT("WEEKS_PER_MONTHS");
+		// <!-- custom: setDateStr uses WEEKS_PER_MONTHS directly for modulo/division; reject a nonpositive divisor rather than accepting getTurnMonthForGame's max(1, value) fallback. See KI#166.3. (ChatGPT-5.6-Sol) -->
+		if(iWeeksPerMonth <= 0)
+			return false;
+		iOffset = iLastDisplayedTurn / iWeeksPerMonth;
+		updateSASReplayMonthOffsetRange(iOffset, iMinOffset, iMaxOffset);
+		break;
+	}
+	default:
+		FAssert(false);
+		return false;
+	}
+
+	// <!-- custom: getTurnYearForGame floors negative months by subtracting a nonnegative modulo before division; the first safe month is therefore the first whole-year boundary at or above MIN_INT.
+	// With one month per year, raise that boundary once more because setYearStr negates negative years and -MIN_INT is not representable. See KI#166.3. (ChatGPT-5.6-Sol) -->
+	__int64 iLowestSafeMonth = ceilSASReplayDivision(MIN_INT, iMonthsPerYear) * iMonthsPerYear;
+	if(iMonthsPerYear == 1)
+		iLowestSafeMonth++;
+	__int64 const iLowerNumerator = iLowestSafeMonth - iMinOffset;
+	__int64 const iUpperNumerator = (__int64)MAX_INT - iMaxOffset;
+	__int64 iLower = ceilSASReplayDivision(iLowerNumerator, iMonthsPerYear);
+	__int64 iUpper = floorSASReplayDivision(iUpperNumerator, iMonthsPerYear);
+	if(iLower < MIN_INT)
+		iLower = MIN_INT;
+	if(iUpper > MAX_INT)
+		iUpper = MAX_INT;
+	if(iLower > iUpper || iLower > MAX_INT || iUpper < MIN_INT)
+		return false;
+	iLowerYear = (int)iLower;
+	iUpperYear = (int)iUpper;
+	return true;
+}
 
 CvReplayInfo::CvReplayInfo() :
 	m_eActivePlayer(NO_PLAYER), // (advc: was 0)
@@ -39,6 +203,7 @@ CvReplayInfo::CvReplayInfo() :
 	m->iFinalScore = -1; // advc.707
 	// <advc.106i>
 	m->iVersionRead = -1;
+	m->iReplayModIDRead = -1; // <!-- custom: Unpacked replay identity, if present, for filtering and rejection diagnostics. See KI#166.2. (ChatGPT-5.6-Sol) -->
 	m->bDisplayOtherMods = false; // </advc.106i>
 }
 /*	advc.003k: Needs to have a copy-constructor b/c of its Python counterpart,
@@ -701,6 +866,9 @@ const char* CvReplayInfo::getModName() const
 
 bool CvReplayInfo::read(FDataStreamBase& stream)
 {
+	// <!-- custom: Clear per-input identity before the first read so an early exception cannot inherit diagnostic metadata from a previous input. See KI#166.2. (GPT-6.1-Sol) -->
+	m->iReplayModIDRead = -1;
+	m->iVersionRead = -1;
 	bool bSuccess = true;
 	try
 	{
@@ -710,23 +878,32 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
 		stream.Read(&iVersion);
 		// <advc.106i> Unpack mod id and version
 
-		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-		static const int iAdvCivID = GC.getDefineINT("SAVE_VERSION");
-
-		int iModID = -1;
-
-		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: make this static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iHOF_DISPLAY_OTHER_MOD_REPLAYS = GC.getDefineINT("HOF_DISPLAY_OTHER_MOD_REPLAYS");
 
 		m->bDisplayOtherMods = (iHOF_DISPLAY_OTHER_MOD_REPLAYS > 0);
-		if(iVersion >= 100 * iAdvCivID)
+		m->iReplayModIDRead = -1;
+		// <!-- custom: Detect AdvC's packed modID * 100 + layoutVersion format without using a historical mod ID as a threshold.
+		// Plain supported versions are below 100, except Taurus's inherited bit-7-tagged versions, which must remain on their unpacked path.
+		// Thus XML SAS_SAVE_VERSION can change without retaining/updating an old-ID list in either C++ or XML; packed IDs are compared with current and permitted legacy XML identities below. See KI#166.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		int const iVersionWithoutTaurusBit = iVersion & ~(1 << 7);
+		bool const bUnpackedTaurusVersion = (iVersion != iVersionWithoutTaurusBit &&
+			iVersionWithoutTaurusBit >= 2 && iVersionWithoutTaurusBit <= REPLAY_VERSION);
+		if(iVersion >= 100 && !bUnpackedTaurusVersion)
 		{
-			iModID = iVersion / 100;
+			m->iReplayModIDRead = iVersion / 100;
 			iVersion = iVersion % 100;
 			/*  This would have to be an AdvCiv modmod with a different id, or
 				any mod that uses a very high replay version number. */
-			if(iModID != iAdvCivID && !m->bDisplayOtherMods)
+			// <!-- custom: Current and configured legacy IDs are read candidates, not automatic Hall-of-Fame entries.
+			// The legacy route retains older SAS results; AdvCiv shares that old ID, so its files may reach parsing too, but the trailing mod-path check still excludes them when foreign-mod display is off. See KI#166.2. (GPT-6.1-Sol) -->
+			if(m->iReplayModIDRead != getSASReplayModID() &&
+				!(getSASLegacyReplayModID() > 0 && m->iReplayModIDRead == getSASLegacyReplayModID()) &&
+				!m->bDisplayOtherMods)
+			{
+				if(g_bSASGameRecordReplayRejectionBatchActive) collectSASGameRecordReplayRejection(SAS_REPLAY_REJECT_FOREIGN_ID, "replayModID", m->iReplayModIDRead, -1, -1, m->iReplayModIDRead, iVersion);
 				return false;
+			}
 		} /* Replay from another mod that has increased the replay version;
 			 won't be able to parse that. (Actually, it might be OK - if the mod
 			 only appends additional data at the end of the stream.) */
@@ -734,12 +911,16 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
 			// Taurus replays set a single bit in the version number
 			(iVersion & ~(1 << 7)) > REPLAY_VERSION)
 		{
+			if(g_bSASGameRecordReplayRejectionBatchActive) collectSASGameRecordReplayRejection(SAS_REPLAY_REJECT_NEWER_VERSION, "replayVersion", iVersion, 2, REPLAY_VERSION, m->iReplayModIDRead, iVersion);
 			return false;
 		}
 		m->iVersionRead = iVersion; // For the checkBounds function
 		// </advc.106i>
 		if (iVersion < 2)
+		{
+			if(g_bSASGameRecordReplayRejectionBatchActive) collectSASGameRecordReplayRejection(SAS_REPLAY_REJECT_OLDER_VERSION, "replayVersion", iVersion, 2, REPLAY_VERSION, m->iReplayModIDRead, iVersion);
 			return false;
+		}
 		// <advc.106m> Unpack active player id and minimap resolution
 		int iActivePlayer;
 		stream.Read(&iActivePlayer);
@@ -751,30 +932,30 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
 		else setDefaultMinimapSize();
 		m_eActivePlayer = (PlayerTypes)iActivePlayer;
 		// </advc.106m>
-		if(!checkBounds(m_eActivePlayer, 0, 64)) return false; // advc.106i
+		if(!checkBounds(m_eActivePlayer, 0, 64, "activePlayer")) return false; // advc.106i
 		stream.Read(&iType);
 		m_eDifficulty = (HandicapTypes)iType;
-		if(!checkBounds(m_eDifficulty, 0, GC.getNumHandicapInfos())) return false; // advc.106i  (not -1 b/c of advc.250a)
+		if(!checkBounds(m_eDifficulty, 0, GC.getNumHandicapInfos(), "difficulty")) return false; // advc.106i  (not -1 b/c of advc.250a)
 		stream.ReadString(m_szLeaderName);
-		if(!checkBounds(m_szLeaderName.length(), 0, 128)) return false; // advc.106i
+		if(!checkBounds(m_szLeaderName.length(), 0, 128, "leaderNameLength")) return false; // advc.106i
 		stream.ReadString(m_szCivDescription);
-		if(!checkBounds(m_szCivDescription.length(), 0, 128)) return false; // advc.106i
+		if(!checkBounds(m_szCivDescription.length(), 0, 128, "civDescriptionLength")) return false; // advc.106i
 		stream.ReadString(m_szShortCivDescription);
-		if(!checkBounds(m_szShortCivDescription.length(), 0, 128)) return false; // advc.106i
+		if(!checkBounds(m_szShortCivDescription.length(), 0, 128, "shortCivDescriptionLength")) return false; // advc.106i
 		stream.ReadString(m_szCivAdjective);
-		if(!checkBounds(m_szCivAdjective.length(), 0, 128)) return false; // advc.106i
+		if(!checkBounds(m_szCivAdjective.length(), 0, 128, "civAdjectiveLength")) return false; // advc.106i
 		if(iVersion > 3)
 		{
 			stream.ReadString(m_szMapScriptName);
-			if(!checkBounds(m_szMapScriptName.length(), 0, 128)) return false; // advc.106i
+			if(!checkBounds(m_szMapScriptName.length(), 0, 128, "mapScriptNameLength")) return false; // advc.106i
 		}
 		else m_szMapScriptName = gDLL->getText("TXT_KEY_TRAIT_PLAYER_UNKNOWN");
 		stream.Read(&iType);
 		m_eWorldSize = (WorldSizeTypes)iType;
-		if(!checkBounds(m_eWorldSize, 0, GC.getNumWorldInfos() - 1)) return false; // advc.106i
+		if(!checkBounds(m_eWorldSize, 0, GC.getNumWorldInfos() - 1, "worldSize")) return false; // advc.106i
 		stream.Read(&iType);
 		m_eClimate = (ClimateTypes)iType;
-		if(!checkBounds(m_eClimate, 0, GC.getNumClimateInfos() - 1)) return false; // advc.106i
+		if(!checkBounds(m_eClimate, 0, GC.getNumClimateInfos() - 1, "climate")) return false; // advc.106i
 		stream.Read(&iType);
 		 // <advc.106i> For compatibility with advc.707
 		if(iVersion >= 6)
@@ -786,34 +967,34 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
 		{
 			m->iFinalScore = MIN_INT; // Compute it later
 			m_eSeaLevel = (SeaLevelTypes)iType;
-			if(!checkBounds(m_eSeaLevel, 0, GC.getNumSeaLevelInfos() - 1)) return false; // advc.106i
+			if(!checkBounds(m_eSeaLevel, 0, GC.getNumSeaLevelInfos() - 1, "seaLevel")) return false; // advc.106i
 		} // </advc.106i>
 		stream.Read(&iType);
 		m_eEra = (EraTypes)iType;
-		if(!checkBounds(m_eEra, 0, GC.getNumEraInfos() - 1)) return false; // advc.106i
+		if(!checkBounds(m_eEra, 0, GC.getNumEraInfos() - 1, "era")) return false; // advc.106i
 		stream.Read(&iType);
 		m_eGameSpeed = (GameSpeedTypes)iType;
-		if(!checkBounds(m_eGameSpeed, 0, GC.getNumGameSpeedInfos() - 1)) return false; // advc.106i
+		if(!checkBounds(m_eGameSpeed, 0, GC.getNumGameSpeedInfos() - 1, "gameSpeed")) return false; // advc.106i
 		stream.Read(&iNumTypes);
-		if(!checkBounds(iNumTypes, 0, NUM_GAMEOPTION_TYPES - 1)) return false; // advc.106i
+		if(!checkBounds(iNumTypes, 0, NUM_GAMEOPTION_TYPES - 1, "gameOptionCount")) return false; // advc.106i
 		for (int i = 0; i < iNumTypes; i++)
 		{
 			stream.Read(&iType);
-			if(!checkBounds(iType, 0, NUM_GAMEOPTION_TYPES - 1)) return false; // advc.106i
+			if(!checkBounds(iType, 0, NUM_GAMEOPTION_TYPES - 1, "gameOption")) return false; // advc.106i
 			m_listGameOptions.push_back((GameOptionTypes)iType);
 		}
 		stream.Read(&iNumTypes);
 		for (int i = 0; i < iNumTypes; i++)
 		{
 			stream.Read(&iType);
-			if(!checkBounds(iType, 0, GC.getNumVictoryInfos() - 1)) return false; // advc.106i
+			if(!checkBounds(iType, 0, GC.getNumVictoryInfos() - 1, "victoryCondition")) return false; // advc.106i
 			m_listVictoryTypes.push_back((VictoryTypes)iType);
 		}
 		stream.Read(&iType);
 		m_eVictoryType = (VictoryTypes)iType;
-		if(!checkBounds(m_eVictoryType, -1, GC.getNumVictoryInfos() - 1)) return false; // advc.106i
+		if(!checkBounds(m_eVictoryType, -1, GC.getNumVictoryInfos() - 1, "victoryType")) return false; // advc.106i
 		stream.Read(&iNumTypes);
-		if(!checkBounds(iNumTypes, 0, 50000)) return false; // advc.106i
+		if(!checkBounds(iNumTypes, 0, 50000, "replayMessageCount")) return false; // advc.106i
 		for (int i = 0; i < iNumTypes; i++)
 		{
 			CvReplayMessage* pMessage = new CvReplayMessage(0);
@@ -822,32 +1003,50 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
 			m_listReplayMessages.push_back(pMessage);
 		}
 		stream.Read(&m_iInitialTurn);
-		if(!checkBounds(m_iInitialTurn, 0, 1500)) return false; // advc.106i
+		if(!checkBounds(m_iInitialTurn, 0, 1500, "initialTurn")) return false; // advc.106i
+		// <!-- custom: Defer start-year validation until finalTurn and calendar are read below; their arithmetic determines the safe range instead of the inherited fixed year limits. See KI#166.3. (GPT-6.1-Sol) -->
 		stream.Read(&m_iStartYear);
-		if(!checkBounds(m_iStartYear, -10000, 100000)) return false; // advc.106i
 		stream.Read(&m_iFinalTurn);
-		checkBounds(m_iFinalTurn, 0, 10000); // advc.106i
+		// <!-- custom: The inherited caller ignored a failed final-turn check and continued reading; reject it like the other invalid fields so collection counts actual rejected files. See KI#166.3. (GPT-6.1-Sol) -->
+		if(!checkBounds(m_iFinalTurn, 0, 10000, "finalTurn")) return false; // advc.106i
 		stream.ReadString(m_szFinalDate);
-		if(!checkBounds(m_szFinalDate.length(), 4, 50)) return false; // advc.106i
+		if(!checkBounds(m_szFinalDate.length(), 4, 50, "finalDateLength")) return false; // advc.106i
 		stream.Read(&iType);
 		m_eCalendar = (CalendarTypes)iType;
-		if(!checkBounds(m_eCalendar, 0, NUM_CALENDAR_TYPES - 1)) return false; // advc.106i
+		if(!checkBounds(m_eCalendar, 0, NUM_CALENDAR_TYPES - 1, "calendar")) return false; // advc.106i
+		// <!-- custom: Validate startYear only after finalTurn/calendar are known, against the actual 32-bit date arithmetic rather than AdvC's arbitrary historical-year range.
+		// Do not relax these representation limits for foreign replays: exceeding them can overflow getTurnMonthForGame even when a date is otherwise plausible. See KI#166.3. (ChatGPT-5.6-Sol) -->
+		int iLowerStartYear, iUpperStartYear;
+		if(!getSASReplayStartYearArithmeticBounds(m_iFinalTurn, m_eCalendar, m_eGameSpeed, iLowerStartYear, iUpperStartYear))
+		{
+			if(g_bSASGameRecordReplayRejectionBatchActive) collectSASGameRecordReplayRejection(SAS_REPLAY_REJECT_CALENDAR_ARITHMETIC, "calendarArithmetic", m_iStartYear, -1, -1, m->iReplayModIDRead, m->iVersionRead);
+			// <!-- custom: A legacy/foreign replay can request arithmetic unsupported by current XML; reject it without reviving the historical assertion storm.
+			// Match checkBounds' current-SAS assertion policy and keep formatting inside FAssertMsg.
+			// SGR still counts all active-scan failures. See KI#166.3. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			if(!m->bDisplayOtherMods && m->iReplayModIDRead == getSASReplayModID() && m->iVersionRead >= REPLAY_VERSION)
+			{
+				FAssertMsg(false, CvString::format("Current SAS replay calendar arithmetic is unsafe: reason=%s calendar=%d gameSpeed=%d finalTurn=%d startYear=%d replayModID=%d replayVersion=%d | See KI#166.3.",
+					getSASReplayRejectionName(SAS_REPLAY_REJECT_CALENDAR_ARITHMETIC), (int)m_eCalendar, (int)m_eGameSpeed, m_iFinalTurn, m_iStartYear, m->iReplayModIDRead, m->iVersionRead).c_str());
+			}
+			return false;
+		}
+		if(!checkBounds(m_iStartYear, iLowerStartYear, iUpperStartYear, "startYear", false)) return false;
 		stream.Read(&m->iNormalizedScore);
-		if(!checkBounds(m->iNormalizedScore, -10000, 1000000)) return false; // advc.106i
+		if(!checkBounds(m->iNormalizedScore, -10000, 1000000, "normalizedScore")) return false; // advc.106i
 		stream.Read(&iNumTypes);
-		if(!checkBounds(iNumTypes, 1, 64)) return false; // advc.106i
+		if(!checkBounds(iNumTypes, 1, 64, "replayPlayerCount")) return false; // advc.106i
 		for (int i = 0; i < iNumTypes; i++)
 		{
 			PlayerInfo info;
 			stream.Read(&iType);
 			info.m_eLeader = (LeaderHeadTypes)iType;
-			if(!checkBounds(info.m_eLeader, 0, GC.getNumLeaderHeadInfos() - 1)) return false; // advc.106i
+			if(!checkBounds(info.m_eLeader, 0, GC.getNumLeaderHeadInfos() - 1, "leaderType")) return false; // advc.106i
 			stream.Read(&iType);
 			info.m_eColor = (ColorTypes)iType;
-			if(!checkBounds(info.m_eColor, 0, GC.getNumColorInfos() - 1)) return false; // advc.106i
+			if(!checkBounds(info.m_eColor, 0, GC.getNumColorInfos() - 1, "playerColor")) return false; // advc.106i
 			int jNumTypes;
 			stream.Read(&jNumTypes);
-			if(!checkBounds(jNumTypes, 0, 10000)) return false; // advc.106i
+			if(!checkBounds(jNumTypes, 0, 10000, "playerHistoryCount")) return false; // advc.106i
 			for (int j = 0; j < jNumTypes; j++)
 			{
 				TurnData data;
@@ -860,9 +1059,9 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
 			m_listPlayerScoreHistory.push_back(info);
 		}
 		stream.Read(&m_iMapWidth);
-		if(!checkBounds(m_iMapWidth, 1, 1000)) return false; // advc.106i
+		if(!checkBounds(m_iMapWidth, 1, 1000, "mapWidth")) return false; // advc.106i
 		stream.Read(&m_iMapHeight);
-		if(!checkBounds(m_iMapHeight, 1, 1000)) return false; // advc.106i
+		if(!checkBounds(m_iMapHeight, 1, 1000, "mapHeight")) return false; // advc.106i
 		SAFE_DELETE_ARRAY(m_pcMinimapPixels); // advc.001 (was SAFE_DELETE)
 		m_pcMinimapPixels = new byte[/* advc.106m: */ minimapPixels()];
 		stream.Read(/* advc.106m: */ minimapPixels(),
@@ -878,20 +1077,32 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
 			}
 			catch(...)
 			{
+				if(g_bSASGameRecordReplayRejectionBatchActive) collectSASGameRecordReplayRejection(SAS_REPLAY_REJECT_READ_EXCEPTION, "modName", 0, -1, -1, m->iReplayModIDRead, m->iVersionRead);
 				FErrorMsg("Failed to read replay file");
 				return false;
 			}
 			if(m_szModName.empty())
 			{
+				// <!-- custom: Legacy-ID candidates must positively identify the current SAS mod path; an empty mod name cannot establish that, even when the header matches the configured deprecated ID. See KI#166.2. (GPT-6.1-Sol) -->
+				if(!m->bDisplayOtherMods && m->iReplayModIDRead != getSASReplayModID() &&
+					getSASLegacyReplayModID() > 0 && m->iReplayModIDRead == getSASLegacyReplayModID())
+				{
+					if(g_bSASGameRecordReplayRejectionBatchActive) collectSASGameRecordReplayRejection(SAS_REPLAY_REJECT_MOD_NAME_MISMATCH, "modName", 0, -1, -1, m->iReplayModIDRead, m->iVersionRead);
+					return false;
+				}
 				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 				static const int iHOF_DISPLAY_BTS_REPLAYS = GC.getDefineINT("HOF_DISPLAY_BTS_REPLAYS");
 
-				if(iModID < 0 && iHOF_DISPLAY_BTS_REPLAYS <= 0)
+				if(m->iReplayModIDRead < 0 && iHOF_DISPLAY_BTS_REPLAYS <= 0)
+				{
+					if(g_bSASGameRecordReplayRejectionBatchActive) collectSASGameRecordReplayRejection(SAS_REPLAY_REJECT_BTS_DISABLED, "modName", 0, -1, -1, m->iReplayModIDRead, m->iVersionRead);
 					return false;
+				}
 			}
 			else if(!m->bDisplayOtherMods &&
 				std::strcmp(m_szModName.c_str(), GC.getModName().getFullPath()) != 0)
 			{
+				if(g_bSASGameRecordReplayRejectionBatchActive) collectSASGameRecordReplayRejection(SAS_REPLAY_REJECT_MOD_NAME_MISMATCH, "modName", 0, -1, -1, m->iReplayModIDRead, m->iVersionRead);
 				return false; // Replay from a different mod
 			} // </advc.106i>
 		} // <advc.707>
@@ -901,6 +1112,7 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
 	}
 	catch(...)
 	{
+		if(g_bSASGameRecordReplayRejectionBatchActive) collectSASGameRecordReplayRejection(SAS_REPLAY_REJECT_READ_EXCEPTION, "stream", 0, -1, -1, m->iReplayModIDRead, m->iVersionRead);
 		FErrorMsg("Failed to read replay file");
 		return false;
 	} // <advc.707>
@@ -914,11 +1126,9 @@ void CvReplayInfo::write(FDataStreamBase& stream)
 {
 	//stream.Write(REPLAY_VERSION);
 	// <advc.106i> Fold AdvCiv's (hopefully) globally unique id into the replay version
-
-	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-	static const int iSAVE_VERSION = GC.getDefineINT("SAVE_VERSION");
-
-	stream.Write(iSAVE_VERSION * 100 + REPLAY_VERSION);
+	// <!-- custom: Keep advc.106i's packed replay-header scheme and XML SAS_SAVE_VERSION source; SAS ships its own identity so incompatible AdvC/legacy shared-ID replays are filtered before field parsing.
+	// Use the shared cached accessor so writer, reader and diagnostic metadata agree without duplicating a current ID in C++. See KI#166.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	stream.Write(getSASReplayModID() * 100 + REPLAY_VERSION);
 	// <advc.106m> Fold minimap resolution into active player ID
 	if (!isStoringReplaysAsBtS())
 	{
@@ -1019,7 +1229,10 @@ void CvReplayInfo::setDefaultMinimapSize()
 } // </advc.106m>
 
 // <advc.106i>
-bool CvReplayInfo::checkBounds(int iValue, int iLower, int iUpper) const
+// <!-- custom: Add szField to the inherited bounds-check interface so assertion diagnostics identify the rejected replay field as well as its value and range.
+// bRelaxForOtherMods preserves AdvC's generous foreign-file upper bounds by default, while exact representation-safety checks can opt out; arithmetic overflow limits must not expand merely because foreign replay display is enabled.
+// Early identity filtering separates current SAS failures from foreign/legacy files; a current SAS failure can still indicate an overly narrow bound. See KI#166.2 and KI#166.3. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+bool CvReplayInfo::checkBounds(int iValue, int iLower, int iUpper, char const* szField, bool bRelaxForOtherMods) const
 {
 	/*  If CvReplayInfo::read encounters a replay from another mod, it won't be able
 		to tell until it reaches the mod name at the end of the stream. I'm not aware
@@ -1029,14 +1242,19 @@ bool CvReplayInfo::checkBounds(int iValue, int iLower, int iUpper) const
 		is used. (AdvCiv, like just about every mod, uses /EHsc.) So I think there could
 		be a crash, and, as all mods place their replays in the same folder, encountering
 		a very strange replay doesn't seem so unlikely. */
-	if(m->bDisplayOtherMods) // Still want sanity checks then, but be more generous.
+	if(bRelaxForOtherMods && m->bDisplayOtherMods) // Still want sanity checks then, but be more generous.
 		iUpper *= 2;
 	if(iValue < iLower || iValue > iUpper)
 	{
-		/*  The assertion is only there to warn me when an AdvCiv replay gets
-			rejected. If another mod has changed the replay format, then probably
-			just once, from version 4 to 5, but not to REPLAY_VERSION. */
-		FAssert(m->bDisplayOtherMods || m->iVersionRead < REPLAY_VERSION);
+		// <!-- custom: SGR collection is independent of FAssertMsg so Release builds retain failure context when logging is enabled; keep all collection work behind the active-scan gate. See KI#166.2. (GPT-6.1-Sol) -->
+		if(g_bSASGameRecordReplayRejectionBatchActive) collectSASGameRecordReplayRejection(SAS_REPLAY_REJECT_BOUNDS, szField, iValue, iLower, iUpper, m->iReplayModIDRead, m->iVersionRead);
+		// <!-- custom: Preserve AdvC's diagnostic purpose but attribute the field/value instead of emitting an anonymous assertion for foreign/legacy files.
+		// Formatting stays inside FAssertMsg so assertion-free builds omit it entirely. See KI#166.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		if(!m->bDisplayOtherMods && m->iReplayModIDRead == getSASReplayModID() && m->iVersionRead >= REPLAY_VERSION)
+		{
+			FAssertMsg(false, CvString::format("Current SAS replay bound failed: reason=%s field=%s value=%d allowed=[%d,%d] replayModID=%d replayVersion=%d currentReplayModID=%d currentReplayVersion=%d | See KI#166.2.",
+				getSASReplayRejectionName(SAS_REPLAY_REJECT_BOUNDS), (szField == NULL ? "-" : szField), iValue, iLower, iUpper, m->iReplayModIDRead, m->iVersionRead, getSASReplayModID(), REPLAY_VERSION).c_str());
+		}
 		return false;
 	}
 	return true;

@@ -78,10 +78,20 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
+### Revision 164 - SAS practical 6671
+
+- **Date:** 2026-10-23
+- **Git commit:** pending
+- **Change:** During the KI#166.2 investigation of repeated Hall-of-Fame bounds assertions, add once-per-session `GAME_RECORD_REPLAY_FORMAT` with the cached XML `SAS_SAVE_VERSION` mod identity, layout version, packed header and configured legacy candidate ID.
+  - The loader derives the inherited engine/BUG key from `SAS_SAVE_VERSION` after XML overrides, preserving existing consumers without another editable setting.
+  - Reader, writer and diagnostics reuse that configured identity, with packed-header detection independent of historical mod IDs; the row describes current writer capabilities, not a replay being read by Hall of Fame.
+  - With SGR enabled, each Hall-of-Fame scan also emits a rejection summary and counts grouped by reason/field, with the first rejected value/bounds/identity as a labeled sample. Collection remains fail-fast per file and independent of assertion builds.
+  - The replay reader owns the shared rejection enum/string catalog used by assertions and SGR; the recorder owns grouping and output. Replay/Hall-of-Fame code supplies failures and brackets the scan through pre-gated hooks.
+
 ### Revision 163 - SAS practical 6661
 
 - **Date:** 2026-10-22
-- **Git commit:** pending
+- **Git commit:** `699366539ec06862a513057215331e4025cca8bf`
 - **Change:** The shared Unicode diagnostic-root handoff also informs assertion logging in assertion-enabled builds. Assertion output remains independent of recorder settings; SASGameRecord output and recording conditions are unchanged.
 
 ### Revision 162 - SAS practical 6660

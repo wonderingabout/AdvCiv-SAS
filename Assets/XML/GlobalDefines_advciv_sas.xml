@@ -11,6 +11,35 @@ KI#1001.2 introduced shorter names and a desired 42-byte ceiling matching AdvCiv
 The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESPEED and TURN(S)_UNSCALED_GAMESPEED forms with the same meanings. (GPT-5.6 Thinking + GPT-6.1-Sol) -->
 <!-- custom: Long_Comments_XML.txt #131, #195 -->
 <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+	<!-- custom: Moved mod identity configuration from GlobalDefines_advc.xml into SAS's own defines.
+	Retain the inherited advc.009 wording below with logical sentence reflow as historical context for the deprecated 14223 identity; the current SAS_SAVE_VERSION follows the legacy candidate setting. See KI#166.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		<!-- custom: Inherited f1rpo explanation (wording retained): advc.009: Moved from GlobalDefinesAlt.xml.
+		302 in BtS, 303 in K-Mod.
+		Picking 14223 as a unique id (that's A-D-V-C in numbers).
+		Note that this number is only relevant for savegame version changes within the life cycle of a mod (none so far for AdvCiv).
+		Setting this to e.g. 303 will not allow K-Mod saves to be loaded as the mod name is stored in the savegame and the EXE will reject the savegame if that name doesn't match the (folder) name of the currently loaded mod.
+		Mod-mods should use a different SAVE_VERSION, ideally a completely different one, though this currently only matters for the HOF_DISPLAY_OTHER_MOD_REPLAYS option (see below). See KI#166.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	<!-- custom: 14223 was shared by AdvCiv and older SAS replays.
+	Together with current SAS_SAVE_VERSION below, this permits both current and compatible older SAS replay entries; it does not enable a mixed-mod Hall of Fame.
+	AdvCiv files share the old ID and can therefore be attempted, but their different stored mod path excludes them while HOF_DISPLAY_OTHER_MOD_REPLAYS=0; an ID match alone never establishes acceptance.
+	Set 0 to skip these legacy candidates.
+	A matching path does not prove compatibility with historical XML indexes; bounds failures still reject a file, and valid-but-reordered indexes can produce misleading historical labels.
+	This differs from HOF_DISPLAY_OTHER_MOD_REPLAYS, which permits other mods too.
+	Cached until Civ4 restarts. See KI#166.2. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_HOF_LEGACY_MOD_ID</DefineName>
+		<iDefineIntVal>14223</iDefineIntVal>
+	</Define>
+	<!-- custom: SAS uses 19119 (S-A-S in alphabet positions) instead of AdvC's 14223 because SAS changed replay-stored XML enum domains.
+	SAS_SAVE_VERSION is the single current identity setting; replay reading/writing and SGR metadata share its cached XML value.
+	After all GlobalDefines overrides load, the DLL copies it to the inherited SAVE_VERSION engine/BUG key, preserving that interface without a second editable setting.
+	XML-only modders can change the identity and restart Civ4 without recompiling; the compiled replay-layout marker describes the binary format separately. See KI#166.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_SAVE_VERSION</DefineName>
+		<iDefineIntVal>19119</iDefineIntVal>
+	</Define>
+
+
 	<!-- custom: shuffle-bag randomization for opening menu music (1=enabled, 0=disabled).
 	No repeats until all configured scripts are played once, then bag refills. (GPT-5.3-Codex) -->
 	<Define>
@@ -2236,7 +2265,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>163</iDefineIntVal>
+		<iDefineIntVal>164</iDefineIntVal>
 	</Define>
 
 

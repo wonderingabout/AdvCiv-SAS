@@ -22,6 +22,9 @@ class MarkdownTests(unittest.TestCase):
         text = '# Guide\n\nIntroduction.\n\n## First\n\nBody.\n\n### Detail\n\nMore.\n'
         self.assertTrue(markdown.menu_errors(text, document="new/place/guide.md"))
         self.assertTrue(markdown.menu_errors('# Short\n', document="new.md"))
+        # <!-- custom: Reproduce the overbroad folder exemptions that hid missing menus in maintained migration/example guides. (GPT-6.1-Sol) -->
+        for path in ("_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md", "_1_AdvCiv-SAS/Docs/Deprecated/new.md", "_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md"):
+            self.assertTrue(markdown.menu_errors(text, document=path))
         for path in ("LICENSE.md", ".github/workflows/build/README.md", "_1_AdvCiv-SAS/Docs/revisions/log.md"):
             self.assertEqual(markdown.menu_errors(text, document=path), [])
             self.assertEqual(markdown.render_menu(text, document=path), text)

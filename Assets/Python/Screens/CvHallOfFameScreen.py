@@ -18,6 +18,8 @@ import CvScreensInterface
 # <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 import SASTextScale
+# <!-- custom: Reuse the shared, setting-gated advisor Legend link to explain historical replay display limits in Sevopedia. See KI#166.2. (GPT-6.1-Sol) -->
+from SASUtils import *
 import re
 
 # globals
@@ -59,6 +61,8 @@ class CvHallOfFameScreen:
 		self.W_SCREEN = 1024
 		self.H_SCREEN = 768
 		self.Y_TITLE = 12
+		# <!-- custom: The shared advisor legend helper uses the same control depth as this screen's existing header and exit widgets. (GPT-6.1-Sol) -->
+		self.Z_CONTROLS = 0
 
 		self.X_EXIT = 994
 		self.Y_EXIT = 726
@@ -83,6 +87,12 @@ class CvHallOfFameScreen:
 
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
+
+	# <!-- custom: Supply unique widget names through the existing Hall-of-Fame counter for the shared advisor legend helper. (GPT-6.1-Sol) -->
+	def getNextWidgetName(self):
+		szName = self.WIDGET_ID + str(self.nWidgetCount)
+		self.nWidgetCount += 1
+		return szName
 
 	def hideScreen(self):
 		screen = self.getScreen()
@@ -122,6 +132,10 @@ class CvHallOfFameScreen:
 		screen = self.getScreen()
 		if screen.isActive():
 			return
+		# <!-- custom: Hall of Fame can open from the main menu before BUG initializes advisors or the player opens Civilopedia.
+		# Initialize the shared pedia before exposing Legend/leader/civilization links; otherwise pediaShowHistorical can dereference None (pediaHistorical) and choose the uninitialized standard-pedia branch.
+		# The existing factory reuses the selected pedia once created. See KI#166.2. (GPT-6.1-Sol) -->
+		CvScreensInterface.createCivilopedia()
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 		screen.setAlwaysShown(True)
@@ -160,6 +174,9 @@ class CvHallOfFameScreen:
 
 		# Header...
 		screen.setLabel(self.HEADER_ID, "Background", SASTextScale.sasFontTagTitle.bold + localText.getText("TXT_KEY_HALL_OF_FAME_SCREEN_TITLE", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+		# <!-- custom: Match other advisors' quiet Legend link; historical XML interpretation needs an explanation even when an older replay loads successfully. See KI#166.2 and KI#166.3. (GPT-6.1-Sol) -->
+		placeAdvisorLegendLink(self, "CONCEPT_SAS_HALL_OF_FAME_LEGEND", self.W_SCREEN - 30, self.Y_TITLE)
 
 		xDropDown, yDropDown = self.getDropdownPos(0)
 		iNumDropDowns = 0
@@ -316,7 +333,8 @@ class CvHallOfFameScreen:
 		# replays don't work at that point. (Why is that? Issue introduced by AdvCiv? Oh well ...)
 		bAllowReplay = (gc.getGame().getGameState() != GameStateTypes.GAMESTATE_OVER)
 		iColumn = 0 # Replacing hardcoded column numbers
-		iReplayButtonColumnW = 20
+		# <!-- custom: Give the replay control a visible V (View) label, and narrow metadata columns so larger fonts leave more room for names/victory text; retain clear headings rather than abbreviating labels that are already shorter than their cell contents. (GPT-6.1-Sol) -->
+		iReplayButtonColumnW = 32
 		iIconColumnW = 34
 		iColorColumnW = 45
 		iTraitColumnW = 44
@@ -324,11 +342,11 @@ class CvHallOfFameScreen:
 		iNormalizedScoreW = 140
 		iDateW = 115
 		iGameScoreW = 100
-		iVictoryW = 140
-		iDifficultyW = 150
+		iVictoryW = 170
+		iDifficultyW = 110
 		iWorldSizeW = 125
-		iEraW = 125
-		iSpeedW = 250
+		iEraW = 90
+		iSpeedW = 220
 		iNonLeaderTotalW = (iNormalizedScoreW + iDateW + iGameScoreW + iVictoryW + iDifficultyW + iWorldSizeW + iEraW + iSpeedW)
 		iLeaderColumnW = self.TABLE_W - iNonLeaderTotalW - (2 * iIconColumnW) - iColorColumnW - (2 * iTraitColumnW) - 12
 		if bAllowReplay:
@@ -336,7 +354,10 @@ class CvHallOfFameScreen:
 		if iLeaderColumnW < 202:
 			iLeaderColumnW = 202
 		if bAllowReplay:
-			SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, "", iReplayButtonColumnW)
+			# <!-- custom: Resolve the shared View label once per redraw, not once for every historical replay row. (GPT-6.1-Sol) -->
+			szViewLabel = localText.getText("TXT_KEY_SAS_HOF_VIEW_SHORT", ())
+			szViewButtonText = SASTextScale.sasFontTagLabel + szViewLabel + SASTextScale.SAS_FONT_TAG_CLOSE
+			SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, szViewLabel, iReplayButtonColumnW)
 			iColumn += 1 # </advc.106i>
 		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, "", iIconColumnW)
 		iColumn += 1
@@ -358,7 +379,7 @@ class CvHallOfFameScreen:
 		iColumn += 1
 		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_CONCEPT_VICTORY", ()), iVictoryW)
 		iColumn += 1
-		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_PITBOSS_DIFFICULTY", ()), iDifficultyW)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_SAS_HOF_HANDICAP", ()), iDifficultyW)
 		iColumn += 1
 		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HOF_SCREEN_SIZE", ()), iWorldSizeW)
 		iColumn += 1
@@ -461,7 +482,8 @@ class CvHallOfFameScreen:
 				if i > 22:
 					data1 = 1
 				# </advc.106i>
-				screen.setButtonGFC(szButtonName, self.infoList[i][1], "", 0, 0, 10, 10, WidgetTypes.WIDGET_SHOW_REPLAY, data1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+				# <!-- custom: A visible View abbreviation makes this replay action discoverable; retain the inherited replay widget and dispatch. (GPT-6.1-Sol) -->
+				screen.setButtonGFC(szButtonName, szViewButtonText, "", 0, 0, iReplayButtonColumnW, self.HOF_ICON_SIZE, WidgetTypes.WIDGET_SHOW_REPLAY, data1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
 
 			screen.appendTableRow(self.TABLE_ID)
 			# <advc.106i> Replacing hardcoded column numbers

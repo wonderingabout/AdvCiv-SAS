@@ -2,6 +2,10 @@
 
 The one-time 2026 history cleanup removed the formerly tracked, generated `commit_diffs` corpus from historical commits. The old commit identifiers remain useful for locating references in earlier discussions and logs.
 
+## Menu
+
+- [Translation table source](#translation-table-source)
+
 ## Translation table source
 
 [`commit_rewrite_map_6164_6402.tsv`](/LLM_Helpers/context/commit_rewrite_map_6164_6402.tsv) maps each old SHA to its canonical replacement for practical commits 6164-6402. Practical commits 1-6163 were unchanged.

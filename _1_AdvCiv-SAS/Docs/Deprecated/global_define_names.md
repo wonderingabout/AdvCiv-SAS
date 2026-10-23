@@ -2,7 +2,22 @@
 
 Use this reference to translate a setting name found in older source, logs or discussions. Current XML declarations describe the settings accepted by AdvCiv-SAS; the naming rationale is in [`global_define_name_length_review.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/global_define_name_length_review.md).
 
-## Conversion table
+## Menu
+
+- [Inherited AdvCiv settings replaced in SAS](#inherited-advciv-settings-replaced-in-sas)
+- [SAS name-shortening conversion table](#sas-name-shortening-conversion-table)
+
+## Inherited AdvCiv settings replaced in SAS
+
+These settings were declared in base AdvCiv 1.14; their treatment in SAS differs from the name-shortening table below.
+
+| Earlier setting | Current SAS configuration | Compatibility note |
+| --- | --- | --- |
+| `SAVE_VERSION` in `GlobalDefines_advc.xml` | `SAS_SAVE_VERSION` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) | The editable declaration moved; after XML loading, the DLL derives the old `SAVE_VERSION` key from the SAS setting for engine/BUG consumers. It is not a second independent setting. See [KI#166.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.2). |
+| `REPORT_INTERVAL` in `GlobalDefines_devel.xml` | `SAS_BBAI_UWAI_*` log levels | The old periodic UWAI reporting control was removed when diagnostics moved into timestamped BBAI output; this is not a one-to-one rename. See [KI#505.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-505.3). |
+| `UWAI_REPORT_THRESH` and `UWAI_REPORT_THRESH_HUMAN` in `GlobalDefines_devel.xml` | `SAS_BBAI_UWAI_*` log levels | The old war-utility thresholds no longer configure SAS diagnostics; use the relevant category's log level. See [KI#505.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-505.3). |
+
+## SAS name-shortening conversion table
 
 The table maps the PR-start declarations directly to their final reviewed names for [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2). `Δ bytes` is current minus original, so negative values are shorter.
 

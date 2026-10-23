@@ -2779,15 +2779,88 @@ static CvString getSASGameRecordSaveComponentFormatFields()
 	return szFormats;
 }
 
-// <!-- custom: Distinguish three version concepts that are otherwise easy to conflate: source/recorder revision lives in SOURCE_CONTEXT, SAVE_VERSION is the mod/replay identity Define, and CvGame's first serialized uint is its stream-layout flag.
-// A newly created game has no loaded stream flag; a loaded save exposes exactly what was read while currentWriteCvGameStreamFlag identifies what this DLL will write next. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Keep replay rejection aggregation and serialization in SGR; the parser supplies only primitive failure facts through pre-gated hooks.
+// Each file stops at its first unsafe field, but the EXE continues scanning other files for an exhaustive scan-level summary.
+// Retaining only a count and first sample per reason/field bounds storage by the diagnostic vocabulary, not the number of replay files. See KI#166.2. (GPT-6.1-Sol) -->
+namespace
+{
+	struct SASReplayRejectionGroup
+	{
+		SASReplayRejectionReason eReason;
+		char const* szField;
+		int iCount, iSampleValue, iSampleLower, iSampleUpper;
+		int iSampleModID, iSampleVersion;
+	};
+	std::vector<SASReplayRejectionGroup> g_aSASReplayRejectionGroups;
+}
+bool g_bSASGameRecordReplayRejectionBatchActive = false;
+
+// <!-- custom: The caller checks the active-scan flag before invoking this collector; static-lifetime field labels need no allocations or string copies.
+// The first sample is retained explicitly rather than implying every rejection had the same value, bounds or identity. See KI#166.2. (GPT-6.1-Sol) -->
+void collectSASGameRecordReplayRejection(SASReplayRejectionReason eReason, char const* szField,
+	int iValue, int iLower, int iUpper, int iModID, int iVersion)
+{
+	for(size_t i = 0; i < g_aSASReplayRejectionGroups.size(); i++)
+	{
+		SASReplayRejectionGroup& kGroup = g_aSASReplayRejectionGroups[i];
+		if(kGroup.eReason == eReason && std::strcmp(kGroup.szField, szField) == 0)
+		{
+			kGroup.iCount++;
+			return;
+		}
+	}
+	SASReplayRejectionGroup kGroup;
+	kGroup.eReason = eReason;
+	kGroup.szField = szField;
+	kGroup.iCount = 1;
+	kGroup.iSampleValue = iValue;
+	kGroup.iSampleLower = iLower;
+	kGroup.iSampleUpper = iUpper;
+	kGroup.iSampleModID = iModID;
+	kGroup.iSampleVersion = iVersion;
+	g_aSASReplayRejectionGroups.push_back(kGroup);
+}
+
+// <!-- custom: The Hall-of-Fame caller pre-gates this scope on SGR enablement; individual rejection sites check only its active flag before collecting primitive values.
+// Do not collect errors from unrelated replay reads into a stale game session. See KI#166.2. (GPT-6.1-Sol) -->
+void beginSASGameRecordReplayRejectionBatch()
+{
+	g_aSASReplayRejectionGroups.clear();
+	g_bSASGameRecordReplayRejectionBatchActive = true;
+}
+
+// <!-- custom: Emit one summary plus one row per reason/field after the scan, preserving rejection counts without hundreds of repeated log messages.
+// The scope destructor also calls this during ordinary C++ exception unwinding; it does not make hardware exceptions recoverable. See KI#166.2. (GPT-6.1-Sol) -->
+void endSASGameRecordReplayRejectionBatch()
+{
+	g_bSASGameRecordReplayRejectionBatchActive = false;
+	int iRejected = 0;
+	for(size_t i = 0; i < g_aSASReplayRejectionGroups.size(); i++)
+		iRejected += g_aSASReplayRejectionGroups[i].iCount;
+	logSASGameRecord("GAME_RECORD_REPLAY_REJECTION_SUMMARY scope=HALL_OF_FAME_SCAN rejected=%d groups=%d", iRejected, (int)g_aSASReplayRejectionGroups.size());
+	for(size_t i = 0; i < g_aSASReplayRejectionGroups.size(); i++)
+	{
+		SASReplayRejectionGroup const& kGroup = g_aSASReplayRejectionGroups[i];
+		logSASGameRecord("GAME_RECORD_REPLAY_REJECTION reason=%s field=%s count=%d sampleValue=%d sampleLower=%d sampleUpper=%d sampleReplayModID=%d sampleReplayVersion=%d",
+			getSASReplayRejectionName(kGroup.eReason), kGroup.szField, kGroup.iCount,
+			kGroup.iSampleValue, kGroup.iSampleLower, kGroup.iSampleUpper, kGroup.iSampleModID, kGroup.iSampleVersion);
+	}
+	g_aSASReplayRejectionGroups.clear();
+}
+
+// <!-- custom: Distinguish version concepts that are otherwise easy to conflate: source/recorder revision lives in SOURCE_CONTEXT, SAS_SAVE_VERSION supplies the configured mod identity packed into replay headers, and CvGame's first serialized uint is its stream-layout flag.
+// A newly created game has no loaded stream flag; a loaded save exposes exactly what was read while currentWriteCvGameStreamFlag identifies what this DLL will write next.
+// Replay writer identity is recorded once alongside save context, not on each turn; these are current DLL capabilities, not metadata read from a Hall-of-Fame file. See KI#166.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static void logSASGameRecordSaveFormatContext(bool bLoadedSave)
 {
 	CvGame const& kGame = GC.getGame();
-	// <!-- custom: SAVE_VERSION is read once per enabled new/load session, so another cache adds state without avoiding repeated gameplay work; the loaded flag is an inline read of the current game's retained input, which must follow each load. (GPT-6.1-Sol) -->
+	// <!-- custom: Reuse the reader/writer's cached XML identity so diagnostic values match actual replay output; the loaded stream flag must still follow each newly loaded game. (GPT-6.1-Sol) -->
 	logSASGameRecord("GAME_RECORD_SAVE_FORMAT modSaveVersionDefine=%d currentWriteCvGameStreamFlag=%u loadedCvGameStreamFlagKnown=%d loadedCvGameStreamFlag=%d",
-		GC.getDefineINT("SAVE_VERSION"), (unsigned int)SASSaveStreamFormat::CV_GAME, bLoadedSave, (bLoadedSave ? (int)kGame.getLoadedSaveStreamFlag() : -1));
+		CvReplayInfo::getSASReplayModID(), (unsigned int)SASSaveStreamFormat::CV_GAME, bLoadedSave, (bLoadedSave ? (int)kGame.getLoadedSaveStreamFlag() : -1));
 	logSASGameRecord("GAME_RECORD_SAVE_COMPONENT_FORMATS scope=CURRENT_WRITER_MARKERS markers=%s", getSASGameRecordSaveComponentFormatFields().GetCString());
+	logSASGameRecord("GAME_RECORD_REPLAY_FORMAT scope=CURRENT_WRITER replayModID=%d replayVersion=%d packedHeader=%d legacyCandidateModID=%d",
+		CvReplayInfo::getSASReplayModID(), SASSaveStreamFormat::CV_REPLAY_INFO,
+		CvReplayInfo::getSASReplayModID() * 100 + SASSaveStreamFormat::CV_REPLAY_INFO, CvReplayInfo::getSASLegacyReplayModID());
 }
 
 // <!-- custom: Compact finalized team rows preserve which technologies each team owns and which diplomacy capabilities are active, but replacing setup-time TECH_ACQUIRED spam otherwise loses which technology grants each capability.

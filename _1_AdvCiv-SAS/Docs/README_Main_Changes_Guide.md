@@ -20,6 +20,7 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
 
 [Full code diff (very long)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#full-code-diff-very-long)\
 [Main Changes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#main-changes)\
+&emsp;[Deprecated references](#deprecated-references)\
 &emsp;[Not supported in AdvCiv-SAS](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#not-supported-in-advciv-sas)\
 &emsp;[Renaming](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming)\
 &emsp;[Mod Name/Version](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mod-nameversion)\
@@ -107,6 +108,10 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
 See [Full exhaustive changes (very long)](/README.md#full-exhaustive-very-long-and-exhaustive-changes).
 
 ## Main Changes
+
+### Deprecated references
+
+The [Deprecated reference index](/_1_AdvCiv-SAS/Docs/Deprecated/README.md) helps translate older source, logs and discussions into current names: [`global_define_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md) covers replaced inherited settings and shortened SAS defines, while [`commit_rewrites.md`](/_1_AdvCiv-SAS/Docs/Deprecated/commit_rewrites.md) locates the historical SHA translation table.
 
 ### Not supported in AdvCiv-SAS
 
@@ -321,6 +326,16 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - an active player's defeat could transfer human control during an ongoing autoplay and make the EXE pause behind an OK-only "it's your turn" prompt; ordinary informational text notices could also require an unnecessary click and unconveniently pause the run that can no longer complete unattended without user supervision or intervention.
   - To fix this, an XML-tunable option now omits only these no-decision prompts during autoplay, without accepting or suppressing diplomacy, events, civics, war, launch, production, technology, or other gameplay choices. This supports "hands-free" runs by removing notices that otherwise wait for a click.
 
+- (Requires AdvCiv-SAS 6671+) **Hall of Fame** reads both older and newly written SAS `.CivBeyondSwordReplay` files from the shared replay folder (normally `Documents/My Games/Beyond the Sword/Replays`) and lists their recorded games, while excluding AdvCiv and other mods with the default settings. See [KI#166.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.2).
+  - Note: previously, SAS replays using its `-50000` start year were rejected by AdvCiv's inherited `-10000` lower bound, so their results could not appear in Hall of Fame. Fixing that mismatch lets Hall of Fame list games from those existing SAS replay files too. See [KI#166.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.3).
+  - Older replay files are read using today's XML definitions, not a snapshot of the mod as it was when the game was played:
+    - Adding, deleting or reordering entries can make a stored numeric position mean a different game speed, world size or leader. A game listed from an older replay file can therefore show incorrect settings; a stored position outside the current range can instead cause rejection.
+    - Trait icons come from the leader's current traits, and civilization icons depend on matching recorded civilization names to current definitions. Changes to those definitions can therefore alter or remove the displayed icons.
+  - Current SAS replays use XML `SAS_SAVE_VERSION=19119` (S-A-S) instead of AdvCiv's `14223`, because replay files store numeric XML positions for settings such as game speed, world size and handicap; SAS changed their ordering, so the same stored number can mean something different.
+  - The setting now lives in `GlobalDefines_advciv_sas.xml`, using the SAS-prefixed key and a shared first-use cache; an XML-only mod-mod can change it and restart Civ4 without rebuilding the DLL. The DLL derives the inherited `SAVE_VERSION` key after loading XML, so existing engine/BUG consumers see the same value. The compiled replay-layout marker still describes the binary format separately.
+  - `SAS_HOF_LEGACY_MOD_ID=14223` also permits older SAS candidates. AdvCiv files share that old ID, so they can be attempted too, but their different stored mod path excludes them when foreign-mod display is off.
+    - Set the legacy ID to `0` to skip old-ID files entirely. The reader still rejects files whose format or stored values it cannot safely read.
+
 ### Code/Performance optimizations
 
 - (Requires AdvCiv-SAS 6667+) **XML loading correctness and safeguards:** SAS repairs and strengthens affected inherited readers to keep comments separate from data and bound array accesses even when diagnostics are ignored.
@@ -334,7 +349,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 - (Requires AdvCiv-SAS 6629+) **Centralized save-stream writer markers** in [SASSaveStreamFormat.h](/CvGameCoreDLL/SASSaveStreamFormat.h) replace scattered numeric constants (for example, values assigned to `uiFlag`, `iSaveVersion`, `savegameVersion` and replay's `REPLAY_VERSION`) with named definitions shared by serialization and diagnostics.
   - This covers core/AI records (for example `CvGame`, `CvCity`, `CvPlayer` and their AI counterparts), statistics, `UWAICache` and its city records, `MilitaryBranch`, Rise & Fall records and `CvReplayInfo`.
   - For example, `CvCity` now assigns `uiFlag = SASSaveStreamFormat::CV_CITY` instead of `17`, and replay's `REPLAY_VERSION` uses `SASSaveStreamFormat::CV_REPLAY_INFO` instead of `6`; the shared definitions retain those values.
-  - One iterable list makes the current markers easier to find and maintain; CI checks writer bindings and flags recognizable serializers missing from the list. Existing marker values and serialized layouts are preserved.
+  - One iterable list makes the current markers easier to find and maintain; CI checks writer bindings and flags recognizable serializers missing from the list.
 - **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities).
   - In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files.
   - By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
@@ -392,9 +407,6 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 - (Requires AdvCiv-SAS 6621+) **Runtime engine-define updates:**
   - Selected nuclear-effect and AI reads use the existing shared define cache instead of retaining first-read values; food-consumption displays and commerce controls likewise refresh their values when redrawn.
   - This supports explicit runtime changes by mod/modmod code while preserving ordinary session-fixed tuning caches. See [KI#128.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.2).
-- (Requires AdvCiv-SAS 6622+) **Fix fixed two-Food-per-citizen assumptions:**
-  - Some inherited AdvCiv and SAS-added AI/map-generation checks assumed citizens always consumed two Food; they now respect the engine's configured consumption per citizen.
-  - Behavior at the default cost of two is preserved. See [KI#647.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-647.2) for scope and details.
 - **Fail-fast XML lookup hardening:**
   - replaced almost all `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values.
   - Notably allowed to detect and fix incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` instead of correct `DirectionTypes.DIRECTION_NORTH` (in Planet Generator map), or incorrect `getInfoTypeOrFail("PLOT_PEAK")` failing instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map).
@@ -447,7 +459,10 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - Tested: autoplay ran fine.
   - See [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline).
 - Removed the old clunky Base AdvCiv's `CONCEPT_TRAIT` XML clutter. Now using the more efficient `WIDGET_PYTHON` similarly instead.
-- **Avoid** some **hardcoded values**; e.g., `szButton = "Art/Interface/Buttons/Civilizations/Barbarian.dds"` in Advisors UI code replaced with `szButton = gc.getCivilizationInfo(player.getCivilizationType()).getButton()`; adding a new `<Button>` field for eras.
+- **Reduce reliance on hardcoded assumptions:** where a fixed value does not reliably represent the intended rule, SAS favors configured data or limits derived from the relevant calculation. Examples include:
+  - Advisor civilization buttons use `gc.getCivilizationInfo(player.getCivilizationType()).getButton()` instead of a fixed `"Art/Interface/Buttons/Civilizations/Barbarian.dds"` path; eras also have their own XML `<Button>` field.
+  - (Requires AdvCiv-SAS 6622+) Affected inherited AdvCiv and SAS-added AI/map-generation checks use the configured Food consumption per citizen instead of assuming two Food. Their behavior at the default cost of two is preserved. See [KI#647.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-647.2).
+  - (Requires AdvCiv-SAS 6671+) Replay validation replaces AdvCiv's arbitrary `-10000`/`100000` year limits with bounds derived from calendar/game-speed arithmetic. Thus SAS's `-50000` start and other historical calendars are not rejected merely for their date, while overflow-unsafe calculations are still rejected. See [KI#166.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.3).
 - **Centralize magic numbers** in [`SASMagicNumbers.py`](/Assets/Python/SASMagicNumbers.py), an import-free leaf helper for named constants used across screens, Sevopedia, mapscripts, and map generator utilities.
   - Examples: Sevopedia/Tech Chooser `WIDGET_PYTHON` data1 IDs and Sevopedia Movie/Music packed-key type IDs.
   - This avoids duplicated definitions, widget-id drift/collisions, and circular-import/load-order risk.
@@ -723,7 +738,10 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.m
 - (Requires AdvCiv-SAS 6629+) **Run diagnostics are easier to interpret and compare:**
   - Each new/load session records the configured and effective BBAI categories, DLL-readable CivilizationIV.ini logging switches, and finalized BUG/Autolog settings, helping explain differences in diagnostic coverage and performance without collecting those settings separately.
   - Shared DLL context identifies the compiler and compiled profiler/ReproTest switches alongside the existing build configuration, while DLL/EXE identity includes actual binary resource versions when available; system-context level 3 with the process-context opt-in also records debugger presence and selected development-tool processes at session start, without treating an open IDE or lingering build process as proof of active compilation.
-  - Save-format context distinguishes mod/replay identity and the loaded save's game-stream flag from the current writer markers for core/AI objects and supporting subsystems; the shared writer registry supplies that component context without changing serialized bytes.
+  - Save-format context distinguishes normal save/mod identity and the loaded save's game-stream flag from the current writer markers for core/AI objects and supporting subsystems.
+
+- (Requires AdvCiv-SAS 6671+) **Replay/Hall-of-Fame diagnostics:** SGR records the configured replay writer identity/version and legacy candidate ID, and groups reader rejections by reason/field so a large replay collection can be investigated without copying repeated assertion dialogs.
+  - Grouped summaries also work in Release builds; assertion-enabled builds retain individual field/value messages. See [KI#166.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.2).
 
 (Requires AdvCiv-SAS 6440+) Note: SASGameRecord (SGR; current recorder settings use the `SAS_SGR_*` define family) has its own revision system, see [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for details and miscellanous information.
 
@@ -2715,7 +2733,16 @@ Note: New panels added or modified mostly not mentioned here for concision. See 
 
 ### UI (In-game)
 
-- **Beautified** and **expanded**, and add **support for text upscaling** for miscellaneous **screens**: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling**, add **icons** for buildings and units, add icon **chars for traits**; [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered) is moderately **expanded** to **avoid scrolling**, vertically center screen (was slightly excentered); [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py) is **maximized to full screen** with enlarged columns, and **new Leader, Civilization, Player Color, and Traits columns** with **icons** or **colors** or **chars** (based on Info Screen's Score Tab: note that Civilization icon is approximative and will not work if Civilization name is not the base civ mod name (e.g. "The United States" -> "My American Custom Name Empire") (would add too much complexity in DLL for a working UI feature outside this edge case); note 2: trait info is indicative only (if traits in XML were different when the save file was made (e.g., expansive trait removed, leader trait allocation changed), this information will be lost)); [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) is **maximized to full screen**; [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen) is **maximized to full screen** and has a **greatly expanded leader NIF** and **maximized vertically score table** to **avoid scrolling**.
+- **Beautified** and **expanded**, and add **support for text upscaling** for miscellaneous **screens**:
+  - [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling**, add **icons** for buildings and units, add icon **chars for traits**
+  - [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered) is moderately **expanded** to **avoid scrolling**, vertically center screen (was slightly excentered)
+  - **Hall of Fame** ([CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py)) is maximized to full screen with enlarged columns and leader/civilization icons, player colors and trait icons, based on the Info Screen's Score Tab.
+    - Civilization icons are matched against recorded names, so custom or renamed civilizations may have no matching icon. Trait icons reflect the current leader XML rather than its historical traits.
+    - (Requires AdvCiv-SAS 6671+) Replay buttons are labelled `V` (View).
+    - Added a legend to explain the columns and compatibility caveats for older replay files: for example, a row's traits, civilization icon or game speed may differ from the original game if the mod's XML has changed since then.
+    - Because unlike many screens the Hall of Fame screen can be opened before Sevopedia from the main menu directly, as tested, the legend and icon links were made to also work in that case.
+  - [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) is **maximized to full screen**
+  - [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen) is **maximized to full screen** and has a **greatly expanded leader NIF** and **maximized vertically score table** to **avoid scrolling**.
   - See [README.md (Miscellaneous screens)](/README.md#miscellaneous-screens)
 - **Reorganized advisors**: **merged** the **espionage** screen into the **Foreign Advisor**, the **Economic Advisor's Finance Tab** into the **Domestic Advisor**, moved away the **Environment Tab** from the former **Economic Advisor** (now removed), the **Religion** Advisor and **Corporation** Advisor (so it is always visible and easier to access) into the new **Policy Advisor**; so they are now **tabs of these instead** (deleted the old now obsolete lone advisor .py files); **swap advisors**: **Victory screen** to F9 and **Info Screen** to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors; **split advisors**: the **Foreign Advisor** is now split into **Foreign Trade Advisor (F4)** (TREATIES, BONUSES, TECHS, CITIES), and **Foreign Diplomacy Advisor (F3)** (RELATIONS, GLANCE, INFO, ESPIONAGE) as it **was crowded** to reduce the need for **tab navigation** and for **clearer thematic differentiation**, using a shell (i.e. almost empty file for **linking only**) [CvForeignDiplomacyAdvisor.py](/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py) file for the 2nd advisor.
 - Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text to match the advisors changes.

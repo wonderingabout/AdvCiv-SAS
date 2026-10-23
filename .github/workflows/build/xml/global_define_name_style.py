@@ -20,6 +20,7 @@ DESIRED_MAX_DEFINE_NAME_BYTES = 42
 
 def check(repo_root: Path) -> tuple[list[str], dict[str, object]]:
     violations: list[tuple[int, str, Path]] = []
+    prefix_failures: list[str] = []
     paths = lengths.loaded_define_paths(repo_root)
     if not paths:
         return ["no shipped GlobalDefines/PythonCallbackDefines XML files found"], {}
@@ -38,42 +39,45 @@ def check(repo_root: Path) -> tuple[list[str], dict[str, object]]:
             name = lengths.raw_child_text(define, "DefineName") or ""
             name_bytes = lengths.utf8_size(name)
             label = name.strip() or f"<Define> #{index}"
+            # <!-- custom: The SAS-owned XML file must not silently introduce generic/global names, as happened when SAVE_VERSION was moved there; inherited files keep their original namespaces. (GPT-6.1-Sol) -->
+            if relative.as_posix().lower() == "assets/xml/globaldefines_advciv_sas.xml" and not name.startswith("SAS_"):
+                prefix_failures.append(f"{relative}: {label} DefineName must start with SAS_ in the SAS-owned defines file")
             if name_bytes > max_name[0]:
                 max_name = (name_bytes, label, relative)
             if name_bytes > DESIRED_MAX_DEFINE_NAME_BYTES:
                 violations.append((name_bytes, label, relative))
 
     violations.sort(key=lambda item: (-item[0], item[1], str(item[2])))
-    failures = [
+    failures = prefix_failures + [
         f"{relative}: {name} DefineName is {size} UTF-8 bytes; desired maximum is {DESIRED_MAX_DEFINE_NAME_BYTES}"
         for size, name, relative in violations
     ]
     return failures, {
         "file_count": len(paths),
         "define_count": define_count,
-        "violation_count": len(violations),
+        "violation_count": len(failures),
         "max_name": max_name,
     }
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Check shipped GlobalDefine names against SAS's AdvCiv-scale desired naming maximum.")
+    parser = argparse.ArgumentParser(description="Check shipped GlobalDefine name lengths and the SAS-owned file namespace.")
     parser.add_argument("--repo-root", type=Path, default=lengths.get_default_repo_root(), help="repository root; defaults to the root containing .github/")
     args = parser.parse_args()
 
     failures, stats = check(args.repo_root)
     if failures:
-        print(f"FAIL GlobalDefine desired name lengths: {stats.get('violation_count', len(failures))} name(s) exceed {DESIRED_MAX_DEFINE_NAME_BYTES} UTF-8 bytes")
+        print(f"FAIL GlobalDefine name style: {stats.get('violation_count', len(failures))} rule violation(s)")
         for failure in failures:
             print(f"  - {failure}")
         return 1
 
     max_name = stats["max_name"]
     print(
-        "PASS GlobalDefine desired name lengths: "
+        "PASS GlobalDefine name style: "
         f"{stats['define_count']} defines across {stats['file_count']} file(s); "
         f"longest name={max_name[0]} bytes ({max_name[1]} in {max_name[2]}), "
-        f"desired maximum={DESIRED_MAX_DEFINE_NAME_BYTES}."
+        f"desired maximum={DESIRED_MAX_DEFINE_NAME_BYTES}; SAS-owned names require SAS_."
     )
     return 0
 

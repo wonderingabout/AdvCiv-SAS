@@ -104,6 +104,25 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 
 
+	<!-- custom: Hall-of-Fame View abbreviation and Handicap heading, explained in its legend. (GPT-6.1-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_HOF_VIEW_SHORT</Tag>
+		<English>V</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_HOF_HANDICAP</Tag>
+		<English>Handicap</English>
+	</TEXT>
+	<!-- custom: Explain the restored SAS replay history without promising full historical XML remapping; distinguish stored settings from current leader traits/art. See KI#166.2 and KI#166.3. (GPT-6.1-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_HALL_OF_FAME_LEGEND</Tag>
+		<English>Hall of Fame Legend</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_HALL_OF_FAME_LEGEND_PEDIA</Tag>
+		<English>[H1]Hall of Fame[\H1][PARAGRAPH:2]Hall of Fame lists games read from .CivBeyondSwordReplay files, normally in Documents/My Games/Beyond the Sword/Replays. Use the drop-down filters to narrow the list; click a table column heading to sort it.[PARAGRAPH:2][H2]Columns[\H2][NEWLINE][NEWLINE][ICON_BULLET]V: View replay. Click the row's V button to open that game's replay; this control is omitted when the game has just ended.[NEWLINE][ICON_BULLET]Leader portrait and civilization icon: identify the player; click for the corresponding Sevopedia page where available.[NEWLINE][ICON_BULLET]Col: player color marker.[NEWLINE][ICON_BULLET]Leader: recorded player/leader and civilization names.[NEWLINE][ICON_BULLET]T1 / T2: first and second trait icons from the leader's current XML definition.[NEWLINE][ICON_BULLET]Normalized: normalized score used for comparing games.[NEWLINE][ICON_BULLET]Finish Date: in-game finishing date (BC/AD), not the real-world date when the game was played.[NEWLINE][ICON_BULLET]Score: final game score before normalization.[NEWLINE][ICON_BULLET]Victory: win/loss indication and victory type when identified; W means win and L means loss.[NEWLINE][ICON_BULLET]Handicap: difficulty level.[NEWLINE][ICON_BULLET]Size: world size.[NEWLINE][ICON_BULLET]Start: starting era.[NEWLINE][ICON_BULLET]Speed: game speed, using its current XML description.[PARAGRAPH:2][H2]Older replay files and mod changes[\H2][PARAGRAPH:2]AdvCiv-SAS 6671 fixes the rejection of SAS's -50000 start year and distinguishes newly written SAS replay files from AdvCiv's. Hall of Fame can therefore list games from older SAS replay files as well as newly recorded ones; AdvCiv and other-mod files are excluded with the default settings.[PARAGRAPH:2]Older files are interpreted using today's XML definitions, not a snapshot of the mod when the game was played. They store numeric positions for settings such as game speed, world size, era, handicap and leader. Adding, deleting or reordering entries can change what those positions mean. For example, an old game-speed position 2 can identify a different speed after an earlier entry is inserted or deleted. A position still within the current range can display the wrong label; an invalid position can cause the file to be rejected.[PARAGRAPH:2]Leader portraits and trait icons use current leader definitions; civilization icons are matched from recorded civilization names against current XML. Changed traits, art or civilization names can therefore affect their appearance or availability. Not every XML change affects replays: they do not store the complete unit or building database.[PARAGRAPH:2]Keep these display limits in mind when comparing games recorded under different versions of the mod.[PARAGRAPH:2]For the investigation and technical details, see KI#166.2 (replay identity/filtering) and KI#166.3 (calendar bounds) in AdvCiv-SAS's README_Known_Issues.md.</English>
+	</TEXT>
+
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS</Tag>
 		<English>Score Tab Columns</English>

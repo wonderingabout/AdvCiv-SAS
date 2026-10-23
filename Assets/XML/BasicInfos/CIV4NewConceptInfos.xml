@@ -3,6 +3,8 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
+<!-- AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md) -->
 <!-- Basic Infos -->
 <Civ4NewConceptInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
 	<NewConceptInfos>
@@ -23,6 +25,12 @@
 			<Type>CONCEPT_SAS_VERSION_SOURCE_INFO</Type>
 			<Description>TXT_KEY_CONCEPT_SAS_VERSION_SOURCE_INFO</Description>
 			<Civilopedia>TXT_KEY_CONCEPT_SAS_VERSION_SOURCE_INFO_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<!-- custom: Hall-of-Fame legend explains reading/filtering results and current-XML limitations of older replays. See KI#166.2 and KI#166.3. (GPT-6.1-Sol) -->
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_HALL_OF_FAME_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_HALL_OF_FAME_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_HALL_OF_FAME_LEGEND_PEDIA</Civilopedia>
 		</NewConceptInfo>
 		<NewConceptInfo>
 			<Type>CONCEPT_SAS_SCORE_TAB_COLUMNS</Type>

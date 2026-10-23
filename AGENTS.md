@@ -600,6 +600,8 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 #### Diagnostic gating and output
 
 - Gate BBAI and SASGameRecord diagnostics at the caller before `logBBAI(...)`, `logSASGameRecord...(...)`, or a logging-only helper, and guard logging-only setup too; a check inside the helper is too late because C++ evaluates call arguments first.
+  - Keep recorder-specific aggregation and output in `SASGameRecordLog.*`, with small pre-gated hooks in the observed code. For example, replay rejection hooks check a cached active-batch Boolean before passing failure facts, so disabled collection skips helper calls and diagnostic-only work.
+    - Keep shared enums and their stringifiers with their domain owner, such as replay rejection reasons in `CvReplayInfo.h`; genuinely general tools can live in `CvGameCoreUtils.*`. A value used by SGR does not automatically belong to the recorder.
   - Prefer ordinary inline predicates and explicit `if` statements over logging macros that expand to control flow (for example the inherited found-value `IFLOG` pattern); hidden `if` macros obscure the caller-side pre-gate and compose poorly with `else` or extra semantic predicates.
   - Keep domain logging helpers unguarded (a debug `FAssert` precondition is fine) and use e.g. `if (gUnitLogLevel >= 2) logUnitDecision(computeDetail());` at the caller. The final generic logger may retain a defensive disabled-log backstop, but it is not a substitute for caller pre-gating.
   - When a logging gate is independent of semantic predicates in the same `&&` condition, put the cheap logging gate first so disabled diagnostics skip the rest, e.g. `if (gGameRecordLogLevel >= 2 && expensiveDiagnosticPredicate()) ...`.

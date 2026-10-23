@@ -515,6 +515,8 @@ Also rejects unpaired `**` bold markers within a paragraph, excluding fenced cod
 
 Create missing menus or refresh existing ones with `python .github/workflows/build/documentation/markdown_structure.py --refresh-menus`; existing introductions, destinations, external-document links, body content and dominant line endings are preserved. Exempt documents without a menu remain unchanged.
 
+A folder-wide Deprecated/examples exemption also hid missing menus in maintained migration and runtime-example guides; those now require menus, with only the named short index/generated artifact exempt.
+
 The Logging Inventory reached 55 headings without navigation because the earlier check only validated declared menus. The missing-menu regression now fails for arbitrary new document paths, while fixtures verify exemptions, hierarchy and repeatable generation.
 
 ### XML and rules
@@ -562,11 +564,13 @@ One logical value uses an unsuffixed name. When split across two or more defines
 
 Enforces the preventive desired `DefineName` maximum of 42 UTF-8 bytes across the same shipped GlobalDefines/PythonCallbackDefines surface as the fixed-buffer checker.
 
+Every Define in `GlobalDefines_advciv_sas.xml` must also start with `SAS_`; inherited files retain their existing naming. This catches misplaced generic keys such as the moved `SAVE_VERSION`, now configured as `SAS_SAVE_VERSION` with the old engine/BUG key derived during loading.
+
 The 42-byte target comes from Base AdvCiv 1.14, SAS's direct parent, whose supplied define names top out at 42 bytes. It is a readability/headroom naming policy, not a Civ4 engine limit; KI#1001's separate 255-byte checker remains the hard loader-safety boundary.
 
-All 977 shipped names currently pass this check, with a maximum of 42 bytes. Future additions and renames must remain within the same target; if a clear name cannot fit without obscure abbreviations or loss of important units/semantics, review the policy rather than hiding meaning.
+Shipped names, additions and renames must remain within the 42-byte target; if a clear name cannot fit without obscure abbreviations or loss of important units/semantics, review the policy rather than hiding meaning.
 
-Regression tests cover the exact 42/43-byte boundary, UTF-8 byte counting, inherited names, `PythonCallbackDefines.xml`, and modular define files.
+Regression tests cover the exact 42/43-byte boundary, UTF-8 byte counting, inherited names, `PythonCallbackDefines.xml`, modular define files, and SAS-file prefix enforcement using the real `SAVE_VERSION`/`SAS_SAVE_VERSION` example.
 
 #### `build/xml/retired_global_define_names.py`
 
