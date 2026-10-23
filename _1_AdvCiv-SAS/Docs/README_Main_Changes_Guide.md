@@ -4,7 +4,11 @@ This living overview highlights key differences between AdvCiv-SAS and base AdvC
 
 It’s intentionally practical, mostly player-facing, and a bit verbose so newer players can follow the "what changed" and "why it matters."
 
-For technical details, see the main [README](/README.md) and the docs under [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
+In particular, it does not aim to list every single bugfix or technical change or implementation/spec, but rather give a broad overview, generally detailed and aiming to be exhaustive when it comes to rationale and what broadly changed in a player-facing sense and why since base AdvCiv, or for few changes why AdvCiv-SAS changed its original implementation and how so.
+
+A few bugfixes may serve as examples of broader changes like code/performance optimizations, but generally this doc is more focused on the features and listing them exhaustively, so a mere bugfix is not the aim of this doc if it has not other significance or implications for usual gameplay and users for example.
+
+For technical details, see notably the root [README](/README.md) or other docs under [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
 
 Many of these changes are partially or entirely tunable via [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
 

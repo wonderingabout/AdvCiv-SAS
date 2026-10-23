@@ -254,6 +254,8 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 
 ### Examples and historical records
 
+- Keep quoted source/log excerpts faithful to their originals as much as possible, and do not invent, including in Markdown documentation. Instead, clarify and distinguish provenance, for example by putting explanatory labels in the surrounding prose, so reconstructed or illustrative examples are not misleadingly confused with the actual excerpts.
+  - For example, do not add `// CvUnitAI::AI_omniGroup` inside a quoted C++ sample that contained the real `FAssert(!kLoopPlot.isVisibleEnemyUnit(this));` (KI#49.3), because that comment was absent from the source: say the excerpt comes from `CvUnitAI::AI_omniGroup` in the prose above it instead.
 - Usually keep one representative example per output type under a stable, untimestamped `_example` filename, such as SASGameRecord or runtime JSON/JSONL examples; replace it when refreshing so Git tracks its history instead of accumulating redundant or confusing captures. Preserve real timestamps and identity inside the captured data, and keep companion files consistent.
   - Refresh example captures when convenient or worthwhile, weighing their usefulness against commit noise and review effort; no per-commit refresh is required.
 - Preserve the chronology and original intent of historical or incremental documentation; append later developments with their date and explain how they follow from the earlier work.

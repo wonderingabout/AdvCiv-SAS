@@ -107,6 +107,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.20 - (Improved inherited K-Mod/AdvC AI World-Wonder opportunity-cost weakness) Locally exposed AIs could over-invest in World Wonders after the old hard military-pressure policy was retired](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.20)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#49.2 - (Fixed inherited K-Mod singleton-group assumption) Multi-unit Reserve groups could trip AI_guardCityOnlyDefender and over-hold the whole group](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49.2)\
+[KI#49.3 - (Hardened inherited K-Mod AI grouping) Restore runtime rejection of visible-enemy target plots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49.3)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
 [KI#51.2 - (Fixed AdvCiv-SAS post-production override defect; host emergency subsystem later retired) Emergency building rules could override intentional disorder no-production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51.2)\
@@ -7180,6 +7181,78 @@ Fixed with the help of ChatGPT-5.6-Sol; logging gates, group-update behavior and
 - 2026-10-22 replay: the matching assertion-enabled Debug-opt build completed with zero warnings/errors; the loaded DLL identity matched the tested build, whose `CvUnitAI.cpp` input matches this candidate.
   - A loaded-game autoplay reached victory at T426, with `PythonErr.log` empty and no old singleton or new split-contract failures.
   - Unit BBAI level 2 produced no `RESERVE_ONLY_DEFENDER_SPLIT` rows, so the multi-unit repair path was not demonstrated by this run. This is smoke-test evidence rather than a reproduction of the original group state. (GPT-6.1-Sol)
+
+<a id="ki-49.3"></a>
+
+## KI#49.3 - (Hardened inherited K-Mod AI grouping) Restore runtime rejection of visible-enemy target plots
+
+The later full SASAssertions autoplay exposed one remaining non-deferred gameplay assertion at turn 380 in `CvUnitAI::AI_omniGroup`. The source statement was:
+
+```cpp
+FAssert(!kLoopPlot.isVisibleEnemyUnit(this));
+```
+
+The loss of the runtime guard originates in K-Mod rather than a SAS-added invariant. K-Mod commit `6cc6fe0e4eba2a0384f178d75a179e7f5926ea4b` on 2011-11-15 introduced `AI_omniGroup` as the intended replacement for `AI_group` and `AI_groupMergeRange`.
+
+The older `AI_group` implementation did not merely assert this condition: it wrapped candidate pathing and selection in a runtime `!pPlot->isVisibleEnemyUnit(this)` check.
+
+K-Mod's new `AI_omniGroup` copied the surrounding grouping logic but reduced that protection to `FAssert(!pPlot->isVisibleEnemyUnit(this))`. The immediately following K-Mod commit `25752c0b71e7cefde7af227f8b6f6a2328ba89a5` then replaced most of `AI_group` with an `AI_omniGroup` wrapper, making the debug-only assumption part of normal production grouping behavior. Base AdvCiv and SAS retained it.
+
+The introducing/replacement commit messages describe the grouping refactor but do not explain why this runtime check became an assertion. The code expresses an assumption that candidate plots cannot contain visible enemies; its author's reasoning and why the issue went uncorrected in AdvCiv are not established by this evidence.
+
+The distinction matters because the preceding `bSafeOnly` condition is not equivalent to the assertion.
+
+`CvUnit::isEnemy(CvPlot const&)` checks hostility through the plot's team when the plot is owned; `CvPlot::isVisibleEnemyUnit(this)` asks the stronger caller-relative question of whether a hostile visible unit is actually present. A neutral or otherwise non-enemy-owned plot can therefore pass the former condition while still containing a unit that this caller regards as an enemy.
+
+With assertions ignored, or in a Release build, the old code continued evaluating such a group as a possible target. It could survive the impassable/path scoring, become `pBestUnit`, and then receive either a `MISSION_MOVE_TO_UNIT` grouping mission or an immediate merge attempt despite the caller already seeing a hostile unit on that plot.
+
+The selected grouping target is still one of the caller's own groups, not an enemy group; the problem is another unit on its plot being hostile from this caller's perspective. Plot ownership and unit-relative hostility are separate, so the owned/non-enemy-plot filter does not rule that situation out.
+
+Movement still goes through pathfinding and legal-entry checks, so a bad candidate is not itself a memory error or proof of a crash. A `MISSION_MOVE_TO_UNIT` mission can enter the explicit combat branch when `MOVE_ATTACK_STACK` is set; this does not establish that the turn-380 event selected the candidate, attacked anything or even reached that mission path.
+
+The turn-380 assertion proves that the state excluded by this assumption is reachable in current SAS. The old assertion row does not include the caller unit, requested UnitAI, candidate group or hostile unit, so the exact runtime composition is deliberately not inferred from the capture.
+
+The repair restores the old runtime safety property centrally in `AI_omniGroup`: a candidate plot containing a visible enemy for the caller is skipped before impassable/path scoring. This preserves the runtime rule of the pre-omni `AI_group` path and makes the rule effective in Release rather than relying on a diagnostic assertion.
+
+Because this is low-level AI grouping diagnosis rather than durable game-history state, no SASGameRecord field is added.
+
+With Unit BBAI level 2 enabled, the rare rejection emits `OMNI_GROUP_VISIBLE_ENEMY_REJECT` with the requested grouping UnitAI role, caller/target IDs and UnitAI roles, group sizes and IDs, source/target coordinates, target owner/team and mission AI, plus the relevant `safeOnly`, plot-hostility, always-hostile and merge flags.
+
+A replay can therefore identify the caller/target context if the condition recurs, while the restored guard skips that candidate.
+
+The C++ File Audit Album's later `CvUnitAI.cpp` review explicitly reopened `AI_omniGroup` and found no new arithmetic/double-count root in the SAS peacetime grouping changes.
+
+That conclusion remains valid for the behavior it examined. It did not establish K-Mod's inherited visible-enemy precondition, and the album is left unchanged as the historical audit record; SASAssertions supplies the later runtime evidence.
+
+Runtime replay should confirm that the old `AI_omniGroup` assertion no longer appears. If the state recurs, Unit BBAI level 2 should record the rejected candidate. Because the old ignored-assert/Release path could actually choose that candidate, a behavior or RNG divergence after the first reproduced rejection can be a legitimate consequence of the fix rather than a regression by itself.
+
+2026-10-23 assertion-enabled replay with Unit BBAI level 2 logged exactly one `OMNI_GROUP_VISIBLE_ENEMY_REJECT` across the T0-T426 run, at T380, matching the single occurrence of the old assertion at T380 in the pre-fix capture.
+
+Incan player 12's singleton Transport group at (117,25) considered another singleton Transport group at (3,31), on an unowned tile. The diagnostic recorded `requestedAI=UNITAI_ASSAULT_SEA`, `safeOnly=1`, `plotEnemy=0`, `callerAlwaysHostile=0` and `mergeGroups=1`.
+
+The BBAI rejection row, verbatim:
+
+```log
+OMNI_GROUP_VISIBLE_ENEMY_REJECT turn=380 player=12 civ=Incan Empire requestedAI=UNITAI_ASSAULT_SEA callerId=2695324 caller=Transport callerAI=UNITAI_ASSAULT_SEA callerGroupId=3555462 callerGroupUnits=1 source=(117,25) targetHeadId=1916965 targetHead=Transport targetAI=UNITAI_ASSAULT_SEA targetGroupId=3793025 targetGroupUnits=1 target=(3,31) targetOwner=-1 targetTeam=-1 targetMissionAI=30 safeOnly=1 plotEnemy=0 callerAlwaysHostile=0 mergeGroups=1
+```
+
+Thus the actual recurrence was not limited to an always-hostile caller such as a Privateer. The row identifies the caller and friendly target, but does not identify the hostile unit on that tile; its type and why it shared the tile remain unestablished.
+
+The run continued to T426 with PythonErr.log empty and zero `AI_omniGroup` assertion failures. Its assertion log contained only the 55 deliberately deferred building-class-limit failures. This exercises the new rejection branch, rather than merely showing that a run without the condition completes. (GPT-6.1-Sol)
+
+Comparison with the pre-fix `SASGameRecord_20261023T060106Z_load1.log` and post-fix `SASGameRecord_20261023T135414Z_load1.log` found the same final T426 Domination winner (team 4), eight surviving players/teams, 115 cities, 1,236 population, top score 4,977 and top power 9,663. All 431 state checkpoints matched; the 431 RNG checkpoints also matched after excluding call-provenance fingerprints.
+
+The RNG comparison helper identified different call-provenance fingerprints beginning at T0, before this rejection, and noted recorder revisions 163 versus 164. These are not byte-identical logs; the observed matching state and authoritative RNG data support an unchanged game trajectory in this replay, despite exercising the restored guard. (GPT-6.1-Sol)
+
+This establishes a restored runtime guard and a false assertion assumption, not a demonstrated harmful gameplay choice in the old run. Rejecting the candidate earlier had no observed effect on the recorded progression; later impassable/path checks or candidate scoring may already have prevented its selection. Which later condition applied was not traced.
+
+Accordingly, this change is defensive AI hardening with diagnostics. It could change behavior when a visible-enemy candidate would otherwise win selection, but this replay did not demonstrate such an outcome; absence of the assertion alone is not evidence of an AI performance improvement. (GPT-6.1-Sol)
+
+2026-10-23 logging comparison: the interrupted `SASGameRecord_20261023T135122Z_load1.log` recorded BBAI disabled, whereas the completed `SASGameRecord_20261023T135414Z_load1.log` recorded Unit BBAI level 2. All 135 shared state and RNG checkpoints matched through T132, including RNG call-provenance fingerprints; only the enabled run continued past that recorded prefix.
+
+The earlier full T426 control already had Unit BBAI level 2 and Invasion Graph level 3, compared with Unit level 2 alone in the latest run. Thus the evidence shows no recorded gameplay/RNG change over the shared off/on prefix, plus matching full-run state/authoritative RNG under those two enabled category configurations; it is not a full-duration BBAI-off/on experiment. (GPT-6.1-Sol)
+
+Fixed with the help of ChatGPT-5.6-Sol, after review of the original K-Mod introduction and replacement commits and the later SAS assertion capture; source/history and logging-gate review with GPT-6.1-Sol.
 
 <a id="ki-50"></a>
 

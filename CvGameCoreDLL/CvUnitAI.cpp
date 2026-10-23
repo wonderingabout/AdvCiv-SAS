@@ -16667,7 +16667,21 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
 				int const iResultingAggregate = SAS_countPlotAttackCityGroupUnits(kLoopPlot, getOwner()) + (bOurGroupAlreadyCounted ? 0 : getGroup()->getNumUnits());
 				if (iResultingAggregate > iTargetlessPeacetimeAggregateMax) continue;
 			}
-			FAssert(!kLoopPlot.isVisibleEnemyUnit(this));
+			// <!-- custom: The pre-omni AI_group rejected visible-enemy target plots at runtime, but K-Mod's 2011 AI_omniGroup replacement reduced that guard to an FAssert.
+			// SASAssertions later proved the state is reachable, so reject the candidate in Release too instead of letting grouping path/merge selection continue through a caller-hostile plot.
+			// Plot ownership hostility is not equivalent to visible unit hostility; retain the unit-relative test even when bSafeOnly passed.
+			// This restores a defensive candidate rule; a reproduced rejection with matching recorded state/RNG did not demonstrate a harmful old target choice, since later path/scoring checks can already discard it.
+			// The Unit-BBAI gate also covers identity/name formatting and diagnostic-only queries, including the requested grouping role for caller context. See KI#49.3. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			if (kLoopPlot.isVisibleEnemyUnit(this))
+			{
+				if (gUnitLogLevel >= 2) logBBAI("OMNI_GROUP_VISIBLE_ENEMY_REJECT turn=%d player=%d civ=%S requestedAI=%s callerId=%d caller=%S callerAI=%s callerGroupId=%d callerGroupUnits=%d source=(%d,%d) targetHeadId=%d targetHead=%S targetAI=%s targetGroupId=%d targetGroupUnits=%d target=(%d,%d) targetOwner=%d targetTeam=%d targetMissionAI=%d safeOnly=%d plotEnemy=%d callerAlwaysHostile=%d mergeGroups=%d",
+					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), SAS_getUnitAITypeName(eUnitAI), getID(), getName(0).GetCString(),
+					SAS_getUnitAITypeName(AI_getUnitAIType()), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
+					pLoopUnit->getID(), pLoopUnit->getName(0).GetCString(), SAS_getUnitAITypeName(pLoopUnit->AI_getUnitAIType()),
+					pLoopGroup->getID(), pLoopGroup->getNumUnits(), kLoopPlot.getX(), kLoopPlot.getY(), kLoopPlot.getOwner(), kLoopPlot.getTeam(),
+					pLoopGroup->AI_getMissionAIType(), bSafeOnly, isEnemy(kLoopPlot), isAlwaysHostile(kLoopPlot), bMergeGroups);
+				continue;
+			}
 			//if (iOurMaxImpassableCount > 0 || AI_getUnitAIType() == UNITAI_ASSAULT_SEA) { ...
 			{	// <advc.057> Check their impassable count even if ours is 0
 				CLLNode<IDInfo> const* pUnitNode = pLoopGroup->headUnitNode();
