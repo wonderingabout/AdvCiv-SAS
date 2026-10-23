@@ -4985,10 +4985,9 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		CvPlot* pB = candidatePlots[i].pPlot;
 		BuildTypes eB = candidatePlots[i].eBuild;
 
+		// <!-- custom: Keep the assertion for invalid candidate diagnosis and the null guard for assertion-free builds or ignored failures.
+		// In those earlier SAS development runs, testing used Release builds without assertions, so this assertion was not exercised and this particular site was not established as the crash cause. (ChatGPT-5 + GPT-6.1-Sol) -->
 		FAssert(pB != NULL);
-		// <!-- custom: we don't test this assertion???
-		// Most likely is where our crash at turn 77 happens again as chatgpt 5 provided, see code comments related to AI_bestCityBuild crashes at turn 77 for details, and check if accurate -->
-        // <-- when you accept:
 		if (pB == NULL)
 		{
 			continue;
@@ -23869,7 +23868,51 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
 // K-Mod. General function for moving assault groups - to reduce code duplication.
 bool CvUnitAI::AI_transportGoTo(CvPlot const& kEndTurnPlot, CvPlot const& kTargetPlot, MovementFlags eFlags, MissionAITypes eMissionAI)
 {
-	FAssert(!kEndTurnPlot.isImpassable());
+	// <!-- custom: The pathfinder may intentionally end on an impassable amphibious target when carried land units can enter it.
+	// The inherited raw-plot assertion rejected that valid destination class; preserve movement decisions and diagnose the endpoint instead.
+	// Check the logging level first to avoid diagnostic-only plot checks, cargo inspection and argument computation when logging is off; the assertion evaluates its own condition only in assertion-enabled builds. See KI#529.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	if (gUnitLogLevel >= 2 && kEndTurnPlot.isImpassable())
+	{
+		bool const bImpassableAmphibiousTarget = (&kEndTurnPlot == &kTargetPlot && getGroup()->isAmphibPlot(&kTargetPlot));
+		int iCargoUnits = 0;
+		int iImpassableCargoUnits = 0;
+		int iCargoGroupHeads = 0;
+		int iCargoGroupsCanEnterTarget = 0;
+		FOR_EACH_UNIT_IN(pTransport, *getGroup())
+		{
+			std::vector<CvUnit*> apCargoUnits;
+			pTransport->getCargoUnits(apCargoUnits);
+			for (size_t i = 0; i < apCargoUnits.size(); i++)
+			{
+				if (apCargoUnits[i]->getTransportUnit() != pTransport)
+					continue;
+				iCargoUnits++;
+				if (apCargoUnits[i]->canMoveImpassable())
+					iImpassableCargoUnits++;
+				if (apCargoUnits[i]->isGroupHead())
+				{
+					iCargoGroupHeads++;
+					if (apCargoUnits[i]->getGroup()->canMoveOrAttackInto(kTargetPlot,
+						eFlags & MOVE_DECLARE_WAR, false, !getGroup()->isHuman()))
+					{
+						iCargoGroupsCanEnterTarget++;
+					}
+				}
+			}
+		}
+		char const* szReason = (canMoveImpassable() ? "TRANSPORT_CAN_MOVE_IMPASSABLE" :
+			(bImpassableAmphibiousTarget ? "AMPHIBIOUS_TARGET" : "UNEXPECTED"));
+		logBBAI("TRANSPORT_IMPASSABLE_ENDPOINT turn=%d player=%d civ=%S transportId=%d transport=%s transportAI=%s groupId=%d groupUnits=%d source=(%d,%d) endTurn=(%d,%d) target=(%d,%d) endIsTarget=%d targetAmphibious=%d endWater=%d endPeak=%d transportCanMoveImpassable=%d cargoUnits=%d cargoCanMoveImpassable=%d cargoGroupHeads=%d cargoGroupsCanEnterTarget=%d missionAI=%d flags=%d reason=%s",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0),
+			getID(), SAS_getUnitTypeName(getUnitType()), SAS_getUnitAITypeName(AI_getUnitAIType()),
+			getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
+			kEndTurnPlot.getX(), kEndTurnPlot.getY(), kTargetPlot.getX(), kTargetPlot.getY(),
+			(&kEndTurnPlot == &kTargetPlot ? 1 : 0), bImpassableAmphibiousTarget ? 1 : 0,
+			kEndTurnPlot.isWater() ? 1 : 0, kEndTurnPlot.isPeak() ? 1 : 0,
+			canMoveImpassable() ? 1 : 0, iCargoUnits, iImpassableCargoUnits,
+			iCargoGroupHeads, iCargoGroupsCanEnterTarget, eMissionAI, eFlags, szReason);
+	}
+	FAssertMsg(!kEndTurnPlot.isImpassable() || canMoveImpassable() || (&kEndTurnPlot == &kTargetPlot && getGroup()->isAmphibPlot(&kTargetPlot)), "Unexpected impassable transport end-turn plot; see KI#529.2");
 	CvPlot const* pNewEndTurnPlot = &kEndTurnPlot; // advc (Take param by reference)
 
 	if (AI_getGroup()->AI_getMissionAIType() != eMissionAI)
@@ -25137,10 +25180,12 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
 	// This is why below code mentions things like crash at turn 77 or such, i didn't reedit all code comments but they refer to old code we don't use anymore that was causing such crashes, and i thought the safeties are nice to keep for those that seem otherwise harmless, in how i did so -->
 	if (!AI_bestCityBuild(kCity, &pBestPlot, &eBestBuild, NULL, this, NULL, &eFollowupBuild))
 		return false; // advc
+	// <!-- custom: Reject invalid AI_bestCityBuild outputs before dereferencing the plot or queuing a build, including in assertion-free builds or after an ignored assertion.
+	// Retained from the T77 Worker crash investigation in earlier SAS versions, when testing used Release builds without assertions.
+	// The assertions were therefore not exercised, and the observed recovery did not identify which caller guard prevented the crash. (ChatGPT-5 + GPT-6.1-Sol) -->
 	FAssert(pBestPlot != NULL);
 	FAssertEnumBounds(eBestBuild);
 
-	// <!-- custom: chatgpt 5 explained in its thoughts we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, i don't know exactly which if it's this caller or the other caller, but leaving it as such since we don't crash anymore at turn 77 -->
 	if (pBestPlot == NULL || eBestBuild == NO_BUILD)
 		return false;  // belt-and-suspenders
 
@@ -25444,8 +25489,10 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 				pLoopCity->getPopulation());
             continue; // nothing useful to do in this city right now
         }
+		// <!-- custom: The assertion diagnoses invalid AI_bestCityBuild outputs; this runtime guard also skips them in assertion-free builds or after Ignore Once.
+		// This guard dates from the Worker crash investigation in earlier SAS versions, when testing used Release builds without assertions; that investigation did not test this diagnostic.
+		// Preserve the explicit runtime guard rather than relying on an assertion to stop execution. (ChatGPT-5 + GPT-6.1-Sol) -->
         FAssert(pPlot != NULL && eBuild != NO_BUILD);
-		// <!-- custom: chatgpt 5 explained in its thoughts we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, so left as such -->
 		if (pPlot == NULL || eBuild == NO_BUILD)
 		{
 			if (bLogWorkerCityTarget) logBBAI("    %S worker city-target scan: city=%S pop=%d invalid AI_bestCityBuild output plot=%d build=%d",

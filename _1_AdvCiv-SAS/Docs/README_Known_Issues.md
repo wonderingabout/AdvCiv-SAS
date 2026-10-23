@@ -675,6 +675,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#527 - (Fixed inherited AdvCiv debug diagnostic defect) Air combat Shift-hover called a land/sea-only stack comparison](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-527)\
 [KI#528 - (Fixed inherited AdvCiv ordering defect) Undefended-city Bombard priorities collapsed to zero](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-528)\
 [KI#529 - (Fixed inherited K-Mod/AdvCiv contract defect amplified by SAS) Assault war intent treated any cargo as invasion cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-529)\
+[KI#529.2 - (Corrected inherited sea-assault assertion contract) Impassable transport endpoint can be a valid amphibious destination](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-529.2)\
 [KI#530 - (Fixed inherited AdvCiv Bombard defect) Peaceful foreign units counted as attackers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-530)\
 [KI#531 - (Fixed inherited AdvCiv Bombard defect) Loaded cargo counted as city defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-531)\
 [KI#532 - (Fixed AdvCiv-SAS air-strike regression) Low-power ordering called land/sea strength logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-532)\
@@ -27174,6 +27175,54 @@ KI#1039 now retains that broad military-cargo census for strategic-pressure acco
 The refined Debug-opt DLL completed a Huge Archipelago, Renaissance-start autoplay through a turn-471 Space Race victory; `SASGameRecord_20260920T181736Z_new3.log` confirms the matching dirty source and provides fresh naval-assault coverage, while the exact Gunship-only target remains source-verified.
 
 Found as F206/provisional KI#529 during ChatGPT-5.6-Sol's C018-WIP08-WIP10 `CvSelectionGroupAI.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and later refined and tested with the help of wonderingabout, thanks.
+
+<a id="ki-529.2"></a>
+
+## KI#529.2 - (Corrected inherited sea-assault assertion contract) Impassable transport endpoint can be a valid amphibious destination
+
+The 2026-10-23 assertion-enabled T482 autoplay recorded one `CvUnitAI::AI_transportGoTo` failure at turn 322:
+
+```cpp
+FAssert(!kEndTurnPlot.isImpassable());
+```
+
+The assertion row establishes only that the helper received an impassable end-turn plot. BBAI was disabled in that capture, so the transport, cargo, target and exact caller are not recoverable from the recorded evidence and are deliberately not inferred.
+
+The source contract nevertheless shows that the inherited assertion is too broad. `GroupPathFinder` explicitly accepts an amphibious destination by testing whether a carried land-unit group can move or attack into the destination even when the sea group itself cannot enter the land plot.
+
+Therefore a successful transport path may intentionally end on an impassable coastal land target when the cargo can enter that plot.
+
+Current SAS has a concrete military witness for this valid state: `UNIT_LEVITATION_ARTILLERY` is land-domain `UNITAI_ATTACK_CITY`, has `bCanMoveImpassable=1`, and has no special-cargo restriction. Standard Galley, Galleon and Transport assault ships accept ordinary land cargo.
+
+A coastal Peak can consequently be a legal amphibious destination for such cargo even though `CvPlot::isImpassable()` is true. Scout/Explorer-family impassable-capable land units also show that the destination class is not conceptually unique to the SAS unit.
+
+The assertion predates `AI_transportGoTo`. K-Mod commit `804e9f64e4148c57cdb88dbe2ecdaebc60c60be9` on 2011-11-10 consolidated already-existing sea-assault `pBestPlot->isImpassable()` checks into the new `AI_assaultGoTo` helper.
+
+K-Mod commit `2df4dcb7a608869f972f79c771196e6d931372e3` on 2012-07-13 then renamed and expanded that helper into `AI_transportGoTo` while retaining the raw plot assertion. The available history therefore supports an inherited BBAI/K-Mod-era assumption; it does not establish why the valid amphibious-destination case was excluded.
+
+The repaired diagnostic contract does **not** simply remove the assertion. An impassable end-turn plot is accepted only when the transport itself can move impassable or when that exact plot is the amphibious target. Any other impassable end-turn plot still asserts. Gameplay behavior is otherwise unchanged.
+
+Unit BBAI level 2 now records the rare `TRANSPORT_IMPASSABLE_ENDPOINT` state before the assertion decision, including transport/group identity, source/end/target coordinates, whether the end plot is the target and is amphibious, water/Peak state, transport impassable capability, cargo count, impassable-capable cargo count, cargo-group-head count, how many cargo groups can currently enter or attack the target under the same declare-war visibility rules, MissionAI, movement flags and the structural reason (`TRANSPORT_CAN_MOVE_IMPASSABLE`, `AMPHIBIOUS_TARGET` or `UNEXPECTED`).
+
+This keeps the original turn-322 evidence honest: if the state reproduces as `AMPHIBIOUS_TARGET`, the corrected assertion should stay silent and the BBAI row will runtime-confirm the valid endpoint case; if it reproduces as `UNEXPECTED`, the assertion remains active and the same row supplies the context needed for a deeper path/caller investigation.
+
+No SASGameRecord field is added because this is low-level transport/path diagnostic state rather than durable game-history information. Cargo inspection and log arguments are behind the Unit BBAI level gate; the assertion condition compiles out in assertion-free builds, leaving only the logging-level comparison when logging is off.
+
+The 2026-10-23 replay with the corrected assertion and Unit BBAI level 2 reproduced the endpoint at T322:
+
+```log
+TRANSPORT_IMPASSABLE_ENDPOINT turn=322 player=4 civ=Arabian Empire transportId=1589300 transport=UNIT_GALLEON transportAI=UNITAI_ASSAULT_SEA groupId=4571173 groupUnits=1 source=(69,12) endTurn=(74,14) target=(74,14) endIsTarget=1 targetAmphibious=1 endWater=0 endPeak=1 transportCanMoveImpassable=0 cargoUnits=2 cargoCanMoveImpassable=2 cargoGroupHeads=2 cargoGroupsCanEnterTarget=2 missionAI=24 flags=264 reason=AMPHIBIOUS_TARGET
+```
+
+This identifies an Arabian Galleon targeting a coastal Peak: both cargo units could move impassable, and both cargo group heads could enter or attack the target. The case was classified as `AMPHIBIOUS_TARGET`; no `AI_transportGoTo` assertion fired.
+
+The replay completed at T482 with the same team-7 Space Race victory. All 487 semantic-state checkpoints matched the preceding run; all 487 RNG checkpoints also matched in stream states, call counts and stream fingerprints. Call-provenance fingerprints differed from T9, so this is not a claim that every diagnostic fingerprint was identical.
+
+The captures were `SASGameRecord_20261023T142849Z_load1.log` before the correction and `SASGameRecord_20261023T154853Z_load1.log` afterward, with companion `BBAI_20261023T154853Z_load1.log` and `SASAssertions_20261023T154853332Z_load1.log`.
+
+The remaining failures were the same 40 building-class-limit failures and seven `AI_considerPathDOW` failures at T396-T401; they are separate from this endpoint assertion.
+
+Investigated and corrected with the help of ChatGPT-5.6-Sol and GPT-6.1-Sol, thanks.
 
 <a id="ki-530"></a>
 
