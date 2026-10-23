@@ -675,7 +675,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#527 - (Fixed inherited AdvCiv debug diagnostic defect) Air combat Shift-hover called a land/sea-only stack comparison](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-527)\
 [KI#528 - (Fixed inherited AdvCiv ordering defect) Undefended-city Bombard priorities collapsed to zero](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-528)\
 [KI#529 - (Fixed inherited K-Mod/AdvCiv contract defect amplified by SAS) Assault war intent treated any cargo as invasion cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-529)\
-[KI#529.2 - (Corrected inherited sea-assault assertion contract) Impassable transport endpoint can be a valid amphibious destination](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-529.2)\
+[KI#529.2 - (Corrected inherited BtS sea-assault assertion) Impassable transport endpoint can be a valid amphibious destination](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-529.2)\
 [KI#530 - (Fixed inherited AdvCiv Bombard defect) Peaceful foreign units counted as attackers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-530)\
 [KI#531 - (Fixed inherited AdvCiv Bombard defect) Loaded cargo counted as city defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-531)\
 [KI#532 - (Fixed AdvCiv-SAS air-strike regression) Low-power ordering called land/sea strength logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-532)\
@@ -772,6 +772,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#621 - (Fixed inherited BtS/K-Mod bundle incompatibility made deterministic by AdvCiv) Vassalage and a Defensive Pact could create an orphan relation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-621)\
 [KI#622 - (Fixed inherited BUG/K-Mod integration and AdvCiv shortcut handoff) Consumed input and Ctrl+Z debug toggle](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622)\
 [KI#623 - (Pending Architectural inherited K-Mod pathfinder defect incompletely addressed by AdvCiv) Reparented paths retain stale danger legality](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-623)\
+[KI#623.2 - (Fixed K-Mod AI coastal-loading regression activating an older BtS weakness) Land paths treated boarding a ship as water transit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-623.2)\
 [KI#624 - (Provisional Pending inherited K-Mod pathfinder defect) An over-limit route can overwrite a valid bounded path](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-624)\
 [KI#625 - (Provisional Pending inherited K-Mod group-path cost defect) Maximum-cost unit overwrites minimum moves left](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-625)\
 [KI#626 - (Pending Architectural inherited K-Mod group-path state defect) Shared minimum moves fabricate per-unit movement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-626)\
@@ -27178,7 +27179,7 @@ Found as F206/provisional KI#529 during ChatGPT-5.6-Sol's C018-WIP08-WIP10 `CvSe
 
 <a id="ki-529.2"></a>
 
-## KI#529.2 - (Corrected inherited sea-assault assertion contract) Impassable transport endpoint can be a valid amphibious destination
+## KI#529.2 - (Corrected inherited BtS sea-assault assertion) Impassable transport endpoint can be a valid amphibious destination
 
 The 2026-10-23 assertion-enabled T482 autoplay recorded one `CvUnitAI::AI_transportGoTo` failure at turn 322:
 
@@ -27223,6 +27224,18 @@ The captures were `SASGameRecord_20261023T142849Z_load1.log` before the correcti
 The remaining failures were the same 40 building-class-limit failures and seven `AI_considerPathDOW` failures at T396-T401; they are separate from this endpoint assertion.
 
 Investigated and corrected with the help of ChatGPT-5.6-Sol and GPT-6.1-Sol, thanks.
+
+2026-10-23 provenance clarification: the local BtS reference (`Civ4CE-main/BtS/CvGameCoreDLL/CvUnitAI.cpp`, `AI_assaultSeaTransport`) already contains the raw assertion:
+
+```cpp
+FAssert(!(pBestPlot->isImpassable()));
+```
+
+The same check is present in the initial K-Mod tree, commit `2414225e6415911ac28483d2bdac67b4100d36ff` (2010-12-27), before the 2011 helper consolidation discussed above.
+
+This strengthens the earlier BBAI/K-Mod-era attribution to an inherited BtS sea-assault assumption; the K-Mod consolidation preserved it rather than creating it. The exact original BtS introducing revision and rationale were not established.
+
+Confirmed against the local reference and Git history with the help of GPT-6.1-Sol, thanks.
 
 <a id="ki-530"></a>
 
@@ -29414,6 +29427,72 @@ The root is inherited from K-Mod; AdvCiv practical 4196 fixed the first-arrival 
 Pending an architectural repair that preserves the older valid parent when a prospective reparent is invalid and safely revalidates or rediscovers affected descendants and closed nodes.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C028 `GroupPathFinder.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-623.2"></a>
+
+## KI#623.2 - (Fixed K-Mod AI coastal-loading regression activating an older BtS weakness) Land paths treated boarding a ship as water transit
+
+The 2026-10-23 assertion sweep recorded seven `CvUnitAI::AI_considerPathDOW` failures at T396-T401. The inherited check was:
+
+```cpp
+FErrorMsg("AI_considerPathDOW didn't find a path.");
+```
+
+Failure-only Unit BBAI diagnostics identified all seven as `AI_goToTargetCity` calls by Arabia's same Levitation Artillery-led group, requesting water tile `(71,10)`. The failure occurs when the helper regenerates a path to an earlier path's end-turn waypoint; removing its assertion would hide that disagreement rather than repair the route.
+
+A second read-only probe captured each improving candidate while its successful path was still current. The path to a land attack plot near Rome actually contained the water waypoint, with water nodes immediately before and after it:
+
+```log
+TARGET_CITY_WATER_ENDTURN_PATH selection=BEST_SO_FAR turn=396 player=4 unitId=4014149 unit=UNIT_LEVITATION_ARTILLERY groupId=8470661 groupUnits=20 source=(66,14) targetCityOwner=7 targetCity=Rome targetCity=(11,34) selectedAdjacent=(10,33) selectedAdjacentWater=0 selectedAdjacentArea=778246 endTurn=(71,10) endTurnArea=26566719 pathTurns=37 finalMoves=0 pathEnd=(10,33) endNodeFound=1 endNodeTurns=1 endNodeMoves=0 prev=(70,11) prevWater=1 prevTurns=1 prevMoves=26 next=(72,9) nextWater=1 nextTurns=2 nextMoves=0 flags=648
+```
+
+`selection=BEST_SO_FAR` labels provisional winners, not every final choice. The last improving T396 candidate above shares its endpoint with the subsequent failure row. Other captures showed water-transit candidates for Field Gun-led groups at T257/T260 and a Robotic Tank-led group at T414, without corresponding path-DOW failures; the phenomenon is not limited to Levitation Artillery.
+
+The source explains a loading-versus-transit mismatch:
+
+- `GroupStepMetric::canStepThrough` checks intermediate nodes, whereas `isValidDest` separately handles the endpoint. `MOVE_ATTACK_STACK` and `MOVE_THROUGH_ENEMY` use `canMoveOrAttackInto`, which permits loading onto a compatible transport on water.
+- `CvUnit::setXY` actually loads a land unit when `shouldLoadOnMove` applies. The group pathfinder does not model a transition to a carrier's movement state, so that loading permission cannot justify expanding an ordinary land route through successive water nodes.
+- Ordinary `canMoveThrough` already passes `bIgnoreLoad=true`; its transit branch does not need the extra rejection.
+
+K-Mod commit `b1da97ec81216b315b002bf77e958ba4fde028b4` (2012-02-11) removed the inherited AI-only restriction on coastal loading so stranded AI units could board boats outside cities/forts. That broadens the AI exposure, but does not establish the origin of the entire transit weakness: human/special-case loading was already present.
+
+This is independent of KI#623's stale danger legality and the other pending KI#624-KI#627 path-state/cost issues.
+
+The current SAS XML provides a concrete distinction: `UNIT_LEVITATION_ARTILLERY` has `bCanMoveImpassable=1` but `bCanMoveAllTerrain=0`. It can cross a Peak, but that does not grant it water transit. `UNIT_GUNSHIP`, by contrast, has both flags enabled in SAS and can genuinely cross water; the sibling base AdvCiv Gunship has both disabled.
+
+Current XML configuration:
+
+| Unit | Cross impassable terrain | All-terrain, including water |
+| --- | ---: | ---: |
+| SAS Gunship | Yes | Yes |
+| Base AdvCiv Gunship | No | No |
+| SAS Levitation Artillery | Yes | No |
+
+This is why a water-transit path for the captured Levitation Artillery-led ordinary land stack is suspicious, whereas one for a fully all-terrain Gunship group can be valid. The repair checks the entire group's capabilities rather than hardcoding either unit: it preserves genuine all-terrain movement in SAS and modmods even if their XML unit settings change.
+
+The repair rejects ordinary land-group water transit in the attack/through-enemy branch. It preserves the current-plot exception, fully all-terrain groups, and `LAND_UNITS_CAN_ATTACK_WATER_CITIES`; it also remains inside the existing AI-or-revealed block, avoiding a new human fog-of-war information leak.
+
+Destination validation and unit loading are unchanged. The generic pathfinder can still accept a terminal loading destination without opening that node for transit expansion. This corrects route choices and can therefore change gameplay and RNG; identical old outcomes are not a requirement for the repair.
+
+The two probes preserve the assertion and read existing state only. Logging-only reruns of movement/danger checks were removed because danger queries can update caches and movement predicates can invoke Python callbacks. Caller identities use static `__FUNCTION__` text, and all node inspection and argument formatting is gated by Unit BBAI level 2.
+
+Before the repair, both probe runs completed at T482 with the same team-7 Space Race victory. Their 487 semantic-state checkpoints and RNG stream states/counts/fingerprints matched their respective controls; call-provenance fingerprints differed. Captures: `SASGameRecord_20261023T164752Z_load1.log` and `SASGameRecord_20261023T173444Z_load1.log`, with matching BBAI and SASAssertions captures.
+
+The first repair replay (`SASGameRecord_20261023T183537Z_load1.log`, with matching BBAI and SASAssertions captures) completed at T469 with team 7's Space Race victory. Both `PATH_DOW_PATH_FAILURE` and `TARGET_CITY_WATER_ENDTURN_PATH` had zero rows; the seven path-DOW assertions disappeared, and `PythonErr.log` was empty.
+
+The comparison against the preceding path-snapshot probe first diverged in both recorded game state and authoritative RNG at the T257 end-turn checkpoint, matching the earliest captured Field Gun water-transit candidates. The new result is therefore a gameplay-changing route correction, not merely assertion suppression; the earlier control finished at T482.
+
+The replay retained 40 deferred building-class-limit failures and exposed two other assertions together at T395: `AI_attackCityMove is resorting to AI_solveBlockageProblem`, followed by the `continueMission_bulk` direct-attack completion check. Those require separate classification; their appearance on a changed history does not by itself prove that the new guard introduced a defect.
+
+BBAI recorded assault-loading decisions, but this run did not isolate the stranded-land-unit coastal-boarding case. Preservation of endpoint loading, all-terrain movement, water-city handling and human fog semantics was reviewed in source; those special cases were not each separately exercised in this replay.
+
+Investigated and implemented with the help of ChatGPT-5.6-Sol, GPT-6.1-Sol and wonderingabout, thanks.
+
+2026-10-23 provenance clarification: K-Mod commit `b1da97ec81216b315b002bf77e958ba4fde028b4` is the last enabling change for the captured ordinary-coast AI case: it removed `!isHuman()` from the loading exception in `CvUnit::canMoveInto`, allowing AI land groups to satisfy that exception on transport-occupied water outside cities/forts.
+
+The local BtS reference already uses `canMoveOrAttackInto` for `MOVE_THROUGH_ENEMY` transit and already has human/special-case loading permissions, so the broader loading/transit weakness predates that AI expansion; it is not attributed entirely to K-Mod's 2012 change.
+
+Clarified against the introducing diff and local BtS reference with the help of GPT-6.1-Sol, thanks.
 
 <a id="ki-624"></a>
 

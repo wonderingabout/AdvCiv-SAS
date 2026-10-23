@@ -5543,7 +5543,9 @@ bool CvUnitAI::AI_considerDOW(CvPlot const& kPlot)
 	to actually get there. This situation is very rare, but unfortunately we
 	have to check for it every time - because otherwise, when it happens,
 	the AI will just get stuck. */
-bool CvUnitAI::AI_considerPathDOW(CvPlot const& kPlot, MovementFlags eFlags)
+// <!-- custom: Each call site passes its own __FUNCTION__, so szCaller identifies the invoking AI routine rather than this helper; compiler-provided names follow renames without hand-maintained string labels.
+// This identity is used only for failure-path Unit BBAI attribution; the inherited war-decision contract and return value are unchanged. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+bool CvUnitAI::AI_considerPathDOW(CvPlot const& kPlot, MovementFlags eFlags, char const* szCaller)
 {
 	PROFILE_FUNC();
 
@@ -5552,6 +5554,22 @@ bool CvUnitAI::AI_considerPathDOW(CvPlot const& kPlot, MovementFlags eFlags)
 
 	if (!generatePath(kPlot, eFlags, true))
 	{
+		// <!-- custom: Preserve the inherited assertion and return until a captured caller explains why the prospective-war path failed.
+		// Inspect existing state only: rerunning isValidDest/AI_isAnyPlotDanger can populate border-danger caches, and movement-legality queries can invoke Python callbacks, so diagnostic reruns could change the state being investigated.
+		// Gate all diagnostic-only queries and formatting behind Unit BBAI level 2; szCaller points to compiler-provided static text and needs no string construction. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		if (gUnitLogLevel >= 2)
+		{
+			CvSelectionGroupAI const& kGroup = *AI_getGroup();
+			CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+			logBBAI("PATH_DOW_PATH_FAILURE turn=%d caller=%s player=%d civ=%S unitId=%d unit=%s unitAI=%s groupId=%d groupUnits=%d source=(%d,%d) target=(%d,%d) stepDistance=%d sourceArea=%d targetArea=%d targetOwner=%d targetTeam=%d flags=%d declareWar=%d throughEnemy=%d attackStack=%d avoidDanger=%d ignoreDanger=%d startEqualsTarget=%d targetWater=%d targetPeak=%d targetImpassable=%d cachedBorderDanger=%d targetVisibleEnemy=%d targetEnemy=%d amphib=%d missionAI=%d groupDomain=%d groupCanFight=%d",
+				GC.getGame().getGameTurn(), szCaller, getOwner(), kOwner.getCivilizationDescription(0), getID(), SAS_getUnitTypeName(getUnitType()),
+				SAS_getUnitAITypeName(AI_getUnitAIType()), kGroup.getID(), kGroup.getNumUnits(),
+				getX(), getY(), kPlot.getX(), kPlot.getY(), stepDistance(getX(), getY(), kPlot.getX(), kPlot.getY()), getArea().getID(), kPlot.getArea().getID(),
+				kPlot.getOwner(), kPlot.getTeam(), (int)eFlags, ((eFlags & MOVE_DECLARE_WAR) != 0), ((eFlags & MOVE_THROUGH_ENEMY) != 0), ((eFlags & MOVE_ATTACK_STACK) != 0),
+				((eFlags & MOVE_AVOID_DANGER) != 0), ((eFlags & MOVE_IGNORE_DANGER) != 0), at(kPlot), kPlot.isWater(), kPlot.isPeak(), kPlot.isImpassable(),
+				kPlot.getBorderDangerCache(getTeam()), kPlot.isVisibleEnemyUnit(this), isEnemy(kPlot), kGroup.isAmphibPlot(&kPlot),
+				kGroup.AI_getMissionAIType(), kGroup.getDomainType(), kGroup.canFight());
+		}
 		FErrorMsg("AI_considerPathDOW didn't find a path.");
 		return false;
 	}
@@ -21206,6 +21224,32 @@ bool CvUnitAI::AI_goToTargetCity(MovementFlags eFlags, int iMaxPathTurns, CvCity
 					pBestPlot = pAdj;
 					pEndTurnPlot = &getPathEndTurnPlot();
 					// K-Mod end
+					// <!-- custom: Capture suspicious land-group water waypoints while this successful path is still current, before another candidate or the DoW check replaces shared pathfinder state.
+					// Each row describes a best-so-far candidate, not necessarily the final winner; correlate the endpoint with PATH_DOW_PATH_FAILURE to identify the selected case.
+					// Gate the entire node walk and log arguments; inspect existing nodes only, without rerunning movement/danger checks or retaining mutable node pointers across path queries. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+					if (gUnitLogLevel >= 2 && getDomainType() == DOMAIN_LAND && pEndTurnPlot->isWater())
+					{
+						GroupPathNode const* pFinalNode = getPathFinder().getEndNode();
+						GroupPathNode const* pPathNode = pFinalNode;
+						GroupPathNode const* pTowardDestNode = NULL;
+						while (pPathNode != NULL && &pPathNode->getPlot() != pEndTurnPlot)
+						{
+							pTowardDestNode = pPathNode;
+							pPathNode = pPathNode->m_pParent;
+						}
+						GroupPathNode const* pPrevNode = (pPathNode == NULL ? NULL : pPathNode->m_pParent);
+						GroupPathNode const* pNextNode = (pPathNode == NULL ? NULL : pTowardDestNode);
+						logBBAI("TARGET_CITY_WATER_ENDTURN_PATH selection=BEST_SO_FAR turn=%d player=%d unitId=%d unit=%s groupId=%d groupUnits=%d source=(%d,%d) targetCityOwner=%d targetCity=%S targetCity=(%d,%d) selectedAdjacent=(%d,%d) selectedAdjacentWater=%d selectedAdjacentArea=%d endTurn=(%d,%d) endTurnArea=%d pathTurns=%d finalMoves=%d pathEnd=(%d,%d) endNodeFound=%d endNodeTurns=%d endNodeMoves=%d prev=(%d,%d) prevWater=%d prevTurns=%d prevMoves=%d next=(%d,%d) nextWater=%d nextTurns=%d nextMoves=%d flags=%d",
+							GC.getGame().getGameTurn(), getOwner(), getID(), SAS_getUnitTypeName(getUnitType()), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
+							pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), pAdj->getX(), pAdj->getY(), pAdj->isWater(), pAdj->getArea().getID(),
+							pEndTurnPlot->getX(), pEndTurnPlot->getY(), pEndTurnPlot->getArea().getID(), iPathTurns, getPathFinder().getFinalMoves(),
+							(pFinalNode == NULL ? -1 : pFinalNode->getPlot().getX()), (pFinalNode == NULL ? -1 : pFinalNode->getPlot().getY()), pPathNode != NULL,
+							(pPathNode == NULL ? -1 : pPathNode->getPathTurns()), (pPathNode == NULL ? -1 : pPathNode->getMoves()),
+							(pPrevNode == NULL ? -1 : pPrevNode->getPlot().getX()), (pPrevNode == NULL ? -1 : pPrevNode->getPlot().getY()), (pPrevNode == NULL ? -1 : pPrevNode->getPlot().isWater()),
+							(pPrevNode == NULL ? -1 : pPrevNode->getPathTurns()), (pPrevNode == NULL ? -1 : pPrevNode->getMoves()),
+							(pNextNode == NULL ? -1 : pNextNode->getPlot().getX()), (pNextNode == NULL ? -1 : pNextNode->getPlot().getY()), (pNextNode == NULL ? -1 : pNextNode->getPlot().isWater()),
+							(pNextNode == NULL ? -1 : pNextNode->getPathTurns()), (pNextNode == NULL ? -1 : pNextNode->getMoves()), (int)eFlags);
+					}
 				}
 			}
 		}
@@ -21243,7 +21287,7 @@ bool CvUnitAI::AI_goToTargetCity(MovementFlags eFlags, int iMaxPathTurns, CvCity
 
 	//pushGroupMoveTo(*pBestPlot, eFlags);
 	// K-Mod start
-	if (AI_considerPathDOW(*pEndTurnPlot, eFlags))
+	if (AI_considerPathDOW(*pEndTurnPlot, eFlags, __FUNCTION__))
 	{	// <advc.163>
 		if (!canMove())
 			return true; // </advc.163>
@@ -21350,7 +21394,7 @@ bool CvUnitAI::AI_pillageAroundCity(CvCity* pTargetCity, int iBonusValueThreshol
 		}*/ // BtS - disabled by K-Mod. (also see new code at top.)
 		// K-Mod
 		FAssert(AI_getGroup()->AI_isDeclareWar(/* advc: */ *pBestPillagePlot));
-		if (AI_considerPathDOW(*pBestPlot, eFlags))
+		if (AI_considerPathDOW(*pBestPlot, eFlags, __FUNCTION__))
 		{	// <advc.163>
 			if(!canMove())
 				return true; // </advc.163>
@@ -21486,7 +21530,7 @@ bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, MovementFlags eFlag
 	{
 		FAssert(!at(*pBestPlot));
 		// K-Mod
-		if (AI_considerPathDOW(*pBestPlot, eFlags))
+		if (AI_considerPathDOW(*pBestPlot, eFlags, __FUNCTION__))
 		{	// <advc.163>
 			if(!canMove())
 				return true; // </advc.163>
@@ -21638,7 +21682,7 @@ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, MovementFlags eFlags
 
 	FAssert(!at(*pBestPlot));
 	// K-Mod
-	if (AI_considerPathDOW(*pBestPlot, eFlags))
+	if (AI_considerPathDOW(*pBestPlot, eFlags, __FUNCTION__))
 	{	// <advc.163>
 		if(!canMove())
 			return true; // </advc.163>
@@ -22196,7 +22240,7 @@ bool CvUnitAI::AI_blockade()
 	if (atPlot(pBestBlockadePlot) && !isEnemy(*pBestBlockadePlot))
 	{
 		//getGroup()->groupDeclareWar(pBestBlockadePlot, true);
-		if(AI_considerPathDOW(*pBestBlockadePlot, eFlags)) // K-Mod
+		if(AI_considerPathDOW(*pBestBlockadePlot, eFlags, __FUNCTION__)) // K-Mod
 		{
 			// <advc.163>
 			if(!canMove())
@@ -23969,7 +24013,7 @@ bool CvUnitAI::AI_transportGoTo(CvPlot const& kEndTurnPlot, CvPlot const& kTarge
 
 		/*	declare war if we need to.
 			(Note: AI_considerPathDOW checks for the declare war flag.) */
-		if (AI_considerPathDOW(*pNewEndTurnPlot, eFlags))
+		if (AI_considerPathDOW(*pNewEndTurnPlot, eFlags, __FUNCTION__))
 		{	// <advc.163>
 			if(!canMove())
 				return true; // </advc.163>

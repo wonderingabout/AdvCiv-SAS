@@ -142,7 +142,19 @@ Use these specialized records for inherited regressions, suspicious behavior cha
   - Local agents such as Codex can grep the generated `.diff` files directly in the working tree.
   - External agents such as ChatGPT can use the same corpus when it is supplied through a full-history light-source ZIP; the ZIP intentionally carries these greppable commit diffs for the same archaeology workflow.
   - Comparison trees (AdvCiv, K-Mod, Taurus, Civ4CE/BtS, etc.) support lineage, but current tip-state presence alone does not prove origin.
-  - When supported, record the strongest provenance in the Known Issue/source rationale and preferably the commit title/body (e.g. SAS-origin vs inherited AdvCiv/K-Mod/Civ4CE/third-party), including an exact introducing commit/date when useful; leave provenance uncertain rather than guessing.
+  - Assess and explain what each relevant link in the causal chain contributed: introducing the faulty assumption, activating or worsening it, partially repairing it, or merely preserving it. Cite the relevant changes/commits and dates when useful; leave uncertain causes explicitly uncertain.
+  - When known, make those causal contributions clear in KI titles as well as commit titles, with fuller evidence in their bodies and relevant source rationale; the examples below show why the distinction matters.
+    - Example 1: Water transit (KI#623.2):
+      - Vague: "Fix inherited land pathfinding that treated ship loading as water transit."
+      - Clearer: "Fix K-Mod AI coastal-loading regression that activated a BtS water-transit weakness."
+      - Why: "inherited" leaves the provenance unnamed. The clearer title explains both contributions: BtS supplied the older loading/transit weakness, and K-Mod activated the captured AI case by removing its coastal-loading restriction. Naming only BtS or only K-Mod would lose part of that causal explanation.
+        - The technical precision on pathfinding was useful and good to keep ideally though.
+    - Example 2: Replay/Hall of Fame (KI#166.2, KI#166.3):
+      - Less clear (original KI heading): "KI#166.2 - (Fixed/Addressed SAS replay-identity follow-up exposed by SASAssertions) AdvCiv's packed replay ID could let incompatible AdvC/legacy shared-ID replays reach current SAS field bounds".
+      - Clearer (actual combined commit title): "Fix inherited AdvCiv replay bounds and restore SAS Hall of Fame (KI#166.2, KI#166.3)".
+      - Why: the old heading is unintelligible and difficult for a user to understand at a glance: what failed, and why does it matter?
+        - The accepted title names both practical repairs: fix AdvCiv's inherited replay bounds, which were unsuitable for mod-mod calendars, and restore missing SAS Hall-of-Fame entries rejected by those bounds. It identifies the inherited reader problem and the affected SAS feature separately, and their separate provenances.
+        - "Exposed by assertions" would have been useful discovery context ideally too; the actual title maybe forgot it or did so for concision or such perhaps.
 - [`historical_source_archaeology.txt`](/_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt) records the completed commit-oriented lineage sweep; use the workflow above for new questions rather than treating that one record as the definition of archaeology.
 - For AdvCiv-SAS release-history/provenance questions, use [`Docs/changelogs_web/`](/_1_AdvCiv-SAS/Docs/changelogs_web/) for manually archived published CivFanatics/ModDB release text and [`Docs/git_logs/`](/_1_AdvCiv-SAS/Docs/git_logs/) for the detailed tracked commit history.
   - The published changelog copies are historical source material, not a replacement for current source/Git when exact implementation state matters.

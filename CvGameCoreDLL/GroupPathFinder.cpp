@@ -59,6 +59,15 @@ bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const
 	{
 		if (eFlags & (MOVE_THROUGH_ENEMY /* K-Mod: */ | MOVE_ATTACK_STACK))
 		{
+			// <!-- custom: Loading onto a ship is a possible destination action, not permission for the unchanged land group to traverse water toward another destination.
+			// Unlike canMoveThrough below, canMoveOrAttackInto permits loading; reject that transit shortcut while preserving fully all-terrain groups and the existing water-city rule.
+			// In the current SAS XML, Levitation Artillery crosses impassable terrain but lacks all-terrain movement, whereas Gunships have both abilities; test group capabilities rather than unit names so legitimate Gunship water transit remains available.
+			// Keep this inside the AI-or-revealed block to preserve human fog knowledge, and after the start-plot exception so a cargo group's actual water start remains usable; endpoint loading is still checked separately by isValidDest. See KI#623.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			if (kPlot.isWater() && kGroup.getDomainType() == DOMAIN_LAND && !kGroup.canMoveAllTerrain() &&
+				(!kPlot.isCity() || !GC.getDefineBOOL(CvGlobals::LAND_UNITS_CAN_ATTACK_WATER_CITIES)))
+			{
+				return false;
+			}
 			if (!kGroup.canMoveOrAttackInto(kPlot,
 				(eFlags & MOVE_DECLARE_WAR) && !kGroup.isHuman())) // K-Mod
 			{

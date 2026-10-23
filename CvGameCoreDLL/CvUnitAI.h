@@ -89,7 +89,9 @@ protected:
 	int m_iSearchRangeRandPercent; // advc.128
 
 	bool AI_considerDOW(CvPlot const& kPlot); // K-Mod
-	bool AI_considerPathDOW(CvPlot const& kPlot, MovementFlags eFlags); // K-Mod
+	// <!-- custom: Each invoking AI routine passes __FUNCTION__ at its call site, so szCaller names that caller rather than AI_considerPathDOW.
+	// The static name is used only for failure-path Unit BBAI diagnostics; it does not participate in the war decision or change the return contract. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool AI_considerPathDOW(CvPlot const& kPlot, MovementFlags eFlags, char const* szCaller); // K-Mod
 	// K-Mod
 	CvUnit* AI_findTransport(UnitAITypes eUnitAI, MovementFlags eFlags = NO_MOVEMENT_FLAGS, int iMaxPath = MAX_INT, UnitAITypes ePassengerAI = NO_UNITAI, int iMinCargo = -1, int iMinCargoSpace = -1, int iMaxCargoSpace = -1, int iMaxCargoOurUnitAI = -1);
 	// K-Mod end
