@@ -8,9 +8,11 @@
 #include "BBAILog.h" // <!-- custom: Level-3 WAR diagnostics trace why apparently feasible overseas invasions fail inside InvasionGraph. See KI#53.6. (ChatGPT-5.6-Sol) -->
 #include "CoreAI.h"
 #include "CvCity.h"
+#include "CvCivilization.h" // <!-- custom: Iterate the player's civilization-specific unit catalog for the gated no-candidate trainability diagnostic; calling its methods needs the concrete definition. See KI#537.2. (GPT-6.1-Sol) -->
 #include "CvPlot.h"
 #include "CvArea.h"
 #include "CvInfo_GameOption.h"
+#include "CvInfo_Terrain.h" // <!-- custom: Resource getType() calls need the complete CvBonusInfo definition; CvGlobals only forward-declares it, causing the observed VC2003 C2027/C2228 errors here (KI#537.2). (GPT-6.1-Sol) -->
 
 using std::vector;
 
@@ -22,6 +24,57 @@ namespace
 		static scaled const rPOWER_ORRECTION = per100(GC.getDefineINT(CvGlobals::POWER_CORRECTION));
 		return rMultiplier.pow(rPOWER_ORRECTION);
 	}
+
+	// <!-- custom: A missing UWAI representative does not mean every city lacks every military unit.
+	// Report the real capital used by the land representative scan, with separate player-level eligibility and full capital canTrain results; player eligibility excludes city/resource checks and is not a promise of city trainability.
+	// Scan only full-combat land types, once per node's detail report when Army/Home Guard has no representative, rather than during every hypothetical battle step or scanning all cities.
+	// Zero eligible/trainable types can be intentional mod-mod design; report availability without asserting that every city must build a military unit.
+	// SAS adds unit ObsoleteTech, absent from base AdvCiv: XML may retire a resource-free unit even while its replacement's resource requirements are unmet.
+	// Whether that leaves no suitable military types depends on the roster and prerequisites, not on whether the player still owns cities.
+	// A cityless player is also a distinct, potentially valid state: the row carries cities=0, capitalCityId=-1 and capitalTrainableTypeCount=-1 instead of treating a missing capital as zero available types.
+	// This diagnostic scope deliberately differs from UWAI's additional representative-ranking filters. See KI#537.2. (GPT-6.1-Sol) -->
+	void logSASInvasionTrainabilityContext(PlayerTypes eAgent, PlayerTypes ePlayer)
+	{
+		FAssert(gUWAIInvasionGraphLogLevel >= 3);
+		CvPlayerAI const& kOwner = GET_PLAYER(ePlayer);
+		CvCity const* pCapital = kOwner.getCapital();
+		CvCivilization const& kCiv = kOwner.getCivilization();
+		int iPlayerEligible = 0;
+		int iCapitalTrainable = 0;
+		CvString szPlayerEligible;
+		CvString szCapitalTrainable;
+		for (int i = 0; i < kCiv.getNumUnits(); i++)
+		{
+			UnitTypes const eUnit = kCiv.unitAt(i);
+			CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+			if (kUnit.getDomainType() != DOMAIN_LAND || kUnit.getCombat() <= 0 || kUnit.getCombatLimit() < 100)
+				continue;
+			if (kOwner.canTrain(eUnit))
+			{
+				iPlayerEligible++;
+				szPlayerEligible += CvString::format("%s%s", szPlayerEligible.empty() ? "" : ",", kUnit.getType());
+			}
+			if (pCapital != NULL && pCapital->canTrain(eUnit, false, false, false, false, true))
+			{
+				iCapitalTrainable++;
+				szCapitalTrainable += CvString::format("%s%s", szCapitalTrainable.empty() ? "" : ",", kUnit.getType());
+			}
+		}
+		CvString szCapitalBonuses;
+		FOR_EACH_ENUM(Bonus)
+		{
+			int const iAvailable = kOwner.getNumAvailableBonuses(eLoopBonus);
+			if (iAvailable > 0)
+				szCapitalBonuses += CvString::format("%s%s:%d", szCapitalBonuses.empty() ? "" : ",", GC.getInfo(eLoopBonus).getType(), iAvailable);
+		}
+		logBBAI("UWAI_INVASION_GRAPH_TRAINABILITY_CONTEXT turn=%d agentPlayer=%d player=%d cities=%d capitalCityId=%d capital=%S capitalX=%d capitalY=%d scope=LAND_FULL_COMBAT playerEligibleTypeCount=%d capitalTrainableTypeCount=%d playerEligibleUnits=%s capitalTrainableUnits=%s capitalNetworkBonuses=%s",
+				GC.getGame().getGameTurn(), eAgent, ePlayer, kOwner.getNumCities(),
+				pCapital == NULL ? -1 : pCapital->getID(), pCapital == NULL ? L"-" : pCapital->getName().GetCString(),
+				pCapital == NULL ? -1 : pCapital->getX(), pCapital == NULL ? -1 : pCapital->getY(),
+				iPlayerEligible, pCapital == NULL ? -1 : iCapitalTrainable, szPlayerEligible.empty() ? "-" : szPlayerEligible.GetCString(),
+				szCapitalTrainable.empty() ? "-" : szCapitalTrainable.GetCString(), szCapitalBonuses.empty() ? "-" : szCapitalBonuses.GetCString());
+	}
+
 }
 
 
@@ -529,12 +582,29 @@ void InvasionGraph::Node::logTypicalUnits()
 	{
 		return;
 	}
+	bool bTrainabilityLogged = false;
 	for (size_t i = 0; i < m_military.size(); i++)
 	{
 		MilitaryBranch const& kBranch = *m_military[i];
 		UnitTypes const eUnit = kBranch.getTypicalUnit();
 		if (eUnit == NO_UNIT)
+		{
+			// <!-- custom: Detailed reporting is already caller-gated; collect this player's land/capital context only once even if both Home Guard and Army lack a representative. See KI#537.2. (GPT-6.1-Sol) -->
+			if (!bTrainabilityLogged && (kBranch.getID() == HOME_GUARD || kBranch.getID() == ARMY))
+			{
+				logSASInvasionTrainabilityContext(m_eAgent, m_ePlayer);
+				bTrainabilityLogged = true;
+			}
+			// <!-- custom: KI#537 made the no-current-candidate state explicit instead of retaining a stale typical unit.
+			// Keep high-detail UWAI diagnostics truthful by recording that state once per evaluation rather than silently omitting the branch.
+			// Read actual cached powers instead of printing assumed zeros, so a broken cache contract remains visible. See KI#537.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			int const iActualPow = kBranch.getTypicalPower().round();
+			int const iAgentPow = kBranch.getTypicalPower(TEAMID(m_eAgent)).round();
+			logBBAI("UWAI_INVASION_GRAPH_TYPICAL_UNIT turn=%d agentPlayer=%d player=%d branch=%s unit=NONE actualCost=-1 actualPower=%d agentEstimatedCost=-1 agentEstimatedPower=%d estimatePowerDiffers=%d branchUnits=%d branchPower=%d",
+					GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kBranch.str(),
+					iActualPow, iAgentPow, iAgentPow != iActualPow, kBranch.numUnits(), kBranch.power().round());
 			continue;
+		}
 		CvUnitInfo const& kUnit = GC.getInfo(eUnit);
 		int const iActualCost = kUnit.getProductionCost();
 		int const iActualPow = kBranch.getTypicalPower().round();
@@ -1087,7 +1157,11 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 				TEAMID(m_eAgent));
 		if (m_military[ARMY]->getTypicalUnit() == NO_UNIT)
 		{
-			FAssertMsg(iAttCities <= 0, "No typical army unit found");
+			// <!-- custom: A city-owning player can legitimately have no currently trainable Army candidate after KI#537 clears stale branch state.
+			// Retain UWAI's Warrior-power fallback, but assert the corrected cache contract instead of the obsolete citylessness assumption.
+			// Failure-only message formatting names the simulated branch player and target city, which need not match the assertion logger's active player. See KI#537.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			FAssertMsg(rTypicalArmyUnitPow == 0, CvString::format("Missing typical Army unit has nonzero cached power: agentPlayer=%d branchPlayer=%d playerCities=%d simCityOwner=%d simCityId=%d simCity=%S (KI#537.2)",
+				m_eAgent, m_ePlayer, iAttCities, pCity == NULL ? -1 : pCity->getOwner(), pCity == NULL ? -1 : pCity->getID(), pCity == NULL ? L"-" : pCity->getName().GetCString()).c_str());
 			rTypicalArmyUnitPow = fixp(3.25); // That's a Warrior
 		}
 		/*	Tend to underestimate the head count b/c of outdated
@@ -1416,7 +1490,10 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			getTypicalPower(TEAMID(m_eAgent));
 	if (kDefender.m_military[HOME_GUARD]->getTypicalUnit() == NO_UNIT)
 	{
-		FAssertMsg(iDefCities <= 0, "No typical garrison unit found");
+		// <!-- custom: As for Army, KI#537 makes no-current-candidate a valid Home Guard state even while cities remain.
+		// Keep the inherited Warrior-power fallback and check only that the invalidated typical-power cache is zero; include the simulated defender and target city only when that invariant actually fails. See KI#537.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		FAssertMsg(rTypicalGarrisonPow == 0, CvString::format("Missing typical Home Guard unit has nonzero cached power: agentPlayer=%d branchPlayer=%d playerCities=%d simCityOwner=%d simCityId=%d simCity=%S (KI#537.2)",
+				m_eAgent, kDefender.m_ePlayer, iDefCities, pCity == NULL ? -1 : pCity->getOwner(), pCity == NULL ? -1 : pCity->getID(), pCity == NULL ? L"-" : pCity->getName().GetCString()).c_str());
 		rTypicalGarrisonPow = fixp(3.25); // That's a Warrior
 	}
 	// Fewer rallies if all spread thin
@@ -1468,7 +1545,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 	scaled rFortificationMod = fixp(0.25);
 	MilitaryBranch const& kDefHomeGuard = *kDefender.m_military[HOME_GUARD];
 	bool bNoGuardUnit = (kDefHomeGuard.getTypicalUnit() == NO_UNIT);
-	FAssert(!bNoGuardUnit || iDefCities <= 0);
+	// <!-- custom: NO_UNIT is valid after KI#537; the fallback above keeps rally arithmetic defined, and no representative unit means no typical-unit city-defense modifier. See KI#537.2. (ChatGPT-5.6-Sol) -->
 	// For all garrisons
 	scaled rCityDefenderMod = (bNoGuardUnit ? 0 : per100(GC.getInfo(kDefHomeGuard.getTypicalUnit()).getCityDefenseModifier()));
 	// <!-- custom: Every graph node shares m_eAgent, so the inherited check gave all city defenders the evaluating player's trait.

@@ -324,6 +324,7 @@ The full game capture also illustrates how a repeatedly failing check can genera
 
 - [KI#486.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486.5) retires the inherited `AI_conquerCity` development probe shown here. It marked preliminary path entry, whereas enabled SASGameRecord/BBAI diagnostics record actual conquest-liberation decisions and KI#486.2 documents a successful transfer replay.
 - [KI#49.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49.2) addresses the `AI_guardCityOnlyDefender` singleton assumption illustrated here: a multi-unit Reserve group can leave one defender instead of parking the whole group. Enabled Unit BBAI diagnostics report the split as `RESERVE_ONLY_DEFENDER_SPLIT`.
+- [KI#537.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-537.2) retires the paired `InvasionGraph::Node::step` city-count assertions shown here. KI#537 made a live player with no currently trainable representative a valid `MilitaryBranch` state; the existing Warrior-power fallback remains, while high-detail InvasionGraph BBAI now records `unit=NONE` explicitly.
 
 ### Historical comparison
 
@@ -511,6 +512,11 @@ The war-planning subsystems now write directly to BBAI under the following five 
 | `SAS_BBAI_UWAI_WAR_UTILITY_LOG` | `WarEvaluator.cpp` and `WarUtilityAspect.cpp`: war/peace scenario totals and individual utility contributions. | `UWAI_WAR_` |
 
 Level 1 selects important outcomes, with higher levels exposing more calculation context where implemented; the Agent and Military Analyst currently have the same detail at levels 2 and 3. Caller gates skip disabled diagnostic argument/setup work; shared nested mute state keeps selected internal hypothetical passes silent without changing gameplay calculations.
+
+At InvasionGraph level 3, missing representatives are visible without using assertions as diagnostics; see [KI#537.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-537.2).
+
+- `UWAI_INVASION_GRAPH_TYPICAL_UNIT` records `unit=NONE` with the modeled player, branch and current branch unit/power totals.
+- For Army/Home Guard, `UWAI_INVASION_GRAPH_TRAINABILITY_CONTEXT` adds the actual capital, capital-network bonuses and full-combat land unit-type lists/counts: player-level eligibility versus full capital trainability. It runs once per node detail report rather than per combat step; these counts are distinct from UWAI's representative-selection filters.
 
 See [KI#505.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-505.3) for the investigation and conversion rationale, and the [Main Changes Guide's BBAI section](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bbai-log) for diagnostic behavior and controls. Historical `uwai<turn>.log` files belong to the old report path; absence of those files in current SAS is expected.
 

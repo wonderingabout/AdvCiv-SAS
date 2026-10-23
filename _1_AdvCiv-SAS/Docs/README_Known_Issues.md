@@ -680,6 +680,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#535 - (Fixed inherited K-Mod regression) Force update could cancel a newer amphibious group attack](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-535)\
 [KI#536 - (Fixed inherited AdvCiv UWAI cache-reset defect) New games and loaded saves could retain stale human-capitulation authorization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-536)\
 [KI#537 - (Fixed inherited AdvCiv UWAI military-cache defect) Losing every trainable branch candidate retained obsolete production capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-537)\
+[KI#537.2 - (Fixed SAS follow-up debug-assertion mismatch) InvasionGraph rejected valid no-current-candidate military branches](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-537.2)\
 [KI#538 - (Fixed inherited AdvCiv UWAI leader-migration defect) A promoted leader inherited stale or default-true war hireability](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-538)\
 [KI#539 - (Fixed inherited AdvCiv UWAI AgentIterator regression) Permanent Alliance absorption doubled the absorbed leader's own war history](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-539)\
 [KI#540 - (Fixed AdvCiv-SAS cross-layer regression) UWAI mistook Jungle for Fallout and enabled cleanup at Metal Casting](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-540)\
@@ -27169,6 +27170,65 @@ This refresh omission and the contradictory forecast safeguard date to AdvCiv's 
 The successful full autoplay and BTG Lagoon save/reload continuation provide practical regression coverage; deliberately gaining and then removing the last valid branch candidate was not forced, so that exact transition remains source-verified.
 
 Found as F214/provisional KI#537 during ChatGPT-5.6-Sol's C019 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+2026-10-22 follow-up: [KI#537.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-537.2) reconciles InvasionGraph's old city-count assertions with this corrected no-candidate cache state, retaining its existing fallback calculation. (ChatGPT-5.6-Sol + GPT-6.1-Sol)
+
+<a id="ki-537.2"></a>
+
+## KI#537.2 - (Fixed SAS follow-up debug-assertion mismatch) InvasionGraph rejected valid no-current-candidate military branches
+
+The preserved SASAssertions gameplay capture contains paired `InvasionGraph::Node::step` failures. `HOME_GUARD` had no typical unit while the defender still owned cities, tripping both the inherited `No typical garrison unit found` city-count assertion and the later `!bNoGuardUnit || iDefCities <= 0` check.
+
+The checks repeat across hypothetical invasion steps, so one branch state can produce many assertion rows. The release path itself was already defensive: it substituted Warrior-like `3.25` power when no representative unit existed and used zero representative-unit city-defense modifier.
+
+Original UWAI commit `f6ff6a182f` introduced the Warrior-power fallback together with an unconditional diagnostic failure. AdvCiv commit `71fa4eef1a` on 2017-11-05 changed that diagnostic into the stronger assumption that a missing typical Army/Home Guard unit implies the owner has no cities, and Base AdvCiv 1.14 retains that assumption.
+
+That assumption became stale after [KI#537](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-537). SAS commit `f21aa3ba4a` correctly made `MilitaryBranch::updateTypicalUnit` invalidate the old representative and power before rescanning, so losing every currently trainable candidate can now produce the truthful `NO_UNIT` plus zero typical power state while existing units and cities remain.
+
+- Zero trainable military types may be intentional mod-mod design, not a coding invariant violation.
+  - Citylessness is recorded separately through city count and capital identity; it can itself be normal for an eliminated player. The assertion checks inconsistent representative/power cache state, not a requirement to own cities or train military units.
+  - A missing capital uses `capitalTrainableTypeCount=-1`; an existing capital with no trainable types uses `0`. This avoids conflating an absent city with a city whose production choices are restricted.
+  - Unlike base AdvCiv, SAS reads a unit-level `ObsoleteTech` field and stops training that unit once its obsolete technology is known. Thus XML can retire a resource-free option independently of whether a resource-dependent replacement is buildable.
+  - Whether this leaves no suitable military types depends on the units and prerequisite combinations supplied by the mod-mod; it is not evidence that the player owns no cities.
+  - Wonderingabout identified SAS's resource-free Modern Infantry becoming obsolete before resource-dependent Robotic Infantry as a possible availability gap. A resource-free Future-era addition was deferred while current saves are retained for AI investigations; this candidate changes neither the unit roster nor trainability rules.
+  - That is design/test context rather than, by itself, a proven explanation of a particular failure. The new player/capital/resource diagnostics distinguish availability from a corrupted cache.
+
+The fix preserves UWAI's existing fallback model and replaces the obsolete citylessness assertion with the actual post-KI#537 cache invariant: `NO_UNIT` must carry zero typical power. The analogous Army fallback is corrected at the same time, and the redundant later Home Guard city-count assertion is removed.
+
+The old messages identified the failing function and condition but not the modeled player, capital or eligible unit types. SASAssertions' generic active-player field could refer to a different player, so those captures alone could not identify the affected city or explain its trainability.
+
+High-detail InvasionGraph BBAI diagnostics expose the no-candidate state:
+
+- `UWAI_INVASION_GRAPH_TYPICAL_UNIT ... unit=NONE` includes current branch unit/power totals instead of silently omitting a branch with no currently trainable representative.
+- Rows read actual cached powers rather than assuming they are zero, preserving evidence of a cache-invariant failure. This is internal AI diagnosis rather than a new game-history field.
+- For a missing Army/Home Guard representative, `UWAI_INVASION_GRAPH_TRAINABILITY_CONTEXT` identifies the branch owner, capital and capital-network bonuses, with full-combat land unit-type lists/counts for player-level eligibility and actual capital trainability.
+  - Player-level `canTrain` checks technology, obsolescence and other player/global restrictions; it does not check the city's resources/buildings. It is deliberately not labelled a pure technology-only or hypothetical all-resources test.
+  - Capital `canTrain` includes city/resource restrictions and upgrade availability. These factual counts do not duplicate UWAI's further representative-ranking filters, so a positive count alone does not prove the branch cache is wrong.
+  - The extra scan runs only in the caller-gated level-3 report, once per node report when either relevant branch lacks a representative; it does not scan every city or run in each hypothetical combat step.
+- Remaining nonzero-power assertions include the modeled branch player and simulation target city in failure-only messages. Generic SASAssertions metadata records the active player, which can differ from the modeled player; a simulated clash can have no target city.
+
+The C++ File Audit Album's C019-WIP02 investigation on 2026-08-27 identified the inherited sticky typical-unit root later fixed as KI#537. C031-WIP484 subsequently treated candidate-to-none refresh as a valid MilitaryBranch state while closing that file; neither pass reconciled the old InvasionGraph city-count assertions with the corrected cross-file contract.
+
+This is therefore a SAS repair-side assertion mismatch exposed by persistent assertion logging, not a rollback of KI#537 and not a new garrison policy. Release-build invasion calculations retain the pre-existing no-candidate fallback behavior.
+
+The preceding Reserve-fix replay independently recorded both Home Guard city-count assertions 341,913 times each across T357–425, and the analogous Army assertion 2,857 times across T378–424. Thus the Army case is also runtime-observed; these are pre-fix observations, not validation of this candidate.
+
+Rebuilt assertion-enabled Debug-opt matched the loaded DLL and current source, with zero warnings/errors. The loaded-game replay reached victory at T426 with neither the old InvasionGraph failures nor the replacement nonzero-power assertions recorded, and `PythonErr.log` remained empty.
+
+- The new BBAI rows directly exercised the missing-representative path and identified multiple affected players:
+
+  | First observed turn | Player | Capital | Player-eligible full-combat land types | Actually trainable in capital |
+  | --- | --- | --- | --- | --- |
+  | 357 | 7 | Yasodharapura | 4 | 0 |
+  | 378 | 5 | Rome | 4 | 0 |
+  | 379 | 1 | Constantinople | 4 | 0 |
+  | 399 | 11 | Camulodunum | 4 | 0 |
+
+- Each listed context lacked capital-network Aluminium. The four player-eligible types were Robotic Recon Drone, Robotic Infantry, Mobile SAM and Robotic Tank; their actual city requirements still apply, including Oil for Mobile SAM and additional resource/building requirements for the tank.
+- The preceding Reserve-fix run and this replay each contain 431 valid RNG and semantic CORE-state checkpoints. `compare_sasgamerecord_rng.py` found all comparable checkpoints identical, supporting that the assertion/diagnostic changes did not alter this replay's gameplay state.
+- This confirms the valid city-owning/no-trainable-capital-type state and the usefulness of the new attribution. It does not establish a defect in the existing fallback model.
+
+Fixed with the help of ChatGPT-5.6-Sol; cache semantics, diagnostic values and follow-up runtime evidence reviewed with GPT-6.1-Sol, thanks.
 
 <a id="ki-538"></a>
 
