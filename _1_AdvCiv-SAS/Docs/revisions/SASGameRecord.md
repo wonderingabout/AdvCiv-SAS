@@ -35,7 +35,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=169 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=170 ...
 ```
 
 After this, each qualifying SASGameRecord commit increments `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` exactly once and adds one short latest-first entry to this file in the same commit. The revision remains a downstream-update signal; exact runtime source/build identity remains separate provenance in `GAME_RECORD_SOURCE_CONTEXT` and the DLL/build context.
@@ -76,12 +76,46 @@ This is why the original reconstruction produced 67 revisions through practical 
 
 Because this numbering is reconstructed after the fact, the descriptions are concise summaries of the canonical commit diffs/messages rather than claims that these revision numbers were emitted by historical builds.
 
+### Structured collection contract
+
+Revision 170 adds a machine-oriented companion-row convention for several frequently parsed collection fields. This responds to a Claude Sonnet 5.5 review that correctly identified fields such as `spending=6:2,11:2`, `civics=OPTION:CIVIC,...` and `items=16385:UNIT:UNIT_CATAPULT:2/45@1` as hidden subgrammars that force every downstream tool to invent its own parser.
+
+The compact fields are **not removed**: they remain useful for grep/human inspection and existing readers. For new tooling, prefer the typed companion rows when available:
+
+| Compact parent field / row | Structured companion |
+| --- | --- |
+| `GAME_RECORD_POLICIES civics=...` | `GAME_RECORD_POLICY_CIVIC` |
+| `cityReligions=...` / `cityCorporations=...` | `GAME_RECORD_POLICY_RELIGION` / `GAME_RECORD_POLICY_CORPORATION` |
+| `GAME_RECORD_ECONOMY sliders=... commerceTypeRates=... flexible=...` | `GAME_RECORD_ECONOMY_COMMERCE` |
+| `GAME_RECORD_ESPIONAGE weights=... spending=... pointsAgainst=... modifiers=...` | `GAME_RECORD_ESPIONAGE_TEAM` |
+| `spyTargets=...` / `spyMissionTargets=...` | `GAME_RECORD_ESPIONAGE_PLAYER_TARGET` |
+| `GAME_RECORD_BONUSES_*` type/count lists | `GAME_RECORD_BONUS_DETAIL` |
+| `GAME_RECORD_PRODUCTION_PARKED items=...` | `GAME_RECORD_PRODUCTION_PARKED_ITEM` |
+
+An empty structured collection means **zero companion rows** (with parent counts/context where relevant), rather than a magic list token. Legacy compact `-` and scalar `-1` values remain field-specific and must not be assigned one universal meaning; new companion rows use explicit fields such as `spendingValid` and `inactiveTurnsValid` when the distinction matters.
+
+Only the listed collections use this convention; other compact fields retain their field-specific interpretation. Companion rows follow the parent snapshot's logging level and interval, rather than recording every live change.
+
 ## History (latest first)
+
+### Revision 170 - SAS practical 6682
+
+- **Date:** 2026-10-24
+- **Git commit:** pending
+- **Change:** Add typed companion rows for several high-use compact collections so downstream tools no longer need field-specific mini-format parsers; prompted by a Claude Sonnet 5.5 review of SGR's parser contract.
+  - Legacy compact collection fields remain human/backward-compatible summaries with field-specific sentinels; structured collections use repeated typed rows and represent emptiness by no companion rows.
+    - Keep this interpretation in consumer documentation, rather than emitting fixed explanatory metadata in every session; the existing revision/source identity identifies the implementation.
+  - Policy snapshots add `GAME_RECORD_POLICY_CIVIC`, `GAME_RECORD_POLICY_RELIGION` and `GAME_RECORD_POLICY_CORPORATION`; the parent row records companion entry counts while retaining `civics=...`, `cityReligions=...` and `cityCorporations=...`.
+  - Economy snapshots add one `GAME_RECORD_ECONOMY_COMMERCE` row per CommerceTypes value, preserving percent/rate/flexibility without requiring three separate `TYPE:value,...` parsers.
+  - Espionage snapshots add `GAME_RECORD_ESPIONAGE_TEAM` for each current rival team and `GAME_RECORD_ESPIONAGE_PLAYER_TARGET` for observed spy deployment/attack targets. Unmet-team spending uses `spendingValid=0` rather than relying on `-1` alone.
+  - Bonus snapshots add `GAME_RECORD_BONUS_DETAIL` for each resource with any available/tradeable/import/export count, directly supporting later resource/trainability analysis. `detailRows=0` unambiguously means that structured collection is empty.
+  - Level-3 parked-production inventories add `GAME_RECORD_PRODUCTION_PARKED_ITEM` with fixed city/kind/target/stored/needed/inactivity fields. Projects use `inactiveTurnsValid=0` instead of encoding unavailable inactivity as `@-`.
+  - Existing compact fields/rows are retained for current readers and concise human inspection; new consumers should prefer the typed companions. This is a targeted first pass, not a claim that every historical compact list in SGR has been normalized.
 
 ### Revision 169 - SAS practical 6681
 
 - **Date:** 2026-10-24
-- **Git commit:** pending
+- **Git commit:** `e72995a20ac3c53b007d1affae926d1c8e8b47f8`
 - **Change:** Add event-driven Advanced Start choice/result evidence to the level-2+ action trace and clarify the observed failures behind existing diagnostic repairs in source comments.
   - `GAME_RECORD_ADVANCED_START_CONTEXT` captures each participant's first observed setup budget; successful gameplay handling emits `GAME_RECORD_ADVANCED_START_RESULT` for city/unit/building/route/improvement/technology/population/culture/visibility changes plus Automate and Begin.
     - Rows retain the gameplay-computed quoted cost, resolved target, points/gold before and after, and actual object/city IDs where available.
