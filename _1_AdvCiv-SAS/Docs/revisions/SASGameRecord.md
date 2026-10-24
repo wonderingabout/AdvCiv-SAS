@@ -35,7 +35,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=165 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=166 ...
 ```
 
 After this, each qualifying SASGameRecord commit increments `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` exactly once and adds one short latest-first entry to this file in the same commit. The revision remains a downstream-update signal; exact runtime source/build identity remains separate provenance in `GAME_RECORD_SOURCE_CONTEXT` and the DLL/build context.
@@ -78,10 +78,23 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
+### Revision 166 - SAS practical 6677
+
+- **Date:** 2026-10-24
+- **Git commit:** pending
+- **Change:** Make submitted player choices more readable: typed research/production requests, named menu actions, diplomacy replies and resolved unit targets for transport/leader popups.
+  - `GAME_RECORD_PLAYER_RESEARCH_CHOICE`, `GAME_RECORD_PLAYER_PRODUCTION_CHOICE` and `GAME_RECORD_PLAYER_PRODUCTION_REMOVAL` observe typed game messages before application. Rows preserve XML item identities, relevant queue flags and city context; removal records the item before it disappears, including the inherited last-entry meaning of index `-1`.
+  - These are command-dispatch observations, not proof of successful application or human input. Later research, production-target and completion rows remain separate evidence; production commands targeting missing cities are outside these city-specific rows.
+  - Research popup returns also decode known tech IDs as `SELECT_TECH`. Generic production returns remain numeric because their button IDs overlap across unit/building classes, projects and processes; the typed command row supplies the resolved item instead.
+  - `handling=NATIVE_RESPONSE` distinguishes generic popup callbacks from the existing automatic informational-skip row's `handling=AUTOMATIC_DISMISSAL`; neither a native callback nor a game message identifies a physical input device.
+  - Main-menu creation, dispatch and diagnostic names share K-Mod's unchanged button IDs through `SASPopupMenuAction`. Transport/leader popups record the actual selected unit as `GAME_RECORD_PLAYER_POPUP_TARGET`, reusing the handler's resolved target rather than repeating eligibility checks.
+  - Diplomacy's separate Python response callback records the selected XML comment identity and counterpart through the existing interface-state bridge. This covers conversation navigation and refusals as well as replies that later produce gameplay events; it does not claim native popup focus tracking or copy dialogue/free-form payloads.
+  - All new observers use the cached level-2+/action-trace gate before argument setup and reuse direct XML/queue state without AI legality/scoring queries, RNG or gameplay mutation. No runtime-recorder change is needed: popup wait state still belongs to runtime status, while readable command history belongs to SGR.
+
 ### Revision 165 - SAS practical 6676
 
 - **Date:** 2026-10-23
-- **Git commit:** pending
+- **Git commit:** `a9f16ef4a2a969ced13de011b19f795938977705`
 - **Change:** Add compact native popup-choice evidence to the existing level-2+ player action trace, complementing runtime popup visibility without duplicating realized gameplay results.
   - `GAME_RECORD_PLAYER_POPUP_CHOICE` is emitted at the shared `CvDLLButtonPopup::OnOkClicked` boundary before downstream gameplay dispatch. It records popup type/ID, numeric button and fixed decoded choice/target where the native switch gives an unambiguous meaning.
     - Generic `CvPopupInfo` numeric payload slots are recorded only for reviewed native gameplay/session families (`metadata=RECORDED`); Python/admin/network/free-form families default to `metadata=WITHHELD` instead of treating generic payload storage as public diagnostic data.

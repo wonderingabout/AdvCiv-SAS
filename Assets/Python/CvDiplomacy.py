@@ -8,6 +8,7 @@ from CvPythonExtensions import *
 import CvUtil
 import PyHelpers
 import SASTextScale
+import SASGameRecordActions # <!-- custom: The diplomacy response boundary uses the cached SGR/action-trace gate and shared scalar writer, independently from optional PythonDbg tracing. (GPT-6.1-Sol) -->
 
 PyPlayer = PyHelpers.PyPlayer
 
@@ -514,6 +515,10 @@ class CvDiplomacy:
 			CvUtil.pyPrintRecord("DIPLOMACY_USER_RESPONSE", "commentId=%s data1=%d data2=%d" % (eComment, iData1, iData2))
 
 		diploScreen = CyDiplomacy()
+		# <!-- custom: Record the selected XML reply before its existing handler can change/close the conversation; resolved deals, demands and war changes remain separate gameplay evidence.
+		# Gate before the counterpart lookup and shared helper call so disabled SGR tracing adds no diagnostic context collection. (GPT-6.1-Sol) -->
+		if SASGameRecordActions.isEnabled():
+			SASGameRecordActions.logDiplomacyResponse(gc, eComment, diploScreen.getWhoTradingWith())
 
 		# If we accept peace
 		if (self.isComment(eComment, "USER_DIPLOCOMMENT_PEACE")):

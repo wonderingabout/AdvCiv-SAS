@@ -2199,7 +2199,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	0 skips all corresponding operating-system queries and dynamic PSAPI loading while preserving millisecond timing and every gameplay record row; stable fields remain present as -1.
 	This setting has no effect while SAS_SGR_LOG is 0. (GPT-5.6-Sol) -->
 	<!-- custom: Keep revision-151+ causal user/action/interface rows independently suppressible at recorder level 2+.
-	Default: 1; notably preserves End Turn/save-load/control requests, native popup choices, active-human commerce changes, Python screen/Sevopedia events, city-screen transitions, scoreboard/annotation state, and camera results; 0 skips that whole action trace while retaining revision-150 session settings/runtime-view state and all unrelated recorder families.
+	Default: 1; notably preserves End Turn/save-load/control requests, popup choices, active-human commerce changes, Python screen/Sevopedia events, city-screen transitions, scoreboard/annotation state, and camera results; 0 skips that whole action trace while retaining revision-150 session settings/runtime-view state and all unrelated recorder families.
 	The DLL and Python callers cache this fixed startup setting after XML is ready, so restart/reload the mod after changing it. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_ACTION_TRACE_ON</DefineName>
@@ -2265,7 +2265,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>165</iDefineIntVal>
+		<iDefineIntVal>166</iDefineIntVal>
 	</Define>
 
 

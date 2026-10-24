@@ -2201,6 +2201,18 @@ char const* getSASPopupConfirmActionName(int iAction)
 	}
 }
 
+// <!-- custom: Generate readable main-menu actions from the same shared IDs used by its native button creation and handler; naming a selected action does not claim it succeeded. (GPT-6.1-Sol) -->
+char const* getSASPopupMenuActionName(int iAction)
+{
+	switch (iAction)
+	{
+#define SAS_POPUP_MENU_NAME(NAME, VALUE) case SAS_POPUP_MENU_##NAME: return #NAME;
+	SAS_POPUP_MENU_ACTION_ROWS(SAS_POPUP_MENU_NAME)
+#undef SAS_POPUP_MENU_NAME
+	default: return NULL;
+	}
+}
+
 int getSASAIStrategyDescriptorCount()
 {
 	return (int)(sizeof(aSASAIStrategyDescriptors) / sizeof(aSASAIStrategyDescriptors[0]));

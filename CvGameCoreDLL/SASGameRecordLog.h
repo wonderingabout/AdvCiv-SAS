@@ -60,8 +60,15 @@ void logSASGameRecordPlayerOptionChange(PlayerTypes ePlayer, PlayerOptionTypes e
 // <!-- custom: Accept the native control enum instead of separate action/source strings so accepted and rejected paths share one curated mapping. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void logSASGameRecordControlRequest(ControlTypes eControl, bool bAccepted);
 // <!-- custom: Native ButtonPopup returns provide direct player-choice evidence for general popup buttons; record fixed popup/choice tokens plus only reviewed native numeric context, never popup/free-form/edit-box text or unreviewed generic payload slots.
-// Widget-routed selections such as normal technology/production buttons can bypass OnOkClicked and remain represented by their authoritative resulting gameplay rows rather than guessed here. (ChatGPT-5.6-Sol) -->
+// Widget-routed research/production selections have separate typed command rows; a production popup button alone cannot distinguish unit/building classes, projects and processes. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClicked);
+// <!-- custom: Load/lead popup callbacks resolve an eligible-unit ordinal during actual handling; capture that already-selected target without repeating gameplay queries or treating the button as a persistent unit ID. (GPT-6.1-Sol) -->
+void logSASGameRecordPopupUnitTarget(CvPopupInfo const& kInfo, int iButtonClicked, CvUnit const& kTarget);
+// <!-- custom: Observe typed research and city-queue commands before application, covering both popup widgets and ordinary interface routes without guessing an input device or claiming successful gameplay results.
+// Callers pre-gate at level 2+ and the action-trace switch; production data is the resolved XML item, not the popup's potentially ambiguous class/button ID. (GPT-6.1-Sol) -->
+void logSASGameRecordPlayerResearchChoice(PlayerTypes ePlayer, TechTypes eTech, int iDiscover, bool bShift);
+void logSASGameRecordPlayerProductionChoice(CvCity const& kCity, OrderTypes eOrder, int iData, bool bSave, bool bPop, int iPosition);
+void logSASGameRecordPlayerProductionRemoval(CvCity const& kCity, int iRequestedIndex);
 void logSASGameRecordScreenAction(char const* szScreen, char const* szAction, int iPrimary = -1, int iSecondary = -1);
 void logSASGameRecordInterfaceState(char const* szComponent, char const* szEvent, char const* szReason, int iCount, char const* szValues);
 // <!-- custom: Four camera toggles have authoritative pre/post Boolean getters.

@@ -25,21 +25,7 @@ namespace
 {
 	/*	K-Mod: In the original code, arbitrary integers are used
 		to express the options of the main menu. */
-	enum MainMenuOptions
-	{
-		MM_EXIT_TO_DESKTOP,
-		MM_EXIT_TO_MAIN_MENU,
-		MM_RETIRE,
-		MM_REGENERATE_MAP,
-		MM_LOAD_GAME,
-		MM_SAVE_GAME,
-		MM_OPTIONS,
-		MM_BUG_OPTIONS, // new in K-Mod
-		MM_ENTER_WB,
-		MM_GAME_DETAILS,
-		MM_PLAYER_DETAILS,
-		MM_CANCEL,
-	};
+	// <!-- custom: K-Mod's menu IDs now live in SASPopupMenuAction, shared with diagnostic decoding; keep the inherited numeric button protocol unchanged. (GPT-6.1-Sol) -->
 	// advc:
 	__inline PlayerTypes getActivePlayer()
 	{
@@ -139,7 +125,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 		// It was making me sad, so I rewrote it as a switch. (and also inserted a BUG options item.)
 		switch (pPopupReturn->getButtonClicked())
 		{
-		case MM_EXIT_TO_DESKTOP:
+		case SAS_POPUP_MENU_EXIT_TO_DESKTOP:
 			{
 				CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 				if (pInfo != NULL)
@@ -149,7 +135,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 				}
 			}
 			break;
-		case MM_EXIT_TO_MAIN_MENU:
+		case SAS_POPUP_MENU_RETURN_TO_MAIN_MENU:
 			{
 				CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 				if (pInfo != NULL)
@@ -159,7 +145,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 				}
 			}
 			break;
-		case MM_RETIRE:
+		case SAS_POPUP_MENU_RETIRE:
 			// <!-- custom: Retain the disabled BtS confirmation example using the shared named action rather than its old numeric literal. (GPT-6.1-Sol)
 			// { CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 			// if (NULL != pInfo) {
@@ -169,7 +155,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 			// -->
 			kGame.doControl(CONTROL_RETIRE); // K-Mod
 			break;
-		case MM_REGENERATE_MAP:
+		case SAS_POPUP_MENU_REGENERATE_MAP:
 			{
 				CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 				if (pInfo != NULL)
@@ -179,19 +165,19 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 				}
 			}
 			break;
-		case MM_LOAD_GAME:
+		case SAS_POPUP_MENU_LOAD_GAME:
 			kGame.doControl(CONTROL_LOAD_GAME);
 			break;
-		case MM_SAVE_GAME:
+		case SAS_POPUP_MENU_SAVE_GAME:
 			kGame.doControl(CONTROL_SAVE_NORMAL);
 			break;
-		case MM_OPTIONS:
+		case SAS_POPUP_MENU_OPTIONS:
 			GC.getPythonCaller()->showPythonScreen("OptionsScreen");
 			break;
-		case MM_BUG_OPTIONS:
+		case SAS_POPUP_MENU_BUG_OPTIONS:
 			GC.getPythonCaller()->showPythonScreen("BugOptionsScreen");
 			break;
-		case MM_ENTER_WB:
+		case SAS_POPUP_MENU_WORLD_BUILDER:
 			// <!-- custom: Retain the disabled BtS confirmation example using the shared named action rather than its old numeric literal. (GPT-6.1-Sol)
 			// { CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 			// if (pInfo != NULL) {
@@ -201,10 +187,10 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 			// -->
 			kGame.doControl(CONTROL_WORLD_BUILDER); // K-Mod
 			break;
-		case MM_GAME_DETAILS:
+		case SAS_POPUP_MENU_GAME_DETAILS:
 			kGame.doControl(CONTROL_ADMIN_DETAILS);
 			break;
-		case MM_PLAYER_DETAILS:
+		case SAS_POPUP_MENU_PLAYER_DETAILS:
 			kGame.doControl(CONTROL_DETAILS);
 			break;
 		default: // cancel
@@ -263,6 +249,8 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 					iCount--;
 					if (iCount == 0)
 					{
+						// <!-- custom: Record the target selected by the real popup handler before dispatch; its button is an eligible-unit ordinal, not a unit ID, so do not reconstruct eligibility for logging. (GPT-6.1-Sol) -->
+						if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPopupUnitTarget(info, pPopupReturn->getButtonClicked(), *pUnit);
 						kGame.selectionListGameNetMessage(GAMEMESSAGE_DO_COMMAND, COMMAND_LOAD_UNIT,
 								pUnit->getOwner(), pUnit->getID());
 						break;
@@ -287,6 +275,8 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 				iCount--;
 				if (iCount == 0)
 				{
+					// <!-- custom: Record the target selected by the real popup handler before dispatch; its button is an eligible-unit ordinal, not a unit ID, so do not reconstruct eligibility for logging. (GPT-6.1-Sol) -->
+					if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPopupUnitTarget(info, pPopupReturn->getButtonClicked(), *pUnit);
 					kGame.selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION,
 							MISSION_LEAD, pUnit->getID());
 					break;
@@ -2167,15 +2157,16 @@ bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo
 	return true;
 }
 
-/*	K-Mod. I've changed the code so that my MainMenuOptions enum types
-	are used for the 'generic button' numbers used in this function.
-	eg. I've changed this:
-	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_EXIT_TO_DESKTOP").c_str(), NULL,
-		0, WIDGET_GENERAL, 0, 0, true, POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
-	to this:
-	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_EXIT_TO_DESKTOP").c_str(), NULL,
-		MM_EXIT_TO_DESKTOP, WIDGET_GENERAL, MM_EXIT_TO_DESKTOP, 0, true, POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
-	*/
+// <!-- custom: Preserve K-Mod's rationale/example below, updated to the shared SASPopupMenuAction names replacing its private MainMenuOptions enum.
+// K-Mod. I've changed the code so that my MainMenuOptions enum types
+// are used for the 'generic button' numbers used in this function.
+// eg. I've changed this:
+// m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_EXIT_TO_DESKTOP").c_str(), NULL,
+// 0, WIDGET_GENERAL, 0, 0, true, POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
+// to this:
+// m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_EXIT_TO_DESKTOP").c_str(), NULL,
+// SAS_POPUP_MENU_EXIT_TO_DESKTOP, WIDGET_GENERAL, SAS_POPUP_MENU_EXIT_TO_DESKTOP, 0, true, POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
+// (K-Mod + GPT-6.1-Sol) -->
 bool CvDLLButtonPopup::launchMainMenuPopup(CvPopup* pPopup, CvPopupInfo &info)
 {
 	m_kUI.popupSetStyle(pPopup, "Window_NoTitleBar_Style");
@@ -2186,20 +2177,20 @@ bool CvDLLButtonPopup::launchMainMenuPopup(CvPopup* pPopup, CvPopupInfo &info)
 	m_kUI.popupAddSeparator(pPopup);
 
 	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_EXIT_TO_DESKTOP").c_str(),
-			NULL, MM_EXIT_TO_DESKTOP, WIDGET_GENERAL, MM_EXIT_TO_DESKTOP, 0, true,
+			NULL, SAS_POPUP_MENU_EXIT_TO_DESKTOP, WIDGET_GENERAL, SAS_POPUP_MENU_EXIT_TO_DESKTOP, 0, true,
 			POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 
 	if (!m_kUI.isDebugMenuCreated())
 	{
 		m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_EXIT_TO_MAIN_MENU").c_str(),
-				NULL, MM_EXIT_TO_MAIN_MENU, WIDGET_GENERAL, MM_EXIT_TO_MAIN_MENU, 0, true,
+				NULL, SAS_POPUP_MENU_RETURN_TO_MAIN_MENU, WIDGET_GENERAL, SAS_POPUP_MENU_RETURN_TO_MAIN_MENU, 0, true,
 				POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	}
 
 	if (GC.getGame().canDoControl(CONTROL_RETIRE))
 	{
 		m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_RETIRE").c_str(),
-				NULL, MM_RETIRE, WIDGET_GENERAL, MM_RETIRE, 0, true,
+				NULL, SAS_POPUP_MENU_RETIRE, WIDGET_GENERAL, SAS_POPUP_MENU_RETIRE, 0, true,
 				POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	}
 
@@ -2238,7 +2229,7 @@ bool CvDLLButtonPopup::launchMainMenuPopup(CvPopup* pPopup, CvPopupInfo &info)
 		{
 			m_kUI.popupAddGenericButton(pPopup,
 					gDLL->getText("TXT_KEY_POPUP_REGENERATE_MAP").c_str(),
-					NULL, MM_REGENERATE_MAP, WIDGET_GENERAL, MM_REGENERATE_MAP, 0,
+					NULL, SAS_POPUP_MENU_REGENERATE_MAP, WIDGET_GENERAL, SAS_POPUP_MENU_REGENERATE_MAP, 0,
 					true, POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 		}
 	}
@@ -2246,46 +2237,46 @@ bool CvDLLButtonPopup::launchMainMenuPopup(CvPopup* pPopup, CvPopupInfo &info)
 	if (GC.getGame().canDoControl(CONTROL_LOAD_GAME))
 	{
 		m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_LOAD_GAME").c_str(),
-				NULL, MM_LOAD_GAME, WIDGET_GENERAL, MM_LOAD_GAME, 0, true,
+				NULL, SAS_POPUP_MENU_LOAD_GAME, WIDGET_GENERAL, SAS_POPUP_MENU_LOAD_GAME, 0, true,
 				POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	}
 	if (GC.getGame().canDoControl(CONTROL_SAVE_NORMAL))
 	{
 		m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_SAVE_GAME").c_str(),
-				NULL, MM_SAVE_GAME, WIDGET_GENERAL, MM_SAVE_GAME, 0, true,
+				NULL, SAS_POPUP_MENU_SAVE_GAME, WIDGET_GENERAL, SAS_POPUP_MENU_SAVE_GAME, 0, true,
 				POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	}
 	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_OPTIONS").c_str(),
-			NULL, MM_OPTIONS, WIDGET_GENERAL, MM_OPTIONS, 0, true,
+			NULL, SAS_POPUP_MENU_OPTIONS, WIDGET_GENERAL, SAS_POPUP_MENU_OPTIONS, 0, true,
 			POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	// K-Mod: The BUG options menu!
 	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_BUG_OPT_TITLE").c_str(),
-			NULL, MM_BUG_OPTIONS, WIDGET_GENERAL, MM_BUG_OPTIONS, 0, true,
+			NULL, SAS_POPUP_MENU_BUG_OPTIONS, WIDGET_GENERAL, SAS_POPUP_MENU_BUG_OPTIONS, 0, true,
 			POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 
 	if (GC.getGame().canDoControl(CONTROL_WORLD_BUILDER))
 	{
 		m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_ENTER_WB").c_str(),
-				NULL, MM_ENTER_WB, WIDGET_GENERAL, MM_ENTER_WB, 0, true,
+				NULL, SAS_POPUP_MENU_WORLD_BUILDER, WIDGET_GENERAL, SAS_POPUP_MENU_WORLD_BUILDER, 0, true,
 				POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	}
 
 	if (GC.getGame().canDoControl(CONTROL_ADMIN_DETAILS))
 	{
 		m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_GAME_DETAILS").c_str(),
-				NULL, MM_GAME_DETAILS, WIDGET_GENERAL, MM_GAME_DETAILS, 0, true,
+				NULL, SAS_POPUP_MENU_GAME_DETAILS, WIDGET_GENERAL, SAS_POPUP_MENU_GAME_DETAILS, 0, true,
 				POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	}
 
 	if (GC.getGame().canDoControl(CONTROL_DETAILS))
 	{
 		m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_DETAILS_TITLE").c_str(),
-				NULL, MM_PLAYER_DETAILS, WIDGET_GENERAL, MM_PLAYER_DETAILS, 0, true,
+				NULL, SAS_POPUP_MENU_PLAYER_DETAILS, WIDGET_GENERAL, SAS_POPUP_MENU_PLAYER_DETAILS, 0, true,
 				POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	}
 
 	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_CANCEL").c_str(),
-			NULL, MM_CANCEL, WIDGET_GENERAL, MM_CANCEL, 0, true,
+			NULL, SAS_POPUP_MENU_CANCEL, WIDGET_GENERAL, SAS_POPUP_MENU_CANCEL, 0, true,
 			POPUP_LAYOUT_STRETCH, DLL_FONT_CENTER_JUSTIFY);
 	m_kUI.popupLaunch(pPopup, false, POPUPSTATE_IMMEDIATE);
 

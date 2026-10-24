@@ -155,6 +155,30 @@ enum SASPopupConfirmAction
 };
 // <!-- custom: Accept the raw popup payload so unknown values return NULL for the caller's numeric fallback instead of inventing a valid action. (GPT-6.1-Sol) -->
 char const* getSASPopupConfirmActionName(int iAction);
+// <!-- custom: K-Mod's MainMenuOptions was private to CvDLLButtonPopup.cpp; share its unchanged button IDs with SGR so readable menu choices cannot drift from creation/dispatch.
+// This catalog names existing UI protocol values, not recorder state or new gameplay settings; BUG Options remains K-Mod's inserted entry at 7. (GPT-6.1-Sol) -->
+#define SAS_POPUP_MENU_ACTION_ROWS(DO) \
+	DO(EXIT_TO_DESKTOP, 0) \
+	DO(RETURN_TO_MAIN_MENU, 1) \
+	DO(RETIRE, 2) \
+	DO(REGENERATE_MAP, 3) \
+	DO(LOAD_GAME, 4) \
+	DO(SAVE_GAME, 5) \
+	DO(OPTIONS, 6) \
+	DO(BUG_OPTIONS, 7) \
+	DO(WORLD_BUILDER, 8) \
+	DO(GAME_DETAILS, 9) \
+	DO(PLAYER_DETAILS, 10) \
+	DO(CANCEL, 11)
+enum SASPopupMenuAction
+{
+#define SAS_POPUP_MENU_ENUM(NAME, VALUE) SAS_POPUP_MENU_##NAME = VALUE,
+	SAS_POPUP_MENU_ACTION_ROWS(SAS_POPUP_MENU_ENUM)
+#undef SAS_POPUP_MENU_ENUM
+};
+// <!-- custom: Unknown menu IDs retain the caller's numeric fallback rather than being mislabeled as a known action. (GPT-6.1-Sol) -->
+char const* getSASPopupMenuActionName(int iAction);
+
 
 // <!-- custom: Native ButtonPopup focus/return callbacks are stronger than launch requests: focus records the EXE's native interaction callback, while response/cancellation closes that observed wait without changing the underlying play/autoplay/game-ended activity interval.
 // pPopup is used only as an in-process identity so a stale cancellation cannot close a different popup of the same type. (ChatGPT-5.6-Sol) -->

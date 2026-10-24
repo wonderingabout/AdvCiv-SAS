@@ -5,7 +5,7 @@
 #include "CvCity.h"
 #include "CvUnit.h"
 #include "CvSelectionGroup.h"
-#include "SASGameRecordLog.h" // <!-- custom: Player research commands can tag an authoritative cause for later compact SASGameRecord target-redirection history. (ChatGPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Research and production messages provide typed command evidence as well as research-target redirection causes for SASGameRecord; the recorder owns formatting. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 
 
 CvMessageData* CvMessageData::createMessage(GameMessageTypes eType)
@@ -190,6 +190,8 @@ void CvNetPushOrder::Execute()
 		CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(m_iCityID);
 		if (pCity != NULL)
 		{
+			// <!-- custom: Observe the typed command before queue application so popup and normal city-screen selections share one readable trace; gate all diagnostic work before the helper call. (GPT-6.1-Sol) -->
+			if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerProductionChoice(*pCity, m_eOrder, m_iData, m_bSave, m_bPop, m_iPosition);
 			//pCity->pushOrder(m_eOrder, m_iData, -1, m_bAlt, !(m_bShift || m_bCtrl), m_bShift);
 			pCity->pushOrder(m_eOrder, m_iData, -1, m_bSave, m_bPop, m_iPosition); // K-Mod
 			// K-Mod. We don't want automated cities to overrule our production choice.
@@ -262,7 +264,11 @@ void CvNetPopOrder::Execute()
 	{
 		CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(m_iCityID);
 		if (pCity != NULL)
+		{
+			// <!-- custom: Preserve the requested item's identity before removal; command observation does not claim that the queue mutation will succeed. (GPT-6.1-Sol) -->
+			if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerProductionRemoval(*pCity, m_iNum);
 			pCity->popOrder(m_iNum);
+		}
 		if (GC.getGame().getActivePlayer() == m_ePlayer)
 			gDLL->UI().updatePythonScreens();
 	}
@@ -414,6 +420,8 @@ void CvNetResearch::Execute()
 {
 	if (m_ePlayer != NO_PLAYER)
 	{
+		// <!-- custom: The game message already disambiguates selected research from a free-tech choice and queue clearing; observe it without guessing whether a popup, ordinary widget, Python or automation initiated the request. (GPT-6.1-Sol) -->
+		if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerResearchChoice(m_ePlayer, m_eTech, m_iDiscover, m_bShift);
 		CvPlayer& kPlayer = GET_PLAYER(m_ePlayer);
 		if (m_iDiscover > 0)
 		{

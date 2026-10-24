@@ -28,6 +28,7 @@ VISIBILITY_TOGGLE = "VISIBILITY_TOGGLE"
 
 # <!-- custom: Screen/component tokens are diagnostic labels, not new Civ4 screen IDs; retain engine screen IDs separately in the numeric destination fields. (GPT-6.1-Sol) -->
 SCREEN_BUG_OPTIONS = "BUG_OPTIONS"
+SCREEN_DIPLOMACY = "DIPLOMACY"
 SCREEN_DOMESTIC_ADVISOR = "DOMESTIC_ADVISOR"
 SCREEN_FOREIGN_ADVISOR = "FOREIGN_ADVISOR"
 SCREEN_FOREIGN_DIPLOMACY_ADVISOR = "FOREIGN_DIPLOMACY_ADVISOR"
@@ -138,3 +139,19 @@ def logBooleanInterfaceChange(szComponent, szReason, szKey, bOldValue, bNewValue
 		return
 	szValues = "%s=%d>%d" % (szKey, int(bOld), int(bNew))
 	game.logSASGameRecordInterfaceState(szComponent, "CHANGE", szReason, 1, szValues)
+
+
+# <!-- custom: Diplomacy conversations use a separate Python response callback rather than native ButtonPopup focus.
+# Preserve the actual XML comment identity and counterpart before response dispatch, including navigation/refusal replies that need not produce a deal or war event; never copy the displayed conversation or edit-box text.
+# The caller pre-gates context collection; the standard helper gate also keeps other callers from formatting values when tracing is disabled. (GPT-6.1-Sol) -->
+def logDiplomacyResponse(gc, iComment, iOtherPlayer):
+	game = _getEnabledGame()
+	if game is None:
+		return
+	if iComment >= 0 and iComment < gc.getNumDiplomacyInfos():
+		szComment = gc.getDiplomacyInfo(iComment).getType()
+	else:
+		szComment = "UNKNOWN_DIPLOMACY_COMMENT"
+	# <!-- custom: Read the XML type itself instead of copying the handler's long string comparison chain into another enum/table; numeric callback payloads are omitted because arbitrary mod-defined replies can give them other meanings. (GPT-6.1-Sol) -->
+	szValues = "commentId=%d;otherPlayer=%d;handling=NATIVE_RESPONSE" % (iComment, iOtherPlayer)
+	game.logSASGameRecordInterfaceState(SCREEN_DIPLOMACY, "RESPONSE", szComment, 3, szValues)

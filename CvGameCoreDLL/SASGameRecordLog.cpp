@@ -14618,7 +14618,8 @@ static CvString getSASGameRecordPlayerVoteChoice(PlayerVoteTypes eChoice)
 
 // <!-- custom: Popup returns are causal player-input evidence, while the existing specialized gameplay rows remain authoritative for what actually happened afterward.
 // Decode only stable numeric/native identities whose meaning is explicit in CvDLLButtonPopup::OnOkClicked; never read CvPopupInfo::getText or PopupReturn edit-box values, which may contain names, passwords, mail/server data, or arbitrary Python text.
-// Some normal tech/production choices use widget routing and bypass OnOkClicked entirely; do not fabricate a popup choice when only the later research/production result is observable. (ChatGPT-5.6-Sol) -->
+// Typed game-message observers record research/production selections that use widget routing; keep this row specific to the native popup response and do not infer its input device or the production category from a button number.
+// handling=NATIVE_RESPONSE identifies the observed callback path, distinct from the automatic informational-dismissal row; it does not assert that a person physically clicked a button. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClicked)
 {
 	CvGame const& kGame = GC.getGame();
@@ -14635,6 +14636,30 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 	{
 	case BUTTONPOPUP_TEXT:
 		szChoice = "ACKNOWLEDGE";
+		break;
+	case BUTTONPOPUP_MAIN_MENU:
+	{
+		// <!-- custom: Reuse the native menu catalog rather than maintaining a log-only list of button meanings; leave generic payload slots withheld. (GPT-6.1-Sol) -->
+		char const* szAction = getSASPopupMenuActionName(iButtonClicked);
+		if (szAction != NULL)
+		{
+			szChoice = (iButtonClicked == SAS_POPUP_MENU_CANCEL ? "CANCEL" : "SELECT_MENU_ACTION");
+			szTargetKind = "MENU_ACTION";
+			szTarget = szAction;
+		}
+		break;
+	}
+	case BUTTONPOPUP_ALARM:
+		szChoice = "ACKNOWLEDGE";
+		break;
+	case BUTTONPOPUP_ADDBUDDY:
+		// <!-- custom: The native handler makes the accept/reject button meaning explicit; do not expose the account/name text or generic network payload used by that handler. (GPT-6.1-Sol) -->
+		szChoice = (iButtonClicked == 0 ? "ACCEPT_BUDDY" : "REJECT_BUDDY");
+		break;
+	case BUTTONPOPUP_FORCED_DISCONNECT:
+	case BUTTONPOPUP_PITBOSS_DISCONNECT:
+	case BUTTONPOPUP_KICKED:
+		szChoice = "ACKNOWLEDGE_DISCONNECT";
 		break;
 	case BUTTONPOPUP_CONFIRM_MENU:
 		bRecordMetadata = true;
@@ -14700,6 +14725,13 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 	case BUTTONPOPUP_CHOOSETECH:
 		bRecordMetadata = true;
 		if (iButtonClicked == GC.getNumTechInfos()) szChoice = "OPEN_TECH_CHOOSER";
+		// <!-- custom: This popup constructs ordinary buttons with TechTypes IDs, so those names are unambiguous; retain unknown values as numeric responses rather than indexing XML blindly. (GPT-6.1-Sol) -->
+		else if (iButtonClicked >= 0 && iButtonClicked < GC.getNumTechInfos())
+		{
+			szChoice = "SELECT_TECH";
+			szTargetKind = "TECH";
+			szTarget = getSASGameRecordTechType((TechTypes)iButtonClicked);
+		}
 		break;
 	case BUTTONPOPUP_RAZECITY:
 		bRecordMetadata = true;
@@ -14867,17 +14899,72 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 	}
 	if (bRecordMetadata)
 	{
-		logSASGameRecord("GAME_RECORD_PLAYER_POPUP_CHOICE turn=%d elapsed=%d player=%d sessionWallMilliseconds=%u popup=%s popupId=%d button=%d choice=%s targetKind=%s target=%s metadata=RECORDED data1=%d data2=%d data3=%d flags=%d option1=%d option2=%d",
+		logSASGameRecord("GAME_RECORD_PLAYER_POPUP_CHOICE turn=%d elapsed=%d player=%d sessionWallMilliseconds=%u popup=%s popupId=%d button=%d handling=NATIVE_RESPONSE choice=%s targetKind=%s target=%s metadata=RECORDED data1=%d data2=%d data3=%d flags=%d option1=%d option2=%d",
 			kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
 			getSASButtonPopupTypeName(eType), (int)eType, iButtonClicked, szChoice, szTargetKind, szTarget.GetCString(),
 			kInfo.getData1(), kInfo.getData2(), kInfo.getData3(), kInfo.getFlags(), kInfo.getOption1() ? 1 : 0, kInfo.getOption2() ? 1 : 0);
 	}
 	else
 	{
-		logSASGameRecord("GAME_RECORD_PLAYER_POPUP_CHOICE turn=%d elapsed=%d player=%d sessionWallMilliseconds=%u popup=%s popupId=%d button=%d choice=%s targetKind=%s target=%s metadata=WITHHELD",
+		logSASGameRecord("GAME_RECORD_PLAYER_POPUP_CHOICE turn=%d elapsed=%d player=%d sessionWallMilliseconds=%u popup=%s popupId=%d button=%d handling=NATIVE_RESPONSE choice=%s targetKind=%s target=%s metadata=WITHHELD",
 			kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
 			getSASButtonPopupTypeName(eType), (int)eType, iButtonClicked, szChoice, szTargetKind, szTarget.GetCString());
 	}
+}
+
+// <!-- custom: Correlate the generic popup response with the unit the live load/lead handler actually selected; do not rerun canDoCommand/canPromote, enumerate alternatives or imply that the following command completed. (GPT-6.1-Sol) -->
+void logSASGameRecordPopupUnitTarget(CvPopupInfo const& kInfo, int iButtonClicked, CvUnit const& kTarget)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized())
+		return;
+	logSASGameRecord("GAME_RECORD_PLAYER_POPUP_TARGET turn=%d elapsed=%d player=%d sessionWallMilliseconds=%u popup=%s popupId=%d button=%d stage=COMMAND_DISPATCH targetKind=UNIT targetPlayer=%d targetUnitId=%d target=%s x=%d y=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(), getSASButtonPopupTypeName(kInfo.getButtonPopupType()), kInfo.getButtonPopupType(), iButtonClicked,
+		kTarget.getOwner(), kTarget.getID(), getSASGameRecordUnitType(kTarget.getUnitType()), kTarget.getX(), kTarget.getY());
+}
+
+// <!-- custom: CvNetResearch already carries the resolved tech and queue/free-tech flags for every native UI route; record that command before application rather than treating a generic popup return as the selection's authoritative meaning.
+// Final-initialization is an evidence scope guard, not the logging pre-gate: the game-message caller has already checked the cached level/subject switch.
+// No researchability evaluation, valuation, RNG or queue mutation is performed here. (GPT-6.1-Sol) -->
+void logSASGameRecordPlayerResearchChoice(PlayerTypes ePlayer, TechTypes eTech, int iDiscover, bool bShift)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized())
+		return;
+	char const* szTech = (eTech >= 0 && eTech < GC.getNumTechInfos() ? getSASGameRecordTechType(eTech) : "-");
+	char const* szRequest = (iDiscover > 0 ? "CHOOSE_FREE_TECH" : (eTech == NO_TECH ? "CLEAR_RESEARCH_QUEUE" : "SELECT_RESEARCH"));
+	logSASGameRecord("GAME_RECORD_PLAYER_RESEARCH_CHOICE turn=%d elapsed=%d player=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH request=%s tech=%s techId=%d discover=%d shift=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), ePlayer, getSASGameRecordSessionWallMilliseconds(), szRequest, szTech, eTech, iDiscover, bShift ? 1 : 0);
+}
+
+// <!-- custom: The production message resolves a civilization's unit/building class to its concrete XML type before reaching this observer, unlike the popup's reusable numeric button IDs.
+// Reuse the recorder's existing production-kind/type mapping and inspect only the queue's direct state; do not rerun canTrain/canConstruct or AI scoring for diagnostic purposes.
+// This is a command observation, not proof of acceptance or completion. (GPT-6.1-Sol) -->
+void logSASGameRecordPlayerProductionChoice(CvCity const& kCity, OrderTypes eOrder, int iData, bool bSave, bool bPop, int iPosition)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized())
+		return;
+	logSASGameRecord("GAME_RECORD_PLAYER_PRODUCTION_CHOICE turn=%d elapsed=%d player=%d cityId=%d x=%d y=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH order=%d kind=%s target=%s targetId=%d save=%d pop=%d position=%d queueLengthBefore=%d headKindBefore=%s headTargetBefore=%s",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kCity.getOwner(), kCity.getID(), kCity.getX(), kCity.getY(), getSASGameRecordSessionWallMilliseconds(),
+		eOrder, getSASGameRecordProductionKind(eOrder, iData), getSASGameRecordProductionType(eOrder, iData), iData, bSave ? 1 : 0, bPop ? 1 : 0, iPosition,
+		kCity.getOrderQueueLength(), getSASGameRecordCityProductionKind(kCity), getSASGameRecordCityProductionType(kCity));
+}
+
+// <!-- custom: Removing/reordering production can explain a changed target without a new item selection; capture the queued item before CvCity::popOrder removes it.
+// That handler interprets -1 as the last queue entry, whereas getOrderData does not: normalize that index explicitly and retain the original request for review.
+// Invalid indices produce the getter's NO_ORDER fallback and are not presented as valid items. (GPT-6.1-Sol) -->
+void logSASGameRecordPlayerProductionRemoval(CvCity const& kCity, int iRequestedIndex)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized())
+		return;
+	int const iQueueLength = kCity.getOrderQueueLength();
+	int const iIndex = (iRequestedIndex == -1 ? iQueueLength - 1 : iRequestedIndex);
+	OrderData const kOrder = kCity.getOrderData(iIndex);
+	logSASGameRecord("GAME_RECORD_PLAYER_PRODUCTION_REMOVAL turn=%d elapsed=%d player=%d cityId=%d x=%d y=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH requestedIndex=%d resolvedIndex=%d queueLengthBefore=%d order=%d kind=%s target=%s targetId=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kCity.getOwner(), kCity.getID(), kCity.getX(), kCity.getY(), getSASGameRecordSessionWallMilliseconds(),
+		iRequestedIndex, iIndex, iQueueLength, kOrder.eOrderType, getSASGameRecordProductionKind(kOrder.eOrderType, kOrder.iData1), getSASGameRecordProductionType(kOrder.eOrderType, kOrder.iData1), kOrder.iData1);
 }
 
 static CvString getSASGameRecordVoteEffects(VoteTypes eVote)
@@ -16098,9 +16185,10 @@ void logSASGameRecordActivePlayerChanged(PlayerTypes eOldPlayer, PlayerTypes eNe
 		g_iSASGameRecordTotalActivePlayerChanges);
 }
 
+// <!-- custom: Name automatic omission explicitly so it cannot be confused with a native response or a silently accepted gameplay choice. (GPT-6.1-Sol) -->
 void logSASGameRecordAutoPlayPopupDismissed(char const* szPopupKind)
 {
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AUTOPLAY_INFORMATIONAL_POPUP_DISMISSED popupKind=%s autoplayTurnsLeft=%d requestId=%d",
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AUTOPLAY_INFORMATIONAL_POPUP_DISMISSED popupKind=%s handling=AUTOMATIC_DISMISSAL autoplayTurnsLeft=%d requestId=%d",
 			GC.getGame().getGameTurn(), szPopupKind, GC.getGame().getAIAutoPlay(), g_iSASGameRecordAutoPlayRequestedTurns > 0 ? g_iSASGameRecordAutoPlayRequestId : -1);
 }
 
