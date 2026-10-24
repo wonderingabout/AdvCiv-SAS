@@ -35,7 +35,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=168 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=169 ...
 ```
 
 After this, each qualifying SASGameRecord commit increments `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` exactly once and adds one short latest-first entry to this file in the same commit. The revision remains a downstream-update signal; exact runtime source/build identity remains separate provenance in `GAME_RECORD_SOURCE_CONTEXT` and the DLL/build context.
@@ -78,10 +78,37 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 168 - SAS practical 6680
+### Revision 169 - SAS practical 6681
 
 - **Date:** 2026-10-24
 - **Git commit:** pending
+- **Change:** Add event-driven Advanced Start choice/result evidence to the level-2+ action trace and clarify the observed failures behind existing diagnostic repairs in source comments.
+  - `GAME_RECORD_ADVANCED_START_CONTEXT` captures each participant's first observed setup budget; successful gameplay handling emits `GAME_RECORD_ADVANCED_START_RESULT` for city/unit/building/route/improvement/technology/population/culture/visibility changes plus Automate and Begin.
+    - Rows retain the gameplay-computed quoted cost, resolved target, points/gold before and after, and actual object/city IDs where available.
+  - Human/remote `CvNetAdvancedStartAction` commands emit pre-dispatch `GAME_RECORD_ADVANCED_START_CHOICE`, so a submitted command that gameplay rejects remains distinguishable from an applied result. AI/automation actions bypass that network path but still produce applied-result rows from `CvPlayer::doAdvancedStartAction`.
+  - Native `CvGame::updateColoredPlots` refreshes now record change-only `GAME_RECORD_CITY_RECOMMENDATION_SUMMARY`/`GAME_RECORD_CITY_RECOMMENDATION` snapshots, covering Advanced Start and ordinary selected-Settler city circles before any purchase.
+    - They observe the existing draw submissions, reusing computed costs and path decisions; no diagnostic site scan, scoring or pathfinding is added.
+    - Changed context and cleared sets are recorded, while identical refreshes are suppressed.
+    - `circleBranchEnabled` distinguishes the ordinary No Unit Recommendations gate from an enabled empty set; Advanced Start has its own independent branch, and early returns leave the ordinary gate unknown (`-1`).
+    - Advanced Start city choices and founding-site rows add tri-state `wasUIRecommendedSite` plus the matching snapshot ID (`0` when unknown), independent of AI shortlist rank; ordinary Settler circles have no purchase quote (`quotedCityCost=-1`).
+    - Python-owned and WorldBuilder overlays are outside this trace.
+    - The independent debug/yield view of all civilizations' colored city-site lists is captured by change-only `GAME_RECORD_CITY_SITE_OVERLAY_SUMMARY`/`GAME_RECORD_CITY_SITE_OVERLAY` rows, preserving viewer, owner, rank and coordinates even without a selected unit; it bypasses the ordinary recommendation option.
+    - Founding-site rows separately expose tri-state `wasDebugOverlaySite` and its matching-turn debug snapshot, without conflating it with active-human `wasUIRecommendedSite`.
+  - Local active-human Advanced Start emits `GAME_RECORD_ADVANCED_START_OFFERS`/`GAME_RECORD_ADVANCED_START_OFFER`: an initial full cost-getter catalog before any city, then key/value deltas after applied setup actions, changed budgets/city state or a different observed/acted-on plot.
+    - Base reference quotes are distinguished from global tech and exact owned-city/current-plot quotes.
+    - Rejected quotes stay `-1` without fabricated rejection causes; `budgetCoversBuyQuote` is distinct from target eligibility and actual handler acceptance.
+    - No all-map placement scan is added.
+    - The catalog closes after Begin; setup actions by any player invalidate it because team technology can affect local eligibility.
+  - `GAME_RECORD_HUD_COUNTDOWN` observes existing native turn-count notice branches (universal peace, victory arrival, turn limit and Rise & Fall chapter/interlude), recording changes and clearing without parsing localized text or repeating rapidly changing multiplayer seconds. Existing launch/arrival actions remain separate factual evidence.
+  - Begin with no city can invoke AI auto-placement before converting the remaining points to gold; nested purchase rows preserve those mutations while the final Begin result preserves the outer points/gold transition.
+    - Formula text is not duplicated into diagnostics: the existing gameplay computation supplies `quotedCost`, and balance deltas retain refunds/special cases without creating a second cost policy.
+  - No Advanced Start row copies names or free-form text. Callers pre-gate on recorder level/action trace, and both result diagnostics and city-circle observations reuse values already computed for gameplay or drawing. Offer catalogs separately pay for gated, event-driven quote queries; unchanged UI context reuses cached base/city quotes.
+  - Source comments name the accessor assertions already corrected in revision 161; those repairs are unchanged. KI#243.2 comments likewise identify the captured cross-map invalid-pointer write rather than describing its buffer invariant abstractly.
+
+### Revision 168 - SAS practical 6680
+
+- **Date:** 2026-10-24
+- **Git commit:** `7030fbbe4fe8b48f2b548c6c54daeb4a9c118b34`
 - **Change:** Strengthen development-source provenance so branch practical counts and partially staged working trees remain interpretable after PR/reproducer work is rebased, squashed or revisited later.
   - `GAME_RECORD_SOURCE_CONTEXT` keeps the exact current commit/count but also records the locally known default branch/commit/count, merge-base commit/count, `AT_DEFAULT`/`AHEAD_OF_DEFAULT`/`BEHIND_DEFAULT`/`DIVERGED` relation, and current-only/default-only commit counts.
     - These facts come only from existing local refs; no fetch is attempted. `defaultRefSource` distinguishes a local default branch from the `origin/HEAD` tracking ref, and unavailable/shallow ancestry remains explicit rather than guessed.

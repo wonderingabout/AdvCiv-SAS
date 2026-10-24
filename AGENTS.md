@@ -680,6 +680,11 @@ int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, 
 
 - By default, let the user compile the DLL; the local legacy Civ4 SDK toolchain is configured, and the user generally prefers to handle compilation to save agent time/tokens. Do not compile merely for routine verification when the user has said they will do it.
 - If compilation is needed or the user is fine with the agent doing it, follow the tested [AdvCiv-SAS DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md).
+- Focused local C++ checks can use VC2003 `cl.exe /Zs` with the project's include paths and defines: it checks real translation-unit syntax/types without producing objects, linking or replacing the DLL.
+  - The compiler is at `C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe`; the environment setup in [`run_writer_tests.py`](/tests/diagnostics/run_writer_tests.py) uses VS2010's `vcvars32.bat` while explicitly selecting VC2003.
+  - Extracted production functions can also be compiled/run in a temporary executable with minimal fixtures for focused logic checks.
+    - Neither method replaces the appropriate DLL/link/in-game test.
+    - The external Windows toolchain and one-off temporary fixtures are not included in light-source ZIPs; source access alone does not give an external reviewer such as ChatGPT this local compiler setup.
 - Check current build reports first: `CvGameCoreDLL/Project/<target>/CvGameCoreDLL.dll.build.json` covers both Visual C++ 2010 Express and wrapper-driven terminal builds. The user compiles through VC2010 Express, not VS Code.
   - Scan every configuration together with the wildcard below; do not open target folders individually. Inspect each report's `status`, `startedUtc`, `endedUtc` and configuration rather than only the newest report, since another target can be building.
   - `RUNNING` means no completion was recorded; it can remain after a forcibly interrupted build. `SUCCEEDED`/`FAILED` with final fields confirms that recorded attempt ended, not that no later/direct build started.

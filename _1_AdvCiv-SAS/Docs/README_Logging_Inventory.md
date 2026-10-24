@@ -376,7 +376,7 @@ The record brings together map/geography context, settings and provenance, econo
 
 #### SASGameRecord session header example
 
-For example, `SASGameRecord_*.log` starts with lifecycle, provenance and run-setup rows before adding RNG/state checkpoints and compact turn snapshots. These selected revision-137 rows come from the same October 9, 2026 development test as the [BBAI header](#bbai-session-header-example); gaps in `seq` mean unrelated intervening rows are omitted:
+For example, `SASGameRecord_*.log` starts with lifecycle, provenance and run-setup rows before adding RNG/state checkpoints and compact turn snapshots. These selected revision-137 rows are from `SASGameRecord_20261009T160535Z_load1.log`, from the same October 9, 2026 development test as the [BBAI header](#bbai-session-header-example); gaps in `seq` mean unrelated intervening rows are omitted:
 
 ```log
 GAME_RECORD_SAVE_LOADED seq=1 processUtc=20261009T160524Z utc=20261009T160535Z logFile="SASGameRecord_20261009T160535Z_load1.log" turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_INCA activeHandicap=HANDICAP_MONARCH playersDefined=16 playersAlive=16 playersEverAlive=16 humans=1 sessionWallMilliseconds=0
@@ -395,17 +395,11 @@ GAME_RECORD_STATE_CHECKPOINT seq=1006 turn=0 reason=SAVE_LOADED coverage=CORE ev
 GAME_RECORD_ACTION seq=1007 turn=0 type=DEBUG_MODE_CHANGED old=0 new=1 activePlayer=0
 ```
 
-From practical 6680 onward, current `*_SOURCE_CONTEXT` rows additionally report the locally known default branch/commit/count, merge-base commit/count, branch relation, current-only/default-only commit counts, and separate staged/unstaged tracked runtime-code/rules fingerprints.
-
-SGR and enabled BBAI logs also emit one source-diff row per tracked path/layer with patch byte count and fingerprint; these newer fields are intentionally not fabricated into the unchanged historical excerpt above.
-
-Runtime JSON carries the compact summary plus the shared diff-entry count, while build JSON records start/end ancestry plus per-file staged/unstaged SHA-256 patch evidence. No source performs a network fetch for this diagnostic snapshot.
-
 #### SASGameRecord gameplay example
 
 These are **30 consecutive, unchanged rows** from `SASGameRecord_20261019T160718Z_load1.log`, lines 11678–11707 (recorder revision 159). They follow the Ottoman player at turn 60 through resources, AI priorities, economy/production, diplomacy and unit composition; this is an excerpt of existing output, not a Before/After comparison with an inherited recorder.
 
-```text
+```log
 GAME_RECORD_PLAYER seq=10544 turn=60 player=15 team=15 civ=CIVILIZATION_OTTOMAN leader=LEADER_MEHMED isHuman=0 humanSlot=0 currentlyHumanControlled=0 autoplayControlled=0 rank=5 deltaValid=1 score=141 scoreDelta=+31 cities=2 citiesDelta=+1 pop=9 popDelta=+3 land=34 landDelta=+9 units=7 unitsDelta=+1 combatUnits=5 combatUnitsDelta=+1 militarySupportUnits=5 militarySupportUnitsDelta=+1 power=50 powerDelta=+14 gold=33 goldDelta=-9 gpt=-1 gptDelta=-3 financialStrike=0 cumulativeStrikeTurns=0 researchRate=32 researchRateDelta=+13 researchPercent=100 currentResearch=- researchOverflow=19 noResearchAvailable=0 researchTurns=-1 era=ERA_CLASSICAL stateReligion=- techScorePercent=100 combatXP=0 greatPeopleCreated=0 greatGeneralsCreated=0 greatGeneralThreshold=24 goldenAgeTurns=0 loggedGoldenAgeTurns=0 anarchyTurns=0 loggedAnarchyTurns=0 revolutionTimer=0 conversionTimer=0 wars=-
 GAME_RECORD_PLAYER_HISTORY seq=10545 turn=60 player=15 deltaValid=1 historyScore=141 historyScoreDelta=+31 historyEconomy=31 historyEconomyDelta=+10 historyIndustry=7 historyIndustryDelta=+0 historyAgriculture=25 historyAgricultureDelta=+11 historyPower=44 historyPowerDelta=+13 historyCulture=117 historyCultureDelta=+20 historyEspionage=233 historyEspionageDelta=+40
 GAME_RECORD_POLLUTION seq=10546 turn=60 player=15 total=90 buildings=0 bonuses=0 power=0 population=90
@@ -492,13 +486,13 @@ This comparison reconstructs the **source formats**, not a recorded Settler trip
 
 Before (`CvUnitAI::AI_found`, base AdvCiv; general UNIT level 2+):
 
-```text
+```log
     Settler heading for site %d, %d
 ```
 
 After (SAS `SAS_logSettlerMissionDecision`, SETTLER level 2+; action/reason resolved from the `AI_found` call):
 
-```text
+```log
 SETTLER_MISSION_DECISION turn=%d player=%d %S action=PUSH_MOVE_TO_FOUND reason=AI_FOUND_MOVE unitId=%d x=%d y=%d target=(%d,%d) endTurn=(%d,%d) targetOwner=%d targetFoundValue=%d pathTurns=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d plotDanger=%d targetDanger=%d missionAI=%d
 ```
 
@@ -539,7 +533,7 @@ This is a layout comparison, not a claim that base AdvCiv replayed this SAS game
 
 Before (`uwai21.log`, reconstructed old formats):
 
-```text
+```log
 Military analysis from the pov of Lincoln
 Constructing invasion graph
 (no civs are currently at war)
@@ -550,7 +544,7 @@ Total production for build-up: 5 hammers
 
 After (captured SAS BBAI rows):
 
-```text
+```log
 UWAI_MILITARY_ANALYSIS_BEGIN turn=21 agentPlayer=2 agentTeam=2 targetTeam=13 scenario=WAR
 UWAI_INVASION_GRAPH_BEGIN turn=21 agentPlayer=2 scenario=WAR warPartyCount=0
 UWAI_INVASION_GRAPH_NO_WAR_PARTIES turn=21 agentPlayer=2 scenario=WAR
@@ -567,7 +561,7 @@ The SAS rows retain the analysis/forecast values and make turn, analyst, player,
 
 `SASRuntimeStatus.json` and `SASRuntimeHistory_*.jsonl` complement gameplay logs: the fixed-name JSON gives the latest observation, while the timestamped JSONL preserves transitions across games/loads in a process.
 
-Neither replaces the detailed BBAI/SGR history; see the [runtime examples](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md) and [runtime revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md).
+Neither replaces the detailed BBAI/SGR history; see the [Main Changes Guide's runtime section](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#runtime-status-and-history), [runtime examples](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md) and [runtime revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md).
 
 ### DLL build reports
 
@@ -581,7 +575,7 @@ The companion JSON adds structured detail, including source/project manifests an
 
 For example, these five rows come from the [captured Release compiler log](/_1_AdvCiv-SAS/Docs/examples/build_reports/AdvCiv_Release_example.log), dated 2026-10-12 (IDE indentation omitted, intervening rows omitted; `<MOD_ROOT>` is the example's existing path substitution):
 
-```text
+```log
 Started UTC: 2026-10-12T21:24:06.628Z
 Configuration: Release; request: BUILD; branch: main; commit: -
 Ended UTC: 2026-10-12T21:25:52.293Z; result: SUCCEEDED; exit code: 0; duration milliseconds: 105657

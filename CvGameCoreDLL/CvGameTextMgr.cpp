@@ -1,5 +1,6 @@
 #include "CvGameCoreDLL.h"
 #include "CvGameTextMgr.h"
+#include "SASGameRecordLog.h" // <!-- custom: Record the already-selected HUD countdown branch at level 2+ without parsing localized text or duplicating its gameplay conditions. (GPT-6.1-Sol) -->
 #include "CoreAI.h"
 #include "CvUnitAI.h"
 #include "CvSelectionGroupAI.h"
@@ -21458,8 +21459,14 @@ void CvGameTextMgr::getInterfaceCenterText(CvWString& strText)
 
 void CvGameTextMgr::getTurnTimerText(CvWString& strText)
 {
-	strText.clear();
 	CvGame const& kGame = GC.getGame();
+	// <!-- custom: Observe only the existing turn-count notice branches; keep diagnostic values/calls behind the action gate and omit rapidly changing multiplayer seconds.
+	// A final NONE clears the previous observed notice; Rise & Fall's early-return notice is recorded before that return.
+	// No translated/free-form text is copied. (GPT-6.1-Sol) -->
+	bool const bLogSASHUDCountdown = (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled() && kGame.isFinalInitialized() && kGame.getActivePlayer() != NO_PLAYER);
+	SASGameRecordHUDCountdown eSASHUDCountdown = SAS_RECORD_HUD_COUNTDOWN_NONE;
+	int iSASHUDValue = -1, iSASHUDLimit = -1;
+	strText.clear();
 	if (gDLL->UI().getShowInterface() == INTERFACE_SHOW ||
 		gDLL->UI().getShowInterface() == INTERFACE_ADVANCED_START)
 	{
@@ -21501,6 +21508,7 @@ void CvGameTextMgr::getTurnTimerText(CvWString& strText)
 				{
 					strText = gDLL->getText("TXT_KEY_RF_INTERLUDE_COUNTDOWN",
 							autoPlayCountdown);
+					if (bLogSASHUDCountdown) logSASGameRecordHUDCountdown(SAS_RECORD_HUD_COUNTDOWN_RF_INTERLUDE, autoPlayCountdown);
 					return;
 				}
 			} // </advc.700>
@@ -21526,14 +21534,16 @@ void CvGameTextMgr::getTurnTimerText(CvWString& strText)
 			{
 				if(!strText.empty())
 					strText += L" -- ";
-				strText += gDLL->getText("TXT_KEY_MISC_ADVANCED_START_PEACE_REMAINING",
-						GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH) - kGame.getElapsedGameTurns());
+				int const iPeaceTurnsRemaining = GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH) - kGame.getElapsedGameTurns();
+				strText += gDLL->getText("TXT_KEY_MISC_ADVANCED_START_PEACE_REMAINING", iPeaceTurnsRemaining);
+				if (bLogSASHUDCountdown) { eSASHUDCountdown = SAS_RECORD_HUD_COUNTDOWN_ADVANCED_START_PEACE; iSASHUDValue = iPeaceTurnsRemaining; }
 			}
 			else if (iMinVictoryTurns < MAX_INT)
 			{
 				if (!strText.empty())
 					strText += L" -- ";
 				strText += gDLL->getText("TXT_KEY_MISC_TURNS_LEFT_TO_VICTORY", iMinVictoryTurns);
+				if (bLogSASHUDCountdown) { eSASHUDCountdown = SAS_RECORD_HUD_COUNTDOWN_VICTORY_ARRIVAL; iSASHUDValue = iMinVictoryTurns; }
 			} /* <advc> Merged these two conditions so that more else-if
 				clauses can be added below */
 			else if (kGame.getMaxTurns() > 0 && (kGame.getElapsedGameTurns() >= kGame.getMaxTurns() -
@@ -21542,8 +21552,9 @@ void CvGameTextMgr::getTurnTimerText(CvWString& strText)
 			{
 				if(!strText.empty())
 					strText += L" -- ";
-				strText += gDLL->getText("TXT_KEY_MISC_TURNS_LEFT",
-						kGame.getMaxTurns() - kGame.getElapsedGameTurns());
+				int const iTurnsRemaining = kGame.getMaxTurns() - kGame.getElapsedGameTurns();
+				strText += gDLL->getText("TXT_KEY_MISC_TURNS_LEFT", iTurnsRemaining);
+				if (bLogSASHUDCountdown) { eSASHUDCountdown = SAS_RECORD_HUD_COUNTDOWN_TURN_LIMIT; iSASHUDValue = iTurnsRemaining; }
 			} // <advc.700> The other countdowns take precedence
 			else if(kGame.isOption(GAMEOPTION_RISE_FALL))
 			{
@@ -21556,10 +21567,12 @@ void CvGameTextMgr::getTurnTimerText(CvWString& strText)
 				{
 					strText = gDLL->getText("TXT_KEY_RF_CHAPTER_COUNTDOWN",
 							rfCountdown.first, rfCountdown.second);
+					if (bLogSASHUDCountdown) { eSASHUDCountdown = SAS_RECORD_HUD_COUNTDOWN_RF_CHAPTER; iSASHUDValue = rfCountdown.first; iSASHUDLimit = rfCountdown.second; }
 				}
 			} // </advc.700>
 		}
 	}
+	if (bLogSASHUDCountdown) logSASGameRecordHUDCountdown(eSASHUDCountdown, iSASHUDValue, iSASHUDLimit);
 }
 
 void CvGameTextMgr::getFontSymbols(std::vector< std::vector<wchar> >& aacSymbols, std::vector<int>& aiMaxNumRows)

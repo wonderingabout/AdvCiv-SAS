@@ -2197,6 +2197,30 @@ static SASAIStrategyDescriptor const aSASAIStrategyDescriptors[] =
 #undef SAS_AI_STRATEGY_DESCRIPTOR
 };
 
+// <!-- custom: Advanced Start actions are shared game vocabulary rather than recorder state; keep one translator beside the other common enum helpers.
+// The inherited Civ4 enum remains authoritative. Stringify its token suffixes here instead of duplicating each spelling or reorganizing legacy enum values solely for logging; POP retains the explanatory POPULATION label.
+// SGR separately labels EXIT as operation=BEGIN_GAME for its player-facing meaning. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASAdvancedStartActionType(AdvancedStartActionTypes eAction)
+{
+	switch (eAction)
+	{
+#define SAS_ADVANCED_START_ACTION_NAME(NAME) case ADVANCEDSTARTACTION_##NAME: return #NAME;
+	SAS_ADVANCED_START_ACTION_NAME(EXIT)
+	SAS_ADVANCED_START_ACTION_NAME(UNIT)
+	SAS_ADVANCED_START_ACTION_NAME(CITY)
+	case ADVANCEDSTARTACTION_POP: return "POPULATION";
+	SAS_ADVANCED_START_ACTION_NAME(CULTURE)
+	SAS_ADVANCED_START_ACTION_NAME(BUILDING)
+	SAS_ADVANCED_START_ACTION_NAME(IMPROVEMENT)
+	SAS_ADVANCED_START_ACTION_NAME(ROUTE)
+	SAS_ADVANCED_START_ACTION_NAME(TECH)
+	SAS_ADVANCED_START_ACTION_NAME(VISIBILITY)
+	SAS_ADVANCED_START_ACTION_NAME(AUTOMATE)
+#undef SAS_ADVANCED_START_ACTION_NAME
+	default: return "UNKNOWN_ADVANCED_START_ACTION";
+	}
+}
+
 // <!-- custom: Share one fixed machine-readable ButtonPopupTypes vocabulary between popup consumers, including runtime status and SASGameRecord; the vocabulary describes the existing UI enum rather than either recorder.
 // Do not use localized popup text: some popup families contain names, passwords or other user-entered/free-form content. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 char const* getSASButtonPopupTypeName(ButtonPopupTypes eType)

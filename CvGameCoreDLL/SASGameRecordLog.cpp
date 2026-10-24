@@ -52,7 +52,7 @@
 #include <tlhelp32.h> // <!-- custom: Level-3 runtime context samples only named Civ4 development/build processes at session start; no general process list or window titles are logged. (ChatGPT-5.6-Sol) -->
 #include <wchar.h> // <!-- custom: Declare _wcsicmp directly for the SDK-compatible wide-character process-name comparisons. (GPT-6.1-Sol) -->
 #include <string.h> // <!-- custom: Declare strnicmp/strcmp directly for the alternate ini= command-line token check and existing recorder string comparisons instead of relying on transitive SDK headers. (ChatGPT-5.6-Sol) -->
-#include <algorithm> // <!-- custom: Needed to deduplicate buffered plot-change/map-revelation coordinates within each turn. (GPT-5.6-Sol) -->
+#include <algorithm> // <!-- custom: Needed to deduplicate buffered plot-change/map-revelation coordinates within each turn and Advanced Start recommendation candidates. (GPT-5.6-Sol + GPT-6.1-Sol) -->
 #include <map> // <!-- custom: Level-3 city snapshot delta compression keeps small session-local previous-row state keyed by city identity/row family; disabled lower record levels never populate it. (ChatGPT-5.6-Sol) -->
 #include <utility> // <!-- custom: Needed for Great Person odds pairs in game-record city rows. (ChatGPT-5.5) -->
 #include <vector> // <!-- custom: Used for compact dynamic buckets in game-record known-area, BFC development, advisor, tech-era, worker/settler, and unit-composition rows. (ChatGPT-5.5) -->
@@ -560,8 +560,8 @@ static SASGameRecordStateObjectHash getSASGameRecordTeamStateSignature(CvTeamAI 
 	updateSASGameRecordStateValue(uiHash, kTeam.getVassalPower());
 	updateSASGameRecordStateValue(uiHash, kTeam.getMasterPower());
 	updateSASGameRecordStateValue(uiHash, kTeam.getEnemyWarWearinessModifier());
-	// <!-- custom: Team fingerprints include eliminated teams, but getCurrentEra requires a living member and asserts otherwise.
-	// Hash its existing NO_ERA sentinel directly for dead teams instead of entering that live-team calculation. (GPT-6.1-Sol) -->
+	// <!-- custom: An assertion-enabled Debug-opt run caught getCurrentEra here for an eliminated team (`Shouldn't calculate era of dead team`).
+	// Hash the existing NO_ERA sentinel directly instead of entering that live-member calculation; this fixed the SGR assertion without changing gameplay state. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 	updateSASGameRecordStateValue(uiHash, kTeam.isAlive() ? kTeam.getCurrentEra() : NO_ERA);
 	updateSASGameRecordStateValue(uiHash, kTeam.AI_getWorstEnemy());
 	for (int iI = 0; iI < GC.getNumTechInfos(); iI++)
@@ -727,8 +727,9 @@ static SASGameRecordStateObjectHash getSASGameRecordPlayerStateSignature(CvPlaye
 			updateSASGameRecordStateValue(uiHash, kPlayer.AI_getNumAIUnits((UnitAITypes)iI));
 			updateSASGameRecordStateValue(uiHash, kPlayer.AI_getNumTrainAIUnits((UnitAITypes)iI));
 		}
-		// <!-- custom: AI_isFirstContact exposes an obsolete serialized BtS field and deliberately asserts in AdvCiv.
-		// Omit it from this diagnostic signature; current contact state is already covered by the team fingerprint's isHasMet values. (GPT-6.1-Sol) -->
+		// <!-- custom: An assertion-enabled Debug-opt run caught AI_isFirstContact here; AdvCiv reports `m_abFirstContact is obsolete` for that serialized BtS field.
+		// Omit it from this diagnostic signature; current contact state is already covered by the team fingerprint's isHasMet values.
+		// This fixed the SGR assertion and intentionally changes only the diagnostic fingerprint. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 		for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 		{
 			PlayerTypes const eOther = (PlayerTypes)iI;
@@ -2325,7 +2326,8 @@ static void logSASGameRecordGameState(const char* szRowType)
 		szMPOptions = "-";
 	const CvString szLogName = getSASGameRecordLogName();
 	// <!-- custom: This session boundary is a useful timing anchor: on a new game it measures initialization, and on load it measures recorder setup before the finalized save context is available.
-	// Use getCivPlayersEverAlive: AdvCiv maintains this count after loading and its recounting API deliberately asserts during normal gameplay. (GPT-5.6-Sol + GPT-6.1-Sol) -->
+	// An assertion-enabled Debug-opt run caught countCivPlayersEverAlive here after initialization (`Should use getCivPlayersEverAlive instead`); read AdvCiv's maintained getter instead.
+	// This fixed the SGR assertion. (GPT-5.6-Sol + GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 	logSASGameRecord("%s processUtc=%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d sessionWallMilliseconds=%u",
 		szRowType, getSASProcessUtcTimestamp().GetCString(), getSASGameRecordLogTimestamp().GetCString(),
 		getSASDiagnosticQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(),
@@ -3494,6 +3496,128 @@ struct SASGameRecordPlayerFlow
 };
 
 static SASGameRecordPlayerFlow g_akSASGameRecordPlayerFlow[MAX_PLAYERS];
+// <!-- custom: Advanced Start balances are one-shot per player/session; UI recommendation state below separately follows actual native circle submissions, including changes before the first purchase. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static bool g_abSASGameRecordAdvancedStartContextLogged[MAX_PLAYERS];
+static int g_iSASGameRecordAdvancedStartChoiceSerial = 0;
+
+// <!-- custom: Buffer only city-circle submissions from an enabled native UI refresh, then compare exact ordered rows/context rather than hashing or rescanning game state.
+// Keep this presentation cache separate from AI site selection and per-player setup balances; neither unchanged redraws nor a passing turn alone warrants another identical snapshot. (GPT-6.1-Sol) -->
+struct SASGameRecordCityRecommendation
+{
+	int iX, iY, iCost;
+	PlayerTypes eStartingPlayer;
+	bool operator==(SASGameRecordCityRecommendation const& kOther) const
+	{
+		return iX == kOther.iX && iY == kOther.iY && iCost == kOther.iCost && eStartingPlayer == kOther.eStartingPlayer;
+	}
+};
+static std::vector<SASGameRecordCityRecommendation> g_aSASCityRecommendations, g_aSASPreviousCityRecommendations;
+static bool g_bSASCityRecommendationCollecting = false, g_bSASCityRecommendationKnown = false;
+static bool g_bSASCityRecommendationAdvancedStart = false, g_bSASPreviousCityRecommendationAdvancedStart = false;
+static PlayerTypes g_eSASCityRecommendationPlayer = NO_PLAYER, g_eSASPreviousCityRecommendationPlayer = NO_PLAYER;
+static int g_iSASCityRecommendationUnit = -1, g_iSASPreviousCityRecommendationUnit = -1;
+static int g_iSASCityRecommendationSnapshot = 0;
+static int g_iSASCityRecommendationObservedTurn = -1;
+static int g_iSASCityRecommendationBranchEnabled = -1;
+
+// <!-- custom: Colored debug circles expose all alive civilizations' maintained site lists, not the active human's filtered recommendation set.
+// Keep their owner/rank and draw-observation history separate; do not use these rows to claim a human recommendation or a Settler's chosen destination. (GPT-6.1-Sol) -->
+struct SASGameRecordDebugCitySite
+{
+	PlayerTypes eOwner;
+	int iX, iY, iRank;
+	bool operator==(SASGameRecordDebugCitySite const& kOther) const
+	{ return eOwner == kOther.eOwner && iX == kOther.iX && iY == kOther.iY && iRank == kOther.iRank; }
+};
+static std::vector<SASGameRecordDebugCitySite> g_aSASDebugCitySites, g_aSASPreviousDebugCitySites;
+static bool g_bSASDebugCitySitesEnabled = false;
+static PlayerTypes g_eSASDebugCitySitesViewer = NO_PLAYER;
+static int g_iSASDebugCitySiteSnapshot = 0;
+static int g_iSASDebugCitySitesObservedTurn = -1;
+
+// <!-- custom: A debug overlay can display another player's shortlist without a selected Settler; keep that observed membership separate from active-human recommendation membership.
+// Require a matching-turn observation and match the site's owner, not its viewer.
+// An absent/stale overlay is unknown rather than a negative recommendation. (GPT-6.1-Sol) -->
+static int getSASGameRecordDebugOverlaySite(PlayerTypes eOwner, CvPlot const& kPlot, int& iSnapshot)
+{
+	iSnapshot = 0;
+	if (!g_bSASDebugCitySitesEnabled || g_iSASDebugCitySitesObservedTurn != GC.getGame().getGameTurn())
+		return -1;
+	iSnapshot = g_iSASDebugCitySiteSnapshot;
+	for (size_t i = 0; i < g_aSASPreviousDebugCitySites.size(); i++)
+	{
+		SASGameRecordDebugCitySite const& kSite = g_aSASPreviousDebugCitySites[i];
+		if (kSite.eOwner == eOwner && kSite.iX == kPlot.getX() && kSite.iY == kPlot.getY())
+			return 1;
+	}
+	return 0;
+}
+
+
+// <!-- custom: Cache HUD output context only, independently of its refresh rate and without reading translated notice text. (GPT-6.1-Sol) -->
+static bool g_bSASHUDCountdownKnown = false;
+static SASGameRecordHUDCountdown g_eSASHUDCountdownKind = SAS_RECORD_HUD_COUNTDOWN_NONE;
+static PlayerTypes g_eSASHUDCountdownPlayer = NO_PLAYER;
+static int g_iSASHUDCountdownValue = -1, g_iSASHUDCountdownLimit = -1;
+
+
+// <!-- custom: UI recommendation membership is tri-state, separate from AI-shortlist membership.
+// Only the active human's matching native observation in this turn can answer it.
+// Ordinary founding additionally requires the same selected Settler; otherwise an old human overlay must not label an AI/autoplay decision or another unit's site. (GPT-6.1-Sol) -->
+static int getSASGameRecordUIRecommendedSite(CvPlayer const& kPlayer, CvPlot const& kPlot, bool bAdvancedStart, int& iSnapshot)
+{
+	iSnapshot = 0;
+	if (!g_bSASCityRecommendationKnown || !kPlayer.isHuman() || !kPlayer.isActive() ||
+		g_eSASPreviousCityRecommendationPlayer != kPlayer.getID() || g_bSASPreviousCityRecommendationAdvancedStart != bAdvancedStart ||
+		g_iSASCityRecommendationObservedTurn != GC.getGame().getGameTurn())
+		return -1;
+	if (!bAdvancedStart)
+	{
+		CvUnit const* pSelected = gDLL->UI().getHeadSelectedUnit();
+		if (g_iSASPreviousCityRecommendationUnit < 0 || pSelected == NULL || pSelected->getID() != g_iSASPreviousCityRecommendationUnit || pSelected->getOwner() != kPlayer.getID())
+			return -1;
+	}
+	iSnapshot = g_iSASCityRecommendationSnapshot;
+	for (size_t i = 0; i < g_aSASPreviousCityRecommendations.size(); i++)
+	{
+		if (g_aSASPreviousCityRecommendations[i].iX == kPlot.getX() && g_aSASPreviousCityRecommendations[i].iY == kPlot.getY())
+			return 1;
+	}
+	return 0;
+}
+
+// <!-- custom: Catalog keys retain target context: a no-plot reference quote is not proof that an item can be placed at a particular city/tile.
+// Only local active-human setup is enumerated.
+// Keep the last full base/city catalog plus one current plot, so hovering does not accumulate a map-wide price database. (GPT-6.1-Sol) -->
+enum SASAdvancedStartOfferScope { SAS_AS_OFFER_BASE_REFERENCE, SAS_AS_OFFER_GLOBAL, SAS_AS_OFFER_CITY, SAS_AS_OFFER_PLOT };
+struct SASAdvancedStartOfferKey
+{
+	SASAdvancedStartOfferScope eScope;
+	AdvancedStartActionTypes eAction;
+	int iData, iX, iY;
+	bool operator<(SASAdvancedStartOfferKey const& kOther) const
+	{
+		if (eScope != kOther.eScope) return eScope < kOther.eScope;
+		if (eAction != kOther.eAction) return eAction < kOther.eAction;
+		if (iData != kOther.iData) return iData < kOther.iData;
+		if (iX != kOther.iX) return iX < kOther.iX;
+		return iY < kOther.iY;
+	}
+};
+struct SASAdvancedStartOffer
+{
+	int iBuy, iRemove, iCityId, iBudgetCoversQuote;
+	bool operator==(SASAdvancedStartOffer const& kOther) const
+	{ return iBuy == kOther.iBuy && iRemove == kOther.iRemove && iCityId == kOther.iCityId && iBudgetCoversQuote == kOther.iBudgetCoversQuote; }
+};
+typedef std::map<SASAdvancedStartOfferKey, SASAdvancedStartOffer> SASAdvancedStartOfferMap;
+static SASAdvancedStartOfferMap g_kSASAdvancedStartBaseOffers, g_kSASAdvancedStartPreviousOffers;
+static bool g_bSASAdvancedStartOffersKnown = false;
+static PlayerTypes g_eSASAdvancedStartOffersPlayer = NO_PLAYER;
+static int g_iSASAdvancedStartOffersPoints = -1, g_iSASAdvancedStartOffersGold = -1, g_iSASAdvancedStartOffersCities = -1;
+static int g_iSASAdvancedStartOffersX = -1, g_iSASAdvancedStartOffersY = -1, g_iSASAdvancedStartOfferSnapshot = 0;
+static unsigned int g_uiSASAdvancedStartOfferEpoch = 0, g_uiSASAdvancedStartOfferObservedEpoch = 0;
+
 
 struct SASGameRecordPlotChangeGroup
 {
@@ -4029,7 +4153,36 @@ static void resetSASGameRecordState()
 		g_akSASGameRecordPlayerFlow[iI].reset();
 		g_akSASGameRecordPlayerPrevious[iI].bValid = false;
 		g_akSASGameRecordWorkerBuildTurn[iI].reset();
+		g_abSASGameRecordAdvancedStartContextLogged[iI] = false;
 	}
+	g_iSASGameRecordAdvancedStartChoiceSerial = 0;
+	g_aSASCityRecommendations.clear();
+	g_aSASPreviousCityRecommendations.clear();
+	g_bSASCityRecommendationCollecting = g_bSASCityRecommendationKnown = false;
+	g_bSASCityRecommendationAdvancedStart = g_bSASPreviousCityRecommendationAdvancedStart = false;
+	g_eSASCityRecommendationPlayer = g_eSASPreviousCityRecommendationPlayer = NO_PLAYER;
+	g_iSASCityRecommendationUnit = g_iSASPreviousCityRecommendationUnit = -1;
+	g_iSASCityRecommendationSnapshot = 0;
+	g_iSASCityRecommendationObservedTurn = -1;
+	g_iSASCityRecommendationBranchEnabled = -1;
+	g_aSASDebugCitySites.clear();
+	g_aSASPreviousDebugCitySites.clear();
+	g_bSASDebugCitySitesEnabled = false;
+	g_eSASDebugCitySitesViewer = NO_PLAYER;
+	g_iSASDebugCitySiteSnapshot = 0;
+	g_iSASDebugCitySitesObservedTurn = -1;
+	g_bSASHUDCountdownKnown = false;
+	g_eSASHUDCountdownKind = SAS_RECORD_HUD_COUNTDOWN_NONE;
+	g_eSASHUDCountdownPlayer = NO_PLAYER;
+	g_iSASHUDCountdownValue = g_iSASHUDCountdownLimit = -1;
+	g_kSASAdvancedStartBaseOffers.clear();
+	g_kSASAdvancedStartPreviousOffers.clear();
+	g_bSASAdvancedStartOffersKnown = false;
+	g_eSASAdvancedStartOffersPlayer = NO_PLAYER;
+	g_iSASAdvancedStartOffersPoints = g_iSASAdvancedStartOffersGold = g_iSASAdvancedStartOffersCities = -1;
+	g_iSASAdvancedStartOffersX = g_iSASAdvancedStartOffersY = -1;
+	g_iSASAdvancedStartOfferSnapshot = 0;
+	g_uiSASAdvancedStartOfferEpoch = g_uiSASAdvancedStartOfferObservedEpoch = 0;
 	g_mapSASGameRecordWorkerCompletedReplacements.clear();
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
 	{
@@ -8162,7 +8315,7 @@ void logSASGameRecordRunStatus(char const* szReason)
 	PlayerTypes const eTopPowerPlayer = getSASGameRecordTopPowerPlayer();
 	// <!-- custom: Compact run-status row gives autoplay/LLM review a single parse-friendly checkpoint for who is alive, eliminated, leading by score, and leading by power.
 	// Victory already has its own action row; this row also works for ordinary stopped autoplays where no victory event fires.
-	// As at session start, read the maintained ever-alive count instead of its initialization-only recounting API. (GPT-5.5 + GPT-6.1-Sol) -->
+	// The assertion-enabled run also caught the initialization-only ever-alive recount here; read the maintained getter instead (`Should use getCivPlayersEverAlive instead`). (GPT-5.5 + GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_RUN_STATUS turn=%d reason=%s elapsed=%d year=%d winnerTeam=%d victory=%s playersAlive=%d teamsAlive=%d playersEverAlive=%d humans=%d eliminatedPlayers=%s topScorePlayer=%d topScore=%d topPowerPlayer=%d topPower=%d totalCities=%d totalPopulation=%d",
 		kGame.getGameTurn(), szReason == NULL ? "-" : szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.getWinner(),
 		kGame.getVictory() == NO_VICTORY ? "-" : GC.getInfo(kGame.getVictory()).getType(), kGame.countCivPlayersAlive(),
@@ -12837,10 +12990,15 @@ void logSASGameRecordCityFoundingSite(CvPlayer const& kPlayer, CvPlot const& kPl
 
 	// <!-- custom: `chosenCachedFoundValue=-1` means the founded plot is not in the current cached strategic shortlist, not that its true CitySiteEvaluator value is -1.
 	// This distinction is useful in itself: a travelling settler can legitimately found a formerly selected site after the live shortlist has changed. (ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_CITY_SITE_CHOICE turn=%d player=%d human=%d x=%d y=%d area=%d plotOwner=%d citySites=%d minFoundValue=%d chosenSiteListRank=%d chosenCachedFoundValue=%d alt1SiteListRank=%d alt1X=%d alt1Y=%d alt1CachedFoundValue=%d alt2SiteListRank=%d alt2X=%d alt2Y=%d alt2CachedFoundValue=%d",
+	// <!-- custom: Preserve the last matching human UI recommendation separately from cached AI-site rank; unknown stays -1 when that overlay was not observed for this founding context. (GPT-6.1-Sol) -->
+	int iUIRecommendationSnapshot = 0;
+	int const iWasUIRecommended = getSASGameRecordUIRecommendedSite(kPlayer, kPlot, kPlayer.getAdvancedStartPoints() >= 0, iUIRecommendationSnapshot);
+	int iDebugOverlaySnapshot = 0;
+	int const iWasDebugOverlaySite = getSASGameRecordDebugOverlaySite(kPlayer.getID(), kPlot, iDebugOverlaySnapshot);
+	logSASGameRecord("GAME_RECORD_CITY_SITE_CHOICE turn=%d player=%d human=%d x=%d y=%d area=%d plotOwner=%d citySites=%d minFoundValue=%d chosenSiteListRank=%d chosenCachedFoundValue=%d alt1SiteListRank=%d alt1X=%d alt1Y=%d alt1CachedFoundValue=%d alt2SiteListRank=%d alt2X=%d alt2Y=%d alt2CachedFoundValue=%d wasUIRecommendedSite=%d cityRecommendationSnapshotId=%d wasDebugOverlaySite=%d debugOverlaySnapshotId=%d",
 		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.isHuman(), kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(),
 		kPlot.getOwner(), kPlayerAI.AI_getNumCitySites(), kPlayerAI.AI_getMinFoundValue(), iChosenRank, iChosenFoundValue, iAlt1Rank, iAlt1X,
-		iAlt1Y, iAlt1FoundValue, iAlt2Rank, iAlt2X, iAlt2Y, iAlt2FoundValue);
+		iAlt1Y, iAlt1FoundValue, iAlt2Rank, iAlt2X, iAlt2Y, iAlt2FoundValue, iWasUIRecommended, iUIRecommendationSnapshot, iWasDebugOverlaySite, iDebugOverlaySnapshot);
 	// <!-- custom: Keep the heavier chosen-site quality in its own rare row rather than widening the established shortlist row; rejected-candidate causes remain BBAI Found diagnostics.
 	// `*RescoredFoundValue` is an explicit founding-time diagnostic replay, not the cached value that originally selected the site; GAME_RECORD_CITY_SITE_CHOICE preserves that strategic shortlist value separately. (ChatGPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_CITY_SITE_QUALITY turn=%d player=%d firstCity=%d x=%d y=%d coastal=%d knownWaterBonuses=%d omniscientWaterBonuses=%d areaUnownedTiles=%d areaSelectionFactor=%d nearestOwnCityId=%d nearestOwnCityX=%d nearestOwnCityY=%d nearestOwnCityDistance=%d sustainableProductivePlotValue=%d knownRescoredFoundValue=%d knownBest1Sum=%d knownBest2Sum=%d knownBest3Sum=%d knownBest6Sum=%d knownBest10Sum=%d knownBest14Sum=%d knownPositivePlots=%d omniscientRescoredFoundValue=%d omniscientBest1Sum=%d omniscientBest2Sum=%d omniscientBest3Sum=%d omniscientBest6Sum=%d omniscientBest10Sum=%d omniscientBest14Sum=%d omniscientPositivePlots=%d",
@@ -14988,6 +15146,395 @@ void logSASGameRecordPlayerProductionRemoval(CvCity const& kCity, int iRequested
 		iRequestedIndex, iIndex, iQueueLength, kOrder.eOrderType, getSASGameRecordProductionKind(kOrder.eOrderType, kOrder.iData1), getSASGameRecordProductionType(kOrder.eOrderType, kOrder.iData1), kOrder.iData1);
 }
 
+// <!-- custom: These operation labels describe SGR output, including EXIT's player-facing Begin meaning; they are never parsed or compared to dispatch gameplay, so they do not introduce another action enum. (GPT-6.1-Sol) -->
+static char const* getSASGameRecordAdvancedStartOperation(AdvancedStartActionTypes eAction, bool bAdd)
+{
+	if (eAction == ADVANCEDSTARTACTION_EXIT)
+		return "BEGIN_GAME";
+	if (eAction == ADVANCEDSTARTACTION_AUTOMATE)
+		return "AUTOMATE";
+	return (bAdd ? "ADD" : "REMOVE");
+}
+
+// <!-- custom: Resolve only fixed XML identities already carried by the Advanced Start command/result; coordinates and city/object IDs remain separate fields.
+// Target-kind labels describe the logged payload rather than another gameplay enum: a CITY action targets a plot, while POP/CULTURE target an existing city.
+// These literals are output only, not string-based dispatch.
+// Bounds-check command payload before indexing XML because a network response is evidence, not permission for diagnostics to assume valid enum storage. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static CvString getSASGameRecordAdvancedStartTarget(AdvancedStartActionTypes eAction, int iData, char const*& szTargetKind)
+{
+	szTargetKind = "NONE";
+	switch (eAction)
+	{
+	case ADVANCEDSTARTACTION_UNIT:
+		szTargetKind = "UNIT";
+		return (iData >= 0 && iData < GC.getNumUnitInfos() ? CvString(getSASGameRecordUnitType((UnitTypes)iData)) : CvString("-"));
+	case ADVANCEDSTARTACTION_BUILDING:
+		szTargetKind = "BUILDING";
+		return (iData >= 0 && iData < GC.getNumBuildingInfos() ? CvString(getSASGameRecordBuildingType((BuildingTypes)iData)) : CvString("-"));
+	case ADVANCEDSTARTACTION_IMPROVEMENT:
+		szTargetKind = "IMPROVEMENT";
+		return (iData >= 0 && iData < GC.getNumImprovementInfos() ? CvString(getSASGameRecordImprovementType((ImprovementTypes)iData)) : CvString("-"));
+	case ADVANCEDSTARTACTION_ROUTE:
+		szTargetKind = "ROUTE";
+		return (iData >= 0 && iData < GC.getNumRouteInfos() ? CvString(getSASGameRecordRouteType((RouteTypes)iData)) : CvString("-"));
+	case ADVANCEDSTARTACTION_TECH:
+		szTargetKind = "TECH";
+		return (iData >= 0 && iData < GC.getNumTechInfos() ? CvString(getSASGameRecordTechType((TechTypes)iData)) : CvString("-"));
+	case ADVANCEDSTARTACTION_CITY:
+	case ADVANCEDSTARTACTION_VISIBILITY:
+		szTargetKind = "PLOT";
+		break;
+	case ADVANCEDSTARTACTION_POP:
+	case ADVANCEDSTARTACTION_CULTURE:
+		szTargetKind = "CITY";
+		break;
+	default:
+		break;
+	}
+	return CvString("-");
+}
+
+// <!-- custom: Keep reference quotes separate from exact city/tile quotes.
+// Getter rejection (-1) is preserved without inventing a reason; budget coverage is not a claim that the gameplay handler will accept a purchase.
+// In particular, the first-city exception and replacement refunds mean gross quoted cost alone is not a complete acceptance rule. (GPT-6.1-Sol) -->
+static void addSASAdvancedStartOffer(SASAdvancedStartOfferMap& kOffers, CvPlayer const& kPlayer, SASAdvancedStartOfferScope eScope, AdvancedStartActionTypes eAction, int iData, CvPlot const* pPlot, int iBuy, int iRemove)
+{
+	SASAdvancedStartOfferKey kKey;
+	kKey.eScope = eScope; kKey.eAction = eAction; kKey.iData = iData;
+	kKey.iX = (pPlot == NULL ? -1 : pPlot->getX()); kKey.iY = (pPlot == NULL ? -1 : pPlot->getY());
+	SASAdvancedStartOffer kOffer;
+	kOffer.iBuy = iBuy; kOffer.iRemove = iRemove;
+	kOffer.iCityId = (pPlot == NULL || pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID());
+	kOffer.iBudgetCoversQuote = (iBuy < 0 ? -1 : (kPlayer.getAdvancedStartPoints() >= iBuy ? 1 : 0));
+	kOffers[kKey] = kOffer;
+}
+
+// <!-- custom: Reuse native cost/legality getters at setup boundaries instead of duplicating formulas or parsing UI help.
+// Base rows cover all civilization unit/building types and all tech/route/improvement types, including rejected quotes.
+// Exact city rows cover owned cities; exact plot rows below cover the currently observed/acted-on target only.
+// This is not an exhaustive placement scan, an explanation of every rejection, or proof that every quoted operation has a UI button. (GPT-6.1-Sol) -->
+static void buildSASAdvancedStartBaseOffers(SASAdvancedStartOfferMap& kOffers, CvPlayer const& kPlayer)
+{
+	kOffers.clear();
+	CvCivilization const& kCiv = kPlayer.getCivilization();
+	addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_BASE_REFERENCE, ADVANCEDSTARTACTION_CITY, -1, NULL, kPlayer.getAdvancedStartCityCost(true), -1);
+	addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_BASE_REFERENCE, ADVANCEDSTARTACTION_POP, -1, NULL, kPlayer.getAdvancedStartPopCost(true), -1);
+	addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_BASE_REFERENCE, ADVANCEDSTARTACTION_CULTURE, -1, NULL, kPlayer.getAdvancedStartCultureCost(true), -1);
+	addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_BASE_REFERENCE, ADVANCEDSTARTACTION_VISIBILITY, -1, NULL, kPlayer.getAdvancedStartVisibilityCost(true), -1);
+	for (int i = 0; i < kCiv.getNumUnits(); i++)
+	{
+		UnitTypes const eUnit = kCiv.unitAt(i);
+		addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_BASE_REFERENCE, ADVANCEDSTARTACTION_UNIT, eUnit, NULL, kPlayer.getAdvancedStartUnitCost(eUnit, true), -1);
+	}
+	for (int i = 0; i < kCiv.getNumBuildings(); i++)
+	{
+		BuildingTypes const eBuilding = kCiv.buildingAt(i);
+		addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_BASE_REFERENCE, ADVANCEDSTARTACTION_BUILDING, eBuilding, NULL, kPlayer.getAdvancedStartBuildingCost(eBuilding, true), -1);
+	}
+	FOR_EACH_ENUM(Tech)
+		addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_GLOBAL, ADVANCEDSTARTACTION_TECH, eLoopTech, NULL, kPlayer.getAdvancedStartTechCost(eLoopTech, true), kPlayer.getAdvancedStartTechCost(eLoopTech, false));
+	FOR_EACH_ENUM(Route)
+		addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_BASE_REFERENCE, ADVANCEDSTARTACTION_ROUTE, eLoopRoute, NULL, kPlayer.getAdvancedStartRouteCost(eLoopRoute, true), -1);
+	FOR_EACH_ENUM(Improvement)
+		addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_BASE_REFERENCE, ADVANCEDSTARTACTION_IMPROVEMENT, eLoopImprovement, NULL, kPlayer.getAdvancedStartImprovementCost(eLoopImprovement, true), -1);
+	FOR_EACH_CITY(pCity, kPlayer)
+	{
+		CvPlot const* pPlot = pCity->plot();
+		addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_CITY, ADVANCEDSTARTACTION_POP, -1, pPlot, kPlayer.getAdvancedStartPopCost(true, pCity), kPlayer.getAdvancedStartPopCost(false, pCity));
+		addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_CITY, ADVANCEDSTARTACTION_CULTURE, -1, pPlot, kPlayer.getAdvancedStartCultureCost(true, pCity), kPlayer.getAdvancedStartCultureCost(false, pCity));
+		for (int i = 0; i < kCiv.getNumUnits(); i++)
+		{
+			UnitTypes const eUnit = kCiv.unitAt(i);
+			addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_CITY, ADVANCEDSTARTACTION_UNIT, eUnit, pPlot, kPlayer.getAdvancedStartUnitCost(eUnit, true, pPlot), kPlayer.getAdvancedStartUnitCost(eUnit, false, pPlot));
+		}
+		for (int i = 0; i < kCiv.getNumBuildings(); i++)
+		{
+			BuildingTypes const eBuilding = kCiv.buildingAt(i);
+			addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_CITY, ADVANCEDSTARTACTION_BUILDING, eBuilding, pPlot, kPlayer.getAdvancedStartBuildingCost(eBuilding, true, pCity), kPlayer.getAdvancedStartBuildingCost(eBuilding, false, pCity));
+		}
+	}
+}
+
+static void buildSASAdvancedStartPlotOffers(SASAdvancedStartOfferMap& kOffers, CvPlayer const& kPlayer, CvPlot const& kPlot)
+{
+	addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_PLOT, ADVANCEDSTARTACTION_CITY, -1, &kPlot, kPlayer.getAdvancedStartCityCost(true, &kPlot), kPlayer.getAdvancedStartCityCost(false, &kPlot));
+	addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_PLOT, ADVANCEDSTARTACTION_VISIBILITY, -1, &kPlot, kPlayer.getAdvancedStartVisibilityCost(true, &kPlot), kPlayer.getAdvancedStartVisibilityCost(false, &kPlot));
+	FOR_EACH_ENUM(Route)
+		addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_PLOT, ADVANCEDSTARTACTION_ROUTE, eLoopRoute, &kPlot, kPlayer.getAdvancedStartRouteCost(eLoopRoute, true, &kPlot), kPlayer.getAdvancedStartRouteCost(eLoopRoute, false, &kPlot));
+	FOR_EACH_ENUM(Improvement)
+		addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_PLOT, ADVANCEDSTARTACTION_IMPROVEMENT, eLoopImprovement, &kPlot, kPlayer.getAdvancedStartImprovementCost(eLoopImprovement, true, &kPlot), kPlayer.getAdvancedStartImprovementCost(eLoopImprovement, false, &kPlot));
+	if (kPlot.getPlotCity() == NULL || kPlot.getOwner() != kPlayer.getID())
+	{
+		CvCivilization const& kCiv = kPlayer.getCivilization();
+		for (int i = 0; i < kCiv.getNumUnits(); i++)
+		{
+			UnitTypes const eUnit = kCiv.unitAt(i);
+			addSASAdvancedStartOffer(kOffers, kPlayer, SAS_AS_OFFER_PLOT, ADVANCEDSTARTACTION_UNIT, eUnit, &kPlot, kPlayer.getAdvancedStartUnitCost(eUnit, true, &kPlot), kPlayer.getAdvancedStartUnitCost(eUnit, false, &kPlot));
+		}
+	}
+}
+
+// <!-- custom: Serialize only numeric identities and fixed XML types, never UI help text.
+// BASE_REFERENCE quotes deliberately leave positive-quote target eligibility unknown (-1).
+// budgetCoversBuyQuote describes only the quoted amount; actual request/result rows remain authoritative for acceptance, replacement credits and first-city exceptions. (GPT-6.1-Sol) -->
+static void logSASAdvancedStartOfferRow(CvPlayer const& kPlayer, SASAdvancedStartOfferKey const& kKey, SASAdvancedStartOffer const& kOffer, bool bRemoved)
+{
+	char const* szScope = "BASE_REFERENCE";
+	switch (kKey.eScope)
+	{
+	case SAS_AS_OFFER_GLOBAL: szScope = "GLOBAL"; break;
+	case SAS_AS_OFFER_CITY: szScope = "CITY"; break;
+	case SAS_AS_OFFER_PLOT: szScope = "PLOT"; break;
+	default: break;
+	}
+	char const* szTargetKind = NULL;
+	CvString const szTarget = getSASGameRecordAdvancedStartTarget(kKey.eAction, kKey.iData, szTargetKind);
+	logSASGameRecord("GAME_RECORD_ADVANCED_START_OFFER turn=%d player=%d snapshotId=%d event=%s scope=%s action=%s dataId=%d targetKind=%s target=%s x=%d y=%d cityId=%d buyQuote=%d removeQuote=%d buyEligibleAtTarget=%d budgetCoversBuyQuote=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), g_iSASAdvancedStartOfferSnapshot, bRemoved ? "REMOVE" : "SET", szScope, getSASAdvancedStartActionType(kKey.eAction), kKey.iData, szTargetKind, szTarget.GetCString(), kKey.iX, kKey.iY, kOffer.iCityId,
+		kOffer.iBuy, kOffer.iRemove, kOffer.iBuy < 0 ? 0 : (kKey.eScope == SAS_AS_OFFER_BASE_REFERENCE ? -1 : 1), kOffer.iBudgetCoversQuote);
+}
+
+// <!-- custom: Only enabled local human Advanced Start needs an offer catalog.
+// Rebuild base/city quotes at applied actions or changed budget/city state; native UI refreshes otherwise reuse them and query a new target only when it changes.
+// Full first snapshot, then key/value deltas, preserves price/availability changes without repeating an entire catalog after each purchase.
+// No scan of every map placement, AI valuation or synchronized RNG is introduced; enabled recording does pay for these event-driven quote queries. (GPT-6.1-Sol) -->
+void logSASGameRecordAdvancedStartOffers(CvPlayer const& kPlayer, CvPlot const* pTarget, bool bStateChanged)
+{
+	// <!-- custom: A teammate's setup purchase can change our tech/eligibility without changing our points; invalidate the local catalog after any recorded applied action, while still enumerating offers only for the active human. (GPT-6.1-Sol) -->
+	if (bStateChanged) ++g_uiSASAdvancedStartOfferEpoch;
+	if (!kPlayer.isHuman() || !kPlayer.isActive() || !GC.getGame().isFinalInitialized())
+		return;
+	int const iPoints = kPlayer.getAdvancedStartPoints();
+	if (iPoints < 0)
+	{
+		if (g_bSASAdvancedStartOffersKnown)
+		{
+			logSASGameRecord("GAME_RECORD_ADVANCED_START_OFFERS turn=%d player=%d snapshotId=%d event=CLOSED points=%d gold=%d", GC.getGame().getGameTurn(), kPlayer.getID(), g_iSASAdvancedStartOfferSnapshot, iPoints, kPlayer.getGold());
+			g_bSASAdvancedStartOffersKnown = false;
+			g_kSASAdvancedStartBaseOffers.clear();
+			g_kSASAdvancedStartPreviousOffers.clear();
+		}
+		return;
+	}
+	bool const bFirst = (!g_bSASAdvancedStartOffersKnown || g_eSASAdvancedStartOffersPlayer != kPlayer.getID());
+	bool const bRebuild = (bFirst || g_uiSASAdvancedStartOfferEpoch != g_uiSASAdvancedStartOfferObservedEpoch || iPoints != g_iSASAdvancedStartOffersPoints || kPlayer.getGold() != g_iSASAdvancedStartOffersGold || kPlayer.getNumCities() != g_iSASAdvancedStartOffersCities);
+	int const iX = (pTarget == NULL ? -1 : pTarget->getX()), iY = (pTarget == NULL ? -1 : pTarget->getY());
+	if (!bRebuild && iX == g_iSASAdvancedStartOffersX && iY == g_iSASAdvancedStartOffersY)
+		return;
+	if (bRebuild) buildSASAdvancedStartBaseOffers(g_kSASAdvancedStartBaseOffers, kPlayer);
+	SASAdvancedStartOfferMap kOffers = g_kSASAdvancedStartBaseOffers;
+	if (pTarget != NULL) buildSASAdvancedStartPlotOffers(kOffers, kPlayer, *pTarget);
+	int iChanged = 0, iRemoved = 0;
+	for (SASAdvancedStartOfferMap::const_iterator it = kOffers.begin(); it != kOffers.end(); ++it)
+	{
+		SASAdvancedStartOfferMap::const_iterator const old = g_kSASAdvancedStartPreviousOffers.find(it->first);
+		if (bFirst || old == g_kSASAdvancedStartPreviousOffers.end() || !(it->second == old->second)) iChanged++;
+	}
+	if (!bFirst)
+	{
+		for (SASAdvancedStartOfferMap::const_iterator it = g_kSASAdvancedStartPreviousOffers.begin(); it != g_kSASAdvancedStartPreviousOffers.end(); ++it)
+			if (kOffers.find(it->first) == kOffers.end()) iRemoved++;
+	}
+	g_uiSASAdvancedStartOfferObservedEpoch = g_uiSASAdvancedStartOfferEpoch;
+	if (!bFirst && iChanged == 0 && iRemoved == 0 && iPoints == g_iSASAdvancedStartOffersPoints && kPlayer.getGold() == g_iSASAdvancedStartOffersGold && kPlayer.getNumCities() == g_iSASAdvancedStartOffersCities && iX == g_iSASAdvancedStartOffersX && iY == g_iSASAdvancedStartOffersY)
+		return;
+	++g_iSASAdvancedStartOfferSnapshot;
+	logSASGameRecord("GAME_RECORD_ADVANCED_START_OFFERS turn=%d player=%d snapshotId=%d event=%s sessionWallMilliseconds=%u startEra=%s currentEra=%s points=%d gold=%d cities=%d x=%d y=%d entries=%d changed=%d removed=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), g_iSASAdvancedStartOfferSnapshot, bFirst ? "FULL" : "DELTA", getSASGameRecordSessionWallMilliseconds(), getSASGameRecordEraType(GC.getGame().getStartEra()), getSASGameRecordEraType(kPlayer.getCurrentEra()), iPoints, kPlayer.getGold(), kPlayer.getNumCities(), iX, iY, (int)kOffers.size(), iChanged, iRemoved);
+	for (SASAdvancedStartOfferMap::const_iterator it = kOffers.begin(); it != kOffers.end(); ++it)
+	{
+		SASAdvancedStartOfferMap::const_iterator const old = g_kSASAdvancedStartPreviousOffers.find(it->first);
+		if (bFirst || old == g_kSASAdvancedStartPreviousOffers.end() || !(it->second == old->second)) logSASAdvancedStartOfferRow(kPlayer, it->first, it->second, false);
+	}
+	if (!bFirst)
+	{
+		for (SASAdvancedStartOfferMap::const_iterator it = g_kSASAdvancedStartPreviousOffers.begin(); it != g_kSASAdvancedStartPreviousOffers.end(); ++it)
+			if (kOffers.find(it->first) == kOffers.end()) logSASAdvancedStartOfferRow(kPlayer, it->first, it->second, true);
+	}
+	g_kSASAdvancedStartPreviousOffers.swap(kOffers);
+	g_bSASAdvancedStartOffersKnown = true;
+	g_eSASAdvancedStartOffersPlayer = kPlayer.getID();
+	g_iSASAdvancedStartOffersPoints = iPoints; g_iSASAdvancedStartOffersGold = kPlayer.getGold(); g_iSASAdvancedStartOffersCities = kPlayer.getNumCities();
+	g_iSASAdvancedStartOffersX = iX; g_iSASAdvancedStartOffersY = iY;
+}
+
+void logSASGameRecordAdvancedStartContext(CvPlayer const& kPlayer)
+{
+	PlayerTypes const ePlayer = kPlayer.getID();
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS || g_abSASGameRecordAdvancedStartContextLogged[ePlayer] || kPlayer.getAdvancedStartPoints() < 0)
+		return;
+	g_abSASGameRecordAdvancedStartContextLogged[ePlayer] = true;
+	CvGame const& kGame = GC.getGame();
+	logSASGameRecord("GAME_RECORD_ADVANCED_START_CONTEXT turn=%d elapsed=%d player=%d team=%d human=%d active=%d multiplayer=%d spah=%d sessionWallMilliseconds=%u points=%d gold=%d cities=%d units=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), ePlayer, kPlayer.getTeam(), kPlayer.isHuman() ? 1 : 0, kPlayer.isActive() ? 1 : 0,
+		kGame.isGameMultiPlayer() ? 1 : 0, kGame.isOption(GAMEOPTION_SPAH) ? 1 : 0, getSASGameRecordSessionWallMilliseconds(),
+		kPlayer.getAdvancedStartPoints(), kPlayer.getGold(), kPlayer.getNumCities(), kPlayer.getNumUnits());
+}
+
+// <!-- custom: Record displayed turn-count notices such as universal peace at their existing HUD branch, preserving precedence without duplicating game-rule conditions.
+// This is observation of a display request, not a new peace rule; launches/arrival results remain in the existing gameplay action/victory rows.
+// RF_CHAPTER's value/limit are current chapter turn/length. (GPT-6.1-Sol) -->
+void logSASGameRecordHUDCountdown(SASGameRecordHUDCountdown eKind, int iValue, int iLimit)
+{
+	PlayerTypes const ePlayer = GC.getGame().getActivePlayer();
+	if (g_bSASHUDCountdownKnown && g_eSASHUDCountdownKind == eKind && g_eSASHUDCountdownPlayer == ePlayer && g_iSASHUDCountdownValue == iValue && g_iSASHUDCountdownLimit == iLimit)
+		return;
+	char const* szKind = "UNKNOWN";
+	switch (eKind)
+	{
+#define SAS_RECORD_HUD_COUNTDOWN_NAME(TYPE, NAME) case TYPE: szKind = #NAME; break;
+	SAS_RECORD_HUD_COUNTDOWN_ROWS(SAS_RECORD_HUD_COUNTDOWN_NAME)
+#undef SAS_RECORD_HUD_COUNTDOWN_NAME
+	default: break;
+	}
+	logSASGameRecord("GAME_RECORD_HUD_COUNTDOWN turn=%d elapsed=%d player=%d sessionWallMilliseconds=%u kind=%s value=%d limit=%d remainingTurns=%d",
+		GC.getGame().getGameTurn(), GC.getGame().getElapsedGameTurns(), ePlayer, getSASGameRecordSessionWallMilliseconds(), szKind, iValue, iLimit, eKind == SAS_RECORD_HUD_COUNTDOWN_RF_CHAPTER ? iLimit - iValue : iValue);
+	g_bSASHUDCountdownKnown = true;
+	g_eSASHUDCountdownKind = eKind; g_eSASHUDCountdownPlayer = ePlayer;
+	g_iSASHUDCountdownValue = iValue; g_iSASHUDCountdownLimit = iLimit;
+}
+
+// <!-- custom: CvGame::updateColoredPlots brackets an enabled native refresh and passes only circles it actually submits to the engine.
+// No city-cost/legality query, site evaluation or pathfinding is repeated for diagnostics; empty sets record native recommendation clearing, while identical redraws are suppressed. (GPT-6.1-Sol) -->
+void beginSASGameRecordCityRecommendations(PlayerTypes ePlayer, bool bAdvancedStart, int iSettlerId)
+{
+	g_bSASCityRecommendationCollecting = true;
+	g_eSASCityRecommendationPlayer = ePlayer;
+	g_bSASCityRecommendationAdvancedStart = bAdvancedStart;
+	g_iSASCityRecommendationUnit = iSettlerId;
+	g_aSASCityRecommendations.clear();
+	g_aSASDebugCitySites.clear();
+}
+
+// <!-- custom: Costs come from the existing Advanced Start draw branch; -1 denotes no quoted purchase cost for ordinary Settler circles.
+// A starting-player ID distinguishes the warning-colored team start from the AI-shortlist highlight.
+// These are draw submissions, not proof that a rendered frame was seen. (GPT-6.1-Sol) -->
+void addSASGameRecordCityRecommendation(CvPlot const& kPlot, int iQuotedCost, PlayerTypes eStartingPlayer)
+{
+	SASGameRecordCityRecommendation kSite;
+	kSite.iX = kPlot.getX();
+	kSite.iY = kPlot.getY();
+	kSite.iCost = iQuotedCost;
+	kSite.eStartingPlayer = eStartingPlayer;
+	g_aSASCityRecommendations.push_back(kSite);
+}
+
+// <!-- custom: Called only beside existing debug-circle draws; the draw loop already provides player, coordinate and shortlist rank.
+// No extra valuation, pathfinding or full-map scan is needed. (GPT-6.1-Sol) -->
+void addSASGameRecordDebugCitySite(PlayerTypes eOwner, CvPlot const& kPlot, int iSiteRank)
+{
+	SASGameRecordDebugCitySite kSite;
+	kSite.eOwner = eOwner; kSite.iX = kPlot.getX(); kSite.iY = kPlot.getY(); kSite.iRank = iSiteRank;
+	g_aSASDebugCitySites.push_back(kSite);
+}
+
+// <!-- custom: Publish changed all-player debug overlays even when the ordinary recommendation set is unchanged or no unit is selected.
+// Disabled overlays emit one clearing summary after a previous enabled observation; never enabling the overlay produces no empty debug-history noise. (GPT-6.1-Sol) -->
+static void logSASGameRecordDebugCitySiteOverlay(bool bEnabled)
+{
+	PlayerTypes const eViewer = GC.getGame().getActivePlayer();
+	g_iSASDebugCitySitesObservedTurn = GC.getGame().getGameTurn();
+	if (!bEnabled && !g_bSASDebugCitySitesEnabled && g_aSASDebugCitySites.empty() && g_aSASPreviousDebugCitySites.empty())
+		return;
+	if (bEnabled == g_bSASDebugCitySitesEnabled && eViewer == g_eSASDebugCitySitesViewer && g_aSASDebugCitySites == g_aSASPreviousDebugCitySites)
+		return;
+	++g_iSASDebugCitySiteSnapshot;
+	logSASGameRecord("GAME_RECORD_CITY_SITE_OVERLAY_SUMMARY turn=%d viewerPlayer=%d snapshotId=%d sessionWallMilliseconds=%u source=NATIVE_DEBUG_CITY_SITE_DRAW_SUBMISSION overlay=DEBUG_ALL_PLAYERS enabled=%d count=%d",
+		GC.getGame().getGameTurn(), eViewer, g_iSASDebugCitySiteSnapshot, getSASGameRecordSessionWallMilliseconds(), bEnabled ? 1 : 0, (int)g_aSASDebugCitySites.size());
+	for (size_t i = 0; i < g_aSASDebugCitySites.size(); i++)
+	{
+		SASGameRecordDebugCitySite const& kSite = g_aSASDebugCitySites[i];
+		logSASGameRecord("GAME_RECORD_CITY_SITE_OVERLAY turn=%d viewerPlayer=%d snapshotId=%d index=%d ownerPlayer=%d siteRank=%d x=%d y=%d",
+			GC.getGame().getGameTurn(), eViewer, g_iSASDebugCitySiteSnapshot, (int)i, kSite.eOwner, kSite.iRank, kSite.iX, kSite.iY);
+	}
+	g_bSASDebugCitySitesEnabled = bEnabled;
+	g_eSASDebugCitySitesViewer = eViewer;
+	g_aSASPreviousDebugCitySites = g_aSASDebugCitySites;
+}
+
+// <!-- custom: Publish the first observation or a changed ordered set/context, including zero circles after deselection; do not log every repaint or turn.
+// The snapshot ID lets a later Advanced Start command refer to the last observed circle set without reconstructing recommendations at the click boundary.
+// Flush the separate debug overlay before the ordinary unchanged-set return; it can change with no selected Settler.
+// Preserve the actual display gate too: an empty enabled set differs from the No Unit Recommendations option suppressing ordinary circles.
+// Early returns pass -1; Advanced Start has its own independent branch. (GPT-6.1-Sol) -->
+void endSASGameRecordCityRecommendations(int iBranchEnabled, bool bDebugSiteOverlay)
+{
+	if (!g_bSASCityRecommendationCollecting)
+		return;
+	g_bSASCityRecommendationCollecting = false;
+	logSASGameRecordDebugCitySiteOverlay(bDebugSiteOverlay);
+	g_iSASCityRecommendationObservedTurn = GC.getGame().getGameTurn();
+	int const iObservedBranchEnabled = (g_bSASCityRecommendationAdvancedStart ? 1 : iBranchEnabled);
+	if (g_bSASCityRecommendationKnown &&
+		g_eSASCityRecommendationPlayer == g_eSASPreviousCityRecommendationPlayer &&
+		g_bSASCityRecommendationAdvancedStart == g_bSASPreviousCityRecommendationAdvancedStart &&
+		g_iSASCityRecommendationUnit == g_iSASPreviousCityRecommendationUnit &&
+		iObservedBranchEnabled == g_iSASCityRecommendationBranchEnabled &&
+		g_aSASCityRecommendations == g_aSASPreviousCityRecommendations)
+		return;
+	++g_iSASCityRecommendationSnapshot;
+	logSASGameRecord("GAME_RECORD_CITY_RECOMMENDATION_SUMMARY turn=%d player=%d snapshotId=%d sessionWallMilliseconds=%u source=NATIVE_CIRCLE_DRAW_SUBMISSION context=%s unitId=%d count=%d circleBranchEnabled=%d",
+		GC.getGame().getGameTurn(), g_eSASCityRecommendationPlayer, g_iSASCityRecommendationSnapshot, getSASGameRecordSessionWallMilliseconds(),
+		g_bSASCityRecommendationAdvancedStart ? "ADVANCED_START" : (g_iSASCityRecommendationUnit >= 0 ? "SETTLER_SELECTION" : "NONE"), g_iSASCityRecommendationUnit, (int)g_aSASCityRecommendations.size(), iObservedBranchEnabled);
+	for (size_t i = 0; i < g_aSASCityRecommendations.size(); i++)
+	{
+		SASGameRecordCityRecommendation const& kSite = g_aSASCityRecommendations[i];
+		logSASGameRecord("GAME_RECORD_CITY_RECOMMENDATION turn=%d player=%d snapshotId=%d index=%d kind=%s startingPlayer=%d x=%d y=%d quotedCityCost=%d",
+			GC.getGame().getGameTurn(), g_eSASCityRecommendationPlayer, g_iSASCityRecommendationSnapshot, (int)i,
+			kSite.eStartingPlayer != NO_PLAYER ? "TEAM_STARTING_PLOT" : "AI_CITY_SITE", kSite.eStartingPlayer, kSite.iX, kSite.iY, kSite.iCost);
+	}
+	g_bSASCityRecommendationKnown = true;
+	g_eSASPreviousCityRecommendationPlayer = g_eSASCityRecommendationPlayer;
+	g_bSASPreviousCityRecommendationAdvancedStart = g_bSASCityRecommendationAdvancedStart;
+	g_iSASPreviousCityRecommendationUnit = g_iSASCityRecommendationUnit;
+	g_iSASCityRecommendationBranchEnabled = iObservedBranchEnabled;
+	g_aSASPreviousCityRecommendations = g_aSASCityRecommendations;
+}
+
+// <!-- custom: The network message is the authoritative submitted Advanced Start command for local/remote humans; record it before gameplay handling without claiming that legality/cost checks will accept it.
+// Exact applied purchases/removals are recorded separately from CvPlayer::doAdvancedStartAction, which also covers AI/automation. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAdvancedStartChoice(PlayerTypes ePlayer, AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	logSASGameRecordAdvancedStartContext(kPlayer);
+	int const iChoiceId = ++g_iSASGameRecordAdvancedStartChoiceSerial;
+	CvPlot const* pPlot = GC.getMap().plot(iX, iY);
+	CvCity const* pCity = (pPlot == NULL ? NULL : pPlot->getPlotCity());
+	int iUIRecommendationSnapshot = 0;
+	int const iWasUIRecommended = (eAction == ADVANCEDSTARTACTION_CITY && bAdd && pPlot != NULL ? getSASGameRecordUIRecommendedSite(kPlayer, *pPlot, true, iUIRecommendationSnapshot) : -1);
+	char const* szTargetKind = NULL;
+	CvString const szTarget = getSASGameRecordAdvancedStartTarget(eAction, iData, szTargetKind);
+	CvGame const& kGame = GC.getGame();
+	logSASGameRecord("GAME_RECORD_ADVANCED_START_CHOICE turn=%d elapsed=%d player=%d team=%d choiceId=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH source=NETWORK_MESSAGE action=%s operation=%s x=%d y=%d cityId=%d dataId=%d targetKind=%s target=%s pointsBefore=%d goldBefore=%d cityRecommendationSnapshotId=%d wasUIRecommendedSite=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), ePlayer, kPlayer.getTeam(), iChoiceId, getSASGameRecordSessionWallMilliseconds(),
+		getSASAdvancedStartActionType(eAction), getSASGameRecordAdvancedStartOperation(eAction, bAdd), iX, iY,
+		pCity == NULL ? -1 : pCity->getID(), iData, szTargetKind, szTarget.GetCString(), kPlayer.getAdvancedStartPoints(), kPlayer.getGold(),
+		iUIRecommendationSnapshot, iWasUIRecommended);
+}
+
+// <!-- custom: Record only successful Advanced Start mutations/completions from the gameplay handler, reusing its already-computed quoted cost and resolved target instead of rerunning legality, AI valuation or cost formulas for diagnostics.
+// pointsDelta is valid only while both endpoints are real Advanced Start balances; EXIT converts the remaining balance to gold and then uses -1 as the established inactive sentinel. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAdvancedStartResult(CvPlayer const& kPlayer, AdvancedStartActionTypes eAction, int iX, int iY, int iRequestedData, int iResolvedData, bool bAdd, int iQuotedCost, int iPointsBefore, int iGoldBefore, int iCityId, int iObjectId)
+{
+	logSASGameRecordAdvancedStartContext(kPlayer);
+	char const* szTargetKind = NULL;
+	CvString const szTarget = getSASGameRecordAdvancedStartTarget(eAction, iResolvedData, szTargetKind);
+	int const iPointsAfter = kPlayer.getAdvancedStartPoints();
+	bool const bPointsDeltaValid = (iPointsBefore >= 0 && iPointsAfter >= 0);
+	int const iPointsDelta = (bPointsDeltaValid ? iPointsAfter - iPointsBefore : 0);
+	int const iGoldAfter = kPlayer.getGold();
+	CvGame const& kGame = GC.getGame();
+	logSASGameRecord("GAME_RECORD_ADVANCED_START_RESULT turn=%d elapsed=%d player=%d team=%d human=%d active=%d sessionWallMilliseconds=%u stage=ACTION_APPLIED status=%s action=%s operation=%s x=%d y=%d cityId=%d objectId=%d requestedDataId=%d resolvedDataId=%d targetKind=%s target=%s quotedCost=%d pointsBefore=%d pointsAfter=%d pointsDeltaValid=%d pointsDelta=%+d goldBefore=%d goldAfter=%d goldDelta=%+d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kPlayer.getID(), kPlayer.getTeam(), kPlayer.isHuman() ? 1 : 0, kPlayer.isActive() ? 1 : 0,
+		getSASGameRecordSessionWallMilliseconds(), (eAction == ADVANCEDSTARTACTION_AUTOMATE || eAction == ADVANCEDSTARTACTION_EXIT) ? "COMPLETED" : "APPLIED",
+		getSASAdvancedStartActionType(eAction), getSASGameRecordAdvancedStartOperation(eAction, bAdd), iX, iY, iCityId, iObjectId,
+		iRequestedData, iResolvedData, szTargetKind, szTarget.GetCString(), iQuotedCost, iPointsBefore, iPointsAfter,
+		bPointsDeltaValid ? 1 : 0, iPointsDelta, iGoldBefore, iGoldAfter, iGoldAfter - iGoldBefore);
+	logSASGameRecordAdvancedStartOffers(kPlayer, GC.getMap().plot(iX, iY), true);
+}
+
 static CvString getSASGameRecordVoteEffects(VoteTypes eVote)
 {
 	if (eVote == NO_VOTE)
@@ -16123,7 +16670,8 @@ void logSASGameRecordPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived)
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
 		return;
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	// <!-- custom: Player appearance/revival updates AdvCiv's maintained ever-alive count; observe it through the gameplay getter, not the initialization-only recounting API. (GPT-6.1-Sol) -->
+	// <!-- custom: Player appearance/revival updates AdvCiv's maintained ever-alive count; the assertion-enabled run showed that invoking the initialization-only recount during gameplay reports `Should use getCivPlayersEverAlive instead`.
+	// Observe the maintained getter instead; this fixed the SGR accessor assertion. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s player=%d team=%d civ=%s leader=%s cities=%d units=%d score=%d power=%d playersAlive=%d teamsAlive=%d playersEverAlive=%d",
 		GC.getGame().getGameTurn(), bRevived ? "PLAYER_REVIVED" : "PLAYER_APPEARED", ePlayer, kPlayer.getTeam(),
 		kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType(),

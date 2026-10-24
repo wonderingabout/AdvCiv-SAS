@@ -16,7 +16,7 @@
 #include "CvGameTextMgr.h"
 #include "CvMessageControl.h"
 #include "CvBugOptions.h"
-#include "SASGameRecordLog.h" // <!-- custom: Native view-control transitions are recorded at their actual application point; avoid inferring live UI state from configured profile values. (ChatGPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Native view-control transitions and city-circle submissions are recorded at their actual application points; avoid inferring live UI state from configured values or rescoring plots for diagnostics. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 #include "SelfMod.h" // advc.092b
 #include <fstream> // advc.003d
 
@@ -55,12 +55,26 @@ void CvGame::updateColoredPlots()
 		pHeadSelectedUnit->updateFoundingBorder();
 	// </advc.004h>
 
+	// <!-- custom: Capture the native circle submissions themselves, before any purchase; callback frequency is UI-driven rather than once per turn.
+	// Gate diagnostic context/collection first.
+	// The recorder suppresses unchanged sets and reuses costs/path decisions below, so it adds no diagnostic map scan or pathfinding.
+	// WorldBuilder/Python-owned overlays are excluded; debug all-player site circles are observed separately from the active-player recommendations.
+	// These are native draw requests rather than proof of a rendered frame. (GPT-6.1-Sol) -->
+	bool const bLogSASCityRecommendations = (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled() && getActivePlayer() != NO_PLAYER && (!gDLL->GetWorldBuilderMode() || kUI.isInAdvancedStart()));
+	if (bLogSASCityRecommendations) beginSASGameRecordCityRecommendations(getActivePlayer(), kUI.isInAdvancedStart(), (!kUI.isInAdvancedStart() && kUI.getHeadSelectedCity() == NULL && pHeadSelectedUnit != NULL && pHeadSelectedUnit->isFound()) ? pHeadSelectedUnit->getID() : -1);
+	// <!-- custom: The separate offer catalog performs gated quote queries only for changed setup state or target context; circle collection itself still reuses native draw computations. (GPT-6.1-Sol) -->
+	if (bLogSASCityRecommendations && kUI.isInAdvancedStart()) logSASGameRecordAdvancedStartOffers(GET_PLAYER(getActivePlayer()), kUI.getMouseOverPlot(), false);
+
 	CvMap const& kMap = GC.getMap();
+	bool bLogSASDebugCitySites = false;
 	// BETTER_BTS_AI_MOD, Debug, 06/25/09, jdog5000: START
 	if (isDebugMode())
 	{
 		if (kUI.isShowYields() && !gDLL->GetWorldBuilderMode()) // advc.007
 		{
+			// <!-- custom: This all-player shortlist overlay is independent of the ordinary unit-recommendation option and selected Settler.
+			// Observe its existing draw submissions under a separate source/owner identity; Worker debug circles remain disabled below. (GPT-6.1-Sol) -->
+			if (bLogSASCityRecommendations) bLogSASDebugCitySites = true;
 			// City circles for debugging
 			for (PlayerAIIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
 			{
@@ -71,6 +85,7 @@ void CvGame::updateColoredPlots()
 							GC.getInfo(GC.getInfo(itPlayer->getPlayerColor()).
 							getColorTypePrimary()).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
+					if (bLogSASCityRecommendations) addSASGameRecordDebugCitySite(itPlayer->getID(), kSite, i + 1);
 				}
 			}
 			// <!-- custom: even in debugging (if i understood it correctly), these are confusing and needlessly taking computing power too, we use CvUnitAI::AI_bestCityBuild now anyway instead to choose our best plots to build on and all for AI workers, so try to gradually remove old code influence, while increasing performance if we can do so as well or functionality -->
@@ -113,30 +128,34 @@ void CvGame::updateColoredPlots()
 		FOR_EACH_ENUM(PlotNum)
 		{
 			CvPlot& kPlot = kMap.getPlotByIndex(eLoopPlotNum);
-			if (GET_PLAYER(getActivePlayer()).getAdvancedStartCityCost(true, &kPlot) > 0)
+			// <!-- custom: Reuse the draw branch's existing cost for SGR instead of querying it again. (GPT-6.1-Sol) -->
+			int const iCityCost = GET_PLAYER(getActivePlayer()).getAdvancedStartCityCost(true, &kPlot);
+			if (iCityCost > 0)
 			{
-				bool bStartingPlot = false;
+				PlayerTypes eStartingPlayer = NO_PLAYER;
 				FOR_EACH_ENUM(Player)
 				{
 					CvPlayer const& kPlayer = GET_PLAYER(eLoopPlayer);
 					if (kPlayer.isAlive() && getActiveTeam() == kPlayer.getTeam() &&
 						&kPlot == kPlayer.getStartingPlot())
 					{
-						bStartingPlot = true;
+						eStartingPlayer = eLoopPlayer;
 						break;
 					}
 				}
-				if (bStartingPlot)
+				if (eStartingPlayer != NO_PLAYER)
 				{
 					kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
 							GC.getInfo(eColorWarningText).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+					if (bLogSASCityRecommendations) addSASGameRecordCityRecommendation(kPlot, iCityCost, eStartingPlayer);
 				}
 				else if (GET_PLAYER(getActivePlayer()).AI_isPlotCitySite(kPlot))
 				{
 					kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
 							GC.getInfo(eColorHighlightText).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+					if (bLogSASCityRecommendations) addSASGameRecordCityRecommendation(kPlot, iCityCost);
 				}
 				if (kPlot.isRevealed(getActiveTeam()))
 				{
@@ -182,10 +201,15 @@ void CvGame::updateColoredPlots()
 				}
 			}
 		} // <advc>
+		if (bLogSASCityRecommendations) endSASGameRecordCityRecommendations(-1, bLogSASDebugCitySites);
 		return;
 	}
 	if (pHeadSelectedUnit == NULL)
+	{
+		// <!-- custom: Finalize an empty/Advanced Start circle set even when no unit is selected. (GPT-6.1-Sol) -->
+		if (bLogSASCityRecommendations) endSASGameRecordCityRecommendations(-1, bLogSASDebugCitySites);
 		return; // </advc>
+	}
 
 	if (gDLL->getGraphicOption(GRAPHICOPTION_CITY_RADIUS))
 	{
@@ -244,8 +268,10 @@ void CvGame::updateColoredPlots()
 		}
 	}
 
-	if (!GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) ||
-		!GET_PLAYER(getActivePlayer()).isHuman()) // advc.127
+	// <!-- custom: Reuse the inherited display gate for both drawing and the observation summary, so no visible city circles can be distinguished from recommendations suppressed by the player's option.
+	// Advanced Start uses its earlier independent draw branch; preserve that behavior and the current UI preference. (GPT-6.1-Sol) -->
+	bool const bUnitRecommendationsEnabled = (!GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) || !GET_PLAYER(getActivePlayer()).isHuman()); // advc.127
+	if (bUnitRecommendationsEnabled)
 	{
 		// <!-- custom: also disable worker plot to improve recommendations, we save computation this way, reduce the interference of old very inefficient and perhaps needlessly computationally expensive, on top of tiles shown not necessarily being the best as well.
 		// We only want to see city sites and such and not have too many needless circles that are confusing as well on top of using needless computing power; located code spot to remove thanks to claude ai after i found first one above in this function -->
@@ -304,6 +330,7 @@ void CvGame::updateColoredPlots()
 					kEngine.addColoredPlot(kSite.getX(), kSite.getY(),
 							GC.getInfo(eColorHighlightText).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+					if (bLogSASCityRecommendations && !kUI.isInAdvancedStart()) addSASGameRecordCityRecommendation(kSite, -1);
 				}
 			}
 		}
@@ -362,6 +389,7 @@ void CvGame::updateColoredPlots()
 			}
 		}
 	}
+	if (bLogSASCityRecommendations) endSASGameRecordCityRecommendations(bUnitRecommendationsEnabled ? 1 : 0, bLogSASDebugCitySites);
 }
 
 

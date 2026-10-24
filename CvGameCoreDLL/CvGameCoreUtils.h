@@ -137,6 +137,8 @@ void updateSASRuntimeStatusWorldBuilderMode(bool bEnabled);
 void updateSASRuntimeStatusWorldBuilderScreen(bool bVisible);
 // <!-- custom: Track confirmed Civilopedia visibility with menu/game origin and in-game active-player context; this overlay does not change the underlying activity timer. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void updateSASRuntimeStatusCivilopedia(bool bVisible, bool bInMainMenu);
+// <!-- custom: Translate the inherited Advanced Start action enum in common game utilities so consumers share its raw identity independently of SGR formatting. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASAdvancedStartActionType(AdvancedStartActionTypes eAction);
 // <!-- custom: Popup type labels are shared UI vocabulary, not runtime-recorder state; keep their declaration and implementation with the common game helpers. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 char const* getSASButtonPopupTypeName(ButtonPopupTypes eType);
 // <!-- custom: The confirmation popup stores an action ID in data1, distinct from its Yes/Cancel button ID.

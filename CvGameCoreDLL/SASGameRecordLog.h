@@ -69,6 +69,42 @@ void logSASGameRecordPopupUnitTarget(CvPopupInfo const& kInfo, int iButtonClicke
 void logSASGameRecordPlayerResearchChoice(PlayerTypes ePlayer, TechTypes eTech, int iDiscover, bool bShift);
 void logSASGameRecordPlayerProductionChoice(CvCity const& kCity, OrderTypes eOrder, int iData, bool bSave, bool bPop, int iPosition);
 void logSASGameRecordPlayerProductionRemoval(CvCity const& kCity, int iRequestedIndex);
+// <!-- custom: Observe native city-circle submissions at enabled UI refreshes, with change-only snapshots for both Advanced Start and selected Settlers.
+// Call begin/add/end only behind the level/action gate; early native returns still end the observation.
+// Python-owned overlays are outside this trace; debug all-player city sites use a separate owner-labelled snapshot family. (GPT-6.1-Sol) -->
+void beginSASGameRecordCityRecommendations(PlayerTypes ePlayer, bool bAdvancedStart, int iSettlerId);
+void addSASGameRecordCityRecommendation(CvPlot const& kPlot, int iQuotedCost, PlayerTypes eStartingPlayer = NO_PLAYER);
+// <!-- custom: The debug/yield overlay draws every alive civilization's shortlist in its own color, independently of selected-unit recommendations.
+// Retain the owning player and existing shortlist rank without rescoring plots. (GPT-6.1-Sol) -->
+void addSASGameRecordDebugCitySite(PlayerTypes eOwner, CvPlot const& kPlot, int iSiteRank);
+// <!-- custom: Retain the actual ordinary recommendation gate (0/1); -1 means an early return before that branch.
+// Advanced Start reports its independent branch as enabled.
+// The debug-overlay flag separately records that branch, including an enabled empty set or clearing. (GPT-6.1-Sol) -->
+void endSASGameRecordCityRecommendations(int iBranchEnabled = -1, bool bDebugSiteOverlay = false);
+// <!-- custom: These codes identify recorder observations of the existing HUD countdown branches, not a new gameplay timer or translated-text parser.
+// Share their numeric/name rows between producers and serialization; current frame/second clocks are deliberately outside this turn-count trace. (GPT-6.1-Sol) -->
+#define SAS_RECORD_HUD_COUNTDOWN_ROWS(DO) \
+	DO(SAS_RECORD_HUD_COUNTDOWN_NONE, NONE) \
+	DO(SAS_RECORD_HUD_COUNTDOWN_ADVANCED_START_PEACE, ADVANCED_START_PEACE) \
+	DO(SAS_RECORD_HUD_COUNTDOWN_VICTORY_ARRIVAL, VICTORY_ARRIVAL) \
+	DO(SAS_RECORD_HUD_COUNTDOWN_TURN_LIMIT, TURN_LIMIT) \
+	DO(SAS_RECORD_HUD_COUNTDOWN_RF_INTERLUDE, RF_INTERLUDE) \
+	DO(SAS_RECORD_HUD_COUNTDOWN_RF_CHAPTER, RF_CHAPTER)
+enum SASGameRecordHUDCountdown
+{
+#define SAS_RECORD_HUD_COUNTDOWN_ENUM(TYPE, NAME) TYPE,
+	SAS_RECORD_HUD_COUNTDOWN_ROWS(SAS_RECORD_HUD_COUNTDOWN_ENUM)
+#undef SAS_RECORD_HUD_COUNTDOWN_ENUM
+};
+// <!-- custom: Capture the HUD branch's existing value/optional chapter limit; only changes are written, including NONE when the notice clears. (GPT-6.1-Sol) -->
+void logSASGameRecordHUDCountdown(SASGameRecordHUDCountdown eKind, int iValue, int iLimit = -1);
+// <!-- custom: Query a local active human's setup offers at initial UI observation/applied action or changed target, with cached base/city quotes and changed-only output; callers must pre-gate recording/action tracing. (GPT-6.1-Sol) -->
+void logSASGameRecordAdvancedStartOffers(CvPlayer const& kPlayer, CvPlot const* pTarget, bool bStateChanged);
+// <!-- custom: Advanced Start has two distinct useful evidence layers: network choices show what a human submitted, while applied-result rows show which setup purchases/removals actually changed game state, including AI/automation actions.
+// Context capture stays event-driven; commands can reference the last observed native circle snapshot without repeating UI checks or cost formulas. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void logSASGameRecordAdvancedStartContext(CvPlayer const& kPlayer);
+void logSASGameRecordAdvancedStartChoice(PlayerTypes ePlayer, AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd);
+void logSASGameRecordAdvancedStartResult(CvPlayer const& kPlayer, AdvancedStartActionTypes eAction, int iX, int iY, int iRequestedData, int iResolvedData, bool bAdd, int iQuotedCost, int iPointsBefore, int iGoldBefore, int iCityId, int iObjectId);
 void logSASGameRecordScreenAction(char const* szScreen, char const* szAction, int iPrimary = -1, int iSecondary = -1);
 void logSASGameRecordInterfaceState(char const* szComponent, char const* szEvent, char const* szReason, int iCount, char const* szValues);
 // <!-- custom: Four camera toggles have authoritative pre/post Boolean getters.

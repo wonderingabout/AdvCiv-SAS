@@ -5,7 +5,7 @@
 #include "CvCity.h"
 #include "CvMap.h"
 #include "DepthFirstPlotSearch.h" // advc.opt
-#include <memory> // <!-- custom: Own the reusable plot-group DFS checker so it can be rebuilt safely when a later game uses a different map size. See KI#243.2. (ChatGPT-5.6-Sol) -->
+#include <memory> // <!-- custom: Own the reusable plot-group DFS checker so the captured cross-game crash fix can rebuild its undersized visited buffer when map size changes. See KI#243.2. (ChatGPT-5.6-Sol) -->
 
 int CvPlotGroup::m_iRecalculating = 0; // advc.064d
 
@@ -151,9 +151,9 @@ void CvPlotGroup::recalculatePlots(/* advc.064d: */ bool bVerifyProduction)
 				FAStar finder for this purpose. Semantically, it's the same check
 				as in BtS: whether all plots in the (old) group are still connected.
 				I guess expanding plot groups are handled by CvPlot::updatePlotGroup. */
-			// <!-- custom: AdvCiv commit cf83cd90b3 (2022-11-11, advc.pf) introduced this static checker to reuse its eager PlotNum visited buffer.
-			// That buffer is allocated for the map size at construction, while EnumMap reset uses the current map's dynamic PlotNum length; loading a differently sized map can therefore write past the old allocation.
-			// Keep AdvCiv's reuse optimization while the plot count matches, but reconstruct the checker once when it changes. See KI#243.2. (ChatGPT-5.6-Sol) -->
+			// <!-- custom: A same-process Arena/Pangaea -> Huge T0 Debug-opt capture hit INVALID_POINTER_WRITE while this static checker's old PlotNum buffer was being reset; AdvCiv commit cf83cd90b3 (2022-11-11, advc.pf) introduced that reusable eager buffer.
+			// Its allocation is fixed at construction while reset uses the current map's PlotNum length, so a larger later map wrote past the old allocation.
+			// Reconstruct on plot-count change; this fixed the captured KI#243.2 write and known crash reproductions while retaining reuse within one size. See KI#243.2. (ChatGPT-5.6-Sol) -->
 			static std::auto_ptr<CvPlotGroupSizeCheck> pCheck;
 			static PlotNumTypes eCheckMapPlots = NO_PLOT_NUM;
 			PlotNumTypes const eMapPlots = GC.getMap().numPlots();

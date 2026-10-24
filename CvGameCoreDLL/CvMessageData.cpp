@@ -533,7 +533,12 @@ void CvNetAdvancedStartAction::Debug(char* szAddendum)
 void CvNetAdvancedStartAction::Execute()
 {
 	if (m_ePlayer != NO_PLAYER && !gDLL->UI().isExitingToMainMenu())
+	{
+		// <!-- custom: The network message is the authoritative submitted human Advanced Start choice; record it before gameplay handling so rejected/failed commands remain distinguishable from applied results.
+		// AI/automation purchases bypass this network path and are captured separately at CvPlayer::doAdvancedStartAction's successful mutation points. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordAdvancedStartChoice(m_ePlayer, m_eAction, m_iX, m_iY, m_iData, m_bAdd);
 		GET_PLAYER(m_ePlayer).doAdvancedStartAction(m_eAction, m_iX, m_iY, m_iData, m_bAdd);
+	}
 }
 
 void CvNetAdvancedStartAction::PutInBuffer(FDataStreamBase* pStream)
