@@ -14,7 +14,7 @@
 #include "CvInfo_All.h"
 #include "CvGameTextMgr.h"
 #include "CvMessageControl.h"
-#include "SASGameRecordLog.h" // <!-- custom: Needed to record the rare informational popup omitted during unattended AI Auto Play. (GPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Needed for the unattended-AI popup notice and pre-dispatch player-choice recording. (GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 
 
 #define PASSWORD_DEFAULT (L"*****")
@@ -80,6 +80,8 @@ void CvDLLButtonPopup::OnAltExecute(CvPopup& popup, const PopupReturn& popupRetu
 	{
 		*pInfo = info;
 		m_kUI.addPopup(pInfo);
+		// <!-- custom: Alt-execute requeues the same popup information before cancelling only the old UI object.
+		// Do not record a player cancellation/choice for this internal replacement; the replacement popup's focus refreshes runtime wait identity. (ChatGPT-5.6-Sol) -->
 		m_kUI.popupSetAsCancelled(&popup);
 	}
 }
@@ -89,33 +91,41 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 {
 	CvGame& kGame = GC.getGame();
 	FAssert(getActivePlayer() != NO_PLAYER); // K-Mod
+	// <!-- custom: This is the generic native response boundary for ButtonPopup buttons.
+	// Record the response before gameplay dispatch so a crash/failure afterward does not erase the player's observed choice; specialized gameplay rows remain authoritative for realized results.
+	// Privacy: pass only the numeric button plus the existing descriptor; the recorder never reads free-form popup/edit-box text and withholds unreviewed generic descriptor payload. (ChatGPT-5.6-Sol) -->
+	int const iButtonClicked = pPopupReturn->getButtonClicked();
+	ButtonPopupTypes const ePopupType = info.getButtonPopupType();
+	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusButtonPopupResolved(pPopup, ePopupType, iButtonClicked, false);
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerPopupChoice(info, iButtonClicked);
 
-	switch (info.getButtonPopupType())
+	switch (ePopupType)
 	{
 	case BUTTONPOPUP_TEXT:
 		break;
 
+	// <!-- custom: Name the inherited confirmation-action payloads from the shared catalog; these are not the popup's Yes/Cancel button IDs. (GPT-6.1-Sol) -->
 	case BUTTONPOPUP_CONFIRM_MENU:
 		if (pPopupReturn->getButtonClicked() == 0)
 		{
 			switch (info.getData1())
 			{
-			case 0:
+			case SAS_POPUP_CONFIRM_EXIT_TO_DESKTOP:
 				// <!-- custom: Record the confirmed in-game Exit to Desktop request before handing control to the EXE; window-close/forced termination are not inferred from this UI route. (GPT-6.1-Sol) -->
 				if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusRequest(SAS_RUNTIME_STATUS_EXIT_REQUESTED);
 				gDLL->SetDone(true);
 				break;
-			case 1:
+			case SAS_POPUP_CONFIRM_RETURN_TO_MAIN_MENU:
 				kGame.exitToMenu();
 				break;
-			case 2:
+			case SAS_POPUP_CONFIRM_RETIRE:
 				//kGame.doControl(CONTROL_RETIRE);
 				kGame.retire(); // K-Mod
 				break;
-			case 3:
+			case SAS_POPUP_CONFIRM_REGENERATE_MAP:
 				kGame.regenerateMap();
 				break;
-			case 4:
+			case SAS_POPUP_CONFIRM_WORLD_BUILDER:
 				//kGame.doControl(CONTROL_WORLD_BUILDER);
 				kGame.enterWorldBuilder(); // K-Mod
 				break;
@@ -123,6 +133,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 		}
 		break;
 
+	// <!-- custom: Queue the same named confirmation actions used by their handler and diagnostic decoder; retained commented-out BtS examples use the names too. (GPT-6.1-Sol) -->
 	case BUTTONPOPUP_MAIN_MENU:
 		// K-Mod. The following section use to be a long chain of "else if" statements.
 		// It was making me sad, so I rewrote it as a switch. (and also inserted a BUG options item.)
@@ -133,7 +144,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 				CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 				if (pInfo != NULL)
 				{
-					pInfo->setData1(0);
+					pInfo->setData1(SAS_POPUP_CONFIRM_EXIT_TO_DESKTOP);
 					m_kUI.addPopup(pInfo, getActivePlayer(), true);
 				}
 			}
@@ -143,17 +154,19 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 				CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 				if (pInfo != NULL)
 				{
-					pInfo->setData1(1);
+					pInfo->setData1(SAS_POPUP_CONFIRM_RETURN_TO_MAIN_MENU);
 					m_kUI.addPopup(pInfo, getActivePlayer(), true);
 				}
 			}
 			break;
 		case MM_RETIRE:
-			/*{ CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
-			if (NULL != pInfo) {
-				pInfo->setData1(2);
-				m_kUI.addPopup(pInfo, getActivePlayer(), true);
-			} }*/ // BtS
+			// <!-- custom: Retain the disabled BtS confirmation example using the shared named action rather than its old numeric literal. (GPT-6.1-Sol)
+			// { CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
+			// if (NULL != pInfo) {
+			// pInfo->setData1(SAS_POPUP_CONFIRM_RETIRE);
+			// m_kUI.addPopup(pInfo, getActivePlayer(), true);
+			// } }
+			// -->
 			kGame.doControl(CONTROL_RETIRE); // K-Mod
 			break;
 		case MM_REGENERATE_MAP:
@@ -161,7 +174,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 				CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 				if (pInfo != NULL)
 				{
-					pInfo->setData1(3);
+					pInfo->setData1(SAS_POPUP_CONFIRM_REGENERATE_MAP);
 					m_kUI.addPopup(pInfo, getActivePlayer(), true);
 				}
 			}
@@ -179,11 +192,13 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 			GC.getPythonCaller()->showPythonScreen("BugOptionsScreen");
 			break;
 		case MM_ENTER_WB:
-			/*{ CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
-				if (pInfo != NULL) {
-					pInfo->setData1(4);
-					m_kUI.addPopup(pInfo, getActivePlayer(), true);
-			} }*/ // BtS
+			// <!-- custom: Retain the disabled BtS confirmation example using the shared named action rather than its old numeric literal. (GPT-6.1-Sol)
+			// { CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
+			// if (pInfo != NULL) {
+			// pInfo->setData1(SAS_POPUP_CONFIRM_WORLD_BUILDER);
+			// m_kUI.addPopup(pInfo, getActivePlayer(), true);
+			// } }
+			// -->
 			kGame.doControl(CONTROL_WORLD_BUILDER); // K-Mod
 			break;
 		case MM_GAME_DETAILS:
@@ -699,12 +714,16 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 
 void CvDLLButtonPopup::OnFocus(CvPopup* pPopup, CvPopupInfo &info)
 {
+	ButtonPopupTypes const ePopupType = info.getButtonPopupType();
 	if (m_kUI.popupIsDying(pPopup))
+	{
+		if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusButtonPopupResolved(pPopup, ePopupType, -1, true);
 		return;
+	}
 
 	FAssert(getActivePlayer() != NO_PLAYER); // K-Mod
 
-	switch (info.getButtonPopupType())
+	switch (ePopupType)
 	{
 	case BUTTONPOPUP_CHOOSETECH:
 		if (info.getData1() == 0)
@@ -790,6 +809,13 @@ void CvDLLButtonPopup::OnFocus(CvPopup* pPopup, CvPopupInfo &info)
 			m_kUI.popupSetAsCancelled(pPopup);
 		break;
 	// K-Mod end
+	}
+	// <!-- custom: Focus is stronger evidence than queue/launch: only publish the awaiting-interaction state after popup-specific staleness checks have had their chance to cancel it. (ChatGPT-5.6-Sol) -->
+	if (isSASRuntimeStatusEnabled() && ePopupType != BUTTONPOPUP_PYTHON_SCREEN)
+	{
+		// <!-- custom: BUTTONPOPUP_PYTHON_SCREEN is a dummy queue object whose launch path returns false after handing off to a full Python screen; never publish it as a visible native popup even if an EXE callback reaches this shared focus path. (ChatGPT-5.6-Sol) -->
+		if (m_kUI.popupIsDying(pPopup)) updateSASRuntimeStatusButtonPopupResolved(pPopup, ePopupType, -1, true);
+		else updateSASRuntimeStatusButtonPopupFocused(pPopup, ePopupType);
 	}
 }
 
@@ -2273,29 +2299,28 @@ bool CvDLLButtonPopup::launchConfirmMenu(CvPopup *pPopup, CvPopupInfo &info)
 	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_NO").c_str(), NULL, 1, WIDGET_GENERAL);
 	m_kUI.popupLaunch(pPopup, false, POPUPSTATE_IMMEDIATE);*/ // BtS
 
-	// K-Mod. The confirmation box should actually tell the user what they are being asked to confirm!
-	// Note: the text here should correspond to the functionality defined by CvDLLButtonPopup::OnOkClicked.
-	// (It's unfortunate that there's no enum defined for the different options... but I don't feel like fixing that now.)
+	// <!-- custom: K-Mod made the confirmation box name the action being confirmed, with text matching CvDLLButtonPopup::OnOkClicked.
+	// Its former note about lacking an enum is superseded by SASPopupConfirmAction, shared with dispatch and SGR; preserve that inherited question/body behavior. (GPT-6.1-Sol) -->
 	m_kUI.popupSetBodyString(pPopup, gDLL->getText("TXT_KEY_POPUP_ARE_YOU_SURE").c_str());
 	switch (info.getData1())
 	{
-	case 0:
+	case SAS_POPUP_CONFIRM_EXIT_TO_DESKTOP:
 		m_kUI.popupAddGenericButton(pPopup,
 				gDLL->getText("TXT_KEY_POPUP_EXIT_TO_DESKTOP").c_str(), NULL, 0, WIDGET_GENERAL);
 		break;
-	case 1:
+	case SAS_POPUP_CONFIRM_RETURN_TO_MAIN_MENU:
 		m_kUI.popupAddGenericButton(pPopup,
 				gDLL->getText("TXT_KEY_POPUP_EXIT_TO_MAIN_MENU").c_str(), NULL, 0, WIDGET_GENERAL);
 		break;
-	case 2:
+	case SAS_POPUP_CONFIRM_RETIRE:
 		m_kUI.popupAddGenericButton(pPopup,
 				gDLL->getText("TXT_KEY_POPUP_RETIRE").c_str(), NULL, 0, WIDGET_GENERAL);
 		break;
-	case 3:
+	case SAS_POPUP_CONFIRM_REGENERATE_MAP:
 		m_kUI.popupAddGenericButton(pPopup,
 				gDLL->getText("TXT_KEY_POPUP_REGENERATE_MAP").c_str(), NULL, 0, WIDGET_GENERAL);
 		break;
-	case 4:
+	case SAS_POPUP_CONFIRM_WORLD_BUILDER:
 		m_kUI.popupAddGenericButton(pPopup,
 				gDLL->getText("TXT_KEY_POPUP_ENTER_WB").c_str(), NULL, 0, WIDGET_GENERAL);
 		break;

@@ -1641,7 +1641,8 @@ void CvGame::doControl(ControlTypes eControl)
 			CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 			if (pInfo != NULL)
 			{
-				pInfo->setData1(2);
+				// <!-- custom: Share the confirmation action ID with popup dispatch and its diagnostics while preserving the inherited payload value. (GPT-6.1-Sol) -->
+				pInfo->setData1(SAS_POPUP_CONFIRM_RETIRE);
 				kUI.addPopup(pInfo, getActivePlayer(), true);
 			}
 		} // K-Mod end
@@ -1858,7 +1859,8 @@ void CvGame::doControl(ControlTypes eControl)
 			CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
 			if (pInfo != NULL)
 			{
-				pInfo->setData1(4);
+				// <!-- custom: Share the confirmation action ID with popup dispatch and its diagnostics while preserving the inherited payload value. (GPT-6.1-Sol) -->
+				pInfo->setData1(SAS_POPUP_CONFIRM_WORLD_BUILDER);
 				kUI.addPopup(pInfo, getActivePlayer(), true);
 			}
 		} // K-Mod end

@@ -61,12 +61,31 @@ def main():
         event_end = header.index("};", event_start) + 2
         enums = (ROOT / "CvGameCoreDLL/CvEnums.h").read_text(encoding="utf-8")
         autoplay_enum = enums[enums.index("#define SAS_AUTOPLAY_END_CAUSE_ROWS"):enums.index("enum TradeableItems")]
-        declarations = [autoplay_enum, header[event_start:event_end], header[family_start:family_end]] + [line for line in header.splitlines() if line.startswith(("bool flushSASDiagnosticLogs(", "CvString getSASDiagnosticWriterHealthFields(", "void setSASRuntimeStatusRootDirectory(", "void updateSASRuntimeStatusAutoPlay("))]
+        # <!-- custom: Runtime revision 7 names native ButtonPopupTypes.
+        # Build the standalone fixture enum from the production CvEnums block so new popup values cannot silently drift from the test harness; retain explicit numeric assignments such as EXE-hardcoded DETAILS/ADMIN. (ChatGPT-5.6-Sol) -->
+        popup_block = enums[enums.index("ENUM_START(ButtonPopup, BUTTONPOPUP)"):enums.index("ENUM_END(ButtonPopup, BUTTONPOPUP)")]
+        popup_rows = []
+        # <!-- custom: Expected popup IDs follow the production enum too; a literal EVENT=32 would make the output assertion brittle if earlier values change. (GPT-6.1-Sol) -->
+        popup_values = {}
+        popup_value = -1
+        for line in popup_block.splitlines():
+            match = re.match(r"\s*(BUTTONPOPUP_[A-Z0-9_]+)(?:\s*=\s*(-?\d+))?\s*,", line)
+            if match:
+                popup_rows.append("\t%s%s," % (match.group(1), " = " + match.group(2) if match.group(2) else ""))
+                popup_value = int(match.group(2)) if match.group(2) else popup_value + 1
+                popup_values[match.group(1)] = popup_value
+        if not popup_rows:
+            raise RuntimeError("failed to extract ButtonPopupTypes fixture enum")
+        popup_enum = "enum ButtonPopupTypes\n{\n\tNO_BUTTONPOPUP = -1,\n" + "\n".join(popup_rows) + "\n\tNUM_BUTTONPOPUP_TYPES\n};\n"
+        declarations = [autoplay_enum, popup_enum, header[event_start:event_end], header[family_start:family_end]] + [line for line in header.splitlines() if line.startswith(("bool flushSASDiagnosticLogs(", "CvString getSASDiagnosticWriterHealthFields(", "void setSASRuntimeStatusRootDirectory(", "void updateSASRuntimeStatusAutoPlay("))]
         (temporary / "writer_under_test.inc").write_text("\n".join(declarations) + "\n" + source[start:end], encoding="utf-8")
         # <!-- custom: Status gained gameplay dependencies inside the extracted writer and VC2003 rejected the old fixture.
         # Keep production services separate, then test both with explicit game scaffolding and real Win32 publication. (GPT-6.1-Sol) -->
         status = (ROOT / "CvGameCoreDLL/SASRuntimeStatus.cpp").read_text(encoding="utf-8")
         expected_revision = int(re.search(r"\bSAS_RUNTIME_REVISION\s*=\s*(\d+)", status).group(1))
+        # <!-- custom: Popup names belong to shared game utilities, so include that production helper explicitly in the isolated runtime fixture after moving it out of the recorder. (GPT-6.1-Sol) -->
+        popup_name_start = source.index("char const* getSASButtonPopupTypeName(")
+        popup_name_end = source.index("\n}", popup_name_start) + 2
         status_start = status.index("// <!-- custom: Finite process/game/session states")
         clock_start = source.index("// <!-- custom: SYSTEMTIME is the common")
         # <!-- custom: Stop after the UTC getter itself; the former comment-to-comment range also captured the later legacy-log bridge and VC2003 failed with C2039 because RuntimeTestDLL has no logMsg.
@@ -90,7 +109,7 @@ def main():
         (temporary / "runtime_binary_context_under_test.inc").write_text(binary_fixture, encoding="utf-8")
         cause_start = source.index("char const* getSASAutoPlayEndCause(")
         cause_end = source.index("// <!-- custom: Keep one iterable source of truth", cause_start)
-        (temporary / "runtime_status_under_test.inc").write_text(source[cause_start:cause_end] + source[clock_start:clock_end] + source[identity_start:identity_end] + status[status_start:] + gate, encoding="utf-8")
+        (temporary / "runtime_status_under_test.inc").write_text(source[cause_start:cause_end] + source[clock_start:clock_end] + source[identity_start:identity_end] + source[popup_name_start:popup_name_end] + status[status_start:] + gate, encoding="utf-8")
         bridge = (ROOT / "CvGameCoreDLL/CyGame.cpp").read_text(encoding="utf-8")
         bridge_start = bridge.index("void CyGame::updateSASRuntimeStatusWorldBuilderScreen(")
         bridge_end = bridge.index("// <!-- custom: Bridge only the post-Python lifecycle", bridge_start)
@@ -145,9 +164,11 @@ def main():
         assert presentation_sessions[0]["mapWidth"] == 120 and presentation_sessions[0]["mapHeight"] == 84
         assert presentation["revision"] == expected_revision and presentation["gameState"] == "PLAYING" and presentation["extendedGame"] == 1
         assert presentation["worldBuilderMode"] == 0 and presentation["worldBuilderScreenVisible"] == 0 and presentation["civilopediaVisible"] == 0
+        assert presentation["buttonPopupAwaitingInteraction"] == 0 and presentation["buttonPopupType"] == "BUTTONPOPUP_EVENT" and presentation["buttonPopupTypeId"] == popup_values["BUTTONPOPUP_EVENT"]
+        assert presentation["buttonPopupActivePlayer"] == 0 and presentation["buttonPopupResolution"] == "CANCELLED" and presentation["buttonPopupResponseButton"] == -1
         assert presentation["mainMenuSceneRequestedUtc"] == "-" and presentation["mainMenuStateObservedUtc"] == "-" and presentation["loadingScreenAssetRequestedUtc"] != "-" and presentation["pythonPreGameStartUtc"] != "-"
         presentation_reasons = [row["reason"] for row in presentation_timeline]
-        for reason in ("MAIN_MENU_SCENE_REQUESTED", "MAIN_MENU_STATE_OBSERVED", "CIVILOPEDIA_SHOWN", "CIVILOPEDIA_HIDDEN", "LOADING_SCREEN_ASSET_REQUESTED", "PYTHON_PRE_GAME_START", "WORLD_BUILDER_MODE_ENTERED", "WORLD_BUILDER_SCREEN_SHOWN", "WORLD_BUILDER_SCREEN_HIDDEN", "WORLD_BUILDER_MODE_EXITED", "GAME_ENDED", "EXTENDED_GAME_STARTED"):
+        for reason in ("MAIN_MENU_SCENE_REQUESTED", "MAIN_MENU_STATE_OBSERVED", "CIVILOPEDIA_SHOWN", "CIVILOPEDIA_HIDDEN", "LOADING_SCREEN_ASSET_REQUESTED", "PYTHON_PRE_GAME_START", "BUTTON_POPUP_FOCUSED", "BUTTON_POPUP_RESPONDED", "BUTTON_POPUP_CANCELLED", "WORLD_BUILDER_MODE_ENTERED", "WORLD_BUILDER_SCREEN_SHOWN", "WORLD_BUILDER_SCREEN_HIDDEN", "WORLD_BUILDER_MODE_EXITED", "GAME_ENDED", "EXTENDED_GAME_STARTED"):
             assert reason in presentation_reasons, reason
         shown = next(row for row in presentation_timeline if row["reason"] == "WORLD_BUILDER_SCREEN_SHOWN")
         mode_exit = next(row for row in presentation_timeline if row["reason"] == "WORLD_BUILDER_MODE_EXITED")
@@ -166,6 +187,13 @@ def main():
         creation = next(row for row in presentation_timeline if row["reason"] == "NEW_GAME_STARTED")
         ready = next(row for row in presentation_timeline if row["reason"] == "NEW_GAME_NATIVE_READY")
         assert menu_state["intervalStarted"] == 0 and pedia_shown["intervalStarted"] == 0 and pedia_hidden["intervalStarted"] == 0
+        popup_focus = next(row for row in presentation_timeline if row["reason"] == "BUTTON_POPUP_FOCUSED" and row["buttonPopupType"] == "BUTTONPOPUP_CHANGECIVIC")
+        # <!-- custom: The fixture also emits an earlier response without focus; select the civic response paired with popup_focus instead of assuming the first response belongs to that scenario. (GPT-6.1-Sol) -->
+        popup_response = next(row for row in presentation_timeline if row["reason"] == "BUTTON_POPUP_RESPONDED" and row["buttonPopupType"] == "BUTTONPOPUP_CHANGECIVIC")
+        popup_cancel = next(row for row in presentation_timeline if row["reason"] == "BUTTON_POPUP_CANCELLED")
+        assert popup_focus["buttonPopupAwaitingInteraction"] == 1 and popup_focus["buttonPopupActivePlayer"] == 0 and popup_focus["intervalStarted"] == 0 and popup_focus["state"] == "PLAYING"
+        assert popup_response["buttonPopupAwaitingInteraction"] == 0 and popup_response["buttonPopupResolution"] == "RESPONDED" and popup_response["buttonPopupResponseButton"] == 0 and popup_response["intervalStarted"] == 0
+        assert popup_cancel["buttonPopupAwaitingInteraction"] == 0 and popup_cancel["buttonPopupResolution"] == "CANCELLED" and popup_cancel["buttonPopupResponseButton"] == -1 and popup_cancel["intervalStarted"] == 0
         assert loading["intervalStarted"] == 0 and loading["previousState"] == "NONE" and loading["previousDurationMilliseconds"] == -1
         assert pre_game["intervalStarted"] == 0 and pre_game["stateStartedUtc"] == creation["stateStartedUtc"] and pre_game["stateElapsedMilliseconds"] == 500
         assert loading["stateStartedUtc"] == creation["stateStartedUtc"] and loading["stateElapsedMilliseconds"] == 250
@@ -214,6 +242,7 @@ def main():
         for row in snapshots.values():
             assert row["revision"] == expected_revision and "schema" not in row
             assert row["dllIdentity"] == {"buildConfiguration": "Debug-opt", "moduleFound": 1, "fileReadable": 1, "fileSizeBytes": 123456, "fingerprint": "FNV1A64:123456789ABCDEF0", "lastWriteUtc": "20261018T000000.000Z", "peTimestampRaw": 42}
+            assert row["buttonPopupAwaitingInteraction"] == 0 and row["buttonPopupType"] == "NONE" and row["buttonPopupTypeId"] == -1
         assert snapshots["starting"]["gameTurn"] == -1 and snapshots["load_starting"]["loadedSaveCheckpointTurn"] == -1
         assert snapshots["autoplay"]["autoplayActive"] == 1 and snapshots["turn"]["lastCompletedTurn"] == 4
         assert snapshots["loaded"]["loadedSaveCheckpointTurn"] == 7 and snapshots["loaded"]["loadCount"] == 1

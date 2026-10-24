@@ -10,10 +10,26 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## History
 
+### Revision 7 - SAS practical 6676
+
+- **Date:** 2026-10-23
+- **Git commit:** pending
+- **Change:** Expose native ButtonPopup interaction as a compact event-driven wait state without turning UI prompts into gameplay/activity intervals.
+  - `BUTTON_POPUP_FOCUSED` begins `buttonPopupAwaitingInteraction=1` only from `CvDLLButtonPopup::OnFocus`, after popup-specific stale/cancellation checks. Focus is stronger evidence than merely queueing/launching a popup: the EXE has reached its native focus/interaction callback for that ButtonPopup. It is not claimed as an exact rendered-frame timestamp.
+    - The snapshot/history retain fixed `buttonPopupType`/numeric ID, active player and focus time. No popup body, edit-box text, player-entered name/password/mail/server value, or arbitrary Python text is recorded.
+    - `BUTTONPOPUP_PYTHON_SCREEN` is an EXE queue shim for a full Python screen rather than a displayed native popup and therefore is not claimed as covered by this focus state.
+  - `BUTTON_POPUP_RESPONDED` closes the observed wait at the generic native button-return boundary and retains the numeric response button. `BUTTON_POPUP_CANCELLED` is reserved for an already-focused popup that the EXE/UI marks stale before interaction.
+    - Resolution matches the opaque in-process popup identity while a prompt is tracked, so an old/dying popup response or cancellation cannot clear a newer prompt of the same type. A response can still be recorded without prior focus when no prompt currently owns the wait state.
+    - Internal Alt-execute requeue is not mislabeled as a player choice/cancel; the replacement popup's focus refreshes the wait identity.
+    - A response is evidence that a button return reached native dispatch, not that the downstream gameplay action succeeded; realized gameplay remains separate evidence.
+    - A response without observed focus has no focus timestamp; it cannot inherit a previously resolved popup's time. Shared popup-type naming lives with the common game utilities rather than either recorder.
+  - Popup observations are transition rows with `intervalStarted=0`. Waiting during ordinary play, autoplay or an end-game prompt preserves the underlying activity clock instead of introducing an `AWAITING_POPUP` activity that would fragment coarse timing.
+  - Reset/new-session clears popup context. After a resolved popup, type/player/resolution remain as the last observed interaction until the next popup or reset, analogous to retained Civilopedia context. No frame/update polling or popup-queue scans are added.
+
 ### Revision 6 - SAS practical 6660
 
 - **Date:** 2026-10-21
-- **Git commit:** pending
+- **Git commit:** `73fba8f1cf408ebac14cf28c170fbb9090d6f1b7`
 - **Change:** Rename the enable setting to `SAS_RUNTIME_STATUS_ON` with the GlobalDefine naming review (KI#1001.2). Its default, cached enable check and runtime observations are unchanged.
 
 ### Revision 5 - SAS practical 6646

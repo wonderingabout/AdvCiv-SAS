@@ -45,6 +45,8 @@ void CvString::Format(LPCSTR format, ...)
 // <!-- custom: Production GameStateTypes comes from the Civ4 headers; the standalone fixture needs only the values inspected by runtime status. (ChatGPT-5.6-Sol) -->
 // <!-- custom: Minimal player/civilization stubs exercise overlay ownership without including gameplay code in this standalone test. (GPT-6.1-Sol) -->
 typedef int PlayerTypes;
+// <!-- custom: Runtime popup observations use only object identity; a zero-behavior fixture object is sufficient to exercise focus/response/cancellation state without importing Civ4 UI implementation. (ChatGPT-5.6-Sol) -->
+class CvPopup {};
 struct TestPlayer { int getCivilizationType() const { return 4; } };
 static TestPlayer g_runtimePlayer;
 #define GET_PLAYER(PLAYER) g_runtimePlayer
@@ -524,6 +526,49 @@ int main(int argc, char** argv)
 		require(g_bSASRuntimeCivilopediaVisible && g_eSASRuntimeCivilopediaContext == SAS_RUNTIME_CIVILOPEDIA_IN_GAME && g_iSASRuntimeCivilopediaActivePlayer == 0 && g_iSASRuntimeCivilopediaActiveCivilization == 4, "in-game Civilopedia records active player and civilization");
 		bridge.updateSASRuntimeStatusCivilopedia(false, false);
 		require(!g_bSASRuntimeCivilopediaVisible && g_iSASRuntimeCivilopediaActivePlayer == 0, "hide retains the observed overlay owner");
+
+		// <!-- custom: Focus/response/cancellation are presentation observations inside PLAYING rather than new activities.
+		// Exact popup identity prevents a stale cancellation from closing a newer prompt. (ChatGPT-5.6-Sol) -->
+		CvPopup firstPopup;
+		CvPopup secondPopup;
+		before = g_uiSASRuntimeStatusSerial;
+		updateSASRuntimeStatusButtonPopupFocused(&firstPopup, BUTTONPOPUP_PYTHON_SCREEN);
+		require(g_uiSASRuntimeStatusSerial == before && !g_bSASRuntimeButtonPopupAwaitingInteraction, "Python-screen queue shim is not published as a focused native popup");
+		updateSASRuntimeStatusButtonPopupResolved(&firstPopup, BUTTONPOPUP_PYTHON_SCREEN, 0, false);
+		require(g_uiSASRuntimeStatusSerial == before && !g_bSASRuntimeButtonPopupAwaitingInteraction, "Python-screen queue shim cannot publish a native popup response");
+		updateSASRuntimeStatusButtonPopupResolved(&firstPopup, BUTTONPOPUP_RAZECITY, 1, false);
+		require(g_uiSASRuntimeStatusSerial == before + 1 && !g_bSASRuntimeButtonPopupAwaitingInteraction && g_szSASRuntimeButtonPopupResolution == "RESPONDED", "response without prior focus remains useful when no popup owns the wait state");
+		CvString const playStartedUtc = g_szSASRuntimeActivityStartedUtc;
+		unsigned int const playStartedMilliseconds = g_uiSASRuntimeActivityStartedMilliseconds;
+		g_runtimeClock = 2050;
+		before = g_uiSASRuntimeStatusSerial;
+		updateSASRuntimeStatusButtonPopupFocused(&firstPopup, BUTTONPOPUP_RAZECITY);
+		require(g_bSASRuntimeButtonPopupAwaitingInteraction && g_eSASRuntimeButtonPopupType == BUTTONPOPUP_RAZECITY && g_iSASRuntimeButtonPopupActivePlayer == 0 && g_szSASRuntimeButtonPopupFocusedUtc != "-" && g_szSASRuntimeButtonPopupResolution == "-" && g_uiSASRuntimeStatusSerial == before + 1, "focused native popup publishes awaiting-interaction context");
+		require(g_eSASRuntimeActivity == SAS_RUNTIME_ACTIVITY_PLAYING && g_szSASRuntimeActivityStartedUtc == playStartedUtc && g_uiSASRuntimeActivityStartedMilliseconds == playStartedMilliseconds, "popup focus preserves underlying play timing");
+		before = g_uiSASRuntimeStatusSerial;
+		updateSASRuntimeStatusButtonPopupFocused(&firstPopup, BUTTONPOPUP_RAZECITY);
+		require(g_uiSASRuntimeStatusSerial == before, "duplicate focus for the same popup is suppressed");
+		updateSASRuntimeStatusButtonPopupFocused(&secondPopup, BUTTONPOPUP_CHANGECIVIC);
+		require(g_bSASRuntimeButtonPopupAwaitingInteraction && g_eSASRuntimeButtonPopupType == BUTTONPOPUP_CHANGECIVIC, "new focused popup supersedes older popup context");
+		before = g_uiSASRuntimeStatusSerial;
+		updateSASRuntimeStatusButtonPopupResolved(&firstPopup, BUTTONPOPUP_RAZECITY, -1, true);
+		require(g_uiSASRuntimeStatusSerial == before && g_bSASRuntimeButtonPopupAwaitingInteraction && g_eSASRuntimeButtonPopupType == BUTTONPOPUP_CHANGECIVIC, "stale cancellation cannot close a newer popup");
+		updateSASRuntimeStatusButtonPopupResolved(&firstPopup, BUTTONPOPUP_RAZECITY, 1, false);
+		require(g_uiSASRuntimeStatusSerial == before && g_bSASRuntimeButtonPopupAwaitingInteraction && g_eSASRuntimeButtonPopupType == BUTTONPOPUP_CHANGECIVIC, "stale response cannot close a newer popup");
+		g_runtimeClock = 2100;
+		updateSASRuntimeStatusButtonPopupResolved(&secondPopup, BUTTONPOPUP_CHANGECIVIC, 0, false);
+		require(!g_bSASRuntimeButtonPopupAwaitingInteraction && g_szSASRuntimeButtonPopupResolution == "RESPONDED" && g_iSASRuntimeButtonPopupResponseButton == 0 && g_szSASRuntimeButtonPopupResolvedUtc != "-", "button response closes observed popup wait and retains response evidence");
+		require(g_eSASRuntimeActivity == SAS_RUNTIME_ACTIVITY_PLAYING && g_uiSASRuntimeActivityStartedMilliseconds == playStartedMilliseconds, "popup response preserves underlying play timing");
+		// <!-- custom: A later response without focus must not inherit the already-resolved civic popup's focus time; exercise the same production resolver after that earlier lifecycle. (GPT-6.1-Sol) -->
+		updateSASRuntimeStatusButtonPopupResolved(&firstPopup, BUTTONPOPUP_RAZECITY, 1, false);
+		require(g_szSASRuntimeButtonPopupFocusedUtc == "-", "response without focus clears previous popup focus time");
+		g_runtimeClock = 2150;
+		updateSASRuntimeStatusButtonPopupFocused(&firstPopup, BUTTONPOPUP_EVENT);
+		GC.game.activePlayer = 2;
+		updateSASRuntimeStatusButtonPopupResolved(&firstPopup, BUTTONPOPUP_EVENT, -1, true);
+		require(!g_bSASRuntimeButtonPopupAwaitingInteraction && g_szSASRuntimeButtonPopupResolution == "CANCELLED" && g_iSASRuntimeButtonPopupResponseButton == -1 && g_iSASRuntimeButtonPopupActivePlayer == 0, "exact focused popup cancellation closes wait distinctly and retains its observed UI owner");
+		GC.game.activePlayer = 0;
+
 		g_runtimeTestDLL.worldBuilder = true;
 		GC.game.advancedStart = true;
 		before = g_uiSASRuntimeStatusSerial;

@@ -19,6 +19,7 @@ template <class tVARTYPE> class CLinkList;
 class CvString;
 class CvWString;
 class CvRandom;
+class CvPopup; // <!-- custom: Runtime popup observations use only the opaque EXE popup identity; forward-declare it rather than pulling UI implementation into this widely included utility header. (ChatGPT-5.6-Sol) -->
 class FAStarNode;
 class FAStar;
 
@@ -136,6 +137,29 @@ void updateSASRuntimeStatusWorldBuilderMode(bool bEnabled);
 void updateSASRuntimeStatusWorldBuilderScreen(bool bVisible);
 // <!-- custom: Track confirmed Civilopedia visibility with menu/game origin and in-game active-player context; this overlay does not change the underlying activity timer. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void updateSASRuntimeStatusCivilopedia(bool bVisible, bool bInMainMenu);
+// <!-- custom: Popup type labels are shared UI vocabulary, not runtime-recorder state; keep their declaration and implementation with the common game helpers. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASButtonPopupTypeName(ButtonPopupTypes eType);
+// <!-- custom: The confirmation popup stores an action ID in data1, distinct from its Yes/Cancel button ID.
+// Preserve the inherited 0..4 payload values while giving creation, dispatch, presentation and SGR one catalog; emit names from the same rows to prevent independent numeric/string mappings. (GPT-6.1-Sol) -->
+#define SAS_POPUP_CONFIRM_ACTION_ROWS(DO) \
+	DO(EXIT_TO_DESKTOP, 0) \
+	DO(RETURN_TO_MAIN_MENU, 1) \
+	DO(RETIRE, 2) \
+	DO(REGENERATE_MAP, 3) \
+	DO(WORLD_BUILDER, 4)
+enum SASPopupConfirmAction
+{
+#define SAS_POPUP_CONFIRM_ENUM(NAME, VALUE) SAS_POPUP_CONFIRM_##NAME = VALUE,
+	SAS_POPUP_CONFIRM_ACTION_ROWS(SAS_POPUP_CONFIRM_ENUM)
+#undef SAS_POPUP_CONFIRM_ENUM
+};
+// <!-- custom: Accept the raw popup payload so unknown values return NULL for the caller's numeric fallback instead of inventing a valid action. (GPT-6.1-Sol) -->
+char const* getSASPopupConfirmActionName(int iAction);
+
+// <!-- custom: Native ButtonPopup focus/return callbacks are stronger than launch requests: focus records the EXE's native interaction callback, while response/cancellation closes that observed wait without changing the underlying play/autoplay/game-ended activity interval.
+// pPopup is used only as an in-process identity so a stale cancellation cannot close a different popup of the same type. (ChatGPT-5.6-Sol) -->
+void updateSASRuntimeStatusButtonPopupFocused(CvPopup const* pPopup, ButtonPopupTypes eType);
+void updateSASRuntimeStatusButtonPopupResolved(CvPopup const* pPopup, ButtonPopupTypes eType, int iButtonClicked, bool bCancelled);
 // <!-- custom: A GAMESTATE_OVER -> GAMESTATE_EXTENDED transition resumes live play after the end-game popup; preserve that instead of leaving external status at GAME_ENDED. (ChatGPT-5.6-Sol) -->
 void updateSASRuntimeStatusExtendedGameStarted();
 // <!-- custom: Menu/exit request boundaries are observable before EXE work; their completion is not inferred from the request. (GPT-6.1-Sol) -->

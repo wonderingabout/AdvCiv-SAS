@@ -107,6 +107,10 @@ From runtime revision 4, the current snapshot also reports `windowCloseObservati
 
 From runtime revision 5, `mainMenuStateObservedUtc` can retain a positive main-menu state sample from an explicit Options/Civilopedia entry point. `pythonPreGameStartUtc` records BUG's EXE-driven Python initialization callback once per session; neither identifies the first rendered menu/loading frame.
 
+From runtime revision 7, native ButtonPopup focus/response observations add `buttonPopupAwaitingInteraction`, `buttonPopupType`, `buttonPopupTypeId`, `buttonPopupActivePlayer`, `buttonPopupFocusedUtc`, `buttonPopupResolvedUtc`, `buttonPopupResolution` and `buttonPopupResponseButton`. Focus proves the native popup reached its generic focus callback; resolution records a native button return or an observed stale-popup cancellation, not downstream gameplay success. These are observation-only rows and preserve the underlying activity timer.
+
+The linked real JSON/JSONL pair below was captured with runtime revision 5, before the popup fields existed. Keep it as real evidence rather than synthesizing revision-6 values; refresh it only from a future representative game run.
+
 Civilopedia observations now cover main-menu and in-game use. `civilopediaVisible` reports observed screen state (active after showing; hidden on the EXE no-screens notification or an inactive-screen close check), while `civilopediaContext` retains `MAIN_MENU` or `IN_GAME` through the hide row (`NONE` before observation or after reset). `civilopediaActivePlayer` / `civilopediaActiveCivilization` identify the in-game UI owner, not the displayed page or preview model; menu observations use `-1`. These fields are present in both companion examples; this capture demonstrates the in-game context.
 
 ## Real output and test fixtures

@@ -15,6 +15,7 @@
 // <!-- custom: Revision 151 added a commerce-logging CvPlayer reference above the previous forward-declaration block; CitySiteEvaluator.cpp then failed with C2065/C2143 because CvPlayer was not declared yet.
 // Declare it before the first signature rather than relying on caller include order or adding the full player header. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 class CvPlayer;
+class CvPopupInfo; // <!-- custom: Player popup-choice logging accepts the existing popup descriptor by const reference; forward-declare it to keep this lightweight public recorder header independent of popup implementation details. (ChatGPT-5.6-Sol) -->
 
 // <!-- custom: Structured game-record rows for autoplay comparison, game analysis, user-assistance summaries, and external LLM review.
 // This is not a classic BBAI diagnostic category: it has its own XML defines, its own SASGameRecord_*.log files, and its own lightweight public header.
@@ -58,6 +59,9 @@ void logSASGameRecordPlayerOptionChange(PlayerTypes ePlayer, PlayerOptionTypes e
 // Callers pre-gate at level 2+ and, from revision 151 onward, the independent action-trace subject switch. (ChatGPT-5.6-Sol) -->
 // <!-- custom: Accept the native control enum instead of separate action/source strings so accepted and rejected paths share one curated mapping. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void logSASGameRecordControlRequest(ControlTypes eControl, bool bAccepted);
+// <!-- custom: Native ButtonPopup returns provide direct player-choice evidence for general popup buttons; record fixed popup/choice tokens plus only reviewed native numeric context, never popup/free-form/edit-box text or unreviewed generic payload slots.
+// Widget-routed selections such as normal technology/production buttons can bypass OnOkClicked and remain represented by their authoritative resulting gameplay rows rather than guessed here. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClicked);
 void logSASGameRecordScreenAction(char const* szScreen, char const* szAction, int iPrimary = -1, int iSecondary = -1);
 void logSASGameRecordInterfaceState(char const* szComponent, char const* szEvent, char const* szReason, int iCount, char const* szValues);
 // <!-- custom: Four camera toggles have authoritative pre/post Boolean getters.

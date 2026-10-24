@@ -35,7 +35,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=160 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=165 ...
 ```
 
 After this, each qualifying SASGameRecord commit increments `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` exactly once and adds one short latest-first entry to this file in the same commit. The revision remains a downstream-update signal; exact runtime source/build identity remains separate provenance in `GAME_RECORD_SOURCE_CONTEXT` and the DLL/build context.
@@ -78,10 +78,24 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 164 - SAS practical 6671
+### Revision 165 - SAS practical 6676
 
 - **Date:** 2026-10-23
 - **Git commit:** pending
+- **Change:** Add compact native popup-choice evidence to the existing level-2+ player action trace, complementing runtime popup visibility without duplicating realized gameplay results.
+  - `GAME_RECORD_PLAYER_POPUP_CHOICE` is emitted at the shared `CvDLLButtonPopup::OnOkClicked` boundary before downstream gameplay dispatch. It records popup type/ID, numeric button and fixed decoded choice/target where the native switch gives an unambiguous meaning.
+    - Generic `CvPopupInfo` numeric payload slots are recorded only for reviewed native gameplay/session families (`metadata=RECORDED`); Python/admin/network/free-form families default to `metadata=WITHHELD` instead of treating generic payload storage as public diagnostic data.
+    - This is player-input/return evidence, not proof that the subsequent task, vote, event, diplomacy action or session command completed. Existing specialized GameRecord action/result rows remain authoritative for realized effects.
+    - Unknown/administrative/Python families retain the stable `BUTTON_RESPONSE` fallback rather than mirroring every UI implementation detail.
+  - Privacy is intentionally narrower than the native popup payload: never record popup body text, `PopupReturn` edit-box strings, or other free-form content, and withhold unreviewed generic numeric payload slots. This avoids leaking player names, passwords, email/server fields, buddy/account context or arbitrary Python-popup payloads.
+  - Some ordinary technology and production selections are widget-routed and bypass `OnOkClicked`; do not infer missing popup-choice rows for them. Existing research/production rows remain the authoritative observable result for those routes.
+  - The row uses the existing `SAS_SGR_ACTION_TRACE_ON` subject gate and level 2+, so disabled/level-1 recording adds no new choice formatting. Runtime status separately answers whether a native ButtonPopup is presently awaiting interaction.
+  - Shared popup-type names live in `CvGameCoreUtils.*`; confirmation creation, handling and diagnostic decoding use one named catalog with the inherited numeric payloads. This avoids making either recorder the owner of UI meanings.
+
+### Revision 164 - SAS practical 6671
+
+- **Date:** 2026-10-23
+- **Git commit:** `2309c4a6484e82af0eab45675c750beb991f28df`
 - **Change:** During the KI#166.2 investigation of repeated Hall-of-Fame bounds assertions, add once-per-session `GAME_RECORD_REPLAY_FORMAT` with the cached XML `SAS_SAVE_VERSION` mod identity, layout version, packed header and configured legacy candidate ID.
   - The loader derives the inherited engine/BUG key from `SAS_SAVE_VERSION` after XML overrides, preserving existing consumers without another editable setting.
   - Reader, writer and diagnostics reuse that configured identity, with packed-header detection independent of historical mod IDs; the row describes current writer capabilities, not a replay being read by Hall of Fame.
@@ -1539,7 +1553,7 @@ Note: Steam detection/path/build metadata are runtime-validated; GOG, Firaxis re
 
 ## Maintenance template
 
-For the next qualifying committed update, increment `SAS_GAME_RECORD_REVISION` in `GlobalDefines_advciv_sas.xml` exactly once and prepend one entry like this:
+For the next qualifying committed update, increment `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` exactly once and prepend one entry like this:
 
 ```markdown
 ### Revision N - SAS practical XXXX

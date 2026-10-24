@@ -15,7 +15,7 @@
 // Compile the label into the publisher: an edited XML value must not make an older loaded DLL report a newer implementation; this counter is independent of SASGameRecord and binary-save versions. (GPT-6.1-Sol) -->
 enum SASRuntimeRecorderRevision
 {
-	SAS_RUNTIME_REVISION = 6
+	SAS_RUNTIME_REVISION = 7
 };
 
 #define SAS_RUNTIME_PROCESS_STATES(DO) DO(RUNNING) DO(EXITED_CLEANLY)
@@ -158,6 +158,17 @@ static bool g_bSASRuntimeCivilopediaVisible = false;
 static SASRuntimeCivilopediaContext g_eSASRuntimeCivilopediaContext = SAS_RUNTIME_CIVILOPEDIA_NONE;
 static int g_iSASRuntimeCivilopediaActivePlayer = -1;
 static int g_iSASRuntimeCivilopediaActiveCivilization = -1;
+// <!-- custom: ButtonPopup focus is the strongest generic EXE callback that a native prompt has reached its interaction boundary; keep its wait state independent from the underlying PLAYING/AUTOPLAY/GAME_ENDED activity.
+// Retain the last popup type/player/resolution after it closes for agent inspection, while reset/new-session clears the context.
+// Never expose popup free text or edit-box contents here. (ChatGPT-5.6-Sol) -->
+static bool g_bSASRuntimeButtonPopupAwaitingInteraction = false;
+static ButtonPopupTypes g_eSASRuntimeButtonPopupType = NO_BUTTONPOPUP;
+static int g_iSASRuntimeButtonPopupActivePlayer = -1;
+static CvString g_szSASRuntimeButtonPopupFocusedUtc = "-";
+static CvString g_szSASRuntimeButtonPopupResolvedUtc = "-";
+static CvString g_szSASRuntimeButtonPopupResolution = "-";
+static int g_iSASRuntimeButtonPopupResponseButton = -1;
+static CvPopup const* g_pSASRuntimeButtonPopup = NULL;
 
 static char const* getSASRuntimeCivilopediaContext()
 {
@@ -583,6 +594,9 @@ static void updateSASRuntimeActivity(SASRuntimeStatusReason eReason, CvString co
 		eReason == SAS_RUNTIME_STATUS_WORLD_BUILDER_SCREEN_HIDDEN ||
 		eReason == SAS_RUNTIME_STATUS_CIVILOPEDIA_SHOWN ||
 		eReason == SAS_RUNTIME_STATUS_CIVILOPEDIA_HIDDEN ||
+		eReason == SAS_RUNTIME_STATUS_BUTTON_POPUP_FOCUSED ||
+		eReason == SAS_RUNTIME_STATUS_BUTTON_POPUP_RESPONDED ||
+		eReason == SAS_RUNTIME_STATUS_BUTTON_POPUP_CANCELLED ||
 		isSASRuntimeWindowCloseReason(eReason));
 	bool const bIntervalStarted = (eActivity != g_eSASRuntimeActivity || eReason == SAS_RUNTIME_STATUS_AUTOPLAY_CHANGED || g_uiSASRuntimeActivitySession != g_uiSASRuntimeSessionSerial);
 	if (!bIntervalStarted && !bObservationBoundary)
@@ -632,13 +646,24 @@ static void updateSASRuntimeActivity(SASRuntimeStatusReason eReason, CvString co
 		"\"civilopediaContext\":\"%s\","
 		"\"civilopediaActivePlayer\":%d,"
 		"\"civilopediaActiveCivilization\":%d,"
+		"\"buttonPopupAwaitingInteraction\":%d,"
+		"\"buttonPopupType\":\"%s\","
+		"\"buttonPopupTypeId\":%d,"
+		"\"buttonPopupActivePlayer\":%d,"
+		"\"buttonPopupFocusedUtc\":\"%s\","
+		"\"buttonPopupResolvedUtc\":\"%s\","
+		"\"buttonPopupResolution\":\"%s\","
+		"\"buttonPopupResponseButton\":%d,"
 		"\"autoplayEndCause\":\"%s\","
 		"\"priorStatusWriteFailures\":%u,"
 		"\"priorHistoryWriteFailures\":%u}\r\n",
 		SAS_RUNTIME_REVISION, getSASRuntimeHistoryRunId().GetCString(), ++g_uiSASRuntimeActivitySerial, bIntervalStarted ? 1 : 0,
 		aSASRuntimeActivityNames[bIntervalStarted ? g_eSASRuntimePreviousActivity : SAS_RUNTIME_ACTIVITY_NONE], bIntervalStarted ? g_szSASRuntimePreviousStartedUtc.GetCString() : "-", bIntervalStarted ? g_szSASRuntimePreviousEndedUtc.GetCString() : "-", bIntervalStarted ? g_iSASRuntimePreviousDurationMilliseconds : (__int64)-1,
 		uiPreviousSession, iPreviousStartTurn, iPreviousRequestedTurns, szNowUtc.GetCString(), aSASRuntimeActivityNames[eActivity], g_szSASRuntimeActivityStartedUtc.GetCString(), getSASElapsedMilliseconds(g_uiSASRuntimeActivityStartedMilliseconds, uiNowMilliseconds), g_uiSASRuntimeSessionSerial, iGameTurn, iAutoPlayRemaining,
-		aSASRuntimeStatusReasonNames[eReason], g_bSASRuntimeCivilopediaVisible, getSASRuntimeCivilopediaContext(), g_iSASRuntimeCivilopediaActivePlayer, g_iSASRuntimeCivilopediaActiveCivilization, (eReason == SAS_RUNTIME_STATUS_AUTOPLAY_ENDED ? getSASAutoPlayEndCause(g_eSASRuntimeLastAutoplayEndCause) : "-"), g_uiSASRuntimeStatusWriteFailures, g_uiSASRuntimeHistoryWriteFailures);
+		aSASRuntimeStatusReasonNames[eReason], g_bSASRuntimeCivilopediaVisible, getSASRuntimeCivilopediaContext(), g_iSASRuntimeCivilopediaActivePlayer, g_iSASRuntimeCivilopediaActiveCivilization,
+		g_bSASRuntimeButtonPopupAwaitingInteraction ? 1 : 0, getSASButtonPopupTypeName(g_eSASRuntimeButtonPopupType), (int)g_eSASRuntimeButtonPopupType, g_iSASRuntimeButtonPopupActivePlayer,
+		g_szSASRuntimeButtonPopupFocusedUtc.GetCString(), g_szSASRuntimeButtonPopupResolvedUtc.GetCString(), g_szSASRuntimeButtonPopupResolution.GetCString(), g_iSASRuntimeButtonPopupResponseButton,
+		(eReason == SAS_RUNTIME_STATUS_AUTOPLAY_ENDED ? getSASAutoPlayEndCause(g_eSASRuntimeLastAutoplayEndCause) : "-"), g_uiSASRuntimeStatusWriteFailures, g_uiSASRuntimeHistoryWriteFailures);
 	recordSASRuntimeHistoryRow(szRow);
 }
 
@@ -747,6 +772,14 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 		"  \"civilopediaContext\": \"%s\",\r\n"
 		"  \"civilopediaActivePlayer\": %d,\r\n"
 		"  \"civilopediaActiveCivilization\": %d,\r\n"
+		"  \"buttonPopupAwaitingInteraction\": %d,\r\n"
+		"  \"buttonPopupType\": \"%s\",\r\n"
+		"  \"buttonPopupTypeId\": %d,\r\n"
+		"  \"buttonPopupActivePlayer\": %d,\r\n"
+		"  \"buttonPopupFocusedUtc\": \"%s\",\r\n"
+		"  \"buttonPopupResolvedUtc\": \"%s\",\r\n"
+		"  \"buttonPopupResolution\": \"%s\",\r\n"
+		"  \"buttonPopupResponseButton\": %d,\r\n"
 		"  \"extendedGame\": %d,\r\n"
 		"  \"gameTurn\": %d,\r\n"
 		"  \"elapsedGameTurns\": %d,\r\n"
@@ -772,7 +805,9 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 		aSASRuntimeStatusReasonNames[eReason], g_uiSASRuntimeSessionSerial, g_uiSASRuntimeNewGameCount, g_uiSASRuntimeLoadCount,
 		aSASRuntimeSessionStateNames[g_eSASRuntimeSessionKind], g_szSASRuntimeSessionStartedUtc.GetCString(), g_szSASRuntimeNativeReadyUtc.GetCString(),
 		g_szSASRuntimeMainMenuSceneRequestedUtc.GetCString(), g_szSASRuntimeMainMenuStateObservedUtc.GetCString(), g_szSASRuntimeLoadingScreenAssetRequestedUtc.GetCString(), g_szSASRuntimePythonPreGameStartUtc.GetCString(),
-		g_bSASRuntimeWorldBuilderMode, g_bSASRuntimeWorldBuilderScreenVisible, g_bSASRuntimeCivilopediaVisible, getSASRuntimeCivilopediaContext(), g_iSASRuntimeCivilopediaActivePlayer, g_iSASRuntimeCivilopediaActiveCivilization, iExtendedGame,
+		g_bSASRuntimeWorldBuilderMode, g_bSASRuntimeWorldBuilderScreenVisible, g_bSASRuntimeCivilopediaVisible, getSASRuntimeCivilopediaContext(), g_iSASRuntimeCivilopediaActivePlayer, g_iSASRuntimeCivilopediaActiveCivilization,
+		g_bSASRuntimeButtonPopupAwaitingInteraction ? 1 : 0, getSASButtonPopupTypeName(g_eSASRuntimeButtonPopupType), (int)g_eSASRuntimeButtonPopupType, g_iSASRuntimeButtonPopupActivePlayer,
+		g_szSASRuntimeButtonPopupFocusedUtc.GetCString(), g_szSASRuntimeButtonPopupResolvedUtc.GetCString(), g_szSASRuntimeButtonPopupResolution.GetCString(), g_iSASRuntimeButtonPopupResponseButton, iExtendedGame,
 		iGameTurn, iElapsedGameTurns, g_iSASRuntimeLastCompletedTurn, iActivePlayer,
 		(iAutoPlayRemaining > 0 ? 1 : 0), iAutoPlayRemaining, iMapWidth, iMapHeight, iWorldSize, iGameSpeed, iScenario,
 		iLoadedCheckpointTurn, iLoadedCheckpointElapsedTurn, szLoadedCheckpointUtc);
@@ -837,6 +872,14 @@ void updateSASRuntimeStatusNoGame()
 	g_eSASRuntimeCivilopediaContext = SAS_RUNTIME_CIVILOPEDIA_NONE;
 	g_iSASRuntimeCivilopediaActivePlayer = -1;
 	g_iSASRuntimeCivilopediaActiveCivilization = -1;
+	g_bSASRuntimeButtonPopupAwaitingInteraction = false;
+	g_eSASRuntimeButtonPopupType = NO_BUTTONPOPUP;
+	g_iSASRuntimeButtonPopupActivePlayer = -1;
+	g_szSASRuntimeButtonPopupFocusedUtc = "-";
+	g_szSASRuntimeButtonPopupResolvedUtc = "-";
+	g_szSASRuntimeButtonPopupResolution = "-";
+	g_iSASRuntimeButtonPopupResponseButton = -1;
+	g_pSASRuntimeButtonPopup = NULL;
 	g_iSASRuntimeLastCompletedTurn = -1;
 	writeSASRuntimeStatus(SAS_RUNTIME_STATUS_GAME_RESET);
 }
@@ -890,6 +933,14 @@ void updateSASRuntimeStatusSessionStarted(bool bLoadedSave)
 	g_eSASRuntimeCivilopediaContext = SAS_RUNTIME_CIVILOPEDIA_NONE;
 	g_iSASRuntimeCivilopediaActivePlayer = -1;
 	g_iSASRuntimeCivilopediaActiveCivilization = -1;
+	g_bSASRuntimeButtonPopupAwaitingInteraction = false;
+	g_eSASRuntimeButtonPopupType = NO_BUTTONPOPUP;
+	g_iSASRuntimeButtonPopupActivePlayer = -1;
+	g_szSASRuntimeButtonPopupFocusedUtc = "-";
+	g_szSASRuntimeButtonPopupResolvedUtc = "-";
+	g_szSASRuntimeButtonPopupResolution = "-";
+	g_iSASRuntimeButtonPopupResponseButton = -1;
+	g_pSASRuntimeButtonPopup = NULL;
 	g_iSASRuntimeLastCompletedTurn = -1;
 	writeSASRuntimeStatus(bLoadedSave ? SAS_RUNTIME_STATUS_LOAD_GAME_STARTED : SAS_RUNTIME_STATUS_NEW_GAME_STARTED);
 }
@@ -981,6 +1032,54 @@ void updateSASRuntimeStatusCivilopedia(bool bVisible, bool bInMainMenu)
 		return;
 	g_bSASRuntimeCivilopediaVisible = bVisible;
 	writeSASRuntimeStatus(bVisible ? SAS_RUNTIME_STATUS_CIVILOPEDIA_SHOWN : SAS_RUNTIME_STATUS_CIVILOPEDIA_HIDDEN);
+}
+
+// <!-- custom: Focus is the first generic ButtonPopup callback that proves an interactive popup reached the EXE UI rather than merely being queued/launched.
+// Keep this overlay observational so waiting on a prompt during PLAYING, AUTOPLAY or GAME_ENDED never restarts the activity timer. (ChatGPT-5.6-Sol) -->
+void updateSASRuntimeStatusButtonPopupFocused(CvPopup const* pPopup, ButtonPopupTypes eType)
+{
+	if (!isSASRuntimeStatusEnabled() || pPopup == NULL || eType == NO_BUTTONPOPUP || eType == BUTTONPOPUP_PYTHON_SCREEN)
+		return;
+	if (g_bSASRuntimeButtonPopupAwaitingInteraction && g_pSASRuntimeButtonPopup == pPopup && g_eSASRuntimeButtonPopupType == eType)
+		return;
+	g_bSASRuntimeButtonPopupAwaitingInteraction = true;
+	g_eSASRuntimeButtonPopupType = eType;
+	g_iSASRuntimeButtonPopupActivePlayer = (int)GC.getGame().getActivePlayer();
+	g_szSASRuntimeButtonPopupFocusedUtc = createSASUtcTimestampMilliseconds();
+	g_szSASRuntimeButtonPopupResolvedUtc = "-";
+	g_szSASRuntimeButtonPopupResolution = "-";
+	g_iSASRuntimeButtonPopupResponseButton = -1;
+	g_pSASRuntimeButtonPopup = pPopup;
+	writeSASRuntimeStatus(SAS_RUNTIME_STATUS_BUTTON_POPUP_FOCUSED);
+}
+
+// <!-- custom: A returned button is user/EXE response evidence, not proof that the downstream gameplay action succeeded.
+// Cancellation can be reported only for the exact popup identity already observed in focus, preventing a stale/dying popup from closing a newer popup of the same type. (ChatGPT-5.6-Sol) -->
+void updateSASRuntimeStatusButtonPopupResolved(CvPopup const* pPopup, ButtonPopupTypes eType, int iButtonClicked, bool bCancelled)
+{
+	if (!isSASRuntimeStatusEnabled() || pPopup == NULL || eType == NO_BUTTONPOPUP || eType == BUTTONPOPUP_PYTHON_SCREEN)
+		return;
+	bool const bMatchesFocusedPopup = (g_bSASRuntimeButtonPopupAwaitingInteraction && g_pSASRuntimeButtonPopup == pPopup && g_eSASRuntimeButtonPopupType == eType);
+	// <!-- custom: Once a focused popup owns the wait state, only that exact popup may resolve it.
+	// A stale response can otherwise arrive after a newer popup focused and incorrectly clear the newer prompt; response-without-focus remains usable when no popup is currently tracked. (ChatGPT-5.6-Sol) -->
+	if (g_bSASRuntimeButtonPopupAwaitingInteraction && !bMatchesFocusedPopup)
+		return;
+	if (bCancelled && !bMatchesFocusedPopup)
+		return;
+	g_bSASRuntimeButtonPopupAwaitingInteraction = false;
+	g_eSASRuntimeButtonPopupType = eType;
+	// <!-- custom: Preserve the UI owner sampled at focus when resolving that same popup; a stale cancellation can coincide with an active-player change.
+	// A response observed without prior focus gets the current player as best available context and no focus timestamp; otherwise a previous resolved popup's time would be misattributed to this response. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	if (!bMatchesFocusedPopup)
+	{
+		g_iSASRuntimeButtonPopupActivePlayer = (int)GC.getGame().getActivePlayer();
+		g_szSASRuntimeButtonPopupFocusedUtc = "-";
+	}
+	g_szSASRuntimeButtonPopupResolvedUtc = createSASUtcTimestampMilliseconds();
+	g_szSASRuntimeButtonPopupResolution = (bCancelled ? "CANCELLED" : "RESPONDED");
+	g_iSASRuntimeButtonPopupResponseButton = (bCancelled ? -1 : iButtonClicked);
+	g_pSASRuntimeButtonPopup = NULL;
+	writeSASRuntimeStatus(bCancelled ? SAS_RUNTIME_STATUS_BUTTON_POPUP_CANCELLED : SAS_RUNTIME_STATUS_BUTTON_POPUP_RESPONDED);
 }
 
 void updateSASRuntimeStatusExtendedGameStarted()

@@ -8,6 +8,7 @@
 #include "SASGameRecordLog.h"
 #include "SASSaveStreamFormat.h" // <!-- custom: Generate the current-writer marker profile from the same list used by native serializers. (GPT-6.1-Sol) -->
 #include "CvGame.h" // <!-- custom: Needed for game-record turn, game-state, victory, RNG, and map-classification context rows. (GPT-5.5) -->
+#include "CvPopupInfo.h" // <!-- custom: Decode native ButtonPopup type/data fields for privacy-bounded player-choice rows; popup text and edit-box contents are deliberately never read. (ChatGPT-5.6-Sol) -->
 #include "CvDeal.h" // <!-- custom: Needed directly for canonical state-checkpoint deal identities and persisted trade-item lists; do not rely on CvGame headers to complete CvDeal transitively. (ChatGPT-5.6-Sol) -->
 #include "CvCity.h" // <!-- custom: Needed by game-record city action/BFC rows; SASGameRecordLog.h only forward-declares CvCity. (GPT-5.5) -->
 #include "CvCityAI.h" // <!-- custom: Needed only to read the existing Avoid Growth AI emphasis flag in city snapshots/aggregates; CvCity.h only forward-declares CvCityAI. This is a compile-time type dependency and does not alter AI state or gameplay. (ChatGPT-5.6-Sol) -->
@@ -14612,6 +14613,270 @@ static CvString getSASGameRecordPlayerVoteChoice(PlayerVoteTypes eChoice)
 	default:
 		szChoice.Format("VALUE_%d", eChoice);
 		return szChoice;
+	}
+}
+
+// <!-- custom: Popup returns are causal player-input evidence, while the existing specialized gameplay rows remain authoritative for what actually happened afterward.
+// Decode only stable numeric/native identities whose meaning is explicit in CvDLLButtonPopup::OnOkClicked; never read CvPopupInfo::getText or PopupReturn edit-box values, which may contain names, passwords, mail/server data, or arbitrary Python text.
+// Some normal tech/production choices use widget routing and bypass OnOkClicked entirely; do not fabricate a popup choice when only the later research/production result is observable. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClicked)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized() || kGame.getActivePlayer() == NO_PLAYER)
+		return;
+	ButtonPopupTypes const eType = kInfo.getButtonPopupType();
+	char const* szChoice = "BUTTON_RESPONSE";
+	char const* szTargetKind = "-";
+	CvString szTarget("-");
+	// <!-- custom: CvPopupInfo's numeric slots are generic payload storage, especially for Python/admin/network popup families.
+	// Withhold them by default and opt in only for reviewed native gameplay/session families; fixed popup type and returned button remain useful even when payload metadata is withheld. (ChatGPT-5.6-Sol) -->
+	bool bRecordMetadata = false;
+	switch (eType)
+	{
+	case BUTTONPOPUP_TEXT:
+		szChoice = "ACKNOWLEDGE";
+		break;
+	case BUTTONPOPUP_CONFIRM_MENU:
+		bRecordMetadata = true;
+		szChoice = (iButtonClicked == 0 ? "CONFIRM" : "CANCEL");
+		szTargetKind = "SESSION_ACTION";
+		// <!-- custom: Use the same confirmation-action catalog as popup creation/dispatch; unrelated popup button numbers retain their own handler-specific meanings. (GPT-6.1-Sol) -->
+		{
+			char const* szAction = getSASPopupConfirmActionName(kInfo.getData1());
+			if (szAction != NULL) szTarget = szAction;
+			else szTarget.Format("VALUE_%d", kInfo.getData1());
+		}
+		break;
+	case BUTTONPOPUP_DECLAREWARMOVE:
+		bRecordMetadata = true;
+		szChoice = (iButtonClicked == 0 ? "DECLARE_WAR" : "CANCEL");
+		szTargetKind = "TEAM";
+		szTarget.Format("TEAM_%d", kInfo.getData1());
+		break;
+	case BUTTONPOPUP_CONFIRMCOMMAND:
+		bRecordMetadata = true;
+		szChoice = (iButtonClicked == 0 ? "CONFIRM_COMMAND" : "CANCEL");
+		if (kInfo.getData1() >= 0 && kInfo.getData1() < GC.getNumActionInfos())
+		{
+			szTargetKind = "ACTION";
+			szTarget = GC.getActionInfo(kInfo.getData1()).getType();
+		}
+		break;
+	case BUTTONPOPUP_LOADUNIT:
+		bRecordMetadata = true;
+		szChoice = (iButtonClicked == 0 ? "CANCEL" : "SELECT_LOAD_UNIT");
+		break;
+	case BUTTONPOPUP_LEADUNIT:
+		bRecordMetadata = true;
+		szChoice = (iButtonClicked == 0 ? "CANCEL" : "SELECT_LEAD_UNIT");
+		if (kInfo.getData1() >= 0 && kInfo.getData1() < GC.getNumPromotionInfos())
+		{
+			szTargetKind = "PROMOTION";
+			szTarget = getSASGameRecordPromotionType((PromotionTypes)kInfo.getData1());
+		}
+		break;
+	case BUTTONPOPUP_DOESPIONAGE:
+		bRecordMetadata = true;
+		if (iButtonClicked == NO_ESPIONAGEMISSION) szChoice = "CANCEL";
+		else
+		{
+			szChoice = "SELECT_ESPIONAGE_MISSION";
+			if (iButtonClicked >= 0 && iButtonClicked < GC.getNumEspionageMissionInfos())
+			{
+				szTargetKind = "ESPIONAGE_MISSION";
+				szTarget = getSASGameRecordEspionageMissionType((EspionageMissionTypes)iButtonClicked);
+			}
+		}
+		break;
+	case BUTTONPOPUP_DOESPIONAGE_TARGET:
+		bRecordMetadata = true;
+		szChoice = (iButtonClicked < 0 ? "CANCEL" : "SELECT_ESPIONAGE_TARGET");
+		if (kInfo.getData1() >= 0 && kInfo.getData1() < GC.getNumEspionageMissionInfos())
+		{
+			szTargetKind = "ESPIONAGE_MISSION";
+			szTarget = getSASGameRecordEspionageMissionType((EspionageMissionTypes)kInfo.getData1());
+		}
+		break;
+	case BUTTONPOPUP_CHOOSETECH:
+		bRecordMetadata = true;
+		if (iButtonClicked == GC.getNumTechInfos()) szChoice = "OPEN_TECH_CHOOSER";
+		break;
+	case BUTTONPOPUP_RAZECITY:
+		bRecordMetadata = true;
+		szTargetKind = "CITY_ID";
+		szTarget.Format("%d", kInfo.getData1());
+		switch (iButtonClicked)
+		{
+		case 0: szChoice = "KEEP_CITY"; break;
+		case 1: szChoice = "RAZE_CITY"; break;
+		case 2: szChoice = "LIBERATE_CITY"; break;
+		case 3: szChoice = "EXAMINE_CITY"; break;
+		default: break;
+		}
+		break;
+	case BUTTONPOPUP_DISBANDCITY:
+		bRecordMetadata = true;
+		szChoice = (iButtonClicked == 1 ? "DISBAND_CITY" : (iButtonClicked == 0 ? "KEEP_CITY" : "BUTTON_RESPONSE"));
+		szTargetKind = "CITY_ID";
+		szTarget.Format("%d", kInfo.getData1());
+		break;
+	case BUTTONPOPUP_CHOOSEPRODUCTION:
+		bRecordMetadata = true;
+	{
+		int iExamineCityID = std::max(std::max(GC.getNumUnitInfos(), GC.getNumBuildingInfos()), std::max(GC.getNumProjectInfos(), GC.getNumProcessInfos()));
+		if (iButtonClicked == iExamineCityID) szChoice = "EXAMINE_CITY";
+		szTargetKind = "CITY_ID";
+		szTarget.Format("%d", kInfo.getData1());
+		break;
+	}
+	case BUTTONPOPUP_CHANGECIVIC:
+		bRecordMetadata = true;
+		if (iButtonClicked == 0) szChoice = "ADOPT_CIVIC";
+		else if (iButtonClicked == 2) szChoice = "OPEN_POLICY_ADVISOR";
+		else szChoice = "CANCEL";
+		if (kInfo.getData2() >= 0 && kInfo.getData2() < GC.getNumCivicInfos())
+		{
+			szTargetKind = "CIVIC";
+			szTarget = getSASGameRecordCivicType((CivicTypes)kInfo.getData2());
+		}
+		break;
+	case BUTTONPOPUP_CHANGERELIGION:
+		bRecordMetadata = true;
+		szChoice = (iButtonClicked == 0 ? "CONVERT" : "DECLINE");
+		if (kInfo.getData1() >= 0 && kInfo.getData1() < GC.getNumReligionInfos())
+		{
+			szTargetKind = "RELIGION";
+			szTarget = getSASGameRecordReligionType((ReligionTypes)kInfo.getData1());
+		}
+		break;
+	case BUTTONPOPUP_CHOOSEELECTION:
+		bRecordMetadata = true;
+	{
+		VoteSelectionData const* pSelection = kGame.getVoteSelection(kInfo.getData1());
+		if (pSelection != NULL && iButtonClicked >= 0 && iButtonClicked < (int)pSelection->aVoteOptions.size())
+		{
+			szChoice = "SELECT_RESOLUTION";
+			szTargetKind = "VOTE";
+			szTarget = getSASGameRecordVoteType(pSelection->aVoteOptions[iButtonClicked].eVote);
+		}
+		else szChoice = "NO_RESOLUTION";
+		break;
+	}
+	case BUTTONPOPUP_DIPLOVOTE:
+		bRecordMetadata = true;
+		szChoice = "CAST_VOTE";
+		szTargetKind = "VOTE_CHOICE";
+		szTarget = getSASGameRecordPlayerVoteChoice((PlayerVoteTypes)iButtonClicked);
+		break;
+	case BUTTONPOPUP_DEAL_CANCELED:
+		bRecordMetadata = true;
+		szChoice = (iButtonClicked == 0 ? "CONFIRM_CANCEL_DEAL" : "KEEP_DEAL");
+		szTargetKind = "DEAL_ID";
+		szTarget.Format("%d", kInfo.getData1());
+		break;
+	case BUTTONPOPUP_EXTENDED_GAME:
+		bRecordMetadata = true;
+		szChoice = (iButtonClicked == 0 ? "CONTINUE_PLAYING" : (iButtonClicked == 1 ? "EXIT_AFTER_GAME" : "CANCEL"));
+		break;
+	case BUTTONPOPUP_DIPLOMACY:
+		bRecordMetadata = true;
+		szChoice = (iButtonClicked == MAX_CIV_PLAYERS ? "CANCEL" : "CONTACT_PLAYER");
+		if (iButtonClicked >= 0 && iButtonClicked < MAX_CIV_PLAYERS)
+		{
+			szTargetKind = "PLAYER";
+			szTarget.Format("%d", iButtonClicked);
+		}
+		break;
+	case BUTTONPOPUP_VASSAL_DEMAND_TRIBUTE:
+		bRecordMetadata = true;
+		szChoice = (iButtonClicked >= 0 && iButtonClicked < GC.getNumBonusInfos() ? "DEMAND_TRIBUTE" : "CANCEL");
+		if (iButtonClicked >= 0 && iButtonClicked < GC.getNumBonusInfos())
+		{
+			szTargetKind = "BONUS";
+			szTarget = getSASGameRecordBonusType((BonusTypes)iButtonClicked);
+		}
+		break;
+	case BUTTONPOPUP_VASSAL_GRANT_TRIBUTE:
+		bRecordMetadata = true;
+		szChoice = (iButtonClicked == 0 ? "GRANT_TRIBUTE" : "REFUSE_TRIBUTE");
+		if (kInfo.getData2() >= 0 && kInfo.getData2() < GC.getNumBonusInfos())
+		{
+			szTargetKind = "BONUS";
+			szTarget = getSASGameRecordBonusType((BonusTypes)kInfo.getData2());
+		}
+		break;
+	case BUTTONPOPUP_EVENT:
+		bRecordMetadata = true;
+		if (iButtonClicked == GC.getNumEventInfos()) szChoice = "EXAMINE_CITY";
+		else if (iButtonClicked >= 0 && iButtonClicked < GC.getNumEventInfos())
+		{
+			szChoice = "SELECT_EVENT";
+			szTargetKind = "EVENT";
+			szTarget = getSASGameRecordEventType((EventTypes)iButtonClicked);
+		}
+		else szChoice = "CANCEL";
+		break;
+	case BUTTONPOPUP_FREE_COLONY:
+		bRecordMetadata = true;
+		if (iButtonClicked > 0)
+		{
+			szChoice = "CREATE_COLONY";
+			szTargetKind = "AREA_ID";
+			szTarget.Format("%d", iButtonClicked);
+		}
+		else if (iButtonClicked < 0)
+		{
+			szChoice = "LIBERATE_CITY";
+			szTargetKind = "CITY_ID";
+			szTarget.Format("%d", -iButtonClicked);
+		}
+		else szChoice = "CANCEL";
+		break;
+	case BUTTONPOPUP_LAUNCH:
+		bRecordMetadata = true;
+		szChoice = (iButtonClicked == 0 ? "LAUNCH_SPACESHIP" : "CANCEL");
+		if (kInfo.getData1() >= 0 && kInfo.getData1() < GC.getNumVictoryInfos())
+		{
+			szTargetKind = "VICTORY";
+			szTarget = getSASGameRecordVictoryType((VictoryTypes)kInfo.getData1());
+		}
+		break;
+	case BUTTONPOPUP_FOUND_RELIGION:
+		bRecordMetadata = true;
+		szChoice = "FOUND_RELIGION";
+		if (iButtonClicked >= 0 && iButtonClicked < GC.getNumReligionInfos())
+		{
+			szTargetKind = "RELIGION";
+			szTarget = getSASGameRecordReligionType((ReligionTypes)iButtonClicked);
+		}
+		break;
+	case BUTTONPOPUP_RF_CHOOSECIV:
+		bRecordMetadata = true;
+		szChoice = "SELECT_CIVILIZATION";
+		break;
+	case BUTTONPOPUP_RF_DEFEAT:
+		bRecordMetadata = true;
+		szChoice = "DEFEAT_RESPONSE";
+		break;
+	case BUTTONPOPUP_RF_RETIRE:
+		bRecordMetadata = true;
+		szChoice = "RETIRE_RESPONSE";
+		break;
+	default:
+		break;
+	}
+	if (bRecordMetadata)
+	{
+		logSASGameRecord("GAME_RECORD_PLAYER_POPUP_CHOICE turn=%d elapsed=%d player=%d sessionWallMilliseconds=%u popup=%s popupId=%d button=%d choice=%s targetKind=%s target=%s metadata=RECORDED data1=%d data2=%d data3=%d flags=%d option1=%d option2=%d",
+			kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
+			getSASButtonPopupTypeName(eType), (int)eType, iButtonClicked, szChoice, szTargetKind, szTarget.GetCString(),
+			kInfo.getData1(), kInfo.getData2(), kInfo.getData3(), kInfo.getFlags(), kInfo.getOption1() ? 1 : 0, kInfo.getOption2() ? 1 : 0);
+	}
+	else
+	{
+		logSASGameRecord("GAME_RECORD_PLAYER_POPUP_CHOICE turn=%d elapsed=%d player=%d sessionWallMilliseconds=%u popup=%s popupId=%d button=%d choice=%s targetKind=%s target=%s metadata=WITHHELD",
+			kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
+			getSASButtonPopupTypeName(eType), (int)eType, iButtonClicked, szChoice, szTargetKind, szTarget.GetCString());
 	}
 }
 
