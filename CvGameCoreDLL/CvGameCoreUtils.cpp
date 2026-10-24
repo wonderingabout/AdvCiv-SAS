@@ -2213,6 +2213,30 @@ char const* getSASPopupMenuActionName(int iAction)
 	}
 }
 
+// <!-- custom: Stringify the same civic choice catalog used by native button creation/dispatch; no log-only numeric/name mapping is maintained. (GPT-6.1-Sol) -->
+char const* getSASPopupCivicChoiceName(int iButton)
+{
+	switch (iButton)
+	{
+#define SAS_POPUP_CIVIC_NAME(NAME, VALUE) case SAS_POPUP_CIVIC_##NAME: return #NAME;
+	SAS_POPUP_CIVIC_CHOICE_ROWS(SAS_POPUP_CIVIC_NAME)
+#undef SAS_POPUP_CIVIC_NAME
+	default: return NULL;
+	}
+}
+
+// <!-- custom: Stringify the same religion choice catalog used by native button creation/dispatch; no log-only numeric/name mapping is maintained. (GPT-6.1-Sol) -->
+char const* getSASPopupReligionChoiceName(int iButton)
+{
+	switch (iButton)
+	{
+#define SAS_POPUP_RELIGION_NAME(NAME, VALUE) case SAS_POPUP_RELIGION_##NAME: return #NAME;
+	SAS_POPUP_RELIGION_CHOICE_ROWS(SAS_POPUP_RELIGION_NAME)
+#undef SAS_POPUP_RELIGION_NAME
+	default: return NULL;
+	}
+}
+
 int getSASAIStrategyDescriptorCount()
 {
 	return (int)(sizeof(aSASAIStrategyDescriptors) / sizeof(aSASAIStrategyDescriptors[0]));

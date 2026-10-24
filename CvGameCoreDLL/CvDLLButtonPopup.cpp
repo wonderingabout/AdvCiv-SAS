@@ -375,21 +375,23 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 		}
 		break;
 	}
+	// <!-- custom: Use the prompt's shared named IDs, also used by its creation and SGR stringifier, rather than independently interpreting numeric buttons. (GPT-6.1-Sol) -->
 	case BUTTONPOPUP_CHANGECIVIC:
-		if (pPopupReturn->getButtonClicked() == 0)
+		if (pPopupReturn->getButtonClicked() == SAS_POPUP_CIVIC_ADOPT_CIVIC)
 		{
 			CivicMap aeNewCivics;
 			GET_PLAYER(getActivePlayer()).getCivics(aeNewCivics);
 			aeNewCivics.set((CivicOptionTypes)info.getData1(), (CivicTypes)info.getData2());
 			CvMessageControl::getInstance().sendUpdateCivics(aeNewCivics);
 		}
-		else if (pPopupReturn->getButtonClicked() == 2)
+		else if (pPopupReturn->getButtonClicked() == SAS_POPUP_CIVIC_OPEN_POLICY_ADVISOR)
 			// <!-- custom: renamed Python civics screen entrypoint to PolicyAdvisorScreen while keeping gameplay behavior unchanged. (GPT-5.3-Codex) -->
 			GC.getPythonCaller()->showPythonScreen("PolicyAdvisorScreen");
 		break;
 
+	// <!-- custom: Use the prompt's shared named IDs, also used by its creation and SGR stringifier, rather than independently interpreting numeric buttons. (GPT-6.1-Sol) -->
 	case BUTTONPOPUP_CHANGERELIGION:
-		if (pPopupReturn->getButtonClicked() == 0)
+		if (pPopupReturn->getButtonClicked() == SAS_POPUP_RELIGION_CONVERT)
 			CvMessageControl::getInstance().sendConvert((ReligionTypes)info.getData1());
 		break;
 
@@ -1324,8 +1326,9 @@ bool CvDLLButtonPopup::launchChangeReligionPopup(CvPopup* pPopup, CvPopupInfo &i
 	{
 		szBuffer += gDLL->getText("TXT_KEY_POPUP_TURNS_OF_ANARCHY", iAnarchyLength);
 	}
-	m_kUI.popupAddGenericButton(pPopup, szBuffer, NULL, 0);
-	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_NO_CONVERSION").c_str());
+	// <!-- custom: Give both buttons their existing IDs explicitly from the shared catalog; the former implicit second ID must not drift from response decoding if construction is edited. (GPT-6.1-Sol) -->
+	m_kUI.popupAddGenericButton(pPopup, szBuffer, NULL, SAS_POPUP_RELIGION_CONVERT);
+	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_NO_CONVERSION").c_str(), NULL, SAS_POPUP_RELIGION_DECLINE_CONVERSION);
 	m_kUI.popupSetPopupType(pPopup, POPUPEVENT_RELIGION,
 			ARTFILEMGR.getInterfaceArtPath("INTERFACE_POPUPBUTTON_RELIGION"));
 	m_kUI.popupLaunch(pPopup, false, POPUPSTATE_MINIMIZED);
@@ -1678,7 +1681,8 @@ bool CvDLLButtonPopup::launchChangeCivicsPopup(CvPopup* pPopup, CvPopupInfo &inf
 					szBuffer += gDLL->getText("TXT_KEY_POPUP_TURNS_OF_ANARCHY",
 							iAnarchyLength);
 				}
-				m_kUI.popupAddGenericButton(pPopup, szBuffer, NULL, 0, WIDGET_GENERAL);
+				// <!-- custom: Explicit shared button IDs retain AdvCiv's optional adoption button and its existing 0/1/2 protocol even when adoption is omitted. (GPT-6.1-Sol) -->
+				m_kUI.popupAddGenericButton(pPopup, szBuffer, NULL, SAS_POPUP_CIVIC_ADOPT_CIVIC, WIDGET_GENERAL);
 			} // advc.004o
 		}
 		else
@@ -1691,10 +1695,11 @@ bool CvDLLButtonPopup::launchChangeCivicsPopup(CvPopup* pPopup, CvPopupInfo &inf
 			m_kUI.popupSetBodyString(pPopup, gDLL->getText("TXT_KEY_POPUP_FIRST_REVOLUTION"));
 		}
 
+		// <!-- custom: Retain these explicit shared IDs independently of whether the optional adoption button was shown; list position is not the button protocol. (GPT-6.1-Sol) -->
 		m_kUI.popupAddGenericButton(pPopup,
-				gDLL->getText("TXT_KEY_POPUP_OLD_WAYS_BEST").c_str(), NULL, 1, WIDGET_GENERAL);
+				gDLL->getText("TXT_KEY_POPUP_OLD_WAYS_BEST").c_str(), NULL, SAS_POPUP_CIVIC_DECLINE_CIVIC, WIDGET_GENERAL);
 		m_kUI.popupAddGenericButton(pPopup,
-				gDLL->getText("TXT_KEY_POPUP_SEE_BIG_PICTURE").c_str(), NULL, 2, WIDGET_GENERAL);
+				gDLL->getText("TXT_KEY_POPUP_SEE_BIG_PICTURE").c_str(), NULL, SAS_POPUP_CIVIC_OPEN_POLICY_ADVISOR, WIDGET_GENERAL);
 		m_kUI.popupSetPopupType(pPopup,
 				POPUPEVENT_CIVIC, ARTFILEMGR.getInterfaceArtPath("INTERFACE_POPUPBUTTON_CIVICS"));
 		m_kUI.popupLaunch(pPopup, false, POPUPSTATE_MINIMIZED);

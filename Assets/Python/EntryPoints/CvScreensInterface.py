@@ -50,6 +50,7 @@ import SASDefineGuard
 # Emit SHOW_REQUEST before drawing: a drawing failure otherwise loses its causal row, and interfaceScreen may return without actually opening.
 # This is intent, not visibility confirmation. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 import SASGameRecordActions
+import SASPopupChoices # <!-- custom: The Python popup handlers use named IDs from the catalog that creates their buttons, avoiding a second numeric convention in gameplay dispatch. (GPT-6.1-Sol) -->
 # <!-- custom: Structured interface diagnostics now use CvUtil.pyPrintRecord, so the former BugUtil-only writer import is no longer needed; the same shared stream layer still supplies row timestamps. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 # K-Mod
 import BugOptionsScreen
@@ -1156,18 +1157,23 @@ def cityWarningOnClickedCallback(argsList):
 	iData1 = argsList[1]
 	iData2 = argsList[2]
 	iData3 = argsList[3]
+	# <!-- custom: This known Python callback supplies the choice meaning hidden by the generic native popup row; observe reviewed IDs before dispatch, without reading displayed text or changing the handler.
+	# Gate before diagnostic-only context collection. (GPT-6.1-Sol) -->
+	if SASGameRecordActions.isEnabled():
+		SASGameRecordActions.logCityRecommendationResponse(CyGlobalContext(), iButtonId, iData1, iData2, iData3)
 	iData4 = argsList[4]
 	szText = argsList[5]
 	bOption1 = argsList[6]
 	bOption2 = argsList[7]
 	city = CyGlobalContext().getPlayer(CyGlobalContext().getGame().getActivePlayer()).getCity(iData1)
 	if (not city.isNone()):
-		if (iButtonId == 0):
+		# <!-- custom: Dispatch the same named choice IDs assigned by button construction; no logging state participates in this gameplay decision. (GPT-6.1-Sol) -->
+		if (iButtonId == SASPopupChoices.CITY_RECOMMENDATION.ACCEPT_RECOMMENDATION):
 			if (city.isProductionProcess()):
 				CyMessageControl().sendPushOrder(iData1, iData2, iData3, False, False, False)
 			else:
 				CyMessageControl().sendPushOrder(iData1, iData2, iData3, False, True, False)
-		elif (iButtonId == 2):
+		elif (iButtonId == SASPopupChoices.CITY_RECOMMENDATION.EXAMINE_CITY):
 			CyInterface().selectCity(city, False)
 
 def cityWarningOnFocusCallback(argsList):
@@ -1180,15 +1186,20 @@ def liberateOnClickedCallback(argsList):
 	iData1 = argsList[1]
 	iData2 = argsList[2]
 	iData3 = argsList[3]
+	# <!-- custom: This known Python callback supplies the choice meaning hidden by the generic native popup row; observe reviewed IDs before dispatch, without reading displayed text or changing the handler.
+	# Gate before diagnostic-only context collection. (GPT-6.1-Sol) -->
+	if SASGameRecordActions.isEnabled():
+		SASGameRecordActions.logCityDispositionResponse(iButtonId, iData1, False)
 	iData4 = argsList[4]
 	szText = argsList[5]
 	bOption1 = argsList[6]
 	bOption2 = argsList[7]
 	city = CyGlobalContext().getPlayer(CyGlobalContext().getGame().getActivePlayer()).getCity(iData1)
 	if (not city.isNone()):
-		if (iButtonId == 0):
+		# <!-- custom: Dispatch the same named choice IDs assigned by button construction; no logging state participates in this gameplay decision. (GPT-6.1-Sol) -->
+		if (iButtonId == SASPopupChoices.LIBERATION.ACCEPT_LIBERATION):
 			CyMessageControl().sendDoTask(iData1, TaskTypes.TASK_LIBERATE, 0, -1, False, False, False, False)
-		elif (iButtonId == 2):
+		elif (iButtonId == SASPopupChoices.LIBERATION.EXAMINE_CITY):
 			CyInterface().selectCity(city, False)
 
 def colonyOnClickedCallback(argsList):
@@ -1196,15 +1207,20 @@ def colonyOnClickedCallback(argsList):
 	iData1 = argsList[1]
 	iData2 = argsList[2]
 	iData3 = argsList[3]
+	# <!-- custom: This known Python callback supplies the choice meaning hidden by the generic native popup row; observe reviewed IDs before dispatch, without reading displayed text or changing the handler.
+	# Gate before diagnostic-only context collection. (GPT-6.1-Sol) -->
+	if SASGameRecordActions.isEnabled():
+		SASGameRecordActions.logCityDispositionResponse(iButtonId, iData1, True)
 	iData4 = argsList[4]
 	szText = argsList[5]
 	bOption1 = argsList[6]
 	bOption2 = argsList[7]
 	city = CyGlobalContext().getPlayer(CyGlobalContext().getGame().getActivePlayer()).getCity(iData1)
 	if (not city.isNone()):
-		if (iButtonId == 0):
+		# <!-- custom: Dispatch the same named choice IDs assigned by button construction; no logging state participates in this gameplay decision. (GPT-6.1-Sol) -->
+		if (iButtonId == SASPopupChoices.COLONY.ACCEPT_COLONY):
 			CyMessageControl().sendEmpireSplit(CyGlobalContext().getGame().getActivePlayer(), city.area().getID())
-		elif (iButtonId == 2):
+		elif (iButtonId == SASPopupChoices.COLONY.EXAMINE_CITY):
 			CyInterface().selectCity(city, False)
 
 def featAccomplishedOnClickedCallback(argsList):
@@ -1212,12 +1228,17 @@ def featAccomplishedOnClickedCallback(argsList):
 	iData1 = argsList[1]
 	iData2 = argsList[2]
 	iData3 = argsList[3]
+	# <!-- custom: This known Python callback supplies the choice meaning hidden by the generic native popup row; observe reviewed IDs before dispatch, without reading displayed text or changing the handler.
+	# Gate before diagnostic-only context collection. (GPT-6.1-Sol) -->
+	if SASGameRecordActions.isEnabled():
+		SASGameRecordActions.logFeatResponse(iButtonId, iData1, iData2)
 	iData4 = argsList[4]
 	szText = argsList[5]
 	bOption1 = argsList[6]
 	bOption2 = argsList[7]
 
-	if (iButtonId == 1):
+	# <!-- custom: Dispatch the same named choice IDs assigned by button construction; no logging state participates in this gameplay decision. (GPT-6.1-Sol) -->
+	if (iButtonId == SASPopupChoices.FEAT.REQUEST_FEAT_DETAILS):
 		if (iData1 == FeatTypes.FEAT_TRADE_ROUTE):
 			showDomesticAdvisor(())
 		# <!-- custom: new unit combat types -->

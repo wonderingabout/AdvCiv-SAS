@@ -180,6 +180,33 @@ enum SASPopupMenuAction
 char const* getSASPopupMenuActionName(int iAction);
 
 
+// <!-- custom: Share the existing civic prompt button IDs between creation, response dispatch and diagnostic names; changing one catalog updates every consumer while preserving the inherited values. (GPT-6.1-Sol) -->
+#define SAS_POPUP_CIVIC_CHOICE_ROWS(DO) \
+	DO(ADOPT_CIVIC, 0) \
+	DO(DECLINE_CIVIC, 1) \
+	DO(OPEN_POLICY_ADVISOR, 2)
+enum SASPopupCivicChoice
+{
+#define SAS_POPUP_CIVIC_ENUM(NAME, VALUE) SAS_POPUP_CIVIC_##NAME = VALUE,
+	SAS_POPUP_CIVIC_CHOICE_ROWS(SAS_POPUP_CIVIC_ENUM)
+#undef SAS_POPUP_CIVIC_ENUM
+};
+// <!-- custom: Return NULL for unknown button IDs so callers retain numeric evidence instead of inventing a valid choice. (GPT-6.1-Sol) -->
+char const* getSASPopupCivicChoiceName(int iButton);
+
+// <!-- custom: Share the existing religion prompt button IDs between creation, response dispatch and diagnostic names; changing one catalog updates every consumer while preserving the inherited values. (GPT-6.1-Sol) -->
+#define SAS_POPUP_RELIGION_CHOICE_ROWS(DO) \
+	DO(CONVERT, 0) \
+	DO(DECLINE_CONVERSION, 1)
+enum SASPopupReligionChoice
+{
+#define SAS_POPUP_RELIGION_ENUM(NAME, VALUE) SAS_POPUP_RELIGION_##NAME = VALUE,
+	SAS_POPUP_RELIGION_CHOICE_ROWS(SAS_POPUP_RELIGION_ENUM)
+#undef SAS_POPUP_RELIGION_ENUM
+};
+// <!-- custom: Return NULL for unknown button IDs so callers retain numeric evidence instead of inventing a valid choice. (GPT-6.1-Sol) -->
+char const* getSASPopupReligionChoiceName(int iButton);
+
 // <!-- custom: Native ButtonPopup focus/return callbacks are stronger than launch requests: focus records the EXE's native interaction callback, while response/cancellation closes that observed wait without changing the underlying play/autoplay/game-ended activity interval.
 // pPopup is used only as an in-process identity so a stale cancellation cannot close a different popup of the same type. (ChatGPT-5.6-Sol) -->
 void updateSASRuntimeStatusButtonPopupFocused(CvPopup const* pPopup, ButtonPopupTypes eType);

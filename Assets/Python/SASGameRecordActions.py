@@ -4,8 +4,9 @@
 # <!-- custom: Keep revision-151 Python UI tracing tiny and factual: fixed screen/action labels plus scalar state only.
 # Free-text search, names, paths, mouse movement, redraws, and other high-volume/private input deliberately stay outside SASGameRecord. (ChatGPT-5.6-Sol) -->
 
-from CvPythonExtensions import CyGame
+from CvPythonExtensions import CyGame, FeatTypes, OrderTypes # <!-- custom: CyGame supplies the existing SGR bridge; FeatTypes exposes actual DLL enum names and OrderTypes disambiguates reviewed advisor production targets without repeating gameplay eligibility checks. (GPT-6.1-Sol) -->
 import SASGameRecordConfig
+import SASPopupChoices # <!-- custom: Resolve reviewed Python response names from the same UI catalog that creates buttons and assigns gameplay-handler IDs, rather than a recorder-owned duplicate table. (GPT-6.1-Sol) -->
 
 # <!-- custom: Python 2.4 has no standard Enum class; shared named constants keep action labels consistent and make misspelled attribute references fail visibly.
 # These are existing log tokens, not new numeric IDs or a separate runtime registry. (GPT-6.1-Sol) -->
@@ -155,3 +156,96 @@ def logDiplomacyResponse(gc, iComment, iOtherPlayer):
 	# <!-- custom: Read the XML type itself instead of copying the handler's long string comparison chain into another enum/table; numeric callback payloads are omitted because arbitrary mod-defined replies can give them other meanings. (GPT-6.1-Sol) -->
 	szValues = "commentId=%d;otherPlayer=%d;handling=NATIVE_RESPONSE" % (iComment, iOtherPlayer)
 	game.logSASGameRecordInterfaceState(SCREEN_DIPLOMACY, "RESPONSE", szComment, 3, szValues)
+
+
+_gFeatNames = None
+
+
+# <!-- custom: Reuse the scalar interface-state bridge for companion Python response rows, retaining the native popup's numeric response separately.
+# Callers below supply only fixed keys/labels, enum/XML identities and reviewed numbers, never argsList text/edit boxes.
+# The supplied game has already passed the cached gate.
+# A response is observed before callback dispatch, not proof that its command succeeded or that a human clicked. (GPT-6.1-Sol) -->
+def _emitPythonPopupResponse(game, szCallback, iButton, choices, fields, szChoice="BUTTON_RESPONSE"):
+	if choices is not None:
+		szChoice = choices.getName(iButton)
+	values = [("button", iButton), ("choice", szChoice), ("handling", "PYTHON_CALLBACK"), ("stage", "CALLBACK_DISPATCH")]
+	values.extend(fields)
+	game.logSASGameRecordInterfaceState("PYTHON_POPUP", "RESPONSE", szCallback, len(values), ";".join(["%s=%s" % item for item in values]))
+
+
+# <!-- custom: The city-warning callback carries an actual OrderTypes/XML item, unlike ambiguous native production buttons; record its recommendation even when refused or the city disappeared before response.
+# Resolve only direct XML IDs behind the gate; do not call canTrain/canConstruct or repeat the advisor's scoring. (GPT-6.1-Sol) -->
+def logCityRecommendationResponse(gc, iButton, iCity, iOrder, iTarget):
+	game = _getEnabledGame()
+	if game is None:
+		return
+	szKind = "UNKNOWN_ORDER"
+	szTarget = "-"
+	if iOrder == OrderTypes.ORDER_TRAIN and iTarget >= 0 and iTarget < gc.getNumUnitInfos():
+		szKind = "UNIT"
+		szTarget = gc.getUnitInfo(iTarget).getType()
+	elif iOrder == OrderTypes.ORDER_CONSTRUCT and iTarget >= 0 and iTarget < gc.getNumBuildingInfos():
+		szKind = "BUILDING"
+		szTarget = gc.getBuildingInfo(iTarget).getType()
+	_emitPythonPopupResponse(game, "cityWarningOnClickedCallback", iButton, SASPopupChoices.CITY_RECOMMENDATION,
+		[("cityId", iCity), ("orderId", iOrder), ("targetKind", szKind), ("targetId", iTarget), ("target", szTarget)])
+
+
+# <!-- custom: Liberation and colony recommendations share accept/refuse/examine buttons but trigger different existing operations; preserve that distinction without querying new liberation/area eligibility for diagnostics. (GPT-6.1-Sol) -->
+def logCityDispositionResponse(iButton, iCity, bColony):
+	game = _getEnabledGame()
+	if game is None:
+		return
+	if bColony:
+		szCallback = "colonyOnClickedCallback"
+		choices = SASPopupChoices.COLONY
+	else:
+		szCallback = "liberateOnClickedCallback"
+		choices = SASPopupChoices.LIBERATION
+	_emitPythonPopupResponse(game, szCallback, iButton, choices, [("cityId", iCity)])
+
+
+# <!-- custom: Feats are DLL enums rather than XML infos.
+# Build a small name map once from the exposed enum itself, only for enabled tracing; a copied numeric/name table would drift when SAS adds unit-combat feats.
+# data2 is a city ID for several feat producers but unspecified for others, so retain its reviewed numeric payload without claiming that it always identifies a city. (GPT-6.1-Sol) -->
+def logFeatResponse(iButton, iFeat, iContextData2):
+	game = _getEnabledGame()
+	if game is None:
+		return
+	global _gFeatNames
+	if _gFeatNames is None:
+		_gFeatNames = {}
+		for szName in sorted(dir(FeatTypes)):
+			if szName.startswith("FEAT_"):
+				_gFeatNames[int(getattr(FeatTypes, szName))] = szName
+	_emitPythonPopupResponse(game, "featAccomplishedOnClickedCallback", iButton, SASPopupChoices.FEAT,
+		[("featId", iFeat), ("feat", _gFeatNames.get(iFeat, "UNKNOWN_FEAT")), ("contextData2", iContextData2)])
+
+
+# <!-- custom: The three reviewed random-event callbacks carry the responding and other player IDs, with Yes/No meaning war or peace according to the specific handler.
+# Capture rejection as well as acceptance, separately from later war/peace effects and without copying localized event text. (GPT-6.1-Sol) -->
+def logEventDiplomacyResponse(szCallback, iButton, iPlayer, iOtherPlayer, bWar):
+	game = _getEnabledGame()
+	if game is None:
+		return
+	if bWar:
+		choices = SASPopupChoices.EVENT_WAR
+	else:
+		choices = SASPopupChoices.EVENT_PEACE
+	_emitPythonPopupResponse(game, szCallback, iButton, choices, [("respondingPlayer", iPlayer), ("otherPlayer", iOtherPlayer)])
+
+
+# <!-- custom: The BUG debug event selector indexes EventTriggerInfos directly and appends Cancel; preserve its exact XML identity rather than its prettified display name.
+# This observes the debug request, not a successful event outcome. (GPT-6.1-Sol) -->
+def logEventTriggerResponse(gc, iButton, iPlayer):
+	game = _getEnabledGame()
+	if game is None:
+		return
+	szChoice = "BUTTON_RESPONSE"
+	szTarget = "-"
+	if iButton >= 0 and iButton < gc.getNumEventTriggerInfos():
+		szChoice = "TRIGGER_EVENT"
+		szTarget = gc.getEventTriggerInfo(iButton).getType()
+	elif iButton == gc.getNumEventTriggerInfos():
+		szChoice = "CANCEL"
+	_emitPythonPopupResponse(game, "triggerRandomEvent", iButton, None, [("targetPlayer", iPlayer), ("eventTriggerId", iButton), ("eventTrigger", szTarget)], szChoice)

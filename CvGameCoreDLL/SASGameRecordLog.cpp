@@ -14761,26 +14761,32 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		szTarget.Format("%d", kInfo.getData1());
 		break;
 	}
+	// <!-- custom: Decode only known choices from the UI-owned catalog used by button creation/dispatch; an explicit refusal is distinct from cancellation, and unexpected IDs retain BUTTON_RESPONSE. (GPT-6.1-Sol) -->
 	case BUTTONPOPUP_CHANGECIVIC:
+	{
 		bRecordMetadata = true;
-		if (iButtonClicked == 0) szChoice = "ADOPT_CIVIC";
-		else if (iButtonClicked == 2) szChoice = "OPEN_POLICY_ADVISOR";
-		else szChoice = "CANCEL";
+		char const* szName = getSASPopupCivicChoiceName(iButtonClicked);
+		if (szName != NULL) szChoice = szName;
 		if (kInfo.getData2() >= 0 && kInfo.getData2() < GC.getNumCivicInfos())
 		{
 			szTargetKind = "CIVIC";
 			szTarget = getSASGameRecordCivicType((CivicTypes)kInfo.getData2());
 		}
 		break;
+	}
+	// <!-- custom: Decode only known choices from the UI-owned catalog used by button creation/dispatch; an explicit refusal is distinct from cancellation, and unexpected IDs retain BUTTON_RESPONSE. (GPT-6.1-Sol) -->
 	case BUTTONPOPUP_CHANGERELIGION:
+	{
 		bRecordMetadata = true;
-		szChoice = (iButtonClicked == 0 ? "CONVERT" : "DECLINE");
+		char const* szName = getSASPopupReligionChoiceName(iButtonClicked);
+		if (szName != NULL) szChoice = szName;
 		if (kInfo.getData1() >= 0 && kInfo.getData1() < GC.getNumReligionInfos())
 		{
 			szTargetKind = "RELIGION";
 			szTarget = getSASGameRecordReligionType((ReligionTypes)kInfo.getData1());
 		}
 		break;
+	}
 	case BUTTONPOPUP_CHOOSEELECTION:
 		bRecordMetadata = true;
 	{

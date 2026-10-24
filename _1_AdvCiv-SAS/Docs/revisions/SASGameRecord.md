@@ -35,7 +35,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=166 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=167 ...
 ```
 
 After this, each qualifying SASGameRecord commit increments `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` exactly once and adds one short latest-first entry to this file in the same commit. The revision remains a downstream-update signal; exact runtime source/build identity remains separate provenance in `GAME_RECORD_SOURCE_CONTEXT` and the DLL/build context.
@@ -78,10 +78,26 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 166 - SAS practical 6677
+### Revision 167 - SAS practical 6678
 
 - **Date:** 2026-10-24
 - **Git commit:** pending
+- **Change:** Decode the known Python popup callbacks whose native `BUTTONPOPUP_PYTHON` rows cannot identify the submitted choice by themselves.
+  - Companion `GAME_RECORD_INTERFACE_STATE component=PYTHON_POPUP event=RESPONSE` rows identify the actual callback, readable `choice`, button and `handling=PYTHON_CALLBACK`, at `stage=CALLBACK_DISPATCH`. They complement native focus/response observations rather than replacing them or claiming the resulting operation succeeded.
+  - City recommendations distinguish acceptance, refusal and examination, retaining the proposed unit/building XML type even when refused. Liberation/colony replies retain their city IDs; feats use names from the exposed DLL enum, cached only when tracing is enabled.
+  - Wedding Feud, Heroic Gesture and Great Mediator callbacks distinguish war/peace acceptance and refusal with responding/other player IDs. The BUG debug event selector records its EventTriggerInfo identity or Cancel.
+  - The T32 advisor recommendation in the preceding manual run motivated this gap: the native row recorded button 0 and the typed command recorded UNIT_ARCHER, but the callback's acceptance meaning was absent.
+  - All eight named callback registrations found in current Python source are covered at their handlers. Arbitrary Python/custom popup payloads remain generic; text, edit boxes and names are not copied. Feat data2 remains a numeric context payload because not every feat producer sets a city ID.
+  - [`SASPopupChoices.py`](/Assets/Python/SASPopupChoices.py) supplies Python button construction, named gameplay-handler IDs and SGR choice names from the same UI-owned catalogs.
+    - The EXE assigns Python button IDs by insertion order; catalogs retain that order and the inherited localization keys, including distinct health/happiness advice wording. Dynamic debug-event choices continue deriving IDs from EventTriggerInfos.
+  - Native civic/religion prompts likewise share enum/stringifier catalogs in [`CvGameCoreUtils.h`](/CvGameCoreDLL/CvGameCoreUtils.h) and [`CvGameCoreUtils.cpp`](/CvGameCoreDLL/CvGameCoreUtils.cpp) between creation, dispatch and diagnostics.
+    - Refusals use `DECLINE_CIVIC` and `DECLINE_CONVERSION` instead of generic cancellation/decline labels; unknown IDs retain `BUTTON_RESPONSE`. Civic buttons keep their explicit IDs when AdvCiv omits the adoption button.
+  - [`SASGameRecordActions.py`](/Assets/Python/SASGameRecordActions.py) keeps callback serialization behind cached level/action-trace checks. The existing Python interface-state binding supplies sequence/session timing and the shared live-readable sink; no new DLL API or runtime-recorder change is required.
+
+### Revision 166 - SAS practical 6677
+
+- **Date:** 2026-10-24
+- **Git commit:** `953b9091ee76518da09449430466f42a1ce64b97`
 - **Change:** Make submitted player choices more readable: typed research/production requests, named menu actions, diplomacy replies and resolved unit targets for transport/leader popups.
   - `GAME_RECORD_PLAYER_RESEARCH_CHOICE`, `GAME_RECORD_PLAYER_PRODUCTION_CHOICE` and `GAME_RECORD_PLAYER_PRODUCTION_REMOVAL` observe typed game messages before application. Rows preserve XML item identities, relevant queue flags and city context; removal records the item before it disappears, including the inherited last-entry meaning of index `-1`.
   - These are command-dispatch observations, not proof of successful application or human input. Later research, production-target and completion rows remain separate evidence; production commands targeting missing cities are outside these city-specific rows.

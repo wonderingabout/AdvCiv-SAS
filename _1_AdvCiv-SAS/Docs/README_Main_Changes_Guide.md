@@ -346,7 +346,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - Examples include civilization/diplomacy mappings, fixed-size yield/commerce lists and feature/tag-pair keys; valid input retains its values. See [KI#3.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-3.2) and [KI#3.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-3.3).
 
 - (Requires AdvCiv-SAS 6649+) **Shared Python visual resources:** [`SASVisualUtils.py`](/Assets/Python/SASVisualUtils.py) gives UI callers one cached source for font/dynamic symbols, yield/commerce glyphs, colors, art and trait/Great Person/specialist icons, replacing scattered lookups and overlapping caches.
-  - Retires `FontUtil.py`, `TraitUtil.py` and `GGUtil.py`; `GPUtil.py` keeps Great Person gameplay/progress logic. Text-scale helpers formerly in `SASFontUtils.py` move to `SASTextScale.py`, while screen-dependent presentation stays with the caller.
+  - Retires `FontUtil.py`, `TraitUtil.py` and `GGUtil.py`; `GPUtil.py` keeps Great Person gameplay/progress logic. Text-scale helpers formerly in `SASFontUtils.py` move to [`SASTextScale.py`](/Assets/Python/SASTextScale.py), while screen-dependent presentation stays with the caller.
 - (Requires AdvCiv-SAS 6648+) **Centralized Python screen IDs:** [CvScreenEnums.py](/Assets/Python/Screens/CvScreenEnums.py) now contains general screens, vanilla Civilopedia pages and Sevopedia pages, making their definitions easier to browse and maintain together.
   - The separate `SevoScreenEnums.py` was removed; its definitions now live in class `SevoScreenEnums` within `CvScreenEnums.py`, and callers import that class. Existing numeric IDs and page navigation are preserved.
   - Vanilla Civilopedia and Sevopedia reuse some numbers for different pages, so their definitions stay distinct within the shared catalog; a reusable name lookup selects the active encyclopedia.
@@ -470,6 +470,8 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 - **Centralize shared numeric identifiers:** give repeated IDs one named definition so their producers and consumers remain consistent. Examples include:
   - [`SASMagicNumbers.py`](/Assets/Python/SASMagicNumbers.py), an import-free leaf helper shared across screens, Sevopedia, mapscripts and map generator utilities, holds Sevopedia/Tech Chooser `WIDGET_PYTHON` data1 IDs and Sevopedia Movie/Music packed-key type IDs. This avoids duplicated definitions, widget-id drift/collisions and circular-import/load-order risk.
   - (Requires AdvCiv-SAS 6676+) C++ confirmation popups use `SASPopupConfirmAction` in [`CvGameCoreUtils.h`](/CvGameCoreDLL/CvGameCoreUtils.h): for example, the formerly repeated `4` becomes `SAS_POPUP_CONFIRM_WORLD_BUILDER`. One catalog supplies action IDs and their readable names for popup creation, handling and SGR diagnostics, preserving the inherited values and behavior.
+  - (Requires AdvCiv-SAS 6678+) [`SASPopupChoices.py`](/Assets/Python/SASPopupChoices.py) shares Python advisor/feat/event choices between button creation, gameplay handling and readable diagnostics, preserving their original labels and order.
+    - For example, `CITY_RECOMMENDATION.ACCEPT_RECOMMENDATION` replaces a separately interpreted button `0`. Native civic/religion prompts use the equivalent enum/stringifier pattern in [`CvGameCoreUtils.h`](/CvGameCoreDLL/CvGameCoreUtils.h) and [`CvGameCoreUtils.cpp`](/CvGameCoreDLL/CvGameCoreUtils.cpp).
 - (Requires AdvCiv-SAS 6347+) **Shared diagnostic provenance/time helpers:**
   - `CvGameCoreUtils` now centralizes canonical mod-context fields, exact loaded-DLL provenance fields, UTC timestamp formatting, millisecond UTC formatting, and the monotonic elapsed-millisecond helpers used by SAS diagnostics.
   - Unrelated core timing remains deliberately separate: Civ4 player-time/RNG uses and the high-resolution profiler keep their existing specialized clocks rather than being coupled to logging helpers.
@@ -519,6 +521,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 #### Runtime status and history
 
 - (Requires AdvCiv-SAS 6642+) **Optional external-agent runtime status:** lets agents check the latest reported game/session/autoplay state without searching historical logs. `SAS_RUNTIME_STATUS_ON=1` maintains `Logs/SASRuntimeStatus.json` independently from BBAI/SASGameRecord logging; the shipped default is 0.
+  - [`SASRuntimeStatus.cpp`](/CvGameCoreDLL/SASRuntimeStatus.cpp) maintains the current snapshot and history; [`SASRuntimeStatusReasons.h`](/CvGameCoreDLL/SASRuntimeStatusReasons.h) supplies the shared update-reason enum and its names.
   - Both runtime files report one compiled recorder revision, independent of SASGameRecord; its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md) explains the implementation changes.
   - [Runtime-status examples and format guide](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md) explain the current JSON snapshot, append-only JSONL timeline and their timing fields.
   - This complements `CvGameCoreDLL.dll.build.json`, which reports started/completed/failed DLL builds: agents can inspect both compilation and game/autoplay state through the corresponding JSON artifacts.
@@ -577,6 +580,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 #### Python and engine diagnostic logs
 
 - (Requires AdvCiv-SAS 6647+) **UTC Python diagnostic timestamps:** ordinary Python prints and module-loading messages often had no timestamp, while BUG messages used only local `HH:MM:SS`. Shared stdout/stderr formatting adds the UTC date and milliseconds so output can be correlated with game/runtime activity across runs and time zones.
+  - The shared stream formatter is [`SASPythonLogging.py`](/Assets/Python/SASPythonLogging.py).
   - This covers Python-written rows in files such as `PythonDbg.log` and `PythonErr2.log`, including multiline error text passing through these streams. The DLL supplies the Windows clock because the embedded Python wall-clock readings stayed fixed during a measured game trial.
   - Existing BUG log levels and its timestamp option remain in control; blank rows and the copyable leader-cache dump are preserved. Early startup and direct EXE writes bypass the Python streams; engine logs such as `app.log` and `audio.log` keep their existing formats.
 - (Requires AdvCiv-SAS 6648+) **Readable, searchable Python diagnostics:** `record=` types and named fields replace vague notices and bare numbers in `PythonDbg.log`, identifying what happened alongside its timestamp.
@@ -735,6 +739,9 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.m
   - This complements SASGameRecord's exact production-loss history by explaining the city-level decision that caused a Project to move.
 
 #### SASGameRecord log
+
+- **Recorder implementation:** [`SASGameRecordLog.cpp`](/CvGameCoreDLL/SASGameRecordLog.cpp) owns native row collection/formatting, with its caller interface declared in [`SASGameRecordLog.h`](/CvGameCoreDLL/SASGameRecordLog.h).
+  - [`SASGameRecordConfig.py`](/Assets/Python/SASGameRecordConfig.py) shares the cached Python logging gates; [`SASGameRecordSettings.py`](/Assets/Python/SASGameRecordSettings.py) collects session configuration and later settings changes.
 
 - **Periodic snapshot timing:** `SAS_SGR_INTERVAL_T_UNSCALED_GS` uses game-turn numbers, without game-speed scaling. With interval 10, periodic snapshots occur at the end of turns 10, 20, 30, 40, and so on; turn 0 has separate initial context.
   - Autoplay counts turn 0 as its first turn. Therefore, when starting at turn 0, request **11 turns** to include the snapshot at the end of turn 10; requesting only 10 stops after turns 0–9.
@@ -973,8 +980,10 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.m
       - `GAME_RECORD_PLAYER_POPUP_CHOICE` records the response before gameplay dispatch, decoding meanings known from the native handler; other families retain a numeric `BUTTON_RESPONSE` fallback.
       - (Requires AdvCiv-SAS 6677+) Typed research and production commands identify the selected XML item, including choices made through ordinary interface widgets; queue removals retain the item being removed. Thus an ambiguous production button number can be understood from its actual command, while later gameplay rows show what took effect.
       - Menu actions have readable names, and transport/leader popups identify the selected unit. Diplomacy replies record their XML identity and counterpart separately from later deal/war outcomes, so a refusal or conversation-navigation choice can also be traced.
+      - (Requires AdvCiv-SAS 6678+) Known Python advisor/event callbacks name the submitted choice through [`SASGameRecordActions.py`](/Assets/Python/SASGameRecordActions.py): for example, accepting/refusing an Archer recommendation or examining its city.
+        - These complement the generic Python-popup response and later gameplay effects without copying displayed prose; event war/peace replies and feat acknowledgement/details use the same bridge.
       - Native responses and automatic informational dismissals have distinct handling labels; a response callback alone is not proof of a human click.
-      - Popup/free-form/edit-box text is never copied. Generic numeric popup payload is also withheld unless the native gameplay/session family was reviewed for safe diagnostic use, keeping admin/network/buddy/Python families out of the default payload trace.
+      - Popup/free-form/edit-box text is never copied. Generic numeric popup payload is also withheld unless the native gameplay/session family was reviewed for safe diagnostic use, keeping admin/network/buddy and unreviewed Python payloads out of the default payload trace.
       - Treat these as submitted-choice/command evidence, not realized outcomes. Existing vote/event/city/session/research/production rows remain authoritative for effects; widget-routed selections need not produce a generic popup-choice row.
     - The trace provides context for reproduction and crash investigation; the last buffered rows can still be lost in a crash, so it does not replace a crash dump.
     - `SAS_SGR_ACTION_TRACE_ON` can suppress that level-2+ causal/action/interface family without disabling revision-150 session settings/runtime-view state or unrelated recorder detail.

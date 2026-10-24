@@ -13,6 +13,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 import CvUtil
+import SASGameRecordActions # <!-- custom: The three named Python event-reply callbacks need readable SGR input evidence independently from subsequent war/peace outcomes; the shared helper owns gating and serialization. (GPT-6.1-Sol) -->
+import SASPopupChoices # <!-- custom: Event reply creation and gameplay dispatch share the same Yes/No IDs and readable action names, independently from diagnostic enablement. (GPT-6.1-Sol) -->
 from CvPythonExtensions import *
 # <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
@@ -351,8 +353,8 @@ def doWeddingFeud3(argsList):
 			popupInfo.setData2(kTriggeredData.ePlayer)
 			popupInfo.setPythonModule("CvRandomEventInterface")
 			popupInfo.setOnClickedPythonCallback("weddingFeud3Callback")
-			popupInfo.addPythonButton(localText.getText("TXT_KEY_POPUP_YES", ()), "")
-			popupInfo.addPythonButton(localText.getText("TXT_KEY_POPUP_NO", ()), "")
+			# <!-- custom: Construct Yes/No from the same UI catalog used by this callback's handler IDs and diagnostic names. (GPT-6.1-Sol) -->
+			SASPopupChoices.EVENT_WAR.addButtons(popupInfo, localText)
 			popupInfo.addPopup(kTriggeredData.eOtherPlayer)
 		else: # advc.106g: Let the DLL know that this is through an event
 			gc.getTeam(destPlayer.getTeam()).declareWarEvent(player.getTeam(), false, WarPlanTypes.WARPLAN_LIMITED)
@@ -363,12 +365,16 @@ def weddingFeud3Callback(argsList):
 	iButton = argsList[0]
 	iData1 = argsList[1]
 	iData2 = argsList[2]
+	# <!-- custom: Record the reviewed Yes/No response before the existing event operation; refusal has no resulting war/peace event to explain it, and acceptance can still fail a later handler guard. (GPT-6.1-Sol) -->
+	if SASGameRecordActions.isEnabled():
+		SASGameRecordActions.logEventDiplomacyResponse("weddingFeud3Callback", iButton, iData1, iData2, True)
 	iData3 = argsList[3]
 	szText = argsList[4]
 	bOption1 = argsList[5]
 	bOption2 = argsList[6]
 
-	if iButton == 0:
+	# <!-- custom: Use the choice ID assigned by the shared creation catalog; keep the existing event operation unchanged. (GPT-6.1-Sol) -->
+	if iButton == SASPopupChoices.EVENT_WAR.DECLARE_WAR:
 		destPlayer = gc.getPlayer(iData1)
 		player = gc.getPlayer(iData2)
 		# advc.106g: Let the DLL know that this is through an event
@@ -1657,8 +1663,8 @@ def doHeroicGesture2(argsList):
 		popupInfo.setData2(kTriggeredData.ePlayer)
 		popupInfo.setPythonModule("CvRandomEventInterface")
 		popupInfo.setOnClickedPythonCallback("heroicGesture2Callback")
-		popupInfo.addPythonButton(localText.getText("TXT_KEY_POPUP_YES", ()), "")
-		popupInfo.addPythonButton(localText.getText("TXT_KEY_POPUP_NO", ()), "")
+		# <!-- custom: Construct Yes/No from the same UI catalog used by this callback's handler IDs and diagnostic names. (GPT-6.1-Sol) -->
+		SASPopupChoices.EVENT_PEACE.addButtons(popupInfo, localText)
 		popupInfo.addPopup(kTriggeredData.eOtherPlayer)
 	else:
 		#destPlayer.forcePeace(kTriggeredData.ePlayer)
@@ -1673,12 +1679,16 @@ def heroicGesture2Callback(argsList):
 	iButton = argsList[0]
 	iData1 = argsList[1]
 	iData2 = argsList[2]
+	# <!-- custom: Record the reviewed Yes/No response before the existing event operation; refusal has no resulting war/peace event to explain it, and acceptance can still fail a later handler guard. (GPT-6.1-Sol) -->
+	if SASGameRecordActions.isEnabled():
+		SASGameRecordActions.logEventDiplomacyResponse("heroicGesture2Callback", iButton, iData1, iData2, False)
 	iData3 = argsList[3]
 	szText = argsList[4]
 	bOption1 = argsList[5]
 	bOption2 = argsList[6]
 
-	if iButton == 0:
+	# <!-- custom: Use the choice ID assigned by the shared creation catalog; keep the existing event operation unchanged. (GPT-6.1-Sol) -->
+	if iButton == SASPopupChoices.EVENT_PEACE.ACCEPT_PEACE:
 		destPlayer = gc.getPlayer(iData1)
 		player = gc.getPlayer(iData2)
 		destPlayer.forcePeace(iData2)
@@ -1740,8 +1750,8 @@ def doGreatMediator2(argsList):
 		popupInfo.setData2(kTriggeredData.ePlayer)
 		popupInfo.setPythonModule("CvRandomEventInterface")
 		popupInfo.setOnClickedPythonCallback("greatMediator2Callback")
-		popupInfo.addPythonButton(localText.getText("TXT_KEY_POPUP_YES", ()), "")
-		popupInfo.addPythonButton(localText.getText("TXT_KEY_POPUP_NO", ()), "")
+		# <!-- custom: Construct Yes/No from the same UI catalog used by this callback's handler IDs and diagnostic names. (GPT-6.1-Sol) -->
+		SASPopupChoices.EVENT_PEACE.addButtons(popupInfo, localText)
 		popupInfo.addPopup(kTriggeredData.eOtherPlayer)
 	else:
 		# advc.106g: Let the DLL know that this is through an event
@@ -1755,12 +1765,16 @@ def greatMediator2Callback(argsList):
 	iButton = argsList[0]
 	iData1 = argsList[1]
 	iData2 = argsList[2]
+	# <!-- custom: Record the reviewed Yes/No response before the existing event operation; refusal has no resulting war/peace event to explain it, and acceptance can still fail a later handler guard. (GPT-6.1-Sol) -->
+	if SASGameRecordActions.isEnabled():
+		SASGameRecordActions.logEventDiplomacyResponse("greatMediator2Callback", iButton, iData1, iData2, False)
 	iData3 = argsList[3]
 	szText = argsList[4]
 	bOption1 = argsList[5]
 	bOption2 = argsList[6]
 
-	if iButton == 0:
+	# <!-- custom: Use the choice ID assigned by the shared creation catalog; keep the existing event operation unchanged. (GPT-6.1-Sol) -->
+	if iButton == SASPopupChoices.EVENT_PEACE.ACCEPT_PEACE:
 		destPlayer = gc.getPlayer(iData1)
 		player = gc.getPlayer(iData2)
 		# kekm.39: DarkLunaPhantom - Added a check to prevent weird bugs like making peace with a vassal if the situation changes after the event is triggered.
