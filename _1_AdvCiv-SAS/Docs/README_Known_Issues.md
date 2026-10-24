@@ -108,6 +108,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
 [KI#49.2 - (Fixed inherited K-Mod singleton-group assumption) Multi-unit Reserve groups could trip AI_guardCityOnlyDefender and over-hold the whole group](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49.2)\
 [KI#49.3 - (Hardened inherited K-Mod AI grouping) Restore runtime rejection of visible-enemy target plots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49.3)\
+[KI#49.4 - (Fixed inherited BtS blockage staging exposed by a K-Mod assertion; retired K-Mod fallback probe) A non-enemy waypoint was queued as a direct attack](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49.4)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
 [KI#51 - (Cleanup validated; human tripwire retained) Old AI no-production fallback was obsolete: four broad controls found only intentional disorder returns, with no normal AI_chooseProduction final fall-through or non-disorder turn-boundary stall](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51)\
 [KI#51.2 - (Fixed AdvCiv-SAS post-production override defect; host emergency subsystem later retired) Emergency building rules could override intentional disorder no-production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-51.2)\
@@ -7255,6 +7256,56 @@ Accordingly, this change is defensive AI hardening with diagnostics. It could ch
 The earlier full T426 control already had Unit BBAI level 2 and Invasion Graph level 3, compared with Unit level 2 alone in the latest run. Thus the evidence shows no recorded gameplay/RNG change over the shared off/on prefix, plus matching full-run state/authoritative RNG under those two enabled category configurations; it is not a full-duration BBAI-off/on experiment. (GPT-6.1-Sol)
 
 Fixed with the help of ChatGPT-5.6-Sol, after review of the original K-Mod introduction and replacement commits and the later SAS assertion capture; source/history and logging-gate review with GPT-6.1-Sol.
+
+<a id="ki-49.4"></a>
+
+## KI#49.4 - (Fixed inherited BtS blockage staging exposed by a K-Mod assertion; retired K-Mod fallback probe) A non-enemy waypoint was queued as a direct attack
+
+After the KI#623.2 water-transit repair changed game history, the assertion-enabled replay reached two failures together at T395:
+
+```cpp
+FErrorMsg("AI_attackCityMove is resorting to AI_solveBlockageProblem");
+FAssert(bDone || !(missionData.eFlags & MOVE_DIRECT_ATTACK) || kGame.isMPOption(MPOPTION_SIMULTANEOUS_TURNS));
+```
+
+These are separate source sites: the first is in `CvUnitAI::AI_attackCityMove`, the second in `CvSelectionGroup::continueMission_bulk`. The sequence suggested a blockage fallback queuing an invalid direct-attack mission, but the initial assertions did not identify that mission's actual target.
+
+A Unit BBAI level-2 probe recorded both sides without rerunning pathfinding, movement or danger calculations:
+
+```log
+BLOCKAGE_DIRECT_ATTACK turn=395 player=14 unitId=2433027 unitAI=5 groupId=3915820 groupUnits=11 source=(35,19) destination=(11,34) blocker=(11,34) pathTurns=9 missionTarget=(34,20) targetIsBlocker=0 targetVisibleEnemy=0 blockerStepDistance=24 targetStepDistance=1 declareWar=0
+DIRECT_ATTACK_NOT_DONE turn=395 player=14 groupId=3915820 groupUnits=11 headUnitId=2433027 headUnitAI=5 source=(35,19) mission=0 target=(34,20) targetStepDistance=1 targetVisibleEnemy=0 targetOwner=11 targetTeam=11 flags=16 pushTurn=395 simultaneous=0
+```
+
+The rows identify the same player-14 group of 11 units. Its visible blocker was at `(11,34)`, nine path turns away, so the helper's existing distance rule substituted adjacent waypoint `(34,20)`. That waypoint had no visible enemy, yet the mission retained `MOVE_DIRECT_ATTACK`; the completion check then failed for that exact target with simultaneous turns disabled.
+
+The probe replay (`SASGameRecord_20261023T201906Z_load1.log` and companion BBAI/SASAssertions files) completed at T469 with team 7's Space Race victory and an empty `PythonErr.log`.
+
+All 474 authoritative-RNG checkpoints, including call provenance, and all 474 semantic-state checkpoints matched the preceding uninstrumented repair run. The confirmed caller/flag mismatch therefore predates this probe.
+
+The local BtS reference already has the far-blocker substitution followed by an unconditional `MOVE_DIRECT_ATTACK` in `AI_solveBlockageProblem`; the same combination predates the later K-Mod assertion.
+
+K-Mod commit `a83a53016ad85d4ea9814732fc33ff91fe81dbe9` added the attack-only completion invariant, explicitly commenting that direct attack should be used for attack commands only. That diagnostic exposed the inherited staging mismatch; it did not introduce the target substitution.
+
+The repair keeps the existing path and distance policy. A mission aimed at the actual blocker retains `MOVE_DIRECT_ATTACK`; a substituted staging waypoint uses `NO_MOVEMENT_FLAGS`, matching the path that the helper generated.
+
+War-plan handling remains earlier in the helper and can return through `AI_goToTargetCity(... | MOVE_DECLARE_WAR)` before this branch, so the staging repair does not need an added declaration flag.
+
+The first assertion has a different provenance and purpose. K-Mod commit `eb480dd36bacf47f9f93d64f88cb36f596f02429` added the unconditional "resorting to" development tripwire while describing the solver as a last resort. AdvCiv's retained comment documents circumstances where this fallback can legitimately be reached; reaching it alone is therefore not an invalid state.
+
+That tripwire is replaced with `BLOCKAGE_FALLBACK` context under Unit BBAI level 2. The distinct `AI_solveBlockageProblem returned false` assertion remains, as does K-Mod's direct-attack completion invariant. This removes an invalid alarm separately from correcting the real mission-flag defect.
+
+Successful blocker approaches are recorded as `BLOCKAGE_MOVE`, including the chosen target and actual flags; unexpected unfinished attacks retain `DIRECT_ATTACK_NOT_DONE` context.
+
+Logging checks precede diagnostic-only plot queries and argument formatting, and permitted simultaneous-turn cases remain distinguishable in the row. The fix introduces no new XML setting or assertion-suppression policy.
+
+The repaired replay (`SASGameRecord_20261024T033303Z_load1.log` and companion BBAI/SASAssertions files) reached the same T395 fallback and recorded `BLOCKAGE_MOVE` to `(34,20)` with `flags=0`. No `DIRECT_ATTACK_NOT_DONE` row or blockage-related assertion followed. Only the 40 separately postponed building-class-limit failures remained, and `PythonErr.log` was empty.
+
+It completed at T469 with team 7's Space Race victory. All 474 semantic-state checkpoints matched the probe replay, as did RNG states, counters and random-stream fingerprints; call-provenance fingerprints differed from T0, so the full RNG records are not identical.
+
+Correcting the staging mission's flags therefore removed the invalid attack request without changing the recorded game history in this replay.
+
+Investigated and implemented with the help of ChatGPT-5.6-Sol, GPT-6.1-Sol and wonderingabout, thanks.
 
 <a id="ki-50"></a>
 

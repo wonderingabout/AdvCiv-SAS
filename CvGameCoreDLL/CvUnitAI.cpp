@@ -9613,7 +9613,11 @@ void CvUnitAI::AI_attackCityMove()
 							until the preparations are through. Difficult to avoid the assertions below. */
 						/*  this is a last resort. I don't expect that we'll ever actually need it.
 							(it's a pretty ugly function, so I /hope/ we don't need it.) */
-						FErrorMsg("AI_attackCityMove is resorting to AI_solveBlockageProblem");
+						// <!-- custom: Reaching this documented fallback is not an invalid state; replace K-Mod's development tripwire with optional context while retaining the separate failed-solver assertion below.
+						// A T395 replay reached a real blocker here and exposed a distinct staging/direct-attack flag mismatch in the helper. See KI#49.4. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+						if (gUnitLogLevel >= 2) logBBAI("BLOCKAGE_FALLBACK turn=%d player=%d unitId=%d unitAI=%s groupId=%d groupUnits=%d source=(%d,%d) targetCityOwner=%d targetCityId=%d target=(%d,%d)",
+							GC.getGame().getGameTurn(), getOwner(), getID(), SAS_getUnitAITypeName(AI_getUnitAIType()), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
+							pAreaTargetCity->getOwner(), pAreaTargetCity->getID(), pAreaTargetCity->getX(), pAreaTargetCity->getY());
 						if (AI_solveBlockageProblem(pAreaTargetCity->plot(),
 							(GET_TEAM(getTeam()).getNumWars() <= 0)))
 						{
@@ -30806,12 +30810,23 @@ bool CvUnitAI::AI_solveBlockageProblem(CvPlot* pDestPlot, bool bDeclareWar)
 		if (kStepPlot.isVisibleEnemyUnit(this))
 		{
 			FAssert(canAttack());
+			// <!-- custom: The inherited BtS helper substitutes a staging waypoint for a distant blocker; only the blocker itself is a direct-attack target.
+			// Match staging to the NO_MOVEMENT_FLAGS path generated above; any required war-plan handoff has already returned through AI_goToTargetCity before this branch.
+			// K-Mod's attack-only completion assertion exposed the mismatch at T395; keep that invariant and correct the queued mission instead. See KI#49.4. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			int const iPathTurns = getPathFinder().getPathTurns();
 			CvPlot const* pBestPlot = &kStepPlot;
 			/*	To prevent puppeteering attempt to barge through
 				if quite close */
-			if (getPathFinder().getPathTurns() > 3)
+			if (iPathTurns > 3)
 				pBestPlot = &getPathEndTurnPlot();
-			pushGroupMoveTo(*pBestPlot, MOVE_DIRECT_ATTACK);
+			MovementFlags const eMoveFlags = (pBestPlot == &kStepPlot ? MOVE_DIRECT_ATTACK : NO_MOVEMENT_FLAGS);
+			// <!-- custom: Record the actual blocker, selected mission target and flags to distinguish direct attacks from staging approaches; gate diagnostic-only queries and formatting before the call. See KI#49.4. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			if (gUnitLogLevel >= 2) logBBAI("BLOCKAGE_MOVE turn=%d player=%d unitId=%d unitAI=%d groupId=%d groupUnits=%d source=(%d,%d) destination=(%d,%d) blocker=(%d,%d) pathTurns=%d missionTarget=(%d,%d) targetIsBlocker=%d targetVisibleEnemy=%d blockerStepDistance=%d targetStepDistance=%d declareWar=%d flags=%d",
+				GC.getGame().getGameTurn(), getOwner(), getID(), AI_getUnitAIType(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
+				pDestPlot->getX(), pDestPlot->getY(), kStepPlot.getX(), kStepPlot.getY(), iPathTurns, pBestPlot->getX(), pBestPlot->getY(),
+				(pBestPlot == &kStepPlot), pBestPlot->isVisibleEnemyUnit(this), stepDistance(getX(), getY(), kStepPlot.getX(), kStepPlot.getY()),
+				stepDistance(getX(), getY(), pBestPlot->getX(), pBestPlot->getY()), bDeclareWar, eMoveFlags);
+			pushGroupMoveTo(*pBestPlot, eMoveFlags);
 			return true;
 		}
 	}

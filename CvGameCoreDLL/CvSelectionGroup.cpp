@@ -1399,6 +1399,23 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 
 	/*	K-Mod. 'direct attack' should be used for attack commands only.
 		(But in simultaneous turns mode, the defenders might have already left.) */
+	// <!-- custom: Record unfinished direct-attack missions with their queued target state so blockage staging can be distinguished from a disappearing defender.
+	// The row identifies simultaneous-turn cases, which the existing assertion permits; keep diagnostic plot/enemy queries behind the Unit BBAI gate and preserve the completion invariant that exposed the caller defect. See KI#49.4. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	if (gUnitLogLevel >= 2 && !bDone && (missionData.eFlags & MOVE_DIRECT_ATTACK))
+	{
+		CvPlot const* pMissionTarget = NULL;
+		if (missionData.eMissionType == MISSION_MOVE_TO)
+			pMissionTarget = GC.getMap().plot(missionData.iData1, missionData.iData2);
+		CvUnit const* pHeadUnit = getHeadUnit();
+		logBBAI("DIRECT_ATTACK_NOT_DONE turn=%d player=%d groupId=%d groupUnits=%d headUnitId=%d headUnitAI=%d source=(%d,%d) mission=%d target=(%d,%d) targetStepDistance=%d targetVisibleEnemy=%d targetOwner=%d targetTeam=%d flags=%d pushTurn=%d simultaneous=%d",
+			kGame.getGameTurn(), getOwner(), getID(), getNumUnits(), (pHeadUnit == NULL ? -1 : pHeadUnit->getID()),
+			(pHeadUnit == NULL ? -1 : pHeadUnit->AI_getUnitAIType()), getX(), getY(), missionData.eMissionType,
+			(pMissionTarget == NULL ? -1 : pMissionTarget->getX()), (pMissionTarget == NULL ? -1 : pMissionTarget->getY()),
+			(pMissionTarget == NULL ? -1 : stepDistance(getX(), getY(), pMissionTarget->getX(), pMissionTarget->getY())),
+			(pMissionTarget != NULL && pHeadUnit != NULL && pMissionTarget->isVisibleEnemyUnit(pHeadUnit)),
+			(pMissionTarget == NULL ? -1 : pMissionTarget->getOwner()), (pMissionTarget == NULL ? -1 : pMissionTarget->getTeam()),
+			missionData.eFlags, missionData.iPushTurn, kGame.isMPOption(MPOPTION_SIMULTANEOUS_TURNS));
+	}
 	FAssert(bDone || !(missionData.eFlags & MOVE_DIRECT_ATTACK) || kGame.isMPOption(MPOPTION_SIMULTANEOUS_TURNS));
 
 	if (!bDone && getNumUnits() > 0 && /* K-Mod: */ readyForMission()) //canAllMove()
