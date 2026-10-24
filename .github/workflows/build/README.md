@@ -4,7 +4,7 @@ Everything under this directory is used by automated GitHub Actions. Subject fol
 
 - `repository/`: shipped-file layout, DLL-update intent, temporary-file policy and version metadata.
 - `hygiene/`: BOM/encoding signatures, line endings, filename lengths and Windows installation-path limits.
-- `documentation/`: maintained Markdown links/images, long-comment references, menu/prose structure and generated-document freshness.
+- `documentation/`: maintained Markdown links/images, long-comment references, menu/prose structure, SAS gameplay source links and generated-document freshness.
 - `xml/`: XML structure/text/defaults, SAS define/text references, technology/resource timing, wonder-policy tables and civilization replacement checks.
 - `assets/`: ArtDefine/button references, audio and shared font configuration.
 - `diagnostics/`: BBAI/SASGameRecord disabled defaults, log-sink safety and SASGameRecord revision/history synchronization.

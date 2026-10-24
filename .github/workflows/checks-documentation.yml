@@ -40,6 +40,9 @@ jobs:
       - name: Markdown list layout and edited prose
         run: python .github/workflows/build/documentation/markdown_prose_changes.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
 
+      - name: SAS gameplay source links in README and Main Changes Guide
+        run: python .github/workflows/build/documentation/sas_source_guide.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
+
       - name: Known Issues update chronology
         run: python .github/workflows/build/documentation/known_issues_chronology.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
 

@@ -36,6 +36,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/hygiene/text_blank_lines.py`](#buildhygienetext_blank_linespy)
     - [`build/hygiene/repository_hygiene.py`](#buildhygienerepository_hygienepy)
   - [Documentation](#documentation)
+    - [`build/documentation/sas_source_guide.py`](#builddocumentationsas_source_guidepy)
     - [`build/documentation/markdown_prose_changes.py`](#builddocumentationmarkdown_prose_changespy)
     - [`build/documentation/known_issues_chronology.py`](#builddocumentationknown_issues_chronologypy)
     - [`build/documentation/markdown_images.py`](#builddocumentationmarkdown_imagespy)
@@ -416,6 +417,18 @@ When introducing this limit, eight music files and one example shortcut were sho
 Binary assets are inspected only for a leading encoding signature, without decoding their contents.
 
 ### Documentation
+
+#### `build/documentation/sas_source_guide.py`
+
+Keeps SAS-branded gameplay source discoverable in both the [root README](/README.md) and [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), rather than describing features without naming their implementation files.
+
+- Requires a visible filename in a Markdown link to the exact repository-root path. For example, [`SASGameRecordLog.cpp`](/CvGameCoreDLL/SASGameRecordLog.cpp) counts; a bare mention, a generic "implementation" link, a link to another file, or a commented/code-example link does not.
+- Applies to tracked C/C++ source/header/export/resource, Python and XML files in gameplay folders (`CvGameCoreDLL`, excluding `Project`; `Assets/Python`; `Assets/XML`; `PrivateMaps`). Tools, tests, generated/untracked outputs, binaries and copied documentation are outside this scope.
+- Recognizes uppercase `SAS` and lowercase underscore/hyphen branding tokens such as `GlobalDefines_advciv_sas.xml`, avoiding accidental matches such as inherited `StartPointsAsHandicap.cpp`.
+- Ordinary runs check changed/added/renamed sources against the push/PR base, plus edits to either document that remove existing source links. Deleted source files are no longer required.
+  - This preserves the clean baseline without reading every source file on every run; Git supplies the path inventory and only the two documents are parsed.
+- Run a complete current-tree audit with `python .github/workflows/build/documentation/sas_source_guide.py --all`; updating the checker itself or lacking a comparison base also audits the full scope. Normal local review uses `--base-ref HEAD`.
+- Reports all missing references together and never inserts a bare file list automatically: links belong beside the relevant feature, with enough explanation to make them useful.
 
 #### `build/documentation/markdown_prose_changes.py`
 

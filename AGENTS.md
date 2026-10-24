@@ -263,6 +263,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 
 - Describe current behavior and limits without implying future commitments, for example "Performance was not measured" rather than "Performance has not yet been measured". Mention possible extensions only when useful, using wording such as "A possible extension would be..."; otherwise omit speculative plans.
 - Similarly, in documentation and code comments, prefer durable facts and rationale over vague progress labels such as "in progress" or "not yet". These add maintenance burden: we may forget to update them, as has happened before, and future work may change direction or never happen. When status matters, describe the concrete limitation or use a dated historical note.
+- Name and link SAS-branded gameplay source files beside their relevant features in both the root README and Main Changes Guide so contributors and LLMs can find the implementation; brief prose references are enough. The documentation check enforces explicit filename links for changed source files.
 
 ### Examples and historical records
 

@@ -154,6 +154,7 @@ For license and reuse terms, including project-specific restrictions and express
 &emsp;&emsp;[SAS_Parallel_Lines](#sas_parallel_lines)\
 &emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)\
 &emsp;[New .dds for mapscripts in Simple Game](/README.md#new-dds-for-mapscripts-in-simple-game)\
+[SASFastSave](/README.md#sasfastsave)\
 [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)\
 [Long Comments Archive](/README.md#long-comments-archive)\
 [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)\
@@ -232,6 +233,8 @@ Both of these maps were pangea at monarch handicap. Later screenshots are from v
 See also [the CFC AdvCiv-SAS Discussion Thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) as well, or the google drive link (see [Docs section](/README.md#docs) for link below) for more gameplay samples although some of these may be old/dated now.
 
 ## How to play?
+
+In-game configuration uses [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml); [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py) reports missing or incorrect launch sentinels.
 
 If you are a new player or want to play this mod and would like a few instructions on how to install it and play it, i have provided a few instructions in the [README_Quick_Install_Setup_Guide.md](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md)
 
@@ -473,6 +476,8 @@ The city screen has been heavily reworked, beautified, and enhanced, for example
 
 #### Map view rework (e.g., Scoreboard Toggle and Scroll buttons, Map Annotations Toggle button)
 
+City billboard scaling follows the selected font size through [`SASBillboardScale.py`](/Assets/Python/SASBillboardScale.py).
+
 Outside the city screen, UI has been reworked too: moved away the flag from production buttons bars (was needless and cumbersome there: better show more buttons instead: moved optionally to top panel as detailed in main changes guide), added buttons for unit stack and currently selected unit, moved and reordered end turn buttons and other controls, now near the map in a very pretty end turn group with a curved visual effect. Screenshots visible in the other ingame previews.
 
 Besides these and other changes in the main changes guide or code only, a notable change is the new toggle or scroll buttons in map view.
@@ -493,6 +498,8 @@ A new toggle button to show or hide map annotations (Alt + S captions or Alt + X
 <img src="./_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (2).JPG" alt="0.420_annotations (2).JPG" width="250"></img>
 
 ## UI (Main Sevopedia reworks)
+
+Supporting text lives in [`AdvCiv-SAS_Core.xml`](/Assets/XML/Text/AdvCiv-SAS_Core.xml) for adapted rules/concepts, [`AdvCiv-SAS_Sevopedia_Lengthy.xml`](/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml) for longer articles, and [`AdvCiv-SAS_main.xml`](/Assets/XML/Text/AdvCiv-SAS_main.xml) for SAS interface and explanatory text.
 
 Note: for more screenshots and documentation of the Sevopedia reworks in AdvCiv-SAS, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
 
@@ -730,6 +737,10 @@ We also use the Mods info category to show the legend of some tables or abbrevia
 
 ## UI (Common)
 
+Shared UI code includes [`SASUtils.py`](/Assets/Python/SASUtils.py) for legends, advisor helpers and validated XML lookups; [`SASTextScale.py`](/Assets/Python/SASTextScale.py) for text scaling; and [`SASVisualUtils.py`](/Assets/Python/SASVisualUtils.py) for cached visual resources.
+
+[`SASMagicNumbers.py`](/Assets/Python/SASMagicNumbers.py) centralizes shared UI identifiers, while [`SASPopupChoices.py`](/Assets/Python/SASPopupChoices.py) gives Python popup creation and response handling the same named choices.
+
 ### Emojis
 
 We added emojis in AdvCiv-SAS as dds so we don't have to tediously add them as textual icons, for example in Sevopedia (such as of now in the AI Personality Panel's emojis, or in the Info Screen's Statistics tab's top chart (Time Played, Cities, etc.)).
@@ -921,9 +932,11 @@ Map-script helper logic that is reused by several scripts lives in [SAS_WorldSiz
 
 ### AdvCiv-SAS original mapscripts (e.g., SAS_Simple_Flat_Grass, SAS_Large_Facing_Islands, SAS_Longworld, SAS_Parallel_Lines, SAS_Spiky_Avenues)
 
+[`SAS_Simple_Flat_Grass.py`](/PrivateMaps/SAS_Simple_Flat_Grass.py) provides the flat grass test map; the other scripts are illustrated below.
+
 #### SAS_Longworld
 
-We have added our own new mapscripts in AdvCiv-SAS, notably SAS_Longworld with the help of GPT-5.3-Codex thanks, which is based on [Ringworld3 v1.02](https://forums.civfanatics.com/threads/map-script-ringworld3.371831/) but with a heavily simplified code.
+We have added our own new mapscripts in AdvCiv-SAS, notably [`SAS_Longworld.py`](/PrivateMaps/SAS_Longworld.py) with the help of GPT-5.3-Codex thanks, which is based on [Ringworld3 v1.02](https://forums.civfanatics.com/threads/map-script-ringworld3.371831/) but with a heavily simplified code.
 
 >A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified.
 
@@ -936,7 +949,7 @@ Like all mapscripts in AdvCiv-SAS as of now, it supports SAS48 worldsize and pla
 
 #### SAS_Spiky_Avenues
 
-Similarly we also added our new original SAS_Spiky_Avenues mapscript with the help of GPT-5.3-Codex and Claude code Opus 4.6 thanks. We took some ideas from SAS_Longworld but with a different concept:
+Similarly we also added our new original [`SAS_Spiky_Avenues.py`](/PrivateMaps/SAS_Spiky_Avenues.py) mapscript with the help of GPT-5.3-Codex and Claude code Opus 4.6 thanks. We took some ideas from SAS_Longworld but with a different concept:
 
 >Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets. One player starts per house. Bigger world sizes increase street/spike counts (not house size). Examples: in Large worldsize (11 default players), 3 spikes per street (6 houses) and 2 streets (12 houses total); in SAS48 worldsize (48 default players), 6 spikes per street (12 houses) and 4 streets (48 houses total). Recommended to play this map on SAS48. This is an AdvCiv-SAS original map.
 
@@ -947,7 +960,7 @@ Similarly we also added our new original SAS_Spiky_Avenues mapscript with the he
 
 #### SAS_Large_Facing_Islands
 
-An addition with the help of GPT-5.3-Codex, and some ideas from GPT-5.2-Thinking thanks.
+[`SAS_Large_Facing_Islands.py`](/PrivateMaps/SAS_Large_Facing_Islands.py), an addition with the help of GPT-5.3-Codex, and some ideas from GPT-5.2-Thinking thanks.
 
 >Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough). Island size stays the same on all world sizes and is fairly large. North-South and East-West bands can optionally be set to Coast or Ocean. Supports world sizes up to SAS48. The world revolves horizontally (WrapX on). Inspired by Empire Earth (1) Large Islands, with some ideas adapted from our SAS_Longworld map.
 
@@ -958,7 +971,7 @@ An addition with the help of GPT-5.3-Codex, and some ideas from GPT-5.2-Thinking
 
 #### SAS_Parallel_Lines
 
-Our latest addition with the help of GPT-5.3-Codex thanks.
+[`SAS_Parallel_Lines.py`](/PrivateMaps/SAS_Parallel_Lines.py), our latest addition with the help of GPT-5.3-Codex thanks.
 
 >Parallel lines map where the world is optionally (default) connected horizontally (WrapX) and vertically (WrapY). Fixed number of players per line (3 or 4), and height per player. Each land line has an adjacent land line to its left and to its right, separated by a water line. Larger world sizes add more lines.
 
@@ -1002,6 +1015,14 @@ Trick: by having the view box in a water or snow zone you can edit it later and 
 <img src="./_1_AdvCiv-SAS/Images/mapscript_previews/0.3201_maps_simple_game (8).JPG" alt="0.3201_maps_simple_game (8).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/mapscript_previews/0.3201_maps_simple_game (9).JPG" alt="0.3201_maps_simple_game (9).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/mapscript_previews/0.3201_maps_simple_game (10).JPG" alt="0.3201_maps_simple_game (10).JPG" width="250"></img>
+
+## SASFastSave
+
+[`SASFastSave.py`](/Assets/Python/SASFastSave.py) can preserve permanent saves at game start, game end and when autoplay stops, reducing the chance of losing a useful game or test result. These are ordinary single-player saves, separate from Civ4's rotating autosaves; SAS defines control which occasions create them.
+
+Their filenames expose the original leader, turn, map context, outcome when applicable, game speed, initial RNG seeds and UTC timestamp, making related saves easier to find. Same-second name collisions receive a numeric suffix instead of overwriting a save.
+
+See the [Main Changes Guide (System - Misc)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#system---misc) for save settings and filename details.
 
 ## Change from short to int the Found value pipeline
 
@@ -1198,6 +1219,8 @@ It also traces outputs such as `bull.log` (BULL), `C2C.log` (Caveman2Cosmos) and
 
 ### Python and engine diagnostic logs
 
+[`SASPythonLogging.py`](/Assets/Python/SASPythonLogging.py) supplies the shared Python timestamping and structured diagnostic output.
+
 UTC timestamps, readable identities and consistent `record=` fields make Python diagnostic output and DLL-written `xml.log` rows easier to search and correlate.
 
 For example, the same `PythonDbg.log` screen notification becomes identifiable without looking up screen number 99 (reconstructed formats using captured data):
@@ -1253,6 +1276,8 @@ For example, a changed C++ diff fingerprint with an unchanged DLL fingerprint ex
 With no scoped tracked diff the byte count is `0`; unavailable Git-derived provenance remains explicit instead of being mislabeled as clean. These fingerprints are diagnostic identities, not cryptographic security hashes.
 
 #### Versioning
+
+[`SASSaveStreamFormat.h`](/CvGameCoreDLL/SASSaveStreamFormat.h) centralizes save/replay format markers used by serialization and diagnostics.
 
 AdvCiv-SAS supports showing the current version/commit of the downloaded ZIP from GitHub, as well as in local dev folders cloned from GitHub.
 
@@ -1375,6 +1400,10 @@ See the [full BBAI header and its context](/_1_AdvCiv-SAS/Docs/README_Logging_In
 
 #### SASGameRecord log
 
+The DLL recorder is implemented in [`SASGameRecordLog.cpp`](/CvGameCoreDLL/SASGameRecordLog.cpp) with its interface in [`SASGameRecordLog.h`](/CvGameCoreDLL/SASGameRecordLog.h).
+
+Its Python bridge uses [`SASGameRecordConfig.py`](/Assets/Python/SASGameRecordConfig.py) for cached logging gates, [`SASGameRecordSettings.py`](/Assets/Python/SASGameRecordSettings.py) for configuration snapshots and changes, and [`SASGameRecordActions.py`](/Assets/Python/SASGameRecordActions.py) for player-action records.
+
 `SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review. It records broadly, yet in a detailed but also compact/efficient format most of what happens in a game.
 
 The `SASGameRecord` log records many fields or information (see [README_Main_Changes_Guide.md (SASGameRecord log)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sasgamerecord-log)).
@@ -1438,6 +1467,8 @@ Initial context includes small and medium geography overviews before the full mu
 <img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (7).PNG" alt="text_art_map (7)" width="250"></img>
 
 See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log). It can be given to an external to the repo LLM (e.g. ChatGPT instead of Codex) to get an as of now token-cheap or free review of the `SASGameRecord` example sample.
+
+Runtime observations are collected by [`SASRuntimeStatus.cpp`](/CvGameCoreDLL/SASRuntimeStatus.cpp), with named observation reasons in [`SASRuntimeStatusReasons.h`](/CvGameCoreDLL/SASRuntimeStatusReasons.h).
 
 The matching [`SASRuntimeStatus_example.json`](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeStatus_example.json) and [`SASRuntimeHistory_example.jsonl`](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeHistory_example.jsonl) show real current-state observations and timed activity history alongside the detailed game logs.
 
