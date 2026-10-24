@@ -238,9 +238,10 @@ def main():
         for path in (temporary / "runtime_snapshots").glob("*.json"):
             text = path.read_text(encoding="utf-8")
             assert '\n  "dllIdentity": {\n    "buildConfiguration": "Debug-opt",' in text
-            assert '\n    "peTimestampRaw": 42\n  },\n  "statusSerial": ' in text
+            assert '\n    "peTimestampRaw": 42\n  },\n' in text
         for row in snapshots.values():
             assert row["revision"] == expected_revision and "schema" not in row
+            assert row["sourceIdentity"] == {"commit": "fixture"}
             assert row["dllIdentity"] == {"buildConfiguration": "Debug-opt", "moduleFound": 1, "fileReadable": 1, "fileSizeBytes": 123456, "fingerprint": "FNV1A64:123456789ABCDEF0", "lastWriteUtc": "20261018T000000.000Z", "peTimestampRaw": 42}
             assert row["buttonPopupAwaitingInteraction"] == 0 and row["buttonPopupType"] == "NONE" and row["buttonPopupTypeId"] == -1
         assert snapshots["starting"]["gameTurn"] == -1 and snapshots["load_starting"]["loadedSaveCheckpointTurn"] == -1
@@ -264,6 +265,7 @@ def main():
         assert first_session_index < first_ready_index
         run = run_records[0]
         assert run["revision"] == expected_revision and run["processId"] == snapshots["exit"]["processId"] and run["processStartUtc"] == snapshots["exit"]["processStartUtc"]
+        assert run["sourceIdentity"] == snapshots["exit"]["sourceIdentity"]
         assert run["dllIdentity"] == snapshots["exit"]["dllIdentity"] and run["run"] in snapshots["exit"]["historyFilename"]
         assert [row["stateSerial"] for row in timeline] == list(range(1, snapshots["exit"]["activitySerial"] + 1))
         assert timeline[0]["state"] == "NO_GAME" and timeline[-1]["state"] == "SHUTTING_DOWN"

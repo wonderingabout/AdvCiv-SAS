@@ -2,10 +2,12 @@
 #ifndef MOD_NAME_H
 #define MOD_NAME_H
 
+#include <vector> // <!-- custom: ModName owns the per-file diagnostic snapshot vector; its complete container definition is required for the member, rather than relying on the game PCH. (GPT-6.1-Sol) -->
+
 /*	advc.106i: Small class for caching the mod's name and install location.
 	(Could be expanded to also modify the name stored by the EXE; see the
 	ModName class in the Taurus mod.) */
-// <!-- custom: AdvCiv-SAS also uses this existing central object for branded display identity and lazily resolved source/version provenance, keeping UI and logs on one resolver. (ChatGPT-5.6-Sol) -->
+// <!-- custom: AdvCiv-SAS also uses this existing central object for branded display identity and lazily resolved source/version provenance, centralizing identity while keeping diagnostic-only work separately lazy. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 
 class ModName
 {
@@ -43,14 +45,40 @@ public:
 	int getSourceDirtyState() const;
 	int getSourceDirtyFileCount() const;
 	char const* getSourceDirtyFiles() const;
-	// <!-- custom: Fingerprint tracked gameplay code/rules/scripts relative to HEAD so logs can distinguish different runtime-relevant edits without hashing docs, LLM helpers, or the separately fingerprinted loaded DLL. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Keep feature-branch ancestry separate from the per-commit practical count: a branch can be behind, ahead of, or diverged from the locally known default branch while still having its own exact rev-list count.
+	// These values come from the local checkout without fetching, so unavailable/stale local refs stay explicit rather than being treated as current remote truth. (ChatGPT-5.6-Sol) -->
+	char const* getSourceDefaultBranch() const;
+	char const* getSourceDefaultCommitHash() const;
+	char const* getSourceDefaultVersion() const;
+	char const* getSourceDefaultRefSource() const;
+	char const* getSourceMergeBaseCommitHash() const;
+	char const* getSourceMergeBaseVersion() const;
+	char const* getSourceBranchRelation() const;
+	int getSourceCurrentOnlyCommitCount() const;
+	int getSourceDefaultOnlyCommitCount() const;
+	// <!-- custom: Preserve the older net HEAD-to-working-tree diff fingerprint while also separating staged and unstaged layers, which can otherwise mask or cancel one another. (ChatGPT-5.6-Sol) -->
 	__int64 getSourceCodeRulesDiffBytes() const;
 	char const* getSourceCodeRulesDiffFingerprint() const;
+	__int64 getSourceStagedCodeRulesDiffBytes() const;
+	char const* getSourceStagedCodeRulesDiffFingerprint() const;
+	__int64 getSourceUnstagedCodeRulesDiffBytes() const;
+	char const* getSourceUnstagedCodeRulesDiffFingerprint() const;
+	// <!-- custom: Distinguish a complete empty per-file snapshot from a failed detail capture; aggregate patch hashes alone cannot make this claim. (GPT-6.1-Sol) -->
+	bool isSourceDiffDetailsAvailable() const;
+	int getSourceDiffFileCount() const;
+	char const* getSourceDiffFileScope(int iIndex) const;
+	char const* getSourceDiffFilePath(int iIndex) const;
+	__int64 getSourceDiffFileBytes(int iIndex) const;
+	char const* getSourceDiffFileFingerprint(int iIndex) const;
 
 private:
 	// <!-- custom: Internal source/version resolver helpers; resolution is lazy and reset only if update() changes the loaded mod path. (ChatGPT-5.6-Sol) -->
 	void resetSourceDetails();
 	void resolveSourceDetails() const;
+	// <!-- custom: Diagnostic-only ancestry and patch capture must not be pulled in by ordinary version UI; callers gate diagnostic getters before requesting this separate first-use cache. (GPT-6.1-Sol) -->
+	void resolveDiagnosticSourceDetails() const;
+	// <!-- custom: Return false when per-file evidence is incomplete, independently of aggregate patch availability. (GPT-6.1-Sol) -->
+	bool appendSourceDiffLayer(char const* szScope, CvString const& paths, CvString const& diff) const;
 	CvString getAbsoluteModPath() const;
 	// <!-- custom: Cache the Civ4 mod INI's [CONFIG] Name from the EXE-derived loaded folder path, avoiding any GlobalDefines dependency during Python/XML startup. See KI#110.2. (ChatGPT-5.6-Sol) -->
 	void cacheDisplayName();
@@ -63,10 +91,24 @@ private:
 	// <!-- custom: Cache only authoritative source/version facts.
 	// Derived presentation values such as a short SHA are intentionally computed by callers from these primary fields.
 	// mutable allows const UI/log getters to populate the cache once without making source resolution part of ModName's logical identity mutation. (ChatGPT-5.6-Sol) -->
+	struct SourceDiffFile
+	{
+		CvString szScope;
+		CvString szPath;
+		__int64 iDiffBytes;
+		CvString szDiffFingerprint;
+	};
 	mutable bool m_bSourceDetailsResolved;
+	// <!-- custom: Keep diagnostic work independently lazy, with explicit per-file completeness rather than treating a failed enumeration as a clean tree. (GPT-6.1-Sol) -->
+	mutable bool m_bDiagnosticSourceDetailsResolved;
+	mutable bool m_bSourceDiffDetailsAvailable;
 	mutable int m_iSourceDirtyState;
 	mutable int m_iSourceDirtyFileCount;
+	mutable int m_iSourceCurrentOnlyCommitCount;
+	mutable int m_iSourceDefaultOnlyCommitCount;
 	mutable __int64 m_iSourceCodeRulesDiffBytes;
+	mutable __int64 m_iSourceStagedCodeRulesDiffBytes;
+	mutable __int64 m_iSourceUnstagedCodeRulesDiffBytes;
 	mutable CvString m_sVersion;
 	mutable CvString m_sCommitHash;
 	mutable CvString m_sBranch;
@@ -74,6 +116,16 @@ private:
 	mutable CvString m_sSourceMetadataType;
 	mutable CvString m_sSourceDirtyFiles;
 	mutable CvString m_sSourceCodeRulesDiffFingerprint;
+	mutable CvString m_sSourceStagedCodeRulesDiffFingerprint;
+	mutable CvString m_sSourceUnstagedCodeRulesDiffFingerprint;
+	mutable CvString m_sSourceDefaultBranch;
+	mutable CvString m_sSourceDefaultCommitHash;
+	mutable CvString m_sSourceDefaultVersion;
+	mutable CvString m_sSourceDefaultRefSource;
+	mutable CvString m_sSourceMergeBaseCommitHash;
+	mutable CvString m_sSourceMergeBaseVersion;
+	mutable CvString m_sSourceBranchRelation;
+	mutable std::vector<SourceDiffFile> m_aSourceDiffFiles;
 };
 
 #endif

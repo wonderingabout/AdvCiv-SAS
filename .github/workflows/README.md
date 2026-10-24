@@ -944,11 +944,16 @@ It enforces these review rules introduced after repeated provenance mistakes:
 - if an inherited comment is replaced by a nearby custom comment, known provenance markers such as `advc.xxx`, `KI#...` and `Long_Comments_... #N` are retained;
 - every added/removed/changed C/C++ `#include` or Python import has a nearby newly added custom rationale comment, including dependencies in new files; untouched inherited directives are excluded;
 - added/removed/changed literal-named Boost.Python `.def(...)` bindings have a nearby new custom rationale comment; a Python help string alone is insufficient. A coherent nearby binding group may share its explanation, and unchanged/reflowed bindings are excluded;
-- parameter-list changes on existing non-SAS C++/Python functions have a nearby newly added custom comment explaining the interface change. Clearly SAS-named helpers are intentionally optional.
+- Parameter-list and return-type changes on existing non-SAS C++/Python functions have a nearby newly added custom comment explaining the interface change.
+  - Clear function renames are checked too: one removed and one added function in the same replacement hunk and scope. Clearly SAS-named helpers remain optional; renaming a non-SAS function to a SAS name still needs rationale.
 
-The check is deliberately conservative rather than a full C++ parser. New files require dependency explanations but have no changed-parameter contract to explain. Standard repository header/directive comments are exempt from the new-comment rule, and source-file deletion is allowed without a tombstone comment.
+The check is deliberately conservative rather than a full C++ parser. New functions/files have no previous interface contract to explain; new files still require dependency explanations. Distant moves and ambiguous many-function replacements are not guessed to be renames; review those manually.
+
+Standard repository header/directive comments are exempt from the new-comment rule, and source-file deletion is allowed without a tombstone comment.
 
 Credit matching is deliberately conservative: free-form attribution, distant moves combined with rewrites and wholesale rewrites still need review.
+
+For example, changing a legacy `void capture()` into `bool capture()` must explain what success/failure means to callers; a name-only `score` to `rank` replacement needs its rationale too. Tests cover those failures and acceptance after adding comments, alongside unchanged overloads, return-type reflow, new functions and ambiguous/distant replacements.
 
 Comment wording quality remains a human-review concern; when run, the helper verifies provenance/rationale presence, not whether the rationale is persuasive.
 

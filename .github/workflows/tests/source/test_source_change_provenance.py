@@ -253,6 +253,51 @@ class SourceChangeProvenanceTests(unittest.TestCase):
         self.assertTrue(any("parameters changed" in error for error in self.errors("LLM_Helpers/test.py", old, bad)))
         self.assertEqual(self.errors("LLM_Helpers/test.py", old, good), [])
 
+    def test_return_type_change_requires_comment_in_header_and_definition(self):
+        for path, old, new in (
+            ("CvGameCoreDLL/Test.cpp", "void Worker::capture() {}\n", "bool Worker::capture() { return true; }\n"),
+            ("CvGameCoreDLL/Test.h", "class Worker { void capture(); };\n", "class Worker { bool capture(); };\n"),
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(any("return type changed" in error for error in self.errors(path, old, new)))
+                comment = "// <!-- custom: Return success so callers can distinguish failed capture from an empty result. (GPT-6.1-Sol) -->\n"
+                self.assertEqual(self.errors(path, old, comment + new), [])
+
+    def test_return_type_reflow_and_storage_qualifiers_are_not_return_changes(self):
+        old = "class Worker {\npublic:\n    const Item* capture();\n};\n"
+        new = "class Worker {\npublic:\n    inline const Item *\n    capture();\n};\n"
+        self.assertEqual(self.errors("CvGameCoreDLL/Test.h", old, new), [])
+
+    def test_return_change_preserves_unchanged_overloads(self):
+        old = "int Worker::capture(int id) { return id; }\nvoid Worker::capture() {}\n"
+        new = "int Worker::capture(int id) { return id; }\nbool Worker::capture() { return true; }\n"
+        changes = checker.changed_signatures(old, new, ".cpp")
+        self.assertEqual(len(changes), 1)
+        self.assertEqual((changes[0][0].return_type, changes[0][1].return_type), ("void", "bool"))
+
+    def test_clear_cpp_and_python_renames_require_comment(self):
+        for path, old, new, prefix in (
+            ("CvGameCoreDLL/Test.cpp", "int Worker::score(int id) { return id; }\n", "int Worker::rank(int id) { return id; }\n", "//"),
+            ("Assets/Python/Test.py", "def score(value):\n    return value\n", "def rank(value):\n    return value\n", "#"),
+            ("CvGameCoreDLL/Test.h", "int score(int id);\n", "int SAS_rank(int id);\n", "//"),
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(any("function renamed" in error for error in self.errors(path, old, new)))
+                comment = prefix + " <!-- custom: Rename scoring to ranking to clarify its caller-facing purpose. (GPT-6.1-Sol) -->\n"
+                self.assertEqual(self.errors(path, old, comment + new), [])
+
+    def test_new_function_and_ambiguous_or_distant_replacements_are_not_renames(self):
+        self.assertEqual(self.errors("CvGameCoreDLL/Test.cpp", "int Worker::score() { return 1; }\n", "int Worker::score() { return 1; }\nbool Worker::capture() { return true; }\n"), [])
+        old = "void first() {}\nint barrier;\nvoid other() {}\n"
+        new = "int barrier;\nvoid other() {}\nvoid last() {}\n"
+        self.assertEqual(checker.changed_signatures(old, new, ".cpp"), [])
+        self.assertEqual(checker.changed_signatures("void oldOne();\nvoid oldTwo();\n", "void newOne();\nvoid newTwo();\n", ".h"), [])
+
+    def test_python_return_annotation_change_is_checked(self):
+        old = "def capture(value) -> int:\n    return value\n"
+        new = "def capture(value) -> bool:\n    return bool(value)\n"
+        self.assertTrue(any("return type changed" in error for error in self.errors("LLM_Helpers/test.py", old, new)))
+
     def test_new_file_functions_do_not_require_changed_parameter_notes(self):
         new = "def run(value):\n    return value\n"
         self.assertEqual(self.errors("LLM_Helpers/new_helper.py", None, new), [])

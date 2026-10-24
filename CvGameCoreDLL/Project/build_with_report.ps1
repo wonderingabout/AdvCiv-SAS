@@ -46,6 +46,103 @@ function Get-GitText([string[]]$Arguments) {
     return ($result -join "`n")
 }
 
+# <!-- custom: Record branch ancestry and staged/unstaged runtime-code patches independently so a build made on a reproducer/PR branch cannot be mistaken for a later main practical merely from rev-list count.
+# This is a local provenance snapshot only: no fetch is attempted, and defaultRefSource says whether the locally known default came from a local branch or origin's tracking ref.
+# Anchor counts/ancestry/staged patches to the captured SHAs rather than refs that may move during capture. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+function Get-SourceDiffState([switch]$Cached, [string]$BaseCommit = 'HEAD') {
+    # <!-- custom: Git failures should mark optional provenance unavailable, not abort DLL compilation under the wrapper's Stop policy. (GPT-6.1-Sol) -->
+    $ErrorActionPreference = 'Continue'
+    $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../..')).Path
+    $scope = @('CvGameCoreDLL', 'Assets/Config', 'Assets/Python', 'Assets/XML', 'PrivateMaps')
+    # <!-- custom: PowerShell unwraps a one-element if result to a string; splatting that scalar passed d/i/f/f as separate Git arguments and broke unstaged capture.
+    # Keep both branches typed as string arrays. (GPT-6.1-Sol) -->
+    [string[]]$prefix = if ($Cached) { @('diff', '--cached', $BaseCommit) } else { @('diff') }
+    $temp = [IO.Path]::GetTempFileName()
+    try {
+        # <!-- custom: Read UTF-8 NUL-delimited paths from Git's file output, bypassing console decoding and display quoting.
+        # A non-ASCII filename otherwise became a quoted octal path and was falsely hashed as an empty patch; literal pathspecs also protect brackets and wildcard characters. (GPT-6.1-Sol) -->
+        & git --literal-pathspecs -C $repoRoot @prefix '--name-only' '-z' '--no-renames' ('--output=' + $temp) '--' @scope 2>$null
+        if ($LASTEXITCODE -ne 0) { return [ordered]@{ available = $false; reason = 'GIT_DIFF_UNAVAILABLE' } }
+        $names = [IO.File]::ReadAllText($temp, [Text.Encoding]::UTF8).Split([char[]]@([char]0), [StringSplitOptions]::RemoveEmptyEntries)
+        & git --literal-pathspecs -C $repoRoot @prefix '--binary' '--full-index' '--no-ext-diff' '--no-textconv' '--no-renames' '--no-color' ('--output=' + $temp) '--' @scope 2>$null
+        if ($LASTEXITCODE -ne 0) { return [ordered]@{ available = $false; reason = 'GIT_DIFF_UNAVAILABLE' } }
+        $whole = Get-BuildFileState $temp
+        $files = @()
+        foreach ($path in $names) {
+            if ([string]::IsNullOrEmpty($path)) { continue }
+            [IO.File]::WriteAllBytes($temp, [byte[]]@())
+            & git --literal-pathspecs -C $repoRoot @prefix '--binary' '--full-index' '--no-ext-diff' '--no-textconv' '--no-renames' '--no-color' ('--output=' + $temp) '--' $path 2>$null
+            if ($LASTEXITCODE -ne 0) { return [ordered]@{ available = $false; reason = 'PER_FILE_GIT_DIFF_UNAVAILABLE' } }
+            $state = Get-BuildFileState $temp
+            # <!-- custom: A file changed between name enumeration and patch capture must not become an empty patch reported as verified evidence. (GPT-6.1-Sol) -->
+            if ($state.sizeBytes -eq 0) { return [ordered]@{ available = $false; reason = 'SOURCE_DIFF_CHANGED_DURING_CAPTURE' } }
+            $files += [ordered]@{ path = $path; diffBytes = $state.sizeBytes; sha256 = $state.sha256 }
+        }
+        return [ordered]@{ available = $true; scope = 'TRACKED_RUNTIME_CODE_RULES'; diffBytes = $whole.sizeBytes; sha256 = $whole.sha256; fileCount = $files.Count; files = $files }
+    }
+    catch { return [ordered]@{ available = $false; reason = 'SOURCE_DIFF_CAPTURE_FAILED'; detail = $_.Exception.Message } }
+    finally { Remove-Item -LiteralPath $temp -Force -ErrorAction SilentlyContinue }
+}
+
+function Get-SourceProvenance {
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) { return [ordered]@{ available = $false; reason = 'GIT_UNAVAILABLE' } }
+    $commit = Get-GitText -Arguments @('rev-parse', 'HEAD')
+    if ($commit -eq 'UNAVAILABLE') { return [ordered]@{ available = $false; reason = 'HEAD_UNAVAILABLE' } }
+    $branch = Get-GitText -Arguments @('symbolic-ref', '--quiet', '--short', 'HEAD')
+    $version = Get-GitText -Arguments @('rev-list', '--count', $commit)
+    $shallow = Get-GitText -Arguments @('rev-parse', '--is-shallow-repository')
+    $result = [ordered]@{
+        available = $true
+        commit = $commit
+        branch = $branch
+        version = if ($shallow -eq 'false') { $version } else { 'UNAVAILABLE' }
+        history = if ($shallow -eq 'true') { 'SHALLOW' } elseif ($shallow -eq 'false') { 'FULL' } else { 'UNKNOWN' }
+        defaultBranch = 'UNAVAILABLE'
+        defaultCommit = 'UNAVAILABLE'
+        defaultVersion = 'UNAVAILABLE'
+        defaultRefSource = 'UNAVAILABLE'
+        mergeBaseCommit = 'UNAVAILABLE'
+        mergeBaseVersion = 'UNAVAILABLE'
+        branchRelation = 'UNAVAILABLE'
+        currentOnlyCommits = -1
+        defaultOnlyCommits = -1
+        stagedCodeRulesDiff = Get-SourceDiffState -Cached -BaseCommit $commit
+        unstagedCodeRulesDiff = Get-SourceDiffState
+    }
+    if ($shallow -ne 'false') { return $result }
+    $originHead = Get-GitText -Arguments @('symbolic-ref', '--quiet', 'refs/remotes/origin/HEAD')
+    if ($originHead -notmatch '^refs/remotes/origin/(.+)$') { return $result }
+    $defaultBranch = $Matches[1]
+    $localRef = 'refs/heads/' + $defaultBranch
+    $remoteRef = $originHead
+    $defaultCommit = Get-GitText -Arguments @('rev-parse', '--verify', $localRef)
+    if ($defaultCommit -ne 'UNAVAILABLE') {
+        $defaultRef = $localRef
+        $result.defaultRefSource = 'LOCAL_BRANCH'
+    }
+    else {
+        $defaultCommit = Get-GitText -Arguments @('rev-parse', '--verify', $remoteRef)
+        if ($defaultCommit -eq 'UNAVAILABLE') { return $result }
+        $defaultRef = $remoteRef
+        $result.defaultRefSource = 'REMOTE_TRACKING'
+    }
+    $result.defaultBranch = $defaultBranch
+    $result.defaultCommit = $defaultCommit
+    $result.defaultVersion = Get-GitText -Arguments @('rev-list', '--count', $defaultCommit)
+    $result.mergeBaseCommit = Get-GitText -Arguments @('merge-base', $commit, $defaultCommit)
+    if ($result.mergeBaseCommit -ne 'UNAVAILABLE') { $result.mergeBaseVersion = Get-GitText -Arguments @('rev-list', '--count', $result.mergeBaseCommit) }
+    $counts = Get-GitText -Arguments @('rev-list', '--left-right', '--count', ($commit + '...' + $defaultCommit))
+    if ($counts -match '^([0-9]+)\s+([0-9]+)$') {
+        $result.currentOnlyCommits = [int]$Matches[1]
+        $result.defaultOnlyCommits = [int]$Matches[2]
+        if ($result.currentOnlyCommits -eq 0 -and $result.defaultOnlyCommits -eq 0) { $result.branchRelation = 'AT_DEFAULT' }
+        elseif ($result.currentOnlyCommits -gt 0 -and $result.defaultOnlyCommits -eq 0) { $result.branchRelation = 'AHEAD_OF_DEFAULT' }
+        elseif ($result.currentOnlyCommits -eq 0 -and $result.defaultOnlyCommits -gt 0) { $result.branchRelation = 'BEHIND_DEFAULT' }
+        else { $result.branchRelation = 'DIVERGED' }
+    }
+    return $result
+}
+
 function Get-TempState {
     $directory = Join-Path $PSScriptRoot ('temp_files/' + $target)
     $files = @(Get-ChildItem -LiteralPath $directory -Recurse -File -ErrorAction SilentlyContinue)
@@ -215,6 +312,7 @@ $report = [ordered]@{
     branch = Get-GitText -Arguments @('symbolic-ref', '--quiet', '--short', 'HEAD')
     commit = Get-GitText -Arguments @('rev-parse', 'HEAD')
     workingTreeStatus = Get-GitText -Arguments @('status', '--porcelain=v1', '--untracked-files=normal')
+    sourceProvenance = Get-SourceProvenance
     tempBefore = Get-TempState
     dllBefore = Get-DllState
     status = 'RUNNING'
@@ -302,6 +400,7 @@ finally {
     $report['recognizedErrorLines'] = @($errors | Sort-Object)
     $report['commitAfter'] = Get-GitText -Arguments @('rev-parse', 'HEAD')
     $report['workingTreeStatusAfter'] = Get-GitText -Arguments @('status', '--porcelain=v1', '--untracked-files=normal')
+    $report['sourceProvenanceAfter'] = Get-SourceProvenance
     $report['tempAfter'] = Get-TempState
     $report['dllAfter'] = Get-DllState
     try {

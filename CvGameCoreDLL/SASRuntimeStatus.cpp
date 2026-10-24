@@ -15,7 +15,7 @@
 // Compile the label into the publisher: an edited XML value must not make an older loaded DLL report a newer implementation; this counter is independent of SASGameRecord and binary-save versions. (GPT-6.1-Sol) -->
 enum SASRuntimeRecorderRevision
 {
-	SAS_RUNTIME_REVISION = 7
+	SAS_RUNTIME_REVISION = 8
 };
 
 #define SAS_RUNTIME_PROCESS_STATES(DO) DO(RUNNING) DO(EXITED_CLEANLY)
@@ -488,6 +488,7 @@ static bool ensureSASRuntimeHistoryMetadata()
 		return true;
 	CvString szRow;
 	CvString const& szDllIdentity = getSASRuntimeDllIdentity();
+	CvString const szSourceIdentity = getSASSourceRuntimeIdentityJson(false);
 	szRow.Format("{\"record\":\"run\","
 		"\"revision\":%d,"
 		"\"run\":\"%s\","
@@ -495,9 +496,10 @@ static bool ensureSASRuntimeHistoryMetadata()
 		"\"processStartUtc\":\"%s\","
 		"\"dllLoadUtc\":\"%s\","
 		"\"dllIdentity\":%s,"
+		"\"sourceIdentity\":%s,"
 		"\"priorStatusWriteFailures\":%u,"
 		"\"priorHistoryWriteFailures\":%u}\r\n",
-		SAS_RUNTIME_REVISION, getSASRuntimeHistoryRunId().GetCString(), (unsigned long)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), getSASProcessUtcTimestamp().GetCString(), szDllIdentity.GetCString(),
+		SAS_RUNTIME_REVISION, getSASRuntimeHistoryRunId().GetCString(), (unsigned long)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), getSASProcessUtcTimestamp().GetCString(), szDllIdentity.GetCString(), szSourceIdentity.GetCString(),
 		g_uiSASRuntimeStatusWriteFailures, g_uiSASRuntimeHistoryWriteFailures);
 	bool bContentComplete = false;
 	bool const bConfirmed = recordSASRuntimeHistoryRow(szRow, &bContentComplete);
@@ -728,11 +730,13 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 	g_uiSASRuntimeStatusSerial++;
 	// <!-- custom: Cache DLL identity only after the status gate; disabled runs do no provenance work, and enabled turn updates never rehash the binary or rescan build outputs. (GPT-6.1-Sol) -->
 	CvString const& szDllIdentity = getSASRuntimeDllIdentity(true);
+	CvString const szSourceIdentity = getSASSourceRuntimeIdentityJson(true);
 	CvString szJson;
 	// <!-- custom: Indent the current-state snapshot for direct inspection as well as agent parsing; whitespace does not change its JSON fields. (GPT-6.1-Sol) -->
 	szJson.Format("{\r\n"
 		"  \"revision\": %d,\r\n"
 		"  \"dllIdentity\": %s,\r\n"
+		"  \"sourceIdentity\": %s,\r\n"
 		"  \"statusSerial\": %u,\r\n"
 		"  \"statusWriteFailures\": %u,\r\n"
 		"  \"processId\": %lu,\r\n"
@@ -796,7 +800,7 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 		"  \"loadedSaveCheckpointElapsedTurn\": %d,\r\n"
 		"  \"loadedSaveCheckpointUtc\": \"%s\"\r\n"
 		"}\r\n",
-		SAS_RUNTIME_REVISION, szDllIdentity.GetCString(), g_uiSASRuntimeStatusSerial, g_uiSASRuntimeStatusWriteFailures, (unsigned long)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), getSASProcessUtcTimestamp().GetCString(), szUpdatedUtc.GetCString(),
+		SAS_RUNTIME_REVISION, szDllIdentity.GetCString(), szSourceIdentity.GetCString(), g_uiSASRuntimeStatusSerial, g_uiSASRuntimeStatusWriteFailures, (unsigned long)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), getSASProcessUtcTimestamp().GetCString(), szUpdatedUtc.GetCString(),
 		aSASRuntimeProcessStateNames[g_eSASRuntimeProcessState], (g_bSASRuntimeWindowCloseObservationArmed ? 1 : 0), g_szSASRuntimeWindowCloseRequestObservedUtc.GetCString(),
 		aSASRuntimeGameStateNames[g_eSASRuntimeGameState],
 		aSASRuntimeActivityNames[g_eSASRuntimeActivity], g_uiSASRuntimeActivitySerial, g_szSASRuntimeActivityStartedUtc.GetCString(), getSASElapsedMilliseconds(g_uiSASRuntimeActivityStartedMilliseconds, uiNowMilliseconds),

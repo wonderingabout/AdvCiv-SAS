@@ -35,7 +35,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=167 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=168 ...
 ```
 
 After this, each qualifying SASGameRecord commit increments `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` exactly once and adds one short latest-first entry to this file in the same commit. The revision remains a downstream-update signal; exact runtime source/build identity remains separate provenance in `GAME_RECORD_SOURCE_CONTEXT` and the DLL/build context.
@@ -78,10 +78,27 @@ Because this numbering is reconstructed after the fact, the descriptions are con
 
 ## History (latest first)
 
-### Revision 167 - SAS practical 6678
+### Revision 168 - SAS practical 6680
 
 - **Date:** 2026-10-24
 - **Git commit:** pending
+- **Change:** Strengthen development-source provenance so branch practical counts and partially staged working trees remain interpretable after PR/reproducer work is rebased, squashed or revisited later.
+  - `GAME_RECORD_SOURCE_CONTEXT` keeps the exact current commit/count but also records the locally known default branch/commit/count, merge-base commit/count, `AT_DEFAULT`/`AHEAD_OF_DEFAULT`/`BEHIND_DEFAULT`/`DIVERGED` relation, and current-only/default-only commit counts.
+    - These facts come only from existing local refs; no fetch is attempted. `defaultRefSource` distinguishes a local default branch from the `origin/HEAD` tracking ref, and unavailable/shallow ancestry remains explicit rather than guessed.
+    - A practical count is therefore interpreted as the count for that exact commit, not a universal chronology. A feature branch can legitimately have a larger count than main and later squash to main+1, while a reproducer can remain behind main even when tested later in wall-clock time.
+  - Basic version UI resolves only identity/status; branch ancestry and patch capture use a separate lazy cache reached by pre-gated diagnostic callers. Disabled logging therefore does not add this diagnostic Git/patch work to version displays.
+  - Preserve the existing combined tracked runtime-code/rules diff fingerprint and add independent staged and unstaged byte counts/fingerprints. `GAME_RECORD_SOURCE_DIFF_FILE` records each tracked runtime-relevant path in each layer with its patch byte count and fingerprint, so an `MM` file produces distinct staged/unstaged evidence rather than one net state.
+    - Raw patch text is deliberately not embedded in SGR: repo-relative path + layer + byte count + fingerprint identifies the tested edit while avoiding potentially large/private source payloads. Untracked files remain outside this claim.
+    - Per-file capture validates patch headers against the enumerated paths; failed detail capture is explicitly unavailable rather than inferred from successful aggregate hashing.
+  - BBAI mirrors the staged/unstaged summary and per-file path/layer fingerprints once per enabled new/load log, so AI-only diagnostic runs remain self-contained. Runtime JSON keeps the branch/layer summary plus diff-entry count compact, while build reports capture start/end ancestry and per-file SHA-256 patch evidence.
+    - Player-facing version text remains compact by design because this topology is development provenance, not normal gameplay information.
+  - The Windows build wrapper uses typed argument arrays and UTF-8 NUL-delimited literal paths: scalar splatting broke the unstaged command, while display-quoted non-ASCII names produced false empty patches. Its real functions are exercised in isolated Git fixtures without compiling the game DLL.
+  - **Validation context:** the 2026-10-24 `codex/cityscreen-reproducer` snapshot demonstrated the ambiguity this resolves: current practical count `6672`, locally known `main` count `6675`, merge-base count `6672`, `currentOnlyCommits=0`, `defaultOnlyCommits=3`. The exact SHA remains canonical.
+
+### Revision 167 - SAS practical 6678
+
+- **Date:** 2026-10-24
+- **Git commit:** `e63fc642f3da9d5e49dcb728a87a664659433d86`
 - **Change:** Decode the known Python popup callbacks whose native `BUTTONPOPUP_PYTHON` rows cannot identify the submitted choice by themselves.
   - Companion `GAME_RECORD_INTERFACE_STATE component=PYTHON_POPUP event=RESPONSE` rows identify the actual callback, readable `choice`, button and `handling=PYTHON_CALLBACK`, at `stage=CALLBACK_DISPATCH`. They complement native focus/response observations rather than replacing them or claiming the resulting operation succeeded.
   - City recommendations distinguish acceptance, refusal and examination, retaining the proposed unit/building XML type even when refused. Liberation/colony replies retain their city IDs; feats use names from the exposed DLL enum, cached only when tracing is enabled.

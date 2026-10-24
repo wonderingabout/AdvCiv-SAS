@@ -90,6 +90,7 @@ class Signature:
     params: str
     start: int
     end: int
+    return_type: str = ""
 
 
 def changed_paths(repo: Path, base_ref: str) -> list[str]:
@@ -607,7 +608,12 @@ def cpp_signatures(text: str) -> list[Signature]:
             continue
         start_line = code.count("\n", 0, name_start) + 1
         end_line = code.count("\n", 0, close_pos) + 1
-        result.append(Signature(name, params, start_line, end_line))
+        # <!-- custom: Return types are interface facts too; compare tokens rather than physical wrapping or pointer/reference spacing.
+        # Access labels and storage/declaration qualifiers are not the return type. (GPT-6.1-Sol) -->
+        return_prefix = re.sub(r"\b(?:public|private|protected)\s*:", "", prefix)
+        return_prefix = re.sub(r"\b(?:static|inline|virtual|explicit|friend|constexpr|extern|DllExport)\b", "", return_prefix)
+        return_type = " ".join(re.findall(r"[A-Za-z_]\w*|::|&&|[^\s]", return_prefix))
+        result.append(Signature(name, params, start_line, end_line, return_type))
     # <!-- custom: Nested parentheses can generate duplicate heuristic candidates; keep only unique signature spans before comparing parameter lists. (ChatGPT-6-Sol) -->
     unique = {}
     for sig in result:
@@ -631,7 +637,9 @@ def python_signatures(text: str) -> list[Signature]:
         params = re.sub(r"\s+", " ", text[open_pos + 1:close_pos]).strip()
         start = text.count("\n", 0, match.start()) + 1
         end = text.count("\n", 0, close_pos) + 1
-        result.append(Signature(match.group("name"), params, start, end))
+        annotation = re.match(r"[ \t]*(?:->(?P<type>[^\n:]+))?[ \t]*:", rest)
+        return_type = re.sub(r"\s+", "", annotation.group("type") or "")
+        result.append(Signature(match.group("name"), params, start, end, return_type))
     return result
 
 
@@ -643,7 +651,8 @@ def signatures(text: str, suffix: str) -> list[Signature]:
     return []
 
 
-def changed_signatures(old_text: str, new_text: str, suffix: str):
+# <!-- custom: Compare parameter/return contracts and clear local renames; accept the caller's existing line-diff opcodes so rename detection does not compute the same whole-file diff twice. (GPT-6.1-Sol) -->
+def changed_signatures(old_text: str, new_text: str, suffix: str, opcodes=None):
     old_by = defaultdict(list)
     new_by = defaultdict(list)
     for sig in signatures(old_text, suffix):
@@ -656,7 +665,7 @@ def changed_signatures(old_text: str, new_text: str, suffix: str):
             continue
         old_list = old_by[name][:]
         new_list = new_by[name][:]
-        # <!-- custom: Remove exact overload matches first so only unmatched overloads are paired as possible parameter-contract changes. (ChatGPT-6-Sol) -->
+        # <!-- custom: Remove exact overload matches first so only unmatched overloads are paired as possible parameter/return-contract changes. (ChatGPT-6-Sol + GPT-6.1-Sol) -->
         used_new = set()
         remaining_old = []
         for old_sig in old_list:
@@ -664,7 +673,7 @@ def changed_signatures(old_text: str, new_text: str, suffix: str):
             for index, new_sig in enumerate(new_list):
                 if index in used_new:
                     continue
-                if old_sig.params == new_sig.params:
+                if (old_sig.params, old_sig.return_type) == (new_sig.params, new_sig.return_type):
                     found = index
                     break
             if found is None:
@@ -673,7 +682,24 @@ def changed_signatures(old_text: str, new_text: str, suffix: str):
                 used_new.add(found)
         remaining_new = [sig for index, sig in enumerate(new_list) if index not in used_new]
         for old_sig, new_sig in zip(remaining_old, remaining_new):
-            if old_sig.params != new_sig.params:
+            if (old_sig.params, old_sig.return_type) != (new_sig.params, new_sig.return_type):
+                changes.append((old_sig, new_sig))
+    # <!-- custom: A name-only change otherwise disappears as one deletion plus one addition.
+    # Match only one removed and one added function in the same replacement hunk and scope; distant moves or ambiguous many-function rewrites remain manual review rather than guessed renames. (GPT-6.1-Sol) -->
+    removed = [sig for name in old_by.keys() - new_by.keys() for sig in old_by[name] if not SAS_FUNCTION_RE.search(name)]
+    added = [sig for name in new_by.keys() - old_by.keys() for sig in new_by[name]]
+    if not removed or not added:
+        return changes
+    if opcodes is None:
+        opcodes = line_opcodes(old_text, new_text)[2]
+    for tag, old_start, old_end, new_start, new_end in opcodes:
+        if tag != "replace":
+            continue
+        before = [sig for sig in removed if old_start < sig.start <= old_end]
+        after = [sig for sig in added if new_start < sig.start <= new_end]
+        if len(before) == len(after) == 1:
+            old_sig, new_sig = before[0], after[0]
+            if old_sig.name.rpartition("::")[0] == new_sig.name.rpartition("::")[0]:
                 changes.append((old_sig, new_sig))
     return changes
 
@@ -849,12 +875,19 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
                     errors.append("%s:%d: Python .def binding lacks a nearby new custom rationale comment (%s %s)" % (path, position, action, name))
 
     if not new_file and suffix in CPP_SUFFIXES | PY_SUFFIXES:
-        for old_sig, new_sig in changed_signatures(old_text, new_text, suffix):
+        for old_sig, new_sig in changed_signatures(old_text, new_text, suffix, opcodes):
             nearby = nearby_added_custom(added_custom, new_sig.start, new_sig.end, radius=6)
             if not nearby:
+                details = []
+                if old_sig.params != new_sig.params:
+                    details.append("parameters changed")
+                if old_sig.return_type != new_sig.return_type:
+                    details.append("return type changed")
+                if old_sig.name != new_sig.name:
+                    details.append("function renamed from " + old_sig.name)
                 errors.append(
-                    "%s:%d: parameters changed for %s without a nearby new custom comment explaining the interface change"
-                    % (path, new_sig.start, new_sig.name)
+                    "%s:%d: %s for %s without a nearby new custom comment explaining the interface change"
+                    % (path, new_sig.start, "; ".join(details), new_sig.name)
                 )
 
     return errors
@@ -902,7 +935,7 @@ def check(repo: Path, base_ref: str | None, event_name: str | None = None, warni
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Validate diff-aware source comment, dependency and changed-parameter provenance."
+        description="Validate diff-aware source comment, dependency and changed-interface provenance."
     )
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     parser.add_argument("--base-ref", help="PR base or push-before commit; defaults to HEAD^ for local/manual runs")

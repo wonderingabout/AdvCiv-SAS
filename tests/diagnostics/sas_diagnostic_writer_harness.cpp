@@ -221,6 +221,13 @@ static SASBinaryDiagnosticContext const& getSASDllDiagnosticContext()
 	context.uiPETimestamp = 42;
 	return context;
 }
+// <!-- custom: Source identity is a separate service, like the controlled DLL identity above; the runtime lifecycle fixture counts its requests to verify that disabled publication never invokes it. (GPT-6.1-Sol) -->
+static int g_sourceIdentityLookups = 0;
+CvString getSASSourceRuntimeIdentityJson(bool)
+{
+	++g_sourceIdentityLookups;
+	return "{\"commit\":\"fixture\"}";
+}
 // <!-- custom: Compile the separate current-state publisher with the same real Win32 wrappers and explicit game fixture so JSON/lifecycle failures are exercised alongside writer I/O. (GPT-6.1-Sol) -->
 #include "runtime_status_under_test.inc"
 // <!-- custom: Extract the production CyGame notification body so callback ordering and pre-gating are tested at the real bridge, not just at its lower-level helpers. (GPT-6.1-Sol) -->
@@ -342,7 +349,7 @@ int main(int argc, char** argv)
 		updateSASRuntimeStatusGameEnded();
 		updateSASRuntimeStatusRequest(SAS_RUNTIME_STATUS_EXIT_REQUESTED);
 		updateSASRuntimeStatusCleanExit();
-		require(g_openCalls == 0 && g_dllIdentityLookups == 0 && g_uiSASRuntimeStatusWriteFailures == 0 && g_uiSASRuntimeActivitySerial == 0 && g_uiSASRuntimeStatusSerial == 0 && g_uiSASRuntimeSessionSerial == 0, "disabled status does not publish or accumulate session state");
+		require(g_openCalls == 0 && g_dllIdentityLookups == 0 && g_sourceIdentityLookups == 0 && g_uiSASRuntimeStatusWriteFailures == 0 && g_uiSASRuntimeActivitySerial == 0 && g_uiSASRuntimeStatusSerial == 0 && g_uiSASRuntimeSessionSerial == 0, "disabled status does not publish or accumulate session state");
 		require(g_uiSASRuntimeHistorySessionMetadataCaptured == 0 && g_szSASRuntimeHistoryPendingSessionMetadata.empty(), "disabled status does not capture pending metadata");
 		require(g_hSASRuntimeWindowMessageHook == NULL && g_hSASRuntimeWindowQueueHook == NULL && g_hSASRuntimeObservedWindow == NULL, "disabled status installs no window-message or queue hook");
 		return 0;

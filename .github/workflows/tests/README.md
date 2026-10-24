@@ -33,3 +33,5 @@ python -m unittest discover -s .github/workflows/tests/hygiene -t .github/workfl
 ```
 
 Keep `-t .github/workflows` in both commands so subjects import as `tests.xml`, for example, instead of conflicting with Python's standard-library `xml` package.
+
+Build-provenance tests execute the real PowerShell report functions in temporary Git repositories when PowerShell is available. They cover clean and partially staged trees, literal Unicode/bracket filenames and default-branch relationships, without executing the build wrapper body or compiling a DLL.

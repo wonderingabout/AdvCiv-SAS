@@ -48,6 +48,65 @@ namespace
 		return true;
 	}
 
+	bool parseSourceCount(CvString const& value, int& iResult)
+	{
+		CvString const normalized = trimSourceValue(value);
+		if (!isDecimalSourceValue(normalized))
+			return false;
+		iResult = 0;
+		for (int i = 0; i < (int)normalized.length(); i++)
+			iResult = iResult * 10 + (normalized[i] - '0');
+		return true;
+	}
+
+	// <!-- custom: Git rev-list --left-right --count emits two decimal counts separated by whitespace; parse both without relying on locale-dependent stream formatting.
+	// VC2003 rejected size_t indexing of const CvString with C2666 (its const overload takes int); use c_str() for byte indexing without narrowing the position. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool parseSourceAheadBehind(CvString const& value, int& iCurrentOnly, int& iDefaultOnly)
+	{
+		CvString const normalized = trimSourceValue(value);
+		size_t iSplit = 0;
+		while (iSplit < normalized.length() && normalized.c_str()[iSplit] >= '0' && normalized.c_str()[iSplit] <= '9')
+			iSplit++;
+		if (iSplit == 0)
+			return false;
+		size_t iSecond = iSplit;
+		while (iSecond < normalized.length() && (normalized.c_str()[iSecond] == ' ' || normalized.c_str()[iSecond] == '\t'))
+			iSecond++;
+		if (iSecond == iSplit || iSecond >= normalized.length())
+			return false;
+		return parseSourceCount(normalized.substr(0, iSplit), iCurrentOnly) &&
+				parseSourceCount(normalized.substr(iSecond), iDefaultOnly);
+	}
+
+	// <!-- custom: Validate each patch header against its raw NUL-list path before pairing them; equal block counts alone cannot detect a reordered or changed name list.
+	// ASCII bytes below 32 and DEL (127) are controls; bytes >= 128 include non-ASCII UTF-8 data.
+	// Git quotes controls/backslashes/quotes and normally octal-escapes UTF-8 bytes; core.quotePath=false retains those bytes, so recognize either documented header spelling. (GPT-6.1-Sol) -->
+	CvString quoteSourcePatchPath(CvString const& path, bool bQuoteHighBytes)
+	{
+		CvString result = "\"";
+		for (size_t i = 0; i < path.length(); i++)
+		{
+			unsigned char const c = (unsigned char)path.c_str()[i];
+			switch (c)
+			{
+			case '\\': result += "\\\\"; break;
+			case '"': result += "\\\""; break;
+			case '\a': result += "\\a"; break;
+			case '\b': result += "\\b"; break;
+			case '\t': result += "\\t"; break;
+			case '\n': result += "\\n"; break;
+			case '\v': result += "\\v"; break;
+			case '\f': result += "\\f"; break;
+			case '\r': result += "\\r"; break;
+			default:
+				if (c < 32 || c == 127 || (bQuoteHighBytes && c >= 128))
+					result += CvString::format("\\%03o", (unsigned int)c);
+				else result += (char)c;
+			}
+		}
+		return result + "\"";
+	}
+
 	bool isHexSourceValue(CvString const& value, size_t iExpectedLength)
 	{
 		if (value.length() != iExpectedLength)
@@ -308,9 +367,15 @@ ModName::ModName()
 void ModName::resetSourceDetails()
 {
 	m_bSourceDetailsResolved = false;
+	m_bDiagnosticSourceDetailsResolved = false;
+	m_bSourceDiffDetailsAvailable = false;
 	m_iSourceDirtyState = -1;
 	m_iSourceDirtyFileCount = -1;
+	m_iSourceCurrentOnlyCommitCount = -1;
+	m_iSourceDefaultOnlyCommitCount = -1;
 	m_iSourceCodeRulesDiffBytes = -1;
+	m_iSourceStagedCodeRulesDiffBytes = -1;
+	m_iSourceUnstagedCodeRulesDiffBytes = -1;
 	m_sVersion.clear();
 	m_sCommitHash.clear();
 	m_sBranch.clear();
@@ -318,6 +383,16 @@ void ModName::resetSourceDetails()
 	m_sSourceMetadataType = "unknown";
 	m_sSourceDirtyFiles.clear();
 	m_sSourceCodeRulesDiffFingerprint = "-";
+	m_sSourceStagedCodeRulesDiffFingerprint = "-";
+	m_sSourceUnstagedCodeRulesDiffFingerprint = "-";
+	m_sSourceDefaultBranch.clear();
+	m_sSourceDefaultCommitHash.clear();
+	m_sSourceDefaultVersion.clear();
+	m_sSourceDefaultRefSource = "UNAVAILABLE";
+	m_sSourceMergeBaseCommitHash.clear();
+	m_sSourceMergeBaseVersion.clear();
+	m_sSourceBranchRelation = "UNAVAILABLE";
+	m_aSourceDiffFiles.clear();
 }
 
 void ModName::update(char const* szFullPath, char const* szPathInRoot)
@@ -411,31 +486,78 @@ void ModName::cacheDisplayName()
 	MessageBoxA(NULL, message.c_str(), "Mod identity configuration error", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 }
 
+// <!-- custom: Split one Git diff layer into per-file patch fingerprints without spawning Git once per path.
+// Return true only for a complete layer, including an empty one, so failed detail capture is distinct from a clean tree.
+// Walk the NUL-separated name list and ordered patch blocks in tandem instead of duplicating the full diff into a second vector; if an unusual Git output shape breaks that invariant, roll back the layer rather than attach a fingerprint to the wrong file. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+bool ModName::appendSourceDiffLayer(char const* szScope, CvString const& paths, CvString const& diff) const
+{
+	if (paths.empty() && diff.empty())
+		return true;
+	if (paths.empty() || diff.empty() || diff.find("diff --git ") != 0)
+		return false;
+	size_t const iInitialEntries = m_aSourceDiffFiles.size();
+	size_t iPathStart = 0;
+	size_t iBlockStart = 0;
+	while (iPathStart < paths.length())
+	{
+		size_t iPathEnd = paths.find('\0', iPathStart);
+		if (iPathEnd == CvString::npos)
+			iPathEnd = paths.length();
+		if (iPathEnd == iPathStart)
+		{
+			iPathStart = iPathEnd + 1;
+			continue;
+		}
+		if (iBlockStart >= diff.length() || diff.compare(iBlockStart, 11, "diff --git ") != 0)
+		{
+			m_aSourceDiffFiles.resize(iInitialEntries);
+			return false;
+		}
+		size_t const iMarker = diff.find("\ndiff --git ", iBlockStart + 1);
+		size_t const iBlockEnd = (iMarker == CvString::npos ? diff.length() : iMarker + 1);
+		CvString const path = paths.substr(iPathStart, iPathEnd - iPathStart);
+		size_t const iHeaderEnd = diff.find('\n', iBlockStart);
+		CvString const header = diff.substr(iBlockStart, iHeaderEnd - iBlockStart);
+		CvString const from = "a/" + path;
+		CvString const to = "b/" + path;
+		if (header != "diff --git " + from + " " + to &&
+				header != "diff --git " + quoteSourcePatchPath(from, true) + " " + quoteSourcePatchPath(to, true) &&
+				header != "diff --git " + quoteSourcePatchPath(from, false) + " " + quoteSourcePatchPath(to, false))
+		{
+			m_aSourceDiffFiles.resize(iInitialEntries);
+			return false;
+		}
+		CvString const szBlock = diff.substr(iBlockStart, iBlockEnd - iBlockStart);
+		SourceDiffFile entry;
+		entry.szScope = szScope;
+		entry.szPath = path;
+		entry.iDiffBytes = (__int64)szBlock.length();
+		entry.szDiffFingerprint = fingerprintTrackedCodeRulesDiff(szBlock);
+		m_aSourceDiffFiles.push_back(entry);
+		iPathStart = iPathEnd + 1;
+		iBlockStart = (iMarker == CvString::npos ? diff.length() : iMarker + 1);
+	}
+	if (iBlockStart != diff.length())
+	{
+		m_aSourceDiffFiles.resize(iInitialEntries);
+		return false;
+	}
+	return true;
+}
+
 // <!-- custom: Resolve source provenance lazily once per loaded mod path, then cache it for the rest of the process.
-// Archives normally cost one tiny metadata-file read; real Git checkouts run a small set of hidden Git commands once, after which every public getter is an in-memory lookup. (ChatGPT-5.6-Sol) -->
+// Archives normally cost one tiny metadata-file read; Git checkouts resolve identity/status once, while expensive ancestry and patches belong to the separate diagnostic resolver. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void ModName::resolveSourceDetails() const
 {
 	if (m_bSourceDetailsResolved)
 		return;
 	m_bSourceDetailsResolved = true;
-	m_iSourceDirtyState = -1;
-	m_iSourceDirtyFileCount = -1;
-	m_iSourceCodeRulesDiffBytes = -1;
-	m_sVersion.clear();
-	m_sCommitHash.clear();
-	m_sBranch.clear();
-	m_sCommitDate.clear();
-	m_sSourceMetadataType = "unknown";
-	m_sSourceDirtyFiles.clear();
-	m_sSourceCodeRulesDiffFingerprint = "-";
-
 	CvString const modPath = getAbsoluteModPath();
 	if (modPath.empty())
 		return;
 
 	// <!-- custom: GitHub/git-archive downloads can reconstruct the exact practical version from one immutable SAS_VERSION_ANCHOR_<exact-count> tag plus Git describe distance, while export-subst supplies exact commit/date.
-	// No per-commit VERSION update is needed.
-	// Archives still cannot inspect post-extraction local edits, so dirty remains -1. (ChatGPT-5.6-Sol) -->
+	// Archive metadata deliberately has no branch/default-branch relation or dirty-layer detail because those facts require an inspectable checkout. (ChatGPT-5.6-Sol) -->
 	if (readExportedSourceMetadata(modPath, m_sVersion, m_sCommitHash, m_sCommitDate))
 	{
 		m_sSourceMetadataType = (m_sVersion.empty() ? "gitArchive" : "gitArchiveVersioned");
@@ -475,7 +597,7 @@ void ModName::resolveSourceDetails() const
 	if (bFullHistory)
 	{
 		CvString version;
-		if (runHiddenSourceCommand(sourceGitCommand(modPath, "rev-list --count HEAD"), version) && isDecimalSourceValue(version))
+		if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("rev-list --count %s", m_sCommitHash.c_str()).c_str()), version) && isDecimalSourceValue(version))
 			m_sVersion = version;
 	}
 
@@ -484,20 +606,119 @@ void ModName::resolveSourceDetails() const
 	{
 		m_sSourceDirtyFiles = summarizeTrackedSourceStatus(status, m_iSourceDirtyFileCount);
 		m_iSourceDirtyState = (m_iSourceDirtyFileCount > 0 ? 1 : 0);
-		// <!-- custom: Fingerprint only tracked code/rules/scripts that can affect the mod/runtime: C++ build inputs plus Config/Python/XML/PrivateMaps.
-		// git diff HEAD includes staged and unstaged working-tree content; untracked files are deliberately not claimed here, and the loaded DLL has its own exact-byte fingerprint. (ChatGPT-5.6-Sol) -->
-		CvString diff;
-		if (runHiddenSourceCommand(sourceGitCommand(modPath, "diff --binary --full-index --no-ext-diff --no-textconv --no-renames --no-color HEAD -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML PrivateMaps"), diff))
-		{
-			m_iSourceCodeRulesDiffBytes = (__int64)diff.length();
-			m_sSourceCodeRulesDiffFingerprint = fingerprintTrackedCodeRulesDiff(diff);
-		}
 	}
 	m_sSourceMetadataType = (bShallow ? "gitShallow" : (bFullHistory ? "git" : "gitHistoryUnknown"));
 }
 
-// <!-- custom: Thin public source-detail accessors all trigger the same lazy resolver.
-// Only the first accessor after construction/update performs filesystem/Git work; subsequent calls return cached values. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Basic version/dirty UI getters must not enumerate ancestry or construct diagnostic patches when logging is disabled.
+// Only diagnostic accessors enter this second lazy cache, after their caller's BBAI/SGR/runtime enable gate; each patch layer is released before reading the next.
+// Like the basic identity, this is a first-use snapshot for the loaded mod path, not live monitoring of later source edits.
+// Anchor counts/diffs to the captured commit SHAs: movable HEAD/default refs may change between the basic lookup and the first diagnostic request. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void ModName::resolveDiagnosticSourceDetails() const
+{
+	if (m_bDiagnosticSourceDetailsResolved)
+		return;
+	m_bDiagnosticSourceDetailsResolved = true;
+	resolveSourceDetails();
+	if (m_sSourceMetadataType != "git" && m_sSourceMetadataType != "gitShallow" && m_sSourceMetadataType != "gitHistoryUnknown")
+		return;
+	CvString const modPath = getAbsoluteModPath();
+	if (m_sSourceMetadataType == "git")
+	{
+		// <!-- custom: The practical count belongs to this exact HEAD, not to a global timeline.
+		// Resolve the locally known default branch and merge-base relationship so feature/reproducer branches can be interpreted later without mistaking main+N for a future main practical number.
+		// No fetch is attempted; the chosen local ref source is recorded explicitly. (ChatGPT-5.6-Sol) -->
+		CvString originHead;
+		if (runHiddenSourceCommand(sourceGitCommand(modPath, "symbolic-ref --quiet refs/remotes/origin/HEAD"), originHead))
+		{
+			originHead = trimSourceValue(originHead);
+			char const* const szRemotePrefix = "refs/remotes/origin/";
+			CvString const remotePrefix(szRemotePrefix);
+			if (originHead.find(remotePrefix) == 0 && originHead.length() > remotePrefix.length())
+			{
+				m_sSourceDefaultBranch = originHead.substr(remotePrefix.length());
+				CvString defaultRef = CvString("refs/heads/") + m_sSourceDefaultBranch;
+				CvString defaultCommit;
+				if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("rev-parse --verify %s", defaultRef.c_str()).c_str()), defaultCommit) && isHexSourceValue(trimSourceValue(defaultCommit), 40))
+					m_sSourceDefaultRefSource = "LOCAL_BRANCH";
+				else
+				{
+					defaultRef = originHead;
+					if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("rev-parse --verify %s", defaultRef.c_str()).c_str()), defaultCommit) && isHexSourceValue(trimSourceValue(defaultCommit), 40))
+						m_sSourceDefaultRefSource = "REMOTE_TRACKING";
+					else defaultRef.clear();
+				}
+				if (!defaultRef.empty())
+				{
+					m_sSourceDefaultCommitHash = trimSourceValue(defaultCommit);
+					CvString defaultVersion;
+					if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("rev-list --count %s", m_sSourceDefaultCommitHash.c_str()).c_str()), defaultVersion) && isDecimalSourceValue(defaultVersion))
+						m_sSourceDefaultVersion = defaultVersion;
+					CvString mergeBase;
+					if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("merge-base %s %s", m_sCommitHash.c_str(), m_sSourceDefaultCommitHash.c_str()).c_str()), mergeBase) && isHexSourceValue(trimSourceValue(mergeBase), 40))
+					{
+						m_sSourceMergeBaseCommitHash = trimSourceValue(mergeBase);
+						CvString mergeBaseVersion;
+						if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("rev-list --count %s", m_sSourceMergeBaseCommitHash.c_str()).c_str()), mergeBaseVersion) && isDecimalSourceValue(mergeBaseVersion))
+							m_sSourceMergeBaseVersion = mergeBaseVersion;
+					}
+					CvString aheadBehind;
+					if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("rev-list --left-right --count %s...%s", m_sCommitHash.c_str(), m_sSourceDefaultCommitHash.c_str()).c_str()), aheadBehind) &&
+							parseSourceAheadBehind(aheadBehind, m_iSourceCurrentOnlyCommitCount, m_iSourceDefaultOnlyCommitCount))
+					{
+						if (m_iSourceCurrentOnlyCommitCount == 0 && m_iSourceDefaultOnlyCommitCount == 0)
+							m_sSourceBranchRelation = "AT_DEFAULT";
+						else if (m_iSourceCurrentOnlyCommitCount > 0 && m_iSourceDefaultOnlyCommitCount == 0)
+							m_sSourceBranchRelation = "AHEAD_OF_DEFAULT";
+						else if (m_iSourceCurrentOnlyCommitCount == 0 && m_iSourceDefaultOnlyCommitCount > 0)
+							m_sSourceBranchRelation = "BEHIND_DEFAULT";
+						else m_sSourceBranchRelation = "DIVERGED";
+					}
+				}
+			}
+		}
+	}
+	bool bStagedDetailsAvailable = false;
+	bool bUnstagedDetailsAvailable = false;
+	{
+		// <!-- custom: Keep the original combined HEAD-to-working-tree patch for backward-compatible whole-state provenance, then preserve staged and unstaged patches independently so an MM file cannot hide how the tested state was assembled.
+		// Scope remains tracked runtime-relevant C++/Config/Python/XML/PrivateMaps inputs; untracked files are not claimed and the loaded DLL has its own exact-byte fingerprint. (ChatGPT-5.6-Sol) -->
+		{
+			CvString diff;
+			if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("diff --src-prefix=a/ --dst-prefix=b/ --no-relative --binary --full-index --no-ext-diff --no-textconv --no-renames --no-color %s -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML PrivateMaps", m_sCommitHash.c_str()).c_str()), diff))
+			{
+				m_iSourceCodeRulesDiffBytes = (__int64)diff.length();
+				m_sSourceCodeRulesDiffFingerprint = fingerprintTrackedCodeRulesDiff(diff);
+			}
+		}
+		{
+			CvString stagedDiff;
+			if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("diff --cached --src-prefix=a/ --dst-prefix=b/ --no-relative --binary --full-index --no-ext-diff --no-textconv --no-renames --no-color %s -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML PrivateMaps", m_sCommitHash.c_str()).c_str()), stagedDiff))
+			{
+				m_iSourceStagedCodeRulesDiffBytes = (__int64)stagedDiff.length();
+				m_sSourceStagedCodeRulesDiffFingerprint = fingerprintTrackedCodeRulesDiff(stagedDiff);
+				CvString stagedPaths;
+				if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("diff --cached --name-only -z --no-renames %s -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML PrivateMaps", m_sCommitHash.c_str()).c_str()), stagedPaths))
+					bStagedDetailsAvailable = appendSourceDiffLayer("STAGED", stagedPaths, stagedDiff);
+			}
+		}
+		{
+			CvString unstagedDiff;
+			if (runHiddenSourceCommand(sourceGitCommand(modPath, "diff --src-prefix=a/ --dst-prefix=b/ --no-relative --binary --full-index --no-ext-diff --no-textconv --no-renames --no-color -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML PrivateMaps"), unstagedDiff))
+			{
+				m_iSourceUnstagedCodeRulesDiffBytes = (__int64)unstagedDiff.length();
+				m_sSourceUnstagedCodeRulesDiffFingerprint = fingerprintTrackedCodeRulesDiff(unstagedDiff);
+				CvString unstagedPaths;
+				if (runHiddenSourceCommand(sourceGitCommand(modPath, "diff --name-only -z --no-renames -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML PrivateMaps"), unstagedPaths))
+					bUnstagedDetailsAvailable = appendSourceDiffLayer("UNSTAGED", unstagedPaths, unstagedDiff);
+			}
+		}
+	}
+	m_bSourceDiffDetailsAvailable = bStagedDetailsAvailable && bUnstagedDetailsAvailable;
+}
+
+// <!-- custom: Thin public accessors keep source lookup policy in ModName.
+// Basic UI accessors use only identity/status; diagnostic accessors below use the separately gated ancestry/patch cache. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 char const* ModName::getVersion() const
 {
 	resolveSourceDetails();
@@ -546,15 +767,130 @@ char const* ModName::getSourceDirtyFiles() const
 	return m_sSourceDirtyFiles.c_str();
 }
 
+char const* ModName::getSourceDefaultBranch() const
+{
+	resolveDiagnosticSourceDetails();
+	return m_sSourceDefaultBranch.c_str();
+}
+
+char const* ModName::getSourceDefaultCommitHash() const
+{
+	resolveDiagnosticSourceDetails();
+	return m_sSourceDefaultCommitHash.c_str();
+}
+
+char const* ModName::getSourceDefaultVersion() const
+{
+	resolveDiagnosticSourceDetails();
+	return m_sSourceDefaultVersion.c_str();
+}
+
+char const* ModName::getSourceDefaultRefSource() const
+{
+	resolveDiagnosticSourceDetails();
+	return m_sSourceDefaultRefSource.c_str();
+}
+
+char const* ModName::getSourceMergeBaseCommitHash() const
+{
+	resolveDiagnosticSourceDetails();
+	return m_sSourceMergeBaseCommitHash.c_str();
+}
+
+char const* ModName::getSourceMergeBaseVersion() const
+{
+	resolveDiagnosticSourceDetails();
+	return m_sSourceMergeBaseVersion.c_str();
+}
+
+char const* ModName::getSourceBranchRelation() const
+{
+	resolveDiagnosticSourceDetails();
+	return m_sSourceBranchRelation.c_str();
+}
+
+int ModName::getSourceCurrentOnlyCommitCount() const
+{
+	resolveDiagnosticSourceDetails();
+	return m_iSourceCurrentOnlyCommitCount;
+}
+
+int ModName::getSourceDefaultOnlyCommitCount() const
+{
+	resolveDiagnosticSourceDetails();
+	return m_iSourceDefaultOnlyCommitCount;
+}
+
 // <!-- custom: Fingerprint tracked gameplay code/rules/scripts relative to HEAD so logs can distinguish different runtime-relevant edits without hashing docs, LLM helpers, or the separately fingerprinted loaded DLL. (ChatGPT-5.6-Sol) -->
 __int64 ModName::getSourceCodeRulesDiffBytes() const
 {
-	resolveSourceDetails();
+	resolveDiagnosticSourceDetails();
 	return m_iSourceCodeRulesDiffBytes;
 }
 
 char const* ModName::getSourceCodeRulesDiffFingerprint() const
 {
-	resolveSourceDetails();
+	resolveDiagnosticSourceDetails();
 	return m_sSourceCodeRulesDiffFingerprint.c_str();
+}
+
+__int64 ModName::getSourceStagedCodeRulesDiffBytes() const
+{
+	resolveDiagnosticSourceDetails();
+	return m_iSourceStagedCodeRulesDiffBytes;
+}
+
+char const* ModName::getSourceStagedCodeRulesDiffFingerprint() const
+{
+	resolveDiagnosticSourceDetails();
+	return m_sSourceStagedCodeRulesDiffFingerprint.c_str();
+}
+
+__int64 ModName::getSourceUnstagedCodeRulesDiffBytes() const
+{
+	resolveDiagnosticSourceDetails();
+	return m_iSourceUnstagedCodeRulesDiffBytes;
+}
+
+char const* ModName::getSourceUnstagedCodeRulesDiffFingerprint() const
+{
+	resolveDiagnosticSourceDetails();
+	return m_sSourceUnstagedCodeRulesDiffFingerprint.c_str();
+}
+
+int ModName::getSourceDiffFileCount() const
+{
+	resolveDiagnosticSourceDetails();
+	return (int)m_aSourceDiffFiles.size();
+}
+
+char const* ModName::getSourceDiffFileScope(int iIndex) const
+{
+	resolveDiagnosticSourceDetails();
+	return (iIndex >= 0 && iIndex < (int)m_aSourceDiffFiles.size() ? m_aSourceDiffFiles[iIndex].szScope.c_str() : "");
+}
+
+char const* ModName::getSourceDiffFilePath(int iIndex) const
+{
+	resolveDiagnosticSourceDetails();
+	return (iIndex >= 0 && iIndex < (int)m_aSourceDiffFiles.size() ? m_aSourceDiffFiles[iIndex].szPath.c_str() : "");
+}
+
+__int64 ModName::getSourceDiffFileBytes(int iIndex) const
+{
+	resolveDiagnosticSourceDetails();
+	return (iIndex >= 0 && iIndex < (int)m_aSourceDiffFiles.size() ? m_aSourceDiffFiles[iIndex].iDiffBytes : -1);
+}
+
+char const* ModName::getSourceDiffFileFingerprint(int iIndex) const
+{
+	resolveDiagnosticSourceDetails();
+	return (iIndex >= 0 && iIndex < (int)m_aSourceDiffFiles.size() ? m_aSourceDiffFiles[iIndex].szDiffFingerprint.c_str() : "-");
+}
+
+// <!-- custom: Aggregate diff success alone does not establish per-file coverage: a missing names command or rejected patch shape must remain explicitly unavailable in diagnostic summaries. (GPT-6.1-Sol) -->
+bool ModName::isSourceDiffDetailsAvailable() const
+{
+	resolveDiagnosticSourceDetails();
+	return m_bSourceDiffDetailsAvailable;
 }

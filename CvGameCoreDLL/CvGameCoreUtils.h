@@ -241,6 +241,9 @@ CvString getSASDiagnosticWriterHealthFields();
 CvString getSASModContextFields();
 // <!-- custom: Serialize runtime source/version provenance shared by BBAI and SASGameRecord; dirty is tri-state (-1 unavailable, 0 verified clean, 1 tracked changes). (ChatGPT-5.6-Sol) -->
 CvString getSASSourceContextFields();
+// <!-- custom: Share the same cached source/branch ancestry as structured JSON for the standalone runtime view; detailed per-file dirty patches remain in SGR/build provenance rather than bloating every current-status rewrite.
+// Call only after the runtime enable gate: formatting and first-use diagnostic source capture belong to enabled output, with explicit detail availability. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+CvString getSASSourceRuntimeIdentityJson(bool bIndented = false);
 // <!-- custom: Compact player-facing source identity formatter shared by replay settings and future C++ UI surfaces; accepts either live ModName data or persisted save-history fields. (ChatGPT-5.6-Sol) -->
 CvWString getSASCompactSourceVersion(char const* szVersion, char const* szCommitHash, int iDirtyState);
 // <!-- custom: Combine the configured mod display name with the current cached runtime source identity for replay/UI surfaces. (ChatGPT-5.6-Sol) -->

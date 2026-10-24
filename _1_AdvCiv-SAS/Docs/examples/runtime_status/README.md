@@ -109,7 +109,9 @@ From runtime revision 5, `mainMenuStateObservedUtc` can retain a positive main-m
 
 From runtime revision 7, native ButtonPopup focus/response observations add `buttonPopupAwaitingInteraction`, `buttonPopupType`, `buttonPopupTypeId`, `buttonPopupActivePlayer`, `buttonPopupFocusedUtc`, `buttonPopupResolvedUtc`, `buttonPopupResolution` and `buttonPopupResponseButton`. Focus proves the native popup reached its generic focus callback; resolution records a native button return or an observed stale-popup cancellation, not downstream gameplay success. These are observation-only rows and preserve the underlying activity timer.
 
-The linked real JSON/JSONL pair below was captured with runtime revision 5, before the popup fields existed. Keep it as real evidence rather than synthesizing revision-6 values; refresh it only from a future representative game run.
+From runtime revision 8, `sourceIdentity` adds the reported source SHA and locally known default-branch relationship, plus aggregate staged/unstaged patch fingerprints and explicit per-file capture availability. Detailed per-file evidence stays in SGR/BBAI and build reports.
+
+The linked real JSON/JSONL pair was captured with runtime revision 5, so it predates the popup and source-provenance fields.
 
 Civilopedia observations now cover main-menu and in-game use. `civilopediaVisible` reports observed screen state (active after showing; hidden on the EXE no-screens notification or an inactive-screen close check), while `civilopediaContext` retains `MAIN_MENU` or `IN_GAME` through the hide row (`NONE` before observation or after reset). `civilopediaActivePlayer` / `civilopediaActiveCivilization` identify the in-game UI owner, not the displayed page or preview model; menu observations use `-1`. These fields are present in both companion examples; this capture demonstrates the in-game context.
 

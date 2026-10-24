@@ -531,16 +531,76 @@ CvString getSASSourceContextFields()
 	CvString const szBranch = getSASDiagnosticQuoted(kMod.getBranch());
 	CvString const szCommitDate = getSASDiagnosticQuoted(kMod.getCommitDate());
 	CvString const szMetadataSource = getSASDiagnosticQuoted(kMod.getSourceMetadataType());
+	CvString const szDefaultBranch = getSASDiagnosticQuoted(kMod.getSourceDefaultBranch());
+	CvString const szDefaultCommit = getSASDiagnosticQuoted(kMod.getSourceDefaultCommitHash());
+	CvString const szDefaultVersion = getSASDiagnosticQuoted(kMod.getSourceDefaultVersion());
+	CvString const szDefaultRefSource = getSASDiagnosticQuoted(kMod.getSourceDefaultRefSource());
+	CvString const szMergeBaseCommit = getSASDiagnosticQuoted(kMod.getSourceMergeBaseCommitHash());
+	CvString const szMergeBaseVersion = getSASDiagnosticQuoted(kMod.getSourceMergeBaseVersion());
+	CvString const szBranchRelation = getSASDiagnosticQuoted(kMod.getSourceBranchRelation());
 	CvString const szDirtyFiles = getSASDiagnosticQuoted(kMod.getSourceDirtyFiles());
 	CvString const szCodeRulesDiffFingerprint = getSASDiagnosticQuoted(kMod.getSourceCodeRulesDiffFingerprint());
+	CvString const szStagedCodeRulesDiffFingerprint = getSASDiagnosticQuoted(kMod.getSourceStagedCodeRulesDiffFingerprint());
+	CvString const szUnstagedCodeRulesDiffFingerprint = getSASDiagnosticQuoted(kMod.getSourceUnstagedCodeRulesDiffFingerprint());
 	CvString szContext;
-	szContext.Format("version=%s commit=%s shortCommit=%s branch=%s commitDate=%s metadataSource=%s dirty=%d dirtyTrackedCount=%d trackedCodeRulesDiffBytes=%I64d trackedCodeRulesDiffFingerprint=%s dirtyFiles=%s",
+	szContext.Format("version=%s commit=%s shortCommit=%s branch=%s commitDate=%s metadataSource=%s defaultBranch=%s defaultCommit=%s defaultVersion=%s defaultRefSource=%s mergeBaseCommit=%s mergeBaseVersion=%s branchRelation=%s currentOnlyCommits=%d defaultOnlyCommits=%d dirty=%d dirtyTrackedCount=%d sourceDiffDetailsAvailable=%d sourceDiffEntries=%d trackedCodeRulesDiffBytes=%I64d trackedCodeRulesDiffFingerprint=%s stagedCodeRulesDiffBytes=%I64d stagedCodeRulesDiffFingerprint=%s unstagedCodeRulesDiffBytes=%I64d unstagedCodeRulesDiffFingerprint=%s dirtyFiles=%s",
 			szVersion.GetCString(), szCommit.GetCString(), szShortCommit.GetCString(),
 			szBranch.GetCString(), szCommitDate.GetCString(), szMetadataSource.GetCString(),
-			kMod.getSourceDirtyState(), kMod.getSourceDirtyFileCount(),
+			szDefaultBranch.GetCString(), szDefaultCommit.GetCString(), szDefaultVersion.GetCString(), szDefaultRefSource.GetCString(),
+			szMergeBaseCommit.GetCString(), szMergeBaseVersion.GetCString(), szBranchRelation.GetCString(),
+			kMod.getSourceCurrentOnlyCommitCount(), kMod.getSourceDefaultOnlyCommitCount(),
+			kMod.getSourceDirtyState(), kMod.getSourceDirtyFileCount(), kMod.isSourceDiffDetailsAvailable() ? 1 : 0, kMod.getSourceDiffFileCount(),
 			kMod.getSourceCodeRulesDiffBytes(), szCodeRulesDiffFingerprint.GetCString(),
+			kMod.getSourceStagedCodeRulesDiffBytes(), szStagedCodeRulesDiffFingerprint.GetCString(),
+			kMod.getSourceUnstagedCodeRulesDiffBytes(), szUnstagedCodeRulesDiffFingerprint.GetCString(),
 			szDirtyFiles.GetCString());
 	return szContext;
+}
+
+// <!-- custom: Runtime JSON keeps the branch/dirty summary needed by external agents while SGR/build reports retain the heavier per-file patch evidence.
+// Enabled runtime publishers request this helper after their gate; the separately lazy ModName snapshot performs no fetch or repeated per-transition Git work.
+// Per-file completeness is explicit because aggregate hashes can remain valid when detail enumeration failed. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+CvString getSASSourceRuntimeIdentityJson(bool bIndented)
+{
+	ModName const& kMod = GC.getModName();
+	CvString const szVersion = getSASDiagnosticQuoted(kMod.getVersion());
+	CvString const szCommit = getSASDiagnosticQuoted(kMod.getCommitHash());
+	CvString const szBranch = getSASDiagnosticQuoted(kMod.getBranch());
+	CvString const szMetadataSource = getSASDiagnosticQuoted(kMod.getSourceMetadataType());
+	CvString const szDefaultBranch = getSASDiagnosticQuoted(kMod.getSourceDefaultBranch());
+	CvString const szDefaultCommit = getSASDiagnosticQuoted(kMod.getSourceDefaultCommitHash());
+	CvString const szDefaultVersion = getSASDiagnosticQuoted(kMod.getSourceDefaultVersion());
+	CvString const szDefaultRefSource = getSASDiagnosticQuoted(kMod.getSourceDefaultRefSource());
+	CvString const szMergeBaseCommit = getSASDiagnosticQuoted(kMod.getSourceMergeBaseCommitHash());
+	CvString const szMergeBaseVersion = getSASDiagnosticQuoted(kMod.getSourceMergeBaseVersion());
+	CvString const szBranchRelation = getSASDiagnosticQuoted(kMod.getSourceBranchRelation());
+	CvString const szCombinedFingerprint = getSASDiagnosticQuoted(kMod.getSourceCodeRulesDiffFingerprint());
+	CvString const szStagedFingerprint = getSASDiagnosticQuoted(kMod.getSourceStagedCodeRulesDiffFingerprint());
+	CvString const szUnstagedFingerprint = getSASDiagnosticQuoted(kMod.getSourceUnstagedCodeRulesDiffFingerprint());
+	CvString szJson;
+	if (bIndented)
+	{
+		szJson.Format("{\r\n    \"version\": %s,\r\n    \"commit\": %s,\r\n    \"branch\": %s,\r\n    \"metadataSource\": %s,\r\n    \"defaultBranch\": %s,\r\n    \"defaultCommit\": %s,\r\n    \"defaultVersion\": %s,\r\n    \"defaultRefSource\": %s,\r\n    \"mergeBaseCommit\": %s,\r\n    \"mergeBaseVersion\": %s,\r\n    \"branchRelation\": %s,\r\n    \"currentOnlyCommits\": %d,\r\n    \"defaultOnlyCommits\": %d,\r\n    \"dirty\": %d,\r\n    \"dirtyTrackedCount\": %d,\r\n    \"sourceDiffDetailsAvailable\": %d,\r\n    \"sourceDiffEntries\": %d,\r\n    \"trackedCodeRulesDiffBytes\": %I64d,\r\n    \"trackedCodeRulesDiffFingerprint\": %s,\r\n    \"stagedCodeRulesDiffBytes\": %I64d,\r\n    \"stagedCodeRulesDiffFingerprint\": %s,\r\n    \"unstagedCodeRulesDiffBytes\": %I64d,\r\n    \"unstagedCodeRulesDiffFingerprint\": %s\r\n  }",
+			szVersion.GetCString(), szCommit.GetCString(), szBranch.GetCString(), szMetadataSource.GetCString(),
+			szDefaultBranch.GetCString(), szDefaultCommit.GetCString(), szDefaultVersion.GetCString(), szDefaultRefSource.GetCString(),
+			szMergeBaseCommit.GetCString(), szMergeBaseVersion.GetCString(), szBranchRelation.GetCString(),
+			kMod.getSourceCurrentOnlyCommitCount(), kMod.getSourceDefaultOnlyCommitCount(), kMod.getSourceDirtyState(), kMod.getSourceDirtyFileCount(), kMod.isSourceDiffDetailsAvailable() ? 1 : 0, kMod.getSourceDiffFileCount(),
+			kMod.getSourceCodeRulesDiffBytes(), szCombinedFingerprint.GetCString(),
+			kMod.getSourceStagedCodeRulesDiffBytes(), szStagedFingerprint.GetCString(),
+			kMod.getSourceUnstagedCodeRulesDiffBytes(), szUnstagedFingerprint.GetCString());
+	}
+	else
+	{
+		szJson.Format("{\"version\":%s,\"commit\":%s,\"branch\":%s,\"metadataSource\":%s,\"defaultBranch\":%s,\"defaultCommit\":%s,\"defaultVersion\":%s,\"defaultRefSource\":%s,\"mergeBaseCommit\":%s,\"mergeBaseVersion\":%s,\"branchRelation\":%s,\"currentOnlyCommits\":%d,\"defaultOnlyCommits\":%d,\"dirty\":%d,\"dirtyTrackedCount\":%d,\"sourceDiffDetailsAvailable\":%d,\"sourceDiffEntries\":%d,\"trackedCodeRulesDiffBytes\":%I64d,\"trackedCodeRulesDiffFingerprint\":%s,\"stagedCodeRulesDiffBytes\":%I64d,\"stagedCodeRulesDiffFingerprint\":%s,\"unstagedCodeRulesDiffBytes\":%I64d,\"unstagedCodeRulesDiffFingerprint\":%s}",
+			szVersion.GetCString(), szCommit.GetCString(), szBranch.GetCString(), szMetadataSource.GetCString(),
+			szDefaultBranch.GetCString(), szDefaultCommit.GetCString(), szDefaultVersion.GetCString(), szDefaultRefSource.GetCString(),
+			szMergeBaseCommit.GetCString(), szMergeBaseVersion.GetCString(), szBranchRelation.GetCString(),
+			kMod.getSourceCurrentOnlyCommitCount(), kMod.getSourceDefaultOnlyCommitCount(), kMod.getSourceDirtyState(), kMod.getSourceDirtyFileCount(), kMod.isSourceDiffDetailsAvailable() ? 1 : 0, kMod.getSourceDiffFileCount(),
+			kMod.getSourceCodeRulesDiffBytes(), szCombinedFingerprint.GetCString(),
+			kMod.getSourceStagedCodeRulesDiffBytes(), szStagedFingerprint.GetCString(),
+			kMod.getSourceUnstagedCodeRulesDiffBytes(), szUnstagedFingerprint.GetCString());
+	}
+	return szJson;
 }
 
 // <!-- custom: Keep compact C++ UI/replay-settings formatting identical to CvModName.py: practical version first, 10-char SHA in parentheses when known, and only a verified dirty worktree gets the "dirty" marker. (ChatGPT-5.6-Sol) -->

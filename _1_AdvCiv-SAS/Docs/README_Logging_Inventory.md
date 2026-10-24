@@ -395,6 +395,12 @@ GAME_RECORD_STATE_CHECKPOINT seq=1006 turn=0 reason=SAVE_LOADED coverage=CORE ev
 GAME_RECORD_ACTION seq=1007 turn=0 type=DEBUG_MODE_CHANGED old=0 new=1 activePlayer=0
 ```
 
+From practical 6680 onward, current `*_SOURCE_CONTEXT` rows additionally report the locally known default branch/commit/count, merge-base commit/count, branch relation, current-only/default-only commit counts, and separate staged/unstaged tracked runtime-code/rules fingerprints.
+
+SGR and enabled BBAI logs also emit one source-diff row per tracked path/layer with patch byte count and fingerprint; these newer fields are intentionally not fabricated into the unchanged historical excerpt above.
+
+Runtime JSON carries the compact summary plus the shared diff-entry count, while build JSON records start/end ancestry plus per-file staged/unstaged SHA-256 patch evidence. No source performs a network fetch for this diagnostic snapshot.
+
 #### SASGameRecord gameplay example
 
 These are **30 consecutive, unchanged rows** from `SASGameRecord_20261019T160718Z_load1.log`, lines 11678–11707 (recorder revision 159). They follow the Ottoman player at turn 60 through resources, AI priorities, economy/production, diplomacy and unit composition; this is an excerpt of existing output, not a Before/After comparison with an inherited recorder.
@@ -450,6 +456,8 @@ BBAI_MOD_CONTEXT displayName="AdvCiv-SAS" folderName="AdvCiv-SAS" modPath="Mods\
 BBAI_SOURCE_CONTEXT version="6606" commit="39e40d78917c42d67dfa9c87a1fc92da178ad7dd" shortCommit="39e40d7891" branch="main" commitDate="2026-10-09T17:28:00+02:00" metadataSource="git" dirty=1 dirtyTrackedCount=6 trackedCodeRulesDiffBytes=16408 trackedCodeRulesDiffFingerprint="FNV1A64:F3AD9234EBE21773" dirtyFiles="[MM] .github/workflows/build/xml/sas_define_usage.py; [MM] .github/workflows/tests/test_sas_define_usage.py; [ M] Assets/CvGameCoreDLL.dll; [ M] Assets/XML/GlobalDefines_advciv_sas.xml; [MM] CvGameCoreDLL/BBAILog.cpp; [ M] _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md"
 BBAI_DLL_CONTEXT build=Debug-opt moduleFound=1 fileReadable=1 fileSizeBytes=13774848 dllFingerprint=FNV1A64:97635FA4B4F6CE96 dllLastWriteUtc=20261009T160322.407Z peTimestampRaw=1791561793 peTimestampUtc=20261009T160313Z fassertEnabled=0 debugDefine=0 ndebugDefine=1
 ```
+
+From practical 6680 onward, the shared BBAI source-context header receives the same branch relation and staged/unstaged aggregate fields through the central resolver. BBAI also emits the same one-time `BBAI_SOURCE_DIFF_SUMMARY` / `BBAI_SOURCE_DIFF_FILE` path-layer evidence as SGR, so an AI-only diagnostic run remains self-contained without embedding raw patches.
 
 #### Categories and inherited Settler logging
 

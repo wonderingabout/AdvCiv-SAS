@@ -2914,6 +2914,21 @@ static void logSASGameRecordProvenanceContext()
 	// The label is fixed for that lifetime; restart Civ4 after editing the Define. (GPT-6.1-Sol) -->
 	static const int iRecordRevision = GC.getDefineINT("SAS_SGR_REVISION");
 	logSASGameRecord("GAME_RECORD_SOURCE_CONTEXT recordRevision=%d %s", iRecordRevision, getSASSourceContextFields().GetCString());
+	// <!-- custom: The aggregate source fingerprint identifies the tested working tree, but feature-branch development often stages only part of an MM file before another edit.
+	// Preserve each tracked runtime-relevant staged/unstaged patch as a separate path/byte-count/fingerprint observation so later review can distinguish those layers without embedding potentially large/private source text in the gameplay log. (ChatGPT-5.6-Sol) -->
+	ModName const& kMod = GC.getModName();
+	int const iSourceDiffFiles = kMod.getSourceDiffFileCount();
+	bool const bSourceDiffDetailsAvailable = kMod.isSourceDiffDetailsAvailable();
+	logSASGameRecord("GAME_RECORD_SOURCE_DIFF_SUMMARY available=%d entries=%d stagedBytes=%I64d stagedFingerprint=%s unstagedBytes=%I64d unstagedFingerprint=%s scope=TRACKED_RUNTIME_CODE_RULES",
+			bSourceDiffDetailsAvailable ? 1 : 0, iSourceDiffFiles,
+			kMod.getSourceStagedCodeRulesDiffBytes(), getSASDiagnosticQuoted(kMod.getSourceStagedCodeRulesDiffFingerprint()).GetCString(),
+			kMod.getSourceUnstagedCodeRulesDiffBytes(), getSASDiagnosticQuoted(kMod.getSourceUnstagedCodeRulesDiffFingerprint()).GetCString());
+	for (int i = 0; i < iSourceDiffFiles; i++)
+	{
+		logSASGameRecord("GAME_RECORD_SOURCE_DIFF_FILE index=%d scope=%s path=%s diffBytes=%I64d diffFingerprint=%s",
+				i, getSASDiagnosticQuoted(kMod.getSourceDiffFileScope(i)).GetCString(), getSASDiagnosticQuoted(kMod.getSourceDiffFilePath(i)).GetCString(),
+				kMod.getSourceDiffFileBytes(i), getSASDiagnosticQuoted(kMod.getSourceDiffFileFingerprint(i)).GetCString());
+	}
 	logSASGameRecord("GAME_RECORD_DLL_CONTEXT %s", getSASDllContextFields().GetCString());
 	// <!-- custom: Fingerprint the actual Civ4 executable separately from install-location labeling: exact bytes remain the durable build/branch identity even when storefront branches share one directory. (ChatGPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_EXE_CONTEXT %s", getSASExeContextFields().GetCString());

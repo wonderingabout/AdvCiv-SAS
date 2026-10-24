@@ -10,10 +10,20 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## History
 
+### Revision 8 - SAS practical 6680
+
+- **Date:** 2026-10-24
+- **Git commit:** pending
+- **Change:** Add cached source/branch provenance to the standalone runtime view so external agents can interpret a practical count correctly when Civ4 is running from a feature, reproducer or diverged branch.
+  - Current `SASRuntimeStatus.json` and the JSONL `run` record add `sourceIdentity` with exact current commit/count/branch, locally known default commit/count, merge-base commit/count, branch relation, current-only/default-only commit counts, combined/staged/unstaged tracked runtime-code/rules fingerprints, and the number of staged/unstaged per-file diff entries available in the shared cache.
+  - Diagnostic ancestry/patch resolution stays behind the runtime-status enable gate in a separate `ModName` cache, so basic version UI does not trigger it; enabled transition updates do not repeatedly invoke Git. No fetch is attempted, and shallow/missing default ancestry remains explicit.
+  - Per-file dirty-layer rows remain in SGR/build provenance rather than the frequently rewritten current-status JSON, keeping runtime status compact while still identifying the exact aggregate tested state.
+  - Player-facing source/version presentation is unchanged; branch topology is development/agent evidence rather than normal gameplay UI.
+
 ### Revision 7 - SAS practical 6676
 
 - **Date:** 2026-10-23
-- **Git commit:** pending
+- **Git commit:** `a9f16ef4a2a969ced13de011b19f795938977705`
 - **Change:** Expose native ButtonPopup interaction as a compact event-driven wait state without turning UI prompts into gameplay/activity intervals.
   - `BUTTON_POPUP_FOCUSED` begins `buttonPopupAwaitingInteraction=1` only from `CvDLLButtonPopup::OnFocus`, after popup-specific stale/cancellation checks. Focus is stronger evidence than merely queueing/launching a popup: the EXE has reached its native focus/interaction callback for that ButtonPopup. It is not claimed as an exact rendered-frame timestamp.
     - The snapshot/history retain fixed `buttonPopupType`/numeric ID, active player and focus time. No popup body, edit-box text, player-entered name/password/mail/server value, or arbitrary Python text is recorded.

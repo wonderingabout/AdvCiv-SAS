@@ -305,6 +305,21 @@ static void logSASBBAIProvenanceContext()
 		return;
 	logBBAI("BBAI_MOD_CONTEXT %s", getSASModContextFields().GetCString());
 	logBBAI("BBAI_SOURCE_CONTEXT %s", getSASSourceContextFields().GetCString());
+	// <!-- custom: BBAI can be the only enabled gameplay diagnostic during AI work, so retain the same staged/unstaged tracked-source evidence as SGR rather than making the AI log depend on another recorder file.
+	// Emit only path/layer/size/fingerprint once per new/load log; raw patch text remains outside diagnostics. (ChatGPT-5.6-Sol) -->
+	ModName const& kMod = GC.getModName();
+	int const iSourceDiffFiles = kMod.getSourceDiffFileCount();
+	bool const bSourceDiffDetailsAvailable = kMod.isSourceDiffDetailsAvailable();
+	logBBAI("BBAI_SOURCE_DIFF_SUMMARY available=%d entries=%d stagedBytes=%I64d stagedFingerprint=%s unstagedBytes=%I64d unstagedFingerprint=%s scope=TRACKED_RUNTIME_CODE_RULES",
+			bSourceDiffDetailsAvailable ? 1 : 0, iSourceDiffFiles,
+			kMod.getSourceStagedCodeRulesDiffBytes(), getSASDiagnosticQuoted(kMod.getSourceStagedCodeRulesDiffFingerprint()).GetCString(),
+			kMod.getSourceUnstagedCodeRulesDiffBytes(), getSASDiagnosticQuoted(kMod.getSourceUnstagedCodeRulesDiffFingerprint()).GetCString());
+	for (int i = 0; i < iSourceDiffFiles; i++)
+	{
+		logBBAI("BBAI_SOURCE_DIFF_FILE index=%d scope=%s path=%s diffBytes=%I64d diffFingerprint=%s",
+				i, getSASDiagnosticQuoted(kMod.getSourceDiffFileScope(i)).GetCString(), getSASDiagnosticQuoted(kMod.getSourceDiffFilePath(i)).GetCString(),
+				kMod.getSourceDiffFileBytes(i), getSASDiagnosticQuoted(kMod.getSourceDiffFileFingerprint(i)).GetCString());
+	}
 	logBBAI("BBAI_DLL_CONTEXT %s", getSASDllContextFields().GetCString());
 }
 

@@ -1626,7 +1626,13 @@ For rebranding/fork details and the remaining paths that must still be changed m
 
 I use the default github branch's commit count as version number. This remains separate from stable-release labels/tags, which can intentionally keep an older release number while receiving later fixes as explained below.
 
-For example, if the [AdvCiv-SAS GitHub default branch](https://github.com/wonderingabout/AdvCiv-SAS) shows 6300 commits, that source state is AdvCiv-SAS 6300. The example number is illustrative; use the current default-branch commit count for the current version.
+For example, if the [AdvCiv-SAS GitHub default branch](https://github.com/wonderingabout/AdvCiv-SAS) (as of now currently `main`) shows 6300 commits, that source state is AdvCiv-SAS 6300. The example number is illustrative; use the current default-branch commit count for the current version.
+
+Branch counts need that distinction: a branch starting at `main`'s AdvCiv-SAS 6680 and adding three independent commits may report a Git count of 6683, but that does not make it the default branch's AdvCiv-SAS 6683. Counts follow commit history, not whether two branches happen to contain identical code; squashing those three commits onto unchanged `main` would advance `main` to 6681.
+
+SGR, BBAI, runtime status and build reports record the exact SHA and the relationship to the locally known default branch, including the shared ancestor and commits on each side. This helps interpret PRs and reproducer branches after squashing.
+
+Ordinary version displays, such as Victory Screen, keep the compact count/SHA/dirty presentation; branch investigations can use the detailed diagnostic provenance instead. This keeps developer branch topology out of normal gameplay UI.
 
 AdvCiv-SAS also resolves this source identity at runtime: full Git checkouts report the commit-count version, SHA, branch/date and tracked dirty state, while normal GitHub/git-archive ZIPs can reconstruct the same numeric version and exact commit/date from one immutable technical version-anchor tag plus Git archive metadata.
 
