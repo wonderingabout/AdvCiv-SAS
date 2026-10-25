@@ -265,6 +265,8 @@ public:
 	void noteSASWorldBuilderBulkRevealChange();
 	void endSASWorldBuilderBulkReveal(TeamTypes eTeam, bool bReveal, bool bCompleted);
 	bool isSASWorldBuilderBulkEdit() const { return m_bSASWorldBuilderBulkEdit; }
+	// <!-- custom: Store applied editor script text in the existing target field when enabled; the cached XML policy does not alter save layout or execute that text. (GPT-6.1-Sol) -->
+	void recordSASWorldBuilderScriptEdit(SASWorldChangesHistoryCategory eCategory, int iX, int iY, PlayerTypes eTargetPlayer, int iObjectId, std::string const& szAppliedScript);
 	void recordSASWorldBuilderEdit(SASWorldChangesHistoryCategory eCategory, char const* szAction, int iX, int iY, PlayerTypes eTargetPlayer, int iObjectId, char const* szTargetKind, char const* szTarget, int iOldValue, int iNewValue, bool bContentWithheld = false, bool bOldValueValid = true, bool bNewValueValid = true, TeamTypes eTargetTeam = NO_TEAM);
 	// <!-- custom: Expose only the persisted checkpoint loaded from the current save; live saves are logged directly while serializing and do not mutate synchronized game state merely to remember diagnostic wall-clock metadata. (ChatGPT-5.6-Sol) -->
 	bool hasSASLoadedSaveCheckpoint() const { return m_iSASLoadedSaveCheckpointTurn >= 0; }
@@ -850,7 +852,7 @@ protected:
 	};
 	std::vector<SASVersionHistoryEntry> m_aSASVersionHistory;
 	// <!-- custom: Ordered save-persisted setup/editor rows preserve applied action history without depending on diagnostic logs.
-	// Fixed tokens and XML type strings keep old rows understandable after later source/XML changes; free-form names/scripts are never stored. (ChatGPT-5.6-Sol) -->
+	// Fixed tokens and XML type strings keep old rows understandable after later source/XML changes; names stay withheld, while applied script text follows SAS_WORLD_CHANGES_SCRIPT_TEXT_ON. (GPT-6.1-Sol) (ChatGPT-5.6-Sol) -->
 	struct SASWorldChangesHistoryEntry
 	{
 		SASWorldChangesHistoryEntry() : iSource(-1), iCategory(-1), iActor(NO_PLAYER), iActorTeam(NO_TEAM), iTargetPlayer(NO_PLAYER), iTargetTeam(NO_TEAM), iTurn(-1), iYear(0), iElapsedTurn(-1), iVersionIndex(-1), iX(INVALID_PLOT_COORD), iY(INVALID_PLOT_COORD), iCityId(-1), iObjectId(-1), iRequestedDataId(-1), iResolvedDataId(-1), bOldValueValid(false), iOldValue(0), bNewValueValid(false), iNewValue(0), bContentWithheld(false), iQuotedCost(-1), iPointsBefore(-1), iPointsAfter(-1), iGoldBefore(-1), iGoldAfter(-1) {}

@@ -19,7 +19,9 @@ These settings were declared in base AdvCiv 1.14; their treatment in SAS differs
 
 ## SAS name-shortening conversion table
 
-The table maps the PR-start declarations directly to their final reviewed names for [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2). `Δ bytes` is current minus original, so negative values are shorter.
+The table maps the PR-start declarations to their current names, following [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2). `Δ bytes` is current minus original, so negative values are shorter.
+
+The text-map scale rows also reflect the removal of `OVERVIEW_1/2` from their intermediate shortened names, distinguishing them from Domestic Advisor Overview tabs.
 
 The retired-name checker reads this table directly; see the [checker documentation](/.github/workflows/README.md#buildxmlretired_global_define_namespy).
 
@@ -352,8 +354,8 @@ Prepared by GPT-6.1-Sol, 2026-10-22.
 | `SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH` | `SAS_SGR_MAP_ASCII_MAX_WIDTH` | 35 | 27 | -8 |
 | `SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT` | `SAS_SGR_MAP_ASCII_MAX_HEIGHT` | 36 | 28 | -8 |
 | `SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL` | `SAS_SGR_MAP_ASCII_CHARS_PER_CELL` | 51 | 32 | -19 |
-| `SAS_GAME_RECORD_MAP_ASCII_OVERVIEW_1_SCALE_PERCENT` | `SAS_SGR_MAP_ASCII_OVERVIEW_1_SCALE_PCT` | 50 | 38 | -12 |
-| `SAS_GAME_RECORD_MAP_ASCII_OVERVIEW_2_SCALE_PERCENT` | `SAS_SGR_MAP_ASCII_OVERVIEW_2_SCALE_PCT` | 50 | 38 | -12 |
+| `SAS_GAME_RECORD_MAP_ASCII_OVERVIEW_1_SCALE_PERCENT` | `SAS_SGR_MAP_ASCII_SCALE_1_PCT` | 50 | 29 | -21 |
+| `SAS_GAME_RECORD_MAP_ASCII_OVERVIEW_2_SCALE_PERCENT` | `SAS_SGR_MAP_ASCII_SCALE_2_PCT` | 50 | 29 | -21 |
 | `SAS_GAME_RECORD_MAP_ASCII_NATIVE_GEOGRAPHY_ENABLE` | `SAS_SGR_MAP_ASCII_NATIVE_GEOGRAPHY_ON` | 49 | 37 | -12 |
 | `SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_SYMBOLS` | `SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS` | 43 | 35 | -8 |
 | `SAS_GAME_RECORD_MAP_ASCII_TERRAIN_SYMBOLS` | `SAS_SGR_MAP_ASCII_TERRAIN_SYMBOLS` | 41 | 33 | -8 |

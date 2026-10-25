@@ -154,6 +154,52 @@ def getAdvisorIconSortKey(iGroup, iRow):
 		iValue = iValue / 5
 	return u"<font=1>" + u"".join(aParts) + u"</font>"
 
+# <!-- custom: Location controls in Changes, Battles and Wonders share a coordinate/camera hint, not reconstructed historical plot contents.
+# Allocate BUG widgets lazily on first use: SASUtils also loads at early initialization, so importing WidgetUtil eagerly would add its dispatcher dependencies to that path. (GPT-6.1-Sol) -->
+_ADVISOR_LOCATION_WIDGETS = {}
+
+def getAdvisorLocationWidget(bCity=False):
+	if bCity not in _ADVISOR_LOCATION_WIDGETS:
+		# <!-- custom: Reuse BUG's named help dispatcher without introducing numeric widget IDs or loading it before an advisor actually needs these controls. (GPT-6.1-Sol) -->
+		import WidgetUtil
+		szName = "WIDGET_SAS_ADVISOR_PLOT_LOCATION"
+		fnHelp = _getAdvisorPlotLocationHelp
+		if bCity:
+			szName = "WIDGET_SAS_ADVISOR_CITY_LOCATION"
+			fnHelp = _getAdvisorCityLocationHelp
+		eWidget = WidgetUtil.createWidget(szName)
+		WidgetUtil.setWidgetHelpFunction(eWidget, fnHelp)
+		_ADVISOR_LOCATION_WIDGETS[bCity] = eWidget
+	return _ADVISOR_LOCATION_WIDGETS[bCity]
+
+# <!-- custom: Plot callers pass coordinates already filtered for their historical-row perspective; the hint adds no current terrain, resource or occupant lookup that could reveal additional information. (GPT-6.1-Sol) -->
+def _getAdvisorPlotLocationHelp(eWidget, iX, iY, bOption):
+	if not (0 <= iX < CyMap().getGridWidth() and 0 <= iY < CyMap().getGridHeight()):
+		return u""
+	# <!-- custom: Custom BUG help is returned verbatim; apply the shared hover font explicitly instead of leaving these advisor hints at the EXE default size. (GPT-6.1-Sol) -->
+	return SASTextScale.sasFontTagHover + localText.getText("TXT_KEY_SAS_ADVISOR_PLOT_LOCATION_HELP", (iX, iY)) + SASTextScale.SAS_FONT_TAG_CLOSE
+
+# <!-- custom: Wonders links identify a live owner/city, unlike historical battle/edit locations.
+# Validate that identity and current observer knowledge before either hover or camera movement; hidden/removed cities must not become a location side channel. (GPT-6.1-Sol) -->
+def getAdvisorCityLocation(iPlayer, iCityId):
+	if not (0 <= iPlayer < gc.getMAX_PLAYERS()) or iCityId < 0:
+		return None
+	pCity = gc.getPlayer(iPlayer).getCity(iCityId)
+	if pCity.isNone():
+		return None
+	game = CyGame()
+	if not game.isDebugMode() and game.getGameState() != GameStateTypes.GAMESTATE_OVER:
+		iTeam = game.getActiveTeam()
+		if iTeam < 0 or not pCity.isRevealed(iTeam, False):
+			return None
+	return (pCity.getX(), pCity.getY())
+
+def _getAdvisorCityLocationHelp(eWidget, iPlayer, iCityId, bOption):
+	tPlot = getAdvisorCityLocation(iPlayer, iCityId)
+	if tPlot is None:
+		return u""
+	return _getAdvisorPlotLocationHelp(eWidget, tPlot[0], tPlot[1], bOption)
+
 # <!-- custom: shared debug/vassal player dropdown for advisors.
 # Debug mode keeps each legacy advisor's MAX_PLAYERS vs MAX_CIV_PLAYERS and active-row preselection behavior.
 # Outside debug, selected advisors may inspect only the current active player plus alive vassals of the active player's team, not a hardcoded human slot; vassals are subordinate enough to make their domestic/world/policy state relevant, but this remains perspective-only UI access and does not reveal unrelated players or hidden map data. (GPT-5.5) -->

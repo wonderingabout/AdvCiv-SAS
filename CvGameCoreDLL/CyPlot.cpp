@@ -1271,9 +1271,13 @@ void CyPlot::setScriptData(std::string szNewValue)
 		CvString szOldScript;
 		if (bWorldBuilderEdit) szOldScript = m_pPlot->getScriptData();
 		m_pPlot->setScriptData(szNewValue.c_str());
-		if (bWorldBuilderEdit && szOldScript != m_pPlot->getScriptData())
+		// <!-- custom: Inspect the applied value only inside the editor path; ordinary script setters do no history formatting or policy lookup.
+		// The shared recorder decides whether text is retained. (GPT-6.1-Sol) -->
+		if (bWorldBuilderEdit)
 		{
-			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_SCRIPT", m_pPlot->getX(), m_pPlot->getY(), m_pPlot->getOwner(), -1, "SCRIPT", "-", -1, -1, true, false, false);
+			std::string const szAppliedScript = m_pPlot->getScriptData();
+			if (szOldScript != szAppliedScript)
+				GC.getGame().recordSASWorldBuilderScriptEdit(SAS_WORLD_CHANGES_HISTORY_MAP, m_pPlot->getX(), m_pPlot->getY(), m_pPlot->getOwner(), -1, szAppliedScript);
 		}
 	}
 }

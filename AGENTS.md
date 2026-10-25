@@ -450,6 +450,9 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 
 - When consolidating an established subsystem, preserve its recognizable name when practical so history and search remain useful; for example, `CvScreenEnums.SevoScreenEnums`.
 - Prefer distinctive namespaces for shared APIs, such as `import SASVisualUtils as SASVisuals`, without restricting ordinary short local variables.
+- Preserve distinct concepts in names, including abbreviations; avoid overloading established Civ4 or SAS terminology when clearer wording fits.
+  - Distinguish `BuildTypes` worker actions from `BuildingTypes` buildings (`BLDG`), and avoid `FORT` for defensive-building production when it suggests the Fort improvement. Keep `DEF` for defense, not also deficit.
+  - Use text-map `SCALE_1/2` rather than `OVERVIEW_1/2`, which suggests Domestic Advisor Overview tabs. Qualify `BattleHistory` and `WorldChangesHistory` rather than bare `History`, which could suggest Sevopedia `placeHistory` or the Info Screen Timeline.
 - Use specific asset names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.
 - For machine-readable diagnostics/provenance of static C++ enums that have no `CvInfo` type string, prefer one shared `getSAS*Type(...)` helper in `CvGameCoreUtils` over duplicated switches or preprocessor stringification.
   - Keep translated/friendly UI labels separate when they serve presentation rather than canonical raw identity.
@@ -577,9 +580,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 
 - Prefer SAS defines for new AI toggles to allow quick testing without recompiles; avoid adding them for tiny features unlikely to need tuning.
   - Name defines `SAS_<family>_<effect>` within the desired 42-byte maximum drawn from AdvCiv, rather than mechanically embedding the full function name. To that end, use shorter words or clear abbreviations such as `1ST` for `FIRST`, while preserving meaning and key technical terms such as `PCT`, `MIN` and `MAX`. See KI#1001.2.
-  - Preserve Civ4 concepts when shortening names; abbreviate or omit less informative wording before changing a meaningful term.
-    - For example, distinguish `BuildTypes` worker actions from `BuildingTypes` buildings (`BLDG`), and avoid using `FORT` for Walls/Castle-style defensive-building production when it could suggest the Fort improvement.
-    - Keep shorthand tied to its meaning: `DEF` means defense, so health deficit needs a distinct word or abbreviation.
+  - Abbreviate or omit less informative wording before changing a meaningful Civ4 term.
   - Use consistent terms for greppability, so one grep finds related SAS defines: for example, keep `PWR` consistent instead of mixing it with `POWER`. Keep `SETTLER` consistent and retain `PROD` throughout its family unless necessary. Omit implicit qualifiers such as `AI` when the family is clear, and separate words with `_` when space permits.
     - Other established short forms in reviewed families include `ATK` (attack), `VAL` (value), `CULT` (culture) and `DIST` (distance); reuse them for the same meanings.
 - Turn-valued SAS integer defines must make game-speed semantics explicit: use `T_NORM_GS` when the XML value is expressed at Normal speed and code scales it with the appropriate game-speed percentage, or `T_UNSCALED_GS` for intentional literal game/path turns such as movement distance.

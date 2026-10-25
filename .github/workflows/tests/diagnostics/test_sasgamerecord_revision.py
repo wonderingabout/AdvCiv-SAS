@@ -28,6 +28,24 @@ class RevisionDocumentationTests(unittest.TestCase):
         self.revision = recorder.latest_history_revision(self.text)[0]
         self.assertIsNotNone(self.revision)
 
+    # <!-- custom: Exercise the shipped-default guard directly: enabled capture passes, but disabled or missing capture fails; this does not prohibit temporary local opt-out testing. (GPT-6.1-Sol) -->
+    def test_script_capture_shipped_default(self):
+        name = "SAS_WORLD_CHANGES_SCRIPT_TEXT_ON"
+        expected = recorder.EXPECTED_GAME_RECORD_DEFAULTS
+        self.assertEqual(expected.get(name), 1)
+        for value in (1, 0, None):
+            with self.subTest(value=value):
+                defines = dict(expected)
+                if value is None:
+                    defines.pop(name)
+                else:
+                    defines[name] = value
+                failures = recorder.require_int_values(defines, expected)
+                if value == 1:
+                    self.assertEqual(failures, [])
+                else:
+                    self.assertTrue(any(name in failure for failure in failures), failures)
+
     def test_current_revision_documentation(self):
         self.assertEqual(recorder.check_revision(self.repo), [])
 

@@ -169,17 +169,18 @@ static int getSASGameRecordMapAsciiHorizontalCharsPerCell()
 	return iChars;
 }
 
-// <!-- custom: Two initial geography overviews provide quick small/medium impressions before the authoritative full text maps.
+// <!-- custom: Two initial geography previews provide quick small/medium impressions before the authoritative full text maps.
+// SCALE_1/2 identify text-map sizes rather than the unrelated Domestic Advisor Overview tabs. (GPT-6.1-Sol)
 // Clamp each percentage to 0..100 so malformed values cannot create oversized drawings; 0 disables that overview. (GPT-5.6-Sol) -->
-static int getSASGameRecordMapAsciiOverview1ScalePercent()
+static int getSASGameRecordMapAsciiScale1Percent()
 {
-	static const int iPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_SGR_MAP_ASCII_OVERVIEW_1_SCALE_PCT")));
+	static const int iPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_SGR_MAP_ASCII_SCALE_1_PCT")));
 	return iPercent;
 }
 
-static int getSASGameRecordMapAsciiOverview2ScalePercent()
+static int getSASGameRecordMapAsciiScale2Percent()
 {
-	static const int iPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_SGR_MAP_ASCII_OVERVIEW_2_SCALE_PCT")));
+	static const int iPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_SGR_MAP_ASCII_SCALE_2_PCT")));
 	return iPercent;
 }
 
@@ -2464,8 +2465,8 @@ static CvString getSASGameRecordLogSettingFields()
 		{ "SAS_SGR_MAP_ASCII_MAX_WIDTH", getSASGameRecordMapAsciiMaxWidth() },
 		{ "SAS_SGR_MAP_ASCII_MAX_HEIGHT", getSASGameRecordMapAsciiMaxHeight() },
 		{ "SAS_SGR_MAP_ASCII_CHARS_PER_CELL", getSASGameRecordMapAsciiHorizontalCharsPerCell() },
-		{ "SAS_SGR_MAP_ASCII_OVERVIEW_1_SCALE_PCT", getSASGameRecordMapAsciiOverview1ScalePercent() },
-		{ "SAS_SGR_MAP_ASCII_OVERVIEW_2_SCALE_PCT", getSASGameRecordMapAsciiOverview2ScalePercent() },
+		{ "SAS_SGR_MAP_ASCII_SCALE_1_PCT", getSASGameRecordMapAsciiScale1Percent() },
+		{ "SAS_SGR_MAP_ASCII_SCALE_2_PCT", getSASGameRecordMapAsciiScale2Percent() },
 		{ "SAS_SGR_MAP_ASCII_NATIVE_GEOGRAPHY_ON", isSASGameRecordMapAsciiNativeGeographyEnabled() },
 		{ "SAS_SGR_MAP_ASCII_GEOGRAPHY_ON", isSASGameRecordMapAsciiGeographyEnabled() },
 		{ "SAS_SGR_MAP_ASCII_TERRAIN_ON", isSASGameRecordMapAsciiTerrainEnabled() },
@@ -7130,8 +7131,8 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 				iGameTurn, getSASDiagnosticQuoted(kPalette.szPoliticalDefine.GetCString()).GetCString(), szPlayerSymbolsQuoted.GetCString(), bMarkStartingPlots);
 	if (abLayerEnabled[0])
 	{
-		int const iOverview1ScalePercent = getSASGameRecordMapAsciiOverview1ScalePercent();
-		int const iOverview2ScalePercent = getSASGameRecordMapAsciiOverview2ScalePercent();
+		int const iOverview1ScalePercent = getSASGameRecordMapAsciiScale1Percent();
+		int const iOverview2ScalePercent = getSASGameRecordMapAsciiScale2Percent();
 		if (iOverview1ScalePercent > 0)
 			logSASGameRecordMapAsciiGeographyOverview(kMap, kPalette, iPreviewWidth, iPreviewHeight, iHorizontalCharsPerCell, 1, iOverview1ScalePercent, szReason);
 		// <!-- custom: Equal configured percentages would produce identical pictures, so keep the first and omit the duplicate second overview. (GPT-5.6-Sol) -->
@@ -15682,7 +15683,7 @@ void logSASGameRecordAdvancedStartResult(CvPlayer const& kPlayer, AdvancedStartA
 }
 
 // <!-- custom: WorldBuilder is an explicit editor, so record controlled applied mutation facts instead of inferring edits from later gameplay state.
-// Free-form names/scripts are represented only as content=WITHHELD; the save-persisted event keeps the same stable action/target/before-after context without diagnostic wall-clock data. (ChatGPT-5.6-Sol) -->
+// Names and disabled script captures are content=WITHHELD; enabled script text is quoted/escaped so newlines or key-like text cannot create false log rows. The saved event has the same target but no diagnostic wall-clock data. (GPT-6.1-Sol) (ChatGPT-5.6-Sol) -->
 void logSASGameRecordWorldBuilderEdit(char const* szCategory, char const* szAction, int iX, int iY, PlayerTypes eTargetPlayer, TeamTypes eTargetTeam, int iObjectId, char const* szTargetKind, char const* szTarget, int iOldValue, int iNewValue, bool bContentWithheld, bool bOldValueValid, bool bNewValueValid)
 {
 	CvGame const& kGame = GC.getGame();
@@ -15691,7 +15692,7 @@ void logSASGameRecordWorldBuilderEdit(char const* szCategory, char const* szActi
 	logSASGameRecord("GAME_RECORD_WORLD_BUILDER_EDIT turn=%d elapsed=%d actorPlayer=%d actorTeam=%d sessionWallMilliseconds=%u category=%s action=%s x=%d y=%d targetPlayer=%d targetTeam=%d objectId=%d targetKind=%s target=%s oldValueValid=%d oldValue=%d newValueValid=%d newValue=%d content=%s",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), eActor, eActorTeam, getSASGameRecordSessionWallMilliseconds(),
 		szCategory == NULL ? "-" : szCategory, szAction == NULL ? "-" : szAction, iX, iY, eTargetPlayer, eTargetTeam, iObjectId,
-		szTargetKind == NULL ? "-" : szTargetKind, szTarget == NULL ? "-" : szTarget, bOldValueValid ? 1 : 0, iOldValue, bNewValueValid ? 1 : 0, iNewValue, bContentWithheld ? "WITHHELD" : "RECORDED");
+		szTargetKind == NULL ? "-" : szTargetKind, getSASDiagnosticQuoted(bContentWithheld || szTarget == NULL ? "-" : szTarget).GetCString(), bOldValueValid ? 1 : 0, iOldValue, bNewValueValid ? 1 : 0, iNewValue, bContentWithheld ? "WITHHELD" : "RECORDED");
 }
 
 static CvString getSASGameRecordVoteEffects(VoteTypes eVote)

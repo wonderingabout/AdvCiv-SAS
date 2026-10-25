@@ -30,6 +30,9 @@ jobs:
       - name: Opening music
         run: python .github/workflows/build/assets/opening_music.py
 
+      - name: Advisor defaults
+        run: python .github/workflows/build/assets/advisor_defaults.py
+
       - name: Shared font defaults
         run: python .github/workflows/build/assets/fonts.py
 

@@ -12,7 +12,7 @@
 #include "CvMap.h" // advc: For canAirBombAt
 #include "CvGame.h" // <!-- custom: WorldBuilder unit edits feed ordered save-persisted setup/editor history. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Unit.h" // <!-- custom: WorldBuilder promotion history records stable XML type tokens; GC.getInfo requires CvPromotionInfo complete here. (ChatGPT-5.6-Sol) -->
-#include "SASGameRecordLog.h" // <!-- custom: Record controlled WorldBuilder unit mutation facts without copying names/scripts. (ChatGPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Record controlled WorldBuilder unit mutation facts with script text controlled by the shared history policy; names remain withheld. (GPT-6.1-Sol) (ChatGPT-5.6-Sol) -->
 
 CyUnit::CyUnit() : m_pUnit(NULL) {}
 // advc.003y: (see CyCity.cpp)
@@ -1627,9 +1627,13 @@ void CyUnit::setScriptData(std::string szNewValue)
 		std::string szOldScript;
 		if (bWorldBuilderEdit) szOldScript = m_pUnit->getScriptData();
 		m_pUnit->setScriptData(szNewValue.c_str());
-		if (bWorldBuilderEdit && szOldScript != m_pUnit->getScriptData())
+		// <!-- custom: Inspect the applied value only inside the editor path; ordinary script setters do no history formatting or policy lookup.
+		// The shared recorder decides whether text is retained. (GPT-6.1-Sol) -->
+		if (bWorldBuilderEdit)
 		{
-			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_UNIT, "SET_SCRIPT", m_pUnit->getX(), m_pUnit->getY(), m_pUnit->getOwner(), m_pUnit->getID(), "SCRIPT", "-", -1, -1, true, false, false);
+			std::string const szAppliedScript = m_pUnit->getScriptData();
+			if (szOldScript != szAppliedScript)
+				GC.getGame().recordSASWorldBuilderScriptEdit(SAS_WORLD_CHANGES_HISTORY_UNIT, m_pUnit->getX(), m_pUnit->getY(), m_pUnit->getOwner(), m_pUnit->getID(), szAppliedScript);
 		}
 	}
 }

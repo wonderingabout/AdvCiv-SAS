@@ -25,6 +25,8 @@ EXPECTED_GAME_RECORD_DEFAULTS = {
     "SAS_SGR_LOG": 0,
     # <!-- custom: Ship action tracing ready for deliberately enabled records while the recorder master stays off; catch accidental staging of an actions-off test override. (GPT-6.1-Sol) -->
     "SAS_SGR_ACTION_TRACE_ON": 1,
+    # <!-- custom: Saved Changes history is independent of the recorder master; ship applied WorldBuilder script-text capture enabled as documented, while allowing local opt-out tests. (GPT-6.1-Sol) -->
+    "SAS_WORLD_CHANGES_SCRIPT_TEXT_ON": 1,
     # <!-- custom: Keep richer support context opt-in; catch hardware/path/process and private/network INI test settings accidentally staged for shipping. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
     "SAS_SGR_SYSTEM_CONTEXT_LVL": 2,
     "SAS_SGR_HARDWARE_IDENTITY_ON": 0,

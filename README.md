@@ -350,6 +350,8 @@ Added a new Battles tab in the Military Advisor, showing as a sortable table the
 
 Text color is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amount: red).
 
+Some columns are optional to adjust to preference or as the tab is quite loaded especially at low resolutions.
+
 Also added a **legend link**, and **LOG Button** (as the Timeline tab). Implementation details in the Main Changes guide.
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (4).JPG" alt="/0.515_military_advisor (4).JPG" width="250"></img>
@@ -388,8 +390,9 @@ Inspired by SAS's existing Battles tab, it keeps an ordered action record across
 
 - Inspect edits such as added/removed units, promotions and experience, city buildings, terrain/resources and ownership changes; rows identify the editor and affected objects where recorded. Diplomacy edits include extra attitude weights, war/peace and vassal relationships.
 - Advanced Start entries also retain purchases/refunds and point/gold transitions, with separate sortable Before/After, points, gold and Cost columns. The shared data is named `SASWorldChangesHistory` in C++, while **Changes** is the tab's name.
+- Action icons reuse WorldBuilder tools, with read-only hovers explaining the recorded action. XML targets such as units, buildings and resources show their icons, native help and a Sevopedia link where available; these describe the current XML definitions.
+- Player IDs have civilization and leader buttons describing their current identities; city targets use the existing city icon. Separate optional (default ON as useful but as of now optional as space is tight) numeric X/Y columns sit beside the jump button on the right; location hovers show coordinates and a camera hint, also shared by Battles plot buttons and known Wonders city links.
 - Sort the table, jump to an available plot, or use **LOG** to export the permitted rows to `PythonDbg.log`. A **Legend** link explains the columns and visibility rules; ordinary play filters hidden details, while debug mode shows the complete history.
-- Name/script edits are identified without copying their text. Sign/landmark captions are outside this edit history.
 
 The advisor is implemented in [CvWorldAdvisorScreen.py](/Assets/Python/Screens/CvWorldAdvisorScreen.py), backed by save-owned records in [CvGame.cpp](/CvGameCoreDLL/CvGame.cpp). See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for coverage and the [SGR revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for recorder changes.
 

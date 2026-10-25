@@ -3774,7 +3774,11 @@ class CvInfoScreen:
 			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 2, iWonderLoop, szTurnYearBuilt, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 3, iWonderLoop, szWonderBuiltBy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			# SASTextScale.setTableTextLabel(screen, self.szWondersTable, 4, iWonderLoop, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 4, iWonderLoop, szCityName, "", WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+			# <!-- custom: Add the shared coordinate/camera hover only to revealed city links; blank unknown-city cells must carry neither a live identity nor a location payload. (GPT-6.1-Sol) -->
+			if bRevealed:
+				SASTextScale.setTableTextLabel(screen, self.szWondersTable, 4, iWonderLoop, szCityName, "", getAdvisorLocationWidget(True), pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+			else:
+				SASTextScale.setTableTextLabel(screen, self.szWondersTable, 4, iWonderLoop, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		for iWonderLoop in range(self.iNumWonders):
 #			self.aaWondersBuilt_BUG contains the following:
@@ -3828,7 +3832,7 @@ class CvInfoScreen:
 			SASTextScale.setTableTextLabel(screen, self.szWondersTable, 3, iWonderLoop+iWBB, szWonderBuiltBy, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			# SASTextScale.setTableTextLabel(screen, self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 			if bKnown and bRevealed:
-				SASTextScale.setTableTextLabel(screen, self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_ZOOM_CITY, pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+				SASTextScale.setTableTextLabel(screen, self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", getAdvisorLocationWidget(True), pCity.getOwner(), pCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
 			else:
 				SASTextScale.setTableTextLabel(screen, self.szWondersTable, 4, iWonderLoop+iWBB, szCityName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
@@ -4243,10 +4247,11 @@ class CvInfoScreen:
 				# BUG Wonders table
 				elif (szWidgetName == self.szWondersTable):
 					if (inputClass.getMouseX() == self.WONDERS_COL_MOVE_TO_CITY_ID):
-						screen.hideScreen()
-						pPlayer = gc.getPlayer(inputClass.getData1())
-						pCity = pPlayer.getCity(inputClass.getData2())
-						CyCamera().JustLookAtPlot(pCity.plot())
+						# <!-- custom: Reuse the hover's live-city/observer validation before centering; unknown or removed city cells remain inert. (GPT-6.1-Sol) -->
+						tPlot = getAdvisorCityLocation(inputClass.getData1(), inputClass.getData2())
+						if tPlot is not None:
+							screen.hideScreen()
+							CyCamera().JustLookAtPlot(CyMap().plot(tPlot[0], tPlot[1]))
 
 			# GRAPH TAB
 

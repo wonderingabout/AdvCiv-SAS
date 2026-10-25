@@ -2399,9 +2399,13 @@ void CyCity::setScriptData(std::string szNewValue)
 		std::string szOldScript;
 		if (bWorldBuilderEdit) szOldScript = m_pCity->getScriptData();
 		m_pCity->setScriptData(szNewValue);
-		if (bWorldBuilderEdit && szOldScript != m_pCity->getScriptData())
+		// <!-- custom: Inspect the applied value only inside the editor path; ordinary script setters do no history formatting or policy lookup.
+		// The shared recorder decides whether text is retained. (GPT-6.1-Sol) -->
+		if (bWorldBuilderEdit)
 		{
-			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "SET_SCRIPT", m_pCity->getX(), m_pCity->getY(), m_pCity->getOwner(), m_pCity->getID(), "SCRIPT", "-", -1, -1, true, false, false);
+			std::string const szAppliedScript = m_pCity->getScriptData();
+			if (szOldScript != szAppliedScript)
+				GC.getGame().recordSASWorldBuilderScriptEdit(SAS_WORLD_CHANGES_HISTORY_CITY, m_pCity->getX(), m_pCity->getY(), m_pCity->getOwner(), m_pCity->getID(), szAppliedScript);
 		}
 	}
 }

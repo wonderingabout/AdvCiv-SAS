@@ -10416,8 +10416,18 @@ void CvGame::endSASWorldBuilderBulkReveal(TeamTypes eTeam, bool bReveal, bool bC
 	recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_VISIBILITY, szAction, -1, -1, NO_PLAYER, -1, "TEAM", "-", 0, iChangedPlots, false, false, true, eTeam);
 }
 
+// <!-- custom: Script edits are already confirmed WorldBuilder mutations by the caller.
+// Cache the XML policy on first use after GlobalDefines initialization.
+// Preserve applied text in the existing string target, rather than inventing an XML type/name or changing the save layout; disabling captures keeps the earlier WITHHELD marker.
+// No old script body is duplicated. (GPT-6.1-Sol) -->
+void CvGame::recordSASWorldBuilderScriptEdit(SASWorldChangesHistoryCategory eCategory, int iX, int iY, PlayerTypes eTargetPlayer, int iObjectId, std::string const& szAppliedScript)
+{
+	static bool const bRecordText = GC.getDefineBOOL("SAS_WORLD_CHANGES_SCRIPT_TEXT_ON");
+	recordSASWorldBuilderEdit(eCategory, "SET_SCRIPT", iX, iY, eTargetPlayer, iObjectId, "SCRIPT", bRecordText ? szAppliedScript.c_str() : "-", -1, -1, !bRecordText, false, false);
+}
+
 // <!-- custom: Persist one ordered WorldBuilder event for each actual changed wrapper result, independently of SGR settings.
-// Stable target tokens are saved, while free-form names/scripts are represented only as withheld changes.
+// Stable target tokens and optionally applied script text are saved; free-form names remain withheld. (GPT-6.1-Sol)
 // Optional SGR projection adds wall-clock/session context without becoming the source of truth. (ChatGPT-5.6-Sol) -->
 void CvGame::recordSASWorldBuilderEdit(SASWorldChangesHistoryCategory eCategory, char const* szAction, int iX, int iY, PlayerTypes eTargetPlayer, int iObjectId, char const* szTargetKind, char const* szTarget, int iOldValue, int iNewValue, bool bContentWithheld, bool bOldValueValid, bool bNewValueValid, TeamTypes eTargetTeam)
 {

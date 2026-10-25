@@ -98,10 +98,26 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 171 - SAS practical 6683
+### Revision 172 - SAS practical 6684
 
 - **Date:** 2026-10-25
 - **Git commit:** pending
+- **Change:** Polish the World Advisor Changes view and optionally retain WorldBuilder script text in the existing native target field, without changing the save layout.
+  - Rename initial text-map scale settings to `SAS_SGR_MAP_ASCII_SCALE_1_PCT` and `SAS_SGR_MAP_ASCII_SCALE_2_PCT`, separating their names from Domestic Advisor Overview tabs; percentages and generated maps are unchanged.
+  - Action cells reuse WorldBuilder tool/category icons with read-only hover help; target cells use current XML icons, native help and matching Sevopedia redirects where available. Hidden rows suppress icon/widget payloads as well as text.
+  - Family-scoped XML presentation catalogs are built lazily and reused; missing historical type tokens retain text rather than resolving to another XML family or a current live city/unit identity.
+  - Reuse the maximized table layout shared by Military Battles and Domestic Overview to reclaim side/top/bottom padding for visible rows and wider Action, Target and Plot columns.
+  - Use cached gold glyphs in budget headers and gold edits, culture glyphs in culture edits, and yield glyphs in extra-yield targets; numeric cells retain their sorting semantics.
+  - Simplify displayed actions such as `Add / City` to `Add City` and `Begin Game / Exit` to `Begin Game`; saved/native operation tokens remain unchanged.
+  - Compact player IDs use a numerically sortable P column, separate from independently sortable current leader/civilization buttons; city targets have a city icon when no XML-item icon applies. Independent numeric X/Y sort columns and their jump button are adjacent on the right.
+  - Reuse lazy named location widgets from `SASUtils.py` for Changes/Battles plot controls and known-city Wonders links; coordinate/camera help adds no historical terrain or occupant claims. Wonders validates live city identity and observer knowledge before hover or camera movement. Hidden actor identity suppresses both player icons.
+  - `SAS_WORLD_CHANGES_SCRIPT_TEXT_ON=1` (default) retains the applied script data in the existing string target; 0 retains a withheld marker. Capture is restricted to confirmed changed WorldBuilder script edits and cached after XML initialization. Names and historical withheld entries stay withheld.
+  - Live SGR targets are quoted/escaped, matching loaded-history targets, so script newlines or key-like text cannot impersonate record fields. UI/LOG display script data as escaped literal text rather than XML names or executable markup. The old script body is not duplicated.
+
+### Revision 171 - SAS practical 6683
+
+- **Date:** 2026-10-25
+- **Git commit:** 53aef2f7bf23caeb6ca78597e29e21232c969694
 - **Change:** Introduce saved Changes history (`SASWorldChangesHistory`) for Advanced Start actions and WorldBuilder edits, presented in the World Advisor Changes tab and mirrored into SGR when enabled.
   - `GAME_RECORD_WORLD_BUILDER_EDIT` records controlled mutation facts from the Python/Cy boundaries used by the inherited editor, while plot terrain/feature/resource/improvement/route changes reuse detailed `GAME_RECORD_PLOT_CHANGE` rows with `cause=WORLDBUILDER`.
     - Attribution means that a mutation reached an inherited WorldBuilder-facing wrapper while the editor screen was active; it does not claim a physical click.

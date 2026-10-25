@@ -77,6 +77,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/assets/tech_audio.py`](#buildassetstech_audiopy)
     - [`build/assets/leader_audio.py`](#buildassetsleader_audiopy)
     - [`build/assets/opening_music.py`](#buildassetsopening_musicpy)
+    - [`build/assets/advisor_defaults.py`](#buildassetsadvisor_defaultspy)
     - [`build/assets/fonts.py`](#buildassetsfontspy)
     - [`build/assets/art_define_structure.py`](#buildassetsart_define_structurepy)
   - [Diagnostics](#diagnostics)
@@ -779,6 +780,10 @@ See [KI#1031](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1031).
 
 Verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed script, and if shuffle is enabled, at least one valid non-`NONE` shuffle script.
 
+#### `build/assets/advisor_defaults.py`
+
+Keeps `SAS_MILIT_UI_BATTLE_XY_ON=1` in shipped XML so Battles coordinates are sortable by default; setting it to 0 remains a local option when screen width is scarce.
+
 #### `build/assets/fonts.py`
 
 Verifies shared UI font defaults are `1 / 2 / 3 / 4 / 3`.
@@ -837,6 +842,7 @@ Keeps the blocking SASGameRecord CI intentionally small:
 
 - `SAS_SGR_LOG` must be `0` in committed defaults.
 - `SAS_SGR_ACTION_TRACE_ON` must be `1`, and `SAS_SGR_SYSTEM_CONTEXT_LVL` must be `2`.
+- `SAS_WORLD_CHANGES_SCRIPT_TEXT_ON` must be `1`: saved Changes history retains applied WorldBuilder script text by default even when SGR logging is disabled. Local opt-out tests must not change the committed default.
 - Hardware identity, exact paths and process-context opt-ins must each be `0`; these checks catch accidentally committed diagnostic test overrides.
 - `SAS_SGR_BUG_STRING_VALS_ON` must be `0`, keeping reviewed BUG strings redacted by default.
 - `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` is the single monotonically increasing implementation-update label; it must match the newest maintained revision-history heading.

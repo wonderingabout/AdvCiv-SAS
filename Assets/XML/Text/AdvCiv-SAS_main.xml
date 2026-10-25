@@ -4130,7 +4130,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_ACTOR</Tag>
-		<English>Actor</English>
+		<English>P</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_SEQUENCE</Tag>
@@ -4148,9 +4148,18 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_TARGET</Tag>
 		<English>Target</English>
 	</TEXT>
+	<!-- custom: Separate axes preserve numeric coordinate sorting without a combined comma-delimited cell; shared location hovers retain the camera hint. (GPT-6.1-Sol) -->
 	<TEXT>
-		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_LOCATION</Tag>
-		<English>Plot</English>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_X</Tag>
+		<English>X</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_Y</Tag>
+		<English>Y</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_ADVISOR_PLOT_LOCATION_HELP</Tag>
+		<English>Plot (%d1, %d2)[NEWLINE]Click to center the camera.</English>
 	</TEXT>
 	<!-- custom: Separate transition/budget values into numeric-sortable columns; B/A abbreviate before/after as explained by the Changes legend. (GPT-6.1-Sol) -->
 	<TEXT>
@@ -4171,11 +4180,11 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_GOLD_BEFORE</Tag>
-		<English>Gold B</English>
+		<English>%s1 B</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_GOLD_AFTER</Tag>
-		<English>Gold A</English>
+		<English>%s1 A</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_COST</Tag>
@@ -4856,5 +4865,14 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_EVENT_EARTHDAY_HELP_2</Tag>
 		<English>[ICON_BULLET]Persuade other nations to adopt [COLOR_HIGHLIGHT_TEXT]Trade Bloc[COLOR_REVERT] (at least one civilization must have the ability to do so).</English>
+	</TEXT>
+	<!-- custom: Changes action hovers use BUG's named read-only widgets; BEGIN_GAME describes the displayed meaning of the saved EXIT action. (GPT-6.1-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_BEGIN_GAME</Tag>
+		<English>Begin Game</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_ACTION_HELP</Tag>
+		<English>Recorded action: %s1[NEWLINE]Target: %s2[NEWLINE]Turn %d3, year %d4</English>
 	</TEXT>
 </Civ4GameText>

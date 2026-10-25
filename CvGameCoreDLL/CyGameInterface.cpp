@@ -142,7 +142,7 @@ void CyGamePythonInterface()
 		.def("getSASWorldChangesHistoryObjectId", &CyGame::getSASWorldChangesHistoryObjectId)
 		.def("getSASWorldChangesHistoryRequestedDataId", &CyGame::getSASWorldChangesHistoryRequestedDataId)
 		.def("getSASWorldChangesHistoryResolvedDataId", &CyGame::getSASWorldChangesHistoryResolvedDataId)
-		// <!-- custom: Fixed action/operation/target tokens are safe machine-readable history; caller-entered names/scripts remain withheld by the save producer. (ChatGPT-5.6-Sol) -->
+		// <!-- custom: Fixed action/operation tokens and typed targets remain machine-readable; script targets may contain applied text under the save producer's XML policy, while names remain withheld. (GPT-6.1-Sol) (ChatGPT-5.6-Sol) -->
 		.def("getSASWorldChangesHistoryAction", &CyGame::getSASWorldChangesHistoryAction)
 		.def("getSASWorldChangesHistoryOperation", &CyGame::getSASWorldChangesHistoryOperation)
 		.def("getSASWorldChangesHistoryTargetKind", &CyGame::getSASWorldChangesHistoryTargetKind)

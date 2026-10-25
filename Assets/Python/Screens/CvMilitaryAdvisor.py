@@ -134,6 +134,7 @@ class CvMilitaryAdvisor:
 		self.iSAS_MILIT_UI_HI_RES_ICON_MIN_HEIGHT = None
 		self.iSAS_MILIT_UI_HI_RES_ICON_SIZE = None
 		self.IS_SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON = None
+		self.IS_SAS_MILIT_UI_BATTLE_XY_ON = None
 		self.IS_SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON = None
 		self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = None
 		self.iNUM_BUILDING_AND_TECH_PREREQS = None
@@ -148,6 +149,8 @@ class CvMilitaryAdvisor:
 		self.BATTLE_HILL_PEAK_COL_ID = None
 		self.BATTLE_TERRAIN_COL_ID = None
 		self.BATTLE_FEATURE_COL_ID = None
+		self.BATTLE_X_COL_ID = None
+		self.BATTLE_Y_COL_ID = None
 		self.BATTLE_PLOT_COL_ID = None
 		self.BATTLE_NUM_COLS = None
 
@@ -170,6 +173,9 @@ class CvMilitaryAdvisor:
 			self.iSAS_MILIT_UI_HI_RES_ICON_SIZE = gc.getDefineINT("SAS_MILIT_UI_HI_RES_ICON_SIZE")
 		if self.IS_SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON is None:
 			self.IS_SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON = (gc.getDefineINT("SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON") > 0)
+		# <!-- custom: Cache optional numeric axes with the other layout settings; disabling axes preserves scarce 1080p width for unit names. (GPT-6.1-Sol) -->
+		if self.IS_SAS_MILIT_UI_BATTLE_XY_ON is None:
+			self.IS_SAS_MILIT_UI_BATTLE_XY_ON = (gc.getDefineINT("SAS_MILIT_UI_BATTLE_XY_ON") > 0)
 		if self.IS_SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON is None:
 			self.IS_SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON = (gc.getDefineINT("SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON") > 0)
 		if self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT is None:
@@ -200,6 +206,13 @@ class CvMilitaryAdvisor:
 				self.BATTLE_PLOT_COL_ID = self.BATTLE_HILL_PEAK_COL_ID + 3
 			else:
 				self.BATTLE_PLOT_COL_ID = 22
+			# <!-- custom: Append optional axes before the camera column, independently of terrain context; all click routing uses the derived camera-column ID. (GPT-6.1-Sol) -->
+			self.BATTLE_X_COL_ID = -1
+			self.BATTLE_Y_COL_ID = -1
+			if self.IS_SAS_MILIT_UI_BATTLE_XY_ON:
+				self.BATTLE_X_COL_ID = self.BATTLE_PLOT_COL_ID
+				self.BATTLE_Y_COL_ID = self.BATTLE_X_COL_ID + 1
+				self.BATTLE_PLOT_COL_ID = self.BATTLE_Y_COL_ID + 1
 			self.BATTLE_NUM_COLS = self.BATTLE_PLOT_COL_ID + 1
 
 	def initText(self):
@@ -854,7 +867,12 @@ class CvMilitaryAdvisor:
 		# <!-- custom: reserve right-side width for the table scrollbar gutter so unit-name text does not clip under it; Battles fills fast so the scrollbar is the common case.
 		# Matches CvInfoScreen's 14px convention. (Claude code Opus 4.7) -->
 		iScrollbarGutterW = 14
-		iUnitColBudget = iTableW - iScrollbarGutterW
+		# <!-- custom: Reserve axis width only when requested; X/Y are standard coordinate symbols, and numeric cells sort each direction independently.
+		# The remaining width is split equally between Our Unit and Their Unit, so both text columns grow at higher resolutions. (GPT-6.1-Sol) -->
+		iAxisColW = 0
+		if self.IS_SAS_MILIT_UI_BATTLE_XY_ON:
+			iAxisColW = 45
+		iUnitColBudget = iTableW - iScrollbarGutterW - 2 * iAxisColW
 		iUnitColW = max(105, (iUnitColBudget - 55 - 105 - iResultColW - iEstOddsColW - iRoleColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iXPColW - 35 - 35 - iPIDColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iXPColW - iCaptureCountColW - iCaptureUnitColW - iHillPeakColW - iTerrainColW - iFeatureColW - iPlotColW) / 2)
 		# <!-- custom: show battles from the inspected player's perspective: our unit is always on the left and their unit follows immediately, so each row reads as a direct matchup.
 		# Our repeated civ/leader/PID are omitted because the dropdown/log PerspectivePlayer already identifies us. (GPT-5.5) -->
@@ -883,6 +901,9 @@ class CvMilitaryAdvisor:
 			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, self.TEXT_BATTLE_HILL_PEAK, iHillPeakColW)
 			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_TERRAIN_COL_ID, self.TEXT_BATTLE_TERRAIN, iTerrainColW)
 			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_FEATURE_COL_ID, self.TEXT_BATTLE_FEATURE, iFeatureColW)
+		if self.IS_SAS_MILIT_UI_BATTLE_XY_ON:
+			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_X_COL_ID, u"X", iAxisColW)
+			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_Y_COL_ID, u"Y", iAxisColW)
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, self.TEXT_BATTLE_PLOT, iPlotColW)
 		if not aEntries:
 			iRow = screen.appendTableRow(self.BATTLE_TABLE_ID)
@@ -939,7 +960,13 @@ class CvMilitaryAdvisor:
 			self.setBattleHillPeakCell(screen, iRow, iHillPeakTerrain)
 			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_TERRAIN_COL_ID, iTerrain, True)
 			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_FEATURE_COL_ID, iFeature, False)
-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, getAdvisorIconSortKey(iCityContext + 1, iRow), self.getBattlePlotButton(iCityContext, iX, iY), WidgetTypes.WIDGET_GENERAL, iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
+		# <!-- custom: Reuse observer-filtered coordinates; hidden locations remain blank, and disabling axes skips their cell formatting entirely. (GPT-6.1-Sol) -->
+		if self.IS_SAS_MILIT_UI_BATTLE_XY_ON:
+			for iCol, iCoordinate in ((self.BATTLE_X_COL_ID, iX), (self.BATTLE_Y_COL_ID, iY)):
+				if iCoordinate >= 0:
+					SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, str(iCoordinate), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+		# <!-- custom: Add the shared coordinate/camera hover using the already-sanitized battle location; retain coordinate payloads and the tested row-cache click handler. (GPT-6.1-Sol) -->
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, getAdvisorIconSortKey(iCityContext + 1, iRow), self.getBattlePlotButton(iCityContext, iX, iY), getAdvisorLocationWidget(), iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
 
 	def dbgLogBattleHistory(self):
 		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)

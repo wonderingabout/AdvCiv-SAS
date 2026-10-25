@@ -1301,7 +1301,8 @@ class CvDomesticAdvisor:
 			self.bOverview4TableCreated = False
 
 		player = gc.getPlayer(self.iActivePlayer)
-		iFixedCols = 9
+		# <!-- custom: Overview 4 adds independent numeric X/Y columns after the specialist/angry counts, preserving existing column identities and city-click routing. (GPT-6.1-Sol) -->
+		iFixedCols = 11
 		iTotalCols = iFixedCols + len(self.aOverview4Specialists)
 
 		screen = self.setupOverviewTable(self.TABLE_OVERVIEW4, iTotalCols)
@@ -1329,11 +1330,18 @@ class CvDomesticAdvisor:
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 5, self.getOverviewHeaderLabel(self.HEADER_CORPORATIONS), (self.getOverviewCorporationColumnWidth() * self.nTableWidth) / self.nNormalizedTableWidth )
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 6, self.getOverviewHeaderLabel(u"XP"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 7, self.getOverviewHeaderLabel(u"SXP"), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
-		iSpecColW = 33
+		# <!-- custom: Specialist counts usually need only one or two digits; reduce their proportional width while retaining a 30px floor for enlarged labels and the 24px icon.
+		# Reserve more than the portrait width for two enlarged digits plus cell padding; actual specialist counts, including free specialists, remain uncapped. (GPT-6.1-Sol) -->
+		iSpecColW = max(30, (29 * self.nTableWidth) / self.nNormalizedTableWidth)
 		for k in range(len(self.aOverview4Specialists)):
-			screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 8 + k, self.aOverview4SpecialistHeaders[k], (iSpecColW * self.nTableWidth) / self.nNormalizedTableWidth )
+			screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 8 + k, self.aOverview4SpecialistHeaders[k], iSpecColW )
 		# <!-- custom: mirror city-screen order by placing angry citizens after specialist and settled Great SASVisuals.Specialist counts. (GPT-5.5) -->
 		screen.setTableColumnHeader( self.TABLE_OVERVIEW4, 8 + len(self.aOverview4Specialists), self.getOverviewHeaderLabel(SASVisuals.Font.ANGRY_POP_CHAR), (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+		# <!-- custom: Append axes after Angry so specialist columns retain their existing IDs; each coordinate is a separate numeric sort key. (GPT-6.1-Sol) -->
+		iAxisColW = max(40, (35 * self.nTableWidth) / self.nNormalizedTableWidth)
+		iXCol = 9 + len(self.aOverview4Specialists)
+		screen.setTableColumnHeader(self.TABLE_OVERVIEW4, iXCol, self.getOverviewHeaderLabel(u"X"), iAxisColW)
+		screen.setTableColumnHeader(self.TABLE_OVERVIEW4, iXCol + 1, self.getOverviewHeaderLabel(u"Y"), iAxisColW)
 
 	def updateTable4(self, pLoopCity, i):
 		screen = self.getScreen()
@@ -1374,6 +1382,10 @@ class CvDomesticAdvisor:
 		else:
 			szAngryPopulation = u""
 		screen.setTableInt( self.TABLE_OVERVIEW4, 8 + len(self.aOverview4Specialists), i, szFontTagOpen + szAngryPopulation + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		# <!-- custom: These are the inspected player's listed cities; use their actual coordinates and numeric cells, independent of the existing city-selection widgets. (GPT-6.1-Sol) -->
+		iXCol = 9 + len(self.aOverview4Specialists)
+		SASTextScale.setTableIntLabel(screen, self.TABLE_OVERVIEW4, iXCol, i, pLoopCity.getX(), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		SASTextScale.setTableIntLabel(screen, self.TABLE_OVERVIEW4, iXCol + 1, i, pLoopCity.getY(), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 	# Draw the specialist and their increase and decrease buttons
 	def drawSpecialists(self):

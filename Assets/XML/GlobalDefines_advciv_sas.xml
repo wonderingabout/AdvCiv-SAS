@@ -334,6 +334,14 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_MILIT_UI_BATTLE_PLOT_CONTEXT_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Optional independently sortable X/Y columns in the Military Advisor Battles tab.
+	Default 1 shows both independently sortable axes using already-recorded, observer-visible coordinates.
+	Set 0 to preserve scarce horizontal space at 1080p, especially with enlarged text; coordinates remain available on the Plot icon hover.
+	This changes presentation only and requires a Civ4 restart because advisor settings are cached. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_MILIT_UI_BATTLE_XY_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 
 
@@ -2121,15 +2129,16 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_SGR_MAP_ASCII_CHARS_PER_CELL</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
-	<!-- custom: Initial-context-only geography overviews provide quick small and medium impressions before the authoritative full text-map layers.
+	<!-- custom: Initial-context-only geography previews provide quick small and medium impressions before the authoritative full text-map layers.
+	The SCALE_1/2 names distinguish text-map scales from the unrelated Domestic Advisor Overview tabs. (GPT-6.1-Sol)
 	Values are percentages of the bounded full preview in each dimension, rounded to at least one cell and resampled directly from the original plot grid; the default 25 and 50 therefore cost only 6.25% and 25% of one full geography layer's cells.
 	SASGameRecordLog.cpp clamps each to 0..100; 0 disables that overview, and duplicate percentages emit only the first picture. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_SGR_MAP_ASCII_OVERVIEW_1_SCALE_PCT</DefineName>
+		<DefineName>SAS_SGR_MAP_ASCII_SCALE_1_PCT</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
 	<Define>
-		<DefineName>SAS_SGR_MAP_ASCII_OVERVIEW_2_SCALE_PCT</DefineName>
+		<DefineName>SAS_SGR_MAP_ASCII_SCALE_2_PCT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<!-- custom: Record initial geography at native source-plot resolution when the bounded full preview had to resample it.
@@ -2265,10 +2274,19 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>171</iDefineIntVal>
+		<iDefineIntVal>172</iDefineIntVal>
 	</Define>
 
 
+	<!-- custom: WorldBuilder script edits retain the applied script data as their Changes-history target when 1 (default); 0 retains a WITHHELD marker instead.
+	This is script data, not a script filename, and is never executed by the history viewer.
+	The existing string field stores only the new applied text, independently of SGR logging; old withheld entries cannot recover it.
+	Names remain withheld.
+	Cached on the first editor script edit after GlobalDefines load, so change before restarting the DLL. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_WORLD_CHANGES_SCRIPT_TEXT_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 	<!-- custom: Optional current-runtime status for external tools/agents.
 	1 overwrites Logs/SASRuntimeStatus.json only at meaningful lifecycle/autoplay/completed-turn boundaries; 0 (default) skips status formatting and file I/O apart from cheap cached hook checks.
