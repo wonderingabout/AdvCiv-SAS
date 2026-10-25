@@ -8,6 +8,10 @@
 #include "CyArea.h"
 #include "CySelectionGroup.h"
 #include "CvMap.h"
+#include "CvCity.h" // <!-- custom: WorldBuilder ADD_CITY history reads the newly created native city ID; CvPlayer headers only forward-declare CvCity. (ChatGPT-5.6-Sol) -->
+#include "CvUnit.h" // <!-- custom: WorldBuilder ADD_UNIT history reads the newly created native unit ID; CvPlayer headers only forward-declare CvUnit. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Civilization.h" // <!-- custom: WorldBuilder leader/civilization history records stable XML type tokens; GC.getInfo requires the complete info classes here. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Unit.h" // <!-- custom: WorldBuilder unit-creation history records the stable unit XML type token; GC.getInfo requires CvUnitInfo complete here. (ChatGPT-5.6-Sol) -->
 #include "CvGame.h" // <!-- custom: Direct Python/WorldBuilder city initialization now excludes pre-game setup from SASGameRecord transactions, which requires the full CvGame definition for isFinalInitialized. (GPT-5.6-Sol) -->
 #include "CvDLLPythonIFaceBase.h"
 #include "SASGameRecordLog.h" // <!-- custom: Attribute direct live Python/WorldBuilder city initialization that bypasses CvPlayer::found. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -17,17 +21,41 @@ CyPlayer::CyPlayer(CvPlayer* pPlayer) : m_pPlayer(pPlayer == NULL ? NULL : &pPla
 {}
 //CvPlayer* CyPlayer::getPlayer() { return m_pPlayer; } // advc: unused
 
+static bool isSASWorldBuilderPlayerEditContext()
+{
+	return GC.getGame().isSASWorldBuilderScreenVisible() && !GC.getGame().isInAdvancedStart();
+}
+
+
 // CHANGE_PLAYER, 08/27/08. jdog5000:
 void CyPlayer::changeLeader(int /*LeaderHeadTypes*/ eNewLeader)
 {
 	if (m_pPlayer)
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderPlayerEditContext();
+		LeaderHeadTypes const eOld = (bWorldBuilderEdit ? m_pPlayer->getLeaderType() : LeaderHeadTypes());
 		m_pPlayer->changeLeader((LeaderHeadTypes)eNewLeader);
+		if (bWorldBuilderEdit && eOld != m_pPlayer->getLeaderType())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_PLAYER, "SET_LEADER", -1, -1, m_pPlayer->getID(), -1, "LEADER", GC.getInfo(m_pPlayer->getLeaderType()).getType(), eOld, m_pPlayer->getLeaderType());
+		}
+	}
 }
 
 void CyPlayer::changeCiv(int /*CivilizationTypes*/ eNewCiv)
 {
 	if (m_pPlayer)
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderPlayerEditContext();
+		CivilizationTypes const eOld = (bWorldBuilderEdit ? m_pPlayer->getCivilizationType() : CivilizationTypes());
 		m_pPlayer->changeCiv((CivilizationTypes)eNewCiv);
+		if (bWorldBuilderEdit && eOld != m_pPlayer->getCivilizationType())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_PLAYER, "SET_CIVILIZATION", -1, -1, m_pPlayer->getID(), -1, "CIVILIZATION", GC.getInfo(m_pPlayer->getCivilizationType()).getType(), eOld, m_pPlayer->getCivilizationType());
+		}
+	}
 }
 void CyPlayer::setIsHuman(bool bNewValue)
 {
@@ -74,10 +102,16 @@ CyCity* CyPlayer::initCity(int x, int y)
 		return NULL;
 	int const iSASGameRecordLogLevel = gGameRecordLogLevel;
 	bool const bRecordLiveChange = (iSASGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized());
-	bool const bWorldBuilder = (bRecordLiveChange && gDLL->GetWorldBuilderMode());
+	bool const bWorldBuilderEdit = isSASWorldBuilderPlayerEditContext();
+	bool const bWorldBuilder = (bRecordLiveChange && bWorldBuilderEdit);
 	SASGameRecordTransactionScope kSASPythonCityInitTransaction(bWorldBuilder ? "WORLDBUILDER_CITY_INIT" : "PYTHON_CITY_INIT", bRecordLiveChange);
 	SASGameRecordPlotOwnerChangeCauseScope kSASPythonCityInitOwnerCause(bWorldBuilder ? SAS_PLOT_OWNER_CAUSE_WORLDBUILDER : SAS_PLOT_OWNER_CAUSE_PYTHON_EXTERNAL, iSASGameRecordLogLevel >= 3 && bRecordLiveChange);
-	return new CyCity(m_pPlayer->initCity(x, y, true, true));
+	CvCity* pCity = m_pPlayer->initCity(x, y, true, true);
+	if (bWorldBuilderEdit && pCity != NULL)
+	{
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "ADD_CITY", x, y, m_pPlayer->getID(), pCity->getID(), "CITY", "-", 0, 1);
+	}
+	return new CyCity(pCity);
 }
 
 void CyPlayer::acquireCity(CyCity* pCity, bool bConquest, bool bTrade)
@@ -102,7 +136,15 @@ std::wstring CyPlayer::getNewCityName()
 
 CyUnit* CyPlayer::initUnit(int /*UnitTypes*/ iIndex, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection)
 {
-	return m_pPlayer ? new CyUnit(m_pPlayer->initUnit((UnitTypes) iIndex, iX, iY, eUnitAI, eFacingDirection)) : NULL;
+	if (m_pPlayer == NULL)
+		return NULL;
+	CvUnit* pUnit = m_pPlayer->initUnit((UnitTypes)iIndex, iX, iY, eUnitAI, eFacingDirection);
+	if (pUnit != NULL && isSASWorldBuilderPlayerEditContext())
+	{
+		char const* szUnit = (iIndex >= 0 && iIndex < GC.getNumUnitInfos() ? GC.getInfo((UnitTypes)iIndex).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_UNIT, "ADD_UNIT", iX, iY, m_pPlayer->getID(), pUnit->getID(), "UNIT", szUnit, -1, iIndex, false, false, true);
+	}
+	return new CyUnit(pUnit);
 }
 
 void CyPlayer::disbandUnit(bool bAnnounce)
@@ -914,7 +956,16 @@ int CyPlayer::getGold()
 void CyPlayer::setGold(int iNewValue)
 {
 	if (m_pPlayer)
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderPlayerEditContext();
+		int const iOldValue = (bWorldBuilderEdit ? m_pPlayer->getGold() : 0);
 		m_pPlayer->setGold(iNewValue);
+		if (bWorldBuilderEdit && iOldValue != m_pPlayer->getGold())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_PLAYER, "SET_GOLD", -1, -1, m_pPlayer->getID(), -1, "GOLD", "-", iOldValue, m_pPlayer->getGold());
+		}
+	}
 }
 
 void CyPlayer::changeGold(int iChange)
@@ -2299,16 +2350,30 @@ int CyPlayer::AI_getAttitudeExtra(int /*PlayerTypes*/ eIndex)
 	return m_pPlayer ? m_pPlayer->AI_getAttitudeExtra((PlayerTypes)eIndex) : -1;
 }
 
+// <!-- custom: The inherited WorldBuilder diplomacy slider/reset uses this attitude setter; capture directed player-pair changes in saved history, with no extra getter reads outside the editor and no rows for unchanged values. (GPT-6.1-Sol) -->
 void CyPlayer::AI_setAttitudeExtra(int /*PlayerTypes*/ eIndex, int iNewValue)
 {
 	if (m_pPlayer)
+	{
+		bool const bWorldBuilderEdit = isSASWorldBuilderPlayerEditContext();
+		int const iOldValue = (bWorldBuilderEdit ? m_pPlayer->AI_getAttitudeExtra((PlayerTypes)eIndex) : 0);
 		m_pPlayer->AI_setAttitudeExtra((PlayerTypes)eIndex, iNewValue);
+		if (bWorldBuilderEdit && iOldValue != m_pPlayer->AI_getAttitudeExtra((PlayerTypes)eIndex))
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_PLAYER, "SET_ATTITUDE_EXTRA", -1, -1, m_pPlayer->getID(), eIndex, "ATTITUDE_PLAYER", "-", iOldValue, m_pPlayer->AI_getAttitudeExtra((PlayerTypes)eIndex));
+	}
 }
 
+// <!-- custom: The inherited WorldBuilder diplomacy slider/reset uses this attitude setter; capture directed player-pair changes in saved history, with no extra getter reads outside the editor and no rows for unchanged values. (GPT-6.1-Sol) -->
 void CyPlayer::AI_changeAttitudeExtra(int /*PlayerTypes*/ eIndex, int iChange)
 {
 	if (m_pPlayer)
+	{
+		bool const bWorldBuilderEdit = isSASWorldBuilderPlayerEditContext();
+		int const iOldValue = (bWorldBuilderEdit ? m_pPlayer->AI_getAttitudeExtra((PlayerTypes)eIndex) : 0);
 		m_pPlayer->AI_changeAttitudeExtra((PlayerTypes)eIndex, iChange);
+		if (bWorldBuilderEdit && iOldValue != m_pPlayer->AI_getAttitudeExtra((PlayerTypes)eIndex))
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_PLAYER, "SET_ATTITUDE_EXTRA", -1, -1, m_pPlayer->getID(), eIndex, "ATTITUDE_PLAYER", "-", iOldValue, m_pPlayer->AI_getAttitudeExtra((PlayerTypes)eIndex));
+	}
 }
 
 int CyPlayer::AI_getMemoryCount(int /*PlayerTypes*/ eIndex1, int /*MemoryTypes*/ eIndex2)

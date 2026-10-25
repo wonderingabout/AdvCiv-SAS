@@ -9,6 +9,8 @@
 #include "CyDeal.h"
 #include "CyReplayInfo.h"
 #include "CvMap.h" // advc.enum
+#include "CvCity.h" // <!-- custom: WorldBuilder holy-city/headquarters history dereferences native CvCity pointers; the existing headers only forward-declare CvCity. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Organization.h" // <!-- custom: WorldBuilder history records stable religion/corporation XML type tokens; GC.getInfo requires the complete organization info types here. (ChatGPT-5.6-Sol) -->
 #include "CvDLLPythonIFaceBase.h" // <!-- custom: Needed for the concrete Python-interface method used by the rejected-offer bridge; CvDLLUtilityIFaceBase only forward-declares this type. (ChatGPT-5.6-Sol) -->
 #include "SASGameRecordLog.h" // <!-- custom: Bridge resolved Python diplomacy-UI events and post-handler session diagnostics into the factual game record; AI valuation remains elsewhere. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 #include "CvGameCoreUtils.h" // <!-- custom: Python supplies BUG's resolved user root and can request a live shared BBAI/SASGameRecord buffer flush without going through the EXE logger. (ChatGPT-5.6-Sol) -->
@@ -333,12 +335,13 @@ bool CyGame::flushSASDiagnosticLogs()
 	return ::flushSASDiagnosticLogs();
 }
 
-// <!-- custom: Python previously inspected native mode and scanned Advanced Start players even while runtime recording was disabled.
-// This infrequent show/hide notification passes only a literal bool; querying the native enable flag from Python would itself require a bridge call.
-// Disabled recording retains that notification-call overhead but skips native diagnostic queries, formatting and output; computed arguments or state collection must still be pre-gated by their caller.
-// Native mode remains a separate deduplicated observation, with hide recorded even if mode already switched off. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+// <!-- custom: Python owns the actual WorldBuilder screen lifecycle.
+// Always pass that literal visibility into CvGame's persisted edit-history attribution, independently of optional runtime logging.
+// Runtime status remains separately gated/default-off and still treats Advanced Start as distinct from ordinary WorldBuilder mode. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void CyGame::updateSASRuntimeStatusWorldBuilderScreen(bool bVisible)
 {
+	if (!m_kGame.isInAdvancedStart())
+		m_kGame.setSASWorldBuilderScreenVisible(bVisible);
 	if (!isSASRuntimeStatusEnabled())
 		return;
 	if (bVisible)
@@ -356,6 +359,17 @@ void CyGame::updateSASRuntimeStatusWorldBuilderScreen(bool bVisible)
 			::updateSASRuntimeStatusWorldBuilderMode(false);
 	}
 }
+
+void CyGame::beginSASWorldBuilderBulkEdit()
+{
+	m_kGame.beginSASWorldBuilderBulkEdit();
+}
+
+void CyGame::endSASWorldBuilderBulkReveal(int eTeam, bool bReveal, bool bCompleted)
+{
+	m_kGame.endSASWorldBuilderBulkReveal((TeamTypes)eTeam, bReveal, bCompleted);
+}
+
 
 // <!-- custom: Python must skip diagnostic-only interface/screen reads before evaluating notification arguments.
 // Reuse the native first-use cached enable flag instead of adding a second Python XML cache. (GPT-6.1-Sol) -->
@@ -469,6 +483,171 @@ int CyGame::getSASVersionHistoryDirtyState(int iIndex) const
 	return m_kGame.getSASVersionHistoryDirtyState(iIndex);
 }
 
+int CyGame::getNumSASWorldChangesHistoryEntries() const
+{
+	return m_kGame.getNumSASWorldChangesHistoryEntries();
+}
+
+int CyGame::getSASWorldChangesHistorySource(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistorySource(iIndex);
+}
+
+std::string CyGame::getSASWorldChangesHistorySourceName(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistorySourceName(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryCategory(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryCategory(iIndex);
+}
+
+std::string CyGame::getSASWorldChangesHistoryCategoryName(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryCategoryName(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryActor(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryActor(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryActorTeam(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryActorTeam(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryTargetPlayer(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryTargetPlayer(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryTargetTeam(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryTargetTeam(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryTurn(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryTurn(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryYear(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryYear(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryElapsedTurn(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryElapsedTurn(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryVersionIndex(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryVersionIndex(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryX(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryX(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryY(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryY(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryCityId(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryCityId(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryObjectId(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryObjectId(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryRequestedDataId(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryRequestedDataId(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryResolvedDataId(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryResolvedDataId(iIndex);
+}
+
+std::string CyGame::getSASWorldChangesHistoryAction(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryAction(iIndex);
+}
+
+std::string CyGame::getSASWorldChangesHistoryOperation(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryOperation(iIndex);
+}
+
+std::string CyGame::getSASWorldChangesHistoryTargetKind(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryTargetKind(iIndex);
+}
+
+std::string CyGame::getSASWorldChangesHistoryTarget(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryTarget(iIndex);
+}
+
+bool CyGame::getSASWorldChangesHistoryOldValueValid(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryOldValueValid(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryOldValue(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryOldValue(iIndex);
+}
+
+bool CyGame::getSASWorldChangesHistoryNewValueValid(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryNewValueValid(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryNewValue(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryNewValue(iIndex);
+}
+
+bool CyGame::getSASWorldChangesHistoryContentWithheld(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryContentWithheld(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryQuotedCost(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryQuotedCost(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryPointsBefore(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryPointsBefore(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryPointsAfter(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryPointsAfter(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryGoldBefore(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryGoldBefore(iIndex);
+}
+
+int CyGame::getSASWorldChangesHistoryGoldAfter(int iIndex) const
+{
+	return m_kGame.getSASWorldChangesHistoryGoldAfter(iIndex);
+}
+
 int CyGame::getMaxTurns() const
 {
 	return m_kGame.getMaxTurns();
@@ -516,7 +695,14 @@ int CyGame::getStartYear() const
 
 void CyGame::setStartYear(int iNewValue)
 {
+	// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+	bool const bWorldBuilderEdit = m_kGame.isSASWorldBuilderScreenVisible() && !m_kGame.isInAdvancedStart();
+	int const iOldValue = (bWorldBuilderEdit ? m_kGame.getStartYear() : 0);
 	m_kGame.setStartYear(iNewValue);
+	if (bWorldBuilderEdit && iOldValue != m_kGame.getStartYear())
+	{
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_GAME, "SET_START_YEAR", -1, -1, NO_PLAYER, -1, "YEAR", "-", iOldValue, m_kGame.getStartYear());
+	}
 }
 
 int CyGame::getEstimateEndTurn() const
@@ -1087,12 +1273,29 @@ CyCity* CyGame::getHolyCity(int /*ReligionTypes*/ eIndex)
 
 void CyGame::setHolyCity(int /*ReligionTypes*/ eIndex, CyCity* pNewValue, bool bAnnounce)
 {
+	// <!-- custom: Old/new city identity queries serve editor history only; skip them outside the WorldBuilder context. (GPT-6.1-Sol) -->
+	bool const bWorldBuilderEdit = m_kGame.isSASWorldBuilderScreenVisible() && !m_kGame.isInAdvancedStart();
+	CvCity const* pOldCity = (bWorldBuilderEdit ? m_kGame.getHolyCity((ReligionTypes)eIndex) : NULL);
 	m_kGame.setHolyCity((ReligionTypes) eIndex, pNewValue->getCity(), bAnnounce);
+	CvCity const* pNewCity = (bWorldBuilderEdit ? m_kGame.getHolyCity((ReligionTypes)eIndex) : NULL);
+	if (bWorldBuilderEdit && pOldCity != pNewCity)
+	{
+		char const* szReligion = (eIndex >= 0 && eIndex < GC.getNumReligionInfos() ? GC.getInfo((ReligionTypes)eIndex).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "SET_HOLY_CITY", pNewCity == NULL ? -1 : pNewCity->getX(), pNewCity == NULL ? -1 : pNewCity->getY(), pNewCity == NULL ? NO_PLAYER : pNewCity->getOwner(), pNewCity == NULL ? -1 : pNewCity->getID(), "RELIGION", szReligion, pOldCity == NULL ? -1 : pOldCity->getID(), pNewCity == NULL ? -1 : pNewCity->getID());
+	}
 }
 
 void CyGame::clearHolyCity(int /*ReligionTypes*/ eIndex)
 {
+	// <!-- custom: Old/new city identity queries serve editor history only; skip them outside the WorldBuilder context. (GPT-6.1-Sol) -->
+	bool const bWorldBuilderEdit = m_kGame.isSASWorldBuilderScreenVisible() && !m_kGame.isInAdvancedStart();
+	CvCity const* pOldCity = (bWorldBuilderEdit ? m_kGame.getHolyCity((ReligionTypes)eIndex) : NULL);
 	m_kGame.setHolyCity((ReligionTypes) eIndex, NULL, false);
+	if (bWorldBuilderEdit && pOldCity != NULL)
+	{
+		char const* szReligion = (eIndex >= 0 && eIndex < GC.getNumReligionInfos() ? GC.getInfo((ReligionTypes)eIndex).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "CLEAR_HOLY_CITY", pOldCity->getX(), pOldCity->getY(), pOldCity->getOwner(), pOldCity->getID(), "RELIGION", szReligion, pOldCity->getID(), -1);
+	}
 }
 
 CyCity* CyGame::getHeadquarters(int /*CorporationTypes*/ eIndex)
@@ -1102,12 +1305,29 @@ CyCity* CyGame::getHeadquarters(int /*CorporationTypes*/ eIndex)
 
 void CyGame::setHeadquarters(int /*CorporationTypes*/ eIndex, CyCity* pNewValue, bool bAnnounce)
 {
+	// <!-- custom: Old/new city identity queries serve editor history only; skip them outside the WorldBuilder context. (GPT-6.1-Sol) -->
+	bool const bWorldBuilderEdit = m_kGame.isSASWorldBuilderScreenVisible() && !m_kGame.isInAdvancedStart();
+	CvCity const* pOldCity = (bWorldBuilderEdit ? m_kGame.getHeadquarters((CorporationTypes)eIndex) : NULL);
 	m_kGame.setHeadquarters((CorporationTypes) eIndex, pNewValue->getCity(), bAnnounce);
+	CvCity const* pNewCity = (bWorldBuilderEdit ? m_kGame.getHeadquarters((CorporationTypes)eIndex) : NULL);
+	if (bWorldBuilderEdit && pOldCity != pNewCity)
+	{
+		char const* szCorporation = (eIndex >= 0 && eIndex < GC.getNumCorporationInfos() ? GC.getInfo((CorporationTypes)eIndex).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "SET_HEADQUARTERS", pNewCity == NULL ? -1 : pNewCity->getX(), pNewCity == NULL ? -1 : pNewCity->getY(), pNewCity == NULL ? NO_PLAYER : pNewCity->getOwner(), pNewCity == NULL ? -1 : pNewCity->getID(), "CORPORATION", szCorporation, pOldCity == NULL ? -1 : pOldCity->getID(), pNewCity == NULL ? -1 : pNewCity->getID());
+	}
 }
 
 void CyGame::clearHeadquarters(int /*CorporationTypes*/ eIndex)
 {
+	// <!-- custom: Old/new city identity queries serve editor history only; skip them outside the WorldBuilder context. (GPT-6.1-Sol) -->
+	bool const bWorldBuilderEdit = m_kGame.isSASWorldBuilderScreenVisible() && !m_kGame.isInAdvancedStart();
+	CvCity const* pOldCity = (bWorldBuilderEdit ? m_kGame.getHeadquarters((CorporationTypes)eIndex) : NULL);
 	m_kGame.setHeadquarters((CorporationTypes) eIndex, NULL, false);
+	if (bWorldBuilderEdit && pOldCity != NULL)
+	{
+		char const* szCorporation = (eIndex >= 0 && eIndex < GC.getNumCorporationInfos() ? GC.getInfo((CorporationTypes)eIndex).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "CLEAR_HEADQUARTERS", pOldCity->getX(), pOldCity->getY(), pOldCity->getOwner(), pOldCity->getID(), "CORPORATION", szCorporation, pOldCity->getID(), -1);
+	}
 }
 
 int CyGame::getPlayerVote(int /*PlayerTypes*/ eOwnerIndex, int iVoteId)
@@ -1122,12 +1342,26 @@ std::string CyGame::getScriptData() const
 
 void CyGame::setScriptData(std::string szNewValue)
 {
+	bool const bWorldBuilderEdit = m_kGame.isSASWorldBuilderScreenVisible() && !m_kGame.isInAdvancedStart();
+	std::string szOldScript;
+	if (bWorldBuilderEdit) szOldScript = m_kGame.getScriptData();
 	m_kGame.setScriptData(szNewValue);
+	if (bWorldBuilderEdit && szOldScript != m_kGame.getScriptData())
+	{
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_GAME, "SET_SCRIPT", -1, -1, NO_PLAYER, -1, "SCRIPT", "-", -1, -1, true, false, false);
+	}
 }
 
 void CyGame::setName(TCHAR* szNewValue)
 {
+	bool const bWorldBuilderEdit = m_kGame.isSASWorldBuilderScreenVisible() && !m_kGame.isInAdvancedStart();
+	CvWString szOldName;
+	if (bWorldBuilderEdit) szOldName = m_kGame.getName();
 	m_kGame.setName(szNewValue);
+	if (bWorldBuilderEdit && szOldName != m_kGame.getName())
+	{
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_GAME, "SET_NAME", -1, -1, NO_PLAYER, -1, "NAME", "-", -1, -1, true, false, false);
+	}
 }
 
 std::wstring CyGame::getName()

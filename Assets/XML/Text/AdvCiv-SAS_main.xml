@@ -4121,6 +4121,91 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<English>Territory</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_TAB</Tag>
+		<English>Changes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_SOURCE</Tag>
+		<English>S</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_ACTOR</Tag>
+		<English>Actor</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_SEQUENCE</Tag>
+		<English>#</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_TURN</Tag>
+		<English>Turn</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_ACTION</Tag>
+		<English>Action</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_TARGET</Tag>
+		<English>Target</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_LOCATION</Tag>
+		<English>Plot</English>
+	</TEXT>
+	<!-- custom: Separate transition/budget values into numeric-sortable columns; B/A abbreviate before/after as explained by the Changes legend. (GPT-6.1-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_BEFORE</Tag>
+		<English>Before</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_AFTER</Tag>
+		<English>After</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_POINTS_BEFORE</Tag>
+		<English>Pts B</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_POINTS_AFTER</Tag>
+		<English>Pts A</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_GOLD_BEFORE</Tag>
+		<English>Gold B</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_GOLD_AFTER</Tag>
+		<English>Gold A</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_COST</Tag>
+		<English>Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_HIDDEN</Tag>
+		<English>Hidden</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_WITHHELD</Tag>
+		<English>Withheld</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_LOG</Tag>
+		<English>Log</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_ADVANCED_START</Tag>
+		<English>A</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_WORLD_BUILDER</Tag>
+		<English>W</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_NONE</Tag>
+		<English>This save contains no recorded Advanced Start or WorldBuilder changes history.</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_CITY</Tag>
 		<English>City</English>
 	</TEXT>

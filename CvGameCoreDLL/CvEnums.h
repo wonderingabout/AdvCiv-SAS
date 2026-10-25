@@ -1665,6 +1665,27 @@ ENUM_START(AdvancedStartAction, ADVANCEDSTARTACTION)
 	ADVANCEDSTARTACTION_AUTOMATE,
 ENUM_END(AdvancedStartAction, ADVANCEDSTARTACTION)
 
+// <!-- custom: Ordered persisted setup/edit history classifies applied Advanced Start and WorldBuilder mutations for save serialization and World Advisor presentation.
+// These stable source/category tokens organize individual durable actions; SASGameRecord may add richer runtime/session evidence but is not the save-history source of truth. (ChatGPT-5.6-Sol) -->
+enum SASWorldChangesHistorySource
+{
+	SAS_WORLD_CHANGES_HISTORY_ADVANCED_START = 0,
+	SAS_WORLD_CHANGES_HISTORY_WORLD_BUILDER,
+	NUM_SAS_WORLD_CHANGES_HISTORY_SOURCES
+};
+
+enum SASWorldChangesHistoryCategory
+{
+	SAS_WORLD_CHANGES_HISTORY_MAP = 0,
+	SAS_WORLD_CHANGES_HISTORY_CITY,
+	SAS_WORLD_CHANGES_HISTORY_UNIT,
+	SAS_WORLD_CHANGES_HISTORY_PLAYER,
+	SAS_WORLD_CHANGES_HISTORY_TEAM,
+	SAS_WORLD_CHANGES_HISTORY_GAME,
+	SAS_WORLD_CHANGES_HISTORY_VISIBILITY,
+	NUM_SAS_WORLD_CHANGES_HISTORY_CATEGORIES
+};
+
 ENUM_START(AnimationPath, ANIMATIONPATH)
 	ANIMATIONPATH_NONE = -1,
 

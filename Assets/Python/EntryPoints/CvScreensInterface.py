@@ -659,11 +659,27 @@ def WorldBuilderRevealTabModeCB():
 def WorldBuilderDiplomacyModeCB():
 	worldBuilderScreen.diplomacyModeCB()
 
+# <!-- custom: Inherited revealAll loops through CyPlot.setRevealed once per map tile.
+# Mark this known bulk editor operation so native history counts actual changed plots, collapses a successful loop to one row, preserves a partial-exception row, and emits nothing for a no-op; suppression is always cleared. (ChatGPT-5.6-Sol) -->
 def WorldBuilderRevealAllCB():
-	worldBuilderScreen.revealAll(True)
+	game = CyGame()
+	game.beginSASWorldBuilderBulkEdit()
+	bCompleted = False
+	try:
+		worldBuilderScreen.revealAll(True)
+		bCompleted = True
+	finally:
+		game.endSASWorldBuilderBulkReveal(worldBuilderScreen.m_iCurrentTeam, True, bCompleted)
 
 def WorldBuilderUnRevealAllCB():
-	worldBuilderScreen.revealAll(False)
+	game = CyGame()
+	game.beginSASWorldBuilderBulkEdit()
+	bCompleted = False
+	try:
+		worldBuilderScreen.revealAll(False)
+		bCompleted = True
+	finally:
+		game.endSASWorldBuilderBulkReveal(worldBuilderScreen.m_iCurrentTeam, False, bCompleted)
 
 def WorldBuilderHandleUnitCB( argsList ):
 	worldBuilderScreen.handleUnitCB(argsList)

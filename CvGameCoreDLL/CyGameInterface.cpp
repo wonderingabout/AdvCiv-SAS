@@ -89,6 +89,10 @@ void CyGamePythonInterface()
 		.def("flushSASDiagnosticLogs", &CyGame::flushSASDiagnosticLogs, "bool () - publish pending diagnostics; false indicates failed output")
 		// <!-- custom: Python owns WorldBuilder screen show/hide callbacks; expose their literal visibility notification so the native recorder can distinguish screen visibility from mode and filter Advanced Start behind its cached enable gate. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		.def("updateSASRuntimeStatusWorldBuilderScreen", &CyGame::updateSASRuntimeStatusWorldBuilderScreen, "void (bool) - report observed WorldBuilder Python screen visibility")
+		// <!-- custom: The Python WorldBuilder reveal-all loop brackets its many plot setters so save history records one bulk mutation instead of thousands of duplicate per-plot entries. (ChatGPT-5.6-Sol) -->
+		.def("beginSASWorldBuilderBulkEdit", &CyGame::beginSASWorldBuilderBulkEdit, "void () - suppress per-plot save history during a known WorldBuilder bulk operation")
+		// <!-- custom: The matching close bridge now distinguishes no-op, completed and partially applied reveal loops using native changed-plot accounting. (ChatGPT-5.6-Sol) -->
+		.def("endSASWorldBuilderBulkReveal", &CyGame::endSASWorldBuilderBulkReveal, "void (int TeamTypes, bool reveal, bool completed) - close reveal-all suppression and record actual completed/partial changes")
 		// <!-- custom: Python owns menu/screen observations and PreGameStart; expose literal notifications plus the native cached gate so disabled recording skips their diagnostic-only queries. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		.def("isSASRuntimeStatusRecordingEnabled", &CyGame::isSASRuntimeStatusRecordingEnabled, "bool () - cached runtime recording gate for Python observation callers")
 		.def("updateSASRuntimeStatusMainMenuState", &CyGame::updateSASRuntimeStatusMainMenuState, "void (bool) - report an event-driven main-menu state sample")
@@ -114,6 +118,47 @@ void CyGamePythonInterface()
 		.def("getSASVersionHistoryVersion", &CyGame::getSASVersionHistoryVersion)
 		.def("getSASVersionHistoryCommitHash", &CyGame::getSASVersionHistoryCommitHash)
 		.def("getSASVersionHistoryDirtyState", &CyGame::getSASVersionHistoryDirtyState)
+		// <!-- custom: The Changes tab reads shared Advanced Start/editor history through these SASWorldChangesHistory APIs; their data-model name is independent of the tab label.
+		// Expose saved fields through this read-only bridge so the advisor does not require the original SGR file. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		.def("getNumSASWorldChangesHistoryEntries", &CyGame::getNumSASWorldChangesHistoryEntries)
+		.def("getSASWorldChangesHistorySource", &CyGame::getSASWorldChangesHistorySource)
+		.def("getSASWorldChangesHistorySourceName", &CyGame::getSASWorldChangesHistorySourceName)
+		.def("getSASWorldChangesHistoryCategory", &CyGame::getSASWorldChangesHistoryCategory)
+		.def("getSASWorldChangesHistoryCategoryName", &CyGame::getSASWorldChangesHistoryCategoryName)
+		// <!-- custom: Actor/target identities retain synchronized player/team context so advisor filtering can avoid reconstructing historical ownership from current state. (ChatGPT-5.6-Sol) -->
+		.def("getSASWorldChangesHistoryActor", &CyGame::getSASWorldChangesHistoryActor)
+		.def("getSASWorldChangesHistoryActorTeam", &CyGame::getSASWorldChangesHistoryActorTeam)
+		.def("getSASWorldChangesHistoryTargetPlayer", &CyGame::getSASWorldChangesHistoryTargetPlayer)
+		.def("getSASWorldChangesHistoryTargetTeam", &CyGame::getSASWorldChangesHistoryTargetTeam)
+		// <!-- custom: Historical turn/year/version context is stored with each event so later calendar or source changes cannot rewrite when that edit occurred. (ChatGPT-5.6-Sol) -->
+		.def("getSASWorldChangesHistoryTurn", &CyGame::getSASWorldChangesHistoryTurn)
+		.def("getSASWorldChangesHistoryYear", &CyGame::getSASWorldChangesHistoryYear)
+		.def("getSASWorldChangesHistoryElapsedTurn", &CyGame::getSASWorldChangesHistoryElapsedTurn)
+		.def("getSASWorldChangesHistoryVersionIndex", &CyGame::getSASWorldChangesHistoryVersionIndex)
+		// <!-- custom: Coordinates and object/data IDs preserve the applied target without exposing free-form editor text. (ChatGPT-5.6-Sol) -->
+		.def("getSASWorldChangesHistoryX", &CyGame::getSASWorldChangesHistoryX)
+		.def("getSASWorldChangesHistoryY", &CyGame::getSASWorldChangesHistoryY)
+		.def("getSASWorldChangesHistoryCityId", &CyGame::getSASWorldChangesHistoryCityId)
+		.def("getSASWorldChangesHistoryObjectId", &CyGame::getSASWorldChangesHistoryObjectId)
+		.def("getSASWorldChangesHistoryRequestedDataId", &CyGame::getSASWorldChangesHistoryRequestedDataId)
+		.def("getSASWorldChangesHistoryResolvedDataId", &CyGame::getSASWorldChangesHistoryResolvedDataId)
+		// <!-- custom: Fixed action/operation/target tokens are safe machine-readable history; caller-entered names/scripts remain withheld by the save producer. (ChatGPT-5.6-Sol) -->
+		.def("getSASWorldChangesHistoryAction", &CyGame::getSASWorldChangesHistoryAction)
+		.def("getSASWorldChangesHistoryOperation", &CyGame::getSASWorldChangesHistoryOperation)
+		.def("getSASWorldChangesHistoryTargetKind", &CyGame::getSASWorldChangesHistoryTargetKind)
+		.def("getSASWorldChangesHistoryTarget", &CyGame::getSASWorldChangesHistoryTarget)
+		.def("getSASWorldChangesHistoryOldValueValid", &CyGame::getSASWorldChangesHistoryOldValueValid)
+		.def("getSASWorldChangesHistoryOldValue", &CyGame::getSASWorldChangesHistoryOldValue)
+		// <!-- custom: Explicit validity/content flags distinguish absent values and withheld content from legitimate numeric sentinels. (ChatGPT-5.6-Sol) -->
+		.def("getSASWorldChangesHistoryNewValueValid", &CyGame::getSASWorldChangesHistoryNewValueValid)
+		.def("getSASWorldChangesHistoryNewValue", &CyGame::getSASWorldChangesHistoryNewValue)
+		.def("getSASWorldChangesHistoryContentWithheld", &CyGame::getSASWorldChangesHistoryContentWithheld)
+		.def("getSASWorldChangesHistoryQuotedCost", &CyGame::getSASWorldChangesHistoryQuotedCost)
+		// <!-- custom: Advanced Start budget transitions share the same persisted action record while ordinary WorldBuilder events leave these fixed numeric fields unused. (ChatGPT-5.6-Sol) -->
+		.def("getSASWorldChangesHistoryPointsBefore", &CyGame::getSASWorldChangesHistoryPointsBefore)
+		.def("getSASWorldChangesHistoryPointsAfter", &CyGame::getSASWorldChangesHistoryPointsAfter)
+		.def("getSASWorldChangesHistoryGoldBefore", &CyGame::getSASWorldChangesHistoryGoldBefore)
+		.def("getSASWorldChangesHistoryGoldAfter", &CyGame::getSASWorldChangesHistoryGoldAfter)
 		.def("getMaxTurns", &CyGame::getMaxTurns)
 		.def("setMaxTurns", &CyGame::setMaxTurns)
 		.def("changeMaxTurns", &CyGame::changeMaxTurns)

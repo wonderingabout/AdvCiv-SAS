@@ -96,6 +96,8 @@ public:
 	bool flushSASDiagnosticLogs();
 	// <!-- custom: Bridge screen show/hide through one cached native gate before inspecting editor/Advanced Start state; native code orders mode and visibility observations for either EXE callback ordering. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	void updateSASRuntimeStatusWorldBuilderScreen(bool bVisible);
+	void beginSASWorldBuilderBulkEdit();
+	void endSASWorldBuilderBulkReveal(int eTeam, bool bReveal, bool bCompleted);
 	// <!-- custom: Expose the cached native gate so Python can avoid diagnostic-only UI queries while recording is disabled. (GPT-6.1-Sol) -->
 	bool isSASRuntimeStatusRecordingEnabled() const;
 	// <!-- custom: Rare Python lifecycle/screen callbacks pass only already-observed primitives; native runtime helpers own default-off gating, deduplication and publication. (ChatGPT-5.6-Sol) -->
@@ -124,6 +126,41 @@ public:
 	std::string getSASVersionHistoryVersion(int iIndex) const;
 	std::string getSASVersionHistoryCommitHash(int iIndex) const;
 	int getSASVersionHistoryDirtyState(int iIndex) const;
+	// <!-- custom: Expose the ordered save-owned Advanced Start / WorldBuilder history read-only to World Advisor.
+	// Controlled tokens/numeric context survive reload independently of SGR; free-form editor content is never stored. (ChatGPT-5.6-Sol) -->
+	int getNumSASWorldChangesHistoryEntries() const;
+	int getSASWorldChangesHistorySource(int iIndex) const;
+	std::string getSASWorldChangesHistorySourceName(int iIndex) const;
+	int getSASWorldChangesHistoryCategory(int iIndex) const;
+	std::string getSASWorldChangesHistoryCategoryName(int iIndex) const;
+	int getSASWorldChangesHistoryActor(int iIndex) const;
+	int getSASWorldChangesHistoryActorTeam(int iIndex) const;
+	int getSASWorldChangesHistoryTargetPlayer(int iIndex) const;
+	int getSASWorldChangesHistoryTargetTeam(int iIndex) const;
+	int getSASWorldChangesHistoryTurn(int iIndex) const;
+	int getSASWorldChangesHistoryYear(int iIndex) const;
+	int getSASWorldChangesHistoryElapsedTurn(int iIndex) const;
+	int getSASWorldChangesHistoryVersionIndex(int iIndex) const;
+	int getSASWorldChangesHistoryX(int iIndex) const;
+	int getSASWorldChangesHistoryY(int iIndex) const;
+	int getSASWorldChangesHistoryCityId(int iIndex) const;
+	int getSASWorldChangesHistoryObjectId(int iIndex) const;
+	int getSASWorldChangesHistoryRequestedDataId(int iIndex) const;
+	int getSASWorldChangesHistoryResolvedDataId(int iIndex) const;
+	std::string getSASWorldChangesHistoryAction(int iIndex) const;
+	std::string getSASWorldChangesHistoryOperation(int iIndex) const;
+	std::string getSASWorldChangesHistoryTargetKind(int iIndex) const;
+	std::string getSASWorldChangesHistoryTarget(int iIndex) const;
+	bool getSASWorldChangesHistoryOldValueValid(int iIndex) const;
+	int getSASWorldChangesHistoryOldValue(int iIndex) const;
+	bool getSASWorldChangesHistoryNewValueValid(int iIndex) const;
+	int getSASWorldChangesHistoryNewValue(int iIndex) const;
+	bool getSASWorldChangesHistoryContentWithheld(int iIndex) const;
+	int getSASWorldChangesHistoryQuotedCost(int iIndex) const;
+	int getSASWorldChangesHistoryPointsBefore(int iIndex) const;
+	int getSASWorldChangesHistoryPointsAfter(int iIndex) const;
+	int getSASWorldChangesHistoryGoldBefore(int iIndex) const;
+	int getSASWorldChangesHistoryGoldAfter(int iIndex) const;
 	int getMaxTurns() const;
 	void setMaxTurns(int iNewValue);
 	void changeMaxTurns(int iChange);

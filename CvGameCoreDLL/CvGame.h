@@ -220,6 +220,52 @@ public:
 	char const* getSASVersionHistoryCommitHash(int iIndex) const;
 	int getSASVersionHistoryDirtyState(int iIndex) const;
 	void initializeSASVersionHistoryForNewGame();
+	// <!-- custom: Persist ordered applied setup/editor actions independently of diagnostic logging so Advanced Start and WorldBuilder history survives save/reload and can be shown in World Advisor.
+	// SASWorldChangesHistory stores Advanced Start actions and WorldBuilder edits for the Changes tab, not ordinary simulation changes or the Info Screen Timeline/Sevopedia navigation history.
+	// Keep stable action/target tokens and numeric before/after context in save state; richer wall-clock/session evidence remains in SASGameRecord rather than introducing nondeterministic timestamps into synchronized gameplay state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	int getNumSASWorldChangesHistoryEntries() const { return (int)m_aSASWorldChangesHistory.size(); }
+	int getSASWorldChangesHistorySource(int iIndex) const;
+	char const* getSASWorldChangesHistorySourceName(int iIndex) const;
+	int getSASWorldChangesHistoryCategory(int iIndex) const;
+	char const* getSASWorldChangesHistoryCategoryName(int iIndex) const;
+	int getSASWorldChangesHistoryActor(int iIndex) const;
+	int getSASWorldChangesHistoryActorTeam(int iIndex) const;
+	int getSASWorldChangesHistoryTargetPlayer(int iIndex) const;
+	int getSASWorldChangesHistoryTargetTeam(int iIndex) const;
+	int getSASWorldChangesHistoryTurn(int iIndex) const;
+	int getSASWorldChangesHistoryYear(int iIndex) const;
+	int getSASWorldChangesHistoryElapsedTurn(int iIndex) const;
+	int getSASWorldChangesHistoryVersionIndex(int iIndex) const;
+	int getSASWorldChangesHistoryX(int iIndex) const;
+	int getSASWorldChangesHistoryY(int iIndex) const;
+	int getSASWorldChangesHistoryCityId(int iIndex) const;
+	int getSASWorldChangesHistoryObjectId(int iIndex) const;
+	int getSASWorldChangesHistoryRequestedDataId(int iIndex) const;
+	int getSASWorldChangesHistoryResolvedDataId(int iIndex) const;
+	char const* getSASWorldChangesHistoryAction(int iIndex) const;
+	char const* getSASWorldChangesHistoryOperation(int iIndex) const;
+	char const* getSASWorldChangesHistoryTargetKind(int iIndex) const;
+	char const* getSASWorldChangesHistoryTarget(int iIndex) const;
+	bool getSASWorldChangesHistoryOldValueValid(int iIndex) const;
+	int getSASWorldChangesHistoryOldValue(int iIndex) const;
+	bool getSASWorldChangesHistoryNewValueValid(int iIndex) const;
+	int getSASWorldChangesHistoryNewValue(int iIndex) const;
+	bool getSASWorldChangesHistoryContentWithheld(int iIndex) const;
+	int getSASWorldChangesHistoryQuotedCost(int iIndex) const;
+	int getSASWorldChangesHistoryPointsBefore(int iIndex) const;
+	int getSASWorldChangesHistoryPointsAfter(int iIndex) const;
+	int getSASWorldChangesHistoryGoldBefore(int iIndex) const;
+	int getSASWorldChangesHistoryGoldAfter(int iIndex) const;
+	void recordSASAdvancedStartHistory(PlayerTypes ePlayer, AdvancedStartActionTypes eAction, int iX, int iY, int iRequestedData, int iResolvedData, bool bAdd, int iQuotedCost, int iPointsBefore, int iGoldBefore, int iCityId, int iObjectId);
+	void setSASWorldBuilderScreenVisible(bool bVisible);
+	bool isSASWorldBuilderScreenVisible() const { return m_bSASWorldBuilderScreenVisible; }
+	// <!-- custom: Reveal-all loops through the inherited Python screen one plot at a time.
+	// Suppress child rows while counting actual changes; a successful loop collapses them to one bulk action, while a partial exception retains one PARTIAL action and a no-op retains none. (ChatGPT-5.6-Sol) -->
+	void beginSASWorldBuilderBulkEdit();
+	void noteSASWorldBuilderBulkRevealChange();
+	void endSASWorldBuilderBulkReveal(TeamTypes eTeam, bool bReveal, bool bCompleted);
+	bool isSASWorldBuilderBulkEdit() const { return m_bSASWorldBuilderBulkEdit; }
+	void recordSASWorldBuilderEdit(SASWorldChangesHistoryCategory eCategory, char const* szAction, int iX, int iY, PlayerTypes eTargetPlayer, int iObjectId, char const* szTargetKind, char const* szTarget, int iOldValue, int iNewValue, bool bContentWithheld = false, bool bOldValueValid = true, bool bNewValueValid = true, TeamTypes eTargetTeam = NO_TEAM);
 	// <!-- custom: Expose only the persisted checkpoint loaded from the current save; live saves are logged directly while serializing and do not mutate synchronized game state merely to remember diagnostic wall-clock metadata. (ChatGPT-5.6-Sol) -->
 	bool hasSASLoadedSaveCheckpoint() const { return m_iSASLoadedSaveCheckpointTurn >= 0; }
 	int getSASLoadedSaveCheckpointTurn() const { return m_iSASLoadedSaveCheckpointTurn; }
@@ -803,6 +849,47 @@ protected:
 		CvString szCommitHash;
 	};
 	std::vector<SASVersionHistoryEntry> m_aSASVersionHistory;
+	// <!-- custom: Ordered save-persisted setup/editor rows preserve applied action history without depending on diagnostic logs.
+	// Fixed tokens and XML type strings keep old rows understandable after later source/XML changes; free-form names/scripts are never stored. (ChatGPT-5.6-Sol) -->
+	struct SASWorldChangesHistoryEntry
+	{
+		SASWorldChangesHistoryEntry() : iSource(-1), iCategory(-1), iActor(NO_PLAYER), iActorTeam(NO_TEAM), iTargetPlayer(NO_PLAYER), iTargetTeam(NO_TEAM), iTurn(-1), iYear(0), iElapsedTurn(-1), iVersionIndex(-1), iX(INVALID_PLOT_COORD), iY(INVALID_PLOT_COORD), iCityId(-1), iObjectId(-1), iRequestedDataId(-1), iResolvedDataId(-1), bOldValueValid(false), iOldValue(0), bNewValueValid(false), iNewValue(0), bContentWithheld(false), iQuotedCost(-1), iPointsBefore(-1), iPointsAfter(-1), iGoldBefore(-1), iGoldAfter(-1) {}
+		int iSource;
+		int iCategory;
+		int iActor;
+		int iActorTeam;
+		int iTargetPlayer;
+		int iTargetTeam;
+		int iTurn;
+		int iYear;
+		int iElapsedTurn;
+		int iVersionIndex;
+		int iX;
+		int iY;
+		int iCityId;
+		int iObjectId;
+		int iRequestedDataId;
+		int iResolvedDataId;
+		CvString szAction;
+		CvString szOperation;
+		CvString szTargetKind;
+		CvString szTarget;
+		bool bOldValueValid;
+		int iOldValue;
+		bool bNewValueValid;
+		int iNewValue;
+		bool bContentWithheld;
+		int iQuotedCost;
+		int iPointsBefore;
+		int iPointsAfter;
+		int iGoldBefore;
+		int iGoldAfter;
+	};
+	std::vector<SASWorldChangesHistoryEntry> m_aSASWorldChangesHistory;
+	// <!-- custom: WorldBuilder visibility/bulk state is transient only; loading a save cannot resume an old editor context. (ChatGPT-5.6-Sol) -->
+	bool m_bSASWorldBuilderScreenVisible;
+	bool m_bSASWorldBuilderBulkEdit;
+	int m_iSASWorldBuilderBulkChangedPlots;
 	// <!-- custom: Save-checkpoint provenance is embedded only in the serialized script-data copy and stripped again on load, so Python-visible game script data keeps its original contract while a loaded save can identify the exact serialization that produced it. (ChatGPT-5.6-Sol) -->
 	int m_iSASLoadedSaveCheckpointTurn;
 	int m_iSASLoadedSaveCheckpointElapsedTurn;

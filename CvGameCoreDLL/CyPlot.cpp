@@ -9,6 +9,7 @@
 #include "CvArea.h" // advc: for CvArea::getID
 #include "CvUnit.h" // advc: for city/fort-related functions moved to CvUnit
 #include "CvMap.h" // advc.enum
+#include "CvInfo_Terrain.h" // <!-- custom: WorldBuilder history dereferences terrain, feature, bonus, improvement and route info to retain XML type names; forward declarations failed VC2003 with C2027/C2228. (GPT-6.1-Sol) -->
 #include "CvGame.h" // <!-- custom: Direct Python/WorldBuilder owner changes now exclude pre-game setup from SASGameRecord transactions, which requires the full CvGame definition for isFinalInitialized. (GPT-5.6-Sol) -->
 #include "SASGameRecordLog.h" // <!-- custom: Attribute exact level-3 ownership mutations initiated through the Python/WorldBuilder plot wrapper. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 
@@ -18,10 +19,87 @@ CyPlot::CyPlot(CvPlot const& kPlot) : m_pPlot(const_cast<CvPlot*>(&kPlot)) {}
 
 CyPlot::CyPlot() : m_pPlot(NULL) {}
 
+// <!-- custom: Keep WorldBuilder mutation detection at the Python wrapper boundary that the inherited editor actually calls.
+// Persistence is independent of SGR; detailed plot-state snapshots are taken only when the level-2 action trace is enabled. (ChatGPT-5.6-Sol) -->
+static bool isSASWorldBuilderEditContext()
+{
+	return GC.getGame().isSASWorldBuilderScreenVisible() && !GC.getGame().isInAdvancedStart();
+}
+
+static bool isSASWorldBuilderEditLoggingEnabled()
+{
+	return gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled();
+}
+
+static void recordSASWorldBuilderPlotChange(CvPlot& kPlot, SASGameRecordPlotState const& kOldState, bool bLog)
+{
+	TerrainTypes const eTerrain = kPlot.getTerrainType();
+	FeatureTypes const eFeature = kPlot.getFeatureType();
+	BonusTypes const eBonus = kPlot.getBonusType();
+	ImprovementTypes const eImprovement = kPlot.getImprovementType();
+	RouteTypes const eRoute = kPlot.getRouteType();
+	if (kOldState.eTerrain != eTerrain)
+	{
+		TerrainTypes const eNamed = (eTerrain != NO_TERRAIN ? eTerrain : kOldState.eTerrain);
+		char const* szTarget = (eNamed >= 0 && eNamed < GC.getNumTerrainInfos() ? GC.getInfo(eNamed).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_TERRAIN", kPlot.getX(), kPlot.getY(), kPlot.getOwner(), -1, "TERRAIN", szTarget, kOldState.eTerrain, eTerrain);
+	}
+	if (kOldState.eFeature != eFeature)
+	{
+		FeatureTypes const eNamed = (eFeature != NO_FEATURE ? eFeature : kOldState.eFeature);
+		char const* szTarget = (eNamed >= 0 && eNamed < GC.getNumFeatureInfos() ? GC.getInfo(eNamed).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_FEATURE", kPlot.getX(), kPlot.getY(), kPlot.getOwner(), -1, "FEATURE", szTarget, kOldState.eFeature, eFeature);
+	}
+	if (kOldState.eBonus != eBonus)
+	{
+		BonusTypes const eNamed = (eBonus != NO_BONUS ? eBonus : kOldState.eBonus);
+		char const* szTarget = (eNamed >= 0 && eNamed < GC.getNumBonusInfos() ? GC.getInfo(eNamed).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_BONUS", kPlot.getX(), kPlot.getY(), kPlot.getOwner(), -1, "BONUS", szTarget, kOldState.eBonus, eBonus);
+	}
+	if (kOldState.eImprovement != eImprovement)
+	{
+		ImprovementTypes const eNamed = (eImprovement != NO_IMPROVEMENT ? eImprovement : kOldState.eImprovement);
+		char const* szTarget = (eNamed >= 0 && eNamed < GC.getNumImprovementInfos() ? GC.getInfo(eNamed).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_IMPROVEMENT", kPlot.getX(), kPlot.getY(), kPlot.getOwner(), -1, "IMPROVEMENT", szTarget, kOldState.eImprovement, eImprovement);
+	}
+	if (kOldState.eRoute != eRoute)
+	{
+		RouteTypes const eNamed = (eRoute != NO_ROUTE ? eRoute : kOldState.eRoute);
+		char const* szTarget = (eNamed >= 0 && eNamed < GC.getNumRouteInfos() ? GC.getInfo(eNamed).getType() : "-");
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_ROUTE", kPlot.getX(), kPlot.getY(), kPlot.getOwner(), -1, "ROUTE", szTarget, kOldState.eRoute, eRoute);
+	}
+	bool bChanged = (kOldState.eTerrain != eTerrain || kOldState.eFeature != eFeature || kOldState.eBonus != eBonus || kOldState.eImprovement != eImprovement || kOldState.eRoute != eRoute);
+	for (int i = 0; i < NUM_YIELD_TYPES; i++)
+	{
+		int const iNewYield = GC.getMap().getPlotExtraYield(kPlot, (YieldTypes)i);
+		if (kOldState.aiExtraYield[i] == iNewYield)
+			continue;
+		bChanged = true;
+		char const* szYield = GC.getInfo((YieldTypes)i).getType();
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_EXTRA_YIELD", kPlot.getX(), kPlot.getY(), kPlot.getOwner(), i, "YIELD", szYield, kOldState.aiExtraYield[i], iNewYield);
+	}
+	if (bChanged && bLog)
+		recordSASGameRecordPlotChange(kPlot, kOldState, "worldBuilder", "WORLDBUILDER", true);
+}
+
 void CyPlot::erase()
 {
 	if (m_pPlot)
+	{
+		bool const bWorldBuilder = isSASWorldBuilderEditContext();
+		bool const bLog = bWorldBuilder && isSASWorldBuilderEditLoggingEnabled();
+		SASGameRecordPlotState kOldState;
+		if (bWorldBuilder) kOldState = SASGameRecordPlotState(*m_pPlot);
+		int const iOldUnits = bWorldBuilder ? m_pPlot->getNumUnits() : 0;
+		bool const bOldCity = bWorldBuilder && m_pPlot->isCity();
 		m_pPlot->erase();
+		if (bWorldBuilder)
+		{
+			recordSASWorldBuilderPlotChange(*m_pPlot, kOldState, bLog);
+			if (iOldUnits > 0) GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_UNIT, "ERASE_PLOT_UNITS", m_pPlot->getX(), m_pPlot->getY(), NO_PLAYER, -1, "UNIT_COUNT", "-", iOldUnits, 0);
+			if (bOldCity) GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "ERASE_PLOT_CITY", m_pPlot->getX(), m_pPlot->getY(), NO_PLAYER, -1, "CITY", "-", 1, 0);
+		}
+	}
 }
 
 NiPoint3 CyPlot::getPoint()
@@ -561,7 +639,15 @@ bool CyPlot::isStartingPlot()
 void CyPlot::setStartingPlot(bool bNewValue)
 {
 	if (m_pPlot)
+	{
+		bool const bWorldBuilder = isSASWorldBuilderEditContext();
+		bool const bOldValue = (bWorldBuilder ? m_pPlot->isStartingPlot() : false);
 		m_pPlot->setStartingPlot(bNewValue);
+		if (bWorldBuilder && bOldValue != m_pPlot->isStartingPlot())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_STARTING_PLOT", m_pPlot->getX(), m_pPlot->getY(), NO_PLAYER, -1, "BOOL", "STARTING_PLOT", bOldValue ? 1 : 0, m_pPlot->isStartingPlot() ? 1 : 0);
+		}
+	}
 }
 
 bool CyPlot::isNOfRiver()
@@ -573,7 +659,19 @@ void CyPlot::setNOfRiver(bool bNewValue, CardinalDirectionTypes eRiverDir)
 {
 	if (m_pPlot)
 	{
+		bool const bWorldBuilder = isSASWorldBuilderEditContext();
+		bool const bOldValue = (bWorldBuilder ? m_pPlot->isNOfRiver() : false);
+		CardinalDirectionTypes const eOldDirection = (bWorldBuilder ? m_pPlot->getRiverWEDirection() : CardinalDirectionTypes());
 		m_pPlot->setNOfRiver(bNewValue, eRiverDir);
+		if (bWorldBuilder && bOldValue != m_pPlot->isNOfRiver())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_RIVER_NORTH", m_pPlot->getX(), m_pPlot->getY(), NO_PLAYER, -1, "RIVER", "NORTH_EDGE", bOldValue ? 1 : 0, m_pPlot->isNOfRiver() ? 1 : 0);
+		}
+		// <!-- custom: WorldBuilder can rotate an existing river edge without changing its presence Boolean; preserve that distinct edit too. (ChatGPT-5.6-Sol) -->
+		if (bWorldBuilder && eOldDirection != m_pPlot->getRiverWEDirection())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_RIVER_NORTH_DIRECTION", m_pPlot->getX(), m_pPlot->getY(), NO_PLAYER, -1, "CARDINAL_DIRECTION", "NORTH_EDGE", eOldDirection, m_pPlot->getRiverWEDirection());
+		}
 	}
 }
 
@@ -586,7 +684,18 @@ void CyPlot::setWOfRiver(bool bNewValue, CardinalDirectionTypes eRiverDir)
 {
 	if (m_pPlot)
 	{
+		bool const bWorldBuilder = isSASWorldBuilderEditContext();
+		bool const bOldValue = (bWorldBuilder ? m_pPlot->isWOfRiver() : false);
+		CardinalDirectionTypes const eOldDirection = (bWorldBuilder ? m_pPlot->getRiverNSDirection() : CardinalDirectionTypes());
 		m_pPlot->setWOfRiver(bNewValue, eRiverDir);
+		if (bWorldBuilder && bOldValue != m_pPlot->isWOfRiver())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_RIVER_WEST", m_pPlot->getX(), m_pPlot->getY(), NO_PLAYER, -1, "RIVER", "WEST_EDGE", bOldValue ? 1 : 0, m_pPlot->isWOfRiver() ? 1 : 0);
+		}
+		if (bWorldBuilder && eOldDirection != m_pPlot->getRiverNSDirection())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_RIVER_WEST_DIRECTION", m_pPlot->getX(), m_pPlot->getY(), NO_PLAYER, -1, "CARDINAL_DIRECTION", "WEST_EDGE", eOldDirection, m_pPlot->getRiverNSDirection());
+		}
 	}
 }
 
@@ -637,13 +746,19 @@ void CyPlot::setOwner(int /*PlayerTypes*/ eNewValue)
 {
 	if (m_pPlot)
 	{
+		bool const bWorldBuilderEdit = isSASWorldBuilderEditContext();
+		PlayerTypes const eOldOwner = (bWorldBuilderEdit ? m_pPlot->getOwner() : PlayerTypes());
 		bool const bLogSASOwnerChange = (gGameRecordLogLevel >= 3 && GC.getGame().isFinalInitialized() && m_pPlot->getOwner() != (PlayerTypes)eNewValue);
-		bool const bWorldBuilder = (bLogSASOwnerChange && gDLL->GetWorldBuilderMode());
+		bool const bWorldBuilder = (bLogSASOwnerChange && bWorldBuilderEdit);
 		// <!-- custom: A direct Python/WorldBuilder plot-owner request can recurse into city acquisition.
 		// Keep its external origin as the root tx while nested owner-change mechanisms remain precise. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		SASGameRecordTransactionScope kSASPythonOwnerTransaction(bWorldBuilder ? "WORLDBUILDER_PLOT_OWNER" : "PYTHON_PLOT_OWNER", bLogSASOwnerChange);
 		SASGameRecordPlotOwnerChangeCauseScope kSASPythonOwnerCause(bWorldBuilder ? SAS_PLOT_OWNER_CAUSE_WORLDBUILDER : SAS_PLOT_OWNER_CAUSE_PYTHON_EXTERNAL, bLogSASOwnerChange);
 		m_pPlot->setOwner((PlayerTypes)eNewValue, true, true);
+		if (bWorldBuilderEdit && eOldOwner != m_pPlot->getOwner())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_OWNER", m_pPlot->getX(), m_pPlot->getY(), m_pPlot->getOwner(), -1, "PLAYER", "-", eOldOwner, m_pPlot->getOwner());
+		}
 	}
 }
 
@@ -651,13 +766,19 @@ void CyPlot::setOwnerNoUnitCheck(int /*PlayerTypes*/ eNewValue)
 {
 	if (m_pPlot)
 	{
+		bool const bWorldBuilderEdit = isSASWorldBuilderEditContext();
+		PlayerTypes const eOldOwner = (bWorldBuilderEdit ? m_pPlot->getOwner() : PlayerTypes());
 		bool const bLogSASOwnerChange = (gGameRecordLogLevel >= 3 && GC.getGame().isFinalInitialized() && m_pPlot->getOwner() != (PlayerTypes)eNewValue);
-		bool const bWorldBuilder = (bLogSASOwnerChange && gDLL->GetWorldBuilderMode());
+		bool const bWorldBuilder = (bLogSASOwnerChange && bWorldBuilderEdit);
 		// <!-- custom: A direct Python/WorldBuilder plot-owner request can recurse into city acquisition.
 		// Keep its external origin as the root tx while nested owner-change mechanisms remain precise. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		SASGameRecordTransactionScope kSASPythonOwnerTransaction(bWorldBuilder ? "WORLDBUILDER_PLOT_OWNER" : "PYTHON_PLOT_OWNER", bLogSASOwnerChange);
 		SASGameRecordPlotOwnerChangeCauseScope kSASPythonOwnerCause(bWorldBuilder ? SAS_PLOT_OWNER_CAUSE_WORLDBUILDER : SAS_PLOT_OWNER_CAUSE_PYTHON_EXTERNAL, bLogSASOwnerChange);
 		m_pPlot->setOwner((PlayerTypes)eNewValue, false, true);
+		if (bWorldBuilderEdit && eOldOwner != m_pPlot->getOwner())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_OWNER_NO_UNIT_CHECK", m_pPlot->getX(), m_pPlot->getY(), m_pPlot->getOwner(), -1, "PLAYER", "-", eOldOwner, m_pPlot->getOwner());
+		}
 	}
 }
 PlotTypes CyPlot::getPlotType()
@@ -688,7 +809,15 @@ bool CyPlot::isPeak()
 void CyPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGraphics)
 {
 	if (m_pPlot)
+	{
+		bool const bWorldBuilder = isSASWorldBuilderEditContext();
+		PlotTypes const eOldValue = (bWorldBuilder ? m_pPlot->getPlotType() : PlotTypes());
 		m_pPlot->setPlotType(eNewValue, bRecalculate, bRebuildGraphics);
+		if (bWorldBuilder && eOldValue != m_pPlot->getPlotType())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_PLOT_TYPE", m_pPlot->getX(), m_pPlot->getY(), NO_PLAYER, -1, "PLOT_TYPE", "-", eOldValue, m_pPlot->getPlotType());
+		}
+	}
 }
 
 int /*TerrainTypes*/ CyPlot::getTerrainType()
@@ -699,7 +828,14 @@ int /*TerrainTypes*/ CyPlot::getTerrainType()
 void CyPlot::setTerrainType(int /*TerrainTypes*/ eNewValue, bool bRecalculate, bool bRebuildGraphics)
 {
 	if (m_pPlot)
+	{
+		bool const bWorldBuilder = isSASWorldBuilderEditContext();
+		bool const bLog = bWorldBuilder && isSASWorldBuilderEditLoggingEnabled();
+		SASGameRecordPlotState kOldState;
+		if (bWorldBuilder) kOldState = SASGameRecordPlotState(*m_pPlot);
 		m_pPlot->setTerrainType((TerrainTypes)eNewValue, bRecalculate, bRebuildGraphics);
+		if (bWorldBuilder) recordSASWorldBuilderPlotChange(*m_pPlot, kOldState, bLog);
+	}
 }
 
 int /*FeatureTypes*/ CyPlot::getFeatureType()
@@ -710,7 +846,23 @@ int /*FeatureTypes*/ CyPlot::getFeatureType()
 void CyPlot::setFeatureType(int /*FeatureTypes*/ eNewValue, int iVariety)
 {
 	if (m_pPlot)
+	{
+		bool const bWorldBuilder = isSASWorldBuilderEditContext();
+		bool const bLog = bWorldBuilder && isSASWorldBuilderEditLoggingEnabled();
+		SASGameRecordPlotState kOldState;
+		int const iOldVariety = bWorldBuilder ? m_pPlot->getFeatureVariety() : -1;
+		if (bWorldBuilder) kOldState = SASGameRecordPlotState(*m_pPlot);
 		m_pPlot->setFeatureType((FeatureTypes)eNewValue, iVariety);
+		if (bWorldBuilder)
+		{
+			recordSASWorldBuilderPlotChange(*m_pPlot, kOldState, bLog);
+			// <!-- custom: Variety is independent state even when the feature type changes in the same setter call; preserve both applied changes instead of dropping the variety transition. (ChatGPT-5.6-Sol) -->
+			if (iOldVariety != m_pPlot->getFeatureVariety())
+			{
+				GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_FEATURE_VARIETY", m_pPlot->getX(), m_pPlot->getY(), NO_PLAYER, -1, "FEATURE_VARIETY", "-", iOldVariety, m_pPlot->getFeatureVariety());
+			}
+		}
+	}
 }
 
 void CyPlot::setFeatureDummyVisibility(std::string dummyTag, bool show)
@@ -802,7 +954,14 @@ int /* BonusTypes */ CyPlot::getNonObsoleteBonusType(int /*TeamTypes*/ eTeam)
 void CyPlot::setBonusType(int /* BonusTypes */ eNewValue)
 {
 	if (m_pPlot)
+	{
+		bool const bWorldBuilder = isSASWorldBuilderEditContext();
+		bool const bLog = bWorldBuilder && isSASWorldBuilderEditLoggingEnabled();
+		SASGameRecordPlotState kOldState;
+		if (bWorldBuilder) kOldState = SASGameRecordPlotState(*m_pPlot);
 		m_pPlot->setBonusType((BonusTypes)eNewValue);
+		if (bWorldBuilder) recordSASWorldBuilderPlotChange(*m_pPlot, kOldState, bLog);
+	}
 }
 
 int /* ImprovementTypes */ CyPlot::getImprovementType()
@@ -813,7 +972,14 @@ int /* ImprovementTypes */ CyPlot::getImprovementType()
 void CyPlot::setImprovementType(int /* ImprovementTypes */ eNewValue)
 {
 	if (m_pPlot)
+	{
+		bool const bWorldBuilder = isSASWorldBuilderEditContext();
+		bool const bLog = bWorldBuilder && isSASWorldBuilderEditLoggingEnabled();
+		SASGameRecordPlotState kOldState;
+		if (bWorldBuilder) kOldState = SASGameRecordPlotState(*m_pPlot);
 		m_pPlot->setImprovementType((ImprovementTypes)eNewValue);
+		if (bWorldBuilder) recordSASWorldBuilderPlotChange(*m_pPlot, kOldState, bLog);
+	}
 }
 
 int /* RouteTypes */ CyPlot::getRouteType()
@@ -824,7 +990,14 @@ int /* RouteTypes */ CyPlot::getRouteType()
 void CyPlot::setRouteType(int /*RouteTypes*/ eNewValue)
 {
 	if (m_pPlot)
+	{
+		bool const bWorldBuilder = isSASWorldBuilderEditContext();
+		bool const bLog = bWorldBuilder && isSASWorldBuilderEditLoggingEnabled();
+		SASGameRecordPlotState kOldState;
+		if (bWorldBuilder) kOldState = SASGameRecordPlotState(*m_pPlot);
 		m_pPlot->setRouteType((RouteTypes)eNewValue);
+		if (bWorldBuilder) recordSASWorldBuilderPlotChange(*m_pPlot, kOldState, bLog);
+	}
 }
 
 CyCity* CyPlot::getPlotCity()
@@ -1010,7 +1183,19 @@ bool CyPlot::isRevealed(int /*TeamTypes*/ eTeam, bool bDebug)
 void CyPlot::setRevealed(int /*TeamTypes*/ eTeam, bool bNewValue, bool bTerrainOnly, int /*TeamTypes*/ eFromTeam)
 {
 	if (m_pPlot)
+	{
+		bool const bWorldBuilder = isSASWorldBuilderEditContext();
+		bool const bOldValue = bWorldBuilder ? m_pPlot->isRevealed((TeamTypes)eTeam, false) : false;
 		m_pPlot->setRevealed((TeamTypes)eTeam, bNewValue, bTerrainOnly, (TeamTypes)eFromTeam, true);
+		bool const bNewObservedValue = bWorldBuilder ? m_pPlot->isRevealed((TeamTypes)eTeam, false) : false;
+		if (bWorldBuilder && bOldValue != bNewObservedValue)
+		{
+			if (GC.getGame().isSASWorldBuilderBulkEdit())
+				GC.getGame().noteSASWorldBuilderBulkRevealChange();
+			else
+				GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_VISIBILITY, "SET_REVEALED", m_pPlot->getX(), m_pPlot->getY(), NO_PLAYER, -1, "TEAM", "-", bOldValue ? 1 : 0, bNewObservedValue ? 1 : 0, false, true, true, (TeamTypes)eTeam);
+		}
+	}
 }
 
 int /* ImprovementTypes */ CyPlot::getRevealedImprovementType(int /*TeamTypes*/ eTeam, bool bDebug)
@@ -1081,5 +1266,14 @@ std::string CyPlot::getScriptData() const
 void CyPlot::setScriptData(std::string szNewValue)
 {
 	if (m_pPlot)
+	{
+		bool const bWorldBuilderEdit = isSASWorldBuilderEditContext();
+		CvString szOldScript;
+		if (bWorldBuilderEdit) szOldScript = m_pPlot->getScriptData();
 		m_pPlot->setScriptData(szNewValue.c_str());
+		if (bWorldBuilderEdit && szOldScript != m_pPlot->getScriptData())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_SCRIPT", m_pPlot->getX(), m_pPlot->getY(), m_pPlot->getOwner(), -1, "SCRIPT", "-", -1, -1, true, false, false);
+		}
+	}
 }

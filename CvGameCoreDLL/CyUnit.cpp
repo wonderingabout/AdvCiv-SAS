@@ -10,12 +10,21 @@
 #include "CvArea.h"
 #include "CvPlot.h"
 #include "CvMap.h" // advc: For canAirBombAt
+#include "CvGame.h" // <!-- custom: WorldBuilder unit edits feed ordered save-persisted setup/editor history. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Unit.h" // <!-- custom: WorldBuilder promotion history records stable XML type tokens; GC.getInfo requires CvPromotionInfo complete here. (ChatGPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Record controlled WorldBuilder unit mutation facts without copying names/scripts. (ChatGPT-5.6-Sol) -->
 
 CyUnit::CyUnit() : m_pUnit(NULL) {}
 // advc.003y: (see CyCity.cpp)
 CyUnit::CyUnit(CvUnit const& kUnit) : m_pUnit(const_cast<CvUnit*>(&kUnit)) {}
 
 CyUnit::CyUnit(CvUnit* pUnit) : m_pUnit(pUnit) {}
+
+static bool isSASWorldBuilderUnitEditContext()
+{
+	return GC.getGame().isSASWorldBuilderScreenVisible() && !GC.getGame().isInAdvancedStart();
+}
+
 
 void CyUnit::convert(CyUnit* pUnit)
 {
@@ -26,7 +35,13 @@ void CyUnit::convert(CyUnit* pUnit)
 void CyUnit::kill(bool bDelay, int /*PlayerTypes*/ ePlayer)
 {
 	if (m_pUnit)
+	{
+		if (isSASWorldBuilderUnitEditContext())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_UNIT, "REMOVE_UNIT", m_pUnit->getX(), m_pUnit->getY(), m_pUnit->getOwner(), m_pUnit->getID(), "UNIT", GC.getInfo(m_pUnit->getUnitType()).getType(), 1, 0);
+		}
 		m_pUnit->kill(bDelay, (PlayerTypes)ePlayer);
+	}
 }
 
 void CyUnit::NotifyEntity(int /*MissionTypes*/ eEvent)
@@ -1204,7 +1219,16 @@ int CyUnit::getExperience()
 void CyUnit::setExperience(int iNewValue, int iMax)
 {
 	if (m_pUnit)
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderUnitEditContext();
+		int const iOldValue = (bWorldBuilderEdit ? m_pUnit->getExperience() : 0);
 		m_pUnit->setExperience(iNewValue, iMax);
+		if (bWorldBuilderEdit && iOldValue != m_pUnit->getExperience())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_UNIT, "SET_EXPERIENCE", m_pUnit->getX(), m_pUnit->getY(), m_pUnit->getOwner(), m_pUnit->getID(), "EXPERIENCE", "-", iOldValue, m_pUnit->getExperience());
+		}
+	}
 }
 
 void CyUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInBorders, bool bUpdateGlobal)
@@ -1224,7 +1248,16 @@ int CyUnit::getLevel()
 void CyUnit::setLevel(int iNewLevel)
 {
 	if (m_pUnit)
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderUnitEditContext();
+		int const iOldValue = (bWorldBuilderEdit ? m_pUnit->getLevel() : 0);
 		m_pUnit->setLevel(iNewLevel);
+		if (bWorldBuilderEdit && iOldValue != m_pUnit->getLevel())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_UNIT, "SET_LEVEL", m_pUnit->getX(), m_pUnit->getY(), m_pUnit->getOwner(), m_pUnit->getID(), "LEVEL", "-", iOldValue, m_pUnit->getLevel());
+		}
+	}
 }
 
 void CyUnit::changeLevel(int iChange)
@@ -1569,7 +1602,16 @@ std::wstring CyUnit::getNameNoDesc()
 void CyUnit::setName(std::wstring szNewValue)
 {
 	if (m_pUnit)
+	{
+		bool const bWorldBuilderEdit = isSASWorldBuilderUnitEditContext();
+		CvWString szOldName;
+		if (bWorldBuilderEdit) szOldName = m_pUnit->getName();
 		m_pUnit->setName(szNewValue);
+		if (bWorldBuilderEdit && szOldName != m_pUnit->getName())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_UNIT, "SET_NAME", m_pUnit->getX(), m_pUnit->getY(), m_pUnit->getOwner(), m_pUnit->getID(), "NAME", "-", -1, -1, true, false, false);
+		}
+	}
 }
 
 std::string CyUnit::getScriptData() const
@@ -1580,7 +1622,16 @@ std::string CyUnit::getScriptData() const
 void CyUnit::setScriptData(std::string szNewValue)
 {
 	if (m_pUnit)
+	{
+		bool const bWorldBuilderEdit = isSASWorldBuilderUnitEditContext();
+		std::string szOldScript;
+		if (bWorldBuilderEdit) szOldScript = m_pUnit->getScriptData();
 		m_pUnit->setScriptData(szNewValue.c_str());
+		if (bWorldBuilderEdit && szOldScript != m_pUnit->getScriptData())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_UNIT, "SET_SCRIPT", m_pUnit->getX(), m_pUnit->getY(), m_pUnit->getOwner(), m_pUnit->getID(), "SCRIPT", "-", -1, -1, true, false, false);
+		}
+	}
 }
 
 bool CyUnit:: isTerrainDoubleMove(int /*TerrainTypes*/ eIndex)
@@ -1641,7 +1692,17 @@ bool CyUnit::isHasPromotion(int /*PromotionTypes*/eIndex)
 void CyUnit::setHasPromotion(int /*PromotionTypes*/ eIndex, bool bNewValue)
 {
 	if (m_pUnit)
-		m_pUnit->setHasPromotion((PromotionTypes) eIndex, bNewValue);
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderUnitEditContext();
+		bool const bOldValue = (bWorldBuilderEdit ? m_pUnit->isHasPromotion((PromotionTypes)eIndex) : false);
+		m_pUnit->setHasPromotion((PromotionTypes)eIndex, bNewValue);
+		if (bWorldBuilderEdit && bOldValue != m_pUnit->isHasPromotion((PromotionTypes)eIndex))
+		{
+			char const* szPromotion = (eIndex >= 0 && eIndex < GC.getNumPromotionInfos() ? GC.getInfo((PromotionTypes)eIndex).getType() : "-");
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_UNIT, "SET_PROMOTION", m_pUnit->getX(), m_pUnit->getY(), m_pUnit->getOwner(), m_pUnit->getID(), "PROMOTION", szPromotion, bOldValue ? 1 : 0, m_pUnit->isHasPromotion((PromotionTypes)eIndex) ? 1 : 0);
+		}
+	}
 }
 
 int /*UnitAITypes*/ CyUnit::getUnitAIType()
@@ -1653,7 +1714,14 @@ void CyUnit::setUnitAIType(int /*UnitAITypes*/ iNewValue)
 {
 	if (m_pUnit)
 	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderUnitEditContext();
+		UnitAITypes const eOldValue = (bWorldBuilderEdit ? m_pUnit->AI_getUnitAIType() : UnitAITypes());
 		m_pUnit->AI().AI_setUnitAIType((UnitAITypes)iNewValue);
+		if (bWorldBuilderEdit && eOldValue != m_pUnit->AI_getUnitAIType())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_UNIT, "SET_UNIT_AI", m_pUnit->getX(), m_pUnit->getY(), m_pUnit->getOwner(), m_pUnit->getID(), "UNIT_AI", "-", eOldValue, m_pUnit->AI_getUnitAIType());
+		}
 	}
 }
 

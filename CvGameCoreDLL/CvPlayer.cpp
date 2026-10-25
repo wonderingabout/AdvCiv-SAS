@@ -13441,17 +13441,28 @@ void CvPlayer::setEspionageSpendingWeightAgainstTeam(TeamTypes eTeam, int iValue
 }
 
 
+// <!-- custom: This is an applied-action persistence hook, not an optional logging hook: every successful Advanced Start action must reach it even with SGR disabled.
+// Its arguments (including pre-deletion IDs and budget transitions) are required by the saved World Advisor history, so gating the whole call on bLogSASAdvancedStart would lose that history.
+// Reuse the same payload for optional SGR output; the caller caches the level/action gate once, and no log formatting or diagnostic-only context is prepared unless it is true. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static void recordSASAdvancedStartApplied(CvPlayer const& kPlayer, bool bLogSASAdvancedStart, AdvancedStartActionTypes eAction, int iX, int iY, int iRequestedData, int iResolvedData, bool bAdd, int iQuotedCost, int iPointsBefore, int iGoldBefore, int iCityId, int iObjectId)
+{
+	GC.getGame().recordSASAdvancedStartHistory(kPlayer.getID(), eAction, iX, iY, iRequestedData, iResolvedData, bAdd, iQuotedCost, iPointsBefore, iGoldBefore, iCityId, iObjectId);
+	if (bLogSASAdvancedStart)
+		logSASGameRecordAdvancedStartResult(kPlayer, eAction, iX, iY, iRequestedData, iResolvedData, bAdd, iQuotedCost, iPointsBefore, iGoldBefore, iCityId, iObjectId);
+}
+
 void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd, int iData2) // advc.250c
 {
 	if (getAdvancedStartPoints() < 0)
 		return;
 	// <!-- custom: Advanced Start logging is event-driven and pre-gated once at the gameplay handler; successful mutation sites below reuse their already-computed cost/resolved target instead of rerunning legality or AI scoring for diagnostics.
-	// Capture diagnostic balances and removed-object IDs only when logging is enabled; IDs must be sampled before deletion invalidates their objects.
+	// Applied-action history now also needs pre-action balances and removed-object IDs with logging disabled; sample IDs before deletion invalidates their objects.
+	// Only the optional SGR context/result output is controlled by this logging gate.
 	// The context row is one-shot per player/session and therefore captures the point/gold budget before that player's first setup action. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	bool const bLogSASAdvancedStart = (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled());
 	if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartContext(*this);
-	int const iSASAdvancedStartPointsBefore = (bLogSASAdvancedStart ? getAdvancedStartPoints() : 0);
-	int const iSASAdvancedStartGoldBefore = (bLogSASAdvancedStart ? getGold() : 0);
+	int const iSASAdvancedStartPointsBefore = getAdvancedStartPoints();
+	int const iSASAdvancedStartGoldBefore = getGold();
 
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
@@ -13490,7 +13501,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 		setAdvancedStartPoints(-1);
 		if (isActive())
 			gDLL->UI().setInAdvancedStart(false);
-		if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, iData, bAdd, -1, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, -1, -1);
+		recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, -1, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, -1, -1);
 
 		if (isHuman())
 		{
@@ -13513,7 +13524,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 		AI().AI_doAdvancedStart(true);
 		if (isActive())
 			gDLL->UI().setBusy(false);
-		if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, iData, bAdd, -1, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, -1, -1);
+		recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, -1, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, -1, -1);
 		break;
 	case ADVANCEDSTARTACTION_UNIT:
 	{
@@ -13542,7 +13553,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				{
 					pUnit->finishMoves();
 					changeAdvancedStartPoints(-iCost);
-					if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, eUnit, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), pUnit->getID());
+					recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eUnit, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), pUnit->getID());
 				}
 			}
 		}
@@ -13555,10 +13566,10 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				{
 					if (pUnit->getUnitType() == eUnit)
 					{
-						int const iRemovedUnitId = (bLogSASAdvancedStart ? pUnit->getID() : -1);
+						int const iRemovedUnitId = pUnit->getID();
 						pUnit->kill(false);
 						changeAdvancedStartPoints(iCost);
-						if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, eUnit, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), iRemovedUnitId);
+						recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eUnit, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), iRemovedUnitId);
 						return;
 					}
 				}
@@ -13570,13 +13581,13 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				{
 					CvUnit* pUnit = ::getUnit(pNode->m_data);
 					UnitTypes const eRemovedUnit = pUnit->getUnitType();
-					int const iRemovedUnitId = (bLogSASAdvancedStart ? pUnit->getID() : -1);
+					int const iRemovedUnitId = pUnit->getID();
 					iCost = getAdvancedStartUnitCost(eRemovedUnit, false,
 							pPlot); // kekm.11
 					FAssertMsg(iCost != -1, "Trying to delete a unit which shouldn't exist");
 					pUnit->kill(false);
 					changeAdvancedStartPoints(iCost);
-					if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, eRemovedUnit, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), iRemovedUnitId);
+					recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eRemovedUnit, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), iRemovedUnitId);
 				}
 			}
 		}
@@ -13623,11 +13634,8 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			{
 				found(iX, iY);
 				changeAdvancedStartPoints(-std::min(iCost, getAdvancedStartPoints()));
-				if (bLogSASAdvancedStart)
-				{
-					CvCity const* pFoundedCity = pPlot->getPlotCity();
-					logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pFoundedCity == NULL ? -1 : pFoundedCity->getID(), -1);
-				}
+				CvCity const* pFoundedCity = pPlot->getPlotCity();
+				recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pFoundedCity == NULL ? -1 : pFoundedCity->getID(), -1);
 				kGame.updateColoredPlots();
 				// advc.250c: Commented out
 				/*if (pCity != NULL) {
@@ -13638,12 +13646,12 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 		}
 		else // Remove City from the map
 		{
-			int const iRemovedCityId = (bLogSASAdvancedStart ? pPlot->getPlotCity()->getID() : -1);
+			int const iRemovedCityId = pPlot->getPlotCity()->getID();
 			pPlot->setRouteType(NO_ROUTE);
 			pPlot->getPlotCity()->kill(true);
 			pPlot->setImprovementType(NO_IMPROVEMENT);
 			changeAdvancedStartPoints(iCost);
-			if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, iRemovedCityId, -1);
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, iRemovedCityId, -1);
 		}
 		if (isActive())
 			gDLL->UI().setDirty(Advanced_Start_DIRTY_BIT, true);
@@ -13685,7 +13693,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				pCity->setFood(pCity->growthThreshold() / 2);
 				pCity->setFoodKept((pCity->getFood() * pCity->getMaxFoodKeptPercent()) / 100);
 			}*/
-			if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
 		}
 		break;
 	}	
@@ -13703,7 +13711,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			{
 				pCity->setCulture(getID(), pCity->getCultureThreshold(), true, true);
 				changeAdvancedStartPoints(-iCost);
-				if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
+				recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
 			}
 		}	
 		else // Remove Culture from the city
@@ -13712,7 +13720,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 					pCity->getCultureLevel() - 1);
 			pCity->setCulture(getID(), CvCity::getCultureThreshold(eLevel), true, true);
 			changeAdvancedStartPoints(iCost);
-			if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
 		}
 		break;
 	}	
@@ -13737,7 +13745,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 					pCity->setFoodKept((pCity->getFood() *
 							pCity->getMaxFoodKeptPercent()) / 100);
 				}
-				if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, eBuilding, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
+				recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eBuilding, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
 			}
 		}
 		else // Remove Building from the map
@@ -13750,7 +13758,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				pCity->setFoodKept((pCity->getFood() *
 						pCity->getMaxFoodKeptPercent()) / 100);
 			}
-			if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, eBuilding, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eBuilding, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pCity->getID(), -1);
 		}
 		/*	advc (note): This used to be executed even for pCity==NULL,
 			but I don't think that could've occurred. */
@@ -13773,7 +13781,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			{
 				pPlot->setRouteType(eRoute);
 				changeAdvancedStartPoints(-iCost);
-				if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, eRoute, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
+				recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eRoute, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
 			}
 		}
 		else // Remove Route from the Plot
@@ -13787,7 +13795,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				return;
 			pPlot->setRouteType(NO_ROUTE);
 			changeAdvancedStartPoints(iCost);
-			if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, eRoute, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eRoute, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
 		}
 		if (isActive())
 			gDLL->UI().setDirty(Advanced_Start_DIRTY_BIT, true);
@@ -13827,7 +13835,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				}
 				pPlot->setImprovementType(eImprovement);
 				changeAdvancedStartPoints(-iCost /* advc.mnai.: */ + iOldCost);
-				if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, eImprovement, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
+				recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eImprovement, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
 			}
 		}
 		else // Remove Improvement from the Plot
@@ -13841,7 +13849,7 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 				return;
 			pPlot->setImprovementType(NO_IMPROVEMENT);
 			changeAdvancedStartPoints(iCost);
-			if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, eImprovement, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eImprovement, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
 		}
 		if (isActive())
 			gDLL->UI().setDirty(Advanced_Start_DIRTY_BIT, true);
@@ -13860,14 +13868,14 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			{
 				GET_TEAM(getTeam()).setHasTech(eTech, true, getID(), false, false, false, TECH_ACQUISITION_ADVANCED_START);
 				changeAdvancedStartPoints(-iCost);
-				if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, eTech, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, -1, -1);
+				recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eTech, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, -1, -1);
 			}
 		}
 		else // Remove Tech from the Team
 		{
 			GET_TEAM(getTeam()).setHasTech(eTech, false, getID(), false, false);
 			changeAdvancedStartPoints(iCost);
-			if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, eTech, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, -1, -1);
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, eTech, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, -1, -1);
 		}
 		if (isActive())
 			gDLL->UI().setDirty(Advanced_Start_DIRTY_BIT, true);
@@ -13887,14 +13895,14 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 			{
 				pPlot->setRevealed(getTeam(), true, true, NO_TEAM, true);
 				changeAdvancedStartPoints(-iCost);
-				if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
+				recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
 			}
 		}
 		else // Remove Visibility from the Plot
 		{
 			pPlot->setRevealed(getTeam(), false, true, NO_TEAM, true);
 			changeAdvancedStartPoints(iCost);
-			if (bLogSASAdvancedStart) logSASGameRecordAdvancedStartResult(*this, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
+			recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, iCost, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, pPlot->getPlotCity() == NULL ? -1 : pPlot->getPlotCity()->getID(), -1);
 		}
 		// advc.001 (from MNAI - lfgr fix 11/2021): I guess for the city circles
 		kGame.updateColoredPlots();

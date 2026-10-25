@@ -459,6 +459,11 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 {
 	if (GC.getInitCore().getWBMapScript())
 		return;
+	// <!-- custom: Full manual regeneration replaces the coordinate space underlying persisted setup/editor history.
+	// Drop those obsolete coordinates before teardown; if the action came from the normal WorldBuilder screen, start the replacement map's history with one explicit regeneration marker after initialization. (ChatGPT-5.6-Sol) -->
+	bool const bSASWorldBuilderRegeneration = (!bAutomated && m_bSASWorldBuilderScreenVisible && !isInAdvancedStart());
+	if (!bAutomated)
+		m_aSASWorldChangesHistory.clear();
 	// <!-- custom: A non-automated main-menu/WorldBuilder regeneration explicitly replaces the authoritative map outside the recursive AUTO_REGEN_MAP setup path.
 	// Open a dedicated level-3 interval before old-map teardown so its end checkpoint measures the complete regeneration burst.
 	// AUTO_REGEN_MAP is excluded because it can recurse through setInitialItems(); the outer setup interval remains the truthful boundary for that nested initialization chain. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -564,6 +569,10 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 
 	initScoreCalculation();
 	setFinalInitialized(true);
+	if (bSASWorldBuilderRegeneration)
+	{
+		recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_GAME, "REGENERATE_MAP", -1, -1, NO_PLAYER, -1, "MAP", "-", -1, -1, false, false, false);
+	}
 
 	kMap.setupGraphical();
 	gDLL->getEngineIFace()->SetDirty(GlobeTexture_DIRTY_BIT, true);
@@ -757,6 +766,10 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	// <!-- custom: Reset persisted source history with the rest of CvGame serialized state.
 	// New games establish creation provenance at gameStart, while loads refill the current-format history from the stream. (ChatGPT-5.6-Sol) -->
 	m_aSASVersionHistory.clear();
+	m_aSASWorldChangesHistory.clear();
+	m_bSASWorldBuilderScreenVisible = false;
+	m_bSASWorldBuilderBulkEdit = false;
+	m_iSASWorldBuilderBulkChangedPlots = 0;
 	m_iSASLoadedSaveCheckpointTurn = -1;
 	m_iSASLoadedSaveCheckpointElapsedTurn = -1;
 	m_uiSASLoadedSaveCheckpointMapRandState = 0;
@@ -9674,6 +9687,52 @@ void CvGame::read(FDataStreamBase* pStream)
 		pStream->ReadString(kEntry.szVersion);
 		pStream->ReadString(kEntry.szCommitHash);
 	}
+	// <!-- custom: Stream flag 28 adds ordered setup/editor history after the already-existing source history.
+	// Older SAS saves therefore leave this vector empty instead of reading into the next serialized object and misaligning the stream. (ChatGPT-5.6-Sol) -->
+	if (uiFlag >= 28)
+	{
+		unsigned int uiWorldChangesHistorySize = 0;
+		pStream->Read(&uiWorldChangesHistorySize);
+		m_aSASWorldChangesHistory.resize(uiWorldChangesHistorySize);
+		for (unsigned int i = 0; i < uiWorldChangesHistorySize; i++)
+		{
+			SASWorldChangesHistoryEntry& kEntry = m_aSASWorldChangesHistory[i];
+			pStream->Read(&kEntry.iSource);
+			pStream->Read(&kEntry.iCategory);
+			pStream->Read(&kEntry.iActor);
+			pStream->Read(&kEntry.iActorTeam);
+			pStream->Read(&kEntry.iTargetPlayer);
+			pStream->Read(&kEntry.iTargetTeam);
+			pStream->Read(&kEntry.iTurn);
+			pStream->Read(&kEntry.iYear);
+			pStream->Read(&kEntry.iElapsedTurn);
+			pStream->Read(&kEntry.iVersionIndex);
+			pStream->Read(&kEntry.iX);
+			pStream->Read(&kEntry.iY);
+			pStream->Read(&kEntry.iCityId);
+			pStream->Read(&kEntry.iObjectId);
+			pStream->Read(&kEntry.iRequestedDataId);
+			pStream->Read(&kEntry.iResolvedDataId);
+			pStream->ReadString(kEntry.szAction);
+			pStream->ReadString(kEntry.szOperation);
+			pStream->ReadString(kEntry.szTargetKind);
+			pStream->ReadString(kEntry.szTarget);
+			pStream->Read(&kEntry.bOldValueValid);
+			pStream->Read(&kEntry.iOldValue);
+			pStream->Read(&kEntry.bNewValueValid);
+			pStream->Read(&kEntry.iNewValue);
+			pStream->Read(&kEntry.bContentWithheld);
+			pStream->Read(&kEntry.iQuotedCost);
+			pStream->Read(&kEntry.iPointsBefore);
+			pStream->Read(&kEntry.iPointsAfter);
+			pStream->Read(&kEntry.iGoldBefore);
+			pStream->Read(&kEntry.iGoldAfter);
+		}
+	}
+	// <!-- custom: A loaded save starts outside any active WorldBuilder UI/bulk context even when its ordered history contains previous editor actions. (ChatGPT-5.6-Sol) -->
+	m_bSASWorldBuilderScreenVisible = false;
+	m_bSASWorldBuilderBulkEdit = false;
+	m_iSASWorldBuilderBulkChangedPlots = 0;
 
 	m_iTurnLoadedFromSave = m_iElapsedGameTurns; // advc.044
 	GAMETEXT.setAlwaysShowPlotCulture(true); // advc.099f
@@ -9709,7 +9768,7 @@ void CvGame::write(FDataStreamBase* pStream)
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	// <!-- custom: Keep the serialized CvGame stream-layout flag and diagnostic reporting on one source of truth.
-	// This remains 27; the refactor does not change save bytes. (ChatGPT-5.6-Sol) -->
+	// The ordered setup/editor history advances this marker to 28 because it changes the serialized CvGame tail. (ChatGPT-5.6-Sol) -->
 	uint const uiFlag = SASSaveStreamFormat::CV_GAME; // advc.130w: RivalVassalAttitude tweak
 
 	pStream->Write(uiFlag);
@@ -9897,6 +9956,44 @@ void CvGame::write(FDataStreamBase* pStream)
 		pStream->WriteString(kEntry.szVersion);
 		pStream->WriteString(kEntry.szCommitHash);
 	}
+	// <!-- custom: Persist ordered applied Advanced Start / WorldBuilder history after source provenance.
+	// This intentionally grows with actual successful edits: World Advisor can reconstruct what changed after reload without depending on diagnostic log files. (ChatGPT-5.6-Sol) -->
+	unsigned int const uiWorldChangesHistorySize = (unsigned int)m_aSASWorldChangesHistory.size();
+	pStream->Write(uiWorldChangesHistorySize);
+	for (unsigned int i = 0; i < uiWorldChangesHistorySize; i++)
+	{
+		SASWorldChangesHistoryEntry const& kEntry = m_aSASWorldChangesHistory[i];
+		pStream->Write(kEntry.iSource);
+		pStream->Write(kEntry.iCategory);
+		pStream->Write(kEntry.iActor);
+		pStream->Write(kEntry.iActorTeam);
+		pStream->Write(kEntry.iTargetPlayer);
+		pStream->Write(kEntry.iTargetTeam);
+		pStream->Write(kEntry.iTurn);
+		pStream->Write(kEntry.iYear);
+		pStream->Write(kEntry.iElapsedTurn);
+		pStream->Write(kEntry.iVersionIndex);
+		pStream->Write(kEntry.iX);
+		pStream->Write(kEntry.iY);
+		pStream->Write(kEntry.iCityId);
+		pStream->Write(kEntry.iObjectId);
+		pStream->Write(kEntry.iRequestedDataId);
+		pStream->Write(kEntry.iResolvedDataId);
+		pStream->WriteString(kEntry.szAction);
+		pStream->WriteString(kEntry.szOperation);
+		pStream->WriteString(kEntry.szTargetKind);
+		pStream->WriteString(kEntry.szTarget);
+		pStream->Write(kEntry.bOldValueValid);
+		pStream->Write(kEntry.iOldValue);
+		pStream->Write(kEntry.bNewValueValid);
+		pStream->Write(kEntry.iNewValue);
+		pStream->Write(kEntry.bContentWithheld);
+		pStream->Write(kEntry.iQuotedCost);
+		pStream->Write(kEntry.iPointsBefore);
+		pStream->Write(kEntry.iPointsAfter);
+		pStream->Write(kEntry.iGoldBefore);
+		pStream->Write(kEntry.iGoldAfter);
+	}
 	REPRO_TEST_END_WRITE();
 }
 
@@ -9927,6 +10024,436 @@ int CvGame::getSASVersionHistoryDirtyState(int iIndex) const
 	if (iIndex < 0 || iIndex >= (int)m_aSASVersionHistory.size())
 		return -1;
 	return m_aSASVersionHistory[iIndex].iDirtyState;
+}
+
+// <!-- custom: SASWorldChangesHistory exposes ordered Advanced Start actions and WorldBuilder edits for the Changes tab; neutral invalid-index values keep Python robust across empty/older contexts. (ChatGPT-5.6-Sol) -->
+static char const* getSASWorldChangesHistoryCategoryToken(SASWorldChangesHistoryCategory eCategory);
+
+int CvGame::getSASWorldChangesHistorySource(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iSource;
+}
+
+int CvGame::getSASWorldChangesHistoryCategory(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iCategory;
+}
+
+static char const* getSASWorldChangesHistorySourceToken(int iSource)
+{
+	switch (iSource)
+	{
+	case SAS_WORLD_CHANGES_HISTORY_ADVANCED_START: return "ADVANCED_START";
+	case SAS_WORLD_CHANGES_HISTORY_WORLD_BUILDER: return "WORLD_BUILDER";
+	default: return "UNKNOWN";
+	}
+}
+
+char const* CvGame::getSASWorldChangesHistorySourceName(int iIndex) const
+{
+	return getSASWorldChangesHistorySourceToken(getSASWorldChangesHistorySource(iIndex));
+}
+
+char const* CvGame::getSASWorldChangesHistoryCategoryName(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return "UNKNOWN";
+	return getSASWorldChangesHistoryCategoryToken((SASWorldChangesHistoryCategory)m_aSASWorldChangesHistory[iIndex].iCategory);
+}
+
+int CvGame::getSASWorldChangesHistoryActor(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return NO_PLAYER;
+	return m_aSASWorldChangesHistory[iIndex].iActor;
+}
+
+int CvGame::getSASWorldChangesHistoryActorTeam(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return NO_TEAM;
+	return m_aSASWorldChangesHistory[iIndex].iActorTeam;
+}
+
+int CvGame::getSASWorldChangesHistoryTargetPlayer(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return NO_PLAYER;
+	return m_aSASWorldChangesHistory[iIndex].iTargetPlayer;
+}
+
+int CvGame::getSASWorldChangesHistoryTargetTeam(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return NO_TEAM;
+	return m_aSASWorldChangesHistory[iIndex].iTargetTeam;
+}
+
+int CvGame::getSASWorldChangesHistoryTurn(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iTurn;
+}
+
+int CvGame::getSASWorldChangesHistoryYear(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return 0;
+	return m_aSASWorldChangesHistory[iIndex].iYear;
+}
+
+int CvGame::getSASWorldChangesHistoryElapsedTurn(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iElapsedTurn;
+}
+
+int CvGame::getSASWorldChangesHistoryVersionIndex(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iVersionIndex;
+}
+
+int CvGame::getSASWorldChangesHistoryX(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return INVALID_PLOT_COORD;
+	return m_aSASWorldChangesHistory[iIndex].iX;
+}
+
+int CvGame::getSASWorldChangesHistoryY(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return INVALID_PLOT_COORD;
+	return m_aSASWorldChangesHistory[iIndex].iY;
+}
+
+int CvGame::getSASWorldChangesHistoryCityId(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iCityId;
+}
+
+int CvGame::getSASWorldChangesHistoryObjectId(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iObjectId;
+}
+
+int CvGame::getSASWorldChangesHistoryRequestedDataId(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iRequestedDataId;
+}
+
+int CvGame::getSASWorldChangesHistoryResolvedDataId(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iResolvedDataId;
+}
+
+bool CvGame::getSASWorldChangesHistoryOldValueValid(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return false;
+	return m_aSASWorldChangesHistory[iIndex].bOldValueValid;
+}
+
+int CvGame::getSASWorldChangesHistoryOldValue(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return 0;
+	return m_aSASWorldChangesHistory[iIndex].iOldValue;
+}
+
+bool CvGame::getSASWorldChangesHistoryNewValueValid(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return false;
+	return m_aSASWorldChangesHistory[iIndex].bNewValueValid;
+}
+
+int CvGame::getSASWorldChangesHistoryNewValue(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return 0;
+	return m_aSASWorldChangesHistory[iIndex].iNewValue;
+}
+
+bool CvGame::getSASWorldChangesHistoryContentWithheld(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return false;
+	return m_aSASWorldChangesHistory[iIndex].bContentWithheld;
+}
+
+int CvGame::getSASWorldChangesHistoryQuotedCost(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iQuotedCost;
+}
+
+int CvGame::getSASWorldChangesHistoryPointsBefore(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iPointsBefore;
+}
+
+int CvGame::getSASWorldChangesHistoryPointsAfter(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iPointsAfter;
+}
+
+int CvGame::getSASWorldChangesHistoryGoldBefore(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iGoldBefore;
+}
+
+int CvGame::getSASWorldChangesHistoryGoldAfter(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return -1;
+	return m_aSASWorldChangesHistory[iIndex].iGoldAfter;
+}
+
+char const* CvGame::getSASWorldChangesHistoryAction(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return "";
+	return m_aSASWorldChangesHistory[iIndex].szAction.c_str();
+}
+
+char const* CvGame::getSASWorldChangesHistoryOperation(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return "";
+	return m_aSASWorldChangesHistory[iIndex].szOperation.c_str();
+}
+
+char const* CvGame::getSASWorldChangesHistoryTargetKind(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return "";
+	return m_aSASWorldChangesHistory[iIndex].szTargetKind.c_str();
+}
+
+char const* CvGame::getSASWorldChangesHistoryTarget(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASWorldChangesHistory.size())
+		return "";
+	return m_aSASWorldChangesHistory[iIndex].szTarget.c_str();
+}
+
+static char const* getSASWorldChangesHistoryCategoryToken(SASWorldChangesHistoryCategory eCategory)
+{
+	switch (eCategory)
+	{
+	case SAS_WORLD_CHANGES_HISTORY_MAP: return "MAP";
+	case SAS_WORLD_CHANGES_HISTORY_CITY: return "CITY";
+	case SAS_WORLD_CHANGES_HISTORY_UNIT: return "UNIT";
+	case SAS_WORLD_CHANGES_HISTORY_PLAYER: return "PLAYER";
+	case SAS_WORLD_CHANGES_HISTORY_TEAM: return "TEAM";
+	case SAS_WORLD_CHANGES_HISTORY_GAME: return "GAME";
+	case SAS_WORLD_CHANGES_HISTORY_VISIBILITY: return "VISIBILITY";
+	default: return "UNKNOWN";
+	}
+}
+
+static SASWorldChangesHistoryCategory getSASAdvancedStartHistoryCategory(AdvancedStartActionTypes eAction)
+{
+	switch (eAction)
+	{
+	case ADVANCEDSTARTACTION_UNIT: return SAS_WORLD_CHANGES_HISTORY_UNIT;
+	case ADVANCEDSTARTACTION_CITY:
+	case ADVANCEDSTARTACTION_POP:
+	case ADVANCEDSTARTACTION_CULTURE:
+	case ADVANCEDSTARTACTION_BUILDING: return SAS_WORLD_CHANGES_HISTORY_CITY;
+	case ADVANCEDSTARTACTION_IMPROVEMENT:
+	case ADVANCEDSTARTACTION_ROUTE: return SAS_WORLD_CHANGES_HISTORY_MAP;
+	case ADVANCEDSTARTACTION_TECH: return SAS_WORLD_CHANGES_HISTORY_TEAM;
+	case ADVANCEDSTARTACTION_VISIBILITY: return SAS_WORLD_CHANGES_HISTORY_VISIBILITY;
+	case ADVANCEDSTARTACTION_EXIT:
+	case ADVANCEDSTARTACTION_AUTOMATE: return SAS_WORLD_CHANGES_HISTORY_GAME;
+	default: return SAS_WORLD_CHANGES_HISTORY_GAME;
+	}
+}
+
+static CvString getSASAdvancedStartHistoryTarget(AdvancedStartActionTypes eAction, int iData, CvString& szTargetKind)
+{
+	szTargetKind = "NONE";
+	switch (eAction)
+	{
+	case ADVANCEDSTARTACTION_UNIT:
+		szTargetKind = "UNIT";
+		return (iData >= 0 && iData < GC.getNumUnitInfos() ? CvString(GC.getInfo((UnitTypes)iData).getType()) : CvString("-"));
+	case ADVANCEDSTARTACTION_BUILDING:
+		szTargetKind = "BUILDING";
+		return (iData >= 0 && iData < GC.getNumBuildingInfos() ? CvString(GC.getInfo((BuildingTypes)iData).getType()) : CvString("-"));
+	case ADVANCEDSTARTACTION_IMPROVEMENT:
+		szTargetKind = "IMPROVEMENT";
+		return (iData >= 0 && iData < GC.getNumImprovementInfos() ? CvString(GC.getInfo((ImprovementTypes)iData).getType()) : CvString("-"));
+	case ADVANCEDSTARTACTION_ROUTE:
+		szTargetKind = "ROUTE";
+		return (iData >= 0 && iData < GC.getNumRouteInfos() ? CvString(GC.getInfo((RouteTypes)iData).getType()) : CvString("-"));
+	case ADVANCEDSTARTACTION_TECH:
+		szTargetKind = "TECH";
+		return (iData >= 0 && iData < GC.getNumTechInfos() ? CvString(GC.getInfo((TechTypes)iData).getType()) : CvString("-"));
+	case ADVANCEDSTARTACTION_CITY:
+	case ADVANCEDSTARTACTION_VISIBILITY:
+		szTargetKind = "PLOT";
+		break;
+	case ADVANCEDSTARTACTION_POP:
+	case ADVANCEDSTARTACTION_CULTURE:
+		szTargetKind = "CITY";
+		break;
+	default:
+		break;
+	}
+	return CvString("-");
+}
+
+static char const* getSASAdvancedStartHistoryOperation(AdvancedStartActionTypes eAction, bool bAdd)
+{
+	if (eAction == ADVANCEDSTARTACTION_EXIT)
+		return "BEGIN_GAME";
+	if (eAction == ADVANCEDSTARTACTION_AUTOMATE)
+		return "AUTOMATE";
+	return (bAdd ? "ADD" : "REMOVE");
+}
+
+// <!-- custom: Persist each successful Advanced Start mutation/completion in order, including the actual resolved target and budget transition.
+// Failed network choices remain diagnostic-only CHOICE rows and do not enter save history. (ChatGPT-5.6-Sol) -->
+void CvGame::recordSASAdvancedStartHistory(PlayerTypes ePlayer, AdvancedStartActionTypes eAction, int iX, int iY, int iRequestedData, int iResolvedData, bool bAdd, int iQuotedCost, int iPointsBefore, int iGoldBefore, int iCityId, int iObjectId)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	SASWorldChangesHistoryEntry kEntry;
+	kEntry.iSource = SAS_WORLD_CHANGES_HISTORY_ADVANCED_START;
+	kEntry.iCategory = getSASAdvancedStartHistoryCategory(eAction);
+	kEntry.iActor = ePlayer;
+	kEntry.iActorTeam = kPlayer.getTeam();
+	kEntry.iTargetPlayer = ePlayer;
+	kEntry.iTargetTeam = kPlayer.getTeam();
+	kEntry.iTurn = getGameTurn();
+	kEntry.iYear = getGameTurnYear();
+	kEntry.iElapsedTurn = getElapsedGameTurns();
+	kEntry.iVersionIndex = (m_aSASVersionHistory.empty() ? -1 : (int)m_aSASVersionHistory.size() - 1);
+	kEntry.iX = iX;
+	kEntry.iY = iY;
+	kEntry.iCityId = iCityId;
+	kEntry.iObjectId = iObjectId;
+	kEntry.iRequestedDataId = iRequestedData;
+	kEntry.iResolvedDataId = iResolvedData;
+	kEntry.szAction = getSASAdvancedStartActionType(eAction);
+	kEntry.szOperation = getSASAdvancedStartHistoryOperation(eAction, bAdd);
+	kEntry.szTarget = getSASAdvancedStartHistoryTarget(eAction, iResolvedData, kEntry.szTargetKind);
+	kEntry.iQuotedCost = iQuotedCost;
+	kEntry.iPointsBefore = iPointsBefore;
+	kEntry.iPointsAfter = kPlayer.getAdvancedStartPoints();
+	kEntry.iGoldBefore = iGoldBefore;
+	kEntry.iGoldAfter = kPlayer.getGold();
+	m_aSASWorldChangesHistory.push_back(kEntry);
+}
+
+// <!-- custom: Python owns the actual WorldBuilder screen lifecycle.
+// Opening/closing only arms/disarms edit attribution; history is created only by successful mutation wrappers. (ChatGPT-5.6-Sol) -->
+void CvGame::setSASWorldBuilderScreenVisible(bool bVisible)
+{
+	m_bSASWorldBuilderScreenVisible = bVisible;
+	if (!bVisible)
+	{
+		m_bSASWorldBuilderBulkEdit = false;
+		m_iSASWorldBuilderBulkChangedPlots = 0;
+	}
+}
+
+void CvGame::beginSASWorldBuilderBulkEdit()
+{
+	m_bSASWorldBuilderBulkEdit = (isFinalInitialized() && !isInAdvancedStart() && m_bSASWorldBuilderScreenVisible);
+	m_iSASWorldBuilderBulkChangedPlots = 0;
+}
+
+void CvGame::noteSASWorldBuilderBulkRevealChange()
+{
+	if (m_bSASWorldBuilderBulkEdit)
+		m_iSASWorldBuilderBulkChangedPlots++;
+}
+
+// <!-- custom: A reveal-all/unreveal-all call is one persisted editor operation only when it actually changes at least one plot.
+// The per-plot wrapper increments the transient count while child rows are suppressed; a Python exception records one PARTIAL bulk row instead of silently losing already-applied changes. (ChatGPT-5.6-Sol) -->
+void CvGame::endSASWorldBuilderBulkReveal(TeamTypes eTeam, bool bReveal, bool bCompleted)
+{
+	bool const bWasBulkEdit = m_bSASWorldBuilderBulkEdit;
+	int const iChangedPlots = m_iSASWorldBuilderBulkChangedPlots;
+	m_bSASWorldBuilderBulkEdit = false;
+	m_iSASWorldBuilderBulkChangedPlots = 0;
+	if (!bWasBulkEdit || iChangedPlots <= 0)
+		return;
+	char const* szAction = NULL;
+	if (bReveal)
+		szAction = (bCompleted ? "REVEAL_ALL" : "REVEAL_ALL_PARTIAL");
+	else
+		szAction = (bCompleted ? "UNREVEAL_ALL" : "UNREVEAL_ALL_PARTIAL");
+	// <!-- custom: For this bulk row, newValue is the number of plots actually changed; the action token carries the requested reveal state. (ChatGPT-5.6-Sol) -->
+	recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_VISIBILITY, szAction, -1, -1, NO_PLAYER, -1, "TEAM", "-", 0, iChangedPlots, false, false, true, eTeam);
+}
+
+// <!-- custom: Persist one ordered WorldBuilder event for each actual changed wrapper result, independently of SGR settings.
+// Stable target tokens are saved, while free-form names/scripts are represented only as withheld changes.
+// Optional SGR projection adds wall-clock/session context without becoming the source of truth. (ChatGPT-5.6-Sol) -->
+void CvGame::recordSASWorldBuilderEdit(SASWorldChangesHistoryCategory eCategory, char const* szAction, int iX, int iY, PlayerTypes eTargetPlayer, int iObjectId, char const* szTargetKind, char const* szTarget, int iOldValue, int iNewValue, bool bContentWithheld, bool bOldValueValid, bool bNewValueValid, TeamTypes eTargetTeam)
+{
+	if (!isFinalInitialized() || isInAdvancedStart() || !m_bSASWorldBuilderScreenVisible)
+		return;
+	SASWorldChangesHistoryEntry kEntry;
+	kEntry.iSource = SAS_WORLD_CHANGES_HISTORY_WORLD_BUILDER;
+	kEntry.iCategory = eCategory;
+	kEntry.iActor = getActivePlayer();
+	if (kEntry.iActor >= 0 && kEntry.iActor < MAX_PLAYERS)
+		kEntry.iActorTeam = GET_PLAYER((PlayerTypes)kEntry.iActor).getTeam();
+	kEntry.iTargetPlayer = eTargetPlayer;
+	kEntry.iTargetTeam = eTargetTeam;
+	if (kEntry.iTargetTeam == NO_TEAM && eTargetPlayer >= 0 && eTargetPlayer < MAX_PLAYERS)
+		kEntry.iTargetTeam = GET_PLAYER(eTargetPlayer).getTeam();
+	kEntry.iTurn = getGameTurn();
+	kEntry.iYear = getGameTurnYear();
+	kEntry.iElapsedTurn = getElapsedGameTurns();
+	kEntry.iVersionIndex = (m_aSASVersionHistory.empty() ? -1 : (int)m_aSASVersionHistory.size() - 1);
+	kEntry.iX = iX;
+	kEntry.iY = iY;
+	kEntry.iObjectId = iObjectId;
+	if (eCategory == SAS_WORLD_CHANGES_HISTORY_CITY)
+		kEntry.iCityId = iObjectId;
+	kEntry.szAction = (szAction == NULL ? "-" : szAction);
+	kEntry.szOperation = "EDIT";
+	kEntry.szTargetKind = (szTargetKind == NULL ? "NONE" : szTargetKind);
+	kEntry.szTarget = (bContentWithheld || szTarget == NULL ? "-" : szTarget);
+	kEntry.bOldValueValid = bOldValueValid;
+	kEntry.iOldValue = iOldValue;
+	kEntry.bNewValueValid = bNewValueValid;
+	kEntry.iNewValue = iNewValue;
+	kEntry.bContentWithheld = bContentWithheld;
+	m_aSASWorldChangesHistory.push_back(kEntry);
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled())
+		logSASGameRecordWorldBuilderEdit(getSASWorldChangesHistoryCategoryToken(eCategory), szAction, iX, iY, eTargetPlayer, (TeamTypes)kEntry.iTargetTeam, iObjectId, szTargetKind, szTarget, iOldValue, iNewValue, bContentWithheld, bOldValueValid, bNewValueValid);
 }
 
 // <!-- custom: New games record their first entry as creation provenance; later loads append only when practical version or canonical SHA changes.

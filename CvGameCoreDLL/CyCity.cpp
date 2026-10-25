@@ -6,6 +6,10 @@
 #include "CvCityAI.h" // advc.003u
 #include "CyArea.h"
 #include "CvDLLPythonIFaceBase.h"
+#include "CvGame.h" // <!-- custom: WorldBuilder editor-history hooks use the persisted CvGame session/category tracker. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Building.h" // <!-- custom: WorldBuilder building history records stable XML type tokens; GC.getInfo requires CvBuildingInfo complete here. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Organization.h" // <!-- custom: WorldBuilder religion/corporation history records stable XML type tokens; GC.getInfo requires the complete organization info types here. (ChatGPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Record controlled WorldBuilder city mutations without copying free-form names. (ChatGPT-5.6-Sol) -->
 
 CyCity::CyCity() : m_pCity(NULL) {}
 
@@ -15,6 +19,12 @@ CyCity::CyCity(CvCity* pCity) : m_pCity(pCity == NULL ? NULL : &pCity->AI()) {}
 CyCity::CyCity(CvCityAI* pCity) : m_pCity(pCity) {}
 CyCity::CyCity(CvCity const& kCity) : m_pCity(static_cast<CvCityAI*>(const_cast<CvCity*>(&kCity))) {}
 
+static bool isSASWorldBuilderCityEditContext()
+{
+	return GC.getGame().isSASWorldBuilderScreenVisible() && !GC.getGame().isInAdvancedStart();
+}
+
+
 CvCity* CyCity::getCity() // Definition moved from CyCity.h
 {
 	return m_pCity;
@@ -23,7 +33,13 @@ CvCity* CyCity::getCity() // Definition moved from CyCity.h
 void CyCity::kill()
 {
 	if (m_pCity)
+	{
+		if (isSASWorldBuilderCityEditContext())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "REMOVE_CITY", m_pCity->getX(), m_pCity->getY(), m_pCity->getOwner(), m_pCity->getID(), "CITY", "-", 1, 0);
+		}
 		m_pCity->kill(true);
+	}
 }
 
 void CyCity::createGreatPeople(int /*UnitTypes*/ eGreatPersonUnit, bool bIncrementThreshold, bool bIncrementExperience)
@@ -802,7 +818,16 @@ int CyCity::getPopulation()
 void CyCity::setPopulation(int iNewValue)
 {
 	if (m_pCity)
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderCityEditContext();
+		int const iOldValue = (bWorldBuilderEdit ? m_pCity->getPopulation() : 0);
 		m_pCity->setPopulation(iNewValue);
+		if (bWorldBuilderEdit && iOldValue != m_pCity->getPopulation())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "SET_POPULATION", m_pCity->getX(), m_pCity->getY(), m_pCity->getOwner(), m_pCity->getID(), "POPULATION", "-", iOldValue, m_pCity->getPopulation());
+		}
+	}
 }
 
 void CyCity::changePopulation(int iChange)
@@ -1778,7 +1803,16 @@ int CyCity::calculateTeamCulturePercent(int /*TeamTypes*/ eIndex)
 void CyCity::setCulture(int /*PlayerTypes*/ eIndex, int iNewValue, bool bPlots)
 {
 	if (m_pCity)
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderCityEditContext();
+		int const iOldValue = (bWorldBuilderEdit ? m_pCity->getCulture((PlayerTypes)eIndex) : 0);
 		m_pCity->setCulture((PlayerTypes)eIndex, iNewValue, bPlots, true);
+		if (bWorldBuilderEdit && iOldValue != m_pCity->getCulture((PlayerTypes)eIndex))
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "SET_CULTURE", m_pCity->getX(), m_pCity->getY(), (PlayerTypes)eIndex, m_pCity->getID(), "CULTURE", "-", iOldValue, m_pCity->getCulture((PlayerTypes)eIndex));
+		}
+	}
 }
 
 void CyCity::setCultureTimes100(int /*PlayerTypes*/ eIndex, int iNewValue, bool bPlots)
@@ -1844,9 +1878,16 @@ void CyCity::setName(std::wstring szNewValue, bool bFound)
 {
 	if (m_pCity)
 	{
+		bool const bWorldBuilderEdit = isSASWorldBuilderCityEditContext();
+		CvWString szOldName;
+		if (bWorldBuilderEdit) szOldName = m_pCity->getName();
 		m_pCity->setName(CvWString(szNewValue), bFound,
 				// advc.106k: For preplaced cities in scenarios
 				!GC.IsGraphicsInitialized());
+		if (bWorldBuilderEdit && szOldName != m_pCity->getName())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "SET_NAME", m_pCity->getX(), m_pCity->getY(), m_pCity->getOwner(), m_pCity->getID(), "NAME", "-", -1, -1, true, false, false);
+		}
 	}
 }
 
@@ -2172,7 +2213,17 @@ int CyCity::getNumRealBuilding(int /*BuildingTypes*/ iIndex)
 void CyCity::setNumRealBuilding(int /*BuildingTypes*/ iIndex, int iNewValue)
 {
 	if (m_pCity)
-		m_pCity->setNumRealBuilding((BuildingTypes) iIndex, iNewValue);
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderCityEditContext();
+		int const iOldValue = (bWorldBuilderEdit ? m_pCity->getNumRealBuilding((BuildingTypes)iIndex) : 0);
+		m_pCity->setNumRealBuilding((BuildingTypes)iIndex, iNewValue);
+		if (bWorldBuilderEdit && iOldValue != m_pCity->getNumRealBuilding((BuildingTypes)iIndex))
+		{
+			char const* szBuilding = (iIndex >= 0 && iIndex < GC.getNumBuildingInfos() ? GC.getInfo((BuildingTypes)iIndex).getType() : "-");
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "SET_BUILDING", m_pCity->getX(), m_pCity->getY(), m_pCity->getOwner(), m_pCity->getID(), "BUILDING", szBuilding, iOldValue, m_pCity->getNumRealBuilding((BuildingTypes)iIndex));
+		}
+	}
 }
 
 int CyCity::getNumFreeBuilding(int /*BuildingTypes*/ iIndex)
@@ -2188,7 +2239,17 @@ bool CyCity::isHasReligion(int /*ReligionTypes*/ iIndex)
 void CyCity::setHasReligion(int /*ReligionTypes*/ iIndex, bool bNewValue, bool bAnnounce, bool bArrows)
 {
 	if (m_pCity)
-		m_pCity->setHasReligion((ReligionTypes) iIndex, bNewValue, bAnnounce, bArrows);
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderCityEditContext();
+		bool const bOldValue = (bWorldBuilderEdit ? m_pCity->isHasReligion((ReligionTypes)iIndex) : false);
+		m_pCity->setHasReligion((ReligionTypes)iIndex, bNewValue, bAnnounce, bArrows);
+		if (bWorldBuilderEdit && bOldValue != m_pCity->isHasReligion((ReligionTypes)iIndex))
+		{
+			char const* szReligion = (iIndex >= 0 && iIndex < GC.getNumReligionInfos() ? GC.getInfo((ReligionTypes)iIndex).getType() : "-");
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "SET_RELIGION", m_pCity->getX(), m_pCity->getY(), m_pCity->getOwner(), m_pCity->getID(), "RELIGION", szReligion, bOldValue ? 1 : 0, m_pCity->isHasReligion((ReligionTypes)iIndex) ? 1 : 0);
+		}
+	}
 }
 
 bool CyCity::isHasCorporation(int /*CorporationTypes*/ iIndex)
@@ -2199,7 +2260,17 @@ bool CyCity::isHasCorporation(int /*CorporationTypes*/ iIndex)
 void CyCity::setHasCorporation(int /*CorporationTypes*/ iIndex, bool bNewValue, bool bAnnounce, bool bArrows)
 {
 	if (m_pCity)
-		m_pCity->setHasCorporation((CorporationTypes) iIndex, bNewValue, bAnnounce, bArrows);
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderCityEditContext();
+		bool const bOldValue = (bWorldBuilderEdit ? m_pCity->isHasCorporation((CorporationTypes)iIndex) : false);
+		m_pCity->setHasCorporation((CorporationTypes)iIndex, bNewValue, bAnnounce, bArrows);
+		if (bWorldBuilderEdit && bOldValue != m_pCity->isHasCorporation((CorporationTypes)iIndex))
+		{
+			char const* szCorporation = (iIndex >= 0 && iIndex < GC.getNumCorporationInfos() ? GC.getInfo((CorporationTypes)iIndex).getType() : "-");
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "SET_CORPORATION", m_pCity->getX(), m_pCity->getY(), m_pCity->getOwner(), m_pCity->getID(), "CORPORATION", szCorporation, bOldValue ? 1 : 0, m_pCity->isHasCorporation((CorporationTypes)iIndex) ? 1 : 0);
+		}
+	}
 }
 
 bool CyCity::isActiveCorporation(int /*CorporationTypes*/ eCorporation)
@@ -2323,7 +2394,16 @@ std::string CyCity::getScriptData() const
 void CyCity::setScriptData(std::string szNewValue)
 {
 	if (m_pCity)
+	{
+		bool const bWorldBuilderEdit = isSASWorldBuilderCityEditContext();
+		std::string szOldScript;
+		if (bWorldBuilderEdit) szOldScript = m_pCity->getScriptData();
 		m_pCity->setScriptData(szNewValue);
+		if (bWorldBuilderEdit && szOldScript != m_pCity->getScriptData())
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_CITY, "SET_SCRIPT", m_pCity->getX(), m_pCity->getY(), m_pCity->getOwner(), m_pCity->getID(), "SCRIPT", "-", -1, -1, true, false, false);
+		}
+	}
 }
 
 int CyCity::visiblePopulation()

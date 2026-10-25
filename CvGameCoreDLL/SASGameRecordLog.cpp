@@ -2994,6 +2994,32 @@ static void logSASGameRecordVersionHistory()
 	}
 }
 
+// <!-- custom: Save-owned setup/editor history survives after its original SGR file is gone.
+// Mirror the durable ordered rows once per session; level 1 keeps only the entry count, while level 2+ action trace emits the saved actions themselves. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordWorldChangesHistory()
+{
+	CvGame const& kGame = GC.getGame();
+	int const iEntries = kGame.getNumSASWorldChangesHistoryEntries();
+	logSASGameRecord("GAME_RECORD_SAVE_WORLD_CHANGES_HISTORY entries=%d detailed=%d", iEntries,
+		(gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) ? 1 : 0);
+	if (gGameRecordLogLevel < 2 || !isSASGameRecordActionTraceEnabled())
+		return;
+	for (int i = 0; i < iEntries; i++)
+	{
+		logSASGameRecord("GAME_RECORD_SAVE_WORLD_CHANGES_HISTORY_ENTRY index=%d source=%s category=%s actorPlayer=%d actorTeam=%d targetPlayer=%d targetTeam=%d turn=%d year=%d elapsed=%d versionIndex=%d x=%d y=%d cityId=%d objectId=%d requestedDataId=%d resolvedDataId=%d action=%s operation=%s targetKind=%s target=%s oldValueValid=%d oldValue=%d newValueValid=%d newValue=%d content=%s quotedCost=%d pointsBefore=%d pointsAfter=%d goldBefore=%d goldAfter=%d",
+			i, kGame.getSASWorldChangesHistorySourceName(i), kGame.getSASWorldChangesHistoryCategoryName(i),
+			kGame.getSASWorldChangesHistoryActor(i), kGame.getSASWorldChangesHistoryActorTeam(i), kGame.getSASWorldChangesHistoryTargetPlayer(i), kGame.getSASWorldChangesHistoryTargetTeam(i),
+			kGame.getSASWorldChangesHistoryTurn(i), kGame.getSASWorldChangesHistoryYear(i), kGame.getSASWorldChangesHistoryElapsedTurn(i), kGame.getSASWorldChangesHistoryVersionIndex(i),
+			kGame.getSASWorldChangesHistoryX(i), kGame.getSASWorldChangesHistoryY(i), kGame.getSASWorldChangesHistoryCityId(i), kGame.getSASWorldChangesHistoryObjectId(i),
+			kGame.getSASWorldChangesHistoryRequestedDataId(i), kGame.getSASWorldChangesHistoryResolvedDataId(i), kGame.getSASWorldChangesHistoryAction(i), kGame.getSASWorldChangesHistoryOperation(i),
+			kGame.getSASWorldChangesHistoryTargetKind(i), getSASDiagnosticQuoted(kGame.getSASWorldChangesHistoryTarget(i)).GetCString(),
+			kGame.getSASWorldChangesHistoryOldValueValid(i) ? 1 : 0, kGame.getSASWorldChangesHistoryOldValue(i),
+			kGame.getSASWorldChangesHistoryNewValueValid(i) ? 1 : 0, kGame.getSASWorldChangesHistoryNewValue(i),
+			kGame.getSASWorldChangesHistoryContentWithheld(i) ? "WITHHELD" : "RECORDED", kGame.getSASWorldChangesHistoryQuotedCost(i),
+			kGame.getSASWorldChangesHistoryPointsBefore(i), kGame.getSASWorldChangesHistoryPointsAfter(i), kGame.getSASWorldChangesHistoryGoldBefore(i), kGame.getSASWorldChangesHistoryGoldAfter(i));
+	}
+}
+
 void startSASGameRecordLogForNewGame()
 {
 	rollSASGameRecordLog("new");
@@ -3017,6 +3043,7 @@ void logSASGameRecordNewGameStarted()
 	logSASGameRecordSaveFormatContext(false);
 	// <!-- custom: gameStart has now established the persisted creation entry, so expose it immediately in the successful new-game record. (ChatGPT-5.6-Sol) -->
 	logSASGameRecordVersionHistory();
+	logSASGameRecordWorldChangesHistory();
 	logSASGameRecordInitialPlayerIdentities();
 	int iTeamStateRows = 0;
 	int iTechRows = 0;
@@ -3055,6 +3082,7 @@ void startSASGameRecordLogForLoadedSave()
 	logSASGameRecordProvenanceContext();
 	// <!-- custom: onAllGameDataRead reconciles the persisted lineage before starting this log, so a load records any newly encountered source transition here. (ChatGPT-5.6-Sol) -->
 	logSASGameRecordVersionHistory();
+	logSASGameRecordWorldChangesHistory();
 	logSASGameRecordLogSettings();
 	logSASGameRecordTechCapabilitySources();
 	logSASGameRecordVassalRules();
@@ -15651,6 +15679,19 @@ void logSASGameRecordAdvancedStartResult(CvPlayer const& kPlayer, AdvancedStartA
 		iRequestedData, iResolvedData, szTargetKind, szTarget.GetCString(), iQuotedCost, iPointsBefore, iPointsAfter,
 		bPointsDeltaValid ? 1 : 0, iPointsDelta, iGoldBefore, iGoldAfter, iGoldAfter - iGoldBefore);
 	logSASGameRecordAdvancedStartOffers(kPlayer, GC.getMap().plot(iX, iY), true);
+}
+
+// <!-- custom: WorldBuilder is an explicit editor, so record controlled applied mutation facts instead of inferring edits from later gameplay state.
+// Free-form names/scripts are represented only as content=WITHHELD; the save-persisted event keeps the same stable action/target/before-after context without diagnostic wall-clock data. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordWorldBuilderEdit(char const* szCategory, char const* szAction, int iX, int iY, PlayerTypes eTargetPlayer, TeamTypes eTargetTeam, int iObjectId, char const* szTargetKind, char const* szTarget, int iOldValue, int iNewValue, bool bContentWithheld, bool bOldValueValid, bool bNewValueValid)
+{
+	CvGame const& kGame = GC.getGame();
+	PlayerTypes const eActor = kGame.getActivePlayer();
+	TeamTypes const eActorTeam = (eActor >= 0 && eActor < MAX_PLAYERS ? GET_PLAYER(eActor).getTeam() : NO_TEAM);
+	logSASGameRecord("GAME_RECORD_WORLD_BUILDER_EDIT turn=%d elapsed=%d actorPlayer=%d actorTeam=%d sessionWallMilliseconds=%u category=%s action=%s x=%d y=%d targetPlayer=%d targetTeam=%d objectId=%d targetKind=%s target=%s oldValueValid=%d oldValue=%d newValueValid=%d newValue=%d content=%s",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), eActor, eActorTeam, getSASGameRecordSessionWallMilliseconds(),
+		szCategory == NULL ? "-" : szCategory, szAction == NULL ? "-" : szAction, iX, iY, eTargetPlayer, eTargetTeam, iObjectId,
+		szTargetKind == NULL ? "-" : szTargetKind, szTarget == NULL ? "-" : szTarget, bOldValueValid ? 1 : 0, iOldValue, bNewValueValid ? 1 : 0, iNewValue, bContentWithheld ? "WITHHELD" : "RECORDED");
 }
 
 static CvString getSASGameRecordVoteEffects(VoteTypes eVote)

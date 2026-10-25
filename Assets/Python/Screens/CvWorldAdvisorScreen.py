@@ -37,7 +37,8 @@ class CvWorldAdvisorScreen:
 		self.PANEL_HEIGHT = 55
 		self.X_MARGIN = 45
 
-		# Layout constants ordered to match the tab order (BFC 1 / BFC 2 / Territory / Environment); BFC_* are shared by BFC 1 / BFC 2 / Territory.
+		# <!-- custom: Layout constants follow the BFC 1 / BFC 2 / Territory / Environment / Changes tab order; the BFC constants remain shared by the first three pages. (ChatGPT-5.6-Sol) -->
+		# <!-- custom: Changes is deliberately last: unlike Environment's gameplay snapshot, it is durable setup/editor provenance for review and development. (ChatGPT-5.6-Sol) -->
 		self.BFC_TABLE_GAP = 18
 		self.BFC_CITY_COL_WIDTH = 170
 		self.BFC_ZOOM_COL_WIDTH = 28
@@ -49,15 +50,22 @@ class CvWorldAdvisorScreen:
 		self.ENV_Y_SPACING = 30
 		self.ENV_TEXT_MARGIN = 15
 
-		# <!-- custom: Environment tab is last because its global-warming readouts are less important. (Claude code Opus 4.7) -->
-		self.PAGE_NAME_LIST = ["TXT_KEY_WORLD_ADVISOR_BFC1_TAB", "TXT_KEY_WORLD_ADVISOR_BFC2_TAB", "TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB", "TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB"]
+		# <!-- custom: Keep Environment after the territory pages and put Changes last as the more specialized persisted setup/editor provenance view. (Claude code Opus 4.7 + ChatGPT-5.6-Sol) -->
+		self.PAGE_NAME_LIST = ["TXT_KEY_WORLD_ADVISOR_BFC1_TAB", "TXT_KEY_WORLD_ADVISOR_BFC2_TAB", "TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB", "TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB", "TXT_KEY_WORLD_ADVISOR_CHANGES_TAB"]
 		self.PAGE_LINK_WIDTH = []
 		self.iBFC1ID = 0
 		self.iBFC2ID = 1
 		self.iTerritoryID = 2
 		self.iEnvironmentID = 3
+		# <!-- custom: Use Changes consistently for this tab's local state, helpers and localization keys; its save-owned history also includes Advanced Start. (GPT-6.1-Sol) -->
+		self.iChangesID = 4
 		self.iActiveTab = self.iBFC1ID
 		self.DEBUG_DROPDOWN_ID = "WorldAdvisorDropdownWidget"
+		self.CHANGES_TABLE_ID = None
+		self.CHANGES_LOG_BUTTON_ID = None
+		self.CHANGES_ROW_PLOTS = {}
+		# <!-- custom: Cache typed XML descriptions for Changes rows; missing historical tokens remain readable without a global cross-family lookup. (GPT-6.1-Sol) -->
+		self.CHANGES_INFO_CATALOG = {}
 
 		self.iLanguageLoaded = -1
 		self.nWidgetCount = 0
@@ -129,6 +137,8 @@ class CvWorldAdvisorScreen:
 		if self.iLanguageLoaded == CyGame().getCurrentLanguage():
 			return
 		self.iLanguageLoaded = CyGame().getCurrentLanguage()
+		# <!-- custom: Rebuild cached XML descriptions when the selected language changes. (GPT-6.1-Sol) -->
+		self.CHANGES_INFO_CATALOG.clear()
 
 		self.SCREEN_TITLE = SASTextScale.sasFontTagTitle.bold + localText.getText("TXT_KEY_WORLD_ADVISOR_TITLE", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
 		self.EXIT_TEXT = SASTextScale.sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
@@ -155,6 +165,7 @@ class CvWorldAdvisorScreen:
 		# BFC 1
 		self.TEXT_POP = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC1_POP", ())
 		self.TEXT_YEAR = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC1_YEAR", ())
+		self.TEXT_TURN = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_TURN", ())
 
 		# Territory
 		self.TEXT_TERRITORY_PLOTS = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_PLOTS", ())
@@ -165,6 +176,21 @@ class CvWorldAdvisorScreen:
 		self.TEXT_TERRITORY_SUBURBS = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_SUBURBS_ABBR", ())
 		self.TEXT_TERRITORY_TOTAL_ABBR = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_TOTAL_ABBR", ())
 
+		# <!-- custom: Load fixed Changes-tab labels once with the advisor's other localized text. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		self.TEXT_CHANGES_SOURCE = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_SOURCE", ())
+		self.TEXT_CHANGES_ACTOR = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_ACTOR", ())
+		self.TEXT_CHANGES_SEQUENCE = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_SEQUENCE", ())
+		self.TEXT_CHANGES_ACTION = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_ACTION", ())
+		self.TEXT_CHANGES_TARGET = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_TARGET", ())
+		self.TEXT_CHANGES_LOCATION = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_LOCATION", ())
+		# <!-- custom: Keep the numeric column order shared by headers, row projection and LOG export; independent before/after cells preserve actual numeric sorting instead of sorting combined transition strings. (GPT-6.1-Sol) -->
+		self.CHANGES_NUMERIC_LABELS = [localText.getText(szKey, ()) for szKey in ("TXT_KEY_WORLD_ADVISOR_CHANGES_BEFORE", "TXT_KEY_WORLD_ADVISOR_CHANGES_AFTER", "TXT_KEY_WORLD_ADVISOR_CHANGES_POINTS_BEFORE", "TXT_KEY_WORLD_ADVISOR_CHANGES_POINTS_AFTER", "TXT_KEY_WORLD_ADVISOR_CHANGES_GOLD_BEFORE", "TXT_KEY_WORLD_ADVISOR_CHANGES_GOLD_AFTER", "TXT_KEY_WORLD_ADVISOR_CHANGES_COST")]
+		self.TEXT_CHANGES_ADVANCED_START = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_ADVANCED_START", ())
+		self.TEXT_CHANGES_WORLD_BUILDER = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_WORLD_BUILDER", ())
+		self.TEXT_CHANGES_NONE = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_NONE", ())
+		self.TEXT_CHANGES_HIDDEN = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_HIDDEN", ())
+		self.TEXT_CHANGES_WITHHELD = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_WITHHELD", ())
+		self.TEXT_CHANGES_LOG = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_LOG", ())
 		# Environment
 		self.TEXT_GW_SEVERITY_RATING = localText.getText("TXT_KEY_GW_SEVERITY_RATING", ()).upper()
 		self.TEXT_ENV_POLLUTION = localText.getText("TXT_KEY_POLLUTION", ())
@@ -242,6 +268,8 @@ class CvWorldAdvisorScreen:
 			self.drawTerritoryTab()
 		elif self.iActiveTab == self.iEnvironmentID:
 			self.drawEnvironmentTab()
+		elif self.iActiveTab == self.iChangesID:
+			self.drawChangesTab()
 
 	# BFC 1
 	def drawBFC1Tab(self):
@@ -673,7 +701,285 @@ class CvWorldAdvisorScreen:
 		else:
 			screen.setTableInt(szTable, iCol, iRow, SASTextScale.sasFontTagLabel + str(iCount) + SASTextScale.SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
-	# ENVIRONMENT
+	# <!-- custom: The Changes tab reads the ordered save-owned setup/editor actions rather than reconstructing them from current game state or requiring old log files.
+	# The persistent save is complete; this presentation applies observer/perspective filtering so ordinary play cannot use historical coordinates or object/value details as a fog-of-war side channel.
+	# Debug mode intentionally exposes the full record. (ChatGPT-5.6-Sol) -->
+	def drawChangesTab(self):
+		screen = self.getScreen()
+		game = CyGame()
+		self.CHANGES_ROW_PLOTS = {}
+		self.CHANGES_TABLE_ID = None
+		self.CHANGES_LOG_BUTTON_ID = None
+		# <!-- custom: Reuse the advisor legend link even when the loaded save has no entries, so the tab explains its scope, columns and visibility rules before any edits are made. (GPT-6.1-Sol) -->
+		placeAdvisorLegendLink(self, "CONCEPT_SAS_WORLD_ADVISOR_CHANGES_LEGEND", self.W_SCREEN - self.X_MARGIN, self.Y_TITLE)
+		iEntries = game.getNumSASWorldChangesHistoryEntries()
+		if iEntries <= 0:
+			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_CHANGES_NONE + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.W_SCREEN / 2, self.CONTENT_Y_TOP + 70, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			return
+
+		self.CHANGES_LOG_BUTTON_ID = self.getNextWidgetName()
+		screen.setButtonGFC(self.CHANGES_LOG_BUTTON_ID, SASTextScale.sasFontTagLabel + self.TEXT_CHANGES_LOG.upper() + SASTextScale.SAS_FONT_TAG_CLOSE, "", self.W_SCREEN - self.X_MARGIN - 165, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+		self.CHANGES_TABLE_ID = self.getNextWidgetName()
+		iX = self.X_MARGIN
+		iY = self.CONTENT_Y_TOP + 18
+		iW = self.W_SCREEN - 2 * self.X_MARGIN
+		iH = self.CONTENT_Y_BOTTOM - iY - 18
+		aszHeaders = [u"", self.TEXT_CHANGES_SEQUENCE, self.TEXT_TURN, self.TEXT_YEAR, self.TEXT_CHANGES_SOURCE, self.TEXT_CHANGES_ACTOR, self.TEXT_CHANGES_ACTION, self.TEXT_CHANGES_TARGET, self.TEXT_CHANGES_LOCATION] + self.CHANGES_NUMERIC_LABELS
+		iNumCols = len(aszHeaders)
+		screen.addTableControlGFC(self.CHANGES_TABLE_ID, iNumCols, iX, iY, iW, iH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+		screen.enableSort(self.CHANGES_TABLE_ID)
+		# <!-- custom: Compact A/W source labels free width for actions/targets, three-digit sequences and six-digit before/after values with SAS text upscaling; Cost absorbs the remainder, reserving 18 pixels for the scrollbar. (GPT-6.1-Sol) -->
+		aiWidths = [28, 56, 60, 88, 45, 85, 185, 180, 90, 96, 96] + [78] * (len(self.CHANGES_NUMERIC_LABELS) - 3)
+		aiWidths.append(max(70, iW - sum(aiWidths) - 18))
+		for iCol in range(iNumCols):
+			screen.setTableColumnHeader(self.CHANGES_TABLE_ID, iCol, SASTextScale.sasFontTagLabel + aszHeaders[iCol] + SASTextScale.SAS_FONT_TAG_CLOSE, aiWidths[iCol])
+
+		# <!-- custom: Default newest-first for review while retaining an explicit sequence column so exact within-turn order remains recoverable after user sorting. (ChatGPT-5.6-Sol) -->
+		for iEntry in range(iEntries - 1, -1, -1):
+			tRow = self.getChangesHistoryPerspectiveRow(iEntry)
+			if tRow is None:
+				continue
+			iSequence, iTurn, iYear, szSource, szActor, szAction, szTarget, szLocation, tNumericValues, iXPlot, iYPlot = tRow
+			iRow = screen.appendTableRow(self.CHANGES_TABLE_ID)
+			if iXPlot >= 0 and iYPlot >= 0:
+				self.CHANGES_ROW_PLOTS[iRow] = (iXPlot, iYPlot)
+				screen.setTableText(self.CHANGES_TABLE_ID, 0, iRow, getAdvisorIconSortKey(1, iRow), SASVisuals.InterfaceArt.INTERFACE_MINIMAP_PING, WidgetTypes.WIDGET_GENERAL, iXPlot, iYPlot, CvUtil.FONT_CENTER_JUSTIFY)
+			else:
+				screen.setTableText(self.CHANGES_TABLE_ID, 0, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+			# <!-- custom: Use the shared label-font table helpers for every text/numeric row, as in Battles; raw table calls ignored SAS text upscaling even though the headers were scaled.
+			# Numeric helpers preserve numeric sorting. (GPT-6.1-Sol) -->
+			SASTextScale.setTableIntLabel(screen, self.CHANGES_TABLE_ID, 1, iRow, unicode(iSequence), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			SASTextScale.setTableIntLabel(screen, self.CHANGES_TABLE_ID, 2, iRow, unicode(iTurn), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			SASTextScale.setTableIntLabel(screen, self.CHANGES_TABLE_ID, 3, iRow, unicode(iYear), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+			aText = [szSource, szActor, szAction, szTarget, szLocation]
+			for iOffset in range(len(aText)):
+				SASTextScale.setTableTextLabel(screen, self.CHANGES_TABLE_ID, 4 + iOffset, iRow, aText[iOffset], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			iNumericCol = iNumCols - len(self.CHANGES_NUMERIC_LABELS)
+			for iOffset, value in enumerate(tNumericValues):
+				if isinstance(value, (int, long)):
+					SASTextScale.setTableIntLabel(screen, self.CHANGES_TABLE_ID, iNumericCol + iOffset, iRow, unicode(value), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+				else:
+					if value is None:
+						value = u"-"
+					SASTextScale.setTableTextLabel(screen, self.CHANGES_TABLE_ID, iNumericCol + iOffset, iRow, value, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+
+	def getChangesHistoryPerspectiveRow(self, iEntry):
+		game = CyGame()
+		bDebug = game.isDebugMode()
+		iObserverPlayer = game.getActivePlayer()
+		if iObserverPlayer < 0 or iObserverPlayer >= gc.getMAX_PLAYERS():
+			return None
+		iObserverTeam = gc.getPlayer(iObserverPlayer).getTeam()
+		iActor = game.getSASWorldChangesHistoryActor(iEntry)
+		iTargetPlayer = game.getSASWorldChangesHistoryTargetPlayer(iEntry)
+		iTargetTeam = game.getSASWorldChangesHistoryTargetTeam(iEntry)
+		szCategoryToken = game.getSASWorldChangesHistoryCategoryName(iEntry)
+		szSourceToken = game.getSASWorldChangesHistorySourceName(iEntry)
+		iX = game.getSASWorldChangesHistoryX(iEntry)
+		iY = game.getSASWorldChangesHistoryY(iEntry)
+		bHasPlot = (0 <= iX < CyMap().getGridWidth() and 0 <= iY < CyMap().getGridHeight())
+		bActorOwn = (iActor == iObserverPlayer)
+		bTargetOwn = (iTargetPlayer == iObserverPlayer or iTargetTeam == iObserverTeam)
+		bPlotRevealed = False
+		bPlotVisible = False
+		if bHasPlot:
+			pPlot = CyMap().plot(iX, iY)
+			bPlotRevealed = pPlot.isRevealed(iObserverTeam, False)
+			bPlotVisible = pPlot.isVisible(iObserverTeam, False)
+
+		# <!-- custom: Advanced Start is pre-game setup: ordinary play sees only the active player's own history, never AI setup merely because its old plot later became visible. (ChatGPT-5.6-Sol) -->
+		if not bDebug and szSourceToken == "ADVANCED_START" and not bActorOwn and not bTargetOwn:
+			return None
+		if not bDebug and not bActorOwn and not bTargetOwn and not (bHasPlot and bPlotRevealed):
+			return None
+		# <!-- custom: City/unit actions can reveal hidden occupants; without debug/local-editor authorship, require current visibility before showing the row at all. (ChatGPT-5.6-Sol) -->
+		if not bDebug and not bActorOwn and bHasPlot and szCategoryToken in ("CITY", "UNIT") and not bPlotVisible:
+			return None
+
+		bFull = (bDebug or bActorOwn)
+		bLocationKnown = (bFull or (bHasPlot and bPlotRevealed))
+		# <!-- custom: A revealed-but-currently-fogged foreign plot may expose its known coordinates, but a later WorldBuilder mutation is new information.
+		# Require current visibility before revealing that editor action/target/value; debug mode, the editor actor, or an own/team target still receives the full row. (ChatGPT-5.6-Sol) -->
+		if szSourceToken == "WORLD_BUILDER" and bHasPlot:
+			bObjectKnown = bFull or bTargetOwn or bPlotVisible
+		elif szCategoryToken in ("CITY", "UNIT"):
+			bObjectKnown = bFull or bTargetOwn or (bHasPlot and bPlotVisible)
+		else:
+			bObjectKnown = bFull or bTargetOwn or (bHasPlot and bPlotRevealed)
+		if szSourceToken == "ADVANCED_START":
+			szSource = self.TEXT_CHANGES_ADVANCED_START
+		elif szSourceToken == "WORLD_BUILDER":
+			szSource = self.TEXT_CHANGES_WORLD_BUILDER
+		else:
+			szSource = unicode(szSourceToken)
+		if bFull or iActor == iObserverPlayer:
+			szActor = self.getChangesHistoryPlayerText(iActor)
+		else:
+			szActor = self.TEXT_CHANGES_HIDDEN
+		if bObjectKnown:
+			szAction = self.getChangesHistoryTokenText(game.getSASWorldChangesHistoryOperation(iEntry), game.getSASWorldChangesHistoryAction(iEntry))
+			szTarget = self.getChangesHistoryTargetText(iEntry)
+		else:
+			szAction = self.TEXT_CHANGES_HIDDEN
+			szTarget = self.TEXT_CHANGES_HIDDEN
+		szLocation = u"-"
+		iSafeX = -1
+		iSafeY = -1
+		if bHasPlot:
+			if bLocationKnown:
+				szLocation = u"%d,%d" % (iX, iY)
+				iSafeX = iX
+				iSafeY = iY
+			else:
+				szLocation = self.TEXT_CHANGES_HIDDEN
+		if bObjectKnown:
+			tNumericValues = self.getChangesHistoryNumericValues(iEntry)
+		else:
+			tNumericValues = (self.TEXT_CHANGES_HIDDEN,) * len(self.CHANGES_NUMERIC_LABELS)
+		return (iEntry, game.getSASWorldChangesHistoryTurn(iEntry), game.getSASWorldChangesHistoryYear(iEntry), szSource, szActor, szAction, szTarget, szLocation, tNumericValues, iSafeX, iSafeY)
+
+	def getChangesHistoryTokenText(self, szOperation, szAction):
+		def pretty(szToken):
+			if not szToken or szToken == "-":
+				return u""
+			return unicode(szToken).replace(u"_", u" ").title()
+		szOp = pretty(szOperation)
+		szActionText = pretty(szAction)
+		if szOp and szOp not in (u"Edit",):
+			if szActionText and szActionText != szOp:
+				return szOp + u" / " + szActionText
+			return szOp
+		return szActionText or szOp or u"-"
+
+	def getChangesHistoryPlayerText(self, iPlayer):
+		if iPlayer < 0 or iPlayer >= gc.getMAX_PLAYERS():
+			return u"-"
+		return u"P%d %s" % (iPlayer, gc.getPlayer(iPlayer).getName())
+
+	# <!-- custom: Resolve saved type tokens within their recorded XML family instead of using a raw global info index.
+	# This avoids cross-family indexing and keeps removed historical tokens as text; each family is scanned once per selected language, not once per row. (GPT-6.1-Sol) -->
+	def getChangesHistoryInfoDescription(self, szKind, szType):
+		if not szType or szType == "-":
+			return u"-"
+		if szKind not in self.CHANGES_INFO_CATALOG:
+			dSpecs = {
+				"UNIT": (gc.getUnitInfo, gc.getNumUnitInfos),
+				"BUILDING": (gc.getBuildingInfo, gc.getNumBuildingInfos),
+				"IMPROVEMENT": (gc.getImprovementInfo, gc.getNumImprovementInfos),
+				"ROUTE": (gc.getRouteInfo, gc.getNumRouteInfos),
+				"TECH": (gc.getTechInfo, gc.getNumTechInfos),
+				"RELIGION": (gc.getReligionInfo, gc.getNumReligionInfos),
+				"CORPORATION": (gc.getCorporationInfo, gc.getNumCorporationInfos),
+				"PROMOTION": (gc.getPromotionInfo, gc.getNumPromotionInfos),
+				"LEADER": (gc.getLeaderHeadInfo, gc.getNumLeaderHeadInfos),
+				"CIVILIZATION": (gc.getCivilizationInfo, gc.getNumCivilizationInfos),
+				"TERRAIN": (gc.getTerrainInfo, gc.getNumTerrainInfos),
+				"FEATURE": (gc.getFeatureInfo, gc.getNumFeatureInfos),
+				"BONUS": (gc.getBonusInfo, gc.getNumBonusInfos),
+				"YIELD": (gc.getYieldInfo, lambda: YieldTypes.NUM_YIELD_TYPES),
+			}
+			dCatalog = {}
+			if szKind in dSpecs:
+				fnInfo, fnCount = dSpecs[szKind]
+				for iInfo in range(fnCount()):
+					kInfo = fnInfo(iInfo)
+					dCatalog[kInfo.getType()] = kInfo.getDescription()
+			self.CHANGES_INFO_CATALOG[szKind] = dCatalog
+		return self.CHANGES_INFO_CATALOG[szKind].get(szType, unicode(szType))
+
+	def getChangesHistoryTargetText(self, iEntry):
+		game = CyGame()
+		szKind = game.getSASWorldChangesHistoryTargetKind(iEntry)
+		if game.getSASWorldChangesHistoryContentWithheld(iEntry):
+			return self.getChangesHistoryTokenText("", szKind) + u": " + self.TEXT_CHANGES_WITHHELD
+		szTarget = game.getSASWorldChangesHistoryTarget(iEntry)
+		if szTarget and szTarget != "-":
+			return self.getChangesHistoryInfoDescription(szKind, szTarget)
+		iCityId = game.getSASWorldChangesHistoryCityId(iEntry)
+		if iCityId >= 0:
+			return u"City #%d" % iCityId
+		iObjectId = game.getSASWorldChangesHistoryObjectId(iEntry)
+		# <!-- custom: Diplomacy edits identify both ends of their directed relationship; the local editor actor can differ from either participant.
+		# Decode these before the generic object-ID fallback. (GPT-6.1-Sol) -->
+		if szKind == "ATTITUDE_PLAYER" and iObjectId >= 0:
+			return self.getChangesHistoryPlayerText(game.getSASWorldChangesHistoryTargetPlayer(iEntry)) + u" -> " + self.getChangesHistoryPlayerText(iObjectId)
+		if szKind in ("OTHER_TEAM", "MASTER_TEAM") and iObjectId >= 0:
+			if szKind == "MASTER_TEAM":
+				return u"Team %d -> master %d" % (game.getSASWorldChangesHistoryTargetTeam(iEntry), iObjectId)
+			return u"Team %d -> team %d" % (game.getSASWorldChangesHistoryTargetTeam(iEntry), iObjectId)
+		if iObjectId >= 0:
+			return self.getChangesHistoryTokenText("", szKind) + u" #%d" % iObjectId
+		iX = game.getSASWorldChangesHistoryX(iEntry)
+		iY = game.getSASWorldChangesHistoryY(iEntry)
+		if szKind == "PLOT" and iX >= 0 and iY >= 0:
+			return u"Plot"
+		iTargetPlayer = game.getSASWorldChangesHistoryTargetPlayer(iEntry)
+		if szKind == "PLAYER" and iTargetPlayer >= 0:
+			return self.getChangesHistoryPlayerText(iTargetPlayer)
+		iTargetTeam = game.getSASWorldChangesHistoryTargetTeam(iEntry)
+		if szKind == "TEAM" and iTargetTeam >= 0:
+			return u"Team %d" % iTargetTeam
+		if (not szKind or szKind in ("NONE", "-")) and iTargetPlayer >= 0:
+			return self.getChangesHistoryPlayerText(iTargetPlayer)
+		return self.getChangesHistoryTokenText("", szKind) or u"-"
+
+	# <!-- custom: Read only the seven numeric fields displayed by the Changes table, in CHANGES_NUMERIC_LABELS order.
+	# None means unavailable/not applicable, rather than numeric zero; valid -1 edit values remain numeric.
+	# Advanced Start's points-after -1 means setup ended, while gold remains a signed balance.
+	# Free-form edit content stays withheld, and the caller applies fog-of-war filtering before reaching these getters. (GPT-6.1-Sol) -->
+	def getChangesHistoryNumericValues(self, iEntry):
+		game = CyGame()
+		iOld = None
+		iNew = None
+		if game.getSASWorldChangesHistoryContentWithheld(iEntry):
+			iOld = self.TEXT_CHANGES_WITHHELD
+			iNew = self.TEXT_CHANGES_WITHHELD
+		else:
+			if game.getSASWorldChangesHistoryOldValueValid(iEntry):
+				iOld = game.getSASWorldChangesHistoryOldValue(iEntry)
+			if game.getSASWorldChangesHistoryNewValueValid(iEntry):
+				iNew = game.getSASWorldChangesHistoryNewValue(iEntry)
+		if game.getSASWorldChangesHistorySourceName(iEntry) != "ADVANCED_START":
+			return (iOld, iNew, None, None, None, None, None)
+		iCost = game.getSASWorldChangesHistoryQuotedCost(iEntry)
+		if iCost < 0:
+			iCost = None
+		iPointsBefore = game.getSASWorldChangesHistoryPointsBefore(iEntry)
+		iPointsAfter = game.getSASWorldChangesHistoryPointsAfter(iEntry)
+		if iPointsBefore < 0 and iPointsAfter < 0:
+			iPointsBefore = None
+			iPointsAfter = None
+		return (iOld, iNew, iPointsBefore, iPointsAfter, game.getSASWorldChangesHistoryGoldBefore(iEntry), game.getSASWorldChangesHistoryGoldAfter(iEntry), iCost)
+
+	def getChangesHistoryPlotFromInput(self, inputClass):
+		# <!-- custom: Mirror the tested Battles-table approach: use the rendered-row cache rather than trusting cell payload coordinates, which can arrive as valid-looking defaults after table interaction/sorting. (GPT-5.5 + ChatGPT-5.6-Sol) -->
+		if inputClass.getData() in self.CHANGES_ROW_PLOTS:
+			return self.CHANGES_ROW_PLOTS[inputClass.getData()]
+		return (-1, -1)
+
+	def dbgLogChangesHistory(self):
+		game = CyGame()
+		print("SAS_WORLD_ADVISOR_CHANGES_BEGIN")
+		print("HistoryContext: DebugMode=%d | ObserverPID=%d | PerspectivePID=%d | PersistedEntries=%d" % (game.isDebugMode(), game.getActivePlayer(), self.iActivePlayer, game.getNumSASWorldChangesHistoryEntries()))
+		print("# | Turn | Year | Source | Actor | Action | Target | Location | Before | After | PointsBefore | PointsAfter | GoldBefore | GoldAfter | Cost | VersionIndex")
+		iShown = 0
+		for iEntry in range(game.getNumSASWorldChangesHistoryEntries()):
+			tRow = self.getChangesHistoryPerspectiveRow(iEntry)
+			if tRow is None:
+				continue
+			iSequence, iTurn, iYear, szSource, szActor, szAction, szTarget, szLocation, tNumericValues, _, _ = tRow
+			# <!-- custom: Keep stable full source tokens in the exported text even though the space-constrained table displays localized A/W abbreviations. (GPT-6.1-Sol) -->
+			aValues = [iSequence, iTurn, iYear, game.getSASWorldChangesHistorySourceName(iEntry), szActor, szAction, szTarget, szLocation] + list(tNumericValues) + [game.getSASWorldChangesHistoryVersionIndex(iEntry)]
+			aText = []
+			for value in aValues:
+				if value is None:
+					value = u"-"
+				aText.append(unicode(value))
+			print(u" | ".join(aText))
+			iShown += 1
+		print("HistoryVisibleEntries: %d" % iShown)
+		print("SAS_WORLD_ADVISOR_CHANGES_END")
+
 	def drawEnvironmentTab(self):
 		screen = self.getScreen()
 		game = CyGame()
@@ -860,6 +1166,16 @@ class CvWorldAdvisorScreen:
 				popupInfo.setText(u"showWorldAdvisorScreen")
 				popupInfo.addPopup(inputClass.getData1())
 				return 1
+
+		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and self.iActiveTab == self.iChangesID and self.CHANGES_LOG_BUTTON_ID is not None and szWidgetName == self.CHANGES_LOG_BUTTON_ID:
+			self.dbgLogChangesHistory()
+			return 1
+		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED and self.iActiveTab == self.iChangesID and self.CHANGES_TABLE_ID is not None and szWidgetName == self.CHANGES_TABLE_ID and inputClass.getMouseX() == 0:
+			iX, iY = self.getChangesHistoryPlotFromInput(inputClass)
+			if iX >= 0 and iY >= 0:
+				self.getScreen().hideScreen()
+				CyCamera().JustLookAtPlot(CyMap().plot(iX, iY))
+			return 1
 
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
 			iSelected = inputClass.getData1()

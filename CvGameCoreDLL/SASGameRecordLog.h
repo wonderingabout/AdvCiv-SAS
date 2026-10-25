@@ -105,6 +105,8 @@ void logSASGameRecordAdvancedStartOffers(CvPlayer const& kPlayer, CvPlot const* 
 void logSASGameRecordAdvancedStartContext(CvPlayer const& kPlayer);
 void logSASGameRecordAdvancedStartChoice(PlayerTypes ePlayer, AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd);
 void logSASGameRecordAdvancedStartResult(CvPlayer const& kPlayer, AdvancedStartActionTypes eAction, int iX, int iY, int iRequestedData, int iResolvedData, bool bAdd, int iQuotedCost, int iPointsBefore, int iGoldBefore, int iCityId, int iObjectId);
+// <!-- custom: Detailed WorldBuilder mutations mirror the save-persisted ordered edit event while adding session timing; callers pass only controlled tokens/IDs and never free-form names or script contents. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordWorldBuilderEdit(char const* szCategory, char const* szAction, int iX, int iY, PlayerTypes eTargetPlayer, TeamTypes eTargetTeam, int iObjectId, char const* szTargetKind, char const* szTarget, int iOldValue, int iNewValue, bool bContentWithheld = false, bool bOldValueValid = true, bool bNewValueValid = true);
 void logSASGameRecordScreenAction(char const* szScreen, char const* szAction, int iPrimary = -1, int iSecondary = -1);
 void logSASGameRecordInterfaceState(char const* szComponent, char const* szEvent, char const* szReason, int iCount, char const* szValues);
 // <!-- custom: Four camera toggles have authoritative pre/post Boolean getters.

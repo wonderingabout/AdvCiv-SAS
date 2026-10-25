@@ -3,11 +3,13 @@
 #include "CvGameCoreDLL.h"
 #include "CyMap.h"
 #include "CvMap.h"
+#include "CvPlot.h" // <!-- custom: Editor-only bulk no-op checks inspect plot type/revelation; CvMap exposes plot references but a complete CvPlot definition is required for those getters. (GPT-6.1-Sol) -->
 #include "CySelectionGroup.h"
 #include "CyArea.h"
 #include "CvMapGenerator.h"
 #include "CvGame.h" // advc.savem
 #include "CvReplayInfo.h" // advc.savem
+#include "SASGameRecordLog.h" // <!-- custom: Record bulk WorldBuilder map edits without expanding them into one diagnostic row per plot. (ChatGPT-5.6-Sol) -->
 
 
 void CyMap::erasePlots()
@@ -17,12 +19,48 @@ void CyMap::erasePlots()
 
 void CyMap::setRevealedPlots(int /*TeamTypes*/ eTeam, bool bNewValue, bool bTerrainOnly)
 {
+	// <!-- custom: Native bulk setters still run normally; inspect history-only before-state solely in WorldBuilder and omit a row when every plot already has the requested value. (GPT-6.1-Sol) -->
+	bool const bWorldBuilderEdit = GC.getGame().isSASWorldBuilderScreenVisible() && !GC.getGame().isInAdvancedStart();
+	bool bChanged = false;
+	if (bWorldBuilderEdit)
+	{
+		for (int i = 0; i < m_kMap.numPlots(); i++)
+		{
+			if (m_kMap.getPlotByIndex(i).isRevealed((TeamTypes)eTeam, false) != bNewValue)
+			{
+				bChanged = true;
+				break;
+			}
+		}
+	}
 	m_kMap.setRevealedPlots((TeamTypes) eTeam, bNewValue, bTerrainOnly);
+	if (bWorldBuilderEdit && bChanged)
+	{
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_VISIBILITY, "SET_ALL_REVEALED", -1, -1, NO_PLAYER, eTeam, "TEAM", "-", -1, bNewValue ? 1 : 0, false, false, true, (TeamTypes)eTeam);
+	}
 }
 
 void CyMap::setAllPlotTypes(int /*PlotTypes*/ ePlotType)
 {
+	// <!-- custom: Native bulk setters still run normally; inspect history-only before-state solely in WorldBuilder and omit a row when every plot already has the requested value. (GPT-6.1-Sol) -->
+	bool const bWorldBuilderEdit = GC.getGame().isSASWorldBuilderScreenVisible() && !GC.getGame().isInAdvancedStart();
+	bool bChanged = false;
+	if (bWorldBuilderEdit)
+	{
+		for (int i = 0; i < m_kMap.numPlots(); i++)
+		{
+			if (m_kMap.getPlotByIndex(i).getPlotType() != (PlotTypes)ePlotType)
+			{
+				bChanged = true;
+				break;
+			}
+		}
+	}
 	m_kMap.setAllPlotTypes((PlotTypes) ePlotType);
+	if (bWorldBuilderEdit && bChanged)
+	{
+		GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_MAP, "SET_ALL_PLOT_TYPES", -1, -1, NO_PLAYER, -1, "PLOT_TYPE", "-", -1, ePlotType, false, false, true);
+	}
 }
 
 void CyMap::updateVisibility()

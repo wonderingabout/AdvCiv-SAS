@@ -35,7 +35,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=170 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=171 ...
 ```
 
 After this, each qualifying SASGameRecord commit increments `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` exactly once and adds one short latest-first entry to this file in the same commit. The revision remains a downstream-update signal; exact runtime source/build identity remains separate provenance in `GAME_RECORD_SOURCE_CONTEXT` and the DLL/build context.
@@ -98,10 +98,32 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 171 - SAS practical 6683
+
+- **Date:** 2026-10-25
+- **Git commit:** pending
+- **Change:** Introduce saved Changes history (`SASWorldChangesHistory`) for Advanced Start actions and WorldBuilder edits, presented in the World Advisor Changes tab and mirrored into SGR when enabled.
+  - `GAME_RECORD_WORLD_BUILDER_EDIT` records controlled mutation facts from the Python/Cy boundaries used by the inherited editor, while plot terrain/feature/resource/improvement/route changes reuse detailed `GAME_RECORD_PLOT_CHANGE` rows with `cause=WORLDBUILDER`.
+    - Attribution means that a mutation reached an inherited WorldBuilder-facing wrapper while the editor screen was active; it does not claim a physical click.
+    - Diplomacy coverage includes extra-attitude setters (the inherited slider and Restore Defaults), master-side vassal assignment/release, and war/peace. Directed relationship rows identify the affected player/team and counterpart; no-op setter calls produce no saved action.
+  - `CvGame` persists each successfully applied Advanced Start or WorldBuilder action in order, including source, category, actor/target player-team context, game turn/year/elapsed turn, source-version index, coordinates/object IDs, fixed operation/action/target tokens, available before/after values and Advanced Start cost/points/gold transitions. Vector order preserves within-turn sequence without storing nondeterministic wall-clock time.
+  - Free-form city/unit/game names and script contents are never serialized into this history or copied into SGR; their change is retained only as `content=WITHHELD`. Failed Advanced Start submissions remain diagnostic `..._CHOICE` evidence and are not persisted as applied actions.
+  - Changes history is independent of `SAS_SGR_LOG` and survives save/reload. Level-1 SGR emits only `GAME_RECORD_SAVE_WORLD_CHANGES_HISTORY entries=...`; level-2 action tracing additionally mirrors each loaded saved action as `GAME_RECORD_SAVE_WORLD_CHANGES_HISTORY_ENTRY`, while live SGR keeps its richer wall-clock/session context.
+    - Applied Advanced Start hooks must run with SGR disabled because they populate the saved advisor history; their optional log output remains separately gated.
+    - WorldBuilder-only before-value reads, including names/scripts and city identities, are captured only while editor history is active; active history recording itself has storage/work costs independent of SGR.
+  - `SASWorldChangesHistory` supplies the shared native model and read-only Python API for the Changes tab, covering Advanced Start actions and WorldBuilder edits rather than ordinary simulation changes.
+  - World Advisor adds a sortable Changes tab with turn/year/source/actor/action/target/location context and separate numeric before/after, points-before/after, gold-before/after and Cost columns, newest-first default order, safe plot-jump buttons, a legend explaining the columns/visibility rules, and a Battles-style `LOG` export of the same visible rows.
+    - Ordinary play applies active-player/team/fog-of-war filtering to actors, coordinates, object identities and values. An explored-but-currently-fogged foreign WorldBuilder plot can retain its already-known location while the new editor action/target/change remains redacted until current visibility.
+    - Debug mode intentionally exposes the complete persisted record. Filtering affects presentation only, never the serialized history.
+  - The `CvGame` writer marker advances from 27 to 28 for the new tail. Revision-170/flag-27 saves load with an empty setup/editor history rather than reading the new tail from the following serialized object; new flag-28 saves read/write the ordered entries.
+  - Full manual map regeneration clears persisted setup/editor rows whose coordinates belonged to the discarded map. A normal WorldBuilder regeneration then starts the replacement map's history with `REGENERATE_MAP`; the live SGR stream remains the place to retain pre-regeneration forensic evidence.
+  - Known bulk reveal operations suppress per-plot rows while counting actual changes. Successful non-empty loops collapse to one `REVEAL_ALL` / `UNREVEAL_ALL` history action, partial exceptions retain one `*_PARTIAL` action, and no-op loops add nothing.
+    - The bulk row's change value is the number of plots actually changed; the action token carries reveal versus unreveal. Engine-owned presentation-only landmarks are outside the persisted game-state mutation claim.
+
 ### Revision 170 - SAS practical 6682
 
 - **Date:** 2026-10-24
-- **Git commit:** pending
+- **Git commit:** `d9a947fc7ed50224ed0aa8bedc5445280cc1eaab`
 - **Change:** Add typed companion rows for several high-use compact collections so downstream tools no longer need field-specific mini-format parsers; prompted by a Claude Sonnet 5.5 review of SGR's parser contract.
   - Legacy compact collection fields remain human/backward-compatible summaries with field-specific sentinels; structured collections use repeated typed rows and represent emptiness by no companion rows.
     - Keep this interpretation in consumer documentation, rather than emitting fixed explanatory metadata in every session; the existing revision/source identity identifies the implementation.

@@ -17,7 +17,7 @@
 	DO(CV_CITY_AI, CvCityAI, 9) \
 	DO(CV_DEAL, CvDeal, 0) \
 	DO(CV_DIPLO_PARAMETERS, CvDiploParameters, 0) \
-	DO(CV_GAME, CvGame, 27) \
+	DO(CV_GAME, CvGame, 28) \
 	DO(CV_GAME_AI, CvGameAI, 1) \
 	DO(CV_INIT_CORE, CvInitCore, 7) \
 	DO(CV_MAP, CvMap, 7) \

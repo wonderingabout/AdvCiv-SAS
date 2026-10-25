@@ -4,13 +4,22 @@
 //
 #include "CvGameCoreDLL.h"
 #include "CyTeam.h"
+#include "CvGame.h" // <!-- custom: WorldBuilder team/tech edits feed ordered save-persisted setup/editor history. (ChatGPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Record controlled WorldBuilder team edits at their Python boundary. (ChatGPT-5.6-Sol) -->
 #include "CvTeamAI.h"
+#include "CvInfo_Tech.h" // <!-- custom: WorldBuilder technology history records stable XML type tokens; GC.getInfo requires CvTechInfo complete here. (ChatGPT-5.6-Sol) -->
 #include "CyArea.h"
 
 CyTeam::CyTeam() : m_pTeam(NULL) {}
 
 CyTeam::CyTeam(CvTeam* pTeam) : m_pTeam(pTeam == NULL ? NULL : &pTeam->AI()) // advc.003u
 {}
+
+// <!-- custom: Gate Python-owned team mutations on the confirmed normal WorldBuilder screen; Advanced Start records its own applied actions in the shared world-changes history. (ChatGPT-5.6-Sol) -->
+static bool isSASWorldBuilderTeamEditContext()
+{
+	return GC.getGame().isSASWorldBuilderScreenVisible() && !GC.getGame().isInAdvancedStart();
+}
 
 //CvTeam* CyTeam::getTeam() { return m_pTeam; } // advc: unused
 
@@ -40,7 +49,16 @@ bool CyTeam::canEventuallyDeclareWar(int /*TeamTypes*/ eTeam)
 void CyTeam::declareWar(int /*TeamTypes*/ eTeam, bool bNewDiplo, int /*WarPlanTypes*/ eWarPlan)
 {
 	if (m_pTeam)
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderTeamEditContext();
+		bool const bWasAtWar = (bWorldBuilderEdit ? m_pTeam->isAtWar((TeamTypes)eTeam) : false);
 		m_pTeam->declareWar((TeamTypes)eTeam, bNewDiplo, (WarPlanTypes)eWarPlan);
+		if (bWorldBuilderEdit && !bWasAtWar && m_pTeam->isAtWar((TeamTypes)eTeam))
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_TEAM, "DECLARE_WAR", -1, -1, NO_PLAYER, eTeam, "OTHER_TEAM", "-", 0, 1, false, true, true, (TeamTypes)m_pTeam->getID());
+		}
+	}
 }
 
 // <advc.106g>
@@ -61,7 +79,16 @@ void CyTeam::makePeaceEvent(int /*TeamTypes*/ eTeam)
 void CyTeam::makePeace(int /*TeamTypes*/ eTeam)
 {
 	if (m_pTeam)
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderTeamEditContext();
+		bool const bWasAtWar = (bWorldBuilderEdit ? m_pTeam->isAtWar((TeamTypes)eTeam) : false);
 		m_pTeam->makePeace((TeamTypes)eTeam);
+		if (bWorldBuilderEdit && bWasAtWar && !m_pTeam->isAtWar((TeamTypes)eTeam))
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_TEAM, "MAKE_PEACE", -1, -1, NO_PLAYER, eTeam, "OTHER_TEAM", "-", 1, 0, false, true, true, (TeamTypes)m_pTeam->getID());
+		}
+	}
 }
 
 bool CyTeam::canContact(int /*TeamTypes*/ eTeam)
@@ -672,7 +699,16 @@ bool CyTeam::isPermanentWarPeace(int /*TeamTypes*/ eIndex)
 void CyTeam::setPermanentWarPeace(int /*TeamTypes*/ eIndex, bool bNewValue)
 {
 	if (m_pTeam)
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderTeamEditContext();
+		bool const bOldValue = (bWorldBuilderEdit ? m_pTeam->isPermanentWarPeace((TeamTypes)eIndex) : false);
 		m_pTeam->setPermanentWarPeace((TeamTypes)eIndex, bNewValue);
+		if (bWorldBuilderEdit && bOldValue != m_pTeam->isPermanentWarPeace((TeamTypes)eIndex))
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_TEAM, "SET_PERMANENT_WAR_PEACE", -1, -1, NO_PLAYER, eIndex, "OTHER_TEAM", "-", bOldValue ? 1 : 0, m_pTeam->isPermanentWarPeace((TeamTypes)eIndex) ? 1 : 0, false, true, true, (TeamTypes)m_pTeam->getID());
+		}
+	}
 }
 
 bool CyTeam::isFreeTrade(int /*TeamTypes*/ eIndex)
@@ -699,23 +735,40 @@ void CyTeam::setVassal(int /*TeamTypes*/ eIndex, bool bVassal, bool bCapitulated
 {
 	if (m_pTeam)
 	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderTeamEditContext();
+		bool const bOldValue = (bWorldBuilderEdit ? m_pTeam->isVassal((TeamTypes)eIndex) : false);
 		m_pTeam->setVassal((TeamTypes)eIndex, bVassal, bCapitulated);
+		if (bWorldBuilderEdit && bOldValue != m_pTeam->isVassal((TeamTypes)eIndex))
+		{
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_TEAM, "SET_VASSAL", -1, -1, NO_PLAYER, eIndex, "MASTER_TEAM", "-", bOldValue ? 1 : 0, m_pTeam->isVassal((TeamTypes)eIndex) ? 1 : 0, false, true, true, (TeamTypes)m_pTeam->getID());
+		}
 	}
 }
 
+// <!-- custom: The inherited WorldBuilder vassal dropdown calls this master-side wrapper, bypassing CyTeam::setVassal; inspect the actual vassal-side result only in the editor and ignore no-op reset calls. (GPT-6.1-Sol) -->
 void CyTeam::assignVassal(int /*TeamTypes*/ eIndex, bool bSurrender)
 {
 	if (m_pTeam)
 	{
+		bool const bWorldBuilderEdit = isSASWorldBuilderTeamEditContext();
+		bool const bOldValue = (bWorldBuilderEdit ? GET_TEAM((TeamTypes)eIndex).isVassal(m_pTeam->getID()) : false);
 		m_pTeam->assignVassal((TeamTypes)eIndex, bSurrender);
+		if (bWorldBuilderEdit && bOldValue != GET_TEAM((TeamTypes)eIndex).isVassal(m_pTeam->getID()))
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_TEAM, "ASSIGN_VASSAL", -1, -1, NO_PLAYER, m_pTeam->getID(), "MASTER_TEAM", "-", bOldValue ? 1 : 0, GET_TEAM((TeamTypes)eIndex).isVassal(m_pTeam->getID()) ? 1 : 0, false, true, true, (TeamTypes)eIndex);
 	}
 }
 
+// <!-- custom: The inherited WorldBuilder vassal dropdown calls this master-side wrapper, bypassing CyTeam::setVassal; inspect the actual vassal-side result only in the editor and ignore no-op reset calls. (GPT-6.1-Sol) -->
 void CyTeam::freeVassal(int /*TeamTypes*/ eIndex)
 {
 	if (m_pTeam)
 	{
+		bool const bWorldBuilderEdit = isSASWorldBuilderTeamEditContext();
+		bool const bOldValue = (bWorldBuilderEdit ? GET_TEAM((TeamTypes)eIndex).isVassal(m_pTeam->getID()) : false);
 		m_pTeam->freeVassal((TeamTypes)eIndex);
+		if (bWorldBuilderEdit && bOldValue != GET_TEAM((TeamTypes)eIndex).isVassal(m_pTeam->getID()))
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_TEAM, "FREE_VASSAL", -1, -1, NO_PLAYER, m_pTeam->getID(), "MASTER_TEAM", "-", bOldValue ? 1 : 0, GET_TEAM((TeamTypes)eIndex).isVassal(m_pTeam->getID()) ? 1 : 0, false, true, true, (TeamTypes)eIndex);
 	}
 }
 
@@ -872,7 +925,17 @@ bool CyTeam::isHasTech(int /* TechTypes */ iIndex)
 void CyTeam::setHasTech(int /*TechTypes*/ eIndex, bool bNewValue, int /*PlayerTypes*/ ePlayer, bool bFirst, bool bAnnounce)
 {
 	if (m_pTeam)
+	{
+		// <!-- custom: Capture history-only before-values only in the active WorldBuilder context, before the setter can change them. (GPT-6.1-Sol) -->
+		bool const bWorldBuilderEdit = isSASWorldBuilderTeamEditContext();
+		bool const bOldValue = (bWorldBuilderEdit ? m_pTeam->isHasTech((TechTypes)eIndex) : false);
 		m_pTeam->setHasTech((TechTypes)eIndex, bNewValue, (PlayerTypes)ePlayer, bFirst, bAnnounce);
+		if (bWorldBuilderEdit && bOldValue != m_pTeam->isHasTech((TechTypes)eIndex))
+		{
+			char const* szTech = (eIndex >= 0 && eIndex < GC.getNumTechInfos() ? GC.getInfo((TechTypes)eIndex).getType() : "-");
+			GC.getGame().recordSASWorldBuilderEdit(SAS_WORLD_CHANGES_HISTORY_TEAM, "SET_TECH", -1, -1, (PlayerTypes)ePlayer, eIndex, "TECH", szTech, bOldValue ? 1 : 0, m_pTeam->isHasTech((TechTypes)eIndex) ? 1 : 0, false, true, true, (TeamTypes)m_pTeam->getID());
+		}
+	}
 }
 
 bool CyTeam::isNoTradeTech(int /* TechTypes */ iIndex)

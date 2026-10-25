@@ -32,7 +32,7 @@
 - [Coding Preferences](#coding-preferences)
   - [General](#general)
     - [Values and implementation choices](#values-and-implementation-choices)
-    - [Current-version save format](#current-version-save-format)
+    - [Unsupported and deprecated features](#unsupported-and-deprecated-features)
     - [Assignments and gameplay rationale](#assignments-and-gameplay-rationale)
     - [Code layout and collapsing](#code-layout-and-collapsing)
     - [Lookup and caching review](#lookup-and-caching-review)
@@ -400,14 +400,12 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - Prefer `const` for locals whenever possible to make intent clear and prevent accidental mutation.
 - Favor effectiveness and simplicity over complex heuristics; avoid overengineering.
 
-#### Current-version save format
+#### Unsupported and deprecated features
 
-- AdvCiv-SAS supports only saves created by the current mod version.
-  - When the save schema changes, read and write only the current format; do not add `uiFlag` compatibility branches, migrations, fallback defaults, legacy-field handling, or tests for older saves.
-  - Save/reload within the same current version must still work.
-- Current-version-only support does not mean leaving serialized format identifiers stale.
-  - When a persistent subsystem already stores its own format/version marker (e.g. `UWAICache::City::iSaveVersion`), bump that marker when its current record layout changes and update the unconditional current-format write/read order together.
-  - This truthfully identifies the new layout; it is distinct from adding `uiFlag` or version-conditional compatibility paths for older saves, which remain unwanted.
+- Unsupported or deprecated features do not require maintenance merely because inherited code still contains them. See the root README's [support scope](/README.md#not-supported-in-advciv-sas) and [Deprecated references](/README.md#deprecated-references); the latter aids historical research, not current configuration.
+- Save compatibility across commits is deliberately unsupported: any commit may break existing saves. We do not maintain compatibility for players continuing older games.
+- Inherited serialization numbers such as `uiFlag` and `UWAICache::City::iSaveVersion` are not maintained as a meaningful SAS compatibility/versioning scheme. Generally mirror the inherited AdvCiv numbers for consistency; do not increment them or add compatibility machinery merely because a SAS change affects saves.
+- If a change would disrupt pending analysis, tell the user before applying it and note the dependency in scratch files like `changes_new.md`: which change should wait, which analysis it depends on, and why. For example, keep a development save usable while it is still needed for AI comparisons or issue reproduction.
 
 #### Assignments and gameplay rationale
 

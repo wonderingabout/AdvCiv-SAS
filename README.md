@@ -6,9 +6,15 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
 
-Heavy reworks were made, while otherwise mostly staying in the base AdvCiv frame, but with a focus on game balance, generally more historical accuracy (but not too much else gameplay is impractical (e.g. religions appearing too late or too few or not varied enough to be gameplay relevant or effective at all)) and strategic value (e.g. if all religions beeline from same tech path it would not be too balanced or strategically diverse or valuable), and as for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited), Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Exapnded Text Panels), and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
+Heavy reworks were made, while otherwise mostly staying in the base AdvCiv frame, but with a focus on game balance, generally more historical accuracy (but not too much else gameplay is impractical (e.g. religions appearing too late or too few or not varied enough to be gameplay relevant or effective at all)) and strategic value (e.g. if all religions beeline from same tech path it would not be too balanced or strategically diverse or valuable).
 
-Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Summary Tab, new Composition Tab, new Battles Tab (Military Advisor); new Score Tab and Timeline tabs (Info Screen)); and they now dynamically adjust to game resolution.
+As for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited), Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Expanded Text Panels), Legend links to Sevopedia entries to various UI tabs including in Sevopedia, advisors, etc.
+
+Among other UI changes, notably, the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)). As for advisor screens in particular, they have been reworked or new ones were added, e.g.:
+
+- new Military Advisor Summary Tab, new Composition Tab, new Battles Tab (history of all battles of all players, now stored persitently in save files even at load again as well)
+- new World Advisor with Geography tabs (BFC 1, BFC 2 and Territory), an Environment tab for pollution/global warming, and a Changes tab for saved Changes history (WorldBuilder edits and Advanced Start actions), preserved after reloading
+- new Info Screen Score Tab and Timeline tabs, and they now dynamically adjust to game resolution.
 
 They were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well.
 
@@ -18,7 +24,13 @@ A significant UI addition is optional text upscaling (regardless of game resolut
 
 Or the new Scoreboard scroll up and scroll down buttons, center scroll on the active player, toggle autocenter scroll on the active player, toggle lock hover, and toggle background style buttons, and the do not render beyond bottom of commerce sliders behaviour.
 
-New mechanics as well, including but not only new Game Speeds (`Nitro`, `Turbo`, `Slow`, `Very Slow`); new World Sizes (`Arena`, `SAS24`, `SAS32`, `SAS40`, `SAS48`); new Handicaps (`Rookie` and `Deity+`) for finer/gradual grain and broader challenge, new optional XML fields (e.g., `ObsoleteTech` for units, `EraArtDefineTags` and `EraArtDefineTag` for leaderhead era art); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
+New mechanics as well, including but not only:
+
+- new Game Speeds (`Nitro`, `Turbo`, `Slow`, `Very Slow`)
+- new World Sizes (`Arena`, `SAS24`, `SAS32`, `SAS40`, `SAS48`)
+- new Handicaps (`Rookie` and `Deity+`) for finer/gradual grain and broader challenge
+- new optional XML fields (e.g., `ObsoleteTech` for units, `EraArtDefineTags` and `EraArtDefineTag` for leaderhead era art)
+- new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
 
 Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
 
@@ -99,6 +111,8 @@ For license and reuse terms, including project-specific restrictions and express
 &emsp;&emsp;&emsp;[Battles tab (Military Advisor)](#battles-tab-military-advisor)\
 &emsp;&emsp;&emsp;[Compostion tab (Military Advisor)](#compostion-tab-military-advisor)\
 &emsp;&emsp;&emsp;[World Advisor](#world-advisor)\
+&emsp;&emsp;&emsp;&emsp;[Geography (BFC 1, BFC 2, Territory) and Environment](/README.md#geography-bfc-1-bfc-2-territory-and-environment)\
+&emsp;&emsp;&emsp;&emsp;[Changes tab](/README.md#changes-tab)\
 &emsp;&emsp;&emsp;[Timeline Tab (in the Info Screen Advisor)](#timeline-tab-in-the-info-screen-advisor)\
 &emsp;&emsp;&emsp;[Score Tab (in the Info Screen Advisor)](#score-tab-in-the-info-screen-advisor)\
 &emsp;&emsp;[Advisors adjustments](/README.md#advisors-adjustments)\
@@ -186,8 +200,8 @@ For license and reuse terms, including project-specific restrictions and express
 &emsp;[Focused source and data reviews](#focused-source-and-data-reviews)\
 [Known issues that may be fixed or not fixed in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4)\
 ["Temporary" crashes](/README.md#temporary-crashes)\
-[Deprecated references](#deprecated-references)\
 [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)\
+&emsp;[Deprecated references](/README.md#deprecated-references)\
 [Mod name and Version number](/README.md#mod-name-and-version-number)\
 &emsp;[Mod name](#mod-name)\
 &emsp;[Version number](#version-number)\
@@ -348,14 +362,39 @@ Also added a new Composition Tab, showing Current Units (non-civilians, includin
 
 ##### World Advisor
 
-We added a new World Advisor in AdvCiv-SAS showing detailed geography information about the BFC, suburbs, and territory; per city in its BFC1 (plot types and terrains/features mostly) and BFC2 (bonuses and improvements), and for as a condensed summary for all territory in the territory tab (detailed in the main changes guide).
+The World Advisor brings geography, environmental information and recorded setup/editor changes into one screen.
 
-We also moved the environment tab to the World Advisor because it is a better thematic fit.
+###### Geography (BFC 1, BFC 2, Territory) and Environment
+
+- **BFC 1** shows per-city plot types, terrain and features in the city radius.
+- **BFC 2** shows per-city resources and improvements.
+- **Territory** condenses geography across the player's territory, including plots outside city radii.
+- **Environment**, moved here for its thematic fit, shows pollution and global-warming information.
+
+See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for details.
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (1).JPG" alt="0.517_world_advisor (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (2).JPG" alt="0.517_world_advisor (2).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (3).JPG" alt="0.517_world_advisor (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (4).JPG" alt="0.517_world_advisor (4).JPG" width="250"></img>
+
+###### Changes tab
+
+**Changes history** records Advanced Start actions and WorldBuilder edits; the World Advisor's **Changes tab** presents them in one table. Its Source column distinguishes the two; entries appear newest first, with sequence numbers preserving their order within each turn.
+
+Changes history is saved with the game independently of SASGameRecord logging; loading a save from before those actions restores the earlier history, rather than importing later edits from a log.
+
+Inspired by SAS's existing Battles tab, it keeps an ordered action record across save reloads and follows its table plot-jump approach. The persistence implementation differs: [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py) uses `BugData`, while these WorldBuilder and Advanced Start records are saved directly by `CvGame`.
+
+- Inspect edits such as added/removed units, promotions and experience, city buildings, terrain/resources and ownership changes; rows identify the editor and affected objects where recorded. Diplomacy edits include extra attitude weights, war/peace and vassal relationships.
+- Advanced Start entries also retain purchases/refunds and point/gold transitions, with separate sortable Before/After, points, gold and Cost columns. The shared data is named `SASWorldChangesHistory` in C++, while **Changes** is the tab's name.
+- Sort the table, jump to an available plot, or use **LOG** to export the permitted rows to `PythonDbg.log`. A **Legend** link explains the columns and visibility rules; ordinary play filters hidden details, while debug mode shows the complete history.
+- Name/script edits are identified without copying their text. Sign/landmark captions are outside this edit history.
+
+The advisor is implemented in [CvWorldAdvisorScreen.py](/Assets/Python/Screens/CvWorldAdvisorScreen.py), backed by save-owned records in [CvGame.cpp](/CvGameCoreDLL/CvGame.cpp). See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for coverage and the [SGR revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for recorder changes.
+
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (5).JPG" alt="0.517_world_advisor (5).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.517_world_advisor (6).JPG" alt="0.517_world_advisor (6).JPG" width="250"></img>
 
 ##### Timeline Tab (in the Info Screen Advisor)
 
@@ -1579,13 +1618,6 @@ As of now AdvCiv-SAS is rather stable so crashes should be rare now. Recently, t
 
 Update: i now seemingly know how to use .pdb files with WindDbg as in [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) and [KI#475.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.3), still it is not guaranteed i'd be able to solve them or available or willing to do so, so the general guidance to seek more expert advice remains, especially if help i may (if i choose to) to offers would happen to fail.
 
-## Deprecated references
-
-The [Deprecated reference index](/_1_AdvCiv-SAS/Docs/Deprecated/README.md) helps translate identifiers found in older source, logs and discussions:
-
-- [`global_define_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md) locates the retired GlobalDefine name conversion table.
-- [`commit_rewrites.md`](/_1_AdvCiv-SAS/Docs/Deprecated/commit_rewrites.md) locates the old-to-canonical SHA table from the one-time `commit_diffs` history cleanup.
-
 ## Not supported in AdvCiv-SAS
 
 Non-exhaustive list below:
@@ -1613,6 +1645,13 @@ Non-exhaustive list below:
 - Base AdvCiv previous behaviour and now an issue in AdvCiv-SAS of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): AdvCiv-SAS changes raw XML ids for game speeds, world sizes, handicaps, and other modded data; we also do not want AdvCiv-SAS data to tediously and needlessly be supported in unmodded BTS or vice-versa (launch from AdvCiv-SAS or unmodded BTS depending on data rather than make them tediously/needlessly vanilla BtS-compatible).
   - This does not affect normal saves or gameplay.
   - See also [KI#166](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166).
+
+### Deprecated references
+
+The [Deprecated reference index](/_1_AdvCiv-SAS/Docs/Deprecated/README.md) helps translate identifiers found in older source, logs and discussions:
+
+- [`global_define_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md) locates the retired GlobalDefine name conversion table.
+- [`commit_rewrites.md`](/_1_AdvCiv-SAS/Docs/Deprecated/commit_rewrites.md) locates the old-to-canonical SHA table from the one-time `commit_diffs` history cleanup.
 
 ## Mod name and Version number
 
