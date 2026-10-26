@@ -15,7 +15,8 @@ from revision_history import change_errors, revision_entries
 
 SOURCE = "CvGameCoreDLL/SASRuntimeStatus.cpp"
 HISTORY = "_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md"
-DEDICATED = {SOURCE, "CvGameCoreDLL/SASRuntimeStatusReasons.h"}
+# <!-- custom: The shipped external observer also changes runtime output/lifecycle semantics; its edits follow the same recorder-revision policy as the native publisher. (GPT-6.1-Sol) -->
+DEDICATED = {SOURCE, "CvGameCoreDLL/SASRuntimeStatusReasons.h", "Assets/SASRuntimeExitObserver.ps1"}
 MARKER = re.compile(r"SASRuntime|SAS_RUNTIME|SASDllRuntimeIdentity")
 
 

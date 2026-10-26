@@ -7,6 +7,7 @@ CI describes automatic execution, not a different kind of test. Our [GitHub work
 ## Menu
 
 - [Diagnostic writer](#diagnostic-writer)
+- [Runtime exit observer](#runtime-exit-observer)
 - [Assertion diagnostic harness](#assertion-diagnostic-harness)
 - [Why this test is local](#why-this-test-is-local)
 
@@ -36,7 +37,7 @@ Run this test when changing diagnostic buffering, paths, file sharing, retry/los
 
 A successful run exits with code 0 and prints three `PASS C++ diagnostic writer` results plus a runtime-status result, including a child process terminated without checkpoints or cleanup whose final submitted rows remain readable in both logs.
 
-To inspect synthetic fixture output, pass `--export-runtime-examples <scratch-directory>`. Keep it separate from the [documented real-run pair](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md); normal test runs leave both untouched.
+To inspect synthetic fixture output, pass `--export-runtime-examples <scratch-directory>`. Keep synthetic output separate from the [real history example](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md) and the [inline real status/exit captures](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#runtime-status-and-history); normal test runs leave those unchanged.
 
 Runtime-status cases parse the actual JSON and JSONL timeline, check disabled no-I/O/provenance behavior and autoplay countdown gating, and exercise lifecycle transitions, passive menu/loading observations, WorldBuilder mode versus visible-editor state, extended-game continuation, shared DLL identity, exact monotonic activity durations, interrupted autoplay, root migration, rollback after partial history appends, readable history after an unconfirmed close, and recovered status-failure counters.
 
@@ -45,6 +46,14 @@ Missing tools, compilation errors or failed assertions return a nonzero exit cod
 Presentation cases also compile the actual CyGame screen bridge: disabled recording skips native editor/Advanced Start queries, either mode/show/hide ordering remains observable, and presentation-only rows retain whole activity durations. Pending exit requests survive late editor/turn callbacks.
 
 The harness supplies minimal game scaffolding and simulates failures. Full DLL compilation, Python/EXE lifecycle integration, in-game live log access and autoplay performance still require separate validation.
+
+## Runtime exit observer
+
+Run `python tests/diagnostics/run_runtime_exit_observer_tests.py` on Windows with Python 3 and Windows PowerShell 5.1. The [runner](/tests/diagnostics/run_runtime_exit_observer_tests.py) tests the actual [shipped observer](/Assets/SASRuntimeExitObserver.ps1) against disposable child processes, without Civ4 or administrator rights.
+
+It checks ordinary and simulated abnormal exit codes, process creation identity, protection of a newer snapshot, concurrent observers, Unicode paths, torn history, unreadable/retired snapshots and failed final history writes.
+
+The native writer harness also tests the real hidden launcher, receipt and final exit together. A simulated access-violation exit code is a test input, not a real game crash. Normal DLL builds do not run this test.
 
 ## Assertion diagnostic harness
 

@@ -45,6 +45,9 @@ The EXE is closed source, mods can supply arbitrary filenames, and some outputs 
       - [UWAI Before/After: separate prose report to shared BBAI records](#uwai-beforeafter-separate-prose-report-to-shared-bbai-records)
 - [Runtime observations and DLL build reports](#runtime-observations-and-dll-build-reports)
   - [Runtime status and history](#runtime-status-and-history)
+    - [`SASRuntimeStatus.json` (current status)](#sasruntimestatusjson-current-status)
+    - [`SASRuntimeExit_*.json` (exit observation)](#sasruntimeexit_json-exit-observation)
+    - [`SASRuntimeHistory_*.jsonl` (session and exit history)](#sasruntimehistory_jsonl-session-and-exit-history)
   - [DLL build reports](#dll-build-reports)
 - [Python diagnostic messages](#python-diagnostic-messages)
 - [Startup rows and run boundaries](#startup-rows-and-run-boundaries)
@@ -119,7 +122,7 @@ The files below do not belong to one logging framework. Civ4 accumulated several
 | `juggle_log.txt`, `combat.txt` | K-Mod/AdvCiv developer diagnostics | Compile-time specialist diagnostics: citizen-assignment efficiency and combat-odds verification respectively. Exact first introduction was not established here. | Preserve as experiment datasets. A small metadata header is safer than making every record verbose. |
 | `uwai<turn>.log` | AdvCiv `UWAIReport` | Separate war-evaluation reports, with Textile markup, turn-number filenames and report interval/threshold controls. Writers include `UWAIAgent`, `MilitaryAnalyst`, `InvasionGraph`, `ArmamentForecast`, `WarEvaluator` and `WarUtilityAspect`. | Historical in SAS: the standalone report files/logger were retired in favor of five independently controlled BBAI categories; see [UWAI diagnostics comparison](#uwai-diagnostics-standalone-advciv-reports-vs-current-bbai-records). |
 | `SASGameRecord_*.log` | AdvCiv-SAS | A new structured game record, complementing inherited BBAI decision traces with run context, periodic state, gameplay history and reproduction evidence. | Independent `SAS_SGR_LOG`; its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) documents recorder changes. |
-| `SASRuntimeStatus.json`, `SASRuntimeHistory_*.jsonl` | AdvCiv-SAS | Latest runtime observation and per-process transition history, including process/DLL identity and new/load/autoplay activity. | Independent `SAS_RUNTIME_STATUS_ON`; its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md) documents runtime-recorder changes. |
+| `SASRuntimeStatus.json`, `SASRuntimeHistory_*.jsonl`, `SASRuntimeExit_*.json` | AdvCiv-SAS | Latest runtime observation and per-process transition history, including process/DLL identity and new/load/autoplay activity. | Independent `SAS_RUNTIME_STATUS_ON`; its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md) documents runtime-recorder changes. |
 
 ### Modernization principles
 
@@ -588,9 +591,177 @@ The SAS rows retain the analysis/forecast values and make turn, analyst, player,
 
 ### Runtime status and history
 
-`SASRuntimeStatus.json` and `SASRuntimeHistory_*.jsonl` complement gameplay logs: the fixed-name JSON gives the latest observation, while the timestamped JSONL preserves transitions across games/loads in a process.
+`SASRuntimeStatus.json` gives the latest observation; `SASRuntimeHistory_*.jsonl` preserves timed game/session activity, and `SASRuntimeExit_*.json` records the externally observed process exit.
 
-Neither replaces the detailed BBAI/SGR history; see the [Main Changes Guide's runtime section](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#runtime-status-and-history), [runtime examples](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md) and [runtime revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md).
+Enabled runtime diagnostics start a hidden Windows observer so exit evidence can survive a crash or an interrupted current-status rewrite. This complements the existing close-request and orderly-shutdown hooks; it does not diagnose a crash or make Python/XML live editing safe.
+
+For this capture, the user deliberately edited Python code while Civ4 was running, including deleting functions and adding/removing blank lines, to provoke a failure. Python errors and a Microsoft Visual C++ Runtime termination dialog appeared; the observer then recorded process exit code `3`. This test did not use an RI-style safer Python-reload implementation.
+
+This illustrates why exit observation lives outside Civ4: its normal runtime hooks may not execute after a failure. The same mechanism can record termination following native DLL/EXE failures, including AI-code crashes, while the observer is attached; it does not identify the faulty function or make live editing safe.
+
+The complete records below belong to that same run. JSON whitespace is normalized for readability; field values are unchanged.
+
+#### `SASRuntimeStatus.json` (current status)
+
+Complete `SASRuntimeStatus.json`, including the last in-process state and the later external exit observation:
+
+```json
+{
+  "revision": 10,
+  "dllIdentity": {
+    "buildConfiguration": "Debug-opt",
+    "moduleFound": 1,
+    "fileReadable": 1,
+    "fileSizeBytes": 14147584,
+    "fingerprint": "FNV1A64:86D151B7A9F327B2",
+    "lastWriteUtc": "20261026T125633.496Z",
+    "peTimestampRaw": 1793019383
+  },
+  "sourceIdentity": {
+    "version": "6687",
+    "commit": "70d73a41e1bc6236cd0de33c97a64c7f4c2b0101",
+    "branch": "main",
+    "metadataSource": "git",
+    "defaultBranch": "main",
+    "defaultCommit": "70d73a41e1bc6236cd0de33c97a64c7f4c2b0101",
+    "defaultVersion": "6687",
+    "defaultRefSource": "LOCAL_BRANCH",
+    "mergeBaseCommit": "70d73a41e1bc6236cd0de33c97a64c7f4c2b0101",
+    "mergeBaseVersion": "6687",
+    "branchRelation": "AT_DEFAULT",
+    "currentOnlyCommits": 0,
+    "defaultOnlyCommits": 0,
+    "dirty": 1,
+    "dirtyTrackedCount": 18,
+    "sourceDiffDetailsAvailable": 1,
+    "sourceDiffEntries": 3,
+    "trackedCodeRulesDiffBytes": 11893,
+    "trackedCodeRulesDiffFingerprint": "FNV1A64:F075A816EEA0997D",
+    "stagedCodeRulesDiffBytes": 10032,
+    "stagedCodeRulesDiffFingerprint": "FNV1A64:A9F7C04CAF458D78",
+    "unstagedCodeRulesDiffBytes": 1860,
+    "unstagedCodeRulesDiffFingerprint": "FNV1A64:BF746AEFC639D812"
+  },
+  "statusSerial": 9,
+  "statusWriteFailures": 0,
+  "processId": 24768,
+  "processStartUtc": "20261026T130019.231Z",
+  "dllLoadUtc": "20261026T130020Z",
+  "updatedUtc": "20261026T130738.696Z",
+  "processState": "EXITED",
+  "exitObserverProcessId": 14584,
+  "exitObserverLaunchError": 0,
+  "exitObservationFilename": "SASRuntimeExit_20261026T130019.231Z_24768.json",
+  "windowCloseObservationArmed": 1,
+  "windowCloseRequestObservedUtc": "-",
+  "gameState": "PLAYING",
+  "activity": "PLAYING",
+  "activitySerial": 4,
+  "activityStartedUtc": "20261026T130104.045Z",
+  "activityElapsedMilliseconds": 349817,
+  "previousActivity": "LOADING_SAVE",
+  "previousActivityStartedUtc": "20261026T130103.847Z",
+  "previousActivityEndedUtc": "20261026T130104.045Z",
+  "previousActivityDurationMilliseconds": 198,
+  "historyFilename": "SASRuntimeHistory_20261026T130019.231Z_24768.jsonl",
+  "historyAtCurrentRoot": 1,
+  "historyRowsWritten": 7,
+  "historyWriteFailures": 0,
+  "updateReason": "PROCESS_EXIT_OBSERVED",
+  "sessionSerial": 1,
+  "newGameCount": 0,
+  "loadCount": 1,
+  "sessionKind": "LOAD_GAME",
+  "sessionStartedUtc": "20261026T130103.847Z",
+  "nativeReadyUtc": "20261026T130104.045Z",
+  "mainMenuSceneRequestedUtc": "-",
+  "mainMenuStateObservedUtc": "-",
+  "loadingScreenAssetRequestedUtc": "-",
+  "pythonPreGameStartUtc": "20261026T130106.083Z",
+  "worldBuilderMode": 0,
+  "worldBuilderScreenVisible": 0,
+  "civilopediaVisible": 0,
+  "civilopediaContext": "NONE",
+  "civilopediaActivePlayer": -1,
+  "civilopediaActiveCivilization": -1,
+  "buttonPopupAwaitingInteraction": 0,
+  "buttonPopupType": "NONE",
+  "buttonPopupTypeId": -1,
+  "buttonPopupActivePlayer": -1,
+  "buttonPopupFocusedUtc": "-",
+  "buttonPopupResolvedUtc": "-",
+  "buttonPopupResolution": "-",
+  "buttonPopupResponseButton": -1,
+  "extendedGame": 0,
+  "gameTurn": 290,
+  "elapsedGameTurns": 290,
+  "lastCompletedTurn": 289,
+  "activePlayer": 0,
+  "autoplayActive": 0,
+  "autoplayRemainingTurns": 0,
+  "mapWidth": 120,
+  "mapHeight": 84,
+  "worldSize": 6,
+  "gameSpeed": 3,
+  "scenario": 0,
+  "loadedSaveCheckpointTurn": 289,
+  "loadedSaveCheckpointElapsedTurn": 289,
+  "loadedSaveCheckpointUtc": "20261026T062353.280Z",
+  "lastInProcessUpdatedUtc": "20261026T130653.862Z",
+  "exitObservation": {
+    "observer": "WINDOWS_PROCESS_HANDLE",
+    "recordedUtc": "20261026T130738.696Z",
+    "processExitedUtc": "20261026T130738.595Z",
+    "exitCode": 3,
+    "exitCodeHex": "0x00000003",
+    "outcome": "NONZERO_EXIT_CODE",
+    "historyAppend": "WRITTEN",
+    "unterminatedHistoryTail": false
+  }
+}
+```
+
+`processState=EXITED` and `updateReason=PROCESS_EXIT_OBSERVED` report termination; `lastInProcessUpdatedUtc`, `gameTurn` and `activity` retain the last game-owned observation. Thus `activity=PLAYING` does not mean the process is still alive.
+
+#### `SASRuntimeExit_*.json` (exit observation)
+
+Complete `SASRuntimeExit_*.json` from the same process:
+
+```json
+{
+  "revision": 10,
+  "processId": 24768,
+  "processStartUtc": "20261026T130019.231Z",
+  "observerProcessId": 14584,
+  "observerState": "EXITED",
+  "attachedUtc": "20261026T130026.133Z",
+  "recordedUtc": "20261026T130738.696Z",
+  "processExitedUtc": "20261026T130738.595Z",
+  "exitCode": 3,
+  "exitCodeHex": "0x00000003",
+  "outcome": "NONZERO_EXIT_CODE"
+}
+```
+
+`observerState=EXITED` confirms that the attached process ended; the earlier `WAITING` receipt only confirms attachment. The separate file preserves final evidence even if the current snapshot is unreadable or has been replaced by a newer game.
+
+#### `SASRuntimeHistory_*.jsonl` (session and exit history)
+
+Seven complete real records from the same run show process/session identity, loading and ready observations, Python pre-game initialization, and the final externally observed exit:
+
+```log
+{"record":"run","revision":10,"run":"20261026T130019.231Z_24768","processId":24768,"processStartUtc":"20261026T130019.231Z","dllLoadUtc":"20261026T130020Z","dllIdentity":{"buildConfiguration":"Debug-opt","moduleFound":1,"fileReadable":1,"fileSizeBytes":14147584,"fingerprint":"FNV1A64:86D151B7A9F327B2","lastWriteUtc":"20261026T125633.496Z","peTimestampRaw":1793019383},"sourceIdentity":{"version":"6687","commit":"70d73a41e1bc6236cd0de33c97a64c7f4c2b0101","branch":"main","metadataSource":"git","defaultBranch":"main","defaultCommit":"70d73a41e1bc6236cd0de33c97a64c7f4c2b0101","defaultVersion":"6687","defaultRefSource":"LOCAL_BRANCH","mergeBaseCommit":"70d73a41e1bc6236cd0de33c97a64c7f4c2b0101","mergeBaseVersion":"6687","branchRelation":"AT_DEFAULT","currentOnlyCommits":0,"defaultOnlyCommits":0,"dirty":1,"dirtyTrackedCount":18,"sourceDiffDetailsAvailable":1,"sourceDiffEntries":3,"trackedCodeRulesDiffBytes":11893,"trackedCodeRulesDiffFingerprint":"FNV1A64:F075A816EEA0997D","stagedCodeRulesDiffBytes":10032,"stagedCodeRulesDiffFingerprint":"FNV1A64:A9F7C04CAF458D78","unstagedCodeRulesDiffBytes":1860,"unstagedCodeRulesDiffFingerprint":"FNV1A64:BF746AEFC639D812"},"priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
+{"record":"transition","revision":10,"run":"20261026T130019.231Z_24768","stateSerial":1,"intervalStarted":1,"previousState":"NONE","previousStartedUtc":"-","previousEndedUtc":"-","previousDurationMilliseconds":-1,"previousSessionSerial":0,"previousStartTurn":-1,"previousRequestedAutoplayTurns":0,"recordedUtc":"20261026T130024.652Z","state":"NO_GAME","stateStartedUtc":"20261026T130024.652Z","stateElapsedMilliseconds":0,"sessionSerial":0,"gameTurn":-1,"autoplayRemainingTurns":0,"reason":"MAIN_MENU_SCENE_REQUESTED","civilopediaVisible":0,"civilopediaContext":"NONE","civilopediaActivePlayer":-1,"civilopediaActiveCivilization":-1,"buttonPopupAwaitingInteraction":0,"buttonPopupType":"NONE","buttonPopupTypeId":-1,"buttonPopupActivePlayer":-1,"buttonPopupFocusedUtc":"-","buttonPopupResolvedUtc":"-","buttonPopupResolution":"-","buttonPopupResponseButton":-1,"autoplayEndCause":"-","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
+{"record":"transition","revision":10,"run":"20261026T130019.231Z_24768","stateSerial":2,"intervalStarted":1,"previousState":"NO_GAME","previousStartedUtc":"20261026T130024.652Z","previousEndedUtc":"20261026T130103.847Z","previousDurationMilliseconds":39194,"previousSessionSerial":0,"previousStartTurn":-1,"previousRequestedAutoplayTurns":0,"recordedUtc":"20261026T130103.847Z","state":"LOADING_SAVE","stateStartedUtc":"20261026T130103.847Z","stateElapsedMilliseconds":0,"sessionSerial":1,"gameTurn":-1,"autoplayRemainingTurns":0,"reason":"LOAD_GAME_STARTED","civilopediaVisible":0,"civilopediaContext":"NONE","civilopediaActivePlayer":-1,"civilopediaActiveCivilization":-1,"buttonPopupAwaitingInteraction":0,"buttonPopupType":"NONE","buttonPopupTypeId":-1,"buttonPopupActivePlayer":-1,"buttonPopupFocusedUtc":"-","buttonPopupResolvedUtc":"-","buttonPopupResolution":"-","buttonPopupResponseButton":-1,"autoplayEndCause":"-","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
+{"record":"session","revision":10,"run":"20261026T130019.231Z_24768","recordedUtc":"20261026T130104.045Z","sessionSerial":1,"sessionKind":"LOAD_GAME","sessionStartedUtc":"20261026T130103.847Z","nativeReadyUtc":"20261026T130104.045Z","newGameCount":0,"loadCount":1,"readyGameTurn":289,"readyActivePlayer":0,"mapWidth":120,"mapHeight":84,"worldSize":6,"gameSpeed":3,"scenario":0,"loadedSaveCheckpointTurn":289,"loadedSaveCheckpointElapsedTurn":289,"loadedSaveCheckpointUtc":"20261026T062353.280Z","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
+{"record":"transition","revision":10,"run":"20261026T130019.231Z_24768","stateSerial":3,"intervalStarted":1,"previousState":"LOADING_SAVE","previousStartedUtc":"20261026T130103.847Z","previousEndedUtc":"20261026T130104.045Z","previousDurationMilliseconds":198,"previousSessionSerial":1,"previousStartTurn":-1,"previousRequestedAutoplayTurns":0,"recordedUtc":"20261026T130104.045Z","state":"PLAYING","stateStartedUtc":"20261026T130104.045Z","stateElapsedMilliseconds":0,"sessionSerial":1,"gameTurn":289,"autoplayRemainingTurns":0,"reason":"LOAD_GAME_NATIVE_READY","civilopediaVisible":0,"civilopediaContext":"NONE","civilopediaActivePlayer":-1,"civilopediaActiveCivilization":-1,"buttonPopupAwaitingInteraction":0,"buttonPopupType":"NONE","buttonPopupTypeId":-1,"buttonPopupActivePlayer":-1,"buttonPopupFocusedUtc":"-","buttonPopupResolvedUtc":"-","buttonPopupResolution":"-","buttonPopupResponseButton":-1,"autoplayEndCause":"-","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
+{"record":"transition","revision":10,"run":"20261026T130019.231Z_24768","stateSerial":4,"intervalStarted":0,"previousState":"NONE","previousStartedUtc":"-","previousEndedUtc":"-","previousDurationMilliseconds":-1,"previousSessionSerial":0,"previousStartTurn":-1,"previousRequestedAutoplayTurns":0,"recordedUtc":"20261026T130106.083Z","state":"PLAYING","stateStartedUtc":"20261026T130104.045Z","stateElapsedMilliseconds":2039,"sessionSerial":1,"gameTurn":289,"autoplayRemainingTurns":0,"reason":"PYTHON_PRE_GAME_START","civilopediaVisible":0,"civilopediaContext":"NONE","civilopediaActivePlayer":-1,"civilopediaActiveCivilization":-1,"buttonPopupAwaitingInteraction":0,"buttonPopupType":"NONE","buttonPopupTypeId":-1,"buttonPopupActivePlayer":-1,"buttonPopupFocusedUtc":"-","buttonPopupResolvedUtc":"-","buttonPopupResolution":"-","buttonPopupResponseButton":-1,"autoplayEndCause":"-","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
+{"record":"process_exit","revision":10,"run":"20261026T130019.231Z_24768","processId":24768,"recordedUtc":"20261026T130738.696Z","processExitedUtc":"20261026T130738.595Z","exitCode":3,"exitCodeHex":"0x00000003","outcome":"NONZERO_EXIT_CODE","lastInProcessUpdatedUtc":"20261026T130653.862Z","lastActivity":"PLAYING","sessionSerial":1,"gameTurn":290}
+```
+
+The [full history example](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeHistory_example.jsonl) comes from a longer, earlier run and includes additional new/load/autoplay and WorldBuilder transitions; its [capture notes](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md) identify that run and recorder revision.
+
+For lifecycle details and field interpretation, see the [Main Changes Guide's runtime section](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#runtime-status-and-history) and [runtime revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md).
 
 ### DLL build reports
 

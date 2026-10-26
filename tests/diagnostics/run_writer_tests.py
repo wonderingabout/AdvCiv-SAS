@@ -13,6 +13,9 @@ import re
 from pathlib import Path
 import subprocess
 import tempfile
+# <!-- custom: The final integration case installs the real observer only beside the disposable fixture and waits for its final JSON, leaving earlier publication tests free of helper processes. (GPT-6.1-Sol) -->
+import shutil
+import time
 
 
 # <!-- custom: The runner now lives under tests/diagnostics; resolve the mod root two parent directories above this test folder. (GPT-6.1-Sol) -->
@@ -112,8 +115,13 @@ def main():
         (temporary / "runtime_status_under_test.inc").write_text(source[cause_start:cause_end] + source[clock_start:clock_end] + source[identity_start:identity_end] + source[popup_name_start:popup_name_end] + status[status_start:] + gate, encoding="utf-8")
         bridge = (ROOT / "CvGameCoreDLL/CyGame.cpp").read_text(encoding="utf-8")
         bridge_start = bridge.index("void CyGame::updateSASRuntimeStatusWorldBuilderScreen(")
-        bridge_end = bridge.index("// <!-- custom: Bridge only the post-Python lifecycle", bridge_start)
-        (temporary / "runtime_world_builder_bridge_under_test.inc").write_text(bridge[bridge_start:bridge_end], encoding="utf-8")
+        # <!-- custom: Extract just the runtime bridge methods; newer WorldBuilder bulk-edit functions between them need full game state and are outside this runtime fixture. (GPT-6.1-Sol) -->
+        bridge_methods = []
+        for method, result in (("updateSASRuntimeStatusWorldBuilderScreen", "void"), ("isSASRuntimeStatusRecordingEnabled", "bool"), ("updateSASRuntimeStatusMainMenuState", "void"), ("updateSASRuntimeStatusPreGameStart", "void"), ("updateSASRuntimeStatusCivilopedia", "void")):
+            method_start = bridge.index(result + " CyGame::" + method + "(")
+            method_end = bridge.index("\n}", method_start) + 2
+            bridge_methods.append(bridge[method_start:method_end])
+        (temporary / "runtime_world_builder_bridge_under_test.inc").write_text("\n".join(bridge_methods), encoding="utf-8")
         # <!-- custom: Compile the actual recorder finalizer against small observation stubs, so startup/repeated-reset behavior and shared-writer retries are checked without building the game DLL. (GPT-6.1-Sol) -->
         recorder = (ROOT / "CvGameCoreDLL/SASGameRecordLog.cpp").read_text(encoding="utf-8")
         finalize_start = recorder.index("void finalizeSASGameRecordLogSession()\n")
@@ -297,6 +305,26 @@ def main():
             if (temporary / "abrupt/Logs" / filename).read_bytes() != expected:
                 raise RuntimeError("last completed row lost after abrupt termination: " + filename)
         print("PASS C++ diagnostic writer: both final rows survive abrupt process termination without cleanup")
+        shutil.copyfile(ROOT / "Assets/SASRuntimeExitObserver.ps1", temporary / "SASRuntimeExitObserver.ps1")
+        observed = subprocess.run([str(executable), "--runtime-exit-observer"], cwd=temporary, env=environment)
+        assert observed.returncode & 0xFFFFFFFF == 0xC0000005, observed.returncode
+        final_path = temporary / "observer_Ж漢/Logs/SASRuntimeStatus.json"
+        deadline = time.monotonic() + 15
+        final_status = {}
+        while time.monotonic() < deadline:
+            try:
+                final_status = json.loads(final_path.read_text(encoding="utf-8-sig"))
+            except (OSError, ValueError):
+                pass
+            if "exitObservation" in final_status:
+                break
+            time.sleep(.05)
+        assert final_status.get("processState") == "EXITED", final_status
+        assert final_status["exitObservation"]["exitCodeHex"] == "0xC0000005", final_status
+        assert final_status["exitObservation"]["historyAppend"] == "WRITTEN", final_status
+        exit_evidence = json.loads((final_path.parent / final_status["exitObservationFilename"]).read_text(encoding="utf-8-sig"))
+        assert exit_evidence["observerState"] == "EXITED" and exit_evidence["revision"] == expected_revision, exit_evidence
+        print("PASS native hidden observer launch/attachment and final process evidence (synthetic exit code)")
     print("No game DLL or project intermediates were changed.")
     return 0
 

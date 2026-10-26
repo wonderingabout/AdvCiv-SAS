@@ -10,6 +10,17 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## History
 
+### Revision 10 - SAS practical 6688
+
+- **Date:** 2026-10-26
+- **Git commit:** pending
+- **Change:** Enabled runtime diagnostics launch the adjacent `Assets/SASRuntimeExitObserver.ps1` as a hidden, same-user Windows PowerShell process. It waits for the matching process handle and records final exit time/code even when Civ4 cannot execute its shutdown hooks.
+  - The current JSON exposes the launched observer PID and Win32 launch error; launch success does not prove attachment. The separate `SASRuntimeExit_<process-start UTC>_<PID>.json` first confirms handle attachment with WAITING, then records EXITED and the final result independently of current-status readability.
+  - After an observed exit, `exitObservation` records signed/hex exit code, UTC and history-append result. `lastInProcessUpdatedUtc` preserves the last game-owned observation.
+  - A compact `process_exit` history row preserves the final process evidence and last observed activity/turn. Nonzero codes do not by themselves distinguish a crash from external termination or identify the faulty code.
+  - Creation-time checks prevent PID-reuse mistakes; an exclusive writer lock and same-handle identity check protect newer game snapshots. Optional diagnostics being off launches no helper. Root migrations can start an observer for each distinct published root; retired snapshots are ignored.
+  - This addresses stale RUNNING reports observed after Python-reload crashes, not Python-reload safety. Missing/blocked PowerShell, failure before attachment, observer termination or failed I/O can still leave stale output; readers must retain direct process checks.
+
 ### Revision 9 - SAS practical 6686
 
 - **Date:** 2026-10-26

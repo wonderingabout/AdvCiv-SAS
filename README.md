@@ -61,6 +61,7 @@ Additional LLM/agent instrumentation extends this "open brain" view: users and A
 
 - `SASRuntimeStatus.json` gives the latest observed game/session and autoplay state, together with the identity of the DLL reporting it.
 - `SASRuntimeHistory_*.jsonl` keeps a timed history of game creation, save loading and autoplay activity, including why autoplay stopped, across games and loads while Civ4 stays open.
+- `SASRuntimeExit_*.json` makes exit recording more reliable when in-game hooks cannot finish, for example after live Python/XML edits or a DLL/EXE crash. With runtime diagnostics enabled (default off), a hidden Windows watcher records the process exit time/code independently of Civ4.
 - `CvGameCoreDLL.dll.build.json` provides the build-side counterpart: users and AI/LLM agents can follow compilation status and review source/configuration, timing, warnings/errors and DLL identity, alongside the enriched `AdvCiv.log` with full compiler output and build summaries.
 
 Together with live-readable BBAI and SASGameRecord logs, richer and more searchable UWAI diagnostics integrated into BBAI and controlled through SAS defines, enriched compiler logs and embedded DLL provenance, these make it easier to follow runs, investigate problems, and connect observations to the code and binary being tested.
@@ -1523,7 +1524,11 @@ See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/Docs/examples/s
 
 Runtime observations are collected by [`SASRuntimeStatus.cpp`](/CvGameCoreDLL/SASRuntimeStatus.cpp), with named observation reasons in [`SASRuntimeStatusReasons.h`](/CvGameCoreDLL/SASRuntimeStatusReasons.h).
 
-The matching [`SASRuntimeStatus_example.json`](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeStatus_example.json) and [`SASRuntimeHistory_example.jsonl`](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeHistory_example.jsonl) show real current-state observations and timed activity history alongside the detailed game logs.
+When runtime diagnostics are enabled, [`SASRuntimeExitObserver.ps1`](/Assets/SASRuntimeExitObserver.ps1) waits outside Civ4 and records its final exit code/time, helping distinguish a stopped process from a stale `RUNNING` snapshot after a crash.
+
+The hidden watcher runs without administrator rights. Its separate `SASRuntimeExit_*.json` survives an interrupted current-status rewrite; exit evidence does not establish the crash cause.
+
+Complete status/exit JSON and a history excerpt are shown in the [Logging Inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#runtime-status-and-history); the [full runtime history example](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeHistory_example.jsonl) captures a longer, earlier run with additional game/load/autoplay transitions.
 
 Brief header preview (selected fields from the same October 9, 2026 capture):
 

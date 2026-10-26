@@ -63,6 +63,8 @@ struct CvGame
 	// <!-- custom: Mutable observation fields reproduce delayed metadata writes after the game turn or active player changes; normal fixture defaults remain turn 9/player 0. (GPT-6.1-Sol) -->
 	int gameTurn;
 	int activePlayer;
+	// <!-- custom: Persisted WorldBuilder-history attribution is outside this runtime-only fixture; retain its bridge call while testing the independent notification gates below. (GPT-6.1-Sol) -->
+	void setSASWorldBuilderScreenVisible(bool) {}
 	bool isInAdvancedStart() const { ++g_advancedStartReads; return advancedStart; }
 	bool isFinalInitialized() const { return ready; }
 	GameStateTypes getGameState() const { return state; }
@@ -302,6 +304,24 @@ int main(int argc, char** argv)
 {
 	wchar_t temporary[MAX_PATH];
 	require(GetEnvironmentVariableW(L"SAS_DIAGNOSTIC_TEST_ROOT", temporary, MAX_PATH) > 0, "test root is provided");
+	// <!-- custom: Exercise the production hidden launcher, Unicode path, handle attachment and final exit record together; ExitProcess supplies a synthetic exception-shaped code without crashing Civ4 or invoking an actual fault. (GPT-6.1-Sol) -->
+	if (argc == 2 && strcmp(argv[1], "--runtime-exit-observer") == 0)
+	{
+		GC.runtimeStatus = true;
+		std::wstring const root = std::wstring(temporary) + L"\\observer_\x0416\x6f22";
+		require(CreateDirectoryW(root.c_str(), NULL) != FALSE, "create external-observer root");
+		setSASDiagnosticLogRootDirectory(root.c_str());
+		require(g_uiSASRuntimeExitObserverProcessId != 0 && g_uiSASRuntimeExitObserverLaunchError == 0, "hidden observer launches through production Win32 path");
+		CvString const& started = getSASExecutableProcessStartUtc();
+		CvString name;
+		name.Format("SASRuntimeExit_%s_%lu.json", started.GetCString(), (unsigned long)GetCurrentProcessId());
+		std::wstring const receipt = root + L"\\Logs\\" + std::wstring(name.begin(), name.end());
+		DWORD const deadline = GetTickCount() + 10000;
+		while (readFile(receipt).find("WAITING") == std::string::npos && (int)(deadline - GetTickCount()) > 0)
+			Sleep(20);
+		require(readFile(receipt).find("WAITING") != std::string::npos, "external observer confirms process-handle attachment");
+		ExitProcess(0xC0000005);
+	}
 	if (argc == 2 && strcmp(argv[1], "--record-finalization") == 0)
 	{
 		using namespace recordFinalizationFixture;
@@ -345,7 +365,8 @@ int main(int argc, char** argv)
 		bridge.updateSASRuntimeStatusPreGameStart();
 		bridge.updateSASRuntimeStatusWorldBuilderScreen(true);
 		bridge.updateSASRuntimeStatusWorldBuilderScreen(false);
-		require(g_worldBuilderModeReads == 0 && g_advancedStartReads == 0, "disabled Python bridge skips native mode and Advanced Start queries");
+		// <!-- custom: The current bridge always checks Advanced Start for persisted editor-history attribution on show/hide; disabled runtime diagnostics must add no native mode queries or observer launches. (GPT-6.1-Sol) -->
+		require(g_worldBuilderModeReads == 0 && g_advancedStartReads == 2 && g_aSASRuntimeExitObservers.empty(), "disabled runtime adds no mode query or external observer to required history attribution");
 		updateSASRuntimeStatusGameEnded();
 		updateSASRuntimeStatusRequest(SAS_RUNTIME_STATUS_EXIT_REQUESTED);
 		updateSASRuntimeStatusCleanExit();

@@ -199,6 +199,8 @@ LIGHT_SOURCE_EXACT_FILE_EXCEPTIONS = (
     "_0_Common_Docs/AdvCiv_Base_Doc/manual.odt",
     # <!-- custom: Include the shipped DLL build evidence even though Assets root and local build-output folders are outside ordinary source selection; DLL binaries remain excluded. (GPT-6.1-Sol) -->
     "Assets/CvGameCoreDLL.dll.build.json",
+    # <!-- custom: Runtime exit observation is a shipped PowerShell companion beside the DLL, outside the ordinary Assets source subfolders; external reviewers need its implementation too. (GPT-6.1-Sol) -->
+    "Assets/SASRuntimeExitObserver.ps1",
 )
 
 # Do not exclude common readable image files globally.
@@ -2364,6 +2366,8 @@ def main() -> int:
         history_summary.extend("  " + part for part in re.split(r", (?=\d+ (?:private-cache hit|local-mirror hit|rendered|not cached))", field))
     local_test_count = sum(1 for path in files if path.relative_to(repo_root).parts[0] == "tests")
     local_test_summary = (f"Local tests: {local_test_count} source/doc file(s) included from tests/; see tests/README.md for platform/toolchain requirements." if local_test_count else "Local tests: none selected.")
+    # <!-- custom: Disclose the shipped runtime companion to ZIP-only reviewers in both console output and snapshot metadata. (GPT-6.1-Sol) -->
+    observer_summary = "Runtime exit observer: Assets/SASRuntimeExitObserver.ps1 included (hidden Windows PowerShell companion)." if repo_root / "Assets/SASRuntimeExitObserver.ps1" in files else "Runtime exit observer: not selected."
     packaging_summary = [
         f"Started: {started_at}",
         f"Snapshot context prepared: {utc_timestamp()}",
@@ -2377,6 +2381,7 @@ def main() -> int:
         f"Mode: {compression_mode}",
         python24_runtime_summary,
         local_test_summary,
+        observer_summary,
         *history_summary,
         "Scope: current HEAD ancestry and selected working-tree files; counts do not include uncommitted changes.",
         "Current-only/default-only are reachability counts, not necessarily a contiguous tail or an additive practical-version offset.",
@@ -2396,6 +2401,7 @@ def main() -> int:
     print(f"Mode:      {compression_mode}")
     print(python24_runtime_summary)
     print(local_test_summary)
+    print(observer_summary)
     for line in history_summary:
         print(line)
 

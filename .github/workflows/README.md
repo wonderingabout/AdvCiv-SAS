@@ -828,7 +828,7 @@ Checks the compiled runtime-recorder revision against its [history](/_1_AdvCiv-S
 
 Reuses SASGameRecord's event boundaries and explicit `revision:squash` policy, checking each ordinary commit or the complete squash candidate: recognized implementation changes require exactly one increment; pure CI/checker, documentation/example and test maintenance leaves it unchanged. Local checks also validate the pending working-tree increment, including new files before staging.
 
-Dedicated runtime files always qualify, including implementation comments. Shared source/configuration changes are recognized by runtime symbols in changed lines; unusual refactors still need manual review.
+Dedicated runtime files always qualify, including implementation comments and the shipped `Assets/SASRuntimeExitObserver.ps1` companion. Shared source/configuration changes are recognized by runtime symbols in changed lines; unusual refactors still need manual review.
 
 The regression tests cover multiple commits, missed increments, jumps/regressions, history mismatches, checker-only maintenance and clean CRLF working trees.
 
