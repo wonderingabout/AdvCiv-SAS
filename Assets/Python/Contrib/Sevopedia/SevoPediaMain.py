@@ -290,10 +290,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.pediaWorldSizeChart = SevoPediaWorldSizeChart.SevoPediaWorldSizeChart(self)
 		self.pediaEraChart = SevoPediaEraChart.SevoPediaEraChart(self)
 
-		# <!-- custom: category list refactor: previously category order, list generators, screen handlers, and link keys lived in separate maps and hardcoded blocks, so reordering or adding a category required edits in multiple places and could desync labels from links; now a single SAS_CATEGORY_DEFS tuple is the source of truth.
+		# <!-- custom: category list refactor: previously category order, list generators, screen handlers, and link keys lived in separate maps and hardcoded blocks, so reordering or adding a category required edits in multiple places and could desync labels from links; one temporary SAS_CATEGORY_DEFS table is now the construction source of truth.
 		# This makes category edits safer (one-row change), easier to review, and less error-prone, while keeping the same runtime behavior and allowing explicit per-category icons without fallback/group logic.
-		# Icons are computed once here and embedded in the tuple, so they are not global state and don't depend on later setup.
-		# To add or reorder, edit SAS_CATEGORY_DEFS only; maps, list generators, and PEDIA_MAIN links update automatically. (GPT-5.2-Codex (summarized)) -->
+		# Icons are computed once here and retained in the display rows, so they are not global state and do not depend on later setup.
+		# Derive only the runtime data each consumer needs: translated-display inputs/order, list/screen dispatch, main-link routing and the default category.
+		# Full method/class/link construction rows do not need to remain on the screen instance.
+		# Keep label keys rather than translated labels in the minimal display rows so setPediaCommonWidgets() preserves its screen-creation translation refresh behavior.
+		# To add or reorder, edit SAS_CATEGORY_DEFS only; derived runtime collections update automatically. (GPT-5.2-Codex (summarized) + GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 		iconCommerceResearch = u"%s  " % (SASVisuals.Commerce.RESEARCH_CHAR)
 		iconStrength = u"%s  " % (SASVisuals.Font.STRENGTH_CHAR)
 		iconSilverStar = u"%s  " % (SASVisuals.Font.SILVER_STAR_CHAR)
@@ -308,11 +311,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		iconGreatGeneral = u"%s  " % (SASVisuals.Font.GREAT_GENERAL_CHAR)
 		iconOccupation = u"%s  " % (SASVisuals.Font.OCCUPATION_CHAR)
 
-		# <!-- custom: Central category wiring for list generators, screen handlers, and PEDIA_MAIN links; page IDs come from class SevoScreenEnums in CvScreenEnums.py.
+		# <!-- custom: Central temporary category wiring for list generators, screen handlers, display labels/order and PEDIA_MAIN links; page IDs come from class SevoScreenEnums in CvScreenEnums.py.
 		# To add a category, insert one row in SAS_CATEGORY_DEFS: (PEDIA_ENUM, TXT_KEY, icon, listMethodName, screenClassOrInstance, PEDIA_MAIN_LINK_KEY or None).
 		# Example: (SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconCommerceResearch, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH").
-		# Reorder by moving rows here; no other maps or link tables need edits. (GPT-5.2-Codex + GPT-6.1-Sol) -->
-		self.SAS_CATEGORY_DEFS = (
+		# Reorder by moving rows here; no other maps or link tables need edits. (GPT-5.2-Codex + GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
+		SAS_CATEGORY_DEFS = (
 			(SevoScreenEnums.PEDIA_INDEX, "TXT_KEY_PEDIA_SCREEN_INDEX", iconYieldCommerce, "placeIndexCategory", None, None),
 			(SevoScreenEnums.PEDIA_BTS_CONCEPTS, "TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", iconYieldCommerce, "placeBTSConcepts", SevoPediaHistory.SevoPediaHistory, None),
 			(SevoScreenEnums.PEDIA_CONCEPTS, "TXT_KEY_PEDIA_CATEGORY_CONCEPT", iconYieldCommerce, "placeConcepts", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_CONCEPT"),
@@ -349,10 +352,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			(SevoScreenEnums.PEDIA_EVENT_TRIGGERS, "TXT_KEY_PEDIA_SAS_CATEGORY_EVENT_TRIGGERS", iconOccupation, "placeEventTriggers", SevoPediaEventTrigger.SevoPediaEventTrigger, None),
 			(SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconCommerceResearch, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH"),
 		)
+		categoryDisplayRows = []
 		self.mapListGenerators = {}
 		self.mapScreenFunctions = {}
 		self.SAS_mainLinkToCategory = {}
-		for iEnum, szLabelKey, szIconGroup, szListMethod, screenSpec, szLinkKey in self.SAS_CATEGORY_DEFS:
+		self.SAS_categoryEnumToIndex = {}
+		self.SAS_defaultCategory = SAS_CATEGORY_DEFS[0][0]
+		for iCategoryIndex, (iEnum, szLabelKey, szIconGroup, szListMethod, screenSpec, szLinkKey) in enumerate(SAS_CATEGORY_DEFS):
+			categoryDisplayRows.append((iEnum, szLabelKey, szIconGroup))
+			self.SAS_categoryEnumToIndex[iEnum] = iCategoryIndex
 			if szListMethod:
 				self.mapListGenerators[iEnum] = getattr(self, szListMethod)
 			if screenSpec:
@@ -362,6 +370,43 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					self.mapScreenFunctions[iEnum] = screenSpec(self)
 			if szLinkKey:
 				self.SAS_mainLinkToCategory[szLinkKey] = iEnum
+		self.SAS_categoryDisplayRows = tuple(categoryDisplayRows)
+
+		# <!-- custom: TERRAIN_HILL and TERRAIN_PEAK belong under the "GraphicalOnly (High)" header rather than "Land"; this is purely a UI grouping choice.
+		# Resolve these static overrides once when the lazily created Sevopedia instance is constructed; only IDs are runtime grouping data, so the XML type names remain temporary inputs. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		terrainGraphicalOnlyHighIds = []
+		for szType in ("TERRAIN_HILL", "TERRAIN_PEAK"):
+			iTerrain = getInfoTypeOrFail(szType)
+			if iTerrain >= 0:
+				terrainGraphicalOnlyHighIds.append(iTerrain)
+		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS = tuple(terrainGraphicalOnlyHighIds)
+
+		# <!-- custom: Link matching is persistent runtime dispatch state read directly by link(), not construction-only metadata; build it once with the Sevopedia instance instead of recreating it whenever the screen widgets are rebuilt. (ChatGPT-5.6-Sol) -->
+		self.SAS_linkMatchDefs = (
+			("getNumTechInfos", "getTechInfo", SevoScreenEnums.PEDIA_TECHS),
+			("getNumUnitInfos", "getUnitInfo", SevoScreenEnums.PEDIA_UNITS),
+			("getNumUnitCombatInfos", "getUnitCombatInfo", SevoScreenEnums.PEDIA_UNIT_CATEGORIES),
+			("getNumPromotionInfos", "getPromotionInfo", SevoScreenEnums.PEDIA_PROMOTIONS),
+			("getNumBuildingInfos", "getBuildingInfo", SevoScreenEnums.PEDIA_BUILDINGS),
+			("getNumProjectInfos", "getProjectInfo", SevoScreenEnums.PEDIA_PROJECTS),
+			("getNumSpecialistInfos", "getSpecialistInfo", SevoScreenEnums.PEDIA_SPECIALISTS),
+			("getNumTerrainInfos", "getTerrainInfo", SevoScreenEnums.PEDIA_TERRAINS),
+			("getNumFeatureInfos", "getFeatureInfo", SevoScreenEnums.PEDIA_FEATURES),
+			("getNumBonusInfos", "getBonusInfo", SevoScreenEnums.PEDIA_BONUSES),
+			("getNumImprovementInfos", "getImprovementInfo", SevoScreenEnums.PEDIA_IMPROVEMENTS),
+			("getNumBuildInfos", "getBuildInfo", SevoScreenEnums.PEDIA_BUILDS),
+			("getNumCivilizationInfos", "getCivilizationInfo", SevoScreenEnums.PEDIA_CIVS),
+			("getNumLeaderHeadInfos", "getLeaderHeadInfo", SevoScreenEnums.PEDIA_LEADERS),
+			# <!-- custom: Add traits to link matching so clicking <link=literal>TraitName</link> in Sevopedia Leader (or anywhere else) navigates to the Sevopedia Traits page.
+			# The DLL wraps trait names in <link=literal> tags (see CvGameTextMgr.cpp parseTraits), and this entry tells the link() method to search TraitInfo for a match and jump to PEDIA_TRAITS.
+			# Without this, clicking trait links had no effect. (Claude Opus 4.5) -->
+			("getNumTraitInfos", "getTraitInfo", SevoScreenEnums.PEDIA_TRAITS),
+			("getNumCivicInfos", "getCivicInfo", SevoScreenEnums.PEDIA_CIVICS),
+			("getNumReligionInfos", "getReligionInfo", SevoScreenEnums.PEDIA_RELIGIONS),
+			("getNumCorporationInfos", "getCorporationInfo", SevoScreenEnums.PEDIA_CORPORATIONS),
+			("getNumConceptInfos", "getConceptInfo", SevoScreenEnums.PEDIA_CONCEPTS),
+			("getNumNewConceptInfos", "getNewConceptInfo", SevoScreenEnums.PEDIA_BTS_CONCEPTS),
+		)
 
 		# <!-- custom: Cache Sevopedia grouping/layout defines on screen construction; shared highlight colors are resolved by SASVisualUtils instead of a screen-owned color cache. (GPT-6.1-Sol) -->
 		self.IS_SAS_SEVO_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVO_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
@@ -742,8 +787,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		elif self.pediaHistory:
 			current = self.pediaHistory[-1]
 		else:
-			# <!-- custom: default to the first row in SAS_CATEGORY_DEFS, so the opening category always matches the current category order instead of being hardcoded to Techs. (GPT-5.2-Codex) -->
-			current = (SevoScreenEnums.PEDIA_MAIN, self.SAS_CATEGORY_DEFS[0][0])
+			# <!-- custom: Default category is derived once from the first temporary SAS_CATEGORY_DEFS row, so opening follows category order instead of being hardcoded to Techs, without retaining the full construction table. (GPT-5.2-Codex + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			current = (SevoScreenEnums.PEDIA_MAIN, self.SAS_defaultCategory)
 		# <!-- custom: keep Back/Next history across closing and reopening Sevopedia during the same game session.
 		# This lets players inspect several entries (e.g. Leader AIP pages), exit to the map, reopen Sevopedia, and still use Back/Next instead of rebuilding the same navigation chain. See KI#125. (GPT-5.5) -->
 		self.pediaJump(current[0], current[1], False, True, SASGameRecordActions.SHOW)
@@ -880,7 +925,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def showContents(self, bForce=False, iCategory=None):
 		if iCategory is None:
-			iCategory = self.SAS_CATEGORY_DEFS[0][0]
+			iCategory = self.SAS_defaultCategory
 		self.deleteAllWidgets()
 		# <!-- custom: keep Sevopedia layout as restart-based for resolution changes; main interface still needs restart after in-session resolution switches to avoid broken layout, so we don't add dynamic per-resolution reflow across Sevopedia screens. (GPT-5.3-Codex) -->
 		screen = self.getScreen()
@@ -996,46 +1041,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.TOC_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper())
 		self.INDEX_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper())
 
-		# These are terrain TYPES that should be classified under the "GraphicalOnly (High)" header rather than "Land". This is purely a UI grouping choice.
-		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES = ("TERRAIN_HILL", "TERRAIN_PEAK")
-		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS = []
-		for szType in self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES:
-			iT = getInfoTypeOrFail(szType)
-			if iT >= 0:
-				self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS.append(iT)
-
+		# <!-- custom: Re-translate category labels whenever the shared Sevopedia screen is created, while order/icons/keys come from the minimal runtime display rows derived during __init__. (ChatGPT-5.6-Sol) -->
 		self.categoryList = []
-		self.SAS_categoryEnumToIndex = {}
-		for iEnum, szLabelKey, szIcon, szListMethod, screenSpec, szLinkKey in self.SAS_CATEGORY_DEFS:
+		for iEnum, szLabelKey, szIcon in self.SAS_categoryDisplayRows:
 			self.categoryList.append((szIcon, localText.getText(szLabelKey, ()), iEnum))
-		for i, category in enumerate(self.categoryList):
-			self.SAS_categoryEnumToIndex[category[2]] = i
 
-		self.SAS_linkMatchDefs = (
-			("getNumTechInfos", "getTechInfo", SevoScreenEnums.PEDIA_TECHS),
-			("getNumUnitInfos", "getUnitInfo", SevoScreenEnums.PEDIA_UNITS),
-			("getNumUnitCombatInfos", "getUnitCombatInfo", SevoScreenEnums.PEDIA_UNIT_CATEGORIES),
-			("getNumPromotionInfos", "getPromotionInfo", SevoScreenEnums.PEDIA_PROMOTIONS),
-			("getNumBuildingInfos", "getBuildingInfo", SevoScreenEnums.PEDIA_BUILDINGS),
-			("getNumProjectInfos", "getProjectInfo", SevoScreenEnums.PEDIA_PROJECTS),
-			("getNumSpecialistInfos", "getSpecialistInfo", SevoScreenEnums.PEDIA_SPECIALISTS),
-			("getNumTerrainInfos", "getTerrainInfo", SevoScreenEnums.PEDIA_TERRAINS),
-			("getNumFeatureInfos", "getFeatureInfo", SevoScreenEnums.PEDIA_FEATURES),
-			("getNumBonusInfos", "getBonusInfo", SevoScreenEnums.PEDIA_BONUSES),
-			("getNumImprovementInfos", "getImprovementInfo", SevoScreenEnums.PEDIA_IMPROVEMENTS),
-			("getNumBuildInfos", "getBuildInfo", SevoScreenEnums.PEDIA_BUILDS),
-			("getNumCivilizationInfos", "getCivilizationInfo", SevoScreenEnums.PEDIA_CIVS),
-			("getNumLeaderHeadInfos", "getLeaderHeadInfo", SevoScreenEnums.PEDIA_LEADERS),
-			# <!-- custom: Add traits to link matching so clicking <link=literal>TraitName</link> in Sevopedia Leader (or anywhere else) navigates to the Sevopedia Traits page.
-			# The DLL wraps trait names in <link=literal> tags (see CvGameTextMgr.cpp parseTraits), and this entry tells the link() method to search TraitInfo for a match and jump to PEDIA_TRAITS.
-			# Without this, clicking trait links had no effect. (Claude Opus 4.5) -->
-			("getNumTraitInfos", "getTraitInfo", SevoScreenEnums.PEDIA_TRAITS),
-			("getNumCivicInfos", "getCivicInfo", SevoScreenEnums.PEDIA_CIVICS),
-			("getNumReligionInfos", "getReligionInfo", SevoScreenEnums.PEDIA_RELIGIONS),
-			("getNumCorporationInfos", "getCorporationInfo", SevoScreenEnums.PEDIA_CORPORATIONS),
-			("getNumConceptInfos", "getConceptInfo", SevoScreenEnums.PEDIA_CONCEPTS),
-			("getNumNewConceptInfos", "getNewConceptInfo", SevoScreenEnums.PEDIA_BTS_CONCEPTS),
-		)
 		screen = self.getScreen()
 		screen.setRenderInterfaceOnly(True)
 		screen.setScreenGroup(1)
