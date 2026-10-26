@@ -98,10 +98,19 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 173 - SAS practical 6685
+### Revision 174 - SAS practical 6689
 
 - **Date:** 2026-10-26
 - **Git commit:** pending
+- **Change:** Correct the SGR revision checker so the known source-packaging entry point mentioning SASGameRecord does not count as a recorder implementation change.
+  - The Runtime 11 commit moved diagnostic screenshots and updated `make_light_source_zip.py`; CI incorrectly requested an SGR increment because its shared marker scan included all development helpers.
+  - The exclusion names only that packaging entry point. Other helpers retain conservative marker detection, including helpers without SASGameRecord in their filename; dedicated recorder/checker and SASGameRecord-named Python helpers still qualify. Regression fixtures cover both the packaging false positive and retained helper/bridge detection.
+  - This revision records checker maintenance under the SGR revision policy; emitted rows and gameplay behavior are unchanged.
+
+### Revision 173 - SAS practical 6685
+
+- **Date:** 2026-10-26
+- **Git commit:** `288e6db559e21de30a7d36a5aecf9af9cf466854`
 - **Change:** Add optional Changes-tab summaries for repeated WorldBuilder value edits and supported cancelled Advanced Start transactions; saved history, SASGameRecord and raw LOG exports retain the applied actions.
   - The revised localized legend explains this distinction. The conservative revision guard counts its SASGameRecord reference as a source/configuration bridge change, so the integration advances the revision label; emitted row formats and recording conditions are unchanged.
 

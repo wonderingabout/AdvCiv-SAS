@@ -306,6 +306,7 @@ def main():
                 raise RuntimeError("last completed row lost after abrupt termination: " + filename)
         print("PASS C++ diagnostic writer: both final rows survive abrupt process termination without cleanup")
         shutil.copyfile(ROOT / "Assets/SASRuntimeExitObserver.ps1", temporary / "SASRuntimeExitObserver.ps1")
+        shutil.copyfile(ROOT / "Assets/SASRuntimeDialogObserver.cs", temporary / "SASRuntimeDialogObserver.cs")
         observed = subprocess.run([str(executable), "--runtime-exit-observer"], cwd=temporary, env=environment)
         assert observed.returncode & 0xFFFFFFFF == 0xC0000005, observed.returncode
         final_path = temporary / "observer_Ж漢/Logs/SASRuntimeStatus.json"

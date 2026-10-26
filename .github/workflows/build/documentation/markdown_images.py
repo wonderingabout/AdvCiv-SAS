@@ -2,24 +2,24 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# Verify that local images referenced by Markdown files exist in the repository.
+# <!-- custom: Validate local image existence and presentation together: filename alt text keeps renamed screenshots greppable, and HTML width prevents oversized embeds. (GPT-6.1-Sol) -->
 
 from __future__ import annotations
 
 import html
+# <!-- custom: Parse actual HTML attributes (including quoted values/entities) rather than guessing complete img tags with a regex. (GPT-6.1-Sol) -->
+from html.parser import HTMLParser
 import re
 import sys
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
+# <!-- custom: Reuse maintained-document discovery so ignored review copies and generated/imported trees are not treated as repository documentation; Git-free archives retain the filesystem fallback. (GPT-6.1-Sol) -->
+from markdown_structure import paths as markdown_paths
 
 
 # <!-- custom: Resolve repository/shared-helper paths from this subject subfolder after the workflow-tool reorganization. (GPT-6.1-Sol) -->
 ROOT = Path(__file__).resolve().parents[4]
 
-HTML_IMG_RE = re.compile(
-    r"<img\b[^>]*?\bsrc\s*=\s*(?:\"([^\"]*)\"|'([^']*)'|([^\s>]+))",
-    re.IGNORECASE,
-)
 REFERENCE_DEF_RE = re.compile(r"^\s{0,3}\[([^\]]+)\]:\s*(.+?)\s*$", re.MULTILINE)
 FENCE_RE = re.compile(r"^\s{0,3}(`{3,}|~{3,})")
 SCHEME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
@@ -206,11 +206,29 @@ def markdown_images(text: str):
         index = alt_end + 1
 
 
+# <!-- custom: Keep offsets and decoded attributes together so validation can report the actual source line and compare encoded filenames without misreading quoted greater-than signs. (GPT-6.1-Sol) -->
+class ImageTagParser(HTMLParser):
+    def __init__(self, text: str):
+        super().__init__(convert_charrefs=True)
+        self.images = []
+        self.line_starts = [0]
+        for match in re.finditer("\n", text):
+            self.line_starts.append(match.end())
+        self.feed(text)
+
+    def handle_starttag(self, tag, attrs):
+        if tag.lower() == "img":
+            line, column = self.getpos()
+            self.images.append((self.line_starts[line - 1] + column, dict(attrs)))
+
+    handle_startendtag = handle_starttag
+
+
 def html_images(text: str):
-    for match in HTML_IMG_RE.finditer(text):
-        destination = next(group for group in match.groups() if group is not None)
+    for offset, attrs in ImageTagParser(text).images:
+        destination = attrs.get("src")
         if destination:
-            yield match.start(), destination
+            yield offset, destination
 
 
 def is_local(destination: str) -> bool:
@@ -240,50 +258,55 @@ def line_number(text: str, offset: int) -> int:
     return text.count("\n", 0, offset) + 1
 
 
+# <!-- custom: Apply the same local-image policy to inline/reference Markdown and HTML embeds, while leaving remote badges and literal code/comment examples outside the screenshot policy. (GPT-6.1-Sol) -->
+def image_errors(md_path: Path, text: str):
+    errors = []
+    scan_text = without_inline_code(strip_html_comments(without_fenced_code(text)))
+    references = [(offset, destination, None) for offset, destination in markdown_images(scan_text)]
+    references.extend((offset, attrs.get("src", ""), attrs) for offset, attrs in ImageTagParser(scan_text).images)
+    checked = 0
+    for offset, destination, attrs in sorted(references, key=lambda item: item[0]):
+        target = resolve_local_image(md_path, destination)
+        if target is None:
+            continue
+        checked += 1
+        prefix = f"{md_path.relative_to(ROOT)}:{line_number(scan_text, offset)}: "
+        try:
+            target.relative_to(ROOT)
+        except ValueError:
+            errors.append(prefix + f"local image escapes repository: {destination}")
+            continue
+        if not target.is_file():
+            errors.append(prefix + f"missing local image: {destination} -> {target.relative_to(ROOT)}")
+        if attrs is None:
+            errors.append(prefix + 'local image must use <img src="..." alt="filename" width="250"> instead of Markdown image syntax')
+            continue
+        # <!-- custom: Compare against the URL-decoded basename, retaining case/extension; query strings and directories are not part of alt text.
+        # Existing arbitrary positive pixel widths remain valid. (GPT-6.1-Sol) -->
+        filename = Path(unquote(urlsplit(html.unescape(destination)).path)).name
+        if attrs.get("alt") != filename:
+            errors.append(prefix + f"image alt must equal filename {filename!r}")
+        if not re.fullmatch(r"[1-9][0-9]*", attrs.get("width") or ""):
+            errors.append(prefix + "local image needs an explicit positive pixel width")
+    return errors, checked
+
+
 def main() -> int:
-    errors: list[str] = []
+    errors = []
     checked = 0
     markdown_files = 0
-
-    for md_path in sorted(ROOT.rglob("*.md")):
-        text = md_path.read_text(encoding="utf-8")
-        scan_text = without_inline_code(strip_html_comments(without_fenced_code(text)))
-        found_local = False
-
-        references = list(markdown_images(scan_text)) + list(html_images(scan_text))
-        references.sort(key=lambda item: item[0])
-        for offset, destination in references:
-            target = resolve_local_image(md_path, destination)
-            if target is None:
-                continue
-            checked += 1
-            found_local = True
-
-            try:
-                target.relative_to(ROOT)
-            except ValueError:
-                errors.append(
-                    f"{md_path.relative_to(ROOT)}:{line_number(scan_text, offset)}: "
-                    f"local image escapes repository: {destination}"
-                )
-                continue
-
-            if not target.is_file():
-                errors.append(
-                    f"{md_path.relative_to(ROOT)}:{line_number(scan_text, offset)}: "
-                    f"missing local image: {destination} -> {target.relative_to(ROOT)}"
-                )
-
-        if found_local:
+    for md_path in markdown_paths(ROOT):
+        failures, count = image_errors(md_path, md_path.read_text(encoding="utf-8"))
+        errors.extend(failures)
+        checked += count
+        if count:
             markdown_files += 1
-
     if errors:
-        print("Broken local Markdown image references:")
+        print("Invalid local Markdown images:")
         for error in errors:
             print(f"  {error}")
         print(f"\nChecked {checked} local image reference(s) in {markdown_files} Markdown file(s).")
         return 1
-
     print(f"Markdown local images OK: {checked} reference(s) in {markdown_files} file(s).")
     return 0
 

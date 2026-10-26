@@ -51,9 +51,36 @@ The harness supplies minimal game scaffolding and simulates failures. Full DLL c
 
 Run `python tests/diagnostics/run_runtime_exit_observer_tests.py` on Windows with Python 3 and Windows PowerShell 5.1. The [runner](/tests/diagnostics/run_runtime_exit_observer_tests.py) tests the actual [shipped observer](/Assets/SASRuntimeExitObserver.ps1) against disposable child processes, without Civ4 or administrator rights.
 
+The production launcher selects Windows PowerShell (`powershell.exe`), not PowerShell 7 (`pwsh.exe`). Its `WindowsPowerShell/v1.0/` directory name does not identify the installed engine version. The 32-bit Civ4 launcher uses the 32-bit Windows PowerShell on a 64-bit Windows host; the standalone test runner matches that architecture by default.
+
+Verified local environment on 2026-10-26:
+
+| Component | Observed value |
+| --- | --- |
+| Windows PowerShell | `5.1.19041.6456` |
+| .NET Framework | `4.8.1`, registry Release `533325` |
+| CLR runtime identifier | `4.0.30319.42000` |
+| Observer process | 32-bit |
+
+These are tested versions, not established minimum requirements.
+
+The CLR identifier is distinct from the .NET Framework product version; see Microsoft's [Framework version detection](https://learn.microsoft.com/en-us/dotnet/framework/install/how-to-determine-which-versions-are-installed) and [Windows PowerShell versus PowerShell 7](https://learn.microsoft.com/en-us/powershell/scripting/whats-new/what-s-new-in-powershell-core-60?view=powershell-6).
+
+PowerShell's [`Add-Type`](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/add-type?view=powershell-5.1) compiles the C# source into its own process using .NET Framework tooling.
+
+It does not link the managed observer into Civ4's VC2003 DLL, so their compiler/runtime versions need not match. Language syntax, available framework APIs, Windows API declarations and process architecture still matter for the helper itself.
+
+Older PowerShell/.NET combinations and alternative hosts are unverified.
+
+Installing PowerShell 7 alone does not change the launcher selection. Listener compilation failure retains the process-exit wait when the PowerShell script itself runs; an absent/blocked PowerShell process prevents external observation entirely. Normal runtime-off gameplay launches no helper.
+
 It checks ordinary and simulated abnormal exit codes, process creation identity, protection of a newer snapshot, concurrent observers, Unicode paths, torn history, unreadable/retired snapshots and failed final history writes.
 
-The native writer harness also tests the real hidden launcher, receipt and final exit together. A simulated access-violation exit code is a test input, not a real game crash. Normal DLL builds do not run this test.
+The native writer harness also tests the real hidden launcher, receipt and final exit together.
+
+Disposable Windows fixtures also test existing/new runtime-error and dump-choice dialogs, a same-title mismatched-control rejection, closure while the process remains alive, and exclusion of ordinary/assertion/foreign-process dialogs.
+
+A simulated access-violation exit code is a test input, not a real game crash. Normal DLL builds do not run this test.
 
 ## Assertion diagnostic harness
 

@@ -55,13 +55,13 @@ Another significant logging improvement is "flushing":
 - Live access was also verified: both logs could be read as they grew during autoplay and after the run finished, while Civ4 remained open.
 - This also opens up the door to further future interactive change possibilities; for example, making changes and observing their effect live, possibly.
 
-Python logs (e.g. PythonDbg.log, PythonErr.log, PythonErr2.log) gain UTC timestamps, while debug messages also gain readable names and searchable fields: for example, `99 SCREEN TURNED ON` becomes `2026-10-20T08:16:29.114Z record=SCREEN_TURNED_ON screenId=99 screenType=CvScreenEnums.MAIN_INTERFACE`, showing when it happened and which screen it was.
+Python-written rows in logs such as PythonDbg.log, PythonErr.log and PythonErr2.log gain UTC timestamps; debug notices gain searchable fields: `99 SCREEN TURNED ON` becomes `2026-10-20T08:16:29.114Z record=SCREEN_TURNED_ON screenId=99 screenType=CvScreenEnums.MAIN_INTERFACE`. Early startup and direct EXE output can remain untimestamped.
 
 Additional LLM/agent instrumentation extends this "open brain" view: users and AI assistants can observe game activity and compilation, then connect what happened to the source and DLL being tested:
 
 - `SASRuntimeStatus.json` gives the latest observed game/session and autoplay state, together with the identity of the DLL reporting it.
 - `SASRuntimeHistory_*.jsonl` keeps a timed history of game creation, save loading and autoplay activity, including why autoplay stopped, across games and loads while Civ4 stays open.
-- `SASRuntimeExit_*.json` makes exit recording more reliable when in-game hooks cannot finish, for example after live Python/XML edits or a DLL/EXE crash. With runtime diagnostics enabled (default off), a hidden Windows watcher records the process exit time/code independently of Civ4.
+- `SASRuntimeExit_*.json` helps catch failures missed by in-game hooks, such as crashes after live Python/XML edits or DLL/EXE failures. With runtime diagnostics enabled (default off), a hidden Windows watcher records recognized runtime-error or crash-dump dialogs while Civ4 is still alive, then its eventual exit time/code.
 - `CvGameCoreDLL.dll.build.json` provides the build-side counterpart: users and AI/LLM agents can follow compilation status and review source/configuration, timing, warnings/errors and DLL identity, alongside the enriched `AdvCiv.log` with full compiler output and build summaries.
 
 Together with live-readable BBAI and SASGameRecord logs, richer and more searchable UWAI diagnostics integrated into BBAI and controlled through SAS defines, enriched compiler logs and embedded DLL provenance, these make it easier to follow runs, investigate problems, and connect observations to the code and binary being tested.
@@ -193,6 +193,7 @@ For license and reuse terms, including project-specific restrictions and express
 &emsp;&emsp;[BBAI logging and head example](/README.md#bbai-logging-and-head-example)\
 &emsp;&emsp;[SASGameRecord log](/README.md#sasgamerecord-log)\
 &emsp;&emsp;[Live log inspection during gameplay](#live-log-inspection-during-gameplay)\
+&emsp;[Runtime status and history](/README.md#runtime-status-and-history)\
 [CuCuGS](#cucugs)\
 [LLM-assisted source analysis](/README.md#llm-assisted-source-analysis)\
 &emsp;[Light-source analysis](#light-source-analysis)\
@@ -343,7 +344,7 @@ It also notably shows wounded information (Max/Avg/Min and Full/High/Medium/Low 
 
 Also added a **legend link**. Implementation details in the Main Changes guide.
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG" alt="/0.515_military_advisor (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG" alt="0.515_military_advisor (1).JPG" width="250"></img>
 
 ##### Battles tab (Military Advisor)
 
@@ -355,13 +356,13 @@ Some columns are optional to adjust to preference or as the tab is quite loaded 
 
 Also added a **legend link** and **LOG Button**. One complete captured row from the larger export is `2026-10-26T04:38:18.857Z 10 | 18000 BC | Lost | 57 |  | 3 | 3.99 |  | 3.99 | 0 | 0 | Ancient Maceman | Wolf | 0 | 0 | 3 | 3.00 | 0.24 | 3.00 | 48 | 0 |  |  | TERRAIN_PLAINS |  | 56 | 28`; see the [captured Battles export](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#military-advisor-battles). Implementation details are in the Main Changes Guide.
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (4).JPG" alt="/0.515_military_advisor (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (4).JPG" alt="0.515_military_advisor (4).JPG" width="250"></img>
 
 ##### Compostion tab (Military Advisor)
 
 Also added a new Composition Tab, showing Current Units (non-civilians, including Animals (including Barbarian in debug mode)), Current Unit, Promotion, and Unit Combat counts.
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (5).JPG" alt="/0.515_military_advisor (5).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (5).JPG" alt="0.515_military_advisor (5).JPG" width="250"></img>
 
 ##### World Advisor
 
@@ -451,8 +452,8 @@ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG" alt="0.513_foreign_advisor (5).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (6).JPG" alt="0.513_foreign_advisor (6).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (7).JPG" alt="0.513_foreign_advisor (7).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG" alt="/0.515_military_advisor (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG" alt="/0.515_military_advisor (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG" alt="0.515_military_advisor (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG" alt="0.515_military_advisor (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (1).JPG" alt="0.518_info_screen (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (4).JPG" alt="0.518_info_screen (4).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (5).JPG" alt="0.518_info_screen (5).JPG" width="250"></img>
@@ -928,7 +929,7 @@ See the [README_Less_Generic_Unit_Names.md](/_1_AdvCiv-SAS/Docs/README_Less_Gene
 
 The civs you can expect in this mod come from these parts of the world (circled numbers are the added new civ's real world location):
 
-![0.220_world_map_terrain_with_new_civs.png](/_1_AdvCiv-SAS/Images/misc/0.220_world_map_terrain_with_new_civs.png)
+<img src="/_1_AdvCiv-SAS/Images/misc/0.220_world_map_terrain_with_new_civs.png" alt="0.220_world_map_terrain_with_new_civs.png" width="250"></img>
 
 ### Other map(s) i used for terrain modifiers for civ-specific units
 
@@ -938,7 +939,7 @@ The maps are references rather than mechanical assignment rules: unit role and g
 
 See [Assets Rebalancing: Unit terrain and feature combat modifiers](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#unit-terrain-and-feature-combat-modifiers) for the current balance rules, values, and unit-specific rationale.
 
-![0.221_main_world_map_for_civs_terrain_feature.jpg](/_1_AdvCiv-SAS/Images/misc/0.221_main_world_map_for_civs_terrain_feature.jpg)
+<img src="/_1_AdvCiv-SAS/Images/misc/0.221_main_world_map_for_civs_terrain_feature.jpg" alt="0.221_main_world_map_for_civs_terrain_feature.jpg" width="250"></img>
 
 Note: sometimes i slightly deviated from strict terrain world map real layout, as of now only in europe and eastern asia due to them being only forestic with no obvious terrain in the world maps i saw, but they is cold, so symbolize it as having if relevant enough a bit of tundra in civ4 terms (see for example this [Köppen climate classification map on wikipedia](https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification))
 
@@ -1223,7 +1224,7 @@ It also includes the core useful source/data/docs/helper files, including [LLM_H
 
 Local test sources and their setup instructions in [`tests/`](/tests/README.md) are included too; running the Windows writer harness still requires the local compiler/SDK.
 
-The `SASGameRecord_map_text` screenshots are included because an LLM may read the raw text-map characters without reconstructing the visual/geographical layout as easily.
+The `0.291_SASGameRecord_map_text` screenshots are included because an LLM may read the raw text-map characters without reconstructing the visual/geographical layout as easily.
 
 It still leaves out generated or too-heavy files/folders (e.g., as of now no `LLM_Helpers/outputs`, .fpk, .tga, .dll, pycache folders, or broad art assets folder).
 
@@ -1512,23 +1513,15 @@ Maps are recorded as text art which should help LLM visualization and reasoning/
 
 Initial context includes small and medium geography overviews before the full multi-layer pictures; when the bounded full preview resamples a large map, an optional native geography picture also preserves one logical cell per real plot and explicit coordinate extents.
 
-<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (1).PNG" alt="text_art_map (1)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (2).PNG" alt="text_art_map (2)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (3).PNG" alt="text_art_map (3)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (4).PNG" alt="text_art_map (4)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (5).PNG" alt="text_art_map (5)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (6).PNG" alt="text_art_map (6)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (7).PNG" alt="text_art_map (7)" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/diagnostics/0.291_SASGameRecord_map_text (1).PNG" alt="0.291_SASGameRecord_map_text (1).PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/diagnostics/0.291_SASGameRecord_map_text (2).PNG" alt="0.291_SASGameRecord_map_text (2).PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/diagnostics/0.291_SASGameRecord_map_text (3).PNG" alt="0.291_SASGameRecord_map_text (3).PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/diagnostics/0.291_SASGameRecord_map_text (4).PNG" alt="0.291_SASGameRecord_map_text (4).PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/diagnostics/0.291_SASGameRecord_map_text (5).PNG" alt="0.291_SASGameRecord_map_text (5).PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/diagnostics/0.291_SASGameRecord_map_text (6).PNG" alt="0.291_SASGameRecord_map_text (6).PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/diagnostics/0.291_SASGameRecord_map_text (7).PNG" alt="0.291_SASGameRecord_map_text (7).PNG" width="250"></img>
 
 See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log). It can be given to an external to the repo LLM (e.g. ChatGPT instead of Codex) to get an as of now token-cheap or free review of the `SASGameRecord` example sample.
-
-Runtime observations are collected by [`SASRuntimeStatus.cpp`](/CvGameCoreDLL/SASRuntimeStatus.cpp), with named observation reasons in [`SASRuntimeStatusReasons.h`](/CvGameCoreDLL/SASRuntimeStatusReasons.h).
-
-When runtime diagnostics are enabled, [`SASRuntimeExitObserver.ps1`](/Assets/SASRuntimeExitObserver.ps1) waits outside Civ4 and records its final exit code/time, helping distinguish a stopped process from a stale `RUNNING` snapshot after a crash.
-
-The hidden watcher runs without administrator rights. Its separate `SASRuntimeExit_*.json` survives an interrupted current-status rewrite; exit evidence does not establish the crash cause.
-
-Complete status/exit JSON and a history excerpt are shown in the [Logging Inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#runtime-status-and-history); the [full runtime history example](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeHistory_example.jsonl) captures a longer, earlier run with additional game/load/autoplay transitions.
 
 Brief header preview (selected fields from the same October 9, 2026 capture):
 
@@ -1538,7 +1531,7 @@ GAME_RECORD_SAVE_LOADED seq=1 processUtc=20261009T160524Z utc=20261009T160535Z t
 
 See the [full SASGameRecord header and its context](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sasgamerecord-session-header-example); the inventory also includes a [30-row gameplay excerpt](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sasgamerecord-gameplay-example).
 
-<img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_example.PNG" alt="SASGameRecord_example.PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/diagnostics/0.290_SASGameRecord_example.PNG" alt="0.290_SASGameRecord_example.PNG" width="250"></img>
 
 Note: `SASGameRecord` log has its own revision system, see [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md).
 
@@ -1563,6 +1556,22 @@ The live-access tests also succeeded: BBAI and SASGameRecord were readable as th
 The [measurement report](/_1_AdvCiv-SAS/Docs/README_Logging_Flushing_Comparison.md) preserves exact timings, settings, output sizes and read/focus conditions, including successful live reads with the old logger and the second stress pair's focus mismatch.
 
 This opens up the door to further future interactive change possibilities; for example, making changes and observing their effect live, possibly.
+
+### Runtime status and history
+
+Runtime observations are collected by [`SASRuntimeStatus.cpp`](/CvGameCoreDLL/SASRuntimeStatus.cpp), with named observation reasons in [`SASRuntimeStatusReasons.h`](/CvGameCoreDLL/SASRuntimeStatusReasons.h).
+
+When runtime diagnostics are enabled, [`SASRuntimeExitObserver.ps1`](/Assets/SASRuntimeExitObserver.ps1) waits outside Civ4 and records its final exit code/time, helping distinguish a stopped process from a stale `RUNNING` snapshot after a crash.
+
+The hidden watcher runs without administrator rights. Its separate `SASRuntimeExit_*.json` survives an interrupted current-status rewrite; exit evidence does not establish the crash cause.
+
+The same companion can record a recognized Microsoft Visual C++ runtime-error or Civ4 crash-dump dialog before Civ4 exits, distinguishing a visible failure from an ordinary live process. [`SASRuntimeDialogObserver.cs`](/Assets/SASRuntimeDialogObserver.cs) supplies the event-driven window listener, compiled by PowerShell on startup rather than by the game DLL build.
+
+**Startup note:** around the watcher's introduction, the user noticed a brief flicker/pause after the XML loading bar disappeared and before the main menu appeared. Watcher startup/C# compilation could contribute, but the cause was not established.
+
+With `SAS_RUNTIME_STATUS_ON=0`, the watcher does not start and its startup cost is absent; that does not rule out other causes of a pause. See the [Logging Inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#runtime-status-and-history) for details.
+
+Complete status/exit JSON and a history excerpt are shown in the [Logging Inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#runtime-status-and-history); the [full runtime history example](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeHistory_example.jsonl) retains a richer earlier run with additional game/load/autoplay transitions; the inventory also includes newer popup, WorldBuilder and crash-exit excerpts.
 
 ## CuCuGS
 

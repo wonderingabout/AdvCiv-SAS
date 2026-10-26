@@ -278,6 +278,7 @@ class RevisionHistoryTests(unittest.TestCase):
             git(repo, 'branch', 'main')
             for path, content in (
                 ('.gitattributes', '/examples/SASGameRecord_example.log export-ignore'),
+                ('LLM_Helpers/make_light_source_zip.py', 'IMAGE_SUBDIRS = ("Images/SASGameRecord_map_text",)\n# SASGameRecord output screenshots'),
                 ('.github/workflows/build/diagnostics/diagnostic_log_safety.py', '# SASGameRecord shared sink policy'),
                 ('tests/diagnostics/harness.cpp', '// SASGameRecord fixture'),
             ):
@@ -292,6 +293,9 @@ class RevisionHistoryTests(unittest.TestCase):
             ('Assets/Python/BUG/BugEventManager.py', 'SASGameRecordSettings.logSessionSettings("GAME_START")'),
             ('.github/workflows/build/diagnostics/sas_revision_history.py', '# revised checker implementation'),
             ('Assets/SASGameRecordConfig.json', '{"SAS_SGR_LOG":1}'),
+            ('LLM_Helpers/summarize_sasgamerecord.py', '# recorder-specific analysis helper'),
+            ('LLM_Helpers/diagnostics/record_context.py', 'emit("GAME_RECORD_CONTEXT")'),
+            ('LLM_Helpers/other/make_light_source_zip.py', '# SASGameRecord marker in a different helper'),
         ):
             with self.subTest(path=path), tempfile.TemporaryDirectory() as temp:
                 repo = Path(temp)

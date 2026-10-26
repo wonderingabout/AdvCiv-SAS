@@ -54,12 +54,13 @@ EXTRA_SUBDIRS = (
     "_1_AdvCiv-SAS/Docs",
 )
 
-# Optional screenshot-folder whitelist for visual LLM/code-agent context, e.g. advisors, main menu, Sevopedia, rendered SASGameRecord map text, and common UI.
-# Keep this explicit instead of including all image folders so broad image additions do not silently bloat the archive.
+# <!-- custom: Optional screenshot folders supply visual LLM/code-agent context.
+# diagnostics groups game-generated output (SGR/map text and runtime failure dialogs), distinct from external tools or LLM conversations.
+# Keep this explicit instead of including all image folders so broad image additions do not silently bloat the archive. (GPT-6.1-Sol) -->
 IMAGE_SUBDIRS = (
     "_1_AdvCiv-SAS/Images/advisors",
     "_1_AdvCiv-SAS/Images/main_menu",
-    "_1_AdvCiv-SAS/Images/SASGameRecord_map_text",
+    "_1_AdvCiv-SAS/Images/diagnostics",
     "_1_AdvCiv-SAS/Images/sevopedia",
     "_1_AdvCiv-SAS/Images/ui_other",
 )
@@ -201,6 +202,8 @@ LIGHT_SOURCE_EXACT_FILE_EXCEPTIONS = (
     "Assets/CvGameCoreDLL.dll.build.json",
     # <!-- custom: Runtime exit observation is a shipped PowerShell companion beside the DLL, outside the ordinary Assets source subfolders; external reviewers need its implementation too. (GPT-6.1-Sol) -->
     "Assets/SASRuntimeExitObserver.ps1",
+    # <!-- custom: This source is compiled by the runtime PowerShell observer, not the game DLL build; ZIP-only reviewers need the exact event listener too. (GPT-6.1-Sol) -->
+    "Assets/SASRuntimeDialogObserver.cs",
 )
 
 # Do not exclude common readable image files globally.
@@ -2367,7 +2370,7 @@ def main() -> int:
     local_test_count = sum(1 for path in files if path.relative_to(repo_root).parts[0] == "tests")
     local_test_summary = (f"Local tests: {local_test_count} source/doc file(s) included from tests/; see tests/README.md for platform/toolchain requirements." if local_test_count else "Local tests: none selected.")
     # <!-- custom: Disclose the shipped runtime companion to ZIP-only reviewers in both console output and snapshot metadata. (GPT-6.1-Sol) -->
-    observer_summary = "Runtime exit observer: Assets/SASRuntimeExitObserver.ps1 included (hidden Windows PowerShell companion)." if repo_root / "Assets/SASRuntimeExitObserver.ps1" in files else "Runtime exit observer: not selected."
+    observer_summary = "Runtime exit observer: Assets/SASRuntimeExitObserver.ps1 and Assets/SASRuntimeDialogObserver.cs included (hidden Windows companion)." if all(repo_root / name in files for name in ("Assets/SASRuntimeExitObserver.ps1", "Assets/SASRuntimeDialogObserver.cs")) else "Runtime exit observer: not selected."
     packaging_summary = [
         f"Started: {started_at}",
         f"Snapshot context prepared: {utc_timestamp()}",

@@ -10,6 +10,17 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## History
 
+### Revision 11 - SAS practical 6689
+
+- **Date:** 2026-10-26
+- **Git commit:** pending
+- **Change:** Observe the captured Microsoft Visual C++ Runtime Library error and Civ4 Program Execution Problem dump-choice dialogs while Civ4 remains alive, complementing the process-exit wait. PowerShell compiles the adjacent `Assets/SASRuntimeDialogObserver.cs` through the installed .NET tooling; the game DLL does not compile or load this managed listener.
+  - A process-filtered, out-of-context WinEvent listener with an initial window scan detects recognized visible dialogs and later hide/destroy observations. It reads only bounded standard text from the recognized target dialog and never clicks or dismisses it.
+    - The dump reporter’s known Edit 1004 is guarded by its message and three dump-choice buttons; ordinary popups/assertions are excluded.
+  - The independent per-run JSON reports listener availability, failure-dialog count/latest evidence and dropped events without changing process liveness. Times describe observation, including already-visible dialogs, rather than claiming the exact original fault time.
+  - The final exit history row retains the bounded dialog summary after Civ4 stops; live observations do not compete with the native history writer. A transient per-run/root ownership lock prevents duplicate helpers from replacing captured evidence with empty startup state.
+  - Hook/compilation failure retains the original exit-observation fallback. A missing dialog observation does not prove health: other failure dialogs, localization differences, hangs and silent exits remain distinct cases. Runtime-off still launches no helper; enabled observation adds managed startup/event handling, with no periodic game/UI polling.
+
 ### Revision 10 - SAS practical 6688
 
 - **Date:** 2026-10-26

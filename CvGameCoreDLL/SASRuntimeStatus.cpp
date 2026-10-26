@@ -15,7 +15,7 @@
 // Compile the label into the publisher: an edited XML value must not make an older loaded DLL report a newer implementation; this counter is independent of SASGameRecord and binary-save versions. (GPT-6.1-Sol) -->
 enum SASRuntimeRecorderRevision
 {
-	SAS_RUNTIME_REVISION = 10
+	SAS_RUNTIME_REVISION = 11
 };
 
 #define SAS_RUNTIME_PROCESS_STATES(DO) DO(RUNNING) DO(EXITED_CLEANLY) DO(EXITED)

@@ -47,6 +47,9 @@ The EXE is closed source, mods can supply arbitrary filenames, and some outputs 
   - [Runtime status and history](#runtime-status-and-history)
     - [`SASRuntimeStatus.json` (current status)](#sasruntimestatusjson-current-status)
     - [`SASRuntimeExit_*.json` (exit observation)](#sasruntimeexit_json-exit-observation)
+      - [Notable examples: failure dialogs while Civ4 is alive](#notable-examples-failure-dialogs-while-civ4-is-alive)
+        - [Crash-dump prompt](#crash-dump-prompt)
+        - [C++ Runtime Library error](#c-runtime-library-error)
     - [`SASRuntimeHistory_*.jsonl` (session and exit history)](#sasruntimehistory_jsonl-session-and-exit-history)
   - [DLL build reports](#dll-build-reports)
 - [Python diagnostic messages](#python-diagnostic-messages)
@@ -85,6 +88,8 @@ The EXE is closed source, mods can supply arbitrary filenames, and some outputs 
   - [Historical / external provenance](#historical--external-provenance)
 
 ## Overview
+
+Screenshots of game-generated diagnostic output, including SASGameRecord text/maps and runtime failure dialogs, are grouped in [`Images/diagnostics/`](/_1_AdvCiv-SAS/Images/diagnostics/). External-tool examples remain in `Images/tools/`; agent conversations and development demonstrations remain in `Images/LLM/`.
 
 This inventory brings together game, AI, Python, engine and build diagnostics, including what SAS changes relative to inherited output and which diagnostics SAS adds itself.
 
@@ -593,7 +598,15 @@ The SAS rows retain the analysis/forecast values and make turn, analyst, player,
 
 `SASRuntimeStatus.json` gives the latest observation; `SASRuntimeHistory_*.jsonl` preserves timed game/session activity, and `SASRuntimeExit_*.json` records the externally observed process exit.
 
+The external observer uses Windows PowerShell and .NET Framework independently of the VC2003 game DLL. The verified host used Windows PowerShell 5.1 and .NET Framework 4.8.1; these are tested versions, not established minimum requirements. See the [observer environment and tests](/tests/README.md#runtime-exit-observer) for version/architecture details and failure limits.
+
 Enabled runtime diagnostics start a hidden Windows observer so exit evidence can survive a crash or an interrupted current-status rewrite. This complements the existing close-request and orderly-shutdown hooks; it does not diagnose a crash or make Python/XML live editing safe.
+
+Starting PowerShell/.NET and compiling the C# listener adds startup CPU, disk and memory work when runtime diagnostics are enabled. The native launcher does not wait for listener initialization, but the external process can still compete for system resources.
+
+Around the watcher's introduction, the user noticed a brief flicker/pause after the XML loading bar filled and disappeared, before the main menu appeared. Observer startup is a possible contributor, not an established cause; its contribution was not measured. Other initialization and enabled diagnostics may also contribute.
+
+`SAS_RUNTIME_STATUS_ON=0` prevents the watcher from starting, so its startup/compilation work is absent. No controlled on/off timing comparison was performed; Civ4's separate `LoggingEnabled` setting does not govern this observer.
 
 For this capture, the user deliberately edited Python code while Civ4 was running, including deleting functions and adding/removing blank lines, to provoke a failure. Python errors and a Microsoft Visual C++ Runtime termination dialog appeared; the observer then recorded process exit code `3`. This test did not use an RI-style safer Python-reload implementation.
 
@@ -743,23 +756,120 @@ Complete `SASRuntimeExit_*.json` from the same process:
 }
 ```
 
-`observerState=EXITED` confirms that the attached process ended; the earlier `WAITING` receipt only confirms attachment. The separate file preserves final evidence even if the current snapshot is unreadable or has been replaced by a newer game.
+`observerState=EXITED` confirms that the attached process ended; the earlier `WAITING` receipt only confirms attachment.
+
+Runtime revision 11 can also record a recognized MSVC runtime-error (`MSVC_RUNTIME_ERROR`) or Civ4 “Program Execution Problem” dump-choice dialog (`CIV4_CRASH_DUMP_PROMPT`) while `observerState` remains `WAITING`.
+
+`dialogObserverState` reports listener availability; `failureDialog` records the latest recognized dialog, its visibility, text and first/last observation times, with `failureDialogCount` and `dialogEventsDropped` disclosing repeated or lost observations.
+
+Dialog titles and messages are read directly from Windows window/control text (`GetWindowText` and bounded `WM_GETTEXT` calls), then written to JSON. The screenshots illustrate the corresponding windows; they are not the text source, and the captured messages were not manually transcribed.
+
+These are observation times, not the exact fault/appearance time: an already-open dialog can be discovered after attachment. Live evidence stays in the per-run companion; the final `process_exit` history row retains its dialog summary after termination. The separate file preserves final evidence even if the current snapshot is unreadable or has been replaced by a newer game.
+
+##### Notable examples: failure dialogs while Civ4 is alive
+
+These two real captures show how different visible failure dialogs appear in `SASRuntimeExit_*.json`, before the process actually exits. They illustrate the recognized dialog forms rather than every possible crash.
+
+Both were reproduced on **2026-10-26** by pressing **Ctrl+S in VS Code on `SevoPediaMain.py`, without changing its contents**, while Civ4 was running. AdvCiv-SAS did not include an RI-style safer Python-reload implementation for these captures; saving an unchanged file was sufficient to trigger the observed failures.
+
+###### Crash-dump prompt
+
+This screenshot shows the in-game dialog corresponding to `CIV4_CRASH_DUMP_PROMPT` in the JSON capture below.
+
+<img src="/_1_AdvCiv-SAS/Images/diagnostics/0.295_SASRuntime_crash_dump_dialog.PNG" alt="0.295_SASRuntime_crash_dump_dialog.PNG" width="250"></img>
+
+This dump-prompt capture used `[DEBUG] generatecrashdumps = 1` in the user's `CivilizationIV.ini`, matching the existing [dump-generation instructions](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md). SAS runtime observation does not enable that setting or request a dump.
+
+The updated external observer was restarted while the dump-choice dialog remained open; it recorded the existing dialog without pressing any button. These timestamps therefore describe discovery, not when the failure began.
+
+Complete `SASRuntimeExit_*.json` at that observation:
+
+```json
+{
+  "revision": 11,
+  "processId": 16124,
+  "processStartUtc": "20261026T174016.979Z",
+  "observerProcessId": 12200,
+  "observerState": "WAITING",
+  "attachedUtc": "20261026T174937.254Z",
+  "dialogObserverState": "ACTIVE",
+  "dialogObserverErrorCode": 0,
+  "dialogObserverError": "",
+  "dialogEventsDropped": 0,
+  "failureDialogCount": 1,
+  "failureDialog": {
+    "kind": "CIV4_CRASH_DUMP_PROMPT",
+    "visible": true,
+    "firstObservedUtc": "20261026T174937.360Z",
+    "observedUtc": "20261026T174937.360Z",
+    "windowHandle": "0x30F56",
+    "title": "Program Execution Problem",
+    "text": "This program has encountered a problem and needs to be closed.  Do you wish to save a diagnostic file?"
+  },
+  "firstFailureDialogObservedUtc": "20261026T174937.360Z"
+}
+```
+
+Here, `WAITING` means the process has not exited, while `failureDialog.visible=true` records the recognized failure dialog. This distinguishes a process blocked at the dump prompt from a game merely sitting idle; it does not establish which Python code failed or whether the file contents changed.
+
+###### C++ Runtime Library error
+
+This screenshot shows the in-game dialog corresponding to `MSVC_RUNTIME_ERROR` in the JSON capture below.
+
+<img src="/_1_AdvCiv-SAS/Images/diagnostics/0.296_SASRuntime_cpp_runtime_error.PNG" alt="0.296_SASRuntime_cpp_runtime_error.PNG" width="250"></img>
+
+In a fresh run using the same Ctrl+S reproduction, the Microsoft Visual C++ Runtime Library dialog appeared on the first attempt, and the external observer recorded it before OK was pressed. These observations do not identify the internal fault or imply that every unchanged-file save produces the same failure.
+
+Complete `SASRuntimeExit_*.json` while the Microsoft Visual C++ Runtime Library dialog remained open:
+
+```json
+{
+  "revision": 11,
+  "processId": 40152,
+  "processStartUtc": "20261026T175231.114Z",
+  "observerProcessId": 1280,
+  "observerState": "WAITING",
+  "attachedUtc": "20261026T175237.808Z",
+  "dialogObserverState": "ACTIVE",
+  "dialogObserverErrorCode": 0,
+  "dialogObserverError": "",
+  "dialogEventsDropped": 0,
+  "failureDialogCount": 1,
+  "failureDialog": {
+    "kind": "MSVC_RUNTIME_ERROR",
+    "visible": true,
+    "firstObservedUtc": "20261026T175309.567Z",
+    "observedUtc": "20261026T175309.567Z",
+    "windowHandle": "0xE0018",
+    "title": "Microsoft Visual C++ Runtime Library",
+    "text": "Runtime Error!\n\nProgram: ...IV Beyond the Sword\\Beyond the Sword\\Civ4BeyondSword.exe\n\n\r\nThis application has requested the Runtime to terminate it in an unusual way.\nPlease contact the application's support team for more information.\r\n"
+  },
+  "firstFailureDialogObservedUtc": "20261026T175309.567Z"
+}
+```
+
+Both runs subsequently recorded `observerState=EXITED` and `failureDialog.visible=false`, retaining the dialog text and observation times: the dump-prompt run ended with `exitCodeHex=0xC0000005`, and the Runtime Library run with `0x00000003`.
+
+This confirms their observed dialog-to-exit sequences, but does not establish which fault caused them or whether Normal Dump, Full Dump or No Dump was chosen.
 
 #### `SASRuntimeHistory_*.jsonl` (session and exit history)
 
-Seven complete real records from the same run show process/session identity, loading and ready observations, Python pre-game initialization, and the final externally observed exit:
+Selected complete records from the real histories show scheduled/interrupted autoplay, popup responses, WorldBuilder screen entry/exit, and final process exits with both observed failure-dialog types. They come from separate processes, identified by each row's `run`; this is not one continuous game.
 
 ```log
-{"record":"run","revision":10,"run":"20261026T130019.231Z_24768","processId":24768,"processStartUtc":"20261026T130019.231Z","dllLoadUtc":"20261026T130020Z","dllIdentity":{"buildConfiguration":"Debug-opt","moduleFound":1,"fileReadable":1,"fileSizeBytes":14147584,"fingerprint":"FNV1A64:86D151B7A9F327B2","lastWriteUtc":"20261026T125633.496Z","peTimestampRaw":1793019383},"sourceIdentity":{"version":"6687","commit":"70d73a41e1bc6236cd0de33c97a64c7f4c2b0101","branch":"main","metadataSource":"git","defaultBranch":"main","defaultCommit":"70d73a41e1bc6236cd0de33c97a64c7f4c2b0101","defaultVersion":"6687","defaultRefSource":"LOCAL_BRANCH","mergeBaseCommit":"70d73a41e1bc6236cd0de33c97a64c7f4c2b0101","mergeBaseVersion":"6687","branchRelation":"AT_DEFAULT","currentOnlyCommits":0,"defaultOnlyCommits":0,"dirty":1,"dirtyTrackedCount":18,"sourceDiffDetailsAvailable":1,"sourceDiffEntries":3,"trackedCodeRulesDiffBytes":11893,"trackedCodeRulesDiffFingerprint":"FNV1A64:F075A816EEA0997D","stagedCodeRulesDiffBytes":10032,"stagedCodeRulesDiffFingerprint":"FNV1A64:A9F7C04CAF458D78","unstagedCodeRulesDiffBytes":1860,"unstagedCodeRulesDiffFingerprint":"FNV1A64:BF746AEFC639D812"},"priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
-{"record":"transition","revision":10,"run":"20261026T130019.231Z_24768","stateSerial":1,"intervalStarted":1,"previousState":"NONE","previousStartedUtc":"-","previousEndedUtc":"-","previousDurationMilliseconds":-1,"previousSessionSerial":0,"previousStartTurn":-1,"previousRequestedAutoplayTurns":0,"recordedUtc":"20261026T130024.652Z","state":"NO_GAME","stateStartedUtc":"20261026T130024.652Z","stateElapsedMilliseconds":0,"sessionSerial":0,"gameTurn":-1,"autoplayRemainingTurns":0,"reason":"MAIN_MENU_SCENE_REQUESTED","civilopediaVisible":0,"civilopediaContext":"NONE","civilopediaActivePlayer":-1,"civilopediaActiveCivilization":-1,"buttonPopupAwaitingInteraction":0,"buttonPopupType":"NONE","buttonPopupTypeId":-1,"buttonPopupActivePlayer":-1,"buttonPopupFocusedUtc":"-","buttonPopupResolvedUtc":"-","buttonPopupResolution":"-","buttonPopupResponseButton":-1,"autoplayEndCause":"-","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
-{"record":"transition","revision":10,"run":"20261026T130019.231Z_24768","stateSerial":2,"intervalStarted":1,"previousState":"NO_GAME","previousStartedUtc":"20261026T130024.652Z","previousEndedUtc":"20261026T130103.847Z","previousDurationMilliseconds":39194,"previousSessionSerial":0,"previousStartTurn":-1,"previousRequestedAutoplayTurns":0,"recordedUtc":"20261026T130103.847Z","state":"LOADING_SAVE","stateStartedUtc":"20261026T130103.847Z","stateElapsedMilliseconds":0,"sessionSerial":1,"gameTurn":-1,"autoplayRemainingTurns":0,"reason":"LOAD_GAME_STARTED","civilopediaVisible":0,"civilopediaContext":"NONE","civilopediaActivePlayer":-1,"civilopediaActiveCivilization":-1,"buttonPopupAwaitingInteraction":0,"buttonPopupType":"NONE","buttonPopupTypeId":-1,"buttonPopupActivePlayer":-1,"buttonPopupFocusedUtc":"-","buttonPopupResolvedUtc":"-","buttonPopupResolution":"-","buttonPopupResponseButton":-1,"autoplayEndCause":"-","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
-{"record":"session","revision":10,"run":"20261026T130019.231Z_24768","recordedUtc":"20261026T130104.045Z","sessionSerial":1,"sessionKind":"LOAD_GAME","sessionStartedUtc":"20261026T130103.847Z","nativeReadyUtc":"20261026T130104.045Z","newGameCount":0,"loadCount":1,"readyGameTurn":289,"readyActivePlayer":0,"mapWidth":120,"mapHeight":84,"worldSize":6,"gameSpeed":3,"scenario":0,"loadedSaveCheckpointTurn":289,"loadedSaveCheckpointElapsedTurn":289,"loadedSaveCheckpointUtc":"20261026T062353.280Z","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
-{"record":"transition","revision":10,"run":"20261026T130019.231Z_24768","stateSerial":3,"intervalStarted":1,"previousState":"LOADING_SAVE","previousStartedUtc":"20261026T130103.847Z","previousEndedUtc":"20261026T130104.045Z","previousDurationMilliseconds":198,"previousSessionSerial":1,"previousStartTurn":-1,"previousRequestedAutoplayTurns":0,"recordedUtc":"20261026T130104.045Z","state":"PLAYING","stateStartedUtc":"20261026T130104.045Z","stateElapsedMilliseconds":0,"sessionSerial":1,"gameTurn":289,"autoplayRemainingTurns":0,"reason":"LOAD_GAME_NATIVE_READY","civilopediaVisible":0,"civilopediaContext":"NONE","civilopediaActivePlayer":-1,"civilopediaActiveCivilization":-1,"buttonPopupAwaitingInteraction":0,"buttonPopupType":"NONE","buttonPopupTypeId":-1,"buttonPopupActivePlayer":-1,"buttonPopupFocusedUtc":"-","buttonPopupResolvedUtc":"-","buttonPopupResolution":"-","buttonPopupResponseButton":-1,"autoplayEndCause":"-","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
-{"record":"transition","revision":10,"run":"20261026T130019.231Z_24768","stateSerial":4,"intervalStarted":0,"previousState":"NONE","previousStartedUtc":"-","previousEndedUtc":"-","previousDurationMilliseconds":-1,"previousSessionSerial":0,"previousStartTurn":-1,"previousRequestedAutoplayTurns":0,"recordedUtc":"20261026T130106.083Z","state":"PLAYING","stateStartedUtc":"20261026T130104.045Z","stateElapsedMilliseconds":2039,"sessionSerial":1,"gameTurn":289,"autoplayRemainingTurns":0,"reason":"PYTHON_PRE_GAME_START","civilopediaVisible":0,"civilopediaContext":"NONE","civilopediaActivePlayer":-1,"civilopediaActiveCivilization":-1,"buttonPopupAwaitingInteraction":0,"buttonPopupType":"NONE","buttonPopupTypeId":-1,"buttonPopupActivePlayer":-1,"buttonPopupFocusedUtc":"-","buttonPopupResolvedUtc":"-","buttonPopupResolution":"-","buttonPopupResponseButton":-1,"autoplayEndCause":"-","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
-{"record":"process_exit","revision":10,"run":"20261026T130019.231Z_24768","processId":24768,"recordedUtc":"20261026T130738.696Z","processExitedUtc":"20261026T130738.595Z","exitCode":3,"exitCodeHex":"0x00000003","outcome":"NONZERO_EXIT_CODE","lastInProcessUpdatedUtc":"20261026T130653.862Z","lastActivity":"PLAYING","sessionSerial":1,"gameTurn":290}
+{"record":"transition","revision":8,"run":"20261026T060725.015Z_640","stateSerial":20,"intervalStarted":1,"previousState":"PLAYING","previousStartedUtc":"20261026T061509.929Z","previousEndedUtc":"20261026T061516.960Z","previousDurationMilliseconds":7032,"previousSessionSerial":6,"previousStartTurn":0,"previousRequestedAutoplayTurns":0,"recordedUtc":"20261026T061516.960Z","state":"AUTOPLAY","stateStartedUtc":"20261026T061516.960Z","stateElapsedMilliseconds":0,"sessionSerial":6,"gameTurn":0,"autoplayRemainingTurns":251,"reason":"AUTOPLAY_STARTED","civilopediaVisible":0,"civilopediaContext":"NONE","civilopediaActivePlayer":-1,"civilopediaActiveCivilization":-1,"buttonPopupAwaitingInteraction":0,"buttonPopupType":"NONE","buttonPopupTypeId":-1,"buttonPopupActivePlayer":-1,"buttonPopupFocusedUtc":"-","buttonPopupResolvedUtc":"-","buttonPopupResolution":"-","buttonPopupResponseButton":-1,"autoplayEndCause":"-","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
+{"record":"transition","revision":8,"run":"20261026T060725.015Z_640","stateSerial":21,"intervalStarted":1,"previousState":"AUTOPLAY","previousStartedUtc":"20261026T061516.960Z","previousEndedUtc":"20261026T061952.839Z","previousDurationMilliseconds":275887,"previousSessionSerial":6,"previousStartTurn":0,"previousRequestedAutoplayTurns":251,"recordedUtc":"20261026T061952.839Z","state":"PLAYING","stateStartedUtc":"20261026T061952.839Z","stateElapsedMilliseconds":0,"sessionSerial":6,"gameTurn":250,"autoplayRemainingTurns":0,"reason":"AUTOPLAY_ENDED","civilopediaVisible":0,"civilopediaContext":"NONE","civilopediaActivePlayer":-1,"civilopediaActiveCivilization":-1,"buttonPopupAwaitingInteraction":0,"buttonPopupType":"NONE","buttonPopupTypeId":-1,"buttonPopupActivePlayer":-1,"buttonPopupFocusedUtc":"-","buttonPopupResolvedUtc":"-","buttonPopupResolution":"-","buttonPopupResponseButton":-1,"autoplayEndCause":"SCHEDULED","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
+{"record":"transition","revision":8,"run":"20261026T060725.015Z_640","stateSerial":23,"intervalStarted":1,"previousState":"PLAYING","previousStartedUtc":"20261026T061952.839Z","previousEndedUtc":"20261026T062208.451Z","previousDurationMilliseconds":135615,"previousSessionSerial":6,"previousStartTurn":250,"previousRequestedAutoplayTurns":0,"recordedUtc":"20261026T062208.451Z","state":"AUTOPLAY","stateStartedUtc":"20261026T062208.451Z","stateElapsedMilliseconds":0,"sessionSerial":6,"gameTurn":251,"autoplayRemainingTurns":100,"reason":"AUTOPLAY_STARTED","civilopediaVisible":0,"civilopediaContext":"NONE","civilopediaActivePlayer":-1,"civilopediaActiveCivilization":-1,"buttonPopupAwaitingInteraction":1,"buttonPopupType":"BUTTONPOPUP_MAIN_MENU","buttonPopupTypeId":1,"buttonPopupActivePlayer":0,"buttonPopupFocusedUtc":"20261026T062159.004Z","buttonPopupResolvedUtc":"-","buttonPopupResolution":"-","buttonPopupResponseButton":-1,"autoplayEndCause":"-","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
+{"record":"transition","revision":8,"run":"20261026T060725.015Z_640","stateSerial":24,"intervalStarted":1,"previousState":"AUTOPLAY","previousStartedUtc":"20261026T062208.451Z","previousEndedUtc":"20261026T062353.274Z","previousDurationMilliseconds":104826,"previousSessionSerial":6,"previousStartTurn":251,"previousRequestedAutoplayTurns":100,"recordedUtc":"20261026T062353.274Z","state":"PLAYING","stateStartedUtc":"20261026T062353.274Z","stateElapsedMilliseconds":0,"sessionSerial":6,"gameTurn":289,"autoplayRemainingTurns":0,"reason":"AUTOPLAY_ENDED","civilopediaVisible":0,"civilopediaContext":"NONE","civilopediaActivePlayer":-1,"civilopediaActiveCivilization":-1,"buttonPopupAwaitingInteraction":1,"buttonPopupType":"BUTTONPOPUP_MAIN_MENU","buttonPopupTypeId":1,"buttonPopupActivePlayer":0,"buttonPopupFocusedUtc":"20261026T062159.004Z","buttonPopupResolvedUtc":"-","buttonPopupResolution":"-","buttonPopupResponseButton":-1,"autoplayEndCause":"USER_INTERRUPTED","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
+{"record":"transition","revision":8,"run":"20261026T084132.556Z_7048","stateSerial":21,"intervalStarted":0,"previousState":"NONE","previousStartedUtc":"-","previousEndedUtc":"-","previousDurationMilliseconds":-1,"previousSessionSerial":0,"previousStartTurn":-1,"previousRequestedAutoplayTurns":0,"recordedUtc":"20261026T084336.729Z","state":"PLAYING","stateStartedUtc":"20261026T084215.564Z","stateElapsedMilliseconds":81165,"sessionSerial":1,"gameTurn":290,"autoplayRemainingTurns":0,"reason":"BUTTON_POPUP_RESPONDED","civilopediaVisible":0,"civilopediaContext":"IN_GAME","civilopediaActivePlayer":0,"civilopediaActiveCivilization":17,"buttonPopupAwaitingInteraction":0,"buttonPopupType":"BUTTONPOPUP_MAIN_MENU","buttonPopupTypeId":1,"buttonPopupActivePlayer":0,"buttonPopupFocusedUtc":"20261026T084335.443Z","buttonPopupResolvedUtc":"20261026T084336.729Z","buttonPopupResolution":"RESPONDED","buttonPopupResponseButton":8,"autoplayEndCause":"-","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
+{"record":"transition","revision":8,"run":"20261026T084132.556Z_7048","stateSerial":23,"intervalStarted":0,"previousState":"NONE","previousStartedUtc":"-","previousEndedUtc":"-","previousDurationMilliseconds":-1,"previousSessionSerial":0,"previousStartTurn":-1,"previousRequestedAutoplayTurns":0,"recordedUtc":"20261026T084338.086Z","state":"PLAYING","stateStartedUtc":"20261026T084215.564Z","stateElapsedMilliseconds":82522,"sessionSerial":1,"gameTurn":290,"autoplayRemainingTurns":0,"reason":"BUTTON_POPUP_RESPONDED","civilopediaVisible":0,"civilopediaContext":"IN_GAME","civilopediaActivePlayer":0,"civilopediaActiveCivilization":17,"buttonPopupAwaitingInteraction":0,"buttonPopupType":"BUTTONPOPUP_CONFIRM_MENU","buttonPopupTypeId":2,"buttonPopupActivePlayer":0,"buttonPopupFocusedUtc":"20261026T084336.730Z","buttonPopupResolvedUtc":"20261026T084338.086Z","buttonPopupResolution":"RESPONDED","buttonPopupResponseButton":0,"autoplayEndCause":"-","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
+{"record":"transition","revision":8,"run":"20261026T084132.556Z_7048","stateSerial":25,"intervalStarted":1,"previousState":"PLAYING","previousStartedUtc":"20261026T084215.564Z","previousEndedUtc":"20261026T084338.115Z","previousDurationMilliseconds":82551,"previousSessionSerial":1,"previousStartTurn":289,"previousRequestedAutoplayTurns":0,"recordedUtc":"20261026T084338.115Z","state":"WORLD_BUILDER","stateStartedUtc":"20261026T084338.115Z","stateElapsedMilliseconds":0,"sessionSerial":1,"gameTurn":290,"autoplayRemainingTurns":0,"reason":"WORLD_BUILDER_SCREEN_SHOWN","civilopediaVisible":0,"civilopediaContext":"IN_GAME","civilopediaActivePlayer":0,"civilopediaActiveCivilization":17,"buttonPopupAwaitingInteraction":0,"buttonPopupType":"BUTTONPOPUP_CONFIRM_MENU","buttonPopupTypeId":2,"buttonPopupActivePlayer":0,"buttonPopupFocusedUtc":"20261026T084336.730Z","buttonPopupResolvedUtc":"20261026T084338.086Z","buttonPopupResolution":"RESPONDED","buttonPopupResponseButton":0,"autoplayEndCause":"-","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
+{"record":"transition","revision":8,"run":"20261026T084132.556Z_7048","stateSerial":26,"intervalStarted":1,"previousState":"WORLD_BUILDER","previousStartedUtc":"20261026T084338.115Z","previousEndedUtc":"20261026T084348.297Z","previousDurationMilliseconds":10182,"previousSessionSerial":1,"previousStartTurn":290,"previousRequestedAutoplayTurns":0,"recordedUtc":"20261026T084348.297Z","state":"PLAYING","stateStartedUtc":"20261026T084348.297Z","stateElapsedMilliseconds":0,"sessionSerial":1,"gameTurn":290,"autoplayRemainingTurns":0,"reason":"WORLD_BUILDER_SCREEN_HIDDEN","civilopediaVisible":0,"civilopediaContext":"IN_GAME","civilopediaActivePlayer":0,"civilopediaActiveCivilization":17,"buttonPopupAwaitingInteraction":0,"buttonPopupType":"BUTTONPOPUP_CONFIRM_MENU","buttonPopupTypeId":2,"buttonPopupActivePlayer":0,"buttonPopupFocusedUtc":"20261026T084336.730Z","buttonPopupResolvedUtc":"20261026T084338.086Z","buttonPopupResolution":"RESPONDED","buttonPopupResponseButton":0,"autoplayEndCause":"-","priorStatusWriteFailures":0,"priorHistoryWriteFailures":0}
+{"record":"process_exit","revision":11,"run":"20261026T174016.979Z_16124","processId":16124,"recordedUtc":"20261026T175207.503Z","processExitedUtc":"20261026T175207.373Z","exitCode":-1073741819,"exitCodeHex":"0xC0000005","outcome":"NONZERO_EXIT_CODE","lastInProcessUpdatedUtc":"20261026T175204.459Z","lastActivity":"EXIT_REQUESTED","sessionSerial":1,"gameTurn":291,"firstFailureDialogObservedUtc":"20261026T174937.360Z","failureDialogCount":1,"failureDialog":{"kind":"CIV4_CRASH_DUMP_PROMPT","visible":false,"firstObservedUtc":"20261026T174937.360Z","observedUtc":"20261026T175206.059Z","windowHandle":"0x30F56","title":"Program Execution Problem","text":"This program has encountered a problem and needs to be closed.  Do you wish to save a diagnostic file?"}}
+{"record":"process_exit","revision":11,"run":"20261026T175231.114Z_40152","processId":40152,"recordedUtc":"20261026T175504.432Z","processExitedUtc":"20261026T175504.243Z","exitCode":3,"exitCodeHex":"0x00000003","outcome":"NONZERO_EXIT_CODE","lastInProcessUpdatedUtc":"20261026T175309.243Z","lastActivity":"PLAYING","sessionSerial":1,"gameTurn":289,"firstFailureDialogObservedUtc":"20261026T175309.567Z","failureDialogCount":1,"failureDialog":{"kind":"MSVC_RUNTIME_ERROR","visible":false,"firstObservedUtc":"20261026T175309.567Z","observedUtc":"20261026T175504.223Z","windowHandle":"0xE0018","title":"Microsoft Visual C++ Runtime Library","text":"Runtime Error!\n\nProgram: ...IV Beyond the Sword\\Beyond the Sword\\Civ4BeyondSword.exe\n\n\r\nThis application has requested the Runtime to terminate it in an unusual way.\nPlease contact the application\u0027s support team for more information.\r\n"}}
 ```
 
-The [full history example](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeHistory_example.jsonl) comes from a longer, earlier run and includes additional new/load/autoplay and WorldBuilder transitions; its [capture notes](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md) identify that run and recorder revision.
+The [full history example](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeHistory_example.jsonl) retains a separate, richer earlier run with new/load/menu/Sevopedia and autoplay observations; its [capture notes](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md) identify that run. The newer excerpts above supplement it here rather than replacing the full example.
 
 For lifecycle details and field interpretation, see the [Main Changes Guide's runtime section](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#runtime-status-and-history) and [runtime revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md).
 
@@ -793,7 +903,7 @@ The build pair describes a development process; the runtime JSON/JSONL describes
 
 `SASPythonLogging` wraps Python stdout/stderr and supplies the same row formatter to Civ4's `CvUtil.RedirectDebug` and `RedirectError` classes. Direct prints, BUG file messages and multiline traceback text therefore share one timestamp path after installation.
 
-Each nonempty Python-written row receives a UTC date/time with milliseconds. Fragmented writes retain line-start state, and each write is forwarded immediately; no partial row is held until its newline. Blank rows remain blank. BUG's timestamp option controls the shared formatter, while its existing message-level filtering and on-screen messages remain unchanged.
+The shared formatter adds a UTC date/time with milliseconds at logical line starts. Fragmented writes retain line-start state, and each write is forwarded immediately; no partial row is held until its newline. Blank rows remain blank. BUG's timestamp option controls the shared formatter, while its existing message-level filtering and on-screen messages remain unchanged.
 
 The timestamp comes from the DLL's Windows UTC sampler. The Python layer requires a DLL exposing `getSASDiagnosticUtcTimestamp`; disabling timestamps avoids sampling the clock. The leader-cache serializer uses an explicit raw-output path so its generated Python module remains copyable.
 

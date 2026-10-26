@@ -3,7 +3,7 @@
 
 # <!-- custom: The game cannot publish reliably after an access violation, abort or forced termination.
 # Added after live Python edits left RUNNING status behind despite a Windows-reported native crash; this is process-exit observation, not a Python/XML reload workaround.
-# DLL/AI crashes are covered when they terminate the attached process too; errors that leave it alive are not process exits, and the exit code does not name the faulty function.
+# DLL/AI crashes are covered when they terminate the attached process too; a recognized fatal runtime dialog is now observed separately while the process remains alive, without pretending that the dialog identifies the faulty function.
 # Launched only by enabled runtime diagnostics, this same-user observer acquires the exact process before waiting without polling.
 # No elevation, game commands, Python imports or changes to live gameplay are involved. Launch success alone does not prove attachment; policy restrictions or an early exit can prevent observation. (GPT-6.1-Sol) -->
 param(
@@ -16,6 +16,13 @@ param(
 $ErrorActionPreference = 'Stop'
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $evidencePath = Join-Path ([System.IO.Path]::GetDirectoryName($StatusPath)) ('SASRuntimeExit_' + $ProcessStartUtc + '_' + $TargetProcessId + '.json')
+# <!-- custom: Only one observer may own a particular run/root's live receipt. Otherwise a later duplicate could overwrite a captured failure dialog with its empty startup state.
+# Delete-on-close releases this transient lock even if the observer is killed; distinct CvAltRoot paths retain their independent observers. (GPT-6.1-Sol) -->
+try {
+    $observerOwnership = New-Object System.IO.FileStream(($evidencePath + '.lock'), [System.IO.FileMode]::OpenOrCreate, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None, 1, [System.IO.FileOptions]::DeleteOnClose)
+} catch [System.IO.IOException] {
+    exit 0
+}
 
 # <!-- custom: Publish a small independent receipt/final record atomically, even if Civ4 died while rewriting its current JSON.
 # WAITING proves handle acquisition; EXITED carries the authoritative process result. A blocked snapshot or a newer game must not erase this run's separate exit evidence. (GPT-6.1-Sol) -->
@@ -60,6 +67,51 @@ try {
         attachedUtc = [DateTime]::UtcNow.ToString('yyyyMMddTHHmmss.fffZ')
     }
     Write-SASRuntimeExitEvidence $evidence
+    # <!-- custom: A fatal runtime dialog can keep the process alive indefinitely, so process exit alone cannot explain a blocked game.
+    # The companion uses a process-filtered WinEvent message loop and a blocking event queue, not periodic UI/game polling. Compilation or hook failure leaves the original process-exit wait available. (GPT-6.1-Sol) -->
+    $evidence.dialogObserverState = 'STARTING'
+    $evidence.dialogObserverErrorCode = 0
+    $evidence.dialogObserverError = ''
+    $evidence.dialogEventsDropped = 0
+    $evidence.failureDialogCount = 0
+    $evidence.failureDialog = $null
+    $dialogObserver = $null
+    try {
+        Add-Type -Path (Join-Path $PSScriptRoot 'SASRuntimeDialogObserver.cs')
+        $dialogObserver = New-Object SASRuntimeDialogObserver($target)
+        while ($null -ne ($dialogEvent = $dialogObserver.TakeNext())) {
+            if ($dialogEvent.MonitorReady) {
+                $evidence.dialogObserverState = $(if ($dialogEvent.MonitorError -eq 0) { 'ACTIVE' } else { 'UNAVAILABLE' })
+                $evidence.dialogObserverErrorCode = $dialogEvent.MonitorError
+                $evidence.dialogObserverError = $(if ($dialogEvent.MonitorError -eq 0) { '' } else { 'WinEvent listener initialization failed' })
+            } else {
+                if ($dialogEvent.Visible) { $evidence.failureDialogCount++ }
+                if (-not $evidence.Contains('firstFailureDialogObservedUtc')) {
+                    $evidence.firstFailureDialogObservedUtc = $dialogEvent.FirstObservedUtc
+                }
+                $evidence.failureDialog = [ordered]@{
+                    kind = $dialogEvent.Kind
+                    visible = $dialogEvent.Visible
+                    firstObservedUtc = $dialogEvent.FirstObservedUtc
+                    observedUtc = $dialogEvent.ObservedUtc
+                    windowHandle = $dialogEvent.WindowHandle
+                    title = $dialogEvent.Title
+                    text = $dialogEvent.Text
+                }
+            }
+            $evidence.dialogEventsDropped = $dialogObserver.DroppedEvents
+            Write-SASRuntimeExitEvidence $evidence
+        }
+        $evidence.dialogEventsDropped = $dialogObserver.DroppedEvents
+        if ($evidence.dialogObserverState -eq 'STARTING') { $evidence.dialogObserverState = 'PROCESS_EXITED_BEFORE_READY' }
+    } catch {
+        $evidence.dialogObserverState = 'UNAVAILABLE'
+        $evidence.dialogObserverErrorCode = -1
+        $evidence.dialogObserverError = $_.Exception.Message
+        Write-SASRuntimeExitEvidence $evidence
+    } finally {
+        if ($null -ne $dialogObserver) { $dialogObserver.Dispose() }
+    }
     $target.WaitForExit()
     $exitCode = $target.ExitCode
     $exitedUtc = $target.ExitTime.ToUniversalTime().ToString('yyyyMMddTHHmmss.fffZ')
@@ -106,6 +158,10 @@ try {
         exitCodeHex = $codeHex
         outcome = $(if ($exitCode -eq 0) { 'ZERO_EXIT_CODE' } else { 'NONZERO_EXIT_CODE' })
     }
+    if ($null -ne $evidence.failureDialog) {
+        $observation.failureDialogKind = $evidence.failureDialog.kind
+        $observation.firstFailureDialogObservedUtc = $evidence.firstFailureDialogObservedUtc
+    }
     # <!-- custom: A nonzero exit is evidence, not a diagnosis: access violations, aborts and external termination can all end a process.
     # Preserve the game's last observed turn/activity and source identity instead of claiming that a Python error or the latest user action caused the exit. (GPT-6.1-Sol) -->
     $historyState = 'ROOT_UNAVAILABLE'
@@ -126,6 +182,13 @@ try {
             lastActivity = $status.activity
             sessionSerial = $status.sessionSerial
             gameTurn = $status.gameTurn
+        }
+        # <!-- custom: Keep bounded first/latest dialog evidence live in the independent receipt, then attach its summary to the final history row after Civ4 exits.
+        # This avoids concurrent writers in the game's JSONL file or changing native history counters while the game remains alive. (GPT-6.1-Sol) -->
+        if ($null -ne $evidence.failureDialog) {
+            $row.firstFailureDialogObservedUtc = $evidence.firstFailureDialogObservedUtc
+            $row.failureDialogCount = $evidence.failureDialogCount
+            $row.failureDialog = $evidence.failureDialog
         }
         $history = $null
         try {
@@ -175,4 +238,5 @@ try {
     exit 4
 } finally {
     if ($null -ne $stream) { $stream.Dispose() }
+    $observerOwnership.Dispose()
 }

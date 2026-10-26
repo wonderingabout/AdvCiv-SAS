@@ -161,8 +161,11 @@ def commit_has_qualifying_change(repo, parent, commit):
         normalized = path.replace("\\", "/")
         if normalized in DEDICATED_QUALIFYING:
             return True
-        # <!-- custom: Only implementation/configuration roots participate in the shared marker heuristic; a recorder name in archive rules or general workflow policy is not an emitted-record change.
-        # Recorder-specific checkers above still qualify explicitly, while tests, packaging and unrelated CI remain outside this heuristic. (GPT-6.1-Sol) -->
+        # <!-- custom: The light-source packager selects files for external review; it does not implement the recorder.
+        # Its screenshot-list/comment edit falsely requested SGR174 merely for mentioning SASGameRecord.
+        # Exclude that known packaging entry point only: other helpers retain conservative marker detection, and recorder-specific helpers below still qualify without requiring a marker in the diff. (GPT-6.1-Sol) -->
+        if normalized == "LLM_Helpers/make_light_source_zip.py":
+            continue
         if not normalized.startswith(("CvGameCoreDLL/", "Assets/", "PrivateMaps/", "LLM_Helpers/")):
             continue
         if normalized == DEFINES:

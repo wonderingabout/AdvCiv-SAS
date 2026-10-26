@@ -229,8 +229,8 @@ Our AdvCiv-SAS documentation is mostly located here:
 - Docs folder: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs"
 - Screenshots for a lot of AdvCiv-SAS elements ingame including but not only Sevopedia, Advisors, etc. They are fairly updated too if it helps: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Images"
 - Screenshots can help development/review by showing what the mod UI/gameplay screens and rendered `SASGameRecord` map text actually look like, not only source/docs.
-  - LLMs may parse the raw text-map characters without reconstructing the visual/geographical layout as easily, so `SASGameRecord_map_text` screenshots are useful review context too.
-  - Codex and similar local agentic tools can read these screenshot folders directly on the user's computer; external/ZIP-only LLMs such as ChatGPT depend on what the compact light source ZIP includes, so [make_light_source_zip.py](/LLM_Helpers/make_light_source_zip.py) also includes selected useful screenshot folders (advisors, main menu, `SASGameRecord_map_text` screenshots, Sevopedia, common UI).
+  - LLMs may parse the raw text-map characters without reconstructing the visual/geographical layout as easily, so `0.291_SASGameRecord_map_text` screenshots are useful review context too.
+  - Codex and similar local agentic tools can read these screenshot folders directly on the user's computer; external/ZIP-only LLMs such as ChatGPT depend on what the compact light source ZIP includes, so [make_light_source_zip.py](/LLM_Helpers/make_light_source_zip.py) also includes selected useful screenshot folders (advisors, main menu, `0.291_SASGameRecord_map_text` screenshots, Sevopedia, common UI).
 
 For finding key documentation, use grep/search as needed; documentation indexes like `# advc.004y: Restored (comment out to remove traits)` can also point to important details about a change. After finding an index entry, grep the tag itself (e.g. `004y`) in the manual or related docs.
 
@@ -291,6 +291,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 - Prefer heading-generated Markdown anchors instead of explicit HTML `<a id="...">` / `<a name="...">` targets; a second naming scheme makes destinations harder to predict and maintain.
   - Numbered `ki-N[.N...]` anchors in `README_Known_Issues.md` are the exception: their short, direct and predictable targets keep issue links stable even when KI heading wording changes.
 
+- For local image embeds, use HTML with an explicit positive pixel width (usually `width="250"`) and alt text equal to the exact filename, including its extension; for example `<img src="/path/0.295_SASRuntime_crash_dump_dialog.PNG" alt="0.295_SASRuntime_crash_dump_dialog.PNG" width="250">`. This keeps image size deliberate and renamed screenshots greppable.
 - For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
 - For long Markdown prose, preserve the wording but prefer semantic structure that also reads clearly in rendered Markdown.
   - Use a blank line for a real new paragraph or thought chunk; a plain source newline normally renders as a space and should be used only when the text is intentionally still one paragraph.
@@ -759,7 +760,7 @@ Get-ChildItem -Path 'CvGameCoreDLL/Project/*/CvGameCoreDLL.dll.build.json' -File
   - A process can be starting, hidden, unresponsive or stranded after a failure. Use available window/response evidence and status/log progression when assessing its condition; an unchanged status file alone does not prove a hang because idle play and long initialization need not publish updates.
   - When the optional `Logs/SASRuntimeStatus.json` exists, use its DLL/process/session/autoplay fields as additional current-state evidence; verify the reported DLL identity against the intended build before treating a run as validation. Match `processId` and `processStartUtc` to the live process before trusting `RUNNING`: a crash can leave the last JSON behind.
   - Enabled runtime diagnostics use [SASRuntimeExitObserver.ps1](/Assets/SASRuntimeExitObserver.ps1) to record final process-handle exit evidence in `exitObservation` and a `process_exit` history row.
-    - Its matching `SASRuntimeExit_*.json` confirms attachment with WAITING, then records EXITED independently of the current snapshot; launch/attachment/I/O can fail, so retain the direct process check.
+    - Its matching `SASRuntimeExit_*.json` confirms attachment with WAITING, then records EXITED independently of the current snapshot; inspect `failureDialog` and `dialogObserverState` for a recognized runtime-error or crash-dump dialog while the process remains alive. Launch/attachment/I/O can fail, so retain the direct process check.
     - A nonzero exit code alone does not establish its cause.
   - The file reports autoplay state, not an idle/busy lock: a manually advanced turn also runs with `autoplayActive=0`. Check `gameState` for initialization and do not infer XML/Python edit safety from the autoplay flag alone.
   - Check Windows directly to establish whether the Civ4 process still exists; the JSON can outlive it. If no Civ4 process exists, no separate user confirmation of closure is needed. A lingering process can still retain runtime resources even without a visible window.

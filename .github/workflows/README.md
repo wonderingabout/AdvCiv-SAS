@@ -454,7 +454,9 @@ Keeps new history paragraphs at the end of an existing Known Issues entry. It co
 
 #### `build/documentation/markdown_images.py`
 
-Verifies every repository-local image referenced by a Markdown file resolves to an existing file. It checks normal and reference-style Markdown images plus HTML `<img src="...">` tags, while ignoring external URLs and fenced-code, inline-code, or comment examples.
+Validates local images in maintained Markdown: their files must exist, alt text must equal the URL-decoded filename (including extension), and an HTML `<img>` must specify a positive pixel width. Markdown image syntax, including reference-style images, fails because it does not provide the explicit width used by our screenshot previews.
+
+Existing descriptive and stale pre-rename alts were normalized in the initial sweep. External badges/URLs and fenced-code, inline-code or comment examples remain outside this local-image policy; ignored/generated review copies are excluded through shared maintained-document discovery.
 
 Repository-root paths and paths relative to each Markdown file are both supported.
 
@@ -828,7 +830,7 @@ Checks the compiled runtime-recorder revision against its [history](/_1_AdvCiv-S
 
 Reuses SASGameRecord's event boundaries and explicit `revision:squash` policy, checking each ordinary commit or the complete squash candidate: recognized implementation changes require exactly one increment; pure CI/checker, documentation/example and test maintenance leaves it unchanged. Local checks also validate the pending working-tree increment, including new files before staging.
 
-Dedicated runtime files always qualify, including implementation comments and the shipped `Assets/SASRuntimeExitObserver.ps1` companion. Shared source/configuration changes are recognized by runtime symbols in changed lines; unusual refactors still need manual review.
+Dedicated runtime files always qualify, including implementation comments and the shipped `Assets/SASRuntimeExitObserver.ps1` / `Assets/SASRuntimeDialogObserver.cs` companions. Shared source/configuration changes are recognized by runtime symbols in changed lines; unusual refactors still need manual review.
 
 The regression tests cover multiple commits, missed increments, jumps/regressions, history mismatches, checker-only maintenance and clean CRLF working trees.
 
@@ -867,7 +869,13 @@ Callers may pass an explicit canonical branch; otherwise local runs discover `or
 
 Revisions 69-152 verify their historical compiled-header marker; revision 153+ verifies the single `SAS_SGR_REVISION` GlobalDefine stored by that commit. Only the newest entry may say `pending`: a commit cannot store its own final hash, but older entries must be finalized.
 
-When the default-branch range is available, the checker also inspects current branch commits individually. Dedicated recorder/checker/helper files always qualify; other source/config bridge changes qualify when their diff exposes SASGameRecord markers. This is intentionally conservative automation around the written policy rather than an attempt to infer every semantic dependency.
+When the default-branch range is available, the checker also inspects current branch commits individually.
+
+- Dedicated recorder/checker/helper files and SASGameRecord-named Python helpers qualify.
+- Other game-source/configuration bridge changes qualify when their diff exposes SASGameRecord markers.
+- The known source packager `LLM_Helpers/make_light_source_zip.py` is excluded: selecting recorder examples/screenshots does not change the recorder. Other helpers retain conservative marker detection, even if their names do not mention SASGameRecord.
+
+This is intentionally conservative automation around the written policy rather than an attempt to infer every semantic dependency.
 
 Commit selection follows the event and explicit merge intent:
 
