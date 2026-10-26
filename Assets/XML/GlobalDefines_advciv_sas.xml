@@ -702,10 +702,12 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT</DefineName>
 		<iDefineIntVal>27</iDefineIntVal>
 	</Define>
-	<!-- custom: hide the unit bar ("PlotListPanel") (not needed and partially hidden by the production chooser's extra rows), with the help of ChatGPT-5.2 Thinking thanks -->
+	<!-- custom: Show the unit bar ("PlotListPanel") while a city is selected when 1.
+	Default 0 keeps it hidden because the production chooser's extra rows partially cover it; this preserves the earlier HIDE=1 layout with positive SHOW naming.
+	The main-interface define cache requires a Civ4 restart after changing it. (ChatGPT-5.2 Thinking + GPT-6.1-Sol) -->
 	<Define>
-		<DefineName>SAS_MAIN_UI_CITY_HIDE_PLOT_LIST</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
+		<DefineName>SAS_MAIN_UI_CITY_SHOW_PLOT_LIST</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: city-screen bonus rendering mode: 0 = old AdvCiv-SAS text glyphs, 1 = base AdvCiv-style framed image buttons, 2 = new AdvCiv-SAS frameless DDS icons (addDDS removes distracting button-frame edges).
 	Text glyphs are kept for legacy/debug mode and forced overflow fallback, but testing showed they stay much smaller than image buttons even when font is increased, so use mode 1 or 2 for large bonus icons. (GPT-5.5) -->
@@ -2274,10 +2276,29 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>172</iDefineIntVal>
+		<iDefineIntVal>173</iDefineIntVal>
 	</Define>
 
 
+	<!-- custom: Show every observer-permitted raw event as a separate row in the World Advisor Changes tab when 1.
+	Default 0 keeps eligible repeated WorldBuilder scalar edits compact: while adjusting a spinner with its arrows, intermediate values usually add visual noise compared with the first Before and final After.
+	These setters apply immediately; the compact view does not claim the edits were uncommitted drafts.
+	Saved history, SASGameRecord and the LOG export always retain the applied steps regardless of this UI preference.
+	Cached on the first Changes-tab draw; restart Civ4 after changing it. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_WORLD_CHANGES_SHOW_INTERMEDIATE_ON</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Show eligible cancelled Changes-table rows when 1; default 0 omits them from the summary.
+	These are WB scalar runs whose first/final values match, and matching Advanced Start unit/population/building ADD-then-REMOVE pairs when identities, quoted costs and point/gold balances match exactly.
+	Nested refund pairs can expose an earlier pair; hidden/omitted rows, other actions and WB edits are barriers.
+	This summarizes recorded value/count and budget effects, not all gameplay side effects (e.g. revealed plots, food or city counters).
+	City deletion, culture, technology, visibility and map replacements remain detailed; SHOW_INTERMEDIATE overrides this filter, and saved history/SGR/LOG always retain the raw events.
+	Cached on first compact Changes-tab draw; restart Civ4 after changing it. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_WORLD_CHANGES_SHOW_CANCELLED_ON</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: WorldBuilder script edits retain the applied script data as their Changes-history target when 1 (default); 0 retains a WITHHELD marker instead.
 	This is script data, not a script filename, and is never executed by the history viewer.
 	The existing string field stores only the new applied text, independently of SGR logging; old withheld entries cannot recover it.
@@ -3203,13 +3224,13 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
-	<!-- custom: Absolute AI scrap kill switch.
-	0 preserves the normal AdvCiv-SAS scrap rules; 1 forbids AI scrapping entirely.
-	This is intentionally separate from SAS_SCRAP_ON: if we disable optimization, we should not accidentally restore broad scrapping.
-	Scrapping is hammer-inefficient when a produced unit can defend, pressure rivals, or be spent in war; war can remove excess units naturally while potentially gaining cities, unit support, economy, and long-term growth. (GPT-5.5 + ChatGPT-5.5) -->
+	<!-- custom: Absolute AI scrapping permission: 1 (default) leaves eligibility to the normal AdvCiv-SAS scrap rules; 0 overrides the softer scrap policies and blocks discretionary AI scrapping.
+	The positive ABSOLUTELY_ON name preserves the stronger override distinction of the earlier negative kill switch, with inverted values and unchanged behavior; human scrapping and forced mandatory-game-rule cleanup keep their existing exceptions.
+	This is intentionally separate from SAS_SCRAP_ON: turning policy optimization off should not override a global AI scrap ban.
+	Scrapping is hammer-inefficient when a produced unit can defend, pressure rivals, or be spent in war; war can remove excess units naturally while potentially gaining cities, unit support, economy, and long-term growth. (GPT-5.5 + ChatGPT-5.5 + GPT-6.1-Sol) -->
 	<Define>
-		<DefineName>SAS_SCRAP_ABSOLUTELY_DISABLE</DefineName>
-		<iDefineIntVal>0</iDefineIntVal>
+		<DefineName>SAS_SCRAP_AI_ABSOLUTELY_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Softer near-absolute AI scrap mode.
 	0 preserves normal AdvCiv-SAS scrap rules; 1 blocks AI scrapping except for units with ObsoleteTech after the obsolete-era delay below.

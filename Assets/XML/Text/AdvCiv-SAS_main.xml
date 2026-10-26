@@ -4211,6 +4211,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<English>W</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_SUMMARY_EMPTY</Tag>
+		<English>No rows in this view; LOG retains the recorded events.</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_NONE</Tag>
 		<English>This save contains no recorded Advanced Start or WorldBuilder changes history.</English>
 	</TEXT>
@@ -4874,5 +4878,14 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_ACTION_HELP</Tag>
 		<English>Recorded action: %s1[NEWLINE]Target: %s2[NEWLINE]Turn %d3, year %d4</English>
+	</TEXT>
+	<!-- custom: The table may condense one contiguous spinner-style WorldBuilder scalar run while saved history/SGR remain raw; show the step count in-row and explain the raw range on hover. (ChatGPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_COMPACT_ACTION</Tag>
+		<English>%s1 x%d2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CHANGES_COMPACT_HELP</Tag>
+		<English>[NEWLINE]Compact view: %d1 contiguous applied WorldBuilder edits (#%d2-#%d3). LOG exports the raw events.</English>
 	</TEXT>
 </Civ4GameText>

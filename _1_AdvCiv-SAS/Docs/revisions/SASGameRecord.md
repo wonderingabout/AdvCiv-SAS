@@ -98,10 +98,17 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 173 - SAS practical 6685
+
+- **Date:** 2026-10-26
+- **Git commit:** pending
+- **Change:** Add optional Changes-tab summaries for repeated WorldBuilder value edits and supported cancelled Advanced Start transactions; saved history, SASGameRecord and raw LOG exports retain the applied actions.
+  - The revised localized legend explains this distinction. The conservative revision guard counts its SASGameRecord reference as a source/configuration bridge change, so the integration advances the revision label; emitted row formats and recording conditions are unchanged.
+
 ### Revision 172 - SAS practical 6684
 
 - **Date:** 2026-10-25
-- **Git commit:** pending
+- **Git commit:** `64c40f6012eccc4844dc5913b994dd6ffc740c6e`
 - **Change:** Polish the World Advisor Changes view and optionally retain WorldBuilder script text in the existing native target field, without changing the save layout.
   - Rename initial text-map scale settings to `SAS_SGR_MAP_ASCII_SCALE_1_PCT` and `SAS_SGR_MAP_ASCII_SCALE_2_PCT`, separating their names from Domestic Advisor Overview tabs; percentages and generated maps are unchanged.
   - Action cells reuse WorldBuilder tool/category icons with read-only hover help; target cells use current XML icons, native help and matching Sevopedia redirects where available. Hidden rows suppress icon/widget payloads as well as text.

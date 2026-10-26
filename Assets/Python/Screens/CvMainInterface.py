@@ -640,7 +640,7 @@ class CvMainInterface:
 		# <!-- custom: add buttons in the city screen production queue elements. Credit: Claude Opus 4.5. (GPT-5.2-Codex (summarized)) -->
 		self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS = None
 		# <!-- custom: optional UI convenience: hide the unit plot list bar while a city is selected to avoid overlapping with multi-row build bars. (ChatGPT-5.2 Thinking) -->
-		self.IS_SAS_MAIN_UI_CITY_HIDE_PLOT_LIST = None
+		self.IS_SAS_MAIN_UI_CITY_SHOW_PLOT_LIST = None
 		# <!-- custom: city-screen bonus rendering mode: 0 = old text glyphs, 1 = base AdvCiv-style framed image buttons, 2 = frameless DDS icons. (GPT-5.5) -->
 		self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE = None
 		self.iCityBonusPreferredBtnSize = BTNSZ(40)
@@ -1625,8 +1625,8 @@ class CvMainInterface:
 			self.iCityScreenBlueRibbonExtraLift = VSPACE(gc.getDefineINT("SAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT"))
 		if self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS is None:
 			self.IS_SAS_MAIN_UI_PROD_QUEUE_BUTTONS = (gc.getDefineINT("SAS_MAIN_UI_PROD_QUEUE_BUTTONS") > 0)
-		if self.IS_SAS_MAIN_UI_CITY_HIDE_PLOT_LIST is None:
-			self.IS_SAS_MAIN_UI_CITY_HIDE_PLOT_LIST = (gc.getDefineINT("SAS_MAIN_UI_CITY_HIDE_PLOT_LIST") > 0)
+		if self.IS_SAS_MAIN_UI_CITY_SHOW_PLOT_LIST is None:
+			self.IS_SAS_MAIN_UI_CITY_SHOW_PLOT_LIST = (gc.getDefineINT("SAS_MAIN_UI_CITY_SHOW_PLOT_LIST") > 0)
 		if self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE is None:
 			self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE = gc.getDefineINT("SAS_MAIN_UI_CITY_BONUS_ICON_MODE")
 			if self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE < 0 or self.SAS_MAIN_UI_CITY_BONUS_ICON_MODE > 2:
@@ -2934,9 +2934,8 @@ class CvMainInterface:
 		self.updatePlotListButtons_Hide(screen)
 		self.updatePlotListButtons_Common(screen)
 
-		# <!-- custom: optionally hide the unit plot list bar only while a city is selected (ChatGPT-5.2 Thinking) -->
-		# This avoids overlap when the city build bar is configured to show extra rows.
-		if (self.IS_SAS_MAIN_UI_CITY_HIDE_PLOT_LIST and kInterface.isCitySelection()):
+		# <!-- custom: Show the city-screen unit plot list only when requested; default SHOW=0 preserves the previous HIDE=1 layout and avoids overlap with the expanded production chooser. (ChatGPT-5.2 Thinking + GPT-6.1-Sol) -->
+		if (not self.IS_SAS_MAIN_UI_CITY_SHOW_PLOT_LIST and kInterface.isCitySelection()):
 			# Make sure any navigation arrows are hidden too (they are shown only in the draw methods).
 			screen.hide("PlotListMinus")
 			screen.hide("PlotListPlus")

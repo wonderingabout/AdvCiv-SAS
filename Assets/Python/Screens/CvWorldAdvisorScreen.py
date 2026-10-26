@@ -71,6 +71,15 @@ class CvWorldAdvisorScreen:
 		self.CHANGES_TABLE_ID = None
 		self.CHANGES_LOG_BUTTON_ID = None
 		self.CHANGES_ROW_PLOTS = {}
+		self.CHANGES_COMPACT_GROUPS = {}
+		# <!-- custom: Resolve the raw-table preference only when the Changes tab is opened after XML initialization; keep imports and unrelated tabs free of this lookup. (GPT-6.1-Sol) -->
+		self.bChangesShowIntermediate = None
+		# <!-- custom: Match the intermediate-step toggle's positive polarity: 1 shows cancelled rows, while default 0 omits reviewed cancellations from the summary without editing recorded transactions or claiming all gameplay effects were reversed. (GPT-6.1-Sol) -->
+		self.bChangesShowCancelled = None
+		self.CHANGES_CANCEL_AS_ACTIONS = ("UNIT", "POPULATION", "BUILDING")
+		# <!-- custom: Compact only the inherited WorldBuilder scalar controls whose callbacks apply repeated immediate numeric setter mutations while one field is being adjusted.
+		# Do not generalize this to map brushes, ownership/diplomacy, destructive edits or Advanced Start: their intermediate actions can carry distinct semantics or state-dependent costs. (ChatGPT-5.6-Sol) -->
+		self.CHANGES_COMPACT_SCALAR_ACTIONS = ("SET_EXPERIENCE", "SET_LEVEL", "SET_POPULATION", "SET_CULTURE", "SET_GOLD")
 		# <!-- custom: Cache XML presentation by typed family and stable token, not by live unit/city identity; register callbacks on this advisor instance through the existing BUG dispatcher. (GPT-6.1-Sol) -->
 		self.CHANGES_INFO_CATALOG = {}
 		# <!-- custom: Construct the fixed operation/category-to-art-key catalogs once per advisor instance, not once per history row.
@@ -747,6 +756,7 @@ class CvWorldAdvisorScreen:
 		screen = self.getScreen()
 		game = CyGame()
 		self.CHANGES_ROW_PLOTS = {}
+		self.CHANGES_COMPACT_GROUPS = {}
 		self.CHANGES_JUMP_COLUMN = -1
 		self.CHANGES_TABLE_ID = None
 		self.CHANGES_LOG_BUTTON_ID = None
@@ -776,11 +786,18 @@ class CvWorldAdvisorScreen:
 		for iCol in range(iNumCols):
 			screen.setTableColumnHeader(self.CHANGES_TABLE_ID, iCol, SASTextScale.sasFontTagLabel + aszHeaders[iCol] + SASTextScale.SAS_FONT_TAG_CLOSE, aiWidths[iCol])
 
-		# <!-- custom: Default newest-first for review while retaining an explicit sequence column so exact within-turn order remains recoverable after user sorting. (ChatGPT-5.6-Sol) -->
-		for iEntry in range(iEntries - 1, -1, -1):
-			tRow = self.getChangesHistoryPerspectiveRow(iEntry)
-			if tRow is None:
-				continue
+		# <!-- custom: Default newest-first for review.
+		# The save and SGR retain every applied event, but a reviewed set of immediate WorldBuilder scalar controls may collapse contiguous old->new chains into one display row.
+		# Manual editor steps are usually modest in number and may explain a later bug; retaining them avoids making data collection depend on the current summary rules.
+		# Repeated spinner rows are chiefly an advisor-readability issue here, not a reason to discard applied-event evidence. (GPT-6.1-Sol)
+		# The displayed # is the last raw entry in that run; the action carries the applied-step count, while LOG remains the raw-event escape hatch. (ChatGPT-5.6-Sol) -->
+		aGroups = self.getChangesHistoryDisplayGroups()
+		# <!-- custom: A filtered summary may have no rows even though the save contains events; distinguish an empty view from missing history and keep LOG available. (GPT-6.1-Sol) -->
+		if not aGroups:
+			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_SUMMARY_EMPTY", ()) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.W_SCREEN / 2, self.CONTENT_Y_TOP + 90, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		for iFirstEntry, iEntry, iAppliedSteps, tRow in reversed(aGroups):
+			if iAppliedSteps > 1:
+				self.CHANGES_COMPACT_GROUPS[iEntry] = (iFirstEntry, iAppliedSteps)
 			iSequence, iTurn, iYear, szSource, szActor, szAction, szTarget, szLocation, tNumericValues, iXPlot, iYPlot, iKnownActor, bObjectKnown = tRow
 			iRow = screen.appendTableRow(self.CHANGES_TABLE_ID)
 			if iXPlot >= 0 and iYPlot >= 0:
@@ -848,7 +865,158 @@ class CvWorldAdvisorScreen:
 						value = u"-"
 					SASTextScale.setTableTextLabel(screen, self.CHANGES_TABLE_ID, iNumericCol + iOffset, iRow, value, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 
-	def getChangesHistoryPerspectiveRow(self, iEntry):
+	def getChangesHistoryCompactKey(self, iEntry):
+		game = CyGame()
+		if game.getSASWorldChangesHistorySourceName(iEntry) != "WORLD_BUILDER":
+			return None
+		szAction = game.getSASWorldChangesHistoryAction(iEntry)
+		if szAction not in self.CHANGES_COMPACT_SCALAR_ACTIONS:
+			return None
+		if game.getSASWorldChangesHistoryOperation(iEntry) != "EDIT" or game.getSASWorldChangesHistoryContentWithheld(iEntry):
+			return None
+		if not game.getSASWorldChangesHistoryOldValueValid(iEntry) or not game.getSASWorldChangesHistoryNewValueValid(iEntry):
+			return None
+		return self.getChangesHistoryObjectKey(iEntry)
+
+	def getChangesHistoryObjectKey(self, iEntry):
+		game = CyGame()
+		# <!-- custom: Include the full saved identity/context that can distinguish two otherwise equal-looking scalar setters.
+		# Version/turn changes are explicit breaks; an unchanged-context reload/close is not separately persisted and therefore is not a proven interaction boundary. (ChatGPT-5.6-Sol) -->
+		return (
+			game.getSASWorldChangesHistoryVersionIndex(iEntry),
+			game.getSASWorldChangesHistoryTurn(iEntry),
+			game.getSASWorldChangesHistoryElapsedTurn(iEntry),
+			game.getSASWorldChangesHistoryCategoryName(iEntry),
+			game.getSASWorldChangesHistoryActor(iEntry),
+			game.getSASWorldChangesHistoryActorTeam(iEntry),
+			game.getSASWorldChangesHistoryTargetPlayer(iEntry),
+			game.getSASWorldChangesHistoryTargetTeam(iEntry),
+			game.getSASWorldChangesHistoryX(iEntry),
+			game.getSASWorldChangesHistoryY(iEntry),
+			game.getSASWorldChangesHistoryCityId(iEntry),
+			game.getSASWorldChangesHistoryObjectId(iEntry),
+			game.getSASWorldChangesHistoryRequestedDataId(iEntry),
+			game.getSASWorldChangesHistoryResolvedDataId(iEntry),
+			game.getSASWorldChangesHistoryAction(iEntry),
+			game.getSASWorldChangesHistoryTargetKind(iEntry),
+			game.getSASWorldChangesHistoryTarget(iEntry),
+		)
+
+	def canCompactChangesHistoryEntries(self, iPreviousEntry, iEntry):
+		if iEntry != iPreviousEntry + 1:
+			return False
+		if self.getChangesHistoryCompactKey(iPreviousEntry) != self.getChangesHistoryCompactKey(iEntry):
+			return False
+		game = CyGame()
+		return game.getSASWorldChangesHistoryNewValue(iPreviousEntry) == game.getSASWorldChangesHistoryOldValue(iEntry)
+
+	def getChangesHistoryDisplayGroups(self):
+		# <!-- custom: Raw display is an opt-in alternative to compact spinner runs; cache the UI-only setting on first use, with no change to saved events, SGR or LOG output. (GPT-6.1-Sol) -->
+		if self.bChangesShowIntermediate is None:
+			self.bChangesShowIntermediate = (gc.getDefineINT("SAS_WORLD_CHANGES_SHOW_INTERMEDIATE_ON") > 0)
+		game = CyGame()
+		aGroups = []
+		iOpenGroup = -1
+		for iEntry in range(game.getNumSASWorldChangesHistoryEntries()):
+			tRow = self.getChangesHistoryPerspectiveRow(iEntry)
+			if tRow is None:
+				iOpenGroup = -1
+				continue
+			# <!-- custom: Skip all grouping identity/chain queries in raw mode, while retaining the same observer-filtered row projection. (GPT-6.1-Sol) -->
+			if self.bChangesShowIntermediate:
+				aGroups.append((iEntry, iEntry, 1, tRow))
+				continue
+			if iOpenGroup >= 0 and tRow[-1]:
+				iFirstEntry, iLastEntry, iAppliedSteps, _ = aGroups[iOpenGroup]
+				if self.canCompactChangesHistoryEntries(iLastEntry, iEntry):
+					iAppliedSteps += 1
+					aGroups[iOpenGroup] = (iFirstEntry, iEntry, iAppliedSteps, self.getChangesHistoryPerspectiveRow(iEntry, iFirstEntry, iAppliedSteps))
+					continue
+			iOpenGroup = -1
+			aGroups.append((iEntry, iEntry, 1, tRow))
+			# <!-- custom: Do not let raw hidden target/action fields influence visible row-count grouping; only fully permitted rows enter a compact run. (ChatGPT-5.6-Sol) -->
+			if tRow[-1] and self.getChangesHistoryCompactKey(iEntry) is not None:
+				iOpenGroup = len(aGroups) - 1
+		# <!-- custom: Showing intermediate steps is the inspection override: it skips cancellation filtering too, so every permitted event remains visible. (GPT-6.1-Sol) -->
+		if not self.bChangesShowIntermediate:
+			if self.bChangesShowCancelled is None:
+				self.bChangesShowCancelled = (gc.getDefineINT("SAS_WORLD_CHANGES_SHOW_CANCELLED_ON") > 0)
+			if not self.bChangesShowCancelled:
+				return self.filterChangesHistoryCancellations(aGroups)
+		return aGroups
+
+	# <!-- custom: Only reviewed additive Advanced Start counts participate in refund matching.
+	# Unit IDs distinguish deleting the just-bought unit from deleting another unit of the same type; city IDs distinguish population/building counts.
+	# Culture thresholds, city deletion, technology/reveal effects and map replacements lack a proven inverse in these saved fields. (GPT-6.1-Sol) -->
+	def getChangesHistoryRefundKey(self, iEntry):
+		game = CyGame()
+		if game.getSASWorldChangesHistorySourceName(iEntry) != "ADVANCED_START":
+			return None
+		szAction = game.getSASWorldChangesHistoryAction(iEntry)
+		if szAction not in self.CHANGES_CANCEL_AS_ACTIONS or game.getSASWorldChangesHistoryContentWithheld(iEntry):
+			return None
+		if szAction == "UNIT":
+			if game.getSASWorldChangesHistoryObjectId(iEntry) < 0:
+				return None
+		elif game.getSASWorldChangesHistoryCityId(iEntry) < 0:
+			return None
+		return self.getChangesHistoryObjectKey(iEntry)
+
+	def canHideChangesHistoryRefund(self, iAdd, iRemove):
+		game = CyGame()
+		if game.getSASWorldChangesHistoryOperation(iAdd) != "ADD" or game.getSASWorldChangesHistoryOperation(iRemove) != "REMOVE":
+			return False
+		tKey = self.getChangesHistoryRefundKey(iAdd)
+		if tKey is None or tKey != self.getChangesHistoryRefundKey(iRemove):
+			return False
+		iCost = game.getSASWorldChangesHistoryQuotedCost(iAdd)
+		if iCost < 0 or iCost != game.getSASWorldChangesHistoryQuotedCost(iRemove):
+			return False
+		iBefore = game.getSASWorldChangesHistoryPointsBefore(iAdd)
+		iAfter = game.getSASWorldChangesHistoryPointsAfter(iAdd)
+		if iBefore < 0 or iAfter < 0 or iBefore - iAfter != iCost:
+			return False
+		if game.getSASWorldChangesHistoryPointsBefore(iRemove) != iAfter or game.getSASWorldChangesHistoryPointsAfter(iRemove) != iBefore:
+			return False
+		iGold = game.getSASWorldChangesHistoryGoldBefore(iAdd)
+		return game.getSASWorldChangesHistoryGoldAfter(iAdd) == iGold and game.getSASWorldChangesHistoryGoldBefore(iRemove) == iGold and game.getSASWorldChangesHistoryGoldAfter(iRemove) == iGold
+
+	# <!-- custom: This is a summary of recorded scalar/count and budget effects, not a claim that every gameplay side effect disappeared.
+	# In particular unit creation can reveal plots, while population/buildings can affect other city state; the save, SGR and raw LOG remain the audit evidence.
+	# Use a stack so inner buy/refund pairs can expose an outer pair, but never cross hidden/omitted rows, WB mutations or unsupported actions. (GPT-6.1-Sol) -->
+	def filterChangesHistoryCancellations(self, aGroups):
+		game = CyGame()
+		aShown = []
+		iBarrier = 0
+		iPreviousRaw = -1
+		for tGroup in aGroups:
+			iFirst, iLast, iSteps, tRow = tGroup
+			if iFirst != iPreviousRaw + 1:
+				iBarrier = len(aShown)
+			iPreviousRaw = iLast
+			if not tRow[-1]:
+				aShown.append(tGroup)
+				iBarrier = len(aShown)
+				continue
+			if game.getSASWorldChangesHistorySourceName(iLast) == "WORLD_BUILDER":
+				tKey = self.getChangesHistoryCompactKey(iLast)
+				if iSteps <= 1 or tKey is None or game.getSASWorldChangesHistoryOldValue(iFirst) != game.getSASWorldChangesHistoryNewValue(iLast):
+					aShown.append(tGroup)
+				# <!-- custom: Even a hidden net-zero WB run is an applied-action barrier; do not cancel Advanced Start transactions across its possible side effects. (GPT-6.1-Sol) -->
+				iBarrier = len(aShown)
+				continue
+			if iSteps == 1 and len(aShown) > iBarrier:
+				_, iPrevLast, iPrevSteps, _ = aShown[-1]
+				if iPrevSteps == 1 and self.canHideChangesHistoryRefund(iPrevLast, iLast):
+					aShown.pop()
+					continue
+			aShown.append(tGroup)
+			if iSteps != 1 or game.getSASWorldChangesHistoryOperation(iLast) != "ADD" or self.getChangesHistoryRefundKey(iLast) is None:
+				iBarrier = len(aShown)
+		return aShown
+
+	# <!-- custom: Optional first-entry/step arguments project a compact run using its initial Before and latest After; default arguments preserve the raw single-event projection used by LOG and visibility checks. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	def getChangesHistoryPerspectiveRow(self, iEntry, iFirstEntry = None, iAppliedSteps = 1):
 		game = CyGame()
 		bDebug = game.isDebugMode()
 		iObserverPlayer = game.getActivePlayer()
@@ -903,6 +1071,8 @@ class CvWorldAdvisorScreen:
 			szActor = self.TEXT_CHANGES_HIDDEN
 		if bObjectKnown:
 			szAction = self.getChangesHistoryTokenText(game.getSASWorldChangesHistoryOperation(iEntry), game.getSASWorldChangesHistoryAction(iEntry))
+			if iAppliedSteps > 1:
+				szAction = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_COMPACT_ACTION", (szAction, iAppliedSteps))
 			szTarget = self.getChangesHistoryTargetText(iEntry)
 			# <!-- custom: Decorate only known typed gold/culture edits, including their city/player-ID targets; generic Before/After columns can represent unrelated units and deliberately have no fixed symbol. (GPT-6.1-Sol) -->
 			szKind = game.getSASWorldChangesHistoryTargetKind(iEntry)
@@ -923,6 +1093,9 @@ class CvWorldAdvisorScreen:
 				szLocation = self.TEXT_CHANGES_HIDDEN
 		if bObjectKnown:
 			tNumericValues = self.getChangesHistoryNumericValues(iEntry)
+			if iAppliedSteps > 1 and iFirstEntry is not None:
+				tFirstValues = self.getChangesHistoryNumericValues(iFirstEntry)
+				tNumericValues = (tFirstValues[0], tNumericValues[1]) + tNumericValues[2:]
 		else:
 			tNumericValues = (self.TEXT_CHANGES_HIDDEN,) * len(self.CHANGES_NUMERIC_LABELS)
 		# <!-- custom: Carry explicit actor visibility into icon rendering; localized Hidden text is not an identity check. (GPT-6.1-Sol) -->
@@ -1041,11 +1214,18 @@ class CvWorldAdvisorScreen:
 	def getChangesHistoryActionHelp(self, eWidget, iEntry, iData2, bOption):
 		if iEntry < 0 or iEntry >= CyGame().getNumSASWorldChangesHistoryEntries():
 			return u""
-		tRow = self.getChangesHistoryPerspectiveRow(iEntry)
+		iFirstEntry = iEntry
+		iAppliedSteps = 1
+		if iEntry in self.CHANGES_COMPACT_GROUPS:
+			iFirstEntry, iAppliedSteps = self.CHANGES_COMPACT_GROUPS[iEntry]
+		tRow = self.getChangesHistoryPerspectiveRow(iEntry, iFirstEntry, iAppliedSteps)
 		if tRow is None or not tRow[-1]:
 			return u""
+		szHelp = localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_ACTION_HELP", (tRow[5], tRow[6], tRow[1], tRow[2]))
+		if iAppliedSteps > 1:
+			szHelp += localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_COMPACT_HELP", (iAppliedSteps, iFirstEntry, iEntry))
 		# <!-- custom: BUG custom help does not inherit table fonts; honor the shared hover setting independently of the table label size. (GPT-6.1-Sol) -->
-		return SASTextScale.sasFontTagHover + localText.getText("TXT_KEY_WORLD_ADVISOR_CHANGES_ACTION_HELP", (tRow[5], tRow[6], tRow[1], tRow[2])) + SASTextScale.SAS_FONT_TAG_CLOSE
+		return SASTextScale.sasFontTagHover + szHelp + SASTextScale.SAS_FONT_TAG_CLOSE
 
 	def getChangesHistoryTargetHelp(self, eWidget, iEntry, iData2, bOption):
 		if iEntry < 0 or iEntry >= CyGame().getNumSASWorldChangesHistoryEntries():
@@ -1135,6 +1315,9 @@ class CvWorldAdvisorScreen:
 		game = CyGame()
 		print("SAS_WORLD_ADVISOR_CHANGES_BEGIN")
 		print("HistoryContext: DebugMode=%d | ObserverPID=%d | PerspectivePID=%d | PersistedEntries=%d" % (game.isDebugMode(), game.getActivePlayer(), self.iActivePlayer, game.getNumSASWorldChangesHistoryEntries()))
+		# <!-- custom: LOG intentionally exports the raw permitted applied-event sequence even when the Changes table compacts a contiguous WorldBuilder scalar run.
+		# This preserves an inspection path for every saved event without making SGR or save history depend on presentation grouping. (ChatGPT-5.6-Sol) -->
+		print("HistoryExportMode: RAW_APPLIED_EVENTS; the Changes table may compact contiguous WorldBuilder scalar edit runs.")
 		print("# | Turn | Year | Source | Actor | Action | Target | Location | Before | After | PointsBefore | PointsAfter | GoldBefore | GoldAfter | Cost | VersionIndex")
 		iShown = 0
 		for iEntry in range(game.getNumSASWorldChangesHistoryEntries()):

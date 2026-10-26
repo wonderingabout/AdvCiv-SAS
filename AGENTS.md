@@ -32,6 +32,7 @@
 - [Coding Preferences](#coding-preferences)
   - [General](#general)
     - [Values and implementation choices](#values-and-implementation-choices)
+    - [Clarity and accuracy](#clarity-and-accuracy)
     - [Unsupported and deprecated features](#unsupported-and-deprecated-features)
     - [Assignments and gameplay rationale](#assignments-and-gameplay-rationale)
     - [Code layout and collapsing](#code-layout-and-collapsing)
@@ -261,6 +262,12 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 
 ## Documentation editing
 
+- Explain what changed and why when it helps readers understand the feature or decision, including beginners and experienced users/developers; use related changes as examples of a shared intent rather than an unrelated list. State observed or established reasons, and do not invent a rationale when it is unknown.
+  - Use concrete examples where helpful, preferably real code or setting names: a named before/after comparison makes abstract guidance easier to understand and remember.
+  - Incomplete rationale: saying `SCALE` is clearer does not explain what it improves on.
+  - Clearer rationale: `SAS_SGR_MAP_ASCII_OVERVIEW_1_SCALE_PCT` became `SAS_SGR_MAP_ASCII_SCALE_1_PCT`; `MAP_ASCII` already identifies the text map, so removing `OVERVIEW` shortens the name and avoids confusion with the unrelated Domestic Advisor Overview tabs. The improvement comes from that comparison and retained context, not from `SCALE` alone.
+- Before adding or revising documentation, check that the destination and level of detail fit its purpose.
+  - For example, a Changes tab description in the root README should introduce what users can do. A `(Requires AdvCiv-SAS 6685+)` bullet followed by nested grouping conditions belongs in the Main Changes Guide; detailed LOG captures belong in `README_Logging_Inventory.md`. Keep a brief explanation and links in the root README instead of copying the same detail there.
 - Describe current behavior and limits without implying future commitments, for example "Performance was not measured" rather than "Performance has not yet been measured". Mention possible extensions only when useful, using wording such as "A possible extension would be..."; otherwise omit speculative plans.
 - Similarly, in documentation and code comments, prefer durable facts and rationale over vague progress labels such as "in progress" or "not yet". These add maintenance burden: we may forget to update them, as has happened before, and future work may change direction or never happen. When status matters, describe the concrete limitation or use a dated historical note.
 - Name and link SAS-branded gameplay source files beside their relevant features in both the root README and Main Changes Guide so contributors and LLMs can find the implementation; brief prose references are enough. The documentation check enforces explicit filename links for changed source files.
@@ -399,6 +406,29 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - No approximations like `"%.1f"` or `%02d`; we want precision, no fluff. Use `%f` or `%d` instead. Example of exception: `%02d` as zero-padding for nicer ordering/alignment `(Calendar_01, Calendar_02, ...)`.
 - Prefer `const` for locals whenever possible to make intent clear and prevent accidental mutation.
 - Favor effectiveness and simplicity over complex heuristics; avoid overengineering.
+- Before changing code, names or explanations, understand what the existing version does, why it is written that way and how the proposed change affects that intent.
+  - Inspect surrounding rules and callers rather than assuming a simpler name or wording preserves the same meaning; this helps avoid weaker solutions and accidental behavior changes. When changing a pattern or interface, also check its broader impact with a scoped search of related settings, callers, docs and CI expectations; do not stop at the first occurrence.
+  - For example, the Changes history draft mixed `SHOW_INTERMEDIATE` for World Builder with `HIDE_CANCELLED` for Advanced Start. Changing this to `SHOW_INTERMEDIATE`/`SHOW_CANCELLED` made the pair consistent and avoided the less intuitive negative wording of `HIDE`/`DISABLE`.
+    - That cleanup should also prompt a broader audit: here it found `SAS_MAIN_UI_CITY_HIDE_PLOT_LIST`, renamed to `SAS_MAIN_UI_CITY_SHOW_PLOT_LIST` because `SHOW=1` directly means visible, making it more intuitive and consistent with other positive toggles than `HIDE=0`. Inverting its value and condition preserves behavior.
+    - For example, replacing `SAS_SCRAP_ABSOLUTELY_DISABLE` with `SAS_SCRAP_AI_ENABLED` was wrong for several related reasons:
+      - `ABSOLUTELY` has a purpose: several softer scrap policies exist, while this switch is the strongest override. Dropping it loses that distinction.
+      - The overlapping scrap policies would ideally be refactored into simpler knobs and code. But until we do (and if we ever do), preserve their existing meaning when editing, unless it is incorrect or can be expressed better, or an opportunity to do such a refactor right now. Before choosing a convenient local fix, assess whether it fits the existing intent and conventions.
+      - `ENABLED` uses a past-participle form instead of our preferred present/action wording, making the name inconsistent with that convention.
+      - Merely changing `ENABLED` to `ENABLE` still misses the established style: the define-shortening rework standardized these switches on `_ON`/`_OFF`. `SAS_SCRAP_AI_ABSOLUTELY_ON` preserves both the meaning and that naming convention.
+      - A deeper audit of related names and the earlier rework would have identified `SAS_SCRAP_ABSOLUTELY_DISABLE` as an overlooked remnant of that defiine rename sweep. Check that context before making a quick local rename; invert the value and condition when changing polarity so behavior stays the same.
+    - Preserve temporal meaning too: use present tense for an intent or rule that still applies, and past tense for behavior that actually ended. Renaming a setting does not make its rationale historical; say the name changed while explaining the continuing purpose in present tense.
+  - Similarly, adding a Changes history LOG-button example to the root README, then noticing it is too verbose for the root README's role as a broad introduction to the mod and moving the detailed capture into `README_Logging_Inventory.md`, should prompt a wider documentation review.
+    - Are the other screen LOG buttons illustrated too, and at the appropriate level of detail?
+    - Move detailed captures from the root README into the inventory; add useful missing examples there too. Keep brief inline examples or small previews beside the relevant features in the root README and Main Changes Guide, with links to the inventory for detail.
+    - Adding a direct link to the new Changes LOG subsection should then prompt checking whether the Battles, Timeline and Sevopedia chart features also link to their corresponding inventory subsections. Follow useful connections as the work develops; each improvement may reveal another related gap.
+
+#### Clarity and accuracy
+
+Clear, accurate explanations help users and developers understand the code and its intent, making changes easier to review and supporting better solutions.
+
+- Across coding, comments, documentation and replies to the user, make your reasoning and explanations accurate and clear: distinguish an oversight from a deliberate choice, and avoid wording that suggests an intention the work does not support.
+  - Example bad: "and code could benefit from a simpler design, but that possible refactor does not make the current distinction disposable; dropping it from the name loses meaning." In the scrap-rename discussion, this could imply that dropping `ABSOLUTELY` was a considered simplification; it was an oversight from insufficient review.
+  - Example better: "But until we do (and if we ever do), preserve their existing meaning when editing, unless it is incorrect or can be expressed better. Do not just choose what seems convenient and effective to fast solve it; first assess if this fits." This advises checking the change without inventing a deliberate motive for the earlier mistake.
 
 #### Unsupported and deprecated features
 
@@ -450,6 +480,8 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 
 - When consolidating an established subsystem, preserve its recognizable name when practical so history and search remain useful; for example, `CvScreenEnums.SevoScreenEnums`.
 - Prefer distinctive namespaces for shared APIs, such as `import SASVisualUtils as SASVisuals`, without restricting ordinary short local variables.
+- Prefer positive, consistent polarity for related toggles, such as `SHOW_INTERMEDIATE` and `SHOW_CANCELLED`, where `1` shows the named detail. Avoid mixing `SHOW_A` with `HIDE_B` or using `DISABLE` when `ENABLE`/`SHOW` expresses the same intent more directly.
+  - Preserve intent when renaming: replacing `SAS_SCRAP_ABSOLUTELY_DISABLE` with plain `SAS_SCRAP_AI_ENABLED` loses its stronger override distinction from softer scrap policies. `SAS_SCRAP_AI_ABSOLUTELY_ON` retains it while reversing the polarity; enabling it permits the other rules to decide, rather than forcing scrapping.
 - Preserve distinct concepts in names, including abbreviations; avoid overloading established Civ4 or SAS terminology when clearer wording fits.
   - Distinguish `BuildTypes` worker actions from `BuildingTypes` buildings (`BLDG`), and avoid `FORT` for defensive-building production when it suggests the Fort improvement. Keep `DEF` for defense, not also deficit.
   - Use text-map `SCALE_1/2` rather than `OVERVIEW_1/2`, which suggests Domestic Advisor Overview tabs. Qualify `BattleHistory` and `WorldChangesHistory` rather than bare `History`, which could suggest Sevopedia `placeHistory` or the Info Screen Timeline.

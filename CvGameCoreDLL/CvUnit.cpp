@@ -3377,11 +3377,11 @@ bool CvUnit::canScrap() const
 	// 	return false;
 	// return true;
 
-	static const bool bSAS_SCRAP_ABSOLUTELY_DISABLE = GC.getDefineBOOL("SAS_SCRAP_ABSOLUTELY_DISABLE");
-	// <!-- custom: Absolute AI scrap kill switch for experiments and player preference.
+	// <!-- custom: Absolute AI scrapping permission for experiments and player preference: 0 overrides the softer policies below; 1 leaves their eligibility rules in force and preserves the earlier DISABLE=0 behavior.
 	// Scrapping is hammer-inefficient when a produced unit could instead defend, pressure rivals, or be spent in war; war also removes excess units naturally while potentially gaining cities, unit support, economy, and long-term growth.
-	// Keep this separate from SAS_SCRAP_ON so disabling optimization never re-enables broad scrapping. (GPT-5.5 + ChatGPT-5.5) -->
-	if (bSAS_SCRAP_ABSOLUTELY_DISABLE && !isHuman())
+	// Keep this permission separate from SAS_SCRAP_ON so turning optimization off never overrides a global AI scrap ban. (GPT-5.5 + ChatGPT-5.5 + GPT-6.1-Sol) -->
+	static const bool bSAS_SCRAP_AI_ABSOLUTELY_ON = GC.getDefineBOOL("SAS_SCRAP_AI_ABSOLUTELY_ON");
+	if (!bSAS_SCRAP_AI_ABSOLUTELY_ON && !isHuman())
 	{
 		return false;
 	}
@@ -3726,8 +3726,9 @@ bool CvUnit::scrap()
 bool CvUnit::scrapForced(bool bMandatoryGameRule)
 {
 	if (getPlot().isFighting()) return false;
-	static const bool bSAS_SCRAP_ABSOLUTELY_DISABLE = GC.getDefineBOOL("SAS_SCRAP_ABSOLUTELY_DISABLE");
-	if (!bMandatoryGameRule && bSAS_SCRAP_ABSOLUTELY_DISABLE && !isHuman()) return false;
+	// <!-- custom: Read the same absolute permission as routine scrapping; retain the human and mandatory-game-rule exceptions when it is off. See KI#331. (GPT-6.1-Sol) -->
+	static const bool bSAS_SCRAP_AI_ABSOLUTELY_ON = GC.getDefineBOOL("SAS_SCRAP_AI_ABSOLUTELY_ON");
+	if (!bMandatoryGameRule && !bSAS_SCRAP_AI_ABSOLUTELY_ON && !isHuman()) return false;
 	scrapInternal();
 	return true;
 }

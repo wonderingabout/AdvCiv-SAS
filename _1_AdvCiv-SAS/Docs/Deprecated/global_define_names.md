@@ -23,6 +23,12 @@ The table maps the PR-start declarations to their current names, following [KI#1
 
 The text-map scale rows also reflect the removal of `OVERVIEW_1/2` from their intermediate shortened names, distinguishing them from Domestic Advisor Overview tabs.
 
+The city plot-list toggle also changed polarity: former `SAS_MAIN_UI_CITY_HIDE_PLOT_LIST=1` becomes `SAS_MAIN_UI_CITY_SHOW_PLOT_LIST=0` (hidden), while former `0` becomes `1` (shown). Invert the old value when migrating; this is more than a spelling change.
+
+Likewise, former `SAS_SCRAP_ABSOLUTELY_DISABLE=0` becomes `SAS_SCRAP_AI_ABSOLUTELY_ON=1` (normal AI scrapping eligibility), while former `1` becomes `0` (an overriding ban on discretionary AI scrapping, retaining human/mandatory-rule exceptions). The name preserves the distinction from softer scrap policies.
+
+This permission stays separate from `SAS_SCRAP_ON`, which selects SAS policy optimization.
+
 The retired-name checker reads this table directly; see the [checker documentation](/.github/workflows/README.md#buildxmlretired_global_define_namespy).
 
 Harmonizing historical excerpts to current names was considered for greppability. Audit/archaeology excerpts retain their original identifiers so they still match the revisions investigated and the generated `commit_diffs`; use this table to search both spellings. Current usage examples should use current names.
@@ -135,7 +141,7 @@ Prepared by GPT-6.1-Sol, 2026-10-22.
 | `SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST` | `SAS_MAIN_UI_CITY_BAR_EXTRA_ROWS_ADJ` | 68 | 35 | -33 |
 | `SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_HEIGHT_EXTRA_MANUAL_ADJUST` | `SAS_MAIN_UI_CITY_BAR_HEIGHT_ADJ` | 64 | 31 | -33 |
 | `SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BLUE_RIBBON_EXTRA_LIFT` | `SAS_MAIN_UI_CITY_BLUE_RIBBON_EXTRA_LIFT` | 56 | 39 | -17 |
-| `SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN` | `SAS_MAIN_UI_CITY_HIDE_PLOT_LIST` | 57 | 31 | -26 |
+| `SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN` | `SAS_MAIN_UI_CITY_SHOW_PLOT_LIST` | 57 | 31 | -26 |
 | `SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE` | `SAS_MAIN_UI_CITY_BONUS_ICON_MODE` | 42 | 32 | -10 |
 | `SAS_CITY_SCREEN_CAMERA_NORTH_BIAS_PERCENT` | `SAS_CITY_CAMERA_NORTH_BIAS_PCT` | 41 | 30 | -11 |
 | `SAS_CITY_SCREEN_CAMERA_NORTH_BIAS_HUD_BONUS_PERCENT` | `SAS_CITY_CAMERA_NORTH_BIAS_HUD_BONUS_PCT` | 51 | 40 | -11 |
@@ -520,7 +526,7 @@ Prepared by GPT-6.1-Sol, 2026-10-22.
 | `SAS_INFLATE_CIV_SPECIFIC_UNIT_MULT` | `SAS_CIV_UNIT_BOOST_MULT` | 34 | 23 | -11 |
 | `SAS_INFLATE_CIV_SPECIFIC_UNIT_DIV` | `SAS_CIV_UNIT_BOOST_DIV` | 33 | 22 | -11 |
 | `SAS_INFLATE_CIV_SPECIFIC_UNIT_ADD` | `SAS_CIV_UNIT_BOOST_ADD` | 33 | 22 | -11 |
-| `SAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE` | `SAS_SCRAP_ABSOLUTELY_DISABLE` | 35 | 28 | -7 |
+| `SAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE` | `SAS_SCRAP_AI_ABSOLUTELY_ON` | 35 | 26 | -9 |
 | `SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE` | `SAS_SCRAP_OBSOLETE_ON` | 37 | 21 | -16 |
 | `SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE` | `SAS_SCRAP_OBSOLETE_PRE_REN_MIN_ERA_DELAY` | 72 | 40 | -32 |
 | `SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS` | `SAS_SCRAP_OBSOLETE_REN_PLUS_MIN_ERA_DELAY` | 70 | 41 | -29 |

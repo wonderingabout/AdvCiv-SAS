@@ -784,6 +784,8 @@ Verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed 
 
 Keeps `SAS_MILIT_UI_BATTLE_XY_ON=1` in shipped XML so Battles coordinates are sortable by default; setting it to 0 remains a local option when screen width is scarce.
 
+`SAS_WORLD_CHANGES_SHOW_INTERMEDIATE_ON=0` keeps the Changes view compact by default; setting it to 1 displays each permitted raw event separately. `SAS_WORLD_CHANGES_SHOW_CANCELLED_ON=0` also omits eligible cancelled rows from the summary; setting it to 1 restores those rows. Both SHOW toggles therefore default to 0.
+
 #### `build/assets/fonts.py`
 
 Verifies shared UI font defaults are `1 / 2 / 3 / 4 / 3`.

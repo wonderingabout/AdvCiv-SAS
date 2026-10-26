@@ -352,7 +352,7 @@ Text color is added for Result (Won: green; Lost: red; Retreat: yellow), effecti
 
 Some columns are optional to adjust to preference or as the tab is quite loaded especially at low resolutions.
 
-Also added a **legend link**, and **LOG Button** (as the Timeline tab). Implementation details in the Main Changes guide.
+Also added a **legend link** and **LOG Button**. One complete captured row from the larger export is `2026-10-26T04:38:18.857Z 10 | 18000 BC | Lost | 57 |  | 3 | 3.99 |  | 3.99 | 0 | 0 | Ancient Maceman | Wolf | 0 | 0 | 3 | 3.00 | 0.24 | 3.00 | 48 | 0 |  |  | TERRAIN_PLAINS |  | 56 | 28`; see the [captured Battles export](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#military-advisor-battles). Implementation details are in the Main Changes Guide.
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (4).JPG" alt="/0.515_military_advisor (4).JPG" width="250"></img>
 
@@ -382,7 +382,9 @@ See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) f
 
 ###### Changes tab
 
-**Changes history** records Advanced Start actions and WorldBuilder edits; the World Advisor's **Changes tab** presents them in one table. Its Source column distinguishes the two; entries appear newest first, with sequence numbers preserving their order within each turn.
+**Changes history** records Advanced Start actions and WorldBuilder edits; the World Advisor's **Changes tab** presents them in one table. Its Source column distinguishes the two and entries appear newest first.
+
+The save keeps every applied action in order; the table can show every permitted event or compact a contiguous run of repeated WorldBuilder scalar setters while **LOG** retains the permitted raw events.
 
 Changes history is saved with the game independently of SASGameRecord logging; loading a save from before those actions restores the earlier history, rather than importing later edits from a log.
 
@@ -390,9 +392,12 @@ Inspired by SAS's existing Battles tab, it keeps an ordered action record across
 
 - Inspect edits such as added/removed units, promotions and experience, city buildings, terrain/resources and ownership changes; rows identify the editor and affected objects where recorded. Diplomacy edits include extra attitude weights, war/peace and vassal relationships.
 - Advanced Start entries also retain purchases/refunds and point/gold transitions, with separate sortable Before/After, points, gold and Cost columns. The shared data is named `SASWorldChangesHistory` in C++, while **Changes** is the tab's name.
+- Keep the table readable by combining repeated WorldBuilder value edits and omitting supported changes that were undone. Optional detail settings show the individual steps; saved history, SGR and **LOG** retain the applied actions.
 - Action icons reuse WorldBuilder tools, with read-only hovers explaining the recorded action. XML targets such as units, buildings and resources show their icons, native help and a Sevopedia link where available; these describe the current XML definitions.
 - Player IDs have civilization and leader buttons describing their current identities; city targets use the existing city icon. Separate optional (default ON as useful but as of now optional as space is tight) numeric X/Y columns sit beside the jump button on the right; location hovers show coordinates and a camera hint, also shared by Battles plot buttons and known Wonders city links.
 - Sort the table, jump to an available plot, or use **LOG** to export the permitted rows to `PythonDbg.log`. A **Legend** link explains the columns and visibility rules; ordinary play filters hidden details, while debug mode shows the complete history.
+
+Complete captured rows from the larger LOG export include `2026-10-25T19:33:28.633Z 0 | 0 | -50000 | ADVANCED_START | P0 | Add City | City #8192 | 33,45 | - | - | 400 | 250 | 0 | 0 | 150 | 0` (Advanced Start) and `2026-10-25T19:33:28.635Z 51 | 0 | -50000 | WORLD_BUILDER | P0 | Set Level | Level #8192 | 29,42 | 1 | 2 | - | - | - | - | - | 0` (WorldBuilder); see the [captured Changes export](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#world-advisor-changes) for full columns and raw steps.
 
 The advisor is implemented in [CvWorldAdvisorScreen.py](/Assets/Python/Screens/CvWorldAdvisorScreen.py), backed by save-owned records in [CvGame.cpp](/CvGameCoreDLL/CvGame.cpp). See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for coverage and the [SGR revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for recorder changes.
 
@@ -416,7 +421,7 @@ A full DLL caching + compute was tried but load times were noticeably slower tha
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (3).JPG" alt="0.518_info_screen (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (7).JPG" alt="0.518_info_screen (7).JPG" width="250"></img>
 
-Example of LOG output in `PythonDbg.log` (using the LOG button):
+One complete captured row from the larger LOG export is `2026-10-26T04:38:33.780Z - 50000 BC: AI Auto Play started`; see the [captured Timeline export](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#info-screen-timeline) for more examples.
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.5180_info_screen_timeline_dbg_log.PNG" alt="0.5180_info_screen_timeline_dbg_log.PNG" width="250"></img>
 
@@ -668,7 +673,12 @@ They are very handy to see all handicap or game settings info in one go, are sor
 
 We notably also added in game speeds chart extra analysis rows like `Summary 08 (40%)` with values like `T200=+1400 (120)`, or `Increments Years 02` with values like `750, 500, 250`, or `Increments Months 02` with values like `9000, 6000, 3000`.
 
-Also added a new "LOG" button to print to `PythonDbg.log` the tables output, and this is done to other charts too.
+Each comparison chart has a **LOG** button to export its table to `PythonDbg.log`. One complete captured row from each larger export:
+
+- [Era chart](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#era-chart): `2026-10-26T04:38:51.878Z ?,Advanced Start Points,400,1600,2400,3600,5500,7500,9500`.
+- [Handicap chart](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#handicap-chart): `2026-10-26T04:38:54.199Z ?,iAIGrowthPercent,120,115,110,105,100,95,90,85,80,75,70`.
+- [Game Speed chart](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#game-speed-chart): `2026-10-26T04:38:56.424Z ?,Golden Age ,40,60,80,100,125,200,300,400`.
+- [World Size chart](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#world-size-chart): `2026-10-26T04:38:58.437Z ?,Default Players,2,2,3,5,8,11,16,24,32,40,48`.
 
 Also Added with the help of GPT-5.3-Codex and Claude code Opus 4.6, notably with new calibration tools ([compare_speed_summaries.py](/LLM_Helpers/compare_speed_summaries.py) and [autotune_speed_from_xml.py](/LLM_Helpers/autotune_speed_from_xml.py) in [LLM_Helpers](/LLM_Helpers/) for finer LLM-enhanced tuning.
 
@@ -1249,11 +1259,12 @@ It also explains files such as `PythonDbg.log` (prints/debug messages), `PythonE
 Other examples covered there include:
 
 - `RandLog` and `MessageLog` INI controls, with RNG/message traces such as `MPLog.txt` and AdvCiv's per-player `MPLog<player>.log`.
+- [Screen LOG-button exports](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#screen-log-button-exports) from Battles, Changes, Timeline and the Era/Handicap/Game Speed/World Size charts into `PythonDbg.log`, with real examples.
 - `ASyncRand.log` for asynchronous RNG, and `OOSLog - <player> - Turn <turn>.log` for game-state comparisons after multiplayer desynchronization.
 - `StartingPos.log` for starting-position diagnostics and `IFP_log.txt` / `TSCProfile.log` for profiling.
 - BUG Autolog's configurable text/HTML gameplay journal, distinct from error/debug logs.
 - `BBAI_*.log`, including Settler diagnostics and the former independent UWAI reports now merged into BBAI, with `UWAIAgent`, `MilitaryAnalyst`, `InvasionGraph`, `ArmamentForecast`, `WarEvaluator` and `WarUtilityAspect` named explicitly.
-- SAS-created `SASGameRecord_*.log` gameplay/run records, with a captured 30-row excerpt and a full example.
+- SAS-created `SASGameRecord_*.log` gameplay/run records, with a captured gameplay excerpt and a full example.
 - `SASAssertions_*.log` for failed internal checks and their handling in assertion-enabled DLLs; see [SASAssertions log](/README.md#sasassertions-log) for unattended diagnostic autoplay and live inspection.
 - `SASRuntimeStatus.json` / `SASRuntimeHistory_*.jsonl` for runtime observations, and compiler `AdvCiv.log` / `CvGameCoreDLL.dll.build.json` for build progress/results, linked to their dedicated guides and tracked example captures.
 

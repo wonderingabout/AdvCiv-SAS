@@ -5641,8 +5641,9 @@ void CvUnitAI::AI_animalMove()
 bool CvUnitAI::AI_scrapSettlerWithNoValidSite(bool bDanger, MovementFlags eMoveFlags)
 {
 	FAssertMsg(!isHuman() && AI_getUnitAIType() == UNITAI_SETTLE, "No-valid-site cleanup is only valid for an AI Settler");
-	static const bool bSAS_SCRAP_ABSOLUTELY_DISABLE = GC.getDefineBOOL("SAS_SCRAP_ABSOLUTELY_DISABLE");
-	if (isHuman() || AI_getUnitAIType() != UNITAI_SETTLE || bSAS_SCRAP_ABSOLUTELY_DISABLE || getPlot().isFighting()) return false;
+	// <!-- custom: Honor the shared absolute AI scrap permission before no-valid-site Settler cleanup; ENABLED=1 matches the old DISABLE=0, so this rename does not change eligibility. (GPT-6.1-Sol) -->
+	static const bool bSAS_SCRAP_AI_ABSOLUTELY_ON = GC.getDefineBOOL("SAS_SCRAP_AI_ABSOLUTELY_ON");
+	if (isHuman() || AI_getUnitAIType() != UNITAI_SETTLE || !bSAS_SCRAP_AI_ABSOLUTELY_ON || getPlot().isFighting()) return false;
 	// <!-- custom: SAS protects Settlers from costly produce/scrap loops, but save files 449 and 450 exposed the inherited no-valid-site cleanup silently failing for up to 262 turns while each Settler kept two useful military escorts trapped.
 	// This named operation applies only after AI_settleMove has proven that an AI Settler older than 20 turns has no valid site and no pending transport pickup.
 	// Log the still-attached group for diagnosis, then detach the Settler so delayed deletion cannot hold its escorts.

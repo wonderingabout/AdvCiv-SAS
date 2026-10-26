@@ -49,6 +49,15 @@ The EXE is closed source, mods can supply arbitrary filenames, and some outputs 
 - [Python diagnostic messages](#python-diagnostic-messages)
 - [Startup rows and run boundaries](#startup-rows-and-run-boundaries)
 - [Structured Python diagnostic records](#structured-python-diagnostic-records)
+- [Screen LOG button exports](#screen-log-button-exports)
+  - [Military Advisor: Battles](#military-advisor-battles)
+  - [World Advisor: Changes](#world-advisor-changes)
+  - [Info Screen: Timeline](#info-screen-timeline)
+  - [Sevopedia chart exports](#sevopedia-chart-exports)
+    - [Era chart](#era-chart)
+    - [Handicap chart](#handicap-chart)
+    - [Game Speed chart](#game-speed-chart)
+    - [World Size chart](#world-size-chart)
 - [Before and after: shared Python log timestamps](#before-and-after-shared-python-log-timestamps)
   - [`PythonDbg.log`](#pythondbglog)
     - [Before: PythonDbg.log](#before-pythondbglog)
@@ -79,8 +88,9 @@ This inventory brings together game, AI, Python, engine and build diagnostics, i
 The file inventory and source references distinguish current writers from historical or other-mod output. Matched Before/After sections show important inherited/current differences without preserving obsolete intermediate SAS stages.
 
 - `PythonDbg.log` (debug messages), `PythonErr.log` (tracebacks) and `PythonErr2.log` (including module-loading output) have captured [Before/After samples](#before-and-after-shared-python-log-timestamps); `xml.log` separately now has real pre-change and rebuilt-DLL After captures for its DLL-controlled UTC/`record=` modernization.
+- Screen **LOG** buttons: [manual exports](#screen-log-button-exports) from Battles, Changes, Timeline and Sevopedia comparison charts into `PythonDbg.log`.
 - `BBAI_*.log`: [AI decision diagnostics](#bbai), including Settler behavior and formerly independent UWAI reports now merged into BBAI; explicitly covered producers include `MilitaryAnalyst`, `InvasionGraph`, `ArmamentForecast`, `WarEvaluator` and `WarUtilityAspect`.
-- SAS-created `SASGameRecord_*.log`: [gameplay/run context](#sasgamerecord-sgr), with a 30-row captured excerpt and a separate full example.
+- SAS-created `SASGameRecord_*.log`: [gameplay/run context](#sasgamerecord-sgr), with a captured gameplay excerpt and a separate full example.
 - SAS-created `SASAssertions_<UTC>_startup.log` / `_newN.log` / `_loadN.log`: assertion-enabled DLL failure/resolution evidence, with lazy per-session metadata, a startup-safe sink independent from XML/INI logging gates and optional silent handling once GlobalDefines exist.
 - `RandLog` / `MessageLog` INI controls and RNG/message traces such as `MPLog.txt`, `MPLog<player>.log` and `ASyncRand.log`; `OOSLog - <player> - Turn <turn>.log` captures state after multiplayer desynchronization.
 - `StartingPos.log` for starting-position diagnostics and `IFP_log.txt` / `TSCProfile.log` for profiling; BUG Autolog supplies a configurable text/HTML gameplay journal.
@@ -365,6 +375,10 @@ Identity rows place the stable `processUtc` for one Civ4 launch before plain `ut
 ### SASGameRecord (SGR)
 
 SASGameRecord is abbreviated SGR in current recorder define names (`SAS_SGR_*`).
+
+For example, `SAS_SGR_MAP_ASCII_SCALE_1_PCT` and `SAS_SGR_MAP_ASCII_SCALE_2_PCT` size the small/medium initial text-map previews.
+
+The first name previously read `SAS_SGR_MAP_ASCII_OVERVIEW_1_SCALE_PCT`: `MAP_ASCII` already identifies the text map, so dropping `OVERVIEW` makes it shorter and avoids suggesting the unrelated Domestic Advisor Overview tabs. The second setting follows the same pattern.
 
 Enable `SAS_SGR_LOG` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml); `0` disables the recorder independently of BBAI. `SAS_SGR_LOG_USE_TIMESTAMPED_FILENAME` selects per-session `SASGameRecord_*.log` files or the fixed `SASGameRecord.log` name.
 
@@ -657,6 +671,230 @@ AI Auto Play and ChangePlayer use their own action/result records, SAS font-size
 These labels describe existing diagnostics; game-end callbacks are distinct from process exit, and vote-definition scans are distinct from player choices.
 
 These message refinements concern chiefly Python-emitted output in `PythonDbg.log`. Shared stream timestamps also cover Python error output; the one direct C++ Starting Position Iteration row now follows the same UTC/`record=` convention. Engine-written `app.log` and `audio.log` retain their original formats, while DLL-controlled `xml.log` rows are modernized separately as described above.
+
+## Screen LOG button exports
+
+The **LOG** buttons on selected SAS screens append a read-only inspection copy to `PythonDbg.log`; they do not create a new file per screen or enable continuous SASGameRecord/BBAI logging. Search the screen-specific `_BEGIN` / `_END` markers to find a click's output among normal Python messages.
+
+The UTC prefix is the time the export was written, not when an old battle or timeline event happened. In-game turns/years belong to the exported data. These are on-demand screen snapshots, separate from SGR's automatic game record and runtime-status observations.
+
+The samples below are unchanged captured rows, selected for variety with intervening rows omitted; their original order, timestamps and values are retained. Battles, Timeline and the four Sevopedia charts were exported on 2026-10-26; Changes uses the 2026-10-25 export containing both Advanced Start and WorldBuilder edits.
+
+| Screen | Button control | Output search key |
+| --- | --- | --- |
+| Military Advisor, Battles | `SAS_MILIT_UI_BATTLES_LOG_BUTTON_ON=1` | `SAS_MILITARY_ADVISOR_BATTLE_HISTORY` |
+| World Advisor, Changes | LOG is provided on the Changes tab when saved entries exist | `SAS_WORLD_ADVISOR_CHANGES` |
+| Info Screen, Timeline | `SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON=1` | `SAS_CV_INFO_SCREEN_TIMELINE_PANEL` |
+| Sevopedia, Era chart | `SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON=1` | `SAS_SEVOPEDIA_ERA_CHART` |
+| Sevopedia, Handicap chart | `SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON=1` | `SAS_SEVOPEDIA_HANDICAP_CHART` |
+| Sevopedia, Game Speed chart | `SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON=1` | `SAS_SEVOPEDIA_GAME_SPEED_CHART` |
+| Sevopedia, World Size chart | `SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON=1` | `SAS_SEVOPEDIA_WORLD_SIZE_CHART` |
+
+### Military Advisor: Battles
+
+The selected player's battle perspective, opponent identities and combat columns are exported as pipe-separated text. The captured context identifies the observer and inspected player; the screen's location/perspective filtering still applies. Writer: `dbgLogBattleHistory` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py).
+
+```log
+2026-10-26T04:38:18.856Z SAS_MILITARY_ADVISOR_BATTLE_HISTORY_BEGIN
+2026-10-26T04:38:18.856Z BattleHistoryContext: DebugMode=0 | ObserverPID=0
+2026-10-26T04:38:18.856Z PerspectivePlayer: 0 | PC | LEADER_WANGKON | CIVILIZATION_KOREA
+2026-10-26T04:38:18.857Z OpponentPlayers: PID | PlayerName | LeaderType | CivType
+2026-10-26T04:38:18.857Z OpponentPlayer: 3 | Isabella I | LEADER_ISABELLA | CIVILIZATION_SPAIN
+2026-10-26T04:38:18.857Z OpponentPlayer: 7 | Suryavarman II | LEADER_SURYAVARMAN | CIVILIZATION_KHMER
+2026-10-26T04:38:18.857Z OpponentPlayer: 8 | Gilgamesh | LEADER_GILGAMESH | CIVILIZATION_SUMERIA
+2026-10-26T04:38:18.857Z OpponentPlayer: 10 | Alexander III | LEADER_ALEXANDER | CIVILIZATION_GREECE
+2026-10-26T04:38:18.857Z OpponentPlayer: 12 | Huayna Capac | LEADER_HUAYNA_CAPAC | CIVILIZATION_INCA
+2026-10-26T04:38:18.857Z OpponentPlayer: 13 | Mao Zedong | LEADER_MAO_ZEDONG | CIVILIZATION_CHINA
+2026-10-26T04:38:18.857Z OpponentPlayer: 15 | Mehmed II | LEADER_MEHMED | CIVILIZATION_OTTOMAN
+2026-10-26T04:38:18.857Z OpponentPlayer: 48 | Barbarian | LEADER_BARBARIAN | CIVILIZATION_BARBARIAN
+2026-10-26T04:38:18.857Z 10 | 18000 BC | Lost | 57 |  | 3 | 3.99 |  | 3.99 | 0 | 0 | Ancient Maceman | Wolf | 0 | 0 | 3 | 3.00 | 0.24 | 3.00 | 48 | 0 |  |  | TERRAIN_PLAINS |  | 56 | 28
+2026-10-26T04:38:18.857Z 66 | 2200 BC | Ret. | 67 |  | 4 | 4.00 | 2.88 | 4.00 | 0 | 0 | Longbowman | Archer | 0 | 0 | 2 | 2.00 | 0.32 | 2.00 | 48 | 0 |  |  | TERRAIN_GRASS |  | 50 | 26
+2026-10-26T04:38:18.857Z 67 | 2160 BC | Won | 91 |  | 2 | 3.30 | 2.90 | 3.30 | 0 | 0 | Archer | Archer | 1 | 0 | 2 | 0.32 |  | 2.00 | 48 | 0 |  |  | TERRAIN_GRASS |  | 51 | 27
+2026-10-26T04:38:18.866Z 487 | 2098 AD | Ret. | 49 |  | 34 | 12.37 | 7.14 | 47.60 | 7 | 0 | Mechanized Infantry | Levitation Artillery | 4 | 0 | 46 | 12.88 | 3.68 | 46.00 | 13 | 0 |  |  | TERRAIN_TUNDRA |  | 53 | 11
+2026-10-26T04:38:18.866Z 488 | 2099 AD | Won | 72 | A | 34 | 11.90 | 11.90 | 34.00 | 7 | 0 | Mechanized Infantry | Levitation Artillery | 6 | 0 | 46 | 4.60 |  | 46.00 | 13 | 0 |  |  | TERRAIN_DESERT |  | 52 | 11
+2026-10-26T04:38:18.866Z 488 | 2099 AD | Lost | 61 | A | 34 | 5.74 |  | 44.20 | 9 | 0 | Mechanized Infantry | Levitation Artillery | 5 | 0 | 46 | 3.68 | 3.68 | 46.00 | 13 | 0 |  |  | TERRAIN_DESERT |  | 52 | 11
+2026-10-26T04:38:18.866Z SAS_MILITARY_ADVISOR_BATTLE_HISTORY_END
+```
+
+### World Advisor: Changes
+
+The related `SHOW_INTERMEDIATE` and `SHOW_CANCELLED` settings both mean that `1` shows the named detail and `0` keeps the summary compact. This consistent positive wording avoids reading one option as show and its neighbor as hide; neither changes the raw LOG export.
+
+This export includes Advanced Start purchases/refunds and WorldBuilder edits with recorded budgets, locations and Before/After values. LOG preserves permitted raw events even when the table compacts scalar runs or hides eligible cancellations; the two level edits below remain separate. Writer: `dbgLogChangesHistory` in [CvWorldAdvisorScreen.py](/Assets/Python/Screens/CvWorldAdvisorScreen.py).
+
+```log
+2026-10-25T19:33:28.633Z HistoryExportMode: RAW_APPLIED_EVENTS; the Changes table may compact contiguous WorldBuilder scalar edit runs.
+2026-10-25T19:33:28.633Z # | Turn | Year | Source | Actor | Action | Target | Location | Before | After | PointsBefore | PointsAfter | GoldBefore | GoldAfter | Cost | VersionIndex
+2026-10-25T19:33:28.633Z 0 | 0 | -50000 | ADVANCED_START | P0 | Add City | City #8192 | 33,45 | - | - | 400 | 250 | 0 | 0 | 150 | 0
+2026-10-25T19:33:28.633Z 2 | 0 | -50000 | ADVANCED_START | P0 | Add Population | City #16385 | 32,41 | - | - | 100 | 67 | 0 | 0 | 33 | 0
+2026-10-25T19:33:28.635Z 51 | 0 | -50000 | WORLD_BUILDER | P0 | Set Level | Level #8192 | 29,42 | 1 | 2 | - | - | - | - | - | 0
+2026-10-25T19:33:28.635Z 52 | 0 | -50000 | WORLD_BUILDER | P0 | Set Level | Level #8192 | 29,42 | 2 | 3 | - | - | - | - | - | 0
+```
+
+### Info Screen: Timeline
+
+Timeline exports its built/cached, perspective-filtered event text in chronological order, stripping display font/color markup. Unlike the numeric history tables, these are readable event sentences with in-game dates. Writer: `dbgLogPrettySummary` in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py).
+
+```log
+2026-10-26T04:38:33.777Z SAS_CV_INFO_SCREEN_TIMELINE_PANEL_BEGIN
+2026-10-26T04:38:33.780Z - 50000 BC: Session 2 starts
+2026-10-26T04:38:33.780Z - 50000 BC: AI Auto Play started
+2026-10-26T04:38:33.780Z - 50000 BC: Paris is founded.
+2026-10-26T04:38:33.780Z - 45000 BC: Rome is founded.
+2026-10-26T04:38:33.780Z - 14250 BC: Huayna Capac is the first to discover Metal Casting!
+2026-10-26T04:38:33.780Z - 3750 BC: Mehmed II is the first to discover Writing!
+2026-10-26T04:38:33.780Z - 2080 BC: Pacal II completes the Colossus
+2026-10-26T04:38:33.780Z - 1240 BC: Mao Zedong is the first to discover Navigation!
+2026-10-26T04:38:33.780Z - 340 BC: Suryavarman II completes the Kashi Vishwanath
+2026-10-26T04:38:33.780Z - AD 500: Mao Zedong has entered the Medieval era.
+2026-10-26T04:38:33.780Z - AD 1000: The Great Scientist Gottfried Leibniz has been born in the Ottoman Empire.
+2026-10-26T04:38:33.780Z - AD 1550: Mao Zedong has entered the Industrial era.
+2026-10-26T04:38:33.780Z - AD 1745: Julius Caesar declares war on Justinian I!
+2026-10-26T04:38:33.780Z - AD 1892: Alexander III has entered the Future era.
+2026-10-26T04:38:33.780Z - AD 2009: Suryavarman II has made peace with Mao Zedong
+2026-10-26T04:38:33.781Z - AD 2054: Great Engineer has been born in the Incan Empire.
+2026-10-26T04:38:33.781Z - January, AD 2083: Napoleon completes the SS Casing!
+2026-10-26T04:38:33.781Z - January, AD 2105: Session 3 starts
+2026-10-26T04:38:33.787Z SAS_CV_INFO_SCREEN_TIMELINE_PANEL_END
+```
+
+### Sevopedia chart exports
+
+The four chart buttons share `chart_dump_table_csv` in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py). They export comma-separated field/comparison rows with quoting for embedded delimiters, rather than gameplay-event records. To parse them as CSV, isolate the chart block and remove the UTC prefixes and boundary markers first.
+
+The literal `?` characters below occur in the captures: the shared writer uses Latin-1 encoding with replacement, so unsupported icon glyphs can become `?`. They are not uncertainty labels for the numeric values. The Game Speed header also retains repeated duration/speed text from its current display labels; the sample does not silently correct it.
+
+#### Era chart
+
+Compares starting conditions, initial units/population and era modifiers across the XML eras. Source: [SevoPediaEraChart.py](/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py).
+
+```log
+2026-10-26T04:38:51.878Z SAS_SEVOPEDIA_ERA_CHART_BEGIN
+2026-10-26T04:38:51.878Z ,Field,Ancient,Classical,Medieval,Renaissance,Industrial,Modern,Future
+2026-10-26T04:38:51.878Z ,No Goodies,,,,+,+,+,+
+2026-10-26T04:38:51.878Z ?,All Goody Techs,+,+,+,+,,,
+2026-10-26T04:38:51.878Z ,No Animals,,+,+,+,+,+,+
+2026-10-26T04:38:51.878Z ,No Barb Units,,,,,,,
+2026-10-26T04:38:51.878Z ,No Barb Cities,,,,+,+,+,+
+2026-10-26T04:38:51.878Z ?,Advanced Start Points,400,1600,2400,3600,5500,7500,9500
+2026-10-26T04:38:51.878Z ,Starting Unit Multiplier,1,1,2,2,3,3,3
+2026-10-26T04:38:51.878Z ,Starting Defense Units,0,1,2,2,3,3,3
+2026-10-26T04:38:51.878Z ?,Starting Worker Units,0,1,1,1,2,2,3
+2026-10-26T04:38:51.878Z ,Starting Explore Units,1,1,1,1,2,2,2
+2026-10-26T04:38:51.878Z ?,Starting Gold,0,10,25,50,100,200,400
+2026-10-26T04:38:51.878Z ?,Free Population,0,0,0,1,2,3,4
+2026-10-26T04:38:51.878Z ?,Start Percent,0,10,22,36,50,65,80
+2026-10-26T04:38:51.878Z ,Train ,100,100,100,100,100,100,100
+2026-10-26T04:38:51.878Z ?,Create ,100,100,100,100,100,100,100
+2026-10-26T04:38:51.879Z ?,Research ,100,100,100,100,100,100,100
+2026-10-26T04:38:51.879Z ,Human Max Groundbreaking Pen.,0,0,15,25,35,25,0
+2026-10-26T04:38:51.879Z ?,Culture ,100,100,100,100,100,100,100
+2026-10-26T04:38:51.879Z ,AI Age Of Fertility,,,,,+,,
+2026-10-26T04:38:51.879Z ?,Tech 03,Literature,Monarchy,Sacred Architecture,Naturalism,Military Tradition,Fission,Alien Life
+2026-10-26T04:38:51.880Z ?,Tech 10,Calendar,Currency,Gunpowder,,Electricity,Artillery,Transhumanism
+2026-10-26T04:38:51.880Z ?,Tech 18,Sailing,,,,,,
+2026-10-26T04:38:51.880Z SAS_SEVOPEDIA_ERA_CHART_END
+```
+
+#### Handicap chart
+
+Compares difficulty rules and Human/AI modifiers, including growth, upkeep, research, starting units and barbarian settings. Source: [SevoPediaHandicapChart.py](/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py).
+
+```log
+2026-10-26T04:38:54.199Z SAS_SEVOPEDIA_HANDICAP_CHART_BEGIN
+2026-10-26T04:38:54.199Z ,Field,Rookie,Settler,Chieftain,Warlord,Noble,Prince,Monarch,Emperor,Immortal,Deity,Deity+
+2026-10-26T04:38:54.199Z ?,iAIAdvancedStartPercent,60,70,80,90,100,120,140,160,180,200,220
+2026-10-26T04:38:54.199Z ,iAIAttitudeChangePercent,0,10,20,30,40,50,60,70,80,90,100
+2026-10-26T04:38:54.199Z ,iAIDeclareWarProb,70,80,90,100,110,120,130,140,150,160,170
+2026-10-26T04:38:54.199Z ?,iAIGrowthPercent,120,115,110,105,100,95,90,85,80,75,70
+2026-10-26T04:38:54.199Z ,iAIUnitSupplyPercent,100,100,100,100,100,100,100,100,100,100,100
+2026-10-26T04:38:54.199Z ,iAIWarWearinessPercent,124,118,112,106,100,94,88,82,76,70,64
+2026-10-26T04:38:54.200Z ,Animal Bonus (Human / AI),-30 / -30,-20 / -20,-10 / -10,0 / 0,0 / 0,0 / 0,0 / 0,0 / 0,0 / 0,0 / 0,0 / 0
+2026-10-26T04:38:54.200Z ,Barbarian Bonus (Human / AI),-30 / -30,-20 / -20,-10 / -10,0 / 0,0 / 0,0 / 0,0 / 0,0 / 0,0 / 0,0 / 0,0 / 0
+2026-10-26T04:38:54.200Z ,iBarbarianCityCreationProb,0,4,8,12,16,20,24,28,32,36,40
+2026-10-26T04:38:54.200Z ?,Civic Upkeep Percent (Human / AI),100 / 124,100 / 118,100 / 112,100 / 106,100 / 100,100 / 94,100 / 88,100 / 82,100 / 76,100 / 70,100 / 64
+2026-10-26T04:38:54.201Z ?,Construct Percent (Human / AI),100 / 120,100 / 115,100 / 110,100 / 105,100 / 100,100 / 95,100 / 90,100 / 85,100 / 80,100 / 75,100 / 70
+2026-10-26T04:38:54.201Z ?,Create Percent (Human / AI),100 / 112,100 / 109,100 / 106,100 / 103,100 / 100,100 / 97,100 / 94,100 / 91,100 / 88,100 / 85,100 / 82
+2026-10-26T04:38:54.201Z ?,iForeignCultureStrength,8,11,14,17,20,23,26,29,32,35,38
+2026-10-26T04:38:54.201Z ?,iHealthBonus,3,3,3,2,2,2,2,2,2,2,2
+2026-10-26T04:38:54.201Z ?,Inflation Percent (Human / AI),100 / 120,100 / 115,100 / 110,100 / 105,100 / 100,100 / 95,100 / 90,100 / 85,100 / 80,100 / 75,100 / 70
+2026-10-26T04:38:54.201Z ?,iNumCitiesMaintenancePercent,55,60,65,70,75,80,85,90,95,100,105
+2026-10-26T04:38:54.201Z ?,Research Percent (Human / AI),100 / 124,100 / 118,100 / 112,100 / 106,100 / 100,100 / 94,100 / 88,100 / 82,100 / 76,100 / 70,100 / 64
+2026-10-26T04:38:54.202Z ,Starting Defense Units (Human / AI),1 / 1,1 / 1,1 / 1,1 / 1,1 / 1,1 / 1,1 / 1,1 / 1,1 / 1,1 / 1,1 / 1
+2026-10-26T04:38:54.202Z ?,iStartingLocPercent,0,11,22,33,44,55,66,77,88,99,100
+2026-10-26T04:38:54.202Z ,Train Percent (Human / AI),100 / 120,100 / 115,100 / 110,100 / 105,100 / 100,100 / 95,100 / 90,100 / 85,100 / 80,100 / 75,100 / 70
+2026-10-26T04:38:54.202Z ,iUnownedTilesPerBarbarianUnit,67,64,61,58,55,52,49,46,43,40,37
+2026-10-26T04:38:54.203Z ?,AI Free Tech 01,None,None,None,None,None,None,None,None,None,None,None
+2026-10-26T04:38:54.203Z ?,Free Tech 01,None,None,None,None,None,None,None,None,None,None,None
+2026-10-26T04:38:54.203Z SAS_SEVOPEDIA_HANDICAP_CHART_END
+```
+
+#### Game Speed chart
+
+Compares speed-scaled costs/durations and calendar analysis, rather than a particular game's current research or production. Source: [SevoPediaGameSpeedChart.py](/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py).
+
+```log
+2026-10-26T04:38:56.423Z SAS_SEVOPEDIA_GAME_SPEED_CHART_BEGIN
+2026-10-26T04:38:56.423Z ,,Nitro (165 / 33) (165 / 33),Turbo (250 / 50) (250 / 50),Quick (330 / 67) (330 / 67),Normal (500 / 100) (500 / 100),Epic (750 / 150) (750 / 150),Marathon (1000 / 200) (1000 / 200),Slow (1500 / 300) (1500 / 300),Very Slow (2000 / 400) (2000 / 400)
+2026-10-26T04:38:56.423Z ?,Growth ,33,50,67,100,150,200,300,400
+2026-10-26T04:38:56.423Z ,Train ,33,50,67,100,150,200,300,400
+2026-10-26T04:38:56.423Z ?,Construct ,33,50,67,100,150,200,300,400
+2026-10-26T04:38:56.423Z ?,Create ,33,50,67,100,150,200,300,400
+2026-10-26T04:38:56.423Z ?,Research ,33,50,67,100,150,200,300,400
+2026-10-26T04:38:56.423Z ?,Build ,33,50,67,100,150,200,300,400
+2026-10-26T04:38:56.423Z ?,Improvement ,33,50,67,100,150,200,300,400
+2026-10-26T04:38:56.423Z ?,Great People ,33,50,67,100,150,200,300,400
+2026-10-26T04:38:56.423Z ?,Culture ,33,50,67,100,150,200,300,400
+2026-10-26T04:38:56.423Z ,Barb ,33,50,67,100,150,200,300,400
+2026-10-26T04:38:56.423Z ?,Unit Discover ,33,50,67,100,150,200,300,400
+2026-10-26T04:38:56.424Z ?,Golden Age ,40,60,80,100,125,200,300,400
+2026-10-26T04:38:56.424Z ?,Hurry Conscript Anger ,33,50,67,100,150,200,300,400
+2026-10-26T04:38:56.424Z ,Extra Free Outside Units,0,0,0,0,0,1,1,1
+2026-10-26T04:38:56.424Z ,Revolt Div ,60,70,80,100,125,200,300,400
+2026-10-26T04:38:56.424Z ,Num Turn Increments*,23,20,25,24,22,34,37,40
+2026-10-26T04:38:56.425Z ,Inc Y 05,"80, 60, 50","40, 20, 10","45, 35, 25","10, 10, 5","30, 25, 20","16, 15, 15","10, 15, 10","10, 9, 8"
+2026-10-26T04:38:56.425Z ,Inc M 01,"108000, 60000, 36000","120000, 60000, 24000","54000, 30000, 18000","60000, 30000, 12000","36000, 18000, 12000","24000, 12000, 9000","15000, 7500, 3600","13500, 6000, 3000"
+2026-10-26T04:38:56.426Z ,Cal 01,+3*9k=23k,+2*10k=30k,+6*4.5k=23k,+4*5k=30k,+6*3k=32k,+10*2k=30k,+16*1250=30k,+20*1125=27500
+2026-10-26T04:38:56.426Z ,Cal 17,+1*25=1470,+15*6=1880,+6*25=1265,+30*3=1880,+50*5=1700,+20*8=1398,+55*5=1431,+66*8=112
+2026-10-26T04:38:56.427Z ,Cal 33,,,,,,+40*m3=2098m5,+24*m2=2064m10,+160*m3=2025
+2026-10-26T04:38:56.428Z ?,S 07 (35),T58=+1015 (600),T88=+1020 (480),T116=+1015 (300),T175=+1000 (240),T263=+1020 (120),T350=+1014 (96),T525=+1000 (72),T700=+994 (48)
+2026-10-26T04:38:56.429Z ?,Legendary,15000,20000,30000,45000,67500,90000,135000,180000
+2026-10-26T04:38:56.429Z SAS_SEVOPEDIA_GAME_SPEED_CHART_END
+```
+
+#### World Size chart
+
+Compares configured dimensions, ratios, player counts and world-size rules. Grid rows describe chart configuration, not a claim that every map script generates those exact dimensions. This small captured chart is included in full. Source: [SevoPediaWorldSizeChart.py](/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py).
+
+```log
+2026-10-26T04:38:58.437Z SAS_SEVOPEDIA_WORLD_SIZE_CHART_BEGIN
+2026-10-26T04:38:58.437Z ,Field,Arena,Duel,Tiny,Small,Standard,Large,Huge,SAS24,SAS32,SAS40,SAS48
+2026-10-26T04:38:58.437Z ?,Usual Grid Cells W x H,14 x 10,18 x 13,23 x 17,30 x 22,39 x 28,47 x 34,60 x 42,70 x 49,80 x 56,90 x 63,99 x 70
+2026-10-26T04:38:58.437Z ?,W/H Ratio*,1.4000,1.3846,1.3529,1.3636,1.3929,1.3824,1.4286,1.4286,1.4286,1.4286,1.4143
+2026-10-26T04:38:58.437Z ?,Ratio to Standard*,0.128,0.214,0.358,0.604,1.000,1.463,2.308,3.141,4.103,5.192,6.346
+2026-10-26T04:38:58.437Z ?,Ratio to Largest*,0.020,0.034,0.056,0.095,0.158,0.231,0.364,0.495,0.646,0.818,1.000
+2026-10-26T04:38:58.437Z ?,WorldInfo Grid Cells*,140,234,391,660,1092,1598,2520,3430,4480,5670,6930
+2026-10-26T04:38:58.437Z ?,Cells Per Default Player*,70,117,130,132,137,145,158,143,140,142,144
+2026-10-26T04:38:58.437Z ?,Default Players,2,2,3,5,8,11,16,24,32,40,48
+2026-10-26T04:38:58.437Z ?,Target Num Cities,4,4,4,5,5,6,6,7,8,9,10
+2026-10-26T04:38:58.437Z ?,Free Building Bonuses,1,1,1,3,4,5,6,7,8,9,10
+2026-10-26T04:38:58.437Z ?,Building Class Prereq Mod,0,0,0,25,38,50,75,100,125,150,175
+2026-10-26T04:38:58.437Z ,Unit Name Modifier,50,50,40,30,20,10,0,0,0,0,0
+2026-10-26T04:38:58.437Z ,Max Conscript Mod,-30,-30,-15,0,15,30,45,60,75,90,105
+2026-10-26T04:38:58.437Z ?,War Weariness Mod,30,30,20,12,0,-13,-25,-35,-45,-55,-65
+2026-10-26T04:38:58.437Z ,Unit Cost ,109,109,106,103,100,97,94,91,88,85,82
+2026-10-26T04:38:58.437Z ,Terrain Grain Change,-1,-1,-1,0,0,1,2,2,2,2,2
+2026-10-26T04:38:58.438Z ,Feature Grain Change,-1,-1,-1,0,0,1,2,2,2,2,2
+2026-10-26T04:38:58.438Z ?,Research ,85,85,90,95,100,105,110,115,120,125,130
+2026-10-26T04:38:58.438Z ?,Trade Profit ,70,70,63,55,48,40,33,26,19,12,5
+2026-10-26T04:38:58.438Z ?,Distance Maintenance ,55,55,64,73,82,91,100,109,118,127,136
+2026-10-26T04:38:58.438Z ?,Num Cities Maintenance ,42,42,38,34,30,26,22,18,14,10,6
+2026-10-26T04:38:58.438Z ?,Colony Maintenance ,67,67,60,52,45,37,30,23,15,8,2
+2026-10-26T04:38:58.438Z ?,Corporation Maintenance ,400,400,200,150,100,75,50,40,30,20,10
+2026-10-26T04:38:58.438Z ,Num Cities Anarchy ,11,11,10,9,8,7,6,5,4,3,2
+2026-10-26T04:38:58.438Z ?,Advanced Start Points Mod,100,100,100,100,100,100,100,100,100,100,100
+2026-10-26T04:38:58.438Z SAS_SEVOPEDIA_WORLD_SIZE_CHART_END
+```
 
 ## Before and after: shared Python log timestamps
 

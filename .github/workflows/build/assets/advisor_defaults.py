@@ -10,7 +10,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 
 from xml_defines import main_from_expected_values
 
-EXPECTED_ADVISOR_DEFINES = {"SAS_MILIT_UI_BATTLE_XY_ON": 1}
+# <!-- custom: Related SHOW toggles share positive polarity and default 0: intermediate steps and eligible cancelled rows stay out of the summary unless requested. (GPT-6.1-Sol) -->
+EXPECTED_ADVISOR_DEFINES = {
+    "SAS_MILIT_UI_BATTLE_XY_ON": 1,
+    "SAS_WORLD_CHANGES_SHOW_INTERMEDIATE_ON": 0,
+    "SAS_WORLD_CHANGES_SHOW_CANCELLED_ON": 0,
+}
 
 if __name__ == "__main__":
     main_from_expected_values("advisor defaults", EXPECTED_ADVISOR_DEFINES, "Check shipped advisor presentation defaults.")
