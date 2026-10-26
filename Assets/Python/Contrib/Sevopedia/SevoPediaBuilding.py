@@ -841,7 +841,7 @@ class SevoPediaBuilding:
 			if buildingInfo.getFreeSpecialistCount(iSpecialist) > 0:
 				iSpecialistCount = buildingInfo.getFreeSpecialistCount(iSpecialist)
 
-				screen.appendMultiListButton(rowListName, gc.getSpecialistInfo(iSpecialist).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, 1, False)
+				screen.appendMultiListButton(rowListName, SASVisuals.Specialist.getButton(iSpecialist), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, 1, False)
 
 				numTxt = "%d" % iSpecialistCount
 				extraCorrectionX = get_extra_correction_x(numTxt)

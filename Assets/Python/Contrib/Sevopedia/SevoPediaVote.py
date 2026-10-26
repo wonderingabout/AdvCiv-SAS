@@ -226,7 +226,7 @@ class SevoPediaVote:
 			if srcInfo:
 				iSpecialist = srcInfo.getFreeSpecialist()
 				if iSpecialist > -1:
-					screen.attachImageButton(panelName, "", gc.getSpecialistInfo(iSpecialist).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, 1, False)
+					screen.attachImageButton(panelName, "", SASVisuals.Specialist.getButton(iSpecialist), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, 1, False)
 					return
 		draw_none_text(screen, self.top, self.X_SOURCE_SPECIALIST, self.Y_SOURCE_SPECIALIST, self.W_SOURCE_SPECIALIST, self.H_SOURCE_SPECIALIST)
 

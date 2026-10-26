@@ -15,7 +15,7 @@
 // Compile the label into the publisher: an edited XML value must not make an older loaded DLL report a newer implementation; this counter is independent of SASGameRecord and binary-save versions. (GPT-6.1-Sol) -->
 enum SASRuntimeRecorderRevision
 {
-	SAS_RUNTIME_REVISION = 8
+	SAS_RUNTIME_REVISION = 9
 };
 
 #define SAS_RUNTIME_PROCESS_STATES(DO) DO(RUNNING) DO(EXITED_CLEANLY)
@@ -120,7 +120,7 @@ static bool g_bSASRuntimeHistoryAtCurrentRoot = false;
 // Session/load counters live for the DLL process so repeated new/load actions are distinguishable without retaining a growing history in memory. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static int g_iSASRuntimeStatusEnabled = -1;
 static unsigned int g_uiSASRuntimeStatusSerial = 0;
-// <!-- custom: Recovered snapshots disclose failed earlier publications even to readers without an older statusSerial; status and history failures describe separate outputs. (ChatGPT (review) + GPT-6.1-Sol) -->
+// <!-- custom: Recovered snapshots disclose failed earlier publications even to readers without an older statusSerial; status and history failures describe separate outputs. (ChatGPT + GPT-6.1-Sol) -->
 static unsigned int g_uiSASRuntimeStatusWriteFailures = 0;
 static unsigned int g_uiSASRuntimeSessionSerial = 0;
 static unsigned int g_uiSASRuntimeNewGameCount = 0;
@@ -848,7 +848,7 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 	return bComplete;
 }
 
-// <!-- custom: Count every failed publication once, including root/open/write/close failures; the next successful snapshot reports the cumulative count without retaining a failure history. (ChatGPT (review) + GPT-6.1-Sol) -->
+// <!-- custom: Count every failed publication once, including root/open/write/close failures; the next successful snapshot reports the cumulative count without retaining a failure history. (ChatGPT + GPT-6.1-Sol) -->
 static bool writeSASRuntimeStatus(SASRuntimeStatusReason eReason)
 {
 	bool const bPublished = publishSASRuntimeStatus(eReason);

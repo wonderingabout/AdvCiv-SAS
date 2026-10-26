@@ -139,7 +139,7 @@ class CvDomesticAdvisor:
 		for eSpec in range(gc.getNumSpecialistInfos()):
 			# <!-- custom: include non-visible settled Great Specialists here; the footer controls still only use visible assignable specialists. (GPT-5.5) -->
 			self.aOverview4Specialists.append(eSpec)
-			self.aOverview4SpecialistHeaders.append(SASTextScale.labelImageText(gc.getSpecialistInfo(eSpec).getButton(), self.OVERVIEW3_SPECIALIST_ICON_SIZE))
+			self.aOverview4SpecialistHeaders.append(SASTextScale.labelImageText(SASVisuals.Specialist.getButton(eSpec), self.OVERVIEW3_SPECIALIST_ICON_SIZE))
 		self.SCREEN_TITLE = SASTextScale.sasFontTagTitle.bold + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
 		self.TEXT_EXIT = SASTextScale.sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SASTextScale.SAS_FONT_TAG_CLOSE
 		self.TEXT_TAB_FINANCE = localText.getText("TXT_KEY_ECONOMICS_ADVISOR_FINANCE_TAB", ()).upper()
@@ -1389,72 +1389,65 @@ class CvDomesticAdvisor:
 
 	# Draw the specialist and their increase and decrease buttons
 	def drawSpecialists(self):
-		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
+		# <!-- custom: Use cached XML-visible specialist IDs and compact visible slots; widget data keeps the actual specialist ID so XML insertion/reordering cannot change the gameplay target. (ChatGPT-5.6-Sol) -->
+		screen = CyGInterfaceScreen("DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR)
+		for iSlot, iSpecialist in enumerate(SASVisuals.Specialist.visibleIds()):
+			iX = self.nFirstSpecialistX + (self.nSpecialistDistance * iSlot)
+			szIndex = str(iSpecialist)
+			szName = "SpecialistImage" + szIndex
+			screen.setImageButton(szName, SASVisuals.Specialist.getTexture(iSpecialist), iX, self.nSpecialistY, self.nSpecialistWidth, self.nSpecialistLength, WidgetTypes.WIDGET_CITIZEN, iSpecialist, -1)
+			screen.hide(szName)
 
-		for i in range( gc.getNumSpecialistInfos() ):
-			if (gc.getSpecialistInfo(i).isVisible()):			
-				szName = "SpecialistImage" + str(i)
-				screen.setImageButton( szName, gc.getSpecialistInfo(i).getTexture(), self.nFirstSpecialistX + (self.nSpecialistDistance * i), self.nSpecialistY, self.nSpecialistWidth, self.nSpecialistLength, WidgetTypes.WIDGET_CITIZEN, i, -1 )
-				screen.hide(szName)
+			szName = "SpecialistPlus" + szIndex
+			screen.setButtonGFC(szName, u"", "", iX + self.nPlusOffsetX, self.nSpecialistY + self.nPlusOffsetY, self.nPlusWidth, self.nPlusHeight, WidgetTypes.WIDGET_CHANGE_SPECIALIST, iSpecialist, 1, ButtonStyles.BUTTON_STYLE_CITY_PLUS)
+			screen.hide(szName)
 
-				szName = "SpecialistPlus" + str(i)
-				screen.setButtonGFC( szName, u"", "", self.nFirstSpecialistX + (self.nSpecialistDistance * i) + self.nPlusOffsetX, self.nSpecialistY + self.nPlusOffsetY, self.nPlusWidth, self.nPlusHeight, WidgetTypes.WIDGET_CHANGE_SPECIALIST, i, 1, ButtonStyles.BUTTON_STYLE_CITY_PLUS )
-				screen.hide(szName)
+			szName = "SpecialistMinus" + szIndex
+			screen.setButtonGFC(szName, u"", "", iX + self.nMinusOffsetX, self.nSpecialistY + self.nMinusOffsetY, self.nMinusWidth, self.nMinusHeight, WidgetTypes.WIDGET_CHANGE_SPECIALIST, iSpecialist, -1, ButtonStyles.BUTTON_STYLE_CITY_MINUS)
+			screen.hide(szName)
 
-				szName = "SpecialistMinus" + str(i)
-				screen.setButtonGFC( szName, u"", "", self.nFirstSpecialistX + (self.nSpecialistDistance * i) + self.nMinusOffsetX, self.nSpecialistY + self.nMinusOffsetY, self.nMinusWidth, self.nMinusHeight, WidgetTypes.WIDGET_CHANGE_SPECIALIST, i, -1, ButtonStyles.BUTTON_STYLE_CITY_MINUS )
-				screen.hide(szName)
-
-				szName = "SpecialistText" + str(i)
-				screen.setLabel(szName, "Background", "", CvUtil.FONT_LEFT_JUSTIFY, self.nFirstSpecialistX + (self.nSpecialistDistance * i) + self.nSpecTextOffsetX, self.nSpecialistY + self.nSpecTextOffsetY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				screen.hide(szName)
+			szName = "SpecialistText" + szIndex
+			screen.setLabel(szName, "Background", "", CvUtil.FONT_LEFT_JUSTIFY, iX + self.nSpecTextOffsetX, self.nSpecialistY + self.nSpecTextOffsetY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.hide(szName)
 
 	def hideSpecialists(self):
-		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
-		for i in range( gc.getNumSpecialistInfos() ):
-			if (gc.getSpecialistInfo(i).isVisible()):			
-				screen.hide("SpecialistImage" + str(i))
-				screen.hide("SpecialistPlus" + str(i))
-				screen.hide("SpecialistMinus" + str(i))
-				screen.hide("SpecialistText" + str(i))
+		screen = CyGInterfaceScreen("DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR)
+		for iSpecialist in SASVisuals.Specialist.visibleIds():
+			szIndex = str(iSpecialist)
+			screen.hide("SpecialistImage" + szIndex)
+			screen.hide("SpecialistPlus" + szIndex)
+			screen.hide("SpecialistMinus" + szIndex)
+			screen.hide("SpecialistText" + szIndex)
 
 	def updateSpecialists(self):
 		# Function which shows the specialists.
-		#
-		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
-
+		screen = CyGInterfaceScreen("DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR)
 		if self.iActivePlayer != CyGame().getActivePlayer():
 			self.hideSpecialists()
 			return
-
-		if (CyInterface().isOneCitySelected()):
-
+		if CyInterface().isOneCitySelected():
 			city = CyInterface().getHeadSelectedCity()
 			nPopulation = city.getPopulation()
 			nFreeSpecial = city.totalFreeSpecialists()
+			for iSlot, iSpecialist in enumerate(SASVisuals.Specialist.visibleIds()):
+				iX = self.nFirstSpecialistX + (self.nSpecialistDistance * iSlot)
+				szIndex = str(iSpecialist)
+				screen.show("SpecialistImage" + szIndex)
+				szName = "SpecialistText" + szIndex
+				screen.setLabel(szName, "Background", str(city.getSpecialistCount(iSpecialist)) + "/" + str(city.getMaxSpecialistCount(iSpecialist)), CvUtil.FONT_LEFT_JUSTIFY, iX + self.nSpecTextOffsetX, self.nSpecialistY + self.nSpecTextOffsetY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.show(szName)
 
-			for i in range( gc.getNumSpecialistInfos() ):
-				if (gc.getSpecialistInfo(i).isVisible()):	
-					szName = "SpecialistImage" + str(i)
+				szName = "SpecialistPlus" + szIndex
+				if city.isSpecialistValid(iSpecialist, 1) and city.getForceSpecialistCount(iSpecialist) < (nPopulation + nFreeSpecial):
 					screen.show(szName)
+				else:
+					screen.hide(szName)
 
-					szName = "SpecialistText" + str(i)
-					screen.setLabel(szName, "Background", str (city.getSpecialistCount(i)) + "/" + str(city.getMaxSpecialistCount(i)), CvUtil.FONT_LEFT_JUSTIFY, self.nFirstSpecialistX + (self.nSpecialistDistance * i) + self.nSpecTextOffsetX, self.nSpecialistY + self.nSpecTextOffsetY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				szName = "SpecialistMinus" + szIndex
+				if city.getSpecialistCount(iSpecialist) > 0 or city.getForceSpecialistCount(iSpecialist) > 0:
 					screen.show(szName)
-
-					# If the specialist is valid and we can increase it
-					szName = "SpecialistPlus" + str(i)
-					if (city.isSpecialistValid(i, 1) and (city.getForceSpecialistCount(i) < (nPopulation + nFreeSpecial))):
-						screen.show(szName)
-					else:
-						screen.hide(szName)
-
-					# if we HAVE specialists already and they're not forced.
-					szName = "SpecialistMinus" + str(i)
-					if (city.getSpecialistCount(i) > 0 or city.getForceSpecialistCount(i) > 0):
-						screen.show(szName)
-					else:
-						screen.hide(szName)
+				else:
+					screen.hide(szName)
 		else:
 			self.hideSpecialists()
 

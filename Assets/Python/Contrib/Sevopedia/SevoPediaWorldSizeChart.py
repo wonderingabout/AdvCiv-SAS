@@ -191,15 +191,16 @@ class SevoPediaWorldSizeChart:
 		btn_by_name = {}
 
 		_btn_defs = (
-			# <!-- custom: (name, SAS_EMOJI_* interface art key). (GPT-5.2-Codex (summarized)) -->
-			("swords", "SAS_EMOJI_CROSSED_SWORDS"),
-			("herb",   "SAS_EMOJI_HERB"),
-			("fire",   "SAS_EMOJI_FIRE"),
+			# <!-- custom: (name, cached interface-art path).
+			# Reorder entries to change only the icon-theme sort order. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol) -->
+			("swords", SASVisuals.InterfaceArt.SAS_EMOJI_CROSSED_SWORDS),
+			("herb",   SASVisuals.InterfaceArt.SAS_EMOJI_HERB),
+			("fire",   SASVisuals.InterfaceArt.SAS_EMOJI_FIRE),
 		)
-		for i, (name, artKey) in enumerate(_btn_defs):
+		for i, (name, szButtonPath) in enumerate(_btn_defs):
 			# Group id only affects sorting by the icon column.
 			# Reorder _btn_defs to change the icon-theme sort order.
-			btn_by_name[name] = (SASVisuals.InterfaceArt.getPath(artKey), (i + 1) * 10)
+			btn_by_name[name] = (szButtonPath, (i + 1) * 10)
 
 		glyph_by_name = {}
 		# GameFont glyph icons (yields/commerce/symbols).

@@ -1470,10 +1470,8 @@ class CvMainInterface:
 
 	def setCitizenButtonRects(self):
 		# (This will be a bit ugly because the stuff is right-aligned and because it's really a 2D grid. The RectLayout classes are for left-aligned single-file layouts.)
-		self.visibleSpecialists = []
-		for i in range(gc.getNumSpecialistInfos() - 1, -1, -1):
-			if (gc.getSpecialistInfo(i).isVisible()):
-				self.visibleSpecialists.append(i)
+		# <!-- custom: Preserve the inherited reverse display order while reusing the shared XML-visible ID cache; membership is no longer rescanned separately by each screen. (ChatGPT-5.6-Sol) -->
+		self.visibleSpecialists = list(reversed(SASVisuals.Specialist.visibleIds()))
 		# Lots of buttons on the right panel; need to be careful about scaling those up.
 		iCitizenBtnSize = BTNSZ(24, 0.3)
 		iAdjustBtnSize = (20 * iCitizenBtnSize) / 24
@@ -1832,12 +1830,12 @@ class CvMainInterface:
 			screen.hide(szName)
 		for iSpecialist in self.visibleSpecialists:
 			szName = "SpecialistDisabledButton" + str(iSpecialist)
-			self.setImageButton(szName, gc.getSpecialistInfo(iSpecialist).getTexture(), WidgetTypes.WIDGET_DISABLED_CITIZEN, iSpecialist)
+			self.setImageButton(szName, SASVisuals.Specialist.getTexture(iSpecialist), WidgetTypes.WIDGET_DISABLED_CITIZEN, iSpecialist)
 			screen.enable(szName, False)
 			screen.hide(szName)
 			for j in range(MAX_CITIZEN_BUTTONS):
 				szName = "CitizenButton" + str(iSpecialist * 100 + j)
-				self.addCheckBox(szName, gc.getSpecialistInfo(iSpecialist).getTexture(), "", ButtonStyles.BUTTON_STYLE_LABEL, WidgetTypes.WIDGET_CITIZEN, iSpecialist, j)
+				self.addCheckBox(szName, SASVisuals.Specialist.getTexture(iSpecialist), "", ButtonStyles.BUTTON_STYLE_LABEL, WidgetTypes.WIDGET_CITIZEN, iSpecialist, j)
 				screen.hide(szName)
 # BUG - city specialist - start
 		self.addPanel("SpecialistLabelBackground")
@@ -3816,10 +3814,9 @@ class CvMainInterface:
 				bHandled = True
 				szIndex = str(iSpecialist * 100 + j)
 				szName = "CitizenButton" + szIndex
-				# advc: Redundant I think
-				#
-				# self.addCheckBox(szName, gc.getSpecialistInfo(iSpecialist).getTexture(), "", ButtonStyles.BUTTON_STYLE_LABEL, WidgetTypes.WIDGET_CITIZEN, iSpecialist, j)
-				#
+				# <!-- custom: The inherited note "advc: Redundant I think" keeps this call disabled; only update its texture lookup to the shared cache so restoring it would not bypass that cache. (GPT-6.1-Sol) -->
+				# <!-- custom: self.addCheckBox(szName, SASVisuals.Specialist.getTexture(iSpecialist), "", ButtonStyles.BUTTON_STYLE_LABEL, WidgetTypes.WIDGET_CITIZEN, iSpecialist, j) (GPT-6.1-Sol) -->
+
 				screen.show(szName)
 				szName = "CitizenButtonHighlight" + szIndex
 				self.addDDS(szName, "BUTTON_HILITE_SQUARE", WidgetTypes.WIDGET_CITIZEN, iSpecialist, j)
@@ -3844,7 +3841,7 @@ class CvMainInterface:
 				if pHeadSelectedCity.getFreeSpecialistCount(iSpecialist) > 0:
 					if iCount < MAX_CITIZEN_BUTTONS:
 						szName = "FreeSpecialist" + str(iCount)
-						screen.setImageButton(szName, gc.getSpecialistInfo(iSpecialist).getTexture(), lFirstFreeSpecialist.x() -(lFirstFreeSpecialist.size() + HSPACE(2)) * iCount, lFirstFreeSpecialist.y(), lFirstFreeSpecialist.size(), lFirstFreeSpecialist.size(), WidgetTypes.WIDGET_FREE_CITIZEN, iSpecialist, 1)
+						screen.setImageButton(szName, SASVisuals.Specialist.getTexture(iSpecialist), lFirstFreeSpecialist.x() -(lFirstFreeSpecialist.size() + HSPACE(2)) * iCount, lFirstFreeSpecialist.y(), lFirstFreeSpecialist.size(), lFirstFreeSpecialist.size(), WidgetTypes.WIDGET_FREE_CITIZEN, iSpecialist, 1)
 						screen.show(szName)
 					iCount += 1
 		else:
@@ -3852,7 +3849,7 @@ class CvMainInterface:
 				for j in range(pHeadSelectedCity.getFreeSpecialistCount(iSpecialist)):
 					if iCount < MAX_CITIZEN_BUTTONS:
 						szName = "FreeSpecialist" + str(iCount)
-						screen.setImageButton(szName, gc.getSpecialistInfo(iSpecialist).getTexture(), lFirstFreeSpecialist.x() - (lFirstFreeSpecialist.size() + HSPACE(2)) * iCount, lFirstFreeSpecialist.y(), lFirstFreeSpecialist.size(), lFirstFreeSpecialist.size(), WidgetTypes.WIDGET_FREE_CITIZEN, iSpecialist, -1)
+						screen.setImageButton(szName, SASVisuals.Specialist.getTexture(iSpecialist), lFirstFreeSpecialist.x() - (lFirstFreeSpecialist.size() + HSPACE(2)) * iCount, lFirstFreeSpecialist.y(), lFirstFreeSpecialist.size(), lFirstFreeSpecialist.size(), WidgetTypes.WIDGET_FREE_CITIZEN, iSpecialist, -1)
 						screen.show(szName)
 					iCount += 1
 
@@ -3969,7 +3966,7 @@ class CvMainInterface:
 			for j in range(pHeadSelectedCity.getFreeSpecialistCount(iSpecialist)):
 				szName = "Stacker_FreeSpecialist" + str(iCount)
 				gSetRectangle(szName, lFreeSpecialistButtons.next())
-				self.setImageButton(szName, gc.getSpecialistInfo(iSpecialist).getTexture(), WidgetTypes.WIDGET_FREE_CITIZEN, iSpecialist, 1)
+				self.setImageButton(szName, SASVisuals.Specialist.getTexture(iSpecialist), WidgetTypes.WIDGET_FREE_CITIZEN, iSpecialist, 1)
 				screen.show(szName)
 				iCount += 1
 
@@ -3986,11 +3983,12 @@ class CvMainInterface:
 			self.setImageButton(szName, "INTERFACE_ANGRYCITIZEN_TEXTURE", WidgetTypes.WIDGET_ANGRY_CITIZEN)
 			screen.show(szName)
 
-		iVisibleSpecialists = 0
 		if self.iDEFAULT_SPECIALIST is None:
 			self.iDEFAULT_SPECIALIST = gc.getDefineINT("DEFAULT_SPECIALIST")
 		iDefaultSpecialist = self.iDEFAULT_SPECIALIST
-		for iSpecialist in range(gc.getNumSpecialistInfos()):
+		# <!-- custom: Adjustable rows use only cached XML-visible specialists; slot controls position and the actual XML ID still controls widgets/counts.
+		# Hidden settled Great Specialists remain valid in the separate free-specialist loop above, but must not occupy or overlap an adjustable row. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		for iVisibleSpecialists, iSpecialist in enumerate(SASVisuals.Specialist.visibleIds()):
 			SPECIALIST_ROWS = 3
 			if iVisibleSpecialists > SPECIALIST_ROWS:
 				iXShift = gRect("StackerRows").width() / 2 + HSPACE(5)
@@ -3999,8 +3997,6 @@ class CvMainInterface:
 				iXShift = 0
 				iYShift = iVisibleSpecialists
 			iYShift += 2
-			if gc.getSpecialistInfo(iSpecialist).isVisible():
-				iVisibleSpecialists += 1
 			if (gc.getPlayer(pHeadSelectedCity.getOwner()).isSpecialistValid(iSpecialist) or iSpecialist == iDefaultSpecialist):
 				iCount = (pHeadSelectedCity.getPopulation() - pHeadSelectedCity.angryPopulation(0) + pHeadSelectedCity.totalFreeSpecialists())
 			else:
@@ -4024,7 +4020,7 @@ class CvMainInterface:
 				if k >= pHeadSelectedCity.getSpecialistCount(iSpecialist):
 					szName = "IncrCitizenBanner" + szIndex
 					gSetRectangle(szName, lRect)
-					self.addCheckBox(szName, gc.getSpecialistInfo(iSpecialist).getTexture(), "", ButtonStyles.BUTTON_STYLE_LABEL, WidgetTypes.WIDGET_CHANGE_SPECIALIST, iSpecialist, 1)
+					self.addCheckBox(szName, SASVisuals.Specialist.getTexture(iSpecialist), "", ButtonStyles.BUTTON_STYLE_LABEL, WidgetTypes.WIDGET_CHANGE_SPECIALIST, iSpecialist, 1)
 					screen.enable(szName, False)
 					screen.show(szName)
 					szName = "IncrCitizenButton" + szIndex
@@ -4034,7 +4030,7 @@ class CvMainInterface:
 				else:
 					szName = "DecrCitizenButton" + szIndex
 					gSetRectangle(szName, lRect)
-					self.addCheckBox(szName, gc.getSpecialistInfo(iSpecialist).getTexture(), "", ButtonStyles.BUTTON_STYLE_LABEL, WidgetTypes.WIDGET_CHANGE_SPECIALIST, iSpecialist, -1)
+					self.addCheckBox(szName, SASVisuals.Specialist.getTexture(iSpecialist), "", ButtonStyles.BUTTON_STYLE_LABEL, WidgetTypes.WIDGET_CHANGE_SPECIALIST, iSpecialist, -1)
 					screen.show(szName)
 # BUG - city specialist - end
 

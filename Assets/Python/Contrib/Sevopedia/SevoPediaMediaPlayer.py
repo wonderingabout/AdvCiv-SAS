@@ -355,8 +355,9 @@ class SevoPediaMediaPlayer:
 	def setNextGroupCallback(self, nextGroupCallback):
 		self.nextGroupCallback = nextGroupCallback
 
-	def setToggleButton(self, szArtInfoType):
-		self.toggleButtonPath = SASVisuals.InterfaceArt.getPath(szArtInfoType)
+	# <!-- custom: Callers pass the already-cached visual-resource path; this helper renders media controls and should not carry fixed ArtDefine keys only to resolve them again. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	def setToggleButton(self, szButtonPath):
+		self.toggleButtonPath = szButtonPath
 
 	def setToggleCallback(self, toggleCallback):
 		self.toggleCallback = toggleCallback

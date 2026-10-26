@@ -397,23 +397,49 @@ class ResourceCachePolicy:
                             state[".".join(chain(target))] = resource_origin(item.value, local)
         initialize(cls, [resource_origin(arg, env) for arg in arguments])
         visited = set()
-        def methods(owner):
+        effective = {}
+
+        # <!-- custom: Collect effective inherited methods before deriving cross-method cache ownership; the previous methods helper inspected each method in isolation. (GPT-6.1-Sol) -->
+        def collect(owner):
             if owner.name in visited:
                 return
             visited.add(owner.name)
             for base in owner.bases:
                 if isinstance(base, ast.Name) and base.id in classes:
-                    methods(classes[base.id])
+                    collect(classes[base.id])
             for item in owner.body:
-                if isinstance(item, ast.FunctionDef) and not item.name.startswith("_"):
-                    self.method(module + "." + public + "." + item.name, item, dict(state), owner)
+                if isinstance(item, ast.FunctionDef):
+                    effective[item.name] = (item, owner)
                 elif isinstance(item, ast.Assign):
                     for target in item.targets:
                         if isinstance(target, ast.Name) and not target.id.startswith("_") and isinstance(item.value, ast.Constant) and isinstance(item.value.value, str) and item.value.value.lower().startswith("art/"):
                             self.literals.setdefault(item.value.value.lower(), module + "." + public + "." + target.id)
-        methods(cls)
+        collect(cls)
 
-    def method(self, accessor, function, env, container):
+        # <!-- custom: An initializer can populate a cache that a separate accessor returns, as Specialist.getTexture/getButton do after the lifetime cleanup.
+        # Follow self-method calls and connect returned self-cache identities to their reachable writers; do not treat unrelated metadata reads or uncalled writers as replacement contracts. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+        contracts = {}
+        for name, (reader, _owner) in effective.items():
+            if name.startswith("_"):
+                continue
+            returned = {ast.dump(part) for node in ast.walk(reader) if isinstance(node, ast.Return) and node.value is not None for part in ast.walk(node.value) if isinstance(part, ast.Attribute) and chain(part)[:1] == ["self"]}
+            reachable = set()
+            pending = [name]
+            while pending:
+                current = pending.pop()
+                if current in reachable or current not in effective:
+                    continue
+                reachable.add(current)
+                pending.extend(parts[1] for call in ast.walk(effective[current][0]) if isinstance(call, ast.Call) for parts in [chain(call.func)] if len(parts) == 2 and parts[0] == "self")
+            for writer in reachable:
+                for cache in returned:
+                    contracts.setdefault((writer, cache), set()).add(module + "." + public + "." + name)
+        for name, (item, owner) in effective.items():
+            if not name.startswith("_") or any(writer == name for writer, _cache in contracts):
+                self.method(module + "." + public + "." + name, item, dict(state), owner, contracts)
+
+    # <!-- custom: Class cache contracts may span an accessor and its initialization helpers; ordinary module functions keep their existing same-function rule. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+    def method(self, accessor, function, env, container, contracts=None):
         prefixes = {item.args[0].value for item in ast.walk(container) if isinstance(item, ast.Call) and isinstance(item.func, ast.Attribute) and item.func.attr == "startswith" and item.args and isinstance(item.args[0], ast.Constant) and isinstance(item.args[0].value, str) and item.args[0].value.endswith("_") and item.args[0].value != "_"}
         literals = {item.args[0].value for item in ast.walk(container) if isinstance(item, ast.Call) and isinstance(item.func, ast.Name) and item.func.id == function.name and item.args and isinstance(item.args[0], ast.Constant) and isinstance(item.args[0].value, str)}
         for item in ast.walk(function):
@@ -427,7 +453,10 @@ class ResourceCachePolicy:
                     # <!-- custom: Only a lookup whose result is stored in a returned cache is a replacement contract; incidental metadata reads such as trait descriptions are not equivalent to a cached trait icon. (GPT-6.1-Sol) -->
                     cache = ast.dump(target.value)
                     returned = any(isinstance(ret, ast.Return) and ret.value is not None and any(ast.dump(part) == cache for part in ast.walk(ret.value)) for ret in ast.walk(function))
-                    if returned and (len(origin) > 1 or prefixes):
+                    accessors = set((contracts or {}).get((function.name, cache), ()))
+                    if returned and (contracts is None or not function.name.startswith("_")):
+                        accessors.add(accessor)
+                    if accessors and (len(origin) > 1 or prefixes):
                         if origin[-1] == "getDefineINT":
                             # <!-- custom: A private generic Define reader is not the public API; derive each fixed-name wrapper and restrict the rule to its literal key, leaving unrelated/live gameplay Defines alone. (GPT-6.1-Sol) -->
                             for wrapper in container.body:
@@ -438,7 +467,8 @@ class ResourceCachePolicy:
                                         public = accessor.rsplit(".", 1)[0] + "." + wrapper.name
                                         self.rules.setdefault(origin, []).append((public, set(), {call.args[0].value}))
                         else:
-                            self.rules.setdefault(origin, []).append((accessor, prefixes if origin[0] == "getInfoTypeOrFail" else set(), set()))
+                            for replacement in sorted(accessors):
+                                self.rules.setdefault(origin, []).append((replacement, prefixes if origin[0] == "getInfoTypeOrFail" else set(), set()))
 
     def inspect(self, tree, source):
         errors = []

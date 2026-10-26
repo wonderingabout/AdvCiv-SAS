@@ -379,7 +379,7 @@ int main(int argc, char** argv)
 		std::string const runRecord = "\"record\":\"run\"";
 		size_t const firstRunRecord = recoveredHistory.find(runRecord);
 		require(firstRunRecord != std::string::npos && recoveredHistory.find(runRecord, firstRunRecord + 1) == std::string::npos, "unconfirmed run metadata is not duplicated on recovery");
-		// <!-- custom: A fully written history row can remain readable after close reports failure; counters mean confirmed successful appends, not a physical line count. (ChatGPT (review) + GPT-6.1-Sol) -->
+		// <!-- custom: A fully written history row can remain readable after close reports failure; counters mean confirmed successful appends, not a physical line count. (ChatGPT + GPT-6.1-Sol) -->
 		GC.game.autoplay = 5;
 		g_failClose = true;
 		updateSASRuntimeStatusAutoPlay(SAS_RUNTIME_STATUS_AUTOPLAY_STARTED);

@@ -4,7 +4,7 @@
 # <!-- custom: Canonical AdvCiv-SAS visual-resource boundary. Import this module as `SASVisuals` rather than importing its generic collection names into caller globals.
 # Typical use: SASVisuals.Font.HAPPY_CHAR; SASVisuals.Yield.FOOD_CHAR; SASVisuals.Commerce.chars(); SASVisuals.Religion.holyCityChar(iReligion); SASVisuals.Color.RED;
 # SASVisuals.DynamicFont.WAR_CHAR; SASVisuals.InterfaceArt.SAS_EMOJI_TROPHY; SASVisuals.MovieArt.getPath(szArtDef); SASVisuals.CivilizationArt.button(iCivilization);
-# SASVisuals.StaticArt.FOUND_CITY_BUTTON; SASVisuals.Trait.getIcon(iTrait); SASVisuals.GreatPeople.getUnitIcon(iUnit); SASVisuals.Specialist.icons(); SASVisuals.CityEmphasis.icons().
+# SASVisuals.StaticArt.FOUND_CITY_BUTTON; SASVisuals.Trait.getIcon(iTrait); SASVisuals.GreatPeople.getUnitIcon(iUnit); SASVisuals.Specialist.visibleIds()/getTexture(iSpecialist)/getButton(iSpecialist); SASVisuals.CityEmphasis.icons().
 # `init()` eagerly resolves the deterministic early GameFont/yield/commerce families once; `initGameResources()` resolves later XML-backed collections. Lazy accessors remain safe fallbacks.
 # Resource lookup/caching belongs here; presentation derived from those resources (for example a screen-size-specific <img> tag or translated label) stays with its UI owner. (ChatGPT-5.6-Sol) -->
 
@@ -40,7 +40,8 @@ def _toLegacyKey(szText):
 # <!-- custom: Built-in GameFont symbols. (ChatGPT-5.6-Sol) -->
 
 # <!-- custom: Keep the complete DLL FontSymbols inventory explicit and code-native.
-# CI compares this tuple with CvEnums.h so a future DLL symbol addition cannot silently miss the shared collection. (ChatGPT-5.6-Sol) -->
+# CI compares this tuple with CvEnums.h so a future DLL symbol addition cannot silently miss the shared collection.
+# Unlike construction-only visual specs, these names also serve the live GameFont Display and lazy attribute validation. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 BUILTIN_FONT_SYMBOL_NAMES = (
 	"HAPPY_CHAR",
 	"UNHAPPY_CHAR",
@@ -465,7 +466,8 @@ class _DynamicFontResources:
 DynamicFont = _DynamicFontResources()
 
 # <!-- custom: These human-readable keys preserve CvUtil.getIcon and BUG [ICON_*] behavior only.
-# This is intentionally not the canonical new Python API. (ChatGPT-5.6-Sol) -->
+# Dynamic registration and the later CvUtil icon-map setup both use this compatibility catalogue; it is not merely an unused copy of the resolved glyphs.
+# This is intentionally not the canonical new Python API. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 LEGACY_BUILTIN_FONT_SYMBOLS = (
 	("happy", FontSymbols.HAPPY_CHAR),
 	("unhappy", FontSymbols.UNHAPPY_CHAR),
@@ -667,25 +669,25 @@ def getLegacyIcon(szKey):
 
 # <!-- custom: Attitude visual resources. (ChatGPT-5.6-Sol) -->
 
-ATTITUDE_SYMBOL_NAMES = (
-	"ATTITUDE_FURIOUS_CHAR",
-	"ATTITUDE_ANNOYED_CHAR",
-	"ATTITUDE_CAUTIOUS_CHAR",
-	"ATTITUDE_PLEASED_CHAR",
-	"ATTITUDE_FRIENDLY_CHAR",
-)
-
 
 class _AttitudeResources:
 	def __init__(self):
 		self._icons = None
 		self._colors = None
 
+	# <!-- custom: Build the attitude ordering locally for each configuration; retain only its resolved icon/color tuples. (GPT-6.1-Sol) -->
 	def configure(self, colorNames):
-		if len(colorNames) != len(ATTITUDE_SYMBOL_NAMES):
-			raise BugUtil.ConfigError("Expected %d attitude colors" % len(ATTITUDE_SYMBOL_NAMES))
+		SAS_ATTITUDE_SYMBOL_NAMES = (
+			"ATTITUDE_FURIOUS_CHAR",
+			"ATTITUDE_ANNOYED_CHAR",
+			"ATTITUDE_CAUTIOUS_CHAR",
+			"ATTITUDE_PLEASED_CHAR",
+			"ATTITUDE_FRIENDLY_CHAR",
+		)
+		if len(colorNames) != len(SAS_ATTITUDE_SYMBOL_NAMES):
+			raise BugUtil.ConfigError("Expected %d attitude colors" % len(SAS_ATTITUDE_SYMBOL_NAMES))
 		icons = []
-		for szName in ATTITUDE_SYMBOL_NAMES:
+		for szName in SAS_ATTITUDE_SYMBOL_NAMES:
 			icons.append(getattr(DynamicFont, szName))
 		colors = []
 		invalid = []
@@ -722,24 +724,14 @@ Attitude = _AttitudeResources()
 # <!-- custom: Trait visuals. (ChatGPT-5.6-Sol) -->
 
 # <!-- custom: TraitUtil.py has been absorbed here because its remaining job was entirely visual-resource mapping/formatting.
-# The BUG notice below credits that inherited code; keep historical disabled/changed mappings beside the live exhaustive map so their provenance is not lost. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+# The BUG notice below credits that inherited code; keep historical disabled/changed mappings so their provenance is not lost.
+# SAS_TRAIT_VISUAL_SPECS is local to initialization; retain the resolved glyph/button caches rather than their construction map. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 # Copyright (c) 2008 The BUG Mod. Author: EmperorFool.
-_TRAIT_RESOURCE_SPECS = {
-	"TRAIT_AGGRESSIVE": (Font, FontSymbols.STRENGTH_CHAR, "Art/Interface/Buttons/Promotions/Combat1.dds"),
-	"TRAIT_CHARISMATIC": (Font, FontSymbols.HAPPY_CHAR, "Art/Interface/Buttons/TechTree/MassMedia.dds"),
-	"TRAIT_CREATIVE": (Commerce, CommerceTypes.COMMERCE_CULTURE, "Art/Interface/Buttons/TechTree/Music.dds"),
-	"TRAIT_FINANCIAL": (Commerce, CommerceTypes.COMMERCE_GOLD, "Art/Interface/Buttons/TechTree/Banking.dds"),
-	"TRAIT_IMPERIALIST": (Font, FontSymbols.TRADE_CHAR, StaticArt.FOUND_CITY_BUTTON),
-	"TRAIT_INDUSTRIOUS": (Yield, YieldTypes.YIELD_PRODUCTION, "Art/Interface/Buttons/TechTree/Industrialism.dds"),
-	"TRAIT_ORGANIZED": (Font, FontSymbols.OCCUPATION_CHAR, "Art/Interface/Buttons/Buildings/Courthouse.dds"),
-	"TRAIT_PHILOSOPHICAL": (Font, FontSymbols.GREAT_PEOPLE_CHAR, "Art/Interface/Buttons/TechTree/Philosophy.dds"),
-	"TRAIT_PROTECTIVE": (Font, FontSymbols.DEFENSE_CHAR, "Art/Interface/Buttons/Promotions/CityGarrison1.dds"),
-	"TRAIT_SPIRITUAL": (Font, FontSymbols.RELIGION_CHAR, "Art/Interface/Buttons/TechTree/Meditation.dds"),
-}
+
 # <!-- custom: Preserve the historical disabled BUG/SAS mappings below without making them live; the XML trait no longer exists or the glyph was intentionally changed. (ChatGPT-5.6-Sol) -->
 # <!-- custom: TRAIT_EXPANSIVE was removed; its disabled TraitUtil.py entry used Font.HEALTHY_CHAR with Art/Interface/Buttons/Actions/Heal.dds and remains outside the live map. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
-# <!-- custom: TraitUtil.py changed TRAIT_IMPERIALIST from FontSymbols.OCCUPATION_CHAR to FontSymbols.TRADE_CHAR; the live map above preserves that choice. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
-# <!-- custom: TraitUtil.py changed TRAIT_ORGANIZED from FontSymbols.TRADE_CHAR to FontSymbols.OCCUPATION_CHAR; the live map above preserves that choice. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+# <!-- custom: TraitUtil.py changed TRAIT_IMPERIALIST from FontSymbols.OCCUPATION_CHAR to FontSymbols.TRADE_CHAR; SAS_TRAIT_VISUAL_SPECS preserves that choice. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+# <!-- custom: TraitUtil.py changed TRAIT_ORGANIZED from FontSymbols.TRADE_CHAR to FontSymbols.OCCUPATION_CHAR; SAS_TRAIT_VISUAL_SPECS preserves that choice. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 
 
 class _TraitResources:
@@ -754,30 +746,41 @@ class _TraitResources:
 	def init(self):
 		if self._icons is not None and self._buttons is not None:
 			return
+		SAS_TRAIT_VISUAL_SPECS = {
+			"TRAIT_AGGRESSIVE": (Font, FontSymbols.STRENGTH_CHAR, "Art/Interface/Buttons/Promotions/Combat1.dds"),
+			"TRAIT_CHARISMATIC": (Font, FontSymbols.HAPPY_CHAR, "Art/Interface/Buttons/TechTree/MassMedia.dds"),
+			"TRAIT_CREATIVE": (Commerce, CommerceTypes.COMMERCE_CULTURE, "Art/Interface/Buttons/TechTree/Music.dds"),
+			"TRAIT_FINANCIAL": (Commerce, CommerceTypes.COMMERCE_GOLD, "Art/Interface/Buttons/TechTree/Banking.dds"),
+			"TRAIT_IMPERIALIST": (Font, FontSymbols.TRADE_CHAR, StaticArt.FOUND_CITY_BUTTON),
+			"TRAIT_INDUSTRIOUS": (Yield, YieldTypes.YIELD_PRODUCTION, "Art/Interface/Buttons/TechTree/Industrialism.dds"),
+			"TRAIT_ORGANIZED": (Font, FontSymbols.OCCUPATION_CHAR, "Art/Interface/Buttons/Buildings/Courthouse.dds"),
+			"TRAIT_PHILOSOPHICAL": (Font, FontSymbols.GREAT_PEOPLE_CHAR, "Art/Interface/Buttons/TechTree/Philosophy.dds"),
+			"TRAIT_PROTECTIVE": (Font, FontSymbols.DEFENSE_CHAR, "Art/Interface/Buttons/Promotions/CityGarrison1.dds"),
+			"TRAIT_SPIRITUAL": (Font, FontSymbols.RELIGION_CHAR, "Art/Interface/Buttons/TechTree/Meditation.dds"),
+		}
 		icons = []
 		buttons = []
 		for eTrait in range(gc.getNumTraitInfos()):
 			szType = gc.getTraitInfo(eTrait).getType()
-			if szType not in _TRAIT_RESOURCE_SPECS:
+			if szType not in SAS_TRAIT_VISUAL_SPECS:
 				raise ValueError("Missing SAS trait visual mapping: '%s'" % szType)
-			icons.append(self.getIcon(eTrait))
-			buttons.append(self.getButton(eTrait))
+			resource, eValue, szButton = SAS_TRAIT_VISUAL_SPECS[szType]
+			szIcon = resource.char(eValue)
+			self._iconCache[eTrait] = szIcon
+			self._buttonCache[eTrait] = szButton
+			icons.append(szIcon)
+			buttons.append(szButton)
 		self._icons = tuple(icons)
 		self._buttons = tuple(buttons)
 
-	def _resolve(self, eTrait):
-		szType = gc.getTraitInfo(eTrait).getType()
-		resource, eValue, szButton = _TRAIT_RESOURCE_SPECS[szType]
-		return (resource.char(eValue), szButton)
-
 	def getIcon(self, eTrait):
 		if eTrait not in self._iconCache:
-			self._iconCache[eTrait], self._buttonCache[eTrait] = self._resolve(eTrait)
+			self.init()
 		return self._iconCache[eTrait]
 
 	def getButton(self, eTrait):
 		if eTrait not in self._buttonCache:
-			self._iconCache[eTrait], self._buttonCache[eTrait] = self._resolve(eTrait)
+			self.init()
 		return self._buttonCache[eTrait]
 
 	def icons(self):
@@ -809,46 +812,20 @@ Trait = _TraitResources()
 
 # <!-- custom: Retain BUG/EmperorFool attribution for the GPUtil.py and GGUtil.py code moved into this section; AdvCiv-SAS modification credits are in the file header. (GPT-6.1-Sol) -->
 # Copyright (c) 2007-2009 The BUG Mod. Author: EmperorFool.
-# <!-- custom: GPUtil keeps gameplay/progress behavior; the complete live GP unit/icon/color inventory is centralized here.
-# GGUtil's only live Great-General text helper is absorbed here too; its unused promotion-button cache/getters are intentionally retired. (ChatGPT-5.6-Sol) -->
-GREAT_PERSON_UNIT_TYPES = (
-	"UNIT_GREAT_SPY",
-	"UNIT_GREAT_ENGINEER",
-	"UNIT_GREAT_MERCHANT",
-	"UNIT_GREAT_SCIENTIST",
-	"UNIT_GREAT_ARTIST",
-	"UNIT_GREAT_PROPHET",
-	"UNIT_GREAT_GENERAL",
-)
-
-_GP_UNIT_ICON_SPECS = {
-	"UNIT_GREAT_SPY": (Commerce, CommerceTypes.COMMERCE_ESPIONAGE),
-	"UNIT_GREAT_ENGINEER": (Yield, YieldTypes.YIELD_PRODUCTION),
-	"UNIT_GREAT_MERCHANT": (Commerce, CommerceTypes.COMMERCE_GOLD),
-	"UNIT_GREAT_SCIENTIST": (Commerce, CommerceTypes.COMMERCE_RESEARCH),
-	"UNIT_GREAT_ARTIST": (Commerce, CommerceTypes.COMMERCE_CULTURE),
-	"UNIT_GREAT_PROPHET": (Font, FontSymbols.RELIGION_CHAR),
-	"UNIT_GREAT_GENERAL": (Font, FontSymbols.GREAT_GENERAL_CHAR),
-}
-
-_GP_COLOR_SPECS = {
-	"UNIT_GREAT_SPY": (Color, "WHITE"),
-	"UNIT_GREAT_ENGINEER": (Yield, YieldTypes.YIELD_PRODUCTION),
-	"UNIT_GREAT_MERCHANT": (Color, "YELLOW"),
-	"UNIT_GREAT_SCIENTIST": (Color, "RESEARCH_STORED"),
-	"UNIT_GREAT_ARTIST": (Color, "CULTURE_STORED"),
-	"UNIT_GREAT_PROPHET": (Color, "BLUE"),
-	"UNIT_GREAT_GENERAL": (Color, "RED"),
-}
+# <!-- custom: GPUtil keeps gameplay/progress behavior; the live probability calculation already scans XML unit IDs.
+# Each record below states one intentional glyph/color choice, naming its unit only once instead of repeating it in a membership tuple and two maps.
+# The refactor introducing SAS_GREAT_PERSON_VISUAL_SPECS was developed independently of the earlier SAS_CATEGORY_DEFS implementation in SevoPediaMain.py, but converged on a similar structure: declare related choices together, then derive the lookups to avoid inconsistent edits across separate declarations.
+# Construction records are local to init(); retain only the resolved runtime collections, including historical order for GPUtil's legacy GP_GREAT_* indexed helpers.
+# GGUtil's only live Great-General text helper is absorbed here too; its unused promotion-button cache/getters are intentionally retired. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 # <!-- custom: Preserve the historical BUG extension example below as inactive documentation because AdvCiv-SAS has no UNIT_DOCTOR. (ChatGPT-5.6-Sol) -->
 # <!-- custom: Historical BUG extension example: UNIT_DOCTOR used Font.HEALTHY_CHAR. (ChatGPT-5.6-Sol) -->
 
 
 class _GreatPeopleResources:
 	def __init__(self):
-		self._unitTypeCache = {}
 		self._unitIconCache = {}
 		self._unitColorCache = {}
+		self._unitTypeNames = None
 		self._unitTypes = None
 		self._unitIcons = None
 		self._unitColors = None
@@ -856,51 +833,62 @@ class _GreatPeopleResources:
 	def init(self):
 		if self._unitTypes is not None:
 			return
+		SAS_GREAT_PERSON_VISUAL_SPECS = (
+			("UNIT_GREAT_SPY", (Commerce, CommerceTypes.COMMERCE_ESPIONAGE), (Color, "WHITE")),
+			("UNIT_GREAT_ENGINEER", (Yield, YieldTypes.YIELD_PRODUCTION), (Yield, YieldTypes.YIELD_PRODUCTION)),
+			("UNIT_GREAT_MERCHANT", (Commerce, CommerceTypes.COMMERCE_GOLD), (Color, "YELLOW")),
+			("UNIT_GREAT_SCIENTIST", (Commerce, CommerceTypes.COMMERCE_RESEARCH), (Color, "RESEARCH_STORED")),
+			("UNIT_GREAT_ARTIST", (Commerce, CommerceTypes.COMMERCE_CULTURE), (Color, "CULTURE_STORED")),
+			("UNIT_GREAT_PROPHET", (Font, FontSymbols.RELIGION_CHAR), (Color, "BLUE")),
+			("UNIT_GREAT_GENERAL", (Font, FontSymbols.GREAT_GENERAL_CHAR), (Color, "RED")),
+		)
+		unitTypeNames = []
 		unitTypes = []
 		unitIcons = []
 		unitColors = []
-		for szType in GREAT_PERSON_UNIT_TYPES:
+		for szType, iconSpec, colorSpec in SAS_GREAT_PERSON_VISUAL_SPECS:
 			iUnit = getInfoTypeOrFail(szType)
-			self._unitTypeCache[szType] = iUnit
+			resource, eValue = iconSpec
+			szIcon = resource.char(eValue)
+			resource, value = colorSpec
+			if resource is Color:
+				iColor = Color.get(value)
+			else:
+				iColor = resource.color(value)
+			self._unitIconCache[iUnit] = szIcon
+			self._unitColorCache[iUnit] = iColor
+			unitTypeNames.append(szType)
 			unitTypes.append(iUnit)
-			unitIcons.append(self.getUnitIcon(iUnit))
-			unitColors.append(self.getUnitColor(iUnit))
+			unitIcons.append(szIcon)
+			unitColors.append(iColor)
+		self._unitTypeNames = tuple(unitTypeNames)
 		self._unitTypes = tuple(unitTypes)
 		self._unitIcons = tuple(unitIcons)
 		self._unitColors = tuple(unitColors)
-
-	def _type(self, iUnit):
-		return gc.getUnitInfo(iUnit).getType()
 
 	def getDefaultIcon(self):
 		return Font.GREAT_PEOPLE_CHAR
 
 	def hasUnitIcon(self, iUnit):
-		try:
-			return self._type(iUnit) in _GP_UNIT_ICON_SPECS
-		except AttributeError:
-			return False
+		self.init()
+		return iUnit in self._unitColorCache
 
 	def getUnitIcon(self, iUnit):
 		if iUnit not in self._unitIconCache:
-			try:
-				resource, eValue = _GP_UNIT_ICON_SPECS[self._type(iUnit)]
-				szIcon = resource.char(eValue)
-			except (KeyError, AttributeError):
-				szIcon = self.getDefaultIcon()
-			self._unitIconCache[iUnit] = szIcon
+			self.init()
+			if iUnit not in self._unitIconCache:
+				self._unitIconCache[iUnit] = self.getDefaultIcon()
 		return self._unitIconCache[iUnit]
 
 	def getUnitColor(self, iUnit):
 		if iUnit not in self._unitColorCache:
-			szType = self._type(iUnit)
-			resource, value = _GP_COLOR_SPECS[szType]
-			if resource is Color:
-				iColor = Color.get(value)
-			else:
-				iColor = resource.color(value)
-			self._unitColorCache[iUnit] = iColor
+			self.init()
 		return self._unitColorCache[iUnit]
+
+	def unitTypeNames(self):
+		if self._unitTypeNames is None:
+			self.init()
+		return self._unitTypeNames
 
 	def unitTypes(self):
 		if self._unitTypes is None:
@@ -924,59 +912,61 @@ class _GreatPeopleResources:
 GreatPeople = _GreatPeopleResources()
 
 
-# <!-- custom: Shared advisor icon collections. (ChatGPT-5.6-Sol) -->
+# <!-- custom: Shared advisor specialist/emphasis resources. (ChatGPT-5.6-Sol) -->
 
-# <!-- custom: The Customizable Domestic Advisor previously rebuilt these invariant specialist/emphasis glyph dictionaries per screen.
-# Keep the full current specialist XML inventory and the inherited six emphasize slots centrally instead. (ChatGPT-5.6-Sol) -->
-_SPECIALIST_ICON_SPECS = {
-	"SPECIALIST_CITIZEN": (Font, FontSymbols.BULLET_CHAR),
-	"SPECIALIST_PRIEST": (Font, FontSymbols.HAPPY_CHAR),
-	"SPECIALIST_ARTIST": (Commerce, CommerceTypes.COMMERCE_CULTURE),
-	"SPECIALIST_SCIENTIST": (Commerce, CommerceTypes.COMMERCE_RESEARCH),
-	"SPECIALIST_MERCHANT": (Commerce, CommerceTypes.COMMERCE_GOLD),
-	"SPECIALIST_ENGINEER": (Yield, YieldTypes.YIELD_PRODUCTION),
-	"SPECIALIST_SPY": (Commerce, CommerceTypes.COMMERCE_ESPIONAGE),
-	"SPECIALIST_GREAT_PRIEST": (Font, FontSymbols.RELIGION_CHAR),
-	"SPECIALIST_GREAT_ARTIST": (Commerce, CommerceTypes.COMMERCE_CULTURE),
-	"SPECIALIST_GREAT_SCIENTIST": (Commerce, CommerceTypes.COMMERCE_RESEARCH),
-	"SPECIALIST_GREAT_MERCHANT": (Commerce, CommerceTypes.COMMERCE_GOLD),
-	"SPECIALIST_GREAT_ENGINEER": (Yield, YieldTypes.YIELD_PRODUCTION),
-	"SPECIALIST_GREAT_GENERAL": (Font, FontSymbols.GREAT_GENERAL_CHAR),
-	"SPECIALIST_GREAT_SPY": (Commerce, CommerceTypes.COMMERCE_ESPIONAGE),
-}
+# <!-- custom: Domestic-advisor specialist controls need XML-defined visible membership, while each representative glyph remains an explicit SAS presentation choice.
+# Cache immutable specialist texture/button paths and actual visible IDs from CvSpecialistInfo so screens do not repeat XML resource reads, additions/reordering need no second membership list, and display position never masquerades as specialist ID.
+# SAS_SPECIALIST_VISUAL_SPECS is local to initialization; only resolved glyphs, textures, buttons and visible IDs remain cached. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 
 
 class _SpecialistResources:
-	CITY_SPECIALIST_TYPES = (
-		"SPECIALIST_CITIZEN",
-		"SPECIALIST_PRIEST",
-		"SPECIALIST_ARTIST",
-		"SPECIALIST_SCIENTIST",
-		"SPECIALIST_MERCHANT",
-		"SPECIALIST_ENGINEER",
-		"SPECIALIST_SPY",
-	)
-
 	def __init__(self):
 		self._iconCache = {}
+		self._textureCache = {}
+		self._buttonCache = {}
 		self._icons = None
-		self._cityIcons = None
+		self._visibleIds = None
 
 	def init(self):
 		if self._icons is not None:
 			return
+		SAS_SPECIALIST_VISUAL_SPECS = {
+			"SPECIALIST_CITIZEN": (Font, FontSymbols.BULLET_CHAR),
+			"SPECIALIST_PRIEST": (Font, FontSymbols.HAPPY_CHAR),
+			"SPECIALIST_ARTIST": (Commerce, CommerceTypes.COMMERCE_CULTURE),
+			"SPECIALIST_SCIENTIST": (Commerce, CommerceTypes.COMMERCE_RESEARCH),
+			"SPECIALIST_MERCHANT": (Commerce, CommerceTypes.COMMERCE_GOLD),
+			"SPECIALIST_ENGINEER": (Yield, YieldTypes.YIELD_PRODUCTION),
+			"SPECIALIST_SPY": (Commerce, CommerceTypes.COMMERCE_ESPIONAGE),
+			"SPECIALIST_GREAT_PRIEST": (Font, FontSymbols.RELIGION_CHAR),
+			"SPECIALIST_GREAT_ARTIST": (Commerce, CommerceTypes.COMMERCE_CULTURE),
+			"SPECIALIST_GREAT_SCIENTIST": (Commerce, CommerceTypes.COMMERCE_RESEARCH),
+			"SPECIALIST_GREAT_MERCHANT": (Commerce, CommerceTypes.COMMERCE_GOLD),
+			"SPECIALIST_GREAT_ENGINEER": (Yield, YieldTypes.YIELD_PRODUCTION),
+			"SPECIALIST_GREAT_GENERAL": (Font, FontSymbols.GREAT_GENERAL_CHAR),
+			"SPECIALIST_GREAT_SPY": (Commerce, CommerceTypes.COMMERCE_ESPIONAGE),
+		}
 		icons = []
+		visibleIds = []
 		for iSpecialist in range(gc.getNumSpecialistInfos()):
-			szType = gc.getSpecialistInfo(iSpecialist).getType()
-			if szType not in _SPECIALIST_ICON_SPECS:
+			kInfo = gc.getSpecialistInfo(iSpecialist)
+			szType = kInfo.getType()
+			if szType not in SAS_SPECIALIST_VISUAL_SPECS:
 				raise ValueError("Missing SAS specialist visual mapping: '%s'" % szType)
-			icons.append(self.getIcon(iSpecialist))
+			resource, eValue = SAS_SPECIALIST_VISUAL_SPECS[szType]
+			szIcon = resource.char(eValue)
+			self._iconCache[iSpecialist] = szIcon
+			icons.append(szIcon)
+			self._textureCache[iSpecialist] = kInfo.getTexture()
+			self._buttonCache[iSpecialist] = kInfo.getButton()
+			if kInfo.isVisible():
+				visibleIds.append(iSpecialist)
 		self._icons = tuple(icons)
+		self._visibleIds = tuple(visibleIds)
 
 	def getIcon(self, iSpecialist):
 		if iSpecialist not in self._iconCache:
-			resource, eValue = _SPECIALIST_ICON_SPECS[gc.getSpecialistInfo(iSpecialist).getType()]
-			self._iconCache[iSpecialist] = resource.char(eValue)
+			self.init()
 		return self._iconCache[iSpecialist]
 
 	def icons(self):
@@ -984,14 +974,20 @@ class _SpecialistResources:
 			self.init()
 		return self._icons
 
-	def cityIcons(self):
-		if self._cityIcons is None:
-			icons = []
-			for szType in self.CITY_SPECIALIST_TYPES:
-				iSpecialist = getInfoTypeOrFail(szType)
-				icons.append(self.getIcon(iSpecialist))
-			self._cityIcons = tuple(icons)
-		return self._cityIcons
+	def getTexture(self, iSpecialist):
+		if iSpecialist not in self._textureCache:
+			self.init()
+		return self._textureCache[iSpecialist]
+
+	def getButton(self, iSpecialist):
+		if iSpecialist not in self._buttonCache:
+			self.init()
+		return self._buttonCache[iSpecialist]
+
+	def visibleIds(self):
+		if self._visibleIds is None:
+			self.init()
+		return self._visibleIds
 
 
 Specialist = _SpecialistResources()

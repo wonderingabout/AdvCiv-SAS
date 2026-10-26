@@ -43,7 +43,7 @@ def read(repo, commit, path):
 
 
 # <!-- custom: Dedicated recorder edits always qualify, including implementation comments; shared source/config changes qualify through changed runtime symbols.
-# Pure CI, test and documentation maintenance does not change the loaded recorder, so it must not force a compiled revision change and rebuild; unusual shared-code refactors still need manual review. (GPT-6.1-Sol + ChatGPT (review)) -->
+# Pure CI, test and documentation maintenance does not change the loaded recorder, so it must not force a compiled revision change and rebuild; unusual shared-code refactors still need manual review. (GPT-6.1-Sol + ChatGPT) -->
 def qualifies(repo, parent, commit):
     paths = changed_paths(repo, parent, commit) if commit is not None else subprocess.check_output(["git", "diff", "--name-only", parent, "--"], cwd=repo, text=True).splitlines()
     paths = set(paths)

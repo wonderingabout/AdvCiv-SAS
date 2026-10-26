@@ -909,7 +909,7 @@ class CvTechChooser:
 				if (bestFitSpecialist != SpecialistTypes.NO_SPECIALIST):
 					# Below: using bestFitSpecialist instead of gc.getDefineINT("DEFAULT_SPECIALIST")</advc.002d>
 					szSpecialistCommerceButtonButton = self.getNextWidgetName("SpecialistCommerceButton")
-					screen.addDDSGFCAt( szSpecialistCommerceButtonButton, szTechRecord, gc.getSpecialistInfo(bestFitSpecialist).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE, i, j, False )
+					screen.addDDSGFCAt( szSpecialistCommerceButtonButton, szTechRecord, SASVisuals.Specialist.getButton(bestFitSpecialist), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE, i, j, False )
 					fX += X_INCREMENT
 				break
 

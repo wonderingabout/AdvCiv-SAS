@@ -988,6 +988,7 @@ Checks consumers of `SASVisualUtils` and `SASTextScale` against their source-der
   - This replaces the earlier regex-based raw-lookup/shared-art tests in `test_python_visual_resources.py`, so aliases and justified exceptions follow one rule. Straightforward legacy forwarding helpers are traced from source too; the separate resource-inventory, namespace, retired-module and display-char checks remain.
   - Current coverage includes symbol/yield/commerce/religion/corporation/bonus glyph ordinals, special religion/corporation glyphs, yield colors, art paths/civilization buttons, literal color identities and the shared font-size Defines. Changing gold amounts or other gameplay values does not require fetching their stable display glyph again.
   - A necessary direct read needs a comment on the lookup line or immediately above it: `# <!-- custom: resource-cache-direct: Explain the concrete reason. (model credit) -->`. Provider implementations own these reads and are excluded from the bypass rule; ordinary API checks still apply there.
+  - Cache ownership can cross methods: an accessor returning `self._textureCache[index]` may call an initializer that fills it from `getSpecialistInfo(...).getTexture()`. The lifetime cleanup exposed a missed bypass rule when those operations moved apart; reachable self-method calls, inherited methods and cache identity now connect the public accessor to its writer.
   - This is static origin tracing, not proof that every possible resource reconstruction is detected. Unknown object types, cross-module engine-object re-exports, computed color/Define names and arbitrary recreated mapping/formatting logic can escape detection; other reads such as current player gold or uncached info descriptions remain valid.
 - Ordinarily validates changed runtime Python modules and their reverse import dependencies, including unchanged consumers of a changed module. Changes to the shared providers, relevant XML/configuration, `CvEnums.h` or this checker require the wider consumer check.
   - Source trees are read to establish declarations and dependency relationships; incremental selection limits which consumers are validated, rather than claiming every unchanged file is never read.
@@ -1004,7 +1005,11 @@ Fixing the namespace error did not repair the stale font access: a spelling guar
 
 The shared check instead compares consumers with provider declarations and resource data, so the same rules cover different collections and members. New ordinary declarations change the checked contract without requiring another error-specific pattern; dynamic behavior still has the limits listed above.
 
-`tests/source/test_python_resource_api.py` also exercises direct cache bypasses, documented local exceptions, alias/shadowing boundaries and a newly declared cached family without checker edits.
+`tests/source/test_python_resource_api.py` also exercises direct cache bypasses, documented local exceptions, alias/shadowing boundaries and new cached families without checker edits. Cross-method fixtures cover private/inherited initialization helpers and reject false contracts from uncalled writers or uncached metadata.
+
+`test_python_visual_resources.py` additionally derives SAS-owned InterfaceArt keys from `CIV4ArtDefines_Interface.xml` and rejects their raw literal use outside the central provider, with the same documented direct-read exception. This catches fixed keys passed through arbitrary UI helpers as well as direct lookups; dynamically selected or inherited ArtDefine keys remain valid.
+
+Its specialist fixture runs the production resource class with hidden/reordered IDs and an empty visible set, checking actual IDs and reuse of cached textures/buttons instead of requiring exact loop or variable spellings. The GP fixture checks cached results and temporary construction-record lifetime.
 
 Its API fixtures cover all current collection families, inherited and XML/enum-derived members, aliases/re-exports, incorrect calls, provider edits, false-positive boundaries and incremental dependency selection. The earlier namespace-substring and font-name ownership guards were replaced by this shared check.
 

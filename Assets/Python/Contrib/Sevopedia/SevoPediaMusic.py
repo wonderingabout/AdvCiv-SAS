@@ -266,7 +266,7 @@ class SevoPediaMusic:
 
 		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placeReplayButton(screen, iScreenW, iScreenH)
-		self.mediaPlayer.setToggleButton("SAS_EMOJI_MUSICAL_NOTES")
+		self.mediaPlayer.setToggleButton(SASVisuals.InterfaceArt.SAS_EMOJI_MUSICAL_NOTES)
 		self.mediaPlayer.placeToggleButton(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placePrevNextButtons(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placeGroupSkipButtons(screen, iScreenW, iScreenH)

@@ -396,11 +396,17 @@ class SevoPediaHandicapChart:
 			game = CyGame()
 			btn_by_name = {}
 
-			_btn_defs = (("dove", "SAS_EMOJI_DOVE"), ("lion", "SAS_EMOJI_LION_FACE"), ("skull", "SAS_EMOJI_SKULL"), ("swords", "SAS_EMOJI_CROSSED_SWORDS"),)
-			for i, (name, artKey) in enumerate(_btn_defs):
+			# <!-- custom: Fixed chart button resources are cached paths; tuple order controls only the icon-theme sort order. (ChatGPT-5.6-Sol) -->
+			_btn_defs = (
+				("dove", SASVisuals.InterfaceArt.SAS_EMOJI_DOVE),
+				("lion", SASVisuals.InterfaceArt.SAS_EMOJI_LION_FACE),
+				("skull", SASVisuals.InterfaceArt.SAS_EMOJI_SKULL),
+				("swords", SASVisuals.InterfaceArt.SAS_EMOJI_CROSSED_SWORDS),
+			)
+			for i, (name, szButtonPath) in enumerate(_btn_defs):
 				# Group id only affects sorting by the icon column.
 				# Reorder _btn_defs to change the icon-theme sort order.
-				btn_by_name[name] = (SASVisuals.InterfaceArt.getPath(artKey), (i + 1) * 10)
+				btn_by_name[name] = (szButtonPath, (i + 1) * 10)
 
 			glyph_by_name = {}
 			# GameFont glyph icons (yields/commerce/symbols).

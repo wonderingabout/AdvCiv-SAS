@@ -165,7 +165,7 @@ class SevoPediaGameSpeedChart:
 		#
 		# icon_spec:
 		#   None
-		# <!-- custom: ("btn", <name>) -> ArtFileMgr interface art (SAS_EMOJI_*). (GPT-5.2-Codex (summarized)) -->
+		# <!-- custom: ("btn", <name>) -> cached SASVisuals InterfaceArt path; the symbolic name remains local chart metadata only. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol) -->
 		#   ("glyph", <name>)   -> GameFont glyph (yield/commerce/symbol char)
 		row_specs = (
 			("iGrowthPercent",              "getGrowthPercent",              ("glyph", "food")),
@@ -221,9 +221,19 @@ class SevoPediaGameSpeedChart:
 
 		btn_by_name = {}
 
-		_btn_defs = (("dove", "SAS_EMOJI_DOVE"), ("swords", "SAS_EMOJI_CROSSED_SWORDS"), ("skull", "SAS_EMOJI_SKULL"), ("gear", "SAS_EMOJI_GEAR"), ("brain", "SAS_EMOJI_BRAIN"), ("hourglass", "SAS_EMOJI_HOURGLASS_NOT_DONE"), ("fire", "SAS_EMOJI_FIRE"), ("trophy", "SAS_EMOJI_TROPHY"),)
-		for i, (name, artKey) in enumerate(_btn_defs):
-			btn_by_name[name] = (SASVisuals.InterfaceArt.getPath(artKey), (i + 1) * 10)
+		# <!-- custom: Fixed chart button resources are cached paths, not duplicated ArtDefine-key strings. (ChatGPT-5.6-Sol) -->
+		_btn_defs = (
+			("dove", SASVisuals.InterfaceArt.SAS_EMOJI_DOVE),
+			("swords", SASVisuals.InterfaceArt.SAS_EMOJI_CROSSED_SWORDS),
+			("skull", SASVisuals.InterfaceArt.SAS_EMOJI_SKULL),
+			("gear", SASVisuals.InterfaceArt.SAS_EMOJI_GEAR),
+			("brain", SASVisuals.InterfaceArt.SAS_EMOJI_BRAIN),
+			("hourglass", SASVisuals.InterfaceArt.SAS_EMOJI_HOURGLASS_NOT_DONE),
+			("fire", SASVisuals.InterfaceArt.SAS_EMOJI_FIRE),
+			("trophy", SASVisuals.InterfaceArt.SAS_EMOJI_TROPHY),
+		)
+		for i, (name, szButtonPath) in enumerate(_btn_defs):
+			btn_by_name[name] = (szButtonPath, (i + 1) * 10)
 
 		glyph_by_name = {}
 		# GameFont glyph icons (yields/commerce/symbols).

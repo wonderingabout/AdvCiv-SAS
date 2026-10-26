@@ -10,10 +10,16 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## History
 
+### Revision 9 - SAS practical 6686
+
+- **Date:** 2026-10-26
+- **Git commit:** pending
+- **Change:** Normalize contributor credits in runtime implementation comments by removing the optional reviewer-role label; retain existing author attribution. The revision advances under the implementation-comment policy; recorder behavior and output fields are unchanged.
+
 ### Revision 8 - SAS practical 6680
 
 - **Date:** 2026-10-24
-- **Git commit:** pending
+- **Git commit:** `7030fbbe4fe8b48f2b548c6c54daeb4a9c118b34`
 - **Change:** Add cached source/branch provenance to the standalone runtime view so external agents can interpret a practical count correctly when Civ4 is running from a feature, reproducer or diverged branch.
   - Current `SASRuntimeStatus.json` and the JSONL `run` record add `sourceIdentity` with exact current commit/count/branch, locally known default commit/count, merge-base commit/count, branch relation, current-only/default-only commit counts, combined/staged/unstaged tracked runtime-code/rules fingerprints, and the number of staged/unstaged per-file diff entries available in the shared cache.
   - Diagnostic ancestry/patch resolution stays behind the runtime-status enable gate in a separate `ModName` cache, so basic version UI does not trigger it; enabled transition updates do not repeatedly invoke Git. No fetch is attempted, and shallow/missing default ancestry remains explicit.

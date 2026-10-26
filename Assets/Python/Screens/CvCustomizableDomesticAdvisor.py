@@ -764,10 +764,6 @@ class CvCustomizableDomesticAdvisor:
 
 		return None
 
-	def getNumSpecialistInfos (self):
-		# Get the number of specialist types (that WE deal with).
-		return len(SASVisuals.Specialist.cityIcons())
-
 	def getNumEmphasizeInfos (self):
 		# Get the number of emphasis types (that WE deal with).
 		#
@@ -848,8 +844,14 @@ class CvCustomizableDomesticAdvisor:
 		x += self.nControlSize + 2
 		screen.setImageButton( self.RENAME_PAGE_NAME, SASVisuals.InterfaceArt.INTERFACE_BTN_EVENT_LOG, x, self.Y_SPECIAL, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_RENAME_PAGE, -1, -1 )
 		x += self.nControlSize + 2
-		info = gc.getSpecialistInfo(getInfoTypeOrFail("SPECIALIST_CITIZEN"))
-		screen.addCheckBoxGFC(self.TOGGLE_SPECS_NAME, info.getTexture(), SASVisuals.InterfaceArt.BUTTON_HILITE_SQUARE, x, self.Y_SPECIAL, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_TOGGLE_SPECIALISTS, -1, -1, ButtonStyles.BUTTON_STYLE_IMAGE )
+		# <!-- custom: Use the first XML-visible specialist only as the toggle's representative texture, without hardcoding SPECIALIST_CITIZEN.
+		# A modmod may legitimately expose none, so keep the control valid with the shared null button rather than indexing an empty visibility tuple. (ChatGPT-5.6-Sol) -->
+		visibleSpecialists = SASVisuals.Specialist.visibleIds()
+		if visibleSpecialists:
+			szSpecialistToggleTexture = SASVisuals.Specialist.getTexture(visibleSpecialists[0])
+		else:
+			szSpecialistToggleTexture = SASVisuals.InterfaceArt.INTERFACE_BUTTON_NULL
+		screen.addCheckBoxGFC(self.TOGGLE_SPECS_NAME, szSpecialistToggleTexture, SASVisuals.InterfaceArt.BUTTON_HILITE_SQUARE, x, self.Y_SPECIAL, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_TOGGLE_SPECIALISTS, -1, -1, ButtonStyles.BUTTON_STYLE_IMAGE )
 		x += self.nControlSize + 2
 		screen.setImageButton( self.ADD_PAGE_NAME, SASVisuals.InterfaceArt.INTERFACE_BUTTONS_PLUS, x, self.Y_SPECIAL, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_ADD_PAGE, -1, -1 )
 		x += self.nControlSize + 2
@@ -902,95 +904,57 @@ class CvCustomizableDomesticAdvisor:
 
 	# Draw the specialist and their increase and decrease buttons
 	def drawSpecialists (self):
-		# The function to draw but not show all the specialists.
-		#
+		# <!-- custom: Position by compact visible slot but keep the actual XML specialist ID in widget data/names; hidden or reordered specialist records must not shift gameplay identity. (ChatGPT-5.6-Sol) -->
 		screen = self.getScreen()
+		for iSlot, iSpecialist in enumerate(SASVisuals.Specialist.visibleIds()):
+			iX = self.nFirstSpecialistX + (self.nSpecialistDistance * iSlot)
+			szIndex = str(iSpecialist)
 
-		# Citizen Buttons
-		for i in range( self.getNumSpecialistInfos() ):
+			szName = self.SPECIALIST_IMAGE_NAME + szIndex
+			screen.setImageButton(szName, SASVisuals.Specialist.getTexture(iSpecialist), iX, self.nSpecialistY, self.nSpecialistWidth, self.nSpecialistLength, WidgetTypes.WIDGET_CITIZEN, iSpecialist, -1)
+			screen.hide(szName)
 
-			if (gc.getSpecialistInfo(i).isVisible()):
+			szName = self.SPECIALIST_PLUS_NAME + szIndex
+			screen.setButtonGFC(szName, u"", "", iX + self.nPlusOffsetX, self.nSpecialistY + self.nPlusOffsetY, self.nPlusWidth, self.nPlusHeight, WidgetTypes.WIDGET_CHANGE_SPECIALIST, iSpecialist, 1, ButtonStyles.BUTTON_STYLE_CITY_PLUS)
+			screen.hide(szName)
 
-				szName = self.SPECIALIST_IMAGE_NAME + str(i)
-				screen.setImageButton( szName, gc.getSpecialistInfo(i).getTexture(), self.nFirstSpecialistX + (self.nSpecialistDistance * i), self.nSpecialistY, self.nSpecialistWidth, self.nSpecialistLength, WidgetTypes.WIDGET_CITIZEN, i, -1 )
-				screen.hide( szName )
+			szName = self.SPECIALIST_MINUS_NAME + szIndex
+			screen.setButtonGFC(szName, u"", "", iX + self.nMinusOffsetX, self.nSpecialistY + self.nMinusOffsetY, self.nMinusWidth, self.nMinusHeight, WidgetTypes.WIDGET_CHANGE_SPECIALIST, iSpecialist, -1, ButtonStyles.BUTTON_STYLE_CITY_MINUS)
+			screen.hide(szName)
 
-		# Increase Specialists...
-		for i in range( self.getNumSpecialistInfos() ):
-			if (gc.getSpecialistInfo(i).isVisible()):
-				szName = self.SPECIALIST_PLUS_NAME + str(i)
-				screen.setButtonGFC( szName, u"", "", self.nFirstSpecialistX + (self.nSpecialistDistance * i) + self.nPlusOffsetX, self.nSpecialistY + self.nPlusOffsetY, self.nPlusWidth, self.nPlusHeight, WidgetTypes.WIDGET_CHANGE_SPECIALIST, i, 1, ButtonStyles.BUTTON_STYLE_CITY_PLUS )
-				screen.hide( szName )
-
-		# Decrease specialists
-		for i in range( self.getNumSpecialistInfos() ):
-			if (gc.getSpecialistInfo(i).isVisible()):
-				szName = self.SPECIALIST_MINUS_NAME + str(i)
-				screen.setButtonGFC( szName, u"", "", self.nFirstSpecialistX + (self.nSpecialistDistance * i) + self.nMinusOffsetX, self.nSpecialistY + self.nMinusOffsetY, self.nMinusWidth, self.nMinusHeight, WidgetTypes.WIDGET_CHANGE_SPECIALIST, i, -1, ButtonStyles.BUTTON_STYLE_CITY_MINUS )
-				screen.hide( szName )
-
-		# Specialist text
-		for i in range (self.getNumSpecialistInfos()):
-			if (gc.getSpecialistInfo(i).isVisible()):
-				szName = self.SPECIALIST_TEXT_NAME + str(i)
-				screen.setText (szName, "Background", "", CvUtil.FONT_LEFT_JUSTIFY, self.nFirstSpecialistX + (self.nSpecialistDistance * i) + self.nSpecTextOffsetX, self.nSpecialistY + self.nSpecTextOffsetY, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				screen.hide (szName)
+			szName = self.SPECIALIST_TEXT_NAME + szIndex
+			screen.setText(szName, "Background", "", CvUtil.FONT_LEFT_JUSTIFY, iX + self.nSpecTextOffsetX, self.nSpecialistY + self.nSpecTextOffsetY, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+			screen.hide(szName)
 
 	def showSpecialists (self):
 		# Function which shows the specialists.
-		#
 		screen = self.getScreen()
-
-		# First, hide the specialists! :D
 		self.hideSpecialists()
-
-		# Get the current city
 		city = self.getCurrentCity()
-		if (city):
-
-			# Get values which we will need for each calculation
+		if city:
 			nPopulation = city.getPopulation()
 			nFreeSpecial = city.totalFreeSpecialists()
-
-			# For each specialist type
-			for i in range( self.getNumSpecialistInfos() ):
-
-				# Show all the specialist images
-				szName = self.SPECIALIST_IMAGE_NAME + str(i)
-				screen.show( szName )
-
-				# Show all the specialist text
-				szName = self.SPECIALIST_TEXT_NAME + str(i)
-				screen.setText (szName, "Background", str (city.getSpecialistCount(i)) + "/" + str (city.getMaxSpecialistCount(i)) + u" %s" % SASVisuals.Specialist.cityIcons()[i], CvUtil.FONT_LEFT_JUSTIFY, self.nFirstSpecialistX + (self.nSpecialistDistance * i) + self.nSpecTextOffsetX, self.nSpecialistY + self.nSpecTextOffsetY, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-				screen.show (szName)
-
-				# If the specialist is valid and we can increase it
-				if (city.isSpecialistValid(i, 1) and (city.getForceSpecialistCount(i) < (nPopulation + nFreeSpecial))):
-					# Show the Plus
-					szName = self.SPECIALIST_PLUS_NAME + str(i)
-					screen.show( szName )
-
-				# if we HAVE specialists already and they're not forced.
-				if (city.getSpecialistCount(i) > 0 or city.getForceSpecialistCount(i) > 0 ):
-					# Show the Minus
-					szName = self.SPECIALIST_MINUS_NAME + str(i)
-					screen.show( szName )
+			for iSlot, iSpecialist in enumerate(SASVisuals.Specialist.visibleIds()):
+				szIndex = str(iSpecialist)
+				szName = self.SPECIALIST_IMAGE_NAME + szIndex
+				screen.show(szName)
+				szName = self.SPECIALIST_TEXT_NAME + szIndex
+				screen.setText(szName, "Background", str(city.getSpecialistCount(iSpecialist)) + "/" + str(city.getMaxSpecialistCount(iSpecialist)) + u" %s" % SASVisuals.Specialist.getIcon(iSpecialist), CvUtil.FONT_LEFT_JUSTIFY, self.nFirstSpecialistX + (self.nSpecialistDistance * iSlot) + self.nSpecTextOffsetX, self.nSpecialistY + self.nSpecTextOffsetY, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.show(szName)
+				if city.isSpecialistValid(iSpecialist, 1) and city.getForceSpecialistCount(iSpecialist) < (nPopulation + nFreeSpecial):
+					screen.show(self.SPECIALIST_PLUS_NAME + szIndex)
+				if city.getSpecialistCount(iSpecialist) > 0 or city.getForceSpecialistCount(iSpecialist) > 0:
+					screen.show(self.SPECIALIST_MINUS_NAME + szIndex)
 
 	def hideSpecialists (self):
 		# Function to hide all the specialists and the accompanying data.
-		#
 		screen = self.getScreen()
-
-		# Hide Everything related to specialists
-		for i in range( self.getNumSpecialistInfos() ):
-			szName = self.SPECIALIST_IMAGE_NAME + str(i)
-			screen.hide (szName)
-			szName = self.SPECIALIST_PLUS_NAME + str(i)
-			screen.hide (szName)
-			szName = self.SPECIALIST_MINUS_NAME + str(i)
-			screen.hide (szName)
-			szName = self.SPECIALIST_TEXT_NAME + str(i)
-			screen.hide (szName)
+		for iSpecialist in SASVisuals.Specialist.visibleIds():
+			szIndex = str(iSpecialist)
+			screen.hide(self.SPECIALIST_IMAGE_NAME + szIndex)
+			screen.hide(self.SPECIALIST_PLUS_NAME + szIndex)
+			screen.hide(self.SPECIALIST_MINUS_NAME + szIndex)
+			screen.hide(self.SPECIALIST_TEXT_NAME + szIndex)
 
 	def showCultureLegend (self):
 
@@ -1498,15 +1462,13 @@ class CvCustomizableDomesticAdvisor:
 
 		szReturn = SASTextScale.sasFontTagTiny
 
-		# For each specialist type
-		for i in range( self.getNumSpecialistInfos() ):
-
-			nCount = city.getSpecialistCount (i)
-			# If more than one specialist
-			if (nCount > 1):
-				szReturn += SASVisuals.Specialist.cityIcons()[i] + "x" + str(nCount) + " "
-			elif (nCount == 1):
-				szReturn += SASVisuals.Specialist.cityIcons()[i] + " "
+		# <!-- custom: Show only XML-visible assignable specialists but count by their actual IDs; list position is presentation-only. (ChatGPT-5.6-Sol) -->
+		for iSpecialist in SASVisuals.Specialist.visibleIds():
+			nCount = city.getSpecialistCount(iSpecialist)
+			if nCount > 1:
+				szReturn += SASVisuals.Specialist.getIcon(iSpecialist) + "x" + str(nCount) + " "
+			elif nCount == 1:
+				szReturn += SASVisuals.Specialist.getIcon(iSpecialist) + " "
 
 		szReturn += SASTextScale.SAS_FONT_TAG_CLOSE
 

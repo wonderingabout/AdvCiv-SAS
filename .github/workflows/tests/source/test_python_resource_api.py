@@ -114,6 +114,14 @@ Text.getSASUIFontBody()
         for module in api.PROVIDERS:
             self.assertEqual(api.inspect_consumer(module, catalog), [])
 
+    def test_specialist_visual_cache_is_derived_from_provider(self):
+        # <!-- custom: Specialist texture/button access joined SASVisualUtils after the source-derived checker existed; verify the provider edit itself creates the bypass rule rather than adding another raw-lookup regex. (ChatGPT-5.6-Sol) -->
+        for method in ("getTexture", "getButton"):
+            source = "gc = CyGlobalContext()\ngc.getSpecialistInfo(0).%s()\n" % method
+            errors = self.inspect(source)
+            expected = "SASVisualUtils.Specialist.%s" % method
+            self.assertTrue(any(expected in message for _line, message in errors), errors)
+
     def test_new_cached_family_is_derived_without_checker_edits(self):
         definitions = dict(self.sources)
         definitions['SASVisualUtils'] += """
@@ -129,6 +137,37 @@ NewResources = _NewResources()
         source = "gc = CyGlobalContext()\ngc.getNewInfo(0).getSymbol()\n"
         errors = self.inspect(source, sources=definitions)
         self.assertTrue(any("SASVisualUtils.NewResources.symbol" in message for _line, message in errors), errors)
+
+    def test_cache_ownership_crosses_initializer_and_inherited_helpers(self):
+        # <!-- custom: The lifetime cleanup moved engine reads into initialization; derive ownership through actual self-call paths, including inherited/private helpers.
+        # Uncached metadata and unreachable writers must not become blanket bans on similarly named engine getters. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+        definitions = dict(self.sources)
+        definitions["SASVisualUtils"] += """
+class _SplitBase:
+    def __init__(self):
+        self._cache = {}
+        self._unused = {}
+    def _populate(self):
+        info = gc.getNovelInfo(0)
+        description = info.getDescription()
+        self._cache[0] = info.getBadge()
+    def _ensure(self):
+        self._populate()
+    def badge(self, index):
+        self._ensure()
+        return self._cache[index]
+    def unused_writer(self):
+        self._unused[0] = gc.getNovelInfo(0).getOtherBadge()
+class _SplitResources(_SplitBase):
+    pass
+SplitResources = _SplitResources()
+"""
+        source = "gc = CyGlobalContext()\ngc.getNovelInfo(0).getBadge()\n"
+        errors = self.inspect(source, sources=definitions)
+        self.assertTrue(any("SASVisualUtils.SplitResources.badge" in message for _line, message in errors), errors)
+        for method in ("getDescription", "getOtherBadge"):
+            source = "gc = CyGlobalContext()\ngc.getNovelInfo(0).%s()\n" % method
+            self.assertEqual(self.inspect(source, sources=definitions), [])
 
     def test_all_real_collection_families_reject_missing_members(self):
         catalog = api.Catalog(self.sources, self.xml, self.enums)
@@ -160,6 +199,9 @@ V.Color.RED
 V.Trait.getIcon(0)
 V.GreatPeople.unitTypes()
 V.Specialist.icons()
+V.Specialist.getTexture(0)
+V.Specialist.getButton(0)
+V.Specialist.visibleIds()
 V.CityEmphasis.AVOID_GROWTH
 V.CivilizationArt.button(0)
 V.StaticArt.UNHAPPY_PERSON

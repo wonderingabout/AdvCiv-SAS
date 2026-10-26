@@ -1,29 +1,16 @@
-## GPUtil
-##
-## Utilities for dealing with Great People.
-##
-## MODDERS
-##
-##   There are four places where you must add information about your new great people.
-##   This is also necessary if you assign GP points to buildings that don't normally get them,
-##   for example GG points to Heroic Epic.
-##
-##     1. Unit Type
-##     2. Named constant
-##     3. Color
-##     4. Icon (font glyph or string)
-##
-## Notes
-##   - Must be initialized externally by calling init()
-##
-## Copyright (c) 2007-2009 The BUG Mod.
-##
-## Author: EmperorFool
+# <!-- custom: GPUtil retains BUG Great Person gameplay/progress utilities; the former four-place type/constant/color/icon extension instructions are superseded by the SAS setup note below.
+# External initialization through init() remains required. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+
+# Copyright (c) 2007-2009 The BUG Mod.
+# Author: EmperorFool
 #
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 # <!-- custom: AdvCiv-SAS keeps GP gameplay/progress behavior here while the complete live GP unit/icon/color inventory is centralized in SASVisualUtils.GreatPeople. (ChatGPT-5.6-Sol) -->
+# <!-- custom: Modder setup replaces the inherited four-place type/constant/color/icon instructions: add a supported GP record to SAS_GREAT_PERSON_VISUAL_SPECS inside SASVisualUtils._GreatPeopleResources.init(), then extend the legacy named-constant unpack below in the same order.
+# g_gpBarList, NUM_GP and GP_GREAT_* become available after BUG calls init(), not at module import; current SAS configuration initializes the shared XML resources immediately before this module.
+# Live probability calculation still scans XML unit IDs rather than these legacy indices. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 
 from CvPythonExtensions import *
 import BugUtil
@@ -33,21 +20,17 @@ import SASTextScale # <!-- custom: Measure Maximum-types candidates in the same 
 
 gc = CyGlobalContext()
 
-# <!-- custom: Canonical GP unit type names/order now live in SASVisualUtils; this alias preserves GPUtil's inherited bar/progress API. (ChatGPT-5.6-Sol) -->
-g_gpBarList = SASVisuals.GREAT_PERSON_UNIT_TYPES
-
-# Named constants for each great person and total number of GP types
-# These must be in the exact same order as the list above
-NUM_GP = len(g_gpBarList)
-# MOD: define a constant for each new great person in same order as above (2) - e.g. add GP_DOCTOR to this unpack
-(GP_GREAT_SPY, GP_GREAT_ENGINEER, GP_GREAT_MERCHANT, GP_GREAT_SCIENTIST, GP_GREAT_ARTIST, GP_GREAT_PROPHET, GP_GREAT_GENERAL) = range(NUM_GP)
-
 # Information
 
+# <!-- custom: Keep the inherited GP_GREAT_* index/helper API in its historical order, but initialize its names/count from the resolved SASVisualUtils cache at BUG's XML-ready init stage.
+# This avoids retaining the GP construction records or performing XML lookups at module import; the live calcPercentages path independently scans XML unit IDs. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 def init():
-	# <!-- custom: SASVisualUtils.initGameResources resolves these once before GPUtil.init; touch the tuples here too so the inherited BUG init contract remains fail-loud if initialization order changes. (ChatGPT-5.6-Sol) -->
-	SASVisuals.GreatPeople.unitTypes()
-	SASVisuals.GreatPeople.unitColors()
+	global g_gpBarList, NUM_GP
+	global GP_GREAT_SPY, GP_GREAT_ENGINEER, GP_GREAT_MERCHANT, GP_GREAT_SCIENTIST, GP_GREAT_ARTIST, GP_GREAT_PROPHET, GP_GREAT_GENERAL
+	g_gpBarList = SASVisuals.GreatPeople.unitTypeNames()
+	NUM_GP = len(g_gpBarList)
+	# <!-- custom: Extending the inherited MOD example (GP_DOCTOR) requires a matching visual-spec record and named constant in this same order. (GPT-6.1-Sol) -->
+	(GP_GREAT_SPY, GP_GREAT_ENGINEER, GP_GREAT_MERCHANT, GP_GREAT_SCIENTIST, GP_GREAT_ARTIST, GP_GREAT_PROPHET, GP_GREAT_GENERAL) = range(NUM_GP)
 
 
 def getUnitType(gpType):
