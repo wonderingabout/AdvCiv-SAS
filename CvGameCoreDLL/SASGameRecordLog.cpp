@@ -47,6 +47,7 @@
 #include "CvGameCoreUtils.h" // <!-- custom: Needed for shared provenance/runtime diagnostic helpers. See KI#629. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 #include "BBAILog.h" // <!-- custom: Reuse BBAI's single iterable category registry when recording the session diagnostic profile instead of duplicating category names in SASGameRecord. (ChatGPT-5.6-Sol) -->
 #include "CvBugOptions.h" // <!-- custom: Read the finalized BUG/Autolog logging controls once per new/load session; this is diagnostic context only and never enters a gameplay hot path. (ChatGPT-5.6-Sol) -->
+#include <limits.h> // <!-- custom: Report actual CHAR_BIT/INT_MAX from this native toolchain, keeping integer range distinct from pointer width and process memory limits. (GPT-6.1-Sol) -->
 #include <time.h>
 #include <psapi.h> // <!-- custom: Reuse AdvCiv's existing Windows process-memory API for compact game-record performance context. (GPT-5.6-Sol) -->
 #include <tlhelp32.h> // <!-- custom: Level-3 runtime context samples only named Civ4 development/build processes at session start; no general process list or window titles are logged. (ChatGPT-5.6-Sol) -->
@@ -2257,7 +2258,7 @@ static SASGameRecordDevelopmentProcessContext getSASGameRecordDevelopmentProcess
 struct SASGameRecordRuntimeContext
 {
 	SASGameRecordRuntimeContext() : szWin32Runtime("-"), szWineVersionField("-"), szWindowsDisplayVersionField("-"),
-		iPointerBits(-1), szProcessArch("-"), szNativeArch("-"), iWow64(-1), szCpuVendor("-"), szCpuBrandField("-"),
+		iPointerBits(-1), iIntBits(-1), iIntMax(-1), iProcessTotalVirtualBytes(-1), szProcessArch("-"), szNativeArch("-"), iWow64(-1), szCpuVendor("-"), szCpuBrandField("-"),
 		iLogicalProcessors(-1), iTotalPhysicalMemoryMB(-1), szProcessPriorityClass("-"), iProcessAffinityQueryAvailable(-1),
 		szProcessAffinityMask("-"), szSystemAffinityMask("-"), iDebuggerAttached(-1) {}
 	SASGameRecordWindowsVersion kWindowsVersion;
@@ -2265,6 +2266,10 @@ struct SASGameRecordRuntimeContext
 	CvString szWineVersionField;
 	CvString szWindowsDisplayVersionField;
 	int iPointerBits;
+	// <!-- custom: Session-only limits distinguish signed-number overflow from the observed user-mode virtual-address-space ceiling; -1 means that context was not collected/available. (GPT-6.1-Sol) -->
+	int iIntBits;
+	int iIntMax;
+	__int64 iProcessTotalVirtualBytes;
 	char const* szProcessArch;
 	char const* szNativeArch;
 	int iWow64;
@@ -2386,7 +2391,19 @@ static void logSASGameRecordGameState(const char* szRowType)
 		GetSystemInfo(&kProcessSystemInfo);
 		getSASGameRecordNativeSystemInfo(kNativeSystemInfo);
 		kRuntime.szWin32Runtime = getSASGameRecordWin32Runtime();
-		kRuntime.iPointerBits = (int)(8 * sizeof(void*));
+		// <!-- custom: A 2,147,483,647 population ceiling concerns signed int, not available RAM.
+		// Record the compiled integer limits and Windows-reported total virtual space once under the existing context gate. (GPT-6.1-Sol) -->
+		kRuntime.iPointerBits = (int)(CHAR_BIT * sizeof(void*));
+		kRuntime.iIntBits = (int)(CHAR_BIT * sizeof(int));
+		kRuntime.iIntMax = INT_MAX;
+		MEMORYSTATUSEX kSystemMemory;
+		ZeroMemory(&kSystemMemory, sizeof(kSystemMemory));
+		kSystemMemory.dwLength = sizeof(kSystemMemory);
+		if (GlobalMemoryStatusEx(&kSystemMemory))
+		{
+			kRuntime.iProcessTotalVirtualBytes = (__int64)kSystemMemory.ullTotalVirtual;
+			if (iSystemContextLevel >= 3) kRuntime.iTotalPhysicalMemoryMB = (int)(kSystemMemory.ullTotalPhys / (1024 * 1024));
+		}
 		kRuntime.szProcessArch = getSASGameRecordArchitectureName(kProcessSystemInfo.wProcessorArchitecture);
 		kRuntime.szNativeArch = getSASGameRecordArchitectureName(kNativeSystemInfo.wProcessorArchitecture);
 		kRuntime.iWow64 = getSASGameRecordWow64State();
@@ -2402,10 +2419,7 @@ static void logSASGameRecordGameState(const char* szRowType)
 				kRuntime.szCpuBrandField = getSASGameRecordProcessorBrandField();
 			}
 			kRuntime.iLogicalProcessors = (int)kNativeSystemInfo.dwNumberOfProcessors;
-			MEMORYSTATUSEX kSystemMemory;
-			ZeroMemory(&kSystemMemory, sizeof(kSystemMemory));
-			kSystemMemory.dwLength = sizeof(kSystemMemory);
-			if (GlobalMemoryStatusEx(&kSystemMemory)) kRuntime.iTotalPhysicalMemoryMB = (int)(kSystemMemory.ullTotalPhys / (1024 * 1024));
+			// <!-- custom: Physical capacity reuses the gated memory query above; keep hardware capacity at level 3 while total process virtual space is available at level 2. (GPT-6.1-Sol) -->
 			// <!-- custom: Priority, affinity, debugger and development-process queries are a separate opt-in; high system detail alone skips all of them. (GPT-6.1-Sol) -->
 			if (isSASGameRecordProcessContextEnabled())
 			{
@@ -2428,12 +2442,12 @@ static void logSASGameRecordGameState(const char* szRowType)
 	// <!-- custom: Group these long runtime fields by OS, architecture/hardware and debugger/process context; adjacent literals concatenate at compile time and preserve the emitted row. (GPT-6.1-Sol) -->
 	logSASGameRecord("GAME_RECORD_RUNTIME_CONTEXT systemContextLevel=%d win32Runtime=%s wineVersion=%s"
 		" windowsMajor=%d windowsMinor=%d windowsBuild=%d windowsUpdateRevision=%d windowsServicePackMajor=%d windowsServicePackMinor=%d windowsDisplayVersion=%s"
-		" pointerBits=%d processArch=%s nativeArch=%s wow64=%d cpuVendor=%s cpuBrand=%s logicalProcessors=%d totalPhysicalMemoryMB=%d"
+		" pointerBits=%d intBits=%d intMax=%d processTotalVirtualBytes=%I64d processArch=%s nativeArch=%s wow64=%d cpuVendor=%s cpuBrand=%s logicalProcessors=%d totalPhysicalMemoryMB=%d"
 		" processPriorityClass=%s processAffinityQueryAvailable=%d processAffinityMask=%s systemAffinityMask=%s"
 		" debuggerAttached=%d developmentProcessScanAvailable=%d vcExpressRunning=%d devenvRunning=%d msBuildRunning=%d nmakeRunning=%d clRunning=%d linkRunning=%d",
 		iSystemContextLevel, kRuntime.szWin32Runtime, kRuntime.szWineVersionField.GetCString(), kRuntime.kWindowsVersion.iMajor, kRuntime.kWindowsVersion.iMinor, kRuntime.kWindowsVersion.iBuild,
 		kRuntime.kWindowsVersion.iUpdateRevision, kRuntime.kWindowsVersion.iServicePackMajor, kRuntime.kWindowsVersion.iServicePackMinor, kRuntime.szWindowsDisplayVersionField.GetCString(),
-		kRuntime.iPointerBits, kRuntime.szProcessArch, kRuntime.szNativeArch, kRuntime.iWow64, kRuntime.szCpuVendor, kRuntime.szCpuBrandField.GetCString(), kRuntime.iLogicalProcessors, kRuntime.iTotalPhysicalMemoryMB,
+		kRuntime.iPointerBits, kRuntime.iIntBits, kRuntime.iIntMax, kRuntime.iProcessTotalVirtualBytes, kRuntime.szProcessArch, kRuntime.szNativeArch, kRuntime.iWow64, kRuntime.szCpuVendor, kRuntime.szCpuBrandField.GetCString(), kRuntime.iLogicalProcessors, kRuntime.iTotalPhysicalMemoryMB,
 		kRuntime.szProcessPriorityClass, kRuntime.iProcessAffinityQueryAvailable, kRuntime.szProcessAffinityMask.GetCString(), kRuntime.szSystemAffinityMask.GetCString(),
 		kRuntime.iDebuggerAttached, kRuntime.kDevelopmentProcesses.iScanAvailable, kRuntime.kDevelopmentProcesses.iVCExpressRunning, kRuntime.kDevelopmentProcesses.iDevenvRunning,
 		kRuntime.kDevelopmentProcesses.iMSBuildRunning, kRuntime.kDevelopmentProcesses.iNMakeRunning, kRuntime.kDevelopmentProcesses.iClRunning, kRuntime.kDevelopmentProcesses.iLinkRunning);

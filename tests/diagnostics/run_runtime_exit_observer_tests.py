@@ -67,6 +67,8 @@ def run_case(folder, name, code=0, clean=False, mismatch=False, superseded=False
         if fallback:
             observer_script = case / "SASRuntimeExitObserver.ps1"
             observer_script.write_bytes(OBSERVER.read_bytes())
+            # <!-- custom: Keep the shared metadata dependency present while deliberately omitting only the C# listener in this fallback case. (GPT-6.1-Sol) -->
+            (case / "SASRuntimeObserverEnvironment.ps1").write_bytes((ROOT / "Assets/SASRuntimeObserverEnvironment.ps1").read_bytes())
         for _ in range(copies):
             watchers.append(subprocess.Popen([
                 str(POWERSHELL), "-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
@@ -87,6 +89,11 @@ def run_case(folder, name, code=0, clean=False, mismatch=False, superseded=False
                         break
                 time.sleep(.05)
             assert receipt.get("dialogObserverState") == ("UNAVAILABLE" if fallback else "ACTIVE"), receipt
+            assert receipt["environment"]["powershellVersion"] and receipt["environment"]["processBits"] in (32, 64), receipt
+            assert receipt["listenerCompilation"]["state"] == ("FAILED" if fallback else "SUCCEEDED"), receipt
+            assert receipt["listenerCompilation"]["elapsedMilliseconds"] >= 0, receipt
+            if name == "ordinary":
+                print("Observed listenerCompilation:", json.dumps(receipt["listenerCompilation"]))
             assert receipt["observerState"] == "WAITING" and receipt["processId"] == target.pid, receipt
         if superseded:
             status["processId"] += 1

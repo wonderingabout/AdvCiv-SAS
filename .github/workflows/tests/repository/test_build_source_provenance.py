@@ -6,6 +6,8 @@
 from pathlib import Path
 import hashlib
 import json
+# <!-- custom: os selects Windows-only Makefile/tool-resource tests and the optional local NMake path. (GPT-6.1-Sol) -->
+import os
 import shutil
 import subprocess
 # <!-- custom: tempfile keeps Git histories away from the real checkout; unittest verifies successful captures and explicit unavailable results. (GPT-6.1-Sol) -->
@@ -108,6 +110,84 @@ class BuildSourceProvenanceTests(unittest.TestCase):
         self.git("branch", "-D", "main")
         fallback = self.capture()
         self.assertEqual((fallback["defaultRefSource"], fallback["branchRelation"]), ("REMOTE_TRACKING", "AT_DEFAULT"))
+
+
+# <!-- custom: Exercise the real Makefile metadata recipe and extracted production parser with an overridden compiler path; merely checking a VC2003 label would miss other people's configured toolchains.
+# No compiler/linker is executed. (GPT-6.1-Sol) -->
+@unittest.skipUnless(POWERSHELL and os.name == "nt", "requires Windows PowerShell and NMake")
+class BuildToolchainTests(unittest.TestCase):
+    def setUp(self):
+        nmake = shutil.which("nmake") or str(Path(os.environ.get("ProgramFiles(x86)", "C:/Program Files (x86)")) / "Microsoft Visual Studio 10.0/VC/bin/nmake.exe")
+        if not Path(nmake).is_file():
+            self.skipTest("NMake unavailable")
+        self.nmake = nmake
+        self.temporary = tempfile.TemporaryDirectory(prefix="sas-toolchain-")
+        self.addCleanup(self.temporary.cleanup)
+        self.project = Path(self.temporary.name)
+        makefile = (ROOT / "CvGameCoreDLL/Project/Makefile").read_text(encoding="utf-8")
+        recipe = makefile[makefile.index("sas_toolchain_info:"):makefile.index("\nclean:")]
+        (self.project / "Makefile").write_text('CPP="missing-default.exe"\n!include Makefile.user\n' + recipe, encoding="utf-8")
+        self.script = self.project / "capture.ps1"
+        self.script.write_text("\n".join([
+            '$ErrorActionPreference="Stop"',
+            '$tokens=$null; $errors=$null',
+            '$ast=[Management.Automation.Language.Parser]::ParseFile($args[0],[ref]$tokens,[ref]$errors)',
+            'if($errors.Count){throw ($errors|Out-String)}',
+            '$f=$ast.Find({param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq "Get-BuildToolchain"},$true)',
+            'Invoke-Expression $f.Extent.Text',
+            'Set-Location -LiteralPath (Split-Path -Parent $PSCommandPath)',
+            'Get-BuildToolchain -NMakePath $args[1] | ConvertTo-Json -Depth 8 -Compress',
+        ]), encoding="utf-8-sig")
+
+    def capture(self, tool):
+        (self.project / "Makefile.user").write_text('\n'.join('%s="%s"' % (key, tool) for key in ("CC", "CPP", "LD", "RC")) + '\nTOOLKIT=fixture-selected-toolkit\nPSDK=fixture-selected-sdk\n', encoding="utf-8")
+        return json.loads(subprocess.check_output([POWERSHELL, "-NoProfile", "-File", str(self.script), str(ROOT / "CvGameCoreDLL/Project/build_with_report.ps1"), self.nmake], encoding="utf-8", stderr=subprocess.PIPE))
+
+    def test_overridden_selection_and_executable_version(self):
+        # <!-- custom: Query a copied Windows executable's real resource version; a non-compiler fixture proves the parser reads metadata instead of hardcoding VC2003 and never invokes the selected tool. (GPT-6.1-Sol) -->
+        tool = self.project / "custom compiler.exe"
+        shutil.copyfile(POWERSHELL, tool)
+        report = self.capture(tool)
+        self.assertTrue(report["available"], report)
+        self.assertEqual(report["toolkit"], "fixture-selected-toolkit")
+        compiler = report["tools"]["cppCompiler"]
+        self.assertTrue(compiler["available"], compiler)
+        self.assertEqual(compiler["path"].lower(), str(tool).lower())
+        self.assertTrue(compiler["fileVersion"], compiler)
+
+    def test_missing_selected_executable_is_explicit(self):
+        report = self.capture(self.project / "missing compiler.exe")
+        self.assertTrue(report["available"], report)
+        compiler = report["tools"]["cppCompiler"]
+        self.assertFalse(compiler["available"], compiler)
+        self.assertEqual(compiler["reason"], "EXECUTABLE_UNAVAILABLE")
+
+
+# <!-- custom: Verify wrapper-entry provenance separately from compiler selection: the same selected compiler can be launched through an IDE or directly.
+# Use actual parent evidence without assuming an installed IDE. (GPT-6.1-Sol) -->
+@unittest.skipUnless(POWERSHELL and os.name == "nt", "requires Windows PowerShell/CIM")
+class BuildInvocationTests(unittest.TestCase):
+    def test_entry_modes_and_actual_parent_evidence(self):
+        with tempfile.TemporaryDirectory(prefix="sas-invocation-") as temporary:
+            script = Path(temporary) / "capture.ps1"
+            script.write_text("\n".join([
+                '$ErrorActionPreference="Stop"',
+                '$tokens=$null; $errors=$null',
+                '$ast=[Management.Automation.Language.Parser]::ParseFile($args[0],[ref]$tokens,[ref]$errors)',
+                'if($errors.Count){throw ($errors|Out-String)}',
+                '$f=$ast.Find({param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq "Get-BuildInvocation"},$true)',
+                'Invoke-Expression $f.Extent.Text',
+                '@((Get-BuildInvocation $false),(Get-BuildInvocation $true)) | ConvertTo-Json -Depth 8 -Compress',
+            ]), encoding="utf-8-sig")
+            direct, ide = json.loads(subprocess.check_output([POWERSHELL, "-NoProfile", "-File", str(script), str(ROOT / "CvGameCoreDLL/Project/build_with_report.ps1")], encoding="utf-8", stderr=subprocess.PIPE))
+            self.assertEqual(direct["entryMode"], "DIRECT_WRAPPER")
+            self.assertEqual(ide["entryMode"], "IDE_SWITCH")
+            for context in (direct, ide):
+                self.assertTrue(context["powershellVersion"])
+                self.assertEqual(context["ancestorState"], "OBSERVED", context)
+                self.assertEqual(context["ancestors"][0]["processId"], os.getpid(), context)
+                self.assertLessEqual(len(context["ancestors"]), 8)
+                self.assertNotIn("commandLine", context["ancestors"][0])
 
 
 if __name__ == "__main__":

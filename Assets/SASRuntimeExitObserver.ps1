@@ -14,6 +14,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+# <!-- custom: The shared metadata definition records the actual PowerShell/CLR host once, independent of the native VC2003 DLL. (GPT-6.1-Sol) -->
+. (Join-Path $PSScriptRoot 'SASRuntimeObserverEnvironment.ps1')
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $evidencePath = Join-Path ([System.IO.Path]::GetDirectoryName($StatusPath)) ('SASRuntimeExit_' + $ProcessStartUtc + '_' + $TargetProcessId + '.json')
 # <!-- custom: Only one observer may own a particular run/root's live receipt. Otherwise a later duplicate could overwrite a captured failure dialog with its empty startup state.
@@ -63,6 +65,7 @@ try {
         processId = $TargetProcessId
         processStartUtc = $ProcessStartUtc
         observerProcessId = $PID
+        environment = Get-SASRuntimeObserverEnvironment
         observerState = 'WAITING'
         attachedUtc = [DateTime]::UtcNow.ToString('yyyyMMddTHHmmss.fffZ')
     }
@@ -76,8 +79,14 @@ try {
     $evidence.failureDialogCount = 0
     $evidence.failureDialog = $null
     $dialogObserver = $null
+    # <!-- custom: Measure only Add-Type in this helper, not game startup; report failure too. Do not infer a C# compiler version from the CLR identifier. (GPT-6.1-Sol) -->
+    $evidence.listenerCompilation = [ordered]@{ state = 'STARTING'; elapsedMilliseconds = $null }
+    $compileTimer = [System.Diagnostics.Stopwatch]::StartNew()
     try {
         Add-Type -Path (Join-Path $PSScriptRoot 'SASRuntimeDialogObserver.cs')
+        $compileTimer.Stop()
+        $evidence.listenerCompilation.state = 'SUCCEEDED'
+        $evidence.listenerCompilation.elapsedMilliseconds = $compileTimer.ElapsedMilliseconds
         $dialogObserver = New-Object SASRuntimeDialogObserver($target)
         while ($null -ne ($dialogEvent = $dialogObserver.TakeNext())) {
             if ($dialogEvent.MonitorReady) {
@@ -105,6 +114,11 @@ try {
         $evidence.dialogEventsDropped = $dialogObserver.DroppedEvents
         if ($evidence.dialogObserverState -eq 'STARTING') { $evidence.dialogObserverState = 'PROCESS_EXITED_BEFORE_READY' }
     } catch {
+        if ($evidence.listenerCompilation.state -eq 'STARTING') {
+            $compileTimer.Stop()
+            $evidence.listenerCompilation.state = 'FAILED'
+            $evidence.listenerCompilation.elapsedMilliseconds = $compileTimer.ElapsedMilliseconds
+        }
         $evidence.dialogObserverState = 'UNAVAILABLE'
         $evidence.dialogObserverErrorCode = -1
         $evidence.dialogObserverError = $_.Exception.Message

@@ -258,6 +258,7 @@ CvString getSASDllContextFields();
 // <!-- custom: Indented output nests beneath the status document's two-space field indentation; compact output keeps each JSONL transition on one physical line. (GPT-6.1-Sol) -->
 CvString getSASDllRuntimeIdentityJson(bool bIndented = false);
 // <!-- custom: Serialize exact Civ4 executable binary provenance independently from source/mod identity, through the same fingerprint/time/resource-version schema as the DLL. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+// <!-- custom: Executable identity includes the loaded PE Large Address Aware flag; this is address-space eligibility, not an integer-range or usable-memory guarantee. (GPT-6.1-Sol) -->
 CvString getSASExeContextFields();
 // <!-- custom: Serialize the Direct3D 9 module that Civ4 actually loaded after graphics initialization.
 // Binary identity/location can distinguish stock system D3D9 from EXE-directory wrappers such as GraphicsUpgrade/ReShade/DXVK without guessing from installed files; exact paths require the caller's explicit permission. (ChatGPT-5.6-Sol) -->

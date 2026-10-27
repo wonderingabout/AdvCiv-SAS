@@ -307,6 +307,29 @@ def main():
         print("PASS C++ diagnostic writer: both final rows survive abrupt process termination without cleanup")
         shutil.copyfile(ROOT / "Assets/SASRuntimeExitObserver.ps1", temporary / "SASRuntimeExitObserver.ps1")
         shutil.copyfile(ROOT / "Assets/SASRuntimeDialogObserver.cs", temporary / "SASRuntimeDialogObserver.cs")
+        shutil.copyfile(ROOT / "Assets/SASRuntimeSourceObserver.ps1", temporary / "SASRuntimeSourceObserver.ps1")
+        # <!-- custom: The production observers now share startup host metadata; copy the real dependency into the isolated launcher fixture too. (GPT-6.1-Sol) -->
+        shutil.copyfile(ROOT / "Assets/SASRuntimeObserverEnvironment.ps1", temporary / "SASRuntimeObserverEnvironment.ps1")
+        (temporary / "Python").mkdir(exist_ok=True)
+        (temporary / "XML").mkdir(exist_ok=True)
+        source_observed = subprocess.run([str(executable), "--runtime-source-observer"], cwd=temporary, env=environment)
+        if source_observed.returncode != 0:
+            raise RuntimeError("native Runtime source-observer launcher fixture failed")
+        source_deadline = time.monotonic() + 10
+        source_state = {}
+        while time.monotonic() < source_deadline:
+            candidates = list((temporary / "source_observer_Ж漢/Logs").glob("SASRuntimeSourceWatch_*.json"))
+            if candidates:
+                try:
+                    source_state = json.loads(candidates[0].read_text(encoding="utf-8-sig"))
+                except (OSError, ValueError):
+                    pass
+            if source_state.get("observerState") == "EXITED":
+                break
+            time.sleep(.05)
+        if source_state.get("observerState") != "EXITED":
+            raise RuntimeError("native Runtime source observer did not finish after fixture exit: %r" % source_state)
+        print("PASS C++ runtime source observer: default-off production launcher reaches WATCHING and exits with its target when explicitly enabled")
         observed = subprocess.run([str(executable), "--runtime-exit-observer"], cwd=temporary, env=environment)
         assert observed.returncode & 0xFFFFFFFF == 0xC0000005, observed.returncode
         final_path = temporary / "observer_Ж漢/Logs/SASRuntimeStatus.json"

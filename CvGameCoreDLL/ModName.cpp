@@ -301,7 +301,7 @@ namespace
 	}
 
 	// <!-- custom: Hash the tracked gameplay code/rules/script diff relative to HEAD.
-	// This intentionally scopes out docs/LLM helpers and the compiled DLL (fingerprinted separately), while covering CvGameCoreDLL sources plus Config/Python/XML/PrivateMaps inputs. (ChatGPT-5.6-Sol) -->
+	// This scope feeds GAME_RECORD_SOURCE_CONTEXT and runtime sourceIdentity: it excludes docs/LLM helpers and the compiled DLL (fingerprinted separately), while covering CvGameCoreDLL sources, Config/Python/XML/PrivateMaps inputs, and shipped root-level Assets PowerShell/C# runtime companions. (ChatGPT-5.6-Sol) -->
 	CvString fingerprintTrackedCodeRulesDiff(CvString const& diff)
 	{
 		unsigned __int64 uiHash = ((unsigned __int64)0xCBF29CE4 << 32) | 0x84222325;
@@ -682,10 +682,10 @@ void ModName::resolveDiagnosticSourceDetails() const
 	bool bUnstagedDetailsAvailable = false;
 	{
 		// <!-- custom: Keep the original combined HEAD-to-working-tree patch for backward-compatible whole-state provenance, then preserve staged and unstaged patches independently so an MM file cannot hide how the tested state was assembled.
-		// Scope remains tracked runtime-relevant C++/Config/Python/XML/PrivateMaps inputs; untracked files are not claimed and the loaded DLL has its own exact-byte fingerprint. (ChatGPT-5.6-Sol) -->
+		// Scope remains tracked runtime-relevant C++/Config/Python/XML/PrivateMaps inputs plus shipped root-level Assets PowerShell/C# companions; untracked files are not claimed and the loaded DLL has its own exact-byte fingerprint. (ChatGPT-5.6-Sol) -->
 		{
 			CvString diff;
-			if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("diff --src-prefix=a/ --dst-prefix=b/ --no-relative --binary --full-index --no-ext-diff --no-textconv --no-renames --no-color %s -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML PrivateMaps", m_sCommitHash.c_str()).c_str()), diff))
+			if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("diff --src-prefix=a/ --dst-prefix=b/ --no-relative --binary --full-index --no-ext-diff --no-textconv --no-renames --no-color %s -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML Assets/*.ps1 Assets/*.cs PrivateMaps", m_sCommitHash.c_str()).c_str()), diff))
 			{
 				m_iSourceCodeRulesDiffBytes = (__int64)diff.length();
 				m_sSourceCodeRulesDiffFingerprint = fingerprintTrackedCodeRulesDiff(diff);
@@ -693,23 +693,23 @@ void ModName::resolveDiagnosticSourceDetails() const
 		}
 		{
 			CvString stagedDiff;
-			if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("diff --cached --src-prefix=a/ --dst-prefix=b/ --no-relative --binary --full-index --no-ext-diff --no-textconv --no-renames --no-color %s -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML PrivateMaps", m_sCommitHash.c_str()).c_str()), stagedDiff))
+			if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("diff --cached --src-prefix=a/ --dst-prefix=b/ --no-relative --binary --full-index --no-ext-diff --no-textconv --no-renames --no-color %s -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML Assets/*.ps1 Assets/*.cs PrivateMaps", m_sCommitHash.c_str()).c_str()), stagedDiff))
 			{
 				m_iSourceStagedCodeRulesDiffBytes = (__int64)stagedDiff.length();
 				m_sSourceStagedCodeRulesDiffFingerprint = fingerprintTrackedCodeRulesDiff(stagedDiff);
 				CvString stagedPaths;
-				if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("diff --cached --name-only -z --no-renames %s -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML PrivateMaps", m_sCommitHash.c_str()).c_str()), stagedPaths))
+				if (runHiddenSourceCommand(sourceGitCommand(modPath, CvString::format("diff --cached --name-only -z --no-renames %s -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML Assets/*.ps1 Assets/*.cs PrivateMaps", m_sCommitHash.c_str()).c_str()), stagedPaths))
 					bStagedDetailsAvailable = appendSourceDiffLayer("STAGED", stagedPaths, stagedDiff);
 			}
 		}
 		{
 			CvString unstagedDiff;
-			if (runHiddenSourceCommand(sourceGitCommand(modPath, "diff --src-prefix=a/ --dst-prefix=b/ --no-relative --binary --full-index --no-ext-diff --no-textconv --no-renames --no-color -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML PrivateMaps"), unstagedDiff))
+			if (runHiddenSourceCommand(sourceGitCommand(modPath, "diff --src-prefix=a/ --dst-prefix=b/ --no-relative --binary --full-index --no-ext-diff --no-textconv --no-renames --no-color -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML Assets/*.ps1 Assets/*.cs PrivateMaps"), unstagedDiff))
 			{
 				m_iSourceUnstagedCodeRulesDiffBytes = (__int64)unstagedDiff.length();
 				m_sSourceUnstagedCodeRulesDiffFingerprint = fingerprintTrackedCodeRulesDiff(unstagedDiff);
 				CvString unstagedPaths;
-				if (runHiddenSourceCommand(sourceGitCommand(modPath, "diff --name-only -z --no-renames -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML PrivateMaps"), unstagedPaths))
+				if (runHiddenSourceCommand(sourceGitCommand(modPath, "diff --name-only -z --no-renames -- CvGameCoreDLL Assets/Config Assets/Python Assets/XML Assets/*.ps1 Assets/*.cs PrivateMaps"), unstagedPaths))
 					bUnstagedDetailsAvailable = appendSourceDiffLayer("UNSTAGED", unstagedPaths, unstagedDiff);
 			}
 		}

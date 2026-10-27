@@ -654,11 +654,13 @@ CvWString getSASRuntimeDisplayNameAndVersion()
 // Cache each once because neither loaded image can change within this process. (ChatGPT-5.6-Sol) -->
 struct SASBinaryDiagnosticContext
 {
-	SASBinaryDiagnosticContext() : bModuleFound(false), bFileReadable(false), iFileSize(-1), uiPETimestamp(0), uiFingerprint(0), szLastWriteUtc("-"), szPath("-"), szFileVersion("-"), szProductVersion("-") {}
+	SASBinaryDiagnosticContext() : bModuleFound(false), bFileReadable(false), iFileSize(-1), uiPETimestamp(0), iLargeAddressAware(-1), uiFingerprint(0), szLastWriteUtc("-"), szPath("-"), szFileVersion("-"), szProductVersion("-") {}
 	bool bModuleFound;
 	bool bFileReadable;
 	__int64 iFileSize;
 	DWORD uiPETimestamp;
+	// <!-- custom: Read this flag from the loaded PE header; the EXE flag affects process address-space eligibility, independently of signed integer limits. (GPT-6.1-Sol) -->
+	int iLargeAddressAware;
 	unsigned __int64 uiFingerprint;
 	CvString szLastWriteUtc;
 	CvString szPath;
@@ -738,7 +740,11 @@ static void resolveSASBinaryDiagnosticContext(HMODULE hModule, SASBinaryDiagnost
 	{
 		IMAGE_NT_HEADERS const* pNtHeaders = (IMAGE_NT_HEADERS const*)((BYTE const*)hModule + pDosHeader->e_lfanew);
 		if (pNtHeaders->Signature == IMAGE_NT_SIGNATURE)
+		{
 			kContext.uiPETimestamp = pNtHeaders->FileHeader.TimeDateStamp;
+			// <!-- custom: Reuse the existing one-time loaded-module PE inspection rather than rereading or inferring the EXE's Large Address Aware setting from its filename. (GPT-6.1-Sol) -->
+			kContext.iLargeAddressAware = ((pNtHeaders->FileHeader.Characteristics & IMAGE_FILE_LARGE_ADDRESS_AWARE) != 0 ? 1 : 0);
+		}
 	}
 
 	char szPath[MAX_PATH];
@@ -1110,9 +1116,14 @@ CvString getSASDllRuntimeIdentityJson(bool bIndented)
 	return szJson;
 }
 
+// <!-- custom: Add the loaded EXE's Large Address Aware flag beside its existing identity.
+// It permits extra virtual address space on supporting Windows configurations; it does not enlarge C++ int or guarantee allocatable/free RAM. (GPT-6.1-Sol) -->
 CvString getSASExeContextFields()
 {
-	return getSASBinaryContextFields(getSASExeDiagnosticContext(), "exe");
+	SASBinaryDiagnosticContext const& kContext = getSASExeDiagnosticContext();
+	CvString szContext;
+	szContext.Format("%s exeLargeAddressAware=%d", getSASBinaryContextFields(kContext, "exe").GetCString(), kContext.iLargeAddressAware);
+	return szContext;
 }
 
 static char getSASLowerAscii(char c)

@@ -285,11 +285,21 @@ LDFLAGS = $(Final_Release_LDFLAGS)
 #################
 
 # <!-- custom: Add build_provenance to the existing non-file target list; its recipe refreshes embedded pre-build evidence on each invocation rather than producing a target named build_provenance. (GPT-6.1-Sol) -->
-.PHONY: all clean build precompile Make_Dir fastdep source_list build_provenance
+.PHONY: all clean build precompile Make_Dir fastdep source_list build_provenance sas_toolchain_info
 
 all: Precompile build
 
 dll: all
+
+# <!-- custom: Report the actual expanded tool selections after Makefile.user/project overrides; IDE and PATH compiler names can differ from these commands.
+# This explicit target only prints configuration and has no compile/link/clean prerequisites. The reporting wrapper reads executable versions without running a compiler. (GPT-6.1-Sol) -->
+sas_toolchain_info:
+	@echo SAS_BUILD_CC=$(CC)
+	@echo SAS_BUILD_CPP=$(CPP)
+	@echo SAS_BUILD_LD=$(LD)
+	@echo SAS_BUILD_RC=$(RC)
+	@echo SAS_BUILD_TOOLKIT=$(TOOLKIT)
+	@echo SAS_BUILD_PSDK=$(PSDK)
 
 clean:
 	@IF EXIST "$(TEMP_TARGET_FILES)" RMDIR /s /q "$(TEMP_TARGET_FILES)"

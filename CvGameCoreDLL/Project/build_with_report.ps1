@@ -53,7 +53,8 @@ function Get-SourceDiffState([switch]$Cached, [string]$BaseCommit = 'HEAD') {
     # <!-- custom: Git failures should mark optional provenance unavailable, not abort DLL compilation under the wrapper's Stop policy. (GPT-6.1-Sol) -->
     $ErrorActionPreference = 'Continue'
     $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../..')).Path
-    $scope = @('CvGameCoreDLL', 'Assets/Config', 'Assets/Python', 'Assets/XML', 'PrivateMaps')
+    # <!-- custom: Keep build provenance aligned with ModName/SGR/runtime source identity, including shipped PowerShell/C# companions directly under Assets. (ChatGPT-5.6-Sol) -->
+    $scope = @('CvGameCoreDLL', 'Assets/Config', 'Assets/Python', 'Assets/XML', 'Assets/*.ps1', 'Assets/*.cs', 'PrivateMaps')
     # <!-- custom: PowerShell unwraps a one-element if result to a string; splatting that scalar passed d/i/f/f as separate Git arguments and broke unstaged capture.
     # Keep both branches typed as string arrays. (GPT-6.1-Sol) -->
     [string[]]$prefix = if ($Cached) { @('diff', '--cached', $BaseCommit) } else { @('diff') }
@@ -301,6 +302,80 @@ function Get-PreviousBuildInputs([string]$Path) {
     catch { $result.reason = 'UNREADABLE_PREVIOUS_REPORT'; return $result }
 }
 
+# <!-- custom: A VS2010 IDE can drive VC2003, and Makefile.user may select another toolchain; record expanded build commands rather than guessing from the IDE, folder name or first cl.exe on PATH.
+# This optional build-time capture invokes only the no-build Makefile target. Executable resource versions describe the selected binaries, not C++ language-standard support or proof that a particular invocation consumed every input. (GPT-6.1-Sol) -->
+function Get-BuildToolchain([string]$NMakePath = 'nmake') {
+    $ErrorActionPreference = 'Continue'
+    try {
+        $lines = & $NMakePath /NOLOGO sas_toolchain_info 2>$null
+        if ($LASTEXITCODE -ne 0) { return [ordered]@{ available = $false; reason = 'MAKEFILE_QUERY_FAILED' } }
+        $values = @{}
+        foreach ($line in $lines) {
+            if ([string]$line -match '^SAS_BUILD_([A-Z]+)=(.*)$') { $values[$matches[1]] = $matches[2].Trim() }
+        }
+        foreach ($key in @('CC', 'CPP', 'LD', 'RC', 'TOOLKIT', 'PSDK')) {
+            if (-not $values.ContainsKey($key)) { return [ordered]@{ available = $false; reason = 'INCOMPLETE_MAKEFILE_QUERY' } }
+        }
+        $tools = [ordered]@{}
+        foreach ($pair in @(@('cCompiler', 'CC'), @('cppCompiler', 'CPP'), @('linker', 'LD'), @('resourceCompiler', 'RC'))) {
+            $command = $values[$pair[1]]
+            $tool = [ordered]@{ command = $command; available = $false }
+            $executable = $command
+            if ($command -match '^"([^\"]+)"(?:\s.*)?$') { $executable = $matches[1] }
+            try {
+                $resolved = Get-Command -Name $executable -CommandType Application -ErrorAction Stop
+                $info = [Diagnostics.FileVersionInfo]::GetVersionInfo($resolved.Source)
+                $tool.available = $true
+                $tool.path = $resolved.Source
+                $tool.fileVersion = $info.FileVersion
+                $tool.productVersion = $info.ProductVersion
+                $tool.productName = $info.ProductName
+            } catch { $tool.reason = 'EXECUTABLE_UNAVAILABLE' }
+            $tools[$pair[0]] = $tool
+        }
+        return [ordered]@{ available = $true; selection = 'MAKEFILE_EXPANSION'; toolkit = $values.TOOLKIT; platformSdk = $values.PSDK; tools = $tools }
+    } catch { return [ordered]@{ available = $false; reason = 'TOOLCHAIN_CAPTURE_FAILED' } }
+}
+
+# <!-- custom: The explicit IDE switch identifies the wrapper entry path; ancestor executable evidence can further identify VCExpress/devenv/MSBuild or another caller without assuming a particular IDE version.
+# Capture only a bounded parent chain and executable versions, not command lines. Environment hints can be stale, so they are not treated as proof of the launching application. Failure of optional provenance must not block a build. (GPT-6.1-Sol) -->
+function Get-BuildInvocation([bool]$IdeRequested) {
+    $context = [ordered]@{
+        entryMode = $(if ($IdeRequested) { 'IDE_SWITCH' } else { 'DIRECT_WRAPPER' })
+        powershellVersion = $PSVersionTable.PSVersion.ToString()
+        powershellEdition = [string]$PSVersionTable.PSEdition
+        clrVersion = [Environment]::Version.ToString()
+        processBits = [IntPtr]::Size * 8
+        ancestorState = 'UNAVAILABLE'
+        ancestors = @()
+    }
+    try {
+        $child = Get-CimInstance -ClassName Win32_Process -Filter ('ProcessId=' + $PID) -ErrorAction Stop
+        $seen = @{}
+        for ($depth = 0; $depth -lt 8 -and $null -ne $child -and $child.ParentProcessId -ne 0; $depth++) {
+            $parentId = [int]$child.ParentProcessId
+            if ($seen.ContainsKey($parentId)) { break }
+            $seen[$parentId] = $true
+            $parent = Get-CimInstance -ClassName Win32_Process -Filter ('ProcessId=' + $parentId) -ErrorAction Stop
+            if ($null -eq $parent -or $parent.CreationDate -gt $child.CreationDate) { break }
+            $entry = [ordered]@{ processId = $parentId; name = $parent.Name; path = $parent.ExecutablePath; fileVersion = $null; productVersion = $null }
+            if (-not [string]::IsNullOrEmpty($parent.ExecutablePath)) {
+                try {
+                    $info = [Diagnostics.FileVersionInfo]::GetVersionInfo($parent.ExecutablePath)
+                    $entry.fileVersion = $info.FileVersion
+                    $entry.productVersion = $info.ProductVersion
+                } catch { }
+            }
+            $context.ancestors += $entry
+            $child = $parent
+        }
+        $context.ancestorState = 'OBSERVED'
+    } catch {
+        if ($context.ancestors.Count -gt 0) { $context.ancestorState = 'PARTIAL' }
+    }
+    return $context
+}
+
 # <!-- custom: JSON has no comment syntax; retain introductory copyright/purpose as ordinary metadata so reports remain valid JSON for CI. (GPT-6.1-Sol) -->
 $report = [ordered]@{
     copyright = 'AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy); (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS root README.md)'
@@ -312,6 +387,8 @@ $report = [ordered]@{
     branch = Get-GitText -Arguments @('symbolic-ref', '--quiet', '--short', 'HEAD')
     commit = Get-GitText -Arguments @('rev-parse', 'HEAD')
     workingTreeStatus = Get-GitText -Arguments @('status', '--porcelain=v1', '--untracked-files=normal')
+    invocation = Get-BuildInvocation -IdeRequested $IdeBuild.IsPresent
+    toolchain = Get-BuildToolchain
     sourceProvenance = Get-SourceProvenance
     tempBefore = Get-TempState
     dllBefore = Get-DllState
@@ -350,6 +427,8 @@ try {
     Write-BuildLine ('Build report: ' + $reportPath)
     Write-BuildLine ('Started UTC: ' + $report.startedUtc)
     Write-BuildLine ('Configuration: {0}; request: {1}; branch: {2}; commit: {3}' -f $Configuration, $Request, $report.branch, $report.commit)
+    Write-BuildLine ('Build invocation: ' + ($report.invocation | ConvertTo-Json -Depth 5 -Compress))
+    Write-BuildLine ('Selected build toolchain: ' + ($report.toolchain | ConvertTo-Json -Depth 5 -Compress))
     Write-BuildLine ('Temporary artifacts before request: ' + ($report.tempBefore | ConvertTo-Json -Compress))
     Write-BuildLine ('Working-tree status relative to HEAD (staged + unstaged + untracked): ' + $report.workingTreeStatus)
     if ($Request -eq 'BUILD' -and ($report.tempBefore.objectCount -gt 0 -or $report.tempBefore.pchPresent -or $report.tempBefore.incompleteMarkerCount -gt 0)) {

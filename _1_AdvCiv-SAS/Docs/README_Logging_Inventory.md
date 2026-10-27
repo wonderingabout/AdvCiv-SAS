@@ -37,6 +37,7 @@ The EXE is closed source, mods can supply arbitrary filenames, and some outputs 
   - [SASGameRecord (SGR)](#sasgamerecord-sgr)
     - [SASGameRecord session header example](#sasgamerecord-session-header-example)
     - [SASGameRecord gameplay example](#sasgamerecord-gameplay-example)
+    - [`SASGameRecord_*.log` (runtime and version context)](#sasgamerecord_log-runtime-and-version-context)
   - [BBAI](#bbai)
     - [BBAI session header example](#bbai-session-header-example)
     - [Categories and inherited Settler logging](#categories-and-inherited-settler-logging)
@@ -51,7 +52,13 @@ The EXE is closed source, mods can supply arbitrary filenames, and some outputs 
         - [Crash-dump prompt](#crash-dump-prompt)
         - [C++ Runtime Library error](#c-runtime-library-error)
     - [`SASRuntimeHistory_*.jsonl` (session and exit history)](#sasruntimehistory_jsonl-session-and-exit-history)
+    - [Live source-edit observation](#live-source-edit-observation)
+      - [`SASRuntimeSourceWatch_*.json` (watcher state and host)](#sasruntimesourcewatch_json-watcher-state-and-host)
+      - [`SASRuntimeSourceChanges_*.jsonl` (live file changes)](#sasruntimesourcechanges_jsonl-live-file-changes)
   - [DLL build reports](#dll-build-reports)
+    - [`CvGameCoreDLL.dll.build.json` (toolchain and build launcher)](#cvgamecoredlldllbuildjson-toolchain-and-build-launcher)
+    - [`AdvCiv.log` (compiler output and build summaries)](#advcivlog-compiler-output-and-build-summaries)
+    - [`_SNAPSHOT_CONTEXT/packaging_summary.txt` (packaging host)](#_snapshot_contextpackaging_summarytxt-packaging-host)
 - [Python diagnostic messages](#python-diagnostic-messages)
 - [Startup rows and run boundaries](#startup-rows-and-run-boundaries)
 - [Structured Python diagnostic records](#structured-python-diagnostic-records)
@@ -127,7 +134,7 @@ The files below do not belong to one logging framework. Civ4 accumulated several
 | `juggle_log.txt`, `combat.txt` | K-Mod/AdvCiv developer diagnostics | Compile-time specialist diagnostics: citizen-assignment efficiency and combat-odds verification respectively. Exact first introduction was not established here. | Preserve as experiment datasets. A small metadata header is safer than making every record verbose. |
 | `uwai<turn>.log` | AdvCiv `UWAIReport` | Separate war-evaluation reports, with Textile markup, turn-number filenames and report interval/threshold controls. Writers include `UWAIAgent`, `MilitaryAnalyst`, `InvasionGraph`, `ArmamentForecast`, `WarEvaluator` and `WarUtilityAspect`. | Historical in SAS: the standalone report files/logger were retired in favor of five independently controlled BBAI categories; see [UWAI diagnostics comparison](#uwai-diagnostics-standalone-advciv-reports-vs-current-bbai-records). |
 | `SASGameRecord_*.log` | AdvCiv-SAS | A new structured game record, complementing inherited BBAI decision traces with run context, periodic state, gameplay history and reproduction evidence. | Independent `SAS_SGR_LOG`; its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) documents recorder changes. |
-| `SASRuntimeStatus.json`, `SASRuntimeHistory_*.jsonl`, `SASRuntimeExit_*.json` | AdvCiv-SAS | Latest runtime observation and per-process transition history, including process/DLL identity and new/load/autoplay activity. | Independent `SAS_RUNTIME_STATUS_ON`; its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md) documents runtime-recorder changes. |
+| `SASRuntimeStatus.json`, `SASRuntimeHistory_*.jsonl`, `SASRuntimeExit_*.json`, optional `SASRuntimeSourceWatch_*.json` / `SASRuntimeSourceChanges_*.jsonl` | AdvCiv-SAS | Latest runtime/process evidence and optional live mod-source/configuration disk-edit observations. | Independent `SAS_RUNTIME_STATUS_ON`; source watching additionally requires default-off `SAS_RUNTIME_SOURCE_WATCH_ON`. Its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md) documents runtime-recorder changes. |
 
 ### Modernization principles
 
@@ -392,6 +399,15 @@ Enable `SAS_SGR_LOG` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefin
 
 The record brings together map/geography context, settings and provenance, economy/expansion, city and battle history, diplomacy and military composition. It also records exact AI strategy/victory-stage transitions, RNG evidence and shared diagnostic-writer health according to the selected level and supporting switches.
 
+- With system context enabled, the session-settings baseline includes `group=PYTHON_RUNTIME_CONTEXT source=RUNNING_INTERPRETER`, reporting the interpreter executing the collector rather than assuming the separate Python 2.4 syntax checker matches it.
+- At system-context level 2+, `GAME_RECORD_RUNTIME_CONTEXT` records `pointerBits`, `intBits`, `intMax` and `processTotalVirtualBytes`; the EXE identity reports `exeLargeAddressAware`.
+  - A signed integer ceiling and the process address-space ceiling are different limits. Existing performance snapshots separately report working-set/page-file usage and available virtual memory when performance metrics are enabled.
+  - `intMax` is not a universal safe gameplay ceiling: some enum-map values use narrower storage, commerce can be stored at times-100 precision, and multiplication can overflow before a final division. Those field/calculation limits need their own source review.
+  - The [Chronicles of Mankind population-limit discussion](https://forums.civfanatics.com/threads/chronicles-of-mankind.643052/post-17003355) prompted this numeric-versus-address-space distinction.
+  - C2C also has a [report of city outputs failing around 210,000–220,000](https://github.com/caveman2cosmos/Caveman2Cosmos/issues/1604); it is a separate arithmetic-audit lead, not evidence that SAS has the same defect or threshold.
+- `processTotalVirtualBytes` is Windows' reported user-mode address-space total, not installed RAM or a promise that an allocation of that size can succeed. Fragmentation, mappings and other allocations still matter; the EXE's LAA flag affects address-space eligibility, not the range of C++ `int`.
+  - See Microsoft's [memory/address-space limits](https://learn.microsoft.com/en-us/windows/win32/memory/memory-limits-for-windows-releases) and [integer limits](https://learn.microsoft.com/en-us/cpp/cpp/integer-limits).
+
 - Search examples include `GAME_RECORD_SOURCE_CONTEXT`, `GAME_RECORD_DLL_CONTEXT`, `GAME_RECORD_AI_STRATEGY_CHANGE`, `GAME_RECORD_AI_VICTORY_STAGE_CHANGE` and `GAME_RECORD_DIAGNOSTIC_WRITER`.
 - `SAS_SGR_INTERVAL_T_UNSCALED_GS` controls periodic snapshots; with interval 10 they occur at completed turns 10, 20, 30 and so on, while turn 0 has separate initial context. Chronicle actions can appear between snapshots.
 - This is an all-player diagnostic and can contain spoilers. Use the [Main Changes Guide's SASGameRecord section](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sasgamerecord-log) and [recorder revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for coverage/controls, and the [representative raw record](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log) for actual output.
@@ -470,6 +486,19 @@ GAME_RECORD_WORKERS seq=10209 turn=20 player=2 workers=1 seaWorkers=0 idle=0 bui
 ```
 
 The full example includes initial map context, city details and later gameplay history. Its captured revision is independent of the more recent session-header example above.
+
+#### `SASGameRecord_*.log` (runtime and version context)
+
+These complete rows come from the live 2026-10-27 `SASGameRecord_20261027T063129Z_load1.log`. They illustrate separate compiled-DLL, executable, process-limit and embedded-Python evidence; intervening rows are omitted:
+
+```log
+GAME_RECORD_RUNTIME_CONTEXT seq=9 systemContextLevel=2 win32Runtime=NATIVE_WINDOWS wineVersion=- windowsMajor=10 windowsMinor=0 windowsBuild=19045 windowsUpdateRevision=6466 windowsServicePackMajor=0 windowsServicePackMinor=0 windowsDisplayVersion="22H2" pointerBits=32 intBits=32 intMax=2147483647 processTotalVirtualBytes=4294836224 processArch=X86 nativeArch=X64 wow64=1 cpuVendor=- cpuBrand=- logicalProcessors=-1 totalPhysicalMemoryMB=-1 processPriorityClass=- processAffinityQueryAvailable=-1 processAffinityMask=- systemAffinityMask=- debuggerAttached=-1 developmentProcessScanAvailable=-1 vcExpressRunning=-1 devenvRunning=-1 msBuildRunning=-1 nmakeRunning=-1 clRunning=-1 linkRunning=-1
+GAME_RECORD_DLL_CONTEXT seq=31 build=Debug-opt moduleFound=1 fileReadable=1 fileSizeBytes=14155776 dllFingerprint=FNV1A64:01E510BDF789FA31 dllLastWriteUtc=20261027T062619.916Z peTimestampRaw=1793082369 peTimestampUtc=20261027T062609Z resourceFileVersion=- resourceProductVersion=- buildEvidence=EMBEDDED buildRequest=BUILD preexistingObjectCount=0 preexistingIncompleteMarkerCount=0 preexistingPch=0 reusableArtifactBaseline=CLEAN projectTreePresent=1 buildOutputDllState=FINGERPRINT_MATCH tempDirPresent=1 tempDllState=FINGERPRINT_MATCH tempObjectCount=169 tempIncompleteMarkerCount=0 tempPchPresent=1 tempPdbPresent=1 fassertEnabled=0 debugDefine=0 ndebugDefine=1 msvcVersion=1310 msvcFullVersion=13103077 internalProfilerCompiled=0 tscProfilerCompiled=0 profileAIAutoPlayCompiled=0 reproTestCompiled=0
+GAME_RECORD_EXE_CONTEXT seq=32 moduleFound=1 fileReadable=1 fileSizeBytes=12594192 exeFingerprint=FNV1A64:98123F43E2DC14E6 exeLastWriteUtc=20250328T141834.588Z peTimestampRaw=1401330529 peTimestampUtc=20140529T022849Z resourceFileVersion=3.1.9.0 resourceProductVersion=3.1.9.0 exeLargeAddressAware=1
+GAME_RECORD_SESSION_SETTINGS seq=294 schema=1 turn=0 elapsed=0 event=SNAPSHOT reason=ON_LOAD source=RUNNING_INTERPRETER group=PYTHON_RUNTIME_CONTEXT count=5 values=apiVersion=1012;buildDescription=2.4.1%20%28%2365%2C%20Mar%2030%202005%2C%2009%3A13%3A57%29%20%5BMSC%20v.1310%2032%20bit%20%28Intel%29%5D;byteOrder=little;maxUnicode=65535;version=2.4.1
+```
+
+The embedded interpreter reports Python 2.4.1 in this capture; that is distinct from the standalone checker's 2.4.4 and packaging host's 3.12.3. These are captured examples, not fixed expected versions.
 
 ### BBAI
 
@@ -598,11 +627,15 @@ The SAS rows retain the analysis/forecast values and make turn, analyst, player,
 
 `SASRuntimeStatus.json` gives the latest observation; `SASRuntimeHistory_*.jsonl` preserves timed game/session activity, and `SASRuntimeExit_*.json` records the externally observed process exit.
 
-The external observer uses Windows PowerShell and .NET Framework independently of the VC2003 game DLL. The verified host used Windows PowerShell 5.1 and .NET Framework 4.8.1; these are tested versions, not established minimum requirements. See the [observer environment and tests](/tests/README.md#runtime-exit-observer) for version/architecture details and failure limits.
+The external observer uses Windows PowerShell and .NET Framework independently of the VC2003 game DLL. Its receipt records the actual PowerShell/CLR versions, Framework release and process architecture in `environment`, plus C# listener compilation result/duration in `listenerCompilation`. These observations are not established minimum requirements.
+
+See the [observer environment and tests](/tests/README.md#runtime-exit-observer) for version/architecture details and failure limits.
 
 Enabled runtime diagnostics start a hidden Windows observer so exit evidence can survive a crash or an interrupted current-status rewrite. This complements the existing close-request and orderly-shutdown hooks; it does not diagnose a crash or make Python/XML live editing safe.
 
 Starting PowerShell/.NET and compiling the C# listener adds startup CPU, disk and memory work when runtime diagnostics are enabled. The native launcher does not wait for listener initialization, but the external process can still compete for system resources.
+
+The exit/dialog observer and optional source watcher run in separate PowerShell processes, not inside Civ4; the compiled C# listener is loaded into the external observer. Their allocations therefore do not consume Civ4's own virtual-address-space allowance. They still share the computer's physical RAM, CPU and disk resources, and do not increase Civ4's address-space limit.
 
 Around the watcher's introduction, the user noticed a brief flicker/pause after the XML loading bar filled and disappeared, before the main menu appeared. Observer startup is a possible contributor, not an established cause; its contribution was not measured. Other initialization and enabled diagnostics may also contribute.
 
@@ -736,6 +769,21 @@ Complete `SASRuntimeStatus.json`, including the last in-process state and the la
 
 `processState=EXITED` and `updateReason=PROCESS_EXIT_OBSERVED` report termination; `lastInProcessUpdatedUtc`, `gameTurn` and `activity` retain the last game-owned observation. Thus `activity=PLAYING` does not mean the process is still alive.
 
+A current-run excerpt from `SASRuntimeStatus.json` on 2026-10-27 shows the additional source-watcher fields; the complete older example above retains its exit/failure context. Only the following fields are selected here:
+
+```json
+{
+  "revision": 12,
+  "processId": 524,
+  "processStartUtc": "20261027T062715.357Z",
+  "sourceWatchEnabled": 1,
+  "sourceWatchObserverProcessId": 10248,
+  "sourceWatchLaunchError": 0,
+  "sourceWatchStateFilename": "SASRuntimeSourceWatch_20261027T062715.357Z_524.json",
+  "sourceWatchHistoryFilename": "SASRuntimeSourceChanges_20261027T062715.357Z_524.jsonl"
+}
+```
+
 #### `SASRuntimeExit_*.json` (exit observation)
 
 Complete `SASRuntimeExit_*.json` from the same process:
@@ -765,6 +813,29 @@ Runtime revision 11 can also record a recognized MSVC runtime-error (`MSVC_RUNTI
 Dialog titles and messages are read directly from Windows window/control text (`GetWindowText` and bounded `WM_GETTEXT` calls), then written to JSON. The screenshots illustrate the corresponding windows; they are not the text source, and the captured messages were not manually transcribed.
 
 These are observation times, not the exact fault/appearance time: an already-open dialog can be discovered after attachment. Live evidence stays in the per-run companion; the final `process_exit` history row retains its dialog summary after termination. The separate file preserves final evidence even if the current snapshot is unreadable or has been replaced by a newer game.
+
+The following selected fields from the live 2026-10-27 `SASRuntimeExit_*.json` receipt show observer-host identity and actual listener compilation duration. `WAITING` here means the process was still alive when captured:
+
+```json
+{
+  "revision": 12,
+  "processId": 524,
+  "observerState": "WAITING",
+  "dialogObserverState": "ACTIVE",
+  "environment": {
+    "powershellVersion": "5.1.19041.6456",
+    "powershellEdition": "Desktop",
+    "clrVersion": "4.0.30319.42000",
+    "frameworkRelease": 533325,
+    "processBits": 32,
+    "executablePath": "C:\\Windows\\SysWOW64\\WindowsPowerShell\\v1.0\\powershell.exe"
+  },
+  "listenerCompilation": {
+    "state": "SUCCEEDED",
+    "elapsedMilliseconds": 165
+  }
+}
+```
 
 ##### Notable examples: failure dialogs while Civ4 is alive
 
@@ -873,6 +944,96 @@ The [full history example](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntim
 
 For lifecycle details and field interpretation, see the [Main Changes Guide's runtime section](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#runtime-status-and-history) and [runtime revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md).
 
+#### Live source-edit observation
+
+Enabled runtime diagnostics can additionally use `SAS_RUNTIME_SOURCE_WATCH_ON=1` to launch [`SASRuntimeSourceObserver.ps1`](/Assets/SASRuntimeSourceObserver.ps1). This is default-off and separate from the exit/dialog observer.
+
+- `SASRuntimeSourceWatch_<process-start UTC>_<PID>.json` reports attachment/state, watched scopes, observer host versions and event/write/drop/error counters.
+- `SASRuntimeSourceChanges_<process-start UTC>_<PID>.jsonl` records coalesced disk-change bursts for Python/XML (including BUG Config XML), PrivateMaps scripts/scenarios, Resource `.thm` themes, mod Settings `.ini`/`.xml`/`.txt` files, and nonrecursive mod-root `.ini` files with mod-relative path, first/last observed UTC, observed action kinds, final presence/size/write time and SHA-256 status.
+- `engineReloadState=NOT_OBSERVED` is intentional: filesystem change evidence does not establish that Civ4 reloaded, parsed or executed the edited file. C++ is excluded because source edits cannot replace the loaded DLL.
+- Observation times belong to filesystem notifications/recording, not necessarily the editor's original save syscall. No file contents are copied, and large/unreadable files use explicit fingerprint status rather than an invented hash.
+
+Paths, observed times and fingerprints provide an initial timeline for correlating file saves with errors or crashes. Keeping that evidence without retaining earlier source contents avoids content-snapshot storage and line-diff machinery.
+
+This is evidence of disk activity, not proof that an edit caused a failure. Explaining the exact changed lines still requires a content diff; the watcher does not claim to supply one.
+
+`FileSystemWatcher` receives Windows notifications rather than repeatedly scanning/hashing the tree. The helper's one-second event-wait timeout only services save-burst coalescing; idle cycles do not rewrite state.
+
+Hashes are sampled after a short quiet period, with a 16 MiB file-size check; files that are too large or unreadable get an explicit status.
+
+Enabled observation costs a separate PowerShell process, notification buffers and event/hash work; gameplay performance was not measured.
+
+With source watching disabled, its helper is not launched and performs no monitoring or hashing.
+
+The live journal identifies **which path was saved, when, its final byte size and SHA-256**. It does not retain old contents, line/value diffs or a before/after byte delta. An unchanged-content save can therefore have a filesystem row with the same fingerprint as its previous observed save.
+
+The SGR175 source-provenance extension serves a different purpose: existing Git patch/source-context evidence now includes the external `.ps1`/`.cs` helpers, so those changes are not omitted when identifying the source behind a run. It is a cached source baseline, not a live edit timeline.
+
+The user Logs directory is excluded to avoid watching continuously written output. User-folder BUG settings are also outside this watcher.
+
+SASGameRecord already captures configured options through `SASGameRecordSettings.py` at session initialization and relevant options callbacks.
+
+That semantic record describes option values, whereas a file notification alone cannot establish whether a running consumer adopted an edit. Disk changes made directly to user settings are not comprehensively tracked here.
+
+##### `SASRuntimeSourceWatch_*.json` (watcher state and host)
+
+The matching `SASRuntimeSourceWatch_20261027T062715.357Z_524.json` state capture includes actual host metadata and watcher-health counters. This is a snapshot during the run, so its counters/state are illustrative rather than fixed expected values:
+
+```json
+{
+    "revision":  12,
+    "processId":  524,
+    "processStartUtc":  "20261027T062715.357Z",
+    "observerProcessId":  10248,
+    "observerState":  "WATCHING",
+    "startedUtc":  "20261027T062723.907Z",
+    "environment":  {
+                        "powershellVersion":  "5.1.19041.6456",
+                        "powershellEdition":  "Desktop",
+                        "clrVersion":  "4.0.30319.42000",
+                        "frameworkRelease":  533325,
+                        "processBits":  32,
+                        "executablePath":  "C:\\Windows\\SysWOW64\\WindowsPowerShell\\v1.0\\powershell.exe"
+                    },
+    "watchedScopes":  [
+                          "Assets/Python/**/*.py",
+                          "Assets/XML/**/*.xml",
+                          "Assets/Config/**/*.xml",
+                          "PrivateMaps/*.py and scenarios (recursive)",
+                          "Resource/**/*.thm",
+                          "Settings/**/*.{ini,xml,txt}",
+                          "*.ini (mod root only)"
+                      ],
+    "eventFilename":  "SASRuntimeSourceChanges_20261027T062715.357Z_524.jsonl",
+    "rawEventsObserved":  20,
+    "burstsWritten":  8,
+    "rawEventsCoalesced":  12,
+    "rowsDropped":  0,
+    "writeFailures":  0,
+    "watcherErrors":  0,
+    "pendingPaths":  0,
+    "lastRecordedUtc":  "20261027T063737.690Z",
+    "attachedUtc":  "20261027T062724.019Z"
+}
+```
+
+[`SASRuntimeObserverEnvironment.ps1`](/Assets/SASRuntimeObserverEnvironment.ps1) collects these values once per helper startup. Version fields belong to the state/receipt, not every edit row. The exit receipt's `listenerCompilation` measures only the C# `Add-Type` step and reports success/failure and elapsed milliseconds; no C# compiler version is inferred from the CLR version.
+
+##### `SASRuntimeSourceChanges_*.jsonl` (live file changes)
+
+The following six complete JSONL rows are from `SASRuntimeSourceChanges_20261027T062715.357Z_524.jsonl`, recorded during the live 2026-10-27 autoplay test. The first five cover creating a disposable INI, changing `test=1` to `test=2`, saving the same contents again, renaming it and deleting it; the final row is an observed XML-save burst from the same run.
+
+```jsonl
+{"record":"source_file_change","revision":12,"run":"20261027T062715.357Z_524","recordedUtc":"20261027T063513.813Z","firstObservedUtc":"20261027T063512.738Z","lastObservedUtc":"20261027T063512.761Z","path":"SASWatcherProbe.ini","eventCount":2,"actionsObserved":["CREATED","CHANGED"],"oldPathsObserved":[],"finalState":"PRESENT","sizeBytes":8,"lastWriteUtc":"20261027T063512.724Z","fingerprintAlgorithm":"SHA256","fingerprint":"44031683E33D3405122814D4EC2FFFFD552958A417335E37283A196D9581B8B8","fingerprintStatus":"AVAILABLE","engineReloadState":"NOT_OBSERVED"}
+{"record":"source_file_change","revision":12,"run":"20261027T062715.357Z_524","recordedUtc":"20261027T063514.850Z","firstObservedUtc":"20261027T063513.833Z","lastObservedUtc":"20261027T063513.834Z","path":"SASWatcherProbe.ini","eventCount":2,"actionsObserved":["CHANGED"],"oldPathsObserved":[],"finalState":"PRESENT","sizeBytes":8,"lastWriteUtc":"20261027T063513.833Z","fingerprintAlgorithm":"SHA256","fingerprint":"E685DA9095347C0BDE9D8D1C76ABD7452F6B8FEBF7C82EB45CCB3875FD9FBD5F","fingerprintStatus":"AVAILABLE","engineReloadState":"NOT_OBSERVED"}
+{"record":"source_file_change","revision":12,"run":"20261027T062715.357Z_524","recordedUtc":"20261027T063515.961Z","firstObservedUtc":"20261027T063514.943Z","lastObservedUtc":"20261027T063514.944Z","path":"SASWatcherProbe.ini","eventCount":2,"actionsObserved":["CHANGED"],"oldPathsObserved":[],"finalState":"PRESENT","sizeBytes":8,"lastWriteUtc":"20261027T063514.943Z","fingerprintAlgorithm":"SHA256","fingerprint":"E685DA9095347C0BDE9D8D1C76ABD7452F6B8FEBF7C82EB45CCB3875FD9FBD5F","fingerprintStatus":"AVAILABLE","engineReloadState":"NOT_OBSERVED"}
+{"record":"source_file_change","revision":12,"run":"20261027T062715.357Z_524","recordedUtc":"20261027T063517.072Z","firstObservedUtc":"20261027T063516.054Z","lastObservedUtc":"20261027T063516.054Z","path":"SASWatcherProbeRenamed.ini","eventCount":1,"actionsObserved":["RENAMED"],"oldPathsObserved":["SASWatcherProbe.ini"],"finalState":"PRESENT","sizeBytes":8,"lastWriteUtc":"20261027T063514.943Z","fingerprintAlgorithm":"SHA256","fingerprint":"E685DA9095347C0BDE9D8D1C76ABD7452F6B8FEBF7C82EB45CCB3875FD9FBD5F","fingerprintStatus":"AVAILABLE","engineReloadState":"NOT_OBSERVED"}
+{"record":"source_file_change","revision":12,"run":"20261027T062715.357Z_524","recordedUtc":"20261027T063518.181Z","firstObservedUtc":"20261027T063517.162Z","lastObservedUtc":"20261027T063517.162Z","path":"SASWatcherProbeRenamed.ini","eventCount":1,"actionsObserved":["DELETED"],"oldPathsObserved":[],"finalState":"ABSENT","sizeBytes":-1,"lastWriteUtc":"-","fingerprintAlgorithm":"SHA256","fingerprint":"-","fingerprintStatus":"NOT_PRESENT","engineReloadState":"NOT_OBSERVED"}
+{"record":"source_file_change","revision":12,"run":"20261027T062715.357Z_524","recordedUtc":"20261027T063727.412Z","firstObservedUtc":"20261027T063726.387Z","lastObservedUtc":"20261027T063726.389Z","path":"Assets/XML/GlobalDefines_advciv_sas.xml","eventCount":3,"actionsObserved":["CHANGED"],"oldPathsObserved":[],"finalState":"PRESENT","sizeBytes":277002,"lastWriteUtc":"20261027T063726.387Z","fingerprintAlgorithm":"SHA256","fingerprint":"09CC65D4D07C40F882A03450516AF49AA4DC4C516966D4ECCC51D2187221FD68","fingerprintStatus":"AVAILABLE","engineReloadState":"NOT_OBSERVED"}
+```
+
+The first two fingerprints differ despite equal byte sizes; the unchanged-content save retains the second fingerprint. The XML row identifies the saved file and its final hash, but does not show edited lines or establish that Civ4 adopted the changes. Both disposable INI paths were removed after the test.
+
 ### DLL build reports
 
 `CvGameCoreDLL/Project/<configuration>/AdvCiv.log` carries compiler/linker messages, and `CvGameCoreDLL.dll.build.json` reports build progress/result, Git/source context, warnings/errors and binary identity. These help distinguish the source being reviewed from the DLL actually built or loaded.
@@ -881,7 +1042,71 @@ SAS enriches the existing `AdvCiv.log` rather than replacing its compiler output
 
 These build-level summaries help explain what was compiled and how it finished; ordinary compiler lines keep their existing format.
 
-The companion JSON adds structured detail, including source/project manifests and changes, recognized diagnostic lines and before/after DLL identity. Thus the text log remains readable compiler evidence while the report supports automated checks and comparisons; the JSON is an additional SAS output, not a pre-existing engine log.
+The build pair describes a development process; the runtime JSON/JSONL describes observations from Civ4. They share the goal of identifying ongoing activity and its result, but have different producers and lifetimes.
+
+#### `CvGameCoreDLL.dll.build.json` (toolchain and build launcher)
+
+The companion JSON adds structured detail, including source/project manifests and changes, recognized diagnostic lines and before/after DLL identity. Its `toolchain` records Makefile-expanded C/C++ compiler, linker and resource-compiler commands, resolved executable paths/file/product versions, and configured toolkit/SDK paths.
+
+This distinguishes the build tools from the IDE: a VS2010 IDE can invoke VC2003. The wrapper queries a print-only Makefile target and reads executable version resources; it does not run the compiler for detection. Missing query/tool metadata is explicit and does not block compilation.
+
+`invocation` independently records the explicit wrapper entry mode (`IDE_SWITCH` for `-IdeBuild`, otherwise `DIRECT_WRAPPER`), PowerShell host versions/bitness, and up to eight observed parent-process names/paths/executable versions. This can identify VCExpress, devenv, MSBuild or another launcher when present.
+
+A direct wrapper call can itself come from automation or an IDE terminal; the mode alone does not identify a human, agent or IDE version. Missing/partial parent evidence remains explicit, and command lines are not collected.
+
+The following selected fields come from the successful Debug-opt build of 2026-10-27. Paths, process IDs and other fields are omitted from this excerpt; retained values are unchanged. It shows VS2010 Express and MSBuild separately from the VC2003 compiler:
+
+```json
+{
+  "configuration": "Debug-opt",
+  "status": "SUCCEEDED",
+  "toolchain": {
+    "selection": "MAKEFILE_EXPANSION",
+    "tools": {
+      "cppCompiler": {
+        "fileVersion": "13.10.3077",
+        "productVersion": "7.10.3077"
+      },
+      "linker": {
+        "fileVersion": "7.10.3077",
+        "productVersion": "7.10.3077"
+      }
+    }
+  },
+  "invocation": {
+    "entryMode": "IDE_SWITCH",
+    "powershellVersion": "5.1.19041.6456",
+    "processBits": 32,
+    "ancestorState": "OBSERVED",
+    "ancestors": [
+      {
+        "name": "cmd.exe",
+        "fileVersion": "10.0.19041.4522 (WinBuild.160101.0800)"
+      },
+      {
+        "name": "MSBuild.exe",
+        "fileVersion": "4.8.9037.0 built by: NET481REL1"
+      },
+      {
+        "name": "VCExpress.exe",
+        "fileVersion": "10.0.30319.1 built by: RTMRel"
+      }
+    ]
+  }
+}
+```
+
+Selected-tool metadata is build-time evidence, not a claim that an old DLL was produced by the currently configured compiler. Existing loaded-DLL context separately reports compile-time `msvcVersion` / `msvcFullVersion`; those describe the compiler that produced that binary.
+
+The complete fields appear in future build reports and as compact `Selected build toolchain:` / `Build invocation:` lines in `AdvCiv.log`; older full examples retain their original metadata.
+
+An XML declaration such as `version="1.0"` identifies document syntax, not the parser executable/version or the mod's rules/schema revision.
+
+Civ4 exposes parsing through `CvDLLXmlIFaceBase` in the EXE; that interface has no parser-version getter. No MSXML identity is inferred from the declaration or from an installed DLL.
+
+XML changes remain part of the existing source/build provenance rather than a fabricated parser-version field.
+
+#### `AdvCiv.log` (compiler output and build summaries)
 
 For example, these five rows come from the [captured Release compiler log](/_1_AdvCiv-SAS/Docs/examples/build_reports/AdvCiv_Release_example.log), dated 2026-10-12 (IDE indentation omitted, intervening rows omitted; `<MOD_ROOT>` is the example's existing path substitution):
 
@@ -893,7 +1118,25 @@ Distinct coded diagnostic lines: warnings=0; errors=0
 Build details (JSON): <MOD_ROOT>\CvGameCoreDLL\Project\Release\CvGameCoreDLL.dll.build.json
 ```
 
-The build pair describes a development process; the runtime JSON/JSONL describes observations from Civ4. They share the goal of identifying ongoing activity and its result, but have different producers and lifetimes.
+Selected, nonadjacent complete rows from the 2026-10-27 Debug-opt `AdvCiv.log` show the newer caller metadata beside ordinary build boundaries (IDE indentation removed). Its `Selected build toolchain:` row carries the toolchain object illustrated in the JSON excerpt above:
+
+```log
+Started UTC: 2026-10-27T06:24:16.025Z
+Configuration: Debug-opt; request: BUILD; branch: main; commit: 7fb4c4308559b1d658f1ea0d8b6b4c19e6bd95da
+Build invocation: {"entryMode":"IDE_SWITCH","powershellVersion":"5.1.19041.6456","powershellEdition":"Desktop","clrVersion":"4.0.30319.42000","processBits":32,"ancestorState":"OBSERVED","ancestors":[{"processId":25500,"name":"cmd.exe","path":"C:\\Windows\\SysWOW64\\cmd.exe","fileVersion":"10.0.19041.4522 (WinBuild.160101.0800)","productVersion":"10.0.19041.4522"},{"processId":3968,"name":"MSBuild.exe","path":"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe","fileVersion":"4.8.9037.0 built by: NET481REL1","productVersion":"4.8.9037.0"},{"processId":5124,"name":"VCExpress.exe","path":"C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\Common7\\IDE\\VCExpress.exe","fileVersion":"10.0.30319.1 built by: RTMRel","productVersion":"10.0.30319.1"}]}
+Ended UTC: 2026-10-27T06:26:20.041Z; result: SUCCEEDED; exit code: 0; duration milliseconds: 124018
+Distinct coded diagnostic lines: warnings=0; errors=0
+```
+
+#### `_SNAPSHOT_CONTEXT/packaging_summary.txt` (packaging host)
+
+The light-source ZIP helper writes its actual packaging Python version/executable to the console and `_SNAPSHOT_CONTEXT/packaging_summary.txt`. Packaging-host, syntax-checker and embedded-game Python versions describe separate tools. A real packaging dry run on 2026-10-27 printed the following (executable path omitted):
+
+```log
+Packaging Python: 3.12.3 (tags/v3.12.3:f6650f9, Apr  9 2024, 14:05:25) [MSC v.1938 64 bit (AMD64)]
+```
+
+The local standalone checker reported Python 2.4.4 in a separate collector test; neither of these observations establishes Civ4's embedded version. That value comes from its own enabled SGR session baseline.
 
 - The [root README's build-report overview](/README.md#dll-build-reports) introduces their role alongside other development tools.
 - The [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md#persistent-build-reports) explains generation, fields, replacement on the next attempt and shipping requirements.

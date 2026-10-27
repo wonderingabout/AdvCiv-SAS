@@ -8,6 +8,7 @@ CI describes automatic execution, not a different kind of test. Our [GitHub work
 
 - [Diagnostic writer](#diagnostic-writer)
 - [Runtime exit observer](#runtime-exit-observer)
+- [Runtime source observer](#runtime-source-observer)
 - [Assertion diagnostic harness](#assertion-diagnostic-harness)
 - [Why this test is local](#why-this-test-is-local)
 
@@ -47,22 +48,17 @@ Presentation cases also compile the actual CyGame screen bridge: disabled record
 
 The harness supplies minimal game scaffolding and simulates failures. Full DLL compilation, Python/EXE lifecycle integration, in-game live log access and autoplay performance still require separate validation.
 
+The build-report regression fixture in [test_build_source_provenance.py](/.github/workflows/tests/repository/test_build_source_provenance.py) separately exercises the print-only Makefile toolchain query, overridden/missing executables and wrapper entry/parent-process evidence on Windows. It reads executable versions without compiling or linking a DLL.
+
 ## Runtime exit observer
 
 Run `python tests/diagnostics/run_runtime_exit_observer_tests.py` on Windows with Python 3 and Windows PowerShell 5.1. The [runner](/tests/diagnostics/run_runtime_exit_observer_tests.py) tests the actual [shipped observer](/Assets/SASRuntimeExitObserver.ps1) against disposable child processes, without Civ4 or administrator rights.
 
 The production launcher selects Windows PowerShell (`powershell.exe`), not PowerShell 7 (`pwsh.exe`). Its `WindowsPowerShell/v1.0/` directory name does not identify the installed engine version. The 32-bit Civ4 launcher uses the 32-bit Windows PowerShell on a 64-bit Windows host; the standalone test runner matches that architecture by default.
 
-Verified local environment on 2026-10-26:
+The observers record their actual `environment` in `SASRuntimeExit_*.json` and `SASRuntimeSourceWatch_*.json`: PowerShell version/edition, CLR identifier, .NET Framework registry release (or null if unavailable), process bitness and executable path.
 
-| Component | Observed value |
-| --- | --- |
-| Windows PowerShell | `5.1.19041.6456` |
-| .NET Framework | `4.8.1`, registry Release `533325` |
-| CLR runtime identifier | `4.0.30319.42000` |
-| Observer process | 32-bit |
-
-These are tested versions, not established minimum requirements.
+The exit observer also records `listenerCompilation.state` and `elapsedMilliseconds`; that interval measures `Add-Type`, not Civ4 startup. See the [logged metadata sample](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#live-source-edit-observation).
 
 The CLR identifier is distinct from the .NET Framework product version; see Microsoft's [Framework version detection](https://learn.microsoft.com/en-us/dotnet/framework/install/how-to-determine-which-versions-are-installed) and [Windows PowerShell versus PowerShell 7](https://learn.microsoft.com/en-us/powershell/scripting/whats-new/what-s-new-in-powershell-core-60?view=powershell-6).
 
@@ -81,6 +77,12 @@ The native writer harness also tests the real hidden launcher, receipt and final
 Disposable Windows fixtures also test existing/new runtime-error and dump-choice dialogs, a same-title mismatched-control rejection, closure while the process remains alive, and exclusion of ordinary/assertion/foreign-process dialogs.
 
 A simulated access-violation exit code is a test input, not a real game crash. Normal DLL builds do not run this test.
+
+## Runtime source observer
+
+[`run_runtime_source_observer_tests.py`](/tests/diagnostics/run_runtime_source_observer_tests.py) is a Windows-only standalone test for the shipped `Assets/SASRuntimeSourceObserver.ps1`. It creates temporary mod-input trees and a disposable target process, then checks process/start identity, duplicate ownership, burst coalescing, create/change/rename/delete evidence, filtering, SHA-256 output and final EXITED state. It never edits the real mod tree. The fixtures cover map scripts/scenarios, themes, mod settings/root INI and BUG Config XML, and check the exact final SHA-256, an unchanged-content save, and exit during event subscription, which must not strand the watcher.
+
+The native writer harness also has a smaller launcher case that verifies the real DLL-side Win32 path can start the adjacent observer and reach WATCHING when the default-off define is explicitly enabled.
 
 ## Assertion diagnostic harness
 

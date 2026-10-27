@@ -704,6 +704,16 @@ def logSessionSettings(reason):
 	# <!-- custom: Add a one-shot filesystem observation without putting it in profile/BUG change caches, which are resampled by options callbacks.
 	# The master recorder gate is at the session caller; system-context 0 skips even the path lookup/stat, while collection failure remains explicit. (GPT-6.1-Sol) -->
 	if SASGameRecordConfig.getSystemContextLevel() > 0:
+		# <!-- custom: Record the interpreter actually executing the game-side collector, not the standalone Python 2.4 syntax checker or Python 3 packaging host.
+		# Session-only metadata uses the existing recorder/system-context pre-gate; sys.version also preserves the embedded interpreter's build/compiler description without assuming a Civ4 patch version. (GPT-6.1-Sol) -->
+		pythonValues = {
+			"version": _plain(".".join([str(value) for value in sys.version_info[:3]])),
+			"buildDescription": _plain(sys.version),
+			"apiVersion": _plain(sys.api_version),
+			"byteOrder": _plain(sys.byteorder),
+			"maxUnicode": _plain(sys.maxunicode),
+		}
+		_emit("SNAPSHOT", reason, "RUNNING_INTERPRETER", "PYTHON_RUNTIME_CONTEXT", pythonValues)
 		assetValues, bAssetsReadable = _collectSafely(_collectCustomAssetsContext)
 		if not bAssetsReadable:
 			assetValues = {"directoryStatus": "UNREADABLE"}

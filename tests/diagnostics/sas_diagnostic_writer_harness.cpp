@@ -86,13 +86,19 @@ struct TestMap
 };
 struct TestGlobals
 {
-	TestGlobals() : overwrite(true), runtimeStatus(false) {}
+	TestGlobals() : overwrite(true), runtimeStatus(false), runtimeSourceWatch(false) {}
 	bool overwrite;
 	bool runtimeStatus;
+	bool runtimeSourceWatch;
 	CvGame game;
 	TestMap map;
 	bool isOverwriteLogs() const { return overwrite; }
-	int getDefineINT(char const* name) const { assert(strcmp(name, "SAS_RUNTIME_STATUS_ON") == 0); return runtimeStatus ? 1 : 0; }
+	int getDefineINT(char const* name) const
+	{
+		if (strcmp(name, "SAS_RUNTIME_STATUS_ON") == 0) return runtimeStatus ? 1 : 0;
+		if (strcmp(name, "SAS_RUNTIME_SOURCE_WATCH_ON") == 0) return runtimeSourceWatch ? 1 : 0;
+		assert(false); return 0;
+	}
 	CvGame const& getGame() const { return game; }
 	TestMap const& getMap() const { return map; }
 } GC;
@@ -304,6 +310,26 @@ int main(int argc, char** argv)
 {
 	wchar_t temporary[MAX_PATH];
 	require(GetEnvironmentVariableW(L"SAS_DIAGNOSTIC_TEST_ROOT", temporary, MAX_PATH) > 0, "test root is provided");
+	// <!-- custom: Exercise the production default-off source-watcher launcher separately from the always-on Runtime exit observer.
+	// The companion must reach WATCHING through the actual Win32 path before this fixture exits; filesystem event semantics are covered by the standalone watcher test. (ChatGPT-5.6-Sol) -->
+	if (argc == 2 && strcmp(argv[1], "--runtime-source-observer") == 0)
+	{
+		GC.runtimeStatus = true;
+		GC.runtimeSourceWatch = true;
+		std::wstring const root = std::wstring(temporary) + L"\\source_observer_\x0416\x6f22";
+		require(CreateDirectoryW(root.c_str(), NULL) != FALSE, "create source-observer root");
+		setSASDiagnosticLogRootDirectory(root.c_str());
+		require(g_uiSASRuntimeSourceObserverProcessId != 0 && g_uiSASRuntimeSourceObserverLaunchError == 0, "hidden source observer launches through production Win32 path");
+		CvString const& started = getSASExecutableProcessStartUtc();
+		CvString name;
+		name.Format("SASRuntimeSourceWatch_%s_%lu.json", started.GetCString(), (unsigned long)GetCurrentProcessId());
+		std::wstring const receipt = root + L"\\Logs\\" + std::wstring(name.begin(), name.end());
+		DWORD const deadline = GetTickCount() + 10000;
+		while (readFile(receipt).find("WATCHING") == std::string::npos && (int)(deadline - GetTickCount()) > 0)
+			Sleep(20);
+		require(readFile(receipt).find("WATCHING") != std::string::npos, "source observer confirms process identity and filesystem-watcher attachment");
+		return 0;
+	}
 	// <!-- custom: Exercise the production hidden launcher, Unicode path, handle attachment and final exit record together; ExitProcess supplies a synthetic exception-shaped code without crashing Civ4 or invoking an actual fault. (GPT-6.1-Sol) -->
 	if (argc == 2 && strcmp(argv[1], "--runtime-exit-observer") == 0)
 	{
@@ -366,7 +392,7 @@ int main(int argc, char** argv)
 		bridge.updateSASRuntimeStatusWorldBuilderScreen(true);
 		bridge.updateSASRuntimeStatusWorldBuilderScreen(false);
 		// <!-- custom: The current bridge always checks Advanced Start for persisted editor-history attribution on show/hide; disabled runtime diagnostics must add no native mode queries or observer launches. (GPT-6.1-Sol) -->
-		require(g_worldBuilderModeReads == 0 && g_advancedStartReads == 2 && g_aSASRuntimeExitObservers.empty(), "disabled runtime adds no mode query or external observer to required history attribution");
+		require(g_worldBuilderModeReads == 0 && g_advancedStartReads == 2 && g_aSASRuntimeExitObservers.empty() && g_aSASRuntimeSourceObservers.empty(), "disabled runtime adds no mode query or external observer to required history attribution");
 		updateSASRuntimeStatusGameEnded();
 		updateSASRuntimeStatusRequest(SAS_RUNTIME_STATUS_EXIT_REQUESTED);
 		updateSASRuntimeStatusCleanExit();

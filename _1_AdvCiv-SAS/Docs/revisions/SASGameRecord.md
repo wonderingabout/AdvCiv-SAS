@@ -98,10 +98,23 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 174 - SAS practical 6689
+### Revision 175 - SAS practical 6690
 
 - **Date:** 2026-10-26
 - **Git commit:** pending
+- **Change:** Expand the shared tracked code/rules source-provenance scope to include shipped root-level `Assets/*.ps1` and `Assets/*.cs` runtime companions.
+  - SGR, Runtime source identity and DLL build reports now treat those helpers alongside `CvGameCoreDLL`, `Assets/Config`, `Assets/Python`, `Assets/XML` and `PrivateMaps` when computing staged/unstaged/combined patch evidence.
+  - This closes the gap exposed by the Runtime exit/dialog/source observers: editing a shipped PowerShell/C# diagnostic helper can no longer leave the code/rules fingerprint unchanged.
+  - Source-context row fields are unchanged; only the meaning/scope of their tracked code/rules fingerprints and per-file evidence expands. No network fetch or untracked-file claim is added.
+
+  - The build report also records Makefile-expanded toolchain commands/executable versions and bounded observed launcher ancestry, distinguishing selected compilers/linkers from IDE/caller evidence. Packaging output records its actual Python host.
+  - At session baselines, system-context-enabled SGR also records `PYTHON_RUNTIME_CONTEXT` from the interpreter executing its Python collector (`sys.version`, version tuple, API version, byte order and Unicode limit). This is separate from the packaging host and standalone syntax checker. Existing loaded-DLL compiler macros remain the compiled-binary evidence.
+  - At system-context level 2+, runtime context also reports compiled `intBits`/`intMax` and Windows-reported `processTotalVirtualBytes`; the shared EXE identity adds `exeLargeAddressAware` from its cached loaded PE header. These distinguish numeric overflow from virtual-address-space pressure, without changing gameplay or querying memory every frame.
+
+### Revision 174 - SAS practical 6689
+
+- **Date:** 2026-10-26
+- **Git commit:** `7fb4c4308559b1d658f1ea0d8b6b4c19e6bd95da`
 - **Change:** Correct the SGR revision checker so the known source-packaging entry point mentioning SASGameRecord does not count as a recorder implementation change.
   - The Runtime 11 commit moved diagnostic screenshots and updated `make_light_source_zip.py`; CI incorrectly requested an SGR increment because its shared marker scan included all development helpers.
   - The exclusion names only that packaging entry point. Other helpers retain conservative marker detection, including helpers without SASGameRecord in their filename; dedicated recorder/checker and SASGameRecord-named Python helpers still qualify. Regression fixtures cover both the packaging false positive and retained helper/bridge detection.

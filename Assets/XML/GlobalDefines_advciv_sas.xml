@@ -2276,7 +2276,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>174</iDefineIntVal>
+		<iDefineIntVal>175</iDefineIntVal>
 	</Define>
 
 
@@ -2317,6 +2317,17 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	The toggle is cached on first use; change it before launch rather than expecting live XML retuning. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_RUNTIME_STATUS_ON</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+	<!-- custom: Optional live source-edit observation for Runtime diagnostics.
+	1 launches an external event-driven watcher for Python/XML/BUG Config, PrivateMaps scripts/scenarios, Resource themes, mod Settings and mod-root INI files while SAS runtime status is enabled; 0 (default) launches no source watcher.
+	Rows record observed disk events, mod-relative paths and final size/SHA-256 evidence after short burst coalescing.
+	They do not claim that Civ4 reloaded or began executing the changed file.
+	C++ source is intentionally excluded: editing it cannot replace the already loaded DLL.
+	User Logs/settings are excluded; configured BUG options already have SGR session/callback records. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_RUNTIME_SOURCE_WATCH_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 

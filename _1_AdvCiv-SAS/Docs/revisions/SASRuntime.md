@@ -10,10 +10,24 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## History
 
-### Revision 11 - SAS practical 6689
+### Revision 12 - SAS practical 6690
 
 - **Date:** 2026-10-26
 - **Git commit:** pending
+- **Change:** Add an optional external live-source observer for mod-source/configuration disk edits while Runtime diagnostics are enabled, without claiming that Civ4 reloaded or executed the changed files.
+  - `SAS_RUNTIME_SOURCE_WATCH_ON=1` launches adjacent `Assets/SASRuntimeSourceObserver.ps1`; the shipped default is 0, and ordinary Runtime status does not start the watcher.
+  - The companion uses recursive `FileSystemWatcher` events for Python/XML/BUG Config, PrivateMaps scripts/scenarios, Resource themes, mod Settings and mod-root INI files, coalesces rapid save/rename bursts per path, then records mod-relative path, observed actions/times, final presence/size/write time and bounded SHA-256 evidence. File contents are never copied.
+  - `SASRuntimeSourceWatch_<process-start UTC>_<PID>.json` reports watcher state/counters; `SASRuntimeSourceChanges_<process-start UTC>_<PID>.jsonl` contains bounded change rows. Each row states `engineReloadState=NOT_OBSERVED`: a disk edit is not proof that embedded Python/XML reloaded successfully. C++ is deliberately excluded because editing source never replaces the loaded DLL.
+  - Process creation time, per-run/root ownership and bounded pending/row/fingerprint limits protect identity and overhead. The watcher is event-driven rather than a periodic source-tree scan/hash; state JSON rewrites only when watcher state/counters change.
+  - A single post-subscription process check covers an exit between enabling notifications and registering the exit handler, preventing an orphaned watcher without periodic process polling. Windows fixtures also verify unchanged-content saves and exact final file hashes.
+  - Both external observers record startup host metadata through `Assets/SASRuntimeObserverEnvironment.ps1`; the exit receipt also records C# listener compilation result/duration. This replaces the manually maintained host-version table without repeating metadata in every source event.
+  - Shared cached binary context also retains the loaded PE Large Address Aware flag for EXE diagnostics; this describes address-space eligibility rather than an integer-size or allocation guarantee.
+  - Current Runtime JSON exposes whether source watching is enabled plus observer PID/launch error and companion filenames. Missing/blocked PowerShell, filesystem-watcher overflow or I/O failure remains explicit rather than being interpreted as no edits.
+
+### Revision 11 - SAS practical 6689
+
+- **Date:** 2026-10-26
+- **Git commit:** `7fb4c4308559b1d658f1ea0d8b6b4c19e6bd95da`
 - **Change:** Observe the captured Microsoft Visual C++ Runtime Library error and Civ4 Program Execution Problem dump-choice dialogs while Civ4 remains alive, complementing the process-exit wait. PowerShell compiles the adjacent `Assets/SASRuntimeDialogObserver.cs` through the installed .NET tooling; the game DLL does not compile or load this managed listener.
   - A process-filtered, out-of-context WinEvent listener with an initial window scan detects recognized visible dialogs and later hide/destroy observations. It reads only bounded standard text from the recognized target dialog and never clicks or dismisses it.
     - The dump reporter’s known Edit 1004 is guarded by its message and three dump-choice buttons; ordinary popups/assertions are excluded.

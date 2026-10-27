@@ -824,13 +824,15 @@ Checks that runtime recording is disabled in the shipped XML. The fixed `Logs/SA
 
 Function names, JSON field inventories and exact callback statements are not checked here. The local VC2003 diagnostic harness exercises JSON output, disabled no-I/O behavior, autoplay countdown filtering and failed root migration. Actual EXE lifecycle transitions still require gameplay validation.
 
+The shipped-value check requires both `SAS_RUNTIME_STATUS_ON=0` and `SAS_RUNTIME_SOURCE_WATCH_ON=0`; local development overrides can enable them without staging those values.
+
 #### `build/diagnostics/runtime_revision_history.py`
 
 Checks the compiled runtime-recorder revision against its [history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md), shared by the current-state JSON and activity JSONL. This label is independent of SASGameRecord's revision.
 
 Reuses SASGameRecord's event boundaries and explicit `revision:squash` policy, checking each ordinary commit or the complete squash candidate: recognized implementation changes require exactly one increment; pure CI/checker, documentation/example and test maintenance leaves it unchanged. Local checks also validate the pending working-tree increment, including new files before staging.
 
-Dedicated runtime files always qualify, including implementation comments and the shipped `Assets/SASRuntimeExitObserver.ps1` / `Assets/SASRuntimeDialogObserver.cs` companions. Shared source/configuration changes are recognized by runtime symbols in changed lines; unusual refactors still need manual review.
+Dedicated runtime files always qualify, including implementation comments and the shipped `Assets/SASRuntimeExitObserver.ps1`, `Assets/SASRuntimeDialogObserver.cs` and optional `Assets/SASRuntimeSourceObserver.ps1` companions. Shared source/configuration changes are recognized by runtime symbols in changed lines; unusual refactors still need manual review.
 
 The regression tests cover multiple commits, missed increments, jumps/regressions, history mismatches, checker-only maintenance and clean CRLF working trees.
 

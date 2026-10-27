@@ -15,7 +15,7 @@
 // Compile the label into the publisher: an edited XML value must not make an older loaded DLL report a newer implementation; this counter is independent of SASGameRecord and binary-save versions. (GPT-6.1-Sol) -->
 enum SASRuntimeRecorderRevision
 {
-	SAS_RUNTIME_REVISION = 11
+	SAS_RUNTIME_REVISION = 12
 };
 
 #define SAS_RUNTIME_PROCESS_STATES(DO) DO(RUNNING) DO(EXITED_CLEANLY) DO(EXITED)
@@ -119,6 +119,8 @@ static bool g_bSASRuntimeHistoryAtCurrentRoot = false;
 // It is default-off and transition-driven; the fixed JSON is current state, with completed activity intervals retained in a companion timeline.
 // Session/load counters live for the DLL process so repeated new/load actions are distinguishable without retaining a growing history in memory. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static int g_iSASRuntimeStatusEnabled = -1;
+// <!-- custom: Live Python/XML disk-edit observation is a separate default-off subfeature of runtime diagnostics; cache its define independently so ordinary Runtime status does not start a filesystem watcher. (ChatGPT-5.6-Sol) -->
+static int g_iSASRuntimeSourceWatchEnabled = -1;
 static unsigned int g_uiSASRuntimeStatusSerial = 0;
 // <!-- custom: Recovered snapshots disclose failed earlier publications even to readers without an older statusSerial; status and history failures describe separate outputs. (ChatGPT + GPT-6.1-Sol) -->
 static unsigned int g_uiSASRuntimeStatusWriteFailures = 0;
@@ -200,6 +202,13 @@ bool isSASRuntimeStatusEnabled()
 	if (g_iSASRuntimeStatusEnabled < 0)
 		g_iSASRuntimeStatusEnabled = (GC.getDefineINT("SAS_RUNTIME_STATUS_ON") > 0 ? 1 : 0);
 	return g_iSASRuntimeStatusEnabled > 0;
+}
+
+static bool isSASRuntimeSourceWatchEnabled()
+{
+	if (g_iSASRuntimeSourceWatchEnabled < 0)
+		g_iSASRuntimeSourceWatchEnabled = (GC.getDefineINT("SAS_RUNTIME_SOURCE_WATCH_ON") > 0 ? 1 : 0);
+	return g_iSASRuntimeSourceWatchEnabled > 0;
 }
 
 static bool writeSASRuntimeStatus(SASRuntimeStatusReason eReason);
@@ -319,6 +328,90 @@ static void ensureSASRuntimeExitObserver(std::wstring const& szStatusPath)
 	g_aSASRuntimeExitObservers.push_back(kLaunch);
 	g_uiSASRuntimeExitObserverProcessId = kLaunch.uiProcessId;
 	g_uiSASRuntimeExitObserverLaunchError = kLaunch.uiError;
+}
+
+// <!-- custom: Runtime 12 keeps live source observation in its own optional process instead of coupling FileSystemWatcher event handling to the always-on exit/dialog observer.
+// Only the explicit default-off source-watch define launches it.
+// The companion watches Python/XML disk events, not engine reload state; changing C++ source never replaces the loaded DLL.
+// Root migration mirrors exit-observer ownership: one helper per distinct published Logs root, with process/start identity checked again inside the script. (ChatGPT-5.6-Sol) -->
+struct SASRuntimeSourceObserverLaunch
+{
+	std::wstring szRoot;
+	DWORD uiProcessId;
+	DWORD uiError;
+};
+static std::vector<SASRuntimeSourceObserverLaunch> g_aSASRuntimeSourceObservers;
+static DWORD g_uiSASRuntimeSourceObserverProcessId = 0;
+static DWORD g_uiSASRuntimeSourceObserverLaunchError = 0;
+static std::wstring g_szSASRuntimeSourceObserverCurrentRoot;
+
+static void ensureSASRuntimeSourceObserver(std::wstring const& szStatusPath)
+{
+	if (!isSASRuntimeSourceWatchEnabled())
+		return;
+	if (g_szSASRuntimeSourceObserverCurrentRoot == g_szSASRuntimeStatusRootDirectory)
+		return;
+	g_szSASRuntimeSourceObserverCurrentRoot = g_szSASRuntimeStatusRootDirectory;
+	for (size_t i = 0; i < g_aSASRuntimeSourceObservers.size(); i++)
+	{
+		if (isSASRuntimeStatusSamePath(g_aSASRuntimeSourceObservers[i].szRoot, g_szSASRuntimeStatusRootDirectory))
+		{
+			g_uiSASRuntimeSourceObserverProcessId = g_aSASRuntimeSourceObservers[i].uiProcessId;
+			g_uiSASRuntimeSourceObserverLaunchError = g_aSASRuntimeSourceObservers[i].uiError;
+			return;
+		}
+	}
+	SASRuntimeSourceObserverLaunch kLaunch;
+	kLaunch.szRoot = g_szSASRuntimeStatusRootDirectory;
+	kLaunch.uiProcessId = 0;
+	kLaunch.uiError = ERROR_FILE_NOT_FOUND;
+	MEMORY_BASIC_INFORMATION kMemory;
+	wchar_t aModulePath[MAX_PATH];
+	wchar_t aSystemPath[MAX_PATH];
+	DWORD const uiSystemLength = GetSystemDirectoryW(aSystemPath, MAX_PATH);
+	if (VirtualQuery((LPCVOID)&ensureSASRuntimeSourceObserver, &kMemory, sizeof(kMemory)) != 0 && uiSystemLength > 0 && uiSystemLength < MAX_PATH)
+	{
+		DWORD const uiLength = GetModuleFileNameW((HMODULE)kMemory.AllocationBase, aModulePath, MAX_PATH);
+		if (uiLength > 0 && uiLength < MAX_PATH)
+		{
+			std::wstring szScript(aModulePath, uiLength);
+			size_t const iSlash = szScript.find_last_of(L"\\/");
+			if (iSlash != std::wstring::npos)
+			{
+				szScript = szScript.substr(0, iSlash + 1) + L"SASRuntimeSourceObserver.ps1";
+				if (GetFileAttributesW(szScript.c_str()) != INVALID_FILE_ATTRIBUTES)
+				{
+					std::wstring const szPowerShell = std::wstring(aSystemPath) + L"\\WindowsPowerShell\\v1.0\\powershell.exe";
+					CvString szProcessId;
+					szProcessId.Format("%lu", (unsigned long)GetCurrentProcessId());
+					CvString const& szStartedUtc = getSASExecutableProcessStartUtc();
+					CvString szRevision;
+					szRevision.Format("%d", SAS_RUNTIME_REVISION);
+					std::wstring szCommand = L"\"" + szPowerShell + L"\" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"" + szScript + L"\" -StatusPath \"" + szStatusPath + L"\" -TargetProcessId " + std::wstring(szProcessId.begin(), szProcessId.end()) + L" -ProcessStartUtc " + std::wstring(szStartedUtc.begin(), szStartedUtc.end()) + L" -RecorderRevision " + std::wstring(szRevision.begin(), szRevision.end());
+					std::vector<wchar_t> aCommand(szCommand.begin(), szCommand.end());
+					aCommand.push_back(L'\0');
+					STARTUPINFOW kStartup;
+					PROCESS_INFORMATION kProcess;
+					ZeroMemory(&kStartup, sizeof(kStartup));
+					ZeroMemory(&kProcess, sizeof(kProcess));
+					kStartup.cb = sizeof(kStartup);
+					kStartup.dwFlags = STARTF_USESHOWWINDOW;
+					kStartup.wShowWindow = SW_HIDE;
+					if (CreateProcessW(szPowerShell.c_str(), &aCommand[0], NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &kStartup, &kProcess))
+					{
+						kLaunch.uiProcessId = kProcess.dwProcessId;
+						kLaunch.uiError = 0;
+						CloseHandle(kProcess.hThread);
+						CloseHandle(kProcess.hProcess);
+					}
+					else kLaunch.uiError = GetLastError();
+				}
+			}
+		}
+	}
+	g_aSASRuntimeSourceObservers.push_back(kLaunch);
+	g_uiSASRuntimeSourceObserverProcessId = kLaunch.uiProcessId;
+	g_uiSASRuntimeSourceObserverLaunchError = kLaunch.uiError;
 }
 
 // <!-- custom: Accept BUG's already-trimmed Unicode root independently of historical log handles; status is replaceable current state, not append history. (GPT-6.1-Sol) -->
@@ -818,6 +911,7 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 	if (!bDirectoryReady)
 		return false;
 	ensureSASRuntimeExitObserver(szPath);
+	ensureSASRuntimeSourceObserver(szPath);
 	g_uiSASRuntimeStatusSerial++;
 	// <!-- custom: Cache DLL identity only after the status gate; disabled runs do no provenance work, and enabled turn updates never rehash the binary or rescan build outputs. (GPT-6.1-Sol) -->
 	CvString const& szDllIdentity = getSASRuntimeDllIdentity(true);
@@ -838,6 +932,11 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 		"  \"exitObserverProcessId\": %lu,\r\n"
 		"  \"exitObserverLaunchError\": %lu,\r\n"
 		"  \"exitObservationFilename\": \"SASRuntimeExit_%s_%lu.json\",\r\n"
+		"  \"sourceWatchEnabled\": %d,\r\n"
+		"  \"sourceWatchObserverProcessId\": %lu,\r\n"
+		"  \"sourceWatchLaunchError\": %lu,\r\n"
+		"  \"sourceWatchStateFilename\": \"SASRuntimeSourceWatch_%s_%lu.json\",\r\n"
+		"  \"sourceWatchHistoryFilename\": \"SASRuntimeSourceChanges_%s_%lu.jsonl\",\r\n"
 		"  \"windowCloseObservationArmed\": %d,\r\n"
 		"  \"windowCloseRequestObservedUtc\": \"%s\",\r\n"
 		"  \"gameState\": \"%s\",\r\n"
@@ -895,7 +994,10 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 		"  \"loadedSaveCheckpointUtc\": \"%s\"\r\n"
 		"}\r\n",
 		SAS_RUNTIME_REVISION, szDllIdentity.GetCString(), szSourceIdentity.GetCString(), g_uiSASRuntimeStatusSerial, g_uiSASRuntimeStatusWriteFailures, (unsigned long)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), getSASProcessUtcTimestamp().GetCString(), szUpdatedUtc.GetCString(),
-		aSASRuntimeProcessStateNames[g_eSASRuntimeProcessState], (unsigned long)g_uiSASRuntimeExitObserverProcessId, (unsigned long)g_uiSASRuntimeExitObserverLaunchError, getSASExecutableProcessStartUtc().GetCString(), (unsigned long)GetCurrentProcessId(), (g_bSASRuntimeWindowCloseObservationArmed ? 1 : 0), g_szSASRuntimeWindowCloseRequestObservedUtc.GetCString(),
+		aSASRuntimeProcessStateNames[g_eSASRuntimeProcessState], (unsigned long)g_uiSASRuntimeExitObserverProcessId, (unsigned long)g_uiSASRuntimeExitObserverLaunchError, getSASExecutableProcessStartUtc().GetCString(), (unsigned long)GetCurrentProcessId(),
+		(isSASRuntimeSourceWatchEnabled() ? 1 : 0), (unsigned long)g_uiSASRuntimeSourceObserverProcessId, (unsigned long)g_uiSASRuntimeSourceObserverLaunchError,
+		getSASExecutableProcessStartUtc().GetCString(), (unsigned long)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), (unsigned long)GetCurrentProcessId(),
+		(g_bSASRuntimeWindowCloseObservationArmed ? 1 : 0), g_szSASRuntimeWindowCloseRequestObservedUtc.GetCString(),
 		aSASRuntimeGameStateNames[g_eSASRuntimeGameState],
 		aSASRuntimeActivityNames[g_eSASRuntimeActivity], g_uiSASRuntimeActivitySerial, g_szSASRuntimeActivityStartedUtc.GetCString(), getSASElapsedMilliseconds(g_uiSASRuntimeActivityStartedMilliseconds, uiNowMilliseconds),
 		aSASRuntimeActivityNames[g_eSASRuntimePreviousActivity], g_szSASRuntimePreviousStartedUtc.GetCString(), g_szSASRuntimePreviousEndedUtc.GetCString(), g_iSASRuntimePreviousDurationMilliseconds,
