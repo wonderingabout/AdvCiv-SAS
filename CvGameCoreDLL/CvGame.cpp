@@ -722,7 +722,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	if (!bConstructorCall)
 	{
 		// <!-- custom: GameRecord finalization already retries pending output and closes both diagnostic handles; BBAI-only sessions need the same release before reset destroys state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
-		if (isSASGameRecordLogEnabled()) finalizeSASGameRecordLogSession();
+		if (isSASGameRecordLogEnabled()) finalizeSASGameRecordLogSession("GAME_RESET");
 		else if (isSASBBAILogEnabled()) flushSASDiagnosticLogs(true);
 	}
 	uninit();
@@ -5759,6 +5759,8 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 		return;
 	m_eWinner = eNewWinner;
 	m_eVictory = eNewVictory;
+	// <!-- custom: Winner/victory assignment is the authoritative result boundary across normal, autoplay and Rise & Fall paths; it can precede GAMESTATE_OVER or continue directly into EXTENDED. (ChatGPT-5.6-Sol) -->
+	if (isSASGameRecordLogEnabled() && (eNewWinner != NO_TEAM || eNewVictory != NO_VICTORY)) logSASGameRecordGameResult("RESULT_ASSIGNED");
 	// advc.707: Handled by RiseFall::prepareForExtendedGame
 	if (!isOption(GAMEOPTION_RISE_FALL))
 	{	// AI_AUTO_PLAY_MOD, 07/09/08, jdog5000:
@@ -5808,6 +5810,14 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 	if (eOldValue == eNewValue)
 		return;
 	m_eGameState = eNewValue;
+	// <!-- custom: Keep result assignment distinct from the later engine state transition; autoplay can enter EXTENDED directly without visiting OVER. (ChatGPT-5.6-Sol) -->
+	if (isSASGameRecordLogEnabled())
+	{
+		if (eNewValue == GAMESTATE_OVER)
+			logSASGameRecordGameResult("GAMESTATE_OVER");
+		else if (eNewValue == GAMESTATE_EXTENDED && (getWinner() != NO_TEAM || getVictory() != NO_VICTORY))
+			logSASGameRecordGameResult("EXTENDED_GAME_STARTED");
+	}
 	// <!-- custom: The end-game popup and multiplayer extended-game handshake can resume play through different call paths; observe the authoritative OVER -> EXTENDED state transition here. (ChatGPT-5.6-Sol) -->
 	if (isSASRuntimeStatusEnabled() && eOldValue == GAMESTATE_OVER && eNewValue == GAMESTATE_EXTENDED)
 		updateSASRuntimeStatusExtendedGameStarted();

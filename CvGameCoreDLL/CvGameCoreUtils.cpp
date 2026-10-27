@@ -2232,6 +2232,21 @@ char const* getSASAdvancedStartActionType(AdvancedStartActionTypes eAction)
 	}
 }
 
+// <!-- custom: GameStateTypes is an existing game enum, not recorder-owned state; keep its reusable readable mapping with the other enum naming helpers.
+// Stringify the enum suffix at compile time, matching the adjacent Advanced Start helper; SGR allocates no new string and the authoritative enum values stay unchanged. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASGameStateTypeName(GameStateTypes eState)
+{
+	switch (eState)
+	{
+#define SAS_GAME_STATE_NAME(NAME) case GAMESTATE_##NAME: return #NAME;
+	SAS_GAME_STATE_NAME(ON)
+	SAS_GAME_STATE_NAME(OVER)
+	SAS_GAME_STATE_NAME(EXTENDED)
+#undef SAS_GAME_STATE_NAME
+	default: return "UNKNOWN";
+	}
+}
+
 // <!-- custom: Share one fixed machine-readable ButtonPopupTypes vocabulary between popup consumers, including runtime status and SASGameRecord; the vocabulary describes the existing UI enum rather than either recorder.
 // Do not use localized popup text: some popup families contain names, passwords or other user-entered/free-form content. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 char const* getSASButtonPopupTypeName(ButtonPopupTypes eType)

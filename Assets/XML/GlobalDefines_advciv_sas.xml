@@ -2216,6 +2216,14 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_SGR_ACTION_TRACE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Map captions/signs are arbitrary player-authored text even though their coordinates/owner are useful diagnostic context.
+	0 (default) records annotation presence/add/edit/remove while applicable oldCaption/newCaption fields are WITHHELD; 1 records caption text as quoted/escaped UTF-8 diagnostic fields.
+	This applies only to the level-2+ action trace and does not change save data, map-sign visibility, or WorldBuilder history.
+	Cached by Python on first annotation observation; restart/reload after changing it. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_SGR_MAP_ANNOTATION_TEXT_ON</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<Define>
 		<DefineName>SAS_SGR_PERFORMANCE_METRICS_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -2276,7 +2284,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>175</iDefineIntVal>
+		<iDefineIntVal>176</iDefineIntVal>
 	</Define>
 
 

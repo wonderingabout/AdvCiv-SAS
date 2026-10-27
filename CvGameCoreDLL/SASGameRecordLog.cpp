@@ -2493,6 +2493,7 @@ static CvString getSASGameRecordLogSettingFields()
 		{ "SAS_SGR_TRADE_MARKET_BONUS_GPT_QUOTES_ON", isSASGameRecordTradeMarketBonusGPTQuotesEnabled() },
 		{ "SAS_SGR_TRADE_MARKET_AI_TECH_VALS_ON", isSASGameRecordTradeMarketAITechValuesEnabled() },
 		{ "SAS_SGR_ACTION_TRACE_ON", isSASGameRecordActionTraceEnabled() },
+		{ "SAS_SGR_MAP_ANNOTATION_TEXT_ON", GC.getDefineBOOL("SAS_SGR_MAP_ANNOTATION_TEXT_ON") },
 		{ "SAS_SGR_PERFORMANCE_METRICS_ON", isSASGameRecordPerformanceMetricsEnabled() },
 		{ "SAS_SGR_SYSTEM_CONTEXT_LVL", getSASGameRecordSystemContextLevel() },
 		{ "SAS_SGR_HARDWARE_IDENTITY_ON", isSASGameRecordHardwareIdentityEnabled() },
@@ -2682,6 +2683,35 @@ void logSASGameRecordInterfaceState(char const* szComponent, char const* szEvent
 		szComponent, (szEvent == NULL || szEvent[0] == '\0' ? "-" : szEvent),
 		(szReason == NULL || szReason[0] == '\0' ? "-" : szReason), std::max(0, iCount),
 		(szValues == NULL || szValues[0] == '\0' ? "-" : szValues));
+}
+
+// <!-- custom: Alt+S captions/landmarks are EXE-managed, save-backed UI annotations rather than units/cities; Python reconstructs the logical visible+hidden set only at low-frequency observation boundaries.
+// Keep free-form caption text withheld by default and quote/escape the UTF-8 diagnostic bytes when the dedicated opt-in is enabled. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordMapAnnotationSummary(char const* szEvent, char const* szReason, int iTotal, int iVisible, int iHidden, int iAdded, int iEdited, int iRemoved, bool bContentWithheld)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized())
+		return;
+	logSASGameRecord("GAME_RECORD_MAP_ANNOTATIONS turn=%d elapsed=%d viewerPlayer=%d sessionWallMilliseconds=%u event=%s reason=%s total=%d visible=%d hidden=%d added=%d edited=%d removed=%d captionText=%s",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
+		(szEvent == NULL || szEvent[0] == '\0' ? "-" : szEvent), (szReason == NULL || szReason[0] == '\0' ? "-" : szReason),
+		std::max(0, iTotal), std::max(0, iVisible), std::max(0, iHidden), std::max(0, iAdded), std::max(0, iEdited), std::max(0, iRemoved),
+		bContentWithheld ? "WITHHELD" : "RECORDED");
+}
+
+void logSASGameRecordMapAnnotation(char const* szEvent, char const* szReason, int iOwnerPlayer, int iX, int iY, bool bHidden, char const* szOldCaption, char const* szNewCaption, bool bContentWithheld)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized() || szEvent == NULL || szEvent[0] == '\0')
+		return;
+	bool const bHasOld = (strcmp(szEvent, "EDIT") == 0 || strcmp(szEvent, "REMOVE") == 0);
+	bool const bHasNew = (strcmp(szEvent, "SNAPSHOT") == 0 || strcmp(szEvent, "ADD") == 0 || strcmp(szEvent, "EDIT") == 0);
+	CvString const szOldField = (!bHasOld ? CvString("-") : (bContentWithheld ? CvString("WITHHELD") : getSASDiagnosticQuoted(szOldCaption == NULL ? "" : szOldCaption)));
+	CvString const szNewField = (!bHasNew ? CvString("-") : (bContentWithheld ? CvString("WITHHELD") : getSASDiagnosticQuoted(szNewCaption == NULL ? "" : szNewCaption)));
+	logSASGameRecord("GAME_RECORD_MAP_ANNOTATION turn=%d elapsed=%d viewerPlayer=%d sessionWallMilliseconds=%u event=%s reason=%s kind=%s ownerPlayer=%d x=%d y=%d hiddenAtObservation=%d content=%s oldCaption=%s newCaption=%s",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
+		szEvent, (szReason == NULL || szReason[0] == '\0' ? "-" : szReason), iOwnerPlayer < 0 ? "LANDMARK" : "PLAYER_SIGN",
+		iOwnerPlayer, iX, iY, bHidden, bContentWithheld ? "WITHHELD" : "RECORDED", szOldField.GetCString(), szNewField.GetCString());
 }
 
 // <!-- custom: Serialize a pre/post Boolean only when the authoritative getter reports a real change; callers capture state around the native operation and pre-gate the action subject before requesting the second getter.
@@ -4643,7 +4673,7 @@ void flushSASGameRecordTurnChanges(int iGameTurn)
 
 // <!-- custom: Session rollover previously reset pending city-bombard, plot-change and incremental-revelation observations without writing them.
 // Flush while the old game/map still supply the matching turn and revelation totals, before CvGame::init or CvMap::read resets the corresponding state. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-void finalizeSASGameRecordLogSession()
+void finalizeSASGameRecordLogSession(char const* szReason)
 {
 	// <!-- custom: If initialization aborts before gameStart, keep its setup actions even though authoritative context could not be completed. (ChatGPT-5.6-Sol) -->
 	if (g_bSASGameRecordBufferInitializingActions)
@@ -4663,7 +4693,13 @@ void finalizeSASGameRecordLogSession()
 	// Consume the open-session marker once, but retain the unconditional shared-writer flush below for retries and BBAI output. See KI#382.3. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	if (g_bSASGameRecordSessionOpen)
 	{
+		// <!-- custom: This is an orderly in-process recorder boundary, not proof that the Windows process exited cleanly.
+		// A missing row can mean abrupt termination or lost output; correlate Runtime's external process/failure evidence rather than inferring a crash from absence alone. (ChatGPT-5.6-Sol) -->
 		logSASGameRecordDiagnosticWriterHealth(GC.getGame().getGameTurn(), "SESSION_FINALIZE");
+		// <!-- custom: Close this recording after its final health row; victory and extended post-win play do not close it.
+		// Omit gameplay-result fields because map-load fallback can see an old map beside already-replaced CvGame state; GAME_RESULT records outcomes separately. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		logSASGameRecord("GAME_RECORD_LOG_CLOSED reason=%s sessionWallMilliseconds=%u",
+			(szReason == NULL || szReason[0] == '\0' ? "-" : szReason), getSASGameRecordSessionWallMilliseconds());
 		g_bSASGameRecordSessionOpen = false;
 	}
 	// <!-- custom: Retry pending diagnostics, close persistent handles and release drained retry storage before rollover; old timestamped sessions must not accumulate open files or retained peak allocations. (GPT-6.1-Sol) -->
@@ -8410,6 +8446,20 @@ static PlayerTypes getSASGameRecordTopPowerPlayer()
 		}
 	}
 	return eBestPlayer;
+}
+
+// <!-- custom: Outcome and lifecycle state are intentionally separate from detailed victory/action rows: a result can be assigned before the engine enters OVER, and autoplay can continue directly into EXTENDED.
+// This compact row gives tools an authoritative outcome/state checkpoint without inferring completion from whichever UI row happens to come last. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordGameResult(char const* szEvent)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized())
+		return;
+	logSASGameRecord("GAME_RECORD_GAME_RESULT turn=%d elapsed=%d year=%d sessionWallMilliseconds=%u event=%s gameState=%s winnerTeam=%d victory=%s playersAlive=%d teamsAlive=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), getSASGameRecordSessionWallMilliseconds(),
+		(szEvent == NULL || szEvent[0] == '\0' ? "-" : szEvent), getSASGameStateTypeName(kGame.getGameState()),
+		kGame.getWinner(), kGame.getVictory() == NO_VICTORY ? "-" : GC.getInfo(kGame.getVictory()).getType(),
+		kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive());
 }
 
 void logSASGameRecordRunStatus(char const* szReason)

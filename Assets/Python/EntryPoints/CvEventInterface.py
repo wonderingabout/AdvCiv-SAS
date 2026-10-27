@@ -9,6 +9,10 @@
 #
 # No other modules should import this
 
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
+
 # **********************************
 # GJD modifications start here
 # **********************************
@@ -69,6 +73,20 @@ def onEvent(argsList):
 			if tag == "GameStart":
 				szSettingsReason = "GAME_START"
 			SASGameRecordSettings.logSessionSettings(szSettingsReason)
+		# <!-- custom: Alt+S annotations are EXE-owned rather than gameplay objects; take one logical visible+hidden baseline after session handlers settle.
+		# OnLoad's StrategyOverlay handler restores SAS's hidden-sign cache through BugUtil.deferCall, so queue this observation behind that restoration rather than manufacturing later ADD rows from an early empty cache.
+		# GameStart has no saved hidden cache to restore and can observe immediately.
+		# The action helper owns its own level/action gate. (ChatGPT-5.6-Sol) -->
+		if SASGameRecordConfig.getLogLevel() >= 2 and SASGameRecordConfig.getActionTraceEnabled():
+			import SASGameRecordActions
+			import CvScreensInterface
+			if tag == "OnLoad":
+				import BugUtil
+				def observeLoadedMapAnnotations():
+					SASGameRecordActions.observeMapAnnotations(CvScreensInterface.mainInterface.getHiddenMapAnnotationSignsForSave(), szSettingsReason)
+				BugUtil.deferCall(observeLoadedMapAnnotations)
+			else:
+				SASGameRecordActions.observeMapAnnotations(CvScreensInterface.mainInterface.getHiddenMapAnnotationSignsForSave(), szSettingsReason)
 		# <!-- custom: Retry pending startup/failed writes after BUG/Autolog/settings handlers settle, including BBAI-only runs; successful rows are already submitted immediately, and keeping this outside the recorder gate covers either log.
 		# With no output, the checkpoint performs no path resolution or file I/O. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		CyGame().flushSASDiagnosticLogs()
@@ -105,5 +123,10 @@ def initAfterReload():
 		if SASGameRecordConfig.getLogLevel() > 0 and CyGame().isFinalInitialized():
 			import SASGameRecordSettings
 			SASGameRecordSettings.logSessionSettings("PYTHON_RELOAD")
+		if SASGameRecordConfig.getLogLevel() >= 2 and SASGameRecordConfig.getActionTraceEnabled() and CyGame().isFinalInitialized():
+			# <!-- custom: resetSession above deliberately clears annotation identity; rebuild one post-reload baseline from the replacement main-interface cache plus EXE signs. (ChatGPT-5.6-Sol) -->
+			import SASGameRecordActions
+			import CvScreensInterface
+			SASGameRecordActions.observeMapAnnotations(CvScreensInterface.mainInterface.getHiddenMapAnnotationSignsForSave(), "PYTHON_RELOAD")
 
 initAfterReload()

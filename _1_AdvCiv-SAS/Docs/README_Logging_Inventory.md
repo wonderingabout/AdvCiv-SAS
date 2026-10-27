@@ -412,6 +412,8 @@ The record brings together map/geography context, settings and provenance, econo
 - `SAS_SGR_INTERVAL_T_UNSCALED_GS` controls periodic snapshots; with interval 10 they occur at completed turns 10, 20, 30 and so on, while turn 0 has separate initial context. Chronicle actions can appear between snapshots.
 - This is an all-player diagnostic and can contain spoilers. Use the [Main Changes Guide's SASGameRecord section](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sasgamerecord-log) and [recorder revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for coverage/controls, and the [representative raw record](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log) for actual output.
 
+Map-annotation and game-result/session-boundary coverage is described in the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sasgamerecord-log) and [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md). For offline byte/line-volume analysis, see [`summarize_sasgamerecord_volume.py`](/LLM_Helpers/README.md#summarize_sasgamerecord_volumepy).
+
 #### SASGameRecord session header example
 
 For example, `SASGameRecord_*.log` starts with lifecycle, provenance and run-setup rows before adding RNG/state checkpoints and compact turn snapshots. These selected rows are from `SASGameRecord_20261025T180717Z_load1.log` (recorder revision 172), including an actual test branch one commit ahead of main and its local XML source-diff evidence; gaps in `seq` mean intervening rows are omitted:

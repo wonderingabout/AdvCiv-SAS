@@ -10,6 +10,7 @@ from CvPythonExtensions import CyGlobalContext
 _g_logLevel = None
 _g_systemContextLevel = None
 _g_actionTraceEnabled = None
+_g_mapAnnotationTextEnabled = None
 _g_bugStringValuesEnabled = None
 
 
@@ -33,6 +34,14 @@ def getActionTraceEnabled():
 	if _g_actionTraceEnabled is None:
 		_g_actionTraceEnabled = (CyGlobalContext().getDefineINT("SAS_SGR_ACTION_TRACE_ON") > 0)
 	return _g_actionTraceEnabled
+
+
+# <!-- custom: Map-caption coordinates/ownership remain useful with text withheld; exact arbitrary caption text requires its independent default-off opt-in. (ChatGPT-5.6-Sol) -->
+def getMapAnnotationTextEnabled():
+	global _g_mapAnnotationTextEnabled
+	if _g_mapAnnotationTextEnabled is None:
+		_g_mapAnnotationTextEnabled = (CyGlobalContext().getDefineINT("SAS_SGR_MAP_ANNOTATION_TEXT_ON") > 0)
+	return _g_mapAnnotationTextEnabled
 
 
 # <!-- custom: Cache the default-off reviewed BUG-string opt-in lazily, like the existing recorder gates; redacted IDs remain the default and XML edits require restarting/reloading the mod. (GPT-6.1-Sol) -->

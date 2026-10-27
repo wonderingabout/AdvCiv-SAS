@@ -37,7 +37,7 @@ __forceinline bool isSASGameRecordActionTraceEnabled() { return g_bSASGameRecord
 int getSASGameRecordTurnInterval();
 // <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it.
 // Only an opened recorder session emits final writer health; startup/repeated resets still retry and release shared output without creating a record. See KI#382. See KI#382.3. (ChatGPT-5.6-Sol + GPT-5.6-Sol + GPT-6.1-Sol) -->
-void finalizeSASGameRecordLogSession();
+void finalizeSASGameRecordLogSession(char const* szReason);
 void startSASGameRecordLogForNewGame();
 void logSASGameRecordNewGameStarted();
 // <!-- custom: Python calls this once after GameStart/OnLoad dispatch completes so BUG/Autolog state reflects the current session, not its pre-handler value; callers must pre-gate logging. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
@@ -109,6 +109,11 @@ void logSASGameRecordAdvancedStartResult(CvPlayer const& kPlayer, AdvancedStartA
 void logSASGameRecordWorldBuilderEdit(char const* szCategory, char const* szAction, int iX, int iY, PlayerTypes eTargetPlayer, TeamTypes eTargetTeam, int iObjectId, char const* szTargetKind, char const* szTarget, int iOldValue, int iNewValue, bool bContentWithheld = false, bool bOldValueValid = true, bool bNewValueValid = true);
 void logSASGameRecordScreenAction(char const* szScreen, char const* szAction, int iPrimary = -1, int iSecondary = -1);
 void logSASGameRecordInterfaceState(char const* szComponent, char const* szEvent, char const* szReason, int iCount, char const* szValues);
+// <!-- custom: Logical Alt+S annotation snapshots/deltas are observed at low-frequency Python boundaries; free-form captions stay withheld unless their dedicated opt-in is enabled. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordMapAnnotationSummary(char const* szEvent, char const* szReason, int iTotal, int iVisible, int iHidden, int iAdded, int iEdited, int iRemoved, bool bContentWithheld);
+void logSASGameRecordMapAnnotation(char const* szEvent, char const* szReason, int iOwnerPlayer, int iX, int iY, bool bHidden, char const* szOldCaption, char const* szNewCaption, bool bContentWithheld);
+// <!-- custom: Result and session-boundary rows let parsers distinguish an established game outcome from orderly recorder rollover; Runtime external exit evidence remains authoritative for process termination/crash observation. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordGameResult(char const* szEvent);
 // <!-- custom: Four camera toggles have authoritative pre/post Boolean getters.
 // Keep their resulting state in the same compact interface family as scoreboard/annotation state, while rotation/flying-mode-cycle controls remain request-only because no equivalent Boolean result exists.
 // Replace the draft string triple with ControlTypes; one recorder-owned label list serves both request and camera-result serialization. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->

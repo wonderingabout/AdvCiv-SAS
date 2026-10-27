@@ -124,7 +124,7 @@ def main():
         (temporary / "runtime_world_builder_bridge_under_test.inc").write_text("\n".join(bridge_methods), encoding="utf-8")
         # <!-- custom: Compile the actual recorder finalizer against small observation stubs, so startup/repeated-reset behavior and shared-writer retries are checked without building the game DLL. (GPT-6.1-Sol) -->
         recorder = (ROOT / "CvGameCoreDLL/SASGameRecordLog.cpp").read_text(encoding="utf-8")
-        finalize_start = recorder.index("void finalizeSASGameRecordLogSession()\n")
+        finalize_start = recorder.index("void finalizeSASGameRecordLogSession(char const* szReason)\n")
         finalize_end = recorder.index("static void prepareSASGameRecordTurnChanges()", finalize_start)
         marker = next(line for line in recorder.splitlines() if line.startswith("static bool g_bSASGameRecordSessionOpen ="))
         (temporary / "record_finalization_under_test.inc").write_text(marker + "\n" + recorder[finalize_start:finalize_end], encoding="utf-8")

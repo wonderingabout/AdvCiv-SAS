@@ -171,6 +171,9 @@ void CvEventReporter::update(float fDeltaTime)
 
 void CvEventReporter::unInit()
 {
+	// <!-- custom: Finalize the open SGR session while authoritative game/map state still exists, before Python teardown.
+	// This is an orderly in-process boundary only; Runtime's external observer remains the evidence for actual process exit/crash status. (ChatGPT-5.6-Sol) -->
+	if (isSASGameRecordLogEnabled()) finalizeSASGameRecordLogSession("ORDERLY_UNINIT");
 	m_kPythonEventMgr.reportUnInit();
 }
 

@@ -282,7 +282,8 @@ namespace recordFinalizationFixture
 	static int g_iSASGameRecordPendingPlotTurn = -1;
 	static bool g_bSASGameRecordRngTrackingActive = false;
 	static int const SAS_RNG_CHECKPOINT_SESSION_FINALIZE = 1;
-	static int setupFlushes = 0, plotFlushes = 0, rngCheckpoints = 0, healthRows = 0;
+	static int setupFlushes = 0, plotFlushes = 0, rngCheckpoints = 0, healthRows = 0, logClosedRows = 0;
+	static std::string lastLogClosedRow;
 	static void flushSASGameRecordInitializingActions(bool complete) { assert(!complete); ++setupFlushes; }
 	static void flushSASGameRecordTurnChanges(int turn) { ++plotFlushes; g_iSASGameRecordPendingPlotTurn = -1; }
 	static void flushSASGameRecordPendingCityBombard() {}
@@ -292,6 +293,18 @@ namespace recordFinalizationFixture
 	{
 		++healthRows;
 		logSASDiagnosticLiteralLine("record_finalize.log", reason, SAS_DIAGNOSTIC_LOG_GAME_RECORD);
+	}
+	static unsigned int getSASGameRecordSessionWallMilliseconds() { return 123; }
+	static void logSASGameRecord(char const* format, ...)
+	{
+		char buffer[1024];
+		va_list args;
+		va_start(args, format);
+		int const length = _vsnprintf(buffer, sizeof(buffer), format, args);
+		va_end(args);
+		assert(length >= 0 && length < sizeof(buffer));
+		lastLogClosedRow.assign(buffer, length);
+		++logClosedRows;
 	}
 	// <!-- custom: Use the extracted production function rather than copying its lifecycle guard into this test. (GPT-6.1-Sol) -->
 	#include "record_finalization_under_test.inc"
@@ -354,26 +367,26 @@ int main(int argc, char** argv)
 		std::wstring const root = std::wstring(temporary) + L"\\record_finalization";
 		require(CreateDirectoryW(root.c_str(), NULL) != FALSE, "create recorder finalization fixture root");
 		setSASDiagnosticLogRootDirectory(root.c_str());
-		finalizeSASGameRecordLogSession();
-		require(healthRows == 0 && readFile(root + L"\\Logs\\record_finalize.log").empty(), "startup reset creates no recorder health file");
+		finalizeSASGameRecordLogSession("STARTUP_RESET");
+		require(healthRows == 0 && logClosedRows == 0 && readFile(root + L"\\Logs\\record_finalize.log").empty(), "startup reset creates no recorder health file");
 		g_failOpen = true;
 		logSASDiagnosticLiteralLine("BBAI_pending.log", "pending before session", SAS_DIAGNOSTIC_LOG_BBAI);
 		require(g_iSASDiagnosticBufferedBytes > 0, "fixture holds pending shared output");
 		g_failOpen = false;
-		finalizeSASGameRecordLogSession();
-		require(g_iSASDiagnosticBufferedBytes == 0 && readFile(root + L"\\Logs\\BBAI_pending.log").find("pending before session") != std::string::npos, "no-session reset still retries shared output");
+		finalizeSASGameRecordLogSession("RETRY_ONLY");
+		require(g_iSASDiagnosticBufferedBytes == 0 && logClosedRows == 0 && readFile(root + L"\\Logs\\BBAI_pending.log").find("pending before session") != std::string::npos, "no-session reset still retries shared output");
 		g_bSASGameRecordSessionOpen = true;
 		g_bSASGameRecordBufferInitializingActions = true;
 		g_iSASGameRecordPendingPlotTurn = 0;
 		g_bSASGameRecordRngTrackingActive = true;
-		finalizeSASGameRecordLogSession();
-		require(setupFlushes == 1 && plotFlushes == 1 && rngCheckpoints == 1 && healthRows == 1, "aborted initialization preserves buffered observations and final health");
-		finalizeSASGameRecordLogSession();
-		require(healthRows == 1 && rngCheckpoints == 1, "repeated reset does not duplicate final rows");
+		finalizeSASGameRecordLogSession("ABORTED_INIT");
+		require(setupFlushes == 1 && plotFlushes == 1 && rngCheckpoints == 1 && healthRows == 1 && logClosedRows == 1 && lastLogClosedRow.find("GAME_RECORD_LOG_CLOSED reason=ABORTED_INIT") != std::string::npos, "aborted initialization preserves buffered observations and orderly boundary");
+		finalizeSASGameRecordLogSession("REPEATED_RESET");
+		require(healthRows == 1 && rngCheckpoints == 1 && logClosedRows == 1, "repeated reset does not duplicate final rows");
 		g_bSASGameRecordSessionOpen = true;
-		finalizeSASGameRecordLogSession();
-		require(healthRows == 2 && !g_bSASGameRecordSessionOpen, "next recording session gets its own final health");
-		puts("PASS recorder finalization: startup, retry, aborted initialization, repeated reset and next session");
+		finalizeSASGameRecordLogSession("NEXT_SESSION");
+		require(healthRows == 2 && logClosedRows == 2 && lastLogClosedRow.find("reason=NEXT_SESSION") != std::string::npos && !g_bSASGameRecordSessionOpen, "next recording session gets its own final health and orderly boundary");
+		puts("PASS recorder finalization: startup, retry, recording closure, repeated reset and next session");
 		return 0;
 	}
 	if (argc == 2 && strcmp(argv[1], "--runtime-status-disabled") == 0)

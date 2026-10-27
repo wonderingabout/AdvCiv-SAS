@@ -424,6 +424,19 @@ void CyGame::logSASGameRecordInterfaceState(std::string szComponent, std::string
 	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) ::logSASGameRecordInterfaceState(szComponent.c_str(), szEvent.c_str(), szReason.c_str(), iCount, szValues.c_str());
 }
 
+// <!-- custom: Python reconstructs logical Alt+S annotations from visible engine signs plus SAS's hidden-sign cache; native code owns final privacy-bounded quoting/serialization.
+// Python checks cached switches before enumeration, caption encoding and bridge argument conversion; these CyGame members are required by the Python binding.
+// Recheck before calling the native serializer so direct bridge calls also respect the level-2 action-trace policy. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void CyGame::logSASGameRecordMapAnnotationSummary(std::string szEvent, std::string szReason, int iTotal, int iVisible, int iHidden, int iAdded, int iEdited, int iRemoved, bool bContentWithheld)
+{
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) ::logSASGameRecordMapAnnotationSummary(szEvent.c_str(), szReason.c_str(), iTotal, iVisible, iHidden, iAdded, iEdited, iRemoved, bContentWithheld);
+}
+
+void CyGame::logSASGameRecordMapAnnotation(std::string szEvent, std::string szReason, int iOwnerPlayer, int iX, int iY, bool bHidden, std::string szOldCaption, std::string szNewCaption, bool bContentWithheld)
+{
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) ::logSASGameRecordMapAnnotation(szEvent.c_str(), szReason.c_str(), iOwnerPlayer, iX, iY, bHidden, szOldCaption.c_str(), szNewCaption.c_str(), bContentWithheld);
+}
+
 std::string CyGame::getSASGameRecordIniFileArgument() const
 {
 	return ::getSASGameRecordIniFileArgument();

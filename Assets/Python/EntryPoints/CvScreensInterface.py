@@ -734,6 +734,8 @@ def WorldBuilderHandleCityEditNameCB( argsList ):
 
 def WorldBuilderHandleLandmarkTextCB( argsList ):
 	worldBuilderScreen.handleLandmarkTextCB(argsList)
+	# <!-- custom: WorldBuilder landmark text has an explicit Python apply callback; observe immediately afterward so editor captions do not wait until the next turn/save boundary. (ChatGPT-5.6-Sol) -->
+	if SASGameRecordActions.isEnabled(): SASGameRecordActions.observeMapAnnotations(mainInterface.getHiddenMapAnnotationSignsForSave(), "WORLD_BUILDER_LANDMARK")
 
 def WorldBuilderHandleUnitEditPullDownCB( argsList ):
 	worldBuilderScreen.handleUnitEditPullDownCB(argsList)

@@ -35,7 +35,7 @@ Therefore:
 Current emitted source-context field:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=171 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=176 ...
 ```
 
 After this, each qualifying SASGameRecord commit increments `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` exactly once and adds one short latest-first entry to this file in the same commit. The revision remains a downstream-update signal; exact runtime source/build identity remains separate provenance in `GAME_RECORD_SOURCE_CONTEXT` and the DLL/build context.
@@ -52,6 +52,16 @@ After this, each qualifying SASGameRecord commit increments `SAS_SGR_REVISION` i
 - **`GAME_RECORD_TURN_COMPLETED` is the authoritative cheap turn-completeness marker from revision 132 onward.**
   - It is emitted once at every enabled log level after `CvEventReporter::endGameTurn`, autoplay/synchronization cleanup and the optional level-3 `END_GAME_TURN` RNG/state checkpoint, but before the game clock advances.
   - In a truncated record, the highest such `turn` is therefore the last game turn known to have reached that boundary; level-3 consumers can additionally use the preceding RNG/state checkpoint for deterministic comparison.
+- **Result, turn completion and closing a recording are different boundaries.**
+  - `GAME_RECORD_GAME_RESULT` means a winner/victory or later OVER/EXTENDED engine state was observed; it does not by itself mean the recorder or Civ4 process ended.
+  - `GAME_RECORD_LOG_CLOSED` marks closing the current recording on reset, replacement or orderly uninitialization; winning and continued post-win autoplay leave it open.
+    - It intentionally contains only lifecycle context rather than gameplay outcome fields because map-load fallback finalization can briefly see an old map beside already-replaced `CvGame` state.
+    - A missing row alone does not prove a crash because abrupt termination or output failure can prevent it; use Runtime's external process/failure observations for process-exit conclusions.
+  - `GAME_RECORD_TURN_COMPLETED` remains the turn-completeness marker independently of both.
+- **Map-annotation history is boundary-diff evidence, not a guaranteed EXE callback stream.**
+  - The observer reconstructs the logical sign/landmark set from visible engine signs plus SAS's hidden cache, with separate baselines per active viewer. Hide/show therefore does not count as deletion/recreation.
+  - WorldBuilder landmark text has an immediate Python post-apply observation; ordinary Alt+S edits are compared at session/active-player-turn/save/game-end boundaries and can miss a complete add/remove that occurs entirely between observations.
+  - Free-form caption text is withheld by default and requires the dedicated opt-in.
 - **Object IDs are namespace-local unless a row explicitly says otherwise.** In particular, Civ4 `cityId` and `unitId` values are player-local; trace them as `(player, cityId)` and `(player, unitId)`, not as globally unique integers. Team/player slot IDs remain their ordinary game slot identities.
 - **Missing-value interpretation is field-specific.** `-` is the common textual/not-applicable token, while numeric `-1` is also used by native Civ4 `NO_*` IDs and by some unavailable numeric fields. Do not globally rewrite every `-1` as null; parse the documented field meaning/context.
 - **Text-map body rows deliberately remain raw pipe-framed art.** Structured `BEGIN`, `LEGEND`, `LAYER_BEGIN`, `LAYER_END`, and `END` framing rows carry the parseable metadata; revision 122 makes every structured legend/layer frame self-locating by repeating `turn`, while the fixed-width `|...|` drawing rows remain undecorated.
@@ -97,6 +107,21 @@ An empty structured collection means **zero companion rows** (with parent counts
 Only the listed collections use this convention; other compact fields retain their field-specific interpretation. Companion rows follow the parent snapshot's logging level and interval, rather than recording every live change.
 
 ## History (latest first)
+
+### Revision 176 - SAS practical 6693
+
+- **Date:** 2026-10-27
+- **Git commit:** pending
+- **Change:** Add logical map-annotation evidence and explicit game-result/orderly-session boundaries, while keeping format/volume analysis outside the game.
+  - **Map annotations:** level-2+ action tracing reconstructs Alt+S signs/landmarks from the EXE's visible sign list plus SAS's hidden-annotation cache, with one baseline per active viewer and later `ADD`/`EDIT`/`REMOVE` observations.
+    - Player-specific signs are limited to the active viewer who owns them; owner `-1` landmarks remain shared.
+      - Hide/show of SAS annotations does not manufacture removal/addition because hidden cached signs remain part of the same logical set; load baselines wait for the existing deferred hidden-cache restoration.
+      - WorldBuilder landmark text has an immediate post-apply observation; ordinary EXE-owned sign edits are detected at session, active-player turn-start, pre-save and game-end boundaries, so an add/remove entirely between observations can be missed.
+    - Coordinates, owner/viewer, logical kind and hidden-at-observation state are recorded under the existing action-trace gate. Arbitrary caption text is withheld by default; `SAS_SGR_MAP_ANNOTATION_TEXT_ON=1` opts into quoted/escaped UTF-8 diagnostic text without changing save data or map visibility.
+  - **Result/session clarity:** `GAME_RECORD_GAME_RESULT` records authoritative result assignment and later OVER/EXTENDED engine state, including autoplay paths that continue directly into extended play.
+    - `GAME_RECORD_LOG_CLOSED` is emitted when an open recorder session is finalized by orderly uninitialization, game reset or map replacement. It is an in-process recorder boundary, not proof of clean Windows process exit; absence alone does not prove a crash, so correlate Runtime's external failure/process-exit evidence.
+  - **Volume analysis:** `LLM_Helpers/summarize_sasgamerecord_volume.py` reports physical lines and bytes by top-level row family from an existing record, including explicit `MAP_ASCII_BODY` classification. This adds no game-side counters or runtime overhead.
+  - The revision-159 Claude Sonnet 5.5 review was rechecked against the current recorder: field-specific `-`/`-1` semantics, raw text-map body framing, typed companions for the highest-value packed collections and the deliberate lack of a per-run exhaustive static manifest are already documented/current behavior and are not duplicated here.
 
 ### Revision 175 - SAS practical 6690
 

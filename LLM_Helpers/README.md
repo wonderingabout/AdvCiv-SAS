@@ -56,6 +56,7 @@ Always review diffs before committing generated source changes.
 - [SASGameRecord comparison helpers](#sasgamerecord-comparison-helpers)
   - [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy)
   - [`expand_sasgamerecord_city_deltas.py`](#expand_sasgamerecord_city_deltaspy)
+  - [`summarize_sasgamerecord_volume.py`](#summarize_sasgamerecord_volumepy)
 - [Game info comparison helpers](#game-info-comparison-helpers)
   - [`compare_handicap_infos.py`](#compare_handicap_infospy)
 - [Static audit helpers](#static-audit-helpers)
@@ -889,6 +890,20 @@ Usage:
 
 ```bat
 python LLM_Helpers\expand_sasgamerecord_city_deltas.py SASGameRecord.log SASGameRecord_expanded.log
+```
+
+### `summarize_sasgamerecord_volume.py`
+
+- Streams an existing SASGameRecord byte-for-byte and reports physical line count and bytes by top-level row family, sorted by bytes; large logs are not loaded wholesale into memory.
+- Classifies raw text-map `|...|` body lines as `MAP_ASCII_BODY`, blanks as `BLANK`, and non-record text as `OTHER`; it does not pretend those lines are ordinary structured rows.
+- Measures the record as written, including line-ending bytes, without adding any in-game instrumentation or per-row counters.
+- Does not infer field sentinels, packed subgrammars or gameplay semantics. Use it to find high-volume families first, then inspect the relevant recorder implementation before changing logging policy.
+- `--action-subtypes` optionally splits the otherwise broad `GAME_RECORD_ACTION` family by its controlled `type=` token, useful when ACTION itself dominates a capture.
+- `--json` emits the same counts/percentages as machine-readable JSON.
+
+```powershell
+python LLM_Helpers\summarize_sasgamerecord_volume.py "C:\path\SASGameRecord.log"
+python LLM_Helpers\summarize_sasgamerecord_volume.py "C:\path\SASGameRecord.log" --json
 ```
 
 ## Game info comparison helpers

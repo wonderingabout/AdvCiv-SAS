@@ -4,7 +4,7 @@
 # <!-- custom: Keep revision-151 Python UI tracing tiny and factual: fixed screen/action labels plus scalar state only.
 # Free-text search, names, paths, mouse movement, redraws, and other high-volume/private input deliberately stay outside SASGameRecord. (ChatGPT-5.6-Sol) -->
 
-from CvPythonExtensions import CyGame, FeatTypes, OrderTypes # <!-- custom: CyGame supplies the existing SGR bridge; FeatTypes exposes actual DLL enum names and OrderTypes disambiguates reviewed advisor production targets without repeating gameplay eligibility checks. (GPT-6.1-Sol) -->
+from CvPythonExtensions import CyEngine, CyGame, FeatTypes, OrderTypes # <!-- custom: CyEngine enumerates the EXE-owned map annotations while CyGame supplies the existing SGR bridge; FeatTypes exposes actual DLL enum names and OrderTypes disambiguates reviewed advisor production targets without repeating gameplay eligibility checks. (GPT-6.1-Sol) -->
 import SASGameRecordConfig
 import SASPopupChoices # <!-- custom: Resolve reviewed Python response names from the same UI catalog that creates buttons and assigns gameplay-handler IDs, rather than a recorder-owned duplicate table. (GPT-6.1-Sol) -->
 
@@ -50,12 +50,15 @@ SCREEN_WORLD_BUILDER_DIPLOMACY = "WORLD_BUILDER_DIPLOMACY"
 # <!-- custom: Advance only at explicit new/load/reload boundaries; persistent screen objects must not suppress a later session's baseline.
 # Zero also keeps disabled redraws on their cheap integer-comparison path. (GPT-6.1-Sol) -->
 g_sessionSerial = 0
+# <!-- custom: Hot-seat/player switches can expose different sign sets; retain one comparison baseline per active viewer so a perspective change cannot masquerade as annotation add/remove history. (ChatGPT-5.6-Sol) -->
+_gMapAnnotationStateByViewer = {}
 
 
 def resetSession():
-	global g_sessionSerial
+	global g_sessionSerial, _gMapAnnotationStateByViewer
 	if SASGameRecordConfig.getLogLevel() >= 2 and SASGameRecordConfig.getActionTraceEnabled():
 		g_sessionSerial += 1
+	_gMapAnnotationStateByViewer = {}
 
 
 def isEnabled():
@@ -70,6 +73,110 @@ def _getEnabledGame():
 	if not game.isFinalInitialized():
 		return None
 	return game
+
+
+# <!-- custom: Alt+S captions/landmarks are EXE-managed, save-backed annotations rather than units/cities, and SAS temporarily removes them while its annotation-visibility toggle is off.
+# Reconstruct the logical set from currently exposed engine signs plus the persisted hidden-sign cache, then compare only at existing low-frequency session/active-player-turn/save/game-end observations.
+# The key is (plot, owner): repeated caption text is not treated as identity, and hide/show cannot manufacture REMOVE/ADD rows because hidden cache entries represent the same logical annotation. (ChatGPT-5.6-Sol) -->
+def _normalizeMapAnnotationCaption(szCaption):
+	if isinstance(szCaption, unicode):
+		return szCaption
+	try:
+		return szCaption.decode("latin_1")
+	except:
+		return unicode(str(szCaption), "latin_1", "replace")
+
+
+def _collectMapAnnotations(aHiddenSigns, iViewer):
+	annotations = {}
+	visible = 0
+	hidden = 0
+	engine = CyEngine()
+	for iSign in range(engine.getNumSigns()):
+		sign = engine.getSignByIndex(iSign)
+		plot = sign.getPlot()
+		if plot is None or plot.isNone():
+			continue
+		eOwner = int(sign.getPlayerType())
+		# <!-- custom: Player signs belong to one viewer; landmarks use -1 and are globally visible.
+		# Do not let a locally enumerable hot-seat/multiplayer sign leak into another viewer's diagnostic baseline. (ChatGPT-5.6-Sol) -->
+		if eOwner >= 0 and eOwner != iViewer:
+			continue
+		key = (int(plot.getX()), int(plot.getY()), eOwner)
+		annotations[key] = (_normalizeMapAnnotationCaption(sign.getCaption()), 0)
+		visible += 1
+	if aHiddenSigns is not None:
+		for item in aHiddenSigns:
+			if item is None or len(item) < 4:
+				continue
+			iX, iY, ePlayer, szCaption = item[:4]
+			ePlayer = int(ePlayer)
+			if ePlayer >= 0 and ePlayer != iViewer:
+				continue
+			key = (int(iX), int(iY), ePlayer)
+			# <!-- custom: A visible engine sign wins if an unusual transient state exposes both copies. (ChatGPT-5.6-Sol) -->
+			if key not in annotations:
+				annotations[key] = (_normalizeMapAnnotationCaption(szCaption), 1)
+				hidden += 1
+	return annotations, visible, hidden
+
+
+def _mapAnnotationBridgeText(szCaption, bTextWithheld):
+	if bTextWithheld or szCaption is None:
+		return ""
+	if isinstance(szCaption, unicode):
+		return szCaption.encode("utf-8")
+	return szCaption
+
+
+# <!-- custom: This entire observer is diagnostic-only; normal annotation placement, visibility and saving do not depend on it.
+# Check cached logging switches before collecting signs, comparing captions or converting Python bridge arguments; all row calls below share this gate.
+# Keep future diagnostic work below the early return so disabled logging skips it too. (GPT-6.1-Sol) -->
+def observeMapAnnotations(aHiddenSigns, szReason):
+	game = _getEnabledGame()
+	if game is None:
+		return
+	global _gMapAnnotationStateByViewer
+	iViewer = int(game.getActivePlayer())
+	current, iVisible, iHidden = _collectMapAnnotations(aHiddenSigns, iViewer)
+	bTextWithheld = not SASGameRecordConfig.getMapAnnotationTextEnabled()
+	if iViewer not in _gMapAnnotationStateByViewer:
+		game.logSASGameRecordMapAnnotationSummary("SNAPSHOT", szReason, len(current), iVisible, iHidden, 0, 0, 0, bTextWithheld)
+		keys = list(current.keys())
+		keys.sort()
+		for key in keys:
+			szCaption, bHidden = current[key]
+			game.logSASGameRecordMapAnnotation("SNAPSHOT", szReason, key[2], key[0], key[1], bHidden, "", _mapAnnotationBridgeText(szCaption, bTextWithheld), bTextWithheld)
+		_gMapAnnotationStateByViewer[iViewer] = current
+		return
+
+	previous = _gMapAnnotationStateByViewer[iViewer]
+	added = []
+	edited = []
+	removed = []
+	for key in current:
+		if key not in previous:
+			added.append(key)
+		elif previous[key][0] != current[key][0]:
+			edited.append(key)
+	for key in previous:
+		if key not in current:
+			removed.append(key)
+	if not added and not edited and not removed:
+		_gMapAnnotationStateByViewer[iViewer] = current
+		return
+	game.logSASGameRecordMapAnnotationSummary("CHANGE", szReason, len(current), iVisible, iHidden, len(added), len(edited), len(removed), bTextWithheld)
+	for key in sorted(added):
+		szCaption, bHidden = current[key]
+		game.logSASGameRecordMapAnnotation("ADD", szReason, key[2], key[0], key[1], bHidden, "", _mapAnnotationBridgeText(szCaption, bTextWithheld), bTextWithheld)
+	for key in sorted(edited):
+		szOldCaption = previous[key][0]
+		szCaption, bHidden = current[key]
+		game.logSASGameRecordMapAnnotation("EDIT", szReason, key[2], key[0], key[1], bHidden, _mapAnnotationBridgeText(szOldCaption, bTextWithheld), _mapAnnotationBridgeText(szCaption, bTextWithheld), bTextWithheld)
+	for key in sorted(removed):
+		szOldCaption, bHidden = previous[key]
+		game.logSASGameRecordMapAnnotation("REMOVE", szReason, key[2], key[0], key[1], bHidden, _mapAnnotationBridgeText(szOldCaption, bTextWithheld), "", bTextWithheld)
+	_gMapAnnotationStateByViewer[iViewer] = current
 
 
 def logScreenAction(szScreen, szAction, iPrimary=-1, iSecondary=-1):

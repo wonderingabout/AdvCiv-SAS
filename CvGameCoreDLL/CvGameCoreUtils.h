@@ -139,6 +139,8 @@ void updateSASRuntimeStatusWorldBuilderScreen(bool bVisible);
 void updateSASRuntimeStatusCivilopedia(bool bVisible, bool bInMainMenu);
 // <!-- custom: Translate the inherited Advanced Start action enum in common game utilities so consumers share its raw identity independently of SGR formatting. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 char const* getSASAdvancedStartActionType(AdvancedStartActionTypes eAction);
+// <!-- custom: Readable names for the existing engine game-state enum, reusable across diagnostic consumers. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASGameStateTypeName(GameStateTypes eState);
 // <!-- custom: Popup type labels are shared UI vocabulary, not runtime-recorder state; keep their declaration and implementation with the common game helpers. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 char const* getSASButtonPopupTypeName(ButtonPopupTypes eType);
 // <!-- custom: The confirmation popup stores an action ID in data1, distinct from its Yes/Cancel button ID.

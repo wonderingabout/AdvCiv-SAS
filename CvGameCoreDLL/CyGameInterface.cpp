@@ -106,6 +106,9 @@ void CyGamePythonInterface()
 		// <!-- custom: Narrow revision-151 UI bridges accept only controlled screen/action labels or pre-serialized scalar interface state; no arbitrary user text crosses into the recorder. (ChatGPT-5.6-Sol) -->
 		.def("logSASGameRecordScreenAction", &CyGame::logSASGameRecordScreenAction)
 		.def("logSASGameRecordInterfaceState", &CyGame::logSASGameRecordInterfaceState)
+		// <!-- custom: Map-caption text is a separate reviewed bridge because arbitrary user-authored text is withheld by default and must not become a generic Python-to-SGR logging API. (ChatGPT-5.6-Sol) -->
+		.def("logSASGameRecordMapAnnotationSummary", &CyGame::logSASGameRecordMapAnnotationSummary)
+		.def("logSASGameRecordMapAnnotation", &CyGame::logSASGameRecordMapAnnotation)
 		.def("getSASGameRecordIniFileArgument", &CyGame::getSASGameRecordIniFileArgument)
 		// <!-- custom: Internal BUG diplomacy bridge; captures only resolved AI->human ordinary offers rejected at the UI boundary. (ChatGPT-5.6-Sol) -->
 		.def("logSASGameRecordRejectedAIOffer", &CyGame::logSASGameRecordRejectedAIOffer)

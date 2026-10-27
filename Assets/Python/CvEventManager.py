@@ -23,6 +23,7 @@ import CvWorldBuilderScreen
 import CvAdvisorUtils
 import CvTechChooser
 import SASBattleHistory
+import SASGameRecordActions # <!-- custom: Low-frequency turn/save/game-end boundaries observe EXE-owned map annotations without adding per-frame polling; the helper owns recorder/action gating. (ChatGPT-5.6-Sol) -->
 
 gc = CyGlobalContext()
 localText = CyTranslator()
@@ -274,6 +275,8 @@ class CvEventManager:
 
 	def onPreSave(self, argsList):
 		"called before a game is actually saved"
+		# <!-- custom: Observe logical annotations before the inherited debug-print early return; this is recorder evidence, not CvEventManager's disabled legacy save logging. (ChatGPT-5.6-Sol) -->
+		if SASGameRecordActions.isEnabled(): SASGameRecordActions.observeMapAnnotations(CvScreensInterface.mainInterface.getHiddenMapAnnotationSignsForSave(), "PRE_SAVE")
 		# <advc.007>
 		if (not self.__LOG_SAVING):
 			return # </advc.007>
@@ -327,6 +330,8 @@ class CvEventManager:
 
 	def onGameEnd(self, argsList):
 		'Called at the End of the game'
+		# <!-- custom: Gate before fetching annotation state so disabled recording does not gather diagnostic arguments. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		if SASGameRecordActions.isEnabled(): SASGameRecordActions.observeMapAnnotations(CvScreensInterface.mainInterface.getHiddenMapAnnotationSignsForSave(), "GAME_END")
 		# <!-- custom: Name the game-end callback explicitly; it does not mean the Civ4 process is exiting. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 		CvUtil.pyPrintRecord("GAME_END_CALLBACK")
 		return
@@ -343,6 +348,10 @@ class CvEventManager:
 	def onBeginPlayerTurn(self, argsList):
 		'Called at the beginning of a players turn'
 		iGameTurn, iPlayer = argsList
+		# <!-- custom: Observe at the active human/player turn boundary rather than only global BeginGameTurn so hot-seat viewers each get their own low-frequency annotation baseline/deltas.
+		# AI turns do not enumerate signs because iPlayer differs from the local active player; the helper retains its own recorder/action gate. (ChatGPT-5.6-Sol) -->
+		if SASGameRecordActions.isEnabled() and iPlayer == gc.getGame().getActivePlayer():
+			SASGameRecordActions.observeMapAnnotations(CvScreensInterface.mainInterface.getHiddenMapAnnotationSignsForSave(), "ACTIVE_PLAYER_TURN_BEGIN")
 
 	def onEndPlayerTurn(self, argsList):
 		'Called at the end of a players turn'

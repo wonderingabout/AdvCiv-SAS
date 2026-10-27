@@ -1314,7 +1314,7 @@ void CvMap::read(FDataStreamBase* pStream)
 {
 	// <!-- custom: A quickload can replace the map while its GameRecord still has buffered observations.
 	// Finalize them against the old map before this read resets it, even if CvGame has already read the loaded game state. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	if (isSASGameRecordLogEnabled()) finalizeSASGameRecordLogSession();
+	if (isSASGameRecordLogEnabled()) finalizeSASGameRecordLogSession("MAP_READ_REPLACEMENT");
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
 
