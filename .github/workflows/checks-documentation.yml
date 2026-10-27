@@ -28,6 +28,9 @@ jobs:
       - name: Markdown images
         run: python .github/workflows/build/documentation/markdown_images.py
 
+      - name: Named example artifact locations
+        run: python .github/workflows/build/documentation/example_file_locations.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
+
       - name: Markdown links and anchors
         run: python .github/workflows/build/documentation/markdown_links.py
 

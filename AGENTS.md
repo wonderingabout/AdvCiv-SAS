@@ -171,7 +171,7 @@ Use these specialized records for inherited regressions, suspicious behavior cha
 - Shared development context lives under [`LLM_Helpers/context/`](/LLM_Helpers/context/).
   - Normal full-history light-source ZIP generation includes freshly generated commit diffs at that same canonical path and refreshes the Git-ignored local generated copy after the ZIP succeeds; use `python LLM_Helpers/refresh_commit_diffs.py` to refresh it independently.
   - Both context corpora are omitted from generated historical patches to prevent recursion/import noise.
-  - When a significant light-source packaging change adds information useful to the recipient, include it in the console output and archived `_SNAPSHOT_CONTEXT/packaging_summary.txt` where relevant. Keep this concise and practical, such as included/omitted files, active options, update/reuse status or required user-provided artifacts.
+  - When a significant light-source packaging change adds information useful to the recipient, include it in the console output and archived `_SNAPSHOT_CONTEXT/archive_contents_and_context.txt` where relevant. Keep this concise and practical, such as included/omitted files, active options, update/reuse status or required user-provided artifacts.
 
 ### Information Fetching from other known helpful mods
 
@@ -274,6 +274,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 
 ### Examples and historical records
 
+- Reserve `_example` filenames for textual/code/data examples under `_1_AdvCiv-SAS/Docs/examples/`. Screenshots belong under `_1_AdvCiv-SAS/Images/` with descriptive names without `_example`. Imported/generated context and executable test modules are distinct from example artifacts; the documentation placement check uses filenames, not payload scans.
 - Keep quoted source/log excerpts faithful to their originals as much as possible, and do not invent, including in Markdown documentation. Instead, clarify and distinguish provenance, for example by putting explanatory labels in the surrounding prose, so reconstructed or illustrative examples are not misleadingly confused with the actual excerpts.
   - For example, do not add `// CvUnitAI::AI_omniGroup` inside a quoted C++ sample that contained the real `FAssert(!kLoopPlot.isVisibleEnemyUnit(this));` (KI#49.3), because that comment was absent from the source: say the excerpt comes from `CvUnitAI::AI_omniGroup` in the prose above it instead.
 - Usually keep one representative example per output type under a stable, untimestamped `_example` filename, such as SASGameRecord or runtime JSON/JSONL examples; replace it when refreshing so Git tracks its history instead of accumulating redundant or confusing captures. Preserve real timestamps and identity inside the captured data, and keep companion files consistent.

@@ -81,7 +81,7 @@ For convenience i have also provided a steam shortcut of this same link just abo
 
 Note: Make sure you run AdvCiv-SAS from the windows shortcut and not another way.
 
-<img src="../Images/tools/0.260_windows_shortcut_example.PNG" alt="0.260_windows_shortcut_example.PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/tools/0.260_windows_shortcut.PNG" alt="0.260_windows_shortcut.PNG" width="250"></img>
 
 If you don't see the same main menu wallpaper as below when opening AdvCiv-SAS, then maybe other things could be missing as well, which could lead to unexpected errors or missing features. So it is recommended to run AdvCiv-SAS from a windows shortcut.
 

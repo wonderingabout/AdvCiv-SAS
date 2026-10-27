@@ -1202,7 +1202,7 @@ A [test run confirmed it fails](https://github.com/wonderingabout/AdvCiv-SAS/act
 See [`.github/workflows/README.md`](/.github/workflows/README.md#python-24-compile-workflow). Added with the very nice help of GPT-5.5 (on Codex) and ChatGPT-5.5 thanks a lot.
 
 <img src="./_1_AdvCiv-SAS/Images/tools/0.280_py_2.4_pass_previously.PNG" alt="0.280_py_2.4_pass_previously.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/tools/0.281_break_test_ternary_example.PNG" alt="0.281_break_test_ternary_example.PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/tools/0.281_break_test_ternary_vs_code.PNG" alt="0.281_break_test_ternary_vs_code.PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/tools/0.282_py_2.4_successfully_broken.PNG" alt="0.282_py_2.4_successfully_broken.PNG" width="250"></img>
 
 ### Light-source ZIP
@@ -1213,9 +1213,11 @@ Light-source archives include separate cumulative review patches for committed b
 
 It also generates a small archive-only `_SNAPSHOT_CONTEXT/` folder containing the tracked Git file manifest, a compact ignored-path tree, a separate repository-state file (branch/HEAD, commit count, locally known upstream/ahead-behind state, tracked short status, and ZIP-selected untracked files), staged and unstaged diffs with line-ending-only noise ignored, and incremental committed history since the newest commit already recorded in the repository's AdvCiv-SAS Git-log file, or other similar data.
 
-The command also prints a compact packaging summary and includes it as `_SNAPSHOT_CONTEXT/packaging_summary.txt`, identifying current versus default-branch progress, staged/unstaged tracked-file counts and diff paths, selected packaging options and supporting-file status, UTC timestamps, and observed game/IDE/build processes.
+The command also prints a compact summary of the current snapshot and includes it as `_SNAPSHOT_CONTEXT/archive_contents_and_context.txt`, identifying current versus default-branch progress, staged/unstaged tracked-file counts and diff paths, selected packaging options and supporting-file status, UTC timestamps, and observed game/IDE/build processes.
 
-This helps reviewers identify the development state behind a snapshot; final completion time and ZIP size remain console-only. See the [output example](/LLM_Helpers/README.md#example-of-output-light_source-zip-git-bash).
+This helps reviewers identify the development state behind a snapshot. Timestamped local packaging reports retain progress, final timings/size and failure tracebacks; the ZIP also includes the latest finalized prior report when available. See the [cached-run and full-refresh examples](/LLM_Helpers/README.md#example-of-output-light_source-zip-git-bash).
+
+The [packaging_refresh_example.txt](/_1_AdvCiv-SAS/Docs/examples/light_source/packaging_refresh_example.txt) preserves manually copied Git Bash output, including a slower full-cache refresh.
 
 For branch review, the archive also pairs a cumulative committed/staged/unstaged diff with default-branch reference copies of changed source/configuration/docs files, preserving their original names and repo paths. ZIP-only reviewers can compare baseline and current code directly; exact comparison commits and any omitted reference files are documented inside the snapshot.
 
@@ -1532,7 +1534,7 @@ GAME_RECORD_SAVE_LOADED seq=1 processUtc=20261009T160524Z utc=20261009T160535Z t
 
 See the [full SASGameRecord header and its context](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sasgamerecord-session-header-example); the inventory also includes a [30-row gameplay excerpt](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sasgamerecord-gameplay-example).
 
-<img src="/_1_AdvCiv-SAS/Images/diagnostics/0.290_SASGameRecord_example.PNG" alt="0.290_SASGameRecord_example.PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/diagnostics/0.290_SASGameRecord_log_vs_code.PNG" alt="0.290_SASGameRecord_log_vs_code.PNG" width="250"></img>
 
 Note: `SASGameRecord` log has its own revision system, see [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md).
 

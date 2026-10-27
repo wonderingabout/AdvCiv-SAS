@@ -36,6 +36,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/hygiene/text_blank_lines.py`](#buildhygienetext_blank_linespy)
     - [`build/hygiene/repository_hygiene.py`](#buildhygienerepository_hygienepy)
   - [Documentation](#documentation)
+    - [`build/documentation/example_file_locations.py`](#builddocumentationexample_file_locationspy)
     - [`build/documentation/sas_source_guide.py`](#builddocumentationsas_source_guidepy)
     - [`build/documentation/markdown_prose_changes.py`](#builddocumentationmarkdown_prose_changespy)
     - [`build/documentation/known_issues_chronology.py`](#builddocumentationknown_issues_chronologypy)
@@ -419,6 +420,16 @@ When introducing this limit, eight music files and one example shortcut were sho
 Binary assets are inspected only for a leading encoding signature, without decoding their contents.
 
 ### Documentation
+
+#### `build/documentation/example_file_locations.py`
+
+Reserves `_example` filenames for textual/code/data captures under `_1_AdvCiv-SAS/Docs/examples/`. Screenshots stay under `_1_AdvCiv-SAS/Images/` with descriptive names without `_example`; an image using that marker fails even inside the examples folder. Imported/generated context and executable `test_` modules are outside the artifact rule.
+
+For example, `LLM_Helpers/output_example.txt` fails while `Docs/examples/light_source/packaging_refresh_example.txt` under `_1_AdvCiv-SAS` passes. The packaging capture was manually copied before automatic text receipts existed; its provenance belongs in the explanatory documentation.
+
+Normal runs use added/changed/renamed paths from the push/PR comparison, including untracked local draft files. Missing comparison history, checker changes or `--all` select a full current-path audit. Only filenames/locations are checked; payloads are not opened.
+
+The initial inventory found three screenshots using `_example`; their names and image links were updated to keep the marker specific to textual examples. Existing textual captures already occupied the intended examples hierarchy.
 
 #### `build/documentation/sas_source_guide.py`
 

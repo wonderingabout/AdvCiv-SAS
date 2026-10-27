@@ -37,6 +37,13 @@ class ReferenceHistoryFilteringTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertFalse(self.summarize("_1_AdvCiv-SAS/Docs/revisions/" + name)[0])
 
+    # <!-- custom: Generated build evidence is noisy history, but executable JSON settings are source; cover both real DLL-report and example-report spellings without suppressing JSON generally. (GPT-6.1-Sol) -->
+    def test_build_reports_are_summarized_without_hiding_json_configuration(self):
+        for path in ('Assets/CvGameCoreDLL.dll.build.json', '_1_AdvCiv-SAS/Docs/examples/build_reports/AdvCiv_Release_example.build.json'):
+            with self.subTest(path=path):
+                self.assertEqual(self.summarize(path), (True, 'binary/generated-file', 2))
+        self.assertFalse(self.summarize('Assets/Config/settings.json')[0])
+
     def test_renames_across_policy_boundary_keep_patches(self):
         archived = '_1_AdvCiv-SAS/Docs/changelogs_web/5500.md'
         maintained = '_1_AdvCiv-SAS/Docs/guide.md'
@@ -61,6 +68,8 @@ class ReferenceHistoryFilteringTests(unittest.TestCase):
                 '_1_AdvCiv-SAS/Docs/changelogs_web/README.md': '# Maintained index\n',
                 '_0_Common_Docs/BUG_Doc/CvAltRoot.py': 'value = 1\n',
                 '_1_AdvCiv-SAS/Docs/guide.md': '# Maintained guide\n',
+                'Assets/CvGameCoreDLL.dll.build.json': '{"generated":"BUILD_REPORT_PAYLOAD"}\n',
+                'Assets/Config/settings.json': '{"enabled":true}\n',
             }
             for relative, content in files.items():
                 destination = repo / relative
@@ -75,6 +84,8 @@ class ReferenceHistoryFilteringTests(unittest.TestCase):
             text = rendered.decode()
             self.assertNotIn('IMPORTED_REFERENCE_PAYLOAD', text)
             self.assertNotIn('PUBLISHED_ARCHIVE_PAYLOAD', text)
+            self.assertNotIn('BUILD_REPORT_PAYLOAD', text)
+            self.assertIn('+{"enabled":true}', text)
             self.assertIn('+# Maintained index', text)
             self.assertIn('+value = 1', text)
             self.assertIn('+# Maintained guide', text)
@@ -86,6 +97,8 @@ class ReferenceHistoryFilteringTests(unittest.TestCase):
             cache = repo / 'cached.diff'
             cache.write_bytes(rendered)
             self.assertIsNotNone(light.cached_commit_info(cache, sha))
+            with patch.object(light, 'COMMIT_DIFF_ALWAYS_SUMMARIZE_SUFFIXES', tuple(suffix for suffix in light.COMMIT_DIFF_ALWAYS_SUMMARIZE_SUFFIXES if suffix != '.build.json')):
+                self.assertIsNone(light.cached_commit_info(cache, sha))
             with patch.object(light, 'COMMIT_DIFF_REFERENCE_DOCUMENT_DIRS', light.COMMIT_DIFF_REFERENCE_DOCUMENT_DIRS + ('extra_reference/',)):
                 self.assertIsNone(light.cached_commit_info(cache, sha))
 

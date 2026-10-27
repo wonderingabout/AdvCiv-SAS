@@ -58,7 +58,7 @@ The EXE is closed source, mods can supply arbitrary filenames, and some outputs 
   - [DLL build reports](#dll-build-reports)
     - [`CvGameCoreDLL.dll.build.json` (toolchain and build launcher)](#cvgamecoredlldllbuildjson-toolchain-and-build-launcher)
     - [`AdvCiv.log` (compiler output and build summaries)](#advcivlog-compiler-output-and-build-summaries)
-    - [`_SNAPSHOT_CONTEXT/packaging_summary.txt` (packaging host)](#_snapshot_contextpackaging_summarytxt-packaging-host)
+    - [`_SNAPSHOT_CONTEXT/archive_contents_and_context.txt` (packaging host)](#_snapshot_contextarchive_contents_and_contexttxt-packaging-host)
 - [Python diagnostic messages](#python-diagnostic-messages)
 - [Startup rows and run boundaries](#startup-rows-and-run-boundaries)
 - [Structured Python diagnostic records](#structured-python-diagnostic-records)
@@ -1128,9 +1128,9 @@ Ended UTC: 2026-10-27T06:26:20.041Z; result: SUCCEEDED; exit code: 0; duration m
 Distinct coded diagnostic lines: warnings=0; errors=0
 ```
 
-#### `_SNAPSHOT_CONTEXT/packaging_summary.txt` (packaging host)
+#### `_SNAPSHOT_CONTEXT/archive_contents_and_context.txt` (packaging host)
 
-The light-source ZIP helper writes its actual packaging Python version/executable to the console and `_SNAPSHOT_CONTEXT/packaging_summary.txt`. Packaging-host, syntax-checker and embedded-game Python versions describe separate tools. A real packaging dry run on 2026-10-27 printed the following (executable path omitted):
+The light-source ZIP helper writes its actual packaging Python version/executable to the console and `_SNAPSHOT_CONTEXT/archive_contents_and_context.txt`. Packaging-host, syntax-checker and embedded-game Python versions describe separate tools. A real packaging dry run on 2026-10-27 printed the following (executable path omitted):
 
 ```log
 Packaging Python: 3.12.3 (tags/v3.12.3:f6650f9, Apr  9 2024, 14:05:25) [MSC v.1938 64 bit (AMD64)]

@@ -17,6 +17,9 @@ import shlex
 import shutil
 import subprocess
 import sys
+# <!-- custom: Preserve packaging progress/completion outside the ZIP, including failure tracebacks, while continuing to display Python console output normally. (GPT-6.1-Sol) -->
+from contextlib import redirect_stderr, redirect_stdout
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 from time import perf_counter
@@ -123,7 +126,10 @@ COMMIT_DIFF_LARGE_NEW_FUNCTIONAL_SUFFIXES = (
     ".cpp", ".h", ".py", ".xml", ".md", ".ini", ".cfg", ".json", ".csv",
     ".bat", ".cmd", ".ps1", ".sh",
 )
+# <!-- custom: Build reports repeat volatile timestamps, paths and captured source state across DLL commits; retain their changed-path/count summaries rather than historical payloads.
+# The current report remains explicit snapshot context, and ordinary JSON configuration patches remain inspectable. (GPT-6.1-Sol) -->
 COMMIT_DIFF_ALWAYS_SUMMARIZE_SUFFIXES = (
+    ".build.json",
     ".log", ".dll", ".fpk", ".pdb", ".obj", ".lib", ".exe", ".zip",
     ".odt", ".pdf", ".doc", ".docx", ".rtf",
 )
@@ -2056,10 +2062,13 @@ def build_snapshot_context_readme() -> str:
         "  Canonical tracked Git paths from git ls-files, each prefixed by its exact current working-tree byte size.\n"
         "  This includes size context for tracked binaries/assets intentionally omitted from the light ZIP; missing tracked\n"
         "  working-tree paths are marked MISSING.\n\n"
-        "packaging_summary.txt\n"
+        "archive_contents_and_context.txt\n"
         "  Start/context-preparation timestamps (UTC), current/default branch counts, staged/unstaged tracked-file counts\n"
         "  and names (up to 100 combined entries), Windows game/IDE/build process observations, archive options and history summary.\n"
-        "  This is a pre-write snapshot, not a completion receipt; final ZIP size and completion time are console-only.\n\n"
+        "  This is a pre-write snapshot, not a completion receipt; final ZIP size and completion time are in the console and local LLM_Helpers/outputs/light_source/packaging_*.txt receipt.\n\n"
+        "previous_packaging_report.txt (when available)\n"
+        "  Latest locally finalized packaging attempt, with its original report filename and console transcript.\n"
+        "  This belongs to a previous run, not the current ZIP; unfinished attempts are excluded.\n\n"
         "git_repository_state.txt\n"
         "  Current branch/HEAD, commit count, locally known default branch and current/default reachability counts,\n"
         "  tracking upstream/ahead-behind state, active MERGE_HEAD/target\n"
@@ -2341,9 +2350,70 @@ def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path], compressio
     return count
 
 
-def main() -> int:
+# <!-- custom: Keep the full run receipt outside its own archive: the in-ZIP summary is necessarily prepared before ZIP completion and cannot contain the final timing/size or a later failure. (GPT-6.1-Sol) -->
+class PackagingOutput:
+    def __init__(self, console, report):
+        self.console = console
+        self.report = report
+
+    def write(self, text):
+        self.console.write(text)
+        if self.report is not None:
+            try:
+                self.report.write(text)
+                self.report.flush()
+            except OSError as error:
+                self.report = None
+                self.console.write(f"\nWARNING packaging report could not be updated: {error}\n")
+        return len(text)
+
+    def flush(self):
+        self.console.flush()
+
+
+def run_with_packaging_report(repo_root, action):
+    path = repo_root / "LLM_Helpers/outputs/light_source" / ("packaging_" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ") + ".txt")
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        report = path.open("x", encoding="utf-8", newline="\n")
+    except OSError as error:
+        print(f"WARNING packaging report unavailable: {error}", file=sys.stderr)
+        return action()
+    with report, redirect_stdout(PackagingOutput(sys.stdout, report)), redirect_stderr(PackagingOutput(sys.stderr, report)):
+        print(f"Packaging report: {path}", flush=True)
+        try:
+            result = action()
+            print(f"Packaging exit status: {result}", flush=True)
+            return result
+        except BaseException:
+            # <!-- custom: Keep the original exception/exit behavior; record its traceback before restoring console streams, without printing it twice to the terminal. (GPT-6.1-Sol) -->
+            try:
+                traceback.print_exc(file=report)
+                report.write("Packaging exit status: EXCEPTION\n")
+                report.flush()
+            except OSError:
+                pass
+            raise
+
+
+# <!-- custom: Include only the latest finalized local receipt, not the current still-open transcript or all ignored outputs.
+# A previous run can provide cache rebuild timings/failure evidence without pretending its completion describes this archive. (GPT-6.1-Sol) -->
+def previous_packaging_report_context(repo_root):
+    directory = repo_root / "LLM_Helpers/outputs/light_source"
+    for path in sorted(directory.glob("packaging_*.txt"), reverse=True):
+        try:
+            data = path.read_bytes()
+        except OSError:
+            continue
+        if re.search(rb"^Packaging exit status: (?:[0-9]+|EXCEPTION)\r?$", data, re.MULTILINE):
+            header = ("Previous packaging attempt; not the current archive's completion receipt.\n"
+                      f"Original local report: {path.name}\n\n").encode("utf-8")
+            return {f"{GENERATED_CONTEXT_DIR}/previous_packaging_report.txt": header + data}
+    return {}
+
+
+def build_archive(args) -> int:
     total_start_time = perf_counter()
-    args = parse_args()
     started_at = utc_timestamp()
     print(f"Started:   {started_at}", flush=True)
     repo_root = find_repo_root(args.repo_root)
@@ -2361,6 +2431,8 @@ def main() -> int:
     )
     generated_context, commit_diff_summary = build_generated_context(repo_root, files, args.commit_diff_count, write_cache=not args.dry_run, explicit_upstream_refs=args.upstream_ref)
     generated_context.update(runtime_context)
+    previous_report = previous_packaging_report_context(repo_root)
+    generated_context.update(previous_report)
     context_duration_ms = int((perf_counter() - context_start_time) * 1000)
     compression_mode = "ZIP_STORED / no compression" if args.compression_level <= 0 else f"ZIP_DEFLATED / compression level {args.compression_level}"
 
@@ -2378,7 +2450,7 @@ def main() -> int:
     observer_summary = "Runtime observers: Assets/SASRuntimeExitObserver.ps1, Assets/SASRuntimeDialogObserver.cs, Assets/SASRuntimeSourceObserver.ps1 and Assets/SASRuntimeObserverEnvironment.ps1 included (hidden/default-off Windows companions)." if all(repo_root / name in files for name in observer_files) else "Runtime observers: one or more shipped companions not selected."
     # <!-- custom: The packaging interpreter can differ from both embedded Civ4 Python and the bundled syntax-check runtime; preserve its actual version in console/archive metadata. (GPT-6.1-Sol) -->
     packaging_python = f"Packaging Python: {sys.version.replace(chr(10), ' ').replace(chr(13), ' ')} ({sys.executable})"
-    packaging_summary = [
+    archive_contents_and_context = [
         f"Started: {started_at}",
         packaging_python,
         f"Snapshot context prepared: {utc_timestamp()}",
@@ -2393,12 +2465,13 @@ def main() -> int:
         python24_runtime_summary,
         local_test_summary,
         observer_summary,
+        "Previous packaging report: " + (f"{GENERATED_CONTEXT_DIR}/previous_packaging_report.txt (prior finalized attempt, not this run)" if previous_report else "none available"),
         *history_summary,
         "Scope: current HEAD ancestry and selected working-tree files; counts do not include uncommitted changes.",
         "Current-only/default-only are reachability counts, not necessarily a contiguous tail or an additive practical-version offset.",
-        "Completion time and final ZIP size are reported only in the console after the archive closes.",
+        "Completion time and final ZIP size are reported in the console and local LLM_Helpers/outputs/light_source/packaging_*.txt receipt after the archive closes.",
     ]
-    generated_context[f"{GENERATED_CONTEXT_DIR}/packaging_summary.txt"] = ("\n".join(packaging_summary) + "\n").encode("utf-8")
+    generated_context[f"{GENERATED_CONTEXT_DIR}/archive_contents_and_context.txt"] = ("\n".join(archive_contents_and_context) + "\n").encode("utf-8")
     total_bytes = sum(path.stat().st_size for path in files) + sum(data.stat().st_size if isinstance(data, Path) else len(data) for data in generated_context.values())
 
     print(f"Repo root: {repo_root}")
@@ -2414,6 +2487,7 @@ def main() -> int:
     print(python24_runtime_summary)
     print(local_test_summary)
     print(observer_summary)
+    print("Previous packaging report: " + (f"{GENERATED_CONTEXT_DIR}/previous_packaging_report.txt (prior finalized attempt, not this run)" if previous_report else "none available"))
     for line in history_summary:
         print(line)
 
@@ -2451,6 +2525,15 @@ def main() -> int:
         print(f"Duration:  {total_duration_ms:,} ms total ({context_duration_ms:,} ms generated context; {zip_duration_ms:,} ms ZIP write; {refresh_duration_ms:,} ms local-context refresh)")
     print(f"Finished:  {utc_timestamp()}")
     return 0
+
+
+# <!-- custom: Dry runs retain their no-output-files behavior; real runs open a timestamped ignored receipt before history preparation, so long cache rebuilds and failures need no manual console copy. (GPT-6.1-Sol) -->
+def main() -> int:
+    args = parse_args()
+    if args.dry_run:
+        return build_archive(args)
+    repo_root = find_repo_root(args.repo_root)
+    return run_with_packaging_report(repo_root, lambda: build_archive(args))
 
 
 if __name__ == "__main__":

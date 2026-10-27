@@ -1,0 +1,242 @@
+# Capture note (not shell output): manually copied from Git Bash before automatic text receipts existed.
+# The desktop identifier is anonymized as DESKTOP-REDACTED; remaining captured text is preserved.
+
+PC@DESKTOP-REDACTED MINGW64 /c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS (main)
+$ cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/make_light_source_zip.py --output-dir "C:\Users\PC\Downloads"
+Started:   2026-10-27T12:48:33.378Z
+History preparation: inspecting reachable commits and reusable patches...
+History cache: reusing entries from C:\Program Files (x86)\Steam\steamapps\commo
+n\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\
+.git\advciv_sas_light_source_commit_diffs\v2_6be79479a47b
+History preparation complete: all 6691 selected patches reused; no patch regener
+ation needed. Continuing snapshot preparation.
+Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilizatio
+n IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
+Branch: main
+HEAD: 1629edc69a023bebc5ec8f1f47dc603087551e76
+Commit count: 6691
+Default branch: main (locally known origin/HEAD; no fetch)
+Default comparison ref: refs/heads/main
+Default HEAD: 1629edc69a023bebc5ec8f1f47dc603087551e76
+Default commit count: 6691
+Default remote commit count: 6691 (refs/remotes/origin/main; may be stale)
+Current-only / default-only commits: 0 / 0
+Branch diff: _SNAPSHOT_CONTEXT/branch_changes_no_eol.diff
+Branch diff default ref: refs/heads/main (1629edc69a023bebc5ec8f1f47dc603087551e
+76)
+Branch diff current HEAD: 1629edc69a023bebc5ec8f1f47dc603087551e76
+Branch diff merge base: 1629edc69a023bebc5ec8f1f47dc603087551e76
+Branch diff scope: merge base -> tracked working tree (committed + staged + unst
+aged; excludes untracked files and generated history context).
+Branch committed diff: _SNAPSHOT_CONTEXT/branch_committed_changes_no_eol.diff
+Branch committed diff scope: merge base -> captured HEAD (committed only; exclud
+es generated history context).
+Branch comparison log: _SNAPSHOT_CONTEXT/branch_comparison_log.txt
+Branch comparison shared ancestor: 6691 / 1629edc69a023bebc5ec8f1f47dc603087551e
+76
+Branch commits CURRENT-ONLY: 0 (practical count / SHA / title below; full messag
+es and parents in branch_comparison_log.txt)
+Branch commits DEFAULT-ONLY: 0 (practical count / SHA / title below; full messag
+es and parents in branch_comparison_log.txt)
+Branch changed files: 3 (diff: _SNAPSHOT_CONTEXT/branch_changes_no_eol.diff; nam
+es listed below)
+Branch changed: Assets/CvGameCoreDLL.dll
+Branch changed: Assets/CvGameCoreDLL.dll.build.json
+Branch changed: Assets/XML/GlobalDefines_advciv_sas.xml
+Default file copies: 2 text files in _SNAPSHOT_CONTEXT/default_branch_files/ (45
+3593 bytes)
+Default file copies manifest: _SNAPSHOT_CONTEXT/default_branch_files_manifest.tx
+t
+Uncommitted HEAD file copies: 2 files for 3 affected paths in _SNAPSHOT_CONTEXT/
+head_files/ (453593 bytes)
+Uncommitted HEAD manifest: _SNAPSHOT_CONTEXT/head_files_manifest.txt
+Uncommitted INDEX file copies: 2 files for 3 affected paths in _SNAPSHOT_CONTEXT
+/index_files/ (453593 bytes)
+Uncommitted INDEX manifest: _SNAPSHOT_CONTEXT/index_files_manifest.txt
+Omitted DLL comparison: 1 tracked DLL paths; report: _SNAPSHOT_CONTEXT/omitted_d
+ll_comparison.txt
+Omitted DLL Assets/CvGameCoreDLL.dll: HEAD -> WORKING BYTE-DIFFERENT; sizeDeltaB
+ytes=+5935104
+Staged files: 0 (diff: _SNAPSHOT_CONTEXT/staged_changes_no_eol.diff; none)
+Unstaged tracked files: 3 (diff: _SNAPSHOT_CONTEXT/unstaged_changes_no_eol.diff;
+ names listed below)
+  Unstaged tracked: Assets/CvGameCoreDLL.dll
+  Unstaged tracked: Assets/CvGameCoreDLL.dll.build.json
+  Unstaged tracked: Assets/XML/GlobalDefines_advciv_sas.xml
+A partially staged file counts in both lists; untracked files are excluded (sele
+cted untracked paths are in git_repository_state.txt).
+Runtime process check: 2026-10-27T12:48:39.934Z
+Civ4BeyondSword.exe running: no
+VCExpress.exe running: no
+devenv.exe running: no
+MSBuild.exe running: no
+nmake.exe running: no
+cl.exe running: no
+link.exe running: no
+Process presence is a point-in-time observation, not proof of active autoplay or
+ compilation; processes may start or exit during packaging.
+MSBuild.exe workers can persist after compilation when node reuse is enabled (/n
+r); their presence alone does not identify an active build.
+Mod name:  AdvCiv-SAS
+Prefix:    AdvCiv-SAS_light_source
+Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20261027T134833.zip
+Files:     1478 selected + 6730 generated context files
+Size:      488,089,689 bytes before ZIP container overhead
+Mode:      ZIP_DEFLATED / compression level 6
+Packaging Python: 3.12.3 (tags/v3.12.3:f6650f9, Apr  9 2024, 14:05:25) [MSC v.19
+38 64 bit (AMD64)] (C:\Users\PC\AppData\Local\Programs\Python\Python312\python.e
+xe)
+Linux Python 2.4: metadata only
+  Update: unchanged since last successful check
+  ZIP note: _SNAPSHOT_CONTEXT/python24_runtime.txt
+  Binary: supplied manually; never downloaded or attached by this helper
+  Python: 2.4.6 / linux-x86_64-debian-bookworm
+  SHA256: db751490f39db8687f28d61ca5f1aa09cc66dc64012aa3d4aa24a06073ce878e
+  Download: https://github.com/wonderingabout/python-2.4-docker/releases/downloa
+d/runtime-linux-x86_64-bookworm-db751490f39db8687f28d61ca5f1aa09cc66dc64012aa3d4
+aa24a06073ce878e/python-2.4.6-linux-x86_64-debian-bookworm.tar.gz
+Local tests: 8 source/doc file(s) included from tests/; see tests/README.md for
+platform/toolchain requirements.
+Runtime observers: Assets/SASRuntimeExitObserver.ps1, Assets/SASRuntimeDialogObs
+erver.cs, Assets/SASRuntimeSourceObserver.ps1 and Assets/SASRuntimeObserverEnvir
+onment.ps1 included (hidden/default-off Windows companions).
+History:
+  commit diffs: 6691 included (SASBranch:2348,AdvCivPreSAS:3094,KMod:1249)
+  6691 private-cache hit(s)
+  0 local-mirror hit(s)
+  0 rendered
+  0 not cached
+  versions=dag-from-one-log
+  cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization I
+V Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source
+_commit_diffs\v2_6be79479a47b
+  pending upstream: 11 commit(s) union from 1 selected ref(s)
+  presentation=upstream/1.14
+  extra-vs-presentation=0
+ZIP build: writing selected source files and prepared snapshot/history context..
+.
+Context:   refreshed LLM_Helpers/context/commit_diffs (added=0, updated=0, remov
+equent runs normally reuse them rather than rebuilding everything.
+History preparation: 95/6691 commits processed; 0 cache hits, 0 mirror hits, 95 regenerated.
+History preparation: 214/6691 commits processed; 0 cache hits, 0 mirror hits, 214 regenerated.
+History preparation: 308/6691 commits processed; 0 cache hits, 0 mirror hits, 308 regenerated.
+History preparation: 433/6691 commits processed; 0 cache hits, 0 mirror hits, 433 regenerated.
+History preparation: 542/6691 commits processed; 0 cache hits, 0 mirror hits, 542 regenerated.
+History preparation: 624/6691 commits processed; 0 cache hits, 0 mirror hits, 624 regenerated.
+History preparation: 739/6691 commits processed; 0 cache hits, 0 mirror hits, 739 regenerated.
+History preparation: 975/6691 commits processed; 0 cache hits, 0 mirror hits, 975 regenerated.
+History preparation: 1242/6691 commits processed; 0 cache hits, 0 mirror hits, 1242 regenerated.
+History preparation: 1403/6691 commits processed; 0 cache hits, 0 mirror hits, 1403 regenerated.
+History preparation: 1569/6691 commits processed; 0 cache hits, 0 mirror hits, 1569 regenerated.
+History preparation: 1690/6691 commits processed; 0 cache hits, 0 mirror hits, 1690 regenerated.
+History preparation: 1780/6691 commits processed; 0 cache hits, 0 mirror hits, 1780 regenerated.
+History preparation: 1914/6691 commits processed; 0 cache hits, 0 mirror hits, 1914 regenerated.
+History preparation: 2126/6691 commits processed; 0 cache hits, 0 mirror hits, 2126 regenerated.
+History preparation: 2468/6691 commits processed; 0 cache hits, 0 mirror hits, 2468 regenerated.
+History preparation: 2805/6691 commits processed; 0 cache hits, 0 mirror hits, 2805 regenerated.
+History preparation: 3179/6691 commits processed; 0 cache hits, 0 mirror hits, 3179 regenerated.
+History preparation: 3496/6691 commits processed; 0 cache hits, 0 mirror hits, 3496 regenerated.
+History preparation: 3778/6691 commits processed; 0 cache hits, 0 mirror hits, 3778 regenerated.
+History preparation: 4113/6691 commits processed; 0 cache hits, 0 mirror hits, 4113 regenerated.
+History preparation: 4453/6691 commits processed; 0 cache hits, 0 mirror hits, 4453 regenerated.
+History preparation: 4767/6691 commits processed; 0 cache hits, 0 mirror hits, 4767 regenerated.
+History preparation: 5041/6691 commits processed; 0 cache hits, 0 mirror hits, 5041 regenerated.
+History preparation: 5252/6691 commits processed; 0 cache hits, 0 mirror hits, 5252 regenerated.
+History preparation: 5397/6691 commits processed; 0 cache hits, 0 mirror hits, 5397 regenerated.
+History preparation: 5685/6691 commits processed; 0 cache hits, 0 mirror hits, 5685 regenerated.
+History preparation: 6108/6691 commits processed; 0 cache hits, 0 mirror hits, 6108 regenerated.
+History preparation: 6456/6691 commits processed; 0 cache hits, 0 mirror hits, 6456 regenerated.
+History preparation complete: 6691 patches regenerated, 0 reused. Continuing snapshot preparation.
+Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
+Branch: main
+HEAD: 1629edc69a023bebc5ec8f1f47dc603087551e76
+Commit count: 6691
+Default branch: main (locally known origin/HEAD; no fetch)
+Default comparison ref: refs/heads/main
+Default HEAD: 1629edc69a023bebc5ec8f1f47dc603087551e76
+Default commit count: 6691
+Default remote commit count: 6691 (refs/remotes/origin/main; may be stale)
+Current-only / default-only commits: 0 / 0
+Branch diff: _SNAPSHOT_CONTEXT/branch_changes_no_eol.diff
+Branch diff default ref: refs/heads/main (1629edc69a023bebc5ec8f1f47dc603087551e76)
+Branch diff current HEAD: 1629edc69a023bebc5ec8f1f47dc603087551e76
+Branch diff merge base: 1629edc69a023bebc5ec8f1f47dc603087551e76
+Branch diff scope: merge base -> tracked working tree (committed + staged + unstaged; excludes untracked files and generated history context).
+Branch committed diff: _SNAPSHOT_CONTEXT/branch_committed_changes_no_eol.diff
+Branch committed diff scope: merge base -> captured HEAD (committed only; excludes generated history context).
+Branch comparison log: _SNAPSHOT_CONTEXT/branch_comparison_log.txt
+Branch comparison shared ancestor: 6691 / 1629edc69a023bebc5ec8f1f47dc603087551e76
+Branch commits CURRENT-ONLY: 0 (practical count / SHA / title below; full messages and parents in branch_comparison_log.txt)
+Branch commits DEFAULT-ONLY: 0 (practical count / SHA / title below; full messages and parents in branch_comparison_log.txt)
+Branch changed files: 6 (diff: _SNAPSHOT_CONTEXT/branch_changes_no_eol.diff; names listed below)
+Branch changed: .github/workflows/tests/repository/test_commit_diff_filtering.py
+Branch changed: Assets/CvGameCoreDLL.dll
+Branch changed: Assets/CvGameCoreDLL.dll.build.json
+Branch changed: Assets/XML/GlobalDefines_advciv_sas.xml
+Branch changed: LLM_Helpers/README.md
+Branch changed: LLM_Helpers/make_light_source_zip.py
+Default file copies: 5 text files in _SNAPSHOT_CONTEXT/default_branch_files/ (725936 bytes)
+Default file copies manifest: _SNAPSHOT_CONTEXT/default_branch_files_manifest.txt
+Uncommitted HEAD file copies: 5 files for 6 affected paths in _SNAPSHOT_CONTEXT/head_files/ (725936 bytes)
+Uncommitted HEAD manifest: _SNAPSHOT_CONTEXT/head_files_manifest.txt
+Uncommitted INDEX file copies: 2 files for 3 affected paths in _SNAPSHOT_CONTEXT/index_files/ (453593 bytes)
+Uncommitted INDEX manifest: _SNAPSHOT_CONTEXT/index_files_manifest.txt
+Omitted DLL comparison: 1 tracked DLL paths; report: _SNAPSHOT_CONTEXT/omitted_dll_comparison.txt
+Omitted DLL Assets/CvGameCoreDLL.dll: HEAD -> WORKING BYTE-DIFFERENT; sizeDeltaBytes=+5935104
+Staged files: 3 (diff: _SNAPSHOT_CONTEXT/staged_changes_no_eol.diff; names listed below)
+  Staged: .github/workflows/tests/repository/test_commit_diff_filtering.py
+  Staged: LLM_Helpers/README.md
+  Staged: LLM_Helpers/make_light_source_zip.py
+Unstaged tracked files: 3 (diff: _SNAPSHOT_CONTEXT/unstaged_changes_no_eol.diff; names listed below)
+  Unstaged tracked: Assets/CvGameCoreDLL.dll
+  Unstaged tracked: Assets/CvGameCoreDLL.dll.build.json
+  Unstaged tracked: Assets/XML/GlobalDefines_advciv_sas.xml
+A partially staged file counts in both lists; untracked files are excluded (selected untracked paths are in git_repository_state.txt).
+Runtime process check: 2026-10-27T15:02:20.702Z
+Civ4BeyondSword.exe running: no
+VCExpress.exe running: no
+devenv.exe running: no
+MSBuild.exe running: no
+nmake.exe running: no
+cl.exe running: no
+link.exe running: no
+Process presence is a point-in-time observation, not proof of active autoplay or compilation; processes may start or exit during packaging.
+MSBuild.exe workers can persist after compilation when node reuse is enabled (/nr); their presence alone does not identify an active build.
+Mod name:  AdvCiv-SAS
+Prefix:    AdvCiv-SAS_light_source
+Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20261027T155715.zip
+Files:     1478 selected + 6736 generated context files
+Size:      487,404,614 bytes before ZIP container overhead
+Mode:      ZIP_DEFLATED / compression level 6
+Packaging Python: 3.12.3 (tags/v3.12.3:f6650f9, Apr  9 2024, 14:05:25) [MSC v.1938 64 bit (AMD64)] (C:\Users\PC\AppData\Local\Programs\Python\P
+ython312\python.exe)
+Linux Python 2.4: metadata only
+  Update: unchanged since last successful check
+  ZIP note: _SNAPSHOT_CONTEXT/python24_runtime.txt
+  Binary: supplied manually; never downloaded or attached by this helper
+  Python: 2.4.6 / linux-x86_64-debian-bookworm
+  SHA256: db751490f39db8687f28d61ca5f1aa09cc66dc64012aa3d4aa24a06073ce878e
+  Download: https://github.com/wonderingabout/python-2.4-docker/releases/download/runtime-linux-x86_64-bookworm-db751490f39db8687f28d61ca5f1aa0
+9cc66dc64012aa3d4aa24a06073ce878e/python-2.4.6-linux-x86_64-debian-bookworm.tar.gz
+Local tests: 8 source/doc file(s) included from tests/; see tests/README.md for platform/toolchain requirements.
+Runtime observers: Assets/SASRuntimeExitObserver.ps1, Assets/SASRuntimeDialogObserver.cs, Assets/SASRuntimeSourceObserver.ps1 and Assets/SASRun
+timeObserverEnvironment.ps1 included (hidden/default-off Windows companions).
+History:
+  commit diffs: 6691 included (SASBranch:2348,AdvCivPreSAS:3094,KMod:1249)
+  0 private-cache hit(s)
+  0 local-mirror hit(s)
+  6691 rendered
+  0 not cached
+  versions=dag-from-one-log
+  cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv
+_sas_light_source_commit_diffs\v2_853806048ba9
+  pruned=1 old cache dir(s)
+  pending upstream: 11 commit(s) union from 1 selected ref(s)
+  presentation=upstream/1.14
+  extra-vs-presentation=0
+ZIP build: writing selected source files and prepared snapshot/history context...
+Context:   refreshed LLM_Helpers/context/commit_diffs (added=0, updated=6691, removed=0, unchanged=2)
+Wrote:     8214 file(s)
+ZIP size:  158,200,222 bytes
+Duration:  319,958 ms total (304,597 ms generated context; 10,367 ms ZIP write; 4,454 ms local-context refresh)
+Finished:  2026-10-27T15:02:35.841Z
