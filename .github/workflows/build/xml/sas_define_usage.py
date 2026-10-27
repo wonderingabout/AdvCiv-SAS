@@ -3,6 +3,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 # <!-- custom: Audit XML declarations against actual define lookups rather than all SAS-prefixed tokens: enums, widget names, diagnostics and comments are not configuration consumers.
 # Follow forwarding helpers and local string aliases; expand bounded integer format lookups from their source guards.
+# AdvCiv enum-backed CvGlobals::SAS_* getter arguments count too: those names are resolved through the shared GlobalDefines cache rather than a string at the call site.
 # Direct FVariableSystem GetVariable calls also count when code intentionally avoids an asserting typed getter, as in startup-safe assertion handling.
 # This checks static references, not runtime reachability. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 
@@ -139,6 +140,10 @@ def aliases(tokens):
 
 
 def resolve(expression, bindings, text, seen=frozenset()):
+    # <!-- custom: AdvCiv's enum-indexed GlobalDefines cache replaces the runtime string argument with CvGlobals::NAME; still treat the enum token as the XML Define reference. (ChatGPT-5.6-Sol) -->
+    if (len(expression) == 4 and expression[0][0] == "CvGlobals" and expression[1][0] == ":" and expression[2][0] == ":" and
+            not expression[3][3] and NAME_RE.fullmatch(expression[3][0])):
+        return {expression[3][0]}
     if len(expression) == 1 and not expression[0][3]:
         name = expression[0][0]
         if name in seen:

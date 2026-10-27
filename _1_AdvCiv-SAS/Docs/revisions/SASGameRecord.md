@@ -101,7 +101,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 175 - SAS practical 6690
 
 - **Date:** 2026-10-26
-- **Git commit:** pending
+- **Git commit:** `9e6e527431b576ecc8622f7230eacb8084b0e9ff`
 - **Change:** Expand the shared tracked code/rules source-provenance scope to include shipped root-level `Assets/*.ps1` and `Assets/*.cs` runtime companions.
   - SGR, Runtime source identity and DLL build reports now treat those helpers alongside `CvGameCoreDLL`, `Assets/Config`, `Assets/Python`, `Assets/XML` and `PrivateMaps` when computing staged/unstaged/combined patch evidence.
   - This closes the gap exposed by the Runtime exit/dialog/source observers: editing a shipped PowerShell/C# diagnostic helper can no longer leave the code/rules fingerprint unchanged.
@@ -1737,7 +1737,7 @@ For the next qualifying committed update, increment `SAS_SGR_REVISION` in `Globa
 - **Change:** Briefly state what changed in SASGameRecord-related code and why a downstream copy should review/update.
 ```
 
-Keep only the latest entry's Git commit as `pending`; when adding the next revision, replace the preceding entry's `pending` with its finalized full SHA from the default branch, reconciling after an amend or rebase.
+Keep only the latest entry's Git commit as `pending` in its introducing commit; finalize it in the next commit, even without another recorder change. Reconcile hashes and practical numbers after an amend, rebase or squash; ordinary merges preserve the original commit identities.
 
 Do not put the current commit's own SHA into its entry: editing the document would change that SHA again. Current runtime Git/source identity is recorded independently by `GAME_RECORD_SOURCE_CONTEXT`.
 

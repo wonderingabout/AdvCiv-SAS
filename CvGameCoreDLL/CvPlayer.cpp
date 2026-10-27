@@ -19695,7 +19695,7 @@ namespace
 		// <!-- custom: diplomacy trade-table strings are composed in DLL and rendered by EXE widgets (not Python-managed table text), so apply SAS label scaling here at the source string. (GPT-5.3-Codex) -->
 		if (szText.empty())
 			return;
-		static int const iSAS_UI_FONT_LABEL = GC.getDefineINT("SAS_UI_FONT_LABEL");
+		int const iSAS_UI_FONT_LABEL = GC.getDefineINT(CvGlobals::SAS_UI_FONT_LABEL);
 		if (iSAS_UI_FONT_LABEL < 1 || iSAS_UI_FONT_LABEL > 4)
 			return;
 		CvWString szWrapped;

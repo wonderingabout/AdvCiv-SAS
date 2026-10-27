@@ -2024,7 +2024,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 	// Base AdvCiv's active-World-Wonder exemption protected the city from this force-raze gate.
 	// Keep that intrinsic-site protection, but let the default-enabled XML option make excessive same-area distance override it.
 	// England otherwise kept remote Elephantine for its Eiffel Tower, committed 15 defenders, lost at least 7 there, and lost the city after 6 turns. See KI#186.2. (GPT-5.6-Sol) -->
-	static bool const bDistanceOverrideActiveWorldWonder = GC.getDefineBOOL("SAS_CITY_LONG_TERM_WW_DIST_OVERRIDE_ON");
+	bool const bDistanceOverrideActiveWorldWonder = GC.getDefineBOOL(CvGlobals::SAS_CITY_LONG_TERM_WW_DIST_OVERRIDE_ON);
 	bool const bActiveWorldWonder = kCity.hasActiveWorldWonder();
 	if (!bBarbarian && !kCity.isHolyCity() && !bEverOwned && (!bActiveWorldWonder || bDistanceOverrideActiveWorldWonder))
 	{
@@ -6902,7 +6902,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 
 		if (bEnemyStrong)
 		{
-			static const int iSAS_TECH_VAL_MILIT_FLAVOR_MIN = GC.getDefineINT("SAS_TECH_VAL_MILIT_FLAVOR_MIN");
+			const int iSAS_TECH_VAL_MILIT_FLAVOR_MIN = GC.getDefineINT(CvGlobals::SAS_TECH_VAL_MILIT_FLAVOR_MIN);
 
 			if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_TECH_VAL_MILIT_FLAVOR_MIN)
 			{
@@ -16019,7 +16019,7 @@ int CvPlayerAI::AI_countUnitsByCombat(UnitCombatTypes eCombat) const
 
 int CvPlayerAI::AI_countUnitsByCombatNoTrebuchetsLike(UnitCombatTypes eCombat) const
 {
-	static const int iTH = GC.getDefineINT("SAS_TREB_LIKE_MIN_CITY_ATK_THRESH");
+	const int iTH = GC.getDefineINT(CvGlobals::SAS_TREB_LIKE_MIN_CITY_ATK_THRESH);
 
 	const CvCivilizationInfo& kCiv = GC.getInfo(getCivilizationType());
 
@@ -16052,7 +16052,7 @@ int CvPlayerAI::AI_countUnitsByCombatNoTrebuchetsLike(UnitCombatTypes eCombat) c
 int CvPlayerAI::AI_countTrebuchetsLike() const
 {
 	static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
-	static const int iTH = GC.getDefineINT("SAS_TREB_LIKE_MIN_CITY_ATK_THRESH");
+	const int iTH = GC.getDefineINT(CvGlobals::SAS_TREB_LIKE_MIN_CITY_ATK_THRESH);
 
 	const CvCivilizationInfo& kCiv = GC.getInfo(getCivilizationType());
 
@@ -31970,11 +31970,11 @@ bool CvPlayerAI::AI_isSASCityLikelyToBenefitUsLongTerm(CvCity const& kCity) cons
 	// Razing makes that rival pay to settle and develop the site.
 	// The default-enabled World-Wonder option protects intrinsic quality but not excessive distance.
 	// Keep the thresholds XML-tunable and log both component results so later autoplay evidence can refine them. See KI#186. (GPT-5.6-Sol) -->
-	static int const iMinPotentialYieldScore = GC.getDefineINT("SAS_SITE_MIN_OUTER_PLOT_POT_YIELD_SCORE");
+	int const iMinPotentialYieldScore = GC.getDefineINT(CvGlobals::SAS_SITE_MIN_OUTER_PLOT_POT_YIELD_SCORE);
 	static int const iMaxVeryBadPlots = GC.getDefineINT("SAS_CITY_LONG_TERM_MAX_VERY_BAD_BFC_PLOTS");
 	static int const iMaxLowFoodScore = GC.getDefineINT("SAS_CITY_LONG_TERM_MAX_LOW_FOOD_SCORE");
 	static int const iMaxNearestOwnCityDistanceSameArea = GC.getDefineINT("SAS_CITY_LONG_TERM_MAX_OWN_CITY_DIST");
-	static bool const bDistanceOverrideActiveWorldWonder = GC.getDefineBOOL("SAS_CITY_LONG_TERM_WW_DIST_OVERRIDE_ON");
+	bool const bDistanceOverrideActiveWorldWonder = GC.getDefineBOOL(CvGlobals::SAS_CITY_LONG_TERM_WW_DIST_OVERRIDE_ON);
 	// <!-- custom: This enum-backed getter already reads CvGlobals' integer cache; use a per-call local so explicit runtime changes are reflected without a string lookup. See KI#128.2. (GPT-6.1-Sol) -->
 	int const iMinWaterSizeForOcean = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
 	bool const bOceanCoastal = kCity.plot()->isCoastalLand(iMinWaterSizeForOcean);
@@ -32698,7 +32698,7 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
 	}
 
 	// <!-- custom: add scrapping support for units that have a tech in their ObsoleteTech XML field (toggleable). (GPT-5.2-Codex) -->
-	static const bool bSAS_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_SCRAP_OBSOLETE_TECH");
+	const bool bSAS_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL(CvGlobals::SAS_SCRAP_OBSOLETE_TECH);
 	if (bSAS_SCRAP_OBSOLETE_TECH &&
 		kUnit.getUnitInfo().getObsoleteTech() != NO_TECH &&
 		GET_TEAM(getTeam()).isHasTech(kUnit.getUnitInfo().getObsoleteTech()))

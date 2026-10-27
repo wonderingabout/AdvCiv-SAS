@@ -16,7 +16,7 @@ namespace
 			return;
 		if (szText.find(L"<font=") != CvWString::npos)
 			return;
-		static int const iSAS_UI_FONT_LABEL = GC.getDefineINT("SAS_UI_FONT_LABEL");
+		int const iSAS_UI_FONT_LABEL = GC.getDefineINT(CvGlobals::SAS_UI_FONT_LABEL);
 		if (iSAS_UI_FONT_LABEL < 1 || iSAS_UI_FONT_LABEL > 4)
 			return;
 		CvWString szWrapped;

@@ -73,7 +73,7 @@ namespace
 
 	int getSASBBAIVictoryDenialUtilityBoost(TeamTypes eTarget, int iTargetMaxVictoryStage)
 	{
-		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_ON");
+		const bool bEnable = GC.getDefineBOOL(CvGlobals::SAS_UWAI_VICT_DENY_ON);
 		if (!bEnable)
 			return 0;
 		int iBoost = 0;
@@ -518,7 +518,7 @@ bool UWAI::Team::reviewWarPlans(set<TeamTypes>& aeChangedTargets)
 		int iPreferredEmergencyPeaceReluctance = MIN_INT;
 		int const iMajorWars = kAgent.getNumWars(true, true);
 		int const iEnemyPowerPercent = (iMajorWars >= 2 ? kAgent.AI_getEnemyPowerPercent(true) : 0);
-		static int const iEmergencyPeacePowerThreshold = GC.getDefineINT("SAS_UWAI_EMERG_PEACE_ENEMY_PWR_THRESH");
+		int const iEmergencyPeacePowerThreshold = GC.getDefineINT(CvGlobals::SAS_UWAI_EMERG_PEACE_ENEMY_PWR_THRESH);
 		static int const iExtraWarThreatPercent = GC.getDefineINT("SAS_UWAI_EMERG_PEACE_EXTRA_WAR_THREAT_PCT");
 		int const iAdjustedEnemyPowerPercent = iEnemyPowerPercent * (100 + std::max(0, iMajorWars - 2) * iExtraWarThreatPercent) / 100;
 		bool const bEmergencyPeaceMode = (iMajorWars >= 2 && iAdjustedEnemyPowerPercent > iEmergencyPeacePowerThreshold);
@@ -892,7 +892,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iE
 	// <!-- custom: KI#65's SAS rule treated any three wars as an emergency, so save-file 450 Carthage abandoned a four-turn war against two-city Holy Rome despite having 16 cities and all three enemies together contributing only 70% effective power.
 	// Multiply actual combined enemy power by a tunable pressure for each front beyond two instead: several meaningful enemies remain dangerous, but any number of nearly powerless enemies cannot force peace.
 	// The values were computed once in reviewWarPlans and passed through reviewPlan. (GPT-5.6-Sol) -->
-	static int const iEmergencyPeacePowerThreshold = GC.getDefineINT("SAS_UWAI_EMERG_PEACE_ENEMY_PWR_THRESH");
+	int const iEmergencyPeacePowerThreshold = GC.getDefineINT(CvGlobals::SAS_UWAI_EMERG_PEACE_ENEMY_PWR_THRESH);
 	const bool bEmergencyPeaceMode = (iMajorWars >= 2 && iAdjustedEnemyPowerPercent > iEmergencyPeacePowerThreshold);
 	// <!-- custom: The old KI#65 override applied independently to every war.
 	// Fresh Pangaea runs showed Arabia abandoning a profitable war against a 34%-power rival and Shaka making peace with a one-city 16%-power rival because a more dangerous new enemy had appeared.
@@ -3175,7 +3175,7 @@ bool UWAI::Team::canReach(TeamTypes eTarget) const
 bool UWAI::Team::isSASVictoryDenialDirectWarAllowed(TeamTypes eTarget, int iTargetMaxVictoryStage, bool bNaval, int iDistance) const
 {
 	CvTeamAI const& kAgent = GET_TEAM(m_eAgent);
-	static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_ON");
+	const bool bEnable = GC.getDefineBOOL(CvGlobals::SAS_UWAI_VICT_DENY_ON);
 	if (!bEnable)
 		return false;
 	int const iCountdown = GET_TEAM(eTarget).AI_getLowestVictoryCountdown();

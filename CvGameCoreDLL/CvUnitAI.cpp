@@ -2877,7 +2877,7 @@ static int SAS_getWorkerPhase0MinEligiblePlots(CvCityAI const& kCity)
 
 static bool SAS_shouldWorkerPhase0ProductiveFeatureChop(CvUnitAI const& kUnit, CvCityAI const& kCity, CvPlot const* pIgnorePlot, int& iEligible, int& iTargeted, bool& bPressureReliefOnly)
 {
-	static const bool bEnable = GC.getDefineBOOL("SAS_WORKER_P0_CHOP_ON");
+	const bool bEnable = GC.getDefineBOOL(CvGlobals::SAS_WORKER_P0_CHOP_ON);
 	int const iMinEligible = SAS_getWorkerPhase0MinEligiblePlots(kCity);
 	if (!bEnable)
 	{
@@ -4241,7 +4241,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	if (pbIrrigationChainStep) *pbIrrigationChainStep = false;
 	// ... PHASE 1 builds candidates ...
 
-	static const bool bSAS_WORKER_P0_CHOP_ON = GC.getDefineBOOL("SAS_WORKER_P0_CHOP_ON");
+	const bool bSAS_WORKER_P0_CHOP_ON = GC.getDefineBOOL(CvGlobals::SAS_WORKER_P0_CHOP_ON);
 	static const int iSAS_WORKER_BONUS_FEATURE_STEP_VAL = GC.getDefineINT("SAS_WORKER_BONUS_FEATURE_STEP_VAL");
 	static const int iSAS_WORKER_BONUS_SPECIFIC_BUILD_BASE_VAL = GC.getDefineINT("SAS_WORKER_BONUS_SPECIFIC_BUILD_BASE_VAL");
 	static const int iSAS_WORKER_BONUS_YIELD_VAL_PER_FOOD = GC.getDefineINT("SAS_WORKER_BONUS_YIELD_VAL_PER_FOOD");
@@ -5642,7 +5642,7 @@ bool CvUnitAI::AI_scrapSettlerWithNoValidSite(bool bDanger, MovementFlags eMoveF
 {
 	FAssertMsg(!isHuman() && AI_getUnitAIType() == UNITAI_SETTLE, "No-valid-site cleanup is only valid for an AI Settler");
 	// <!-- custom: Honor the shared absolute AI scrap permission before no-valid-site Settler cleanup; ENABLED=1 matches the old DISABLE=0, so this rename does not change eligibility. (GPT-6.1-Sol) -->
-	static const bool bSAS_SCRAP_AI_ABSOLUTELY_ON = GC.getDefineBOOL("SAS_SCRAP_AI_ABSOLUTELY_ON");
+	const bool bSAS_SCRAP_AI_ABSOLUTELY_ON = GC.getDefineBOOL(CvGlobals::SAS_SCRAP_AI_ABSOLUTELY_ON);
 	if (isHuman() || AI_getUnitAIType() != UNITAI_SETTLE || !bSAS_SCRAP_AI_ABSOLUTELY_ON || getPlot().isFighting()) return false;
 	// <!-- custom: SAS protects Settlers from costly produce/scrap loops, but save files 449 and 450 exposed the inherited no-valid-site cleanup silently failing for up to 262 turns while each Settler kept two useful military escorts trapped.
 	// This named operation applies only after AI_settleMove has proven that an AI Settler older than 20 turns has no valid site and no pending transport pickup.
@@ -5711,7 +5711,7 @@ void CvUnitAI::AI_settleMove()
 		{
 			if (at(kSite) && canFound(plot()))
 			{
-				static const bool bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON = GC.getDefineBOOL("SAS_SETTLER_EXPOSED_FOUND_ESCORT_ON");
+				const bool bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON = GC.getDefineBOOL(CvGlobals::SAS_SETTLER_EXPOSED_FOUND_ESCORT_ON);
 				if (bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON && SAS_shouldBlockDangerousUnescortedFounding(*this, getPlot()))
 				{
 					if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "DANGEROUS_NO_ESCORT");
@@ -5842,7 +5842,7 @@ void CvUnitAI::AI_settleMove()
 	}
 	// <!-- custom: Let AI_found make the actual city-site decision first; only park or retreat an unescorted Settler after all currently allowed found missions have been rejected.
 	// Save-file 450 follow-up logs showed this keeps guarded city founding moving while cities that cannot keep enough healthy defenders after giving one to the Settler wait instead of sending lone exposed Settlers. See KI#179. (ChatGPT-5.5) -->
-	static const bool bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON = GC.getDefineBOOL("SAS_SETTLER_EXPOSED_FOUND_ESCORT_ON");
+	const bool bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON = GC.getDefineBOOL(CvGlobals::SAS_SETTLER_EXPOSED_FOUND_ESCORT_ON);
 	if (bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON && kOwner.getNumCities() > 0 && getGroup() != NULL && !getGroup()->canDefend() && getInvisibleType() == NO_INVISIBLE)
 	{
 		if (getPlot().isCity() && getPlot().getOwner() == getOwner() && iAreaBestFoundValue > 0)
@@ -7026,7 +7026,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	// This is the high-tempo case where chop hammers directly accelerate the key civilian unit and can justify delaying even a bonus.
 	// A below-threshold removal that directly relieves current unhealth/unhappiness may also use this early path.
 	// Normal productive-feature chopping is handled later, after AI_improveBonus, so ordinary cities can improve bonuses and avoid the v3 "chop everything first" overcorrection. See KI#33.2. (ChatGPT-5.6-Sol) -->
-	static const bool bSAS_WORKER_P0_CHOP_ON = GC.getDefineBOOL("SAS_WORKER_P0_CHOP_ON");
+	const bool bSAS_WORKER_P0_CHOP_ON = GC.getDefineBOOL(CvGlobals::SAS_WORKER_P0_CHOP_ON);
 	const bool bNotBarbPhase0 = (!isBarbarian() && bSAS_WORKER_P0_CHOP_ON);
 	if (bNotBarbPhase0)
 	{
@@ -7369,7 +7369,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	// These forts usually spend worker turns for meagre defensive/airbase/canal benefits, can block future irrigation-chain paths, and cities usually serve aircraft better.
 	// Default-disable the old branch through the corresponding SAS define rather than just lowering its odds; if a future caller reaches AI_fortTerritory while the define is disabled, that function logs the attempted path. (GPT-5.5) -->
 	//if (SyncRandSuccess100(20))
-	static const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL("SAS_WORKER_FORT_AIRBASE_ON");
+	const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL(CvGlobals::SAS_WORKER_FORT_AIRBASE_ON);
 	if (bAllowFortAirbaseWorkers && SyncRandSuccess100(10)) // Only 10% chance to even try Fort logic
 	{
 		//bool bCanal = ((100 * getArea().getNumCities()) / std::max(1, GC.getGame().getNumCities()) < 85);
@@ -8862,7 +8862,7 @@ void CvUnitAI::AI_attackCityMove()
 	// <!-- custom: Base AdvCiv/K-Mod reinforcement waits otherwise return before a targetless peaceful army can release its excess units.
 	// Only wait for more joiners when the group has selected a city or has a real war plan; otherwise continue to the safe release below. See KI#188.3. (GPT-5.6-Sol) -->
 	bool const bHasTargetOrWarPlan = (pTargetCity != NULL || bAnyWarPlan);
-	static bool const bSpaceVictoryDenialCapitalRushEnable = GC.getDefineBOOL("SAS_SPACE_VICT_DENY_CAPITAL_RUSH_ON");
+	bool const bSpaceVictoryDenialCapitalRushEnable = GC.getDefineBOOL(CvGlobals::SAS_SPACE_VICT_DENY_CAPITAL_RUSH_ON);
 	VictoryTypes const eSpaceVictory = GC.getGame().getSpaceVictory();
 	bool const bLaunchedSpaceCapitalTarget = (bSpaceVictoryDenialCapitalRushEnable && eSpaceVictory != NO_VICTORY && pTargetCity != NULL && pTargetCity->isCapital());
 	int const iSpaceCapitalCountdown = (bLaunchedSpaceCapitalTarget ? GET_TEAM(pTargetCity->getTeam()).getVictoryCountdown(eSpaceVictory) : -1);
@@ -20786,7 +20786,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 	// BBAI save-file 450 testing confirmed that a hard pre-launch override made armies chase England's successive capitals while its spaceship progress remained intact.
 	// When enabled, keep one separately ranked reachable capital objective after launch, when its capture can actually stop the imminent Space victory.
 	// Base AdvCiv's ordinary pre-launch capital preference remains unchanged, and its existing enough-offence-en-route check can leave additional armies available for other targets. See KI#190. (GPT-5.6-Sol) -->
-	static bool const bSpaceVictoryDenialCapitalRushEnable = GC.getDefineBOOL("SAS_SPACE_VICT_DENY_CAPITAL_RUSH_ON");
+	bool const bSpaceVictoryDenialCapitalRushEnable = GC.getDefineBOOL(CvGlobals::SAS_SPACE_VICT_DENY_CAPITAL_RUSH_ON);
 	VictoryTypes const eSpaceVictory = GC.getGame().getSpaceVictory();
 	bool const bSpaceCapitalRush = (bSpaceVictoryDenialCapitalRushEnable && eSpaceVictory != NO_VICTORY && !isHuman() && !isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_CITY);
 	bool const bLogSpaceTargetChoice = (gWarLogLevel >= 2 && !isHuman() && !isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_CITY);
@@ -23144,7 +23144,7 @@ bool CvUnitAI::AI_foundFollow()
 	if (canFound(plot()) && atPlot(AI_getGroup()->AI_getMissionAIPlot()) &&
 		AI_getGroup()->AI_getMissionAIType() == MISSIONAI_FOUND)
 	{
-		static const bool bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON = GC.getDefineBOOL("SAS_SETTLER_EXPOSED_FOUND_ESCORT_ON");
+		const bool bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON = GC.getDefineBOOL(CvGlobals::SAS_SETTLER_EXPOSED_FOUND_ESCORT_ON);
 		if (bSAS_SETTLER_EXPOSED_FOUND_ESCORT_ON && SAS_shouldBlockDangerousUnescortedFounding(*this, getPlot()))
 		{
 			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "DANGEROUS_NO_ESCORT");
@@ -25855,7 +25855,7 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
 
 	// <!-- custom: Keep AI fort construction disabled at the fort helper too when the corresponding SAS define is 0, not only at the worker-move callers.
 	// Late-game outside-BFC fort-airbase selection reappeared after more workers were available; if another path calls this helper while the define is disabled, log the attempted source instead of silently building forts that spend worker turns for weak practical value or block irrigation chains. (GPT-5.5) -->
-	static const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL("SAS_WORKER_FORT_AIRBASE_ON");
+	const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL(CvGlobals::SAS_WORKER_FORT_AIRBASE_ON);
 	if (!bAllowFortAirbaseWorkers && (bCanal || bAirbase))
 	{
 		if (gWorkerLogLevel >= 2) logBBAI("    %S worker skips disabled fort-territory path: canal=%d airbase=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), bCanal, bAirbase);

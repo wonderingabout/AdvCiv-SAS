@@ -81,9 +81,9 @@ Locally our project is a git repo too, generally with a fresh commit for each ne
 
 - Generally leave staging/unstaging to the user during review; preserve the existing index and leave new edits unstaged unless asked otherwise or an explicitly approved commit is ready for final preparation.
   - The staged/unstaged split supports iterative review of the same commit candidate, for example sharing only Codex's subsequent edits with ChatGPT, or vice versa. An already-staged file is not permission to stage its newer edits.
-  - Some changes are intentionally kept unstaged and are never meant for the commit. For example, `SAS_SGR_LOG=3` and `SAS_RUNTIME_STATUS_ON=1` are usually left enabled during development cycles, while shipped defaults are `0` to avoid unnecessary diagnostic overhead for regular users.
+  - Some changes are intentionally kept unstaged and are never meant for the commit. For example, `SAS_SGR_LOG=3`, `SAS_RUNTIME_STATUS_ON=1` and `SAS_RUNTIME_SOURCE_WATCH_ON=1` are examples usually left enabled during development cycles as useful and usually wanted, and for no tedium, while shipped defaults are `0` to avoid unnecessary diagnostic overhead for regular users.
     - CI helps catch accidentally committed development settings; shipping defaults can be checked in the staged XML or a temporary snapshot.
-    - Temporarily changing local settings is fine when needed, but restore them before handing back for user testing unless there is a specific reason to leave them disabled. Make that exception clear to the user, who may otherwise forget or not notice that diagnostics are off.
+    - Temporarily disabling local diagnostics can simplify committing, amending or rebasing; afterward restore the user's previous unstaged values, including BBAI or other diagnostics where applicable, before handing back for testing unless there is a specific reason to leave them disabled. Make that exception clear to the user, who may otherwise forget or not notice that diagnostics are off.
 - Do not commit changes without explicit user approval; leave the completed candidate for review first.
 
 Important git-diff caution: moving/reordering plus modifying large similar-looking XML blocks (e.g. `<BuildingInfo>` blocks) can make `git diff` look like a large rewrite/modification of these was made, when in fact none or only one was changed.
@@ -659,7 +659,9 @@ Clear, accurate explanations help users and developers understand the code and i
   - This avoids errors too.
   - Same reasoning with `kPlayer` and `kOwner`, etc.
 - In C++, recurring or hot-path string-backed GlobalDefine reads such as `GC.getDefineINT("...")` / `GC.getDefineBOOL("...")` should normally use a function-local `static const` when the define is intended to stay fixed for the process; this avoids repeated name lookup while keeping cache scope local.
-  - Example: `static const bool bSAS_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_SCRAP_OBSOLETE_TECH");`.
+  - Example: `static const bool bSAS_GROUP_ATK_SAC_OBSOLETE_ON = GC.getDefineBOOL("SAS_GROUP_ATK_SAC_OBSOLETE_ON");`.
+  - If the same stable integer/bool define is consumed by several recurring functions/subsystems, prefer AdvCiv's `CvGlobals::GlobalDefines` enum-indexed cache instead of several local static string caches. Add it to the selective shared SAS block in `CvGlobals.h`, then use `GC.getDefineINT(CvGlobals::SAS_...)` / `getDefineBOOL(...)`; do not wrap that enum-backed read in another `static const`.
+  - Keep one-shot/setup-only settings and caller-specific transformed caches local. Multiple uses inside one function alone are not a reason to promote a define globally; widen/reuse one local cache when practical.
 - If a recurring string-backed Define lookup intentionally remains uncached, leave a short nearby reason; one-shot setup/snapshot reads and already-cached enum access do not need blanket cache-exemption comments.
 - Do not add another function-local cache around enum-backed `GC.getDefineINT(CvGlobals::...)`: that overload already reads the global integer define cache. Likewise, do not cache one-shot reads or values intentionally expected to change during runtime/setup; read those directly so the code reflects their semantics.
 
@@ -715,6 +717,7 @@ int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, 
 
 ## Diagnostic revision maintenance
 
+- A revision entry may say `pending` in its introducing commit; finalize its full SHA in the next commit even if that commit does not change the recorder. After an amend/rebase/squash, reconcile rewritten references and practical numbers with the resulting history; an ordinary merge preserves the original commit identities. The commit-reference check validates both recorder histories.
 - For a PR explicitly labeled `revision:squash`, apply revision maintenance once to the complete candidate relative to its base; ordinary PRs retain per-commit maintenance. Both recorder checks accept local `--squash` review.
 
 ### SASGameRecord

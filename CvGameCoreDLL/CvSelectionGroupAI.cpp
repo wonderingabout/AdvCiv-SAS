@@ -590,6 +590,8 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 			// A current unit with very high odds is allowed to attack because it is unlikely to be lost; once the current choice is itself in sacrifice territory, the normal odds-deficit limit can be bypassed and sacrifice value/tactical role become the safeguards.
 			// Do not protect obsolete units merely for XP. See KI#200. (GPT-5.6 Thinking) -->
 			static const bool bSAS_GROUP_ATK_SAC_OBSOLETE_ON = GC.getDefineBOOL("SAS_GROUP_ATK_SAC_OBSOLETE_ON");
+			// <!-- custom: Share this function's tuning caches with the diagnostic below without promoting one-function settings globally.
+			// Keep initialization inside the sacrifice branch; hoisting it to the function head needlessly initialized all four settings for ordinary attacker selection too. See KI#200. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 			static const int iSAS_GROUP_ATK_SAC_CURRENT_SAFE_ODDS_PCT = GC.getDefineINT("SAS_GROUP_ATK_SAC_CURRENT_SAFE_ODDS_PCT");
 			static const int iSAS_GROUP_ATK_SAC_DEFICIT_BYPASS_ODDS_PCT = GC.getDefineINT("SAS_GROUP_ATK_SAC_DEFICIT_BYPASS_ODDS_PCT");
 			static const int iSAS_GROUP_ATK_SAC_MAX_ODDS_DEFICIT_PCT = GC.getDefineINT("SAS_GROUP_ATK_SAC_MAX_ODDS_DEFICIT_PCT");
@@ -631,21 +633,21 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 			/*  I.e. caller mustn't use these odds. Don't want to compute them here
 				if the caller doesn't need them. */
 			iUnitOdds = -1;
+			if (gWarLogLevel >= 3 && pSASObsoleteSacrifice != NULL && pInheritedBestSacrifice != NULL)
+			{
+				int const iOddsDeficitBypassMaxCurrentOdds = iSAS_GROUP_ATK_SAC_DEFICIT_BYPASS_ODDS_PCT;
+				logBBAI("WAR_ATTACK_ORDER_OBSOLETE_EXPEND_OVERRIDE turn=%d player=%d group=%d target=(%d,%d) inheritedUnit=%s inheritedUnitId=%d inheritedOdds=%d inheritedSacrificeValue=%d obsoleteUnit=%s obsoleteUnitId=%d obsoleteOdds=%d obsoleteSacrificeValue=%d currentSafeOdds=%d oddsDeficitBypassMaxCurrentOdds=%d oddsDeficitBypassed=%d maxOddsDeficit=%d minValuePercentOfCurrent=%d",
+					GC.getGame().getGameTurn(), pSASObsoleteSacrifice->getOwner(), getID(), pPlot->getX(), pPlot->getY(),
+					GC.getInfo(pInheritedBestSacrifice->getUnitType()).getType(), pInheritedBestSacrifice->getID(), iInheritedBestSacrificeOdds,
+					pInheritedBestSacrifice->AI_sacrificeValue(pPlot), GC.getInfo(pSASObsoleteSacrifice->getUnitType()).getType(),
+					pSASObsoleteSacrifice->getID(), iSASObsoleteSacrificeOdds, pSASObsoleteSacrifice->AI_sacrificeValue(pPlot),
+					iSAS_GROUP_ATK_SAC_CURRENT_SAFE_ODDS_PCT, iOddsDeficitBypassMaxCurrentOdds,
+					(iInheritedBestSacrificeOdds <= iOddsDeficitBypassMaxCurrentOdds ? 1 : 0),
+					iSAS_GROUP_ATK_SAC_MAX_ODDS_DEFICIT_PCT,
+					iSAS_GROUP_ATK_SAC_MIN_CURRENT_VAL_PCT);
+			}
 		}
 	} // </advc.048>
-	if (gWarLogLevel >= 3 && pSASObsoleteSacrifice != NULL && pInheritedBestSacrifice != NULL)
-	{
-		int const iOddsDeficitBypassMaxCurrentOdds = GC.getDefineINT("SAS_GROUP_ATK_SAC_DEFICIT_BYPASS_ODDS_PCT");
-		logBBAI("WAR_ATTACK_ORDER_OBSOLETE_EXPEND_OVERRIDE turn=%d player=%d group=%d target=(%d,%d) inheritedUnit=%s inheritedUnitId=%d inheritedOdds=%d inheritedSacrificeValue=%d obsoleteUnit=%s obsoleteUnitId=%d obsoleteOdds=%d obsoleteSacrificeValue=%d currentSafeOdds=%d oddsDeficitBypassMaxCurrentOdds=%d oddsDeficitBypassed=%d maxOddsDeficit=%d minValuePercentOfCurrent=%d",
-			GC.getGame().getGameTurn(), pSASObsoleteSacrifice->getOwner(), getID(), pPlot->getX(), pPlot->getY(),
-			GC.getInfo(pInheritedBestSacrifice->getUnitType()).getType(), pInheritedBestSacrifice->getID(), iInheritedBestSacrificeOdds,
-			pInheritedBestSacrifice->AI_sacrificeValue(pPlot), GC.getInfo(pSASObsoleteSacrifice->getUnitType()).getType(),
-			pSASObsoleteSacrifice->getID(), iSASObsoleteSacrificeOdds, pSASObsoleteSacrifice->AI_sacrificeValue(pPlot),
-			GC.getDefineINT("SAS_GROUP_ATK_SAC_CURRENT_SAFE_ODDS_PCT"), iOddsDeficitBypassMaxCurrentOdds,
-			(iInheritedBestSacrificeOdds <= iOddsDeficitBypassMaxCurrentOdds ? 1 : 0),
-			GC.getDefineINT("SAS_GROUP_ATK_SAC_MAX_ODDS_DEFICIT_PCT"),
-			GC.getDefineINT("SAS_GROUP_ATK_SAC_MIN_CURRENT_VAL_PCT"));
-	}
 	// <!-- custom: Diagnostic only: verify whether the low-power stack ordering spends old/obsolete units, whether the inherited sacrifice fallback replaces that choice, and when the SAS obsolete-expenditure refinement changes the inherited sacrifice.
 	// Compare the exact best obsolete/non-obsolete sacrifice-value and attack-odds alternatives so tuning can remain evidence-based.
 	// Age is intentionally logged rather than used for selection; the low-power stage still ranks bombard/collateral first, then low effective power, XP and health.

@@ -3399,7 +3399,7 @@ void CvCityAI::AI_chooseProduction()
 	// <!-- custom: Match production to the SAS city-escort attachment safety rule.
 	// Logs showed completed Settlers waiting 15-20+ turns with two healthy defenders: movement correctly refused to take one because two must remain, while this older production check saw 2 defenders > 1 Settler and built no missing escort.
 	// Count only unguarded local Settlers for the SAS shortage and request one more defender without weakening the movement-side safety rule. See KI#179.2. (ChatGPT-5.6-Sol) -->
-	static const bool bSASSettlerEscortCoordinationOptimize = GC.getDefineBOOL("SAS_PROD_SETTLER_ESCORT_COORD_ON");
+	const bool bSASSettlerEscortCoordinationOptimize = GC.getDefineBOOL(CvGlobals::SAS_PROD_SETTLER_ESCORT_COORD_ON);
 	static const int iSASSettlerEscortMinHealthyDefendersLeft = std::max(0, GC.getDefineINT("SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT"));
 	int iPlotUnguardedSettlerCount = 0;
 	int iPlotHealthyDefenderCount = 0;
@@ -12598,7 +12598,7 @@ int CvCityAI::AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType
 	// Initialize its diagnostic fields inert, then compute and cache them only for a possible skip so those frequent calls avoid culture-pressure and victory-candidate reads and the gated log below does not repeat them. (ChatGPT-5.5 + GPT-5.5 review) -->
 	if (!isHuman() && getCultureLevel() > 1 && GC.getInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE) > 0)
 	{
-		static int const iCultureProcessMinPressureFactor = GC.getDefineINT("SAS_CULT_PROCESS_MIN_PRESSURE_FACTOR");
+		int const iCultureProcessMinPressureFactor = GC.getDefineINT(CvGlobals::SAS_CULT_PROCESS_MIN_PRESSURE_FACTOR);
 		iCulturePressureFactor = AI_culturePressureFactor();
 		if (iCulturePressureFactor < iCultureProcessMinPressureFactor)
 		{
@@ -13393,7 +13393,7 @@ int CvCityAI::SAS_AI_directArtistCultureValuePercent() const
 			revoltProbability(false, false, false).getPermille() <= 0 &&
 			revoltProbability(true, false, true).getPermille() <= 0)
 		{
-			static int const iEmergencyCulturePressureFactor = GC.getDefineINT("SAS_CULT_PROCESS_MIN_PRESSURE_FACTOR");
+			int const iEmergencyCulturePressureFactor = GC.getDefineINT(CvGlobals::SAS_CULT_PROCESS_MIN_PRESSURE_FACTOR);
 			if (AI_culturePressureFactor() < iEmergencyCulturePressureFactor &&
 				calculateCulturePercent(eOwner) >= 90 && getPlot().calculateCulturePercent(eOwner) >= 80)
 			{
@@ -15748,7 +15748,7 @@ bool CvCityAI::SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& eP
 	int iBestFallbackDefenseScore = -1;
 
 	static const UnitCombatTypes eUnitCombatSiege = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE");
-	static const int TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD = GC.getDefineINT("SAS_TREB_LIKE_MIN_CITY_ATK_THRESH");
+	const int TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD = GC.getDefineINT(CvGlobals::SAS_TREB_LIKE_MIN_CITY_ATK_THRESH);
 
 	static const bool bSAS_CIV_UNIT_BOOST_ON = GC.getDefineBOOL("SAS_CIV_UNIT_BOOST_ON");
 	static const bool bSAS_CIV_UNIT_BOOST_OTHER_DEFAULT_UNITAI_ON = GC.getDefineBOOL("SAS_CIV_UNIT_BOOST_OTHER_DEFAULT_UNITAI_ON");
@@ -16108,7 +16108,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 
 				if (bUnitCombatSiege && bNoExcessSieges)
 				{
-					static const int TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD = GC.getDefineINT("SAS_TREB_LIKE_MIN_CITY_ATK_THRESH");
+					const int TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD = GC.getDefineINT(CvGlobals::SAS_TREB_LIKE_MIN_CITY_ATK_THRESH);
 
 					const int iCityAttackModifier = pUnitInfo->getCityAttackModifier();
 					const bool bTrebuchetLike = (iCityAttackModifier >= TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD);
@@ -16272,7 +16272,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 						const int iMilitaryUnits = kPlayer.getNumMilitaryUnits();
 						// <!-- custom: Explicit Settler-escort preparation/repair requests must survive this lower anti-excess-defender optimizer.
 						// KI#179.2 showed that a correctly requested defender could otherwise be replaced with offensive siege; KI#179.3 extends the same preservation to the defender intentionally prepared before the first Settler is trained. (ChatGPT-5.6-Sol) -->
-						static const bool bSASSettlerEscortCoordinationOptimize = GC.getDefineBOOL("SAS_PROD_SETTLER_ESCORT_COORD_ON");
+						const bool bSASSettlerEscortCoordinationOptimize = GC.getDefineBOOL(CvGlobals::SAS_PROD_SETTLER_ESCORT_COORD_ON);
 						static const int iSASSettlerEscortMinHealthyDefendersLeft = std::max(0, GC.getDefineINT("SAS_SETTLER_ESCORT_MIN_HEALTHY_DEF_LEFT"));
 						int iPlotUnguardedSettlers = 0;
 						int iPlotHealthyDefenders = 0;
@@ -18847,7 +18847,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove, 
 		// <!-- custom: Mitigate SAS happy-growth food valuation when unhealthiness already consumes too much food.
 		// K-Mod already penalizes bad health, but only mildly; AdvCiv-SAS also added stronger happy-surplus growth incentives to fix stagnant cities.
 		// In late/high-pop cities such as York losing 11 food per turn to unhealthiness, those growth incentives remain inefficient even with spare happiness, so use the same food-loss threshold as AI_jobChangeValue to stop treating happiness alone as a green light for more growth. (ChatGPT-5.5) -->
-		static const int iSAS_GOVERNOR_HAPPY_GROW_MAX_UNHEALTH_FOOD = GC.getDefineINT("SAS_GOVERNOR_HAPPY_GROW_MAX_UNHEALTH_FOOD");
+		const int iSAS_GOVERNOR_HAPPY_GROW_MAX_UNHEALTH_FOOD = GC.getDefineINT(CvGlobals::SAS_GOVERNOR_HAPPY_GROW_MAX_UNHEALTH_FOOD);
 		int const iUnhealthFoodLoss = std::max(0, -iHealthLevel);
 		bool const bSASSevereUnhealthFoodLoss = (!isHuman() && !bWorkerOptimization && !bFoodIsProduction &&
 				iUnhealthFoodLoss > iSAS_GOVERNOR_HAPPY_GROW_MAX_UNHEALTH_FOOD);
@@ -19322,7 +19322,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 	// <!-- custom: Do not let the SAS happy-surplus growth gate override severe unhealthiness.
 	// A happy city can still grow inefficiently when it is losing many food per turn to unhealthiness; at that point specialists or lower-food jobs can be better than forcing more growth.
 	// Share this threshold with AI_yieldValue so job assignment and food valuation agree. (ChatGPT-5.5) -->
-	static const int iSAS_GOVERNOR_HAPPY_GROW_MAX_UNHEALTH_FOOD = GC.getDefineINT("SAS_GOVERNOR_HAPPY_GROW_MAX_UNHEALTH_FOOD");
+	const int iSAS_GOVERNOR_HAPPY_GROW_MAX_UNHEALTH_FOOD = GC.getDefineINT(CvGlobals::SAS_GOVERNOR_HAPPY_GROW_MAX_UNHEALTH_FOOD);
 	int const iUnhealthFoodLoss = std::max(0, badHealth() - goodHealth());
 	bool const bSASAllowHappySurplusGrowth = (isHuman() || iUnhealthFoodLoss <= iSAS_GOVERNOR_HAPPY_GROW_MAX_UNHEALTH_FOOD);
 
@@ -19451,9 +19451,9 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 		// --- Simple BFC Artist precheck ---------------------------------------------
 		// If we don't have BFC yet (level < 1) and city culture is very low (<3),
 		// force-pick exactly one Artist; and don't drop it until BFC is reached.
-		static const bool bSAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON = GC.getDefineBOOL("SAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON");
+		const bool bSAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON = GC.getDefineBOOL(CvGlobals::SAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON);
 
-		static const int iSAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL = GC.getDefineINT("SAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL");
+		const int iSAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL = GC.getDefineINT(CvGlobals::SAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL);
 		const bool bBelowCultureLevel = (getCultureLevel() < iSAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL);
 
 		const bool bWantBFCArtist = (bBelowCultureLevel && bSAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON);

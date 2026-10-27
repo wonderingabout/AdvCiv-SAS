@@ -42,5 +42,8 @@ jobs:
       - name: SASGameRecord revision commit history
         run: python .github/workflows/build/diagnostics/sas_revision_history.py --default-branch-ref "refs/remotes/origin/$DEFAULT_BRANCH" --event-name "$GITHUB_EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
 
+      - name: Recorder revision references and pending lifetime
+        run: python .github/workflows/build/diagnostics/revision_commit_references.py --default-branch-ref "refs/remotes/origin/$DEFAULT_BRANCH" --event-name "$GITHUB_EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+
       - name: Runtime recorder revision commit history
         run: python .github/workflows/build/diagnostics/runtime_revision_history.py --default-branch-ref "refs/remotes/origin/$DEFAULT_BRANCH" --event-name "$GITHUB_EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"

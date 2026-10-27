@@ -2189,7 +2189,7 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnore
 
 			if (bEnemyStrong)
 			{
-				static const int iSAS_TECH_VAL_MILIT_FLAVOR_MIN = GC.getDefineINT("SAS_TECH_VAL_MILIT_FLAVOR_MIN");
+				const int iSAS_TECH_VAL_MILIT_FLAVOR_MIN = GC.getDefineINT(CvGlobals::SAS_TECH_VAL_MILIT_FLAVOR_MIN);
 
 				if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_TECH_VAL_MILIT_FLAVOR_MIN)
 				{
@@ -3890,15 +3890,15 @@ DenialTypes CvTeamAI::AI_makePeaceTrade(TeamTypes ePeaceTeam, TeamTypes eBroker)
 	if (!canChangeWarPeace(ePeaceTeam))
 		return DENIAL_VASSAL;
 
-	static const bool bSASUWAIVictoryDenialOn = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_ON");
+	const bool bSASUWAIVictoryDenialOn = GC.getDefineBOOL(CvGlobals::SAS_UWAI_VICT_DENY_ON);
 	if (bSASUWAIVictoryDenialOn)
 	{
 		int const iVictoryCountdown = GET_TEAM(ePeaceTeam).AI_getLowestVictoryCountdown();
 		int const iMaxVictoryStage = getSASTeamMaxVictoryStage(ePeaceTeam);
-		static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS");
+		const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT(CvGlobals::SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS);
 		int const iMaxVictoryDenialPeaceCountdown = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxVictoryDenialPeaceCountdownNormal);
-		static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_REFUSE_STAGE4_PEACE_ON");
-		static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_REFUSE_S3_SPACE_ON");
+		const bool bRefuseStage4Peace = GC.getDefineBOOL(CvGlobals::SAS_UWAI_VICT_DENY_REFUSE_STAGE4_PEACE_ON);
+		const bool bRefuseStage3SpacePeace = GC.getDefineBOOL(CvGlobals::SAS_UWAI_VICT_DENY_REFUSE_S3_SPACE_ON);
 		// <!-- custom: Save-file 450 showed victory-denial wars correctly declared against Lincoln, then cancelled by peace treaties two turns later while his spaceship countdown continued.
 		// A later run fixed Lincoln but Egypt still made peace right after stage-4 anti-spaceship wars, before countdown started, then won Space.
 		// The Arabia branch then showed that waiting until countdown 4 could still be too late, and save-file 452 showed raw part count could still fire too late, so stage-3 Space near completion can also be protected if enabled.

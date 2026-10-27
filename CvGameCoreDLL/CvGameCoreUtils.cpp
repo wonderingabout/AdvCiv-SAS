@@ -2502,10 +2502,10 @@ bool isSASTeamStage3SpaceVictoryThreat(TeamTypes eTeam)
 // Share the exact threat test so UWAI can reject those negotiations before building a deal while CvDeal retains its safety net. (GPT-5.6-Sol) -->
 bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown, int* piMaxVictoryStage)
 {
-	static const bool bSASUWAIVictoryDenialOn = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_ON");
+	const bool bSASUWAIVictoryDenialOn = GC.getDefineBOOL(CvGlobals::SAS_UWAI_VICT_DENY_ON);
 	if (!bSASUWAIVictoryDenialOn)
 		return false;
-	static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS");
+	const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT(CvGlobals::SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS);
 	int const iMaxVictoryDenialPeaceCountdown = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxVictoryDenialPeaceCountdownNormal);
 	int const iCountdown = GET_TEAM(eTeam).AI_getLowestVictoryCountdown();
 	int const iMaxVictoryStage = getSASTeamMaxVictoryStage(eTeam);
@@ -2513,8 +2513,8 @@ bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown,
 		*piVictoryCountdown = iCountdown;
 	if (piMaxVictoryStage != NULL)
 		*piMaxVictoryStage = iMaxVictoryStage;
-	static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_REFUSE_STAGE4_PEACE_ON");
-	static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICT_DENY_REFUSE_S3_SPACE_ON");
+	const bool bRefuseStage4Peace = GC.getDefineBOOL(CvGlobals::SAS_UWAI_VICT_DENY_REFUSE_STAGE4_PEACE_ON);
+	const bool bRefuseStage3SpacePeace = GC.getDefineBOOL(CvGlobals::SAS_UWAI_VICT_DENY_REFUSE_S3_SPACE_ON);
 	return (iCountdown >= 0 && iCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4) || (bRefuseStage3SpacePeace && isSASTeamStage3SpaceVictoryThreat(eTeam));
 }
 

@@ -385,6 +385,37 @@ public:
 #pragma region GlobalDefines
 	/*  Access cached integer GlobalDefines through enum values. Not exposed to Python
 		as Python isn't that fast anyway, can just use getDefineINT(char const*). */
+	// <!-- custom: Stable SAS integer/bool Defines shared by several recurring C++ paths use AdvCiv's enum-indexed global cache instead of separate function-local string caches.
+	// One-shot/setup-only settings and values whose useful cache is a caller-specific transformed result deliberately stay local. (ChatGPT-5.6-Sol) -->
+	#define DO_FOR_EACH_SAS_SHARED_GLOBAL_DEFINE(DO) \
+		DO(SAS_TREB_LIKE_MIN_CITY_ATK_THRESH) \
+		DO(SAS_SITE_BARB_FULL_BFC_ON) \
+		DO(SAS_SITE_NAT_YIELD_SELF_FEED_EXTRA_VAL) \
+		DO(SAS_SITE_NAT_YIELD_SELF_FEED_FOOD_VAL) \
+		DO(SAS_SITE_NAT_YIELD_SELF_FEED_PROD_VAL) \
+		DO(SAS_SITE_NAT_YIELD_SELF_FEED_COM_VAL) \
+		DO(SAS_SITE_BONUS_HEALTH_VAL) \
+		DO(SAS_SITE_BONUS_HAPPY_VAL) \
+		DO(SAS_SITE_MIN_OUTER_PLOT_POT_YIELD_SCORE) \
+		DO(SAS_WORKER_P0_CHOP_ON) \
+		DO(SAS_WORKER_FORT_AIRBASE_ON) \
+		DO(SAS_PROD_SETTLER_ESCORT_COORD_ON) \
+		DO(SAS_SCRAP_AI_ABSOLUTELY_ON) \
+		DO(SAS_SCRAP_OBSOLETE_TECH) \
+		DO(SAS_SETTLER_EXPOSED_FOUND_ESCORT_ON) \
+		DO(SAS_SPACE_VICT_DENY_CAPITAL_RUSH_ON) \
+		DO(SAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON) \
+		DO(SAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL) \
+		DO(SAS_GOVERNOR_HAPPY_GROW_MAX_UNHEALTH_FOOD) \
+		DO(SAS_CITY_LONG_TERM_WW_DIST_OVERRIDE_ON) \
+		DO(SAS_CULT_PROCESS_MIN_PRESSURE_FACTOR) \
+		DO(SAS_TECH_VAL_MILIT_FLAVOR_MIN) \
+		DO(SAS_UI_FONT_LABEL) \
+		DO(SAS_UWAI_VICT_DENY_ON) \
+		DO(SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS) \
+		DO(SAS_UWAI_VICT_DENY_REFUSE_STAGE4_PEACE_ON) \
+		DO(SAS_UWAI_VICT_DENY_REFUSE_S3_SPACE_ON) \
+		DO(SAS_UWAI_EMERG_PEACE_ENEMY_PWR_THRESH)
 	#define DO_FOR_EACH_GLOBAL_DEFINE(DO) \
 		DO(EXTRA_YIELD) /* K-Mod */ \
 		DO(CITY_RADIUS_DECAY) /* advc.130s */ \
@@ -531,7 +562,8 @@ public:
 		DO(DOW_UNIT_CAPTURE_CHANCE) /* advc.010 */ \
 		DO(SHOW_ODDS_IN_COMBAT_MESSAGES) /* advc.048 */ \
 		DO(CAN_CHOP_UNOWNED_FEATURES) /* advc.119 */ \
-		DO(DEFY_RESOLUTION_POP_ANGER) /* advc.118b */
+		DO(DEFY_RESOLUTION_POP_ANGER) /* advc.118b */ \
+		DO_FOR_EACH_SAS_SHARED_GLOBAL_DEFINE(DO)
 	#define MAKE_ENUMERATOR(VAR) VAR,
 	enum GlobalDefines
 	{

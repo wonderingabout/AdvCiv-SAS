@@ -624,7 +624,7 @@ void CvCity::doTurn()
 
 	// <!-- custom: force an artist if we don't have our BFC and city's culture per turn is low -->
 	// --- BEGIN: SAS hard patch: force 1 Artist for fast BFC when culture/turn is low ---
-	static const bool bSAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON = GC.getDefineBOOL("SAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON");
+	const bool bSAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON = GC.getDefineBOOL(CvGlobals::SAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON);
 	if (bSAS_FORCE_ARTIST_NO_BFC_LOW_CULT_ON)
 	{
 		static const SpecialistTypes eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
@@ -633,7 +633,7 @@ void CvCity::doTurn()
 		{
 			static const int iLowCpt = GC.getDefineINT("SAS_FORCE_ARTIST_NO_BFC_MIN_CULT_PER_T");
 			// "No BFC yet" = still at the initial culture level (pre-10 culture)
-			static const int iSAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL = GC.getDefineINT("SAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL");
+			const int iSAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL = GC.getDefineINT(CvGlobals::SAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL);
 			const bool bNoCultureLevelReqYet = (getCultureLevel() < iSAS_FORCE_ARTIST_NO_BFC_MIN_CULT_LVL);
 			// <!-- custom: also give the option for human players to have it for their convenience -->
 			static const bool bSAS_HUMAN_FORCE_ARTIST_NO_BFC_LOW_CULT_ON = GC.getDefineBOOL("SAS_HUMAN_FORCE_ARTIST_NO_BFC_LOW_CULT_ON");

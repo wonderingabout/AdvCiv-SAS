@@ -13,7 +13,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 ### Revision 12 - SAS practical 6690
 
 - **Date:** 2026-10-26
-- **Git commit:** pending
+- **Git commit:** `9e6e527431b576ecc8622f7230eacb8084b0e9ff`
 - **Change:** Add an optional external live-source observer for mod-source/configuration disk edits while Runtime diagnostics are enabled, without claiming that Civ4 reloaded or executed the changed files.
   - `SAS_RUNTIME_SOURCE_WATCH_ON=1` launches adjacent `Assets/SASRuntimeSourceObserver.ps1`; the shipped default is 0, and ordinary Runtime status does not start the watcher.
   - The companion uses recursive `FileSystemWatcher` events for Python/XML/BUG Config, PrivateMaps scripts/scenarios, Resource themes, mod Settings and mod-root INI files, coalesces rapid save/rename bursts per path, then records mod-relative path, observed actions/times, final presence/size/write time and bounded SHA-256 evidence. File contents are never copied.
@@ -38,7 +38,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 ### Revision 10 - SAS practical 6688
 
 - **Date:** 2026-10-26
-- **Git commit:** pending
+- **Git commit:** `def6878daa1cc7115e13e173c4de2bf967e90e84`
 - **Change:** Enabled runtime diagnostics launch the adjacent `Assets/SASRuntimeExitObserver.ps1` as a hidden, same-user Windows PowerShell process. It waits for the matching process handle and records final exit time/code even when Civ4 cannot execute its shutdown hooks.
   - The current JSON exposes the launched observer PID and Win32 launch error; launch success does not prove attachment. The separate `SASRuntimeExit_<process-start UTC>_<PID>.json` first confirms handle attachment with WAITING, then records EXITED and the final result independently of current-status readability.
   - After an observed exit, `exitObservation` records signed/hex exit code, UTC and history-append result. `lastInProcessUpdatedUtc` preserves the last game-owned observation.
@@ -49,7 +49,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 ### Revision 9 - SAS practical 6686
 
 - **Date:** 2026-10-26
-- **Git commit:** pending
+- **Git commit:** `86385960a026023db376c265eebfa794af77ba07`
 - **Change:** Normalize contributor credits in runtime implementation comments by removing the optional reviewer-role label; retain existing author attribution. The revision advances under the implementation-comment policy; recorder behavior and output fields are unchanged.
 
 ### Revision 8 - SAS practical 6680
@@ -166,6 +166,6 @@ Increment compiled `SAS_RUNTIME_REVISION` once for the next qualifying commit an
 - **Change:** Explain the runtime-recorder change and why it matters to readers of its observations.
 ```
 
-Keep only the latest entry's Git commit as `pending`; when adding the next revision, replace the preceding entry's `pending` with its finalized full SHA from the default branch, reconciling after an amend or rebase.
+Keep only the latest entry's Git commit as `pending` in its introducing commit; finalize it in the next commit, even without another recorder change. Reconcile hashes and practical numbers after an amend, rebase or squash; ordinary merges preserve the original commit identities.
 
 Do not put the current commit's own SHA into its entry: editing the document would change that SHA again. Exact loaded-DLL identity remains separate evidence in both runtime files.

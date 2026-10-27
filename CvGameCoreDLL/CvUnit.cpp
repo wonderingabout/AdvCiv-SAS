@@ -3380,7 +3380,7 @@ bool CvUnit::canScrap() const
 	// <!-- custom: Absolute AI scrapping permission for experiments and player preference: 0 overrides the softer policies below; 1 leaves their eligibility rules in force and preserves the earlier DISABLE=0 behavior.
 	// Scrapping is hammer-inefficient when a produced unit could instead defend, pressure rivals, or be spent in war; war also removes excess units naturally while potentially gaining cities, unit support, economy, and long-term growth.
 	// Keep this permission separate from SAS_SCRAP_ON so turning optimization off never overrides a global AI scrap ban. (GPT-5.5 + ChatGPT-5.5 + GPT-6.1-Sol) -->
-	static const bool bSAS_SCRAP_AI_ABSOLUTELY_ON = GC.getDefineBOOL("SAS_SCRAP_AI_ABSOLUTELY_ON");
+	const bool bSAS_SCRAP_AI_ABSOLUTELY_ON = GC.getDefineBOOL(CvGlobals::SAS_SCRAP_AI_ABSOLUTELY_ON);
 	if (!bSAS_SCRAP_AI_ABSOLUTELY_ON && !isHuman())
 	{
 		return false;
@@ -3393,7 +3393,7 @@ bool CvUnit::canScrap() const
 		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or updated info known issue as of now 52 or other related docs)
 		const CvUnitInfo& kUnitInfo = getUnitInfo();
 		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently; allow a global toggle for no-obsolete-scrap experiments. (GPT-5.2-Codex) -->
-		static const bool bSAS_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_SCRAP_OBSOLETE_TECH");
+		const bool bSAS_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL(CvGlobals::SAS_SCRAP_OBSOLETE_TECH);
 		TechTypes const eObsoleteTech = kUnitInfo.getObsoleteTech();
 		static const bool bSAS_SCRAP_OBSOLETE_ON = GC.getDefineBOOL("SAS_SCRAP_OBSOLETE_ON");
 		if (bSAS_SCRAP_OBSOLETE_ON)
@@ -3727,7 +3727,7 @@ bool CvUnit::scrapForced(bool bMandatoryGameRule)
 {
 	if (getPlot().isFighting()) return false;
 	// <!-- custom: Read the same absolute permission as routine scrapping; retain the human and mandatory-game-rule exceptions when it is off. See KI#331. (GPT-6.1-Sol) -->
-	static const bool bSAS_SCRAP_AI_ABSOLUTELY_ON = GC.getDefineBOOL("SAS_SCRAP_AI_ABSOLUTELY_ON");
+	const bool bSAS_SCRAP_AI_ABSOLUTELY_ON = GC.getDefineBOOL(CvGlobals::SAS_SCRAP_AI_ABSOLUTELY_ON);
 	if (!bMandatoryGameRule && !bSAS_SCRAP_AI_ABSOLUTELY_ON && !isHuman()) return false;
 	scrapInternal();
 	return true;

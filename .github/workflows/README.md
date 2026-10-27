@@ -86,6 +86,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/diagnostics/runtime_revision_history.py`](#builddiagnosticsruntime_revision_historypy)
     - [`build/diagnostics/bbai_log.py`](#builddiagnosticsbbai_logpy)
     - [`build/diagnostics/sas_game_record_log.py`](#builddiagnosticssas_game_record_logpy)
+    - [`build/diagnostics/revision_commit_references.py`](#builddiagnosticsrevision_commit_referencespy)
     - [`build/diagnostics/sas_revision_history.py`](#builddiagnosticssas_revision_historypy)
   - [Runtime](#runtime)
     - [`build/runtime/detail_manager.py`](#buildruntimedetail_managerpy)
@@ -640,6 +641,8 @@ One existing declaration is intentionally coverage-only metadata: `SAS_MAP_SCRIP
 
 Other unused declarations are errors. This checker does not change configuration values or require a SASGameRecord revision bump.
 
+Enum-backed `GC.getDefineINT(CvGlobals::SAS_...)` / `getDefineBOOL(...)` calls count as XML Define usage too. The source test derives the shared-cache list from `CvGlobals.h`, checking duplicate names, master-list inclusion, repeated enum references and absence of leftover string/local-static copies.
+
 #### `build/xml/xml_comments.py`
 
 Verifies XML comments under `Assets/XML` do not contain illegal double hyphen `--` and are not left unclosed.
@@ -860,6 +863,14 @@ Compilation, runtime smoke/autoplay testing, log inspection and code review vali
 Both recorder histories share numbered-entry parsing and require a nonempty `Change` explanation. Continued paragraphs/sub-bullets are accepted; dates, commit labels, hidden comments and fenced examples do not replace the explanation. A later documentation commit does not repair a missing blurb in the commit that advanced the revision.
 
 Intentional SASGameRecord-related code changes, including checker and code-comment maintenance, increment the public revision even when emitted semantics are unchanged. Standalone documentation/history/example/package refreshes do not require a bump.
+
+#### `build/diagnostics/revision_commit_references.py`
+
+Checks finalized SGR and Runtime revision references against canonical default-branch history or new feature-branch ancestry and their matching source revision markers. SGR entries before revision 69 predate explicit source markers and retain ancestry validation only.
+
+A new revision can say `pending` in its introducing commit because that commit cannot store its own final SHA. The next commit must finalize it, even without another recorder change. The lifetime rule applies from this checker's introduction; current histories are audited in full. Local draft checks use the staged candidate, excluding unrelated unstaged build outputs and diagnostic overrides.
+
+Existing event boundaries and `revision:squash`/local `--squash` intent are reused: squash candidates validate the aggregate transition, ordinary commits retain individual references. Rewrite stale hashes and practical numbers after rebase/squash; an unchanged merge retains valid identities.
 
 #### `build/diagnostics/sas_revision_history.py`
 

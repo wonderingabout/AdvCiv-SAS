@@ -788,9 +788,9 @@ int CitySiteEvaluator::evaluateWithPlotValueDistribution(CvPlot const& kPlot, in
 
 int CitySiteEvaluator::getSustainableProductivePlotValue()
 {
-	static const int iExtraValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_EXTRA_VAL");
-	static const int iFoodValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_FOOD_VAL");
-	static const int iProductionValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_PROD_VAL");
+	const int iExtraValue = GC.getDefineINT(CvGlobals::SAS_SITE_NAT_YIELD_SELF_FEED_EXTRA_VAL);
+	const int iFoodValue = GC.getDefineINT(CvGlobals::SAS_SITE_NAT_YIELD_SELF_FEED_FOOD_VAL);
+	const int iProductionValue = GC.getDefineINT(CvGlobals::SAS_SITE_NAT_YIELD_SELF_FEED_PROD_VAL);
 	return iExtraValue + (GC.getFOOD_CONSUMPTION_PER_POPULATION() * iFoodValue * getSASEvaluateYieldValuePercent(YIELD_FOOD)) / 100 + (iProductionValue * getSASEvaluateYieldValuePercent(YIELD_PRODUCTION)) / 100;
 }
 
@@ -968,7 +968,7 @@ int AIFoundValue::evaluate()
 
 	static const int iMaxToleratedVeryBadTilesStart = GC.getDefineINT("SAS_SITE_MAX_OUTER_BAD_PLOTS_START");
 	static const int iMaxToleratedVeryBadTilesLater = GC.getDefineINT("SAS_SITE_MAX_OUTER_BAD_PLOTS_LATER");
-	static const int iMinAcceptableVeryBadPlotPotentialYieldScore = GC.getDefineINT("SAS_SITE_MIN_OUTER_PLOT_POT_YIELD_SCORE");
+	const int iMinAcceptableVeryBadPlotPotentialYieldScore = GC.getDefineINT(CvGlobals::SAS_SITE_MIN_OUTER_PLOT_POT_YIELD_SCORE);
 
 	static const int iBaseValueVeryBadTileStart = GC.getDefineINT("SAS_SITE_BASE_VAL_OUTER_BAD_PLOT_START");
 	static const int iBaseValueVeryBadTileLater = GC.getDefineINT("SAS_SITE_BASE_VAL_OUTER_BAD_PLOT_LATER");
@@ -1483,9 +1483,9 @@ int AIFoundValue::evaluate()
 			// Removing that contradictory charge lets the strictly two-turn local recheck select the better complete site while the broader scouting logic still limits long delays. See KI#144. (GPT-5.6-Sol) -->
 			else
 			{
-				static const int iFoodValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_FOOD_VAL");
-				static const int iProductionValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_PROD_VAL");
-				static const int iCommerceValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_COM_VAL");
+				const int iFoodValue = GC.getDefineINT(CvGlobals::SAS_SITE_NAT_YIELD_SELF_FEED_FOOD_VAL);
+				const int iProductionValue = GC.getDefineINT(CvGlobals::SAS_SITE_NAT_YIELD_SELF_FEED_PROD_VAL);
+				const int iCommerceValue = GC.getDefineINT(CvGlobals::SAS_SITE_NAT_YIELD_SELF_FEED_COM_VAL);
 				int const aiYieldValue[NUM_YIELD_TYPES] = {
 					(iFoodValue * getSASEvaluateYieldValuePercent(YIELD_FOOD)) / 100,
 					(iProductionValue * getSASEvaluateYieldValuePercent(YIELD_PRODUCTION)) / 100,
@@ -2502,7 +2502,7 @@ int AIFoundValue::countBadTiles(/* advc.031: */ int& iInnerRadius, int& iUnrevea
 		if (isHome(*p))
 			continue;
 		// <advc.303>
-		static const bool bSAS_SITE_BARB_FULL_BFC_ON = GC.getDefineBOOL("SAS_SITE_BARB_FULL_BFC_ON");
+		const bool bSAS_SITE_BARB_FULL_BFC_ON = GC.getDefineBOOL(CvGlobals::SAS_SITE_BARB_FULL_BFC_ON);
 		if (bBarbarian && !bSAS_SITE_BARB_FULL_BFC_ON && !adjacentOrSame(*p, kPlot))
 		{
 			// Rational Barbarians wouldn't mind settling one off the coast, but human players do mind, and some really hate this. Therefore, count the outer ring coast as bad if !bCoastal.
@@ -2608,7 +2608,7 @@ bool AIFoundValue::isTooManyBadTiles(int iBadTiles, int iInnerBadTiles) const //
 			continue;
 		} // </advc.031>
 		// <advc.303>
-		static const bool bSAS_SITE_BARB_FULL_BFC_ON = GC.getDefineBOOL("SAS_SITE_BARB_FULL_BFC_ON");
+		const bool bSAS_SITE_BARB_FULL_BFC_ON = GC.getDefineBOOL(CvGlobals::SAS_SITE_BARB_FULL_BFC_ON);
 		if(bBarbarian && !bSAS_SITE_BARB_FULL_BFC_ON && !adjacentOrSame(p, kPlot))
 			continue; // </advc.303>
 		if(getRevealedOwner(p) != NO_PLAYER &&
@@ -2679,7 +2679,7 @@ bool AIFoundValue::isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCi
 	// <advc.303>
 	// <!-- custom: This was the remaining inherited inner-ring-only Barbarian city-site shortcut.
 	// Gate it with SAS_SITE_BARB_FULL_BFC_ON too, otherwise outer-BFC seafood still gets ignored even when bad-tile checks use full BFC scoring. (GPT-5.5) -->
-	static const bool bSAS_SITE_BARB_FULL_BFC_ON = GC.getDefineBOOL("SAS_SITE_BARB_FULL_BFC_ON");
+	const bool bSAS_SITE_BARB_FULL_BFC_ON = GC.getDefineBOOL(CvGlobals::SAS_SITE_BARB_FULL_BFC_ON);
 	if (bBarbarian && !bSAS_SITE_BARB_FULL_BFC_ON && !bInnerRing)
 		return false; // </advc.303>
 	/*	advc.031: Moved up. If we can't see the tile, we don't really know if it's
@@ -3462,13 +3462,13 @@ int AIFoundValue::evaluateBestPotentialPlotYield(CvPlot const& p, bool bCanNever
 int AIFoundValue::evaluateYield(int const* aiYield, CvPlot const* p, bool bCanNeverImprove, bool bTreatHomeAsCity) const
 {
 	int r = 0;
-	static const int iSelfSustainingExtraValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_EXTRA_VAL");
+	const int iSelfSustainingExtraValue = GC.getDefineINT(CvGlobals::SAS_SITE_NAT_YIELD_SELF_FEED_EXTRA_VAL);
 	static const int iDefaultFoodValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_DEFAULT_FOOD_VAL");
 	static const int iDefaultProductionValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_DEFAULT_PROD_VAL");
 	static const int iDefaultCommerceValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_DEFAULT_COM_VAL");
-	static const int iSelfSustainingFoodValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_FOOD_VAL");
-	static const int iSelfSustainingProductionValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_PROD_VAL");
-	static const int iSelfSustainingCommerceValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_SELF_FEED_COM_VAL");
+	const int iSelfSustainingFoodValue = GC.getDefineINT(CvGlobals::SAS_SITE_NAT_YIELD_SELF_FEED_FOOD_VAL);
+	const int iSelfSustainingProductionValue = GC.getDefineINT(CvGlobals::SAS_SITE_NAT_YIELD_SELF_FEED_PROD_VAL);
+	const int iSelfSustainingCommerceValue = GC.getDefineINT(CvGlobals::SAS_SITE_NAT_YIELD_SELF_FEED_COM_VAL);
 	static const int iOneFoodShortFoodValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_1_FOOD_SHORT_FOOD_VAL");
 	static const int iOneFoodShortProductionValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_1_FOOD_SHORT_PROD_VAL");
 	static const int iOneFoodShortCommerceValue = GC.getDefineINT("SAS_SITE_NAT_YIELD_1_FOOD_SHORT_COM_VAL");
@@ -3726,8 +3726,8 @@ int AIFoundValue::calculateBonusBuildingHappyHealthValue(BonusTypes eBonus, bool
 	static const int iMaxPrereqEra = GC.getDefineINT("SAS_SITE_BONUS_BLDG_MAX_PREREQ_ERA");
 	if (iMaxPrereqEra < 0)
 		return 0;
-	static const int iHealthValue = GC.getDefineINT("SAS_SITE_BONUS_HEALTH_VAL");
-	static const int iHappinessValue = GC.getDefineINT("SAS_SITE_BONUS_HAPPY_VAL");
+	const int iHealthValue = GC.getDefineINT(CvGlobals::SAS_SITE_BONUS_HEALTH_VAL);
+	const int iHappinessValue = GC.getDefineINT(CvGlobals::SAS_SITE_BONUS_HAPPY_VAL);
 	static const int iReligiousSpecialBuildingValuePerPoint = std::max(0, GC.getDefineINT("SAS_SITE_BONUS_RELIG_BLDG_HAPPY_HEALTH"));
 	static const int iNonReligiousSpecialBuildingValuePerPoint = std::max(0, GC.getDefineINT("SAS_SITE_BONUS_NONREL_BLDG_HAPPY_HEALTH"));
 	static const int iSpecialBuildingMaxValue = std::max(0, GC.getDefineINT("SAS_SITE_BONUS_BLDG_HAPPY_HEALTH_MAX_VAL"));
@@ -3873,8 +3873,8 @@ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bC
 	// AI_bonusValue can check for tech requirements, but it can't check requirements for building the improvement. Hence bAssumeEnabled=true is used in the AI_bonusValue call above and we take care of tech requirements ourselves.
 	// <!-- custom: The old coefficient, early-game modifier, strategic-resource dampening, and AI_bonusValue/bAssumeEnabled tech-requirement handling belonged to the old AI_bonusVal path commented out below.
 	// That path was replaced with explicit health/happiness settlement value; dynamic strategic need is added separately by the caller, and improvement availability remains handled through getBonusImprovement and separate bonus-yield scoring. See KI#178. (GPT-5.5 + GPT-5.6-Sol) -->
-	static const int iHealthValue = GC.getDefineINT("SAS_SITE_BONUS_HEALTH_VAL");
-	static const int iHappinessValue = GC.getDefineINT("SAS_SITE_BONUS_HAPPY_VAL");
+	const int iHealthValue = GC.getDefineINT(CvGlobals::SAS_SITE_BONUS_HEALTH_VAL);
+	const int iHappinessValue = GC.getDefineINT(CvGlobals::SAS_SITE_BONUS_HAPPY_VAL);
 	static const int iConnectionEraValueLossPercent = GC.getDefineINT("SAS_SITE_BONUS_CONNECT_ERA_VAL_LOSS_PCT");
 	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
 	int const iBuildingHappyHealthValue = calculateBonusBuildingHappyHealthValue(eBonus, bCoastal);

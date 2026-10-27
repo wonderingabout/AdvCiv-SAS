@@ -45,6 +45,16 @@ class DefineUsageTests(unittest.TestCase):
         self.write('CvGameCoreDLL/live.cpp', 'FVariable const* p = GC.getDefinesVarSystem()->GetVariable("SAS_ACTIVE");\n')
         self.assertEqual(self.errors(), [])
 
+    def test_cpp_enum_cached_lookup_counts_as_runtime_usage(self):
+        self.declarations("SAS_ACTIVE")
+        self.write('CvGameCoreDLL/live.cpp', 'int value = GC.getDefineINT(CvGlobals::SAS_ACTIVE);\nbool enabled = GC.getDefineBOOL(CvGlobals::SAS_ACTIVE);\n')
+        self.assertEqual(self.errors(), [])
+
+    def test_cpp_enum_cached_lookup_requires_declaration(self):
+        self.declarations()
+        self.write('CvGameCoreDLL/live.cpp', 'int value = GC.getDefineINT(CvGlobals::SAS_MISSING);\n')
+        self.assertTrue(any('SAS_MISSING has no declaration' in e for e in self.errors()))
+
     def test_missing_lookup_declaration(self):
         self.declarations()
         self.write('PrivateMaps/live.py', 'gc.getDefineFLOAT("SAS_MISSING")')
