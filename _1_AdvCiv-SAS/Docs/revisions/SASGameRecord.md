@@ -108,6 +108,19 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 178 - SAS practical 6698
+
+- **Date:** 2026-10-28
+- **Git commit:** pending
+- **Change:** Add compact level-2 doomed-city evacuation evidence linking the city safety decision to unit selection, retreat outcomes and actual retreat-group departure without repeating BBAI's deep scans.
+  - `GAME_RECORD_AI_EVACUATION_CITY_DECISION` fires only when a city newly enters `CITYSAFETY_EVACUATING`; it reuses the already-computed attacker/defender counts and local strength values, raw local attack/defense percentage, base/adjusted threshold, city value, population/capital and owner-city context. The percentage is the local city attack/defense estimate, not whole-civilization power.
+  - `GAME_RECORD_AI_EVACUATION_UNIT_DECISION` records the existing all-land policy or legacy randomized selection result for each unit/group actually evaluated in that evacuating city, including the already-computed probability and selected flag.
+  - `GAME_RECORD_AI_EVACUATION_RETREAT_RESULT` distinguishes `RETREAT_MISSION_ISSUED`, waiting, scorched-earth scrap selection, no-safe-city stay and no-city failure using the destination/path result already chosen by `AI_retreatToCity`; it does not rerun pathfinding or danger evaluation solely for recording.
+  - `GAME_RECORD_AI_EVACUATION_DEPARTURE` runs after the existing group-movement stages and re-resolves the identity list gameplay already collected. It records `groupUnitsBefore` and `movedUnits` only when original members are observed on the requested next plot; zero-step/zero-arrival attempts emit no row.
+    - Capture stable source IDs before movement because callbacks can delete/regroup objects; do not retain source-city/unit pointers across them. This proves immediate next-step position, not eventual escape or survival. Existing city-acquisition, battle/unit and scrap histories remain the later outcome sources.
+  - Retreat outcomes use a shared enum/catalog for BBAI and SGR instead of translating strings; existing BBAI action spellings remain unchanged. City-safety names belong to shared AI vocabulary rather than the recorder.
+  - Detailed strongest-enemy/nearby-unit enumeration and generic retreat diagnostics remain in `SAS_BBAI_EVACUATION_LOG`; SGR does not enable those scans when BBAI is off. No gameplay, RNG or save-format behavior changes.
+
 ### Revision 177 - SAS practical 6694
 
 - **Date:** 2026-10-28

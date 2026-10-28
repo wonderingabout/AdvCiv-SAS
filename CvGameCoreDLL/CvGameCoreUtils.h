@@ -519,6 +519,12 @@ namespace fmath
 int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed);
 int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed);
 
+// <!-- custom: City safety and retreat outcomes describe AI state shared by diagnostic sinks; keep their names outside recorder-specific formatting.
+// The BBAI mapper preserves existing text tokens while the structured mapper uses the same catalog's canonical label. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASCitySafetyTypeName(CitySafetyTypes eSafety);
+char const* getSASRetreatResultName(SASRetreatResult eResult);
+char const* getSASRetreatResultBBAIName(SASRetreatResult eResult);
+
 void getDirectionTypeString(CvWString& szString, DirectionTypes eDirectionType);
 void getCardinalDirectionTypeString(CvWString& szString, CardinalDirectionTypes eDirectionType);
 void getActivityTypeString(CvWString& szString, ActivityTypes eActivityType);

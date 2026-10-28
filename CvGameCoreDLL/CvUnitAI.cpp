@@ -40,21 +40,28 @@ CvUnitAI::~CvUnitAI()
 }
 
 // <!-- custom: Log retreat outcomes, notably for doomed cities, workers, and naval units, without broad unit logging for analysis/logging purposes.
-// No behavior change. (GPT-5.5) -->
-static void logSASRetreatUnitResult(char const* szAction, CvUnitAI const& kUnit, CvCity const* pSourceCity, CvCity const* pTargetCity, CvPlot const* pEndTurnPlot, int iPathTurns, int iCurrentDanger, bool bDoomedCityEvacuation)
+// AI_retreatToCity calls this only under bLogRetreatResult (BBAI or SGR enabled), so disabled runs skip this call and its arguments.
+// The inner flags dispatch to the requested sinks: SGR-only recording must not run BBAI's name/danger formatting, or vice versa.
+// One coordinator keeps the existing retreat branches from duplicating two long logging calls; BBAI action text remains unchanged. (GPT-5.5 + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static void logSASRetreatUnitResult(SASRetreatResult eResult, CvUnitAI const& kUnit, CvCity const* pSourceCity, CvCity const* pTargetCity, CvPlot const* pEndTurnPlot, int iPathTurns, int iCurrentDanger, bool bDoomedCityEvacuation, bool bLogBBAI, bool bLogSGR)
 {
-	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
-	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
-	logBBAI("    RETREAT_UNIT_RESULT action=%s turn=%d player=%d %S doomedCityEvacuation=%d sourceCity=%S sourceCityId=%d source=(%d,%d) unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d hp=%d/%d level=%d experience=%d targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) pathTurns=%d currentDanger=%d endTurnDanger=%d",
-		szAction, GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), bDoomedCityEvacuation,
-		(pSourceCity == NULL ? L"-" : pSourceCity->getName().GetCString()), (pSourceCity == NULL ? -1 : pSourceCity->getID()),
-		(pSourceCity == NULL ? -1 : pSourceCity->getX()), (pSourceCity == NULL ? -1 : pSourceCity->getY()), kUnit.getID(),
-		kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()),
-		(pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(),
-		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getID()),
-		(pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()),
-		(pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), iPathTurns, iCurrentDanger,
-		(pEndTurnPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pEndTurnPlot)));
+	if (bLogBBAI)
+	{
+		CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+		CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+		logBBAI("    RETREAT_UNIT_RESULT action=%s turn=%d player=%d %S doomedCityEvacuation=%d sourceCity=%S sourceCityId=%d source=(%d,%d) unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d hp=%d/%d level=%d experience=%d targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) pathTurns=%d currentDanger=%d endTurnDanger=%d",
+			getSASRetreatResultBBAIName(eResult), GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), bDoomedCityEvacuation,
+			(pSourceCity == NULL ? L"-" : pSourceCity->getName().GetCString()), (pSourceCity == NULL ? -1 : pSourceCity->getID()),
+			(pSourceCity == NULL ? -1 : pSourceCity->getX()), (pSourceCity == NULL ? -1 : pSourceCity->getY()), kUnit.getID(),
+			kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()),
+			(pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(),
+			(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getID()),
+			(pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()),
+			(pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), iPathTurns, iCurrentDanger,
+			(pEndTurnPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pEndTurnPlot)));
+	}
+	// <!-- custom: The structured recorder is narrower than BBAI: only doomed-city evacuation calls enter this row family, and it records the already-selected retreat outcome without another path/danger scan. (ChatGPT-5.6-Sol) -->
+	if (bLogSGR) logSASGameRecordAIEvacuationRetreatResult(eResult, kUnit, pSourceCity, pTargetCity, pEndTurnPlot, iPathTurns, iCurrentDanger);
 }
 
 // <!-- custom: Log local-safety outcomes through the evacuation/retreat category.
@@ -21964,6 +21971,7 @@ bool CvUnitAI::AI_evacuateCity()
 		// You need at least 2 autoplay turns IN ONE GO (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go.
 		// If we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns -->
 		if (gEvacuationLogLevel >= 2) logSASEvacuationUnitDecision("always", *this, kCity, 100, true);
+		if (gGameRecordLogLevel >= 2) logSASGameRecordAIEvacuationUnitDecision(*this, kCity, "ALL_LAND", 100, true);
 		return AI_retreatToCity();
 	}
 	// <!-- custom: not recommended as should be weaker for the AI, kept for legacy or player customization choice -->
@@ -22005,7 +22013,9 @@ bool CvUnitAI::AI_evacuateCity()
 		/*  retreatToCity isn't perfect for this; selects the city based on plot danger.
 			Hopefully sufficient most of the time. */
 		bool const bEvacuate = SyncRandSuccess(rEvacProb);
-		if (gEvacuationLogLevel >= 2) logSASEvacuationUnitDecision("legacy", *this, kCity, rEvacProb.getPercent(), bEvacuate);
+		int const iEvacProbPercent = (gEvacuationLogLevel >= 2 || gGameRecordLogLevel >= 2 ? rEvacProb.getPercent() : -1);
+		if (gEvacuationLogLevel >= 2) logSASEvacuationUnitDecision("legacy", *this, kCity, iEvacProbPercent, bEvacuate);
+		if (gGameRecordLogLevel >= 2) logSASGameRecordAIEvacuationUnitDecision(*this, kCity, "LEGACY_PROBABILITY", iEvacProbPercent, bEvacuate);
 		if (bEvacuate)
 			return AI_retreatToCity();
 	}
@@ -27043,7 +27053,13 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 	CvCityAI const* pCity = getPlot().AI_getPlotCity();
 	bool const bEvac = (pCity != NULL && pCity->AI_isEvacuating());
 	int const iEvacuationLogLevel = gEvacuationLogLevel;
-	bool const bLogRetreatResult = (iEvacuationLogLevel >= 3 || (bEvac && iEvacuationLogLevel >= 2));
+	// <!-- custom: Preserve BBAI's existing scope: all retreats at level 3, or evacuation retreats at level 2.
+	// Put the level check first inside the evacuation branch so a disabled category skips that predicate.
+	// SGR observes only evacuation from an owned city.
+	// The combined caller gate skips this coordinator and all diagnostic arguments when neither sink needs a row. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool const bLogBBAIRetreatResult = (iEvacuationLogLevel >= 3 || (iEvacuationLogLevel >= 2 && bEvac));
+	bool const bLogSASRetreatResult = (gGameRecordLogLevel >= 2 && bEvac && pCity->getOwner() == getOwner());
+	bool const bLogRetreatResult = (bLogBBAIRetreatResult || bLogSASRetreatResult);
 	if (iCurrentDanger <= 0 && pCity != NULL &&
 		pCity->getOwner() == getOwner())
 	{
@@ -27051,7 +27067,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 		{
 			if (!bPrioritiseAirlift || pCity->getMaxAirlift() > 0)
 			{	//if (!pCity->getPlot().isVisibleEnemyUnit(this)) {
-				if (bLogRetreatResult) logSASRetreatUnitResult("wait-safe-city", *this, pCity, pCity, &getPlot(), 0, iCurrentDanger, bEvac);
+				if (bLogRetreatResult) logSASRetreatUnitResult(SAS_RETREAT_RESULT_WAIT_SAFE_CITY, *this, pCity, pCity, &getPlot(), 0, iCurrentDanger, bEvac, bLogBBAIRetreatResult, bLogSASRetreatResult);
 				getGroup()->pushMission(MISSION_SKIP);
 				return true;
 			}
@@ -27157,7 +27173,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 
 	if (pBestPlot != NULL)
 	{
-		if (bLogRetreatResult) logSASRetreatUnitResult(at(*pBestPlot) ? "wait" : "retreat", *this, pCity, pBestRetreatCityForLog, pBestPlot, iShortestPath, iCurrentDanger, bEvac);
+		if (bLogRetreatResult) logSASRetreatUnitResult(at(*pBestPlot) ? SAS_RETREAT_RESULT_WAIT : SAS_RETREAT_RESULT_RETREAT_MISSION_ISSUED, *this, pCity, pBestRetreatCityForLog, pBestPlot, iShortestPath, iCurrentDanger, bEvac, bLogBBAIRetreatResult, bLogSASRetreatResult);
 		if (at(*pBestPlot))
 		{
 			getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
@@ -27192,19 +27208,19 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 					per100(GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent());
 			if (SyncRandSuccess(rScrapOdds))
 			{
-				if (bLogRetreatResult) logSASRetreatUnitResult("scrap", *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac);
+				if (bLogRetreatResult) logSASRetreatUnitResult(SAS_RETREAT_RESULT_SCRAP_SELECTED, *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac, bLogBBAIRetreatResult, bLogSASRetreatResult);
 				// <!-- custom: This inherited scorched-earth decision deliberately removes a capturable unit from a doomed owned city.
 				// Force it after the existing safety/random checks so SAS routine preservation cannot report success while leaving the unit for capture. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				if (scrapForced()) return true;
 			}
 		} // </advc.010>
-		if (bLogRetreatResult) logSASRetreatUnitResult("stay-no-safe-city", *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac);
+		if (bLogRetreatResult) logSASRetreatUnitResult(SAS_RETREAT_RESULT_STAY_NO_SAFE_CITY, *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac, bLogBBAIRetreatResult, bLogSASRetreatResult);
 		getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
 				false, false, MISSIONAI_RETREAT);
 		return true;
 	}
 
-	if (bLogRetreatResult) logSASRetreatUnitResult("fail-no-city", *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac);
+	if (bLogRetreatResult) logSASRetreatUnitResult(SAS_RETREAT_RESULT_FAIL_NO_CITY, *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac, bLogBBAIRetreatResult, bLogSASRetreatResult);
 	return false;
 }
 

@@ -1324,6 +1324,8 @@ AI strategy is one example of how the two logs complement each other: BBAI keeps
 
 SASGameRecord notably also keeps exact final victory-stage and worst-enemy transitions beside periodic checkpoints, and level-3 attitude-component snapshots explain why each AI relationship has its current value, so broader strategic and diplomatic state changes can be aligned with detailed BBAI reasoning without duplicating its candidate traces. Both strategy logs use the same canonical raw `AIStrategy` names from shared DLL helpers.
 
+Compact evacuation records similarly connect why a city was judged doomed, which units were selected to retreat, and how many actually reached their next movement plot. They distinguish retreat orders from observed movement; detailed AI reasoning remains in BBAI.
+
 Both log families place canonical mod/source context and exact loaded-DLL build/binary provenance immediately after the session lifecycle marker.
 
 The source row records the practical commit-count version when available, exact Git commit, branch/date metadata when known, tracked dirty state/files for a live Git checkout, and a compact fingerprint/byte count of tracked gameplay code/rules/scripts changes relative to `HEAD`.

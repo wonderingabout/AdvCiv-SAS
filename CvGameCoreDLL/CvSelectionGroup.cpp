@@ -9,6 +9,8 @@
 #include "CvGamePlay.h"
 #include "CvCity.h"
 #include "BBAILog.h"
+#include "SASGameRecordLog.h" // <!-- custom: SGR178 records actual retreat-group departure from evacuating cities at the existing group-movement execution boundary. (ChatGPT-5.6-Sol) -->
+#include "CvCityAI.h" // <!-- custom: Complete city-AI type is needed only to verify that the movement source city is currently evacuating before recording departure. (ChatGPT-5.6-Sol) -->
 #include "CvBugOptions.h" // advc.002m
 #include "CvInfo_Command.h"
 #include "CvInfo_Terrain.h" // for getBestBuildRoute
@@ -2924,6 +2926,24 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
 
 	FAssert(!isBusy()); // K-Mod
 	CvPlot const& kFrom = getPlot(); // advc.139
+	// <!-- custom: Snapshot stable source identities only for enabled retreat observation; entering groupMove alone does not prove anyone leaves.
+	// Keep live city/unit pointers out of this context because movement callbacks can destroy/regroup them. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool bLogSGREvacuationDeparture = false;
+	SASGameRecordEvacuationDepartureContext kEvacuationDeparture;
+	if (gGameRecordLogLevel >= 2 && AI().AI_getMissionAIType() == MISSIONAI_RETREAT)
+	{
+		CvCityAI const* pEvacuatingCity = kFrom.AI_getPlotCity();
+		if (pEvacuatingCity != NULL && pEvacuatingCity->getOwner() == getOwner() && pEvacuatingCity->AI_isEvacuating())
+		{
+			bLogSGREvacuationDeparture = true;
+			kEvacuationDeparture.eOwner = getOwner();
+			kEvacuationDeparture.iCityId = pEvacuatingCity->getID();
+			kEvacuationDeparture.iSourceX = kFrom.getX();
+			kEvacuationDeparture.iSourceY = kFrom.getY();
+			kEvacuationDeparture.iGroupId = getID();
+			kEvacuationDeparture.iGroupUnitsBefore = getNumUnits();
+		}
+	}
 
 	// K-Mod. Some variables to help us regroup appropriately if not everyone can move.
 	CvSelectionGroup* pBehindGroup = NULL;
@@ -3028,6 +3048,10 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
 			} // K-Mod end
 		}
 	}
+
+	// <!-- custom: Verify arrivals after both inherited movement stages, when unmovable members have been left behind.
+	// Reuse the gameplay identity snapshot rather than collect another unit list; the caller gate skips verification and all logger arguments when disabled. (GPT-6.1-Sol) -->
+	if (bLogSGREvacuationDeparture) logSASGameRecordAIEvacuationDeparture(kEvacuationDeparture, *pPlot, aOriginalUnits);
 
 	//execute move
 	if (bEndMove || !canAllMove())

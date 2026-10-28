@@ -3118,6 +3118,43 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, 
 }
 
 
+// <!-- custom: Name existing city-safety values without creating a second enum or recorder-owned vocabulary. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+char const* getSASCitySafetyTypeName(CitySafetyTypes eSafety)
+{
+	switch (eSafety)
+	{
+	case CITYSAFETY_EVACUATING: return "EVACUATING";
+	case CITYSAFETY_THREATENED: return "THREATENED";
+	case CITYSAFETY_SAFE: return "SAFE";
+	case CITYSAFETY_PERFECT: return "PERFECT";
+	}
+	return "UNKNOWN";
+}
+
+// <!-- custom: Stringify the shared retreat outcome once; labels are compile-time literals, with no heap allocation or string comparison. (GPT-6.1-Sol) -->
+char const* getSASRetreatResultName(SASRetreatResult eResult)
+{
+	switch (eResult)
+	{
+#define SAS_RETREAT_RESULT_NAME(NAME, BBAI_NAME) case SAS_RETREAT_RESULT_##NAME: return #NAME;
+	SAS_RETREAT_RESULT_ROWS(SAS_RETREAT_RESULT_NAME)
+#undef SAS_RETREAT_RESULT_NAME
+	}
+	return "UNKNOWN";
+}
+
+// <!-- custom: Preserve BBAI's historical retreat action tokens while both sinks consume the same typed outcome. (GPT-6.1-Sol) -->
+char const* getSASRetreatResultBBAIName(SASRetreatResult eResult)
+{
+	switch (eResult)
+	{
+#define SAS_RETREAT_RESULT_BBAI_NAME(NAME, BBAI_NAME) case SAS_RETREAT_RESULT_##NAME: return BBAI_NAME;
+	SAS_RETREAT_RESULT_ROWS(SAS_RETREAT_RESULT_BBAI_NAME)
+#undef SAS_RETREAT_RESULT_BBAI_NAME
+	}
+	return "unknown";
+}
+
 void getDirectionTypeString(CvWString& szString, DirectionTypes eDirectionType)
 {
 	/*  advc.007: Turned this comment

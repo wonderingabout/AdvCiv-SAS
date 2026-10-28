@@ -13249,14 +13249,22 @@ void CvCityAI::AI_updateSafety(bool bUpdatePerfectSafety)
 				iAIEvacuationThresh);
 		scaled rThresh = rAI_EVACUATION_THRESH;
 		//  Higher threshold for important cities
-		scaled rRelativeCityVal = per100(AI_getCityValPercent());
+		// <!-- custom: Reuse this gameplay valuation in both diagnostic sinks rather than recalculate it solely for logging. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		int const iCityValuePercent = AI_getCityValPercent();
+		scaled rRelativeCityVal = per100(iCityValuePercent);
 		if (rRelativeCityVal > fixp(0.5))
 			rThresh *= fixp(0.5) + rRelativeCityVal;
 		if (kOwner.getNumCities() <= 2 && isCapital())
 			rThresh *= 2;
 		bEvac = (scaled(iAttStrength, iDefStrength + 1) > rThresh);
+		// <!-- custom: SGR178 records only the transition into EVACUATING, reusing the threshold/strength values already computed by this AI decision.
+		// Keep the percentage conversion and the detailed strongest-enemy/nearby-unit enumeration behind their logging gates so disabled diagnostics add no steady-state work. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		bool const bLogSGREvacuationDecision = (gGameRecordLogLevel >= 2 && bEvac && ePreviousSafety != CITYSAFETY_EVACUATING);
+		bool const bLogBBAIEvacuationDecision = (gEvacuationLogLevel > 0 && bEvac && (gEvacuationLogLevel >= 2 || ePreviousSafety != CITYSAFETY_EVACUATING));
+		int const iAttackDefensePercent = (bLogSGREvacuationDecision || bLogBBAIEvacuationDecision ? scaled(iAttStrength, iDefStrength + 1).getPercent() : -1);
+		if (bLogSGREvacuationDecision) logSASGameRecordAIEvacuationCityDecision(*this, ePreviousSafety, iAttackers, iDefenders, iAttStrength, iDefStrength, iAttackDefensePercent, iAIEvacuationThresh, rThresh.getPercent(), iCityValuePercent);
 		// <!-- custom: Log doomed-city thresholds and nearby attack context for analysis/logging purposes. (GPT-5.5) -->
-		if (gEvacuationLogLevel > 0 && bEvac && (gEvacuationLogLevel >= 2 || ePreviousSafety != CITYSAFETY_EVACUATING))
+		if (bLogBBAIEvacuationDecision)
 		{
 			TeamTypes eStrongestEnemy = NO_TEAM;
 			int iStrongestEnemyAttack = 0;
@@ -13280,8 +13288,8 @@ void CvCityAI::AI_updateSafety(bool bUpdatePerfectSafety)
 				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), getX(),
 				getY(), getGameTurnAcquired(), GC.getGame().getGameTurn() - getGameTurnAcquired(), getPopulation(), isCapital(),
 				kOwner.getNumCities(), ePreviousSafety, bAllLandUnitsWhenDoomed, iAttackers, iDefenders, iOwnedLandUnits, iAttStrength,
-				iDefStrength, scaled(iAttStrength, iDefStrength + 1).getPercent(), iAIEvacuationThresh, rThresh.getPercent(),
-				AI_getCityValPercent(), eStrongestEnemy,
+				iDefStrength, iAttackDefensePercent, iAIEvacuationThresh, rThresh.getPercent(),
+				iCityValuePercent, eStrongestEnemy,
 				(eStrongestEnemy == NO_TEAM ? L"-" : GET_TEAM(eStrongestEnemy).getName().GetCString()), iStrongestEnemyAttack);
 			if (gEvacuationLogLevel >= 3 && ePreviousSafety != CITYSAFETY_EVACUATING)
 			{

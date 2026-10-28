@@ -1373,6 +1373,22 @@ ENUM_START(DiplomacyPower, DIPLOMACYPOWER)
 	DIPLOMACYPOWER_EQUAL,
 	DIPLOMACYPOWER_STRONGER,
 ENUM_END(DiplomacyPower, DIPLOMACYPOWER)
+// <!-- custom: AI_retreatToCity's realized branch is shared by BBAI and SASGameRecord, so use one typed vocabulary rather than compare emitted strings.
+// These diagnostic outcomes are not serialized; preserve the existing BBAI spelling alongside the structured label in this catalog. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+#define SAS_RETREAT_RESULT_ROWS(DO) \
+	DO(WAIT_SAFE_CITY, "wait-safe-city") \
+	DO(WAIT, "wait") \
+	DO(RETREAT_MISSION_ISSUED, "retreat") \
+	DO(SCRAP_SELECTED, "scrap") \
+	DO(STAY_NO_SAFE_CITY, "stay-no-safe-city") \
+	DO(FAIL_NO_CITY, "fail-no-city")
+enum SASRetreatResult
+{
+#define SAS_RETREAT_RESULT_ENUM(NAME, BBAI_NAME) SAS_RETREAT_RESULT_##NAME,
+	SAS_RETREAT_RESULT_ROWS(SAS_RETREAT_RESULT_ENUM)
+#undef SAS_RETREAT_RESULT_ENUM
+};
+
 // <advc.139>
 ENUM_START(CitySafety, CITYSAFETY)
 	CITYSAFETY_EVACUATING,

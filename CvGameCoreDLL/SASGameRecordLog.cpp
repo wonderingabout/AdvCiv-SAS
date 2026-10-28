@@ -14896,6 +14896,55 @@ static char const* getSASGameRecordAIGreatPersonAction(SASGameRecordAIGreatPerso
 	}
 }
 
+// <!-- custom: Record newly-entered evacuation using values the real safety decision already computed; no AI valuation is repeated here. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void logSASGameRecordAIEvacuationCityDecision(CvCityAI const& kCity, CitySafetyTypes ePreviousSafety, int iAttackers, int iDefenders, int iAttackStrength, int iDefenseStrength, int iAttackDefensePercent, int iBaseThresholdPercent, int iAdjustedThresholdPercent, int iCityValuePercent)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
+	logSASGameRecord("GAME_RECORD_AI_EVACUATION_CITY_DECISION turn=%d player=%d team=%d cityId=%d x=%d y=%d population=%d capital=%d ownerCities=%d previousSafety=%s previousSafetyId=%d attackers=%d defenders=%d attackStrength=%d defenseStrength=%d attackDefensePercent=%d baseThresholdPercent=%d adjustedThresholdPercent=%d cityValuePercent=%d action=ENTER_EVACUATING",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getTeam(), kCity.getID(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCity.isCapital(), kOwner.getNumCities(),
+		getSASCitySafetyTypeName(ePreviousSafety), ePreviousSafety, iAttackers, iDefenders, iAttackStrength, iDefenseStrength, iAttackDefensePercent, iBaseThresholdPercent, iAdjustedThresholdPercent, iCityValuePercent);
+}
+
+void logSASGameRecordAIEvacuationUnitDecision(CvUnitAI const& kUnit, CvCityAI const& kCity, char const* szMode, int iEvacuationProbabilityPercent, bool bSelected)
+{
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	logSASGameRecord("GAME_RECORD_AI_EVACUATION_UNIT_DECISION turn=%d player=%d team=%d cityId=%d cityX=%d cityY=%d unitId=%d unit=%s unitAI=%s domain=%d groupId=%d groupUnits=%d mode=%s evacuationProbabilityPercent=%d selected=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kCity.getID(), kCity.getX(), kCity.getY(), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()),
+		getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), szMode, iEvacuationProbabilityPercent, bSelected);
+}
+
+// <!-- custom: A typed result distinguishes mission assignment, waiting and scrap selection; it does not assert successful escape or actual destruction. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void logSASGameRecordAIEvacuationRetreatResult(SASRetreatResult eResult, CvUnitAI const& kUnit, CvCity const* pSourceCity, CvCity const* pTargetCity, CvPlot const* pEndTurnPlot, int iPathTurns, int iCurrentDanger)
+{
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	logSASGameRecord("GAME_RECORD_AI_EVACUATION_RETREAT_RESULT turn=%d player=%d team=%d action=%s sourceCityId=%d sourceX=%d sourceY=%d unitId=%d unit=%s unitAI=%s domain=%d groupId=%d groupUnits=%d targetCityId=%d targetX=%d targetY=%d endTurnX=%d endTurnY=%d pathTurns=%d currentDanger=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), getSASRetreatResultName(eResult), (pSourceCity == NULL ? -1 : pSourceCity->getID()), (pSourceCity == NULL ? -1 : pSourceCity->getX()),
+		(pSourceCity == NULL ? -1 : pSourceCity->getY()), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()), getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()), kUnit.getDomainType(),
+		(pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), (pTargetCity == NULL ? -1 : pTargetCity->getID()), (pTargetCity == NULL ? -1 : pTargetCity->getX()),
+		(pTargetCity == NULL ? -1 : pTargetCity->getY()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), iPathTurns, iCurrentDanger);
+}
+
+// <!-- custom: The enabled post-move hook supplies stable source IDs plus the identity list groupMove already needed for gameplay.
+// Re-resolve those units because movement callbacks can delete/regroup them; count only originals now on the requested next plot, excluding members left behind.
+// No row is emitted for a zero-step/zero-arrival attempt.
+// This is immediate step evidence, not successful escape or later survival. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void logSASGameRecordAIEvacuationDeparture(SASGameRecordEvacuationDepartureContext const& kContext, CvPlot const& kStepPlot, std::vector<IDInfo> const& aOriginalUnits)
+{
+	if (kStepPlot.getX() == kContext.iSourceX && kStepPlot.getY() == kContext.iSourceY)
+		return;
+	int iMovedUnits = 0;
+	for (size_t i = 0; i < aOriginalUnits.size(); i++)
+	{
+		CvUnit const* pUnit = ::getUnit(aOriginalUnits[i]);
+		if (pUnit != NULL && pUnit->getOwner() == kContext.eOwner && pUnit->at(kStepPlot))
+			iMovedUnits++;
+	}
+	if (iMovedUnits <= 0)
+		return;
+	logSASGameRecord("GAME_RECORD_AI_EVACUATION_DEPARTURE turn=%d player=%d team=%d cityId=%d sourceX=%d sourceY=%d groupId=%d groupUnitsBefore=%d movedUnits=%d stepX=%d stepY=%d action=RETREAT_STEP_OBSERVED",
+		GC.getGame().getGameTurn(), kContext.eOwner, GET_PLAYER(kContext.eOwner).getTeam(), kContext.iCityId, kContext.iSourceX, kContext.iSourceY, kContext.iGroupId, kContext.iGroupUnitsBefore, iMovedUnits, kStepPlot.getX(), kStepPlot.getY());
+}
+
 // <!-- custom: Compact all-type Great Person action provenance.
 // The five action scores and slow candidate metadata are the exact values produced by AI_greatPersonMove before sorting; target is the already-selected current waypoint/action plot and previousMission* preserves continuity from the group's pre-decision state.
 // Fallback actions deliberately use choiceRank/selectedValue=-1: danger discovery, recon, retreat, stranded handling and safety are later fallback helpers, not winners of the earlier sorted score comparison. (ChatGPT-5.6-Sol) -->

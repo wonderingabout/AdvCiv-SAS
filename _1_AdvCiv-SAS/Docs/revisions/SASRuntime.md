@@ -13,7 +13,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 ### Revision 15 - SAS practical 6697
 
 - **Date:** 2026-10-28
-- **Git commit:** pending
+- **Git commit:** `10f2ee5a5571f3d26e65810ddde4dfa55335027c`
 - **Change:** Separate human end-turn readiness from player-turn wall time and record compact pre-end-turn order context without per-frame unit scans.
   - The existing `updateTestEndTurn` UI boundary now reports when the inherited end-turn message becomes active or is revoked because new orderable work appears. Runtime measures only those ready-message intervals; `HUMAN_INPUT` remains broader wall time including thinking, popups and screens.
   - Accepted `CONTROL_ENDTURN` / `CONTROL_ENDTURN_ALT` / `CONTROL_FORCEENDTURN` requests capture one `end_turn_context` row before `sendTurnComplete`.

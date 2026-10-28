@@ -256,6 +256,7 @@ void logSASGameRecordUWAIWarPlanDecision(TeamTypes eAgent, TeamTypes eTarget, SA
 class CvPlot;
 class CvUnit;
 class CvUnitAI;
+struct IDInfo; // <!-- custom: Post-move evacuation verification reuses the caller's existing unit identities; a forward declaration suffices for the vector reference. (GPT-6.1-Sol) -->
 // <!-- custom: Closed recorder-only outcomes for ordinary AI Great Person action selection.
 // These describe AI_greatPersonMove's realized action/continuation/fallback rather than a gameplay-wide enum, so keep them with SASGameRecord.
 // Great Generals use the separate AI_generalMove path and are intentionally outside this schema. (ChatGPT-5.6-Sol) -->
@@ -316,6 +317,19 @@ struct SASGreatMerchantTradeChoiceContext
 // Scores, slow-action details and movement state are values gameplay already computed; callers pre-gate at GameRecord level 2+ and never repeat valuation, candidate search, pathfinding or RNG for logging.
 // Great-Merchant fields preserve the winning raw city/path result behind the already-recorded transformed Trade score. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIGreatPersonDecision(CvUnitAI const& kUnit, CvPlot const* pDecisionPlot, SASGameRecordAIGreatPersonAction eAction, int iChoiceRank, int iSelectedValue, int iScoreThreshold, int iSlowValue, int iSlowBaseValue, int iSlowPathTurns, MissionAITypes eSlowMissionAI, CvCity const* pSlowCity, SpecialistTypes eSpecialist, BuildingTypes eBuilding, int iDiscoverValue, TechTypes eDiscoverTech, int iGoldenAgeValue, int iTradeValue, int iCultureValue, SASGreatMerchantTradeChoiceContext const* pTradeChoice, CvPlot const* pTargetPlot, MissionAITypes ePreviousMissionAI, CvPlot const* pPreviousMissionPlot);
+// <!-- custom: Revision 178 adds a compact structured bridge from doomed-city state transition through per-unit evacuation selection, retreat result and actual retreat-group departure.
+// Callers pre-gate at level 2 and pass only values already computed by the AI path; these helpers must not rescan enemy strength, rerun pathfinding or perform synchronized RNG. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIEvacuationCityDecision(CvCityAI const& kCity, CitySafetyTypes ePreviousSafety, int iAttackers, int iDefenders, int iAttackStrength, int iDefenseStrength, int iAttackDefensePercent, int iBaseThresholdPercent, int iAdjustedThresholdPercent, int iCityValuePercent);
+void logSASGameRecordAIEvacuationUnitDecision(CvUnitAI const& kUnit, CvCityAI const& kCity, char const* szMode, int iEvacuationProbabilityPercent, bool bSelected);
+void logSASGameRecordAIEvacuationRetreatResult(SASRetreatResult eResult, CvUnitAI const& kUnit, CvCity const* pSourceCity, CvCity const* pTargetCity, CvPlot const* pEndTurnPlot, int iPathTurns, int iCurrentDanger);
+// <!-- custom: Capture only stable source identities before movement; callbacks can regroup/delete units or cities.
+// Filled only inside the caller's enabled evacuation gate; the recorder re-resolves existing unit IDs after movement rather than retaining live pointers. (GPT-6.1-Sol) -->
+struct SASGameRecordEvacuationDepartureContext
+{
+	PlayerTypes eOwner;
+	int iCityId, iSourceX, iSourceY, iGroupId, iGroupUnitsBefore;
+};
+void logSASGameRecordAIEvacuationDeparture(SASGameRecordEvacuationDepartureContext const& kContext, CvPlot const& kStepPlot, std::vector<IDInfo> const& aOriginalUnits);
 
 // <!-- custom: Closed recorder-only policy stages for AI_generalMove.
 // The stage names preserve the actual ordered fallback chain rather than inventing a cross-action score that Great-General AI does not compute. (ChatGPT-5.6-Sol) -->
