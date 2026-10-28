@@ -52,6 +52,7 @@ The EXE is closed source, mods can supply arbitrary filenames, and some outputs 
         - [Crash-dump prompt](#crash-dump-prompt)
         - [C++ Runtime Library error](#c-runtime-library-error)
     - [`SASRuntimeHistory_*.jsonl` (session and exit history)](#sasruntimehistory_jsonl-session-and-exit-history)
+    - [Screenshot-file observation](#screenshot-file-observation)
     - [Live source-edit observation](#live-source-edit-observation)
       - [`SASRuntimeSourceWatch_*.json` (watcher state and host)](#sasruntimesourcewatch_json-watcher-state-and-host)
       - [`SASRuntimeSourceChanges_*.jsonl` (live file changes)](#sasruntimesourcechanges_jsonl-live-file-changes)
@@ -134,7 +135,7 @@ The files below do not belong to one logging framework. Civ4 accumulated several
 | `juggle_log.txt`, `combat.txt` | K-Mod/AdvCiv developer diagnostics | Compile-time specialist diagnostics: citizen-assignment efficiency and combat-odds verification respectively. Exact first introduction was not established here. | Preserve as experiment datasets. A small metadata header is safer than making every record verbose. |
 | `uwai<turn>.log` | AdvCiv `UWAIReport` | Separate war-evaluation reports, with Textile markup, turn-number filenames and report interval/threshold controls. Writers include `UWAIAgent`, `MilitaryAnalyst`, `InvasionGraph`, `ArmamentForecast`, `WarEvaluator` and `WarUtilityAspect`. | Historical in SAS: the standalone report files/logger were retired in favor of five independently controlled BBAI categories; see [UWAI diagnostics comparison](#uwai-diagnostics-standalone-advciv-reports-vs-current-bbai-records). |
 | `SASGameRecord_*.log` | AdvCiv-SAS | A new structured game record, complementing inherited BBAI decision traces with run context, periodic state, gameplay history and reproduction evidence. | Independent `SAS_SGR_LOG`; its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) documents recorder changes. |
-| `SASRuntimeStatus.json`, `SASRuntimeHistory_*.jsonl`, `SASRuntimeExit_*.json`, optional `SASRuntimeSourceWatch_*.json` / `SASRuntimeSourceChanges_*.jsonl` | AdvCiv-SAS | Latest runtime/process evidence and optional live mod-source/configuration disk-edit observations. | Independent `SAS_RUNTIME_STATUS_ON`; source watching additionally requires default-off `SAS_RUNTIME_SOURCE_WATCH_ON`. Its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md) documents runtime-recorder changes. |
+| `SASRuntimeStatus.json`, `SASRuntimeHistory_*.jsonl`, `SASRuntimeExit_*.json`, screenshot companions, optional source-watch companions | AdvCiv-SAS | Latest runtime/process evidence, confirmed screenshot-file observations and optional live mod-source/configuration disk-edit observations. | Independent `SAS_RUNTIME_STATUS_ON`; source watching additionally requires default-off `SAS_RUNTIME_SOURCE_WATCH_ON`. Its [revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md) documents runtime-recorder changes. |
 
 ### Modernization principles
 
@@ -950,6 +951,23 @@ In `player_turn_summary`, human `mainMilliseconds` includes thinking and screen/
 For additional new/load/menu/Sevopedia and autoplay observations, see the [full history example](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeHistory_example.jsonl) and its [capture notes](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md).
 
 For lifecycle details and field interpretation, see the [Main Changes Guide's runtime section](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#runtime-status-and-history) and [runtime revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md).
+
+#### Screenshot-file observation
+
+With both `SAS_RUNTIME_STATUS_ON=1` and `SAS_RUNTIME_SCREENSHOT_WATCH_ON=1`, Runtime diagnostics use [`SASRuntimeScreenshotObserver.ps1`](/Assets/SASRuntimeScreenshotObserver.ps1) to observe image files appearing or changing in Civ4's user `ScreenShots` folder.
+
+This confirms a file observation rather than a Print Screen request: the key can produce no file (see KI#7), and another program can save images there too.
+
+- `SASRuntimeScreenshotWatch_<process-start UTC>_<PID>.json` reports observer availability, counters and the companion history filename.
+- `SASRuntimeScreenshots_<process-start UTC>_<PID>.jsonl` retains filename, observation/file times, size, image width/height with explicit availability, bounded hash evidence and matching Runtime context with its age. Writer identity and the exact rendered screen remain unobserved; image contents are not copied into logs.
+
+A complete row from `SASRuntimeScreenshots_20261028T102715.435Z_17148.jsonl` illustrates an observed screenshot with its `1920x1080` image dimensions. File evidence is separate from the available game-state association; `runtimeStatusAgeMilliseconds` exposes the age of that context. JSON whitespace is compacted; field values are unchanged.
+
+```log
+{"record":"screenshot_file_observed","revision":14,"run":"20261028T102715.435Z_17148","recordedUtc":"20261028T102751.074Z","firstObservedUtc":"20261028T102750.028Z","lastObservedUtc":"20261028T102750.054Z","filename":"Civ4ScreenShot0883.JPG","nativeCiv4FilenamePattern":1,"writerIdentity":"NOT_OBSERVED","captureRequestObserved":0,"eventCount":2,"actionsObserved":["CREATED","CHANGED"],"imageWidth":1920,"imageHeight":1080,"dimensionsStatus":"AVAILABLE","sizeBytes":191623,"fileCreationUtc":"20261028T102750.028Z","fileLastWriteUtc":"20261028T102750.054Z","fingerprintAlgorithm":"SHA256","fingerprint":"171A803A97E4746DF0F8A1A50132DF8BBA7F9DFEAEBC3C414DD9BB911CCC0221","fingerprintStatus":"AVAILABLE","associationState":"MATCHED_PROCESS_STATUS_CONTEXT_MAY_BE_STALE","associationUncertainty":"FILESYSTEM_CAPTURE_CONFIRMED_WRITER_AND_EXACT_SCREEN_NOT_OBSERVED","runtimeStatusUpdatedUtc":"20261028T102749.548Z","runtimeStatusAgeMilliseconds":480,"statusSerial":14,"sessionSerial":1,"sessionKind":"LOAD_GAME","gameState":"PLAYING","activity":"PLAYING","gameTurn":0,"elapsedGameTurns":0,"activePlayer":0,"autoplayActive":0,"playerTurnPlayer":-1,"playerTurnTeam":-1,"playerTurnCivilization":-1,"playerTurnCivilizationType":"-","playerTurnControl":"NONE","playerTurnPhase":"NONE","playerTurnElapsedMilliseconds":-1,"worldBuilderMode":0,"worldBuilderScreenVisible":0,"civilopediaVisible":0,"civilopediaContext":"NONE","buttonPopupAwaitingInteraction":0,"buttonPopupType":"BUTTONPOPUP_CHOOSETECH","buttonPopupActivePlayer":0}
+```
+
+Existing files are not backfilled at attachment. See the [Runtime reference](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md) for collection limits, context uncertainty and lifecycle behavior.
 
 #### Live source-edit observation
 

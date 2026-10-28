@@ -8,6 +8,7 @@ CI describes automatic execution, not a different kind of test. Our [GitHub work
 
 - [Diagnostic writer](#diagnostic-writer)
 - [Runtime exit observer](#runtime-exit-observer)
+- [Runtime screenshot observer](#runtime-screenshot-observer)
 - [Runtime source observer](#runtime-source-observer)
 - [Assertion diagnostic harness](#assertion-diagnostic-harness)
 - [Why this test is local](#why-this-test-is-local)
@@ -77,6 +78,10 @@ The native writer harness also tests the real hidden launcher, receipt and final
 Disposable Windows fixtures also test existing/new runtime-error and dump-choice dialogs, a same-title mismatched-control rejection, closure while the process remains alive, and exclusion of ordinary/assertion/foreign-process dialogs.
 
 A simulated access-violation exit code is a test input, not a real game crash. Normal DLL builds do not run this test.
+
+## Runtime screenshot observer
+
+[`run_runtime_screenshot_observer_tests.py`](/tests/diagnostics/run_runtime_screenshot_observer_tests.py) is a Windows-only standalone test for `Assets/SASRuntimeScreenshotObserver.ps1`. It uses a disposable screenshot directory and process, verifies that pre-existing/ignored files are excluded, confirms native-pattern and other image filenames, checks burst coalescing/SHA-256 plus Runtime-context correlation, duplicate ownership and clean EXITED state, and never writes into the user's real Civ4 `ScreenShots` folder.
 
 ## Runtime source observer
 

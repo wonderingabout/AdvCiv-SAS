@@ -126,6 +126,7 @@ struct TestGlobals
 		if (strcmp(name, "SAS_RUNTIME_STATUS_ON") == 0) return runtimeStatus ? 1 : 0;
 		if (strcmp(name, "SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS") == 0) return runtimePlayerTurnThreshold;
 		if (strcmp(name, "SAS_RUNTIME_PLAYER_TURN_LIVE_REFRESH_MS") == 0) return runtimePlayerTurnRefresh;
+		if (strcmp(name, "SAS_RUNTIME_SCREENSHOT_WATCH_ON") == 0) return 0;
 		if (strcmp(name, "SAS_RUNTIME_SOURCE_WATCH_ON") == 0) return runtimeSourceWatch ? 1 : 0;
 		assert(false); return 0;
 	}

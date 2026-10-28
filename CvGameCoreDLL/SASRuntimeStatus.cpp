@@ -15,7 +15,7 @@
 // Compile the label into the publisher: an edited XML value must not make an older loaded DLL report a newer implementation; this counter is independent of SASGameRecord and binary-save versions. (GPT-6.1-Sol) -->
 enum SASRuntimeRecorderRevision
 {
-	SAS_RUNTIME_REVISION = 13
+	SAS_RUNTIME_REVISION = 14
 };
 
 #define SAS_RUNTIME_PROCESS_STATES(DO) DO(RUNNING) DO(EXITED_CLEANLY) DO(EXITED)
@@ -473,6 +473,10 @@ static void ensureSASRuntimeExitObserver(std::wstring const& szStatusPath)
 					// <!-- custom: File arguments are quoted Win32 paths (which cannot contain a quote); no shell command text is assembled or evaluated.
 					// ExecutionPolicy applies only to this child process and requires no elevation; machine policy can still block it, so report launch evidence without claiming successful attachment. (GPT-6.1-Sol) -->
 					std::wstring szCommand = L"\"" + szPowerShell + L"\" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"" + szScript + L"\" -StatusPath \"" + szStatusPath + L"\" -TargetProcessId " + std::wstring(szProcessId.begin(), szProcessId.end()) + L" -ProcessStartUtc " + std::wstring(szStartedUtc.begin(), szStartedUtc.end()) + L" -RecorderRevision " + std::wstring(szRevision.begin(), szRevision.end());
+					// <!-- custom: This launcher already runs only under the master Runtime gate.
+					// Cache the independent screenshot opt-in here and pass a scalar to the parent observer, so screenshot-off creates no screenshot watcher or files while exit evidence remains available. (GPT-6.1-Sol) -->
+					static bool const bScreenshotWatch = (GC.getDefineINT("SAS_RUNTIME_SCREENSHOT_WATCH_ON") > 0);
+					szCommand += (bScreenshotWatch ? L" -ScreenshotWatchOn 1" : L" -ScreenshotWatchOn 0");
 					std::vector<wchar_t> aCommand(szCommand.begin(), szCommand.end());
 					aCommand.push_back(L'\0');
 					STARTUPINFOW kStartup;

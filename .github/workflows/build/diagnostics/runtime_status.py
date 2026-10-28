@@ -20,14 +20,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Check shipped runtime-recording/source-watcher defaults.")
     parser.add_argument("--repo-root", type=Path, default=get_default_repo_root())
     args = parser.parse_args()
-    # <!-- custom: Source observation is independently opt-in; enforce its shipped default too, even when the parent runtime switch is off. (GPT-6.1-Sol) -->
-    failures = require_int_values(read_global_define_ints(args.repo_root), {"SAS_RUNTIME_STATUS_ON": 0, "SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS": 3000, "SAS_RUNTIME_PLAYER_TURN_LIVE_REFRESH_MS": 3000, "SAS_RUNTIME_SOURCE_WATCH_ON": 0})
+    # <!-- custom: Source and screenshot observation are independently opt-in; enforce their shipped defaults too, even when the parent runtime switch is off. (GPT-6.1-Sol) -->
+    failures = require_int_values(read_global_define_ints(args.repo_root), {"SAS_RUNTIME_STATUS_ON": 0, "SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS": 3000, "SAS_RUNTIME_PLAYER_TURN_LIVE_REFRESH_MS": 3000, "SAS_RUNTIME_SOURCE_WATCH_ON": 0, "SAS_RUNTIME_SCREENSHOT_WATCH_ON": 0})
     if failures:
         print("FAIL SAS runtime-status default")
         for failure in failures:
             print(f"  - {failure}")
         return 1
-    print("PASS SAS runtime status: recording and source watching disabled by default")
+    print("PASS SAS runtime status: recording, source and screenshot watching disabled by default")
     return 0
 
 

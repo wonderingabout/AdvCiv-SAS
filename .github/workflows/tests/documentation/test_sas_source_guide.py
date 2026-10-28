@@ -18,9 +18,9 @@ LINK = "[`SASGameRecordLog.cpp`](/CvGameCoreDLL/SASGameRecordLog.cpp)"
 
 class SourceGuideTests(unittest.TestCase):
     def test_gameplay_scope_and_branding(self):
-        for path in (SOURCE, "Assets/Python/SASExample.py", "Assets/XML/GlobalDefines_advciv_sas.xml", "Assets/XML/Text/AdvCiv-SAS_Core.xml", "PrivateMaps/SAS_Longworld.py"):
+        for path in (SOURCE, "Assets/Python/SASExample.py", "Assets/XML/GlobalDefines_advciv_sas.xml", "Assets/XML/Text/AdvCiv-SAS_Core.xml", "PrivateMaps/SAS_Longworld.py", "Assets/SASObserver.ps1", "Assets/SASDialog.cs"):
             self.assertTrue(guide.gameplay_source(path), path)
-        for path in ("CvGameCoreDLL/StartPointsAsHandicap.cpp", "CvGameCoreDLL/Project/SASBuild.py", "tests/SASExample.cpp", "LLM_Helpers/SASExample.py", "Assets/Art/SASExample.dds", "_0_Common_Docs/SASExample.py", "Assets/Python/Examples.py"):
+        for path in ("CvGameCoreDLL/StartPointsAsHandicap.cpp", "CvGameCoreDLL/Project/SASBuild.py", "tests/SASExample.cpp", "LLM_Helpers/SASExample.py", "Assets/Art/SASExample.dds", "LLM_Helpers/SASBuild.ps1", "Assets/Art/SASImage.png", "_0_Common_Docs/SASExample.py", "Assets/Python/Examples.py"):
             self.assertFalse(guide.gameplay_source(path), path)
 
     def test_filename_and_exact_root_destination(self):
@@ -75,7 +75,7 @@ class GitScopeTests(unittest.TestCase):
         self.assertIn("Assets/Python/SASNew.py", errors[0])
 
     def test_cli_fails_then_passes_after_documenting_new_sources(self):
-        paths = ["Assets/Python/SASNew.py", "Assets/XML/SASNew.xml"]
+        paths = ["Assets/Python/SASNew.py", "Assets/XML/SASNew.xml", "Assets/SASObserver.ps1", "Assets/SASDialog.cs"]
         for path in paths:
             self.write(path, "fixture\n")
         self.git("add", ".")

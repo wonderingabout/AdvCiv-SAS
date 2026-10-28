@@ -2346,6 +2346,15 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>3000</iDefineIntVal>
 	</Define>
 
+	<!-- custom: Optional screenshot-file observation, independently gated under Runtime diagnostics.
+	1 launches the external screenshot watcher only when SAS_RUNTIME_STATUS_ON is also 1; 0 (default) creates no screenshot observer process or screenshot log files.
+	It records file metadata and matching Runtime context, not image contents or proof that Civ4 captured the exact displayed screen.
+	Cached on first enabled observer launch. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_RUNTIME_SCREENSHOT_WATCH_ON</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
 	<!-- custom: Optional live source-edit observation for Runtime diagnostics.
 	1 launches an external event-driven watcher for Python/XML/BUG Config, PrivateMaps scripts/scenarios, Resource themes, mod Settings and mod-root INI files while SAS runtime status is enabled; 0 (default) launches no source watcher.
 	Rows record observed disk events, mod-relative paths and final size/SHA-256 evidence after short burst coalescing.

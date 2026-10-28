@@ -31,9 +31,13 @@ SOURCE_EXTENSIONS = {".c", ".cc", ".cpp", ".cxx", ".h", ".hpp", ".hxx", ".inl", 
 def gameplay_source(path):
     name = PurePosixPath(path).name
     branded = "SAS" in name or re.search(r"(?:^|[_-])sas(?=[_.-]|$)", name, re.IGNORECASE)
-    return bool(branded and path.startswith(SOURCE_ROOTS)
-                and not path.startswith("CvGameCoreDLL/Project/")
-                and PurePosixPath(path).suffix.lower() in SOURCE_EXTENSIONS)
+    # <!-- custom: Shipped top-level PowerShell/C# companions are runtime mod code too; limiting coverage to DLL/Python/XML missed the screenshot observer in the README.
+    # Keep tooling elsewhere and non-code assets outside this source-link check. (GPT-6.1-Sol) -->
+    companion = PurePosixPath(path).parent == PurePosixPath("Assets") and PurePosixPath(path).suffix.lower() in {".ps1", ".cs"}
+    return bool(branded and (companion or (
+        path.startswith(SOURCE_ROOTS)
+        and not path.startswith("CvGameCoreDLL/Project/")
+        and PurePosixPath(path).suffix.lower() in SOURCE_EXTENSIONS)))
 
 
 # <!-- custom: Preserve offsets while marking inline code spans: a code-formatted filename inside a real link is valid, but an entire example link inside backticks is not a rendered source reference. (GPT-6.1-Sol) -->
@@ -92,7 +96,7 @@ def missing_links(paths, text, document=GUIDE):
 # Also check formerly documented paths whose documentation links disappear, preventing a docs-only edit from undoing the clean baseline without rescanning source contents.
 # Deleted sources are not required. (GPT-6.1-Sol) -->
 def check(repo, base_ref=None, event_name=None, full=False):
-    raw = git_context.run_git(repo, "ls-files", "-z", "--", "Assets/Python", "Assets/XML", "PrivateMaps", "CvGameCoreDLL").stdout
+    raw = git_context.run_git(repo, "ls-files", "-z", "--", "Assets", "PrivateMaps", "CvGameCoreDLL").stdout
     tracked = {path for path in raw.decode("utf-8").split("\0")
                if gameplay_source(path) and (repo / path).is_file()}
     base = None if full else git_context.ensure_base(repo, base_ref, event_name)

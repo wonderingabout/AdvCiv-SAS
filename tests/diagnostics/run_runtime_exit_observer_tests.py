@@ -113,6 +113,9 @@ def run_case(folder, name, code=0, clean=False, mismatch=False, superseded=False
             evidence = json.loads(evidence_path.read_text(encoding="utf-8-sig"))
             assert evidence["observerState"] == "EXITED" and evidence["exitCodeHex"] == "0x%08X" % code, evidence
             assert evidence["dialogObserverState"] == ("UNAVAILABLE" if fallback else "ACTIVE"), evidence
+            # <!-- custom: Screenshot collection is independently default-off even with exit/dialog observation active; no screenshot child/state/history may appear. (GPT-6.1-Sol) -->
+            assert evidence["screenshotObserverState"] == "DISABLED" and evidence["screenshotObserverProcessId"] == 0, evidence
+            assert not list(case.glob("SASRuntimeScreenshot*.json*")), name
         if corrupt or missing:
             assert (path.read_bytes() if path.exists() else None) == before, name
             print("PASS", name)
@@ -177,7 +180,13 @@ def run_dialog_case(folder, executable, mode):
             deadline = time.monotonic() + 10
             while time.monotonic() < deadline:
                 if evidence_path.exists():
-                    evidence = json.loads(evidence_path.read_text(encoding="utf-8-sig"))
+                    # <!-- custom: The live observer atomically replaces its receipt; Windows sharing can briefly reject this fixture's read.
+                    # Retry within the existing deadline rather than mistake that transient read race for an observer failure. (GPT-6.1-Sol) -->
+                    try:
+                        evidence = json.loads(evidence_path.read_text(encoding="utf-8-sig"))
+                    except (OSError, ValueError):
+                        time.sleep(.05)
+                        continue
                     if predicate(evidence):
                         return evidence
                 time.sleep(.03)

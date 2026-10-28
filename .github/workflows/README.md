@@ -28,6 +28,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/repository/dll_commit_message.py`](#buildrepositorydll_commit_messagepy)
     - [`build/repository/dll_define_changes.py`](#buildrepositorydll_define_changespy)
     - [`build/repository/dll_python_bindings.py`](#buildrepositorydll_python_bindingspy)
+    - [`build/repository/dll_runtime_revision.py`](#buildrepositorydll_runtime_revisionpy)
     - [`build/repository/examples_archive_size.py`](#buildrepositoryexamples_archive_sizepy)
     - [`build/repository/version_metadata.py`](#buildrepositoryversion_metadatapy)
     - [`build/repository/project_sources.py`](#buildrepositoryproject_sourcespy)
@@ -327,6 +328,19 @@ python .github/workflows/build/repository/dll_python_bindings.py
 python .github/workflows/build/repository/dll_python_bindings.py --base-ref HEAD~3 --head-ref HEAD
 ```
 
+#### `build/repository/dll_runtime_revision.py`
+
+Checks compiled Runtime revision changes on default-branch integration. Each revision-changing commit must update the Release DLL/report; the report's source manifest must match `SASRuntimeStatus.cpp`, accepting Git LF versus build CRLF line endings. A changed unrelated DLL is insufficient.
+
+The compiled revision labels native records and is passed to external observers. An XML revision could relabel an old native writer without implementing the change, so Runtime keeps its compiled label; SGR's XML revision remains separate. Older commits preceding this guard are excluded, and feature-branch pushes can remain source-only while drafting.
+
+An explicitly `revision:squash`-labeled PR is checked as one merge-base-to-head candidate, matching recorder revision maintenance; ordinary integration remains per commit. Local review supports `--base-ref ... --squash`.
+
+```text
+python .github/workflows/build/repository/dll_runtime_revision.py
+python .github/workflows/build/repository/dll_runtime_revision.py --base-ref HEAD~2
+```
+
 #### `build/repository/examples_archive_size.py`
 
 Keeps compact documentation examples in archives while requiring manual review when an included example file or folder grows beyond **1 MB (1,000,000 bytes)**.
@@ -433,10 +447,11 @@ The initial inventory found three screenshots using `_example`; their names and 
 
 #### `build/documentation/sas_source_guide.py`
 
-Keeps SAS-branded gameplay source discoverable in both the [root README](/README.md) and [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), rather than describing features without naming their implementation files.
+Keeps SAS-branded mod source and shipped runtime companions discoverable in both the [root README](/README.md) and [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), rather than describing features without naming their implementation files.
 
 - Requires a visible filename in a Markdown link to the exact repository-root path. For example, [`SASGameRecordLog.cpp`](/CvGameCoreDLL/SASGameRecordLog.cpp) counts; a bare mention, a generic "implementation" link, a link to another file, or a commented/code-example link does not.
 - Applies to tracked C/C++ source/header/export/resource, Python and XML files in gameplay folders (`CvGameCoreDLL`, excluding `Project`; `Assets/Python`; `Assets/XML`; `PrivateMaps`). Tools, tests, generated/untracked outputs, binaries and copied documentation are outside this scope.
+  - Top-level shipped `Assets/*.ps1` and `Assets/*.cs` runtime companions are included too; limiting the original check to DLL/Python/XML had missed the screenshot observer.
 - Recognizes uppercase `SAS` and lowercase underscore/hyphen branding tokens such as `GlobalDefines_advciv_sas.xml`, avoiding accidental matches such as inherited `StartPointsAsHandicap.cpp`.
 - Ordinary runs check changed/added/renamed sources against the push/PR base, plus edits to either document that remove existing source links. Deleted source files are no longer required.
   - This preserves the clean baseline without reading every source file on every run; Git supplies the path inventory and only the two documents are parsed.
@@ -847,7 +862,11 @@ Checks the compiled runtime-recorder revision against its [history](/_1_AdvCiv-S
 
 Reuses SASGameRecord's event boundaries and explicit `revision:squash` policy, checking each ordinary commit or the complete squash candidate: recognized implementation changes require exactly one increment; pure CI/checker, documentation/example and test maintenance leaves it unchanged. Local checks also validate the pending working-tree increment, including new files before staging.
 
-Dedicated runtime files always qualify, including implementation comments and the shipped `Assets/SASRuntimeExitObserver.ps1`, `Assets/SASRuntimeDialogObserver.cs` and optional `Assets/SASRuntimeSourceObserver.ps1` companions. Shared source/configuration changes are recognized by runtime symbols in changed lines; unusual refactors still need manual review.
+The runtime-defaults check also enforces independent default-off source and screenshot watcher switches; shared environment metadata and the dialog listener are support components, not separate collection toggles.
+
+Dedicated runtime files always qualify, including implementation comments and the shipped `Assets/SASRuntimeExitObserver.ps1`, `Assets/SASRuntimeDialogObserver.cs`, `Assets/SASRuntimeScreenshotObserver.ps1` and optional `Assets/SASRuntimeSourceObserver.ps1` companions.
+
+Shared source/configuration changes are recognized by runtime symbols in changed lines; unusual refactors still need manual review.
 
 The regression tests cover multiple commits, missed increments, jumps/regressions, history mismatches, checker-only maintenance and clean CRLF working trees.
 

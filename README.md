@@ -57,12 +57,13 @@ Another significant logging improvement is "flushing":
 
 Python-written rows in logs such as PythonDbg.log, PythonErr.log and PythonErr2.log gain UTC timestamps; debug notices gain searchable fields: `99 SCREEN TURNED ON` becomes `2026-10-20T08:16:29.114Z record=SCREEN_TURNED_ON screenId=99 screenType=CvScreenEnums.MAIN_INTERFACE`. Early startup and direct EXE output can remain untimestamped.
 
-Additional LLM/agent instrumentation extends this "open brain" view: users and AI assistants can observe game activity and compilation, then connect what happened to the source and DLL being tested:
+Additional LLM/agent instrumentation extends this "open brain" view: users and AI assistants can observe game activity and compilation, then connect what happened to the source and DLL being tested. Runtime diagnostics are default-off, with separate switches for source and screenshot observation:
 
 - `SASRuntimeStatus.json` gives the latest observed game/session and autoplay state, together with the identity of the DLL reporting it.
   - `SASRuntimeSourceChanges_*.jsonl` records live saves/edits to Python/XML, map scripts, themes and mod settings; `SASRuntimeSourceWatch_*.json` reports watcher health and host versions. A disk change does not prove an engine reload; the source watcher runs only when enabled alongside runtime diagnostics.
 - `SASRuntimeHistory_*.jsonl` keeps a timed history of game creation, save loading and autoplay activity, including why autoplay stopped, across games and loads while Civ4 stays open.
-- `SASRuntimeExit_*.json` helps catch failures missed by in-game hooks, such as crashes after live Python/XML edits or DLL/EXE failures. With runtime diagnostics enabled (default off), a hidden Windows watcher records recognized runtime-error or crash-dump dialogs while Civ4 is still alive, then its eventual exit time/code.
+- `SASRuntimeExit_*.json` helps catch failures missed by in-game hooks, such as crashes after live Python/XML edits or DLL/EXE failures. A hidden Windows watcher records recognized runtime-error or crash-dump dialogs while Civ4 is still alive, then its eventual exit time/code.
+- `SASRuntimeScreenshotObserver.ps1` records newly observed screenshot files in `SASRuntimeScreenshots_*.jsonl`, with timestamps, image dimensions and available game context to help find captures from a run.
 - `CvGameCoreDLL.dll.build.json` provides the build-side counterpart: users and AI/LLM agents can follow compilation status and review source/configuration, selected compiler/linker versions, timing, warnings/errors and DLL identity, alongside the enriched `AdvCiv.log` with full compiler output and build summaries.
 
 Together with live-readable BBAI and SASGameRecord logs, richer and more searchable UWAI diagnostics integrated into BBAI and controlled through SAS defines, enriched compiler logs and embedded DLL provenance, these make it easier to follow runs, investigate problems, and connect observations to the code and binary being tested.
@@ -1570,7 +1571,11 @@ The hidden watcher runs without administrator rights. Its separate `SASRuntimeEx
 
 The same companion can record a recognized Microsoft Visual C++ runtime-error or Civ4 crash-dump dialog before Civ4 exits, distinguishing a visible failure from an ordinary live process. [`SASRuntimeDialogObserver.cs`](/Assets/SASRuntimeDialogObserver.cs) supplies the event-driven window listener, compiled by PowerShell on startup rather than by the game DLL build.
 
-[`SASRuntimeSourceObserver.ps1`](/Assets/SASRuntimeSourceObserver.ps1) records mod-source/configuration disk-change bursts separately, with observed times, paths and final file fingerprints. It requires both runtime diagnostics and `SAS_RUNTIME_SOURCE_WATCH_ON=1`; source watching is off by default and does not make live edits safe. Windows filesystem notifications avoid repeated tree scans; enabled observation still adds an external process and event/hash work. Both observers use [`SASRuntimeObserverEnvironment.ps1`](/Assets/SASRuntimeObserverEnvironment.ps1) to record their actual host versions instead of relying on a fixed documentation table.
+[`SASRuntimeSourceObserver.ps1`](/Assets/SASRuntimeSourceObserver.ps1) records mod-source/configuration disk-change bursts separately, with observed times, paths and final file fingerprints. It requires both runtime diagnostics and `SAS_RUNTIME_SOURCE_WATCH_ON=1`; source watching is off by default and does not make live edits safe. Windows filesystem notifications avoid repeated tree scans; enabled observation still adds an external process and event/hash work. The external observers use [`SASRuntimeObserverEnvironment.ps1`](/Assets/SASRuntimeObserverEnvironment.ps1) to record their actual host versions instead of relying on a fixed documentation table.
+
+Optional screenshot observation uses [`SASRuntimeScreenshotObserver.ps1`](/Assets/SASRuntimeScreenshotObserver.ps1) to record files appearing in Civ4's `ScreenShots` folder, with file metadata and available Runtime context.
+
+It records observed files rather than assuming a screenshot keypress succeeded; see the [Logging Inventory's screenshot section](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#screenshot-file-observation) for controls and sample output.
 
 **Startup note:** around the watcher's introduction, the user noticed a brief flicker/pause after the XML loading bar disappeared and before the main menu appeared. Watcher startup/C# compilation could contribute, but the cause was not established.
 

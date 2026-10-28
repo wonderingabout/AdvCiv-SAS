@@ -3,6 +3,8 @@ name: Checks - Repository
 on:
   push:
   pull_request:
+    # <!-- custom: Explicit squash-intent label changes must rerun the compiled Runtime rebuild policy, matching the diagnostics workflow. (GPT-6.1-Sol) -->
+    types: [opened, synchronize, reopened, labeled, unlabeled]
     # <!-- custom: Ignore the long-lived reference compare from main to the mirrored base AdvCiv 1.14 branch.
     # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it. (ChatGPT-5.5) -->
     branches-ignore:
@@ -43,6 +45,11 @@ jobs:
 
       - name: DLL rebuild for structural XML define changes
         run: python .github/workflows/build/repository/dll_define_changes.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
+      - name: DLL rebuild for compiled Runtime revisions
+        run: python .github/workflows/build/repository/dll_runtime_revision.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
         env:
           EVENT_NAME: ${{ github.event_name }}
 

@@ -10,10 +10,23 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## History
 
-### Revision 13 - SAS practical 6695
+### Revision 14 - SAS practical 6696
 
 - **Date:** 2026-10-28
 - **Git commit:** pending
+- **Change:** Observe confirmed screenshot files externally and correlate them with the matching Runtime process/session context without treating a Print Screen request as proof that capture succeeded.
+  - With `SAS_RUNTIME_STATUS_ON=1`, the independent default-off `SAS_RUNTIME_SCREENSHOT_WATCH_ON=1` launches adjacent `Assets/SASRuntimeScreenshotObserver.ps1` through the already attached exit observer after exact process/start identity is confirmed; no additional game input, screenshot request or directory polling is introduced.
+  - The watcher derives Civ4's native user `ScreenShots` directory from the target executable folder and Documents/My Games convention used by the engine diagnostics. It ignores pre-existing files and records only future `.jpg`/`.jpeg`/`.png`/`.bmp` create/change/rename bursts after short per-file coalescing.
+  - `SASRuntimeScreenshotWatch_<process-start UTC>_<PID>.json` reports observer state/counters, while `SASRuntimeScreenshots_<process-start UTC>_<PID>.jsonl` stores confirmed filename, observation/file times, size, width/height with explicit reader/format availability, and bounded SHA-256 evidence. Image bytes are never copied into diagnostic output.
+  - Each screenshot row snapshots the matching `SASRuntimeStatus.json` context available at the first observed file event: session/game turn/active player/activity plus available player-turn, WorldBuilder, Civilopedia and popup context.
+    - The row also retains status age and explicitly states that the writer/capture request/exact screen are not observed, so stale status or an external capture tool cannot be mistaken for a proven in-game Print Screen completion.
+  - The exit receipt records screenshot-observer launch PID/error and expected companion filenames but does not duplicate screenshot rows. `LAUNCHED` proves process creation only; the independent watcher state distinguishes WATCHING, missing screenshot directory, I/O failure and target exit.
+    - Runtime off launches no observer; screenshot off launches no screenshot child and writes no screenshot files while ordinary exit observation remains available.
+
+### Revision 13 - SAS practical 6695
+
+- **Date:** 2026-10-28
+- **Git commit:** `12251f88fda55a5994d04bc20d88011376228bd2`
 - **Change:** Add native sequential player-turn timing for external Runtime diagnostics without turning every player boundary into a disk-write event.
   - `CvPlayer::setTurnActive` supplies authoritative activation, main active interval and ending boundaries. Current JSON distinguishes the actually processed player/team/civilization and `AI_MOVES`, `HUMAN_INPUT` or `ENDING` phase from the existing `activePlayer`, which remains UI ownership.
   - Every measured player is retained in memory; the authoritative completed-game-turn boundary appends one `player_turn_summary` JSONL row containing fast and slow players plus activation/main/ending durations. Missing/interrupted boundaries, including a load that resumes after activation, set `complete=0` rather than fabricating timing.

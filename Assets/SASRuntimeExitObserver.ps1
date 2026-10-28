@@ -10,7 +10,8 @@ param(
     [Parameter(Mandatory=$true)][string]$StatusPath,
     [Parameter(Mandatory=$true)][int]$TargetProcessId,
     [Parameter(Mandatory=$true)][string]$ProcessStartUtc,
-    [Parameter(Mandatory=$true)][int]$RecorderRevision
+    [Parameter(Mandatory=$true)][int]$RecorderRevision,
+    [int]$ScreenshotWatchOn = 0
 )
 
 $ErrorActionPreference = 'Stop'
@@ -68,6 +69,40 @@ try {
         environment = Get-SASRuntimeObserverEnvironment
         observerState = 'WAITING'
         attachedUtc = [DateTime]::UtcNow.ToString('yyyyMMddTHHmmss.fffZ')
+    }
+    Write-SASRuntimeExitEvidence $evidence
+    # <!-- custom: Confirmed screenshot files need external filesystem observation too: a Print Screen request is not proof of a saved image, and external capture tools can bypass game input.
+    # Launch the adjacent screenshot observer only after this exact process handle/start identity is confirmed. It writes its own bounded state/history files; this parent records launch/expected filenames but does not duplicate screenshot rows. (ChatGPT-5.6-Sol) -->
+    $evidence.screenshotObserverState = 'DISABLED'
+    $evidence.screenshotObserverProcessId = 0
+    $evidence.screenshotObserverError = ''
+    $evidence.screenshotObserverStateFilename = 'SASRuntimeScreenshotWatch_' + $ProcessStartUtc + '_' + $TargetProcessId + '.json'
+    $evidence.screenshotObserverHistoryFilename = 'SASRuntimeScreenshots_' + $ProcessStartUtc + '_' + $TargetProcessId + '.jsonl'
+    # <!-- custom: The native launcher passes its cached XML opt-in. Keep screenshot-off free of child launch/path checks and screenshot-file I/O; the ordinary exit observer remains independent. (GPT-6.1-Sol) -->
+    if ($ScreenshotWatchOn -gt 0) {
+        $evidence.screenshotObserverState = 'STARTING'
+        try {
+            $screenshotScript = Join-Path $PSScriptRoot 'SASRuntimeScreenshotObserver.ps1'
+            if (-not [System.IO.File]::Exists($screenshotScript)) { throw 'SASRuntimeScreenshotObserver.ps1 is missing' }
+            $powerShellPath = [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
+            $quotedScript = '"' + $screenshotScript + '"'
+            $quotedStatus = '"' + $StatusPath + '"'
+            $arguments = '-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File ' + $quotedScript + ' -StatusPath ' + $quotedStatus + ' -TargetProcessId ' + $TargetProcessId + ' -ProcessStartUtc ' + $ProcessStartUtc + ' -RecorderRevision ' + $RecorderRevision
+            $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+            $startInfo.FileName = $powerShellPath
+            $startInfo.Arguments = $arguments
+            $startInfo.UseShellExecute = $false
+            $startInfo.CreateNoWindow = $true
+            $startInfo.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
+            $screenshotProcess = [System.Diagnostics.Process]::Start($startInfo)
+            if ($null -eq $screenshotProcess) { throw 'Screenshot observer launch returned no process' }
+            $evidence.screenshotObserverProcessId = $screenshotProcess.Id
+            $evidence.screenshotObserverState = 'LAUNCHED'
+            $screenshotProcess.Dispose()
+        } catch {
+            $evidence.screenshotObserverState = 'UNAVAILABLE'
+            $evidence.screenshotObserverError = $_.Exception.Message
+        }
     }
     Write-SASRuntimeExitEvidence $evidence
     # <!-- custom: A fatal runtime dialog can keep the process alive indefinitely, so process exit alone cannot explain a blocked game.

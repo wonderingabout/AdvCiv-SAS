@@ -212,6 +212,8 @@ LIGHT_SOURCE_EXACT_FILE_EXCEPTIONS = (
     "Assets/SASRuntimeDialogObserver.cs",
     # <!-- custom: Runtime 12's default-off live mod-input watcher is another shipped root-Assets companion outside ordinary source folders; include it for review/provenance parity. (ChatGPT-5.6-Sol) -->
     "Assets/SASRuntimeSourceObserver.ps1",
+    # <!-- custom: Runtime 14's confirmed screenshot-file observer is launched by the exit observer but writes independent evidence; ZIP-only reviewers need its implementation too. (ChatGPT-5.6-Sol) -->
+    "Assets/SASRuntimeScreenshotObserver.ps1",
     # <!-- custom: Both observers load this shared host-version metadata definition at startup. (GPT-6.1-Sol) -->
     "Assets/SASRuntimeObserverEnvironment.ps1",
 )
@@ -2446,8 +2448,8 @@ def build_archive(args) -> int:
     local_test_count = sum(1 for path in files if path.relative_to(repo_root).parts[0] == "tests")
     local_test_summary = (f"Local tests: {local_test_count} source/doc file(s) included from tests/; see tests/README.md for platform/toolchain requirements." if local_test_count else "Local tests: none selected.")
     # <!-- custom: Disclose the shipped runtime companion to ZIP-only reviewers in both console output and snapshot metadata. (GPT-6.1-Sol) -->
-    observer_files = ("Assets/SASRuntimeExitObserver.ps1", "Assets/SASRuntimeDialogObserver.cs", "Assets/SASRuntimeSourceObserver.ps1", "Assets/SASRuntimeObserverEnvironment.ps1")
-    observer_summary = "Runtime observers: Assets/SASRuntimeExitObserver.ps1, Assets/SASRuntimeDialogObserver.cs, Assets/SASRuntimeSourceObserver.ps1 and Assets/SASRuntimeObserverEnvironment.ps1 included (hidden/default-off Windows companions)." if all(repo_root / name in files for name in observer_files) else "Runtime observers: one or more shipped companions not selected."
+    observer_files = ("Assets/SASRuntimeExitObserver.ps1", "Assets/SASRuntimeDialogObserver.cs", "Assets/SASRuntimeSourceObserver.ps1", "Assets/SASRuntimeScreenshotObserver.ps1", "Assets/SASRuntimeObserverEnvironment.ps1")
+    observer_summary = "Runtime observers: Assets/SASRuntimeExitObserver.ps1, Assets/SASRuntimeDialogObserver.cs, Assets/SASRuntimeSourceObserver.ps1, Assets/SASRuntimeScreenshotObserver.ps1 and Assets/SASRuntimeObserverEnvironment.ps1 included (hidden/default-off Windows companions)." if all(repo_root / name in files for name in observer_files) else "Runtime observers: one or more shipped companions not selected."
     # <!-- custom: The packaging interpreter can differ from both embedded Civ4 Python and the bundled syntax-check runtime; preserve its actual version in console/archive metadata. (GPT-6.1-Sol) -->
     packaging_python = f"Packaging Python: {sys.version.replace(chr(10), ' ').replace(chr(13), ' ')} ({sys.executable})"
     archive_contents_and_context = [
