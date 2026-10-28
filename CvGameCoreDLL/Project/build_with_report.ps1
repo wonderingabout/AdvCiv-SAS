@@ -256,7 +256,8 @@ function Get-BuildInputSnapshot {
 }
 
 # <!-- custom: A changed timestamp alone does not mean changed content; SHA-256 identifies exact bytes, including whitespace/line-ending edits.
-# The initial manifest already holds the old measurements; emit final measurements only for changed/added/removed files to avoid repeating every unchanged file. (GPT-6.1-Sol) -->
+# Timestamp-only entries retain the path and both observed UTC values; repeating identical sizes/hashes inflated reports after checkouts touched many files.
+# Keep full before/after states for byte changes, including LF/CRLF differences; the initial manifest retains exact input hashes. (GPT-6.1-Sol) -->
 function Get-BuildInputReport($Before, $After, [switch]$IncludeBefore) {
     $paths = @(@($Before.Keys) + @($After.Keys) | Sort-Object -Unique)
     foreach ($path in $paths) {
@@ -267,7 +268,10 @@ function Get-BuildInputReport($Before, $After, [switch]$IncludeBefore) {
         elseif ($null -eq $new) { $change = 'REMOVED' }
         elseif ($old.sha256 -ne $new.sha256) { $change = 'CONTENT_CHANGED' }
         elseif ($old.modifiedUtc -ne $new.modifiedUtc) { $change = 'TIMESTAMP_ONLY' }
-        if ($change -ne 'UNCHANGED') {
+        if ($change -eq 'TIMESTAMP_ONLY') {
+            [ordered]@{ path = $path; change = $change; beforeModifiedUtc = $old.modifiedUtc; afterModifiedUtc = $new.modifiedUtc }
+        }
+        elseif ($change -ne 'UNCHANGED') {
             $entry = [ordered]@{ path = $path; change = $change; after = $new }
             if ($IncludeBefore) { $entry['before'] = $old }
             $entry
@@ -281,7 +285,8 @@ function Get-PreviousBuildInputs([string]$Path) {
     $result = @{ available = $false; reason = 'NO_PREVIOUS_REPORT' }
     if (-not (Test-Path -LiteralPath $Path)) { return $result }
     try {
-        $previous = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
+        # <!-- custom: JSON is UTF-8 even without a BOM; Windows PowerShell's default ANSI decoding otherwise corrupts non-ASCII paths/tool names during reconstruction. (GPT-6.1-Sol) -->
+        $previous = Get-Content -LiteralPath $Path -Raw -Encoding UTF8 | ConvertFrom-Json
         if ($previous.request -eq 'CLEAN' -or $previous.status -notin @('SUCCEEDED', 'FAILED') -or
             $null -eq $previous.buildInputsBefore -or $null -eq $previous.buildInputSummary -or $previous.buildInputsAfterError) {
             $result.reason = 'NO_COMPLETED_BUILD_SOURCE_SNAPSHOT'
@@ -293,6 +298,13 @@ function Get-PreviousBuildInputs([string]$Path) {
         }
         foreach ($entry in $previous.buildInputChanges) {
             if ($entry.change -eq 'REMOVED') { $snapshot.Remove($entry.path) }
+            # <!-- custom: Compact timestamp entries update the existing manifest state instead of replacing it with a missing `after` object.
+            # Verify the prior timestamp so malformed evidence cannot silently invent a state; legacy reports retain their full `after` records and follow the original branch. (GPT-6.1-Sol) -->
+            elseif ($entry.change -eq 'TIMESTAMP_ONLY' -and $null -ne $entry.afterModifiedUtc) {
+                if (-not $snapshot.ContainsKey($entry.path) -or $snapshot[$entry.path].modifiedUtc -ne $entry.beforeModifiedUtc -or
+                    [string]::IsNullOrEmpty([string]$entry.afterModifiedUtc)) { throw 'Invalid compact timestamp-only build input.' }
+                $snapshot[$entry.path].modifiedUtc = $entry.afterModifiedUtc
+            }
             else { $snapshot[$entry.path] = $entry.after }
         }
         if ($snapshot.Count -ne $previous.buildInputSummary.afterCount) { throw 'Previous source snapshot count mismatch.' }

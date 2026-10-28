@@ -51,6 +51,8 @@ static int const NO_PLAYER = -1;
 static int const NO_TEAM = -1;
 static int const NO_CIVILIZATION = -1;
 enum MultiplayerOptionTypes { MPOPTION_SIMULTANEOUS_TURNS = 0 };
+// <!-- custom: Runtime15 accepted-end-turn context needs only the three engine controls it recognizes; keep the isolated fixture enum minimal. (ChatGPT-5.6-Sol) -->
+enum ControlTypes { NO_CONTROL = -1, CONTROL_ENDTURN = 0, CONTROL_ENDTURN_ALT, CONTROL_FORCEENDTURN };
 // <!-- custom: Runtime popup observations use only object identity; a zero-behavior fixture object is sufficient to exercise focus/response/cancellation state without importing Civ4 UI implementation. (ChatGPT-5.6-Sol) -->
 class CvPopup {};
 struct TestPlayer
@@ -71,6 +73,17 @@ struct TestPlayer
 typedef TestPlayer CvPlayer;
 static TestPlayer g_runtimePlayers[4];
 #define GET_PLAYER(PLAYER) g_runtimePlayers[(int)(PLAYER)]
+// <!-- custom: Production readiness scanning is private to SASRuntimeStatus.cpp and reads CvSelectionGroup state; this runtime-I/O fixture supplies deterministic compact counts so the actual Runtime formatter/lifecycle compiles without gameplay containers. (ChatGPT-5.6-Sol) -->
+struct SASRuntimeTurnReadinessSnapshot
+{
+	SASRuntimeTurnReadinessSnapshot() : iGroups(2), iUnits(3), iOrderableGroups(1), iOrderableUnits(1), iUIReadyGroups(1), iUIReadyUnits(1), iBusyGroups(0), iBusyUnits(0), iAutomatedGroups(1), iAutomatedUnits(2), iAutoReadyGroups(1), iAutoReadyUnits(2), iMissionGroups(1), iMissionUnits(2), iWaitingGroups(1), iWaitingUnits(1), iHoldGroups(1), iHoldUnits(1), iSleepGroups(0), iSleepUnits(0) {}
+	int iGroups, iUnits, iOrderableGroups, iOrderableUnits, iUIReadyGroups, iUIReadyUnits, iBusyGroups, iBusyUnits, iAutomatedGroups, iAutomatedUnits, iAutoReadyGroups, iAutoReadyUnits, iMissionGroups, iMissionUnits, iWaitingGroups, iWaitingUnits, iHoldGroups, iHoldUnits, iSleepGroups, iSleepUnits;
+};
+static void getSASRuntimeTurnReadinessSnapshot(PlayerTypes, bool bUIAnyMove, SASRuntimeTurnReadinessSnapshot& kSnapshot)
+{
+	kSnapshot = SASRuntimeTurnReadinessSnapshot();
+	if (!bUIAnyMove) { kSnapshot.iUIReadyGroups = 0; kSnapshot.iUIReadyUnits = 0; }
+}
 struct TestCivilizationInfo { char const* getType() const { return "CIVILIZATION_FIXTURE"; } };
 enum GameStateTypes { GAMESTATE_ON = 0, GAMESTATE_OVER, GAMESTATE_EXTENDED };
 static int g_worldBuilderModeReads = 0;
@@ -850,6 +863,55 @@ int main(int argc, char** argv)
 		resetSASRuntimePlayerTurnTiming();
 		updateSASRuntimeStatusPlayerTurnEnded(0, true);
 		require(g_iSASRuntimePlayerTurnSummaryTurn == 12 && !g_bSASRuntimePlayerTurnSummaryBoundariesComplete, "mid-turn end without start marks the summary incomplete");
+		resetSASRuntimePlayerTurnTiming();
+
+		// <!-- custom: Exercise revocation, repeated boundaries and a completion without a local control request.
+		// Ready time must exclude both the not-ready gap and turn-ending work, and clearing a player must discard its counters. (GPT-6.1-Sol) -->
+		g_runtimePlayers[0].human = true;
+		g_runtimeClock = 100;
+		updateSASRuntimeStatusPlayerTurnStarted(0);
+		updateSASRuntimeStatusPlayerTurnMain(0);
+		g_runtimeClock = 200;
+		updateSASRuntimeStatusEndTurnReady(0, true);
+		g_runtimeClock = 300;
+		updateSASRuntimeStatusEndTurnReady(0, true);
+		g_runtimeClock = 400;
+		updateSASRuntimeStatusEndTurnReady(0, false);
+		g_runtimeClock = 500;
+		updateSASRuntimeStatusEndTurnReady(0, false);
+		updateSASRuntimeStatusEndTurnReady(0, true);
+		g_runtimeClock = 600;
+		updateSASRuntimeStatusPlayerTurnEnding(0);
+		require(!g_bSASRuntimeEndTurnReadyUI && g_uiSASRuntimeEndTurnReadyMilliseconds == 300, "revocation and ending close only actual readiness intervals");
+		g_runtimeClock = 900;
+		updateSASRuntimeStatusPlayerTurnEnded(0, true);
+		require(g_aSASRuntimePlayerTurnRecords.back().uiEndTurnReadyMilliseconds == 300, "turn cleanup is excluded from ready waiting");
+		resetSASRuntimePlayerTurnTiming();
+		require(!g_bSASRuntimeEndTurnReadyUI && g_uiSASRuntimeEndTurnReadyMilliseconds == 0 && g_uiSASRuntimeSkipOrdersApplied == 0, "player reset discards readiness and Skip counters");
+
+		// <!-- custom: Runtime15 readiness uses event boundaries rather than frame polling: human ready time is separate from HUMAN_INPUT, Skip counts actual applied orders, and accepted FORCE_END_TURN preserves compact pre-send context. (ChatGPT-5.6-Sol) -->
+		g_runtimePlayers[0].human = true;
+		g_runtimeClock = 100;
+		updateSASRuntimeStatusPlayerTurnStarted(0);
+		g_runtimeClock = 150;
+		updateSASRuntimeStatusPlayerTurnMain(0);
+		g_runtimeClock = 300;
+		updateSASRuntimeStatusEndTurnReady(0, true);
+		g_runtimeClock = 500;
+		updateSASRuntimeStatusMissionSkip(0);
+		updateSASRuntimeStatusMissionSkip(0);
+		g_runtimeClock = 700;
+		updateSASRuntimeStatusEndTurnRequest(0, CONTROL_FORCEENDTURN, true, true, true, true, true, true);
+		require(g_bSASRuntimeEndTurnRequestObserved && g_uiSASRuntimeEndTurnRequestReadyMilliseconds == 400 && g_uiSASRuntimeEndTurnRequestSkipOrdersApplied == 2, "accepted end-turn request captures ready interval and applied Skip count");
+		require(!g_bSASRuntimeEndTurnReadyUI && g_uiSASRuntimeEndTurnReadyMilliseconds == 400, "accepted end-turn request closes the UI-ready wait interval");
+		require(g_kSASRuntimeEndTurnRequestReadiness.iOrderableGroups == 1 && g_kSASRuntimeEndTurnRequestReadiness.iAutomatedGroups == 1, "accepted end-turn request captures compact group readiness");
+		require(CopyFileW((root + L"\\Logs\\SASRuntimeStatus.json").c_str(), (std::wstring(temporary) + L"\\runtime_end_turn_request.json").c_str(), FALSE) != FALSE, "retain accepted end-turn request snapshot");
+		g_runtimeClock = 750;
+		updateSASRuntimeStatusPlayerTurnEnding(0);
+		g_runtimeClock = 800;
+		updateSASRuntimeStatusPlayerTurnEnded(0, true);
+		require(!g_aSASRuntimePlayerTurnRecords.empty() && g_aSASRuntimePlayerTurnRecords.back().uiEndTurnReadyMilliseconds == 400 && g_aSASRuntimePlayerTurnRecords.back().uiSkipOrdersApplied == 2, "completed human turn retains accepted-request UI-ready time and Skip count");
+		g_runtimePlayers[0].human = false;
 		resetSASRuntimePlayerTurnTiming();
 
 		unsigned int const beforeFastSerial = g_uiSASRuntimeStatusSerial;

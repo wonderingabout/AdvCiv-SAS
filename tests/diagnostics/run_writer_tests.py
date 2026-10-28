@@ -89,6 +89,7 @@ def main():
         # <!-- custom: Popup names belong to shared game utilities, so include that production helper explicitly in the isolated runtime fixture after moving it out of the recorder. (GPT-6.1-Sol) -->
         popup_name_start = source.index("char const* getSASButtonPopupTypeName(")
         popup_name_end = source.index("\n}", popup_name_start) + 2
+        # <!-- custom: Runtime owns the real group scanner above this marker; the I/O fixture substitutes deterministic counts because it tests timing, lifecycle and JSON rather than gameplay containers. (GPT-6.1-Sol) -->
         status_start = status.index("// <!-- custom: Finite process/game/session states")
         clock_start = source.index("// <!-- custom: SYSTEMTIME is the common")
         # <!-- custom: Stop after the UTC getter itself; the former comment-to-comment range also captured the later legacy-log bridge and VC2003 failed with C2039 because RuntimeTestDLL has no logMsg.
@@ -149,6 +150,12 @@ def main():
         subprocess.run([str(executable), "--runtime-status-output-failure"], cwd=temporary, env=environment, check=True)
         subprocess.run([str(executable), "--runtime-session-metadata-retry"], cwd=temporary, env=environment, check=True)
         subprocess.run([str(executable), "--runtime-history-uncertain-migration"], cwd=temporary, env=environment, check=True)
+        # <!-- custom: Runtime15 adds an accepted human end-turn snapshot without replacing Runtime13 timing: readiness is UI-message time, Skip is counted at MISSION_SKIP, and physical key/widget identity remains unknown. (ChatGPT-5.6-Sol) -->
+        end_turn_request = json.loads((temporary / "runtime_end_turn_request.json").read_text(encoding="utf-8"))
+        assert end_turn_request["updateReason"] == "END_TURN_REQUEST_ACCEPTED" and end_turn_request["endTurnRequestObserved"] == 1
+        assert end_turn_request["endTurnRequestControl"] == "FORCE_END_TURN" and end_turn_request["endTurnRequestUiReady"] == 1
+        assert end_turn_request["endTurnRequestReadyUiMilliseconds"] == 400 and end_turn_request["playerTurnSkipOrdersApplied"] == 2
+        assert end_turn_request["endTurnRequestOrderableGroups"] == 1 and end_turn_request["endTurnRequestOrderableUnits"] == 1
         # <!-- custom: Runtime 13 player-turn fixture proves the live threshold/refresh/clear contract and the one-row completed-turn summary, including a fast AI that never caused a status write. (ChatGPT-5.6-Sol) -->
         player_progress = json.loads((temporary / "runtime_player_turn_progress.json").read_text(encoding="utf-8"))
         assert player_progress["playerTurnTimingMode"] == "SEQUENTIAL"
@@ -163,7 +170,16 @@ def main():
         player_summaries = [row for row in player_records if row["record"] == "player_turn_summary"]
         assert len(player_summaries) == 1 and player_summaries[0]["gameTurn"] == 12 and player_summaries[0]["complete"] == 1
         assert [(row["player"], row["totalMilliseconds"], row["activatingMilliseconds"], row["mainMilliseconds"], row["endingMilliseconds"], row["completed"]) for row in player_summaries[0]["players"]] == [(0, 600, 100, 400, 100, 1), (1, 6500, 100, 6200, 200, 1)]
+        assert all("readyUiMilliseconds" in row and "skipOrdersApplied" in row and "endOrderableGroups" in row for row in player_summaries[0]["players"])
+        end_contexts = [row for row in player_records if row["record"] == "end_turn_context"]
+        assert len(end_contexts) == 1
+        end_context = end_contexts[0]
+        assert end_context["control"] == "FORCE_END_TURN" and end_context["physicalInput"] == "NOT_OBSERVED"
+        assert end_context["readyUiMilliseconds"] == 400 and end_context["skipOrdersAppliedThisTurn"] == 2
+        assert end_context["orderableGroups"] == 1 and end_context["automatedGroups"] == 1 and end_context["missionGroups"] == 1 and end_context["holdGroups"] == 1
         player_transitions = [row for row in player_records if row["record"] == "transition"]
+        assert any(row["reason"] == "END_TURN_READY" for row in player_transitions)
+        assert any(row["reason"] == "END_TURN_REQUEST_ACCEPTED" for row in player_transitions)
         assert not any(row["reason"] in ("PLAYER_TURN_PROGRESS", "PLAYER_TURN_ENDED") for row in player_transitions)
 
         # <!-- custom: Ready-session context must retain the original turn/player after a failed write, including recovery after gameplay has reset; the current-state JSON must still report the later live values. (GPT-6.1-Sol) -->

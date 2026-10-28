@@ -864,6 +864,8 @@ void CvSelectionGroup::startMission()
 
 		case MISSION_SKIP:
 			setActivityType(ACTIVITY_HOLD);
+			// <!-- custom: Count the actual applied Skip order for compact Runtime turn context; HOLD alone is ambiguous because other gameplay/AI paths also create it. (ChatGPT-5.6-Sol) -->
+			if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusMissionSkip(getOwner());
 			bDelete = true;
 			break;
 

@@ -6,7 +6,80 @@
 // <!-- custom: Keep this publisher separate from the BBAI/SASGameRecord writer so its standalone I/O fixture has explicit gameplay dependencies. (GPT-6.1-Sol) -->
 #include "CvGame.h" // <!-- custom: Game/autoplay/save-checkpoint getters require the complete CvGame type, not a forward declaration. (GPT-6.1-Sol) -->
 #include "CvPlayerAI.h" // <!-- custom: GET_PLAYER returns CvPlayerAI; its complete type provides the active player civilization for UI context, distinct from the previewed entry. (GPT-6.1-Sol) -->
+#include "CvSelectionGroupAI.h" // <!-- custom: The private readiness scan inspects selection groups; the iterator returns CvSelectionGroupAI, requiring its complete type. (GPT-6.1-Sol) -->
+#include "CvUnit.h" // <!-- custom: Count individually movable units inside qualifying groups rather than assuming every group member can move. (GPT-6.1-Sol) -->
 #include "CvMap.h" // <!-- custom: Map dimension/world-size getters require the complete CvMap type. (GPT-6.1-Sol) -->
+
+// <!-- custom: Readiness counts and scanning are private Runtime aggregation, not a shared gameplay utility.
+// Keep them here because only this recorder consumes them; public hooks in CvGameCoreUtils.h let gameplay report existing boundaries without exposing this data layout.
+// The enabled Runtime call chain gates every scan, so disabled diagnostics do not traverse groups or units. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+struct SASRuntimeTurnReadinessSnapshot
+{
+	SASRuntimeTurnReadinessSnapshot();
+	int iGroups, iUnits;
+	int iOrderableGroups, iOrderableUnits;
+	int iUIReadyGroups, iUIReadyUnits;
+	int iBusyGroups, iBusyUnits;
+	int iAutomatedGroups, iAutomatedUnits;
+	int iAutoReadyGroups, iAutoReadyUnits;
+	int iMissionGroups, iMissionUnits;
+	int iWaitingGroups, iWaitingUnits;
+	int iHoldGroups, iHoldUnits;
+	int iSleepGroups, iSleepUnits;
+};
+SASRuntimeTurnReadinessSnapshot::SASRuntimeTurnReadinessSnapshot()
+: iGroups(0), iUnits(0), iOrderableGroups(0), iOrderableUnits(0),
+  iUIReadyGroups(0), iUIReadyUnits(0), iBusyGroups(0), iBusyUnits(0),
+  iAutomatedGroups(0), iAutomatedUnits(0), iAutoReadyGroups(0), iAutoReadyUnits(0),
+  iMissionGroups(0), iMissionUnits(0), iWaitingGroups(0), iWaitingUnits(0),
+  iHoldGroups(0), iHoldUnits(0), iSleepGroups(0), iSleepUnits(0)
+{}
+
+// <!-- custom: Runtime readiness scans only at accepted end-turn / player-turn-end boundaries, never per frame.
+// `bUIAnyMove` reproduces updateTestEndTurn's selected-unit/cycling rule for the UI-specific ready count; the logical orderable count always uses canAnyMove so partially movable groups are not hidden.
+// HOLD and SLEEP are descriptive current activities only.
+// Explicit Skip is counted separately at the actual MISSION_SKIP application point because HOLD has other producers. (ChatGPT-5.6-Sol) -->
+static void getSASRuntimeTurnReadinessSnapshot(PlayerTypes ePlayer, bool bUIAnyMove, SASRuntimeTurnReadinessSnapshot& kSnapshot)
+{
+	kSnapshot = SASRuntimeTurnReadinessSnapshot();
+	if (ePlayer == NO_PLAYER)
+		return;
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	FOR_EACH_GROUP(pGroup, kPlayer)
+	{
+		int const iUnits = pGroup->getNumUnits();
+		kSnapshot.iGroups++;
+		kSnapshot.iUnits += iUnits;
+		bool const bAutomated = pGroup->isAutomated();
+		// <!-- custom: Skip orderability work for automated groups; the common any-move UI rule equals logical orderability, so reuse that result rather than traverse the group twice. (GPT-6.1-Sol) -->
+		bool const bOrderable = !bAutomated && pGroup->readyToMove(true);
+		bool const bUIReady = bUIAnyMove ? bOrderable : (!bAutomated && pGroup->readyToMove(false));
+		bool const bBusy = pGroup->isBusy();
+		bool const bAutoReady = pGroup->readyToAuto();
+		bool const bMission = (pGroup->getLengthMissionQueue() > 0);
+		bool const bWaiting = pGroup->isWaiting();
+		ActivityTypes const eActivity = pGroup->getActivityType();
+		int iMovableUnits = 0;
+		if (bOrderable || bUIReady)
+		{
+			FOR_EACH_UNIT_IN(pUnit, *pGroup)
+			{
+				if (pUnit->canMove()) iMovableUnits++;
+			}
+		}
+		// <!-- custom: A group can satisfy canAnyMove with only part of a mixed-movement stack ready.
+		// Count actual movable units for orderability rather than labelling every member of that qualifying group orderable. (ChatGPT-5.6-Sol) -->
+		if (bOrderable) { kSnapshot.iOrderableGroups++; kSnapshot.iOrderableUnits += iMovableUnits; }
+		if (bUIReady) { kSnapshot.iUIReadyGroups++; kSnapshot.iUIReadyUnits += iMovableUnits; }
+		if (bBusy) { kSnapshot.iBusyGroups++; kSnapshot.iBusyUnits += iUnits; }
+		if (bAutomated) { kSnapshot.iAutomatedGroups++; kSnapshot.iAutomatedUnits += iUnits; }
+		if (bAutoReady) { kSnapshot.iAutoReadyGroups++; kSnapshot.iAutoReadyUnits += iUnits; }
+		if (bMission) { kSnapshot.iMissionGroups++; kSnapshot.iMissionUnits += iUnits; }
+		if (bWaiting) { kSnapshot.iWaitingGroups++; kSnapshot.iWaitingUnits += iUnits; }
+		if (eActivity == ACTIVITY_HOLD) { kSnapshot.iHoldGroups++; kSnapshot.iHoldUnits += iUnits; }
+		if (eActivity == ACTIVITY_SLEEP) { kSnapshot.iSleepGroups++; kSnapshot.iSleepUnits += iUnits; }
+	}
+}
 
 // <!-- custom: Finite process/game/session states use enums rather than heap-backed strings; the same local rows generate their immutable JSON names.
 // Update-reason rows are shared with the public enum so callers cannot invent misspelled reasons; serialize names only when publishing JSON.
@@ -15,7 +88,7 @@
 // Compile the label into the publisher: an edited XML value must not make an older loaded DLL report a newer implementation; this counter is independent of SASGameRecord and binary-save versions. (GPT-6.1-Sol) -->
 enum SASRuntimeRecorderRevision
 {
-	SAS_RUNTIME_REVISION = 14
+	SAS_RUNTIME_REVISION = 15
 };
 
 #define SAS_RUNTIME_PROCESS_STATES(DO) DO(RUNNING) DO(EXITED_CLEANLY) DO(EXITED)
@@ -176,6 +249,9 @@ struct SASRuntimePlayerTurnRecord
 	uint uiActivatingMilliseconds;
 	uint uiMainMilliseconds;
 	uint uiEndingMilliseconds;
+	uint uiEndTurnReadyMilliseconds;
+	uint uiSkipOrdersApplied;
+	SASRuntimeTurnReadinessSnapshot kEndReadiness;
 	bool bCompleted;
 };
 
@@ -198,6 +274,26 @@ static bool g_bSASRuntimePlayerTurnContextPublished = false;
 static int g_iSASRuntimePlayerTurnSummaryTurn = -1;
 static bool g_bSASRuntimePlayerTurnSummaryBoundariesComplete = true;
 static std::vector<SASRuntimePlayerTurnRecord> g_aSASRuntimePlayerTurnRecords;
+// <!-- custom: Human end-turn readiness is a separate event-driven interval inside HUMAN_INPUT, not a replacement for player-turn wall time.
+// Skip orders count actual applied MISSION_SKIP operations; request context is captured once before sendTurnComplete and never guesses the physical key/button source. (ChatGPT-5.6-Sol) -->
+static bool g_bSASRuntimeEndTurnReadyUI = false;
+static CvString g_szSASRuntimeEndTurnReadySinceUtc = "-";
+static uint g_uiSASRuntimeEndTurnReadyStartedMilliseconds = 0;
+static uint g_uiSASRuntimeEndTurnReadyMilliseconds = 0;
+static uint g_uiSASRuntimeSkipOrdersApplied = 0;
+static bool g_bSASRuntimeEndTurnRequestObserved = false;
+static CvString g_szSASRuntimeEndTurnRequestRecordedUtc = "-";
+static ControlTypes g_eSASRuntimeEndTurnRequestControl = NO_CONTROL;
+static bool g_bSASRuntimeEndTurnRequestUIReady = false;
+static uint g_uiSASRuntimeEndTurnRequestReadyMilliseconds = 0;
+static uint g_uiSASRuntimeEndTurnRequestSkipOrdersApplied = 0;
+static SASRuntimeTurnReadinessSnapshot g_kSASRuntimeEndTurnRequestReadiness;
+static bool g_bSASRuntimeEndTurnRequestEndTurnMessage = false;
+static bool g_bSASRuntimeEndTurnRequestUIAnyMove = false;
+static bool g_bSASRuntimeEndTurnRequestSelectedUnit = false;
+static bool g_bSASRuntimeEndTurnRequestForcePopup = false;
+static bool g_bSASRuntimeEndTurnRequestHasMovedUnit = false;
+static bool g_bSASRuntimeEndTurnRequestWaitOption = false;
 
 // <!-- custom: Keep the external-agent runtime status independent from the structured game-record and AI-diagnostic enablement.
 // It is default-off and primarily boundary-driven; the fixed JSON is current state, with an optional throttled slow-player progress refresh and completed evidence retained in the companion JSONL.
@@ -341,6 +437,46 @@ static bool isSASRuntimeAIControlledPlayerTurn()
 		g_eSASRuntimePlayerTurnControl == SAS_RUNTIME_PLAYER_TURN_CONTROL_BARBARIAN;
 }
 
+// <!-- custom: Name the existing engine ControlTypes accepted by the end-turn hook; this is not a new Runtime enum.
+// The three-value switch needs no second enum/catalog: immutable string literals allocate nothing, and Runtime update reasons such as END_TURN_READY name different events. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static char const* getSASRuntimeEndTurnControlName(ControlTypes eControl)
+{
+	switch (eControl)
+	{
+	case CONTROL_ENDTURN: return "END_TURN";
+	case CONTROL_ENDTURN_ALT: return "END_TURN_ALT";
+	case CONTROL_FORCEENDTURN: return "FORCE_END_TURN";
+	default: return "UNAVAILABLE";
+	}
+}
+
+static uint getSASRuntimeEndTurnReadyMilliseconds(uint uiNowMilliseconds)
+{
+	return g_uiSASRuntimeEndTurnReadyMilliseconds + (g_bSASRuntimeEndTurnReadyUI ? getSASElapsedMilliseconds(g_uiSASRuntimeEndTurnReadyStartedMilliseconds, uiNowMilliseconds) : 0);
+}
+
+static void clearSASRuntimeEndTurnContext()
+{
+	g_bSASRuntimeEndTurnReadyUI = false;
+	g_szSASRuntimeEndTurnReadySinceUtc = "-";
+	g_uiSASRuntimeEndTurnReadyStartedMilliseconds = 0;
+	g_uiSASRuntimeEndTurnReadyMilliseconds = 0;
+	g_uiSASRuntimeSkipOrdersApplied = 0;
+	g_bSASRuntimeEndTurnRequestObserved = false;
+	g_szSASRuntimeEndTurnRequestRecordedUtc = "-";
+	g_eSASRuntimeEndTurnRequestControl = NO_CONTROL;
+	g_bSASRuntimeEndTurnRequestUIReady = false;
+	g_uiSASRuntimeEndTurnRequestReadyMilliseconds = 0;
+	g_uiSASRuntimeEndTurnRequestSkipOrdersApplied = 0;
+	g_kSASRuntimeEndTurnRequestReadiness = SASRuntimeTurnReadinessSnapshot();
+	g_bSASRuntimeEndTurnRequestEndTurnMessage = false;
+	g_bSASRuntimeEndTurnRequestUIAnyMove = false;
+	g_bSASRuntimeEndTurnRequestSelectedUnit = false;
+	g_bSASRuntimeEndTurnRequestForcePopup = false;
+	g_bSASRuntimeEndTurnRequestHasMovedUnit = false;
+	g_bSASRuntimeEndTurnRequestWaitOption = false;
+}
+
 static void clearSASRuntimeCurrentPlayerTurn()
 {
 	g_eSASRuntimePlayerTurnPlayer = NO_PLAYER;
@@ -359,6 +495,7 @@ static void clearSASRuntimeCurrentPlayerTurn()
 	g_uiSASRuntimePlayerTurnLastLivePublicationMilliseconds = 0;
 	g_bSASRuntimePlayerTurnLivePublicationAttempted = false;
 	g_bSASRuntimePlayerTurnContextPublished = false;
+	clearSASRuntimeEndTurnContext();
 }
 
 static void resetSASRuntimePlayerTurnTiming()
@@ -836,6 +973,72 @@ static bool recordSASRuntimeHistoryRow(CvString const& szRow, bool* pbContentCom
 	return false;
 }
 
+// <!-- custom: Persist one accepted human end-turn request before sendTurnComplete so later cleanup cannot erase whether orderable/busy/automated/mission groups remained.
+// `physicalInput` is deliberately NOT_OBSERVED: CONTROL_FORCEENDTURN can come from Enter or the end-turn widget.
+// HOLD is reported only as current activity; explicit Skip is the separately tracked applied-order counter. (ChatGPT-5.6-Sol) -->
+static void recordSASRuntimeEndTurnContext(int iGameTurn)
+{
+	if (!g_bSASRuntimeEndTurnRequestObserved || g_eSASRuntimePlayerTurnPlayer == NO_PLAYER)
+		return;
+	CvString szRow;
+	szRow.Format("{\"record\":\"end_turn_context\","
+		"\"revision\":%d,"
+		"\"run\":\"%s\","
+		"\"recordedUtc\":\"%s\","
+		"\"sessionSerial\":%u,"
+		"\"gameTurn\":%d,"
+		"\"player\":%d,"
+		"\"team\":%d,"
+		"\"civilization\":%d,"
+		"\"civilizationType\":\"%s\","
+		"\"control\":\"%s\","
+		"\"controlId\":%d,"
+		"\"physicalInput\":\"NOT_OBSERVED\","
+		"\"uiEndTurnMessage\":%d,"
+		"\"uiReadyForEndTurn\":%d,"
+		"\"uiAnyMoveRule\":%d,"
+		"\"selectedUnitPresent\":%d,"
+		"\"forcePopup\":%d,"
+		"\"hasMovedUnit\":%d,"
+		"\"waitEndTurnOption\":%d,"
+		"\"readyUiMilliseconds\":%u,"
+		"\"skipOrdersAppliedThisTurn\":%u,"
+		"\"groups\":%d,"
+		"\"units\":%d,"
+		"\"orderableGroups\":%d,"
+		"\"orderableUnits\":%d,"
+		"\"uiReadyGroups\":%d,"
+		"\"uiReadyUnits\":%d,"
+		"\"busyGroups\":%d,"
+		"\"busyUnits\":%d,"
+		"\"automatedGroups\":%d,"
+		"\"automatedUnits\":%d,"
+		"\"autoReadyGroups\":%d,"
+		"\"autoReadyUnits\":%d,"
+		"\"missionGroups\":%d,"
+		"\"missionUnits\":%d,"
+		"\"waitingGroups\":%d,"
+		"\"waitingUnits\":%d,"
+		"\"holdGroups\":%d,"
+		"\"holdUnits\":%d,"
+		"\"sleepGroups\":%d,"
+		"\"sleepUnits\":%d,"
+		"\"priorStatusWriteFailures\":%u,"
+		"\"priorHistoryWriteFailures\":%u}\r\n",
+		SAS_RUNTIME_REVISION, getSASRuntimeHistoryRunId().GetCString(), g_szSASRuntimeEndTurnRequestRecordedUtc.GetCString(), g_uiSASRuntimeSessionSerial, iGameTurn,
+		(int)g_eSASRuntimePlayerTurnPlayer, (int)g_eSASRuntimePlayerTurnTeam, (int)g_eSASRuntimePlayerTurnCivilization, g_szSASRuntimePlayerTurnCivilizationType.GetCString(),
+		getSASRuntimeEndTurnControlName(g_eSASRuntimeEndTurnRequestControl), (int)g_eSASRuntimeEndTurnRequestControl, g_bSASRuntimeEndTurnRequestEndTurnMessage ? 1 : 0, g_bSASRuntimeEndTurnRequestUIReady ? 1 : 0,
+		g_bSASRuntimeEndTurnRequestUIAnyMove ? 1 : 0, g_bSASRuntimeEndTurnRequestSelectedUnit ? 1 : 0, g_bSASRuntimeEndTurnRequestForcePopup ? 1 : 0, g_bSASRuntimeEndTurnRequestHasMovedUnit ? 1 : 0, g_bSASRuntimeEndTurnRequestWaitOption ? 1 : 0,
+		g_uiSASRuntimeEndTurnRequestReadyMilliseconds, g_uiSASRuntimeEndTurnRequestSkipOrdersApplied,
+		g_kSASRuntimeEndTurnRequestReadiness.iGroups, g_kSASRuntimeEndTurnRequestReadiness.iUnits, g_kSASRuntimeEndTurnRequestReadiness.iOrderableGroups, g_kSASRuntimeEndTurnRequestReadiness.iOrderableUnits,
+		g_kSASRuntimeEndTurnRequestReadiness.iUIReadyGroups, g_kSASRuntimeEndTurnRequestReadiness.iUIReadyUnits, g_kSASRuntimeEndTurnRequestReadiness.iBusyGroups, g_kSASRuntimeEndTurnRequestReadiness.iBusyUnits,
+		g_kSASRuntimeEndTurnRequestReadiness.iAutomatedGroups, g_kSASRuntimeEndTurnRequestReadiness.iAutomatedUnits, g_kSASRuntimeEndTurnRequestReadiness.iAutoReadyGroups, g_kSASRuntimeEndTurnRequestReadiness.iAutoReadyUnits,
+		g_kSASRuntimeEndTurnRequestReadiness.iMissionGroups, g_kSASRuntimeEndTurnRequestReadiness.iMissionUnits, g_kSASRuntimeEndTurnRequestReadiness.iWaitingGroups, g_kSASRuntimeEndTurnRequestReadiness.iWaitingUnits,
+		g_kSASRuntimeEndTurnRequestReadiness.iHoldGroups, g_kSASRuntimeEndTurnRequestReadiness.iHoldUnits, g_kSASRuntimeEndTurnRequestReadiness.iSleepGroups, g_kSASRuntimeEndTurnRequestReadiness.iSleepUnits,
+		g_uiSASRuntimeStatusWriteFailures, g_uiSASRuntimeHistoryWriteFailures);
+	recordSASRuntimeHistoryRow(szRow);
+}
+
 // <!-- custom: Emit one bounded row for the just-completed sequential game turn instead of one history row per player boundary.
 // Every measured player remains in memory regardless of speed; complete=0 flags a missing/mismatched native boundary rather than inventing a duration.
 // The enclosing enabled scope in publishSASRuntimeStatus pre-gates this call and its arguments; repeating the switch beside this private helper would not skip additional work.
@@ -878,9 +1081,25 @@ static void recordSASRuntimePlayerTurnSummary(int iCompletedTurn, CvString const
 			"\"activatingMilliseconds\":%u,"
 			"\"mainMilliseconds\":%u,"
 			"\"endingMilliseconds\":%u,"
+			"\"readyUiMilliseconds\":%u,"
+			"\"skipOrdersApplied\":%u,"
+			"\"endGroups\":%d,"
+			"\"endUnits\":%d,"
+			"\"endOrderableGroups\":%d,"
+			"\"endOrderableUnits\":%d,"
+			"\"endBusyGroups\":%d,"
+			"\"endAutomatedGroups\":%d,"
+			"\"endAutoReadyGroups\":%d,"
+			"\"endMissionGroups\":%d,"
+			"\"endWaitingGroups\":%d,"
+			"\"endHoldGroups\":%d,"
+			"\"endSleepGroups\":%d,"
 			"\"completed\":%d}",
 			(i == 0 ? "" : ","), kRecord.iPlayer, kRecord.iTeam, kRecord.iCivilization, kRecord.szCivilizationType.GetCString(), aSASRuntimePlayerTurnControlNames[kRecord.eControl], kRecord.szStartedUtc.GetCString(), kRecord.szEndedUtc.GetCString(),
-			kRecord.uiTotalMilliseconds, kRecord.uiActivatingMilliseconds, kRecord.uiMainMilliseconds, kRecord.uiEndingMilliseconds, kRecord.bCompleted ? 1 : 0);
+			kRecord.uiTotalMilliseconds, kRecord.uiActivatingMilliseconds, kRecord.uiMainMilliseconds, kRecord.uiEndingMilliseconds, kRecord.uiEndTurnReadyMilliseconds, kRecord.uiSkipOrdersApplied,
+			kRecord.kEndReadiness.iGroups, kRecord.kEndReadiness.iUnits, kRecord.kEndReadiness.iOrderableGroups, kRecord.kEndReadiness.iOrderableUnits, kRecord.kEndReadiness.iBusyGroups,
+			kRecord.kEndReadiness.iAutomatedGroups, kRecord.kEndReadiness.iAutoReadyGroups, kRecord.kEndReadiness.iMissionGroups, kRecord.kEndReadiness.iWaitingGroups, kRecord.kEndReadiness.iHoldGroups, kRecord.kEndReadiness.iSleepGroups,
+			kRecord.bCompleted ? 1 : 0);
 		szRow += szPlayer;
 	}
 	CvString szTail;
@@ -1013,6 +1232,9 @@ static void updateSASRuntimeActivity(SASRuntimeStatusReason eReason, CvString co
 		eReason == SAS_RUNTIME_STATUS_BUTTON_POPUP_FOCUSED ||
 		eReason == SAS_RUNTIME_STATUS_BUTTON_POPUP_RESPONDED ||
 		eReason == SAS_RUNTIME_STATUS_BUTTON_POPUP_CANCELLED ||
+		eReason == SAS_RUNTIME_STATUS_END_TURN_READY ||
+		eReason == SAS_RUNTIME_STATUS_END_TURN_NOT_READY ||
+		eReason == SAS_RUNTIME_STATUS_END_TURN_REQUEST_ACCEPTED ||
 		isSASRuntimeWindowCloseReason(eReason));
 	bool const bIntervalStarted = (eActivity != g_eSASRuntimeActivity || eReason == SAS_RUNTIME_STATUS_AUTOPLAY_CHANGED || g_uiSASRuntimeActivitySession != g_uiSASRuntimeSessionSerial);
 	if (!bIntervalStarted && !bObservationBoundary)
@@ -1141,6 +1363,8 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 		ensureSASRuntimeHistoryMetadata();
 		// <!-- custom: Normally session context precedes its ready transition; after I/O failure, retry the captured context even if this update reports a menu/reset boundary. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		ensureSASRuntimeHistorySessionMetadata();
+		if (eReason == SAS_RUNTIME_STATUS_END_TURN_REQUEST_ACCEPTED)
+			recordSASRuntimeEndTurnContext(iGameTurn);
 		if (eReason == SAS_RUNTIME_STATUS_TURN_COMPLETED)
 			recordSASRuntimePlayerTurnSummary(g_iSASRuntimeLastCompletedTurn, szUpdatedUtc);
 	}
@@ -1236,6 +1460,21 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 		"  \"playerTurnSummaryBoundariesComplete\": %d,\r\n"
 		"  \"playerTurnLiveThresholdMilliseconds\": %d,\r\n"
 		"  \"playerTurnLiveRefreshMilliseconds\": %d,\r\n"
+		"  \"endTurnReadyUiActive\": %d,\r\n"
+		"  \"endTurnReadySinceUtc\": \"%s\",\r\n"
+		"  \"endTurnReadyUiElapsedMilliseconds\": %I64d,\r\n"
+		"  \"endTurnReadyUiTotalMilliseconds\": %u,\r\n"
+		"  \"playerTurnSkipOrdersApplied\": %u,\r\n"
+		"  \"endTurnRequestObserved\": %d,\r\n"
+		"  \"endTurnRequestRecordedUtc\": \"%s\",\r\n"
+		"  \"endTurnRequestControl\": \"%s\",\r\n"
+		"  \"endTurnRequestControlId\": %d,\r\n"
+		"  \"endTurnRequestUiReady\": %d,\r\n"
+		"  \"endTurnRequestReadyUiMilliseconds\": %u,\r\n"
+		"  \"endTurnRequestOrderableGroups\": %d,\r\n"
+		"  \"endTurnRequestOrderableUnits\": %d,\r\n"
+		"  \"endTurnRequestBusyGroups\": %d,\r\n"
+		"  \"endTurnRequestAutoReadyGroups\": %d,\r\n"
 		"  \"autoplayActive\": %d,\r\n"
 		"  \"autoplayRemainingTurns\": %d,\r\n"
 		"  \"mapWidth\": %d,\r\n"
@@ -1268,6 +1507,13 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 		bPlayerTurnActive ? aSASRuntimePlayerTurnPhaseNames[g_eSASRuntimePlayerTurnPhase] : aSASRuntimePlayerTurnPhaseNames[SAS_RUNTIME_PLAYER_TURN_PHASE_NONE], bPlayerTurnActive ? g_szSASRuntimePlayerTurnStartedUtc.GetCString() : "-", iPlayerTurnElapsedMilliseconds,
 		bPlayerTurnActive ? g_szSASRuntimePlayerTurnPhaseStartedUtc.GetCString() : "-", iPlayerTurnPhaseElapsedMilliseconds, g_iSASRuntimePlayerTurnSummaryTurn, (unsigned int)g_aSASRuntimePlayerTurnRecords.size(), g_bSASRuntimePlayerTurnSummaryBoundariesComplete ? 1 : 0,
 		getSASRuntimePlayerTurnLiveThresholdMilliseconds(), getSASRuntimePlayerTurnLiveRefreshMilliseconds(),
+		(g_bSASRuntimeEndTurnReadyUI ? 1 : 0), g_bSASRuntimeEndTurnReadyUI ? g_szSASRuntimeEndTurnReadySinceUtc.GetCString() : "-",
+		(g_bSASRuntimeEndTurnReadyUI ? (__int64)getSASElapsedMilliseconds(g_uiSASRuntimeEndTurnReadyStartedMilliseconds, uiNowMilliseconds) : (__int64)-1), getSASRuntimeEndTurnReadyMilliseconds(uiNowMilliseconds), g_uiSASRuntimeSkipOrdersApplied,
+		(g_bSASRuntimeEndTurnRequestObserved ? 1 : 0), g_bSASRuntimeEndTurnRequestObserved ? g_szSASRuntimeEndTurnRequestRecordedUtc.GetCString() : "-",
+		g_bSASRuntimeEndTurnRequestObserved ? getSASRuntimeEndTurnControlName(g_eSASRuntimeEndTurnRequestControl) : "UNAVAILABLE", g_bSASRuntimeEndTurnRequestObserved ? (int)g_eSASRuntimeEndTurnRequestControl : -1,
+		g_bSASRuntimeEndTurnRequestObserved && g_bSASRuntimeEndTurnRequestUIReady ? 1 : 0, g_bSASRuntimeEndTurnRequestObserved ? g_uiSASRuntimeEndTurnRequestReadyMilliseconds : 0,
+		g_bSASRuntimeEndTurnRequestObserved ? g_kSASRuntimeEndTurnRequestReadiness.iOrderableGroups : -1, g_bSASRuntimeEndTurnRequestObserved ? g_kSASRuntimeEndTurnRequestReadiness.iOrderableUnits : -1,
+		g_bSASRuntimeEndTurnRequestObserved ? g_kSASRuntimeEndTurnRequestReadiness.iBusyGroups : -1, g_bSASRuntimeEndTurnRequestObserved ? g_kSASRuntimeEndTurnRequestReadiness.iAutoReadyGroups : -1,
 		(iAutoPlayRemaining > 0 ? 1 : 0), iAutoPlayRemaining, iMapWidth, iMapHeight, iWorldSize, iGameSpeed, iScenario,
 		iLoadedCheckpointTurn, iLoadedCheckpointElapsedTurn, szLoadedCheckpointUtc);
 
@@ -1507,6 +1753,15 @@ void updateSASRuntimeStatusPlayerTurnEnding(PlayerTypes ePlayer)
 		return;
 	}
 	uint const uiNow = getSASMonotonicMilliseconds();
+	// <!-- custom: Turn deactivation can bypass the observed UI-control request (for example a network-driven completion).
+	// Stop readiness before ending work so its duration cannot absorb turn cleanup; no extra status write is needed here. (GPT-6.1-Sol) -->
+	if (g_bSASRuntimeEndTurnReadyUI)
+	{
+		g_uiSASRuntimeEndTurnReadyMilliseconds = getSASRuntimeEndTurnReadyMilliseconds(uiNow);
+		g_bSASRuntimeEndTurnReadyUI = false;
+		g_szSASRuntimeEndTurnReadySinceUtc = "-";
+		g_uiSASRuntimeEndTurnReadyStartedMilliseconds = 0;
+	}
 	addSASRuntimeCurrentPlayerTurnPhase(uiNow);
 	g_eSASRuntimePlayerTurnPhase = SAS_RUNTIME_PLAYER_TURN_PHASE_ENDING;
 	g_szSASRuntimePlayerTurnPhaseStartedUtc = createSASUtcTimestampMilliseconds();
@@ -1546,12 +1801,84 @@ void updateSASRuntimeStatusPlayerTurnEnded(PlayerTypes ePlayer, bool bCompleted)
 	kRecord.uiActivatingMilliseconds = g_uiSASRuntimePlayerTurnActivatingMilliseconds;
 	kRecord.uiMainMilliseconds = g_uiSASRuntimePlayerTurnMainMilliseconds;
 	kRecord.uiEndingMilliseconds = g_uiSASRuntimePlayerTurnEndingMilliseconds;
+	kRecord.uiEndTurnReadyMilliseconds = getSASRuntimeEndTurnReadyMilliseconds(uiNow);
+	kRecord.uiSkipOrdersApplied = g_uiSASRuntimeSkipOrdersApplied;
+	getSASRuntimeTurnReadinessSnapshot(ePlayer, true, kRecord.kEndReadiness);
 	kRecord.bCompleted = bCompleted;
 	g_aSASRuntimePlayerTurnRecords.push_back(kRecord);
 	bool const bClearPublishedContext = g_bSASRuntimePlayerTurnContextPublished;
 	clearSASRuntimeCurrentPlayerTurn();
 	if (bClearPublishedContext)
 		writeSASRuntimeStatus(SAS_RUNTIME_STATUS_PLAYER_TURN_ENDED);
+}
+
+// <!-- custom: Observe only actual UI end-turn-message transitions.
+// This interval is distinct from HUMAN_INPUT wall time: it begins when the inherited readiness logic displays the end-turn message and stops if new orderable work appears.
+// CvGame::updateTestEndTurn pre-gates the call and its arguments, after changing the UI flag; the cached disabled return below is a defensive backstop, not a replacement for that caller gate. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void updateSASRuntimeStatusEndTurnReady(PlayerTypes ePlayer, bool bReady)
+{
+	if (!isSASRuntimeStatusEnabled() || g_eSASRuntimePlayerTurnPlayer != ePlayer || g_eSASRuntimePlayerTurnControl != SAS_RUNTIME_PLAYER_TURN_CONTROL_HUMAN || g_bSASRuntimeEndTurnReadyUI == bReady)
+		return;
+	uint const uiNow = getSASMonotonicMilliseconds();
+	if (bReady)
+	{
+		g_bSASRuntimeEndTurnReadyUI = true;
+		g_szSASRuntimeEndTurnReadySinceUtc = createSASUtcTimestampMilliseconds();
+		g_uiSASRuntimeEndTurnReadyStartedMilliseconds = uiNow;
+	}
+	else
+	{
+		g_uiSASRuntimeEndTurnReadyMilliseconds += getSASElapsedMilliseconds(g_uiSASRuntimeEndTurnReadyStartedMilliseconds, uiNow);
+		g_bSASRuntimeEndTurnReadyUI = false;
+		g_szSASRuntimeEndTurnReadySinceUtc = "-";
+		g_uiSASRuntimeEndTurnReadyStartedMilliseconds = 0;
+	}
+	writeSASRuntimeStatus(bReady ? SAS_RUNTIME_STATUS_END_TURN_READY : SAS_RUNTIME_STATUS_END_TURN_NOT_READY);
+}
+
+// <!-- custom: Capture applied end-turn-request context immediately before sendTurnComplete.
+// `bUIAnyMove` is the exact updateTestEndTurn selected-unit/cycling rule; the snapshot also retains logical canAnyMove orderability so a force-end request with partially movable groups is visible.
+// CvGame::doControl pre-gates this call and all diagnostic-only UI getters; this entry guard is a defensive backstop.
+// The control enum identifies END_TURN/ALT/FORCE only; physical keyboard versus widget origin is intentionally not inferred. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void updateSASRuntimeStatusEndTurnRequest(PlayerTypes ePlayer, ControlTypes eControl, bool bEndTurnMessage, bool bUIAnyMove, bool bSelectedUnitPresent, bool bForcePopup, bool bHasMovedUnit, bool bWaitEndTurnOption)
+{
+	if (!isSASRuntimeStatusEnabled() || ePlayer == NO_PLAYER || g_eSASRuntimePlayerTurnPlayer != ePlayer || g_eSASRuntimePlayerTurnControl != SAS_RUNTIME_PLAYER_TURN_CONTROL_HUMAN)
+		return;
+	if (eControl != CONTROL_ENDTURN && eControl != CONTROL_ENDTURN_ALT && eControl != CONTROL_FORCEENDTURN)
+		return;
+	uint const uiNow = getSASMonotonicMilliseconds();
+	g_bSASRuntimeEndTurnRequestObserved = true;
+	g_szSASRuntimeEndTurnRequestRecordedUtc = createSASUtcTimestampMilliseconds();
+	g_eSASRuntimeEndTurnRequestControl = eControl;
+	g_bSASRuntimeEndTurnRequestUIReady = g_bSASRuntimeEndTurnReadyUI;
+	g_uiSASRuntimeEndTurnRequestReadyMilliseconds = getSASRuntimeEndTurnReadyMilliseconds(uiNow);
+	// <!-- custom: An accepted request ends the user's UI-ready waiting interval even if the EXE leaves its visual message up until deactivation; the request row retains whether that ready state was active. (ChatGPT-5.6-Sol) -->
+	if (g_bSASRuntimeEndTurnReadyUI)
+	{
+		g_uiSASRuntimeEndTurnReadyMilliseconds = g_uiSASRuntimeEndTurnRequestReadyMilliseconds;
+		g_bSASRuntimeEndTurnReadyUI = false;
+		g_szSASRuntimeEndTurnReadySinceUtc = "-";
+		g_uiSASRuntimeEndTurnReadyStartedMilliseconds = 0;
+	}
+	g_uiSASRuntimeEndTurnRequestSkipOrdersApplied = g_uiSASRuntimeSkipOrdersApplied;
+	g_bSASRuntimeEndTurnRequestEndTurnMessage = bEndTurnMessage;
+	g_bSASRuntimeEndTurnRequestUIAnyMove = bUIAnyMove;
+	g_bSASRuntimeEndTurnRequestSelectedUnit = bSelectedUnitPresent;
+	g_bSASRuntimeEndTurnRequestForcePopup = bForcePopup;
+	g_bSASRuntimeEndTurnRequestHasMovedUnit = bHasMovedUnit;
+	g_bSASRuntimeEndTurnRequestWaitOption = bWaitEndTurnOption;
+	getSASRuntimeTurnReadinessSnapshot(ePlayer, bUIAnyMove, g_kSASRuntimeEndTurnRequestReadiness);
+	writeSASRuntimeStatus(SAS_RUNTIME_STATUS_END_TURN_REQUEST_ACCEPTED);
+}
+
+// <!-- custom: Count an actual applied MISSION_SKIP at its group mission boundary instead of inferring Skip from ACTIVITY_HOLD, which has other producers.
+// CvSelectionGroup::startMission pre-gates the call and getOwner argument; the disabled return here is defensive.
+// This is in-memory only and emits no row per mission; the compact count is exposed in current status, accepted end-turn context and the completed player-turn summary. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void updateSASRuntimeStatusMissionSkip(PlayerTypes ePlayer)
+{
+	if (!isSASRuntimeStatusEnabled() || g_eSASRuntimePlayerTurnPlayer != ePlayer)
+		return;
+	g_uiSASRuntimeSkipOrdersApplied++;
 }
 
 // <!-- custom: CvGame caller-pre-gates this check in its ordinary update loop; the first short-circuit operand below is a defensive cached-switch guard, before mode checks, clock reads or publication.

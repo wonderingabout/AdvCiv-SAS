@@ -479,7 +479,11 @@ void CvGame::updateTestEndTurn()
 	if (kUI.isEndTurnMessage())
 	{
 		if (GET_PLAYER(getActivePlayer()).hasReadyUnit(bAny))
+		// <!-- custom: Observe the applied UI transition only when Runtime is enabled; the gameplay flag still changes first. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		{
 			kUI.setEndTurnMessage(false);
+			if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusEndTurnReady(getActivePlayer(), false);
+		}
 		return;
 	}
 	if (GET_PLAYER(getActivePlayer()).hasBusyUnit() ||
@@ -510,6 +514,8 @@ void CvGame::updateTestEndTurn()
 		!kUI.isHasMovedUnit() || isHotSeat() || isPbem())
 	{
 		kUI.setEndTurnMessage(true);
+		// <!-- custom: Observe the existing flag change above; only the Runtime notification below is added, with no per-frame diagnostic unit scan. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusEndTurnReady(getActivePlayer(), true);
 		return;
 	}
 	if (kUI.getEndTurnCounter() > 0)
@@ -1571,12 +1577,30 @@ void CvGame::doControl(ControlTypes eControl)
 		bool const bAccepted = kUI.isEndTurnMessage();
 		if (bLogSASControl) logSASGameRecordControlRequest(eControl, bAccepted);
 		if (bAccepted)
+		{
+			if (isSASRuntimeStatusEnabled())
+			{
+				PlayerTypes const ePlayer = getActivePlayer();
+				bool const bSelectedUnit = (kUI.getHeadSelectedUnit() != NULL);
+				bool const bUIAnyMove = (bSelectedUnit && !GET_PLAYER(ePlayer).isOption(PLAYEROPTION_NO_UNIT_CYCLING));
+				// <!-- custom: Capture the accepted request before sendTurnComplete can deactivate the player.
+				// The control enum is authoritative; do not infer Enter versus end-turn-widget origin. (ChatGPT-5.6-Sol) -->
+				updateSASRuntimeStatusEndTurnRequest(ePlayer, eControl, kUI.isEndTurnMessage(), bUIAnyMove, bSelectedUnit, kUI.isForcePopup(), kUI.isHasMovedUnit(), GET_PLAYER(ePlayer).isOption(PLAYEROPTION_WAIT_END_TURN));
+			}
 			CvMessageControl::getInstance().sendTurnComplete();
+		}
 		break;
 	}
 
 	case CONTROL_FORCEENDTURN:
 		if (bLogSASControl) logSASGameRecordControlRequest(eControl, true);
+		if (isSASRuntimeStatusEnabled())
+		{
+			PlayerTypes const ePlayer = getActivePlayer();
+			bool const bSelectedUnit = (kUI.getHeadSelectedUnit() != NULL);
+			bool const bUIAnyMove = (bSelectedUnit && !GET_PLAYER(ePlayer).isOption(PLAYEROPTION_NO_UNIT_CYCLING));
+			updateSASRuntimeStatusEndTurnRequest(ePlayer, eControl, kUI.isEndTurnMessage(), bUIAnyMove, bSelectedUnit, kUI.isForcePopup(), kUI.isHasMovedUnit(), GET_PLAYER(ePlayer).isOption(PLAYEROPTION_WAIT_END_TURN));
+		}
 		CvMessageControl::getInstance().sendTurnComplete();
 		break;
 

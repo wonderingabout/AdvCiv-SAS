@@ -4,6 +4,8 @@
 # <!-- custom: pathlib/tempfile isolate real Git histories; subprocess executes Git and extracted production PowerShell functions, hashlib checks actual patch bytes, and json/unittest verify the resulting report.
 # shutil locates PowerShell; no compiler, game DLL or real build outputs are touched. (GPT-6.1-Sol) -->
 from pathlib import Path
+# <!-- custom: Compare reconstructed UTC instants without assuming a PowerShell serializer retains redundant .000 fractional seconds. (GPT-6.1-Sol) -->
+from datetime import datetime, timezone
 import hashlib
 import json
 # <!-- custom: os selects Windows-only Makefile/tool-resource tests and the optional local NMake path. (GPT-6.1-Sol) -->
@@ -110,6 +112,66 @@ class BuildSourceProvenanceTests(unittest.TestCase):
         self.git("branch", "-D", "main")
         fallback = self.capture()
         self.assertEqual((fallback["defaultRefSource"], fallback["branchRelation"]), ("REMOTE_TRACKING", "AT_DEFAULT"))
+
+
+    # <!-- custom: A smaller report is useful only if the next build reconstructs exactly the same final input snapshot.
+    # Exercise extracted production functions with compact and legacy timestamp entries plus real byte/add/remove changes; reject a compact entry that has no manifest baseline. (GPT-6.1-Sol) -->
+    def test_compact_timestamp_round_trip_and_legacy_reports(self):
+        def state(letter, utc):
+            return {"sizeBytes": 10, "sha256": letter * 64, "modifiedUtc": utc}
+
+        before = {"caf\u00e9.cpp": state("a", "2026-10-28T10:00:00.000Z"), "edited.cpp": state("b", "2026-10-28T10:00:00.000Z"), "removed.cpp": state("c", "2026-10-28T10:00:00.000Z")}
+        after = {"caf\u00e9.cpp": state("a", "2026-10-28T11:00:00.000Z"), "edited.cpp": state("d", "2026-10-28T11:00:00.123Z"), "added.cpp": state("e", "2026-10-28T11:00:00.000Z")}
+        payload = self.project / "inputs.json"
+        payload.write_text(json.dumps({"before": before, "after": after}), encoding="utf-8")
+        self.script.write_text("\n".join([
+            '$ErrorActionPreference = "Stop"',
+            '$tokens = $null; $errors = $null',
+            '$ast = [Management.Automation.Language.Parser]::ParseFile($args[0], [ref]$tokens, [ref]$errors)',
+            'if ($errors.Count) { throw ($errors | Out-String) }',
+            'foreach ($name in @("Get-BuildInputReport", "Get-PreviousBuildInputs")) {',
+            '  $f = $ast.Find({ param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name }, $true)',
+            '  Invoke-Expression $f.Extent.Text',
+            '}',
+            '$data = Get-Content -LiteralPath $args[1] -Raw | ConvertFrom-Json',
+            '$before = @{}; $after = @{}',
+            '$data.before.PSObject.Properties | ForEach-Object { $before[$_.Name] = $_.Value }',
+            '$data.after.PSObject.Properties | ForEach-Object { $after[$_.Name] = $_.Value }',
+            '$changes = @(Get-BuildInputReport $before $after -IncludeBefore)',
+            '$report = @{request="BUILD";status="SUCCEEDED";startedUtc="start";endedUtc="end";configuration="Release";commitAfter="fixture";',
+            '  buildInputsBefore=@($before.Keys | ForEach-Object { @{path=$_;sizeBytes=$before[$_].sizeBytes;sha256=$before[$_].sha256;modifiedUtc=$before[$_].modifiedUtc} });',
+            '  buildInputChanges=$changes;buildInputSummary=@{afterCount=$after.Count}}',
+            '$reportPath = Join-Path (Split-Path -Parent $PSCommandPath) "report.json"',
+            '[IO.File]::WriteAllText($reportPath, ($report | ConvertTo-Json -Depth 10), (New-Object Text.UTF8Encoding($false)))',
+            '$compact = Get-PreviousBuildInputs $reportPath',
+            '$report.buildInputChanges = @($changes | ForEach-Object { if ($_.change -eq "TIMESTAMP_ONLY") { @{path=$_.path;change=$_.change;before=$before[$_.path];after=$after[$_.path]} } else { $_ } })',
+            '$report | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $reportPath -Encoding UTF8',
+            '$legacy = Get-PreviousBuildInputs $reportPath',
+            '$report.buildInputChanges = @(@{path="missing.cpp";change="TIMESTAMP_ONLY";beforeModifiedUtc="old";afterModifiedUtc="new"})',
+            '$report | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $reportPath -Encoding UTF8',
+            '@{changes=$changes;within=@(Get-BuildInputReport $before $after);compact=$compact;legacy=$legacy;invalid=(Get-PreviousBuildInputs $reportPath)} | ConvertTo-Json -Depth 12 -Compress',
+        ]), encoding="utf-8-sig")
+        result = json.loads(subprocess.check_output([POWERSHELL, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(self.script), str(ROOT / "CvGameCoreDLL/Project/build_with_report.ps1"), str(payload)], encoding="utf-8", stderr=subprocess.PIPE))
+        # <!-- custom: Windows PowerShell 5.1 preserves .000Z while PowerShell 7 can serialize that same instant as Z. Check UTC instants, including nonzero milliseconds, rather than serializer spelling; every path, hash and size must still match exactly. (GPT-6.1-Sol) -->
+        def normalized_state(value):
+            instant = datetime.fromisoformat(value["modifiedUtc"].replace("Z", "+00:00"))
+            self.assertIsNotNone(instant.tzinfo)
+            self.assertEqual(instant.utcoffset(), timezone.utc.utcoffset(instant))
+            return dict(value, modifiedUtc=instant)
+
+        for shape in ("compact", "legacy"):
+            self.assertTrue(result[shape]["available"], result[shape])
+            self.assertEqual({path: normalized_state(value) for path, value in result[shape]["snapshot"].items()},
+                             {path: normalized_state(value) for path, value in after.items()})
+        timestamp = next(row for row in result["changes"] if row["change"] == "TIMESTAMP_ONLY")
+        self.assertEqual(set(timestamp), {"path", "change", "beforeModifiedUtc", "afterModifiedUtc"})
+        self.assertEqual(next(row for row in result["within"] if row["change"] == "TIMESTAMP_ONLY"), timestamp)
+        self.assertNotIn("before", next(row for row in result["within"] if row["change"] == "CONTENT_CHANGED"))
+        edited = next(row for row in result["changes"] if row["change"] == "CONTENT_CHANGED")
+        self.assertEqual((normalized_state(edited["before"]), normalized_state(edited["after"])),
+                         (normalized_state(before["edited.cpp"]), normalized_state(after["edited.cpp"])))
+        self.assertFalse(result["invalid"]["available"])
+        self.assertEqual(result["invalid"]["reason"], "UNREADABLE_PREVIOUS_REPORT")
 
 
 # <!-- custom: Exercise the real Makefile metadata recipe and extracted production parser with an overridden compiler path; merely checking a VC2003 label would miss other people's configured toolchains.

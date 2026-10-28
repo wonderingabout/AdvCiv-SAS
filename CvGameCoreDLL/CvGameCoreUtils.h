@@ -139,6 +139,13 @@ void updateSASRuntimeStatusPlayerTurnMain(PlayerTypes ePlayer);
 void updateSASRuntimeStatusPlayerTurnEnding(PlayerTypes ePlayer);
 void updateSASRuntimeStatusPlayerTurnEnded(PlayerTypes ePlayer, bool bCompleted);
 void updateSASRuntimeStatusPlayerTurnProgress();
+// <!-- custom: End-turn readiness is event-driven from the existing UI message boundary; accepted requests capture one compact group/unit snapshot before sendTurnComplete.
+// Gameplay callers pre-gate the hooks and their arguments; the implementations retain defensive disabled guards.
+// Private counting/state stays in SASRuntimeStatus.cpp.
+// eControl is the engine control path, not physical input identity; Enter and the end-turn button can both reach CONTROL_FORCEENDTURN. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void updateSASRuntimeStatusEndTurnReady(PlayerTypes ePlayer, bool bReady);
+void updateSASRuntimeStatusEndTurnRequest(PlayerTypes ePlayer, ControlTypes eControl, bool bEndTurnMessage, bool bUIAnyMove, bool bSelectedUnitPresent, bool bForcePopup, bool bHasMovedUnit, bool bWaitEndTurnOption);
+void updateSASRuntimeStatusMissionSkip(PlayerTypes ePlayer);
 // <!-- custom: iCompletedTurn is the authoritative just-finished game turn; Runtime emits at most one compact sequential player-timing summary here before clearing the in-memory measurements. (ChatGPT-5.6-Sol) -->
 void updateSASRuntimeStatusTurnCompleted(int iCompletedTurn);
 void updateSASRuntimeStatusAutoPlay(SASRuntimeStatusReason eReason, SASAutoPlayEndCause eEndCause = SAS_AUTOPLAY_END_UNSPECIFIED);

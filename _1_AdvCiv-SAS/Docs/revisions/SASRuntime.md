@@ -10,10 +10,24 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## History
 
-### Revision 14 - SAS practical 6696
+### Revision 15 - SAS practical 6697
 
 - **Date:** 2026-10-28
 - **Git commit:** pending
+- **Change:** Separate human end-turn readiness from player-turn wall time and record compact pre-end-turn order context without per-frame unit scans.
+  - The existing `updateTestEndTurn` UI boundary now reports when the inherited end-turn message becomes active or is revoked because new orderable work appears. Runtime measures only those ready-message intervals; `HUMAN_INPUT` remains broader wall time including thinking, popups and screens.
+  - Accepted `CONTROL_ENDTURN` / `CONTROL_ENDTURN_ALT` / `CONTROL_FORCEENDTURN` requests capture one `end_turn_context` row before `sendTurnComplete`.
+    - It includes logical and UI-ready orderable groups/units plus busy, automated, auto-ready, queued-mission, waiting, HOLD and SLEEP state. Orderable unit counts include only movable units inside qualifying groups; the other state categories describe group membership and can overlap rather than forming a partition.
+    - The row stores the engine control ID/name but `physicalInput=NOT_OBSERVED`; Enter and the end-turn widget can share `CONTROL_FORCEENDTURN`.
+  - Actual `MISSION_SKIP` application increments one in-memory per-player-turn counter. HOLD is never treated as proof of Skip because AI/gameplay code can create HOLD through other paths. No per-mission history row is emitted.
+  - Completed sequential `player_turn_summary` player entries now retain `readyUiMilliseconds`, `skipOrdersApplied` and final compact readiness counts. This gives AI turns compact end-state context too without tracing every AI mission.
+  - Current status exposes the live ready interval, current Skip count and latest accepted-request summary. An accepted request closes the user's ready-wait interval even if the EXE leaves its visual end-turn message up until deactivation.
+  - Readiness closes at player-turn ending even if no local accepted-request hook ran; cleanup time is excluded. A loaded turn whose activation was not observed has no readiness/Skip measurements until the next observed activation.
+
+### Revision 14 - SAS practical 6696
+
+- **Date:** 2026-10-28
+- **Git commit:** `59f88590b4b2f03174ac1dc3d5fda6c6d48fed9f`
 - **Change:** Observe confirmed screenshot files externally and correlate them with the matching Runtime process/session context without treating a Print Screen request as proof that capture succeeded.
   - With `SAS_RUNTIME_STATUS_ON=1`, the independent default-off `SAS_RUNTIME_SCREENSHOT_WATCH_ON=1` launches adjacent `Assets/SASRuntimeScreenshotObserver.ps1` through the already attached exit observer after exact process/start identity is confirmed; no additional game input, screenshot request or directory polling is introduced.
   - The watcher derives Civ4's native user `ScreenShots` directory from the target executable folder and Documents/My Games convention used by the engine diagnostics. It ignores pre-existing files and records only future `.jpg`/`.jpeg`/`.png`/`.bmp` create/change/rename bursts after short per-file coalescing.

@@ -41,7 +41,7 @@ A successful run exits with code 0 and prints three `PASS C++ diagnostic writer`
 
 To inspect synthetic fixture output, pass `--export-runtime-examples <scratch-directory>`. Keep synthetic output separate from the [real history example](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md) and the [inline real status/exit captures](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#runtime-status-and-history); normal test runs leave those unchanged.
 
-Runtime-status cases parse the actual JSON and JSONL timeline, check disabled no-I/O/provenance behavior and autoplay countdown gating, and exercise lifecycle transitions, passive menu/loading observations, WorldBuilder mode versus visible-editor state, extended-game continuation, shared DLL identity, exact monotonic activity durations, interrupted autoplay, root migration, rollback after partial history appends, readable history after an unconfirmed close, and recovered status-failure counters.
+Runtime-status cases parse the actual JSON and JSONL timeline, check disabled no-I/O/provenance behavior and autoplay countdown gating, and exercise lifecycle transitions, passive menu/loading observations, WorldBuilder mode versus visible-editor state, extended-game continuation, shared DLL identity, exact monotonic activity durations, interrupted autoplay, root migration, rollback after partial history appends, readable history after an unconfirmed close, recovered status-failure counters, sequential player-turn timing and accepted human end-turn readiness/Skip context.
 
 Missing tools, compilation errors or failed assertions return a nonzero exit code.
 
