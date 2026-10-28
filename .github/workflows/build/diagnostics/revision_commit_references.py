@@ -25,10 +25,17 @@ def references(text):
 # <!-- custom: Finalized commit identities are code values in Markdown; pending remains plain status text.
 # Check both revision documents here alongside their existing identity/lifetime rules, rather than creating a separate formatting workflow. (GPT-6.1-Sol) -->
 def reference_format_errors(text):
-    return [f"revision {number}: wrap the finalized Git commit hash in backticks"
-            for number, body in revision_entries(text)
-            if (field := re.search(r"^- \*\*Git commit:\*\* (.+)$", body, re.MULTILINE))
-            and re.fullmatch(r"[0-9a-f]{40}", field.group(1).strip())]
+    errors = []
+    for number, body in revision_entries(text):
+        field = re.search(r"^- \*\*Git commit:\*\* (.+)$", body, re.MULTILINE)
+        if field is None:
+            continue
+        value = field.group(1).strip()
+        if re.fullmatch(r"[0-9a-f]{40}", value):
+            errors.append(f"revision {number}: wrap the finalized Git commit hash in backticks")
+        elif value == "`pending`":
+            errors.append(f"revision {number}: pending is status prose; leave it outside backticks")
+    return errors
 
 
 def read(repo, commit, path):

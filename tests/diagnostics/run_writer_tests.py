@@ -143,11 +143,29 @@ def main():
         subprocess.run([str(executable), "--terminal-fallback"], cwd=temporary, env=environment, check=True)
         subprocess.run([str(executable), "--runtime-status-disabled"], cwd=temporary, env=environment, check=True)
         subprocess.run([str(executable), "--runtime-status"], cwd=temporary, env=environment, check=True)
+        subprocess.run([str(executable), "--runtime-player-turns"], cwd=temporary, env=environment, check=True)
         subprocess.run([str(executable), "--runtime-presentation"], cwd=temporary, env=environment, check=True)
         subprocess.run([str(executable), "--runtime-window-close"], cwd=temporary, env=environment, check=True)
         subprocess.run([str(executable), "--runtime-status-output-failure"], cwd=temporary, env=environment, check=True)
         subprocess.run([str(executable), "--runtime-session-metadata-retry"], cwd=temporary, env=environment, check=True)
         subprocess.run([str(executable), "--runtime-history-uncertain-migration"], cwd=temporary, env=environment, check=True)
+        # <!-- custom: Runtime 13 player-turn fixture proves the live threshold/refresh/clear contract and the one-row completed-turn summary, including a fast AI that never caused a status write. (ChatGPT-5.6-Sol) -->
+        player_progress = json.loads((temporary / "runtime_player_turn_progress.json").read_text(encoding="utf-8"))
+        assert player_progress["playerTurnTimingMode"] == "SEQUENTIAL"
+        assert player_progress["playerTurnPlayer"] == 1 and player_progress["playerTurnTeam"] == 2 and player_progress["playerTurnCivilization"] == 5
+        assert player_progress["playerTurnControl"] == "AI" and player_progress["playerTurnPhase"] == "AI_MOVES"
+        assert player_progress["playerTurnElapsedMilliseconds"] == 3100 and player_progress["playerTurnPhaseElapsedMilliseconds"] == 3000
+        assert player_progress["updateReason"] == "PLAYER_TURN_PROGRESS"
+        player_cleared = json.loads((temporary / "runtime_player_turn_cleared.json").read_text(encoding="utf-8"))
+        assert player_cleared["playerTurnPlayer"] == -1 and player_cleared["playerTurnPhase"] == "NONE"
+        assert player_cleared["updateReason"] == "PLAYER_TURN_ENDED"
+        player_records = [json.loads(line) for line in (temporary / "runtime_player_turn_summary.jsonl").read_text(encoding="utf-8").splitlines()]
+        player_summaries = [row for row in player_records if row["record"] == "player_turn_summary"]
+        assert len(player_summaries) == 1 and player_summaries[0]["gameTurn"] == 12 and player_summaries[0]["complete"] == 1
+        assert [(row["player"], row["totalMilliseconds"], row["activatingMilliseconds"], row["mainMilliseconds"], row["endingMilliseconds"], row["completed"]) for row in player_summaries[0]["players"]] == [(0, 600, 100, 400, 100, 1), (1, 6500, 100, 6200, 200, 1)]
+        player_transitions = [row for row in player_records if row["record"] == "transition"]
+        assert not any(row["reason"] in ("PLAYER_TURN_PROGRESS", "PLAYER_TURN_ENDED") for row in player_transitions)
+
         # <!-- custom: Ready-session context must retain the original turn/player after a failed write, including recovery after gameplay has reset; the current-state JSON must still report the later live values. (GPT-6.1-Sol) -->
         retry_snapshot = json.loads((temporary / "runtime_session_retry.json").read_text(encoding="utf-8"))
         retry_history = next((temporary / "session_metadata_retry/Logs").glob("SASRuntimeHistory_*.jsonl"))

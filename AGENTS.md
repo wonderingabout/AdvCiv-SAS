@@ -102,6 +102,7 @@ On your end you generally don't need to update them unless our infrastructure ch
 
 - CI mainly helps us catch silly, tedious, or recurrent pitfalls and regressions and reduce maintenance work and mental load, especially with substantial agent contributions; it is not intended to exhaustively test every field in every way.
 - So if considering a new check or maintained test, first assess whether it is necessary or practically useful for us and worth maintaining; use our existing sanity checks as examples of the intended scope.
+  - Runtime example: testing throttling and context clearing catches real failures; asserting revision `13` again or listing every JSON field duplicates existing checks. Explain implementation rationale in comments/docs rather than adding tests merely to repeat it.
 - Keep automated-helper folders and workflow categories aligned: every helper in a subject folder belongs to that category's workflow, with matching names so browsing the folder tells us what that workflow runs.
 - Specialized automation belongs to an explicitly named category too; shared helper reuse is fine, but do not mix unrelated checks into a catch-all workflow. Keep shared code in `lib/`, automated helper tests in matching `tests/<subject>/` folders, and manual-only tooling outside the blocking `build/`/`checks-*.yml` structure.
 - GitHub workflow YAML files must remain directly under `.github/workflows/`; mirror the helper hierarchy through workflow filenames and display names. Give each check a descriptive named step so GitHub shows its progress and result separately.
@@ -367,7 +368,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 - For the above bullet: Example bad: `# <!-- custom: Late-game Battles tab is slow because the EXE rebuilds many table rows/cells. Data-layer and row-payload caching were tested first and did not significantly help; preserve the built table widget while this advisor stays open, then rebuild only when player/history/layout signature changes. (GPT-5.5) -->`.
   - Example good: `# <!-- custom: Late-game Battles tab opened slowly in a sample with 710+ rows. Data-layer caching and fully prepared row-payload caching were tested first and did not significantly help; preserving the built table widget made same-advisor tab switches almost instant, and making the screen persistent preserves it across close/reopen too. Rebuild when player/history/layout signature changes. (GPT-5.5) -->`.
 - Appendix for uncertainty in comments: omit uncertain explanations by default rather than writing something that could be wrong.
-  - Include uncertainty only when it is useful technical context, and then state the uncertainty directly (e.g., "not yet tested after changing screen resolution in-session") instead of implying a guessed mechanism.
+  - Include uncertainty only when it is useful technical context, and then state the uncertainty directly (e.g., "Not tested after changing screen resolution in-session") instead of implying a guessed mechanism.
 
 #### Comment syntax and logical reflow
 
@@ -670,7 +671,12 @@ Clear, accurate explanations help users and developers understand the code and i
 
 #### Diagnostic gating and output
 
-- Gate BBAI and SASGameRecord diagnostics at the caller before `logBBAI(...)`, `logSASGameRecord...(...)`, or a logging-only helper, and guard logging-only setup too; a check inside the helper is too late because C++ evaluates call arguments first.
+- Usually pre-gate BBAI, SASGameRecord and Runtime diagnostics at the caller: `if (bLog) doFunction(arg1, arg2, ...)`. This is for performance and tidiness: skip the function, argument evaluation and diagnostic-only setup when logging is disabled, especially when arguments construct lengthy detail strings.
+  - For example, `if (gUnitLogLevel >= 2) logUnitDecision(computeDetail());` skips both the detail computation and helper call; an early return inside the helper cannot undo either cost.
+  - This also limits side-effect risks: argument evaluation can change caches/state or consume RNG before a callee can reject the log call. Reuse values already computed by the real gameplay path instead of repeating decisions or introducing logging-only computation outside the gate; do not move required gameplay work inside the gate.
+  - Enabled diagnostics must remain observational too: preserve scoring, information scope, cache policy and RNG. Any extra diagnostic calculation belongs behind the gate and must not supply a gameplay result or mutate gameplay state.
+  - Rare justified exceptions must explain why they differ from that usual rule. For example, `CvGame::~CvGame()` calls the no-argument `updateSASRuntimeStatusCleanExit()` directly; its internal `if (g_iSASRuntimeStatusEnabled <= 0) return;` uses cached state only.
+    - A normal lazy caller predicate could perform its first XML lookup during teardown. Comment this reason beside the call and guard, including the small call/comparison cost that remains; do not expect agents to remember the chat.
   - Keep recorder-specific aggregation and output in `SASGameRecordLog.*`, with small pre-gated hooks in the observed code. For example, replay rejection hooks check a cached active-batch Boolean before passing failure facts, so disabled collection skips helper calls and diagnostic-only work.
     - Keep shared enums and their stringifiers with their domain owner, such as replay rejection reasons in `CvReplayInfo.h`; genuinely general tools can live in `CvGameCoreUtils.*`. A value used by SGR does not automatically belong to the recorder.
       - For example, popup types and confirmation-action IDs describe existing game UI, not concepts introduced by SGR or runtime status. Adding names or a shared enum/stringifier catalog for logging does not make that UI vocabulary recorder-owned; keep it with the UI domain or common helpers such as `CvGameCoreUtils.*`, where gameplay dispatch and both recorders can use it.
@@ -680,13 +686,13 @@ Clear, accurate explanations help users and developers understand the code and i
   - When an independent logging gate shares an `&&` condition with diagnostic predicates, put it first: disabled logging means no output regardless of those predicates, so evaluating them is needless and likely inefficient. This also keeps the diagnostic boundary clear and consistent.
     - Direct-attack probe example: change `if (!bDone && (missionData.eFlags & MOVE_DIRECT_ATTACK) && gUnitLogLevel >= 2)` to `if (gUnitLogLevel >= 2 && !bDone && (missionData.eFlags & MOVE_DIRECT_ATTACK))`.
     - Do not mechanically reorder conditions when evaluation order, side effects, null-safety, or prerequisite ordering could matter; use LLM/manual review rather than CI autofix.
-  - Prefer one outer logging gate when it can skip an entire logging-only loop/setup block; do not duplicate the same level check on every nested log call. A local `bLog...` cache is useful when reused for such a block, but BBAI `g*LogLevel` fields and `gGameRecordLogLevel` are already startup-cached direct reads, so do not add redundant local integer caches merely to avoid their access.
-  - Prefer ordinary `if (...)`, a named boolean, or an inline predicate over control-flow macros such as `#define IFLOG if (...)`; inherited instances should be handled as separate reviewed cleanups rather than folded into unrelated logging passes.
+  - One outer enabled block can pre-gate an entire logging-only loop or helper chain; do not repeat the same check at every nested call.
+    - Comment reliance on that scope when easy to miss: `recordSASRuntimePlayerTurnSummary` needs no adjacent enabled check because `publishSASRuntimeStatus` already gates its call and arguments.
+  - Reuse a local `bLog...` when it protects several operations, but do not duplicate existing caches: BBAI `g*LogLevel` and `gGameRecordLogLevel` are direct cached reads; `isSASRuntimeStatusEnabled()` owns Runtime's private cached switch.
   - For simple one-statement guards whose condition itself is the logging pre-gate, keep the guard on the log-call head (`if (bLog) logBBAI(...);`) while allowing a long argument tail to continue on following lines.
   - Treat this as a logging-family convention rather than a `logBBAI` special case: the same compact head applies to `logSASGameRecord...`, domain `SAS_log...`/`log...` helpers, and similarly named project logging helpers when the condition itself is the explicit logging gate.
   - Do not mechanically collapse semantic-only inner conditions such as `isDebug()`, `isNormalizing()`, `bCoastal`, or gameplay predicates merely because their body happens to log; an enclosing block may already perform the real logging pre-gate.
   - Apply this formatting incrementally to touched code rather than creating whole-DLL cosmetic churn.
-  - Logging must preserve scoring, information scope, cache policy and RNG; capture reasoning during the real calculation.
   - Keep diagnostics observation-only: a logging-only rerun must never supply a gameplay result, mutate gameplay caches/state or consume synchronized RNG. If a rerun is needed only to expose selected detail, isolate it behind the logging gate and discard its result.
   - Preserve documented log-level scope and cost: keep low levels compact, and reserve per-candidate/component detail for the documented higher levels. Keep each category's exact level meanings beside its XML setting; implementation history belongs in Known Issues (for example KI#505.2 and KI#505.3).
   - Prefer direct pre-gated logger rows over temporary `ostringstream`/string aggregation when the same diagnostic can be expressed clearly as ordinary structured fields or rows. Use stream/string builders when one value genuinely needs variable-length aggregation or for non-diagnostic/user-facing text; in diagnostic code, keep that construction behind the relevant logging gate.
@@ -720,7 +726,9 @@ int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, 
 
 ## Diagnostic revision maintenance
 
-- A revision entry may say `pending` in its introducing commit; finalize its full SHA in the next commit even if that commit does not change the recorder. After an amend/rebase/squash, reconcile rewritten references and practical numbers with the resulting history; an ordinary merge preserves the original commit identities. The commit-reference check validates both recorder histories.
+- A revision entry may say `pending` in its introducing commit; finalize its full SHA in the next commit even if that commit does not change the recorder.
+  - This is an exception to avoiding vague progress labels: the work is finished and included, but a commit cannot contain its own final SHA. Here `pending` marks only that unavoidable missing reference, not a promise of further implementation changes.
+  - After an amend/rebase/squash, reconcile rewritten references and practical numbers with the resulting history; an ordinary merge preserves the original commit identities. The commit-reference check validates both recorder histories.
 - For a PR explicitly labeled `revision:squash`, apply revision maintenance once to the complete candidate relative to its base; ordinary PRs retain per-commit maintenance. Both recorder checks accept local `--squash` review.
 
 ### SASGameRecord

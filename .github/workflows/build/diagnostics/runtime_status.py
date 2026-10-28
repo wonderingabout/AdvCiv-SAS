@@ -21,7 +21,7 @@ def main() -> int:
     parser.add_argument("--repo-root", type=Path, default=get_default_repo_root())
     args = parser.parse_args()
     # <!-- custom: Source observation is independently opt-in; enforce its shipped default too, even when the parent runtime switch is off. (GPT-6.1-Sol) -->
-    failures = require_int_values(read_global_define_ints(args.repo_root), {"SAS_RUNTIME_STATUS_ON": 0, "SAS_RUNTIME_SOURCE_WATCH_ON": 0})
+    failures = require_int_values(read_global_define_ints(args.repo_root), {"SAS_RUNTIME_STATUS_ON": 0, "SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS": 3000, "SAS_RUNTIME_PLAYER_TURN_LIVE_REFRESH_MS": 3000, "SAS_RUNTIME_SOURCE_WATCH_ON": 0})
     if failures:
         print("FAIL SAS runtime-status default")
         for failure in failures:

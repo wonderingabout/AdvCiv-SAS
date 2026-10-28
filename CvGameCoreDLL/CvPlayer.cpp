@@ -9469,6 +9469,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 	m_bTurnActive = bNewValue;
 	CvGame& kGame = GC.getGame();
+	// <!-- custom: Runtime player timing follows this native sequential-turn lifecycle rather than Python begin/end-player callbacks, which miss the long active movement interval.
+	// Pre-gate the optional diagnostics so Runtime-off gameplay adds no player metadata/timestamp work. (ChatGPT-5.6-Sol) -->
+	if (isSASRuntimeStatusEnabled() && bDoTurn && isTurnActive()) updateSASRuntimeStatusPlayerTurnStarted(getID());
 	if (isTurnActive())
 	{
 		FAssert(isAlive());
@@ -9579,9 +9582,17 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 				kGame.cycleSelectionGroups_delayed(1, false);
 			gDLL->UI().setDirty(SelectionCamera_DIRTY_BIT, true);
 		}
+		// <!-- custom: Activation/setup is complete; the player now remains active through AI movement or human input until the native deactivation path below. (ChatGPT-5.6-Sol) -->
+		if (isSASRuntimeStatusEnabled() && bDoTurn) updateSASRuntimeStatusPlayerTurnMain(getID());
 	}
 	else
 	{
+		// <!-- custom: Start ending timing before inherited cleanup/doTurn. A bDoTurn=false deactivation is not an ordinary completed turn; clear any matching measurement as interrupted. (ChatGPT-5.6-Sol) -->
+		if (isSASRuntimeStatusEnabled())
+		{
+			if (bDoTurn) updateSASRuntimeStatusPlayerTurnEnding(getID());
+			else updateSASRuntimeStatusPlayerTurnEnded(getID(), false);
+		}
 		GC.getLogger().logTurnActive(getID()); // advc.003t
 
 		if (isActive())
@@ -9608,6 +9619,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 				{
 					kGame.setHotPbemBetweenTurns(true);
 				}
+
+				// <!-- custom: Finish this measurement before the inherited code can recursively activate the next player; otherwise the next start would overwrite the just-ended civilization's context. (ChatGPT-5.6-Sol) -->
+				if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusPlayerTurnEnded(getID(), true);
 
 				if (kGame.isSimultaneousTeamTurns())
 				{

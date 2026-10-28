@@ -135,7 +135,8 @@ CvGame::~CvGame()
 	// <!-- custom: Using the reset/load root-waiting mode here would leave pending startup diagnostics unwritten if initialization ended before BUG supplied its root.
 	// Destruction has no later handoff to wait for, so retry final output with native fallback discovery and close session handles; an empty writer does no file I/O. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	flushSASDiagnosticLogs(true, true);
-	// <!-- custom: Mark only orderly CvGame destruction as a clean process exit; a crash leaves the previous RUNNING status plus PID/process-start identity for stale-state detection. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Mark only orderly CvGame destruction as a clean process exit; a crash leaves the previous RUNNING status plus PID/process-start identity for stale-state detection.
+	// Intentional exception to caller pre-gating: this no-argument function checks only Runtime's existing cached switch internally; calling the normal lazy predicate here could trigger a first XML lookup during global teardown. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	updateSASRuntimeStatusCleanExit();
 	uninit();
 	SAFE_DELETE(m_pRiseFall); // advc.700
@@ -3212,6 +3213,8 @@ void CvGame::updateUnprofiled()
 	}
 	updateScore();
 	updateWar();
+	// <!-- custom: One cheap Runtime-gated elapsed check per ordinary update slice can refresh a genuinely slow AI turn without polling every unit/group or writing for fast players. (ChatGPT-5.6-Sol) -->
+	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusPlayerTurnProgress();
 	updateMoves();
 	updateTimers();
 	updateTurnTimer();

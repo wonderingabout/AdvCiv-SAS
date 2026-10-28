@@ -850,6 +850,43 @@ def modification_header_order_errors(path: str, old: str, new: str) -> list[str]
     return []
 
 
+# <!-- custom: Dense JSON key lists made Runtime field additions inconsistent to review; adjacent C++ literals keep one field per source fragment without changing emitted bytes or adding runtime concatenation.
+# Inspect direct literal Format/format arguments, skipping comments/chars and unchanged inherited groups; keys are discovered from the JSON syntax rather than a maintained field-name list. (GPT-6.1-Sol) -->
+def cpp_json_format_errors(path: str, old: str, new: str) -> list[str]:
+    lexer = re.compile(r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|[A-Za-z_]\w*|[^\s]', re.S)
+    def groups(text):
+        tokens = [m for m in lexer.finditer(text) if not m.group().startswith(("//", "/*"))]
+        for index in range(max(0, len(tokens) - 2)):
+            token = tokens[index]
+            if token.group() not in {"Format", "format"} or tokens[index + 1].group() != "(":
+                continue
+            literals = []
+            for next_index in range(index + 2, len(tokens)):
+                value = tokens[next_index]
+                if not value.group().startswith('"'):
+                    break
+                literals.append(value)
+            if literals:
+                yield literals
+    previous = defaultdict(int)
+    for values in groups(old):
+        previous[tuple(value.group() for value in values)] += 1
+    errors = []
+    for values in groups(new):
+        identity = tuple(value.group() for value in values)
+        if previous[identity]:
+            previous[identity] -= 1
+            continue
+        prefix = values[0].group()[1:-1]
+        if not re.match(r'^(?:%s)?(?:\{|\],|\\")', prefix):
+            continue
+        for value in values:
+            if len(re.findall(r'\\"[^"\\]*\\"\s*:', value.group())) > 1:
+                line = new.count("\n", 0, value.start()) + 1
+                errors.append(f"{path}:{line}: JSON format literal combines multiple fields; use one field per adjacent C++ literal")
+    return errors
+
+
 # <!-- custom: Add an optional warnings collector so missing model credits remain advisory: Git cannot distinguish an uncredited user comment from an LLM comment.
 # Other provenance failures retain their blocking results. (GPT-6.1-Sol) -->
 def check_change(path: str, old_text: str | None, new_text: str | None, warnings: list[str] | None = None) -> list[str]:
@@ -863,6 +900,8 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
     errors.extend(modification_header_order_errors(path, old_text, new_text))
     if suffix in PY_SUFFIXES:
         errors.extend(python_inline_suite_errors(path, old_text, new_text))
+    if suffix in CPP_SUFFIXES:
+        errors.extend(cpp_json_format_errors(path, old_text, new_text))
     old_comments = comments(old_text, suffix)
     new_comments = comments(new_text, suffix)
     # <!-- custom: A KI#243.2 rationale used a multiline C++ block around its custom prose, unlike our per-line // convention.

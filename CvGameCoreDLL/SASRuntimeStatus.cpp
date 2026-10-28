@@ -15,7 +15,7 @@
 // Compile the label into the publisher: an edited XML value must not make an older loaded DLL report a newer implementation; this counter is independent of SASGameRecord and binary-save versions. (GPT-6.1-Sol) -->
 enum SASRuntimeRecorderRevision
 {
-	SAS_RUNTIME_REVISION = 12
+	SAS_RUNTIME_REVISION = 13
 };
 
 #define SAS_RUNTIME_PROCESS_STATES(DO) DO(RUNNING) DO(EXITED_CLEANLY) DO(EXITED)
@@ -115,8 +115,94 @@ static bool g_bSASRuntimeHistoryMetadataWritten = false;
 static bool g_bSASRuntimeHistoryMayContainRows = false;
 static bool g_bSASRuntimeHistoryAtCurrentRoot = false;
 
+// <!-- custom: Player-turn timing is in-memory instrumentation layered on Runtime rather than a per-player log stream.
+// Sequential native turn boundaries retain every measured player's phase durations until TURN_COMPLETED writes one compact summary; slow AI-controlled turns may additionally refresh only the overwrite-only current snapshot.
+// Simultaneous turn modes are reported as such but deliberately do not pretend overlapping active turns identify one executing civilization. (ChatGPT-5.6-Sol) -->
+#define SAS_RUNTIME_PLAYER_TURN_MODES(DO) DO(UNAVAILABLE) DO(SEQUENTIAL) DO(SIMULTANEOUS)
+enum SASRuntimePlayerTurnMode
+{
+#define SAS_RUNTIME_PLAYER_TURN_MODE_ENUM(NAME) SAS_RUNTIME_PLAYER_TURN_MODE_##NAME,
+	SAS_RUNTIME_PLAYER_TURN_MODES(SAS_RUNTIME_PLAYER_TURN_MODE_ENUM)
+#undef SAS_RUNTIME_PLAYER_TURN_MODE_ENUM
+};
+static char const* const aSASRuntimePlayerTurnModeNames[] =
+{
+#define SAS_RUNTIME_PLAYER_TURN_MODE_NAME(NAME) #NAME,
+	SAS_RUNTIME_PLAYER_TURN_MODES(SAS_RUNTIME_PLAYER_TURN_MODE_NAME)
+#undef SAS_RUNTIME_PLAYER_TURN_MODE_NAME
+};
+#undef SAS_RUNTIME_PLAYER_TURN_MODES
+
+#define SAS_RUNTIME_PLAYER_TURN_CONTROLS(DO) DO(NONE) DO(AI) DO(HUMAN) DO(HUMAN_DISABLED) DO(BARBARIAN)
+enum SASRuntimePlayerTurnControl
+{
+#define SAS_RUNTIME_PLAYER_TURN_CONTROL_ENUM(NAME) SAS_RUNTIME_PLAYER_TURN_CONTROL_##NAME,
+	SAS_RUNTIME_PLAYER_TURN_CONTROLS(SAS_RUNTIME_PLAYER_TURN_CONTROL_ENUM)
+#undef SAS_RUNTIME_PLAYER_TURN_CONTROL_ENUM
+};
+static char const* const aSASRuntimePlayerTurnControlNames[] =
+{
+#define SAS_RUNTIME_PLAYER_TURN_CONTROL_NAME(NAME) #NAME,
+	SAS_RUNTIME_PLAYER_TURN_CONTROLS(SAS_RUNTIME_PLAYER_TURN_CONTROL_NAME)
+#undef SAS_RUNTIME_PLAYER_TURN_CONTROL_NAME
+};
+#undef SAS_RUNTIME_PLAYER_TURN_CONTROLS
+
+#define SAS_RUNTIME_PLAYER_TURN_PHASES(DO) DO(NONE) DO(ACTIVATING) DO(AI_MOVES) DO(HUMAN_INPUT) DO(ENDING)
+enum SASRuntimePlayerTurnPhase
+{
+#define SAS_RUNTIME_PLAYER_TURN_PHASE_ENUM(NAME) SAS_RUNTIME_PLAYER_TURN_PHASE_##NAME,
+	SAS_RUNTIME_PLAYER_TURN_PHASES(SAS_RUNTIME_PLAYER_TURN_PHASE_ENUM)
+#undef SAS_RUNTIME_PLAYER_TURN_PHASE_ENUM
+};
+static char const* const aSASRuntimePlayerTurnPhaseNames[] =
+{
+#define SAS_RUNTIME_PLAYER_TURN_PHASE_NAME(NAME) #NAME,
+	SAS_RUNTIME_PLAYER_TURN_PHASES(SAS_RUNTIME_PLAYER_TURN_PHASE_NAME)
+#undef SAS_RUNTIME_PLAYER_TURN_PHASE_NAME
+};
+#undef SAS_RUNTIME_PLAYER_TURN_PHASES
+
+struct SASRuntimePlayerTurnRecord
+{
+	int iPlayer;
+	int iTeam;
+	int iCivilization;
+	SASRuntimePlayerTurnControl eControl;
+	CvString szCivilizationType;
+	CvString szStartedUtc;
+	CvString szEndedUtc;
+	uint uiTotalMilliseconds;
+	uint uiActivatingMilliseconds;
+	uint uiMainMilliseconds;
+	uint uiEndingMilliseconds;
+	bool bCompleted;
+};
+
+static PlayerTypes g_eSASRuntimePlayerTurnPlayer = NO_PLAYER;
+static TeamTypes g_eSASRuntimePlayerTurnTeam = NO_TEAM;
+static CivilizationTypes g_eSASRuntimePlayerTurnCivilization = NO_CIVILIZATION;
+static SASRuntimePlayerTurnControl g_eSASRuntimePlayerTurnControl = SAS_RUNTIME_PLAYER_TURN_CONTROL_NONE;
+static SASRuntimePlayerTurnPhase g_eSASRuntimePlayerTurnPhase = SAS_RUNTIME_PLAYER_TURN_PHASE_NONE;
+static CvString g_szSASRuntimePlayerTurnCivilizationType = "-";
+static CvString g_szSASRuntimePlayerTurnStartedUtc = "-";
+static CvString g_szSASRuntimePlayerTurnPhaseStartedUtc = "-";
+static uint g_uiSASRuntimePlayerTurnStartedMilliseconds = 0;
+static uint g_uiSASRuntimePlayerTurnPhaseStartedMilliseconds = 0;
+static uint g_uiSASRuntimePlayerTurnActivatingMilliseconds = 0;
+static uint g_uiSASRuntimePlayerTurnMainMilliseconds = 0;
+static uint g_uiSASRuntimePlayerTurnEndingMilliseconds = 0;
+static uint g_uiSASRuntimePlayerTurnLastLivePublicationMilliseconds = 0;
+static bool g_bSASRuntimePlayerTurnLivePublicationAttempted = false;
+static bool g_bSASRuntimePlayerTurnContextPublished = false;
+static int g_iSASRuntimePlayerTurnSummaryTurn = -1;
+static bool g_bSASRuntimePlayerTurnSummaryBoundariesComplete = true;
+static std::vector<SASRuntimePlayerTurnRecord> g_aSASRuntimePlayerTurnRecords;
+
 // <!-- custom: Keep the external-agent runtime status independent from the structured game-record and AI-diagnostic enablement.
-// It is default-off and transition-driven; the fixed JSON is current state, with completed activity intervals retained in a companion timeline.
+// It is default-off and primarily boundary-driven; the fixed JSON is current state, with an optional throttled slow-player progress refresh and completed evidence retained in the companion JSONL.
+// The tri-state integer below caches the XML switch once (-1 uninitialized, 0 off, 1 on); repeated isSASRuntimeStatusEnabled calls only read this cache after initialization.
+// Keep that cache private behind the named predicate so callers cannot bypass its lazy initialization or mutate it; do not add separate per-caller copies of the same switch.
 // Session/load counters live for the DLL process so repeated new/load actions are distinguishable without retaining a growing history in memory. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static int g_iSASRuntimeStatusEnabled = -1;
 // <!-- custom: Live Python/XML disk-edit observation is a separate default-off subfeature of runtime diagnostics; cache its define independently so ordinary Runtime status does not start a filesystem watcher. (ChatGPT-5.6-Sol) -->
@@ -212,6 +298,89 @@ static bool isSASRuntimeSourceWatchEnabled()
 }
 
 static bool writeSASRuntimeStatus(SASRuntimeStatusReason eReason);
+
+// <!-- custom: These settings affect only Runtime's live slow-player publication cadence, not the in-memory measurements or gameplay.
+// Cache them only after Runtime itself is enabled; -1 threshold disables live refresh, while refresh 0 means publish only the first threshold crossing. (ChatGPT-5.6-Sol) -->
+static int getSASRuntimePlayerTurnLiveThresholdMilliseconds()
+{
+	static int iMilliseconds = std::max(-1, GC.getDefineINT("SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS"));
+	return iMilliseconds;
+}
+
+static int getSASRuntimePlayerTurnLiveRefreshMilliseconds()
+{
+	static int iMilliseconds = std::max(0, GC.getDefineINT("SAS_RUNTIME_PLAYER_TURN_LIVE_REFRESH_MS"));
+	return iMilliseconds;
+}
+
+static SASRuntimePlayerTurnMode getSASRuntimePlayerTurnMode()
+{
+	CvGame const& kGame = GC.getGame();
+	if (g_eSASRuntimeGameState != SAS_RUNTIME_GAME_PLAYING || !kGame.isFinalInitialized())
+		return SAS_RUNTIME_PLAYER_TURN_MODE_UNAVAILABLE;
+	if (kGame.isMPOption(MPOPTION_SIMULTANEOUS_TURNS) || kGame.isSimultaneousTeamTurns())
+		return SAS_RUNTIME_PLAYER_TURN_MODE_SIMULTANEOUS;
+	return SAS_RUNTIME_PLAYER_TURN_MODE_SEQUENTIAL;
+}
+
+static SASRuntimePlayerTurnControl getSASRuntimePlayerTurnControl(CvPlayer const& kPlayer)
+{
+	if (kPlayer.isBarbarian())
+		return SAS_RUNTIME_PLAYER_TURN_CONTROL_BARBARIAN;
+	if (kPlayer.isHumanDisabled())
+		return SAS_RUNTIME_PLAYER_TURN_CONTROL_HUMAN_DISABLED;
+	if (kPlayer.isHuman())
+		return SAS_RUNTIME_PLAYER_TURN_CONTROL_HUMAN;
+	return SAS_RUNTIME_PLAYER_TURN_CONTROL_AI;
+}
+
+static bool isSASRuntimeAIControlledPlayerTurn()
+{
+	return g_eSASRuntimePlayerTurnControl == SAS_RUNTIME_PLAYER_TURN_CONTROL_AI ||
+		g_eSASRuntimePlayerTurnControl == SAS_RUNTIME_PLAYER_TURN_CONTROL_HUMAN_DISABLED ||
+		g_eSASRuntimePlayerTurnControl == SAS_RUNTIME_PLAYER_TURN_CONTROL_BARBARIAN;
+}
+
+static void clearSASRuntimeCurrentPlayerTurn()
+{
+	g_eSASRuntimePlayerTurnPlayer = NO_PLAYER;
+	g_eSASRuntimePlayerTurnTeam = NO_TEAM;
+	g_eSASRuntimePlayerTurnCivilization = NO_CIVILIZATION;
+	g_eSASRuntimePlayerTurnControl = SAS_RUNTIME_PLAYER_TURN_CONTROL_NONE;
+	g_eSASRuntimePlayerTurnPhase = SAS_RUNTIME_PLAYER_TURN_PHASE_NONE;
+	g_szSASRuntimePlayerTurnCivilizationType = "-";
+	g_szSASRuntimePlayerTurnStartedUtc = "-";
+	g_szSASRuntimePlayerTurnPhaseStartedUtc = "-";
+	g_uiSASRuntimePlayerTurnStartedMilliseconds = 0;
+	g_uiSASRuntimePlayerTurnPhaseStartedMilliseconds = 0;
+	g_uiSASRuntimePlayerTurnActivatingMilliseconds = 0;
+	g_uiSASRuntimePlayerTurnMainMilliseconds = 0;
+	g_uiSASRuntimePlayerTurnEndingMilliseconds = 0;
+	g_uiSASRuntimePlayerTurnLastLivePublicationMilliseconds = 0;
+	g_bSASRuntimePlayerTurnLivePublicationAttempted = false;
+	g_bSASRuntimePlayerTurnContextPublished = false;
+}
+
+static void resetSASRuntimePlayerTurnTiming()
+{
+	clearSASRuntimeCurrentPlayerTurn();
+	g_iSASRuntimePlayerTurnSummaryTurn = -1;
+	g_bSASRuntimePlayerTurnSummaryBoundariesComplete = true;
+	g_aSASRuntimePlayerTurnRecords.clear();
+}
+
+static void addSASRuntimeCurrentPlayerTurnPhase(uint uiNowMilliseconds)
+{
+	if (g_eSASRuntimePlayerTurnPlayer == NO_PLAYER || g_eSASRuntimePlayerTurnPhase == SAS_RUNTIME_PLAYER_TURN_PHASE_NONE)
+		return;
+	uint const uiElapsed = getSASElapsedMilliseconds(g_uiSASRuntimePlayerTurnPhaseStartedMilliseconds, uiNowMilliseconds);
+	if (g_eSASRuntimePlayerTurnPhase == SAS_RUNTIME_PLAYER_TURN_PHASE_ACTIVATING)
+		g_uiSASRuntimePlayerTurnActivatingMilliseconds += uiElapsed;
+	else if (g_eSASRuntimePlayerTurnPhase == SAS_RUNTIME_PLAYER_TURN_PHASE_AI_MOVES || g_eSASRuntimePlayerTurnPhase == SAS_RUNTIME_PLAYER_TURN_PHASE_HUMAN_INPUT)
+		g_uiSASRuntimePlayerTurnMainMilliseconds += uiElapsed;
+	else if (g_eSASRuntimePlayerTurnPhase == SAS_RUNTIME_PLAYER_TURN_PHASE_ENDING)
+		g_uiSASRuntimePlayerTurnEndingMilliseconds += uiElapsed;
+}
 
 static bool resolveSASRuntimeStatusDefaultRootDirectory()
 {
@@ -663,6 +832,63 @@ static bool recordSASRuntimeHistoryRow(CvString const& szRow, bool* pbContentCom
 	return false;
 }
 
+// <!-- custom: Emit one bounded row for the just-completed sequential game turn instead of one history row per player boundary.
+// Every measured player remains in memory regardless of speed; complete=0 flags a missing/mismatched native boundary rather than inventing a duration.
+// The enclosing enabled scope in publishSASRuntimeStatus pre-gates this call and its arguments; repeating the switch beside this private helper would not skip additional work.
+// The mode check here is a timing-policy check, not the logging gate.
+// Row/string construction occurs only after that enclosing gate and only at the completed-turn publication boundary.
+// Simultaneous-turn modes deliberately emit no sequential summary because overlapping active turns do not identify one executing civilization. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static void recordSASRuntimePlayerTurnSummary(int iCompletedTurn, CvString const& szRecordedUtc)
+{
+	if (getSASRuntimePlayerTurnMode() != SAS_RUNTIME_PLAYER_TURN_MODE_SEQUENTIAL)
+	{
+		resetSASRuntimePlayerTurnTiming();
+		return;
+	}
+	if (g_aSASRuntimePlayerTurnRecords.empty() || g_iSASRuntimePlayerTurnSummaryTurn < 0)
+		return;
+	bool const bComplete = g_bSASRuntimePlayerTurnSummaryBoundariesComplete && g_eSASRuntimePlayerTurnPlayer == NO_PLAYER && g_iSASRuntimePlayerTurnSummaryTurn == iCompletedTurn;
+	CvString szRow;
+	szRow.Format("{\"record\":\"player_turn_summary\","
+		"\"revision\":%d,"
+		"\"run\":\"%s\","
+		"\"recordedUtc\":\"%s\","
+		"\"sessionSerial\":%u,"
+		"\"gameTurn\":%d,"
+		"\"timingMode\":\"SEQUENTIAL\","
+		"\"complete\":%d,"
+		"\"players\":[",
+		SAS_RUNTIME_REVISION, getSASRuntimeHistoryRunId().GetCString(), szRecordedUtc.GetCString(), g_uiSASRuntimeSessionSerial, g_iSASRuntimePlayerTurnSummaryTurn, bComplete ? 1 : 0);
+	for (size_t i = 0; i < g_aSASRuntimePlayerTurnRecords.size(); i++)
+	{
+		SASRuntimePlayerTurnRecord const& kRecord = g_aSASRuntimePlayerTurnRecords[i];
+		CvString szPlayer;
+		szPlayer.Format("%s{\"player\":%d,"
+			"\"team\":%d,"
+			"\"civilization\":%d,"
+			"\"civilizationType\":\"%s\","
+			"\"control\":\"%s\","
+			"\"startedUtc\":\"%s\","
+			"\"endedUtc\":\"%s\","
+			"\"totalMilliseconds\":%u,"
+			"\"activatingMilliseconds\":%u,"
+			"\"mainMilliseconds\":%u,"
+			"\"endingMilliseconds\":%u,"
+			"\"completed\":%d}",
+			(i == 0 ? "" : ","), kRecord.iPlayer, kRecord.iTeam, kRecord.iCivilization, kRecord.szCivilizationType.GetCString(), aSASRuntimePlayerTurnControlNames[kRecord.eControl], kRecord.szStartedUtc.GetCString(), kRecord.szEndedUtc.GetCString(),
+			kRecord.uiTotalMilliseconds, kRecord.uiActivatingMilliseconds, kRecord.uiMainMilliseconds, kRecord.uiEndingMilliseconds, kRecord.bCompleted ? 1 : 0);
+		szRow += szPlayer;
+	}
+	CvString szTail;
+	szTail.Format("],"
+		"\"priorStatusWriteFailures\":%u,"
+		"\"priorHistoryWriteFailures\":%u}\r\n", g_uiSASRuntimeStatusWriteFailures, g_uiSASRuntimeHistoryWriteFailures);
+	szRow += szTail;
+	// <!-- custom: This is a bounded best-effort summary: after the write attempt, release the turn records even if output failed; the history failure counter discloses loss instead of accumulating an unbounded backlog of turns. (GPT-6.1-Sol) -->
+	recordSASRuntimeHistoryRow(szRow);
+	resetSASRuntimePlayerTurnTiming();
+}
+
 // <!-- custom: Normally publish one run record before transitions so constant revision/process/DLL identity is not repeated on every line.
 // If this metadata write fails, transition rows still carry revision + run ID and prior failure counters; open/partial failures retry later, while a full row with unconfirmed close is not duplicated. (ChatGPT-5.6-Sol) -->
 static bool ensureSASRuntimeHistoryMetadata()
@@ -731,7 +957,8 @@ static void ensureSASRuntimeHistorySessionMetadata()
 	if (!g_bSASRuntimeHistoryMetadataWritten || g_szSASRuntimeHistoryPendingSessionMetadata.empty())
 		return;
 	CvString szRow;
-	szRow.Format("%s\"priorStatusWriteFailures\":%u,\"priorHistoryWriteFailures\":%u}\r\n",
+	szRow.Format("%s\"priorStatusWriteFailures\":%u,"
+		"\"priorHistoryWriteFailures\":%u}\r\n",
 		g_szSASRuntimeHistoryPendingSessionMetadata.GetCString(), g_uiSASRuntimeStatusWriteFailures, g_uiSASRuntimeHistoryWriteFailures);
 	bool bContentComplete = false;
 	bool const bConfirmed = recordSASRuntimeHistoryRow(szRow, &bContentComplete);
@@ -853,7 +1080,7 @@ static void updateSASRuntimeActivity(SASRuntimeStatusReason eReason, CvString co
 }
 
 // <!-- custom: Write one small current-state JSON file for external agents.
-// This snapshot stays overwrite-only; the companion JSONL retains timed activity transitions without rewriting an ever-growing history each turn.
+// This snapshot stays overwrite-only; the companion JSONL retains timed activity transitions and one compact completed-turn player summary without rewriting an ever-growing current-state file.
 // Readers may momentarily catch the short CREATE_ALWAYS rewrite and should retry malformed JSON; avoiding rename/delete semantics keeps ordinary readers from blocking updates.
 // Its fixed name is a discovery endpoint; the timestamped runtime timeline retains coarse state intervals, while SASGameRecord owns detailed game/action evidence.
 // The dedicated enable flag controls direct writes independently of LoggingEnabled/MessageLog/RandLog/SynchLog; OverwriteLogs does not apply to a current-state snapshot.
@@ -866,7 +1093,7 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 	if (eReason < 0 || eReason >= NUM_SAS_RUNTIME_STATUS_REASONS)
 		return false;
 	// <!-- custom: Do not retry window discovery on ordinary turn heartbeats; startup/menu/session/request boundaries provide repeated low-frequency opportunities to arm the observer if the window did not exist yet. (ChatGPT-5.6-Sol) -->
-	if (eReason != SAS_RUNTIME_STATUS_TURN_COMPLETED && eReason != SAS_RUNTIME_STATUS_PROCESS_EXIT && !isSASRuntimeWindowCloseReason(eReason))
+	if (eReason != SAS_RUNTIME_STATUS_TURN_COMPLETED && eReason != SAS_RUNTIME_STATUS_PLAYER_TURN_PROGRESS && eReason != SAS_RUNTIME_STATUS_PLAYER_TURN_ENDED && eReason != SAS_RUNTIME_STATUS_PROCESS_EXIT && !isSASRuntimeWindowCloseReason(eReason))
 		ensureSASRuntimeWindowMessageHook();
 	// <!-- custom: Sample the observed boundary before root discovery or file I/O, so slow publication does not redefine when creation/loading or autoplay changed state. (GPT-6.1-Sol) -->
 	CvString const szUpdatedUtc = createSASUtcTimestampMilliseconds();
@@ -896,6 +1123,11 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 	char const* szLoadedCheckpointUtc = "-";
 	if (bGameLoaded && g_eSASRuntimeSessionKind == SAS_RUNTIME_SESSION_LOAD_GAME && kGame.getSASLoadedSaveCheckpointUtc() != NULL && kGame.getSASLoadedSaveCheckpointUtc()[0] != '\0')
 		szLoadedCheckpointUtc = kGame.getSASLoadedSaveCheckpointUtc();
+	// <!-- custom: Timing fields below, including the JSON literal fields, are prepared inside this already-enabled publisher; absent player context uses explicit sentinel values rather than fabricating current execution. (GPT-6.1-Sol) -->
+	SASRuntimePlayerTurnMode const ePlayerTurnMode = getSASRuntimePlayerTurnMode();
+	bool const bPlayerTurnActive = (g_eSASRuntimePlayerTurnPlayer != NO_PLAYER && ePlayerTurnMode == SAS_RUNTIME_PLAYER_TURN_MODE_SEQUENTIAL);
+	__int64 const iPlayerTurnElapsedMilliseconds = (bPlayerTurnActive ? (__int64)getSASElapsedMilliseconds(g_uiSASRuntimePlayerTurnStartedMilliseconds, uiNowMilliseconds) : (__int64)-1);
+	__int64 const iPlayerTurnPhaseElapsedMilliseconds = (bPlayerTurnActive ? (__int64)getSASElapsedMilliseconds(g_uiSASRuntimePlayerTurnPhaseStartedMilliseconds, uiNowMilliseconds) : (__int64)-1);
 	if (bGameLoaded)
 		captureSASRuntimeHistorySessionMetadata(szUpdatedUtc, iGameTurn, iActivePlayer, iMapWidth, iMapHeight, iWorldSize, iGameSpeed, iScenario, iLoadedCheckpointTurn, iLoadedCheckpointElapsedTurn, szLoadedCheckpointUtc);
 	// <!-- custom: Failed output must not postpone the observed transition or inflate the next interval; retain timing in memory and disclose unsuccessful history appends when publication resumes. (GPT-6.1-Sol) -->
@@ -905,6 +1137,8 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 		ensureSASRuntimeHistoryMetadata();
 		// <!-- custom: Normally session context precedes its ready transition; after I/O failure, retry the captured context even if this update reports a menu/reset boundary. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		ensureSASRuntimeHistorySessionMetadata();
+		if (eReason == SAS_RUNTIME_STATUS_TURN_COMPLETED)
+			recordSASRuntimePlayerTurnSummary(g_iSASRuntimeLastCompletedTurn, szUpdatedUtc);
 	}
 	else g_bSASRuntimeHistoryAtCurrentRoot = false;
 	updateSASRuntimeActivity(eReason, szUpdatedUtc, uiNowMilliseconds, iGameTurn, iAutoPlayRemaining);
@@ -982,6 +1216,22 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 		"  \"elapsedGameTurns\": %d,\r\n"
 		"  \"lastCompletedTurn\": %d,\r\n"
 		"  \"activePlayer\": %d,\r\n"
+		"  \"playerTurnTimingMode\": \"%s\",\r\n"
+		"  \"playerTurnPlayer\": %d,\r\n"
+		"  \"playerTurnTeam\": %d,\r\n"
+		"  \"playerTurnCivilization\": %d,\r\n"
+		"  \"playerTurnCivilizationType\": \"%s\",\r\n"
+		"  \"playerTurnControl\": \"%s\",\r\n"
+		"  \"playerTurnPhase\": \"%s\",\r\n"
+		"  \"playerTurnStartedUtc\": \"%s\",\r\n"
+		"  \"playerTurnElapsedMilliseconds\": %I64d,\r\n"
+		"  \"playerTurnPhaseStartedUtc\": \"%s\",\r\n"
+		"  \"playerTurnPhaseElapsedMilliseconds\": %I64d,\r\n"
+		"  \"playerTurnSummaryTurn\": %d,\r\n"
+		"  \"playerTurnSummaryPlayersMeasured\": %u,\r\n"
+		"  \"playerTurnSummaryBoundariesComplete\": %d,\r\n"
+		"  \"playerTurnLiveThresholdMilliseconds\": %d,\r\n"
+		"  \"playerTurnLiveRefreshMilliseconds\": %d,\r\n"
 		"  \"autoplayActive\": %d,\r\n"
 		"  \"autoplayRemainingTurns\": %d,\r\n"
 		"  \"mapWidth\": %d,\r\n"
@@ -1009,6 +1259,11 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 		g_bSASRuntimeButtonPopupAwaitingInteraction ? 1 : 0, getSASButtonPopupTypeName(g_eSASRuntimeButtonPopupType), (int)g_eSASRuntimeButtonPopupType, g_iSASRuntimeButtonPopupActivePlayer,
 		g_szSASRuntimeButtonPopupFocusedUtc.GetCString(), g_szSASRuntimeButtonPopupResolvedUtc.GetCString(), g_szSASRuntimeButtonPopupResolution.GetCString(), g_iSASRuntimeButtonPopupResponseButton, iExtendedGame,
 		iGameTurn, iElapsedGameTurns, g_iSASRuntimeLastCompletedTurn, iActivePlayer,
+		aSASRuntimePlayerTurnModeNames[ePlayerTurnMode], bPlayerTurnActive ? (int)g_eSASRuntimePlayerTurnPlayer : -1, bPlayerTurnActive ? (int)g_eSASRuntimePlayerTurnTeam : -1, bPlayerTurnActive ? (int)g_eSASRuntimePlayerTurnCivilization : -1,
+		bPlayerTurnActive ? g_szSASRuntimePlayerTurnCivilizationType.GetCString() : "-", bPlayerTurnActive ? aSASRuntimePlayerTurnControlNames[g_eSASRuntimePlayerTurnControl] : aSASRuntimePlayerTurnControlNames[SAS_RUNTIME_PLAYER_TURN_CONTROL_NONE],
+		bPlayerTurnActive ? aSASRuntimePlayerTurnPhaseNames[g_eSASRuntimePlayerTurnPhase] : aSASRuntimePlayerTurnPhaseNames[SAS_RUNTIME_PLAYER_TURN_PHASE_NONE], bPlayerTurnActive ? g_szSASRuntimePlayerTurnStartedUtc.GetCString() : "-", iPlayerTurnElapsedMilliseconds,
+		bPlayerTurnActive ? g_szSASRuntimePlayerTurnPhaseStartedUtc.GetCString() : "-", iPlayerTurnPhaseElapsedMilliseconds, g_iSASRuntimePlayerTurnSummaryTurn, (unsigned int)g_aSASRuntimePlayerTurnRecords.size(), g_bSASRuntimePlayerTurnSummaryBoundariesComplete ? 1 : 0,
+		getSASRuntimePlayerTurnLiveThresholdMilliseconds(), getSASRuntimePlayerTurnLiveRefreshMilliseconds(),
 		(iAutoPlayRemaining > 0 ? 1 : 0), iAutoPlayRemaining, iMapWidth, iMapHeight, iWorldSize, iGameSpeed, iScenario,
 		iLoadedCheckpointTurn, iLoadedCheckpointElapsedTurn, szLoadedCheckpointUtc);
 
@@ -1034,6 +1289,8 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 	bool const bComplete = (bWriteSucceeded && iWrittenTotal == szJson.size() && bClosed != FALSE);
 	if (bComplete)
 	{
+		if (g_eSASRuntimePlayerTurnPlayer != NO_PLAYER)
+			g_bSASRuntimePlayerTurnContextPublished = true;
 		g_szSASRuntimeStatusLastPublishedRoot = g_szSASRuntimeStatusRootDirectory;
 		if (!g_szSASRuntimeStatusSupersededPath.empty())
 		{
@@ -1045,6 +1302,7 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 }
 
 // <!-- custom: Count every failed publication once, including root/open/write/close failures; the next successful snapshot reports the cumulative count without retaining a failure history. (ChatGPT + GPT-6.1-Sol) -->
+// <!-- custom: The publisher owns the first cached enablement guard; this wrapper only accounts for publication failure, so a disabled call returns without timestamp/string/I/O work or failure-counter mutation. (GPT-6.1-Sol) -->
 static bool writeSASRuntimeStatus(SASRuntimeStatusReason eReason)
 {
 	bool const bPublished = publishSASRuntimeStatus(eReason);
@@ -1081,6 +1339,7 @@ void updateSASRuntimeStatusNoGame()
 	g_iSASRuntimeButtonPopupResponseButton = -1;
 	g_pSASRuntimeButtonPopup = NULL;
 	g_iSASRuntimeLastCompletedTurn = -1;
+	resetSASRuntimePlayerTurnTiming();
 	writeSASRuntimeStatus(SAS_RUNTIME_STATUS_GAME_RESET);
 }
 
@@ -1142,6 +1401,7 @@ void updateSASRuntimeStatusSessionStarted(bool bLoadedSave)
 	g_iSASRuntimeButtonPopupResponseButton = -1;
 	g_pSASRuntimeButtonPopup = NULL;
 	g_iSASRuntimeLastCompletedTurn = -1;
+	resetSASRuntimePlayerTurnTiming();
 	writeSASRuntimeStatus(bLoadedSave ? SAS_RUNTIME_STATUS_LOAD_GAME_STARTED : SAS_RUNTIME_STATUS_NEW_GAME_STARTED);
 }
 
@@ -1174,6 +1434,146 @@ void updateSASRuntimeStatusSessionReady()
 	writeSASRuntimeStatus(g_eSASRuntimeSessionKind == SAS_RUNTIME_SESSION_LOAD_GAME ? SAS_RUNTIME_STATUS_LOAD_GAME_NATIVE_READY : SAS_RUNTIME_STATUS_NEW_GAME_NATIVE_READY);
 }
 
+// <!-- custom: ePlayer is the native player whose ordinary sequential turn has just become active.
+// Caller gates skip diagnostic argument preparation; this public entry also returns on the cached disabled switch before game lookups, timestamps or record work, including when called directly.
+// This early return is a defensive in-function guard, not caller pre-gating: arguments have already been evaluated and this function has been entered.
+// Production CvPlayer/CvGame hooks also pre-gate the call (or their enclosing block) so disabled runs skip it entirely; Main, Ending, Ended and Progress follow the same contract.
+// Start measuring before activation/setup work; no history/status row is written here, and an unexpected overlapping start degrades the compact turn summary instead of guessing which boundary was lost. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void updateSASRuntimeStatusPlayerTurnStarted(PlayerTypes ePlayer)
+{
+	if (!isSASRuntimeStatusEnabled() || ePlayer == NO_PLAYER || getSASRuntimePlayerTurnMode() != SAS_RUNTIME_PLAYER_TURN_MODE_SEQUENTIAL)
+		return;
+	CvGame const& kGame = GC.getGame();
+	int const iGameTurn = kGame.getGameTurn();
+	if (g_iSASRuntimePlayerTurnSummaryTurn != iGameTurn)
+	{
+		bool const bHadOlderEvidence = (g_iSASRuntimePlayerTurnSummaryTurn >= 0 || !g_aSASRuntimePlayerTurnRecords.empty());
+		clearSASRuntimeCurrentPlayerTurn();
+		g_aSASRuntimePlayerTurnRecords.clear();
+		g_iSASRuntimePlayerTurnSummaryTurn = iGameTurn;
+		g_bSASRuntimePlayerTurnSummaryBoundariesComplete = !bHadOlderEvidence;
+	}
+	if (g_eSASRuntimePlayerTurnPlayer != NO_PLAYER)
+	{
+		g_bSASRuntimePlayerTurnSummaryBoundariesComplete = false;
+		clearSASRuntimeCurrentPlayerTurn();
+	}
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	g_eSASRuntimePlayerTurnPlayer = ePlayer;
+	g_eSASRuntimePlayerTurnTeam = kPlayer.getTeam();
+	g_eSASRuntimePlayerTurnCivilization = kPlayer.getCivilizationType();
+	g_eSASRuntimePlayerTurnControl = getSASRuntimePlayerTurnControl(kPlayer);
+	g_eSASRuntimePlayerTurnPhase = SAS_RUNTIME_PLAYER_TURN_PHASE_ACTIVATING;
+	g_szSASRuntimePlayerTurnCivilizationType = (g_eSASRuntimePlayerTurnCivilization == NO_CIVILIZATION ? "-" : GC.getCivilizationInfo(g_eSASRuntimePlayerTurnCivilization).getType());
+	g_szSASRuntimePlayerTurnStartedUtc = createSASUtcTimestampMilliseconds();
+	g_szSASRuntimePlayerTurnPhaseStartedUtc = g_szSASRuntimePlayerTurnStartedUtc;
+	g_uiSASRuntimePlayerTurnStartedMilliseconds = getSASMonotonicMilliseconds();
+	g_uiSASRuntimePlayerTurnPhaseStartedMilliseconds = g_uiSASRuntimePlayerTurnStartedMilliseconds;
+}
+
+// <!-- custom: The main phase begins after setTurnActive's activation/setup work returns toward ordinary movement/input processing.
+// AI/HUMAN_DISABLED/BARBARIAN turns use AI_MOVES; a normal human turn uses HUMAN_INPUT, which is measured for the final summary but never drives live slow-AI refreshes.
+// These are wall-clock intervals, including human thinking or popup waits; HUMAN_INPUT classifies the human-controlled phase rather than proving the EXE is idle.
+// CvPlayer pre-gates the call; the disabled/mismatched-player return here is an additional in-function guard before clock reads and phase mutation. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void updateSASRuntimeStatusPlayerTurnMain(PlayerTypes ePlayer)
+{
+	if (!isSASRuntimeStatusEnabled() || g_eSASRuntimePlayerTurnPlayer != ePlayer)
+		return;
+	uint const uiNow = getSASMonotonicMilliseconds();
+	addSASRuntimeCurrentPlayerTurnPhase(uiNow);
+	g_eSASRuntimePlayerTurnPhase = (g_eSASRuntimePlayerTurnControl == SAS_RUNTIME_PLAYER_TURN_CONTROL_HUMAN ? SAS_RUNTIME_PLAYER_TURN_PHASE_HUMAN_INPUT : SAS_RUNTIME_PLAYER_TURN_PHASE_AI_MOVES);
+	g_szSASRuntimePlayerTurnPhaseStartedUtc = createSASUtcTimestampMilliseconds();
+	g_uiSASRuntimePlayerTurnPhaseStartedMilliseconds = uiNow;
+}
+
+// <!-- custom: Begin ENDING before CvPlayer::doTurn/final cleanup so the summary separates post-movement turn work from the long active interval external users usually see as waiting.
+// CvPlayer's enclosing enabled block is the caller pre-gate for this branch and the interrupted-end branch; the first return below is additional defensive gating. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void updateSASRuntimeStatusPlayerTurnEnding(PlayerTypes ePlayer)
+{
+	if (!isSASRuntimeStatusEnabled())
+		return;
+	if (g_eSASRuntimePlayerTurnPlayer != ePlayer)
+	{
+		// <!-- custom: A loaded game can resume after this player's activation, before any timing record exists; preserve that missing start so later players cannot make this partial turn appear complete. (GPT-6.1-Sol) -->
+		if (getSASRuntimePlayerTurnMode() == SAS_RUNTIME_PLAYER_TURN_MODE_SEQUENTIAL)
+		{
+			if (g_iSASRuntimePlayerTurnSummaryTurn < 0) g_iSASRuntimePlayerTurnSummaryTurn = GC.getGame().getGameTurn();
+			g_bSASRuntimePlayerTurnSummaryBoundariesComplete = false;
+		}
+		return;
+	}
+	uint const uiNow = getSASMonotonicMilliseconds();
+	addSASRuntimeCurrentPlayerTurnPhase(uiNow);
+	g_eSASRuntimePlayerTurnPhase = SAS_RUNTIME_PLAYER_TURN_PHASE_ENDING;
+	g_szSASRuntimePlayerTurnPhaseStartedUtc = createSASUtcTimestampMilliseconds();
+	g_uiSASRuntimePlayerTurnPhaseStartedMilliseconds = uiNow;
+}
+
+// <!-- custom: Finish the current player before setTurnActive recursively activates the next civilization.
+// CvPlayer pre-gates the call or its enclosing branch before evaluating arguments; retain the entry guard below for direct calls.
+// bCompleted=false preserves an interrupted record but marks both it and the containing turn incomplete; clear the overwrite-only current snapshot only if some prior successful publication exposed this player context. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void updateSASRuntimeStatusPlayerTurnEnded(PlayerTypes ePlayer, bool bCompleted)
+{
+	if (!isSASRuntimeStatusEnabled())
+		return;
+	if (g_eSASRuntimePlayerTurnPlayer != ePlayer)
+	{
+		// <!-- custom: Retain the incomplete-turn marker even if observation began between activation and deactivation; do not invent the missing player's duration. (GPT-6.1-Sol) -->
+		if (getSASRuntimePlayerTurnMode() == SAS_RUNTIME_PLAYER_TURN_MODE_SEQUENTIAL)
+		{
+			if (g_iSASRuntimePlayerTurnSummaryTurn < 0) g_iSASRuntimePlayerTurnSummaryTurn = GC.getGame().getGameTurn();
+			g_bSASRuntimePlayerTurnSummaryBoundariesComplete = false;
+		}
+		return;
+	}
+	uint const uiNow = getSASMonotonicMilliseconds();
+	addSASRuntimeCurrentPlayerTurnPhase(uiNow);
+	if (!bCompleted || g_eSASRuntimePlayerTurnPhase != SAS_RUNTIME_PLAYER_TURN_PHASE_ENDING)
+		g_bSASRuntimePlayerTurnSummaryBoundariesComplete = false;
+	SASRuntimePlayerTurnRecord kRecord;
+	kRecord.iPlayer = (int)g_eSASRuntimePlayerTurnPlayer;
+	kRecord.iTeam = (int)g_eSASRuntimePlayerTurnTeam;
+	kRecord.iCivilization = (int)g_eSASRuntimePlayerTurnCivilization;
+	kRecord.eControl = g_eSASRuntimePlayerTurnControl;
+	kRecord.szCivilizationType = g_szSASRuntimePlayerTurnCivilizationType;
+	kRecord.szStartedUtc = g_szSASRuntimePlayerTurnStartedUtc;
+	kRecord.szEndedUtc = createSASUtcTimestampMilliseconds();
+	kRecord.uiTotalMilliseconds = getSASElapsedMilliseconds(g_uiSASRuntimePlayerTurnStartedMilliseconds, uiNow);
+	kRecord.uiActivatingMilliseconds = g_uiSASRuntimePlayerTurnActivatingMilliseconds;
+	kRecord.uiMainMilliseconds = g_uiSASRuntimePlayerTurnMainMilliseconds;
+	kRecord.uiEndingMilliseconds = g_uiSASRuntimePlayerTurnEndingMilliseconds;
+	kRecord.bCompleted = bCompleted;
+	g_aSASRuntimePlayerTurnRecords.push_back(kRecord);
+	bool const bClearPublishedContext = g_bSASRuntimePlayerTurnContextPublished;
+	clearSASRuntimeCurrentPlayerTurn();
+	if (bClearPublishedContext)
+		writeSASRuntimeStatus(SAS_RUNTIME_STATUS_PLAYER_TURN_ENDED);
+}
+
+// <!-- custom: CvGame caller-pre-gates this check in its ordinary update loop; the first short-circuit operand below is a defensive cached-switch guard, before mode checks, clock reads or publication.
+// No per-group/AI-loop polling or helper thread is introduced.
+// A long uninterrupted callback therefore cannot refresh the file until control returns here, and unchanged status alone is never evidence of a hang. (ChatGPT-5.6-Sol) -->
+void updateSASRuntimeStatusPlayerTurnProgress()
+{
+	if (!isSASRuntimeStatusEnabled() || getSASRuntimePlayerTurnMode() != SAS_RUNTIME_PLAYER_TURN_MODE_SEQUENTIAL || g_eSASRuntimePlayerTurnPlayer == NO_PLAYER || !isSASRuntimeAIControlledPlayerTurn())
+		return;
+	int const iThreshold = getSASRuntimePlayerTurnLiveThresholdMilliseconds();
+	if (iThreshold < 0)
+		return;
+	uint const uiNow = getSASMonotonicMilliseconds();
+	uint const uiElapsed = getSASElapsedMilliseconds(g_uiSASRuntimePlayerTurnStartedMilliseconds, uiNow);
+	if (uiElapsed < (uint)iThreshold)
+		return;
+	int const iRefresh = getSASRuntimePlayerTurnLiveRefreshMilliseconds();
+	if (g_bSASRuntimePlayerTurnLivePublicationAttempted && (iRefresh <= 0 || getSASElapsedMilliseconds(g_uiSASRuntimePlayerTurnLastLivePublicationMilliseconds, uiNow) < (uint)iRefresh))
+		return;
+	g_bSASRuntimePlayerTurnLivePublicationAttempted = true;
+	g_uiSASRuntimePlayerTurnLastLivePublicationMilliseconds = uiNow;
+	writeSASRuntimeStatus(SAS_RUNTIME_STATUS_PLAYER_TURN_PROGRESS);
+}
+
+// <!-- custom: iCompletedTurn is the authoritative global boundary after all sequential players have ended.
+// publishSASRuntimeStatus appends at most one compact player_turn_summary through the existing history writer before formatting the current snapshot. (ChatGPT-5.6-Sol) -->
 void updateSASRuntimeStatusTurnCompleted(int iCompletedTurn)
 {
 	if (!isSASRuntimeStatusEnabled())
@@ -1312,7 +1712,8 @@ void updateSASRuntimeStatusGameEnded()
 
 void updateSASRuntimeStatusCleanExit()
 {
-	// <!-- custom: Do not resolve/query XML for the first time during global teardown; any enabled status session initialized this cache earlier. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Do not resolve/query XML for the first time during global teardown; any enabled status session initialized this cache earlier.
+	// The destructor intentionally calls this no-argument entry without the usual caller predicate, leaving only call entry and this cached comparison when disabled; do not replace it with the lazy isSASRuntimeStatusEnabled getter. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	if (g_iSASRuntimeStatusEnabled <= 0)
 		return;
 	g_eSASRuntimeProcessState = SAS_RUNTIME_PROCESS_EXITED_CLEANLY;

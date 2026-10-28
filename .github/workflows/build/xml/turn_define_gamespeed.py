@@ -24,6 +24,10 @@ UNSCALED_PATTERN = re.compile(r"_(?:(?:TURN|TURNS)_UNSCALED_GAMESPEED|T_UNSCALED
 
 def has_temporal_turn_token(name: str) -> bool:
 	"""Return True for standalone turn counts/thresholds, not scopes or per-turn rates."""
+	# <!-- custom: PLAYER_TURN can identify the measured scope while the actual value is wall-clock milliseconds.
+	# An explicit _MS unit is not a game-turn count and must not require game-speed scaling. (GPT-6.1-Sol) -->
+	if name.endswith("_MS"):
+		return False
 	tokens = name.split("_")
 	for index, token in enumerate(tokens):
 		if token not in {"T", "TURN", "TURNS"}:

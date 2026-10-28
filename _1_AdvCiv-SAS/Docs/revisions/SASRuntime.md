@@ -10,6 +10,20 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## History
 
+### Revision 13 - SAS practical 6695
+
+- **Date:** 2026-10-28
+- **Git commit:** pending
+- **Change:** Add native sequential player-turn timing for external Runtime diagnostics without turning every player boundary into a disk-write event.
+  - `CvPlayer::setTurnActive` supplies authoritative activation, main active interval and ending boundaries. Current JSON distinguishes the actually processed player/team/civilization and `AI_MOVES`, `HUMAN_INPUT` or `ENDING` phase from the existing `activePlayer`, which remains UI ownership.
+  - Every measured player is retained in memory; the authoritative completed-game-turn boundary appends one `player_turn_summary` JSONL row containing fast and slow players plus activation/main/ending durations. Missing/interrupted boundaries, including a load that resumes after activation, set `complete=0` rather than fabricating timing.
+    - A crash before turn completion can therefore lose the in-memory current-turn summary.
+  - `SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS=3000` and `SAS_RUNTIME_PLAYER_TURN_LIVE_REFRESH_MS=3000` optionally refresh the overwrite-only JSON for a slow AI/HUMAN_DISABLED/barbarian turn.
+    - Fast players cause no timing-progress writes; a player context published by any Runtime event receives one clearing update when it ends.
+    - Threshold `-1` disables live refresh while preserving the summary; refresh `0` publishes only the first crossing.
+  - Live progress remains best effort: one cheap check runs from the ordinary game-update loop, so a single uninterrupted blocking AI call cannot update the file until control returns. An unchanged snapshot is therefore not a hang detector.
+  - Simultaneous-player/team modes report `playerTurnTimingMode=SIMULTANEOUS` but intentionally emit no sequential timing summary; overlapping active turns do not identify one executing civilization.
+
 ### Revision 12 - SAS practical 6690
 
 - **Date:** 2026-10-26

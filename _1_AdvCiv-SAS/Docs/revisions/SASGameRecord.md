@@ -111,7 +111,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 177 - SAS practical 6694
 
 - **Date:** 2026-10-28
-- **Git commit:** pending
+- **Git commit:** `ba3ff4075719b3e862e03120a1e205ba90c312e3`
 - **Change:** Record BUG DotMap planned-city markers as active-viewer planning evidence, separate from Alt+S text signs/landmarks and from annotation visibility.
   - One `GAME_RECORD_DOTMAP_MARKERS` baseline is emitted per active viewer after GameStart/OnLoad/Python reload; normal ModNet-applied marker edits then produce immediate `ADD`/`EDIT`/`REMOVE` deltas, with active-player turn/save/game-end comparisons as a low-frequency fallback for direct/script state changes.
   - Marker identity is player + coordinates. Color can repeat and is therefore descriptive rather than identity; detail rows retain old/new color ID, XML type, resolved RGBA channels and drawing layer so a text-only review can distinguish, for example, the red candidate at (43,26) from the blue candidate at (50,23).

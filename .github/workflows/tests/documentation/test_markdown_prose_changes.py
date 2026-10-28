@@ -17,6 +17,14 @@ LONG = "First sentence explains the source documentation contract in substantial
 
 
 class MarkdownProseChangesTests(unittest.TestCase):
+    # <!-- custom: Reproduce the checkpoint guide's indented second sentence without forbidding real wrapping or code examples. (GPT-6.1-Sol) -->
+    def test_follow_up_sentence_requires_visible_child_structure(self):
+        bad = "- Save checkpoint.\n  Loading strips it.\n"
+        self.assertTrue(checker.findings("README.md", "", bad))
+        self.assertEqual(checker.findings("README.md", bad, bad + "\nOther text.\n"), [])
+        for good in ["- Save checkpoint.\n  - Loading strips it.\n", "- Wrapped sentence continues\n  on the next line.\n", "- Example:\n\n  ```python\n  call()\n  ```\n"]:
+            self.assertEqual(checker.findings("README.md", "", good), [])
+
     def test_new_and_changed_prose_fails_but_untouched_history_passes(self):
         self.assertTrue(checker.findings("README.md", "", LONG + "\n"))
         self.assertTrue(checker.findings("README.md", LONG + "\n", LONG.replace("First", "Updated") + "\n"))

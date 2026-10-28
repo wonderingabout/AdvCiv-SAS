@@ -2318,7 +2318,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 
 	<!-- custom: Optional current-runtime status for external tools/agents.
-	1 overwrites Logs/SASRuntimeStatus.json only at meaningful lifecycle/autoplay/completed-turn boundaries; 0 (default) skips status formatting and file I/O apart from cheap cached hook checks.
+	1 overwrites Logs/SASRuntimeStatus.json at meaningful lifecycle/autoplay/completed-turn boundaries and, when configured below, at throttled slow sequential AI-player progress observations; 0 (default) skips status formatting and file I/O apart from cheap cached hook checks.
 	This switch is independent of CivilizationIV.ini LoggingEnabled/MessageLog/RandLog/SynchLog; the current-state snapshot is always replaced regardless of OverwriteLogs.
 	The snapshot reports loaded-DLL/process/session identity and timed current/previous activity; a timestamped SASRuntimeHistory_*.jsonl companion retains state intervals across new/load/autoplay actions without requiring SASGameRecord logging.
 	Historical advisor/Sevopedia/control actions remain in SASGameRecord's separately gated action trace.
@@ -2326,6 +2326,24 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<Define>
 		<DefineName>SAS_RUNTIME_STATUS_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+	<!-- custom: Slow sequential AI-player Runtime publication threshold in milliseconds.
+	The recorder always measures enabled sequential player turns in memory; a value >= 0 publishes current AI-controlled player/phase context only after that elapsed time, while -1 disables live player-turn refreshes but keeps the completed-turn summary.
+	This does not poll from another thread: publication occurs only when Civ4 returns to its ordinary update loop, so one uninterrupted blocking call can remain unchanged longer than this threshold.
+	Cached on first enabled Runtime publication; change before launch. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS</DefineName>
+		<iDefineIntVal>3000</iDefineIntVal>
+	</Define>
+
+	<!-- custom: Minimum interval in milliseconds between repeated live publications after a slow AI-controlled player crosses the threshold above.
+	3000 keeps a visibly fresh external status without one disk rewrite per update slice; 0 publishes only the first threshold crossing for that player turn.
+	Fast players still produce no extra status writes and remain represented in the compact completed-turn summary.
+	Cached on first enabled Runtime publication. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_RUNTIME_PLAYER_TURN_LIVE_REFRESH_MS</DefineName>
+		<iDefineIntVal>3000</iDefineIntVal>
 	</Define>
 
 	<!-- custom: Optional live source-edit observation for Runtime diagnostics.

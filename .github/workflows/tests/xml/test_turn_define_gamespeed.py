@@ -57,6 +57,8 @@ class TurnDefineGameSpeedTests(unittest.TestCase):
 
     def test_scopes_rates_weights_and_unrelated_letters_are_not_durations(self):
         self.assertEqual(self.check_names(
+            "SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS",
+            "SAS_RUNTIME_PLAYER_TURN_LIVE_REFRESH_MS",
             "SAS_DO_TURN_CHECK_ON",
             "SAS_PROD_PER_T_VALUE",
             "SAS_PROD_PER_TURN_LIMIT",

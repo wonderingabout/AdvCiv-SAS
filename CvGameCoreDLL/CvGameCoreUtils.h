@@ -130,6 +130,16 @@ void updateSASRuntimeStatusLoadingScreenAssetRequested();
 // <!-- custom: BUG extends the EXE PreGameStart callback during both new/load initialization; preserve that late lifecycle boundary separately from loading-asset requests and native-ready completion. (ChatGPT-5.6-Sol) -->
 void updateSASRuntimeStatusPreGameStart();
 void updateSASRuntimeStatusSessionReady();
+// <!-- custom: Native sequential-turn hooks measure one player's activation, main active interval and ending work without writing a row at each boundary.
+// ePlayer is the actual player being processed, not the UI active player; bCompleted=false clears an interrupted/non-turn deactivation and marks the in-memory turn summary incomplete.
+// Production callers pre-gate the function call and its arguments, including through an enclosing enabled block; callee early returns are additional safety, not a substitute for caller pre-gating.
+// Live slow-AI publication is separately throttled by Runtime GlobalDefines and can advance only when the game update loop regains control. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void updateSASRuntimeStatusPlayerTurnStarted(PlayerTypes ePlayer);
+void updateSASRuntimeStatusPlayerTurnMain(PlayerTypes ePlayer);
+void updateSASRuntimeStatusPlayerTurnEnding(PlayerTypes ePlayer);
+void updateSASRuntimeStatusPlayerTurnEnded(PlayerTypes ePlayer, bool bCompleted);
+void updateSASRuntimeStatusPlayerTurnProgress();
+// <!-- custom: iCompletedTurn is the authoritative just-finished game turn; Runtime emits at most one compact sequential player-timing summary here before clearing the in-memory measurements. (ChatGPT-5.6-Sol) -->
 void updateSASRuntimeStatusTurnCompleted(int iCompletedTurn);
 void updateSASRuntimeStatusAutoPlay(SASRuntimeStatusReason eReason, SASAutoPlayEndCause eEndCause = SAS_AUTOPLAY_END_UNSPECIFIED);
 // <!-- custom: WorldBuilder mode and Python-screen visibility are separate observed boundaries: the EXE can toggle native mode before its Python UI is shown or hidden. (ChatGPT-5.6-Sol) -->

@@ -20,6 +20,7 @@ class RevisionCommitReferenceTests(unittest.TestCase):
         self.assertTrue(refs.reference_format_errors(plain))
         self.assertEqual(refs.reference_format_errors(self.document("a" * 40)), [])
         self.assertEqual(refs.reference_format_errors(self.document()), [])
+        self.assertTrue(refs.reference_format_errors(self.document().replace("pending", "`pending`")))
 
     def git(self, *args):
         return subprocess.check_output(["git", *args], cwd=self.repo, text=True, stderr=subprocess.DEVNULL).strip()
@@ -35,7 +36,8 @@ class RevisionCommitReferenceTests(unittest.TestCase):
         return self.git("rev-parse", "HEAD")
 
     def document(self, value="pending"):
-        return f"### Revision 1\n- **Git commit:** `{value}`\n- **Change:** Fixture behavior.\n"
+        reference = value if value == "pending" else f"`{value}`"
+        return f"### Revision 1\n- **Git commit:** {reference}\n- **Change:** Fixture behavior.\n"
 
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()

@@ -15,6 +15,16 @@ import source_change_provenance as checker
 
 
 class SourceChangeProvenanceTests(unittest.TestCase):
+    # <!-- custom: Reproduce mixed JSON layout without maintaining an application field list; source reflow must preserve emitted text and unchanged legacy formatters remain valid. (GPT-6.1-Sol) -->
+    def test_json_format_fields_use_adjacent_literals(self):
+        bad = r'row.Format("{\"turn\":%d,\"actor\":%d}", 1, 2);'
+        good = r'row.Format("{\"turn\":%d," "\"actor\":%d}", 1, 2);'
+        self.assertTrue(checker.cpp_json_format_errors("Test.cpp", "", bad))
+        self.assertEqual(checker.cpp_json_format_errors("Test.cpp", "", good), [])
+        self.assertEqual(checker.cpp_json_format_errors("Test.cpp", bad, bad), [])
+        self.assertEqual(checker.cpp_json_format_errors("Test.cpp", "", "/* " + bad + " */"), [])
+        self.assertIn(":2:", checker.cpp_json_format_errors("Test.cpp", "", "\n" + bad)[0])
+
     # <!-- custom: Reproduce the Python/C++ guard mix-up and exercise real token boundaries rather than regex-matching colons in strings or data. (GPT-6.1-Sol) -->
     def test_python_inline_suites_are_diff_aware(self):
         for text in ['if enabled: log()\n', 'else: log()\n', 'for x in values: print x\n', 'if (\n    enabled\n): log()\n']:

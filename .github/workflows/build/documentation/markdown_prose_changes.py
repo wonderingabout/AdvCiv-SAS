@@ -106,6 +106,18 @@ def list_findings(path, text):
     return errors
 
 
+# <!-- custom: A follow-up sentence indented under a bullet can look nested in source but renders as the same item.
+# Require an explicit child marker for newly edited sentence-separated continuations; ordinary mid-sentence wrapping, separate paragraphs, code and existing historical layout remain allowed. (GPT-6.1-Sol) -->
+def unmarked_child_lines(text):
+    physical = text.splitlines()
+    for lines, _body in prose_blocks(text):
+        if not prose.LIST_PREFIX_RE.match(physical[lines[0]]):
+            continue
+        for previous, current in zip(lines, lines[1:]):
+            if physical[previous].rstrip().endswith((".", "!", "?")) and physical[current][:1].isspace():
+                yield current
+
+
 # <!-- custom: Paragraph grouping remains an incremental editorial rule; untouched historical prose does not need reworking just because a different section changed. (GPT-6.1-Sol) -->
 def findings(path, old, new, edited_lines=None):
     if not maintained(path):
@@ -113,7 +125,8 @@ def findings(path, old, new, edited_lines=None):
     candidates = [(lines, body) for lines, body in prose_blocks(new)
                   if needs_split(body)]
     # <!-- custom: The full-document cleanup exposed expensive repeated-line matching in large issue histories; avoid Git-line matching when there is no reportable block. (GPT-6.1-Sol) -->
-    if not candidates:
+    continuations = list(unmarked_child_lines(new))
+    if not candidates and not continuations:
         return []
     edited = edited_lines
     if edited is None:
@@ -121,7 +134,8 @@ def findings(path, old, new, edited_lines=None):
         for tag, _a, _b, start, end in difflib.SequenceMatcher(None, old.splitlines(), new.splitlines(), autojunk=False).get_opcodes():
             if tag in ("insert", "replace"):
                 edited.update(range(start, end))
-    errors = []
+    errors = [f"{path}:{line + 1}: follow-up sentence under a bullet needs its own child bullet or a separate paragraph, not an indented soft continuation"
+              for line in continuations if line in edited]
     for lines, _body in candidates:
         affected = edited.intersection(lines)
         if affected:

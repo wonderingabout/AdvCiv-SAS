@@ -32,7 +32,7 @@ typedef wchar_t wchar;
 void CvString::Format(LPCSTR format, ...)
 {
 	// <!-- custom: The indented runtime snapshot includes timing and identity fields; this fixture formatter must accommodate it like production CvString rather than truncate at the old 2 KiB writer-row limit. (GPT-6.1-Sol) -->
-	char buffer[8192];
+	char buffer[16384];
 	va_list args;
 	va_start(args, format);
 	int const length = _vsnprintf(buffer, sizeof(buffer), format, args);
@@ -45,17 +45,39 @@ void CvString::Format(LPCSTR format, ...)
 // <!-- custom: Production GameStateTypes comes from the Civ4 headers; the standalone fixture needs only the values inspected by runtime status. (ChatGPT-5.6-Sol) -->
 // <!-- custom: Minimal player/civilization stubs exercise overlay ownership without including gameplay code in this standalone test. (GPT-6.1-Sol) -->
 typedef int PlayerTypes;
+typedef int TeamTypes;
+typedef int CivilizationTypes;
+static int const NO_PLAYER = -1;
+static int const NO_TEAM = -1;
+static int const NO_CIVILIZATION = -1;
+enum MultiplayerOptionTypes { MPOPTION_SIMULTANEOUS_TURNS = 0 };
 // <!-- custom: Runtime popup observations use only object identity; a zero-behavior fixture object is sufficient to exercise focus/response/cancellation state without importing Civ4 UI implementation. (ChatGPT-5.6-Sol) -->
 class CvPopup {};
-struct TestPlayer { int getCivilizationType() const { return 4; } };
-static TestPlayer g_runtimePlayer;
-#define GET_PLAYER(PLAYER) g_runtimePlayer
+struct TestPlayer
+{
+	TestPlayer() : team(1), civilization(4), human(false), humanDisabled(false), barbarian(false) {}
+	int team;
+	int civilization;
+	bool human;
+	bool humanDisabled;
+	bool barbarian;
+	TeamTypes getTeam() const { return team; }
+	// <!-- custom: Mirror the production typed civilization accessor now consumed by Runtime player-turn context; the fixture still stores only a small integer ID. (ChatGPT-5.6-Sol) -->
+	CivilizationTypes getCivilizationType() const { return civilization; }
+	bool isHuman() const { return human; }
+	bool isHumanDisabled() const { return humanDisabled; }
+	bool isBarbarian() const { return barbarian; }
+};
+typedef TestPlayer CvPlayer;
+static TestPlayer g_runtimePlayers[4];
+#define GET_PLAYER(PLAYER) g_runtimePlayers[(int)(PLAYER)]
+struct TestCivilizationInfo { char const* getType() const { return "CIVILIZATION_FIXTURE"; } };
 enum GameStateTypes { GAMESTATE_ON = 0, GAMESTATE_OVER, GAMESTATE_EXTENDED };
 static int g_worldBuilderModeReads = 0;
 static int g_advancedStartReads = 0;
 struct CvGame
 {
-	CvGame() : ready(false), autoplay(0), state(GAMESTATE_ON), advancedStart(false), gameTurn(9), activePlayer(0) {}
+	CvGame() : ready(false), autoplay(0), state(GAMESTATE_ON), advancedStart(false), gameTurn(9), activePlayer(0), simultaneousTurns(false), simultaneousTeamTurns(false) {}
 	bool ready;
 	int autoplay;
 	GameStateTypes state;
@@ -63,6 +85,8 @@ struct CvGame
 	// <!-- custom: Mutable observation fields reproduce delayed metadata writes after the game turn or active player changes; normal fixture defaults remain turn 9/player 0. (GPT-6.1-Sol) -->
 	int gameTurn;
 	int activePlayer;
+	bool simultaneousTurns;
+	bool simultaneousTeamTurns;
 	// <!-- custom: Persisted WorldBuilder-history attribution is outside this runtime-only fixture; retain its bridge call while testing the independent notification gates below. (GPT-6.1-Sol) -->
 	void setSASWorldBuilderScreenVisible(bool) {}
 	bool isInAdvancedStart() const { ++g_advancedStartReads; return advancedStart; }
@@ -72,6 +96,8 @@ struct CvGame
 	int getElapsedGameTurns() const { return gameTurn; }
 	int getActivePlayer() const { return activePlayer; }
 	int getAIAutoPlay() const { return autoplay; }
+	bool isMPOption(MultiplayerOptionTypes eOption) const { return eOption == MPOPTION_SIMULTANEOUS_TURNS && simultaneousTurns; }
+	bool isSimultaneousTeamTurns() const { return simultaneousTeamTurns; }
 	int getGameSpeedType() const { return 2; }
 	bool isScenario() const { return false; }
 	int getSASLoadedSaveCheckpointTurn() const { return 7; }
@@ -86,21 +112,26 @@ struct TestMap
 };
 struct TestGlobals
 {
-	TestGlobals() : overwrite(true), runtimeStatus(false), runtimeSourceWatch(false) {}
+	TestGlobals() : overwrite(true), runtimeStatus(false), runtimeSourceWatch(false), runtimePlayerTurnThreshold(3000), runtimePlayerTurnRefresh(3000) {}
 	bool overwrite;
 	bool runtimeStatus;
 	bool runtimeSourceWatch;
+	int runtimePlayerTurnThreshold;
+	int runtimePlayerTurnRefresh;
 	CvGame game;
 	TestMap map;
 	bool isOverwriteLogs() const { return overwrite; }
 	int getDefineINT(char const* name) const
 	{
 		if (strcmp(name, "SAS_RUNTIME_STATUS_ON") == 0) return runtimeStatus ? 1 : 0;
+		if (strcmp(name, "SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS") == 0) return runtimePlayerTurnThreshold;
+		if (strcmp(name, "SAS_RUNTIME_PLAYER_TURN_LIVE_REFRESH_MS") == 0) return runtimePlayerTurnRefresh;
 		if (strcmp(name, "SAS_RUNTIME_SOURCE_WATCH_ON") == 0) return runtimeSourceWatch ? 1 : 0;
 		assert(false); return 0;
 	}
 	CvGame const& getGame() const { return game; }
 	TestMap const& getMap() const { return map; }
+	TestCivilizationInfo const& getCivilizationInfo(CivilizationTypes) const { static TestCivilizationInfo info; return info; }
 } GC;
 
 // <!-- custom: Compile the actual WorldBuilder Python bridge with observable native getters; disabled cases must skip both mode queries and the Advanced Start scan. (GPT-6.1-Sol) -->
@@ -395,6 +426,13 @@ int main(int argc, char** argv)
 		setSASDiagnosticLogRootDirectory(temporary);
 		updateSASRuntimeStatusSessionStarted(false);
 		updateSASRuntimeStatusSessionReady();
+		// <!-- custom: Direct timing-entry calls must honor the disabled gate even without a caller pre-check; use the existing no-I/O fixture instead of another per-feature harness. (GPT-6.1-Sol) -->
+		updateSASRuntimeStatusPlayerTurnStarted(0);
+		updateSASRuntimeStatusPlayerTurnMain(0);
+		updateSASRuntimeStatusPlayerTurnEnding(0);
+		updateSASRuntimeStatusPlayerTurnEnded(0, true);
+		updateSASRuntimeStatusPlayerTurnProgress();
+		require(g_eSASRuntimePlayerTurnPlayer == NO_PLAYER && g_aSASRuntimePlayerTurnRecords.empty() && g_iSASRuntimePlayerTurnSummaryTurn == -1, "disabled timing keeps no player metadata or summary records");
 		updateSASRuntimeStatusTurnCompleted(3);
 		updateSASRuntimeStatusAutoPlay(SAS_RUNTIME_STATUS_AUTOPLAY_STARTED);
 		CyGame bridge(GC.game);
@@ -787,6 +825,74 @@ int main(int argc, char** argv)
 		UnregisterClassW(kClass.lpszClassName, kClass.hInstance);
 		return 0;
 	}
+	// <!-- custom: Deterministically exercise Runtime 13 player-turn measurement without a game DLL: fast AI stays summary-only, slow AI crosses/refreshes the live threshold, end clears published context, and TURN_COMPLETED emits one compact summary. (ChatGPT-5.6-Sol) -->
+	if (argc == 2 && strcmp(argv[1], "--runtime-player-turns") == 0)
+	{
+		GC.runtimeStatus = true;
+		std::wstring const root = std::wstring(temporary) + L"\\runtime_player_turns";
+		require(CreateDirectoryW(root.c_str(), NULL) != FALSE, "create runtime player-turn fixture root");
+		setSASRuntimeStatusRootDirectory(root);
+		updateSASRuntimeStatusSessionStarted(false);
+		GC.game.ready = true;
+		GC.game.gameTurn = 12;
+		updateSASRuntimeStatusSessionReady();
+		g_runtimePlayers[0].team = 1;
+		g_runtimePlayers[0].civilization = 4;
+		g_runtimePlayers[1].team = 2;
+		g_runtimePlayers[1].civilization = 5;
+
+		// <!-- custom: Loading after activation can expose an end before any start; later players must not erase that missing-boundary evidence. (GPT-6.1-Sol) -->
+		updateSASRuntimeStatusPlayerTurnEnding(0);
+		require(g_iSASRuntimePlayerTurnSummaryTurn == 12 && !g_bSASRuntimePlayerTurnSummaryBoundariesComplete, "mid-turn ending without start marks the summary incomplete");
+		updateSASRuntimeStatusPlayerTurnStarted(1);
+		require(!g_bSASRuntimePlayerTurnSummaryBoundariesComplete, "later player preserves the partial-turn marker");
+		resetSASRuntimePlayerTurnTiming();
+		updateSASRuntimeStatusPlayerTurnEnded(0, true);
+		require(g_iSASRuntimePlayerTurnSummaryTurn == 12 && !g_bSASRuntimePlayerTurnSummaryBoundariesComplete, "mid-turn end without start marks the summary incomplete");
+		resetSASRuntimePlayerTurnTiming();
+
+		unsigned int const beforeFastSerial = g_uiSASRuntimeStatusSerial;
+		g_runtimeClock = 1000;
+		updateSASRuntimeStatusPlayerTurnStarted(0);
+		g_runtimeClock = 1100;
+		updateSASRuntimeStatusPlayerTurnMain(0);
+		g_runtimeClock = 1500;
+		updateSASRuntimeStatusPlayerTurnEnding(0);
+		g_runtimeClock = 1600;
+		updateSASRuntimeStatusPlayerTurnEnded(0, true);
+		require(g_uiSASRuntimeStatusSerial == beforeFastSerial, "fast AI turn adds no live status write");
+
+		g_runtimeClock = 2000;
+		updateSASRuntimeStatusPlayerTurnStarted(1);
+		g_runtimeClock = 2100;
+		updateSASRuntimeStatusPlayerTurnMain(1);
+		g_runtimeClock = 4900;
+		updateSASRuntimeStatusPlayerTurnProgress();
+		require(g_uiSASRuntimeStatusSerial == beforeFastSerial, "below-threshold AI turn adds no live write");
+		g_runtimeClock = 5100;
+		updateSASRuntimeStatusPlayerTurnProgress();
+		require(g_uiSASRuntimeStatusSerial == beforeFastSerial + 1, "slow AI threshold publishes once");
+		require(CopyFileW((root + L"\\Logs\\SASRuntimeStatus.json").c_str(), (std::wstring(temporary) + L"\\runtime_player_turn_progress.json").c_str(), FALSE) != FALSE, "retain slow-player progress snapshot");
+		g_runtimeClock = 7000;
+		updateSASRuntimeStatusPlayerTurnProgress();
+		require(g_uiSASRuntimeStatusSerial == beforeFastSerial + 1, "refresh interval suppresses early repeat");
+		g_runtimeClock = 8200;
+		updateSASRuntimeStatusPlayerTurnProgress();
+		require(g_uiSASRuntimeStatusSerial == beforeFastSerial + 2, "slow AI refresh publishes after cadence");
+		g_runtimeClock = 8300;
+		updateSASRuntimeStatusPlayerTurnEnding(1);
+		g_runtimeClock = 8500;
+		updateSASRuntimeStatusPlayerTurnEnded(1, true);
+		require(g_uiSASRuntimeStatusSerial == beforeFastSerial + 3, "published player context is cleared once at end");
+		require(CopyFileW((root + L"\\Logs\\SASRuntimeStatus.json").c_str(), (std::wstring(temporary) + L"\\runtime_player_turn_cleared.json").c_str(), FALSE) != FALSE, "retain cleared player-turn snapshot");
+
+		g_runtimeClock = 8600;
+		updateSASRuntimeStatusTurnCompleted(12);
+		std::wstring const historyName(g_szSASRuntimeHistoryFilename.begin(), g_szSASRuntimeHistoryFilename.end());
+		require(CopyFileW((root + L"\\Logs\\" + historyName).c_str(), (std::wstring(temporary) + L"\\runtime_player_turn_summary.jsonl").c_str(), FALSE) != FALSE, "retain compact player-turn summary history");
+		return 0;
+	}
+
 	if (argc == 2 && strcmp(argv[1], "--runtime-status") == 0)
 	{
 		GC.runtimeStatus = true;
