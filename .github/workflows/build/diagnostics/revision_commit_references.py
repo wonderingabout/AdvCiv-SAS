@@ -22,6 +22,15 @@ def references(text):
     return result
 
 
+# <!-- custom: Finalized commit identities are code values in Markdown; pending remains plain status text.
+# Check both revision documents here alongside their existing identity/lifetime rules, rather than creating a separate formatting workflow. (GPT-6.1-Sol) -->
+def reference_format_errors(text):
+    return [f"revision {number}: wrap the finalized Git commit hash in backticks"
+            for number, body in revision_entries(text)
+            if (field := re.search(r"^- \*\*Git commit:\*\* (.+)$", body, re.MULTILINE))
+            and re.fullmatch(r"[0-9a-f]{40}", field.group(1).strip())]
+
+
 def read(repo, commit, path):
     data = sgr.git_show(repo, commit, str(path))
     return "" if data is None else data.decode("utf-8", "replace")
@@ -48,7 +57,7 @@ def reference_errors(repo, path, reader, default_commit, first_marker=1):
     canonical = set() if default_commit is None else set(subprocess.check_output(
         ["git", "rev-list", default_commit], cwd=repo, text=True).splitlines())
     lineage = set(subprocess.check_output(["git", "rev-list", "HEAD"], cwd=repo, text=True).splitlines())
-    errors = []
+    errors = reference_format_errors(read(repo, None, path))
     for index, (number, value) in enumerate(entries):
         if value == "pending":
             if index:

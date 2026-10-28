@@ -52,13 +52,16 @@ SCREEN_WORLD_BUILDER_DIPLOMACY = "WORLD_BUILDER_DIPLOMACY"
 g_sessionSerial = 0
 # <!-- custom: Hot-seat/player switches can expose different sign sets; retain one comparison baseline per active viewer so a perspective change cannot masquerade as annotation add/remove history. (ChatGPT-5.6-Sol) -->
 _gMapAnnotationStateByViewer = {}
+# <!-- custom: BUG DotMap planning markers are persisted per player; keep one comparison baseline per active viewer so hot-seat/player changes cannot manufacture another player's private planning changes. (ChatGPT-5.6-Sol) -->
+_gDotMapStateByViewer = {}
 
 
 def resetSession():
-	global g_sessionSerial, _gMapAnnotationStateByViewer
+	global g_sessionSerial, _gMapAnnotationStateByViewer, _gDotMapStateByViewer
 	if SASGameRecordConfig.getLogLevel() >= 2 and SASGameRecordConfig.getActionTraceEnabled():
 		g_sessionSerial += 1
 	_gMapAnnotationStateByViewer = {}
+	_gDotMapStateByViewer = {}
 
 
 def isEnabled():
@@ -177,6 +180,70 @@ def observeMapAnnotations(aHiddenSigns, szReason):
 		szOldCaption, bHidden = previous[key]
 		game.logSASGameRecordMapAnnotation("REMOVE", szReason, key[2], key[0], key[1], bHidden, _mapAnnotationBridgeText(szOldCaption, bTextWithheld), "", bTextWithheld)
 	_gMapAnnotationStateByViewer[iViewer] = current
+
+
+# <!-- custom: BUG DotMap markers are user planning state saved independently from Alt+S captions.
+# After text-sign recording was added, DotMap markers remained a separate unrecorded planning system; capture them too for archival and external human/LLM discussion without reopening the save or manually copying plot coordinates.
+# Comparing red and blue city sites is one use, not the only one; each load supplies a fresh snapshot of the active viewer's saved markers before subsequent edits are recorded.
+# Compare only the active viewer's persisted marker dictionary: (player, x, y) is identity, while color/layer are mutable presentation data and colors can repeat across candidate sites.
+# The observer never treats overlay hide/show as marker deletion; visibility is already a separate interface-state observation.
+# Immediate ModNet applications plus low-frequency lifecycle checks make normal edits prompt while retaining a fallback for script/direct state changes. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+def _collectDotMapMarkers(kDotMap, iViewer):
+	markers = {}
+	if kDotMap is None or not kDotMap.hasCities(iViewer):
+		return markers
+	for city in kDotMap.iterCities(iViewer):
+		if city is None or city.point is None or len(city.point) < 2:
+			continue
+		key = (int(city.point[0]), int(city.point[1]))
+		markers[key] = (int(city.color), int(city.layer))
+	return markers
+
+
+# <!-- custom: Gate this entire diagnostic observer before reading marker dictionaries or preparing bridge arguments; normal DotMap edits, rendering and saving do not depend on it. (GPT-6.1-Sol) -->
+def observeDotMapMarkers(kDotMap, szReason):
+	game = _getEnabledGame()
+	if game is None:
+		return
+	global _gDotMapStateByViewer
+	iViewer = int(game.getActivePlayer())
+	current = _collectDotMapMarkers(kDotMap, iViewer)
+	bVisible = bool(getattr(kDotMap, "visible", False))
+	if iViewer not in _gDotMapStateByViewer:
+		game.logSASGameRecordDotMapSummary("SNAPSHOT", szReason, len(current), bVisible, 0, 0, 0)
+		for key in sorted(current):
+			iColor, iLayer = current[key]
+			game.logSASGameRecordDotMapMarker("SNAPSHOT", szReason, iViewer, key[0], key[1], -1, -1, iColor, iLayer)
+		_gDotMapStateByViewer[iViewer] = current
+		return
+
+	previous = _gDotMapStateByViewer[iViewer]
+	added = []
+	edited = []
+	removed = []
+	for key in current:
+		if key not in previous:
+			added.append(key)
+		elif previous[key] != current[key]:
+			edited.append(key)
+	for key in previous:
+		if key not in current:
+			removed.append(key)
+	if not added and not edited and not removed:
+		_gDotMapStateByViewer[iViewer] = current
+		return
+	game.logSASGameRecordDotMapSummary("CHANGE", szReason, len(current), bVisible, len(added), len(edited), len(removed))
+	for key in sorted(added):
+		iColor, iLayer = current[key]
+		game.logSASGameRecordDotMapMarker("ADD", szReason, iViewer, key[0], key[1], -1, -1, iColor, iLayer)
+	for key in sorted(edited):
+		iOldColor, iOldLayer = previous[key]
+		iColor, iLayer = current[key]
+		game.logSASGameRecordDotMapMarker("EDIT", szReason, iViewer, key[0], key[1], iOldColor, iOldLayer, iColor, iLayer)
+	for key in sorted(removed):
+		iOldColor, iOldLayer = previous[key]
+		game.logSASGameRecordDotMapMarker("REMOVE", szReason, iViewer, key[0], key[1], iOldColor, iOldLayer, -1, -1)
+	_gDotMapStateByViewer[iViewer] = current
 
 
 def logScreenAction(szScreen, szAction, iPrimary=-1, iSecondary=-1):

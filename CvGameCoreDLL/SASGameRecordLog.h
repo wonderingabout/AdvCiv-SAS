@@ -112,6 +112,9 @@ void logSASGameRecordInterfaceState(char const* szComponent, char const* szEvent
 // <!-- custom: Logical Alt+S annotation snapshots/deltas are observed at low-frequency Python boundaries; free-form captions stay withheld unless their dedicated opt-in is enabled. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordMapAnnotationSummary(char const* szEvent, char const* szReason, int iTotal, int iVisible, int iHidden, int iAdded, int iEdited, int iRemoved, bool bContentWithheld);
 void logSASGameRecordMapAnnotation(char const* szEvent, char const* szReason, int iOwnerPlayer, int iX, int iY, bool bHidden, char const* szOldCaption, char const* szNewCaption, bool bContentWithheld);
+// <!-- custom: BUG DotMap planning markers have stable player/plot identity and controlled XML color IDs; record snapshots/deltas separately from arbitrary caption annotations. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordDotMapSummary(char const* szEvent, char const* szReason, int iTotal, bool bOverlayVisible, int iAdded, int iEdited, int iRemoved);
+void logSASGameRecordDotMapMarker(char const* szEvent, char const* szReason, int iOwnerPlayer, int iX, int iY, int iOldColor, int iOldLayer, int iNewColor, int iNewLayer);
 // <!-- custom: Result and session-boundary rows let parsers distinguish an established game outcome from orderly recorder rollover; Runtime external exit evidence remains authoritative for process termination/crash observation. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordGameResult(char const* szEvent);
 // <!-- custom: Four camera toggles have authoritative pre/post Boolean getters.

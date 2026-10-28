@@ -879,7 +879,9 @@ Intentional SASGameRecord-related code changes, including checker and code-comme
 
 Checks finalized SGR and Runtime revision references against canonical default-branch history or new feature-branch ancestry and their matching source revision markers. SGR entries before revision 69 predate explicit source markers and retain ancestry validation only.
 
-A new revision can say `pending` in its introducing commit because that commit cannot store its own final SHA. The next commit must finalize it, even without another recorder change. The lifetime rule applies from this checker's introduction; current histories are audited in full. Local draft checks use the staged candidate, excluding unrelated unstaged build outputs and diagnostic overrides.
+A new revision can say `pending` in its introducing commit because that commit cannot store its own final SHA. The next commit must finalize it, even without another recorder change. Finalized full commit hashes must be wrapped in backticks; `pending` remains status text.
+
+The lifetime rule applies from this checker's introduction; current histories are audited in full. Local draft checks use the staged candidate, excluding unrelated unstaged build outputs and diagnostic overrides.
 
 Existing event boundaries and `revision:squash`/local `--squash` intent are reused: squash candidates validate the aggregate transition, ordinary commits retain individual references. Rewrite stale hashes and practical numbers after rebase/squash; an unchanged merge retains valid identities.
 
@@ -968,7 +970,8 @@ Diff-aware source-history guard for maintained C/C++, Python and XML source. It 
 
 It enforces these review rules introduced after repeated provenance mistakes:
 
-- added/modified Python and XML files carry the standard AdvCiv-SAS modification copyright header alongside inherited owners' notices; unchanged files and pure renames are excluded;
+- added/modified Python and XML files carry the standard AdvCiv-SAS modification copyright header alongside inherited owners' notices; newly inserted/moved SAS notices must follow pre-existing owner credits. Unchanged files and pure renames are excluded;
+- new/rewritten Python compound-statement suites reject the E701 pattern `if enabled: log(...)`; keep the body on its own indented line, including diagnostic guards. Unchanged inherited inline suites are outside this diff-aware check;
 - newly authored or substantively rewritten source comments use `<!-- custom: ... (model credit) -->`; model-authored comments need the credit, while user-authored comments may omit it. Missing model credits are advisory warnings, not helper failures; unchanged/moved inherited comments and whitespace-only reflow remain valid, while stale inherited comments may simply be removed;
 - when a nearby replacement custom comment retains identical or substantially unchanged prose, recognized existing credits in its trailing parenthesized credit list are preserved; dropping one contributor still fails even if another credit remains. Credit reordering/additions and whitespace reflow are allowed, as are whole-comment deletions and unrelated replacements;
 - parenthesized custom-comment credits reject the known misspellings `Chat-GPT` and `catgpt`, ignoring case. Prose mentions and other model names remain allowed; this is a small typo guard, not a list of approved models;

@@ -15,6 +15,26 @@ import source_change_provenance as checker
 
 
 class SourceChangeProvenanceTests(unittest.TestCase):
+    # <!-- custom: Reproduce the Python/C++ guard mix-up and exercise real token boundaries rather than regex-matching colons in strings or data. (GPT-6.1-Sol) -->
+    def test_python_inline_suites_are_diff_aware(self):
+        for text in ['if enabled: log()\n', 'else: log()\n', 'for x in values: print x\n', 'if (\n    enabled\n): log()\n']:
+            with self.subTest(text=text):
+                self.assertTrue(checker.python_inline_suite_errors("Assets/Python/Test.py", "", text))
+                self.assertEqual(checker.python_inline_suite_errors("Assets/Python/Test.py", text, text + "value = 1\n"), [])
+        for text in ['if enabled:\n    log()\n', 'values = {"if:": 2}\n', 'if values[1:2]:\n    log()\n', 'if (lambda x: x)(1):\n    log()\n']:
+            self.assertEqual(checker.python_inline_suite_errors("Assets/Python/Test.py", "", text), [])
+
+    # <!-- custom: Verify newly inserted credits follow older owners in Python and XML, while leaving unrelated legacy ordering untouched. (GPT-6.1-Sol) -->
+    def test_sas_notice_follows_existing_owners(self):
+        for path, owner, sas in [
+            ("Assets/Python/Test.py", "# Author: Original owner\n", "# modifications first developed in AdvCiv-SAS\n# (c) 2026 wonderingabout & AI/LLM helpers\n"),
+            ("Assets/XML/Test.xml", "<!-- Copyright 2008 Original owner -->\n", "<!-- modifications first developed in AdvCiv-SAS\n(c) 2026 wonderingabout & AI/LLM helpers -->\n"),
+        ]:
+            with self.subTest(path=path):
+                self.assertTrue(checker.modification_header_order_errors(path, owner, sas + owner))
+                self.assertEqual(checker.modification_header_order_errors(path, owner, owner + sas), [])
+                self.assertEqual(checker.modification_header_order_errors(path, sas + owner, sas + owner), [])
+
     # <!-- custom: Exercise the actual Git-backed CLI as well as parser fixtures: CI must fail on provenance violations but keep missing model credits advisory for user-authored comments. (GPT-6.1-Sol) -->
     def test_cli_failure_and_warning_exit_codes(self):
         with tempfile.TemporaryDirectory(prefix="sas-provenance-check-") as folder:

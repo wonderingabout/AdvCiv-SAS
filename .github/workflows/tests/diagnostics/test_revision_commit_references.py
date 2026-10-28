@@ -14,6 +14,13 @@ import revision_commit_references as refs
 
 
 class RevisionCommitReferenceTests(unittest.TestCase):
+    # <!-- custom: The UI review caught plain commit hashes in revision prose; keep code-value formatting distinct from pending status. (GPT-6.1-Sol) -->
+    def test_finalized_references_use_backticks(self):
+        plain = "### Revision 1\n- **Git commit:** " + "a" * 40 + "\n"
+        self.assertTrue(refs.reference_format_errors(plain))
+        self.assertEqual(refs.reference_format_errors(self.document("a" * 40)), [])
+        self.assertEqual(refs.reference_format_errors(self.document()), [])
+
     def git(self, *args):
         return subprocess.check_output(["git", *args], cwd=self.repo, text=True, stderr=subprocess.DEVNULL).strip()
 

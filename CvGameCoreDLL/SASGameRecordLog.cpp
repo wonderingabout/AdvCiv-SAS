@@ -2714,6 +2714,52 @@ void logSASGameRecordMapAnnotation(char const* szEvent, char const* szReason, in
 		iOwnerPlayer, iX, iY, bHidden, bContentWithheld ? "WITHHELD" : "RECORDED", szOldField.GetCString(), szNewField.GetCString());
 }
 
+// <!-- custom: DotMap markers are persisted BUG planning state, not engine signs and not revealed-map evidence.
+// Resolve controlled ColorTypes to both XML identity and RGBA here so text-only analysis can say "red site" versus "blue site" while retaining exact modded color evidence; player+plot remains identity because colors can repeat. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordDotMapSummary(char const* szEvent, char const* szReason, int iTotal, bool bOverlayVisible, int iAdded, int iEdited, int iRemoved)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized() || szEvent == NULL || szEvent[0] == '\0')
+		return;
+	logSASGameRecord("GAME_RECORD_DOTMAP_MARKERS turn=%d elapsed=%d viewerPlayer=%d sessionWallMilliseconds=%u event=%s reason=%s total=%d overlayVisible=%d added=%d edited=%d removed=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
+		szEvent, (szReason == NULL || szReason[0] == '\0' ? "-" : szReason), std::max(0, iTotal), bOverlayVisible,
+		std::max(0, iAdded), std::max(0, iEdited), std::max(0, iRemoved));
+}
+
+// <!-- custom: Color type names are borrowed from the loaded XML registry; avoid copying them into temporary strings for each diagnostic row. (GPT-6.1-Sol) -->
+void logSASGameRecordDotMapMarker(char const* szEvent, char const* szReason, int iOwnerPlayer, int iX, int iY, int iOldColor, int iOldLayer, int iNewColor, int iNewLayer)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized() || szEvent == NULL || szEvent[0] == '\0')
+		return;
+	bool const bHasOld = (strcmp(szEvent, "EDIT") == 0 || strcmp(szEvent, "REMOVE") == 0);
+	bool const bHasNew = (strcmp(szEvent, "SNAPSHOT") == 0 || strcmp(szEvent, "ADD") == 0 || strcmp(szEvent, "EDIT") == 0);
+	bool const bOldColorValid = (bHasOld && iOldColor >= 0 && iOldColor < GC.getNumColorInfos());
+	bool const bNewColorValid = (bHasNew && iNewColor >= 0 && iNewColor < GC.getNumColorInfos());
+	char const* szOldType = "-";
+	char const* szNewType = "-";
+	NiColorA kOldColor(-1.0f, -1.0f, -1.0f, -1.0f);
+	NiColorA kNewColor(-1.0f, -1.0f, -1.0f, -1.0f);
+	if (bOldColorValid)
+	{
+		CvColorInfo const& kInfo = GC.getColorInfo((ColorTypes)iOldColor);
+		szOldType = kInfo.getType();
+		kOldColor = kInfo.getColor();
+	}
+	if (bNewColorValid)
+	{
+		CvColorInfo const& kInfo = GC.getColorInfo((ColorTypes)iNewColor);
+		szNewType = kInfo.getType();
+		kNewColor = kInfo.getColor();
+	}
+	logSASGameRecord("GAME_RECORD_DOTMAP_MARKER turn=%d elapsed=%d viewerPlayer=%d sessionWallMilliseconds=%u event=%s reason=%s ownerPlayer=%d x=%d y=%d oldColorValid=%d oldColorId=%d oldColorType=%s oldRed=%f oldGreen=%f oldBlue=%f oldAlpha=%f oldLayer=%d newColorValid=%d newColorId=%d newColorType=%s newRed=%f newGreen=%f newBlue=%f newAlpha=%f newLayer=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
+		szEvent, (szReason == NULL || szReason[0] == '\0' ? "-" : szReason), iOwnerPlayer, iX, iY,
+		bOldColorValid, bOldColorValid ? iOldColor : -1, szOldType, kOldColor.r, kOldColor.g, kOldColor.b, kOldColor.a, bHasOld ? iOldLayer : -1,
+		bNewColorValid, bNewColorValid ? iNewColor : -1, szNewType, kNewColor.r, kNewColor.g, kNewColor.b, kNewColor.a, bHasNew ? iNewLayer : -1);
+}
+
 // <!-- custom: Serialize a pre/post Boolean only when the authoritative getter reports a real change; callers capture state around the native operation and pre-gate the action subject before requesting the second getter.
 // Replace the draft's component/reason/key string arguments with the existing control enum; derive CAMERA and its source/key here so call sites cannot accidentally pair the wrong labels. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void logSASGameRecordCameraBoolChange(ControlTypes eControl, bool bOldValue, bool bNewValue)

@@ -109,6 +109,9 @@ void CyGamePythonInterface()
 		// <!-- custom: Map-caption text is a separate reviewed bridge because arbitrary user-authored text is withheld by default and must not become a generic Python-to-SGR logging API. (ChatGPT-5.6-Sol) -->
 		.def("logSASGameRecordMapAnnotationSummary", &CyGame::logSASGameRecordMapAnnotationSummary)
 		.def("logSASGameRecordMapAnnotation", &CyGame::logSASGameRecordMapAnnotation)
+		// <!-- custom: Persisted BUG DotMap planning markers use a typed scalar bridge, distinct from free-form text annotations and generic Python log strings. (ChatGPT-5.6-Sol) -->
+		.def("logSASGameRecordDotMapSummary", &CyGame::logSASGameRecordDotMapSummary)
+		.def("logSASGameRecordDotMapMarker", &CyGame::logSASGameRecordDotMapMarker)
 		.def("getSASGameRecordIniFileArgument", &CyGame::getSASGameRecordIniFileArgument)
 		// <!-- custom: Internal BUG diplomacy bridge; captures only resolved AI->human ordinary offers rejected at the UI boundary. (ChatGPT-5.6-Sol) -->
 		.def("logSASGameRecordRejectedAIOffer", &CyGame::logSASGameRecordRejectedAIOffer)

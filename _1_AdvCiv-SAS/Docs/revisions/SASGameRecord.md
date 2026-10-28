@@ -108,10 +108,25 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 177 - SAS practical 6694
+
+- **Date:** 2026-10-28
+- **Git commit:** pending
+- **Change:** Record BUG DotMap planned-city markers as active-viewer planning evidence, separate from Alt+S text signs/landmarks and from annotation visibility.
+  - One `GAME_RECORD_DOTMAP_MARKERS` baseline is emitted per active viewer after GameStart/OnLoad/Python reload; normal ModNet-applied marker edits then produce immediate `ADD`/`EDIT`/`REMOVE` deltas, with active-player turn/save/game-end comparisons as a low-frequency fallback for direct/script state changes.
+  - Marker identity is player + coordinates. Color can repeat and is therefore descriptive rather than identity; detail rows retain old/new color ID, XML type, resolved RGBA channels and drawing layer so a text-only review can distinguish, for example, the red candidate at (43,26) from the blue candidate at (50,23).
+  - Following text-annotation recording, this addition captures colored city markers for archives and external human/LLM discussion without reopening the same save, adding extra signs or manually copying coordinates. Comparing red/blue city sites is one example; earlier caption records also cover named plots and proposed road corridors marked by repeated signs.
+    - Caption text is independently opt-in, and repeated signs do not encode path order or establish that roads exist.
+  - In-game validation on 2026-10-28: adding, recoloring and removing markers produced immediate rows at T51, while six annotation visibility toggles produced no false marker changes. Reloading created a new record containing all four saved markers and the `pig_plot` text sign, followed by immediate marker removals/additions in that same turn; `PythonErr.log` remained empty.
+    - DotMap edits use an applied-edit hook; ordinary EXE-owned text signs are compared at selected observation boundaries rather than requiring a new turn specifically. A save/load boundary can therefore capture a text sign too; WorldBuilder landmark text has its separate immediate hook.
+  - Recoloring/replacement is observed only after the existing add message finishes, so the implementation's internal remove+add does not become two false user actions. Missing/no-op removal and selecting the same color emit no change.
+  - DotMap hide/show remains the existing `MAP_ANNOTATIONS` visibility state and never deletes the persisted marker dictionary; visibility-only changes therefore do not manufacture marker removals/additions. No new save state or storage format is added.
+  - Baselines/deltas are limited to the current active viewer's marker set, matching player-specific planning ownership in hot-seat/network contexts rather than dumping another human's stored DotMap plans. These are user planning annotations, not proof that the marked plot is revealed, visible or strategically good.
+
 ### Revision 176 - SAS practical 6693
 
 - **Date:** 2026-10-27
-- **Git commit:** pending
+- **Git commit:** `e11c562882731c242ec4b93d60fc0d95cf7c3571`
 - **Change:** Add logical map-annotation evidence and explicit game-result/orderly-session boundaries, while keeping format/volume analysis outside the game.
   - **Map annotations:** level-2+ action tracing reconstructs Alt+S signs/landmarks from the EXE's visible sign list plus SAS's hidden-annotation cache, with one baseline per active viewer and later `ADD`/`EDIT`/`REMOVE` observations.
     - Player-specific signs are limited to the active viewer who owns them; owner `-1` landmarks remain shared.
@@ -171,7 +186,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 171 - SAS practical 6683
 
 - **Date:** 2026-10-25
-- **Git commit:** 53aef2f7bf23caeb6ca78597e29e21232c969694
+- **Git commit:** `53aef2f7bf23caeb6ca78597e29e21232c969694`
 - **Change:** Introduce saved Changes history (`SASWorldChangesHistory`) for Advanced Start actions and WorldBuilder edits, presented in the World Advisor Changes tab and mirrored into SGR when enabled.
   - `GAME_RECORD_WORLD_BUILDER_EDIT` records controlled mutation facts from the Python/Cy boundaries used by the inherited editor, while plot terrain/feature/resource/improvement/route changes reuse detailed `GAME_RECORD_PLOT_CHANGE` rows with `cause=WORLDBUILDER`.
     - Attribution means that a mutation reached an inherited WorldBuilder-facing wrapper while the editor screen was active; it does not claim a physical click.

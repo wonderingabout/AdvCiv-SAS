@@ -768,6 +768,88 @@ def modification_header_errors(path: str, text: str) -> list[str]:
     return [f"{path}:1: changed Python/XML file lacks the SAS modification copyright header; preserve inherited notices and add our standard header"]
 
 
+# <!-- custom: Follow Python's indented-suite convention even for logging guards; the compact C++ if/log rule does not apply to Python.
+# Tokenization recognizes Python 2 source too and ignores colons in strings, dictionaries, slices and lambda expressions; compare added/rewritten lines so inherited inline suites do not require unrelated churn. (GPT-6.1-Sol) -->
+def python_inline_suite_errors(path: str, old: str, new: str) -> list[str]:
+    changed = set()
+    for action, _a, _b, start, end in difflib.SequenceMatcher(a=old.splitlines(), b=new.splitlines(), autojunk=False).get_opcodes():
+        if action != "equal":
+            changed.update(range(start + 1, end + 1))
+    errors = []
+    first = None
+    depth = 0
+    lambdas = defaultdict(int)
+    colon = None
+    try:
+        for token in tokenize.generate_tokens(StringIO(new).readline):
+            if token.type in (tokenize.COMMENT, tokenize.NL, tokenize.INDENT, tokenize.DEDENT, tokenize.ENCODING):
+                continue
+            if token.type in (tokenize.NEWLINE, tokenize.ENDMARKER):
+                first, colon = None, None
+                lambdas.clear()
+                continue
+            if first is None:
+                first = token.string
+            if colon is not None:
+                if colon in changed:
+                    errors.append(f"{path}:{colon}: E701 multiple statements on one line (colon); indent the Python suite, including logging guards")
+                colon = None
+            if token.type == tokenize.NAME and token.string == "lambda":
+                lambdas[depth] += 1
+            if token.type != tokenize.OP:
+                continue
+            if token.string in ("(", "[", "{"):
+                depth += 1
+            elif token.string in (")", "]", "}"):
+                depth -= 1
+            elif token.string == ":":
+                if lambdas[depth]:
+                    lambdas[depth] -= 1
+                elif depth == 0 and first in {"if", "elif", "else", "for", "while", "try", "except", "finally", "with", "async"}:
+                    colon = token.start[0]
+    except (tokenize.TokenError, IndentationError):
+        # <!-- custom: Python/Ruff owns syntax validation; do not infer style from incomplete tokens. (GPT-6.1-Sol) -->
+        pass
+    return errors
+
+
+# <!-- custom: A newly inserted SAS modification notice must follow pre-existing owners' header notices rather than precede them.
+# Limit this ordering check to new/moved SAS notices so unrelated edits do not force a legacy header sweep; inspect leading comments only, never strings in implementation examples. (GPT-6.1-Sol) -->
+def modification_header_order_errors(path: str, old: str, new: str) -> list[str]:
+    def positions(text):
+        if Path(path).suffix.lower() in XML_SUFFIXES:
+            remaining = text.lstrip("\ufeff \t\r\n")
+            if remaining.startswith("<?xml"):
+                remaining = remaining.partition("?>")[2].lstrip()
+            blocks = []
+            while remaining.startswith("<!--"):
+                block, separator, remaining = remaining.partition("-->")
+                if not separator:
+                    break
+                blocks.append(block[4:])
+                remaining = remaining.lstrip()
+            header = "\n".join(blocks)
+        else:
+            lines = []
+            for line in text.lstrip("\ufeff").splitlines():
+                if not line.strip() or line.lstrip().startswith("#"):
+                    lines.append(line)
+                else:
+                    break
+            header = "\n".join(lines)
+        sas = header.find("modifications first developed in AdvCiv-SAS")
+        owners = [m.start() for m in re.finditer(r"(?im)^.*(?:copyright|\(c\)|author\s*:|©).*$", header)
+                  if "wonderingabout" not in m.group(0).lower() and "AI/LLM helpers" not in m.group(0)]
+        return sas, owners
+    if Path(path).suffix.lower() not in PY_SUFFIXES | XML_SUFFIXES:
+        return []
+    sas, owners = positions(new)
+    old_sas, old_owners = positions(old)
+    if sas >= 0 and any(owner > sas for owner in owners) and not (old_sas >= 0 and any(owner > old_sas for owner in old_owners)):
+        return [f"{path}:1: place the SAS modification credit after existing owners' header notices"]
+    return []
+
+
 # <!-- custom: Add an optional warnings collector so missing model credits remain advisory: Git cannot distinguish an uncredited user comment from an LLM comment.
 # Other provenance failures retain their blocking results. (GPT-6.1-Sol) -->
 def check_change(path: str, old_text: str | None, new_text: str | None, warnings: list[str] | None = None) -> list[str]:
@@ -778,6 +860,9 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
     new_file = old_text is None
     old_text = old_text or ""
     errors.extend(blank_line_errors(path, old_text, new_text, suffix))
+    errors.extend(modification_header_order_errors(path, old_text, new_text))
+    if suffix in PY_SUFFIXES:
+        errors.extend(python_inline_suite_errors(path, old_text, new_text))
     old_comments = comments(old_text, suffix)
     new_comments = comments(new_text, suffix)
     # <!-- custom: A KI#243.2 rationale used a multiline C++ block around its custom prose, unlike our per-line // convention.

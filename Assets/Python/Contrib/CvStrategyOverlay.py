@@ -11,6 +11,9 @@
 # Created:     11/12/2008
 #-------------------------------------------------------------------------------
 
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
 from CvPythonExtensions import *
 import BugCore
 import BugPath
@@ -430,6 +433,11 @@ class DotMapLayer(StrategyLayer):
 		y = xy % 1000
 		city = City((x, y), color, layer)
 		self.addCity(ePlayer, city)
+		# <!-- custom: Observe only after the normal ModNet application finishes, so a recolor/replacement becomes one final EDIT rather than the remove+add implementation detail inside addCity().
+		# SASGameRecordActions pre-gates collection and filters to the active viewer, keeping this diagnostic hook from changing normal DotMap persistence/network behavior. (ChatGPT-5.6-Sol) -->
+		import SASGameRecordActions
+		if SASGameRecordActions.isEnabled():
+			SASGameRecordActions.observeDotMapMarkers(self, "MOD_NET_MESSAGE")
 
 	def addCity(self, ePlayer, city):
 		# Adds the city to the data set and draws its dot and cross.
@@ -461,6 +469,10 @@ class DotMapLayer(StrategyLayer):
 		x = xy / 1000
 		y = xy % 1000
 		self.removeCity(ePlayer, self.getCity(ePlayer, (x, y)))
+		# <!-- custom: Record the authoritative post-remove dictionary, not the click/request; unchanged/missing-city operations therefore emit no false REMOVE row. (ChatGPT-5.6-Sol) -->
+		import SASGameRecordActions
+		if SASGameRecordActions.isEnabled():
+			SASGameRecordActions.observeDotMapMarkers(self, "MOD_NET_MESSAGE")
 
 	def removeCity(self, ePlayer, city):
 		# Removes the city from the data set and erases its dot and cross.

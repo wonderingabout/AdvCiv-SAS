@@ -437,6 +437,17 @@ void CyGame::logSASGameRecordMapAnnotation(std::string szEvent, std::string szRe
 	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) ::logSASGameRecordMapAnnotation(szEvent.c_str(), szReason.c_str(), iOwnerPlayer, iX, iY, bHidden, szOldCaption.c_str(), szNewCaption.c_str(), bContentWithheld);
 }
 
+// <!-- custom: DotMap callers pre-gate dictionary traversal; enforce the same native level-2/action switch before serialization so direct bridge use cannot bypass recorder policy. (ChatGPT-5.6-Sol) -->
+void CyGame::logSASGameRecordDotMapSummary(std::string szEvent, std::string szReason, int iTotal, bool bOverlayVisible, int iAdded, int iEdited, int iRemoved)
+{
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) ::logSASGameRecordDotMapSummary(szEvent.c_str(), szReason.c_str(), iTotal, bOverlayVisible, iAdded, iEdited, iRemoved);
+}
+
+void CyGame::logSASGameRecordDotMapMarker(std::string szEvent, std::string szReason, int iOwnerPlayer, int iX, int iY, int iOldColor, int iOldLayer, int iNewColor, int iNewLayer)
+{
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) ::logSASGameRecordDotMapMarker(szEvent.c_str(), szReason.c_str(), iOwnerPlayer, iX, iY, iOldColor, iOldLayer, iNewColor, iNewLayer);
+}
+
 std::string CyGame::getSASGameRecordIniFileArgument() const
 {
 	return ::getSASGameRecordIniFileArgument();

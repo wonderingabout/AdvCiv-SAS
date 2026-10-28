@@ -116,6 +116,9 @@ public:
 	// <!-- custom: Map annotations are free-form user text owned by the EXE, so use a dedicated bridge with fixed metadata and an explicit content-withheld flag rather than the generic interface-state serializer. (ChatGPT-5.6-Sol) -->
 	void logSASGameRecordMapAnnotationSummary(std::string szEvent, std::string szReason, int iTotal, int iVisible, int iHidden, int iAdded, int iEdited, int iRemoved, bool bContentWithheld);
 	void logSASGameRecordMapAnnotation(std::string szEvent, std::string szReason, int iOwnerPlayer, int iX, int iY, bool bHidden, std::string szOldCaption, std::string szNewCaption, bool bContentWithheld);
+	// <!-- custom: Narrow DotMap bridge passes only persisted scalar marker state; color type/channels are resolved natively from the current XML ID. (ChatGPT-5.6-Sol) -->
+	void logSASGameRecordDotMapSummary(std::string szEvent, std::string szReason, int iTotal, bool bOverlayVisible, int iAdded, int iEdited, int iRemoved);
+	void logSASGameRecordDotMapMarker(std::string szEvent, std::string szReason, int iOwnerPlayer, int iX, int iY, int iOldColor, int iOldLayer, int iNewColor, int iNewLayer);
 	std::string getSASGameRecordIniFileArgument() const;
 	// <!-- custom: Python diplomacy bridge for the exact package of AI ordinary offers rejected by a human.
 	// Raw item/data pairs are converted and logged only at SASGameRecord level 2+. (ChatGPT-5.6-Sol) -->

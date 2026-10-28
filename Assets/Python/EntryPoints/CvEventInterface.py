@@ -80,13 +80,17 @@ def onEvent(argsList):
 		if SASGameRecordConfig.getLogLevel() >= 2 and SASGameRecordConfig.getActionTraceEnabled():
 			import SASGameRecordActions
 			import CvScreensInterface
+			import CvStrategyOverlay # <!-- custom: CvStrategyOverlay supplies the persisted DotMap dictionary for gated load/start/reload observations. (GPT-6.1-Sol) -->
 			if tag == "OnLoad":
 				import BugUtil
 				def observeLoadedMapAnnotations():
 					SASGameRecordActions.observeMapAnnotations(CvScreensInterface.mainInterface.getHiddenMapAnnotationSignsForSave(), szSettingsReason)
+					# <!-- custom: StrategyOverlay.read() restores DotMap persistence synchronously during OnLoad, so the same deferred boundary safely records the loaded planning-marker baseline after other annotation restoration too. (ChatGPT-5.6-Sol) -->
+					SASGameRecordActions.observeDotMapMarkers(CvStrategyOverlay.getDotMap(), szSettingsReason)
 				BugUtil.deferCall(observeLoadedMapAnnotations)
 			else:
 				SASGameRecordActions.observeMapAnnotations(CvScreensInterface.mainInterface.getHiddenMapAnnotationSignsForSave(), szSettingsReason)
+				SASGameRecordActions.observeDotMapMarkers(CvStrategyOverlay.getDotMap(), szSettingsReason)
 		# <!-- custom: Retry pending startup/failed writes after BUG/Autolog/settings handlers settle, including BBAI-only runs; successful rows are already submitted immediately, and keeping this outside the recorder gate covers either log.
 		# With no output, the checkpoint performs no path resolution or file I/O. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		CyGame().flushSASDiagnosticLogs()
@@ -124,9 +128,11 @@ def initAfterReload():
 			import SASGameRecordSettings
 			SASGameRecordSettings.logSessionSettings("PYTHON_RELOAD")
 		if SASGameRecordConfig.getLogLevel() >= 2 and SASGameRecordConfig.getActionTraceEnabled() and CyGame().isFinalInitialized():
-			# <!-- custom: resetSession above deliberately clears annotation identity; rebuild one post-reload baseline from the replacement main-interface cache plus EXE signs. (ChatGPT-5.6-Sol) -->
+			# <!-- custom: resetSession above deliberately clears annotation/planning-marker identity; rebuild explicit post-reload baselines after PythonReloaded handlers restore their persisted state. (ChatGPT-5.6-Sol) -->
 			import SASGameRecordActions
 			import CvScreensInterface
+			import CvStrategyOverlay # <!-- custom: CvStrategyOverlay supplies the persisted DotMap dictionary for gated load/start/reload observations. (GPT-6.1-Sol) -->
 			SASGameRecordActions.observeMapAnnotations(CvScreensInterface.mainInterface.getHiddenMapAnnotationSignsForSave(), "PYTHON_RELOAD")
+			SASGameRecordActions.observeDotMapMarkers(CvStrategyOverlay.getDotMap(), "PYTHON_RELOAD")
 
 initAfterReload()
