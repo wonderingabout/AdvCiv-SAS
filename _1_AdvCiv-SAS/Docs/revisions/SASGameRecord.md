@@ -108,10 +108,28 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 178 - SAS practical 6698
+### Revision 179 - SAS practical 6699
 
 - **Date:** 2026-10-28
 - **Git commit:** pending
+- **Change:** Add compact periodic military-trainability evidence for the civilization-specific full-combat land-unit scope used by the existing UWAI no-representative diagnostic.
+  - `GAME_RECORD_MILITARY_TRAINABILITY` separates candidate catalog size, player-level `canTrain` eligibility, capital trainability and whether any owned city can actually train each player-eligible type.
+    - `GAME_RECORD_MILITARY_TRAINABILITY_UNIT` supplies fixed fields for each player-eligible type, including capital presence/trainability and a first trainable city when one exists. Compact summary lists remain readable conveniences; consumers need not parse them.
+    - Civilization replacements are resolved through the player's loaded civilization catalog. `cities` and `capitalCityId` keep no-city/no-capital states distinct from a city that simply has no trainable military type.
+  - Player-level ineligibility is summarized into missing required technology, known `ObsoleteTech`, state-religion mismatch and other legality/limit counts. These are compact explanatory buckets, not a replacement for every `CvPlayer::canTrain` rule.
+  - `GAME_RECORD_MILITARY_TRAINABILITY_GAP` is emitted only for a player-eligible military type that no owned city can train.
+    - `explicitBonusRequirement` states whether the type actually has an AND/OR bonus requirement before the row reports required bonuses and whether the capital/any city satisfies them; the row also reports whether every city exposes an available upgrade.
+    - Required OR bonuses also have `GAME_RECORD_MILITARY_TRAINABILITY_OR_BONUS` companion rows; the AND requirement already has its own scalar field.
+    - Otherwise the restriction remains `CITY_PLOT_UPGRADE_OR_OTHER` rather than guessing a cause.
+  - Work is caller-bounded to the existing level-2 periodic player snapshot. The recorder filters loaded civilization-specific full-combat land types through player legality; only survivors call `CvCity::canTrain`, stopping at the first trainable city. That search can visit every city; only gaps pay an additional resource/upgrade evidence scan.
+    - No AI policy, RNG, pathfinding or save-format state changes.
+  - If either cached Python training callback is enabled, emit `snapshotValid=0 unavailableReason=TRAIN_CALLBACKS_ENABLED` and skip the census. Callbacks can override native player rejection or modify state, so diagnostics must not execute them or report incomplete native checks as actual trainability; ordinary observations carry `snapshotValid=1`.
+  - Existing bonus-detail and production-history rows remain authoritative companions. Production-choice schemas are unchanged; analysis can join the nearest preceding periodic trainability snapshot by player/turn instead of widening every high-frequency production row.
+
+### Revision 178 - SAS practical 6698
+
+- **Date:** 2026-10-28
+- **Git commit:** `68bb44ca50ecdede7e42f0e7909f1e939be1686c`
 - **Change:** Add compact level-2 doomed-city evacuation evidence linking the city safety decision to unit selection, retreat outcomes and actual retreat-group departure without repeating BBAI's deep scans.
   - `GAME_RECORD_AI_EVACUATION_CITY_DECISION` fires only when a city newly enters `CITYSAFETY_EVACUATING`; it reuses the already-computed attacker/defender counts and local strength values, raw local attack/defense percentage, base/adjusted threshold, city value, population/capital and owner-city context. The percentage is the local city attack/defense estimate, not whole-civilization power.
   - `GAME_RECORD_AI_EVACUATION_UNIT_DECISION` records the existing all-land policy or legacy randomized selection result for each unit/group actually evaluated in that evacuating city, including the already-computed probability and selected flag.

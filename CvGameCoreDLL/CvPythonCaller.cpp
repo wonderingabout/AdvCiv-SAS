@@ -576,6 +576,12 @@ bool CvPythonCaller::isCitiesDestroyFeatures(int iX, int iY) const
 	return toBool(lResult);
 }
 
+// <!-- custom: Read the same cached switches used by canTrainOverride/cannotTrainOverride, rather than rereading XML or invoking Python solely for diagnostics. (GPT-6.1-Sol) -->
+bool CvPythonCaller::isUseTrainCallbacks() const
+{
+	return (isUse(CAN_TRAIN) || isUse(CANNOT_TRAIN));
+}
+
 bool CvPythonCaller::canTrainOverride(CvCity const& kCity, UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const
 {
 	if (!isUse(CAN_TRAIN))

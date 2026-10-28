@@ -9159,6 +9159,213 @@ static void logSASGameRecordTeamProjects(TeamTypes eTeam, int iGameTurn)
 		logSASGameRecord("GAME_RECORD_TEAM_PROJECTS turn=%d team=%d projects=%s", iGameTurn, eTeam, szProjects.GetCString());
 }
 
+
+// <!-- custom: SGR179 mirrors the narrow UWAI no-representative diagnostic scope without importing its branch ranking: civilization-specific full-combat land types only.
+// This keeps civilian, siege-limited, naval and air units out of the availability question while letting the loaded civilization mapping resolve unique replacements naturally. (ChatGPT-5.6-Sol) -->
+static bool isSASGameRecordMilitaryTrainabilityCandidate(CvUnitInfo const& kUnit)
+{
+	return (kUnit.getDomainType() == DOMAIN_LAND && kUnit.getCombat() > 0 && kUnit.getCombatLimit() >= 100);
+}
+
+static bool isSASGameRecordMilitaryRequiredTechMissing(CvPlayer const& kPlayer, CvUnitInfo const& kUnit)
+{
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	TechTypes const eRequired = (TechTypes)kUnit.getPrereqAndTech();
+	if (eRequired != NO_TECH && !kTeam.isHasTech(eRequired))
+		return true;
+	for (int i = 0; i < kUnit.getNumPrereqAndTechs(); i++)
+	{
+		TechTypes const eExtraRequired = kUnit.getPrereqAndTechs(i);
+		if (eExtraRequired != NO_TECH && !kTeam.isHasTech(eExtraRequired))
+			return true;
+	}
+	return false;
+}
+
+static bool isSASGameRecordMilitaryExplicitBonusSatisfied(CvCity const& kCity, CvUnitInfo const& kUnit)
+{
+	BonusTypes const eAndBonus = kUnit.getPrereqAndBonus();
+	if (eAndBonus != NO_BONUS && !kCity.hasBonus(eAndBonus))
+		return false;
+	if (kUnit.getNumPrereqOrBonuses() <= 0)
+		return true;
+	for (int i = 0; i < kUnit.getNumPrereqOrBonuses(); i++)
+	{
+		BonusTypes const eOrBonus = kUnit.getPrereqOrBonuses(i);
+		if (eOrBonus != NO_BONUS && kCity.hasBonus(eOrBonus))
+			return true;
+	}
+	return false;
+}
+
+static CvString getSASGameRecordMilitaryOrBonuses(CvUnitInfo const& kUnit)
+{
+	CvString szBonuses;
+	for (int i = 0; i < kUnit.getNumPrereqOrBonuses(); i++)
+	{
+		BonusTypes const eBonus = kUnit.getPrereqOrBonuses(i);
+		if (eBonus != NO_BONUS)
+			appendSASGameRecordType(szBonuses, getSASGameRecordBonusType(eBonus));
+	}
+	return getSASDiagnosticOrDash(szBonuses);
+}
+
+// <!-- custom: Military availability is sampled only at the existing level-2 player snapshot boundary.
+// First apply player-level legality to the loaded civilization-specific full-combat land types; only those survivors pay city canTrain checks.
+// For each player-eligible type, stop at the first city that can actually train it.
+// The search can visit every city before finding a trainable one; only a no-city gap pays the additional resource/upgrade evidence scan.
+// CvPlayer::canTrain deliberately excludes city resources/placement; CvCity::canTrain remains authoritative for the observed city result.
+// Training callbacks can override player rejection or have arbitrary effects; skip the observation entirely when either cached callback switch is enabled.
+// No AI scoring, RNG, pathfinding, save state or production choice is changed. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static void logSASGameRecordMilitaryTrainability(PlayerTypes ePlayer, int iGameTurn)
+{
+	// <!-- custom: The caller's level-2 snapshot gate covers this entire helper, including all queries and temporary strings.
+	// Unknown callback-defined availability is not zero trainability; do not execute callbacks or infer gaps from incomplete native checks. (GPT-6.1-Sol) -->
+	if (GC.getPythonCaller()->isUseTrainCallbacks())
+	{
+		logSASGameRecord("GAME_RECORD_MILITARY_TRAINABILITY turn=%d player=%d team=%d scope=LAND_FULL_COMBAT_CIV_CATALOG snapshotValid=0 unavailableReason=TRAIN_CALLBACKS_ENABLED", iGameTurn, ePlayer, GET_PLAYER(ePlayer).getTeam());
+		return;
+	}
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	CvCivilization const& kCiv = kPlayer.getCivilization();
+	CvCity const* pCapital = kPlayer.getCapital();
+	int const iCities = kPlayer.getNumCities();
+	int iCandidateTypes = 0;
+	int iPlayerEligibleTypes = 0;
+	int iCapitalTrainableTypes = (pCapital == NULL ? -1 : 0);
+	int iAnyCityTrainableTypes = 0;
+	int iMissingTechTypes = 0;
+	int iObsoleteTypes = 0;
+	int iStateReligionMismatchTypes = 0;
+	int iOtherPlayerIneligibleTypes = 0;
+	int iCapitalRestrictedElsewhereTypes = 0;
+	int iNoCityTrainableEligibleTypes = 0;
+	int iFirstTrainableCityId = -1;
+	int iFirstTrainableX = -1;
+	int iFirstTrainableY = -1;
+	CvString szPlayerEligible;
+	CvString szCapitalTrainable;
+	CvString szAnyCityTrainable;
+	CvString szCapitalRestrictedElsewhere;
+	CvString szNoCityTrainableEligible;
+
+	for (int i = 0; i < kCiv.getNumUnits(); i++)
+	{
+		UnitTypes const eUnit = kCiv.unitAt(i);
+		CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+		if (!isSASGameRecordMilitaryTrainabilityCandidate(kUnit))
+			continue;
+		iCandidateTypes++;
+		bool const bPlayerEligible = kPlayer.canTrain(eUnit);
+		if (!bPlayerEligible)
+		{
+			if (isSASGameRecordMilitaryRequiredTechMissing(kPlayer, kUnit))
+				iMissingTechTypes++;
+			else
+			{
+				TechTypes const eObsolete = kUnit.getObsoleteTech();
+				if (eObsolete != NO_TECH && kTeam.isHasTech(eObsolete))
+					iObsoleteTypes++;
+				else if (kUnit.getStateReligion() != NO_RELIGION && kPlayer.getStateReligion() != kUnit.getStateReligion())
+					iStateReligionMismatchTypes++;
+				else iOtherPlayerIneligibleTypes++;
+			}
+			continue;
+		}
+
+		iPlayerEligibleTypes++;
+		appendSASGameRecordType(szPlayerEligible, getSASGameRecordUnitType(eUnit));
+		bool const bCapitalTrainable = (pCapital != NULL && pCapital->canTrain(eUnit));
+		if (bCapitalTrainable)
+		{
+			iCapitalTrainableTypes++;
+			appendSASGameRecordType(szCapitalTrainable, getSASGameRecordUnitType(eUnit));
+		}
+
+		CvCity const* pTrainableCity = (bCapitalTrainable ? pCapital : NULL);
+		if (pTrainableCity == NULL)
+		{
+			int iCityLoop = 0;
+			for (CvCity const* pCity = kPlayer.firstCity(&iCityLoop); pCity != NULL; pCity = kPlayer.nextCity(&iCityLoop))
+			{
+				if (pCity == pCapital)
+					continue;
+				if (pCity->canTrain(eUnit))
+				{
+					pTrainableCity = pCity;
+					break;
+				}
+			}
+		}
+		// <!-- custom: Keep compact type lists readable, but expose each eligible unit as fixed fields so consumers need no new comma-list parser. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		logSASGameRecord("GAME_RECORD_MILITARY_TRAINABILITY_UNIT turn=%d player=%d unitId=%d unit=%s capitalPresent=%d capitalTrainable=%d anyCityTrainable=%d trainableCityId=%d trainableCityX=%d trainableCityY=%d",
+			iGameTurn, ePlayer, eUnit, getSASGameRecordUnitType(eUnit), pCapital != NULL ? 1 : 0, bCapitalTrainable ? 1 : 0, pTrainableCity != NULL ? 1 : 0,
+			pTrainableCity == NULL ? -1 : pTrainableCity->getID(), pTrainableCity == NULL ? -1 : pTrainableCity->getX(), pTrainableCity == NULL ? -1 : pTrainableCity->getY());
+		if (pTrainableCity != NULL)
+		{
+			iAnyCityTrainableTypes++;
+			appendSASGameRecordType(szAnyCityTrainable, getSASGameRecordUnitType(eUnit));
+			if (iFirstTrainableCityId < 0)
+			{
+				iFirstTrainableCityId = pTrainableCity->getID();
+				iFirstTrainableX = pTrainableCity->getX();
+				iFirstTrainableY = pTrainableCity->getY();
+			}
+			if (!bCapitalTrainable && pCapital != NULL)
+			{
+				iCapitalRestrictedElsewhereTypes++;
+				appendSASGameRecordType(szCapitalRestrictedElsewhere, getSASGameRecordUnitType(eUnit));
+			}
+			continue;
+		}
+
+		iNoCityTrainableEligibleTypes++;
+		appendSASGameRecordType(szNoCityTrainableEligible, getSASGameRecordUnitType(eUnit));
+		BonusTypes const eAndBonus = kUnit.getPrereqAndBonus();
+		bool const bExplicitBonusRequirement = (eAndBonus != NO_BONUS || kUnit.getNumPrereqOrBonuses() > 0);
+		int iCapitalExplicitBonusesSatisfied = -1;
+		if (pCapital != NULL)
+			iCapitalExplicitBonusesSatisfied = (isSASGameRecordMilitaryExplicitBonusSatisfied(*pCapital, kUnit) ? 1 : 0);
+		bool bAnyCityExplicitBonusesSatisfied = false;
+		bool bAllCitiesHaveUpgrade = (iCities > 0);
+		int iCityLoop = 0;
+		for (CvCity const* pCity = kPlayer.firstCity(&iCityLoop); pCity != NULL; pCity = kPlayer.nextCity(&iCityLoop))
+		{
+			if (isSASGameRecordMilitaryExplicitBonusSatisfied(*pCity, kUnit))
+				bAnyCityExplicitBonusesSatisfied = true;
+			if (pCity->allUpgradesAvailable(eUnit) == NO_UNIT)
+				bAllCitiesHaveUpgrade = false;
+		}
+		char const* szRestrictionHint = "CITY_PLOT_UPGRADE_OR_OTHER";
+		if (iCities <= 0)
+			szRestrictionHint = "NO_CITIES";
+		else if (bExplicitBonusRequirement && !bAnyCityExplicitBonusesSatisfied)
+			szRestrictionHint = "EXPLICIT_BONUS_UNAVAILABLE";
+		else if (bAllCitiesHaveUpgrade)
+			szRestrictionHint = "UPGRADE_AVAILABLE_ALL_CITIES";
+		// <!-- custom: OR bonus identities also have typed companion rows; the compact summary remains a human-readable convenience. (GPT-6.1-Sol) -->
+		for (int iBonus = 0; iBonus < kUnit.getNumPrereqOrBonuses(); iBonus++)
+		{
+			BonusTypes const eBonus = kUnit.getPrereqOrBonuses(iBonus);
+			if (eBonus != NO_BONUS) logSASGameRecord("GAME_RECORD_MILITARY_TRAINABILITY_OR_BONUS turn=%d player=%d unitId=%d unit=%s bonusId=%d bonus=%s", iGameTurn, ePlayer, eUnit, getSASGameRecordUnitType(eUnit), eBonus, getSASGameRecordBonusType(eBonus));
+		}
+		logSASGameRecord("GAME_RECORD_MILITARY_TRAINABILITY_GAP turn=%d player=%d team=%d scope=LAND_FULL_COMBAT_CIV_CATALOG unitId=%d unit=%s explicitBonusRequirement=%d requiredAndBonus=%s requiredOrBonusCount=%d requiredOrBonuses=%s capitalExplicitBonusesSatisfied=%d anyCityExplicitBonusesSatisfied=%d allCitiesHaveUpgrade=%d restrictionHint=%s",
+			iGameTurn, ePlayer, kPlayer.getTeam(), eUnit, getSASGameRecordUnitType(eUnit), bExplicitBonusRequirement ? 1 : 0, getSASGameRecordBonusType(eAndBonus),
+			kUnit.getNumPrereqOrBonuses(), getSASGameRecordMilitaryOrBonuses(kUnit).GetCString(), iCapitalExplicitBonusesSatisfied,
+			bAnyCityExplicitBonusesSatisfied ? 1 : 0, bAllCitiesHaveUpgrade ? 1 : 0, szRestrictionHint);
+	}
+
+	logSASGameRecord("GAME_RECORD_MILITARY_TRAINABILITY turn=%d player=%d team=%d scope=LAND_FULL_COMBAT_CIV_CATALOG catalog=CIVILIZATION_SPECIFIC snapshotValid=1 cities=%d capitalCityId=%d capitalX=%d capitalY=%d candidateTypeCount=%d playerEligibleTypeCount=%d capitalTrainableTypeCount=%d anyCityTrainableTypeCount=%d missingTechTypeCount=%d obsoleteTypeCount=%d stateReligionMismatchTypeCount=%d otherPlayerIneligibleTypeCount=%d capitalRestrictedElsewhereTypeCount=%d noCityTrainableEligibleTypeCount=%d firstTrainableCityId=%d firstTrainableX=%d firstTrainableY=%d playerEligibleTypes=%s capitalTrainableTypes=%s anyCityTrainableTypes=%s capitalRestrictedElsewhereTypes=%s noCityTrainableEligibleTypes=%s",
+		iGameTurn, ePlayer, kPlayer.getTeam(), iCities, pCapital == NULL ? -1 : pCapital->getID(), pCapital == NULL ? -1 : pCapital->getX(),
+		pCapital == NULL ? -1 : pCapital->getY(), iCandidateTypes, iPlayerEligibleTypes, iCapitalTrainableTypes, iAnyCityTrainableTypes,
+		iMissingTechTypes, iObsoleteTypes, iStateReligionMismatchTypes, iOtherPlayerIneligibleTypes, iCapitalRestrictedElsewhereTypes,
+		iNoCityTrainableEligibleTypes, iFirstTrainableCityId, iFirstTrainableX, iFirstTrainableY,
+		getSASDiagnosticOrDash(szPlayerEligible).GetCString(), getSASDiagnosticOrDash(szCapitalTrainable).GetCString(),
+		getSASDiagnosticOrDash(szAnyCityTrainable).GetCString(), getSASDiagnosticOrDash(szCapitalRestrictedElsewhere).GetCString(),
+		getSASDiagnosticOrDash(szNoCityTrainableEligible).GetCString());
+}
+
 static void logSASGameRecordPlayerBonuses(PlayerTypes ePlayer, int iGameTurn, SASGameRecordPlayerPrevious const& kPrevious)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
@@ -11807,6 +12014,7 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 	if (bLogPlayerDetails)
 	{
 		logSASGameRecordPlayerBonuses(ePlayer, iGameTurn, kPrevious);
+		logSASGameRecordMilitaryTrainability(ePlayer, iGameTurn);
 		logSASGameRecordAIStrategies(ePlayer, iGameTurn);
 		logSASGameRecordAITargetCities(ePlayer, iGameTurn);
 		logSASGameRecordAIVictoryStages(ePlayer, iGameTurn);

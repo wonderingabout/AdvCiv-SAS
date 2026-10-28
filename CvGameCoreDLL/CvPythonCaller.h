@@ -63,6 +63,8 @@ public:
 
 	// City ...
 	bool isCitiesDestroyFeatures(int iX, int iY) const;
+	// <!-- custom: Expose the cached training-callback switches without executing Python; observational trainability sampling must skip arbitrary callbacks that can mutate state or override player-level rejection. (GPT-6.1-Sol) -->
+	bool isUseTrainCallbacks() const;
 	bool canTrainOverride(CvCity const& kCity, UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const;
 	bool cannotTrainOverride(CvCity const& kCity, UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const;
 	bool canConstructOverride(CvCity const& kCity, BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost) const;
