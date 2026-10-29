@@ -612,6 +612,10 @@ void CvSelectionGroup::pushMission(MissionTypes eMission, int iData1, int iData2
 
 	FAssert(getOwner() != NO_PLAYER);
 
+	// <!-- custom: Observe a Worker task's actual push attempt before the busy-group early return, then count insertions at their separate native queue boundary.
+	// This replaces caller-supplied expected counts without changing refusal, queue clearing or synchronous activation. (GPT-6.1-Sol) -->
+	if (gGameRecordLogLevel >= 2) noteSASGameRecordAIWorkerMissionAttempted(*this);
+
 	if (!bAppend)
 	{
 		if (isBusy())
@@ -4611,8 +4615,14 @@ void CvSelectionGroup::insertAtEndMissionQueue(MissionData mission, bool bStart)
 	FAssert(getOwner() != NO_PLAYER);
 
 	m_missionQueue.insertAtEnd(mission);
-	// <!-- custom: Bind the actual queued retreat assignment before activateHeadMission can execute movement synchronously. (GPT-6.1-Sol) -->
-	if (gGameRecordLogLevel >= 2) noteSASGameRecordEvacuationMissionInserted(*this, &tailMissionQueueNode()->m_data);
+	// <!-- custom: Bind recorder evidence at the native insertion boundary before activateHeadMission can execute/remove the mission synchronously.
+	// Evacuation keeps exact mission identity for later movement; Worker commitment only counts insertions inside a short-lived task capture. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2)
+	{
+		MissionData const* pInsertedMission = &tailMissionQueueNode()->m_data;
+		noteSASGameRecordEvacuationMissionInserted(*this, pInsertedMission);
+		noteSASGameRecordAIWorkerMissionInserted(*this, pInsertedMission);
+	}
 	if (getLengthMissionQueue() == 1 && bStart)
 		activateHeadMission();
 

@@ -17,7 +17,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 ### Revision 16 - SAS practical 6702
 
 - **Date:** 2026-10-29
-- **Git commit:** pending
+- **Git commit:** `8f06c5384ac3131e06cd3360307eb48f8aaae9b8`
 - **Change:** Recognize the reviewed same-process Gamebryo/NiDX9 video-memory-allocation dialog family and capture one bounded external failure-time memory/Runtime-context sample without treating the message as a diagnosis.
   - Move `SAS_RUNTIME_REVISION` from a compiled constant to SAS XML, cached only on enabled initialization and retained through teardown. CI reads both historical compiled and current XML labels; native Runtime changes require a matching Release build, while observer/XML-only changes do not.
   - `SASRuntimeDialogObserver.cs` accepts title `ERROR` only when bounded Static text contains the exact `Failed to allocate video memory.` phrase plus a `Gamebryo2_0` / `NiDX9` / `.cpp` source reference.

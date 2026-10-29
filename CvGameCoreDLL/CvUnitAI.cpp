@@ -6851,6 +6851,9 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		return;
 	} // </advc.113b>
 
+	// <!-- custom: SGR Worker-task evidence belongs at the accepted productive push site, not as a generic summary of this recursive dispatcher: otherwise nested helpers would duplicate one choice and the dispatcher could only infer which helper really committed it.
+	// The two Phase-0 short-circuits below are the exception because they push their selected Build directly here; ordinary productive paths record inside their accepted helper.
+	// Periodic Worker rows still cover idle/continuing state, and completed Builds remain separate realized evidence. (ChatGPT-5.6-Sol) -->
 	bool bCanRoute = canBuildRoute();
 	bool bNextCity = false;
 	bool bCanRetreat = true; // advc.opt: Try only once (uses of this variable not marked with comments)
@@ -7086,6 +7089,16 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				FAssert(ePhase0FeatureForLog != NO_FEATURE);
 				iPhase0MinEligibleForLog = SAS_getWorkerPhase0MinEligiblePlots(*pPhase0City);
 			}
+			bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+			PlayerTypes eSASWorkerTaskOwner = NO_PLAYER;
+			int iSASWorkerTaskGroup = -1;
+			if (bLogSASWorkerTask)
+			{
+				eSASWorkerTaskOwner = getOwner();
+				iSASWorkerTaskGroup = getGroup()->getID();
+				beginSASGameRecordAIWorkerTask(*this, "WORKER_MOVE_PHASE0", "CORE_PRODUCTIVE_FEATURE", *pPhase0Plot, pPhase0City,
+					ePhase0Build, ePhase0Followup);
+			}
 			if (!at(*pPhase0Plot))
 			{
 				pushGroupMoveTo(*pPhase0Plot, NO_MOVEMENT_FLAGS, false, false,
@@ -7097,6 +7110,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			// This short-circuit path bypasses AI_nextCityToImprove, so queue that same follow-up here to preserve the Worker's position and Hill/feature movement investment. (GPT-5.6-Sol) -->
 			if (ePhase0Followup != NO_BUILD)
 				getGroup()->pushMission(MISSION_BUILD, ePhase0Followup, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pPhase0Plot);
+			if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eSASWorkerTaskOwner, iSASWorkerTaskGroup);
 
 			if (bLogPhase0Action) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%S build=%S followup=%S production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=%d result=SHORT_CIRCUIT_BEFORE_BONUS_AND_ROUTE_LOGIC",
 				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(),
@@ -7196,6 +7210,16 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				FAssert(ePhase0FeatureForLog != NO_FEATURE);
 				iPhase0MinEligibleForLog = SAS_getWorkerPhase0MinEligiblePlots(*pPhase0City);
 			}
+			bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+			PlayerTypes eSASWorkerTaskOwner = NO_PLAYER;
+			int iSASWorkerTaskGroup = -1;
+			if (bLogSASWorkerTask)
+			{
+				eSASWorkerTaskOwner = getOwner();
+				iSASWorkerTaskGroup = getGroup()->getID();
+				beginSASGameRecordAIWorkerTask(*this, "WORKER_MOVE_PHASE0", "NORMAL_PRODUCTIVE_FEATURE", *pPhase0Plot, pPhase0City,
+					ePhase0Build, ePhase0Followup);
+			}
 			if (!at(*pPhase0Plot))
 			{
 				pushGroupMoveTo(*pPhase0Plot, NO_MOVEMENT_FLAGS, false, false,
@@ -7206,6 +7230,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			// <!-- custom: Preserve the same selected post-chop improvement in the NORMAL Phase-0 short-circuit path; otherwise only city-job callers would retain the new follow-up. (GPT-5.6-Sol) -->
 			if (ePhase0Followup != NO_BUILD)
 				getGroup()->pushMission(MISSION_BUILD, ePhase0Followup, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pPhase0Plot);
+			if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eSASWorkerTaskOwner, iSASWorkerTaskGroup);
 
 			if (bLogPhase0Action) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%S build=%S followup=%S production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=0 result=SHORT_CIRCUIT_AFTER_BONUS_BEFORE_ROUTE_AND_NORMAL_WORK",
 				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(),
@@ -25092,8 +25117,20 @@ bool CvUnitAI::AI_connectPlot(CvPlot const& kPlot, int iRange, char const* szCon
 				{
 					return false;
 				}
+				// <!-- custom: Capture the chosen connection plan before its route pushes; cached owner/group IDs let finish avoid a unit dereference after synchronous activation. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+				bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+				PlayerTypes eWorkerTaskOwner = NO_PLAYER;
+				int iWorkerTaskGroupId = -1;
+				if (bLogSASWorkerTask)
+				{
+					eWorkerTaskOwner = getOwner();
+					iWorkerTaskGroupId = getGroup()->getID();
+					beginSASGameRecordAIWorkerTask(*this, szContext, "BARBARIAN_TARGET_TO_WORKING_CITY", kPlot,
+						c, NO_BUILD, NO_BUILD);
+				}
 				getGroup()->pushMission(MISSION_ROUTE_TO, c->getX(), c->getY(),
 						MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, &kPlot);
+				if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
 				if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=%s plan=BARBARIAN_TARGET_TO_WORKING_CITY target=(%d,%d) routeEnd=(%d,%d) routeEndCity=%S routeEndCityId=%d",
 					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(), szContext,
 					kPlot.getX(), kPlot.getY(), c->getX(), c->getY(), c->getName().GetCString(), c->getID());
@@ -25106,8 +25143,19 @@ bool CvUnitAI::AI_connectPlot(CvPlot const& kPlot, int iRange, char const* szCon
 					FAssert(kPlot.getPlotCity() != pLoopCity);
 					if (getPlot().isSamePlotGroup(*pLoopCity->plot(), getOwner()))
 					{
+						bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+						PlayerTypes eWorkerTaskOwner = NO_PLAYER;
+						int iWorkerTaskGroupId = -1;
+						if (bLogSASWorkerTask)
+						{
+							eWorkerTaskOwner = getOwner();
+							iWorkerTaskGroupId = getGroup()->getID();
+							beginSASGameRecordAIWorkerTask(*this, szContext, "CURRENT_NETWORK_TO_TARGET", kPlot,
+								pLoopCity, NO_BUILD, NO_BUILD);
+						}
 						getGroup()->pushMission(MISSION_ROUTE_TO, kPlot.getX(), kPlot.getY(),
 								MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, &kPlot);
+						if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
 						if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=%s plan=CURRENT_NETWORK_TO_TARGET target=(%d,%d) disconnectedCity=%S disconnectedCityId=%d",
 							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(), szContext,
 							kPlot.getX(), kPlot.getY(), pLoopCity->getName().GetCString(), pLoopCity->getID());
@@ -25133,20 +25181,42 @@ bool CvUnitAI::AI_connectPlot(CvPlot const& kPlot, int iRange, char const* szCon
 				{
 					if (at(kPlot)) // need to test before moving...
 					{
+						bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+						PlayerTypes eWorkerTaskOwner = NO_PLAYER;
+						int iWorkerTaskGroupId = -1;
+						if (bLogSASWorkerTask)
+						{
+							eWorkerTaskOwner = getOwner();
+							iWorkerTaskGroupId = getGroup()->getID();
+							beginSASGameRecordAIWorkerTask(*this, szContext, "TARGET_TO_REACHABLE_CITY", kPlot,
+								pLoopCity, NO_BUILD, NO_BUILD);
+						}
 						getGroup()->pushMission(MISSION_ROUTE_TO, pLoopCity->getX(), pLoopCity->getY(),
 								MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, &kPlot);
+						if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
 						if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=%s plan=TARGET_TO_REACHABLE_CITY target=(%d,%d) routeEnd=(%d,%d) routeEndCity=%S routeEndCityId=%d",
 							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(), szContext,
 							kPlot.getX(), kPlot.getY(), pLoopCity->getX(), pLoopCity->getY(), pLoopCity->getName().GetCString(), pLoopCity->getID());
 					}
 					else
 					{
+						bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+						PlayerTypes eWorkerTaskOwner = NO_PLAYER;
+						int iWorkerTaskGroupId = -1;
+						if (bLogSASWorkerTask)
+						{
+							eWorkerTaskOwner = getOwner();
+							iWorkerTaskGroupId = getGroup()->getID();
+							beginSASGameRecordAIWorkerTask(*this, szContext, "REACHABLE_CITY_THEN_TARGET", kPlot,
+								pLoopCity, NO_BUILD, NO_BUILD);
+						}
 						getGroup()->pushMission(MISSION_ROUTE_TO,
 								pLoopCity->getX(), pLoopCity->getY(), MOVE_SAFE_TERRITORY,
 								false, false, MISSIONAI_BUILD, &kPlot);
 						getGroup()->pushMission(MISSION_ROUTE_TO,
 								kPlot.getX(), kPlot.getY(), MOVE_SAFE_TERRITORY,
 								true, false, MISSIONAI_BUILD, &kPlot); // K-Mod
+						if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
 						if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=%s plan=REACHABLE_CITY_THEN_TARGET target=(%d,%d) firstRouteEnd=(%d,%d) firstRouteEndCity=%S firstRouteEndCityId=%d",
 							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(), szContext,
 							kPlot.getX(), kPlot.getY(), pLoopCity->getX(), pLoopCity->getY(), pLoopCity->getName().GetCString(), pLoopCity->getID());
@@ -25254,6 +25324,16 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
 	char const* szRouteReason = NULL;
 	MissionTypes eMission = (AI_shouldRouteWhileImproving(*pBestPlot, eFlags, &kCity, (bLogRoute ? &szRouteReason : NULL)) ?
 			MISSION_ROUTE_TO : MISSION_MOVE_TO); // </advc>
+	// <!-- custom: Record the selected city job before movement/build insertion; keep this inside the SGR gate and leave the original mission sequence unchanged. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+	PlayerTypes eSASWorkerTaskOwner = NO_PLAYER;
+	int iSASWorkerTaskGroup = -1;
+	if (bLogSASWorkerTask)
+	{
+		eSASWorkerTaskOwner = getOwner();
+		iSASWorkerTaskGroup = getGroup()->getID();
+		beginSASGameRecordAIWorkerTask(*this, "IMPROVE_CITY", "CITY_BUILD", *pBestPlot, &kCity, eBestBuild, eFollowupBuild);
+	}
 	getGroup()->pushMission(eMission,
 			pBestPlot->getX(), pBestPlot->getY(),
 			eFlags, false, false,
@@ -25265,6 +25345,7 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
 			false, MISSIONAI_BUILD, pBestPlot);
 	if (eFollowupBuild != NO_BUILD)
 		getGroup()->pushMission(MISSION_BUILD, eFollowupBuild, -1, eFlags, true, false, MISSIONAI_BUILD, pBestPlot);
+	if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eSASWorkerTaskOwner, iSASWorkerTaskGroup);
 	if (bLogRoute && eMission == MISSION_ROUTE_TO) logBBAI("    WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_CITY target=(%d,%d) targetCity=%S targetCityId=%d reason=%s targetHasRoute=%d intendedBuild=%S followup=%S",
 		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
 		pBestPlot->getX(), pBestPlot->getY(), kCity.getName().GetCString(), kCity.getID(), szRouteReason, pBestPlot->isRoute(),
@@ -25415,6 +25496,16 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, int iM
 	char const* szRouteReason = NULL;
 	MissionTypes eMission = (AI_shouldRouteWhileImproving(*pBestPlot, eFlags, NULL, (bLogRoute ? &szRouteReason : NULL)) ?
 			MISSION_ROUTE_TO : MISSION_MOVE_TO); // </advc>
+	// <!-- custom: Capture the chooser-selected Build before movement and the existing AI_betterPlotBuild call, so the row can expose a later Build substitution without repeating that calculation. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+	PlayerTypes eSASWorkerTaskOwner = NO_PLAYER;
+	int iSASWorkerTaskGroup = -1;
+	if (bLogSASWorkerTask)
+	{
+		eSASWorkerTaskOwner = getOwner();
+		iSASWorkerTaskGroup = getGroup()->getID();
+		beginSASGameRecordAIWorkerTask(*this, "IMPROVE_LOCAL_PLOT", (bChop ? "FEATURE_REMOVAL" : "LOCAL_CITY_BUILD"), *pBestPlot, pBestPlot->getWorkingCity(), eBestBuild, NO_BUILD);
+	}
 	getGroup()->pushMission(eMission,
 			pBestPlot->getX(), pBestPlot->getY(),
 			eFlags, false, false,
@@ -25428,6 +25519,7 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, int iM
 			eBestBuild, -1,
 			eFlags, true, false,
 			MISSIONAI_BUILD, pBestPlot); // K-Mod
+	if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eSASWorkerTaskOwner, iSASWorkerTaskGroup);
 	if (bLogRoute && eMission == MISSION_ROUTE_TO) logBBAI("    WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_LOCAL_PLOT target=(%d,%d) reason=%s targetHasRoute=%d intendedBuild=%S standaloneChop=%d",
 		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
 		pBestPlot->getX(), pBestPlot->getY(), szRouteReason, pBestPlot->isRoute(), GC.getInfo(eBestBuild).getDescription(), bChop);
@@ -25662,6 +25754,16 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	// if (!canBuild(*pBestPlot, eBestBuild))
 	// 	return false; // something changed; replan next turn
 
+	// <!-- custom: Record both the working/served city and the original assigned city before issuing this already-selected job; these can differ for an irrigation-chain step. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+	PlayerTypes eSASWorkerTaskOwner = NO_PLAYER;
+	int iSASWorkerTaskGroup = -1;
+	if (bLogSASWorkerTask)
+	{
+		eSASWorkerTaskOwner = getOwner();
+		iSASWorkerTaskGroup = getGroup()->getID();
+		beginSASGameRecordAIWorkerTask(*this, "NEXT_CITY_TO_IMPROVE", (bBestIrrigationChainStep ? "IRRIGATION_CHAIN" : "CITY_BUILD"), *pBestPlot, pBestPlot->getWorkingCity(), eBestBuild, eBestFollowupBuild, pCity);
+	}
 	// <!-- custom: Move directly to the selected city improvement instead of inheriting a Road merely because the Worker starts outside the target plot group, stands on an unroaded plot, or passes a distance-based random roll.
 	// Two 2026-09-22 autoplay runs logged 1,850 and 1,608 such route-before-improvement missions; Berlin also showed a Worker spend Mine turns roading toward the plot and then leave.
 	// City-pair roads, bonus connections, improvement-yield routes, and later fallback route work remain responsible for deliberate network coverage, while this path completes the already-scored city yield first. See KI#30. (GPT-5.6-Sol) -->
@@ -25678,6 +25780,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	{
 		getGroup()->pushMission(MISSION_BUILD, eBestFollowupBuild, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pBestPlot);
 	}
+	if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eSASWorkerTaskOwner, iSASWorkerTaskGroup);
 	// <!-- custom: Pair the chosen city job with the exact worker, movement mode, and resulting queue so repeated selections can be distinguished from separate workers and traced through mission execution.
 	// No behavior change. (GPT-5.5) -->
 	if (gWorkerLogLevel >= 3)
@@ -25967,6 +26070,16 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
 	if (pBestPlot != NULL)
 	{
 		FAssertEnumBounds(eBestBuild);
+		// <!-- custom: Snapshot the chosen fort/canal/airbase task only after selection; the plain FORT label from the alternate draft also handles a caller requesting neither specialization. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+		PlayerTypes eSASWorkerTaskOwner = NO_PLAYER;
+		int iSASWorkerTaskGroup = -1;
+		if (bLogSASWorkerTask)
+		{
+			eSASWorkerTaskOwner = getOwner();
+			iSASWorkerTaskGroup = getGroup()->getID();
+			beginSASGameRecordAIWorkerTask(*this, "FORT_TERRITORY", (bCanal && bAirbase ? "CANAL_AIRBASE" : (bCanal ? "CANAL" : (bAirbase ? "AIRBASE" : "FORT"))), *pBestPlot, pBestPlot->getWorkingCity(), eBestBuild, NO_BUILD);
+		}
 		getGroup()->pushMission(MISSION_ROUTE_TO,
 				pBestPlot->getX(), pBestPlot->getY(),
 				eFlags, false, false,
@@ -25974,6 +26087,7 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
 		getGroup()->pushMission(MISSION_BUILD, eBestBuild, -1, eFlags,
 				//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
 				true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
+		if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eSASWorkerTaskOwner, iSASWorkerTaskGroup);
 		if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) source=FORT_TERRITORY target=(%d,%d) reason=FORT_AIRBASE_PATH_ALWAYS_ROUTES intendedBuild=%S canalRequested=%d airbaseRequested=%d value=%d",
 			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
 			pBestPlot->getX(), pBestPlot->getY(), GC.getInfo(eBestBuild).getDescription(), bCanal, bAirbase, iBestValue);
@@ -26348,6 +26462,17 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 			if (bLogRoute)
 				szRouteReason = "NONE";
 		}
+		// <!-- custom: Preserve the initially selected bonus Build before the real approach and AI_betterPlotBuild postprocessing; inserted Build identities separately record what was queued. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+		PlayerTypes eWorkerTaskOwner = NO_PLAYER;
+		int iWorkerTaskGroupId = -1;
+		if (bLogSASWorkerTask)
+		{
+			eWorkerTaskOwner = getOwner();
+			iWorkerTaskGroupId = getGroup()->getID();
+			beginSASGameRecordAIWorkerTask(*this, "IMPROVE_BONUS", "BONUS_IMPROVEMENT", *pBestPlot,
+				pBestPlot->getWorkingCity(), eBestBuild, NO_BUILD);
+		}
 		getGroup()->pushMission(eBestMission,
 				pBestPlot->getX(), pBestPlot->getY(), eFlags, false,
 				false, MISSIONAI_BUILD, pBestPlot);
@@ -26358,6 +26483,7 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 				//(getGroup()->getLengthMissionQueue() > 0),
 				true, // K-Mod
 				false, MISSIONAI_BUILD, pBestPlot);
+		if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
 		if (bLogRoute && eBestMission == MISSION_ROUTE_TO)
 		{
 			BonusTypes const eTargetBonus = pBestPlot->getNonObsoleteBonusType(getTeam());
@@ -26399,6 +26525,17 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
 	if (eBuild != NO_BUILD)
 	{
 		FAssert(eBuild < GC.getNumBuildInfos());
+		// <!-- custom: Capture intent before movement/postprocessing, keeping diagnostic getters behind the level gate; finish uses cached IDs if the build consumes or regroups the unit. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+		PlayerTypes eWorkerTaskOwner = NO_PLAYER;
+		int iWorkerTaskGroupId = -1;
+		if (bLogSASWorkerTask)
+		{
+			eWorkerTaskOwner = getOwner();
+			iWorkerTaskGroupId = getGroup()->getID();
+			beginSASGameRecordAIWorkerTask(*this, "IMPROVE_PLOT", "EXPLICIT_BUILD", kPlot,
+				kPlot.getWorkingCity(), eBuild, NO_BUILD);
+		}
 		if (!at(kPlot))
 		{
 			pushGroupMoveTo(kPlot, NO_MOVEMENT_FLAGS, false, false,
@@ -26410,6 +26547,7 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
 		getGroup()->pushMission(MISSION_BUILD, eBuild, -1, NO_MOVEMENT_FLAGS,
 				//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
 				true, false, MISSIONAI_BUILD, &kPlot); // K-Mod
+		if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
 		if (bLogRoute && GC.getInfo(eBuild).getRoute() != NO_ROUTE) logBBAI("    WORKER_ROUTE_BUILD_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_PLOT_EXPLICIT_BUILD target=(%d,%d) reason=%s build=%S",
 			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
 			kPlot.getX(), kPlot.getY(), szBuildRouteReason, GC.getInfo(eBuild).getDescription());
@@ -26440,6 +26578,16 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
                 if (GC.getInfo(eLoopBuild).getRoute() != NO_ROUTE &&
                     canBuild(kPlot, eLoopBuild))
                 {
+                    bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+                    PlayerTypes eWorkerTaskOwner = NO_PLAYER;
+                    int iWorkerTaskGroupId = -1;
+                    if (bLogSASWorkerTask)
+                    {
+                        eWorkerTaskOwner = getOwner();
+                        iWorkerTaskGroupId = getGroup()->getID();
+                        beginSASGameRecordAIWorkerTask(*this, "IMPROVE_PLOT", "DIRECT_BONUS_ROUTE_BUILD", kPlot,
+                                kPlot.getWorkingCity(), eLoopBuild, NO_BUILD);
+                    }
                     if (!at(kPlot))
                     {
                         pushGroupMoveTo(kPlot, NO_MOVEMENT_FLAGS, false, false,
@@ -26447,6 +26595,7 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
                     }
                     getGroup()->pushMission(MISSION_BUILD, eLoopBuild, -1, NO_MOVEMENT_FLAGS,
                             true, false, MISSIONAI_BUILD, &kPlot);
+                    if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
 					if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=IMPROVE_PLOT_DIRECT_BONUS_ROUTE_BUILD plan=MOVE_THEN_BUILD_ROUTE target=(%d,%d) bonus=%S build=%S",
 						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
 						kPlot.getX(), kPlot.getY(), GC.getInfo(eBonus).getDescription(), GC.getInfo(eLoopBuild).getDescription());
@@ -26736,6 +26885,17 @@ bool CvUnitAI::AI_routeCity()
 				generatePath(pRouteToCity->getPlot(),
 				MOVE_SAFE_TERRITORY, true, /* advc.opt: */ NULL, 7))
 			{	// <advc.121>
+				// <!-- custom: Keep both city endpoints in the commitment context, as in the alternate draft, while the queue hook observes the actual inserted route payloads. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+				bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+				PlayerTypes eWorkerTaskOwner = NO_PLAYER;
+				int iWorkerTaskGroupId = -1;
+				if (bLogSASWorkerTask)
+				{
+					eWorkerTaskOwner = getOwner();
+					iWorkerTaskGroupId = getGroup()->getID();
+					beginSASGameRecordAIWorkerTask(*this, "ROUTE_CITY", "CITY_PAIR", pRouteToCity->getPlot(),
+						pRouteToCity, NO_BUILD, NO_BUILD, &kLoopCity);
+				}
 				if (!bRouteTo)
 				{
 					pushGroupMoveTo(kLoopCity.getPlot(),
@@ -26750,6 +26910,7 @@ bool CvUnitAI::AI_routeCity()
 						pRouteToCity->getX(), pRouteToCity->getY(),
 						MOVE_SAFE_TERRITORY, true,
 						false, MISSIONAI_BUILD, pRouteToCity->plot()); // K-Mod
+				if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
 				if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=ROUTE_CITY_PAIR mandatory=0 from=(%d,%d) fromCity=%S fromCityId=%d target=(%d,%d) targetCity=%S targetCityId=%d",
 					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
 					kLoopCity.getX(), kLoopCity.getY(), kLoopCity.getName().GetCString(), kLoopCity.getID(), pRouteToCity->getX(), pRouteToCity->getY(), pRouteToCity->getName().GetCString(), pRouteToCity->getID());
@@ -26845,19 +27006,44 @@ bool CvUnitAI::AI_routeTerritory(bool bImprovementOnly)
 			!getPlot().isSamePlotGroup(*pBestPlot, getOwner()));
 	if (!bRouteTo)
 	{
+		// <!-- custom: Record the chosen productive route job before its direct pushes; the queue hooks count attempts/insertions without maintaining a separate expected recipe. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+		PlayerTypes eWorkerTaskOwner = NO_PLAYER;
+		int iWorkerTaskGroupId = -1;
+		if (bLogSASWorkerTask)
+		{
+			eWorkerTaskOwner = getOwner();
+			iWorkerTaskGroupId = getGroup()->getID();
+			beginSASGameRecordAIWorkerTask(*this, "ROUTE_TERRITORY",
+				(bImprovementOnly ? "IMPROVEMENT_YIELD" : "TERRITORY_FALLBACK"), *pBestPlot,
+				pBestPlot->getWorkingCity(), eBestBuild, NO_BUILD);
+		}
 		pushGroupMoveTo(*pBestPlot, MOVE_SAFE_TERRITORY, false, false,
 				MISSIONAI_BUILD, pBestPlot);
 		/*	(Falling through to MISSION_ROUTE_TO would probably also be fine
 			if bAppend is set to !bRouteTo) */
 		getGroup()->pushMission(MISSION_BUILD, eBestBuild, -1,
 				NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pBestPlot);
+		if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
 		if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=ROUTE_IMPROVEMENT_YIELD mandatory=0 target=(%d,%d) build=%S value=%d routeAlongPath=0",
 			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
 			pBestPlot->getX(), pBestPlot->getY(), GC.getInfo(eBestBuild).getDescription(), iBestValue);
 		return true;
 	} // </advc.121>
+	bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
+	PlayerTypes eWorkerTaskOwner = NO_PLAYER;
+	int iWorkerTaskGroupId = -1;
+	if (bLogSASWorkerTask)
+	{
+		eWorkerTaskOwner = getOwner();
+		iWorkerTaskGroupId = getGroup()->getID();
+		beginSASGameRecordAIWorkerTask(*this, "ROUTE_TERRITORY",
+				(bImprovementOnly ? "IMPROVEMENT_YIELD" : "TERRITORY_FALLBACK"), *pBestPlot,
+				pBestPlot->getWorkingCity(), eBestBuild, NO_BUILD);
+	}
 	getGroup()->pushMission(MISSION_ROUTE_TO, pBestPlot->getX(), pBestPlot->getY(),
 			MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, pBestPlot);
+	if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
 	if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=%s mandatory=0 target=(%d,%d) build=%S value=%d routeAlongPath=1",
 		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
 		bImprovementOnly ? "ROUTE_IMPROVEMENT_YIELD" : "ROUTE_TERRITORY_FALLBACK", pBestPlot->getX(), pBestPlot->getY(), GC.getInfo(eBestBuild).getDescription(), iBestValue);

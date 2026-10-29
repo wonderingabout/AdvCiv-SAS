@@ -108,10 +108,27 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 182 - SAS practical 6702
+### Revision 183 - SAS practical 6703
 
 - **Date:** 2026-10-29
 - **Git commit:** pending
+- **Change:** Record a compact level-2 `GAME_RECORD_AI_WORKER_TASK` when a productive Worker/Work Boat helper chooses a job and issues its mission pushes, bridging periodic Worker state and aggregate realized Build-completion evidence.
+  - The row captures the selected helper/source, concrete purpose, strategic target, serving city where one exists, optional related city for the original assignment/other route endpoint, selected Build/follow-up, target bonus and pre-task feature/improvement/route state, unit/group identity and whether the call came from AI control or human automation. Manually submitted orders do not masquerade as AI choices.
+  - Selection and queue insertion remain distinct facts.
+    - Each supported productive commit site arms a short-lived recorder context immediately before its native mission pushes. `CvSelectionGroup::insertAtEndMissionQueue` observes missions immediately after insertion, before `activateHeadMission` can execute or remove them synchronously.
+    - `attemptedMissionPushes` counts actual `CvSelectionGroup::pushMission` entries before busy-group refusal; `insertedMissions` counts native insertions. This replaces the draft's hand-maintained 1/2/3 expected totals, which duplicated each caller's push recipe and could drift.
+      - `missionCountStatus` reports `MATCHING_COUNTS`, `NO_PUSHES_OBSERVED`, `NONE_INSERTED`, `FEWER_INSERTIONS` or `MORE_INSERTIONS`. Both counters observe the same owner/group capture window, including synchronous nested activity; equal totals do not prove payload equality, a complete intended recipe or later completion.
+    - First/last inserted mission payload and up to two inserted Build identities preserve important differences between the strategic target and the actual queued route/build, including `AI_betterPlotBuild` substitutions performed at the original gameplay evaluation point.
+    - The capture is erased immediately after the accepted helper finishes and on recorder reset/roll. It has no decision ID, save state or later-lived mission identity; realized completions remain represented by the existing aggregate `GAME_RECORD_WORKER_BUILDS_COMPLETED` evidence; the task row does not claim that its specific selection completed.
+  - Productive coverage is intentionally narrow: direct Phase-0 productive-feature short circuits, city/local/bonus/explicit-plot improvements, irrigation-chain selections, canal/airbase Builds, accepted city/bonus/network route plans and route-territory work.
+    - Route-only bonus/plot fallbacks are recorded inside `AI_connectPlot` rather than again by their callers, avoiding nested duplicate summaries; sea Workers share the bonus-improvement boundary.
+  - Idle, retreat, transport/airlift-only relocation and continuing-task observations are not duplicated into this family: existing Worker snapshots and generic mission evidence already cover those states without claiming a final Build choice that was never made.
+  - All setup is pre-gated by cached SGR level, and fields reuse already-selected targets/builds and the actual inserted mission. No diagnostic-only pathfinding, candidate rescoring, RNG, Python callback, cache mutation or AI-policy change is introduced.
+
+### Revision 182 - SAS practical 6702
+
+- **Date:** 2026-10-29
+- **Git commit:** `8f06c5384ac3131e06cd3360307eb48f8aaae9b8`
 - **Change:** Correct revision classification when Runtime-owned native comments merely compare their implementation label to SASGameRecord's XML revision. Such a cross-reference does not change SGR, while actual SGR calls/literals in those files still qualify; shared gameplay-file comments retain the existing conservative policy. This updates the SGR-specific checker, with no emitted-row changes.
 
 ### Revision 181 - SAS practical 6701

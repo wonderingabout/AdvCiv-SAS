@@ -1062,6 +1062,8 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.m
       - Gap rows report resource/upgrade evidence without guessing other restrictions. Callback-defined training rules are marked unavailable rather than executing Python solely for logging.
     - (Requires AdvCiv-SAS 6701+) AI commerce-allocation records help explain how Gold reserves, Culture pressure, Research and Espionage priorities produced the final slider allocation.
       - Record each changed allocation and sample stable decisions periodically, using inputs from the actual choice rather than repeating AI calculations solely for logging.
+    - (Requires AdvCiv-SAS 6703+) Worker final-task records connect an accepted productive AI/automation choice to the missions that were actually inserted, while keeping later Build-completion aggregates as separate factual evidence.
+      - They cover concrete improvement/route commitments without duplicating rejected-candidate scoring, continuing/idle snapshots or manual player orders.
     - (Requires AdvCiv-SAS 6682+) Frequently parsed multi-value snapshot fields now have typed companion rows instead of requiring ad-hoc mini-format parsers.
       - Policies, commerce, espionage, resources and level-3 parked production retain their compact human-readable summaries for compatibility, while `GAME_RECORD_POLICY_*`, `GAME_RECORD_ECONOMY_COMMERCE`, `GAME_RECORD_ESPIONAGE_*`, `GAME_RECORD_BONUS_DETAIL` and `GAME_RECORD_PRODUCTION_PARKED_ITEM` expose ordinary fixed fields.
       - Empty structured collections use zero companion rows rather than overloading `-`; explicit validity fields distinguish genuinely unavailable values where needed. Legacy scalar sentinels remain field-specific.

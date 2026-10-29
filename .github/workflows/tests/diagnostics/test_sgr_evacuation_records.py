@@ -22,10 +22,17 @@ class SGREvacuationRecordTests(unittest.TestCase):
     # Native fixtures cover cancellation and same-size regrouping; this small integration check guards production hook placement, not every field/status label. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
     def test_mission_hooks_precede_execution_and_node_destruction(self):
         source = (Path(__file__).resolve().parents[4] / "CvGameCoreDLL/CvSelectionGroup.cpp").read_text(encoding="utf-8")
+        # <!-- custom: A refused busy-group push must count as attempted even though it never reaches insertion. (GPT-6.1-Sol) -->
+        push = source[source.index("void CvSelectionGroup::pushMission("):source.index("void CvSelectionGroup::insertAtEndMissionQueue(")]
+        self.assertLess(push.index("noteSASGameRecordAIWorkerMissionAttempted"), push.index("if (isBusy())"))
         start = source.index("void CvSelectionGroup::insertAtEndMissionQueue(")
         end = source.index("CLLNode<MissionData>* CvSelectionGroup::deleteMissionQueueNode", start)
         insertion = source[start:end]
-        self.assertLess(insertion.index("noteSASGameRecordEvacuationMissionInserted"), insertion.index("activateHeadMission();"))
+        # <!-- custom: Worker capture shares this existing insertion boundary; extend the integration check rather than maintain a second source-token test file.
+        # Both hooks must observe an actual inserted mission before activation can execute/remove it. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+        for name in ("noteSASGameRecordEvacuationMissionInserted", "noteSASGameRecordAIWorkerMissionInserted"):
+            self.assertLess(insertion.index("m_missionQueue.insertAtEnd(mission);"), insertion.index(name))
+            self.assertLess(insertion.index(name), insertion.index("activateHeadMission();"))
         deletion = source[end:source.index("MissionTypes CvSelectionGroup::getMissionType", end)]
         self.assertLess(deletion.index("invalidateSASGameRecordEvacuationMission"), deletion.index("m_missionQueue.deleteNode"))
 

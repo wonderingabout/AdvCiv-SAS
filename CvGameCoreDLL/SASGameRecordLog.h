@@ -341,6 +341,17 @@ void invalidateSASGameRecordEvacuationMission(PlayerTypes eOwner, int iGroupId, 
 void finishSASGameRecordEvacuationMissionAssignment(PlayerTypes eOwner, int iGroupId);
 void logSASGameRecordAIEvacuationDeparture(SASGameRecordEvacuationDepartureContext const& kContext, CvPlot const& kStepPlot, std::vector<IDInfo> const& aOriginalUnits);
 
+// <!-- custom: Revision 183 records only a Worker's accepted final productive task, not candidate scoring or a persistent decision graph.
+// The caller supplies already-selected target/build context before queue pushes; the queue hook counts actual native mission insertions before synchronous execution can remove them; realized completions remain the existing aggregate Worker-build result evidence.
+// Callers must pre-gate at SGR level 2 so disabled recording performs no diagnostic setup.
+// Fixed source/purpose strings come only from SAS-owned AI branches; pRelatedCity optionally identifies the second route endpoint/original city assignment.
+// The push hook counts actual attempts before refusal and the insertion hook counts accepted queue entries; no caller-maintained expected totals are needed.
+// Matching counts do not prove payload equality or eventual completion. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void beginSASGameRecordAIWorkerTask(CvUnitAI const& kUnit, char const* szSource, char const* szPurpose, CvPlot const& kTarget, CvCity const* pServingCity, BuildTypes eSelectedBuild, BuildTypes eSelectedFollowupBuild, CvCity const* pRelatedCity = NULL);
+void noteSASGameRecordAIWorkerMissionAttempted(CvSelectionGroup const& kGroup);
+void noteSASGameRecordAIWorkerMissionInserted(CvSelectionGroup const& kGroup, MissionData const* pMission);
+void finishSASGameRecordAIWorkerTask(PlayerTypes eOwner, int iGroupId);
+
 // <!-- custom: Closed recorder-only policy stages for AI_generalMove.
 // The stage names preserve the actual ordered fallback chain rather than inventing a cross-action score that Great-General AI does not compute. (ChatGPT-5.6-Sol) -->
 #define SAS_RECORD_AI_GREAT_GENERAL_STAGE_ROWS(DO) \

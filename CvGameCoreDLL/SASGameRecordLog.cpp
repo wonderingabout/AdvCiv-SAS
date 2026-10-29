@@ -260,6 +260,34 @@ struct SASGameRecordEvacuationDecisionLink
 static std::map<std::pair<int,int>, SASGameRecordEvacuationDecisionLink> g_mapSASGameRecordEvacuationCityDecision;
 static std::map<std::pair<int,int>, SASGameRecordEvacuationDecisionLink> g_mapSASGameRecordEvacuationUnitDecision;
 static std::map<std::pair<int,int>, SASGameRecordEvacuationDecisionLink> g_mapSASGameRecordEvacuationRetreatMission;
+// <!-- custom: Worker task commitment needs only stack-local-to-queue evidence: selected intent is armed immediately before the helper's mission pushes, exact insertions are counted at CvSelectionGroup's native insertion boundary, and finish emits/erases the context.
+// It never survives a recorder roll, enters save state, or claims later Build completion; aggregate realized Build evidence remains GAME_RECORD_WORKER_BUILDS_COMPLETED. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordAIWorkerTaskContext
+{
+	SASGameRecordAIWorkerTaskContext() : iTurn(-1), eOwner(NO_PLAYER), eTeam(NO_TEAM), iUnitId(-1), eUnit(NO_UNIT), eUnitAI(NO_UNITAI), eDomain(NO_DOMAIN), iGroupId(-1), iGroupUnits(0), iSourceX(-1), iSourceY(-1), iTargetX(-1), iTargetY(-1), iServingCityId(-1), iServingCityX(-1), iServingCityY(-1), iRelatedCityId(-1), eSelectedBuild(NO_BUILD), eSelectedFollowupBuild(NO_BUILD), eTargetBonus(NO_BONUS), eTargetFeature(NO_FEATURE), eTargetImprovement(NO_IMPROVEMENT), eTargetRoute(NO_ROUTE), iAttemptedMissions(0), iInsertedMissions(0), iInsertedMoveMissions(0), iInsertedRouteMissions(0), iInsertedBuildMissions(0), iInsertedAirliftMissions(0), iInsertedOtherMissions(0), eFirstInsertedMission(NO_MISSION), eLastInsertedMission(NO_MISSION), iFirstInsertedData1(-1), iFirstInsertedData2(-1), iLastInsertedData1(-1), iLastInsertedData2(-1), eFirstInsertedBuild(NO_BUILD), eSecondInsertedBuild(NO_BUILD), bHuman(false), bAutomated(false), bBarbarian(false) {}
+	int iTurn;
+	PlayerTypes eOwner;
+	TeamTypes eTeam;
+	int iUnitId;
+	UnitTypes eUnit;
+	UnitAITypes eUnitAI;
+	DomainTypes eDomain;
+	int iGroupId, iGroupUnits;
+	int iSourceX, iSourceY, iTargetX, iTargetY;
+	int iServingCityId, iServingCityX, iServingCityY, iRelatedCityId;
+	CvString szSource, szPurpose;
+	BuildTypes eSelectedBuild, eSelectedFollowupBuild;
+	BonusTypes eTargetBonus;
+	FeatureTypes eTargetFeature;
+	ImprovementTypes eTargetImprovement;
+	RouteTypes eTargetRoute;
+	int iAttemptedMissions, iInsertedMissions, iInsertedMoveMissions, iInsertedRouteMissions, iInsertedBuildMissions, iInsertedAirliftMissions, iInsertedOtherMissions;
+	MissionTypes eFirstInsertedMission, eLastInsertedMission;
+	int iFirstInsertedData1, iFirstInsertedData2, iLastInsertedData1, iLastInsertedData2;
+	BuildTypes eFirstInsertedBuild, eSecondInsertedBuild;
+	bool bHuman, bAutomated, bBarbarian;
+};
+static std::map<std::pair<int,int>, SASGameRecordAIWorkerTaskContext> g_mapSASGameRecordAIWorkerTask;
 static SASGameRecordPlotOwnerChangeCause g_eSASGameRecordPlotOwnerChangeCause = SAS_PLOT_OWNER_CAUSE_NONE;
 // <!-- custom: Record snapshot UTC plus cumulative and per-interval wall time directly so benchmark duration is visible without external timestamp subtraction.
 // Use the monotonic millisecond timer for useful precision and immunity to system-clock adjustments; wall time intentionally includes pauses and user interaction. (GPT-5.6-Sol) -->
@@ -1761,6 +1789,7 @@ static void rollSASGameRecordLog(const char* szContext)
 	g_mapSASGameRecordEvacuationCityDecision.clear();
 	g_mapSASGameRecordEvacuationUnitDecision.clear();
 	g_mapSASGameRecordEvacuationRetreatMission.clear();
+	g_mapSASGameRecordAIWorkerTask.clear();
 	g_eSASGameRecordPlotOwnerChangeCause = SAS_PLOT_OWNER_CAUSE_NONE;
 	time_t kSessionStartTime;
 	time(&kSessionStartTime);
@@ -4326,6 +4355,7 @@ static void resetSASGameRecordState()
 	g_mapSASGameRecordEvacuationCityDecision.clear();
 	g_mapSASGameRecordEvacuationUnitDecision.clear();
 	g_mapSASGameRecordEvacuationRetreatMission.clear();
+	g_mapSASGameRecordAIWorkerTask.clear();
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		g_akSASGameRecordTeamPrevious[iI].bValid = false;
@@ -5042,6 +5072,142 @@ static const char* getSASGameRecordEspionageMissionType(EspionageMissionTypes eM
 static const char* getSASGameRecordUnitAIType(UnitAITypes eUnitAI)
 {
 	return (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType());
+}
+
+// <!-- custom: A Worker commitment row bridges only the accepted helper result to exact mission-queue insertions observed before synchronous execution.
+// The optional related city preserves the other route endpoint or original city assignment, as in the alternate Worker draft; servingCity remains the directly served/working city.
+// It deliberately does not retain mission-node identities, assign decision IDs, infer rejected-candidate reasons, or claim eventual Build completion. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void beginSASGameRecordAIWorkerTask(CvUnitAI const& kUnit, char const* szSource, char const* szPurpose, CvPlot const& kTarget, CvCity const* pServingCity, BuildTypes eSelectedBuild, BuildTypes eSelectedFollowupBuild, CvCity const* pRelatedCity)
+{
+	CvSelectionGroup const* pGroup = kUnit.getGroup();
+	if (pGroup == NULL)
+		return;
+	std::pair<int,int> const kKey((int)kUnit.getOwner(), pGroup->getID());
+	SASGameRecordAIWorkerTaskContext& kTask = g_mapSASGameRecordAIWorkerTask[kKey];
+	kTask = SASGameRecordAIWorkerTaskContext();
+	kTask.iTurn = GC.getGame().getGameTurn();
+	kTask.eOwner = kUnit.getOwner();
+	kTask.eTeam = kUnit.getTeam();
+	kTask.iUnitId = kUnit.getID();
+	kTask.eUnit = kUnit.getUnitType();
+	kTask.eUnitAI = kUnit.AI_getUnitAIType();
+	kTask.eDomain = kUnit.getDomainType();
+	kTask.iGroupId = pGroup->getID();
+	kTask.iGroupUnits = pGroup->getNumUnits();
+	kTask.iSourceX = kUnit.getX();
+	kTask.iSourceY = kUnit.getY();
+	kTask.iTargetX = kTarget.getX();
+	kTask.iTargetY = kTarget.getY();
+	kTask.szSource = (szSource == NULL ? "UNKNOWN" : szSource);
+	kTask.szPurpose = (szPurpose == NULL ? "UNKNOWN" : szPurpose);
+	kTask.eSelectedBuild = eSelectedBuild;
+	kTask.eSelectedFollowupBuild = eSelectedFollowupBuild;
+	kTask.eTargetBonus = kTarget.getBonusType(kUnit.getTeam());
+	kTask.eTargetFeature = kTarget.getFeatureType();
+	kTask.eTargetImprovement = kTarget.getImprovementType();
+	kTask.eTargetRoute = kTarget.getRouteType();
+	kTask.iRelatedCityId = (pRelatedCity == NULL ? -1 : pRelatedCity->getID());
+	kTask.bHuman = kUnit.isHuman();
+	kTask.bAutomated = kUnit.isAutomated();
+	kTask.bBarbarian = kUnit.isBarbarian();
+	if (pServingCity != NULL)
+	{
+		kTask.iServingCityId = pServingCity->getID();
+		kTask.iServingCityX = pServingCity->getX();
+		kTask.iServingCityY = pServingCity->getY();
+	}
+}
+
+// <!-- custom: Count actual push attempts at CvSelectionGroup::pushMission entry, before its busy-group refusal.
+// The original draft passed hand-maintained 1/2/3 totals from Worker callers; those totals duplicated the push recipe and could drift after a branch changed.
+// The level-2 caller gate skips this hook when disabled; an empty private capture map cheaply excludes unrelated enabled missions. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void noteSASGameRecordAIWorkerMissionAttempted(CvSelectionGroup const& kGroup)
+{
+	if (g_mapSASGameRecordAIWorkerTask.empty())
+		return;
+	std::map<std::pair<int,int>, SASGameRecordAIWorkerTaskContext>::iterator it = g_mapSASGameRecordAIWorkerTask.find(std::make_pair((int)kGroup.getOwner(), kGroup.getID()));
+	if (it == g_mapSASGameRecordAIWorkerTask.end() || it->second.iTurn != GC.getGame().getGameTurn())
+		return;
+	it->second.iAttemptedMissions++;
+}
+
+// <!-- custom: CvSelectionGroup calls this immediately after native queue insertion and before activateHeadMission can execute/remove the mission synchronously.
+// The map is normally empty; only the same owner/group armed by an enabled Worker commit site accumulates insertion evidence. (ChatGPT-5.6-Sol) -->
+void noteSASGameRecordAIWorkerMissionInserted(CvSelectionGroup const& kGroup, MissionData const* pMission)
+{
+	// <!-- custom: CvSelectionGroup's level-2 caller gate already skips this call and its arguments when recording is disabled.
+	// This separate filter checks private recorder state: enabled non-Worker insertions pay only the call/empty check, then skip map lookup and payload collection. (GPT-6.1-Sol) -->
+	if (g_mapSASGameRecordAIWorkerTask.empty() || pMission == NULL)
+		return;
+	std::map<std::pair<int,int>, SASGameRecordAIWorkerTaskContext>::iterator it = g_mapSASGameRecordAIWorkerTask.find(std::make_pair((int)kGroup.getOwner(), kGroup.getID()));
+	if (it == g_mapSASGameRecordAIWorkerTask.end())
+		return;
+	SASGameRecordAIWorkerTaskContext& kTask = it->second;
+	if (kTask.iTurn != GC.getGame().getGameTurn())
+		return;
+	MissionTypes const eMission = pMission->eMissionType;
+	if (kTask.iInsertedMissions == 0)
+	{
+		kTask.eFirstInsertedMission = eMission;
+		kTask.iFirstInsertedData1 = pMission->iData1;
+		kTask.iFirstInsertedData2 = pMission->iData2;
+	}
+	kTask.eLastInsertedMission = eMission;
+	kTask.iLastInsertedData1 = pMission->iData1;
+	kTask.iLastInsertedData2 = pMission->iData2;
+	kTask.iInsertedMissions++;
+	switch (eMission)
+	{
+	case MISSION_MOVE_TO:
+		kTask.iInsertedMoveMissions++;
+		break;
+	case MISSION_ROUTE_TO:
+		kTask.iInsertedRouteMissions++;
+		break;
+	case MISSION_BUILD:
+		kTask.iInsertedBuildMissions++;
+		if (pMission->iData1 >= 0 && pMission->iData1 < GC.getNumBuildInfos())
+		{
+			BuildTypes const eBuild = (BuildTypes)pMission->iData1;
+			if (kTask.eFirstInsertedBuild == NO_BUILD)
+				kTask.eFirstInsertedBuild = eBuild;
+			else if (kTask.eSecondInsertedBuild == NO_BUILD)
+				kTask.eSecondInsertedBuild = eBuild;
+		}
+		break;
+	case MISSION_AIRLIFT:
+		kTask.iInsertedAirliftMissions++;
+		break;
+	default:
+		kTask.iInsertedOtherMissions++;
+		break;
+	}
+}
+
+void finishSASGameRecordAIWorkerTask(PlayerTypes eOwner, int iGroupId)
+{
+	std::map<std::pair<int,int>, SASGameRecordAIWorkerTaskContext>::iterator it = g_mapSASGameRecordAIWorkerTask.find(std::make_pair((int)eOwner, iGroupId));
+	if (it == g_mapSASGameRecordAIWorkerTask.end())
+		return;
+	SASGameRecordAIWorkerTaskContext const kTask = it->second;
+	g_mapSASGameRecordAIWorkerTask.erase(it);
+	// <!-- custom: Compare observed attempts with native insertions rather than a hand-maintained plan.
+	// Both counters cover the same owner/group capture window, including synchronous nested activity; matching totals alone do not establish payload equality, a complete job recipe or later completion. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	char const* szInsertionStatus = "MATCHING_COUNTS";
+	if (kTask.iAttemptedMissions == 0 && kTask.iInsertedMissions == 0)
+		szInsertionStatus = "NO_PUSHES_OBSERVED";
+	else if (kTask.iInsertedMissions == 0)
+		szInsertionStatus = "NONE_INSERTED";
+	else if (kTask.iInsertedMissions < kTask.iAttemptedMissions)
+		szInsertionStatus = "FEWER_INSERTIONS";
+	else if (kTask.iInsertedMissions > kTask.iAttemptedMissions)
+		szInsertionStatus = "MORE_INSERTIONS";
+	char const* szControl = (!kTask.bHuman ? "AI_CONTROLLED" : (kTask.bAutomated ? "HUMAN_AUTOMATED" : "HUMAN_NON_AUTOMATED_HELPER"));
+	logSASGameRecord("GAME_RECORD_AI_WORKER_TASK turn=%d player=%d team=%d unitId=%d unit=%s unitAI=%s domain=%s control=%s barbarian=%d groupId=%d groupUnits=%d source=%s purpose=%s sourceX=%d sourceY=%d targetX=%d targetY=%d servingCityId=%d servingCityX=%d servingCityY=%d relatedCityId=%d selectedBuild=%s selectedFollowupBuild=%s targetBonus=%s targetFeatureBefore=%s targetImprovementBefore=%s targetRouteBefore=%s attemptedMissionPushes=%d insertedMissions=%d missionCountStatus=%s insertedMove=%d insertedRoute=%d insertedBuild=%d insertedAirlift=%d insertedOther=%d firstInsertedMission=%s firstInsertedData1=%d firstInsertedData2=%d lastInsertedMission=%s lastInsertedData1=%d lastInsertedData2=%d firstInsertedBuild=%s secondInsertedBuild=%s",
+		kTask.iTurn, kTask.eOwner, kTask.eTeam, kTask.iUnitId, getSASGameRecordUnitType(kTask.eUnit), getSASGameRecordUnitAIType(kTask.eUnitAI), getSASGameRecordDomainType(kTask.eDomain), szControl, kTask.bBarbarian ? 1 : 0,
+		kTask.iGroupId, kTask.iGroupUnits, kTask.szSource.c_str(), kTask.szPurpose.c_str(), kTask.iSourceX, kTask.iSourceY, kTask.iTargetX, kTask.iTargetY, kTask.iServingCityId, kTask.iServingCityX, kTask.iServingCityY, kTask.iRelatedCityId,
+		getSASGameRecordBuildType(kTask.eSelectedBuild), getSASGameRecordBuildType(kTask.eSelectedFollowupBuild), getSASGameRecordBonusType(kTask.eTargetBonus), getSASGameRecordFeatureType(kTask.eTargetFeature), getSASGameRecordImprovementType(kTask.eTargetImprovement), getSASGameRecordRouteType(kTask.eTargetRoute),
+		kTask.iAttemptedMissions, kTask.iInsertedMissions, szInsertionStatus, kTask.iInsertedMoveMissions, kTask.iInsertedRouteMissions, kTask.iInsertedBuildMissions, kTask.iInsertedAirliftMissions, kTask.iInsertedOtherMissions, getSASGameRecordMissionType(kTask.eFirstInsertedMission), kTask.iFirstInsertedData1, kTask.iFirstInsertedData2, getSASGameRecordMissionType(kTask.eLastInsertedMission), kTask.iLastInsertedData1, kTask.iLastInsertedData2, getSASGameRecordBuildType(kTask.eFirstInsertedBuild), getSASGameRecordBuildType(kTask.eSecondInsertedBuild));
 }
 
 static const char* getSASGameRecordUnitCombatType(UnitCombatTypes eUnitCombat)
