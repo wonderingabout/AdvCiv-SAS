@@ -2942,6 +2942,8 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
 			kEvacuationDeparture.iSourceY = kFrom.getY();
 			kEvacuationDeparture.iGroupId = getID();
 			kEvacuationDeparture.iGroupUnitsBefore = getNumUnits();
+			// <!-- custom: Snapshot the active mission identity before callbacks; queue lifecycle hooks invalidate a cancelled/replaced origin even at the same destination. (GPT-6.1-Sol) -->
+			kEvacuationDeparture.pMissionIdentity = getMissionFromQueue(0);
 		}
 	}
 
@@ -4580,6 +4582,8 @@ void CvSelectionGroup::clearMissionQueue()
 {
 	FAssert(getOwner() != NO_PLAYER);
 
+	// <!-- custom: Invalidate bound evacuation evidence before freeing queue nodes; a replacement must not inherit the old causal link. (GPT-6.1-Sol) -->
+	if (gGameRecordLogLevel >= 2) invalidateSASGameRecordEvacuationMission(getOwner(), getID());
 	deactivateHeadMission();
 	m_missionQueue.clear();
 	if (isActiveOwned() && IsSelected())
@@ -4607,6 +4611,8 @@ void CvSelectionGroup::insertAtEndMissionQueue(MissionData mission, bool bStart)
 	FAssert(getOwner() != NO_PLAYER);
 
 	m_missionQueue.insertAtEnd(mission);
+	// <!-- custom: Bind the actual queued retreat assignment before activateHeadMission can execute movement synchronously. (GPT-6.1-Sol) -->
+	if (gGameRecordLogLevel >= 2) noteSASGameRecordEvacuationMissionInserted(*this, &tailMissionQueueNode()->m_data);
 	if (getLengthMissionQueue() == 1 && bStart)
 		activateHeadMission();
 
@@ -4627,6 +4633,8 @@ CLLNode<MissionData>* CvSelectionGroup::deleteMissionQueueNode(CLLNode<MissionDa
 	if (pNode == headMissionQueueNode())
 		deactivateHeadMission();
 
+	// <!-- custom: Consume queue-node identity while it is valid; the recorder stores/computes no gameplay state. (GPT-6.1-Sol) -->
+	if (gGameRecordLogLevel >= 2) invalidateSASGameRecordEvacuationMission(getOwner(), getID(), &pNode->m_data);
 	CLLNode<MissionData>* pNextMissionNode = m_missionQueue.deleteNode(pNode);
 
 	/*if (pNextMissionNode == headMissionQueueNode())

@@ -18,6 +18,17 @@ class SGREvacuationRecordTests(unittest.TestCase):
         self.assertIn("if (bLogSGREvacuationDeparture) logSASGameRecordAIEvacuationDeparture", block)
         self.assertIn("aOriginalUnits", block[hook:])
 
+    # <!-- custom: Queue binding must precede synchronous execution, and invalidation must precede node destruction.
+    # Native fixtures cover cancellation and same-size regrouping; this small integration check guards production hook placement, not every field/status label. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+    def test_mission_hooks_precede_execution_and_node_destruction(self):
+        source = (Path(__file__).resolve().parents[4] / "CvGameCoreDLL/CvSelectionGroup.cpp").read_text(encoding="utf-8")
+        start = source.index("void CvSelectionGroup::insertAtEndMissionQueue(")
+        end = source.index("CLLNode<MissionData>* CvSelectionGroup::deleteMissionQueueNode", start)
+        insertion = source[start:end]
+        self.assertLess(insertion.index("noteSASGameRecordEvacuationMissionInserted"), insertion.index("activateHeadMission();"))
+        deletion = source[end:source.index("MissionTypes CvSelectionGroup::getMissionType", end)]
+        self.assertLess(deletion.index("invalidateSASGameRecordEvacuationMission"), deletion.index("m_missionQueue.deleteNode"))
+
 
 if __name__ == "__main__":
     unittest.main()

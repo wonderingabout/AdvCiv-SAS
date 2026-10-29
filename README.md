@@ -13,7 +13,7 @@ As for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keybo
 Among other UI changes, notably, the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)). As for advisor screens in particular, they have been reworked or new ones were added, e.g.:
 
 - new Military Advisor Summary Tab, new Composition Tab, new Battles Tab (history of all battles of all players, now stored persitently in save files even at load again as well)
-- new World Advisor with Geography tabs (BFC 1, BFC 2 and Territory), an Environment tab for pollution/global warming, and a Changes tab for saved Changes history (WorldBuilder edits and Advanced Start actions), preserved after reloading
+- new World Advisor with Geography tabs (BFC 1, BFC 2 and Territory), an Environment tab for pollution/global warming, and a Changes tab for saved World Changes history (WorldBuilder edits and Advanced Start actions), preserved after reloading
 - new Info Screen Score Tab and Timeline tabs, and they now dynamically adjust to game resolution.
 
 They were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well.
@@ -1467,7 +1467,17 @@ Its Python bridge uses [`SASGameRecordConfig.py`](/Assets/Python/SASGameRecordCo
 
 `SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review. It records broadly, yet in a detailed but also compact/efficient format most of what happens in a game.
 
-The `SASGameRecord` log records many fields or information (see [README_Main_Changes_Guide.md (SASGameRecord log)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sasgamerecord-log)).
+For documentation, see notably also:
+
+- Feature overview: [README_Main_Changes_Guide.md (SASGameRecord log)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sasgamerecord-log).
+- Recorder revision history: [revisions/SASGameRecord.md](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md).
+
+For examples and coverage details:
+
+- Full example:
+  - [SASGameRecord_example.log)](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log) or same file in ([raw text (raw.githubusercontent.com)](https://raw.githubusercontent.com/wonderingabout/AdvCiv-SAS/refs/heads/main/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log)).
+
+These plain-text records can be read in a text editor, analyzed with scripts, or shared with an external LLM such as ChatGPT for review without repository access. Sharing them may also reduce the time and token usage a local coding agent spends analyzing logs.
 
 For example, these five captured rows record research discoveries and a Great Engineer hurrying the Statue of Zeus at Constantinople, followed by its completion, showing what happened during play rather than only reporting settings.
 
@@ -1527,8 +1537,6 @@ Initial context includes small and medium geography overviews before the full mu
 <img src="/_1_AdvCiv-SAS/Images/diagnostics/0.291_SASGameRecord_map_text (6).PNG" alt="0.291_SASGameRecord_map_text (6).PNG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/diagnostics/0.291_SASGameRecord_map_text (7).PNG" alt="0.291_SASGameRecord_map_text (7).PNG" width="250"></img>
 
-See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log). It can be given to an external to the repo LLM (e.g. ChatGPT instead of Codex) to get an as of now token-cheap or free review of the `SASGameRecord` example sample.
-
 Brief header preview (selected fields from the same October 9, 2026 capture):
 
 ```log
@@ -1539,9 +1547,7 @@ See the [full SASGameRecord header and its context](/_1_AdvCiv-SAS/Docs/README_L
 
 <img src="/_1_AdvCiv-SAS/Images/diagnostics/0.290_SASGameRecord_log_vs_code.PNG" alt="0.290_SASGameRecord_log_vs_code.PNG" width="250"></img>
 
-Note: `SASGameRecord` log has its own revision system, see [`SASGameRecord.md`](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md).
-
-Note 2: when sending this file or other logs to external/web LLMs such as ChatGPT, ZIP them first for a smaller upload and, currently, a substantially faster one; uploading raw `.log` files can hang or take much longer.
+When sending this file or other logs to external/web LLMs such as ChatGPT, ZIP them first for a smaller upload and, currently, a substantially faster one; uploading raw `.log` files can hang or take much longer.
 
 #### Live log inspection during gameplay
 

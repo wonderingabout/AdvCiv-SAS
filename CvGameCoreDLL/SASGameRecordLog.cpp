@@ -243,6 +243,23 @@ static unsigned __int64 g_uiSASGameRecordSemanticSequence = 0;
 static unsigned __int64 g_uiSASGameRecordNextTransaction = 0;
 static unsigned __int64 g_uiSASGameRecordActiveTransaction = 0;
 static CvString g_szSASGameRecordActiveTransactionKind;
+// <!-- custom: SGR180 pilots causal AI links only for doomed-city evacuation.
+// Decision IDs reuse the existing emitted-row `seq` value instead of adding another recorder-wide counter.
+// The old iExpectedStepX/Y actually held the planned end-of-turn destination; rename them iMissionTargetX/Y because the first movement tile can be earlier on the route.
+// The maps are recorder/session-local evidence only: city roots can span turns while a city remains evacuating; selected-unit links are consumed by the immediate retreat result; mission links require the actual queued mission, same turn/source and exact original member identities.
+// Missing state after load, disabled logging, cancellation, regrouping or writer failure remains explicit rather than fabricating a parent. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+struct SASGameRecordEvacuationDecisionLink
+{
+	SASGameRecordEvacuationDecisionLink() : uiDecisionId(0), uiParentDecisionId(0), iTurn(-1), iCityId(-1), iCityX(-1), iCityY(-1), iGroupId(-1), iGroupUnits(-1), iMissionTargetX(-1), iMissionTargetY(-1), iFoundedTurn(-1), iAcquiredTurn(-1), pMissionIdentity(NULL) {}
+	unsigned __int64 uiDecisionId, uiParentDecisionId;
+	int iTurn, iCityId, iCityX, iCityY, iGroupId, iGroupUnits, iMissionTargetX, iMissionTargetY;
+	int iFoundedTurn, iAcquiredTurn;
+	void const* pMissionIdentity;
+	std::vector<int> aiUnitIds;
+};
+static std::map<std::pair<int,int>, SASGameRecordEvacuationDecisionLink> g_mapSASGameRecordEvacuationCityDecision;
+static std::map<std::pair<int,int>, SASGameRecordEvacuationDecisionLink> g_mapSASGameRecordEvacuationUnitDecision;
+static std::map<std::pair<int,int>, SASGameRecordEvacuationDecisionLink> g_mapSASGameRecordEvacuationRetreatMission;
 static SASGameRecordPlotOwnerChangeCause g_eSASGameRecordPlotOwnerChangeCause = SAS_PLOT_OWNER_CAUSE_NONE;
 // <!-- custom: Record snapshot UTC plus cumulative and per-interval wall time directly so benchmark duration is visible without external timestamp subtraction.
 // Use the monotonic millisecond timer for useful precision and immunity to system-clock adjustments; wall time intentionally includes pauses and user interaction. (GPT-5.6-Sol) -->
@@ -1741,6 +1758,9 @@ static void rollSASGameRecordLog(const char* szContext)
 	g_uiSASGameRecordNextTransaction = 0;
 	g_uiSASGameRecordActiveTransaction = 0;
 	g_szSASGameRecordActiveTransactionKind.clear();
+	g_mapSASGameRecordEvacuationCityDecision.clear();
+	g_mapSASGameRecordEvacuationUnitDecision.clear();
+	g_mapSASGameRecordEvacuationRetreatMission.clear();
 	g_eSASGameRecordPlotOwnerChangeCause = SAS_PLOT_OWNER_CAUSE_NONE;
 	time_t kSessionStartTime;
 	time(&kSessionStartTime);
@@ -4303,6 +4323,9 @@ static void resetSASGameRecordState()
 	g_iSASAdvancedStartOfferSnapshot = 0;
 	g_uiSASAdvancedStartOfferEpoch = g_uiSASAdvancedStartOfferObservedEpoch = 0;
 	g_mapSASGameRecordWorkerCompletedReplacements.clear();
+	g_mapSASGameRecordEvacuationCityDecision.clear();
+	g_mapSASGameRecordEvacuationUnitDecision.clear();
+	g_mapSASGameRecordEvacuationRetreatMission.clear();
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		g_akSASGameRecordTeamPrevious[iI].bValid = false;
@@ -15104,32 +15127,164 @@ static char const* getSASGameRecordAIGreatPersonAction(SASGameRecordAIGreatPerso
 	}
 }
 
+// <!-- custom: A decision ID is the `seq` of its already-existing decision row, not a second chronology.
+// Flush any older buffered bombard row before predicting that next sequence so the ID and emitted row remain identical.
+// A sequence increment happens before writer submission, so it does not prove disk delivery; writer loss can leave explicitly unresolved parent references.
+// Evacuation does not run during initialization-action buffering; if that invariant ever changes, a zero ID is safer than pretending a delayed row already has a canonical sequence. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static unsigned __int64 getSASGameRecordEvacuationDecisionSequence()
+{
+	if (g_bSASGameRecordBufferInitializingActions)
+		return 0;
+	if (!g_bSASGameRecordFlushingCityBombard)
+		flushSASGameRecordPendingCityBombard();
+	return g_uiSASGameRecordSemanticSequence + 1;
+}
+
+static std::pair<int,int> getSASGameRecordEvacuationKey(PlayerTypes eOwner, int iObjectId)
+{
+	return std::make_pair((int)eOwner, iObjectId);
+}
+
+static SASGameRecordEvacuationDecisionLink const* getSASGameRecordEvacuationCityLink(CvCity const* pCity)
+{
+	if (pCity == NULL)
+		return NULL;
+	std::map<std::pair<int,int>, SASGameRecordEvacuationDecisionLink>::const_iterator it = g_mapSASGameRecordEvacuationCityDecision.find(getSASGameRecordEvacuationKey(pCity->getOwner(), pCity->getID()));
+	if (it == g_mapSASGameRecordEvacuationCityDecision.end())
+		return NULL;
+	SASGameRecordEvacuationDecisionLink const& kLink = it->second;
+	// <!-- custom: A destroyed/recreated or reacquired city can reuse a location/slot; preserve lifecycle identity before treating an older decision as its parent. (GPT-6.1-Sol) -->
+	if (kLink.iCityX != pCity->getX() || kLink.iCityY != pCity->getY() || kLink.iFoundedTurn != pCity->getGameTurnFounded() || kLink.iAcquiredTurn != pCity->getGameTurnAcquired())
+		return NULL;
+	return &kLink;
+}
+
 // <!-- custom: Record newly-entered evacuation using values the real safety decision already computed; no AI valuation is repeated here. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void logSASGameRecordAIEvacuationCityDecision(CvCityAI const& kCity, CitySafetyTypes ePreviousSafety, int iAttackers, int iDefenders, int iAttackStrength, int iDefenseStrength, int iAttackDefensePercent, int iBaseThresholdPercent, int iAdjustedThresholdPercent, int iCityValuePercent)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kCity.getOwner());
-	logSASGameRecord("GAME_RECORD_AI_EVACUATION_CITY_DECISION turn=%d player=%d team=%d cityId=%d x=%d y=%d population=%d capital=%d ownerCities=%d previousSafety=%s previousSafetyId=%d attackers=%d defenders=%d attackStrength=%d defenseStrength=%d attackDefensePercent=%d baseThresholdPercent=%d adjustedThresholdPercent=%d cityValuePercent=%d action=ENTER_EVACUATING",
-		GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getTeam(), kCity.getID(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCity.isCapital(), kOwner.getNumCities(),
+	unsigned __int64 const uiDecisionId = getSASGameRecordEvacuationDecisionSequence();
+	logSASGameRecord("GAME_RECORD_AI_EVACUATION_CITY_DECISION decisionId=%I64u parentDecisionId=0 linkStatus=ROOT_OBSERVED turn=%d player=%d team=%d cityId=%d x=%d y=%d population=%d capital=%d ownerCities=%d previousSafety=%s previousSafetyId=%d attackers=%d defenders=%d attackStrength=%d defenseStrength=%d attackDefensePercent=%d baseThresholdPercent=%d adjustedThresholdPercent=%d cityValuePercent=%d action=ENTER_EVACUATING",
+		uiDecisionId, GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getTeam(), kCity.getID(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCity.isCapital(), kOwner.getNumCities(),
 		getSASCitySafetyTypeName(ePreviousSafety), ePreviousSafety, iAttackers, iDefenders, iAttackStrength, iDefenseStrength, iAttackDefensePercent, iBaseThresholdPercent, iAdjustedThresholdPercent, iCityValuePercent);
+	bool const bDecisionSequenced = (uiDecisionId != 0 && g_uiSASGameRecordSemanticSequence == uiDecisionId);
+	FAssert(uiDecisionId == 0 || bDecisionSequenced);
+	if (bDecisionSequenced)
+	{
+		SASGameRecordEvacuationDecisionLink& kLink = g_mapSASGameRecordEvacuationCityDecision[getSASGameRecordEvacuationKey(kCity.getOwner(), kCity.getID())];
+		kLink = SASGameRecordEvacuationDecisionLink();
+		kLink.uiDecisionId = uiDecisionId;
+		kLink.iTurn = GC.getGame().getGameTurn();
+		kLink.iCityId = kCity.getID();
+		kLink.iCityX = kCity.getX();
+		kLink.iCityY = kCity.getY();
+		kLink.iFoundedTurn = kCity.getGameTurnFounded();
+		kLink.iAcquiredTurn = kCity.getGameTurnAcquired();
+	}
 }
 
 void logSASGameRecordAIEvacuationUnitDecision(CvUnitAI const& kUnit, CvCityAI const& kCity, char const* szMode, int iEvacuationProbabilityPercent, bool bSelected)
 {
 	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
-	logSASGameRecord("GAME_RECORD_AI_EVACUATION_UNIT_DECISION turn=%d player=%d team=%d cityId=%d cityX=%d cityY=%d unitId=%d unit=%s unitAI=%s domain=%d groupId=%d groupUnits=%d mode=%s evacuationProbabilityPercent=%d selected=%d",
-		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kCity.getID(), kCity.getX(), kCity.getY(), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()),
+	SASGameRecordEvacuationDecisionLink const* pCityLink = getSASGameRecordEvacuationCityLink(&kCity);
+	unsigned __int64 const uiParentDecisionId = (pCityLink == NULL ? 0 : pCityLink->uiDecisionId);
+	char const* const szParentLink = (uiParentDecisionId == 0 ? "CITY_DECISION_UNOBSERVED" : "CITY_DECISION_OBSERVED");
+	unsigned __int64 const uiDecisionId = getSASGameRecordEvacuationDecisionSequence();
+	logSASGameRecord("GAME_RECORD_AI_EVACUATION_UNIT_DECISION decisionId=%I64u parentDecisionId=%I64u linkStatus=%s turn=%d player=%d team=%d cityId=%d cityX=%d cityY=%d unitId=%d unit=%s unitAI=%s domain=%d groupId=%d groupUnits=%d mode=%s evacuationProbabilityPercent=%d selected=%d",
+		uiDecisionId, uiParentDecisionId, szParentLink, GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kCity.getID(), kCity.getX(), kCity.getY(), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()),
 		getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), szMode, iEvacuationProbabilityPercent, bSelected);
+	bool const bDecisionSequenced = (uiDecisionId != 0 && g_uiSASGameRecordSemanticSequence == uiDecisionId);
+	FAssert(uiDecisionId == 0 || bDecisionSequenced);
+	std::pair<int,int> const kUnitKey = getSASGameRecordEvacuationKey(kUnit.getOwner(), kUnit.getID());
+	g_mapSASGameRecordEvacuationUnitDecision.erase(kUnitKey);
+	if (bSelected && bDecisionSequenced)
+	{
+		SASGameRecordEvacuationDecisionLink& kLink = g_mapSASGameRecordEvacuationUnitDecision[kUnitKey];
+		kLink = SASGameRecordEvacuationDecisionLink();
+		kLink.uiDecisionId = uiDecisionId;
+		kLink.uiParentDecisionId = uiParentDecisionId;
+		kLink.iTurn = GC.getGame().getGameTurn();
+		kLink.iCityId = kCity.getID();
+		kLink.iCityX = kCity.getX();
+		kLink.iCityY = kCity.getY();
+		kLink.iGroupId = (pGroup == NULL ? -1 : pGroup->getID());
+		kLink.iGroupUnits = (pGroup == NULL ? 0 : pGroup->getNumUnits());
+	}
 }
 
 // <!-- custom: A typed result distinguishes mission assignment, waiting and scrap selection; it does not assert successful escape or actual destruction. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void logSASGameRecordAIEvacuationRetreatResult(SASRetreatResult eResult, CvUnitAI const& kUnit, CvCity const* pSourceCity, CvCity const* pTargetCity, CvPlot const* pEndTurnPlot, int iPathTurns, int iCurrentDanger)
 {
 	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
-	logSASGameRecord("GAME_RECORD_AI_EVACUATION_RETREAT_RESULT turn=%d player=%d team=%d action=%s sourceCityId=%d sourceX=%d sourceY=%d unitId=%d unit=%s unitAI=%s domain=%d groupId=%d groupUnits=%d targetCityId=%d targetX=%d targetY=%d endTurnX=%d endTurnY=%d pathTurns=%d currentDanger=%d",
-		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), getSASRetreatResultName(eResult), (pSourceCity == NULL ? -1 : pSourceCity->getID()), (pSourceCity == NULL ? -1 : pSourceCity->getX()),
+	std::pair<int,int> const kUnitKey = getSASGameRecordEvacuationKey(kUnit.getOwner(), kUnit.getID());
+	std::map<std::pair<int,int>, SASGameRecordEvacuationDecisionLink>::iterator itUnit = g_mapSASGameRecordEvacuationUnitDecision.find(kUnitKey);
+	SASGameRecordEvacuationDecisionLink kOrigin;
+	bool bMatchedOrigin = false;
+	if (itUnit != g_mapSASGameRecordEvacuationUnitDecision.end())
+	{
+		SASGameRecordEvacuationDecisionLink const& kCandidate = itUnit->second;
+		bMatchedOrigin = (kCandidate.iTurn == GC.getGame().getGameTurn() && pSourceCity != NULL && kCandidate.iCityId == pSourceCity->getID() && kCandidate.iCityX == pSourceCity->getX() && kCandidate.iCityY == pSourceCity->getY());
+		if (bMatchedOrigin) kOrigin = kCandidate;
+		g_mapSASGameRecordEvacuationUnitDecision.erase(itUnit);
+	}
+	unsigned __int64 const uiDecisionId = (bMatchedOrigin ? kOrigin.uiDecisionId : 0);
+	unsigned __int64 const uiParentDecisionId = (bMatchedOrigin ? kOrigin.uiParentDecisionId : 0);
+	char const* const szDecisionLink = (bMatchedOrigin ? "UNIT_DECISION_OBSERVED" : "ORIGIN_UNOBSERVED_OR_STALE");
+	logSASGameRecord("GAME_RECORD_AI_EVACUATION_RETREAT_RESULT decisionId=%I64u parentDecisionId=%I64u linkStatus=%s turn=%d player=%d team=%d action=%s sourceCityId=%d sourceX=%d sourceY=%d unitId=%d unit=%s unitAI=%s domain=%d groupId=%d groupUnits=%d targetCityId=%d targetX=%d targetY=%d endTurnX=%d endTurnY=%d pathTurns=%d currentDanger=%d",
+		uiDecisionId, uiParentDecisionId, szDecisionLink, GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), getSASRetreatResultName(eResult), (pSourceCity == NULL ? -1 : pSourceCity->getID()), (pSourceCity == NULL ? -1 : pSourceCity->getX()),
 		(pSourceCity == NULL ? -1 : pSourceCity->getY()), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()), getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()), kUnit.getDomainType(),
 		(pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), (pTargetCity == NULL ? -1 : pTargetCity->getID()), (pTargetCity == NULL ? -1 : pTargetCity->getX()),
 		(pTargetCity == NULL ? -1 : pTargetCity->getY()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), iPathTurns, iCurrentDanger);
+	// <!-- custom: Any newly observed retreat result supersedes an older pending mission link for this group.
+	// Arm only an assignment candidate here; the actual queue insertion binds it before execution, while queue clearing/deletion invalidates a bound mission. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	if (pGroup != NULL)
+		g_mapSASGameRecordEvacuationRetreatMission.erase(getSASGameRecordEvacuationKey(kUnit.getOwner(), pGroup->getID()));
+	if (eResult == SAS_RETREAT_RESULT_RETREAT_MISSION_ISSUED && bMatchedOrigin && pGroup != NULL && pEndTurnPlot != NULL)
+	{
+		SASGameRecordEvacuationDecisionLink& kMission = g_mapSASGameRecordEvacuationRetreatMission[getSASGameRecordEvacuationKey(kUnit.getOwner(), pGroup->getID())];
+		kMission = kOrigin;
+		kMission.iGroupId = pGroup->getID();
+		kMission.iGroupUnits = pGroup->getNumUnits();
+		// <!-- custom: Capture the planned queue destination for insertion validation, not the first tile that groupMove will observe along the route. (GPT-6.1-Sol) -->
+		kMission.iMissionTargetX = pEndTurnPlot->getX();
+		kMission.iMissionTargetY = pEndTurnPlot->getY();
+		// <!-- custom: Equal group size does not prove equal members; copy IDs only for an enabled, selected evacuation mission and compare the original movement identities later. (GPT-6.1-Sol) -->
+		FOR_EACH_UNIT_IN(pMember, *pGroup)
+			kMission.aiUnitIds.push_back(pMember->getID());
+		std::sort(kMission.aiUnitIds.begin(), kMission.aiUnitIds.end());
+	}
+}
+
+// <!-- custom: A matching destination/count is only correlation until the specific native queue insertion is observed.
+// Bind before activateHeadMission can move/delete/regroup units; never dereference this opaque queue-node identity after mutation. (GPT-6.1-Sol) -->
+void noteSASGameRecordEvacuationMissionInserted(CvSelectionGroup const& kGroup, MissionData const* pMission)
+{
+	std::pair<int,int> const kKey = getSASGameRecordEvacuationKey(kGroup.getOwner(), kGroup.getID());
+	std::map<std::pair<int,int>, SASGameRecordEvacuationDecisionLink>::iterator it = g_mapSASGameRecordEvacuationRetreatMission.find(kKey);
+	if (it == g_mapSASGameRecordEvacuationRetreatMission.end())
+		return;
+	SASGameRecordEvacuationDecisionLink& kLink = it->second;
+	if (kLink.pMissionIdentity != NULL || pMission == NULL || kLink.iTurn != GC.getGame().getGameTurn() || pMission->eMissionType != MISSION_MOVE_TO || pMission->iData1 != kLink.iMissionTargetX || pMission->iData2 != kLink.iMissionTargetY || kGroup.AI().AI_getMissionAIType() != MISSIONAI_RETREAT)
+		g_mapSASGameRecordEvacuationRetreatMission.erase(it);
+	else kLink.pMissionIdentity = pMission;
+}
+
+// <!-- custom: Clearing/deleting a queued mission must invalidate its link even if a replacement has identical coordinates and the same number of units.
+// Preserve an unbound assignment candidate across pushMission's initial clear; its caller removes it if that push never inserts a mission. (GPT-6.1-Sol) -->
+void invalidateSASGameRecordEvacuationMission(PlayerTypes eOwner, int iGroupId, void const* pMission)
+{
+	std::map<std::pair<int,int>, SASGameRecordEvacuationDecisionLink>::iterator it = g_mapSASGameRecordEvacuationRetreatMission.find(getSASGameRecordEvacuationKey(eOwner, iGroupId));
+	if (it != g_mapSASGameRecordEvacuationRetreatMission.end() && it->second.pMissionIdentity != NULL && (pMission == NULL || it->second.pMissionIdentity == pMission))
+		g_mapSASGameRecordEvacuationRetreatMission.erase(it);
+}
+
+// <!-- custom: pushMission can refuse a busy group; retire an unbound assignment candidate on return so a later unrelated push cannot inherit it.
+// The caller passes stable owner/group IDs captured before callbacks, since those callbacks can destroy the issuing unit/group. (GPT-6.1-Sol) -->
+void finishSASGameRecordEvacuationMissionAssignment(PlayerTypes eOwner, int iGroupId)
+{
+	std::map<std::pair<int,int>, SASGameRecordEvacuationDecisionLink>::iterator it = g_mapSASGameRecordEvacuationRetreatMission.find(getSASGameRecordEvacuationKey(eOwner, iGroupId));
+	if (it != g_mapSASGameRecordEvacuationRetreatMission.end() && it->second.pMissionIdentity == NULL)
+		g_mapSASGameRecordEvacuationRetreatMission.erase(it);
 }
 
 // <!-- custom: The enabled post-move hook supplies stable source IDs plus the identity list groupMove already needed for gameplay.
@@ -15149,8 +15304,41 @@ void logSASGameRecordAIEvacuationDeparture(SASGameRecordEvacuationDepartureConte
 	}
 	if (iMovedUnits <= 0)
 		return;
-	logSASGameRecord("GAME_RECORD_AI_EVACUATION_DEPARTURE turn=%d player=%d team=%d cityId=%d sourceX=%d sourceY=%d groupId=%d groupUnitsBefore=%d movedUnits=%d stepX=%d stepY=%d action=RETREAT_STEP_OBSERVED",
-		GC.getGame().getGameTurn(), kContext.eOwner, GET_PLAYER(kContext.eOwner).getTeam(), kContext.iCityId, kContext.iSourceX, kContext.iSourceY, kContext.iGroupId, kContext.iGroupUnitsBefore, iMovedUnits, kStepPlot.getX(), kStepPlot.getY());
+	unsigned __int64 uiDecisionId = 0;
+	unsigned __int64 uiParentDecisionId = 0;
+	char const* szDecisionLink = "ORIGIN_UNOBSERVED";
+	std::pair<int,int> const kGroupKey = getSASGameRecordEvacuationKey(kContext.eOwner, kContext.iGroupId);
+	std::map<std::pair<int,int>, SASGameRecordEvacuationDecisionLink>::iterator itMission = g_mapSASGameRecordEvacuationRetreatMission.find(kGroupKey);
+	if (itMission != g_mapSASGameRecordEvacuationRetreatMission.end())
+	{
+		SASGameRecordEvacuationDecisionLink const kMission = itMission->second;
+		g_mapSASGameRecordEvacuationRetreatMission.erase(itMission);
+		if (kMission.iTurn != GC.getGame().getGameTurn()) szDecisionLink = "STALE_DIFFERENT_TURN";
+		else if (kMission.iCityId != kContext.iCityId || kMission.iCityX != kContext.iSourceX || kMission.iCityY != kContext.iSourceY) szDecisionLink = "SOURCE_MISMATCH";
+		// <!-- custom: The old check expected the first movement tile to equal iExpectedStepX/Y, but those fields held the planned end-of-turn destination.
+		// At T156 the unit correctly moved from (29,38) to (30,39) toward (32,40); the unequal coordinates wrongly produced EXPECTED_STEP_MISMATCH and omitted its decision link.
+		// Therefore remove the coordinate equality check: a correct first step need not reach the planned destination.
+		// Instead require the same queued mission below, because insertion already validated its destination; this preserves the link for intermediate steps without changing unit movement. (GPT-6.1-Sol) -->
+		else if (kMission.pMissionIdentity == NULL || kMission.pMissionIdentity != kContext.pMissionIdentity) szDecisionLink = "MISSION_UNOBSERVED_OR_REPLACED";
+		else if (kMission.iGroupUnits != kContext.iGroupUnitsBefore) szDecisionLink = "GROUP_MEMBERSHIP_CHANGED";
+		else
+		{
+			std::vector<int> aiOriginalIds;
+			for (size_t i = 0; i < aOriginalUnits.size(); i++)
+				aiOriginalIds.push_back(aOriginalUnits[i].iID);
+			std::sort(aiOriginalIds.begin(), aiOriginalIds.end());
+			if (aiOriginalIds != kMission.aiUnitIds)
+				szDecisionLink = "GROUP_MEMBERSHIP_CHANGED";
+			else
+			{
+				uiDecisionId = kMission.uiDecisionId;
+				uiParentDecisionId = kMission.uiParentDecisionId;
+				szDecisionLink = "RETREAT_MISSION_OBSERVED";
+			}
+		}
+	}
+	logSASGameRecord("GAME_RECORD_AI_EVACUATION_DEPARTURE decisionId=%I64u parentDecisionId=%I64u linkStatus=%s turn=%d player=%d team=%d cityId=%d sourceX=%d sourceY=%d groupId=%d groupUnitsBefore=%d movedUnits=%d stepX=%d stepY=%d action=RETREAT_STEP_OBSERVED",
+		uiDecisionId, uiParentDecisionId, szDecisionLink, GC.getGame().getGameTurn(), kContext.eOwner, GET_PLAYER(kContext.eOwner).getTeam(), kContext.iCityId, kContext.iSourceX, kContext.iSourceY, kContext.iGroupId, kContext.iGroupUnitsBefore, iMovedUnits, kStepPlot.getX(), kStepPlot.getY());
 }
 
 // <!-- custom: Compact all-type Great Person action provenance.

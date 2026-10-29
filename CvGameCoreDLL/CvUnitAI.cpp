@@ -27173,6 +27173,8 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 
 	if (pBestPlot != NULL)
 	{
+		// <!-- custom: Capture only a stable group ID for enabled diagnostics; pushGroupMoveTo may execute callbacks that destroy the unit/group. (GPT-6.1-Sol) -->
+		int const iLogRetreatGroup = (bLogSASRetreatResult ? getGroup()->getID() : -1);
 		if (bLogRetreatResult) logSASRetreatUnitResult(at(*pBestPlot) ? SAS_RETREAT_RESULT_WAIT : SAS_RETREAT_RESULT_RETREAT_MISSION_ISSUED, *this, pCity, pBestRetreatCityForLog, pBestPlot, iShortestPath, iCurrentDanger, bEvac, bLogBBAIRetreatResult, bLogSASRetreatResult);
 		if (at(*pBestPlot))
 		{
@@ -27187,6 +27189,8 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 					iPass >= 2 ? MOVE_IGNORE_DANGER : NO_MOVEMENT_FLAGS,
 					false, false, MISSIONAI_RETREAT);
 		}
+		// <!-- custom: A refused/non-inserting push must not leave an assignment candidate for a later unrelated mission; kOwner remains stable across unit callbacks. (GPT-6.1-Sol) -->
+		if (bLogSASRetreatResult) finishSASGameRecordEvacuationMissionAssignment(kOwner.getID(), iLogRetreatGroup);
 		return true;
 	}
 

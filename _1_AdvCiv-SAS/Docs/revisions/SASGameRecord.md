@@ -108,10 +108,26 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 180 - SAS practical 6700
+
+- **Date:** 2026-10-29
+- **Git commit:** pending
+- **Change:** Pilot explicit causal decision linkage on the existing doomed-city evacuation chain without introducing a global decision graph or new save state.
+  - Existing structured-row `seq` is reused as the ID of each observed evacuation decision row; no redundant recorder-wide decision counter is added. IDs are local to one SGR session/file and are not gameplay identity or stable across runs.
+  - `GAME_RECORD_AI_EVACUATION_CITY_DECISION` is the observed evacuation-episode root (`parentDecisionId=0`). Each `GAME_RECORD_AI_EVACUATION_UNIT_DECISION` receives its own `decisionId` and the current observed episode-root `parentDecisionId`, or explicitly reports `CITY_DECISION_UNOBSERVED` after load/other missing-origin boundaries.
+    - The episode root can predate the unit decision by one or more turns while the city remains evacuating. Its attack/defense/threshold fields therefore describe the turn when the city entered `EVACUATING`; they are not a claim that those same values were the freshly recomputed inputs for a later-turn child decision.
+  - `GAME_RECORD_AI_EVACUATION_RETREAT_RESULT` reuses the exact selected unit decision ID only when the same-turn/source unit-decision state matches. A retreat assignment candidate stores recorder-local source/mission-target and member-ID evidence; the actual queue insertion binds its mission identity before synchronous movement can start.
+    - `RETREAT_MISSION_ISSUED` names the branch selected before the native queue push; the row alone is not an insertion-success receipt. A linked departure additionally requires observed insertion of that mission and verified movement; a refused/non-inserting push discards its unbound candidate.
+  - `GAME_RECORD_AI_EVACUATION_DEPARTURE` reuses that unit decision ID only when turn, source city, bound mission identity and exact original member IDs still match. Otherwise IDs remain 0 and `linkStatus` reports the observed ambiguity (`ORIGIN_UNOBSERVED`, stale turn, source/mission mismatch or changed group membership) instead of forcing a false single parent.
+    - The queued mission validates its planned waypoint; a verified departure can be an intermediate tile on the way there.
+  - Decision IDs identify sequenced observations, not successful disk delivery. The shared writer can buffer or drop a submitted row; consumers must allow missing parents and consult writer-health evidence rather than infer complete history from sequence advancement.
+  - Queue clear/deletion invalidates bound links, even for identical-destination replacements. A refused assignment loses its unbound candidate on return; source-city roots also validate founding/acquisition identity, not coordinates alone.
+  - Link maps reset with the recorder/new-load session and are touched only from level-2-gated evacuation/mission lifecycle hooks. No AI scoring, RNG, pathfinding, gameplay cache or save-format behavior changes; later survival/capture/scrap remains separate factual history rather than being labelled a consequence the pilot did not directly observe.
+
 ### Revision 179 - SAS practical 6699
 
 - **Date:** 2026-10-28
-- **Git commit:** pending
+- **Git commit:** `8a4637497dd0b49df8111ef20409127796b78ddf`
 - **Change:** Add compact periodic military-trainability evidence for the civilization-specific full-combat land-unit scope used by the existing UWAI no-representative diagnostic.
   - `GAME_RECORD_MILITARY_TRAINABILITY` separates candidate catalog size, player-level `canTrain` eligibility, capital trainability and whether any owned city can actually train each player-eligible type.
     - `GAME_RECORD_MILITARY_TRAINABILITY_UNIT` supplies fixed fields for each player-eligible type, including capital presence/trainability and a first trainable city when one exists. Compact summary lists remain readable conveniences; consumers need not parse them.

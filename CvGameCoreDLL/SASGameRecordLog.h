@@ -318,6 +318,7 @@ struct SASGreatMerchantTradeChoiceContext
 // Great-Merchant fields preserve the winning raw city/path result behind the already-recorded transformed Trade score. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIGreatPersonDecision(CvUnitAI const& kUnit, CvPlot const* pDecisionPlot, SASGameRecordAIGreatPersonAction eAction, int iChoiceRank, int iSelectedValue, int iScoreThreshold, int iSlowValue, int iSlowBaseValue, int iSlowPathTurns, MissionAITypes eSlowMissionAI, CvCity const* pSlowCity, SpecialistTypes eSpecialist, BuildingTypes eBuilding, int iDiscoverValue, TechTypes eDiscoverTech, int iGoldenAgeValue, int iTradeValue, int iCultureValue, SASGreatMerchantTradeChoiceContext const* pTradeChoice, CvPlot const* pTargetPlot, MissionAITypes ePreviousMissionAI, CvPlot const* pPreviousMissionPlot);
 // <!-- custom: Revision 178 adds a compact structured bridge from doomed-city state transition through per-unit evacuation selection, retreat result and actual retreat-group departure.
+// Revision 180 pilots explicit causal linkage on those same rows: decisionId reuses the decision row's recorder-local seq, parentDecisionId points to the observed city decision when available, and consequence rows reuse the originating unit decision ID only when recorder-local code-path state still matches.
 // Callers pre-gate at level 2 and pass only values already computed by the AI path; these helpers must not rescan enemy strength, rerun pathfinding or perform synchronized RNG. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIEvacuationCityDecision(CvCityAI const& kCity, CitySafetyTypes ePreviousSafety, int iAttackers, int iDefenders, int iAttackStrength, int iDefenseStrength, int iAttackDefensePercent, int iBaseThresholdPercent, int iAdjustedThresholdPercent, int iCityValuePercent);
 void logSASGameRecordAIEvacuationUnitDecision(CvUnitAI const& kUnit, CvCityAI const& kCity, char const* szMode, int iEvacuationProbabilityPercent, bool bSelected);
@@ -328,7 +329,16 @@ struct SASGameRecordEvacuationDepartureContext
 {
 	PlayerTypes eOwner;
 	int iCityId, iSourceX, iSourceY, iGroupId, iGroupUnitsBefore;
+	// <!-- custom: Compare only; movement callbacks may delete the queue node. (GPT-6.1-Sol) -->
+	void const* pMissionIdentity;
 };
+// <!-- custom: A forward declaration suffices for the recorder's non-owning mission-identity pointer; queue ownership stays with CvSelectionGroup. (GPT-6.1-Sol) -->
+struct MissionData;
+// <!-- custom: Recorder-only queue lifecycle hooks bind the actual inserted retreat mission, invalidate cleared/deleted missions and discard refused assignments.
+// Callers pre-gate level 2; these hooks never change the mission queue or reevaluate the AI. (GPT-6.1-Sol) -->
+void noteSASGameRecordEvacuationMissionInserted(CvSelectionGroup const& kGroup, MissionData const* pMission);
+void invalidateSASGameRecordEvacuationMission(PlayerTypes eOwner, int iGroupId, void const* pMission = NULL);
+void finishSASGameRecordEvacuationMissionAssignment(PlayerTypes eOwner, int iGroupId);
 void logSASGameRecordAIEvacuationDeparture(SASGameRecordEvacuationDepartureContext const& kContext, CvPlot const& kStepPlot, std::vector<IDInfo> const& aOriginalUnits);
 
 // <!-- custom: Closed recorder-only policy stages for AI_generalMove.
