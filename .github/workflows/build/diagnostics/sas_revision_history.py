@@ -7,6 +7,8 @@
 # Dedicated recorder/checker/helper files are explicit; other source/config bridges qualify when their diff contains SASGameRecord/GAME_RECORD markers.
 # This deliberately catches mechanically recognizable changes without pretending CI can infer every future semantic dependency; the written revision policy remains authoritative for unusual refactors. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 import argparse
+# <!-- custom: Compare comment-stripped Runtime-owned native snapshots with ordinary diff semantics so incidental SGR documentation links do not count as changes to that separate recorder. (GPT-6.1-Sol) -->
+import difflib
 # <!-- custom: Read explicit GitHub event boundaries from its JSON payload so pushes cover every submitted commit and real merges are not guessed to be synthetic PR merges. (GPT-6.1-Sol) -->
 import json
 from pathlib import Path
@@ -145,6 +147,15 @@ def global_define_change_qualifies(repo, parent, commit):
 
 
 def diff_mentions_recorder(repo, parent, commit, path):
+    # <!-- custom: Runtime16's comment comparing its XML label to SAS_SGR_REVISION falsely demanded SGR182.
+    # Ignore comments only in Runtime-owned native files; actual SGR calls/literals there still qualify, and shared gameplay-file comments retain the existing conservative policy. (GPT-6.1-Sol) -->
+    if re.fullmatch(r"CvGameCoreDLL/SASRuntime[^/]*\.(?:cpp|h)", path.replace("\\", "/")):
+        def code_lines(ref):
+            text = (git_show(repo, ref, path) or b"").decode("utf-8", "replace")
+            pattern = r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\''
+            return re.sub(pattern, lambda m: " " if m.group().startswith(("//", "/*")) else m.group(), text, flags=re.S).splitlines()
+        return any(MARKER.search(line[1:]) for line in difflib.unified_diff(code_lines(parent), code_lines(commit), n=0)
+                   if line.startswith(("+", "-")) and not line.startswith(("+++", "---")))
     result = subprocess.run(["git", "diff", "--unified=0", parent] + ([commit] if commit else []) + ["--", path], cwd=repo, capture_output=True, text=True, encoding="utf-8", errors="replace")
     if result.returncode != 0:
         return False

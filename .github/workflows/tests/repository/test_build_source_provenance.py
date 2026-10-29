@@ -31,9 +31,13 @@ class BuildSourceProvenanceTests(unittest.TestCase):
         self.git("config", "user.email", "fixture@example.invalid")
         self.project = self.repo / "CvGameCoreDLL/Project"
         self.project.mkdir(parents=True)
-        self.names = ["plain.cpp", "caf\u00e9.cpp", "name [x].cpp"]
-        for name in self.names:
-            (self.repo / "CvGameCoreDLL" / name).write_text("// baseline\n", encoding="utf-8")
+        # <!-- custom: Include shipped companions alongside bracket/Unicode native paths so scope wildcards cannot silently omit PowerShell/C# while literal per-file hashing remains protected. (GPT-6.1-Sol) -->
+        self.paths = ["CvGameCoreDLL/" + name for name in ("plain.cpp", "caf\u00e9.cpp", "name [x].cpp")]
+        self.paths += ["Assets/SASRuntimeExitObserver.ps1", "Assets/SASRuntimeDialogObserver.cs"]
+        for path in self.paths:
+            target = self.repo / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("// baseline\n", encoding="utf-8")
         self.git("add", ".")
         self.git("commit", "-qm", "baseline")
         self.git("update-ref", "refs/remotes/origin/main", "HEAD")
@@ -67,8 +71,7 @@ class BuildSourceProvenanceTests(unittest.TestCase):
         self.assertEqual(clean["branchRelation"], "AT_DEFAULT")
         self.assertTrue(clean["unstagedCodeRulesDiff"]["available"])
         self.assertEqual(clean["unstagedCodeRulesDiff"]["fileCount"], 0)
-        for name in self.names:
-            path = "CvGameCoreDLL/" + name
+        for path in self.paths:
             (self.repo / path).write_text("// staged\n", encoding="utf-8")
             self.git("--literal-pathspecs", "add", path)
             (self.repo / path).write_text("// unstaged\n", encoding="utf-8")
@@ -76,14 +79,14 @@ class BuildSourceProvenanceTests(unittest.TestCase):
         for field, cached in (("stagedCodeRulesDiff", True), ("unstagedCodeRulesDiff", False)):
             layer = snapshot[field]
             self.assertTrue(layer["available"], layer)
-            self.assertEqual(layer["fileCount"], len(self.names))
+            self.assertEqual(layer["fileCount"], len(self.paths))
             for entry in layer["files"]:
                 args = ["--literal-pathspecs", "diff"] + (["--cached"] if cached else [])
                 patch = self.git(*args, "--binary", "--full-index", "--no-ext-diff", "--no-textconv", "--no-renames", "--no-color", "--", entry["path"])
                 self.assertGreater(len(patch), 0)
                 self.assertEqual(entry["diffBytes"], len(patch))
                 self.assertEqual(entry["sha256"].lower(), hashlib.sha256(patch).hexdigest())
-            self.assertEqual({row["path"] for row in layer["files"]}, {"CvGameCoreDLL/" + name for name in self.names})
+            self.assertEqual({row["path"] for row in layer["files"]}, set(self.paths))
 
     def test_failed_optional_diff_capture_does_not_abort_report(self):
         path = self.repo / "CvGameCoreDLL/plain.cpp"

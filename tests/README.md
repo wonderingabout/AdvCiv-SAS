@@ -77,6 +77,10 @@ The native writer harness also tests the real hidden launcher, receipt and final
 
 Disposable Windows fixtures also test existing/new runtime-error and dump-choice dialogs, a same-title mismatched-control rejection, closure while the process remains alive, and exclusion of ordinary/assertion/foreign-process dialogs.
 
+Runtime16 extends the same fixture with current and historical Gamebryo/NiDX9 `Failed to allocate video memory.` variants plus a generic-`ERROR` rejection. Recognized failures must retain bounded process/system/PE memory context and exact-process Runtime status context; hide/destroy must not resample or discard the original context.
+
+The video-allocation windows are test-created signatures, not genuine SAS allocation failures; none was reproduced in the game. Passing fixtures establish recognition and evidence handling for those signatures, not universal MAF coverage.
+
 A simulated access-violation exit code is a test input, not a real game crash. Normal DLL builds do not run this test.
 
 ## Runtime screenshot observer

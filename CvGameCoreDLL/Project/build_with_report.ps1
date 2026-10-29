@@ -60,12 +60,13 @@ function Get-SourceDiffState([switch]$Cached, [string]$BaseCommit = 'HEAD') {
     [string[]]$prefix = if ($Cached) { @('diff', '--cached', $BaseCommit) } else { @('diff') }
     $temp = [IO.Path]::GetTempFileName()
     try {
-        # <!-- custom: Read UTF-8 NUL-delimited paths from Git's file output, bypassing console decoding and display quoting.
-        # A non-ASCII filename otherwise became a quoted octal path and was falsely hashed as an empty patch; literal pathspecs also protect brackets and wildcard characters. (GPT-6.1-Sol) -->
-        & git --literal-pathspecs -C $repoRoot @prefix '--name-only' '-z' '--no-renames' ('--output=' + $temp) '--' @scope 2>$null
+        # <!-- custom: Read UTF-8 NUL-delimited paths so non-ASCII filenames are not mistaken for quoted octal paths.
+        # The old --literal-pathspecs also disabled the Assets/*.ps1 and Assets/*.cs scope wildcards, silently omitting shipped companions.
+        # Expand these fixed scope pathspecs normally; retain literal handling below for each discovered bracket/Unicode filename. (GPT-6.1-Sol) -->
+        & git -C $repoRoot @prefix '--name-only' '-z' '--no-renames' ('--output=' + $temp) '--' @scope 2>$null
         if ($LASTEXITCODE -ne 0) { return [ordered]@{ available = $false; reason = 'GIT_DIFF_UNAVAILABLE' } }
         $names = [IO.File]::ReadAllText($temp, [Text.Encoding]::UTF8).Split([char[]]@([char]0), [StringSplitOptions]::RemoveEmptyEntries)
-        & git --literal-pathspecs -C $repoRoot @prefix '--binary' '--full-index' '--no-ext-diff' '--no-textconv' '--no-renames' '--no-color' ('--output=' + $temp) '--' @scope 2>$null
+        & git -C $repoRoot @prefix '--binary' '--full-index' '--no-ext-diff' '--no-textconv' '--no-renames' '--no-color' ('--output=' + $temp) '--' @scope 2>$null
         if ($LASTEXITCODE -ne 0) { return [ordered]@{ available = $false; reason = 'GIT_DIFF_UNAVAILABLE' } }
         $whole = Get-BuildFileState $temp
         $files = @()

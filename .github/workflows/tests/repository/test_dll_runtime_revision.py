@@ -1,6 +1,6 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
-# <!-- custom: Exercise real Git/binary/report combinations: a changed revision needs a Release DLL built from that Runtime source, rather than passing on any changed binary.
+# <!-- custom: Exercise real Git/binary/report combinations: changed native Runtime code needs a Release DLL built from that source, rather than passing on any changed binary.
 # tempfile isolates the repositories; hashlib/json make realistic reports, and unittest/subprocess/sys/pathlib run the production checker. (GPT-6.1-Sol) -->
 import hashlib
 import json
@@ -86,6 +86,26 @@ class RuntimeDLLRevisionTests(unittest.TestCase):
             event_path.write_text(json.dumps(event), encoding="utf-8")
             result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            # <!-- custom: Migrate once with matching native build evidence, then allow XML-only and external-observer updates without a revision-only rebuild.
+            # A later native edit must still fail without a matching Release pair. (GPT-6.1-Sol) -->
+            source5 = b'int getRuntimeRevision() { return readDefine("SAS_RUNTIME_REVISION"); }\n'
+            write(checker.SOURCE, source5)
+            write("Assets/XML/GlobalDefines_advciv_sas.xml", b"<Defines><Define><DefineName>SAS_RUNTIME_REVISION</DefineName><iDefineIntVal>5</iDefineIntVal></Define></Defines>")
+            release(b"xml-reader release", source5)
+            migrated = commit()
+            self.assertEqual(checker.check(repo, [migrated]), ([], 1))
+            write("Assets/XML/GlobalDefines_advciv_sas.xml", b"<Defines><Define><DefineName>SAS_RUNTIME_REVISION</DefineName><iDefineIntVal>6</iDefineIntVal></Define></Defines>")
+            write("Assets/SASRuntimeExitObserver.ps1", b"# updated observer\n")
+            observer_only = commit()
+            self.assertEqual(checker.check(repo, [observer_only]), ([], 0))
+            write(checker.SOURCE, source5.replace(b'readDefine(', b'readCachedDefine('))
+            native = commit()
+            self.assertIn("update the Release DLL/report", checker.check(repo, [native])[0][0])
+            # <!-- custom: A dedicated native header also affects the binary even when the publisher and XML label stay unchanged. (GPT-6.1-Sol) -->
+            write(checker.SOURCE, source5)
+            write("CvGameCoreDLL/SASRuntimeStatusReasons.h", b"enum { END_TURN_READY };\n")
+            header = commit()
+            self.assertIn("update the Release DLL/report", checker.check(repo, [header])[0][0])
             # <!-- custom: Manual dispatch also supplies GITHUB_EVENT_PATH but lacks push/PR before/after fields; select its requested head before interpreting that event shape. (GPT-6.1-Sol) -->
             manual = [sys.executable, checker.__file__, "--repo-root", str(repo), "--head-ref", corrected, "--event-name", "workflow_dispatch", "--event-path", str(event_path)]
             result = subprocess.run(manual, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

@@ -53,7 +53,7 @@ def pending_errors(before, after):
 
 
 def runtime_revision(repo, commit):
-    return runtime.revision(read(repo, commit, runtime.SOURCE))
+    return runtime.revision(read(repo, commit, runtime.SOURCE), read(repo, commit, runtime.DEFINES))
 
 
 # <!-- custom: Validate both recorders' current references against canonical history or new feature lineage, including Runtime's previously unchecked hashes.
@@ -88,7 +88,7 @@ def check(repo, default_branch_ref=None, event_name="local", event_data=None, sq
     transitions = sgr.revision_transitions(repo, default_commit, event_name, event_data, squash)
     errors = []
     # <!-- custom: SGR revisions before 69 predate its explicit source marker; their hashes still require valid ancestry.
-    # Runtime has a compiled marker from revision 1. (GPT-6.1-Sol) -->
+    # Runtime has an implementation label from revision 1, compiled historically and XML-backed from revision 16. (GPT-6.1-Sol) -->
     for path, reader, first_marker in ((sgr.HISTORY, sgr.commit_revision, 69), (runtime.HISTORY, runtime_revision, 1)):
         errors.extend(f"{path}: {error}" for error in reference_errors(repo, path, reader, default_commit, first_marker))
         for parent, commit in transitions:

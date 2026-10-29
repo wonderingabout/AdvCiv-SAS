@@ -331,11 +331,11 @@ python .github/workflows/build/repository/dll_python_bindings.py --base-ref HEAD
 
 #### `build/repository/dll_runtime_revision.py`
 
-Checks compiled Runtime revision changes on default-branch integration. Each revision-changing commit must update the Release DLL/report; the report's source manifest must match `SASRuntimeStatus.cpp`, accepting Git LF versus build CRLF line endings. A changed unrelated DLL is insufficient.
+Checks native Runtime implementation changes on default-branch integration. A native change requires a matching Release DLL/report whose source manifest matches each changed dedicated `SASRuntime*.cpp` / `.h` file, accepting Git LF versus build CRLF line endings. A changed unrelated DLL is insufficient. Comment/formatting-only edits do not force a build.
 
-The compiled revision labels native records and is passed to external observers. An XML revision could relabel an old native writer without implementing the change, so Runtime keeps its compiled label; SGR's XML revision remains separate. Older commits preceding this guard are excluded, and feature-branch pushes can remain source-only while drafting.
+`SAS_RUNTIME_REVISION` is an XML implementation label, like SGR's revision. XML-only and external-observer updates advance that label without requiring a native rebuild; DLL/build/source identities remain separate evidence.
 
-An explicitly `revision:squash`-labeled PR is checked as one merge-base-to-head candidate, matching recorder revision maintenance; ordinary integration remains per commit. Local review supports `--base-ref ... --squash`.
+The migration itself changes the native reader and therefore requires a matching Release build. Older commits preceding this guard are excluded, and feature-branch pushes can remain source-only while drafting.
 
 ```text
 python .github/workflows/build/repository/dll_runtime_revision.py
@@ -463,7 +463,7 @@ Keeps SAS-branded mod source and shipped runtime companions discoverable in both
 
 Requires explicit generated diagnostic paths in the root README's relevant sections and Logging Inventory, so a reader can find a file without guessing what "companion JSON" means.
 
-- Reads fixed/formatted `SASRuntime*.json` / `SASRuntime*.jsonl` names from `SASRuntimeStatus.cpp` and top-level `Assets/SASRuntime*.ps1` publishers, normalizing process suffixes to `*`. Also checks the concrete Release and installed DLL build-report locations, rather than requiring invented path tokens such as a configuration placeholder.
+- Reads fixed/formatted `SASRuntime*.json` / `SASRuntime*.jsonl` names from `SASRuntimeStatus.cpp` and all top-level shipped PowerShell/C# companions under `Assets/`, normalizing process suffixes to `*`. Also checks the concrete Release and installed DLL build-report locations, rather than requiring invented path tokens such as a configuration placeholder.
 - Requires a visible inline-code path such as `Logs/SASRuntimeExit_*.json`; mentions only inside fenced samples or hidden comments do not count. Documents explain the base directory instead of hardcoding the user's Windows profile.
 - The small publisher set is audited each run, including documentation-only edits. This is a scoped discoverability guard, not an arbitrary-language path parser or a requirement to list unrelated JSON settings/captures; update the scope if a new publisher uses another naming/path construction.
 
@@ -863,11 +863,18 @@ Checks that runtime recording is disabled in the shipped XML. The fixed `Logs/SA
 
 Function names, JSON field inventories and exact callback statements are not checked here. The local VC2003 diagnostic harness exercises JSON output, disabled no-I/O behavior, autoplay countdown filtering and failed root migration. Actual EXE lifecycle transitions still require gameplay validation.
 
-The shipped-value check requires both `SAS_RUNTIME_STATUS_ON=0` and `SAS_RUNTIME_SOURCE_WATCH_ON=0`; local development overrides can enable them without staging those values.
+The shipped-value check requires `SAS_RUNTIME_STATUS_ON=0`, `SAS_RUNTIME_SOURCE_WATCH_ON=0` and `SAS_RUNTIME_SCREENSHOT_WATCH_ON=0`; local development overrides can enable them without staging those values.
+
+All top-level shipped PowerShell/C# companions under `Assets/` must declare a default-off Define and launch/load owner in `RUNTIME_COMPONENT_CONTROLS`.
+
+- Discovery uses file extensions, not a closed list or an `Observer` suffix, so a newly named or renamed file fails until classified; a missing registered file also fails until its registration/owner is reconciled.
+- The dialog listener and shared environment helper inherit `SAS_RUNTIME_STATUS_ON`; source and screenshot observers retain their independent switches.
+
+The guard checks registration, shipped values and filename literals in the declared owner; comments alone do not satisfy the reference check. It does not prove control flow or inspect arbitrary external programs. Native caller review and the Windows observer fixtures remain the behavior checks.
 
 #### `build/diagnostics/runtime_revision_history.py`
 
-Checks the compiled runtime-recorder revision against its [history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md), shared by the current-state JSON and activity JSONL. This label is independent of SASGameRecord's revision.
+Checks the XML runtime-recorder revision (or compiled labels in historical commits) against its [history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md), shared by the current-state JSON and activity JSONL. This label is independent of SASGameRecord's revision.
 
 Reuses SASGameRecord's event boundaries and explicit `revision:squash` policy, checking each ordinary commit or the complete squash candidate: recognized implementation changes require exactly one increment; pure CI/checker, documentation/example and test maintenance leaves it unchanged. Local checks also validate the pending working-tree increment, including new files before staging.
 
@@ -994,6 +1001,10 @@ Verifies every playable `PrivateMaps/*.py` script is listed exactly once across 
 ### Source
 
 #### `build/source/source_change_provenance.py`
+
+For `Assets/XML/GlobalDefines_advciv_sas.xml` only, separators must contain exactly three blank lines, or none between adjacent blocks. Users read and edit this configuration file directly, so three blank lines distinguish thematic groups while related settings stay adjacent.
+
+The initial sweep normalized existing separators; subsequent checks audit the file whenever touched. Blank lines inside XML comments, CDATA, attributes and text values remain protected. Other source files retain the ordinary diff-aware spacing policy.
 
 Diff-aware source-history guard for maintained C/C++, Python and XML source. It compares the selected push/PR range with its base instead of linting old source in isolation.
 

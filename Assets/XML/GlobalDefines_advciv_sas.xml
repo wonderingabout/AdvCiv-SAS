@@ -40,6 +40,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 
 
+
 	<!-- custom: shuffle-bag randomization for opening menu music (1=enabled, 0=disabled).
 	No repeats until all configured scripts are played once, then bag refills. (GPT-5.3-Codex) -->
 	<Define>
@@ -635,6 +636,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
+
+
 	<!-- custom: show the Timeline panel "Log" button; click to write the visible (spoiler-filtered) timeline lines to PythonDbg.log. -->
 	<Define>
 		<DefineName>SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON</DefineName>
@@ -1033,7 +1036,6 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
-
 	<!-- custom: starting area thresholds based on starting-plot landmasses; higher means stricter. (GPT-5.2-Codex) -->
 	<Define>
 		<DefineName>SAS_MAP_STARTING_AREAS_NAVAL_HEAVY_MIN_PCT</DefineName>
@@ -1198,6 +1200,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_SITE_VAL_CENTER_WATER_BONUS_NO_COAST</DefineName>
 		<iDefineIntVal>-400</iDefineIntVal>
 	</Define>
+
+
 
 	<!-- custom: Starting-location-only tuning.
 	Early capital growth snowballs, so modestly favor food bonuses, fresh-water city tiles, and rivers while slightly reducing non-food bonus value; normal yields and later city placement remain separate.
@@ -1828,6 +1832,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 
 
+
 	<!-- custom: BBAI log levels were hidden in base AdvCiv's CvGameCoreDLL/BBAILog.h, so enabling BBAI logging (LOG_AI / LOG_FOUND_VALUE), disabling it again, or adjusting its detail required a DLL edit and recompile.
 	AdvCiv-SAS exposes them as XML-tunable SAS defines instead, so a DLL modification and recompile are no longer needed; restart Civ4 to apply changes. (GPT-5.5?); Long_Comments_XML.txt #376. -->
 	<!-- custom: Master switch for classic BBAI AI-decision diagnostics.
@@ -2284,8 +2289,9 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>181</iDefineIntVal>
+		<iDefineIntVal>182</iDefineIntVal>
 	</Define>
+
 
 
 	<!-- custom: Show every observer-permitted raw event as a separate row in the World Advisor Changes tab when 1.
@@ -2317,6 +2323,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
+
+
 	<!-- custom: Optional current-runtime status for external tools/agents.
 	1 overwrites Logs/SASRuntimeStatus.json at meaningful lifecycle/autoplay/completed-turn boundaries and, when configured below, at throttled slow sequential AI-player progress observations; 0 (default) skips status formatting and file I/O apart from cheap cached hook checks.
 	This switch is independent of CivilizationIV.ini LoggingEnabled/MessageLog/RandLog/SynchLog; the current-state snapshot is always replaced regardless of OverwriteLogs.
@@ -2328,6 +2336,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
+
+
 	<!-- custom: Slow sequential AI-player Runtime publication threshold in milliseconds.
 	The recorder always measures enabled sequential player turns in memory; a value >= 0 publishes current AI-controlled player/phase context only after that elapsed time, while -1 disables live player-turn refreshes but keeps the completed-turn summary.
 	This does not poll from another thread: publication occurs only when Civ4 returns to its ordinary update loop, so one uninterrupted blocking call can remain unchanged longer than this threshold.
@@ -2336,6 +2346,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS</DefineName>
 		<iDefineIntVal>3000</iDefineIntVal>
 	</Define>
+
+
 
 	<!-- custom: Minimum interval in milliseconds between repeated live publications after a slow AI-controlled player crosses the threshold above.
 	3000 keeps a visibly fresh external status without one disk rewrite per update slice; 0 publishes only the first threshold crossing for that player turn.
@@ -2346,6 +2358,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>3000</iDefineIntVal>
 	</Define>
 
+
+
 	<!-- custom: Optional screenshot-file observation, independently gated under Runtime diagnostics.
 	1 launches the external screenshot watcher only when SAS_RUNTIME_STATUS_ON is also 1; 0 (default) creates no screenshot observer process or screenshot log files.
 	It records file metadata and matching Runtime context, not image contents or proof that Civ4 captured the exact displayed screen.
@@ -2354,6 +2368,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_RUNTIME_SCREENSHOT_WATCH_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+
+
 
 	<!-- custom: Optional live source-edit observation for Runtime diagnostics.
 	1 launches an external event-driven watcher for Python/XML/BUG Config, PrivateMaps scripts/scenarios, Resource themes, mod Settings and mod-root INI files while SAS runtime status is enabled; 0 (default) launches no source watcher.
@@ -2364,6 +2380,17 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<Define>
 		<DefineName>SAS_RUNTIME_SOURCE_WATCH_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Shared Runtime recorder implementation label, including native hooks and external PowerShell/C# observers.
+	Increment once per qualifying implementation commit and synchronize Docs/revisions/SASRuntime.md.
+	Like SAS_SGR_REVISION, this is a review/update label, not a binary compatibility switch or proof that a loaded DLL contains newer native code; inspect the separate DLL/build/source identities.
+	Cached only when Runtime is first enabled, then retained through shutdown; observer-only updates do not require a DLL rebuild merely to change this label. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_RUNTIME_REVISION</DefineName>
+		<iDefineIntVal>16</iDefineIntVal>
 	</Define>
 
 
@@ -2991,6 +3018,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 
 
+
 	<!-- custom: Keep an already-invested minimum-required spaceship component in production from SPACE3 onward when the city is not in immediate danger and the component is either near-term or already heavily invested with a still-reasonable remaining time.
 	Ordinary Base AdvCiv/K-Mod city reevaluation can otherwise park launch-gating projects for unrelated production after substantial investment.
 	When several cities simultaneously build the same component, the DLL ranks eligible copies by remaining turns, stored production, then stable city identity and protects only as many as the still-missing minimum launch requirement; optional duplicates remain fully flexible.
@@ -3021,6 +3049,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_PROD_SPACE_3_COMP_INV_MAX_T_NORM_GS</DefineName>
 		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
+
 
 
 	<!-- custom: How strongly normal AI build-unit probability reduces the early "short-circuit 1" base building chance while the normal +15 military-spending allowance still permits more units.
@@ -3159,6 +3188,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 
+
+
 	<!-- custom: set this to enable advciv-sas anti excess siege code (via one of the AI_ChooseUnit functions).
 	1 to enabled (recommended), 0 to disabled (disables it entirely, if you want to selectively disable some features, consider tweaking one or a few of the sub configure options below instead); Long_Comments_XML.txt #167 -->
 	<Define>
@@ -3269,6 +3300,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_CIV_UNIT_BOOST_ADD</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+
+
 
 	<!-- custom: Absolute AI scrapping permission: 1 (default) leaves eligibility to the normal AdvCiv-SAS scrap rules; 0 overrides the softer scrap policies and blocks discretionary AI scrapping.
 	The positive ABSOLUTELY_ON name preserves the stronger override distinction of the earlier negative kill switch, with inverted values and unchanged behavior; human scrapping and forced mandatory-game-rule cleanup keep their existing exceptions.
@@ -3462,6 +3495,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_TECH_VAL_FEAT_REMOVE_MAX_TOTAL</DefineName>
 		<iDefineIntVal>1000</iDefineIntVal>
 	</Define>
+
+
 
 	<!-- custom: Aim to reduce Master-Vassal(s) locus inefficient overlapping research; Long_Comments_XML.txt #190 -->
 	<Define>

@@ -1,14 +1,36 @@
 # SAS runtime recorder revisions
 
-`SASRuntimeStatus.json` describes the latest observed state; its companion `SASRuntimeHistory_*.jsonl` retains timed activity transitions. Both report the same compiled `SAS_RUNTIME_REVISION` as `revision`, identifying their recorder implementation independently of SASGameRecord's revision.
+`SASRuntimeStatus.json` describes the latest observed state; its companion `SASRuntimeHistory_*.jsonl` retains timed activity transitions. Both report the same XML `SAS_RUNTIME_REVISION` as `revision`, identifying their recorder implementation independently of SASGameRecord's revision.
 
 Increment once per commit changing the loaded runtime recorder, its interfaces, configuration, call sites or shared runtime services, including implementation comments/provenance. Keep one pending revision throughout drafting and amend cycles.
 
+The label is cached once when Runtime is enabled; it identifies the configured recorder implementation, not the loaded binary. DLL/build/source provenance separately identifies native code.
+
+Revisions 1–15 used a DLL enum label. Like SGR, revision 16 moved the label to SAS XML because adding or modifying an external watcher can require a recorder revision without any native code change; the compiled label forced an otherwise unnecessary DLL rebuild. Native Runtime implementation changes still require a matching Release DLL/report.
+
 Pure CI/checker, test, documentation and historical-example maintenance does not change the loaded recorder and does not require an increment or DLL rebuild.
 
-Add a latest-first entry explaining the behavior and rationale. The diagnostics check requires consecutive history entries, agreement with the compiled value, and exactly one increment per recognized implementation commit. Shared-code detection uses changed runtime symbols; review unusual refactors manually because CI cannot infer every dependency.
+Add a latest-first entry explaining the behavior and rationale. The diagnostics check requires consecutive history entries, agreement with the XML value (or compiled value in historical commits), and exactly one increment per recognized implementation commit. Shared-code detection uses changed runtime symbols; review unusual refactors manually because CI cannot infer every dependency.
 
 ## History
+
+### Revision 16 - SAS practical 6702
+
+- **Date:** 2026-10-29
+- **Git commit:** pending
+- **Change:** Recognize the reviewed same-process Gamebryo/NiDX9 video-memory-allocation dialog family and capture one bounded external failure-time memory/Runtime-context sample without treating the message as a diagnosis.
+  - Move `SAS_RUNTIME_REVISION` from a compiled constant to SAS XML, cached only on enabled initialization and retained through teardown. CI reads both historical compiled and current XML labels; native Runtime changes require a matching Release build, while observer/XML-only changes do not.
+  - `SASRuntimeDialogObserver.cs` accepts title `ERROR` only when bounded Static text contains the exact `Failed to allocate video memory.` phrase plus a `Gamebryo2_0` / `NiDX9` / `.cpp` source reference.
+    - The source filename/line is not fixed: historical Civ4 reports show the same phrase from a different NiDX9 source file, so generic `ERROR` windows remain rejected while the reviewed family can span known Gamebryo variants.
+  - A recognized visible failure samples target working-set/peak, private bytes and allocated/peak virtual bytes; system physical availability plus commit total/limit/available; and executable PE machine, PE32/PE32+ format and Large Address Aware flag. Each metric family has an explicit availability state.
+    - These fields are contemporaneous context, not root-cause evidence. Runtime does not measure GPU VRAM, allocation-request size, target free virtual-address-space/fragmentation or largest free block, and it does not read arbitrary target memory.
+  - The exit observer also takes one shared-read snapshot of matching `SASRuntimeStatus.json` at the first recognized-dialog observation. Exact PID/start identity is required; retained session/activity/turn/player/UI context is labelled `MATCHED_PROCESS_STATUS_CONTEXT_MAY_BE_STALE`.
+    - `statusAgeMilliseconds` is the absolute timestamp distance; `statusTimestampRelation` discloses whether the snapshot was written after dialog observation.
+    - Status reads are bounded to 64 Ki characters; oversized/missing/unreadable or mismatched snapshots remain explicit rather than suppressing failure/exit evidence.
+    - Dialog hide/destroy updates only visibility/observation time for that same window; it retains the original failure-time memory/Runtime context. An older dialog closing cannot replace a newer recognized failure.
+  - Video-allocation recognition was validated through real Windows-window fixtures based on reported messages, including negative signatures and retained failure context. A genuine SAS video-allocation failure was not reproduced; a normal gameplay replay is separate evidence, not validation of that failure path.
+  - Existing MSVC runtime-error and Civ4 dump-choice signatures receive the same bounded failure-time context. The generic process-exit observer remains independent, and a nonzero exit code or observed dialog still does not establish why the process failed.
+  - The observer attaches only after the native Runtime launcher is available. Renderer/startup errors that occur before attachment are therefore not reliably covered; Windows/WER dialogs owned by other processes are not hooked. Startup/FPK/loose-art memory experiments remain a separate research track.
 
 ### Revision 15 - SAS practical 6697
 
@@ -197,7 +219,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## Maintenance template
 
-Increment compiled `SAS_RUNTIME_REVISION` once for the next qualifying commit and prepend one entry:
+Increment XML `SAS_RUNTIME_REVISION` once for the next qualifying commit and prepend one entry:
 
 ```markdown
 ### Revision N - SAS practical XXXX

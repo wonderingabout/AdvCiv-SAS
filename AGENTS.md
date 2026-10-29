@@ -627,6 +627,7 @@ Clear, accurate explanations help users and developers understand the code and i
 
 ### XML
 
+- In `Assets/XML/GlobalDefines_advciv_sas.xml`, keep related blocks adjacent or separate thematic groups with exactly three blank lines: users read and edit this configuration file directly, so the wider separators make its sections easier to scan. Preserve blank lines inside comments and text values. Other XML files retain their existing spacing conventions.
 - Any new XML text should go to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG`), and only in `<English>`.
 - Example of exception: long Civilopedia blurbs (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG_PEDIA`) in [AdvCiv-SAS_Sevopedia_Lengthy.xml](/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml), even when it uses a stub (becuase it will be filled later with lengthy content).
 - Move XML texts we modify from other files to our AdvCiv-SAS files too and remove other languages while doing so.
@@ -751,9 +752,8 @@ int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, 
 
 ### Runtime status and history
 
-- Changes to the loaded runtime recorder, its configuration/interfaces/call sites or shared runtime services, including implementation comments, increment compiled `SAS_RUNTIME_REVISION` once per commit and add a matching entry to [`SASRuntime.md`](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md).
-  - Keep one pending increment throughout drafting; pure CI/checker, docs/examples and test maintenance do not require a bump or DLL rebuild.
-  - Both runtime files report this independent revision; CI checks recognizable changes, with manual review for unusual shared-code refactors.
+- Increment XML `SAS_RUNTIME_REVISION` once per Runtime implementation commit, including observers, configuration, hooks and implementation comments; keep one pending increment during drafting and add its entry to [`SASRuntime.md`](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md). Pure CI, tests, docs and example maintenance do not require a bump.
+- Like SGR, the XML label can advance for observer-only updates without rebuilding the DLL. Native Runtime changes require matching Release evidence; use DLL/build/source identity to identify loaded native code. CI checks recognizable changes; review unusual shared-code refactors manually.
 
 ## DLL compilation
 
@@ -792,7 +792,8 @@ Get-ChildItem -Path 'CvGameCoreDLL/Project/*/CvGameCoreDLL.dll.build.json' -File
   - A process can be starting, hidden, unresponsive or stranded after a failure. Use available window/response evidence and status/log progression when assessing its condition; an unchanged status file alone does not prove a hang because idle play and long initialization need not publish updates.
   - When the optional `Logs/SASRuntimeStatus.json` exists, use its DLL/process/session/autoplay fields as additional current-state evidence; verify the reported DLL identity against the intended build before treating a run as validation. Match `processId` and `processStartUtc` to the live process before trusting `RUNNING`: a crash can leave the last JSON behind.
   - Enabled runtime diagnostics use [SASRuntimeExitObserver.ps1](/Assets/SASRuntimeExitObserver.ps1) to record final process-handle exit evidence in `exitObservation` and a `process_exit` history row.
-    - Its matching `SASRuntimeExit_*.json` confirms attachment with WAITING, then records EXITED independently of the current snapshot; inspect `failureDialog` and `dialogObserverState` for a recognized runtime-error or crash-dump dialog while the process remains alive. Launch/attachment/I/O can fail, so retain the direct process check.
+    - Its matching `SASRuntimeExit_*.json` confirms attachment with WAITING, then records EXITED independently of the current snapshot; inspect `failureDialog` and `dialogObserverState` for a recognized runtime-error, crash-dump prompt or reviewed Gamebryo/NiDX9 video-allocation dialog while the process remains alive. Launch/attachment/I/O can fail, so retain the direct process check.
+      - For failure-time memory/context availability and coverage limits, see the [failure observations](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sasruntimeexit_json-exit-observation); recorded measurements are context rather than a diagnosis.
     - A nonzero exit code alone does not establish its cause.
   - When optional `SAS_RUNTIME_SOURCE_WATCH_ON=1` is enabled, inspect `SASRuntimeSourceWatch_*.json` / `SASRuntimeSourceChanges_*.jsonl` for observed mod-source/configuration disk edits during the matching process run; the state file also records actual observer-host versions.
     - Treat these as filesystem observations only: `engineReloadState=NOT_OBSERVED` means an edit does not prove Civ4 reloaded, parsed or executed it. C++ source edits never replace the loaded DLL. Missing watcher evidence can also mean disabled/failed observation rather than no edit.

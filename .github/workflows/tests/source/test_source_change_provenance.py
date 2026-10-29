@@ -455,6 +455,17 @@ class SourceChangeProvenanceTests(unittest.TestCase):
             with self.subTest(suffix=suffix, source=source):
                 self.assertEqual(checker.blank_line_errors("fixture" + suffix, "", source, suffix), [])
 
+    # <!-- custom: Check the catalog's zero/three convention separately from ordinary XML, including retained bad separators and meaningful blank rows inside payloads. (GPT-6.1-Sol) -->
+    def test_sas_define_catalog_separators(self):
+        path = "Assets/XML/GlobalDefines_advciv_sas.xml"
+        for count in (0, 1, 2, 3, 4):
+            source = '<Civ4Defines>\n' + '\n' * count + '</Civ4Defines>\n'
+            self.assertEqual(len(checker.blank_line_errors(path, source, source, '.xml')), int(count not in (0, 3)))
+        payload = '<Civ4Defines><!-- preserved\n\ncomment --><DefineTextVal>head\n\n\ntail</DefineTextVal><![CDATA[head\n\ntail]]></Civ4Defines>\n'
+        self.assertEqual(checker.blank_line_errors(path, '', payload, '.xml'), [])
+        ordinary = '<root>\n\n</root>\n'
+        self.assertEqual(checker.blank_line_errors('Assets/XML/GlobalDefines.xml', '', ordinary, '.xml'), [])
+
     def test_blank_separator_findings_are_collected_together(self):
         source = "value = 1\n" + "\n" * 3 + "other = 2\n" + "\n" * 4 + "last = 3\n"
         self.assertEqual(len(checker.blank_line_errors("fixture.py", "", source, ".py")), 2)

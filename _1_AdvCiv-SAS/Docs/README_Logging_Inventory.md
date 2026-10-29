@@ -628,6 +628,8 @@ The SAS rows retain the analysis/forecast values and make turn, analyst, player,
 
 ### Runtime status and history
 
+The shared `revision` label comes from `SAS_RUNTIME_REVISION` in SAS XML and is cached when Runtime is enabled. Like SGR’s label, it describes the configured recorder implementation; inspect DLL/build/source identity separately when checking which native code is loaded. See the [Runtime revision history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md).
+
 These paths are relative to Civ4's user folder (normally `Documents/My Games/beyond the sword`); `*` represents the process-specific timestamp/ID suffix:
 
 - `Logs/SASRuntimeStatus.json`: latest observed state; `Logs/SASRuntimeHistory_*.jsonl`: timed game/session activity; `Logs/SASRuntimeExit_*.json`: externally observed process-exit evidence.
@@ -638,7 +640,9 @@ The external observer uses Windows PowerShell and .NET Framework independently o
 
 See the [observer environment and tests](/tests/README.md#runtime-exit-observer) for version/architecture details and failure limits.
 
-Enabled runtime diagnostics start a hidden Windows observer so exit evidence can survive a crash or an interrupted current-status rewrite. This complements the existing close-request and orderly-shutdown hooks; it does not diagnose a crash or make Python/XML live editing safe.
+Enabled runtime diagnostics start [`SASRuntimeExitObserver.ps1`](/Assets/SASRuntimeExitObserver.ps1), which loads [`SASRuntimeDialogObserver.cs`](/Assets/SASRuntimeDialogObserver.cs), so exit evidence can survive a crash or an interrupted current-status rewrite.
+
+This complements the existing close-request and orderly-shutdown hooks; it does not diagnose a crash or make Python/XML live editing safe.
 
 Starting PowerShell/.NET and compiling the C# listener adds startup CPU, disk and memory work when runtime diagnostics are enabled. The native launcher does not wait for listener initialization, but the external process can still compete for system resources.
 
@@ -815,13 +819,32 @@ Complete `SASRuntimeExit_*.json` from the same process:
 
 `observerState=EXITED` confirms that the attached process ended; the earlier `WAITING` receipt only confirms attachment.
 
-Runtime revision 11 can also record a recognized MSVC runtime-error (`MSVC_RUNTIME_ERROR`) or Civ4 “Program Execution Problem” dump-choice dialog (`CIV4_CRASH_DUMP_PROMPT`) while `observerState` remains `WAITING`.
+Runtime revision 11 can also record a recognized MSVC runtime-error (`MSVC_RUNTIME_ERROR`) or Civ4 “Program Execution Problem” dump-choice dialog (`CIV4_CRASH_DUMP_PROMPT`) while `observerState` remains `WAITING`. Runtime revision 16 additionally recognizes the reviewed same-process Gamebryo/NiDX9 video-allocation family as `CIV4_VIDEO_MEMORY_ALLOCATION_FAILURE`.
 
-`dialogObserverState` reports listener availability; `failureDialog` records the latest recognized dialog, its visibility, text and first/last observation times, with `failureDialogCount` and `dialogEventsDropped` disclosing repeated or lost observations.
+The video-memory classifier does not accept title `ERROR` by itself. It requires the exact `Failed to allocate video memory.` phrase plus a `Gamebryo2_0` / `NiDX9` / `.cpp` source reference. Historical Civ4 reports contain the same phrase with different NiDX9 source files/lines, so Runtime intentionally recognizes the reviewed family rather than one hard-coded filename/line.
+
+Video-allocation recognition was tested with disposable native Windows dialogs containing the reported current/historical messages, including negative signatures and failure-context retention.
+
+A genuine SAS video-allocation failure was not reproduced; the normal gameplay replay does not establish detection of that failure. The older MSVC runtime-error and dump-choice examples below were captured from real Civ4 failures.
+
+`dialogObserverState` reports listener availability; `failureDialog` records the latest recognized dialog, its visibility, text and first/last observation times, with `failureDialogCount` and `dialogEventsDropped` disclosing repeated or lost observations. From Runtime 16, the first visible observation also retains:
+
+- `memory`: target current/peak working set, private bytes, current/peak allocated virtual bytes; system memory load/available physical memory and commit total/limit/available; plus executable PE machine, `processImagePe32` and Large Address Aware evidence. Availability states prevent failed queries from becoming zero.
+- `runtimeContext`: one shared-read of the current matching `SASRuntimeStatus.json`, accepted only when PID and process-start UTC match. It retains the absolute timestamp distance `statusAgeMilliseconds`, the direction `statusTimestampRelation`, and available session/activity/turn/player/WorldBuilder/Civilopedia/popup context, explicitly labelled `MATCHED_PROCESS_STATUS_CONTEXT_MAY_BE_STALE`.
+
+Status reads are bounded to 64 Ki characters. A status written after dialog observation is labelled `AFTER_DIALOG_OBSERVATION`; even a matching PID/start does not make it a snapshot of the fault instant.
+
+These measurements describe the environment around observer discovery, not why the allocation failed. Working set is resident process memory; private bytes are process-private committed memory; allocated virtual bytes are not free address space. System commit is separate again.
+
+`targetFreeVirtualBytesState=NOT_MEASURED` and `gpuVideoMemoryState=NOT_MEASURED` are intentional. Runtime does not scan the target address map, report a largest free block, read arbitrary target memory or query GPU VRAM; PE32/LAA describes image/address-space eligibility rather than current free space.
 
 Dialog titles and messages are read directly from Windows window/control text (`GetWindowText` and bounded `WM_GETTEXT` calls), then written to JSON. The screenshots illustrate the corresponding windows; they are not the text source, and the captured messages were not manually transcribed.
 
-These are observation times, not the exact fault/appearance time: an already-open dialog can be discovered after attachment. Live evidence stays in the per-run companion; the final `process_exit` history row retains its dialog summary after termination. The separate file preserves final evidence even if the current snapshot is unreadable or has been replaced by a newer game.
+These are observation times, not the exact fault/appearance time: an already-open dialog can be discovered after attachment. Runtime 16's memory/status context is therefore sampled at observer discovery, not retroactively at the engine fault. Dialog hide/destroy retains that original sample while updating visibility/time.
+
+Live evidence stays in the per-run companion; the final `process_exit` history row retains its dialog summary after termination. The separate file preserves final evidence even if the current snapshot is unreadable or has been replaced by a newer game.
+
+The process-filtered listener starts only after the mod Runtime launcher is available. A renderer/startup error that occurs before attachment is not reliably observable here, and Windows/WER UI owned by another process is deliberately outside the hook's process boundary.
 
 The following selected fields from the live 2026-10-27 `SASRuntimeExit_*.json` receipt show observer-host identity and actual listener compilation duration. `WAITING` here means the process was still alive when captured:
 

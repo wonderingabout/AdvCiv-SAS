@@ -288,6 +288,23 @@ class RevisionHistoryTests(unittest.TestCase):
             commit_fixture(repo, 'packaging and general diagnostic checks')
             self.assertEqual(history.check_progression(repo, 'main'), [])
 
+    # <!-- custom: Reproduce Runtime16's incidental comparison and ensure a real SGR bridge in the same domain-owned file still requires its own recorder increment. (GPT-6.1-Sol) -->
+    def test_runtime_comment_reference_is_not_an_sgr_implementation(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp)
+            fixture_git(repo)
+            write_revision_define(repo, 153)
+            commit_fixture(repo, 'base')
+            git(repo, 'branch', 'main')
+            target = repo / 'CvGameCoreDLL/SASRuntimeStatus.cpp'
+            target.parent.mkdir(parents=True)
+            target.write_text('// Like SAS_SGR_REVISION, Runtime uses XML.\nint runtimeRevision = 16;\n', encoding='utf-8')
+            commit_fixture(repo, 'Runtime-only label migration')
+            self.assertEqual(history.check_progression(repo, 'main'), [])
+            target.write_text(target.read_text(encoding='utf-8') + 'logSASGameRecordAction();\n', encoding='utf-8')
+            commit_fixture(repo, 'real SGR bridge')
+            self.assertTrue(history.check_progression(repo, 'main'))
+
     def test_report_exclusion_keeps_actual_bridge_checker_and_json_changes(self):
         for path, content in (
             ('Assets/Python/BUG/BugEventManager.py', 'SASGameRecordSettings.logSessionSettings("GAME_START")'),

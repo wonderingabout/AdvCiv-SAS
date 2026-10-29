@@ -4,6 +4,8 @@
 # <!-- custom: Exercise the real Windows observer against disposable child processes, never Civ4.
 # Check abnormal/ordinary exits, PID/start identity, superseding snapshots, torn history and concurrent observers using actual file locks and process handles. (GPT-6.1-Sol) -->
 import ctypes
+# <!-- custom: Construct a future status timestamp to verify that a later snapshot is labelled as such, rather than silently presented as earlier fault context. (GPT-6.1-Sol) -->
+from datetime import datetime, timedelta, timezone
 import json
 import os
 from pathlib import Path
@@ -78,7 +80,11 @@ def run_case(folder, name, code=0, clean=False, mismatch=False, superseded=False
         # <!-- custom: Wait for the actual attachment receipt before releasing the target; these tests concern observed exits, not the documented pre-attachment coverage gap. (GPT-6.1-Sol) -->
         evidence_path = case / ("SASRuntimeExit_%s_%d.json" % (started, target.pid))
         if mismatch:
-            time.sleep(.5)
+            # <!-- custom: A fixed 0.5-second sleep did not guarantee the identity check finished; the fixture could release the target first and get attachment failure (3) instead of wrong-start rejection (2).
+            # Wait for rejection while the target is alive so this case tests identity matching rather than observer startup speed. (GPT-6.1-Sol) -->
+            for watcher in watchers:
+                watcher.wait(timeout=10)
+            assert target.poll() is None
         else:
             deadline = time.monotonic() + 10
             receipt = {}
@@ -151,8 +157,9 @@ def run_case(folder, name, code=0, clean=False, mismatch=False, superseded=False
                 watcher.wait(timeout=10)
 
 
-def run_dialog_case(folder, executable, mode):
-    case = folder / ("dialog-" + mode)
+# <!-- custom: Add optional context_variant so the real failure reader sees future, oversized or mismatched snapshots after successful attachment; the default retains ordinary dialog tests. (GPT-6.1-Sol) -->
+def run_dialog_case(folder, executable, mode, context_variant="normal"):
+    case = folder / ("dialog-" + mode + ("-" + context_variant if context_variant != "normal" else ""))
     case.mkdir()
     target = subprocess.Popen([str(executable), str(case), "ordinary" if mode == "foreign" else mode])
     foreign = None
@@ -166,13 +173,20 @@ def run_dialog_case(folder, executable, mode):
         path = case / "SASRuntimeStatus.json"
         history_name = "SASRuntimeHistory_%s_%d.jsonl" % (started, target.pid)
         path.write_text(json.dumps({
-            "revision": 11, "processId": target.pid, "processStartUtc": started,
-            "processState": "RUNNING", "statusSerial": 1, "updateReason": "TURN_COMPLETED",
-            "updatedUtc": started, "activity": "PLAYING", "sessionSerial": 1, "gameTurn": 5,
+            "revision": 16, "processId": target.pid, "processStartUtc": started,
+            "processState": "RUNNING", "statusSerial": 41, "updateReason": "PLAYER_TURN_PROGRESS",
+            "updatedUtc": started, "sessionSerial": 3, "sessionKind": "LOAD_GAME", "activity": "PLAYING",
+            "gameTurn": 123, "elapsedGameTurns": 124, "activePlayer": 4, "autoplayActive": 0,
+            "playerTurnPlayer": 8, "playerTurnTeam": 6, "playerTurnCivilization": 12,
+            "playerTurnCivilizationType": "CIVILIZATION_TEST", "playerTurnControl": "AI",
+            "playerTurnPhase": "AI_MOVES", "playerTurnElapsedMilliseconds": 4567,
+            "worldBuilderMode": 0, "worldBuilderScreenVisible": 0,
+            "civilopediaVisible": 1, "civilopediaContext": "UNIT",
+            "buttonPopupAwaitingInteraction": 0, "buttonPopupType": "NONE",
             "historyFilename": history_name, "historyAtCurrentRoot": 1,
             "historyRowsWritten": 0, "historyWriteFailures": 0,
         }), encoding="utf-8")
-        watcher = subprocess.Popen([str(POWERSHELL), "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", str(OBSERVER), "-StatusPath", str(path), "-TargetProcessId", str(target.pid), "-ProcessStartUtc", started, "-RecorderRevision", "11"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=subprocess.CREATE_NO_WINDOW)
+        watcher = subprocess.Popen([str(POWERSHELL), "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", str(OBSERVER), "-StatusPath", str(path), "-TargetProcessId", str(target.pid), "-ProcessStartUtc", started, "-RecorderRevision", "16"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=subprocess.CREATE_NO_WINDOW)
         evidence_path = case / ("SASRuntimeExit_%s_%d.json" % (started, target.pid))
 
         def await_evidence(predicate):
@@ -193,36 +207,95 @@ def run_dialog_case(folder, executable, mode):
             raise AssertionError((mode, evidence))
 
         await_evidence(lambda value: value.get("dialogObserverState") == "ACTIVE")
+        # <!-- custom: Change only the disposable status file after attachment; this tests the failure-context reader independently of the observer's initial PID/start launch guard. (GPT-6.1-Sol) -->
+        if context_variant != "normal":
+            status = json.loads(path.read_text(encoding="utf-8"))
+            if context_variant == "future":
+                status["updatedUtc"] = (datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y%m%dT%H%M%S.000Z")
+            elif context_variant == "oversized":
+                status["oversizedFixture"] = "x" * 65537
+            elif context_variant == "identity":
+                status["processStartUtc"] = "mismatched fixture start"
+            else:
+                raise AssertionError(context_variant)
+            path.write_text(json.dumps(status), encoding="utf-8")
         (case / "show-now").touch()
-        if mode in ("ordinary", "assertion", "foreign", "dump-invalid"):
+        unrecognized = mode in ("ordinary", "assertion", "foreign", "dump-invalid", "video-invalid")
+        if unrecognized:
             time.sleep(.4)
             evidence = json.loads(evidence_path.read_text(encoding="utf-8-sig"))
             assert evidence["failureDialogCount"] == 0, evidence
         else:
-            expected_kind = "CIV4_CRASH_DUMP_PROMPT" if mode.startswith("dump-") else "MSVC_RUNTIME_ERROR"
+            expected_kind = ("CIV4_CRASH_DUMP_PROMPT" if mode.startswith("dump-") else
+                "CIV4_VIDEO_MEMORY_ALLOCATION_FAILURE" if mode.startswith("video-") else "MSVC_RUNTIME_ERROR")
             evidence = await_evidence(lambda value: value.get("failureDialogCount") == 1)
             assert evidence["observerState"] == "WAITING" and target.poll() is None, evidence
-            assert evidence["failureDialog"]["visible"] and evidence["failureDialog"]["kind"] == expected_kind, evidence
-            assert ("diagnostic file?" if mode.startswith("dump-") else "caf\u00e9") in evidence["failureDialog"]["text"], evidence
+            failure = evidence["failureDialog"]
+            assert failure["visible"] and failure["kind"] == expected_kind, evidence
+            expected_text = "diagnostic file?" if mode.startswith("dump-") else "Failed to allocate video memory." if mode.startswith("video-") else "caf\u00e9"
+            assert expected_text in failure["text"], evidence
             assert json.loads(path.read_text())["processState"] == "RUNNING"
-            if mode in ("after", "dump-after"):
+            # <!-- custom: Runtime16 samples memory/status once when a reviewed failure becomes visible.
+            # Values are context, not a diagnosis; explicitly unmeasured target free-VA/GPU-VRAM must stay labelled as such. (ChatGPT-5.6-Sol) -->
+            memory = failure["memory"]
+            assert memory["processMemoryState"] == "AVAILABLE", memory
+            assert memory["processWorkingSetBytes"] > 0 and memory["processPrivateBytes"] > 0 and memory["processVirtualBytes"] > 0, memory
+            assert memory["systemMemoryState"] in ("AVAILABLE", "PARTIAL"), memory
+            if memory["systemMemoryState"] == "AVAILABLE":
+                assert memory["systemPhysicalAvailableBytes"] >= 0 and memory["systemCommitLimitBytes"] > 0, memory
+                assert 0 <= memory["systemCommitTotalBytes"] <= memory["systemCommitLimitBytes"], memory
+                assert memory["systemCommitAvailableBytes"] == memory["systemCommitLimitBytes"] - memory["systemCommitTotalBytes"], memory
+            assert memory["processImageState"] in ("AVAILABLE", "PARTIAL", "FAILED"), memory
+            if memory["processImageState"] in ("AVAILABLE", "PARTIAL"):
+                assert memory["processImagePe32"] in (-1, 0, 1) and memory["processImageLargeAddressAware"] in (0, 1), memory
+                assert memory["processImageMachine"].startswith("0x"), memory
+            assert memory["operatingSystemBits"] in (32, 64), memory
+            assert memory["targetFreeVirtualBytesState"] == "NOT_MEASURED" and memory["gpuVideoMemoryState"] == "NOT_MEASURED", memory
+            context = failure["runtimeContext"]
+            expected_context_state = {"oversized": "STATUS_TOO_LARGE", "identity": "STATUS_IDENTITY_MISMATCH"}.get(context_variant, "MATCHED_PROCESS_STATUS_CONTEXT_MAY_BE_STALE")
+            assert context["state"] == expected_context_state, context
+            if context_variant in ("normal", "future"):
+                assert context["statusAgeMilliseconds"] >= 0, context
+                assert context["statusTimestampRelation"] == ("AFTER_DIALOG_OBSERVATION" if context_variant == "future" else "AT_OR_BEFORE_DIALOG_OBSERVATION"), context
+                assert context["statusSerial"] == 41 and context["sessionSerial"] == 3 and context["sessionKind"] == "LOAD_GAME", context
+                assert context["gameTurn"] == 123 and context["activePlayer"] == 4 and context["playerTurnPlayer"] == 8, context
+                assert context["playerTurnCivilizationType"] == "CIVILIZATION_TEST" and context["playerTurnPhase"] == "AI_MOVES", context
+            else:
+                assert context["gameTurn"] == -1 and context["statusTimestampRelation"] == "UNKNOWN", context
+            if mode in ("after", "dump-after", "video-after"):
+                before_memory = dict(memory)
+                before_context = dict(context)
                 (case / "close-now").touch()
                 evidence = await_evidence(lambda value: value.get("failureDialog") and not value["failureDialog"]["visible"])
                 assert evidence["failureDialogCount"] == 1 and target.poll() is None, evidence
+                assert evidence["failureDialog"]["memory"] == before_memory, evidence
+                assert evidence["failureDialog"]["runtimeContext"] == before_context, evidence
+        status_before_exit = path.read_bytes()
         (case / "exit-now").touch()
         target.wait(timeout=10)
         stdout, stderr = watcher.communicate(timeout=10)
         assert watcher.returncode == 0, (stdout, stderr)
+        # <!-- custom: A mismatched current snapshot belongs to another identity and must remain untouched; the independent exit receipt still retains this target's failure and final exit. (GPT-6.1-Sol) -->
+        if context_variant == "identity":
+            receipt = json.loads(evidence_path.read_text(encoding="utf-8-sig"))
+            assert receipt["observerState"] == "EXITED" and receipt["exitCode"] == 7, receipt
+            assert receipt["failureDialog"]["runtimeContext"]["state"] == "STATUS_IDENTITY_MISMATCH", receipt
+            assert path.read_bytes() == status_before_exit and not (case / history_name).exists(), receipt
+            print("PASS dialog", mode, context_variant)
+            return
         final = json.loads(path.read_text(encoding="utf-8-sig"))
         assert final["processState"] == "EXITED" and final["exitObservation"]["exitCode"] == 7, final
         rows = [json.loads(row) for row in (case / history_name).read_text().splitlines()]
         assert len(rows) == 1 and rows[0]["record"] == "process_exit", rows
-        if mode in ("existing", "after", "dump-existing", "dump-after"):
+        recognized = mode in ("existing", "after", "dump-existing", "dump-after", "video-existing", "video-after", "video-old-existing")
+        if recognized:
             assert rows[0]["failureDialogCount"] == 1 and rows[0]["failureDialog"]["kind"] == expected_kind, rows
+            assert rows[0]["failureDialog"]["runtimeContext"]["state"] == expected_context_state, rows
+            assert rows[0]["failureDialog"]["memory"]["targetFreeVirtualBytesState"] == "NOT_MEASURED", rows
             assert final["exitObservation"]["failureDialogKind"] == expected_kind, final
         else:
             assert "failureDialog" not in rows[0], rows
-        print("PASS dialog", mode)
+        print("PASS dialog", mode, context_variant)
     finally:
         if target.poll() is None:
             target.terminate()
@@ -253,8 +326,11 @@ def main():
         source = ROOT / "tests/diagnostics/runtime_dialog_fixture.cs"
         command = "Add-Type -Path '%s' -OutputAssembly '%s' -OutputType WindowsApplication" % (str(source).replace("'", "''"), str(executable).replace("'", "''"))
         subprocess.run([str(POWERSHELL), "-NoProfile", "-NonInteractive", "-Command", command], check=True, creationflags=subprocess.CREATE_NO_WINDOW)
-        for mode in ("existing", "after", "ordinary", "assertion", "foreign", "dump-existing", "dump-after", "dump-invalid"):
+        for mode in ("existing", "after", "ordinary", "assertion", "foreign", "dump-existing", "dump-after", "dump-invalid",
+                "video-existing", "video-after", "video-old-existing", "video-invalid"):
             run_dialog_case(folder, executable, mode)
+        for context_variant in ("future", "oversized", "identity"):
+            run_dialog_case(folder, executable, "video-after", context_variant)
     return 0
 
 

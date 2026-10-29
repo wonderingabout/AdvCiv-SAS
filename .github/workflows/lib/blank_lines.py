@@ -120,6 +120,12 @@ def long_blank_runs(text: str, suffix: str, maximum: int = 2) -> list[tuple[int,
 # <!-- custom: Compare blank-row ancestry rather than only inserted lines: removing code between two short separators can create a new long separator without inserting any blank row.
 # Normalize whitespace-only rows for matching so cleaning their trailing spaces or shortening an inherited long run does not require a wider formatting cleanup. (GPT-6.1-Sol) -->
 def blank_line_errors(path: str, old_text: str, new_text: str, suffix: str, maximum: int = 2) -> list[str]:
+    # <!-- custom: Users read/edit SAS's Define catalog directly, so three blank lines make thematic groups easier to scan while related settings remain adjacent; the generic at-most-two rule only preserved inherited separators and missed newly inserted one/two-line gaps.
+    # Audit its separators whenever touched, retaining the same protection for comments, CDATA, attributes and text values.
+    # Other XML files keep the ordinary policy. (GPT-6.1-Sol) -->
+    if path.replace("\\", "/") == "Assets/XML/GlobalDefines_advciv_sas.xml":
+        return [f"{path}:{start + 1}: separator has {end - start} blank lines; use zero or exactly three outside XML text/comment regions"
+                for start, end in long_blank_runs(new_text, suffix, 0) if end - start != 3]
     new_runs = long_blank_runs(new_text, suffix, maximum)
     if not new_runs:
         return []

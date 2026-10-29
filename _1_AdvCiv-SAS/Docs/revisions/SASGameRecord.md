@@ -108,10 +108,16 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 181 - SAS practical 6701
+### Revision 182 - SAS practical 6702
 
 - **Date:** 2026-10-29
 - **Git commit:** pending
+- **Change:** Correct revision classification when Runtime-owned native comments merely compare their implementation label to SASGameRecord's XML revision. Such a cross-reference does not change SGR, while actual SGR calls/literals in those files still qualify; shared gameplay-file comments retain the existing conservative policy. This updates the SGR-specific checker, with no emitted-row changes.
+
+### Revision 181 - SAS practical 6701
+
+- **Date:** 2026-10-29
+- **Git commit:** `1abf88d433f31974203131db405e02a141e155aa`
 - **Change:** Add a compact level-2 `GAME_RECORD_AI_COMMERCE_DECISION` observation at the final non-Barbarian `AI_doCommerce` boundary so slider allocations retain chooser inputs that ordinary percentage/economy rows cannot reconstruct.
   - Fixed before/final Research, Culture, Gold and Espionage percentages separate applied changes from intent.
     - Every changed allocation is emitted as `observationReason=SLIDER_CHANGED`; unchanged decisions are sampled on the existing periodic SGR interval as `INTERVAL_UNCHANGED`. This avoids both ambiguous long-term silence and one wide row per unchanged AI player-turn.

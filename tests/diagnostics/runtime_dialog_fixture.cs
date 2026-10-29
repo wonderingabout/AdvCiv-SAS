@@ -1,7 +1,9 @@
 // AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 // (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
-// <!-- custom: Disposable Windows fixture for real dialog-show/hide observations. A test-owned file controls its own windows and termination; it never attaches to or changes Civ4. (GPT-6.1-Sol) -->
+// <!-- custom: Disposable Windows fixture for real dialog-show/hide observations.
+// Video-allocation cases reproduce reported message/window signatures, not the allocator failure itself; they validate recognition/context capture without exhausting memory or claiming a genuine SAS MAF reproduction.
+// A test-owned file controls its own windows and termination; it never attaches to or changes Civ4. (GPT-6.1-Sol) -->
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -77,10 +79,15 @@ public static class RuntimeDialogFixture
         });
         controller.IsBackground = true;
         controller.Start();
-        if (mode != "existing" && mode != "dump-existing")
+        if (mode != "existing" && mode != "dump-existing" && mode != "video-existing" && mode != "video-old-existing")
             while (!File.Exists(Path.Combine(root, "show-now"))) Thread.Sleep(10);
-        string title = mode == "assertion" ? "Assert Failed" : mode == "ordinary" ? "Choose production" : "Microsoft Visual C++ Runtime Library";
-        string text = mode == "assertion" ? "Expression: example assertion" : mode == "ordinary" ? "Choose the next building." : "Runtime Error!\nProgram: disposable test fixture\nThis application has requested the Runtime to terminate it in an unusual way.\nUnicode path sample: caf\u00e9.";
+        bool videoMode = mode.StartsWith("video-");
+        string title = mode == "assertion" ? "Assert Failed" : mode == "ordinary" ? "Choose production" : videoMode ? "ERROR" : "Microsoft Visual C++ Runtime Library";
+        string text = mode == "assertion" ? "Expression: example assertion" : mode == "ordinary" ? "Choose the next building." :
+            mode == "video-invalid" ? "A generic ERROR window that must not be classified." :
+            mode == "video-old-existing" ? "Failed to allocate video memory. Please try reducing your graphics settings.\nFile: \\Source\\main\\Civilization4\\SDKs\\Gamebryo2_0\\CoreLibs\\NiDX9RenderedTextureData.cpp, Line:170" :
+            videoMode ? "Failed to allocate video memory. Please try reducing your graphics settings.\nFile: \\main\\Civilization4\\SDKs\\Gamebryo2_0\\CoreLibs\\NiDX9Renderer\\NiDX9VBManager.cpp, Line:1019" :
+            "Runtime Error!\nProgram: disposable test fixture\nThis application has requested the Runtime to terminate it in an unusual way.\nUnicode path sample: caf\u00e9.";
         File.WriteAllText(Path.Combine(root, "show-called"), "ready");
         if (mode.StartsWith("dump-")) ShowDumpDialog(mode == "dump-invalid");
         else MessageBox(IntPtr.Zero, text, title, 0x10);

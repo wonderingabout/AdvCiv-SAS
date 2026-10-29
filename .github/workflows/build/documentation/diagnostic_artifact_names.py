@@ -31,14 +31,15 @@ def missing_paths(paths, text):
 
 
 def check(root):
-    publishers = [root / "CvGameCoreDLL/SASRuntimeStatus.cpp", *sorted((root / "Assets").glob("SASRuntime*.ps1"))]
+    # <!-- custom: Include every shipped top-level PowerShell/C# companion, not only today's SASRuntime-prefixed script names; a newly named observer must not evade output discoverability checks. (GPT-6.1-Sol) -->
+    publishers = [root / "CvGameCoreDLL/SASRuntimeStatus.cpp", *sorted(path for path in (root / "Assets").iterdir() if path.is_file() and path.suffix.lower() in (".ps1", ".cs"))]
     paths = set()
     for publisher in publishers:
         paths.update(runtime_paths(publisher.read_text(encoding="utf-8")))
     if not paths:
         return ["No Runtime output names discovered; review the publisher scope/extraction before accepting an empty audit."], 0
     wrapper = (root / "CvGameCoreDLL/Project/build_with_report.ps1").read_text(encoding="utf-8")
-    if "'CvGameCoreDLL.dll.build.json'" not in wrapper:
+    if not re.search(r"[\"']CvGameCoreDLL\.dll\.build\.json[\"']", wrapper):
         return ["Build-report filename construction changed; review its documented output paths."], len(paths)
     paths.update(("CvGameCoreDLL/Project/Release/CvGameCoreDLL.dll.build.json", "Assets/CvGameCoreDLL.dll.build.json"))
     errors = []

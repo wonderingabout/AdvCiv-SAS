@@ -81,16 +81,14 @@ static void getSASRuntimeTurnReadinessSnapshot(PlayerTypes ePlayer, bool bUIAnyM
 	}
 }
 
+// <!-- custom: Move the former DLL enum label to XML, like SAS_SGR_REVISION: adding or modifying an external watcher can require a recorder revision without changing native code, so a compiled label forced needless DLL rebuilds.
+// Cache it only when Runtime is first enabled, before output or observer launch; DLL/build/source identity separately identifies the loaded binary.
+// Keep the cached value through teardown so clean-exit publication never reads released XML caches. (GPT-6.1-Sol) -->
+static int g_iSASRuntimeRevision = 0;
+
 // <!-- custom: Finite process/game/session states use enums rather than heap-backed strings; the same local rows generate their immutable JSON names.
 // Update-reason rows are shared with the public enum so callers cannot invent misspelled reasons; serialize names only when publishing JSON.
 // Like building focus, each expansion generates one representation and then undefines its temporary macro to avoid leaking it into later code; this is compile-time work only. (GPT-6.1-Sol) -->
-// <!-- custom: Both files come from this runtime recorder, so one implementation revision identifies their paired observations and refers readers to its revision history.
-// Compile the label into the publisher: an edited XML value must not make an older loaded DLL report a newer implementation; this counter is independent of SASGameRecord and binary-save versions. (GPT-6.1-Sol) -->
-enum SASRuntimeRecorderRevision
-{
-	SAS_RUNTIME_REVISION = 15
-};
-
 #define SAS_RUNTIME_PROCESS_STATES(DO) DO(RUNNING) DO(EXITED_CLEANLY) DO(EXITED)
 enum SASRuntimeProcessState
 {
@@ -382,7 +380,14 @@ static CvString g_szSASRuntimeWindowCloseRequestObservedUtc = "-";
 bool isSASRuntimeStatusEnabled()
 {
 	if (g_iSASRuntimeStatusEnabled < 0)
+	{
 		g_iSASRuntimeStatusEnabled = (GC.getDefineINT("SAS_RUNTIME_STATUS_ON") > 0 ? 1 : 0);
+		if (g_iSASRuntimeStatusEnabled > 0)
+		{
+			g_iSASRuntimeRevision = GC.getDefineINT("SAS_RUNTIME_REVISION");
+			FAssert(g_iSASRuntimeRevision > 0);
+		}
+	}
 	return g_iSASRuntimeStatusEnabled > 0;
 }
 
@@ -606,7 +611,7 @@ static void ensureSASRuntimeExitObserver(std::wstring const& szStatusPath)
 					szProcessId.Format("%lu", (unsigned long)GetCurrentProcessId());
 					CvString const& szStartedUtc = getSASExecutableProcessStartUtc();
 					CvString szRevision;
-					szRevision.Format("%d", SAS_RUNTIME_REVISION);
+					szRevision.Format("%d", g_iSASRuntimeRevision);
 					// <!-- custom: File arguments are quoted Win32 paths (which cannot contain a quote); no shell command text is assembled or evaluated.
 					// ExecutionPolicy applies only to this child process and requires no elevation; machine policy can still block it, so report launch evidence without claiming successful attachment. (GPT-6.1-Sol) -->
 					std::wstring szCommand = L"\"" + szPowerShell + L"\" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"" + szScript + L"\" -StatusPath \"" + szStatusPath + L"\" -TargetProcessId " + std::wstring(szProcessId.begin(), szProcessId.end()) + L" -ProcessStartUtc " + std::wstring(szStartedUtc.begin(), szStartedUtc.end()) + L" -RecorderRevision " + std::wstring(szRevision.begin(), szRevision.end());
@@ -696,7 +701,7 @@ static void ensureSASRuntimeSourceObserver(std::wstring const& szStatusPath)
 					szProcessId.Format("%lu", (unsigned long)GetCurrentProcessId());
 					CvString const& szStartedUtc = getSASExecutableProcessStartUtc();
 					CvString szRevision;
-					szRevision.Format("%d", SAS_RUNTIME_REVISION);
+					szRevision.Format("%d", g_iSASRuntimeRevision);
 					std::wstring szCommand = L"\"" + szPowerShell + L"\" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"" + szScript + L"\" -StatusPath \"" + szStatusPath + L"\" -TargetProcessId " + std::wstring(szProcessId.begin(), szProcessId.end()) + L" -ProcessStartUtc " + std::wstring(szStartedUtc.begin(), szStartedUtc.end()) + L" -RecorderRevision " + std::wstring(szRevision.begin(), szRevision.end());
 					std::vector<wchar_t> aCommand(szCommand.begin(), szCommand.end());
 					aCommand.push_back(L'\0');
@@ -1025,7 +1030,7 @@ static void recordSASRuntimeEndTurnContext(int iGameTurn)
 		"\"sleepUnits\":%d,"
 		"\"priorStatusWriteFailures\":%u,"
 		"\"priorHistoryWriteFailures\":%u}\r\n",
-		SAS_RUNTIME_REVISION, getSASRuntimeHistoryRunId().GetCString(), g_szSASRuntimeEndTurnRequestRecordedUtc.GetCString(), g_uiSASRuntimeSessionSerial, iGameTurn,
+		g_iSASRuntimeRevision, getSASRuntimeHistoryRunId().GetCString(), g_szSASRuntimeEndTurnRequestRecordedUtc.GetCString(), g_uiSASRuntimeSessionSerial, iGameTurn,
 		(int)g_eSASRuntimePlayerTurnPlayer, (int)g_eSASRuntimePlayerTurnTeam, (int)g_eSASRuntimePlayerTurnCivilization, g_szSASRuntimePlayerTurnCivilizationType.GetCString(),
 		getSASRuntimeEndTurnControlName(g_eSASRuntimeEndTurnRequestControl), (int)g_eSASRuntimeEndTurnRequestControl, g_bSASRuntimeEndTurnRequestEndTurnMessage ? 1 : 0, g_bSASRuntimeEndTurnRequestUIReady ? 1 : 0,
 		g_bSASRuntimeEndTurnRequestUIAnyMove ? 1 : 0, g_bSASRuntimeEndTurnRequestSelectedUnit ? 1 : 0, g_bSASRuntimeEndTurnRequestForcePopup ? 1 : 0, g_bSASRuntimeEndTurnRequestHasMovedUnit ? 1 : 0, g_bSASRuntimeEndTurnRequestWaitOption ? 1 : 0,
@@ -1065,7 +1070,7 @@ static void recordSASRuntimePlayerTurnSummary(int iCompletedTurn, CvString const
 		"\"timingMode\":\"SEQUENTIAL\","
 		"\"complete\":%d,"
 		"\"players\":[",
-		SAS_RUNTIME_REVISION, getSASRuntimeHistoryRunId().GetCString(), szRecordedUtc.GetCString(), g_uiSASRuntimeSessionSerial, g_iSASRuntimePlayerTurnSummaryTurn, bComplete ? 1 : 0);
+		g_iSASRuntimeRevision, getSASRuntimeHistoryRunId().GetCString(), szRecordedUtc.GetCString(), g_uiSASRuntimeSessionSerial, g_iSASRuntimePlayerTurnSummaryTurn, bComplete ? 1 : 0);
 	for (size_t i = 0; i < g_aSASRuntimePlayerTurnRecords.size(); i++)
 	{
 		SASRuntimePlayerTurnRecord const& kRecord = g_aSASRuntimePlayerTurnRecords[i];
@@ -1131,7 +1136,7 @@ static bool ensureSASRuntimeHistoryMetadata()
 		"\"sourceIdentity\":%s,"
 		"\"priorStatusWriteFailures\":%u,"
 		"\"priorHistoryWriteFailures\":%u}\r\n",
-		SAS_RUNTIME_REVISION, getSASRuntimeHistoryRunId().GetCString(), (unsigned long)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), getSASProcessUtcTimestamp().GetCString(), szDllIdentity.GetCString(), szSourceIdentity.GetCString(),
+		g_iSASRuntimeRevision, getSASRuntimeHistoryRunId().GetCString(), (unsigned long)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), getSASProcessUtcTimestamp().GetCString(), szDllIdentity.GetCString(), szSourceIdentity.GetCString(),
 		g_uiSASRuntimeStatusWriteFailures, g_uiSASRuntimeHistoryWriteFailures);
 	bool bContentComplete = false;
 	bool const bConfirmed = recordSASRuntimeHistoryRow(szRow, &bContentComplete);
@@ -1167,7 +1172,7 @@ static void captureSASRuntimeHistorySessionMetadata(CvString const& szNowUtc, in
 		"\"loadedSaveCheckpointTurn\":%d,"
 		"\"loadedSaveCheckpointElapsedTurn\":%d,"
 		"\"loadedSaveCheckpointUtc\":\"%s\",",
-		SAS_RUNTIME_REVISION, getSASRuntimeHistoryRunId().GetCString(), szNowUtc.GetCString(), g_uiSASRuntimeSessionSerial, aSASRuntimeSessionStateNames[g_eSASRuntimeSessionKind], g_szSASRuntimeSessionStartedUtc.GetCString(), g_szSASRuntimeNativeReadyUtc.GetCString(),
+		g_iSASRuntimeRevision, getSASRuntimeHistoryRunId().GetCString(), szNowUtc.GetCString(), g_uiSASRuntimeSessionSerial, aSASRuntimeSessionStateNames[g_eSASRuntimeSessionKind], g_szSASRuntimeSessionStartedUtc.GetCString(), g_szSASRuntimeNativeReadyUtc.GetCString(),
 		g_uiSASRuntimeNewGameCount, g_uiSASRuntimeLoadCount, iReadyGameTurn, iReadyActivePlayer, iMapWidth, iMapHeight, iWorldSize, iGameSpeed, iScenario,
 		iLoadedCheckpointTurn, iLoadedCheckpointElapsedTurn, szLoadedCheckpointUtc);
 	g_uiSASRuntimeHistorySessionMetadataCaptured = g_uiSASRuntimeSessionSerial;
@@ -1295,7 +1300,7 @@ static void updateSASRuntimeActivity(SASRuntimeStatusReason eReason, CvString co
 		"\"autoplayEndCause\":\"%s\","
 		"\"priorStatusWriteFailures\":%u,"
 		"\"priorHistoryWriteFailures\":%u}\r\n",
-		SAS_RUNTIME_REVISION, getSASRuntimeHistoryRunId().GetCString(), ++g_uiSASRuntimeActivitySerial, bIntervalStarted ? 1 : 0,
+		g_iSASRuntimeRevision, getSASRuntimeHistoryRunId().GetCString(), ++g_uiSASRuntimeActivitySerial, bIntervalStarted ? 1 : 0,
 		aSASRuntimeActivityNames[bIntervalStarted ? g_eSASRuntimePreviousActivity : SAS_RUNTIME_ACTIVITY_NONE], bIntervalStarted ? g_szSASRuntimePreviousStartedUtc.GetCString() : "-", bIntervalStarted ? g_szSASRuntimePreviousEndedUtc.GetCString() : "-", bIntervalStarted ? g_iSASRuntimePreviousDurationMilliseconds : (__int64)-1,
 		uiPreviousSession, iPreviousStartTurn, iPreviousRequestedTurns, szNowUtc.GetCString(), aSASRuntimeActivityNames[eActivity], g_szSASRuntimeActivityStartedUtc.GetCString(), getSASElapsedMilliseconds(g_uiSASRuntimeActivityStartedMilliseconds, uiNowMilliseconds), g_uiSASRuntimeSessionSerial, iGameTurn, iAutoPlayRemaining,
 		aSASRuntimeStatusReasonNames[eReason], g_bSASRuntimeCivilopediaVisible, getSASRuntimeCivilopediaContext(), g_iSASRuntimeCivilopediaActivePlayer, g_iSASRuntimeCivilopediaActiveCivilization,
@@ -1486,7 +1491,7 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 		"  \"loadedSaveCheckpointElapsedTurn\": %d,\r\n"
 		"  \"loadedSaveCheckpointUtc\": \"%s\"\r\n"
 		"}\r\n",
-		SAS_RUNTIME_REVISION, szDllIdentity.GetCString(), szSourceIdentity.GetCString(), g_uiSASRuntimeStatusSerial, g_uiSASRuntimeStatusWriteFailures, (unsigned long)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), getSASProcessUtcTimestamp().GetCString(), szUpdatedUtc.GetCString(),
+		g_iSASRuntimeRevision, szDllIdentity.GetCString(), szSourceIdentity.GetCString(), g_uiSASRuntimeStatusSerial, g_uiSASRuntimeStatusWriteFailures, (unsigned long)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), getSASProcessUtcTimestamp().GetCString(), szUpdatedUtc.GetCString(),
 		aSASRuntimeProcessStateNames[g_eSASRuntimeProcessState], (unsigned long)g_uiSASRuntimeExitObserverProcessId, (unsigned long)g_uiSASRuntimeExitObserverLaunchError, getSASExecutableProcessStartUtc().GetCString(), (unsigned long)GetCurrentProcessId(),
 		(isSASRuntimeSourceWatchEnabled() ? 1 : 0), (unsigned long)g_uiSASRuntimeSourceObserverProcessId, (unsigned long)g_uiSASRuntimeSourceObserverLaunchError,
 		getSASExecutableProcessStartUtc().GetCString(), (unsigned long)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), (unsigned long)GetCurrentProcessId(),

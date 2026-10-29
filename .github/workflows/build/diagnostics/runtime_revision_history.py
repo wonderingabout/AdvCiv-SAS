@@ -8,28 +8,47 @@ import json
 from pathlib import Path
 import re
 import subprocess
+# <!-- custom: Parse the current XML revision structurally while retaining the compiled reader for immutable pre-migration commits. (GPT-6.1-Sol) -->
+import xml.etree.ElementTree as ET
 # <!-- custom: Reuse the established push/PR/default-branch range selection and Git readers so runtime revisions follow the same commit or explicit squash boundaries as SASGameRecord. (GPT-6.1-Sol) -->
 from sas_revision_history import ROOT, changed_paths, git_show, revision_transitions, resolve_default_branch
 # <!-- custom: SASGameRecord's shared-helper path setup also exposes the common entry parser; both histories require real Change text while retaining their distinct bump policies. (GPT-6.1-Sol) -->
 from revision_history import change_errors, revision_entries
 
 SOURCE = "CvGameCoreDLL/SASRuntimeStatus.cpp"
+DEFINES = "Assets/XML/GlobalDefines_advciv_sas.xml"
 HISTORY = "_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md"
 # <!-- custom: The shipped external observer and its dialog companion also change runtime output/lifecycle semantics; its edits follow the same recorder-revision policy as the native publisher. (GPT-6.1-Sol) -->
 DEDICATED = {SOURCE, "CvGameCoreDLL/SASRuntimeStatusReasons.h", "Assets/SASRuntimeExitObserver.ps1", "Assets/SASRuntimeDialogObserver.cs", "Assets/SASRuntimeSourceObserver.ps1", "Assets/SASRuntimeScreenshotObserver.ps1", "Assets/SASRuntimeObserverEnvironment.ps1"}
 MARKER = re.compile(r"SASRuntime|SAS_RUNTIME|SASDllRuntimeIdentity")
 
 
-def revision(source):
+# <!-- custom: XML owns the current label; old commits still identify revisions 1-15 through their compiled marker.
+# Once the XML key exists, malformed/duplicate values fail rather than falling back to a misleading native label. (GPT-6.1-Sol) -->
+def revision(source, defines=""):
+    if "SAS_RUNTIME_REVISION" in defines:
+        try:
+            root = ET.fromstring(defines)
+            values = []
+            for node in root.iter():
+                if node.tag.rsplit("}", 1)[-1] != "Define":
+                    continue
+                fields = {child.tag.rsplit("}", 1)[-1]: (child.text or "").strip() for child in node}
+                if fields.get("DefineName") == "SAS_RUNTIME_REVISION":
+                    values.append(int(fields.get("iDefineIntVal")))
+        except (ET.ParseError, TypeError, ValueError):
+            return None
+        return values[0] if len(values) == 1 else None
     values = re.findall(r"\bSAS_RUNTIME_REVISION\s*=\s*(\d+)\b", source)
     return int(values[0]) if len(values) == 1 else None
 
 
-def history_errors(source, history):
-    value = revision(source)
+# <!-- custom: Accept the XML snapshot alongside native source so current labels and historical compiled revisions share the same history validation. (GPT-6.1-Sol) -->
+def history_errors(source, history, defines=""):
+    value = revision(source, defines)
     entries = [number for number, _body in revision_entries(history)]
     if value is None or value < 1:
-        return ["missing positive compiled SAS_RUNTIME_REVISION"]
+        return ["missing positive SAS_RUNTIME_REVISION"]
     if entries != list(range(value, 0, -1)):
         return [f"runtime history must contain revisions {value} through 1 exactly once, latest first"]
     return change_errors(history)
@@ -44,7 +63,7 @@ def read(repo, commit, path):
 
 
 # <!-- custom: Dedicated recorder edits always qualify, including implementation comments; shared source/config changes qualify through changed runtime symbols.
-# Pure CI, test and documentation maintenance does not change the loaded recorder, so it must not force a compiled revision change and rebuild; unusual shared-code refactors still need manual review. (GPT-6.1-Sol + ChatGPT) -->
+# Pure CI, test and documentation maintenance does not change the loaded recorder, so it must not force a recorder revision change; unusual shared-code refactors still need manual review. (GPT-6.1-Sol + ChatGPT) -->
 def qualifies(repo, parent, commit):
     paths = changed_paths(repo, parent, commit) if commit is not None else subprocess.check_output(["git", "diff", "--name-only", parent, "--"], cwd=repo, text=True).splitlines()
     paths = set(paths)
@@ -73,9 +92,9 @@ def transition_errors(repo, parent, commit):
     previous_source = read(repo, parent, SOURCE) if parent else ""
     if not source and not previous_source:
         return []
-    errors = history_errors(source, read(repo, commit, HISTORY))
-    previous = revision(previous_source) if previous_source else 0
-    current = revision(source)
+    errors = history_errors(source, read(repo, commit, HISTORY), read(repo, commit, DEFINES))
+    previous = revision(previous_source, read(repo, parent, DEFINES)) if previous_source else 0
+    current = revision(source, read(repo, commit, DEFINES))
     if previous is None or current is None:
         return errors + ["cannot resolve runtime revision progression"]
     expected = previous + int(qualifies(repo, parent, commit)) if parent else 1

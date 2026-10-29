@@ -54,6 +54,109 @@ function Write-SASRuntimeExitEvidence($data) {
     }
 }
 
+# <!-- custom: A recognized external failure is a useful point-in-time correlation boundary, but the game's JSON may be stale or mid-replace.
+# Read it once with sharing, verify exact process/start identity, and preserve unavailable/mismatched state explicitly; do not poll the game or delay the dialog observer waiting for a fresher row. (ChatGPT-5.6-Sol) -->
+function Get-SASRuntimeFailureStatusContext([string]$ObservedUtc) {
+    $context = [ordered]@{
+        state = 'STATUS_MISSING'
+        updatedUtc = '-'
+        statusAgeMilliseconds = -1
+        statusTimestampRelation = 'UNKNOWN'
+        statusSerial = -1
+        sessionSerial = -1
+        sessionKind = '-'
+        gameState = '-'
+        activity = '-'
+        gameTurn = -1
+        elapsedGameTurns = -1
+        activePlayer = -1
+        autoplayActive = -1
+        playerTurnPlayer = -1
+        playerTurnTeam = -1
+        playerTurnCivilization = -1
+        playerTurnCivilizationType = '-'
+        playerTurnControl = '-'
+        playerTurnPhase = '-'
+        playerTurnElapsedMilliseconds = -1
+        worldBuilderMode = -1
+        worldBuilderScreenVisible = -1
+        civilopediaVisible = -1
+        civilopediaContext = '-'
+        buttonPopupAwaitingInteraction = -1
+        buttonPopupType = '-'
+        buttonPopupActivePlayer = -1
+    }
+    if (-not [System.IO.File]::Exists($StatusPath)) { return $context }
+    $stream = $null
+    try {
+        $stream = [System.IO.File]::Open($StatusPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite -bor [System.IO.FileShare]::Delete)
+        $reader = New-Object System.IO.StreamReader($stream, $utf8, $true, 4096, $true)
+        try {
+            # <!-- custom: The old ReadToEnd had no size bound despite this being a failure-time sample.
+            # Read at most 64 Ki characters plus one overflow sentinel; an unexpectedly large or concurrently growing file must not make the external observer allocate/read without limit. (GPT-6.1-Sol) -->
+            $characters = New-Object char[] 65537
+            $length = $reader.ReadBlock($characters, 0, $characters.Length)
+            if ($length -gt 65536) {
+                $context.state = 'STATUS_TOO_LARGE'
+                return $context
+            }
+            $status = [string]::new($characters, 0, $length) | ConvertFrom-Json
+        } finally { $reader.Dispose() }
+    } catch {
+        $context.state = 'STATUS_UNREADABLE'
+        return $context
+    } finally {
+        if ($null -ne $stream) { $stream.Dispose() }
+    }
+    if ($status.processId -ne $TargetProcessId -or $status.processStartUtc -ne $ProcessStartUtc) {
+        $context.state = 'STATUS_IDENTITY_MISMATCH'
+        return $context
+    }
+    $context.state = 'MATCHED_PROCESS_STATUS_CONTEXT_MAY_BE_STALE'
+    if ($status.PSObject.Properties['updatedUtc']) { $context.updatedUtc = [string]$status.updatedUtc }
+    if ($context.updatedUtc -ne '-') {
+        try {
+            $observed = [DateTime]::ParseExact($ObservedUtc, 'yyyyMMddTHHmmss.fffZ', [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::AssumeUniversal -bor [Globalization.DateTimeStyles]::AdjustToUniversal)
+            $updated = [DateTime]::ParseExact($context.updatedUtc, 'yyyyMMddTHHmmss.fffZ', [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::AssumeUniversal -bor [Globalization.DateTimeStyles]::AdjustToUniversal)
+            # <!-- custom: Abs alone hid whether queued event processing read status written after the dialog observation.
+            # Keep the nonnegative timestamp distance and label its direction explicitly; a later snapshot is not fault-time state. (GPT-6.1-Sol) -->
+            $context.statusAgeMilliseconds = [Int64]([Math]::Abs(($observed - $updated).TotalMilliseconds))
+            $context.statusTimestampRelation = $(if ($updated -gt $observed) { 'AFTER_DIALOG_OBSERVATION' } else { 'AT_OR_BEFORE_DIALOG_OBSERVATION' })
+        } catch { }
+    }
+    foreach ($field in @('statusSerial', 'sessionSerial', 'sessionKind', 'gameState', 'activity', 'gameTurn', 'elapsedGameTurns', 'activePlayer', 'autoplayActive', 'playerTurnPlayer', 'playerTurnTeam', 'playerTurnCivilization', 'playerTurnCivilizationType', 'playerTurnControl', 'playerTurnPhase', 'playerTurnElapsedMilliseconds', 'worldBuilderMode', 'worldBuilderScreenVisible', 'civilopediaVisible', 'civilopediaContext', 'buttonPopupAwaitingInteraction', 'buttonPopupType', 'buttonPopupActivePlayer')) {
+        if ($status.PSObject.Properties[$field]) { $context[$field] = $status.$field }
+    }
+    return $context
+}
+
+# <!-- custom: Keep process/system/image memory concepts separate. Working set is resident RAM, private bytes are process-private memory and VirtualMemorySize64 is allocated virtual address space; none is target free-VA or GPU VRAM.
+# The C# listener samples them once when the reviewed failure becomes visible. LAA is read from the executable PE header, not inferred from observed memory size. (ChatGPT-5.6-Sol) -->
+function Get-SASRuntimeFailureMemoryContext($Memory) {
+    if ($null -eq $Memory) { return [ordered]@{ processMemoryState = 'UNAVAILABLE'; systemMemoryState = 'UNAVAILABLE'; processImageState = 'UNAVAILABLE' } }
+    return [ordered]@{
+        processMemoryState = [string]$Memory.ProcessMemoryState
+        processWorkingSetBytes = [Int64]$Memory.ProcessWorkingSetBytes
+        processPeakWorkingSetBytes = [Int64]$Memory.ProcessPeakWorkingSetBytes
+        processPrivateBytes = [Int64]$Memory.ProcessPrivateBytes
+        processVirtualBytes = [Int64]$Memory.ProcessVirtualBytes
+        processPeakVirtualBytes = [Int64]$Memory.ProcessPeakVirtualBytes
+        systemMemoryState = [string]$Memory.SystemMemoryState
+        systemMemoryLoadPercent = [int]$Memory.SystemMemoryLoadPercent
+        systemPhysicalAvailableBytes = [Int64]$Memory.SystemPhysicalAvailableBytes
+        systemCommitTotalBytes = [Int64]$Memory.SystemCommitTotalBytes
+        systemCommitLimitBytes = [Int64]$Memory.SystemCommitLimitBytes
+        systemCommitAvailableBytes = [Int64]$Memory.SystemCommitAvailableBytes
+        processImageState = [string]$Memory.ProcessImageState
+        processImagePe32 = [int]$Memory.ProcessImagePe32
+        processImageLargeAddressAware = [int]$Memory.ProcessImageLargeAddressAware
+        processImageMachine = [string]$Memory.ProcessImageMachine
+        operatingSystemBits = $(if ([Environment]::Is64BitOperatingSystem) { 64 } else { 32 })
+        targetFreeVirtualBytesState = 'NOT_MEASURED'
+        gpuVideoMemoryState = 'NOT_MEASURED'
+    }
+}
+
 try {
     $target = [System.Diagnostics.Process]::GetProcessById($TargetProcessId)
     $null = $target.Handle
@@ -129,18 +232,26 @@ try {
                 $evidence.dialogObserverErrorCode = $dialogEvent.MonitorError
                 $evidence.dialogObserverError = $(if ($dialogEvent.MonitorError -eq 0) { '' } else { 'WinEvent listener initialization failed' })
             } else {
-                if ($dialogEvent.Visible) { $evidence.failureDialogCount++ }
-                if (-not $evidence.Contains('firstFailureDialogObservedUtc')) {
-                    $evidence.firstFailureDialogObservedUtc = $dialogEvent.FirstObservedUtc
-                }
-                $evidence.failureDialog = [ordered]@{
-                    kind = $dialogEvent.Kind
-                    visible = $dialogEvent.Visible
-                    firstObservedUtc = $dialogEvent.FirstObservedUtc
-                    observedUtc = $dialogEvent.ObservedUtc
-                    windowHandle = $dialogEvent.WindowHandle
-                    title = $dialogEvent.Title
-                    text = $dialogEvent.Text
+                if ($dialogEvent.Visible) {
+                    $evidence.failureDialogCount++
+                    if (-not $evidence.Contains('firstFailureDialogObservedUtc')) {
+                        $evidence.firstFailureDialogObservedUtc = $dialogEvent.FirstObservedUtc
+                    }
+                    $evidence.failureDialog = [ordered]@{
+                        kind = $dialogEvent.Kind
+                        visible = $true
+                        firstObservedUtc = $dialogEvent.FirstObservedUtc
+                        observedUtc = $dialogEvent.ObservedUtc
+                        windowHandle = $dialogEvent.WindowHandle
+                        title = $dialogEvent.Title
+                        text = $dialogEvent.Text
+                        memory = Get-SASRuntimeFailureMemoryContext $dialogEvent.Memory
+                        runtimeContext = Get-SASRuntimeFailureStatusContext $dialogEvent.FirstObservedUtc
+                    }
+                } elseif ($null -ne $evidence.failureDialog -and $evidence.failureDialog.windowHandle -eq $dialogEvent.WindowHandle) {
+                    # <!-- custom: Hide/destroy is not a new failure sample. Retain the context captured when this exact dialog appeared and update only visibility/time; an older dialog closing must not overwrite a newer recognized failure. (ChatGPT-5.6-Sol) -->
+                    $evidence.failureDialog.visible = $false
+                    $evidence.failureDialog.observedUtc = $dialogEvent.ObservedUtc
                 }
             }
             $evidence.dialogEventsDropped = $dialogObserver.DroppedEvents
