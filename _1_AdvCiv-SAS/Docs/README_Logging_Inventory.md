@@ -225,7 +225,7 @@ These are supported by current source or inherited documentation. Absence does n
 
 | Output | Present | Meaning |
 | --- | --- | --- |
-| `CvGameCoreDLL/Project/<configuration>/AdvCiv.log` | Yes, Release and Debug-opt | Compiler/linker diagnostics, not game output. |
+| `CvGameCoreDLL/Project/Release/AdvCiv.log` | Yes, Release and Debug-opt | Compiler/linker diagnostics, not game output. |
 | `<DLL filename>.build.json` | Yes | Build status, configuration, inputs, warning/error counts and binary identity; includes the installed DLL's companion report. |
 | BUG Autolog / StatusDump directory | No current file found in the checked default paths | Autolog and StatusDump normally use their configurable/default Autolog directory rather than requiring `Logs`. |
 | `ThemeParseLog.txt` | Not inventoried in this snapshot | Historical BtS engine/theme parser diagnostic reported in the Beyond the Sword installation directory rather than the user `Logs` folder. It records `.thm` parsing/resource errors; some warnings can be benign. |
@@ -628,7 +628,11 @@ The SAS rows retain the analysis/forecast values and make turn, analyst, player,
 
 ### Runtime status and history
 
-`SASRuntimeStatus.json` gives the latest observation; `SASRuntimeHistory_*.jsonl` preserves timed game/session activity, and `SASRuntimeExit_*.json` records the externally observed process exit.
+These paths are relative to Civ4's user folder (normally `Documents/My Games/beyond the sword`); `*` represents the process-specific timestamp/ID suffix:
+
+- `Logs/SASRuntimeStatus.json`: latest observed state; `Logs/SASRuntimeHistory_*.jsonl`: timed game/session activity; `Logs/SASRuntimeExit_*.json`: externally observed process-exit evidence.
+- `Logs/SASRuntimeSourceWatch_*.json`: optional source-watcher health; `Logs/SASRuntimeSourceChanges_*.jsonl`: observed live file changes. See [source-file observation](#live-source-edit-observation).
+- `Logs/SASRuntimeScreenshotWatch_*.json`: optional screenshot-watcher health; `Logs/SASRuntimeScreenshots_*.jsonl`: observed screenshot files. See [screenshot observation](#screenshot-file-observation).
 
 The external observer uses Windows PowerShell and .NET Framework independently of the VC2003 game DLL. Its receipt records the actual PowerShell/CLR versions, Framework release and process architecture in `environment`, plus C# listener compilation result/duration in `listenerCompilation`. These observations are not established minimum requirements.
 
@@ -1063,7 +1067,9 @@ The first two fingerprints differ despite equal byte sizes; the unchanged-conten
 
 ### DLL build reports
 
-`CvGameCoreDLL/Project/<configuration>/AdvCiv.log` carries compiler/linker messages, and `CvGameCoreDLL.dll.build.json` reports build progress/result, Git/source context, warnings/errors and binary identity. These help distinguish the source being reviewed from the DLL actually built or loaded.
+Paths in this section are relative to the mod folder. For example, `CvGameCoreDLL/Project/Release/AdvCiv.log` carries compiler/linker messages, and `CvGameCoreDLL/Project/Release/CvGameCoreDLL.dll.build.json` reports build progress/result, Git/source context, warnings/errors and binary identity.
+
+`CvGameCoreDLL/Project/Debug-opt/CvGameCoreDLL.dll.build.json` is the corresponding Debug-opt report; other configurations use their own build folders. `Assets/CvGameCoreDLL.dll.build.json` is the installed DLL's matching report. These help distinguish the source being reviewed from the DLL actually built or loaded.
 
 SAS enriches the existing `AdvCiv.log` rather than replacing its compiler output: the reporting wrapper adds UTC start/end times, configuration/request and Git context, temporary-artifact state, source/project input-change summary counts, final result/exit code/duration and distinct coded warning/error counts.
 
@@ -1135,25 +1141,116 @@ XML changes remain part of the existing source/build provenance rather than a fa
 
 #### `AdvCiv.log` (compiler output and build summaries)
 
-For example, these five rows come from the [captured Release compiler log](/_1_AdvCiv-SAS/Docs/examples/build_reports/AdvCiv_Release_example.log), dated 2026-10-12 (IDE indentation omitted, intervening rows omitted; `<MOD_ROOT>` is the example's existing path substitution):
+The opening of an actual failed Debug-opt `AdvCiv.log`, captured on 2026-10-29, shows SAS build context before ordinary compilation begins. This is a contiguous verbatim excerpt, retaining IDE prefixes, paths and indentation:
 
 ```log
-Started UTC: 2026-10-12T21:24:06.628Z
-Configuration: Release; request: BUILD; branch: main; commit: -
-Ended UTC: 2026-10-12T21:25:52.293Z; result: SUCCEEDED; exit code: 0; duration milliseconds: 105657
-Distinct coded diagnostic lines: warnings=0; errors=0
-Build details (JSON): <MOD_ROOT>\CvGameCoreDLL\Project\Release\CvGameCoreDLL.dll.build.json
+Build started 29/10/2026 10:58:47.
+     1>Project "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\AdvCiv.vcxproj" on node 2 (build target(s)).
+     1>Build:
+         powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\build_with_report.ps1" -Configuration "Debug-opt" -Request BUILD -IdeBuild
+         Since previous completed build attempt (2026-10-29T06:44:13.379Z, SUCCEEDED): 3 source/project file changes (including timestamp-only changes).
+         Build input snapshot: 362 local source/project files; external toolchain/SDK inputs excluded.
+         Build report: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\Debug-opt\CvGameCoreDLL.dll.build.json
+         Started UTC: 2026-10-29T09:58:47.819Z
+         Configuration: Debug-opt; request: BUILD; branch: main; commit: c14b9384549888e74db8a9f497d5e4ac05ef0121
+         Build invocation: {"entryMode":"IDE_SWITCH","powershellVersion":"5.1.19041.6456","powershellEdition":"Desktop","clrVersion":"4.0.30319.42000","processBits":32,"ancestorState":"OBSERVED","ancestors":[{"processId":28888,"name":"cmd.exe","path":"C:\\Windows\\SysWOW64\\cmd.exe","fileVersion":"10.0.19041.4522 (WinBuild.160101.0800)","productVersion":"10.0.19041.4522"},{"processId":14508,"name":"MSBuild.exe","path":"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe","fileVersion":"4.8.9037.0 built by: NET481REL1","productVersion":"4.8.9037.0"},{"processId":28076,"name":"VCExpress.exe","path":"C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\Common7\\IDE\\VCExpress.exe","fileVersion":"10.0.30319.1 built by: RTMRel","productVersion":"10.0.30319.1"}]}
+         Selected build toolchain: {"available":true,"selection":"MAKEFILE_EXPANSION","toolkit":"C:\\Program Files (x86)\\Civ4SDK\\Microsoft Visual C++ Toolkit 2003","platformSdk":"C:\\Program Files (x86)\\Civ4SDK\\WindowsSDK","tools":{"cCompiler":{"command":"\"C:\\Program Files (x86)\\Civ4SDK\\Microsoft Visual C++ Toolkit 2003\\bin\\cl.exe\"","available":true,"path":"C:\\Program Files (x86)\\Civ4SDK\\Microsoft Visual C++ Toolkit 2003\\bin\\cl.exe","fileVersion":"13.10.3077","productVersion":"7.10.3077","productName":"Microsoft® Visual Studio .NET"},"cppCompiler":{"command":"\"C:\\Program Files (x86)\\Civ4SDK\\Microsoft Visual C++ Toolkit 2003\\bin\\cl.exe\"","available":true,"path":"C:\\Program Files (x86)\\Civ4SDK\\Microsoft Visual C++ Toolkit 2003\\bin\\cl.exe","fileVersion":"13.10.3077","productVersion":"7.10.3077","productName":"Microsoft® Visual Studio .NET"},"linker":{"command":"\"C:\\Program Files (x86)\\Civ4SDK\\Microsoft Visual C++ Toolkit 2003\\bin\\link.exe\"","available":true,"path":"C:\\Program Files (x86)\\Civ4SDK\\Microsoft Visual C++ Toolkit 2003\\bin\\link.exe","fileVersion":"7.10.3077","productVersion":"7.10.3077","productName":"Microsoft® Visual Studio .NET"},"resourceCompiler":{"command":"\"C:\\Program Files (x86)\\Civ4SDK\\WindowsSDK\\bin\\rc.exe\"","available":true,"path":"C:\\Program Files (x86)\\Civ4SDK\\WindowsSDK\\bin\\rc.exe","fileVersion":"6.1.6723.1 (winmain.080603-1835)","productVersion":"6.1.6723.1","productName":"Microsoft® Windows® Operating System"}}}
+         Temporary artifacts before request: {"directoryPresent":false,"objectCount":0,"incompleteMarkerCount":0,"pchPresent":false,"pdbPresent":false}
+         Working-tree status relative to HEAD (staged + unstaged + untracked): A  .github/workflows/tests/diagnostics/test_sgr_commerce_rationale.py
+          M Assets/CvGameCoreDLL.dll
+          M Assets/CvGameCoreDLL.dll.build.json
+         MM Assets/XML/GlobalDefines_advciv_sas.xml
+         M  CvGameCoreDLL/CvPlayerAI.cpp
+         M  CvGameCoreDLL/SASGameRecordLog.cpp
+         M  CvGameCoreDLL/SASGameRecordLog.h
+         M  _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+         M  _1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md
+         Command: nmake source_list /NOLOGO
+         Building source list
+         Command: nmake fastdep /NOLOGO
+         Running fastdep
+         Command: nmake dll /NOLOGO
+         _precompile.cpp
+         ACOText.cpp
+         AdvCiv4lerts.cpp
 ```
 
-Selected, nonadjacent complete rows from the 2026-10-27 Debug-opt `AdvCiv.log` show the newer caller metadata beside ordinary build boundaries (IDE indentation removed). Its `Selected build toolchain:` row carries the toolchain object illustrated in the JSON excerpt above:
+The closing excerpt from the same log shows the compiler rejection and final failure report. It is also contiguous and verbatim, retaining original paths and IDE formatting:
 
 ```log
-Started UTC: 2026-10-27T06:24:16.025Z
-Configuration: Debug-opt; request: BUILD; branch: main; commit: 7fb4c4308559b1d658f1ea0d8b6b4c19e6bd95da
-Build invocation: {"entryMode":"IDE_SWITCH","powershellVersion":"5.1.19041.6456","powershellEdition":"Desktop","clrVersion":"4.0.30319.42000","processBits":32,"ancestorState":"OBSERVED","ancestors":[{"processId":25500,"name":"cmd.exe","path":"C:\\Windows\\SysWOW64\\cmd.exe","fileVersion":"10.0.19041.4522 (WinBuild.160101.0800)","productVersion":"10.0.19041.4522"},{"processId":3968,"name":"MSBuild.exe","path":"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe","fileVersion":"4.8.9037.0 built by: NET481REL1","productVersion":"4.8.9037.0"},{"processId":5124,"name":"VCExpress.exe","path":"C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\Common7\\IDE\\VCExpress.exe","fileVersion":"10.0.30319.1 built by: RTMRel","productVersion":"10.0.30319.1"}]}
-Ended UTC: 2026-10-27T06:26:20.041Z; result: SUCCEEDED; exit code: 0; duration milliseconds: 124018
-Distinct coded diagnostic lines: warnings=0; errors=0
+         CvMessageData.cpp
+         CvPlayer.cpp
+         CvPlayerAI.cpp
+     1>c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\cvplayerai.cpp(22681): error C2220: warning treated as error - no 'object' file generated
+     1>c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\cvplayerai.cpp(22681): warning C4701: local variable 'kSASCommerce' may be used without having been initialized
+     1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
+         Stop.
+         During this build attempt: 362 files before, 362 after; 362 unchanged; 0 changes (including timestamp-only changes).
+         Ended UTC: 2026-10-29T09:59:34.168Z; result: FAILED; exit code: 2; duration milliseconds: 46324
+         Distinct coded diagnostic lines: warnings=1; errors=2
+         Build output log: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\Debug-opt\AdvCiv.log
+         Build details (JSON): C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\Debug-opt\CvGameCoreDLL.dll.build.json
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.MakeFile.Targets(38,5): error MSB3073: The command "powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\build_with_report.ps1" -Configuration "Debug-opt" -Request BUILD -IdeBuild" exited with code 2.
+     1>Done Building Project "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\AdvCiv.vcxproj" (build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:49.49
 ```
+
+The `C4701`/`C2220` messages are compiler output; SAS adds the build context and outcome around them. The input summary shows that tracked build inputs did not change during this attempt, while the diagnostic count describes distinct coded lines rather than independently diagnosed defects.
+
+The [`CvGameCoreDLL.dll.build.json`](#cvgamecoredlldllbuildjson-toolchain-and-build-launcher) excerpt below selects and reformats actual fields; it is not a verbatim contiguous capture, and omitted fields include the full source manifest. Its `dllBefore` and `dllAfter` objects were identical, confirming that the failed attempt left the previous DLL in place:
+
+```json
+{
+  "configuration": "Debug-opt",
+  "status": "FAILED",
+  "startedUtc": "2026-10-29T09:58:47.819Z",
+  "endedUtc": "2026-10-29T09:59:34.168Z",
+  "durationMilliseconds": 46324,
+  "exitCode": 2,
+  "warningCount": 1,
+  "errorCount": 2
+}
+```
+
+The subsequent full Debug-opt build completed successfully after the conditional-context initialization fix. This contiguous closing excerpt is copied verbatim from its actual `AdvCiv.log`, retaining paths and IDE formatting:
+
+```log
+         SASGameRecordLog.cpp
+         SASRuntimeStatus.cpp
+         ScaledNumTest.cpp
+         SelfMod.cpp
+         Shelf.cpp
+         StartingPositionIteration.cpp
+         StartPointsAsHandicap.cpp
+         TeamPathFinder.cpp
+         TrueStarts.cpp
+         TSCProfiler.cpp
+         UWAI.cpp
+         UWAIAgent.cpp
+         UWAICache.cpp
+         WarEvalParameters.cpp
+         WarEvaluator.cpp
+         WarUtilityAspect.cpp
+         Linking DLL
+            Creating library temp_files\Debug-opt\CvGameCoreDLL.lib and object temp_files\Debug-opt\CvGameCoreDLL.exp
+         	COPY "temp_files\Debug-opt\CvGameCoreDLL.dll" "Debug-opt\CvGameCoreDLL.dll"
+                 1 fichier(s) copié(s).
+         During this build attempt: 362 files before, 362 after; 362 unchanged; 0 changes (including timestamp-only changes).
+         Ended UTC: 2026-10-29T10:20:04.990Z; result: SUCCEEDED; exit code: 0; duration milliseconds: 123238
+         Distinct coded diagnostic lines: warnings=0; errors=0
+         Build output log: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\Debug-opt\AdvCiv.log
+         Build details (JSON): C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\Debug-opt\CvGameCoreDLL.dll.build.json
+     1>Done Building Project "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\AdvCiv.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:02:06.45
+```
+
+This records successful compilation and linking with no coded warnings/errors; it does not establish in-game behavior or that the built DLL was installed or loaded.
 
 #### `_SNAPSHOT_CONTEXT/archive_contents_and_context.txt` (packaging host)
 

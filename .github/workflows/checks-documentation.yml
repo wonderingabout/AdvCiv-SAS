@@ -46,6 +46,10 @@ jobs:
       - name: SAS shipped source links in README and Main Changes Guide
         run: python .github/workflows/build/documentation/sas_source_guide.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
 
+      # <!-- custom: Make generated diagnostic artifacts findable by explicit filename/path in both reader overviews; source links alone do not name the output JSON/JSONL. (GPT-6.1-Sol) -->
+      - name: Diagnostic output filenames and locations
+        run: python .github/workflows/build/documentation/diagnostic_artifact_names.py
+
       - name: Known Issues update chronology
         run: python .github/workflows/build/documentation/known_issues_chronology.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
 

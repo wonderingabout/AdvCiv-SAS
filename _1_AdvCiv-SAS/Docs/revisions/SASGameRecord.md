@@ -108,10 +108,29 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 180 - SAS practical 6700
+### Revision 181 - SAS practical 6701
 
 - **Date:** 2026-10-29
 - **Git commit:** pending
+- **Change:** Add a compact level-2 `GAME_RECORD_AI_COMMERCE_DECISION` observation at the final non-Barbarian `AI_doCommerce` boundary so slider allocations retain chooser inputs that ordinary percentage/economy rows cannot reconstruct.
+  - Fixed before/final Research, Culture, Gold and Espionage percentages separate applied changes from intent.
+    - Every changed allocation is emitted as `observationReason=SLIDER_CHANGED`; unchanged decisions are sampled on the existing periodic SGR interval as `INTERVAL_UNCHANGED`. This avoids both ambiguous long-term silence and one wide row per unchanged AI player-turn.
+    - Barbarians still emit no row because their chooser returns before evaluating commerce policy.
+  - Gold context preserves the already-computed base reserve, trade-adjusted reserve, final reserve after any full-science burn-down decision, base/final planning horizon and Gold-reserve loop iterations. The burn-down affordability fields are `-1` when that branch never evaluated them.
+  - Culture context reuses the live happiness ideal, Culture-2/3 stage bonus, average pressure, cap and initial target. Culture-2/3/4 and `cultureAvoidScience` are recorded only when those branch checks actually run.
+  - Research burn-down context keeps the branch's actual `AI_avoidScience` result, full-science Gold rate, research turns and affordability when evaluated.
+    - Preserve the existing evaluation points and short-circuits rather than hoisting queries for logging. `AI_avoidScience` checks the Research slider only for humans; `AI_doCommerce` expects a non-human player, so changing the slider here does not establish that this predicate changes.
+  - Espionage remains coarse: preserve whether mission targeting ran, focus state, the cheap-tech-steal comparison result when evaluated, target rate before slider scaling, slider eligibility/target/cap, loop iterations and observed Gold/research-ratio stops. Selected rival details, per-rival targets, mission scores and rejected candidates remain in BBAI/source analysis.
+  - Late avoid-science Gold redistribution records its actual evaluation, chosen Commerce target and loop count; the hurry-Gold reserve records whether a Gold-consuming hurry was available and which Commerce source it reduced. `goldPercentBeforeVerify` distinguishes the final mandatory `verifyGoldCommercePercent` correction from the preceding chooser intent.
+  - Predicate fields use `-1` for **not evaluated**, not false; for example, `espionageCapAvoidScience=-1` when cheap stealing already satisfies the cap condition and its second operand is skipped.
+    - Signed rates can legitimately equal `-1`: `goldBurnEvaluated` distinguishes an observed `goldBurnGoldRate=-1` from an unvisited burn-down branch.
+    - Formatting stays in SASGameRecord; the caller captures live chooser values without repeating strategic evaluation, RNG or callbacks, or changing AI policy/save behavior.
+  - Frequency is bounded to at most one row per non-Barbarian AI invocation at level 2+: every final slider change is recorded, while unchanged choices use the existing periodic snapshot interval. No recorder-local dedup/save state is needed, and intermediate setter/adjustment iterations never emit rows.
+
+### Revision 180 - SAS practical 6700
+
+- **Date:** 2026-10-29
+- **Git commit:** `c14b9384549888e74db8a9f497d5e4ac05ef0121`
 - **Change:** Pilot explicit causal decision linkage on the existing doomed-city evacuation chain without introducing a global decision graph or new save state.
   - Existing structured-row `seq` is reused as the ID of each observed evacuation decision row; no redundant recorder-wide decision counter is added. IDs are local to one SGR session/file and are not gameplay identity or stable across runs.
   - `GAME_RECORD_AI_EVACUATION_CITY_DECISION` is the observed evacuation-episode root (`parentDecisionId=0`). Each `GAME_RECORD_AI_EVACUATION_UNIT_DECISION` receives its own `decisionId` and the current observed episode-root `parentDecisionId`, or explicitly reports `CITY_DECISION_UNOBSERVED` after load/other missing-origin boundaries.

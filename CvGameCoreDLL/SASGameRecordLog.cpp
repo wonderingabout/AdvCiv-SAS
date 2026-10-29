@@ -14756,6 +14756,91 @@ static CvString getSASGameRecordTechCandidatePaths(SASTechChoiceContext const* p
 	return szResult;
 }
 
+// <!-- custom: The context constructor calls reset only when its caller enables capture, so disabled logging does not initialize these fields.
+// Predicates use -1 until observed; signed rates can legitimately equal -1, and their branch predicates/iteration counts identify whether they were evaluated. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void SASGameRecordAICommerceContext::reset()
+{
+	iInitialResearchPercent = -1;
+	iInitialCulturePercent = -1;
+	iInitialGoldPercent = -1;
+	iInitialEspionagePercent = -1;
+	iGoldTargetBase = -1;
+	iGoldTargetAfterTrade = -1;
+	iGoldTargetFinal = -1;
+	iTargetTurnsBase = -1;
+	iTargetTurnsFinal = -1;
+	iFinancialTrouble = -1;
+	iFirstTech = -1;
+	iNoResearch = -1;
+	iGoldReserveIterations = -1;
+	iCultureVictory2 = -1;
+	iCultureVictory3 = -1;
+	iCultureVictory4 = -1;
+	iCultureHappinessIdeal = -1;
+	iCultureStageBonus = -1;
+	iAverageCulturePressure = -1;
+	iCultureCap = -1;
+	iInitialCultureTarget = -1;
+	iCultureAvoidScience = -1;
+	iResearchAvoidScience = -1;
+	iGoldBurnEvaluated = 0;
+	iGoldBurnGoldRate = -1;
+	iGoldBurnResearchTurns = -1;
+	iGoldBurnAffordable = -1;
+	iEspionageEvaluated = 0;
+	iEspionageFocus = -1;
+	iEspionageCheapTechStealEvaluated = 0;
+	iEspionageCheapTechSteal = -1;
+	iEspionageTargetRateBeforeSliderScaling = -1;
+	iEspionageSliderEligible = -1;
+	iEspionageSliderTargetRate = -1;
+	iEspionageCap = -1;
+	iEspionageCapAvoidScience = -1;
+	iEspionageLoopIterations = -1;
+	iEspionageStoppedForGold = 0;
+	iEspionageStoppedForResearchRatio = 0;
+	iAvoidScienceRedistribution = -1;
+	eAvoidScienceRedistributionTarget = NO_COMMERCE;
+	iAvoidScienceRedistributionIterations = -1;
+	iAvoidScienceRedistributionBlocked = 0;
+	iHurryGoldAvailable = -1;
+	eHurryGoldReducedCommerce = NO_COMMERCE;
+	iGoldPercentBeforeVerify = -1;
+}
+
+// <!-- custom: Serialize at most one final AI_doCommerce observation rather than every setter/loop adjustment.
+// Fixed before/final fields show the applied result; predicate sentinels preserve skipped checks instead of fabricating a unified reason.
+// The caller supplies all strategic/mission calculations from the real invocation; this formatter adds only identity, final slider getters and stable commerce labels. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAICommerceDecision(CvPlayerAI const& kPlayer, SASGameRecordAICommerceContext const& kContext)
+{
+	int const iFinalResearch = kPlayer.getCommercePercent(COMMERCE_RESEARCH);
+	int const iFinalCulture = kPlayer.getCommercePercent(COMMERCE_CULTURE);
+	int const iFinalGold = kPlayer.getCommercePercent(COMMERCE_GOLD);
+	int const iFinalEspionage = kPlayer.getCommercePercent(COMMERCE_ESPIONAGE);
+	int iChangedTypes = 0;
+	iChangedTypes += (kContext.iInitialResearchPercent != iFinalResearch ? 1 : 0);
+	iChangedTypes += (kContext.iInitialCulturePercent != iFinalCulture ? 1 : 0);
+	iChangedTypes += (kContext.iInitialGoldPercent != iFinalGold ? 1 : 0);
+	iChangedTypes += (kContext.iInitialEspionagePercent != iFinalEspionage ? 1 : 0);
+	// <!-- custom: Sampling belongs after the already-required final comparison: callers have pre-gated collection, and unchanged allocations need only the periodic row.
+	// This is a row-frequency filter, not a replacement for the caller's enabled gate; return before labels/formatting when no row is due. (GPT-6.1-Sol) -->
+	if (iChangedTypes == 0 && GC.getGame().getGameTurn() % gGameRecordTurnInterval != 0)
+		return;
+	int const iVerifyGoldAdjusted = (kContext.iGoldPercentBeforeVerify >= 0 && iFinalGold != kContext.iGoldPercentBeforeVerify ? 1 : 0);
+	logSASGameRecord("GAME_RECORD_AI_COMMERCE_DECISION turn=%d player=%d team=%d observationReason=%s changed=%d changedTypes=%d currentResearch=%s flexibleResearch=%d flexibleCulture=%d flexibleGold=%d flexibleEspionage=%d initialResearch=%d finalResearch=%d initialCulture=%d finalCulture=%d initialGold=%d finalGold=%d initialEspionage=%d finalEspionage=%d firstTech=%d noResearch=%d financialTrouble=%d gold=%d goldTargetBase=%d goldTargetAfterTrade=%d goldTargetFinal=%d targetTurnsBase=%d targetTurnsFinal=%d goldReserveIterations=%d cultureVictory2=%d cultureVictory3=%d cultureVictory4=%d cultureHappinessIdeal=%d cultureStageBonus=%d averageCulturePressure=%d cultureAvoidScience=%d cultureCap=%d cultureInitialTarget=%d researchAvoidScience=%d goldBurnEvaluated=%d goldBurnGoldRate=%d goldBurnResearchTurns=%d goldBurnAffordable=%d espionageEvaluated=%d espionageFocus=%d cheapTechStealEvaluated=%d cheapTechSteal=%d espionageTargetRateBeforeSliderScaling=%d espionageSliderEligible=%d espionageSliderTargetRate=%d espionageCap=%d espionageCapAvoidScience=%d espionageLoopIterations=%d espionageStoppedForGold=%d espionageStoppedForResearchRatio=%d avoidScienceRedistribution=%d avoidScienceRedistributionTarget=%s avoidScienceRedistributionIterations=%d avoidScienceRedistributionBlocked=%d hurryGoldAvailable=%d hurryGoldReducedCommerce=%s goldPercentBeforeVerify=%d verifyGoldAdjusted=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iChangedTypes > 0 ? "SLIDER_CHANGED" : "INTERVAL_UNCHANGED", iChangedTypes > 0 ? 1 : 0, iChangedTypes, getSASGameRecordTechType(kPlayer.getCurrentResearch()),
+		kPlayer.isCommerceFlexible(COMMERCE_RESEARCH) ? 1 : 0, kPlayer.isCommerceFlexible(COMMERCE_CULTURE) ? 1 : 0, kPlayer.isCommerceFlexible(COMMERCE_GOLD) ? 1 : 0, kPlayer.isCommerceFlexible(COMMERCE_ESPIONAGE) ? 1 : 0,
+		kContext.iInitialResearchPercent, iFinalResearch, kContext.iInitialCulturePercent, iFinalCulture, kContext.iInitialGoldPercent, iFinalGold, kContext.iInitialEspionagePercent, iFinalEspionage,
+		kContext.iFirstTech, kContext.iNoResearch, kContext.iFinancialTrouble, kPlayer.getGold(), kContext.iGoldTargetBase, kContext.iGoldTargetAfterTrade, kContext.iGoldTargetFinal,
+		kContext.iTargetTurnsBase, kContext.iTargetTurnsFinal, kContext.iGoldReserveIterations, kContext.iCultureVictory2, kContext.iCultureVictory3, kContext.iCultureVictory4,
+		kContext.iCultureHappinessIdeal, kContext.iCultureStageBonus, kContext.iAverageCulturePressure, kContext.iCultureAvoidScience, kContext.iCultureCap, kContext.iInitialCultureTarget,
+		kContext.iResearchAvoidScience, kContext.iGoldBurnEvaluated, kContext.iGoldBurnGoldRate, kContext.iGoldBurnResearchTurns, kContext.iGoldBurnAffordable, kContext.iEspionageEvaluated, kContext.iEspionageFocus,
+		kContext.iEspionageCheapTechStealEvaluated, kContext.iEspionageCheapTechSteal, kContext.iEspionageTargetRateBeforeSliderScaling, kContext.iEspionageSliderEligible, kContext.iEspionageSliderTargetRate,
+		kContext.iEspionageCap, kContext.iEspionageCapAvoidScience, kContext.iEspionageLoopIterations, kContext.iEspionageStoppedForGold, kContext.iEspionageStoppedForResearchRatio,
+		kContext.iAvoidScienceRedistribution, getSASGameRecordCommerceType(kContext.eAvoidScienceRedistributionTarget), kContext.iAvoidScienceRedistributionIterations, kContext.iAvoidScienceRedistributionBlocked,
+		kContext.iHurryGoldAvailable, getSASGameRecordCommerceType(kContext.eHurryGoldReducedCommerce), kContext.iGoldPercentBeforeVerify, iVerifyGoldAdjusted);
+}
+
 // <!-- custom: Record one actual AI research/free-tech commitment.
 // Team coordination and Python overrides are identified honestly without fabricated scores; AI_bestTech contributes only the path data its real chooser already computed. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIResearchDecision(CvPlayerAI const& kPlayer, char const* szKind, char const* szSource, TechTypes eRequestedTech, int iResearchDepth, PlayerTypes eCoordinatingPlayer, SASTechChoiceContext const* pChoice)

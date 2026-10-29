@@ -61,7 +61,7 @@ Visual Studio/MSBuild builds also write `CvGameCoreDLL\Project\Release\AdvCiv.lo
 
 Visual C++ 2010 Express Build, Rebuild and Clean commands automatically call [`build_with_report.ps1`](/CvGameCoreDLL/Project/build_with_report.ps1). Continue using the IDE normally.
 
-Each configuration keeps one current pair beside its DLL, under `CvGameCoreDLL/Project/<target>/`:
+Each configuration keeps one current pair beside its DLL, under its real build folder, for example `CvGameCoreDLL/Project/Release/` or `CvGameCoreDLL/Project/Debug-opt/`:
 
 | File | Contents |
 | --- | --- |
@@ -116,7 +116,9 @@ The examples retain completed VC2010 Express builds from 2026-10-12:
 | Release | [IDE log](/_1_AdvCiv-SAS/Docs/examples/build_reports/AdvCiv_Release_example.log) | [Build report](/_1_AdvCiv-SAS/Docs/examples/build_reports/AdvCiv_Release_example.build.json) |
 | Debug-opt | [IDE log](/_1_AdvCiv-SAS/Docs/examples/build_reports/AdvCiv_Debug-opt_example.log) | [Build report](/_1_AdvCiv-SAS/Docs/examples/build_reports/AdvCiv_Debug-opt_example.build.json) |
 
-These complete examples retain Git/build context; local absolute repository paths are replaced with `<MOD_ROOT>`, source commit identifiers are mapped to rewritten Git history, and unavailable identifiers use `-`. Introductory copyright/purpose metadata is included in the JSON, while retaining recorded binary identities and build results.
+These complete examples retain Git/build context; local absolute repository paths are anonymized, source commit identifiers are mapped to rewritten Git history, and unavailable identifiers use `-`. Introductory copyright/purpose metadata is included in the JSON, while retaining recorded binary identities and build results.
+
+The [Logging Inventory's failed-build excerpts](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#advcivlog-compiler-output-and-build-summaries) show a real VC2003 `C4701` rejection alongside SAS build-context and timing/result summaries, with selected companion JSON fields.
 
 Each JSON hash identifies its corresponding build's DLL, including any recorded uncommitted source changes. The Debug-opt example is not eligible as a shipped Release DLL; the full logs are maintained documentation examples, not required files beside the shipped binary.
 
@@ -152,7 +154,7 @@ Keep the successful `temp_files/Debug-opt` folder while its installed DLL may ne
 
 This is not permission to reuse its `.obj`, `.pch`, dependency or linker files for another accepted Debug-opt build: delete the whole `temp_files/Debug-opt` target before every subsequent Debug-opt compile or retry, then create a fresh DLL/PDB pair.
 
-Other `temp_files/<target>` folders remain unignored so stale Release, Debug, Profile or other intermediates are visible in local status. The tracked `.gitkeep` remains for fresh clones and CI, while `.gitattributes` excludes the entire parent from release archives.
+Other temporary build folders, for example `temp_files/Release` and `temp_files/Profile`, remain unignored so stale Release, Debug, Profile or other intermediates are visible in local status. The tracked `.gitkeep` remains for fresh clones and CI, while `.gitattributes` excludes the entire parent from release archives.
 
 The light-source ZIP includes only the placeholder, never retained compiler intermediates or private symbols. To preserve symbols beyond the next Debug-opt build, archive the exact DLL/PDB pair outside the repository and explicitly add that archive directory to WinDbg's symbol path when analyzing its matching dump.
 

@@ -1145,12 +1145,12 @@ Note 2: As of now, GitHub also automatically runs our Python 2.4 compile check w
 
 #### DLL build reports
 
-Building through the Visual C++ 2010 Express project keeps the usual `AdvCiv.log` and generates supporting reports beside the DLL in `CvGameCoreDLL/Project/<target>/`, such as `Release/` or `Debug-opt/`.
+Building through the Visual C++ 2010 Express project keeps the usual `AdvCiv.log` and generates supporting reports beside the DLL in the selected build folder, such as `CvGameCoreDLL/Project/Release/` or `CvGameCoreDLL/Project/Debug-opt/`.
 
-- Each configuration keeps one current pair: `AdvCiv.log` for full output, and `CvGameCoreDLL.dll.build.json` for full Git/build/debug context, timing/result, diagnostics, temporary-artifact state and DLL hashes.
+- For example, Release keeps one current pair: `CvGameCoreDLL/Project/Release/AdvCiv.log` for full output, and `CvGameCoreDLL/Project/Release/CvGameCoreDLL.dll.build.json` for full Git/build/debug context, timing/result, diagnostics, temporary-artifact state and DLL hashes.
   - The JSON starts as `RUNNING` and finishes as `SUCCEEDED` or `FAILED`. An interrupted build can leave `RUNNING` behind, so it means no completion was recorded rather than proof that compilation is still active.
   - The JSON keeps one initial source/project file manifest and final details only for changed files, distinguishing content edits from timestamp-only changes. Separate comparisons show changes since the preceding completed build and changes during this attempt. `AdvCiv.log` records summary counts; see the compilation guide below for scope and limitations.
-- For an intentional shipped Release DLL update, copy/stage the DLL and matching full JSON together; keep `AdvCiv.log` locally for detailed investigations. See [CI](#ci) for the shipping checks.
+- For an intentional shipped Release DLL update, copy/stage `Assets/CvGameCoreDLL.dll` and its matching full report `Assets/CvGameCoreDLL.dll.build.json` together; keep `AdvCiv.log` locally for detailed investigations. See [CI](#ci) for the shipping checks.
 - Normal build outputs stay local and Git-ignored. We omit automatic timestamped archives and a separate compact JSON to avoid duplicate formats and routine cleanup; save a dated pair manually when needed.
 - These external development files have no in-game effect or runtime cost; local test installation still needs only the DLL.
 
@@ -1573,15 +1573,21 @@ This opens up the door to further future interactive change possibilities; for e
 
 Runtime observations are collected by [`SASRuntimeStatus.cpp`](/CvGameCoreDLL/SASRuntimeStatus.cpp), with named observation reasons in [`SASRuntimeStatusReasons.h`](/CvGameCoreDLL/SASRuntimeStatusReasons.h).
 
+Paths beginning with `Logs/` below are relative to Civ4's user folder (normally `Documents/My Games/beyond the sword`); `*` represents the process-specific timestamp/ID suffix. `Logs/SASRuntimeStatus.json` holds current state and `Logs/SASRuntimeHistory_*.jsonl` retains timed transitions.
+
 When runtime diagnostics are enabled, [`SASRuntimeExitObserver.ps1`](/Assets/SASRuntimeExitObserver.ps1) waits outside Civ4 and records its final exit code/time, helping distinguish a stopped process from a stale `RUNNING` snapshot after a crash.
 
-The hidden watcher runs without administrator rights. Its separate `SASRuntimeExit_*.json` survives an interrupted current-status rewrite; exit evidence does not establish the crash cause.
+The hidden watcher runs without administrator rights. Its separate `Logs/SASRuntimeExit_*.json` survives an interrupted current-status rewrite; exit evidence does not establish the crash cause.
 
 The same companion can record a recognized Microsoft Visual C++ runtime-error or Civ4 crash-dump dialog before Civ4 exits, distinguishing a visible failure from an ordinary live process. [`SASRuntimeDialogObserver.cs`](/Assets/SASRuntimeDialogObserver.cs) supplies the event-driven window listener, compiled by PowerShell on startup rather than by the game DLL build.
 
 [`SASRuntimeSourceObserver.ps1`](/Assets/SASRuntimeSourceObserver.ps1) records mod-source/configuration disk-change bursts separately, with observed times, paths and final file fingerprints. It requires both runtime diagnostics and `SAS_RUNTIME_SOURCE_WATCH_ON=1`; source watching is off by default and does not make live edits safe. Windows filesystem notifications avoid repeated tree scans; enabled observation still adds an external process and event/hash work. The external observers use [`SASRuntimeObserverEnvironment.ps1`](/Assets/SASRuntimeObserverEnvironment.ps1) to record their actual host versions instead of relying on a fixed documentation table.
 
+Source-watcher output is `Logs/SASRuntimeSourceWatch_*.json` for health and `Logs/SASRuntimeSourceChanges_*.jsonl` for observed edits; see the [source-file samples](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#live-source-edit-observation).
+
 Optional screenshot observation uses [`SASRuntimeScreenshotObserver.ps1`](/Assets/SASRuntimeScreenshotObserver.ps1) to record files appearing in Civ4's `ScreenShots` folder, with file metadata and available Runtime context.
+
+Its output is `Logs/SASRuntimeScreenshotWatch_*.json` for health and `Logs/SASRuntimeScreenshots_*.jsonl` for observed captures.
 
 It records observed files rather than assuming a screenshot keypress succeeded; see the [Logging Inventory's screenshot section](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#screenshot-file-observation) for controls and sample output.
 

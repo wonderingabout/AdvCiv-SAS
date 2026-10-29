@@ -1074,6 +1074,67 @@ void logSASGameRecordAICityTradeIntent(CvPlayerAI const& kPlayer, PlayerTypes eT
 void logSASGameRecordAIPeaceDecision(PlayerTypes ePlayer, PlayerTypes eOther, int iAtWarTurns, bool bUWAI, int iInitialOurBenefit, int iInitialTheirBenefit, int iFinalOurBenefit, int iFinalTheirBenefit, int iGiveGold, int iReceiveGold, TechTypes eGiveTech, TechTypes eReceiveTech, int iGiveCityId, int iReceiveCityId, bool bCounterProposal, char const* szOutcome, CLinkList<TradeData> const* pWeGive, CLinkList<TradeData> const* pTheyGive);
 // <!-- custom: Preserve the real research/free-tech source and, for AI_bestTech, the already-computed selected/runner-up path values and optional level-3 candidate paths; caller and chooser gates ensure no technology valuation or chooser RNG is repeated for SASGameRecord. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIResearchDecision(CvPlayerAI const& kPlayer, char const* szKind, char const* szSource, TechTypes eRequestedTech, int iResearchDepth, PlayerTypes eCoordinatingPlayer, SASTechChoiceContext const* pChoice);
+// <!-- custom: Revision 181 records final AI_doCommerce rationale at GameRecord level 2: changed allocations and periodic unchanged observations.
+// The context carries live chooser values and fixed before-state percentages; predicate fields use -1 for not evaluated, while numeric rates retain their normal signed meanings.
+// Keep formatting and interpretation in SASGameRecord, while AI_doCommerce retains ownership of slider policy and never reruns espionage/culture/research evaluation for logging. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordAICommerceContext
+{
+	// <!-- custom: VC2003 C4701 did not track reset() under a separate caller Boolean through later guarded field reads.
+	// The constructor makes initialization explicit to the compiler; its inline Boolean check still runs when capture is off, but skips reset and all field writes.
+	// This narrowly scoped exception avoids unconditional diagnostic initialization; callers must keep every field access behind the same enabled gate. (GPT-6.1-Sol) -->
+	explicit SASGameRecordAICommerceContext(bool bCapture)
+	{
+		if (bCapture) reset();
+	}
+	void reset();
+	int iInitialResearchPercent;
+	int iInitialCulturePercent;
+	int iInitialGoldPercent;
+	int iInitialEspionagePercent;
+	int iGoldTargetBase;
+	int iGoldTargetAfterTrade;
+	int iGoldTargetFinal;
+	int iTargetTurnsBase;
+	int iTargetTurnsFinal;
+	int iFinancialTrouble;
+	int iFirstTech;
+	int iNoResearch;
+	int iGoldReserveIterations;
+	int iCultureVictory2;
+	int iCultureVictory3;
+	int iCultureVictory4;
+	int iCultureHappinessIdeal;
+	int iCultureStageBonus;
+	int iAverageCulturePressure;
+	int iCultureCap;
+	int iInitialCultureTarget;
+	int iCultureAvoidScience;
+	int iResearchAvoidScience;
+	int iGoldBurnEvaluated;
+	int iGoldBurnGoldRate;
+	int iGoldBurnResearchTurns;
+	int iGoldBurnAffordable;
+	int iEspionageEvaluated;
+	int iEspionageFocus;
+	int iEspionageCheapTechStealEvaluated;
+	int iEspionageCheapTechSteal;
+	int iEspionageTargetRateBeforeSliderScaling;
+	int iEspionageSliderEligible;
+	int iEspionageSliderTargetRate;
+	int iEspionageCap;
+	int iEspionageCapAvoidScience;
+	int iEspionageLoopIterations;
+	int iEspionageStoppedForGold;
+	int iEspionageStoppedForResearchRatio;
+	int iAvoidScienceRedistribution;
+	CommerceTypes eAvoidScienceRedistributionTarget;
+	int iAvoidScienceRedistributionIterations;
+	int iAvoidScienceRedistributionBlocked;
+	int iHurryGoldAvailable;
+	CommerceTypes eHurryGoldReducedCommerce;
+	int iGoldPercentBeforeVerify;
+};
+void logSASGameRecordAICommerceDecision(CvPlayerAI const& kPlayer, SASGameRecordAICommerceContext const& kContext);
 // <!-- custom: Civic provenance mirrors the live AI_doCivics hysteresis/revolution path rather than rerunning AI_bestCivic or AI_civicValue.
 // Accepted candidates are level 2; rejected/wanted candidates are level 3.
 // Final outcomes preserve the pending/final bundle and real wait/gold/revolution gate. (ChatGPT-5.6-Sol) -->

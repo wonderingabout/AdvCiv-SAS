@@ -21983,6 +21983,18 @@ void CvPlayerAI::AI_doCommerce()
 	if (isBarbarian())
 		return;
 
+	// <!-- custom: Existing GameRecord economy/slider rows show outcomes but not the live inputs that made AI_doCommerce choose them.
+	// Revision 181 captures at most one final level-2 observation per non-Barbarian invocation; initialize recorder-only state only after the hot log gate and never rerun chooser evaluation for it. (ChatGPT-5.6-Sol) -->
+	bool const bLogSASCommerceDecision = (gGameRecordLogLevel >= 2);
+	SASGameRecordAICommerceContext kSASCommerce(bLogSASCommerceDecision);
+	if (bLogSASCommerceDecision)
+	{
+		kSASCommerce.iInitialResearchPercent = getCommercePercent(COMMERCE_RESEARCH);
+		kSASCommerce.iInitialCulturePercent = getCommercePercent(COMMERCE_CULTURE);
+		kSASCommerce.iInitialGoldPercent = getCommercePercent(COMMERCE_GOLD);
+		kSASCommerce.iInitialEspionagePercent = getCommercePercent(COMMERCE_ESPIONAGE);
+	}
+
 	const static int iCommerceIncrement = GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS");
 	bool const bLogCultureCommerce = (gCultureLogLevel >= 1);
 	int iCultureHappinessIdeal = -1;
@@ -21992,6 +22004,7 @@ void CvPlayerAI::AI_doCommerce()
 	int iInitialCultureTarget = -1;
 
 	int iGoldTarget = AI_goldTarget();
+	if (bLogSASCommerceDecision) kSASCommerce.iGoldTargetBase = iGoldTarget;
 	/*  <advc.550f> Some extra gold for trade. Don't put this into AI_goldTarget
 		for performance reasons, and b/c AI_maxGoldTrade shouldn't take this
 		extra budget into account. */
@@ -22034,13 +22047,20 @@ void CvPlayerAI::AI_doCommerce()
 					(rPartnerScore / scaled(iPartners).sqrt()).round());
 		}
 	} // </advc.550f>
+	if (bLogSASCommerceDecision) kSASCommerce.iGoldTargetAfterTrade = iGoldTarget;
 	int iTargetTurns = 4 * GC.getInfo(GC.getGame().getGameSpeedType()).getResearchPercent();
 	iTargetTurns /= 100;
 	iTargetTurns = std::max(3, iTargetTurns);
+	if (bLogSASCommerceDecision) kSASCommerce.iTargetTurnsBase = iTargetTurns;
 	// K-Mod. make it faster on the way down
 	bool bFinancialTrouble = AI_isFinancialTrouble();
 	if (!bFinancialTrouble && getGold() > iGoldTarget)
 		iTargetTurns = (iTargetTurns + 1)/2;
+	if (bLogSASCommerceDecision)
+	{
+		kSASCommerce.iFinancialTrouble = bFinancialTrouble ? 1 : 0;
+		kSASCommerce.iTargetTurnsFinal = iTargetTurns;
+	}
 	// K-Mod end
 
 	bool bReset = false;
@@ -22068,10 +22088,17 @@ void CvPlayerAI::AI_doCommerce()
 
 	const bool bFirstTech = AI_isFirstTech(getCurrentResearch());
 	const bool bNoResearch = isNoResearchAvailable();
+	if (bLogSASCommerceDecision)
+	{
+		kSASCommerce.iFirstTech = bFirstTech ? 1 : 0;
+		kSASCommerce.iNoResearch = bNoResearch ? 1 : 0;
+	}
 
 	if (isCommerceFlexible(COMMERCE_CULTURE))
 	{
-		if (AI_atVictoryStage(AI_VICTORY_CULTURE4))
+		bool const bCultureVictory4 = AI_atVictoryStage(AI_VICTORY_CULTURE4);
+		if (bLogSASCommerceDecision) kSASCommerce.iCultureVictory4 = bCultureVictory4 ? 1 : 0;
+		if (bCultureVictory4)
 		{
 			setCommercePercent(COMMERCE_CULTURE, 100);
 			iCultureCap = 100;
@@ -22094,13 +22121,17 @@ void CvPlayerAI::AI_doCommerce()
 
 			// K-Mod
 			int iCap = 20;
-			if (AI_atVictoryStage(AI_VICTORY_CULTURE2) && !bFirstTech)
+			bool const bCultureVictory2 = AI_atVictoryStage(AI_VICTORY_CULTURE2);
+			if (bLogSASCommerceDecision) kSASCommerce.iCultureVictory2 = bCultureVictory2 ? 1 : 0;
+			if (bCultureVictory2 && !bFirstTech)
 			{
 				iIdealPercent+=5;
 				iCultureStageBonus += 5;
 				iCap += 10;
 			}
-			if (AI_atVictoryStage(AI_VICTORY_CULTURE3) && !bFirstTech)
+			bool const bCultureVictory3 = AI_atVictoryStage(AI_VICTORY_CULTURE3);
+			if (bLogSASCommerceDecision) kSASCommerce.iCultureVictory3 = bCultureVictory3 ? 1 : 0;
+			if (bCultureVictory3 && !bFirstTech)
 			{
 				iIdealPercent+=5;
 				iCultureStageBonus += 5;
@@ -22110,7 +22141,11 @@ void CvPlayerAI::AI_doCommerce()
 			iIdealPercent += (iAverageCulturePressure - 100)/10;
 			iIdealPercent = std::max(iIdealPercent,
 					(iAverageCulturePressure - 100) / 5);
-			if (AI_avoidScience())
+			// <!-- custom: Capture the existing branch result rather than hoisting or repeating its query for logging.
+			// AI_avoidScience checks the Research slider only for humans; this chooser expects an AI player, so slider changes here are not evidence that its result changes. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			bool const bCultureAvoidScience = AI_avoidScience();
+			if (bLogSASCommerceDecision) kSASCommerce.iCultureAvoidScience = bCultureAvoidScience ? 1 : 0;
+			if (bCultureAvoidScience)
 			{
 				iCap += 30;
 				iIdealPercent *= 2;
@@ -22124,34 +22159,56 @@ void CvPlayerAI::AI_doCommerce()
 			iInitialCultureTarget = iIdealPercent;
 		}
 	}
+	if (bLogSASCommerceDecision)
+	{
+		kSASCommerce.iCultureHappinessIdeal = iCultureHappinessIdeal;
+		kSASCommerce.iCultureStageBonus = iCultureStageBonus;
+		kSASCommerce.iAverageCulturePressure = iAverageCulturePressure;
+		kSASCommerce.iCultureCap = iCultureCap;
+		kSASCommerce.iInitialCultureTarget = iInitialCultureTarget;
+	}
 
 	if (isCommerceFlexible(COMMERCE_RESEARCH) && !bNoResearch)
 	{
 		setCommercePercent(COMMERCE_RESEARCH, 100-getCommercePercent(COMMERCE_CULTURE));
-		if (!AI_avoidScience() && !AI_atVictoryStage(AI_VICTORY_CULTURE4))
+		bool const bResearchAvoidScience = AI_avoidScience();
+		if (bLogSASCommerceDecision) kSASCommerce.iResearchAvoidScience = bResearchAvoidScience ? 1 : 0;
+		if (!bResearchAvoidScience && !AI_atVictoryStage(AI_VICTORY_CULTURE4))
 		{
 			// If we can afford to run full science for the rest of our current research,
 			// then reduce our gold target so that we can burn through our gold.
 			int iGoldRate = calculateGoldRate();
+			if (bLogSASCommerceDecision)
+			{
+				kSASCommerce.iGoldBurnEvaluated = 1;
+				kSASCommerce.iGoldBurnGoldRate = iGoldRate;
+			}
 			if (iGoldRate < 0)
 			{
 				TechTypes eCurrentResearch = getCurrentResearch();
 				if (eCurrentResearch != NO_TECH)
 				{
 					int iResearchTurnsLeft = getResearchTurnsLeft(eCurrentResearch, true);
-					if(iResearchTurnsLeft >= 0 && // advc.004x
-							getGold() >= iResearchTurnsLeft * -iGoldRate)
-						iGoldTarget /= 5;
+					if (bLogSASCommerceDecision) kSASCommerce.iGoldBurnResearchTurns = iResearchTurnsLeft;
+					if (iResearchTurnsLeft >= 0) // advc.004x
+					{
+						bool const bCanBurnGold = (getGold() >= iResearchTurnsLeft * -iGoldRate);
+						if (bLogSASCommerceDecision) kSASCommerce.iGoldBurnAffordable = bCanBurnGold ? 1 : 0;
+						if (bCanBurnGold)
+							iGoldTarget /= 5;
+					}
 				}
 			}
 		}
 	}
+	if (bLogSASCommerceDecision) kSASCommerce.iGoldTargetFinal = iGoldTarget;
 
 	/*	Note, in the original code has gold marked as inflexible,
 		but was effectively adjusted by changing the other commerce percentages.
 		This is no longer the case. */
 	if (isCommerceFlexible(COMMERCE_GOLD))
 	{
+		if (bLogSASCommerceDecision) kSASCommerce.iGoldReserveIterations = 0;
 		/*	note: as we increase the gold rate, research will be reduced before culture.
 			(The order defined in CommerceTypes is the order that the types
 			will be decreased to accommodate changes.) */
@@ -22160,6 +22217,7 @@ void CvPlayerAI::AI_doCommerce()
 			getGold() + iTargetTurns * calculateGoldRate() < iGoldTarget)
 		{
 			bValid = changeCommercePercent(COMMERCE_GOLD, iCommerceIncrement);
+			if (bLogSASCommerceDecision) kSASCommerce.iGoldReserveIterations++;
 		}
 	}
 
@@ -22182,6 +22240,11 @@ void CvPlayerAI::AI_doCommerce()
 		bool const bFocusEspionage = (AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) &&
 				//kTeam.getAnyWarPlanCount(true) == 0);
 				!AI_isFocusWar()); // advc.105
+		if (bLogSASCommerceDecision)
+		{
+			kSASCommerce.iEspionageEvaluated = 1;
+			kSASCommerce.iEspionageFocus = bFocusEspionage ? 1 : 0;
+		}
 
 		// For this part of the AI, I will assume there is only mission for each purpose.
 		EspionageMissionTypes eSeeDemographicsMission = NO_ESPIONAGEMISSION;
@@ -22401,6 +22464,11 @@ void CvPlayerAI::AI_doCommerce()
 						std::max(1, iMinModifier) >
 						AI_averageCommerceMultiplier(COMMERCE_RESEARCH)*
 						calculateResearchModifier(getCurrentResearch()));
+				if (bLogSASCommerceDecision)
+				{
+					kSASCommerce.iEspionageCheapTechStealEvaluated = 1;
+					kSASCommerce.iEspionageCheapTechSteal = bCheapTechSteal ? 1 : 0;
+				}
 				if (bCheapTechSteal)
 				{
 					// <!-- custom: Preserve the inherited rough-scale target-rate boost, but base it on the selected rival team's own estimate instead of the former cross-rival accumulator. See KI#672. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -22460,11 +22528,14 @@ void CvPlayerAI::AI_doCommerce()
 				iEspionageTargetRate -= aiTarget[eTeam];
 		}
 		// K-Mod end
+		if (bLogSASCommerceDecision) kSASCommerce.iEspionageTargetRateBeforeSliderScaling = iEspionageTargetRate;
 
 		// K-Mod. Only try to control espionage rate if we can also control research,
 		// and if we don't need our commerce for more important things.
-		if (isCommerceFlexible(COMMERCE_ESPIONAGE) && isCommerceFlexible(COMMERCE_RESEARCH)
-			&& !bFinancialTrouble && !bFirstTech && !AI_atVictoryStage(AI_VICTORY_CULTURE4))
+		bool const bEspionageSliderEligible = (isCommerceFlexible(COMMERCE_ESPIONAGE) && isCommerceFlexible(COMMERCE_RESEARCH)
+			&& !bFinancialTrouble && !bFirstTech && !AI_atVictoryStage(AI_VICTORY_CULTURE4));
+		if (bLogSASCommerceDecision) kSASCommerce.iEspionageSliderEligible = bEspionageSliderEligible ? 1 : 0;
+		if (bEspionageSliderEligible)
 		{
 			if (!bCheapTechSteal) // K-Mod
 			{
@@ -22477,10 +22548,24 @@ void CvPlayerAI::AI_doCommerce()
 			iEspionageTargetRate /= 100;
 
 			int iCap = AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) ? 20 : 10;
-			iCap += bCheapTechSteal || AI_avoidScience() ? 50 : 0;
+			// <!-- custom: The original bCheapTechSteal || AI_avoidScience() skipped the second query when cheap stealing already raised the cap.
+			// An unconditional diagnostic extraction added that query, so retain the short-circuit and leave its recorded predicate unevaluated (-1) when skipped. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			bool bEspionageCapAvoidScience = false;
+			if (!bCheapTechSteal)
+			{
+				bEspionageCapAvoidScience = AI_avoidScience();
+				if (bLogSASCommerceDecision) kSASCommerce.iEspionageCapAvoidScience = bEspionageCapAvoidScience ? 1 : 0;
+			}
+			iCap += bCheapTechSteal || bEspionageCapAvoidScience ? 50 : 0;
 
 			FAssert(iCap <= 100);
 			iCap = std::min(iCap, 100); // just in case.
+			if (bLogSASCommerceDecision)
+			{
+				kSASCommerce.iEspionageSliderTargetRate = iEspionageTargetRate;
+				kSASCommerce.iEspionageCap = iCap;
+				kSASCommerce.iEspionageLoopIterations = 0;
+			}
 
 			bool bValid = true;
 			while (bValid &&
@@ -22489,15 +22574,21 @@ void CvPlayerAI::AI_doCommerce()
 			{
 				changeCommercePercent(COMMERCE_RESEARCH, -iCommerceIncrement);
 				bValid = changeCommercePercent(COMMERCE_ESPIONAGE, iCommerceIncrement);
+				if (bLogSASCommerceDecision) kSASCommerce.iEspionageLoopIterations++;
 
 				if (getGold() + iTargetTurns * calculateGoldRate() < iGoldTarget)
+				{
+					if (bLogSASCommerceDecision) kSASCommerce.iEspionageStoppedForGold = 1;
 					break;
+				}
 
-				if (!AI_avoidScience() && !bCheapTechSteal)
+				bool const bEspionageLoopAvoidScience = AI_avoidScience();
+				if (!bEspionageLoopAvoidScience && !bCheapTechSteal)
 				{
 					if (getCommercePercent(COMMERCE_RESEARCH) * 2 <=
 						(getCommercePercent(COMMERCE_ESPIONAGE) + iCommerceIncrement) * 3)
 					{
+						if (bLogSASCommerceDecision) kSASCommerce.iEspionageStoppedForResearchRatio = 1;
 						break;
 					}
 				}
@@ -22506,23 +22597,38 @@ void CvPlayerAI::AI_doCommerce()
 	}
 	/*	K-Mod. prevent the AI from stockpiling excessive amounts of gold
 		while in avoidScience. */
-	if (AI_avoidScience() && isCommerceFlexible(COMMERCE_GOLD))
+	// <!-- custom: Retain the inherited late avoidScience evaluation and Gold-flexibility short-circuit; recording its result does not change which gameplay queries run. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool const bAvoidScienceRedistribution = AI_avoidScience();
+	if (bLogSASCommerceDecision) kSASCommerce.iAvoidScienceRedistribution = bAvoidScienceRedistribution ? 1 : 0;
+	if (bAvoidScienceRedistribution && isCommerceFlexible(COMMERCE_GOLD))
 	{
+		if (bLogSASCommerceDecision) kSASCommerce.iAvoidScienceRedistributionIterations = 0;
 		while (getCommercePercent(COMMERCE_GOLD) > 0 &&
 			getGold() + std::min(0, calculateGoldRate()) > iGoldTarget)
 		{
 			if (AI_atVictoryStage(AI_VICTORY_CULTURE3) &&
 				isCommerceFlexible(COMMERCE_CULTURE))
 			{
+				if (bLogSASCommerceDecision) kSASCommerce.eAvoidScienceRedistributionTarget = COMMERCE_CULTURE;
 				changeCommercePercent(COMMERCE_CULTURE, iCommerceIncrement);
 			}
 			else if (isCommerceFlexible(COMMERCE_ESPIONAGE))
+			{
+				if (bLogSASCommerceDecision) kSASCommerce.eAvoidScienceRedistributionTarget = COMMERCE_ESPIONAGE;
 				changeCommercePercent(COMMERCE_ESPIONAGE, iCommerceIncrement);
+			}
 			// better than nothing...
 			else if (isCommerceFlexible(COMMERCE_RESEARCH) && !bNoResearch)
+			{
+				if (bLogSASCommerceDecision) kSASCommerce.eAvoidScienceRedistributionTarget = COMMERCE_RESEARCH;
 				changeCommercePercent(COMMERCE_RESEARCH, iCommerceIncrement);
+			}
 			else
+			{
+				if (bLogSASCommerceDecision) kSASCommerce.iAvoidScienceRedistributionBlocked = 1;
 				break;
+			}
+			if (bLogSASCommerceDecision) kSASCommerce.iAvoidScienceRedistributionIterations++;
 		}
 	}
 	// K-Mod end
@@ -22532,12 +22638,14 @@ void CvPlayerAI::AI_doCommerce()
 		getCommercePercent(COMMERCE_GOLD) < 50) // K-Mod
 	{
 		bool bHurryGold = false;
+		if (bLogSASCommerceDecision) kSASCommerce.iHurryGoldAvailable = 0;
 		for (int iHurry = 0; iHurry < GC.getNumHurryInfos(); iHurry++)
 		{
 			if ((GC.getInfo((HurryTypes)iHurry).getGoldPerProduction() > 0) &&
 				canHurry((HurryTypes)iHurry))
 			{
 				bHurryGold = true;
+				if (bLogSASCommerceDecision) kSASCommerce.iHurryGoldAvailable = 1;
 				break;
 			}
 		}
@@ -22547,17 +22655,25 @@ void CvPlayerAI::AI_doCommerce()
 				!AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) &&
 				isCommerceFlexible(COMMERCE_ESPIONAGE))
 			{
+				if (bLogSASCommerceDecision) kSASCommerce.eHurryGoldReducedCommerce = COMMERCE_ESPIONAGE;
 				changeCommercePercent(COMMERCE_ESPIONAGE, -iCommerceIncrement);
 			}
 			else if (isCommerceFlexible(COMMERCE_RESEARCH))
+			{
+				if (bLogSASCommerceDecision) kSASCommerce.eHurryGoldReducedCommerce = COMMERCE_RESEARCH;
 				changeCommercePercent(COMMERCE_RESEARCH, -iCommerceIncrement);
+			}
 			// note. gold is automatically increased when other types are decreased.
 		}
 	}
 
 	/*	this is called on doTurn, so make sure our gold is high enough
 		to keep us above zero gold. */
+	if (bLogSASCommerceDecision) kSASCommerce.iGoldPercentBeforeVerify = getCommercePercent(COMMERCE_GOLD);
 	verifyGoldCommercePercent();
+	// <!-- custom: The recorder already compares before/final sliders, so let it sample unchanged rows instead of repeating all four comparisons here.
+	// Keep this enabled gate before the helper call and its arguments. (GPT-6.1-Sol) -->
+	if (bLogSASCommerceDecision) logSASGameRecordAICommerceDecision(*this, kSASCommerce);
 	// <!-- custom: The culture-weight summary is written before this commerce update and therefore shows the prior allocation.
 	// Log the actual slider decision and its happiness, pressure, and Culture-2/3 components so late culture spending can be separated from local needs and compared with stronger victory routes. (GPT-5.5) -->
 	if (bLogCultureCommerce) logBBAI("CULTURE_SLIDER_DECISION turn=%d player=%d %S flexible=%d firstTech=%d culture2=%d culture3=%d culture4=%d happinessIdeal=%d stageBonus=%d averagePressure=%d avoidScience=%d cap=%d initialTarget=%d finalCulture=%d finalResearch=%d finalGold=%d finalEspionage=%d",

@@ -39,6 +39,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
   - [Documentation](#documentation)
     - [`build/documentation/example_file_locations.py`](#builddocumentationexample_file_locationspy)
     - [`build/documentation/sas_source_guide.py`](#builddocumentationsas_source_guidepy)
+    - [`build/documentation/diagnostic_artifact_names.py`](#builddocumentationdiagnostic_artifact_namespy)
     - [`build/documentation/markdown_prose_changes.py`](#builddocumentationmarkdown_prose_changespy)
     - [`build/documentation/known_issues_chronology.py`](#builddocumentationknown_issues_chronologypy)
     - [`build/documentation/markdown_images.py`](#builddocumentationmarkdown_imagespy)
@@ -457,6 +458,14 @@ Keeps SAS-branded mod source and shipped runtime companions discoverable in both
   - This preserves the clean baseline without reading every source file on every run; Git supplies the path inventory and only the two documents are parsed.
 - Run a complete current-tree audit with `python .github/workflows/build/documentation/sas_source_guide.py --all`; updating the checker itself or lacking a comparison base also audits the full scope. Normal local review uses `--base-ref HEAD`.
 - Reports all missing references together and never inserts a bare file list automatically: links belong beside the relevant feature, with enough explanation to make them useful.
+
+#### `build/documentation/diagnostic_artifact_names.py`
+
+Requires explicit generated diagnostic paths in the root README's relevant sections and Logging Inventory, so a reader can find a file without guessing what "companion JSON" means.
+
+- Reads fixed/formatted `SASRuntime*.json` / `SASRuntime*.jsonl` names from `SASRuntimeStatus.cpp` and top-level `Assets/SASRuntime*.ps1` publishers, normalizing process suffixes to `*`. Also checks the concrete Release and installed DLL build-report locations, rather than requiring invented path tokens such as a configuration placeholder.
+- Requires a visible inline-code path such as `Logs/SASRuntimeExit_*.json`; mentions only inside fenced samples or hidden comments do not count. Documents explain the base directory instead of hardcoding the user's Windows profile.
+- The small publisher set is audited each run, including documentation-only edits. This is a scoped discoverability guard, not an arbitrary-language path parser or a requirement to list unrelated JSON settings/captures; update the scope if a new publisher uses another naming/path construction.
 
 #### `build/documentation/markdown_prose_changes.py`
 
