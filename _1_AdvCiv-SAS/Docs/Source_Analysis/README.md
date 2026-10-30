@@ -1,6 +1,6 @@
 # Source Analysis
 
-These tracked development records preserve resumable LLM-assisted source investigations. The folder is excluded from player release archives and generated historical commit patches, but its current files remain included in Git clones and AdvCiv-SAS light-source handoffs.
+These tracked development records preserve LLM-assisted source investigations and their status. The folder is excluded from player release archives and generated historical commit patches, but its current files remain included in Git clones and AdvCiv-SAS light-source handoffs.
 
 ## Menu
 
@@ -14,7 +14,11 @@ These tracked development records preserve resumable LLM-assisted source investi
 
 ## Current-tree audit albums
 
-[`cpp_file_audit_album.txt`](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) reviews current C++ files and cross-file contracts. Future Python, XML or other file-oriented albums belong beside it.
+[`cpp_file_audit_album.txt`](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) preserves the currently discontinued C++ file and cross-file contract sweep.
+
+As of 2026-10-30, development focuses on targeted AI changes and existing pending Known Issues; substantial intervening source changes make the old sweep unsuitable as a current-tree coverage claim.
+
+Its findings and continuation cursor remain historical evidence, and it currently no longer reserves new KI numbers. Future file-oriented reviews can still belong beside it.
 
 ## Focused reviews
 

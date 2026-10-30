@@ -1841,9 +1841,20 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 			// Keep a waiting follow-up in MISSION activity until the next turn; invalid builds that consume no moves can continue immediately. (GPT-5.5) -->
 			if (headMissionQueueNode() != NULL)
 			{
-				if (missionData.eMissionType != MISSION_BUILD || readyForMission())
+				// <!-- custom: The older wait covered BUILD completion, but MOVE_TO/ROUTE_TO can also exhaust movement before a queued AI Build starts.
+				// Immediate activation (an older BtS weakness retained through K-Mod/AdvCiv) then changes the group to HOLD, and next-turn AI cleanup can discard the selected job; Istanbul reproduced arrival at a Chop->Mine target with zero moves followed by abandonment.
+				// Extend the wait to AI MISSIONAI_BUILD chains while retaining the previous BUILD-completion safeguard for manual queues too; the first draft's AI-only condition accidentally removed that existing coverage. See KI#1071. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+				bool const bWaitForQueuedBuild = ((missionData.eMissionType == MISSION_BUILD ||
+					(isAIControlled() && AI().AI_getMissionAIType() == MISSIONAI_BUILD)) && !readyForMission());
+				if (!bWaitForQueuedBuild)
 					activateHeadMission();
-				else setActivityType(ACTIVITY_MISSION);
+				else
+				{
+					if (bLogSASWorkerMission) logBBAI("    WORKER_MISSION_QUEUE_WAIT turn=%d player=%d %S workerId=%d groupId=%d completedMission=%d nextMission=%d queue=%d plot=(%d,%d) movesLeft=%d reason=PRESERVE_AI_WORKER_BUILD_CHAIN",
+							kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorker->getID(), getID(),
+							missionData.eMissionType, headMissionQueueNode()->m_data.eMissionType, getLengthMissionQueue(), getX(), getY(), pSASWorker->movesLeft());
+					setActivityType(ACTIVITY_MISSION);
+				}
 			}
 			// <advc.153>
 			else if (!isAIControlled() &&

@@ -1,7 +1,7 @@
 AdvCiv-SAS C++ File Audit Album
 Generated from local light-source snapshot only; no web/GitHub lookup used.
 
-CURRENT PROGRESS SUMMARY
+PROGRESS SUMMARY
 Files complete: 169 / 169
 Files open: 0 / 169
 Last completed file: ordinary queue 169 CvGameCoreDLL/_precompile.cpp (5 queued / 5 current physical lines) - CLOSED AT C031-WIP676 / NO NEW FINDING; F708 UNUSED
@@ -208923,3 +208923,11 @@ F749 / provisional KI#1070: UNUSED.
 ===============================================================================
 END C031-WIP891
 ===============================================================================
+
+
+STATUS UPDATE - 2026-10-30
+As of now and for now, unless it otherwise changes, the systematic sweep is discontinued.
+
+Development as of now focuses on targeted AI changes and existing pending Known Issues; substantial source changes since the reviewed snapshots mean the completed-file list is not a current-tree coverage guarantee.
+
+Preserve the findings and cursor below as historical evidence, not an instruction to resume the next mechanical scan. New KI root numbers are no longer reserved for this album. See the Source_Analysis README and KI#1070 for the retired cursor's status.

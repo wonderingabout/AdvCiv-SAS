@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 185 - SAS practical 6705
 
 - **Date:** 2026-10-30
-- **Git commit:** pending
+- **Git commit:** `ef3e46878cded8c87c22acf409d7b6726d8a2225`
 - **Change:** Add compact level-2 loaded plot-yield rule context once per new/load SGR session, so recorded plot outcomes can be interpreted against the rules that produced them without hardcoding the current XML or recomputing plot yields.
   - `GAME_RECORD_PLOT_YIELD_RULES` records loaded Define values; structured terrain/feature rows retain their actual river/hill vectors under neutral field names. The record does not emit a hand-maintained copy of `CvPlot` evaluation semantics that could drift from the implementation.
   - Structured rows preserve the loaded yield, terrain, feature, bonus, route, improvement, technology, civic, trait and relevant building modifiers. Complete direct-type families are emitted deterministically; all-zero cross-product vectors are omitted and counted in the summary rather than expanding into an XML dump.

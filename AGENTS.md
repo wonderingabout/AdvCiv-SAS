@@ -140,7 +140,7 @@ Release preparation: when preparing a stable release or substantial release upda
 
 Use these specialized records for inherited regressions, suspicious behavior changes, provenance questions, or systematic audits; routine coding tasks should normally start from current source and Git.
 
-- "Archaeology" broadly means a focused source/history/provenance investigation; it is not limited to the named historical-archaeology record or the C++ File Audit Album. The album is a systematic current-tree audit and can itself trigger archaeology when a finding needs its origin traced.
+- "Archaeology" broadly means a focused source/history/provenance investigation; it is not limited to the named historical-archaeology record or the C++ File Audit Album. The album preserves a systematic file audit; its findings can still prompt archaeology when their origin needs tracing.
 - For a defect/crash that may be inherited, start with the greppable `LLM_Helpers/context/commit_diffs/` corpus and its `INDEX.txt` / `PATH_HISTORY_INDEX.txt`, then inspect the introducing/preserving diffs and matching Git-log evidence.
   - Local agents such as Codex can grep the generated `.diff` files directly in the working tree.
   - External agents such as ChatGPT can use the same corpus when it is supplied through a full-history light-source ZIP; the ZIP intentionally carries these greppable commit diffs for the same archaeology workflow.
@@ -161,10 +161,8 @@ Use these specialized records for inherited regressions, suspicious behavior cha
 - [`historical_source_archaeology.txt`](/_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt) records the completed commit-oriented lineage sweep; use the workflow above for new questions rather than treating that one record as the definition of archaeology.
 - For AdvCiv-SAS release-history/provenance questions, use [`Docs/changelogs_web/`](/_1_AdvCiv-SAS/Docs/changelogs_web/) for manually archived published CivFanatics/ModDB release text and [`Docs/git_logs/`](/_1_AdvCiv-SAS/Docs/git_logs/) for the detailed tracked commit history.
   - The published changelog copies are historical source material, not a replacement for current source/Git when exact implementation state matters.
-- The [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) records the ongoing current-tree sweep, including clean files, false positives, stable `F###` findings and its continuation cursor.
-  - Reconcile provisional KI numbers against current Known Issues before promotion.
-  - Reserve new sequential KI numbers for the C++ File Audit Album if it resumes (currently the next number would be KI#1071; check the latest cursor/history rather than treating this example as permanent). For other findings, use an unused `.x` suffix under a relevant existing KI. Start decimal follow-ups at `.2`, not `.1`, because `.1` is ambiguous with the original issue.
-  - Future Python, XML or other file-oriented analyses belong beside it.
+- The [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) preserves an as of now discontinued systematic sweep, including clean files, false positives, stable `F###` findings and its historical continuation cursor.
+  - Subsequent code changes mean its old clean-file results are not a current-tree guarantee; current work focuses on targeted AI changes and existing pending KIs.
 - Current AdvCiv-SAS source and Git are authoritative.
   - Local comparison trees share the parent "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods": use `AdvCiv` for AdvCiv 1.14, `K-Mod` for the downloaded K-Mod 1.46 master snapshot, `Taurus` for the latest downloaded Taurus source, and `Civ4CE-main/BtS/CvGameCoreDLL` for supporting vanilla/BtS tip-state comparison.
 - Within AdvCiv-SAS's mod repo, generate/use `LLM_Helpers/context/commit_diffs/` for exact inherited ancestry and [`LLM_Helpers/context/mapscript_refs/`](/LLM_Helpers/context/mapscript_refs/) for imported map-script originals.
@@ -284,6 +282,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 - Preserve the chronology and original intent of historical or incremental documentation; append later developments with their date and explain how they follow from the earlier work.
   - For Known Issues, append at the end of the relevant entry or add a relevant unused `.x` follow-up/new issue when warranted. Correct factual errors explicitly without rewriting the sequence of discovery.
     - New findings and replay results go after the entry's existing reasoning and credits; inserting them between earlier paragraphs blurs the investigation's chronology. The KI chronology check catches clear paragraph insertions, while intent still needs review.
+    - Start decimal follow-ups at `.2`, not `.1`, because `.1` is ambiguous with the original issue (also confusing about if the first one was `.0` or unwritten `.1`).
   - Audit/archaeology records change only when their own documented investigation resumes; ordinary source changes do not refresh their findings or continuation cursors.
   - Prefer dates for later follow-ups; practical commit-count versions can change across branches/rebases. Reserve those versions for documents that need them, such as the Main Changes Guide and SASGameRecord revision history; omit them from commit messages.
 

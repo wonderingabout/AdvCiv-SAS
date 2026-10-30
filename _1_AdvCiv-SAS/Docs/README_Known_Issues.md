@@ -64,6 +64,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#33 - Tremendously improved and fixed and enhanced AI worker build/improvement logic in `CvUnitAI::AI_bestCityBuild`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-33)\
 [KI#33.2 - (Improved) AdvCiv-SAS Worker rewrite could preserve legal productive-feature hammers too long after bypassing inherited contextual chop valuation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-33.2)\
 [KI#33.3 - (Improved) AdvCiv-SAS tech-tree/AI interaction could research productive feature-removal technologies too late on feature-heavy low-production starts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-33.3)\
+[KI#33.4 - (Improved AdvCiv-SAS Worker regression) Generic yield valuation could delay high-value production plots and overcommit maturing improvements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-33.4)\
 [KI#34 - (Seemingly fixed/tweaked) Major K-Mod suboptimal food plot AI city allocation: starving or stagnant cities prefer 1 hammer over 4 food plots that are unallocated to any population ("Ulundi screenshots", "Prague Screenshots", and others) + food not being valued when food is production (e.g. worker, settler, etc if any more) when it is in fact the exact same and probably more reliable to set rather than production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-34)\
 [KI#35 - (Attemptingly fixed or addressed) AI building too many military naval units then gets invaded on land and can't defend (10+ galleons and barely any land defender) + do not prioritize water military units if city is landlocked (i assume it means stuck in a lake or something)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35)\
 [KI#36 - (Attemptingly fixed or addressed) AI building settlers at critical time when war is likely, instead of preparing for war: very bad as the few more units with the hammer saved could make us gain or not lose the war, while the extra city makes all our empire thinner and our units split, on top of having less units overall as well](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-36)\
@@ -1223,7 +1224,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1067 - (Fixed UI AdvCiv-SAS Domestic Advisor repair regression) Debug-selected Free Colony availability executed for the active player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1067)\
 [KI#1068 - (Fixed AdvCiv-SAS Sevopedia repair regression) EventTrigger corporation-era inference ignored HQ-building technology gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1068)\
 [KI#1069 - (Fixed UI AdvCiv-SAS World Advisor repair regression) Territory revealed live ownership changes under fog](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1069)\
-[KI#1070 - (Provisional Pending audit cursor) Mechanical denominator and modulo scan remains active](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1070)
+[KI#1070 - (Retired audit cursor; no confirmed defect) Mechanical denominator and modulo scan](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1070)\
+[KI#1071 - (Fixed inherited BtS queued-build weakness preserved by K-Mod/AdvCiv) AI Workers could discard an improvement after movement or routing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1071)
 
 <a id="ki-1"></a>
 
@@ -3037,6 +3039,104 @@ The final logic remains fully XML/build driven, uses actual delivered production
 Test-only Player diagnostics were restored to their normal disabled default before commit.
 
 Investigation and implementation with the help of ChatGPT-5.6-Sol, thanks.
+
+<a id="ki-33.4"></a>
+
+## KI#33.4 - (Improved AdvCiv-SAS Worker regression) Generic yield valuation could delay high-value production plots and overcommit maturing improvements
+
+The motivating case was the recurring Mehmed/Istanbul Huge Pangaea reproduction recorded in `changes_new.md`: several useful Grassland Hills remained unimproved until very late even though a Mine would provide an important early production option.
+
+This is primarily an **AdvCiv-SAS Worker regression/follow-up**, not a Base AdvCiv bug.
+
+KI#33 deliberately replaced much of Base AdvCiv 1.14's land `AI_getImprovementValue` / cached city-best-build path with the SAS XML-driven `CvUnitAI::AI_bestCityBuild` evaluator.
+
+Older SAS versions avoided the visible symptom through terrain/improvement-specific values and "holy" improvements; for example, the 6200-era Worker code strongly weighted Hill Mines and permanently protected Windmills from replacement.
+
+That produced decisive early hill development and suppressed Mine/Windmill oscillation, but it also encoded the wrong abstraction: a Windmill is not inherently superior to a Mine, and a city that already has enough Food or Commerce can rationally prefer the extra Production.
+
+The 6565+ generic evaluator removed those identity tables and instead prices actual Food, Production and Commerce through city-specific weights.
+
+The 2026-10-30 investigation found four separate effects inside or around that newer generic path.
+
+First, plot utility charged low-Food plots twice.
+
+The normal yield difference already makes a `1F` plot one Food-weight worse than a `2F` self-supporting plot, but the Worker utility additionally subtracted another Food weight for every Food below `FOOD_CONSUMPTION_PER_POPULATION`.
+
+That could make a `1F 3H` Mine lose even while the city's own Production weight already exceeded Food.
+
+The duplicate below-consumption penalty was removed.
+
+Worker plot utility now compares actual plot yields directly through the city-specific marginal Food/Production/Commerce weights; current Food scarcity is represented once through the Food weight itself.
+
+Second, the ordinary Food weight was also being raised by `structuralFoodPressure`, which counted hypothetical support demand from low-Food BFC plots that might be worked in the future.
+
+Berlin exposed the resulting circular bias: while already running about **+6 Food/turn**, its structural pressure raised the Worker Food weight from roughly **166 to 266**, helping Farms/Cottages outrank `0F 4H` Mines precisely because those hills might later consume surplus Food.
+
+Structural Food pressure remains useful for dedicated irrigation/support planning, but it no longer directly inflates the ordinary marginal Food price.
+
+The generic Worker Food weight now rises from the city's **actual adjusted Food deficit** instead.
+
+Third, the Istanbul hill could be committed to a maturing Cottage shortly before Mining became available.
+
+At turn 22, the Forest Grassland Hill at `(31,27)` valued its legal Cottage at about **1320 raw**, only slightly above ordinary flatland Cottage alternatives, while a Mine was not yet legal.
+
+Once that Cottage matured, the existing generic replacement hysteresis correctly protected the sunk Worker time and maturation, turning an early temporary choice into a long-lived bad commitment.
+
+Blank plots now preserve limited **option value** for a stronger same-plot improvement that is exactly one currently researchable technology away.
+
+This does not hardcode Mine, Windmill, Cottage, Hill, Grassland or any technology name.
+
+The Worker checks XML terrain/feature validity, current weighted yields and the player's immediate research frontier.
+
+Here, "one technology away" means currently researchable, not a measured number of turns until completion or a guarantee that the player will choose that technology. It is a bounded commitment heuristic rather than a full research forecast.
+
+The opportunity cost is applied only when the current candidate itself has an upgrade/maturation chain, where premature commitment becomes increasingly expensive to undo.
+
+On the same turn-22 Istanbul hill, the one-tech-away Mine valued about **1672**, applying an opportunity penalty to the Cottage while equivalent flat Grassland Cottages remained free of that hill-specific future alternative.
+
+Fourth, the same investigation exposed a separate inherited mission-queue defect that materially amplified the visible delay.
+
+A Worker could correctly choose a hill improvement, spend its final movement point reaching or routing to the target, and then lose the queued Build before the next turn.
+
+That engine/control-flow issue is documented separately under **KI#1071**.
+
+The final same-seed replay, `Logs(20261030-164639).zip`, strongly validates the combined result.
+
+Istanbul's four motivating Grassland Hills were first observed as completed Mines by approximately **T66, T76, T76 and T98**.
+
+In the immediately preceding replay (`Logs(20261030-142059).zip`), only two of those four plots had become Mines by approximately **T136 and T172**.
+
+At T59 the normal evaluator already priced the worked Forest Grassland Hill's Chop -> Mine around **2124** versus its Cottage runner-up around **1508**, and the other blank Grassland Hill Mines around **1930** versus Cottage around **1334**.
+
+The queued move to `(31,27)` then reached the hill with zero moves on T60; KI#1071's `WORKER_MISSION_QUEUE_WAIT` preserved the follow-up and the Worker began the queued build on T61 instead of abandoning the target.
+
+The final run also gives useful evidence that the result is not a restored "Mine is holy" rule.
+
+Around T152, after the crude strong-production shortage was already satisfied, Istanbul's Worker weights were about **Food 160 / Production 155 / Commerce 100** and a Windmill replacement on the existing Grassland Hill Mines was still slightly worse (`bestRejectedGain=-50`) before hysteresis.
+
+By roughly T192 the Windmill could become modestly better (`bestRejectedGain=99`), but the existing generic replacement margin was about **225**, so the Worker correctly avoided spending turns rebuilding a mature useful Mine for a small gain.
+
+The replacement rule therefore acts like civic-style hysteresis: a different improvement must be materially better before the Worker tears down a useful existing one.
+
+This replaces the old permanent "holy Windmill" behavior without reopening Mine -> Windmill -> Mine oscillation.
+
+Berlin remained mixed rather than uniformly earlier in the final replay: its first observed Mine improved from about T101 to T87, while two later Plains Hill Mines appeared around T146 instead of about T135. This is one reason to close the reproduced Istanbul regression without claiming universally optimal Worker timing.
+
+The replay supports classifying the original Istanbul late-hill regression as **Improved**, without claiming universally optimal Worker timing.
+
+This does **not** claim that the Worker yield model is final.
+
+The current `strongProductionPlots` policy still uses an XML-tunable minimum-production threshold and population target, which is intentionally better than terrain/improvement hardcoding but remains a discontinuous heuristic.
+
+The new diagnostic `currentYieldFrontier=(F,H,C)` is observational only.
+
+A later enhancement can replace the fixed strong-production quota with a more continuous city yield-capacity / plot-swapping model that values maintaining strong Food-, Production- and Commerce-oriented configurations, but that architectural work is no longer required to reproduce or fix this specific regression.
+
+Likewise, productive-feature Phase 0 still has hard-priority paths that may later be worth integrating into a common cross-city job auction; that is a separate policy question from the solved hill-valuation/commitment/mission-loss chain.
+
+Pre-commit review also restored the original cheap economic-candidate filters before ordinary `canBuild` queries, which can invoke Python. Splitting out the one-tech-away state calculation should not make the existing evaluator query routes, forts or its current improvement unnecessarily.
+
+Investigation, diagnostics and implementation with the help of ChatGPT-5.6-Sol; source review with GPT-6.1-Sol, thanks.
 
 <a id="ki-34"></a>
 
@@ -35959,8 +36059,68 @@ Found as F748/provisional KI#1069 during ChatGPT-5.6-Sol's C031-WIP868 repair-si
 
 <a id="ki-1070"></a>
 
-## KI#1070 - (Provisional Pending audit cursor) Mechanical denominator and modulo scan remains active
+## KI#1070 - (Retired audit cursor; no confirmed defect) Mechanical denominator and modulo scan
 
 All 169 current `.cpp` files and the chronological repair-history, comparative-control and empty-container tranches remain complete. Reserved for F749 after the audit reached C031-WIP891 with F747-F748 promoted as KI#1068-KI#1069; the systematic current-SAS denominator/modulo scan is next.
 
 Reconciled from ChatGPT-5.6-Sol's C031-WIP891 continuation cursor with the help of GPT-5.6-Sol, thanks.
+
+2026-10-30 status: the systematic album is discontinued as development focuses on targeted AI changes and existing pending KIs. The source has changed substantially since the sweep; its completed results remain historical evidence, not current coverage. This entry preserves the old cursor without asserting a defect or reserving future KI numbers. Updated with the help of GPT-6.1-Sol.
+
+<a id="ki-1071"></a>
+
+## KI#1071 - (Fixed inherited BtS queued-build weakness preserved by K-Mod/AdvCiv) AI Workers could discard an improvement after movement or routing
+
+The KI#33.4 Worker investigation exposed a separate mission-control defect below the SAS plot valuation layer.
+
+AdvCiv-SAS commonly queues multi-step AI Worker jobs such as:
+
+- `MOVE_TO -> BUILD`;
+- `ROUTE_TO -> BUILD`;
+- productive-feature removal followed by a selected improvement.
+
+The immediate-start behavior predates K-Mod: BtS's `deleteMissionQueueNode` activates the next head, `startMission` changes an immobile group to HOLD, and AI turn cleanup forces reevaluation for non-MISSION activity.
+
+K-Mod commit `201150ab61` (2012-05-17) moved next-mission activation out of the generic deletion helper into explicit callers, including `continueMission_bulk`, but retained immediate activation on this path.
+
+Its later force-update refactoring (`5348a1d50`, 2012-07-13) moved queue clearing directly into turn cleanup; it did not supply a wait for this queued Build case. AdvCiv preserved that path, and SAS's earlier fix covered only BUILD completion.
+
+This is therefore an inherited BtS weakness preserved through K-Mod/AdvCiv and exposed by the SAS multi-step Worker job; the evidence does not support calling it newly introduced by K-Mod.
+
+If the completed movement or route step consumes the Worker's final movement point, the next Build can be activated while the group is not ready to execute it.
+
+On the following AI turn, the still-queued build can then be cleared and the Worker reevaluates from scratch.
+
+The visible symptom is especially misleading: the Worker reaches or roads the correct target and then simply walks away without performing the improvement it had already selected.
+
+AdvCiv-SAS had previously added a partial repair for the related **BUILD -> BUILD** case after Berlin, Beijing and Cologne Workers cleared productive features and then lost queued Mines because the first Build consumed all movement.
+
+That safeguard was keyed to the completed mission being `MISSION_BUILD`, so it did not cover `MOVE_TO -> BUILD` or `ROUTE_TO -> BUILD`.
+
+The 2026-10-30 Istanbul reproduction made the remaining gap explicit.
+
+In the preceding run, a Worker selected the Forest Grassland Hill `(31,27)` as Chop -> Mine, reached the target after spending its final movement point, and still had the queued build chain at the end of that turn; the next turn began with the queue gone and the Worker left for another job.
+
+A different Worker later reached the same target with movement remaining and completed the same chain successfully.
+
+The repair now keys the wait to the **semantic job**, not to the just-completed mission type.
+
+When an AI-controlled group is on `MISSIONAI_BUILD`, another mission is queued and the group is not yet ready for that mission, `continueMission_bulk` keeps the group in `ACTIVITY_MISSION` until the next turn instead of immediately activating the queued Build.
+
+This covers movement, routing and build follow-ups without naming any improvement or terrain and still allows invalid/no-cost follow-ups that remain immediately executable to continue normally.
+
+Level-3 BBAI logging records the retained state as `WORKER_MISSION_QUEUE_WAIT ... reason=PRESERVE_AI_WORKER_BUILD_CHAIN`.
+
+The final `Logs(20261030-164639).zip` replay exercises the repair repeatedly across multiple civilizations rather than only the motivating Ottoman case.
+
+For Istanbul specifically, the T59 Chop -> Mine assignment reached `(31,27)` with zero moves on T60, emitted `WORKER_MISSION_QUEUE_WAIT`, retained both queued Build steps, and began the first Build on T61.
+
+This is classified as an **inherited BtS mission-control weakness preserved by K-Mod/Base AdvCiv**, with an earlier incomplete AdvCiv-SAS repair that covered only BUILD -> BUILD chains.
+
+The replay supports classifying the generalized repair as **Fixed**. Pre-commit review also retained the previous BUILD-completion wait for manual queues: the draft AI-only condition had unintentionally removed that existing coverage.
+
+A fresh post-review replay, `SASGameRecord_20261030T180116Z_load1.log` with matching `BBAI_20261030T180116Z_load1.log`, used the rebuilt Debug-opt DLL and completed turn 200 before orderly shutdown. All 362 native input hashes match the reviewed source; the writer reports no failures or dropped rows and PythonErr is empty.
+
+It again records 1,182 queue waits, including the Ottoman Worker arriving at `(31,27)` on T60 with zero moves and both Build steps retained. The AI path is exercised by this rebuilt run; manual queued Builds were not separately exercised, though their prior wait condition is retained.
+
+Found while investigating KI#33.4 and fixed/documented with the help of ChatGPT-5.6-Sol, thanks.
