@@ -2174,8 +2174,9 @@ bool CvTeam::canVassalRevolt(TeamTypes eMaster, bool bCheckLosses, int iExtraLan
 		return true;
 
 	int const iFREE_VASSAL_LAND_PERCENT = GC.getDefineINT(CvGlobals::FREE_VASSAL_LAND_PERCENT);
+	// <!-- custom: Use the shared native land floor so SGR reads the same rule. (GPT-6.1-Sol) -->
 	if (iFREE_VASSAL_LAND_PERCENT < 0 ||
-		100 * std::max(10, getTotalLand(false) + iExtraLand) < // advc.112: Lower bound added
+		100 * std::max(getSASVassalRevoltLandFloor(), getTotalLand(false) + iExtraLand) < // advc.112: Lower bound added
 		kMaster.getTotalLand(false) * iFREE_VASSAL_LAND_PERCENT)
 	{
 		return false;
@@ -2201,7 +2202,8 @@ bool CvTeam::isLossesAllowRevolt(TeamTypes eMaster) const
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iVASSAL_REVOLT_OWN_LOSSES_FACTOR = GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR");
 
-		if (100 * std::max(10, getTotalLand(false)) < getVassalPower() *
+		// <!-- custom: Reuse the same native land floor for the losses test. (GPT-6.1-Sol) -->
+		if (100 * std::max(getSASVassalRevoltLandFloor(), getTotalLand(false)) < getVassalPower() *
 			iVASSAL_REVOLT_OWN_LOSSES_FACTOR)
 		{
 			return true;
@@ -3780,7 +3782,8 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 
 		setMasterPower(GET_TEAM(eMaster).getTotalLand());
 		// advc.112: Lower bound added
-		setVassalPower(std::max(10, getTotalLand(false)));
+		// <!-- custom: Initial power uses the same floor as subsequent revolt tests. (GPT-6.1-Sol) -->
+		setVassalPower(std::max(getSASVassalRevoltLandFloor(), getTotalLand(false)));
 
 		if (GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode())
 		{

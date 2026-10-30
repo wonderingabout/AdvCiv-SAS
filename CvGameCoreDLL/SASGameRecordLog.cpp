@@ -3039,12 +3039,164 @@ static void logSASGameRecordTechCapabilitySources()
 }
 
 // <!-- custom: Vassal freedom thresholds are loaded-rule context, not changing relationship state; emit them once per GameRecord session instead of repeating the same values on every periodic vassal row.
-// This cold helper runs only when a new-game or loaded-save GameRecord file opens, so direct define lookups intentionally avoid persistent cache state for values that are read just once per session. (ChatGPT-5.6-Sol) -->
+// This cold helper runs only when a new-game or loaded-save GameRecord file opens, so direct define lookups intentionally avoid persistent cache state for values that are read just once per session.
+// Read the native land floor from CvTeam rather than copying 10 here; algorithm interpretation belongs with the matching source revision, not fixed descriptive flags. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static void logSASGameRecordVassalRules()
 {
-	logSASGameRecord("GAME_RECORD_VASSAL_RULES freeVassalLandPercent=%d freeVassalPopulationPercent=%d ownLossesFactor=%d masterLossesFactor=%d vassalLandFloor=10 relativeSizeMasterLand=OWN_ONLY masterLossMasterLand=INCLUDING_VASSAL_CONTRIBUTION",
+	logSASGameRecord("GAME_RECORD_VASSAL_RULES freeVassalLandPercent=%d freeVassalPopulationPercent=%d ownLossesFactor=%d masterLossesFactor=%d vassalLandFloor=%d",
 		GC.getDefineINT(CvGlobals::FREE_VASSAL_LAND_PERCENT), GC.getDefineINT(CvGlobals::FREE_VASSAL_POPULATION_PERCENT),
-		GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR"), GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR"));
+		GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR"), GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR"), CvTeam::getSASVassalRevoltLandFloor());
+}
+
+// <!-- custom: Plot snapshots can show different yields without preserving the loaded values needed to interpret them later.
+// Emit level-2 XML/Define context once per recorder session, without plot evaluation, AI scoring or RNG.
+// The draft also emitted a hand-maintained description of CvPlot's algorithm; remove that duplicate because it could drift when gameplay code changes.
+// Use neutral field names for the raw vectors instead; source provenance identifies the corresponding algorithm rather than treating copied descriptions as dynamically observed rules.
+// Terrain/feature/route/improvement/trait rows are complete; declared sparse families omit all-zero vectors and report emitted counts. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static void logSASGameRecordPlotYieldRules()
+{
+	// <!-- custom: Both session-entry callers check level 2 before calling this helper, so disabled logging skips the rule scans entirely.
+	// An enabled-state assertion inside the helper would not prove that caller-side pre-gating happened. (GPT-6.1-Sol) -->
+	logSASGameRecord("GAME_RECORD_PLOT_YIELD_RULES source=LOADED_DEFINES extraYield=%d", GC.getDefineINT(CvGlobals::EXTRA_YIELD));
+
+
+	int iBonusRows = 0;
+	int iImprovementTechRows = 0;
+	int iImprovementRouteRows = 0;
+	int iImprovementBonusRows = 0;
+	int iImprovementCivicRows = 0;
+	int iBuildingRows = 0;
+
+	FOR_EACH_ENUM(Yield)
+	{
+		CvYieldInfo const& kYield = GC.getInfo(eLoopYield);
+		logSASGameRecord("GAME_RECORD_PLOT_YIELD_TYPE yield=%s hillsChange=%d peakChange=%d lakeChange=%d cityChange=%d cityPopulationOffset=%d cityPopulationDivisor=%d minCity=%d goldenAgeThreshold=%d goldenAgeChange=%d",
+			kYield.getType(), kYield.getHillsChange(), kYield.getPeakChange(), kYield.getLakeChange(), kYield.getCityChange(),
+			kYield.getPopulationChangeOffset(), kYield.getPopulationChangeDivisor(), kYield.getMinCity(), kYield.getGoldenAgeYieldThreshold(), kYield.getGoldenAgeYield());
+	}
+	for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+	{
+		CvTerrainInfo const& kTerrain = GC.getInfo((TerrainTypes)iTerrain);
+		logSASGameRecord("GAME_RECORD_PLOT_YIELD_TERRAIN terrain=%s baseFood=%d baseProduction=%d baseCommerce=%d riverFood=%d riverProduction=%d riverCommerce=%d hillsFood=%d hillsProduction=%d hillsCommerce=%d",
+			kTerrain.getType(), kTerrain.getYield(YIELD_FOOD), kTerrain.getYield(YIELD_PRODUCTION), kTerrain.getYield(YIELD_COMMERCE),
+			kTerrain.getRiverYieldChange(YIELD_FOOD), kTerrain.getRiverYieldChange(YIELD_PRODUCTION), kTerrain.getRiverYieldChange(YIELD_COMMERCE),
+			kTerrain.getHillsYieldChange(YIELD_FOOD), kTerrain.getHillsYieldChange(YIELD_PRODUCTION), kTerrain.getHillsYieldChange(YIELD_COMMERCE));
+	}
+	for (int iFeature = 0; iFeature < GC.getNumFeatureInfos(); iFeature++)
+	{
+		CvFeatureInfo const& kFeature = GC.getInfo((FeatureTypes)iFeature);
+		logSASGameRecord("GAME_RECORD_PLOT_YIELD_FEATURE feature=%s baseFood=%d baseProduction=%d baseCommerce=%d riverFood=%d riverProduction=%d riverCommerce=%d hillsFood=%d hillsProduction=%d hillsCommerce=%d",
+			kFeature.getType(), kFeature.getYieldChange(YIELD_FOOD), kFeature.getYieldChange(YIELD_PRODUCTION), kFeature.getYieldChange(YIELD_COMMERCE),
+			kFeature.getRiverYieldChange(YIELD_FOOD), kFeature.getRiverYieldChange(YIELD_PRODUCTION), kFeature.getRiverYieldChange(YIELD_COMMERCE),
+			kFeature.getHillsYieldChange(YIELD_FOOD), kFeature.getHillsYieldChange(YIELD_PRODUCTION), kFeature.getHillsYieldChange(YIELD_COMMERCE));
+	}
+	for (int iBonus = 0; iBonus < GC.getNumBonusInfos(); iBonus++)
+	{
+		CvBonusInfo const& kBonus = GC.getInfo((BonusTypes)iBonus);
+		int const iFood = kBonus.getYieldChange(YIELD_FOOD);
+		int const iProduction = kBonus.getYieldChange(YIELD_PRODUCTION);
+		int const iCommerce = kBonus.getYieldChange(YIELD_COMMERCE);
+		if (iFood == 0 && iProduction == 0 && iCommerce == 0)
+			continue;
+		logSASGameRecord("GAME_RECORD_PLOT_YIELD_BONUS bonus=%s food=%d production=%d commerce=%d", kBonus.getType(), iFood, iProduction, iCommerce);
+		iBonusRows++;
+	}
+	for (int iRoute = 0; iRoute < GC.getNumRouteInfos(); iRoute++)
+	{
+		CvRouteInfo const& kRoute = GC.getInfo((RouteTypes)iRoute);
+		logSASGameRecord("GAME_RECORD_PLOT_YIELD_ROUTE route=%s directFood=%d directProduction=%d directCommerce=%d",
+			kRoute.getType(), kRoute.getYieldChange(YIELD_FOOD), kRoute.getYieldChange(YIELD_PRODUCTION), kRoute.getYieldChange(YIELD_COMMERCE));
+	}
+	for (int iImprovement = 0; iImprovement < GC.getNumImprovementInfos(); iImprovement++)
+	{
+		ImprovementTypes const eImprovement = (ImprovementTypes)iImprovement;
+		CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
+		logSASGameRecord("GAME_RECORD_PLOT_YIELD_IMPROVEMENT improvement=%s baseFood=%d baseProduction=%d baseCommerce=%d riverSideFood=%d riverSideProduction=%d riverSideCommerce=%d hillsFood=%d hillsProduction=%d hillsCommerce=%d irrigatedFood=%d irrigatedProduction=%d irrigatedCommerce=%d",
+			kImprovement.getType(), kImprovement.getYieldChange(YIELD_FOOD), kImprovement.getYieldChange(YIELD_PRODUCTION), kImprovement.getYieldChange(YIELD_COMMERCE),
+			kImprovement.getRiverSideYieldChange(YIELD_FOOD), kImprovement.getRiverSideYieldChange(YIELD_PRODUCTION), kImprovement.getRiverSideYieldChange(YIELD_COMMERCE),
+			kImprovement.getHillsYieldChange(YIELD_FOOD), kImprovement.getHillsYieldChange(YIELD_PRODUCTION), kImprovement.getHillsYieldChange(YIELD_COMMERCE),
+			kImprovement.getIrrigatedYieldChange(YIELD_FOOD), kImprovement.getIrrigatedYieldChange(YIELD_PRODUCTION), kImprovement.getIrrigatedYieldChange(YIELD_COMMERCE));
+		for (int iTech = 0; iTech < GC.getNumTechInfos(); iTech++)
+		{
+			int const iFood = kImprovement.getTechYieldChanges(iTech, YIELD_FOOD);
+			int const iProduction = kImprovement.getTechYieldChanges(iTech, YIELD_PRODUCTION);
+			int const iCommerce = kImprovement.getTechYieldChanges(iTech, YIELD_COMMERCE);
+			if (iFood == 0 && iProduction == 0 && iCommerce == 0)
+				continue;
+			logSASGameRecord("GAME_RECORD_PLOT_YIELD_IMPROVEMENT_TECH improvement=%s tech=%s food=%d production=%d commerce=%d",
+				kImprovement.getType(), GC.getInfo((TechTypes)iTech).getType(), iFood, iProduction, iCommerce);
+			iImprovementTechRows++;
+		}
+		for (int iRoute = 0; iRoute < GC.getNumRouteInfos(); iRoute++)
+		{
+			int const iFood = kImprovement.getRouteYieldChanges(iRoute, YIELD_FOOD);
+			int const iProduction = kImprovement.getRouteYieldChanges(iRoute, YIELD_PRODUCTION);
+			int const iCommerce = kImprovement.getRouteYieldChanges(iRoute, YIELD_COMMERCE);
+			if (iFood == 0 && iProduction == 0 && iCommerce == 0)
+				continue;
+			logSASGameRecord("GAME_RECORD_PLOT_YIELD_IMPROVEMENT_ROUTE improvement=%s route=%s food=%d production=%d commerce=%d",
+				kImprovement.getType(), GC.getInfo((RouteTypes)iRoute).getType(), iFood, iProduction, iCommerce);
+			iImprovementRouteRows++;
+		}
+		for (int iBonus = 0; iBonus < GC.getNumBonusInfos(); iBonus++)
+		{
+			int const iFood = kImprovement.getImprovementBonusYield(iBonus, YIELD_FOOD);
+			int const iProduction = kImprovement.getImprovementBonusYield(iBonus, YIELD_PRODUCTION);
+			int const iCommerce = kImprovement.getImprovementBonusYield(iBonus, YIELD_COMMERCE);
+			if (iFood == 0 && iProduction == 0 && iCommerce == 0)
+				continue;
+			logSASGameRecord("GAME_RECORD_PLOT_YIELD_IMPROVEMENT_BONUS improvement=%s bonus=%s food=%d production=%d commerce=%d",
+				kImprovement.getType(), GC.getInfo((BonusTypes)iBonus).getType(), iFood, iProduction, iCommerce);
+			iImprovementBonusRows++;
+		}
+	}
+	for (int iCivic = 0; iCivic < GC.getNumCivicInfos(); iCivic++)
+	{
+		CvCivicInfo const& kCivic = GC.getInfo((CivicTypes)iCivic);
+		for (int iImprovement = 0; iImprovement < GC.getNumImprovementInfos(); iImprovement++)
+		{
+			int const iFood = kCivic.getImprovementYieldChanges(iImprovement, YIELD_FOOD);
+			int const iProduction = kCivic.getImprovementYieldChanges(iImprovement, YIELD_PRODUCTION);
+			int const iCommerce = kCivic.getImprovementYieldChanges(iImprovement, YIELD_COMMERCE);
+			if (iFood == 0 && iProduction == 0 && iCommerce == 0)
+				continue;
+			logSASGameRecord("GAME_RECORD_PLOT_YIELD_IMPROVEMENT_CIVIC civic=%s improvement=%s food=%d production=%d commerce=%d",
+				kCivic.getType(), GC.getInfo((ImprovementTypes)iImprovement).getType(), iFood, iProduction, iCommerce);
+			iImprovementCivicRows++;
+		}
+	}
+	for (int iTrait = 0; iTrait < GC.getNumTraitInfos(); iTrait++)
+	{
+		CvTraitInfo const& kTrait = GC.getInfo((TraitTypes)iTrait);
+		logSASGameRecord("GAME_RECORD_PLOT_YIELD_TRAIT trait=%s ordinaryFood=%d ordinaryProduction=%d ordinaryCommerce=%d naturalFood=%d naturalProduction=%d naturalCommerce=%d",
+			kTrait.getType(), kTrait.getExtraYieldThreshold(YIELD_FOOD), kTrait.getExtraYieldThreshold(YIELD_PRODUCTION), kTrait.getExtraYieldThreshold(YIELD_COMMERCE),
+			kTrait.getExtraYieldNaturalThreshold(YIELD_FOOD), kTrait.getExtraYieldNaturalThreshold(YIELD_PRODUCTION), kTrait.getExtraYieldNaturalThreshold(YIELD_COMMERCE));
+	}
+	for (int iBuilding = 0; iBuilding < GC.getNumBuildingInfos(); iBuilding++)
+	{
+		CvBuildingInfo const& kBuilding = GC.getInfo((BuildingTypes)iBuilding);
+		int const iLocalSeaFood = kBuilding.getSeaPlotYieldChange(YIELD_FOOD);
+		int const iLocalSeaProduction = kBuilding.getSeaPlotYieldChange(YIELD_PRODUCTION);
+		int const iLocalSeaCommerce = kBuilding.getSeaPlotYieldChange(YIELD_COMMERCE);
+		int const iLocalRiverFood = kBuilding.getRiverPlotYieldChange(YIELD_FOOD);
+		int const iLocalRiverProduction = kBuilding.getRiverPlotYieldChange(YIELD_PRODUCTION);
+		int const iLocalRiverCommerce = kBuilding.getRiverPlotYieldChange(YIELD_COMMERCE);
+		int const iGlobalSeaFood = kBuilding.getGlobalSeaPlotYieldChange(YIELD_FOOD);
+		int const iGlobalSeaProduction = kBuilding.getGlobalSeaPlotYieldChange(YIELD_PRODUCTION);
+		int const iGlobalSeaCommerce = kBuilding.getGlobalSeaPlotYieldChange(YIELD_COMMERCE);
+		if (iLocalSeaFood == 0 && iLocalSeaProduction == 0 && iLocalSeaCommerce == 0 &&
+			iLocalRiverFood == 0 && iLocalRiverProduction == 0 && iLocalRiverCommerce == 0 &&
+			iGlobalSeaFood == 0 && iGlobalSeaProduction == 0 && iGlobalSeaCommerce == 0)
+			continue;
+		logSASGameRecord("GAME_RECORD_PLOT_YIELD_BUILDING building=%s localSeaFood=%d localSeaProduction=%d localSeaCommerce=%d localRiverFood=%d localRiverProduction=%d localRiverCommerce=%d globalSeaFood=%d globalSeaProduction=%d globalSeaCommerce=%d",
+			kBuilding.getType(), iLocalSeaFood, iLocalSeaProduction, iLocalSeaCommerce, iLocalRiverFood, iLocalRiverProduction, iLocalRiverCommerce,
+			iGlobalSeaFood, iGlobalSeaProduction, iGlobalSeaCommerce);
+		iBuildingRows++;
+	}
+	logSASGameRecord("GAME_RECORD_PLOT_YIELD_RULES_SUMMARY yieldTypes=%d terrains=%d features=%d bonuses=%d bonusRows=%d routes=%d improvements=%d improvementTechRows=%d improvementRouteRows=%d improvementBonusRows=%d civics=%d improvementCivicRows=%d traits=%d buildings=%d buildingRows=%d completeRows=YIELD,TERRAIN,FEATURE,ROUTE,IMPROVEMENT,TRAIT sparseZeroVectorsOmitted=1",
+		NUM_YIELD_TYPES, GC.getNumTerrainInfos(), GC.getNumFeatureInfos(), GC.getNumBonusInfos(), iBonusRows, GC.getNumRouteInfos(),
+		GC.getNumImprovementInfos(), iImprovementTechRows, iImprovementRouteRows, iImprovementBonusRows, GC.getNumCivicInfos(),
+		iImprovementCivicRows, GC.getNumTraitInfos(), GC.getNumBuildingInfos(), iBuildingRows);
 }
 
 static void resetSASGameRecordState();
@@ -3181,6 +3333,7 @@ void startSASGameRecordLogForNewGame()
 	logSASGameRecordLogSettings();
 	logSASGameRecordTechCapabilitySources();
 	logSASGameRecordVassalRules();
+	if (gGameRecordLogLevel >= 2) logSASGameRecordPlotYieldRules();
 	// <!-- custom: Settings below are not final until map/player initialization finishes.
 	// Buffer setup-generated actions only as a failure diagnostic: successful gameStart replaces the procedural transcript with authoritative finalized initial state, while an aborted initialization flushes the raw actions with contextComplete=0. (ChatGPT-5.6-Sol) -->
 	g_bSASGameRecordBufferInitializingActions = true;
@@ -3235,6 +3388,7 @@ void startSASGameRecordLogForLoadedSave()
 	logSASGameRecordLogSettings();
 	logSASGameRecordTechCapabilitySources();
 	logSASGameRecordVassalRules();
+	if (gGameRecordLogLevel >= 2) logSASGameRecordPlotYieldRules();
 	logSASGameRecordInitialPlayerIdentities();
 	logSASGameRecordInitialContext(false);
 }
@@ -6634,7 +6788,9 @@ static void logSASGameRecordGeography()
 		iIceCoastSeaPlots, iIceOceanSeaPlots, iIceLakePlots, szLargestLandmass.GetCString(), iLargestAreaPlots, kMap.isWrapX(),
 		kMap.isWrapY(), eCoast == NO_TERRAIN ? "-" : GC.getInfo(eCoast).getType(), eOcean == NO_TERRAIN ? "-" : GC.getInfo(eOcean).getType(),
 		eIce == NO_FEATURE ? "-" : GC.getInfo(eIce).getType());
-	logSASGameRecord("GAME_RECORD_GEOGRAPHY_YIELD_LEGEND nature=terrain_feature_hills_river_without_bonus revealedRaw=nature_plus_bonus_base_yield_from_reveal_era bonusImprovedPotential=revealedRaw_plus_only_XML_valid_bonus_improvement_after_reveal_connection_and_build_tech nonBonusPlots=never_improvement_optimized routesCivicsMaturation=excluded potentialIrrigation=allowed_on_valid_bonus_improvement improvementTechYieldChanges=included score321=3F+2H+C averageScale=100 eraFormat=ERA:F/H/C/321");
+	// <!-- custom: Name the actual engine query; listing selected contributors omitted others such as per-plot extra yields.
+	// Remaining legend fields describe this recorder's estimate and encoding, not the full gameplay algorithm. (GPT-6.1-Sol) -->
+	logSASGameRecord("GAME_RECORD_GEOGRAPHY_YIELD_LEGEND nature=ENGINE_CALCULATE_NATURE_YIELD_NO_TEAM revealedRaw=nature_plus_bonus_base_yield_from_reveal_era bonusImprovedPotential=revealedRaw_plus_only_XML_valid_bonus_improvement_after_reveal_connection_and_build_tech nonBonusPlots=never_improvement_optimized routesCivicsMaturation=excluded potentialIrrigation=allowed_on_valid_bonus_improvement improvementTechYieldChanges=included score321=3F+2H+C averageScale=100 eraFormat=ERA:F/H/C/321");
 	logSASGameRecord("GAME_RECORD_GEOGRAPHY_COMPOSITION_LEGEND percentScale=100 terrainPercentDenominator=landmassPlots featurePercentDenominator=landmassPlots featurelessPercent=plots_without_feature waterBorderLand=land_plots_adjacent_to_any_water seaBorderLand=land_plots_adjacent_to_nonlake_water lakeBorderLand=land_plots_adjacent_to_lake_water borderEdgesPerLandX100=adjacent_land_water_edges_per_land_plot_times_100 iceBorderLand=land_plots_adjacent_to_FEATURE_ICE adjacentLakePlots=unique_lake_area_tiles_touching_landmass adjacentLakePerLandPercentDenominator=landmassPlots noOceanConnected=non_ocean_water_topology_ignoring_impassable_features noOceanNavigable=non_ocean_water_excluding_impassable_plots sea=water_excluding_lakes coastSea=nonlake_TERRAIN_COAST oceanSea=nonlake_TERRAIN_OCEAN");
 	for (size_t iI = 0; iI < aLandmasses.size(); iI++)
 	{
@@ -7573,7 +7729,15 @@ static void logSASGameRecordInitialPlayerIdentities()
 		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
 		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
 		if (kLoopPlayer.isEverAlive() && !kLoopPlayer.isBarbarian())
+		{
 			logSASGameRecordPlayerSetup(eLoopPlayer);
+			// <!-- custom: Trait definition rows preserve loaded rules, while CvPlot consumes CvPlayer's cached effective thresholds after trait combination.
+			// Record those effective values beside the initial player identity so custom/multiple-trait setups do not require consumers to reconstruct the cache algorithm. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2) logSASGameRecord("GAME_RECORD_PLAYER_PLOT_YIELD_THRESHOLDS player=%d ordinaryFood=%d ordinaryProduction=%d ordinaryCommerce=%d naturalFood=%d naturalProduction=%d naturalCommerce=%d source=EFFECTIVE_PLAYER_STATE",
+				eLoopPlayer, kLoopPlayer.getExtraYieldThreshold(YIELD_FOOD), kLoopPlayer.getExtraYieldThreshold(YIELD_PRODUCTION),
+				kLoopPlayer.getExtraYieldThreshold(YIELD_COMMERCE), kLoopPlayer.getExtraYieldNaturalThreshold(YIELD_FOOD),
+				kLoopPlayer.getExtraYieldNaturalThreshold(YIELD_PRODUCTION), kLoopPlayer.getExtraYieldNaturalThreshold(YIELD_COMMERCE));
+		}
 	}
 }
 
@@ -7927,7 +8091,8 @@ static void logSASGameRecordVassalStatus(CvTeam const& kVassal, int iGameTurn)
 		return;
 	CvTeam const& kMaster = GET_TEAM(eMaster);
 	int const iVassalLand = kVassal.getTotalLand(false);
-	int const iVassalRuleLand = std::max(10, iVassalLand); // Native revolt rules apply this lower bound.
+	// <!-- custom: Observe the same floor used by CvTeam instead of independently maintaining a recorder copy. (GPT-6.1-Sol) -->
+	int const iVassalRuleLand = std::max(CvTeam::getSASVassalRevoltLandFloor(), iVassalLand);
 	// <!-- custom: CvTeam uses two different master-land views in the native freedom rules: relative-size checks use own land only, while the master-loss rule and its stamped baseline use getTotalLand() including vassal contribution.
 	// Record both explicitly to avoid the same ambiguity that UI percentages can create. (ChatGPT-5.6-Sol) -->
 	int const iMasterOwnLand = kMaster.getTotalLand(false);
@@ -13433,9 +13598,9 @@ static char const* getSASGameRecordAISettlerSiteDecisionSource(SASGameRecordAISe
 // <!-- custom: Read only the maintained shortlist and selected plot cache; do not rescore the site for this row.
 // A current-plot recheck supplies its fresh score separately, with pathAdjustedScore=-1 because that decision compares raw found values rather than path-adjusted scores. (GPT-6.1-Sol) -->
 // <!-- custom: Folded CvUnitAI's SAS_recordSettlerSiteDecisionIfChanged wrapper into this formatter, including its prior-mission reads and unchanged-destination filter; callers retain their level-2 gates and pre-dispatch timing. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+// <!-- custom: Both CvUnitAI call sites use bLogSASSettlerDecision before entering; remove the repeated enabled-state assertion, which does not verify argument pre-gating. (GPT-6.1-Sol) -->
 void logSASGameRecordAISettlerSiteDecision(CvUnitAI const& kSettler, CvPlot const& kTargetPlot, bool bFoundNow, SASGameRecordAISettlerSiteDecisionSource eSource, int iDecisionRawFoundValue, int iDecisionSelectionFoundValue, int iPathTurns, int iPathAdjustedScore, bool bSafe)
 {
-	FAssert(gGameRecordLogLevel >= 2);
 	// <!-- custom: Folding the wrapper here initially left two pGroup declarations and failed compilation with C2374; share this one group read between filtering and row output. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	CvSelectionGroupAI const* pGroup = kSettler.AI_getGroup();
 	MissionAITypes const ePreviousMissionAI = (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType());
@@ -13577,9 +13742,9 @@ void logSASGameRecordNavalTransportDefenderSelection(CvUnit const& kAttacker, Cv
 // <!-- custom: Emit one compact numeric row per requested worked-plot horizon, only at rare level-2+ city-founding boundaries.
 // Food surpluses include the free center; coreAvailable=0 makes their zero placeholders unavailable, while unsupportedProjectedScore=-1 means no feasible comparison and is never a penalty.
 // The food-ranked budget reorders selected potential improvements, not every legal improvement; none of these summaries proves an achievable growth/technology path or changes AI scores. See KI#144.4. (GPT-6.1-Sol) -->
+// <!-- custom: The founding-site collector owns the level-2 caller gate for both food-support rows; no repeated enabled-state assertion is needed in this formatter. (GPT-6.1-Sol) -->
 static void logSASGameRecordCitySiteFoodSupport(CvPlayer const& kPlayer, CvPlot const& kPlot, char const* szRole, SASGameRecordCitySiteFoodSupportResult const& kSummary)
 {
-	FAssert(gGameRecordLogLevel >= 2);
 	for (int iCore = 0; iCore < SASGameRecordCitySiteFoodSupportResult::CORE_COUNT; ++iCore)
 	{
 		logSASGameRecord("GAME_RECORD_CITY_SITE_FOOD_SUPPORT turn=%d player=%d x=%d y=%d role=%s perspective=PLAYER_KNOWN evaluationAvailable=%d knownUsableNonHome=%d unrevealed=%d foodPerCitizen=%d corePlots=%d coreAvailable=%d valueFoodSurplus=%d valueNaturalFoodSurplus=%d foodRankedSurplus=%d unsupportedProjectedScore=%d appliedCapitalFoodSupportPenalty=%d foodConstraint=SUSTAIN_ONLY growthPathModeled=0 healthHappinessIncluded=0 techTimingEnforced=0",
@@ -13592,9 +13757,9 @@ static void logSASGameRecordCitySiteFoodSupport(CvPlayer const& kPlayer, CvPlot 
 
 // <!-- custom: Extend the existing cold founded-site comparison with player-known Food budgets and one current cached alternative; the caller still gates the entire operation at level 2 before founding mutates the map.
 // Keep the original cached decision evidence separate from fresh rescoring; no periodic rescans, pathfinding, RNG or gameplay results are introduced. See KI#144.4. (GPT-6.1-Sol) -->
+// <!-- custom: CvPlayer calls this only under bLogSASCityFounding (level 2 and finalized game); remove the repeated enabled-state assertion and retain that caller contract. (GPT-6.1-Sol) -->
 void logSASGameRecordCityFoundingSite(CvPlayer const& kPlayer, CvPlot const& kPlot)
 {
-	FAssert(gGameRecordLogLevel >= 2);
 	if (kPlayer.isBarbarian())
 		return;
 	CvPlayerAI const& kPlayerAI = kPlayer.AI();
@@ -15473,7 +15638,8 @@ void logSASGameRecordAIConquerCityDecision(CvPlayerAI const& kPlayer, CvCity con
 {
 	PlayerTypes const ePreviousOwner = kCity.getPreviousOwner();
 	TeamTypes const ePreviousTeam = (ePreviousOwner == NO_PLAYER ? NO_TEAM : GET_PLAYER(ePreviousOwner).getTeam());
-	logSASGameRecord("GAME_RECORD_AI_CONQUER_CITY_DECISION turn=%d player=%d team=%d cityId=%d city=%S x=%d y=%d area=%d previousOwner=%d previousTeam=%d originalOwner=%d pop=%d everOwned=%d outcome=%s reason=%s valueValid=%d razeValueBeforeRandom=%d random=%d razeValue=%d threshold=0 componentsValid=%d distanceAndLocalPower=%d maintenanceDelta=%+d populationDelta=%+d personalityDominationDelta=%+d otherDelta=%+d financialTrouble=%d closeness=%d barbarianRollPassed=%d liberationPlayer=%d",
+	// <!-- custom: Do not print a universal threshold=0: this formatter also handles early decisions and the Barbarian percentage roll, which do not use the ordinary sign test. Preserve observed values and branch reasons instead. (GPT-6.1-Sol) -->
+	logSASGameRecord("GAME_RECORD_AI_CONQUER_CITY_DECISION turn=%d player=%d team=%d cityId=%d city=%S x=%d y=%d area=%d previousOwner=%d previousTeam=%d originalOwner=%d pop=%d everOwned=%d outcome=%s reason=%s valueValid=%d razeValueBeforeRandom=%d random=%d razeValue=%d componentsValid=%d distanceAndLocalPower=%d maintenanceDelta=%+d populationDelta=%+d personalityDominationDelta=%+d otherDelta=%+d financialTrouble=%d closeness=%d barbarianRollPassed=%d liberationPlayer=%d",
 		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), kCity.getID(), kCity.getName().GetCString(), kCity.getX(),
 		kCity.getY(), kCity.getArea().getID(), ePreviousOwner, ePreviousTeam, kCity.getOriginalOwner(), kCity.getPopulation(),
 		bEverOwned ? 1 : 0, getSASGameRecordAIConquerCityOutcome(eOutcome), getSASGameRecordAIConquerCityReason(eReason),

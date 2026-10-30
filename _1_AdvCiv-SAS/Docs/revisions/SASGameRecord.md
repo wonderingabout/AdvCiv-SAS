@@ -46,6 +46,11 @@ After this, each qualifying SASGameRecord commit increments `SAS_SGR_REVISION` i
   - The build's exact revision/source identity and `GAME_RECORD_LOG_SETTINGS` tell a consumer which implementation/settings produced the file; loaded-XML/rules rows preserve runtime-dependent mappings.
   - An exhaustive per-run list of every row type the source *could* emit would repeat gameplay-independent implementation metadata and still require maintenance for conditional/dynamic `GAME_RECORD_ACTION type=...` families.
   - Keep such schema/consumer guidance in source/docs/checkers rather than enlarging every record with a static manifest unless a concrete downstream consumer later proves that worthwhile.
+- **Loaded rule values and diagnostic models have different scopes.**
+  - Rule rows preserve the loaded parameters; the matching DLL/source identity identifies the algorithm that consumes them. They are not a complete gameplay evaluator.
+  - These setup rows are separate from dynamic action and state rows. An outdated explanation does not by itself invalidate separately recorded events or numeric observations; revise the interpretation against that run's source rather than treating the whole record as invalid.
+  - Interpretation guidance can help analyze logs and games even when it is not derived automatically from gameplay code. Keep it here, tied to the relevant revision, rather than repeating a brittle description in every log as if it were observed data. Later changes can invalidate it, so check the recorded source identity before applying it to another revision.
+  - Geography potential is the recorder's constrained estimate, not a promise of achievable tile yields: it uses era-based technology availability and valid bonus improvements while excluding routes, civics and maturation. Fixed labels such as `score321=3F+2H+C` and `averageScale=100` define that estimate or its encoding.
 - **Interpret evidence according to how the row is produced.**
   - Exact/realized action or transition rows are emitted at the live mutation/decision boundary and mean that event actually happened; snapshot/checkpoint rows are observations at the stated boundary and do not imply that unrecorded intermediate state was unchanged; derived/diagnostic fields are explanatory calculations from live state and are not necessarily separately stored gameplay state or causal chooser inputs unless the row/documentation says so.
   - AI-decision rows intentionally preserve selected/realized provenance without promising an exhaustive dump of every rejected candidate.
@@ -108,10 +113,27 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 184 - SAS practical 6704
+### Revision 185 - SAS practical 6705
 
 - **Date:** 2026-10-30
 - **Git commit:** pending
+- **Change:** Add compact level-2 loaded plot-yield rule context once per new/load SGR session, so recorded plot outcomes can be interpreted against the rules that produced them without hardcoding the current XML or recomputing plot yields.
+  - `GAME_RECORD_PLOT_YIELD_RULES` records loaded Define values; structured terrain/feature rows retain their actual river/hill vectors under neutral field names. The record does not emit a hand-maintained copy of `CvPlot` evaluation semantics that could drift from the implementation.
+  - Structured rows preserve the loaded yield, terrain, feature, bonus, route, improvement, technology, civic, trait and relevant building modifiers. Complete direct-type families are emitted deterministically; all-zero cross-product vectors are omitted and counted in the summary rather than expanding into an XML dump.
+    - The summary explicitly names its complete row families; bonus definitions with zero base yields and all-zero modifier vectors are sparse. Within those declared sparse families, an omitted vector means zero, not unavailable data.
+  - Initial player rows also preserve the effective cached ordinary/natural extra-yield thresholds actually consumed by `CvPlot`, so multiple/custom trait combinations do not have to be reconstructed from trait definitions alone. These are initial observations, not continuous tracking of later threshold edits.
+  - The loaded-rule snapshot does not include a sparse baseline of custom per-plot extra yields already present in a save/scenario. Later yield-change rows cannot establish that initial component, so rule rows and observed total yields alone do not provide an exhaustive per-tile reconstruction.
+  - Collection is setup-only and uses already-loaded XML/define/player state. It does not scan plots, call `calculateYield`/`calculateNatureYield`, repeat AI evaluation or RNG, or claim to be an on-demand component breakdown for a particular tile; existing plot state/change rows remain the factual outcomes.
+  - Loaded values are observed directly; the corresponding evaluation algorithm remains identified by existing DLL/source provenance. A complete per-tile explanation would need evidence from the real calculation, not a second independently maintained yield algorithm.
+  - A broader pre-commit metadata review also removes unconditional `threshold=0` from conquer-city decisions: early decisions and Barbarian percentage rolls do not use the ordinary sign test. The geography legend names its actual `calculateNatureYield(..., NO_TEAM)` source rather than an incomplete contributor list.
+  - Vassal setup and periodic rows read a shared native land-floor accessor, also used by revolt tests and initial vassal power, replacing the recorder's independent `10` literal without changing gameplay. Loaded threshold values remain; fixed algorithm-description flags are removed.
+  - Remove four enabled-state assertions after checking their caller gates; they did not establish pre-gating. Retain actual data/effect invariants, including the state-checkpoint assertion that fingerprint computation leaves authoritative RNG seeds unchanged.
+- **Validation:** Debug-opt loaded-save replay through completed turn 200 emitted 175 rule/player-threshold rows (29,056 bytes), with matching summary counts and no writer failures/drops or PythonErr output. All 204 checkpoint pairs match the SGR184 control's authoritative RNG state/streams and state fingerprints; call-site fingerprints differ after source edits.
+
+### Revision 184 - SAS practical 6704
+
+- **Date:** 2026-10-30
+- **Git commit:** `35445945080382d2d0007f39b142944dc3f52bb9`
 - **Change:** Add compact level-2 AI upgrade/scrap/preservation reasoning without repeating synchronized RNG, upgrade scoring or generic scrap eligibility queries.
   - `GAME_RECORD_AI_UPGRADE_DECISION` observes the real `AI_upgrade` chooser. Successful selections and candidates blocked by the actual remaining-price cap are event rows; ordinary `NOT_READY`, `NO_BETTER_VALUE` and `ELIGIBILITY_BLOCKED` retention outcomes are sampled on the existing SGR interval.
   - The five inherited upgrade passes, focus-war/financial state, starting/current Gold, budget/spend/cap and chooser counts come from the live call. Candidate value, `canUpgrade`, price and synchronized randomization are each evaluated only where gameplay already evaluates them; the recorder never reruns the randomized chooser.
