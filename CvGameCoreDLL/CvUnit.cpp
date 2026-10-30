@@ -3372,6 +3372,16 @@ void CvUnit::automate(AutomateTypes eAutomate)
 // Explicit scrapForced() callers instead establish narrow mandatory-cleanup conditions; see KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 bool CvUnit::canScrap() const
 {
+	return canScrap(NULL);
+}
+
+
+// <!-- custom: Return the policy outcome from the existing short-circuit path so reviewed AI disposal sites can explain preservation without repeating eligibility work. (ChatGPT-5.6-Sol) -->
+bool CvUnit::canScrap(SASUnitScrapEligibility* peEligibility) const
+{
+	SASUnitScrapEligibility eAllowedEligibility = SAS_UNIT_SCRAP_ELIGIBLE_GENERIC;
+	if (peEligibility != NULL)
+		*peEligibility = eAllowedEligibility;
 	// <!-- custom: old function was a 3 liner -->
 	// if (getPlot().isFighting())
 	// 	return false;
@@ -3383,6 +3393,7 @@ bool CvUnit::canScrap() const
 	const bool bSAS_SCRAP_AI_ABSOLUTELY_ON = GC.getDefineBOOL(CvGlobals::SAS_SCRAP_AI_ABSOLUTELY_ON);
 	if (!bSAS_SCRAP_AI_ABSOLUTELY_ON && !isHuman())
 	{
+		if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_AI_DISABLED;
 		return false;
 	}
 
@@ -3404,10 +3415,12 @@ bool CvUnit::canScrap() const
 			// In one autoplay test, obsolete-only scrapping produced 3324 SCRAP_DECISION lines but only 94 SCRAP_EVENT lines, mostly old units with cargo 0/0, very few veteran scraps (only 1 with XP >= 7), and no obvious weaker-AI result at a glance. (GPT-5.5 + ChatGPT-5.5) -->
 			if (getCargo() > 0 || cargoSpace() > 0)
 			{
+				if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_OBSOLETE_TRANSPORT;
 				return false;
 			}
 			if (!bSAS_SCRAP_OBSOLETE_TECH || eObsoleteTech == NO_TECH || !GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
 			{
+				if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_NOT_OBSOLETE;
 				return false;
 			}
 			static const int iSAS_SCRAP_OBSOLETE_PRE_REN_MIN_ERA_DELAY = GC.getDefineINT("SAS_SCRAP_OBSOLETE_PRE_REN_MIN_ERA_DELAY");
@@ -3417,8 +3430,10 @@ bool CvUnit::canScrap() const
 			int const iObsoleteEraDelay = (iObsoleteEra >= eERA_RENAISSANCE ? iSAS_SCRAP_OBSOLETE_REN_PLUS_MIN_ERA_DELAY : iSAS_SCRAP_OBSOLETE_PRE_REN_MIN_ERA_DELAY);
 			if (GET_PLAYER(getOwner()).getCurrentEra() < iObsoleteEra + iObsoleteEraDelay)
 			{
+				if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_OBSOLETE_TOO_RECENT;
 				return false;
 			}
+			if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_ELIGIBLE_OBSOLETE;
 			return true;
 		}
 		if (bSAS_SCRAP_OBSOLETE_TECH && eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
@@ -3428,8 +3443,10 @@ bool CvUnit::canScrap() const
 			// Normal recommended play keeps SAS_SCRAP_OBSOLETE_ON enabled above. (ChatGPT-5.5) -->
 			if (getCargo() > 0 || cargoSpace() > 0)
 			{
+				if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_OBSOLETE_TRANSPORT;
 				return false;
 			}
+			if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_ELIGIBLE_OBSOLETE;
 			return true;
 		}
 
@@ -3450,12 +3467,14 @@ bool CvUnit::canScrap() const
 		);
 		if (bLandMilitaryUnitAIs)
 		{
+			if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_LAND_MILITARY;
 			return false;
 		}
 		// <!-- custom: if the former fails, also check canFight -->
 		// prefer explicit AIs, but also OR with canFight() just in case
 		else if (getDomainType() == DOMAIN_LAND && canFight())
 		{
+			if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_LAND_COMBAT;
 			return false;
 		}
 
@@ -3532,6 +3551,7 @@ bool CvUnit::canScrap() const
 			// asymmetric: don’t scrap existing boats
 			if (bAllHandledNavalUnitAIs)
 			{
+				if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_NAVAL_ROLE;
 				return false;
 			}
 
@@ -3564,6 +3584,7 @@ bool CvUnit::canScrap() const
 			// <!-- custom: similarly, avoid scrapping for these, prefer having a few extra than risking infinite loops of produce scrap -->
 			if (bMostHandledLandCivilianUnitAIs)
 			{
+				if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_LAND_CIVILIAN;
 				return false;
 			}
 
@@ -3609,6 +3630,7 @@ bool CvUnit::canScrap() const
 				// <!-- custom: don't scrap before renaissance -->
 				if (!bRenaissancePlus)
 				{
+					if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_WORKER_PRE_RENAISSANCE;
 					return false;
 				}
 				else
@@ -3632,14 +3654,17 @@ bool CvUnit::canScrap() const
 					// <!-- custom: Keep worker scrapping synchronized with the AdvCiv-SAS production floor, so future max-worker tuning cannot allow unit logic to remove workers below the minimum that city production immediately rebuilds. (GPT-5.5) -->
 					if (kPlayer.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER) <= kPlayer.AI_getSASMinimumAreaWorkers(getArea()))
 					{
+						if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_WORKER_AREA_FLOOR;
 						return false;
 					}
 
 					// <!-- custom: inferior or equal, as we don't scrap if just at max as nicely noted by chatgpt 5 thanks (and despite it being superior or equal in the chooseUnit function hehe if i understood it correctly) -->
 					if (iTotalUnitAIs <= iMaxUnits)
 					{
+						if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_WORKER_NOT_SURPLUS;
 						return false;
 					}
+					eAllowedEligibility = SAS_UNIT_SCRAP_ELIGIBLE_WORKER_SURPLUS;
 					// <!-- custom: else i.e. if we have too much units, go with the code and scrap if all goes as intended later before final order-->
 				}
 			}
@@ -3650,6 +3675,7 @@ bool CvUnit::canScrap() const
 			);
 			if (bAirCombatUnitAIs)
 			{
+				if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_AIR_COMBAT;
 				return false;
 			}
 
@@ -3664,6 +3690,7 @@ bool CvUnit::canScrap() const
 
 			if (bNoDisbandAtAllPhase)
 			{
+				if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_EARLY_GAME;
 				return false;
 			}
 		}
@@ -3676,6 +3703,7 @@ bool CvUnit::canScrap() const
 		// <!-- custom: note: not protecting passengers with a getCargo() > 0 contrary to what chatgpt 5 advises, as i don't know how it would behave if forcibly protecting the inside units (looks less predictable to me), and i hope the protection of the cargo itself is enough and most fit -->
 		if (getCargo() > 0)
 		{
+			if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_CARRYING_CARGO;
 			return false;
 		}
 
@@ -3691,6 +3719,7 @@ bool CvUnit::canScrap() const
 		);
 		if (bGreatPersonUnitAIs)
 		{
+			if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_GREAT_PERSON;
 			return false;
 		}
 
@@ -3701,13 +3730,18 @@ bool CvUnit::canScrap() const
 		);
 		if (bAirMissileUnitAIs)
 		{
+			if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_AIR_MISSILE;
 			return false;
 		}
 	}
 
 	// <!-- custom: then after our checks, resume from old code below -->
 	if (getPlot().isFighting())
+	{
+		if (peEligibility != NULL) *peEligibility = SAS_UNIT_SCRAP_VETO_FIGHTING;
 		return false;
+	}
+	if (peEligibility != NULL) *peEligibility = eAllowedEligibility;
 	return true;
 }
 
@@ -3715,8 +3749,22 @@ bool CvUnit::canScrap() const
 // <!-- custom: Return explicit success so callers cannot treat a restrictive SAS canScrap veto as removal. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 bool CvUnit::scrap()
 {
-	if (!canScrap())
+	return scrap(SAS_UNIT_SCRAP_CONTEXT_UNSPECIFIED);
+}
+
+
+// <!-- custom: Context overload keeps the routine eligibility/removal contract unchanged while letting reviewed AI disposal sites attach already-known decision/cost facts to SGR184.
+// The call performs gameplay even with logging off; only the diagnostic reason output and recorder calls are gated. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+bool CvUnit::scrap(SASUnitScrapContext eContext, int iDecisionValue, int iUnitCostPerMil, int iMaxUnitCostPerMil)
+{
+	bool const bLogSASScrap = (gGameRecordLogLevel >= 2 && !isHuman() && eContext != SAS_UNIT_SCRAP_CONTEXT_UNSPECIFIED);
+	SASUnitScrapEligibility eEligibility = SAS_UNIT_SCRAP_ELIGIBLE_GENERIC;
+	if (!canScrap(bLogSASScrap ? &eEligibility : NULL))
+	{
+		if (bLogSASScrap) logSASGameRecordAIScrapPreservationVeto(*this, eContext, eEligibility, iDecisionValue, iUnitCostPerMil, iMaxUnitCostPerMil);
 		return false;
+	}
+	if (bLogSASScrap) logSASGameRecordAIScrapDecision(*this, eContext, eEligibility, "SCRAPPED", false, false, iDecisionValue, iUnitCostPerMil, iMaxUnitCostPerMil);
 	scrapInternal();
 	return true;
 }
@@ -3725,10 +3773,28 @@ bool CvUnit::scrap()
 // <!-- custom: Forced cleanup bypasses routine SAS preservation after caller-specific eligibility, but retains the fundamental fighting guard and the absolute AI-scrap preference unless a mandatory game rule such as capitulation disarm says otherwise. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 bool CvUnit::scrapForced(bool bMandatoryGameRule)
 {
-	if (getPlot().isFighting()) return false;
+	return scrapForced(bMandatoryGameRule, SAS_UNIT_SCRAP_CONTEXT_UNSPECIFIED);
+}
+
+
+// <!-- custom: Context overload preserves forced-scrap policy; the extra enum identifies the caller for SGR184 without making generic forced removals diagnostic events. (ChatGPT-5.6-Sol) -->
+bool CvUnit::scrapForced(bool bMandatoryGameRule, SASUnitScrapContext eContext)
+{
+	// <!-- custom: Forced removal is gameplay, so keep its guards active independently of logging; only collect/format reasons under the diagnostic gate. (GPT-6.1-Sol) -->
+	bool const bLogSASScrap = (gGameRecordLogLevel >= 2 && eContext != SAS_UNIT_SCRAP_CONTEXT_UNSPECIFIED && !isHuman());
+	if (getPlot().isFighting())
+	{
+		if (bLogSASScrap) logSASGameRecordAIScrapDecision(*this, eContext, SAS_UNIT_SCRAP_VETO_FIGHTING, "PRESERVED", true, bMandatoryGameRule);
+		return false;
+	}
 	// <!-- custom: Read the same absolute permission as routine scrapping; retain the human and mandatory-game-rule exceptions when it is off. See KI#331. (GPT-6.1-Sol) -->
 	const bool bSAS_SCRAP_AI_ABSOLUTELY_ON = GC.getDefineBOOL(CvGlobals::SAS_SCRAP_AI_ABSOLUTELY_ON);
-	if (!bMandatoryGameRule && !bSAS_SCRAP_AI_ABSOLUTELY_ON && !isHuman()) return false;
+	if (!bMandatoryGameRule && !bSAS_SCRAP_AI_ABSOLUTELY_ON && !isHuman())
+	{
+		if (bLogSASScrap) logSASGameRecordAIScrapDecision(*this, eContext, SAS_UNIT_SCRAP_VETO_AI_DISABLED, "PRESERVED", true, false);
+		return false;
+	}
+	if (bLogSASScrap) logSASGameRecordAIScrapDecision(*this, eContext, (bMandatoryGameRule ? SAS_UNIT_SCRAP_FORCED_MANDATORY_RULE : SAS_UNIT_SCRAP_FORCED_CALLER_VETTED), "SCRAPPED", true, bMandatoryGameRule);
 	scrapInternal();
 	return true;
 }

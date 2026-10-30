@@ -18,6 +18,8 @@ struct SASEspionageChoiceContext;
 struct SASGreatGeneralChoiceContext;
 // <!-- custom: Opaque optional SASGameRecord output for the existing Great-Merchant trade-target scan; definition stays recorder-owned in SASGameRecordLog.h. (ChatGPT-5.6-Sol) -->
 struct SASGreatMerchantTradeChoiceContext;
+// <!-- custom: AI_upgrade fills this optional recorder-owned context from its real randomized chooser; NULL keeps ordinary calls free of diagnostic bookkeeping. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordAIUpgradeContext;
 
 class CvUnitAI : public CvUnit
 {
@@ -31,8 +33,9 @@ public:
 	bool AI_update();
 	bool AI_follow(/* K-Mod: */ bool bFirst = true);
 	// <!-- custom: Add an optional max price so emergency calls stay uncapped by default, while upgrade-budget code can reject unaffordable candidates without changing the old candidate iteration/random calls for affordable upgrades.
-	// See corresponding .cpp function and KI#160. (ChatGPT-5.5 + GPT-5.5) -->
-	bool AI_upgrade(int iMaxUpgradePrice = MAX_INT);
+	// The optional recorder-owned context captures evaluations from that same chooser; NULL keeps diagnostic bookkeeping disabled.
+	// See corresponding .cpp function and KI#160. (ChatGPT-5.5 + GPT-5.5 + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool AI_upgrade(int iMaxUpgradePrice = MAX_INT, SASGameRecordAIUpgradeContext* pSASContext = NULL);
 	void AI_promote();
 	scaled AI_upgradePriority() const; // advc.131e
 	int AI_groupFirstVal() const;

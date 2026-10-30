@@ -288,6 +288,14 @@ struct SASGameRecordAIWorkerTaskContext
 	bool bHuman, bAutomated, bBarbarian;
 };
 static std::map<std::pair<int,int>, SASGameRecordAIWorkerTaskContext> g_mapSASGameRecordAIWorkerTask;
+// <!-- custom: Repeated preservation vetoes can otherwise dominate level-2 logs when financial trouble screens the same protected unit every turn.
+// Keep only recorder/session-local sampling state; changed policy reason, candidate value, or cost ceiling emits immediately, while unchanged circumstances are observed on the normal SGR interval. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordScrapVetoState
+{
+	SASGameRecordScrapVetoState() : iEligibility(-1), iDecisionValue(-1), iUnitCostPerMil(-1), iMaxUnitCostPerMil(-1), iCreatedTurn(-1), iLastTurn(-1) {}
+	int iEligibility, iDecisionValue, iUnitCostPerMil, iMaxUnitCostPerMil, iCreatedTurn, iLastTurn;
+};
+static std::map<std::pair<std::pair<int,int>,int>, SASGameRecordScrapVetoState> g_mapSASGameRecordScrapVetoStates;
 static SASGameRecordPlotOwnerChangeCause g_eSASGameRecordPlotOwnerChangeCause = SAS_PLOT_OWNER_CAUSE_NONE;
 // <!-- custom: Record snapshot UTC plus cumulative and per-interval wall time directly so benchmark duration is visible without external timestamp subtraction.
 // Use the monotonic millisecond timer for useful precision and immunity to system-clock adjustments; wall time intentionally includes pauses and user interaction. (GPT-5.6-Sol) -->
@@ -1790,6 +1798,7 @@ static void rollSASGameRecordLog(const char* szContext)
 	g_mapSASGameRecordEvacuationUnitDecision.clear();
 	g_mapSASGameRecordEvacuationRetreatMission.clear();
 	g_mapSASGameRecordAIWorkerTask.clear();
+	g_mapSASGameRecordScrapVetoStates.clear();
 	g_eSASGameRecordPlotOwnerChangeCause = SAS_PLOT_OWNER_CAUSE_NONE;
 	time_t kSessionStartTime;
 	time(&kSessionStartTime);
@@ -4356,6 +4365,7 @@ static void resetSASGameRecordState()
 	g_mapSASGameRecordEvacuationUnitDecision.clear();
 	g_mapSASGameRecordEvacuationRetreatMission.clear();
 	g_mapSASGameRecordAIWorkerTask.clear();
+	g_mapSASGameRecordScrapVetoStates.clear();
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		g_akSASGameRecordTeamPrevious[iI].bValid = false;
@@ -14920,6 +14930,112 @@ static CvString getSASGameRecordTechCandidatePaths(SASTechChoiceContext const* p
 		szResult += szItem;
 	}
 	return szResult;
+}
+
+// <!-- custom: These names currently serve only SGR, so generate private formatters here instead of exporting unused public getters through CvUnit.
+// Their catalogs stay with the typed CvUnit API; one source still generates enum values and labels, preserving the BuildingFocus pattern without a second switch list. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static char const* getSASGameRecordScrapContextName(SASUnitScrapContext eContext)
+{
+	switch (eContext)
+	{
+#define SAS_UNIT_SCRAP_CONTEXT_NAME(NAME) case SAS_UNIT_SCRAP_CONTEXT_##NAME: return #NAME;
+	SAS_UNIT_SCRAP_CONTEXT_ROWS(SAS_UNIT_SCRAP_CONTEXT_NAME)
+#undef SAS_UNIT_SCRAP_CONTEXT_NAME
+	default: return "UNSPECIFIED";
+	}
+}
+#undef SAS_UNIT_SCRAP_CONTEXT_ROWS
+
+static char const* getSASGameRecordScrapEligibilityName(SASUnitScrapEligibility eEligibility)
+{
+	switch (eEligibility)
+	{
+#define SAS_UNIT_SCRAP_ELIGIBILITY_NAME(NAME) case SAS_UNIT_SCRAP_##NAME: return #NAME;
+	SAS_UNIT_SCRAP_ELIGIBILITY_ROWS(SAS_UNIT_SCRAP_ELIGIBILITY_NAME)
+#undef SAS_UNIT_SCRAP_ELIGIBILITY_NAME
+	default: return "UNKNOWN";
+	}
+}
+#undef SAS_UNIT_SCRAP_ELIGIBILITY_ROWS
+
+
+// <!-- custom: The upgrade row is the compact bridge missing between BBAI's optional budget diagnostics and GAME_RECORD_UNIT_UPGRADED's realized action.
+// It records the actual synchronized-RNG chooser outcome and real remaining-price cap.
+// Routine retained units are sampled; successful selections and price-cap blocks are always visible. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIUpgradeDecision(CvUnitAI const& kOldUnit, CvUnit const* pNewUnit, SASGameRecordAIUpgradeContext const& kContext)
+{
+	char const* szResult = "NO_BETTER_VALUE";
+	bool bAlwaysRecord = false;
+	if (!kContext.bReady)
+		szResult = "NOT_READY";
+	else if (kContext.eSelectedUnit != NO_UNIT)
+	{
+		bAlwaysRecord = true;
+		szResult = (pNewUnit != NULL && pNewUnit != &kOldUnit ? "UPGRADED" : "EXECUTION_REFUSED");
+	}
+	else if (kContext.iMaxPriceBlockedEvaluations > 0)
+	{
+		bAlwaysRecord = true;
+		szResult = "MAX_PRICE_BLOCKED";
+	}
+	else if (kContext.iImprovingEvaluations > 0)
+		szResult = "ELIGIBILITY_BLOCKED";
+	if (!bAlwaysRecord && GC.getGame().getGameTurn() % gGameRecordTurnInterval != 0)
+		return;
+
+	CvPlayerAI const& kOwner = GET_PLAYER(kOldUnit.getOwner());
+	int const iNewUnitId = (pNewUnit != NULL && pNewUnit != &kOldUnit ? pNewUnit->getID() : -1);
+	UnitTypes const eNewUnit = (pNewUnit != NULL && pNewUnit != &kOldUnit ? pNewUnit->getUnitType() : NO_UNIT);
+	logSASGameRecord("GAME_RECORD_AI_UPGRADE_DECISION turn=%d player=%d team=%d unitId=%d unit=%s unitAI=%s domain=%s x=%d y=%d area=%d age=%d exp=%d level=%d result=%s pass=%s noDisband=%d focusWar=%d financialTrouble=%d startingGold=%d goldBefore=%d spentBefore=%d upgradeBudget=%d remainingBudgetBefore=%d maxUpgradePrice=%d ready=%d currentValue=%d improvingEvaluations=%d eligibleImprovingEvaluations=%d maxPriceBlockedEvaluations=%d selectedUnit=%s selectedValue=%d selectedPrice=%d bestBlockedUnit=%s bestBlockedValue=%d bestBlockedPrice=%d newUnitId=%d newUnit=%s goldAfter=%d",
+		GC.getGame().getGameTurn(), kOldUnit.getOwner(), kOldUnit.getTeam(), kOldUnit.getID(), getSASGameRecordUnitType(kOldUnit.getUnitType()),
+		getSASGameRecordUnitAIType(kOldUnit.AI_getUnitAIType()), getSASGameRecordDomainType(kOldUnit.getDomainType()), kOldUnit.getX(), kOldUnit.getY(),
+		(kOldUnit.area() == NULL ? -1 : kOldUnit.area()->getID()), GC.getGame().getGameTurn() - kOldUnit.getGameTurnCreated(), kOldUnit.getExperience(), kOldUnit.getLevel(),
+		szResult, kContext.szPassName, kContext.bNoDisband ? 1 : 0, kContext.bFocusWar ? 1 : 0, kContext.bFinancialTrouble ? 1 : 0,
+		kContext.iStartingGold, kContext.iGoldBeforeAttempt, kContext.iSpentBefore, kContext.iUpgradeBudget,
+		(kContext.iUpgradeBudget < 0 || kContext.iSpentBefore < 0 ? -1 : std::max(0, kContext.iUpgradeBudget - kContext.iSpentBefore)), kContext.iMaxUpgradePrice,
+		kContext.bReady ? 1 : 0, kContext.iCurrentValue, kContext.iImprovingEvaluations, kContext.iEligibleImprovingEvaluations, kContext.iMaxPriceBlockedEvaluations,
+		getSASGameRecordUnitType(kContext.eSelectedUnit), kContext.iSelectedValue, kContext.iSelectedPrice, getSASGameRecordUnitType(kContext.eBestBlockedUnit),
+		kContext.iBestBlockedValue, kContext.iBestBlockedPrice, iNewUnitId, getSASGameRecordUnitType(eNewUnit), kOwner.getGold());
+}
+
+void logSASGameRecordAIScrapDecision(CvUnit const& kUnit, int iContext, int iEligibility, char const* szResult, bool bForced, bool bMandatoryGameRule, int iDecisionValue, int iUnitCostPerMil, int iMaxUnitCostPerMil)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	char const* szMode = (bMandatoryGameRule ? "MANDATORY" : (bForced ? "FORCED" : "ROUTINE"));
+	logSASGameRecord("GAME_RECORD_AI_SCRAP_DECISION turn=%d player=%d team=%d unitId=%d unit=%s unitAI=%s domain=%s x=%d y=%d area=%d age=%d exp=%d level=%d context=%s mode=%s result=%s eligibility=%s decisionValue=%d unitCostPerMil=%d maxUnitCostPerMil=%d cargo=%d cargoSpace=%d fighting=%d gold=%d goldRate=%d financialTrouble=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()), getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()),
+		getSASGameRecordDomainType(kUnit.getDomainType()), kUnit.getX(), kUnit.getY(), (kUnit.area() == NULL ? -1 : kUnit.area()->getID()),
+		GC.getGame().getGameTurn() - kUnit.getGameTurnCreated(), kUnit.getExperience(), kUnit.getLevel(), getSASGameRecordScrapContextName((SASUnitScrapContext)iContext), szMode, szResult,
+		getSASGameRecordScrapEligibilityName((SASUnitScrapEligibility)iEligibility), iDecisionValue, iUnitCostPerMil, iMaxUnitCostPerMil, kUnit.getCargo(), kUnit.cargoSpace(), kUnit.getPlot().isFighting() ? 1 : 0,
+		kOwner.getGold(), kOwner.calculateGoldRate(), kOwner.AI_isFinancialTrouble() ? 1 : 0);
+}
+
+void logSASGameRecordAIScrapPreservationVeto(CvUnit const& kUnit, int iContext, int iEligibility, int iDecisionValue, int iUnitCostPerMil, int iMaxUnitCostPerMil)
+{
+	std::pair<std::pair<int,int>,int> const kKey(std::make_pair(std::make_pair((int)kUnit.getOwner(), kUnit.getID()), iContext));
+	SASGameRecordScrapVetoState& kPrevious = g_mapSASGameRecordScrapVetoStates[kKey];
+	int const iTurn = GC.getGame().getGameTurn();
+	bool const bChanged = (kPrevious.iLastTurn < 0 || kPrevious.iEligibility != iEligibility || kPrevious.iDecisionValue != iDecisionValue ||
+		kPrevious.iUnitCostPerMil != iUnitCostPerMil || kPrevious.iMaxUnitCostPerMil != iMaxUnitCostPerMil || kPrevious.iCreatedTurn != kUnit.getGameTurnCreated());
+	// <!-- custom: The draft sampled unchanged vetoes on interval turns, but repeated same-turn queries passed that test again and duplicated rows.
+	// Suppress unchanged same-turn repeats too; changed evidence still emits immediately, before any output-only economy query. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	if (!bChanged && (kPrevious.iLastTurn == iTurn || iTurn % gGameRecordTurnInterval != 0))
+		return;
+	kPrevious.iEligibility = iEligibility;
+	kPrevious.iDecisionValue = iDecisionValue;
+	kPrevious.iUnitCostPerMil = iUnitCostPerMil;
+	kPrevious.iMaxUnitCostPerMil = iMaxUnitCostPerMil;
+	kPrevious.iCreatedTurn = kUnit.getGameTurnCreated();
+	kPrevious.iLastTurn = iTurn;
+	// <!-- custom: The potentially broader economy query is output-only: unchanged vetoes return above without recalculating it for every screened unit. (ChatGPT-5.6-Sol) -->
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	int const iGoldRate = kOwner.calculateGoldRate();
+	logSASGameRecord("GAME_RECORD_AI_SCRAP_DECISION turn=%d player=%d team=%d unitId=%d unit=%s unitAI=%s domain=%s x=%d y=%d area=%d age=%d exp=%d level=%d context=%s mode=ROUTINE result=PRESERVED eligibility=%s decisionValue=%d unitCostPerMil=%d maxUnitCostPerMil=%d cargo=%d cargoSpace=%d fighting=%d gold=%d goldRate=%d financialTrouble=%d observationReason=%s",
+		iTurn, kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()), getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()),
+		getSASGameRecordDomainType(kUnit.getDomainType()), kUnit.getX(), kUnit.getY(), (kUnit.area() == NULL ? -1 : kUnit.area()->getID()),
+		iTurn - kUnit.getGameTurnCreated(), kUnit.getExperience(), kUnit.getLevel(), getSASGameRecordScrapContextName((SASUnitScrapContext)iContext), getSASGameRecordScrapEligibilityName((SASUnitScrapEligibility)iEligibility),
+		iDecisionValue, iUnitCostPerMil, iMaxUnitCostPerMil, kUnit.getCargo(), kUnit.cargoSpace(), kUnit.getPlot().isFighting() ? 1 : 0,
+		kOwner.getGold(), iGoldRate, kOwner.AI_isFinancialTrouble() ? 1 : 0, bChanged ? "CHANGED" : "INTERVAL_UNCHANGED");
 }
 
 // <!-- custom: The context constructor calls reset only when its caller enables capture, so disabled logging does not initialize these fields.

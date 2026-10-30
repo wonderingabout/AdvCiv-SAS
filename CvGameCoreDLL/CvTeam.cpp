@@ -3937,7 +3937,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 				if (u->isNuke())
 				{
 					// <!-- custom: Capitulation nuclear disarm is a mandatory AdvCiv rule, not routine AI economizing; force removal so SAS obsolete-only preservation cannot leave AI nukes armed. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-					u->scrapForced(true);
+					u->scrapForced(true, SAS_UNIT_SCRAP_CONTEXT_CAPITULATION_NUKE_DISARM);
 				}
 			}
 		}

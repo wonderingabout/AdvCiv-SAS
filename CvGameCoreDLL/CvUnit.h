@@ -14,6 +14,59 @@ class GroupPathFinder;
 class CvUnitAI; // advc.003u
 struct CombatDetails;
 
+// <!-- custom: These types form the CvUnit scrap API: eligibility reports the real policy outcome, while context identifies the reviewed AI disposal caller for diagnostics.
+// Like CvCityAI's BuildingFocus catalog, one list generates each enum and the names used by SGR so adding a reason cannot silently omit its label.
+// Keep the types required by these overloads here; name conversion, sampling and row formatting are currently SGR-only and stay private to that recorder. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+#define SAS_UNIT_SCRAP_ELIGIBILITY_ROWS(DO) \
+	DO(ELIGIBLE_GENERIC) \
+	DO(ELIGIBLE_OBSOLETE) \
+	DO(ELIGIBLE_WORKER_SURPLUS) \
+	DO(VETO_AI_DISABLED) \
+	DO(VETO_OBSOLETE_TRANSPORT) \
+	DO(VETO_NOT_OBSOLETE) \
+	DO(VETO_OBSOLETE_TOO_RECENT) \
+	DO(VETO_LAND_MILITARY) \
+	DO(VETO_LAND_COMBAT) \
+	DO(VETO_NAVAL_ROLE) \
+	DO(VETO_LAND_CIVILIAN) \
+	DO(VETO_WORKER_PRE_RENAISSANCE) \
+	DO(VETO_WORKER_AREA_FLOOR) \
+	DO(VETO_WORKER_NOT_SURPLUS) \
+	DO(VETO_AIR_COMBAT) \
+	DO(VETO_EARLY_GAME) \
+	DO(VETO_CARRYING_CARGO) \
+	DO(VETO_GREAT_PERSON) \
+	DO(VETO_AIR_MISSILE) \
+	DO(VETO_FIGHTING) \
+	DO(FORCED_CALLER_VETTED) \
+	DO(FORCED_MANDATORY_RULE)
+enum SASUnitScrapEligibility
+{
+#define SAS_UNIT_SCRAP_ENUM(NAME) SAS_UNIT_SCRAP_##NAME,
+	SAS_UNIT_SCRAP_ELIGIBILITY_ROWS(SAS_UNIT_SCRAP_ENUM)
+#undef SAS_UNIT_SCRAP_ENUM
+};
+#define SAS_UNIT_SCRAP_CONTEXT_ROWS(DO) \
+	DO(UNSPECIFIED) \
+	DO(UPGRADE_CLEANUP) \
+	DO(FINANCIAL_TROUBLE) \
+	DO(IDLE_BARBARIAN_WORKER) \
+	DO(EXCESS_EXPLORER) \
+	DO(TRAPPED_BARBARIAN_SHIP) \
+	DO(OBSOLETE_ESCORT_SEA) \
+	DO(OBSOLETE_SEA_EXPLORER) \
+	DO(EXCESS_SEA_EXPLORER) \
+	DO(WORKER_SURPLUS_RETIREMENT) \
+	DO(OBSOLETE_SETTLER_TRANSPORT) \
+	DO(EVACUATION_SCORCHED_EARTH) \
+	DO(CAPITULATION_NUKE_DISARM)
+enum SASUnitScrapContext
+{
+#define SAS_UNIT_SCRAP_CONTEXT_ENUM(NAME) SAS_UNIT_SCRAP_CONTEXT_##NAME,
+	SAS_UNIT_SCRAP_CONTEXT_ROWS(SAS_UNIT_SCRAP_CONTEXT_ENUM)
+#undef SAS_UNIT_SCRAP_CONTEXT_ENUM
+};
+
 class CvUnit : public CvDLLUnitEntity
 {
 public:
@@ -93,11 +146,17 @@ public:
 	void automate(AutomateTypes eAutomate);
 
 	bool canScrap() const;																					// Exposed to Python
+	// <!-- custom: Internal overload returns the exact SAS eligibility outcome from the same short-circuit path; callers must not invoke canScrap twice merely for diagnostics. (ChatGPT-5.6-Sol) -->
+	bool canScrap(SASUnitScrapEligibility* peEligibility) const;
 	// <!-- custom: Inherited cleanup callers could validly treat scrap() as successful under Base AdvCiv's permissive non-combat contract.
 	// SAS made canScrap restrictive for AI preservation, so report success and let those callers distinguish the new vetoes from removal. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	bool scrap();
+	// <!-- custom: AI-only context overload lets SGR observe a real disposal attempt without turning generic canScrap queries into decision rows. (ChatGPT-5.6-Sol) -->
+	bool scrap(SASUnitScrapContext eContext, int iDecisionValue = -1, int iUnitCostPerMil = -1, int iMaxUnitCostPerMil = -1);
 	// <!-- custom: New caller-vetted forced-scrap path bypasses routine SAS preservation; its mandatory-game-rule mode can also override the absolute AI-scrap preference. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	bool scrapForced(bool bMandatoryGameRule = false);
+	// <!-- custom: Add the known AI disposal context without changing the forced/mandatory cleanup policy. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool scrapForced(bool bMandatoryGameRule, SASUnitScrapContext eContext);
 
 	bool canGift(bool bTestVisible = false, bool bTestTransport = true) const;								// Exposed to Python
 	void gift(bool bTestTransport = true);

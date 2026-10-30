@@ -629,10 +629,10 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 	std::sort(apUnitsByExp.begin(), apUnitsByExp.end(), DescByExperience());
 	for (int iPass = 0; iPass < 5; iPass++) // Case inserted for upgrade discounts
 	{
-		// <!-- custom: Pass names exist only in level-3 upgrade diagnostics.
-		// Keep their switch off the ordinary AI-upgrade path; the tiny per-pass integer counters below remain unconditional to avoid adding a diagnostic branch to every unit candidate. (ChatGPT-5.6-Sol) -->
+		// <!-- custom: Reuse the existing pass names for BBAI and SGR rather than maintain a second 0..4 catalog in the recorder.
+		// Keep their switch off the ordinary AI-upgrade path; the tiny per-pass integer counters below remain unconditional to avoid adding a diagnostic branch to every unit candidate. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		char const* szPassName = NULL;
-		if (bLogUpgradeDiagnostics)
+		if (bLogUpgradeDiagnostics || gGameRecordLogLevel >= 2)
 		{
 			switch (iPass)
 			{
@@ -780,8 +780,10 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 								if (iDefenders > pPlotCity->AI_minDefenders() &&
 									!AI_isAnyPlotDanger(*pLoopUnit->plot(), 2, false))
 								{
-									if (iCostPerMil > AI_maxUnitCostPerMil(pLoopUnit->area(), 100) +
-										2*iExp + 4*std::max(0, pPlotCity->AI_neededDefenders() - iDefenders))
+									// <!-- custom: Retain the existing threshold once for the gameplay comparison and optional scrap evidence; do not recompute the cost policy for diagnostics. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+									int const iUpgradeCleanupCostThreshold = AI_maxUnitCostPerMil(pLoopUnit->area(), 100) +
+										2*iExp + 4*std::max(0, pPlotCity->AI_neededDefenders() - iDefenders);
+									if (iCostPerMil > iUpgradeCleanupCostThreshold)
 									{
 										// <!-- custom: add more logging information for better scrap diagnostics (was too noisy or imprecise) with the help of ChatGPT-5.5 and GPT-5.5 thanks -->
 										if (gUnitLogLevel > 2) logBBAI("    SCRAP_DECISION reason=upgrade-cleanup turn=%d player=%d (%S) unitId=%d unitType=%d name=%S at=(%d,%d) exp=%d unitCostPerMil=%d maxUnitCostPerMil=%d totalUnits=%d",
@@ -791,7 +793,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 											getNumUnits());
 										// <!-- custom: Restrictive SAS canScrap can veto inherited upgrade cleanup.
 										// Only mark the unit killed and skip its ordinary upgrade path after scrap confirms removal. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-										if (pLoopUnit->scrap())
+										if (pLoopUnit->scrap(SAS_UNIT_SCRAP_CONTEXT_UPGRADE_CLEANUP, -1, iCostPerMil, iUpgradeCleanupCostThreshold))
 										{
 											pLoopUnit->doDelayedDeath();
 											bKilled = true;
@@ -810,6 +812,23 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 				// <!-- custom: The old non-emergency passes were budget-gated only by "spent so far < budget", so one expensive upgrade could overshoot the remaining budget and leave the AI almost broke.
 				// Keep emergency pass 0/1 upgrades uncapped, but make discounted, transport/escort and normal upgrades fit within the remaining budget. See KI#160. (GPT-5.5 + ChatGPT-5.5) -->
 				int const iMaxUpgradePrice = (iPass >= 2 ? std::max(0, iUpgradeBudget - (iStartingGold - getGold())) : MAX_INT);
+				// <!-- custom: SGR184 passes only already-known pass/budget state into the real randomized chooser; CvUnitAI::AI_upgrade fills candidate outcomes from the evaluations it was going to perform anyway. (ChatGPT-5.6-Sol) -->
+				bool const bLogSASUpgrade = (gGameRecordLogLevel >= 2);
+				SASGameRecordAIUpgradeContext kSASUpgradeContext(bLogSASUpgrade);
+				SASGameRecordAIUpgradeContext* pSASUpgradeContext = NULL;
+				if (bLogSASUpgrade)
+				{
+					kSASUpgradeContext.szPassName = szPassName;
+					kSASUpgradeContext.iStartingGold = iStartingGold;
+					kSASUpgradeContext.iGoldBeforeAttempt = getGold();
+					kSASUpgradeContext.iUpgradeBudget = iUpgradeBudget;
+					kSASUpgradeContext.iSpentBefore = iStartingGold - getGold();
+					kSASUpgradeContext.iMaxUpgradePrice = iMaxUpgradePrice;
+					kSASUpgradeContext.bFocusWar = bUpgradeFocusWar;
+					kSASUpgradeContext.bFinancialTrouble = bUpgradeFinancialTroubleStart;
+					kSASUpgradeContext.bNoDisband = bNoDisband;
+					pSASUpgradeContext = &kSASUpgradeContext;
+				}
 				if (bLogUpgradeDiagnostics)
 				{
 					CvPlot const& kUnitPlot = pLoopUnit->getPlot();
@@ -828,7 +847,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 					int const iUnitY = pLoopUnit->getY();
 					int const iUnitExp = pLoopUnit->getExperience();
 					int const iUnitLevel = pLoopUnit->getLevel();
-					pLoopUnit->AI_upgrade(iMaxUpgradePrice); // CAN DELETE UNIT!!!
+					pLoopUnit->AI_upgrade(iMaxUpgradePrice, pSASUpgradeContext); // CAN DELETE UNIT!!!
 					int const iGoldAfterUpgrade = getGold();
 					int const iUpgradeSpend = iGoldBeforeUpgrade - iGoldAfterUpgrade;
 					if (iUpgradeSpend > 0)
@@ -844,7 +863,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 				}
 				else
 				{
-					pLoopUnit->AI_upgrade(iMaxUpgradePrice); // CAN DELETE UNIT!!!
+					pLoopUnit->AI_upgrade(iMaxUpgradePrice, pSASUpgradeContext); // CAN DELETE UNIT!!!
 				}
 			}
 		}
@@ -21915,9 +21934,16 @@ void CvPlayerAI::AI_doMilitary()
 			FOR_EACH_UNITAI(pLoopUnit, *this)
 			{
 				int iValue = AI_disbandValue(*pLoopUnit);
-				// <!-- custom: Financial disband candidates must satisfy the restrictive SAS scrap policy before entering the quota-indexed list; a veto otherwise consumed the quota without removing anything. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-				if (iValue < MAX_INT && pLoopUnit->canScrap())
-					unit_values.push_back(std::make_pair(iValue, pLoopUnit->getID()));
+				// <!-- custom: Financial disband candidates must satisfy the restrictive SAS scrap policy before entering the quota-indexed list; a veto otherwise consumed the quota without removing anything.
+				// SGR184 retains the reason from this real eligibility query instead of calling canScrap again merely for diagnostics. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol + GPT-6.1-Sol) -->
+				if (iValue < MAX_INT)
+				{
+					SASUnitScrapEligibility eScrapEligibility = SAS_UNIT_SCRAP_ELIGIBLE_GENERIC;
+					// <!-- custom: Collect the output-only reason only when SGR will consume it; keep the original single eligibility query for gameplay. (GPT-6.1-Sol) -->
+					if (pLoopUnit->canScrap(gGameRecordLogLevel >= 2 ? &eScrapEligibility : NULL))
+						unit_values.push_back(std::make_pair(iValue, pLoopUnit->getID()));
+					else if (gGameRecordLogLevel >= 2) logSASGameRecordAIScrapPreservationVeto(*pLoopUnit, SAS_UNIT_SCRAP_CONTEXT_FINANCIAL_TROUBLE, eScrapEligibility, iValue, iCost, iMaxCost);
+				}
 			}
 			std::sort(unit_values.begin(), unit_values.end());
 
@@ -21930,6 +21956,7 @@ void CvPlayerAI::AI_doMilitary()
 					break;
 
 				CvUnit* pDisbandUnit = getUnit(unit_values[iDisbandCandidateIndex].second);
+				int const iDisbandValue = unit_values[iDisbandCandidateIndex].first;
 				if (gUnitLogLevel > 2)
 				{
 					CvWString szAITypeString;
@@ -21938,12 +21965,12 @@ void CvPlayerAI::AI_doMilitary()
 					logBBAI("    SCRAP_DECISION reason=financial-trouble turn=%d player=%d (%S) unitId=%d unitType=%d unitAI='%S' name=%S at=(%d,%d) value=%d disbandIndex=%d candidates=%d unitCostPerMil=%d maxUnitCostPerMil=%d goldRate=%d gold=%d totalUnits=%d",
 						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), pDisbandUnit->getID(),
 						pDisbandUnit->getUnitType(), szAITypeString.GetCString(), pDisbandUnit->getName(0).GetCString(),
-						pDisbandUnit->getX(), pDisbandUnit->getY(), unit_values[iDisbandCandidateIndex].first, iDisbandCandidateIndex,
+						pDisbandUnit->getX(), pDisbandUnit->getY(), iDisbandValue, iDisbandCandidateIndex,
 						(int)unit_values.size(), iCost, iMaxCost, calculateGoldRate(), getGold(), getNumUnits());
 				}
 
 				iDisbandCandidateIndex++;
-				if (pDisbandUnit->scrap())
+				if (pDisbandUnit->scrap(SAS_UNIT_SCRAP_CONTEXT_FINANCIAL_TROUBLE, iDisbandValue, iCost, iMaxCost))
 				{
 					pDisbandUnit->doDelayedDeath();
 					iDisbandCount++;

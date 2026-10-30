@@ -352,6 +352,38 @@ void noteSASGameRecordAIWorkerMissionAttempted(CvSelectionGroup const& kGroup);
 void noteSASGameRecordAIWorkerMissionInserted(CvSelectionGroup const& kGroup, MissionData const* pMission);
 void finishSASGameRecordAIWorkerTask(PlayerTypes eOwner, int iGroupId);
 
+// <!-- custom: Revision 184 observes the real AI-upgrade chooser without rerunning synchronized RNG or candidate eligibility.
+// CvPlayerAI supplies the already-known budget/pass policy before the call; AI_upgrade fills only values/counters encountered in its existing loop.
+// Common no-selection outcomes are interval-sampled in the formatter, while successful upgrades and remaining-price blocks are event rows. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordAIUpgradeContext
+{
+	// <!-- custom: Match the commerce context constructor: initialize only for enabled capture, while keeping VC2003 aware of the initialization path. (GPT-6.1-Sol) -->
+	explicit SASGameRecordAIUpgradeContext(bool bCapture) { if (bCapture) reset(); }
+	void reset()
+	{
+		szPassName = "UNKNOWN";
+		iStartingGold = iGoldBeforeAttempt = iUpgradeBudget = iSpentBefore = iMaxUpgradePrice = -1;
+		bFocusWar = bFinancialTrouble = bNoDisband = bReady = false;
+		iCurrentValue = -1;
+		iImprovingEvaluations = iEligibleImprovingEvaluations = iMaxPriceBlockedEvaluations = 0;
+		eSelectedUnit = eBestBlockedUnit = NO_UNIT;
+		iSelectedValue = iSelectedPrice = iBestBlockedValue = iBestBlockedPrice = -1;
+	}
+	char const* szPassName;
+	int iStartingGold, iGoldBeforeAttempt, iUpgradeBudget, iSpentBefore, iMaxUpgradePrice;
+	bool bFocusWar, bFinancialTrouble, bNoDisband, bReady;
+	int iCurrentValue, iImprovingEvaluations, iEligibleImprovingEvaluations, iMaxPriceBlockedEvaluations;
+	UnitTypes eSelectedUnit;
+	int iSelectedValue, iSelectedPrice;
+	UnitTypes eBestBlockedUnit;
+	int iBestBlockedValue, iBestBlockedPrice;
+};
+void logSASGameRecordAIUpgradeDecision(CvUnitAI const& kOldUnit, CvUnit const* pNewUnit, SASGameRecordAIUpgradeContext const& kContext);
+// <!-- custom: Scrap reasoning is emitted only from deliberate AI disposal contexts or a reviewed candidate-screen veto; generic canScrap queries remain silent.
+// iContext/iEligibility are SASUnitScrapContext/SASUnitScrapEligibility values owned by CvUnit.h; integer parameters keep this recorder header lightweight. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIScrapDecision(CvUnit const& kUnit, int iContext, int iEligibility, char const* szResult, bool bForced, bool bMandatoryGameRule, int iDecisionValue = -1, int iUnitCostPerMil = -1, int iMaxUnitCostPerMil = -1);
+void logSASGameRecordAIScrapPreservationVeto(CvUnit const& kUnit, int iContext, int iEligibility, int iDecisionValue, int iUnitCostPerMil, int iMaxUnitCostPerMil);
+
 // <!-- custom: Closed recorder-only policy stages for AI_generalMove.
 // The stage names preserve the actual ordered fallback chain rather than inventing a cross-action score that Great-General AI does not compute. (ChatGPT-5.6-Sol) -->
 #define SAS_RECORD_AI_GREAT_GENERAL_STAGE_ROWS(DO) \

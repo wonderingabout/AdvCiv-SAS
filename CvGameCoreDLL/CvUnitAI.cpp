@@ -2299,22 +2299,29 @@ bool CvUnitAI::AI_follow(bool bFirst)
 
 // K-Mod. This function has been completely rewritten to improve efficiency and intelligence.
 // <!-- custom: Optional max price lets AI upgrade-budget code keep normal emergency upgrades uncapped while preventing non-emergency upgrades from overshooting the remaining budget.
-// Keep candidate iteration/random calls otherwise unchanged so the old choice logic is preserved for affordable upgrades. See KI#160. (ChatGPT-5.5 + GPT-5.5) -->
-bool CvUnitAI::AI_upgrade(int iMaxUpgradePrice)
+// SGR184 adds an optional output-only context; NULL preserves the ordinary call contract, while a supplied context receives only facts from the chooser evaluations already performed.
+// Keep candidate iteration/random calls otherwise unchanged so the old choice logic is preserved for affordable upgrades. See KI#160. (ChatGPT-5.5 + GPT-5.5 + ChatGPT-5.6-Sol) -->
+bool CvUnitAI::AI_upgrade(int iMaxUpgradePrice, SASGameRecordAIUpgradeContext* pSASContext)
 {
 	PROFILE_FUNC();
 
 	FAssert(!isHuman());
 	FAssert(AI_getUnitAIType() != NO_UNITAI);
 
-	if (!isReadyForUpgrade())
+	bool const bReadyForUpgrade = isReadyForUpgrade();
+	if (pSASContext != NULL) pSASContext->bReady = bReadyForUpgrade;
+	if (!bReadyForUpgrade)
+	{
+		if (pSASContext != NULL) logSASGameRecordAIUpgradeDecision(*this, NULL, *pSASContext);
 		return false;
+	}
 
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	UnitAITypes const eUnitAI = AI_getUnitAIType();
 	CvArea const* pArea = area();
 
 	int iBestValue = kOwner.AI_unitValue(getUnitType(), eUnitAI, pArea) * 100;
+	if (pSASContext != NULL) pSASContext->iCurrentValue = iBestValue;
 	UnitTypes eBestUnit = NO_UNIT;
 
 	/*	Note: the original code did two passes, presumably for speed reasons.
@@ -2339,11 +2346,37 @@ bool CvUnitAI::AI_upgrade(int iMaxUpgradePrice)
 				bFirst ? "AI Upgrade" : NULL);
 		bFirst = false; // </advc.007>
 		// (believe it or not, AI_unitValue is faster than canUpgrade.)
-		if (iValue > iBestValue && canUpgrade(eLoopUnit) &&
-			upgradePrice(eLoopUnit) <= iMaxUpgradePrice)
+		if (iValue > iBestValue)
 		{
-			iBestValue = iValue;
-			eBestUnit = eLoopUnit;
+			if (pSASContext != NULL) pSASContext->iImprovingEvaluations++;
+			// <!-- custom: Preserve the original short-circuit order and call counts while retaining already-computed eligibility/price evidence for SGR184; never rescore or consume another synchronized RNG draw for diagnostics. (ChatGPT-5.6-Sol) -->
+			bool const bCanUpgrade = canUpgrade(eLoopUnit);
+			if (bCanUpgrade)
+			{
+				if (pSASContext != NULL) pSASContext->iEligibleImprovingEvaluations++;
+				int const iUpgradePrice = upgradePrice(eLoopUnit);
+				if (iUpgradePrice <= iMaxUpgradePrice)
+				{
+					iBestValue = iValue;
+					eBestUnit = eLoopUnit;
+					if (pSASContext != NULL)
+					{
+						pSASContext->eSelectedUnit = eLoopUnit;
+						pSASContext->iSelectedValue = iValue;
+						pSASContext->iSelectedPrice = iUpgradePrice;
+					}
+				}
+				else if (pSASContext != NULL)
+				{
+					pSASContext->iMaxPriceBlockedEvaluations++;
+					if (pSASContext->eBestBlockedUnit == NO_UNIT || iValue > pSASContext->iBestBlockedValue)
+					{
+						pSASContext->eBestBlockedUnit = eLoopUnit;
+						pSASContext->iBestBlockedValue = iValue;
+						pSASContext->iBestBlockedPrice = iUpgradePrice;
+					}
+				}
+			}
 		}
 	}
 
@@ -2356,6 +2389,7 @@ bool CvUnitAI::AI_upgrade(int iMaxUpgradePrice)
 		doDelayedDeath(); */ // BtS
 		// K-Mod. Ungroup the unit, so that we don't cause the whole group to miss their turn.
 		CvUnit* pUpgradeUnit = upgrade(eBestUnit);
+		if (pSASContext != NULL) logSASGameRecordAIUpgradeDecision(*this, pUpgradeUnit, *pSASContext);
 		doDelayedDeath();
 
 		if (pUpgradeUnit != this)
@@ -2372,6 +2406,7 @@ bool CvUnitAI::AI_upgrade(int iMaxUpgradePrice)
 		}
 		return true;
 	}
+	if (pSASContext != NULL) logSASGameRecordAIUpgradeDecision(*this, NULL, *pSASContext);
 	return false;
 }
 
@@ -7464,13 +7499,16 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		if (!bCanRetreat || bAlreadyInSafeOwnedCity || !AI_retreatToCity(false, true))
 		{
 			bool const bScrapRoll = SyncRandOneChanceIn(6);
-			bool const bScrapIdleBarbarianWorker = (bScrapRoll && canScrap());
+			// <!-- custom: Preserve the random-roll-first short circuit and request a scrap reason only for enabled diagnostics. (GPT-6.1-Sol) -->
+			SASUnitScrapEligibility eIdleScrapEligibility = SAS_UNIT_SCRAP_ELIGIBLE_GENERIC;
+			bool const bScrapIdleBarbarianWorker = (bScrapRoll && canScrap(gGameRecordLogLevel >= 2 ? &eIdleScrapEligibility : NULL));
+			if (gGameRecordLogLevel >= 2 && bScrapRoll && !bScrapIdleBarbarianWorker) logSASGameRecordAIScrapPreservationVeto(*this, SAS_UNIT_SCRAP_CONTEXT_IDLE_BARBARIAN_WORKER, eIdleScrapEligibility, -1, -1, -1);
 			if (gWorkerLogLevel >= 3 && bAlreadyInSafeOwnedCity) logBBAI("    WORKER_NO_PRODUCTIVE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d workingCity=%S reason=already-in-safe-owned-city action=%s",
 				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(),
 				getGroup()->getID(), (pCity == NULL ? L"-" : pCity->getName().GetCString()),
 				(bScrapIdleBarbarianWorker ? "scrap" : "skip-turn"));
 			if (bScrapIdleBarbarianWorker)
-				scrap(); // Don't let it stand around indefinitely
+				scrap(SAS_UNIT_SCRAP_CONTEXT_IDLE_BARBARIAN_WORKER); // Don't let it stand around indefinitely
 			else getGroup()->pushMission(MISSION_SKIP);
 		}
 		return;
@@ -7660,7 +7698,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 						if (gWorkerLogLevel >= 2) logBBAI("    WORKER_SURPLUS_RETIREMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d protectedAreaWorkers=%d workersTotal=%d totalThreshold=%d age=%d unitCost=%d result=ATTEMPT_FORCED_RETIREMENT",
 							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(),
 							iAreaHave, iProtectedAreaWorkers, iTotalHave, iTotalThresh, GC.getGame().getGameTurn() - getGameTurnCreated(), kOwner.calculateUnitCost());
-						if (scrapForced()) return;
+						if (scrapForced(false, SAS_UNIT_SCRAP_CONTEXT_WORKER_SURPLUS_RETIREMENT)) return;
 					} // </advc.113>
 				}
 			}
@@ -10936,7 +10974,7 @@ void CvUnitAI::AI_exploreMove()
 					return;
 				}
 				// <!-- custom: If SAS preservation rejects disposal of an excess inherited Explorer, continue into stranded/patrol/safety handling instead of repeatedly returning after a no-op. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-				if (scrap()) return; // K-Mod end
+				if (scrap(SAS_UNIT_SCRAP_CONTEXT_EXCESS_EXPLORER)) return; // K-Mod end
 			}
 		}
 	}
@@ -12558,7 +12596,7 @@ void CvUnitAI::AI_barbAttackSeaMove()
 		}
 		// <!-- custom: A trapped Barbarian ship can be cargo-capable and therefore protected by SAS canScrap.
 		// Only end its update when removal succeeds; otherwise retain the inherited later movement/safety choices. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		if (bScrap && scrap())
+		if (bScrap && scrap(SAS_UNIT_SCRAP_CONTEXT_TRAPPED_BARBARIAN_SHIP))
 		{
 			return;
 		}
@@ -13173,7 +13211,7 @@ void CvUnitAI::AI_escortSeaMove()
 
 				// <!-- custom: Escort cleanup is evaluated while carrying cargo, which SAS canScrap deliberately protects.
 				// Continue normal escort behavior when removal is vetoed instead of losing the whole update. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-				if (scrap()) return; // advc.001: Return after successful scrap
+				if (scrap(SAS_UNIT_SCRAP_CONTEXT_OBSOLETE_ESCORT_SEA)) return; // advc.001: Return after successful scrap
 			}
 		}
 	} // BETTER_BTS_AI_MOD: END
@@ -13405,7 +13443,7 @@ void CvUnitAI::AI_exploreSeaMove()
 			if (iValue < iBestValue)
 			{
 				// <!-- custom: Cargo-capable sea explorers are intentionally protected by SAS canScrap; only stop after successful obsolete-role cleanup. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-				if (scrap()) return;
+				if (scrap(SAS_UNIT_SCRAP_CONTEXT_OBSOLETE_SEA_EXPLORER)) return;
 			}
 		} // </advc.017b>
 	}
@@ -13431,7 +13469,7 @@ void CvUnitAI::AI_exploreSeaMove()
 		if (kOwner.calculateUnitCost() > 0)
 		{
 			// <!-- custom: Excess sea-explorer cleanup can be vetoed for cargo-capable ships; continue to patrol/retreat/safety instead of repeatedly losing the update. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-			if (scrap()) return;
+			if (scrap(SAS_UNIT_SCRAP_CONTEXT_EXCESS_SEA_EXPLORER)) return;
 		}
 	}
 
@@ -14428,7 +14466,7 @@ void CvUnitAI::AI_settlerSeaMove()
 					{
 						// <!-- custom: This inherited retirement path already unloaded an inferior, non-upgradable Settler transport.
 						// Force the deliberate cleanup because cargo capacity alone makes routine SAS canScrap reject it. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-						if (scrapForced()) return;
+						if (scrapForced(false, SAS_UNIT_SCRAP_CONTEXT_OBSOLETE_SETTLER_TRANSPORT)) return;
 					}
 					else
 					{
@@ -27401,7 +27439,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 				if (bLogRetreatResult) logSASRetreatUnitResult(SAS_RETREAT_RESULT_SCRAP_SELECTED, *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac, bLogBBAIRetreatResult, bLogSASRetreatResult);
 				// <!-- custom: This inherited scorched-earth decision deliberately removes a capturable unit from a doomed owned city.
 				// Force it after the existing safety/random checks so SAS routine preservation cannot report success while leaving the unit for capture. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-				if (scrapForced()) return true;
+				if (scrapForced(false, SAS_UNIT_SCRAP_CONTEXT_EVACUATION_SCORCHED_EARTH)) return true;
 			}
 		} // </advc.010>
 		if (bLogRetreatResult) logSASRetreatUnitResult(SAS_RETREAT_RESULT_STAY_NO_SAFE_CITY, *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac, bLogBBAIRetreatResult, bLogSASRetreatResult);

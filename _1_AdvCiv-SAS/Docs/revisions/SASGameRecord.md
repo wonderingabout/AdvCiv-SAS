@@ -108,10 +108,23 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 184 - SAS practical 6704
+
+- **Date:** 2026-10-30
+- **Git commit:** pending
+- **Change:** Add compact level-2 AI upgrade/scrap/preservation reasoning without repeating synchronized RNG, upgrade scoring or generic scrap eligibility queries.
+  - `GAME_RECORD_AI_UPGRADE_DECISION` observes the real `AI_upgrade` chooser. Successful selections and candidates blocked by the actual remaining-price cap are event rows; ordinary `NOT_READY`, `NO_BETTER_VALUE` and `ELIGIBILITY_BLOCKED` retention outcomes are sampled on the existing SGR interval.
+  - The five inherited upgrade passes, focus-war/financial state, starting/current Gold, budget/spend/cap and chooser counts come from the live call. Candidate value, `canUpgrade`, price and synchronized randomization are each evaluated only where gameplay already evaluates them; the recorder never reruns the randomized chooser.
+  - `GAME_RECORD_AI_SCRAP_DECISION` is emitted only from reviewed disposal contexts. Routine eligibility reports the exact short-circuit preservation reason already returned by `canScrap`; caller-vetted forced retirement and mandatory capitulation disarm are identified separately. Generic `canScrap()` queries remain silent and therefore do not masquerade as disposal attempts.
+    - The separate `AI_scrapSettlerWithNoValidSite` cleanup still calls `scrapInternal` directly: its realized `UNIT_SCRAPPED` action remains recorded, without a new upgrade/scrap-reason row. This is targeted context coverage rather than an explanation for every possible removal.
+  - Financial-trouble and idle-Barbarian-Worker pre-screen vetoes retain their existing eligibility query and emit changed circumstances immediately, with stable repeats sampled on the normal interval, at most once per unchanged unit/context on a sampled turn. Existing `UNIT_UPGRADED`/`UNIT_SCRAPPED` action/flow evidence remains the realized outcome rather than being replaced by rationale rows.
+  - Reuse the existing BBAI upgrade-pass names; generate scrap enums and their stringifiers from unit-owned catalogs, following the BuildingFocus pattern so their values and labels cannot drift.
+    - Reason outputs and recorder calls are diagnostic-gated; gameplay eligibility/removal still runs when logging is off. The sampler rejects unchanged same-turn repeats before output-only economy queries, fixing the draft's repeated emission on interval turns.
+
 ### Revision 183 - SAS practical 6703
 
 - **Date:** 2026-10-29
-- **Git commit:** pending
+- **Git commit:** `abe2fb89aa4d779364521cf9048827d2de2ba1ff`
 - **Change:** Record a compact level-2 `GAME_RECORD_AI_WORKER_TASK` when a productive Worker/Work Boat helper chooses a job and issues its mission pushes, bridging periodic Worker state and aggregate realized Build-completion evidence.
   - The row captures the selected helper/source, concrete purpose, strategic target, serving city where one exists, optional related city for the original assignment/other route endpoint, selected Build/follow-up, target bonus and pre-task feature/improvement/route state, unit/group identity and whether the call came from AI control or human automation. Manually submitted orders do not masquerade as AI choices.
   - Selection and queue insertion remain distinct facts.
