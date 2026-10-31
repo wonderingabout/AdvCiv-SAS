@@ -805,6 +805,654 @@ static int SAS_getFirstCityScoutRemainingOpportunityPercent(int iBest6PlotValue,
 	return (iLinearPercent * iLinearPercent) / 100;
 }
 
+// <!-- custom: Mirror AI_searchRange for free first-city diagnostic helpers, which cannot call the protected CvUnitAI method directly.
+// This is an overbound only; the pathfinder still decides whether a candidate is actually reachable within the requested turn count. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static int SAS_getFirstCityScoutSearchRange(CvUnit const& kUnit, int iTurns)
+{
+	if (iTurns <= 0)
+		return 0;
+	if (kUnit.flatMovementCost() || kUnit.getDomainType() == DOMAIN_SEA)
+		return iTurns * kUnit.baseMoves();
+	return (iTurns + 1) * (kUnit.baseMoves() + 1);
+}
+
+// <!-- custom: A visible food bonus can make a first capital look categorically safe even when the rest of its worked core is only barely sustainable.
+// Keep that safeguard for genuinely strong starts, but expose a narrow marginal band for optional information gathering: best-6 + best-10 is compared with 16 XML-derived sustainable productive plots.
+// The percentage threshold is XML-configurable and is only one half of the entry gate; a concrete promising fogged alternative must also exist before scouting starts. See KI#144.5. (ChatGPT-5.6-Sol) -->
+static int SAS_getFirstCityCore16QualityPercent(int iBest6PlotValue, int iBest10PlotValue, int iSustainablePlotValue)
+{
+	const int iReferenceCoreValue = std::max(0, 16 * iSustainablePlotValue);
+	const int iKnownCoreValue = std::max(0, iBest6PlotValue) + std::max(0, iBest10PlotValue);
+	return (iReferenceCoreValue <= 0 ? 100 : (100 * iKnownCoreValue) / std::max(1, iReferenceCoreValue));
+}
+
+static bool SAS_isFirstCityMarginalStrongFoodSite(int iFoodBonuses, int iFoodEnvironmentScore,
+	int iBest6PlotValue, int iBest10PlotValue, int iSustainablePlotValue)
+{
+	static const int iGoodFoodBonuses = GC.getDefineINT("SAS_1ST_CITY_GOOD_FOOD_BONUSES");
+	static const int iBadFoodEnvironmentScore = GC.getDefineINT("SAS_1ST_CITY_BAD_FOOD_ENV_SCORE");
+	static const int iMaxCore16ReferencePercent = GC.getDefineINT("SAS_1ST_CITY_SCOUT_MAX_CORE_16_REF_PCT");
+	if (iGoodFoodBonuses <= 0 || iBadFoodEnvironmentScore <= 0 || iMaxCore16ReferencePercent <= 0 || iSustainablePlotValue <= 0 || iBest6PlotValue < 0 || iBest10PlotValue < 0)
+		return false;
+	if (iFoodBonuses < iGoodFoodBonuses || iFoodEnvironmentScore < iBadFoodEnvironmentScore)
+		return false;
+	return SAS_getFirstCityCore16QualityPercent(iBest6PlotValue, iBest10PlotValue, iSustainablePlotValue) <= iMaxCore16ReferencePercent;
+}
+
+// <!-- custom: Once a specific partly fogged capital has justified scouting, choose the end-of-turn waypoint for what it can reveal about that target rather than blindly accepting the pathfinder's first waypoint.
+// The estimate is founder-known: it uses only the target BFC's current fog mask, geometric visibility range and known endpoint sight level.
+// Exact canSeePlot counts are logged only as an oracle.
+// A detour may win only if its extra target-BFC information compensates for the extra capital-delay turn; otherwise fastest-path endpoints remain preferred. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static int SAS_getFirstCityPromisingTargetFogPotential(CvUnitAI const& kSettler, CvPlot const& kEndTurnPlot,
+	CvPlot const& kPromisingSite, int iReferencePlotValue, int* piFogPlots = NULL)
+{
+	int iFogPlots = 0;
+	int iFogValue = 0;
+	const int iPotentialRange = std::max(1, kSettler.visibilityRange() + 1);
+	for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS; ++iCityPlot)
+	{
+		if (iCityPlot == CITY_HOME_PLOT)
+			continue;
+		CvPlot const* pLoopPlot = plotCity(kPromisingSite.getX(), kPromisingSite.getY(), static_cast<CityPlotTypes>(iCityPlot));
+		if (pLoopPlot == NULL || pLoopPlot->isRevealed(kSettler.getTeam()))
+			continue;
+		const int iDistance = stepDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), pLoopPlot->getX(), pLoopPlot->getY());
+		if (iDistance > iPotentialRange)
+			continue;
+		++iFogPlots;
+		iFogValue += iReferencePlotValue / std::max(1, iDistance);
+	}
+	if (piFogPlots != NULL)
+		*piFogPlots = iFogPlots;
+	return iFogValue;
+}
+
+// <!-- custom: Count exact target-BFC reveals only for diagnostics; hidden terrain can affect canSeePlot, so this result must not enter gameplay scoring.
+// Both callers pre-gate this oracle query at the log level that consumes it. See KI#144.5 and KI#500. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static int SAS_countFirstCityOracleTargetReveals(CvUnitAI const& kSettler, CvPlot const& kEndTurnPlot, CvPlot const& kPromisingSite)
+{
+	int iRevealPlots = 0;
+	// <!-- custom: canSeePlot tests blockers but expects the caller to bound distance; a full target BFC can extend beyond sight, so filter its plots to the engine visibility envelope first.
+	// Diagnostic only. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	const int iPotentialRange = std::max(1, kSettler.visibilityRange() + 1);
+	for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS; ++iCityPlot)
+	{
+		if (iCityPlot == CITY_HOME_PLOT)
+			continue;
+		CvPlot const* pLoopPlot = plotCity(kPromisingSite.getX(), kPromisingSite.getY(), static_cast<CityPlotTypes>(iCityPlot));
+		if (pLoopPlot == NULL || pLoopPlot->isRevealed(kSettler.getTeam()) ||
+			stepDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), pLoopPlot->getX(), pLoopPlot->getY()) > iPotentialRange)
+		{
+			continue;
+		}
+		if (kEndTurnPlot.canSeePlot(pLoopPlot, kSettler.getTeam(), kSettler.visibilityRange()))
+			++iRevealPlots;
+	}
+	return iRevealPlots;
+}
+
+static CvPlot const* SAS_chooseFirstCityPromisingFogApproachEndpoint(CvUnitAI& kSettler, CvPlot const& kPromisingSite,
+	MovementFlags eMoveFlags, int iRemainingTurns)
+{
+	if (iRemainingTurns <= 0)
+		return NULL;
+	int iDirectTurns = 0;
+	if (!kSettler.generatePath(kPromisingSite, eMoveFlags, false, &iDirectTurns, iRemainingTurns) || iDirectTurns <= 0 || iDirectTurns > iRemainingTurns)
+		return NULL;
+	CvPlot const* pDirectEndTurnPlot = &kSettler.getPathEndTurnPlot();
+	if (kSettler.at(*pDirectEndTurnPlot))
+		return NULL;
+	const int iReferencePlotValue = CitySiteEvaluator::getSustainableProductivePlotValue();
+	const int iExtraTurnDelayValue = SAS_getFirstCityReturnTravelValuePerTurn();
+	int iBestTargetFogPlots = 0;
+	const int iBestTargetFogValueInitial = SAS_getFirstCityPromisingTargetFogPotential(kSettler, *pDirectEndTurnPlot, kPromisingSite,
+		iReferencePlotValue, &iBestTargetFogPlots);
+	CvPlot const* pBestEndTurnPlot = pDirectEndTurnPlot;
+	int iBestApproachScore = iBestTargetFogValueInitial;
+	int iBestTotalPathTurns = iDirectTurns;
+	int iBestKnownSeeFromLevel = (pDirectEndTurnPlot->isRevealed(kSettler.getTeam()) ? pDirectEndTurnPlot->seeFromLevel(kSettler.getTeam()) : -MAX_INT);
+	int iBestStepDistance = stepDistance(kSettler.getX(), kSettler.getY(), pDirectEndTurnPlot->getX(), pDirectEndTurnPlot->getY());
+	int iBestTargetFogValue = iBestTargetFogValueInitial;
+	const int iSearchRange = SAS_getFirstCityScoutSearchRange(kSettler, 1);
+	for (SquareIter itCandidate(kSettler.getPlot(), iSearchRange, false); itCandidate.hasNext(); ++itCandidate)
+	{
+		CvPlot const* pCandidate = &*itCandidate;
+		if (pCandidate == kSettler.plot())
+			continue;
+		bool bPlotValid = !(kSettler.getUnitInfo().isNoRevealMap() && kSettler.willRevealAnyPlotFrom(*pCandidate));
+		if (bPlotValid)
+		{
+			switch (kSettler.getDomainType())
+			{
+			case DOMAIN_SEA:
+				bPlotValid = kSettler.isRevealedValidDomain(*pCandidate);
+				break;
+			case DOMAIN_LAND:
+				bPlotValid = (pCandidate->getArea().canBeEntered(kSettler.getArea(), &kSettler) || kSettler.canMoveAllTerrain());
+				break;
+			default:
+				bPlotValid = false;
+				break;
+			}
+		}
+		if (!bPlotValid || pCandidate->isVisibleEnemyUnit(&kSettler))
+			continue;
+		int iStepPathTurns = 0;
+		if (!kSettler.generatePath(*pCandidate, eMoveFlags, false, &iStepPathTurns, 1) || iStepPathTurns > 1)
+			continue;
+		CvPlot const& kEndTurnPlot = kSettler.getPathEndTurnPlot();
+		if (kSettler.at(kEndTurnPlot))
+			continue;
+		int iRemainingPathTurns = 0;
+		if (&kEndTurnPlot != &kPromisingSite)
+		{
+			if (!kSettler.getGroup()->generatePath(kEndTurnPlot, kPromisingSite, eMoveFlags, false, &iRemainingPathTurns,
+				std::max(1, iRemainingTurns - 1), true))
+			{
+				continue;
+			}
+		}
+		const int iTotalPathTurns = 1 + iRemainingPathTurns;
+		if (iTotalPathTurns > iRemainingTurns)
+			continue;
+		int iTargetFogPlots = 0;
+		const int iTargetFogValue = SAS_getFirstCityPromisingTargetFogPotential(kSettler, kEndTurnPlot, kPromisingSite,
+			iReferencePlotValue, &iTargetFogPlots);
+		const int iExtraPathTurns = std::max(0, iTotalPathTurns - iDirectTurns);
+		const int iDelayPenalty = iExtraPathTurns * iExtraTurnDelayValue;
+		const int iApproachScore = iTargetFogValue - iDelayPenalty;
+		const int iKnownSeeFromLevel = (kEndTurnPlot.isRevealed(kSettler.getTeam()) ? kEndTurnPlot.seeFromLevel(kSettler.getTeam()) : -MAX_INT);
+		const int iStepDistance = stepDistance(kSettler.getX(), kSettler.getY(), kEndTurnPlot.getX(), kEndTurnPlot.getY());
+		if (gSettlerLogLevel >= 3)
+		{
+			const int iOracleTargetRevealPlots = SAS_countFirstCityOracleTargetReveals(kSettler, kEndTurnPlot, kPromisingSite);
+			logBBAI("FIRST_CITY_PROMISING_FOG_APPROACH_CANDIDATE player=%d from=%d,%d target=%d,%d endpoint=%d,%d directPathTurns=%d totalPathTurns=%d remainingPathTurns=%d extraPathTurns=%d targetFogPotentialPlots=%d targetFogPotentialValue=%d extraDelayPenalty=%d approachScore=%d knownSeeFromLevel=%d stepDistance=%d oracleTargetRevealPlots=%d",
+			kSettler.getOwner(), kSettler.getX(), kSettler.getY(), kPromisingSite.getX(), kPromisingSite.getY(), kEndTurnPlot.getX(), kEndTurnPlot.getY(),
+			iDirectTurns, iTotalPathTurns, iRemainingPathTurns, iExtraPathTurns, iTargetFogPlots, iTargetFogValue, iDelayPenalty, iApproachScore,
+			iKnownSeeFromLevel, iStepDistance, iOracleTargetRevealPlots);
+		}
+		if (pBestEndTurnPlot == NULL || iApproachScore > iBestApproachScore ||
+			(iApproachScore == iBestApproachScore && (iTotalPathTurns < iBestTotalPathTurns ||
+				(iTotalPathTurns == iBestTotalPathTurns && (iKnownSeeFromLevel > iBestKnownSeeFromLevel ||
+					(iKnownSeeFromLevel == iBestKnownSeeFromLevel && iStepDistance > iBestStepDistance))))))
+		{
+			pBestEndTurnPlot = &kEndTurnPlot;
+			iBestApproachScore = iApproachScore;
+			iBestTotalPathTurns = iTotalPathTurns;
+			iBestKnownSeeFromLevel = iKnownSeeFromLevel;
+			iBestStepDistance = iStepDistance;
+			iBestTargetFogPlots = iTargetFogPlots;
+			iBestTargetFogValue = iTargetFogValue;
+		}
+	}
+	if (gSettlerLogLevel >= 2)
+	{
+		const int iBestOracleTargetRevealPlots = SAS_countFirstCityOracleTargetReveals(kSettler, *pBestEndTurnPlot, kPromisingSite);
+		logBBAI("FIRST_CITY_PROMISING_FOG_APPROACH player=%d from=%d,%d target=%d,%d directEnd=%d,%d chosenEnd=%d,%d directPathTurns=%d chosenTotalPathTurns=%d targetFogPotentialPlots=%d targetFogPotentialValue=%d approachScore=%d knownSeeFromLevel=%d stepDistance=%d oracleTargetRevealPlots=%d",
+		kSettler.getOwner(), kSettler.getX(), kSettler.getY(), kPromisingSite.getX(), kPromisingSite.getY(), pDirectEndTurnPlot->getX(), pDirectEndTurnPlot->getY(),
+		pBestEndTurnPlot->getX(), pBestEndTurnPlot->getY(), iDirectTurns, iBestTotalPathTurns, iBestTargetFogPlots, iBestTargetFogValue,
+		iBestApproachScore, iBestKnownSeeFromLevel, iBestStepDistance, iBestOracleTargetRevealPlots);
+	}
+	return pBestEndTurnPlot;
+}
+
+// <!-- custom: Capital placement is unusually permanent, so a marginal-but-foundable first city may justify a few information-gathering turns when a specific nearby fogged alternative already looks unusually strong on the tiles the player actually knows.
+// Reuse the same known-average principle as later Settler fog scouting, but keep a first-city-specific threshold: require a meaningful revealed sample, substantial remaining fog, and a known-value-per-revealed-BFC advantage over the fully revealed settle-now site.
+// Move only one turn, but choose the waypoint for target-relevant fog exposure versus any added travel delay rather than blindly accepting the pathfinder's default first waypoint; recalculate next turn instead of committing through fog. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static bool SAS_shouldScoutPromisingFoggedFirstCitySite(CvUnitAI& kSettler, CitySiteEvaluator const& kEvaluator,
+	CvPlot const& kSettleSite, int iSettleValue, int iRemainingTurns,
+	CvPlot const*& pScoutSite, CvPlot const*& pScoutEndTurnPlot,
+	int& iScoutFoundValue, int& iScoutPathTurns, int& iSettleRevealedBFC, int& iScoutRevealedBFC,
+	int& iScoutUnrevealedBFC, int& iSettleAverageValueX100, int& iScoutAverageValueX100, int& iScoutProjectedFullBFCValue)
+{
+	pScoutSite = NULL;
+	pScoutEndTurnPlot = NULL;
+	iScoutFoundValue = 0;
+	iScoutPathTurns = -1;
+	iSettleRevealedBFC = SAS_countRevealedNonHomeBFCPlots(kSettleSite, kSettler.getTeam());
+	iScoutRevealedBFC = 0;
+	iScoutUnrevealedBFC = 0;
+	iSettleAverageValueX100 = (iSettleRevealedBFC <= 0 ? 0 : (100 * iSettleValue) / iSettleRevealedBFC);
+	iScoutAverageValueX100 = 0;
+	iScoutProjectedFullBFCValue = 0;
+	if (iRemainingTurns <= 0 || iSettleValue <= 0 || iSettleRevealedBFC <= 0)
+		return false;
+	if (SAS_countUnrevealedNonHomeBFCPlots(kSettleSite, kSettler.getTeam()) > 0)
+		return false;
+	static const int iMinRevealedBFC = GC.getDefineINT("SAS_1ST_CITY_SCOUT_FOG_MIN_REVEALED_BFC");
+	static const int iMinUnrevealedBFC = GC.getDefineINT("SAS_1ST_CITY_SCOUT_FOG_MIN_UNREVEALED_BFC");
+	static const int iMinAverageValuePercent = GC.getDefineINT("SAS_1ST_CITY_SCOUT_FOG_MIN_AVG_VAL_PCT");
+	if (iMinRevealedBFC <= 0 || iMinUnrevealedBFC <= 0 || iMinAverageValuePercent <= 0)
+		return false;
+	const int iSearchRange = SAS_getFirstCityScoutSearchRange(kSettler, iRemainingTurns);
+	const MovementFlags eMoveFlags = (MOVE_NO_ENEMY_TERRITORY | MOVE_AVOID_DANGER);
+	int iBestProjectedFullBFCValue = -1;
+	int iBestUnrevealedBFC = -1;
+	int iBestPathTurns = MAX_INT;
+	for (SquareIter itCandidate(kSettler.getPlot(), iSearchRange, false); itCandidate.hasNext(); ++itCandidate)
+	{
+		CvPlot const& kCandidate = *itCandidate;
+		if (&kCandidate == &kSettleSite || !kCandidate.isRevealed(kSettler.getTeam()) || !kSettler.canFound(&kCandidate) || kCandidate.isVisibleEnemyUnit(&kSettler))
+			continue;
+		int iPathTurns = 0;
+		if (!kSettler.generatePath(kCandidate, eMoveFlags, true, &iPathTurns, iRemainingTurns) || iPathTurns <= 0 || iPathTurns > iRemainingTurns)
+			continue;
+		CvPlot const& kEndTurnPlot = kSettler.getPathEndTurnPlot();
+		if (kSettler.at(kEndTurnPlot))
+			continue;
+		const int iRevealedBFC = SAS_countRevealedNonHomeBFCPlots(kCandidate, kSettler.getTeam());
+		const int iUnrevealedBFC = SAS_countUnrevealedNonHomeBFCPlots(kCandidate, kSettler.getTeam());
+		if (iRevealedBFC < iMinRevealedBFC || iUnrevealedBFC < iMinUnrevealedBFC)
+			continue;
+		const int iFoundValue = SAS_evaluateFirstCityFoundValue(kEvaluator, kCandidate);
+		if (iFoundValue <= 0)
+			continue;
+		const int iAverageValueX100 = (100 * iFoundValue) / iRevealedBFC;
+		const bool bAveragePromising = (100 * iAverageValueX100 >= iMinAverageValuePercent * iSettleAverageValueX100);
+		const int iProjectedFullBFCValue = (iFoundValue * iSettleRevealedBFC) / std::max(1, iRevealedBFC);
+		if (gSettlerLogLevel >= 3) logBBAI("FIRST_CITY_PROMISING_FOG_ENTRY_CANDIDATE player=%d settleSite=%d,%d candidate=%d,%d settleValue=%d value=%d settleRevealedBFC=%d revealedBFC=%d unrevealedBFC=%d settleAvgX100=%d avgX100=%d minAvgPct=%d projectedFullBFCValue=%d pathTurns=%d endTurn=%d,%d accepted=%d",
+			kSettler.getOwner(), kSettleSite.getX(), kSettleSite.getY(), kCandidate.getX(), kCandidate.getY(), iSettleValue, iFoundValue,
+			iSettleRevealedBFC, iRevealedBFC, iUnrevealedBFC, iSettleAverageValueX100, iAverageValueX100, iMinAverageValuePercent,
+			iProjectedFullBFCValue, iPathTurns, kEndTurnPlot.getX(), kEndTurnPlot.getY(), bAveragePromising);
+		if (!bAveragePromising)
+			continue;
+		if (pScoutSite == NULL || iProjectedFullBFCValue > iBestProjectedFullBFCValue ||
+			(iProjectedFullBFCValue == iBestProjectedFullBFCValue && (iUnrevealedBFC > iBestUnrevealedBFC ||
+				(iUnrevealedBFC == iBestUnrevealedBFC && iPathTurns < iBestPathTurns))))
+		{
+			pScoutSite = &kCandidate;
+			pScoutEndTurnPlot = NULL;
+			iScoutFoundValue = iFoundValue;
+			iScoutPathTurns = iPathTurns;
+			iScoutRevealedBFC = iRevealedBFC;
+			iScoutUnrevealedBFC = iUnrevealedBFC;
+			iScoutAverageValueX100 = iAverageValueX100;
+			iScoutProjectedFullBFCValue = iProjectedFullBFCValue;
+			iBestProjectedFullBFCValue = iProjectedFullBFCValue;
+			iBestUnrevealedBFC = iUnrevealedBFC;
+			iBestPathTurns = iPathTurns;
+		}
+	}
+	if (pScoutSite != NULL)
+		pScoutEndTurnPlot = SAS_chooseFirstCityPromisingFogApproachEndpoint(kSettler, *pScoutSite, eMoveFlags, iRemainingTurns);
+	return pScoutSite != NULL && pScoutEndTurnPlot != NULL;
+}
+
+// <!-- custom: Measure how far a candidate first-city scouting endpoint is from the other exploration coverage already assigned to this player.
+// Prefer an explorer's explicit MISSIONAI_EXPLORE target when present; otherwise its current plot is the best player-known proxy for the sector it is already covering.
+// This is intentionally a soft coordination measure: it can break otherwise equal scouting choices but must not override materially better information. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static int SAS_getFirstCityExplorerSeparation(CvUnitAI const& kSettler, CvPlot const& kEndTurnPlot, int* piExplorerCount = NULL, CvPlot const** ppNearestCoverageAnchor = NULL)
+{
+	int iExplorerCount = 0;
+	int iMinDistance = MAX_INT;
+	CvPlot const* pNearestCoverageAnchor = NULL;
+	FOR_EACH_UNIT(pLoopUnit, GET_PLAYER(kSettler.getOwner()))
+	{
+		if (pLoopUnit == &kSettler || pLoopUnit->getGroup() == kSettler.getGroup())
+			continue;
+		if (pLoopUnit->getDomainType() != DOMAIN_LAND || !pLoopUnit->plot()->isArea(kSettler.getArea()))
+			continue;
+		CvSelectionGroupAI const& kLoopGroup = pLoopUnit->getGroup()->AI();
+		if (pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && kLoopGroup.AI_getMissionAIType() != MISSIONAI_EXPLORE)
+			continue;
+		CvPlot const* pCoverageAnchor = pLoopUnit->plot();
+		if (kLoopGroup.AI_getMissionAIType() == MISSIONAI_EXPLORE && kLoopGroup.AI_getMissionAIPlot() != NULL)
+			pCoverageAnchor = kLoopGroup.AI_getMissionAIPlot();
+		++iExplorerCount;
+		const int iDistance = plotDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), pCoverageAnchor->getX(), pCoverageAnchor->getY());
+		if (iDistance < iMinDistance)
+		{
+			iMinDistance = iDistance;
+			pNearestCoverageAnchor = pCoverageAnchor;
+		}
+	}
+	if (piExplorerCount != NULL)
+		*piExplorerCount = iExplorerCount;
+	if (ppNearestCoverageAnchor != NULL)
+		*ppNearestCoverageAnchor = pNearestCoverageAnchor;
+	return (iExplorerCount <= 0 ? -1 : iMinDistance);
+}
+
+// <!-- custom: Cache only another land explorer's committed movement that can reach a known waypoint this turn.
+// A distant MISSIONAI_EXPLORE target says where exploration is intended, not when its fog will be revealed; current plots are not evidence of additional future coverage either.
+// Resolve the queued move with the explorer's actual movement budget and an independent known-territory pathfinder, so collecting this prediction neither alters its missions nor replaces a live path cache. See KI#144.5 and KI#500. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+struct SASFirstCityExplorerCoverage
+{
+	CvPlot const* pPlot;
+	int iRange;
+};
+static void SAS_collectFirstCityExplorerCoverage(CvUnitAI const& kSettler, int iRemainingTurns, std::vector<SASFirstCityExplorerCoverage>& aCoverage)
+{
+	std::vector<CvSelectionGroup const*> apSeenGroups;
+	FOR_EACH_UNIT(pLoopUnit, GET_PLAYER(kSettler.getOwner()))
+	{
+		CvSelectionGroupAI const& kExplorerGroup = pLoopUnit->getGroup()->AI();
+		if (pLoopUnit == &kSettler || &kExplorerGroup == kSettler.getGroup() || pLoopUnit->isCargo() || !pLoopUnit->canMove())
+			continue;
+		if (pLoopUnit->getDomainType() != DOMAIN_LAND || !pLoopUnit->plot()->isArea(kSettler.getArea()))
+			continue;
+		if (pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && kExplorerGroup.AI_getMissionAIType() != MISSIONAI_EXPLORE)
+			continue;
+		if (std::find(apSeenGroups.begin(), apSeenGroups.end(), &kExplorerGroup) != apSeenGroups.end())
+			continue;
+		MissionData const* pMission = kExplorerGroup.getMissionFromQueue(0);
+		if (pMission == NULL || pMission->eMissionType != MISSION_MOVE_TO)
+			continue;
+		CvPlot const* pTarget = GC.getMap().plot(pMission->iData1, pMission->iData2);
+		if (pTarget == NULL || !pTarget->isRevealed(kSettler.getTeam()) || pLoopUnit->at(*pTarget))
+			continue;
+		apSeenGroups.push_back(&kExplorerGroup);
+		GroupPathFinder kExplorerProbe;
+		kExplorerProbe.setGroup(kExplorerGroup, MOVE_SAFE_TERRITORY | MOVE_AVOID_DANGER, std::max(1, iRemainingTurns));
+		if (!kExplorerProbe.generatePath(*pLoopUnit->plot(), *pTarget))
+			continue;
+		CvPlot const& kWaypoint = kExplorerProbe.getPathEndTurnPlot();
+		if (pLoopUnit->at(kWaypoint) || !kWaypoint.isRevealed(kSettler.getTeam()))
+			continue;
+		SASFirstCityExplorerCoverage kCoverage;
+		kCoverage.pPlot = &kWaypoint;
+		kCoverage.iRange = std::max(1, pLoopUnit->visibilityRange() + 1);
+		aCoverage.push_back(kCoverage);
+	}
+}
+
+// <!-- custom: Subtract only fog geometrically overlapping those imminent known waypoints, using the same weights as the Settler's raw information estimate.
+// This is an expected-coverage heuristic, not proof of a future reveal: hidden blockers and later mission changes remain unknown.
+// Cache the explorers outside the endpoint/fog loops, and keep dedicated capital-approach floors independent of this discount. See KI#144.5 and KI#500. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static int SAS_getFirstCityExplorerFogOverlap(CvUnitAI const& kSettler, CvPlot const& kEndTurnPlot, int iReferencePlotValue, int iEndpointFogValue, std::vector<SASFirstCityExplorerCoverage> const& aCoverage, int* piOverlapPlots)
+{
+	int iOverlapPlots = 0;
+	int iOverlapValue = 0;
+	const int iSettlerPotentialRange = std::max(1, kSettler.visibilityRange() + 1);
+	for (SquareIter itFog(kEndTurnPlot, iSettlerPotentialRange); itFog.hasNext(); ++itFog)
+	{
+		CvPlot const& kFogPlot = *itFog;
+		if (kFogPlot.isRevealed(kSettler.getTeam()))
+			continue;
+		const int iFogValue = (&kFogPlot == &kEndTurnPlot ? iEndpointFogValue :
+			iReferencePlotValue / std::max(1, stepDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), kFogPlot.getX(), kFogPlot.getY())));
+		if (iFogValue <= 0)
+			continue;
+		for (size_t i = 0; i < aCoverage.size(); ++i)
+		{
+			if (stepDistance(aCoverage[i].pPlot->getX(), aCoverage[i].pPlot->getY(), kFogPlot.getX(), kFogPlot.getY()) > aCoverage[i].iRange)
+				continue;
+			if (piOverlapPlots != NULL)
+				++iOverlapPlots;
+			iOverlapValue += iFogValue;
+			break;
+		}
+	}
+	if (piOverlapPlots != NULL)
+		*piOverlapPlots = iOverlapPlots;
+	return iOverlapValue;
+}
+
+// <!-- custom: Player-known frontier calibration must not use hidden terrain to predict exact line of sight.
+// Count unrevealed map geometry around an endpoint as optimistic fog potential, using only the known fog mask and the unit's XML visibility range.
+// Exact canSeePlot results remain useful as oracle diagnostics; gameplay entry and continuation use this geometric estimate instead. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static int SAS_getFirstCityKnownFogPotential(CvUnitAI const& kSettler, CvPlot const& kEndTurnPlot, int iReferencePlotValue, int* piFogPlots = NULL, CvPlot const* pAlreadyCoveredFrom = NULL)
+{
+	int iFogPlots = 0;
+	int iFogValue = 0;
+	const int iPotentialRange = std::max(1, kSettler.visibilityRange() + 1);
+	for (SquareIter itFog(kEndTurnPlot, iPotentialRange, false); itFog.hasNext(); ++itFog)
+	{
+		CvPlot const& kFogPlot = *itFog;
+		if (kFogPlot.isRevealed(kSettler.getTeam()))
+			continue;
+		if (pAlreadyCoveredFrom != NULL && stepDistance(pAlreadyCoveredFrom->getX(), pAlreadyCoveredFrom->getY(), kFogPlot.getX(), kFogPlot.getY()) <= iPotentialRange)
+			continue;
+		++iFogPlots;
+		iFogValue += iReferencePlotValue / std::max(1, stepDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), kFogPlot.getX(), kFogPlot.getY()));
+	}
+	if (piFogPlots != NULL)
+		*piFogPlots = iFogPlots;
+	return iFogValue;
+}
+
+
+// <!-- custom: A good-enough first capital can auto-found after a one-tile local improvement without re-entering the Settler AI, so a shadow scout check placed only on the final found-current branch misses exactly those cases.
+// Compare the actual choice point instead: scout one safe step from the Settler's real current plot versus founding the best good-enough site already available now.
+// Keeping scout origin and settle opportunity separate matters when the chosen capital is one tile away; pretending the Settler has already moved there can make the genuinely promising direction look pre-explored.
+// Hidden terrain/yield counts are calibration-only "oracle" fields and never feed the score; they let replay analysis test whether the cheap visible-information proxy points toward genuinely useful fog without leaking that information into gameplay. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static void SAS_logFirstCityShadowScoutEntry(CvUnitAI& kSettler, CvPlot const& kScoutOrigin, CvPlot const& kSettleSite, CitySiteEvaluator const& kEvaluator,
+	int iCurrentFirstCityValue, int iCurrentBest6PlotValue, int iCurrentBest10PlotValue, int iMaxTurnsToFound)
+{
+	const int iSustainablePlotValue = CitySiteEvaluator::getSustainableProductivePlotValue();
+	int iScoutOpportunityLinearPercent = 100;
+	int iSettleNowCoreQualityPercent = 100;
+	const int iScoutOpportunityPercent = SAS_getFirstCityScoutRemainingOpportunityPercent(
+		iCurrentBest6PlotValue, iCurrentBest10PlotValue, iSustainablePlotValue,
+		&iScoutOpportunityLinearPercent, &iSettleNowCoreQualityPercent);
+	const int iDelayBaseCost = SAS_getFirstCityReturnTravelValuePerTurn();
+	const int iWindowProgressPercent = std::min(100, (100 * std::max(0, GC.getGame().getElapsedGameTurns())) / std::max(1, iMaxTurnsToFound));
+	const int iTimePressurePercent = (iWindowProgressPercent * iWindowProgressPercent * iWindowProgressPercent) / 10000;
+	const int iContinuationDelayCost = (iDelayBaseCost * iTimePressurePercent * iSettleNowCoreQualityPercent) / 10000;
+	const int iEntryDelayCost = (iDelayBaseCost * (100 + iTimePressurePercent) * iSettleNowCoreQualityPercent) / 10000;
+	const MovementFlags eExploreFlags = (MOVE_NO_ENEMY_TERRITORY | MOVE_AVOID_DANGER);
+	// <!-- custom: Shadow diagnostics must not replace the live group pathfinder's cached search/end node.
+	// Use a local finder for both lookahead horizons, and read each endpoint from that same finder. See KI#144.5. (GPT-6.1-Sol) -->
+	GroupPathFinder kShadowPathFinder;
+	CvPlot const* pBestStep = NULL;
+	int iBestDirectionScore = -MAX_INT;
+	int iBestExpectedGain = -MAX_INT;
+	int iBestRawExpectedGain = -MAX_INT;
+	int iBestInformationValue = -1;
+	int iBestDiscountedInformationValue = -1;
+	int iBestFoundValue = -1;
+	int iBestFoundValueGain = -1;
+	int iBestOracleRevealLand = -1;
+	int iBestOracleRevealSelfSustaining = -1;
+	int iBestOracleRevealNatureFood = -1;
+	int iBestExplorerSeparation = -1;
+	int iBestExplorerCount = 0;
+	int iBestKnownSeeFromLevel = -MAX_INT;
+	int iBestStepDistance = -1;
+	CvPlot const* pBestFrontierStep = NULL;
+	CvPlot const* pBestFrontierTarget = NULL;
+	int iBestNextFrontierValue = -1;
+	int iBestTwoTurnRawExpectedGain = -MAX_INT;
+	int iBestFrontierExplorerSeparation = -1;
+	bool bBestFrontierEntryWorth = false;
+	bool bHadSafeStep = false;
+	const int iRevealRange = kSettler.visibilityRange() + 1;
+	const int iShadowSearchRange = SAS_getFirstCityScoutSearchRange(kSettler, 1);
+	const int iRemainingScoutTurns = std::max(0, iMaxTurnsToFound - GC.getGame().getElapsedGameTurns());
+	const int iFrontierLookaheadTurns = std::min(2, iRemainingScoutTurns);
+	std::vector<int> aiNextFrontierValue(GC.getMap().numPlots(), -1);
+	std::vector<int> aiNextFrontierTarget(GC.getMap().numPlots(), -1);
+	// <!-- custom: One extra turn of frontier lookahead is enough to recognize a zero-immediate-reveal setup move without planning a fixed multi-turn route through fog.
+	// The real scouting window remains the configured first-city deadline; this shadow horizon is recalculated every turn and values only player-known fog geometry at the second-turn target. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	if (iFrontierLookaheadTurns >= 2)
+	{
+		const int iFrontierSearchRange = SAS_getFirstCityScoutSearchRange(kSettler, 2);
+		kShadowPathFinder.setGroup(*kSettler.getGroup(), eExploreFlags, 2);
+		for (SquareIter itFrontier(kScoutOrigin, iFrontierSearchRange, false); itFrontier.hasNext(); ++itFrontier)
+		{
+			CvPlot const& kFrontierPlot = *itFrontier;
+			if (&kFrontierPlot == &kScoutOrigin || kFrontierPlot.isVisibleEnemyUnit(&kSettler))
+				continue;
+			if (!kShadowPathFinder.generatePath(kScoutOrigin, kFrontierPlot) || kShadowPathFinder.getPathTurns() != 2)
+				continue;
+			CvPlot const& kFirstTurnPlot = kShadowPathFinder.getPathEndTurnPlot();
+			if (kSettler.at(kFirstTurnPlot))
+				continue;
+			const int iKnownFrontierFogValue = SAS_getFirstCityKnownFogPotential(kSettler, kFrontierPlot, iSustainablePlotValue, NULL, &kFirstTurnPlot);
+			const int iPotentialRange = std::max(1, kSettler.visibilityRange() + 1);
+			const bool bFrontierEndpointAlreadyCovered = (stepDistance(kFirstTurnPlot.getX(), kFirstTurnPlot.getY(), kFrontierPlot.getX(), kFrontierPlot.getY()) <= iPotentialRange);
+			const int iFrontierEndpointFogValue = (!kFrontierPlot.isRevealed(kSettler.getTeam()) && !bFrontierEndpointAlreadyCovered ?
+				std::max(0, GC.getDefineINT("SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT")) * iSustainablePlotValue : 0);
+			const int iFrontierFoundValue = (kFrontierPlot.isRevealed(kSettler.getTeam()) ? SAS_evaluateFirstCityFoundValue(kEvaluator, kFrontierPlot) : 0);
+			const int iFrontierFoundGain = std::max(0, iFrontierFoundValue - iCurrentFirstCityValue);
+			const int iFrontierValue = iFrontierEndpointFogValue + iKnownFrontierFogValue + iFrontierFoundGain;
+			const int iFirstTurnIndex = kFirstTurnPlot.plotNum();
+			if (iFrontierValue > aiNextFrontierValue[iFirstTurnIndex])
+			{
+				aiNextFrontierValue[iFirstTurnIndex] = iFrontierValue;
+				aiNextFrontierTarget[iFirstTurnIndex] = kFrontierPlot.plotNum();
+			}
+		}
+	}
+	// <!-- custom: A scouting decision is paid per turn, not per adjacent tile.
+	// Settlers can have more than one move and movement modifiers can widen the one-turn envelope beyond baseMoves.
+	// Diagnostic-only: scan the same conservative AI search envelope used by normal unit logic, then let the pathfinder keep only endpoints that are safely reachable in one turn. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	kShadowPathFinder.setGroup(*kSettler.getGroup(), eExploreFlags, 1);
+	for (SquareIter itCandidate(kScoutOrigin, iShadowSearchRange, false); itCandidate.hasNext(); ++itCandidate)
+	{
+		CvPlot const* pAdj = &*itCandidate;
+		if (pAdj == &kScoutOrigin)
+			continue;
+		// <!-- custom: AI_plotValid is protected on CvUnitAI, so this free diagnostic helper cannot call it directly.
+		// Mirror its reachability test here instead of widening that API solely for diagnostics. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+		bool bPlotValid = !(kSettler.getUnitInfo().isNoRevealMap() && kSettler.willRevealAnyPlotFrom(*pAdj));
+		if (bPlotValid)
+		{
+			switch (kSettler.getDomainType())
+			{
+			case DOMAIN_SEA:
+				bPlotValid = kSettler.isRevealedValidDomain(*pAdj);
+				break;
+			case DOMAIN_LAND:
+				bPlotValid = (pAdj->getArea().canBeEntered(kSettler.getArea(), &kSettler) || kSettler.canMoveAllTerrain());
+				break;
+			default:
+				bPlotValid = false;
+				break;
+			}
+		}
+		if (!bPlotValid || pAdj->isVisibleEnemyUnit(&kSettler))
+		{
+			logBBAI("FIRST_CITY_SHADOW_SCOUT_ENTRY_STEP player=%d scoutOrigin=%d,%d settleSite=%d,%d candidate=%d,%d reason=%s gameplayApplied=0",
+				kSettler.getOwner(), kScoutOrigin.getX(), kScoutOrigin.getY(), kSettleSite.getX(), kSettleSite.getY(), pAdj->getX(), pAdj->getY(),
+				(!bPlotValid ? "INVALID_PLOT" : "VISIBLE_ENEMY"));
+			continue;
+		}
+		const bool bSafePath = kShadowPathFinder.generatePath(kScoutOrigin, *pAdj);
+		const int iPathTurns = (bSafePath ? kShadowPathFinder.getPathTurns() : MAX_INT);
+		if (!bSafePath || iPathTurns > 1)
+		{
+			logBBAI("FIRST_CITY_SHADOW_SCOUT_ENTRY_STEP player=%d scoutOrigin=%d,%d settleSite=%d,%d candidate=%d,%d reason=NO_SAFE_ONE_TURN_PATH gameplayApplied=0",
+				kSettler.getOwner(), kScoutOrigin.getX(), kScoutOrigin.getY(), kSettleSite.getX(), kSettleSite.getY(), pAdj->getX(), pAdj->getY());
+			continue;
+		}
+		CvPlot const* pEndTurnPlot = &kShadowPathFinder.getPathEndTurnPlot();
+		if (kSettler.at(*pEndTurnPlot))
+		{
+			logBBAI("FIRST_CITY_SHADOW_SCOUT_ENTRY_STEP player=%d scoutOrigin=%d,%d settleSite=%d,%d candidate=%d,%d reason=NO_MOVEMENT gameplayApplied=0",
+				kSettler.getOwner(), kScoutOrigin.getX(), kScoutOrigin.getY(), kSettleSite.getX(), kSettleSite.getY(), pAdj->getX(), pAdj->getY());
+			continue;
+		}
+		bHadSafeStep = true;
+		const int iEndpointFogValue = (!pEndTurnPlot->isRevealed(kSettler.getTeam()) ?
+			std::max(0, GC.getDefineINT("SAS_1ST_CITY_SCOUT_FOG_END_REF_PLOT_MULT")) * iSustainablePlotValue : 0);
+		int iKnownFogPotentialPlots = 0;
+		const int iKnownFogPotentialValue = SAS_getFirstCityKnownFogPotential(kSettler, *pEndTurnPlot, iSustainablePlotValue, &iKnownFogPotentialPlots);
+		int iExplorerCount = 0;
+		CvPlot const* pNearestExplorerAnchor = NULL;
+		const int iExplorerSeparation = SAS_getFirstCityExplorerSeparation(kSettler, *pEndTurnPlot, &iExplorerCount, &pNearestExplorerAnchor);
+		const int iKnownSeeFromLevel = (pEndTurnPlot->isRevealed(kSettler.getTeam()) ? pEndTurnPlot->seeFromLevel(kSettler.getTeam()) : -MAX_INT);
+		const int iEndTurnDistance = stepDistance(kScoutOrigin.getX(), kScoutOrigin.getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY());
+		const int iFrontierIndex = pEndTurnPlot->plotNum();
+		const int iNextFrontierValue = std::max(0, aiNextFrontierValue[iFrontierIndex]);
+		CvPlot const* pNextFrontierTarget = (aiNextFrontierTarget[iFrontierIndex] < 0 ? NULL : GC.getMap().plotByIndex(aiNextFrontierTarget[iFrontierIndex]));
+		int iRevealValue = 0;
+		int iRevealPlots = 0;
+		int iOracleRevealLand = 0;
+		int iOracleRevealSelfSustaining = 0;
+		int iOracleRevealNatureFood = 0;
+		for (SquareIter itReveal(*pEndTurnPlot, iRevealRange, false); itReveal.hasNext(); ++itReveal)
+		{
+			CvPlot const& kRevealPlot = *itReveal;
+			if (kRevealPlot.isRevealed(kSettler.getTeam()) ||
+				!pEndTurnPlot->canSeePlot(&kRevealPlot, kSettler.getTeam(), kSettler.visibilityRange()))
+			{
+				continue;
+			}
+			iRevealValue += iSustainablePlotValue / std::max(1, stepDistance(pEndTurnPlot->getX(), pEndTurnPlot->getY(), kRevealPlot.getX(), kRevealPlot.getY()));
+			++iRevealPlots;
+			if (!kRevealPlot.isWater() && !kRevealPlot.isPeak())
+			{
+				const int iActualNatureFood = kRevealPlot.calculateNatureYield(YIELD_FOOD, NO_TEAM, false);
+				++iOracleRevealLand;
+				iOracleRevealNatureFood += iActualNatureFood;
+				if (iActualNatureFood >= GC.getFOOD_CONSUMPTION_PER_POPULATION())
+					++iOracleRevealSelfSustaining;
+			}
+		}
+		// <!-- custom: Use the founder-known geometric fog estimate for the shadow decision metrics; exact canSeePlot results above remain oracle-only calibration because hidden blockers/terrain can affect them. See KI#144.5 and KI#500. (ChatGPT-5.6-Sol) -->
+		const int iInformationValue = iEndpointFogValue + iKnownFogPotentialValue;
+		const int iDiscountedInformationValue = (iInformationValue * iScoutOpportunityPercent) / 100;
+		const int iFoundValue = (pEndTurnPlot->isRevealed(kSettler.getTeam()) ?
+			SAS_evaluateFirstCityFoundValue(kEvaluator, *pEndTurnPlot) : 0);
+		const int iFoundValueGain = std::max(0, iFoundValue - iCurrentFirstCityValue);
+		const int iRawExpectedGain = iInformationValue + iFoundValueGain;
+		const int iExpectedGain = iDiscountedInformationValue + iFoundValueGain;
+		// <!-- custom: A visible site's quality is evidence about the value of scouting its direction, not another full capital payoff.
+		// Bound that evidence to 0..100% of the new-information value; actual superiority over the settle-now capital remains in foundValueGain. See KI#144.5. (ChatGPT-5.6-Sol) -->
+		const int iKnownProspectQualityPercent = (iInformationValue <= 0 || iFoundValue <= 0 || iCurrentFirstCityValue <= 0 ?
+			0 : std::min(100, (100 * iFoundValue) / iCurrentFirstCityValue));
+		const int iKnownProspectValue = (iInformationValue * iKnownProspectQualityPercent) / 100;
+		const int iDirectionScore = iInformationValue + iKnownProspectValue + iFoundValueGain;
+		const bool bContinuationWorth = (iExpectedGain > iContinuationDelayCost);
+		const bool bEntryWorth = (iExpectedGain > iEntryDelayCost);
+		const bool bRawEntryWorth = (iRawExpectedGain > iEntryDelayCost);
+		const int iTwoTurnRawExpectedGain = iRawExpectedGain + iNextFrontierValue;
+		const int iTwoTurnEntryDelayCost = 2 * iEntryDelayCost;
+		const bool bFrontierEntryWorth = (iFrontierLookaheadTurns >= 2 && iTwoTurnRawExpectedGain > iTwoTurnEntryDelayCost);
+		if (iTwoTurnRawExpectedGain > iBestTwoTurnRawExpectedGain ||
+			(iTwoTurnRawExpectedGain == iBestTwoTurnRawExpectedGain && iExplorerSeparation > iBestFrontierExplorerSeparation))
+		{
+			pBestFrontierStep = pEndTurnPlot;
+			pBestFrontierTarget = pNextFrontierTarget;
+			iBestNextFrontierValue = iNextFrontierValue;
+			iBestTwoTurnRawExpectedGain = iTwoTurnRawExpectedGain;
+			iBestFrontierExplorerSeparation = iExplorerSeparation;
+			bBestFrontierEntryWorth = bFrontierEntryWorth;
+		}
+		logBBAI("FIRST_CITY_SHADOW_SCOUT_ENTRY_STEP player=%d scoutOrigin=%d,%d settleSite=%d,%d endTurn=%d,%d pathTurns=%d stepDistance=%d oracleActualRevealPlots=%d endpointFog=%d oracleActualRevealValue=%d informationValue=%d discountedInformationValue=%d knownFogPotentialPlots=%d knownFogPotentialValue=%d knownSeeFromLevel=%d explorerCount=%d explorerSeparation=%d nearestExplorerAnchor=%d,%d nextFrontierTarget=%d,%d nextFrontierValue=%d twoTurnRawExpectedGain=%d twoTurnEntryDelayCost=%d frontierEntryWorth=%d foundValue=%d foundValueGain=%d rawExpectedGain=%d expectedGain=%d continuationDelayCost=%d entryDelayCost=%d continuationWorth=%d entryWorth=%d rawEntryWorth=%d knownProspectQualityPercent=%d knownProspectValue=%d directionScore=%d oracleRevealLand=%d oracleRevealSelfSustaining=%d oracleRevealNatureFood=%d gameplayApplied=0",
+			kSettler.getOwner(), kScoutOrigin.getX(), kScoutOrigin.getY(), kSettleSite.getX(), kSettleSite.getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY(), iPathTurns, iEndTurnDistance,
+			iRevealPlots, iEndpointFogValue, iRevealValue, iInformationValue, iDiscountedInformationValue, iKnownFogPotentialPlots, iKnownFogPotentialValue, iKnownSeeFromLevel, iExplorerCount, iExplorerSeparation,
+			(pNearestExplorerAnchor == NULL ? -1 : pNearestExplorerAnchor->getX()), (pNearestExplorerAnchor == NULL ? -1 : pNearestExplorerAnchor->getY()),
+			(pNextFrontierTarget == NULL ? -1 : pNextFrontierTarget->getX()), (pNextFrontierTarget == NULL ? -1 : pNextFrontierTarget->getY()), iNextFrontierValue, iTwoTurnRawExpectedGain, iTwoTurnEntryDelayCost, bFrontierEntryWorth,
+			iFoundValue, iFoundValueGain, iRawExpectedGain, iExpectedGain, iContinuationDelayCost, iEntryDelayCost, bContinuationWorth, bEntryWorth, bRawEntryWorth,
+			iKnownProspectQualityPercent, iKnownProspectValue, iDirectionScore, iOracleRevealLand, iOracleRevealSelfSustaining, iOracleRevealNatureFood);
+		if (iDirectionScore > iBestDirectionScore ||
+			(iDirectionScore == iBestDirectionScore && (iExplorerSeparation > iBestExplorerSeparation ||
+				(iExplorerSeparation == iBestExplorerSeparation && (iKnownSeeFromLevel > iBestKnownSeeFromLevel ||
+					(iKnownSeeFromLevel == iBestKnownSeeFromLevel && iEndTurnDistance > iBestStepDistance))))))
+		{
+			pBestStep = pEndTurnPlot;
+			iBestDirectionScore = iDirectionScore;
+			iBestExpectedGain = iExpectedGain;
+			iBestRawExpectedGain = iRawExpectedGain;
+			iBestInformationValue = iInformationValue;
+			iBestDiscountedInformationValue = iDiscountedInformationValue;
+			iBestFoundValue = iFoundValue;
+			iBestFoundValueGain = iFoundValueGain;
+			iBestOracleRevealLand = iOracleRevealLand;
+			iBestOracleRevealSelfSustaining = iOracleRevealSelfSustaining;
+			iBestOracleRevealNatureFood = iOracleRevealNatureFood;
+			iBestExplorerSeparation = iExplorerSeparation;
+			iBestExplorerCount = iExplorerCount;
+			iBestKnownSeeFromLevel = iKnownSeeFromLevel;
+			iBestStepDistance = iEndTurnDistance;
+		}
+	}
+	logBBAI("FIRST_CITY_SHADOW_SCOUT_ENTRY_RESULT player=%d scoutOrigin=%d,%d settleSite=%d,%d currentValue=%d best6=%d best10=%d sustainablePlotValue=%d scoutOpportunityLinearPercent=%d scoutOpportunityPercent=%d settleNowCoreQualityPercent=%d delayBaseCost=%d windowProgressPercent=%d timePressurePercent=%d continuationDelayCost=%d entryDelayCost=%d hadSafeStep=%d searchRange=%d frontierLookaheadTurns=%d bestStep=%d,%d bestInformationValue=%d bestDiscountedInformationValue=%d bestFoundValue=%d bestFoundValueGain=%d bestRawExpectedGain=%d bestExpectedGain=%d bestDirectionScore=%d bestExplorerCount=%d bestExplorerSeparation=%d bestKnownSeeFromLevel=%d bestStepDistance=%d bestFrontierStep=%d,%d bestFrontierTarget=%d,%d bestNextFrontierValue=%d bestTwoTurnRawExpectedGain=%d twoTurnEntryDelayCost=%d frontierWouldScout=%d bestOracleRevealLand=%d bestOracleRevealSelfSustaining=%d bestOracleRevealNatureFood=%d continuationWouldScout=%d entryWouldScout=%d rawEntryWouldScout=%d gameplayApplied=0",
+		kSettler.getOwner(), kScoutOrigin.getX(), kScoutOrigin.getY(), kSettleSite.getX(), kSettleSite.getY(), iCurrentFirstCityValue, iCurrentBest6PlotValue, iCurrentBest10PlotValue,
+		iSustainablePlotValue, iScoutOpportunityLinearPercent, iScoutOpportunityPercent, iSettleNowCoreQualityPercent, iDelayBaseCost,
+		iWindowProgressPercent, iTimePressurePercent, iContinuationDelayCost, iEntryDelayCost, bHadSafeStep, iShadowSearchRange, iFrontierLookaheadTurns,
+		(pBestStep == NULL ? -1 : pBestStep->getX()), (pBestStep == NULL ? -1 : pBestStep->getY()),
+		iBestInformationValue, iBestDiscountedInformationValue, iBestFoundValue, iBestFoundValueGain, iBestRawExpectedGain, iBestExpectedGain,
+		iBestDirectionScore, iBestExplorerCount, iBestExplorerSeparation, iBestKnownSeeFromLevel, iBestStepDistance,
+		(pBestFrontierStep == NULL ? -1 : pBestFrontierStep->getX()), (pBestFrontierStep == NULL ? -1 : pBestFrontierStep->getY()),
+		(pBestFrontierTarget == NULL ? -1 : pBestFrontierTarget->getX()), (pBestFrontierTarget == NULL ? -1 : pBestFrontierTarget->getY()),
+		iBestNextFrontierValue, iBestTwoTurnRawExpectedGain, 2 * iEntryDelayCost, bBestFrontierEntryWorth,
+		iBestOracleRevealLand, iBestOracleRevealSelfSustaining, iBestOracleRevealNatureFood,
+		(iBestExpectedGain > iContinuationDelayCost), (iBestExpectedGain > iEntryDelayCost), (iBestRawExpectedGain > iEntryDelayCost));
+}
+
 // <!-- custom: Choose where a first-city scout should finish by charging each return turn against the site's current found value.
 // Keep this separate from city-site valuation: the same site retains the same strategic value, but a nearly equal nearby capital can be more efficient than several turns of backtracking.
 // The early deadline can instead protect the best raw-value site, using travel cost only to break exact ties, so wandering cannot progressively replace it with weaker nearby sites.
@@ -884,6 +1532,118 @@ static void SAS_logFirstCityCandidateBFCDiagnostics(CitySiteEvaluator const* pOm
 		szContext, ePlayer, kCityPlot.getX(), kCityPlot.getY(), iFoundValue, iAdjustedValue, iPathTurns, kCityPlot.canFound(false, eTeam),
 		kCityPlot.isFreshWater(), kCityPlot.isRiver(), iFoodBonuses, iFoodEnvironmentScore, iCitizenUnworkablePlots, iRevealedNonHomeBFC,
 		iUnrevealedNonHomeBFC);
+	// <!-- custom: First-capital debugging also needs to distinguish local BFC quality from strategic map geometry.
+	// Log only observations here: no latitude, map-edge or hidden-land term affects the decision.
+	// The known/actual split lets a replay show whether a poor edge start had a genuinely promising inward frontier without teaching the AI that named terrain or polar latitude is inherently bad. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	CvMap const& kMap = GC.getMap();
+	const bool bWrapY = kMap.isWrapY();
+	const int iSouthEdgeDistance = (bWrapY ? -1 : kCityPlot.getY());
+	const int iNorthEdgeDistance = (bWrapY ? -1 : kMap.getGridHeight() - 1 - kCityPlot.getY());
+	const int iNearestYEdgeDistance = (bWrapY ? -1 : std::min(iSouthEdgeDistance, iNorthEdgeDistance));
+	const int iInwardYSign = (bWrapY ? 0 : (iSouthEdgeDistance <= iNorthEdgeDistance ? 1 : -1));
+	const int iOuterRadius = 6;
+	int iOuterKnownLand = 0;
+	int iOuterUnrevealed = 0;
+	int iOuterActualLand = 0;
+	int iOuterKnownSelfSustainingLand = 0;
+	int iOuterActualSelfSustainingLand = 0;
+	int iInwardKnownLand = 0;
+	int iInwardActualLand = 0;
+	int iInwardKnownSelfSustainingLand = 0;
+	int iInwardActualSelfSustainingLand = 0;
+	int iInwardUnrevealed = 0;
+	int iOutwardKnownLand = 0;
+	int iOutwardActualLand = 0;
+	int iOutwardKnownSelfSustainingLand = 0;
+	int iOutwardActualSelfSustainingLand = 0;
+	int iOutwardUnrevealed = 0;
+	int iInwardKnownNatureFood = 0;
+	int iInwardActualNatureFood = 0;
+	int iOutwardKnownNatureFood = 0;
+	int iOutwardActualNatureFood = 0;
+	for (SquareIter itOuter(kCityPlot, iOuterRadius); itOuter.hasNext(); ++itOuter)
+	{
+		CvPlot const& kOuterPlot = *itOuter;
+		const int iDistance = plotDistance(kCityPlot.getX(), kCityPlot.getY(), kOuterPlot.getX(), kOuterPlot.getY());
+		if (iDistance <= CITY_PLOTS_RADIUS || iDistance > iOuterRadius)
+			continue;
+		const bool bActualLand = (!kOuterPlot.isWater() && !kOuterPlot.isPeak());
+		const int iActualNatureFood = (bActualLand ? kOuterPlot.calculateNatureYield(YIELD_FOOD, NO_TEAM, false) : 0);
+		const bool bActualSelfSustaining = (bActualLand && iActualNatureFood >= GC.getFOOD_CONSUMPTION_PER_POPULATION());
+		const int iDY = kOuterPlot.getY() - kCityPlot.getY();
+		const bool bInward = (iInwardYSign != 0 && iDY * iInwardYSign > 0);
+		const bool bOutward = (iInwardYSign != 0 && iDY * iInwardYSign < 0);
+		if (bActualLand)
+		{
+			++iOuterActualLand;
+			if (bInward)
+			{
+				++iInwardActualLand;
+				iInwardActualNatureFood += iActualNatureFood;
+			}
+			else if (bOutward)
+			{
+				++iOutwardActualLand;
+				iOutwardActualNatureFood += iActualNatureFood;
+			}
+		}
+		if (bActualSelfSustaining)
+		{
+			++iOuterActualSelfSustainingLand;
+			if (bInward)
+				++iInwardActualSelfSustainingLand;
+			else if (bOutward)
+				++iOutwardActualSelfSustainingLand;
+		}
+		if (!kOuterPlot.isRevealed(eTeam))
+		{
+			++iOuterUnrevealed;
+			if (bInward)
+				++iInwardUnrevealed;
+			else if (bOutward)
+				++iOutwardUnrevealed;
+			continue;
+		}
+		const bool bKnownLand = (!kOuterPlot.isWater() && !kOuterPlot.isPeak());
+		const int iKnownNatureFood = (bKnownLand ? kOuterPlot.calculateNatureYield(YIELD_FOOD, eTeam, false) : 0);
+		const bool bKnownSelfSustaining = (bKnownLand && iKnownNatureFood >= GC.getFOOD_CONSUMPTION_PER_POPULATION());
+		if (bKnownLand)
+		{
+			++iOuterKnownLand;
+			if (bInward)
+			{
+				++iInwardKnownLand;
+				iInwardKnownNatureFood += iKnownNatureFood;
+			}
+			else if (bOutward)
+			{
+				++iOutwardKnownLand;
+				iOutwardKnownNatureFood += iKnownNatureFood;
+			}
+		}
+		if (bKnownSelfSustaining)
+		{
+			++iOuterKnownSelfSustainingLand;
+			if (bInward)
+				++iInwardKnownSelfSustainingLand;
+			else if (bOutward)
+				++iOutwardKnownSelfSustainingLand;
+		}
+	}
+	const int iInwardKnownNatureFoodPerLandX100 = (100 * iInwardKnownNatureFood) / std::max(1, iInwardKnownLand);
+	const int iInwardActualNatureFoodPerLandX100 = (100 * iInwardActualNatureFood) / std::max(1, iInwardActualLand);
+	const int iOutwardKnownNatureFoodPerLandX100 = (100 * iOutwardKnownNatureFood) / std::max(1, iOutwardKnownLand);
+	const int iOutwardActualNatureFoodPerLandX100 = (100 * iOutwardActualNatureFood) / std::max(1, iOutwardActualLand);
+	logBBAI("FIRST_CITY_STRATEGIC_GEOMETRY source=%s player=%d candidate=%d,%d latitude=%d wrapY=%d southEdgeDistance=%d northEdgeDistance=%d nearestYEdgeDistance=%d outerRadius=%d "
+		"outerKnownLand=%d outerUnrevealed=%d outerActualLand=%d outerKnownSelfSustainingLand=%d outerActualSelfSustainingLand=%d "
+		"inwardKnownLand=%d inwardActualLand=%d inwardKnownSelfSustainingLand=%d inwardActualSelfSustainingLand=%d inwardUnrevealed=%d inwardKnownNatureFoodPerLandX100=%d inwardActualNatureFoodPerLandX100=%d "
+		"outwardKnownLand=%d outwardActualLand=%d outwardKnownSelfSustainingLand=%d outwardActualSelfSustainingLand=%d outwardUnrevealed=%d outwardKnownNatureFoodPerLandX100=%d outwardActualNatureFoodPerLandX100=%d "
+		"foundValuePerRevealedBFCX100=%d gameplayApplied=0",
+		szContext, ePlayer, kCityPlot.getX(), kCityPlot.getY(), kCityPlot.getLatitude(), bWrapY, iSouthEdgeDistance, iNorthEdgeDistance, iNearestYEdgeDistance, iOuterRadius,
+		iOuterKnownLand, iOuterUnrevealed, iOuterActualLand, iOuterKnownSelfSustainingLand, iOuterActualSelfSustainingLand,
+		iInwardKnownLand, iInwardActualLand, iInwardKnownSelfSustainingLand, iInwardActualSelfSustainingLand, iInwardUnrevealed, iInwardKnownNatureFoodPerLandX100, iInwardActualNatureFoodPerLandX100,
+		iOutwardKnownLand, iOutwardActualLand, iOutwardKnownSelfSustainingLand, iOutwardActualSelfSustainingLand, iOutwardUnrevealed, iOutwardKnownNatureFoodPerLandX100, iOutwardActualNatureFoodPerLandX100,
+		(100 * iFoundValue) / std::max(1, iRevealedNonHomeBFC));
 	// <!-- custom: The ordinary candidate score was already computed by the decision path.
 	// Use it directly as the comparison baseline instead of replaying the player-known evaluation solely for a log.
 	// Found level 2 captures its breakdown during that original pass. See KI#505.2. (GPT-6.1-Sol) -->
@@ -3141,7 +3901,7 @@ static int SAS_getWorkerYieldUtility(int iFood, int iProduction, int iCommerce, 
 {
 	// <!-- custom: Compare a citizen's plot yields directly through the city-specific marginal yield weights.
 	// Do not subtract a second below-consumption Food penalty here: the raw Food difference already charges a 1F plot one FoodWeight relative to a 2F self-supporting plot, while city-level Food scarcity is represented by the Food weight itself.
-	// The former extra penalty double-counted that opportunity cost and could reverse the city's own hammer-scarcity signal, e.g. Istanbul preferring another flatland Farm while its Production weight already exceeded Food and its Grass Hill Mine was otherwise the stronger weighted result. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+	// The former extra penalty double-counted that opportunity cost and could reverse the city's own hammer-scarcity signal, e.g. Istanbul preferring another flatland Farm while its Production weight already exceeded Food and its Grass Hill Mine was otherwise the stronger weighted result. See KI#33.4. (GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	return iFood * kWeights.iFood + iProduction * kWeights.iProduction + iCommerce * kWeights.iCommerce;
 }
 
@@ -3187,7 +3947,7 @@ static int SAS_getWorkerBuildEffectiveYield(CvPlot const& kPlot, BuildTypes eBui
 }
 
 // <!-- custom: Calculate the economic state transition for an improvement Build independently of whether its enabling technology is already known.
-// Normal gameplay callers still validate full canBuild through SAS_evaluateWorkerYieldBuild; the separate unchecked calculation lets the Worker quantify a same-plot improvement that is exactly one currently researchable technology away without pretending that it can already issue that Build mission. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+// Normal gameplay callers still validate full canBuild through SAS_evaluateWorkerYieldBuild; the separate unchecked calculation lets the Worker quantify a same-plot improvement that is exactly one currently researchable technology away without pretending that it can already issue that Build mission. See KI#33.4. (GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static bool SAS_evaluateWorkerYieldBuildState(CvUnitAI const& kUnit, CvCityAI const& kCity, CvPlot const& kPlot, BuildTypes eBuild, SASWorkerYieldContext const& kContext, SASWorkerBuildYieldEvaluation& kResult, int const* paiCurrentYields = NULL)
 {
 	if (eBuild == NO_BUILD)
@@ -3224,7 +3984,7 @@ static bool SAS_evaluateWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& 
 	if (eBuild == NO_BUILD)
 		return false;
 	// <!-- custom: Preserve the original cheap economic-candidate filter before canBuild, which can invoke Python.
-	// Splitting the unchecked forecast calculation must not make ordinary evaluation probe routes, forts or the current improvement; the state helper also validates its independently callable forecast inputs. (GPT-6.1-Sol) -->
+	// Splitting the unchecked forecast calculation must not make ordinary evaluation probe routes, forts or the current improvement; the state helper also validates its independently callable forecast inputs. See KI#33.4. (GPT-6.1-Sol) -->
 	ImprovementTypes const eImprovement = GC.getInfo(eBuild).getImprovement();
 	if (eImprovement == NO_IMPROVEMENT || eImprovement == kPlot.getImprovementType() || GC.getInfo(eImprovement).isActsAsCity() || !kUnit.canBuild(kPlot, eBuild))
 		return false;
@@ -3233,7 +3993,7 @@ static bool SAS_evaluateWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& 
 
 // <!-- custom: A blank plot can be committed to a long-lived improvement just before a more suitable same-plot option unlocks, after which replacement hysteresis correctly protects the sunk Worker turns and maturation.
 // Treat a Build as "one tech away" only when all current non-tech legality already holds and exactly one distinct missing Build/feature technology is immediately researchable.
-// This bounds foresight to the research frontier without terrain/improvement names; it does not estimate turns to completion or assume the player will choose that technology. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+// This bounds foresight to the research frontier without terrain/improvement names; it does not estimate turns to completion or assume the player will choose that technology. See KI#33.4. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static bool SAS_getWorkerOneResearchTechAwayBuild(CvUnitAI const& kUnit, CvPlot const& kPlot, BuildTypes eBuild, TechTypes& eMissingTech)
 {
 	eMissingTech = NO_TECH;
@@ -3243,7 +4003,7 @@ static bool SAS_getWorkerOneResearchTechAwayBuild(CvUnitAI const& kUnit, CvPlot 
 	ImprovementTypes const eImprovement = kBuild.getImprovement();
 	if (eImprovement == NO_IMPROVEMENT || GC.getInfo(eImprovement).isActsAsCity())
 		return false;
-	// <!-- custom: Check the cheap missing-tech and unit restrictions before research/plot legality probes, so the hot Worker scan queries only feasible frontier Builds. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	// <!-- custom: Check the cheap missing-tech and unit restrictions before research/plot legality probes, so the hot Worker scan queries only feasible frontier Builds. See KI#33.4. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	CvTeam const& kTeam = GET_TEAM(kUnit.getTeam());
 	TechTypes const eBuildTech = kBuild.getTechPrereq();
 	if (eBuildTech != NO_TECH && !kTeam.isHasTech(eBuildTech))
@@ -3261,7 +4021,7 @@ static bool SAS_getWorkerOneResearchTechAwayBuild(CvUnitAI const& kUnit, CvPlot 
 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
 	if (eMissingTech == NO_TECH || !kUnit.getUnitInfo().getBuilds(eBuild) || !kUnit.isValidDomain(kPlot.isWater()) || !kOwner.canResearch(eMissingTech))
 		return false;
-	// <!-- custom: CvPlot::canBuild does not test player technologies; bTestVisible=false retains current non-tech plot constraints, including irrigation/ownership and Python overrides. Match the remaining unit/domain and player Gold checks explicitly above/below. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	// <!-- custom: CvPlot::canBuild does not test player technologies; bTestVisible=false retains current non-tech plot constraints, including irrigation/ownership and Python overrides. Match the remaining unit/domain and player Gold checks explicitly above/below. See KI#33.4. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	if (!kPlot.canBuild(eBuild, kUnit.getOwner(), false))
 		return false;
 	return (std::max(0, kOwner.getGold()) >= kOwner.getBuildCost(kPlot, eBuild));
@@ -3270,7 +4030,7 @@ static bool SAS_getWorkerOneResearchTechAwayBuild(CvUnitAI const& kUnit, CvPlot 
 // <!-- custom: Diagnostic-only city yield frontier for the Worker rework.
 // Sum the strongest few current land-BFC Food, Production and Commerce sources separately, using the same maturation-aware current yields as ordinary Worker evaluation.
 // Keep this observational helper free of canBuild/research probes: level-3 logging must not add Python callbacks or other decision work solely because diagnostics are enabled.
-// Per-plot WORKER_YIELD_BUILD rows separately expose legal and one-tech-away improvement alternatives. (ChatGPT-5.6-Sol) -->
+// Per-plot WORKER_YIELD_BUILD rows separately expose legal and one-tech-away improvement alternatives. See KI#33.4. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static void SAS_getWorkerYieldFrontierDiagnostic(CvUnitAI const& kUnit, CvCityAI const& kCity, int& iFrontierPlots, int* paiCurrentFrontier)
 {
 	std::vector<int> aCurrentYields[NUM_YIELD_TYPES];
@@ -3569,7 +4329,7 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 	if (eBestCandidate == NO_BUILD)
 	{
 		// <!-- custom: Zero legal candidates are already covered by the compact once-per-plot rejection diagnostic.
-		// Keep WORKER_YIELD_NO_BUILD for the strategically useful case where replacement hysteresis rejected otherwise legal Builds. (GPT-5.6-Sol) -->
+		// Keep WORKER_YIELD_NO_BUILD for the strategically useful case where replacement hysteresis rejected otherwise legal Builds. See KI#33.4. (GPT-5.6-Sol + GPT-6.1-Sol) -->
 		if (bDetailedYieldLogging && iLegalCandidateCount > 0 && SAS_shouldLogWorkerYieldDecision(kUnit, kCity, kPlot, SAS_WORKER_YIELD_LOG_NO_BUILD, eBestMarginRejectedCandidate, kContext.kCurrentWeights, kBestMarginRejectedTransitionWeights)) logBBAI("    WORKER_YIELD_NO_BUILD turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) worked=%d current=%S weights=(%d,%d,%d) prospectiveWeights=(%d,%d,%d) valuationWeights=(%d,%d,%d) currentYields=(%d,%d,%d) currentUtility=%d legal=%d marginRejected=%d bestRejected=%S bestRejectedGain=%d bestRejectedMargin=%d",
 			GC.getGame().getGameTurn(), kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kUnit.getID(),
 			kCity.getName().GetCString(), kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot),
@@ -3617,7 +4377,7 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 			(eBestMarginRejectedCandidate == NO_BUILD ? 0 : iBestMarginRejectedGain),
 			(eBestMarginRejectedCandidate == NO_BUILD ? 0 : iBestMarginRejectedReplacementMargin));
 		// <!-- custom: A dry XML irrigation carrier can still win the ordinary yield path; this is intentionally separate from the dedicated irrigation-chain planner above.
-		// Log the actual dry state, the hypothetical irrigated state, and each state's Food deficit below citizen consumption as context only; utility now prices the actual yields directly, while city-level Food scarcity belongs in the Food weight. (ChatGPT-5.6-Sol) -->
+		// Log the actual dry state, the hypothetical irrigated state, and each state's Food deficit below citizen consumption as context only; utility now prices the actual yields directly, while city-level Food scarcity belongs in the Food weight. See KI#33.4. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		if (SAS_isWorkerIrrigationCarrierImprovement(eResultImprovement) && !kPlot.isIrrigationAvailable())
 		{
 			int aiIrrigatedResultYields[NUM_YIELD_TYPES];
@@ -4466,9 +5226,9 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	if (gWorkerLogLevel >= 3 && SAS_shouldLogWorkerYieldContext(kCity, kWorkerYieldContext))
 	{
 		// <!-- custom: The full Tiny Islands continuation still showed late Lagos Farm/Workshop reversals with gains well above the replacement margin while its Food weight repeatedly moved between roughly 180 and 340.
-		// Record stored Food, raw surplus, angry-citizen compensation, non-free specialists and active-Build projection separately so the cause and cure can be distinguished from transient city assignment or parallel-Worker context. See KI#196.
+		// Record stored Food, raw surplus, angry-citizen compensation, non-free specialists and active-Build projection separately so the cause and cure can be distinguished from transient city assignment or parallel-Worker context.
 		// Also expose the city's actual yield rates, happiness/health headroom and K-Mod's general city yield multipliers beside the SAS Worker weights.
-		// This is diagnostic only: it lets Mine/Windmill/Farm/Cottage cases show whether the city is genuinely growth-constrained, hammer-poor or economy-biased before SAS replaces the current strong-plot heuristic with a more general marginal-yield model. (ChatGPT-5.6-Sol) -->
+		// This is diagnostic only: it lets Mine/Windmill/Farm/Cottage cases distinguish actual growth constraints, Production scarcity and economy bias when reviewing the current strong-plot heuristic. See KI#196 and KI#33.4. (GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		int iKModFoodMultiplier = 0;
 		int iKModProductionMultiplier = 0;
 		int iKModCommerceMultiplier = 0;
@@ -6556,6 +7316,58 @@ bool CvUnitAI::AI_foundFirstCity()
 					const int iBetterRawValue = SAS_evaluateFirstCityFoundValue(kFirstCityEvaluator, *pBetterGoodEnoughFirstCityPlot);
 					SAS_logFirstCityCandidateBFCDiagnostics(pFirstCityOmniscientEvaluator.get(), "chosen-good-enough-recheck", *pBetterGoodEnoughFirstCityPlot, getOwner(), getTeam(), iBetterRawValue, iBetterGoodEnoughFirstCityValue, iBetterGoodEnoughFirstCityTurn - kGame.getElapsedGameTurns());
 				}
+				// <!-- custom: A one-tile better local site can be reached and auto-founded in the same turn, so the normal found-current shadow hook never runs there.
+				// Compare the real choice before issuing MISSIONAI_FOUND: scout from the Settler's current plot versus founding the already-known better local target.
+				// This keeps the information direction honest instead of pretending the target move has already happened. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+				if (bLogSettlerAILevel3 && !bInvestigatingStrongerCore)
+					SAS_logFirstCityShadowScoutEntry(*this, getPlot(), *pBetterGoodEnoughFirstCityPlot, kFirstCityEvaluator, iBetterGoodEnoughRawValue, iBetterGoodEnoughBest6PlotValue, iBetterGoodEnoughBest10PlotValue, iMaxTurnsToFound);
+				// <!-- custom: Apply the selective entry test before committing the known local capital, with its actual value/core as the delay benchmark. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+				if (!bInvestigatingStrongerCore && !bContinuingFirstCityScout)
+				{
+					int iTargetFoodBonuses = 0;
+					int iTargetFoodEnvironmentScore = 0;
+					SAS_evaluateFirstCityBFCFoodEnvironment(*pBetterGoodEnoughFirstCityPlot, getOwner(), getTeam(), iTargetFoodBonuses, iTargetFoodEnvironmentScore);
+					const int iTargetCore16QualityPercent = SAS_getFirstCityCore16QualityPercent(iBetterGoodEnoughBest6PlotValue, iBetterGoodEnoughBest10PlotValue, iSustainableProductivePlotValue);
+					const bool bMarginalStrongFoodTarget = SAS_isFirstCityMarginalStrongFoodSite(iTargetFoodBonuses, iTargetFoodEnvironmentScore,
+						iBetterGoodEnoughBest6PlotValue, iBetterGoodEnoughBest10PlotValue, iSustainableProductivePlotValue);
+					CvPlot const* pPromisingFogSite = NULL;
+					CvPlot const* pPromisingFogEndTurnPlot = NULL;
+					int iPromisingFogValue = 0;
+					int iPromisingFogPathTurns = -1;
+					int iSettleRevealedBFC = 0;
+					int iPromisingRevealedBFC = 0;
+					int iPromisingUnrevealedBFC = 0;
+					int iSettleAverageValueX100 = 0;
+					int iPromisingAverageValueX100 = 0;
+					int iPromisingProjectedFullBFCValue = 0;
+					const int iRemainingScoutTurns = std::max(0, iMaxTurnsToFound - kGame.getElapsedGameTurns());
+					const bool bPromisingFogCandidate = (bMarginalStrongFoodTarget &&
+						SAS_shouldScoutPromisingFoggedFirstCitySite(*this, kFirstCityEvaluator, *pBetterGoodEnoughFirstCityPlot, iBetterGoodEnoughRawValue,
+							iRemainingScoutTurns, pPromisingFogSite, pPromisingFogEndTurnPlot, iPromisingFogValue, iPromisingFogPathTurns,
+							iSettleRevealedBFC, iPromisingRevealedBFC, iPromisingUnrevealedBFC, iSettleAverageValueX100,
+							iPromisingAverageValueX100, iPromisingProjectedFullBFCValue));
+					const int iPromisingProjectedGain = std::max(0, iPromisingProjectedFullBFCValue - iBetterGoodEnoughRawValue);
+					const int iPromisingProjectedDelayCost = (bPromisingFogCandidate ?
+						std::max(1, iPromisingFogPathTurns) * SAS_getFirstCityReturnTravelValuePerTurn() * iTargetCore16QualityPercent / 100 : 0);
+					const bool bPromisingFogAlternative = (bPromisingFogCandidate && iPromisingProjectedGain > iPromisingProjectedDelayCost);
+					if (bLogSettlerAILevel2 && bMarginalStrongFoodTarget) logBBAI("FIRST_CITY_MARGINAL_SCOUT_ENTRY player=%d from=%d,%d settleSite=%d,%d settleValue=%d foodBonuses=%d foodEnvironmentScore=%d core16QualityPercent=%d maxMarginalCore16Percent=%d promisingSite=%d,%d promisingValue=%d promisingProjectedFullBFCValue=%d promisingProjectedGain=%d projectedDelayCost=%d settleAvgX100=%d promisingAvgX100=%d promisingRevealedBFC=%d promisingUnrevealedBFC=%d promisingPathTurns=%d endTurn=%d,%d remainingWindowTurns=%d action=%s",
+						getOwner(), getX(), getY(), pBetterGoodEnoughFirstCityPlot->getX(), pBetterGoodEnoughFirstCityPlot->getY(), iBetterGoodEnoughRawValue,
+						iTargetFoodBonuses, iTargetFoodEnvironmentScore, iTargetCore16QualityPercent, GC.getDefineINT("SAS_1ST_CITY_SCOUT_MAX_CORE_16_REF_PCT"),
+						(pPromisingFogSite == NULL ? -1 : pPromisingFogSite->getX()), (pPromisingFogSite == NULL ? -1 : pPromisingFogSite->getY()),
+						iPromisingFogValue, iPromisingProjectedFullBFCValue, iPromisingProjectedGain, iPromisingProjectedDelayCost, iSettleAverageValueX100, iPromisingAverageValueX100,
+						iPromisingRevealedBFC, iPromisingUnrevealedBFC, iPromisingFogPathTurns,
+						(pPromisingFogEndTurnPlot == NULL ? -1 : pPromisingFogEndTurnPlot->getX()), (pPromisingFogEndTurnPlot == NULL ? -1 : pPromisingFogEndTurnPlot->getY()),
+						iRemainingScoutTurns, (bPromisingFogAlternative ? "SCOUT_PROMISING_FOG" : "SETTLE_KNOWN_SITE"));
+					if (bPromisingFogAlternative)
+					{
+						if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics(pFirstCityOmniscientEvaluator.get(), "chosen-marginal-fog-scout", *pPromisingFogSite,
+							getOwner(), getTeam(), iPromisingFogValue, iPromisingProjectedFullBFCValue, iPromisingFogPathTurns);
+						// <!-- custom: The scout state must remember the capital opportunity being forgone, not merely the Settler's physical starting tile.
+						// Otherwise the next turn treats that already-known settle site as a newly discovered improvement and immediately walks back, aborting the promising-fog probe after one step. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+						pushGroupMoveTo(*pPromisingFogEndTurnPlot, MOVE_NO_ENEMY_TERRITORY | MOVE_AVOID_DANGER, false, false, MISSIONAI_EXPLORE, pBetterGoodEnoughFirstCityPlot);
+						return true;
+					}
+				}
 				// <!-- custom: The first Wang Kon core test correctly noticed that 51,24 pointed toward stronger opening/developed plots, but its raw found value remained below the cached 51,23 site.
 				// Marking that information-gathering step as MISSIONAI_FOUND made the normal selector pull the Settler back on the next turn; the recheck then sent it north again, repeating until the turn-7 deadline and founding the original hill on turn 8.
 				// Preserve the existing found-site mission when the destination already wins by complete found value; when only the stronger core makes it worth investigating, retain the current plot as an EXPLORE origin so the bounded scouting/return logic continues instead of oscillating. (GPT-5.6-Sol) -->
@@ -6570,6 +7382,53 @@ bool CvUnitAI::AI_foundFirstCity()
 			// <!-- custom: First-city roaming is for clearly bad BFCs, not merely imperfect capitals.
 			// London had no food bonus but was still a decent river-path site with enough workable land; the previous value-threshold gate made it wander in circles before founding the same place.
 			// If nearby first-city scoring does not find a better visible reachable plot, stop roaming and found. (GPT-5.5) -->
+
+			// <!-- custom: The old good-enough branch bypassed scouting, so continuation logic alone could not decide whether delaying settlement was worthwhile.
+			// Keep the shadow comparison diagnostic-only alongside the separate selective entry gate; SAS_logFirstCityShadowScoutEntry compares this current-site decision with auto-found local targets. See KI#144.2 and KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			if (bLogSettlerAILevel3)
+				SAS_logFirstCityShadowScoutEntry(*this, getPlot(), getPlot(), kFirstCityEvaluator, iCurrentFirstCityValue, iCurrentBest6PlotValue, iCurrentBest10PlotValue, iMaxTurnsToFound);
+			// <!-- custom: The same marginal-core/promising-fog entry policy applies when founding on the current plot; this is separate from the already-scouting continuation decision. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			if (!bContinuingFirstCityScout)
+			{
+				const int iCurrentCore16QualityPercent = SAS_getFirstCityCore16QualityPercent(iCurrentBest6PlotValue, iCurrentBest10PlotValue, iSustainableProductivePlotValue);
+				const bool bMarginalStrongFoodCurrent = SAS_isFirstCityMarginalStrongFoodSite(iCurrentFoodBonuses, iCurrentFoodEnvironmentScore,
+					iCurrentBest6PlotValue, iCurrentBest10PlotValue, iSustainableProductivePlotValue);
+				CvPlot const* pPromisingFogSite = NULL;
+				CvPlot const* pPromisingFogEndTurnPlot = NULL;
+				int iPromisingFogValue = 0;
+				int iPromisingFogPathTurns = -1;
+				int iSettleRevealedBFC = 0;
+				int iPromisingRevealedBFC = 0;
+				int iPromisingUnrevealedBFC = 0;
+				int iSettleAverageValueX100 = 0;
+				int iPromisingAverageValueX100 = 0;
+				int iPromisingProjectedFullBFCValue = 0;
+				const int iRemainingScoutTurns = std::max(0, iMaxTurnsToFound - kGame.getElapsedGameTurns());
+				const bool bPromisingFogCandidate = (bMarginalStrongFoodCurrent &&
+					SAS_shouldScoutPromisingFoggedFirstCitySite(*this, kFirstCityEvaluator, getPlot(), iCurrentFirstCityValue,
+						iRemainingScoutTurns, pPromisingFogSite, pPromisingFogEndTurnPlot, iPromisingFogValue, iPromisingFogPathTurns,
+						iSettleRevealedBFC, iPromisingRevealedBFC, iPromisingUnrevealedBFC, iSettleAverageValueX100,
+						iPromisingAverageValueX100, iPromisingProjectedFullBFCValue));
+				const int iPromisingProjectedGain = std::max(0, iPromisingProjectedFullBFCValue - iCurrentFirstCityValue);
+				const int iPromisingProjectedDelayCost = (bPromisingFogCandidate ?
+					std::max(1, iPromisingFogPathTurns) * SAS_getFirstCityReturnTravelValuePerTurn() * iCurrentCore16QualityPercent / 100 : 0);
+				const bool bPromisingFogAlternative = (bPromisingFogCandidate && iPromisingProjectedGain > iPromisingProjectedDelayCost);
+				if (bLogSettlerAILevel2 && bMarginalStrongFoodCurrent) logBBAI("FIRST_CITY_MARGINAL_SCOUT_ENTRY player=%d from=%d,%d settleSite=%d,%d settleValue=%d foodBonuses=%d foodEnvironmentScore=%d core16QualityPercent=%d maxMarginalCore16Percent=%d promisingSite=%d,%d promisingValue=%d promisingProjectedFullBFCValue=%d promisingProjectedGain=%d projectedDelayCost=%d settleAvgX100=%d promisingAvgX100=%d promisingRevealedBFC=%d promisingUnrevealedBFC=%d promisingPathTurns=%d endTurn=%d,%d remainingWindowTurns=%d action=%s",
+					getOwner(), getX(), getY(), getX(), getY(), iCurrentFirstCityValue, iCurrentFoodBonuses, iCurrentFoodEnvironmentScore,
+					iCurrentCore16QualityPercent, GC.getDefineINT("SAS_1ST_CITY_SCOUT_MAX_CORE_16_REF_PCT"),
+					(pPromisingFogSite == NULL ? -1 : pPromisingFogSite->getX()), (pPromisingFogSite == NULL ? -1 : pPromisingFogSite->getY()),
+					iPromisingFogValue, iPromisingProjectedFullBFCValue, iPromisingProjectedGain, iPromisingProjectedDelayCost, iSettleAverageValueX100, iPromisingAverageValueX100,
+					iPromisingRevealedBFC, iPromisingUnrevealedBFC, iPromisingFogPathTurns,
+					(pPromisingFogEndTurnPlot == NULL ? -1 : pPromisingFogEndTurnPlot->getX()), (pPromisingFogEndTurnPlot == NULL ? -1 : pPromisingFogEndTurnPlot->getY()),
+					iRemainingScoutTurns, (bPromisingFogAlternative ? "SCOUT_PROMISING_FOG" : "SETTLE_KNOWN_SITE"));
+				if (bPromisingFogAlternative)
+				{
+					if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics(pFirstCityOmniscientEvaluator.get(), "chosen-marginal-fog-scout", *pPromisingFogSite,
+						getOwner(), getTeam(), iPromisingFogValue, iPromisingProjectedFullBFCValue, iPromisingFogPathTurns);
+					pushGroupMoveTo(*pPromisingFogEndTurnPlot, MOVE_NO_ENEMY_TERRITORY | MOVE_AVOID_DANGER, false, false, MISSIONAI_EXPLORE, &getPlot());
+					return true;
+				}
+			}
 			if (bLogSettlerAILevel2) logBBAI("FIRST_CITY_FOUND_HEURISTIC_SITE civilization=%S player=%d site=%d,%d foodBonuses=%d foodEnvironmentScore=%d citizenUnworkablePlots=%d badFoodEnvironmentThreshold=%d best6PlotValue=%d best10PlotValue=%d sustainableProductivePlotValue=%d goodEnoughBest6ReferencePercent=%d goodEnoughBest6PlotValue=%d freshWater=%d value=%d elapsed=%d maxFirstCityTurns=%d",
 				kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iCurrentFoodBonuses, iCurrentFoodEnvironmentScore,
 				iCurrentCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, iCurrentBest6PlotValue, iCurrentBest10PlotValue, iSustainableProductivePlotValue, iGoodEnoughBest6ReferencePercent, iGoodEnoughBest6PlotValue, getPlot().isFreshWater(), iCurrentFirstCityValue,
@@ -6730,11 +7589,25 @@ bool CvUnitAI::AI_foundFirstCity()
 			}
 			CvPlot* pBestExploreStep = NULL;
 			int iBestExploreValue = 0;
+			int iBestExploreDistance = -1;
+			int iBestExploreExplorerSeparation = -1;
+			int iBestExploreExplorerCount = 0;
+			int iBestExploreKnownSeeFromLevel = -MAX_INT;
+			int iSafeExploreEndpoints = 0;
+			int iFarthestSafeExploreDistance = 0;
 			int iBestExploreExpectedGain = -MAX_INT;
+			int iBestExploreRawInformationValue = -1;
+			int iBestExploreExplorerOverlapFogPlots = -1;
+			int iBestExploreExplorerOverlapFogValue = -1;
 			int iBestExploreInformationValue = -1;
 			int iBestExploreDiscountedInformationValue = -1;
 			int iBestExploreEndTurnFoundValue = -1;
 			int iBestExploreSettleNowFoundValueGain = -1;
+			int iBestExploreDelayCost = -1;
+			int iBestExploreAddedSettleDelayTurns = -1;
+			int iBestExploreReturnPathTurns = -1;
+			int iBestExploreReturnPathKnownSafe = -1;
+			int iMinimumScoutDelayCost = MAX_INT;
 			int iBestScoutExpectedGain = 0;
 			bool bHadSafeExploreStep = false;
 			const int iSustainablePlotValue = CitySiteEvaluator::getSustainableProductivePlotValue();
@@ -6761,8 +7634,36 @@ bool CvUnitAI::AI_foundFirstCity()
 			const int iScoutRemainingOpportunityPercent = SAS_getFirstCityScoutRemainingOpportunityPercent(iBestSettleNowBest6PlotValue, iBestSettleNowBest10PlotValue, iSustainablePlotValue, (bLogSettlerScoutDecision ? &iScoutOpportunityLinearPercent : NULL), &iSettleNowCoreQualityPercent);
 			const int iScoutWindowProgressPercent = std::min(100, (100 * std::max(0, kGame.getElapsedGameTurns())) / std::max(1, iMaxTurnsToFound));
 			const int iScoutTimePressurePercent = (iScoutWindowProgressPercent * iScoutWindowProgressPercent * iScoutWindowProgressPercent) / 10000;
-			const int iScoutDelayCost = (iFirstCityReturnTravelValuePerTurn * iScoutTimePressurePercent * iSettleNowCoreQualityPercent) / 10000;
+			const int iScoutTimePressureDelayCost = (iFirstCityReturnTravelValuePerTurn * iScoutTimePressurePercent * iSettleNowCoreQualityPercent) / 10000;
+			// <!-- custom: Price delayed founding at two XML-scaled productive-plot equivalents, representing the city tile and a population-1 worked plot.
+			// This is a policy approximation in existing found-value units, not a guaranteed economic lower bound; it does not explicitly model Palace output, growth, unhappy citizens or territorial timing. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			const int iScoutFoundingDelayCostPerTurn = (2 * iFirstCityReturnTravelValuePerTurn * iSettleNowCoreQualityPercent) / 100;
 			MovementFlags const eFirstCityExploreFlags = (MOVE_NO_ENEMY_TERRITORY | MOVE_AVOID_DANGER);
+			// <!-- custom: Compare founding now via the known return route with completing a scouting leg and returning next turn.
+			// Path turns start at 1; subtract one only when arrival leaves movement to execute FOUND that turn.
+			// Reaching the capital as this scouting endpoint uses the outward path's actual final moves instead of charging another turn.
+			// Away from the capital, the estimate deliberately starts the return with next turn's full moves; it can overprice a detour that could return within unused current-turn moves, but never treats exhausted arrival as immediate founding.
+			// SGR186 replay showed that exempting the growth-core fallback made extra scouting effectively free for several already-strong capitals, producing turn-7/8 founding after long return walks.
+			// The fallback already names a concrete known return site, so price its extra founding delay on the same scale as every other known capital; core quality still makes poor sites cheaper to delay.
+			// If a return route from a hypothetical endpoint is not known, reject that detour rather than assume its one-turn outward leg is reversible in one turn: entering terrain can cost more in reverse. See KI#144.5 and KI#500. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			bool bApplyPathRelativeFoundingDelay = (pBestEarlyReturnPlot != NULL);
+			int iSettleNowFoundingTurns = -1;
+			GroupPathFinder kFirstCityReturnProbe;
+			if (bApplyPathRelativeFoundingDelay)
+			{
+				if (at(*pBestEarlyReturnPlot))
+					iSettleNowFoundingTurns = 0;
+				else
+				{
+					kFirstCityReturnProbe.setGroup(*getGroup(), MOVE_SAFE_TERRITORY, std::max(1, iRemainingFirstCityTurns));
+					if (kFirstCityReturnProbe.generatePath(getPlot(), *pBestEarlyReturnPlot))
+						iSettleNowFoundingTurns = kFirstCityReturnProbe.getPathTurns() - (kFirstCityReturnProbe.getFinalMoves() > 0 ? 1 : 0);
+					else bApplyPathRelativeFoundingDelay = false;
+				}
+				kFirstCityReturnProbe.setGroup(*getGroup(), MOVE_SAFE_TERRITORY | MOVE_MAX_MOVES, std::max(1, iRemainingFirstCityTurns));
+			}
+			std::vector<SASFirstCityExplorerCoverage> aExplorerCoverage;
+			SAS_collectFirstCityExplorerCoverage(*this, iRemainingFirstCityTurns, aExplorerCoverage);
 			const int iScoutReferenceValue = (bContinuingFirstCityScout ? iFirstCityScoutOriginValue : SAS_evaluateFirstCityFoundValue(kFirstCityEvaluator, getPlot()));
 			CvPlot* pBestKnownApproachStep = NULL;
 			if (pBestPlot != NULL && pBestPlot != plot() && iBestValue > iScoutReferenceValue)
@@ -6771,69 +7672,198 @@ bool CvUnitAI::AI_foundFirstCity()
 				if (generatePath(*pBestPlot, eFirstCityExploreFlags, true, &iBestKnownPathTurns, std::max(1, iRemainingFirstCityTurns)) && iBestKnownPathTurns <= iRemainingFirstCityTurns)
 					pBestKnownApproachStep = &getPathEndTurnPlot();
 			}
-			FOR_EACH_ADJ_PLOT(getPlot())
+			// <!-- custom: Recheck an admitted first-city scout's promising alternative after every reveal; use its projection only as an approach floor, with the known return capital still available to the existing stopping logic. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			CvPlot const* pPromisingFogScoutSite = NULL;
+			CvPlot const* pPromisingFogApproachStep = NULL;
+			int iPromisingFogFoundValue = 0;
+			int iPromisingFogPathTurns = -1;
+			int iPromisingSettleRevealedBFC = 0;
+			int iPromisingRevealedBFC = 0;
+			int iPromisingUnrevealedBFC = 0;
+			int iPromisingSettleAverageValueX100 = 0;
+			int iPromisingAverageValueX100 = 0;
+			int iPromisingProjectedFullBFCValue = 0;
+			bool bPromisingFogContinuation = false;
+			int iPromisingProjectedGain = 0;
+			int iPromisingProjectedDelayCost = 0;
+			if (bContinuingFirstCityScout && pBestEarlyReturnPlot != NULL)
 			{
-				if (!AI_plotValid(*pAdj) || pAdj->isVisibleEnemyUnit(this))
+				int iReturnFoodBonuses = 0;
+				int iReturnFoodEnvironmentScore = 0;
+				SAS_evaluateFirstCityBFCFoodEnvironment(*pBestEarlyReturnPlot, getOwner(), getTeam(), iReturnFoodBonuses, iReturnFoodEnvironmentScore);
+				const bool bMarginalStrongFoodReturn = SAS_isFirstCityMarginalStrongFoodSite(iReturnFoodBonuses, iReturnFoodEnvironmentScore,
+					iBestSettleNowBest6PlotValue, iBestSettleNowBest10PlotValue, iSustainablePlotValue);
+				// <!-- custom: The growth-core-delay replay fixed Korea's unpaid T8 return but stopped at (51,24) on T1 even though already-known (49,25) had 11 revealed BFC plots averaging about 32% more value and nine plots still fogged.
+				// The generic information gate priced its best westward step at 144 against 828 delay, while this existing promising-site check was restricted to marginal strong-food capitals.
+				// Let an already-active growth-core fallback also test a concrete better-looking partly fogged alternative under the same sample, average, travel and budget checks.
+				// Keep the stricter initial strong-food scouting entry unchanged; do not weaken founding-delay costs or consult the hidden Corn/Pig site. See KI#144.5 and KI#500. (GPT-6.1-Sol) -->
+				if (bMarginalStrongFoodReturn || (bContinuingFirstCityScout && bUsedGrowthCoreFallback))
 				{
-					if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_STEP_REJECT player=%d from=%d,%d candidate=%d,%d reason=%s", getOwner(), getX(), getY(), pAdj->getX(), pAdj->getY(), (!AI_plotValid(*pAdj) ? "INVALID_PLOT" : "VISIBLE_ENEMY"));
+					const bool bPromisingFogCandidate = SAS_shouldScoutPromisingFoggedFirstCitySite(*this, kFirstCityEvaluator, *pBestEarlyReturnPlot, iBestEarlyReturnRawValue,
+						iRemainingFirstCityTurns, pPromisingFogScoutSite, pPromisingFogApproachStep, iPromisingFogFoundValue, iPromisingFogPathTurns,
+						iPromisingSettleRevealedBFC, iPromisingRevealedBFC, iPromisingUnrevealedBFC, iPromisingSettleAverageValueX100,
+						iPromisingAverageValueX100, iPromisingProjectedFullBFCValue);
+					iPromisingProjectedGain = std::max(0, iPromisingProjectedFullBFCValue - iBestEarlyReturnRawValue);
+					iPromisingProjectedDelayCost = (bPromisingFogCandidate ? std::max(1, iPromisingFogPathTurns) * iFirstCityReturnTravelValuePerTurn * iSettleNowCoreQualityPercent / 100 : 0);
+					bPromisingFogContinuation = (bPromisingFogCandidate && iPromisingProjectedGain > iPromisingProjectedDelayCost);
+				}
+			}
+			if (bLogSettlerAILevel2 && bPromisingFogContinuation) logBBAI("FIRST_CITY_PROMISING_FOG_CONTINUE player=%d from=%d,%d settleSite=%d,%d settleValue=%d promisingSite=%d,%d promisingValue=%d projectedFullBFCValue=%d projectedGain=%d projectedDelayCost=%d settleAvgX100=%d promisingAvgX100=%d revealedBFC=%d unrevealedBFC=%d pathTurns=%d approachStep=%d,%d remainingWindowTurns=%d",
+				getOwner(), getX(), getY(), pBestEarlyReturnPlot->getX(), pBestEarlyReturnPlot->getY(), iBestEarlyReturnRawValue,
+				pPromisingFogScoutSite->getX(), pPromisingFogScoutSite->getY(), iPromisingFogFoundValue, iPromisingProjectedFullBFCValue, iPromisingProjectedGain, iPromisingProjectedDelayCost,
+				iPromisingSettleAverageValueX100, iPromisingAverageValueX100, iPromisingRevealedBFC, iPromisingUnrevealedBFC, iPromisingFogPathTurns,
+				pPromisingFogApproachStep->getX(), pPromisingFogApproachStep->getY(), iRemainingFirstCityTurns);
+			// <!-- custom: First-city scouting used to enumerate only the eight adjacent plots, even though Settlers can have more than one movement point.
+			// Search the same conservative one-turn envelope used elsewhere by unit AI, then let generatePath(..., 1) reject anything not actually reachable this turn; this also respects flat movement and modded movement rules better than baseMoves alone.
+			// Information and known-site value still decide whether scouting is worthwhile.
+			// Fog already assigned to another explorer is discounted as non-unique information; raw explorer separation and known endpoint sight level remain only tie-breakers after that marginal-information score. See KI#144.5. (ChatGPT-5.6-Sol) -->
+			const int iFirstCityScoutSearchRange = AI_searchRange(1);
+			for (SquareIter itScoutCandidate(getPlot(), iFirstCityScoutSearchRange, false); itScoutCandidate.hasNext(); ++itScoutCandidate)
+			{
+				CvPlot* pScoutCandidate = &*itScoutCandidate;
+				if (pScoutCandidate == plot())
+					continue;
+				if (!AI_plotValid(*pScoutCandidate) || pScoutCandidate->isVisibleEnemyUnit(this))
+				{
+					if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_STEP_REJECT player=%d from=%d,%d candidate=%d,%d reason=%s", getOwner(), getX(), getY(), pScoutCandidate->getX(), pScoutCandidate->getY(), (!AI_plotValid(*pScoutCandidate) ? "INVALID_PLOT" : "VISIBLE_ENEMY"));
 					continue;
 				}
 				int iPathTurns;
-				if (!generatePath(*pAdj, eFirstCityExploreFlags, true, &iPathTurns, 1) || iPathTurns > 1)
+				if (!generatePath(*pScoutCandidate, eFirstCityExploreFlags, true, &iPathTurns, 1) || iPathTurns > 1)
 				{
-					if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_STEP_REJECT player=%d from=%d,%d candidate=%d,%d reason=NO_SAFE_ONE_TURN_PATH", getOwner(), getX(), getY(), pAdj->getX(), pAdj->getY());
+					if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_STEP_REJECT player=%d from=%d,%d candidate=%d,%d reason=NO_SAFE_ONE_TURN_PATH", getOwner(), getX(), getY(), pScoutCandidate->getX(), pScoutCandidate->getY());
 					continue;
 				}
 				CvPlot& kEndTurnPlot = getPathEndTurnPlot();
 				if (at(kEndTurnPlot))
 				{
-					if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_STEP_REJECT player=%d from=%d,%d candidate=%d,%d reason=NO_MOVEMENT", getOwner(), getX(), getY(), pAdj->getX(), pAdj->getY());
+					if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_STEP_REJECT player=%d from=%d,%d candidate=%d,%d reason=NO_MOVEMENT", getOwner(), getX(), getY(), pScoutCandidate->getX(), pScoutCandidate->getY());
 					continue;
 				}
+				const int iEndTurnDistance = stepDistance(getX(), getY(), kEndTurnPlot.getX(), kEndTurnPlot.getY());
+				iSafeExploreEndpoints++;
+				iFarthestSafeExploreDistance = std::max(iFarthestSafeExploreDistance, iEndTurnDistance);
 				const int iEndpointFogValue = (kEndTurnPlot.isRevealed(getTeam()) ? 0 : iScoutUnrevealedEndpointReferencePlotMultiplier * iSustainablePlotValue);
 				int iRevealValue = 0;
-				const int iFirstCityExploreRevealRange = visibilityRange() + 1;
-				for (SquareIter itReveal(kEndTurnPlot, iFirstCityExploreRevealRange, false); itReveal.hasNext(); ++itReveal)
+				// <!-- custom: Exact LOS is now diagnostic-only; pre-gate its reveal scan so disabled level-3 logging skips hidden-terrain queries entirely.
+				// Retain the actual engine-visible count/value beside the geometric gameplay estimate for comparison. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+				int iRevealPlotCount = 0;
+				if (bLogSettlerAILevel3)
 				{
-					if (!(*itReveal).isRevealed(getTeam()) && kEndTurnPlot.canSeePlot(&*itReveal, getTeam(), visibilityRange()))
-						iRevealValue += iSustainablePlotValue / std::max(1, stepDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), (*itReveal).getX(), (*itReveal).getY()));
+					const int iFirstCityExploreRevealRange = visibilityRange() + 1;
+					for (SquareIter itReveal(kEndTurnPlot, iFirstCityExploreRevealRange, false); itReveal.hasNext(); ++itReveal)
+					{
+						if (!(*itReveal).isRevealed(getTeam()) && kEndTurnPlot.canSeePlot(&*itReveal, getTeam(), visibilityRange()))
+						{
+							iRevealPlotCount++;
+							iRevealValue += iSustainablePlotValue / std::max(1, stepDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), (*itReveal).getX(), (*itReveal).getY()));
+						}
+					}
 				}
 				bHadSafeExploreStep = true;
-				const int iEndTurnFoundValue = SAS_evaluateFirstCityFoundValue(kFirstCityEvaluator, kEndTurnPlot);
+				int iKnownFogPotentialPlots = 0;
+				const int iKnownFogPotentialValue = SAS_getFirstCityKnownFogPotential(*this, kEndTurnPlot, iSustainablePlotValue, &iKnownFogPotentialPlots);
+				int iExplorerCount = 0;
+				CvPlot const* pNearestExplorerAnchor = NULL;
+				const int iExplorerSeparation = SAS_getFirstCityExplorerSeparation(*this, kEndTurnPlot, &iExplorerCount, &pNearestExplorerAnchor);
+				const int iKnownSeeFromLevel = (kEndTurnPlot.isRevealed(getTeam()) ? kEndTurnPlot.seeFromLevel(getTeam()) : -MAX_INT);
+				// <!-- custom: An unrevealed endpoint has fog potential, not a known settlement value; match the shadow model's revealed-site guard before invoking the evaluator. See KI#144.5 and KI#500. (GPT-6.1-Sol) -->
+				const int iEndTurnFoundValue = (kEndTurnPlot.isRevealed(getTeam()) ? SAS_evaluateFirstCityFoundValue(kFirstCityEvaluator, kEndTurnPlot) : 0);
 				const int iFoundValueGain = std::max(0, iEndTurnFoundValue - iBestValue);
-				const int iInformationValue = iEndpointFogValue + iRevealValue;
+				// <!-- custom: Score unrevealed information from the player's fog mask and geometric visibility envelope, not exact canSeePlot results whose hidden blockers/terrain are unknown to the founder.
+				// Keep iRevealValue/iRevealPlotCount for oracle diagnostics only. See KI#144.5 and KI#500. (ChatGPT-5.6-Sol) -->
+				const int iRawInformationValue = iEndpointFogValue + iKnownFogPotentialValue;
+				int iExplorerOverlapFogPlots = 0;
+				const int iExplorerOverlapFogValue = (aExplorerCoverage.empty() ? 0 : SAS_getFirstCityExplorerFogOverlap(*this, kEndTurnPlot, iSustainablePlotValue, iEndpointFogValue, aExplorerCoverage, (bLogSettlerScoutDecision ? &iExplorerOverlapFogPlots : NULL)));
+				// <!-- custom: Score the Settler on marginal information, not fog that a separate explorer is already assigned to cover.
+				// This turns explorer coordination into the information model itself instead of an arbitrary distance bonus; the existing separation remains only a deterministic tie-break. See KI#144.5. (ChatGPT-5.6-Sol) -->
+				const int iInformationValue = std::max(0, iRawInformationValue - iExplorerOverlapFogValue);
 				const int iDiscountedInformationValue = (iInformationValue * iScoutRemainingOpportunityPercent) / 100;
 				const int iSettleNowFoundValueGain = (pBestEarlyReturnPlot == NULL ? std::max(0, iEndTurnFoundValue) : std::max(0, iEndTurnFoundValue - iBestEarlyReturnRawValue));
 				const int iScoutExpectedGain = iDiscountedInformationValue + iSettleNowFoundValueGain;
-				const bool bWorthScoutDelay = (iScoutExpectedGain > iScoutDelayCost);
-				const int iKnownProspectValue = (iInformationValue <= 0 ? 0 : std::max(0, iEndTurnFoundValue));
+				int iCandidateReturnPathTurns = -1;
+				int iCandidateFoundingTurns = -1;
+				bool bCandidateReturnPathKnownSafe = false;
+				if (bApplyPathRelativeFoundingDelay)
+				{
+					if (&kEndTurnPlot == pBestEarlyReturnPlot)
+					{
+						iCandidateReturnPathTurns = 0;
+						iCandidateFoundingTurns = (getPathFinder().getFinalMoves() > 0 ? 0 : 1);
+						bCandidateReturnPathKnownSafe = true;
+					}
+					else if (kEndTurnPlot.isRevealed(getTeam()) && kFirstCityReturnProbe.generatePath(kEndTurnPlot, *pBestEarlyReturnPlot))
+					{
+						iCandidateReturnPathTurns = kFirstCityReturnProbe.getPathTurns();
+						iCandidateFoundingTurns = 1 + iCandidateReturnPathTurns - (kFirstCityReturnProbe.getFinalMoves() > 0 ? 1 : 0);
+						bCandidateReturnPathKnownSafe = true;
+					}
+					else
+					{
+						if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_STEP_REJECT player=%d from=%d,%d candidate=%d,%d reason=NO_KNOWN_RETURN_TO_CAPITAL", getOwner(), getX(), getY(), kEndTurnPlot.getX(), kEndTurnPlot.getY());
+						continue;
+					}
+				}
+				const int iAddedSettleDelayTurns = (!bApplyPathRelativeFoundingDelay ? 0 :
+					std::max(0, iCandidateFoundingTurns - iSettleNowFoundingTurns));
+				const int iCandidateScoutDelayCost = iScoutTimePressureDelayCost + iAddedSettleDelayTurns * iScoutFoundingDelayCostPerTurn;
+				if (bLogSettlerScoutDecision) iMinimumScoutDelayCost = std::min(iMinimumScoutDelayCost, iCandidateScoutDelayCost);
+				const bool bWorthScoutDelay = (iScoutExpectedGain > iCandidateScoutDelayCost || (bPromisingFogContinuation && &kEndTurnPlot == pPromisingFogApproachStep));
+				// <!-- custom: Treat visible endpoint quality as bounded evidence about the value of its fog frontier, not as another full capital payoff.
+				// The previous score let 60..180 points of estimated fog unlock roughly 5000 points of familiar site value in repeated A-B-A traces; bounding the bonus prevents that full-site payoff from dominating new information.
+				// Actual superiority over the best known site remains in foundValueGain, while explicit best-known/promising-site approach floors below remain unchanged. See KI#144.5. (ChatGPT-5.6-Sol) -->
+				const int iKnownProspectQualityPercent = (iInformationValue <= 0 || iEndTurnFoundValue <= 0 || iBestValue <= 0 ?
+					0 : std::min(100, (100 * iEndTurnFoundValue) / iBestValue));
+				const int iKnownProspectValue = (iInformationValue * iKnownProspectQualityPercent) / 100;
 				const int iExploreValueWithoutKnownTarget = iInformationValue + iKnownProspectValue + iFoundValueGain;
 				const int iKnownTargetApproachValue = (&kEndTurnPlot == pBestKnownApproachStep ? std::max(0, iBestValue - iExploreValueWithoutKnownTarget) : 0);
-				const int iExploreValue = iExploreValueWithoutKnownTarget + iKnownTargetApproachValue;
+				// <!-- custom: An admitted first-capital scout can deliberately spend a setup turn moving toward a partly fogged site whose known per-revealed-plot average is unusually strong.
+				// Use the candidate's projected full-BFC equivalent only as a direction floor after scouting is already admitted; it never becomes a settlement value and is recalculated after every reveal. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+				const int iPromisingFogApproachValue = (&kEndTurnPlot == pPromisingFogApproachStep ?
+					std::max(0, iPromisingProjectedFullBFCValue - iExploreValueWithoutKnownTarget) : 0);
+				const int iExploreValue = iExploreValueWithoutKnownTarget + std::max(iKnownTargetApproachValue, iPromisingFogApproachValue);
 				if (bLogSettlerScoutDecision && iExploreValue > 0) iBestScoutExpectedGain = std::max(iBestScoutExpectedGain, iScoutExpectedGain);
 				// <!-- custom: Five fresh high-player-count test maps exposed three first Settlers that followed the largest fog frontier for several turns and then returned to their original capital, alongside a Zulu counterexample where scouting found a genuinely stronger site.
 				// The old arbitrary 1000 points per revealed plot dwarfed complete capital values, so direction choice ignored whether the already visible part of that direction looked habitable.
-				// Value new information in shared XML-derived sustainable-plot units and add the endpoint's nonnegative player-known city-site value only when the step can actually reveal something; checking canSeePlot is essential because an earlier test counted line-of-sight-blocked outer-ring plots repeatedly and made Byzantine and Benin Settlers oscillate.
+				// The earlier policy valued exact reveals in shared XML-derived sustainable-plot units; checking canSeePlot then prevented repeatedly counting blocked outer-ring tiles that made Byzantine and Benin Settlers oscillate.
+				// The current policy instead estimates unknown information geometrically from the player-known fog mask, keeping exact LOS behind diagnostics so hidden blockers cannot choose the direction.
 				// A subsequent Persian test already knew a promising partly fogged site east of the scout, but generic revelation sent it west for four turns before it returned across the map.
 				// When a known site beats the remembered scout origin, raise the safe path step toward it to at least that site's value; this guides information gathering toward evidence the normal evaluator already found without committing to the site or bypassing the existing bad/fog founding guards.
 				// Unrelated exploration can still win with a higher score.
 				// These rules favour promising rivers, yields and bonuses without naming any XML asset.
 				// Keep the components separate in level-3 logging for further tuning.
-				// The continuation gate below deliberately does not count the endpoint's whole knownProspectValue as expected improvement: that value helps choose a direction once scouting is worthwhile, but an already-good known tile is not itself evidence that delaying settlement will improve on the best capital already available.
-				// Delay pressure rises smoothly with the cube of elapsed share of the configured first-city window and is scaled by the best settle-now core against the same XML-derived sustainable reference: early or poor-site scouting is cheap, while postponing an unusually strong capital near the deadline is correspondingly expensive; see KI#144.2. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
-				if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_STEP_CANDIDATE player=%d from=%d,%d endTurn=%d,%d pathTurns=%d endpointFog=%d nearbyReveal=%d informationValue=%d discountedInformationValue=%d scoutOpportunityLinearPercent=%d scoutOpportunityPercent=%d settleNowValue=%d settleNowBest6=%d settleNowBest10=%d settleNowCoreQualityPercent=%d foundValue=%d settleNowFoundValueGain=%d scoutExpectedGain=%d scoutDelayBaseCost=%d scoutWindowProgressPercent=%d scoutTimePressurePercent=%d scoutDelayCost=%d worthScoutDelay=%d knownProspectValue=%d bestKnownPlot=%d,%d bestKnownFoundValue=%d knownTargetApproachValue=%d foundValueGain=%d total=%d",
-					getOwner(), getX(), getY(), kEndTurnPlot.getX(), kEndTurnPlot.getY(), iPathTurns, iEndpointFogValue, iRevealValue, iInformationValue,
+				// The continuation gate below deliberately does not count knownProspectValue as expected improvement: endpoint quality only helps choose among directions after scouting is already worthwhile.
+				// Delay has cubic pressure as the configured first-city deadline approaches and, once the return target is no longer the growth-core fallback, any extra founding/return turns created by this endpoint relative to returning now; both scale with settle-now core quality. See KI#144.2 and KI#144.5. (GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+				if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_STEP_CANDIDATE player=%d from=%d,%d endTurn=%d,%d pathTurns=%d stepDistance=%d endpointKnownSeeFromLevel=%d endpointOracleSeeFromLevel=%d unitVisibilityRange=%d actualLOSRevealPlots=%d knownFogPotentialPlots=%d knownFogPotentialValue=%d explorerCount=%d explorerSeparation=%d nearestExplorerAnchor=%d,%d endpointFog=%d rawInformationValue=%d explorerOverlapFogPlots=%d explorerOverlapFogValue=%d actualLOSRevealValue=%d informationValue=%d discountedInformationValue=%d scoutOpportunityLinearPercent=%d scoutOpportunityPercent=%d settleNowValue=%d settleNowBest6=%d settleNowBest10=%d settleNowCoreQualityPercent=%d settleNowGrowthCoreFallback=%d foundValue=%d settleNowFoundValueGain=%d scoutExpectedGain=%d scoutDelayBaseCost=%d scoutWindowProgressPercent=%d scoutTimePressurePercent=%d scoutTimePressureDelayCost=%d applyPathRelativeFoundingDelay=%d settleNowFoundingTurns=%d candidateReturnPathTurns=%d candidateReturnPathKnownSafe=%d candidateFoundingTurns=%d addedSettleDelayTurns=%d scoutFoundingDelayCostPerTurn=%d scoutDelayCost=%d worthScoutDelay=%d knownProspectQualityPercent=%d knownProspectValue=%d bestKnownPlot=%d,%d bestKnownFoundValue=%d knownTargetApproachValue=%d promisingFogApproachValue=%d foundValueGain=%d total=%d",
+					getOwner(), getX(), getY(), kEndTurnPlot.getX(), kEndTurnPlot.getY(), iPathTurns, iEndTurnDistance, iKnownSeeFromLevel, kEndTurnPlot.seeFromLevel(getTeam()), visibilityRange(), iRevealPlotCount,
+					iKnownFogPotentialPlots, iKnownFogPotentialValue, iExplorerCount, iExplorerSeparation,
+					(pNearestExplorerAnchor == NULL ? -1 : pNearestExplorerAnchor->getX()), (pNearestExplorerAnchor == NULL ? -1 : pNearestExplorerAnchor->getY()), iEndpointFogValue, iRawInformationValue, iExplorerOverlapFogPlots, iExplorerOverlapFogValue, iRevealValue, iInformationValue,
 					iDiscountedInformationValue, iScoutOpportunityLinearPercent, iScoutRemainingOpportunityPercent, iBestEarlyReturnRawValue, iBestSettleNowBest6PlotValue,
-					iBestSettleNowBest10PlotValue, iSettleNowCoreQualityPercent, iEndTurnFoundValue, iSettleNowFoundValueGain, iScoutExpectedGain, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent,
-					iScoutTimePressurePercent, iScoutDelayCost, bWorthScoutDelay, iKnownProspectValue,
-					(pBestPlot == NULL ? -1 : pBestPlot->getX()), (pBestPlot == NULL ? -1 : pBestPlot->getY()), iBestValue, iKnownTargetApproachValue, iFoundValueGain, iExploreValue);
+					iBestSettleNowBest10PlotValue, iSettleNowCoreQualityPercent, bUsedGrowthCoreFallback, iEndTurnFoundValue, iSettleNowFoundValueGain, iScoutExpectedGain, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent,
+					iScoutTimePressurePercent, iScoutTimePressureDelayCost, bApplyPathRelativeFoundingDelay, iSettleNowFoundingTurns, iCandidateReturnPathTurns, bCandidateReturnPathKnownSafe, iCandidateFoundingTurns, iAddedSettleDelayTurns, iScoutFoundingDelayCostPerTurn,
+					iCandidateScoutDelayCost, bWorthScoutDelay, iKnownProspectQualityPercent, iKnownProspectValue,
+					(pBestPlot == NULL ? -1 : pBestPlot->getX()), (pBestPlot == NULL ? -1 : pBestPlot->getY()), iBestValue, iKnownTargetApproachValue, iPromisingFogApproachValue, iFoundValueGain, iExploreValue);
 				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics(pFirstCityOmniscientEvaluator.get(), "explore-step-end", kEndTurnPlot, getOwner(), getTeam(), iEndTurnFoundValue, iExploreValue, iPathTurns);
-				if (bWorthScoutDelay && iExploreValue > iBestExploreValue)
+				if (bWorthScoutDelay && (iExploreValue > iBestExploreValue ||
+					(iExploreValue == iBestExploreValue && (iExplorerSeparation > iBestExploreExplorerSeparation ||
+						(iExplorerSeparation == iBestExploreExplorerSeparation && (iKnownSeeFromLevel > iBestExploreKnownSeeFromLevel ||
+							(iKnownSeeFromLevel == iBestExploreKnownSeeFromLevel && iEndTurnDistance > iBestExploreDistance)))))))
 				{
 					iBestExploreValue = iExploreValue;
-					if (bLogSettlerScoutDecision) iBestExploreExpectedGain = iScoutExpectedGain;
-					if (bLogSASSettlerScout)
+					iBestExploreDistance = iEndTurnDistance;
+					iBestExploreExplorerSeparation = iExplorerSeparation;
+					iBestExploreExplorerCount = iExplorerCount;
+					iBestExploreKnownSeeFromLevel = iKnownSeeFromLevel;
+					if (bLogSettlerScoutDecision)
 					{
+						iBestExploreDelayCost = iCandidateScoutDelayCost;
+						iBestExploreAddedSettleDelayTurns = iAddedSettleDelayTurns;
+						iBestExploreReturnPathTurns = iCandidateReturnPathTurns;
+						iBestExploreReturnPathKnownSafe = (bCandidateReturnPathKnownSafe ? 1 : 0);
+						iBestExploreExpectedGain = iScoutExpectedGain;
+						iBestExploreRawInformationValue = iRawInformationValue;
+						iBestExploreExplorerOverlapFogPlots = iExplorerOverlapFogPlots;
+						iBestExploreExplorerOverlapFogValue = iExplorerOverlapFogValue;
 						iBestExploreInformationValue = iInformationValue;
 						iBestExploreDiscountedInformationValue = iDiscountedInformationValue;
 						iBestExploreEndTurnFoundValue = iEndTurnFoundValue;
@@ -6842,35 +7872,41 @@ bool CvUnitAI::AI_foundFirstCity()
 					pBestExploreStep = &kEndTurnPlot;
 				}
 			}
+			if (bLogSettlerAILevel3) logBBAI("FIRST_CITY_SCOUT_MOVEMENT_SEARCH player=%d from=%d,%d movesLeft=%d baseMoves=%d searchRange=%d remainingWindowTurns=%d safeEndpoints=%d farthestStepDistance=%d explorerCoveragePlans=%d settleNowGrowthCoreFallback=%d applyPathRelativeFoundingDelay=%d settleNowFoundingTurns=%d minimumScoutDelayCost=%d scoutFoundingDelayCostPerTurn=%d bestStepDistance=%d bestReturnPathTurns=%d bestReturnPathKnownSafe=%d bestAddedSettleDelayTurns=%d bestScoutDelayCost=%d bestRawInformationValue=%d bestExplorerOverlapFogPlots=%d bestExplorerOverlapFogValue=%d bestInformationValue=%d bestExplorerCount=%d bestExplorerSeparation=%d bestKnownSeeFromLevel=%d bestStep=%d,%d bestExploreValue=%d",
+				getOwner(), getX(), getY(), movesLeft(), baseMoves(), iFirstCityScoutSearchRange, iRemainingFirstCityTurns, iSafeExploreEndpoints, iFarthestSafeExploreDistance,
+				static_cast<int>(aExplorerCoverage.size()), bUsedGrowthCoreFallback, bApplyPathRelativeFoundingDelay, iSettleNowFoundingTurns, (iMinimumScoutDelayCost == MAX_INT ? -1 : iMinimumScoutDelayCost), iScoutFoundingDelayCostPerTurn, iBestExploreDistance, iBestExploreReturnPathTurns, iBestExploreReturnPathKnownSafe,
+				iBestExploreAddedSettleDelayTurns, iBestExploreDelayCost, iBestExploreRawInformationValue, iBestExploreExplorerOverlapFogPlots, iBestExploreExplorerOverlapFogValue, iBestExploreInformationValue, iBestExploreExplorerCount, iBestExploreExplorerSeparation, iBestExploreKnownSeeFromLevel,
+				(pBestExploreStep == NULL ? -1 : pBestExploreStep->getX()), (pBestExploreStep == NULL ? -1 : pBestExploreStep->getY()), iBestExploreValue);
 			if (pBestExploreStep != NULL)
 			{
-				if (bLogSettlerAILevel2) logBBAI("FIRST_CITY_SCOUT_FOOD_POOR_SITE civilization=%S player=%d from=%d,%d target=%d,%d value=%d scoutOrigin=(%d,%d) scoutOriginValue=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d currentBest6PlotValue=%d currentBest10PlotValue=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d bestKnownBest6PlotValue=%d bestKnownBest10PlotValue=%d bestSettleNowValue=%d bestSettleNowBest6=%d bestSettleNowBest10=%d settleNowCoreQualityPercent=%d scoutOpportunityLinearPercent=%d scoutOpportunityPercent=%d scoutExpectedGain=%d scoutDelayBaseCost=%d scoutWindowProgressPercent=%d scoutTimePressurePercent=%d scoutDelayCost=%d badFoodEnvironmentThreshold=%d sustainableProductivePlotValue=%d goodEnoughBest6ReferencePercent=%d goodEnoughBest6PlotValue=%d exploreValue=%d elapsed=%d maxFirstCityTurns=%d",
+				if (bLogSettlerAILevel2) logBBAI("FIRST_CITY_SCOUT_FOOD_POOR_SITE civilization=%S player=%d from=%d,%d target=%d,%d value=%d scoutOrigin=(%d,%d) scoutOriginValue=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d currentBest6PlotValue=%d currentBest10PlotValue=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d bestKnownBest6PlotValue=%d bestKnownBest10PlotValue=%d bestSettleNowValue=%d bestSettleNowBest6=%d bestSettleNowBest10=%d settleNowCoreQualityPercent=%d settleNowGrowthCoreFallback=%d scoutOpportunityLinearPercent=%d scoutOpportunityPercent=%d scoutExpectedGain=%d rawInformationValue=%d explorerOverlapFogPlots=%d explorerOverlapFogValue=%d informationValue=%d scoutDelayBaseCost=%d scoutWindowProgressPercent=%d scoutTimePressurePercent=%d scoutTimePressureDelayCost=%d applyPathRelativeFoundingDelay=%d settleNowFoundingTurns=%d returnPathTurns=%d returnPathKnownSafe=%d addedSettleDelayTurns=%d scoutFoundingDelayCostPerTurn=%d scoutDelayCost=%d badFoodEnvironmentThreshold=%d sustainableProductivePlotValue=%d goodEnoughBest6ReferencePercent=%d goodEnoughBest6PlotValue=%d exploreValue=%d elapsed=%d maxFirstCityTurns=%d",
 					kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestExploreStep->getX(), pBestExploreStep->getY(),
 					iBestKnownFirstCityValue, (bContinuingFirstCityScout ? pFirstCityScoutOrigin->getX() : getX()),
 					(bContinuingFirstCityScout ? pFirstCityScoutOrigin->getY() : getY()),
 					(bContinuingFirstCityScout ? iFirstCityScoutOriginValue : SAS_evaluateFirstCityFoundValue(kFirstCityEvaluator, getPlot())),
 					iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iCurrentBest6PlotValue, iCurrentBest10PlotValue, iBestPlotFoodEnvironmentScore,
 					iBestPlotCitizenUnworkablePlots, iBestKnownBest6PlotValue, iBestKnownBest10PlotValue, iBestEarlyReturnRawValue, iBestSettleNowBest6PlotValue, iBestSettleNowBest10PlotValue,
-					iSettleNowCoreQualityPercent, iScoutOpportunityLinearPercent, iScoutRemainingOpportunityPercent, iBestExploreExpectedGain, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent, iScoutTimePressurePercent,
-					iScoutDelayCost, iBadFoodEnvironmentScoreThreshold, iSustainableProductivePlotValue,
+					iSettleNowCoreQualityPercent, bUsedGrowthCoreFallback, iScoutOpportunityLinearPercent, iScoutRemainingOpportunityPercent, iBestExploreExpectedGain, iBestExploreRawInformationValue, iBestExploreExplorerOverlapFogPlots, iBestExploreExplorerOverlapFogValue, iBestExploreInformationValue, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent, iScoutTimePressurePercent,
+					iScoutTimePressureDelayCost, bApplyPathRelativeFoundingDelay, iSettleNowFoundingTurns, iBestExploreReturnPathTurns, iBestExploreReturnPathKnownSafe, iBestExploreAddedSettleDelayTurns, iScoutFoundingDelayCostPerTurn, iBestExploreDelayCost, iBadFoodEnvironmentScoreThreshold, iSustainableProductivePlotValue,
 					iGoodEnoughBest6ReferencePercent, iGoodEnoughBest6PlotValue, iBestExploreValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 				CvPlot* pScoutOrigin = (bContinuingFirstCityScout ? pFirstCityScoutOrigin : &getPlot());
-				if (bLogSASSettlerScout) logSASGameRecordAIFirstCityScoutStep(*this, *pBestExploreStep, pScoutOrigin, pBestEarlyReturnPlot, iBestEarlyReturnRawValue, iBestSettleNowBest6PlotValue, iBestSettleNowBest10PlotValue, iSettleNowCoreQualityPercent, iBestExploreInformationValue, iBestExploreDiscountedInformationValue, iScoutOpportunityLinearPercent, iScoutRemainingOpportunityPercent, iBestExploreEndTurnFoundValue, iBestExploreSettleNowFoundValueGain, iBestExploreExpectedGain, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent, iScoutTimePressurePercent, iScoutDelayCost, iBestExploreValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+				if (bLogSASSettlerScout) logSASGameRecordAIFirstCityScoutStep(*this, *pBestExploreStep, pScoutOrigin, pBestEarlyReturnPlot, iBestEarlyReturnRawValue, iBestSettleNowBest6PlotValue, iBestSettleNowBest10PlotValue, iSettleNowCoreQualityPercent, bUsedGrowthCoreFallback, iBestExploreRawInformationValue, iBestExploreExplorerOverlapFogPlots, iBestExploreExplorerOverlapFogValue, iBestExploreInformationValue, iBestExploreDiscountedInformationValue, iScoutOpportunityLinearPercent, iScoutRemainingOpportunityPercent, iBestExploreEndTurnFoundValue, iBestExploreSettleNowFoundValueGain, iBestExploreExpectedGain, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent, iScoutTimePressurePercent, iScoutTimePressureDelayCost, bApplyPathRelativeFoundingDelay, iSettleNowFoundingTurns, iBestExploreReturnPathTurns, iBestExploreAddedSettleDelayTurns, iScoutFoundingDelayCostPerTurn, iBestExploreDelayCost, iBestExploreValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 				pushGroupMoveTo(*pBestExploreStep, eFirstCityExploreFlags, false, false, MISSIONAI_EXPLORE, pScoutOrigin);
 				return true;
 			}
-			// <!-- custom: If safe scouting steps exist but none has enough quality-discounted expected upside to beat the elapsed-window-scaled delay cost, stop the scout instead of consuming the rest of the hard window.
-			// Reuse the same best-known return target and queued FOUND mission as the deadline path above, so this gate changes only whether one more information-gathering turn is worthwhile.
-			// A poor known capital naturally keeps more expected opportunity and also carries less delay cost, while an unusually strong core raises that cost; elapsed-window pressure remains small early and rises near the configured deadline.
-			// Validated on the Korea marginal-return case and a five-map SAS48 turn-11 autoplay suite; see KI#144.2. (ChatGPT-5.6-Sol) -->
+			// <!-- custom: If safe scouting steps exist but none has enough quality-discounted expected upside to beat its path-relative founding delay plus elapsed-window pressure, stop instead of consuming the hard window.
+			// Reuse the same best-known return target and queued FOUND mission as the deadline path above.
+			// Poor known capitals still carry less cost through core quality, while a scout step that moves away from a strong capital now pays for the extra round trip it creates.
+			// The minimum candidate cost is retained only for the end summary; exact candidate-specific costs are logged on FIRST_CITY_SCOUT_STEP_CANDIDATE. See KI#144.2 and KI#144.5. (ChatGPT-5.6-Sol) -->
+			const int iReportedScoutDelayCost = (iMinimumScoutDelayCost == MAX_INT ? iScoutTimePressureDelayCost : iMinimumScoutDelayCost);
 			if (bHadSafeExploreStep && pBestEarlyReturnPlot != NULL)
 			{
-				if (bLogSASSettlerScout) logSASGameRecordAIFirstCityScoutEnd(*this, SAS_AI_SETTLER_SCOUT_END_LOW_UPSIDE, at(*pBestEarlyReturnPlot), pBestEarlyReturnPlot, iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestSettleNowBest6PlotValue, iBestSettleNowBest10PlotValue, iSettleNowCoreQualityPercent, iScoutOpportunityLinearPercent, iScoutRemainingOpportunityPercent, iBestScoutExpectedGain, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent, iScoutTimePressurePercent, iScoutDelayCost, iBestEarlyReturnPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+				if (bLogSASSettlerScout) logSASGameRecordAIFirstCityScoutEnd(*this, SAS_AI_SETTLER_SCOUT_END_LOW_UPSIDE, at(*pBestEarlyReturnPlot), pBestEarlyReturnPlot, iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestSettleNowBest6PlotValue, iBestSettleNowBest10PlotValue, iSettleNowCoreQualityPercent, iScoutOpportunityLinearPercent, iScoutRemainingOpportunityPercent, iBestScoutExpectedGain, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent, iScoutTimePressurePercent, iReportedScoutDelayCost, iBestEarlyReturnPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 				if (at(*pBestEarlyReturnPlot))
 				{
 					if (bLogSettlerAILevel2) logBBAI("FIRST_CITY_END_SCOUT_LOW_UPSIDE_FOUND civilization=%S player=%d site=%d,%d rawValue=%d best6=%d best10=%d settleNowCoreQualityPercent=%d scoutOpportunityLinearPercent=%d scoutOpportunityPercent=%d bestScoutExpectedGain=%d scoutDelayBaseCost=%d scoutWindowProgressPercent=%d scoutTimePressurePercent=%d scoutDelayCost=%d elapsed=%d maxFirstCityTurns=%d",
 						kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iBestEarlyReturnRawValue, iBestSettleNowBest6PlotValue, iBestSettleNowBest10PlotValue,
-						iSettleNowCoreQualityPercent, iScoutOpportunityLinearPercent, iScoutRemainingOpportunityPercent, iBestScoutExpectedGain, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent, iScoutTimePressurePercent, iScoutDelayCost, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+						iSettleNowCoreQualityPercent, iScoutOpportunityLinearPercent, iScoutRemainingOpportunityPercent, iBestScoutExpectedGain, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent, iScoutTimePressurePercent, iReportedScoutDelayCost, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 					getGroup()->pushMission(MISSION_FOUND);
 				}
 				else
@@ -6878,14 +7914,14 @@ bool CvUnitAI::AI_foundFirstCity()
 					if (bLogSettlerAILevel2) logBBAI("FIRST_CITY_END_SCOUT_LOW_UPSIDE_RETURN civilization=%S player=%d from=%d,%d target=%d,%d rawValue=%d best6=%d best10=%d pathTurns=%d settleNowCoreQualityPercent=%d scoutOpportunityLinearPercent=%d scoutOpportunityPercent=%d bestScoutExpectedGain=%d scoutDelayBaseCost=%d scoutWindowProgressPercent=%d scoutTimePressurePercent=%d scoutDelayCost=%d elapsed=%d maxFirstCityTurns=%d",
 						kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestEarlyReturnPlot->getX(), pBestEarlyReturnPlot->getY(), iBestEarlyReturnRawValue,
 						iBestSettleNowBest6PlotValue, iBestSettleNowBest10PlotValue, iBestEarlyReturnPathTurns, iSettleNowCoreQualityPercent, iScoutOpportunityLinearPercent, iScoutRemainingOpportunityPercent,
-						iBestScoutExpectedGain, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent, iScoutTimePressurePercent, iScoutDelayCost, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+						iBestScoutExpectedGain, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent, iScoutTimePressurePercent, iReportedScoutDelayCost, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 					pushGroupMoveTo(*pBestEarlyReturnPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBestEarlyReturnPlot);
 					getGroup()->pushMission(MISSION_FOUND, -1, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_FOUND, pBestEarlyReturnPlot);
 				}
 				return true;
 			}
 			if (bLogSASSettlerScout) logSASGameRecordAIFirstCityScoutEnd(*this, SAS_AI_SETTLER_SCOUT_END_NO_SAFE_STEP, false, NULL, iBestKnownFirstCityValue, -1, -1, -1, -1, -1, -1, -1, iFirstCityReturnTravelValuePerTurn, -1, -1, -1, -1, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
-			if (bLogSettlerAILevel2) logBBAI("FIRST_CITY_WAIT_FOOD_POOR_SITE civilization=%S player=%d site=%d,%d reason=NO_SAFE_ADJACENT_SCOUT_STEP value=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d elapsed=%d maxFirstCityTurns=%d",
+			if (bLogSettlerAILevel2) logBBAI("FIRST_CITY_WAIT_FOOD_POOR_SITE civilization=%S player=%d site=%d,%d reason=NO_SAFE_ONE_TURN_SCOUT_ENDPOINT value=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d elapsed=%d maxFirstCityTurns=%d",
 				kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iBestKnownFirstCityValue, iCurrentFoodEnvironmentScore,
 				iCurrentCitizenUnworkablePlots, iBestPlotFoodEnvironmentScore, iBestPlotCitizenUnworkablePlots,
 				iBadFoodEnvironmentScoreThreshold, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
@@ -25891,7 +26927,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 			wchar const* szDiagnosticBonus = (eDiagnosticBonus == NO_BONUS ? L"-" : GC.getInfo(eDiagnosticBonus).getDescription());
 			wchar const* szDiagnosticFollowup = (eFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eFollowupBuild).getDescription());
 			// <!-- custom: Cross-city scheduling can hide a locally correct Mine/Farm/Cottage decision by sending the Worker to another city's numerically larger job.
-			// Repeat the city scarcity snapshot only inside level-3 logging so each competing city job carries the need signal that produced its buildValue; this is diagnostic and does not alter scheduling. (ChatGPT-5.6-Sol) -->
+			// Repeat the city scarcity snapshot only inside level-3 logging so each competing city job carries the need signal that produced its buildValue; this is diagnostic and does not alter scheduling. See KI#33.4. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 			SASWorkerCityYieldAnalysis const kDiagnosticYieldAnalysis = SAS_getWorkerCityYieldAnalysis(*this, *pLoopCity);
 			SASWorkerYieldContext const& kDiagnosticYieldContext = kDiagnosticYieldAnalysis.kContext;
 			logBBAI("    WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d workerId=%d civ=%S from=(%d,%d) city=%S pop=%d improved=%d assignedWorkers=%d effectiveImproved=%d readinessPercent=%d plot=(%d,%d) worked=%d decisionPath=%s build=%S followup=%S buildValue=%d bonus=%S pathTurns=%d score=%d bestBefore=%d yieldWeights=(%d,%d,%d) adjustedFoodDifference=%d structuralFoodPressure=%d strongProductionPlots=%d strongProductionPlotTarget=%d structuralProductionPressure=%d",

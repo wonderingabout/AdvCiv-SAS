@@ -372,6 +372,12 @@ BBAI and SASGameRecord answer different questions: BBAI explains detailed AI dec
 
 Both can use UTC-stamped new/load filenames, shared source/DLL identity and the live-readable diagnostic writer. These are separate from the Python-stream modernization described below: BBAI and SASGameRecord retain their own compact row formats rather than receiving `record=` or a UTC clock prefix on every row.
 
+The shared writer normally drains completed rows through `WriteFile` while keeping the file handle open. Written contents are readable, but Explorer, Q-Dir or a directory listing can show stale NTFS directory-entry sizes.
+
+Read the contents or query the size through a fresh file handle before concluding that a zero-byte listing means no output. See [Microsoft's explanation of sizes reported for open files](https://devblogs.microsoft.com/oldnewthing/20111226-00/?p=8813).
+
+This differs from both SAS startup/retry buffering and forcing physical-disk durability; adding more row flushes is not a demonstrated remedy for stale directory metadata.
+
 ### Session headers and provenance
 
 Both log families place canonical mod/source context and exact loaded-DLL build/binary provenance immediately after the session lifecycle marker.
@@ -548,6 +554,12 @@ The inherited `CvUnitAI::AI_found` / `AI_foundFollow` path already logged messag
 `ReproTest.cpp` is another BBAI/message-control producer rather than a separate filename family: when compiled with `ENABLE_REPRO_TEST`, it brackets the replay comparison with `ReproTest: start`, `ReproTest: reloading` and `ReproTest: done` in enabled BBAI output, and also uses `messageControlLog` when engine logging is active.
 
 Those quoted Settler strings are source format templates, not captured game rows. The split matters in practice: enabling FOUND alone does not request the whole Settler movement/escort trace, and enabling SETTLER does not request full per-plot found-value calculations.
+
+For batch first-capital review, [`audit_first_city_scouting.py`](/LLM_Helpers/README.md#audit_first_city_scoutingpy) combines SGR movement observations with optional BBAI candidate estimates.
+
+The [real USA/Korea summary](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/first_city_scouting_audit_example.txt) contrasts a turn-3 Washington with Korea's repeated reversals before turn-6 Seoul. Later output in the same example retains a successful turn-3 Washington / turn-5 Seoul comparison without observed reversal flags.
+
+These are review flags, not a general scouting-efficiency verdict; predicted reveals and requested waypoints remain distinct from observed movement.
 
 #### Settler Before/After: selecting a movement target
 

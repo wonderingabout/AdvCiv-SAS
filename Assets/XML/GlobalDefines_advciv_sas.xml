@@ -1588,6 +1588,31 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_1ST_CITY_GOOD_BEST_6_REF_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
+	<!-- custom: A first capital with enough visible food bonuses can still have a marginal overall worked core when the surrounding BFC is poor.
+	This threshold compares best-6 + best-10 plot value with 16 sustainable reference plots and only opens the optional promising-fog scout-entry check when the known core is at or below this percentage.
+	Default 110 admits only cores at or below 110% of the sustainable reference before risking extra scouting; 0 disables this marginal strong-food entry path. See KI#144.5. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_1ST_CITY_SCOUT_MAX_CORE_16_REF_PCT</DefineName>
+		<iDefineIntVal>110</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum revealed non-home BFC plots required before a partly fogged first-city alternative can be treated as a meaningful sample for known-average comparison.
+	Default 8 allows the starting visibility footprint to identify a genuinely promising frontier without trusting a nearly unknown site; 0 disables promising-fog first-city entry. See KI#144.5. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_1ST_CITY_SCOUT_FOG_MIN_REVEALED_BFC</DefineName>
+		<iDefineIntVal>8</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum unrevealed non-home BFC plots a promising first-city scout target must still have.
+	Default 5 reserves this path for sites where scouting can materially change the capital decision instead of walking toward an almost-complete weaker site; 0 disables promising-fog first-city entry. See KI#144.5. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_1ST_CITY_SCOUT_FOG_MIN_UNREVEALED_BFC</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- custom: Required known value per revealed BFC plot for a partly fogged first-city alternative, as a percentage of the fully revealed marginal capital available now.
+	Default 120 requires at least a 20% stronger known average before spending a scouting turn; the candidate is never treated as a finished settlement value and is reevaluated after every reveal. See KI#144.5. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_1ST_CITY_SCOUT_FOG_MIN_AVG_VAL_PCT</DefineName>
+		<iDefineIntVal>120</iDefineIntVal>
+	</Define>
 	<!-- custom: First-city roaming treats a candidate as bad at this revealed non-home food-deficit score.
 	Each plot compares citizen consumption with natural and visible bonus/improvement food; ocean-coastal sites also assume their Harbor-class sea food.
 	Productive Grass Hills are neutral, food surpluses offset deficits, and citizen-unworkable Peak/Ice adds one extra point for its dead BFC slot.
@@ -2289,7 +2314,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>185</iDefineIntVal>
+		<iDefineIntVal>186</iDefineIntVal>
 	</Define>
 
 

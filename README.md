@@ -77,11 +77,11 @@ Alongside this observability, other changes move towards "hands-free" play and t
 - On top of this (no pun or yes but anyway), scoreboard autocenter (default as of now ON) automatically keeps the active player in view, so that the new scoreboard scroll feature (up/down with +/- buttons as of now when Scoreboard is full) does not require a manual/tedious user intervention every while or if desired.
 - `SASAssertions_*.log` (for diagnostic DLLs) adds automatic assertion logging and silent handling, so no user intervention is tediously needed to click them all one by one in their popup that pauses autoplay (sometimes ~10,000+ manual clicks per game). Silent option settings are e.g. "Ignore Once", or revert to base behaviour (logs are live-viewable, consistent with the "open-brain" point too).
 
-Another significant part of the project is [LLM-assisted source analysis](/README.md#llm-assisted-source-analysis): completed historical archaeology follows BtS, K-Mod, AdvCiv and AdvCiv-SAS changes through their actual diffs and lineage, while current-tree audit albums review final files and cross-file contracts from complementary angles.
+Another significant part of the project is [LLM-assisted source analysis](/README.md#llm-assisted-source-analysis): completed historical archaeology follows BtS, K-Mod, AdvCiv and AdvCiv-SAS changes through their actual diffs and lineage, while file-audit records document reviews of combined source and cross-file contracts from complementary angles.
 
-The completed archaeology records 130+ confirmed candidate bug/issue findings; fixes and newer audits proceed incrementally rather than delaying normal releases.
+The completed archaeology records 130+ confirmed candidate bug/issue findings; the findings support incremental fixes alongside normal development.
 
-The C++ file audit album goes even further and has found additional hundreds (as of now ~500) of bugs or issues, many of which are inherited from vanilla, Warlords, BtS, K-Mod, AdvCiv, mapscripts, or other sources, and is an as of now unprecedented system Civ4 QA/code audit effort.
+The C++ file audit album records hundreds of additional bug/issue findings across Civ4, its inherited mod lineage and AdvCiv-SAS; see the [source-analysis documentation](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md) for its scope, findings and status.
 
 All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv at all handicaps) through improved AI competency rather).
 
@@ -1523,6 +1523,8 @@ The record includes the same canonical mod/source and exact loaded-DLL identity 
 
 It notably also fingerprints the actual `Civ4BeyondSword.exe` and can notably record privacy-tiered runtime/install context such as Windows build/update or Wine/Proton state, process/native architecture and coarse storefront identity.
 
+For example, batch opening reviews can use [`audit_first_city_scouting.py`](/LLM_Helpers/README.md#audit_first_city_scoutingpy) to flag repeated initial Settler scouting movement and compare founding outcomes; see the [captured USA/Korea example](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/first_city_scouting_audit_example.txt).
+
 For stronger LLM analysis, also provide the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) when possible: the log identifies the source state, while the compact ZIP supplies the corresponding source, XML/data, docs, helper context, and full `SASGameRecord` examples an LLM can actually inspect.
 
 Maps are recorded as text art which should help LLM visualization and reasoning/review as well as provide a record viewable even outside Civ4.
@@ -1622,9 +1624,7 @@ The completed commit-oriented investigation follows Civ4 BtS -> K-Mod -> AdvCiv 
 
 ### C++ File Audit Album
 
-The active current-tree [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) instead reviews every current `.cpp` file and its associated contracts from longest to shortest. This catches cross-file or cross-commit interactions in the final combined source and records clean files and false positives.
-
-Future Python, XML or other analysis albums can extend the same source-analysis family.
+The [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) preserves file-level and cross-file findings, including clean-file reviews and false positives. See the [specialized source-analysis documentation](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#current-tree-audit-albums) for its scope and status.
 
 ### Focused source and data reviews
 

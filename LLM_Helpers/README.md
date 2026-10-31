@@ -54,6 +54,7 @@ Always review diffs before committing generated source changes.
   - [`compare_speed_summaries.py`](#compare_speed_summariespy)
   - [`autotune_speed_from_xml.py`](#autotune_speed_from_xmlpy)
 - [SASGameRecord comparison helpers](#sasgamerecord-comparison-helpers)
+  - [`audit_first_city_scouting.py`](#audit_first_city_scoutingpy)
   - [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy)
   - [`expand_sasgamerecord_city_deltas.py`](#expand_sasgamerecord_city_deltaspy)
   - [`summarize_sasgamerecord_volume.py`](#summarize_sasgamerecord_volumepy)
@@ -846,6 +847,32 @@ python LLM_Helpers\autotune_speed_from_xml.py --speed slow --autoloop --iteratio
 ```
 
 ## SASGameRecord comparison helpers
+
+### `audit_first_city_scouting.py`
+
+[`audit_first_city_scouting.py`](/LLM_Helpers/audit_first_city_scouting.py) streams one or many opening SGR logs and optionally pairs BBAI logs by process identity and load ordinal. This turns first-capital scouting traces into reviewable summaries across test maps, without adding runtime work or log rows. It covers initial Settlers, not general Scout/Explorer efficiency.
+
+- Record `SAS_SGR_LOG >= 2` for unit IDs and observed scouting origins. Optional `SAS_BBAI_LOG_ON=1` and `SAS_BBAI_SETTLER_LOG=3` add selected-candidate reveal estimates; full FOUND scoring is not required. Set controls before launch and leave shipping defaults disabled.
+- Pass SGR paths or quoted globs; repeat `--bbai` for BBAI paths/globs. Extract archived logs first. A separate file is required per session. New/load headers identify sessions; absent or ambiguous matches remain explicitly unpaired.
+- Observed A-B-A origins and revisits are review flags. Requested endpoints alone do not establish arrival. Return-to-found actions remain separate; there is no arbitrary universal founding-time cutoff.
+- Positive estimated information with zero oracle reveals identifies a scoring discrepancy worth inspecting. Oracle counts are pre-move diagnostic estimates, not measured reveals caused by that unit. BBAI lacks unit IDs here, so those selections remain player-level evidence.
+- When candidate-level BBAI rows are available, the helper also re-scores logged ordinary scouting decisions with the KI#144.5 bounded-prospect experiment.
+  - Visible endpoint quality can add at most 100% of its information value; recorded active approach floors are preserved. Oracle reveal distributions help compare results but never supply the counterfactual score.
+  - Older rows identify active approach floors only. A zero bonus can hide an eligible endpoint already scoring above its floor; lowering that base in the rebuilt game could activate the floor. The offline rescore cannot reconstruct this missing eligibility, so its proposed endpoints need not exactly match the new runtime.
+  - A changed first move would also reveal a different future map, so this is calibration of logged decision states, not a simulated alternate playthrough or proof of optimality.
+  - Aggregate results include uniquely paired BBAI sessions only; unrelated/ambiguous inputs are excluded from the aggregate. Missing oracle estimates are omitted from reveal statistics rather than counted as poor reveals.
+- Missing city evidence means unknown. Late-loaded records cannot establish the original first-capital history. No scouting rows does not prove efficient scouting or full coverage; compare source/build context before attributing differences to a fix.
+- Decision counts include core-quality and ordinary scouting steps; BBAI selected-candidate counts cover ordinary scouting only. JSON evidence includes source lines, observations, scouting-end reason, earliest observed own-founded city and founding turn. Default output is timestamped under ignored `LLM_Helpers/outputs/first_city_scouting/`; `--output` selects another path. Inputs are read only.
+
+```powershell
+python LLM_Helpers/audit_first_city_scouting.py 'C:/Users/PC/Documents/My Games/beyond the sword/Logs/SASGameRecord_20261031T0838*Z_load*.log' --bbai 'C:/Users/PC/Documents/My Games/beyond the sword/Logs/BBAI_20261031T0838*Z_load*.log'
+```
+
+The [captured USA/Korea summary](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/first_city_scouting_audit_example.txt) shows Washington founded on turn 3 without these flags, alongside Korea's repeated scouting reversals before Seoul was founded on turn 6.
+
+Later output in that same example records the validated draft: Washington remains turn 3, Seoul changes to turn 5, and neither control has observed reversal/revisit flags.
+
+These are the actual Release comparison logs from the KI#144.5 review; the observations support investigation rather than certifying every aspect of either opening.
 
 ### `compare_sasgamerecord_rng.py`
 

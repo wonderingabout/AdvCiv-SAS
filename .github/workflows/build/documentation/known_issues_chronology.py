@@ -21,6 +21,8 @@ ROOT = Path(__file__).resolve().parents[4]
 DOCUMENT = "_1_AdvCiv-SAS/Docs/README_Known_Issues.md"
 ENTRY = re.compile(r"^## KI#(\d+(?:\.\d+)*)\b[^\n]*\n", re.MULTILINE)
 ANCHOR = re.compile(r'^\s*<a\s+id="ki-[^"]+"\s*></a>\s*$', re.MULTILINE)
+# <!-- custom: Archive headers identify supporting files rather than a step in the investigation; their conventional top placement must not trigger a history-insertion error. (GPT-6.1-Sol) -->
+ARCHIVE_HEADER = re.compile(r"^(?:Screenshots/files|Files/screenshots) for this issue:\s", re.IGNORECASE)
 
 
 # <!-- custom: Index bodies by stable KI number so menu edits, title/status changes, new entries and entry ordering do not masquerade as inserted history.
@@ -38,7 +40,8 @@ def entries(text):
             paragraph = " ".join(match.group().split())
             line += body.count("\n", cursor, match.start())
             cursor = match.start()
-            paragraphs.append((paragraph, line))
+            if not ARCHIVE_HEADER.match(paragraph):
+                paragraphs.append((paragraph, line))
         result[heading.group(1)] = paragraphs
     return result
 

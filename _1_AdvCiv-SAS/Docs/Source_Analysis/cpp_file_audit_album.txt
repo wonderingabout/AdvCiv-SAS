@@ -1,6 +1,8 @@
 AdvCiv-SAS C++ File Audit Album
 Generated from local light-source snapshot only; no web/GitHub lookup used.
 
+Status as of 2026-10-31: discontinued. The summaries/cursors below describe historical checkpoints; the chronological status and retrospective notes at the end explain the unperformed next tranche.
+
 PROGRESS SUMMARY
 Files complete: 169 / 169
 Files open: 0 / 169
@@ -208931,3 +208933,18 @@ As of now and for now, unless it otherwise changes, the systematic sweep is disc
 Development as of now focuses on targeted AI changes and existing pending Known Issues; substantial source changes since the reviewed snapshots mean the completed-file list is not a current-tree coverage guarantee.
 
 Preserve the findings and cursor below as historical evidence, not an instruction to resume the next mechanical scan. New KI root numbers are no longer reserved for this album. See the Source_Analysis README and KI#1070 for the retired cursor's status.
+
+
+RETROSPECTIVE CLARIFICATION - 2026-10-31
+C031-WIP891's "Next mechanical cursor" was never completed. F749 / provisional KI#1070 was not a defect finding; it was only the reserved slot that would have been consumed if the planned systematic denominator/modulo scan proved a new supported root. No later album checkpoint performs or clears that scan. Retiring KI#1070 therefore retires an unperformed audit cursor, not a defect that was investigated and disproved.
+
+This does not mean denominator hazards were absent from the preceding audit. File-local and focused passes repeatedly reviewed division/modulo contracts and recorded or deduplicated suspicious cases. One important example is `CvCity::getProductionDifference`: C031-WIP351 already established that its production modifier can generically reach zero and therefore exposes a generic zero-denominator robustness hole, but current shipped SAS data did not support the required state. Such prior work is useful partial evidence; it is not equivalent to C031-WIP891's planned uniform cross-file sieve.
+
+A fresh 2026-10-30 retrospective pass over the then-current light-source tree mechanically revisited denominator/modulo sites and contract-traced the strongest candidates. No new supported current-SAS defect was confirmed. Representative controls included:
+- `CvCity::getProductionDifference`: the generic zero-denominator condition was already known from C031-WIP351; current shipped SAS data still did not establish the zero-modifier state.
+- `CvUnitAI::AI_seaBombardRange`: raw `iMaxRange / baseMoves()` expressions remain, but currently supported sea-bombard units have positive base movement and no supported zero-move path was established.
+- `CvUnitAI::AI_specialSeaTransportSpy`: a raw logging division by total unspent Espionage looks unsafe syntactically, but when the total is zero no positive target value can be selected, so execution returns before reaching the log expression.
+
+These examples reinforce the original promotion rule: an unguarded operator is not by itself a KI; a supported zero path plus an actual execution consequence is required. The retrospective pass increases confidence that no obvious F749 was lost, but it does not claim exhaustive completion of every nonliteral divisor from the current tree and does not rewrite C031-WIP891 as completed.
+
+Preserve the completed findings and the old cursor as historical evidence, not as an instruction to resume the abandoned scan. New KI root numbers are no longer reserved for this album. If a denominator/modulo defect is demonstrated later, assign the next normal KI number and cite the retired KI#1070 cursor as provenance when useful. See the Source_Analysis README and KI#1070 for the concise current status.

@@ -20,6 +20,8 @@ As of 2026-10-30, development focuses on targeted AI changes and existing pendin
 
 Its findings and continuation cursor remain historical evidence, and it currently no longer reserves new KI numbers. Future file-oriented reviews can still belong beside it.
 
+2026-10-31 clarification: C031-WIP891's next systematic denominator/modulo scan was not completed; F749 / KI#1070 was an unused reserved slot, not a confirmed defect. The album's appended retrospective distinguishes earlier file-local checks and the later focused review from that unperformed uniform scan.
+
 ## Focused reviews
 
 [`global_define_name_length_review.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/global_define_name_length_review.md) documents the completed GlobalDefine cleanup and current naming policy/census, compares it with inherited/reference XML, and separates the 42-byte desired naming maximum from KI#1001's hard 255-byte loader boundary.

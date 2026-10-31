@@ -40,6 +40,14 @@ class KnownIssuesChronologyTests(unittest.TestCase):
             with self.subTest(new=new):
                 self.assertEqual(checker.chronology_errors(self.baseline, new), [])
 
+    # <!-- custom: Reproduce the archive-header false positive while the existing replay-insertion tests retain protection for actual new history, including insertion at the top. (GPT-6.1-Sol) -->
+    def test_archive_header_placement_is_not_investigation_history(self):
+        header = 'Screenshots/files for this issue: link to fill in.\n\n'
+        top = self.baseline.replace('Original defect.', header + 'Original defect.')
+        end = self.baseline.replace('<a id="ki-980">', header + '<a id="ki-980">')
+        self.assertEqual(checker.chronology_errors(self.baseline, top), [])
+        self.assertEqual(checker.chronology_errors(end, top), [])
+
     def test_relocation_to_end_passes(self):
         note = '2026-10-21 replay result.\n\n'
         old = self.baseline.replace('Archaeology and rationale.', note + 'Archaeology and rationale.')

@@ -13,7 +13,7 @@ Note 4: integer KI numbers form a continuous ledger:
 - Fixed issues and unresolved findings are listed alongside explicit Merged, Rejected or Retired dispositions so a missing number cannot hide work recorded in the source-analysis album.
 - `Provisional Pending` means ChatGPT's C++ File Audit Album established and numbered the finding, but it still awaits independent implementation review against current source.
 - `Pending Architectural` means that review confirmed a real issue, but a durable repair requires shared-policy centralization, scenario-level aggregation or another broad refactor rather than a safe local patch.
-  
+
 Stable `#ki-number` anchors keep links valid when an entry title or status is refined.
 
 ## Menu
@@ -219,6 +219,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#144.2 - (Improved AdvCiv-SAS first-city scouting efficiency) Strong known capitals could spend late scouting turns on low expected upside](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-144.2)\
 [KI#144.3 - (Fixed AdvCiv-SAS KI#144 follow-up) First-capital food-bonus scaling treated any +Food improvement as a strong growth resource](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-144.3)\
 [KI#144.4 - (Improved inherited AdvCiv / AdvCiv-SAS Settler AI scoring) First-capital high-value low-Food worked cores could be credited beyond their Food support](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-144.4)\
+[KI#144.5 - (Improved AdvCiv-SAS KI#144 follow-up) Marginal first capitals could bypass promising-fog scouting and waste scouting movement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-144.5)\
 [KI#145 - (Implemented / needs in-game test) Military Advisor Map tab lost selected leaders after tab switch or close/reopen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-145)\
 [KI#146 - (Fixed/Enhanced) Base AdvCiv issue of AI undervaluing coastal settling on naval-heavy maps](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-146)\
 [KI#147 - (Fixed/Enhanced) Base AdvCiv issue of AI settlers not adding extra valuation to unowned bonuses in city-site scoring](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-147)\
@@ -3044,7 +3045,9 @@ Investigation and implementation with the help of ChatGPT-5.6-Sol, thanks.
 
 ## KI#33.4 - (Improved AdvCiv-SAS Worker regression) Generic yield valuation could delay high-value production plots and overcommit maturing improvements
 
-The motivating case was the recurring Mehmed/Istanbul Huge Pangaea reproduction recorded in `changes_new.md`: several useful Grassland Hills remained unimproved until very late even though a Mine would provide an important early production option.
+Screenshots/files for this issue: same google drive link as KI#1071.
+
+The motivating case was the recurring Mehmed/Istanbul Huge Pangaea reproduction: several useful Grassland Hills remained unimproved until very late even though a Mine would provide an important early production option.
 
 This is primarily an **AdvCiv-SAS Worker regression/follow-up**, not a Base AdvCiv bug.
 
@@ -9624,7 +9627,7 @@ For concision, i put the rationale here since the issue is solved, no need to cl
 		# advc.004a: Adding this guard b/c the new code somehow can't handle calls via preGameStart (CvAppInterface) if the map is very large. Still seems to get updated properly if the player opens the Tech Advisor on turn 0.
 		# <!-- custom: note: trying to comment out the turn > 0 check below. to have our indicators at turn 0 seemingly does indeed lead to an error. However the base advciv's comment is slightly mistaken it seems if i'm not mistaken, as i could reproduce it for example when creating a new game noble pangea normal game speed standard size. As per gemini 3 pro, the error i had was indeed caused by this, so reverted it to base advciv behaviour (i thought the bug info would helps players unaware the feature of BUG's bulbing indicators (including me i mean, i didn't know about it so wanted to share it.; i hope the note helps in our various docs mentionning this)). See for details known issue as of now 85 -->
 		# <!-- custom: as for this feature, it seems to me that this is safer to simply disable it (i.e. keep base advciv code as it was), and this feature (turn 0 bulbing indicators) is definitely not critical nor mandatory enough to justify this, so reverted it to how it was -->
-		# 
+		#
 		# The error AttributeError: TechPrefs instance has no attribute 'lTechsByFlavor' occurs because the game attempts to update the Tech Preferences during the initialization phase (preGameStart), before the necessary data (like the Active Player's tech state) is fully ready.
 		# The code you uncommented to enable "Turn 0" support removes the safety guard if CyGame().getElapsedGameTurns() > 0:. Without this guard, updateTechPrefs runs too early during map generation and crashes because the TechPrefs object is created incomplete (missing lTechsByFlavor).
 		# To fix this while keeping the Turn 0 feature, you should add a safety check inside updateTechPrefs to abort gracefully if TechPrefs is broken, rather than crashing.
@@ -12398,6 +12401,414 @@ SASGameRecord revision 142 promotes compact player-known Food budgets for the fo
 
 Implemented with the help of ChatGPT-5.6-Sol and GPT-6.1-Sol, thanks.
 
+<a id="ki-144.5"></a>
+
+## KI#144.5 - (Improved AdvCiv-SAS KI#144 follow-up) Marginal first capitals could bypass promising-fog scouting and waste scouting movement
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1-uF7IoVZKW7H-fx8dzzVwgMmx10wmUqf?usp=sharing).
+
+This is a direct first-capital follow-up to KI#43 / KI#144 / KI#144.2, discovered while replaying the previously noted southern-tundra USA start on Huge Arid Pangaea.
+
+The broad symptom is old and partly inherited: first Settlers can make a permanent capital decision before enough nearby information is known. AdvCiv-SAS had already improved that class substantially through the KI#43 free window, KI#144 bad-start scouting and KI#144.2 diminishing-return continuation logic.
+
+The specific failure reproduced here was **AdvCiv-SAS-specific**, however. SAS's later first-capital safeguards could classify a site as strong enough to found immediately merely because it had enough visible food bonuses, even when the rest of the workable core was marginal. That categorical good-enough result bypassed KI#144.2 entirely.
+
+The special SAS first-city scout loop also searched only the eight adjacent plots rather than the Settler's full safe one-turn movement envelope.
+
+The motivating replay was the Huge Arid Pangaea USA start at `(52,9)`.
+
+- The starting Settler locally rechecked `(51,9)` and found it better than the physical start: `4197` versus `3853`.
+- `(51,9)` was fully revealed and contained 2 visible food bonuses, so the existing `SAS_1ST_CITY_GOOD_FOOD_BONUSES = 2` safeguard made it categorically strong-food even though its BFC Food-environment score was `13` against the bad threshold `5`.
+- The capital was therefore founded at `(51,9)` on turn 0 without entering the KI#144 scouting branch.
+- The founded BFC was heavily cold: 15 Tundra, 4 Plains and 2 Coast tiles in the original record, with a shallow Food-support profile beyond the small opening core.
+- A partly fogged eastern alternative around `(55,10)` was already interesting from player-known information. At turn 0 it scored only `2648` because 11 of its 20 non-home BFC plots were unrevealed, but its known value per revealed BFC plot was much stronger than the complete `(51,9)` site.
+- Omniscient comparison was used only for diagnosis: after all terrain/resources were known, `(55,10)` was about `4638` and had a materially stronger sustainable Food core. Hidden Deer/Crab/Molluscs were never allowed to justify the gameplay decision.
+
+### Investigation progression
+
+This issue went through several deliberately diagnostic-only iterations before gameplay was changed. The false starts are worth preserving because each ruled out an attractive but overly specific fix.
+
+1. **Do not hardcode "move away from Tundra / poles".**
+   - Directional geometry logged inward/outward known land, fog and natural Food.
+   - The map did contain more potentially useful land inward, but individual nearby sites showed noisy results and `(52,12)` was not inherently better.
+   - The conclusion was to value information/optionality, not latitude, map edge or a named terrain.
+
+2. **A good-enough capital needed an entry decision distinct from KI#144.2 continuation.**
+   - KI#144.2 correctly asks whether an already-justified scouting excursion should continue; its early delay pressure is intentionally near zero.
+   - That is too permissive as the first decision to abandon a capital that can be founded immediately.
+   - A shadow scout-entry diagnostic therefore added a nonzero one-turn entry cost while leaving live behavior unchanged.
+
+3. **The first shadow hook initially missed USA entirely.**
+   - `(52,9) -> (51,9)` and `FOUND` were queued in the same mission chain, so `AI_settleMove` never re-entered at `(51,9)`.
+   - The diagnostic was moved to the actual decision point before the local better-site mission.
+
+4. **The first corrected shadow still used the wrong origin.**
+   - Pretending the Settler had already moved to `(51,9)` made the eastern direction appear pre-explored because `(52,9)` was the real starting tile.
+   - Scout origin and settle-now opportunity were separated: movement starts from the real Settler position, while delay cost is charged against the best capital already available.
+
+5. **One adjacent tile was not the same thing as one scouting turn.**
+   - The SAS first-city scout loop still used `FOR_EACH_ADJ_PLOT`, despite normal Settlers having 2 movement and modmods potentially changing movement further.
+   - Full-turn diagnostics showed that some attractive eastern targets were not actually reachable in one turn because terrain consumed movement, but the adjacency restriction was still a general inefficiency.
+   - Live first-city scouting was changed to search `AI_searchRange(1)` and then require the real pathfinder to confirm a safe one-turn endpoint.
+
+6. **A fixed two-turn / raw-fog horizon was too generous.**
+   - A shadow second-turn frontier correctly recognized setup moves, but almost every strong control capital also had abundant fresh-map fog two turns away.
+   - In the test set, geometric frontier values around `1260-1860` often dwarfed entry costs around `350-536`.
+   - Therefore "there is useful fog nearby" was rejected as a gameplay gate.
+
+7. **The discriminating signal was the settle-now core plus a specific promising partly fogged alternative.**
+   - USA's settle-now best-6 + best-10 core was only `103%` of `16 * sustainableProductivePlotValue`.
+   - The next weakest immediate-settle control in the focused replay was about `117%`.
+   - This exposed the weakness in treating 2 visible food bonuses as sufficient by themselves.
+   - The post-capital KI#185 idea was reused in a first-capital-specific form: compare **known value per revealed BFC plot** for a partly fogged candidate rather than treating its incomplete raw found value as final.
+
+8. **The first live cure exposed two further state/path defects.**
+   - USA became the only player in the 16-player replay to enter the new marginal/promising-fog scout gate, which was encouragingly selective.
+   - It selected `(55,10)` as the promising alternative, but the pathfinder's ordinary first waypoint was the Forest at `(53,9)`.
+   - Worse, the scouting state remembered the physical start `(52,9)=3853` instead of the **forgone capital** `(51,9)=4197`. On the next turn the old recovery logic therefore "rediscovered" `(51,9)` as an improvement and immediately walked back, founding there on turn 2.
+   - The benchmark was changed to the capital actually given up when scouting began.
+
+9. **Fastest path is not automatically the best scouting path.**
+   - Once a specific promising capital has justified exploration, the first endpoint should be chosen for target-relevant information versus any additional travel delay, not simply inherited from the pathfinder's default route.
+   - Candidate one-turn endpoints now measure how much of the promising site's still-fogged BFC they can potentially expose using only the founder's current fog mask and geometric visibility envelope.
+   - Extra path turns are charged at the existing first-city delay value. A more informative detour can win only when it does not cost more than the information is worth.
+   - Exact `canSeePlot` results are retained as oracle diagnostics, not as gameplay knowledge; the live generic reveal score now likewise uses the player-known fog estimate. This narrows one part of the broader KI#500 knowledge-boundary problem without claiming KI#500 itself is solved.
+
+10. **Explorer overlap is handled softly rather than by a hard opposite-direction rule.**
+    - Other land explorers' current/assigned `MISSIONAI_EXPLORE` coverage is measured.
+    - Separation is only a tie-breaker after information/site value, so the Settler and starting Scout tend to cover different sectors when choices are otherwise comparable but may still overlap when one frontier is materially better.
+
+### Implemented policy
+
+A first capital that already passes the ordinary strong-food safeguard can now enter promising-fog scouting only when all of the following hold:
+
+- its Food environment is still poor enough to make the strong-food classification suspicious;
+- its best-6 + best-10 core is at or below `SAS_1ST_CITY_SCOUT_MAX_CORE_16_REF_PCT` of the XML-derived sustainable 16-plot reference (default `110%`);
+- the settle-now site's non-home BFC is fully revealed;
+- a reachable partly fogged alternative has at least `SAS_1ST_CITY_SCOUT_FOG_MIN_REVEALED_BFC` known non-home plots (default `8`);
+- it still has at least `SAS_1ST_CITY_SCOUT_FOG_MIN_UNREVEALED_BFC` unknown non-home plots (default `5`);
+- its known value per revealed BFC plot is at least `SAS_1ST_CITY_SCOUT_FOG_MIN_AVG_VAL_PCT` of the settle-now site's complete average (default `120%`);
+- the candidate's projected information upside exceeds the path-turn-scaled cost of delaying the available capital;
+- the candidate remains within the configured first-city scouting window.
+
+The projection is an **entry/approach heuristic only**. It is never substituted for a final city-site value. The Settler moves one turn, reveals the map, rescans and can stop/return/found immediately. The existing configured first-city deadline remains the hard guardrail; this is receding-horizon exploration rather than a blind multi-turn commitment.
+
+When active first-city scouting is already underway, the one-turn movement search now:
+
+- searches the conservative `AI_searchRange(1)` envelope rather than only eight adjacent tiles;
+- requires the actual safe pathfinder to prove the endpoint reachable this turn;
+- scores information from the player's revealed/fog mask rather than exact hidden line-of-sight blockers;
+- uses known site value as before;
+- softly prefers less-overlapped explorer coverage and a better known vantage only when the primary exploration value ties;
+- can use a target-specific promising-fog approach floor when a marginal-capital investigation is already justified.
+
+### Focused first-capital replay validation
+
+The successful focused autoplay in `BBAI_20261031T074049Z_load1.log` / `SASGameRecord_20261031T074049Z_load1.log` produced the intended sequence:
+
+```text
+T0: (52,9) -> (53,10)
+T1: (53,10) -> (54,11)
+T2: (54,11) -> (55,10)
+T3: found Washington at (55,10)
+```
+
+The first entry decision was selective:
+
+- settle-now `(51,9)` value: `4197`;
+- settle-now core-16 quality: `103%`;
+- promising `(55,10)` incomplete value: `2648` from only 9 revealed non-home BFC plots;
+- settle-now known average: `20985` (x100 scale);
+- promising known average: `29422`;
+- projected full-BFC equivalent: `5884`;
+- projected upside: `1687`;
+- three-turn delay cost: `463`;
+- only USA entered `FIRST_CITY_MARGINAL_SCOUT_ENTRY` among the 16 players in this focused run.
+
+The waypoint logic also improved on the manually anticipated route rather than merely reproducing it.
+
+- From `(52,9)`, direct pathfinding toward `(55,10)` would have ended the first turn at Forest `(53,9)`.
+- `(53,10)` reached the target in the same total number of path turns but had target-fog potential `180` versus `60`, so it was selected instead.
+- From `(53,10)`, `(54,11)` and `(54,10)` both preserved the same arrival time.
+- `(54,11)` had player-known target-fog potential `540` versus `420` for `(54,10)`; the oracle-only exact LOS check later confirmed 6 target-BFC reveals versus 3.
+- The AI therefore chose the diagonal `(54,11)`, which was more informative without delaying settlement.
+
+A manual control had previously sent the starting Scout south while the Settler explored northeast and founded `(55,10)` on turn 4. By then the player-known first-capital value of `(55,10)` had risen to about `4602` versus about `4202` for `(51,9)`, close to its omniscient value. The final AI route reached the same capital one turn earlier, on turn 3.
+
+At founding, the fully known `(55,10)` value was `4638`, with 4 food bonuses and Food-environment score `2`. Its BFC contained Deer, Crab, Molluscs, Pig and Gemstones. These final facts validate the information-gathering result but were not available to the entry gate and did not drive the decision.
+
+### Current status / remaining validation
+
+At this focused-case checkpoint, the reproduced USA opening was fixed and the movement/scouting changes were general rather than Tundra-, latitude-, resource- or map-script-specific. The status was therefore **Fixed/Improved** at this stage rather than a claim of universal optimality.
+
+The later Release/Korea and SAS48 batch sections below supersede that checkpoint and return KI#144.5 to Improved/Pending.
+
+The most useful next validation is broad autoplay rather than more special-case tuning:
+
+- confirm that strong capitals still found promptly;
+- count how often the marginal/promising-fog entry path activates;
+- compare founding turn, final known/omniscient capital value and core quality before/after;
+- inspect any long scout chains approaching the seven-turn deadline;
+- confirm that explorer deconfliction remains a tie-breaker and does not steer Settlers away from materially better frontiers;
+- retain exact LOS/oracle fields only for diagnostics while gameplay remains on player-known information.
+
+Pre-commit review made three further corrections:
+
+- move exact target-BFC and generic reveal scans behind their consuming BBAI log gates;
+- query generic endpoint found value only when that endpoint is revealed, matching the shadow model's known-site guard;
+- use a local pathfinder for shadow lookahead, leaving the live group pathfinder's cached search/end node intact.
+
+The successful route above predates these corrections and the preceding exact-LOS scoring cleanup; a fresh focused replay is needed to validate the reviewed implementation.
+
+Related issues: KI#43, KI#144, KI#144.2, KI#144.3, KI#144.4, KI#185 and pending knowledge-boundary KI#500.
+
+Investigated and implemented iteratively with the help of ChatGPT-5.6-Sol, with replay testing and manual route annotation by wonderingabout; pre-commit code/documentation review with GPT-6.1-Sol, thanks.
+
+### Release replay and Korea regression (2026-10-31)
+
+The reviewed source was rebuilt successfully as Release (`2026-10-31T08:37:23.299Z`); all 362 native input hashes match the source tested in the following two loaded-save runs. Release versus Debug-opt is not established as the cause of a changed decision.
+
+- The USA run (`BBAI_20261031T083813Z_load1.log` / `SASGameRecord_20261031T083813Z_load1.log`) preserves the selective entry and the Washington `(55,10)` founding on turn 3; only USA emits the new marginal-entry row in that 16-player case.
+- The Korea control (`BBAI_20261031T083828Z_load2.log` / `SASGameRecord_20261031T083829Z_load2.log`) exposes a regression: after its T0 growth-core move `(51,23) -> (51,24)`, the Settler repeatedly bounces `(51,24) -> (50,24) -> (51,24)` during elapsed turns 1-3.
+  - It later scouts farther, returns under the deadline rule, and founds Seoul at `(50,24)` on turn 6 rather than reaching the previously successful `(47,25)` Maize/Pig site.
+
+The repeated movement is a concrete defect independently of whether the final capital is playable or the hidden better site could fairly have been discovered. No rule should force the AI toward known-from-debug resources at `(47,25)`.
+
+The first repeated endpoint `(50,24)` receives geometric information value `180` despite an exact oracle reveal count/value of zero. Its already-known found value `4142` is then included as `knownProspectValue`, producing direction score `4322`; the farther `(49,25)` frontier has geometric information `900` but lower known site value `3115`, scoring `4015`.
+
+Thus a small optimistic fog estimate can repeatedly admit a move toward a familiar inferior site, and the full known-site direction bonus can dominate a genuinely informative frontier. The early continuation delay is also small. These observations identify the interacting estimates; they do not justify restoring hidden-terrain LOS to gameplay or establish which replacement model is best.
+
+First occurrence from the Korea BBAI file, verbatim:
+
+```text log
+FIRST_CITY_SCOUT_STEP_CANDIDATE player=0 from=51,24 endTurn=50,24 pathTurns=1 stepDistance=1 endpointKnownSeeFromLevel=1 endpointOracleSeeFromLevel=1 unitVisibilityRange=1 actualLOSRevealPlots=0 knownFogPotentialPlots=3 knownFogPotentialValue=180 explorerCount=1 explorerSeparation=5 nearestExplorerAnchor=55,25 endpointFog=0 actualLOSRevealValue=0 informationValue=180 discountedInformationValue=28 scoutOpportunityLinearPercent=41 scoutOpportunityPercent=16 settleNowValue=4279 settleNowBest6=1045 settleNowBest10=1622 settleNowCoreQualityPercent=138 foundValue=4142 settleNowFoundValueGain=0 scoutExpectedGain=28 scoutDelayBaseCost=150 scoutWindowProgressPercent=14 scoutTimePressurePercent=0 scoutDelayCost=0 worthScoutDelay=1 knownProspectValue=4142 bestKnownPlot=51,23 bestKnownFoundValue=4424 knownTargetApproachValue=0 promisingFogApproachValue=0 foundValueGain=0 total=4322
+```
+
+The pre-gating and local shadow pathfinder changes are intended to leave gameplay independent of logging settings. Replacing exact hidden-LOS gameplay scoring with geometric fog potential is a separate behavioral change, not merely a logging optimization. A paired logging-on/off comparison was not performed for this build.
+
+Status: the USA reproduction remains improved, but the Korea oscillation must be addressed before treating the generic scouting change as settled. Investigate knowledge-safe visibility potential and how repeated low-information endpoints earn direction value; keep broad multi-map validation separate from tuning either coordinate-specific reproduction.
+
+Release replay observations and pre-commit review with GPT-6.1-Sol, thanks.
+
+### SAS48 batch and bounded prospect direction score (2026-10-31)
+
+The Korea reversal was not isolated. A broader batch from `Logs(20261031-092047).zip` contained eight BBAI sessions, seven of them paired with SGR records.
+
+The offline `LLM_Helpers/audit_first_city_scouting.py` review found repeated A-B-A/revisit patterns in Korea and also in Germany, Holy Rome, Spain, England and one Maya trace. Washington remained a clean regression control in two repeated sessions, following `(53,10) -> (54,11)` and founding `(55,10)` on turn 3.
+
+Representative observed scout-origin traces included:
+
+- Korea: `(51,23) -> (51,24) -> (50,24) -> (51,24) -> (50,24) -> ... -> (49,25)`;
+- Germany: `(66,38) -> (65,38) -> (64,40) -> (65,38) -> (64,40) -> ...`;
+- Holy Rome: repeated `(130,35) <-> (130,34)` movement before finally leaving that pair;
+- Spain: repeated `(96,76) <-> (97,77)` movement;
+- England: repeated `(151,80) <-> (151,79)` movement.
+
+The common scoring failure was dimensional rather than civilization-specific. Ordinary scouting used:
+
+```text
+informationValue + knownProspectValue + foundValueGain
+```
+
+where `knownProspectValue` was the endpoint's entire known first-city found value whenever the endpoint had any positive estimated information. Consequently, only `60` to `180` points of geometric fog potential could unlock roughly `4800` to `5000` points of already-known site value.
+
+Familiar inferior tiles could therefore outscore much more informative frontiers. The known site was useful evidence about *which direction* looked promising, but its full capital value was not another information payoff.
+
+For example, Korea's first repeated `(50,24)` candidate had information value `180`, exact oracle reveal count `0`, known found value `4142`, and total direction score `4322`.
+
+In the same decision state, `(49,25)` had information value `900`, oracle reveal count `5`, and known found value `3115`, for total `4015`; another farther frontier had information value `1800` and oracle reveal count `7` but no known site value. Thus the old direction score preferred the familiar near-zero-information tile.
+
+The replacement keeps visible site quality as evidence but bounds it to the same units as information:
+
+```text
+knownProspectQualityPercent = min(100, 100 * endpointFoundValue / bestKnownFoundValue)
+knownProspectValue = informationValue * knownProspectQualityPercent / 100
+```
+
+This means a site as good as the best known capital can at most double the value of the new information in its direction; a half-quality site adds about half an information score. Actual superiority over the best known site remains separately represented by `foundValueGain`.
+
+The explicit best-known-site and marginal promising-fog approach floors are preserved, so this does not reduce scouting to "pick the largest fog patch" and does not remove the Washington-specific general mechanism that justified moving toward `(55,10)`. No coordinate, terrain, resource, civilization or map-script rule is involved.
+
+The offline helper now reproduces the logged runtime choice from candidate rows before applying the experimental rescore, then compares the same logged decision state under the bounded prospect rule. Across 102 ordinary scouting decision states from the eight BBAI sessions:
+
+- logged-score reproduction mismatches: `0`;
+- selected endpoints with zero oracle reveal estimate: `47/102` current versus `3/102` bounded prospect;
+- selected endpoints with at most one oracle reveal estimate: `56/102` versus `9/102`;
+- average oracle reveal estimate: about `2.51` versus `5.85`;
+- median oracle reveal estimate: `1` versus `6`;
+- direction choice changed in `72/102` logged decision states.
+
+These oracle numbers are calibration only. They are never inputs to gameplay or to the bounded-prospect counterfactual, and a changed move would reveal a different future map state.
+
+Therefore this comparison does **not** simulate the alternate playthrough or prove that every changed direction is optimal. It does show that the old whole-site bonus systematically selected low-information familiar endpoints and that the bounded score aligns the player-known direction metric much better with the information opportunities that actually existed.
+
+The exact target-BFC oracle helper was also given an explicit `visibilityRange()+1` distance bound before `canSeePlot`, matching the caller responsibility documented by the engine and keeping the oracle diagnostic well-scoped. Exact LOS remains diagnostic-only under KI#500's knowledge-boundary rules.
+
+Pre-commit review clarified an additional limitation of those offline numbers: old candidate rows record active approach bonuses, not eligibility when a bonus was zero because the candidate already exceeded its floor.
+
+Lowering that candidate's base can activate the same floor in the rebuilt game. Therefore the offline endpoints preserve recorded active floors but need not exactly reproduce the new runtime choices, even at the same starting decision state.
+
+The zero old-selection reproduction mismatches validate reconstruction of the old ranking, not that missing eligibility.
+
+The helper review also excluded unmatched BBAI sessions from the aggregate and omitted missing oracle estimates from reveal statistics. These reporting corrections leave the gameplay formula unchanged.
+
+A local pre-commit rerun also paired the eighth SGR available in the live Logs folder: all eight matched sessions reproduced the reported 102 decisions, 72 rescore direction changes, zero old-ranking reproduction mismatches, and 47 versus 3 zero-oracle selections.
+
+This verifies the reported arithmetic under the stated offline model; rebuilt in-game behavior remains a separate test.
+
+Status remains **Improved/Pending** until a rebuilt replay validates the changed runtime trajectories. The preferred next test is Washington plus the Korea regression first, followed by the same SAS48 batch.
+
+The main questions are whether Washington still reaches its successful promising-fog capital, whether the repeated Korea/Germany/Holy Rome/Spain/England reversals disappear, and whether strong starts still settle promptly rather than replacing oscillation with indiscriminate fog chasing.
+
+SAS48 batch analysis and bounded-prospect follow-up with ChatGPT-5.6-Sol after the GPT-6.1-Sol Release/Korea review, thanks.
+
+### Live bounded-prospect regression and explorer/delay follow-up (2026-10-31)
+
+The rebuilt bounded-prospect replay did not preserve the earlier focused outcomes: Washington still chose `(55,10)` but founded on turn 5 rather than turn 3, while Korea founded Seoul at `(51,23)` on turn 8.
+
+The local `GAME_RECORD_CITY` rows in `SASGameRecord_20261031T110742Z_load1.log` and `SASGameRecord_20261031T110806Z_load2.log` confirm those founding turns; the improved offline reveal statistics above were therefore insufficient to declare the scouting policy repaired.
+
+ChatGPT-5.6-Sol traced Washington identifying `(55,10)` as its settle-now choice and then moving farther to `(55,12)`, delaying founding while seeking more information.
+
+The starting Settler and Scout/Warrior were already separate groups, so detachment was not the missing mechanism. The next draft combines complementary explorer coverage with a price for a scouting detour's additional founding delay.
+
+Pre-commit review refined that draft before in-game validation:
+
+- The original overlap draft subtracted a geometric envelope around an explorer's current plot or distant mission target. A mission target alone does not say when that information will arrive. The reviewed code caches other land explorers' queued move waypoints reachable this turn through known territory, using their actual remaining movement and independent pathfinders.
+  - A unit without a qualifying queued move supplies no predicted coverage.
+  - Overlap remains a geometric expectation, not a guarantee: hidden blockers or a later mission change can invalidate it. It does not assign the explorer a new mission or use hidden LOS to select gameplay actions. Explicit promising-capital and known-site approach floors remain available.
+- The original delay draft compared raw path turns and assumed an unproven return could retrace a one-turn outward leg in one turn. Entering terrain can cost more in reverse, so that fallback was not a demonstrated bound. The reviewed code instead rejects those detours while the concrete-capital delay policy applies.
+  - Direct founding delay uses current movement and final movement on arrival, following the existing first-city convention: path turns minus one when movement remains to execute `FOUND`. A scouting endpoint that is itself the capital uses its outward path's final movement.
+  - For other endpoints, the return projection deliberately starts next turn with full movement and includes exhausted arrival. This can overprice a detour that could reuse movement this turn; it is a conservative next-turn-return model rather than an exact prediction of all possible within-turn action chains. Failure to establish the current direct baseline retains the previous time-pressure policy.
+- The growth-core-fallback exemption is retained as a general chooser-state check, allowing the existing bounded core investigation to continue; it is not keyed to Korea or any coordinate. Its wider effect still needs replay comparison.
+- Two productive-plot equivalents per delayed turn are a policy estimate in the existing XML-scaled found-value units, not a proven lower bound on lost economic output.
+  - Cached explorer predictions avoid rescanning all units for every fog tile of every candidate. Logging-only selected-value copies retain their caller gate; gameplay overlap and delay calculations run independently of logging.
+
+SGR186 records raw versus overlapping/marginal information, the growth-core state and selected founding-delay evidence.
+
+BBAI candidate rows also expose projected founding turns and explicitly reject `NO_KNOWN_RETURN_TO_CAPITAL`; no new real sample is claimed before running the rebuilt DLL.
+
+The revised native files compiled with optimized VC2003 `/W4 /WX`; that is a compile check, not an in-game result.
+
+Overall status remains **Improved/Pending**. Compare Washington and Korea first, then the same varied SAS48 openings: actual founding time/site and repeated movement matter alongside information estimates.
+
+In particular, a zero overlap value can simply mean there was no qualifying imminent explorer move; it does not prove explorers were absent or far away. `explorerCoveragePlans` in BBAI movement summaries exposes how many predictions were available.
+
+Explorer/delay draft with ChatGPT-5.6-Sol, reviewed and refined with GPT-6.1-Sol, thanks.
+
+### SGR186 replay: growth-core fallback still made Settler scouting effectively free (2026-10-31)
+
+The rebuilt SGR186 validation clarifies the remaining over-scouting more sharply than the earlier offline rescoring. Washington is again the useful control: with path-relative founding delay active, the Settler follows the northeast information route and founds `(55,10)` on turn 3.
+
+Korea still regresses, but no longer by A-B-A oscillation: after the turn-0 growth-core move to `(51,24)`, it scouts northeast through `(53,26)`, `(55,28)` and `(56,30)`, then returns under the hard deadline and founds Seoul at `(51,23)` only on turn 8.
+
+The local `SASGameRecord_20261031T123154Z_load1.log` and `SASGameRecord_20261031T123213Z_load2.log`, plus five SAS48 records through `SASGameRecord_20261031T123544Z_load7.log`, confirm the founding/state observations below.
+
+The decisive state difference is explicit in the new diagnostics. Korea reports `settleNowGrowthCoreFallback=1` and `applyPathRelativeFoundingDelay=0` on each ordinary scouting decision, despite a settle-now core quality of `138%`. Its first three scouting legs therefore pay only elapsed-window pressure (`0`, `4`, `14`) rather than the additional turns of delayed capital founding.
+
+Washington reports `settleNowGrowthCoreFallback=0` and `applyPathRelativeFoundingDelay=1`; its first detour is charged two added founding turns (`618` points), and the next step reaches the selected capital with zero added turns.
+
+The varied SAS48 replays show the same architectural pattern rather than a Korea-only accident. Every observed turn-7/8 founding case in this batch remained in the growth-core fallback while path-relative delay was disabled: Germany/Berlin turn 7, Spain/Seville turn 8, Benin/Ughoton turn 7, England/York turn 8, Khmer/Hariharalaya turn 7 and Japan/Tokyo turn 7.
+
+Their settle-now core-quality diagnostics range from about `108%` to `161%`; the exemption therefore is not limited to genuinely desperate capitals. Several other fallback cases stop earlier, but they share the same zero-added-delay policy until some other chooser state takes over.
+
+The starting Settler and Scout/Warrior are already separate groups. In the Washington control the Scout independently travels south and reaches the `(53,5)` hut while the Settler scouts northeast, so detachment is not missing.
+
+`explorerCoveragePlans=0` means only that no qualifying queued explorer move was available for the conservative overlap predictor at the exact Settler decision point; it does not mean that no explorer existed or that its completed reveals were ignored. Newly revealed map information is already visible to the Settler's normal evaluation.
+
+The next candidate therefore removes the growth-core exemption from path-relative founding delay. A growth-core fallback already identifies a concrete known return/founding site, so another Settler scouting leg should pay the same additional-founding-turn price as any other known capital.
+
+The existing policy remains continuous rather than categorical: the delay price scales with settle-now core quality, a scouting endpoint can still win when its discounted information/known improvement exceeds that cost, and an unproven return through unrevealed terrain is still rejected instead of assuming a cheap reversible path.
+
+No Tundra, Korea, coordinate, resource or fixed founding-turn rule is introduced.
+
+This change is intentionally narrower than assigning missions to the companion explorer. The current evidence says the Settler's free-delay exemption is independently wrong; forcing cross-unit mission order or predicting an explorer's unqueued future movement would add a second architectural change before this simpler causal hypothesis is replayed.
+
+Status remains **Improved/Pending** until rebuilt Washington/Korea and SAS48 validation.
+
+Expected regression controls are: preserve Washington's turn-3 `(55,10)` outcome or an equivalently justified result; stop Korea and other strong growth-core fallbacks from taking long unpaid exploration-and-return journeys; and retain worthwhile scouting where the information gain genuinely pays for the extra founding delay.
+
+SGR186 validation analysis and candidate follow-up with ChatGPT-5.6-Sol, thanks.
+
+### Paid scouting replay: Korea stops early, but its promising alternative is excluded (2026-10-31)
+
+The next Release run used the reviewed source: all 362 native input hashes in the successful build report matched the working source before the following change. The seven new opening records also have the same starting-unit identities/coordinates as their corresponding previous records, supporting the controlled comparison.
+
+| Comparison | Previous exemption | Paid growth-core scouting |
+| --- | --- | --- |
+| Washington control | `(55,10)`, turn 3 | `(55,10)`, turn 3 |
+| Korea control | `(51,23)`, turn 8 | `(51,24)`, turn 1 |
+| Five SAS48 maps, 240 capitals: mean founding turn | 0.767 | 0.542 |
+| Same SAS48 capitals founded on turn 7 or later | 6 | 1 |
+
+The controls are `SASGameRecord_20261031T125554Z_load1.log` and `SASGameRecord_20261031T125617Z_load2.log`; the five SAS48 records end with `SASGameRecord_20261031T125937Z_load7.log`.
+
+Faster founding shows that the free-delay problem was addressed, but does not by itself establish better capital locations. Korea still missed its previously successful western Corn/Pig opening.
+
+Korea now moves from `(51,23)` to the stronger growth-core fallback `(51,24)` on turn 0, then founds there on turn 1 with `LOW_UPSIDE`. The known site's core quality is `138%`, but this weighted best-6/best-10 score is not proof that no better site deserves investigation.
+
+Its best westward direction, `(49,25)`, scores `900` raw information, discounted to `144`, against `828` for two projected extra founding turns.
+
+Even the highest candidate information gain is only `163`, so the ordinary information gate rejects every remaining step. Washington differs: its specifically promising partly fogged target can still admit an approach step despite that generic information gate.
+
+There was already a player-known reason to inspect the west. At the `(51,24)` decision, `BBAI_20261031T125617Z_load2.log` records `(49,25)` with value `3115`, 11 revealed non-home BFC plots, nine fogged plots and a one-turn path. The known fallback has value `4279` across its fully revealed 20 non-home BFC plots.
+
+The existing known-average heuristic therefore gives about `283` per revealed plot for the western candidate versus `214` for the fallback: roughly `32%` better, exceeding the configured `20%` advantage.
+
+Its `8`-plot minimum sample and `5`-plot minimum remaining fog also pass. The same projection gives `5663`, an apparent gain of `1384` before its existing travel-price check.
+
+These are heuristic projections from known data, not knowledge of the hidden Corn/Pig site at `(47,25)`.
+
+However, promising-fog continuation was restricted to marginal strong-food return sites. An already-active growth-core scout could not ask that question, even when it had a concrete better-looking partial alternative. Thus the Washington and Korea objectives are not inherently incompatible: one admission path existed for Washington's state and was missing from Korea's.
+
+The next candidate extends the existing continuation check to `bContinuingFirstCityScout && bUsedGrowthCoreFallback`, alongside the existing marginal strong-food case.
+
+Initial strong-food scouting entry stays unchanged, as do paid founding delay, the sample/average thresholds, return-route checks and hard budget. Each reveal triggers the existing reevaluation; no coordinates, resources or hidden LOS enter the policy.
+
+This specifically tests whether known evidence can justify the western investigation without restoring arbitrary cheap wandering. Overall status remains **Improved/Pending** until rebuilt Washington/Korea and varied SAS48 replay; reaching the old `(47,25)` coordinate is not itself a required or guaranteed outcome.
+
+Replay analysis and continuation refinement with GPT-6.1-Sol, thanks.
+
+### Rebuilt continuation validation: both controls succeed with different capital choices (2026-10-31)
+
+The final reviewed continuation draft was tested in Release. All 362 native inputs matched its successful installed build report, ending `2026-10-31T13:15:51.559Z`; no source rebuild is inferred merely from the visible revision label.
+
+Washington in `SASGameRecord_20261031T131620Z_load1.log` still founds `(55,10)` on turn 3. Korea in `SASGameRecord_20261031T131634Z_load2.log` now founds `(51,25)` on turn 5, rather than immediately taking `(51,24)` or wandering until the old turn-8 return.
+
+The [captured audit example](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/first_city_scouting_audit_example.txt) retains both the earlier reversal failure and this later control-pair output.
+
+Korea did not follow a prescribed route toward the old western example. At turn 1, `(50,26)` had a stronger partial-site projection than `(49,25)`, so the existing chooser investigated north. Further reveals changed its preferred partial targets; from `(50,26)` on turn 4 it then chose the fully revealed `(51,25)` and founded there on turn 5.
+
+The selected site's final diagnostics report player-known Maize and Pigs, fresh water, river access, 20 revealed non-home BFC plots and value `4427`. Copper at `(51,26)` remained hidden to the player and is explicitly marked `bonusHidden=1` in the oracle tile detail; it was not a reason available to the AI.
+
+An older successful `(47,25)` Seoul is recorded at founding in `SASGameRecord_20261030T131209Z_load1.log`. Its BFC summary supports the following comparison with the new site; this compares recorded geography rather than claiming identical old/new evaluator scores.
+
+| Recorded BFC property | Older `(47,25)` | New `(51,25)` |
+| --- | --- | --- |
+| Food bonuses | Maize, Pigs | Maize, Pigs |
+| Grassland / Plains / Desert plots | 12 / 2 / 7 | 11 / 7 / 3 |
+| Flood Plains | 3 | 2 |
+| Riverside plots | 9 | 9 |
+| Hills / peaks | 6 / 1 | 1 / 0 |
+| Forest plots | 6 | 5 |
+| Land / water plots | 21 / 0 | 21 / 0 |
+
+The new site is a credible alternative: fewer desert plots, no peak and both food resources. The older site retains much more hill/mining potential. Equal riverside counts do not establish identical river geometry, and this is not a proof that either site is globally best. Matching one historical coordinate is not the acceptance criterion for knowledge-limited scouting.
+
+The five matched SAS48 replays contain 240 capitals and identical starting-unit identities/positions to the preceding batch. Mean founding turn rises modestly from `0.542` to `0.617` as some additional investigations become worthwhile; the count founded on turn 7 or later remains `1`. Eight capitals change site and/or founding turn; some changes concern only timing.
+
+Examples include England trading two Silk copies for more natural Food and riverside plots, and Benin finding a site that also includes Maize. Results are not uniformly better: Carthage spends turn 6 rather than turn 1 founding nearby with the same recorded bonus set, and Native America changes to a BFC without the earlier Sheep.
+
+Those are valuation/delay tradeoffs for a broader tuning pass, not evidence that every changed opening improved.
+
+The original repeated Korea reversals do not recur. The audit retains one Benin A-B-A observation window in the SAS48 batch, alongside its return to a newly preferred food-bonus site; a review flag alone does not establish the former persistent low-information oscillation.
+
+The two focused controls have no observed reversals or revisits, and all six selected ordinary steps in their paired BBAI logs have positive oracle reveal counts. Oracle information remains diagnostic only.
+
+This validates the focused repair and its compatibility with the tested varied openings, so KI#144.5 is **Improved**, with the broader tradeoffs above retained explicitly. No further gameplay adjustment was made merely to force the old Korean site. The recent Python error log was empty and the inspected finalized writer summaries reported no output failures or dropped rows.
+
+Rebuilt replay review with GPT-6.1-Sol, thanks.
+
 <a id="ki-145"></a>
 
 ## KI#145 - (Implemented / needs in-game test) Military Advisor Map tab lost selected leaders after tab switch or close/reopen
@@ -12507,7 +12918,7 @@ GitHub Actions output:
 
 ```text
 Run python .github/workflows/build/xml/xml_parent_duplicate_keys.py
-  
+
 FAIL XML duplicate parent keys
   - Assets/XML/Audio/Audio2DScripts.xml: duplicate parent key <ScriptID> AS2D_SONG_DIP_AS_EARLY_PEACE for <Script2DSound> (2 entries)
   - Assets/XML/Audio/Audio2DScripts.xml: duplicate parent key <ScriptID> AS2D_TUTORIAL_BUILD_QUARRY_0 for <Script2DSound> (2 entries)
@@ -12589,7 +13000,7 @@ GitHub Actions output:
 
 ```text
 Run python .github/workflows/build/xml/xml_child_duplicates.py
-  
+
 FAIL XML priority child duplicates
 Priority duplicate child/list entries are treated as build errors.
 Priority findings
@@ -12658,7 +13069,7 @@ GitHub Actions output:
 
 ```text
 Run python .github/workflows/build/xml/xml_suspicious_text_chars.py
-  
+
 FAIL XML suspicious text chars
   - Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml: line 181: suspicious question mark inside token: ...n his will, King Æthelstan leaves his cniht, Aelfmar, eight hides of land.[PARAGRAPH:1]A r?dcniht, "riding-servant", was a servant on horseback.[PARAGRAPH:1]A narrowing of the gener...
   - Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml: line 206: suspicious question mark inside token: ... effect in numerous battles, such as at the Battle of Damghan (1729), the Battle of Yeghev?rd, and the Battle of Karnal. A large number of zamburaks were also successfully employed ...
@@ -36067,9 +36478,39 @@ Reconciled from ChatGPT-5.6-Sol's C031-WIP891 continuation cursor with the help 
 
 2026-10-30 status: the systematic album is discontinued as development focuses on targeted AI changes and existing pending KIs. The source has changed substantially since the sweep; its completed results remain historical evidence, not current coverage. This entry preserves the old cursor without asserting a defect or reserving future KI numbers. Updated with the help of GPT-6.1-Sol.
 
+2026-10-31 retrospective clarification (ChatGPT-5.6-Sol):
+
+All 169 `.cpp` files in the original audit queue and the chronological repair-history, comparative-control and empty-container tranches were complete when the album reached C031-WIP891. F747-F748 had been promoted as KI#1068-KI#1069 and F749 remained unused.
+
+F749 / provisional KI#1070 was not a discovered defect. It was the reserved finding slot for the next planned mechanical tranche: a systematic current-SAS denominator/modulo scan. C031-WIP891 explicitly records that scan as the next cursor and requires a supported zero-divisor path, an actual execution consequence and whole-album deduplication before consuming F749.
+
+That systematic tranche was never completed before the audit album was discontinued. There is no later checkpoint that performs it or clears it, so this entry must not be read as "the scan ran and found no defect."
+
+The preceding audit nevertheless did inspect denominator and modulo hazards repeatedly during file-local and focused reviews.
+
+It had already traced several apparently dangerous expressions through their producers, callers and shipped data, including generic robustness holes that were deliberately not promoted when no supported current-SAS zero path existed.
+
+Those reviews are useful historical evidence, but they are not equivalent to the planned exhaustive cross-file sieve.
+
+A 2026-10-30 retrospective review of the then-current light-source tree mechanically revisited the operator family and contract-traced the strongest candidates. It found no new supported current-SAS defect. Representative cases included:
+
+- the already-documented generic zero-denominator robustness hole in `CvCity::getProductionDifference`;
+- raw `baseMoves()` divisors in `CvUnitAI::AI_seaBombardRange`, whose currently supported bombard units retain positive movement;
+- an Espionage-transport logging divisor whose zero case exits before the log can execute.
+
+This retrospective review improves confidence but does not retroactively claim that the full C031-WIP891 systematic tranche was completed.
+
+The systematic album is currently discontinued as development focuses on targeted AI changes and existing pending KIs. Substantial source changes since the original sweep also mean its completed-file list is historical evidence, not current-tree coverage.
+
+KI#1070 therefore preserves an unperformed historical audit cursor only; it does not assert a defect and no longer reserves a future KI number. Any newly demonstrated denominator/modulo defect should receive the next normal KI number, with provenance pointing back to this retired cursor when useful.
+
+Retrospective clarification with the help of ChatGPT-5.6-Sol; chronology-preserving review with GPT-6.1-Sol, thanks.
+
 <a id="ki-1071"></a>
 
 ## KI#1071 - (Fixed inherited BtS queued-build weakness preserved by K-Mod/AdvCiv) AI Workers could discard an improvement after movement or routing
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1WNHP4fQQ1Dbm4JnXx9YDedCnLzrOO8ey?usp=sharing).
 
 The KI#33.4 Worker investigation exposed a separate mission-control defect below the SAS plot valuation layer.
 

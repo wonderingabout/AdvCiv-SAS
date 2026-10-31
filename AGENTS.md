@@ -815,5 +815,7 @@ Get-ChildItem -Path 'CvGameCoreDLL/Project/*/CvGameCoreDLL.dll.build.json' -File
   - Do not edit runtime-sensitive files like XML or Python files during the run: as of now, this has produced live XML errors and Python errors/crashes.
   - Active BBAI and SASGameRecord files are intentionally live-readable through the shared writer, so agents may inspect/copy them while Civ4/autoplay continues.
     - A read can catch an append in progress, and file size/content can change immediately afterward; retry an incomplete trailing row and use completed output for final-size/full-run comparisons.
+    - A directory listing can report a stale size while the writer keeps its handle open. Read the file or query its size through a fresh handle before treating a zero listing as absent output; see the [logging inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sas-ai-and-game-record-diagnostics).
+      - For example, the user observed `SASGameRecord_20261031T134838Z_load3.log` listed as zero bytes despite readable contents; a later fresh-handle check returned 249,018 bytes.
     - Other inherited logs do not share this guarantee.
 - Note: these boundaries describe the current Civ4 runtime and can be revised if later testing proves different behavior.

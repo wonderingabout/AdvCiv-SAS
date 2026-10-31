@@ -113,6 +113,16 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 186 - SAS practical 6707
+
+- **Date:** 2026-10-31
+- **Git commit:** pending
+- **Change:** Extend first-capital scouting telemetry alongside the KI#144.5 continuation review.
+  - `GAME_RECORD_AI_FIRST_CITY_SCOUT_STEP` now separates raw geometric information from geometric overlap with another land explorer's queued, reachable known waypoint this turn, records whether the settle-now target came from the growth-core fallback, and preserves the selected step's path-relative founding-delay terms.
+  - `settleNowFoundingTurns` counts delay from the current turn, including exhausted arrival; `candidateReturnPathTurns` is the raw next-turn path count.
+  - `addedSettleDelayTurns` compares projected founding times. Away from the capital, the projection starts the return next turn; it can overprice a detour that could reuse current-turn movement. Unknown return routes are rejected once this delay policy applies.
+  - The added fields are observations of the same live first-city decision; they do not rerun hidden LOS or RNG. Exact hidden-terrain LOS remains BBAI oracle-only, while SGR records the player-known marginal-information and delay evidence used by the chooser.
+
 ### Revision 185 - SAS practical 6705
 
 - **Date:** 2026-10-30

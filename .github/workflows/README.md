@@ -486,6 +486,7 @@ Keeps new history paragraphs at the end of an existing Known Issues entry. It co
 
 - The motivating example is KI#979's dated post-fix replay note inserted before its existing archaeology and credits. Such placement interrupts the investigation thread; the corrected note follows the earlier material.
 - Rejects clear inserted paragraphs when retained body paragraphs still follow them. New KI entries and appended follow-ups are allowed, including additions before the next entry's anchor.
+- Conventional `Screenshots/files for this issue:` archive headers are metadata, so adding or moving them to the top does not count as inserting investigation history. Actual replay/investigation paragraphs remain subject to the chronology check.
 - Whitespace reflow, title/status edits, paragraph corrections and deletions are allowed. This conservative check cannot tell whether rewritten prose falsifies history; semantic review remains necessary.
 - Run `python .github/workflows/build/documentation/known_issues_chronology.py --base-ref HEAD` locally. It reports all detected insertions without editing the document.
 
