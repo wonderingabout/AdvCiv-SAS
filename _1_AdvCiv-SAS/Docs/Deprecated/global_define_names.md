@@ -5,11 +5,12 @@ Use this reference to translate a setting name found in older source, logs or di
 ## Menu
 
 - [Inherited AdvCiv settings replaced in SAS](#inherited-advciv-settings-replaced-in-sas)
-- [SAS name-shortening conversion table](#sas-name-shortening-conversion-table)
+- [SAS name conversion table](#sas-name-conversion-table)
+- [Example migrations and notes](#example-migrations-and-notes)
 
 ## Inherited AdvCiv settings replaced in SAS
 
-These settings were declared in base AdvCiv 1.14; their treatment in SAS differs from the name-shortening table below.
+These settings were declared in base AdvCiv 1.14; their treatment in SAS differs from the SAS conversion table below.
 
 | Earlier setting | Current SAS configuration | Compatibility note |
 | --- | --- | --- |
@@ -17,26 +18,12 @@ These settings were declared in base AdvCiv 1.14; their treatment in SAS differs
 | `REPORT_INTERVAL` in `GlobalDefines_devel.xml` | `SAS_BBAI_UWAI_*` log levels | The old periodic UWAI reporting control was removed when diagnostics moved into timestamped BBAI output; this is not a one-to-one rename. See [KI#505.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-505.3). |
 | `UWAI_REPORT_THRESH` and `UWAI_REPORT_THRESH_HUMAN` in `GlobalDefines_devel.xml` | `SAS_BBAI_UWAI_*` log levels | The old war-utility thresholds no longer configure SAS diagnostics; use the relevant category's log level. See [KI#505.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-505.3). |
 
-## SAS name-shortening conversion table
+## SAS name conversion table
 
-The table maps the PR-start declarations to their current names, following [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2). `Δ bytes` is current minus original, so negative values are shorter.
-
-The text-map scale rows also reflect the removal of `OVERVIEW_1/2` from their intermediate shortened names, distinguishing them from Domestic Advisor Overview tabs.
-
-The city plot-list toggle also changed polarity: former `SAS_MAIN_UI_CITY_HIDE_PLOT_LIST=1` becomes `SAS_MAIN_UI_CITY_SHOW_PLOT_LIST=0` (hidden), while former `0` becomes `1` (shown). Invert the old value when migrating; this is more than a spelling change.
-
-Likewise, former `SAS_SCRAP_ABSOLUTELY_DISABLE=0` becomes `SAS_SCRAP_AI_ABSOLUTELY_ON=1` (normal AI scrapping eligibility), while former `1` becomes `0` (an overriding ban on discretionary AI scrapping, retaining human/mandatory-rule exceptions). The name preserves the distinction from softer scrap policies.
-
-This permission stays separate from `SAS_SCRAP_ON`, which selects SAS policy optimization.
-
-The retired-name checker reads this table directly; see the [checker documentation](/.github/workflows/README.md#buildxmlretired_global_define_namespy).
-
-Harmonizing historical excerpts to current names was considered for greppability. Audit/archaeology excerpts retain their original identifiers so they still match the revisions investigated and the generated `commit_diffs`; use this table to search both spellings. Current usage examples should use current names.
-
-Prepared by GPT-6.1-Sol, 2026-10-22.
+The table maps retired SAS setting names to their current replacements. It began with the PR-start declarations from the shortening pass in [KI#1001.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1001.2) and also includes later renames and splits. `Δ bytes` is current minus original, so negative values are shorter.
 
 <!-- KI1001.2_GLOBAL_DEFINE_MAP_START -->
-| Original name | Current name | Original bytes | Current bytes | Δ bytes |
+| Original name | Current name(s) | Original bytes | Current bytes | Δ bytes |
 | --- | --- | ---: | ---: | ---: | ---: |
 | `SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_ENABLE` | `SAS_MENU_MUSIC_SHUFFLE_ON` | 42 | 25 | -17 |
 | `SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_TRIGGER_SCRIPT` | `SAS_MENU_MUSIC_SHUFFLE_TRIGGER_SCRIPT` | 50 | 37 | -13 |
@@ -335,8 +322,10 @@ Prepared by GPT-6.1-Sol, 2026-10-22.
 | `SAS_BBAI_UNIT_LOG_LEVEL` | `SAS_BBAI_UNIT_LOG` | 23 | 17 | -6 |
 | `SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL` | `SAS_BBAI_OVERSEAS_TRANSPORT_LOG` | 37 | 31 | -6 |
 | `SAS_BBAI_GREAT_GENERAL_LOG_LEVEL` | `SAS_BBAI_GREAT_GENERAL_LOG` | 32 | 26 | -6 |
-| `SAS_BBAI_SETTLER_LOG_LEVEL` | `SAS_BBAI_SETTLER_LOG` | 26 | 20 | -6 |
-| `SAS_BBAI_FOUND_LOG_LEVEL` | `SAS_BBAI_FOUND_LOG` | 24 | 18 | -6 |
+| `SAS_BBAI_SETTLER_LOG_LEVEL` | `SAS_BBAI_SETTLER_1ST_LOG`, `SAS_BBAI_SETTLER_2PL_LOG` | 26 | 24 / 24 | -2 / -2 |
+| `SAS_BBAI_SETTLER_LOG` | `SAS_BBAI_SETTLER_1ST_LOG`, `SAS_BBAI_SETTLER_2PL_LOG` | 20 | 24 / 24 | +4 / +4 |
+| `SAS_BBAI_FOUND_LOG_LEVEL` | `SAS_BBAI_FOUND_1ST_LOG`, `SAS_BBAI_FOUND_2PL_LOG` | 24 | 22 / 22 | -2 / -2 |
+| `SAS_BBAI_FOUND_LOG` | `SAS_BBAI_FOUND_1ST_LOG`, `SAS_BBAI_FOUND_2PL_LOG` | 18 | 22 / 22 | +4 / +4 |
 | `SAS_BBAI_FOUND_LATER_CITY_FOOD_SUPPORT_AUDIT_ENABLE` | `SAS_BBAI_FOUND_LATER_FOOD_SUPPORT_AUDIT_ON` | 51 | 42 | -9 |
 | `SAS_BBAI_EVACUATION_LOG_LEVEL` | `SAS_BBAI_EVACUATION_LOG` | 29 | 23 | -6 |
 | `SAS_BBAI_WORKER_LOG_LEVEL` | `SAS_BBAI_WORKER_LOG` | 25 | 19 | -6 |
@@ -687,3 +676,25 @@ Prepared by GPT-6.1-Sol, 2026-10-22.
 | `SAS_AI_SPACE_VICTORY_DENIAL_CAPITAL_RUSH_ENABLE` | `SAS_SPACE_VICT_DENY_CAPITAL_RUSH_ON` | 47 | 35 | -12 |
 | `SAS_AI_BARBARIAN_NEW_WORLD_EARLIER_ATTACK_ENABLE` | `SAS_BARB_NEW_WORLD_EARLY_ATK_ON` | 48 | 31 | -17 |
 <!-- KI1001.2_GLOBAL_DEFINE_MAP_END -->
+
+## Example migrations and notes
+
+These examples explain changes beyond spelling; the table above remains the main lookup. Where one old control became several, current lengths and byte differences follow the listed replacement order.
+
+The text-map scale rows also reflect the removal of `OVERVIEW_1/2` from their intermediate shortened names, distinguishing them from Domestic Advisor Overview tabs.
+
+The city plot-list toggle also changed polarity: former `SAS_MAIN_UI_CITY_HIDE_PLOT_LIST=1` becomes `SAS_MAIN_UI_CITY_SHOW_PLOT_LIST=0` (hidden), while former `0` becomes `1` (shown). Invert the old value when migrating; this is more than a spelling change.
+
+Likewise, former `SAS_SCRAP_ABSOLUTELY_DISABLE=0` becomes `SAS_SCRAP_AI_ABSOLUTELY_ON=1` (normal AI scrapping eligibility), while former `1` becomes `0` (an overriding ban on discretionary AI scrapping, retaining human/mandatory-rule exceptions). The name preserves the distinction from softer scrap policies.
+
+This permission stays separate from `SAS_SCRAP_ON`, which selects SAS policy optimization.
+
+The former Settler and Found umbrella settings were split into independent first-city (`_1ST_LOG`) and later-city (`_2PL_LOG`) categories. Both historical spellings in each family have the same replacements.
+
+To reproduce an old broad capture, copy its level to all listed replacements. For opening-specific traces, use the two `_1ST_LOG` controls; shared movement and scoring follow the player's phase, so they log under `_1ST_LOG` before the first city and `_2PL_LOG` afterwards.
+
+The retired-name checker reads this table directly; see the [checker documentation](/.github/workflows/README.md#buildxmlretired_global_define_namespy).
+
+Harmonizing historical excerpts to current names was considered for greppability. Audit/archaeology excerpts retain their original identifiers so they still match the revisions investigated and the generated `commit_diffs`; use this table to search both spellings. Current usage examples should use current names.
+
+Prepared by GPT-6.1-Sol, 2026-10-22.

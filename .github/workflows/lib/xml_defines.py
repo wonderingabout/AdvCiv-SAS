@@ -9,6 +9,8 @@
 
 from pathlib import Path
 import argparse
+# <!-- custom: subprocess reads the staged GlobalDefines blob for --staged default checks. (Claude code Opus 5.5) -->
+import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
@@ -28,15 +30,32 @@ def child_text_by_local_name(node: ET.Element, child_name: str) -> str | None:
 	return None
 
 
-def read_global_define_ints(repo_root: Path) -> dict[str, int]:
-	path = repo_root / "Assets" / "XML" / "GlobalDefines_advciv_sas.xml"
-	if not path.exists():
-		raise RuntimeError(f"missing file: {path}")
+# <!-- custom: Development diagnostics are usually left enabled but unstaged, so local working-tree runs of the shipped-default checks failed although the commit candidate was clean.
+# staged=True reads every checked file from the index, the same content GitHub checks after commit; unstaged companions fail rather than mixing sources, and outside a Git checkout it fails loudly instead of falling back to the working tree. (Claude code Opus 5.5) -->
+def add_staged_argument(parser: argparse.ArgumentParser) -> None:
+	parser.add_argument("--staged", action="store_true", help="check the staged (index) commit candidate instead of the working tree, ignoring unstaged development values")
 
-	tree = ET.parse(path)
+
+def read_staged_bytes(repo_root: Path, relative: str) -> bytes:
+	result = subprocess.run(["git", "show", ":" + relative], cwd=repo_root, capture_output=True)
+	if result.returncode:
+		raise RuntimeError(f"cannot read staged {relative}: {result.stderr.decode('utf-8', 'replace').strip()}")
+	return result.stdout
+
+
+# <!-- custom: Added staged so callers can parse the index blob for --staged; the default still reads the working tree. (Claude code Opus 5.5) -->
+def read_global_define_ints(repo_root: Path, staged: bool = False) -> dict[str, int]:
+	relative = "Assets/XML/GlobalDefines_advciv_sas.xml"
+	if staged:
+		root = ET.fromstring(read_staged_bytes(repo_root, relative))
+	else:
+		path = repo_root / relative
+		if not path.exists():
+			raise RuntimeError(f"missing file: {path}")
+		root = ET.parse(path).getroot()
 	defines: dict[str, int] = {}
 
-	for define in tree.getroot().iter():
+	for define in root.iter():
 		if local_name(define.tag) != "Define":
 			continue
 

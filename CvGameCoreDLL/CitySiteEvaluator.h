@@ -127,8 +127,7 @@ public:
 	bool isSeafaring() const { return m_bSeafaring; }
 	// willing to place cities further apart. (not directly based on the expansive trait)
 	bool isExpansive() const { return m_bExpansive; }
-	// <!-- custom: Typed context describes the caller, not a scoring mode; changing it never changes evaluation or cache policy.
-	// The shared getSASFoundLogContextType helper converts it to text only for enabled output. See KI#505.2. (GPT-6.1-Sol) -->
+	// <!-- custom: Context identifies the caller in output only; 1ST and 2PL guards are selected where the corresponding code executes, shared paths by the player's phase. See KI#505.2, KI#144.6. (ChatGPT-5.6-Sol + GPT-6.1-Sol + Claude code Opus 5.5) -->
 	void setLogContext(SASFoundLogContextTypes eContext) { m_eLogContext = eContext; }
 	SASFoundLogContextTypes getLogContext() const { return m_eLogContext; }
 
@@ -184,8 +183,8 @@ private:
 class AIFoundValue
 {
 public:
-	// <!-- custom: A non-null breakdown output or Found level 2+ enables diagnostic accounting during the same evaluation; neither changes the returned score.
-	// Disabled logging with no output skips formatting. See KI#505.2. (GPT-5.5 + GPT-6.1-Sol) -->
+	// <!-- custom: A non-null breakdown output or the phase-routed Found level 2+ enables diagnostic accounting during the same evaluation; neither changes the returned score.
+	// Disabled logging with no output skips formatting. See KI#505.2. (GPT-5.5 + GPT-6.1-Sol + Claude code Opus 5.5) -->
 	// <!-- custom: Let SPI construct the shared workable-plot context without also running and discarding a complete city-site evaluation; optional output pointers expose decision components already computed during the same pass. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	// <!-- custom: Added optional caller-owned Food summary; this enables diagnostic collection without requiring BBAI output and cannot supply a gameplay result. See KI#144.4. (GPT-6.1-Sol) -->
 	// <!-- custom: Add an optional known-plot result for coverage-aware exploration; confirmed scoring is unchanged and projections remain outside settlement decisions. See KI#144.6. (GPT-6.1-Sol) -->
@@ -196,7 +195,7 @@ public:
 	int evaluateKnownOrdinaryLandPotential(CvPlot const& p) const;
 
 	// <!-- custom: Removed the inherited advc.031c setLoggingEnabled()/isLoggingEnabled() API and static bLoggingEnabled switch: they enabled output only during a separate replay and suppressed constructor settings output.
-	// Direct caller-side gFoundLogLevel guards now observe existing evaluations without a process-wide switch that couples evaluator instances. See KI#505.2. (GPT-6.1-Sol) -->
+	// Caller-side FOUND_1ST / FOUND_2PL guards now observe existing evaluations without a process-wide switch that couples evaluator instances. See KI#505.2. (GPT-6.1-Sol + Claude code Opus 5.5) -->
 
 private:
 	int m_iResult;
@@ -222,6 +221,7 @@ private:
 	CitySiteEvaluator const& kSet;
 	CvPlayerAI const& kPlayer;
 	PlayerTypes ePlayer;
+	int const iFoundLogLevel; // <!-- custom: Phase-routed Found level, resolved once per evaluation; must follow ePlayer. (Claude code Opus 5.5) -->
 	TeamTypes eTeam;
 	CvTeamAI const& kTeam;
 	CvGame const& kGame;

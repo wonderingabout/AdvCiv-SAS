@@ -5366,9 +5366,10 @@ bool CvPlayer::canFound(CvPlot const& kPlot, bool bTestVisible, /* <advc.181> */
 // <!-- custom: Removing CitySiteEvaluator::log() also removed its selected/next/coastal summaries.
 // Restore shortlist comparisons from cached values before founding mutates the map, identifying them as cached rather than fresh or path-adjusted scores.
 // Only player-known water resources are counted; this helper performs no scoring, pathfinding or RNG and its caller gates it at Found level 2. See KI#505.2. (GPT-6.1-Sol) -->
+// <!-- custom: Cached-alternative evidence accompanies founding any city, so the caller gates this shared helper with the phase-routed Found level before scanning or formatting. (ChatGPT-5.6-Sol + GPT-6.1-Sol + Claude code Opus 5.5) -->
 static void logBBAIFoundCachedAlternatives(CvPlayerAI const& kPlayer, CvPlot const& kSelected)
 {
-	FAssert(gFoundLogLevel >= 2);
+	FAssert(getSASBBAIFoundLogLevel(kPlayer.getID()) >= 2);
 	int const iSelectedCachedValue = kSelected.getFoundValue(kPlayer.getID());
 	int const iMinWaterSize = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
 	bool const bSelectedCoastal = kSelected.isCoastalLand(iMinWaterSize);
@@ -5417,6 +5418,8 @@ void CvPlayer::found(int iX, int iY)
 	// <!-- custom: moved up for more caching -->
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
+	// <!-- custom: Resolved before initCity, so the capital's own rows stay 1ST. (Claude code Opus 5.5) -->
+	int const iFoundLogLevel = getSASBBAIFoundLogLevel(getID());
 	// <!-- custom: Founding can synchronously assign the city tile and adjacent culture before CITY_BUILT-style rows appear.
 	// Keep the whole post-initialization operation joinable; the direct city-tile assignment reports CITY_FOUNDING while nested border recalculation reports its immediate CULTURE_UPDATE mechanism. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int const iSASGameRecordLogLevel = gGameRecordLogLevel;
@@ -5425,7 +5428,7 @@ void CvPlayer::found(int iX, int iY)
 	SASGameRecordPlotOwnerChangeCauseScope kSASCityFoundingOwnerCause(SAS_PLOT_OWNER_CAUSE_CITY_FOUNDING, iSASGameRecordLogLevel >= 3 && bLogSASCityFounding);
 	// <!-- custom: Mark every actual city founded on a resource before initCity changes the plot.
 	// The following AI found-value trace explains the choice for nonhuman players; this concise row makes human, AI and Barbarian cases searchable and distinguishes a resource the founder could see from an unrevealed one. (GPT-5.6-Sol) -->
-	if (gFoundLogLevel > 0)
+	if (iFoundLogLevel > 0)
 	{
 		CvPlot const& kFoundPlot = GC.getMap().getPlot(iX, iY);
 		BonusTypes const eFoundBonus = kFoundPlot.getBonusType();
@@ -5440,10 +5443,10 @@ void CvPlayer::found(int iX, int iY)
 	// <!-- custom: Log the cached site value before founding mutates the map.
 	// Real evaluation traces are emitted where the AI computes them; founding no longer replays scoring with different planned-site context.
 	// A cached value is not a freshly recomputed first-city score. See KI#505.2. (GPT-6.1-Sol) -->
-	if (gFoundLogLevel > 0) logBBAI("FOUND_SITE_FOUNDED turn=%d year=%d player=%d site=%d,%d cachedValue=%d minFoundValue=%d firstCity=%d human=%d",
+	if (iFoundLogLevel > 0) logBBAI("FOUND_SITE_FOUNDED turn=%d year=%d player=%d site=%d,%d cachedValue=%d minFoundValue=%d firstCity=%d human=%d",
 		kGame.getGameTurn(), kGame.getGameTurnYear(), getID(), iX, iY,
 		GC.getMap().getPlot(iX, iY).getFoundValue(getID()), AI().AI_getMinFoundValue(), getNumCities() <= 0, isHuman());
-	if (gFoundLogLevel >= 2 && !isBarbarian()) logBBAIFoundCachedAlternatives(AI(), GC.getMap().getPlot(iX, iY));
+	if (iFoundLogLevel >= 2 && !isBarbarian()) logBBAIFoundCachedAlternatives(AI(), GC.getMap().getPlot(iX, iY));
 	// <!-- custom: SASGameRecord keeps only the already-cached strategic site list/value context here, before initCity changes the plot and surrounding city state.
 	// Detailed CitySiteEvaluator component reasoning remains in Found/BBAI diagnostics. (ChatGPT-5.6-Sol) -->
 	if (bLogSASCityFounding) logSASGameRecordCityFoundingSite(*this, GC.getMap().getPlot(iX, iY));
@@ -5549,7 +5552,7 @@ void CvPlayer::found(int iX, int iY)
 	} // </advc.210c>
 	if (!CvPlot::isAllFog()) // advc.706: Suppress name-city popup
 		CvEventReporter::getInstance().cityBuilt(pCity);
-	if (gPlayerLogLevel > 0 || /* advc.031c: */ gFoundLogLevel > 0) logBBAI("  Player %d (%S) founds new city %S at %d, %d",
+	if (gPlayerLogLevel > 0 || /* advc.031c: */ iFoundLogLevel > 0) logBBAI("  Player %d (%S) founds new city %S at %d, %d",
 		getID(), getCivilizationDescription(0), pCity->getName(0).GetCString(), iX, iY); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 }
 
@@ -7850,7 +7853,7 @@ void CvPlayer::setStartingPlot(CvPlot* pNewValue, bool bUpdateStartDist)
 		m_pStartingPlot = NULL;
 	else
 	{
-		if (gFoundLogLevel > 0) logBBAI("FOUND_SITE_START_ASSIGNED turn=%d player=%d site=%d,%d", GC.getGame().getGameTurn(), getID(), pNewValue->getX(), pNewValue->getY());
+		if (getSASBBAIFoundLogLevel(getID()) > 0) logBBAI("FOUND_SITE_START_ASSIGNED turn=%d player=%d site=%d,%d", GC.getGame().getGameTurn(), getID(), pNewValue->getX(), pNewValue->getY());
 		m_pStartingPlot = pNewValue;
 
 		getStartingPlot()->getArea().changeNumStartingPlots(1);

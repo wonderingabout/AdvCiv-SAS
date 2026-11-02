@@ -15,7 +15,8 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 # <!-- custom: Reuse integer-Define parsing and shipped-value validation rather than inspect source spellings. (GPT-6.1-Sol) -->
-from xml_defines import get_default_repo_root, read_global_define_ints, require_int_values
+# <!-- custom: add_staged_argument adds the shared local --staged option for checking the Git index instead of the working tree. (Claude code Opus 5.5) -->
+from xml_defines import add_staged_argument, get_default_repo_root, read_global_define_ints, require_int_values
 
 
 # <!-- custom: Default-value checks alone did not require a newly added observer to declare its control.
@@ -59,9 +60,10 @@ def observer_control_errors(repo_root, defines):
 def main() -> int:
     parser = argparse.ArgumentParser(description="Check shipped runtime-recording/source-watcher defaults.")
     parser.add_argument("--repo-root", type=Path, default=get_default_repo_root())
+    add_staged_argument(parser)
     args = parser.parse_args()
     # <!-- custom: Source and screenshot observation are independently opt-in; enforce their shipped defaults too, even when the parent runtime switch is off. (GPT-6.1-Sol) -->
-    defines = read_global_define_ints(args.repo_root)
+    defines = read_global_define_ints(args.repo_root, args.staged)
     failures = require_int_values(defines, {"SAS_RUNTIME_STATUS_ON": 0, "SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS": 3000, "SAS_RUNTIME_PLAYER_TURN_LIVE_REFRESH_MS": 3000, "SAS_RUNTIME_SOURCE_WATCH_ON": 0, "SAS_RUNTIME_SCREENSHOT_WATCH_ON": 0})
     failures.extend(observer_control_errors(args.repo_root, defines))
     if failures:
@@ -69,7 +71,7 @@ def main() -> int:
         for failure in failures:
             print(f"  - {failure}")
         return 1
-    print("PASS SAS runtime status: recording/source/screenshot defaults off; shipped companion controls and owners declared")
+    print("PASS SAS runtime status: recording/source/screenshot defaults off; shipped companion controls and owners declared" + (" (staged)" if args.staged else ""))
     return 0
 
 

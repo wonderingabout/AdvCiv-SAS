@@ -33,6 +33,7 @@ struct SASBBAILogCategoryDescriptor
 	int SASBBAILogSettings::* pLogLevel;
 };
 
+// <!-- custom: SASGameRecord also emits this shared category profile, so the first/later/common controls must be registered here rather than duplicated in either recorder; changing these names changes that shared diagnostic metadata too. See KI#144.6. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static SASBBAILogCategoryDescriptor const aSASBBAILogCategories[] =
 {
 	{ "SAS_BBAI_PLAYER_LOG", &SASBBAILogSettings::iPlayerLogLevel },
@@ -48,8 +49,10 @@ static SASBBAILogCategoryDescriptor const aSASBBAILogCategories[] =
 	{ "SAS_BBAI_UNIT_LOG", &SASBBAILogSettings::iUnitLogLevel },
 	{ "SAS_BBAI_OVERSEAS_TRANSPORT_LOG", &SASBBAILogSettings::iOverseasTransportLogLevel },
 	{ "SAS_BBAI_GREAT_GENERAL_LOG", &SASBBAILogSettings::iGreatGeneralLogLevel },
-	{ "SAS_BBAI_SETTLER_LOG", &SASBBAILogSettings::iSettlerLogLevel },
-	{ "SAS_BBAI_FOUND_LOG", &SASBBAILogSettings::iFoundLogLevel },
+	{ "SAS_BBAI_SETTLER_1ST_LOG", &SASBBAILogSettings::iSettlerFirstCityLogLevel },
+	{ "SAS_BBAI_SETTLER_2PL_LOG", &SASBBAILogSettings::iSettler2PlusLogLevel },
+	{ "SAS_BBAI_FOUND_1ST_LOG", &SASBBAILogSettings::iFoundFirstCityLogLevel },
+	{ "SAS_BBAI_FOUND_2PL_LOG", &SASBBAILogSettings::iFound2PlusLogLevel },
 	{ "SAS_BBAI_EVACUATION_LOG", &SASBBAILogSettings::iEvacuationLogLevel },
 	{ "SAS_BBAI_WORKER_LOG", &SASBBAILogSettings::iWorkerLogLevel },
 	{ "SAS_BBAI_WORKER_SEA_LOG", &SASBBAILogSettings::iWorkerSeaLogLevel },
@@ -122,9 +125,18 @@ int getSASBBAIHighWarUtilityLogThreshold()
 	return iThreshold;
 }
 
-// <!-- custom: Preserve the audit's first-use cache, but callers now check Found level 2 before entering this getter so disabled diagnostics do not initialize it. See KI#144.4. (GPT-6.1-Sol) -->
+// <!-- custom: Out of line so BBAILog.h needs no CvPlayer include. (Claude code Opus 5.5) -->
+bool isSASBBAIFirstCityLogPhase(PlayerTypes ePlayer)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	return (!kPlayer.isBarbarian() && kPlayer.getNumCities() == 0);
+}
+
+// <!-- custom: Preserve the audit's first-use cache, but self-gate on FOUND_2PL level 2 before initializing it so first-capital logging cannot arm later-city audit work. See KI#144.4. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 bool isSASBBAILaterCityFoodSupportAuditEnabled()
 {
+	if (gFound2PlusLogLevel < 2)
+		return false;
 	static bool const bEnabled = (getSASBBAIFoodSupportAuditConfigured() > 0);
 	return bEnabled;
 }
@@ -163,7 +175,7 @@ static bool isSASBBAIScoreIntervalActive()
 
 static bool isSASBBAIFoodSupportAuditArmed()
 {
-	return (gFoundLogLevel >= 2 && isSASBBAILaterCityFoodSupportAuditEnabled());
+	return isSASBBAILaterCityFoodSupportAuditEnabled();
 }
 
 static bool isSASBBAIHighWarUtilityLoggingArmed()
@@ -172,7 +184,7 @@ static bool isSASBBAIHighWarUtilityLoggingArmed()
 }
 
 // <!-- custom: A small supporting-options group shares configured readers and activity policies between the BBAI and SASGameRecord session profiles.
-// Keep those policies explicit: PLAYER activates the score interval, Found level 2 plus its switch arms the food audit, and WAR level 3 plus a positive threshold arms high-utility logging; site/scenario-specific exclusions still apply.
+// Keep those policies explicit: PLAYER activates the score interval, FOUND_2PL level 2 plus its switch arms the food audit, and WAR level 3 plus a positive threshold arms high-utility logging; site/scenario-specific exclusions still apply.
 // Iteration and formatting occur only in caller-gated session logging; gameplay consumers retain their existing first-use caches. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 struct SASBBAILogSupportingOptionDescriptor
 {

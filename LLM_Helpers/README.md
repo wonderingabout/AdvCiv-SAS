@@ -71,6 +71,8 @@ Always review diffs before committing generated source changes.
   - [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy)
 - [Claude Code session transcript helper](#claude-code-session-transcript-helper)
   - [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy)
+- [Local development diagnostics toggle](#local-development-diagnostics-toggle)
+  - [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy)
 - [Source packaging and generated-history helpers](#source-packaging-and-generated-history-helpers)
   - [`make_light_source_zip.py`](#make_light_source_zippy)
     - [General](#general)
@@ -1224,6 +1226,8 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
 - When base AdvCiv updates `manual.odt`, refresh `manual.txt` in the same merge/release-preparation batch so the searchable copy does not lag behind the binary manual.
 - The automated [generated_docs.py](/.github/workflows/build/documentation/generated_docs.py) check validates this conversion through its reusable `TEXT_CONVERSIONS` registry.
   - Future source-to-text conversions can register their own source, output and converter there; the AdvCiv manual is currently the only entry.
+  - Related `manual.pdf` edits also require a paired text refresh in the complete PR/push range.
+- Added with help of ChatGPT-5.6-Sol.
 
 ## Claude Code session transcript helper
 
@@ -1240,8 +1244,26 @@ python ./LLM_Helpers/claude_session_export_to_txt.py "C:/Users/PC/Downloads/sess
 ```
 
 - The transcript ends where the export was taken; export again for later messages.
-  - Related `manual.pdf` edits also require a paired text refresh in the complete PR/push range.
-- Added with help of ChatGPT-5.6-Sol.
+
+## Local development diagnostics toggle
+
+### `toggle_dev_diagnostics.py`
+
+- Switches the usual unstaged development diagnostics in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) on or back to their shipped defaults, so they need not be re-edited by hand around each commit, amend or rebase.
+  - The set and its shipped/development values live in the script's `DEV_DIAGNOSTICS` table; edit it as preferences change.
+  - `off` writes the shipped values, giving a committable XML; `status` prints the current values without writing.
+- Edits only those values in place and preserves the file's CRLF line endings.
+- Refuses to write while `Civ4BeyondSword.exe` is running, because live XML edits during a run have produced XML errors and crashes.
+
+```bash
+python ./LLM_Helpers/toggle_dev_diagnostics.py on
+```
+
+```bash
+python ./LLM_Helpers/toggle_dev_diagnostics.py off
+```
+
+- Added with help of Claude code Opus 5.5.
 
 ## Source packaging and generated-history helpers
 

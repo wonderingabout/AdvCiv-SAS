@@ -2638,7 +2638,7 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
 		CitySiteEvaluator citySiteEval(kPlayer, -1, false, true);
 		// <advc.031c>
 		// <!-- custom: Replaces the inherited CitySiteEvaluator::log() normalization replay with a starting-plot marker; actual normalization evaluations emit their own Found traces. See KI#505.2. (GPT-6.1-Sol) -->
-		if (gFoundLogLevel > 0 && pTarget == NULL) logBBAI("FOUND_SITE_START_SELECTED turn=%d player=%d site=%d,%d",
+		if (getSASBBAIFoundLogLevel(kPlayer.getID()) > 0 && pTarget == NULL) logBBAI("FOUND_SITE_START_SELECTED turn=%d player=%d site=%d,%d",
 			getGameTurn(), kPlayer.getID(), pStartingPlot->getX(), pStartingPlot->getY());
 		// </advc.031c>
 		// <advc.108> Treat desert features and forest separately
@@ -7504,7 +7504,8 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 	int aiTopAreaValues[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
 	int aiTopRandomPercents[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
 	// <!-- custom: Keep Found level 1 lifecycle-only; top-candidate tracking and nearby hypothetical comparisons belong to level 2+, while SASGameRecord level 2 still needs the same compact chooser snapshot. See KI#505.2. (GPT-5.6-Sol) -->
-	bool const bTrackTopBarbarianSites = (gFoundLogLevel >= 2 || gGameRecordLogLevel >= 2);
+	// <!-- custom: Barbarians are never in the first-city phase. (Claude code Opus 5.5) -->
+	bool const bTrackTopBarbarianSites = (gFound2PlusLogLevel >= 2 || gGameRecordLogLevel >= 2);
 	for (int i = 0; i < iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT; i++)
 	{
 		apTopPlots[i] = NULL;
@@ -7592,7 +7593,7 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 				const int iOldValue = iValue;
 				iValue *= 100 + iRandomPercent;
 				iValue /= 100;
-				if (gFoundLogLevel >= 2) logBBAI("BARBARIAN_CITY_SITE_RANDOMIZATION turn=%d site=%d,%d randomPercent=%d areaAdjusted=%d final=%d", getGameTurn(), kPlot.getX(), kPlot.getY(), iRandomPercent, iOldValue, iValue);
+				if (gFound2PlusLogLevel >= 2) logBBAI("BARBARIAN_CITY_SITE_RANDOMIZATION turn=%d site=%d,%d randomPercent=%d areaAdjusted=%d final=%d", getGameTurn(), kPlot.getX(), kPlot.getY(), iRandomPercent, iOldValue, iValue);
 			}
 			if (iValue > iBestValue)
 			{
@@ -7632,7 +7633,7 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 				iLoggedCandidates++;
 			logSASGameRecordBarbarianCitySiteChoice(bSkipCivAreas, iProbModifierPercent, iTargetCitiesMultiplier, iBarbarianDiscouragedRange, apTopPlots, aiTopRawValues, aiTopAreaValues, aiTopValues, aiTopRandomPercents, iLoggedCandidates);
 		}
-		if (gFoundLogLevel >= 2)
+		if (gFound2PlusLogLevel >= 2)
 		{
 			logBBAI("BARBARIAN_CITY_SITE_SELECTED turn=%d site=%d,%d raw=%d areaAdjusted=%d final=%d randomPercent=%d", getGameTurn(), pBestPlot->getX(), pBestPlot->getY(), aiTopRawValues[0], aiTopAreaValues[0], iBestValue, aiTopRandomPercents[0]);
 			for (int i = 0; i < iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT; i++)
@@ -7725,7 +7726,7 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 		FAssert(iBestValue > 0); // advc.300
 		GET_PLAYER(BARBARIAN_PLAYER).found(pBestPlot->getX(), pBestPlot->getY());
 		// advc.300 (from MNAI):
-		if (gPlayerLogLevel > 0 || /* advc.031c: */ gFoundLogLevel > 0) logBBAI("BARBARIAN_CITY_CREATED turn=%d site=%d,%d", getGameTurn(), pBestPlot->getX(), pBestPlot->getY());
+		if (gPlayerLogLevel > 0 || /* advc.031c: */ gFound2PlusLogLevel > 0) logBBAI("BARBARIAN_CITY_CREATED turn=%d site=%d,%d", getGameTurn(), pBestPlot->getX(), pBestPlot->getY());
 	}
 }
 

@@ -13,7 +13,8 @@ import sys
 # <!-- custom: Resolve repository/shared-helper paths from this subject subfolder after the workflow-tool reorganization. (GPT-6.1-Sol) -->
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 
-from xml_defines import get_default_repo_root, read_global_define_ints, require_int_values
+# <!-- custom: add_staged_argument and read_staged_bytes let --staged check the Git index instead of the working tree. (Claude code Opus 5.5) -->
+from xml_defines import add_staged_argument, get_default_repo_root, read_global_define_ints, read_staged_bytes, require_int_values
 # <!-- custom: Require the same nonempty explanation as runtime history without duplicating Markdown-entry validation. (GPT-6.1-Sol) -->
 from revision_history import change_errors
 
@@ -52,18 +53,24 @@ def latest_history_revision(history_text: str) -> tuple[int | None, list[str]]:
 
 
 # <!-- custom: Accept the already-parsed Define map from main so this check shares the same shipped-default read; focused tests/direct callers may omit it and let the helper load XML itself. (ChatGPT-5.6-Sol) -->
-def check_revision(repo_root: Path, defines: dict[str, int] | None = None) -> list[str]:
+# <!-- custom: Added staged: with --staged, the history and source are read from the index too, so the revision check sees one consistent commit candidate rather than mixing staged and working-tree files. (Claude code Opus 5.5) -->
+def check_revision(repo_root: Path, defines: dict[str, int] | None = None, staged: bool = False) -> list[str]:
     failures: list[str] = []
-    for relative in (REVISION_DEFINES, REVISION_SOURCE, REVISION_HISTORY):
-        if not (repo_root / relative).is_file():
-            failures.append(f"missing SASGameRecord revision file: {relative}")
+    if not staged:
+        for relative in (REVISION_DEFINES, REVISION_SOURCE, REVISION_HISTORY):
+            if not (repo_root / relative).is_file():
+                failures.append(f"missing SASGameRecord revision file: {relative}")
     if failures:
         return failures
 
     if defines is None:
-        defines = read_global_define_ints(repo_root)
-    history = (repo_root / REVISION_HISTORY).read_text(encoding="utf-8", errors="replace")
-    source = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
+        defines = read_global_define_ints(repo_root, staged)
+    if staged:
+        history = read_staged_bytes(repo_root, REVISION_HISTORY.as_posix()).decode("utf-8", "replace")
+        source = read_staged_bytes(repo_root, REVISION_SOURCE.as_posix()).decode("utf-8", "replace")
+    else:
+        history = (repo_root / REVISION_HISTORY).read_text(encoding="utf-8", errors="replace")
+        source = (repo_root / REVISION_SOURCE).read_text(encoding="utf-8", errors="replace")
     revision = defines.get("SAS_SGR_REVISION")
     if revision is None:
         failures.append("SAS_SGR_REVISION: missing define")
@@ -86,17 +93,18 @@ def check_revision(repo_root: Path, defines: dict[str, int] | None = None) -> li
 def main() -> int:
     parser = argparse.ArgumentParser(description="Check SASGameRecord disabled default and public revision synchronization.")
     parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
+    add_staged_argument(parser)
     args = parser.parse_args()
 
-    defines = read_global_define_ints(args.repo_root)
+    defines = read_global_define_ints(args.repo_root, args.staged)
     failures = require_int_values(defines, EXPECTED_GAME_RECORD_DEFAULTS)
-    failures.extend(check_revision(args.repo_root, defines))
+    failures.extend(check_revision(args.repo_root, defines, args.staged))
     if failures:
         print("FAIL SASGameRecord minimal safety checks")
         for failure in failures:
             print(f"  - {failure}")
         return 1
-    print("PASS SASGameRecord minimal safety checks: logging disabled by default; revision Define/history/source-context synchronized")
+    print("PASS SASGameRecord minimal safety checks: logging disabled by default; revision Define/history/source-context synchronized" + (" (staged)" if args.staged else ""))
     return 0
 
 

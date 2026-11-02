@@ -32,8 +32,10 @@ struct SASBBAILogSettings
 	int iUnitLogLevel;
 	int iOverseasTransportLogLevel;
 	int iGreatGeneralLogLevel;
-	int iSettlerLogLevel;
-	int iFoundLogLevel;
+	int iSettlerFirstCityLogLevel;
+	int iSettler2PlusLogLevel;
+	int iFoundFirstCityLogLevel;
+	int iFound2PlusLogLevel;
 	int iEvacuationLogLevel;
 	int iWorkerLogLevel;
 	int iWorkerSeaLogLevel;
@@ -53,7 +55,7 @@ void cacheSASBBAILogSettings();
 __forceinline bool isSASBBAILogEnabled() { return gSASBBAILogSettings.bEnabled; }
 __forceinline bool isSASBBAILogMasterEnabled() { return gSASBBAILogSettings.bMasterEnabled; }
 int getSASBBAIScoreLogInterval();
-// <!-- custom: Shared first-use cache for the later-city diagnostic switch; callers must check Found level 2 first, and site eligibility remains the evaluator's responsibility. See KI#144.4. (GPT-6.1-Sol) -->
+// <!-- custom: Shared first-use cache for the later-city diagnostic switch; the helper self-gates on FOUND_2PL level 2, and site eligibility remains the evaluator's responsibility. See KI#144.4. (GPT-6.1-Sol) -->
 bool isSASBBAILaterCityFoodSupportAuditEnabled();
 // <!-- custom: Move WarEvaluator's existing cached diagnostic threshold here so BBAI and SASGameRecord share its reader and armed-state policy; callers must gate WAR level 3 first. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 int getSASBBAIHighWarUtilityLogThreshold();
@@ -66,13 +68,13 @@ void logSASBBAINewGameStarted(); // <!-- custom: Log complete new-game identific
 void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded save after its complete game state is read. (GPT-5.5) -->
 int getSASBBAILogSessionSequence(); // <!-- custom: Let high-volume diagnostic categories discard change-dedup state whenever a new/load BBAI session begins. (GPT-5.6-Sol) -->
 // <!-- custom: Kept here rather than as CvUnitAI.cpp statics: CvUnit.cpp and CvUnitAI.cpp both report probe outcomes, and outstanding snapshots are discarded with the BBAI session sequence. (Claude code Opus 5.5) -->
-// <!-- custom: Diagnostic-only committed hope-probe snapshots and next-observation revaluations; callers must gate Settler level 3 before either call.
+// <!-- custom: Diagnostic-only committed hope-probe snapshots and next-observation revaluations; callers must gate SETTLER_1ST at level 3 before either call.
 // No snapshot is serialized or used for gameplay, and new/load BBAI sessions discard outstanding snapshots. See KI#144.6. (GPT-6.1-Sol) -->
 class CvUnit;
 class CvPlot;
 void logBBAIFirstCityProbeStart(CvUnit const& kSettler, CvPlot const& kTarget, CvPlot const& kFallback, CvPlot const& kWaypoint, int iTargetValue, int iFallbackValue, int iNetHopeValue, int iDelayCost);
 void logBBAIFirstCityProbeOutcome(CvUnit const& kSettler);
-// <!-- custom: Caller must gate Settler level 3 and provide a current successful path to kTarget before another search replaces it; records existing node data only. See KI#144.6. (GPT-6.1-Sol) -->
+// <!-- custom: Caller must gate SETTLER_1ST at level 3 and provide a current successful path to kTarget before another search replaces it; records existing node data only. See KI#144.6. (GPT-6.1-Sol) -->
 void logBBAIFirstCityScoutRoute(CvUnit const& kSettler, CvPlot const& kTarget, char const* szPhase);
 // <!-- custom: gLogBBAI remains a startup-cached direct read and now includes enabled UWAI categories because they use the same BBAI sink instead of a parallel logger. (ChatGPT-5.6-Sol) -->
 #define gLogBBAI (gSASBBAILogSettings.bEnabled) // advc.007: So that BBAI logging can be checked in FAssert;
@@ -90,8 +92,13 @@ void logBBAIFirstCityScoutRoute(CvUnit const& kSettler, CvPlot const& kTarget, c
 #define gUnitLogLevel (gSASBBAILogSettings.iUnitLogLevel)
 #define gOverseasTransportLogLevel (gSASBBAILogSettings.iOverseasTransportLogLevel) // <!-- custom: Separate overseas military-cargo and Settler-transport diagnostics from broad CITY and UNIT logging. (GPT-5.6-Sol) -->
 #define gGreatGeneralLogLevel (gSASBBAILogSettings.iGreatGeneralLogLevel) // <!-- custom: Separate Great General action, Military Instructor, and Warlord attachment diagnostics from general UNIT logging. (GPT-5.5) -->
-#define gSettlerLogLevel (gSASBBAILogSettings.iSettlerLogLevel) // <!-- custom: Separate Settler diagnostics from general UNIT logging so each can be inspected independently. (GPT-5.5) -->
-#define gFoundLogLevel (gSASBBAILogSettings.iFoundLogLevel) // advc.031c
+// <!-- custom: Opening-specific code gates on 1ST and expansion-specific code on 2PL directly, without player history; each is a startup-cached read.
+// Shared paths first had their own COMMON category, but it held most later-city rows, leaving 2PL nearly empty; getting them needed COMMON, which also logged the whole opening.
+// So shared paths route to 1ST or 2PL by phase instead (helpers below). See KI#144.6. (GPT-6.1-Sol + Claude code Opus 5.5) -->
+#define gSettlerFirstCityLogLevel (gSASBBAILogSettings.iSettlerFirstCityLogLevel) // <!-- custom: First-capital Settler scouting, movement and founding diagnostics. See KI#144.6. (GPT-5.5 + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+#define gSettler2PlusLogLevel (gSASBBAILogSettings.iSettler2PlusLogLevel) // <!-- custom: Settler diagnostics for the second city and later expansion. See KI#144.6. (ChatGPT-5.6-Sol) -->
+#define gFoundFirstCityLogLevel (gSASBBAILogSettings.iFoundFirstCityLogLevel) // <!-- custom: Split inherited advc.031c Found diagnostics: first-capital-specific scoring branches; shared components route by phase through getSASBBAIFoundLogLevel. See KI#144.6. (ChatGPT-5.6-Sol) -->
+#define gFound2PlusLogLevel (gSASBBAILogSettings.iFound2PlusLogLevel) // <!-- custom: Later-city-specific Found scoring branches. See KI#144.6. (ChatGPT-5.6-Sol) -->
 #define gEvacuationLogLevel (gSASBBAILogSettings.iEvacuationLogLevel) // <!-- custom: Separate evacuation/retreat diagnostics from general CITY and UNIT logging. (GPT-5.5) -->
 #define gWorkerLogLevel (gSASBBAILogSettings.iWorkerLogLevel) // <!-- custom: Separate land-Worker diagnostics from general UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
 #define gWorkerSeaLogLevel (gSASBBAILogSettings.iWorkerSeaLogLevel) // <!-- custom: Separate Work Boat / WORKER_SEA diagnostics from general UNIT and land-Worker logging. (ChatGPT-5.5 + GPT-5.5 review) -->
@@ -106,6 +113,17 @@ void logBBAIFirstCityScoutRoute(CvUnit const& kSettler, CvPlot const& kTarget, c
 #define gUWAIInvasionGraphLogLevel (gSASBBAILogSettings.iUWAIInvasionGraphLogLevel)
 #define gUWAIArmamentForecastLogLevel (gSASBBAILogSettings.iUWAIArmamentForecastLogLevel)
 #define gUWAIWarUtilityLogLevel (gSASBBAILogSettings.iUWAIWarUtilityLogLevel)
+
+// <!-- custom: 1ST while a non-Barbarian player has no city, matching the AI_foundFirstCity branch; checking both levels first keeps disabled logging off player state. See KI#144.6. (Claude code Opus 5.5) -->
+bool isSASBBAIFirstCityLogPhase(PlayerTypes ePlayer);
+inline int getSASBBAISettlerLogLevel(PlayerTypes ePlayer)
+{
+	return ((gSettlerFirstCityLogLevel > 0 || gSettler2PlusLogLevel > 0) ? (isSASBBAIFirstCityLogPhase(ePlayer) ? gSettlerFirstCityLogLevel : gSettler2PlusLogLevel) : 0);
+}
+inline int getSASBBAIFoundLogLevel(PlayerTypes ePlayer)
+{
+	return ((gFoundFirstCityLogLevel > 0 || gFound2PlusLogLevel > 0) ? (isSASBBAIFirstCityLogPhase(ePlayer) ? gFoundFirstCityLogLevel : gFound2PlusLogLevel) : 0);
+}
 
 void logBBAI(TCHAR* format, ... );
 // <advc.133>

@@ -11,7 +11,8 @@ import sys
 # <!-- custom: Resolve repository/shared-helper paths from this subject subfolder after the workflow-tool reorganization. (GPT-6.1-Sol) -->
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 
-from xml_defines import get_default_repo_root, read_global_define_ints, require_int_values
+# <!-- custom: add_staged_argument adds the shared local --staged option for checking the Git index instead of the working tree. (Claude code Opus 5.5) -->
+from xml_defines import add_staged_argument, get_default_repo_root, read_global_define_ints, require_int_values
 
 
 EXPECTED_NONZERO_LOGGING_DEFAULTS = {
@@ -24,9 +25,10 @@ EXPECTED_NONZERO_LOGGING_DEFAULTS = {
 def main() -> int:
 	parser = argparse.ArgumentParser(description="Check that BBAI diagnostic logging is disabled by default unless explicitly listed as non-enabling configuration.")
 	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
+	add_staged_argument(parser)
 	args = parser.parse_args()
 
-	defines = read_global_define_ints(args.repo_root)
+	defines = read_global_define_ints(args.repo_root, args.staged)
 	# <!-- custom: The old manual list missed Citizen and Culture logging.
 	# Require every integer SAS_BBAI_* define to be 0 automatically, with explicit exceptions only for settings that configure enabled logging without enabling it. (GPT-5.5 + GPT-5.5) -->
 	expected = {name: 0 for name in defines if name.startswith("SAS_BBAI_")}
@@ -38,7 +40,7 @@ def main() -> int:
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS BBAI diagnostic logging disabled by default: checked {len(expected)} define(s)")
+	print(f"PASS BBAI diagnostic logging disabled by default: checked {len(expected)} define(s)" + (" (staged)" if args.staged else ""))
 	return 0
 
 

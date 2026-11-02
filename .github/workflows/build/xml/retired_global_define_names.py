@@ -16,7 +16,8 @@ import sys
 MAP_FILE = Path("_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md")
 MAP_START = "<!-- KI1001.2_GLOBAL_DEFINE_MAP_START -->"
 MAP_END = "<!-- KI1001.2_GLOBAL_DEFINE_MAP_END -->"
-ROW_RE = re.compile(r"^\| `(?P<old>SAS_[^`]+)` \| `(?P<new>SAS_[^`]+)` \|", re.MULTILINE)
+# <!-- custom: A retired umbrella can split into several controls, and older aliases can share those replacements; parse the whole target cell rather than inventing one-to-one migration semantics for the checker. (GPT-6.1-Sol) -->
+ROW_RE = re.compile(r"^\| `(?P<old>SAS_[^`]+)` \| (?P<new>[^|\r\n]+) \|", re.MULTILINE)
 
 
 def get_default_repo_root() -> Path:
@@ -41,19 +42,22 @@ def load_retired_map(repo_root: Path) -> tuple[dict[str, str], list[str]]:
         return {}, [f"{MAP_FILE}: KI#1001.2 retired-name map contains no SAS conversion rows"]
 
     mapping: dict[str, str] = {}
-    current_names: set[str] = set()
     errors: list[str] = []
     for match in rows:
         old = match.group("old")
-        new = match.group("new")
-        if old == new:
+        target_cell = match.group("new")
+        targets = re.findall(r"`(SAS_[A-Z0-9_]+)`", target_cell)
+        remainder = re.sub(r"`SAS_[A-Z0-9_]+`", "", target_cell).replace(",", "").strip()
+        if not targets or remainder:
+            errors.append(f"{MAP_FILE}: mapped targets for {old} must be comma-separated backticked SAS names")
+            continue
+        if old in targets:
             errors.append(f"{MAP_FILE}: mapping repeats unchanged name {old}")
         if old in mapping:
             errors.append(f"{MAP_FILE}: duplicate retired name {old}")
-        if new in current_names:
-            errors.append(f"{MAP_FILE}: duplicate current name {new}")
-        mapping[old] = new
-        current_names.add(new)
+        if len(targets) != len(set(targets)):
+            errors.append(f"{MAP_FILE}: duplicate target within mapping for {old}")
+        mapping[old] = ", ".join(targets)
     return mapping, errors
 
 
@@ -121,8 +125,10 @@ def check(repo_root: Path) -> tuple[list[str], dict[str, int]]:
     for old, new in mapping.items():
         if old in current:
             errors.append(f"Assets/XML/GlobalDefines_advciv_sas.xml: retired name is still declared: {old}")
-        if new not in current:
-            errors.append(f"{MAP_FILE}: current mapped name is not declared: {old} -> {new}")
+        # <!-- custom: Validate every split target; checking only a representative replacement would miss a missing phase declaration. (GPT-6.1-Sol) -->
+        for target in new.split(", "):
+            if target not in current:
+                errors.append(f"{MAP_FILE}: current mapped name is not declared: {old} -> {target}")
     if errors:
         return errors, {"mapping_count": len(mapping), "file_count": 0, "hit_count": 0}
 

@@ -742,9 +742,14 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.m
 - **BBAI worker log split:**
   - added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions.
   - Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+- (Requires AdvCiv-SAS 6710+) **First-capital BBAI logging is separated from later expansion:**
+  - Settler and Found each have independent `1ST` and `2PL` categories. Opening-specific and expansion-specific code use their own category; shared code follows the player's current city count (none: `1ST`, otherwise `2PL`), without player-history routing.
+  - For example, `SAS_BBAI_SETTLER_1ST_LOG` records opening scouting; `SAS_BBAI_SETTLER_2PL_LOG` records city production/escort attachment and later-city movement, parking and regular founding.
+  - Found uses the same split for first-capital-specific scoring, later-city-specific scoring, and shared evaluation/plot details/results. Map generation and normalization log under 1ST; Barbarian traces under 2PL.
+  - Each control retains levels 0-3. See the [logging inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#bbai) and [retired-name mappings](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md) for controls and migrations. (ChatGPT-5.6-Sol + GPT-6.1-Sol)
 - **BBAI Settler log split:**
-  - added `SAS_BBAI_SETTLER_LOG`, separated from UNIT so Settlers and other units can be inspected independently.
-  - This notably covers city-site decisions, Settler movement, scouting, returns, founding, parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations.
+  - separated Settler diagnostics from UNIT so Settlers and other units can be inspected independently; the current controls are the independent `SAS_BBAI_SETTLER_1ST_LOG` and `SAS_BBAI_SETTLER_2PL_LOG`.
+  - These notably cover city-site decisions, Settler movement, scouting, returns, founding, parking reasons, danger context, and city escort pools; the separate FOUND family controls detailed city-site scoring calculations.
   - This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
 - (Requires AdvCiv-SAS 6569+) **Auditable Settler decisions:**
   - dedicated BBAI Found/Settler diagnostics now expose each candidate's component score, top XML-valid improvement outcomes, home-plot opportunity, defense, distance shaping, rejection reason, seafood alternatives, known versus omniscient value, and best-1/2/3/6/10/14 workable-plot distribution.

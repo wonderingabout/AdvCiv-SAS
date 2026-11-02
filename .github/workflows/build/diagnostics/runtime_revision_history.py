@@ -74,7 +74,8 @@ def qualifies(repo, parent, commit):
     if paths & DEDICATED:
         return True
     for path in paths:
-        if path.startswith(("tests/", ".github/")) or Path(path).suffix.lower() not in {".cpp", ".h", ".py", ".xml"}:
+        # <!-- custom: LLM_Helpers/ holds local tooling the game never loads; toggle_dev_diagnostics.py naming SAS_RUNTIME_* defines was miscounted as a Runtime implementation change. (Claude code Opus 5.5) -->
+        if path.startswith(("tests/", ".github/", "LLM_Helpers/")) or Path(path).suffix.lower() not in {".cpp", ".h", ".py", ".xml"}:
             continue
         args = ["git", "diff", "--unified=0", parent]
         if commit is not None:

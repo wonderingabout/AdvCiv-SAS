@@ -43,6 +43,16 @@ class RetiredGlobalDefineNameTests(unittest.TestCase):
         self.write("CvGameCoreDLL/Test.cpp", 'GC.getDefineINT("SAS_NEW_SETTING");\n')
         self.assertEqual(self.errors(), [])
 
+    # <!-- custom: Umbrella splits and historical aliases must remain honest migrations, while every destination still needs a declaration; this catches the former arbitrary first/later representative mapping. (GPT-6.1-Sol) -->
+    def test_split_targets_and_aliases_require_every_destination(self):
+        rows = "| `SAS_OLD_SETTING` | `SAS_NEW_SETTING`, `SAS_NEW_SECOND_SETTING` | 0 | 0 | 0 |\n"
+        rows += "| `SAS_OLDER_SETTING` | `SAS_NEW_SETTING`, `SAS_NEW_SECOND_SETTING` | 0 | 0 | 0 |\n"
+        self.write(str(retired.MAP_FILE), retired.MAP_START + "\n" + rows + retired.MAP_END)
+        self.write("Assets/XML/GlobalDefines_advciv_sas.xml", "<Civ4Defines><Define><DefineName>SAS_NEW_SETTING</DefineName></Define><Define><DefineName>SAS_NEW_SECOND_SETTING</DefineName></Define></Civ4Defines>")
+        self.assertEqual(self.errors(), [])
+        self.write("Assets/XML/GlobalDefines_advciv_sas.xml", "<Civ4Defines><Define><DefineName>SAS_NEW_SETTING</DefineName></Define></Civ4Defines>")
+        self.assertTrue(any("not declared" in error and "SAS_NEW_SECOND_SETTING" in error for error in self.errors()))
+
     def test_retired_runtime_lookup_fails(self):
         self.write("CvGameCoreDLL/Test.cpp", 'GC.getDefineINT("SAS_OLD_SETTING");\n')
         self.assertTrue(any("retired GlobalDefine name SAS_OLD_SETTING" in error for error in self.errors()))

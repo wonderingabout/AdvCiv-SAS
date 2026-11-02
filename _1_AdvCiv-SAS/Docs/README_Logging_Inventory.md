@@ -544,8 +544,8 @@ These controls all select categories within the same BBAI output, including the 
 | `SAS_BBAI_SPACE_PROD_LOG`, `SAS_BBAI_LIMITED_PROJECT_PROD_LOG` | Spaceship projects and one-copy non-spaceship projects. |
 | `SAS_BBAI_CITIZEN_LOG`, `SAS_BBAI_CULT_LOG` | Citizen assignments and culture-victory decisions. |
 | `SAS_BBAI_UNIT_LOG`, `SAS_BBAI_OVERSEAS_TRANSPORT_LOG`, `SAS_BBAI_GREAT_GENERAL_LOG` | General unit behavior, transport/cargo decisions and Great General actions. |
-| `SAS_BBAI_SETTLER_LOG` | Movement, target decisions, founding, parking and escorts; examples include `SETTLER_MISSION_DECISION`, `SETTLER_PARKED` and `SETTLER_CITY_ESCORT_POOL`. |
-| `SAS_BBAI_FOUND_LOG` | City-site scoring and selection; examples include `FOUND_SITE_SELECTED` and `FOUND_SITE_STORED`. |
+| `SAS_BBAI_SETTLER_1ST_LOG`, `SAS_BBAI_SETTLER_2PL_LOG` | Independent categories: opening-specific scouting/returns (1ST) and city production/escort attachment (2PL); shared movement/parking/founding follows the player's phase, 1ST before any city (including opening fallbacks) and 2PL afterwards. Examples include `FIRST_CITY_*`, `SETTLER_MISSION_DECISION` and `SETTLER_PARKED`. |
+| `SAS_BBAI_FOUND_1ST_LOG`, `SAS_BBAI_FOUND_2PL_LOG` | Independent scoring categories: first-capital-specific branches (1ST) and later-city-specific branches (2PL); shared evaluation/plot details/results such as `FOUND_SITE_SELECTED` and `FOUND_SITE_STORED` follow the evaluated player's phase, so map generation and the opening log under 1ST and later cities and Barbarians under 2PL. |
 | `SAS_BBAI_EVACUATION_LOG`, `SAS_BBAI_WORKER_LOG`, `SAS_BBAI_WORKER_SEA_LOG` | Retreat/evacuation, land Workers and Work Boats. |
 | `SAS_BBAI_MAP_LOG`, `SAS_BBAI_DEAL_CANCEL_LOG`, `SAS_BBAI_BONUS_LOG` | Map/start context, deal cancellation and resource valuation/trade. |
 
@@ -553,7 +553,11 @@ The inherited `CvUnitAI::AI_found` / `AI_foundFollow` path already logged messag
 
 `ReproTest.cpp` is another BBAI/message-control producer rather than a separate filename family: when compiled with `ENABLE_REPRO_TEST`, it brackets the replay comparison with `ReproTest: start`, `ReproTest: reloading` and `ReproTest: done` in enabled BBAI output, and also uses `messageControlLog` when engine logging is active.
 
-Those quoted Settler strings are source format templates, not captured game rows. The split matters in practice: enabling FOUND alone does not request the whole Settler movement/escort trace, and enabling SETTLER does not request full per-plot found-value calculations.
+Those quoted Settler strings are source format templates, not captured game rows. The split matters in practice: enabling a Found phase does not request the corresponding Settler movement/escort trace, and enabling a Settler phase does not request full per-plot found-value calculations.
+
+A focused first-capital capture can therefore enable only `SETTLER_1ST` plus `FOUND_1ST`; a later-city capture enables only the `2PL` pair and excludes the opening and map-generation evaluations.
+
+Shared paths first had their own `COMMON` category, but it held most later-city rows, leaving `2PL` nearly empty; capturing later cities then needed `COMMON`, which also logged the whole opening. Routing shared paths by phase lets the `2PL` pair alone capture later cities.
 
 For batch first-capital review, [`audit_first_city_scouting.py`](/LLM_Helpers/README.md#audit_first_city_scoutingpy) combines SGR movement observations with optional BBAI candidate estimates.
 

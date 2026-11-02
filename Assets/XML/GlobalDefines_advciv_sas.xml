@@ -2118,28 +2118,38 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_BBAI_GREAT_GENERAL_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Dedicated Settler-unit diagnostics, separated from UNIT so Settlers and other units can be inspected independently.
-	This notably covers city-site decisions, Settler movement, scouting, returns, founding, parking reasons, danger context, and city escort pools; FOUND separately controls detailed city-site scoring calculations.
-	Level 2 notably logs compact parking/security decisions, and level 3 notably adds city unit-list detail for escort-diversion analysis. (GPT-5.5 + ChatGPT-5.5) -->
+	<!-- custom: Split Settler diagnostics into independent 1ST and 2PL controls.
+	SETTLER_1ST notably covers opening-specific scouting, returns and founding; SETTLER_2PL notably covers city-side production and city-escort attachment.
+	Shared movement, parking and regular founding log under 1ST while the player has no city (including first-city fallbacks) and under 2PL afterwards; neither category enables the other.
+	The phase follows the current city count, not player history: losing every city returns to 1ST because the AI runs first-city code again, while losing only the capital stays 2PL.
+	Level 2 notably logs compact decisions; level 3 notably adds detailed candidate/security evidence. See KI#144.6. (GPT-5.5 + ChatGPT-5.5 + ChatGPT-5.6-Sol + GPT-6.1-Sol + Claude code Opus 5.5) -->
 	<Define>
-		<DefineName>SAS_BBAI_SETTLER_LOG</DefineName>
+		<DefineName>SAS_BBAI_SETTLER_1ST_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Detailed city-site diagnostics, separate from Settler-unit movement/security diagnostics.
-	Level 1 records high-level selected/founded/start-site lifecycle rows.
-	Level 2 adds compact rows for the actual candidate evaluations and values stored by the AI, including stage breakdowns; it does not replay selected sites under later state.
-	Level 3 adds full component, plot, cache, and XML-valid improvement-candidate detail from those real evaluations.
-	Level 3 is the highest implemented level.
-	Levels 2/3 cover candidate sweeps and can produce multi-GB full-autoplay logs; level 1 is compact lifecycle output, while levels 2/3 serve numeric/deep AI audits, often focused on shorter test periods.
-	Base AdvCiv LOG_FOUND_VALUE default: when enabled: 1; when disabled: 0. See KI#505.2. (GPT-5.5 + GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
-		<DefineName>SAS_BBAI_FOUND_LOG</DefineName>
+		<DefineName>SAS_BBAI_SETTLER_2PL_LOG</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Found diagnostics use the same independent 1ST/2PL split.
+	FOUND_1ST notably covers first-capital capacity, Food support and starting-location scoring branches (also when used during map generation); FOUND_2PL notably covers later-city distance, colony and Food-support branches.
+	Shared evaluation, plot/component detail, stored values, lifecycle rows and final results follow the evaluated player's phase like Settler: map generation, normalization and the opening log under 1ST; later cities, Barbarians and UI previews of a player with a city under 2PL.
+	No category enables another.
+	Level 1 notably records high-level lifecycle rows; level 2 notably adds candidate evaluations/stored values and breakdowns; level 3 notably adds component, plot, cache and improvement-candidate detail.
+	Levels 2/3 can produce multi-GB logs; enable only the needed categories.
+	Base AdvCiv LOG_FOUND_VALUE default: when enabled: 1; when disabled: 0. See KI#505.2, KI#144.6. (GPT-5.5 + GPT-5.6-Sol + ChatGPT-5.6-Sol + GPT-6.1-Sol + Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_BBAI_FOUND_1ST_LOG</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BBAI_FOUND_2PL_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Opt-in Found-level-2+ forensic audit for ordinary post-capital city sites.
 	When enabled, compare unconstrained versus Food-feasible worked-value cores of 3/6/10/14 worked non-home plots using ordinary later-city rank weighting; this does not change AI scores.
 	Keep disabled outside focused tests because every surviving later-city candidate needs an additional subset search.
-	Requires SAS_BBAI_FOUND_LOG >= 2 to do any work. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	Requires SAS_BBAI_FOUND_2PL_LOG >= 2 to do any work. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_BBAI_FOUND_LATER_FOOD_SUPPORT_AUDIT_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -2447,7 +2457,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>187</iDefineIntVal>
+		<iDefineIntVal>188</iDefineIntVal>
 	</Define>
 
 

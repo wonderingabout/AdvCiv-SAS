@@ -512,7 +512,7 @@ void CvPlayerAI::AI_doTurnUnitsPre()
 	// Emit one compact overdue-first-capital row per player turn, independently of unit dispatch.
 	// Filter scenarios, active Advanced Start, human control and recorded city losses; observation stays entirely behind the Settler logging gate.
 	// isFoundedFirstCity can reset when a city is disbanded, so the row flags this late cityless state rather than proving the player has never owned a city. See KI#144.6. (GPT-6.1-Sol) -->
-	if (gSettlerLogLevel >= 2 && !isBarbarian() && !isHuman() && !isFoundedFirstCity() && getNumCities() == 0 && getCitiesLost() == 0 && getAdvancedStartPoints() < 0 && !GC.getGame().isScenario())
+	if (gSettlerFirstCityLogLevel >= 2 && !isBarbarian() && !isHuman() && !isFoundedFirstCity() && getNumCities() == 0 && getCitiesLost() == 0 && getAdvancedStartPoints() < 0 && !GC.getGame().isScenario())
 	{
 		static const int iMaxFirstCityTurns = GC.getDefineINT("SAS_1ST_CITY_FOUND_MAX_T_UNSCALED_GS");
 		CvGame const& kGame = GC.getGame();
@@ -1356,7 +1356,7 @@ void CvPlayerAI::AI_updateFoundValues(bool bStarting)  // advc: refactored
 			} // </advc.108>
 		}
 		kLoopPlot.setFoundValue(getID(), iValue);
-		if (gFoundLogLevel >= 2) logBBAI("FOUND_SITE_STORED turn=%d player=%d site=%d,%d stage=INITIAL source=%s evaluatedValue=%d startingPlotPreference=%d storedValue=%d",
+		if (getSASBBAIFoundLogLevel(getID()) >= 2) logBBAI("FOUND_SITE_STORED turn=%d player=%d site=%d,%d stage=INITIAL source=%s evaluatedValue=%d startingPlotPreference=%d storedValue=%d",
 			GC.getGame().getGameTurn(), getID(), kLoopPlot.getX(), kLoopPlot.getY(), bPythonValue ? "PYTHON" : "CPP", iEvaluatedValue, iStartingPlotPreference, iValue);
 		if (iValue > kLoopPlot.getArea().getBestFoundValue(getID()))
 			kLoopPlot.getArea().setBestFoundValue(getID(), iValue);
@@ -12749,7 +12749,7 @@ static bool shouldLogSASBonusValueChange(CvString const& szKey, CvString const& 
 // Callers require no existing cities. See KI#178.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 int CvPlayerAI::AI_getStartingBonusHappyHealthDiagnostic(BonusTypes eBonus) const
 {
-	FAssert(gFoundLogLevel >= 3 && getNumCities() == 0);
+	FAssert(getNumCities() == 0);
 	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
 	int const iHappy = kBonus.getHappiness();
 	int const iHealth = kBonus.getHealth();
@@ -31722,6 +31722,7 @@ void CvPlayerAI::AI_doAdvancedStart(bool bNoExit)
 
 void CvPlayerAI::AI_recalculateFoundValues(int iX, int iY, int iInnerRadius, int iOuterRadius) const
 {
+	int const iFoundLogLevel = getSASBBAIFoundLogLevel(getID());
 	for (SquareIter it(iX, iY, iOuterRadius, false); it.hasNext(); ++it)
 	{
 		CvPlot& p = *it;
@@ -31730,7 +31731,7 @@ void CvPlayerAI::AI_recalculateFoundValues(int iX, int iY, int iInnerRadius, int
 		if (it.currStepDist() <= iInnerRadius)
 		{
 			p.setFoundValue(getID(), 0);
-			if (gFoundLogLevel >= 2) logBBAI("FOUND_SITE_STORED turn=%d player=%d site=%d,%d stage=RECALCULATE source=PLANNED_SITE_EXCLUSION value=0 selected=%d,%d", GC.getGame().getGameTurn(), getID(), p.getX(), p.getY(), iX, iY);
+			if (iFoundLogLevel >= 2) logBBAI("FOUND_SITE_STORED turn=%d player=%d site=%d,%d stage=RECALCULATE source=PLANNED_SITE_EXCLUSION value=0 selected=%d,%d", GC.getGame().getGameTurn(), getID(), p.getX(), p.getY(), iX, iY);
 		}
 		else if (p.isRevealed(getTeam()))
 		{
@@ -31739,7 +31740,7 @@ void CvPlayerAI::AI_recalculateFoundValues(int iX, int iY, int iInnerRadius, int
 			if (iValue == -1)
 				iValue = AI_foundValue(p.getX(), p.getY());
 			p.setFoundValue(getID(), iValue);
-			if (gFoundLogLevel >= 2) logBBAI("FOUND_SITE_STORED turn=%d player=%d site=%d,%d stage=RECALCULATE source=%s value=%d selected=%d,%d", GC.getGame().getGameTurn(), getID(), p.getX(), p.getY(), bPythonValue ? "PYTHON" : "CPP", iValue, iX, iY);
+			if (iFoundLogLevel >= 2) logBBAI("FOUND_SITE_STORED turn=%d player=%d site=%d,%d stage=RECALCULATE source=%s value=%d selected=%d,%d", GC.getGame().getGameTurn(), getID(), p.getX(), p.getY(), bPythonValue ? "PYTHON" : "CPP", iValue, iX, iY);
 			if (iValue > p.getArea().getBestFoundValue(getID()))
 				p.getArea().setBestFoundValue(getID(), iValue);
 		}
@@ -31801,7 +31802,8 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
 	// <advc>
 	if (iMinFoundValueThreshold < 0)
 		iMinFoundValueThreshold = AI_getMinFoundValue(); // </advc>
-	const bool bLogFoundLevel3 = (gFoundLogLevel >= 3);
+	int const iFoundLogLevel = getSASBBAIFoundLogLevel(getID());
+	const bool bLogFoundLevel3 = (iFoundLogLevel >= 3);
 	const int iMinWaterSizeForOcean = (bLogFoundLevel3 ? GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN) : 0);
 
 	// K-Mod. Always recommend the starting location on the first turn.
@@ -31933,7 +31935,7 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
 		if (pBestFoundPlot != NULL)
 		{
 			// <!-- custom: Record the selected cached score before appending the site changes subsequent overlap evaluations; no logging-only rescore. See KI#505.2. (GPT-6.1-Sol) -->
-			if (gFoundLogLevel > 0) logBBAI("FOUND_SITE_SELECTED turn=%d player=%d site=%d,%d pass=%d cachedValue=%d", GC.getGame().getGameTurn(), getID(), pBestFoundPlot->getX(), pBestFoundPlot->getY(), iPass, pBestFoundPlot->getFoundValue(getID()));
+			if (iFoundLogLevel > 0) logBBAI("FOUND_SITE_SELECTED turn=%d player=%d site=%d,%d pass=%d cachedValue=%d", GC.getGame().getGameTurn(), getID(), pBestFoundPlot->getX(), pBestFoundPlot->getY(), iPass, pBestFoundPlot->getFoundValue(getID()));
 			m_aeAICitySites.push_back(pBestFoundPlot->plotNum());
 			AI_recalculateFoundValues(pBestFoundPlot->getX(), pBestFoundPlot->getY(),
 					CITY_PLOTS_RADIUS, 2 * CITY_PLOTS_RADIUS);

@@ -3281,7 +3281,7 @@ bool CvUnit::jumpToNearestValidPlot(/* K-Mod: */ bool bGroup, bool bForceMove, b
 	// <!-- custom: First-capital traces showed a probe at 14,9 followed by a turn starting at 11,6 after a rival claimed the probe tile.
 	// Log forced relocation directly to distinguish a bump from voluntary scouting; the selected destination is recorded before movement or death, not as proof movement completed.
 	// Reuse the jump search result and capture the old mission before the inherited queue clear; no extra pathfinding or scoring is needed. See KI#144.6. (GPT-6.1-Sol) -->
-	if (gSettlerLogLevel >= 2 && isFound())
+	if (getSASBBAISettlerLogLevel(getOwner()) >= 2 && isFound())
 	{
 		CvPlot const* pPriorMissionTarget = getGroup()->AI().AI_getMissionAIPlot();
 		logBBAI("SETTLER_DISPLACEMENT turn=%d player=%d unitId=%d phase=DESTINATION_SELECTED action=%s from=%d,%d fromOwner=%d target=%d,%d targetOwner=%d selectionCost=%d groupMove=%d forceMove=%d freeMove=%d movesLeft=%d missionAI=%d missionTarget=%d,%d",
@@ -6155,7 +6155,7 @@ bool CvUnit::found()
 		gDLL->UI().lookAt(getPlot().getPoint(), CAMERALOOKAT_NORMAL);
 	}
 	// <!-- custom: Queued FOUND can bypass another first-city AI decision; observe any committed probe before founding changes the scoring context and consumes the Settler. See KI#144.6. (GPT-6.1-Sol) -->
-	if (gSettlerLogLevel >= 3) logBBAIFirstCityProbeOutcome(*this);
+	if (gSettlerFirstCityLogLevel >= 3) logBBAIFirstCityProbeOutcome(*this);
 	GET_PLAYER(getOwner()).found(getX(), getY());
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_FOUND);

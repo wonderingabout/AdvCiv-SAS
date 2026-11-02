@@ -85,6 +85,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/assets/art_define_structure.py`](#buildassetsart_define_structurepy)
   - [Diagnostics](#diagnostics)
     - [`build/diagnostics/diagnostic_log_safety.py`](#builddiagnosticsdiagnostic_log_safetypy)
+    - [Local `--staged` option for diagnostic defaults](#local---staged-option-for-diagnostic-defaults)
     - [`build/diagnostics/runtime_status.py`](#builddiagnosticsruntime_statuspy)
     - [`build/diagnostics/runtime_revision_history.py`](#builddiagnosticsruntime_revision_historypy)
     - [`build/diagnostics/bbai_log.py`](#builddiagnosticsbbai_logpy)
@@ -632,6 +633,8 @@ Reads the original-to-current conversion table associated with KI#1001.2 directl
 
 The checker reads the table directly from the [retired-name migration reference](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md). This keeps one migration map instead of maintaining a second manual retired-name list.
 
+A split can list comma-separated backticked replacement names, and historical aliases may share destinations. Every target must be declared; duplicate retired names or repeated targets within one row still fail.
+
 The active scan intentionally includes XML comments and copied cache/member identifiers, so stale explanatory comments and code identifiers cannot silently preserve an obsolete spelling.
 
 Wildcard references such as `SAS_BBAI_UWAI_*_LOG_LEVEL` also fail when they match retired names but no current declaration; broad patterns shared by old/current names remain valid. The exact-name scan missed these family patterns.
@@ -857,6 +860,17 @@ The XML/PythonDbg modernization exposed an overly broad file-level EXE-logger ba
 - Already-formatted text is written directly, so literal `%` needs no EXE-boundary doubling; producer format strings still use ordinary printf escaping (`%%` for one intended `%`).
 
 This check remains intentionally scoped to the two SAS diagnostic sinks implicated by [KI#375.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-375.3), plus their shared writer and the runtime publisher, rather than every inherited logging caller in the DLL.
+
+#### Local `--staged` option for diagnostic defaults
+
+The diagnostic-default checks below ([`runtime_status.py`](#builddiagnosticsruntime_statuspy), [`bbai_log.py`](#builddiagnosticsbbai_logpy) and [`sas_game_record_log.py`](#builddiagnosticssas_game_record_logpy)) accept `--staged`, which makes the check read every file it inspects from the Git index instead of the working tree.
+
+- Development diagnostics are usually left enabled but unstaged, so a plain local run fails on them even when the commit candidate is clean; `--staged` checks what would actually be committed.
+- Unstaged companions such as a revision-history entry fail until staged, and the option fails outside a Git checkout. GitHub runs without it, because its working tree is the commit.
+
+```bash
+python .github/workflows/build/diagnostics/bbai_log.py --staged
+```
 
 #### `build/diagnostics/runtime_status.py`
 
