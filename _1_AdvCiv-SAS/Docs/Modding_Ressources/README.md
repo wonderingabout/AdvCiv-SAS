@@ -66,7 +66,7 @@ I can also not be held responsible for any damage resulting of following these i
 
 Hopefully you'll find them helpful though, but in case not or something happens, this is just to protect myself and talk to you in all fairness.
 
-Else or additionally, you may find more help asking your question(s) directly on [CivFanaticsCenter's Civ4 Forum](https://forums.civfanatics.com/categories/civilization-iv.143/) rather maybe. Hopefully this data i provided is also helpful though.
+Else or additionally, you may find more help in the relevant project's own documentation/GitHub or another modding community you trust. Hopefully this data i provided is also helpful though.
 
 ## LLM-assisted source analysis
 
@@ -283,7 +283,9 @@ For example, i put thes git log files in the [/_0_Common_Docs/git_logs/](/_0_Com
 
 ### published web release changelogs in .txt
 
-Full AdvCiv-SAS release/update text manually copied from CivFanatics and/or ModDB is archived in [Docs/changelogs_web/](/_1_AdvCiv-SAS/Docs/changelogs_web/) as version-named plain-text files.
+Full AdvCiv-SAS release/update text manually copied from historical web publication pages is archived in [Docs/changelogs_web/](/_1_AdvCiv-SAS/Docs/changelogs_web/) as version-named plain-text files.
+
+Older files include the project's former CivFanatics publication period; future release publication no longer targets CivFanatics as of November 2026.
 
 These are historical source copies and complete release-writing examples that complement Git history; preserve their source/date provenance and keep distinct publication texts separate when one release has multiple web sources.
 
@@ -1168,7 +1170,7 @@ I don't know the specifics, but in most mods you need to enable chipotle cheat c
 
 Then ingame (save file load, new map, etc), press ctrl+z if your mod has this shortcut and you enter debug mode, then press ctrl+shift+x you can specify the number of turns to autoplay, say 50 or 100 turns or any number (toggle (i.e. press this again) during autoplay to stop it before it completes if you want to do so).
 
-I don't know if autoplay is a feature of base civ4 or bts or some mods that then most mods implemented check to know more (you could ask chatbots like chatgpt or such if you don't know, but their answers may be inaccurate or lead you astray, so double check or such even though they could be accurate or do web search for you or such but check to be sure) (or your best bet may be alternatively to check in cfc or such forums somewhere or google it xd)
+I don't know if autoplay is a feature of base civ4 or bts or some mods that then most mods implemented check to know more (you could ask chatbots like chatgpt or such if you don't know, but their answers may be inaccurate or lead you astray, so double check or such even though they could be accurate or do web search for you or such but check to be sure) (or your best bet may be alternatively to check the relevant source/documentation or other modding communities somewhere or google it xd)
 
 Important note: For some behaviours to reliably show ingame by the autoplay AI you are playing, it strongly seems you need at least 2 2 autoplay turns IN ONE GO (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go.
 

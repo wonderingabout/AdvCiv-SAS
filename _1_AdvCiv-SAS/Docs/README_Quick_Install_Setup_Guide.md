@@ -37,7 +37,6 @@ It should work fine with the Steam one too, but given the choice again i may hav
 
 You can download the latest stable version from:
 
-- the [CFC Modpacks downloads page](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/)
 - the [ModDB website](https://www.moddb.com/mods/advciv-sas-simple-advanced-strategy)
 - or alternatively from GitHub (you can get it from the [github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) page (that also has links to cumulative changes since last version in git history format for each version), or clone from github if you know how as you prefer).
 
@@ -144,7 +143,9 @@ If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer ver
 
 ### If you have trouble downloading/installing/using/upgrading/downgrading the mod
 
-Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd, although it is a non-financial profit mod if i may say too) and reply in case they encounter same issue or such, but do as you prefer and hopefully i or others can provide some help).
+AdvCiv-SAS no longer uses CivFanatics for project support or discussion.
+
+As of November 2026, it is not yet determined if there are or will be places to reach out for support or questions. As for why we decided to split from CFC, see the main README's CivFanatics status note for the November 2026 project-detachment context.
 
 ## Modify the mod (its development version)
 
@@ -160,5 +161,4 @@ The INI filename follows the actual installed mod-folder name, while `[CONFIG] N
 
 If you want to try/play other mods than AdvCiv-SAS or browse them (but you may already know if you downloaded this, still, or if not, maybe this can help you too), consider visiting, among other possible sources/websites:
 
-- CivFanatics Center (also known as CFC) 's forums -> Civ 4 forum -> Modpacks forum (is a forum of a forum called a forum(?)): [civfanatics website's civ4 modpacks forum](https://forums.civfanatics.com/forums/civ4-modpacks.171/) or the [civfanatics website's civ4 modpacks downloads section](https://forums.civfanatics.com/resources/categories/civ4-modpacks.2/)
 - ModDB (but does not have as much mods i think, AdvCiv (base mod) is not listed for example (which is the most interesting of the AdvCiv mods i think, except my awesome (xd) mod maybe as interesting maybe as AdvCiv)): [ModDB website (Civilization 4 Mods)](https://www.moddb.com/games/civilization-iv/mods).

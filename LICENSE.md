@@ -32,6 +32,18 @@ This can also include externally hosted project content (for example, an AdvCiv-
 
 Upstream or third-party material included in, linked from, or credited by AdvCiv-SAS remains subject to its own applicable rights and terms.
 
+### CivFanatics distribution restriction
+
+CivFanatics (including its forums, hosted resources, downloads, attachments, mirrors, or other distribution facilities) is not an authorized distribution venue for AdvCiv-SAS-original work or AdvCiv-SAS release packages containing such work.
+
+Except where separately and explicitly permitted by the AdvCiv-SAS maintainer, no person or project may upload, attach, mirror, rehost, republish, bundle, repackage, or otherwise distribute copies of AdvCiv-SAS-original work, in whole or in part, or an AdvCiv-SAS release package on or through CivFanatics.
+
+This restriction overrides the general reuse permission and any project- or person-specific exception elsewhere in these terms unless the maintainer explicitly states otherwise for the particular CivFanatics distribution.
+
+This restriction does not claim rights over upstream or third-party material for which the AdvCiv-SAS maintainer does not control the relevant rights, does not restrict uses independently permitted by applicable law, and does not prohibit an ordinary link to an official AdvCiv-SAS distribution location when the linked content itself is not copied or rehosted on CivFanatics.
+
+These terms apply to the current and future AdvCiv-SAS repository states and releases distributed with them. They do not purport to retroactively withdraw rights that were already validly granted for an earlier copy or release under the terms that governed that copy or release.
+
 ### RFC Dawn of Civilization and Leoreth-controlled project restrictions
 
 RFC Dawn of Civilization as maintained by Leoreth, other projects authored, maintained, or controlled by Leoreth, and projects derived from RFC Dawn of Civilization may not copy, port, adapt, or otherwise incorporate AdvCiv-SAS-original work directly from AdvCiv-SAS unless an explicit exception is granted below or separately by the AdvCiv-SAS maintainer.
@@ -60,6 +72,8 @@ The following independent RFC Dawn of Civilization derivatives are currently per
 - RFC Dawn of Chungus
 
 Independent projects authored or maintained by Fresol (`Fre-sol`) are also permitted under the normal reuse terms. This standing exception does not make RFC Dawn of Civilization itself permitted merely because Fresol contributes to it.
+
+Independent projects authored or maintained by CrossRFC (`crossCiv4` on GitHub), including but not limited to DoC-Cross-Overhaul, are also permitted under the normal reuse terms. This standing exception does not make RFC Dawn of Civilization itself permitted merely because CrossRFC contributes to it.
 
 Exceptions for RFC Dawn of Civilization derivatives are project-specific, non-transferable, and non-transitive: permission given to one project does not pass onward to another project. Permission for a listed or separately approved project does not extend to its forks, modmods, derivatives, or other distinct projects based on it unless the AdvCiv-SAS maintainer explicitly says otherwise.
 

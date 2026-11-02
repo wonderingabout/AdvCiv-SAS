@@ -1,8 +1,8 @@
 # AdvCiv-SAS (Simple Advanced Strategy)
 
-AdvCiv-SAS (Simple Advanced Strategy), sometimes called SAS or the SAS mod, ([Discussion thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/)) is a mod based on [AdvCiv 1.14](https://github.com/f1rpo/AdvCiv/tree/1.14), and will/may update whenever there are new changes that are stable.
+AdvCiv-SAS (Simple Advanced Strategy), sometimes called SAS or the SAS mod, is a mod based on [AdvCiv 1.14](https://github.com/f1rpo/AdvCiv/tree/1.14), and will/may update whenever there are new changes that are stable.
 
-AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) and at the [ModDB website](https://www.moddb.com/mods/advciv-sas-simple-advanced-strategy), not just on github anymore (read [below for download/install instructions](/README.md#how-to-play)).
+AdvCiv-SAS is available at the [ModDB website](https://www.moddb.com/mods/advciv-sas-simple-advanced-strategy) and on [GitHub](https://github.com/wonderingabout/AdvCiv-SAS) (read [below for download/install instructions](/README.md#how-to-play)).
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
 
@@ -91,7 +91,7 @@ Also most importantly LLMs like ChatGPT, GPT through Codex, Claude, or other LLM
 
 Changelogs, Main Changes Guide, commit log/history, and other supporting documentation/information are also available on GitHub.
 
-For license and reuse terms, including project-specific restrictions and expressly permitted derivatives, see [License and reuse](/LICENSE.md#license-and-reuse).
+For license, reuse, distribution and possibly other terms, including project-specific restrictions and expressly permitted derivatives, see [License and reuse](/LICENSE.md#license-and-reuse).
 
 ## Menu
 
@@ -209,6 +209,7 @@ For license and reuse terms, including project-specific restrictions and express
 [Mod name and Version number](/README.md#mod-name-and-version-number)\
 &emsp;[Mod name](#mod-name)\
 &emsp;[Version number](#version-number)\
+[CivFanatics (CFC) development discontinuation](/README.md#civfanatics-cfc-development-discontinuation)\
 [Copyright and Disclaimer](/README.md#copyright-and-disclaimer)\
 [Credits](/README.md#credits)\
 [Some Useful tools while doing this](/README.md#some-useful-tools-while-doing-this)\
@@ -248,7 +249,7 @@ Both of these maps were pangea at monarch handicap. Later screenshots are from v
 <img src="./_1_AdvCiv-SAS/Images/samples/0.962_autoplay_pre_5200_noble_1 (1).JPG" alt="0.962_autoplay_pre_5200_noble_1 (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/samples/0.963_autoplay_pre_5385_monarch_1.JPG" alt="0.963_autoplay_pre_5385_monarch_1.JPG" width="250"></img>
 
-See also [the CFC AdvCiv-SAS Discussion Thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) as well, or the google drive link (see [Docs section](/README.md#docs) for link below) for more gameplay samples although some of these may be old/dated now.
+See also the google drive link (see [Docs section](/README.md#docs) for link below) for more gameplay samples, although some of these may be old/dated now.
 
 ## How to play?
 
@@ -268,7 +269,7 @@ If you want to see the full very exhaustive code changes between the current bas
 
 For release-by-release AdvCiv-SAS history, see:
 
-- the [published web changelog archive](/_1_AdvCiv-SAS/Docs/changelogs_web/) for the contemporary CivFanatics/ModDB release text
+- the [published web changelog archive](/_1_AdvCiv-SAS/Docs/changelogs_web/) for historical release text as it appeared on the web at the time
 - the [AdvCiv-SAS Git log](/_1_AdvCiv-SAS/Docs/git_logs/) for detailed commit history
 - the [GitHub tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) for release boundaries and Git history/compare references.
 
@@ -1111,7 +1112,7 @@ See [commit/e8659a5e4c4afae41306dfc04e8ec62eeb77eb99](https://github.com/wonderi
 
 ## Long Comments Archive
 
-Context: after AI performed measurably better following a DLL refactor, the only other change was moving a very heavy XML comment (UnitAI XML info, not C++), which made it a suspect for the improvement and prompted us to archive long comments out of game files (AdvCiv-SAS 5240; see [update notes](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/) and the CFC download/update page for [that version](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/)).
+Context: after AI performed measurably better following a DLL refactor, the only other change was moving a very heavy XML comment (UnitAI XML info, not C++), which made it a suspect for the improvement and prompted us to archive long comments out of game files (AdvCiv-SAS 5240; see the [archived 5240 release notes](/_1_AdvCiv-SAS/Docs/changelogs_web/5240.txt)).
 
 To keep files readable, we consolidated long comments into [Long_Comments/](/_1_AdvCiv-SAS/Docs/Long_Comments/). See details in [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb) and [PR #17](https://github.com/wonderingabout/AdvCiv-SAS/pull/17).
 
@@ -1515,8 +1516,6 @@ For example, [Fix found during SASGameRecord revision 112: inherited AdvCiv AI d
 
 The later [Fix runtime-rediscovered crash, originally album-found Base AdvCiv CvCity::kill UAFs](https://github.com/wonderingabout/AdvCiv-SAS/commit/c7fc9338f8612fea06b48b7fed8fb89254ec12e0) ([KI#895](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-895) / [KI#896](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-896)) `CvCity::kill` crash repair provides the complementary case: matching CORE/RNG provenance and event history confirmed that the fixed run had not diverged through the exact former capital-capture crash path before continuing safely afterward.
 
-Their SASGameRecord (and some with BBAI) logs before after bug/crash and fix are as of now downloadable at this [CFC post](https://forums.civfanatics.com/threads/advanced-civ.614217/post-16993421).
-
 Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
 
 The record includes the same canonical mod/source and exact loaded-DLL identity as BBAI, including the practical version/commit when resolvable and the build target/binary fingerprint.
@@ -1748,7 +1747,14 @@ Updates to a stable release erase and replace the previous download for that sam
 
 For example, `AdvCiv-SAS 5860 Update (2026-06-02: 9 days after release)` can keep the `5860` release tag and download link while pointing to commit/version `5900`, or similarly `AdvCiv-SAS 5860 Update 4 (2026-06-04: 11 days after release), which is in fact AdvCiv-SAS 5912` for example.
 
-This keeps the same CFC/GitHub download link for the corrected stable build while preserving the intervening commit history for reference, cherry-picks, or future review.
+This keeps the same public download link for the corrected stable build while preserving the intervening commit history for reference, cherry-picks, or future review.
+
+## CivFanatics (CFC) development discontinuation
+
+- As of November 2026, AdvCiv-SAS development, release publication, and support are discontinued on CivFanatics.
+- Due to fundamental differences on what should be tolerated, praised, or called out on, when it comes to proper and healthy, generally well-meaning interactions with the CFC community from its users, all the way to moderators themselves, I (wonderingabout) have chosen, despite some people i really enjoyed or may have in the future enjoyed to interact with, to detach the project after repeated hostility, dominant voiced support towards these, and not much support or ignorance when trying to call out these, and after i saw this kind of exchanges even happened publicly even in moderator to moderator/administration interactions, i have decided CFC is no longer a healthy place for me to be in, and it has been harmful to my wellbeing.
+- Current development and release information are maintained on GitHub and ModDB. Historical CivFanatics links may remain in old changelogs, source notes, credits, bug reports, or research citations solely to preserve provenance; they are not current project/support links or a recommendation to use the site.
+- I have not decided if a place to reach out or ask questions regarding AdvCiv-SAS would be set up in the future, for now this GitHub page hosts main development, and ModDB for releases alternative download links.
 
 ## Copyright and Disclaimer
 

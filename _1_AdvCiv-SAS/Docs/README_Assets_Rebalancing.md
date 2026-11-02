@@ -450,7 +450,7 @@ To keep this roster focused on each civ-specific unit's actual gameplay replacem
 
 Exact current values remain visible in XML and Sevopedia Unit.
 
-Note 2: paired columns are visually merged below (`Before → current SAS`, with both comparison summaries kept in the same linear `Changes` cell) to keep the roster substantially narrower. It can still be [viewed on CFC](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16954876) if useful (refer to GitHub or XML/Sevopedia if that copy is not updated).
+Note 2: paired columns are visually merged below (`Before → current SAS`, with both comparison summaries kept in the same linear `Changes` cell) to keep the roster substantially narrower. Refer to this GitHub document, perhaps in code view if rows are trimmed laterally on an md/Github viewer, or XML/Sevopedia for the maintained values.
 
 As of now, playable civilizations intentionally have no naval civ-specific units. Naval replacements can be effectively absent on land-heavy maps and disproportionately important on naval-heavy maps, especially when most other civilizations have no comparable naval replacement; balancing them fairly would otherwise tend to require a broader set of naval counterparts.
 

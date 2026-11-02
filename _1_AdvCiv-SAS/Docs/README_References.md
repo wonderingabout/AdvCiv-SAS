@@ -122,7 +122,7 @@ Disclaimer that i may not be able to give any feedback on it even if asked, also
 
 Please read the (more) detailed disclaimer there on page i linked above for details. However, with that being said, i hope the ressources provided there give you some help, anyways.
 
-Else or additionally, you may find more help asking your question(s) directly on [CivFanaticsCenter's Civ4 Forum](https://forums.civfanatics.com/categories/civilization-iv.143/) rather maybe or some other place maybe. Hopefully this data i provided is also helpful though.
+Else or additionally, you may find more help in the relevant project's own documentation/GitHub or another modding community you trust. Hopefully this data i provided is also helpful though.
 
 ## Some Useful tools while doing this
 

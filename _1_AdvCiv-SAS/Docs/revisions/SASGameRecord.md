@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 187 - SAS practical 6708
 
 - **Date:** 2026-11-02
-- **Git commit:** pending
+- **Git commit:** `d709f875c5e16c458325a771c36e50ff91ee7104`
 - **Change:** Extend first-capital evidence for the KI#144.6 scoring/scouting review while keeping detailed candidate tracing in BBAI.
   - Known-map and true-map first-capital founding rescoring now opt into the founder's actual yield-threshold traits, matching the live Settler evaluator; pregame starting-position normalization remains trait-neutral.
   - `GAME_RECORD_AI_FIRST_CITY_INFORMATION_PROBE` records selected weak-core information-only probes at level 2: requested target/waypoint, protected fallback and value, raw information value, selected direction strength/multiplier/adjusted information, limiting core quality/reference, added founding turns and the bounded information/founding windows. It records the live selected operands rather than rerunning candidate scoring.

@@ -23,7 +23,8 @@ Prefer verifying the current repository state over mechanically following stale 
 - Treat the current repository, Git history, staged diff, supporting docs, and test results as the source of truth; do not reconstruct a release from memory alone.
 - Do not create, move, force-push, or publish a Git tag unless the user explicitly asks.
   - For the preferred current tag workflow, use [the "example with more advanced version (totally not shameless...)" subsection](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-with-more-advanced-version-totally-not-shameless-or-yes-xd-but-it-might-also-help-as-well).
-- Do not publish to CivFanatics, ModDB, Google Drive, GitHub Releases, or other distribution pages automatically. Prepare the files/text for user review and let the user perform publication unless explicitly asked otherwise.
+- Do not publish to ModDB, Google Drive, GitHub Releases, or other distribution pages automatically. Prepare the files/text for user review and let the user perform publication unless explicitly asked otherwise.
+- Do not prepare or publish new CivFanatics release/support material. AdvCiv-SAS detached from CivFanatics in November 2026; historical CivFanatics links and archived publication text may remain only where they preserve source/provenance.
 - Keep transient development history out of player-facing release notes. The release changelog should describe the final net result of the release.
 - Preserve historical references when they are intentionally tied to an old version, commit, screenshot, comparison file, or Known Issue. Do not globally replace old AdvCiv version strings.
 - Prefer a clean working tree before final release preparation. Temporary local diagnostic settings, debug logging, generated build intermediates, and unrelated experimental changes should not leak into the release.
@@ -95,7 +96,7 @@ Prefer verifying the current repository state over mechanically following stale 
 ## 6. Build the player-facing cumulative changelog
 
 - Use the complete published release texts in [`_1_AdvCiv-SAS/Docs/changelogs_web/`](/_1_AdvCiv-SAS/Docs/changelogs_web/) as local style/examples rather than maintaining separate example or checkpoint copies. Prefer a recent comparable release when available, while adapting sectioning to the release at hand.
-- Produce the release changelog as plain text suitable for sites such as CivFanatics and ModDB where the user may add website-specific bullets/HTML formatting manually. Do not depend on Markdown-only formatting for the publishing copy.
+- Produce the release changelog as plain text suitable for ModDB and other current publication/download pages where the user may add website-specific bullets/HTML formatting manually. Do not depend on Markdown-only formatting for the publishing copy.
 - Before the detailed body, draft a short release overview that explains the main development arc and **why** the release matters rather than enumerating changes.
   - Keep it substantially shorter than the body.
   - The user may prefer to rewrite this overview personally so it expresses the release's purpose in exactly the intended voice; when that is likely, prioritize LLM effort on the body instead of over-polishing the introduction.
@@ -146,12 +147,12 @@ Prefer verifying the current repository state over mechanically following stale 
 - For AI changes, keep the body readable but include striking empirical before/after numbers when they convey the scale or reliability of the improvement better than abstract prose (for example Worker coverage, military-production response, pathological unit composition, or validation counts).
   - Avoid turning every AI item into a test log.
 - Do not over-detail broad terrain/feature modifier tables in the web changelog when a short design summary captures the release direction and the supporting rebalancing guide contains the exhaustive values. Preserve core rules/limits and the intended effect instead.
-- CivFanatics currently has an approximately **50,000-character limit per post** and ModDB approximately **100,000 characters**. Do not prematurely delete meaningful body substance just to force one CFC post; prepare the complete body first, then compact or split it if needed.
-- For the final CFC-oriented plain-text copy, keep **no blank lines between individual items within a section**. The user's website-side HTML/list formatting can provide indentation/visual separation. Blank lines may still separate major section boundaries and overview paragraphs.
+- Do not prematurely delete meaningful body substance to fit a publication-site limit. Prepare the complete body first, then compact or split it only if the current target site requires that.
+- For a compact website-oriented plain-text copy, keep **no blank lines between individual items within a section** when that matches the target site's formatting. Blank lines may still separate major section boundaries and overview paragraphs.
 - Keep cumulative compare information/SHAs near the end in the style of the existing sample when useful.
 - Routine working drafts/checkpoints do not need to be committed.
   - After publication, archive the final public release text(s) in `_1_AdvCiv-SAS/Docs/changelogs_web/<version>.txt` with release/source/retrieval provenance.
-  - When the same release has distinct CFC/ModDB/forum texts, preserve them as clearly labeled blocks in the same version file rather than flattening them together.
+  - When a historical release has distinct former CivFanatics/ModDB/forum texts, preserve them as clearly labeled blocks in the same version file rather than flattening them together. For future releases, preserve the actual current publication sources the same way.
 
 ## 7. Prepare Git history/reference updates
 
@@ -180,13 +181,13 @@ Prefer verifying the current repository state over mechanically following stale 
   - For this infrastructure, anchor the known AdvCiv-SAS 6356 commit once with `git tag SAS_VERSION_ANCHOR_6356 5234f5012d745b96fd83b8bf60d3031de69c2a01` and `git push origin SAS_VERSION_ANCHOR_6356`.
   - Normal future commits/releases require no version-anchor maintenance.
 - When asked to prepare a tag command, use the actual final release SHA/version and previous stable release boundary rather than stale examples from the documentation.
-- Prepare the plain-text changelog for CivFanatics/ModDB and any concise download-page summary, but leave website-specific formatting/publication to the user unless explicitly requested.
+- Prepare the plain-text changelog for ModDB and any concise GitHub/download-page summary, but leave website-specific formatting/publication to the user unless explicitly requested.
 - Keep the chosen primary download link stable when that is the current release policy, while updating the hosted archive behind it as appropriate.
 - After publication, verify the public tag/download/release references point to the intended final commit/files.
 
 ## 10. After release
 
 - Update release/tag examples or version-specific documentation only when doing so adds useful future guidance; avoid turning every example into a maintenance burden.
-- Update the incremental Git log and archive the newly published CFC/ModDB release text in [`Docs/changelogs_web/`](/_1_AdvCiv-SAS/Docs/changelogs_web/) if it has not already been captured.
+- Update the incremental Git log and archive the newly published web release text in [`Docs/changelogs_web/`](/_1_AdvCiv-SAS/Docs/changelogs_web/) if it has not already been captured. Preserve older former CivFanatics/ModDB publication text as historical provenance rather than rewriting it.
 - Record post-release hotfix/update boundaries clearly so the next cumulative changelog uses the intended previous stable release rather than accidentally starting from an intermediate development commit.
 - Keep newly discovered release-process omissions or repetitive manual steps as improvements to this checklist. The goal is for future LLM/user release preparation to become more reliable and less tedious over time.
