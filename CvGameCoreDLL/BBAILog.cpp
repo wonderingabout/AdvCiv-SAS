@@ -7,6 +7,12 @@
 #include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
 #include "CvGameCoreUtils.h" // <!-- custom: Needed for the shared DLL-process UTC identity used by BBAI and SASGameRecord. See KI#629. (GPT-5.6-Sol) -->
 
+#include "GroupPathFinder.h" // <!-- custom: Read existing route-node turns and remaining movement for caller-gated scouting efficiency diagnostics. (GPT-6.1-Sol) -->
+#include "CitySiteEvaluator.h" // <!-- custom: Revalue a committed probe with founder-known starting-capital rules only when its diagnostic observation is due. (GPT-6.1-Sol) -->
+#include "CoreAI.h" // <!-- custom: Resolve the probe owner's actual player yield traits for diagnostic revaluation. (GPT-6.1-Sol) -->
+#include "CvUnit.h" // <!-- custom: Identify the observed Settler and its current position without extending gameplay unit state. (GPT-6.1-Sol) -->
+#include "CvPlot.h" // <!-- custom: Compare the recorded target fog mask with current revealed plots. (GPT-6.1-Sol) -->
+
 // AI decision making logging
 
 static int getClampedSASBBAILogLevel(char const* szDefineName)
@@ -256,6 +262,106 @@ static void rollSASBBAILog(const char* szContext)
 int getSASBBAILogSessionSequence()
 {
 	return g_iSASBBAILogSequence;
+}
+
+// <!-- custom: A one-turn waypoint can still use movement inefficiently; coordinates alone do not show whether rough terrain exhausted the first step or was entered after a cheap step.
+// Read the already-computed path before another hypothetical search replaces it.
+// No pathfinding or terrain evaluation is performed here.
+// Node movement is the group's minimum remaining movement in engine units, not a count of tiles.
+// All three first-city route/probe helpers below require a caller-side Settler level-3 gate; disabled BBAI skips their calls, argument evaluation, formatting and diagnostic-only revaluations. See KI#144.6. (GPT-6.1-Sol) -->
+void logBBAIFirstCityScoutRoute(CvUnit const& kSettler, CvPlot const& kTarget, char const* szPhase)
+{
+	std::vector<GroupPathNode const*> aNodes;
+	for (GroupPathNode const* pNode = kSettler.getPathFinder().getEndNode(); pNode != NULL; pNode = pNode->m_pParent)
+		aNodes.push_back(pNode);
+	CvString szRoute;
+	for (int i = (int)aNodes.size() - 1; i >= 0; --i)
+	{
+		GroupPathNode const& kNode = *aNodes[i];
+		if (!szRoute.empty()) szRoute += ";";
+		szRoute += CvString::format("%d,%d@t%d:m%d", kNode.getPlot().getX(), kNode.getPlot().getY(), kNode.getPathTurns(), kNode.getMoves());
+	}
+	logBBAI("FIRST_CITY_SCOUT_ROUTE turn=%d player=%d unitId=%d phase=%s from=%d,%d target=%d,%d unitMovesLeft=%d moveDenominator=%d pathTurns=%d finalGroupMoves=%d nodes=%s",
+		GC.getGame().getGameTurn(), kSettler.getOwner(), kSettler.getID(), szPhase, kSettler.getX(), kSettler.getY(), kTarget.getX(), kTarget.getY(), kSettler.movesLeft(), GC.getMOVE_DENOMINATOR(), kSettler.getPathFinder().getPathTurns(), kSettler.getPathFinder().getFinalMoves(), szRoute.c_str());
+}
+
+// <!-- custom: Candidate forecasts explained selection but did not show what the same target became after scouting.
+// Keep one outstanding committed hope probe per player/unit, outside saved/gameplay state; session invalidation prevents a reload from joining unrelated observations.
+// Revaluation is founder-known, not an oracle.
+// Score changes can also reflect rival ownership or other intervening changes, so they are not isolated causal reveal gains. See KI#144.6. (GPT-6.1-Sol) -->
+struct SASBBAIFirstCityProbe
+{
+	int iTurn, iTargetX, iTargetY, iFallbackX, iFallbackY, iWaypointX, iWaypointY;
+	int iTargetValue, iFallbackValue, iNetHopeValue, iDelayCost;
+	bool abFog[NUM_CITY_PLOTS];
+};
+typedef std::map<std::pair<int, int>, SASBBAIFirstCityProbe> SASBBAIFirstCityProbes;
+
+static SASBBAIFirstCityProbes& getSASBBAIFirstCityProbes()
+{
+	static SASBBAIFirstCityProbes aProbes;
+	static int iSession = -1;
+	int const iCurrentSession = getSASBBAILogSessionSequence();
+	if (iSession != iCurrentSession)
+	{
+		aProbes.clear();
+		iSession = iCurrentSession;
+	}
+	return aProbes;
+}
+
+void logBBAIFirstCityProbeStart(CvUnit const& kSettler, CvPlot const& kTarget, CvPlot const& kFallback, CvPlot const& kWaypoint, int iTargetValue, int iFallbackValue, int iNetHopeValue, int iDelayCost)
+{
+	SASBBAIFirstCityProbe kProbe;
+	kProbe.iTurn = GC.getGame().getGameTurn();
+	kProbe.iTargetX = kTarget.getX(); kProbe.iTargetY = kTarget.getY();
+	kProbe.iFallbackX = kFallback.getX(); kProbe.iFallbackY = kFallback.getY();
+	kProbe.iWaypointX = kWaypoint.getX(); kProbe.iWaypointY = kWaypoint.getY();
+	kProbe.iTargetValue = iTargetValue; kProbe.iFallbackValue = iFallbackValue;
+	kProbe.iNetHopeValue = iNetHopeValue; kProbe.iDelayCost = iDelayCost;
+	int iFog = 0;
+	FOR_EACH_ENUM(CityPlot)
+	{
+		CvPlot const* pPlot = plotCity(kTarget.getX(), kTarget.getY(), eLoopCityPlot);
+		kProbe.abFog[eLoopCityPlot] = (eLoopCityPlot != CITY_HOME_PLOT && pPlot != NULL && !pPlot->isRevealed(kSettler.getTeam()));
+		if (kProbe.abFog[eLoopCityPlot]) ++iFog;
+	}
+	getSASBBAIFirstCityProbes()[std::make_pair((int)kSettler.getOwner(), kSettler.getID())] = kProbe;
+	logBBAI("FIRST_CITY_PROBE_STARTED turn=%d player=%d unitId=%d from=%d,%d target=%d,%d fallback=%d,%d waypoint=%d,%d targetValueBefore=%d fallbackValueBefore=%d netHopeValue=%d delayCost=%d targetFogBefore=%d",
+		kProbe.iTurn, kSettler.getOwner(), kSettler.getID(), kSettler.getX(), kSettler.getY(), kTarget.getX(), kTarget.getY(), kFallback.getX(), kFallback.getY(), kWaypoint.getX(), kWaypoint.getY(), iTargetValue, iFallbackValue, iNetHopeValue, iDelayCost, iFog);
+}
+
+void logBBAIFirstCityProbeOutcome(CvUnit const& kSettler)
+{
+	SASBBAIFirstCityProbes& aProbes = getSASBBAIFirstCityProbes();
+	SASBBAIFirstCityProbes::iterator it = aProbes.find(std::make_pair((int)kSettler.getOwner(), kSettler.getID()));
+	if (it == aProbes.end())
+		return;
+	SASBBAIFirstCityProbe const kProbe = it->second;
+	// <!-- custom: Consume before evaluation so each committed probe has at most one observation, including same-turn arrival followed by FOUND. (GPT-6.1-Sol) -->
+	aProbes.erase(it);
+	CvPlot const& kTarget = *GC.getMap().plot(kProbe.iTargetX, kProbe.iTargetY);
+	CvPlot const& kFallback = *GC.getMap().plot(kProbe.iFallbackX, kProbe.iFallbackY);
+	int iNewlyRevealed = 0;
+	int iRemainingFog = 0;
+	FOR_EACH_ENUM(CityPlot)
+	{
+		CvPlot const* pPlot = plotCity(kTarget.getX(), kTarget.getY(), eLoopCityPlot);
+		if (!kProbe.abFog[eLoopCityPlot] || pPlot == NULL)
+			continue;
+		if (pPlot->isRevealed(kSettler.getTeam())) ++iNewlyRevealed;
+		else ++iRemainingFog;
+	}
+	CitySiteEvaluator kEvaluator(GET_PLAYER(kSettler.getOwner()), -1, true);
+	kEvaluator.setAllSeeing(false);
+	kEvaluator.setUsePlayerYieldTraits(true);
+	kEvaluator.setLogContext(SAS_FOUND_LOG_SETTLER_FIRST_CITY);
+	int const iTargetValue = kEvaluator.evaluate(kTarget);
+	int const iFallbackValue = (&kTarget == &kFallback ? iTargetValue : kEvaluator.evaluate(kFallback));
+	logBBAI("FIRST_CITY_PROBE_OBSERVED turn=%d player=%d unitId=%d probeTurn=%d at=%d,%d waypoint=%d,%d atWaypoint=%d target=%d,%d fallback=%d,%d newlyRevealedTargetPlots=%d remainingTargetFog=%d targetCanFound=%d fallbackCanFound=%d targetValueBefore=%d targetValueNow=%d fallbackValueBefore=%d fallbackValueNow=%d netHopeValue=%d delayCost=%d",
+		GC.getGame().getGameTurn(), kSettler.getOwner(), kSettler.getID(), kProbe.iTurn, kSettler.getX(), kSettler.getY(), kProbe.iWaypointX, kProbe.iWaypointY,
+		kSettler.getX() == kProbe.iWaypointX && kSettler.getY() == kProbe.iWaypointY, kTarget.getX(), kTarget.getY(), kFallback.getX(), kFallback.getY(), iNewlyRevealed, iRemainingFog,
+		kSettler.canFound(&kTarget), kSettler.canFound(&kFallback), kProbe.iTargetValue, iTargetValue, kProbe.iFallbackValue, iFallbackValue, kProbe.iNetHopeValue, kProbe.iDelayCost);
 }
 
 static void logSASBBAIGameState(const char* szRowType)

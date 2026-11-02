@@ -69,6 +69,8 @@ Always review diffs before committing generated source changes.
 - [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
 - [AdvCiv manual text conversion helper](#advciv-manual-text-conversion-helper)
   - [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy)
+- [Claude Code session transcript helper](#claude-code-session-transcript-helper)
+  - [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy)
 - [Source packaging and generated-history helpers](#source-packaging-and-generated-history-helpers)
   - [`make_light_source_zip.py`](#make_light_source_zippy)
     - [General](#general)
@@ -1222,6 +1224,22 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
 - When base AdvCiv updates `manual.odt`, refresh `manual.txt` in the same merge/release-preparation batch so the searchable copy does not lag behind the binary manual.
 - The automated [generated_docs.py](/.github/workflows/build/documentation/generated_docs.py) check validates this conversion through its reusable `TEXT_CONVERSIONS` registry.
   - Future source-to-text conversions can register their own source, output and converter there; the AdvCiv manual is currently the only entry.
+
+## Claude Code session transcript helper
+
+### `claude_session_export_to_txt.py`
+
+- Converts a Claude Code desktop session export (`session-export-<id>.zip`, written to Downloads when Claude is asked to export the session) into a readable `.txt` chat transcript, for example to hand a review discussion to Codex or ChatGPT.
+  - The export holds a raw `transcript.jsonl` log, not a readable chat; `/export` was unavailable in the desktop session, and copying from the chat view captured only a small slice of a long session.
+- Keeps user and Claude messages in full and reduces each tool call to a one-line `[tool: name - description]` marker; thinking and raw tool output are omitted.
+  - On the first use, this reduced a 2 MB `transcript.jsonl` to about 24 KB.
+- Uses only Python 3's standard library and writes beside the ZIP by default:
+
+```bash
+python ./LLM_Helpers/claude_session_export_to_txt.py "C:/Users/PC/Downloads/session-export-1793625034771.zip"
+```
+
+- The transcript ends where the export was taken; export again for later messages.
   - Related `manual.pdf` edits also require a paired text refresh in the complete PR/push range.
 - Added with help of ChatGPT-5.6-Sol.
 

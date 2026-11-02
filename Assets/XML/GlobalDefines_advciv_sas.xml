@@ -1281,6 +1281,54 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_SITE_BONUS_BLDG_HAPPY_HEALTH_MAX_VAL</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
+	<!-- custom: Shared plot-rank curve for actual site scores, scouting forecasts and Food-support projections.
+	Spread is 0..100 percentage points around 100: 53 gives 153..47, while capital spread 45 gives 145..55 because capitals grow large.
+	Zero spread gives flat 100% weights.
+	OFFSET subtracts score units before weighting; FLOOR_DIV preserves at least original score / divisor for positive plots.
+	Defaults 53, 45, 29 and 3 retain the inherited base curve; the separate core contribution below is applied afterward.
+	Offset must be nonnegative and divisor at least 1.
+	Cached on first site evaluation: restart after editing. See KI#144.6. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_SITE_PLOT_RANK_SPREAD_PCT</DefineName>
+		<iDefineIntVal>53</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SITE_1ST_CITY_RANK_SPREAD_PCT</DefineName>
+		<iDefineIntVal>45</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SITE_PLOT_RANK_OFFSET</DefineName>
+		<iDefineIntVal>29</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SITE_PLOT_RANK_FLOOR_DIV</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: Experimental all-city core contribution: average best-core per-slot values at these percentages of the non-home BFC (normally 6/10/14 slots).
+	Normalize the core rank profile to the old rank-weight budget, then blend it into the same cached transform used for actual values, fog forecasts and Food support.
+	These are plot-component percentages, not percentages of the complete city score or extra resource rewards; 0 contribution restores the previous curve exactly.
+	Default strengths are 30 for the first capital and 20 for later sites; the opening replays do not validate later-city balance.
+	Restart after editing. See KI#144.6. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_SITE_1ST_CITY_CORE_WEIGHT_PCT</DefineName>
+		<iDefineIntVal>30</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SITE_CORE_WEIGHT_PCT</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SITE_CORE_1_BFC_PCT</DefineName>
+		<iDefineIntVal>30</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SITE_CORE_2_BFC_PCT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SITE_CORE_3_BFC_PCT</DefineName>
+		<iDefineIntVal>70</iDefineIntVal>
+	</Define>
 	<!-- custom: Top-level Settler yield emphasis, applied after the detailed plot-class weights and to resource-improvement yields. Raising Production above 100 therefore favors hammer-rich BFCs consistently instead of editing four values. Defaults 100 preserve tested balance. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_SITE_YIELD_FOOD_VAL_PCT</DefineName>
@@ -1384,11 +1432,20 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_SITE_DEF_PERSONALITY_VAL_PCT</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
+	<!-- custom: First-capital ship-production access value as a percentage of the shared XML-valued sustainable productive plot, scaled by the existing Food-limited production modifier and land-heavy-map reduction.
+	Default 100 values this distinct strategic access in one productive-plot reference unit before those modifiers; 0 disables this component.
+	Actual water yields, seafood and assumed sea-Food buildings are valued separately, without an additional worked-core cap or repeated water reward. See KI#144.6. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_SITE_1ST_CITY_PORT_REF_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
 	<!-- custom: Optional flat coastal found-value biases on naval-heavy maps.
 	Following the KI#173 scoring changes, save file 420 now chooses the strong Cuzco coastal site with both values at 0, and Japan no longer favored the old tundra-heavy candidates thus a significant naval settling bias no longer seems necessary: keep these disabled by default, or use only a fairly small positive value if an additional strategic preference for coastal access, work boats, contact, trade, galleys, or Moai is wanted. See KI#146. (GPT-5.5) -->
+	<!-- custom: First-capital extra defaults to 0: ordinary ship-production access already has its own XML/yield-derived value, and water economics are counted separately.
+	Keep this only as an explicit optional naval-map preference. See KI#144.6. (GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SITE_NAVAL_1ST_CITY_COAST_EXTRA_VAL</DefineName>
-		<iDefineIntVal>150</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_SITE_NAVAL_LATER_CITY_COAST_EXTRA_VAL</DefineName>
@@ -1462,11 +1519,18 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
-	<!-- custom: Minimum number of good-enough non-home BFC slots required before accepting the first-city site.
-	"Good enough" is intentionally weaker than truly good: it includes usable land that is not very bad and reachable/already-improved visible water bonuses, but not ordinary coast/ocean. (ChatGPT-5.5) -->
+	<!-- custom: Minimum first-city BFC capacity in full-slot units: usable non-very-bad land and usable visible water bonuses count fully, as do the established neutral fog slots.
+	Ordinary viable water can contribute the separate configured partial credit below, but only with strong sustainable early cores. See KI#144.6. (ChatGPT-5.5 + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SITE_1ST_CITY_MIN_GOOD_BFC_PLOTS</DefineName>
 		<iDefineIntVal>13</iDefineIntVal>
+	</Define>
+	<!-- custom: Percentage of one capacity slot supplied by non-resource water that is not very bad and is self-feeding under the evaluator's existing XML-derived sea-Food building assumption.
+	Default 50 gives half credit; 0 disables the partial-water exception (accepted range 0..100).
+	Only candidates below the full-slot minimum can use it; both best-6/10 value references and both Food-support projections must pass, independently of logging. See KI#144.6. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_SITE_1ST_CITY_WATER_CAPACITY_PCT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 
 
@@ -1575,6 +1639,9 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: during first-city roaming, stop wandering once the current foundable plot has this many revealed food bonuses in its BFC.
 	This prevents the settler from walking through an already strong pig+corn/fresh-water-style capital while chasing more unknown information.
 	Set to 0 to disable. (GPT-5.5) -->
+	<!-- custom: This count now means usable growth-food resources: their bonus-specific improvement adds Food and the potential tile feeds its worker plus another citizen (2 * GC food consumption), matching the site evaluator's growth threshold.
+	A mere surplus no longer makes Sugar-like 3-Food resources equivalent to richer Pig/Maize tiles; XML yields, not resource names, decide.
+	General food pressure and complete site valuation remain separate. See KI#144.6. (GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_1ST_CITY_GOOD_FOOD_BONUSES</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
@@ -1588,14 +1655,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_1ST_CITY_GOOD_BEST_6_REF_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
-	<!-- custom: A first capital with enough visible food bonuses can still have a marginal overall worked core when the surrounding BFC is poor.
-	This threshold compares best-6 + best-10 plot value with 16 sustainable reference plots and only opens the optional promising-fog scout-entry check when the known core is at or below this percentage.
-	Default 110 admits only cores at or below 110% of the sustainable reference before risking extra scouting; 0 disables this marginal strong-food entry path. See KI#144.5. (ChatGPT-5.6-Sol) -->
-	<Define>
-		<DefineName>SAS_1ST_CITY_SCOUT_MAX_CORE_16_REF_PCT</DefineName>
-		<iDefineIntVal>110</iDefineIntVal>
-	</Define>
-	<!-- custom: Minimum revealed non-home BFC plots required before a partly fogged first-city alternative can be treated as a meaningful sample for known-average comparison.
+	<!-- custom: Minimum known non-home BFC slots required before a partly fogged first-city alternative can be treated as a meaningful sample for known-average comparison; off-map slots are known unusable zeros.
 	Default 8 allows the starting visibility footprint to identify a genuinely promising frontier without trusting a nearly unknown site; 0 disables promising-fog first-city entry. See KI#144.5. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_1ST_CITY_SCOUT_FOG_MIN_REVEALED_BFC</DefineName>
@@ -1607,11 +1667,84 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_1ST_CITY_SCOUT_FOG_MIN_UNREVEALED_BFC</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
-	<!-- custom: Required known value per revealed BFC plot for a partly fogged first-city alternative, as a percentage of the fully revealed marginal capital available now.
-	Default 120 requires at least a 20% stronger known average before spending a scouting turn; the candidate is never treated as a finished settlement value and is reevaluated after every reveal. See KI#144.5. (ChatGPT-5.6-Sol) -->
+	<!-- custom: Minimum known worked-plot quality of a partly fogged capital alternative relative to the confirmed settle site.
+	Default 85 allows a sample up to 15% weaker to justify investigation if its optimistic gain also pays the delay cost; this is a quality floor, not a probability.
+	Known poor tiles retain their scored value and unusable/off-map slots count as zero; fixed city and resource-access rewards stay outside the average.
+	0 disables this hope check.
+	Replaces the old 120% whole-score average and marginal-core admission restriction. See KI#144.6. (GPT-6.1-Sol) -->
 	<Define>
-		<DefineName>SAS_1ST_CITY_SCOUT_FOG_MIN_AVG_VAL_PCT</DefineName>
-		<iDefineIntVal>120</iDefineIntVal>
+		<DefineName>SAS_1ST_CITY_SCOUT_HOPE_MIN_QUALITY_PCT</DefineName>
+		<iDefineIntVal>85</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum path turns to a known-center first-capital reveal prospect, independently of the shorter local-settlement recheck.
+	Default 3 lets a probe consider Washington's previous three-turn prospect instead of excluding it with the two-turn settlement cap.
+	The next reveal waypoint must still justify its actual added founding/return delay, fit the remaining founding window and meet the known-quality floor; this does not commit to traversing the whole route.
+	0 disables hope probes. See KI#144.6. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_1ST_CITY_SCOUT_MAX_T_UNSCALED_GS</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: Optimistic extra value per unknown worked-plot slot, as a percentage of the XML-derived sustainable productive plot, added to the observed local mean.
+	Default 100 budgets one reference plot of upside per unknown slot; it does not claim unseen terrain or resources are actually productive.
+	Both sites receive the same forecasting method.
+	No additional elapsed-time hope fade is applied; the existing window/time pressure and actual added founding/return-delay costs already price delay.
+	Only the forecast difference can justify scouting.
+	Confirmed scores still decide where to found.
+	0 removes the extra allowance but still fills unknown slots with the observed mean. See KI#144.6. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_1ST_CITY_SCOUT_HOPE_UPSIDE_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: End an active first-capital search once it finds a confirmed improvement over its scouting origin that meets the existing GOOD_FOOD_BONUSES and GOOD_BEST_6_REF_PCT safeguards.
+	The backtracking correction recovered scouting time, but Huge Korea spent it probing again from an already strong Pig+Maize capital; this makes success a stopping condition instead of renewing optimistic forecasts repeatedly.
+	Initial scouting stays eligible, and poor or unimproved fallbacks still use the existing continuation/deadline policy.
+	Default 1 tests this stop rule; 0 restores unrestricted renewed hope admission for comparison.
+	Cached on first eligible decision: restart after editing. See KI#144.6. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_1ST_CITY_SCOUT_COMMIT_IMPROVED_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Blend the uniform first-capital fog forecast toward a neighbor-supported estimate for each unknown BFC slot.
+	Revealed neighbors contribute their worked values; unobserved neighbor slots retain the whole known sample mean, limiting the influence of one exceptional plot.
+	Default 100 uses that spatial estimate; 0 restores the preceding uniform forecast and reveal-direction weights for direct comparison.
+	Unknown slots with no revealed neighbors retain the uniform estimate.
+	Known unusable neighbors count as zero; the free city center is excluded.
+	This guides exploration toward promising revealed edges without reading hidden terrain/resources or changing confirmed site scores, the quality floor, or founding/return-delay checks.
+	The extra plot values are retained from the existing evaluation, and frontier arrays are built only for candidate probes that passed the cheap checks. See KI#144.6. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_1ST_CITY_SCOUT_FRONTIER_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: Relative frontier confidence for first-capital scouting (0..100).
+	At 100, ordinary fog samples omit the separately scored reward for known resource improvements, and their upside allowance scales down when predictive plot value is below the confirmed site's small configured core.
+	Known resources keep their full actual site value.
+	No terrain/resource/trait names or fixed found-value threshold decide whether to keep scouting.
+	0 restores the previous forecast; 100 fully applies the relative-frontier adjustment. See KI#144.6. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_1ST_CITY_SCOUT_REL_FRONTIER_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: Allow a weak confirmed capital to buy a little information even if no alternative currently has positive predicted net gain.
+	The core reference compares the limiting small/medium configured core with XML-derived sustainable productive plots; it is not an absolute found-value or terrain-name threshold.
+	The turn allowance bounds both elapsed opening turns eligible for this extra admission and the added founding delay including a known return route; ordinary profitable probes retain their separate window.
+	Zero in either setting disables this allowance.
+	Defaults: 2 opening turns below 100% core capacity.
+	Reassess after each reveal and retain the usual full founding deadline. See KI#144.6. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_1ST_CITY_INFO_MAX_T_UNSCALED_GS</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_1ST_CITY_INFO_CORE_REF_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: Weak-capital information probes prefer directions with better revealed ordinary-land potential beyond the current BFC.
+	Compare forward samples against the local mean; exclude visible resources and water, follow revealed land connectivity and respect map wrapping.
+	Default 50 applies half of the bounded relative-quality adjustment; 0 preserves raw-information ranking and skips sampling.
+	This changes only information-only direction ranking, not confirmed site scores or the founding/return deadline. See KI#144.6. (GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_1ST_CITY_INFO_DIRECTION_PCT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<!-- custom: First-city roaming treats a candidate as bad at this revealed non-home food-deficit score.
 	Each plot compares citizen consumption with natural and visible bonus/improvement food; ocean-coastal sites also assume their Harbor-class sea food.
@@ -2314,7 +2447,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>186</iDefineIntVal>
+		<iDefineIntVal>187</iDefineIntVal>
 	</Define>
 
 
@@ -2360,9 +2493,6 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_RUNTIME_STATUS_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-
-
-
 	<!-- custom: Slow sequential AI-player Runtime publication threshold in milliseconds.
 	The recorder always measures enabled sequential player turns in memory; a value >= 0 publishes current AI-controlled player/phase context only after that elapsed time, while -1 disables live player-turn refreshes but keeps the completed-turn summary.
 	This does not poll from another thread: publication occurs only when Civ4 returns to its ordinary update loop, so one uninterrupted blocking call can remain unchanged longer than this threshold.
@@ -2371,9 +2501,6 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS</DefineName>
 		<iDefineIntVal>3000</iDefineIntVal>
 	</Define>
-
-
-
 	<!-- custom: Minimum interval in milliseconds between repeated live publications after a slow AI-controlled player crosses the threshold above.
 	3000 keeps a visibly fresh external status without one disk rewrite per update slice; 0 publishes only the first threshold crossing for that player turn.
 	Fast players still produce no extra status writes and remain represented in the compact completed-turn summary.
@@ -2382,9 +2509,6 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_RUNTIME_PLAYER_TURN_LIVE_REFRESH_MS</DefineName>
 		<iDefineIntVal>3000</iDefineIntVal>
 	</Define>
-
-
-
 	<!-- custom: Optional screenshot-file observation, independently gated under Runtime diagnostics.
 	1 launches the external screenshot watcher only when SAS_RUNTIME_STATUS_ON is also 1; 0 (default) creates no screenshot observer process or screenshot log files.
 	It records file metadata and matching Runtime context, not image contents or proof that Civ4 captured the exact displayed screen.
@@ -2393,9 +2517,6 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_RUNTIME_SCREENSHOT_WATCH_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-
-
-
 	<!-- custom: Optional live source-edit observation for Runtime diagnostics.
 	1 launches an external event-driven watcher for Python/XML/BUG Config, PrivateMaps scripts/scenarios, Resource themes, mod Settings and mod-root INI files while SAS runtime status is enabled; 0 (default) launches no source watcher.
 	Rows record observed disk events, mod-relative paths and final size/SHA-256 evidence after short burst coalescing.
@@ -2406,9 +2527,6 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_RUNTIME_SOURCE_WATCH_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-
-
-
 	<!-- custom: Shared Runtime recorder implementation label, including native hooks and external PowerShell/C# observers.
 	Increment once per qualifying implementation commit and synchronize Docs/revisions/SASRuntime.md.
 	Like SAS_SGR_REVISION, this is a review/update label, not a binary compatibility switch or proof that a loaded DLL contains newer native code; inspect the separate DLL/build/source identities.

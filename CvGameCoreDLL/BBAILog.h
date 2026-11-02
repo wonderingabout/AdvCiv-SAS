@@ -65,6 +65,15 @@ void startSASBBAILogForNewGame(); // <!-- custom: Roll to a new timestamped BBAI
 void logSASBBAINewGameStarted(); // <!-- custom: Log complete new-game identification after map and player initialization. (GPT-5.5) -->
 void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded save after its complete game state is read. (GPT-5.5) -->
 int getSASBBAILogSessionSequence(); // <!-- custom: Let high-volume diagnostic categories discard change-dedup state whenever a new/load BBAI session begins. (GPT-5.6-Sol) -->
+// <!-- custom: Kept here rather than as CvUnitAI.cpp statics: CvUnit.cpp and CvUnitAI.cpp both report probe outcomes, and outstanding snapshots are discarded with the BBAI session sequence. (Claude code Opus 5.5) -->
+// <!-- custom: Diagnostic-only committed hope-probe snapshots and next-observation revaluations; callers must gate Settler level 3 before either call.
+// No snapshot is serialized or used for gameplay, and new/load BBAI sessions discard outstanding snapshots. See KI#144.6. (GPT-6.1-Sol) -->
+class CvUnit;
+class CvPlot;
+void logBBAIFirstCityProbeStart(CvUnit const& kSettler, CvPlot const& kTarget, CvPlot const& kFallback, CvPlot const& kWaypoint, int iTargetValue, int iFallbackValue, int iNetHopeValue, int iDelayCost);
+void logBBAIFirstCityProbeOutcome(CvUnit const& kSettler);
+// <!-- custom: Caller must gate Settler level 3 and provide a current successful path to kTarget before another search replaces it; records existing node data only. See KI#144.6. (GPT-6.1-Sol) -->
+void logBBAIFirstCityScoutRoute(CvUnit const& kSettler, CvPlot const& kTarget, char const* szPhase);
 // <!-- custom: gLogBBAI remains a startup-cached direct read and now includes enabled UWAI categories because they use the same BBAI sink instead of a parallel logger. (ChatGPT-5.6-Sol) -->
 #define gLogBBAI (gSASBBAILogSettings.bEnabled) // advc.007: So that BBAI logging can be checked in FAssert;
 #define gPlayerLogLevel (gSASBBAILogSettings.iPlayerLogLevel)

@@ -113,10 +113,29 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 187 - SAS practical 6708
+
+- **Date:** 2026-11-02
+- **Git commit:** pending
+- **Change:** Extend first-capital evidence for the KI#144.6 scoring/scouting review while keeping detailed candidate tracing in BBAI.
+  - Known-map and true-map first-capital founding rescoring now opt into the founder's actual yield-threshold traits, matching the live Settler evaluator; pregame starting-position normalization remains trait-neutral.
+  - `GAME_RECORD_AI_FIRST_CITY_INFORMATION_PROBE` records selected weak-core information-only probes at level 2: requested target/waypoint, protected fallback and value, raw information value, selected direction strength/multiplier/adjusted information, limiting core quality/reference, added founding turns and the bounded information/founding windows. It records the live selected operands rather than rerunning candidate scoring.
+  - `GAME_RECORD_AI_SETTLER_FOG_SCOUT_STEP` now labels `averageBasis=KNOWN_WORKED_PLOTS` and receives the decision's actual known worked-plot averages. It no longer derives an average by dividing total found value by revealed BFC count, which mixed fixed/resource rewards into the fog comparison.
+  - First-city scout-end records add `IMPROVED_GOOD_ENOUGH` for a search that stops after confirming a better Food-capable capital, distinguishing successful commitment from deadline/low-upside return.
+  - Level-3 action tracing adds `GAME_RECORD_ACTION type=UNIT_MOVE` independently of BBAI. The row records requested and actual coordinates, movement points before/after charging, jump/goody/death context, control/automation state, whether the player had founded the first city, and the team's reveal-count delta during the move. It observes executed movement rather than inferring routes from AI candidate logs.
+  - Movement reveal deltas use existing area reveal counters before/after the move call; they are team-wide deltas during that call and should not be interpreted as exact per-unit sight when grouped movement, goodies or other effects occur.
+  - First-capital `GAME_RECORD_CITY_SITE_QUALITY` rows append `capacityBasis`, `capacityFullSlots` and `capacityRequiredSlots` from the same player-known rescore. `PARTIAL_WATER` identifies that rescore's actual capacity exception; it does not retrospectively prove which branch originally selected the site. Unreached checks remain `NOT_EVALUATED`; later-city rows omit these fields.
+  - Detailed candidate/rejection, spatial/relative frontier and direction-sample internals remain BBAI diagnostics rather than being duplicated into SGR.
+- **Validation:**
+  - The final five SAS48 Release runs added about 0.11-0.16 MB of movement/probe rows per record: 3.0-4.5% of the verbose BBAI batch, versus 1.4% in the matched BBAI-disabled first map. Washington emitted two information-probe rows (803 bytes), including the new direction fields; detailed candidate diagnostics remained in BBAI.
+  - Logging-only explanatory averages were moved behind their BBAI gate, while gameplay direction/scouting calculations remain active with logging disabled.
+  - A subsequent Release replay verified Arena `capacityBasis=PARTIAL_WATER capacityFullSlots=11 capacityRequiredSlots=13` and Washington's selected direction fields.
+  - Arena, Huge Korea and the first SAS48 map matched authoritative RNG/semantic CORE gameplay checkpoints with BBAI on and off. The closed SAS48 pair agrees through 14 gameplay checkpoints; its finalization contexts differ (loading another save at T0 versus exiting at T11).
+
 ### Revision 186 - SAS practical 6707
 
 - **Date:** 2026-10-31
-- **Git commit:** pending
+- **Git commit:** `01dff3ba9093518855bce05a04301efd93bdb6bf`
 - **Change:** Extend first-capital scouting telemetry alongside the KI#144.5 continuation review.
   - `GAME_RECORD_AI_FIRST_CITY_SCOUT_STEP` now separates raw geometric information from geometric overlap with another land explorer's queued, reachable known waypoint this turn, records whether the settle-now target came from the growth-core fallback, and preserves the selected step's path-relative founding-delay terms.
   - `settleNowFoundingTurns` counts delay from the current turn, including exhausted arrival; `candidateReturnPathTurns` is the raw next-turn path count.

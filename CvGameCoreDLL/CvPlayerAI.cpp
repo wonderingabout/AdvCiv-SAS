@@ -508,6 +508,33 @@ void CvPlayerAI::AI_doTurnUnitsPre()
 {
 	PROFILE_FUNC();
 
+	// <!-- custom: A first Settler can execute a queued FOUND return without re-entering AI_settleMove: France's seven-turn return selected on T4 otherwise produced no capital by T10 and no further Settler decision rows.
+	// Emit one compact overdue-first-capital row per player turn, independently of unit dispatch.
+	// Filter scenarios, active Advanced Start, human control and recorded city losses; observation stays entirely behind the Settler logging gate.
+	// isFoundedFirstCity can reset when a city is disbanded, so the row flags this late cityless state rather than proving the player has never owned a city. See KI#144.6. (GPT-6.1-Sol) -->
+	if (gSettlerLogLevel >= 2 && !isBarbarian() && !isHuman() && !isFoundedFirstCity() && getNumCities() == 0 && getCitiesLost() == 0 && getAdvancedStartPoints() < 0 && !GC.getGame().isScenario())
+	{
+		static const int iMaxFirstCityTurns = GC.getDefineINT("SAS_1ST_CITY_FOUND_MAX_T_UNSCALED_GS");
+		CvGame const& kGame = GC.getGame();
+		if (kGame.getElapsedGameTurns() > iMaxFirstCityTurns)
+		{
+			int iFoundMissionGroups = 0;
+			CvPlot const* pFirstFoundTarget = NULL;
+			FOR_EACH_GROUP_VAR(pGroup, *this)
+			{
+				CvSelectionGroupAI const& kGroup = pGroup->AI();
+				if (kGroup.AI_getMissionAIType() != MISSIONAI_FOUND)
+					continue;
+				++iFoundMissionGroups;
+				if (pFirstFoundTarget == NULL)
+					pFirstFoundTarget = kGroup.AI_getMissionAIPlot();
+			}
+			logBBAI("FIRST_CITY_OVERDUE turn=%d player=%d elapsed=%d maxFirstCityTurns=%d units=%d settlers=%d foundMissionGroups=%d firstFoundTarget=%d,%d",
+				kGame.getGameTurn(), getID(), kGame.getElapsedGameTurns(), iMaxFirstCityTurns, getNumUnits(), AI_totalUnitAIs(UNITAI_SETTLE), iFoundMissionGroups,
+				(pFirstFoundTarget == NULL ? -1 : pFirstFoundTarget->getX()), (pFirstFoundTarget == NULL ? -1 : pFirstFoundTarget->getY()));
+		}
+	}
+
 	AI_updateFoundValues();
 
 	if (AI_getCityTargetTimer() == 0 && // K-Mod

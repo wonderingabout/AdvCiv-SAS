@@ -5519,8 +5519,10 @@ bool CvPlot::SAS_canAssumeWaterBonusImprovement(BonusTypes eVisibleBonus, Player
 // <!-- custom: Measure net food pressure as the food consumed by one citizen minus this plot's potential food.
 // Potential food includes natural terrain/feature food, visible bonus food, food from its bonus-specific improvement, and caller-approved Harbor-class food for water plots.
 // Surplus food returns a negative score and offsets poor plots across the BFC; crediting bonus food first lets callers use stricter thresholds for sites that remain net food-poor without hardcoding terrain names. (GPT-5.5) -->
-int CvPlot::SAS_getLowFoodEnvironmentScore(BonusTypes eVisibleBonus, int iSeaPlotFoodChange, bool bCanAssumeWaterBonusImprovement) const
+// <!-- custom: Return the already-computed improvement Food through an optional output so first-city growth counting need not repeat SAS_getBonusImprovementFoodChange; the numeric environment score and existing callers are unchanged. See KI#144.6. (GPT-6.1-Sol) -->
+int CvPlot::SAS_getLowFoodEnvironmentScore(BonusTypes eVisibleBonus, int iSeaPlotFoodChange, bool bCanAssumeWaterBonusImprovement, int* piBonusImprovementFood) const
 {
+	if (piBonusImprovementFood != NULL) *piBonusImprovementFood = 0;
 	int const iFoodPerPopulation = GC.getFOOD_CONSUMPTION_PER_POPULATION();
 	int iPotentialFood = calculateNatureYield(YIELD_FOOD, NO_TEAM);
 	int iPotentialFoodWithoutHill = calculateNatureYield(YIELD_FOOD, NO_TEAM, false, true);
@@ -5530,6 +5532,7 @@ int CvPlot::SAS_getLowFoodEnvironmentScore(BonusTypes eVisibleBonus, int iSeaPlo
 		{
 			int const iBonusNaturalFood = GC.getInfo(eVisibleBonus).getYieldChange(YIELD_FOOD);
 			int const iBonusImprovementFood = (isWater() && !bCanAssumeWaterBonusImprovement ? 0 : SAS_getBonusImprovementFoodChange(eVisibleBonus));
+			if (piBonusImprovementFood != NULL) *piBonusImprovementFood = iBonusImprovementFood;
 			iPotentialFood += iBonusNaturalFood + iBonusImprovementFood;
 			iPotentialFoodWithoutHill += iBonusNaturalFood + iBonusImprovementFood;
 		}
@@ -5612,9 +5615,9 @@ bool CvPlot::SAS_isVeryBadBFCPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer,
 }
 
 
-// <!-- custom: Classify whether a non-home BFC slot is good enough for the first-city minimum-tile sanity check.
-// This is deliberately weaker than "good": usable land with a visible bonus counts, no-bonus land must not be persistently very bad, and water only counts when a visible bonus can reasonably be improved or is already improved.
-// Ordinary coast/ocean stays excluded so the first city still needs enough useful BFC slots. (ChatGPT-5.5) -->
+// <!-- custom: Classify whether a non-home BFC slot is good enough for full credit in the first-city minimum-capacity sanity check.
+// This is deliberately weaker than "good": usable land with a visible bonus counts, no-bonus land must not be persistently very bad, and water receives full credit only when a visible bonus can reasonably be improved or is already improved.
+// Ordinary water stays excluded from full-slot credit; AIFoundValue can separately grant viable self-feeding ordinary water partial capacity without equating it to flexible land. See KI#144.6. (ChatGPT-5.5 + ChatGPT-5.6-Sol) -->
 bool CvPlot::SAS_isGoodEnoughFirstCityBFCPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer, CvPlot const& kCandidateCityPlot, bool bVeryBadBFCPlot) const
 {
 	FAssert(ePlayer != NO_PLAYER);

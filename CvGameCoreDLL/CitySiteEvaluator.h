@@ -13,6 +13,35 @@ class CvGame;
 // <!-- custom: Recorder-owned optional Food-support output; keep its fields in SASGameRecordLog.h and only declare the pointer type here. See KI#144.4. (GPT-6.1-Sol) -->
 struct SASGameRecordCitySiteFoodSupportResult;
 
+// <!-- custom: Caller-owned numeric evidence for comparing partially revealed sites without dividing city-center, health or strategic bonuses by plot count.
+// Known slots include unusable/off-map zero-value slots; only actual fog is unknown.
+// The sorted values retain zero placeholders solely for an explicit exploration forecast, never for committing a city. See KI#144.6. (GPT-6.1-Sol) -->
+struct SASCitySiteKnownPlotValues
+{
+	SASCitySiteKnownPlotValues() : iKnownNonHomePlots(0), iUnrevealedNonHomePlots(0), iKnownWorkedValue(0), iKnownForecastValue(0), iConfirmedWeightedPlotValue(0), bFirstCity(false)
+	{
+		for (int i = 0; i < NUM_CITY_PLOTS; ++i)
+		{
+			aiSortedPlotValues[i] = 0;
+			aiWorkedPlotValues[i] = 0;
+			aiForecastPlotValues[i] = 0;
+		}
+	}
+	int getAverageValueX100() const { return (iKnownNonHomePlots > 0 ? (int)(((__int64)iKnownWorkedValue * 100) / iKnownNonHomePlots) : 0); }
+	int iKnownNonHomePlots;
+	int iUnrevealedNonHomePlots;
+	int iKnownWorkedValue;
+	int iKnownForecastValue;
+	int iConfirmedWeightedPlotValue;
+	bool bFirstCity;
+	int aiSortedPlotValues[NUM_CITY_PLOTS];
+	// <!-- custom: Preserve spatial worked value, including bonus-improvement yields, for revealed-frontier forecasts; sorted scores alone cannot identify which edge is promising. See KI#144.6. (GPT-6.1-Sol) -->
+	int aiWorkedPlotValues[NUM_CITY_PLOTS];
+	// <!-- custom: Forecast samples omit the separate resource-improvement reward; known Sugar/Gems value remains real, but projecting that reward into ordinary fog assumes more such resources.
+	// Keep both arrays because zero relative-frontier strength restores the prior complete-worked-value forecast. See KI#144.6. (GPT-6.1-Sol) -->
+	int aiForecastPlotValues[NUM_CITY_PLOTS];
+};
+
 // advc: New classes extracted from CvPlayerAI::AI_foundValue
 
 // Corresponds to K-Mod's CvPlayerAI::CvFoundSettings
@@ -24,6 +53,12 @@ public:
 	// <!-- custom: found-value path uses int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
 	int evaluate(CvPlot const& kPlot) const;
 	int evaluate(int iX, int iY) const;
+	// <!-- custom: Return the ordinary confirmed score plus known worked-plot evidence from that same evaluation; no logging or unknown resource knowledge is required.
+	// The separate hope projection prices an investigation only and never replaces the confirmed settlement score. See KI#144.6. (GPT-6.1-Sol) -->
+	int evaluateWithKnownPlotValues(CvPlot const& kPlot, SASCitySiteKnownPlotValues& kKnown) const;
+	// <!-- custom: Optional per-slot forecasts replace uniform fog filling; negative entries denote known/nonexistent slots.
+	// This remains exploration-only. See KI#144.6. (GPT-6.1-Sol) -->
+	static int getHopePlotValueGain(SASCitySiteKnownPlotValues const& kKnown, int iUpsideReferencePercent, int const* paiFogForecast = NULL);
 	// <!-- custom: Opt-in diagnostic entry point: return the same found value while filling an exact stage-by-stage summary; callers guard its use behind logging so normal city-site evaluation does no string formatting. (GPT-5.5) -->
 	int evaluateWithBreakdown(CvPlot const& kPlot, CvString& szBreakdown) const;
 	// <!-- custom: First-city roaming can distinguish a genuinely weak site from a food-imperfect site with strong practical worked-plot cores.
@@ -36,6 +71,10 @@ public:
 	// <!-- custom: Share one XML-driven scale for heuristics expressed in found-value units.
 	// A sustainable productive reference plot supplies the current food consumption per citizen plus 1 Production and uses the same self-sustaining yield weights as ordinary site evaluation. (GPT-5.6-Sol) -->
 	static int getSustainableProductivePlotValue();
+	// <!-- custom: Compare frontier optimism with the confirmed site's small configured core, using the same BFC-relative slot setting as actual valuation rather than a separate fixed six or score cutoff. See KI#144.6. (GPT-6.1-Sol) -->
+	static int getSmallCoreAverageValueX100(SASCitySiteKnownPlotValues const& kKnown);
+	// <!-- custom: The limiting small/medium core relative to equally sized sustainable productive plots distinguishes a weak known capital from an already strong one without terrain names or an absolute found-value cutoff. See KI#144.6. (GPT-6.1-Sol) -->
+	static int getLimitingEarlyCoreQualityPercent(SASCitySiteKnownPlotValues const& kKnown);
 	// <!-- custom: Share settlement-specific seafood counts between selected-site, city-site-list and broad founding diagnostics.
 	// Ordinary diagnostics use the founder's information and non-obsolete resources; SASGameRecord can additionally request the true-map count to explain hidden seafood at the site actually founded; callers keep the BFC scan behind diagnostic gates. (GPT-5.6-Sol) -->
 	static int countWaterBonuses(CvPlot const& kCityPlot, TeamTypes eTeam, bool bDiagnosticOmniscience);
@@ -67,6 +106,10 @@ public:
 	bool isAllSeeing() const { return m_bAllSeeing; }
 	// <!-- custom: First-settler roaming needs starting-capital weights without map-generation omniscience. (GPT-5.5) -->
 	void setAllSeeing(bool b) { m_bAllSeeing = b; }
+	// <!-- custom: Pregame starting-plot generation should stay leader-neutral, but the live first Settler already belongs to a concrete civilization/leader.
+	// Let that runtime caller opt into real yield-threshold traits without enabling personality or the inherited extra Financial river preference; changing the mode clears cached trait-dependent plot values. See KI#144.6. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	void setUsePlayerYieldTraits(bool b);
+	bool isPlayerYieldTraitScoringEnabled() const { return (!m_bStartingLoc || m_bUsePlayerYieldTraits); }
 	// <!-- custom: Level-3 diagnostics can compare the player's actual information with the true map, including technology-hidden bonuses that ordinary starting-location all-seeing intentionally still conceals; this mode is diagnostic only and must not feed AI choices. (GPT-5.6-Sol) -->
 	void setDiagnosticOmniscience(bool b) { m_bDiagnosticOmniscience = b; if (b) m_bAllSeeing = true; }
 	bool isDiagnosticOmniscience() const { return m_bDiagnosticOmniscience; }
@@ -117,6 +160,8 @@ private:
 	bool m_bAllSeeing;
 	// <!-- custom: True only for the level-3 true-map comparison evaluator; an evaluator whose result can drive an AI decision must leave this false. (GPT-5.6-Sol) -->
 	bool m_bDiagnosticOmniscience;
+	// <!-- custom: Opt-in actual yield-threshold scoring for live first capitals and their matching recorder comparisons; pregame starting locations retain the default false. See KI#144.6. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	bool m_bUsePlayerYieldTraits;
 	// <!-- custom: Diagnostic-only caller identity, stored as an enum to prevent misspelled string labels and avoid carrying a raw string pointer.
 	// Only enabled BBAI output converts it to text; it never selects scoring rules. See KI#505.2. (GPT-6.1-Sol) -->
 	SASFoundLogContextTypes m_eLogContext;
@@ -143,16 +188,19 @@ public:
 	// Disabled logging with no output skips formatting. See KI#505.2. (GPT-5.5 + GPT-6.1-Sol) -->
 	// <!-- custom: Let SPI construct the shared workable-plot context without also running and discarding a complete city-site evaluation; optional output pointers expose decision components already computed during the same pass. See KI#492. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	// <!-- custom: Added optional caller-owned Food summary; this enables diagnostic collection without requiring BBAI output and cannot supply a gameplay result. See KI#144.4. (GPT-6.1-Sol) -->
-	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown = NULL, bool bEvaluateSite = true, int* paiGrowthCorePlotValues = NULL, int* piSustainableProductivePlotValue = NULL, int* paiPlotCoreSums = NULL, int* paiPlotCoreCutoffs = NULL, int* piPositivePlots = NULL, SASGameRecordCitySiteFoodSupportResult* pFoodSummary = NULL);
+	// <!-- custom: Add an optional known-plot result for coverage-aware exploration; confirmed scoring is unchanged and projections remain outside settlement decisions. See KI#144.6. (GPT-6.1-Sol) -->
+	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown = NULL, bool bEvaluateSite = true, int* paiGrowthCorePlotValues = NULL, int* piSustainableProductivePlotValue = NULL, int* paiPlotCoreSums = NULL, int* paiPlotCoreCutoffs = NULL, int* piPositivePlots = NULL, SASGameRecordCitySiteFoodSupportResult* pFoodSummary = NULL, SASCitySiteKnownPlotValues* pKnownPlots = NULL);
 	int get() const { return m_iResult; }
 	scaled evaluateWorkablePlot(CvPlot const& p) const; // advc.027
+	// <!-- custom: Reuse XML-aware ordinary-land potential for revealed directional scouting samples; -1 excludes unknown, water and visible resource plots, so a resource cannot stand in for the surrounding terrain. See KI#144.6. (GPT-6.1-Sol) -->
+	int evaluateKnownOrdinaryLandPotential(CvPlot const& p) const;
 
 	// <!-- custom: Removed the inherited advc.031c setLoggingEnabled()/isLoggingEnabled() API and static bLoggingEnabled switch: they enabled output only during a separate replay and suppressed constructor settings output.
 	// Direct caller-side gFoundLogLevel guards now observe existing evaluations without a process-wide switch that couples evaluator instances. See KI#505.2. (GPT-6.1-Sol) -->
 
 private:
 	int m_iResult;
-	// <!-- custom: Snapshot of the constructor's bEvaluateSite argument for diagnostic scope only: true means a complete SITE evaluation; false means SPI's shared WORKABLE_PLOT context.
+	// <!-- custom: Snapshot of the constructor's bEvaluateSite argument for diagnostic scope only: true means a complete SITE evaluation; false means a shared WORKABLE_PLOT context (SPI or ordinary-land scouting samples).
 	// Prevent partial helper output from looking like a full site result; this is not a logging-enable flag. See KI#505.2. (GPT-6.1-Sol) -->
 	bool const m_bSiteEvaluation;
 	CvString* m_pszBreakdown;
@@ -165,6 +213,8 @@ private:
 	int* m_piPositivePlots;
 	// <!-- custom: Non-owning output used only by explicit recorder evaluations; NULL keeps ordinary callers outside the additional Food-summary work. (GPT-6.1-Sol) -->
 	SASGameRecordCitySiteFoodSupportResult* m_pFoodSummary;
+	// <!-- custom: Optional gameplay comparison output; NULL keeps ordinary scoring outside the extra known-plot accounting. See KI#144.6. (GPT-6.1-Sol) -->
+	SASCitySiteKnownPlotValues* m_pKnownPlots;
 	/*  The rest aren't prefixed with "m_"; too awkward. Note that the order of
 		the reference members needs to match their order in the ctor initalizer list. */
 	CvPlot const& kPlot;
@@ -181,6 +231,9 @@ private:
 	int iX, iY;
 	CvCityAI const* pCapital;
 	bool bCoastal;
+	// <!-- custom: Cache the candidate's ocean-coast eligibility and civilization-specific assumed sea-Food building once per evaluation; share it across classification, Food support and workable-yield helpers. See KI#144.6. (GPT-5.5 + GPT-6.1-Sol) -->
+	bool bOceanCoastal;
+	int iAssumedSeaPlotFoodChange;
 	int iAreaCities;
 	int iCities;
 	// Intermediate values ...
@@ -249,7 +302,8 @@ private:
 	void logBBAIFirstCityOuterRingResources(std::vector<int> const& aiBFCBonusCount) const;
 	int calculateSpecialYieldModifier(int iCultureModifier, bool bEasyAccess, bool bBonus, bool bCanSoonImproveBonus, bool bCanImproveBonus) const;
 	void calculateSpecialYields(CvPlot const& p, int const* aiBonusImprovementYield, int const* aiNatureYield, int iModifier, int* aiSpecialYield, int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const;
-	void calculateBuildingYields(CvPlot const& p, int const* aiNatureYield, int* aiBuildingYield) const;
+	// <!-- custom: Drop aiNatureYield: the former hardcoded +1 Food on water with Commerce > 1 is replaced by the cached XML sea-Food assumption, independent of Commerce or terrain names. See KI#144.6. (GPT-6.1-Sol) -->
+	void calculateBuildingYields(CvPlot const& p, int* aiBuildingYield) const;
 	// <!-- custom: The weighted site total still uses the complete sorted BFC, while optional outputs expose best-1/2/3/6/10/14 sums, their cutoff plots and the positive-plot count from that same sort without rescanning or changing the score. (GPT-5.6-Sol) -->
 	int sumUpPlotValues(std::vector<int>& aiPlotValues, int* aiCoreSums = NULL, int* aiCoreCutoffs = NULL, int* piPositivePlots = NULL) const;
 	// <!-- custom: Disabled after XML-tunable SAS bonus-improvement yield valuation made this obscure hardcoded path redundant and retaining both overscored bonus-heavy sites in KI#173 follow-up testing.

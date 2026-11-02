@@ -1996,6 +1996,11 @@ The aim is that, in many cases, they also benefit vassals (or at least do not cl
   - A nearby site can justify investigation when both cores improve enough to outweigh its lower currently known total value, preventing an attractive but consumable home plot or poor outer-ring tiles from ending the search too early.
   - In the Wang Kon test, this changed immediate founding on a valuable Grass Hill into a five-turn search that found a stronger two-food-bonus capital while preserving the hill as a workable plot.
   - This is yield/XML-driven rather than a hardcoded preference for rivers or named terrain.
+- (Requires AdvCiv-SAS 6708+) **First-capital scoring better handles founder-specific yields, viable water and early worked capacity:**
+  - live first-capital evaluation uses the founder's actual yield-threshold traits, so Financial Coast is valued at the Commerce the founder will really receive; pregame starting-position normalization remains trait-neutral.
+  - Ordinary water is no longer identical to a dead BFC slot for the first-capital capacity guard. Viable self-feeding ordinary water can contribute partial capacity only when the site's best early cores are already strong and Food-supportable, preserving the guard against weak water-heavy starts.
+  - Strategic first-capital port access is valued separately from raw water yields; the old flat naval-heavy first-capital coastal extra is disabled by default to avoid rewarding the same coastal value twice.
+  - In the Arena Wang Kon reproduction, `(12,11)` originally had the stronger worked core but was zeroed by the 13-slot cliff; the current replay founds there on T1 after the candidate reaches the normal site comparison. See [KI#144.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-144.6).
 - (Requires AdvCiv-SAS 6569+) **First-city scouting, recheck, and efficient return:**
   - Starting Settlers can roam briefly for better information or a better capital, but strong openings now found promptly rather than spending ten turns walking away and returning to the same site.
   - Safe scout steps estimate information from the player-known fog mask and visibility envelope in shared XML-derived plot units, alongside known site quality and progress toward a stronger known candidate. Exact hidden-terrain line of sight is diagnostic only.
@@ -2012,6 +2017,12 @@ The aim is that, in many cases, they also benefit vassals (or at least do not cl
     - The external [`audit_first_city_scouting.py`](/LLM_Helpers/README.md#audit_first_city_scoutingpy) helper makes repeated scouting movement and founding outcomes easier to compare across opening test logs.
     - Scouting considers safe endpoints reachable in a full movement turn and weighs target-relevant fog against added travel delay. Other explorers' coverage and known sight advantages break ties rather than overriding a better site.
     - This addresses the southern USA example where two visible Food bonuses caused immediate commitment despite a poor surrounding core and a promising nearby frontier. See [KI#144.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-144.5).
+  - (Requires AdvCiv-SAS 6708+) Partly revealed first-capital alternatives now use a bounded known-worked-plot forecast rather than treating their current total found value as complete.
+    - Hopeful probes have their own short travel horizon and must pay the selected waypoint's actual added founding/return delay; confirmed values still decide where to found.
+    - Spatial/relative frontier estimates use only revealed plot evidence. Known resources keep their confirmed value instead of being extrapolated into fog.
+    - A weak confirmed capital can spend a small information-only budget even when no alternative is already forecast better; revealed ordinary-land quality softly guides those information probes without a north/latitude/terrain-name rule.
+    - Once scouting confirms a genuinely improved Food-capable capital, it can commit instead of immediately renewing another speculative target. The growth-Food safeguard uses actual XML Food gain rather than treating every small surplus bonus as equivalent.
+    - Validation recovered Washington `(55,10)` on T3, Arena Korea `(12,11)` on T1 and Huge Korea `(50,24)` on T1. Across five matched SAS48 maps, the median founding turn is T1 and every capital is founded by T6, between the older mostly-immediate policy and an over-exploratory intermediate draft. See [KI#144.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-144.6).
   - Empirical tests preserved or improved Berlin, Karakorum, Cuzco, Aztec, Aachen, and Wang Kon cases without map- or civilization-specific rules.
   - See [KI#144](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-144).
 - **Optional naval-heavy-map coastal settling bias:**

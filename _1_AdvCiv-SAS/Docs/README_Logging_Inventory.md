@@ -1164,6 +1164,114 @@ The following selected fields come from the successful Debug-opt build of 2026-1
 }
 ```
 
+Build/source identity is recorded alongside the toolchain. These selected fields come from the successful Release build started at 19:43:29 UTC on 2026-10-31, captured from `Assets/CvGameCoreDLL.dll.build.json`. Fields are selected and reformatted; retained values are unchanged:
+
+```json
+{
+  "configuration": "Release",
+  "startedUtc": "2026-10-31T19:43:29.471Z",
+  "endedUtc": "2026-10-31T19:45:20.688Z",
+  "status": "SUCCEEDED",
+  "sourceProvenance": {
+    "commit": "01dff3ba9093518855bce05a04301efd93bdb6bf",
+    "stagedCodeRulesDiff": {
+      "scope": "TRACKED_RUNTIME_CODE_RULES",
+      "diffBytes": 30302,
+      "sha256": "D706149A6D3380E591B6095C82A166C19BC6C8F539CFE12D2EBA4494FA1AB536",
+      "fileCount": 6
+    },
+    "unstagedCodeRulesDiff": {
+      "scope": "TRACKED_RUNTIME_CODE_RULES",
+      "diffBytes": 102860,
+      "sha256": "05389F3B345A5BE6B9E1FA6233C8876A646AB76F75EC0BC1C3F27EDE2FEBB625",
+      "fileCount": 6
+    }
+  },
+  "buildInputSummary": {
+    "scope": "CURRENT_BUILD_START_TO_END",
+    "beforeCount": 362,
+    "afterCount": 362,
+    "unchangedCount": 362,
+    "changedCount": 0
+  },
+  "dllBefore": {
+    "sizeBytes": 8318976,
+    "sha256": "8DE264F97DAF8480C32880E610EFDD3A8CA3A4C6DC5271323C7FBD9994BD24AC"
+  },
+  "dllAfter": {
+    "sizeBytes": 8323072,
+    "sha256": "2AF4038197B991BB79CF344C5FA49A668860A9B51AA291BB75BCC253331B0CD1"
+  }
+}
+```
+
+The staged and unstaged SHA-256 hashes identify the captured code/rule patches beyond the Git commit; the complete report also lists their individual files and the source/project input manifest.
+
+`buildInputSummary` compares inputs at this build's start and end: all 362 were unchanged during this attempt. It does not say that they matched the preceding build.
+
+`dllBefore` and `dllAfter` identify the output binary before and after the attempt; here both its size and hash changed.
+
+Per-file records distinguish changed timestamps from changed bytes. This real `sincePreviousBuild.changes` entry is from the 2026-10-28 Release report, preserved in its compacted form:
+
+```json
+{
+  "path": "CvGameCoreDLL/ACOText.cpp",
+  "change": "TIMESTAMP_ONLY",
+  "beforeModifiedUtc": "2026-09-05T17:56:57.953Z",
+  "afterModifiedUtc": "2026-10-28T10:08:25.297Z"
+}
+```
+
+`TIMESTAMP_ONLY` means the bytes had the same SHA-256 despite different modification times, as can happen after touching a file or a checkout. It does not establish what operation changed the timestamp. The compact entry omits repeated size/hash values; the input manifest retains them. For example, the following actual `buildInputsBefore` entry from the 2026-10-31 report records that same file:
+
+```json
+{
+  "path": "CvGameCoreDLL/ACOText.cpp",
+  "sizeBytes": 51233,
+  "modifiedUtc": "2026-10-28T10:08:25.297Z",
+  "sha256": "87E8235DE050AD437D45EA8A4D700F01B5BE2360ABF8E1F68D2C87A3DB5AF69C"
+}
+```
+
+The 2026-10-31 report also contains this full `sincePreviousBuild.changes` entry for changed content:
+
+```json
+{
+  "path": "CvGameCoreDLL/CvUnitAI.cpp",
+  "change": "CONTENT_CHANGED",
+  "after": {
+    "sizeBytes": 1486739,
+    "modifiedUtc": "2026-10-31T19:29:45.216Z",
+    "sha256": "69856CAA25E1E2842F36979DD22664AA342032EF7D7B7F5B23B8A799F25CA701"
+  },
+  "before": {
+    "sizeBytes": 1481895,
+    "modifiedUtc": "2026-10-31T19:05:59.888Z",
+    "sha256": "D37CB12025B638B8F32E84B65D1A875754C478B886C987858356D0D7D7530D31"
+  }
+}
+```
+
+Here `CvUnitAI.cpp` grew by 4,844 bytes and its SHA-256 changed. Equal file sizes can also have different content; whitespace and LF/CRLF changes count as byte changes too. `buildInputChanges` separately records changes observed between the start and end of a single build attempt, rather than changes since the previous build.
+
+The same report's `sourceProvenance.unstagedCodeRulesDiff.files` contains this per-file Git-patch record:
+
+```json
+{
+  "path": "CvGameCoreDLL/CvUnitAI.cpp",
+  "diffBytes": 54675,
+  "sha256": "7CC54499B68F2470B5FCF9CB16F6579F88C352E3E0881C74F5010653B4E01D13"
+}
+```
+
+Its `diffBytes` measures the patch against the index, including diff headers and context; it is not the source file's size or its growth.
+
+Its SHA-256 identifies those patch bytes, while the manifest/change-entry hashes identify whole-file bytes.
+
+These records locate and identify changes but do not embed a textual diff or changed-line count; inspect the corresponding Git diff for the actual edited code.
+
+These build hashes are SHA-256, while the [SGR session example](#sasgamerecord-session-header-example) shows FNV fingerprints for loaded binaries, source patches, RNG activity and game state. Hash strings from different algorithms cannot be compared directly. RNG checkpoints describe the running game's random-number activity; they are separate from the build report's source and binary identity.
+
 Selected-tool metadata is build-time evidence, not a claim that an old DLL was produced by the currently configured compiler. Existing loaded-DLL context separately reports compile-time `msvcVersion` / `msvcFullVersion`; those describe the compiler that produced that binary.
 
 The complete fields appear in future build reports and as compact `Selected build toolchain:` / `Build invocation:` lines in `AdvCiv.log`; older full examples retain their original metadata.

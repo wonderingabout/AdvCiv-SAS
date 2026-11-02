@@ -3141,11 +3141,19 @@ void CvUnit::move(CvPlot& kPlot, bool bShow, /* advc.163: */ bool bJump, bool bG
 	FAssert(/* advc.163: */ bJump ||
 			canMoveOrAttackInto(kPlot) || isMadeAttack());
 
+	// <!-- custom: Record ordinary human-controlled moves throughout the game, plus AI opening moves for scouting comparisons; the earlier draft stopped both at the first city and lost later manual-play evidence.
+	// Human control includes a queued route, not proof of a new click; automated human units are included only before the first city.
+	// Keep snapshot/counter/formatting work behind SGR level 3 and action tracing; the stack snapshot has no constructor and is never serialized.
+	// Cargo carried through setXY and direct special relocations bypass this ordinary-move hook; do not interpret it as every change of coordinates. See KI#144.6. (GPT-6.1-Sol) -->
+	bool const bLogUnitMove = (gGameRecordLogLevel >= 3 && isSASGameRecordActionTraceEnabled() && !isBarbarian() && !isCargo() && ((isHuman() && !isAutomated()) || !GET_PLAYER(getOwner()).isFoundedFirstCity()));
+	SASGameRecordUnitMoveSnapshot kUnitMove;
+	if (bLogUnitMove) captureSASGameRecordUnitMove(*this, kPlot, kUnitMove);
 	CvPlot& kOldPlot = *plot();
 	// <advc.163>
 	if (bJump)
 		finishMoves(); // </advc.163>
 	else changeMoves(kPlot.movementCost(*this, kOldPlot));
+	if (bLogUnitMove) kUnitMove.iMovesAfterCharge = movesLeft();
 	// <advc.162>
 	if (isInvasionMove(kOldPlot, kPlot))
 	{
@@ -3166,6 +3174,7 @@ void CvUnit::move(CvPlot& kPlot, bool bShow, /* advc.163: */ bool bJump, bool bG
 		setReconPlot(NULL);
 	setXY(kPlot.getX(), kPlot.getY(), /* advc.163 (was 'true'): */ bGroup,
 			true, bShow && kPlot.isVisibleToWatchingHuman(), bShow);
+	if (bLogUnitMove) logSASGameRecordUnitMove(*this, kPlot, kUnitMove, bJump);
 
 	FeatureTypes eFeature = kPlot.getFeatureType();
 	if (eFeature != NO_FEATURE) 
@@ -3268,6 +3277,18 @@ bool CvUnit::jumpToNearestValidPlot(/* K-Mod: */ bool bGroup, bool bForceMove, b
 				pBestPlot = &kLoopPlot;
 			}
 		}
+	}
+	// <!-- custom: First-capital traces showed a probe at 14,9 followed by a turn starting at 11,6 after a rival claimed the probe tile.
+	// Log forced relocation directly to distinguish a bump from voluntary scouting; the selected destination is recorded before movement or death, not as proof movement completed.
+	// Reuse the jump search result and capture the old mission before the inherited queue clear; no extra pathfinding or scoring is needed. See KI#144.6. (GPT-6.1-Sol) -->
+	if (gSettlerLogLevel >= 2 && isFound())
+	{
+		CvPlot const* pPriorMissionTarget = getGroup()->AI().AI_getMissionAIPlot();
+		logBBAI("SETTLER_DISPLACEMENT turn=%d player=%d unitId=%d phase=DESTINATION_SELECTED action=%s from=%d,%d fromOwner=%d target=%d,%d targetOwner=%d selectionCost=%d groupMove=%d forceMove=%d freeMove=%d movesLeft=%d missionAI=%d missionTarget=%d,%d",
+			GC.getGame().getGameTurn(), getOwner(), getID(), (pBestPlot == NULL ? "KILL_NO_DESTINATION" : "RELOCATE"), getX(), getY(), getPlot().getOwner(),
+			(pBestPlot == NULL ? -1 : pBestPlot->getX()), (pBestPlot == NULL ? -1 : pBestPlot->getY()), (pBestPlot == NULL ? -1 : (int)pBestPlot->getOwner()), iBestValue,
+			bGroup, bForceMove, bFreeMove, movesLeft(), (int)getGroup()->AI().AI_getMissionAIType(),
+			(pPriorMissionTarget == NULL ? -1 : pPriorMissionTarget->getX()), (pPriorMissionTarget == NULL ? -1 : pPriorMissionTarget->getY()));
 	}
 	if (pBestPlot == NULL)
 	{
@@ -6133,6 +6154,8 @@ bool CvUnit::found()
 	{
 		gDLL->UI().lookAt(getPlot().getPoint(), CAMERALOOKAT_NORMAL);
 	}
+	// <!-- custom: Queued FOUND can bypass another first-city AI decision; observe any committed probe before founding changes the scoring context and consumes the Settler. See KI#144.6. (GPT-6.1-Sol) -->
+	if (gSettlerLogLevel >= 3) logBBAIFirstCityProbeOutcome(*this);
 	GET_PLAYER(getOwner()).found(getX(), getY());
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_FOUND);

@@ -431,7 +431,8 @@ public:
 	ImprovementTypes SAS_getBonusSpecificImprovement(BonusTypes eBonus) const;
 	int SAS_getBonusImprovementFoodChange(BonusTypes eBonus) const;
 	bool SAS_canAssumeWaterBonusImprovement(BonusTypes eVisibleBonus, PlayerTypes ePlayer, CvPlot const& kCandidateCityPlot) const;
-	int SAS_getLowFoodEnvironmentScore(BonusTypes eVisibleBonus, int iSeaPlotFoodChange, bool bCanAssumeWaterBonusImprovement) const;
+	// <!-- custom: Optional output reuses the computed resource-improvement Food gain for scouting growth classification; old callers retain the same pressure score without another improvement lookup. See KI#144.6. (GPT-6.1-Sol) -->
+	int SAS_getLowFoodEnvironmentScore(BonusTypes eVisibleBonus, int iSeaPlotFoodChange, bool bCanAssumeWaterBonusImprovement, int* piBonusImprovementFood = NULL) const;
 	bool SAS_isVeryBadBFCPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer, int iSeaPlotFoodChange, int iMinPotentialYieldScore, int& iBestPotentialYieldScore) const;
 	bool SAS_isGoodEnoughFirstCityBFCPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer, CvPlot const& kCandidateCityPlot, bool bVeryBadBFCPlot) const;
 	static int SAS_getWaterFoodBuildingSeaPlotFoodChange(PlayerTypes ePlayer);

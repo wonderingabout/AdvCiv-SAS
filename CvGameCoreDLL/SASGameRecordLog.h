@@ -256,6 +256,16 @@ void logSASGameRecordUWAIWarPlanDecision(TeamTypes eAgent, TeamTypes eTarget, SA
 class CvPlot;
 class CvUnit;
 class CvUnitAI;
+// <!-- custom: Stack-only before/after evidence for ordinary human-controlled movement and AI pre-capital movement; callers gate SGR level 3 and action tracing before capture, movement-charge sampling and output.
+// No construction work or saved unit state is needed when disabled. See KI#144.6. (GPT-6.1-Sol) -->
+struct SASGameRecordUnitMoveSnapshot
+{
+	int iFromX, iFromY, iMovesBefore, iMovesAfterCharge, iRevealedBefore;
+	bool bGoodyBefore, bHuman, bHumanDisabled, bAutomated, bFirstCityFounded;
+	int iAutoplayRemaining;
+};
+void captureSASGameRecordUnitMove(CvUnit const& kUnit, CvPlot const& kDestination, SASGameRecordUnitMoveSnapshot& kSnapshot);
+void logSASGameRecordUnitMove(CvUnit const& kUnit, CvPlot const& kDestination, SASGameRecordUnitMoveSnapshot const& kSnapshot, bool bJump);
 struct IDInfo; // <!-- custom: Post-move evacuation verification reuses the caller's existing unit identities; a forward declaration suffices for the vector reference. (GPT-6.1-Sol) -->
 // <!-- custom: Closed recorder-only outcomes for ordinary AI Great Person action selection.
 // These describe AI_greatPersonMove's realized action/continuation/fallback rather than a gameplay-wide enum, so keep them with SASGameRecord.
@@ -836,7 +846,8 @@ void logSASGameRecordAISettlerSiteDecision(CvUnitAI const& kSettler, CvPlot cons
 #define SAS_RECORD_AI_SETTLER_SCOUT_END_REASON_ROWS(DO) \
 	DO(SAS_AI_SETTLER_SCOUT_END_DEADLINE, DEADLINE) \
 	DO(SAS_AI_SETTLER_SCOUT_END_LOW_UPSIDE, LOW_UPSIDE) \
-	DO(SAS_AI_SETTLER_SCOUT_END_NO_SAFE_STEP, NO_SAFE_STEP)
+	DO(SAS_AI_SETTLER_SCOUT_END_NO_SAFE_STEP, NO_SAFE_STEP) \
+	DO(SAS_AI_SETTLER_SCOUT_END_IMPROVED_GOOD_ENOUGH, IMPROVED_GOOD_ENOUGH)
 enum SASGameRecordAISettlerScoutEndReason
 {
 #define SAS_RECORD_ENUM(NAME, LABEL) NAME,
@@ -846,9 +857,12 @@ enum SASGameRecordAISettlerScoutEndReason
 void logSASGameRecordAIFirstCityCoreScoutStep(CvUnitAI const& kSettler, CvPlot const& kTargetPlot, CvPlot const* pEndTurnPlot, int iCurrentFoundValue, int iTargetFoundValue, int iCurrentBest6, int iCurrentBest10, int iTargetBest6, int iTargetBest10, int iCoreGrowthValue, int iAdjustedValue, int iPathTurns, int iElapsedTurns, int iMaxFirstCityTurns);
 // <!-- custom: The caller pre-gates this selected-step record and supplies live overlap/delay operands; the recorder performs no new path search or scoring.
 // settleNowFoundingTurns is delay from now, whereas candidateReturnPathTurns is the raw next-turn path count. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+// <!-- custom: Record an actually requested information-only probe separately from projected economic superiority; callers gate level 2 before passing the already computed decision values. See KI#144.6. (GPT-6.1-Sol) -->
+void logSASGameRecordAIFirstCityInformationProbe(CvUnitAI const& kSettler, CvPlot const& kTarget, CvPlot const& kEndTurn, CvPlot const& kFallback, int iFallbackValue, int iInformationValue, int iCoreQualityPercent, int iCoreReferencePercent, int iAddedFoundingTurns, int iMaxInformationTurns, int iMaxFirstCityTurns, int iDirectionStrengthPercent, int iDirectionPercent, int iDirectionInformationValue);
 void logSASGameRecordAIFirstCityScoutStep(CvUnitAI const& kSettler, CvPlot const& kEndTurnPlot, CvPlot const* pScoutOrigin, CvPlot const* pSettleNowPlot, int iSettleNowFoundValue, int iSettleNowBest6, int iSettleNowBest10, int iSettleNowCoreQualityPercent, bool bSettleNowGrowthCoreFallback, int iRawInformationValue, int iExplorerOverlapFogPlots, int iExplorerOverlapFogValue, int iInformationValue, int iDiscountedInformationValue, int iScoutOpportunityLinearPercent, int iScoutOpportunityPercent, int iEndTurnFoundValue, int iSettleNowFoundValueGain, int iScoutExpectedGain, int iScoutDelayBaseCost, int iScoutWindowProgressPercent, int iScoutTimePressurePercent, int iScoutTimePressureDelayCost, bool bApplyPathRelativeFoundingDelay, int iSettleNowFoundingTurns, int iCandidateReturnPathTurns, int iAddedSettleDelayTurns, int iScoutFoundingDelayCostPerTurn, int iScoutDelayCost, int iDirectionScore, int iElapsedTurns, int iMaxFirstCityTurns);
 void logSASGameRecordAIFirstCityScoutEnd(CvUnitAI const& kSettler, SASGameRecordAISettlerScoutEndReason eReason, bool bFoundNow, CvPlot const* pTargetPlot, int iSettleNowFoundValue, int iAdjustedValue, int iSettleNowBest6, int iSettleNowBest10, int iSettleNowCoreQualityPercent, int iScoutOpportunityLinearPercent, int iScoutOpportunityPercent, int iBestScoutExpectedGain, int iScoutDelayBaseCost, int iScoutWindowProgressPercent, int iScoutTimePressurePercent, int iScoutDelayCost, int iPathTurns, int iElapsedTurns, int iMaxFirstCityTurns);
-void logSASGameRecordAISettlerFogScoutStep(CvUnitAI const& kSettler, CvPlot const& kSelectedSite, CvPlot const& kScoutSite, CvPlot const& kEndTurnPlot, int iSelectedFoundValue, int iScoutFoundValue, int iSelectedRevealedBFC, int iSelectedUnrevealedBFC, int iScoutRevealedBFC, int iScoutUnrevealedBFC, int iSelectedPathTurns, int iScoutPathTurns);
+// <!-- custom: Pass the decision's actual known worked-plot averages; deriving total found-value/count here would misreport the corrected fog comparison. See KI#144.6 and KI#185. (GPT-6.1-Sol) -->
+void logSASGameRecordAISettlerFogScoutStep(CvUnitAI const& kSettler, CvPlot const& kSelectedSite, CvPlot const& kScoutSite, CvPlot const& kEndTurnPlot, int iSelectedFoundValue, int iScoutFoundValue, int iSelectedRevealedBFC, int iSelectedUnrevealedBFC, int iScoutRevealedBFC, int iScoutUnrevealedBFC, int iSelectedPathTurns, int iScoutPathTurns, int iSelectedAverageX100, int iScoutAverageX100);
 // <!-- custom: Diagnose only the rare naval case where a loaded ship competes with another eligible defender.
 // The row is level-3-only and records the selected ship plus the best alternative under the same defender rules, including LFB odds/value/cargo protection context.
 // Keep it observational: transported cargo is not a defender candidate and inherited K-Mod LFB already contains loaded-transport protection, so an external report alone is not evidence for changing combat selection. (ChatGPT-5.6-Sol) -->
@@ -864,12 +878,15 @@ struct SASGameRecordCitySiteFoodSupportResult
 	int iKnownUsablePlots;
 	int iUnrevealedPlots;
 	int iAppliedFoodSupportPenalty;
+	// <!-- custom: Report the actual first-capital capacity branch during the same player-known diagnostic rescore; unvisited/later-city checks remain explicitly unavailable. See KI#144.6. (GPT-6.1-Sol) -->
+	bool bFirstCityCapacityChecked, bFirstCityPartialWaterAccepted;
+	int iFirstCityFullCapacity, iFirstCityRequiredCapacity;
 	bool abCoreAvailable[CORE_COUNT];
 	int aiValueFoodSurplus[CORE_COUNT];
 	int aiValueNaturalFoodSurplus[CORE_COUNT];
 	int aiFoodRankedSurplus[CORE_COUNT];
 	int aiUnsupportedProjectedScore[CORE_COUNT];
-	SASGameRecordCitySiteFoodSupportResult() : bAvailable(false), iKnownUsablePlots(0), iUnrevealedPlots(0), iAppliedFoodSupportPenalty(0)
+	SASGameRecordCitySiteFoodSupportResult() : bAvailable(false), iKnownUsablePlots(0), iUnrevealedPlots(0), iAppliedFoodSupportPenalty(0), bFirstCityCapacityChecked(false), bFirstCityPartialWaterAccepted(false), iFirstCityFullCapacity(0), iFirstCityRequiredCapacity(0)
 	{
 		for (int i = 0; i < CORE_COUNT; ++i)
 		{
@@ -1463,8 +1480,7 @@ void logSASGameRecordBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, Bon
 extern bool g_bSASGameRecordReplayRejectionBatchActive;
 void beginSASGameRecordReplayRejectionBatch();
 void endSASGameRecordReplayRejectionBatch();
-void collectSASGameRecordReplayRejection(SASReplayRejectionReason eReason, char const* szField,
-	int iValue, int iLower, int iUpper, int iModID, int iVersion);
+void collectSASGameRecordReplayRejection(SASReplayRejectionReason eReason, char const* szField, int iValue, int iLower, int iUpper, int iModID, int iVersion);
 
 void logSASGameRecord(TCHAR* format, ... );
 

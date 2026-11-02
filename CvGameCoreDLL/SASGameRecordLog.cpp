@@ -2949,8 +2949,7 @@ bool g_bSASGameRecordReplayRejectionBatchActive = false;
 
 // <!-- custom: The caller checks the active-scan flag before invoking this collector; static-lifetime field labels need no allocations or string copies.
 // The first sample is retained explicitly rather than implying every rejection had the same value, bounds or identity. See KI#166.2. (GPT-6.1-Sol) -->
-void collectSASGameRecordReplayRejection(SASReplayRejectionReason eReason, char const* szField,
-	int iValue, int iLower, int iUpper, int iModID, int iVersion)
+void collectSASGameRecordReplayRejection(SASReplayRejectionReason eReason, char const* szField, int iValue, int iLower, int iUpper, int iModID, int iVersion)
 {
 	for(size_t i = 0; i < g_aSASReplayRejectionGroups.size(); i++)
 	{
@@ -13644,6 +13643,15 @@ void logSASGameRecordAIFirstCityCoreScoutStep(CvUnitAI const& kSettler, CvPlot c
 		iCurrentFoundValue, iTargetFoundValue, iCurrentBest6, iCurrentBest10, iTargetBest6, iTargetBest10, iCoreGrowthValue, iAdjustedValue, iPathTurns, iElapsedTurns, iMaxFirstCityTurns);
 }
 
+// <!-- custom: A weak known capital may warrant a short look even when no alternative is forecast better; label that reason explicitly rather than fabricating positive hope or disguising it as normal delay-paying scouting.
+// The caller pre-gates this at SGR level 2 before requesting the selected move; this helper only formats supplied decision/direction operands, while UNIT_MOVE provides separate executed-movement evidence. See KI#144.6. (GPT-6.1-Sol) -->
+void logSASGameRecordAIFirstCityInformationProbe(CvUnitAI const& kSettler, CvPlot const& kTarget, CvPlot const& kEndTurn, CvPlot const& kFallback, int iFallbackValue, int iInformationValue, int iCoreQualityPercent, int iCoreReferencePercent, int iAddedFoundingTurns, int iMaxInformationTurns, int iMaxFirstCityTurns, int iDirectionStrengthPercent, int iDirectionPercent, int iDirectionInformationValue)
+{
+	logSASGameRecord("GAME_RECORD_AI_FIRST_CITY_INFORMATION_PROBE turn=%d player=%d unitId=%d phase=MOVE_REQUESTED from=%d,%d target=%d,%d waypoint=%d,%d fallback=%d,%d fallbackValue=%d informationValue=%d limitingCoreQualityPercent=%d coreReferencePercent=%d addedFoundingTurns=%d maxInformationTurns=%d elapsed=%d maxFirstCityTurns=%d directionStrengthPercent=%d directionPercent=%d directionInformationValue=%d",
+		GC.getGame().getGameTurn(), kSettler.getOwner(), kSettler.getID(), kSettler.getX(), kSettler.getY(), kTarget.getX(), kTarget.getY(), kEndTurn.getX(), kEndTurn.getY(), kFallback.getX(), kFallback.getY(), iFallbackValue,
+		iInformationValue, iCoreQualityPercent, iCoreReferencePercent, iAddedFoundingTurns, iMaxInformationTurns, GC.getGame().getElapsedGameTurns(), iMaxFirstCityTurns, iDirectionStrengthPercent, iDirectionPercent, iDirectionInformationValue);
+}
+
 // <!-- custom: The caller pre-gates this selected-step record and supplies live overlap/delay operands; the recorder performs no new path search or scoring.
 // settleNowFoundingTurns is delay from now, whereas candidateReturnPathTurns is the raw next-turn path count. See KI#144.5. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void logSASGameRecordAIFirstCityScoutStep(CvUnitAI const& kSettler, CvPlot const& kEndTurnPlot, CvPlot const* pScoutOrigin, CvPlot const* pSettleNowPlot, int iSettleNowFoundValue, int iSettleNowBest6, int iSettleNowBest10, int iSettleNowCoreQualityPercent, bool bSettleNowGrowthCoreFallback, int iRawInformationValue, int iExplorerOverlapFogPlots, int iExplorerOverlapFogValue, int iInformationValue, int iDiscountedInformationValue, int iScoutOpportunityLinearPercent, int iScoutOpportunityPercent, int iEndTurnFoundValue, int iSettleNowFoundValueGain, int iScoutExpectedGain, int iScoutDelayBaseCost, int iScoutWindowProgressPercent, int iScoutTimePressurePercent, int iScoutTimePressureDelayCost, bool bApplyPathRelativeFoundingDelay, int iSettleNowFoundingTurns, int iCandidateReturnPathTurns, int iAddedSettleDelayTurns, int iScoutFoundingDelayCostPerTurn, int iScoutDelayCost, int iDirectionScore, int iElapsedTurns, int iMaxFirstCityTurns)
@@ -13670,12 +13678,11 @@ void logSASGameRecordAIFirstCityScoutEnd(CvUnitAI const& kSettler, SASGameRecord
 		iBestScoutExpectedGain, iScoutDelayBaseCost, iScoutWindowProgressPercent, iScoutTimePressurePercent, iScoutDelayCost, iPathTurns, iElapsedTurns, iMaxFirstCityTurns);
 }
 
-void logSASGameRecordAISettlerFogScoutStep(CvUnitAI const& kSettler, CvPlot const& kSelectedSite, CvPlot const& kScoutSite, CvPlot const& kEndTurnPlot, int iSelectedFoundValue, int iScoutFoundValue, int iSelectedRevealedBFC, int iSelectedUnrevealedBFC, int iScoutRevealedBFC, int iScoutUnrevealedBFC, int iSelectedPathTurns, int iScoutPathTurns)
+// <!-- custom: Pass the decision's actual known worked-plot averages; deriving total found-value/count here would misreport the corrected fog comparison. See KI#144.6 and KI#185. (GPT-6.1-Sol) -->
+void logSASGameRecordAISettlerFogScoutStep(CvUnitAI const& kSettler, CvPlot const& kSelectedSite, CvPlot const& kScoutSite, CvPlot const& kEndTurnPlot, int iSelectedFoundValue, int iScoutFoundValue, int iSelectedRevealedBFC, int iSelectedUnrevealedBFC, int iScoutRevealedBFC, int iScoutUnrevealedBFC, int iSelectedPathTurns, int iScoutPathTurns, int iSelectedAverageX100, int iScoutAverageX100)
 {
 	CvSelectionGroupAI const* pGroup = kSettler.AI_getGroup();
-	int const iSelectedAverageX100 = (iSelectedRevealedBFC <= 0 ? -1 : (100 * iSelectedFoundValue) / iSelectedRevealedBFC);
-	int const iScoutAverageX100 = (iScoutRevealedBFC <= 0 ? -1 : (100 * iScoutFoundValue) / iScoutRevealedBFC);
-	logSASGameRecord("GAME_RECORD_AI_SETTLER_FOG_SCOUT_STEP turn=%d player=%d unitId=%d groupId=%d fromX=%d fromY=%d endTurnX=%d endTurnY=%d selectedSiteX=%d selectedSiteY=%d scoutSiteX=%d scoutSiteY=%d selectedFoundValue=%d scoutFoundValue=%d selectedRevealedBFC=%d selectedUnrevealedBFC=%d scoutRevealedBFC=%d scoutUnrevealedBFC=%d selectedAverageX100=%d scoutAverageX100=%d selectedPathTurns=%d scoutPathTurns=%d",
+	logSASGameRecord("GAME_RECORD_AI_SETTLER_FOG_SCOUT_STEP turn=%d player=%d unitId=%d groupId=%d fromX=%d fromY=%d endTurnX=%d endTurnY=%d selectedSiteX=%d selectedSiteY=%d scoutSiteX=%d scoutSiteY=%d selectedFoundValue=%d scoutFoundValue=%d selectedRevealedBFC=%d selectedUnrevealedBFC=%d scoutRevealedBFC=%d scoutUnrevealedBFC=%d averageBasis=KNOWN_WORKED_PLOTS selectedAverageX100=%d scoutAverageX100=%d selectedPathTurns=%d scoutPathTurns=%d",
 		GC.getGame().getGameTurn(), kSettler.getOwner(), kSettler.getID(), (pGroup == NULL ? -1 : pGroup->getID()), kSettler.getX(), kSettler.getY(),
 		kEndTurnPlot.getX(), kEndTurnPlot.getY(), kSelectedSite.getX(), kSelectedSite.getY(), kScoutSite.getX(), kScoutSite.getY(), iSelectedFoundValue,
 		iScoutFoundValue, iSelectedRevealedBFC, iSelectedUnrevealedBFC, iScoutRevealedBFC, iScoutUnrevealedBFC, iSelectedAverageX100, iScoutAverageX100,
@@ -13792,8 +13799,12 @@ void logSASGameRecordCityFoundingSite(CvPlayer const& kPlayer, CvPlot const& kPl
 	// This is a comparison, not the original decision score; ordinary Found logging now captures the original pass separately. See KI#505.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	kKnownEvaluator.setDebug(true);
 	kKnownEvaluator.setLogContext(SAS_FOUND_LOG_RECORD_KNOWN_MAP_COMPARISON);
+	// <!-- custom: Match the live founder's actual yield-threshold traits in this first-capital rescore; otherwise SGR would still describe Financial Coast as 2 Commerce after the decision path was corrected to 3. See KI#144.6. (GPT-6.1-Sol) -->
 	if (bFirstCity)
+	{
 		kKnownEvaluator.setAllSeeing(false);
+		kKnownEvaluator.setUsePlayerYieldTraits(true);
+	}
 	// <!-- custom: Request numeric Food evidence from the existing player-known pass; true-map quality remains the established score distribution, avoiding a second omniscient Food search that does not describe the AI's information. (GPT-6.1-Sol) -->
 	SASGameRecordCitySiteFoodSupportResult kKnownFood;
 	int const iKnownRescoredFoundValue = kKnownEvaluator.evaluateWithPlotValueDistribution(kPlot, aiKnownCoreSums, iKnownPositivePlots, iKnownSustainableProductivePlotValue, &kKnownFood);
@@ -13804,6 +13815,9 @@ void logSASGameRecordCityFoundingSite(CvPlayer const& kPlayer, CvPlot const& kPl
 	CitySiteEvaluator kOmniscientEvaluator(kPlayerAI, -1, bFirstCity);
 	kOmniscientEvaluator.setDebug(true);
 	kOmniscientEvaluator.setLogContext(SAS_FOUND_LOG_RECORD_TRUE_MAP_COMPARISON);
+	// <!-- custom: Keep the true-map comparison on the same yield policy as the known-map rescore; hidden knowledge must be the only perspective difference here. See KI#144.6. (GPT-6.1-Sol) -->
+	if (bFirstCity)
+		kOmniscientEvaluator.setUsePlayerYieldTraits(true);
 	kOmniscientEvaluator.setDiagnosticOmniscience(true);
 	int const iOmniscientRescoredFoundValue = kOmniscientEvaluator.evaluateWithPlotValueDistribution(kPlot, aiOmniscientCoreSums, iOmniscientPositivePlots, iOmniscientSustainableProductivePlotValue);
 	FAssert(iKnownSustainableProductivePlotValue == iOmniscientSustainableProductivePlotValue);
@@ -13833,12 +13847,22 @@ void logSASGameRecordCityFoundingSite(CvPlayer const& kPlayer, CvPlot const& kPl
 		iAlt1Y, iAlt1FoundValue, iAlt2Rank, iAlt2X, iAlt2Y, iAlt2FoundValue, iWasUIRecommended, iUIRecommendationSnapshot, iWasDebugOverlaySite, iDebugOverlaySnapshot);
 	// <!-- custom: Keep the heavier chosen-site quality in its own rare row rather than widening the established shortlist row; rejected-candidate causes remain BBAI Found diagnostics.
 	// `*RescoredFoundValue` is an explicit founding-time diagnostic replay, not the cached value that originally selected the site; GAME_RECORD_CITY_SITE_CHOICE preserves that strategic shortlist value separately. (ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_CITY_SITE_QUALITY turn=%d player=%d firstCity=%d x=%d y=%d coastal=%d knownWaterBonuses=%d omniscientWaterBonuses=%d areaUnownedTiles=%d areaSelectionFactor=%d nearestOwnCityId=%d nearestOwnCityX=%d nearestOwnCityY=%d nearestOwnCityDistance=%d sustainableProductivePlotValue=%d knownRescoredFoundValue=%d knownBest1Sum=%d knownBest2Sum=%d knownBest3Sum=%d knownBest6Sum=%d knownBest10Sum=%d knownBest14Sum=%d knownPositivePlots=%d omniscientRescoredFoundValue=%d omniscientBest1Sum=%d omniscientBest2Sum=%d omniscientBest3Sum=%d omniscientBest6Sum=%d omniscientBest10Sum=%d omniscientBest14Sum=%d omniscientPositivePlots=%d",
+	// <!-- custom: Keep first-capital capacity evidence on the existing quality row and from the same player-known rescore.
+	// These are founding-time observations, not a claim that a particular branch originally selected the site; later-city rows omit the first-capital-only fields. See KI#144.6. (GPT-6.1-Sol) -->
+	CvString szFirstCityCapacity;
+	if (bFirstCity)
+	{
+		char const* szCapacityBasis = "NOT_EVALUATED";
+		if (kKnownFood.bFirstCityCapacityChecked)
+			szCapacityBasis = (kKnownFood.bFirstCityPartialWaterAccepted ? "PARTIAL_WATER" : (kKnownFood.iFirstCityFullCapacity >= kKnownFood.iFirstCityRequiredCapacity ? "FULL" : "REJECTED"));
+		szFirstCityCapacity.Format(" capacityBasis=%s capacityFullSlots=%d capacityRequiredSlots=%d", szCapacityBasis, kKnownFood.iFirstCityFullCapacity, kKnownFood.iFirstCityRequiredCapacity);
+	}
+	logSASGameRecord("GAME_RECORD_CITY_SITE_QUALITY turn=%d player=%d firstCity=%d x=%d y=%d coastal=%d knownWaterBonuses=%d omniscientWaterBonuses=%d areaUnownedTiles=%d areaSelectionFactor=%d nearestOwnCityId=%d nearestOwnCityX=%d nearestOwnCityY=%d nearestOwnCityDistance=%d sustainableProductivePlotValue=%d knownRescoredFoundValue=%d knownBest1Sum=%d knownBest2Sum=%d knownBest3Sum=%d knownBest6Sum=%d knownBest10Sum=%d knownBest14Sum=%d knownPositivePlots=%d omniscientRescoredFoundValue=%d omniscientBest1Sum=%d omniscientBest2Sum=%d omniscientBest3Sum=%d omniscientBest6Sum=%d omniscientBest10Sum=%d omniscientBest14Sum=%d omniscientPositivePlots=%d%s",
 		GC.getGame().getGameTurn(), kPlayer.getID(), bFirstCity, kPlot.getX(), kPlot.getY(), bCoastal, iKnownWaterBonuses, iOmniscientWaterBonuses,
 		iAreaUnownedTiles, iAreaSelectionFactor, iNearestOwnCityId, iNearestOwnCityX, iNearestOwnCityY, iNearestOwnCityDistance, iKnownSustainableProductivePlotValue,
 		iKnownRescoredFoundValue, aiKnownCoreSums[0], aiKnownCoreSums[1], aiKnownCoreSums[2], aiKnownCoreSums[3], aiKnownCoreSums[4],
 		aiKnownCoreSums[5], iKnownPositivePlots, iOmniscientRescoredFoundValue, aiOmniscientCoreSums[0], aiOmniscientCoreSums[1],
-		aiOmniscientCoreSums[2], aiOmniscientCoreSums[3], aiOmniscientCoreSums[4], aiOmniscientCoreSums[5], iOmniscientPositivePlots);
+		aiOmniscientCoreSums[2], aiOmniscientCoreSums[3], aiOmniscientCoreSums[4], aiOmniscientCoreSums[5], iOmniscientPositivePlots, szFirstCityCapacity.c_str());
 
 	logSASGameRecordCitySiteFoodSupport(kPlayer, kPlot, "FOUNDED", kKnownFood);
 
@@ -18321,6 +18345,42 @@ void logSASGameRecordGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit co
 			pTargetUnit->getExperience(), pTargetUnit->getLevel());
 }
 
+
+// <!-- custom: Manual Washington explored more than the AI, but team-wide reveal rows could not reconstruct manual unit routes or movement use.
+// Keep executed movement in SGR independently of optional BBAI candidate diagnostics; a first-city-only observer would miss later human play.
+// Capture control before movement because callbacks may change automation; human non-automated ownership does not distinguish a new click from an existing queued route.
+// Sum existing area reveal counters rather than rescanning plots; deltas cover everything during the move call, including grouped movement and goody effects.
+// Pair goodyDestination with GOODY_RECEIVED rows rather than attributing every reveal to this unit sight. See KI#144.6. (GPT-6.1-Sol) -->
+static int countSASGameRecordUnitMoveRevealedPlots(TeamTypes eTeam)
+{
+	int iRevealed = 0;
+	int iLoop = 0;
+	for (CvArea const* pArea = GC.getMap().firstArea(&iLoop); pArea != NULL; pArea = GC.getMap().nextArea(&iLoop))
+		iRevealed += pArea->getNumRevealedTiles(eTeam);
+	return iRevealed;
+}
+
+void captureSASGameRecordUnitMove(CvUnit const& kUnit, CvPlot const& kDestination, SASGameRecordUnitMoveSnapshot& kSnapshot)
+{
+	kSnapshot.iFromX = kUnit.getX();
+	kSnapshot.iFromY = kUnit.getY();
+	kSnapshot.iMovesBefore = kUnit.movesLeft();
+	kSnapshot.iRevealedBefore = countSASGameRecordUnitMoveRevealedPlots(kUnit.getTeam());
+	kSnapshot.bGoodyBefore = kDestination.isGoody(kUnit.getTeam());
+	kSnapshot.bHuman = kUnit.isHuman();
+	kSnapshot.bHumanDisabled = GET_PLAYER(kUnit.getOwner()).isHumanDisabled();
+	kSnapshot.bAutomated = kUnit.isAutomated();
+	kSnapshot.bFirstCityFounded = GET_PLAYER(kUnit.getOwner()).isFoundedFirstCity();
+	kSnapshot.iAutoplayRemaining = GC.getGame().getAIAutoPlay();
+}
+
+void logSASGameRecordUnitMove(CvUnit const& kUnit, CvPlot const& kDestination, SASGameRecordUnitMoveSnapshot const& kSnapshot, bool bJump)
+{
+	int const iRevealedAfter = countSASGameRecordUnitMoveRevealedPlots(kUnit.getTeam());
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_MOVE player=%d team=%d unitId=%d unit=%s unitAI=%s human=%d humanDisabled=%d automated=%d autoplayRemaining=%d firstCityFounded=%d from=%d,%d requested=%d,%d actual=%d,%d movesBefore=%d movesAfterCharge=%d movesAfter=%d moveDenominator=%d jump=%d goodyDestination=%d delayedDeath=%d revealedBefore=%d revealedAfter=%d teamRevealDeltaDuringMove=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()), getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()), kSnapshot.bHuman, kSnapshot.bHumanDisabled, kSnapshot.bAutomated, kSnapshot.iAutoplayRemaining, kSnapshot.bFirstCityFounded,
+		kSnapshot.iFromX, kSnapshot.iFromY, kDestination.getX(), kDestination.getY(), kUnit.getX(), kUnit.getY(), kSnapshot.iMovesBefore, kSnapshot.iMovesAfterCharge, kUnit.movesLeft(), GC.getMOVE_DENOMINATOR(), bJump, kSnapshot.bGoodyBefore, kUnit.isDelayedDeath(), kSnapshot.iRevealedBefore, iRevealedAfter, iRevealedAfter - kSnapshot.iRevealedBefore);
+}
 
 void logSASGameRecordUnitScrapped(CvUnit const* pUnit)
 {

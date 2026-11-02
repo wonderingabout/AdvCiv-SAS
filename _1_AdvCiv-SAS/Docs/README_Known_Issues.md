@@ -220,6 +220,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#144.3 - (Fixed AdvCiv-SAS KI#144 follow-up) First-capital food-bonus scaling treated any +Food improvement as a strong growth resource](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-144.3)\
 [KI#144.4 - (Improved inherited AdvCiv / AdvCiv-SAS Settler AI scoring) First-capital high-value low-Food worked cores could be credited beyond their Food support](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-144.4)\
 [KI#144.5 - (Improved AdvCiv-SAS KI#144 follow-up) Marginal first capitals could bypass promising-fog scouting and waste scouting movement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-144.5)\
+[KI#144.6 - (Improved AdvCiv-SAS first-capital scoring/scouting) Trait-neutral yields, rigid water capacity and fog-search heuristics could hide or over-delay stronger capitals](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-144.6)\
 [KI#145 - (Implemented / needs in-game test) Military Advisor Map tab lost selected leaders after tab switch or close/reopen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-145)\
 [KI#146 - (Fixed/Enhanced) Base AdvCiv issue of AI undervaluing coastal settling on naval-heavy maps](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-146)\
 [KI#147 - (Fixed/Enhanced) Base AdvCiv issue of AI settlers not adding extra valuation to unowned bonuses in city-site scoring](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-147)\
@@ -12808,6 +12809,225 @@ The two focused controls have no observed reversals or revisits, and all six sel
 This validates the focused repair and its compatibility with the tested varied openings, so KI#144.5 is **Improved**, with the broader tradeoffs above retained explicitly. No further gameplay adjustment was made merely to force the old Korean site. The recent Python error log was empty and the inspected finalized writer summaries reported no output failures or dropped rows.
 
 Rebuilt replay review with GPT-6.1-Sol, thanks.
+
+<a id="ki-144.6"></a>
+
+## KI#144.6 - (Improved AdvCiv-SAS first-capital scoring/scouting) Trait-neutral yields, rigid water capacity and fog-search heuristics could hide or over-delay stronger capitals
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/15lqYfIz10lZKQmNYrSxk5eg_7Q2zoVUv?usp=sharing).
+
+This investigation began as the older Wang Kon/Arena complaint that Korea preferred a Stone-side Desert capital instead of the adjacent freshwater/Gemstones/coastal alternative.
+
+It eventually exposed three different first-capital problems: live scoring could omit the founder's actual yield traits, the minimum-BFC-capacity guard treated viable ordinary water as completely unusable, and the first-city scouting policy did not have a stable way to price partly revealed alternatives without either settling too quickly or wandering too long.
+
+The final policy is still intentionally knowledge-limited. Confirmed player-known values decide where to found; fog can justify a bounded information probe, but hidden terrain, hidden resources and oracle line of sight remain diagnostic evidence only.
+
+### Original Arena reproduction
+
+In the original `BBAI_20261031T134838Z_load3.log`, Seoul was founded at `(11,11)` on turn 3. The adjacent fully revealed `(12,11)` candidate already had the stronger early worked core: best-six/best-ten values were `1034/1374` versus `994/1356` for `(11,11)`.
+
+It nevertheless received total found value zero before the ordinary comparison. `FIRST_CITY_REJECTED_LOW_KNOWN_BFC` reported only 11 qualifying plots against `SAS_SITE_1ST_CITY_MIN_GOOD_BFC_PLOTS=13`. Ordinary nonbonus water counted as zero capacity, even when it was usable and would become self-feeding under the evaluator's existing XML-derived sea-Food building assumption.
+
+A second mismatch was independent of that hard rejection. The same ordinary Coast at `(12,12)` appeared as `1F/0P/3C` in ordinary AI site refreshes but only `1F/0P/2C` in `SETTLER_FIRST_CITY`.
+
+Wang Kon is Financial; the live first-Settler evaluator reused the trait-neutral starting-position mode intended for pregame start normalization, so the founder's actual yield-threshold bonus disappeared from the comparison.
+
+The later component audit also showed that Stone was not the root cause. Before the hard rejection, `(12,11)` reached about `4789` versus about `3933` for the chosen `(11,11)` site.
+
+Stone contributed roughly `375` in the chosen BFC, while Gemstones contributed roughly `635` in the rejected alternative. Once the coarse gate stopped suppressing the candidate, the existing continuous site evaluator already preferred the stronger alternative.
+
+The SAS-specific provenance is therefore important. Pregame starting-position comparison should remain leader/trait neutral, but a live Settler already belongs to a known player and should value the yields that player will actually receive.
+
+### First narrow repair: actual founder yields and water capacity
+
+The first repair separated the two defects instead of changing several settlement weights at once.
+
+Live first-capital evaluation now opts into the founder's actual yield-threshold traits for current and potential plot yields. The known-map and true-map SGR comparison passes use the same yield policy so the record does not continue describing Financial Coast as 2 Commerce after gameplay correctly sees 3.
+
+Pregame normalization remains trait neutral, and personality plus the separate inherited Financial river-preference flags are not enabled by this setting.
+
+The low-capacity audit then showed why `(12,11)` was still being rejected after the trait correction: by turn 3 it had five ordinary-water plots, all five non-very-bad and all five self-feeding under the evaluator's sea-Food assumption, best-six `1054` versus reference `720`, best-ten `1406` versus `1200`, and no Food-support deficit.
+
+Simply lowering the global minimum of 13 or allowing every strong core to bypass it was too broad. An external corpus audit found hundreds of low-slot rejection evaluations and dozens of distinct sites that a generic strong-core bypass would admit.
+
+The replacement therefore keeps the original full-slot guard but permits viable ordinary water to contribute configurable partial capacity only when the site's early cores are independently strong and Food-supportable.
+
+With the default `SAS_SITE_1ST_CITY_WATER_CAPACITY_PCT=50`, `(12,11)` has `11 + 5 * 0.5 = 13.5` capacity units and reaches the normal comparison instead of being zeroed. Weak water-heavy sites still fail if their best-six/best-ten cores or Food-support projections do not meet the existing XML-derived references.
+
+The same scoring pass also separates strategic port access from raw water yields. First-capital ship-production access can receive an XML/reference-derived value, while the older flat naval-heavy first-city coastal extra defaults to zero so coastal yields, seafood, assumed sea-Food buildings and strategic access are not rewarded twice.
+
+### Why the investigation expanded into scouting
+
+Fixing Arena's hard scoring cliff did not settle the broader first-capital problem. The AI also needs to decide whether a partly revealed alternative is worth inspecting before committing the capital.
+
+Earlier KI#144/KI#144.5 work already let a marginal capital scout promising fog, but the Wang Kon work made the remaining asymmetry obvious: the AI could either trust only confirmed values and miss a nearby upside, or extrapolate too aggressively from incomplete information and delay the capital for too long.
+
+The following iterations are retained because each exposed a different failure mode.
+
+#### Whole-score average and narrow travel envelope
+
+The older promising-fog rule compared the candidate's revealed whole-score average against the known fallback and inherited a short local-settlement path limit.
+
+That could admit or reject an alternative for the wrong reasons because fixed city/resource rewards were mixed into a per-plot average, and it mechanically excluded a useful Washington prospect whose center was three path turns away even though only the next reveal waypoint needed to be reached.
+
+The replacement compares known worked-plot quality rather than total found value per revealed tile and gives first-capital reveal prospects their own bounded travel horizon. The current default permits a known-center prospect up to three path turns away, but every actual next waypoint must still fit the remaining founding window and pay its added founding/return delay.
+
+#### First optimistic "hope" draft: useful discovery, excessive delay
+
+The first general hopeful-fog draft proved that the AI could discover stronger land, but it made scouting much too cheap.
+
+In the 2026-10-31 19:13-19:15 replay set:
+
+| Control | Before the hope draft | Aggressive hope draft |
+| --- | --- | --- |
+| Arena Korea | `(12,11)` T1, score about 4550 | `(13,9)` T6, score about 4880 |
+| Washington | `(55,10)` T3 | `(51,9)` T0 |
+| Huge Korea | `(51,24)` T1 | `(48,26)` T7 |
+
+Huge Korea revealed stronger west/northwest land, but continued opening fresh speculative targets after already reaching a strong known Pig/Maize alternative. Arena likewise spent several turns searching, and Washington lost the useful northeast investigation because the new helper had borrowed the two-turn local-recheck path cap.
+
+Across the broader maps, first-capital delay increased far beyond the intended "take a short look" behavior. This showed that optimistic fog value could be useful evidence, but not as a substitute for explicit founding-delay economics and a stopping rule.
+
+#### Accurate founding/return delay, then an over-correcting clock fade
+
+The next draft priced the actual selected waypoint rather than the candidate center. It projected whether the Settler could continue to the prospect or return to the known fallback, accounted for leftover movement on arrival, and charged the extra capital-founding turns rather than a coarse destination distance.
+
+That delay model was useful, but an additional quadratic elapsed-window multiplier was layered on top to fade speculative value as time passed. The paired logs showed that this was too aggressive.
+
+For Washington, the next probe still had about 1146 points of unfaded speculative upside against a 618-point full founding/return delay cost. The clock multiplier cut the upside to about 595 and changed the decision from roughly `+528` to `-23`. Similar sign reversals appeared in the Arena and Huge-Korea controls.
+
+The controlled follow-up therefore removed only the extra elapsed-time hope fade while retaining the three-turn prospect horizon, existing scouting-window/time-pressure logic and the full waypoint-relative founding/return price. This recovered useful probes without restoring the earlier "delay is almost free" model.
+
+#### Successful discovery still needs to stop the search
+
+Removing the extra fade exposed a different problem: after scouting found a clearly improved, Food-capable capital, the Settler could immediately spend the recovered time opening another optimistic prospect.
+
+Huge Korea was the clean example. A backtracking/return correction let it reach a strong Pig+Maize site earlier, but the AI used the saved turn to renew hope instead of committing. The search therefore gained information without converting that gain into an earlier capital.
+
+`SAS_1ST_CITY_SCOUT_COMMIT_IMPROVED_ON` turns confirmed success into a stopping condition. Once an active first-capital search finds a site better than its scouting origin that also meets the existing growth-Food and best-six safeguards, it can found or return-and-found there instead of immediately renewing speculation. This does not prevent initial scouting or force a weak fallback to be accepted.
+
+The Food safeguard was tightened at the same time. A "growth Food bonus" now means the bonus-specific improvement adds Food and the potential tile can feed its own worker plus another citizen. A merely 3-Food Sugar-like tile therefore does not automatically count like a richer Pig/Maize-style growth resource; XML yields, not bonus names, decide.
+
+#### Broad core-profile weighting was not enough by itself
+
+The investigation also tested making best-small/medium/large worked cores an explicit part of the shared site rank curve. This is conceptually useful because a city works only part of its BFC for much of the game, but the first broad tuning was too invasive to treat as the Arena cure.
+
+A core-profile-only replay changed 15 of 48 SAS48 sites and delayed mean founding from about `3.354` to `3.812` while improving average cores only slightly; Arena itself regressed to `(9,7)` on T7. This demonstrated that "value the core more" is not a sufficient first-city scouting policy and that later-city core weighting needs separate validation.
+
+The rank transform was still centralized and made XML-tunable so confirmed scoring, fog forecasting and Food-support projections cannot silently use different copies of the inherited curve. The first-capital work does not by itself validate the broader `SAS_SITE_CORE_WEIGHT_PCT` policy for later cities.
+
+#### Spatial/relative frontier forecast: less resource extrapolation, but Washington became too conservative
+
+The next forecast stopped treating every unknown slot as if the whole currently known average applied equally in every direction. Revealed neighboring plots can support a local frontier estimate, while unsupported fog retains the broader sample mean.
+
+Known resources retain their confirmed value, while the separately scored resource-improvement reward is excluded from the ordinary-plot sample extrapolated into nearby unknown tiles.
+
+A relative-frontier correction then reduced optimistic upside when the predictive ordinary-plot frontier was weak compared with the confirmed site's small core. This removed the renewed Arena over-search and restored `(12,11)` on T1, but it also made Washington settle `(51,9)` on T0 because no partially revealed alternative had enough positive predicted net gain.
+
+That was useful evidence rather than a reason to restore resource extrapolation: a genuinely weak confirmed capital may rationally buy a small amount of information even when no alternative is already forecast better.
+
+#### Weak-core information allowance and directional evidence
+
+The final layer separates that case from ordinary profitable hope.
+
+A confirmed capital whose limiting early core is below the XML-derived reference can spend a small, explicitly bounded information budget even when every candidate's forecasted net gain is nonpositive. The current defaults allow at most two opening turns of this extra admission and cap the added founding delay by the same budget. Normal profitable prospects retain their separate rules.
+
+The first information-only ranking divided fog information by one plus added founding delay. In Washington it preferred `172 / 2` westward over `181 / 3` eastward even though both fit the explicit allowance, then spent two moves revealing only one new tile per move before returning to `(51,9)` on T3.
+
+The correction maximizes information within that budget and uses return delay as a tie-break; the direction refinement below then adds revealed-land quality. The successful replay therefore validates the combined ranking changes rather than isolating the direction term alone.
+
+The direction refinement adds a soft player-known quality signal instead of a map-direction hardcode. It samples revealed connected ordinary land beyond the current BFC, excludes visible resources and water from this directional sample, compares the target-facing sample with the surrounding local mean, and applies only half of the bounded relative adjustment by default.
+
+`SAS_1ST_CITY_INFO_DIRECTION_PCT=0` restores raw-information ranking.
+
+With that term enabled, Washington again chooses the useful northeast route and reaches `(55,10)` on T3. No "north", latitude, terrain name or hidden-area oracle is encoded.
+
+### Current behavior and validation
+
+The current candidate keeps confirmed values and speculation separate:
+
+- live first-capital yields include the founder's actual yield-threshold traits;
+- the hard first-city BFC-capacity guard can count viable ordinary water fractionally, but only behind strong-core and Food-support safeguards;
+- partly revealed alternatives use known worked-plot quality plus a bounded optimistic allowance for unknown worked slots;
+- the candidate's selected waypoint pays its actual added founding/return delay, and hidden terrain/resources do not enter gameplay scoring;
+- spatial and relative frontier terms guide the optimistic estimate without copying known resource rewards into fog;
+- weak confirmed cores can buy a short information-only probe even without a positive speculative prospect;
+- information-only direction ranking can prefer a stronger revealed ordinary-land frontier over raw fog quantity;
+- a confirmed improved, Food-capable capital can end an active search instead of immediately renewing another hopeful target.
+
+The three focused controls in the final 2026-11-02 replay are:
+
+| Case | Current result |
+| --- | --- |
+| Washington | `(55,10)` on T3 |
+| Arena Korea | `(12,11)` on T1 |
+| Huge Korea | `(50,24)` on T1 |
+
+The first current SAS48 map preserves all 48 capital sites and founding turns relative to the immediately preceding candidate. Across the five matched SAS48 maps, all 240 capitals are founded by T6.
+
+A same-map founding-turn comparison also shows why the current policy is a middle ground rather than a return to either extreme:
+
+| Founding-turn statistic | KI#144.5 baseline | 2026-11-01 aggressive draft | Current candidate |
+| --- | ---: | ---: | ---: |
+| p20 | T0 | T1 | T0 |
+| p40 | T0 | T3 | T0 |
+| median | T0 | T4 | T1 |
+| p60 | T0 | T4 | T1 |
+| p80 | T1 | T6 | T3 |
+| p90 | T2 | T7 | T4 |
+| p95 | T3 | T7 | T5 |
+| maximum | T7 | T9 | T6 |
+| mean founding turn | 0.62 | 3.51 | 1.41 |
+| founded on T0 | 65% | 14% | 42% |
+
+Founding turn is only a proxy for scouting: a T1 capital may simply move one tile, and an information search can rationally return to its original site. The new SGR movement/probe evidence exists partly to distinguish those cases.
+
+One reviewed SAS48 outlier does exactly that. Player 45 on the fourth map began with a weak core, about 82% of the reference. Its first two probes revealed six and then three previously unknown target-BFC plots, but the alternatives remained worse than the fallback.
+
+Later scouting steps still passed the existing expected-gain-versus-delay tests, and the Settler returned to the original site on T5. The unchanged final coordinate does not make the ex-ante search a bug; it is an example of useful information sometimes confirming the original choice.
+
+### Diagnostics, SGR and remaining boundaries
+
+BBAI retains the detailed candidate evidence beside the decisions: low-capacity audits, partial-water acceptance, hopeful candidate/rejection reasons, spatial/relative frontier forecasts, information-only admission and direction samples, selected waypoints, observed probe outcomes, return choices and successful-search stop reasons.
+
+Shared/stateful probe logging support lives in `BBAILog.*` because probe outcomes can be reported from both `CvUnit.cpp` and `CvUnitAI.cpp` and outstanding snapshots are cleared with the BBAI session. Decision-local traces remain beside their AI code rather than moving all BBAI logging into one recorder file.
+
+SGR revision 187 adds compact selected-probe and executed-movement evidence independently of BBAI. It also labels fog-scout averages as `KNOWN_WORKED_PLOTS` and adds `IMPROVED_GOOD_ENOUGH` as a first-city scout-end reason.
+
+The existing founded-site quality row now records the capacity branch from its player-known diagnostic rescore, and the selected information-probe row carries the direction strength, multiplier and adjusted information already used by gameplay. Candidate-by-candidate partial-water and direction-score internals remain BBAI diagnostics.
+
+Across the final five SAS48 Release runs, the movement/probe row families contributed about 0.11-0.16 MB per record (269-370 movement rows and 0-22 selected probes).
+
+Their share was 3.0-4.5% in the verbose BBAI batch and 1.4% in the matched BBAI-disabled first map; percentages depend on the other rows present, so these opening-run captures do not predict whole-game human-movement volume.
+
+Extra diagnostic-only means, oracle comparisons and formatting are pre-gated; gameplay calculations still run with diagnostics disabled.
+
+Verbose BBAI is deliberately much more expensive than compact SGR. In the 2026-11-02 Release comparison, Settler/Found/Worker level 3 was enabled for one run and the BBAI master disabled for its matched replay, with SGR level 3 retained in both.
+
+Runtime histories `SASRuntimeHistory_20261102T135709.072Z_35316.jsonl` and `SASRuntimeHistory_20261102T140811.611Z_35660.jsonl` recorded the following sums of matching completed player-turn intervals over T0-T10, excluding human-idle intervals and unmatched partial intervals:
+
+| Replay | Matched player-turn intervals | BBAI enabled | BBAI disabled | Enabled/disabled |
+| --- | ---: | ---: | ---: | ---: |
+| Arena | 32 | 0.577 s | 0.117 s | 4.93x |
+| Huge Korea | 186 | 5.190 s | 1.118 s | 4.64x |
+| First SAS48 map | 538 | 23.311 s | 6.131 s | 3.80x |
+
+These are local observations of the current verbose profile, not a controlled measurement of its incremental cost against the previous commit or of lower log levels. The extra candidate, path and probe evidence is retained because it made the scouting failures diagnosable.
+
+Disabled BBAI skips that diagnostic work and ships disabled; actual gameplay scoring remains active.
+
+The RNG comparison helper found identical authoritative RNG and semantic CORE state at all comparable gameplay checkpoints in all three on/off pairs, including identical first-city choices.
+
+The closed SAS48 records agree through 14 gameplay checkpoints but have different finalization metadata: the enabled run finalized while loading another save at T0, whereas the disabled run finalized on process exit at T11. That lifecycle-tail mismatch is excluded from the gameplay-neutrality claim.
+
+Two boundaries remain explicit:
+
+- `SAS_SITE_CORE_WEIGHT_PCT` changes later-city scoring as well as the first-capital machinery. The first-city tests above do not establish that 20% is the right later-city policy; keep or split that broader tuning only after later-city comparison.
+- These tests cover three focused starts plus five SAS48 maps. They are a useful anti-overfitting sample, not proof that every map script or start is optimal. The acceptance criterion is a coherent knowledge-limited decision process, not reproducing one historical coordinate.
+
+Overall status is **Improved**: the original Arena rejection is fixed for the intended generic reasons, the earlier Washington scouting gain is preserved, the aggressive long-wandering draft has been pulled back substantially, and the current logs expose enough causal evidence to investigate future regressions without inferring hidden-map hindsight.
+
+Investigation and implementation with ChatGPT-5.6-Sol and GPT-6.1-Sol, with final candidate review by Claude Code Opus 5.5, thanks.
 
 <a id="ki-145"></a>
 
