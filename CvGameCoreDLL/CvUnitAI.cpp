@@ -40,38 +40,41 @@ CvUnitAI::~CvUnitAI()
 	//AI_uninit(); // Delete member pointers right here (but there are none)
 }
 
-// <!-- custom: Log retreat outcomes, notably for doomed cities, workers, and naval units, without broad unit logging for analysis/logging purposes.
-// AI_retreatToCity calls this only under bLogRetreatResult (BBAI or SGR enabled), so disabled runs skip this call and its arguments.
-// The inner flags dispatch to the requested sinks: SGR-only recording must not run BBAI's name/danger formatting, or vice versa.
-// One coordinator keeps the existing retreat branches from duplicating two long logging calls; BBAI action text remains unchanged. (GPT-5.5 + ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+// <!-- custom: BBAI-only row formatter: the caller pre-gates its category, so disabled runs do not evaluate logging-only danger, mission or name state. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Kept beside its only caller: the modernization draft placed it in BBAILog.cpp, but only this file uses it, and BBAILog.cpp lacked the info/AI headers it needs (the production formatter failed to compile there).
+// BBAILog.cpp keeps formatters that several files share, such as the first-city probe helpers. (Claude code Opus 5.5) -->
+static void logBBAIRetreatUnitResult(SASRetreatResult eResult, CvUnitAI const& kUnit, CvCity const* pSourceCity, CvCity const* pTargetCity, CvPlot const* pEndTurnPlot, int iPathTurns, int iCurrentDanger, bool bDoomedCityEvacuation)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	logBBAI("RETREAT_UNIT_RESULT action=%s turn=%d player=%d civ=%S doomedCityEvacuation=%d sourceCity=%S sourceCityId=%d source=(%d,%d) unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d hp=%d/%d level=%d experience=%d targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) pathTurns=%d currentDanger=%d endTurnDanger=%d",
+		getSASRetreatResultBBAIName(eResult), GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), bDoomedCityEvacuation,
+		(pSourceCity == NULL ? L"-" : pSourceCity->getName().GetCString()), (pSourceCity == NULL ? -1 : pSourceCity->getID()),
+		(pSourceCity == NULL ? -1 : pSourceCity->getX()), (pSourceCity == NULL ? -1 : pSourceCity->getY()), kUnit.getID(),
+		kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()),
+		(pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(),
+		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getID()),
+		(pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()),
+		(pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), iPathTurns, iCurrentDanger,
+		(pEndTurnPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pEndTurnPlot)));
+}
+
+// <!-- custom: Keep only the mixed-sink coordinator here: the BBAI formatter is the static helper above, while SGR remains a separate factual sink.
+// AI_retreatToCity calls this only when at least one sink is enabled, so disabled runs skip this call and all logging-only arguments. (ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
 static void logSASRetreatUnitResult(SASRetreatResult eResult, CvUnitAI const& kUnit, CvCity const* pSourceCity, CvCity const* pTargetCity, CvPlot const* pEndTurnPlot, int iPathTurns, int iCurrentDanger, bool bDoomedCityEvacuation, bool bLogBBAI, bool bLogSGR)
 {
-	if (bLogBBAI)
-	{
-		CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
-		CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
-		logBBAI("    RETREAT_UNIT_RESULT action=%s turn=%d player=%d %S doomedCityEvacuation=%d sourceCity=%S sourceCityId=%d source=(%d,%d) unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d hp=%d/%d level=%d experience=%d targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) pathTurns=%d currentDanger=%d endTurnDanger=%d",
-			getSASRetreatResultBBAIName(eResult), GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), bDoomedCityEvacuation,
-			(pSourceCity == NULL ? L"-" : pSourceCity->getName().GetCString()), (pSourceCity == NULL ? -1 : pSourceCity->getID()),
-			(pSourceCity == NULL ? -1 : pSourceCity->getX()), (pSourceCity == NULL ? -1 : pSourceCity->getY()), kUnit.getID(),
-			kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()),
-			(pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(),
-			(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getID()),
-			(pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()),
-			(pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), iPathTurns, iCurrentDanger,
-			(pEndTurnPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pEndTurnPlot)));
-	}
+	if (bLogBBAI) logBBAIRetreatUnitResult(eResult, kUnit, pSourceCity, pTargetCity, pEndTurnPlot, iPathTurns, iCurrentDanger, bDoomedCityEvacuation);
 	// <!-- custom: The structured recorder is narrower than BBAI: only doomed-city evacuation calls enter this row family, and it records the already-selected retreat outcome without another path/danger scan. (ChatGPT-5.6-Sol) -->
 	if (bLogSGR) logSASGameRecordAIEvacuationRetreatResult(eResult, kUnit, pSourceCity, pTargetCity, pEndTurnPlot, iPathTurns, iCurrentDanger);
 }
 
 // <!-- custom: Log local-safety outcomes through the evacuation/retreat category.
 // No behavior change. (GPT-5.5) -->
-static void logSASSafetyUnitResult(char const* szAction, CvUnitAI const& kUnit, CvPlot const* pTargetPlot, bool bIgnoredDanger, int iValue)
+static void logBBAISafetyUnitResult(char const* szAction, CvUnitAI const& kUnit, CvPlot const* pTargetPlot, bool bIgnoredDanger, int iValue)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
 	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
-	logBBAI("    SAFETY_UNIT_RESULT action=%s turn=%d player=%d %S unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d source=(%d,%d) target=(%d,%d) hp=%d/%d level=%d experience=%d ignoredDanger=%d value=%d sourceDanger=%d targetDanger=%d",
+	logBBAI("SAFETY_UNIT_RESULT action=%s turn=%d player=%d civ=%S unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d source=(%d,%d) target=(%d,%d) hp=%d/%d level=%d experience=%d ignoredDanger=%d value=%d sourceDanger=%d targetDanger=%d",
 		szAction, GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(),
 		kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()),
 		(pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.getX(), kUnit.getY(), (pTargetPlot == NULL ? -1 : pTargetPlot->getX()),
@@ -79,7 +82,6 @@ static void logSASSafetyUnitResult(char const* szAction, CvUnitAI const& kUnit, 
 		kUnit.getExperience(), bIgnoredDanger, iValue, kOwner.AI_getPlotDanger(kUnit.getPlot()),
 		(pTargetPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pTargetPlot)));
 }
-
 
 // <!-- custom: Settler parking diagnostics for expansion-security testing.
 // These logs are deliberately diagnostic-only: they explain why a Settler stayed put, whether it had a target, whether danger was nearby, and whether the current city seemed to have spare escort candidates before any behavior change tries to make Settlers wait for escorts. (ChatGPT-5.5) -->
@@ -500,13 +502,13 @@ static void SAS_logSettlerMissionDecision(char const* szAction, CvUnitAI const& 
 }
 
 // <!-- custom: Record mission and movement context to diagnose units repeatedly returning to evacuating cities; no behavior change. (GPT-5.5) -->
-static void logSASEvacuationUnitDecision(char const* szMode, CvUnitAI const& kUnit, CvCityAI const& kCity, int iEvacProbPercent, bool bSelected)
+static void logBBAIEvacuationUnitDecision(char const* szMode, CvUnitAI const& kUnit, CvCityAI const& kCity, int iEvacProbPercent, bool bSelected)
 {
 	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
 	CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
 	CvCityAI const* pMissionCity = (pMissionPlot == NULL ? NULL : pMissionPlot->AI_getPlotCity());
 	int const iGameTurn = GC.getGame().getGameTurn();
-	logBBAI("    EVACUATION_UNIT_DECISION turn=%d player=%d %S city=%S cityId=%d cityAcquiredTurn=%d cityOwnerTurns=%d unitId=%d unit=%S unitAI=%d domain=%d unitAge=%d groupId=%d groupUnits=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionCity=%S missionCityId=%d missionCityEvacuating=%d missionQueue=%d forceUpdate=%d hp=%d/%d level=%d experience=%d fortifyTurns=%d movesSpent=%d movesLeft=%d hasMoved=%d madeAttack=%d mode=%s evacProbPercent=%d selected=%d",
+	logBBAI("EVACUATION_UNIT_DECISION turn=%d player=%d civ=%S city=%S cityId=%d cityAcquiredTurn=%d cityOwnerTurns=%d unitId=%d unit=%S unitAI=%d domain=%d unitAge=%d groupId=%d groupUnits=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionCity=%S missionCityId=%d missionCityEvacuating=%d missionQueue=%d forceUpdate=%d hp=%d/%d level=%d experience=%d fortifyTurns=%d movesSpent=%d movesLeft=%d hasMoved=%d madeAttack=%d mode=%s evacProbPercent=%d selected=%d",
 		iGameTurn, kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(),
 		kCity.getGameTurnAcquired(), iGameTurn - kCity.getGameTurnAcquired(), kUnit.getID(), kUnit.getName(0).GetCString(),
 		kUnit.AI_getUnitAIType(), kUnit.getDomainType(), iGameTurn - kUnit.getGameTurnCreated(), (pGroup == NULL ? -1 : pGroup->getID()),
@@ -2050,10 +2052,12 @@ static void SAS_logFirstCityCandidateBFCDiagnostics(CitySiteEvaluator const* pOm
 			BonusTypes const eActualBonus = pLoopPlot->getBonusType();
 			TerrainTypes const eActualTerrain = pLoopPlot->getTerrainType();
 			FeatureTypes const eActualFeature = pLoopPlot->getFeatureType();
+			// <!-- custom: These rows describe a candidate site before any city exists; the BBAI modernization draft logged city=/cityId= from an undeclared kCity and failed to compile, so they record the context and site instead. (Claude code Opus 5.5) -->
 			// <!-- custom: The player-known line remains explicitly unrevealed, while level-3 diagnostics retain the true tile underneath so later analysis can tell whether a scouting direction approached food, river terrain or a hidden resource instead of merely revealing more fog. (GPT-5.6-Sol) -->
-			logBBAI("        bfc[%d] %d,%d unrevealed actualF/P/C=%d/%d/%d actualTerrain=%S actualFeature=%S actualBonus=%S", iCityPlot, pLoopPlot->getX(), pLoopPlot->getY(),
-				pLoopPlot->calculateNatureYield(YIELD_FOOD, NO_TEAM, false), pLoopPlot->calculateNatureYield(YIELD_PRODUCTION, NO_TEAM, false),
-				pLoopPlot->calculateNatureYield(YIELD_COMMERCE, NO_TEAM, false),
+			logBBAI("FIRST_CITY_BFC_PLOT turn=%d player=%d civ=%S context=%s site=%d,%d plotIndex=%d x=%d y=%d revealed=0 actualFood=%d actualProduction=%d actualCommerce=%d actualTerrain=%S actualFeature=%S actualBonus=%S",
+				GC.getGame().getGameTurn(), ePlayer, GET_PLAYER(ePlayer).getCivilizationDescription(0), szContext, kCityPlot.getX(), kCityPlot.getY(),
+				iCityPlot, pLoopPlot->getX(), pLoopPlot->getY(), pLoopPlot->calculateNatureYield(YIELD_FOOD, NO_TEAM, false),
+				pLoopPlot->calculateNatureYield(YIELD_PRODUCTION, NO_TEAM, false), pLoopPlot->calculateNatureYield(YIELD_COMMERCE, NO_TEAM, false),
 				(eActualTerrain == NO_TERRAIN ? L"-" : GC.getInfo(eActualTerrain).getDescription()),
 				(eActualFeature == NO_FEATURE ? L"-" : GC.getInfo(eActualFeature).getDescription()),
 				(eActualBonus == NO_BONUS ? L"-" : GC.getInfo(eActualBonus).getDescription()));
@@ -2067,10 +2071,10 @@ static void SAS_logFirstCityCandidateBFCDiagnostics(CitySiteEvaluator const* pOm
 		wchar const* szTerrain = (eTerrain == NO_TERRAIN ? L"-" : GC.getInfo(eTerrain).getDescription());
 		wchar const* szFeature = (eFeature == NO_FEATURE ? L"-" : GC.getInfo(eFeature).getDescription());
 		bool const bCanAssumeWaterBonusImprovement = pLoopPlot->SAS_canAssumeWaterBonusImprovement(eBonus, ePlayer, kCityPlot);
-		logBBAI("        bfc[%d] %d,%d home=%d F/P/C=%d/%d/%d foodEnvironmentScore=%d hasYield=%d terrain=%S feature=%S bonusKnown=%S bonusActual=%S bonusHidden=%d water=%d hills=%d fresh=%d river=%d",
+		logBBAI("FIRST_CITY_BFC_PLOT turn=%d player=%d civ=%S context=%s site=%d,%d plotIndex=%d x=%d y=%d revealed=1 home=%d food=%d production=%d commerce=%d foodEnvironmentScore=%d hasYield=%d terrain=%S feature=%S bonusKnown=%S bonusActual=%S bonusHidden=%d water=%d hills=%d fresh=%d river=%d",
+				GC.getGame().getGameTurn(), ePlayer, GET_PLAYER(ePlayer).getCivilizationDescription(0), szContext, kCityPlot.getX(), kCityPlot.getY(),
 				iCityPlot, pLoopPlot->getX(), pLoopPlot->getY(), iCityPlot == CITY_HOME_PLOT,
-				pLoopPlot->calculateNatureYield(YIELD_FOOD, eTeam, false),
-				pLoopPlot->calculateNatureYield(YIELD_PRODUCTION, eTeam, false),
+				pLoopPlot->calculateNatureYield(YIELD_FOOD, eTeam, false), pLoopPlot->calculateNatureYield(YIELD_PRODUCTION, eTeam, false),
 				pLoopPlot->calculateNatureYield(YIELD_COMMERCE, eTeam, false),
 				pLoopPlot->SAS_getLowFoodEnvironmentScore(eBonus, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement), pLoopPlot->hasYield(),
 				szTerrain, szFeature, szBonus, (eActualBonus == NO_BONUS ? L"-" : GC.getInfo(eActualBonus).getDescription()),
@@ -3526,9 +3530,9 @@ bool CvUnitAI::AI_upgrade(int iMaxUpgradePrice, SASGameRecordAIUpgradeContext* p
 
 	if (eBestUnit != NO_UNIT)
 	{
-		if (gUnitLogLevel > 0) logBBAI("    %S (unit %d - %S) upgrading to %S (value: %d)",
-			getName().GetCString(), getID(), GC.getUnitAIInfo(AI_getUnitAIType()).getDescription(), GC.getInfo(eBestUnit).getDescription(),
-			iBestValue); // advc.mnai
+		if (gUnitLogLevel > 0) logBBAI("UNIT_UPGRADE_DECISION turn=%d player=%d civ=%S action=UPGRADE unitId=%d unit=%S unitAI=%s upgrade=%s value=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName().GetCString(),
+			GC.getUnitAIInfo(AI_getUnitAIType()).getType(), GC.getInfo(eBestUnit).getType(), iBestValue); // advc.mnai
 		/*upgrade(eBestUnit);
 		doDelayedDeath(); */ // BtS
 		// K-Mod. Ungroup the unit, so that we don't cause the whole group to miss their turn.
@@ -6354,10 +6358,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			if (bNormalReplacementWhileBlankBFCRemains)
 			{
 				iDiagnosticReplacementSkipRejects++;
-				if (gWorkerLogLevel >= 2) logBBAI("    %S worker skips replacement while unimproved BFC plot remains for city %S: plot=(%d,%d) build=%S current=%S candidate=%S value=%d",
-					GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), pB->getX(), pB->getY(),
-					GC.getInfo(eB).getDescription(), GC.getInfo(eCurrentImprovement).getDescription(),
-					GC.getInfo(eCandidateImprovement).getDescription(), candidatePlots[i].iValue);
+				if (gWorkerLogLevel >= 2) logBBAI("WORKER_CITY_BUILD_CANDIDATE turn=%d player=%d civ=%S city=%S cityId=%d result=REJECT reason=REPLACEMENT_WHILE_UNIMPROVED_BFC_REMAINS plot=(%d,%d) build=%s currentImprovement=%s candidateImprovement=%s value=%d",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(),
+					pB->getX(), pB->getY(), GC.getInfo(eB).getType(), GC.getInfo(eCurrentImprovement).getType(),
+					GC.getInfo(eCandidateImprovement).getType(), candidatePlots[i].iValue);
 				continue;
 			}
 		}
@@ -6423,15 +6427,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					ImprovementTypes const eCandidateImprovement = GC.getInfo(eB).getImprovement();
 					wchar const* szCurrentImprovement = (eCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eCurrentImprovement).getDescription());
 					wchar const* szCandidateImprovement = (eCandidateImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eCandidateImprovement).getDescription());
-					logBBAI("    %S worker accepts city-build candidate for city %S: plot=(%d,%d) build=%S current=%S improvement=%S value=%d pathTurns=%d reserved=%d/%d",
-						GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), pB->getX(), pB->getY(),
-						GC.getInfo(eB).getDescription(), szCurrentImprovement, szCandidateImprovement, candidatePlots[i].iValue,
-						iDiagnosticPathTurns, iReservedPlot, iMaxWorkers);
+					logBBAI("WORKER_CITY_BUILD_CANDIDATE turn=%d player=%d civ=%S city=%S cityId=%d result=ACCEPT plot=(%d,%d) build=%s currentImprovement=%S candidateImprovement=%S value=%d pathTurns=%d reserved=%d/%d irrigationChainStep=%d",
+						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(),
+						pB->getX(), pB->getY(), GC.getInfo(eB).getType(), szCurrentImprovement, szCandidateImprovement, candidatePlots[i].iValue,
+						iDiagnosticPathTurns, iReservedPlot, iMaxWorkers, candidatePlots[i].bIrrigationChainStep);
 				}
-				if (gWorkerLogLevel >= 2 && candidatePlots[i].bIrrigationChainStep) logBBAI("    %S worker chooses irrigation-chain step at (%d,%d), value=%d",
-					GET_PLAYER(getOwner()).getCivilizationDescription(0),
-					pB->getX(), pB->getY(),
-					candidatePlots[i].iValue);
 				break;
 			}
 			iDiagnosticReservedRejects++;
@@ -6861,9 +6861,9 @@ bool CvUnitAI::AI_considerDOW(CvPlot const& kPlot)
 					getMasterTeam() != ePlotTeam)*/
 			if (kOurTeam.canDeclareWar(ePlotTeam))
 			{
-				if (gUnitLogLevel > 0) logBBAI("    %S declares war on %S with AI_considerDOW (%S - %S).",
-					kOurTeam.getName().GetCString(), GET_TEAM(ePlotTeam).getName().GetCString(), getName(0).GetCString(),
-					GC.getInfo(AI_getUnitAIType()).getDescription());
+				if (gUnitLogLevel > 0) logBBAI("UNIT_DOW_DECISION turn=%d player=%d civ=%S action=DECLARE_WAR team=%d targetTeam=%d unitId=%d unit=%S unitAI=%s plot=(%d,%d)",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getTeam(), ePlotTeam,
+					getID(), getName(0).GetCString(), GC.getInfo(AI_getUnitAIType()).getType(), kPlot.getX(), kPlot.getY());
 				kOurTeam.declareWar(ePlotTeam, true, NO_WARPLAN);
 				getPathFinder().reset();
 				return true;
@@ -8978,19 +8978,17 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				if (gWorkerLogLevel >= 2)
 				{
 					CvPlot const& kWorkerPlot = getPlot();
-					logBBAI("    %S worker stays in small improved-enough city %S to handle current useful BFC plot: pop=%d improved=%d target=%d maxPop=%d plot=(%d,%d) build=%S",
-						GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), iCityPopulation,
+					logBBAI("WORKER_CITY_ASSIGNMENT_DECISION turn=%d player=%d civ=%S city=%S cityId=%d action=STAY reason=USEFUL_CURRENT_BFC_JOB pop=%d improved=%d target=%d maxPop=%d plot=(%d,%d) build=%s",
+						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), pCity->getID(), iCityPopulation,
 						countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities,
-						iSAS_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POP, kWorkerPlot.getX(), kWorkerPlot.getY(),
-						GC.getInfo(eKeepCurrentBuild).getDescription());
+						iSAS_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POP, kWorkerPlot.getX(), kWorkerPlot.getY(), GC.getInfo(eKeepCurrentBuild).getType());
 				}
 			}
 			else
 			{
-				if (gWorkerLogLevel >= 2) logBBAI("    %S worker leaves small improved-enough city %S: pop=%d improved=%d target=%d maxPop=%d",
-					GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), iCityPopulation,
-					countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities,
-					iSAS_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POP);
+				if (gWorkerLogLevel >= 2) logBBAI("WORKER_CITY_ASSIGNMENT_DECISION turn=%d player=%d civ=%S city=%S cityId=%d action=LEAVE reason=IMPROVED_ENOUGH pop=%d improved=%d target=%d maxPop=%d",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), pCity->getID(), iCityPopulation,
+					countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities, iSAS_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POP);
 				if (AI_nextCityToImprove(pCity))   // go pick city B right now
 					return;
 				// If we couldn't find a better city, work here anyway
@@ -13195,7 +13193,8 @@ void CvUnitAI::AI_greatPersonMove()
 				break; // just once.
 			}
 		}
-		//if (gUnitLogLevel > 2) logBBAI("    %S GP slow modifier: %d, value: %d", GET_PLAYER(getOwner()).getCivilizationDescription(0), range(30 + iModifier/2, 20, 80), iSlowValue);
+		// <!-- custom: Disabled row kept in the current BBAI record format so re-enabling it follows the same pattern; untested while disabled. (Claude code Opus 5.5) -->
+		//if (gUnitLogLevel > 2) logBBAI("GREAT_PERSON_SLOW_VALUE turn=%d player=%d civ=%S unitId=%d slowModifierPercent=%d value=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), range(30 + iModifier/2, 20, 80), iSlowValue);
 		iSlowValue *= (75 + kOwner.AI_getStrategyRand(6) % 51);
 		iSlowValue /= 100;
 		missions.push_back(std::pair<int, int>(iSlowValue, GP_SLOW));
@@ -13329,9 +13328,9 @@ void CvUnitAI::AI_greatPersonMove()
 				getGroup()->pushMission(MISSION_DISCOVER);
 				if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_DISCOVER_TECH, iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pSASTradeChoice, pSASGreatPersonDecisionPlot, ePreviousMissionAI, pPreviousMissionPlot);
 				if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("DISCOVER", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
-				if (bLogUnitGreatPersonDecision) logBBAI("    %S chooses 'discover' (%S) with their %S (value: %d, choice #%d)",
-					GET_PLAYER(getOwner()).getCivilizationDescription(0), GC.getInfo(eDiscoverTech).getDescription(),
-					getName(0).GetCString(), rDiscoverValue.round(), iChoice);
+				if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%S unitId=%d unit=%S action=DISCOVER tech=%s value=%d choice=%d",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+					GC.getInfo(eDiscoverTech).getType(), rDiscoverValue.round(), iChoice);
 				return;
 			}
 			break;
@@ -13343,10 +13342,10 @@ void CvUnitAI::AI_greatPersonMove()
 				{
 					if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, (bAtTradePlot ? SAS_AI_GREAT_PERSON_TRADE_MISSION : SAS_AI_GREAT_PERSON_MOVE_TO_TRADE_MISSION), iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pSASTradeChoice, pBestTradePlot, ePreviousMissionAI, pPreviousMissionPlot);
 					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("TRADE_OR_MOVE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, (pBestTradePlot == NULL ? NULL : pBestTradePlot->getPlotCity()), pBestTradePlot, NO_SPECIALIST, NO_BUILDING);
-					if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'trade mission' with their %S (value: %d, choice #%d)",
-						GET_PLAYER(getOwner()).getCivilizationDescription(0),
-						AI_getGroup()->AI_getMissionAIType() == MISSIONAI_TRADE?"continues" :"chooses", getName(0).GetCString(), iTradeValue,
-						iChoice);
+					if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%S unitId=%d unit=%S action=TRADE_MISSION mode=%s value=%d choice=%d target=(%d,%d)",
+						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+						AI_getGroup()->AI_getMissionAIType() == MISSIONAI_TRADE ? "CONTINUE" : "CHOOSE", iTradeValue, iChoice,
+						(pBestTradePlot == NULL ? -1 : pBestTradePlot->getX()), (pBestTradePlot == NULL ? -1 : pBestTradePlot->getY()));
 					return;
 				}
 				break;
@@ -13360,10 +13359,10 @@ void CvUnitAI::AI_greatPersonMove()
 					if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, (bAtCulturePlot ? SAS_AI_GREAT_PERSON_GREAT_WORK : SAS_AI_GREAT_PERSON_MOVE_TO_GREAT_WORK), iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pSASTradeChoice, pBestCulturePlot, ePreviousMissionAI, pPreviousMissionPlot);
 					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("GREAT_WORK_OR_MOVE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, (pBestCulturePlot == NULL ? NULL : pBestCulturePlot->getPlotCity()), pBestCulturePlot, NO_SPECIALIST, NO_BUILDING);
 					// <!-- custom: fixed an inherited logging typo: Great Work continuation now checks MISSIONAI_GREAT_WORK, not MISSIONAI_TRADE (GPT-5.5); See KI#167. -->
-					if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'great work' with their %S (value: %d, choice #%d)",
-						GET_PLAYER(getOwner()).getCivilizationDescription(0),
-						AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GREAT_WORK?"continues" :"chooses", getName(0).GetCString(),
-						iCultureValue, iChoice);
+					if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%S unitId=%d unit=%S action=GREAT_WORK mode=%s value=%d choice=%d target=(%d,%d)",
+						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+						AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GREAT_WORK ? "CONTINUE" : "CHOOSE", iCultureValue, iChoice,
+						(pBestCulturePlot == NULL ? -1 : pBestCulturePlot->getX()), (pBestCulturePlot == NULL ? -1 : pBestCulturePlot->getY()));
 					return;
 				}
 				break;
@@ -13374,8 +13373,8 @@ void CvUnitAI::AI_greatPersonMove()
 			{
 				if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_GOLDEN_AGE, iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pSASTradeChoice, pSASGreatPersonDecisionPlot, ePreviousMissionAI, pPreviousMissionPlot);
 				if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("GOLDEN_AGE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
-				if (bLogUnitGreatPersonDecision) logBBAI("    %S chooses 'golden age' with their %S (value: %d, choice #%d)",
-					GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iGoldenAgeValue, iChoice);
+				if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%S unitId=%d unit=%S action=GOLDEN_AGE value=%d choice=%d",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), iGoldenAgeValue, iChoice);
 				return;
 			}
 			else if (kOwner.AI_totalUnitAIs(AI_getUnitAIType()) < 2)
@@ -13430,10 +13429,10 @@ void CvUnitAI::AI_greatPersonMove()
 			{
 				FAssert(eBestSlowMissionAI == MISSIONAI_JOIN_CITY);
 				FAssert(pBestCity != NULL);
-				if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'join' with their %S (value: %d, choice #%d)",
-					GET_PLAYER(getOwner()).getCivilizationDescription(0),
-					AI_getGroup()->AI_getMissionAIType() == MISSIONAI_JOIN_CITY?"continues" :"chooses", getName(0).GetCString(), iSlowValue,
-					iChoice);
+				if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%S unitId=%d unit=%S action=JOIN mode=%s specialist=%s value=%d choice=%d targetCity=%S targetCityId=%d",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+					AI_getGroup()->AI_getMissionAIType() == MISSIONAI_JOIN_CITY ? "CONTINUE" : "CHOOSE", GC.getInfo(eBestSpecialist).getType(), iSlowValue,
+					iChoice, (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), (pBestCity == NULL ? -1 : pBestCity->getID()));
 				if (at(*pBestPlot))
 				{
 					getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
@@ -13459,10 +13458,10 @@ void CvUnitAI::AI_greatPersonMove()
 				// A direct corporation Construct therefore traveled as MISSIONAI_HURRY, and its persisted target could not be valued as the previous Construct target on the next turn.
 				// Retaining the candidate's actual action fixed the mission classification. See KI#170. (GPT-5.5) -->
 				MissionAITypes const eMissionAI = eBestSlowMissionAI;
-				if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'build' (%S) with their %S (value: %d, choice #%d)",
-					GET_PLAYER(getOwner()).getCivilizationDescription(0),
-					AI_getGroup()->AI_getMissionAIType() == eMissionAI?"continues" :"chooses", GC.getInfo(eBestBuilding).getDescription(),
-					getName(0).GetCString(), iSlowValue, iChoice);
+				if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%S unitId=%d unit=%S action=%s mode=%s building=%s value=%d choice=%d targetCity=%S targetCityId=%d",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+					(eMissionAI == MISSIONAI_CONSTRUCT ? "CONSTRUCT" : "HURRY"), AI_getGroup()->AI_getMissionAIType() == eMissionAI ? "CONTINUE" : "CHOOSE", GC.getInfo(eBestBuilding).getType(), iSlowValue,
+					iChoice, (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), (pBestCity == NULL ? -1 : pBestCity->getID()));
 				if (at(*pBestPlot))
 				{
 					if (eMissionAI == MISSIONAI_CONSTRUCT)
@@ -22038,7 +22037,7 @@ bool CvUnitAI::AI_safety()
 
 	if (pBestPlot != NULL)
 	{
-		if (gEvacuationLogLevel >= 3) logSASSafetyUnitResult(at(*pBestPlot) ? "wait" : "move", *this, pBestPlot, bIgnoreDanger, iBestValue);
+		if (gEvacuationLogLevel >= 3) logBBAISafetyUnitResult(at(*pBestPlot) ? "wait" : "move", *this, pBestPlot, bIgnoreDanger, iBestValue);
 		if (at(*pBestPlot))
 		{
 			getGroup()->pushMission(MISSION_SKIP);
@@ -22052,7 +22051,7 @@ bool CvUnitAI::AI_safety()
 		}
 	}
 
-	if (gEvacuationLogLevel >= 3) logSASSafetyUnitResult("fail-no-plot", *this, NULL, bIgnoreDanger, iBestValue);
+	if (gEvacuationLogLevel >= 3) logBBAISafetyUnitResult("fail-no-plot", *this, NULL, bIgnoreDanger, iBestValue);
 	return false;
 }
 
@@ -23162,8 +23161,9 @@ bool CvUnitAI::AI_bombardCity()
 	int iComparison = AI_getGroup()->AI_compareStacks(pBombardCity->plot(), true);
 	if (iComparison > iThreshold)
 	{
-		if (gUnitLogLevel > 2) logBBAI("      Stack skipping bombard of %S with compare %d, starting odds %d, bombard turns %d, threshold %d",
-			pBombardCity->getName().GetCString(), iComparison, iAttackOdds, iBombardTurns, iThreshold);
+		if (gUnitLogLevel > 2) logBBAI("STACK_BOMBARD_DECISION turn=%d player=%d civ=%S groupId=%d action=SKIP city=%S cityId=%d target=(%d,%d) compare=%d attackOdds=%d bombardTurns=%d threshold=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->getID(),
+			pBombardCity->getName().GetCString(), pBombardCity->getID(), pBombardCity->getX(), pBombardCity->getY(), iComparison, iAttackOdds, iBombardTurns, iThreshold);
 		return false;
 	}
 	// <advc.004c>
@@ -23653,7 +23653,7 @@ bool CvUnitAI::AI_evacuateCity()
 		// <!-- custom: important note!!
 		// You need at least 2 autoplay turns IN ONE GO (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go.
 		// If we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns -->
-		if (gEvacuationLogLevel >= 2) logSASEvacuationUnitDecision("always", *this, kCity, 100, true);
+		if (gEvacuationLogLevel >= 2) logBBAIEvacuationUnitDecision("always", *this, kCity, 100, true);
 		if (gGameRecordLogLevel >= 2) logSASGameRecordAIEvacuationUnitDecision(*this, kCity, "ALL_LAND", 100, true);
 		return AI_retreatToCity();
 	}
@@ -23697,7 +23697,7 @@ bool CvUnitAI::AI_evacuateCity()
 			Hopefully sufficient most of the time. */
 		bool const bEvacuate = SyncRandSuccess(rEvacProb);
 		int const iEvacProbPercent = (gEvacuationLogLevel >= 2 || gGameRecordLogLevel >= 2 ? rEvacProb.getPercent() : -1);
-		if (gEvacuationLogLevel >= 2) logSASEvacuationUnitDecision("legacy", *this, kCity, iEvacProbPercent, bEvacuate);
+		if (gEvacuationLogLevel >= 2) logBBAIEvacuationUnitDecision("legacy", *this, kCity, iEvacProbPercent, bEvacuate);
 		if (gGameRecordLogLevel >= 2) logSASGameRecordAIEvacuationUnitDecision(*this, kCity, "LEGACY_PROBABILITY", iEvacProbPercent, bEvacuate);
 		if (bEvacuate)
 			return AI_retreatToCity();
@@ -23861,8 +23861,8 @@ bool CvUnitAI::AI_stackVsStack(int iSearchRange, int iAttackThreshold, int iRisk
 
 	if (pBestPlot != NULL)
 	{
-		if (gUnitLogLevel >= 2) logBBAI("    Stack for player %d (%S) uses StackVsStack attack with value %d",
-			getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), iBestValue);
+		if (gUnitLogLevel >= 2) logBBAI("STACK_ATTACK_DECISION turn=%d player=%d civ=%S groupId=%d action=STACK_VS_STACK target=(%d,%d) value=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->getID(), pBestPlot->getX(), pBestPlot->getY(), iBestValue);
 		pushGroupMoveTo(*pBestPlot, eFlags, false, false,
 				MISSIONAI_COUNTER_ATTACK, pBestPlot);
 		return true;
@@ -26587,9 +26587,9 @@ bool CvUnitAI::AI_specialSeaTransportSpy()
 			{
 				if (gUnitLogLevel > 2 && pTargetPlot->getOwner() != NO_PLAYER && generatePath(*pTargetPlot, NO_MOVEMENT_FLAGS, true, NULL, 1))
 				{
-					logBBAI("      %S lands sea-spy in %S territory. (%d percent of unspent points)", // apparently it's impossible to actually use a % sign in this Microsoft version of vsnprintf. madness
-						kOurTeam.getName().GetCString(),
-						GET_PLAYER(pTargetPlot->getOwner()).getCivilizationDescription(0),
+					logBBAI("ESPIONAGE_SEA_SPY_DECISION turn=%d player=%d civ=%S unitId=%d unit=%S action=LAND targetPlayer=%d targetCiv=%S target=(%d,%d) unspentPointsPercent=%d",
+						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+						pTargetPlot->getOwner(), GET_PLAYER(pTargetPlot->getOwner()).getCivilizationDescription(0), pTargetPlot->getX(), pTargetPlot->getY(),
 						kOurTeam.getEspionagePointsAgainstTeam(pTargetPlot->getTeam())*100/iTotalPoints);
 				}
 				pushGroupMoveTo(*pEndTurnPlot, NO_MOVEMENT_FLAGS,
@@ -27297,10 +27297,8 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         // <!-- custom: AI_getBestBuild is disabled for land improvements; relying on it here made workers ignore cities whose custom AI_bestCityBuild still had work; in the Niani 2027 AD autoplay sample, a roaded but unimproved Pig stayed unimproved while nearby workers were on HOLD; letting AI_bestCityBuild decide fixed the in-game case. (GPT-5.5) -->
         if (!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this, &iBuildValue, &eFollowupBuild, NULL, false, &bIrrigationChainStep))
         {
-			if (bLogWorkerCityTarget) logBBAI("    %S worker city-target scan: city=%S pop=%d no AI_bestCityBuild candidate",
-				GET_PLAYER(getOwner()).getCivilizationDescription(0),
-				pLoopCity->getName().GetCString(),
-				pLoopCity->getPopulation());
+			if (bLogWorkerCityTarget) logBBAI("WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d civ=%S city=%S cityId=%d result=REJECT reason=NO_BUILD_CANDIDATE pop=%d",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getPopulation());
             continue; // nothing useful to do in this city right now
         }
 		// <!-- custom: The assertion diagnoses invalid AI_bestCityBuild outputs; this runtime guard also skips them in assertion-free builds or after Ignore Once.
@@ -27309,11 +27307,9 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         FAssert(pPlot != NULL && eBuild != NO_BUILD);
 		if (pPlot == NULL || eBuild == NO_BUILD)
 		{
-			if (bLogWorkerCityTarget) logBBAI("    %S worker city-target scan: city=%S pop=%d invalid AI_bestCityBuild output plot=%d build=%d",
-				GET_PLAYER(getOwner()).getCivilizationDescription(0),
-				pLoopCity->getName().GetCString(),
-				pLoopCity->getPopulation(),
-				pPlot != NULL, (int)eBuild);
+			if (bLogWorkerCityTarget) logBBAI("WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d civ=%S city=%S cityId=%d result=REJECT reason=INVALID_BUILD_OUTPUT pop=%d hasPlot=%d build=%d",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getID(),
+				pLoopCity->getPopulation(), pPlot != NULL, (int)eBuild);
 			continue;
 		}
 		// <!-- custom: old hard reject mentioned in known issues (for those that mention this hard reject) 55, 56, 57, 58, 59, 60, we reverted all these changes due to worker efficiency being worse and it being too hard or tedious to fix, so we shouldn't have crashes anymore, but if ever need consider uncommenting this, although very suboptimal as it rejects everything based on chatgpt 5's explanation and what i understood of it, but it often helped temporarily fix crashes until i could pinpoint and do a more selective or proper fix, so kept commented out rather than removed in case it helps debug code someday or such. -->
@@ -27326,18 +27322,18 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
                 getGroup(), /*iRange*/0, /*iMaxCount*/iMaxWorkers);
         if (iReservedCityTargetPlot >= iMaxWorkers)
         {
-			if (bLogWorkerCityTarget) logBBAI("    %S worker city-target scan: city=%S pop=%d rejected reserved plot=(%d,%d) build=%S reserved=%d/%d",
-				GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(),
-				pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription(), iReservedCityTargetPlot, iMaxWorkers);
+			if (bLogWorkerCityTarget) logBBAI("WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d civ=%S city=%S cityId=%d result=REJECT reason=RESERVED pop=%d plot=(%d,%d) build=%s reserved=%d/%d",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getPopulation(),
+				pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getType(), iReservedCityTargetPlot, iMaxWorkers);
             continue;
         }
 
         // Must be pathable (use MOVE_SAFE_TERRITORY bias for routes if possible)
         if (!pf.generatePath(*pPlot))
         {
-			if (bLogWorkerCityTarget) logBBAI("    %S worker city-target scan: city=%S pop=%d rejected no path plot=(%d,%d) build=%S",
-				GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(),
-				pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription());
+			if (bLogWorkerCityTarget) logBBAI("WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d civ=%S city=%S cityId=%d result=REJECT reason=NO_PATH pop=%d plot=(%d,%d) build=%s",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getPopulation(),
+				pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getType());
             continue;
 		}
 
@@ -27641,7 +27637,8 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
 	const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL(CvGlobals::SAS_WORKER_FORT_AIRBASE_ON);
 	if (!bAllowFortAirbaseWorkers && (bCanal || bAirbase))
 	{
-		if (gWorkerLogLevel >= 2) logBBAI("    %S worker skips disabled fort-territory path: canal=%d airbase=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), bCanal, bAirbase);
+		if (gWorkerLogLevel >= 2) logBBAI("WORKER_FORT_DECISION turn=%d player=%d civ=%S unitId=%d action=SKIP reason=DISABLED canal=%d airbase=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), bCanal, bAirbase);
 		return false;
 	}
 
@@ -31242,7 +31239,9 @@ bool CvUnitAI::AI_revoltCitySpy()
 			if (GET_PLAYER(getOwner()).canDoEspionageMission(eLoopEspionageMission,
 				pCity->getOwner(), pCity->plot(), -1, this))
 			{
-				if (gUnitLogLevel > 2) logBBAI("      %S uses city revolt at %S.", GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString());
+				if (gUnitLogLevel > 2) logBBAI("ESPIONAGE_MISSION_DECISION turn=%d player=%d civ=%S unitId=%d action=COMMIT source=TACTICAL_CITY_REVOLT targetPlayer=%d city=%S cityId=%d target=(%d,%d) mission=%s",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), pCity->getOwner(),
+					pCity->getName().GetCString(), pCity->getID(), pCity->getX(), pCity->getY(), GC.getInfo(eLoopEspionageMission).getType());
 				// <!-- custom: This tactical city-revolt path bypasses AI_bestPlotEspionage; record its real commit separately so all AI MISSION_ESPIONAGE commits remain observable without inventing chooser scores. (ChatGPT-5.6-Sol) -->
 				if (gGameRecordLogLevel >= 2) logSASGameRecordAITacticalEspionageDecision(this, pCity, eLoopEspionageMission);
 				getGroup()->pushMission(MISSION_ESPIONAGE, eLoopEspionageMission);
@@ -31714,9 +31713,9 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(int& iData, SASEspionageCho
 	if (gUnitLogLevel > 2 && eBestMission != NO_ESPIONAGEMISSION)
 	{
 		//FAssertMsg(!kOwner.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) || GC.getInfo(eBestMission).getBuyTechCostFactor() > 0 || GC.getInfo(eBestMission).getDestroyProjectCostFactor() > 0, "Potentially wasteful AI use of espionage."); // Just for testing purposes
-		logBBAI("      %S chooses %S as their best%s espionage mission (value: %d, cost: %d).",
-			GET_PLAYER(getOwner()).getCivilizationDescription(0), GC.getInfo(eBestMission).getText(), bBigEspionage?" (big)":"", iBestValue,
-			kOwner.getEspionageMissionCost(eBestMission, eTargetPlayer, plot(), iData, this));
+		logBBAI("ESPIONAGE_MISSION_CHOICE turn=%d player=%d civ=%S unitId=%d targetPlayer=%d target=(%d,%d) mission=%s big=%d value=%d cost=%d data=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), eTargetPlayer, getX(), getY(),
+			GC.getInfo(eBestMission).getType(), bBigEspionage, iBestValue, kOwner.getEspionageMissionCost(eBestMission, eTargetPlayer, plot(), iData, this), iData);
 	}
 
 	return eBestMission;
@@ -32366,12 +32365,11 @@ bool CvUnitAI::AI_stackAttackCity(int iPowerThreshold)
 	{
 		if (gUnitLogLevel >= 1 && pCityPlot->getPlotCity() != NULL)
 		{
-			logBBAI("    Stack for player %d (%S) decides to attack city %S with stack ratio %d",
-				getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pCityPlot->getPlotCity()->getName(0).GetCString(),
-				AI_getGroup()->AI_compareStacks(pCityPlot, true));
-			logBBAI("    City %S has defense modifier %d, %d with ignore building",
-				pCityPlot->getPlotCity()->getName(0).GetCString(), pCityPlot->getPlotCity()->getDefenseModifier(false),
-				pCityPlot->getPlotCity()->getDefenseModifier(true));
+			CvCity const& kTargetCity = *pCityPlot->getPlotCity();
+			logBBAI("STACK_CITY_ATTACK_DECISION turn=%d player=%d civ=%S groupId=%d action=ATTACK city=%S cityId=%d target=(%d,%d) stackRatio=%d defenseModifier=%d defenseModifierIgnoreBuilding=%d",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->getID(),
+				kTargetCity.getName(0).GetCString(), kTargetCity.getID(), pCityPlot->getX(), pCityPlot->getY(), AI_getGroup()->AI_compareStacks(pCityPlot, true),
+				kTargetCity.getDefenseModifier(false), kTargetCity.getDefenseModifier(true));
 		}
 
 		FAssert(!at(*pCityPlot));

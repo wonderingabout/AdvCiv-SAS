@@ -5,6 +5,8 @@
 
 // AI decision making logging
 
+// <!-- custom: Scope: BBAI settings, the shared writer and session rows, plus row formatters that several files share (e.g. the first-city probe helpers).
+// A formatter used by one file stays static beside its caller, which owns the decision and gate; unlike the SGR recorder, which owns all of its compact rows, BBAI rows are detailed decision traces that live with their decisions. (Claude code Opus 5.5) -->
 // Log levels:
 // 0 - None
 // 1 - Important decisions only

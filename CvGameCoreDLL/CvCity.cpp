@@ -2781,15 +2781,26 @@ void CvCity::hurry(HurryTypes eHurry)
 
 	if (gCityLogLevel >= 2) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 	{
-		CvWStringBuffer szBuffer; CvWString szString;
+		char const* szKind = "NONE";
+		char const* szItem = "NONE";
 		if (isProductionUnit())
-			szString = GC.getInfo(getProductionUnit()).getDescription();
+		{
+			szKind = "UNIT";
+			szItem = GC.getInfo(getProductionUnit()).getType();
+		}
 		else if (isProductionBuilding())
-			szString = GC.getInfo(getProductionBuilding()).getDescription();
+		{
+			szKind = "BUILDING";
+			szItem = GC.getInfo(getProductionBuilding()).getType();
+		}
 		else if (isProductionProject())
-			szString = GC.getInfo(getProductionProject()).getDescription();
-		logBBAI("    City %S hurrying production of %S at cost of %d pop, %d gold, %d anger length",
-			getName().GetCString(), szString.GetCString(), iHurryPopulation, iHurryGold, iHurryAngerLength);
+		{
+			szKind = "PROJECT";
+			szItem = GC.getInfo(getProductionProject()).getType();
+		}
+		logBBAI("CITY_HURRY_APPLIED turn=%d player=%d civ=%S city=%S cityId=%d hurry=%s kind=%s item=%s populationCost=%d goldCost=%d angerLength=%d productionAdded=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
+			GC.getInfo(eHurry).getType(), szKind, szItem, iHurryPopulation, iHurryGold, iHurryAngerLength, iHurryProduction);
 	}
 
 	if (isActiveOwned() && isCitySelected())
@@ -3039,8 +3050,9 @@ void CvCity::conscript()
 			gDLL->UI().selectUnit(pUnit, true, false, true);
 			gDLL->UI().lookAt(getPlot().getPoint(), CAMERALOOKAT_NORMAL); // K-Mod
 		}
-		if (gCityLogLevel >= 2 && !isHuman()) logBBAI("      City %S does conscript of a %S at cost of %d pop, %d anger",
-			getName().GetCString(), pUnit->getName().GetCString(), iPopChange, iAngerLength); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+		if (gCityLogLevel >= 2 && !isHuman()) logBBAI("CITY_CONSCRIPT_APPLIED turn=%d player=%d civ=%S city=%S cityId=%d unit=%s unitId=%d unitAI=%d populationCost=%d angerLength=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
+			GC.getInfo(pUnit->getUnitType()).getType(), pUnit->getID(), pUnit->AI_getUnitAIType(), iPopChange, iAngerLength); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 	}
 }
 
@@ -9927,12 +9939,9 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 			bValid = true;
 			bBuildingUnit = true;
 			CvEventReporter::getInstance().cityBuildingUnit(this, eUnit);
-			if (gCityLogLevel >= 1)
-			{
-				CvWString szString;
-				getUnitAIString(szString, eUnitAI);
-				logBBAI("    City %S pushes production of unit %S with UNITAI %S", getName().GetCString(), GC.getInfo(eUnit).getDescription(), szString.GetCString());
-			}
+			if (gCityLogLevel >= 1) logBBAI("CITY_PRODUCTION_ORDER turn=%d player=%d civ=%S city=%S cityId=%d action=PUSH kind=UNIT item=%s unitAI=%d",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
+				GC.getInfo(eUnit).getType(), eUnitAI);
 		}
 		break;
 	}
@@ -9946,7 +9955,8 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 			bValid = true;
 			bBuildingBuilding = true;
 			CvEventReporter::getInstance().cityBuildingBuilding(this, eBuilding);
-			if (gCityLogLevel >= 1) logBBAI("    City %S pushes production of building %S", getName().GetCString(), GC.getInfo(eBuilding).getDescription());
+			if (gCityLogLevel >= 1) logBBAI("CITY_PRODUCTION_ORDER turn=%d player=%d civ=%S city=%S cityId=%d action=PUSH kind=BUILDING item=%s",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), GC.getInfo(eBuilding).getType());
 		}
 		break;
 	}
@@ -9957,7 +9967,8 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 		{
 			GET_TEAM(getTeam()).changeProjectMaking(eProject, 1);
 			bValid = true;
-			if (gCityLogLevel >= 1) logBBAI("    City %S pushes production of project %S", getName().GetCString(), GC.getInfo(eProject).getDescription());
+			if (gCityLogLevel >= 1) logBBAI("CITY_PRODUCTION_ORDER turn=%d player=%d civ=%S city=%S cityId=%d action=PUSH kind=PROJECT item=%s",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), GC.getInfo(eProject).getType());
 		}
 		break;
 	}
@@ -9977,7 +9988,8 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 				iData2 = getCultureLevel();
 			}
 			// K-Mod end
-			if (gCityLogLevel >= 1) logBBAI("    City %S pushes production of process %S", getName().GetCString(), GC.getInfo((ProcessTypes)iData1).getDescription());
+			if (gCityLogLevel >= 1) logBBAI("CITY_PRODUCTION_ORDER turn=%d player=%d civ=%S city=%S cityId=%d action=PUSH kind=PROCESS item=%s",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), GC.getInfo(eProcess).getType());
 		}
 		break;
 	}
@@ -10153,10 +10165,9 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
 			pUnit->automate(AUTOMATE_RELIGION);
 		CvEventReporter::getInstance().unitBuilt(this, pUnit);
 		if (gCityLogLevel >= 1) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
-		{
-			CvWString szString; getUnitAIString(szString, pUnit->AI_getUnitAIType());
-			logBBAI("    City %S finishes production of unit %S with UNITAI %S", getName().GetCString(), pUnit->getName(0).GetCString(), szString.GetCString());
-		}
+			logBBAI("CITY_PRODUCTION_FINISHED turn=%d player=%d civ=%S city=%S cityId=%d kind=UNIT item=%s unitId=%d unitAI=%d",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
+				GC.getInfo(pUnit->getUnitType()).getType(), pUnit->getID(), pUnit->AI_getUnitAIType());
 		break;
 	}
 	case ORDER_CONSTRUCT:
@@ -10194,7 +10205,8 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
 		if (gGameRecordLogLevel >= 2) logSASGameRecordBuildingCompletedByProduction(this, eConstructBuilding, iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostOverflowProduction, iUnusedOverflowCapacity, iOverflowGold);
 		CvEventReporter::getInstance().buildingBuilt(this, eConstructBuilding);
 		if (gCityLogLevel >= 1) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
-			logBBAI("    City %S finishes production of building %S", getName().GetCString(), GC.getInfo(eConstructBuilding).getDescription());
+			logBBAI("CITY_PRODUCTION_FINISHED turn=%d player=%d civ=%S city=%S cityId=%d kind=BUILDING item=%s",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), GC.getInfo(eConstructBuilding).getType());
 		break;
 	}
 	case ORDER_CREATE:
@@ -10263,8 +10275,8 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
 		// <advc.123f>
 		if(GC.getGame().isProjectMaxedOut(eCreateProject))
 			iMaxedBuildingOrProject = eCreateProject; // </advc.123f>
-		if (gCityLogLevel >= 1) logBBAI("    City %S finishes production of project %S",
-			getName().GetCString(), GC.getInfo(eCreateProject).getDescription()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+		if (gCityLogLevel >= 1) logBBAI("CITY_PRODUCTION_FINISHED turn=%d player=%d civ=%S city=%S cityId=%d kind=PROJECT item=%s",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), GC.getInfo(eCreateProject).getType()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 		break;
 	}
 	case ORDER_MAINTAIN:

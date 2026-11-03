@@ -41,6 +41,7 @@ The EXE is closed source, mods can supply arbitrary filenames, and some outputs 
   - [BBAI](#bbai)
     - [BBAI session header example](#bbai-session-header-example)
     - [Categories and inherited Settler logging](#categories-and-inherited-settler-logging)
+    - [BBAI Before/After: narrative rows to records](#bbai-beforeafter-narrative-rows-to-records)
     - [Settler Before/After: selecting a movement target](#settler-beforeafter-selecting-a-movement-target)
     - [UWAI diagnostics: standalone AdvCiv reports vs current BBAI records](#uwai-diagnostics-standalone-advciv-reports-vs-current-bbai-records)
       - [UWAI Before/After: separate prose report to shared BBAI records](#uwai-beforeafter-separate-prose-report-to-shared-bbai-records)
@@ -536,6 +537,22 @@ Enable `SAS_BBAI_LOG_ON` and select the relevant category levels. `SAS_BBAI_LOG_
 
 These controls all select categories within the same BBAI output, including the UWAI controls below; they do not create separate files such as `Settler.log` or `MilitaryAnalyst.log`.
 
+Ordinary non-UWAI BBAI rows are greppable records: a stable uppercase event ID followed by named `key=value` fields. Related narration is consolidated where one row preserves the same evidence more clearly.
+
+Examples include `CITY_PRODUCTION_BRANCH` / `CITY_PRODUCTION_CHOICE`, `WAR_PLAN_REVIEW`, `DEAL_ITEM_APPLIED`, `RAZE_VALUE_COMPONENTS`, `PLAYER_SCORE_SUMMARY`, `PLAYER_TEAM_RELATIONS`, `GREAT_PERSON_ACTION_DECISION`, `WORKER_CITY_BUILD_CANDIDATE`, `CITY_HURRY_DECISION`, `CITY_PRODUCTION_ORDER` and `MAP_NORMALIZATION_CHANGE`.
+
+Raw XML type names identify units, buildings, technologies, resources, features and similar identities where translated prose is unnecessary.
+
+Gameplay callers own the decisions and cached category gates; formatting helpers receive already-decided state only.
+
+A formatter used by one file stays `static` beside its caller, while `BBAILog.cpp` / `BBAILog.h` keep the ones several files share, such as the first-city probe helpers.
+
+Multi-sink dispatch such as the BBAI/SASGameRecord retreat coordinator stays beside its gameplay caller rather than coupling the two recorder implementations.
+
+`TrueStarts.cpp` is a development/debug surface whose BBAI rows remain narrative; do not treat them as examples of the normal record format.
+
+The dynamic `FOUND_SITE_%s` evaluator families are intentional: the substituted suffix is a stable evaluation-stage identifier rather than free-form prose.
+
 | Current control | Diagnostic subject / search examples |
 | --- | --- |
 | `SAS_BBAI_PLAYER_LOG`, `SAS_BBAI_TEAM_LOG`, `SAS_BBAI_WAR_LOG` | General player/team decisions and dedicated war-plan/target decisions. |
@@ -551,7 +568,7 @@ These controls all select categories within the same BBAI output, including the 
 
 The inherited `CvUnitAI::AI_found` / `AI_foundFollow` path already logged messages such as `Settler heading for site %d, %d` and `Settler founding at plot %d, %d (follow)` under `gUnitLogLevel >= 2`. SAS separates Settler diagnostics from general UNIT output and adds named fields for decisions, reasons and safety/escort context; FOUND separately follows the scoring used to choose sites.
 
-`ReproTest.cpp` is another BBAI/message-control producer rather than a separate filename family: when compiled with `ENABLE_REPRO_TEST`, it brackets the replay comparison with `ReproTest: start`, `ReproTest: reloading` and `ReproTest: done` in enabled BBAI output, and also uses `messageControlLog` when engine logging is active.
+`ReproTest.cpp` is another BBAI/message-control producer rather than a separate filename family: when compiled with `ENABLE_REPRO_TEST`, it brackets the replay comparison with `REPRO_TEST action=START`, `REPRO_TEST action=RELOAD` and `REPRO_TEST action=DONE` in enabled BBAI output, and also uses `messageControlLog` when engine logging is active.
 
 Those quoted Settler strings are source format templates, not captured game rows. The split matters in practice: enabling a Found phase does not request the corresponding Settler movement/escort trace, and enabling a Settler phase does not request full per-plot found-value calculations.
 
@@ -565,20 +582,78 @@ The [real USA/Korea summary](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/first_ci
 
 These are review flags, not a general scouting-efficiency verdict; predicted reveals and requested waypoints remain distinct from observed movement.
 
-#### Settler Before/After: selecting a movement target
+#### BBAI Before/After: narrative rows to records
 
-This comparison reconstructs the **source formats**, not a recorded Settler trip: the checked captures did not supply a matching movement row. Both sides describe moving toward a selected founding site; `%d` / `%S` retain the actual source placeholders instead of inventing a unit, turn or coordinates.
+These are exact source excerpts (format strings, not captured game rows), showing the two common rewrites: a conditional sentence becomes a named field, and several narration lines become one record.
 
-Before (`CvUnitAI::AI_found`, base AdvCiv; general UNIT level 2+):
+Player status: in `CvPlayer.cpp`, the separate status sentence and conditional `Financial trouble!` line became one `PLAYER_STATUS` row, so `financialTrouble=0` is also searchable. Before:
 
-```log
-    Settler heading for site %d, %d
+```cpp
+logBBAI("    Player %d (%S) has %d cities, %d pop, %d power, %d tech percent",
+	getID(), getCivilizationDescription(0), getNumCities(), getTotalPopulation(), getPower(),
+	GET_TEAM(getTeam()).getBestKnownTechScorePercent());
+if (AI().AI_isFinancialTrouble())
+	logBBAI("    Financial trouble!");
 ```
 
-After (SAS `SAS_logSettlerMissionDecision`, SETTLER level 2+; action/reason resolved from the `AI_found` call):
+After:
 
-```log
-SETTLER_MISSION_DECISION turn=%d player=%d %S action=PUSH_MOVE_TO_FOUND reason=AI_FOUND_MOVE unitId=%d x=%d y=%d target=(%d,%d) endTurn=(%d,%d) targetOwner=%d targetFoundValue=%d pathTurns=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d plotDanger=%d targetDanger=%d missionAI=%d
+```cpp
+logBBAI("PLAYER_STATUS turn=%d player=%d civ=%S team=%d cities=%d population=%d power=%d bestKnownTechScorePercent=%d financialTrouble=%d",
+	iGameTurn, getID(), getCivilizationDescription(0), getTeam(), getNumCities(), getTotalPopulation(), getPower(),
+	GET_TEAM(getTeam()).getBestKnownTechScorePercent(), AI().AI_isFinancialTrouble());
+```
+
+Raze decision: in `CvPlayerAI.cpp`, each "Reduction for ..." sentence only said that a reduction applied, while `RAZE_VALUE_COMPONENTS` already carried the summed religion/asset delta.
+
+The reasons became flags and per-reason deltas on that row instead (for example `holyCity` with `holyCityDelta`), so one row explains the value without counting preceding narration lines. Before (two of the removed reason lines):
+
+```cpp
+if (bLogRazeDecision) logBBAI("      Reduction for holy city");
+if (bLogRazeDecision) logBBAI("      Reduction for corp headquarters");
+```
+
+After (the first source line of the statement; its arguments follow on the next lines):
+
+```cpp
+if (bLogRazeDecision) logBBAI("RAZE_VALUE_COMPONENTS turn=%d player=%d civ=%S city=%S cityId=%d population=%d distanceAndLocalPower=%d maintenance=%d populationDelta=%d personalityAndDomination=%d religionAssetsCultureExpansionAndEnemyPower=%d stateReligionDelta=%d holyCityDelta=%d corporationDelta=%d greatPeopleWondersBarbDelta=%d bonusDelta=%d culturalOwnerDelta=%d expansionDelta=%d enemyPowerDelta=%d random=%d finalValue=%d threshold=0 financialTrouble=%d closeness=%d barbCity=%d previousOwnerBarbarian=%d areaCities=%d stateReligion=%s stateReligionPresent=%d stateReligionShrine=%d holyCity=%d corporationHeadquarters=%d activeWorldWonders=%d greatPeople=%d culturalOwner=%d targetCities=%d ownCities=%d enemyPowerPercent=%d",
+```
+
+Deal cancellation: in `BBAILog.cpp`, the translated sentence became `DEAL_CANCEL_DECISION` with both participants as IDs; the human-readable deal text stays in the `deal` field. Before:
+
+```cpp
+szBuffer.Format(L"    %s cancels deal (%s): %s", GET_PLAYER(eCancelPlayer).getName(0),
+		szReason, szTmpBuffer.getCString());
+// Leave it to logBBAI to narrow the string
+logBBAI("%S", szBuffer.GetCString());
+```
+
+After:
+
+```cpp
+logBBAI("DEAL_CANCEL_DECISION turn=%d player=%d civ=%S otherPlayer=%d otherCiv=%S reason=%S deal=%S",
+	GC.getGame().getGameTurn(), eCancelPlayer, GET_PLAYER(eCancelPlayer).getCivilizationDescription(0), eOtherPlayer,
+	GET_PLAYER(eOtherPlayer).getCivilizationDescription(0), szReason, szTmpBuffer.getCString());
+```
+
+#### Settler Before/After: selecting a movement target
+
+This comparison quotes **source lines**, not a recorded Settler trip: no matching captured movement row is kept here. Both sides describe moving toward a selected founding site.
+
+Before (base AdvCiv 1.14 `CvUnitAI::AI_found`; general UNIT level 2+):
+
+```cpp
+if (gUnitLogLevel >= 2)logBBAI("    Settler heading for site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
+```
+
+After (SAS `AI_found` call and the `SAS_logSettlerMissionDecision` format it fills; SETTLER level 2+). The call supplies `action=PUSH_MOVE_TO_FOUND` and `reason=AI_FOUND_MOVE`:
+
+```cpp
+if (bLogSettlerLevel2) SAS_logSettlerMissionDecision("PUSH_MOVE_TO_FOUND", *this, pBestFoundPlot, pBestPlot, pBestFoundPlot->getFoundValue(getOwner()), iBestPathTurns, "AI_FOUND_MOVE");
+```
+
+```cpp
+logBBAI("SETTLER_MISSION_DECISION turn=%d player=%d %S action=%s reason=%s unitId=%d x=%d y=%d target=(%d,%d) endTurn=(%d,%d) targetOwner=%d targetFoundValue=%d pathTurns=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d plotDanger=%d targetDanger=%d missionAI=%d",
 ```
 
 The old line identifies only the destination. The SAS row also identifies the player/unit, turn, current and end-turn positions, selected-site value, path length, group/escort composition, danger and mission context, so it can explain how the Settler is reaching that target. Separate `SETTLER_PARKED` and `SETTLER_CITY_ESCORT_POOL` rows expose waiting and escort availability.

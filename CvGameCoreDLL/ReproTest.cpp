@@ -33,7 +33,7 @@ ReproTest::ReproTest(int iTurns)
 		"start" and "reloading" to a new file and the part between
 		"reloading" and "end"; then get a diff. */
 	// <!-- custom: Base AdvCiv gated ReproTest BBAI output with compile-time LOG_AI; AdvCiv-SAS now uses XML-tunable BBAI log levels, so use the runtime gLogBBAI gate instead. (GPT-5.5?) -->
-	if (gLogBBAI) logBBAI("ReproTest: start\n");
+	if (gLogBBAI) logBBAI("REPRO_TEST action=START");
 	if (GC.isLogging()) gDLL->messageControlLog("ReproTest: start");
 	kGame.setAIAutoPlay(m_iAutoPlayTurns, true);
 }
@@ -81,7 +81,7 @@ void ReproTest::endWrite(bool bFinal)
 			m_bQuickLoadDone = true;
 			kGame.doControl(CONTROL_QUICK_LOAD);
 			// <!-- custom: same runtime BBAI logging gate change as above. (GPT-5.5?) -->
-			if (gLogBBAI) logBBAI("ReproTest: reloading");
+			if (gLogBBAI) logBBAI("REPRO_TEST action=RELOAD");
 			if (GC.isLogging()) gDLL->messageControlLog("ReproTest: reloading\n");
 			/*	Debug mode gets turned off after reload. Needs to be consistent
 				because, otherwise, CvPlayer::m_listGameMessages won't be reproducible. */
@@ -135,7 +135,7 @@ void ReproTest::endWrite(bool bFinal)
 	{
 		SAFE_DELETE(m_pReproTest);
 		// <!-- custom: same runtime BBAI logging gate change as above. (GPT-5.5?) -->
-		if (gLogBBAI) logBBAI("ReproTest: done");
+		if (gLogBBAI) logBBAI("REPRO_TEST action=DONE");
 		if (GC.isLogging()) gDLL->messageControlLog("ReproTest: done\n");
 	}
 }

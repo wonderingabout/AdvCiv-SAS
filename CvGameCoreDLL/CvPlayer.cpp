@@ -2042,8 +2042,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
 		it->AI_cityCreated(kNewCity); // </advc.104>
 	CvEventReporter::getInstance().cityAcquired(
 			eOldOwner, getID(), &kNewCity, bConquest, bTrade);
-	if (gPlayerLogLevel >= 1) logBBAI("  Player %d (%S) acquires city %S bConq %d bTrade %d",
-		getID(), getCivilizationDescription(0), kNewCity.getName(0).GetCString(), bConquest, bTrade); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+	if (gPlayerLogLevel >= 1) logBBAI("CITY_ACQUIRED turn=%d player=%d civ=%S city=%S cityId=%d oldOwner=%d conquest=%d trade=%d",
+		kGame.getGameTurn(), getID(), getCivilizationDescription(0), kNewCity.getName(0).GetCString(), kNewCity.getID(), eOldOwner, bConquest, bTrade); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 
 	// Allow razing, disbanding
 	if (bConquest)
@@ -3889,7 +3889,9 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
 	case DIPLOEVENT_DEMAND_WAR:
 		FAssertMsg(GET_PLAYER(ePlayer).getTeam() != getTeam(), "shouldn't call this function on our own team");
 		if (gWarLogLevel >= 2) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
-			logBBAI("    Team %d (%S) declares war on team %d due to DIPLOEVENT", getTeam(), getCivilizationDescription(0), ePlayer);
+			logBBAI("DIPLO_EVENT_WAR_DECLARATION turn=%d event=DEMAND_WAR sourcePlayer=%d sourceCiv=%S sourceTeam=%d targetPlayer=%d targetCiv=%S targetTeam=%d warPlan=%s",
+				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), getTeam(), ePlayer, GET_PLAYER(ePlayer).getCivilizationDescription(0),
+				GET_PLAYER(ePlayer).getTeam(), getSASWarPlanType(WARPLAN_LIMITED));
 		GET_TEAM(getTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, WARPLAN_LIMITED, true, NO_PLAYER, false, WAR_DECLARATION_DIPLOMACY);
 		break;
 
@@ -3925,7 +3927,9 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
 		// advc.146:
 		GET_TEAM(getTeam()).signPeaceTreaty(TEAMID(ePlayer));
 		if (gWarLogLevel >= 2) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
-			logBBAI("    Team %d (%S) declares war on team %d due to DIPLOEVENT", getTeam(), getCivilizationDescription(0), ePlayer);
+			logBBAI("DIPLO_EVENT_WAR_DECLARATION turn=%d event=JOIN_WAR requesterPlayer=%d requesterCiv=%S hiredPlayer=%d hiredCiv=%S sourceTeam=%d targetTeam=%d warPlan=%s",
+				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), ePlayer, GET_PLAYER(ePlayer).getCivilizationDescription(0),
+				GET_PLAYER(ePlayer).getTeam(), iData1, getSASWarPlanType(WARPLAN_DOGPILE));
 		GET_TEAM(ePlayer).declareWar((TeamTypes)iData1, false, WARPLAN_DOGPILE,
 				true, getID()); // advc.100
 		for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -5552,8 +5556,9 @@ void CvPlayer::found(int iX, int iY)
 	} // </advc.210c>
 	if (!CvPlot::isAllFog()) // advc.706: Suppress name-city popup
 		CvEventReporter::getInstance().cityBuilt(pCity);
-	if (gPlayerLogLevel > 0 || /* advc.031c: */ iFoundLogLevel > 0) logBBAI("  Player %d (%S) founds new city %S at %d, %d",
-		getID(), getCivilizationDescription(0), pCity->getName(0).GetCString(), iX, iY); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+	if (gPlayerLogLevel > 0 || /* advc.031c: */ iFoundLogLevel > 0) logBBAI("CITY_FOUNDED turn=%d player=%d civ=%S city=%S cityId=%d plot=%d,%d firstCity=%d barbarian=%d human=%d",
+		kGame.getGameTurn(), getID(), getCivilizationDescription(0), pCity->getName(0).GetCString(), pCity->getID(), iX, iY,
+		getNumCities() == 1, isBarbarian(), isHuman()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 }
 
 
@@ -9677,18 +9682,16 @@ void CvPlayer::onTurnLogging() const
 		return;
 
 	int const iGameTurn = kGame.getGameTurn();
-	logBBAI("Player %d (%S) setTurnActive for turn %d (%d %s)",
-		getID(), getCivilizationDescription(0), iGameTurn, std::abs(kGame.getGameTurnYear()), kGame.getGameTurnYear()>0 ? "AD" : "BC");
+	logBBAI("PLAYER_TURN_STATUS turn=%d year=%d player=%d civ=%S action=SET_ACTIVE",
+		iGameTurn, kGame.getGameTurnYear(), getID(), getCivilizationDescription(0));
 
 	// advc.007: Interval was 25
 	if (iGameTurn > 0 && !isBarbarian() && (iGameTurn % gScoreLogInterval) == 0)
 	{
-		CvWStringBuffer szBuffer;
-		GAMETEXT.setScoreHelp(szBuffer, getID());
-		logBBAI("%S", szBuffer);
-
-		logBBAI("  Total Score: %d, Population Score: %d (%d total pop), Land Score: %d, Tech Score: %d, Wonder Score: %d",
-			calculateScore(), getPopScore(false), getTotalPopulation(), getLandScore(false), getTechScore(), getWondersScore());
+		// <!-- custom: Replace the translated multi-line score tooltip plus overlapping prose summary with one raw numeric row. (ChatGPT-5.6-Sol) -->
+		logBBAI("PLAYER_SCORE_SUMMARY turn=%d player=%d civ=%S totalScore=%d populationScore=%d totalPopulation=%d landScore=%d techScore=%d wonderScore=%d",
+			iGameTurn, getID(), getCivilizationDescription(0), calculateScore(), getPopScore(false), getTotalPopulation(),
+			getLandScore(false), getTechScore(), getWondersScore());
 
 		int iEconomy = 0;
 		int iProduction = 0;
@@ -9708,77 +9711,66 @@ void CvPlayer::onTurnLogging() const
 		iProduction /= std::max(1, iCount);
 		iAgri /= std::max(1, iCount);
 
-		logBBAI("  Economy avg: %d,  Industry avg: %d,  Agriculture avg: %d", iEconomy, iProduction, iAgri);
+		logBBAI("PLAYER_ECONOMY_SUMMARY turn=%d player=%d civ=%S sampleTurns=%d economyAverage=%d industryAverage=%d agricultureAverage=%d",
+			iGameTurn, getID(), getCivilizationDescription(0), iCount, iEconomy, iProduction, iAgri);
 	}
 
 	if (gPlayerLogLevel >= 2)
 	{
-		CvWStringBuffer szBuffer;
+		logBBAI("PLAYER_STATUS turn=%d player=%d civ=%S team=%d cities=%d population=%d power=%d bestKnownTechScorePercent=%d financialTrouble=%d",
+			iGameTurn, getID(), getCivilizationDescription(0), getTeam(), getNumCities(), getTotalPopulation(), getPower(),
+			GET_TEAM(getTeam()).getBestKnownTechScorePercent(), AI().AI_isFinancialTrouble());
 
-		logBBAI("    Player %d (%S) has %d cities, %d pop, %d power, %d tech percent",
-			getID(), getCivilizationDescription(0), getNumCities(), getTotalPopulation(), getPower(),
-			GET_TEAM(getTeam()).getBestKnownTechScorePercent());
-		if (AI().AI_isFinancialTrouble())
-			logBBAI("    Financial trouble!");
-
-		szBuffer.append(CvWString::format(L"    Team %d has met: ", getTeam()));
-
+		CvWStringBuffer szRelations;
+		szRelations.append(L"metTeams=");
 		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 		{
-			if (iI != getTeam() && GET_TEAM(getTeam()).isHasMet((TeamTypes)iI))
-			{
-				if (GET_TEAM((TeamTypes)iI).isAlive())
-					szBuffer.append(CvWString::format(L"%d,", iI));
-			}
+			if (iI != getTeam() && GET_TEAM(getTeam()).isHasMet((TeamTypes)iI) && GET_TEAM((TeamTypes)iI).isAlive())
+				szRelations.append(CvWString::format(L"%d,", iI));
 		}
 
+		szRelations.append(L" vassalTeams=");
 		if (GET_TEAM(getTeam()).getVassalCount() > 0)
 		{
-			szBuffer.append(CvWString::format(L";  vassals: "));
-
 			for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 			{
-				if (iI != getTeam() && GET_TEAM((TeamTypes)iI).isVassal(getTeam()))
-				{
-					if (GET_TEAM((TeamTypes)iI).isAlive())
-						szBuffer.append(CvWString::format(L"%d,", iI));
-				}
+				if (iI != getTeam() && GET_TEAM((TeamTypes)iI).isVassal(getTeam()) && GET_TEAM((TeamTypes)iI).isAlive())
+					szRelations.append(CvWString::format(L"%d,", iI));
 			}
 		}
 
-		if (GET_TEAM(getTeam()).getNumWars(false) > 0 &&
-			!isBarbarian()) // advc.007
+		szRelations.append(L" warTeams=");
+		if (GET_TEAM(getTeam()).getNumWars(false) > 0 && !isBarbarian()) // advc.007
 		{
-			szBuffer.append(CvWString::format(L";  at war with: "));
-
-			for(int iI = 0; iI < MAX_CIV_TEAMS; iI++)
-			{
-				if(iI != getTeam() && GET_TEAM(getTeam()).isAtWar((TeamTypes)iI))
-				{
-					if (GET_TEAM((TeamTypes)iI).isAlive())
-						szBuffer.append(CvWString::format(L"%d,", iI));
-				}
-			}
-		}
-
-		if (GET_TEAM(getTeam()).AI_isAnyWarPlan() &&
-			isBarbarian()) // advc.007
-		{
-			szBuffer.append(CvWString::format(L";  planning war with: "));
 			for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 			{
-				if (iI != getTeam() && !GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) && GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN)
+				if (iI != getTeam() && GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) && GET_TEAM((TeamTypes)iI).isAlive())
+					szRelations.append(CvWString::format(L"%d,", iI));
+			}
+		}
+
+		szRelations.append(L" warPlanTeams=");
+		if (GET_TEAM(getTeam()).AI_isAnyWarPlan() && isBarbarian()) // advc.007
+		{
+			for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+			{
+				if (iI != getTeam() && !GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) &&
+					GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN && GET_TEAM((TeamTypes)iI).isAlive())
 				{
-					if (GET_TEAM((TeamTypes)iI).isAlive())
-						szBuffer.append(CvWString::format(L"%d,", iI));
+					szRelations.append(CvWString::format(L"%d,", iI));
 				}
 			}
 		}
 
-		logBBAI("%S", szBuffer.getCString());
-		szBuffer.clear();
-		if (GET_TEAM(getTeam()).AI_isAnyWarPlan()) logBBAI("    Enemy power perc: %d (%d with others reduction)",
-			GET_TEAM(getTeam()).AI_getEnemyPowerPercent(), GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true));
+		// <!-- custom: The modernization draft labelled the relations fragment civ=, so 1,721 rows in a T201 Huge run read civ=metTeams=...; the fragment carries its own metTeams=/warTeams=/warPlanTeams= keys. (Claude code Opus 5.5) -->
+		logBBAI("PLAYER_TEAM_RELATIONS turn=%d player=%d civ=%S team=%d %S",
+			iGameTurn, getID(), getCivilizationDescription(0), getTeam(), szRelations.getCString());
+		if (GET_TEAM(getTeam()).AI_isAnyWarPlan())
+		{
+			logBBAI("PLAYER_WAR_POWER_STATUS turn=%d player=%d civ=%S team=%d enemyPowerPercent=%d enemyPowerPercentAdjusted=%d",
+				iGameTurn, getID(), getCivilizationDescription(0), getTeam(), GET_TEAM(getTeam()).AI_getEnemyPowerPercent(),
+				GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true));
+		}
 	}
 }
 
@@ -13268,9 +13260,9 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
 		pCity->changeOccupationTimer(kMission.getCityRevoltCounter());
 		bSomethingHappened = true;
 		bShowExplosion = true;
-		if (gUnitLogLevel >= 2 && !isHuman()) logBBAI("      Spy for player %d (%S) causes revolt in %S, owned by %S (%d)",
-			getID(), getCivilizationDescription(0), pCity->getName().GetCString(),
-			GET_PLAYER(pCity->getOwner()).getCivilizationDescription(0), pCity->getOwner());
+		if (gUnitLogLevel >= 2 && !isHuman()) logBBAI("ESPIONAGE_CITY_REVOLT turn=%d player=%d civ=%S mission=%s targetPlayer=%d targetCiv=%S city=%S cityId=%d duration=%d",
+			GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eMission).getType(), pCity->getOwner(),
+			GET_PLAYER(pCity->getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), pCity->getID(), kMission.getCityRevoltCounter());
 	}
 
 	if (kMission.getStolenGoldPercent() > 0 && pCity != NULL)
@@ -16780,9 +16772,10 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 	{
 		if (pTriggeredData->m_eOtherPlayer != NO_PLAYER)
 		{
-			if (gWarLogLevel >= 2) logBBAI("    Team %d (%S) declares war on team %d due to event",
-				GET_PLAYER(pTriggeredData->m_eOtherPlayer).getTeam(),
-				GET_PLAYER(pTriggeredData->m_eOtherPlayer).getCivilizationDescription(0), getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+			if (gWarLogLevel >= 2) logBBAI("EVENT_WAR_DECLARATION turn=%d event=%s triggerId=%d sourcePlayer=%d sourceCiv=%S sourceTeam=%d targetPlayer=%d targetCiv=%S targetTeam=%d",
+				GC.getGame().getGameTurn(), GC.getInfo(eEvent).getType(), iEventTriggeredId, pTriggeredData->m_eOtherPlayer,
+				GET_PLAYER(pTriggeredData->m_eOtherPlayer).getCivilizationDescription(0), GET_PLAYER(pTriggeredData->m_eOtherPlayer).getTeam(),
+				getID(), getCivilizationDescription(0), getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 			GET_TEAM(GET_PLAYER(pTriggeredData->m_eOtherPlayer).getTeam()).declareWar(getTeam(), false, WARPLAN_LIMITED,
 					true, NO_PLAYER, true); // advc.106g
 		}

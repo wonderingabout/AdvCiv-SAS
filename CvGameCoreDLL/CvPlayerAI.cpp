@@ -906,7 +906,6 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 	// BETTER_BTS_AI_MOD, AI Logging, 02/24/10, jdog5000
 	if (gPlayerLogLevel > 2 && iStartingGold - getGold() > 0)
 	{
-		logBBAI("    %S spends %d on unit upgrades out of budget of %d, %d gold remaining", getCivilizationDescription(0), iStartingGold - getGold(), iUpgradeBudget, getGold());
 		logBBAI("    UPGRADE_BUDGET_RESULT turn=%d player=%d %S spent=%d budget=%d goldStart=%d goldEnd=%d overspent=%d financialTroubleAfter=%d",
 			GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iStartingGold - getGold(), iUpgradeBudget, iStartingGold,
 			getGold(), iStartingGold - getGold() > iUpgradeBudget, AI_isFinancialTrouble());
@@ -1749,7 +1748,8 @@ void CvPlayerAI::AI_doCentralizedProduction()
 	if (iTotalFloatingDefenders < ((iNeededFloatingDefenders + 1) / (bGetBetterUnits ? 3 : 2)))
 	if (!bExempt && AI_chooseLeastRepresentedUnit(floatingDefenderWeight))
 	{
-		if (gCityLogLevel >= 2) logBBAI("      City %S uses choose floating defender 1", getName().GetCString());
+		// <!-- custom: Disabled row kept in the current BBAI record format so re-enabling it follows the same pattern; untested while disabled. (Claude code Opus 5.5) -->
+		if (gCityLogLevel >= 2) logBBAI("CENTRALIZED_PRODUCTION_CHOICE turn=%d player=%d civ=%S branch=FLOATING_DEFENDER_1_BTS", GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0));
 		return;
 	}
 	*/
@@ -2132,7 +2132,8 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 		// {
 		// 	if (getNumCities() <= 1 || (getNumCities() < 5 && iCloseness > 0))
 		// 	{
-		// 		if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they have few cities", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
+		// 		// <!-- custom: Disabled row kept in the current BBAI record format so re-enabling it follows the same pattern; untested while disabled. (Claude code Opus 5.5) -->
+		// 		if (gPlayerLogLevel >= 1) logBBAI("RAZE_DECISION turn=%d player=%d civ=%S city=%S cityId=%d action=KEEP reason=FEW_CITIES", GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID());
 		// 	}
 		//
 		int iRazeValue = 0;
@@ -2140,6 +2141,15 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 		int iRazeValueAfterMaintenance = 0;
 		int iRazeValueAfterPopulation = 0;
 		int iRazeValueAfterPersonalityAndDomination = 0;
+		// <!-- custom: Per-reason snapshots inside the former single religion/assets/culture/enemy-power delta; the removed "Reduction for ..." narration showed only which reductions applied, not their amounts.
+		// Plain assignments beside the unchanged arithmetic, like the snapshots above; only the raze BBAI row reads them. (Claude code Opus 5.5) -->
+		int iRazeValueAfterStateReligion = 0;
+		int iRazeValueAfterHolyCity = 0;
+		int iRazeValueAfterCorporations = 0;
+		int iRazeValueAfterGreatPeopleAndWonders = 0;
+		int iRazeValueAfterBonuses = 0;
+		int iRazeValueAfterCulturalOwner = 0;
+		int iRazeValueAfterExpansion = 0;
 		int iRazeValueBeforeRandom = 0;
 		int iRazeRandom = -1;
 		int iSASFinancialTrouble = -1;
@@ -2324,12 +2334,10 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 					if (GET_TEAM(getTeam()).hasShrine(getStateReligion()))
 					{
 						iRazeValue -= 50;
-						if (bLogRazeDecision) logBBAI("      Reduction for state religion with shrine");
 					}
 					else
 					{
 						iRazeValue -= 10;
-						if (bLogRazeDecision) logBBAI("      Reduction for state religion");
 					}
 				}
 			} // K-Mod
@@ -2338,18 +2346,19 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 				// Free religion does not mean we hate everyone equally...
 				iRazeValue -= 5;
 			} // K-Mod end
+			iRazeValueAfterStateReligion = iRazeValue;
 
 			// <!-- custom: The following conquest/raze details are player-AI diagnostics; guard them explicitly now that logBBAI itself only checks the global runtime BBAI switch. (GPT-5.5 + ChatGPT 5.5) -->
 			FOR_EACH_ENUM(Religion)
 			{
 				if (kCity.isHolyCity(eLoopReligion))
 				{
-					if (bLogRazeDecision) logBBAI("      Reduction for holy city");
 					if(getStateReligion() == eLoopReligion)
 						iRazeValue -= 150;
 					else iRazeValue -= 5 + kGame.calculateReligionPercent(eLoopReligion);
 				}
 			}
+			iRazeValueAfterHolyCity = iRazeValue;
 
 			// K-Mod
 			// corp HQ value.
@@ -2357,11 +2366,11 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 			{
 				if (kCity.isHeadquarters(eCorp))
 				{
-					if (bLogRazeDecision) logBBAI("      Reduction for corp headquarters");
 					iRazeValue -= 10 + 100 * kGame.countCorporationLevels(eCorp) /
 							kGame.getNumCities();
 				}
 			}
+			iRazeValueAfterCorporations = iRazeValue;
 			// great people
 			iRazeValue -= 5 * kCity.getNumGreatPeople(); // advc.116: was 2 * ...
 			if (bBarbCity)
@@ -2370,6 +2379,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 			/*	advc.116: 25 in BBAI 1.02, but I guess 20 will do
 				now that I've adjusted other factors */
 			iRazeValue -= 20 * kCity.getNumActiveWorldWonders();
+			iRazeValueAfterGreatPeopleAndWonders = iRazeValue;
 
 			for (CityPlotIter it(kCity); it.hasNext(); ++it)
 			{
@@ -2381,6 +2391,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 				}
 
 			}
+			iRazeValueAfterBonuses = iRazeValue;
 			// <advc.116>
 			PlayerTypes const eCulturalOwner = kCity.findHighestCulture();
 			if(eCulturalOwner != NO_PLAYER)
@@ -2400,11 +2411,13 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 					}
 				}
 			}
+			iRazeValueAfterCulturalOwner = iRazeValue;
 			// Don't raze remote cities conquered in early game
 			int iTargetCities = GC.getInfo(GC.getMap().getWorldSize()).
 					getTargetNumCities();
 			if(iTargetCities * fixp(0.75) >= getNumCities())
 				iRazeValue -= (iTargetCities - getNumCities()) * 5;
+			iRazeValueAfterExpansion = iRazeValue;
 			// </advc.116>
 
 			// More inclined to raze if we're unlikely to hold it
@@ -2414,39 +2427,37 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 				iTempValue *= (kPreviousTeam.getPower(true) -
 						GET_TEAM(getTeam()).getPower(false));
 				iTempValue /= std::max(100, GET_TEAM(getTeam()).getPower(false));
-				logBBAI("      Low power, so boost raze odds by %d", std::min( 75, iTempValue));
+				// <!-- custom: Disabled row kept in the current BBAI record format so re-enabling it follows the same pattern; untested while disabled. (Claude code Opus 5.5) -->
+				logBBAI("RAZE_VALUE_ADJUSTMENT turn=%d player=%d civ=%S city=%S cityId=%d reason=LOW_POWER delta=%d", kGame.getGameTurn(), getID(), getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), std::min(75, iTempValue));
 				iRazeValue += std::min(75, iTempValue);
 			}*/
 			// <advc.116> Razing doesn't really help when losing a war. Replacement:
 			iRazeValue += ::range((GET_TEAM(getTeam()).
 					AI_getEnemyPowerPercent(true) - 100) / 6, -10, 10);
 			// </advc.116>
-			if(bLogRazeDecision)
-			{
-				if (bBarbCity) logBBAI("      %S is a barb city", kCity.getName().GetCString());
-				if (bPrevOwnerBarb) logBBAI("      %S was last owned by barbs", kCity.getName().GetCString());
-				logBBAI("      %S has area cities %d, closeness %d, bFinTrouble %d",
-					kCity.getName().GetCString(), GET_TEAM(getTeam()).countNumCitiesByArea(kCity.getArea()), iCloseness, bFinancialTrouble);
-			}
-
-			// advc.116: Replacing the dice roll below. Hardly any randomness this way.
+			// <!-- custom: Keep advc.116's near-deterministic replacement for the old raze dice roll; the exact random component is recorded below. (ChatGPT-5.6-Sol) -->
 			iRazeValueBeforeRandom = iRazeValue;
 			iRazeRandom = SyncRandNum(6);
 			iRazeValue += iRazeRandom;
 			// <!-- custom: Preserve the normal AdvCiv valuation result while exposing compact component deltas for review. (GPT-5.6-Sol) -->
-			if (bLogRazeDecision) logBBAI("RAZE_VALUE_COMPONENTS turn=%d player=%d city=%S distanceAndLocalPower=%d maintenance=%d population=%d personalityAndDomination=%d religionAssetsCultureExpansionAndEnemyPower=%d random=%d finalValue=%d threshold=0 financialTrouble=%d closeness=%d",
-				kGame.getGameTurn(), getID(), kCity.getName().GetCString(), iRazeValueAfterDistance,
+			// <!-- custom: The removed per-reason narration also covered corporation headquarters; corporationHeadquarters keeps that reason visible beside holyCity. (Claude code Opus 5.5) -->
+			if (bLogRazeDecision) logBBAI("RAZE_VALUE_COMPONENTS turn=%d player=%d civ=%S city=%S cityId=%d population=%d distanceAndLocalPower=%d maintenance=%d populationDelta=%d personalityAndDomination=%d religionAssetsCultureExpansionAndEnemyPower=%d stateReligionDelta=%d holyCityDelta=%d corporationDelta=%d greatPeopleWondersBarbDelta=%d bonusDelta=%d culturalOwnerDelta=%d expansionDelta=%d enemyPowerDelta=%d random=%d finalValue=%d threshold=0 financialTrouble=%d closeness=%d barbCity=%d previousOwnerBarbarian=%d areaCities=%d stateReligion=%s stateReligionPresent=%d stateReligionShrine=%d holyCity=%d corporationHeadquarters=%d activeWorldWonders=%d greatPeople=%d culturalOwner=%d targetCities=%d ownCities=%d enemyPowerPercent=%d",
+				kGame.getGameTurn(), getID(), getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kCity.getPopulation(), iRazeValueAfterDistance,
 				iRazeValueAfterMaintenance - iRazeValueAfterDistance, iRazeValueAfterPopulation - iRazeValueAfterMaintenance,
 				iRazeValueAfterPersonalityAndDomination - iRazeValueAfterPopulation,
-				iRazeValueBeforeRandom - iRazeValueAfterPersonalityAndDomination, iRazeRandom, iRazeValue, bFinancialTrouble, iCloseness);
+				iRazeValueBeforeRandom - iRazeValueAfterPersonalityAndDomination, iRazeValueAfterStateReligion - iRazeValueAfterPersonalityAndDomination,
+				iRazeValueAfterHolyCity - iRazeValueAfterStateReligion, iRazeValueAfterCorporations - iRazeValueAfterHolyCity,
+				iRazeValueAfterGreatPeopleAndWonders - iRazeValueAfterCorporations, iRazeValueAfterBonuses - iRazeValueAfterGreatPeopleAndWonders,
+				iRazeValueAfterCulturalOwner - iRazeValueAfterBonuses, iRazeValueAfterExpansion - iRazeValueAfterCulturalOwner,
+				iRazeValueBeforeRandom - iRazeValueAfterExpansion, iRazeRandom, iRazeValue, bFinancialTrouble, iCloseness,
+				bBarbCity, bPrevOwnerBarb, GET_TEAM(getTeam()).countNumCitiesByArea(kCity.getArea()),
+				(getStateReligion() == NO_RELIGION ? "-" : GC.getInfo(getStateReligion()).getType()),
+				(getStateReligion() != NO_RELIGION && kCity.isHasReligion(getStateReligion())),
+				(getStateReligion() != NO_RELIGION && GET_TEAM(getTeam()).hasShrine(getStateReligion())), kCity.isHolyCity(), kCity.isHeadquarters(),
+				kCity.getNumActiveWorldWonders(), kCity.getNumGreatPeople(), eCulturalOwner, iTargetCities, getNumCities(), GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true));
 		} // End of !isBarbarian()
 
-		if(bLogRazeDecision)
-		{
-			//logBBAI("    Player %d (%S) has odds %d to raze city %S", getID(), getCivilizationDescription(0), iRazeValue, kCity.getName().GetCString());
-			// advc.116: Replacing the above
-			if(!bRaze) logBBAI("    Player %d (%S) has raze value %d for city %S", getID(), getCivilizationDescription(0), iRazeValue, kCity.getName().GetCString());
-		}
+		// <!-- custom: advc.116 replaced the old raze-odds prose; RAZE_VALUE_COMPONENTS and the final RAZE_DECISION now expose the retained-city value and disposition, so omit the inherited duplicate summary. (ChatGPT-5.6-Sol) -->
 		// <advc.ctr>
 		if (iRazeValue < 20)
 		{
@@ -2481,9 +2492,9 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 				if (bLiberate)
 				{
 					// <!-- custom: same player-log category guard as the nearby conquest/raze diagnostics. (GPT-5.5 + ChatGPT 5.5) -->
-					if (bLogRazeDecision) logBBAI("    Player %d (%S) decides to liberate city %S to player %d (%S)",
-						getID(), getCivilizationDescription(0), kCity.getName().GetCString(), GET_PLAYER(eLiberationPlayer).getID(),
-						GET_PLAYER(eLiberationPlayer).getCivilizationDescription(0));
+					if (bLogRazeDecision) logBBAI("RAZE_DECISION turn=%d player=%d civ=%S city=%S cityId=%d action=LIBERATE reason=LIBERATION recipientPlayer=%d recipientCiv=%S value=%d",
+						kGame.getGameTurn(), getID(), getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), eLiberationPlayer,
+						GET_PLAYER(eLiberationPlayer).getCivilizationDescription(0), iRazeValue);
 					CvEventReporter::getInstance().cityAcquiredAndKept(getID(), &kCity);
 					kCity.liberate(true);
 				}
@@ -4747,8 +4758,8 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
 			//values.push_back(iValue);
 			++iTechCount;
 
-			if (gPlayerLogLevel >= 3 && !bAsync && iDepth == 0) logBBAI("      Player %d (%S) consider tech %S with value %d",
-				getID(), getCivilizationDescription(0), GC.getInfo(eTech).getDescription(), iValue); // advc.007: Don't log when bAsync
+			if (gPlayerLogLevel >= 3 && !bAsync && iDepth == 0) logBBAI("TECH_CHOICE_CANDIDATE turn=%d player=%d civ=%S depth=0 tech=%s value=%d",
+				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eTech).getType(), iValue); // advc.007: Don't log when bAsync
 		}
 	}
 	// We need this to ensure techs_to_depth[1] exists.
@@ -4828,12 +4839,9 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
 						prereq_bonus[prereq_i] = std::max(prereq_bonus[prereq_i],
 								techs[i].first*iPrereqPercent/100);
 
-						if (gPlayerLogLevel >= 3) logBBAI("      %S adds %d to %S (depth %d)",
-							GC.getInfo(techs[i].second).
-							getDescription(),
-							techs[i].first*iPrereqPercent/100,
-							GC.getInfo(techs[prereq_i].second).
-							getDescription(), iDepth-1);
+						if (gPlayerLogLevel >= 3) logBBAI("TECH_PATH_PREREQ_BONUS turn=%d player=%d civ=%S sourceTech=%s targetTech=%s targetDepth=%d prereqKind=OR bonus=%d",
+							GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(techs[i].second).getType(),
+							GC.getInfo(techs[prereq_i].second).getType(), iDepth - 1, techs[i].first*iPrereqPercent/100);
 					}
 				}
 			}
@@ -4852,12 +4860,9 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
 						//values[prereq_i] += values[i]*iPrereqPercent/100;
 						prereq_bonus[prereq_i] = std::max(prereq_bonus[prereq_i],
 								techs[i].first*iPrereqPercent/100);
-						if (gPlayerLogLevel >= 3) logBBAI("      %S adds %d to %S (depth %d)",
-							GC.getInfo(techs[i].second).
-							getDescription(),
-							techs[i].first*iPrereqPercent/100,
-							GC.getInfo(techs[prereq_i].second).
-							getDescription(), iDepth-1);
+						if (gPlayerLogLevel >= 3) logBBAI("TECH_PATH_PREREQ_BONUS turn=%d player=%d civ=%S sourceTech=%s targetTech=%s targetDepth=%d prereqKind=AND bonus=%d",
+							GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(techs[i].second).getType(),
+							GC.getInfo(techs[prereq_i].second).getType(), iDepth - 1, techs[i].first*iPrereqPercent/100);
 					}
 				}
 			}
@@ -4886,7 +4891,8 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
 	TechTypes eBestTech = tech_it->second;
 	FAssert(canResearch(eBestTech));
 
-	if (gPlayerLogLevel >= 1) logBBAI("  Player %d (%S) selects tech %S with value %d", getID(), getCivilizationDescription(0), GC.getInfo(eBestTech).getDescription(), tech_it->first);
+	if (gPlayerLogLevel >= 1) logBBAI("TECH_CHOICE_RESULT turn=%d player=%d civ=%S action=SELECT mode=OLD_FLAT tech=%s value=%d",
+		GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eBestTech).getType(), tech_it->first);
 
 	return eBestTech;
 	}
@@ -5237,9 +5243,9 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
 	{
 		// <!-- custom: Use the path AdvCiv actually selected after its scenario fallback rather than always describing tech_paths[0].
 		// This changes diagnostics only. (ChatGPT-5.6-Sol) -->
-		logBBAI("  Player %d (%S) selects tech %S with path value %d, immediate value %d. (Aiming for %S)",
-				getID(), getCivilizationDescription(0), GC.getInfo(eBestTech).getDescription(), tech_paths[iBestPath].first,
-				techs[tech_paths[iBestPath].second.back()].first, GC.getInfo(techs[getSASTechPathAimIndex(tech_paths[iBestPath].second, techs_to_depth)].second).getDescription());
+		logBBAI("TECH_CHOICE_RESULT turn=%d player=%d civ=%S action=SELECT mode=PATH tech=%s pathValue=%d immediateValue=%d aimTech=%s",
+				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eBestTech).getType(), tech_paths[iBestPath].first,
+				techs[tech_paths[iBestPath].second.back()].first, GC.getInfo(techs[getSASTechPathAimIndex(tech_paths[iBestPath].second, techs_to_depth)].second).getType());
 	}
 	// </k146>
 	// <advc.550g>
@@ -21649,8 +21655,9 @@ int CvPlayerAI::AI_calculateGoldenAgeValue(bool bConsiderRevolution) const
 				100 * iBestValue > 110 * iCurrentValue)
 			{
 				aeBestCivics.set(eLoopCivicOption, eNewCivic);
-				if (gPlayerLogLevel > 0) logBBAI("      %S wants a golden age to switch to %S (value: %d vs %d)",
-					getCivilizationDescription(0), GC.getInfo(eNewCivic).getDescription(0), iBestValue, iCurrentValue);
+				if (gPlayerLogLevel > 0) logBBAI("CIVIC_GOLDEN_AGE_OPPORTUNITY turn=%d player=%d civ=%S option=%s current=%s candidate=%s currentValue=%d candidateValue=%d",
+					GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eLoopCivicOption).getType(), GC.getInfo(aeBestCivics.get(eLoopCivicOption)).getType(),
+					GC.getInfo(eNewCivic).getType(), iCurrentValue, iBestValue);
 			}
 		}
 
@@ -22856,7 +22863,8 @@ void CvPlayerAI::AI_doCivics()
 			// 	iThreshold) * aiCurrentValue.get(eLoopCivicOption))
 			// {
 			// 	FAssert(aeBestCivic.get(eLoopCivicOption) != NO_CIVIC);
-			// 	if (gPlayerLogLevel > 0) logBBAI("    %S decides to switch to %S (value: %d vs %d%S)", getCivilizationDescription(0), GC.getInfo(eNewCivic).getDescription(0), iBestValue, aiCurrentValue.get(eLoopCivicOption), bFirstPass?"" :", on recheck");
+			// 	// <!-- custom: Disabled row kept in the current BBAI record format so re-enabling it follows the same pattern; untested while disabled. (Claude code Opus 5.5) -->
+			// 	if (gPlayerLogLevel > 0) logBBAI("CIVIC_SWITCH_DECISION turn=%d player=%d civ=%S option=%s civic=%s candidateValue=%d currentValue=%d recheck=%d", GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eLoopCivicOption).getType(), GC.getInfo(eNewCivic).getType(), iBestValue, aiCurrentValue.get(eLoopCivicOption), !bFirstPass);
 			// 	iAnarchyLength = iTestAnarchy;
 			// 	aeBestCivic.set(eLoopCivicOption, eNewCivic);
 			// 	aiCurrentValue.set(eLoopCivicOption, iBestValue);
@@ -22892,10 +22900,6 @@ void CvPlayerAI::AI_doCivics()
 			if (bPassPercent && bPassSlack)
 			{
 				FAssert(aeBestCivic.get(eLoopCivicOption) != NO_CIVIC);
-				if (gPlayerLogLevel > 0) logBBAI(
-					"    %S switches to %S (value: %d vs %d, slack %d, thr %d)%s",
-					getCivilizationDescription(0), GC.getInfo(eNewCivic).getDescription(0),
-					iBestValue, iCurrent, iAbsSlack, iThreshold, bFirstPass ? "" : ", recheck");
 				if (bLogBBAICivicDecision) logBBAI("    CIVIC_SWITCH_DETAIL turn=%d player=%d %S status=ACCEPT option=%S old=%S new=%S currentValue=%d bestValue=%d delta=%d anarchyTest=%d currentBundleAnarchy=%d anarchyDelta=%d threshold=%d slack=%d passPercent=%d passSlack=%d firstPass=%d financialTrouble=%d wars=%d anyWarPlan=%d gold=%d goldRate=%d",
 					GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eLoopCivicOption).getDescription(),
 					GC.getInfo(eOtherCivic).getDescription(), GC.getInfo(eNewCivic).getDescription(), iCurrent, iBestValue,
@@ -22960,9 +22964,9 @@ void CvPlayerAI::AI_doCivics()
 							aiCurrentValue.get(kCivic.getCivicOptionType()) &&
 							iValue > 0) // advc.131: Better to be safe
 						{
-							if(gPlayerLogLevel > 0) logBBAI("    %S delays revolution to wait for %S (value: %d vs %d)",
-								getCivilizationDescription(0), kCivic.getDescription(0), iValue,
-								aiCurrentValue.get(kCivic.getCivicOptionType()));
+							if(gPlayerLogLevel > 0) logBBAI("CIVIC_REVOLUTION_DELAY turn=%d player=%d civ=%S action=WAIT_RESEARCH reason=BETTER_CIVIC_INCOMING research=%s researchTurns=%d civic=%s candidateValue=%d currentValue=%d",
+								GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), GC.getInfo(eResearch).getType(), iResearchTurns,
+								kCivic.getType(), iValue, aiCurrentValue.get(kCivic.getCivicOptionType()));
 							int const iWaitCivicTimer = iResearchTurns * 2 / 3;
 							if (bLogSASCivicDecision)
 							{
@@ -23121,11 +23125,11 @@ void CvPlayerAI::AI_doReligion()
 	bool const bConvert = SyncRandSuccess(rConvertProb);
 	if (bConvert) // </advc.131>
 	{
-		if (gPlayerLogLevel > 0) logBBAI("    %S decides to convert to %S (value: %d vs %d)",
-			getCivilizationDescription(0),
-			GC.getInfo(eBestReligion).getDescription(0),
-			eBestReligion == NO_RELIGION ? 0 : (iSelectedReligionValue >= 0 ? iSelectedReligionValue : AI_religionValue(eBestReligion)),
-			eCurrentReligion == NO_RELIGION ? 0 : (iCurrentReligionValue >= 0 ? iCurrentReligionValue : AI_religionValue(eCurrentReligion)));
+		if (gPlayerLogLevel > 0) logBBAI("RELIGION_CONVERSION_DECISION turn=%d player=%d civ=%S action=CONVERT oldReligion=%s newReligion=%s currentValue=%d selectedValue=%d probabilityPercent=%d",
+			GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), (eCurrentReligion == NO_RELIGION ? "-" : GC.getInfo(eCurrentReligion).getType()),
+			(eBestReligion == NO_RELIGION ? "-" : GC.getInfo(eBestReligion).getType()),
+			eCurrentReligion == NO_RELIGION ? 0 : (iCurrentReligionValue >= 0 ? iCurrentReligionValue : AI_religionValue(eCurrentReligion)),
+			eBestReligion == NO_RELIGION ? 0 : (iSelectedReligionValue >= 0 ? iSelectedReligionValue : AI_religionValue(eBestReligion)), rConvertProb.getPercent());
 		convert(eBestReligion);
 		if (bLogSASReligionDecision) logSASGameRecordAIReligionDecision(getID(), eCurrentReligion, eSASEvaluatedBest, eBestReligion, eSASRunnerUp, iSASBestValue, iSASRunnerUpValue, iSASCurrentScore, iCurrentReligionValue, iSelectedReligionValue, rConvertProb.getPercent(), 1, "CONVERTED", bLogSASReligionCandidates ? &aSASCandidateValues : NULL);
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
@@ -24394,8 +24398,8 @@ void CvPlayerAI::AI_doDiplo()
 										This is a problem in the way the getName function is implimented.
 										Unfortunately, the heart of the problem is in the signature of
 										some of the dllexport functions - and so it can't easily be fixed. */
-									if (gTeamLogLevel >= 2) logBBAI("    %S makes a deal with %S using AI_counterPropose. (%d : %d)",
-										getName(0), kPlayer.getName(0), weGive.getLength(), theyGive.getLength());
+									if (gTeamLogLevel >= 2) logBBAI("DIPLO_COUNTERPROPOSAL turn=%d player=%d civ=%S otherPlayer=%d otherCiv=%S action=ACCEPT weGiveItems=%d theyGiveItems=%d",
+										GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), ePlayer, kPlayer.getCivilizationDescription(0), weGive.getLength(), theyGive.getLength());
 								}
 							}
 							if (bDeal)
@@ -28926,27 +28930,28 @@ void CvPlayerAI::AI_updateEraFactor()
 	m_rCurrEraFactor = per100(GC.getInfo(getCurrentEra()).get(CvEraInfo::AIEraFactor));
 }
 
-// <!-- custom: Keep K-Mod's detailed strategy-transition diagnostics in ordinary type-safe C++.
-// Use the shared raw AIStrategy name helper instead of the old log_strat and log_strat2 multiline stringification macros.
-// The caller owns the PLAYER-log-level gate; these helpers only test whether the requested strategy bit actually changed at this decision point. (ChatGPT-5.6-Sol) -->
-static void logBBAIStrategyChange(CvPlayerAI const& kPlayer, AIStrategy eOldStrategies, AIStrategy eNewStrategies, AIStrategy eStrategy)
+// <!-- custom: BBAI-only row formatter: the caller pre-gates its category, so disabled runs do not evaluate logging-only danger, mission or name state. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Kept beside its only caller: the modernization draft placed it in BBAILog.cpp, but only this file uses it, and BBAILog.cpp lacked the info/AI headers it needs (the production formatter failed to compile there).
+// BBAILog.cpp keeps formatters that several files share, such as the first-city probe helpers. (Claude code Opus 5.5) -->
+static void logBBAIPlayerStrategyChange(CvPlayerAI const& kPlayer, AIStrategy eOldStrategies, AIStrategy eNewStrategies, AIStrategy eStrategy, char const* szDetailName = NULL, int iDetailValue = 0)
 {
 	if ((eOldStrategies & eStrategy) == (eNewStrategies & eStrategy))
 		return;
-	logBBAI("    Player %d (%S) %s strategy %s on turn %d",
-		kPlayer.getID(), kPlayer.getCivilizationDescription(0), (eNewStrategies & eStrategy) ? "starts" : "stops",
-		getSASAIStrategyType(eStrategy), GC.getGame().getGameTurn());
+	if (szDetailName == NULL)
+	{
+		logBBAI("PLAYER_STRATEGY_CHANGE turn=%d player=%d civ=%S action=%s strategy=%s",
+			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getCivilizationDescription(0),
+			(eNewStrategies & eStrategy) ? "START" : "STOP", getSASAIStrategyType(eStrategy));
+	}
+	else
+	{
+		logBBAI("PLAYER_STRATEGY_CHANGE turn=%d player=%d civ=%S action=%s strategy=%s detailName=%s detailValue=%d",
+			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getCivilizationDescription(0),
+			(eNewStrategies & eStrategy) ? "START" : "STOP", getSASAIStrategyType(eStrategy), szDetailName, iDetailValue);
+	}
 }
 
-static void logBBAIStrategyChange(CvPlayerAI const& kPlayer, AIStrategy eOldStrategies, AIStrategy eNewStrategies, AIStrategy eStrategy, char const* szDetailName, int iDetailValue)
-{
-	if ((eOldStrategies & eStrategy) == (eNewStrategies & eStrategy))
-		return;
-	logBBAI("    Player %d (%S) %s strategy %s on turn %d with %s %d",
-		kPlayer.getID(), kPlayer.getCivilizationDescription(0), (eNewStrategies & eStrategy) ? "starts" : "stops",
-		getSASAIStrategyType(eStrategy), GC.getGame().getGameTurn(), szDetailName, iDetailValue);
-}
-
+// <!-- custom: BBAI-only PLAYER strategy-transition formatting now lives in BBAILog.cpp; this decision routine keeps only its cached log gate and authoritative strategy state. (ChatGPT-5.6-Sol) -->
 // K-mod. The body of this function use to be inside "AI_getStrategyHash"
 void CvPlayerAI::AI_updateStrategyHash()
 {
@@ -29114,8 +29119,8 @@ void CvPlayerAI::AI_updateStrategyHash()
 		}
 	}
 
-	if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_LAND_BLITZ);
-	if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_AIR_BLITZ);
+	if (bLogBBAIStrategyChanges) logBBAIPlayerStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_LAND_BLITZ);
+	if (bLogBBAIStrategyChanges) logBBAIPlayerStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_AIR_BLITZ);
 
 	//missionary
 	{
@@ -29220,7 +29225,7 @@ void CvPlayerAI::AI_updateStrategyHash()
 		if (getCommercePercent(COMMERCE_ESPIONAGE) > 20)
 			m_eStrategyHash |= AI_STRATEGY_ESPIONAGE_ECONOMY;
 	}
-	if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_ESPIONAGE_ECONOMY);
+	if (bLogBBAIStrategyChanges) logBBAIPlayerStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_ESPIONAGE_ECONOMY);
 	// K-Mod end
 
 	// Turtle strategy
@@ -29249,7 +29254,7 @@ void CvPlayerAI::AI_updateStrategyHash()
 			}
 		}
 	}
-	if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_TURTLE);
+	if (bLogBBAIStrategyChanges) logBBAIPlayerStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_TURTLE);
 
 	int iParanoia = 0;
 	{
@@ -29291,8 +29296,8 @@ void CvPlayerAI::AI_updateStrategyHash()
 			m_eStrategyHash |= AI_STRATEGY_ALERT2;
 		}
 	}
-	if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_ALERT1, "iParanoia", iParanoia);
-	if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_ALERT2, "iParanoia", iParanoia);
+	if (bLogBBAIStrategyChanges) logBBAIPlayerStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_ALERT1, "iParanoia", iParanoia);
+	if (bLogBBAIStrategyChanges) logBBAIPlayerStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_ALERT2, "iParanoia", iParanoia);
 
 	/*	Economic focus (K-Mod) - This strategy is a gambit.
 		The goal is to tech faster by neglecting military. */
@@ -29309,7 +29314,7 @@ void CvPlayerAI::AI_updateStrategyHash()
 		if (iFocus >= 12 /* advc.109: */ || AI_feelsSafe())
 			m_eStrategyHash |= AI_STRATEGY_ECONOMY_FOCUS;
 	}
-	if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_ECONOMY_FOCUS);
+	if (bLogBBAIStrategyChanges) logBBAIPlayerStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_ECONOMY_FOCUS);
 
 	/*  <advc.104f> Don't want dagger even if UWAI only in the background
 		b/c it gets in the way of testing. If UWAI fully disabled, allow dagger
@@ -29436,7 +29441,7 @@ void CvPlayerAI::AI_updateStrategyHash()
 						m_eStrategyHash |= AI_STRATEGY_DAGGER;
 				}
 			}
-			if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_DAGGER, "iDagger", iDagger);
+			if (bLogBBAIStrategyChanges) logBBAIPlayerStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_DAGGER, "iDagger", iDagger);
 		}
 	}
 
@@ -29516,7 +29521,7 @@ void CvPlayerAI::AI_updateStrategyHash()
 		{
 			m_eStrategyHash |= AI_STRATEGY_CRUSH;
 		}
-		if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_CRUSH, "iCrushValue", iCrushValue);
+		if (bLogBBAIStrategyChanges) logBBAIPlayerStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_CRUSH, "iCrushValue", iCrushValue);
 	}
 
 	// K-Mod
@@ -29547,7 +29552,7 @@ void CvPlayerAI::AI_updateStrategyHash()
 		}
 		if (iProductionValue > 8) // advc.018: Threshold reduced by 1
 			m_eStrategyHash |= AI_STRATEGY_PRODUCTION;
-		if (bLogBBAIStrategyChanges) logBBAIStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_PRODUCTION, "iProductionValue", iProductionValue);
+		if (bLogBBAIStrategyChanges) logBBAIPlayerStrategyChange(*this, eLastStrategyHash, m_eStrategyHash, AI_STRATEGY_PRODUCTION, "iProductionValue", iProductionValue);
 	} // K-Mod end
 
 	{
@@ -30370,8 +30375,9 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
 			{
 				CvWString sOldType;
 				getUnitAIString(sOldType, getUnit(it->second)->AI_getUnitAIType());
-				logBBAI("    %S converts %S from %S to attack city for crush. (%d)",
-					getName(), getUnit(it->second)->getName().GetCString(), sOldType.GetCString(), getUnit(it->second)->getID());
+				logBBAI("UNIT_AI_ROLE_CHANGE turn=%d player=%d civ=%S unitId=%d unit=%S action=CHANGE oldUnitAI=%S newUnitAI=UNITAI_ATTACK_CITY reason=CRUSH value=%d area=%d",
+					GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), getUnit(it->second)->getID(), getUnit(it->second)->getName().GetCString(),
+					sOldType.GetCString(), it->first, getUnit(it->second)->getArea().getID());
 			}
 
 			AI_getUnit(it->second)->AI_setUnitAIType(UNITAI_ATTACK_CITY);
@@ -30443,9 +30449,10 @@ int CvPlayerAI::AI_paranoiaRating(PlayerTypes eRival, int iOurDefPow, bool bRedu
 			if (rWarMem > 0) //they are a snake [advc: a bully, I'd say]
 			{
 				//iValue += 50 + 50 * iWarMemory;
-				iValue += 40 + (20 * rWarMem).round(); // advc.022
-				if (gPlayerLogLevel >= 2) logBBAI("    Player %d (%S) wary of %S because of war memory %d",
-					getID(), getCivilizationDescription(0), kRival.getCivilizationDescription(0), rWarMem.round());
+				int const iWarMemoryValue = 40 + (20 * rWarMem).round();
+				iValue += iWarMemoryValue; // advc.022
+				if (gPlayerLogLevel >= 2) logBBAI("PARANOIA_MEMORY_COMPONENT turn=%d player=%d civ=%S rivalPlayer=%d rivalCiv=%S warMemory=%d valueAdded=%d",
+					GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), eRival, kRival.getCivilizationDescription(0), rWarMem.round(), iWarMemoryValue);
 			}
 		}
 	}

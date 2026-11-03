@@ -845,9 +845,9 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 		GET_TEAM(eToPlayer).setHasTech((TechTypes)trade.m_iData, true, eToPlayer, true, true, false, TECH_ACQUISITION_TRADE);
 		if (bSignificantTech) // advc.550e
 			GET_TEAM(eToPlayer).setNoTradeTech((TechTypes)trade.m_iData, true);
-		if (bLogBBAITeamTrade) logBBAI("    Player %d (%S) trades tech %S to player %d (%S)",
-			eFromPlayer, kFromPlayer.getCivilizationDescription(0), GC.getInfo((TechTypes)trade.m_iData).getDescription(), eToPlayer,
-			kToPlayer.getCivilizationDescription(0));
+		if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=TRANSFER tech=%s",
+			GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer,
+			kToPlayer.getCivilizationDescription(0), getSASTradeItemType(trade.m_eItemType), GC.getInfo((TechTypes)trade.m_iData).getType());
 		// advc.550e: (K-Mod had checked this only for MEMORY_RECEIVED_TECH_FROM_ANY)
 		if (bSignificantTech)
 		{
@@ -869,9 +869,9 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 	{
 		kFromPlayer.changeBonusExport((BonusTypes)trade.m_iData, 1);
 		kToPlayer.changeBonusImport((BonusTypes)trade.m_iData, 1);
-		if (bLogBBAITeamTrade) logBBAI("    Player %d (%S) trades bonus type %S due to TRADE_RESOURCES with %d (%S)",
-			eFromPlayer, kFromPlayer.getCivilizationDescription(0), GC.getInfo((BonusTypes)trade.m_iData).getDescription(), eToPlayer,
-			kToPlayer.getCivilizationDescription(0));
+		if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=START bonus=%s",
+			GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer,
+			kToPlayer.getCivilizationDescription(0), getSASTradeItemType(trade.m_eItemType), GC.getInfo((BonusTypes)trade.m_iData).getType());
 		bSave = true;
 		break;
 	}
@@ -881,8 +881,9 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 		if (pCity != NULL)
 		{
 			bool bLib = (pCity->getLiberationPlayer() == eToPlayer); // advc.ctr
-			if (bLogBBAITeamTrade) logBBAI("    Player %d (%S) gives a city due to TRADE_CITIES with %d (%S)",
-				eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0));
+			if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=TRANSFER_CITY city=%S cityId=%d peaceCession=%d liberation=%d",
+				GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0),
+				getSASTradeItemType(trade.m_eItemType), pCity->getName().GetCString(), pCity->getID(), bPeace, bLib);
 			pCity->doTask(/* advc.ctr: */ bPeace ? TASK_CEDE :
 					TASK_GIFT, eToPlayer);
 			// <advc.ctr>
@@ -898,16 +899,18 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 		kFromPlayer.changeGold(-trade.m_iData);
 		kToPlayer.changeGold(trade.m_iData);
 		kFromPlayer.AI_changeGoldTradedTo(eToPlayer, trade.m_iData);
-		if (bLogBBAITeamTrade) logBBAI("    Player %d (%S) trades gold %d due to TRADE_GOLD with player %d (%S)",
-			eFromPlayer, kFromPlayer.getCivilizationDescription(0), trade.m_iData, eToPlayer, kToPlayer.getCivilizationDescription(0));
+		if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=TRANSFER amount=%d",
+			GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0),
+			getSASTradeItemType(trade.m_eItemType), trade.m_iData);
 		CvEventReporter::getInstance().playerGoldTrade(eFromPlayer, eToPlayer, trade.m_iData);
 		break;
 
 	case TRADE_GOLD_PER_TURN:
 		kFromPlayer.changeGoldPerTurnByPlayer(eToPlayer, -(trade.m_iData));
 		kToPlayer.changeGoldPerTurnByPlayer(eFromPlayer, trade.m_iData);
-		if (bLogBBAITeamTrade) logBBAI("    Player %d (%S) trades gold per turn %d due to TRADE_GOLD_PER_TURN with player %d (%S)",
-			eFromPlayer, kFromPlayer.getCivilizationDescription(0), trade.m_iData, eToPlayer, kToPlayer.getCivilizationDescription(0));
+		if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=START amountPerTurn=%d",
+			GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0),
+			getSASTradeItemType(trade.m_eItemType), trade.m_iData);
 		bSave = true;
 		break;
 
@@ -936,8 +939,9 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 		{
 			it->updatePlotGroups();
 		}
-		if (bLogBBAITeamTrade) logBBAI("    Player %d (%S) trades maps due to TRADE_MAPS with player %d (%S)",
-			eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0));
+		if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=TRANSFER",
+			GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0),
+			getSASTradeItemType(trade.m_eItemType));
 		break;
 	}
 	case TRADE_SURRENDER:
@@ -946,22 +950,18 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 		{
 			startTeamTrade(trade.m_eItemType, kFromPlayer.getTeam(), kToPlayer.getTeam(), false);
 			GET_TEAM(eFromPlayer).setVassal(kToPlayer.getTeam(), true, TRADE_SURRENDER == trade.m_eItemType);
-			if (bLogBBAITeamTrade)
-			{
-				if (TRADE_SURRENDER == trade.m_eItemType) logBBAI("    Player %d (%S) trades themselves as vassal due to TRADE_SURRENDER with player %d (%S)",
-					eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0));
-				else logBBAI("    Player %d (%S) trades themselves as vassal due to TRADE_VASSAL with player %d (%S)",
-					eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0));
-			}
+			if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=START_VASSAL capitulation=%d",
+				GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0),
+				getSASTradeItemType(trade.m_eItemType), TRADE_SURRENDER == trade.m_eItemType);
 		}
 		else bSave = true;
 
 		break;
 
 	case TRADE_PEACE:
-		if (bLogBBAITeamTrade) logBBAI("    Team %d (%S) makes peace with team %d due to TRADE_PEACE with %d (%S)",
-			kFromPlayer.getTeam(), kFromPlayer.getCivilizationDescription(0), trade.m_iData, eToPlayer,
-			kToPlayer.getCivilizationDescription(0));
+		if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S fromTeam=%d toPlayer=%d toCiv=%S item=%s action=MAKE_PEACE targetTeam=%d",
+			GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), kFromPlayer.getTeam(), eToPlayer,
+			kToPlayer.getCivilizationDescription(0), getSASTradeItemType(trade.m_eItemType), trade.m_iData);
 		//GET_TEAM(eFromPlayer).makePeace((TeamTypes)trade.m_iData);
 		// K-Mod. (units will be bumped after the rest of the trade deals are completed.)
 		// <advc.100b>
@@ -975,9 +975,9 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 
 	case TRADE_WAR:
 	{
-		if (bLogBBAIWarTrade) logBBAI("    Team %d (%S) declares war on team %d due to TRADE_WAR with %d (%S)",
-			kFromPlayer.getTeam(), kFromPlayer.getCivilizationDescription(0), trade.m_iData, eToPlayer,
-			kToPlayer.getCivilizationDescription(0));
+		if (bLogBBAIWarTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S fromTeam=%d toPlayer=%d toCiv=%S item=%s action=DECLARE_WAR targetTeam=%d",
+			GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), kFromPlayer.getTeam(), eToPlayer,
+			kToPlayer.getCivilizationDescription(0), getSASTradeItemType(trade.m_eItemType), trade.m_iData);
 		TeamTypes const eAttackedTeam = (TeamTypes)trade.m_iData;
 		GET_TEAM(eFromPlayer).declareWar(eAttackedTeam, true, NO_WARPLAN,
 				true, eToPlayer); // advc.100
@@ -1012,9 +1012,9 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 		{	// advc.130j:
 			itTargetMember->AI_rememberEvent(eToPlayer, MEMORY_HIRED_TRADE_EMBARGO);
 		}
-		if (bLogBBAITeamTrade) logBBAI("    Player %d (%S) signs embargo against team %d due to TRADE_EMBARGO with player %d (%S)",
-			eFromPlayer, kFromPlayer.getCivilizationDescription(0), (TeamTypes)trade.m_iData, eToPlayer,
-			kToPlayer.getCivilizationDescription(0));
+		if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=EMBARGO targetTeam=%d",
+			GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer,
+			kToPlayer.getCivilizationDescription(0), getSASTradeItemType(trade.m_eItemType), trade.m_iData);
 		break;
 	}
 	case TRADE_CIVIC:
@@ -1026,16 +1026,18 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 		kFromPlayer.revolution(aeNewCivics, true);
 		if (kFromPlayer.AI_getCivicTimer() < GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH))
 			kFromPlayer.AI_setCivicTimer(GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH));
-		if (bLogBBAITeamTrade) logBBAI("    Player %d (%S) switched civics due to TRADE_CIVICS with player %d (%S)",
-			eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0));
+		if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=SWITCH_CIVIC civic=%s",
+			GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0),
+			getSASTradeItemType(trade.m_eItemType), GC.getInfo(eCivic).getType());
 		break;
 	}
 	case TRADE_RELIGION:
 		kFromPlayer.convert((ReligionTypes)trade.m_iData, /* advc.001v: */ true); 
 		if (kFromPlayer.AI_getReligionTimer() < GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH))
 			kFromPlayer.AI_setReligionTimer(GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH));
-		if (bLogBBAITeamTrade) logBBAI("    Player %d (%S) switched religions due to TRADE_RELIGION with player %d (%S)",
-			eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0));
+		if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=SWITCH_RELIGION religion=%s",
+			GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0),
+			getSASTradeItemType(trade.m_eItemType), GC.getInfo((ReligionTypes)trade.m_iData).getType());
 		break;
 
 	case TRADE_OPEN_BORDERS:
@@ -1046,15 +1048,17 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 			{
 				if (kFromPlayer.resetDualDeal(eToPlayer, TRADE_OPEN_BORDERS))
 				{
-					if (bLogBBAITeamTrade) logBBAI("    Player %d (%S_1) prolongs open borders with player %d (%S_2)",
-						eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0));
+					if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=PROLONG",
+						GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0),
+						getSASTradeItemType(trade.m_eItemType));
 					break;
 				}
 			} // </advc.032>
 			startTeamTrade(TRADE_OPEN_BORDERS, kFromPlayer.getTeam(), kToPlayer.getTeam(), true);
 			GET_TEAM(eFromPlayer).setOpenBorders(kToPlayer.getTeam(), true);
-			if (bLogBBAITeamTrade) logBBAI("    Player %d (%S_1) signs open borders due to TRADE_OPEN_BORDERS with player %d (%S_2)",
-				eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0));
+			if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=START",
+				GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0),
+				getSASTradeItemType(trade.m_eItemType));
 		}
 		else bSave = true;
 		break;
@@ -1067,15 +1071,17 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 			{
 				if (kFromPlayer.resetDualDeal(eToPlayer, TRADE_DEFENSIVE_PACT))
 				{
-					if (bLogBBAITeamTrade) logBBAI("    Player %d (%S) prolongs defensive pact with player %d (%S)",
-						eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0));
+					if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=PROLONG",
+						GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0),
+						getSASTradeItemType(trade.m_eItemType));
 					break;
 				}
 			} // </advc.032>
 			startTeamTrade(TRADE_DEFENSIVE_PACT, kFromPlayer.getTeam(), kToPlayer.getTeam(), true);
 			GET_TEAM(eFromPlayer).setDefensivePact(kToPlayer.getTeam(), true);
-			if (bLogBBAITeamTrade) logBBAI("    Player %d (%S) signs defensive pact due to TRADE_DEFENSIVE_PACT with player %d (%S)",
-				eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0));
+			if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=START",
+				GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0),
+				getSASTradeItemType(trade.m_eItemType));
 		}
 		else bSave = true;
 		break;
@@ -1089,14 +1095,16 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 		{
 			if (kFromPlayer.resetDualDeal(eToPlayer, TRADE_PEACE_TREATY))
 			{
-				if (bLogBBAITeamTrade) logBBAI("    Player %d (%S) prolongs peace treaty with player %d (%S)",
-					eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0));
+				if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=PROLONG",
+					GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0),
+					getSASTradeItemType(trade.m_eItemType));
 				break;
 			}
 		} // </advc.032>
 		GET_TEAM(eFromPlayer).setForcePeace(kToPlayer.getTeam(), true);
-		if (bLogBBAITeamTrade) logBBAI("    Player %d (%S) signs peace treaty due to TRADE_PEACE_TREATY with player %d (%S)",
-			eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0));
+		if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=START",
+			GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0),
+			getSASTradeItemType(trade.m_eItemType));
 		bSave = true;
 		break;
 	// <advc.034>
@@ -1106,6 +1114,9 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 			startTeamTrade(TRADE_DISENGAGE, kFromPlayer.getTeam(),
 					kToPlayer.getTeam(), true);
 			GET_TEAM(eFromPlayer).setDisengage(kToPlayer.getTeam(), true);
+			if (bLogBBAITeamTrade) logBBAI("DEAL_ITEM_APPLIED turn=%d fromPlayer=%d fromCiv=%S toPlayer=%d toCiv=%S item=%s action=START",
+				GC.getGame().getGameTurn(), eFromPlayer, kFromPlayer.getCivilizationDescription(0), eToPlayer, kToPlayer.getCivilizationDescription(0),
+				getSASTradeItemType(trade.m_eItemType));
 		}
 		else bSave = true;
 		break;

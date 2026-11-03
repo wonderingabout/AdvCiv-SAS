@@ -470,6 +470,35 @@ class SourceChangeProvenanceTests(unittest.TestCase):
         source = "value = 1\n" + "\n" * 3 + "other = 2\n" + "\n" * 4 + "last = 3\n"
         self.assertEqual(len(checker.blank_line_errors("fixture.py", "", source, ".py")), 2)
 
+    # <!-- custom: Modernizing disabled logBBAI rows failed as rewritten inherited comments; disabled code may now be rewritten beside a custom note, while prose, unannotated rewrites and dropped markers still fail. (Claude code Opus 5.5) -->
+    def test_disabled_code_rewrites_beside_custom_note(self):
+        note = "// <!-- custom: Disabled row kept in the current record format. (Claude code Opus 5.5) -->\n"
+        old = "int value = 1;\n//if (gUnitLogLevel > 2) logBBAI(\"    %S GP slow modifier: %d\", szName, iValue);\nint other = 2;\n"
+        new = "int value = 1;\n" + note + "//if (gUnitLogLevel > 2) logBBAI(\"GREAT_PERSON_SLOW_VALUE civ=%S value=%d\", szName, iValue);\nint other = 2;\n"
+        self.assertEqual(self.errors("CvGameCoreDLL/Test.cpp", old, new), [])
+        unannotated = new.replace(note, "")
+        self.assertTrue(any("new/rewritten non-custom comment" in error for error in self.errors("CvGameCoreDLL/Test.cpp", old, unannotated)))
+        prose_old = "int value = 1;\n// Inherited note explains the branch.\n//if (bLog) logBBAI(\"    old\");\nint other = 2;\n"
+        prose_new = "int value = 1;\n" + note + "// Inherited note explains the branch differently.\n//if (bLog) logBBAI(\"NEW_ROW\");\nint other = 2;\n"
+        self.assertTrue(any("new/rewritten non-custom comment" in error for error in self.errors("CvGameCoreDLL/Test.cpp", prose_old, prose_new)))
+        kept_old = "int value = 1;\n// if (iValue > /* advc.131: */ 0)\n// \tlogBBAI(\"    old %d\", iValue);\nint other = 2;\n"
+        kept_new = "int value = 1;\n" + note + "// if (iValue > /* advc.131: */ 0)\n// \tlogBBAI(\"NEW_ROW value=%d\", iValue);\nint other = 2;\n"
+        self.assertEqual(self.errors("CvGameCoreDLL/Test.cpp", kept_old, kept_new), [])
+        dropped = kept_new.replace(" /* advc.131: */", "")
+        self.assertTrue(any("dropped provenance reference" in error for error in self.errors("CvGameCoreDLL/Test.cpp", kept_old, dropped)))
+
+    def test_disabled_python_and_xml_code_rewrites(self):
+        py_note = "# <!-- custom: Disabled call kept in the current format. (Claude code Opus 5.5) -->\n"
+        py_old = "value = 1\n# printRecord(\"old\", value)\nother = 2\n"
+        py_new = "value = 1\n" + py_note + "# writeRecord(\"NEW_ROW\", value=value)\nother = 2\n"
+        self.assertEqual(self.errors("Assets/Python/Test.py", py_old, py_new), [])
+        py_prose = "value = 1\n" + py_note + "# The old call printed a sentence\nother = 2\n"
+        self.assertTrue(any("new/rewritten non-custom comment" in error for error in self.errors("Assets/Python/Test.py", py_old, py_prose)))
+        xml_note = "<!-- custom: Disabled define kept beside its replacement. (Claude code Opus 5.5) -->\n"
+        xml_old = "<Root>\n<!--<Define><DefineName>OLD_NAME</DefineName></Define>-->\n</Root>\n"
+        xml_new = "<Root>\n" + xml_note + "<!--<Define><DefineName>NEW_NAME</DefineName></Define>-->\n</Root>\n"
+        self.assertEqual(self.errors("Assets/XML/Test.xml", xml_old, xml_new), [])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -2455,6 +2455,61 @@ static void SAS_logBuildingProductionFocusCandidate(CvCityAI const& kCity, int i
 		kBuilding.isWorldWonder(), kBuilding.isNationalWonder());
 }
 
+// <!-- custom: BBAI-only row formatter: the caller pre-gates its category, so disabled runs do not evaluate logging-only danger, mission or name state. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Kept beside its only caller: the modernization draft placed it in BBAILog.cpp, but only this file uses it, and BBAILog.cpp lacked the info/AI headers it needs (the production formatter failed to compile there).
+// BBAILog.cpp keeps formatters that several files share, such as the first-city probe helpers. (Claude code Opus 5.5) -->
+static CvString getBBAICityProductionDetailFields(char const* szDetailName1, int iDetailValue1, char const* szDetailName2, int iDetailValue2, char const* szDetailName3, int iDetailValue3)
+{
+	CvString szDetails;
+	if (szDetailName1 != NULL)
+		szDetails += CvString::format(" %s=%d", szDetailName1, iDetailValue1);
+	if (szDetailName2 != NULL)
+		szDetails += CvString::format(" %s=%d", szDetailName2, iDetailValue2);
+	if (szDetailName3 != NULL)
+		szDetails += CvString::format(" %s=%d", szDetailName3, iDetailValue3);
+	return szDetails;
+}
+
+static void logBBAICityProductionBranch(CvCityAI const& kCity, char const* szBranch, char const* szDetailName1 = NULL, int iDetailValue1 = 0, char const* szDetailName2 = NULL, int iDetailValue2 = 0, char const* szDetailName3 = NULL, int iDetailValue3 = 0)
+{
+	CvString const szDetails = getBBAICityProductionDetailFields(szDetailName1, iDetailValue1, szDetailName2, iDetailValue2, szDetailName3, iDetailValue3);
+	logBBAI("CITY_PRODUCTION_BRANCH turn=%d player=%d civ=%S city=%S cityId=%d action=ENTER branch=%s%s",
+		GC.getGame().getGameTurn(), kCity.getOwner(), GET_PLAYER(kCity.getOwner()).getCivilizationDescription(0),
+		kCity.getName().GetCString(), kCity.getID(), szBranch, szDetails.GetCString());
+}
+
+static void logBBAICityProductionChoice(CvCityAI const& kCity, char const* szBranch, char const* szDetailName1 = NULL, int iDetailValue1 = 0, char const* szDetailName2 = NULL, int iDetailValue2 = 0, char const* szDetailName3 = NULL, int iDetailValue3 = 0)
+{
+	char const* szKind = "NONE";
+	char const* szChoice = "-";
+	int iUnitAI = NO_UNITAI;
+	if (kCity.isProductionUnit())
+	{
+		szKind = "UNIT";
+		szChoice = GC.getInfo(kCity.getProductionUnit()).getType();
+		iUnitAI = kCity.getProductionUnitAI();
+	}
+	else if (kCity.isProductionBuilding())
+	{
+		szKind = "BUILDING";
+		szChoice = GC.getInfo(kCity.getProductionBuilding()).getType();
+	}
+	else if (kCity.isProductionProject())
+	{
+		szKind = "PROJECT";
+		szChoice = GC.getInfo(kCity.getProductionProject()).getType();
+	}
+	else if (kCity.isProductionProcess())
+	{
+		szKind = "PROCESS";
+		szChoice = GC.getInfo(kCity.getProductionProcess()).getType();
+	}
+	CvString const szDetails = getBBAICityProductionDetailFields(szDetailName1, iDetailValue1, szDetailName2, iDetailValue2, szDetailName3, iDetailValue3);
+	logBBAI("CITY_PRODUCTION_CHOICE turn=%d player=%d civ=%S city=%S cityId=%d action=CHOOSE branch=%s kind=%s choice=%s unitAI=%d%s",
+		GC.getGame().getGameTurn(), kCity.getOwner(), GET_PLAYER(kCity.getOwner()).getCivilizationDescription(0),
+		kCity.getName().GetCString(), kCity.getID(), szBranch, szKind, szChoice, iUnitAI, szDetails.GetCString());
+}
+
 // <!-- custom: One diagnostic scope ties a city's best infrastructure opportunity to the production target ultimately selected across AI_chooseProduction's many early returns.
 // This is observation only: it adds no RNG calls and does not alter the queue. (ChatGPT-5.6-Sol) -->
 class SASBuildingProductionOpportunityLogScope
@@ -3132,8 +3187,8 @@ void CvCityAI::AI_chooseProduction()
 		getNumTrainUnitAI(UNITAI_WORKER_SEA), iAvailableSeaWorkers, iNeededSeaWorkers, foodDifference(true, true),
 		getBaseYieldRate(YIELD_PRODUCTION));
 
-	if ((gCityLogLevel >= 3 || gMilitaryProductionLogLevel >= 3)) logBBAI("      City %S pop %d considering new production: iProdRank %d, iBuildUnitProb %d%s, iBestBuildingValue %d",
-		sCityName, iCityPopulation, iProductionRank, iBuildUnitProb, bUnitExempt?"*":"", iBestBuildingValue);
+	if ((gCityLogLevel >= 3 || gMilitaryProductionLogLevel >= 3)) logBBAI("CITY_PRODUCTION_CONTEXT turn=%d player=%d civ=%S city=%S cityId=%d population=%d productionRank=%d buildUnitProb=%d unitExempt=%d bestBuildingValue=%d",
+		kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), iCityPopulation, iProductionRank, iBuildUnitProb, bUnitExempt, iBestBuildingValue);
 
 	// if we need to pop borders, then do that immediately if we have drama and can do it
 	if (getCultureLevel() <= 1)
@@ -3219,14 +3274,14 @@ void CvCityAI::AI_chooseProduction()
 		{
 			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER turn=%d player=%d %S city=%S choice=Worker",
 				kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName);
-			if (gWorkerLogLevel >= 2) logBBAI("      City %S chooses first Worker before first defender %d/%d", sCityName, iExistingWorkers, iMinimumAreaWorkers);
+			if (gWorkerLogLevel >= 2) logBBAICityProductionChoice(*this, "FIRST_WORKER_BEFORE_FIRST_DEFENDER", "workersExisting", iExistingWorkers, "minimumAreaWorkers", iMinimumAreaWorkers);
 			return;
 		}
 	}
 
 	if (iCityDefenders == 0) // XXX check for other team's units?
 	{
-		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses no defenders", sCityName);
+		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionBranch(*this, "NO_DEFENDERS");
 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
 			return;
 		if (AI_chooseUnit(UNITAI_CITY_COUNTER))
@@ -3245,13 +3300,13 @@ void CvCityAI::AI_chooseProduction()
 
 		if (AI_chooseBuilding(iStrikeFlags))
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses strike building (w/ flags)", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "STRIKE_BUILDING_FLAGS");
 			return;
 		}
 
 		if (AI_chooseBuilding())
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses strike building (w/o flags)", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "STRIKE_BUILDING_FALLBACK");
 			return;
 		}
 	}
@@ -3304,7 +3359,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
 		{
-			if (gWorkerLogLevel >= 2) logBBAI("      City %S uses minimum area worker floor %d/%d", sCityName, iExistingWorkers, iMinimumAreaWorkers);
+			if (gWorkerLogLevel >= 2) logBBAICityProductionChoice(*this, "MINIMUM_AREA_WORKER_FLOOR", "workersExisting", iExistingWorkers, "minimumAreaWorkers", iMinimumAreaWorkers);
 			return;
 		}
 	}
@@ -3331,8 +3386,7 @@ void CvCityAI::AI_chooseProduction()
 				if (bProjectRollPassed)
 				{
 					pushOrder(ORDER_CREATE, eBestProject);
-					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose project short-circuit 1. (project value: %d, building value: %d, odds: %d)",
-						sCityName, iProjectValue, iBestBuildingValue, iOdds);
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "PROJECT_SHORT_CIRCUIT_1", "projectValue", iProjectValue, "buildingValue", iBestBuildingValue, "odds", iOdds);
 					return;
 				}
 			}
@@ -3365,7 +3419,7 @@ void CvCityAI::AI_chooseProduction()
 		}
 		if (bShortCircuit1BuildingChosen)
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses building value short-circuit 1 (odds: %d)", sCityName, iOdds);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "BUILDING_SHORT_CIRCUIT_1", "odds", iOdds);
 			return;
 		}
 	} // K-Mod end
@@ -3414,13 +3468,13 @@ void CvCityAI::AI_chooseProduction()
 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
 		{
 			// BBAI TODO: Does this work right after settler is built???
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2 || gSettler2PlusLogLevel >= 2)) logBBAI("      City %S uses escort existing settler 1 defense", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2 || gSettler2PlusLogLevel >= 2)) logBBAICityProductionChoice(*this, "EXISTING_SETTLER_ESCORT_DEFENSE");
 			return;
 		}
 
 		if (AI_chooseUnit(UNITAI_ATTACK))
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2 || gSettler2PlusLogLevel >= 2)) logBBAI("      City %S uses escort existing settler 1 attack", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2 || gSettler2PlusLogLevel >= 2)) logBBAICityProductionChoice(*this, "EXISTING_SETTLER_ESCORT_ATTACK");
 			return;
 		}
 	}
@@ -3430,7 +3484,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 30))
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses zero culture build", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "ZERO_CULTURE_BUILDING");
 			return;
 		}
 	}
@@ -3462,7 +3516,7 @@ void CvCityAI::AI_chooseProduction()
 		{
 			if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
 			{
-				if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 1a", sCityName);
+				if (gWorkerLogLevel >= 2) logBBAICityProductionChoice(*this, "WORKER_1A");
 				return;
 			}
 			bChooseWorker = true;
@@ -3485,7 +3539,7 @@ void CvCityAI::AI_chooseProduction()
 			{
 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
 				{
-					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 1", sCityName);
+					if (gWorkerLogLevel >= 2) logBBAICityProductionChoice(*this, "WORKER_1");
 					return;
 				}
 				bChooseWorker = true;
@@ -3504,7 +3558,7 @@ void CvCityAI::AI_chooseProduction()
 			{
 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
 				{
-					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 2", sCityName);
+					if (gWorkerLogLevel >= 2) logBBAICityProductionChoice(*this, "WORKER_2");
 					return;
 				}
 				bChooseWorker = true;
@@ -3552,7 +3606,7 @@ void CvCityAI::AI_chooseProduction()
 		{
 			if (AI_chooseUnit(UNITAI_ATTACK))
 			{
-				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses danger minimal attack", sCityName);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "DANGER_MINIMAL_ATTACK");
 				return;
 			}
 		}
@@ -3614,7 +3668,7 @@ void CvCityAI::AI_chooseProduction()
 					kPlayer.AI_totalWaterAreaUnitAIs(*pAnyWaterArea, aeSeaAttackTypes)
 					/* </advc.017> */  < std::min(3, iNumCities))
 				{
-					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses minimal naval", sCityName);
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionBranch(*this, "MINIMAL_NAVAL");
 					/*  <advc.017> Don't prioritize those ships quite as much
 						(was 100% chance in BBAI) */
 					int iOdds = 60;
@@ -3652,7 +3706,7 @@ void CvCityAI::AI_chooseProduction()
 						iOdds /= (iSeaExplorersNow + 1); // advc.040
 						if (AI_chooseUnit(UNITAI_EXPLORE_SEA, iOdds))
 						{
-							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses early sea explore", sCityName);
+							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "EARLY_SEA_EXPLORER");
 							return;
 						}
 					}
@@ -3684,7 +3738,7 @@ void CvCityAI::AI_chooseProduction()
 						iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iAreaBestFoundValue, iOdds);
 					if (AI_chooseUnit(UNITAI_SETTLER_SEA, iOdds))
 					{
-						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2) || bLogOverseasTransport) logBBAI("      City %S uses early settler sea", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2) || bLogOverseasTransport) logBBAICityProductionChoice(*this, "EARLY_SETTLER_SEA");
 						return;
 					}
 					if (bLogDetailedOverseasTransport) logBBAI("      SETTLER_SEA_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=EARLY result=REJECT_CHOOSE_UNIT waterArea=%d waterSites=%d waterBest=%d areaBest=%d odds=%d",
@@ -3696,22 +3750,23 @@ void CvCityAI::AI_chooseProduction()
 	}
 	// -------------------- BBAI Notes -------------------------
 	// Top normal priorities
+	// <!-- custom: Disabled rows in this block kept in the current BBAI record format so re-enabling them follows the same pattern; untested while disabled. (Claude code Opus 5.5) -->
 	/* if (!bPrimaryArea && !bLandWar) {
 		if (AI_chooseBuilding(BUILDINGFOCUS_FOOD, 60, 10 + 2*iWarTroubleThreshold, 50)) {
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose BUILDINGFOCUS_FOOD 1", sCityName);
+			if (gCityLogLevel >= 2) logBBAICityProductionChoice(*this, "BUILDINGFOCUS_FOOD_1");
 			return;
 		}
 	}
 	if (!bDanger && ((iOwnerEra > (kGame.getStartEra() + iProductionRank / 2))) || (iOwnerEra > (GC.getNumEraInfos() / 2))) {
 		if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 20 - iWarTroubleThreshold, 15, ((bLandWar || bAssault) ? 25 : -1))) {
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose BUILDINGFOCUS_PRODUCTION 1", sCityName);
+			if (gCityLogLevel >= 2) logBBAICityProductionChoice(*this, "BUILDINGFOCUS_PRODUCTION_1");
 			return;
 		}
 		if (!(bDefenseWar && iWarSuccessRatio < -30)) {
 			if ((iExistingWorkers < ((iNeededWorkers + 1) / 2))) {
 				if (iCityPopulation > 3 || (iProductionRank < (iNumCities + 1) / 2)) {
 					if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER)) {
-						if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 3", sCityName);
+						if (gWorkerLogLevel >= 2) logBBAICityProductionChoice(*this, "WORKER_3");
 						return;
 					}
 					bChooseWorker = true;
@@ -3751,7 +3806,7 @@ void CvCityAI::AI_chooseProduction()
 			{
 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
 				{
-					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 6", sCityName);
+					if (gWorkerLogLevel >= 2) logBBAICityProductionChoice(*this, "WORKER_6");
 					return;
 				}
 				bChooseWorker = true;
@@ -3812,7 +3867,7 @@ void CvCityAI::AI_chooseProduction()
 			{
 				if (AI_chooseLeastRepresentedUnit(floatingDefenderWeight))
 				{
-					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose floating defender 1", sCityName);
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "FLOATING_DEFENDER_1");
 					return;
 				}
 			}
@@ -3853,7 +3908,7 @@ void CvCityAI::AI_chooseProduction()
 
 		if (AI_chooseLeastRepresentedUnit(defensiveWeight, iOdds))
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose losing extra defense with odds %d", sCityName, iOdds);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "LOSING_EXTRA_DEFENSE", "odds", iOdds);
 			return;
 		}
 	}
@@ -3874,7 +3929,7 @@ void CvCityAI::AI_chooseProduction()
 					(bPrimaryArea || SyncRandSuccess100(15 * iMissingWorkers)) &&
 					AI_chooseUnit(UNITAI_WORKER))
 				{
-					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses choose worker 4", sCityName);
+					if (gWorkerLogLevel >= 2) logBBAICityProductionChoice(*this, "WORKER_4");
 					return;
 				}
 				bChooseWorker = true;
@@ -3898,7 +3953,7 @@ void CvCityAI::AI_chooseProduction()
 			{
 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
 				{
-					if (gWorkerLogLevel >= 2) logBBAI(" 	 City %S uses choose worker 5", sCityName);
+					if (gWorkerLogLevel >= 2) logBBAICityProductionChoice(*this, "WORKER_5");
 					return;
 				}
 				bChooseWorker = true;
@@ -3933,7 +3988,7 @@ void CvCityAI::AI_chooseProduction()
 		if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE,
 			bAggressiveAI ? 10 : 20, 0, bAggressiveAI ? 33 : 50))
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses minimal culture rate", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "MINIMAL_CULTURE");
 			return;
 		}
 	}
@@ -3956,7 +4011,7 @@ void CvCityAI::AI_chooseProduction()
 			if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE,
 				rOwnerAIEraFactor > 1 ? 0 : 7, 33))
 			{
-				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 1a", sCityName);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "EXPERIENCE_FOCUS_1A");
 				return;
 			}
 		}
@@ -4001,7 +4056,7 @@ void CvCityAI::AI_chooseProduction()
 					{
 						if (AI_chooseUnit(UNITAI_ATTACK_CITY))
 						{
-							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S chooses to start city attack stack", sCityName);
+							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "CITY_ATTACK_STACK_START");
 							return;
 						}
 					}
@@ -4010,7 +4065,7 @@ void CvCityAI::AI_chooseProduction()
 					{
 						if (AI_chooseUnit(UNITAI_ATTACK))
 						{
-							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S chooses to add to city attack stack", sCityName);
+							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "CITY_ATTACK_STACK_ADD");
 							return;
 						}
 					}
@@ -4052,7 +4107,7 @@ void CvCityAI::AI_chooseProduction()
 						if (scaled::hash(aiInputs, getOwner()) < rProb &&
 							AI_chooseUnit(UNITAI_ATTACK_CITY))
 						{
-							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S trains city attacker vs. Barbarians", sCityName);
+							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "BARBARIAN_CITY_ATTACKER");
 							return;
 						}
 					}
@@ -4080,7 +4135,7 @@ void CvCityAI::AI_chooseProduction()
 				iWonderTime += 7;
 				if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderTime))
 				{
-					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses opportunistic wonder build 1", sCityName);
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "OPPORTUNISTIC_WONDER_1");
 					return;
 				}
 			}
@@ -4243,7 +4298,7 @@ void CvCityAI::AI_chooseProduction()
 			if (eBestSpreadUnit != NO_UNIT && AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 			{
 				if (gGameRecordLogLevel >= 2) logSASGameRecordAIExecutiveProduction(this, eBestSpreadUnit, iBestSpreadUnitValue, iSpreadUnitThreshold, "PRIMARY");
-				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose missionary 1", sCityName);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "MISSIONARY_1");
 					return;
 			}
 		}
@@ -4260,8 +4315,7 @@ void CvCityAI::AI_chooseProduction()
 				kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, GC.getInfo(eBestProject).getType(),
 				iProjectValue, iBestBuildingValue, iBuildUnitProb, iOdds);
 			pushOrder(ORDER_CREATE, eBestProject);
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose project 1. (project value: %d, building value: %d, odds: %d)",
-				sCityName, iProjectValue, iBestBuildingValue, iOdds);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "PROJECT_1", "projectValue", iProjectValue, "buildingValue", iBestBuildingValue, "odds", iOdds);
 			return;
 		}
 		else if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d %S city=%S stage=PROJECT_1 project=%s projectValue=%d buildingValue=%d buildUnitProb=%d odds=%d rollPassed=0",
@@ -4285,13 +4339,13 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose min defender", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "MIN_DEFENDER");
 			return;
 		}
 
 		if (AI_chooseUnit(UNITAI_ATTACK))
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose min defender (attack ai)", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "MIN_DEFENDER_ATTACK_AI");
 			return;
 		}
 	}
@@ -4538,7 +4592,7 @@ void CvCityAI::AI_chooseProduction()
 				{
 					if (AI_chooseUnit(UNITAI_SETTLER_SEA))
 					{
-						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2) || bLogOverseasTransport) logBBAI("      City %S uses main settler sea", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2) || bLogOverseasTransport) logBBAICityProductionChoice(*this, "MAIN_SETTLER_SEA");
 						return;
 					}
 					if (bLogOverseasTransport) logBBAI("      SETTLER_SEA_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=MAIN result=REJECT_CHOOSE_UNIT waterArea=%d waterSites=%d waterBest=%d settlerBuildMin=%d settlers=%d existing=%d needed=%d",
@@ -4615,7 +4669,7 @@ void CvCityAI::AI_chooseProduction()
 					{
 						if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
 						{
-							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses build settler 1 extra quick defense", sCityName);
+							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "SETTLER_1_EXTRA_QUICK_DEFENSE");
 							return;
 						}
 					}
@@ -4625,7 +4679,7 @@ void CvCityAI::AI_chooseProduction()
 				}
 				else if (bWorkerReplacesSettler && AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
 				{
-					if (gWorkerLogLevel >= 2) logBBAI("      City %S replaces Settler 1 with Worker", sCityName);
+					if (gWorkerLogLevel >= 2) logBBAICityProductionChoice(*this, "SETTLER_1_REPLACED_BY_WORKER");
 					return;
 				}
 			}
@@ -4641,7 +4695,7 @@ void CvCityAI::AI_chooseProduction()
 			{
 				if (AI_chooseUnit(UNITAI_ATTACK))
 				{
-					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose attacker", sCityName); // advc
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "MISSING_PRIMARY_ATTACKER"); // advc
 					return;
 				}
 			}
@@ -4656,7 +4710,7 @@ void CvCityAI::AI_chooseProduction()
 				if (AI_chooseUnit(UNITAI_EXPLORE,
 					34 * iMissingExplorers)) // advc.131: was 100 flat (MNAI uses 25 flat)
 				{
-					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose missing explorer", sCityName); // advc
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "MISSING_EXPLORER"); // advc
 					return;
 				}
 			}
@@ -4703,8 +4757,7 @@ void CvCityAI::AI_chooseProduction()
 			iOdds = std::max(0, iOdds);
 			if (AI_chooseUnit(UNITAI_SPY, iOdds))
 			{
-				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S chooses spy with %d/%d needed, at %d odds",
-					sCityName, iNumSpies, iNeededSpies, iOdds);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "SPY", "spiesHave", iNumSpies, "spiesNeeded", iNeededSpies, "odds", iOdds);
 				return;
 			}
 		}
@@ -4724,7 +4777,7 @@ void CvCityAI::AI_chooseProduction()
 			if (AI_chooseLeastRepresentedUnit(panicDefenderWeight,
 				(bGetBetterUnits ? 40 : 60) - iWarSuccessRating/3))
 			{
-				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose panic defender", sCityName);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "PANIC_DEFENDER");
 				return;
 			}
 		}
@@ -4810,7 +4863,7 @@ void CvCityAI::AI_chooseProduction()
 				bFinancialTrouble, bLandWar, bAssault, bSeaExplorerEligible, bSeaExplorerEligible, bSeaExplorerChosen);
 			if (bSeaExplorerChosen)
 			{
-				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose sea explorer for naval trade", sCityName);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "NAVAL_TRADE_SEA_EXPLORER");
 				return;
 			}
 		}
@@ -4818,7 +4871,8 @@ void CvCityAI::AI_chooseProduction()
 
 	// We don't need this. It just ends up putting aqueducts everywhere.
 	/*if (AI_chooseBuilding(BUILDINGFOCUS_FOOD, 60, 10, (bLandWar ? 30 : -1))) {
-		if (gCityLogLevel >= 2) logBBAI("      City %S uses choose BUILDINGFOCUS_FOOD 3", sCityName);
+		// <!-- custom: Disabled row kept in the current BBAI record format so re-enabling it follows the same pattern; untested while disabled. (Claude code Opus 5.5) -->
+		if (gCityLogLevel >= 2) logBBAICityProductionChoice(*this, "BUILDINGFOCUS_FOOD_3");
 		return;
 	}*/ // BtS
 
@@ -4946,8 +5000,8 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2))
 		{
-			if (bNavalCapacityChosen) logBBAI("      City %S fills secured naval production-capacity floor (%d%% < %d%%)", sCityName, iNavalCapacityPercent, iNavalTargetPercent);
-			else logBBAI("      City %S fills land offensive production-capacity floor (%d%% < %d%%)", sCityName, iLandCapacityPercent, iLandTargetPercent);
+			if (bNavalCapacityChosen) logBBAICityProductionChoice(*this, "SECURED_NAVAL_CAPACITY_FLOOR", "currentPercent", iNavalCapacityPercent, "targetPercent", iNavalTargetPercent);
+			else logBBAICityProductionChoice(*this, "LAND_OFFENSIVE_CAPACITY_FLOOR", "currentPercent", iLandCapacityPercent, "targetPercent", iLandTargetPercent);
 		}
 		return;
 	}
@@ -4966,7 +5020,8 @@ void CvCityAI::AI_chooseProduction()
 				iWonderTime /= 5;
 				iWonderTime += 8;
 				/*if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderTime)) {
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses opportunistic wonder build 2", sCityName);
+					// <!-- custom: Disabled row kept in the current BBAI record format so re-enabling it follows the same pattern; untested while disabled. (Claude code Opus 5.5) -->
+					if (gCityLogLevel >= 2) logBBAICityProductionChoice(*this, "OPPORTUNISTIC_WONDER_2_BTS");
 					return;
 				}*/
 				// K-Mod
@@ -4985,9 +5040,9 @@ void CvCityAI::AI_chooseProduction()
 					iWonderTime, eBestWonder != NO_BUILDING && iBestWonderValue >= iBestBuildingValue);
 				if (eBestWonder != NO_BUILDING && iBestWonderValue >= iBestBuildingValue)
 				{
-					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses opportunistic wonder build 2", sCityName);
 					if (bLogSASBuildingChoices) logSASGameRecordAIBuildingChoice(*this, eBestWonder, SAS_AI_BUILDING_CHOICE_OPPORTUNISTIC_WONDER, BUILDINGFOCUS_WORLDWONDER, bLogDetailedSASBuildingChoices, bLogDetailedSASBuildingChoices ? SAS_getBuildingFocusNames(BUILDINGFOCUS_WORLDWONDER).GetCString() : NULL, -1, -1, iBestWonderValue, -1, -1);
 					pushOrder(ORDER_CONSTRUCT, eBestWonder);
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "OPPORTUNISTIC_WONDER_2");
 					return;
 				} // K-Mod end
 			}
@@ -5012,7 +5067,7 @@ void CvCityAI::AI_chooseProduction()
 			iBestBuildingValue, iBuildUnitProb, bLowOdds, bExtraLowOdds, iOdds, bShortCircuit2BuildingChosen);
 		if (bShortCircuit2BuildingChosen)
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses building value short-circuit 2 (odds: %d)", sCityName, iOdds);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "BUILDING_SHORT_CIRCUIT_2", "odds", iOdds);
    			return;
 		}
 	}
@@ -5044,7 +5099,7 @@ void CvCityAI::AI_chooseProduction()
 					iOdds += 2 * iFreeSeaExperience;
 					if(AI_chooseUnit(UNITAI_ATTACK_SEA, iOdds))
 					{
-						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S trains warship to attack hostiles in territory", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "HOSTILE_TERRITORY_WARSHIP");
 						return;
 					}
 				}
@@ -5068,7 +5123,7 @@ void CvCityAI::AI_chooseProduction()
 			if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 			{
 				if (gGameRecordLogLevel >= 2) logSASGameRecordAIExecutiveProduction(this, eBestSpreadUnit, iBestSpreadUnitValue, (iSpreadUnitThreshold * (bLandWar ? 80 : 60)) / 100, "FOLLOWUP");
-				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose missionary 2", sCityName);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "MISSIONARY_2");
 				return;
 			}
 		}
@@ -5080,7 +5135,7 @@ void CvCityAI::AI_chooseProduction()
 		if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE,
 			rOwnerAIEraFactor > 1 ? 0 : 7, 33))
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 1", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "EXPERIENCE_FOCUS_1");
 			return;
 		}
 	}
@@ -5214,7 +5269,7 @@ void CvCityAI::AI_chooseProduction()
 
 		if (bBuildAssault)
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2) || bLogOverseasTransport) logBBAI("      City %S uses build assault", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2) || bLogOverseasTransport) logBBAICityProductionBranch(*this, "ASSAULT_TRANSPORT");
 			// <!-- custom: The opportunistic evaluation already computed the same attacker total and selected a ship this city can train.
 			// Reuse both; compute the attacker total here only for the unchanged inherited path. See KI#193.2. (GPT-5.6-Sol) -->
 			if (iUnitsToTransport < 0) iUnitsToTransport = kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK_CITY) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_COUNTER) / 2;
@@ -5558,7 +5613,7 @@ void CvCityAI::AI_chooseProduction()
 						kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, bLeastRepresentedAirChosen);
 					if (bLeastRepresentedAirChosen)
 					{
-						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses build least represented air", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "LEAST_REPRESENTED_AIR");
 						return;
 					}
 				}
@@ -5577,7 +5632,7 @@ void CvCityAI::AI_chooseProduction()
 						iAircraftNeed);
 					if (bAirDefenseChosen)
 					{
-						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses build air defence", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "AIR_DEFENSE");
 						return;
 					}
 				}
@@ -5634,7 +5689,7 @@ void CvCityAI::AI_chooseProduction()
 				{
 					if (AI_chooseUnit(UNITAI_CARRIER_AIR, (iFreeAirExperience > 0) ? -1 : 35))
 					{
-						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses build carrier air", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "CARRIER_AIR");
 						return;
 					}
 				}
@@ -5680,7 +5735,7 @@ void CvCityAI::AI_chooseProduction()
 					// Don't always build missiles, more likely if really low on missiles.
 					if (AI_chooseUnit(UNITAI_MISSILE_AIR, (iMissileAirHave < iMissileCarrierAirNeeded/2) ? 50 : 20))
 					{
-						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses build missile", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "MISSILE");
 						return;
 					}
 				}
@@ -5787,7 +5842,7 @@ void CvCityAI::AI_chooseProduction()
 
 			if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20, 0, bDefenseWar ? 10 : 30))
 			{
-				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 2", sCityName); // advc
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "EXPERIENCE_FOCUS_2"); // advc
 				return;
 			}
 
@@ -5831,7 +5886,7 @@ void CvCityAI::AI_chooseProduction()
 				{
 					if (AI_chooseUnit(eCityAttackUnit, UNITAI_ATTACK_CITY))
 					{
-						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses extra crush bombard", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "CRUSH_EXTRA_BOMBARD");
 						return;
 					}
 				}
@@ -5926,7 +5981,7 @@ void CvCityAI::AI_chooseProduction()
 		if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 		{
 			if (gGameRecordLogLevel >= 2) logSASGameRecordAIExecutiveProduction(this, eBestSpreadUnit, iBestSpreadUnitValue, (iSpreadUnitThreshold * 40) / 100, "LATE_RETRY");
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose missionary 3", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "MISSIONARY_3");
 			return;
 		}
 	}
@@ -5946,7 +6001,7 @@ void CvCityAI::AI_chooseProduction()
 	{ // </advc.107>
 		if (AI_chooseLeastRepresentedUnit(floatingDefenderWeight, 50))
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose floating defender 2", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "FLOATING_DEFENDER_2");
 			return;
 		}
 	}
@@ -5975,7 +6030,7 @@ void CvCityAI::AI_chooseProduction()
 				// <!-- custom: also add a barbarian check here (with also our worker replaces settler new logic too) as our logic doesn't apply to barbarians as well at least not as of now -->
 				else if (!isBarbarian() && bWorkerReplacesSettler && AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
 				{
-					if (gWorkerLogLevel >= 2) logBBAI("      City %S replaces Settler 2 with Worker", sCityName);
+					if (gWorkerLogLevel >= 2) logBBAICityProductionChoice(*this, "SETTLER_2_REPLACED_BY_WORKER");
 					return;
 				}
 			}
@@ -6044,7 +6099,7 @@ void CvCityAI::AI_chooseProduction()
 					iWonderMaxTurns /= 2;
 				if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderMaxTurns))
 				{
-					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses opportunistic wonder build 3", sCityName);
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "OPPORTUNISTIC_WONDER_3");
 					return;
 				}
 			}
@@ -6085,7 +6140,7 @@ void CvCityAI::AI_chooseProduction()
 		{
 			if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20, 0, 3 * iCityPopulation))
 			{
-				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 3", sCityName); // advc
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "EXPERIENCE_FOCUS_3"); // advc
 				return;
 			}
 		}
@@ -6102,14 +6157,14 @@ void CvCityAI::AI_chooseProduction()
 		}
 		if (bDefenseBuildingChosen)
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses special BUILDINGFOCUS_DEFENSE", sCityName); // advc
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "DEFENSE_FOCUS"); // advc
 			return;
 		}
 		if (bDanger)
 		{
 			if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20, 0, 2 * iCityPopulation))
 			{
-				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 4", sCityName); // advc
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "EXPERIENCE_FOCUS_4"); // advc
 				return;
 			}
 		}
@@ -6136,8 +6191,7 @@ void CvCityAI::AI_chooseProduction()
 			bShortCircuit3BuildingChosen);
 		if (bShortCircuit3BuildingChosen)
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses building value short-circuit 3 (odds: %d, base odds: %d)",
-				sCityName, iOdds, iBaseOdds);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "BUILDING_SHORT_CIRCUIT_3", "odds", iOdds, "baseOdds", iBaseOdds);
    			return;
 		}
 	}
@@ -6158,7 +6212,7 @@ void CvCityAI::AI_chooseProduction()
 						bLateSeaExplorerChosen);
 					if (bLateSeaExplorerChosen)
 					{
-						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose late target sea explorer", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "LATE_TARGET_SEA_EXPLORER");
 						return;
 					}
 				}
@@ -6178,7 +6232,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (AI_chooseBuilding(BUILDINGFOCUS_GOLD))
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose financial trouble gold", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "FINANCIAL_TROUBLE_GOLD");
 			return;
 		}
 	}
@@ -6213,7 +6267,7 @@ void CvCityAI::AI_chooseProduction()
 		{
 			if (AI_chooseUnit()) // advc.031b (note): Can train Settlers, but that rarely happens.
 			{
-				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose unit by probability", sCityName);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "GENERIC_UNIT_PROBABILITY");
 				return;
 			}
 			bChooseUnit = true;
@@ -6228,7 +6282,8 @@ void CvCityAI::AI_chooseProduction()
 	/*if ((iProductionRank <= ((iNumCities > 8) ? 3 : 2))
 			&& (iCityPopulation > 3)) {
 		if (AI_chooseProject()) {
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose project 2", sCityName);
+			// <!-- custom: Disabled row kept in the current BBAI record format so re-enabling it follows the same pattern; untested while disabled. (Claude code Opus 5.5) -->
+			if (gCityLogLevel >= 2) logBBAICityProductionChoice(*this, "PROJECT_2_BTS");
 			return;
 		}
 	}*/ // BtS
@@ -6244,8 +6299,7 @@ void CvCityAI::AI_chooseProduction()
 			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, GC.getInfo(eBestProject).getType(),
 			iProjectValue, iBestBuildingValue, iBuildUnitProb);
 		pushOrder(ORDER_CREATE, eBestProject);
-		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose project 2. (project value: %d, building value: %d)",
-			sCityName, iProjectValue, iBestBuildingValue);
+		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "PROJECT_2", "projectValue", iProjectValue, "buildingValue", iBestBuildingValue);
 		return;
 	}
 
@@ -6276,7 +6330,7 @@ void CvCityAI::AI_chooseProduction()
 				AI_processValue(eBestProcess), (eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()),
 				iBestBuildingValue, iOdds);
 			pushOrder(ORDER_MAINTAIN, eBestProcess);
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose process by value", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "PROCESS_BY_VALUE");
 			return;
 		}
 		else if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d %S city=%S stage=PROCESS_BY_VALUE process=%s processValue=%d building=%s buildingValue=%d odds=%d rollPassed=0",
@@ -6297,7 +6351,7 @@ void CvCityAI::AI_chooseProduction()
 
 	if (AI_chooseBuilding())
 	{
-		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose building by probability", sCityName);
+		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "GENERIC_BUILDING_PROBABILITY");
 		return;
 	}
 
@@ -6305,7 +6359,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (AI_chooseUnit())
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose unit by default", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "GENERIC_UNIT_DEFAULT");
 			return;
 		}
 	}
@@ -6317,7 +6371,7 @@ void CvCityAI::AI_chooseProduction()
 			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, GC.getInfo(eBestProcess).getType(),
 			AI_processValue(eBestProcess));
 		pushOrder(ORDER_MAINTAIN, eBestProcess);
-		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose process by default", sCityName);
+		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "GENERIC_PROCESS_DEFAULT");
 		return;
 	}
 
@@ -15144,9 +15198,8 @@ void CvCityAI::AI_doDraft(bool bForce)
 		}
 	}
 
-	if (gCityLogLevel >= 2 && !bWait) logBBAI("      City %S (size %d, highest %d) chooses to conscript with danger: %d, land war: %d, poor tiles: %d%s",
-		getName().GetCString(), getPopulation(), getHighestPopulation(), bDanger, bLandWar, iPoorPlots,
-		bGoodValue ? ", good value" : "");
+	if (gCityLogLevel >= 2 && !bWait) logBBAI("CITY_CONSCRIPT_DECISION turn=%d player=%d civ=%S city=%S cityId=%d action=CONSCRIPT population=%d highestPopulation=%d danger=%d landWar=%d poorTiles=%d goodValue=%d",
+		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), getPopulation(), getHighestPopulation(), bDanger, bLandWar, iPoorPlots, bGoodValue);
 	// BETTER_BTS_AI_MOD: END
 	if (!bWait)
 	{
@@ -15241,7 +15294,8 @@ void CvCityAI::AI_doHurry(bool bForce)
 			{
 				if (iHappy < 0 && iHurryPopulation < -4*iHappy) // don't kill 4 citizens to remove 1 angry citizen.
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S whips to reduce unhappiness", getName().GetCString());
+					if (gCityLogLevel >= 2) logBBAI("CITY_HURRY_DECISION turn=%d player=%d civ=%S city=%S cityId=%d action=HURRY reason=UNHAPPINESS_RELIEF hurry=%d population=%d happy=%d happyDiff=%d foodDifference=%d hurryPopulation=%d goldCost=%d",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), eHurry, getPopulation(), iHappy, iHappyDiff, foodDifference(), iHurryPopulation, iGoldCost);
 					if (gGameRecordLogLevel >= 2) logSASGameRecordAIHurryDecision(*this, eHurry, SAS_AI_HURRY_UNHAPPINESS_RELIEF, eProductionUnitAI, iHappy, iHappyDiff, foodDifference(), -1, iGoldCost, -1, -1, -1);
 					hurry(eHurry);
 					return;
@@ -15252,7 +15306,8 @@ void CvCityAI::AI_doHurry(bool bForce)
 
 			if (iHappy + iHappyDiff >= 1 && iGoldCost == 0 && foodDifference() < -iHurryPopulation)
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S whips to reduce food loss", getName().GetCString());
+				if (gCityLogLevel >= 2) logBBAI("CITY_HURRY_DECISION turn=%d player=%d civ=%S city=%S cityId=%d action=HURRY reason=FOOD_LOSS_RELIEF hurry=%d population=%d happy=%d happyDiff=%d foodDifference=%d hurryPopulation=%d goldCost=%d",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), eHurry, getPopulation(), iHappy, iHappyDiff, foodDifference(), iHurryPopulation, iGoldCost);
 				if (gGameRecordLogLevel >= 2) logSASGameRecordAIHurryDecision(*this, eHurry, SAS_AI_HURRY_FOOD_LOSS_RELIEF, eProductionUnitAI, iHappy, iHappyDiff, foodDifference(), -1, iGoldCost, -1, -1, -1);
 				hurry(eHurry);
 				return;
@@ -15416,9 +15471,9 @@ void CvCityAI::AI_doHurry(bool bForce)
 					+ 2; // advc.121b: Whip fewer units
 			if (iHurryCost < iValue + /* advc.121b: */ iOverflow)
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S (%d) hurries %S. %d pop (%d) + %d gold (%d) to save %d turns. (value %d) (hd %d)",
-					getName().GetCString(), getPopulation(), GC.getInfo(eProductionUnit).getDescription(0), iHurryPopulation, iPopCost, iHurryGold,
-					iGoldCost, getProductionTurnsLeft(eProductionUnit, /* advc.064b: was 1 */ 2), iValue, iHappyDiff);
+				if (gCityLogLevel >= 2) logBBAI("CITY_HURRY_DECISION turn=%d player=%d civ=%S city=%S cityId=%d action=HURRY reason=UNIT_VALUE hurry=%d itemKind=UNIT item=%s unitAI=%d population=%d hurryPopulation=%d popCost=%d hurryGold=%d goldCost=%d turnsSaved=%d value=%d overflow=%d hurryCost=%d netValue=%d happyDiff=%d",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), eHurry, GC.getInfo(eProductionUnit).getType(), eProductionUnitAI, getPopulation(), iHurryPopulation, iPopCost, iHurryGold,
+					iGoldCost, getProductionTurnsLeft(eProductionUnit, 2), iValue, iOverflow, iHurryCost, iValue + iOverflow - iHurryCost, iHappyDiff);
 				if (gGameRecordLogLevel >= 2) logSASGameRecordAIHurryDecision(*this, eHurry, SAS_AI_HURRY_UNIT_VALUE, eProductionUnitAI, happyLevel() - unhappyLevel(), iHappyDiff, foodDifference(), iPopCost, iGoldCost, iValue, iOverflow, iValue + iOverflow - iHurryCost);
 				hurry(eHurry);
 				return;
@@ -15461,10 +15516,9 @@ void CvCityAI::AI_doHurry(bool bForce)
 				{
 					if (gCityLogLevel >= 2)
 					{
-						logBBAI("      City %S (%d) hurries %S. %d pop (%d) + %d gold (%d) to save %d turns with %d building value (%d) (hd %d)",
-							getName().GetCString(), getPopulation(), kBuildingInfo.getDescription(0), iHurryPopulation, iPopCost, iHurryGold,
-							iGoldCost, getProductionTurnsLeft(eProductionBuilding, /* advc.064b: was 1 */ 2), AI_buildingValue(eProductionBuilding),
-							iValue, iHappyDiff);
+						logBBAI("CITY_HURRY_DECISION turn=%d player=%d civ=%S city=%S cityId=%d action=HURRY reason=BUILDING_VALUE hurry=%d itemKind=BUILDING item=%s population=%d hurryPopulation=%d popCost=%d hurryGold=%d goldCost=%d turnsSaved=%d buildingValue=%d value=%d overflow=%d hurryCost=%d netValue=%d happyDiff=%d",
+							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), eHurry, kBuildingInfo.getType(), getPopulation(), iHurryPopulation, iPopCost, iHurryGold,
+							iGoldCost, getProductionTurnsLeft(eProductionBuilding, 2), AI_buildingValue(eProductionBuilding), iValue, iOverflow, iHurryCost, iValue + iOverflow - iHurryCost, iHappyDiff);
 					}
 					if (gGameRecordLogLevel >= 2) logSASGameRecordAIHurryDecision(*this, eHurry, SAS_AI_HURRY_BUILDING_VALUE, NO_UNITAI, happyLevel() - unhappyLevel(), iHappyDiff, foodDifference(), iPopCost, iGoldCost, iValue, iOverflow, iValue + iOverflow - iHurryCost);
 					hurry(eHurry);
@@ -21002,7 +21056,7 @@ void CvCityAI::AI_barbChooseProduction()
 		{
 			if (AI_chooseUnit(UNITAI_WORKER))
 			{
-				if (gWorkerLogLevel >= 2) logBBAI("      City %S uses barb choose worker 1", sCityName);
+				if (gWorkerLogLevel >= 2) logBBAICityProductionChoice(*this, "BARBARIAN_WORKER_1");
 				return;
 			}
 		}
@@ -21057,14 +21111,14 @@ void CvCityAI::AI_barbChooseProduction()
 
 		if (AI_chooseBuilding(iBarbarianFlags, 15))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses barb AI_chooseBuilding with flags and iBuildUnitProb = %d", sCityName, iBuildUnitProb);
+			if (gCityLogLevel >= 2) logBBAICityProductionChoice(*this, "BARBARIAN_BUILDING_FLAGS", "buildUnitProb", iBuildUnitProb);
 			return;
 		}
 		if (!SyncRandSuccess100(iBuildUnitProb))
 		{
 			if (AI_chooseBuilding())
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses barb AI_chooseBuilding without flags and iBuildUnitProb = %d", sCityName, iBuildUnitProb);
+				if (gCityLogLevel >= 2) logBBAICityProductionChoice(*this, "BARBARIAN_BUILDING_FALLBACK", "buildUnitProb", iBuildUnitProb);
 				return;
 			}
 		}
@@ -21074,7 +21128,7 @@ void CvCityAI::AI_barbChooseProduction()
 	{
 		if (AI_chooseUnit(UNITAI_ATTACK_CITY))
 		{
-			if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses barb choose attack city for transports", sCityName);
+			if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAICityProductionChoice(*this, "BARBARIAN_TRANSPORT_CITY_ATTACKER");
 			return;
 		}
 	}
@@ -21087,7 +21141,7 @@ void CvCityAI::AI_barbChooseProduction()
 			{
 				if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
 				{
-					if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses barb choose transport", sCityName);
+					if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAICityProductionChoice(*this, "BARBARIAN_TRANSPORT");
 					return;
 				}
 			}
@@ -21098,7 +21152,7 @@ void CvCityAI::AI_barbChooseProduction()
 			{
 				if (AI_chooseUnit(UNITAI_PIRATE_SEA))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses barb choose pirate", sCityName);
+					if (gCityLogLevel >= 2) logBBAICityProductionChoice(*this, "BARBARIAN_PIRATE");
 					return;
 				}
 			}
@@ -21107,7 +21161,7 @@ void CvCityAI::AI_barbChooseProduction()
 			{
 				if (AI_chooseUnit(UNITAI_ATTACK_SEA))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses barb choose attack sea", sCityName);
+					if (gCityLogLevel >= 2) logBBAICityProductionChoice(*this, "BARBARIAN_ATTACK_SEA");
 					return;
 				}
 			}
@@ -21123,7 +21177,7 @@ void CvCityAI::AI_barbChooseProduction()
 			{
 				if (AI_chooseUnit(UNITAI_WORKER))
 				{
-					if (gWorkerLogLevel >= 2) logBBAI("      City %S uses barb choose worker 2", sCityName);
+					if (gWorkerLogLevel >= 2) logBBAICityProductionChoice(*this, "BARBARIAN_WORKER_2");
 					return;
 				}
 			}

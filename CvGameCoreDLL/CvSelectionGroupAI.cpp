@@ -1295,7 +1295,8 @@ int CvSelectionGroupAI::AI_getBombardTurns(CvCity const* pCity) const
 		return 0;
 	int iBombardTurns = intdiv::uceil(iHP * iTotalDefense,
 			std::max(1, GC.getMAX_CITY_DEFENSE_DAMAGE() * iTotalBombardRate));
-	//if (gUnitLogLevel > 2) logBBAI("      Bombard of %S will take %d turns at rate %d and current damage %d with bombard def %d", pCity->getName().GetCString(), iBombardTurns, iTotalBombardRate, pCity->getDefenseDamage(), (bIgnoreBuildingDefense ? 0 : pCity->getBuildingBombardDefense()));
+	// <!-- custom: Disabled row kept in the current BBAI record format so re-enabling it follows the same pattern; untested while disabled. (Claude code Opus 5.5) -->
+	//if (gUnitLogLevel > 2) logBBAI("BOMBARD_TURNS_ESTIMATE turn=%d player=%d groupId=%d city=%S cityId=%d bombardTurns=%d bombardRate=%d defenseDamage=%d buildingBombardDefense=%d", GC.getGame().getGameTurn(), getOwner(), getID(), pCity->getName().GetCString(), pCity->getID(), iBombardTurns, iTotalBombardRate, pCity->getDefenseDamage(), (bIgnoreBuildingDefense ? 0 : pCity->getBuildingBombardDefense()));
 	return iBombardTurns;
 }
 

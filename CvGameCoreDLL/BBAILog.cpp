@@ -12,6 +12,7 @@
 #include "CoreAI.h" // <!-- custom: Resolve the probe owner's actual player yield traits for diagnostic revaluation. (GPT-6.1-Sol) -->
 #include "CvUnit.h" // <!-- custom: Identify the observed Settler and its current position without extending gameplay unit state. (GPT-6.1-Sol) -->
 #include "CvPlot.h" // <!-- custom: Compare the recorded target fog mask with current revealed plots. (GPT-6.1-Sol) -->
+#include "CvDeal.h" // <!-- custom: DEAL_CANCEL_DECISION records both deal participants alongside the existing human-readable deal text. (ChatGPT-5.6-Sol) -->
 
 // AI decision making logging
 
@@ -558,9 +559,8 @@ void logBBAICancel(CvDeal const& d, PlayerTypes eCancelPlayer, wchar const* szRe
 
 	CvWStringBuffer szTmpBuffer;
 	GAMETEXT.getDealString(szTmpBuffer, d, eCancelPlayer, false);
-	CvWString szBuffer;
-	szBuffer.Format(L"    %s cancels deal (%s): %s", GET_PLAYER(eCancelPlayer).getName(0),
-			szReason, szTmpBuffer.getCString());
-	// Leave it to logBBAI to narrow the string
-	logBBAI("%S", szBuffer.GetCString());
+	PlayerTypes const eOtherPlayer = (d.getFirstPlayer() == eCancelPlayer ? d.getSecondPlayer() : d.getFirstPlayer());
+	logBBAI("DEAL_CANCEL_DECISION turn=%d player=%d civ=%S otherPlayer=%d otherCiv=%S reason=%S deal=%S",
+		GC.getGame().getGameTurn(), eCancelPlayer, GET_PLAYER(eCancelPlayer).getCivilizationDescription(0), eOtherPlayer,
+		GET_PLAYER(eOtherPlayer).getCivilizationDescription(0), szReason, szTmpBuffer.getCString());
 }

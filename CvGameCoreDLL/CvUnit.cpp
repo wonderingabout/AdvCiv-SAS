@@ -7617,8 +7617,9 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible, bool bUpgradeCityKno
 						// <!-- custom: commented-out as (with a value of 200) it fires ~27k times on a ~T408 pangea large normal game speed autoplay (domain adjustments: 27,310, domain-adjusted blocked upgrades: 26,773, actual upgrades: 1,340, naval upgrades detected: 0) (according to ChatGPT-5.5's analysis of the corresponding BBAI log) -->
 						// if (gUnitLogLevel >= 3)
 						// {
-						// 	logBBAI("    %S AI upgrade domain ROI adjustment: %S -> %S domain=%d price=%d effectivePrice=%d domainPercent=%d",
-						// 		GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), kToUnit.getDescription(), getDomainType(), iPrice, iEffectivePrice, iDomainPricePercent);
+						// 	// <!-- custom: Disabled row kept in the current BBAI record format so re-enabling it follows the same pattern; untested while disabled. (Claude code Opus 5.5) -->
+						// 	logBBAI("UNIT_UPGRADE_ROI turn=%d player=%d civ=%S unitId=%d unit=%S upgrade=%s action=ADJUST reason=DOMAIN_PRICE domain=%d price=%d effectivePrice=%d domainPercent=%d",
+						// 		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), kToUnit.getType(), getDomainType(), iPrice, iEffectivePrice, iDomainPricePercent);
 						// }
 					}
 				}
@@ -7647,8 +7648,9 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible, bool bUpgradeCityKno
 							{
 								// if (gUnitLogLevel >= 3 && iDomainPricePercent != 100)
 								// {
-								// 	logBBAI("    %S AI upgrade blocked by domain-adjusted percent ROI: %S -> %S price=%d effectivePrice=%d allowedGold=%d strength=%d->%d exp=%d",
-								// 		GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), kToUnit.getDescription(), iPrice, iEffectivePrice, iAllowedGold, iFromStrength, iToStrength, iExp);
+								// 	// <!-- custom: Disabled row kept in the current BBAI record format so re-enabling it follows the same pattern; untested while disabled. (Claude code Opus 5.5) -->
+								// 	logBBAI("UNIT_UPGRADE_ROI turn=%d player=%d civ=%S unitId=%d unit=%S upgrade=%s action=BLOCK reason=DOMAIN_PERCENT_ROI price=%d effectivePrice=%d allowedGold=%d fromStrength=%d toStrength=%d experience=%d",
+								// 		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), kToUnit.getType(), iPrice, iEffectivePrice, iAllowedGold, iFromStrength, iToStrength, iExp);
 								// }
 								return false;
 							}
@@ -7671,8 +7673,9 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible, bool bUpgradeCityKno
 						{
 							// if (gUnitLogLevel >= 3 && iDomainPricePercent != 100)
 							// {
-							// 	logBBAI("    %S AI upgrade blocked by domain-adjusted flat ROI: %S -> %S price=%d effectivePrice=%d allowedGold=%d strength=%d->%d exp=%d",
-							// 		GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), kToUnit.getDescription(), iPrice, iEffectivePrice, iAllowedGold, iFromStrength, iToStrength, iExp);
+							// 	// <!-- custom: Disabled row kept in the current BBAI record format so re-enabling it follows the same pattern; untested while disabled. (Claude code Opus 5.5) -->
+							// 	logBBAI("UNIT_UPGRADE_ROI turn=%d player=%d civ=%S unitId=%d unit=%S upgrade=%s action=BLOCK reason=DOMAIN_FLAT_ROI price=%d effectivePrice=%d allowedGold=%d fromStrength=%d toStrength=%d experience=%d",
+							// 		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), kToUnit.getType(), iPrice, iEffectivePrice, iAllowedGold, iFromStrength, iToStrength, iExp);
 							// }
 							return false;
 						}
@@ -7914,11 +7917,9 @@ CvUnit* CvUnit::upgrade(UnitTypes eUnit) // K-Mod: this now returns the new unit
 	if (gGameRecordLogLevel >= 2) logSASGameRecordUnitUpgraded(this, pUpgradeUnit, iUpgradeCost);
 	if (gUnitLogLevel > 2)
 	{
-		CvWString szString;
-		getUnitAIString(szString, AI_getUnitAIType());
-		logBBAI("    %S spends %d to upgrade %S to %S, unit AI %S",
-			kOwner.getCivilizationDescription(0), upgradePrice(eUnit), getName(0).GetCString(), pUpgradeUnit->getName(0).GetCString(),
-			szString.GetCString());
+		logBBAI("UNIT_UPGRADE_APPLIED turn=%d player=%d civ=%S oldUnit=%s oldUnitId=%d newUnit=%s newUnitId=%d unitAI=%d price=%d plot=%d,%d",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), GC.getInfo(getUnitType()).getType(), getID(),
+			GC.getInfo(pUpgradeUnit->getUnitType()).getType(), pUpgradeUnit->getID(), pUpgradeUnit->AI_getUnitAIType(), iUpgradeCost, getX(), getY());
 	}
 
 	return pUpgradeUnit; // K-Mod

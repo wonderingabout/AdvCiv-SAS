@@ -6805,17 +6805,11 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, /*TeamTypes eTe
 		// <!-- custom: Log completed worker builds that replace one improvement with another.
 		// This helps find real farm/cottage/workshop oscillation cases before changing worker logic. Credit: ChatGPT 5.5. (GPT-5.5 review) -->
 		// <!-- custom: this fires 339 times in a ~421 turn sample at normal gamespeed large pangea, so fine to keep to level 2 and useful info deemed important enough for now. -->
-		if (gWorkerLogLevel >= 2 && eOldImprovement != NO_IMPROVEMENT && eOldImprovement != eNewImprovement) logBBAI("    WORKER-IMPROVEMENT overwrite: turn=%d elapsed=%d player=%S plot=%d,%d old=%S new=%S build=%S owner=%d bonus=%S route=%S",
-			GC.getGame().getGameTurn(),
-			GC.getGame().getElapsedGameTurns(),
-			GET_PLAYER(ePlayer).getCivilizationDescription(0),
-			getX(), getY(),
-			GC.getInfo(eOldImprovement).getDescription(),
-			GC.getInfo(eNewImprovement).getDescription(),
-			kBuild.getDescription(),
-			getOwner(),
-			getBonusType(eTeam) == NO_BONUS ? L"-" : GC.getInfo(getBonusType(eTeam)).getDescription(),
-			getRouteType() == NO_ROUTE ? L"-" : GC.getInfo(getRouteType()).getDescription());
+		if (gWorkerLogLevel >= 2 && eOldImprovement != NO_IMPROVEMENT && eOldImprovement != eNewImprovement) logBBAI("WORKER_IMPROVEMENT_OVERWRITE turn=%d elapsed=%d player=%d civ=%S plot=%d,%d oldImprovement=%s newImprovement=%s build=%s owner=%d bonus=%s route=%s",
+			GC.getGame().getGameTurn(), GC.getGame().getElapsedGameTurns(), ePlayer, GET_PLAYER(ePlayer).getCivilizationDescription(0), getX(), getY(),
+			GC.getInfo(eOldImprovement).getType(), GC.getInfo(eNewImprovement).getType(), kBuild.getType(), getOwner(),
+			getBonusType(eTeam) == NO_BONUS ? "NONE" : GC.getInfo(getBonusType(eTeam)).getType(),
+			getRouteType() == NO_ROUTE ? "NONE" : GC.getInfo(getRouteType()).getType());
 
 		setImprovementType(eNewImprovement);
 	}

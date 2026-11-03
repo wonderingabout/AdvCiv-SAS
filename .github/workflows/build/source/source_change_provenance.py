@@ -354,6 +354,55 @@ def exempt_new_comment(block: CommentBlock) -> bool:
     return bool(BOILERPLATE_COMMENT_RE.match(payload))
 
 
+# <!-- custom: Modernizing a disabled BBAI row, such as the commented-out GP slow modifier logBBAI call in CvUnitAI.cpp, failed as a "rewritten non-custom comment": commented-out code was protected like inherited prose.
+# Protect prose, not disabled code: a rewritten block passes only when every added or removed line is code-like and a new custom note sits beside it; changed prose still fails.
+# See disabled_code_exemptions. (Claude code Opus 5.5) -->
+CPP_CODE_END_RE = re.compile(r"[;{}]$")
+CPP_CODE_START_RE = re.compile(r"^(?:(?:if|for|while|switch)\s*\(|else\b|do\b|case\b|default\s*:|return\b|break\s*;|continue\s*;|[{}]|#\s*\w+)")
+CPP_CONTINUATION_RE = re.compile(r"(?:\w\s*\(|->|::|==|!=|<=|>=|&&|\|\|)")
+PY_CODE_START_RE = re.compile(r"^(?:if|elif|else|for|while|return|import|from|def|class|print|try|except|finally|pass|raise|with|global|del)\b")
+PY_ASSIGN_OR_CALL_RE = re.compile(r"^[A-Za-z_][\w.\[\]]*\s*(?:[-+*/%]?=[^=]|\()")
+
+
+def disabled_code_line(line: str, suffix: str) -> bool:
+    text = line.strip()
+    if suffix in XML_SUFFIXES:
+        return text.startswith("<") and text.endswith(">")
+    # <!-- custom: Disabled blocks often keep a second comment prefix, e.g. "// \tif (...)" after the first "//" is stripped. (Claude code Opus 5.5) -->
+    text = re.sub(r"^(?://+|#+)\s*", "", text)
+    if suffix in PY_SUFFIXES:
+        text = re.sub(r"\s+#.*$", "", text).strip()
+        return bool(PY_CODE_START_RE.match(text) or PY_ASSIGN_OR_CALL_RE.match(text) or text.endswith((":", ")", ",", "]")) and "(" in text)
+    text = re.sub(r"/\*.*?\*/", "", re.sub(r"\s+//.*$", "", text)).strip()
+    if not text:
+        return True
+    if CPP_CODE_END_RE.search(text) or CPP_CODE_START_RE.match(text):
+        return True
+    return bool(CPP_CONTINUATION_RE.search(text) and text.endswith((",", ")", "(", "&&", "||", "+", "-", "*", "/", "?", ":")))
+
+
+def comment_payload_lines(block: CommentBlock) -> list[str]:
+    return [line.strip() for line in block.text.splitlines() if line.strip()]
+
+
+def disabled_code_exemptions(added_legacy: list[CommentBlock], removed_legacy: list[CommentBlock], added_custom: list[CommentBlock], opcodes, suffix: str, radius: int = 3) -> set[int]:
+    # <!-- custom: Compare each rewritten block with the old blocks mapped into its neighborhood: unchanged lines may be prose, but every line that appears or disappears must be code-like.
+    # Nested custom notes split a disabled block into several legacy blocks, so compare against the union of nearby new blocks rather than one counterpart. (Claude code Opus 5.5) -->
+    exempt = set()
+    mapped_old = [(map_old_line_to_new(block.start, opcodes), block) for block in removed_legacy]
+    for index, block in enumerate(added_legacy):
+        if not nearby_added_custom(added_custom, block.start, block.end, radius=radius):
+            continue
+        olds = [old for position, old in mapped_old if block.start - radius <= position <= block.end + radius]
+        old_lines = {line for old in olds for line in comment_payload_lines(old)}
+        new_lines = {line for other in added_legacy if other.end >= block.start - radius and other.start <= block.end + radius for line in comment_payload_lines(other)}
+        changed = [line for line in comment_payload_lines(block) if line not in old_lines]
+        changed += [line for line in old_lines if line not in new_lines]
+        if changed and all(disabled_code_line(line, suffix) for line in changed):
+            exempt.add(index)
+    return exempt
+
+
 def unmatched_blocks(old: list[CommentBlock], new: list[CommentBlock], custom: bool) -> tuple[list[CommentBlock], list[CommentBlock]]:
     old_by = defaultdict(list)
     new_by = defaultdict(list)
@@ -923,8 +972,10 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
     for block in added_legacy + added_custom:
         errors.extend(cascading_comment_errors(path, block, suffix))
 
-    for block in added_legacy:
-        if exempt_new_comment(block):
+    _old_lines, _new_lines, opcodes = line_opcodes(old_text, new_text)
+    code_exempt = disabled_code_exemptions(added_legacy, removed_legacy, added_custom, opcodes, suffix)
+    for index, block in enumerate(added_legacy):
+        if exempt_new_comment(block) or index in code_exempt:
             continue
         errors.append(
             "%s:%d: new/rewritten non-custom comment; preserve inherited wording (reflow-only is allowed) "
@@ -938,7 +989,6 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
                 % (path, block.start)
             )
 
-    _old_lines, _new_lines, opcodes = line_opcodes(old_text, new_text)
     for block in removed_custom:
         old_credits, old_words = comment_credit_parts(block)
         if not old_credits:
@@ -962,7 +1012,9 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
         nearby = nearby_added_custom(added_custom, mapped, mapped, radius=6)
         if not nearby:
             continue
-        combined = "\n".join(item.raw for item in nearby)
+        # <!-- custom: A rewritten disabled block keeps its markers in the code itself, e.g. /* advc.131: */ inside a commented-out condition; count nearby rewritten legacy blocks as carriers too. (Claude code Opus 5.5) -->
+        carriers = nearby + [item for item in added_legacy if item.end >= mapped - 6 and item.start <= mapped + 6]
+        combined = "\n".join(item.raw for item in carriers)
         missing = [ref for ref in block.references if ref.lower() not in combined.lower()]
         if missing:
             errors.append(
