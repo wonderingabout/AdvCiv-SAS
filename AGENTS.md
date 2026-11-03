@@ -306,6 +306,8 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 
 - For local image embeds, use HTML with an explicit positive pixel width (usually `width="250"`) and alt text equal to the exact filename, including its extension; for example `<img src="/path/1.295_SASRuntime_crash_dump_dialog.PNG" alt="1.295_SASRuntime_crash_dump_dialog.PNG" width="250">`. This keeps image size deliberate and renamed screenshots greppable.
 - For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
+  - markdownlint-cli2 is a Node.js tool, unlike the Python checks. Node.js LTS is installed locally (installed on 2026-11-03 with `winget install --id OpenJS.NodeJS.LTS`), so run the CI's own scope before committing Markdown edits: [`npx markdownlint-cli2@0.23.2`](/.github/workflows/README.md#markdown-lint-workflow) from the repo root. A summary of `0 issues in 0 files` means no file has an issue.
+  - A local Python-only CI run does not cover this workflow: on 2026-11-03 such a run passed while a compact `|---|` table separator and a doubled blank line still failed markdownlint on GitHub.
 - For long Markdown prose, preserve the wording but prefer semantic structure that also reads clearly in rendered Markdown.
   - Use a blank line for a real new paragraph or thought chunk; a plain source newline normally renders as a space and should be used only when the text is intentionally still one paragraph.
   - Do not use a trailing `\`/hard line break merely to make prose look chunked in source; if the thought is genuinely separate, use a blank-line paragraph instead.

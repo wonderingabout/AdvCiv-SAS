@@ -365,12 +365,44 @@ void finishSASGameRecordAIWorkerTask(PlayerTypes eOwner, int iGroupId);
 // <!-- custom: Revision 184 observes the real AI-upgrade chooser without rerunning synchronized RNG or candidate eligibility.
 // CvPlayerAI supplies the already-known budget/pass policy before the call; AI_upgrade fills only values/counters encountered in its existing loop.
 // Common no-selection outcomes are interval-sampled in the formatter, while successful upgrades and remaining-price blocks are event rows. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Revision 190 moves player/pass-level upgrade state into one GAME_RECORD_AI_UPGRADE_PASS row per player and pass, so the per-unit formatter counts every outcome here, including interval-sampled refusals.
+// Revision 189 repeated that state, plus always-empty selection fields, on every refusal row: 25.2 of a 125.7 MB level-3 record, 95% of it refusals.
+// The same per-field check left AI_BUILDING_CHOICE, AI_COMMERCE_DECISION and AI_WORKER_TASK as they are: they have only 1.3 to 2.1 rows per player and turn, each a real decision, and their mostly empty fields mean "none" for that row. (Claude code Opus 5.5) -->
+// <!-- custom: One X-macro catalog generates both the result enum and its row names, as SAS_BUILDING_FOCUS_ROWS does, so the two lists cannot drift apart. (Claude code Opus 5.5) -->
+#define SAS_SGR_UPGRADE_RESULT_ROWS(DO) \
+	DO(NOT_READY) \
+	DO(NO_BETTER_VALUE) \
+	DO(ELIGIBILITY_BLOCKED) \
+	DO(MAX_PRICE_BLOCKED) \
+	DO(EXECUTION_REFUSED) \
+	DO(UPGRADED)
+enum SASGameRecordAIUpgradeResult
+{
+#define SAS_SGR_UPGRADE_RESULT_ENUM(NAME) SAS_SGR_UPGRADE_##NAME,
+	SAS_SGR_UPGRADE_RESULT_ROWS(SAS_SGR_UPGRADE_RESULT_ENUM)
+#undef SAS_SGR_UPGRADE_RESULT_ENUM
+	NUM_SAS_SGR_UPGRADE_RESULTS
+};
+struct SASGameRecordAIUpgradePassTally
+{
+	// <!-- custom: Same capture-only initialization as SASGameRecordAIUpgradeContext below. (Claude code Opus 5.5) -->
+	explicit SASGameRecordAIUpgradePassTally(bool bCapture) { if (bCapture) reset(); }
+	void reset()
+	{
+		for (int i = 0; i < NUM_SAS_SGR_UPGRADE_RESULTS; i++)
+			aiResults[i] = 0;
+		iLoggedUnitRows = 0;
+	}
+	int aiResults[NUM_SAS_SGR_UPGRADE_RESULTS];
+	int iLoggedUnitRows;
+};
 struct SASGameRecordAIUpgradeContext
 {
 	// <!-- custom: Match the commerce context constructor: initialize only for enabled capture, while keeping VC2003 aware of the initialization path. (GPT-6.1-Sol) -->
 	explicit SASGameRecordAIUpgradeContext(bool bCapture) { if (bCapture) reset(); }
 	void reset()
 	{
+		pPassTally = NULL;
 		szPassName = "UNKNOWN";
 		iStartingGold = iGoldBeforeAttempt = iUpgradeBudget = iSpentBefore = iMaxUpgradePrice = -1;
 		bFocusWar = bFinancialTrouble = bNoDisband = bReady = false;
@@ -379,6 +411,7 @@ struct SASGameRecordAIUpgradeContext
 		eSelectedUnit = eBestBlockedUnit = NO_UNIT;
 		iSelectedValue = iSelectedPrice = iBestBlockedValue = iBestBlockedPrice = -1;
 	}
+	SASGameRecordAIUpgradePassTally* pPassTally; // <!-- custom: The owning pass's tally; the formatter counts this unit's outcome into it. (Claude code Opus 5.5) -->
 	char const* szPassName;
 	int iStartingGold, iGoldBeforeAttempt, iUpgradeBudget, iSpentBefore, iMaxUpgradePrice;
 	bool bFocusWar, bFinancialTrouble, bNoDisband, bReady;
@@ -389,6 +422,8 @@ struct SASGameRecordAIUpgradeContext
 	int iBestBlockedValue, iBestBlockedPrice;
 };
 void logSASGameRecordAIUpgradeDecision(CvUnitAI const& kOldUnit, CvUnit const* pNewUnit, SASGameRecordAIUpgradeContext const& kContext);
+// <!-- custom: One row per player and upgrade pass, written only when the pass logged at least one unit row; it carries the pass-constant budget/gold state and per-result counts over every evaluated unit. (Claude code Opus 5.5) -->
+void logSASGameRecordAIUpgradePass(CvPlayerAI const& kPlayer, char const* szPassName, bool bFocusWar, bool bFinancialTrouble, int iStartingGold, int iUpgradeBudget, int iGoldBefore, SASGameRecordAIUpgradePassTally const& kTally);
 // <!-- custom: Scrap reasoning is emitted only from deliberate AI disposal contexts or a reviewed candidate-screen veto; generic canScrap queries remain silent.
 // iContext/iEligibility are SASUnitScrapContext/SASUnitScrapEligibility values owned by CvUnit.h; integer parameters keep this recorder header lightweight. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIScrapDecision(CvUnit const& kUnit, int iContext, int iEligibility, char const* szResult, bool bForced, bool bMandatoryGameRule, int iDecisionValue = -1, int iUnitCostPerMil = -1, int iMaxUnitCostPerMil = -1);

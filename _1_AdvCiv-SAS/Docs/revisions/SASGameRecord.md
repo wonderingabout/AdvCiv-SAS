@@ -113,6 +113,19 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 190 - SAS practical 6715
+
+- **Date:** 2026-11-03
+- **Git commit:** pending
+- **Change:** AI upgrade rows are split into three fixed row types without losing information.
+  - `GAME_RECORD_AI_UPGRADE_PASS` is new: one row per player and upgrade pass with the pass-constant state (`focusWar`, `financialTrouble`, `startingGold`, `upgradeBudget`, `goldBefore`/`goldAfter`) and per-result counts over every evaluated unit, including interval-sampled refusals. It is written only when the pass logged a unit row.
+  - `GAME_RECORD_AI_UPGRADE_SKIP` is new for the routine refusals (`NOT_READY`, `NO_BETTER_VALUE`, `ELIGIBILITY_BLOCKED`): unit identity, `result`, `pass`, `noDisband`, `maxUpgradePrice`, `ready`, `currentValue` and the evaluation counts. A refusal's gold is the pass row's `goldBefore` minus earlier `UPGRADED` rows in that pass.
+  - `GAME_RECORD_AI_UPGRADE_DECISION` now covers only `UPGRADED`, `EXECUTION_REFUSED` and `MAX_PRICE_BLOCKED`, with its fields unchanged.
+- **Why:** in a full level-3 autoplay record (2026-11-03), upgrade rows took 25.2 of 125.7 MB and 35,351 of their 39,452 rows were refusals. Every refusal repeated the pass-constant fields (6.3 MB) and nine always-empty selection fields (5.1 MB); all 35,351 had those nine fields empty.
+- **Not changed:** the same per-field check of `GAME_RECORD_AI_BUILDING_CHOICE`, `GAME_RECORD_AI_COMMERCE_DECISION` and `GAME_RECORD_AI_WORKER_TASK` found no comparable lossless saving.
+  - They have only 1.3 to 2.1 rows per player and turn, each a real decision, so there is little shared state to move to a parent row.
+  - Their mostly empty fields, such as `improvementFreeSpecialists` or `selectedFollowupBuild`, mean "none" for that building or task, so dropping them would lose information.
+
 ### Revision 189 - SAS practical 6713
 
 - **Date:** 2026-11-03

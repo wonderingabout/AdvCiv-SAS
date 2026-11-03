@@ -15154,26 +15154,57 @@ static char const* getSASGameRecordScrapEligibilityName(SASUnitScrapEligibility 
 // <!-- custom: The upgrade row is the compact bridge missing between BBAI's optional budget diagnostics and GAME_RECORD_UNIT_UPGRADED's realized action.
 // It records the actual synchronized-RNG chooser outcome and real remaining-price cap.
 // Routine retained units are sampled; successful selections and price-cap blocks are always visible. (ChatGPT-5.6-Sol) -->
+static char const* getSASGameRecordAIUpgradeResultName(SASGameRecordAIUpgradeResult eResult)
+{
+	switch (eResult)
+	{
+#define SAS_SGR_UPGRADE_RESULT_NAME(NAME) case SAS_SGR_UPGRADE_##NAME: return #NAME;
+	SAS_SGR_UPGRADE_RESULT_ROWS(SAS_SGR_UPGRADE_RESULT_NAME)
+#undef SAS_SGR_UPGRADE_RESULT_NAME
+	default: FAssert(false); return "UNKNOWN";
+	}
+}
+
 void logSASGameRecordAIUpgradeDecision(CvUnitAI const& kOldUnit, CvUnit const* pNewUnit, SASGameRecordAIUpgradeContext const& kContext)
 {
-	char const* szResult = "NO_BETTER_VALUE";
+	SASGameRecordAIUpgradeResult eResult = SAS_SGR_UPGRADE_NO_BETTER_VALUE;
 	bool bAlwaysRecord = false;
 	if (!kContext.bReady)
-		szResult = "NOT_READY";
+		eResult = SAS_SGR_UPGRADE_NOT_READY;
 	else if (kContext.eSelectedUnit != NO_UNIT)
 	{
 		bAlwaysRecord = true;
-		szResult = (pNewUnit != NULL && pNewUnit != &kOldUnit ? "UPGRADED" : "EXECUTION_REFUSED");
+		eResult = (pNewUnit != NULL && pNewUnit != &kOldUnit ? SAS_SGR_UPGRADE_UPGRADED : SAS_SGR_UPGRADE_EXECUTION_REFUSED);
 	}
 	else if (kContext.iMaxPriceBlockedEvaluations > 0)
 	{
 		bAlwaysRecord = true;
-		szResult = "MAX_PRICE_BLOCKED";
+		eResult = SAS_SGR_UPGRADE_MAX_PRICE_BLOCKED;
 	}
 	else if (kContext.iImprovingEvaluations > 0)
-		szResult = "ELIGIBILITY_BLOCKED";
+		eResult = SAS_SGR_UPGRADE_ELIGIBILITY_BLOCKED;
+	// <!-- custom: Count before interval sampling so the pass row's totals cover every evaluated unit. (Claude code Opus 5.5) -->
+	if (kContext.pPassTally != NULL)
+		kContext.pPassTally->aiResults[eResult]++;
 	if (!bAlwaysRecord && GC.getGame().getGameTurn() % gGameRecordTurnInterval != 0)
 		return;
+	if (kContext.pPassTally != NULL)
+		kContext.pPassTally->iLoggedUnitRows++;
+	char const* szResult = getSASGameRecordAIUpgradeResultName(eResult);
+
+	// <!-- custom: A refusal never has a selected, blocked or new unit, and spends no gold; across 35,351 revision-189 refusal rows those nine fields were always empty and goldAfter equalled goldBefore.
+	// So refusals use their own fixed row type without them, and the pass-constant budget/gold state lives once on GAME_RECORD_AI_UPGRADE_PASS.
+	// noDisband stays: it is set per unit. (Claude code Opus 5.5) -->
+	if (!bAlwaysRecord)
+	{
+		logSASGameRecord("GAME_RECORD_AI_UPGRADE_SKIP turn=%d player=%d unitId=%d unit=%s unitAI=%s domain=%s x=%d y=%d area=%d age=%d exp=%d level=%d result=%s pass=%s noDisband=%d maxUpgradePrice=%d ready=%d currentValue=%d improvingEvaluations=%d eligibleImprovingEvaluations=%d",
+			GC.getGame().getGameTurn(), kOldUnit.getOwner(), kOldUnit.getID(), getSASGameRecordUnitType(kOldUnit.getUnitType()),
+			getSASGameRecordUnitAIType(kOldUnit.AI_getUnitAIType()), getSASGameRecordDomainType(kOldUnit.getDomainType()), kOldUnit.getX(), kOldUnit.getY(),
+			(kOldUnit.area() == NULL ? -1 : kOldUnit.area()->getID()), GC.getGame().getGameTurn() - kOldUnit.getGameTurnCreated(), kOldUnit.getExperience(), kOldUnit.getLevel(),
+			szResult, kContext.szPassName, kContext.bNoDisband ? 1 : 0, kContext.iMaxUpgradePrice, kContext.bReady ? 1 : 0, kContext.iCurrentValue,
+			kContext.iImprovingEvaluations, kContext.iEligibleImprovingEvaluations);
+		return;
+	}
 
 	CvPlayerAI const& kOwner = GET_PLAYER(kOldUnit.getOwner());
 	int const iNewUnitId = (pNewUnit != NULL && pNewUnit != &kOldUnit ? pNewUnit->getID() : -1);
@@ -15188,6 +15219,20 @@ void logSASGameRecordAIUpgradeDecision(CvUnitAI const& kOldUnit, CvUnit const* p
 		kContext.bReady ? 1 : 0, kContext.iCurrentValue, kContext.iImprovingEvaluations, kContext.iEligibleImprovingEvaluations, kContext.iMaxPriceBlockedEvaluations,
 		getSASGameRecordUnitType(kContext.eSelectedUnit), kContext.iSelectedValue, kContext.iSelectedPrice, getSASGameRecordUnitType(kContext.eBestBlockedUnit),
 		kContext.iBestBlockedValue, kContext.iBestBlockedPrice, iNewUnitId, getSASGameRecordUnitType(eNewUnit), kOwner.getGold());
+}
+
+// <!-- custom: A refusal's gold and remaining budget equal goldBefore here minus the UPGRADED rows earlier in the same pass, so dropping them from GAME_RECORD_AI_UPGRADE_SKIP loses nothing.
+// The counts include interval-sampled refusals that wrote no unit row. (Claude code Opus 5.5) -->
+void logSASGameRecordAIUpgradePass(CvPlayerAI const& kPlayer, char const* szPassName, bool bFocusWar, bool bFinancialTrouble, int iStartingGold, int iUpgradeBudget, int iGoldBefore, SASGameRecordAIUpgradePassTally const& kTally)
+{
+	int iEvaluated = 0;
+	for (int i = 0; i < NUM_SAS_SGR_UPGRADE_RESULTS; i++)
+		iEvaluated += kTally.aiResults[i];
+	logSASGameRecord("GAME_RECORD_AI_UPGRADE_PASS turn=%d player=%d team=%d pass=%s focusWar=%d financialTrouble=%d startingGold=%d upgradeBudget=%d goldBefore=%d goldAfter=%d evaluated=%d notReady=%d noBetterValue=%d eligibilityBlocked=%d maxPriceBlocked=%d executionRefused=%d upgraded=%d loggedUnitRows=%d",
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), szPassName, bFocusWar ? 1 : 0, bFinancialTrouble ? 1 : 0, iStartingGold, iUpgradeBudget,
+		iGoldBefore, kPlayer.getGold(), iEvaluated, kTally.aiResults[SAS_SGR_UPGRADE_NOT_READY], kTally.aiResults[SAS_SGR_UPGRADE_NO_BETTER_VALUE],
+		kTally.aiResults[SAS_SGR_UPGRADE_ELIGIBILITY_BLOCKED], kTally.aiResults[SAS_SGR_UPGRADE_MAX_PRICE_BLOCKED], kTally.aiResults[SAS_SGR_UPGRADE_EXECUTION_REFUSED],
+		kTally.aiResults[SAS_SGR_UPGRADE_UPGRADED], kTally.iLoggedUnitRows);
 }
 
 void logSASGameRecordAIScrapDecision(CvUnit const& kUnit, int iContext, int iEligibility, char const* szResult, bool bForced, bool bMandatoryGameRule, int iDecisionValue, int iUnitCostPerMil, int iMaxUnitCostPerMil)

@@ -192,6 +192,8 @@ Run the same scope and configuration locally:
 npx markdownlint-cli2@0.23.2
 ```
 
+`npx` comes with Node.js; on Windows, `winget install --id OpenJS.NodeJS.LTS` installs it. Check the [markdownlint-cli2 project](https://github.com/DavidAnson/markdownlint-cli2) for more current installation advice.
+
 ## Python 2.4 compile workflow
 
 [`python24-compile.yml`](/.github/workflows/python24-compile.yml) runs [`build/python/python24_compile.py`](#buildpythonpython24_compilepy) inside `ghcr.io/wonderingabout/python-2.4:2.4.6`, built from the separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) Docker-image recipe. It checks `Assets/Python` and `PrivateMaps` with the real CPython 2.4 parser/bytecode compiler, which is closer to Civ4's embedded Python than Ruff or modern Python 3.

@@ -11821,6 +11821,13 @@ Crash fixes kept (reviewed 2026-11-03). Dates are from the first commit that tag
 | [KI#524.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-524.2) to [KI#524.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-524.6) | `617843aa2`, 6293, 2026-08-27 | Unplaced-unit crashes and the Partisans `initUnit(NO_UNIT)` chain | Debug-opt era |
 | [KI#895](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-895) | `c7fc9338f`, 6563, 2026-09-22 | Capital-loss announcement used a deleted city | Deterministically reproduced; Debug-opt era |
 
+2026-11-03 later follow-up (found with the help of ChatGPT-5.6-Sol in an album review, thanks): historical album evidence.
+
+Some later C++ File Audit Album checkpoints describe these guards as existing repaired controls, or deduplicate new candidates against them, because those historical snapshots still contained the guards.
+
+- That is evidence about what the audited tree looked like then, not independent runtime proof that the guarded state caused the old crash or was reachable under the callback's supported contract.
+- The album is therefore intentionally left as historical archaeology; the current status is the KI status above.
+
 <a id="ki-137"></a>
 
 ## KI#137 - (Fixed) Beyond the Game mod issue: BTG Cross reused Huge grid size for every world size of Huge and below
@@ -14559,12 +14566,13 @@ This safely fixes the `NO_PLAYER` bug, but the available evidence does not prove
 
 Tentatively addressed and hardened with the help of GPT-5.5 (on Codex) thanks.
 
-2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks): retired.
+2026-11-03 follow-up (with the help of ChatGPT-5.6-Sol and Claude code Opus 5.5 thanks): retired.
 
 - This change was made from crash dumps without a matching PDB/Debug-opt build, so its cause was never confirmed; [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) later became the project's first PDB-assisted crash diagnosis.
 - [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) showed that such fixes can carry unintended side effects: KI#103's production-bar guard removed the red no-production city-bar circle for human cities from 5500 on.
 - All the tentative crash fixes from that era were therefore retired together, restoring base AdvCiv 1.14 code so that a recurrence can be caught with a Debug-opt dump and its real trace. [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) lists them in a table.
-- The `NO_PLAYER` handling in `CvPlot::checkLateEra` is removed. It handled a case found by reading the code (an unowned plot reading `getActivePlayer()` without checking for `NO_PLAYER`), but it was not shown to cause the T281 crash, so it was retired with the rest and any crash there will now be traced first.
+- The `NO_PLAYER` handling in `CvPlot::checkLateEra` is removed. It covered the conditional hazard found by reading the code, but neither a supported `checkLateEra` call with no active player nor causation of the T281 crash was demonstrated. It was therefore retired with the rest and any recurrence there will be traced first.
+- Correction (found with the help of ChatGPT-5.6-Sol thanks): the original text above calls this a Base AdvCiv bug. More precisely, it is a conditional `NO_PLAYER` hazard: if this exported callback is reached while there is no active player, those accesses are invalid, but no supported or reachable `checkLateEra` call in that state was established.
 
 <a id="ki-172"></a>
 

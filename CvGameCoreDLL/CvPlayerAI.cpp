@@ -678,6 +678,10 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 		int iPassEligibleUnits = 0;
 		int iPassUpgradedUnits = 0;
 		int iPassSkippedBudget = 0;
+		// <!-- custom: SGR190 counts this pass's upgrade outcomes for one GAME_RECORD_AI_UPGRADE_PASS row; only enabled capture initializes it. (Claude code Opus 5.5) -->
+		bool const bLogSASUpgradePass = (gGameRecordLogLevel >= 2);
+		SASGameRecordAIUpgradePassTally kSASUpgradePassTally(bLogSASUpgradePass);
+		int const iSASPassGoldBefore = (bLogSASUpgradePass ? getGold() : 0);
 		//FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
 		// <advc.131e>
 		for (std::vector<CvUnitAI*>::iterator itUnit = apUnitsByExp.begin();
@@ -854,6 +858,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 					kSASUpgradeContext.bFocusWar = bUpgradeFocusWar;
 					kSASUpgradeContext.bFinancialTrouble = bUpgradeFinancialTroubleStart;
 					kSASUpgradeContext.bNoDisband = bNoDisband;
+					kSASUpgradeContext.pPassTally = &kSASUpgradePassTally;
 					pSASUpgradeContext = &kSASUpgradeContext;
 				}
 				if (bLogUpgradeDiagnostics)
@@ -898,6 +903,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 			GC.getGame().getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), iPass, szPassName, iPassEligibleUnits,
 			iPassUpgradedUnits, iPassSkippedBudget, iStartingGold - iPassGoldBefore, iStartingGold - getGold(), iUpgradeBudget,
 			iPassGoldBefore, getGold(), iStartingGold - getGold() > iUpgradeBudget);
+		if (bLogSASUpgradePass && kSASUpgradePassTally.iLoggedUnitRows > 0) logSASGameRecordAIUpgradePass(*this, szPassName, bUpgradeFocusWar, bUpgradeFinancialTroubleStart, iStartingGold, iUpgradeBudget, iSASPassGoldBefore, kSASUpgradePassTally);
 	}
 
 	/*if (isBarbarian()) // advc.300 (moved up)
