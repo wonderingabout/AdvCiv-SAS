@@ -78,6 +78,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/civ_specific_not_weaker.py`](#buildxmlciv_specific_not_weakerpy)
     - [`build/xml/define_tag_refs.py`](#buildxmldefine_tag_refspy)
     - [`build/xml/asset_primary_tech.py`](#buildxmlasset_primary_techpy)
+    - [`build/xml/religion_tech_buttons.py`](#buildxmlreligion_tech_buttonspy)
   - [Assets](#assets)
     - [`build/assets/art_button_paths.py`](#buildassetsart_button_pathspy)
     - [`build/assets/tech_audio.py`](#buildassetstech_audiopy)
@@ -837,6 +838,13 @@ For resource-specific connecting improvements, checks that the resource's `TechC
 City-like Forts are excluded. The rule applies to every resource with an XML-defined connecting improvement, without named resource exceptions; unknown or unguaranteed trade requirements fail.
 
 Trade unlocks were aligned to the current reveal/Build prerequisites, including the former Marble, Stone and Uranium delays. Changing or renaming resources, builds or technologies needs no checker allowlist update.
+
+#### `build/xml/religion_tech_buttons.py`
+
+Verifies that each religion's `TechButton` and `GenericTechButton` is its founding tech's own `Button`, or a BtS religion button whose picture was drawn for that same founding tech.
+
+- The choose-tech popup and the top tech bar show these religion buttons instead of the tech's own while the religion is unfounded. BtS drew each as its BtS founding tech's picture plus a religion badge.
+- Added after [KI#1072.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072.2): six religions moved to other founding techs kept their BtS buttons, so e.g. Calendar showed Polytheism's marble heads. Like `asset_primary_tech.py`'s trade check ([KI#1072](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072)), it catches a tech link left behind when SAS moves a prerequisite.
 
 ### Assets
 

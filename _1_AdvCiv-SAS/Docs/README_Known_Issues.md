@@ -1227,7 +1227,9 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1068 - (Fixed AdvCiv-SAS Sevopedia repair regression) EventTrigger corporation-era inference ignored HQ-building technology gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1068)\
 [KI#1069 - (Fixed UI AdvCiv-SAS World Advisor repair regression) Territory revealed live ownership changes under fog](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1069)\
 [KI#1070 - (Retired audit cursor; no confirmed defect) Mechanical denominator and modulo scan](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1070)\
-[KI#1071 - (Fixed inherited BtS queued-build weakness preserved by K-Mod/AdvCiv) AI Workers could discard an improvement after movement or routing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1071)
+[KI#1071 - (Fixed inherited BtS queued-build weakness preserved by K-Mod/AdvCiv) AI Workers could discard an improvement after movement or routing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1071)\
+[KI#1072 - (Fixed SAS migration gap, recorded retrospectively) Nine resources kept BtS trade techs after SAS moved their connecting Builds or reveals](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072)\
+[KI#1072.2 - (Fixed SAS migration gap) Six religions kept BtS tech buttons drawn for their old founding techs, so the choose-tech popup and tech bar showed e.g. Polytheism's marble heads on Calendar](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072.2)
 
 <a id="ki-1"></a>
 
@@ -36933,3 +36935,50 @@ A fresh post-review replay, `SASGameRecord_20261030T180116Z_load1.log` with matc
 It again records 1,182 queue waits, including the Ottoman Worker arriving at `(31,27)` on T60 with zero moves and both Build steps retained. The AI path is exercised by this rebuilt run; manual queued Builds were not separately exercised, though their prior wait condition is retained.
 
 Found while investigating KI#33.4 and fixed/documented with the help of ChatGPT-5.6-Sol, thanks.
+
+<a id="ki-1072"></a>
+
+## KI#1072 - (Fixed SAS migration gap, recorded retrospectively) Nine resources kept BtS trade techs after SAS moved their connecting Builds or reveals
+
+Recorded on 2026-11-03 from commit `a3292818a` (2026-10-02, practical 6580), which fixed this without a KI; this entry gives KI#1072.2 its family.
+
+- When AdvCiv-SAS moved some resources' connecting improvement Builds or reveal techs, their `TechCityTrade` stayed on the BtS tech. For example, the six plantation resources kept Calendar after the Plantation Build moved to Agriculture, so a resource could be improved before it could enter the trade network.
+- The commit aligned nine resource trade techs (plantation resources to Agriculture, Marble and Stone to Mining, Uranium to Radio) and added the check in [`asset_primary_tech.py`](/.github/workflows/README.md#buildxmlasset_primary_techpy) that a resource's `TechCityTrade` is guaranteed by its reveal and Build prerequisite paths.
+
+<a id="ki-1072.2"></a>
+
+## KI#1072.2 - (Fixed SAS migration gap) Six religions kept BtS tech buttons drawn for their old founding techs, so the choose-tech popup and tech bar showed e.g. Polytheism's marble heads on Calendar
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1VfNEuGncd3CEXLi8z5lTPQyAPO2IHr7I?usp=sharing)
+
+The same kind of gap as KI#1072: a tech link left behind when AdvCiv-SAS moved a prerequisite.
+
+In the choose-tech popup and the top tech bar, Calendar showed grey marble heads with a small blue badge, and Polytheism showed a white mask. The tech tree showed both correctly.
+
+- For a tech that founds a religion nobody has founded yet, BtS shows that religion's `TechButton` (or `GenericTechButton` with Pick Religion) instead of the tech's own button: in `CvDLLButtonPopup::launchChooseTechPopup` and in `CvMainInterface.py`'s top tech bar. The tech tree (`CvTechChooser.py`) does not, because its religion-button code is commented out.
+- BtS drew each religion's `TechButton` as its BtS founding tech's picture plus a religion badge: `Hinduism.dds` is Polytheism's marble heads with the Hindu badge.
+- AdvCiv-SAS moved six religions to other founding techs but kept their BtS buttons, so each picture appeared on the wrong tech. Base AdvCiv keeps the BtS founding techs, so it does not show this.
+
+| Religion | Button picture drawn for | AdvCiv-SAS founding tech, which showed it |
+| --- | --- | --- |
+| Hinduism | Polytheism | Calendar |
+| Judaism | Monotheism | Code of Laws |
+| Christianity | Theology | Monotheism |
+| Islam | Divine Right | Navigation |
+| Daoism (BtS Taoism) | Philosophy | Paper |
+| Paganism (SAS) | none; `Baalism.dds` religion art | Polytheism |
+| Buddhism | Meditation | Meditation (unchanged, so correct) |
+
+Fix: the six religions' `TechButton` and `GenericTechButton` in [`CIV4ReligionInfo.xml`](/Assets/XML/GameInfo/CIV4ReligionInfo.xml) now use their founding tech's own button. The inherited code is unchanged, so new badge art for these techs would only need the XML. The small religion badge is gone on those six; the tech advisor and Sevopedia still show which religion a tech founds.
+
+- A first draft instead removed the religion-button substitution in the DLL and Python. The user pointed out that the faulty part was the XML, so that draft was reverted: fixing the data keeps the code identical to Base AdvCiv/BtS.
+- The new [`religion_tech_buttons.py`](/.github/workflows/README.md#buildxmlreligion_tech_buttonspy) CI check fails when a religion's buttons are neither its founding tech's own button nor a BtS religion button drawn for that tech. On the previous XML it reports exactly the six religions above.
+
+Found by the user from a tech popup screenshot; fixed with the help of Claude code Opus 5.5, thanks.
+
+2026-11-03 follow-up: other incomplete migrations of this kind were looked for, without further findings.
+
+- Tech pictures reused outside the tech file: 30 usages match Base AdvCiv/BtS. The six SAS ones are deliberate UI choices: five air promotions use BtS atlas cells behind a `Corporation.dds` placeholder name, and `SAS_POWER` borrows the Physics picture. None depends on a prerequisite.
+- Buildings, units and resources that go obsolete at or before the tech that makes them available: only `BONUS_DRAMA` and `BONUS_MUSIC`, which SAS deliberately disabled with `BONUSCLASS_DISABLED` and `TECH_DEPOPULATION` for all three of their techs.
+- Game text naming a religion together with its BtS founding tech in a founding context: none.
+- Prerequisite timing for units, buildings and resource trade is already checked by `asset_primary_tech.py`, and the tech tree itself by `tech_prereqs.py`.

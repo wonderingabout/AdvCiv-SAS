@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 190 - SAS practical 6715
 
 - **Date:** 2026-11-03
-- **Git commit:** pending
+- **Git commit:** `200f260ba09fcb89e02ced33faa0f3282307dab6`
 - **Change:** AI upgrade rows are split into three fixed row types without losing information.
   - `GAME_RECORD_AI_UPGRADE_PASS` is new: one row per player and upgrade pass with the pass-constant state (`focusWar`, `financialTrouble`, `startingGold`, `upgradeBudget`, `goldBefore`/`goldAfter`) and per-result counts over every evaluated unit, including interval-sampled refusals. It is written only when the pass logged a unit row.
   - `GAME_RECORD_AI_UPGRADE_SKIP` is new for the routine refusals (`NOT_READY`, `NO_BETTER_VALUE`, `ELIGIBILITY_BLOCKED`): unit identity, `result`, `pass`, `noDisband`, `maxUpgradePrice`, `ready`, `currentValue` and the evaluation counts. A refusal's gold is the pass row's `goldBefore` minus earlier `UPGRADED` rows in that pass.

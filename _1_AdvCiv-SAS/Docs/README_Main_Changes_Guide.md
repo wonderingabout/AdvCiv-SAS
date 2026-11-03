@@ -3314,6 +3314,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
   - For example, Plantation resources such as Banana and Dye become usable/tradable at Agriculture instead of separately requiring Calendar; Marble and Stone follow their Mining unlock, and Uranium follows its Radio reveal instead of waiting for Fission.
   - This brings forward connected-resource benefits and access for assets whose own technologies are already available; units and buildings still require their own technologies.
   - A general CI prerequisite-graph check now covers every resource, including separate same-column technologies, without named resource exceptions.
+  - See [KI#1072](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072).
 - **Grapes**: now improved by **Plantation** (not Winery). Happiness moved to **Grocer** (Grapes and Sugar both give happiness via Grocer). See Sevopedia/XML.
 - **Hit bonuses** functionally disabled (kept late in tree, obsolete on reveal) to avoid LSystem issues; dependent assets rebalanced or left as‑is where appropriate.
 - **Animal livestock Bonuses** (as of now `BONUS_CATTLE`, `BONUS_SHEEP`, `BONUS_PIG`): increase the number of assets that are strengthened or rebalanced with these Bonuses, which are otherwise weak for example as compared to food stapple bonuses like Maize Rice or Wheat that scale for example with ubiquitous Granaries, or for example to Mount Animal Bonuses that have a strong military purpose.
@@ -3441,6 +3442,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
   - added **Paganism**; removed **Confucianism** (chosen partly because it has fewer adherents in our framing).
   - Rationale: a lineup that feels simpler and (to us) more historically fitting.
   - We **keep Judaism** as the in-game representative of early **monotheism**, and we continue to prefer a **small set (~7) of religions** for clarity and efficiency.
+  - (Requires AdvCiv-SAS 6716+) See also [KI#1072.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072.2) (Tech Bar-related `TechButton` and `GenericTechButton` corresponding migration).
 - **Religion founding is distributed across more varied paths:** religions are available early enough to shape spread, diplomacy, and conflict rather than being concentrated in one later religious branch; notably, Judaism is founded at **Code of Laws**, Christianity at **Monotheism**, and Islam at **Navigation**.
 - **Missionaries:** significantly **cheaper**.
 - **Monasteries:** simplified — now **espionage** buildings with a **low Great Person rate**; **no longer obsolete**; **no longer give science** (keeps science buildings cleaner and the theming clearer)..

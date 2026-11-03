@@ -2,6 +2,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Religion -->
 <!-- custom: Long_Comments_XML.txt #139 -->
@@ -33,8 +37,10 @@
 				<iStateReligionCommerce>1</iStateReligionCommerce>
 			</StateReligionCommerces>
 			<Button>Art/AdvCiv_SAS/Religions/Paganism/Baalism.dds</Button>
-			<TechButton>Art/AdvCiv_SAS/Religions/Paganism/Baalism.dds</TechButton>
-			<GenericTechButton>Art/AdvCiv_SAS/Religions/Paganism/Baalism.dds</GenericTechButton>
+			<!-- custom: TechButton/GenericTechButton were Baalism.dds, a religion picture; RELIGION_PAGANISM is founded by Polytheism in AdvCiv-SAS, so the choose-tech popup and tech bar showed the wrong picture.
+			Use the founding tech's own button. See KI#1072.2. (Claude code Opus 5.5) -->
+			<TechButton>,Art/Interface/Buttons/TechTree/Polytheism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,6</TechButton>
+			<GenericTechButton>,Art/Interface/Buttons/TechTree/Polytheism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,6</GenericTechButton>
 			<MovieFile>Art/AdvCiv_SAS/Religions/Paganism/nif_found/Generic_Found.nif</MovieFile>
 			<MovieSound>AS2D_BUILD_PAGAN_MOVIE</MovieSound>
 			<Sound>AS2D_BUILD_PAGAN</Sound>
@@ -66,8 +72,10 @@
 				<iStateReligionCommerce>1</iStateReligionCommerce>
 			</StateReligionCommerces>
 			<Button>Art/Interface/Buttons/Religions/Hinduism.dds</Button>
-			<TechButton>Art/Interface/Buttons/TechTree/Hinduism.dds</TechButton>
-			<GenericTechButton>,Art/Interface/Buttons/TechTree/Hinduism.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,3</GenericTechButton>
+			<!-- custom: TechButton/GenericTechButton were the BtS Hinduism.dds button, drawn for Polytheism; RELIGION_HINDUISM is founded by Calendar in AdvCiv-SAS, so the choose-tech popup and tech bar showed the wrong picture.
+			Use the founding tech's own button. See KI#1072.2. (Claude code Opus 5.5) -->
+			<TechButton>,Art/Interface/Buttons/TechTree/Calendar.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,9</TechButton>
+			<GenericTechButton>,Art/Interface/Buttons/TechTree/Calendar.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,9</GenericTechButton>
 			<MovieFile>Art/Movies/Religion/Hinduism/Hin_Found.nif</MovieFile>
 			<MovieSound>AS2D_BUILD_HINDU_MOVIE</MovieSound>
 			<Sound>AS2D_BUILD_HINDU</Sound>
@@ -98,8 +106,10 @@
 				<iStateReligionCommerce>1</iStateReligionCommerce>
 			</StateReligionCommerces>
 			<Button>Art/Interface/Buttons/Religions/Jewish.dds</Button>
-			<TechButton>Art/Interface/Buttons/TechTree/Judaism.dds</TechButton>
-			<GenericTechButton>,Art/Interface/Buttons/TechTree/Judaism.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,4,3</GenericTechButton>
+			<!-- custom: TechButton/GenericTechButton were the BtS Judaism.dds button, drawn for Monotheism; RELIGION_JUDAISM is founded by Code of Laws in AdvCiv-SAS, so the choose-tech popup and tech bar showed the wrong picture.
+			Use the founding tech's own button. See KI#1072.2. (Claude code Opus 5.5) -->
+			<TechButton>,Art/Interface/Buttons/TechTree/Code of Laws.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,2</TechButton>
+			<GenericTechButton>,Art/Interface/Buttons/TechTree/Code of Laws.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,2</GenericTechButton>
 			<MovieFile>Art/Movies/Religion/Judaism/Jud_Found.nif</MovieFile>
 			<MovieSound>AS2D_BUILD_JEWISH_MOVIE</MovieSound>
 			<Sound>AS2D_BUILD_JEWISH</Sound>
@@ -130,8 +140,10 @@
 				<iStateReligionCommerce>1</iStateReligionCommerce>
 			</StateReligionCommerces>
 			<Button>Art/Interface/Buttons/Religions/Taoism.dds</Button>
-			<TechButton>Art/Interface/Buttons/TechTree/Taoism.dds</TechButton>
-			<GenericTechButton>,Art/Interface/Buttons/TechTree/Taoism.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,3</GenericTechButton>
+			<!-- custom: TechButton/GenericTechButton were the BtS Taoism.dds button, drawn for Philosophy; RELIGION_DAOISM is founded by Paper in AdvCiv-SAS, so the choose-tech popup and tech bar showed the wrong picture.
+			Use the founding tech's own button. See KI#1072.2. (Claude code Opus 5.5) -->
+			<TechButton>,Art/Interface/Buttons/TechTree/Paper.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,6</TechButton>
+			<GenericTechButton>,Art/Interface/Buttons/TechTree/Paper.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,6</GenericTechButton>
 			<MovieFile>Art/Movies/Religion/Taoism/Tao_Found.nif</MovieFile>
 			<MovieSound>AS2D_BUILD_DAOIST_MOVIE</MovieSound>
 			<Sound>AS2D_BUILD_DAOIST</Sound>
@@ -192,8 +204,10 @@
 				<iStateReligionCommerce>1</iStateReligionCommerce>
 			</StateReligionCommerces>
 			<Button>Art/Interface/Buttons/Religions/Christian.dds</Button>
-			<TechButton>Art/Interface/Buttons/TechTree/Christianity.dds</TechButton>
-			<GenericTechButton>,Art/Interface/Buttons/TechTree/Christianity.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,3</GenericTechButton>
+			<!-- custom: TechButton/GenericTechButton were the BtS Christianity.dds button, drawn for Theology; RELIGION_CHRISTIANITY is founded by Monotheism in AdvCiv-SAS, so the choose-tech popup and tech bar showed the wrong picture.
+			Use the founding tech's own button. See KI#1072.2. (Claude code Opus 5.5) -->
+			<TechButton>,Art/Interface/Buttons/TechTree/Monotheism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,11</TechButton>
+			<GenericTechButton>,Art/Interface/Buttons/TechTree/Monotheism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,11</GenericTechButton>
 			<MovieFile>Art/Movies/Religion/Christianity/Chr_Found.nif</MovieFile>
 			<MovieSound>AS2D_BUILD_CHRISTIAN_MOVIE</MovieSound>
 			<Sound>AS2D_BUILD_CHRISTIAN</Sound>
@@ -223,8 +237,10 @@
 				<iStateReligionCommerce>1</iStateReligionCommerce>
 			</StateReligionCommerces>
 			<Button>Art/Interface/Buttons/Religions/Islam.dds</Button>
-			<TechButton>Art/Interface/Buttons/TechTree/Islam.dds</TechButton>
-			<GenericTechButton>,Art/Interface/Buttons/TechTree/Islam.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,6,3</GenericTechButton>
+			<!-- custom: TechButton/GenericTechButton were the BtS Islam.dds button, drawn for Divine Right; RELIGION_ISLAM is founded by Navigation in AdvCiv-SAS, so the choose-tech popup and tech bar showed the wrong picture.
+			Use the founding tech's own button. See KI#1072.2. (Claude code Opus 5.5) -->
+			<TechButton>Art/AdvCiv_SAS/Techs/Navigation/cartography.dds</TechButton>
+			<GenericTechButton>Art/AdvCiv_SAS/Techs/Navigation/cartography.dds</GenericTechButton>
 			<MovieFile>Art/Movies/Religion/Islam/Isl_Found.nif</MovieFile>
 			<MovieSound>AS2D_BUILD_ISLAMIC_MOVIE</MovieSound>
 			<Sound>AS2D_BUILD_ISLAMIC</Sound>

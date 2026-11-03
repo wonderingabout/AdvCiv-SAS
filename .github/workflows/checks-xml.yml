@@ -90,6 +90,9 @@ jobs:
       - name: Asset primary technologies and resource trade unlocks
         run: python .github/workflows/build/xml/asset_primary_tech.py
 
+      - name: Religion tech buttons
+        run: python .github/workflows/build/xml/religion_tech_buttons.py
+
       - name: Redundant asset technology prerequisites
         run: python .github/workflows/build/xml/asset_tech_prereq_redundancy.py
 
