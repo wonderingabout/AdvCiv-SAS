@@ -169,14 +169,14 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#97 - (Fixed) Base AdvCiv issue of "Remove Jungle", "Chop Down a Forest", and "Scrub Fallout" not redirecting to Sevopedia at all on click in the technology advisor unlike e.g. Plantation improvement to Sevopedia improvement corresponding page](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-97)\
 [KI#98 - (Fixed) Base AdvCiv issue of De Gaulle using Louis' music instead of the music common to De Gaulle and Napoleon](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-98)\
 [KI#99 - (Fixed) Base AdvCiv bug of K-Mod unwrapped in TEXT XML text](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-99)\
-[KI#100 - (Fixed) Base AdvCiv major CvSelectionGroup::plot crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-100)\
+[KI#100 - (Retired tentative fix) Base AdvCiv major CvSelectionGroup::plot crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-100)\
 [KI#101 - (Fixed) Base AdvCiv bug of GP bar tooltip in city screen not showing GP from obsolete buildings yet seemingly counting them for the total GP calculation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-101)\
-[KI#102 - (Seemingly Fixed) Base AdvCiv crash related to CvCity::getProductionBarPercentages](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-102)\
-[KI#103 - (Fixed) Base AdvCiv crash variant of the CvCity::getProductionBarPercentages crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-103)\
+[KI#102 - (Retired tentative fix) Base AdvCiv crash related to CvCity::getProductionBarPercentages](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-102)\
+[KI#103 - (Retired tentative fix after a side effect, see KI#136) Base AdvCiv crash variant of the CvCity::getProductionBarPercentages crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-103)\
 [KI#104 - (Tremendously Improved) Base AdvCiv issue of the weird back and forth of declaring war, moving a stack, then withdrawing without attacking which is extremely inefficient](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-104)\
 [KI#105 - (Fixed) Base AdvCiv bug of most bonuses (e.g., Deer) sometimes not appearing at first Civ4 launch in some maps (e.g. Boreal)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-105)\
 [KI#106 - (Worked Around) Base AdvCiv bug of having an option number error in Simple Game (e.g. in Highlands, Boreal), if we started another simple Game map before that had a lot of options (e.g. BTG_Lagoon and Planet_Generator_068 have around 15+ options), but Custom game works fine](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-106)\
-[KI#107 - (Fixed) Base AdvCiv crash after loading a save file, returning to main menu, opening sevopedia (index since first time opened) and typing a sequence like "xsv"](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-107)\
+[KI#107 - (Retired tentative fix) Base AdvCiv crash after loading a save file, returning to main menu, opening sevopedia (index since first time opened) and typing a sequence like "xsv"](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-107)\
 [KI#108 - (Fixed) Base AdvCiv diplomacy inconsistency: AI can refuse "tribute" for pure Vassal/Surrender, then accept the same deal through "What do you want in exchange?" with nothing added](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-108)\
 [KI#109 - (Reworked/Improved) AI bonus trading: dynamic value replaces named dominated-resource exclusions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-109)\
 [KI#110 - (AdvCiv-SAS music shuffle cleanup) Intermittent Python startup/MainInterface errors from early BUG path calls in Sevopedia music path helper](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-110)\
@@ -207,7 +207,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#133 - (Fixed) Base AdvCiv issue of Sevopedia Index's legacy sort-key cleanup (`TXT_KEY_*` prefix-strip + `"The X"` comma-flip) scattering untranslated entries instead of clustering them (hurts diagnosis of missing translations), sorting items differently than the type-specific pedia pages and than natural alphabetical order, and incurring needless per-entry build-time cost (especially wasteful in non-English locales)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-133)\
 [KI#134 - (Fixed) Base AdvCiv issue: Foreign Diplomacy Advisor Glance tab column icons overflow horizontally with 24+ rival players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134)\
 [KI#135 - (Fixed) Likely Base AdvCiv issue: turn-status text collided with the diplomacy screen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-135)\
-[KI#136 - (Open - likely Base AdvCiv lineage or maybe bad local installation/configuration, deprioritized) Choose-production popup does not re-fire when a city finishes production; city then sits idle for many turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136)\
+[KI#136 - (Fixed SAS red-circle regression; the popup was minimized by the Minimize Pop-Ups option, not missing) Choose-production popup does not re-fire when a city finishes production; city then sits idle for many turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136)\
 [KI#137 - (Fixed) Beyond the Game mod issue: BTG Cross reused Huge grid size for every world size of Huge and below](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-137)\
 [KI#138 - (Fixed) Base AdvCiv issue: Global Highlands map sizes were too large](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-138)\
 [KI#139 - (Fixed) Base AdvCiv issue: Foreign Advisor BUG menu made Glance attitude dropdown look attached to Enhanced Info Tab](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-139)\
@@ -238,13 +238,13 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#158 - (Fixed) Base AdvCiv issue: ready no-target attack stacks could ignore pathable barbarian cities while only preparing a future war](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-158)\
 [KI#159 - (Improved) AI civic-switch damping: paid-anarchy civic churn and direct reversals after the civic timer expired](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-159)\
 [KI#160 - (Fixed) Likely inherited AI upgrade-budget issue: normal upgrades could overshoot the remaining budget and leave the AI almost broke](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-160)\
-[KI#161 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-161)\
-[KI#161.2 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay city-name crash related to `CvCity::cheat+0x15c3` around city acquisition (Aachen city ownership transfer from Holy Rome to Mali) and uncovered during BBAI culture logging investigation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-161.2)\
+[KI#161 - (Retired tentative hardening) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-161)\
+[KI#161.2 - (Retired tentative hardening) Rare non-reproducible autoplay city-name crash related to `CvCity::cheat+0x15c3` around city acquisition (Aachen city ownership transfer from Holy Rome to Mali) and uncovered during BBAI culture logging investigation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-161.2)\
 [KI#161.3 - (Open/Unresolved) Two rare, intermittent T126 city-name/heap crashes related to `CvCity::cheat+0x15c3`/`+0x15c6`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-161.3)\
-[KI#162 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-162)\
-[KI#162.2 - (Tentatively Addressed and Hardened) Two consecutive (but rare and not consistently reproducible) T281 crashes related to `CvCity::getProductionBarPercentages`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-162.2)\
-[KI#162.3 - (Tentatively Seemingly Fixed) Reproducible T259 `CvCity::getProductionBarPercentages+0x522` invalid-pointer crash exposed during AI military-production testing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-162.3)\
-[KI#163 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-163)\
+[KI#162 - (Retired tentative hardening) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-162)\
+[KI#162.2 - (Retired tentative hardening) Two consecutive (but rare and not consistently reproducible) T281 crashes related to `CvCity::getProductionBarPercentages`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-162.2)\
+[KI#162.3 - (Retired tentative fix) Reproducible T259 `CvCity::getProductionBarPercentages+0x522` invalid-pointer crash exposed during AI military-production testing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-162.3)\
+[KI#163 - (Retired tentative hardening) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-163)\
 [KI#164 - (Fixed) Base Civ4 Oasis map script had shadowed Python callbacks (found by the Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-164)\
 [KI#165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165)\
 [KI#166 - (Fixed/Addressed) Base AdvCiv issue of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): replays no longer try to use vanilla BtS-compatible replay storage after shifted XML enum order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166)\
@@ -254,7 +254,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#168 - (Fixed) K-Mod bug: Great Person Join and direct Construct target selection did not preserve the nearest-path tie-breaker (Bug Found During BBAI Logging Investigation/Code Review)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-168)\
 [KI#169 - (Fixed) Base AdvCiv bug: slow Great Person movement omitted the intended final city from mission-AI target metadata (Mission-State/AI Coordination Bug Exposed by BBAI Logging)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-169)\
 [KI#170 - (Fixed) Base AdvCiv bug: inferred Great Person Construct versus Hurry from the end-turn waypoint instead of the selected final-city action (Mission-Classification/AI Coordination Bug Exposed by BBAI Logging)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-170)\
-[KI#171 - (Tentatively Addressed and Hardened) Rare T281 crash related to `CvPlot::setLayoutDirty+0x12f3` and `CvPlot::checkLateEra+0x877`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-171)\
+[KI#171 - (Retired tentative hardening) Rare T281 crash related to `CvPlot::setLayoutDirty+0x12f3` and `CvPlot::checkLateEra+0x877`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-171)\
 [KI#172 - (Fixed) Base AdvCiv bug: inverted city-value percentile gave intended important-city evacuation protection to low-value cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-172)\
 [KI#173 - (Fixed/Improved) Base AdvCiv issue: Live first-settler scoring reused hidden map-generation surroundings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-173)\
 [KI#174 - (Fixed/Improved) Base AdvCiv Work Boat `iCityPopulation < 3` cutoff in `CvCityAI::AI_chooseProduction` interrupted seafood production for a land Worker](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-174)\
@@ -2411,13 +2411,20 @@ So based on this, the crash is caused by impossible prereqs, but an actual error
 
 Ideally i would fix it, but is tedious, and most importantly, the issue should disappear when we have proper tech preresq not the fake ones that are not functionnal and just taken from any tech i could find to replace with our new techs.
 
-So this is only a temporary issue, although less idela, it is probably most efficient to leave as it is.
+So this is only a temporary issue, although less ideal, it is probably most efficient to leave as it is.
 
 It is also maybe more reliable to have a silent crash rather than adding a complicated way to handle that may react unpredictably and not necessarily always handle correctly the cause or other causes.
 
 So seems safer and most efficient to leave it as it is, and just keep in mind if tech advisor crashes happen again, that issue may be faulty tech prereqs.
 
 See also, although not directly related: [README_Known_Issues.md#ki-22](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-22)
+
+2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks):
+
+- As recalled, the crash came from the placeholder prerequisites making an impossible or circular tech dependency; this was not re-tested, so the recollection is not confirmed.
+- The current `CIV4TechInfos.xml` has no such problem: every prerequisite names an existing tech in an earlier tech-tree column, and there is no cycle. Transhumanism (`iGridX` 22) requires Bioengineering or Artificial Intelligence, both in column 21.
+- The new [`tech_prereqs.py`](/.github/workflows/README.md#buildxmltech_prereqspy) CI check now fails on a missing, circular or not-earlier-column prerequisite, so this class of tech-tree error is caught before it reaches the tech advisor.
+- The workaround above has no source code, so no `See KI#29` reference exists to grep for.
 
 <a id="ki-30"></a>
 
@@ -10610,7 +10617,7 @@ Fixed this based advciv bug, as of now in [Civ4GameText_K-Mod.xml](/Assets/XML/T
 
 <a id="ki-100"></a>
 
-## KI#100 - (Fixed) Base AdvCiv major CvSelectionGroup::plot crash
+## KI#100 - (Retired tentative fix) Base AdvCiv major CvSelectionGroup::plot crash
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1UlG0EloFY2b9bFoAb6Mw9d9Y_BaHbM0b?usp=sharing).
 
@@ -10621,6 +10628,11 @@ Fixed with the help of GPT-5.2-Codex and Claude code Opus 4.5 thanks a lot, as p
 See [commit/d2500dc40107815d6a0afef5b481b9d2073c1743](https://github.com/wonderingabout/AdvCiv-SAS/commit/d2500dc40107815d6a0afef5b481b9d2073c1743) and files for details about the fix.
 
 See also [KI#163](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-163).
+
+2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks): retired.
+
+- The crash was reproducible, but it stopped after about a dozen null-selection-list guards in `CvGameInterface.cpp` and `CvGameTextMgr.cpp` plus null-group guards in `GroupPathFinder.cpp` and `RiseFall.cpp`, and which change mattered was never isolated; no matching PDB was available then.
+- These guards were retired with the other pre-PDB crash fixes listed in [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136), restoring base AdvCiv 1.14, so a recurrence can be traced with a Debug-opt dump.
 
 <a id="ki-101"></a>
 
@@ -10644,7 +10656,7 @@ Change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) and [CvMainInter
 
 <a id="ki-102"></a>
 
-## KI#102 - (Seemingly Fixed) Base AdvCiv crash related to CvCity::getProductionBarPercentages
+## KI#102 - (Retired tentative fix) Base AdvCiv crash related to CvCity::getProductionBarPercentages
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1NFO6NeYgEF6GDZDWkMW8qXfSZNWQ72m7?usp=sharing).
 
@@ -10656,9 +10668,16 @@ See [commit/24cfc0803db7251f521f0b9b6df1c620109ae3a8](https://github.com/wonderi
 
 See also [KI#162](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-162).
 
+2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks): retired.
+
+- This change was made from crash dumps without a matching PDB/Debug-opt build, so its cause was never confirmed; [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) later became the project's first PDB-assisted crash diagnosis.
+- [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) showed that such fixes can carry unintended side effects: KI#103's production-bar guard removed the red no-production city-bar circle for human cities from 5500 on.
+- All the tentative crash fixes from that era were therefore retired together, restoring base AdvCiv 1.14 code so that a recurrence can be caught with a Debug-opt dump and its real trace. [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) lists them in a table.
+- `CvGame::update`, `CvDllTranslator::replaceCt` and `CvCity::canBeSelected` no longer check for `NO_PLAYER` before reading the active player, as in base.
+
 <a id="ki-103"></a>
 
-## KI#103 - (Fixed) Base AdvCiv crash variant of the CvCity::getProductionBarPercentages crash
+## KI#103 - (Retired tentative fix after a side effect, see KI#136) Base AdvCiv crash variant of the CvCity::getProductionBarPercentages crash
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1PuRQAE1_3TZUrH1y9I8yBncYpdJnkNhK?usp=sharing).
 
@@ -10706,6 +10725,14 @@ Asked GPT-5.2-Codex to fix it, and then its solution was reviewed and made more 
 Loading save file at turn 0 and autoplaying 500 turns in one go as was done the first time at map generation, no crash happens and game finishes successfully end to end at t500, so looks fixed.
 
 See also [KI#162](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-162).
+
+2026-11-03 follow-up:
+
+- The guard added here was written from stack text without a matching PDB/Debug-opt dump; its "looks fixed" evidence was one crash-free 500-turn autoplay.
+- It also changed the result for an empty order queue from `true` to `false`. From 5500 on, this removed the red no-production city-bar circle for human cities that finished their order; see [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136).
+- The guard's range checks and its empty-queue `false` were therefore removed and the inherited empty-queue result restored.
+- Tentative fixes from before we used PDB/Debug-opt dumps can carry such side effects. We are reviewing and dropping them, so that if the crash recurs, a Debug-opt dump can show its real trace.
+- Later the same day, the KI#162, KI#162.2 and KI#162.3 hardening in the same callback was retired too, so `CvCity::getProductionBarPercentages` is base AdvCiv 1.14 code again.
 
 <a id="ki-104"></a>
 
@@ -10782,13 +10809,18 @@ Currently worked around by warning once that in Simple Gaùme, pressing Esc key 
 
 <a id="ki-107"></a>
 
-## KI#107 - (Fixed) Base AdvCiv crash after loading a save file, returning to main menu, opening sevopedia (index since first time opened) and typing a sequence like "xsv"
+## KI#107 - (Retired tentative fix) Base AdvCiv crash after loading a save file, returning to main menu, opening sevopedia (index since first time opened) and typing a sequence like "xsv"
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/15p8WHM5P_NR6YTUjn1URuWbbQQiTMSI8?usp=sharing).
 
 Opening the game, loading a save file, then going to main menu, opening sevopedia index and typing a sequence like "xsv" in search bar causes a crash that is reproducible. And does not happen if just opening the game (without loading a save file) and typing such a sequence.
 
 Fixed with the help of Claude code Opus 4.6 thanks in [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp).
+
+2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks): retired.
+
+- The crash was reproducible and stopped after `isFinalInitialized()` early returns were added to `CvGame::updateSelectionList`, `updateTestEndTurn`, `canHandleAction` and `handleAction`, but no matching PDB confirmed which call crashed.
+- These guards were retired with the other pre-PDB crash fixes listed in [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136), restoring base AdvCiv 1.14. The reproduction steps above make it a good first test for a Debug-opt dump if the crash returns.
 
 <a id="ki-108"></a>
 
@@ -11712,7 +11744,7 @@ Files changed:
 
 <a id="ki-136"></a>
 
-## KI#136 - (Open - likely Base AdvCiv lineage or maybe bad local installation/configuration, deprioritized) Choose-production popup does not re-fire when a city finishes production; city then sits idle for many turns
+## KI#136 - (Fixed SAS red-circle regression; the popup was minimized by the Minimize Pop-Ups option, not missing) Choose-production popup does not re-fire when a city finishes production; city then sits idle for many turns
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Ho_cqJnuF1ICE5hJSiGKfswa6UrHza4G?usp=sharing).
 
@@ -11733,6 +11765,61 @@ Status / next steps:
 
 - Deprioritized: longstanding, partly Base AdvCiv lineage, intricate popup-queue area, not a recent regression. Acceptable to live with for now.
 - If revisited: bisect the 5400 <-> 5500 stable range to localize the flavor change, check Base AdvCiv on-completion popup path, and capture PythonErr.log / PythonDbg.log on a turn where a city goes idle (look for a stuck/looping custom popup or a BUTTONPOPUP_PYTHON whose callback raises).
+
+2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks):
+
+- New screenshots split the symptom in two. When a city finished its order, base AdvCiv showed the popup (screenshot 0938), while current SAS showed neither the popup nor the red no-production city-bar circle (0939). Older SAS cities with no production still had the circle (0935).
+- Code alone did not pinpoint either part. The popup path (`CvCity::popOrder` -> `chooseProduction` -> `CvDLLButtonPopup::launchProductionPopup`, `CvPlayer::killAll`, Python `skipProductionPopup`) matches Base AdvCiv 1.14 apart from logging and layout. Git logs, the `commit_diffs` corpus and a base-vs-current SAS comparison did not single out a cause either.
+- What did help was diffing the extracted stable releases, as suggested above. Between 5400 and 5500, Python changed only by the `SASDefineGuard` startup checks, and the only production-related DLL change was KI#103's guard in `CvCity::getProductionBarPercentages`.
+  - That guard returned `false` for an empty order queue, where 5400 and Base AdvCiv return `true` with an all-zero bar. The EXE uses this callback to draw the city production bar, which carries the red circle.
+  - The guard was dropped and the inherited empty-queue result restored. In a new game with that Debug-opt DLL, Seoul showed the red circle again after finishing its Worker at T15 (screenshot 0940), so this part is fixed.
+- The popup did not reappear, so it has a separate cause. SASRuntime status for that session recorded a choose-production popup focus only at T0, none afterward.
+  - A scan of popup-related lines across every consecutive extracted release from 4986 to 5400 (DLL and Python) found only feat-popup button changes and the emergency-building `setChooseProductionDirty(false)` calls that KI#51 later removed. Player-option defaults and popup-related XML defines match Base AdvCiv.
+  - The next step is an empirical bisect over the extracted releases, starting with 4986: if 4986 also lacks the popup, the cause predates it.
+- Later the same day, all tentative crash fixes from before PDB-assisted diagnosis were retired to base AdvCiv 1.14, including the rest of the production-bar hardening; see the tables below. Whether this affects the missing popup was not tested at the time of writing.
+
+2026-11-03 later follow-up: the popup was minimized, not missing.
+
+- Bisecting by playing older versions found the "missing" popup everywhere: AdvCiv-SAS 4986, the first SAS commit 4342 (`0f161c7077c6593146ff0c48c95c242ae3ce68bf`, screenshot 0944_4342) and Base AdvCiv itself (0944, 0945).
+  - In each case a minimized-popup icon appeared at the top right of the main screen, and clicking it opened the choose-production popup. Current SAS behaves the same (0946, 0947).
+- This is the BtS Minimize Pop-Ups player option, which Base AdvCiv turns on by default (`PLAYEROPTION_MINIMIZE_POP_UPS` `bDefault` 1, advc.106). Its help text says popups "are minimized until all units have moved".
+  - In every screenshot without the popup, the Worker that had just finished was still selected and had not moved yet, so the popup was waiting behind that icon. The earlier Base AdvCiv screenshot with the popup (0938) had no unmoved unit selected.
+  - So the popup part of this issue is intended behavior, not a defect; turning Minimize Pop-Ups off in the options shows these popups at once. The same option also minimizes choose-tech popups.
+- The red no-production circle was the real SAS regression, fixed by retiring KI#103's guard as described above.
+
+2026-11-03 follow-up: retiring tentative crash fixes.
+
+- KI#103's guard showed that a crash fix made without a matching PDB can change results the EXE relies on, so all such system-code crash fixes were retired to base AdvCiv 1.14 in one sweep. If one of those crashes returns, a Debug-opt dump can show its real cause.
+- Each retired KI is retitled "Retired" and has a dated follow-up; each source site has a "Retired" comment naming its KI and this one.
+
+Retired tentative crash fixes (2026-11-03): every crash fix made before PDB-assisted diagnosis began (KI#475.2, 2026-08-26, practical 6283) that changed system code, as opposed to AI logic. Each row's code is base AdvCiv 1.14 again; "Practical" is the AdvCiv-SAS commit count of the introducing commit.
+
+| KI | Introduced (commit, practical, date) | Retired code | Side effect found |
+| --- | --- | --- | --- |
+| [KI#100](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-100) | `d2500dc40`, 5383, 2026-01-25 | Null-selection guards in `CvGameInterface.cpp`/`CvGameTextMgr.cpp`; null-group guards in `GroupPathFinder.cpp`/`RiseFall.cpp` | None observed |
+| [KI#102](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-102) | `24cfc0803`, 5400, 2026-01-31 | `NO_PLAYER` checks in `CvGame::update`, `CvDllTranslator::replaceCt` and `CvCity::canBeSelected` | None observed |
+| [KI#103](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-103) | `feaaae6ce`, 5404, 2026-02-02 | Order-range guard in `CvCity::getProductionBarPercentages` | Hid the red no-production circle ([KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136)) |
+| [KI#107](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-107) | `abaf980a6`, 5475, 2026-02-21 | `isFinalInitialized()` early returns in `CvGameInterface.cpp` | None observed |
+| [KI#161](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-161) | `7440b750a`, 5956, 2026-06-18 | City-name guards in `CvPlayer::getNewCityName`, `CvPlayer::getCivilizationCityName` and `CvCity::setName` | The no-city-name early return skipped base's `SyncRandNum` call |
+| [KI#161.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-161.2) | `336f98458`, 5981, 2026-06-28 | Initial-name shortcuts in `CvCity::setName` | Skipped base name validation and past-name recording for initial names |
+| [KI#162](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-162) | `7440b750a`, 5956, 2026-06-18 | Early `NO_PLAYER` return in `CvCity::canBeSelected`; production-needed rejection in `getProductionBarPercentages` | None observed |
+| [KI#162.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-162.2) | `d2ccd468a`, 6000, 2026-07-02 | Owner/city-registration check in `getProductionBarPercentages` | None observed |
+| [KI#162.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-162.3) | `63eef1e11`, 6091, 2026-08-07 | Order snapshot in `getProductionBarPercentages` | None observed |
+| [KI#163](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-163) | `8dc2e88cc`, 5957, 2026-06-18 | Direct teardown in `CvSelectionGroup::clearUnits`; null-node guard in `deleteUnitNode` | Bypassed the normal automation, mission and activity cleanup when clearing a group |
+| [KI#171](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-171) | `d2ccd468a`, 6000, 2026-07-02 | `NO_PLAYER` handling in `CvPlot::checkLateEra` | None observed |
+
+Crash fixes kept (reviewed 2026-11-03). Dates are from the first commit that tagged the KI in the source, except KI#56/58/60, dated from their fix code.
+
+| KI | Commit, practical, date | Fix | Why kept |
+| --- | --- | --- | --- |
+| [KI#48.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.4) | `c00f42f11`, 6456, 2026-09-14 | Corporation HQ valuation used an exhausted commerce-loop index | SAS code bug with the cause found by reading the code; Debug-opt era |
+| [KI#56](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-56), [KI#58](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-58), [KI#60](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-60) | around `b8b258c85`, 4972, 2025-09-02 | Crashes in SAS's rewritten Worker AI `CvUnitAI::AI_nextCityToImprove` | Pre-PDB, but reproduced from saves and retested; the fixes are AI logic, which this sweep does not change. Revisit if a Worker-AI crash returns |
+| [KI#375.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-375.3) | `6cb980900`, 6567, 2026-09-23 | Diagnostic sink reinterpreted percent signs | Cause shown in the corrupted rows; Debug-opt era |
+| [KI#382.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-382.2) | `8ee577a98`, 6443, 2026-09-10 | Diagnostic fingerprinting of the closing session crashed on reload | Debug-opt era |
+| [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2), [KI#475.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.3) | `150aff570`, 6283, 2026-08-26 | Destroyed pathfinder on save loading; dead-at-load UWAI cache | The first PDB-assisted diagnoses |
+| [KI#486.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-486.2) | `7302a07c3`, 6290, 2026-08-27 | Liberating a conquered city used its destroyed old city object | Debug-opt era |
+| [KI#524.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-524.2) to [KI#524.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-524.6) | `617843aa2`, 6293, 2026-08-27 | Unplaced-unit crashes and the Partisans `initUnit(NO_UNIT)` chain | Debug-opt era |
+| [KI#895](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-895) | `c7fc9338f`, 6563, 2026-09-22 | Capital-loss announcement used a deleted city | Deterministically reproduced; Debug-opt era |
 
 <a id="ki-137"></a>
 
@@ -13899,7 +13986,7 @@ Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
 
 <a id="ki-161"></a>
 
-## KI#161 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature
+## KI#161 - (Retired tentative hardening) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1CcRoDInd1w6DzgF9e0yDVnnEPvOpnX31?usp=sharing).
 
@@ -13935,9 +14022,17 @@ Because the crash was rare and not reproducible, this should be treated as a har
 
 Addressed with the very nice help of ChatGPT-5.5 + GPT-5.5 for quick review of the solution thanks.
 
+2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks): retired.
+
+- This change was made from crash dumps without a matching PDB/Debug-opt build, so its cause was never confirmed; [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) later became the project's first PDB-assisted crash diagnosis.
+- [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) showed that such fixes can carry unintended side effects: KI#103's production-bar guard removed the red no-production city-bar circle for human cities from 5500 on.
+- All the tentative crash fixes from that era were therefore retired together, restoring base AdvCiv 1.14 code so that a recurrence can be caught with a Debug-opt dump and its real trace. [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) lists them in a table.
+- `CvPlayer::getNewCityName`, `CvPlayer::getCivilizationCityName` and `CvCity::setName` no longer have the added guards. The no-city-name early return had also skipped base's `SyncRandNum` call, so it changed the random sequence as well.
+- [KI#325](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-325)'s key-based city-name identity is a separate fix and stays.
+
 <a id="ki-161.2"></a>
 
-## KI#161.2 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay city-name crash related to `CvCity::cheat+0x15c3` around city acquisition (Aachen city ownership transfer from Holy Rome to Mali) and uncovered during BBAI culture logging investigation
+## KI#161.2 - (Retired tentative hardening) Rare non-reproducible autoplay city-name crash related to `CvCity::cheat+0x15c3` around city acquisition (Aachen city ownership transfer from Holy Rome to Mali) and uncovered during BBAI culture logging investigation
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/15DRUXwdJT_uyHXlLhs8QMsdCE0aR9Kqc?usp=sharing).
 
@@ -13987,6 +14082,14 @@ The BBAI logging coincidence was still useful enough to document: it turned a va
 
 Tentatively addressed with the very nice help of ChatGPT-5.5 thanks.
 
+2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks): retired.
+
+- This change was made from crash dumps without a matching PDB/Debug-opt build, so its cause was never confirmed; [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) later became the project's first PDB-assisted crash diagnosis.
+- [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) showed that such fixes can carry unintended side effects: KI#103's production-bar guard removed the red no-production city-bar circle for human cities from 5500 on.
+- All the tentative crash fixes from that era were therefore retired together, restoring base AdvCiv 1.14 code so that a recurrence can be caught with a Debug-opt dump and its real trace. [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) lists them in a table.
+- `CvCity::setName` again validates initial/internal names and records the replaced name as a past city name, as in base.
+- The BBAI log terminator part had already been superseded by the shared grow-and-retry formatter ([KI#375](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-375)) and is unaffected.
+
 <a id="ki-161.3"></a>
 
 ## KI#161.3 - (Open/Unresolved) Two rare, intermittent T126 city-name/heap crashes related to `CvCity::cheat+0x15c3`/`+0x15c6`
@@ -14007,7 +14110,7 @@ This issue remains open. Its rarity makes prolonged brute-force reruns unlikely 
 
 <a id="ki-162"></a>
 
-## KI#162 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`
+## KI#162 - (Retired tentative hardening) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1sf0TZF1uSYlPds8bFjtoYwv7cA6hQ06u?usp=sharing).
 
@@ -14039,9 +14142,16 @@ Because the crash was rare and not reproducible, this should be treated as a har
 
 Tentatively addressed with the very nice help of ChatGPT-5.5 + GPT-5.5 for quick review of the solution thanks.
 
+2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks): retired.
+
+- This change was made from crash dumps without a matching PDB/Debug-opt build, so its cause was never confirmed; [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) later became the project's first PDB-assisted crash diagnosis.
+- [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) showed that such fixes can carry unintended side effects: KI#103's production-bar guard removed the red no-production city-bar circle for human cities from 5500 on.
+- All the tentative crash fixes from that era were therefore retired together, restoring base AdvCiv 1.14 code so that a recurrence can be caught with a Debug-opt dump and its real trace. [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) lists them in a table.
+- `CvCity::canBeSelected` no longer returns early for `NO_PLAYER`, and `CvCity::getProductionBarPercentages` no longer rejects invalid production-needed values.
+
 <a id="ki-162.2"></a>
 
-## KI#162.2 - (Tentatively Addressed and Hardened) Two consecutive (but rare and not consistently reproducible) T281 crashes related to `CvCity::getProductionBarPercentages`
+## KI#162.2 - (Retired tentative hardening) Two consecutive (but rare and not consistently reproducible) T281 crashes related to `CvCity::getProductionBarPercentages`
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1GpGrjHgFlaKZPrfxfABoCuVahD0cJW6e?usp=sharing).
 
@@ -14061,9 +14171,16 @@ This is safe strengthening rather than a confirmed fix because the evidence does
 
 Tentatively hardened with the help of GPT-5.5 (on Codex) thanks.
 
+2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks): retired.
+
+- This change was made from crash dumps without a matching PDB/Debug-opt build, so its cause was never confirmed; [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) later became the project's first PDB-assisted crash diagnosis.
+- [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) showed that such fixes can carry unintended side effects: KI#103's production-bar guard removed the red no-production city-bar circle for human cities from 5500 on.
+- All the tentative crash fixes from that era were therefore retired together, restoring base AdvCiv 1.14 code so that a recurrence can be caught with a Debug-opt dump and its real trace. [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) lists them in a table.
+- The owner/city-registration check at the start of `CvCity::getProductionBarPercentages` is removed.
+
 <a id="ki-162.3"></a>
 
-## KI#162.3 - (Tentatively Seemingly Fixed) Reproducible T259 `CvCity::getProductionBarPercentages+0x522` invalid-pointer crash exposed during AI military-production testing
+## KI#162.3 - (Retired tentative fix) Reproducible T259 `CvCity::getProductionBarPercentages+0x522` invalid-pointer crash exposed during AI military-production testing
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1QQGSLphz6DlglCALe_IdJNM0aiS8Ra8T?usp=sharing).
 
@@ -14101,9 +14218,17 @@ Because the exact machine instruction still cannot be resolved without matching 
 
 Seemingly fixed with the help of GPT-5.6 Thinking thanks.
 
+2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks): retired.
+
+- This change was made from crash dumps without a matching PDB/Debug-opt build, so its cause was never confirmed; [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) later became the project's first PDB-assisted crash diagnosis.
+- [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) showed that such fixes can carry unintended side effects: KI#103's production-bar guard removed the red no-production city-bar circle for human cities from 5500 on.
+- All the tentative crash fixes from that era were therefore retired together, restoring base AdvCiv 1.14 code so that a recurrence can be caught with a Debug-opt dump and its real trace. [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) lists them in a table.
+- The validated order snapshot is removed; `CvCity::getProductionBarPercentages` reads production through the inherited helpers again.
+- The confirming test above (the T259 crash from save file 454 no longer occurring) remains part of the record, so that save is the first to retest with a Debug-opt build.
+
 <a id="ki-163"></a>
 
-## KI#163 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`
+## KI#163 - (Retired tentative hardening) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1_3YWkViHtODB341EGe5UbfIwwTGrFtKe?usp=sharing).
 
@@ -14140,6 +14265,14 @@ The defensive change is therefore deliberately narrow:
 This should preserve normal behavior for ordinary unit removal while avoiding repeated mission/activity/plot/UI side effects during full group clearing. It is still only a tentative hardening because the crash was rare and non-reproducible, and the exact source line is not known without matching symbols.
 
 Tentatively addressed with the very nice help of ChatGPT-5.5 and GPT-5.5 thanks.
+
+2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks): retired.
+
+- This change was made from crash dumps without a matching PDB/Debug-opt build, so its cause was never confirmed; [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) later became the project's first PDB-assisted crash diagnosis.
+- [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) showed that such fixes can carry unintended side effects: KI#103's production-bar guard removed the red no-production city-bar circle for human cities from 5500 on.
+- All the tentative crash fixes from that era were therefore retired together, restoring base AdvCiv 1.14 code so that a recurrence can be caught with a Debug-opt dump and its real trace. [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) lists them in a table.
+- `CvSelectionGroup::clearUnits` again removes units through `deleteUnitNode`, so the normal `setAutomateType`/`clearMissionQueue`/`setActivityType` calls that the direct teardown bypassed run again. The null-node guard in `deleteUnitNode` is removed.
+- Because `clearUnits` reaches `deleteUnitNode` again, `deleteUnitNode`'s [KI#475](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475) pathfinder invalidation now runs only while the finder exists. This keeps KI#475.2's save-loading fix.
 
 <a id="ki-164"></a>
 
@@ -14408,7 +14541,7 @@ Fixed with the help of GPT-5.5 (on Codex) thanks.
 
 <a id="ki-171"></a>
 
-## KI#171 - (Tentatively Addressed and Hardened) Rare T281 crash related to `CvPlot::setLayoutDirty+0x12f3` and `CvPlot::checkLateEra+0x877`
+## KI#171 - (Retired tentative hardening) Rare T281 crash related to `CvPlot::setLayoutDirty+0x12f3` and `CvPlot::checkLateEra+0x877`
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1TsGx1m6ebI_BPdhG_h5TgBusmVVORWFU?usp=sharing).
 
@@ -14425,6 +14558,13 @@ The callback now uses the active player only when valid, otherwise selects the h
 This safely fixes the `NO_PLAYER` bug, but the available evidence does not prove that the bug caused this T281 crash.
 
 Tentatively addressed and hardened with the help of GPT-5.5 (on Codex) thanks.
+
+2026-11-03 follow-up (with the help of Claude code Opus 5.5 thanks): retired.
+
+- This change was made from crash dumps without a matching PDB/Debug-opt build, so its cause was never confirmed; [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) later became the project's first PDB-assisted crash diagnosis.
+- [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) showed that such fixes can carry unintended side effects: KI#103's production-bar guard removed the red no-production city-bar circle for human cities from 5500 on.
+- All the tentative crash fixes from that era were therefore retired together, restoring base AdvCiv 1.14 code so that a recurrence can be caught with a Debug-opt dump and its real trace. [KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136) lists them in a table.
+- The `NO_PLAYER` handling in `CvPlot::checkLateEra` is removed. It handled a case found by reading the code (an unowned plot reading `getActivePlayer()` without checking for `NO_PLAYER`), but it was not shown to cause the T281 crash, so it was retired with the rest and any crash there will now be traced first.
 
 <a id="ki-172"></a>
 

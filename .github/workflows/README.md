@@ -70,6 +70,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/xml_child_duplicates.py`](#buildxmlxml_child_duplicatespy)
     - [`build/xml/xml_redundant_defaults.py`](#buildxmlxml_redundant_defaultspy)
     - [`build/xml/tech_columns.py`](#buildxmltech_columnspy)
+    - [`build/xml/tech_prereqs.py`](#buildxmltech_prereqspy)
     - [`build/xml/wonder_cost_columns.py`](#buildxmlwonder_cost_columnspy)
     - [`build/xml/wonder_culture_gpp_columns.py`](#buildxmlwonder_culture_gpp_columnspy)
     - [`build/xml/asset_tech_prereq_redundancy.py`](#buildxmlasset_tech_prereq_redundancypy)
@@ -106,6 +107,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
+    - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
   - [Python compatibility](#python-compatibility)
     - [`build/python/python24_compile.py`](#buildpythonpython24_compilepy)
 - [Run Locally](#run-locally)
@@ -778,6 +780,12 @@ Add another pattern only after confirming that the shorter representation is acc
 
 Verifies all techs in the same tech-tree column (`iGridX`) share the same core column values, currently `iCost` and `iAsset`; different `iGrid` column rows in the same column are allowed, but same-timing techs should normally have identical research cost and asset/trade valuation.
 
+#### `build/xml/tech_prereqs.py`
+
+Verifies that every `OrPreReqs`/`AndPreReqs` entry in `CIV4TechInfos.xml` names an existing tech in an earlier `iGridX` column, and that the prerequisite graph has no cycle.
+
+- Added after [KI#29](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-29): clicking Transhumanism's box in the tech advisor crashed while placeholder prerequisites were in use, recalled as an impossible or circular dependency. The tree passed this check when it was added.
+
 #### `build/xml/wonder_cost_columns.py`
 
 Verifies normally constructible world wonders unlocked in the same technology-cost tier have the same production cost and that world-wonder costs increase in later, more expensive technology tiers. Multiple visual columns may intentionally share a timing tier when their technologies have the same research cost.
@@ -1162,6 +1170,13 @@ Preview with `python LLM_Helpers/reflow_custom_comments.py --diff`, then use `--
 Verifies runtime Python files do not add raw `getInfoTypeForString(...)` or `CvUtil.findInfoTypeNum(...)` lookups outside strict helper implementations and narrow legacy/dynamic exceptions. Use `getInfoTypeOrFail(...)` or `findInfoTypeNumOrFail(...)` for literal/static XML tag lookups so missing or renamed tags fail loudly.
 
 Python comments and string literals are ignored, so code-generation strings such as those in `savemap.py` are not flagged by this check. This allowed to [find](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27464773794/job/81185039717) this alternative lookup and that it needed an or fail handling too: now fixed.
+
+#### `build/source/custom_comment_indentation.py`
+
+Verifies that no `// <!-- custom:` or `# <!-- custom:` comment in DLL sources, runtime Python or map scripts is indented deeper than both the code line before it and the code line after it.
+
+- A scripted edit once inserted retirement notes two levels too deep in `RiseFall.cpp` and `GroupPathFinder.cpp`; the code still compiled, so only review noticed ([KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136)).
+- Requiring both neighbours to be shallower allows ordinary end-of-block notes, and a comment directly under a block opener (`{`, `:`, `(`, `,`, `\`), including commented-out code, is skipped.
 
 ### Python compatibility
 

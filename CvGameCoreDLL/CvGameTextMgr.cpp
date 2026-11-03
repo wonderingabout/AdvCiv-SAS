@@ -2666,10 +2666,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
 		return false;
 	// advc.048:
 	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
-	// <!-- custom: guard selection list null before AI queries to prevent CvSelectionGroup::plot null deref in combat help. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
-	if (pSelectionList == NULL)
-		return false;
-	// <!-- custom: end guard for selection list null in combat help. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	// <!-- custom: Retired KI#100's null-selection guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#100 and KI#136. (Claude code Opus 4.5 + GPT-5.2-Codex + Claude code Opus 5.5) -->
 	CvSelectionGroupAI const& kSelectionList = pSelectionList->AI();
 	bool bValid = false;
 	switch (kSelectionList.getDomainType())
@@ -5976,8 +5973,8 @@ void CvGameTextMgr::setRevoltHelp(CvWStringBuffer &szString, CvCity const& kCity
 		}
 	}
 	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
-	// <!-- custom: selection list can be null during UI help; avoid iterating and calling CvSelectionGroup::plot indirectly. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
-	if (iExcessStrength != 0 && pSelectedUnit != NULL && pSelectionList != NULL)
+	// <!-- custom: Retired KI#100's null-selection guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#100 and KI#136. (Claude code Opus 4.5 + GPT-5.2-Codex + Claude code Opus 5.5) -->
+	if (iExcessStrength != 0 && pSelectedUnit != NULL)
 	{
 		int iSelected = 0;
 		int iSelectedStrength = 0;
@@ -5999,7 +5996,6 @@ void CvGameTextMgr::setRevoltHelp(CvWStringBuffer &szString, CvCity const& kCity
 					intdiv::uround(iSelectedStrength, 100)));
 		}
 	}
-	// <!-- custom: end guard for selection list null in revolt help strength summary. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
 }
 
 
@@ -21325,10 +21321,7 @@ void CvGameTextMgr::getNukePlotHelp(CvPlot const& kPlot, CvUnit& kNuke, CvWStrin
 void CvGameTextMgr::getAirBombPlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelectedUnit, CvWString& szHelp)
 {
 	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
-	// <!-- custom: guard null selection list so air-bomb help does not call into AI on a missing group. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
-	if (pSelectionList == NULL)
-		return;
-	// <!-- custom: end guard for selection list null in air-bomb help. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	// <!-- custom: Retired KI#100's null-selection guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#100 and KI#136. (Claude code Opus 4.5 + GPT-5.2-Codex + Claude code Opus 5.5) -->
 	CvUnit const* pBestSelectedUnit = pSelectionList->AI().
 			AI_bestUnitForMission(MISSION_AIRBOMB, &kPlot);
 	if (pBestSelectedUnit == NULL || !pBestSelectedUnit->canAirBombAt(kPlot))
@@ -21411,10 +21404,7 @@ void CvGameTextMgr::getAirBombPlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelecte
 void CvGameTextMgr::getAirStrikePlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelectedUnit, CvWString& szHelp)
 {
 	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
-	// <!-- custom: guard null selection list so air-strike help does not query AI on a missing group. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
-	if (pSelectionList == NULL)
-		return;
-	// <!-- custom: end guard for selection list null in air-strike help. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	// <!-- custom: Retired KI#100's null-selection guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#100 and KI#136. (Claude code Opus 4.5 + GPT-5.2-Codex + Claude code Opus 5.5) -->
 	int iOddsDummy=-1;
 	bool const bMaxSurvival = GC.altKey(); // advc.048
 	// Matching the call in CvSelectionGroup::groupAttack
@@ -21430,10 +21420,7 @@ void CvGameTextMgr::getAirStrikePlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelec
 void CvGameTextMgr::getParadropPlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelectedUnit, CvWString& szHelp)
 {
 	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
-	// <!-- custom: guard null selection list so paradrop help does not iterate a missing group. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
-	if (pSelectionList == NULL)
-		return;
-	// <!-- custom: end guard for selection list null in paradrop help. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	// <!-- custom: Retired KI#100's null-selection guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#100 and KI#136. (Claude code Opus 4.5 + GPT-5.2-Codex + Claude code Opus 5.5) -->
 	// <!-- custom: Ask the mission executor for its first target-eligible Paratrooper.
 	// Ranking all selected units by evasion first could retain a moved/ineligible unit and suppress valid interception help. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	CvUnit const* pBestSelectedUnit = pSelectionList->AI().AI_bestUnitForMission(MISSION_PARADROP, &kPlot);

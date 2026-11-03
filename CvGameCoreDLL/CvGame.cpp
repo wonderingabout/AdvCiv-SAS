@@ -3141,33 +3141,29 @@ bool CvGame::isWeakStartingFoodBonus(CvPlot const& kPlot, PlayerTypes eStartPlay
 
 void CvGame::update()
 {
+	// <!-- custom: Retired the KI#102 NO_PLAYER guard and restored base AdvCiv 1.14: a tentative crash fix made without a matching PDB. See KI#102 and KI#136. (Claude code Opus 4.5 + Claude code Opus 5.5) -->
 	startProfilingDLL(false);
 	PROFILE_BEGIN("CvGame::update");
 	// <advc.256> Based on C2C, originally mostly from Rise of Mankind, I think.
-	// <!-- custom: Check for NO_PLAYER to prevent crash during autoplay. See KI#102. (Claude code Opus 4.5) -->
-	PlayerTypes const eActivePlayer = getActivePlayer();
+	CvPlayer const& kActivePlayer = GET_PLAYER(getActivePlayer());
 	int iSuccessiveUpdates = 1;
-	if (eActivePlayer != NO_PLAYER)
+	if (getTurnSlice() > 0) // Wait for BUG initialization
 	{
-		CvPlayer const& kActivePlayer = GET_PLAYER(eActivePlayer);
-		if (getTurnSlice() > 0) // Wait for BUG initialization
-		{
-			// Needs to match the value range set in XML
-			int const iDefaultGraphicsUpdateRate = 12;
-			int iGraphicsUpdateRate = BUGOption::getValue("MainInterface__GraphicsUpdateRate",
-					iDefaultGraphicsUpdateRate);
-			if (iGraphicsUpdateRate <= 0)
-				iSuccessiveUpdates = 128; // Not quite infinite, but a lot in a row.
-			else iSuccessiveUpdates = iDefaultGraphicsUpdateRate / iGraphicsUpdateRate;
-		}
-		if (isGameMultiPlayer() || !kActivePlayer.isAlive())
-			iSuccessiveUpdates = 1;
-		if (kActivePlayer.isTurnActive() &&
-			(!kActivePlayer.isAutoMoves() ||
-			!kActivePlayer.isOption(PLAYEROPTION_QUICK_MOVES)))
-		{
-			iSuccessiveUpdates = 1;
-		}
+		// Needs to match the value range set in XML
+		int const iDefaultGraphicsUpdateRate = 12;
+		int iGraphicsUpdateRate = BUGOption::getValue("MainInterface__GraphicsUpdateRate",
+				iDefaultGraphicsUpdateRate);
+		if (iGraphicsUpdateRate <= 0)
+			iSuccessiveUpdates = 128; // Not quite infinite, but a lot in a row.
+		else iSuccessiveUpdates = iDefaultGraphicsUpdateRate / iGraphicsUpdateRate;
+	}
+	if (isGameMultiPlayer() || !kActivePlayer.isAlive())
+		iSuccessiveUpdates = 1;
+	if (kActivePlayer.isTurnActive() &&
+		(!kActivePlayer.isAutoMoves() ||
+		!kActivePlayer.isOption(PLAYEROPTION_QUICK_MOVES)))
+	{
+		iSuccessiveUpdates = 1;
 	}
 	if (gDLL->GetWorldBuilderMode() && !isInAdvancedStart()) // As in BtS
 		iSuccessiveUpdates = 0;

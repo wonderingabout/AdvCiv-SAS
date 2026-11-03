@@ -4118,25 +4118,11 @@ bool CvSelectionGroup::generatePath(CvPlot const& kFrom, CvPlot const& kTo, Move
 
 void CvSelectionGroup::clearUnits()
 {
-	// <!-- custom: Full group teardown should not repeatedly use deleteUnitNode, setAutomateType, clearMissionQueue, or setActivityType, because those normal single-unit-removal helpers can inspect the head unit, plot, cargo, selection state, and mission callbacks while the unit list is being destroyed.
-	// Directly reset the small group-owned state here, then clear the list once. See KI#163. (ChatGPT-5.5 + GPT-5.5); (commented-out old code for reference). -->
-	// for (CLLNode<IDInfo>* pNode = headUnitNode(); pNode != NULL;
-	// 	pNode = deleteUnitNode(pNode))
-	// {} // advc
-	if (getOwner() != NO_PLAYER)
-	{
-		m->eAutomateType = NO_AUTOMATE;
-		m_missionQueue.clear();
-		m_iMissionTimer = 0;
-		m_eActivityType = ACTIVITY_AWAKE;
-	}
-	m_units.clear();
-	// <!-- custom: Full list clearing also changes every movement-relevant group property.
-	// Invalidate the reusable main finder while it exists; save loading destroys the map-owned static finder before the EXE clears selection groups, and the unconditional KI#475 call caused a reproducible null dereference.
-	// The alternate finder is reset before every execution use; do not reset it during a live groupMove because its caller still consults that execution path afterward. See KI#475 and KI#475.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	if (m_pPathFinder != NULL)
-		pathFinder().invalidateGroup(*this);
-	// <!-- custom: End -->
+	// <!-- custom: Retired KI#163's direct full-teardown reset and restored base AdvCiv 1.14's advc deleteUnitNode loop, without its trailing advc marker: a tentative crash fix made without a matching PDB, and its bypass skipped the normal setAutomateType/clearMissionQueue/setActivityType side effects.
+	// deleteUnitNode now carries KI#475's membership invalidation for each removed unit, including the KI#475.2 save-loading case. See KI#163 and KI#136. (ChatGPT-5.5 + GPT-5.5 + Claude code Opus 5.5) -->
+	for (CLLNode<IDInfo>* pNode = headUnitNode(); pNode != NULL;
+		pNode = deleteUnitNode(pNode))
+	{}
 }
 
 
@@ -4213,13 +4199,7 @@ void CvSelectionGroup::removeUnit(CvUnit* pUnit)
 
 CLLNode<IDInfo>* CvSelectionGroup::deleteUnitNode(CLLNode<IDInfo>* pNode)
 {
-	// <!-- custom: Keep normal single-unit removal behavior, but make this exported helper tolerate an unexpected null node instead of dereferencing it during rare group/unit teardown edge cases. See KI#163. (ChatGPT-5.5 + GPT-5.5) -->
-	if (pNode == NULL)
-	{
-		FAssert(pNode != NULL);
-		return NULL;
-	}
-
+	// <!-- custom: Retired KI#163's null-node guard, restoring base AdvCiv 1.14: a tentative crash fix made without a matching PDB. See KI#163 and KI#136. (ChatGPT-5.5 + GPT-5.5 + Claude code Opus 5.5) -->
 	CLLNode<IDInfo>* pNextUnitNode;
 	if (getOwner() != NO_PLAYER)
 	{
@@ -4243,7 +4223,11 @@ CLLNode<IDInfo>* CvSelectionGroup::deleteUnitNode(CLLNode<IDInfo>* pNode)
 	// <!-- custom: Removing a unit can make previously closed paths legal while the surviving group keeps the same pointer and minimum moves.
 	// Invalidate reusable main-finder state after the actual membership mutation.
 	// Do not reset the alternate finder during a live groupMove because its caller still consults that execution path afterward. See KI#475. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	pathFinder().invalidateGroup(*this);
+	// <!-- custom: clearUnits reaches this call again after KI#163's retirement.
+	// Save loading destroys the map-owned static finder before the EXE clears selection groups, and an unconditional call there caused KI#475.2's reproducible null dereference.
+	// Invalidate only while the finder exists; without it no cached state is left. See KI#475.2. (Claude code Opus 5.5) -->
+	if (m_pPathFinder != NULL)
+		pathFinder().invalidateGroup(*this);
 	return pNextUnitNode;
 }
 

@@ -8745,19 +8745,12 @@ bool CvPlot::shouldDisplayBridge(CvPlot* pToPlot, PlayerTypes ePlayer) const
 
 bool CvPlot::checkLateEra() const
 {
+	// <!-- custom: Retired the KI#171 NO_PLAYER handling and restored base AdvCiv 1.14: added after a crash dump without a matching PDB, and it was not shown to cause that crash. See KI#171 and KI#136. (GPT-5.5 + Claude code Opus 5.5) -->
 	PlayerTypes eBestPlayer = getOwner();
 	if (eBestPlayer == NO_PLAYER)
 	{
-		// <!-- custom: A T281 crash dump pointed to the CvPlot::setLayoutDirty/checkLateEra export region, but later runs did not reproduce the crash and its cause remains unknown.
-		// During review, we found that getCulture was called with getActivePlayer even when it returned NO_PLAYER, and GET_PLAYER could also receive NO_PLAYER below.
-		// Fix that bug by using the active player only when valid and otherwise selecting from alive players; we do not know whether this caused the crash. See KI#171. (GPT-5.5) -->
-		int iBestCulture = -1;
-		PlayerTypes const eActivePlayer = getActivePlayer();
-		if (eActivePlayer != NO_PLAYER)
-		{
-			eBestPlayer = eActivePlayer;
-			iBestCulture = getCulture(eActivePlayer);
-		}
+		eBestPlayer = getActivePlayer();
+		int iBestCulture = getCulture(eBestPlayer);
 		// advc: ALIVE - shouldn't rely on era of dead players
 		for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
 		{
@@ -8769,9 +8762,6 @@ bool CvPlot::checkLateEra() const
 			}
 		}
 	}
-	// <!-- custom: If no valid player exists, report not-late-era rather than indexing NO_PLAYER below. See KI#171. (GPT-5.5) -->
-	if (eBestPlayer == NO_PLAYER)
-		return false;
 	return (GET_PLAYER(eBestPlayer).getCurrentEra() * 2 > GC.getNumEraInfos());
 }
 

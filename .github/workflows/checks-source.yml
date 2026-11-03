@@ -36,3 +36,6 @@ jobs:
 
       - name: Custom-comment logical reflow
         run: python LLM_Helpers/reflow_custom_comments.py --check
+
+      - name: Custom-comment indentation
+        run: python .github/workflows/build/source/custom_comment_indentation.py

@@ -78,6 +78,9 @@ jobs:
       - name: Technology column values
         run: python .github/workflows/build/xml/tech_columns.py
 
+      - name: Technology prerequisites
+        run: python .github/workflows/build/xml/tech_prereqs.py
+
       - name: Wonder costs by technology tier
         run: python .github/workflows/build/xml/wonder_cost_columns.py
 

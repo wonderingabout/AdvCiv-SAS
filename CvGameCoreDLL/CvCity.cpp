@@ -981,14 +981,8 @@ bool CvCity::isCitySelected()
 
 bool CvCity::canBeSelected() const
 {
+	// <!-- custom: Retired the KI#102/KI#162 NO_PLAYER guards and restored base AdvCiv 1.14: they were tentative crash fixes made without a matching PDB, so a recurrence should be traced with a Debug-opt dump instead. See KI#162 and KI#136. (Claude code Opus 4.5 + ChatGPT-5.5 + Claude code Opus 5.5) -->
 	CvGame const& kGame = GC.getGame();
-
-	// <!-- custom: Check for NO_PLAYER before any early selectable-city return.
-	// During autoplay/turn transitions, the EXE can still ask for city UI bars while no active player exists; allowing isActiveTeam/debug/investigate to bypass this guard can re-enter CvCity::getProductionBarPercentages in an unsafe UI state. See KI#162. (Claude code Opus 4.5 + ChatGPT-5.5) -->
-	PlayerTypes const eActivePlayer = kGame.getActivePlayer();
-	if (eActivePlayer == NO_PLAYER)
-		return false;
-	// <!-- custom: End -->
 
 	if (m_bInvestigate || // advc.103
 		isActiveTeam() || kGame.isDebugMode())
@@ -1003,7 +997,7 @@ bool CvCity::canBeSelected() const
 	{
 		if (GC.getInfo(eLoopEspionageMission).isPassive() &&
 			GC.getInfo(eLoopEspionageMission).isInvestigateCity() &&
-			GET_PLAYER(eActivePlayer).canDoEspionageMission(
+			GET_PLAYER(kGame.getActivePlayer()).canDoEspionageMission(
 			eLoopEspionageMission, getOwner(), plot()))
 		{
 			return true;
@@ -8452,13 +8446,7 @@ const CvWString CvCity::getName(uint uiForm) const
 
 void CvCity::setName(const wchar* szNewValue, bool bFound, /* advc.106k: */ bool bInitial)
 {
-	// <!-- custom: Avoid constructing CvWString from an invalid city-name pointer. See KI#161. (ChatGPT-5.5 + GPT-5.5 for quick review of the solution) -->
-	if (szNewValue == NULL || szNewValue[0] == L'\0')
-	{
-		FAssertMsg(false, "Invalid city name");
-		return;
-	}
-
+	// <!-- custom: Retired the KI#161 invalid-name guard and KI#161.2's initial-name shortcuts, restoring base AdvCiv 1.14 validation and past-name recording; they were tentative crash fixes made without a matching PDB. See KI#161.2 and KI#136. (ChatGPT-5.5 + GPT-5.5 + Claude code Opus 5.5) -->
 	CvWString szName(szNewValue);
 	gDLL->stripSpecialCharacters(szName);
 	// K-Mod. stripSpecialCharacters apparently doesn't count '%' as a special character
@@ -8472,19 +8460,15 @@ void CvCity::setName(const wchar* szNewValue, bool bFound, /* advc.106k: */ bool
 
 	if (!szName.empty())
 	{
-		// <!-- custom: Initial/internal city-name assignment already receives a selected city name from getNewCityName or preserves an acquired city name.
-		// Do not run the translated duplicate-name scan in that path; this avoids extra city-name text lookups during city acquisition. See KI#161.2. (ChatGPT-5.5) -->
-		if (bInitial || GET_PLAYER(getOwner()).isCityNameValid(szName, false))
+		if (GET_PLAYER(getOwner()).isCityNameValid(szName, false))
 		{	// <advc.106k>
 			if (bInitial)
 				m_szPreviousName.clear();
 			else if (m_szPreviousName.empty())
 				m_szPreviousName = m_szName; // </advc.106k>
 			// <advc.005c>
-			// <!-- custom: Do not record the temporary placeholder name assigned by CvCity::init as a past city name when acquireCity immediately replaces it with the preserved old-city name.
-			// This also avoids an unnecessary getName text lookup in the city-transfer path. See KI#161.2. (ChatGPT-5.5) -->
 			// <!-- custom: Replace the old getName() call with m_szName below so the past-name registry stores the old raw key/literal as stable identity rather than its current translated display. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-			if (!bInitial && !m_szName.empty())
+			if (!m_szName.empty())
 				GC.getGame().addPastCityName(m_szName); // </advc.005c>
 			m_szName = szName;
 
@@ -12233,81 +12217,23 @@ bool CvCity::getFoodBarPercentages(std::vector<float>& afPercentages) const
 
 bool CvCity::getProductionBarPercentages(std::vector<float>& afPercentages) const
 {
-	// <!-- custom: Two consecutive (but not reproduced besides these two) T281 crash dumps pointed to CvCity::getProductionBarPercentages; the crash and its cause remains unknown.
-	// As tentative hardening, require a valid owner/id and confirm that this is still the city registered in that owner's container before reading production state.
-	// We do not know whether an unregistered city caused either crash. See KI#162.2. (GPT-5.5) -->
-	PlayerTypes const eOwner = getOwner();
-	int const iCityID = getID();
-	if (eOwner < 0 || eOwner >= MAX_PLAYERS || iCityID < 0 || GET_PLAYER(eOwner).getCity(iCityID) != this)
-	{
-		FAssertMsg(false, "Production-bar callback received an unregistered city");
-		return false;
-	}
+	// <!-- custom: Retired the KI#103/KI#162/KI#162.2/KI#162.3 hardening and restored base AdvCiv 1.14.
+	// They were tentative crash fixes made without a matching PDB, and KI#103's empty-queue false removed the red no-production city-bar circle from 5500 on.
+	// Trace a recurrence with a Debug-opt dump instead. See KI#136 and KI#162.3. (GPT-5.2-Codex + Claude code Opus 4.5 + ChatGPT-5.5 + GPT-5.5 + GPT-5.6 Thinking + Claude code Opus 5.5) -->
 	if (!canBeSelected())
 		return false;
 
-	// <!-- custom: Guard against corrupted order data causing out-of-bounds array access. See KI#103. (GPT-5.2-Codex + Claude code Opus 4.5 + GPT-5.6 Thinking) -->
-	CLLNode<OrderData>* pOrderNode = headOrderQueueNode();
-	if (pOrderNode == NULL)
-		return false;
-	OrderTypes const eOrderType = pOrderNode->m_data.eOrderType;
-	int const iData1 = pOrderNode->m_data.iData1;
-	switch (eOrderType)
+	if (!isProductionProcess())
 	{
-	case ORDER_TRAIN:     if (iData1 < 0 || iData1 >= GC.getNumUnitInfos())     return false; break;
-	case ORDER_CONSTRUCT: if (iData1 < 0 || iData1 >= GC.getNumBuildingInfos()) return false; break;
-	case ORDER_CREATE:    if (iData1 < 0 || iData1 >= GC.getNumProjectInfos())  return false; break;
-	case ORDER_MAINTAIN:  return true; // Processes have no production bar
-	default: return false;
+		afPercentages.resize(NUM_INFOBAR_TYPES, 0.0f);
+		int iProductionDiffNoFood = getCurrentProductionDifference(true, true);
+		int iProductionDiffJustFood = getCurrentProductionDifference(false, true)
+				- iProductionDiffNoFood;
+		afPercentages[INFOBAR_STORED] = getProduction() / (float) getProductionNeeded();
+		afPercentages[INFOBAR_RATE] = iProductionDiffNoFood / (float) getProductionNeeded();
+		afPercentages[INFOBAR_RATE_EXTRA] = iProductionDiffJustFood / (float) getProductionNeeded();
 	}
-	// <!-- custom: End - Guard against corrupted order data causing out-of-bounds array access. See KI#103. (GPT-5.2-Codex + Claude code Opus 4.5) -->
 
-	// <!-- custom: Reproducible T259 dumps again hit this callback at +0x522.
-	// KI#162.2's earlier crashes were at +0x4e2 before the owner/city-registration guard above was added; the +0x40 shift strongly suggests the same underlying instruction survived that hardening.
-	// Snapshot the already validated order and use its typed production accessors throughout instead of repeatedly re-reading the queue through isProductionProcess/getCurrentProductionDifference/getProduction.
-	// This keeps one UI callback internally consistent even if a nested cost/Python call re-enters or changes production state; it is a tentative targeted hardening because the dump alone still cannot prove re-entrant queue mutation. See KI#162.3. (ChatGPT-5.5 + GPT-5.6 Thinking) -->
-	int iProductionNeeded = MAX_INT;
-	int iProduction = 0;
-	int iProductionModifier = 0;
-	bool bFoodProduction = false;
-	switch (eOrderType)
-	{
-	case ORDER_TRAIN:
-	{
-		UnitTypes const eUnit = (UnitTypes)iData1;
-		iProductionNeeded = getProductionNeeded(eUnit);
-		iProduction = getUnitProduction(eUnit);
-		iProductionModifier = getProductionModifier(eUnit);
-		bFoodProduction = isFoodProduction(eUnit);
-		break;
-	}
-	case ORDER_CONSTRUCT:
-	{
-		BuildingTypes const eBuilding = (BuildingTypes)iData1;
-		iProductionNeeded = getProductionNeeded(eBuilding);
-		iProduction = getBuildingProduction(eBuilding);
-		iProductionModifier = getProductionModifier(eBuilding);
-		break;
-	}
-	case ORDER_CREATE:
-	{
-		ProjectTypes const eProject = (ProjectTypes)iData1;
-		iProductionNeeded = getProductionNeeded(eProject);
-		iProduction = getProjectProduction(eProject);
-		iProductionModifier = getProductionModifier(eProject);
-		break;
-	}
-	default: return false;
-	}
-	if (iProductionNeeded <= 0 || iProductionNeeded == MAX_INT)
-		return false;
-
-	afPercentages.resize(NUM_INFOBAR_TYPES, 0.0f);
-	int const iProductionDiffNoFood = getProductionDifference(iProductionNeeded, iProduction, iProductionModifier, false, true);
-	int const iProductionDiffJustFood = getProductionDifference(iProductionNeeded, iProduction, iProductionModifier, bFoodProduction, true) - iProductionDiffNoFood;
-	afPercentages[INFOBAR_STORED] = iProduction / (float)iProductionNeeded;
-	afPercentages[INFOBAR_RATE] = iProductionDiffNoFood / (float)iProductionNeeded;
-	afPercentages[INFOBAR_RATE_EXTRA] = iProductionDiffJustFood / (float)iProductionNeeded;
 	return true;
 }
 

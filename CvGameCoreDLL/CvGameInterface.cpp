@@ -425,10 +425,7 @@ void CvGame::updateBlockadedPlots()
 
 void CvGame::updateSelectionList()
 {
-	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
-	if (!isFinalInitialized())
-		return;
-	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
+	// <!-- custom: Retired KI#107's isFinalInitialized guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#107 and KI#136. (Claude code Opus 4.6 + Claude code Opus 5.5) -->
 	CvDLLInterfaceIFaceBase& kUI = gDLL->UI();
 	CvUnit* pHeadSelectedUnit = kUI.getHeadSelectedUnit();
 	// <advc.004k> (Needed for dealing with all units becoming unselected)
@@ -464,10 +461,7 @@ void CvGame::updateSelectionList()
 
 void CvGame::updateTestEndTurn()
 {
-	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
-	if (!isFinalInitialized())
-		return;
-	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
+	// <!-- custom: Retired KI#107's isFinalInitialized guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#107 and KI#136. (Claude code Opus 4.6 + Claude code Opus 5.5) -->
 	if (!GET_PLAYER(getActivePlayer()).isTurnActive())
 		return;
 	// <advc.003g>
@@ -1114,11 +1108,8 @@ void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, 
 bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool bUseCache) const
 {
 	PROFILE_FUNC();
-	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
-	if (!isFinalInitialized())
-		return false;
-	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
 
+	// <!-- custom: Retired KI#107's isFinalInitialized guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#107 and KI#136. (Claude code Opus 4.6 + Claude code Opus 5.5) -->
 	bool const bShift = GC.shiftKey();
 
 	if (GC.getPythonCaller()->cannotHandleActionOverride(pPlot, iAction, bTestVisible))
@@ -1141,10 +1132,6 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool
 		return false;
 	}
 	CvSelectionGroup* pSelectedInterfaceList = gDLL->UI().getSelectionList();
-	// <!-- custom: guard missing selection list so action handling never calls CvSelectionGroup::plot on a null group; crash had null this in CvSelectionGroup::plot. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
-	if (pSelectedInterfaceList == NULL)
-		return false;
-	// <!-- custom: end guard for selection list null in action handling. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
 	if (kAction.getMissionType() != NO_MISSION)
 	{
 		CvPlot* pMissionPlot = NULL;
@@ -1189,20 +1176,14 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool
 
 void CvGame::setupActionCache() const
 {
-	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
-	// <!-- custom: guard missing selection list so setupActionCache does not touch a null group; avoids CvSelectionGroup::plot null deref chain. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
-	if (pSelectionList != NULL)
-		pSelectionList->setupActionCache();
-	// <!-- custom: end guard for selection list null in setupActionCache. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	// <!-- custom: Retired KI#100's null-selection guards here and in this file's action handling, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#100 and KI#136. (Claude code Opus 4.5 + GPT-5.2-Codex + Claude code Opus 5.5) -->
+	gDLL->UI().getSelectionList()->setupActionCache();
 }
 
 
 void CvGame::handleAction(int iAction)
 {
-	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
-	if (!isFinalInitialized())
-		return;
-	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
+	// <!-- custom: Retired KI#107's isFinalInitialized guard, restoring base AdvCiv 1.14: a crash fix made without a matching PDB, so a recurrence should be traced with a Debug-opt dump. See KI#107 and KI#136. (Claude code Opus 4.6 + Claude code Opus 5.5) -->
 	bool const bAlt = GC.altKey();
 	bool const bShift = GC.shiftKey();
 
@@ -1211,10 +1192,8 @@ void CvGame::handleAction(int iAction)
 	CvActionInfo const& kAction = GC.getActionInfo(iAction);
 	if (kAction.getControlType() != NO_CONTROL)
 		doControl((ControlTypes)kAction.getControlType());
-	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
-	// <!-- custom: avoid calling canDoInterfaceMode with a null selection group to prevent CvSelectionGroup::plot null deref. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
-	if (pSelectionList != NULL && gDLL->UI().canDoInterfaceMode(
-		(InterfaceModeTypes)kAction.getInterfaceModeType(), pSelectionList))
+	if (gDLL->UI().canDoInterfaceMode((InterfaceModeTypes)kAction.getInterfaceModeType(),
+		gDLL->UI().getSelectionList()))
 	{
 		CvUnit* pHeadSelectedUnit = gDLL->UI().getHeadSelectedUnit();
 		if (pHeadSelectedUnit != NULL)
@@ -1235,7 +1214,6 @@ void CvGame::handleAction(int iAction)
 		gDLL->UI().setInterfaceMode((InterfaceModeTypes)
 				kAction.getInterfaceModeType());
 	}
-	// <!-- custom: end guard for selection list null in interface-mode handling. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
 	if (kAction.getMissionType() != NO_MISSION)
 	{
 		selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, kAction.getMissionType(),
@@ -2395,12 +2373,7 @@ ColorTypes CvGame::getPlotHighlightColor(CvPlot* pPlot) const
 	case INTERFACEMODE_SAVE_PLOT_NIFS:
 		return eNegativeColor;
 	}
-	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
-	// <!-- custom: return safe highlight color if no selection list to avoid null selection group access during plot highlight. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
-	if (pSelectionList == NULL)
-		return eNegativeColor;
-	// <!-- custom: end guard for selection list null in plot highlight color. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
-	bool bCanDoMode = pSelectionList->
+	bool bCanDoMode = gDLL->UI().getSelectionList()->
 			canDoInterfaceModeAt(gDLL->UI().getInterfaceMode(), pPlot);
 	// <advc.653>
 	if (updateNukeAreaOfEffect(bCanDoMode ? pPlot : NULL))

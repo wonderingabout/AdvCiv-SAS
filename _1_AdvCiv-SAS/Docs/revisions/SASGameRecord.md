@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 189 - SAS practical 6713
 
 - **Date:** 2026-11-03
-- **Git commit:** pending
+- **Git commit:** `73d6eadd51d033b90d48a207b7bdf2d428e92de6`
 - **Change:** City names in `GAME_RECORD_AI_CONQUER_CITY_DECISION` (`city=`), `GAME_RECORD_AI_GREAT_PERSON_DECISION` (`slowCity=`, `tradeTargetCity=`) and `GAME_RECORD_AI_GREAT_GENERAL_DECISION` (`targetCity=`) are quoted through the recorder's shared quoting helper.
   - They were the only SGR fields writing a city name unquoted (`city=Emain Macha` in a T201 Huge run), which split the value into apparent fields.
 

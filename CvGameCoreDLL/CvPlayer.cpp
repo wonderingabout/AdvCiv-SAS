@@ -2217,13 +2217,7 @@ CvWString CvPlayer::getNewCityName() const
 	for (CLLNode<CvWString>* pNode = headCityNameNode();
 		pNode != NULL && szName.empty(); pNode = nextCityNameNode(pNode))
 	{
-		// <!-- custom: Guard against invalid explicit city-name entries before text lookup. See KI#161. (ChatGPT-5.5 + GPT-5.5 for quick review of the solution) -->
-		if (pNode->m_data.empty())
-		{
-			FAssertMsg(false, "Empty explicit city-name key");
-			continue;
-		}
-
+		// <!-- custom: Retired KI#161's empty-entry guard, a tentative crash fix made without a matching PDB; base AdvCiv 1.14 had none. See KI#161 and KI#136. (ChatGPT-5.5 + GPT-5.5 + Claude code Opus 5.5) -->
 		// <!-- custom: Validate the stored city-name key, not its current translation.
 		// The validity helper also compares current display text, preserving manual duplicate-name checks while making past-name identity language-independent. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (isCityNameValid(pNode->m_data, true))
@@ -2258,21 +2252,11 @@ CvWString CvPlayer::getNewCityName() const
 
 void CvPlayer::getCivilizationCityName(CvWString& szBuffer, CivilizationTypes eCivilization) const
 {
-	// <!-- custom: Defensive city-name text lookup hardening after rare heap/string crash signatures. See KI#161. (ChatGPT-5.5) -->
-	if (eCivilization == NO_CIVILIZATION || eCivilization < 0 ||
-		eCivilization >= GC.getNumCivilizationInfos())
-	{
-		FAssertMsg(false, "Invalid civilization type for city-name lookup");
-		return;
-	}
-
+	// <!-- custom: Retired KI#161's invalid-civilization, no-city-name and empty-key guards, restoring base AdvCiv 1.14 behavior: tentative crash fixes made without a matching PDB.
+	// The no-name early return also skipped base's SyncRandNum call.
+	// kCiv and iNumCityNames only cache the inherited repeated lookups. See KI#161 and KI#136. (ChatGPT-5.5 + GPT-5.5 + Claude code Opus 5.5) -->
 	CvCivilizationInfo const& kCiv = GC.getInfo(eCivilization);
 	int const iNumCityNames = kCiv.getNumCityNames();
-	if (iNumCityNames <= 0)
-	{
-		FAssertMsg(false, "Civilization has no city names");
-		return;
-	}
 
 	int iRandOffset=-1;
 	/*if (isBarbarian() || isMinorCiv())
@@ -2290,12 +2274,6 @@ void CvPlayer::getCivilizationCityName(CvWString& szBuffer, CivilizationTypes eC
 	{
 		int const iLoopName = (i + iRandOffset) % iNumCityNames;
 		std::string const szCityNameKey = kCiv.getCityNames(iLoopName);
-		if (szCityNameKey.empty())
-		{
-			FAssertMsg(false, "Empty civilization city-name key");
-			continue;
-		}
-
 		// <!-- custom: Keep the canonical XML text key as the generated-name identity.
 		// Translating before validation made the past/former-city registry language-dependent. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		CvWString const szNameKey(szCityNameKey);

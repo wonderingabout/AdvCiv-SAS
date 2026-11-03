@@ -110,11 +110,8 @@ bool CvDllTranslator::replaceOur(const CvWString& szKey, int iForm, CvWString& s
 
 bool CvDllTranslator::replaceCt(const CvWString& szKey, int iForm, CvWString& szReplacement)
 {
-	// <!-- custom: Check for NO_PLAYER to prevent crash during autoplay. See KI#102. (Claude code Opus 4.5) -->
-	PlayerTypes const eActivePlayer = GC.getGame().getActivePlayer();
-	if (eActivePlayer == NO_PLAYER)
-		return false;
-	CvPlayer const& kPlayer = GET_PLAYER(eActivePlayer);
+	// <!-- custom: Retired the KI#102 NO_PLAYER guard and restored base AdvCiv 1.14: a tentative crash fix made without a matching PDB. See KI#102 and KI#136. (Claude code Opus 4.5 + Claude code Opus 5.5) -->
+	CvPlayer const& kPlayer = GET_PLAYER(GC.getGame().getActivePlayer());
 	if (szKey == L"[CT_NAME")
 	{
 		szReplacement = kPlayer.getName(iForm);
